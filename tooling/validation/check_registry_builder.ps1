@@ -28,13 +28,14 @@ Write-Host "Registry Builder governance validation"
 
 # Locate Python 3 runner
 $pyCmd = $null
-$pyTestCommands = @("py -3", "python")
+$pyTestCommands = @("python", "python3", "py -3")
 foreach ($cmd in $pyTestCommands) {
   try {
     $testArgs = $cmd -split " "
     $exe = $testArgs[0]
-    $args = $testArgs[1..($testArgs.Length-1)]
-    $versionArgs = $args + @("--version")
+    $versionArgs = @()
+    if ($testArgs.Count -gt 1) { $versionArgs += $testArgs[1..($testArgs.Count - 1)] }
+    $versionArgs += "--version"
     $output = & $exe $versionArgs 2>&1 | Out-String
     if ($LASTEXITCODE -eq 0 -and $output -match "Python 3") {
       $pyCmd = $cmd
@@ -72,7 +73,9 @@ $builderArgs = @($builderScript, "--out-dir", $outDir)
 if ($Strict) { $builderArgs += "--strict" }
 $cmdParts = $pyCmd -split " "
 $exe = $cmdParts[0]
-$pyArgs = $cmdParts[1..($cmdParts.Length-1)] + $builderArgs
+$extraArgs = @()
+if ($cmdParts.Count -gt 1) { $extraArgs = $cmdParts[1..($cmdParts.Count - 1)] }
+$pyArgs = $extraArgs + $builderArgs
 
 Write-Host "Running: $pyCmd $($builderArgs -join ' ')" -ForegroundColor Gray
 & $exe $pyArgs

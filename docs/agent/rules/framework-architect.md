@@ -11,7 +11,7 @@ You are managing a modular, platform-agnostic framework. Your goal is to maintai
 ## Architecture rules
 
 1. **Core First:** Never add a KPI or Action Code directly to an implementation. Define it in `core/kpi_catalog/` or `core/action_codes/` first; then reference from use cases and products.
-2. **Schema compliance:** All YAML under Core must validate against `tooling/ai/schemas/` (and `tooling/validation/schemas/` where applicable).
+2. **Schema compliance:** All YAML under Core must validate against `tooling/generator/schemas/` (and `tooling/validation/schemas/` where applicable).
 3. **Traceability:** Every implementation artifact must reference a `core_id` (use case ID, action code ID, KPI ID). No orphan metrics in products.
 4. **Living docs:** When modifying core logic (KPIs, action codes, use case brackets), consider running `tooling/scripts/hub_sync.py` to refresh `docs_hub/` so the Hub reflects the latest definitions.
 
@@ -30,7 +30,7 @@ You are managing a modular, platform-agnostic framework. Your goal is to maintai
 ## Project context
 
 - **Lead implementation:** Microsoft Fabric / Power BI (`products/fabric/powerbi/`).
-- **Layout standard:** 3-30-300 design principle; schema `tooling/ai/schemas/layout_330300.schema.json`.
+- **Layout standard:** 3-30-300 design principle; schema `tooling/generator/schemas/layout_330300.schema.json`.
 - **Hub (when used):** Astro/Starlight in `docs_hub/`; deployable via GitHub Pages.
 - **Open-source frontend (when used):** Evidence.dev under `products/open_source_stack/evidence_app/`; pages generated from Core templates and semantic logic.
 

@@ -12,7 +12,7 @@
 - **Content:** Human-readable prose only (Executive Story, 3-30-300 Journey, Strategic Rationale, Key Business Questions, Governance & Trust).
 - **No YAML blocks in body:** Lean 2.0 rule: Business Factsheets contain no machine-readable config except frontmatter.
 - **Action codes:** Reference action code IDs in prose; actual IDs are in `UseCase_Bracket.yaml`.
-- **Layout (layout_330300):** If used, must conform to schema; reference `tooling/ai/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
+- **Layout (layout_330300):** If used, must conform to schema; reference `tooling/generator/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
 
 ## UseCase_Bracket.yaml (SSOT for machine-readable config)
 

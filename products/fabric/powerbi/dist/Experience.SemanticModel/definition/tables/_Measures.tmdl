@@ -9,6 +9,30 @@ table _Measures
 			in
 				Source
 
+	/// enterprise.actions_executed.count - Actions Executed Count
+	/// Number of action codes with a recorded outcome in fact_action_outcome.
+	measure 'Actions Executed Count' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
+		formatString: #,0
+		displayFolder: "8_Action_Outcomes"
+
+	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
+	/// Percentage of executed actions with a confirmed achieved outcome.
+	measure 'Action Outcome Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
+		formatString: 0.0%
+		displayFolder: "8_Action_Outcomes"
+
+	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
+	/// Average days between action execution and outcome confirmation.
+	measure 'Avg Time-to-Outcome Days' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
+		formatString: #,0.0
+		displayFolder: "8_Action_Outcomes"
+
+	/// enterprise.action_roi.pct - Action ROI %
+	/// Average ROI of executed actions: total impact value / total execution cost - 1.
+	measure 'Action ROI %' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
+		formatString: 0.0%
+		displayFolder: "8_Action_Outcomes"
+
 	column Column1
 		dataType: string
 		sourceColumn: Column1
@@ -56,7 +80,7 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// NPS Index - svc.nps.index
+	/// NPS Index - crm.nps.index
 	/// Measures customer advocacy and experience quality.
 	measure 'NPS Index' =
 		VAR Promoters =
@@ -238,7 +262,8 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Revenue at Risk Amount - weighted sales exposure from OTIF failures and quality defects
+	/// Revenue at Risk Amount - crm.revenue_at_risk.amount
+	/// Net Sales Amount weighted by average of OTIF failure rate and First Pass Yield failure rate.
 	measure 'Revenue at Risk Amount' =
 		VAR OTIFFailureRate =
 			1 - [Ops OTIF %]

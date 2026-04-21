@@ -82,7 +82,7 @@ Structured summary of action codes (definitions remain in YAML).
 - Churned Customers Count  
 - Revenue at Risk Amount  
 - Active Customers Count  
-- NPS Score  
+- NPS Index  
 - Customer Complaints Count  
 
 ### 5.2 30-Second Layer (Main Visuals)

@@ -10,7 +10,7 @@ Use cases and reports **reference** governed definitions — they do not define 
 | Action logic | `core/action_codes/` |
 | Semantic model conventions | `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md` |
 | Page templates | `core/templates/page_templates/` |
-| Schema authority | `tooling/ai/schemas/` |
+| Schema authority | `tooling/generator/schemas/` |
 
 ---
 
@@ -26,7 +26,7 @@ Use cases and reports **reference** governed definitions — they do not define 
 ## Framework (KPI Catalog, Action Codes, Templates)
 
 - Respect KPI catalog schema — see `core/kpi_catalog/` and `core/templates/kpi_catalog_templates/`.
-- Action code YAML must follow `core/templates/action_codes/` and `tooling/ai/schemas/action_code.schema.json`. All `kpi_id` values must exist in the KPI catalog.
+- Action code YAML must follow `core/templates/action_codes/` and `tooling/generator/schemas/action_code.schema.json`. All `kpi_id` values must exist in the KPI catalog.
 
 ---
 
@@ -41,7 +41,6 @@ Run all scripts from the **repository root**.
 | Stage 1 (required before commit) | `.\tooling\run_stage1_checks.ps1` |
 | Fabric / Power BI validation | `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` |
 | Full suite | `.\tooling\run_all_checks.ps1` |
-| Sync evidence grain to factsheet | `.\tooling\maintenance\sync_evidence_grain_note_to_factsheet.ps1` |
 | Full model generation | `.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1` |
 
 **Python / Shell (Linux / macOS / CI):**

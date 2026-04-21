@@ -1,0 +1,157 @@
+Param(
+  [string]$Root = ".",
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal/archive","internal/reviews","products/fabric/powerbi/dist"),
+  # Link targets that are generated (e.g. gitignored) and not present in CI; do not report as broken.
+  [string[]]$AllowedMissingTargets = @("PROJECT_SNAPSHOT.md", "project_mgmt/PROJECT_SNAPSHOT.md", "internal/project_mgmt/PROJECT_SNAPSHOT.md")
+)
+
+$ErrorActionPreference = "Stop"
+
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path   # .../tooling/maintenance
+$toolsRoot  = Split-Path -Parent $scriptRoot                    # .../tooling
+$repoRoot   = Split-Path -Parent $toolsRoot                     # repo root (fallback for Resolve-RepoPath)
+
+$items = @(
+  @{ Path = "core/strategy_operating_model/README.md";                                    Kind = "file"; Description = "Docs overview" },
+  @{ Path = "core/strategy_operating_model/company/company_strategy.md";                  Kind = "file"; Description = "Business Strategy / Strategic KPIs / Alignment Map (canonical)" },
+  @{ Path = "core/strategy_operating_model/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
+  @{ Path = "core/strategy_operating_model/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
+  @{ Path = "core/usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
+  @{ Path = "core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml"; Kind = "file"; Description = "Use Case bracket (SSOT) template" },
+  @{ Path = "core/usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
+  @{ Path = "core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"; Kind = "file"; Description = "KPI Catalog Schema (canonical)" },
+  @{ Path = "core/kpi_catalog/README.md";                   Kind = "file"; Description = "KPI Catalog overview" },
+  @{ Path = "tooling/run_all_checks.ps1";                Kind = "file"; Description = "Run all checks script" },
+  @{ Path = "tooling/generation/new_usecase.ps1";        Kind = "file"; Description = "New usecase helper" },
+  @{ Path = "tooling/generation/generate_tmdl_measures.ps1"; Kind = "file"; Description = "TMDL measures generator" },
+  @{ Path = "tooling/generation/generate_semantic_model_from_blueprint.ps1"; Kind = "file"; Description = "Semantic model blueprint generator" }
+)
+
+$missing = @()
+
+function Is-ExcludedPath {
+  param([string]$Path,[string[]]$Exclude)
+  $normPath = $Path.ToLowerInvariant().Replace('/', '\')
+  foreach ($dir in $Exclude) {
+    $normDir = "\" + ($dir.ToLowerInvariant().Replace('/', '\').Trim('\','/')) + "\"
+    if ($normPath.Contains($normDir)) { return $true }
+  }
+  return $false
+}
+
+function Resolve-RepoPath {
+  param([string]$ProvidedPath,[string]$DefaultRelative)
+  if ($ProvidedPath) {
+    if (Test-Path $ProvidedPath) { return (Resolve-Path -Path $ProvidedPath).Path }
+    $candidate = Join-Path -Path $repoRoot -ChildPath $ProvidedPath
+    if (Test-Path $candidate) { return (Resolve-Path -Path $candidate).Path }
+  }
+  if ($DefaultRelative) {
+    $fallback = Join-Path -Path $repoRoot -ChildPath $DefaultRelative
+    if (Test-Path $fallback) { return (Resolve-Path -Path $fallback).Path }
+  }
+  return $null
+}
+
+function Test-RelativePath {
+  param([string]$BasePath,[string]$Target)
+  if (-not $Target) { return $true }
+  if ($Target -match '\{\{.+\}\}') { return $true }
+  if ($Target -match '^(https?://|mailto:|#)') { return $true }
+  $clean = $Target.Split('#')[0].Trim().TrimEnd('/').TrimEnd('\')
+  if (-not $clean) { return $true }
+  $full = [System.IO.Path]::GetFullPath((Join-Path -Path (Split-Path -Parent $BasePath) -ChildPath $clean))
+  if (Test-Path -LiteralPath $full) { return $true }
+  $repoRelative = Join-Path -Path $repoRoot -ChildPath $clean
+  return (Test-Path -LiteralPath $repoRelative)
+}
+
+function Test-IsAllowedMissingTarget {
+  param([string]$Target,[string[]]$AllowedMissingTargets)
+  $norm = $Target.Replace('\', '/').Trim().TrimEnd('/')
+  $leaf = Split-Path -Leaf $norm
+  if ($AllowedMissingTargets -contains $norm -or $AllowedMissingTargets -contains $leaf) { return $true }
+  if ($leaf -eq 'PROJECT_SNAPSHOT.md') { return $true }
+  return $false
+}
+
+function Get-MarkdownLinks {
+  param([string]$Content)
+  $links = @()
+  foreach ($m in [regex]::Matches($Content, '\[[^\]]*\]\(([^)]+)\)')) {
+    $links += $m.Groups[1].Value.Trim()
+  }
+  return $links
+}
+
+function Get-YamlPathRefs {
+  param([string]$Content)
+  $refs = @()
+  foreach ($line in ($Content -split "\r?\n")) {
+    if ($line -match '^\s*([A-Za-z0-9_]+_path)\s*:\s*"?([^"\s#]+)"?\s*$') {
+      $value = $matches[2]
+      if (-not $value) { continue }
+      if ($value -match '^(null|~)$') { continue }
+      $refs += $value
+    }
+  }
+  return $refs
+}
+
+$rootPath = Resolve-RepoPath -ProvidedPath $Root -DefaultRelative "."
+if (-not $rootPath) { throw "Root path not found." }
+
+Write-Host "Checking documentation and tooling references..." -ForegroundColor Cyan
+foreach ($item in $items) {
+  $full = Join-Path -Path $rootPath -ChildPath $item.Path
+  $exists = Test-Path -LiteralPath $full
+  if ($exists) {
+    Write-Host ("  OK   {0} ({1})" -f $item.Path, $item.Description) -ForegroundColor DarkGreen
+  } else {
+    Write-Host ("  MISS {0} ({1})" -f $item.Path, $item.Description) -ForegroundColor Red
+    $missing += $item
+  }
+}
+
+$brokenRefs = @()
+
+Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
+  ($_.Extension -in @(".md",".yaml",".yml")) -and -not (Is-ExcludedPath -Path $_.FullName -Exclude $ExcludeDirs)
+} | ForEach-Object {
+  $content = Get-Content -Raw -Path $_.FullName
+  if ($_.Extension -eq ".md") {
+    foreach ($link in (Get-MarkdownLinks -Content $content)) {
+      $target = $link.Split('#')[0].Trim().Replace('\', '/')
+      if (-not (Test-RelativePath -BasePath $_.FullName -Target $link)) {
+        if (-not (Test-IsAllowedMissingTarget -Target $target -AllowedMissingTargets $AllowedMissingTargets)) {
+          $brokenRefs += "$($_.FullName): $link"
+        }
+      }
+    }
+  } else {
+    foreach ($ref in (Get-YamlPathRefs -Content $content)) {
+      $target = $ref.Replace('\', '/')
+      if (-not (Test-RelativePath -BasePath $_.FullName -Target $ref)) {
+        if (-not (Test-IsAllowedMissingTarget -Target $target -AllowedMissingTargets $AllowedMissingTargets)) {
+          $brokenRefs += "$($_.FullName): $ref"
+        }
+      }
+    }
+  }
+}
+
+if ($missing.Count -gt 0) {
+  Write-Host ""
+  Write-Host "Documentation/tooling references out of sync. See missing items above." -ForegroundColor Red
+  exit 1
+}
+
+if ($brokenRefs.Count -gt 0) {
+  Write-Host ""
+  Write-Host "Broken relative references detected:" -ForegroundColor Red
+  $brokenRefs | Sort-Object | ForEach-Object { Write-Host "  - $_" }
+  exit 1
+}
+
+Write-Host ""
+Write-Host "Documentation and tooling references look consistent." -ForegroundColor Green

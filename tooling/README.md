@@ -122,28 +122,23 @@ Legacy migration script (factsheets to brackets): see `internal/archive/lean2_cu
 
 ---
 
-## 5. generation/
+## 5. generator/ (consolidated)
 
-**Purpose:** Generate or update measures & scaffolding.
+**Purpose:** All code generation — measures, model scaffolding, use case setup, agent tooling, and JSON schemas.
 
 **Contains:**
-- `generate_tmdl_measures.ps1`, `generate_measures.ps1`, `generate_all_measures.ps1`
-- `new_usecase.ps1`
+- `generate_tmdl_measures.ps1` — TMDL measures from KPI catalog / IR
+- `generate_semantic_model_from_blueprint.ps1` — model scaffold from blueprint
+- `new_usecase.ps1` — use case scaffolding
+- `generate_tool_configs.py` — agent tool config generator
+- `check_skill_versions.py` — skill version checker
+- `schemas/` — JSON schemas for factsheets, brackets, action codes, layout, data contracts
+- `prompts/` — agent prompt templates
+- `graph/` — knowledge graph (graph.json)
 
 ---
 
-## 6. maintenance/
-
-**Purpose:** Support long-term evolution, migration, and doc consistency.
-
-**Contains:**
-- `check_docs_refs.ps1` — validate doc cross-references
-- `convert_kpi_catalogs.py`, `normalize_kpi_catalogs.ps1`
-- `migrate_action_codes_v2.py` — Action Code v1.1 -> v2.0 migration
-
----
-
-## 7. alignment/
+## 6. alignment/
 
 **Purpose:** Generate strategic alignment maps (KPIs -> Use Cases -> Action Codes -> Page Templates).
 
@@ -151,11 +146,15 @@ Legacy migration script (factsheets to brackets): see `internal/archive/lean2_cu
 
 ---
 
-## 8. ai/ (Agent Schemas)
+## 7. ai/ (Archived)
 
-**Purpose:** JSON schemas consumed by AI/agent tooling.
+Merged into `generator/`. See `internal/archive/phase2_experiments/` for legacy maintenance scripts.
 
-**Policy:** `ai/schemas/` is a **mirror** of `validation/schemas/`. The canonical source is `validation/schemas/`. To avoid drift:
+Note: `validation/schemas/` may still hold copies; prefer `generator/schemas/` as the canonical source.
+
+---
+
+## 8. generator_core/ (Python IR framework)
 - Edit schemas only in `validation/schemas/`.
 - After any schema change, copy the updated file to `ai/schemas/` (or run a future sync script).
 - Stage 1 schema validation runs against `validation/schemas/`.

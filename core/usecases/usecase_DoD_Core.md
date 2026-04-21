@@ -48,7 +48,7 @@ A core use case’s **Business Factsheet** is considered done when:
 A core use case’s **UseCase_Bracket.yaml** is considered done when:
 
 - The file `core/usecases/core/<UC-ID>_*/UseCase_Bracket.yaml`:
-  - Follows the schema in `tooling/ai/schemas/usecase_bracket.schema.json`.
+  - Follows the schema in `tooling/generator/schemas/usecase_bracket.schema.json`.
   - Passes validation via `check_schema_validation.ps1`.
 - The following content is complete and consistent:
   - **Model References**:
@@ -81,8 +81,8 @@ For a core use case to be build-ready:
 - If `_Measures.tmdl` files exist for the use case:
   - `products/fabric/powerbi/tooling/validation/check_measures_vs_kpi.ps1` passes without missing KPI references.
 - AI schemas for business factsheet and use case bracket:
-  - `tooling/ai/schemas/business_factsheet_v1_2.schema.json`
-  - `tooling/ai/schemas/usecase_bracket.schema.json`  
+  - `tooling/generator/schemas/business_factsheet_v1_2.schema.json`
+  - `tooling/generator/schemas/usecase_bracket.schema.json`  
   are aligned with the current templates.
 
 ## 6. Build-Ready Status

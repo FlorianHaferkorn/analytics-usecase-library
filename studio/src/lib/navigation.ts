@@ -9,61 +9,48 @@ export interface NavItem {
   color: string;
 }
 
-export const NAV_ITEMS: readonly NavItem[] = [
+export type NavMode = 'forge' | 'registry';
+
+/** Forge — create, compose, generate use cases and reports. */
+export const FORGE_NAV: readonly NavItem[] = [
   {
-    href: '/discovery',
-    label: 'Discovery Hub',
+    href: '/discover',
+    label: 'Discover',
     description: 'Extract strategy anchors from business reports and research',
     icon: 'D',
     sidebarIcon: 'magnifying-glass',
     color: 'var(--mint)',
   },
   {
-    href: '/steering',
-    label: 'Steering Hub',
+    href: '/blueprint',
+    label: 'Blueprint',
     description: 'Visualize and edit the Golden Thread: Strategy to Action',
-    icon: 'S',
+    icon: 'B',
     sidebarIcon: 'tree-structure',
     color: 'var(--mint)',
   },
   {
-    href: '/registry',
-    label: 'Registry',
-    description: 'Manage the SSOT KPI catalog and action code library',
-    icon: 'R',
-    sidebarIcon: 'clipboard-text',
-    color: 'var(--info)',
-  },
-  {
-    href: '/lineage',
-    label: 'Data & Lineage',
-    description: 'Explore data contracts and KPI lineage graphs',
-    icon: 'L',
-    sidebarIcon: 'link',
-    color: 'var(--info)',
-  },
-  {
-    href: '/simulator',
-    label: 'Simulator',
+    href: '/compose',
+    label: 'Compose',
     description: 'What-if scenario modeling with value driver formulas',
-    icon: 'W',
+    icon: 'C',
     sidebarIcon: 'lightning',
     color: 'var(--gold)',
   },
   {
-    href: '/brand-lab',
-    label: 'Brand & UX Lab',
-    description: 'Define themes, layouts, and preview 3-30-300 report pages',
-    icon: 'B',
-    sidebarIcon: 'paint-brush',
+    href: '/generate',
+    label: 'Generate',
+    description: 'Export to Fabric/Power BI, SQL, or Evidence.dev',
+    icon: 'G',
+    sidebarIcon: 'rocket-launch',
     color: 'var(--gold)',
   },
   {
-    href: '/delivery',
-    label: 'Delivery',
-    description: 'Export to Fabric/Power BI, SQL, or Evidence.dev',
-    icon: 'X',
-    sidebarIcon: 'rocket-launch',
+    href: '/brand',
+    label: 'Brand & UX Lab',
+    description: 'Define themes, layouts, and preview 3-30-300 report pages',
+    icon: 'U',
+    sidebarIcon: 'paint-brush',
     color: 'var(--gold)',
   },
   {
@@ -75,6 +62,59 @@ export const NAV_ITEMS: readonly NavItem[] = [
     color: 'var(--slate-400)',
   },
 ] as const;
+
+/** Registry — govern, audit, and approve governed assets. */
+export const REGISTRY_NAV: readonly NavItem[] = [
+  {
+    href: '/catalog',
+    label: 'Catalog',
+    description: 'Manage the SSOT KPI catalog and action code library',
+    icon: 'R',
+    sidebarIcon: 'clipboard-text',
+    color: 'var(--info)',
+  },
+  {
+    href: '/lineage',
+    label: 'Lineage',
+    description: 'Explore data contracts and KPI lineage graphs',
+    icon: 'L',
+    sidebarIcon: 'link',
+    color: 'var(--info)',
+  },
+  {
+    href: '/drift',
+    label: 'Drift',
+    description: 'Catalog↔TMDL drift report — zero rows means green main',
+    icon: 'Δ',
+    sidebarIcon: 'warning',
+    color: 'var(--warning)',
+  },
+  {
+    href: '/health',
+    label: 'Health',
+    description: 'Framework health scorecard (H1–H6 metrics)',
+    icon: 'H',
+    sidebarIcon: 'heart',
+    color: 'var(--success)',
+  },
+  {
+    href: '/approvals',
+    label: 'Approvals',
+    description: 'Governance approval queue for bracket lifecycle changes',
+    icon: 'A',
+    sidebarIcon: 'check-circle',
+    color: 'var(--info)',
+  },
+] as const;
+
+/** Combined list used by legacy code — new code should prefer FORGE_NAV / REGISTRY_NAV. */
+export const NAV_ITEMS: readonly NavItem[] = [...FORGE_NAV, ...REGISTRY_NAV] as const;
+
+/** Detect navigation mode from current pathname. */
+export function getNavMode(pathname: string): NavMode {
+  const registryPaths = REGISTRY_NAV.map((i) => i.href);
+  return registryPaths.some((p) => pathname.startsWith(p)) ? 'registry' : 'forge';
+}
 
 /** Get page title for a given pathname. */
 export function getPageTitle(pathname: string): string {

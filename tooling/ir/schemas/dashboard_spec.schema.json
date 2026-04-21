@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://analytics-usecase-library/schemas/dashboard_spec.schema.json",
+  "title": "DashboardSpec",
+  "description": "Tool-agnostic intermediate representation for one use case's reports and semantic model. All adapters (PBIP, Metabase, Grafana, Superset) consume this object.",
+  "type": "object",
+  "required": ["use_case_id", "domain", "title"],
+  "additionalProperties": false,
+  "properties": {
+    "use_case_id":       { "type": "string", "description": "Use case identifier, e.g. COM-001" },
+    "domain":            { "type": "string", "description": "Domain name, e.g. Commercial" },
+    "title":             { "type": "string" },
+    "semantic_model":    { "type": "string", "description": "Target model name, e.g. Commercial.SemanticModel" },
+    "source_bracket":    { "type": "string", "description": "Path to source UseCase_Bracket.yaml" },
+    "target_adapter":    { "type": "string", "enum": ["pbip", "metabase", "grafana", "superset", "redash"] },
+    "generated_at":      { "type": "string" },
+    "generator_version": { "type": "string" },
+    "pages": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/PageSpec" }
+    },
+    "measures": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/MeasureSpec" }
+    },
+    "evidence_table": {
+      "oneOf": [{ "$ref": "#/$defs/EvidenceTableSpec" }, { "type": "null" }]
+    },
+    "action_panel": {
+      "oneOf": [{ "$ref": "#/$defs/ActionPanelSpec" }, { "type": "null" }]
+    }
+  },
+  "$defs": {
+    "Position": {
+      "type": "object",
+      "description": "Canvas-fraction position (0.0–1.0 on each axis).",
+      "additionalProperties": false,
+      "properties": {
+        "x":      { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "y":      { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "width":  { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "height": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+    "Binding": {
+      "type": "object",
+      "description": "Data binding for a visual — measure/column names resolved by the adapter.",
+      "additionalProperties": false,
+      "properties": {
+        "measure":       { "type": ["string", "null"] },
+        "measures":      { "type": "array", "items": { "type": "string" } },
+        "category":      { "type": ["string", "null"] },
+        "series":        { "type": ["string", "null"] },
+        "columns":       { "type": "array", "items": { "type": "string" } },
+        "filter_table":  { "type": ["string", "null"] },
+        "filter_column": { "type": ["string", "null"] },
+        "sort_by":       { "type": ["string", "null"] },
+        "top_n":         { "type": ["integer", "null"] }
+      }
+    },
+    "VisualSpec": {
+      "type": "object",
+      "description": "One visual on a report page.",
+      "required": ["id", "visual_type", "page_role", "position", "binding"],
+      "additionalProperties": false,
+      "properties": {
+        "id":             { "type": "string", "description": "Slot ID: KPI_Cards, Main_1, ActionPanel, …" },
+        "visual_type":    { "type": "string", "enum": ["kpi_card", "trend_line", "bar_chart", "waterfall", "scatter", "matrix", "table", "slicer", "smart_narrative", "action_panel", "text_box"] },
+        "page_role":      { "type": "string", "enum": ["overview", "detail"] },
+        "position":       { "$ref": "#/$defs/Position" },
+        "binding":        { "$ref": "#/$defs/Binding" },
+        "title":          { "type": ["string", "null"] },
+        "config":         { "type": "object", "additionalProperties": true },
+        "kpi_id":         { "type": ["string", "null"] },
+        "action_code_id": { "type": ["string", "null"] }
+      }
+    },
+    "PageSpec": {
+      "type": "object",
+      "description": "One report page (Overview or Detail).",
+      "required": ["id", "display_name", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "id":           { "type": "string" },
+        "display_name": { "type": "string" },
+        "role":         { "type": "string", "enum": ["overview", "detail"] },
+        "page_type":    { "type": "string", "enum": ["T1", "T2", "T3", "T4"] },
+        "visuals":      { "type": "array", "items": { "$ref": "#/$defs/VisualSpec" } },
+        "order":        { "type": "integer" }
+      }
+    },
+    "MeasureSpec": {
+      "type": "object",
+      "description": "One DAX measure in the semantic model.",
+      "required": ["kpi_id", "name", "dax"],
+      "additionalProperties": false,
+      "properties": {
+        "kpi_id":        { "type": "string" },
+        "name":          { "type": "string" },
+        "dax":           { "type": "string" },
+        "format_string": { "type": "string", "default": "#,0" },
+        "display_folder":{ "type": "string", "default": "" },
+        "is_hidden":     { "type": "boolean", "default": false },
+        "description":   { "type": ["string", "null"] },
+        "annotations":   { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "EvidenceTableSpec": {
+      "type": "object",
+      "description": "Detail-page matrix configuration.",
+      "required": ["grain"],
+      "additionalProperties": false,
+      "properties": {
+        "grain":     { "type": "string" },
+        "columns":   { "type": "array", "items": { "type": "string" } },
+        "measures":  { "type": "array", "items": { "type": "string" } },
+        "sort_by":   { "type": ["string", "null"] },
+        "limit":     { "type": "integer", "default": 500 },
+        "data_bars": { "type": "boolean", "default": false }
+      }
+    },
+    "ActionPanelSpec": {
+      "type": "object",
+      "description": "Action panel text configuration.",
+      "additionalProperties": false,
+      "properties": {
+        "enabled":         { "type": "boolean", "default": false },
+        "action_code_ids": { "type": "array", "items": { "type": "string" } },
+        "payload_mode":    { "type": "string", "enum": ["full", "summary", "minimal"], "default": "full" },
+        "title":           { "type": "string", "default": "Recommended Actions" },
+        "rendered_text":   { "type": ["string", "null"] }
+      }
+    }
+  }
+}

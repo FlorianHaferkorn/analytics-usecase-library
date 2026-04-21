@@ -23,7 +23,7 @@ Grid translation (from OSS_Connector_Guide.md):
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from tooling.generator_core.adapters.base import GeneratorAdapter, RenderResult
 from tooling.generator_core.ir.specs import (
@@ -165,6 +165,27 @@ class MetabaseAdapter(GeneratorAdapter):
         if not spec.detail_page():
             errors.append("IR missing Detail page")
         return errors
+
+    def deploy(
+        self,
+        result: RenderResult,
+        target_url: str,
+        credentials: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """Deploy dashboard.json to a live Metabase instance via POST /api/dashboard/import."""
+        import urllib.request
+        token = (credentials or {}).get("token", "")
+        if not token:
+            raise ValueError("deploy() requires credentials={'token': '<session_token>'}")
+        content = result.files.get("dashboard.json", b"")
+        req = urllib.request.Request(
+            f"{target_url.rstrip('/')}/api/dashboard/import",
+            data=content,
+            headers={"Content-Type": "application/json", "X-Metabase-Session": token},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.status in (200, 201, 202)
 
     def render(self, spec: DashboardSpec) -> RenderResult:
         """

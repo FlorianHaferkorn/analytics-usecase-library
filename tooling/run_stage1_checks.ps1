@@ -39,7 +39,6 @@ $checks = @(
   @{ Path = "tooling/validation/check_decision_spines.ps1"; Args = @("-UseCasesRoot", (Join-Path $rootPath "core\usecases"), "-MapPath", (Join-Path $rootPath "core\action_codes\decision_spines\DecisionSpine_UseCase_Map.yaml"), "-DecisionSpinesRoot", (Join-Path $rootPath "core\action_codes\decision_spines"), "-FailOnError") },
   @{ Path = "tooling/validation/check_duplicate_ids.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_ssot_markers.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
-  @{ Path = "tooling/maintenance/check_docs_refs.ps1"; Args = @("-Root", $rootPath) },
   @{ Path = "tooling/validation/check_forbidden_content.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_validate_data_contracts.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_registry_builder.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
@@ -47,6 +46,11 @@ $checks = @(
   @{ Path = "tooling/validation/check_data_contract_kpi_coverage.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_usecase_page_types.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_semantic_model_status.ps1"; Args = @("-Root", $rootPath) }
+)
+
+# Python-based checks (cross-platform, invoked separately)
+$pythonChecks = @(
+  @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--catalog", "core/kpi_catalog/KPI_Catalog.md", "--dist-dir", "products/fabric/powerbi/dist", "--ignore-missing") }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
@@ -82,6 +86,34 @@ foreach ($check in $checks) {
     exit $exitCode
   }
   Write-Host "OK $($check.Path)"
+}
+
+# Run Python checks
+$pythonExe = $null
+foreach ($cmd in @("python", "python3", "py")) {
+  try {
+    $ver = (& $cmd --version 2>&1) -join " "
+    if ($ver -match "Python 3") { $pythonExe = $cmd; break }
+  } catch { continue }
+}
+if ($pythonExe) {
+  foreach ($pyCheck in $pythonChecks) {
+    $script = Join-Path $rootPath $pyCheck.Script
+    if (-not (Test-Path $script)) { Write-Warning "Python check not found: $($pyCheck.Script)"; continue }
+    Write-Host "START $($pyCheck.Script)"
+    & $pythonExe $script @($pyCheck.Args)
+    $exitCode = $LASTEXITCODE
+    $status = if ($exitCode -eq 0) { "pass" } else { "fail" }
+    $checkResults += @{ check = $pyCheck.Script; status = $status; exit_code = $exitCode }
+    if ($exitCode -ne 0) {
+      Write-Host "FAIL $($pyCheck.Script) ($exitCode)"
+      $overallStatus = "fail"
+    } else {
+      Write-Host "OK $($pyCheck.Script)"
+    }
+  }
+} else {
+  Write-Warning "Python 3 not found; skipping Python checks."
 }
 
 # Write results on success

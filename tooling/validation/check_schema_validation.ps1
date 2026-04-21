@@ -39,7 +39,7 @@ if (-not (Test-Path (Join-Path $toolDir "node_modules\\ajv")) -or -not (Test-Pat
   exit 0
 }
 
-$aiSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\ai\schemas"
+$aiSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\generator\schemas"
 $actionCodeSchema = Join-Path -Path $aiSchemaDir -ChildPath "action_code.schema.json"
 $bracketSchema = Join-Path -Path $aiSchemaDir -ChildPath "usecase_bracket.schema.json"
 $orgRolesSchema = Join-Path -Path $aiSchemaDir -ChildPath "org_roles.schema.json"
@@ -47,7 +47,7 @@ $triggerMapTemplateSchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map
 $triggerMapDeploySchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_deploy.schema.json"
 
 $actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\' -and $_.Name -ne 'impactful_15.yaml'
 }
 $bracketFiles = Get-ChildItem -Path (Join-Path $rootPath "core\usecases\core") -Recurse -Filter "UseCase_Bracket.yaml" -ErrorAction SilentlyContinue
 # Resolve org_roles: showcase from env ANALYTICS_SHOWCASE (default aurora_group), else core

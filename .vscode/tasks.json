@@ -35,7 +35,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./tooling/generation/generate_tmdl_measures.ps1",
+        "./tooling/generator/generate_tmdl_measures.ps1",
         "-UseCase",
         "${input:usecaseId}",
         "-OverwriteExisting"
@@ -51,7 +51,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./tooling/generation/generate_all_measures.ps1",
+        "./tooling/generator/generate_tmdl_measures.ps1",
         "-StubOnly"
       ],
       "group": "build",
@@ -65,7 +65,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./tooling/generation/generate_all_measures.ps1"
+        "./tooling/generator/generate_tmdl_measures.ps1"
       ],
       "group": "build",
       "problemMatcher": []
@@ -79,7 +79,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-Command",
-        "./tooling/generation/generate_all_measures.ps1; ./tooling/run_all_checks.ps1"
+        "./tooling/generator/generate_tmdl_measures.ps1; ./tooling/run_all_checks.ps1"
       ],
       "group": "build",
       "problemMatcher": []

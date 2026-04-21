@@ -94,6 +94,20 @@ fact:
       - {name: Critical Incidents, type: int, agg: sum, nullable: true}
       - {name: MTTR, type: decimal, agg: avg, nullable: true}
 
+  - name: fact_action_outcome
+    grain: action_outcome
+    columns:
+      - {name: ActionOutcomeId, type: text, role: key}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: ActionCodeKey, type: int, ref: dim_action_code, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: action_code_id, type: text}
+      - {name: domain, type: text}
+      - {name: outcome_status, type: text}
+      - {name: days_to_outcome, type: int, agg: avg, nullable: true}
+      - {name: impact_value, type: currency, agg: sum, nullable: true}
+      - {name: cost_to_execute, type: currency, agg: sum, nullable: true}
+
   - name: fact_action_governance
     grain: action_instance
     columns:

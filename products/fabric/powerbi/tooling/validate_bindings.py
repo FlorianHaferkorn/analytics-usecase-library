@@ -110,6 +110,8 @@ def main():
                         help="Treat WARNINGs as ERRORs (fail on any unbound visual)")
     parser.add_argument("--report", default=None,
                         help="Validate only a specific use case ID (e.g. FIN-001)")
+    parser.add_argument("--domain", default=None,
+                        help="Filter to reports belonging to a domain prefix (e.g. Commercial → COM-*, Finance → FIN-*)")
     args = parser.parse_args()
 
     # Resolve dist dir
@@ -128,7 +130,24 @@ def main():
             print("ERROR: Cannot find dist/ directory. Use --dist-dir to specify it.", file=sys.stderr)
             sys.exit(1)
 
+    # Domain → report prefix mapping
+    DOMAIN_PREFIXES = {
+        "Commercial": "COM-",
+        "Experience": ["XD-", "SVC-"],
+        "Finance": "FIN-",
+        "Operations": "OPS-",
+        "SupplyChain": "SCM-",
+    }
+
     report_dirs = sorted(dist_dir.glob("*.Report"))
+    if args.domain:
+        prefixes = DOMAIN_PREFIXES.get(args.domain)
+        if prefixes is None:
+            print(f"ERROR: Unknown domain '{args.domain}'. Valid: {list(DOMAIN_PREFIXES)}", file=sys.stderr)
+            sys.exit(1)
+        if isinstance(prefixes, str):
+            prefixes = [prefixes]
+        report_dirs = [r for r in report_dirs if any(r.name.startswith(p) for p in prefixes)]
     if args.report:
         report_dirs = [r for r in report_dirs if args.report in r.name]
 

@@ -102,20 +102,20 @@ _FALLBACK: Dict[ErrorCategory, FixSuggestion] = {
         doc_reference="KNOWN_ERRORS_AND_FIXES.md#report-visuals-pbip--page_scaffold_generator",
     ),
     ErrorCategory.SCHEMA_VIOLATION: FixSuggestion(
-        description="YAML does not conform to its JSON schema. Check tooling/ai/schemas/ for the governing schema.",
+        description="YAML does not conform to its JSON schema. Check tooling/generator/schemas/ for the governing schema.",
         category=ErrorCategory.SCHEMA_VIOLATION,
         auto_fixable=False,
         commands=[
             ".\\tooling\\validation\\check_schema_validation.ps1",
         ],
-        doc_reference="tooling/ai/schemas/usecase_bracket.schema.json",
+        doc_reference="tooling/generator/schemas/usecase_bracket.schema.json",
     ),
     ErrorCategory.BRACKET_FIELD: FixSuggestion(
         description="Required field missing from UseCase_Bracket.yaml. Check the bracket schema.",
         category=ErrorCategory.BRACKET_FIELD,
         auto_fixable=False,
         commands=[],
-        doc_reference="tooling/ai/schemas/usecase_bracket.schema.json",
+        doc_reference="tooling/generator/schemas/usecase_bracket.schema.json",
     ),
     ErrorCategory.DATA_CONTRACT: FixSuggestion(
         description="Data contract issue. Verify column names in core/data_contracts/ match the bracket.",

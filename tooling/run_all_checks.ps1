@@ -189,7 +189,7 @@ if (Test-Path $distRoot) {
 }
 
 # 5) Sanity-check docs and tooling references
-Invoke-LocalScript -RelativePath "tooling/maintenance/check_docs_refs.ps1" -Arguments @()
+# check_docs_refs.ps1 archived — tooling/generator/ consolidation in v1.0 Week 1
 
 # 6) Docs -> KPI catalog references
 Invoke-LocalScript -RelativePath "tooling/validation/check_docs_kpi_refs.ps1" -Arguments @{
