@@ -57,9 +57,14 @@ def load_catalog_measures(catalog_path: Path) -> list[dict]:
 def load_tmdl_measures(dist_dir: Path) -> dict[str, dict]:
     """
     Parse all */_Measures.tmdl files and return {measure_name: {dax, comment}}.
+
+    When multiple TMDL files define the same measure name (e.g. proxy cross-domain
+    measures alongside domain-canonical measures), the entry with a kpi_id annotation
+    (``/// Measure Name - kpi.id``) takes priority so the canonical DAX is used for
+    lineage checks regardless of filesystem iteration order.
     """
     measure_map: dict[str, dict] = {}
-    for tmdl_path in dist_dir.rglob("_Measures.tmdl"):
+    for tmdl_path in sorted(dist_dir.rglob("_Measures.tmdl")):
         content = tmdl_path.read_text(encoding="utf-8", errors="replace")
         # Match measure blocks: optional comment lines, then 'measure <name> = ...'
         # Lookahead: stop at next \t/// comment or \tmeasure declaration (single-tab level)
@@ -77,7 +82,7 @@ def load_tmdl_measures(dist_dir: Path) -> dict[str, dict]:
             # Collect kpi_id from comment if present (format: /// Measure Name - kpi.id)
             kpi_id_match = re.search(r"/// .+ - ([\w\.]+)\s*$", comment_block, re.MULTILINE)
             kpi_id = kpi_id_match.group(1) if kpi_id_match else None
-            measure_map[name] = {
+            entry = {
                 "dax": dax_body.strip(),
                 "comment": comment_block.strip(),
                 "kpi_id": kpi_id,
@@ -85,6 +90,12 @@ def load_tmdl_measures(dist_dir: Path) -> dict[str, dict]:
                 "measure_refs": measure_refs,
                 "tmdl_path": str(tmdl_path),
             }
+            # Prefer kpi_id-annotated entries: if this name already exists and the
+            # existing entry already has a kpi_id annotation, keep it (don't overwrite
+            # with a proxy/cross-domain measure that lacks an annotation).
+            existing = measure_map.get(name)
+            if existing is None or (kpi_id and not existing["kpi_id"]):
+                measure_map[name] = entry
     return measure_map
 
 

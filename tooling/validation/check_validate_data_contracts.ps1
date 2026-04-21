@@ -23,7 +23,7 @@ $pyScript = Join-Path -Path $scriptDir -ChildPath "check_validate_data_contracts
 if (-not (Test-Path -LiteralPath $pyScript)) { Write-Error "Missing: check_validate_data_contracts.py" }
 
 $pyExe = $null
-foreach ($c in @("py -3", "python3", "python")) {
+foreach ($c in @("python", "python3", "py -3")) {
 	$parts = $c -split " "
 	if (-not (Get-Command $parts[0] -ErrorAction SilentlyContinue)) { continue }
 	try {

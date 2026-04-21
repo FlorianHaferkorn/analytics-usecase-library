@@ -2156,8 +2156,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "Action Outcome Rate %"
     description: "Measures share of actions that achieved the intended outcome."
     depends_on_measures: []
-    lineage:
-    - fact_action_outcome.outcome_status
+    lineage: []
   governance:
     business_owner: "Executive Office"
     data_owner: "PMO Analytics"
