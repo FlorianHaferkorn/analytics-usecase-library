@@ -75,7 +75,6 @@ orchestration:
     - X-S1.2
     - X-E3.3
 
-# KPI IDs for IR compiler (primary_kpi_ids → KPI_Cards visual)
 primary_kpi_ids:
   - enterprise.action_outcome_rate.pct
 
@@ -96,7 +95,7 @@ ux_layout_rules:
     height: 720
   page_1_summary:
     title: Executive Action Governance — Overview
-    page_type: T1
+    page_type: T1_Strategic_Overview
     template_id: pulse
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
@@ -104,13 +103,11 @@ ux_layout_rules:
     component_30s:
       - kpi_id: enterprise.action_outcome_rate.pct
         visual_type: trend_line
-        category: dim_date.FiscalYear
       - kpi_id: enterprise.value_at_risk.index
         visual_type: bar_chart
-        category: fact_action_outcome.domain
   page_2_execution:
     title: Executive Action Governance — Outcome Detail
-    page_type: T4
+    page_type: T4_Prescriptive_Recommendation
     template_id: action_matrix
     component_300s:
       evidence_grain: action_outcome

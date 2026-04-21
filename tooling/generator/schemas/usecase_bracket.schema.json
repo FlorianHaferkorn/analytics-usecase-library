@@ -302,6 +302,11 @@
         }
       }
     },
+    "primary_kpi_ids": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 },
+      "description": "KPI IDs surfaced as KPI Cards in the IR compiler output (primary visual layer)."
+    },
     "ux_bindings": {
       "type": "object",
       "description": "Optional visual bindings (axis, legend, rows, values, sort, topN) per page/slot. Written by UX Layout Editor; do not edit by hand.",
