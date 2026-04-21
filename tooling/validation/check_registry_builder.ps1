@@ -28,7 +28,7 @@ Write-Host "Registry Builder governance validation"
 
 # Locate Python 3 runner
 $pyCmd = $null
-$pyTestCommands = @("py -3", "python")
+$pyTestCommands = @("python", "python3", "py -3")
 foreach ($cmd in $pyTestCommands) {
   try {
     $testArgs = $cmd -split " "

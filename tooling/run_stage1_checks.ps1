@@ -90,7 +90,7 @@ foreach ($check in $checks) {
 
 # Run Python checks
 $pythonExe = $null
-foreach ($cmd in @("py", "python3", "python")) {
+foreach ($cmd in @("python", "python3", "py")) {
   try {
     $ver = (& $cmd --version 2>&1) -join " "
     if ($ver -match "Python 3") { $pythonExe = $cmd; break }
