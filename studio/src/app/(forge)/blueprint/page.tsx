@@ -1,25 +1,13 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-<<<<<<< HEAD
-import { parse } from 'yaml';
-=======
->>>>>>> claude/implement-execution-plan-bZbSq
 import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { getProject } from '@/lib/db/project-repo';
-<<<<<<< HEAD
-import { BlueprintClient } from './blueprint-client';
-import type { UseCaseBracketV20Lean } from '@/lib/schemas';
-
-const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
-const GOLDEN_20_PATH = join(process.cwd(), '..', 'core', 'kpi_catalog', 'golden_20.yaml');
-=======
 import { SteeringHubClient } from '@/app/(studio)/steering/steering-hub-client';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
->>>>>>> claude/implement-execution-plan-bZbSq
 const FALLBACK_ANCHOR = 'Profitable growth through margin quality, cash resilience & operational excellence';
 
 async function loadBracketsWithYaml() {
@@ -50,38 +38,16 @@ async function loadBracketsWithYaml() {
   return { brackets, yamls };
 }
 
-<<<<<<< HEAD
-async function loadGolden20Ids(): Promise<string[]> {
-  try {
-    const raw = await readFile(GOLDEN_20_PATH, 'utf-8');
-    const data = parse(raw) as Record<string, unknown>;
-    const kpiList = (data?.kpi_ids ?? []) as Array<{ id: string }>;
-    return kpiList.map((k) => k.id).filter(Boolean);
-  } catch {
-    return [];
-  }
-}
-
-=======
->>>>>>> claude/implement-execution-plan-bZbSq
 export default async function BlueprintPage({
   searchParams,
 }: {
   searchParams?: Promise<{ draftId?: string; draftYaml?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-<<<<<<< HEAD
-  const [{ brackets, yamls: bracketYamls }, actions, kpiMap, golden20Ids] = await Promise.all([
-    loadBracketsWithYaml(),
-    loadAllActionCodes(),
-    loadKpiMap(),
-    loadGolden20Ids(),
-=======
   const [{ brackets, yamls: bracketYamls }, actions, kpiMap] = await Promise.all([
     loadBracketsWithYaml(),
     loadAllActionCodes(),
     loadKpiMap(),
->>>>>>> claude/implement-execution-plan-bZbSq
   ]);
 
   const kpiNames: Record<string, string> = {};
@@ -134,11 +100,7 @@ export default async function BlueprintPage({
   }
 
   return (
-<<<<<<< HEAD
-    <BlueprintClient
-=======
     <SteeringHubClient
->>>>>>> claude/implement-execution-plan-bZbSq
       strategyAnchor={strategyAnchor}
       brackets={draftBracketData ? [draftBracketData, ...bracketData] : bracketData}
       actionDetails={actionDetails}
@@ -146,10 +108,6 @@ export default async function BlueprintPage({
       kpiNames={kpiNames}
       initialSelectedBracket={draftBracketData?.id ?? null}
       draftBracketId={draftBracketData?.id ?? null}
-<<<<<<< HEAD
-      golden20Ids={golden20Ids}
-=======
->>>>>>> claude/implement-execution-plan-bZbSq
     />
   );
 }

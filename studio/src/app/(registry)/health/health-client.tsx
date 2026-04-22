@@ -27,22 +27,6 @@ function MetricCard({ m }: { m: MetricResult }) {
   return (
     <div
       style={{
-<<<<<<< HEAD
-        padding: 'var(--sp-2)',
-        borderRadius: 'var(--radius-md)',
-        backgroundColor: 'var(--slate-900)',
-        border: '1px solid var(--slate-700)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--sp-1)',
-      }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', fontFamily: 'monospace' }}>{m.metric}</span>
-        <span style={{ fontSize: '1rem', fontWeight: 700, color: scoreColor(m.score) }}>{pct}%</span>
-      </div>
-      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--slate-200)', fontWeight: 600 }}>{m.name}</p>
-=======
         padding: '16px',
         borderRadius: 'var(--radius-md)',
         backgroundColor: 'var(--panel)',
@@ -57,16 +41,11 @@ function MetricCard({ m }: { m: MetricResult }) {
         <span style={{ fontSize: '1rem', fontWeight: 700, color: scoreColor(m.score) }}>{pct}%</span>
       </div>
       <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--ink-2)', fontWeight: 600 }}>{m.name}</p>
->>>>>>> claude/implement-execution-plan-bZbSq
       <div
         style={{
           height: '4px',
           borderRadius: '2px',
-<<<<<<< HEAD
-          backgroundColor: 'var(--slate-700)',
-=======
           backgroundColor: 'var(--line)',
->>>>>>> claude/implement-execution-plan-bZbSq
           overflow: 'hidden',
         }}
       >
@@ -109,27 +88,16 @@ export function HealthPageClient() {
       }
     >
       {error && (
-<<<<<<< HEAD
-        <div style={{ padding: 'var(--sp-2)', backgroundColor: 'color-mix(in srgb, var(--error) 10%, transparent)', borderRadius: 'var(--radius-md)', color: 'var(--error)', fontSize: '0.875rem', marginBottom: 'var(--sp-2)' }}>
-=======
         <div style={{ padding: '16px', backgroundColor: 'color-mix(in srgb, var(--error) 10%, transparent)', borderRadius: 'var(--radius-md)', color: 'var(--error)', fontSize: '0.875rem', marginBottom: '16px' }}>
->>>>>>> claude/implement-execution-plan-bZbSq
           {error}
         </div>
       )}
       {data ? (
         <>
-<<<<<<< HEAD
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
-            {data.metrics.map((m) => <MetricCard key={m.metric} m={m} />)}
-          </div>
-          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-500)' }}>
-=======
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px', marginBottom: '16px' }}>
             {data.metrics.map((m) => <MetricCard key={m.metric} m={m} />)}
           </div>
           <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-4)' }}>
->>>>>>> claude/implement-execution-plan-bZbSq
             Overall: <strong style={{ color: scoreColor(data.overall_score) }}>{Math.round(data.overall_score * 100)}%</strong>
             {' '}· Generated {new Date(data.generated_at).toLocaleString('de-DE')}
           </p>
