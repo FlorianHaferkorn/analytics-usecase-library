@@ -4,12 +4,17 @@
  * Supports Google Gemini (GOOGLE_API_KEY / GEMINI_API_KEY),
  * Anthropic Claude (ANTHROPIC_API_KEY), and OpenAI GPT (OPENAI_API_KEY).
  * Priority: Google → Anthropic → OpenAI.
+ *
+ * All secret reads go through @/lib/secrets so that the provider
+ * (env, Azure Key Vault, AWS Secrets Manager) is configured once via
+ * the SECRETS_PROVIDER environment variable.
  */
 
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+import { getSecret } from '@/lib/secrets';
 
 export type AIProvider = 'google' | 'anthropic' | 'openai';
 
@@ -45,7 +50,7 @@ export function createModel(config: ProviderConfig): LanguageModel {
   }
 }
 
-/** Detect provider from environment variables. Priority: Google → Anthropic → OpenAI. */
+/** Detect which AI provider is configured. Priority: Google → Anthropic → OpenAI. */
 export function detectServerProvider(): AIProvider | null {
   if (process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY) return 'google';
   if (process.env.ANTHROPIC_API_KEY) return 'anthropic';
@@ -53,17 +58,34 @@ export function detectServerProvider(): AIProvider | null {
   return null;
 }
 
-/** Create a server-side language model from environment variables. Returns null if unconfigured. */
-export function createServerModel(): LanguageModel | null {
+/**
+ * Create a server-side language model from secrets.
+ * Secret names map directly to env-var names so that the dev-env adapter
+ * works without any extra configuration.
+ * Returns null if no AI provider is configured.
+ */
+export async function createServerModel(): Promise<LanguageModel | null> {
   const provider = detectServerProvider();
   if (!provider) return null;
 
-  const apiKey =
-    provider === 'google'
-      ? (process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY ?? '')
-      : provider === 'anthropic'
-        ? (process.env.ANTHROPIC_API_KEY ?? '')
-        : (process.env.OPENAI_API_KEY ?? '');
+  let apiKey: string;
+  try {
+    if (provider === 'google') {
+      // Try GOOGLE_API_KEY first, fall back to GEMINI_API_KEY.
+      try {
+        apiKey = await getSecret('GOOGLE_API_KEY');
+      } catch {
+        apiKey = await getSecret('GEMINI_API_KEY');
+      }
+    } else if (provider === 'anthropic') {
+      apiKey = await getSecret('ANTHROPIC_API_KEY');
+    } else {
+      apiKey = await getSecret('OPENAI_API_KEY');
+    }
+  } catch {
+    // Secret not available — treat as unconfigured rather than crashing.
+    return null;
+  }
 
   return createModel({ provider, apiKey });
 }

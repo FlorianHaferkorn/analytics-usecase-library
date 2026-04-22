@@ -6,7 +6,7 @@ import { getPageTitle } from '@/lib/navigation';
 import { useProjectStore } from '@/lib/store/project-store';
 import { DriftBadge } from '@/components/registry/drift-badge';
 import { NotificationBell } from '@/components/notifications/notification-bell';
-import { ProjectSelector } from './project-selector';
+import { ProjectSwitcher } from '@/components/AppShell/ProjectSwitcher';
 
 export function StudioHeader() {
   const pathname = usePathname();
@@ -51,7 +51,7 @@ export function StudioHeader() {
           <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--mint)' }} />
           <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>Stage 1 Ready</span>
         </div>
-        <ProjectSelector />
+        <ProjectSwitcher />
       </div>
     </header>
   );
