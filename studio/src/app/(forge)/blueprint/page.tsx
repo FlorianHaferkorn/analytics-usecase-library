@@ -1,13 +1,15 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { parse } from 'yaml';
 import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { getProject } from '@/lib/db/project-repo';
-import { SteeringHubClient } from '@/app/(studio)/steering/steering-hub-client';
+import { BlueprintClient } from './blueprint-client';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
+const GOLDEN_20_PATH = join(process.cwd(), '..', 'core', 'kpi_catalog', 'golden_20.yaml');
 const FALLBACK_ANCHOR = 'Profitable growth through margin quality, cash resilience & operational excellence';
 
 async function loadBracketsWithYaml() {
@@ -38,16 +40,28 @@ async function loadBracketsWithYaml() {
   return { brackets, yamls };
 }
 
+async function loadGolden20Ids(): Promise<string[]> {
+  try {
+    const raw = await readFile(GOLDEN_20_PATH, 'utf-8');
+    const data = parse(raw) as Record<string, unknown>;
+    const kpiList = (data?.kpi_ids ?? []) as Array<{ id: string }>;
+    return kpiList.map((k) => k.id).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 export default async function BlueprintPage({
   searchParams,
 }: {
   searchParams?: Promise<{ draftId?: string; draftYaml?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const [{ brackets, yamls: bracketYamls }, actions, kpiMap] = await Promise.all([
+  const [{ brackets, yamls: bracketYamls }, actions, kpiMap, golden20Ids] = await Promise.all([
     loadBracketsWithYaml(),
     loadAllActionCodes(),
     loadKpiMap(),
+    loadGolden20Ids(),
   ]);
 
   const kpiNames: Record<string, string> = {};
@@ -100,7 +114,7 @@ export default async function BlueprintPage({
   }
 
   return (
-    <SteeringHubClient
+    <BlueprintClient
       strategyAnchor={strategyAnchor}
       brackets={draftBracketData ? [draftBracketData, ...bracketData] : bracketData}
       actionDetails={actionDetails}
@@ -108,6 +122,7 @@ export default async function BlueprintPage({
       kpiNames={kpiNames}
       initialSelectedBracket={draftBracketData?.id ?? null}
       draftBracketId={draftBracketData?.id ?? null}
+      golden20Ids={golden20Ids}
     />
   );
 }

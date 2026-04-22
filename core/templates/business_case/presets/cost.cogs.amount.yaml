@@ -1,0 +1,20 @@
+kpi_id: cost.cogs.amount
+label: Cost of Goods Sold
+baseline_range:
+  min: 310000000
+  likely: 330000000
+  max: 350000000
+  unit: EUR
+  note: "COGS at 62-70% of revenue; typical for mid-market manufacturing/FMCG."
+target_range:
+  min: 297000000
+  likely: 315000000
+  max: 335000000
+  unit: EUR
+  note: "Target assumes 4-6% COGS reduction through material discipline and quality improvement."
+time_horizon_months: 18
+driver_notes:
+  - "Material cost discipline (F-K2.1) can reduce material input by 2-4% of COGS."
+  - "Quality yield improvement (O-Q3.1) reduces scrap/rework, worth 1-2% of COGS."
+  - "Labour productivity gains contribute 0.5-1% COGS reduction."
+  - "18-month horizon reflects procurement re-contracting cycle and quality ramp-up time."

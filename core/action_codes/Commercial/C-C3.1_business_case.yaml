@@ -1,0 +1,15 @@
+action_code_id: C-C3.1
+kpi_id: crm.retention.pct
+impact_range_eur_min: 600000
+impact_range_eur_likely: 2500000
+impact_range_eur_max: 6000000
+time_to_effect_days: 90
+confidence: medium
+evidence_source_url: "https://hbr.org/2014/10/the-value-of-keeping-the-right-customers"
+owner: Chief Customer Officer / Head of CRM
+assumptions:
+  - "Average customer CLV 15k EUR; retention intervention prevents 40-400 additional churn events per year."
+  - "Industry benchmark: improving retention rate by 5 pp increases profits 25-95% (HBR, Bain)."
+  - "Assumes at-risk customer segment constitutes 8% of active base per Revenue at Risk metric."
+  - "Intervention cost estimated at 200k EUR annually and excluded from EUR range."
+  - "Effect window 12 months; measured as reduction in churned CLV versus prior period baseline."

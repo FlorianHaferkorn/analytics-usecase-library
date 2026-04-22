@@ -1,0 +1,15 @@
+action_code_id: C-P4.1
+kpi_id: sales.promo.roi.pct
+impact_range_eur_min: 300000
+impact_range_eur_likely: 1000000
+impact_range_eur_max: 2500000
+time_to_effect_days: 90
+confidence: medium
+evidence_source_url: "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/unlocking-the-full-potential-of-revenue-management"
+owner: VP Commercial / Head of Trade Marketing
+assumptions:
+  - "Promo ROI discipline eliminates negative-ROI promotions worth 300k-2M EUR per year at 500M EUR revenue."
+  - "Industry benchmark: 20-30% of trade promotions are ROI-negative (Nielsen/IRI research)."
+  - "Promo budget 15M EUR; discipline redirects 2-8M EUR from negative-ROI to positive-ROI mechanics."
+  - "Incremental GM from redeployed spend calculated at 15-25% return on redirected budget."
+  - "Cannibalization effect netted out; assumes no reduction in overall promotional frequency."

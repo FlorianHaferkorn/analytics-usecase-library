@@ -1,0 +1,20 @@
+kpi_id: inv.dio.days
+label: Days Inventory Outstanding
+baseline_range:
+  min: 45
+  likely: 55
+  max: 70
+  unit: days
+  note: "DIO benchmark 45-70 days for mid-market manufacturing; varies by industry."
+target_range:
+  min: 35
+  likely: 45
+  max: 58
+  unit: days
+  note: "Target: 10-20 day DIO reduction releasing 2-8M EUR cash at 100M EUR COGS basis."
+time_horizon_months: 12
+driver_notes:
+  - "S-I1.2 (Inventory Rightsizing): safety-stock right-sizing is the primary DIO lever."
+  - "S-F3.1 (Forecast Quality Orchestration): better demand signals enable lower safety stock."
+  - "Cash release formula: DIO_reduction_days x (COGS / 365); interest saving at 5% cost of capital."
+  - "Stockout guardrail: DIO reduction must not push inv.stockout.pct above 2% threshold."

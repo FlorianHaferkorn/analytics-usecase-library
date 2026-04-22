@@ -1,0 +1,15 @@
+action_code_id: S-R2.1
+kpi_id: supply.otif.pct
+impact_range_eur_min: 200000
+impact_range_eur_likely: 1000000
+impact_range_eur_max: 3000000
+time_to_effect_days: 60
+confidence: medium
+evidence_source_url: "https://www.gartner.com/en/supply-chain/insights/on-time-in-full"
+owner: Chief Supply Chain Officer / Head of Logistics
+assumptions:
+  - "Baseline OTIF 84%; retailer penalty cost 500-800k EUR/year at current OTIF level."
+  - "Each 1 pp OTIF improvement reduces penalty exposure by 50-80k EUR; expedite costs by 30k EUR."
+  - "Improvement range 4-35 pp achievable through carrier SLA enforcement and load-planning optimization."
+  - "Revenue protection from prevented lost shelf space estimated at 0.5-2x penalty cost; included in max."
+  - "Assumes no structural capacity constraints in warehouse or transport network."

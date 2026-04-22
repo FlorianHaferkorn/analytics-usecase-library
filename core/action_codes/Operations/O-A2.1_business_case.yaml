@@ -1,0 +1,15 @@
+action_code_id: O-A2.1
+kpi_id: ops.availability.pct
+impact_range_eur_min: 250000
+impact_range_eur_likely: 1000000
+impact_range_eur_max: 3000000
+time_to_effect_days: 45
+confidence: medium
+evidence_source_url: "https://www.ibm.com/topics/asset-management-maintenance"
+owner: COO / Head of Maintenance
+assumptions:
+  - "Baseline asset availability 87%; each 1 pp improvement worth roughly 50k EUR per production line."
+  - "Recovery actions target 5-60 pp-hours of lost availability per asset per quarter."
+  - "MTTR reduction of 20-40% achievable through spare-parts pre-positioning and first-response protocols."
+  - "Action scope: reactive maintenance acceleration and spares availability only; no CAPEX assumed."
+  - "Effect measured over 6-month rolling window; stabilisation assumed from month 2 onward."

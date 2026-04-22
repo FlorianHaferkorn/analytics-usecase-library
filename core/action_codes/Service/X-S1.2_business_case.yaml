@@ -1,0 +1,15 @@
+action_code_id: X-S1.2
+kpi_id: svc.backlog.count
+impact_range_eur_min: 80000
+impact_range_eur_likely: 350000
+impact_range_eur_max: 1000000
+time_to_effect_days: 21
+confidence: medium
+evidence_source_url: "https://www.gartner.com/en/customer-service-support/insights/workforce-management"
+owner: VP Customer Experience / Head of Service Operations
+assumptions:
+  - "Backlog clearance reduces repeat contacts, lowering AHT by 5-15% over 90 days."
+  - "Each 10% AHT reduction saves 50-150k EUR/year at a 50-agent contact centre (FTE cost basis)."
+  - "Backlog surge events above 20% of baseline cause NPS dips of 5-15 points, with downstream churn cost."
+  - "Stabilisation actions include demand-smoothing, overflow routing, and temporary capacity flex."
+  - "Benefit realized within 21-45 days due to immediate operational impact of capacity rebalancing."
