@@ -7,9 +7,9 @@
  *
  * Auth: uses the demo credentials that already exist in other e2e specs.
  */
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
-async function loginAsDemo(page: Parameters<typeof test>[1] extends (args: { page: infer P }) => unknown ? P : never) {
+async function loginAsDemo(page: Page) {
   await page.goto('/login');
   await page.getByPlaceholder('demo@aurora-group.eu').fill('demo@aurora-group.eu');
   await page.getByText('Sign in with Demo').click();

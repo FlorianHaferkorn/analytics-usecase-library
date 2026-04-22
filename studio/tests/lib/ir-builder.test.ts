@@ -56,7 +56,7 @@ function makeKpi(id: string, daxName: string, calcType = 'measure'): CatalogKpi 
     },
     governance: {},
     metadata_quality: {},
-  } as CatalogKpi;
+  } as unknown as CatalogKpi;
 }
 
 describe('buildIRPackage', () => {

@@ -21,7 +21,7 @@ function makeKpi(id: string, name: string, formatString = '#,0'): CatalogKpi {
     },
     governance: {},
     metadata_quality: {},
-  } as CatalogKpi;
+  } as unknown as CatalogKpi;
 }
 
 describe('buildReportDataFromBracket', () => {

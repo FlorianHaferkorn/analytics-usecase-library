@@ -88,7 +88,7 @@ describe('KpiRegistryTable', () => {
   });
 
   it('displays completeness score as percentage', () => {
-    render(<KpiRegistryTable kpis={[makeKpi({ metadata_quality: { completeness_score: 0.85 } })]} />);
+    render(<KpiRegistryTable kpis={[makeKpi({ metadata_quality: { completeness_score: 0.85, last_review: '' } })]} />);
     expect(screen.getByText('85%')).toBeTruthy();
   });
 });
