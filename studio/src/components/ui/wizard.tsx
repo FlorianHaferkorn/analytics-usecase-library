@@ -39,9 +39,10 @@ export function Wizard({ open, onClose, onSave }: Props) {
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
   const [draft, setDraft] = useState<DraftResult | null>(null);
+  const [genError, setGenError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) { setStep(0); setKind('kpi'); setPrompt(''); setDraft(null); }
+    if (!open) { setStep(0); setKind('kpi'); setPrompt(''); setDraft(null); setGenError(null); }
   }, [open]);
 
   useEffect(() => {
@@ -54,22 +55,29 @@ export function Wizard({ open, onClose, onSave }: Props) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const generateDraft = useCallback(() => {
+  const generateDraft = useCallback(async () => {
     setGenerating(true);
-    setTimeout(() => {
-      const name = prompt ? titleCase(prompt) : (kind === 'kpi' ? 'Qualified Pipeline Velocity' : kind === 'bracket' ? 'Revenue Optimisation' : 'Escalate at Risk Customer');
-      setDraft({
-        name,
-        ref: `${kind === 'kpi' ? 'met' : kind === 'bracket' ? 'uc' : 'ac'}.draft.${slug(prompt || name)}`,
-        domain: 'Revenue',
-        type: kind === 'kpi' ? 'Ratio' : kind === 'bracket' ? 'Strategic' : 'Intervention',
-        grain: 'week',
-        description: `Draft definition for ${name}. Studio has pre-filled this from your prompt — review and edit each field before saving.`,
-        sql: kind === 'kpi' ? `select\n  week,\n  count(*) / nullif(count(distinct user_id), 0) as value\nfrom {{ ref('fct_events') }}\ngroup by 1;` : undefined,
+    setGenError(null);
+    try {
+      const res = await fetch('/api/ai/wizard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind, prompt }),
       });
+      const json = await res.json() as { draft?: DraftResult; error?: string };
+      if (!res.ok || json.error) {
+        setGenError(json.error ?? `HTTP ${res.status}`);
+        return;
+      }
+      if (json.draft) {
+        setDraft(json.draft);
+        setStep(2);
+      }
+    } catch (err) {
+      setGenError(err instanceof Error ? err.message : 'Network error');
+    } finally {
       setGenerating(false);
-      setStep(2);
-    }, 850);
+    }
   }, [kind, prompt]);
 
   if (!open) return null;
@@ -174,6 +182,11 @@ export function Wizard({ open, onClose, onSave }: Props) {
                   ✦ Drafting definition and checking for duplicates…
                 </div>
               )}
+              {genError && (
+                <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: 'color-mix(in srgb, var(--warning) 10%, transparent)', color: 'var(--warning)', fontSize: '0.8125rem' }}>
+                  {genError}
+                </div>
+              )}
             </div>
           )}
 
@@ -217,7 +230,7 @@ export function Wizard({ open, onClose, onSave }: Props) {
             <button onClick={() => setStep(1)} style={primaryBtn}>Continue →</button>
           )}
           {step === 1 && (
-            <button onClick={generateDraft} disabled={generating} style={{ ...primaryBtn, opacity: generating ? 0.7 : 1 }}>
+            <button onClick={() => void generateDraft()} disabled={generating} style={{ ...primaryBtn, opacity: generating ? 0.7 : 1 }}>
               ✦ {generating ? 'Drafting…' : 'Generate draft'}
             </button>
           )}
