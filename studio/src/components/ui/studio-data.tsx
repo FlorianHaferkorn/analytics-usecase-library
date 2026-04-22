@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 export function StudioDataToolbar({ children }: { children: ReactNode }) {
   return (
-    <div style={{ display: 'flex', gap: 'var(--sp-1)', marginBottom: 'var(--sp-2)', flexWrap: 'wrap', alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
       {children}
     </div>
   );
@@ -30,7 +30,7 @@ export function StudioSelect(props: React.SelectHTMLAttributes<HTMLSelectElement
 
 export function StudioFormGrid({ children, columns = '1fr 1fr' }: { children: ReactNode; columns?: string }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: columns, gap: 'var(--sp-1-5)', padding: 'var(--sp-2)', background: 'var(--bg-2)', borderRadius: 8, border: '1px solid var(--line)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: columns, gap: '12px', padding: '16px', background: 'var(--bg-2)', borderRadius: 8, border: '1px solid var(--line)' }}>
       {children}
     </div>
   );
@@ -62,7 +62,7 @@ export function StudioTable({ children }: { children: ReactNode }) {
 export function StudioTableHeadCell({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
     <th style={{
-      padding: '11px var(--sp-2)', textAlign: 'left',
+      padding: '11px 16px', textAlign: 'left',
       color: 'var(--ink-4)', fontWeight: 500,
       fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.06em',
       borderBottom: '1px solid var(--line)', background: 'var(--bg-2)',
@@ -75,7 +75,7 @@ export function StudioTableHeadCell({ children, style }: { children: ReactNode; 
 
 export function StudioTableCell({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <td style={{ padding: '13px var(--sp-2)', borderTop: '1px solid var(--line-2)', color: 'var(--ink-2)', lineHeight: 1.55, verticalAlign: 'top', ...style }}>
+    <td style={{ padding: '13px 16px', borderTop: '1px solid var(--line-2)', color: 'var(--ink-2)', lineHeight: 1.55, verticalAlign: 'top', ...style }}>
       {children}
     </td>
   );
@@ -84,13 +84,13 @@ export function StudioTableCell({ children, style }: { children: ReactNode; styl
 export function StudioExpandedRow({ children, colSpan }: { children: ReactNode; colSpan: number }) {
   return (
     <tr>
-      <td colSpan={colSpan} style={{ background: 'var(--bg-2)', padding: 'var(--sp-2-5)' }}>{children}</td>
+      <td colSpan={colSpan} style={{ background: 'var(--bg-2)', padding: '20px' }}>{children}</td>
     </tr>
   );
 }
 
 export function StudioInlineStat({ children }: { children: ReactNode }) {
-  return <p style={{ marginTop: 'var(--sp-1-5)', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>{children}</p>;
+  return <p style={{ marginTop: '12px', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>{children}</p>;
 }
 
 export function StudioSelectionList({ children, style }: { children: ReactNode; style?: CSSProperties }) {
@@ -115,8 +115,8 @@ export function StudioSelectionItem({
       style={{
         width: '100%', display: 'grid',
         gridTemplateColumns: 'auto auto minmax(0,1fr) auto',
-        alignItems: 'center', gap: 'var(--sp-1)',
-        padding: 'var(--sp-1-5) var(--sp-2)',
+        alignItems: 'center', gap: '8px',
+        padding: '12px 16px',
         border: 'none', borderBottom: '1px solid var(--line-2)',
         backgroundColor: selected ? 'var(--accent-soft)' : 'transparent',
         color: 'var(--ink)', textAlign: 'left', cursor: 'pointer',
@@ -140,7 +140,7 @@ export function StudioCheckbox({
   checked: boolean; onChange: (checked: boolean) => void; label?: string; disabled?: boolean;
 }) {
   return (
-    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--sp-1)', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}>
+    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
       {label && <span style={{ fontSize: '0.8125rem', color: 'var(--ink-2)', lineHeight: 1.4 }}>{label}</span>}
     </label>

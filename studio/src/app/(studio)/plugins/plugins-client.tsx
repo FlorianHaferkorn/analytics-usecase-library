@@ -108,7 +108,7 @@ export function PluginsClient() {
       </StudioMetricBar>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--sp-2)' }}>
-        <StudioPanel title="Catalog Controls" description="Filter the registry by plugin shape, runtime status, and hook keywords." action={<span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>{filteredPlugins.length} visible</span>} tone="info" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+        <StudioPanel title="Catalog Controls" description="Filter the registry by plugin shape, runtime status, and hook keywords." action={<span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>{filteredPlugins.length} visible</span>} tone="info" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <StudioInput
               value={query}
@@ -157,12 +157,12 @@ export function PluginsClient() {
           </div>
         </StudioPanel>
 
-        <StudioPanel title="Hook Coverage" description="See which SDK contracts are actually implemented by installed plugins." action={<span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>{ALL_HOOKS.filter((hook) => stats.hookCoverage[hook] > 0).length}/{ALL_HOOKS.length} covered</span>} tone="success">
+        <StudioPanel title="Hook Coverage" description="See which SDK contracts are actually implemented by installed plugins." action={<span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>{ALL_HOOKS.filter((hook) => stats.hookCoverage[hook] > 0).length}/{ALL_HOOKS.length} covered</span>} tone="success">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {ALL_HOOKS.map((hook) => (
-              <div key={hook} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', backgroundColor: 'var(--slate-900)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--slate-700)' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--slate-300)', fontFamily: 'var(--font-mono)' }}>{hook}</span>
-                <span style={{ fontSize: '0.6875rem', color: stats.hookCoverage[hook] > 0 ? 'var(--mint)' : 'var(--slate-500)', fontWeight: 600 }}>{stats.hookCoverage[hook]}</span>
+              <div key={hook} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', backgroundColor: 'var(--panel)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)' }}>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', fontFamily: 'var(--font-mono)' }}>{hook}</span>
+                <span style={{ fontSize: '0.6875rem', color: stats.hookCoverage[hook] > 0 ? 'var(--mint)' : 'var(--ink-4)', fontWeight: 600 }}>{stats.hookCoverage[hook]}</span>
               </div>
             ))}
           </div>
@@ -170,7 +170,7 @@ export function PluginsClient() {
       </div>
 
       {loading ? (
-        <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Loading plugins...</p>
+        <p style={{ fontSize: '0.75rem', color: 'var(--ink-4)' }}>Loading plugins...</p>
       ) : plugins.length === 0 ? (
         <StudioEmptyState
           title="No plugins installed"
@@ -199,9 +199,9 @@ export function PluginsClient() {
         <pre
           style={{
             fontSize: '0.6875rem',
-            color: 'var(--slate-300)',
+            color: 'var(--ink-2)',
             fontFamily: 'var(--font-mono)',
-            backgroundColor: 'var(--slate-900)',
+            backgroundColor: 'var(--panel)',
             padding: 'var(--sp-1-5)',
             borderRadius: 'var(--radius-md)',
             overflow: 'auto',
@@ -264,17 +264,17 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
 
 function ScopePill({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ padding: '6px 8px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)', minWidth: '0' }}>
-      <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>{label}</p>
-      <p style={{ fontSize: '0.75rem', color: 'var(--slate-200)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{value}</p>
+    <div style={{ padding: '6px 8px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)', minWidth: '0' }}>
+      <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '2px' }}>{label}</p>
+      <p style={{ fontSize: '0.75rem', color: 'var(--ink-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{value}</p>
     </div>
   );
 }
 
 function MiniSignal({ label, value, accent }: { label: string; value: number; accent: string }) {
   return (
-    <div style={{ padding: '8px 10px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
-      <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>{label}</p>
+    <div style={{ padding: '8px 10px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
+      <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>{label}</p>
       <p style={{ fontSize: '0.875rem', fontWeight: 700, color: accent }}>{value}</p>
     </div>
   );

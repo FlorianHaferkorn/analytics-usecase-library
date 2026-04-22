@@ -18,7 +18,7 @@ export default async function HomePage() {
     {
       label: 'Domains',
       value: [...new Set(brackets.map((b) => b.domain))].length,
-      color: 'var(--slate-300)',
+      color: 'var(--ink-2)',
     },
   ];
 
@@ -30,8 +30,8 @@ export default async function HomePage() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--sp-4)',
-        gap: 'var(--sp-4)',
+        padding: '32px',
+        gap: '32px',
       }}
     >
       <header style={{ textAlign: 'center' }}>
@@ -40,7 +40,7 @@ export default async function HomePage() {
             fontSize: '2.5rem',
             fontWeight: 700,
             letterSpacing: '-0.025em',
-            color: 'var(--slate-50)',
+            color: 'var(--ink)',
           }}
         >
           Action
@@ -49,8 +49,8 @@ export default async function HomePage() {
         </h1>
         <p
           style={{
-            marginTop: 'var(--sp-1)',
-            color: 'var(--slate-400)',
+            marginTop: '8px',
+            color: 'var(--ink-3)',
             fontSize: '1.125rem',
           }}
         >
@@ -135,7 +135,7 @@ export default async function HomePage() {
               style={{
                 fontSize: '1.125rem',
                 fontWeight: 600,
-                color: 'var(--slate-50)',
+                color: 'var(--ink)',
                 marginBottom: 'var(--sp-0-5)',
               }}
             >

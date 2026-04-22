@@ -80,7 +80,7 @@ export function ProjectSelector() {
           overflow: 'hidden',
           padding: 0,
         }}>
-          <div style={{ padding: 'var(--sp-1)', maxHeight: 200, overflow: 'auto' }}>
+          <div style={{ padding: '8px', maxHeight: 200, overflow: 'auto' }}>
             {projects.map((p) => (
               <StudioButton
                 key={p.id}
@@ -88,19 +88,19 @@ export function ProjectSelector() {
                 variant="ghost"
                 style={{
                   display: 'block', width: '100%', textAlign: 'left',
-                  padding: 'var(--sp-1)',
+                  padding: '8px',
                   backgroundColor: p.id === projectId ? 'var(--bg-2)' : 'transparent',
                   color: 'var(--ink)', fontSize: '0.8125rem',
                   justifyContent: 'flex-start',
                 }}
               >
                 <span style={{ fontWeight: p.id === projectId ? 600 : 400 }}>{p.name}</span>
-                {p.id === projectId && <span style={{ color: 'var(--mint)', marginLeft: 'var(--sp-1)', fontSize: '0.6875rem' }}>active</span>}
+                {p.id === projectId && <span style={{ color: 'var(--mint)', marginLeft: '8px', fontSize: '0.6875rem' }}>active</span>}
               </StudioButton>
             ))}
           </div>
 
-          <div style={{ borderTop: '1px solid var(--slate-700)', padding: 'var(--sp-1)' }}>
+          <div style={{ borderTop: '1px solid var(--line)', padding: '8px' }}>
             {showCreate ? (
               <div style={{ display: 'flex', gap: '4px' }}>
                 <StudioInput
@@ -109,13 +109,13 @@ export function ProjectSelector() {
                   onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                   placeholder="Project name..."
                   autoFocus
-                  style={{ flex: 1, padding: '4px var(--sp-1)', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
+                  style={{ flex: 1, padding: '4px 8px', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
                 />
                 <StudioButton
                   onClick={handleCreate}
                   tone="success"
                   variant="primary"
-                  style={{ padding: '4px var(--sp-1)', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
+                  style={{ padding: '4px 8px', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
                 >
                   Add
                 </StudioButton>

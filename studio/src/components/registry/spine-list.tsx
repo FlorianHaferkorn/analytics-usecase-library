@@ -50,8 +50,8 @@ export function SpineList({ spines }: Props) {
           <div
             key={spine.id}
             style={{
-              backgroundColor: 'var(--slate-800)',
-              border: `1px solid ${isExpanded ? 'var(--info)' : 'var(--slate-700)'}`,
+              backgroundColor: 'var(--panel)',
+              border: `1px solid ${isExpanded ? 'var(--info)' : 'var(--line)'}`,
               borderRadius: 'var(--radius-lg)',
               overflow: 'hidden',
               transition: 'border-color var(--duration-fast) var(--ease-out)',
@@ -74,10 +74,10 @@ export function SpineList({ spines }: Props) {
               }}
             >
               <div>
-                <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: '2px' }}>
+                <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '2px' }}>
                   {spine.name}
                 </p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', fontFamily: 'monospace' }}>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontFamily: 'monospace' }}>
                   {spine.id}
                 </p>
               </div>
@@ -89,8 +89,8 @@ export function SpineList({ spines }: Props) {
                       padding: '2px 8px',
                       borderRadius: 'var(--radius-sm)',
                       fontSize: '0.6875rem',
-                      backgroundColor: 'var(--slate-700)',
-                      color: 'var(--slate-300)',
+                      backgroundColor: 'var(--bg-2)',
+                      color: 'var(--ink-2)',
                     }}
                   >
                     {d}
@@ -98,7 +98,7 @@ export function SpineList({ spines }: Props) {
                 ))}
               </div>
               <ConfidenceBadge level={spine.decision_confidence.level} />
-              <span style={{ color: 'var(--slate-500)', fontSize: '0.875rem', transition: 'transform var(--duration-fast)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+              <span style={{ color: 'var(--ink-4)', fontSize: '0.875rem', transition: 'transform var(--duration-fast)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 &#x25BC;
               </span>
             </StudioButton>

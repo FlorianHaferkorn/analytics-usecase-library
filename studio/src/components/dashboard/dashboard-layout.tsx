@@ -41,7 +41,7 @@ export function DashboardLayout({ layer, theme }: Props) {
       {(layer === '3s' || layer === 'all') && (
         <div>
           <SectionLabel color={theme.text}>3s — Pulse</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--sp-1-5)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
             {SAMPLE_KPIS.map((kpi) => (
               <PulseCard key={kpi.kpiId} kpi={kpi} theme={themeProps} />
             ))}

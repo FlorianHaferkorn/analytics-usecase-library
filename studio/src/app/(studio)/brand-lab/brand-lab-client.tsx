@@ -151,8 +151,8 @@ export function BrandLabClient() {
                   variant="ghost"
                   style={{
                     padding: 'var(--sp-1)',
-                    backgroundColor: isActive ? 'var(--slate-800)' : 'var(--slate-900)',
-                    border: isActive ? `1px solid ${preset.primary}` : '1px solid var(--slate-700)',
+                    backgroundColor: isActive ? 'var(--bg-2)' : 'var(--panel)',
+                    border: isActive ? `1px solid ${preset.primary}` : '1px solid var(--line)',
                     textAlign: 'left',
                     display: 'block',
                     width: '100%',
@@ -171,7 +171,7 @@ export function BrandLabClient() {
                     <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.secondary }} />
                     <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.background }} />
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.6875rem', color: isActive ? 'var(--slate-100)' : 'var(--slate-300)' }}>{name}</p>
+                  <p style={{ margin: 0, fontSize: '0.6875rem', color: isActive ? 'var(--ink)' : 'var(--ink-2)' }}>{name}</p>
                 </StudioButton>
               );
             })}
@@ -218,7 +218,7 @@ export function BrandLabClient() {
               </StudioSelect>
             </StudioFormField>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Font Weight ({theme.fontWeight ?? 400})
               </label>
               <input
@@ -232,7 +232,7 @@ export function BrandLabClient() {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Line Height ({theme.lineHeight ?? 1.5})
               </label>
               <input
@@ -246,7 +246,7 @@ export function BrandLabClient() {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Letter Spacing ({(theme.letterSpacing ?? 0).toFixed(3)}em)
               </label>
               <input
@@ -260,7 +260,7 @@ export function BrandLabClient() {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Border Radius ({theme.borderRadius}px)
               </label>
               <input
@@ -324,7 +324,7 @@ export function BrandLabClient() {
                   onClick={() => setActiveTab(layer)}
                   style={{
                     background: 'none',
-                    border: '1px solid var(--slate-700)',
+                    border: '1px solid var(--line)',
                     borderRadius: 'var(--radius-md)',
                     padding: 0,
                     cursor: 'pointer',
@@ -333,13 +333,13 @@ export function BrandLabClient() {
                     flexDirection: 'column',
                     transition: 'border-color 0.15s ease',
                   }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--slate-500)')}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--slate-700)')}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)')}
                 >
                   <LayoutPreview theme={theme} layer={layer} />
-                  <div style={{ padding: 'var(--sp-1) var(--sp-1-5)', borderTop: '1px solid var(--slate-700)', textAlign: 'left' }}>
-                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-100)' }}>{label}</p>
-                    <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>{desc}</p>
+                  <div style={{ padding: 'var(--sp-1) var(--sp-1-5)', borderTop: '1px solid var(--line)', textAlign: 'left' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink)' }}>{label}</p>
+                    <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '2px' }}>{desc}</p>
                   </div>
                 </button>
               ))}

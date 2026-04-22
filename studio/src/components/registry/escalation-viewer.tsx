@@ -20,12 +20,12 @@ export function EscalationViewer({ spine }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
       {/* Escalation Path */}
       <div>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', marginBottom: 'var(--sp-1)' }}>
+        <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: 'var(--sp-1)' }}>
           {spine.escalation_logic.principle}
         </p>
         <div style={{ display: 'flex', gap: 'var(--sp-1)', alignItems: 'stretch' }}>
           {path.map((step, i) => {
-            const config = LEVEL_CONFIG[step.level] ?? { color: 'var(--slate-400)', label: step.level, shortLabel: `L${i + 1}` };
+            const config = LEVEL_CONFIG[step.level] ?? { color: 'var(--ink-3)', label: step.level, shortLabel: `L${i + 1}` };
             return (
               <div key={step.level} style={{ flex: 1, display: 'flex', alignItems: 'stretch', gap: 'var(--sp-1)' }}>
                 <StudioPanel
@@ -47,7 +47,7 @@ export function EscalationViewer({ spine }: Props) {
                         height: '24px',
                         borderRadius: '50%',
                         backgroundColor: config.color,
-                        color: 'var(--slate-950)',
+                        color: 'var(--bg)',
                         fontSize: '0.6875rem',
                         fontWeight: 700,
                       }}
@@ -58,12 +58,12 @@ export function EscalationViewer({ spine }: Props) {
                       {config.label}
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.6875rem', color: 'var(--slate-300)', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5 }}>
                     {step.action}
                   </p>
                 </StudioPanel>
                 {i < path.length - 1 && (
-                  <div style={{ display: 'flex', alignItems: 'center', color: 'var(--slate-600)', fontSize: '1.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', color: 'var(--ink-4)', fontSize: '1.25rem' }}>
                     &#x2192;
                   </div>
                 )}
@@ -76,15 +76,15 @@ export function EscalationViewer({ spine }: Props) {
       {/* Decision Context */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1-5)' }}>
         <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', marginBottom: '4px', fontWeight: 600 }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Primary Question
           </p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--slate-200)', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ink-2)', lineHeight: 1.5 }}>
             {spine.decision_context.primary_question}
           </p>
         </StudioPanel>
         <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', marginBottom: '4px', fontWeight: 600 }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Decision Confidence
           </p>
           <span

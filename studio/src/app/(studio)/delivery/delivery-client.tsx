@@ -259,20 +259,20 @@ export function DeliveryClient({ brackets }: Props) {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
-                <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '2px' }}>Scope</p>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--slate-100)' }}>{selectedBrackets.size}</p>
-                <p style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>use cases selected</p>
+              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
+                <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginBottom: '2px' }}>Scope</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--ink)' }}>{selectedBrackets.size}</p>
+                <p style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>use cases selected</p>
               </div>
-              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
-                <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '2px' }}>Domains</p>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--slate-100)' }}>{selectedDomains.length}</p>
-                <p style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>{selectedDomains.join(', ') || 'None'}</p>
+              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
+                <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginBottom: '2px' }}>Domains</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--ink)' }}>{selectedDomains.length}</p>
+                <p style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>{selectedDomains.join(', ') || 'None'}</p>
               </div>
-              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
-                <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '2px' }}>Target</p>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--slate-100)' }}>{adapter.status}</p>
-                <p style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>{adapter.name}</p>
+              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
+                <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginBottom: '2px' }}>Target</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--ink)' }}>{adapter.status}</p>
+                <p style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>{adapter.name}</p>
               </div>
             </div>
 
@@ -287,10 +287,10 @@ export function DeliveryClient({ brackets }: Props) {
             )}
 
             <div>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '6px' }}>Runbook</p>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: '6px' }}>Runbook</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {runbookSteps.map((step) => (
-                  <div key={step} style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)', fontSize: '0.6875rem', color: 'var(--slate-200)', fontFamily: 'var(--font-mono)', overflowWrap: 'anywhere' }}>
+                  <div key={step} style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)', fontSize: '0.6875rem', color: 'var(--ink-2)', fontFamily: 'var(--font-mono)', overflowWrap: 'anywhere' }}>
                     {step}
                   </div>
                 ))}

@@ -21,7 +21,7 @@ export function IntegrityPanel({ kpiCount, actionCount, bracketCount }: Props) {
       <div
         style={{
           padding: 'var(--sp-2-5)',
-          backgroundColor: 'var(--slate-800)',
+          backgroundColor: 'var(--panel)',
           borderRadius: 'var(--radius-lg)',
           border: `1px solid ${allGreen ? 'var(--mint)' : 'var(--gold)'}`,
           display: 'flex',
@@ -39,7 +39,7 @@ export function IntegrityPanel({ kpiCount, actionCount, bracketCount }: Props) {
             marginBottom: 'var(--sp-1)',
           }}
         />
-        <span style={{ fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-400)' }}>
+        <span style={{ fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--ink-3)' }}>
           Stage 1 {allGreen ? 'Ready' : 'Pending'}
         </span>
       </div>
@@ -60,13 +60,13 @@ function StatCard({
     <div
       style={{
         padding: 'var(--sp-2-5)',
-        backgroundColor: 'var(--slate-800)',
+        backgroundColor: 'var(--panel)',
         borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
+        border: '1px solid var(--line)',
       }}
     >
       <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color }}>{value}</p>
-      <p style={{ margin: '6px 0 0', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-400)' }}>
+      <p style={{ margin: '6px 0 0', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--ink-3)' }}>
         {label}
       </p>
     </div>

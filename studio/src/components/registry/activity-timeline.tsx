@@ -51,11 +51,11 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
   }, [projectId]);
 
   if (loading) {
-    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-500)' }}>Loading activity...</p>;
+    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>Loading activity...</p>;
   }
 
   if (events.length === 0) {
-    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-500)' }}>No activity recorded yet.</p>;
+    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>No activity recorded yet.</p>;
   }
 
   return (
@@ -70,9 +70,9 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
             key={evt.id}
             style={{
               padding: 'var(--sp-1-5) var(--sp-2)',
-              backgroundColor: 'var(--slate-800)',
+              backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--slate-700)',
+              border: '1px solid var(--line)',
               cursor: 'pointer',
             }}
             onClick={() => setExpanded(isExpanded ? null : evt.id)}
@@ -84,27 +84,27 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
                   fontSize: '0.625rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
-                  color: ACTION_COLORS[evt.action] ?? 'var(--slate-400)',
+                  color: ACTION_COLORS[evt.action] ?? 'var(--ink-3)',
                   minWidth: '48px',
                 }}
               >
                 {evt.action}
               </span>
               {/* Entity */}
-              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--slate-300)' }}>
+              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--ink-2)' }}>
                 {ENTITY_LABELS[evt.entity_type] ?? evt.entity_type}
               </span>
-              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--slate-100)', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--ink)', fontWeight: 600 }}>
                 {evt.entity_id}
               </span>
               {/* Actor */}
               {evt.actor && evt.actor !== 'system' && (
-                <span style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>
+                <span style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>
                   by {evt.actor}
                 </span>
               )}
               {/* Timestamp */}
-              <span style={{ marginLeft: 'auto', fontSize: '0.625rem', color: 'var(--slate-500)' }}>
+              <span style={{ marginLeft: 'auto', fontSize: '0.625rem', color: 'var(--ink-4)' }}>
                 {relativeTime(evt.created_at)}
               </span>
             </div>
@@ -115,11 +115,11 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
                 style={{
                   marginTop: 'var(--sp-1)',
                   padding: 'var(--sp-1-5)',
-                  backgroundColor: 'var(--slate-900)',
+                  backgroundColor: 'var(--bg)',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '0.6875rem',
                   lineHeight: 1.55,
-                  color: 'var(--slate-300)',
+                  color: 'var(--ink-2)',
                   fontFamily: 'var(--font-mono)',
                   overflow: 'auto',
                   maxHeight: '120px',

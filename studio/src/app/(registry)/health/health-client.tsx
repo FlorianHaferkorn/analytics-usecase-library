@@ -29,23 +29,23 @@ function MetricCard({ m }: { m: MetricResult }) {
       style={{
         padding: 'var(--sp-2)',
         borderRadius: 'var(--radius-md)',
-        backgroundColor: 'var(--slate-900)',
-        border: '1px solid var(--slate-700)',
+        backgroundColor: 'var(--panel)',
+        border: '1px solid var(--line)',
         display: 'flex',
         flexDirection: 'column',
         gap: 'var(--sp-1)',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', fontFamily: 'monospace' }}>{m.metric}</span>
+        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', fontFamily: 'monospace' }}>{m.metric}</span>
         <span style={{ fontSize: '1rem', fontWeight: 700, color: scoreColor(m.score) }}>{pct}%</span>
       </div>
-      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--slate-200)', fontWeight: 600 }}>{m.name}</p>
+      <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--ink-2)', fontWeight: 600 }}>{m.name}</p>
       <div
         style={{
           height: '4px',
           borderRadius: '2px',
-          backgroundColor: 'var(--slate-700)',
+          backgroundColor: 'var(--line)',
           overflow: 'hidden',
         }}
       >
@@ -97,7 +97,7 @@ export function HealthPageClient() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
             {data.metrics.map((m) => <MetricCard key={m.metric} m={m} />)}
           </div>
-          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-4)' }}>
             Overall: <strong style={{ color: scoreColor(data.overall_score) }}>{Math.round(data.overall_score * 100)}%</strong>
             {' '}· Generated {new Date(data.generated_at).toLocaleString('de-DE')}
           </p>

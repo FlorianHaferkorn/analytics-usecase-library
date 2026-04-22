@@ -20,7 +20,7 @@ export function ActionCodeNode({ data }: NodeProps) {
     <div
       style={{
         padding: 'var(--sp-1) var(--sp-1-5)',
-        backgroundColor: 'var(--slate-800)',
+        backgroundColor: 'var(--panel)',
         border: `2px solid ${borderColor}`,
         borderRadius: 'var(--radius-md)',
         minWidth: '160px',
@@ -32,10 +32,10 @@ export function ActionCodeNode({ data }: NodeProps) {
       <p style={{ fontSize: '0.6875rem', color: headerColor, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>
         {isOrphan ? <><Warning size={10} style={{ verticalAlign: 'middle', marginRight: '2px' }} /> Orphan Action</> : 'Action Code'}
       </p>
-      <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--slate-100)' }}>
+      <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)' }}>
         {label}
       </p>
-      <p style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--slate-500)' }}>
+      <p style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>
         {actionId} · {domain}
       </p>
       <span

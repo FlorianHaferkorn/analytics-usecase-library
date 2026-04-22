@@ -182,7 +182,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
                 style={{
                   alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                   maxWidth: '80%',
-                  padding: 'var(--sp-1-5)',
+                  padding: 'var(--pad)',
                   backgroundColor: msg.role === 'user' ? 'var(--bg-2)' : 'var(--bg)',
                   borderRadius: 'var(--radius-md)',
                   border: `1px solid var(--line)`,
@@ -205,7 +205,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
         )}
       </div>
 
-      <div style={{ padding: 'var(--sp-1-5)', borderTop: '1px solid var(--line)' }}>
+      <div style={{ padding: 'var(--pad)', borderTop: '1px solid var(--line)' }}>
         <div style={{ display: 'flex', gap: '8px' }}>
           <StudioInput
             type="text"
@@ -216,7 +216,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
             disabled={isLoading}
             style={{
               flex: 1,
-              padding: '8px var(--sp-1-5)',
+              padding: '8px var(--pad)',
               fontSize: '0.875rem',
             }}
           />

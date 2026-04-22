@@ -36,7 +36,7 @@ export function StudioPageHeader({
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-      gap: 'var(--sp-2)', flexWrap: 'wrap',
+      gap: '16px', flexWrap: 'wrap',
       paddingBottom: 'var(--gap)', borderBottom: '1px solid var(--line)',
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 800 }}>
@@ -63,7 +63,7 @@ export function StudioPageHeader({
         <p style={{ margin: 0, fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--ink-3)' }}>{description}</p>
       </div>
       {actions && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', flexShrink: 0 }}>{actions}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>{actions}</div>
       )}
     </div>
   );
@@ -73,7 +73,7 @@ export function StudioPageHeader({
 
 export function StudioMetricBar({ children }: { children: ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--sp-1)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
       {children}
     </div>
   );
@@ -90,7 +90,7 @@ export function StudioMetric({
 
   return (
     <div style={{
-      padding: 'var(--sp-2)', background: 'var(--panel)',
+      padding: '16px', background: 'var(--panel)',
       border: '1px solid var(--line)', borderRadius: 'var(--radius)',
       boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', gap: 6,
     }}>
@@ -132,7 +132,7 @@ export function StudioPanel({
         <div style={{
           padding: '18px var(--pad)', borderBottom: '1px solid var(--line-2)',
           display: 'flex', alignItems: 'flex-start',
-          justifyContent: 'space-between', gap: 'var(--sp-2)', flexShrink: 0,
+          justifyContent: 'space-between', gap: '16px', flexShrink: 0,
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxWidth: '72ch' }}>
             {title && <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>{title}</h3>}
@@ -141,7 +141,7 @@ export function StudioPanel({
           {action && <div style={{ flexShrink: 0 }}>{action}</div>}
         </div>
       )}
-      <div style={{ padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', flex: 1, minHeight: 0 }}>
+      <div style={{ padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minHeight: 0 }}>
         {children}
       </div>
     </section>
@@ -153,7 +153,7 @@ export function StudioPanel({
 export function StudioEmptyState({ title, description }: { title: string; description: ReactNode }) {
   return (
     <div style={{
-      padding: 'var(--sp-6)', background: 'var(--bg-2)',
+      padding: '48px', background: 'var(--bg-2)',
       border: '1px solid var(--line)', borderRadius: 'var(--radius)', textAlign: 'center',
     }}>
       <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 500, color: 'var(--ink)' }}>{title}</p>
@@ -167,7 +167,7 @@ export function StudioEmptyState({ title, description }: { title: string; descri
 export function StudioToolbar({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', flexWrap: 'wrap',
+      display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
       padding: '10px 16px', background: 'var(--panel)',
       border: '1px solid var(--line)', borderRadius: 'var(--radius)',
       boxShadow: 'var(--shadow-sm)',
