@@ -1,6 +1,9 @@
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
 
+# Ephemeral agent worktrees (Claude Code agent isolation)
+.claude/worktrees/
+
 # Deployment generated artifacts (snapshots and reports)
 products/fabric/powerbi/deployment/snapshots/
 products/fabric/powerbi/deployment/reports/
