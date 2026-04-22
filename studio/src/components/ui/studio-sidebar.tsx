@@ -15,24 +15,22 @@ function NavGroup({ items, pathname }: { items: readonly NavItem[]; pathname: st
             key={item.href}
             href={item.href}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--sp-1)',
-              paddingLeft: isActive ? `calc(var(--sp-1) - 3px)` : 'var(--sp-1)',
-              paddingRight: 'var(--sp-1)',
-              paddingTop: 'var(--sp-1)',
-              paddingBottom: 'var(--sp-1)',
-              borderRadius: 'var(--radius-md)',
-              borderLeft: isActive ? `3px solid ${item.color}` : '3px solid transparent',
+              display: 'flex', alignItems: 'center', gap: 10,
+              height: 34, padding: '0 10px',
+              paddingLeft: isActive ? 7 : 10,
+              borderRadius: 7,
+              borderLeft: `3px solid ${isActive ? 'var(--accent)' : 'transparent'}`,
               textDecoration: 'none',
-              fontSize: '0.875rem',
-              fontWeight: isActive ? 600 : 400,
-              color: isActive ? 'var(--slate-50)' : 'var(--slate-400)',
-              backgroundColor: isActive ? 'var(--slate-800)' : 'transparent',
-              transition: 'all var(--duration-fast) var(--ease-out)',
+              fontSize: '0.8125rem',
+              fontWeight: isActive ? 500 : 400,
+              color: isActive ? 'var(--ink)' : 'var(--ink-3)',
+              background: isActive ? 'var(--hover)' : 'transparent',
+              transition: 'all var(--duration-fast)',
             }}
+            onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
+            onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
           >
-            <PhIcon name={item.sidebarIcon as PhIconName} size={18} />
+            <PhIcon name={item.sidebarIcon as PhIconName} size={16} />
             {item.label}
           </Link>
         );
@@ -46,77 +44,85 @@ export function StudioSidebar() {
   const mode = getNavMode(pathname);
 
   return (
-    <aside
-      style={{
-        gridRow: '1 / -1',
-        backgroundColor: 'var(--slate-950)',
-        borderRight: '1px solid var(--slate-800)',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: 'var(--sp-2) 0',
-      }}
-    >
-      <div style={{ padding: 'var(--sp-1) var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
-        <Link href="/" style={{ textDecoration: 'none' }}>
-          <span
-            style={{
-              fontSize: '1.125rem',
-              fontWeight: 700,
-              color: 'var(--slate-50)',
-              letterSpacing: '-0.025em',
-            }}
-          >
-            Action<span style={{ color: 'var(--mint)' }}>Ready</span>
-          </span>
-        </Link>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>
-          Studio v0.1.0
-        </p>
+    <aside style={{
+      gridRow: '1 / -1', width: 248,
+      background: 'var(--panel)',
+      borderRight: '1px solid var(--line)',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      {/* Brand */}
+      <div style={{ height: 56, padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid var(--line-2)' }}>
+        <div style={{
+          width: 26, height: 26, borderRadius: 7,
+          background: 'var(--ink)', color: 'var(--panel)',
+          display: 'grid', placeItems: 'center',
+          fontWeight: 600, fontSize: 14, letterSpacing: '-0.04em',
+          fontFamily: 'var(--font-display)',
+        }}>
+          A
+        </div>
+        <div style={{ lineHeight: 1.2 }}>
+          <div style={{ fontWeight: 600, fontSize: '0.875rem', letterSpacing: '-0.01em', color: 'var(--ink)' }}>
+            Action<span style={{ color: 'var(--accent)' }}>Ready</span>
+          </div>
+          <div style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>Studio v0.1.0</div>
+        </div>
       </div>
 
       {/* Mode switcher */}
-      <div style={{ display: 'flex', gap: '4px', padding: '0 var(--sp-1)', marginBottom: 'var(--sp-2)' }}>
-        {(['forge', 'registry'] as const).map((m) => (
-          <Link
-            key={m}
-            href={m === 'forge' ? '/discover' : '/catalog'}
-            style={{
-              flex: 1,
-              textAlign: 'center',
-              padding: '4px 0',
-              borderRadius: 'var(--radius-sm)',
-              fontSize: '0.6875rem',
-              fontWeight: mode === m ? 700 : 400,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              textDecoration: 'none',
-              color: mode === m ? 'var(--slate-50)' : 'var(--slate-500)',
-              backgroundColor: mode === m
-                ? (m === 'forge' ? 'color-mix(in srgb, var(--mint) 20%, transparent)' : 'color-mix(in srgb, var(--info) 20%, transparent)')
-                : 'transparent',
-              border: `1px solid ${mode === m ? (m === 'forge' ? 'var(--mint)' : 'var(--info)') : 'transparent'}`,
-            }}
-          >
-            {m === 'forge' ? 'Forge' : 'Registry'}
-          </Link>
-        ))}
+      <div style={{ padding: '12px 8px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {(['forge', 'registry'] as const).map((m) => (
+            <Link
+              key={m}
+              href={m === 'forge' ? '/steering' : '/registry'}
+              style={{
+                flex: 1, textAlign: 'center', padding: '5px 0',
+                borderRadius: 6, fontSize: '0.625rem', fontWeight: mode === m ? 600 : 400,
+                textTransform: 'uppercase', letterSpacing: '0.06em',
+                textDecoration: 'none',
+                color: mode === m ? 'var(--ink)' : 'var(--ink-4)',
+                background: mode === m ? 'var(--bg-2)' : 'transparent',
+                border: `1px solid ${mode === m ? 'var(--line)' : 'transparent'}`,
+                transition: 'all var(--duration-fast)',
+              }}
+            >
+              {m === 'forge' ? 'Forge' : 'Registry'}
+            </Link>
+          ))}
+        </div>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '0 var(--sp-1)' }}>
+      {/* Nav header */}
+      <div style={{ padding: '4px 8px 2px' }}>
+        <div style={{ padding: '6px 10px', fontSize: '0.5625rem', fontWeight: 500, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          Workspace
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: 1, padding: '0 8px' }}>
         <NavGroup items={mode === 'forge' ? FORGE_NAV : REGISTRY_NAV} pathname={pathname} />
       </nav>
 
       <div style={{ flex: 1 }} />
 
-      <div
-        style={{
-          padding: 'var(--sp-2)',
-          borderTop: '1px solid var(--slate-800)',
-          fontSize: '0.75rem',
-          color: 'var(--slate-600)',
-        }}
-      >
-        Aurora Group SE
+      {/* Footer */}
+      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line-2)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: 999,
+          background: 'var(--accent)', color: 'var(--accent-ink)',
+          display: 'grid', placeItems: 'center',
+          fontSize: '0.5625rem', fontWeight: 700, flexShrink: 0,
+        }}>
+          AU
+        </div>
+        <div style={{ lineHeight: 1.2, flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            Aurora Group SE
+          </div>
+          <div style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>Analytics Platform</div>
+        </div>
       </div>
     </aside>
   );
