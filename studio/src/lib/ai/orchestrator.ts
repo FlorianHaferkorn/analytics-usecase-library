@@ -10,6 +10,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
+import { getSecret } from '@/lib/secrets';
 
 export type AIProvider = 'google' | 'anthropic' | 'openai';
 
@@ -53,17 +54,18 @@ export function detectServerProvider(): AIProvider | null {
   return null;
 }
 
-/** Create a server-side language model from environment variables. Returns null if unconfigured. */
-export function createServerModel(): LanguageModel | null {
+/** Create a server-side language model using the secrets manager. Returns null if unconfigured. */
+export async function createServerModel(): Promise<LanguageModel | null> {
   const provider = detectServerProvider();
   if (!provider) return null;
 
-  const apiKey =
+  const keyName =
     provider === 'google'
-      ? (process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY ?? '')
+      ? (process.env.GOOGLE_API_KEY ? 'GOOGLE_API_KEY' : 'GEMINI_API_KEY')
       : provider === 'anthropic'
-        ? (process.env.ANTHROPIC_API_KEY ?? '')
-        : (process.env.OPENAI_API_KEY ?? '');
+        ? 'ANTHROPIC_API_KEY'
+        : 'OPENAI_API_KEY';
 
+  const apiKey = await getSecret(keyName);
   return createModel({ provider, apiKey });
 }

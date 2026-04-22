@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     context?: string;
   };
 
-  const model = createServerModel();
+  const model = await createServerModel();
   if (!model) {
     return new Response(
       JSON.stringify({ error: 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env.' }),
