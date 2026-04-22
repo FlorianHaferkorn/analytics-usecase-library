@@ -8,6 +8,9 @@
 const PLACEHOLDER_VALUES = ['changeme', 'your-secret-here', 'placeholder', 'secret'];
 
 export function validateAuthEnv(): void {
+  // Skip during next build — AUTH_SECRET is a runtime secret, not a build-time one
+  if (process.env.NEXT_PHASE === 'phase-production-build') return;
+
   const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? '';
   const isProduction = process.env.NODE_ENV === 'production';
 
