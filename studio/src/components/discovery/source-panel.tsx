@@ -126,7 +126,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
                   key={src.id}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px' }}
                 >
-                  <span style={{ fontSize: '0.75rem', color: 'var(--mint)', minWidth: '18px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--accent)', minWidth: '18px' }}>
                     {src.type === 'file' ? 'FILE' : 'TEXT'}
                   </span>
                   <span style={{ flex: 1, fontSize: '0.75rem', color: 'var(--ink-2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -243,7 +243,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
                     justifyContent: 'flex-start',
                   }}
                 >
-                  <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: 'var(--mint)', minWidth: '60px' }}>{b.id}</span>
+                  <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)', minWidth: '60px' }}>{b.id}</span>
                   <span style={{ flex: 1, fontSize: '0.8125rem', color: 'var(--ink-2)' }}>{b.title}</span>
                   <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>{b.domain}</span>
                 </StudioButton>

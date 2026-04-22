@@ -154,7 +154,7 @@ export function DeliveryClient({ brackets }: Props) {
                   style={{
                     padding: '16px',
                     backgroundColor: selectedAdapter === a.id ? 'var(--bg-2)' : 'var(--panel)',
-                    border: `1px solid ${selectedAdapter === a.id ? 'var(--mint)' : 'var(--line)'}`,
+                    border: `1px solid ${selectedAdapter === a.id ? 'var(--accent)' : 'var(--line)'}`,
                     textAlign: 'left',
                     display: 'block',
                     width: '100%',
@@ -164,7 +164,7 @@ export function DeliveryClient({ brackets }: Props) {
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>{a.name}</span>
                     <span style={{
                       fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600,
-                      backgroundColor: a.status === 'available' ? 'var(--mint)' : 'var(--gold)',
+                      backgroundColor: a.status === 'available' ? 'var(--accent)' : 'var(--warning)',
                       color: 'var(--bg)',
                     }}>
                       {a.status}
@@ -180,7 +180,7 @@ export function DeliveryClient({ brackets }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {adapter.outputs.map((output) => (
                 <div key={output} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', color: 'var(--ink-2)' }}>
-                  <span style={{ color: 'var(--mint)' }}>+</span>
+                  <span style={{ color: 'var(--accent)' }}>+</span>
                   {output}
                 </div>
               ))}
@@ -253,7 +253,7 @@ export function DeliveryClient({ brackets }: Props) {
           <StudioPanel title="Operational Plan" description="Validation checks, runbook steps and scope signals for the current delivery move." tone={readinessWarnings.length === 0 ? 'success' : 'warning'}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h4 style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink-2)' }}>Operational Plan</h4>
-              <span style={{ fontSize: '0.625rem', color: readinessWarnings.length === 0 ? 'var(--mint)' : 'var(--gold)' }}>
+              <span style={{ fontSize: '0.625rem', color: readinessWarnings.length === 0 ? 'var(--accent)' : 'var(--warning)' }}>
                 {readinessWarnings.length === 0 ? 'Ready for validation' : `${readinessWarnings.length} checks before export`}
               </span>
             </div>
@@ -279,7 +279,7 @@ export function DeliveryClient({ brackets }: Props) {
             {readinessWarnings.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {readinessWarnings.map((warning) => (
-                  <div key={warning} style={{ padding: '6px 8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'color-mix(in srgb, var(--gold) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--gold) 24%, transparent)', fontSize: '0.6875rem', color: 'var(--gold)' }}>
+                  <div key={warning} style={{ padding: '6px 8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'color-mix(in srgb, var(--warning) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--warning) 24%, transparent)', fontSize: '0.6875rem', color: 'var(--warning)' }}>
                     {warning}
                   </div>
                 ))}

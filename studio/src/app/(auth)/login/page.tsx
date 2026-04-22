@@ -55,7 +55,7 @@ function LoginForm() {
           }}>
             <div style={{
               width: 32, height: 32, borderRadius: 8,
-              background: 'linear-gradient(135deg, var(--mint), var(--gold))',
+              background: 'linear-gradient(135deg, var(--accent), var(--warning))',
             }} />
             <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ink)' }}>
               ActionReady Studio
@@ -126,7 +126,7 @@ function LoginForm() {
             style={{
               width: '100%',
               padding: '12px',
-              background: 'linear-gradient(135deg, var(--mint), #00B894)',
+              background: 'linear-gradient(135deg, var(--accent), #00B894)',
               border: 'none',
               borderRadius: 'var(--radius-lg)',
               color: 'var(--bg)',

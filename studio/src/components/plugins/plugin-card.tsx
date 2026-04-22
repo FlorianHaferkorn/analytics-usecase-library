@@ -10,8 +10,8 @@ interface Props {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  tool: 'var(--mint)',
-  widget: 'var(--gold)',
+  tool: 'var(--accent)',
+  widget: 'var(--warning)',
   datasource: 'var(--info)',
 };
 
@@ -60,11 +60,11 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
                 fontSize: '0.5625rem',
                 fontWeight: 700,
                 textTransform: 'uppercase',
-                color: enabled ? 'var(--mint)' : 'var(--gold)',
+                color: enabled ? 'var(--accent)' : 'var(--warning)',
                 padding: '2px 7px',
-                backgroundColor: enabled ? 'color-mix(in srgb, var(--mint) 14%, transparent)' : 'color-mix(in srgb, var(--gold) 14%, transparent)',
+                backgroundColor: enabled ? 'color-mix(in srgb, var(--accent) 14%, transparent)' : 'color-mix(in srgb, var(--warning) 14%, transparent)',
                 borderRadius: 'var(--radius-sm)',
-                border: `1px solid ${enabled ? 'color-mix(in srgb, var(--mint) 30%, transparent)' : 'color-mix(in srgb, var(--gold) 30%, transparent)'}`,
+                border: `1px solid ${enabled ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'color-mix(in srgb, var(--warning) 30%, transparent)'}`,
               }}
             >
               {enabled ? 'enabled' : 'disabled'}
@@ -82,7 +82,7 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
             type="checkbox"
             checked={enabled}
             onChange={() => onToggle(manifest.id, !enabled)}
-            style={{ accentColor: 'var(--mint)' }}
+            style={{ accentColor: 'var(--accent)' }}
           />
           <StudioButton
             onClick={() => onRemove(manifest.id)}
@@ -105,7 +105,7 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
         </div>
         <div style={{ padding: '8px 10px', backgroundColor: 'var(--bg-2)', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)' }}>
           <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Lifecycle</p>
-          <p style={{ fontSize: '0.75rem', color: manifest.lifecycle ? 'var(--mint)' : 'var(--ink-3)' }}>{manifest.lifecycle ? 'registered' : 'not declared'}</p>
+          <p style={{ fontSize: '0.75rem', color: manifest.lifecycle ? 'var(--accent)' : 'var(--ink-3)' }}>{manifest.lifecycle ? 'registered' : 'not declared'}</p>
         </div>
       </div>
 

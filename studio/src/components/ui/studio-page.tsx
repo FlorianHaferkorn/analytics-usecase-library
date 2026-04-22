@@ -7,7 +7,7 @@ type Tone = 'default' | 'info' | 'success' | 'warning';
 function toneColor(tone: Tone): string {
   if (tone === 'info')    return 'var(--info)';
   if (tone === 'success') return 'var(--accent)';
-  if (tone === 'warning') return 'var(--gold)';
+  if (tone === 'warning') return 'var(--warning)';
   return 'var(--ink-4)';
 }
 

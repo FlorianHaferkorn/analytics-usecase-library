@@ -86,7 +86,7 @@ function ActionRow({ action, isExpanded, onToggle }: { action: ActionCodeDefinit
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
-        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>{action.id}</StudioTableCell>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--warning)', fontSize: '0.75rem' }}>{action.id}</StudioTableCell>
         <StudioTableCell style={{ color: 'var(--ink)' }}>{action.name}</StudioTableCell>
         <StudioTableCell style={{ color: 'var(--ink-3)' }}>{action.owner_domain}</StudioTableCell>
         <StudioTableCell style={{ color: 'var(--ink-3)' }}>{action.impact_dimension}</StudioTableCell>

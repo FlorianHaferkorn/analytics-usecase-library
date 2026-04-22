@@ -10,7 +10,7 @@ interface Props {
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  EarlyWarning: 'var(--gold)',
+  EarlyWarning: 'var(--warning)',
   RequiredIntervention: 'var(--danger)',
   PrescriptiveExecution: '#DC2626',
 };
@@ -33,7 +33,7 @@ export function RulesList({ rules, onToggle, onDelete }: Props) {
               type="checkbox"
               checked={rule.enabled}
               onChange={() => onToggle(rule.id, !rule.enabled)}
-              style={{ accentColor: 'var(--mint)' }}
+              style={{ accentColor: 'var(--accent)' }}
             />
             <span
               style={{

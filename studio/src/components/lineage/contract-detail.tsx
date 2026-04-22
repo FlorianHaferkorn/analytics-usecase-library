@@ -73,7 +73,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
                     <tr key={col.name}>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-2)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-3)' }}>{col.type}</StudioTableCell>
-                      <StudioTableCell style={{ padding: '2px 8px', color: col.role === 'key' ? 'var(--gold)' : 'var(--ink-3)' }}>{col.role ?? '—'}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: col.role === 'key' ? 'var(--warning)' : 'var(--ink-3)' }}>{col.role ?? '—'}</StudioTableCell>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</StudioTableCell>
                     </tr>
                   ))}
@@ -109,7 +109,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
                     <tr key={col.name}>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-2)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-3)' }}>{col.type}</StudioTableCell>
-                      <StudioTableCell style={{ padding: '2px 8px', color: col.agg ? 'var(--mint)' : 'var(--ink-3)' }}>{col.agg ?? '—'}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: col.agg ? 'var(--accent)' : 'var(--ink-3)' }}>{col.agg ?? '—'}</StudioTableCell>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</StudioTableCell>
                     </tr>
                   ))}

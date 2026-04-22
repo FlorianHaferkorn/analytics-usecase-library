@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import type { KpiSnapshot } from '@/lib/dashboard/sample-data';
 
 const STATUS_COLORS: Record<string, string> = {
-  'on-track': 'var(--mint)',
-  'at-risk': 'var(--gold)',
+  'on-track': 'var(--accent)',
+  'at-risk': 'var(--warning)',
   'off-track': 'var(--danger)',
 };
 
@@ -61,7 +61,7 @@ export function PulseCard({ kpi, theme }: Props) {
       </motion.div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-        <span style={{ fontSize: '0.75rem', color: isPositive ? 'var(--mint)' : 'var(--danger)' }}>
+        <span style={{ fontSize: '0.75rem', color: isPositive ? 'var(--accent)' : 'var(--danger)' }}>
           {isPositive ? '↑' : '↓'} {Math.abs(delta).toFixed(1)} ({isPositive ? '+' : ''}{deltaPercent}%)
         </span>
         <span style={{ fontSize: '0.6875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 40%, transparent)` : 'var(--ink-4)' }}>

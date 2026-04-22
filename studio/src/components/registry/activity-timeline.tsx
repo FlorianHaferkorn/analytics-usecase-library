@@ -8,8 +8,8 @@ interface Props {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  create: 'var(--mint)',
-  update: 'var(--gold)',
+  create: 'var(--accent)',
+  update: 'var(--warning)',
   delete: 'var(--danger)',
 };
 

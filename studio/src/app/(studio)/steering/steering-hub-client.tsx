@@ -213,9 +213,9 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
   }, []);
 
   const syncIndicator = syncStatus === 'synced'
-    ? { color: 'var(--mint)', label: 'Synced' }
+    ? { color: 'var(--accent)', label: 'Synced' }
     : syncStatus === 'dirty'
-      ? { color: 'var(--gold)', label: 'Modified' }
+      ? { color: 'var(--warning)', label: 'Modified' }
       : { color: 'var(--danger)', label: 'Parse Error' };
 
   return (

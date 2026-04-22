@@ -22,8 +22,8 @@ export function Investigator({ label, trendData, waterfallData, theme }: Props) 
       border: `1px solid ${borderColor}`,
       borderRadius: radius,
     }}>
-      <TrendChart label={label} data={trendData} color={theme?.primary ?? 'var(--mint)'} />
-      <WaterfallChart data={waterfallData} primaryColor={theme?.primary ?? 'var(--mint)'} secondaryColor={theme?.secondary ?? 'var(--gold)'} />
+      <TrendChart label={label} data={trendData} color={theme?.primary ?? 'var(--accent)'} />
+      <WaterfallChart data={waterfallData} primaryColor={theme?.primary ?? 'var(--accent)'} secondaryColor={theme?.secondary ?? 'var(--warning)'} />
     </div>
   );
 }

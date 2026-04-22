@@ -134,8 +134,8 @@ export function PluginsClient() {
             </StudioButton>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '8px' }}>
-            <MiniSignal label="Tools" value={stats.typeCounts.tool} accent="var(--mint)" />
-            <MiniSignal label="Widgets" value={stats.typeCounts.widget} accent="var(--gold)" />
+            <MiniSignal label="Tools" value={stats.typeCounts.tool} accent="var(--accent)" />
+            <MiniSignal label="Widgets" value={stats.typeCounts.widget} accent="var(--warning)" />
             <MiniSignal label="Data" value={stats.typeCounts.datasource} accent="var(--info)" />
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -162,7 +162,7 @@ export function PluginsClient() {
             {ALL_HOOKS.map((hook) => (
               <div key={hook} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', backgroundColor: 'var(--panel)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)' }}>
                 <span style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', fontFamily: 'var(--font-mono)' }}>{hook}</span>
-                <span style={{ fontSize: '0.6875rem', color: stats.hookCoverage[hook] > 0 ? 'var(--mint)' : 'var(--ink-4)', fontWeight: 600 }}>{stats.hookCoverage[hook]}</span>
+                <span style={{ fontSize: '0.6875rem', color: stats.hookCoverage[hook] > 0 ? 'var(--accent)' : 'var(--ink-4)', fontWeight: 600 }}>{stats.hookCoverage[hook]}</span>
               </div>
             ))}
           </div>
@@ -174,7 +174,7 @@ export function PluginsClient() {
       ) : plugins.length === 0 ? (
         <StudioEmptyState
           title="No plugins installed"
-          description={<span>Add plugin manifests to the <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)' }}>/plugins</code> directory to get started.</span>}
+          description={<span>Add plugin manifests to the <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>/plugins</code> directory to get started.</span>}
         />
       ) : filteredPlugins.length === 0 ? (
         <StudioEmptyState

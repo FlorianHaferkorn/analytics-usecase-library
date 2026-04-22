@@ -11,7 +11,7 @@ interface Props {
 
 function ConfidenceBadge({ level }: { level: string }) {
   const color =
-    level === 'High' ? 'var(--mint)' : level === 'Medium' ? 'var(--gold)' : '#EF4444';
+    level === 'High' ? 'var(--accent)' : level === 'Medium' ? 'var(--warning)' : '#EF4444';
   const bg =
     level === 'High'
       ? 'rgba(0,212,170,0.15)'

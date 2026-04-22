@@ -15,7 +15,7 @@ export function KpiSlider({ kpiId, label, baseValue, value, unit, minRange, maxR
   const min = minRange ?? baseValue * 0.7;
   const max = maxRange ?? baseValue * 1.3;
   const delta = value - baseValue;
-  const deltaColor = delta >= 0 ? 'var(--mint)' : 'var(--danger)';
+  const deltaColor = delta >= 0 ? 'var(--accent)' : 'var(--danger)';
 
   /** T2.4: Position of baseline tick as a percentage along the slider track */
   const baselinePct = Math.max(0, Math.min(100, ((baseValue - min) / (max - min)) * 100));
@@ -46,7 +46,7 @@ export function KpiSlider({ kpiId, label, baseValue, value, unit, minRange, maxR
           step={(max - min) / 100}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          style={{ width: '100%', accentColor: 'var(--mint)' }}
+          style={{ width: '100%', accentColor: 'var(--accent)' }}
         />
         {/* T2.4: baseline tick mark — a small vertical line at the original value position */}
         <div
@@ -58,7 +58,7 @@ export function KpiSlider({ kpiId, label, baseValue, value, unit, minRange, maxR
             left: `calc(${baselinePct}% - 1px)`,
             width: '2px',
             height: '6px',
-            backgroundColor: 'var(--gold)',
+            backgroundColor: 'var(--warning)',
             borderRadius: '1px',
             pointerEvents: 'none',
           }}
@@ -69,7 +69,7 @@ export function KpiSlider({ kpiId, label, baseValue, value, unit, minRange, maxR
         <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>
           {min.toFixed(1)}{unit}
         </span>
-        <span style={{ fontSize: '0.5625rem', color: 'var(--gold)', fontWeight: 600 }}>
+        <span style={{ fontSize: '0.5625rem', color: 'var(--warning)', fontWeight: 600 }}>
           ↑ base: {baseValue.toFixed(1)}{unit}
         </span>
         <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>

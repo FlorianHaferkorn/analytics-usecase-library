@@ -2,8 +2,8 @@ import { Handle, Position } from '@xyflow/react';
 const TYPE_STYLES: Record<string, { border: string; bg: string; icon: string }> = {
   dimension: { border: 'var(--ink-4)', bg: 'var(--panel)', icon: 'D' },
   fact: { border: 'var(--info)', bg: 'var(--panel)', icon: 'F' },
-  kpi: { border: 'var(--mint)', bg: 'var(--panel)', icon: 'K' },
-  bracket: { border: 'var(--gold)', bg: 'var(--panel)', icon: 'B' },
+  kpi: { border: 'var(--accent)', bg: 'var(--panel)', icon: 'K' },
+  bracket: { border: 'var(--warning)', bg: 'var(--panel)', icon: 'B' },
 };
 
 interface Props {

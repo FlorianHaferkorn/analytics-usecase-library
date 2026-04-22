@@ -16,7 +16,7 @@ export function NotificationBell({ count, onClick }: Props) {
         position: 'relative',
         fontSize: '1.125rem',
         padding: '4px',
-        color: count > 0 ? 'var(--gold)' : 'var(--ink-4)',
+        color: count > 0 ? 'var(--warning)' : 'var(--ink-4)',
         minWidth: '32px',
         minHeight: '32px',
       }}

@@ -15,15 +15,15 @@ export function IntegrityPanel({ kpiCount, actionCount, bracketCount }: Props) {
         gap: '16px',
       }}
     >
-      <StatCard label="KPIs" value={kpiCount} color="var(--mint)" />
-      <StatCard label="Action Codes" value={actionCount} color="var(--gold)" />
+      <StatCard label="KPIs" value={kpiCount} color="var(--accent)" />
+      <StatCard label="Action Codes" value={actionCount} color="var(--warning)" />
       <StatCard label="Use Cases" value={bracketCount} color="var(--info)" />
       <div
         style={{
           padding: '20px',
           backgroundColor: 'var(--panel)',
           borderRadius: 'var(--radius-lg)',
-          border: `1px solid ${allGreen ? 'var(--mint)' : 'var(--gold)'}`,
+          border: `1px solid ${allGreen ? 'var(--accent)' : 'var(--warning)'}`,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -35,7 +35,7 @@ export function IntegrityPanel({ kpiCount, actionCount, bracketCount }: Props) {
             width: '12px',
             height: '12px',
             borderRadius: '50%',
-            backgroundColor: allGreen ? 'var(--mint)' : 'var(--gold)',
+            backgroundColor: allGreen ? 'var(--accent)' : 'var(--warning)',
             marginBottom: '8px',
           }}
         />

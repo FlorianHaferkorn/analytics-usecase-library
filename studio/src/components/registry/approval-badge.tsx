@@ -8,8 +8,8 @@ interface Props {
 
 const STATUS_STYLES: Record<ApprovalStatus, { bg: string; color: string; label: string }> = {
   draft: { bg: 'var(--panel)', color: 'var(--ink-2)', label: 'Draft' },
-  review: { bg: 'rgba(255,184,0,0.2)', color: 'var(--gold)', label: 'In Review' },
-  approved: { bg: 'rgba(0,212,170,0.2)', color: 'var(--mint)', label: 'Approved' },
+  review: { bg: 'rgba(255,184,0,0.2)', color: 'var(--warning)', label: 'In Review' },
+  approved: { bg: 'rgba(0,212,170,0.2)', color: 'var(--accent)', label: 'Approved' },
   rejected: { bg: 'rgba(239,68,68,0.2)', color: 'var(--danger)', label: 'Rejected' },
   deprecated: { bg: 'rgba(100,116,139,0.2)', color: 'var(--ink-3)', label: 'Deprecated' },
 };

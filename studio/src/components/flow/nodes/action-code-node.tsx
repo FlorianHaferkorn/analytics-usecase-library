@@ -13,8 +13,8 @@ export interface ActionCodeData {
 export function ActionCodeNode({ data }: NodeProps) {
   const { actionId, label, status, domain, isOrphan } = data as unknown as ActionCodeData;
   const statusColor = getStatusColor(status);
-  const borderColor = isOrphan ? 'var(--danger)' : 'var(--gold)';
-  const headerColor = isOrphan ? 'var(--danger)' : 'var(--gold)';
+  const borderColor = isOrphan ? 'var(--danger)' : 'var(--warning)';
+  const headerColor = isOrphan ? 'var(--danger)' : 'var(--warning)';
 
   return (
     <div

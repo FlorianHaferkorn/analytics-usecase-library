@@ -19,12 +19,12 @@ function KpiResults({ data }: { data: unknown[] }) {
   const items = data as AnyRecord[];
   return (
     <div style={CARD_STYLE}>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--mint)', fontWeight: 600, marginBottom: '6px' }}>
+      <p style={{ fontSize: '0.6875rem', color: 'var(--accent)', fontWeight: 600, marginBottom: '6px' }}>
         KPI Lookup ({items.length} results)
       </p>
       {items.map((kpi, i) => (
         <div key={i} style={{ padding: '4px 0', borderBottom: i < items.length - 1 ? '1px solid var(--line)' : 'none' }}>
-          <span style={{ fontFamily: 'monospace', color: 'var(--gold)' }}>{String(kpi.kpi_id)}</span>
+          <span style={{ fontFamily: 'monospace', color: 'var(--warning)' }}>{String(kpi.kpi_id)}</span>
           <span style={{ color: 'var(--ink-2)', marginLeft: '8px' }}>{String(kpi.name)}</span>
           {typeof kpi.definition === 'string' && (
             <p style={{ color: 'var(--ink-3)', fontSize: '0.6875rem', marginTop: '2px' }}>{kpi.definition}</p>
@@ -44,7 +44,7 @@ function BracketResults({ data }: { data: unknown[] }) {
       </p>
       {items.map((b, i) => (
         <div key={i} style={{ padding: '4px 0', display: 'flex', gap: '8px' }}>
-          <span style={{ fontFamily: 'monospace', color: 'var(--gold)' }}>{String(b.id)}</span>
+          <span style={{ fontFamily: 'monospace', color: 'var(--warning)' }}>{String(b.id)}</span>
           <span style={{ color: 'var(--ink-2)' }}>{String(b.title)}</span>
           <span style={{ color: 'var(--ink-4)' }}>{String(b.driverCount)}D / {String(b.actionCount)}A</span>
         </div>
@@ -56,7 +56,7 @@ function BracketResults({ data }: { data: unknown[] }) {
 function DraftResult({ data }: { data: AnyRecord }) {
   return (
     <div style={CARD_STYLE}>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--gold)', fontWeight: 600, marginBottom: '6px' }}>
+      <p style={{ fontSize: '0.6875rem', color: 'var(--warning)', fontWeight: 600, marginBottom: '6px' }}>
         Bracket Draft: {String(data.id)}
       </p>
       <pre style={{ fontFamily: 'monospace', color: 'var(--ink-2)', fontSize: '0.6875rem', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
@@ -70,8 +70,8 @@ function ValidationResult({ data }: { data: AnyRecord }) {
   const valid = data.valid as boolean;
   const errors = (data.errors ?? []) as AnyRecord[];
   return (
-    <div style={{ ...CARD_STYLE, borderColor: valid ? 'var(--mint)' : '#EF4444' }}>
-      <p style={{ fontSize: '0.6875rem', color: valid ? 'var(--mint)' : '#EF4444', fontWeight: 600, marginBottom: '6px' }}>
+    <div style={{ ...CARD_STYLE, borderColor: valid ? 'var(--accent)' : '#EF4444' }}>
+      <p style={{ fontSize: '0.6875rem', color: valid ? 'var(--accent)' : '#EF4444', fontWeight: 600, marginBottom: '6px' }}>
         Validation: {valid ? 'PASSED' : `FAILED (${errors.length} errors)`}
       </p>
       {errors.map((e, i) => (
@@ -87,12 +87,12 @@ function ActionResults({ data }: { data: unknown[] }) {
   const items = data as AnyRecord[];
   return (
     <div style={CARD_STYLE}>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--gold)', fontWeight: 600, marginBottom: '6px' }}>
+      <p style={{ fontSize: '0.6875rem', color: 'var(--warning)', fontWeight: 600, marginBottom: '6px' }}>
         Suggested Actions ({items.length})
       </p>
       {items.map((a, i) => (
         <div key={i} style={{ padding: '4px 0', display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'monospace', color: 'var(--gold)' }}>{String(a.id)}</span>
+          <span style={{ fontFamily: 'monospace', color: 'var(--warning)' }}>{String(a.id)}</span>
           <span style={{ color: 'var(--ink-2)' }}>{String(a.name)}</span>
           <span style={{ padding: '1px 6px', backgroundColor: 'var(--bg-2)', borderRadius: 'var(--radius-sm)', color: 'var(--ink-3)', fontSize: '0.625rem' }}>
             {String(a.relationship)}

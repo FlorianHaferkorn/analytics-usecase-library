@@ -75,7 +75,7 @@ function BracketRow({
         <StudioTableCell style={{ color: 'var(--ink-3)' }}>
           {bracket.domain}
         </StudioTableCell>
-        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.75rem' }}>
           {bracket.orchestration.strategic_kpi_id}
         </StudioTableCell>
         <StudioTableCell style={{ color: 'var(--ink-2)', textAlign: 'center' }}>
@@ -100,7 +100,7 @@ function BracketRow({
               <div>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Action Codes</p>
                 {bracket.orchestration.action_code_ids.map((id) => (
-                  <p key={id} style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>{id}</p>
+                  <p key={id} style={{ fontFamily: 'var(--font-mono)', color: 'var(--warning)', fontSize: '0.75rem' }}>{id}</p>
                 ))}
               </div>
               <div>

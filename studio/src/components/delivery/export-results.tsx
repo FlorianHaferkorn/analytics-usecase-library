@@ -84,7 +84,7 @@ export function ExportResults({ results, adapterName }: Props) {
                   display: 'block', width: '100%', textAlign: 'left',
                   padding: '4px 8px',
                   backgroundColor: previewFile?.filename === file.filename ? 'var(--bg-2)' : 'var(--bg)',
-                  border: `1px solid ${previewFile?.filename === file.filename ? 'var(--mint)' : 'var(--line)'}`,
+                  border: `1px solid ${previewFile?.filename === file.filename ? 'var(--accent)' : 'var(--line)'}`,
                   borderRadius: 'var(--radius-sm)',
                   color: 'var(--ink-2)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)',
                   justifyContent: 'flex-start',

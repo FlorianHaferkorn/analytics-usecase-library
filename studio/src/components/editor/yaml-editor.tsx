@@ -89,7 +89,7 @@ export function YamlEditor({
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
-            color: validation.valid ? 'var(--mint)' : 'var(--danger)',
+            color: validation.valid ? 'var(--accent)' : 'var(--danger)',
           }}
         >
           <span
@@ -97,7 +97,7 @@ export function YamlEditor({
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              backgroundColor: validation.valid ? 'var(--mint)' : 'var(--danger)',
+              backgroundColor: validation.valid ? 'var(--accent)' : 'var(--danger)',
             }}
           />
           {validation.valid

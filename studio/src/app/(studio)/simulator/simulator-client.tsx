@@ -186,7 +186,7 @@ export function SimulatorClient({ brackets }: Props) {
           </div>
           <div>
             <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Delta</p>
-            <p style={{ fontSize: '1rem', fontWeight: 600, color: result.isImprovement ? 'var(--mint)' : 'var(--danger)' }}>
+            <p style={{ fontSize: '1rem', fontWeight: 600, color: result.isImprovement ? 'var(--accent)' : 'var(--danger)' }}>
               {result.delta >= 0 ? '+' : ''}{result.delta.toFixed(2)} ({result.deltaPercent >= 0 ? '+' : ''}{result.deltaPercent.toFixed(1)}%)
             </p>
           </div>

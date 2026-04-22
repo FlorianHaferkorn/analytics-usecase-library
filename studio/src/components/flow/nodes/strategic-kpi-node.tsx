@@ -10,7 +10,7 @@ export interface StrategicKpiData {
 }
 
 export function StrategicKpiNode({ data, selected }: NodeProps) {
-  const { kpiName, label, direction, useCaseId, domainColor = 'var(--mint)' } = data as unknown as StrategicKpiData;
+  const { kpiName, label, direction, useCaseId, domainColor = 'var(--accent)' } = data as unknown as StrategicKpiData;
 
   return (
     <div

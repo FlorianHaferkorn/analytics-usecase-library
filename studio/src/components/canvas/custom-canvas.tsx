@@ -103,7 +103,7 @@ function InspectorPanel({ node, inputCount, outputCount, onClose, onOpen, onEdit
         {node.status && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div style={{ fontSize: '0.5625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</div>
-            <div style={{ color: node.status === 'active' ? 'var(--mint)' : 'var(--gold)', lineHeight: 1.5 }}>{node.status}</div>
+            <div style={{ color: node.status === 'active' ? 'var(--accent)' : 'var(--warning)', lineHeight: 1.5 }}>{node.status}</div>
           </div>
         )}
         <InspRow label="Dependencies" value={`${inputCount} input${inputCount !== 1 ? 's' : ''} · ${outputCount} output${outputCount !== 1 ? 's' : ''}`} />
@@ -117,7 +117,7 @@ function InspectorPanel({ node, inputCount, outputCount, onClose, onOpen, onEdit
             </button>
           )}
           {onEdit && (
-            <button onClick={onEdit} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: 'var(--slate-950)', background: 'var(--mint)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
+            <button onClick={onEdit} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: 'var(--slate-950)', background: 'var(--accent)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
               Edit
             </button>
           )}
@@ -192,7 +192,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
   if (nodes.length === 0) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: 'var(--slate-900)' }}>
-        <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', background: 'color-mix(in srgb, var(--slate-900) 92%, var(--mint) 8%)', textAlign: 'center', maxWidth: 360 }}>
+        <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', background: 'color-mix(in srgb, var(--slate-900) 92%, var(--accent) 8%)', textAlign: 'center', maxWidth: 360 }}>
           <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--slate-200)' }}>No data to display</p>
           {emptyMessage && <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--slate-500)', lineHeight: 1.6 }}>{emptyMessage}</p>}
         </div>
@@ -261,7 +261,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
             const isSel = sel === n.id;
             const isDimmed = activeTarget !== null && !isConnected(edges, n.id, activeTarget);
             const isGoal = km.goal === true;
-            const borderColor = isSel ? 'var(--mint)' : (n.domainColor ? `${n.domainColor}55` : 'var(--slate-700)');
+            const borderColor = isSel ? 'var(--accent)' : (n.domainColor ? `${n.domainColor}55` : 'var(--slate-700)');
             return (
               <div key={n.id} data-node=""
                 onMouseEnter={() => setHover(n.id)}
@@ -270,11 +270,11 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                 style={{
                   position: 'absolute', left: n.x, top: n.y,
                   width: NODE_W, height: NODE_H,
-                  background: isGoal ? 'var(--mint)' : 'var(--slate-800)',
+                  background: isGoal ? 'var(--accent)' : 'var(--slate-800)',
                   border: `1px solid ${borderColor}`,
                   borderRadius: 10,
                   boxShadow: isSel
-                    ? '0 0 0 3px color-mix(in srgb, var(--mint) 28%, transparent), 0 4px 12px rgba(0,0,0,0.4)'
+                    ? '0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent), 0 4px 12px rgba(0,0,0,0.4)'
                     : '0 1px 3px rgba(0,0,0,0.3)',
                   padding: '10px 12px',
                   display: 'flex', flexDirection: 'column', gap: 3,

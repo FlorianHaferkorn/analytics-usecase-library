@@ -19,7 +19,7 @@ export const FORGE_NAV: readonly NavItem[] = [
     description: 'Extract strategy anchors from business reports and research',
     icon: 'D',
     sidebarIcon: 'magnifying-glass',
-    color: 'var(--mint)',
+    color: 'var(--accent)',
   },
   {
     href: '/blueprint',
@@ -27,7 +27,7 @@ export const FORGE_NAV: readonly NavItem[] = [
     description: 'Visualize and edit the Golden Thread: Strategy to Action',
     icon: 'B',
     sidebarIcon: 'tree-structure',
-    color: 'var(--mint)',
+    color: 'var(--accent)',
   },
   {
     href: '/compose',
@@ -35,7 +35,7 @@ export const FORGE_NAV: readonly NavItem[] = [
     description: 'What-if scenario modeling with value driver formulas',
     icon: 'C',
     sidebarIcon: 'lightning',
-    color: 'var(--gold)',
+    color: 'var(--warning)',
   },
   {
     href: '/generate',
@@ -43,7 +43,7 @@ export const FORGE_NAV: readonly NavItem[] = [
     description: 'Export to Fabric/Power BI, SQL, or Evidence.dev',
     icon: 'G',
     sidebarIcon: 'rocket-launch',
-    color: 'var(--gold)',
+    color: 'var(--warning)',
   },
   {
     href: '/brand',
@@ -51,7 +51,7 @@ export const FORGE_NAV: readonly NavItem[] = [
     description: 'Define themes, layouts, and preview 3-30-300 report pages',
     icon: 'U',
     sidebarIcon: 'paint-brush',
-    color: 'var(--gold)',
+    color: 'var(--warning)',
   },
   {
     href: '/plugins',

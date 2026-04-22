@@ -27,7 +27,7 @@ export function ImpactChart({ contributions, impactDirection }: Props) {
           const pct = (c.contribution / maxAbs) * 100;
           const isPositive = c.contribution >= 0;
           const isGood = impactDirection === 'maximize' ? isPositive : !isPositive;
-          const barColor = isGood ? 'var(--mint)' : 'var(--danger)';
+          const barColor = isGood ? 'var(--accent)' : 'var(--danger)';
 
           return (
             <div key={c.kpiId} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

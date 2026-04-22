@@ -8,8 +8,8 @@ interface Props {
 }
 
 const LEVEL_CONFIG: Record<string, { color: string; label: string; shortLabel: string }> = {
-  EarlyWarning: { color: 'var(--mint)', label: 'Early Warning', shortLabel: 'L1' },
-  RequiredIntervention: { color: 'var(--gold)', label: 'Required Intervention', shortLabel: 'L2' },
+  EarlyWarning: { color: 'var(--accent)', label: 'Early Warning', shortLabel: 'L1' },
+  RequiredIntervention: { color: 'var(--warning)', label: 'Required Intervention', shortLabel: 'L2' },
   PrescriptiveExecution: { color: '#EF4444', label: 'Prescriptive Execution', shortLabel: 'L3' },
 };
 
@@ -95,7 +95,7 @@ export function EscalationViewer({ spine }: Props) {
               fontSize: '0.6875rem',
               fontWeight: 600,
               backgroundColor: spine.decision_confidence.level === 'High' ? 'rgba(0,212,170,0.15)' : spine.decision_confidence.level === 'Medium' ? 'rgba(255,184,0,0.15)' : 'rgba(239,68,68,0.15)',
-              color: spine.decision_confidence.level === 'High' ? 'var(--mint)' : spine.decision_confidence.level === 'Medium' ? 'var(--gold)' : '#EF4444',
+              color: spine.decision_confidence.level === 'High' ? 'var(--accent)' : spine.decision_confidence.level === 'Medium' ? 'var(--warning)' : '#EF4444',
             }}
           >
             {spine.decision_confidence.level}
@@ -106,12 +106,12 @@ export function EscalationViewer({ spine }: Props) {
       {/* Tradeoffs */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <StudioPanel style={{ padding: '12px' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--mint)', marginBottom: '4px', fontWeight: 600 }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--accent)', marginBottom: '4px', fontWeight: 600 }}>
             Improves
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
             {spine.decision_tradeoffs.improves.map((item) => (
-              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(0,212,170,0.1)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--mint)' }}>
+              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(0,212,170,0.1)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--accent)' }}>
                 {item}
               </span>
             ))}

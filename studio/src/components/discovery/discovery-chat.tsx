@@ -154,7 +154,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
           Discovery Chat
         </h3>
         {isLoading && (
-          <span style={{ fontSize: '0.6875rem', color: 'var(--mint)', animation: 'pulse 1.5s infinite' }}>
+          <span style={{ fontSize: '0.6875rem', color: 'var(--accent)', animation: 'pulse 1.5s infinite' }}>
             thinking...
           </span>
         )}
@@ -169,7 +169,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
                 description={
                   <>
                     <span>Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.</span>
-                    {context ? <span style={{ display: 'block', marginTop: '8px', color: 'var(--mint)' }}>{Math.round(context.length / 4)} tokens of context loaded</span> : null}
+                    {context ? <span style={{ display: 'block', marginTop: '8px', color: 'var(--accent)' }}>{Math.round(context.length / 4)} tokens of context loaded</span> : null}
                   </>
                 }
               />

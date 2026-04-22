@@ -80,7 +80,7 @@ export function KpiRegistryTable({ kpis }: Props) {
 
 function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: boolean; onToggle: () => void }) {
   const score = kpi.metadata_quality?.completeness_score ?? 0;
-  const scoreColor = score >= 0.9 ? 'var(--mint)' : score >= 0.7 ? 'var(--gold)' : 'var(--danger)';
+  const scoreColor = score >= 0.9 ? 'var(--accent)' : score >= 0.7 ? 'var(--warning)' : 'var(--danger)';
 
   return (
     <>
@@ -93,10 +93,10 @@ function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: bo
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
-        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>{kpi.kpi_id}</StudioTableCell>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.75rem' }}>{kpi.kpi_id}</StudioTableCell>
         <StudioTableCell style={{ color: 'var(--ink)' }}>{kpi.kpi_key}</StudioTableCell>
         <StudioTableCell>
-          <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, border: `1px solid ${kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--ink-3)'}`, color: kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--ink-3)' }}>
+          <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, border: `1px solid ${kpi.kpi_role === 'strategic' ? 'var(--warning)' : 'var(--ink-3)'}`, color: kpi.kpi_role === 'strategic' ? 'var(--warning)' : 'var(--ink-3)' }}>
             {kpi.kpi_type}
           </span>
         </StudioTableCell>

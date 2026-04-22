@@ -11,8 +11,8 @@ export interface DriverKpiData {
 /* T1.5: use CSS vars instead of hardcoded RGBA gold */
 const pulseKeyframes = `
 @keyframes actionGapPulse {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold) 40%, transparent); }
-  50% { box-shadow: 0 0 12px 4px color-mix(in srgb, var(--gold) 25%, transparent); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--warning) 40%, transparent); }
+  50% { box-shadow: 0 0 12px 4px color-mix(in srgb, var(--warning) 25%, transparent); }
 }
 `;
 
@@ -20,7 +20,7 @@ export function DriverKpiNode({ data, selected }: NodeProps) {
   const { kpiId, label, hasAction, domainColor = 'var(--ink-4)' } = data as unknown as DriverKpiData;
   const borderColor = hasAction
     ? (selected ? domainColor : `color-mix(in srgb, ${domainColor} 50%, var(--line))`)
-    : 'var(--gold)';
+    : 'var(--warning)';
 
   return (
     <>
@@ -39,7 +39,7 @@ export function DriverKpiNode({ data, selected }: NodeProps) {
         }}
       >
         <Handle type="target" position={Position.Top} style={{ background: borderColor }} />
-        <p style={{ fontSize: '0.5625rem', color: hasAction ? 'var(--ink-4)' : 'var(--gold)', marginBottom: '3px' }}>
+        <p style={{ fontSize: '0.5625rem', color: hasAction ? 'var(--ink-4)' : 'var(--warning)', marginBottom: '3px' }}>
           Driver KPI {!hasAction && <><Warning size={10} style={{ verticalAlign: 'middle', marginLeft: '2px' }} />No Action</>}
         </p>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)' }}>

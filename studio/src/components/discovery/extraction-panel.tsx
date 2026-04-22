@@ -142,8 +142,8 @@ function extractQuote(context: string): string {
 
 const TYPE_COLORS: Record<string, string> = {
   anchor: 'var(--ink-3)',
-  kpi: 'var(--mint)',
-  action: 'var(--gold)',
+  kpi: 'var(--accent)',
+  action: 'var(--warning)',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -153,8 +153,8 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const REVIEW_COLORS: Record<ReviewItem['status'], string> = {
-  new: 'var(--mint)',
-  warning: 'var(--gold)',
+  new: 'var(--accent)',
+  warning: 'var(--warning)',
   conflict: 'var(--danger)',
   informational: 'var(--info)',
 };
@@ -298,8 +298,8 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
       <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--line)' }}>
         {reviewSummary && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', marginBottom: '8px' }}>
-            <ReviewStat label="New" value={reviewSummary.newCount} color="var(--mint)" />
-            <ReviewStat label="Review" value={reviewSummary.warningCount} color="var(--gold)" />
+            <ReviewStat label="New" value={reviewSummary.newCount} color="var(--accent)" />
+            <ReviewStat label="Review" value={reviewSummary.warningCount} color="var(--warning)" />
             <ReviewStat label="Conflicts" value={reviewSummary.conflictCount} color="var(--danger)" />
             <ReviewStat label="Anchors" value={reviewSummary.informationalCount} color="var(--info)" />
           </div>
@@ -519,7 +519,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
             </StudioButton>
           </div>
           {draftResult && (
-            <div style={{ padding: '8px', backgroundColor: 'color-mix(in srgb, var(--mint) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--mint)' }}>
+            <div style={{ padding: '8px', backgroundColor: 'color-mix(in srgb, var(--accent) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--accent)' }}>
               <p style={{ fontWeight: 600 }}>Branch erstellt ✓</p>
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.5625rem', marginTop: '2px', wordBreak: 'break-all' }}>{draftResult.branch}</p>
               <p style={{ color: 'var(--ink-3)', marginTop: '2px' }}>{draftResult.total} Elemente → {draftResult.file}</p>

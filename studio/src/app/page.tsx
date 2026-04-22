@@ -12,8 +12,8 @@ export default async function HomePage() {
   ]);
 
   const stats = [
-    { label: 'KPIs', value: kpis.length, color: 'var(--mint)' },
-    { label: 'Action Codes', value: actions.length, color: 'var(--gold)' },
+    { label: 'KPIs', value: kpis.length, color: 'var(--accent)' },
+    { label: 'Action Codes', value: actions.length, color: 'var(--warning)' },
     { label: 'Use Cases', value: brackets.length, color: 'var(--info)' },
     {
       label: 'Domains',
@@ -44,8 +44,8 @@ export default async function HomePage() {
           }}
         >
           Action
-          <span style={{ color: 'var(--mint)' }}>Ready</span>{' '}
-          <span style={{ color: 'var(--gold)' }}>Studio</span>
+          <span style={{ color: 'var(--accent)' }}>Ready</span>{' '}
+          <span style={{ color: 'var(--warning)' }}>Studio</span>
         </h1>
         <p
           style={{

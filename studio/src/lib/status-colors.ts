@@ -1,9 +1,9 @@
 export function getStatusColor(status: string): string {
   switch (status) {
     case 'active':
-      return 'var(--mint)';
+      return 'var(--accent)';
     case 'draft':
-      return 'var(--gold)';
+      return 'var(--warning)';
     case 'deprecated':
       return 'var(--danger)';
     default:

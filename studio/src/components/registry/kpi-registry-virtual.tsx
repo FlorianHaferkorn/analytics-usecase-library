@@ -86,7 +86,7 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
               borderBottom: '1px solid var(--line)',
             }}
           >
-            <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem', minWidth: '200px', borderTop: 'none', padding: 0 }}>
+            <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.75rem', minWidth: '200px', borderTop: 'none', padding: 0 }}>
               {kpi.kpi_id}
             </StudioTableCell>
             <StudioTableCell style={{ color: 'var(--ink)', flex: 1, borderTop: 'none', padding: 0 }}>
