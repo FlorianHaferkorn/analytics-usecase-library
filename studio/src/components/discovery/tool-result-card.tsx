@@ -6,10 +6,10 @@ interface Props {
 }
 
 const CARD_STYLE = {
-  padding: 'var(--sp-1-5)',
-  backgroundColor: 'var(--slate-800)',
+  padding: 'var(--pad)',
+  backgroundColor: 'var(--panel)',
   borderRadius: 'var(--radius-md)',
-  border: '1px solid var(--slate-600)',
+  border: '1px solid var(--line)',
   fontSize: '0.75rem',
 };
 
@@ -23,11 +23,11 @@ function KpiResults({ data }: { data: unknown[] }) {
         KPI Lookup ({items.length} results)
       </p>
       {items.map((kpi, i) => (
-        <div key={i} style={{ padding: '4px 0', borderBottom: i < items.length - 1 ? '1px solid var(--slate-700)' : 'none' }}>
+        <div key={i} style={{ padding: '4px 0', borderBottom: i < items.length - 1 ? '1px solid var(--line)' : 'none' }}>
           <span style={{ fontFamily: 'monospace', color: 'var(--gold)' }}>{String(kpi.kpi_id)}</span>
-          <span style={{ color: 'var(--slate-300)', marginLeft: '8px' }}>{String(kpi.name)}</span>
+          <span style={{ color: 'var(--ink-2)', marginLeft: '8px' }}>{String(kpi.name)}</span>
           {typeof kpi.definition === 'string' && (
-            <p style={{ color: 'var(--slate-400)', fontSize: '0.6875rem', marginTop: '2px' }}>{kpi.definition}</p>
+            <p style={{ color: 'var(--ink-3)', fontSize: '0.6875rem', marginTop: '2px' }}>{kpi.definition}</p>
           )}
         </div>
       ))}
@@ -45,8 +45,8 @@ function BracketResults({ data }: { data: unknown[] }) {
       {items.map((b, i) => (
         <div key={i} style={{ padding: '4px 0', display: 'flex', gap: '8px' }}>
           <span style={{ fontFamily: 'monospace', color: 'var(--gold)' }}>{String(b.id)}</span>
-          <span style={{ color: 'var(--slate-200)' }}>{String(b.title)}</span>
-          <span style={{ color: 'var(--slate-500)' }}>{String(b.driverCount)}D / {String(b.actionCount)}A</span>
+          <span style={{ color: 'var(--ink-2)' }}>{String(b.title)}</span>
+          <span style={{ color: 'var(--ink-4)' }}>{String(b.driverCount)}D / {String(b.actionCount)}A</span>
         </div>
       ))}
     </div>
@@ -59,7 +59,7 @@ function DraftResult({ data }: { data: AnyRecord }) {
       <p style={{ fontSize: '0.6875rem', color: 'var(--gold)', fontWeight: 600, marginBottom: '6px' }}>
         Bracket Draft: {String(data.id)}
       </p>
-      <pre style={{ fontFamily: 'monospace', color: 'var(--slate-300)', fontSize: '0.6875rem', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+      <pre style={{ fontFamily: 'monospace', color: 'var(--ink-2)', fontSize: '0.6875rem', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
         {String(data.yaml)}
       </pre>
     </div>
@@ -93,8 +93,8 @@ function ActionResults({ data }: { data: unknown[] }) {
       {items.map((a, i) => (
         <div key={i} style={{ padding: '4px 0', display: 'flex', gap: '8px', alignItems: 'center' }}>
           <span style={{ fontFamily: 'monospace', color: 'var(--gold)' }}>{String(a.id)}</span>
-          <span style={{ color: 'var(--slate-200)' }}>{String(a.name)}</span>
-          <span style={{ padding: '1px 6px', backgroundColor: 'var(--slate-700)', borderRadius: 'var(--radius-sm)', color: 'var(--slate-400)', fontSize: '0.625rem' }}>
+          <span style={{ color: 'var(--ink-2)' }}>{String(a.name)}</span>
+          <span style={{ padding: '1px 6px', backgroundColor: 'var(--bg-2)', borderRadius: 'var(--radius-sm)', color: 'var(--ink-3)', fontSize: '0.625rem' }}>
             {String(a.relationship)}
           </span>
         </div>
@@ -125,10 +125,10 @@ export function ToolResultCard({ toolName, result }: Props) {
   // Fallback: JSON display
   return (
     <div style={CARD_STYLE}>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', fontWeight: 600, marginBottom: '4px' }}>
+      <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontWeight: 600, marginBottom: '4px' }}>
         Tool: {toolName}
       </p>
-      <pre style={{ fontFamily: 'monospace', color: 'var(--slate-300)', fontSize: '0.625rem', whiteSpace: 'pre-wrap' }}>
+      <pre style={{ fontFamily: 'monospace', color: 'var(--ink-2)', fontSize: '0.625rem', whiteSpace: 'pre-wrap' }}>
         {JSON.stringify(result, null, 2)}
       </pre>
     </div>

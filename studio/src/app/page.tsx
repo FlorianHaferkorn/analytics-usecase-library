@@ -63,7 +63,7 @@ export default async function HomePage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 'var(--sp-2)',
+          gap: '16px',
           maxWidth: '640px',
           width: '100%',
         }}
@@ -72,17 +72,17 @@ export default async function HomePage() {
           <div
             key={stat.label}
             style={{
-              padding: 'var(--sp-2)',
-              backgroundColor: 'var(--slate-800)',
+              padding: '16px',
+              backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--slate-700)',
+              border: '1px solid var(--line)',
               textAlign: 'center',
             }}
           >
             <p style={{ fontSize: '1.75rem', fontWeight: 700, color: stat.color }}>
               {stat.value}
             </p>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '2px' }}>
               {stat.label}
             </p>
           </div>
@@ -94,7 +94,7 @@ export default async function HomePage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 'var(--sp-2)',
+          gap: '16px',
           maxWidth: '960px',
           width: '100%',
         }}
@@ -105,10 +105,10 @@ export default async function HomePage() {
             href={item.href}
             style={{
               display: 'block',
-              padding: 'var(--sp-3)',
-              backgroundColor: 'var(--slate-800)',
+              padding: 'var(--pad)',
+              backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--slate-700)',
+              border: '1px solid var(--line)',
               textDecoration: 'none',
               transition: 'border-color var(--duration-fast) var(--ease-out)',
             }}
