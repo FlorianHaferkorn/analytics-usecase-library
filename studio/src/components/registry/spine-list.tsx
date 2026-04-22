@@ -11,7 +11,7 @@ interface Props {
 
 function ConfidenceBadge({ level }: { level: string }) {
   const color =
-    level === 'High' ? 'var(--mint)' : level === 'Medium' ? 'var(--gold)' : '#EF4444';
+    level === 'High' ? 'var(--accent)' : level === 'Medium' ? 'var(--warning)' : '#EF4444';
   const bg =
     level === 'High'
       ? 'rgba(0,212,170,0.15)'
@@ -43,15 +43,15 @@ export function SpineList({ spines }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {spines.map((spine) => {
         const isExpanded = expandedId === spine.id;
         return (
           <div
             key={spine.id}
             style={{
-              backgroundColor: 'var(--slate-800)',
-              border: `1px solid ${isExpanded ? 'var(--info)' : 'var(--slate-700)'}`,
+              backgroundColor: 'var(--panel)',
+              border: `1px solid ${isExpanded ? 'var(--info)' : 'var(--line)'}`,
               borderRadius: 'var(--radius-lg)',
               overflow: 'hidden',
               transition: 'border-color var(--duration-fast) var(--ease-out)',
@@ -65,19 +65,19 @@ export function SpineList({ spines }: Props) {
                 width: '100%',
                 display: 'grid',
                 gridTemplateColumns: '1fr auto auto auto',
-                gap: 'var(--sp-2)',
+                gap: '16px',
                 alignItems: 'center',
-                padding: 'var(--sp-1-5) var(--sp-2)',
+                padding: '12px 16px',
                 backgroundColor: 'transparent',
                 textAlign: 'left',
                 justifyContent: 'stretch',
               }}
             >
               <div>
-                <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: '2px' }}>
+                <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '2px' }}>
                   {spine.name}
                 </p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', fontFamily: 'monospace' }}>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontFamily: 'monospace' }}>
                   {spine.id}
                 </p>
               </div>
@@ -89,8 +89,8 @@ export function SpineList({ spines }: Props) {
                       padding: '2px 8px',
                       borderRadius: 'var(--radius-sm)',
                       fontSize: '0.6875rem',
-                      backgroundColor: 'var(--slate-700)',
-                      color: 'var(--slate-300)',
+                      backgroundColor: 'var(--bg-2)',
+                      color: 'var(--ink-2)',
                     }}
                   >
                     {d}
@@ -98,14 +98,14 @@ export function SpineList({ spines }: Props) {
                 ))}
               </div>
               <ConfidenceBadge level={spine.decision_confidence.level} />
-              <span style={{ color: 'var(--slate-500)', fontSize: '0.875rem', transition: 'transform var(--duration-fast)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+              <span style={{ color: 'var(--ink-4)', fontSize: '0.875rem', transition: 'transform var(--duration-fast)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 &#x25BC;
               </span>
             </StudioButton>
 
             {/* Expanded detail */}
             {isExpanded && (
-              <div style={{ padding: '0 var(--sp-2) var(--sp-2) var(--sp-2)' }}>
+              <div style={{ padding: '0 16px 16px 16px' }}>
                 <EscalationViewer spine={spine} />
               </div>
             )}

@@ -127,4 +127,3 @@ These JSON templates work standalone (grid layouts). To use them with Penpot/Fig
 | No action-code outcome loop in reports | 2026-04-20 | `[Action Outcome Rate %]` and 3 companion measures in all 5 domain models |
 | deploy_pbip required manual Power BI Desktop | 2026-04-20 | `deploy_pbip` MCP tool chains IR generation → `fab import` automatically |
 | No DAX execution without Desktop | 2026-04-20 | `execute_dax` MCP tool wraps `execute_dax.py` via fab+az CLI |
-| COM-001 golden fixture test failure (snapshot regression) | 2026-04-22 | Verified test passing; dist files match golden fixture; no action required |

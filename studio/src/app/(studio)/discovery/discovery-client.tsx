@@ -45,7 +45,7 @@ export function DiscoveryClient() {
         <StudioMetric label="Extraction" value={extracted ? 'drafted' : 'waiting'} meta={extracted ? 'candidate YAML available' : 'run extraction from chat'} tone={extracted ? 'success' : 'warning'} />
       </StudioMetricBar>
 
-      <div style={{ display: 'flex', gap: 'var(--sp-2)', flex: 1, minHeight: 0 }}>
+      <div style={{ display: 'flex', gap: '16px', flex: 1, minHeight: 0 }}>
         <div style={{ flex: '0 0 280px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           <SourcePanel sources={sources} onAddSource={addSource} onRemoveSource={removeSource} />
         </div>

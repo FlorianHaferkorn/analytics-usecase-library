@@ -10,7 +10,7 @@ interface Props {
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  EarlyWarning: 'var(--gold)',
+  EarlyWarning: 'var(--warning)',
   RequiredIntervention: 'var(--danger)',
   PrescriptiveExecution: '#DC2626',
 };
@@ -21,30 +21,30 @@ export function RulesList({ rules, onToggle, onDelete }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-0-5)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       {rules.map((rule) => (
         <StudioPanel
           key={rule.id}
           tone={rule.enabled ? 'default' : 'warning'}
-          style={{ opacity: rule.enabled ? 1 : 0.62, padding: 'var(--sp-1) var(--sp-1-5)' }}
+          style={{ opacity: rule.enabled ? 1 : 0.62, padding: '8px var(--pad)' }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', width: '100%', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', flexWrap: 'wrap' }}>
             <input
               type="checkbox"
               checked={rule.enabled}
               onChange={() => onToggle(rule.id, !rule.enabled)}
-              style={{ accentColor: 'var(--mint)' }}
+              style={{ accentColor: 'var(--accent)' }}
             />
             <span
               style={{
                 width: '6px', height: '6px', borderRadius: '50%',
-                backgroundColor: SEVERITY_COLORS[rule.severity] ?? 'var(--slate-400)',
+                backgroundColor: SEVERITY_COLORS[rule.severity] ?? 'var(--ink-3)',
               }}
             />
-            <span style={{ fontSize: '0.75rem', color: 'var(--slate-100)', fontWeight: 600, flex: 1, minWidth: '180px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--ink)', fontWeight: 600, flex: 1, minWidth: '180px' }}>
               {rule.name}
             </span>
-            <span style={{ fontSize: '0.6875rem', color: 'var(--slate-400)' }}>
+            <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
               {rule.kpiId} {rule.condition} {rule.threshold}
               {rule.condition === 'between' && rule.thresholdUpper !== undefined ? `–${rule.thresholdUpper}` : ''}
             </span>

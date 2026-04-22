@@ -22,7 +22,7 @@ export function VisualGallery({ theme }: Props) {
 
   return (
     <div style={{ ...cssVars } as React.CSSProperties}>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 'var(--sp-1)' }}>
+      <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
         Visual Gallery — {VISUALS.length} component types
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>

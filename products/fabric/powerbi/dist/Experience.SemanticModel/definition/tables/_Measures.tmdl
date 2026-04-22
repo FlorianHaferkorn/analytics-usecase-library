@@ -11,35 +11,26 @@ table _Measures
 
 	/// enterprise.actions_executed.count - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
-	measure 'Actions Executed Count (XD)' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
+	measure 'Actions Executed Count' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
 	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
 	/// Percentage of executed actions with a confirmed achieved outcome.
-	measure 'Action Outcome Rate % (XD)' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
+	measure 'Action Outcome Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
 	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
-	measure 'Avg Time-to-Outcome Days (XD)' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
+	measure 'Avg Time-to-Outcome Days' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
 		displayFolder: "8_Action_Outcomes"
 
 	/// enterprise.action_roi.pct - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
-	measure 'Action ROI % (XD)' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
+	measure 'Action ROI %' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
-		displayFolder: "8_Action_Outcomes"
-
-	/// enterprise.action_effectiveness_delta.amount - Action Effectiveness Delta
-	/// Purpose: Average signed impact value for actions with outcome_status = "achieved"; proves the action loop moves the KPI, not just instruments it.
-	measure 'Action Effectiveness Delta (XD)' =
-			VAR AchievedRows = FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" )
-			VAR Delta = AVERAGEX ( AchievedRows, fact_action_outcome[impact_value] )
-			RETURN Delta
-		formatString: #,0.00
 		displayFolder: "8_Action_Outcomes"
 
 	column Column1
@@ -89,9 +80,9 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// NPS Index (Service) - svc.nps.index
+	/// NPS Index - crm.nps.index
 	/// Measures customer advocacy and experience quality.
-	measure 'NPS Index (Service)' =
+	measure 'NPS Index' =
 		VAR Promoters =
 			CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
 		VAR Detractors =
@@ -175,7 +166,7 @@ table _Measures
 	/// Gross Margin % used in commercial and management reporting and P&L reconciliation.
 	measure 'Gross Margin %' =
 		VAR NetSalesAmount =
-			[Net Sales Amount (XD)]
+			[Net Sales Amount]
 		VAR GrossMarginAmount =
 			NetSalesAmount - [Cost of Goods Sold Amount]
 		RETURN
@@ -187,7 +178,7 @@ table _Measures
 	/// Relative variance of Net Sales vs Last Year.
 	measure 'Delta% Net Sales' =
 		VAR ActualNetSales =
-			[Net Sales Amount (XD)]
+			[Net Sales Amount]
 		VAR LastYearNetSales =
 			SUM ( fact_sales[Last Year Sales Amount] )
 		VAR NetSalesDelta =
@@ -204,7 +195,7 @@ table _Measures
 		RETURN
 			AVERAGEX (
 				VALUES ( fact_sales[CustomerKey] ),
-				CALCULATE ( [Net Sales Amount (XD)] - [Cost of Goods Sold Amount] ) * HorizonYears
+				CALCULATE ( [Net Sales Amount] - [Cost of Goods Sold Amount] ) * HorizonYears
 			)
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
@@ -222,8 +213,7 @@ table _Measures
 		displayFolder: "XD-003"
 
 	/// DSO Days (XD) - receivables days estimate for CCC cross-domain view
-	/// Cross-domain proxy: canonical measure lives in Finance.SemanticModel.
-	measure 'DSO Days (XD)' =
+	measure 'DSO Days' =
 		VAR AccountsReceivableProxy =
 			SUM ( fact_sales[Net Sales Amount] ) * 0.12
 		VAR NetSalesAmount =
@@ -236,8 +226,7 @@ table _Measures
 		displayFolder: "XD-003"
 
 	/// DIO Days (XD) - inventory days estimate for CCC cross-domain view
-	/// Cross-domain proxy: canonical measure lives in Finance.SemanticModel.
-	measure 'DIO Days (XD)' =
+	measure 'DIO Days' =
 		VAR InventoryProxy =
 			SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.15
 		VAR CostOfGoodsSoldAmount =
@@ -250,8 +239,7 @@ table _Measures
 		displayFolder: "XD-003"
 
 	/// DPO Days (XD) - payables days estimate for CCC cross-domain view
-	/// Cross-domain proxy: canonical measure lives in Finance.SemanticModel.
-	measure 'DPO Days (XD)' =
+	measure 'DPO Days' =
 		VAR AccountsPayableProxy =
 			SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.08
 		VAR CostOfGoodsSoldAmount =
@@ -264,8 +252,7 @@ table _Measures
 		displayFolder: "XD-003"
 
 	/// First Pass Yield % (XD) - delivery quality proxy via fulfillment in-full rate
-	/// Cross-domain proxy: canonical measure lives in Operations.SemanticModel.
-	measure 'First Pass Yield % (XD)' =
+	measure 'First Pass Yield %' =
 		VAR InFullDeliveries =
 			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
 		VAR TotalDeliveries =
@@ -281,7 +268,7 @@ table _Measures
 		VAR OTIFFailureRate =
 			1 - [Ops OTIF %]
 		VAR FirstPassYieldFailureRate =
-			1 - [First Pass Yield % (XD)]
+			1 - [First Pass Yield %]
 		VAR CombinedRiskFactor =
 			DIVIDE ( OTIFFailureRate + FirstPassYieldFailureRate, 2 )
 		VAR NetSalesAmount =
@@ -295,11 +282,11 @@ table _Measures
 	/// Combines receivables, inventory, and payables days to show cash efficiency.
 	measure 'Cash Conversion Cycle (Days)' =
 		VAR DaysSalesOutstanding =
-			[DSO Days (XD)]
+			[DSO Days]
 		VAR DaysInventoryOutstanding =
-			[DIO Days (XD)]
+			[DIO Days]
 		VAR DaysPayablesOutstanding =
-			[DPO Days (XD)]
+			[DPO Days]
 		RETURN
 			DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
 		formatString: "0"
@@ -323,10 +310,9 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-003"
 
-	/// Action Outcome Rate % (XD Log) - enterprise.action_outcome_rate.pct
-	/// Cross-domain proxy: action outcome rate sourced from fact_action_log.
-	/// Canonical measure lives in the domain that owns fact_action_outcome.
-	measure 'Action Outcome Rate % (XD Log)' =
+	/// Action Outcome Rate % - enterprise.action_outcome_rate.pct
+	/// Measures share of actions that achieved the intended outcome.
+	measure 'Action Outcome Rate %' =
 		VAR AchievedActions =
 			CALCULATE ( COUNTROWS ( fact_action_log ), fact_action_log[Outcome Status] = "Achieved" )
 		VAR TotalActions =
@@ -340,11 +326,11 @@ table _Measures
 	/// Aggregates downside risk across domains into a single index.
 	measure 'Enterprise Value-at-Risk Index' =
 		VAR RevenueAtRiskShare =
-			DIVIDE ( [Revenue at Risk Amount], [Net Sales Amount (XD)] )
+			DIVIDE ( [Revenue at Risk Amount], [Net Sales Amount] )
 		VAR DeliveryRisk =
-			1 - [OTIF % (XD)]
+			1 - [OTIF %]
 		VAR QualityRisk =
-			1 - [First Pass Yield % (XD)]
+			1 - [First Pass Yield %]
 		VAR AverageRisk =
 			DIVIDE ( RevenueAtRiskShare + DeliveryRisk + QualityRisk, 3 )
 		RETURN
@@ -358,15 +344,15 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
-	/// Net Sales Amount (XD) - sales.net_sales.amount cross-domain proxy
-	/// Cross-domain proxy: canonical measure lives in Commercial.SemanticModel.
-	measure 'Net Sales Amount (XD)' = SUM ( fact_sales[Net Sales Amount] )
+	/// Net Sales Amount - sales.net_sales.amount
+	/// Total invoiced revenue net of discounts and returns.
+	measure 'Net Sales Amount' = SUM ( fact_sales[Net Sales Amount] )
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
-	/// OTIF % (XD) - supply.otif.pct cross-domain proxy
-	/// Cross-domain proxy: canonical measure lives in SupplyChain.SemanticModel.
-	measure 'OTIF % (XD)' =
+	/// OTIF % - supply.otif.pct
+	/// Measures share of orders delivered on time and in full.
+	measure 'OTIF %' =
 		VAR OTIFFulfillments =
 			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
 		VAR TotalFulfillments =

@@ -1,9 +1,9 @@
 import { Handle, Position } from '@xyflow/react';
 const TYPE_STYLES: Record<string, { border: string; bg: string; icon: string }> = {
-  dimension: { border: 'var(--slate-500)', bg: 'var(--slate-800)', icon: 'D' },
-  fact: { border: 'var(--info)', bg: 'var(--slate-800)', icon: 'F' },
-  kpi: { border: 'var(--mint)', bg: 'var(--slate-800)', icon: 'K' },
-  bracket: { border: 'var(--gold)', bg: 'var(--slate-800)', icon: 'B' },
+  dimension: { border: 'var(--ink-4)', bg: 'var(--panel)', icon: 'D' },
+  fact: { border: 'var(--info)', bg: 'var(--panel)', icon: 'F' },
+  kpi: { border: 'var(--accent)', bg: 'var(--panel)', icon: 'K' },
+  bracket: { border: 'var(--warning)', bg: 'var(--panel)', icon: 'B' },
 };
 
 interface Props {
@@ -17,7 +17,7 @@ export function LineageNodeComponent({ data }: Props) {
   return (
     <div
       style={{
-        padding: 'var(--sp-1) var(--sp-1-5)',
+        padding: '8px 12px',
         backgroundColor: style.bg,
         border: `2px solid ${style.border}`,
         borderRadius: '8px',
@@ -36,20 +36,20 @@ export function LineageNodeComponent({ data }: Props) {
             height: '18px',
             borderRadius: '50%',
             backgroundColor: style.border,
-            color: 'var(--slate-950)',
+            color: 'var(--ink)',
             fontSize: '0.625rem',
             fontWeight: 700,
           }}
         >
           {style.icon}
         </span>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-400)' }}>{nodeType}</span>
+        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>{nodeType}</span>
       </div>
-      <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-100)', lineHeight: 1.3, wordBreak: 'break-word' }}>
+      <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink)', lineHeight: 1.3, wordBreak: 'break-word' }}>
         {String(data.label ?? '')}
       </p>
       {typeof data.domain === 'string' && (
-        <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginTop: '2px' }}>
+        <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginTop: '2px' }}>
           {String(data.domain)}
         </p>
       )}

@@ -8,8 +8,8 @@ interface Props {
 }
 
 const ACTION_COLORS: Record<string, string> = {
-  create: 'var(--mint)',
-  update: 'var(--gold)',
+  create: 'var(--accent)',
+  update: 'var(--warning)',
   delete: 'var(--danger)',
 };
 
@@ -51,15 +51,15 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
   }, [projectId]);
 
   if (loading) {
-    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-500)' }}>Loading activity...</p>;
+    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>Loading activity...</p>;
   }
 
   if (events.length === 0) {
-    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-500)' }}>No activity recorded yet.</p>;
+    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>No activity recorded yet.</p>;
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-0-5)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       {events.map((evt) => {
         const isExpanded = expanded === evt.id;
         let diff: { before: unknown; after: unknown } | null = null;
@@ -69,42 +69,42 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
           <div
             key={evt.id}
             style={{
-              padding: 'var(--sp-1-5) var(--sp-2)',
-              backgroundColor: 'var(--slate-800)',
+              padding: '12px 16px',
+              backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--slate-700)',
+              border: '1px solid var(--line)',
               cursor: 'pointer',
             }}
             onClick={() => setExpanded(isExpanded ? null : evt.id)}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {/* Action badge */}
               <span
                 style={{
                   fontSize: '0.625rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
-                  color: ACTION_COLORS[evt.action] ?? 'var(--slate-400)',
+                  color: ACTION_COLORS[evt.action] ?? 'var(--ink-3)',
                   minWidth: '48px',
                 }}
               >
                 {evt.action}
               </span>
               {/* Entity */}
-              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--slate-300)' }}>
+              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--ink-2)' }}>
                 {ENTITY_LABELS[evt.entity_type] ?? evt.entity_type}
               </span>
-              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--slate-100)', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--ink)', fontWeight: 600 }}>
                 {evt.entity_id}
               </span>
               {/* Actor */}
               {evt.actor && evt.actor !== 'system' && (
-                <span style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>
+                <span style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>
                   by {evt.actor}
                 </span>
               )}
               {/* Timestamp */}
-              <span style={{ marginLeft: 'auto', fontSize: '0.625rem', color: 'var(--slate-500)' }}>
+              <span style={{ marginLeft: 'auto', fontSize: '0.625rem', color: 'var(--ink-4)' }}>
                 {relativeTime(evt.created_at)}
               </span>
             </div>
@@ -113,13 +113,13 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
             {isExpanded && diff && (
               <pre
                 style={{
-                  marginTop: 'var(--sp-1)',
-                  padding: 'var(--sp-1-5)',
-                  backgroundColor: 'var(--slate-900)',
+                  marginTop: '8px',
+                  padding: '12px',
+                  backgroundColor: 'var(--bg)',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '0.6875rem',
                   lineHeight: 1.55,
-                  color: 'var(--slate-300)',
+                  color: 'var(--ink-2)',
                   fontFamily: 'var(--font-mono)',
                   overflow: 'auto',
                   maxHeight: '120px',

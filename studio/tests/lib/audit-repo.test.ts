@@ -2,7 +2,7 @@
  * Tests for Audit Repository.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import Database from 'better-sqlite3';
 
 function createTestDb(): Database.Database {

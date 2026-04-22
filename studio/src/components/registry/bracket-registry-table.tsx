@@ -17,7 +17,7 @@ export function BracketRegistryTable({ brackets }: Props) {
     <StudioTableShell>
       <StudioTable>
         <thead>
-          <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
+          <tr style={{ borderBottom: '1px solid var(--line)' }}>
             {['ID', 'Title', 'Domain', 'Strategic KPI', 'Drivers', 'Actions'].map((h) => (
               <StudioTableHeadCell key={h} style={{ fontWeight: 500, fontSize: '0.75rem' }}>{h}</StudioTableHeadCell>
             ))}
@@ -61,7 +61,7 @@ function BracketRow({
       <tr
         onClick={onToggle}
         style={{
-          borderBottom: '1px solid var(--slate-700)',
+          borderBottom: '1px solid var(--line)',
           cursor: 'pointer',
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
@@ -69,20 +69,20 @@ function BracketRow({
         <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--info)', fontSize: '0.75rem' }}>
           {bracket.id}
         </StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-100)' }}>
+        <StudioTableCell style={{ color: 'var(--ink)' }}>
           {bracket.title}
         </StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-400)' }}>
+        <StudioTableCell style={{ color: 'var(--ink-3)' }}>
           {bracket.domain}
         </StudioTableCell>
-        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.75rem' }}>
           {bracket.orchestration.strategic_kpi_id}
         </StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-300)', textAlign: 'center' }}>
+        <StudioTableCell style={{ color: 'var(--ink-2)', textAlign: 'center' }}>
           {driverCount}
         </StudioTableCell>
         <StudioTableCell style={{ textAlign: 'center' }}>
-          <span style={{ color: hasActionGap ? 'var(--danger)' : 'var(--slate-300)' }}>
+          <span style={{ color: hasActionGap ? 'var(--danger)' : 'var(--ink-2)' }}>
             {actionCount}
             {hasActionGap && <Warning size={12} style={{ verticalAlign: 'middle', marginLeft: '4px', color: 'var(--danger)' }} />}
           </span>
@@ -90,29 +90,29 @@ function BracketRow({
       </tr>
       {isExpanded && (
         <StudioExpandedRow colSpan={6}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--sp-2)', fontSize: '0.8125rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', fontSize: '0.8125rem' }}>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Influencing KPIs</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Influencing KPIs</p>
                 {bracket.orchestration.influencing_kpi_ids.map((id) => (
-                  <p key={id} style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)', fontSize: '0.75rem' }}>{id}</p>
+                  <p key={id} style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-2)', fontSize: '0.75rem' }}>{id}</p>
                 ))}
               </div>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Action Codes</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Action Codes</p>
                 {bracket.orchestration.action_code_ids.map((id) => (
-                  <p key={id} style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>{id}</p>
+                  <p key={id} style={{ fontFamily: 'var(--font-mono)', color: 'var(--warning)', fontSize: '0.75rem' }}>{id}</p>
                 ))}
               </div>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Value Driver</p>
-                <p style={{ color: 'var(--slate-200)', fontSize: '0.75rem' }}>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Value Driver</p>
+                <p style={{ color: 'var(--ink-2)', fontSize: '0.75rem' }}>
                   {bracket.value_driver_model.impact_direction} {bracket.orchestration.strategic_kpi_id}
                 </p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Governance</p>
-                <p style={{ color: 'var(--slate-200)', fontSize: '0.75rem' }}>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Governance</p>
+                <p style={{ color: 'var(--ink-2)', fontSize: '0.75rem' }}>
                   Owner: {bracket.governance.owner_role}
                 </p>
-                <p style={{ color: 'var(--slate-200)', fontSize: '0.75rem' }}>
+                <p style={{ color: 'var(--ink-2)', fontSize: '0.75rem' }}>
                   Steward: {bracket.governance.steward_role}
                 </p>
               </div>

@@ -3,332 +3,388 @@
 <head>
 <meta charset="UTF-8">
 <title>T1 — Strategic Overview</title>
+<script src="tokens.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
-
-  .canvas {
-    width: 1280px; height: 720px;
-    background: #ffffff;
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(12, 1fr);
-    gap: 0;
-    border: 1px solid #d0d4db;
-    box-shadow: 0 4px 24px rgba(0,0,0,.12);
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* ── shared tokens ── */
-  :root {
-    --pos: #1a7a36;      --pos-bg: #e8f5ec;
-    --neg: #b00020;      --neg-bg: #fdecea;
-    --warn: #b25000;     --warn-bg: #fff3e0;
-    --neutral: #5f6368;
-    --border: #e0e3e8;
-    --brand: #1565c0;
-    --surface: #f8f9fb;
-    --text-primary: #1a1c20;
-    --text-secondary: #5f6368;
-    --heading: 11px;
-    --body: 11px;
-  }
-
-  /* ── layout zones ── */
-  .decision-banner {
-    grid-column: 1 / -1; grid-row: 1;
-    background: #1565c0; color: #fff;
-    display: flex; align-items: center; padding: 0 16px;
-    font-size: 11px; font-weight: 600; letter-spacing: .3px;
-  }
-  .decision-banner span { opacity: .7; margin-right: 8px; font-size: 10px; }
-
-  /* KPI zone row 1-3 */
-  .kpi-hero {
-    grid-column: 1 / 5; grid-row: 2 / 4;
-    background: #fff; border: 1px solid var(--border);
-    padding: 12px 16px; display: flex; flex-direction: column; justify-content: space-between;
-    position: relative;
-  }
-  .kpi-card {
-    background: #fff; border: 1px solid var(--border);
-    padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between;
-  }
-  .kpi-2 { grid-column: 5 / 7; grid-row: 2 / 4; }
-  .kpi-3 { grid-column: 7 / 9; grid-row: 2 / 4; }
-
-  .strategic-signal {
-    grid-column: 9 / 13; grid-row: 2 / 4;
-    background: #fff8e1; border: 1px solid #ffe082; border-left: 3px solid #f9a825;
-    padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;
-  }
-
-  /* slicer row 4 */
-  .slicer-bar {
-    grid-column: 1 / -1; grid-row: 4;
-    background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 12px; padding: 0 16px;
-  }
-  .slicer-pill {
-    display: flex; align-items: center; gap: 6px;
-    background: #fff; border: 1px solid var(--border); border-radius: 4px;
-    padding: 3px 10px; font-size: 10px; color: var(--text-secondary);
-  }
-  .slicer-pill strong { color: var(--text-primary); font-size: 10px; }
-  .slicer-label { font-size: 9px; color: var(--text-secondary); margin-right: 2px; }
-
-  /* main zone rows 5-12 */
-  .main-1 { grid-column: 1 / 8; grid-row: 5 / 13; background: #fff; border: 1px solid var(--border); padding: 12px 14px; }
-  .main-2 { grid-column: 8 / 13; grid-row: 5 / 13; background: #fff; border: 1px solid var(--border); padding: 12px 14px; }
-
-  /* ── micro components ── */
-  .kpi-label { font-size: 9px; font-weight: 700; letter-spacing: .8px; color: var(--text-secondary); text-transform: uppercase; }
-  .kpi-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; margin: 6px 0 4px; }
-  .kpi-value.hero { font-size: 38px; }
-  .kpi-delta { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-  .kpi-ref { font-size: 9px; color: var(--text-secondary); margin-top: 2px; }
-  .pos { color: var(--pos); } .neg { color: var(--neg); } .neu { color: var(--neutral); }
-  .pos-badge { background: var(--pos-bg); color: var(--pos); padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; }
-  .neg-badge { background: var(--neg-bg); color: var(--neg); padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; }
-  .warn-badge { background: var(--warn-bg); color: var(--warn); padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; }
-
-  .sparkline { width: 100%; height: 28px; margin-top: 6px; }
-
-  .chart-title { font-size: 10px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
-  .chart-subtitle { font-size: 9px; color: var(--text-secondary); margin-bottom: 10px; }
-  .chart-area { flex: 1; position: relative; }
-
-  /* trend chart */
-  .trend-wrap { display: flex; flex-direction: column; height: 100%; }
-  .trend-svg-area { flex: 1; position: relative; }
-  .chart-legend { display: flex; gap: 12px; margin-top: 6px; }
-  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--text-secondary); }
-  .legend-dot { width: 16px; height: 2px; background: var(--brand); }
-  .legend-dot.target { background: #f9a825; border-top: 1px dashed #f9a825; height: 0; border-bottom: none; }
-  .legend-dot.neg-line { background: var(--neg); }
-
-  /* bar chart */
-  .bar-list { display: flex; flex-direction: column; gap: 8px; flex: 1; justify-content: center; }
-  .bar-row { display: flex; align-items: center; gap: 8px; }
-  .bar-entity { font-size: 10px; color: var(--text-primary); width: 70px; text-align: right; flex-shrink: 0; }
-  .bar-track { flex: 1; height: 18px; background: #f0f2f5; border-radius: 2px; position: relative; }
-  .bar-fill { height: 100%; border-radius: 2px; display: flex; align-items: center; justify-content: flex-end; padding-right: 4px; }
-  .bar-val { font-size: 9px; font-weight: 600; white-space: nowrap; padding-left: 4px; }
-
-  /* signal box */
-  .signal-icon { font-size: 18px; }
-  .signal-label { font-size: 9px; font-weight: 700; letter-spacing: .6px; color: var(--warn); text-transform: uppercase; }
-  .signal-text { font-size: 10px; color: #4a3800; line-height: 1.5; }
-  .signal-kpi { font-size: 22px; font-weight: 700; color: var(--neg); margin: 4px 0; }
-  .signal-note { font-size: 9px; color: var(--warn); font-weight: 600; }
-
-  /* zone labels (debug) */
-  .zone-tag {
-    position: absolute; top: 4px; right: 6px;
-    font-size: 8px; color: #adb5bd; font-weight: 600; letter-spacing: .5px;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+  background: #E8E8E8;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 24px;
+}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap');
 </style>
 </head>
 <body>
-<div class="canvas">
+<canvas id="c" width="1280" height="720" style="display:none"></canvas>
+<div id="root"></div>
 
-  <!-- Decision question banner -->
-  <div class="decision-banner">
-    <span>DECISION QUESTION</span>
-    Are we meeting our strategic targets this quarter?
-  </div>
+<script>
+// T1 — Strategic Overview
+// Use case: XD-003 Executive KPI Overview
+// Big idea: "Commercial performance is off track — Net Sales is -8% vs Plan YTD."
 
-  <!-- KPI Hero (col 1-4, row 2-3) -->
-  <div class="kpi-hero kpi-card">
-    <div class="zone-tag">HERO · kpi_card_hero</div>
-    <div class="kpi-label">EBITDA Margin</div>
-    <div>
-      <div class="kpi-value hero neg">13.8%</div>
-      <div class="kpi-delta neg">▼ &minus;1.2pp <span class="neg-badge">BELOW TARGET</span></div>
-      <div class="kpi-ref">vs 15% strategic target</div>
-    </div>
-    <!-- sparkline -->
-    <svg class="sparkline" viewBox="0 0 200 28" preserveAspectRatio="none">
-      <polyline points="0,20 25,18 50,16 75,17 100,15 125,19 150,21 175,22 200,23"
-        fill="none" stroke="#b00020" stroke-width="1.5"/>
-      <line x1="0" y1="14" x2="200" y2="14" stroke="#f9a825" stroke-width="1" stroke-dasharray="4,3"/>
-    </svg>
-    <div class="kpi-ref" style="font-size:8px">↑ 15% target  · sparkline: 8 quarters</div>
-  </div>
+const T = window.T;
+const GRID = window.GRID;
+const sp = window.slotPos;
 
-  <!-- KPI 2 Revenue (col 5-6, row 2-3) -->
-  <div class="kpi-2 kpi-card">
-    <div class="zone-tag">kpi_card</div>
-    <div class="kpi-label">Revenue</div>
-    <div>
-      <div class="kpi-value" style="font-size:22px; color:var(--pos)">€218.4M</div>
-      <div class="kpi-delta pos">▲ +4.8% <span class="pos-badge">ON TRACK</span></div>
-      <div class="kpi-ref">vs Prior Year</div>
-    </div>
-    <svg class="sparkline" viewBox="0 0 100 22" preserveAspectRatio="none">
-      <polyline points="0,18 20,15 40,14 60,12 80,10 100,8"
-        fill="none" stroke="#1a7a36" stroke-width="1.5"/>
-    </svg>
-  </div>
+// ── helpers ─────────────────────────────────────────────────────────────────
 
-  <!-- KPI 3 Net Income (col 7-8, row 2-3) -->
-  <div class="kpi-3 kpi-card">
-    <div class="zone-tag">kpi_card</div>
-    <div class="kpi-label">Net Income</div>
-    <div>
-      <div class="kpi-value" style="font-size:22px; color:var(--neg)">€24.1M</div>
-      <div class="kpi-delta neg">▼ &minus;8.3% <span class="neg-badge">AT RISK</span></div>
-      <div class="kpi-ref">vs Prior Year</div>
-    </div>
-    <svg class="sparkline" viewBox="0 0 100 22" preserveAspectRatio="none">
-      <polyline points="0,8 20,9 40,11 60,13 80,16 100,18"
-        fill="none" stroke="#b00020" stroke-width="1.5"/>
-    </svg>
-  </div>
+function px(v) { return v + 'px'; }
 
-  <!-- Strategic signal (col 9-12, row 2-3) -->
-  <div class="strategic-signal">
-    <div class="zone-tag" style="color:#b25000">text_callout</div>
-    <div class="signal-label">⚠ Strategic Signal</div>
-    <div class="signal-kpi">Q3 · 3rd consecutive miss</div>
-    <div class="signal-text">EBITDA margin has been below the 15% threshold for three consecutive quarters. Cost efficiency programme acceleration is required.</div>
-    <div class="signal-note">→ Cost review recommended</div>
-  </div>
+function style(obj) {
+  return Object.entries(obj).map(([k, v]) => {
+    const prop = k.replace(/([A-Z])/g, m => '-' + m.toLowerCase());
+    return `${prop}:${v}`;
+  }).join(';');
+}
 
-  <!-- Slicer bar (row 4) -->
-  <div class="slicer-bar">
-    <div style="font-size:9px;color:var(--text-secondary);font-weight:600;margin-right:4px">FILTERS</div>
-    <div class="slicer-pill"><span class="slicer-label">Period</span><strong>Q3 2025 YTD ▾</strong></div>
-    <div class="slicer-pill"><span class="slicer-label">Business Unit</span><strong>All ▾</strong></div>
-  </div>
+// ── Sparkline SVG ────────────────────────────────────────────────────────────
 
-  <!-- Main 1 — Trend (col 1-7, row 5-12) -->
-  <div class="main-1 trend-wrap">
-    <div class="zone-tag">Main_1 · line_chart</div>
-    <div class="chart-title">How has EBITDA margin developed vs the 15% target over 3 years?</div>
-    <div class="chart-subtitle">Quarterly actual vs strategic threshold</div>
-    <div class="trend-svg-area">
-      <svg width="100%" height="100%" viewBox="0 0 520 220" preserveAspectRatio="none">
-        <!-- grid lines -->
-        <line x1="0" y1="44" x2="520" y2="44" stroke="#f0f2f5" stroke-width="1"/>
-        <line x1="0" y1="88" x2="520" y2="88" stroke="#f0f2f5" stroke-width="1"/>
-        <line x1="0" y1="132" x2="520" y2="132" stroke="#f0f2f5" stroke-width="1"/>
-        <line x1="0" y1="176" x2="520" y2="176" stroke="#f0f2f5" stroke-width="1"/>
-        <!-- y labels -->
-        <text x="2" y="42" font-size="9" fill="#adb5bd">18%</text>
-        <text x="2" y="86" font-size="9" fill="#adb5bd">16%</text>
-        <text x="2" y="130" font-size="9" fill="#adb5bd">14%</text>
-        <text x="2" y="174" font-size="9" fill="#adb5bd">12%</text>
-        <!-- 15% target dashed -->
-        <line x1="30" y1="110" x2="520" y2="110" stroke="#f9a825" stroke-width="1.5" stroke-dasharray="6,4"/>
-        <text x="480" y="107" font-size="9" fill="#f9a825" font-weight="600">15% target</text>
-        <!-- Actual line — starts above, crosses target, declines -->
-        <polyline
-          points="30,90 95,88 160,86 225,92 290,100 355,115 420,125 485,132"
-          fill="none" stroke="#1565c0" stroke-width="2.5" stroke-linejoin="round"/>
-        <!-- area fill below -->
-        <polygon
-          points="30,90 95,88 160,86 225,92 290,100 355,115 420,125 485,132 485,220 30,220"
-          fill="#1565c0" opacity="0.05"/>
-        <!-- annotation: crossed threshold -->
-        <circle cx="355" cy="115" r="4" fill="none" stroke="#b00020" stroke-width="1.5"/>
-        <line x1="355" y1="119" x2="355" y2="150" stroke="#b00020" stroke-width="1" stroke-dasharray="3,2"/>
-        <text x="310" y="163" font-size="8.5" fill="#b00020">Q2'24: crossed below target</text>
-        <!-- x labels -->
-        <text x="20"  y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q1'23</text>
-        <text x="95"  y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q2'23</text>
-        <text x="160" y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q3'23</text>
-        <text x="225" y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q4'23</text>
-        <text x="290" y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q1'24</text>
-        <text x="355" y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q2'24</text>
-        <text x="420" y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q3'24</text>
-        <text x="485" y="218" font-size="8.5" fill="#adb5bd" text-anchor="middle">Q1'25</text>
-        <!-- current dot -->
-        <circle cx="485" cy="132" r="4" fill="#b00020"/>
-        <text x="490" y="128" font-size="9" fill="#b00020" font-weight="600">13.8%</text>
+function sparklineSVG(data, color, w, h) {
+  const max = Math.max(...data), min = Math.min(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - min) / range) * (h - 2) - 1;
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  }).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:${h}px;display:block;margin-top:4px">
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`;
+}
+
+// ── KPI Card ─────────────────────────────────────────────────────────────────
+
+function kpiCard(label, value, delta, deltaDir, period, spark, polarity) {
+  polarity = polarity || 'higher_is_better';
+  const favourable =
+    (deltaDir === 'up'   && polarity === 'higher_is_better') ||
+    (deltaDir === 'down' && polarity === 'lower_is_better');
+  const color = delta == null ? T.neutral : (favourable ? T.positive : T.negative);
+  const icon  = deltaDir === 'up' ? '▲' : deltaDir === 'down' ? '▼' : '─';
+
+  return `<div style="${style({
+    height:'100%', background:T.surfaceCard,
+    border:'0.5px solid '+T.border, borderRadius:'4px',
+    padding:'10px 12px', display:'flex', flexDirection:'column', gap:'2px',
+  })}">
+    <div style="font-size:10px;color:${T.textSecondary};font-weight:500;letter-spacing:0.1px">${label}</div>
+    <div style="font-size:24px;font-weight:700;line-height:1.05;
+      font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:-0.5px;
+      color:${T.textPrimary}">${value}</div>
+    ${delta != null ? `<div style="display:flex;align-items:baseline;gap:4px;font-size:11px;color:${color};font-weight:600">
+      <span>${icon}</span><span>${delta}</span>
+      <span style="color:${T.textSecondary};font-weight:400;font-size:10px">${period}</span>
+    </div>` : ''}
+    ${spark ? sparklineSVG(spark, color, 100, 18) : ''}
+  </div>`;
+}
+
+// ── Line chart SVG ────────────────────────────────────────────────────────────
+
+function lineChart(series, xLabels, refLine, w, h) {
+  const all = series.flatMap(s => s.data).concat(refLine ? [refLine.value] : []);
+  const maxV = Math.max(...all), minV = Math.min(0, Math.min(...all));
+  const pad = {l:32, r:10, t:14, b:22};
+  const plotW = w - pad.l - pad.r, plotH = h - pad.t - pad.b;
+  const n = xLabels ? xLabels.length : series[0].data.length;
+  const xOf = i => pad.l + (i / (n - 1)) * plotW;
+  const yOf = v => pad.t + plotH - ((v - minV) / (maxV - minV || 1)) * plotH;
+  const gridYs = [0, 0.25, 0.5, 0.75, 1].map(f => pad.t + f * plotH);
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block">`;
+  // grid
+  gridYs.forEach(y => {
+    svg += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}" stroke="${T.border}" stroke-width="0.5" opacity="0.8"/>`;
+  });
+  // ref line
+  if (refLine) {
+    const ry = yOf(refLine.value);
+    svg += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${ry}" y2="${ry}" stroke="${T.primary}" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.8"/>`;
+    svg += `<text x="${w-pad.r-2}" y="${ry-3}" font-size="8" fill="${T.primary}" text-anchor="end">${refLine.label}</text>`;
+  }
+  // series
+  const colors = [T.primary, T.neutral, T.data[2]];
+  series.forEach((s, si) => {
+    const c = s.color || colors[si];
+    const pts = s.data.map((v, i) => `${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(' ');
+    svg += `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`;
+  });
+  // x labels (every ~6)
+  if (xLabels) {
+    xLabels.forEach((l, i) => {
+      if (i % Math.ceil(n / 6) === 0 || i === n - 1) {
+        svg += `<text x="${xOf(i).toFixed(1)}" y="${h-4}" font-size="8" fill="${T.textSecondary}" text-anchor="middle">${l}</text>`;
+      }
+    });
+  }
+  // y labels
+  svg += `<text x="${pad.l-4}" y="${pad.t+4}" font-size="8" fill="${T.textSecondary}" text-anchor="end">${maxV.toLocaleString()}</text>`;
+  svg += `<text x="${pad.l-4}" y="${h-pad.b}" font-size="8" fill="${T.textSecondary}" text-anchor="end">${minV.toLocaleString()}</text>`;
+  // legend
+  svg += `<g transform="translate(${pad.l},2)">`;
+  series.forEach((s, i) => {
+    const c = s.color || colors[i];
+    svg += `<g transform="translate(${i*80},0)">
+      <line x1="0" y1="4" x2="10" y2="4" stroke="${c}" stroke-width="1.8"/>
+      <text x="13" y="7" font-size="8" fill="${T.textSecondary}">${s.name}</text>
+    </g>`;
+  });
+  svg += '</g></svg>';
+  return svg;
+}
+
+// ── Horizontal bar (signal by value, centred axis) ────────────────────────────
+
+function hBarSigned(rows, valueFmt, w, h) {
+  const max = Math.max(...rows.map(r => Math.abs(r.value)));
+  const pad = {l:70, r:60, t:8, b:8};
+  const plotW = w - pad.l - pad.r;
+  const rowH  = (h - pad.t - pad.b) / rows.length;
+  const barH  = Math.min(rowH * 0.6, 12);
+  const zeroX = pad.l + plotW / 2;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block">`;
+  svg += `<line x1="${zeroX}" x2="${zeroX}" y1="${pad.t}" y2="${h-pad.b}" stroke="${T.neutral}" stroke-width="0.5"/>`;
+  rows.forEach((r, i) => {
+    const y = pad.t + i * rowH + (rowH - barH) / 2;
+    const bw = (Math.abs(r.value) / max) * (plotW / 2);
+    const bx = r.value < 0 ? zeroX - bw : zeroX;
+    const color = r.value < 0 ? T.negative : T.positive;
+    svg += `<text x="${pad.l-4}" y="${(y + barH * 0.78).toFixed(1)}" font-size="9" fill="${T.textPrimary}" text-anchor="end">${r.label}</text>`;
+    svg += `<rect x="${bx.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw||1).toFixed(1)}" height="${barH}" fill="${color}" rx="1"/>`;
+    const valX = r.value < 0 ? bx - 3 : bx + bw + 3;
+    const anchor = r.value < 0 ? 'end' : 'start';
+    svg += `<text x="${valX.toFixed(1)}" y="${(y + barH * 0.78).toFixed(1)}" font-size="8" fill="${T.textPrimary}" text-anchor="${anchor}"
+      font-family="'JetBrains Mono',monospace">${valueFmt(r.value)}</text>`;
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+// ── 100% stacked bar ──────────────────────────────────────────────────────────
+
+function stackedBar100(rows, categories, w, h) {
+  const pad = {l:72, r:8, t:20, b:8};
+  const plotW = w - pad.l - pad.r;
+  const rowH = (h - pad.t - pad.b) / rows.length;
+  const barH = Math.min(rowH * 0.55, 14);
+  let svg = `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block">`;
+  // legend
+  svg += `<g transform="translate(${pad.l},4)">`;
+  categories.forEach((c, i) => {
+    svg += `<g transform="translate(${i*62},0)">
+      <rect width="7" height="7" fill="${T.data[i]}" y="0"/>
+      <text x="10" y="7" font-size="7.5" fill="${T.textSecondary}">${c}</text>
+    </g>`;
+  });
+  svg += '</g>';
+  rows.forEach((r, i) => {
+    const y = pad.t + i * rowH + (rowH - barH) / 2;
+    const total = r.values.reduce((a, b) => a + b, 0);
+    let xOff = 0;
+    svg += `<text x="${pad.l-4}" y="${(y + barH * 0.75).toFixed(1)}" font-size="9" fill="${T.textPrimary}" text-anchor="end">${r.label}</text>`;
+    r.values.forEach((v, j) => {
+      const bw = (v / total) * plotW;
+      const bx = pad.l + xOff;
+      svg += `<rect x="${bx.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${barH}" fill="${T.data[j]}"/>`;
+      if (bw > 22) {
+        svg += `<text x="${(bx + bw/2).toFixed(1)}" y="${(y + barH * 0.75).toFixed(1)}" font-size="8" fill="#fff" text-anchor="middle">${Math.round((v/total)*100)}%</text>`;
+      }
+      xOff += bw;
+    });
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+// ── Card wrapper ──────────────────────────────────────────────────────────────
+
+function card(title, innerHtml, h) {
+  return `<div style="${style({
+    width:'100%', height:'100%', background:T.surfaceCard,
+    border:'0.5px solid '+T.border, borderRadius:'4px',
+    display:'flex', flexDirection:'column', overflow:'hidden',
+  })}">
+    ${title ? `<div style="padding:8px 10px 4px;font-size:11px;font-weight:600;color:${T.textPrimary};line-height:1.2">${title}</div>` : ''}
+    <div style="flex:1;padding:4px 10px 8px;min-height:0;overflow:hidden">${innerHtml}</div>
+  </div>`;
+}
+
+// ── Slicer bar ────────────────────────────────────────────────────────────────
+
+function slicerBar(slicers) {
+  const pills = slicers.map(s => `
+    <div style="${style({
+      display:'flex', alignItems:'center', gap:'6px',
+      padding:'3px 9px',
+      background:T.surfacePage, border:'0.5px solid '+T.border,
+      borderRadius:'3px', fontSize:'10px',
+    })}">
+      <span style="color:${T.textSecondary}">${s.label}</span>
+      <span style="font-weight:600">${s.value}</span>
+      <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+        <path d="M2 3l2 2 2-2" stroke="${T.textSecondary}" stroke-width="1"/>
       </svg>
+    </div>`).join('');
+  return `<div style="${style({
+    height:'100%', background:T.surfaceCard,
+    border:'0.5px solid '+T.border, borderRadius:'4px',
+    display:'flex', alignItems:'center', gap:'8px', padding:'0 12px',
+  })}">
+    <span style="font-size:9px;color:${T.textSecondary};font-weight:600;
+      text-transform:uppercase;letter-spacing:0.5px">Filter</span>
+    ${pills}
+  </div>`;
+}
+
+// ── Slot placement helper ─────────────────────────────────────────────────────
+
+function slotDiv(col, row, cs, rs, innerHTML, extraStyle) {
+  const p = slotPos(col, row, cs, rs);
+  return `<div style="position:absolute;left:${p.left.toFixed(1)}px;top:${p.top.toFixed(1)}px;
+    width:${p.width.toFixed(1)}px;height:${p.height.toFixed(1)}px;${extraStyle||''}">${innerHTML}</div>`;
+}
+
+// ── Page chrome ───────────────────────────────────────────────────────────────
+
+function pageChrome(breadcrumb, pageType, title, decisionQ, innerHtml) {
+  return `<div style="${style({
+    width:'1280px', height:'720px', background:T.surfacePage,
+    position:'relative', fontFamily:"Inter,'Segoe UI',system-ui,sans-serif",
+    color:T.textPrimary, overflow:'hidden',
+    boxShadow:'0 4px 24px rgba(0,0,0,0.12)',
+  })}">
+    <!-- Top bar: breadcrumb + page type badge -->
+    <div style="${style({
+      position:'absolute', top:'0', left:'0', right:'0', height:'24px',
+      display:'flex', alignItems:'center', justifyContent:'space-between',
+      padding:'6px 16px', fontSize:'10px', color:T.textSecondary,
+      borderBottom:'1px solid '+T.border, background:T.surfaceCard,
+    })}">
+      <span style="letter-spacing:0.3px">${breadcrumb}</span>
+      <span style="${style({
+        background:T.primary, color:'#fff', padding:'2px 8px',
+        borderRadius:'3px', fontSize:'9px', fontWeight:'600', letterSpacing:'0.5px',
+      })}">${pageType}</span>
     </div>
-    <div class="chart-legend">
-      <div class="legend-item"><div class="legend-dot"></div> Actual</div>
-      <div class="legend-item"><div class="legend-dot target"></div> 15% Target</div>
+    <!-- Title row -->
+    <div style="${style({
+      position:'absolute', top:'24px', left:'0', right:'0', height:'40px',
+      padding:'6px 32px', borderBottom:'1px solid '+T.border,
+      background:T.surfaceCard,
+    })}">
+      <div style="font-size:13px;font-weight:600;line-height:1.1">${title}</div>
+      <div style="font-size:10px;color:${T.textSecondary};margin-top:2px;font-style:italic">${decisionQ}</div>
     </div>
-  </div>
-
-  <!-- Main 2 — Portfolio ranking (col 8-12, row 5-12) -->
-  <div class="main-2" style="display:flex;flex-direction:column;">
-    <div class="zone-tag">Main_3 · bar_chart_horizontal</div>
-    <div class="chart-title">Which business units are on and off track?</div>
-    <div class="chart-subtitle">EBITDA margin % vs 15% threshold · sorted by deviation</div>
-    <div class="bar-list" style="margin-top:8px">
-
-      <!-- BU Alpha — above target -->
-      <div class="bar-row">
-        <div class="bar-entity">BU Alpha</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:90%;background:var(--pos-bg)">
-            <span style="font-size:9px;color:var(--pos);font-weight:700">16.2%</span>
-          </div>
-          <div style="position:absolute;left:83%;top:2px;bottom:2px;width:1.5px;background:#f9a825;opacity:.7"></div>
-        </div>
-        <span class="pos-badge">▲ +1.2pp</span>
-      </div>
-
-      <!-- BU Beta — slightly below -->
-      <div class="bar-row">
-        <div class="bar-entity">BU Beta</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:78%;background:var(--warn-bg)">
-            <span style="font-size:9px;color:var(--warn);font-weight:700">14.1%</span>
-          </div>
-          <div style="position:absolute;left:83%;top:2px;bottom:2px;width:1.5px;background:#f9a825;opacity:.7"></div>
-        </div>
-        <span class="warn-badge">▼ &minus;0.9pp</span>
-      </div>
-
-      <!-- BU Gamma -->
-      <div class="bar-row">
-        <div class="bar-entity">BU Gamma</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:71%;background:var(--neg-bg)">
-            <span style="font-size:9px;color:var(--neg);font-weight:700">12.8%</span>
-          </div>
-          <div style="position:absolute;left:83%;top:2px;bottom:2px;width:1.5px;background:#f9a825;opacity:.7"></div>
-        </div>
-        <span class="neg-badge">▼ &minus;2.2pp</span>
-      </div>
-
-      <!-- BU Delta -->
-      <div class="bar-row">
-        <div class="bar-entity">BU Delta</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:63%;background:var(--neg-bg)">
-            <span style="font-size:9px;color:var(--neg);font-weight:700">11.4%</span>
-          </div>
-          <div style="position:absolute;left:83%;top:2px;bottom:2px;width:1.5px;background:#f9a825;opacity:.7"></div>
-        </div>
-        <span class="neg-badge">▼ &minus;3.6pp</span>
-      </div>
-
-      <!-- BU Epsilon -->
-      <div class="bar-row">
-        <div class="bar-entity">BU Epsilon</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:51%;background:var(--neg-bg)">
-            <span style="font-size:9px;color:var(--neg);font-weight:700">9.2%</span>
-          </div>
-          <div style="position:absolute;left:83%;top:2px;bottom:2px;width:1.5px;background:#f9a825;opacity:.7"></div>
-        </div>
-        <span class="neg-badge">▼ &minus;5.8pp</span>
-      </div>
-
-      <div style="font-size:8.5px;color:var(--text-secondary);margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
-        <span style="display:inline-block;width:10px;height:1.5px;background:#f9a825;vertical-align:middle;margin-right:4px"></span>
-        15% strategic threshold · sorted by |Δ target| desc · 3 of 5 BUs below threshold
-      </div>
+    <!-- Canvas area (below chrome, top=64px) -->
+    <div style="position:absolute;top:64px;left:0;right:0;bottom:0">
+      ${innerHtml}
     </div>
-  </div>
+  </div>`;
+}
 
-</div><!-- /canvas -->
+// ── T1 data ───────────────────────────────────────────────────────────────────
+
+const kpis = [
+  { label:'Net Sales YTD',  value:'€42.3M', delta:'-8.2%',  deltaDir:'down', period:'vs Plan',
+    spark:[48,47,46,45,43,42.5,42.3] },
+  { label:'Gross Margin %', value:'38.4%',  delta:'-1.2pp', deltaDir:'down', period:'vs PY',
+    spark:[40,39.5,39.2,38.8,38.5,38.4,38.4] },
+  { label:'OTIF %',         value:'94.1%',  delta:'+0.8pp', deltaDir:'up',   period:'vs Plan',
+    spark:[92,92.5,93,93.4,93.8,94,94.1] },
+  { label:'NPS',            value:'52',     delta:'+4',     deltaDir:'up',   period:'vs Q-1',
+    spark:[46,47,48,50,51,52,52] },
+  { label:'CLV',            value:'€18.4K', delta:'+2.1%',  deltaDir:'up',   period:'vs PY',
+    spark:[17,17.2,17.5,17.8,18,18.2,18.4] },
+];
+
+// KPI band: 5 cards, evenly distributed across 12 columns
+// Each card spans ~2.3 LU; spacing ~0.06 LU between cards
+const kpiW = (1280 - 64 - 4*16) / 5;  // equal widths, 4 gutters
+
+function kpiSlot(i, innerHTML) {
+  const left = 32 + i * (kpiW + 16);
+  return `<div style="position:absolute;left:${left.toFixed(1)}px;top:0px;
+    width:${kpiW.toFixed(1)}px;height:104px">${innerHTML}</div>`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+const inner = `
+  <!-- ZONE 1: 3-second KPI band (row 0, 5 cards) -->
+  ${kpis.map((k, i) => kpiSlot(i, kpiCard(k.label, k.value, k.delta, k.deltaDir, k.period, k.spark, k.polarity))).join('')}
+
+  <!-- ZONE 2: slicer bar -->
+  ${slotDiv(0, 2.2, 12, 0.8,
+    slicerBar([{label:'Period',value:'YTD 2026'},{label:'Region',value:'All'},{label:'Business Unit',value:'All'}]),
+    'height:32px')}
+
+  <!-- ZONE 3: three driver panels -->
+  ${slotDiv(0, 3.4, 4, 5.6,
+    card('How has Net Sales developed vs Plan over the last 12 months?',
+      lineChart(
+        [{name:'Actual',data:[42,43.5,45,44,43,42.5,42,41.5,42,42.8,43,42.3],color:T.primary},
+         {name:'PY',data:[40,41,42,42.5,43,43.5,43.8,44,44,44.2,44.3,44.5],color:T.neutral}],
+        ['M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'],
+        {value:45,label:'Plan'},
+        380, 180
+      )
+    )
+  )}
+
+  ${slotDiv(4, 3.4, 4, 5.6,
+    card('Which strategic units are on and off track?',
+      hBarSigned(
+        [{label:'DACH',value:-3.1},{label:'Nordics',value:-0.9},
+         {label:'Benelux',value:-0.5},{label:'Iberia',value:0.3},
+         {label:'UK & I',value:0.6},{label:'CEE',value:0.8}],
+        v => (v>0?'+':'') + '€' + Math.abs(v).toFixed(1) + 'M',
+        380, 180
+      )
+    )
+  )}
+
+  ${slotDiv(8, 3.4, 4, 5.6,
+    card('How is revenue distributed across the portfolio?',
+      stackedBar100(
+        [{label:'FY 2024',values:[52,32,16]},
+         {label:'FY 2025',values:[48,34,18]},
+         {label:'YTD 2026',values:[45,35,20]}],
+        ['Core','Growth','Emerging'],
+        380, 180
+      )
+    )
+  )}
+
+  <!-- Strategic signal callout -->
+  ${slotDiv(0, 9.2, 12, 2.4, `
+    <div style="${style({
+      height:'100%', background:T.surfaceCard,
+      border:'0.5px solid '+T.border,
+      borderLeft:'2px solid '+T.warning,
+      borderRadius:'4px', padding:'10px 14px',
+      display:'flex', alignItems:'center', gap:'14px',
+    })}">
+      <div style="font-size:9px;color:${T.warning};font-weight:700;
+        letter-spacing:0.5px;text-transform:uppercase;min-width:90px">Strategic Signal</div>
+      <div style="flex:1;font-size:11px;line-height:1.4">
+        <strong>DACH region requires strategic review.</strong>
+        <span style="color:${T.textSecondary}"> Net Sales -€3.1M vs Plan YTD; consistent with 3-month downward trend.
+        Escalate to T2 for driver analysis.</span>
+      </div>
+      <div style="font-size:9px;color:${T.textSecondary};font-family:monospace">→ T2 TACTICAL</div>
+    </div>
+  `)}
+`;
+
+document.getElementById('root').innerHTML = pageChrome(
+  'XD · EXECUTIVE · OVERVIEW',
+  'T1 · STRATEGIC OVERVIEW',
+  'Executive KPI Overview',
+  'Are we on track against our strategic objectives?',
+  inner
+);
+</script>
 </body>
 </html>

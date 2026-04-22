@@ -12,13 +12,13 @@ export default async function HomePage() {
   ]);
 
   const stats = [
-    { label: 'KPIs', value: kpis.length, color: 'var(--mint)' },
-    { label: 'Action Codes', value: actions.length, color: 'var(--gold)' },
+    { label: 'KPIs', value: kpis.length, color: 'var(--accent)' },
+    { label: 'Action Codes', value: actions.length, color: 'var(--warning)' },
     { label: 'Use Cases', value: brackets.length, color: 'var(--info)' },
     {
       label: 'Domains',
       value: [...new Set(brackets.map((b) => b.domain))].length,
-      color: 'var(--slate-300)',
+      color: 'var(--ink-2)',
     },
   ];
 
@@ -30,8 +30,8 @@ export default async function HomePage() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--sp-4)',
-        gap: 'var(--sp-4)',
+        padding: '32px',
+        gap: '32px',
       }}
     >
       <header style={{ textAlign: 'center' }}>
@@ -40,17 +40,17 @@ export default async function HomePage() {
             fontSize: '2.5rem',
             fontWeight: 700,
             letterSpacing: '-0.025em',
-            color: 'var(--slate-50)',
+            color: 'var(--ink)',
           }}
         >
           Action
-          <span style={{ color: 'var(--mint)' }}>Ready</span>{' '}
-          <span style={{ color: 'var(--gold)' }}>Studio</span>
+          <span style={{ color: 'var(--accent)' }}>Ready</span>{' '}
+          <span style={{ color: 'var(--warning)' }}>Studio</span>
         </h1>
         <p
           style={{
-            marginTop: 'var(--sp-1)',
-            color: 'var(--slate-400)',
+            marginTop: '8px',
+            color: 'var(--ink-3)',
             fontSize: '1.125rem',
           }}
         >
@@ -63,7 +63,7 @@ export default async function HomePage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 'var(--sp-2)',
+          gap: '16px',
           maxWidth: '640px',
           width: '100%',
         }}
@@ -72,17 +72,17 @@ export default async function HomePage() {
           <div
             key={stat.label}
             style={{
-              padding: 'var(--sp-2)',
-              backgroundColor: 'var(--slate-800)',
+              padding: '16px',
+              backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--slate-700)',
+              border: '1px solid var(--line)',
               textAlign: 'center',
             }}
           >
             <p style={{ fontSize: '1.75rem', fontWeight: 700, color: stat.color }}>
               {stat.value}
             </p>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '2px' }}>
               {stat.label}
             </p>
           </div>
@@ -94,7 +94,7 @@ export default async function HomePage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 'var(--sp-2)',
+          gap: '16px',
           maxWidth: '960px',
           width: '100%',
         }}
@@ -105,10 +105,10 @@ export default async function HomePage() {
             href={item.href}
             style={{
               display: 'block',
-              padding: 'var(--sp-3)',
-              backgroundColor: 'var(--slate-800)',
+              padding: 'var(--pad)',
+              backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--slate-700)',
+              border: '1px solid var(--line)',
               textDecoration: 'none',
               transition: 'border-color var(--duration-fast) var(--ease-out)',
             }}
@@ -118,7 +118,7 @@ export default async function HomePage() {
                 width: '32px',
                 height: '32px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--slate-900)',
+                backgroundColor: 'var(--bg)',
                 border: `1px solid ${item.color}`,
                 display: 'flex',
                 alignItems: 'center',
@@ -126,7 +126,7 @@ export default async function HomePage() {
                 fontSize: '0.875rem',
                 fontWeight: 700,
                 color: item.color,
-                marginBottom: 'var(--sp-1-5)',
+                marginBottom: '12px',
               }}
             >
               {item.icon}
@@ -135,20 +135,20 @@ export default async function HomePage() {
               style={{
                 fontSize: '1.125rem',
                 fontWeight: 600,
-                color: 'var(--slate-50)',
-                marginBottom: 'var(--sp-0-5)',
+                color: 'var(--ink)',
+                marginBottom: '4px',
               }}
             >
               {item.label}
             </h2>
-            <p style={{ fontSize: '0.875rem', color: 'var(--slate-400)', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--ink-3)', lineHeight: 1.5 }}>
               {item.description}
             </p>
           </Link>
         ))}
       </nav>
 
-      <footer style={{ color: 'var(--slate-600)', fontSize: '0.75rem' }}>
+      <footer style={{ color: 'var(--ink-4)', fontSize: '0.75rem' }}>
         ActionReady Analytics Platform v0.1.0 — Aurora Group SE Showcase
       </footer>
     </div>

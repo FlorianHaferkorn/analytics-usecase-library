@@ -13,13 +13,13 @@ function ContractCard({ contract }: { contract: DataContract }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <StudioPanel tone={expanded ? 'info' : 'default'} style={{ padding: 0, overflow: 'hidden', border: `1px solid ${expanded ? 'var(--info)' : 'var(--slate-700)'}` }}>
+    <StudioPanel tone={expanded ? 'info' : 'default'} style={{ padding: 0, overflow: 'hidden', border: `1px solid ${expanded ? 'var(--info)' : 'var(--line)'}` }}>
       <StudioButton
         onClick={() => setExpanded(!expanded)}
         variant="ghost"
         style={{
           width: '100%',
-          padding: 'var(--sp-1-5) var(--sp-2)',
+          padding: '12px 16px',
           backgroundColor: 'transparent',
           display: 'flex',
           justifyContent: 'space-between',
@@ -28,29 +28,29 @@ function ContractCard({ contract }: { contract: DataContract }) {
         }}
       >
         <div>
-          <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)' }}>
+          <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ink)' }}>
             {contract.domain}
           </p>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)' }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
             v{contract.version} &middot; {contract.owner}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--sp-1)', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>
             {contract.dimension?.length ?? 0} dims &middot; {contract.fact?.length ?? 0} facts
           </span>
-          <span style={{ color: 'var(--slate-500)', transform: expanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform var(--duration-fast)' }}>
+          <span style={{ color: 'var(--ink-4)', transform: expanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform var(--duration-fast)' }}>
             &#x25BC;
           </span>
         </div>
       </StudioButton>
 
       {expanded && (
-        <div style={{ padding: '0 var(--sp-2) var(--sp-2)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+        <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Dimensions */}
           {(contract.dimension ?? []).map((dim) => (
             <div key={dim.name}>
-              <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--slate-300)', marginBottom: '4px' }}>
+              <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ink-2)', marginBottom: '4px' }}>
                 {dim.name} (dimension)
               </p>
               <StudioTableShell>
@@ -71,9 +71,9 @@ function ContractCard({ contract }: { contract: DataContract }) {
                 <tbody>
                   {dim.columns.map((col) => (
                     <tr key={col.name}>
-                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-200)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
-                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-400)' }}>{col.type}</StudioTableCell>
-                      <StudioTableCell style={{ padding: '2px 8px', color: col.role === 'key' ? 'var(--gold)' : 'var(--slate-400)' }}>{col.role ?? '—'}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-2)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-3)' }}>{col.type}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: col.role === 'key' ? 'var(--warning)' : 'var(--ink-3)' }}>{col.role ?? '—'}</StudioTableCell>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</StudioTableCell>
                     </tr>
                   ))}
@@ -86,7 +86,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
           {/* Facts */}
           {(contract.fact ?? []).map((fact) => (
             <div key={fact.name}>
-              <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--slate-300)', marginBottom: '4px' }}>
+              <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ink-2)', marginBottom: '4px' }}>
                 {fact.name} (fact &middot; grain: {fact.grain})
               </p>
               <StudioTableShell>
@@ -107,9 +107,9 @@ function ContractCard({ contract }: { contract: DataContract }) {
                 <tbody>
                   {fact.columns.map((col) => (
                     <tr key={col.name}>
-                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-200)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
-                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-400)' }}>{col.type}</StudioTableCell>
-                      <StudioTableCell style={{ padding: '2px 8px', color: col.agg ? 'var(--mint)' : 'var(--slate-400)' }}>{col.agg ?? '—'}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-2)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--ink-3)' }}>{col.type}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: col.agg ? 'var(--accent)' : 'var(--ink-3)' }}>{col.agg ?? '—'}</StudioTableCell>
                       <StudioTableCell style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</StudioTableCell>
                     </tr>
                   ))}
@@ -121,7 +121,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
 
           {/* Settings */}
           {contract.settings && (
-            <div style={{ fontSize: '0.6875rem', color: 'var(--slate-400)' }}>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
               {contract.settings.currency && <span>Currency: {contract.settings.currency} &middot; </span>}
               {contract.settings.time_zone && <span>TZ: {contract.settings.time_zone} &middot; </span>}
               {contract.settings.naming && <span>Naming: {contract.settings.naming}</span>}
@@ -139,7 +139,7 @@ export function ContractDetailList({ contracts }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {contracts.map((c) => (
         <ContractCard key={c.domain} contract={c} />
       ))}

@@ -27,7 +27,7 @@ export function LayoutPreview({ theme, layer }: Props) {
         ...cssVars,
         backgroundColor: theme.background,
         borderRadius: `${theme.borderRadius}px`,
-        border: '1px solid var(--slate-700)',
+        border: '1px solid var(--line)',
         overflow: 'hidden',
         aspectRatio: '16/9',
         fontFamily: theme.fontFamily || 'inherit',
@@ -86,7 +86,7 @@ function PulsePreview({ theme }: { theme: ThemeConfig }) {
             padding: '12px',
             backgroundColor: theme.surface,
             borderRadius: `${theme.borderRadius / 2}px`,
-            borderLeft: `3px solid ${i === 0 ? theme.primary : i === 2 ? theme.secondary : 'var(--slate-600)'}`,
+            borderLeft: `3px solid ${i === 0 ? theme.primary : i === 2 ? theme.secondary : 'var(--ink-4)'}`,
           }}
         >
           <p style={{ fontSize: '0.625rem', color: `${theme.text}88` }}>{label}</p>

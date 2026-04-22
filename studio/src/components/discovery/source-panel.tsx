@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useRef, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
@@ -109,7 +109,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
         }}
       >
         <StudioPanel title="Sources" description="Upload documents, paste notes or inject existing brackets as discovery context." style={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-2)' }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
           {sources.length === 0 ? (
             <StudioEmptyState
               title="No sources loaded"
@@ -120,19 +120,19 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
               }
             />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {sources.map((src) => (
                 <StudioPanel
                   key={src.id}
-                  style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', padding: 'var(--sp-1)' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px' }}
                 >
-                  <span style={{ fontSize: '0.75rem', color: 'var(--mint)', minWidth: '18px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--accent)', minWidth: '18px' }}>
                     {src.type === 'file' ? 'FILE' : 'TEXT'}
                   </span>
-                  <span style={{ flex: 1, fontSize: '0.75rem', color: 'var(--slate-200)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ flex: 1, fontSize: '0.75rem', color: 'var(--ink-2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {src.name}
                   </span>
-                  <span style={{ fontSize: '0.625rem', color: 'var(--slate-500)' }}>
+                  <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>
                     {new Date(src.addedAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   <StudioButton onClick={() => onRemoveSource(src.id)} variant="ghost" style={{ padding: '2px 8px', minWidth: '32px' }}>x</StudioButton>
@@ -142,8 +142,8 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
           )}
         </div>
 
-        <div style={{ padding: 'var(--sp-2)', borderTop: '1px solid var(--slate-700)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
-          <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
+        <div style={{ padding: '16px', borderTop: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <StudioButton
               onClick={() => fileRef.current?.click()}
               variant="secondary"
@@ -184,7 +184,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
       {pasteOpen && (
         <div style={overlayStyle}>
           <StudioPanel style={modalStyle}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: 'var(--sp-1-5)' }}>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)', marginBottom: 'var(--pad)' }}>
               Paste Text
             </h3>
             <StudioTextarea
@@ -194,8 +194,8 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
               placeholder="Paste strategy document, meeting notes, or any text content..."
               style={{
                 height: '200px',
-                padding: 'var(--sp-1-5)',
-                backgroundColor: 'var(--slate-900)',
+                padding: 'var(--pad)',
+                backgroundColor: 'var(--bg)',
                 fontSize: '0.8125rem',
                 fontFamily: 'inherit',
                 resize: 'vertical',
@@ -203,7 +203,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
                 boxSizing: 'border-box',
               }}
             />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--sp-1)', marginTop: 'var(--sp-1-5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: 'var(--pad)' }}>
               <StudioButton onClick={() => { setPasteOpen(false); setPasteText(''); }} variant="ghost" style={cancelBtnStyle}>Cancel</StudioButton>
               <StudioButton onClick={confirmPaste} disabled={!pasteText.trim()} tone="success" variant="primary" style={confirmBtnStyle}>Add Source</StudioButton>
             </div>
@@ -215,18 +215,18 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
       {bracketOpen && (
         <div style={overlayStyle}>
           <StudioPanel style={{ ...modalStyle, width: '420px', maxHeight: '500px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-1-5)' }}>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--pad)' }}>
+              <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>
                 Load Existing Bracket as Context
               </h3>
               <StudioButton onClick={() => setBracketOpen(false)} variant="ghost" style={{ padding: '2px 8px', minWidth: '32px' }}>x</StudioButton>
             </div>
-            <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: 'var(--sp-1-5)' }}>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: 'var(--pad)' }}>
               Select a use case bracket to inject its YAML as context for the discovery session.
             </p>
-            <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--sp-0-5)' }}>
+            <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {bracketLoading ? (
-                <p style={{ color: 'var(--slate-500)', fontSize: '0.75rem', textAlign: 'center', padding: 'var(--sp-2)' }}>Loading...</p>
+                <p style={{ color: 'var(--ink-4)', fontSize: '0.75rem', textAlign: 'center', padding: '16px' }}>Loading...</p>
               ) : bracketList.length === 0 ? (
                 <StudioEmptyState title="No brackets found" description="There are currently no existing brackets available to load as context." />
               ) : bracketList.map((b) => (
@@ -237,15 +237,15 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 'var(--sp-1-5)',
-                    padding: 'var(--sp-1) var(--sp-1-5)',
+                    gap: 'var(--pad)',
+                    padding: '8px var(--pad)',
                     textAlign: 'left',
                     justifyContent: 'flex-start',
                   }}
                 >
-                  <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: 'var(--mint)', minWidth: '60px' }}>{b.id}</span>
-                  <span style={{ flex: 1, fontSize: '0.8125rem', color: 'var(--slate-200)' }}>{b.title}</span>
-                  <span style={{ fontSize: '0.625rem', color: 'var(--slate-500)' }}>{b.domain}</span>
+                  <span style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)', minWidth: '60px' }}>{b.id}</span>
+                  <span style={{ flex: 1, fontSize: '0.8125rem', color: 'var(--ink-2)' }}>{b.title}</span>
+                  <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>{b.domain}</span>
                 </StudioButton>
               ))}
             </div>
@@ -258,7 +258,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
 
 const btnStyle: React.CSSProperties = {
   flex: 1,
-  padding: 'var(--sp-0-5) var(--sp-1)',
+  padding: '4px 8px',
   fontSize: '0.75rem',
 };
 
@@ -273,7 +273,7 @@ const overlayStyle: React.CSSProperties = {
 };
 
 const modalStyle: React.CSSProperties = {
-  padding: 'var(--sp-3)',
+  padding: 'var(--pad)',
   width: '480px',
   maxWidth: '90vw',
 };

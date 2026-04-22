@@ -8,8 +8,8 @@ interface Props {
 }
 
 const GRADE_STYLES: Record<string, { bg: string; color: string }> = {
-  AAA: { bg: 'rgba(0,212,170,0.2)', color: 'var(--mint)' },
-  AA: { bg: 'rgba(255,184,0,0.2)', color: 'var(--gold)' },
+  AAA: { bg: 'rgba(0,212,170,0.2)', color: 'var(--accent)' },
+  AA: { bg: 'rgba(255,184,0,0.2)', color: 'var(--warning)' },
   Fail: { bg: 'rgba(239,68,68,0.2)', color: 'var(--danger)' },
 };
 

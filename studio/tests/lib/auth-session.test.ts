@@ -26,10 +26,14 @@ describe('validateAuthEnv', () => {
     return import('@/lib/auth/env-check');
   }
 
+  function setNodeEnv(value: string) {
+    (process.env as Record<string, string>).NODE_ENV = value;
+  }
+
   it('warns when AUTH_SECRET is missing in development', async () => {
     delete process.env.AUTH_SECRET;
     delete process.env.NEXTAUTH_SECRET;
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const mod = await loadModule();
     mod.validateAuthEnv();
@@ -39,21 +43,21 @@ describe('validateAuthEnv', () => {
   it('throws when AUTH_SECRET is missing in production', async () => {
     delete process.env.AUTH_SECRET;
     delete process.env.NEXTAUTH_SECRET;
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     const mod = await loadModule();
     expect(() => mod.validateAuthEnv()).toThrow('AUTH_SECRET is required in production');
   });
 
   it('throws when AUTH_SECRET is a placeholder in production', async () => {
     process.env.AUTH_SECRET = 'changeme';
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     const mod = await loadModule();
     expect(() => mod.validateAuthEnv()).toThrow('placeholder');
   });
 
   it('warns when AUTH_SECRET is a placeholder in development', async () => {
     process.env.AUTH_SECRET = 'changeme';
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const mod = await loadModule();
     mod.validateAuthEnv();
@@ -62,7 +66,7 @@ describe('validateAuthEnv', () => {
 
   it('accepts a valid secret without warnings or errors', async () => {
     process.env.AUTH_SECRET = 'a-real-secret-that-is-secure-enough-1234';
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const mod = await loadModule();
     expect(() => mod.validateAuthEnv()).not.toThrow();
@@ -83,6 +87,7 @@ import { afterAll } from 'vitest';
 import { getSessionUser, requireAuth } from '@/lib/auth/session';
 import { auth } from '@/lib/auth/config';
 
+type AuthReturn = Awaited<ReturnType<typeof auth>>;
 const mockAuth = vi.mocked(auth);
 
 describe('getSessionUser', () => {
@@ -94,14 +99,14 @@ describe('getSessionUser', () => {
     mockAuth.mockResolvedValue({
       user: { id: 'user-1', email: 'test@example.com', name: 'Test User' },
       expires: '',
-    } as Awaited<ReturnType<typeof auth>>);
+    } as unknown as AuthReturn);
 
     const user = await getSessionUser();
     expect(user).toEqual({ id: 'user-1', email: 'test@example.com', name: 'Test User' });
   });
 
   it('returns null when no session exists', async () => {
-    mockAuth.mockResolvedValue(null as Awaited<ReturnType<typeof auth>>);
+    mockAuth.mockResolvedValue(null as unknown as AuthReturn);
     const user = await getSessionUser();
     expect(user).toBeNull();
   });
@@ -110,7 +115,7 @@ describe('getSessionUser', () => {
     mockAuth.mockResolvedValue({
       user: { id: 'user-1' },
       expires: '',
-    } as Awaited<ReturnType<typeof auth>>);
+    } as unknown as AuthReturn);
 
     const user = await getSessionUser();
     expect(user).toBeNull();
@@ -126,7 +131,7 @@ describe('requireAuth', () => {
     mockAuth.mockResolvedValue({
       user: { id: 'user-1', email: 'admin@co.com', name: 'Admin' },
       expires: '',
-    } as Awaited<ReturnType<typeof auth>>);
+    } as unknown as AuthReturn);
 
     const [user, error] = await requireAuth();
     expect(user).toEqual({ id: 'user-1', email: 'admin@co.com', name: 'Admin' });
@@ -134,7 +139,7 @@ describe('requireAuth', () => {
   });
 
   it('returns 401 response when not authenticated', async () => {
-    mockAuth.mockResolvedValue(null as Awaited<ReturnType<typeof auth>>);
+    mockAuth.mockResolvedValue(null as unknown as AuthReturn);
 
     const [user, error] = await requireAuth();
     expect(user).toBeNull();

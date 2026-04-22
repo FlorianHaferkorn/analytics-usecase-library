@@ -50,8 +50,7 @@ $checks = @(
 
 # Python-based checks (cross-platform, invoked separately)
 $pythonChecks = @(
-  @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--catalog", "core/kpi_catalog/KPI_Catalog.md", "--dist-dir", "products/fabric/powerbi/dist", "--ignore-missing") },
-  @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict"); NonBlocking = $true }
+  @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--catalog", "core/kpi_catalog/KPI_Catalog.md", "--dist-dir", "products/fabric/powerbi/dist", "--ignore-missing") }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
@@ -107,12 +106,8 @@ if ($pythonExe) {
     $status = if ($exitCode -eq 0) { "pass" } else { "fail" }
     $checkResults += @{ check = $pyCheck.Script; status = $status; exit_code = $exitCode }
     if ($exitCode -ne 0) {
-      if ($pyCheck.NonBlocking) {
-        Write-Warning "WARN (non-blocking) $($pyCheck.Script) ($exitCode)"
-      } else {
-        Write-Host "FAIL $($pyCheck.Script) ($exitCode)"
-        $overallStatus = "fail"
-      }
+      Write-Host "FAIL $($pyCheck.Script) ($exitCode)"
+      $overallStatus = "fail"
     } else {
       Write-Host "OK $($pyCheck.Script)"
     }

@@ -132,16 +132,16 @@ export function SimulatorClient({ brackets }: Props) {
 
       {/* Illustrative data banner */}
       <StudioPanel tone="warning" title="Illustrative Simulation" description="This view operates on synthetic seeded values, not live production data.">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', marginBottom: '4px' }}>
-          <span style={{ fontSize: '0.5625rem', color: 'var(--slate-500)' }}>Keine Echtdaten</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>Keine Echtdaten</span>
         </div>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--slate-300)', lineHeight: 1.5, marginBottom: '4px' }}>
-          Diese Simulation zeigt eine <strong style={{ color: 'var(--slate-100)' }}>Sensitivitätsanalyse</strong>: Wie verändert sich der strategische KPI,
+        <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: '4px' }}>
+          Diese Simulation zeigt eine <strong style={{ color: 'var(--ink)' }}>Sensitivitätsanalyse</strong>: Wie verändert sich der strategische KPI,
           wenn Treiber-KPIs variieren? Die Ausgangswerte werden anhand der KPI-ID-Konventionen
           (z.&nbsp;B. <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.pct</code> → 30&ndash;80&thinsp;%,&nbsp;
           <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.days</code> → 20&ndash;50) synthetisch erzeugt.
         </p>
-        <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)' }}>
+        <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>
           Für produktive Szenarien: echte Datenpipeline anschließen und Basiswerte im Use-Case-Bracket hinterlegen.
         </p>
       </StudioPanel>
@@ -163,7 +163,7 @@ export function SimulatorClient({ brackets }: Props) {
           </StudioSelect>
         </StudioField>
         {bracket && (
-          <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>
             {bracket.impactDirection === 'maximize' ? '↑' : '↓'} {bracket.strategicKpiId}
           </span>
         )}
@@ -172,21 +172,21 @@ export function SimulatorClient({ brackets }: Props) {
       {/* Result card */}
       {result && (
         <StudioPanel tone={result.isImprovement ? 'success' : 'warning'} title="Simulation Result" description="Compare the adjusted strategic KPI against its synthetic baseline after driver overrides.">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--pad)', flexWrap: 'wrap' }}>
           <div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>Strategic KPI</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--slate-50)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Strategic KPI</p>
+            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--ink)' }}>
               {result.adjustedValue.toFixed(1)}
-              <span style={{ fontSize: '0.875rem', color: 'var(--slate-400)' }}> {getUnit(result.target)}</span>
+              <span style={{ fontSize: '0.875rem', color: 'var(--ink-3)' }}> {getUnit(result.target)}</span>
             </p>
           </div>
           <div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>Baseline</p>
-            <p style={{ fontSize: '1rem', color: 'var(--slate-300)' }}>{result.baselineValue.toFixed(1)}</p>
+            <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Baseline</p>
+            <p style={{ fontSize: '1rem', color: 'var(--ink-2)' }}>{result.baselineValue.toFixed(1)}</p>
           </div>
           <div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>Delta</p>
-            <p style={{ fontSize: '1rem', fontWeight: 600, color: result.isImprovement ? 'var(--mint)' : 'var(--danger)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Delta</p>
+            <p style={{ fontSize: '1rem', fontWeight: 600, color: result.isImprovement ? 'var(--accent)' : 'var(--danger)' }}>
               {result.delta >= 0 ? '+' : ''}{result.delta.toFixed(2)} ({result.deltaPercent >= 0 ? '+' : ''}{result.deltaPercent.toFixed(1)}%)
             </p>
           </div>
@@ -196,7 +196,7 @@ export function SimulatorClient({ brackets }: Props) {
 
       {/* Two-column: sliders + impact chart */}
       {parsed && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <ScenarioPanel
             drivers={drivers}
             overrides={overrides}
@@ -215,8 +215,8 @@ export function SimulatorClient({ brackets }: Props) {
       {/* Formula display */}
       {bracket && (
         <StudioPanel title="Formula" description="Current value-driver formula used for the simulation engine.">
-          <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '4px' }}>Formula</p>
-          <code style={{ fontSize: '0.75rem', color: 'var(--slate-300)', fontFamily: 'var(--font-mono)' }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: '4px' }}>Formula</p>
+          <code style={{ fontSize: '0.75rem', color: 'var(--ink-2)', fontFamily: 'var(--font-mono)' }}>
             {bracket.formula}
           </code>
         </StudioPanel>

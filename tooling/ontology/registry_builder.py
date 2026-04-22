@@ -229,8 +229,7 @@ def scan_action_codes(repo_root: Path) -> Tuple[Dict[str, Dict[str, Any]], List[
         if "decision_spines" in p.parts:
             continue
         # Skip meta/index files (impactful_15.yaml, golden_20.yaml style)
-        # and co-located business_case files (*_business_case.yaml)
-        if p.name in ("impactful_15.yaml",) or p.name.endswith("_business_case.yaml"):
+        if p.name in ("impactful_15.yaml",):
             continue
         rel = _to_repo_rel(repo_root, p)
         try:

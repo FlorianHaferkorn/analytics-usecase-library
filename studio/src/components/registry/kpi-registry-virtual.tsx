@@ -70,7 +70,7 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
         style={{
           padding: '8px 12px',
           fontSize: '0.8125rem',
-          marginBottom: 'var(--sp-1)',
+          marginBottom: '8px',
         }}
       />
 
@@ -81,18 +81,18 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 'var(--sp-1)',
+              gap: '8px',
               padding: '8px 12px',
-              borderBottom: '1px solid var(--slate-700)',
+              borderBottom: '1px solid var(--line)',
             }}
           >
-            <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem', minWidth: '200px', borderTop: 'none', padding: 0 }}>
+            <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.75rem', minWidth: '200px', borderTop: 'none', padding: 0 }}>
               {kpi.kpi_id}
             </StudioTableCell>
-            <StudioTableCell style={{ color: 'var(--slate-100)', flex: 1, borderTop: 'none', padding: 0 }}>
+            <StudioTableCell style={{ color: 'var(--ink)', flex: 1, borderTop: 'none', padding: 0 }}>
               {kpi.kpi_key}
             </StudioTableCell>
-            <StudioTableCell style={{ color: 'var(--slate-400)', fontSize: '0.75rem', borderTop: 'none', padding: 0 }}>
+            <StudioTableCell style={{ color: 'var(--ink-3)', fontSize: '0.75rem', borderTop: 'none', padding: 0 }}>
               {(kpi.domain_tag ?? []).join(', ')}
             </StudioTableCell>
           </div>
@@ -100,7 +100,7 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
 
         {visibleCount < filtered.length && (
           <div ref={sentinelRef} style={{ height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--ink-4)' }}>
               Loading more... ({visible.length} of {filtered.length})
             </span>
           </div>

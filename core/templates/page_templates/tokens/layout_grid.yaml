@@ -45,3 +45,18 @@ visual_sizing:
 
 snap:
   grid_px: 10           # pixel snap increment for scaffold generator
+
+# Computed logical-unit (LU) dimensions for the 1280×720 design base canvas.
+# Formula (Design_Spec §3.2):
+#   content_w = canvas.width  - 2*outer_margin = 1280 - 64 = 1216
+#   content_h = canvas.height - 2*outer_margin = 720  - 64 = 656
+#   lu_w = (content_w - (cols-1)*gutter) / cols = (1216 - 11*16) / 12 ≈ 86.67
+#   lu_h = (content_h - (rows-1)*gutter) / rows = (656  - 11*16) / 12 ≈ 40.00
+# Slot position formula: slotPos(col, row, colSpan, rowSpan)
+#   left   = outer_margin + col  * (lu_w + gutter)
+#   top    = outer_margin + row  * (lu_h + gutter)
+#   width  = colSpan * lu_w + (colSpan-1) * gutter
+#   height = rowSpan * lu_h + (rowSpan-1) * gutter
+computed:
+  lu_w: 86.67   # logical unit width  (px, design base 1280 canvas)
+  lu_h: 40.00   # logical unit height (px, design base 720 canvas)

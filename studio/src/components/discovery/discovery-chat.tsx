@@ -142,25 +142,25 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
     <div
       style={{
         flex: 1,
-        backgroundColor: 'var(--slate-800)',
+        backgroundColor: 'var(--panel)',
         borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
+        border: '1px solid var(--line)',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
-      <div style={{ padding: 'var(--sp-2)', borderBottom: '1px solid var(--slate-700)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>
+      <div style={{ padding: '16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>
           Discovery Chat
         </h3>
         {isLoading && (
-          <span style={{ fontSize: '0.6875rem', color: 'var(--mint)', animation: 'pulse 1.5s infinite' }}>
+          <span style={{ fontSize: '0.6875rem', color: 'var(--accent)', animation: 'pulse 1.5s infinite' }}>
             thinking...
           </span>
         )}
       </div>
 
-      <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-2)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+      <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {messages.length === 0 ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ maxWidth: '400px', width: '100%' }}>
@@ -169,7 +169,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
                 description={
                   <>
                     <span>Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.</span>
-                    {context ? <span style={{ display: 'block', marginTop: 'var(--sp-1)', color: 'var(--mint)' }}>{Math.round(context.length / 4)} tokens of context loaded</span> : null}
+                    {context ? <span style={{ display: 'block', marginTop: '8px', color: 'var(--accent)' }}>{Math.round(context.length / 4)} tokens of context loaded</span> : null}
                   </>
                 }
               />
@@ -182,16 +182,16 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
                 style={{
                   alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                   maxWidth: '80%',
-                  padding: 'var(--sp-1-5)',
-                  backgroundColor: msg.role === 'user' ? 'var(--slate-700)' : 'var(--slate-900)',
+                  padding: 'var(--pad)',
+                  backgroundColor: msg.role === 'user' ? 'var(--bg-2)' : 'var(--bg)',
                   borderRadius: 'var(--radius-md)',
-                  border: `1px solid ${msg.role === 'user' ? 'var(--slate-600)' : 'var(--slate-700)'}`,
+                  border: `1px solid var(--line)`,
                 }}
               >
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '4px', fontWeight: 600 }}>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: '4px', fontWeight: 600 }}>
                   {msg.role === 'user' ? 'You' : 'AI'}
                 </p>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--slate-100)', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                   {msg.content}
                 </div>
               </div>
@@ -205,8 +205,8 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
         )}
       </div>
 
-      <div style={{ padding: 'var(--sp-1-5)', borderTop: '1px solid var(--slate-700)' }}>
-        <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
+      <div style={{ padding: 'var(--pad)', borderTop: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <StudioInput
             type="text"
             value={input}
@@ -216,7 +216,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
             disabled={isLoading}
             style={{
               flex: 1,
-              padding: 'var(--sp-1) var(--sp-1-5)',
+              padding: '8px var(--pad)',
               fontSize: '0.875rem',
             }}
           />
@@ -226,7 +226,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
             tone="success"
             variant="primary"
             style={{
-              padding: 'var(--sp-1) var(--sp-2)',
+              padding: '8px 16px',
               fontSize: '0.875rem',
             }}
           >

@@ -34,13 +34,13 @@ export function ExportReportButton() {
   }, [theme, projectName]);
 
   return (
-    <div style={{ display: 'flex', gap: 'var(--sp-0-5)' }}>
+    <div style={{ display: 'flex', gap: '4px' }}>
       <StudioButton
         onClick={() => handleExport('single')}
         disabled={loading}
         variant="secondary"
         style={{
-          padding: '6px var(--sp-1-5)',
+          padding: '6px 12px',
           fontSize: '0.75rem',
         }}
       >
@@ -52,7 +52,7 @@ export function ExportReportButton() {
         tone="warning"
         variant="primary"
         style={{
-          padding: '6px var(--sp-1-5)',
+          padding: '6px 12px',
           fontSize: '0.75rem',
         }}
       >

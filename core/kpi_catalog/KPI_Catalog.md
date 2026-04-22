@@ -181,7 +181,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "Index (-100 to 100)"
     interpretation: "'>0 is positive, >50 strong advocacy; track trend and segment gaps.'"
   technical:
-    measure_name: "NPS Index (Customer)"
+    measure_name: "NPS Index"
     description: "Measures customer advocacy and likelihood to recommend."
     depends_on_measures: []
     lineage:
@@ -2168,43 +2168,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: enterprise.action_effectiveness_delta.amount
-  kpi_key: Action Effectiveness Delta
-  kpi_type: outcome
-  kpi_role: strategic
-  impact_dimension: Governance
-  domain_tag: [Enterprise & Governance, Governance]
-  use_case_ref:
-  - XD-004
-  action_code_ref: []
-  calc_type: average
-  business:
-    purpose: "Proves the action loop moves KPIs, not just instruments them: average signed impact value for actions that achieved their intended outcome."
-    definition: "AVERAGEX over fact_action_outcome rows with outcome_status = 'achieved', using impact_value."
-    grain_scope: "Action instance; aggregated by period, domain, and action code."
-    unit_format: "currency amount (2 decimals)"
-    interpretation: "Higher positive values indicate stronger average impact per achieved action. Zero or negative warrants loop investigation."
-  technical:
-    measure_name: "Action Effectiveness Delta"
-    description: "Average impact_value for achieved action outcomes."
-    depends_on_measures: []
-    lineage:
-    - fact_action_outcome.impact_value
-    - fact_action_outcome.outcome_status
-  governance:
-    business_owner: "Executive Office"
-    data_owner: "PMO Analytics"
-    steward: "PMO Analyst"
-    review_cycle: "monthly"
-    validation_process: "automated"
-    qa_rules:
-    - outcome_status must equal 'achieved' before including in average
-    - impact_value must be non-null for achieved rows
-    version: "v1.0"
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 22.04.2026
 
 - kpi_id: enterprise.action_routed.count
   deprecated: true
@@ -4243,7 +4206,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'index'"
     interpretation: "Higher is better; explain shifts with FCR, AHT, escalation %."
   technical:
-    measure_name: "NPS Index (Service)"
+    measure_name: ""
     description: "Measures customer advocacy and experience quality."
     depends_on_measures: []
     lineage:

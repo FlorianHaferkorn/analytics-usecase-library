@@ -7,8 +7,8 @@ import { StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } f
 
 const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
   P1: { bg: 'var(--danger)', text: '#fff' },
-  P2: { bg: 'var(--gold)', text: 'var(--slate-950)' },
-  P3: { bg: 'var(--slate-600)', text: 'var(--slate-200)' },
+  P2: { bg: 'var(--warning)', text: 'var(--bg)' },
+  P3: { bg: 'var(--bg-2)', text: 'var(--ink-2)' },
 };
 
 interface Props {
@@ -46,7 +46,7 @@ export function ActionMatrix({ rows, theme }: Props) {
       <StudioTableShell>
         <StudioTable>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
+            <tr style={{ borderBottom: '1px solid var(--line)' }}>
               {['Entity', 'KPI Value', 'Delta', 'Action Code', 'Priority'].map((h) => (
                 <StudioTableHeadCell key={h}>{h}</StudioTableHeadCell>
               ))}
@@ -59,14 +59,14 @@ export function ActionMatrix({ rows, theme }: Props) {
                 <tr
                   key={row.entity}
                   onClick={() => setExpanded(expanded === row.entity ? null : row.entity)}
-                  style={{ borderBottom: '1px solid var(--slate-700)', cursor: 'pointer' }}
+                  style={{ borderBottom: '1px solid var(--line)', cursor: 'pointer' }}
                 >
-                  <StudioTableCell style={{ color: 'var(--slate-100)', fontWeight: 500 }}>{row.entity}</StudioTableCell>
+                  <StudioTableCell style={{ color: 'var(--ink)', fontWeight: 500 }}>{row.entity}</StudioTableCell>
                   <StudioTableCell style={{ fontFamily: 'var(--font-mono)' }}>{row.kpiValue.toFixed(1)}%</StudioTableCell>
-                  <StudioTableCell style={{ color: row.delta >= 0 ? 'var(--mint)' : 'var(--danger)', fontWeight: 600 }}>
+                  <StudioTableCell style={{ color: row.delta >= 0 ? 'var(--accent)' : 'var(--danger)', fontWeight: 600 }}>
                     {row.delta >= 0 ? '+' : ''}{row.delta.toFixed(1)}pp
                   </StudioTableCell>
-                  <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)' }}>{row.actionCode}</StudioTableCell>
+                  <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--warning)' }}>{row.actionCode}</StudioTableCell>
                   <StudioTableCell>
                     <span style={{
                       padding: '2px 8px', borderRadius: '9999px', fontSize: '0.625rem', fontWeight: 700,

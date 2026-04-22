@@ -129,19 +129,19 @@ export function BrandLabClient() {
         <StudioMetric label="Weight" value={String(theme.fontWeight ?? 400)} meta="global font weight" />
       </StudioMetricBar>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr)', gap: 'var(--sp-2)', minHeight: 0, flex: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr)', gap: '16px', minHeight: 0, flex: 1 }}>
       {/* Left: Theme Editor */}
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--sp-1-5)',
+          gap: '12px',
           overflow: 'auto',
         }}
       >
         {/* Presets */}
         <StudioPanel title="Presets" description="Seed the theme with a visual direction before fine-tuning individual tokens." tone="warning">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {Object.entries(PRESET_THEMES).map(([name, preset]) => {
               const isActive = activePreset === name;
               return (
@@ -150,9 +150,9 @@ export function BrandLabClient() {
                   onClick={() => updateTheme(preset)}
                   variant="ghost"
                   style={{
-                    padding: 'var(--sp-1)',
-                    backgroundColor: isActive ? 'var(--slate-800)' : 'var(--slate-900)',
-                    border: isActive ? `1px solid ${preset.primary}` : '1px solid var(--slate-700)',
+                    padding: '8px',
+                    backgroundColor: isActive ? 'var(--bg-2)' : 'var(--panel)',
+                    border: isActive ? `1px solid ${preset.primary}` : '1px solid var(--line)',
                     textAlign: 'left',
                     display: 'block',
                     width: '100%',
@@ -171,7 +171,7 @@ export function BrandLabClient() {
                     <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.secondary }} />
                     <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.background }} />
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.6875rem', color: isActive ? 'var(--slate-100)' : 'var(--slate-300)' }}>{name}</p>
+                  <p style={{ margin: 0, fontSize: '0.6875rem', color: isActive ? 'var(--ink)' : 'var(--ink-2)' }}>{name}</p>
                 </StudioButton>
               );
             })}
@@ -180,19 +180,19 @@ export function BrandLabClient() {
 
         {/* Color Editors */}
         <StudioPanel title="Colors" description="Work directly on primary, contrast, surface and accent tokens." tone="info">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ flex: 1 }}><ColorPicker label="Primary" value={theme.primary} onChange={(v) => updateTheme({ primary: v })} /></div>
               <ContrastBadge fg={theme.primary} bg={theme.background} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ flex: 1 }}><ColorPicker label="Secondary" value={theme.secondary} onChange={(v) => updateTheme({ secondary: v })} /></div>
               <ContrastBadge fg={theme.secondary} bg={theme.background} />
             </div>
             <ColorPicker label="Accent" value={theme.accent} onChange={(v) => updateTheme({ accent: v })} />
             <ColorPicker label="Background" value={theme.background} onChange={(v) => updateTheme({ background: v })} />
             <ColorPicker label="Surface" value={theme.surface} onChange={(v) => updateTheme({ surface: v })} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ flex: 1 }}><ColorPicker label="Text" value={theme.text} onChange={(v) => updateTheme({ text: v })} /></div>
               <ContrastBadge fg={theme.text} bg={theme.background} />
             </div>
@@ -201,13 +201,13 @@ export function BrandLabClient() {
 
         {/* Typography & Spacing */}
         <StudioPanel title="Typography & Layout" description="Control typography rhythm, radius and shadow from one governed surface.">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <StudioFormField label="Font Family">
               <StudioSelect
                 value={theme.fontFamily}
                 onChange={(e) => updateTheme({ fontFamily: e.target.value })}
                 style={{
-                  padding: 'var(--sp-0-5) var(--sp-1)',
+                  padding: '4px 8px',
                   fontSize: '0.8125rem',
                 }}
               >
@@ -218,7 +218,7 @@ export function BrandLabClient() {
               </StudioSelect>
             </StudioFormField>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Font Weight ({theme.fontWeight ?? 400})
               </label>
               <input
@@ -232,7 +232,7 @@ export function BrandLabClient() {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Line Height ({theme.lineHeight ?? 1.5})
               </label>
               <input
@@ -246,7 +246,7 @@ export function BrandLabClient() {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Letter Spacing ({(theme.letterSpacing ?? 0).toFixed(3)}em)
               </label>
               <input
@@ -260,7 +260,7 @@ export function BrandLabClient() {
               />
             </div>
             <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '0.75rem', color: 'var(--ink-3)', display: 'block', marginBottom: '4px' }}>
                 Border Radius ({theme.borderRadius}px)
               </label>
               <input
@@ -278,7 +278,7 @@ export function BrandLabClient() {
                 value={theme.shadow ?? 'none'}
                 onChange={(e) => updateTheme({ shadow: e.target.value })}
                 style={{
-                  padding: 'var(--sp-0-5) var(--sp-1)',
+                  padding: '4px 8px',
                   fontSize: '0.8125rem',
                 }}
               >
@@ -294,7 +294,7 @@ export function BrandLabClient() {
       </div>
 
       {/* Right: Tabbed Preview & Export */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', minHeight: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minHeight: 0 }}>
         <StudioToolbar>
           <StudioSegmentedControl
             value={activeTab}
@@ -313,7 +313,7 @@ export function BrandLabClient() {
         {/* 3-30-300 overview thumbnails */}
         {activeTab === 'overview' && (
           <StudioPanel title="Page Templates" description="Click any template to open the full interactive preview." style={{ flex: 1 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-1-5)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
               {([
                 { layer: '3s' as const, label: 'Pulse (3s)', desc: 'Status KPI cards' },
                 { layer: '30s' as const, label: 'Investigator (30s)', desc: 'Trend + waterfall' },
@@ -324,7 +324,7 @@ export function BrandLabClient() {
                   onClick={() => setActiveTab(layer)}
                   style={{
                     background: 'none',
-                    border: '1px solid var(--slate-700)',
+                    border: '1px solid var(--line)',
                     borderRadius: 'var(--radius-md)',
                     padding: 0,
                     cursor: 'pointer',
@@ -333,13 +333,13 @@ export function BrandLabClient() {
                     flexDirection: 'column',
                     transition: 'border-color 0.15s ease',
                   }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--slate-500)')}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--slate-700)')}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)')}
                 >
                   <LayoutPreview theme={theme} layer={layer} />
-                  <div style={{ padding: 'var(--sp-1) var(--sp-1-5)', borderTop: '1px solid var(--slate-700)', textAlign: 'left' }}>
-                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-100)' }}>{label}</p>
-                    <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>{desc}</p>
+                  <div style={{ padding: '8px 12px', borderTop: '1px solid var(--line)', textAlign: 'left' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink)' }}>{label}</p>
+                    <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '2px' }}>{desc}</p>
                   </div>
                 </button>
               ))}
@@ -349,7 +349,7 @@ export function BrandLabClient() {
 
         {/* Export */}
         {activeTab === 'export' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', flex: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
             <CssPreview theme={theme} />
             <ThemeExportPanel theme={theme} />
           </div>

@@ -27,21 +27,21 @@ export function DashboardLayout({ layer, theme }: Props) {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--sp-2)',
+        gap: '16px',
         backgroundColor: theme.background,
         borderRadius: `${theme.borderRadius}px`,
         fontFamily: theme.fontFamily || 'inherit',
         fontWeight: theme.fontWeight ?? 400,
         letterSpacing: theme.letterSpacing ? `${theme.letterSpacing}em` : undefined,
         lineHeight: theme.lineHeight ?? 1.5,
-        padding: 'var(--sp-2)',
+        padding: '16px',
         overflow: 'auto',
       }}
     >
       {(layer === '3s' || layer === 'all') && (
         <div>
           <SectionLabel color={theme.text}>3s — Pulse</SectionLabel>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--sp-1-5)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
             {SAMPLE_KPIS.map((kpi) => (
               <PulseCard key={kpi.kpiId} kpi={kpi} theme={themeProps} />
             ))}
@@ -70,10 +70,10 @@ function SectionLabel({ children, color }: { children: React.ReactNode; color?: 
   return (
     <p style={{
       fontSize: '0.6875rem',
-      color: color ? `color-mix(in srgb, ${color} 50%, transparent)` : 'var(--slate-500)',
+      color: color ? `color-mix(in srgb, ${color} 50%, transparent)` : 'var(--ink-4)',
       textTransform: 'uppercase',
       letterSpacing: '0.1em',
-      marginBottom: 'var(--sp-1)',
+      marginBottom: '8px',
     }}>
       {children}
     </p>

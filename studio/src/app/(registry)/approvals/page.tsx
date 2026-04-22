@@ -11,7 +11,11 @@ export default async function ApprovalsPage() {
   }));
 
   return (
+<<<<<<< HEAD
     <StudioPage style={{ gap: 'var(--sp-3)' }}>
+=======
+    <StudioPage style={{ gap: 'var(--pad)' }}>
+>>>>>>> claude/implement-execution-plan-bZbSq
       <StudioPageHeader
         eyebrow="Registry / Approvals"
         title="Governance Approvals"

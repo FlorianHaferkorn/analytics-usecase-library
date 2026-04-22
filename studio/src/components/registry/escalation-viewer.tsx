@@ -8,8 +8,8 @@ interface Props {
 }
 
 const LEVEL_CONFIG: Record<string, { color: string; label: string; shortLabel: string }> = {
-  EarlyWarning: { color: 'var(--mint)', label: 'Early Warning', shortLabel: 'L1' },
-  RequiredIntervention: { color: 'var(--gold)', label: 'Required Intervention', shortLabel: 'L2' },
+  EarlyWarning: { color: 'var(--accent)', label: 'Early Warning', shortLabel: 'L1' },
+  RequiredIntervention: { color: 'var(--warning)', label: 'Required Intervention', shortLabel: 'L2' },
   PrescriptiveExecution: { color: '#EF4444', label: 'Prescriptive Execution', shortLabel: 'L3' },
 };
 
@@ -17,17 +17,17 @@ export function EscalationViewer({ spine }: Props) {
   const path = spine.escalation_logic.escalation_path;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Escalation Path */}
       <div>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', marginBottom: 'var(--sp-1)' }}>
+        <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '8px' }}>
           {spine.escalation_logic.principle}
         </p>
-        <div style={{ display: 'flex', gap: 'var(--sp-1)', alignItems: 'stretch' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
           {path.map((step, i) => {
-            const config = LEVEL_CONFIG[step.level] ?? { color: 'var(--slate-400)', label: step.level, shortLabel: `L${i + 1}` };
+            const config = LEVEL_CONFIG[step.level] ?? { color: 'var(--ink-3)', label: step.level, shortLabel: `L${i + 1}` };
             return (
-              <div key={step.level} style={{ flex: 1, display: 'flex', alignItems: 'stretch', gap: 'var(--sp-1)' }}>
+              <div key={step.level} style={{ flex: 1, display: 'flex', alignItems: 'stretch', gap: '8px' }}>
                 <StudioPanel
                   style={{
                     flex: 1,
@@ -47,7 +47,7 @@ export function EscalationViewer({ spine }: Props) {
                         height: '24px',
                         borderRadius: '50%',
                         backgroundColor: config.color,
-                        color: 'var(--slate-950)',
+                        color: 'var(--bg)',
                         fontSize: '0.6875rem',
                         fontWeight: 700,
                       }}
@@ -58,12 +58,12 @@ export function EscalationViewer({ spine }: Props) {
                       {config.label}
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.6875rem', color: 'var(--slate-300)', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5 }}>
                     {step.action}
                   </p>
                 </StudioPanel>
                 {i < path.length - 1 && (
-                  <div style={{ display: 'flex', alignItems: 'center', color: 'var(--slate-600)', fontSize: '1.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', color: 'var(--ink-4)', fontSize: '1.25rem' }}>
                     &#x2192;
                   </div>
                 )}
@@ -74,17 +74,17 @@ export function EscalationViewer({ spine }: Props) {
       </div>
 
       {/* Decision Context */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1-5)' }}>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', marginBottom: '4px', fontWeight: 600 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <StudioPanel style={{ padding: '12px' }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Primary Question
           </p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--slate-200)', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '0.75rem', color: 'var(--ink-2)', lineHeight: 1.5 }}>
             {spine.decision_context.primary_question}
           </p>
         </StudioPanel>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', marginBottom: '4px', fontWeight: 600 }}>
+        <StudioPanel style={{ padding: '12px' }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Decision Confidence
           </p>
           <span
@@ -95,7 +95,7 @@ export function EscalationViewer({ spine }: Props) {
               fontSize: '0.6875rem',
               fontWeight: 600,
               backgroundColor: spine.decision_confidence.level === 'High' ? 'rgba(0,212,170,0.15)' : spine.decision_confidence.level === 'Medium' ? 'rgba(255,184,0,0.15)' : 'rgba(239,68,68,0.15)',
-              color: spine.decision_confidence.level === 'High' ? 'var(--mint)' : spine.decision_confidence.level === 'Medium' ? 'var(--gold)' : '#EF4444',
+              color: spine.decision_confidence.level === 'High' ? 'var(--accent)' : spine.decision_confidence.level === 'Medium' ? 'var(--warning)' : '#EF4444',
             }}
           >
             {spine.decision_confidence.level}
@@ -104,20 +104,20 @@ export function EscalationViewer({ spine }: Props) {
       </div>
 
       {/* Tradeoffs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1-5)' }}>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--mint)', marginBottom: '4px', fontWeight: 600 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <StudioPanel style={{ padding: '12px' }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--accent)', marginBottom: '4px', fontWeight: 600 }}>
             Improves
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
             {spine.decision_tradeoffs.improves.map((item) => (
-              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(0,212,170,0.1)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--mint)' }}>
+              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(0,212,170,0.1)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--accent)' }}>
                 {item}
               </span>
             ))}
           </div>
         </StudioPanel>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
+        <StudioPanel style={{ padding: '12px' }}>
           <p style={{ fontSize: '0.6875rem', color: '#EF4444', marginBottom: '4px', fontWeight: 600 }}>
             Risks
           </p>

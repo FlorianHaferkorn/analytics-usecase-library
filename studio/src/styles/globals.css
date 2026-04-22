@@ -1,18 +1,17 @@
 @import 'tailwindcss';
 
 :root {
-  /* ── Primary Palette ── */
-  --mint: #00D4AA;
+  /* ── Brand constants ── */
+  --mint:       #00D4AA;
   --mint-light: #33DDBB;
-  --mint-dark: #00A888;
-  --gold: #FFB800;
+  --mint-dark:  #00A888;
+  --gold:       #FFB800;
   --gold-light: #FFC833;
-  --gold-dark: #CC9300;
+  --gold-dark:  #CC9300;
 
-  /* ── Neutrals (Dark Slate) ── */
+  /* ── Slate scale (used by canvas & dark-mode surfaces) ── */
   --slate-950: #020617;
   --slate-900: #0F172A;
-  /* --slate-850 and --slate-750 were used as fallback values but never defined — now defined */
   --slate-850: #17202E;
   --slate-800: #1E293B;
   --slate-750: #283548;
@@ -23,68 +22,97 @@
   --slate-300: #CBD5E1;
   --slate-200: #E2E8F0;
   --slate-100: #F1F5F9;
-  --slate-50: #F8FAFC;
+  --slate-50:  #F8FAFC;
 
-  /* ── Semantic ── */
+  /* ── Semantic role tokens (design system, light theme) ── */
+  --bg:          #fafaf9;
+  --bg-2:        #f4f4f2;
+  --panel:       #ffffff;
+  --ink:         #0b0b0c;
+  --ink-2:       #3a3a3d;
+  --ink-3:       #6a6a70;
+  --ink-4:       #9a9aa0;
+  --line:        rgba(11,11,12,0.08);
+  --line-2:      rgba(11,11,12,0.04);
+  --hover:       rgba(11,11,12,0.035);
+  --accent:      #00D4AA;
+  --accent-soft: oklch(0.92 0.06 170);
+  --accent-ink:  #0b0b0c;
+
+  /* ── Semantic state colors ── */
   --success: var(--mint);
   --warning: var(--gold);
-  --danger: #EF4444;
-  --info: #3B82F6;
+  --danger:  #E53935;
+  --info:    #1976D2;
+  --positive-fg: oklch(0.42 0.13 150);
+  --positive-bg: oklch(0.94 0.05 150 / 0.45);
+  --negative-fg: oklch(0.48 0.15 28);
+  --negative-bg: oklch(0.95 0.05 28 / 0.45);
 
-  /* ── Spacing (8px Grid) ── */
-  --sp-0: 0rem;
-  --sp-0-5: 0.25rem;   /*  4px */
-  --sp-1: 0.5rem;      /*  8px */
-  --sp-1-5: 0.75rem;   /* 12px */
-  --sp-2: 1rem;        /* 16px */
-  --sp-2-5: 1.25rem;   /* 20px */
-  --sp-3: 1.5rem;      /* 24px */
-  --sp-4: 2rem;        /* 32px */
-  --sp-5: 2.5rem;      /* 40px */
-  --sp-6: 3rem;        /* 48px */
-  --sp-8: 4rem;        /* 64px */
+  /* ── Layout tokens ── */
+  --pad:    24px;
+  --gap:    20px;
+  --h-row:  44px;
+  --radius: 10px;
 
-  /* ── Type Scale ── */
-  /* 8-step scale covering all font-sizes currently used ad hoc */
-  --text-2xs: 0.5625rem;  /*  9px — micro labels, chart annotations */
-  --text-xs:  0.625rem;   /* 10px — caps labels, field labels, stat labels */
-  --text-sm:  0.6875rem;  /* 11px — tags, badges, secondary text */
-  --text-base: 0.75rem;   /* 12px — buttons, table cells, toolbar items */
-  --text-md:  0.8125rem;  /* 13px — form inputs, descriptions, panel titles */
-  --text-lg:  0.875rem;   /* 14px — body text, page descriptions */
-  --text-xl:  1.125rem;   /* 18px — sub-headings, sidebar brand */
-  --text-2xl: 1.375rem;   /* 22px — page header titles */
-  --text-3xl: 1.75rem;    /* 28px — large metric values */
+  /* ── Shadows (light-theme calibrated) ── */
+  --shadow-sm: 0 1px 0 rgba(11,11,12,0.04), 0 1px 2px rgba(11,11,12,0.04);
+  --shadow-md: 0 4px 16px rgba(11,11,12,0.06), 0 2px 4px rgba(11,11,12,0.04);
+  --shadow-lg: 0 24px 48px -16px rgba(11,11,12,0.18), 0 8px 16px rgba(11,11,12,0.06);
+  /* legacy aliases */
+  --shadow-card:     var(--shadow-sm);
+  --shadow-elevated: var(--shadow-md);
+  --shadow-overlay:  var(--shadow-lg);
 
-  /* ── Font Weights ── */
+  /* ── Typography ── */
+  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+  --font-display: 'Inter', system-ui, sans-serif;
+
+  /* ── 8px spacing grid ── */
+  --sp-0:   0rem;
+  --sp-0-5: 0.25rem;
+  --sp-1:   0.5rem;
+  --sp-1-5: 0.75rem;
+  --sp-2:   1rem;
+  --sp-2-5: 1.25rem;
+  --sp-3:   1.5rem;
+  --sp-4:   2rem;
+  --sp-5:   2.5rem;
+  --sp-6:   3rem;
+  --sp-8:   4rem;
+
+  /* ── Type scale ── */
+  --text-2xs:  0.5625rem;
+  --text-xs:   0.625rem;
+  --text-sm:   0.6875rem;
+  --text-base: 0.75rem;
+  --text-md:   0.8125rem;
+  --text-lg:   0.875rem;
+  --text-xl:   1.125rem;
+  --text-2xl:  1.375rem;
+  --text-3xl:  1.75rem;
+
+  /* ── Font weights ── */
   --weight-normal:   400;
   --weight-medium:   500;
   --weight-semibold: 600;
   --weight-bold:     700;
 
-  /* ── Typography Families ── */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-
-  /* ── Radii ── */
-  --radius-sm: 0.375rem;  /*  6px */
-  --radius-md: 0.5rem;    /*  8px */
-  --radius-lg: 0.75rem;   /* 12px */
-  --radius-xl: 1rem;      /* 16px */
+  /* ── Radii (legacy aliases) ── */
+  --radius-sm:   0.375rem;
+  --radius-md:   0.5rem;
+  --radius-lg:   var(--radius);
+  --radius-xl:   1rem;
   --radius-full: 9999px;
 
-  /* ── Shadows ── */
-  --shadow-card:     0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  --shadow-elevated: 0 4px 6px rgba(0, 0, 0, 0.1),  0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-overlay:  0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
-
   /* ── Transitions ── */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast:   150ms;
-  --duration-normal: 250ms;
-  --duration-slow:   400ms;
+  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast:  150ms;
+  --duration-normal:250ms;
+  --duration-slow:  400ms;
 
-  /* ── Z-Index Scale ── */
+  /* ── Z-index ── */
   --z-base:     0;
   --z-raised:   10;
   --z-dropdown: 100;
@@ -93,207 +121,136 @@
   --z-toast:    400;
 }
 
-/* ── Base Styles ── */
+/* ── Base reset ── */
+*, *::before, *::after { box-sizing: border-box; }
+
 html {
   height: 100%;
   font-family: var(--font-sans);
+  font-feature-settings: "cv11","ss01","ss03";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
 }
 
 body {
   height: 100%;
-  background-color: var(--slate-900);
-  color: var(--slate-100);
+  background-color: var(--bg);
+  color: var(--ink);
 }
+
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--slate-800);
-}
-
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--slate-600);
-  border-radius: 3px;
+  background: var(--line);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
 }
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--slate-500);
-}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
 
 /* ── Selection ── */
-::selection {
-  background-color: color-mix(in srgb, var(--mint) 30%, transparent);
-  color: var(--slate-50);
+::selection { background: var(--accent-soft); }
+
+/* ── Mono utility ── */
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  letter-spacing: 0;
 }
+.display { font-family: var(--font-display); }
 
-/* ── React Flow Controls ── */
-.react-flow__controls {
-  background: var(--slate-800) !important;
-  border: 1px solid var(--slate-600) !important;
-  border-radius: var(--radius-md) !important;
-  box-shadow: none !important;
-}
-
-.react-flow__controls-button {
-  background: var(--slate-800) !important;
-  border-bottom: 1px solid var(--slate-700) !important;
-  color: var(--slate-300) !important;
-}
-
-.react-flow__controls-button:hover {
-  background: var(--slate-700) !important;
-}
-
-.react-flow__controls-button svg {
-  fill: var(--slate-300) !important;
-}
-
-.react-flow__controls-button:last-child {
-  border-bottom: none !important;
-}
-
-/* ── Unified Form Controls ── */
-
-/* Range slider — track */
+/* ── Form controls ── */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
   height: 4px;
-  background: var(--slate-700);
+  background: var(--line);
   border-radius: var(--radius-full);
   outline: none;
   cursor: pointer;
 }
-
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--mint);
-  border: 2px solid var(--slate-900);
+  background: var(--accent);
+  border: 2px solid var(--panel);
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: transform 0.1s ease;
 }
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  background: var(--mint-light);
-  transform: scale(1.15);
-}
-
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 input[type="range"]::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--mint);
-  border: 2px solid var(--slate-900);
+  background: var(--accent);
+  border: 2px solid var(--panel);
   cursor: pointer;
 }
-
 input[type="range"]:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mint) 25%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
-/* Checkbox */
 input[type="checkbox"] {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1.5px solid var(--slate-600);
-  border-radius: var(--radius-sm);
-  background: var(--slate-800);
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--ink-4);
+  border-radius: 4px;
+  background: var(--panel);
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
   transition: border-color 0.15s ease, background-color 0.15s ease;
   vertical-align: middle;
 }
-
-input[type="checkbox"]:hover {
-  border-color: var(--slate-400);
-}
-
-input[type="checkbox"]:checked {
-  background: var(--mint);
-  border-color: var(--mint);
-}
-
+input[type="checkbox"]:hover { border-color: var(--ink-3); }
+input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
 input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 5px;
-  height: 9px;
-  border: 2px solid var(--slate-900);
-  border-top: none;
-  border-left: none;
+  left: 4px; top: 1px;
+  width: 4px; height: 8px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
   transform: rotate(45deg);
 }
-
 input[type="checkbox"]:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--mint) 60%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
   outline-offset: 2px;
 }
 
-/* Select */
-select {
-  color-scheme: dark;
-}
+select { color-scheme: light; }
 
-/* ── StudioButton & StudioSegmentedControl ── */
-
-/* Focus ring (keyboard navigation) */
+/* ── Focus rings ── */
 .studio-button:focus-visible {
-  outline: 2px solid var(--mint);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-md);
 }
 
-/* Hover: brightens any variant without overriding colors */
-.studio-button:not(:disabled):hover {
-  filter: brightness(1.1);
-}
-
-/* ── StudioInput / StudioTextarea / StudioSelect ── */
-
-.studio-input:hover {
-  border-color: var(--slate-500);
-}
-
+/* ── Input states ── */
+.studio-input:hover { border-color: var(--ink-4); }
 .studio-input:focus-visible,
 .studio-input:focus {
-  outline: 2px solid color-mix(in srgb, var(--mint) 50%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
   outline-offset: 0;
-  border-color: color-mix(in srgb, var(--mint) 60%, var(--slate-700));
+  border-color: var(--accent);
 }
+.studio-input::placeholder { color: var(--ink-4); opacity: 1; }
+.studio-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.studio-input::placeholder {
-  color: var(--slate-600);
-  opacity: 1;
-}
-
-.studio-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ── StudioSelectionItem ── */
-
-.studio-selection-item:hover {
-  background-color: var(--slate-750) !important;
-}
-
+/* ── Selection items ── */
+.studio-selection-item:hover { background-color: var(--hover) !important; }
 .studio-selection-item:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--mint) 50%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
   outline-offset: -2px;
 }

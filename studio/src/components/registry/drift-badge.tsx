@@ -19,10 +19,10 @@ export function DriftBadge({ report, loading, onClick }: Props) {
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          padding: 'var(--sp-0-5) var(--sp-1)',
-          backgroundColor: 'var(--slate-800)',
+          padding: '4px 8px',
+          backgroundColor: 'var(--panel)',
           borderRadius: 'var(--radius-sm)',
-          color: 'var(--slate-400)',
+          color: 'var(--ink-3)',
           fontSize: '0.6875rem',
         }}
       >
@@ -46,10 +46,10 @@ export function DriftBadge({ report, loading, onClick }: Props) {
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          padding: 'var(--sp-0-5) var(--sp-1)',
-          backgroundColor: 'var(--slate-800)',
+          padding: '4px 8px',
+          backgroundColor: 'var(--panel)',
           borderRadius: 'var(--radius-sm)',
-          color: 'var(--mint)',
+          color: 'var(--accent)',
           fontSize: '0.6875rem',
         }}
       >
@@ -67,15 +67,15 @@ export function DriftBadge({ report, loading, onClick }: Props) {
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
-        padding: 'var(--sp-0-5) var(--sp-1)',
-        backgroundColor: 'var(--slate-800)',
-        border: `1px solid ${error > 0 ? '#EF4444' : 'var(--gold)'}`,
+        padding: '4px 8px',
+        backgroundColor: 'var(--panel)',
+        border: `1px solid ${error > 0 ? '#EF4444' : 'var(--warning)'}`,
         borderRadius: 'var(--radius-sm)',
         fontSize: '0.6875rem',
       }}
     >
       {error > 0 && <span style={{ color: '#EF4444', fontWeight: 600 }}>{error}E</span>}
-      {warning > 0 && <span style={{ color: 'var(--gold)', fontWeight: 600 }}>{warning}W</span>}
+      {warning > 0 && <span style={{ color: 'var(--warning)', fontWeight: 600 }}>{warning}W</span>}
       {info > 0 && <span style={{ color: 'var(--info)', fontWeight: 600 }}>{info}I</span>}
     </StudioButton>
   );

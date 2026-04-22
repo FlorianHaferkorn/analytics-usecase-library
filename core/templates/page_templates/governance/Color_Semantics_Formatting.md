@@ -39,6 +39,9 @@ table uses these roles — never hardcoded hex values directly in visual definit
 | text.primary           | #201F1E     | Primary text (titles, values, labels)                 | —                                    |
 | text.secondary         | #605E5C     | Secondary text (axis labels, footnotes)               | —                                    |
 | border.default         | #E1DFDD     | Visual borders, grid lines (0.5px, 8px radius)        | —                                    |
+| severity_tints.critical| #FFE6E6     | Row/bg tint for critical exceptions (T3) and high-priority actions (T4) — semantic.negative at 15% alpha | — |
+| severity_tints.warning | #FFF8E1     | Row/bg tint for warning exceptions and medium-priority actions — semantic.warning at 15% alpha | — |
+| severity_tints.good    | #E6F5E6     | Row/bg tint for on-target/low-priority rows — semantic.positive at 15% alpha | — |
 
 Colorblind-safe variance pair: brand.primary (#0078D4 blue) / brand.data_colors[3] (#F7630C orange)
 Use this pair instead of semantic.positive/semantic.negative when printing or when
@@ -114,6 +117,8 @@ Scale up by ~1.5× for 1920×1080 production canvas or add +2pt minimum for PDF 
 Font family rule: One sans-serif family across all pages. Vary only weight and size.
 Accepted families: Segoe UI (Fabric/PBI), Inter, Roboto, Open Sans (web/OSS tools).
 Tabular numerals required for any column of numbers users compare vertically.
+Monospace override: Use JetBrains Mono (or ui-monospace / Consolas as fallback) for KPI hero
+values, data-bar values, action code IDs, and any column of numbers requiring strict alignment.
 
 Source authority: Storytelling_Principles.md §10
 
@@ -211,21 +216,21 @@ Rule: Delta direction (up/down) and color (good/bad) are independent.
 
 ### Exception Tables (T3)
 
-| Severity | Row background          | Token basis                    |
+| Severity | Row background          | Token                          |
 |----------|-------------------------|--------------------------------|
-| Critical | #FFE6E6 (lightened red) | semantic.negative at 15% alpha |
-| Warning  | #FFF8E1 (lightened amber)| semantic.warning at 15% alpha |
-| Info     | surface.row_alt          | surface.row_alt                |
+| Critical | #FFE6E6                 | severity_tints.critical        |
+| Warning  | #FFF8E1                 | severity_tints.warning         |
+| Info     | #F9F9F9                 | surface.row_alt                |
 
 Sort: Critical → Warning → Info, then by deviation descending.
 
 ### Prescriptive Tables (T4)
 
-| Priority | Row background           | Token basis                    |
-|----------|--------------------------|--------------------------------|
-| High     | #FFE6E6 (lightened red)  | semantic.negative at 15% alpha |
-| Medium   | #FFF8E1 (lightened amber) | semantic.warning at 15% alpha |
-| Low      | #E6F5E6 (lightened green) | semantic.positive at 15% alpha |
+| Priority | Row background | Token                    |
+|----------|----------------|--------------------------|
+| High     | #FFE6E6        | severity_tints.critical  |
+| Medium   | #FFF8E1        | severity_tints.warning   |
+| Low      | #E6F5E6        | severity_tints.good      |
 
 Top recommendation row: bold text, brand.primary at 20% alpha background, border.default 2px.
 
