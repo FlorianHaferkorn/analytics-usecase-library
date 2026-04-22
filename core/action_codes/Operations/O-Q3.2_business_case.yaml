@@ -1,0 +1,15 @@
+action_code_id: O-Q3.2
+kpi_id: quality.defect_density
+impact_range_eur_min: 150000
+impact_range_eur_likely: 600000
+impact_range_eur_max: 1800000
+time_to_effect_days: 90
+confidence: medium
+evidence_source_url: "https://asq.org/quality-resources/six-sigma"
+owner: COO / Quality Engineering Lead
+assumptions:
+  - "Defect density reduction of 20-60% achievable through DMAIC or 8D root-cause corrective action."
+  - "Cost-per-escaping-defect estimated at 200-500 EUR; each 1% defect density reduction worth 30-150k EUR/year."
+  - "EUR range based on 500-3600 defect events per year at representative production volume."
+  - "Action operates as tier-2 follow-on to O-Q3.1 containment; confirmed root cause required before activation."
+  - "Tooling improvement CAPEX may be needed in the max scenario; excluded from EUR range."

@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://actionready.io/schemas/business_case/v1.0",
+  "title": "BusinessCase",
+  "description": "CEO-facing business case for a single action code, expressing EUR impact, time-to-effect and confidence.",
+  "type": "object",
+  "required": [
+    "action_code_id",
+    "kpi_id",
+    "impact_range_eur_min",
+    "impact_range_eur_likely",
+    "impact_range_eur_max",
+    "time_to_effect_days",
+    "confidence",
+    "owner",
+    "assumptions"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "action_code_id": {
+      "type": "string",
+      "description": "ID of the action code this business case belongs to (must exist in core/action_codes/)."
+    },
+    "kpi_id": {
+      "type": "string",
+      "description": "Primary outcome KPI id that this business case tracks (must exist in KPI catalog)."
+    },
+    "impact_range_eur_min": {
+      "type": "number",
+      "description": "Conservative lower-bound annual EUR impact (pessimistic scenario).",
+      "minimum": 0
+    },
+    "impact_range_eur_likely": {
+      "type": "number",
+      "description": "Most-likely annual EUR impact (base case).",
+      "minimum": 0
+    },
+    "impact_range_eur_max": {
+      "type": "number",
+      "description": "Optimistic upper-bound annual EUR impact.",
+      "minimum": 0
+    },
+    "time_to_effect_days": {
+      "type": "integer",
+      "description": "Expected calendar days from action trigger to measurable KPI improvement.",
+      "minimum": 1,
+      "maximum": 1095
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "Confidence level in the EUR range, based on quality of evidence."
+    },
+    "evidence_source_url": {
+      "type": "string",
+      "description": "URL to the primary evidence source (internal report, McKinsey, Gartner, etc.). Optional."
+    },
+    "owner": {
+      "type": "string",
+      "description": "Accountable business role for this business case (e.g. CFO, VP Commercial)."
+    },
+    "assumptions": {
+      "type": "array",
+      "description": "Explicit list of assumptions underpinning the EUR range.",
+      "items": {
+        "type": "string",
+        "minLength": 10
+      },
+      "minItems": 1
+    }
+  }
+}

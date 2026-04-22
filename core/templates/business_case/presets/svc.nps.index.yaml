@@ -1,0 +1,20 @@
+kpi_id: svc.nps.index
+label: Service NPS Index
+baseline_range:
+  min: 20
+  likely: 32
+  max: 45
+  unit: "index (-100 to +100)"
+  note: "Post-sale service NPS; lower than CRM NPS due to problem-contact bias."
+target_range:
+  min: 32
+  likely: 45
+  max: 58
+  unit: "index (-100 to +100)"
+  note: "Target: 12-15 point NPS improvement through FCR and AHT optimization."
+time_horizon_months: 12
+driver_notes:
+  - "svc.fcr.pct (First Contact Resolution) is the primary driver of service NPS in B2B."
+  - "svc.aht.minutes (Average Handle Time) correlates inversely with NPS; faster resolution scores higher."
+  - "Escalation rate reduction (X-S1.2) removes the biggest detractor experience (multiple contacts)."
+  - "Each 10-point NPS improvement linked to 2-3% revenue retention improvement in service-led businesses."

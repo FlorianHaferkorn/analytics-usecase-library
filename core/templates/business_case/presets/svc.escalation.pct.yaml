@@ -1,0 +1,20 @@
+kpi_id: svc.escalation.pct
+label: Escalation Rate %
+baseline_range:
+  min: 8
+  likely: 12
+  max: 18
+  unit: "%"
+  note: "Percentage of tickets escalated to tier 2/3; above 12% indicates process failure."
+target_range:
+  min: 4
+  likely: 7
+  max: 10
+  unit: "%"
+  note: "Target: halve escalation rate through FCR improvement and empowerment protocols."
+time_horizon_months: 9
+driver_notes:
+  - "Escalation rate is the most direct cost multiplier in contact centre operations (5-8x unit cost)."
+  - "svc.fcr.pct improvement is the primary de-escalation lever: resolve at tier 1 before escalation path."
+  - "X-S1.2 (Capacity & Backlog Stabilisation) targets procedural causes; agent authority is the enabler."
+  - "Shorter horizon (9 months) because escalation rate responds quickly to process and authority changes."

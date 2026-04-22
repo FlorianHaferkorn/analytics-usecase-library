@@ -1,0 +1,20 @@
+kpi_id: crm.revenue_at_risk.amount
+label: Revenue at Risk Amount
+baseline_range:
+  min: 5000000
+  likely: 8000000
+  max: 15000000
+  unit: EUR
+  note: "Revenue exposed to churn from at-risk customers; typically 5-15% of recurring revenue."
+target_range:
+  min: 2500000
+  likely: 4000000
+  max: 8000000
+  unit: EUR
+  note: "Target: halve at-risk revenue through proactive retention and relationship recovery."
+time_horizon_months: 12
+driver_notes:
+  - "At-risk revenue = CLV_remaining x Attrition_Risk%; reducing either component lowers the metric."
+  - "C-C3.1 targets the highest attrition-risk cohorts first (typically top-20% by CLV)."
+  - "Early-warning system (90-day leading indicators) must be in place for this metric to be actionable."
+  - "Converting at-risk customers to retained generates 3-5x more value than acquiring equivalent new ones."

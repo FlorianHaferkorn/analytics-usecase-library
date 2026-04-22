@@ -1,0 +1,15 @@
+action_code_id: S-F3.1
+kpi_id: plan.forecast.accuracy.pct
+impact_range_eur_min: 300000
+impact_range_eur_likely: 1500000
+impact_range_eur_max: 4000000
+time_to_effect_days: 90
+confidence: medium
+evidence_source_url: "https://www.gartner.com/en/supply-chain/insights/demand-forecasting"
+owner: Chief Supply Chain Officer / Head of Demand Planning
+assumptions:
+  - "Baseline MAPE 18%; improving to 10-12% reduces safety stock by 1.5-4M EUR and expedite costs by 300k-1M EUR."
+  - "Safety stock saving uses formula: 0.5 x sigma_reduction x leadtime_factor x unit_cost x carrying_rate (30%)."
+  - "Carrying cost rate 30% per annum covers capital, warehouse, and obsolescence."
+  - "Forecast improvement driven by statistical model upgrade and S&OP process; no additional data spend."
+  - "Full benefit accrues after 2 forecast cycles (6 months); initial 90 days is deployment and calibration."

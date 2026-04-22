@@ -1,0 +1,15 @@
+action_code_id: O-Q3.1
+kpi_id: quality.fpy.pct
+impact_range_eur_min: 300000
+impact_range_eur_likely: 1200000
+impact_range_eur_max: 3500000
+time_to_effect_days: 75
+confidence: medium
+evidence_source_url: "https://asq.org/quality-resources/cost-of-quality"
+owner: COO / Quality Director
+assumptions:
+  - "Baseline COPQ estimated at 2-4% of revenue; 500M EUR revenue implies 10-20M EUR annual cost."
+  - "Orchestration action targets 3-35% COPQ reduction through FPY improvement and scrap/rework reduction."
+  - "EUR range equals COPQ_reduction_pct multiplied by baseline_COPQ."
+  - "Internal failure costs (scrap, rework) weighted higher than external failure for this action code."
+  - "ASQ benchmarks: each 1 pp FPY improvement delivers 60-120k EUR savings at representative plant scale."

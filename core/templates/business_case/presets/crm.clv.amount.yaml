@@ -1,0 +1,20 @@
+kpi_id: crm.clv.amount
+label: Customer Lifetime Value
+baseline_range:
+  min: 10000
+  likely: 15000
+  max: 25000
+  unit: EUR
+  note: "Per-customer CLV; varies widely by segment. Adjust to your top-cohort actuals."
+target_range:
+  min: 11500
+  likely: 17500
+  max: 30000
+  unit: EUR
+  note: "Target assumes 15-20% CLV improvement through retention and NPS-driven upsell."
+time_horizon_months: 24
+driver_notes:
+  - "Retention rate improvement of 2-5 pp (C-C3.1) is the single largest CLV driver."
+  - "NPS lift reduces churn propensity; each 10-point NPS gain correlates with 2-3% retention improvement."
+  - "Upsell and cross-sell revenue per retained customer adds 10-15% to CLV over 24 months."
+  - "Acquisition cost reduction would further expand CLV ratio metrics but is not in scope here."

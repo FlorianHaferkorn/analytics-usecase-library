@@ -7,6 +7,7 @@ import { GoldenThreadFlow, type GoldenThreadData } from '@/components/flow/golde
 import { parseYaml, toYaml } from '@/lib/core/yaml-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import { ExportReportButton } from '@/components/steering/export-report-button';
+import { ExportExcelButton } from '@/components/steering/export-excel-button';
 import { StudioFormField, StudioInput, StudioSelect } from '@/components/ui/studio-data';
 import { StudioButton, StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
 
@@ -226,7 +227,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
         description="Navigate the golden thread, refine bracket YAML, and turn draft scaffolds into governed use cases without leaving the same working surface."
         badge={selectedBracket ?? `All ${brackets.length}`}
         tone="success"
-        actions={<ExportReportButton />}
+        actions={<><ExportReportButton /><ExportExcelButton /></>}
       />
 
       <StudioMetricBar>
