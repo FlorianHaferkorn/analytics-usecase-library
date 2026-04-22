@@ -46,7 +46,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
       </StudioButton>
 
       {expanded && (
-        <div style={{ padding: '0 var(--sp-2) var(--sp-2)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+        <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Dimensions */}
           {(contract.dimension ?? []).map((dim) => (
             <div key={dim.name}>
@@ -139,7 +139,7 @@ export function ContractDetailList({ contracts }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {contracts.map((c) => (
         <ContractCard key={c.domain} contract={c} />
       ))}
