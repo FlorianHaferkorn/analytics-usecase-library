@@ -11,7 +11,7 @@ export function StrategyAnchorNode({ data }: NodeProps) {
   return (
     <div
       style={{
-        padding: 'var(--sp-2)',
+        padding: '16px',
         backgroundColor: 'var(--panel)',
         border: '2px solid var(--ink-3)',
         borderRadius: 'var(--radius-lg)',

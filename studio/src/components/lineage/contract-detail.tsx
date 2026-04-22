@@ -19,7 +19,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
         variant="ghost"
         style={{
           width: '100%',
-          padding: 'var(--sp-1-5) var(--sp-2)',
+          padding: '12px 16px',
           backgroundColor: 'transparent',
           display: 'flex',
           justifyContent: 'space-between',
@@ -35,7 +35,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
             v{contract.version} &middot; {contract.owner}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 'var(--sp-1)', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>
             {contract.dimension?.length ?? 0} dims &middot; {contract.fact?.length ?? 0} facts
           </span>
