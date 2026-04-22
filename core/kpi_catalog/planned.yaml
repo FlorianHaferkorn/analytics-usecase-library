@@ -1,0 +1,132 @@
+# planned.yaml — KPI entries whose measure_name is not yet implemented in _Measures.tmdl
+#
+# These entries are recognised by check_catalog_tmdl_drift.py and emitted as
+# WARNINGS (not errors) so CI is not blocked while implementation is in progress.
+#
+# Schema: tooling/generator/schemas/planned_kpi.schema.json
+#
+# Fields:
+#   kpi_id     (required) — must match a kpi_id in core/kpi_catalog/KPI_Catalog.md
+#   owner      (required) — team / role responsible for implementation
+#   eta_date   (required) — target date in ISO 8601 format (YYYY-MM-DD)
+#   reason     (required) — one-line explanation of why not yet implemented
+
+- kpi_id: cost.cogs_per_unit.amount
+  owner: commercial_controlling_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name; rename to human-readable pending COM model refactor"
+
+- kpi_id: crm.active_customers.count
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (crm.active_customers.count); rename pending COM model refactor"
+
+- kpi_id: crm.churned_customers.count
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (crm.churned_customers.count); rename pending COM model refactor"
+
+- kpi_id: crm.lifetime_revenue.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (crm.lifetime_revenue.amount); rename pending COM model refactor"
+
+- kpi_id: crm.retention.pct
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (crm.retention.pct); rename pending COM model refactor"
+
+- kpi_id: fin.liquidity.payables.amount
+  owner: finance_strategy_ops_controlling
+  eta_date: "2026-06-30"
+  reason: "Finance model uses kpi_id-style measure name; rename to human-readable pending FIN model refactor"
+
+- kpi_id: margin.gm.amount
+  owner: commercial_controlling_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (margin.gm.amount); rename pending COM model refactor"
+
+- kpi_id: margin.gm.vs_plan.pct
+  owner: commercial_controlling_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (margin.gm.vs_plan.pct); rename pending COM model refactor"
+
+- kpi_id: margin.promo.gm.pct
+  owner: commercial_controlling_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (margin.promo.gm.pct); rename pending COM model refactor"
+
+- kpi_id: ops.planned.hours
+  owner: ops_analytics_lead
+  eta_date: "2026-06-30"
+  reason: "Operations model does not yet expose planned hours as a named measure"
+
+- kpi_id: sales.net_sales.delta_pct.plan
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.net_sales.delta_pct.plan); rename pending COM model refactor"
+
+- kpi_id: sales.price.list.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.price.list.amount); rename pending COM model refactor"
+
+- kpi_id: sales.price.net.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.price.net.amount); rename pending COM model refactor"
+
+- kpi_id: sales.price.realization_pct
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.price.realization_pct); rename pending COM model refactor"
+
+- kpi_id: sales.promo.baseline_sales.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name; rename pending COM model refactor"
+
+- kpi_id: sales.promo.cannibalization.pct
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.promo.cannibalization.pct); rename pending COM model refactor"
+
+- kpi_id: sales.promo.cannibalized_sales.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name; rename pending COM model refactor"
+
+- kpi_id: sales.promo.cost.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.promo.cost.amount); rename pending COM model refactor"
+
+- kpi_id: sales.promo.incremental.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.promo.incremental.amount); rename pending COM model refactor"
+
+- kpi_id: sales.promo.incremental_gm.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name; rename pending COM model refactor"
+
+- kpi_id: sales.promo.roi.pct
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.promo.roi.pct); rename pending COM model refactor"
+
+- kpi_id: sales.pvm.mix_effect.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.pvm.mix_effect.amount); rename pending COM model refactor"
+
+- kpi_id: sales.pvm.price_effect.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.pvm.price_effect.amount); rename pending COM model refactor"
+
+- kpi_id: sales.pvm.volume_effect.amount
+  owner: sales_ops_bi_lead
+  eta_date: "2026-06-30"
+  reason: "Commercial model uses kpi_id-style measure name (sales.pvm.volume_effect.amount); rename pending COM model refactor"

@@ -150,9 +150,9 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 
-	/// Sales Units - sales.units
-	/// Measures sold units volume in the period.
-	measure 'Sales Units' = SUM ( fact_sales[Sales Units] )
+	/// Sales Units (Ops) - sales.units cross-domain proxy for operations quality context
+	/// Cross-domain proxy: canonical measure lives in SupplyChain.SemanticModel.
+	measure 'Sales Units (Ops)' = SUM ( fact_sales[Sales Units] )
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 

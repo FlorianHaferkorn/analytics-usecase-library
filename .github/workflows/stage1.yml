@@ -64,8 +64,11 @@ jobs:
             --domain ${{ matrix.domain }} \
             --strict
 
-  catalog-tmdl-drift:
-    name: Catalog↔TMDL drift check
+  # Drift gate — strict: blocks merge on any unregistered missing measure or
+  # duplicate un-suffixed measure name across domain models.
+  # Entries in core/kpi_catalog/planned.yaml are warnings only.
+  drift-strict:
+    name: Catalog ↔ TMDL drift (strict — blocks merge)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -79,23 +82,35 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml
+          pip install pyyaml jsonschema
 
-      - name: Check catalog↔TMDL drift
-        run: |
-          python3 tooling/validation/check_catalog_tmdl_drift.py \
-            --catalog core/kpi_catalog/KPI_Catalog.md \
-            --dist-dir products/fabric/powerbi/dist \
-            --ignore-missing
-        id: drift_check
+      - name: Run drift check (strict)
+        run: python tooling/validation/check_catalog_tmdl_drift.py --strict --repo-root .
 
-      - name: Upload drift report
-        if: always()
-        uses: actions/upload-artifact@v4
+  # Drift gate — informational: lists planned entries as a warning annotation.
+  # Never blocks merge; intended for visibility and backlog tracking.
+  drift-informational:
+    name: Catalog ↔ TMDL drift (informational — planned entries)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: drift-report
-          path: drift_report.json
-          if-no-files-found: ignore
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml jsonschema
+
+      - name: List planned KPI entries (informational)
+        run: |
+          echo "::notice title=Planned KPI entries::The following catalog entries are not yet in TMDL. See core/kpi_catalog/planned.yaml for ETA and owner."
+          python tooling/validation/check_catalog_tmdl_drift.py --repo-root . || true
 
   stage1:
     name: Stage 1 checks

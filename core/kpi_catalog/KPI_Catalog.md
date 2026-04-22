@@ -181,7 +181,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "Index (-100 to 100)"
     interpretation: "'>0 is positive, >50 strong advocacy; track trend and segment gaps.'"
   technical:
-    measure_name: "NPS Index"
+    measure_name: "NPS Index (Customer)"
     description: "Measures customer advocacy and likelihood to recommend."
     depends_on_measures: []
     lineage:
@@ -4206,7 +4206,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'index'"
     interpretation: "Higher is better; explain shifts with FCR, AHT, escalation %."
   technical:
-    measure_name: ""
+    measure_name: "NPS Index (Service)"
     description: "Measures customer advocacy and experience quality."
     depends_on_measures: []
     lineage:
