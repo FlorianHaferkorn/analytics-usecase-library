@@ -25,7 +25,6 @@ export default async function StudioLayout({
       id: k.kpi_id,
       label: k.kpi_key,
       sub: `/catalog?kpi=${k.kpi_id}`,
-      status: k.governance?.certification_status ?? undefined,
     })),
     ...brackets.map((b) => ({
       kind: 'bracket' as const,

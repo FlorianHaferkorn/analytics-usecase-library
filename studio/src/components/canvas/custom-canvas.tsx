@@ -52,15 +52,15 @@ function LegendPanel({ nodes }: { nodes: CanvasNode[] }) {
   return (
     <div style={{
       position: 'absolute', left: 16, bottom: 16,
-      background: 'var(--slate-800)', border: '1px solid var(--slate-700)',
+      background: '#1E293B', border: '1px solid #334155',
       borderRadius: 10, padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 5,
       boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
     }}>
-      <div style={{ fontSize: '0.5625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Legend</div>
+      <div style={{ fontSize: '0.5625rem', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Legend</div>
       {kinds.map(k => {
         const km = KIND_META[k] ?? KIND_META.dimension!;
         return (
-          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '0.6875rem', color: 'var(--slate-300)' }}>
+          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '0.6875rem', color: '#CBD5E1' }}>
             <span style={{ width: 10, height: 10, borderRadius: 2, background: km.accent, flexShrink: 0 }} />
             {km.label}
           </div>
@@ -84,17 +84,17 @@ function InspectorPanel({ node, inputCount, outputCount, onClose, onOpen, onEdit
   return (
     <div style={{
       position: 'absolute', right: 16, top: 16, bottom: 16, width: 300,
-      background: 'var(--slate-800)', border: '1px solid var(--slate-700)',
+      background: '#1E293B', border: '1px solid #334155',
       borderRadius: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
-      <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--slate-700)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div style={{ padding: '14px 16px', borderBottom: '1px solid #334155', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '0.5625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{km.label}</div>
-          <div style={{ fontSize: '0.9375rem', fontWeight: 500, marginTop: 3, color: 'var(--slate-100)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{node.label}</div>
-          <div style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginTop: 3, fontFamily: 'var(--font-mono)' }}>{node.id}</div>
+          <div style={{ fontSize: '0.5625rem', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{km.label}</div>
+          <div style={{ fontSize: '0.9375rem', fontWeight: 500, marginTop: 3, color: '#F1F5F9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{node.label}</div>
+          <div style={{ fontSize: '0.625rem', color: '#64748B', marginTop: 3, fontFamily: 'var(--font-mono)' }}>{node.id}</div>
         </div>
-        <button onClick={onClose} style={{ padding: '3px 5px', color: 'var(--slate-500)', background: 'transparent', border: 'none', cursor: 'pointer', borderRadius: 4, lineHeight: 1, fontSize: '0.75rem' }}>✕</button>
+        <button onClick={onClose} style={{ padding: '3px 5px', color: '#64748B', background: 'transparent', border: 'none', cursor: 'pointer', borderRadius: 4, lineHeight: 1, fontSize: '0.75rem' }}>✕</button>
       </div>
 
       <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', flex: 1, fontSize: '0.8125rem' }}>
@@ -103,7 +103,7 @@ function InspectorPanel({ node, inputCount, outputCount, onClose, onOpen, onEdit
         {node.owner && <InspRow label="Owner" value={node.owner} />}
         {node.status && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div style={{ fontSize: '0.5625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</div>
+            <div style={{ fontSize: '0.5625rem', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</div>
             <div style={{ color: node.status === 'active' ? 'var(--accent)' : 'var(--warning)', lineHeight: 1.5 }}>{node.status}</div>
           </div>
         )}
@@ -111,14 +111,14 @@ function InspectorPanel({ node, inputCount, outputCount, onClose, onOpen, onEdit
       </div>
 
       {(onOpen || onEdit) && (
-        <div style={{ padding: '10px 14px', borderTop: '1px solid var(--slate-700)', display: 'flex', gap: 6 }}>
+        <div style={{ padding: '10px 14px', borderTop: '1px solid #334155', display: 'flex', gap: 6 }}>
           {onOpen && (
-            <button onClick={onOpen} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: 'var(--slate-300)', background: 'transparent', border: '1px solid var(--slate-700)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
+            <button onClick={onOpen} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: '#CBD5E1', background: 'transparent', border: '1px solid #334155', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
               Open
             </button>
           )}
           {onEdit && (
-            <button onClick={onEdit} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: 'var(--slate-950)', background: 'var(--accent)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
+            <button onClick={onEdit} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: '#020617', background: 'var(--accent)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
               Edit
             </button>
           )}
@@ -131,8 +131,8 @@ function InspectorPanel({ node, inputCount, outputCount, onClose, onOpen, onEdit
 function InspRow({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <div style={{ fontSize: '0.5625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
-      <div style={{ color: 'var(--slate-300)', lineHeight: 1.5 }}>{value}</div>
+      <div style={{ fontSize: '0.5625rem', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
+      <div style={{ color: '#CBD5E1', lineHeight: 1.5 }}>{value}</div>
     </div>
   );
 }
@@ -192,10 +192,10 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
 
   if (nodes.length === 0) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: 'var(--slate-900)' }}>
-        <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', background: 'color-mix(in srgb, var(--slate-900) 92%, var(--accent) 8%)', textAlign: 'center', maxWidth: 360 }}>
-          <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--slate-200)' }}>No data to display</p>
-          {emptyMessage && <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--slate-500)', lineHeight: 1.6 }}>{emptyMessage}</p>}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: '#0F172A' }}>
+        <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid #334155', background: 'color-mix(in srgb, #0F172A 92%, var(--accent) 8%)', textAlign: 'center', maxWidth: 360 }}>
+          <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 600, color: '#E2E8F0' }}>No data to display</p>
+          {emptyMessage && <p style={{ margin: 0, fontSize: '0.8125rem', color: '#64748B', lineHeight: 1.6 }}>{emptyMessage}</p>}
         </div>
       </div>
     );
@@ -239,8 +239,8 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
         style={{
           flex: 1, position: 'relative', overflow: 'hidden',
           cursor: dragging ? 'grabbing' : 'grab',
-          backgroundColor: 'var(--slate-950)',
-          backgroundImage: 'radial-gradient(circle at 1px 1px, var(--slate-700) 1px, transparent 0)',
+          backgroundColor: '#020617',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, #334155 1px, transparent 0)',
           backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
           backgroundPosition: `${pan.x}px ${pan.y}px`,
         }}
@@ -277,7 +277,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
             const isSel = sel === n.id;
             const isDimmed = activeTarget !== null && !isConnected(edges, n.id, activeTarget);
             const isGoal = km.goal === true;
-            const borderColor = isSel ? 'var(--accent)' : (n.domainColor ? `${n.domainColor}55` : 'var(--slate-700)');
+            const borderColor = isSel ? 'var(--accent)' : (n.domainColor ? `${n.domainColor}55` : '#334155');
             return (
               <div key={n.id} data-node=""
                 onMouseEnter={() => setHover(n.id)}
@@ -286,7 +286,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                 style={{
                   position: 'absolute', left: n.x, top: n.y,
                   width: NODE_W, height: NODE_H,
-                  background: isGoal ? 'var(--accent)' : 'var(--slate-800)',
+                  background: isGoal ? 'var(--accent)' : '#1E293B',
                   border: `1px solid ${borderColor}`,
                   borderRadius: 10,
                   boxShadow: isSel
@@ -304,7 +304,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                   <span style={{
                     width: 18, height: 18, borderRadius: 4, flexShrink: 0,
                     background: isGoal ? 'rgba(0,0,0,0.12)' : `${km.accent}22`,
-                    color: isGoal ? 'var(--slate-950)' : km.accent,
+                    color: isGoal ? '#020617' : km.accent,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '0.5625rem', fontWeight: 700,
                   }}>
@@ -313,7 +313,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                   <span style={{
                     fontSize: '0.75rem', fontWeight: 500, letterSpacing: '-0.005em',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
-                    color: isGoal ? 'var(--slate-950)' : 'var(--slate-100)',
+                    color: isGoal ? '#020617' : '#F1F5F9',
                   }}>
                     {n.label}
                   </span>
@@ -321,7 +321,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                 {n.sub && (
                   <span style={{
                     fontSize: '0.625rem', marginLeft: 24,
-                    color: isGoal ? 'rgba(0,0,0,0.5)' : 'var(--slate-500)',
+                    color: isGoal ? 'rgba(0,0,0,0.5)' : '#64748B',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     fontFamily: 'var(--font-mono)',
                   }}>

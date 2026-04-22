@@ -1,29 +1,6 @@
 @import 'tailwindcss';
 
 :root {
-  /* ── Brand constants ── */
-  --mint:       #00D4AA;
-  --mint-light: #33DDBB;
-  --mint-dark:  #00A888;
-  --gold:       #FFB800;
-  --gold-light: #FFC833;
-  --gold-dark:  #CC9300;
-
-  /* ── Slate scale (used by canvas & dark-mode surfaces) ── */
-  --slate-950: #020617;
-  --slate-900: #0F172A;
-  --slate-850: #17202E;
-  --slate-800: #1E293B;
-  --slate-750: #283548;
-  --slate-700: #334155;
-  --slate-600: #475569;
-  --slate-500: #64748B;
-  --slate-400: #94A3B8;
-  --slate-300: #CBD5E1;
-  --slate-200: #E2E8F0;
-  --slate-100: #F1F5F9;
-  --slate-50:  #F8FAFC;
-
   /* ── Semantic role tokens (design system, light theme) ── */
   --bg:          #fafaf9;
   --bg-2:        #f4f4f2;
@@ -40,8 +17,8 @@
   --accent-ink:  #0b0b0c;
 
   /* ── Semantic state colors ── */
-  --success: var(--mint);
-  --warning: var(--gold);
+  --success: #00D4AA;
+  --warning: #FFB800;
   --danger:  #E53935;
   --info:    #1976D2;
   --positive-fg: oklch(0.42 0.13 150);
@@ -68,19 +45,6 @@
   --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, monospace;
   --font-display: 'Inter', system-ui, sans-serif;
-
-  /* ── 8px spacing grid ── */
-  --sp-0:   0rem;
-  --sp-0-5: 0.25rem;
-  --sp-1:   0.5rem;
-  --sp-1-5: 0.75rem;
-  --sp-2:   1rem;
-  --sp-2-5: 1.25rem;
-  --sp-3:   1.5rem;
-  --sp-4:   2rem;
-  --sp-5:   2.5rem;
-  --sp-6:   3rem;
-  --sp-8:   4rem;
 
   /* ── Type scale ── */
   --text-2xs:  0.5625rem;
