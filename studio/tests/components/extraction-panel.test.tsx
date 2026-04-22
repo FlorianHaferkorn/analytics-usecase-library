@@ -1,6 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ExtractionPanel, type ExtractedElement } from '@/components/discovery/extraction-panel';
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 // --- Helper to build AI-like response text ---
 function kpiResponse(id: string, name: string, sourceHint?: string): string {
@@ -63,8 +69,8 @@ describe('ExtractionPanel', () => {
     expect(screen.getByText('Rev Growth')).toBeTruthy();
     expect(screen.queryByText('Reprice Items')).toBeNull();
 
-    // Click Action Codes filter
-    fireEvent.click(screen.getByText('Action Codes'));
+    // Click Actions filter
+    fireEvent.click(screen.getByText('Actions'));
     expect(screen.queryByText('Rev Growth')).toBeNull();
     expect(screen.getByText('Reprice Items')).toBeTruthy();
   });
@@ -85,14 +91,14 @@ describe('ExtractionPanel', () => {
     expect(screen.getByText('Traced to:')).toBeTruthy();
   });
 
-  it('shows Accept & Push button when elements exist', () => {
+  it('shows Draft-Branch button when elements exist', () => {
     const text = kpiResponse('KPI-001', 'Revenue');
     render(<ExtractionPanel lastResponse={text} sourceNames={[]} />);
-    expect(screen.getByText('Accept & Push to Registry')).toBeTruthy();
+    expect(screen.getByText('Draft-Branch erstellen')).toBeTruthy();
   });
 
-  it('does not show Accept button when no elements', () => {
+  it('does not show Draft-Branch button when no elements', () => {
     render(<ExtractionPanel lastResponse="no structured data here" sourceNames={[]} />);
-    expect(screen.queryByText('Accept & Push to Registry')).toBeNull();
+    expect(screen.queryByText('Draft-Branch erstellen')).toBeNull();
   });
 });

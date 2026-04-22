@@ -11,7 +11,7 @@ describe('api-response', () => {
     const res = apiSuccess({ items: [1, 2, 3] });
     expect(res.status).toBe(200);
     const json = await res.json();
-    expect(json.data).toEqual({ items: [1, 2, 3] });
+    expect(json).toEqual({ items: [1, 2, 3] });
   });
 
   it('apiSuccess accepts custom status code', async () => {
@@ -23,7 +23,7 @@ describe('api-response', () => {
     const res = apiCreated({ id: 'new-1' });
     expect(res.status).toBe(201);
     const json = await res.json();
-    expect(json.data).toEqual({ id: 'new-1' });
+    expect(json).toEqual({ id: 'new-1' });
   });
 
   it('apiError returns structured error shape', async () => {
