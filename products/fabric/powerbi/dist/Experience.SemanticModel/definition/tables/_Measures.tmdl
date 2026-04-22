@@ -33,6 +33,15 @@ table _Measures
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
+	/// enterprise.action_effectiveness_delta.amount - Action Effectiveness Delta
+	/// Purpose: Average signed impact value for actions with outcome_status = "achieved"; proves the action loop moves the KPI, not just instruments it.
+	measure 'Action Effectiveness Delta (XD)' =
+			VAR AchievedRows = FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" )
+			VAR Delta = AVERAGEX ( AchievedRows, fact_action_outcome[impact_value] )
+			RETURN Delta
+		formatString: #,0.00
+		displayFolder: "8_Action_Outcomes"
+
 	column Column1
 		dataType: string
 		sourceColumn: Column1

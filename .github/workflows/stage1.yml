@@ -112,6 +112,30 @@ jobs:
           echo "::notice title=Planned KPI entries::The following catalog entries are not yet in TMDL. See core/kpi_catalog/planned.yaml for ETA and owner."
           python tooling/validation/check_catalog_tmdl_drift.py --repo-root . || true
 
+  action-outcome-reconciliation:
+    name: Action-outcome reconciliation gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas pyarrow pyyaml
+
+      - name: Run action-outcome reconciliation check
+        run: |
+          python3 tooling/generator/validation/check_action_outcome_reconciliation.py \
+            --fact-dir showcases/aurora_group/data/gold/facts/fact_action_outcome \
+            --impactful-15 core/action_codes/impactful_15.yaml \
+            --strict
+
   stage1:
     name: Stage 1 checks
     runs-on: windows-latest
