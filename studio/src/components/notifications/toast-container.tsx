@@ -39,15 +39,15 @@ export function ToastContainer({ notifications, onDismiss }: Props) {
   if (active.length === 0) return null;
 
   return (
-    <div style={{ position: 'fixed', top: 64, right: 16, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)', maxWidth: 360 }}>
+    <div style={{ position: 'fixed', top: 64, right: 16, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: 360 }}>
       {active.map((n) => {
-        const color = SEVERITY_COLORS[n.result.severity] ?? 'var(--slate-400)';
+        const color = SEVERITY_COLORS[n.result.severity] ?? 'var(--ink-3)';
         return (
           <div
             key={n.id}
             style={{
-              padding: 'var(--sp-1-5)',
-              backgroundColor: 'var(--slate-800)',
+              padding: 'var(--pad)',
+              backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-md)',
               border: `1px solid ${color}`,
               borderLeft: `4px solid ${color}`,
@@ -62,7 +62,7 @@ export function ToastContainer({ notifications, onDismiss }: Props) {
                 onClick={() => onDismiss(n.id)}
                 variant="ghost"
                 style={{
-                  color: 'var(--slate-500)',
+                  color: 'var(--ink-4)',
                   fontSize: '0.875rem',
                   padding: 0,
                   minWidth: '20px',
@@ -72,7 +72,7 @@ export function ToastContainer({ notifications, onDismiss }: Props) {
                 ×
               </StudioButton>
             </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--slate-200)' }}>
+            <p style={{ fontSize: '0.75rem', color: 'var(--ink-2)' }}>
               {n.result.message}
             </p>
           </div>

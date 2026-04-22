@@ -57,7 +57,7 @@ function LoginForm() {
               width: 32, height: 32, borderRadius: 8,
               background: 'linear-gradient(135deg, var(--mint), var(--gold))',
             }} />
-            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--slate-100)' }}>
+            <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ink)' }}>
               ActionReady Studio
             </span>
           </div>
