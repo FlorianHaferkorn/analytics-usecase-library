@@ -159,6 +159,8 @@ def main():
                         help="Output path for drift report JSON")
     parser.add_argument("--ignore-missing", action="store_true",
                         help="Do not fail on measures absent from TMDL (only report DAX drift)")
+    parser.add_argument("--strict", action="store_true",
+                        help="Strict mode: equivalent to running without --ignore-missing (all drift types are fatal)")
     args = parser.parse_args()
 
     catalog_path = Path(args.catalog)
