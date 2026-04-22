@@ -135,9 +135,9 @@ table _Measures
 		displayFolder: COM-003
 		lineageTag: 4cf0a970-adc2-43fa-8110-b36c161189e6
 
-	/// crm.nps.index - crm.nps.index
+	/// NPS Index (Customer) - crm.nps.index
 	/// Measures customer advocacy and likelihood to recommend.
-	measure 'crm.nps.index' = BLANK()
+	measure 'NPS Index (Customer)' = BLANK()
 		formatString: #,0.0
 		displayFolder: COM-003
 		lineageTag: 423ca51b-6145-4a39-93c9-1b82d1d2b7ef

@@ -369,5 +369,33 @@ role 'RLS_Sales_Region'
 
 ---
 
+## 20) Cross-Domain Proxy Measures (Naming Convention)
+
+When a semantic model references a KPI whose canonical fact table lives in another domain, the proxy measure **must** carry a suffix in parentheses to distinguish it from the authoritative measure.
+
+**Rule:** If the same un-suffixed measure name would appear in two or more `_Measures.tmdl` files across the repository, at least one occurrence must be renamed with a parenthetical domain/source qualifier.
+
+**Allowed suffix patterns (examples):**
+
+| Suffix | Meaning |
+|---|---|
+| `(XD)` | Generic cross-domain proxy; domain of origin is implied by context |
+| `(XD Log)` | Cross-domain proxy sourced from `fact_action_log` |
+| `(SCM)` | Proxy whose authoritative version lives in the Supply Chain model |
+| `(CRM)` | Proxy whose authoritative version lives in the Commercial/CRM model |
+
+**Example:**
+
+```
+/// Action Outcome Rate % (XD Log) - enterprise.action_outcome_rate.pct
+/// Cross-domain proxy: action outcome rate sourced from fact_action_log.
+/// Canonical measure lives in the domain that owns fact_action_outcome.
+measure 'Action Outcome Rate % (XD Log)' = ...
+```
+
+**Drift gate enforcement:** `tooling/validation/check_catalog_tmdl_drift.py --strict` will fail if the same un-suffixed measure name appears in two or more `_Measures.tmdl` files.
+
+---
+
 **End of Allowed Subset**
 
