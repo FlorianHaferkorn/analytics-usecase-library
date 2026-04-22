@@ -48,7 +48,7 @@ export function KpiRegistryTable({ kpis }: Props) {
       <StudioTableShell>
         <StudioTable>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
+            <tr style={{ borderBottom: '1px solid var(--line)' }}>
               {['KPI ID', 'Name', 'Type', 'Domain', 'Use Cases', 'Score'].map((h) => (
                 <StudioTableHeadCell key={h}>{h}</StudioTableHeadCell>
               ))}
@@ -66,7 +66,7 @@ export function KpiRegistryTable({ kpis }: Props) {
           </tbody>
         </StudioTable>
         {filtered.length === 0 && (
-          <p style={{ margin: 0, padding: 'var(--sp-3)', textAlign: 'center', color: 'var(--slate-500)', fontSize: '0.8125rem', lineHeight: 1.55 }}>
+          <p style={{ margin: 0, padding: 'var(--pad)', textAlign: 'center', color: 'var(--ink-4)', fontSize: '0.8125rem', lineHeight: 1.55 }}>
             No KPIs match the filter.
           </p>
         )}
@@ -87,26 +87,26 @@ function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: bo
       <tr
         onClick={onToggle}
         style={{
-          borderBottom: '1px solid var(--slate-700)',
+          borderBottom: '1px solid var(--line)',
           cursor: 'pointer',
-          backgroundColor: isExpanded ? 'var(--slate-750, #283548)' : 'transparent',
+          backgroundColor: isExpanded ? 'var(--bg-2)' : 'transparent',
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
         <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>{kpi.kpi_id}</StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-100)' }}>{kpi.kpi_key}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--ink)' }}>{kpi.kpi_key}</StudioTableCell>
         <StudioTableCell>
-          <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, border: `1px solid ${kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--slate-400)'}`, color: kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--slate-400)' }}>
+          <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, border: `1px solid ${kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--ink-3)'}`, color: kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--ink-3)' }}>
             {kpi.kpi_type}
           </span>
         </StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{(kpi.domain_tag ?? []).join(', ')}</StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{(kpi.use_case_ref ?? []).join(', ') || '—'}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--ink-3)' }}>{(kpi.domain_tag ?? []).join(', ')}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--ink-3)' }}>{(kpi.use_case_ref ?? []).join(', ') || '—'}</StudioTableCell>
         <StudioTableCell style={{ color: scoreColor, fontWeight: 600 }}>{(score * 100).toFixed(0)}%</StudioTableCell>
       </tr>
       {isExpanded && (
         <StudioExpandedRow colSpan={6}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
                 <DetailLabel>Purpose</DetailLabel>
                 <DetailText>{kpi.business?.purpose}</DetailText>
@@ -131,9 +131,9 @@ function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: bo
 }
 
 function DetailLabel({ children }: { children: React.ReactNode }) {
-  return <p style={{ margin: '0 0 4px', fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1-5)' }}>{children}</p>;
+  return <p style={{ margin: '0 0 4px', fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>{children}</p>;
 }
 
 function DetailText({ children, mono }: { children: React.ReactNode; mono?: boolean }) {
-  return <p style={{ margin: 0, fontSize: '0.875rem', lineHeight: 1.65, color: 'var(--slate-200)', fontFamily: mono ? 'var(--font-mono)' : undefined }}>{children}</p>;
+  return <p style={{ margin: 0, fontSize: '0.875rem', lineHeight: 1.65, color: 'var(--ink-2)', fontFamily: mono ? 'var(--font-mono)' : undefined }}>{children}</p>;
 }

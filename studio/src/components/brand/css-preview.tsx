@@ -13,14 +13,14 @@ export function CssPreview({ theme }: Props) {
   return (
     <div
       style={{
-        padding: 'var(--sp-2)',
+        padding: '16px',
         backgroundColor: theme.background,
         borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
+        border: '1px solid var(--line)',
         fontFamily: `${theme.fontFamily}, sans-serif`,
       }}
     >
-      <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)', marginBottom: 'var(--sp-1-5)' }}>
+      <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)', marginBottom: '12px' }}>
         Live Preview (exported CSS)
       </p>
 
@@ -29,11 +29,11 @@ export function CssPreview({ theme }: Props) {
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 'var(--sp-1)',
-          padding: 'var(--sp-1)',
+          gap: '8px',
+          padding: '8px',
           backgroundColor: theme.surface,
           borderRadius: radius,
-          marginBottom: 'var(--sp-1)',
+          marginBottom: '8px',
         }}
       >
         <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: theme.primary }} />
@@ -42,7 +42,7 @@ export function CssPreview({ theme }: Props) {
       </div>
 
       {/* Metric cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-1)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
         {[
           { label: 'Revenue', value: '$12.4M', color: theme.primary },
           { label: 'Margin', value: '34.2%', color: theme.secondary },
@@ -51,7 +51,7 @@ export function CssPreview({ theme }: Props) {
           <div
             key={card.label}
             style={{
-              padding: 'var(--sp-1)',
+              padding: '8px',
               backgroundColor: theme.surface,
               borderRadius: radius,
               borderLeft: `3px solid ${card.color}`,
@@ -64,7 +64,7 @@ export function CssPreview({ theme }: Props) {
       </div>
 
       {/* RAG status row */}
-      <div style={{ display: 'flex', gap: 'var(--sp-1)', marginTop: 'var(--sp-1)' }}>
+      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
         {[
           { status: 'On Track', color: '#10B981' },
           { status: 'At Risk', color: '#FFB800' },
@@ -74,7 +74,7 @@ export function CssPreview({ theme }: Props) {
             key={item.status}
             style={{
               flex: 1,
-              padding: '4px var(--sp-1)',
+              padding: '4px 8px',
               backgroundColor: theme.surface,
               borderRadius: radius,
               display: 'flex',

@@ -210,9 +210,9 @@ export function BracketGovernancePanel({ bracketId }: Props) {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)', marginTop: 'var(--sp-2)' }}>
-      <div style={{ padding: 'var(--sp-2)', backgroundColor: 'var(--slate-900)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)' }}>
+      <div style={{ padding: 'var(--sp-2)', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--line)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-1-5)' }}>
-          <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Review</p>
+          <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Review</p>
           {lifecycle && <ApprovalBadge status={lifecycle.status} />}
         </div>
         {loading ? (

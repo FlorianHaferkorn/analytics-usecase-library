@@ -64,18 +64,18 @@ export function ProjectSelector() {
         onClick={() => setIsOpen(!isOpen)}
         variant="secondary"
         tone="info"
-        style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', fontSize: '0.8125rem', padding: '4px var(--sp-1-5)' }}
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', padding: '4px 12px' }}
       >
         <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--mint)' }} />
         {projectName}
-        <span style={{ color: 'var(--slate-500)', fontSize: '0.6875rem' }}>▾</span>
+        <span style={{ color: 'var(--ink-4)', fontSize: '0.6875rem' }}>▾</span>
       </StudioButton>
 
       {isOpen && (
         <StudioPanel style={{
           position: 'absolute', top: '100%', right: 0, marginTop: 4,
           width: 280,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
           zIndex: 50,
           overflow: 'hidden',
           padding: 0,
@@ -89,8 +89,8 @@ export function ProjectSelector() {
                 style={{
                   display: 'block', width: '100%', textAlign: 'left',
                   padding: 'var(--sp-1)',
-                  backgroundColor: p.id === projectId ? 'var(--slate-700)' : 'transparent',
-                  color: 'var(--slate-100)', fontSize: '0.8125rem',
+                  backgroundColor: p.id === projectId ? 'var(--bg-2)' : 'transparent',
+                  color: 'var(--ink)', fontSize: '0.8125rem',
                   justifyContent: 'flex-start',
                 }}
               >

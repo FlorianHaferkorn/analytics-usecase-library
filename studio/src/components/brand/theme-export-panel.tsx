@@ -97,10 +97,10 @@ export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
         style={{
           fontFamily: 'var(--font-mono)',
           fontSize: '0.6875rem',
-          color: 'var(--slate-300)',
-          backgroundColor: 'var(--slate-900)',
+          color: 'var(--ink-2)',
+          backgroundColor: 'var(--bg-2)',
           borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--slate-700)',
+          border: '1px solid var(--line)',
           padding: 'var(--sp-1-5)',
           overflow: 'auto',
           maxHeight: '200px',

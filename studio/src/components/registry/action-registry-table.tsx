@@ -45,7 +45,7 @@ export function ActionRegistryTable({ actions }: Props) {
       <StudioTableShell>
         <StudioTable>
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
+            <tr style={{ borderBottom: '1px solid var(--line)' }}>
               {['ID', 'Name', 'Domain', 'Impact', 'Status', 'Trigger KPIs'].map((h) => (
                 <StudioTableHeadCell key={h}>{h}</StudioTableHeadCell>
               ))}
@@ -63,7 +63,7 @@ export function ActionRegistryTable({ actions }: Props) {
           </tbody>
         </StudioTable>
         {filtered.length === 0 && (
-          <p style={{ padding: 'var(--sp-3)', textAlign: 'center', color: 'var(--slate-500)' }}>
+          <p style={{ padding: 'var(--pad)', textAlign: 'center', color: 'var(--ink-4)' }}>
             No Action Codes match the filter.
           </p>
         )}
@@ -81,45 +81,45 @@ function ActionRow({ action, isExpanded, onToggle }: { action: ActionCodeDefinit
       <tr
         onClick={onToggle}
         style={{
-          borderBottom: '1px solid var(--slate-700)',
+          borderBottom: '1px solid var(--line)',
           cursor: 'pointer',
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
         <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>{action.id}</StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-100)' }}>{action.name}</StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{action.owner_domain}</StudioTableCell>
-        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{action.impact_dimension}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--ink)' }}>{action.name}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--ink-3)' }}>{action.owner_domain}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--ink-3)' }}>{action.impact_dimension}</StudioTableCell>
         <StudioTableCell>
           <span style={{ color: getStatusColor(action.status), fontWeight: 500, fontSize: '0.75rem' }}>{action.status}</span>
         </StudioTableCell>
-        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--slate-400)' }}>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--ink-3)' }}>
           {action.kpis.trigger_kpis.join(', ')}
         </StudioTableCell>
       </tr>
       {isExpanded && (
         <StudioExpandedRow colSpan={6}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--sp-2)', fontSize: '0.8125rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', fontSize: '0.8125rem' }}>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Trigger KPIs</p>
-                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>{action.kpis.trigger_kpis.join(', ')}</p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Guardrail KPIs</p>
-                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>{(action.kpis.guardrail_kpis ?? []).join(', ') || '—'}</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Trigger KPIs</p>
+                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-2)' }}>{action.kpis.trigger_kpis.join(', ')}</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Guardrail KPIs</p>
+                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-2)' }}>{(action.kpis.guardrail_kpis ?? []).join(', ') || '—'}</p>
               </div>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Outcome KPIs</p>
-                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>{(action.kpis.outcome_kpis ?? []).join(', ') || '—'}</p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Grain</p>
-                <p style={{ color: 'var(--slate-200)' }}>{action.scope.default_grain}</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Outcome KPIs</p>
+                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-2)' }}>{(action.kpis.outcome_kpis ?? []).join(', ') || '—'}</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Grain</p>
+                <p style={{ color: 'var(--ink-2)' }}>{action.scope.default_grain}</p>
               </div>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Owner Role</p>
-                <p style={{ color: 'var(--slate-200)' }}>{action.owner_role}</p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Steward Role</p>
-                <p style={{ color: 'var(--slate-200)' }}>{action.steward_role}</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Owner Role</p>
+                <p style={{ color: 'var(--ink-2)' }}>{action.owner_role}</p>
+                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Steward Role</p>
+                <p style={{ color: 'var(--ink-2)' }}>{action.steward_role}</p>
                 {action.inherits_decision_spine && (
                   <>
-                    <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Decision Spine</p>
+                    <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Decision Spine</p>
                     <p style={{ color: 'var(--info)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>{action.inherits_decision_spine}</p>
                   </>
                 )}

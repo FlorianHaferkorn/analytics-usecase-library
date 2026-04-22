@@ -12,7 +12,7 @@ import { StudioButton, StudioField, StudioMetric, StudioMetricBar, StudioPage, S
 
 const YamlEditor = dynamic(
   () => import('@/components/editor/yaml-editor').then((m) => m.YamlEditor),
-  { ssr: false, loading: () => <div style={{ padding: 'var(--sp-3)', color: 'var(--slate-500)' }}>Loading editor...</div> }
+  { ssr: false, loading: () => <div style={{ padding: 'var(--pad)', color: 'var(--ink-4)' }}>Loading editor...</div> }
 );
 
 interface BracketData {
@@ -292,7 +292,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
         ) : null}
       </StudioToolbar>
 
-      <div style={{ flex: 1, display: 'flex', gap: 'var(--sp-2)', minHeight: 0 }}>
+      <div style={{ flex: 1, display: 'flex', gap: '16px', minHeight: 0 }}>
         {showFlow && (
           <StudioPanel title="Golden Thread Flow" description="Explore strategy anchors, drivers, and action-code coverage visually." tone="success" style={{ flex: 1, overflow: 'hidden' }}>
             <GoldenThreadFlow data={flowData} onBracketSelect={handleBracketSelectFromFlow} />
@@ -301,20 +301,20 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
         {showEditor && (
           <StudioPanel title="Bracket YAML" description="Inspect and refine the machine-readable source of truth for the selected bracket." tone="info" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {activeDraftBracketId === selectedBracket && (
-              <div style={{ padding: 'var(--sp-1)', borderBottom: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-900)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ padding: '8px', borderBottom: '1px solid var(--line)', backgroundColor: 'var(--bg)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '8px', alignItems: 'end' }}>
                   <StudioFormField label="Target ID">
                     <StudioInput
                       value={createTargetId}
                       onChange={(event) => setCreateTargetId(event.target.value.toUpperCase())}
-                      style={{ padding: '6px 8px', backgroundColor: 'var(--slate-950)', fontSize: '0.75rem' }}
+                      style={{ padding: '6px 8px', backgroundColor: 'var(--bg)', fontSize: '0.75rem' }}
                     />
                   </StudioFormField>
                   <StudioFormField label="Title">
                     <StudioInput
                       value={createTargetTitle}
                       onChange={(event) => setCreateTargetTitle(event.target.value)}
-                      style={{ padding: '6px 8px', backgroundColor: 'var(--slate-950)', fontSize: '0.75rem' }}
+                      style={{ padding: '6px 8px', backgroundColor: 'var(--bg)', fontSize: '0.75rem' }}
                     />
                   </StudioFormField>
                   <StudioButton

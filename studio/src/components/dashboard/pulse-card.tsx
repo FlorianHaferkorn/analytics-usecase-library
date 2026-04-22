@@ -18,24 +18,24 @@ export function PulseCard({ kpi, theme }: Props) {
   const delta = kpi.value - kpi.previousValue;
   const deltaPercent = ((delta / kpi.previousValue) * 100).toFixed(1);
   const isPositive = delta >= 0;
-  const statusColor = STATUS_COLORS[kpi.status] ?? 'var(--slate-500)';
+  const statusColor = STATUS_COLORS[kpi.status] ?? 'var(--ink-4)';
   const radius = theme?.borderRadius != null ? `${theme.borderRadius / 2}px` : 'var(--radius-lg)';
   const borderColor = theme?.background
     ? `color-mix(in srgb, ${theme.background} 60%, ${theme.text ?? '#94a3b8'})`
-    : 'var(--slate-700)';
+    : 'var(--line)';
 
   return (
     <div
       style={{
-        padding: 'var(--sp-3)',
-        backgroundColor: theme?.surface ?? 'var(--slate-800)',
+        padding: 'var(--pad)',
+        backgroundColor: theme?.surface ?? 'var(--panel)',
         border: `1px solid ${borderColor}`,
         borderRadius: radius,
         borderLeft: `4px solid ${statusColor}`,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-1)' }}>
-        <span style={{ fontSize: '0.6875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 60%, transparent)` : 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <span style={{ fontSize: '0.6875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 60%, transparent)` : 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           {kpi.label}
         </span>
         <span
@@ -52,19 +52,19 @@ export function PulseCard({ kpi, theme }: Props) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <span style={{ fontSize: '1.75rem', fontWeight: 700, color: theme?.text ?? 'var(--slate-100)' }}>
+        <span style={{ fontSize: '1.75rem', fontWeight: 700, color: theme?.text ?? 'var(--ink)' }}>
           {kpi.value}
         </span>
-        <span style={{ fontSize: '0.875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 50%, transparent)` : 'var(--slate-400)', marginLeft: '4px' }}>
+        <span style={{ fontSize: '0.875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 50%, transparent)` : 'var(--ink-3)', marginLeft: '4px' }}>
           {kpi.unit}
         </span>
       </motion.div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--sp-1)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
         <span style={{ fontSize: '0.75rem', color: isPositive ? 'var(--mint)' : 'var(--danger)' }}>
           {isPositive ? '↑' : '↓'} {Math.abs(delta).toFixed(1)} ({isPositive ? '+' : ''}{deltaPercent}%)
         </span>
-        <span style={{ fontSize: '0.6875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 40%, transparent)` : 'var(--slate-500)' }}>
+        <span style={{ fontSize: '0.6875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 40%, transparent)` : 'var(--ink-4)' }}>
           Target: {kpi.target}{kpi.unit}
         </span>
       </div>

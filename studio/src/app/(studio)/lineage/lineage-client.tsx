@@ -111,7 +111,7 @@ export function LineageClient({ graph, contracts }: Props) {
 
         {activeTab === 'lineage' && (
           <>
-            <div style={{ width: '1px', height: '20px', backgroundColor: 'var(--slate-700)', margin: '0 var(--sp-0-5)' }} />
+            <div style={{ width: '1px', height: '20px', backgroundColor: 'var(--line)', margin: '0 var(--sp-0-5)' }} />
 
             <StudioFormField label="Use Case">
               <StudioSelect
@@ -168,7 +168,7 @@ export function LineageClient({ graph, contracts }: Props) {
             {isFiltered && (
               <button
                 onClick={() => { setDomainFilter('all'); setTypeFilter('all'); setBracketFilter('all'); }}
-                style={{ padding: '4px 10px', fontSize: '0.75rem', color: 'var(--slate-400)', background: 'transparent', border: '1px solid var(--slate-700)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}
+                style={{ padding: '4px 10px', fontSize: '0.75rem', color: 'var(--ink-3)', background: 'transparent', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}
               >
                 Clear filters
               </button>
@@ -190,12 +190,12 @@ export function LineageClient({ graph, contracts }: Props) {
             action={
               <div style={{ display: 'flex', gap: 'var(--sp-1-5)', alignItems: 'center', flexWrap: 'wrap' }}>
                 {([
-                  { color: 'var(--slate-500)', label: 'Dimension' },
+                  { color: 'var(--ink-4)', label: 'Dimension' },
                   { color: '#3B82F6', label: 'Fact' },
                   { color: 'var(--mint)', label: 'KPI' },
                   { color: 'var(--gold)', label: 'Use Case' },
                 ] as const).map(({ color, label }) => (
-                  <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.6875rem', color: 'var(--slate-400)' }}>
+                  <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
                     <span style={{ width: 10, height: 10, borderRadius: '2px', backgroundColor: color, display: 'inline-block', flexShrink: 0 }} />
                     {label}
                   </span>
