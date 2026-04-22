@@ -5,6 +5,12 @@ import { validateAuthEnv } from './env-check';
 
 validateAuthEnv();
 
+/** A single project membership entry embedded in the JWT. */
+export interface ProjectMembership {
+  projectId: string;
+  role: string;
+}
+
 const isProduction = process.env.NODE_ENV === 'production';
 const hasGitHubOAuth = Boolean(process.env.GITHUB_ID && process.env.GITHUB_SECRET);
 
@@ -42,15 +48,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: { strategy: 'jwt' },
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        // Populate project_memberships at sign-in time.
+        // The membership-lookup module uses better-sqlite3 (Node.js only).
+        // Dynamic import keeps the sqlite dependency out of the Edge bundle.
+        const email = user.email ?? (token.email as string | undefined);
+        if (email) {
+          try {
+            const { lookupProjectMemberships } = await import(
+              /* webpackIgnore: true */ './membership-lookup'
+            );
+            token.project_memberships = await lookupProjectMemberships(email);
+          } catch {
+            token.project_memberships = [];
+          }
+        } else {
+          token.project_memberships = [];
+        }
       }
       return token;
     },
     session({ session, token }) {
       if (session.user && token.id) {
         (session.user as unknown as Record<string, unknown>).id = token.id as string;
+      }
+      if (token.project_memberships) {
+        (session as unknown as Record<string, unknown>).project_memberships =
+          token.project_memberships;
       }
       return session;
     },

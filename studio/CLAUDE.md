@@ -96,3 +96,43 @@ The JSON schemas in `tooling/ai/schemas/` are the SSOT:
 - `layout_330300.schema.json` → Layout330300
 
 Do not redefine these structures. Import from `@/lib/schemas`.
+
+## Secrets
+
+All secret values (API keys, credentials) must be read via the centralized secrets manager:
+
+```ts
+import { getSecret } from '@/lib/secrets';
+const key = await getSecret('ANTHROPIC_API_KEY');
+```
+
+**Never** read secret values directly from `process.env` in application code.
+Detection of which provider is active (e.g. `if (process.env.ANTHROPIC_API_KEY)`) is fine — the check is for presence, not value use.
+
+### Provider selection
+
+Set `SECRETS_PROVIDER` in `.env` to one of:
+
+| Value | Adapter | Config required |
+|---|---|---|
+| `env` (default) | `src/lib/secrets/dev-env.ts` | None — reads `process.env` |
+| `azure` | `src/lib/secrets/azure-key-vault.ts` | `AZURE_KEY_VAULT_URL` + Azure credentials |
+| `aws` | `src/lib/secrets/aws-secrets-manager.ts` | `AWS_REGION` + AWS credentials |
+
+### Adding a new secret
+
+1. Add the key to `.env.example` (no real value — just the name + comment).
+2. Read it with `await getSecret('YOUR_KEY_NAME')` in the consuming module.
+3. For Azure/AWS, provision the secret in the target vault under the same name.
+
+### Cloud adapters
+
+The Azure and AWS adapters use dynamic imports so their SDKs are only loaded
+when that provider is active.  At build time, `turbopack.resolveAlias` in
+`next.config.ts` redirects the missing optional packages to build stubs in
+`src/lib/secrets/_stubs/`.  At runtime, `serverExternalPackages` ensures the
+real packages are loaded from `node_modules` if installed.
+
+Install optional cloud SDK packages when deploying to cloud:
+- Azure: `npm install @azure/keyvault-secrets @azure/identity`
+- AWS: `npm install @aws-sdk/client-secrets-manager`
