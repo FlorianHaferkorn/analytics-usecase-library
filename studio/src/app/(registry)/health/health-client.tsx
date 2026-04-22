@@ -27,13 +27,13 @@ function MetricCard({ m }: { m: MetricResult }) {
   return (
     <div
       style={{
-        padding: 'var(--sp-2)',
+        padding: '16px',
         borderRadius: 'var(--radius-md)',
         backgroundColor: 'var(--panel)',
         border: '1px solid var(--line)',
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--sp-1)',
+        gap: '8px',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -88,13 +88,13 @@ export function HealthPageClient() {
       }
     >
       {error && (
-        <div style={{ padding: 'var(--sp-2)', backgroundColor: 'color-mix(in srgb, var(--error) 10%, transparent)', borderRadius: 'var(--radius-md)', color: 'var(--error)', fontSize: '0.875rem', marginBottom: 'var(--sp-2)' }}>
+        <div style={{ padding: '16px', backgroundColor: 'color-mix(in srgb, var(--error) 10%, transparent)', borderRadius: 'var(--radius-md)', color: 'var(--error)', fontSize: '0.875rem', marginBottom: '16px' }}>
           {error}
         </div>
       )}
       {data ? (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px', marginBottom: '16px' }}>
             {data.metrics.map((m) => <MetricCard key={m.metric} m={m} />)}
           </div>
           <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-4)' }}>

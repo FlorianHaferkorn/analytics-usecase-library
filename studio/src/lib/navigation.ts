@@ -59,7 +59,7 @@ export const FORGE_NAV: readonly NavItem[] = [
     description: 'Manage extensions that add tools, widgets, and data sources',
     icon: 'P',
     sidebarIcon: 'puzzle-piece',
-    color: 'var(--slate-400)',
+    color: 'var(--ink-3)',
   },
 ] as const;
 

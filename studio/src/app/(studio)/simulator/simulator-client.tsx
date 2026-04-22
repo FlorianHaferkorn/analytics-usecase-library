@@ -132,7 +132,7 @@ export function SimulatorClient({ brackets }: Props) {
 
       {/* Illustrative data banner */}
       <StudioPanel tone="warning" title="Illustrative Simulation" description="This view operates on synthetic seeded values, not live production data.">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', marginBottom: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
           <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>Keine Echtdaten</span>
         </div>
         <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: '4px' }}>
@@ -196,7 +196,7 @@ export function SimulatorClient({ brackets }: Props) {
 
       {/* Two-column: sliders + impact chart */}
       {parsed && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <ScenarioPanel
             drivers={drivers}
             overrides={overrides}

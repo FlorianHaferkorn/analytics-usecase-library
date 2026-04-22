@@ -21,7 +21,7 @@ export default async function CatalogPage() {
   ]);
 
   return (
-    <StudioPage style={{ gap: 'var(--sp-3)' }}>
+    <StudioPage style={{ gap: 'var(--pad)' }}>
       <StudioPageHeader
         eyebrow="Registry / Catalog"
         title="Catalog"

@@ -59,7 +59,7 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-0-5)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
       {events.map((evt) => {
         const isExpanded = expanded === evt.id;
         let diff: { before: unknown; after: unknown } | null = null;
@@ -69,7 +69,7 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
           <div
             key={evt.id}
             style={{
-              padding: 'var(--sp-1-5) var(--sp-2)',
+              padding: '12px 16px',
               backgroundColor: 'var(--panel)',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--line)',
@@ -77,7 +77,7 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
             }}
             onClick={() => setExpanded(isExpanded ? null : evt.id)}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {/* Action badge */}
               <span
                 style={{
@@ -113,8 +113,8 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
             {isExpanded && diff && (
               <pre
                 style={{
-                  marginTop: 'var(--sp-1)',
-                  padding: 'var(--sp-1-5)',
+                  marginTop: '8px',
+                  padding: '12px',
                   backgroundColor: 'var(--bg)',
                   borderRadius: 'var(--radius-sm)',
                   fontSize: '0.6875rem',

@@ -28,7 +28,7 @@ export function ApprovalsClient({ brackets }: Props) {
               display: 'flex',
               flexDirection: 'column',
               gap: '2px',
-              padding: 'var(--sp-1-5) var(--sp-1)',
+              padding: '12px 8px',
               borderRadius: 'var(--radius-md)',
               border: `1px solid ${selectedId === b.id ? 'var(--info)' : 'var(--line)'}`,
               backgroundColor: selectedId === b.id ? 'color-mix(in srgb, var(--info) 10%, transparent)' : 'var(--panel)',

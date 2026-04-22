@@ -70,7 +70,7 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
         style={{
           padding: '8px 12px',
           fontSize: '0.8125rem',
-          marginBottom: 'var(--sp-1)',
+          marginBottom: '8px',
         }}
       />
 
@@ -81,7 +81,7 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 'var(--sp-1)',
+              gap: '8px',
               padding: '8px 12px',
               borderBottom: '1px solid var(--line)',
             }}

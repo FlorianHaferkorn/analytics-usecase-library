@@ -140,7 +140,7 @@ export function DeliveryClient({ brackets }: Props) {
         <StudioMetric label="Readiness" value={readinessWarnings.length === 0 ? 'ready' : `${readinessWarnings.length} checks`} meta={adapter.status === 'preview' ? 'preview adapter selected' : 'validation status'} tone={readinessWarnings.length === 0 ? 'success' : 'warning'} />
       </StudioMetricBar>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', height: 'calc(100vh - 56px - var(--sp-6) - 176px)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', height: 'calc(100vh - 56px - 48px - 176px)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
         {/* Left: Adapter Selection */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -160,7 +160,7 @@ export function DeliveryClient({ brackets }: Props) {
                     width: '100%',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', gap: 'var(--sp-1)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', gap: '8px' }}>
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>{a.name}</span>
                     <span style={{
                       fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600,

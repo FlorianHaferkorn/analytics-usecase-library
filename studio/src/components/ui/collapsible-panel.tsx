@@ -27,15 +27,15 @@ export function CollapsiblePanel({ title, description, tone, style, defaultOpen 
         cursor: 'pointer',
         padding: '2px 8px',
         fontSize: '0.6875rem',
-        color: 'var(--slate-400)',
+        color: 'var(--ink-3)',
         display: 'flex',
         alignItems: 'center',
         gap: '4px',
         borderRadius: 'var(--radius-sm)',
         transition: 'color 0.15s ease',
       }}
-      onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--slate-200)')}
-      onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--slate-400)')}
+      onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--ink-2)')}
+      onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--ink-3)')}
     >
       <span style={{ fontSize: '0.5rem', display: 'inline-block', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▲</span>
       {open ? 'Collapse' : 'Expand'}

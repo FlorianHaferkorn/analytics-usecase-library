@@ -43,7 +43,7 @@ export function SpineList({ spines }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {spines.map((spine) => {
         const isExpanded = expandedId === spine.id;
         return (
@@ -65,9 +65,9 @@ export function SpineList({ spines }: Props) {
                 width: '100%',
                 display: 'grid',
                 gridTemplateColumns: '1fr auto auto auto',
-                gap: 'var(--sp-2)',
+                gap: '16px',
                 alignItems: 'center',
-                padding: 'var(--sp-1-5) var(--sp-2)',
+                padding: '12px 16px',
                 backgroundColor: 'transparent',
                 textAlign: 'left',
                 justifyContent: 'stretch',
@@ -105,7 +105,7 @@ export function SpineList({ spines }: Props) {
 
             {/* Expanded detail */}
             {isExpanded && (
-              <div style={{ padding: '0 var(--sp-2) var(--sp-2) var(--sp-2)' }}>
+              <div style={{ padding: '0 16px 16px 16px' }}>
                 <EscalationViewer spine={spine} />
               </div>
             )}

@@ -3,7 +3,7 @@ import { HealthPageClient } from './health-client';
 
 export default function HealthPage() {
   return (
-    <StudioPage style={{ gap: 'var(--sp-3)' }}>
+    <StudioPage style={{ gap: 'var(--pad)' }}>
       <StudioPageHeader
         eyebrow="Registry / Health"
         title="Framework Health Scorecard"

@@ -111,7 +111,7 @@ export function LineageClient({ graph, contracts }: Props) {
 
         {activeTab === 'lineage' && (
           <>
-            <div style={{ width: '1px', height: '20px', backgroundColor: 'var(--line)', margin: '0 var(--sp-0-5)' }} />
+            <div style={{ width: '1px', height: '20px', backgroundColor: 'var(--line)', margin: '0 4px' }} />
 
             <StudioFormField label="Use Case">
               <StudioSelect
@@ -188,7 +188,7 @@ export function LineageClient({ graph, contracts }: Props) {
             tone="info"
             style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
             action={
-              <div style={{ display: 'flex', gap: 'var(--sp-1-5)', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {([
                   { color: 'var(--ink-4)', label: 'Dimension' },
                   { color: '#3B82F6', label: 'Fact' },

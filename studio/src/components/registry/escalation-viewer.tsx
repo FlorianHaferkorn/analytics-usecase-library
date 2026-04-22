@@ -17,17 +17,17 @@ export function EscalationViewer({ spine }: Props) {
   const path = spine.escalation_logic.escalation_path;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Escalation Path */}
       <div>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: 'var(--sp-1)' }}>
+        <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '8px' }}>
           {spine.escalation_logic.principle}
         </p>
-        <div style={{ display: 'flex', gap: 'var(--sp-1)', alignItems: 'stretch' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
           {path.map((step, i) => {
             const config = LEVEL_CONFIG[step.level] ?? { color: 'var(--ink-3)', label: step.level, shortLabel: `L${i + 1}` };
             return (
-              <div key={step.level} style={{ flex: 1, display: 'flex', alignItems: 'stretch', gap: 'var(--sp-1)' }}>
+              <div key={step.level} style={{ flex: 1, display: 'flex', alignItems: 'stretch', gap: '8px' }}>
                 <StudioPanel
                   style={{
                     flex: 1,
@@ -74,8 +74,8 @@ export function EscalationViewer({ spine }: Props) {
       </div>
 
       {/* Decision Context */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1-5)' }}>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <StudioPanel style={{ padding: '12px' }}>
           <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Primary Question
           </p>
@@ -83,7 +83,7 @@ export function EscalationViewer({ spine }: Props) {
             {spine.decision_context.primary_question}
           </p>
         </StudioPanel>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
+        <StudioPanel style={{ padding: '12px' }}>
           <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Decision Confidence
           </p>
@@ -104,8 +104,8 @@ export function EscalationViewer({ spine }: Props) {
       </div>
 
       {/* Tradeoffs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1-5)' }}>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <StudioPanel style={{ padding: '12px' }}>
           <p style={{ fontSize: '0.6875rem', color: 'var(--mint)', marginBottom: '4px', fontWeight: 600 }}>
             Improves
           </p>
@@ -117,7 +117,7 @@ export function EscalationViewer({ spine }: Props) {
             ))}
           </div>
         </StudioPanel>
-        <StudioPanel style={{ padding: 'var(--sp-1-5)' }}>
+        <StudioPanel style={{ padding: '12px' }}>
           <p style={{ fontSize: '0.6875rem', color: '#EF4444', marginBottom: '4px', fontWeight: 600 }}>
             Risks
           </p>

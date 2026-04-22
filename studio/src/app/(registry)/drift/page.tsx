@@ -7,7 +7,7 @@ export default async function DriftPage() {
   const issueCount = report.issues.length;
 
   return (
-    <StudioPage style={{ gap: 'var(--sp-3)' }}>
+    <StudioPage style={{ gap: 'var(--pad)' }}>
       <StudioPageHeader
         eyebrow="Registry / Drift"
         title="Catalog ↔ TMDL Drift"

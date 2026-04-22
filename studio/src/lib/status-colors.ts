@@ -7,6 +7,6 @@ export function getStatusColor(status: string): string {
     case 'deprecated':
       return 'var(--danger)';
     default:
-      return 'var(--slate-500)';
+      return 'var(--ink-4)';
   }
 }

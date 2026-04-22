@@ -26,12 +26,12 @@ type Filter = 'all' | DriftSeverity;
 
 function IssueRow({ issue }: { issue: DriftIssue }) {
   return (
-    <StudioPanel tone={issue.severity === 'error' ? 'warning' : issue.severity === 'warning' ? 'warning' : 'info'} style={{ padding: 'var(--sp-1) var(--sp-1-5)' }}>
+    <StudioPanel tone={issue.severity === 'error' ? 'warning' : issue.severity === 'warning' ? 'warning' : 'info'} style={{ padding: '8px 12px' }}>
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '24px 80px 100px 1fr',
-          gap: 'var(--sp-1)',
+          gap: '8px',
           alignItems: 'center',
           fontSize: '0.75rem',
         }}
@@ -85,7 +85,7 @@ export function DriftDetailPanel({ report, loading, onScan }: Props) {
       }
     >
       {/* Filter pills */}
-      <div style={{ marginBottom: 'var(--sp-2)' }}>
+      <div style={{ marginBottom: '16px' }}>
         <StudioSegmentedControl
           value={filter}
           onChange={setFilter}
@@ -99,8 +99,8 @@ export function DriftDetailPanel({ report, loading, onScan }: Props) {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-            gap: 'var(--sp-1)',
-            marginBottom: 'var(--sp-2)',
+            gap: '8px',
+            marginBottom: '16px',
           }}
         >
           <SummaryChip label="KPIs" value={report.artifactCounts.kpis} />

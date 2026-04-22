@@ -209,9 +209,9 @@ export function BracketGovernancePanel({ bracketId }: Props) {
         : ['reopen'];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)', marginTop: 'var(--sp-2)' }}>
-      <div style={{ padding: 'var(--sp-2)', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--line)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-1-5)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+      <div style={{ padding: '16px', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Review</p>
           {lifecycle && <ApprovalBadge status={lifecycle.status} />}
         </div>
@@ -225,7 +225,7 @@ export function BracketGovernancePanel({ bracketId }: Props) {
               placeholder="Add review comment"
               style={{ backgroundColor: 'var(--bg)', fontSize: '0.8125rem' }}
             />
-            <div style={{ display: 'flex', gap: '8px', marginTop: 'var(--sp-1)' }}>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
               <StudioButton
                 onClick={handleAddComment}
                 disabled={submitting || comment.trim().length < 3}
@@ -250,7 +250,7 @@ export function BracketGovernancePanel({ bracketId }: Props) {
                 {snapshotting ? 'Snapshot...' : 'Create snapshot'}
               </StudioButton>
             </div>
-            <div style={{ marginTop: 'var(--sp-2)', paddingTop: 'var(--sp-1-5)', borderTop: '1px solid var(--line)' }}>
+            <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--line)' }}>
               <p style={{ margin: '0 0 8px', fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Lifecycle action</p>
               <StudioTextarea
                 value={justification}
@@ -258,7 +258,7 @@ export function BracketGovernancePanel({ bracketId }: Props) {
                 placeholder="Justification for lifecycle change"
                 style={{ minHeight: '64px', backgroundColor: 'var(--bg)', fontSize: '0.8125rem' }}
               />
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: 'var(--sp-1)' }}>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
                 {availableActions.map((action) => (
                   <StudioButton
                     key={action}
@@ -276,12 +276,12 @@ export function BracketGovernancePanel({ bracketId }: Props) {
                 ))}
               </div>
             </div>
-            {error && <p style={{ margin: 'var(--sp-1) 0 0', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--danger)' }}>{error}</p>}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'var(--sp-1-5)' }}>
+            {error && <p style={{ margin: '8px 0 0', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--danger)' }}>{error}</p>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
               {comments.length === 0 ? (
                 <StudioEmptyState title="No review comments yet" description="Add the first review note to capture governance context for this bracket." />
               ) : comments.map((entry) => (
-                <div key={entry.id} style={{ padding: 'var(--sp-1-5)', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
+                <div key={entry.id} style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
                     <span style={{ fontSize: '0.625rem', color: 'var(--info)' }}>{entry.actor}</span>
                     <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>{entry.created_at}</span>
@@ -293,8 +293,8 @@ export function BracketGovernancePanel({ bracketId }: Props) {
           </>
         )}
       </div>
-      <div style={{ padding: 'var(--sp-2)', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--line)' }}>
-        <p style={{ margin: '0 0 var(--sp-1-5)', fontSize: '0.6875rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Versions</p>
+      <div style={{ padding: '16px', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--line)' }}>
+        <p style={{ margin: '0 0 12px', fontSize: '0.6875rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Versions</p>
         {loading ? (
           <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>Loading snapshots...</p>
         ) : versions.length === 0 ? (
@@ -302,14 +302,14 @@ export function BracketGovernancePanel({ bracketId }: Props) {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {versions.map((version) => (
-              <div key={version.id} style={{ padding: 'var(--sp-1-5)', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
+              <div key={version.id} style={{ padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                   <span style={{ fontSize: '0.75rem', color: 'var(--ink)', fontWeight: 600 }}>{version.label}</span>
                   <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>{version.created_at}</span>
                 </div>
                 <p style={{ margin: '4px 0 0', fontSize: '0.625rem', color: 'var(--ink-3)' }}>by {version.created_by}</p>
                 {version.note && <p style={{ margin: '6px 0 0', fontSize: '0.75rem', lineHeight: 1.55, color: 'var(--ink-2)' }}>{version.note}</p>}
-                <div style={{ display: 'flex', gap: '6px', marginTop: 'var(--sp-1)' }}>
+                <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                   <StudioButton
                     onClick={() => setSelectedVersionId(version.id)}
                     tone={selectedVersionId === version.id ? 'info' : 'default'}
@@ -333,16 +333,16 @@ export function BracketGovernancePanel({ bracketId }: Props) {
           </div>
         )}
         {compareData && (
-          <div style={{ marginTop: 'var(--sp-2)', paddingTop: 'var(--sp-1-5)', borderTop: '1px solid var(--line)' }}>
+          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--line)' }}>
             <p style={{ margin: '0 0 8px', fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Current vs snapshot</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               <div>
                 <p style={{ margin: '0 0 6px', fontSize: '0.625rem', color: 'var(--ink-3)' }}>Current</p>
-                <pre style={{ margin: 0, padding: 'var(--sp-1-5)', minHeight: '160px', maxHeight: '220px', overflow: 'auto', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', color: 'var(--ink-2)', fontSize: '0.6875rem', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{compareData.currentYaml}</pre>
+                <pre style={{ margin: 0, padding: '12px', minHeight: '160px', maxHeight: '220px', overflow: 'auto', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', color: 'var(--ink-2)', fontSize: '0.6875rem', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{compareData.currentYaml}</pre>
               </div>
               <div>
                 <p style={{ margin: '0 0 6px', fontSize: '0.625rem', color: 'var(--ink-3)' }}>{compareData.version.label}</p>
-                <pre style={{ margin: 0, padding: 'var(--sp-1-5)', minHeight: '160px', maxHeight: '220px', overflow: 'auto', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', color: 'var(--ink-2)', fontSize: '0.6875rem', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{compareData.version.yaml_content}</pre>
+                <pre style={{ margin: 0, padding: '12px', minHeight: '160px', maxHeight: '220px', overflow: 'auto', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)', color: 'var(--ink-2)', fontSize: '0.6875rem', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>{compareData.version.yaml_content}</pre>
               </div>
             </div>
           </div>
