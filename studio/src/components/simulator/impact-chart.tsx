@@ -13,16 +13,16 @@ export function ImpactChart({ contributions, impactDirection }: Props) {
   return (
     <div
       style={{
-        padding: 'var(--sp-2)',
-        backgroundColor: 'var(--slate-800)',
+        padding: '16px',
+        backgroundColor: 'var(--panel)',
         borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
+        border: '1px solid var(--line)',
       }}
     >
-      <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: 'var(--sp-1-5)' }}>
+      <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ink)', marginBottom: 'var(--pad)' }}>
         Driver Impact
       </h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {contributions.map((c) => {
           const pct = (c.contribution / maxAbs) * 100;
           const isPositive = c.contribution >= 0;
@@ -30,11 +30,11 @@ export function ImpactChart({ contributions, impactDirection }: Props) {
           const barColor = isGood ? 'var(--mint)' : 'var(--danger)';
 
           return (
-            <div key={c.kpiId} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+            <div key={c.kpiId} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
                 style={{
                   fontSize: '0.6875rem',
-                  color: 'var(--slate-300)',
+                  color: 'var(--ink-2)',
                   minWidth: '140px',
                   textAlign: 'right',
                   overflow: 'hidden',
@@ -45,7 +45,7 @@ export function ImpactChart({ contributions, impactDirection }: Props) {
               >
                 {c.kpiId.split('.').slice(-2).join('.')}
               </span>
-              <div style={{ flex: 1, height: '16px', position: 'relative', backgroundColor: 'var(--slate-900)', borderRadius: 'var(--radius-sm)' }}>
+              <div style={{ flex: 1, height: '16px', position: 'relative', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)' }}>
                 {isPositive ? (
                   <div
                     style={{
@@ -70,7 +70,7 @@ export function ImpactChart({ contributions, impactDirection }: Props) {
                   />
                 )}
                 {/* Center line */}
-                <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '1px', backgroundColor: 'var(--slate-600)' }} />
+                <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '1px', backgroundColor: 'var(--line)' }} />
               </div>
               <span style={{ fontSize: '0.6875rem', color: barColor, fontWeight: 600, minWidth: '48px', textAlign: 'right' }}>
                 {c.contribution >= 0 ? '+' : ''}{c.contribution.toFixed(2)}

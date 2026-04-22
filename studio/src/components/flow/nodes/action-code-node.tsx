@@ -19,7 +19,7 @@ export function ActionCodeNode({ data }: NodeProps) {
   return (
     <div
       style={{
-        padding: 'var(--sp-1) var(--sp-1-5)',
+        padding: '8px 12px',
         backgroundColor: 'var(--panel)',
         border: `2px solid ${borderColor}`,
         borderRadius: 'var(--radius-md)',

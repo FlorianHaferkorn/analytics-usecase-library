@@ -46,7 +46,7 @@ function LoginForm() {
         padding: '40px',
       }}>
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 'var(--sp-4)' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -61,7 +61,7 @@ function LoginForm() {
               ActionReady Studio
             </span>
           </div>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--slate-400)' }}>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--ink-3)' }}>
             Sign in to access your analytics workspace
           </p>
         </div>
@@ -72,19 +72,19 @@ function LoginForm() {
           disabled={isLoading}
           style={{
             width: '100%',
-            padding: 'var(--sp-1-5)',
-            backgroundColor: 'var(--slate-800)',
-            border: '1px solid var(--slate-600)',
+            padding: '12px',
+            backgroundColor: 'var(--bg-2)',
+            border: '1px solid var(--line)',
             borderRadius: 'var(--radius-lg)',
-            color: 'var(--slate-100)',
+            color: 'var(--ink)',
             fontSize: '0.875rem',
             fontWeight: 600,
             cursor: isLoading ? 'wait' : 'pointer',
-            marginBottom: 'var(--sp-3)',
+            marginBottom: '24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 'var(--sp-1)',
+            gap: '8px',
           }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -95,16 +95,16 @@ function LoginForm() {
 
         {/* Divider */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 'var(--sp-2)',
-          marginBottom: 'var(--sp-3)',
+          display: 'flex', alignItems: 'center', gap: '16px',
+          marginBottom: '24px',
         }}>
-          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--slate-700)' }} />
-          <span style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>or demo login</span>
-          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--slate-700)' }} />
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--line)' }} />
+          <span style={{ fontSize: '0.75rem', color: 'var(--ink-4)' }}>or demo login</span>
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--line)' }} />
         </div>
 
         {/* Demo Credentials */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <input
             type="email"
             value={email}
@@ -112,11 +112,11 @@ function LoginForm() {
             placeholder="demo@aurora-group.eu"
             style={{
               width: '100%',
-              padding: 'var(--sp-1-5)',
-              backgroundColor: 'var(--slate-800)',
-              border: '1px solid var(--slate-600)',
+              padding: '12px',
+              backgroundColor: 'var(--bg-2)',
+              border: '1px solid var(--line)',
               borderRadius: 'var(--radius-md)',
-              color: 'var(--slate-100)',
+              color: 'var(--ink)',
               fontSize: '0.875rem',
             }}
           />
@@ -125,11 +125,11 @@ function LoginForm() {
             disabled={isLoading}
             style={{
               width: '100%',
-              padding: 'var(--sp-1-5)',
+              padding: '12px',
               background: 'linear-gradient(135deg, var(--mint), #00B894)',
               border: 'none',
               borderRadius: 'var(--radius-lg)',
-              color: 'var(--slate-950)',
+              color: 'var(--bg)',
               fontSize: '0.875rem',
               fontWeight: 700,
               cursor: isLoading ? 'wait' : 'pointer',
@@ -140,9 +140,9 @@ function LoginForm() {
         </div>
 
         <p style={{
-          marginTop: 'var(--sp-3)',
+          marginTop: '24px',
           fontSize: '0.6875rem',
-          color: 'var(--slate-500)',
+          color: 'var(--ink-4)',
           textAlign: 'center',
         }}>
           Self-hosted &middot; Your data stays local &middot; BYOK for AI

@@ -15,7 +15,7 @@ export function StrategicKpiNode({ data, selected }: NodeProps) {
   return (
     <div
       style={{
-        padding: 'var(--sp-1-5) var(--sp-2)',
+        padding: '12px 16px',
         backgroundColor: selected ? `color-mix(in srgb, ${domainColor} 12%, var(--panel))` : 'var(--panel)',
         border: `2px solid ${selected ? domainColor : `color-mix(in srgb, ${domainColor} 60%, var(--line))`}`,
         borderRadius: 'var(--radius-lg)',

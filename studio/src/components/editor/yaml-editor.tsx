@@ -13,7 +13,7 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.de
       alignItems: 'center',
       justifyContent: 'center',
       height: '100%',
-      color: 'var(--slate-500)',
+      color: 'var(--ink-4)',
       fontSize: '0.875rem',
     }}>
       Loading editor...
@@ -77,13 +77,13 @@ export function YamlEditor({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: 'var(--sp-0-5) var(--sp-1)',
-          backgroundColor: 'var(--slate-950)',
-          borderBottom: '1px solid var(--slate-700)',
+          padding: '4px 8px',
+          backgroundColor: 'var(--bg)',
+          borderBottom: '1px solid var(--line)',
           fontSize: '0.6875rem',
         }}
       >
-        <span style={{ color: 'var(--slate-500)' }}>YAML</span>
+        <span style={{ color: 'var(--ink-4)' }}>YAML</span>
         <span
           style={{
             display: 'flex',
@@ -131,9 +131,9 @@ export function YamlEditor({
           style={{
             maxHeight: '120px',
             overflow: 'auto',
-            padding: 'var(--sp-1)',
-            backgroundColor: 'var(--slate-950)',
-            borderTop: '1px solid var(--slate-700)',
+            padding: '8px',
+            backgroundColor: 'var(--bg)',
+            borderTop: '1px solid var(--line)',
           }}
         >
           {validation.errors.map((err, i) => (
@@ -146,7 +146,7 @@ export function YamlEditor({
                 fontFamily: 'var(--font-mono)',
               }}
             >
-              <span style={{ color: 'var(--slate-500)' }}>{err.path}</span> {err.message}
+              <span style={{ color: 'var(--ink-4)' }}>{err.path}</span> {err.message}
             </div>
           ))}
         </div>

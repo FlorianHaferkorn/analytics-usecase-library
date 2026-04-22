@@ -27,7 +27,7 @@ export function DriverKpiNode({ data, selected }: NodeProps) {
       {!hasAction && <style>{pulseKeyframes}</style>}
       <div
         style={{
-          padding: 'var(--sp-1) var(--sp-1-5)',
+          padding: '8px 12px',
           backgroundColor: selected ? `color-mix(in srgb, ${domainColor} 8%, var(--panel))` : 'var(--panel)',
           border: `2px solid ${borderColor}`,
           borderRadius: 'var(--radius-md)',

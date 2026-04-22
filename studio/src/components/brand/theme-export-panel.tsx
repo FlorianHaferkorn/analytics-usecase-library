@@ -79,11 +79,11 @@ export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
       title="Export Theme"
       description="Preview generated theme artifacts and export them in the target format or as a bundle."
       action={onSave ? (
-        <StudioButton onClick={onSave} disabled={saving} tone="success" variant="primary" style={{ padding: '4px var(--sp-1-5)' }}>
+        <StudioButton onClick={onSave} disabled={saving} tone="success" variant="primary" style={{ padding: '4px 12px' }}>
           {saving ? 'Saving...' : 'Save Theme'}
         </StudioButton>
       ) : undefined}
-      style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)' }}
+      style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
     >
       {/* Format tabs */}
       <StudioSegmentedControl
@@ -101,7 +101,7 @@ export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
           backgroundColor: 'var(--bg-2)',
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--line)',
-          padding: 'var(--sp-1-5)',
+          padding: '12px',
           overflow: 'auto',
           maxHeight: '200px',
           lineHeight: 1.5,
@@ -112,13 +112,13 @@ export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
       </pre>
 
       {/* Download buttons */}
-      <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
+      <div style={{ display: 'flex', gap: '8px' }}>
         <StudioButton
           onClick={handleDownload}
           variant="secondary"
           style={{
             flex: 1,
-            padding: '6px var(--sp-1)',
+            padding: '6px 8px',
             fontSize: '0.75rem',
           }}
         >
@@ -131,7 +131,7 @@ export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
           variant="primary"
           style={{
             flex: 1,
-            padding: '6px var(--sp-1)',
+            padding: '6px 8px',
             fontSize: '0.75rem',
           }}
         >

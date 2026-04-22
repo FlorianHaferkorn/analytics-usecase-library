@@ -6,29 +6,24 @@
  */
 
 export const colors = {
+  /** --accent / mint */
   mint: {
     DEFAULT: '#00D4AA',
     light: '#33DDBB',
     dark: '#00A888',
   },
+  /** --accent-gold / gold */
   gold: {
     DEFAULT: '#FFB800',
     light: '#FFC833',
     dark: '#CC9300',
   },
-  slate: {
-    950: '#020617',
-    900: '#0F172A',
-    800: '#1E293B',
-    700: '#334155',
-    600: '#475569',
-    500: '#64748B',
-    400: '#94A3B8',
-    300: '#CBD5E1',
-    200: '#E2E8F0',
-    100: '#F1F5F9',
-    50: '#F8FAFC',
-  },
+  /** Light design system base tokens */
+  ink:   '#0b0b0c',
+  bg:    '#fafaf9',
+  panel: '#ffffff',
+  accent: '#00D4AA',
+  accentGold: '#FFB800',
   semantic: {
     success: '#00D4AA',
     warning: '#FFB800',
@@ -92,10 +87,10 @@ export const letterSpacings = {
 
 export const shadows = {
   none: 'none',
-  sm: '0 1px 2px rgba(0,0,0,0.25)',
-  md: '0 4px 6px rgba(0,0,0,0.3)',
-  lg: '0 10px 15px rgba(0,0,0,0.35)',
-  xl: '0 20px 25px rgba(0,0,0,0.4)',
+  sm: '0 1px 2px rgba(0,0,0,0.06)',
+  md: '0 4px 6px rgba(0,0,0,0.08)',
+  lg: '0 10px 15px rgba(0,0,0,0.10)',
+  xl: '0 20px 25px rgba(0,0,0,0.12)',
 } as const;
 
 /** RAG status colors for KPI cards */
