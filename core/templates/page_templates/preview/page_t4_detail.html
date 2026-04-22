@@ -2,326 +2,287 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>T4 — Prescriptive Detail (Action Matrix)</title>
+<title>T4 — Prescriptive Recommendation</title>
+<script src="tokens.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
-  :root {
-    --pos: #1a7a36; --pos-bg: #e8f5ec;
-    --neg: #b00020; --neg-bg: #fdecea;
-    --warn: #b25000; --warn-bg: #fff3e0;
-    --neutral: #5f6368;
-    --border: #e0e3e8;
-    --action: #1a237e;
-    --action-bg: #e8eaf6;
-    --surface: #f8f9fb;
-    --text-primary: #1a1c20;
-    --text-secondary: #5f6368;
-  }
-  .canvas {
-    width: 1280px; height: 720px;
-    background: #fff;
-    display: grid;
-    grid-template-columns: 2fr 8fr 2fr;
-    grid-template-rows: auto auto 1fr auto;
-    border: 1px solid #d0d4db;
-    box-shadow: 0 4px 24px rgba(0,0,0,.12);
-    overflow: hidden;
-  }
-
-  /* ── decision banner ── */
-  .decision-banner {
-    grid-column: 1 / -1; grid-row: 1;
-    background: #1a237e; color: #fff;
-    display: flex; align-items: center; padding: 0 16px;
-    font-size: 11px; font-weight: 600; letter-spacing: .3px;
-    height: 32px;
-  }
-  .decision-banner span { opacity: .6; margin-right: 8px; font-size: 9px; text-transform: uppercase; letter-spacing: .8px; }
-
-  /* ── slicer pane (left) ── */
-  .slicer-pane {
-    grid-column: 1; grid-row: 2 / -1;
-    background: var(--surface); border-right: 1px solid var(--border);
-    padding: 12px 10px; display: flex; flex-direction: column; gap: 10px;
-  }
-  .slicer-group-label { font-size: 8.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px; }
-  .slicer-item {
-    background: #fff; border: 1px solid var(--border); border-radius: 3px;
-    padding: 4px 8px; font-size: 9px; color: var(--text-primary);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .slicer-item.active { border-color: #1a237e; background: var(--action-bg); color: var(--action); font-weight: 600; }
-  .slicer-item .caret { color: #adb5bd; }
-  .slicer-context { font-size: 8px; color: #b00020; font-weight: 600; margin-top: 6px; padding: 4px 6px; background: var(--neg-bg); border-radius: 3px; }
-  .zone-label { font-size: 8px; color: #adb5bd; font-weight: 600; letter-spacing: .4px; }
-
-  /* ── smart narrative ── */
-  .smart-narrative {
-    grid-column: 2; grid-row: 2;
-    padding: 8px 16px; border-bottom: 1px solid var(--border);
-    background: #fffde7;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .narrative-label { font-size: 8.5px; font-weight: 700; color: var(--warn); text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
-  .narrative-text { font-size: 10px; color: var(--text-primary); line-height: 1.5; }
-  .narrative-text strong { color: var(--neg); }
-
-  /* ── detail matrix ── */
-  .detail-matrix {
-    grid-column: 2; grid-row: 3;
-    display: flex; flex-direction: column; overflow: hidden;
-  }
-  .matrix-toolbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 6px 14px; border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .matrix-title { font-size: 10px; font-weight: 600; color: var(--text-primary); }
-  .matrix-tools { display: flex; gap: 8px; }
-  .matrix-btn { font-size: 8.5px; color: #1a237e; cursor: pointer; padding: 2px 6px; border: 1px solid #c5cae9; border-radius: 3px; background: #fff; }
-
-  .matrix-head {
-    display: grid;
-    grid-template-columns: 110px 80px 100px 70px 80px 80px 80px;
-    padding: 5px 14px; border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .mh-cell { font-size: 8.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .4px; }
-
-  .matrix-row {
-    display: grid;
-    grid-template-columns: 110px 80px 100px 70px 80px 80px 80px;
-    padding: 6px 14px; border-bottom: 1px solid #f0f2f5;
-    align-items: center;
-  }
-  .matrix-row:hover { background: #fafbfc; }
-  .matrix-row.selected { background: #e8eaf6; }
-  .mc { font-size: 9.5px; color: var(--text-primary); }
-  .mc.bold { font-weight: 600; }
-  .mc.neg { color: var(--neg); }
-  .mc.pos { color: var(--pos); }
-  .mc.warn { color: var(--warn); }
-  .mc.small { font-size: 8.5px; color: var(--text-secondary); }
-
-  /* delta bar inline */
-  .delta-cell { display: flex; align-items: center; gap: 4px; }
-  .delta-bar-track { width: 48px; height: 8px; background: #f0f2f5; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
-  .delta-bar-fill { height: 100%; border-radius: 2px; }
-  .delta-bar-neg { background: var(--neg); }
-  .delta-bar-pos { background: var(--pos); }
-  .delta-bar-warn { background: var(--warn); }
-  .delta-val { font-size: 9px; font-weight: 600; white-space: nowrap; }
-
-  /* action badge */
-  .action-badge { font-size: 8px; font-weight: 700; padding: 2px 5px; border-radius: 2px; }
-  .action-cap  { background: var(--neg-bg); color: var(--neg); }
-  .action-mon  { background: var(--warn-bg); color: var(--warn); }
-  .action-ok   { background: var(--pos-bg); color: var(--pos); }
-
-  .matrix-footer {
-    padding: 5px 14px; font-size: 8.5px; color: var(--text-secondary);
-    border-top: 1px solid var(--border); background: var(--surface);
-    display: flex; justify-content: space-between;
-  }
-
-  /* ── action panel (right) ── */
-  .action-panel {
-    grid-column: 3; grid-row: 2 / -1;
-    background: #1a237e; color: #fff;
-    padding: 14px 12px; display: flex; flex-direction: column; gap: 0;
-    border-left: 3px solid #3949ab;
-  }
-  .ap-badge { font-size: 8px; font-weight: 700; letter-spacing: .8px; background: #3949ab; color: #9fa8da; padding: 2px 6px; border-radius: 2px; margin-bottom: 8px; display: inline-block; }
-  .ap-title { font-size: 13px; font-weight: 700; line-height: 1.3; color: #fff; margin-bottom: 10px; }
-  .ap-divider { height: 1px; background: #3949ab; margin: 8px 0; }
-  .ap-section-label { font-size: 8px; font-weight: 700; letter-spacing: .8px; color: #9fa8da; text-transform: uppercase; margin-bottom: 4px; }
-  .ap-content { font-size: 9.5px; color: #c5cae9; line-height: 1.5; }
-  .ap-content strong { color: #fff; }
-  .ap-content.highlight { color: #fff; font-size: 12px; font-weight: 700; }
-  .ap-step { font-size: 9px; color: #c5cae9; margin: 3px 0; display: flex; gap: 6px; }
-  .ap-step-num { color: #7986cb; font-weight: 700; flex-shrink: 0; }
-  .ap-priority { margin-top: auto; padding: 6px 8px; background: #b00020; border-radius: 3px; text-align: center; font-size: 10px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+  background: #E8E8E8;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 24px;
+}
 </style>
 </head>
 <body>
-<div class="canvas">
+<div id="root"></div>
 
-  <!-- Decision banner -->
-  <div class="decision-banner">
-    <span>T4 Prescriptive · Detail page · 300s</span>
-    What should we do to recover GM% in DACH?
-  </div>
+<script>
+// T4 — Prescriptive Recommendation
+// Use case: COM-002 Margin / Price Performance + Action Code C-M1.1
+// Big idea: "What action, for which entity, with what expected impact?"
 
-  <!-- Slicer pane -->
-  <div class="slicer-pane">
-    <div>
-      <div class="zone-label">Slicer_Pane</div>
-      <div class="slicer-context">▼ Drillthrough: DACH</div>
+const T = window.T;
+const slotPos = window.slotPos;
+
+function style(obj) {
+  return Object.entries(obj).map(([k,v]) => {
+    return k.replace(/([A-Z])/g, m => '-'+m.toLowerCase())+':'+v;
+  }).join(';');
+}
+
+function slotDiv(col, row, cs, rs, innerHTML, extraStyle) {
+  const p = slotPos(col, row, cs, rs);
+  return `<div style="position:absolute;left:${p.left.toFixed(1)}px;top:${p.top.toFixed(1)}px;
+    width:${p.width.toFixed(1)}px;height:${p.height.toFixed(1)}px;${extraStyle||''}">${innerHTML}</div>`;
+}
+
+function pageChrome(breadcrumb, pageType, title, decisionQ, innerHtml) {
+  return `<div style="${style({width:'1280px',height:'720px',background:T.surfacePage,
+    position:'relative',fontFamily:"Inter,'Segoe UI',system-ui,sans-serif",
+    color:T.textPrimary,overflow:'hidden',boxShadow:'0 4px 24px rgba(0,0,0,0.12)'})}">
+    <div style="${style({position:'absolute',top:'0',left:'0',right:'0',height:'24px',
+      display:'flex',alignItems:'center',justifyContent:'space-between',
+      padding:'6px 16px',fontSize:'10px',color:T.textSecondary,
+      borderBottom:'1px solid '+T.border,background:T.surfaceCard})}">
+      <span style="letter-spacing:0.3px">${breadcrumb}</span>
+      <span style="${style({background:T.primary,color:'#fff',padding:'2px 8px',
+        borderRadius:'3px',fontSize:'9px',fontWeight:'600',letterSpacing:'0.5px'})}">${pageType}</span>
     </div>
-    <div>
-      <div class="slicer-group-label">Period</div>
-      <div class="slicer-item active">Oct 2025 MTD <span class="caret">▾</span></div>
+    <div style="${style({position:'absolute',top:'24px',left:'0',right:'0',height:'40px',
+      padding:'6px 32px',borderBottom:'1px solid '+T.border,background:T.surfaceCard})}">
+      <div style="font-size:13px;font-weight:600;line-height:1.1">${title}</div>
+      <div style="font-size:10px;color:${T.textSecondary};margin-top:2px;font-style:italic">${decisionQ}</div>
     </div>
-    <div>
-      <div class="slicer-group-label">Region</div>
-      <div class="slicer-item active">DACH <span class="caret">▾</span></div>
+    <div style="position:absolute;top:64px;left:0;right:0;bottom:0">${innerHtml}</div>
+  </div>`;
+}
+
+// ── Slicer Pane (left sidebar) ────────────────────────────────────────────────
+
+function slicerPane(groups) {
+  const groupsHtml = groups.map(g => {
+    const items = g.items.map(it => `
+      <div style="${style({display:'flex',alignItems:'center',gap:'5px',fontSize:'10px',
+        padding:'2px 0',color:it.active?T.textPrimary:T.textSecondary,
+        fontWeight:it.active?'600':'400'})}">
+        <div style="${style({width:'9px',height:'9px',
+          border:'1px solid '+(it.active?T.primary:T.border),
+          background:it.active?T.primary:'transparent',borderRadius:'1.5px',
+          display:'flex',alignItems:'center',justifyContent:'center'})}">
+          ${it.active ? `<svg width="6" height="6" viewBox="0 0 6 6">
+            <path d="M1 3l1.5 1.5L5 1.5" stroke="#fff" stroke-width="1.2" fill="none"/>
+          </svg>` : ''}
+        </div>
+        ${it.label}
+      </div>`).join('');
+    return `<div style="margin-bottom:12px">
+      <div style="font-size:9px;color:${T.textSecondary};text-transform:uppercase;
+        letter-spacing:0.5px;margin-bottom:4px">${g.label}</div>
+      ${items}
+    </div>`;
+  }).join('');
+  return `<div style="${style({height:'100%',background:T.surfaceCard,
+    border:'0.5px solid '+T.border,borderRadius:'4px',padding:'10px 12px',overflow:'hidden'})}">
+    <div style="font-size:10px;font-weight:600;color:${T.textPrimary};margin-bottom:8px;letter-spacing:0.3px">FILTERS</div>
+    ${groupsHtml}
+  </div>`;
+}
+
+// ── Smart Narrative ───────────────────────────────────────────────────────────
+
+function smartNarrative(html) {
+  return `<div style="${style({height:'100%',background:T.surfaceCard,
+    border:'0.5px solid '+T.border,borderLeft:'2px solid '+T.primary,
+    borderRadius:'3px',padding:'8px 12px',fontSize:'11px',lineHeight:'1.45',
+    color:T.textPrimary,display:'flex',alignItems:'center'})}">
+    <svg width="12" height="12" viewBox="0 0 12 12" style="margin-right:8px;flex-shrink:0">
+      <circle cx="6" cy="6" r="5" stroke="${T.primary}" stroke-width="1" fill="none"/>
+      <text x="6" y="8.5" font-size="7" text-anchor="middle" fill="${T.primary}" font-weight="700">i</text>
+    </svg>
+    <span>${html}</span>
+  </div>`;
+}
+
+// ── Data Bar (inline cell) ────────────────────────────────────────────────────
+
+function dataBar(value, max, color, fmt) {
+  const w = (Math.abs(value) / max) * 100;
+  return `<div style="${style({display:'flex',alignItems:'center',gap:'6px',width:'100%'})}">
+    <div style="${style({flex:'1',height:'4px',background:T.surfaceRowAlt,borderRadius:'1px',overflow:'hidden'})}">
+      <div style="${style({height:'100%',width:w+'%',background:color||T.primary})}"></div>
     </div>
-    <div>
-      <div class="slicer-group-label">Channel</div>
-      <div class="slicer-item">All <span class="caret">▾</span></div>
+    <span style="${style({fontFamily:"'JetBrains Mono',monospace",fontSize:'9.5px',
+      color:color||T.textPrimary,fontWeight:'600',minWidth:'34px',textAlign:'right'})}">${fmt(value)}</span>
+  </div>`;
+}
+
+// ── Detail Matrix ─────────────────────────────────────────────────────────────
+
+function detailMatrix(columns, rows) {
+  const colTemplate = columns.map(c => c.w || '1fr').join(' ');
+  const headerCells = columns.map(c =>
+    `<div style="text-align:${c.align||'left'}">${c.label}</div>`
+  ).join('');
+  const header = `<div style="${style({display:'grid',
+    gridTemplateColumns:colTemplate,fontSize:'9px',fontWeight:'700',
+    color:T.textPrimary,padding:'7px 8px',background:T.surfaceCard,
+    borderBottom:'1px solid '+T.border,textTransform:'uppercase',letterSpacing:'0.4px'})}">
+    ${headerCells}
+  </div>`;
+
+  const rowsHtml = rows.map((r, ri) => {
+    const bg = r.bg || (ri % 2 === 0 ? T.surfaceCard : T.surfaceRowAlt);
+    const cells = columns.map(c => {
+      let val = r[c.key];
+      let content;
+      if (c.key === 'delta') {
+        const color = val < 0 ? T.negative : T.positive;
+        content = dataBar(val, 4, color, n => (n > 0 ? '+' : '') + n.toFixed(1) + 'pp');
+      } else if (c.key === 'action' && val) {
+        content = `<span style="${style({fontSize:'9px',fontFamily:'monospace',
+          color:T.primary,fontWeight:'600',background:'#EEF5FC',
+          padding:'1px 5px',borderRadius:'2px'})}">${val}</span>`;
+      } else {
+        content = val != null ? val : '';
+      }
+      return `<div style="${style({
+        textAlign:c.align||'left',
+        fontFamily:c.mono?"'JetBrains Mono',monospace":'inherit',
+        color:c.key==='gm'&&parseFloat(val)<18?T.negative:'inherit',
+        fontWeight:c.bold?'600':'400',
+      })}">${content}</div>`;
+    }).join('');
+    return `<div style="${style({display:'grid',gridTemplateColumns:colTemplate,
+      fontSize:'10px',padding:'5px 8px',background:bg,
+      borderBottom:'0.5px solid '+T.border,alignItems:'center'})}">
+      ${cells}
+    </div>`;
+  }).join('');
+
+  return `<div style="${style({height:'100%',background:T.surfaceCard,
+    border:'0.5px solid '+T.border,borderRadius:'4px',
+    overflow:'hidden',display:'flex',flexDirection:'column'})}">
+    ${header}
+    <div style="flex:1;overflow:hidden">${rowsHtml}</div>
+  </div>`;
+}
+
+// ── Action Panel (right sidebar) ──────────────────────────────────────────────
+
+function actionPanel(action) {
+  const steps = action.steps.map((s, i) =>
+    `<div style="${style({fontSize:'10px',display:'flex',gap:'6px',marginBottom:'3px'})}">
+      <span style="color:${T.primary};font-weight:700;font-family:monospace">${i+1}.</span>
+      <span style="line-height:1.3">${s}</span>
+    </div>`
+  ).join('');
+  const priorityColor = action.priority === 'High' ? T.negative :
+                        action.priority === 'Medium' ? T.warning : T.neutral;
+  return `<div style="${style({height:'100%',background:T.surfaceCard,borderRadius:'4px',
+    border:'0.5px solid '+T.border,borderLeft:'2px solid '+T.primary,
+    display:'flex',flexDirection:'column',overflow:'hidden'})}">
+    <div style="padding:10px 12px 6px">
+      <div style="font-size:8px;color:${T.primary};font-weight:700;letter-spacing:0.6px;text-transform:uppercase">Recommended Action</div>
+      <div style="font-size:12px;font-weight:700;line-height:1.2;margin-top:3px;color:${T.textPrimary}">${action.title}</div>
+      <div style="font-size:9px;color:${T.textSecondary};margin-top:4px;font-family:'JetBrains Mono',monospace">${action.id}</div>
     </div>
-    <div>
-      <div class="slicer-group-label">Segment</div>
-      <div class="slicer-item">All <span class="caret">▾</span></div>
+    <div style="padding:6px 12px;border-top:0.5px solid ${T.border}">
+      <div style="font-size:8px;color:${T.textSecondary};font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Why</div>
+      <div style="font-size:10px;line-height:1.35">${action.why}</div>
     </div>
-  </div>
+    <div style="padding:6px 12px;border-top:0.5px solid ${T.border};flex:1">
+      <div style="font-size:8px;color:${T.textSecondary};font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">What to do</div>
+      ${steps}
+    </div>
+    <div style="${style({padding:'8px 12px',borderTop:'0.5px solid '+T.border,
+      display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px',fontSize:'9px'})}">
+      <div>
+        <div style="color:${T.textSecondary};font-size:8px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600">Owner</div>
+        <div style="font-weight:600;margin-top:1px">${action.owner}</div>
+      </div>
+      <div>
+        <div style="color:${T.textSecondary};font-size:8px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600">Due</div>
+        <div style="font-weight:600;margin-top:1px">${action.due}</div>
+      </div>
+      <div>
+        <div style="color:${T.textSecondary};font-size:8px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600">Impact</div>
+        <div style="font-weight:700;color:${T.positive};margin-top:1px;font-family:'JetBrains Mono',monospace">${action.impact}</div>
+      </div>
+      <div>
+        <div style="color:${T.textSecondary};font-size:8px;text-transform:uppercase;letter-spacing:0.4px;font-weight:600">Priority</div>
+        <div style="font-weight:600;margin-top:1px;color:${priorityColor}">${action.priority}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── T4 data ───────────────────────────────────────────────────────────────────
+
+const columns = [
+  { key:'entity', label:'Account',      w:'1.4fr', bold:true },
+  { key:'seg',    label:'Segment',      w:'0.8fr' },
+  { key:'rev',    label:'Revenue YTD',  w:'1fr',   align:'right', mono:true },
+  { key:'gm',     label:'GM%',          w:'0.9fr', align:'right', mono:true },
+  { key:'promo',  label:'Promo Depth',  w:'0.9fr', align:'right', mono:true },
+  { key:'delta',  label:'GM% vs Thr.',  w:'1.3fr' },
+  { key:'action', label:'Action',       w:'1fr' },
+];
+const rows = [
+  { entity:'Müller Industrie AG', seg:'Core',   rev:'€4.2M', gm:'11.3%', promo:'22.4%', delta:-3.7, action:'C-M1.1', bg:T.critTint },
+  { entity:'Siemens Mobility',    seg:'Core',   rev:'€3.8M', gm:'13.1%', promo:'19.8%', delta:-2.9, action:'C-M1.1', bg:T.critTint },
+  { entity:'Bosch GmbH',          seg:'Core',   rev:'€2.9M', gm:'14.8%', promo:'18.2%', delta:-1.2, action:'C-M1.2' },
+  { entity:'Volta BV',            seg:'Growth', rev:'€1.8M', gm:'15.2%', promo:'17.1%', delta:-0.8, action:'C-M1.2' },
+  { entity:'Atlas Copco',         seg:'Growth', rev:'€1.6M', gm:'16.3%', promo:'15.9%', delta:-0.3, action:'C-M1.2' },
+  { entity:'Nordex Energy',       seg:'Core',   rev:'€1.4M', gm:'17.1%', promo:'14.8%', delta:0.1,  action:null },
+  { entity:'Continental AG',      seg:'Core',   rev:'€1.2M', gm:'18.4%', promo:'13.2%', delta:0.4,  action:null },
+  { entity:'Hella KGaA',          seg:'Growth', rev:'€0.9M', gm:'19.1%', promo:'12.4%', delta:1.1,  action:null },
+];
+
+const inner = `
+  <!-- Slicer pane (left) -->
+  ${slotDiv(0, 0, 2, 12, slicerPane([
+    { label:'Period',   items:[{label:'YTD 2026',active:true},{label:'Last Quarter',active:false},{label:'Last Month',active:false}] },
+    { label:'Region',   items:[{label:'DACH',active:true},{label:'Nordics',active:false},{label:'Benelux',active:false},{label:'Iberia',active:false}] },
+    { label:'Segment',  items:[{label:'Core',active:true},{label:'Growth',active:true},{label:'Emerging',active:false}] },
+    { label:'Priority', items:[{label:'High',active:true},{label:'Medium',active:true},{label:'Low',active:false}] },
+  ]))}
 
   <!-- Smart narrative -->
-  <div class="smart-narrative">
-    <div class="narrative-label">Context</div>
-    <div class="narrative-text zone-label" style="white-space:nowrap;margin-right:6px">Smart_Narrative</div>
-    <div class="narrative-text">
-      GM% in DACH is at <strong>16.9%</strong>, <strong>&minus;1.1pp below the 18% threshold</strong> for the 3rd consecutive month.
-      Primary driver: promotional depth at 22% vs 15% target — action triggered.
-    </div>
-  </div>
+  ${slotDiv(2, 0, 8, 1.2, smartNarrative(
+    '<strong>GM% in DACH has been below the 18% threshold for 3 consecutive months.</strong> ' +
+    'Promotional depth has increased +2.1pp YoY; 6 accounts account for 72% of the margin gap. ' +
+    'Recommended: reduce promo depth by 15% — expected recovery of +0.8pp GM% by EOM.'
+  ))}
 
   <!-- Detail matrix -->
-  <div class="detail-matrix">
-    <div class="matrix-toolbar">
-      <div>
-        <div class="matrix-title">Which DACH accounts explain the GM% shortfall?</div>
-        <div style="font-size:8.5px;color:var(--text-secondary);margin-top:1px">DACH · Oct 2025 MTD · sorted by |Δ Target| desc</div>
-      </div>
-      <div class="matrix-tools">
-        <div class="matrix-btn">Show all (23)</div>
-        <div class="matrix-btn">Export ↓</div>
-      </div>
-    </div>
+  ${slotDiv(2, 1.3, 8, 10.7, detailMatrix(columns, rows))}
 
-    <div class="matrix-head">
-      <div class="mh-cell">Account</div>
-      <div class="mh-cell">GM%</div>
-      <div class="mh-cell">Δ vs Target</div>
-      <div class="mh-cell">Promo %</div>
-      <div class="mh-cell">Revenue</div>
-      <div class="mh-cell">GM €</div>
-      <div class="mh-cell">Action</div>
-    </div>
+  <!-- Action panel (right) -->
+  ${slotDiv(10, 0, 2, 12, actionPanel({
+    id:    'C-M1.1 · Revenue Recovery',
+    title: 'Reduce promo depth by 15% in DACH Core accounts',
+    why:   'GM% in DACH Core below 18% threshold for 3 months; promo depth +2.1pp YoY. 2 accounts (Müller, Siemens) explain 58% of the gap.',
+    steps: [
+      'Cap discount at 18% for Q-end negotiations',
+      'Review product mix with Commercial Manager',
+      'Alert buyer, document in SAP CRM',
+      'Reforecast GM% impact weekly',
+    ],
+    owner:    'CM DACH',
+    due:      'End of month',
+    impact:   '+€1.2M',
+    priority: 'High',
+  }))}
+`;
 
-    <div class="matrix-row selected">
-      <div class="mc bold">Acct A — Munich</div>
-      <div class="mc neg bold">14.2%</div>
-      <div class="mc">
-        <div class="delta-cell">
-          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-neg" style="width:95%"></div></div>
-          <span class="delta-val neg">&minus;3.8pp</span>
-        </div>
-      </div>
-      <div class="mc neg bold">24%</div>
-      <div class="mc">€4.2M</div>
-      <div class="mc neg">€0.60M</div>
-      <div class="mc"><span class="action-badge action-cap">→ Cap</span></div>
-    </div>
-
-    <div class="matrix-row">
-      <div class="mc bold">Acct B — Frankfurt</div>
-      <div class="mc neg">15.1%</div>
-      <div class="mc">
-        <div class="delta-cell">
-          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-neg" style="width:75%"></div></div>
-          <span class="delta-val neg">&minus;2.9pp</span>
-        </div>
-      </div>
-      <div class="mc neg">22%</div>
-      <div class="mc">€3.8M</div>
-      <div class="mc neg">€0.57M</div>
-      <div class="mc"><span class="action-badge action-cap">→ Cap</span></div>
-    </div>
-
-    <div class="matrix-row">
-      <div class="mc">Acct C — Vienna</div>
-      <div class="mc neg">16.8%</div>
-      <div class="mc">
-        <div class="delta-cell">
-          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-neg" style="width:40%"></div></div>
-          <span class="delta-val neg">&minus;1.2pp</span>
-        </div>
-      </div>
-      <div class="mc warn">21%</div>
-      <div class="mc">€2.9M</div>
-      <div class="mc warn">€0.49M</div>
-      <div class="mc"><span class="action-badge action-cap">→ Cap</span></div>
-    </div>
-
-    <div class="matrix-row">
-      <div class="mc">Acct D — Zurich</div>
-      <div class="mc warn">17.4%</div>
-      <div class="mc">
-        <div class="delta-cell">
-          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-warn" style="width:18%"></div></div>
-          <span class="delta-val warn">&minus;0.6pp</span>
-        </div>
-      </div>
-      <div class="mc">19%</div>
-      <div class="mc">€2.1M</div>
-      <div class="mc">€0.37M</div>
-      <div class="mc"><span class="action-badge action-mon">→ Monitor</span></div>
-    </div>
-
-    <div class="matrix-row">
-      <div class="mc">Acct E — Hamburg</div>
-      <div class="mc pos">18.3%</div>
-      <div class="mc">
-        <div class="delta-cell">
-          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-pos" style="width:8%"></div></div>
-          <span class="delta-val pos">+0.3pp</span>
-        </div>
-      </div>
-      <div class="mc pos">18%</div>
-      <div class="mc">€1.8M</div>
-      <div class="mc pos">€0.33M</div>
-      <div class="mc"><span class="action-badge action-ok">✓ OK</span></div>
-    </div>
-
-    <div class="matrix-footer">
-      <span>5 of 23 DACH accounts · Sorted by |Δ Target| desc · F-pattern column order: Entity | Value | Δ | Driver | Secondary | Action</span>
-      <span>zone: Detail_Matrix · table_with_databars</span>
-    </div>
-  </div>
-
-  <!-- Action panel -->
-  <div class="action-panel">
-    <div class="ap-badge">RECOMMENDED ACTION</div>
-    <div class="ap-title">Cap promo depth in DACH to ≤15%</div>
-
-    <div class="ap-divider"></div>
-    <div class="ap-section-label">Why now</div>
-    <div class="ap-content">GM% at <strong>16.9%</strong>, below 18% threshold for <strong>3 consecutive months</strong>. Promo depth at <strong>22% vs 15% target</strong>.</div>
-
-    <div class="ap-divider"></div>
-    <div class="ap-section-label">Owner</div>
-    <div class="ap-content highlight">Comm Mgr DACH</div>
-
-    <div class="ap-divider"></div>
-    <div class="ap-section-label">Due date</div>
-    <div class="ap-content highlight">End October</div>
-
-    <div class="ap-divider"></div>
-    <div class="ap-section-label">Expected impact</div>
-    <div class="ap-content highlight">+0.8pp GM%</div>
-    <div class="ap-content">+€1.2M margin recovered</div>
-
-    <div class="ap-divider"></div>
-    <div class="ap-section-label">Steps</div>
-    <div class="ap-step"><span class="ap-step-num">1.</span>Cap all DACH accounts at 15% promotional depth</div>
-    <div class="ap-step"><span class="ap-step-num">2.</span>Renegotiate rebate agreements for Acct A &amp; B</div>
-    <div class="ap-step"><span class="ap-step-num">3.</span>Alert Category Manager to review promo calendar</div>
-
-    <div class="ap-priority">⚠ PRIORITY: HIGH</div>
-  </div>
-
-</div>
+document.getElementById('root').innerHTML = pageChrome(
+  'COM · MARGIN PERFORMANCE · DETAIL',
+  'T4 · PRESCRIPTIVE · DETAIL',
+  'DACH Margin Recovery — Recommended Actions',
+  'What action, for which entity, with what expected impact?',
+  inner
+);
+</script>
 </body>
 </html>
