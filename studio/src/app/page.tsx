@@ -118,7 +118,7 @@ export default async function HomePage() {
                 width: '32px',
                 height: '32px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: 'var(--slate-900)',
+                backgroundColor: 'var(--bg)',
                 border: `1px solid ${item.color}`,
                 display: 'flex',
                 alignItems: 'center',
@@ -126,7 +126,7 @@ export default async function HomePage() {
                 fontSize: '0.875rem',
                 fontWeight: 700,
                 color: item.color,
-                marginBottom: 'var(--sp-1-5)',
+                marginBottom: '12px',
               }}
             >
               {item.icon}
@@ -136,19 +136,19 @@ export default async function HomePage() {
                 fontSize: '1.125rem',
                 fontWeight: 600,
                 color: 'var(--ink)',
-                marginBottom: 'var(--sp-0-5)',
+                marginBottom: '4px',
               }}
             >
               {item.label}
             </h2>
-            <p style={{ fontSize: '0.875rem', color: 'var(--slate-400)', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.875rem', color: 'var(--ink-3)', lineHeight: 1.5 }}>
               {item.description}
             </p>
           </Link>
         ))}
       </nav>
 
-      <footer style={{ color: 'var(--slate-600)', fontSize: '0.75rem' }}>
+      <footer style={{ color: 'var(--ink-4)', fontSize: '0.75rem' }}>
         ActionReady Analytics Platform v0.1.0 — Aurora Group SE Showcase
       </footer>
     </div>

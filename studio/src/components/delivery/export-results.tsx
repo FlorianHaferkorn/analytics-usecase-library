@@ -56,14 +56,14 @@ export function ExportResults({ results, adapterName }: Props) {
       style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
     >
 
-      <div style={{ display: 'flex', gap: 'var(--sp-2)', flex: 1, minHeight: 0 }}>
+      <div style={{ display: 'flex', gap: '16px', flex: 1, minHeight: 0 }}>
         {/* File list */}
         <div style={{ width: '260px', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {results.map((result) => {
             if (result.error) {
               return (
                 <div key={result.useCaseId} style={{
-                  padding: 'var(--sp-1)',
+                  padding: '8px',
                   fontSize: '0.75rem',
                   color: 'var(--danger)',
                   backgroundColor: 'color-mix(in srgb, var(--danger) 12%, transparent)',
@@ -82,11 +82,11 @@ export function ExportResults({ results, adapterName }: Props) {
                 variant="ghost"
                 style={{
                   display: 'block', width: '100%', textAlign: 'left',
-                  padding: 'var(--sp-0-5) var(--sp-1)',
-                  backgroundColor: previewFile?.filename === file.filename ? 'var(--slate-700)' : 'var(--slate-900)',
-                  border: `1px solid ${previewFile?.filename === file.filename ? 'var(--mint)' : 'var(--slate-700)'}`,
+                  padding: '4px 8px',
+                  backgroundColor: previewFile?.filename === file.filename ? 'var(--bg-2)' : 'var(--bg)',
+                  border: `1px solid ${previewFile?.filename === file.filename ? 'var(--mint)' : 'var(--line)'}`,
                   borderRadius: 'var(--radius-sm)',
-                  color: 'var(--slate-200)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)',
+                  color: 'var(--ink-2)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)',
                   justifyContent: 'flex-start',
                 }}
               >
@@ -97,9 +97,9 @@ export function ExportResults({ results, adapterName }: Props) {
         </div>
 
         {/* File preview */}
-        <div style={{ flex: 1, backgroundColor: 'var(--slate-900)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)', overflow: 'auto' }}>
+        <div style={{ flex: 1, backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--line)', overflow: 'auto' }}>
           {previewFile ? (
-            <pre style={{ padding: 'var(--sp-2)', fontSize: '0.75rem', color: 'var(--slate-200)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap', margin: 0 }}>
+            <pre style={{ padding: '16px', fontSize: '0.75rem', color: 'var(--ink-2)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap', margin: 0 }}>
               {previewFile.content}
             </pre>
           ) : (

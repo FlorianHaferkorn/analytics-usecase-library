@@ -34,24 +34,24 @@ function LoginForm() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'var(--slate-950)',
-      padding: 'var(--sp-3)',
+      backgroundColor: 'var(--bg)',
+      padding: 'var(--pad)',
     }}>
       <div style={{
         width: '100%',
         maxWidth: 400,
-        backgroundColor: 'var(--slate-900)',
-        border: '1px solid var(--slate-700)',
+        backgroundColor: 'var(--panel)',
+        border: '1px solid var(--line)',
         borderRadius: 'var(--radius-xl)',
-        padding: 'var(--sp-5)',
+        padding: '40px',
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 'var(--sp-4)' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 'var(--sp-1)',
-            marginBottom: 'var(--sp-2)',
+            gap: '8px',
+            marginBottom: '16px',
           }}>
             <div style={{
               width: 32, height: 32, borderRadius: 8,
