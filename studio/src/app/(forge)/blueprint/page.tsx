@@ -4,7 +4,8 @@ import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { getProject } from '@/lib/db/project-repo';
-import { SteeringHubClient } from '@/app/(studio)/steering/steering-hub-client';
+import { BlueprintClient } from './blueprint-client';
+import { GOLDEN_20_IDS } from '@/lib/core/golden20';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
@@ -100,7 +101,7 @@ export default async function BlueprintPage({
   }
 
   return (
-    <SteeringHubClient
+    <BlueprintClient
       strategyAnchor={strategyAnchor}
       brackets={draftBracketData ? [draftBracketData, ...bracketData] : bracketData}
       actionDetails={actionDetails}
@@ -108,6 +109,7 @@ export default async function BlueprintPage({
       kpiNames={kpiNames}
       initialSelectedBracket={draftBracketData?.id ?? null}
       draftBracketId={draftBracketData?.id ?? null}
+      golden20Ids={[...GOLDEN_20_IDS]}
     />
   );
 }
