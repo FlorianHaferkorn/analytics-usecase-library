@@ -40,8 +40,9 @@ function isConnected(edges: CanvasEdge[], nodeId: string, target: string): boole
 }
 
 const zoomBtnStyle: CSSProperties = {
-  padding: '5px 9px', color: 'var(--slate-400)',
+  padding: '5px 9px', color: 'var(--ink-3)',
   background: 'transparent', border: 'none', cursor: 'pointer',
+  transition: 'background var(--duration-fast)',
 };
 
 // ── Sub-components ───────────────────────────────────────────────────────────
@@ -202,15 +203,30 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <div style={{ height: 44, flexShrink: 0, padding: '0 12px', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--slate-700)', background: 'var(--slate-900)' }}>
+      <div style={{ height: 44, flexShrink: 0, padding: '0 12px', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--line)', background: 'var(--panel)' }}>
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', fontFamily: 'var(--font-mono)' }}>{Math.round(zoom * 100)}%</span>
-        <div style={{ display: 'flex', border: '1px solid var(--slate-700)', borderRadius: 6, overflow: 'hidden' }}>
-          <button onClick={() => setZoom(z => Math.max(0.4, z - 0.1))} style={zoomBtnStyle}>−</button>
-          <div style={{ width: 1, background: 'var(--slate-700)' }} />
-          <button onClick={() => { setZoom(0.85); setPan({ x: 40, y: 40 }); }} style={{ ...zoomBtnStyle, fontSize: '0.6875rem' }}>Fit</button>
-          <div style={{ width: 1, background: 'var(--slate-700)' }} />
-          <button onClick={() => setZoom(z => Math.min(1.6, z + 0.1))} style={zoomBtnStyle}>+</button>
+        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontFamily: 'var(--font-mono)' }}>{Math.round(zoom * 100)}%</span>
+        <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 6, overflow: 'hidden' }}>
+          <button
+            onClick={() => setZoom(z => Math.max(0.4, z - 0.1))}
+            style={zoomBtnStyle}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+          >−</button>
+          <div style={{ width: 1, background: 'var(--line)' }} />
+          <button
+            onClick={() => { setZoom(0.85); setPan({ x: 40, y: 40 }); }}
+            style={{ ...zoomBtnStyle, fontSize: '0.6875rem' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+          >Fit</button>
+          <div style={{ width: 1, background: 'var(--line)' }} />
+          <button
+            onClick={() => setZoom(z => Math.min(1.6, z + 0.1))}
+            style={zoomBtnStyle}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+          >+</button>
         </div>
       </div>
 
