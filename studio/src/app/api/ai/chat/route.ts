@@ -2,8 +2,12 @@ import { streamText } from 'ai';
 import { createServerModel } from '@/lib/ai/orchestrator';
 import { DISCOVERY_SYSTEM_PROMPT } from '@/lib/ai/prompts/discovery';
 import { discoveryTools } from '@/lib/ai/tools/discovery-tools';
+import { requireAuth } from '@/lib/auth/session';
 
 export async function POST(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json();
   const { messages, context } = body as {
     messages: Array<{ role: 'user' | 'assistant'; content: string }>;

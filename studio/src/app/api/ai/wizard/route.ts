@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { createServerModel } from '@/lib/ai/orchestrator';
 import { KPI_SYSTEM_PROMPT, BRACKET_SYSTEM_PROMPT, ACTION_SYSTEM_PROMPT } from '@/lib/ai/prompts/wizard';
+import { requireAuth } from '@/lib/auth/session';
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   kpi: KPI_SYSTEM_PROMPT,
@@ -9,6 +10,9 @@ const SYSTEM_PROMPTS: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json() as { kind?: string; prompt?: string };
   const { kind = 'kpi', prompt = '' } = body;
 

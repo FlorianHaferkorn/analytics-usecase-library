@@ -16,6 +16,7 @@ import { apiSuccess, apiError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadKpiCatalog } from '@/lib/core/catalog-loader';
+import { requireAuth } from '@/lib/auth/session';
 
 interface DraftElement {
   type: string;
@@ -43,6 +44,9 @@ function isValidElement(e: unknown): e is DraftElement {
 }
 
 export async function POST(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   let body: unknown;
   try {
     body = await request.json();
