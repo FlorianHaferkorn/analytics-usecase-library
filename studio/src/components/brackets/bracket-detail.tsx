@@ -10,6 +10,9 @@ import { RoleChip } from '@/components/ui/role-chip';
 import { card, cardHead } from '@/components/registry/kpi-detail-tabs';
 import { BracketOverviewTab } from '@/components/brackets/tabs/bracket-overview-tab';
 import { BracketKpisTab } from '@/components/brackets/tabs/bracket-kpis-tab';
+import { ReportLayoutTab } from '@/components/brackets/tabs/report-layout-tab';
+import { ActionsTab } from '@/components/brackets/tabs/actions-tab';
+import { GovernanceTab } from '@/components/brackets/tabs/governance-tab';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -288,19 +291,13 @@ export function BracketDetail({ bracket, factsheet, ownerRole, stewardRole }: Pr
             <BracketKpisTab bracket={bracket} factsheet={factsheet} />
           )}
           {activeTab === 'report-layout' && (
-            <div style={{ color: 'var(--ink-3)', fontSize: '0.875rem', padding: '24px 0' }}>
-              Report layout editor — coming in S6.
-            </div>
+            <ReportLayoutTab bracket={bracket} />
           )}
           {activeTab === 'actions' && (
-            <div style={{ color: 'var(--ink-3)', fontSize: '0.875rem', padding: '24px 0' }}>
-              Action codes panel — coming in S6.
-            </div>
+            <ActionsTab bracket={bracket} />
           )}
           {activeTab === 'governance' && (
-            <div style={{ color: 'var(--ink-3)', fontSize: '0.875rem', padding: '24px 0' }}>
-              Governance history — coming in S6.
-            </div>
+            <GovernanceTab bracket={bracket} factsheet={factsheet} />
           )}
         </div>
       </div>
