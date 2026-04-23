@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { AiField } from '@/components/ai/ai-field';
 
 type ElementKind = 'kpi' | 'bracket' | 'action';
 
@@ -27,9 +28,6 @@ const KINDS: Array<{ id: ElementKind; label: string; desc: string; letter: strin
   { id: 'action',  letter: 'A', label: 'Action',    desc: 'A triggered action code with KPI conditions and logic.' },
 ];
 
-function titleCase(s: string) {
-  return s.replace(/\b\w/g, (c) => c.toUpperCase());
-}
 function slug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 40);
 }
@@ -39,11 +37,17 @@ export function Wizard({ open, onClose, onSave }: Props) {
   const [kind, setKind] = useState<ElementKind>('kpi');
   const [prompt, setPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [draft, setDraft] = useState<DraftResult | null>(null);
+  const [draftName, setDraftName] = useState('');
+  const [draftDescription, setDraftDescription] = useState('');
   const [genError, setGenError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open) { setStep(0); setKind('kpi'); setPrompt(''); setDraft(null); setGenError(null); }
+    if (!open) {
+      setStep(0); setKind('kpi'); setPrompt(''); setDraft(null); setGenError(null);
+      setDraftName(''); setDraftDescription(''); setIsLoadingDraft(false);
+    }
   }, [open]);
 
   useEffect(() => {
@@ -58,7 +62,34 @@ export function Wizard({ open, onClose, onSave }: Props) {
 
   const generateDraft = useCallback(async () => {
     setGenerating(true);
+    setIsLoadingDraft(true);
     setGenError(null);
+
+    // Pre-populate Step 2 fields from lightweight factsheet-draft endpoint.
+    // Capture pre-draft values directly so they're available in the merge below
+    // (React state updates are async — relying on draftName/draftDescription
+    // would read stale closure values after setDraftName/setDraftDescription).
+    let preName = '';
+    let preDescription = '';
+    try {
+      const preRes = await fetch('/api/ai/factsheet-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      if (preRes.ok) {
+        const pre = await preRes.json() as { name?: string; description?: string };
+        preName = pre.name ?? '';
+        preDescription = pre.description ?? '';
+        if (preName) setDraftName(preName);
+        if (preDescription) setDraftDescription(preDescription);
+      }
+    } catch {
+      // Silently fail — step 2 fields stay empty
+    } finally {
+      setIsLoadingDraft(false);
+    }
+
     try {
       const res = await fetch('/api/ai/wizard', {
         method: 'POST',
@@ -71,7 +102,14 @@ export function Wizard({ open, onClose, onSave }: Props) {
         return;
       }
       if (json.draft) {
-        setDraft(json.draft);
+        const merged = {
+          ...json.draft,
+          name: preName || json.draft.name,
+          description: preDescription || json.draft.description,
+        };
+        setDraft(merged);
+        setDraftName(merged.name);
+        setDraftDescription(merged.description);
         setStep(2);
       }
     } catch (err) {
@@ -162,40 +200,44 @@ export function Wizard({ open, onClose, onSave }: Props) {
               <p style={{ color: 'var(--ink-3)', margin: '0 0 16px', fontSize: '0.875rem' }}>
                 Studio will draft the definition, ref, domain and SQL. Edit anything after.
               </p>
-              <div style={{ padding: 14, borderRadius: 10, border: '1px solid var(--line)', background: 'var(--panel)' }}>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder={`e.g. "Weekly activation rate for enterprise plan customers, segmented by cohort"`}
-                  style={{ width: '100%', minHeight: 100, border: 0, outline: 0, background: 'transparent', fontSize: '0.9375rem', lineHeight: 1.5, resize: 'vertical', color: 'var(--ink)' }}
-                />
-                {/* Suggestion chips — below the textarea */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Try:</span>
-                  {[
-                    'Weekly activation rate by cohort',
-                    'Net new revenue per sales rep',
-                    'Support response time P50',
-                  ].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setPrompt(s)}
-                      style={{
-                        fontSize: '0.6875rem', padding: '3px 10px', borderRadius: 999,
-                        border: '1px solid var(--line)', color: 'var(--ink-3)',
-                        background: 'transparent', cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--line)'; (e.currentTarget as HTMLElement).style.color = 'var(--ink-3)'; }}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+              <AiField
+                entityType="use_case"
+                entityId="new"
+                entityName="New Use Case"
+                fieldName="description"
+                fieldLabel="Use Case Description"
+                value={prompt}
+                onChange={setPrompt}
+                multiline
+                rows={6}
+                placeholder={`e.g. "Weekly activation rate for enterprise plan customers, segmented by cohort"`}
+              />
+              {/* Suggestion chips */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Try:</span>
+                {[
+                  'Weekly activation rate by cohort',
+                  'Net new revenue per sales rep',
+                  'Support response time P50',
+                ].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setPrompt(s)}
+                    style={{
+                      fontSize: '0.6875rem', padding: '3px 10px', borderRadius: 999,
+                      border: '1px solid var(--line)', color: 'var(--ink-3)',
+                      background: 'transparent', cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--line)'; (e.currentTarget as HTMLElement).style.color = 'var(--ink-3)'; }}
+                  >
+                    {s}
+                  </button>
+                ))}
               </div>
-              {generating && (
+              {(generating || isLoadingDraft) && (
                 <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: 'var(--accent-soft)', color: 'var(--accent)', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  ✦ Drafting definition and checking for duplicates…
+                  ✦ {isLoadingDraft ? 'Analyzing…' : 'Drafting definition and checking for duplicates…'}
                 </div>
               )}
               {genError && (
@@ -211,9 +253,35 @@ export function Wizard({ open, onClose, onSave }: Props) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'oklch(0.52 0.14 150)', fontSize: '0.75rem', marginBottom: 8 }}>
                 ✦ Draft ready — review and edit before saving.
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--ink-4)' }}>{draft.ref}</div>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 500, margin: '4px 0 12px', letterSpacing: '-0.02em', color: 'var(--ink)' }}>{draft.name}</h2>
-              <p style={{ color: 'var(--ink-2)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 18 }}>{draft.description}</p>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: 4 }}>{draft.ref}</div>
+              <div style={{ marginBottom: 10 }}>
+                <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Name</div>
+                <AiField
+                  entityType="use_case"
+                  entityId={slug(draftName) || 'new'}
+                  entityName={draftName}
+                  fieldName="name"
+                  fieldLabel="Name"
+                  value={draftName}
+                  onChange={(v) => { setDraftName(v); setDraft((d) => d ? { ...d, name: v } : d); }}
+                  placeholder="Short name (max 5 words)"
+                />
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Description</div>
+                <AiField
+                  entityType="use_case"
+                  entityId={slug(draftName) || 'new'}
+                  entityName={draftName}
+                  fieldName="description"
+                  fieldLabel="Description"
+                  value={draftDescription}
+                  onChange={(v) => { setDraftDescription(v); setDraft((d) => d ? { ...d, description: v } : d); }}
+                  multiline
+                  rows={3}
+                  placeholder="1-2 sentences describing the use case."
+                />
+              </div>
               {(draft.domain ?? draft.type ?? draft.grain) && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
                   {[
@@ -253,8 +321,8 @@ export function Wizard({ open, onClose, onSave }: Props) {
             <button onClick={() => setStep(1)} style={primaryBtn}>Continue →</button>
           )}
           {step === 1 && (
-            <button onClick={() => void generateDraft()} disabled={generating} style={{ ...primaryBtn, opacity: generating ? 0.7 : 1 }}>
-              ✦ {generating ? 'Drafting…' : 'Generate draft'}
+            <button onClick={() => void generateDraft()} disabled={generating || isLoadingDraft} style={{ ...primaryBtn, opacity: (generating || isLoadingDraft) ? 0.7 : 1 }}>
+              ✦ {isLoadingDraft ? 'Analyzing…' : generating ? 'Drafting…' : 'Generate draft'}
             </button>
           )}
           {step === 2 && draft && (

@@ -43,9 +43,10 @@ function layoutGraph(graph: LineageGraph): { nodes: CanvasNode[]; edges: CanvasE
 
 interface Props {
   graph: LineageGraph;
+  onNodeNavigate?: (id: string, type: string) => void;
 }
 
-export function LineageFlow({ graph }: Props) {
+export function LineageFlow({ graph, onNodeNavigate }: Props) {
   const { nodes, edges } = useMemo(() => layoutGraph(graph), [graph]);
 
   return (
@@ -53,6 +54,12 @@ export function LineageFlow({ graph }: Props) {
       nodes={nodes}
       edges={edges}
       emptyMessage="No lineage data available. Ensure data contracts and KPI catalog are loaded."
+      onNodeOpen={onNodeNavigate ? (id) => {
+        const node = graph.nodes.find(n => n.id === id);
+        if (node) {
+          onNodeNavigate(id, node.type);
+        }
+      } : undefined}
     />
   );
 }

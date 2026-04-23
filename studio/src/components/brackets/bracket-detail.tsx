@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import type { FactsheetSummary } from '@/lib/core/factsheet-loader';
 import type { ResolvedRole } from '@/lib/core/org-role-loader';
+import type { DecisionSpine } from '@/lib/schemas/decision-spine';
 import { RoleChip } from '@/components/ui/role-chip';
 import { card, cardHead } from '@/components/registry/kpi-detail-tabs';
 import { BracketOverviewTab } from '@/components/brackets/tabs/bracket-overview-tab';
@@ -13,6 +14,7 @@ import { BracketKpisTab } from '@/components/brackets/tabs/bracket-kpis-tab';
 import { ReportLayoutTab } from '@/components/brackets/tabs/report-layout-tab';
 import { ActionsTab } from '@/components/brackets/tabs/actions-tab';
 import { GovernanceTab } from '@/components/brackets/tabs/governance-tab';
+import { SpinePanel } from '@/components/spine/spine-panel';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,6 +23,7 @@ interface Props {
   factsheet: FactsheetSummary | null;
   ownerRole: ResolvedRole | null;
   stewardRole: ResolvedRole | null;
+  spines: DecisionSpine[];
 }
 
 type TabId = 'overview' | 'kpis' | 'report-layout' | 'actions' | 'governance';
@@ -90,9 +93,10 @@ function DomainPill({ domain }: { domain: string }) {
 
 // ─── Main BracketDetail component ─────────────────────────────────────────────
 
-export function BracketDetail({ bracket, factsheet, ownerRole, stewardRole }: Props) {
+export function BracketDetail({ bracket, factsheet, ownerRole, stewardRole, spines }: Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const [spineOpen, setSpineOpen] = useState(false);
   const [title, setTitle] = useState(bracket.title);
   const [description, setDescription] = useState(
     bracket.value_driver_model?.impact_logic ?? ''
@@ -374,10 +378,31 @@ export function BracketDetail({ bracket, factsheet, ownerRole, stewardRole }: Pr
             fontWeight: 500,
             cursor: 'pointer',
             textAlign: 'center',
-            marginBottom: 24,
+            marginBottom: 8,
           }}
         >
           Open in Canvas →
+        </button>
+
+        {/* View Decision Spine button */}
+        <button
+          onClick={() => setSpineOpen(true)}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '8px 0',
+            border: '1px solid var(--line)',
+            borderRadius: 'var(--radius)',
+            background: 'transparent',
+            color: 'var(--ink-3)',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            textAlign: 'center',
+            marginBottom: 24,
+          }}
+        >
+          View Decision Spine →
         </button>
 
         {/* Studio AI card */}

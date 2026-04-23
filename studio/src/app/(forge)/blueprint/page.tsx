@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
+import { loadAllSpines } from '@/lib/core/spine-loader';
 import { getProject } from '@/lib/db/project-repo';
 import { BlueprintClient } from './blueprint-client';
 import { GOLDEN_20_IDS } from '@/lib/core/golden20';
@@ -45,10 +46,11 @@ export default async function BlueprintPage({
   searchParams?: Promise<{ draftId?: string; draftYaml?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const [{ brackets, yamls: bracketYamls }, actions, kpiMap] = await Promise.all([
+  const [{ brackets, yamls: bracketYamls }, actions, kpiMap, spines] = await Promise.all([
     loadBracketsWithYaml(),
     loadAllActionCodes(),
     loadKpiMap(),
+    loadAllSpines().catch(() => []),
   ]);
 
   const kpiNames: Record<string, string> = {};
@@ -110,6 +112,7 @@ export default async function BlueprintPage({
       initialSelectedBracket={draftBracketData?.id ?? null}
       draftBracketId={draftBracketData?.id ?? null}
       golden20Ids={[...GOLDEN_20_IDS]}
+      spines={spines}
     />
   );
 }

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { loadBracket } from '@/lib/core/bracket-loader';
 import { loadFactsheet } from '@/lib/core/factsheet-loader';
 import { resolveRole } from '@/lib/core/org-role-loader';
+import { loadAllSpines } from '@/lib/core/spine-loader';
 import { BracketDetail } from '@/components/brackets/bracket-detail';
 
 export default async function BracketDetailPage({
@@ -10,9 +11,10 @@ export default async function BracketDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [bracket, factsheet] = await Promise.all([
+  const [bracket, factsheet, spines] = await Promise.all([
     loadBracket(id).catch(() => null),
     loadFactsheet(id).catch(() => null),
+    loadAllSpines().catch(() => []),
   ]);
   if (!bracket) notFound();
 
@@ -27,6 +29,7 @@ export default async function BracketDetailPage({
       factsheet={factsheet}
       ownerRole={ownerRole}
       stewardRole={stewardRole}
+      spines={spines}
     />
   );
 }
