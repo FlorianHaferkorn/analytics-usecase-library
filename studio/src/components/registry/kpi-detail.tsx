@@ -417,7 +417,14 @@ export function KpiDetail({ kpi, linkedBrackets, factsheet, factsheetRole }: Pro
           </div>
           <button
             onClick={() =>
-              window.dispatchEvent(new CustomEvent('studio:open-chat'))
+              window.dispatchEvent(new CustomEvent('studio:open-chat', {
+                detail: {
+                  entityContext: {
+                    entityType: 'kpi' as const,
+                    entityId: kpi.kpi_id,
+                  },
+                },
+              }))
             }
             style={{
               display: 'block',

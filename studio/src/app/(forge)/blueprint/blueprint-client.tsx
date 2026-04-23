@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { RoiPresetPanel } from '@/components/roi/roi-preset-panel';
 import { SteeringHubClient } from '@/app/(studio)/steering/steering-hub-client';
 import { SpineNodeCard } from '@/components/spine/spine-node-card';
+import { GoldenThreadTab } from '@/components/blueprint/golden-thread-tab';
 import type { DecisionSpine } from '@/lib/schemas/decision-spine';
 
 interface BracketData {
@@ -22,17 +23,19 @@ interface Props {
   actionDetails: Array<[string, { name: string; status: string; domain: string; triggerKpis: string[] }]>;
   bracketYamls: Record<string, string>;
   kpiNames?: Record<string, string>;
+  actionNames: Record<string, string>;
   initialSelectedBracket?: string | null;
   draftBracketId?: string | null;
   golden20Ids: string[];
   spines: DecisionSpine[];
 }
 
-type BlueprintTab = 'steering' | 'decision-spine';
+type BlueprintTab = 'steering' | 'decision-spine' | 'golden-thread';
 
 const TABS: { id: BlueprintTab; label: string }[] = [
   { id: 'steering', label: 'Steering' },
   { id: 'decision-spine', label: 'Decision Spine' },
+  { id: 'golden-thread', label: 'Golden Thread' },
 ];
 
 // ─── Decision Spine Tab content ───────────────────────────────────────────────
@@ -88,12 +91,17 @@ function DecisionSpineTab({ spines }: { spines: DecisionSpine[] }) {
 export function BlueprintClient({
   golden20Ids,
   spines,
+  brackets,
+  actionNames,
+  kpiNames,
   ...steeringProps
 }: Props) {
   const [selectedKpiId, setSelectedKpiId] = useState<string | null>(
     golden20Ids[0] ?? null
   );
   const [activeTab, setActiveTab] = useState<BlueprintTab>('steering');
+
+  const domains = Array.from(new Set(brackets.map((b) => b.domain))).sort();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -157,7 +165,7 @@ export function BlueprintClient({
           <div style={{ display: 'flex', gap: 'var(--gap)', flex: 1, minWidth: 0, alignItems: 'flex-start', overflow: 'auto' }}>
             {/* Main steering area */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <SteeringHubClient {...steeringProps} />
+              <SteeringHubClient {...steeringProps} brackets={brackets} kpiNames={kpiNames} />
             </div>
 
             {/* ROI preset panel */}
@@ -174,6 +182,17 @@ export function BlueprintClient({
         {activeTab === 'decision-spine' && (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <DecisionSpineTab spines={spines} />
+          </div>
+        )}
+
+        {activeTab === 'golden-thread' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <GoldenThreadTab
+              brackets={brackets}
+              kpiNames={kpiNames ?? {}}
+              actionNames={actionNames}
+              domains={domains}
+            />
           </div>
         )}
       </div>

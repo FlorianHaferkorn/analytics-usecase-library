@@ -438,7 +438,16 @@ export function BracketDetail({ bracket, factsheet, ownerRole, stewardRole, spin
             driver model, or suggest missing action codes?
           </div>
           <button
-            onClick={() => window.dispatchEvent(new CustomEvent('studio:open-chat'))}
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent('studio:open-chat', {
+                detail: {
+                  entityContext: {
+                    entityType: 'bracket' as const,
+                    entityId: bracket.id,
+                  },
+                },
+              }))
+            }
             style={{
               display: 'block',
               width: '100%',

@@ -3,15 +3,18 @@ import { createServerModel } from '@/lib/ai/orchestrator';
 import { DISCOVERY_SYSTEM_PROMPT } from '@/lib/ai/prompts/discovery';
 import { discoveryTools } from '@/lib/ai/tools/discovery-tools';
 import { requireAuth } from '@/lib/auth/session';
+import { buildEntityContext } from '@/lib/ai/context-builder';
+import type { EntityContext } from '@/lib/ai/context-builder';
 
 export async function POST(request: Request) {
   const [, authError] = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
-  const { messages, context } = body as {
+  const { messages, context, entityContext } = body as {
     messages: Array<{ role: 'user' | 'assistant'; content: string }>;
     context?: string;
+    entityContext?: EntityContext;
   };
 
   const model = await createServerModel();
@@ -22,9 +25,24 @@ export async function POST(request: Request) {
     );
   }
 
-  const systemPrompt = context
-    ? `${DISCOVERY_SYSTEM_PROMPT}\n\n## Source Context\n\n${context}`
-    : DISCOVERY_SYSTEM_PROMPT;
+  let systemPrompt = DISCOVERY_SYSTEM_PROMPT;
+
+  // Inject entity context if provided
+  if (entityContext && entityContext.entityType !== 'general') {
+    try {
+      const entityCtxStr = await buildEntityContext(entityContext);
+      if (entityCtxStr) {
+        systemPrompt = `${DISCOVERY_SYSTEM_PROMPT}\n\n## Entity Context\n\n${entityCtxStr}`;
+      }
+    } catch {
+      // Fall back to base prompt silently
+    }
+  }
+
+  // Existing context string still works (from AiField / DiscoveryChat)
+  if (context) {
+    systemPrompt = `${systemPrompt}\n\n## Source Context\n\n${context}`;
+  }
 
   try {
     const result = streamText({

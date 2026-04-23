@@ -58,6 +58,11 @@ export default async function BlueprintPage({
     kpiNames[id] = kpi.kpi_key || id;
   }
 
+  const actionNames: Record<string, string> = {};
+  for (const a of actions) {
+    actionNames[a.id] = a.name;
+  }
+
   const defaultProject = getProject('default');
   const strategyAnchor = defaultProject?.strategy_anchor || FALLBACK_ANCHOR;
 
@@ -109,6 +114,7 @@ export default async function BlueprintPage({
       actionDetails={actionDetails}
       bracketYamls={draftBracketData && draftYaml ? { [draftBracketData.id]: draftYaml, ...bracketYamls } : bracketYamls}
       kpiNames={kpiNames}
+      actionNames={actionNames}
       initialSelectedBracket={draftBracketData?.id ?? null}
       draftBracketId={draftBracketData?.id ?? null}
       golden20Ids={[...GOLDEN_20_IDS]}
