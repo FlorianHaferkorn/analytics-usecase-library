@@ -1,5 +1,6 @@
 import { StudioSidebar } from '@/components/ui/studio-sidebar';
 import { StudioHeader } from '@/components/ui/studio-header';
+import { GlobalOverlays } from '@/components/ui/global-overlays';
 
 export default function RegistryLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -28,6 +29,7 @@ export default function RegistryLayout({ children }: { children: React.ReactNode
           </div>
         </main>
       </div>
+      <GlobalOverlays />
     </div>
   );
 }
