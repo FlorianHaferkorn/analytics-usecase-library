@@ -10,6 +10,7 @@ interface DraftResult {
   domain: string;
   type: string;
   grain: string;
+  unit?: string;
   description: string;
   sql?: string;
 }
@@ -219,7 +220,7 @@ export function Wizard({ open, onClose, onSave }: Props) {
                     ['Domain', draft.domain ?? '—'],
                     ['Type', draft.type ?? '—'],
                     ['Grain', draft.grain ?? '—'],
-                    ['Unit', ('unit' in draft ? (draft as { unit?: string }).unit : undefined) ?? '—'],
+                    ['Unit', draft.unit ?? '—'],
                   ].map(([k, v]) => (
                     <div key={k} style={{ padding: 10, border: '1px solid var(--line)', borderRadius: 8, background: 'var(--bg-2)' }}>
                       <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{k}</div>
