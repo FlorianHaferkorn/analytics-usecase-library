@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
+import type { FactsheetSummary } from '@/lib/core/factsheet-loader';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,6 +17,8 @@ export interface KpiDetailTabsProps {
   kpi: CatalogKpi;
   linkedBrackets: LinkedBracket[];
   activeTab: TabId;
+  factsheet: FactsheetSummary | null;
+  factsheetRole: string | null;
 }
 
 export type TabId = 'overview' | 'definition' | 'lineage' | 'comments' | 'history';
@@ -100,6 +103,127 @@ function Tag({ children }: { children: React.ReactNode }) {
     >
       {children}
     </span>
+  );
+}
+
+// ─── SectionLabel helper ──────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase' as const,
+        color: 'var(--ink-3)',
+        marginBottom: 6,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Business Context section ─────────────────────────────────────────────────
+
+function BusinessContextSection({
+  kpi,
+  factsheet,
+  factsheetRole,
+}: {
+  kpi: CatalogKpi;
+  factsheet: FactsheetSummary | null;
+  factsheetRole: string | null;
+}) {
+  const kpiEntry = factsheet?.kpi_roles.find((k) => k.kpi_id === kpi.kpi_id);
+
+  return (
+    <div style={card}>
+      <div style={cardHead}>
+        <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)' }}>
+          Business Context
+        </span>
+        {factsheetRole && (
+          <span
+            style={{
+              fontSize: '0.75rem',
+              padding: '2px 8px',
+              borderRadius: 999,
+              background: 'var(--accent-soft)',
+              color: 'var(--accent)',
+            }}
+          >
+            {factsheetRole}
+          </span>
+        )}
+      </div>
+      <div style={{ padding: 'var(--pad)' }}>
+        {factsheet ? (
+          <>
+            <SectionLabel>Purpose</SectionLabel>
+            <p style={{ margin: '0 0 16px', fontSize: '0.8125rem', color: 'var(--ink-2)', lineHeight: 1.6 }}>
+              {factsheet.purpose || '—'}
+            </p>
+
+            <SectionLabel>Business Value</SectionLabel>
+            <p style={{ margin: '0 0 16px', fontSize: '0.8125rem', color: 'var(--ink-2)', lineHeight: 1.6 }}>
+              {factsheet.business_value || '—'}
+            </p>
+
+            {kpiEntry && (
+              <>
+                <SectionLabel>Role in {factsheet.id}</SectionLabel>
+                <p style={{ margin: '0 0 16px', fontSize: '0.8125rem', color: 'var(--ink-2)', lineHeight: 1.6 }}>
+                  This KPI is used as a <strong>{kpiEntry.role}</strong> metric in the{' '}
+                  <em>{factsheet.title}</em> use case.
+                </p>
+              </>
+            )}
+
+            {factsheet.business_questions.length > 0 && (
+              <>
+                <SectionLabel>Business Questions</SectionLabel>
+                <ul style={{ margin: '0 0 16px', paddingLeft: 20 }}>
+                  {factsheet.business_questions.map((q, i) => (
+                    <li
+                      key={i}
+                      style={{ fontSize: '0.8125rem', color: 'var(--ink-2)', lineHeight: 1.6, marginBottom: 4 }}
+                    >
+                      {q}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            <div style={{ fontSize: '0.75rem', color: 'var(--ink-4)', marginTop: 4 }}>
+              Source:{' '}
+              <a
+                href={`/brackets/${factsheet.id}`}
+                style={{ color: 'var(--accent)', textDecoration: 'none' }}
+              >
+                {factsheet.id} – {factsheet.title}
+              </a>
+            </div>
+          </>
+        ) : (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '4px 10px',
+              borderRadius: 999,
+              fontSize: '0.8125rem',
+              color: 'var(--ink-4)',
+              border: '1px solid var(--line)',
+            }}
+          >
+            Not documented in any bracket factsheet
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -202,7 +326,15 @@ function OverviewTab({ kpi }: { kpi: CatalogKpi }) {
 
 // ─── Tab: Definition ──────────────────────────────────────────────────────────
 
-function DefinitionTab({ kpi }: { kpi: CatalogKpi }) {
+function DefinitionTab({
+  kpi,
+  factsheet,
+  factsheetRole,
+}: {
+  kpi: CatalogKpi;
+  factsheet: FactsheetSummary | null;
+  factsheetRole: string | null;
+}) {
   const [copied, setCopied] = useState(false);
   const expr = kpi.technical?.dax_expression ?? '';
 
@@ -270,6 +402,8 @@ function DefinitionTab({ kpi }: { kpi: CatalogKpi }) {
           </p>
         </div>
       </div>
+
+      <BusinessContextSection kpi={kpi} factsheet={factsheet} factsheetRole={factsheetRole} />
     </div>
   );
 }
@@ -547,9 +681,9 @@ function HistoryTab() {
 
 // ─── Tab content dispatcher ───────────────────────────────────────────────────
 
-export function KpiDetailTabContent({ kpi, linkedBrackets, activeTab }: KpiDetailTabsProps) {
+export function KpiDetailTabContent({ kpi, linkedBrackets, activeTab, factsheet, factsheetRole }: KpiDetailTabsProps) {
   if (activeTab === 'overview') return <OverviewTab kpi={kpi} />;
-  if (activeTab === 'definition') return <DefinitionTab kpi={kpi} />;
+  if (activeTab === 'definition') return <DefinitionTab kpi={kpi} factsheet={factsheet} factsheetRole={factsheetRole} />;
   if (activeTab === 'lineage') return <LineageTab kpi={kpi} linkedBrackets={linkedBrackets} />;
   if (activeTab === 'comments') return <CommentsTab />;
   if (activeTab === 'history') return <HistoryTab />;

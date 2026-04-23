@@ -317,6 +317,7 @@ function KpiTable({
 // ─── Brackets Table ───────────────────────────────────────────────────────────
 
 function BracketsTable({ brackets, filter }: { brackets: UseCaseBracketV20Lean[]; filter: string }) {
+  const router = useRouter();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const filtered = useMemo(
@@ -360,8 +361,10 @@ function BracketsTable({ brackets, filter }: { brackets: UseCaseBracketV20Lean[]
             return (
               <tr
                 key={bracket.id}
+                onClick={() => router.push(`/brackets/${bracket.id}`)}
                 onMouseEnter={() => setHoveredId(bracket.id)}
                 onMouseLeave={() => setHoveredId(null)}
+                style={{ cursor: 'pointer' }}
               >
                 <td style={{ ...tdStyle, ...rowBg, fontWeight: 500, color: 'var(--ink)' }}>
                   {bracket.title}

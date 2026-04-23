@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
+import type { FactsheetSummary } from '@/lib/core/factsheet-loader';
+import { AiField } from '@/components/ai/ai-field';
 import {
   KpiDetailTabContent,
   type TabId,
@@ -21,6 +23,8 @@ interface LinkedBracket {
 interface Props {
   kpi: CatalogKpi;
   linkedBrackets: LinkedBracket[];
+  factsheet: FactsheetSummary | null;
+  factsheetRole: string | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -133,7 +137,7 @@ function DomainDot({ domain }: { domain: string }) {
 
 // ─── Main KpiDetail component ─────────────────────────────────────────────────
 
-export function KpiDetail({ kpi, linkedBrackets }: Props) {
+export function KpiDetail({ kpi, linkedBrackets, factsheet, factsheetRole }: Props) {
   const status = deriveStatus(kpi);
   const domain = (kpi.domain_tag ?? [])[0] ?? '';
 
@@ -147,17 +151,6 @@ export function KpiDetail({ kpi, linkedBrackets }: Props) {
 
   // Tab state
   const [activeTab, setActiveTab] = useState<TabId>('overview');
-
-  const nameInputRef = useRef<HTMLInputElement>(null);
-  const descTextareaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (editingName) nameInputRef.current?.focus();
-  }, [editingName]);
-
-  useEffect(() => {
-    if (editingDesc) descTextareaRef.current?.focus();
-  }, [editingDesc]);
 
   const TABS: { id: TabId; label: string }[] = [
     { id: 'overview', label: 'Overview' },
@@ -217,32 +210,20 @@ export function KpiDetail({ kpi, linkedBrackets }: Props) {
 
           {/* Inline-editable name */}
           {editingName ? (
-            <input
-              ref={nameInputRef}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onBlur={() => setEditingName(false)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === 'Escape') setEditingName(false);
-              }}
-              style={{
-                display: 'block',
-                width: '100%',
-                fontSize: 36,
-                fontWeight: 500,
-                letterSpacing: '-0.025em',
-                lineHeight: 1.15,
-                color: 'var(--ink)',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid var(--accent)',
-                outline: 'none',
-                padding: '0 0 4px',
-                marginBottom: 12,
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
-            />
+            <div onBlur={() => setEditingName(false)} style={{ marginBottom: 12 }}>
+              <AiField
+                entityType="kpi"
+                entityId={kpi.kpi_id}
+                entityName={name}
+                fieldName="kpi_key"
+                fieldLabel="KPI Name"
+                value={name}
+                onChange={(v) => setName(v)}
+                placeholder="KPI name…"
+                domainContext={(kpi.domain_tag ?? [])[0]}
+                style={{ fontSize: 24, fontWeight: 500 }}
+              />
+            </div>
           ) : (
             <h1
               onClick={() => setEditingName(true)}
@@ -263,28 +244,22 @@ export function KpiDetail({ kpi, linkedBrackets }: Props) {
 
           {/* Inline-editable description */}
           {editingDesc ? (
-            <textarea
-              ref={descTextareaRef}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onBlur={() => setEditingDesc(false)}
-              rows={3}
-              style={{
-                display: 'block',
-                width: '100%',
-                fontSize: 14.5,
-                lineHeight: 1.6,
-                color: 'var(--ink-2)',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '2px solid var(--accent)',
-                outline: 'none',
-                padding: '0 0 4px',
-                resize: 'none',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
-            />
+            <div onBlur={() => setEditingDesc(false)}>
+              <AiField
+                entityType="kpi"
+                entityId={kpi.kpi_id}
+                entityName={name}
+                fieldName="description"
+                fieldLabel="Description"
+                value={description}
+                onChange={(v) => setDescription(v)}
+                multiline
+                rows={3}
+                placeholder="Click to add a description…"
+                domainContext={(kpi.domain_tag ?? [])[0]}
+                style={{ fontSize: 14.5, lineHeight: 1.6 }}
+              />
+            </div>
           ) : (
             <p
               onClick={() => setEditingDesc(true)}
@@ -349,6 +324,8 @@ export function KpiDetail({ kpi, linkedBrackets }: Props) {
             kpi={kpi}
             linkedBrackets={linkedBrackets}
             activeTab={activeTab}
+            factsheet={factsheet}
+            factsheetRole={factsheetRole}
           />
         </div>
       </div>

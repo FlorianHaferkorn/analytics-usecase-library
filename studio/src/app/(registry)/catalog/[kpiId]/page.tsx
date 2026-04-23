@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { loadKpiCatalog } from '@/lib/core/catalog-loader';
 import { loadAllBrackets } from '@/lib/core/bracket-loader';
+import { getFactsheetForKpi } from '@/lib/core/factsheet-loader';
 import { KpiDetail } from '@/components/registry/kpi-detail';
 
 export default async function KpiDetailPage({
@@ -10,9 +11,10 @@ export default async function KpiDetailPage({
 }) {
   const { kpiId } = await params;
 
-  const [kpis, brackets] = await Promise.all([
+  const [kpis, brackets, factsheetData] = await Promise.all([
     loadKpiCatalog().catch(() => []),
     loadAllBrackets().catch(() => []),
+    getFactsheetForKpi(kpiId).catch(() => null),
   ]);
 
   const kpi = kpis.find((k) => k.kpi_id === kpiId);
@@ -37,6 +39,8 @@ export default async function KpiDetailPage({
         title: b.title,
         domain: b.domain ?? '',
       }))}
+      factsheet={factsheetData?.factsheet ?? null}
+      factsheetRole={factsheetData?.role ?? null}
     />
   );
 }
