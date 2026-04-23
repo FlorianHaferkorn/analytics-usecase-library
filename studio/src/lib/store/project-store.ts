@@ -69,6 +69,11 @@ export interface ProjectState {
   activePanel: 'flow' | 'editor' | 'chat';
   isDirty: boolean;
 
+  // Wizard draft
+  pendingWizardDraft: WizardDraft | null;
+  setPendingWizardDraft: (draft: WizardDraft | null) => void;
+  clearPendingWizardDraft: () => void;
+
   // Actions
   setProjectId: (id: string) => void;
   setProjectName: (name: string) => void;
@@ -85,6 +90,20 @@ export interface ProjectState {
   setActivePanel: (panel: 'flow' | 'editor' | 'chat') => void;
   updateBracket: (id: string, update: Partial<UseCaseBracketV20Lean>) => void;
   markClean: () => void;
+}
+
+export type WizardDraftKind = 'kpi' | 'bracket' | 'action';
+
+export interface WizardDraft {
+  kind: WizardDraftKind;
+  name: string;
+  ref: string;
+  domain: string;
+  type: string;
+  grain: string;
+  description: string;
+  sql?: string;
+  createdAt: string;
 }
 
 export const DEFAULT_THEME: ThemeConfig = {
@@ -118,6 +137,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
   selectedBracketId: null,
   activePanel: 'flow',
   isDirty: false,
+
+  pendingWizardDraft: null,
 
   setProjectId: (id) => set({ projectId: id, isDirty: false }),
   setProjectName: (name) => set({ projectName: name, isDirty: true }),
@@ -156,4 +177,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     })),
 
   markClean: () => set({ isDirty: false }),
+
+  setPendingWizardDraft: (pendingWizardDraft) => set({ pendingWizardDraft }),
+  clearPendingWizardDraft: () => set({ pendingWizardDraft: null }),
 }));

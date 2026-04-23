@@ -11,8 +11,16 @@ import { SpineList } from '@/components/registry/spine-list';
 import { ActivityTimeline } from '@/components/registry/activity-timeline';
 import { CollapsiblePanel } from '@/components/ui/collapsible-panel';
 import { StudioPage, StudioPageHeader } from '@/components/ui/studio-page';
+import { PendingDraftBanner } from '@/components/ui/pending-draft-banner';
 
-export default async function CatalogPage() {
+export default async function CatalogPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ kpi?: string; domain?: string }>;
+}) {
+  const resolved = searchParams ? await searchParams : {};
+  const highlightKpiId = resolved.kpi ?? null;
+
   const [kpis, actions, brackets, spines] = await Promise.all([
     loadKpiCatalog(),
     loadAllActionCodes(),
@@ -30,6 +38,8 @@ export default async function CatalogPage() {
         tone="success"
       />
 
+      <PendingDraftBanner />
+
       <IntegrityPanel
         kpiCount={kpis.length}
         actionCount={actions.length}
@@ -39,7 +49,7 @@ export default async function CatalogPage() {
       <RegistryClientWrapper />
 
       <CollapsiblePanel title={`KPI Catalog (${kpis.length})`} description="Inspect governed KPI definitions and their readiness for downstream use cases." defaultOpen={true}>
-        <KpiRegistryTable kpis={kpis} />
+        <KpiRegistryTable kpis={kpis} highlightId={highlightKpiId} />
       </CollapsiblePanel>
 
       <CollapsiblePanel title={`Action Codes (${actions.length})`} description="Review the action framework and operational trigger surface in one table." defaultOpen={true}>

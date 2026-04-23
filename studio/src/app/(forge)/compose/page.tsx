@@ -1,5 +1,6 @@
 import { loadAllBrackets } from '@/lib/core/bracket-loader';
 import { SimulatorClient } from '@/app/(studio)/simulator/simulator-client';
+import { PendingDraftBanner } from '@/components/ui/pending-draft-banner';
 
 export default async function ComposePage() {
   const brackets = await loadAllBrackets();
@@ -15,5 +16,10 @@ export default async function ComposePage() {
     influencingKpiIds: b.orchestration.influencing_kpi_ids,
   }));
 
-  return <SimulatorClient brackets={bracketSummaries} />;
+  return (
+    <>
+      <PendingDraftBanner />
+      <SimulatorClient brackets={bracketSummaries} />
+    </>
+  );
 }
