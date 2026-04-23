@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { parseFormula } from '@/lib/simulation/formula-parser';
 import { runScenario } from '@/lib/simulation/scenario-engine';
 import { ScenarioPanel } from '@/components/simulator/scenario-panel';
 import { ImpactChart } from '@/components/simulator/impact-chart';
 import { StudioSelect } from '@/components/ui/studio-data';
 import { StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioToolbar } from '@/components/ui/studio-page';
+import { SpineContextCard } from '@/components/compose/spine-context-card';
+import { AiField } from '@/components/ai/ai-field';
+import type { DecisionSpine } from '@/lib/schemas/decision-spine';
 
 interface BracketSummary {
   id: string;
@@ -17,10 +20,12 @@ interface BracketSummary {
   primaryDriver?: string;
   strategicKpiId: string;
   influencingKpiIds: string[];
+  impactLogic: string;
 }
 
 interface Props {
   brackets: BracketSummary[];
+  spines: DecisionSpine[];
 }
 
 /** Generate synthetic base values for KPI IDs based on naming conventions. */
@@ -46,11 +51,30 @@ function getUnit(kpiId: string): string {
   return '';
 }
 
-export function SimulatorClient({ brackets }: Props) {
+// Suppress unused lint warning — generateBaseValue is kept for reference
+void generateBaseValue;
+
+/** Dispatch studio:open-chat event with a pre-filled context message. */
+function openChatWithContext(message: string) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('studio:open-chat', { detail: { message } }),
+    );
+  }
+}
+
+export function SimulatorClient({ brackets, spines }: Props) {
   const [selectedId, setSelectedId] = useState(brackets[0]?.id ?? '');
   const [overrides, setOverrides] = useState<Map<string, number>>(new Map());
+  const [impactLogic, setImpactLogic] = useState('');
 
   const bracket = brackets.find((b) => b.id === selectedId);
+
+  // Reset impactLogic when selected bracket changes
+  useEffect(() => {
+    setImpactLogic(bracket?.impactLogic ?? '');
+  }, [selectedId, bracket?.impactLogic]);
+
   const parsed = useMemo(() => (bracket ? parseFormula(bracket.formula) : null), [bracket]);
 
   // Stable base values seeded per bracket
@@ -113,6 +137,13 @@ export function SimulatorClient({ brackets }: Props) {
   const handleReset = useCallback(() => setOverrides(new Map()), []);
   const overriddenDrivers = overrides.size;
 
+  const handleWhyTarget = useCallback((kpiId: string) => {
+    if (!bracket) return;
+    const overrideValue = overrides.get(kpiId) ?? baseValues.get(kpiId) ?? 0;
+    const message = `For ${bracket.title}, explain why the target for ${kpiId} matters and what achieving it would mean. The formula is: ${bracket.formula}. Current value: ${overrideValue.toFixed(2)}.`;
+    openChatWithContext(message);
+  }, [bracket, overrides, baseValues]);
+
   return (
     <StudioPage>
       <StudioPageHeader
@@ -129,6 +160,11 @@ export function SimulatorClient({ brackets }: Props) {
         <StudioMetric label="Overrides" value={overriddenDrivers} meta={overriddenDrivers > 0 ? 'manual deviations active' : 'using seeded baseline'} tone={overriddenDrivers > 0 ? 'warning' : 'success'} />
         <StudioMetric label="Target" value={bracket?.strategicKpiId ?? 'n/a'} meta={bracket ? bracket.impactDirection : 'select a bracket'} tone="success" />
       </StudioMetricBar>
+
+      {/* Decision spine context — shown when a bracket is selected */}
+      {spines.length > 0 && bracket && (
+        <SpineContextCard spines={spines} bracketId={bracket.id} />
+      )}
 
       {/* Illustrative data banner */}
       <StudioPanel tone="warning" title="Illustrative Simulation" description="This view operates on synthetic seeded values, not live production data.">
@@ -168,6 +204,24 @@ export function SimulatorClient({ brackets }: Props) {
           </span>
         )}
       </StudioToolbar>
+
+      {/* Impact Logic editor */}
+      {bracket && (
+        <StudioPanel title="Impact Logic" description="Describe how the driver KPIs affect the strategic KPI in this bracket.">
+          <AiField
+            entityType="bracket"
+            entityId={bracket.id}
+            entityName={bracket.title}
+            fieldName="impact_logic"
+            fieldLabel="Impact Logic"
+            value={impactLogic}
+            onChange={setImpactLogic}
+            multiline
+            rows={2}
+            placeholder="Describe how the drivers affect the strategic KPI…"
+          />
+        </StudioPanel>
+      )}
 
       {/* Result card */}
       {result && (
@@ -210,6 +264,36 @@ export function SimulatorClient({ brackets }: Props) {
             />
           )}
         </div>
+      )}
+
+      {/* "Why this target?" — per-driver AI context buttons */}
+      {bracket && drivers.length > 0 && (
+        <StudioPanel title="Why This Target?" description="Ask the AI to explain why each driver target matters for the strategic KPI.">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {drivers.map((d) => (
+              <button
+                key={d.kpiId}
+                onClick={() => handleWhyTarget(d.kpiId)}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--line)',
+                  borderRadius: 6,
+                  padding: '4px 10px',
+                  fontSize: '0.75rem',
+                  color: 'var(--ink-3)',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-4)', fontSize: '0.6875rem' }}>{d.label}</span>
+                <span>Why?</span>
+              </button>
+            ))}
+          </div>
+        </StudioPanel>
       )}
 
       {/* Formula display */}
