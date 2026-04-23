@@ -1,30 +1,30 @@
 @import 'tailwindcss';
 
 :root {
-  /* ── Semantic role tokens (design system, light theme) ── */
-  --bg:          #fafaf9;
-  --bg-2:        #f4f4f2;
-  --panel:       #ffffff;
-  --ink:         #0b0b0c;
-  --ink-2:       #3a3a3d;
-  --ink-3:       #6a6a70;
-  --ink-4:       #9a9aa0;
-  --line:        rgba(11,11,12,0.08);
-  --line-2:      rgba(11,11,12,0.04);
-  --hover:       rgba(11,11,12,0.035);
+  /* ── Semantic role tokens (design system, dark theme) ── */
+  --bg:          #0d0e10;
+  --bg-2:        #131416;
+  --panel:       #1a1b1f;
+  --ink:         #eaebee;
+  --ink-2:       #b0b0b8;
+  --ink-3:       #6e6e78;
+  --ink-4:       #42424c;
+  --line:        rgba(255,255,255,0.08);
+  --line-2:      rgba(255,255,255,0.04);
+  --hover:       rgba(255,255,255,0.05);
   --accent:      #00D4AA;
-  --accent-soft: oklch(0.92 0.06 170);
-  --accent-ink:  #0b0b0c;
+  --accent-soft: oklch(0.20 0.06 170);
+  --accent-ink:  #0a0a0a;
 
   /* ── Semantic state colors ── */
   --success: #00D4AA;
   --warning: #FFB800;
-  --danger:  #E53935;
-  --info:    #1976D2;
-  --positive-fg: oklch(0.42 0.13 150);
-  --positive-bg: oklch(0.94 0.05 150 / 0.45);
-  --negative-fg: oklch(0.48 0.15 28);
-  --negative-bg: oklch(0.95 0.05 28 / 0.45);
+  --danger:  #F44336;
+  --info:    #42A5F5;
+  --positive-fg: oklch(0.75 0.15 150);
+  --positive-bg: oklch(0.22 0.05 150 / 0.35);
+  --negative-fg: oklch(0.75 0.15 28);
+  --negative-bg: oklch(0.22 0.05 28 / 0.35);
 
   /* ── Layout tokens ── */
   --pad:    24px;
@@ -32,10 +32,10 @@
   --h-row:  44px;
   --radius: 10px;
 
-  /* ── Shadows (light-theme calibrated) ── */
-  --shadow-sm: 0 1px 0 rgba(11,11,12,0.04), 0 1px 2px rgba(11,11,12,0.04);
-  --shadow-md: 0 4px 16px rgba(11,11,12,0.06), 0 2px 4px rgba(11,11,12,0.04);
-  --shadow-lg: 0 24px 48px -16px rgba(11,11,12,0.18), 0 8px 16px rgba(11,11,12,0.06);
+  /* ── Shadows (dark-theme calibrated) ── */
+  --shadow-sm: 0 1px 0 rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
+  --shadow-lg: 0 24px 48px -16px rgba(0,0,0,0.7), 0 8px 20px rgba(0,0,0,0.4);
   /* legacy aliases */
   --shadow-card:     var(--shadow-sm);
   --shadow-elevated: var(--shadow-md);
@@ -90,6 +90,7 @@
 
 html {
   height: 100%;
+  color-scheme: dark;
   font-family: var(--font-sans);
   font-feature-settings: "cv11","ss01","ss03";
   -webkit-font-smoothing: antialiased;
@@ -192,7 +193,7 @@ input[type="checkbox"]:focus-visible {
   outline-offset: 2px;
 }
 
-select { color-scheme: light; }
+select { color-scheme: dark; }
 
 /* ── Focus rings ── */
 .studio-button:focus-visible {
