@@ -238,7 +238,7 @@ function KpiTable({
               <tr
                 key={kpi.kpi_id}
                 ref={isHighlighted ? highlightRef : undefined}
-                onClick={() => router.push(`/catalog?kpi=${kpi.kpi_id}&tab=kpis`)}
+                onClick={() => router.push(`/catalog/${kpi.kpi_id}`)}
                 onMouseEnter={() => setHoveredId(kpi.kpi_id)}
                 onMouseLeave={() => setHoveredId(null)}
               >

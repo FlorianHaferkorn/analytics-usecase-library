@@ -168,10 +168,25 @@ export function Wizard({ open, onClose, onSave }: Props) {
                   placeholder={`e.g. "Weekly activation rate for enterprise plan customers, segmented by cohort"`}
                   style={{ width: '100%', minHeight: 100, border: 0, outline: 0, background: 'transparent', fontSize: '0.9375rem', lineHeight: 1.5, resize: 'vertical', color: 'var(--ink)' }}
                 />
+                {/* Suggestion chips — below the textarea */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Try:</span>
-                  {['Weekly activation by cohort', 'Net new ARR per rep', 'P50 support response time'].map((s) => (
-                    <button key={s} onClick={() => setPrompt(s)} style={{ fontSize: '0.6875rem', padding: '4px 10px', borderRadius: 99, border: '1px solid var(--line)', color: 'var(--ink-3)', background: 'transparent', cursor: 'pointer' }}>
+                  {[
+                    'Weekly activation rate by cohort',
+                    'Net new revenue per sales rep',
+                    'Support response time P50',
+                  ].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setPrompt(s)}
+                      style={{
+                        fontSize: '0.6875rem', padding: '3px 10px', borderRadius: 999,
+                        border: '1px solid var(--line)', color: 'var(--ink-3)',
+                        background: 'transparent', cursor: 'pointer',
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLElement).style.color = 'var(--accent)'; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--line)'; (e.currentTarget as HTMLElement).style.color = 'var(--ink-3)'; }}
+                    >
                       {s}
                     </button>
                   ))}
@@ -198,14 +213,21 @@ export function Wizard({ open, onClose, onSave }: Props) {
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--ink-4)' }}>{draft.ref}</div>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 500, margin: '4px 0 12px', letterSpacing: '-0.02em', color: 'var(--ink)' }}>{draft.name}</h2>
               <p style={{ color: 'var(--ink-2)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 18 }}>{draft.description}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 20 }}>
-                {[['Domain', draft.domain], ['Type', draft.type], ['Grain', draft.grain]].map(([k, v]) => (
-                  <div key={k} style={{ padding: 10, border: '1px solid var(--line)', borderRadius: 8, background: 'var(--bg-2)' }}>
-                    <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{k}</div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 500, marginTop: 3, color: 'var(--ink)' }}>{v}</div>
-                  </div>
-                ))}
-              </div>
+              {(draft.domain ?? draft.type ?? draft.grain) && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
+                  {[
+                    ['Domain', draft.domain ?? '—'],
+                    ['Type', draft.type ?? '—'],
+                    ['Grain', draft.grain ?? '—'],
+                    ['Unit', ('unit' in draft ? (draft as { unit?: string }).unit : undefined) ?? '—'],
+                  ].map(([k, v]) => (
+                    <div key={k} style={{ padding: 10, border: '1px solid var(--line)', borderRadius: 8, background: 'var(--bg-2)' }}>
+                      <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{k}</div>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 500, marginTop: 2 }}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
               {draft.sql && (
                 <>
                   <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>SQL</div>

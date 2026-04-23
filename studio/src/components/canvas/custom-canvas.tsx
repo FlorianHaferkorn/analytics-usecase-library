@@ -7,16 +7,16 @@ const NODE_W = 178;
 const NODE_H = 56;
 
 const KIND_META: Record<string, { accent: string; letter: string; label: string; goal?: true }> = {
-  dimension: { accent: '#A78BFA', letter: 'D', label: 'Dimension' },
-  fact:      { accent: '#3B82F6', letter: 'F', label: 'Fact' },
-  kpi:       { accent: '#00D4AA', letter: 'K', label: 'KPI' },
-  bracket:   { accent: '#FFB800', letter: 'B', label: 'Use Case' },
-  anchor:    { accent: '#00D4AA', letter: '★', label: 'Strategy Anchor', goal: true },
-  driver:    { accent: '#60A5FA', letter: 'D', label: 'Driver KPI' },
-  action:    { accent: '#FFB800', letter: 'A', label: 'Action' },
-  source:    { accent: '#64748B', letter: 'S', label: 'Source' },
-  metric:    { accent: '#3B82F6', letter: 'M', label: 'Metric' },
-  derived:   { accent: '#00D4AA', letter: 'Δ', label: 'Derived' },
+  dimension: { accent: 'oklch(0.65 0.12 310)', letter: 'D', label: 'Dimension' },
+  fact:      { accent: '#3B82F6',               letter: 'F', label: 'Fact' },
+  kpi:       { accent: '#00D4AA',               letter: 'K', label: 'KPI' },
+  bracket:   { accent: 'var(--accent)',          letter: 'B', label: 'Use Case' },
+  anchor:    { accent: '#00D4AA',                letter: '★', label: 'Strategy Anchor', goal: true },
+  driver:    { accent: '#60A5FA',                letter: 'D', label: 'Driver KPI' },
+  action:    { accent: '#FFB800',                letter: 'A', label: 'Action' },
+  source:    { accent: 'oklch(0.60 0.04 250)',   letter: 'S', label: 'Source' },
+  metric:    { accent: 'oklch(0.65 0.12 250)',   letter: 'M', label: 'Metric' },
+  derived:   { accent: 'var(--accent)',           letter: 'Δ', label: 'Derived' },
 };
 
 const REL_COLORS: Record<string, string> = {
@@ -277,7 +277,8 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
             const isSel = sel === n.id;
             const isDimmed = activeTarget !== null && !isConnected(edges, n.id, activeTarget);
             const isGoal = km.goal === true;
-            const borderColor = isSel ? 'var(--accent)' : (n.domainColor ? `${n.domainColor}55` : '#334155');
+            const isAccentBordered = km.accent === 'var(--accent)';
+            const borderColor = isSel ? 'var(--accent)' : (isAccentBordered ? 'var(--accent)' : (n.domainColor ? `${n.domainColor}55` : '#334155'));
             return (
               <div key={n.id} data-node=""
                 onMouseEnter={() => setHover(n.id)}
@@ -286,7 +287,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                 style={{
                   position: 'absolute', left: n.x, top: n.y,
                   width: NODE_W, height: NODE_H,
-                  background: isGoal ? 'var(--accent)' : '#1E293B',
+                  background: isGoal ? 'var(--ink)' : '#1E293B',
                   border: `1px solid ${borderColor}`,
                   borderRadius: 10,
                   boxShadow: isSel
@@ -303,8 +304,8 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{
                     width: 18, height: 18, borderRadius: 4, flexShrink: 0,
-                    background: isGoal ? 'rgba(0,0,0,0.12)' : `${km.accent}22`,
-                    color: isGoal ? '#020617' : km.accent,
+                    background: isGoal ? 'rgba(255,255,255,0.12)' : (km.accent.startsWith('var(') ? 'var(--accent-soft)' : `${km.accent}22`),
+                    color: isGoal ? 'var(--bg)' : km.accent,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '0.5625rem', fontWeight: 700,
                   }}>
@@ -313,7 +314,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                   <span style={{
                     fontSize: '0.75rem', fontWeight: 500, letterSpacing: '-0.005em',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
-                    color: isGoal ? '#020617' : '#F1F5F9',
+                    color: isGoal ? 'var(--bg)' : '#F1F5F9',
                   }}>
                     {n.label}
                   </span>
@@ -321,7 +322,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
                 {n.sub && (
                   <span style={{
                     fontSize: '0.625rem', marginLeft: 24,
-                    color: isGoal ? 'rgba(0,0,0,0.5)' : '#64748B',
+                    color: isGoal ? 'rgba(255,255,255,0.5)' : '#64748B',
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     fontFamily: 'var(--font-mono)',
                   }}>
