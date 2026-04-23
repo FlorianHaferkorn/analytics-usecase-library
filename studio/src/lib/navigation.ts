@@ -14,6 +14,14 @@ export type NavMode = 'forge' | 'registry';
 /** Forge — create, compose, generate use cases and reports. */
 export const FORGE_NAV: readonly NavItem[] = [
   {
+    href: '/dashboard',
+    label: 'Dashboard',
+    description: 'Framework overview — health, composition, and key metrics',
+    icon: 'D',
+    sidebarIcon: 'squares-four',
+    color: 'var(--accent)',
+  },
+  {
     href: '/discover',
     label: 'Discover',
     description: 'Extract strategy anchors from business reports and research',

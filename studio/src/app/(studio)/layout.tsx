@@ -6,19 +6,41 @@ import { loadAllBrackets } from '@/lib/core/bracket-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { type SerializablePaletteItem } from '@/components/ui/command-palette';
 
+export interface DomainStat {
+  name: string;
+  count: number;
+  hue: number;
+}
+
+const DOMAIN_HUES: Record<string, number> = {
+  revenue: 250, growth: 150, product: 310,
+  retention: 30, operations: 130, finance: 200,
+  marketing: 60, customer: 350,
+};
+
 export default async function StudioLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Load live data in parallel
   const [kpis, brackets, actions] = await Promise.all([
     loadKpiCatalog().catch(() => []),
     loadAllBrackets().catch(() => []),
     loadAllActionCodes().catch(() => []),
   ]);
 
-  // Build serializable palette items
+  // Build domain stats from KPI domain_tag
+  const domainMap = new Map<string, number>();
+  kpis.forEach((k) => {
+    const d = k.domain_tag?.[0] ?? 'other';
+    domainMap.set(d, (domainMap.get(d) ?? 0) + 1);
+  });
+  const domains: DomainStat[] = Array.from(domainMap).map(([name, count], i) => ({
+    name,
+    count,
+    hue: DOMAIN_HUES[name] ?? 200 + i * 50,
+  }));
+
   const paletteItems: SerializablePaletteItem[] = [
     ...kpis.map((k) => ({
       kind: 'kpi' as const,
@@ -43,17 +65,9 @@ export default async function StudioLayout({
   const overlaysProps: GlobalOverlaysProps = { paletteItems };
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '248px 1fr',
-        gridTemplateRows: 'var(--h-row) 1fr',
-        height: '100vh',
-        overflow: 'hidden',
-      }}
-    >
-      <StudioSidebar />
-      <div style={{ display: 'flex', flexDirection: 'column', gridRow: '1 / -1', gridColumn: '2' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <StudioSidebar domains={domains} />
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <StudioHeader />
         <main
           style={{
