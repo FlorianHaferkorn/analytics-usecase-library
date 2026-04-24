@@ -1,89 +1,5 @@
+@import './tokens.css';
 @import 'tailwindcss';
-
-:root {
-  /* ── Semantic role tokens (design system, dark theme) ── */
-  --bg:          #0d0e10;
-  --bg-2:        #131416;
-  --panel:       #1a1b1f;
-  --ink:         #eaebee;
-  --ink-2:       #b0b0b8;
-  --ink-3:       #6e6e78;
-  --ink-4:       #42424c;
-  --line:        rgba(255,255,255,0.08);
-  --line-2:      rgba(255,255,255,0.04);
-  --hover:       rgba(255,255,255,0.05);
-  --accent:      #00D4AA;
-  --accent-soft: oklch(0.20 0.06 170);
-  --accent-ink:  #0a0a0a;
-
-  /* ── Semantic state colors ── */
-  --success: #00D4AA;
-  --warning: #FFB800;
-  --danger:  #F44336;
-  --info:    #42A5F5;
-  --positive-fg: oklch(0.75 0.15 150);
-  --positive-bg: oklch(0.22 0.05 150 / 0.35);
-  --negative-fg: oklch(0.75 0.15 28);
-  --negative-bg: oklch(0.22 0.05 28 / 0.35);
-
-  /* ── Layout tokens ── */
-  --pad:    24px;
-  --gap:    20px;
-  --h-row:  44px;
-  --radius: 10px;
-
-  /* ── Shadows (dark-theme calibrated) ── */
-  --shadow-sm: 0 1px 0 rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
-  --shadow-lg: 0 24px 48px -16px rgba(0,0,0,0.7), 0 8px 20px rgba(0,0,0,0.4);
-  /* legacy aliases */
-  --shadow-card:     var(--shadow-sm);
-  --shadow-elevated: var(--shadow-md);
-  --shadow-overlay:  var(--shadow-lg);
-
-  /* ── Typography ── */
-  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
-  --font-display: 'Inter', system-ui, sans-serif;
-
-  /* ── Type scale ── */
-  --text-2xs:  0.5625rem;
-  --text-xs:   0.625rem;
-  --text-sm:   0.6875rem;
-  --text-base: 0.75rem;
-  --text-md:   0.8125rem;
-  --text-lg:   0.875rem;
-  --text-xl:   1.125rem;
-  --text-2xl:  1.375rem;
-  --text-3xl:  1.75rem;
-
-  /* ── Font weights ── */
-  --weight-normal:   400;
-  --weight-medium:   500;
-  --weight-semibold: 600;
-  --weight-bold:     700;
-
-  /* ── Radii (legacy aliases) ── */
-  --radius-sm:   0.375rem;
-  --radius-md:   0.5rem;
-  --radius-lg:   var(--radius);
-  --radius-xl:   1rem;
-  --radius-full: 9999px;
-
-  /* ── Transitions ── */
-  --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast:  150ms;
-  --duration-normal:250ms;
-  --duration-slow:  400ms;
-
-  /* ── Z-index ── */
-  --z-base:     0;
-  --z-raised:   10;
-  --z-dropdown: 100;
-  --z-overlay:  200;
-  --z-modal:    300;
-  --z-toast:    400;
-}
 
 /* ── Base reset ── */
 *, *::before, *::after { box-sizing: border-box; }
@@ -91,7 +7,7 @@
 html {
   height: 100%;
   color-scheme: dark;
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-feature-settings: "cv11","ss01","ss03";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
