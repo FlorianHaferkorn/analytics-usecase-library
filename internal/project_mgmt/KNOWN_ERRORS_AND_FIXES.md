@@ -150,6 +150,23 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 ---
 
+## Studio (Next.js / TypeScript) — ActionReady Studio
+
+| Symptom / message | Cause | Fix |
+|------------------|--------|-----|
+| `next build` exits with "Another next build process is already running" | Stale `.next` build lock from killed process | `pkill -9 -f "next build"` then retry. If lock file persists, `rm -rf studio/.next` and rebuild. |
+| `npm run build` is killed (OOM / exit 137) in CI or low-RAM environment | Turbopack full build requires >2 GB RAM | Use `node_modules/.bin/tsc --noEmit -p tsconfig.json` for fast type-only validation. Full build works but may need 4 GB+ RAM. |
+| `TS2741: Property 'spines' is missing in type '...' but required in type 'Props'` | Client component Props updated (e.g. `spines: DecisionSpine[]`) before server page updated its JSX render call | Update the server `page.tsx` to load the new data in `Promise.all` and pass it as a prop. Pattern: load → destructure → pass. |
+| `TS2322: Property 'X' does not exist on type 'IntrinsicAttributes & Props'` after adding a prop to a client component | The `Props` interface was updated but a parent page still passes the old prop set | Find all callers of the component with `grep -r "ComponentName" src/` and add the missing prop or mark it optional with `?`. |
+| `client-only` import error: `node:fs` imported in a Client Component | Server loader (uses `readFile` etc.) was imported directly into a `'use client'` file | Move data loading to a Server Component or Route Handler; pass serialized data as props to the client component. |
+| `requireAuth` returns `[session, null]` but `session` is `null` in dev | Auth middleware not running in dev when `NEXTAUTH_SECRET` is unset | Set `NEXTAUTH_SECRET=dev-secret` in `studio/.env.local`. |
+| SSE stream from `/api/ai/chat` returns chunks with `0:` prefix | Vercel AI SDK `toTextStreamResponse()` uses data-stream protocol not raw text | Consumer must strip the `0:"..."` envelope: split on `\n`, filter lines starting with `0:`, parse inner JSON string. Or use `toTextStreamResponse()` directly and read plain text chunks. |
+| `AiAssistDrawer` suggestions never parse (stays in loading state) | LLM returned suggestions not starting with `1.` / `2.` / `3.` format | Prompt explicitly instructs numbered list. If model deviates, fall back to splitting on `\n\n` and treating each paragraph as a suggestion. |
+| `loadFactsheet()` returns `null` for all brackets | `CORE_USECASES_DIR` resolved incorrectly (CWD mismatch) | In Route Handlers, `process.cwd()` is the project root. Path must be `join(process.cwd(), '..', 'core', 'usecases', 'core')` when Next.js app is in `studio/` subdirectory. Verify with `console.log(process.cwd())` in a GET handler. |
+| `color-mix(in srgb, #hex ...)` doesn't respond to dark-mode toggle | Hardcoded hex inside `color-mix()` bypasses the CSS token system | Replace hex argument with `var(--bg)` or equivalent token: `color-mix(in srgb, var(--bg) 92%, var(--accent) 8%)`. |
+
+---
+
 ## Updating this list (Pflicht in jeder Erstellungs-/Fix-Schleife)
 
 **In jeder Erstellungs- oder Fix-Schleife:** Sobald ein Fehler behoben wurde (egal ob aus Pipeline, Desktop, Nutzerbericht oder eigener Analyse), **muss** geprüft werden, ob diese Fehlerklasse bereits in einer Tabelle oben steht. Wenn **nicht**: sofort eine neue Zeile (Symptom | Cause | Fix) in die passende Sektion eintragen. So werden dieselben Fehler nicht wiederholt.

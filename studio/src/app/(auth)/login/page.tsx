@@ -126,7 +126,7 @@ function LoginForm() {
             style={{
               width: '100%',
               padding: '12px',
-              background: 'linear-gradient(135deg, var(--accent), #00B894)',
+              background: 'linear-gradient(135deg, var(--accent), oklch(0.65 0.15 165))',
               border: 'none',
               borderRadius: 'var(--radius-lg)',
               color: 'var(--bg)',

@@ -6,6 +6,7 @@ import { LayoutPreview } from '@/components/brand/layout-preview';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { ThemeExportPanel } from '@/components/brand/theme-export-panel';
 import { CssPreview } from '@/components/brand/css-preview';
+import { TweaksTab } from '@/components/brand/tweaks-tab';
 import { ContrastBadge } from '@/components/brand/contrast-badge';
 import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
@@ -39,7 +40,7 @@ const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
   },
 };
 
-type RightTab = '3s' | '30s' | '300s' | 'overview' | 'export';
+type RightTab = '3s' | '30s' | '300s' | 'overview' | 'export' | 'tweaks';
 
 const RIGHT_TABS: Array<{ value: RightTab; label: string }> = [
   { value: '3s', label: 'Pulse (3s)' },
@@ -47,6 +48,7 @@ const RIGHT_TABS: Array<{ value: RightTab; label: string }> = [
   { value: '300s', label: 'Action (300s)' },
   { value: 'overview', label: '3-30-300' },
   { value: 'export', label: 'Export' },
+  { value: 'tweaks', label: 'Tweaks' },
 ];
 
 export function BrandLabClient() {
@@ -63,11 +65,23 @@ export function BrandLabClient() {
   const handleSaveTheme = useCallback(async () => {
     setSaving(true);
     try {
-      await fetch('/api/theme', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId, theme }),
-      });
+      await Promise.all([
+        fetch('/api/theme', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId, theme }),
+        }),
+        fetch('/api/brand-spec', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            primary: theme.primary,
+            background: theme.background,
+            surface: theme.surface,
+            fontFamily: theme.fontFamily,
+          }),
+        }),
+      ]);
     } finally {
       setSaving(false);
     }
@@ -353,6 +367,16 @@ export function BrandLabClient() {
             <CssPreview theme={theme} />
             <ThemeExportPanel theme={theme} />
           </div>
+        )}
+
+        {/* Tweaks */}
+        {activeTab === 'tweaks' && (
+          <TweaksTab
+            theme={theme}
+            onUpdate={updateTheme}
+            onSave={handleSaveTheme}
+            saving={saving}
+          />
         )}
       </div>
       </div>

@@ -192,10 +192,10 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
 
   if (nodes.length === 0) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: '#0F172A' }}>
-        <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid #334155', background: 'color-mix(in srgb, #0F172A 92%, var(--accent) 8%)', textAlign: 'center', maxWidth: 360 }}>
-          <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 600, color: '#E2E8F0' }}>No data to display</p>
-          {emptyMessage && <p style={{ margin: 0, fontSize: '0.8125rem', color: '#64748B', lineHeight: 1.6 }}>{emptyMessage}</p>}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: 'var(--bg)' }}>
+        <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--line)', background: 'color-mix(in srgb, var(--bg) 92%, var(--accent) 8%)', textAlign: 'center', maxWidth: 360 }}>
+          <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ink)' }}>No data to display</p>
+          {emptyMessage && <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--ink-3)', lineHeight: 1.6 }}>{emptyMessage}</p>}
         </div>
       </div>
     );

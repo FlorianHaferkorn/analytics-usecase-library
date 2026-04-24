@@ -21,7 +21,7 @@ export function PulseCard({ kpi, theme }: Props) {
   const statusColor = STATUS_COLORS[kpi.status] ?? 'var(--ink-4)';
   const radius = theme?.borderRadius != null ? `${theme.borderRadius / 2}px` : 'var(--radius-lg)';
   const borderColor = theme?.background
-    ? `color-mix(in srgb, ${theme.background} 60%, ${theme.text ?? '#94a3b8'})`
+    ? `color-mix(in srgb, ${theme.background} 60%, ${theme.text ?? 'var(--ink-3)'})`
     : 'var(--line)';
 
   return (
