@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:tokens": "node tooling/check_tokens.mjs",
     "generate:types": "node scripts/generate-types.mjs",
     "test": "vitest run",
     "test:watch": "vitest",

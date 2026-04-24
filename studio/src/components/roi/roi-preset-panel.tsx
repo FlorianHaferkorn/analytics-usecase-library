@@ -81,10 +81,10 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
       style={{ minWidth: 300, maxWidth: 400 }}
     >
       {/* KPI selector */}
-      <div style={{ padding: 'var(--sp-2)', borderBottom: '1px solid var(--slate-700)' }}>
+      <div style={{ padding: 'var(--gap)', borderBottom: '1px solid var(--line)' }}>
         <label
           htmlFor="roi-kpi-select"
-          style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--slate-400)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}
+          style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}
         >
           Golden-20 KPI
         </label>
@@ -95,10 +95,10 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
           style={{
             width: '100%',
             padding: '8px 10px',
-            backgroundColor: 'var(--slate-900)',
-            border: '1px solid var(--slate-700)',
+            backgroundColor: 'var(--bg)',
+            border: '1px solid var(--line)',
             borderRadius: 'var(--radius-md)',
-            color: 'var(--slate-100)',
+            color: 'var(--ink)',
             fontSize: '0.8125rem',
           }}
         >
@@ -111,26 +111,26 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
 
       {/* Loading */}
       {loading && (
-        <div style={{ padding: 'var(--sp-3)', color: 'var(--slate-400)', fontSize: '0.8125rem', textAlign: 'center' }}>
+        <div style={{ padding: 'var(--pad)', color: 'var(--ink-3)', fontSize: '0.8125rem', textAlign: 'center' }}>
           Loading preset…
         </div>
       )}
 
       {/* Error */}
       {!loading && error && (
-        <div style={{ padding: 'var(--sp-2)', color: 'var(--gold)', fontSize: '0.8125rem' }}>
+        <div style={{ padding: 'var(--gap)', color: 'var(--warning)', fontSize: '0.8125rem' }}>
           {error}
         </div>
       )}
 
       {/* Preset content */}
       {!loading && preset && (
-        <div style={{ padding: 'var(--sp-2)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+        <div style={{ padding: 'var(--gap)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
           <div>
             <div style={{ fontSize: '0.6875rem', color: 'var(--info)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
               {preset.label ?? kpiLabel ?? kpiId}
             </div>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>
               {preset.time_horizon_months}-month horizon
             </div>
           </div>
@@ -140,7 +140,7 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
             label="Baseline"
             range={preset.baseline_range}
             formatFn={formatValue}
-            color="var(--slate-400)"
+            color="var(--ink-3)"
           />
 
           {/* Target range */}
@@ -148,7 +148,7 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
             label="Target"
             range={preset.target_range}
             formatFn={formatValue}
-            color="var(--mint)"
+            color="var(--accent)"
           />
 
           {/* Slider-style visual */}
@@ -160,12 +160,12 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
           {/* Driver notes */}
           {preset.driver_notes && preset.driver_notes.length > 0 && (
             <div>
-              <div style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
                 Key Drivers
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {preset.driver_notes.map((note, i) => (
-                  <li key={i} style={{ fontSize: '0.75rem', color: 'var(--slate-300)', paddingLeft: 10, borderLeft: '2px solid var(--info)' }}>
+                  <li key={i} style={{ fontSize: '0.75rem', color: 'var(--ink-2)', paddingLeft: 10, borderLeft: '2px solid var(--info)' }}>
                     {note}
                   </li>
                 ))}
@@ -175,7 +175,7 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
 
           {/* Note */}
           {preset.baseline_range.note && (
-            <div style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', fontStyle: 'italic' }}>
+            <div style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', fontStyle: 'italic' }}>
               {preset.baseline_range.note}
             </div>
           )}
@@ -202,11 +202,11 @@ function RangeDisplay({ label, range, formatFn, color }: {
             flex: 1,
             padding: '6px 8px',
             borderRadius: 'var(--radius-md)',
-            backgroundColor: 'var(--slate-900)',
-            border: `1px solid ${key === 'likely' ? color : 'var(--slate-700)'}`,
+            backgroundColor: 'var(--bg)',
+            border: `1px solid ${key === 'likely' ? color : 'var(--line)'}`,
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '0.5625rem', color: 'var(--slate-500)', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase' }}>
               {key}
             </div>
             <div style={{ color, fontWeight: key === 'likely' ? 700 : 400, fontSize: '0.875rem' }}>
@@ -231,31 +231,31 @@ function RangeSlider({ baseline, target }: { baseline: RangeValue; target: Range
   const bLikelyPos = Math.min(100, Math.max(0, ((Number(baseline.likely) - bMin) / total) * 100));
 
   return (
-    <div style={{ position: 'relative', height: 20, background: 'var(--slate-800)', borderRadius: 4, overflow: 'visible', marginTop: 4 }}>
+    <div style={{ position: 'relative', height: 20, background: 'var(--panel)', borderRadius: 4, overflow: 'visible', marginTop: 4 }}>
       {/* Baseline band */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(90deg, var(--slate-700), var(--slate-600))',
+        background: 'linear-gradient(90deg, var(--bg-2), var(--line))',
         borderRadius: 4,
       }} />
       {/* Baseline likely marker */}
       <div title={`Baseline likely: ${baseline.likely}`} style={{
         position: 'absolute', top: -2, bottom: -2, left: `${bLikelyPos}%`,
-        width: 3, background: 'var(--slate-400)', borderRadius: 2,
+        width: 3, background: 'var(--ink-3)', borderRadius: 2,
         transform: 'translateX(-50%)',
       }} />
       {/* Target likely marker */}
       <div title={`Target: ${target.likely}`} style={{
         position: 'absolute', top: -4, bottom: -4, left: `${tPos}%`,
-        width: 4, background: 'var(--mint)', borderRadius: 2,
+        width: 4, background: 'var(--accent)', borderRadius: 2,
         transform: 'translateX(-50%)',
-        boxShadow: '0 0 6px var(--mint)',
+        boxShadow: '0 0 6px var(--accent)',
       }} />
       {/* Labels */}
       <div style={{
         position: 'absolute', top: 24, left: 0, right: 0,
         display: 'flex', justifyContent: 'space-between',
-        fontSize: '0.5625rem', color: 'var(--slate-500)',
+        fontSize: '0.5625rem', color: 'var(--ink-4)',
       }}>
         <span>min</span><span>max</span>
       </div>

@@ -18,29 +18,7 @@ import ExcelJS from 'exceljs';
 import { loadKpiCatalog } from '@/lib/core/catalog-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadAllBrackets } from '@/lib/core/bracket-loader';
-
-const GOLDEN_20_IDS = new Set([
-  'sales.net_sales.amount',
-  'cost.cogs.amount',
-  'crm.clv.amount',
-  'crm.retention.pct',
-  'crm.nps.index',
-  'crm.revenue_at_risk.amount',
-  'ops.otif.pct',
-  'ops.performance.pct',
-  'quality.fpy.pct',
-  'quality.copq.amount',
-  'supply.otif.pct',
-  'inv.dio.days',
-  'inv.stockout.pct',
-  'plan.forecast.accuracy.pct',
-  'plan.forecast.bias.pct',
-  'margin.gm.amount',
-  'margin.gm.pct',
-  'svc.nps.index',
-  'svc.fcr.pct',
-  'svc.escalation.pct',
-]);
+import { GOLDEN_20_IDS_SET as GOLDEN_20_IDS } from '@/lib/core/golden20';
 
 const FABRIC_BASE_URL = 'https://app.fabric.microsoft.com/groups/';
 const MINT = 'FF00D4AA';

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import type { LineageGraph, LineageNode } from '@/lib/core/lineage-builder';
 import type { DataContract } from '@/lib/schemas';
 import { ContractDetailList } from '@/components/lineage/contract-detail';
@@ -16,6 +17,7 @@ const LineageFlow = dynamic(
 interface Props {
   graph: LineageGraph;
   contracts: DataContract[];
+  focusId?: string;
 }
 
 type Tab = 'lineage' | 'contracts';
@@ -38,11 +40,23 @@ function upstreamSubgraph(graph: LineageGraph, startId: string): LineageGraph {
   return { nodes, edges };
 }
 
-export function LineageClient({ graph, contracts }: Props) {
+export function LineageClient({ graph, contracts, focusId }: Props) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('lineage');
   const [domainFilter, setDomainFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<NodeTypeFilter>('all');
-  const [bracketFilter, setBracketFilter] = useState<string>('all');
+  const [bracketFilter, setBracketFilter] = useState<string>(() => {
+    if (focusId?.startsWith('bracket:')) return focusId.slice('bracket:'.length);
+    return 'all';
+  });
+
+  const handleNodeNavigate = (id: string, type: string) => {
+    if (type === 'metric' || type === 'kpi') {
+      router.push('/catalog/' + id);
+    } else if (type === 'bracket') {
+      router.push('/brackets/' + id);
+    }
+  };
 
   // Derive filter options from graph data
   const domains = useMemo(() => {
@@ -203,7 +217,7 @@ export function LineageClient({ graph, contracts }: Props) {
               </div>
             }
           >
-            <LineageFlow graph={filteredGraph} />
+            <LineageFlow graph={filteredGraph} onNodeNavigate={handleNodeNavigate} />
           </StudioPanel>
         ) : (
           <StudioPanel title="Data Contracts" description="Review contract metadata and structure with the same page framing used across Studio." tone="success" style={{ height: '100%' }}>

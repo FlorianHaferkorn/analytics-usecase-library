@@ -45,7 +45,7 @@ export function ExportExcelButton() {
       disabled={loading}
       variant="secondary"
       style={{
-        padding: '6px var(--sp-1-5)',
+        padding: '6px 12px',
         fontSize: '0.75rem',
       }}
     >

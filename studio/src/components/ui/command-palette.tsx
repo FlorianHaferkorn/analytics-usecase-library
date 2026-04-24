@@ -12,6 +12,8 @@ export interface PaletteItem {
   onSelect?: () => void;
 }
 
+export type SerializablePaletteItem = Omit<PaletteItem, 'onSelect'>;
+
 interface Props {
   items?: PaletteItem[];
   onNavigate?: (path: string) => void;

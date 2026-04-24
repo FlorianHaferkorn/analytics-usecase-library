@@ -10,6 +10,10 @@ import {
   RocketLaunch,
   PuzzlePiece,
   Warning,
+  Plus,
+  CaretLeft,
+  CaretRight,
+  SquaresFour,
   type IconProps,
 } from '@phosphor-icons/react';
 
@@ -23,6 +27,10 @@ const ICON_MAP = {
   'rocket-launch': RocketLaunch,
   'puzzle-piece': PuzzlePiece,
   'warning': Warning,
+  'plus': Plus,
+  'caret-left': CaretLeft,
+  'caret-right': CaretRight,
+  'squares-four': SquaresFour,
 } as const;
 
 export type PhIconName = keyof typeof ICON_MAP;

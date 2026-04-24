@@ -1,17 +1,20 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
 import { StudioDataToolbar, StudioExpandedRow, StudioInlineStat, StudioInput, StudioSelect, StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 interface Props {
   kpis: CatalogKpi[];
+  highlightId?: string | null;
 }
 
-export function KpiRegistryTable({ kpis }: Props) {
+export function KpiRegistryTable({ kpis, highlightId = null }: Props) {
   const [filter, setFilter] = useState('');
   const [domainFilter, setDomainFilter] = useState<string>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
 
   const domains = useMemo(
     () => [...new Set(kpis.flatMap((k) => k.domain_tag ?? []))].sort(),
@@ -28,6 +31,24 @@ export function KpiRegistryTable({ kpis }: Props) {
       domainFilter === 'all' || (kpi.domain_tag ?? []).includes(domainFilter);
     return matchesText && matchesDomain;
   });
+
+  useEffect(() => {
+    if (!highlightId) return;
+    const match = kpis.find((k) => k.kpi_id.toLowerCase() === highlightId.toLowerCase());
+    if (!match) return;
+    setFilter('');
+    setDomainFilter('all');
+    setExpanded(match.kpi_id);
+    const t = setTimeout(() => {
+      const el = rowRefs.current.get(match.kpi_id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setFlashId(match.kpi_id);
+        setTimeout(() => setFlashId(null), 2400);
+      }
+    }, 80);
+    return () => clearTimeout(t);
+  }, [highlightId, kpis]);
 
   return (
     <div>
@@ -61,6 +82,11 @@ export function KpiRegistryTable({ kpis }: Props) {
                 kpi={kpi}
                 isExpanded={expanded === kpi.kpi_id}
                 onToggle={() => setExpanded(expanded === kpi.kpi_id ? null : kpi.kpi_id)}
+                flash={flashId === kpi.kpi_id}
+                rowRef={(node) => {
+                  if (node) rowRefs.current.set(kpi.kpi_id, node);
+                  else rowRefs.current.delete(kpi.kpi_id);
+                }}
               />
             ))}
           </tbody>
@@ -78,19 +104,21 @@ export function KpiRegistryTable({ kpis }: Props) {
   );
 }
 
-function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: boolean; onToggle: () => void }) {
+function KpiRow({ kpi, isExpanded, onToggle, flash, rowRef }: { kpi: CatalogKpi; isExpanded: boolean; onToggle: () => void; flash?: boolean; rowRef?: (node: HTMLTableRowElement | null) => void }) {
   const score = kpi.metadata_quality?.completeness_score ?? 0;
   const scoreColor = score >= 0.9 ? 'var(--accent)' : score >= 0.7 ? 'var(--warning)' : 'var(--danger)';
 
   return (
     <>
       <tr
+        ref={rowRef}
         onClick={onToggle}
         style={{
           borderBottom: '1px solid var(--line)',
           cursor: 'pointer',
-          backgroundColor: isExpanded ? 'var(--bg-2)' : 'transparent',
-          transition: 'background-color var(--duration-fast) var(--ease-out)',
+          backgroundColor: flash ? 'var(--accent-soft)' : isExpanded ? 'var(--bg-2)' : 'transparent',
+          boxShadow: flash ? '0 0 0 2px var(--accent)' : undefined,
+          transition: 'background-color 150ms, box-shadow 600ms ease-out',
         }}
       >
         <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.75rem' }}>{kpi.kpi_id}</StudioTableCell>

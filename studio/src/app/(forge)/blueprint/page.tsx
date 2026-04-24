@@ -3,8 +3,10 @@ import { join } from 'node:path';
 import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
+import { loadAllSpines } from '@/lib/core/spine-loader';
 import { getProject } from '@/lib/db/project-repo';
-import { SteeringHubClient } from '@/app/(studio)/steering/steering-hub-client';
+import { BlueprintClient } from './blueprint-client';
+import { GOLDEN_20_IDS } from '@/lib/core/golden20';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
@@ -44,15 +46,21 @@ export default async function BlueprintPage({
   searchParams?: Promise<{ draftId?: string; draftYaml?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const [{ brackets, yamls: bracketYamls }, actions, kpiMap] = await Promise.all([
+  const [{ brackets, yamls: bracketYamls }, actions, kpiMap, spines] = await Promise.all([
     loadBracketsWithYaml(),
     loadAllActionCodes(),
     loadKpiMap(),
+    loadAllSpines().catch(() => []),
   ]);
 
   const kpiNames: Record<string, string> = {};
   for (const [id, kpi] of kpiMap) {
     kpiNames[id] = kpi.kpi_key || id;
+  }
+
+  const actionNames: Record<string, string> = {};
+  for (const a of actions) {
+    actionNames[a.id] = a.name;
   }
 
   const defaultProject = getProject('default');
@@ -100,14 +108,17 @@ export default async function BlueprintPage({
   }
 
   return (
-    <SteeringHubClient
+    <BlueprintClient
       strategyAnchor={strategyAnchor}
       brackets={draftBracketData ? [draftBracketData, ...bracketData] : bracketData}
       actionDetails={actionDetails}
       bracketYamls={draftBracketData && draftYaml ? { [draftBracketData.id]: draftYaml, ...bracketYamls } : bracketYamls}
       kpiNames={kpiNames}
+      actionNames={actionNames}
       initialSelectedBracket={draftBracketData?.id ?? null}
       draftBracketId={draftBracketData?.id ?? null}
+      golden20Ids={[...GOLDEN_20_IDS]}
+      spines={spines}
     />
   );
 }
