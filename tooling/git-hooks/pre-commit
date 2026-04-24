@@ -1,11 +1,26 @@
 #!/bin/sh
 # Pre-commit hook: run ontology registry builder in strict mode.
-# Blocks commit if registry exits non-zero.
+# Scope: only runs if staged diff includes paths under core/.
+# Studio-only (or tooling-only, docs-only) commits bypass this check —
+# the ontology registry is only affected by changes under core/.
 # Install via: .\tooling\git-hooks\install_precommit.ps1
 
 set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
+
+# Fast path: if no core/ paths are staged, skip the registry builder.
+# --cached        = staged files only
+# --name-only     = paths only, no diff body
+# --diff-filter   = Added/Copied/Modified/Renamed (excludes Deleted, which doesn't affect registry)
+CORE_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^core/' || true)
+
+if [ -z "$CORE_STAGED" ]; then
+  echo "pre-commit: no core/ changes staged — skipping ontology registry build."
+  exit 0
+fi
+
+echo "pre-commit: core/ changes detected — running ontology registry build (strict)..."
 
 # Prefer py -3 (Windows launcher), fallback to python
 if command -v py >/dev/null 2>&1; then
