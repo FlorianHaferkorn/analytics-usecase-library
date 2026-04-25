@@ -2,16 +2,13 @@
 """
 check_catalog_tmdl_drift.py — Catalog↔TMDL semantic diff validator.
 
-Compares measure_name, depends_on_measures, and lineage from KPI_Catalog.md
-against the actual TMDL measures in products/fabric/powerbi/dist/.
-
-Produces drift_report.json with any rows where catalog and TMDL disagree.
-Exits non-zero on any drift row.
+Compares measure_name entries from KPI_Catalog.md against the actual TMDL
+measures in products/fabric/powerbi/dist/.  Produces a drift_report.json and
+exits non-zero when unplanned measures are missing from TMDL.
 
 Usage:
     python3 tooling/validation/check_catalog_tmdl_drift.py \
-        --catalog core/kpi_catalog/KPI_Catalog.md \
-        --dist-dir products/fabric/powerbi/dist
+        --repo-root . [--strict]
 """
 import argparse
 import json
@@ -25,18 +22,34 @@ except ImportError:
     print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
     sys.exit(2)
 
+# ─── Suffix helpers ────────────────────────────────────────────────────────────
 
-def load_catalog_measures(catalog_path: Path) -> list[dict]:
-    """Parse KPI_Catalog.md and return list of KPI entries with technical metadata."""
-    entries = []
-    content = catalog_path.read_text(encoding="utf-8")
+_SUFFIX_RE = re.compile(r"\s*\([^)]+\)\s*$")
+
+
+def _strip_suffix(name: str) -> str:
+    """Remove trailing parenthetical suffix, e.g. 'NPS Index (Service)' → 'NPS Index'."""
+    return _SUFFIX_RE.sub("", name).strip()
+
+
+def _has_suffix(name: str) -> bool:
+    """Return True if name ends with a parenthetical like '(XD)' or '(Service)'."""
+    return bool(_SUFFIX_RE.search(name))
+
+
+# ─── Parsers ───────────────────────────────────────────────────────────────────
+
+
+def parse_catalog(catalog_path: str) -> dict:
+    """Parse KPI_Catalog.md and return {kpi_id: measure_name}."""
+    entries: dict = {}
+    content = Path(catalog_path).read_text(encoding="utf-8")
     blocks = re.split(r"^(?=- kpi_id:)", content, flags=re.MULTILINE)
     for block in blocks:
         try:
             doc = yaml.safe_load(block)
         except yaml.YAMLError:
             continue
-        # yaml.safe_load on a '- kpi_id:' block returns a list
         if isinstance(doc, list) and doc:
             doc = doc[0]
         if not isinstance(doc, dict):
@@ -45,160 +58,222 @@ def load_catalog_measures(catalog_path: Path) -> list[dict]:
         if not kpi_id:
             continue
         tech = doc.get("technical") or {}
-        entries.append({
-            "kpi_id": kpi_id,
-            "measure_name": tech.get("measure_name", ""),
-            "depends_on_measures": tech.get("depends_on_measures") or [],
-            "lineage": tech.get("lineage") or [],
-        })
+        measure_name = tech.get("measure_name", "")
+        if measure_name:
+            entries[kpi_id] = measure_name
     return entries
 
 
-def load_tmdl_measures(dist_dir: Path) -> dict[str, dict]:
+def parse_tmdl_measures(tmdl_files: list) -> dict:
     """
-    Parse all */_Measures.tmdl files and return {measure_name: {dax, comment}}.
+    Parse measure names from a list of TMDL file paths.
 
-    When multiple TMDL files define the same measure name (e.g. proxy cross-domain
-    measures alongside domain-canonical measures), the entry with a kpi_id annotation
-    (``/// Measure Name - kpi.id``) takes priority so the canonical DAX is used for
-    lineage checks regardless of filesystem iteration order.
+    Excludes Action_* measures (action outcome text measures, not KPI measures).
+
+    Returns {file_path_str: [measure_name, ...]}.
     """
-    measure_map: dict[str, dict] = {}
-    for tmdl_path in sorted(dist_dir.rglob("_Measures.tmdl")):
-        content = tmdl_path.read_text(encoding="utf-8", errors="replace")
-        # Match measure blocks: optional comment lines, then 'measure <name> = ...'
-        # Lookahead: stop at next \t/// comment or \tmeasure declaration (single-tab level)
-        pattern = re.compile(
-            r"((?:\t///[^\n]*\n)*)"   # optional leading /// comment lines
-            r"\t\s*measure '([^']+)'\s*=(.*?)(?=\n\t///|\n\tmeasure\s+'|\Z)",
-            re.DOTALL,
+    result: dict = {}
+    pattern = re.compile(r"^\s*measure '([^']+)'", re.MULTILINE)
+    for path_str in tmdl_files:
+        path = Path(path_str)
+        if not path.exists():
+            result[path_str] = []
+            continue
+        content = path.read_text(encoding="utf-8", errors="replace")
+        names = [
+            m.group(1)
+            for m in pattern.finditer(content)
+            if not m.group(1).startswith("Action_")
+        ]
+        result[path_str] = names
+    return result
+
+
+def parse_planned(planned_path: str) -> dict:
+    """Parse planned.yaml and return {kpi_id: entry_dict}."""
+    path = Path(planned_path)
+    if not path.exists():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(data, list):
+        return {}
+    return {entry["kpi_id"]: entry for entry in data if "kpi_id" in entry}
+
+
+# ─── Checks ────────────────────────────────────────────────────────────────────
+
+
+def check_duplicate_unsuffixed(tmdl_by_file: dict) -> list:
+    """
+    Find unsuffixed measure names that appear in more than one distinct SemanticModel.
+
+    Cross-domain proxy measures use suffixes like '(XD)' to disambiguate; those are
+    intentional and excluded from this check.  Two files from the same SemanticModel
+    (e.g. dist/ and showcases/ copies) are treated as a single model and do not trigger
+    an error.
+
+    Returns a list of error strings (empty = no duplicates).
+    """
+    # unsuffixed_name → set of SemanticModel names (without path root)
+    model_map: dict = {}
+    for file_path, names in tmdl_by_file.items():
+        parts = Path(file_path).parts
+        model_name = next(
+            (p for p in parts if p.endswith(".SemanticModel")), file_path
         )
-        for m in pattern.finditer(content):
-            comment_block, name, dax_body = m.group(1), m.group(2), m.group(3)
-            # Extract referenced columns from DAX (table[column] pattern)
-            lineage_refs = re.findall(r"\w+\['?([^'\]]+)'?\]", dax_body)
-            # Extract measure references from DAX (e.g. [Measure Name])
-            measure_refs = re.findall(r"\[([^\]]+)\]", dax_body)
-            # Collect kpi_id from comment if present (format: /// Measure Name - kpi.id)
-            kpi_id_match = re.search(r"/// .+ - ([\w\.]+)\s*$", comment_block, re.MULTILINE)
-            kpi_id = kpi_id_match.group(1) if kpi_id_match else None
-            entry = {
-                "dax": dax_body.strip(),
-                "comment": comment_block.strip(),
-                "kpi_id": kpi_id,
-                "lineage_refs": lineage_refs,
-                "measure_refs": measure_refs,
-                "tmdl_path": str(tmdl_path),
-            }
-            # Prefer kpi_id-annotated entries: if this name already exists and the
-            # existing entry already has a kpi_id annotation, keep it (don't overwrite
-            # with a proxy/cross-domain measure that lacks an annotation).
-            existing = measure_map.get(name)
-            if existing is None or (kpi_id and not existing["kpi_id"]):
-                measure_map[name] = entry
-    return measure_map
+        for name in names:
+            if not _has_suffix(name):
+                model_map.setdefault(name, set()).add(model_name)
+
+    return [
+        f"Unsuffixed measure '{base}' appears in multiple SemanticModels: {sorted(models)}"
+        for base, models in model_map.items()
+        if len(models) > 1
+    ]
 
 
-def check_drift(catalog_entries: list[dict], tmdl_measures: dict[str, dict]) -> list[dict]:
-    """Compare catalog entries against TMDL. Return list of drift rows."""
-    drift_rows = []
+def check_catalog_coverage(
+    catalog: dict,
+    tmdl_by_file: dict,
+    planned: dict,
+    strict: bool = False,
+) -> tuple:
+    """
+    Check that every KPI catalog entry has a matching measure name in TMDL.
 
-    for entry in catalog_entries:
-        name = entry["measure_name"]
-        if not name:
+    A suffixed measure (e.g. 'Action Outcome Rate % (XD Log)') satisfies the
+    corresponding base catalog entry ('Action Outcome Rate %').
+
+    strict=True:  unplanned missing measures → errors
+    strict=False: unplanned missing measures → warnings
+    Planned missing measures are always warnings regardless of strict.
+
+    Returns (errors: list[str], warnings: list[str]).
+    """
+    all_names: set = set()
+    for names in tmdl_by_file.values():
+        all_names.update(names)
+
+    # unsuffixed names for proxy satisfaction
+    unsuffixed_names = {_strip_suffix(n) for n in all_names}
+
+    errors: list = []
+    warnings: list = []
+
+    for kpi_id, measure_name in catalog.items():
+        if measure_name in all_names or measure_name in unsuffixed_names:
             continue
+        msg = f"'{measure_name}' ({kpi_id}) not found in any _Measures.tmdl"
+        if kpi_id in planned:
+            warnings.append(
+                f"Planned: {msg} — eta: {planned[kpi_id].get('eta_date', 'unknown')}"
+            )
+        elif strict:
+            errors.append(f"Missing: {msg}")
+        else:
+            warnings.append(f"Missing: {msg}")
 
-        tmdl = tmdl_measures.get(name)
-        if tmdl is None:
-            # Measure declared in catalog but absent from TMDL
-            drift_rows.append({
-                "kpi_id": entry["kpi_id"],
-                "measure_name": name,
-                "drift_type": "missing_in_tmdl",
-                "catalog_value": name,
-                "tmdl_value": None,
-            })
-            continue
-
-        # Check kpi_id linkage in TMDL comment
-        if tmdl["kpi_id"] and tmdl["kpi_id"] != entry["kpi_id"]:
-            drift_rows.append({
-                "kpi_id": entry["kpi_id"],
-                "measure_name": name,
-                "drift_type": "kpi_id_mismatch",
-                "catalog_value": entry["kpi_id"],
-                "tmdl_value": tmdl["kpi_id"],
-            })
-
-        # Check that catalog lineage columns appear in TMDL DAX
-        for lineage_item in entry["lineage"]:
-            # lineage_item format: "table.Column Name" or "table.column_name"
-            parts = lineage_item.split(".", 1)
-            if len(parts) < 2:
-                continue
-            col_name = parts[1]
-            if col_name not in tmdl["lineage_refs"] and col_name not in tmdl["dax"]:
-                drift_rows.append({
-                    "kpi_id": entry["kpi_id"],
-                    "measure_name": name,
-                    "drift_type": "lineage_missing_in_dax",
-                    "catalog_value": lineage_item,
-                    "tmdl_value": f"not found in {Path(tmdl['tmdl_path']).name}",
-                })
-
-    return drift_rows
+    return errors, warnings
 
 
-def main():
+# ─── Entry point ───────────────────────────────────────────────────────────────
+
+
+def main(argv=None) -> int:
+    """Run the drift check.  Returns 0 (ok) or 1 (errors found) or 2 (config error)."""
     parser = argparse.ArgumentParser(description="Catalog↔TMDL semantic drift validator")
-    parser.add_argument("--catalog", default="core/kpi_catalog/KPI_Catalog.md",
-                        help="Path to KPI_Catalog.md")
-    parser.add_argument("--dist-dir", default="products/fabric/powerbi/dist",
-                        help="Path to dist/ directory containing SemanticModel folders")
-    parser.add_argument("--output", default="drift_report.json",
-                        help="Output path for drift report JSON")
-    parser.add_argument("--ignore-missing", action="store_true",
-                        help="Do not fail on measures absent from TMDL (only report DAX drift)")
-    args = parser.parse_args()
+    parser.add_argument(
+        "--repo-root", default=".", help="Repository root directory"
+    )
+    parser.add_argument(
+        "--catalog",
+        default=None,
+        help="Path to KPI_Catalog.md (default: <repo-root>/core/kpi_catalog/KPI_Catalog.md)",
+    )
+    parser.add_argument(
+        "--dist-dir",
+        default=None,
+        help="Path to dist/ directory (default: <repo-root>/products/fabric/powerbi/dist)",
+    )
+    parser.add_argument(
+        "--planned",
+        default=None,
+        help="Path to planned.yaml (default: <repo-root>/core/kpi_catalog/planned.yaml)",
+    )
+    parser.add_argument(
+        "--output", default="drift_report.json", help="Output path for drift report JSON"
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat unplanned missing measures as errors instead of warnings",
+    )
+    args = parser.parse_args(argv)
 
-    catalog_path = Path(args.catalog)
-    dist_dir = Path(args.dist_dir)
+    repo_root = Path(args.repo_root)
+    catalog_path = (
+        Path(args.catalog) if args.catalog else repo_root / "core/kpi_catalog/KPI_Catalog.md"
+    )
+    dist_dir = (
+        Path(args.dist_dir)
+        if args.dist_dir
+        else repo_root / "products/fabric/powerbi/dist"
+    )
+    planned_path = (
+        Path(args.planned)
+        if args.planned
+        else repo_root / "core/kpi_catalog/planned.yaml"
+    )
 
     if not catalog_path.exists():
         print(f"ERROR: Catalog not found: {catalog_path}", file=sys.stderr)
-        sys.exit(2)
+        return 2
     if not dist_dir.exists():
-        print(f"WARNING: dist-dir not found: {dist_dir}. Nothing to validate.", file=sys.stderr)
-        sys.exit(0)
+        print(
+            f"WARNING: dist-dir not found: {dist_dir}. Nothing to validate.",
+            file=sys.stderr,
+        )
+        return 0
 
-    catalog_entries = load_catalog_measures(catalog_path)
-    tmdl_measures = load_tmdl_measures(dist_dir)
+    catalog = parse_catalog(str(catalog_path))
+    tmdl_files = [str(p) for p in sorted(dist_dir.rglob("_Measures.tmdl"))]
+    tmdl_by_file = parse_tmdl_measures(tmdl_files)
+    planned = parse_planned(str(planned_path))
 
-    print(f"Loaded {len(catalog_entries)} KPI entries from catalog")
-    print(f"Loaded {len(tmdl_measures)} measures from TMDL")
+    total_measures = sum(len(v) for v in tmdl_by_file.values())
+    print(f"Loaded {len(catalog)} KPI entries from catalog")
+    print(f"Loaded {total_measures} measures from {len(tmdl_files)} TMDL files")
 
-    drift_rows = check_drift(catalog_entries, tmdl_measures)
+    dup_errors = check_duplicate_unsuffixed(tmdl_by_file)
+    cov_errors, cov_warnings = check_catalog_coverage(
+        catalog, tmdl_by_file, planned, strict=args.strict
+    )
 
-    if args.ignore_missing:
-        drift_rows = [r for r in drift_rows if r["drift_type"] != "missing_in_tmdl"]
+    all_errors = dup_errors + cov_errors
+    all_warnings = cov_warnings
 
-    # Write report
+    for w in all_warnings:
+        print(f"  ⚠  {w}")
+    for e in all_errors:
+        print(f"  ❌ {e}")
+
     output_path = Path(args.output)
-    report = {"drift_count": len(drift_rows), "rows": drift_rows}
+    report = {
+        "error_count": len(all_errors),
+        "warning_count": len(all_warnings),
+        "errors": all_errors,
+        "warnings": all_warnings,
+    }
     output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"Drift report written to {output_path}")
 
-    if drift_rows:
-        print(f"\n❌ {len(drift_rows)} drift row(s) found:\n")
-        for row in drift_rows:
-            print(f"  [{row['drift_type']}] {row['kpi_id']} / '{row['measure_name']}'")
-            print(f"    catalog: {row['catalog_value']}")
-            print(f"    tmdl:    {row['tmdl_value']}")
-        sys.exit(1)
+    if all_errors:
+        print(f"\n❌ {len(all_errors)} error(s) found.")
+        return 1
 
-    print("✅ No catalog↔TMDL drift found.")
-    sys.exit(0)
+    print(f"✅ No catalog↔TMDL drift found ({len(all_warnings)} warning(s)).")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

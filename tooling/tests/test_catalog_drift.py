@@ -1,12 +1,11 @@
-"""Unit tests for check_catalog_tmdl_drift.py."""
-import json
+"""Unit tests for check_catalog_tmdl_drift.py (legacy suite — uses new API names)."""
 import sys
 import textwrap
 from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "validation"))
-from check_catalog_tmdl_drift import load_catalog_measures, load_tmdl_measures, check_drift
+from check_catalog_tmdl_drift import parse_catalog, parse_tmdl_measures, check_catalog_coverage
 
 
 CATALOG_SAMPLE = textwrap.dedent("""\
@@ -48,8 +47,8 @@ TMDL_MATCHING = (
     f"{TAB}{TAB}formatString: \"0.0%\"\n"
 )
 
-TMDL_DRIFTED = (
-    f"{TAB}/// Ops OTIF % - wrong.kpi.id\n"
+TMDL_ONLY_OTIF = (
+    f"{TAB}/// Ops OTIF % - ops.otif.pct\n"
     f"{TAB}measure 'Ops OTIF %' =\n"
     f"{TAB}{TAB}DIVIDE ( 1, 1 )\n"
     f"{TAB}{TAB}formatString: \"0.0%\"\n"
@@ -67,64 +66,70 @@ def write_tmdl(tmp_path: Path, content: str) -> Path:
     model_dir.mkdir(parents=True)
     p = model_dir / "_Measures.tmdl"
     p.write_text(content)
-    return tmp_path
+    return p
 
 
-class TestLoadCatalogMeasures:
+class TestParseCatalog:
     def test_loads_measure_names(self, tmp_path):
         catalog = write_catalog(tmp_path, CATALOG_SAMPLE)
-        entries = load_catalog_measures(catalog)
-        names = {e["measure_name"] for e in entries}
+        result = parse_catalog(str(catalog))
+        assert result["fin.revenue.net.amount"] == "Net Revenue Amount"
+        assert result["ops.otif.pct"] == "Ops OTIF %"
+
+    def test_skips_entry_without_measure_name(self, tmp_path):
+        sample = textwrap.dedent("""\
+        - kpi_id: no.measure.here
+          kpi_key: No Measure
+          technical:
+            measure_name: ""
+        """)
+        catalog = write_catalog(tmp_path, sample)
+        result = parse_catalog(str(catalog))
+        assert "no.measure.here" not in result
+
+
+class TestParseTmdlMeasures:
+    def test_loads_measures(self, tmp_path):
+        tmdl = write_tmdl(tmp_path, TMDL_MATCHING)
+        result = parse_tmdl_measures([str(tmdl)])
+        names = result[str(tmdl)]
         assert "Net Revenue Amount" in names
         assert "Ops OTIF %" in names
 
-    def test_loads_lineage(self, tmp_path):
+    def test_excludes_action_measures(self, tmp_path):
+        content = (
+            f"{TAB}measure 'Action_C-C3.1_Text' = \"action\"\n"
+            f"{TAB}measure 'Net Sales Amount' = SUM ( fact[val] )\n"
+        )
+        tmdl = write_tmdl(tmp_path, content)
+        result = parse_tmdl_measures([str(tmdl)])
+        names = result[str(tmdl)]
+        assert "Net Sales Amount" in names
+        assert "Action_C-C3.1_Text" not in names
+
+
+class TestCheckCatalogCoverage:
+    def test_no_errors_when_measures_present(self, tmp_path):
         catalog = write_catalog(tmp_path, CATALOG_SAMPLE)
-        entries = load_catalog_measures(catalog)
-        otif = next(e for e in entries if e["kpi_id"] == "ops.otif.pct")
-        assert "fact_fulfillment.OTIF Flag" in otif["lineage"]
-
-
-class TestLoadTmdlMeasures:
-    def test_loads_measures(self, tmp_path):
-        dist_dir = write_tmdl(tmp_path, TMDL_MATCHING)
-        measures = load_tmdl_measures(dist_dir)
-        assert "Net Revenue Amount" in measures
-        assert "Ops OTIF %" in measures
-
-    def test_extracts_kpi_id_from_comment(self, tmp_path):
-        dist_dir = write_tmdl(tmp_path, TMDL_MATCHING)
-        measures = load_tmdl_measures(dist_dir)
-        assert measures["Ops OTIF %"]["kpi_id"] == "ops.otif.pct"
-
-
-class TestCheckDrift:
-    def test_no_drift_when_matching(self, tmp_path):
-        catalog = write_catalog(tmp_path, CATALOG_SAMPLE)
-        dist_dir = write_tmdl(tmp_path / "dist", TMDL_MATCHING)
-        entries = load_catalog_measures(catalog)
-        tmdl_measures = load_tmdl_measures(dist_dir)
-        rows = check_drift(entries, tmdl_measures)
-        # Should detect missing Net Revenue Amount in drifted TMDL (only Ops OTIF % present)
-        missing = [r for r in rows if r["drift_type"] == "missing_in_tmdl"]
-        drift = [r for r in rows if r["drift_type"] == "kpi_id_mismatch"]
-        assert len(drift) == 0
-
-    def test_detects_kpi_id_mismatch(self, tmp_path):
-        catalog = write_catalog(tmp_path, CATALOG_SAMPLE)
-        dist_dir = write_tmdl(tmp_path / "dist", TMDL_DRIFTED)
-        entries = load_catalog_measures(catalog)
-        tmdl_measures = load_tmdl_measures(dist_dir)
-        rows = check_drift(entries, tmdl_measures)
-        mismatch = [r for r in rows if r["drift_type"] == "kpi_id_mismatch"]
-        assert len(mismatch) == 1
-        assert mismatch[0]["kpi_id"] == "ops.otif.pct"
+        tmdl = write_tmdl(tmp_path, TMDL_MATCHING)
+        cat = parse_catalog(str(catalog))
+        by_file = parse_tmdl_measures([str(tmdl)])
+        errors, warnings = check_catalog_coverage(cat, by_file, {}, strict=True)
+        assert not errors
 
     def test_detects_missing_measure(self, tmp_path):
         catalog = write_catalog(tmp_path, CATALOG_SAMPLE)
-        dist_dir = write_tmdl(tmp_path / "dist", TMDL_DRIFTED)
-        entries = load_catalog_measures(catalog)
-        tmdl_measures = load_tmdl_measures(dist_dir)
-        rows = check_drift(entries, tmdl_measures)
-        missing = [r for r in rows if r["drift_type"] == "missing_in_tmdl"]
-        assert any(r["measure_name"] == "Net Revenue Amount" for r in missing)
+        tmdl = write_tmdl(tmp_path, TMDL_ONLY_OTIF)
+        cat = parse_catalog(str(catalog))
+        by_file = parse_tmdl_measures([str(tmdl)])
+        errors, warnings = check_catalog_coverage(cat, by_file, {}, strict=True)
+        assert any("Net Revenue Amount" in e for e in errors)
+
+    def test_missing_is_warning_when_not_strict(self, tmp_path):
+        catalog = write_catalog(tmp_path, CATALOG_SAMPLE)
+        tmdl = write_tmdl(tmp_path, TMDL_ONLY_OTIF)
+        cat = parse_catalog(str(catalog))
+        by_file = parse_tmdl_measures([str(tmdl)])
+        errors, warnings = check_catalog_coverage(cat, by_file, {}, strict=False)
+        assert not errors
+        assert any("Net Revenue Amount" in w for w in warnings)

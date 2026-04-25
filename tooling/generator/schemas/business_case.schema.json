@@ -17,6 +17,10 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "Canonical action code identifier. Must match action_code_id. Required by the registry builder."
+    },
     "action_code_id": {
       "type": "string",
       "description": "ID of the action code this business case belongs to (must exist in core/action_codes/)."

@@ -1,4 +1,5 @@
 # Business Case — C-M2.1 Price Realization Guardrails
+id: C-M2.1
 action_code_id: C-M2.1
 kpi_id: sales.price.realization_pct
 impact_range_eur_min: 500000

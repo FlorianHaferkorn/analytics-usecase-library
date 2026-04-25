@@ -130,3 +130,8 @@
   owner: sales_ops_bi_lead
   eta_date: "2026-06-30"
   reason: "Commercial model uses kpi_id-style measure name (sales.pvm.volume_effect.amount); rename pending COM model refactor"
+
+- kpi_id: svc.nps.index
+  owner: cx_analytics_lead
+  eta_date: "2026-09-30"
+  reason: "Service NPS measure 'NPS Index (Service)' not yet implemented separately from crm.nps.index ('NPS Index') in Experience model"

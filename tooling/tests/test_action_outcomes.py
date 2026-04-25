@@ -135,9 +135,17 @@ class TestOutcomeMeasuresInTMDL:
         tmdl_path = DIST_ROOT / domain_model / "definition/tables/_Measures.tmdl"
         assert tmdl_path.exists(), f"{tmdl_path} does not exist"
         content = tmdl_path.read_text(encoding="utf-8")
+        # Commercial is the canonical owner; other models carry cross-domain (XD) proxies.
+        is_canonical = domain_model == "Commercial.SemanticModel"
         for measure in EXPECTED_OUTCOME_MEASURES:
-            assert f"measure '{measure}'" in content, \
-                f"'{measure}' missing from {domain_model}/_Measures.tmdl"
+            if is_canonical:
+                assert f"measure '{measure}'" in content, \
+                    f"'{measure}' missing from {domain_model}/_Measures.tmdl"
+            else:
+                has_exact = f"measure '{measure}'" in content
+                has_xd = f"measure '{measure} (XD)'" in content
+                assert has_exact or has_xd, \
+                    f"'{measure}' (or its XD proxy) missing from {domain_model}/_Measures.tmdl"
 
     @pytest.mark.parametrize("domain_model", DOMAIN_MODELS)
     def test_outcome_measures_reference_fact_action_outcome(self, domain_model):

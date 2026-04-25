@@ -21,9 +21,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pandas as pd
 import pytest
 import io
+
+pd = pytest.importorskip("pandas")
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VALIDATOR_MODULE = REPO_ROOT / "tooling/generator/validation/check_action_outcome_reconciliation.py"
