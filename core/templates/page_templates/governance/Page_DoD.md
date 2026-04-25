@@ -119,6 +119,24 @@ Reference: `Storytelling_Principles.md §2` · `samples/page_pulse_full.md §Big
 
 ---
 
+## 11. Primary Visual Annotation
+
+Every primary visual (the first visual in Zone 3, slot `Main_1`) must have at least one explicit annotation
+marking the single most important finding in the current filter context.
+
+> *"Direct the audience's attention to where you want them to look."*
+> — Cole Nussbaumer Knaflic, *Storytelling with Data*, p. 173
+
+- [ ] The primary visual (`Main_1`) has at least one annotation
+- [ ] The annotation marks exactly one finding: an inflection point, endpoint, maximum deviation, or threshold crossing
+- [ ] The annotation is text-based (callout label or reference line label) — color alone does not qualify
+- [ ] The annotated finding corresponds to the Big Idea or the decision question of the page
+- [ ] If the current filter context produces no notable finding, the Smart Narrative states this explicitly — the annotation requirement is waived only in this case, and the waiver must be documented in `UseCase_Bracket.yaml` (`ux_layout_rules.annotation_waiver: true`)
+
+Reference: `Storytelling_Principles.md §8` · Knaflic, *Storytelling with Data* (2015), p. 173
+
+---
+
 ## Final Rule
 
 > If a page technically works but fails one DoD check,

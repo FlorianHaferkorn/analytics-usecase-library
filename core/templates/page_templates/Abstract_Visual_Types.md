@@ -49,6 +49,21 @@ Visual types in this framework use abstract identifiers that are independent of 
 
 ---
 
+### Small Multiples
+
+| Abstract Type | Semantic Purpose | Allowed Slots | Allowed Templates |
+|---|---|---|---|
+| `small_multiples` | Same metric across 3–12 entities on identical scales; enables simultaneous comparison of direction and magnitude | `Main_3` (Ranking), `Main_1` (Trend) | T1, T2, T3 |
+
+Rules:
+- All panels must share an identical scale and axis range — panels with independent scales are not small multiples, they are unrelated charts (Tufte, *The Visual Display of Quantitative Information*, p. 170)
+- Inner visual type must be consistent across all panels (`line_chart` or `bar_chart_column`)
+- Panel count: minimum 3, maximum 12. Below 3 use side-by-side charts; above 12 use `bar_chart_horizontal` (ranked)
+- Not allowed on T4 — focus pages require single-entity context
+- Label each panel with the entity name, not a legend
+
+---
+
 ### Variance & Diagnostics
 
 | Abstract Type | Semantic Purpose | Allowed Slots | Allowed Templates |
@@ -133,6 +148,7 @@ Connectors map abstract types to tool-native components. This table shows the re
 | `bar_chart_horizontal` | `barChart` (horizontal) | `bar_chart` (horizontal) | `barchart` (h) | `row` |
 | `bar_chart_column` | `columnChart` | `bar_chart` | `barchart` | `bar` |
 | `stacked_bar_100pct` | `stackedBarChart` (100%) | `echarts_bar` (stack pct) | `barchart` (stacked) | `bar` (stacked) |
+| `small_multiples` | Page-level filtering + repeated visuals | `echarts_timeseries_line` (repeated) | `timeseries` (repeated) | — |
 | `waterfall` | `waterfallVisual` | `echarts_waterfall` (plugin) | — (plugin) | — |
 | `scatter_plot` | `scatterChart` | `scatter` | `scatterplot` | `scatter` |
 | `decomposition_tree` | `decompositionTree` | `Treemap` (limited) | — | — |

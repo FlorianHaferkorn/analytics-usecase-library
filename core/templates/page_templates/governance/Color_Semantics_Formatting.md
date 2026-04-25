@@ -53,6 +53,34 @@ Rule: Every color signal must be paired with an icon (▲ ▼ ⚠ ─) for color
 
 ---
 
+## IBCS Scenario Encoding — Shape and Fill
+
+Color alone cannot distinguish scenarios when multiple time references appear on the same visual.
+IBCS (HICHERT, Rolf; FAISST, Jürgen — *Solid, Outlined, Hatched*, IBCS Institute, 2020) defines a
+fill-pattern encoding that works alongside color and abbreviations.
+
+| Scenario | Abbreviation | Fill / Shape | Applies to |
+|----------|--------------|--------------|------------|
+| Actual (current period) | AC | **Solid fill** | Bars, columns, areas, dots |
+| Plan / Budget | PL | **Outlined / hollow** (same color, no fill) | Bars, columns, reference markers |
+| Forecast | FC | **Hatched / cross-hatched** | Bars, columns, areas |
+| Prior Year | PY | **Lighter tint** (50% opacity of AC fill) | Bars, columns, lines |
+
+Rules:
+
+- Scenario encoding is **additive** — it works alongside the semantic color system, not instead of it
+- When AC and PL appear on the same chart, use solid vs. outlined — never use a second color to distinguish scenarios
+- When FC appears alongside AC, use hatched fill — the reader must distinguish "what happened" from "what we project"
+- PY as a reference line: use `brand.primary` dashed, 1px — no fill encoding needed for a line reference
+- Never use scenario encoding for categorical data (e.g., product lines or regions) — categories use `brand.data_colors[0–7]`
+
+Connector implementation:
+- Power BI: use custom shape markers on line charts; hatched fill requires SVG pattern in theme.json
+- Web/CSS: `background-image: repeating-linear-gradient(45deg, ...)` for hatch pattern
+- Where tool-native hatching is unavailable, use a heavier stroke outline (2.5px) for PL and a dashed stroke for FC
+
+---
+
 ## Connector Token Bindings
 
 ### Power BI / Fabric (theme.json)

@@ -32,6 +32,15 @@ If a visual is not listed here, it is **not allowed**.
 |------|---------------|-------------------|
 | Line Chart | Trend | T1, T2, T3 |
 | Area Chart | Trend | T1 (sparingly) |
+| Small Multiples | Trend, Ranking | T1, T2, T3 |
+
+Rules:
+
+- Small multiples require identical scale and axis range across all panels — without this the comparison is invalid (Tufte, *The Visual Display of Quantitative Information*, p. 170)
+- Use when comparing the same metric across 3–12 entities (regions, products, channels) simultaneously
+- Each panel shows exactly one entity; the visual type within panels must be the same across all panels
+- Maximum 12 panels per small-multiples visual; above this, use a ranked bar chart instead
+- Not allowed on T4 pages — decision context requires focus on one entity, not comparison
 
 ---
 
