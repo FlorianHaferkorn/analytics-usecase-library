@@ -14,7 +14,7 @@
     },
     "visual_type": {
       "type": "string",
-      "enum": ["kpi_card", "trend_line", "bar_chart", "waterfall", "scatter", "matrix", "table", "slicer", "smart_narrative", "action_panel", "text_box"],
+      "enum": ["kpi_card", "trend_line", "bar_chart", "waterfall", "scatter", "matrix", "table", "slicer", "smart_narrative", "action_panel", "text_box", "small_multiples"],
       "description": "Tool-agnostic visual type from UseCase_Bracket vocabulary"
     },
     "page_role": {
@@ -44,6 +44,26 @@
       "type": "object",
       "description": "Adapter-specific overrides merged during rendering",
       "additionalProperties": true
+    },
+    "annotations": {
+      "type": "array",
+      "description": "Explicit annotations on the primary visual (DoD #11). At least one required on Main_1 unless annotation_waiver is set. Authority: Knaflic, Storytelling with Data (2015), p. 173.",
+      "items": {
+        "type": "object",
+        "required": ["label"],
+        "additionalProperties": false,
+        "properties": {
+          "label":       { "type": "string", "description": "Annotation text displayed on the visual" },
+          "anchor":      { "type": "string", "description": "Data point anchor: 'inflection', 'endpoint', 'max_deviation', 'threshold_crossing', or a specific date/value string" },
+          "x":           { "type": ["number", "null"], "description": "Canvas x position (0.0–1.0 fraction) when manually placed" },
+          "y":           { "type": ["number", "null"], "description": "Canvas y position (0.0–1.0 fraction) when manually placed" }
+        }
+      }
+    },
+    "ibcs_scenario": {
+      "type": "string",
+      "enum": ["ac", "pl", "fc", "py"],
+      "description": "IBCS scenario encoding for this visual series. Drives fill/shape rendering: ac=solid, pl=outlined, fc=hatched, py=50%-tint. Authority: IBCS Institute, Solid/Outlined/Hatched (2020)."
     }
   },
   "definitions": {

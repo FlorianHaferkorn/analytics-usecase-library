@@ -106,6 +106,13 @@ slots:
       preferred: line_chart
       fallback: area_chart
       fallback_condition: "area_chart only when a single series requires emphasis of volume fill"
+      alternatives:
+        - type: small_multiples
+          when: >
+            Comparing the same KPI trend across 3–12 entities (regions, products, channels)
+            simultaneously. All panels must share identical scale and axis range.
+            Panel count 3–12; use bar_chart_horizontal above 12.
+            See: Tufte, The Visual Display of Quantitative Information, p. 170.
       disallowed: [bar_chart_column, stacked_bar_100pct, waterfall, scatter_plot, funnel_chart]
     grid:
       col: 0
@@ -115,8 +122,14 @@ slots:
     rules:
       - "Must contain a time axis."
       - "Show target / plan as a dashed reference line when Main_2 (Variance) is also present."
-      - "Max 4 series. Primary series uses brand.primary color role."
-      - "Annotate significant inflection points — annotations carry analytical signal, not decoration."
+      - "Max 4 series on a standard line_chart. Primary series uses brand.primary color role."
+      - "ANNOTATION REQUIRED (DoD #11): the primary visual must carry at least one text annotation
+          marking the single most important finding — inflection, endpoint, or threshold crossing.
+          Color alone does not satisfy this requirement. Waiver: set annotation_waiver: true in
+          ux_layout_rules.page_1_summary when filter context produces no notable finding.
+          Authority: Knaflic, Storytelling with Data (2015), p. 173."
+      - "small_multiples: identical scale across all panels is mandatory — independent scales
+          render comparison invalid. Label each panel with entity name, not a legend."
       - "T3 exception: table_with_databars (exceptions-first view) may replace line_chart when"
       - "  operational monitoring requires exception-first scanning rather than trend reading."
 
@@ -161,6 +174,11 @@ slots:
           when: "Composition (part-to-whole) question replaces ranking"
         - type: bar_chart_column
           when: "T3 operational: time-based categorical comparison across periods"
+        - type: small_multiples
+          when: >
+            Ranking of the same KPI across 3–12 entities where trend direction per entity
+            matters as much as absolute rank. All panels must share identical scale.
+            Prefer bar_chart_horizontal when rank order alone is the question.
       disallowed: [line_chart, waterfall, scatter_plot, funnel_chart]
     grid:
       col: 8

@@ -47,6 +47,10 @@ VISUAL_TYPE_ROLES: Dict[str, Optional[set]] = {
 _ABSTRACT_TO_PBI: Dict[str, set] = {
     "line_chart":          {"lineChart"},
     "area_chart":          {"areaChart"},
+    # small_multiples: implemented as a standard line/bar chart with the Power BI
+    # "Small multiples" field well populated. The underlying visualType is unchanged;
+    # governance enforcement is via the slot mapping rule (identical scale required).
+    "small_multiples":     {"lineChart", "clusteredBarChart"},
     "waterfall":           {"waterfallChart"},
     "bar_chart_horizontal":{"clusteredBarChart"},
     "bar_chart_column":    {"clusteredColumnChart"},

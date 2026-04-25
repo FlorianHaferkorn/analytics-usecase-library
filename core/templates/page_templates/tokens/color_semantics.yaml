@@ -53,3 +53,28 @@ border:
 colorblind_safe:
   positive: "#0078D4"   # brand.primary (blue)
   negative: "#F7630C"   # brand.data_colors[3] (orange)
+
+# IBCS Scenario Encoding — fill/shape rules for AC/PL/FC/PY on the same visual.
+# Authority: HICHERT, Rolf; FAISST, Jürgen — Solid, Outlined, Hatched (IBCS Institute, 2020)
+# Color is shared; fill pattern distinguishes scenarios — never use a second color for scenarios.
+# Connector implementation notes:
+#   PBI: custom SVG marker / theme.json pattern for hatching; heavier stroke for outlined
+#   CSS: background-image: repeating-linear-gradient(45deg, ...) for hatch; border-only for outlined
+#   Fallback (no native hatch): outlined = stroke 2.5px; forecast = stroke dashed 2px
+ibcs_scenario:
+  ac:               # Actual / Current period
+    fill: solid
+    opacity: 1.0
+    abbreviation: "AC"
+  pl:               # Plan / Budget
+    fill: outlined   # Same color as AC, no fill; border/stroke only
+    opacity: 1.0
+    abbreviation: "PL"
+  fc:               # Forecast
+    fill: hatched    # Crosshatch pattern at 45°
+    opacity: 1.0
+    abbreviation: "FC"
+  py:               # Prior Year
+    fill: solid
+    opacity: 0.5     # Tint: 50% alpha overlay of AC fill color
+    abbreviation: "PY"

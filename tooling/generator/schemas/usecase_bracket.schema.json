@@ -150,6 +150,10 @@
               "enum": ["pulse", "investigator"],
               "description": "Grid page template for Overview (3s/30s): pulse = 6 KPI slots + 3 main; investigator = left slicer + focus + support."
             },
+            "annotation_waiver": {
+              "type": "boolean",
+              "description": "Set true only when the current filter context produces no notable finding and Main_1 annotation is genuinely not applicable. Waives DoD #11. Requires justification in the bracket comments. Authority: Knaflic, Storytelling with Data (2015), p. 173."
+            },
             "component_3s": {
               "type": "object",
               "required": ["kpi_id", "visual_type"],
@@ -199,6 +203,7 @@
                     "enum": [
                       "line_chart",
                       "area_chart",
+                      "small_multiples",
                       "bar_chart_horizontal",
                       "bar_chart_column",
                       "stacked_bar_100pct",

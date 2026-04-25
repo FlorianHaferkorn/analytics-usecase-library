@@ -302,18 +302,77 @@ def check_dod_10_big_idea(bracket: Dict) -> List[CheckResult]:
     return results
 
 
+def check_dod_11_primary_visual_annotation(bracket: Dict) -> List[CheckResult]:
+    """DoD 11: Main_1 (primary visual) has at least one annotation, or annotation_waiver is set.
+
+    Authority: Knaflic, Storytelling with Data (2015), p. 173.
+    The check operates at the bracket YAML level:
+      - If annotation_waiver: true is set in page_1_summary, the check passes with a note.
+      - If a component_30s item targets Main_1 (explicitly or by position) and declares
+        annotations, the check passes.
+      - Otherwise a warning is emitted — the annotation must be verified in the actual
+        visual (PBIP JSON) since it cannot be fully validated from YAML alone.
+    """
+    results = []
+    ux = bracket.get("ux_layout_rules") or {}
+    p1 = ux.get("page_1_summary") or {}
+
+    # Waiver path
+    if p1.get("annotation_waiver") is True:
+        results.append((True, "annotation_waiver: true — DoD #11 waived for this use case"))
+        return results
+
+    c30 = p1.get("component_30s") or []
+    if not c30:
+        results.append((None,
+            "DoD #11: no component_30s declared — cannot verify Main_1 annotation. "
+            "Add annotations[] to the Main_1 component or set annotation_waiver: true if not applicable."
+        ))
+        return results
+
+    # Identify the Main_1 component: explicit slot_id or first item (heuristic)
+    main1 = None
+    for item in c30:
+        if isinstance(item, dict) and item.get("slot_id") == "Main_1":
+            main1 = item
+            break
+    if main1 is None and c30 and isinstance(c30[0], dict):
+        main1 = c30[0]  # first component_30s item is assigned Main_1 by the scaffold generator
+
+    if main1 is None:
+        results.append((None, "DoD #11: could not identify Main_1 component — verify annotation manually"))
+        return results
+
+    annotations = main1.get("annotations") or []
+    if annotations:
+        results.append((True,
+            f"DoD #11: Main_1 has {len(annotations)} annotation(s) declared ✓"
+        ))
+    else:
+        vt = main1.get("visual_type", "unknown")
+        results.append((None,
+            f"DoD #11: Main_1 ({vt}) has no annotations[] declared. "
+            "Add at least one annotation marking the key finding (inflection, endpoint, "
+            "threshold crossing), or set annotation_waiver: true if genuinely not applicable. "
+            "Authority: Knaflic, Storytelling with Data (2015), p. 173."
+        ))
+
+    return results
+
+
 # ─── Per-bracket runner ───────────────────────────────────────────────────────
 
 CHECKS = [
-    ("DoD 2 — Use case mapping",     check_dod_2_ux_layout),
-    ("DoD 3 — Page type validity",   check_dod_3_slot_page_types),
-    ("DoD 4 — Visual governance",    check_dod_4_visual_governance),
-    ("DoD 5 — Layer compliance",     check_dod_5_layer_compliance),
-    ("DoD 6 — Slicer rules",         check_dod_6_slicer_rules),
-    ("DoD 7 — Action readiness",     check_dod_7_action_readiness),
-    ("DoD 8 — Decision clarity",     check_dod_8_decision_clarity),
-    ("DoD 9 — Decision question fmt",check_dod_9_decision_question_format),
-    ("DoD 10 — Big Idea",            check_dod_10_big_idea),
+    ("DoD 2 — Use case mapping",         check_dod_2_ux_layout),
+    ("DoD 3 — Page type validity",       check_dod_3_slot_page_types),
+    ("DoD 4 — Visual governance",        check_dod_4_visual_governance),
+    ("DoD 5 — Layer compliance",         check_dod_5_layer_compliance),
+    ("DoD 6 — Slicer rules",             check_dod_6_slicer_rules),
+    ("DoD 7 — Action readiness",         check_dod_7_action_readiness),
+    ("DoD 8 — Decision clarity",         check_dod_8_decision_clarity),
+    ("DoD 9 — Decision question fmt",    check_dod_9_decision_question_format),
+    ("DoD 10 — Big Idea",                check_dod_10_big_idea),
+    ("DoD 11 — Primary visual annotation", check_dod_11_primary_visual_annotation),
 ]
 
 
