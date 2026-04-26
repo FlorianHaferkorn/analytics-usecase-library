@@ -289,6 +289,8 @@ def compute_h4(repo_root: Path) -> Dict[str, Any]:
             continue
         if "decision_spines" in yaml_file.parts:
             continue
+        if "_business_case" in yaml_file.name:
+            continue
         try:
             data = _yaml.safe_load(yaml_file.read_text(encoding="utf-8"))
         except Exception:

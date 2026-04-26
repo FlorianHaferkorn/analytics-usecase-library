@@ -12,8 +12,8 @@ orchestration:
   - supply.in_full.pct
   - supply.stockout_impact.pct
   - supply.penalty.amount
-  supporting_kpi_ids:
   - supply.expedite.amount
+  supporting_kpi_ids:
   - order.lines
   - shipments.count
   action_code_ids:

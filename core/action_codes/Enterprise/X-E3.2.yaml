@@ -32,6 +32,7 @@ kpis:
   - ops.otif.pct
   - ops.working_capital.ccc.days
   - people.attrition_risk.pct
+  - people.digital_adoption.pct
   guardrail_kpis: []
   outcome_kpis:
   - enterprise.value_at_risk.index

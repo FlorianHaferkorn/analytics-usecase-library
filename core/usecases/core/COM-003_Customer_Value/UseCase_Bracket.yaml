@@ -14,8 +14,8 @@ orchestration:
   - crm.active_customers.count
   - crm.nps.index
   - crm.complaint.count
-  supporting_kpi_ids:
   - crm.revenue_at_risk.amount
+  supporting_kpi_ids:
   - sales.net_sales.amount
   - cost.cogs.amount
   # Additional KPIs from action code trigger chains (closure requirement)
