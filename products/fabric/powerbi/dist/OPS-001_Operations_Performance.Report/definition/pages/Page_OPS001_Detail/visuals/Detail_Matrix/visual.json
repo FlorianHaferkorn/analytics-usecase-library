@@ -32,45 +32,45 @@
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "plant"
+                  "Property": "Plant"
                 }
               },
-              "queryRef": "_Measures.plant",
-              "nativeQueryRef": "plant"
+              "queryRef": "dim_org.Plant",
+              "nativeQueryRef": "Plant"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "line"
+                  "Property": "Line"
                 }
               },
-              "queryRef": "_Measures.line",
-              "nativeQueryRef": "line"
+              "queryRef": "dim_org.Line",
+              "nativeQueryRef": "Line"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "shift"
+                  "Property": "Shift"
                 }
               },
-              "queryRef": "_Measures.shift",
-              "nativeQueryRef": "shift"
+              "queryRef": "dim_org.Shift",
+              "nativeQueryRef": "Shift"
             },
             {
               "field": {

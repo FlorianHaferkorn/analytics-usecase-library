@@ -46,31 +46,31 @@
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "queue"
+                  "Property": "Queue"
                 }
               },
-              "queryRef": "_Measures.queue",
-              "nativeQueryRef": "queue"
+              "queryRef": "dim_org.Queue",
+              "nativeQueryRef": "Queue"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "agent_group"
+                  "Property": "Agent Group"
                 }
               },
-              "queryRef": "_Measures.agent_group",
-              "nativeQueryRef": "agent_group"
+              "queryRef": "dim_org.Agent Group",
+              "nativeQueryRef": "Agent Group"
             },
             {
               "field": {

@@ -130,6 +130,17 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
+
+	/// First Contact Resolution % - display name alias for report binding (maps to FCR %)
+	measure 'First Contact Resolution %' = [FCR %]
+		formatString: "0.0%"
+		displayFolder: "XD-001"
+
+	/// Average Handling Time (minutes) - display name alias (maps to AHT Minutes)
+	measure 'Average Handling Time (minutes)' = [AHT Minutes]
+		formatString: "#,0"
+		displayFolder: "XD-001"
+
 	/// XD-002
 	/// Utilization % - res.utilization.pct
 	/// Measures productive time versus paid time for agents.
@@ -215,6 +226,17 @@ table _Measures
 			COUNTROWS ( fact_fulfillment )
 		RETURN
 			DIVIDE ( OTIFFulfillments, TotalFulfillments )
+		formatString: "0.0%"
+		displayFolder: "XD-003"
+
+
+	/// CLV (Customer Lifetime Value) - display name alias for report binding (maps to CLV)
+	measure 'CLV (Customer Lifetime Value)' = [CLV]
+		formatString: "#,0.00"
+		displayFolder: "XD-003"
+
+	/// OTIF % - display name alias for report binding (maps to OTIF % (XD))
+	measure 'OTIF %' = [OTIF % (XD)]
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
@@ -371,6 +393,7 @@ table _Measures
 	/// ActionReady Logic
 	/// ActionReady Logic: X-R2.1
 	measure 'Action_X-R2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_workforce_management" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "head_of_workforce_management"
@@ -378,6 +401,7 @@ table _Measures
 
 	/// ActionReady Logic: X-R2.2
 	measure 'Action_X-R2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: workforce_management_lead" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "workforce_management_lead"
@@ -385,6 +409,7 @@ table _Measures
 
 	/// ActionReady Logic: X-R2.3
 	measure 'Action_X-R2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "service_operations_manager"
@@ -392,6 +417,7 @@ table _Measures
 
 	/// ActionReady Logic: X-R2.4
 	measure 'Action_X-R2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "service_operations_manager"
@@ -399,6 +425,7 @@ table _Measures
 
 	/// ActionReady Logic: X-E3.2
 	measure 'Action_X-E3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_enterprise_controlling" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "head_of_enterprise_controlling"
@@ -406,6 +433,7 @@ table _Measures
 
 	/// ActionReady Logic: X-E3.3
 	measure 'Action_X-E3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: chief_of_staff_pmo_lead" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "chief_of_staff_pmo_lead"

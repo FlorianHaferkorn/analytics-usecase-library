@@ -60,17 +60,17 @@
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_product"
                     }
                   },
-                  "Property": "sku"
+                  "Property": "ProductCode"
                 }
               },
-              "queryRef": "_Measures.sku",
-              "nativeQueryRef": "sku"
+              "queryRef": "dim_product.ProductCode",
+              "nativeQueryRef": "ProductCode"
             },
             {
               "field": {

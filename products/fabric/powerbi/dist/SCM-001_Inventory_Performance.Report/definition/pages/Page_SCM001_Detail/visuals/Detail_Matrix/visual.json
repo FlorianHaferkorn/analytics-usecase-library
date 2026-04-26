@@ -46,45 +46,45 @@
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "location"
+                  "Property": "Location"
                 }
               },
-              "queryRef": "_Measures.location",
-              "nativeQueryRef": "location"
+              "queryRef": "dim_org.Location",
+              "nativeQueryRef": "Location"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_product"
                     }
                   },
-                  "Property": "abc_class"
+                  "Property": "ABC_Class"
                 }
               },
-              "queryRef": "_Measures.abc_class",
-              "nativeQueryRef": "abc_class"
+              "queryRef": "dim_product.ABC_Class",
+              "nativeQueryRef": "ABC_Class"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_product"
                     }
                   },
-                  "Property": "xyz_class"
+                  "Property": "XYZ_Class"
                 }
               },
-              "queryRef": "_Measures.xyz_class",
-              "nativeQueryRef": "xyz_class"
+              "queryRef": "dim_product.XYZ_Class",
+              "nativeQueryRef": "XYZ_Class"
             },
             {
               "field": {

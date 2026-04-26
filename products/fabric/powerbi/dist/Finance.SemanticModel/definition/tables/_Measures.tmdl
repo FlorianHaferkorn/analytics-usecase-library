@@ -251,13 +251,14 @@ table _Measures
 	/// ActionReady Logic
 	/// Payables Amount - fin.liquidity.payables.amount
 	/// Total outstanding accounts payable balance; component of DPO and working capital.
-	measure 'Payables Amount' = BLANK()
+	measure 'Payables Amount' = SUM ( fact_accounts_payable[Payables Amount] )
 		formatString: #,0.00
 		displayFolder: FIN-001
 		lineageTag: 58cf11a3-6134-4d19-91ec-5e86f803a386
 
 	/// ActionReady Logic: F-C1.1
 	measure 'Action_F-C1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: finance_director" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "finance_director"
@@ -265,6 +266,7 @@ table _Measures
 
 	/// ActionReady Logic: F-C1.2
 	measure 'Action_F-C1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_credit_and_collections" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "head_of_credit_and_collections"
@@ -272,6 +274,7 @@ table _Measures
 
 	/// ActionReady Logic: S-I1.2
 	measure 'Action_S-I1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: inventory_manager" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "inventory_manager"
@@ -279,6 +282,7 @@ table _Measures
 
 	/// ActionReady Logic: F-C1.4
 	measure 'Action_F-C1.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_accounts_payable" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "head_of_accounts_payable"
@@ -286,6 +290,7 @@ table _Measures
 
 	/// ActionReady Logic: F-K2.1
 	measure 'Action_F-K2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: finance_director" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "finance_director"
@@ -293,6 +298,7 @@ table _Measures
 
 	/// ActionReady Logic: F-K2.2
 	measure 'Action_F-K2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_procurement" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "head_of_procurement"
@@ -300,6 +306,7 @@ table _Measures
 
 	/// ActionReady Logic: F-K2.3
 	measure 'Action_F-K2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: plant_manager" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "plant_manager"
@@ -307,6 +314,7 @@ table _Measures
 
 	/// ActionReady Logic: F-K2.4
 	measure 'Action_F-K2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_controlling" & UNICHAR(10) & "Steps:"
+		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "head_of_controlling"

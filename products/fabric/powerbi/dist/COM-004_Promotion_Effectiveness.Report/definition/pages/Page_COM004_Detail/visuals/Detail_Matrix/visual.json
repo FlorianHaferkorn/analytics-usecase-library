@@ -60,45 +60,45 @@
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_promo"
                     }
                   },
-                  "Property": "promotion"
+                  "Property": "PromoName"
                 }
               },
-              "queryRef": "_Measures.promotion",
-              "nativeQueryRef": "promotion"
+              "queryRef": "dim_promo.PromoName",
+              "nativeQueryRef": "PromoName"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_promo"
                     }
                   },
-                  "Property": "promo_type"
+                  "Property": "Promo Type"
                 }
               },
-              "queryRef": "_Measures.promo_type",
-              "nativeQueryRef": "promo_type"
+              "queryRef": "dim_promo.Promo Type",
+              "nativeQueryRef": "Promo Type"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_promo"
                     }
                   },
-                  "Property": "mechanic"
+                  "Property": "Promo Mechanic"
                 }
               },
-              "queryRef": "_Measures.mechanic",
-              "nativeQueryRef": "mechanic"
+              "queryRef": "dim_promo.Promo Mechanic",
+              "nativeQueryRef": "Promo Mechanic"
             },
             {
               "field": {

@@ -35,42 +35,42 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_customer"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "CustomerName"
+                  "Property": "Customer"
                 }
               },
-              "queryRef": "dim_customer.CustomerName",
-              "nativeQueryRef": "CustomerName"
+              "queryRef": "dim_org.Customer",
+              "nativeQueryRef": "Customer"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "location"
+                  "Property": "Location"
                 }
               },
-              "queryRef": "_Measures.location",
-              "nativeQueryRef": "location"
+              "queryRef": "dim_org.Location",
+              "nativeQueryRef": "Location"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_lane"
                     }
                   },
-                  "Property": "lane"
+                  "Property": "Mode"
                 }
               },
-              "queryRef": "_Measures.lane",
-              "nativeQueryRef": "lane"
+              "queryRef": "dim_lane.Mode",
+              "nativeQueryRef": "Mode"
             },
             {
               "field": {

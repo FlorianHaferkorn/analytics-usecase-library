@@ -26,6 +26,10 @@ table dim_org
 		dataType: String
 		sourceColumn: Country
 		summarizeBy: none
+	column OrgName
+		dataType: String
+		sourceColumn: Plant
+		summarizeBy: none
 	partition dim_org = m
 		mode: import
 		source =

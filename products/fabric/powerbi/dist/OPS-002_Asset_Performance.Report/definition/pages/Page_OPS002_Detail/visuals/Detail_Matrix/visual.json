@@ -18,59 +18,59 @@
           "projections": [
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "plant"
+                  "Property": "Plant"
                 }
               },
-              "queryRef": "_Measures.plant",
-              "nativeQueryRef": "plant"
+              "queryRef": "dim_org.Plant",
+              "nativeQueryRef": "Plant"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_asset"
                     }
                   },
-                  "Property": "asset"
+                  "Property": "AssetName"
                 }
               },
-              "queryRef": "_Measures.asset",
-              "nativeQueryRef": "asset"
+              "queryRef": "dim_asset.AssetName",
+              "nativeQueryRef": "AssetName"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_asset"
                     }
                   },
-                  "Property": "asset_class"
+                  "Property": "AssetClass"
                 }
               },
-              "queryRef": "_Measures.asset_class",
-              "nativeQueryRef": "asset_class"
+              "queryRef": "dim_asset.AssetClass",
+              "nativeQueryRef": "AssetClass"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_asset"
                     }
                   },
-                  "Property": "criticality"
+                  "Property": "Criticality"
                 }
               },
-              "queryRef": "_Measures.criticality",
-              "nativeQueryRef": "criticality"
+              "queryRef": "dim_asset.Criticality",
+              "nativeQueryRef": "Criticality"
             },
             {
               "field": {

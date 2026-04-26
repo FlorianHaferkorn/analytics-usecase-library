@@ -46,45 +46,45 @@
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "queue"
+                  "Property": "Queue"
                 }
               },
-              "queryRef": "_Measures.queue",
-              "nativeQueryRef": "queue"
+              "queryRef": "dim_org.Queue",
+              "nativeQueryRef": "Queue"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "issue_type"
+                  "Property": "IssueType"
                 }
               },
-              "queryRef": "_Measures.issue_type",
-              "nativeQueryRef": "issue_type"
+              "queryRef": "dim_org.IssueType",
+              "nativeQueryRef": "IssueType"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "severity"
+                  "Property": "Severity"
                 }
               },
-              "queryRef": "_Measures.severity",
-              "nativeQueryRef": "severity"
+              "queryRef": "dim_org.Severity",
+              "nativeQueryRef": "Severity"
             },
             {
               "field": {

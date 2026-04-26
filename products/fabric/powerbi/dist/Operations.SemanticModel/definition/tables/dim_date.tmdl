@@ -30,6 +30,11 @@ table dim_date
 		dataType: String
 		sourceColumn: Week
 		summarizeBy: none
+	column CalendarYearMonth
+		dataType: String
+		lineageTag: c8d9e0f1-a2b3-4c5d-6e7f-8901234abcde
+		summarizeBy: none
+		sourceColumn: CalendarYearMonth
 	partition dim_date = m
 		mode: import
 		source =

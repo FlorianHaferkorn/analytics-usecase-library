@@ -46,31 +46,31 @@
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "plant"
+                  "Property": "Entity"
                 }
               },
-              "queryRef": "_Measures.plant",
-              "nativeQueryRef": "plant"
+              "queryRef": "dim_org.Entity",
+              "nativeQueryRef": "Entity"
             },
             {
               "field": {
-                "Measure": {
+                "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "_Measures"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "line"
+                  "Property": "Region"
                 }
               },
-              "queryRef": "_Measures.line",
-              "nativeQueryRef": "line"
+              "queryRef": "dim_org.Region",
+              "nativeQueryRef": "Region"
             },
             {
               "field": {
