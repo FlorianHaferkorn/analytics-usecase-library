@@ -51,8 +51,22 @@ orchestration:
     - supply.in_full.pct
     - supply.on_time.pct
     - supply.stockout_impact.pct
+    - cost.cogs.amount
+    - crm.active_customers.count
+    - crm.clv.amount
+    - crm.complaint.count
+    - crm.nps.index
+    - crm.retention.pct
+    - margin.gm.pct
+    - sales.promo.incremental.amount
+    - supply.otif.pct
+    - svc.aht.minutes
+    - svc.backlog.count
     - svc.escalation.pct
+    - svc.fcr.pct
+    - svc.sla.attainment.pct
     - svc.tickets.closed.count
+    - svc.tickets.created.count
     - wc.dio.days
     - wc.dpo.days
     - wc.dso.days

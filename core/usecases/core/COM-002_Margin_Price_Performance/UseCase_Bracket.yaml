@@ -20,6 +20,7 @@ orchestration:
   - sales.promo.baseline_sales.amount
   - sales.promo.cost.amount
   - sales.promo.incremental_gm.amount
+  - sales.promo.incremental.amount
   - sales.pvm.price_effect.amount
   - sales.pvm.volume_effect.amount
   action_code_ids:
