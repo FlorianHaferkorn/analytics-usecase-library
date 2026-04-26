@@ -60,4 +60,38 @@ test.describe('Tenant isolation', () => {
     // Should be 200 (or 404 if the core dir is missing in CI — anything but 403).
     expect(response.status()).not.toBe(403);
   });
+
+  test('X-Project-Id header for foreign project on /api/core/brackets returns 403', async ({ page }) => {
+    // The demo user is NOT a member of the foreign project.
+    // When the legacy /api/core/... route receives X-Project-Id for that project,
+    // the middleware must block with 403.
+    const response = await page.request.get('/api/core/brackets', {
+      headers: { 'X-Project-Id': FOREIGN_PROJECT_ID },
+    });
+
+    expect(response.status()).toBe(403);
+
+    const body = await response.json().catch(() => null);
+    if (body) {
+      expect(body).toMatchObject({ code: 'PROJECT_ACCESS_DENIED' });
+    }
+  });
+
+  test('X-Project-Id header for default project on /api/core/brackets is allowed', async ({ page }) => {
+    // The graceful fallback allows users with no explicit memberships to access "default".
+    const response = await page.request.get('/api/core/brackets', {
+      headers: { 'X-Project-Id': 'default' },
+    });
+
+    // 200 or 404/500 (handler may fail in CI without full repo) — but NOT 403.
+    expect(response.status()).not.toBe(403);
+  });
+
+  test('/api/core/brackets without X-Project-Id header is allowed (backward compat)', async ({ page }) => {
+    // Legacy callers that do not send the header must continue to work.
+    const response = await page.request.get('/api/core/brackets');
+
+    // Middleware passes through; route handler returns 200 or 401 (unauthenticated env).
+    expect(response.status()).not.toBe(403);
+  });
 });

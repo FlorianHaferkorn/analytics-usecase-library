@@ -1,0 +1,89 @@
+{
+  "id": "sap-connector",
+  "name": "SAP ECC / S/4HANA Connector",
+  "version": "1.0.0",
+  "description": "Extracts billing, GL journal, and inventory data from SAP ECC or S/4HANA via OData v2 and lands it into the Aurora Delta Lake bronze zone.",
+  "author": "Aurora Analytics Platform",
+  "category": "connector",
+  "entrypoint": "index.ts",
+  "source_system": "sap",
+  "auth_types": ["basic", "oauth2"],
+  "entities": [
+    {
+      "id": "fact_sales",
+      "label": "Billing Documents (VBAK/VBAP)",
+      "aurora_target": "fact_sales",
+      "sap_entity_set": "BillingDocumentItemSet"
+    },
+    {
+      "id": "fact_gl_journal",
+      "label": "GL Journal Entries (BKPF/BSEG)",
+      "aurora_target": "fact_gl_journal",
+      "sap_entity_set": "JournalEntryItemSet"
+    },
+    {
+      "id": "fact_inventory",
+      "label": "Inventory Valuation (MARA/MBEW)",
+      "aurora_target": "fact_inventory",
+      "sap_entity_set": "InventoryStockSet"
+    }
+  ],
+  "hooks": [
+    "onConnectorExtract",
+    "onConnectorLand",
+    "onConnectorPromote"
+  ],
+  "settings_schema": {
+    "type": "object",
+    "required": ["base_url", "client", "auth_type"],
+    "properties": {
+      "base_url": {
+        "type": "string",
+        "title": "SAP Gateway Base URL",
+        "description": "e.g. https://my-sap-system.example.com"
+      },
+      "client": {
+        "type": "string",
+        "title": "SAP Client",
+        "default": "100"
+      },
+      "auth_type": {
+        "type": "string",
+        "title": "Authentication Type",
+        "enum": ["basic", "oauth2"],
+        "default": "basic"
+      },
+      "username": {
+        "type": "string",
+        "title": "Username (basic auth)"
+      },
+      "password": {
+        "type": "string",
+        "title": "Password (basic auth)",
+        "format": "password"
+      },
+      "oauth_token": {
+        "type": "string",
+        "title": "OAuth2 Bearer Token",
+        "format": "password"
+      },
+      "page_size": {
+        "type": "integer",
+        "title": "OData Page Size",
+        "default": 5000,
+        "minimum": 100,
+        "maximum": 50000
+      },
+      "fiscal_year_filter": {
+        "type": "integer",
+        "title": "Fiscal Year Filter (optional)",
+        "description": "Restrict extraction to a single fiscal year, e.g. 2025"
+      }
+    }
+  },
+  "permissions": [
+    "data:read",
+    "data:write:bronze",
+    "connector:register"
+  ]
+}

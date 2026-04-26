@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { NextRequest } from 'next/server';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
+import { requireAuth } from '@/lib/auth/session';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
 
@@ -18,6 +19,9 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const { id } = await params;
 
   if (!/^[A-Za-z0-9-]+$/.test(id)) {
@@ -40,6 +44,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const { id } = await params;
 
   // Validate id: must look like a use-case ID (letters, digits, hyphens only)

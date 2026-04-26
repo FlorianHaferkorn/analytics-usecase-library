@@ -283,3 +283,32 @@ class SupersetAdapter(GeneratorAdapter):
             adapter=self.name,
             warnings=warnings,
         )
+
+    def diff(self, spec_a: DashboardSpec, spec_b: DashboardSpec) -> List[str]:
+        """Compare rendered Superset ZIP entry counts and chart list in addition to IR-level changes."""
+        import io as _io
+        import zipfile as _zf
+
+        changes = super().diff(spec_a, spec_b)
+
+        result_a = self.render(spec_a)
+        result_b = self.render(spec_b)
+
+        def _entries(data: bytes) -> List[str]:
+            with _zf.ZipFile(_io.BytesIO(data)) as z:
+                return sorted(z.namelist())
+
+        entries_a = _entries(result_a.files["dashboard_export.zip"])
+        entries_b = _entries(result_b.files["dashboard_export.zip"])
+
+        charts_a = [e for e in entries_a if "/charts/" in e]
+        charts_b = [e for e in entries_b if "/charts/" in e]
+        if len(charts_a) != len(charts_b):
+            changes.append(f"superset: chart count changed: {len(charts_a)} → {len(charts_b)}")
+
+        for entry in sorted(set(entries_a) - set(entries_b)):
+            changes.append(f"superset: ZIP entry removed: {entry}")
+        for entry in sorted(set(entries_b) - set(entries_a)):
+            changes.append(f"superset: ZIP entry added: {entry}")
+
+        return changes

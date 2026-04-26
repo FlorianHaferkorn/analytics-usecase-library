@@ -244,3 +244,31 @@ class GrafanaAdapter(GeneratorAdapter):
             adapter=self.name,
             warnings=warnings,
         )
+
+    def diff(self, spec_a: DashboardSpec, spec_b: DashboardSpec) -> List[str]:
+        """Compare rendered Grafana panel counts and types in addition to IR-level changes."""
+        changes = super().diff(spec_a, spec_b)
+
+        result_a = self.render(spec_a)
+        result_b = self.render(spec_b)
+        dash_a = json.loads(result_a.files["dashboard.json"])["dashboard"]
+        dash_b = json.loads(result_b.files["dashboard.json"])["dashboard"]
+
+        # Exclude row separators — only compare content panels
+        panels_a = [p for p in dash_a.get("panels", []) if p.get("type") != "row"]
+        panels_b = [p for p in dash_b.get("panels", []) if p.get("type") != "row"]
+
+        if len(panels_a) != len(panels_b):
+            changes.append(f"grafana: panel count changed: {len(panels_a)} → {len(panels_b)}")
+
+        types_a = sorted(p.get("type", "unknown") for p in panels_a)
+        types_b = sorted(p.get("type", "unknown") for p in panels_b)
+        if types_a != types_b:
+            changes.append(f"grafana: panel types changed: {types_a} → {types_b}")
+
+        uid_a = dash_a.get("uid", "")
+        uid_b = dash_b.get("uid", "")
+        if uid_a != uid_b:
+            changes.append(f"grafana: dashboard UID changed: {uid_a!r} → {uid_b!r}")
+
+        return changes

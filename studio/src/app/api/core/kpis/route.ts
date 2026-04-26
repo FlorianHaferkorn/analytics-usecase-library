@@ -1,7 +1,11 @@
 import { loadKpiCatalog } from '@/lib/core/catalog-loader';
 import { apiSuccess } from '@/lib/api/response';
+import { requireAuth } from '@/lib/auth/session';
 
 export async function GET(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const domain = searchParams.get('domain');
   const search = searchParams.get('q');

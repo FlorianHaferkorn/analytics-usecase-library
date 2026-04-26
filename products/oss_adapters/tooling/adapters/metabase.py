@@ -221,3 +221,28 @@ class MetabaseAdapter(GeneratorAdapter):
             adapter=self.name,
             warnings=warnings,
         )
+
+    def diff(self, spec_a: DashboardSpec, spec_b: DashboardSpec) -> List[str]:
+        """Compare rendered Metabase card counts and display types in addition to IR-level changes."""
+        changes = super().diff(spec_a, spec_b)
+
+        result_a = self.render(spec_a)
+        result_b = self.render(spec_b)
+        dash_a = json.loads(result_a.files["dashboard.json"])["dashboard"]
+        dash_b = json.loads(result_b.files["dashboard.json"])["dashboard"]
+        cards_a = dash_a.get("ordered_cards", [])
+        cards_b = dash_b.get("ordered_cards", [])
+
+        if len(cards_a) != len(cards_b):
+            changes.append(f"metabase: card count changed: {len(cards_a)} → {len(cards_b)}")
+
+        def _card_display(c: Dict[str, Any]) -> str:
+            inner = c.get("card")
+            return inner.get("display", "text") if inner else "text"
+
+        types_a = [_card_display(c) for c in cards_a]
+        types_b = [_card_display(c) for c in cards_b]
+        if types_a != types_b:
+            changes.append(f"metabase: card display types changed: {types_a} → {types_b}")
+
+        return changes

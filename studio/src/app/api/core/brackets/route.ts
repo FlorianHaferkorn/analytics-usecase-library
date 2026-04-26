@@ -6,6 +6,7 @@ import { loadAllBrackets } from '@/lib/core/bracket-loader';
 import { apiCreated, apiError, apiSuccess, apiValidationError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
 import { logAuditEvent } from '@/lib/db/audit-repo';
+import { requireAuth } from '@/lib/auth/session';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
 
@@ -57,6 +58,9 @@ factsheet_type: business
 }
 
 export async function GET(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const domain = searchParams.get('domain');
 
@@ -70,6 +74,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const [user, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json() as { id?: string; title?: string; yaml?: string };
   if (!body.id || !body.title || !body.yaml) {
     return apiValidationError(['id, title and yaml are required']);
@@ -114,7 +121,7 @@ export async function POST(request: Request) {
     before: null,
     after: { title: bracketTitle, path: `core/usecases/core/${dirName}` },
     justification: 'Created from Steering draft scaffold',
-  }, 'default', 'local-user');
+  }, 'default', user.email);
 
   return apiCreated({
     created: true,
