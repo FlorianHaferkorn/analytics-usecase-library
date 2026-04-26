@@ -198,3 +198,70 @@ class TestXD004Bracket:
         data = yaml.safe_load(XD004_BRACKET.read_text(encoding="utf-8"))
         assert "primary_kpi_ids" in data, "XD-004 bracket missing primary_kpi_ids"
         assert len(data["primary_kpi_ids"]) >= 1
+
+
+# ── Reconciliation CI gate (pyarrow-only, no pandas required) ─────────────────
+
+class TestReconciliationGate:
+    """Wires check_action_outcome_reconciliation as a CI gate using pyarrow."""
+
+    def _load_table(self):
+        try:
+            import pyarrow.parquet as pq
+        except ImportError:
+            pytest.skip("pyarrow not installed")
+        files = list(FACT_PATH.rglob("*.parquet"))
+        assert files, "No Parquet files found in fact_action_outcome"
+        import pyarrow as pa
+        tables = [pq.read_table(f) for f in files]
+        return pa.concat_tables(tables)
+
+    def test_no_null_impact_on_achieved_rows(self):
+        table = self._load_table()
+        try:
+            import pyarrow.compute as pc
+        except ImportError:
+            pytest.skip("pyarrow not installed")
+        achieved = table.filter(pc.equal(table["outcome_status"], "achieved"))
+        null_mask = pc.is_null(achieved["impact_value"])
+        null_count = pc.sum(null_mask).as_py()
+        assert null_count == 0, (
+            f"{null_count} achieved rows have NULL impact_value — "
+            "reconciliation loop is not closed"
+        )
+
+    def test_impactful_15_coverage_at_least_12(self):
+        table = self._load_table()
+        try:
+            import pyarrow.compute as pc
+        except ImportError:
+            pytest.skip("pyarrow not installed")
+        achieved = table.filter(pc.equal(table["outcome_status"], "achieved"))
+        achieved_ids = set(achieved["action_code_id"].to_pylist())
+        impactful_ids = set(_impactful_15_ids())
+        covered = impactful_ids & achieved_ids
+        assert len(covered) >= 12, (
+            f"Only {len(covered)}/15 Impactful action codes have achieved rows "
+            f"(minimum 12 required). Missing: {sorted(impactful_ids - achieved_ids)}"
+        )
+
+    def test_no_all_zero_delta_action_codes(self):
+        table = self._load_table()
+        try:
+            import pyarrow.compute as pc
+        except ImportError:
+            pytest.skip("pyarrow not installed")
+        achieved = table.filter(pc.equal(table["outcome_status"], "achieved"))
+        zero_only: list[str] = []
+        for code in _impactful_15_ids():
+            code_rows = achieved.filter(pc.equal(achieved["action_code_id"], code))
+            if code_rows.num_rows == 0:
+                continue
+            impact_col = code_rows["impact_value"].to_pylist()
+            non_null = [v for v in impact_col if v is not None]
+            if non_null and all(v == 0 for v in non_null):
+                zero_only.append(code)
+        assert not zero_only, (
+            f"Action codes with all-zero impact_value on achieved rows (loop instrumented but not active): "
+            f"{zero_only}"
+        )

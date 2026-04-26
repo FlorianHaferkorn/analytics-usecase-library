@@ -24,7 +24,14 @@ from pathlib import Path
 import pytest
 import io
 
-pd = pytest.importorskip("pandas")
+# pandas is optional — tests that need it are marked with _needs_pandas
+try:
+    import pandas as pd
+    _HAS_PANDAS = True
+except ImportError:
+    pd = None  # type: ignore[assignment]
+    _HAS_PANDAS = False
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VALIDATOR_MODULE = REPO_ROOT / "tooling/generator/validation/check_action_outcome_reconciliation.py"
@@ -50,9 +57,19 @@ _spec = importlib.util.spec_from_file_location(
     "check_action_outcome_reconciliation", str(VALIDATOR_MODULE)
 )
 _mod = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_mod)
+try:
+    _spec.loader.exec_module(_mod)
+    run_checks = _mod.run_checks
+    _VALIDATOR_AVAILABLE = True
+except SystemExit:
+    # Validator calls sys.exit(2) when pandas is not installed
+    run_checks = None  # type: ignore[assignment]
+    _VALIDATOR_AVAILABLE = False
 
-run_checks = _mod.run_checks
+_needs_pandas = pytest.mark.skipif(
+    not _VALIDATOR_AVAILABLE or not _HAS_PANDAS,
+    reason="pandas not installed"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -105,6 +122,7 @@ def _all_15_achieved() -> pd.DataFrame:
 # Test 1: Happy path — all checks pass on clean synthetic data
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestHappyPath:
     def test_clean_data_has_no_violations(self):
         df = _all_15_achieved()
@@ -116,6 +134,7 @@ class TestHappyPath:
 # Test 2: Null impact_value on achieved row
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestNullImpactValue:
     def test_null_impact_value_triggers_violation(self):
         df = _all_15_achieved()
@@ -139,6 +158,7 @@ class TestNullImpactValue:
 # Test 3: Out-of-window outcome
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestOutOfWindow:
     def test_over_window_triggers_violation(self):
         df = _all_15_achieved()
@@ -166,6 +186,7 @@ class TestOutOfWindow:
 # Test 4: Zero-delta-only for an action code
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestZeroDeltaOnly:
     def test_all_zero_delta_triggers_violation(self):
         df = _all_15_achieved()
@@ -194,6 +215,7 @@ class TestZeroDeltaOnly:
 # Test 5: Insufficient coverage (< 12 of 15 codes)
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestInsufficientCoverage:
     def test_only_11_codes_fails(self):
         only_11 = IMPACTFUL_15[:11]
@@ -215,6 +237,7 @@ class TestInsufficientCoverage:
 # Test 6: Exactly 12 covered codes — should pass (boundary tolerance)
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestBoundaryCoverage:
     def test_exactly_12_codes_passes(self):
         rows = [
@@ -234,6 +257,7 @@ class TestBoundaryCoverage:
 # Test 7: Missing outcome_date — should not crash
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestMissingOutcomeDate:
     def test_missing_outcome_date_does_not_crash(self):
         df = _all_15_achieved()
@@ -250,6 +274,7 @@ class TestMissingOutcomeDate:
 # Test 8: Non-achieved rows do not pollute achieved-only checks
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestNonAchievedRowsIgnored:
     def test_pending_rows_do_not_affect_delta_check(self):
         rows = [
@@ -363,6 +388,7 @@ class TestCatalogEntry:
 # Test 12: Reconciliation validator passes on real data
 # ---------------------------------------------------------------------------
 
+@_needs_pandas
 class TestRealDataReconciliation:
     def test_real_fact_action_outcome_passes_all_checks(self):
         """End-to-end: load real Parquet, load real Impactful-15, run checks."""

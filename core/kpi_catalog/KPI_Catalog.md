@@ -2169,6 +2169,40 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     completeness_score: 1.0
     last_review: 23.01.2026
 
+- kpi_id: enterprise.action_effectiveness_delta.amount
+  kpi_key: Action Effectiveness Delta
+  kpi_type: outcome
+  kpi_role: strategic
+  impact_dimension: Governance
+  domain_tag: [Enterprise & Governance, Governance]
+  use_case_ref:
+  - XD-004
+  action_code_ref: []
+  calc_type: average
+  business:
+    purpose: "Average EUR impact per achieved action execution — realized KPI delta per code."
+    definition: "Average impact_value across achieved rows in fact_action_outcome."
+    grain_scope: "Action instance; aggregated by period and domain."
+    unit_format: "EUR (#,0)"
+    interpretation: "Higher values indicate stronger KPI improvement per action code execution."
+  technical:
+    measure_name: "Action Effectiveness Delta"
+    description: "Average EUR impact per achieved action execution."
+    depends_on_measures: []
+    lineage:
+    - fact_action_outcome.impact_value
+  governance:
+    business_owner: "Executive Office"
+    data_owner: "PMO Analytics"
+    steward: "PMO Analyst"
+    review_cycle: "monthly"
+    validation_process: "manual review"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 26.04.2026
+
 - kpi_id: enterprise.action_routed.count
   deprecated: true
   deprecation_reason: "No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)"

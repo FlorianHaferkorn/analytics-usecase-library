@@ -306,6 +306,12 @@ table _Measures
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
+	/// Purpose: Average EUR impact per achieved action execution — realized KPI delta per code.
+	/// enterprise.action_effectiveness_delta.amount - Action Effectiveness Delta
+	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+		formatString: #,0
+		displayFolder: "8_Action_Outcomes"
+
 	column Column1
 		dataType: string
 		isHidden
