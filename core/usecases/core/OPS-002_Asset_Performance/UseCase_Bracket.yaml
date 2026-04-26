@@ -37,12 +37,19 @@ ux_layout_rules:
     title: Operations Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is asset availability sufficient to meet the production plan?"
+    big_idea: "Asset availability is declining — maintenance backlog is accumulating faster than resolution, and OEE compression signals near-term production risk."
     component_3s:
       kpi_id: ops.mtbf.hours
       visual_type: kpi_card
     component_30s:
-    - kpi_id: ops.availability.pct
+    - slot_id: Main_1
+      kpi_id: ops.availability.pct
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate planned vs unplanned downtime onset to separate systemic from event-driven availability loss"
+        anchor: inflection
     - kpi_ids:
       - ops.mttr.hours
       - ops.downtime.unplanned.pct

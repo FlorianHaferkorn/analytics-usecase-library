@@ -39,12 +39,19 @@ ux_layout_rules:
     title: Commercial Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is our gross margin holding against price and mix pressure?"
+    big_idea: "Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers."
     component_3s:
       kpi_id: margin.gm.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: margin.gm.amount
+    - slot_id: Main_1
+      kpi_id: margin.gm.amount
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate the period where GM trend inflects below target — correlate with mix shift"
+        anchor: threshold_crossing
     - kpi_ids:
       - sales.price.realization_pct
       - sales.pvm.mix_effect.amount

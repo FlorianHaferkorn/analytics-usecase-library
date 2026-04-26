@@ -39,12 +39,19 @@ ux_layout_rules:
     title: Commercial Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Are our promotions generating profitable incremental volume?"
+    big_idea: "Promotion ROI is below threshold — cannibalization and insufficient incremental lift signal that promotional mechanics need redesign before next campaign cycle."
     component_3s:
       kpi_id: sales.promo.roi.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: sales.promo.incremental.amount
+    - slot_id: Main_1
+      kpi_id: sales.promo.incremental.amount
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate the campaign with the widest gap between incremental sales and net ROI"
+        anchor: max_deviation
     - kpi_ids:
       - margin.promo.gm.pct
       - sales.price.realization_pct

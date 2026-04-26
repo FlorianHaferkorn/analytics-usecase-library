@@ -40,12 +40,19 @@ ux_layout_rules:
     title: Supply Chain Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is inventory turning efficiently without stockout or obsolescence risk?"
+    big_idea: "Inventory turnover is deteriorating — dead stock in three SKU clusters is tying up working capital and masking the true demand signal for replenishment planning."
     component_3s:
       kpi_id: inv.dio.days
       visual_type: kpi_card
     component_30s:
-    - kpi_id: inv.turnover
+    - slot_id: Main_1
+      kpi_id: inv.turnover
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate seasonal demand peaks and the point where turnover diverges from plan"
+        anchor: inflection
     - kpi_ids:
       - inv.stockout.pct
       - supply.otif.pct

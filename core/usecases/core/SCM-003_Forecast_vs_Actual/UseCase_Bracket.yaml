@@ -34,12 +34,19 @@ ux_layout_rules:
     title: Supply Chain / Planning Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is forecast accuracy sufficient to support production and inventory planning?"
+    big_idea: "Forecast error is above threshold — systematic bias in the mid-range SKU cluster is driving overstock in two regions and requires model recalibration."
     component_3s:
       kpi_id: plan.forecast.accuracy.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: plan.forecast.mape.pct
+    - slot_id: Main_1
+      kpi_id: plan.forecast.mape.pct
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate periods where MAPE exceeds the 15% accuracy threshold and bias direction shifts"
+        anchor: threshold_crossing
     - kpi_ids:
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct

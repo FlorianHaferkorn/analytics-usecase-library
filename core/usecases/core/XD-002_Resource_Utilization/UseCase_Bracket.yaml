@@ -37,12 +37,19 @@ ux_layout_rules:
     title: Experience / Service Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is resource utilization sustainable without degrading service quality?"
+    big_idea: "Resource utilization is above sustainable threshold — occupancy peaks in two teams are creating burnout risk and reducing service quality consistency."
     component_3s:
       kpi_id: res.utilization.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: res.occupancy.pct
+    - slot_id: Main_1
+      kpi_id: res.occupancy.pct
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate over-utilization peaks that exceed the 85% sustainable occupancy threshold"
+        anchor: threshold_crossing
     - kpi_ids:
       - svc.sla.attainment.pct
       - res.overtime.pct

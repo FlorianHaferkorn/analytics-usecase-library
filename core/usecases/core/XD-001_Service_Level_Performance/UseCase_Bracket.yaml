@@ -34,12 +34,19 @@ ux_layout_rules:
     title: Experience / Service Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is the service organization resolving cases fast enough to prevent backlog growth?"
+    big_idea: "Service backlog is growing — first-contact resolution rate is declining and case escalation volume is rising, signalling a capacity or capability gap."
     component_3s:
       kpi_id: svc.sla.attainment.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: svc.backlog.count
+    - slot_id: Main_1
+      kpi_id: svc.backlog.count
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate the inflection where backlog accumulation rate exceeds resolution rate"
+        anchor: inflection
     - kpi_ids:
       - svc.fcr.pct
       - svc.aht.minutes

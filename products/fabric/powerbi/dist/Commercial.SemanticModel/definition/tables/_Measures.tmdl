@@ -23,9 +23,9 @@ table _Measures
 		displayFolder: COM-001
 		lineageTag: b3b3dc9a-b1c6-4e73-a22a-0d10f0e34c74
 
-	/// sales.net_sales.delta_pct.plan - sales.net_sales.delta_pct.plan
+	/// Net Sales % vs Plan - sales.net_sales.delta_pct.plan
 	/// Relative variance of Net Sales vs Plan.
-	measure 'sales.net_sales.delta_pct.plan' = BLANK()
+	measure 'Net Sales % vs Plan' = BLANK()
 		formatString: 0.0%
 		displayFolder: COM-001
 		lineageTag: b2f7a0cd-ec9f-4019-9545-8d8e600a94a6
@@ -37,65 +37,65 @@ table _Measures
 		displayFolder: COM-001
 		lineageTag: c2d3b6fc-63b3-4a35-8e35-8a1813849c9b
 
-	/// sales.pvm.price_effect.amount - sales.pvm.price_effect.amount
+	/// Price Effect Amount - sales.pvm.price_effect.amount
 	/// Quantifies the pure price impact in the PVM bridge.
-	measure 'sales.pvm.price_effect.amount' = BLANK()
+	measure 'Price Effect Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-001
 		lineageTag: 41545bc4-a6ac-4a31-9358-56df9fdb2aac
 
-	/// sales.pvm.volume_effect.amount - sales.pvm.volume_effect.amount
+	/// Volume Effect Amount - sales.pvm.volume_effect.amount
 	/// Measures the variance caused purely by quantity changes at plan price.
-	measure 'sales.pvm.volume_effect.amount' = BLANK()
+	measure 'Volume Effect Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-001
 		lineageTag: 580b2dec-362e-4e44-9bd1-deac41df833c
 
-	/// sales.pvm.mix_effect.amount - sales.pvm.mix_effect.amount
+	/// Mix Effect Amount - sales.pvm.mix_effect.amount
 	/// Captures the residual effect from changes in product, channel, or region mix.
-	measure 'sales.pvm.mix_effect.amount' = BLANK()
+	measure 'Mix Effect Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-001
 		lineageTag: ab2d5d57-cae3-4582-abea-92ff9d3b271a
 
-	/// margin.gm.amount - margin.gm.amount
+	/// Gross Margin Amount - margin.gm.amount
 	/// Absolute gross margin in currency.
-	measure 'margin.gm.amount' = BLANK()
+	measure 'Gross Margin Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-002
 		lineageTag: 03f08d7f-23da-4831-9935-ae83e07e3c8e
 
-	/// sales.price.list.amount - sales.price.list.amount
+	/// List Price Amount - sales.price.list.amount
 	/// Total list price (before discounts) for price realization and discount analysis.
-	measure 'sales.price.list.amount' = BLANK()
+	measure 'List Price Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-002
 		lineageTag: d17712ff-6b3c-4b55-9b34-22e9f97ff5a5
 
-	/// sales.price.net.amount - sales.price.net.amount
+	/// Net Price Amount - sales.price.net.amount
 	/// Total net price (after discounts) for price realization and discount analysis.
-	measure 'sales.price.net.amount' = BLANK()
+	measure 'Net Price Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-002
 		lineageTag: ee4b6ee4-4571-425a-9e3f-d8370692f1c3
 
-	/// sales.price.realization_pct - sales.price.realization_pct
+	/// Price Realization % - sales.price.realization_pct
 	/// Shows how much of list price is realized after discounts.
-	measure 'sales.price.realization_pct' = BLANK()
+	measure 'Price Realization %' = BLANK()
 		formatString: 0.0%
 		displayFolder: COM-002
 		lineageTag: 910c92c2-da5b-4fba-b7b8-004ce0856170
 
-	/// cost.cogs_per_unit.amount - cost.cogs_per_unit.amount
+	/// COGS per Unit - cost.cogs_per_unit.amount
 	/// Shows unit cost level relative to sold volume.
-	measure 'cost.cogs_per_unit.amount' = BLANK()
+	measure 'COGS per Unit' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-002
 		lineageTag: 92e31c4c-5f77-412f-97dd-754a65e78152
 
-	/// margin.gm.vs_plan.pct - margin.gm.vs_plan.pct
+	/// Gross Margin % vs Plan - margin.gm.vs_plan.pct
 	/// Measures gross margin rate variance versus plan.
-	measure 'margin.gm.vs_plan.pct' = BLANK()
+	measure 'Gross Margin % vs Plan' = BLANK()
 		formatString: 0.0%
 		displayFolder: COM-002
 		lineageTag: e0113c41-42e6-499e-a751-b2df2801d43f
@@ -107,30 +107,30 @@ table _Measures
 		displayFolder: COM-003
 		lineageTag: 03246498-dfec-4236-8de6-ed9a6e551634
 
-	/// crm.lifetime_revenue.amount - crm.lifetime_revenue.amount
+	/// Customer Lifetime Revenue Amount - crm.lifetime_revenue.amount
 	/// Sum of realized revenue across the customer lifecycle.
-	measure 'crm.lifetime_revenue.amount' = BLANK()
+	measure 'Customer Lifetime Revenue Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-003
 		lineageTag: 227ed712-5388-496e-b813-5f70f32b336a
 
-	/// crm.retention.pct - crm.retention.pct
+	/// Customer Retention % - crm.retention.pct
 	/// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
-	measure 'crm.retention.pct' = BLANK()
+	measure 'Customer Retention %' = BLANK()
 		formatString: 0.0%
 		displayFolder: COM-003
 		lineageTag: 4f295ec4-6dc4-4c21-b4c9-3bf7320a80d2
 
-	/// crm.churned_customers.count - crm.churned_customers.count
+	/// Churned Customers - crm.churned_customers.count
 	/// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
-	measure 'crm.churned_customers.count' = BLANK()
+	measure 'Churned Customers' = BLANK()
 		formatString: #,0
 		displayFolder: COM-003
 		lineageTag: ccba5dd6-2da4-4192-b00f-d0aac7eac4bf
 
-	/// crm.active_customers.count - crm.active_customers.count
+	/// Active Customers - crm.active_customers.count
 	/// Number of unique active customers in the reporting period.
-	measure 'crm.active_customers.count' = BLANK()
+	measure 'Active Customers' = BLANK()
 		formatString: #,0
 		displayFolder: COM-003
 		lineageTag: 4cf0a970-adc2-43fa-8110-b36c161189e6
@@ -149,33 +149,61 @@ table _Measures
 		displayFolder: COM-003
 		lineageTag: 34267a54-b7df-455f-bdfb-7cd5cc05f14a
 
-	/// sales.promo.roi.pct - sales.promo.roi.pct
+	/// Promo ROI % - sales.promo.roi.pct
 	/// Measures profitability of promotions relative to spend.
-	measure 'sales.promo.roi.pct' = BLANK()
+	measure 'Promo ROI %' = BLANK()
 		formatString: 0.0%
 		displayFolder: COM-004
 		lineageTag: 196a4a51-8c51-4776-8d03-e514518eef0f
 
-	/// sales.promo.incremental.amount - sales.promo.incremental.amount
+	/// Incremental Sales Amount - sales.promo.incremental.amount
 	/// Additional sales due to promotion.
-	measure 'sales.promo.incremental.amount' = BLANK()
+	measure 'Incremental Sales Amount' = BLANK()
 		formatString: #,0.00
 		displayFolder: COM-004
 		lineageTag: d6029ff3-2184-423c-9e45-c9bffb2d6eb2
 
-	/// margin.promo.gm.pct - margin.promo.gm.pct
+	/// GM % During Promo - margin.promo.gm.pct
 	/// Gross margin rate during promo periods.
-	measure 'margin.promo.gm.pct' = BLANK()
+	measure 'GM % During Promo' = BLANK()
 		formatString: 0.0%
 		displayFolder: COM-004
 		lineageTag: fa91fbea-f202-4e1b-99cf-9d5a40cf4e2d
 
-	/// sales.promo.cannibalization.pct - sales.promo.cannibalization.pct
+	/// Cannibalization % - sales.promo.cannibalization.pct
 	/// Measures share of promo uplift offset by decline in non-promoted sales.
-	measure 'sales.promo.cannibalization.pct' = BLANK()
+	measure 'Cannibalization %' = BLANK()
 		formatString: 0.0%
 		displayFolder: COM-004
 		lineageTag: e9fa718c-ee1d-45ec-896e-f75929ef5cc5
+
+	/// Baseline Sales Amount - sales.promo.baseline_sales.amount
+	/// Additional sales generated during promotion period above the non-promoted baseline.
+	measure 'Baseline Sales Amount' = BLANK()
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 601dff29-03a0-46cd-8adc-81a574037a44
+
+	/// Cannibalized Sales Amount - sales.promo.cannibalized_sales.amount
+	/// Sales volume from non-promoted products lost due to consumer switching to promoted SKUs.
+	measure 'Cannibalized Sales Amount' = BLANK()
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 7872106a-0a2b-40d3-ad29-b894adac4616
+
+	/// Promo Cost - sales.promo.cost.amount
+	/// Total spend on promotional activities including media, trade, and execution costs.
+	measure 'Promo Cost' = BLANK()
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: c892ab8a-b5eb-4c39-a53b-895469dd733a
+
+	/// Incremental Gross Margin Amount - sales.promo.incremental_gm.amount
+	/// Gross margin contribution attributable to promotional uplift net of promo costs.
+	measure 'Incremental Gross Margin Amount' = BLANK()
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 6ce6a631-7d86-4e74-858e-bb3e331cd569
 
 	/// ActionReady Logic: C-C3.1 - Customer Retention Intervention
 	measure 'Action_C-C3.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY segments or customers with persistent retention deterioration" & UNICHAR(10) & "  2. PRIORITIZE the book of business by crm.revenue_at_risk.amount and crm.clv.amount" & UNICHAR(10) & "  3. ASSIGN targeted recovery actions to account or CRM owners" & UNICHAR(10) & "  4. REVIEW retention and CLV recovery for the targeted population monthly"

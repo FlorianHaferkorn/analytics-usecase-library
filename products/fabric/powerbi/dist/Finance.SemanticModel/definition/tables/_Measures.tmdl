@@ -243,6 +243,13 @@ table _Measures
 		displayFolder: "FIN-002"
 
 	/// ActionReady Logic
+	/// Payables Amount - fin.liquidity.payables.amount
+	/// Total outstanding accounts payable balance; component of DPO and working capital.
+	measure 'Payables Amount' = BLANK()
+		formatString: #,0.00
+		displayFolder: FIN-001
+		lineageTag: 58cf11a3-6134-4d19-91ec-5e86f803a386
+
 	/// ActionReady Logic: F-C1.1
 	measure 'Action_F-C1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: finance_director" & UNICHAR(10) & "Steps:"
 		isHidden

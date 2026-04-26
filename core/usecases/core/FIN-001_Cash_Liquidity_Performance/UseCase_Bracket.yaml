@@ -47,12 +47,19 @@ ux_layout_rules:
     title: Finance Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is cash conversion and liquidity on a safe trajectory?"
+    big_idea: "Cash conversion is deteriorating — DSO extension and payables compression are squeezing liquidity headroom and require urgent working capital intervention."
     component_3s:
       kpi_id: wc.ccc.days
       visual_type: kpi_card
     component_30s:
-    - kpi_id: fin.cash.balance
+    - slot_id: Main_1
+      kpi_id: fin.cash.balance
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate when cash balance crosses minimum liquidity threshold or CCC elongates beyond target"
+        anchor: threshold_crossing
     - kpi_ids:
       - fin.cash.ocf
       - fin.cash.vs_plan.pct

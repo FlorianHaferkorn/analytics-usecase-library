@@ -34,12 +34,19 @@ ux_layout_rules:
     title: Supply Chain Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Are suppliers delivering reliably enough to meet customer commitments?"
+    big_idea: "OTIF performance is declining — supplier delivery failures in two key categories are creating downstream stockouts and eroding customer satisfaction."
     component_3s:
       kpi_id: supply.otif.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: supply.on_time.pct
+    - slot_id: Main_1
+      kpi_id: supply.on_time.pct
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate supplier disruption events where OTIF dips below the 95% service level threshold"
+        anchor: threshold_crossing
     - kpi_ids:
       - supply.in_full.pct
       - supply.stockout_impact.pct

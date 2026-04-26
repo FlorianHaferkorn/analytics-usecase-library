@@ -38,12 +38,19 @@ ux_layout_rules:
     title: Finance / Operations Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Is input cost inflation being recovered in pricing and margin?"
+    big_idea: "Input cost inflation is outpacing pricing recovery — COGS % is expanding and will erode operating margin within two quarters if not addressed."
     component_3s:
       kpi_id: cost.unit.amount
       visual_type: kpi_card
     component_30s:
-    - kpi_id: margin.cogs.pct
+    - slot_id: Main_1
+      kpi_id: margin.cogs.pct
       visual_type: trend_line
+      ibcs_scenario: ac
+      annotations:
+      - label: "Annotate the period where COGS % trend exceeds the inflation-adjusted target line"
+        anchor: threshold_crossing
     - kpi_ids:
       - cost.opex.vs_plan.pct
       - cost.material.pct

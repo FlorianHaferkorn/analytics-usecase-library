@@ -97,9 +97,11 @@ ux_layout_rules:
     title: Executive Action Governance — Overview
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: \"Is the action governance cycle delivering verified business impact?"
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
       visual_type: kpi_card
+      ibcs_scenario: ac
     component_30s:
       - kpi_id: enterprise.action_outcome_rate.pct
         visual_type: trend_line

@@ -47,6 +47,10 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: sales.net_sales.amount
       visual_type: line_chart
+      ibcs_scenario: ac
+      annotations:
+      - label: "Net Sales above plan but GM% compression signals adverse mix — annotate DACH deviation"
+        anchor: max_deviation
     - slot_id: Main_2
       kpi_ids:
       - sales.net_sales.delta_pct.plan
