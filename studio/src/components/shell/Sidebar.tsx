@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface NavItem {
   id: string;
@@ -11,11 +11,25 @@ interface NavItem {
   href: string;
 }
 
+interface Domain {
+  id: string;
+  label: string;
+  color: string;
+}
+
 const NAV_ITEMS: NavItem[] = [
   { id: 'overview', label: 'Overview', icon: 'Home', href: '/overview' },
   { id: 'canvas', label: 'Canvas', icon: 'Graph', href: '/canvas' },
   { id: 'library', label: 'Library', icon: 'Library', href: '/library' },
   { id: 'detail', label: 'Detail', icon: 'Book', href: '/detail' },
+];
+
+const DOMAINS: Domain[] = [
+  { id: 'revenue', label: 'Revenue', color: 'oklch(0.60 0.20 243.5)' },
+  { id: 'growth', label: 'Growth', color: 'oklch(0.59 0.16 276.1)' },
+  { id: 'customer', label: 'Customer', color: 'oklch(0.65 0.17 58.5)' },
+  { id: 'operations', label: 'Operations', color: 'oklch(0.58 0.11 169.3)' },
+  { id: 'people', label: 'People', color: 'oklch(0.56 0.23 344.1)' },
 ];
 
 interface SidebarProps {
@@ -26,6 +40,9 @@ interface SidebarProps {
 export function Sidebar({ onNew, onCommand }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeDomain = searchParams.get('domain');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,6 +64,17 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
     const segment = pathname?.split('/')[1];
     const hrefSegment = href.split('/')[1];
     return segment === hrefSegment;
+  };
+
+  const handleDomainClick = (domainId: string) => {
+    const newDomain = activeDomain === domainId ? null : domainId;
+    const current = new URLSearchParams(searchParams);
+    if (newDomain) {
+      current.set('domain', newDomain);
+    } else {
+      current.delete('domain');
+    }
+    router.push(`${pathname}?${current.toString()}`);
   };
 
   return (
@@ -153,10 +181,69 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
         })}
       </nav>
 
+      {/* Domains Section */}
+      {!collapsed && (
+        <div className="px-2 py-3 flex flex-col gap-0.25">
+          <div className="text-2xs font-medium text-foreground-subtle px-2.5 py-1.5">Domains</div>
+          {DOMAINS.map((domain) => {
+            const active = activeDomain === domain.id;
+            return (
+              <button
+                key={domain.id}
+                onClick={() => handleDomainClick(domain.id)}
+                className={`h-7 px-2.5 flex items-center gap-2.5 rounded-lg text-xs font-medium transition-colors relative ${
+                  active
+                    ? 'bg-hover text-foreground'
+                    : 'text-foreground-muted hover:bg-hover'
+                }`}
+              >
+                <div
+                  className="w-2 h-2 rounded flex-shrink-0"
+                  style={{ backgroundColor: domain.color }}
+                />
+                {domain.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      {/* User Footer */}
+      {!collapsed ? (
+        <div className="px-3 py-3.5 flex items-center gap-2.5 border-t border-border-subtle">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-background flex-shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, oklch(0.62 0.13 250) 0%, oklch(0.55 0.18 320) 100%)',
+            }}
+          >
+            AH
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-semibold text-foreground truncate">Alex Haferkorn</div>
+            <div className="text-2xs text-foreground-subtle truncate">Acme · Pro</div>
+          </div>
+        </div>
+      ) : (
+        <div className="px-3 py-3.5 flex items-center justify-center border-t border-border-subtle">
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-background"
+            style={{
+              background: 'linear-gradient(135deg, oklch(0.62 0.13 250) 0%, oklch(0.55 0.18 320) 100%)',
+            }}
+          >
+            AH
+          </div>
+        </div>
+      )}
+
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 p-1 rounded text-foreground-subtle hover:bg-hover transition-colors"
+        className="absolute bottom-20 left-1/2 -translate-x-1/2 p-1 rounded text-foreground-subtle hover:bg-hover transition-colors"
         title={collapsed ? 'Expand' : 'Collapse'}
       >
         <svg
