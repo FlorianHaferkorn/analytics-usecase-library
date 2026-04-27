@@ -298,7 +298,33 @@ The SUCCESS formula from International Business Communication Standards governs 
 
 ---
 
-## 13. The Narrative Contract Between Pages
+## 13. AI-Generated Narratives — Provenance and Grounding Rules
+
+> **Source:** Ji et al. (2023, "Survey of Hallucination in Natural Language Generation", *ACM Computing Surveys*, Vol. 55, Art. 248): hallucination — generated content that is factually incorrect or unsupported by source data — is a systematic failure mode of neural NLG systems, not an edge case. It occurs across summarisation, data-to-text, QA, and visual-language tasks.
+
+Any page that includes AI-generated narrative text (Power BI Smart Narrative, Azure OpenAI integration, Copilot summaries, or LLM-produced commentary) must satisfy the following:
+
+### Grounding Requirements
+
+| Requirement | Rule |
+|---|---|
+| **Data grounding** | Every numeric claim in the narrative must be traceable to a DAX measure or query result that is also visible (or accessible via tooltip) on the same page. No model-generated number may appear without a corresponding calculated field. |
+| **Freshness timestamp** | The page or narrative panel must display the data refresh timestamp (e.g., "Data as of 2026-04-27 06:00 UTC") so users can assess whether the text reflects current data. |
+| **Visual distinction** | AI-generated text must be visually distinguished from DAX-calculated values — use a label, icon (e.g., ✦ AI Summary), or visual container that makes the provenance clear. Never present generated commentary in the same typography as calculated KPI values. |
+| **Filter sensitivity** | AI narrative components must respond to the same slicer/filter context as the KPIs on the page. A Smart Narrative that ignores the active date filter while KPI cards reflect it is a data-integrity violation. |
+| **Scope boundary** | AI narrative is allowed in the `Smart_Narrative` slot (Detail pages) and `text_callout` positions only. It must not replace a calculated KPI value or a IBCS-encoded delta. |
+
+### What This Means for Smart Narrative (Power BI)
+
+`smartNarrativeVisual` in PBIP auto-reads the page filter context and generates text from the visible measures. This satisfies the grounding requirement **only if** the measures it references are the same measures driving the KPI cards. Verify by toggling filters and confirming the narrative updates coherently with the cards.
+
+### What This Means for External LLM Integration
+
+If an external LLM (Azure OpenAI, etc.) generates narrative text that is embedded on the page, the text must be produced via a DAX measure that passes the current filter context to the API — not via a static report-time generation that ignores runtime filters.
+
+---
+
+## 14. The Narrative Contract Between Pages
 
 In a 2-page use case (Overview + Detail), the pages must form a coherent narrative:
 

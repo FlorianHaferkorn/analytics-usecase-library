@@ -118,23 +118,46 @@ def _run_theme_generator(color: str, concept: str, mode: str, brand: str, second
 
 
 def _validate_theme_against_schema(theme_path: Path) -> bool:
-    """Validate theme JSON against pinned schema if available. Return True if valid or skip."""
+    """Validate theme JSON against pinned Microsoft reportThemeSchema.
+
+    Returns True if validation passes or is skipped (schema unavailable).
+    Returns False if the theme is structurally invalid against the schema.
+
+    Schema source: microsoft/powerbi-desktop-samples / Report Theme JSON Schema
+    Local resolver: theme_generator/tools/theme-agent/fetch_latest_theme_schema.py
+    """
     try:
         from jsonschema import Draft202012Validator
     except ImportError:
+        # jsonschema not installed — skip validation (warn but don't fail)
+        print("  WARNING: jsonschema not installed; theme schema validation skipped. "
+              "Install with: pip install jsonschema")
         return True
-    # Resolve theme_generator theme-agent for fetch_latest_theme_schema
-    agent_dir = REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "tools" / "theme-agent"
-    if agent_dir not in sys.path:
-        sys.path.insert(0, str(agent_dir))
+
+    tooling_dir = REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling"
+    if str(tooling_dir) not in sys.path:
+        sys.path.insert(0, str(tooling_dir))
+
     try:
-        from fetch_latest_theme_schema import get_schema_path
-        schema_path = get_schema_path()
+        from fetch_theme_schema import get_schema_path
+    except ImportError:
+        print(f"  WARNING: fetch_theme_schema not found at {tooling_dir}; "
+              "theme schema validation skipped.")
+        return True
+
+    schema_path = get_schema_path()
+    if schema_path is None:
+        print("  WARNING: reportThemeSchema not available locally and network "
+              "unreachable; theme schema validation skipped.")
+        return True
+
+    try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         payload = json.loads(theme_path.read_text(encoding="utf-8"))
         Draft202012Validator(schema).validate(payload)
         return True
-    except Exception:
+    except Exception as exc:
+        print(f"  ERROR: theme {theme_path.name} failed schema validation: {exc}")
         return False
 
 

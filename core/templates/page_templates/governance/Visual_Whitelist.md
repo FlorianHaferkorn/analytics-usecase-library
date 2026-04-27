@@ -23,6 +23,14 @@ If a visual is not listed here, it is **not allowed**.
 |------|---------------|-------------------|
 | KPI Card | All overview slots | T1, T2, T3, T4 |
 | KPI Card with Target / Delta | Trend, Variance | T1, T2 |
+| Bullet Graph | `KPI_Cards` (optional variant) | T1, T2 |
+
+**Bullet Graph rules (Few 2005, *Bullet Graph Design Specification*, Perceptual Edge):**
+- Use as a space-efficient alternative to gauge/speedometer for KPIs with a defined target and performance bands
+- Encodes: primary measure bar + target marker + qualitative performance bands (poor/satisfactory/good)
+- Performance bands use **sequential single-hue shading** (light to dark) — NOT red/amber/green fills, to avoid conflating gauge aesthetics with RAG status semantics and to remain colorblind-safe
+- Connector requirement: Power BI has no native bullet graph; implement via custom visual (`Enlighten Bullet Chart` or equivalent) or approximate with a `cardVisual` + `progress bar` combo with documented trade-off
+- Use when: (1) space is constrained, (2) a KPI requires simultaneous display of actual value, target, and qualitative performance context
 
 ---
 

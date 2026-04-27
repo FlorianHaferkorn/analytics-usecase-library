@@ -25,6 +25,7 @@ Visual types in this framework use abstract identifiers that are independent of 
 | `kpi_card` | Single KPI with value, delta, reference, optional sparkline | `KPI_Cards` | T1, T2, T3, T4 |
 | `kpi_card_hero` | Large-format KPI card for single dominant metric | `KPI_Cards` | T1 |
 | `kpi_card_compact` | Small-format KPI card for 6-card rows | `KPI_Cards` | T3 |
+| `kpi_bullet_graph` | KPI with actual bar + target marker + qualitative bands (Few 2005); replaces gauge in space-constrained layouts | `KPI_Cards` | T1, T2 |
 | `status_tile` | Traffic-light tile: entity × status | `KPI_Cards`, `Exceptions` | T3 |
 
 ---
