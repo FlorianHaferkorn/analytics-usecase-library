@@ -236,7 +236,36 @@ If a preset hue fails contrast in one theme, adjust `--accent-ink` (keep body-te
 
 ---
 
-## 9. Tailwind v4 mapping
+## 9. Data Series Palette
+
+8-Farben-Palette für Chart-Rendering. OKLCH-Werte sind Konvertierungen der Microsoft Fluent UI Palette aus dem ursprünglichen Mockup (`docs/rebuild/MOCKUP_REFERENCE/tokens.js` Zeile 15).
+
+```css
+:root {
+  --data-1: oklch(0.60 0.20 243.5);  /* Indigo — formerly #0078D4 */
+  --data-2: oklch(0.90 0.14 203.6);  /* Cyan — formerly #50E6FF */
+  --data-3: oklch(0.59 0.16 276.1);  /* Violet — formerly #8661C5 */
+  --data-4: oklch(0.64 0.26 77.6);   /* Orange — formerly #F7630C */
+  --data-5: oklch(0.58 0.11 169.3);  /* Teal — formerly #008575 */
+  --data-6: oklch(0.56 0.23 344.1);  /* Magenta — formerly #E3008C */
+  --data-7: oklch(0.65 0.17 58.5);   /* Coral — formerly #EF6950 */
+  --data-8: oklch(0.82 0.34 104.1);  /* Gold — formerly #FFB900 */
+}
+```
+
+**Rationale:** Das Mockup nutzt statische HEX-Werte für Datenserien (nicht theme-abhängig). Phase-1-Token nutzen OKLCH durchgängig für Konsistenz. Datenserien sind kategorial (keine semantische Bedeutung wie positive/negative), daher werden die 8 Farben als statische OKLCH-Werte deklariert — nicht über Theme-Switching variiert. Die gleichen Werte gelten für Light und Dark Theme.
+
+**Verwendung in Charts:**
+- Reihe 1 → `var(--data-1)`
+- Reihe 2 → `var(--data-2)`
+- …
+- Reihen > 8: Fallback auf modulo-8 oder Gradient-basierte Erweiterung
+
+**Tailwind-Mapping:** Die Farben sind via `--color-data-1` bis `--color-data-8` in der `@theme`-Sektion zugänglich (z.B. `bg-data-1`, `text-data-3`).
+
+---
+
+## 10. Tailwind v4 mapping
 
 Map Tailwind utility classes to the tokens above so existing `text-foreground`, `bg-background`, etc. work:
 
@@ -269,7 +298,7 @@ Map Tailwind utility classes to the tokens above so existing `text-foreground`, 
 
 ---
 
-## 10. Do / Don't
+## 11. Do / Don't
 
 - **Do** read any color via `var(--…)` or Tailwind utility — never hard-code OKLCH in components.
 - **Do** put all theme logic in `src/styles/tokens.css`, imported once from `app/layout.tsx`.
