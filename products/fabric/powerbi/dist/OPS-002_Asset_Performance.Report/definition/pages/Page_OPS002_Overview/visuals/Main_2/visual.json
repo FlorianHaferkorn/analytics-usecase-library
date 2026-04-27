@@ -10,7 +10,7 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "waterfallChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -42,11 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "MTTR (hours)"
+                  "Property": "Downtime %"
                 }
               },
-              "queryRef": "_Measures.MTTR (hours)",
-              "nativeQueryRef": "MTTR (hours)"
+              "queryRef": "_Measures.Downtime %",
+              "nativeQueryRef": "Downtime %"
             },
             {
               "field": {
@@ -70,11 +70,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Spare Parts Stockout %"
+                  "Property": "PM Compliance %"
                 }
               },
-              "queryRef": "_Measures.Spare Parts Stockout %",
-              "nativeQueryRef": "Spare Parts Stockout %"
+              "queryRef": "_Measures.PM Compliance %",
+              "nativeQueryRef": "PM Compliance %"
             }
           ]
         }
@@ -88,46 +88,6 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "labelPosition": {
-              "expr": {
-                "Literal": {
-                  "Value": "'OutsideEnd'"
                 }
               }
             }

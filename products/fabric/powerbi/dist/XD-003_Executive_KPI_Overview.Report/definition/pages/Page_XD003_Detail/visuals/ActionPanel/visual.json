@@ -10,28 +10,28 @@
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "textbox",
+    "visualType": "cardVisual",
     "query": {
       "queryState": {
         "Data": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Active Actions Text (XD)"
+                }
+              },
+              "queryRef": "_Measures.Active Actions Text (XD)",
+              "nativeQueryRef": "Active Actions Text (XD)"
+            }
+          ]
         }
       }
-    },
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Recommended actions (from action codes)\n\n• X-E3.2 — Cross-Domain Risk Prioritisation\n  Owner: head_of_enterprise_controlling\n  Impact: High, RiskAvoidance\n  Expected: -10.0–-30.0 %\n  Confidence: Medium\n  · AGGREGATE downside deviation per KPI for this entity\n  · WEIGHT by financial and strategic materiality for this entity\n  · RANK this entity by total value-at-risk\n  ⚠ Trigger only for entities with cross-domain exposure\n  ⚠ Limit output to top N risk items per cycle'"
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

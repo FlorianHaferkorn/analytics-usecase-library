@@ -10,22 +10,7 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "textbox",
-    "drillFilterOtherVisuals": true,
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'[Commercial] Promotion Effectiveness\nEvidence grain: promotion | Strategic KPI: Promo ROI %'"
-                }
-              }
-            }
-          }
-        }
-      ]
-    }
+    "visualType": "smartNarrativeVisual",
+    "drillFilterOtherVisuals": true
   }
 }

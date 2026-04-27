@@ -10,28 +10,28 @@
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "textbox",
+    "visualType": "cardVisual",
     "query": {
       "queryState": {
         "Data": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Active Actions Text (SCM)"
+                }
+              },
+              "queryRef": "_Measures.Active Actions Text (SCM)",
+              "nativeQueryRef": "Active Actions Text (SCM)"
+            }
+          ]
         }
       }
-    },
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Recommended actions (from action codes)\n\n• S-R2.1 — OTIF Orchestration\n  Owner: head_of_supply_chain\n  Trigger: supply.otif.pct < 93.0%\n  Impact: High, CostAvoidance\n  Expected: 1.0–4.0 pp\n  Confidence: High\n  · DETECT sustained OTIF deterioration for this lane-DC scope\n  · DIAGNOSE the dominant OTIF loss driver for this lane-DC scope\n  · ACTIVATE the corresponding execution Action Code for this lane-DC scope\n  ⚠ Trigger only if service deterioration is structurally recurring\n  ⚠ Do not trigger if OTIF loss is fully explained by inventory shortages\n\n• S-R2.2 — Fulfillment & Transport Stabilisation\n  Owner: logistics_manager\n  Trigger: supply.on_time.pct < 94.0%\n  Impact: High, CostAvoidance\n  Expected: 2.0–5.0 pp\n  Confidence: High\n  · IDENTIFY recurring late deliveries by route and location\n  · ANALYSE delay root causes by lane-DC scope\n  · IMPLEMENT corrective actions for the affected route-location scope\n  ⚠ Trigger only if late deliveries dominate OTIF loss\n  ⚠ Do not trigger if delays are inventory-driven\n\n• S-R2.3 — In-Full & Stockout Impact Reduction\n  Owner: supply_planner\n  Trigger: supply.stockout_impact.pct > 6.0%\n  Impact: High, CostAvoidance\n  Expected: -1.0–-4.0 pp\n  Confidence: High\n  · IDENTIFY SKU-lane scopes with rising in-full failures\n  · REALLOCATE constrained supply by service priority for the affected SKU-lane scope\n  · CORRECT partial shipment practices for the affected SKU-lane scope\n  ⚠ Trigger only if in-full failures dominate OTIF loss\n  ⚠ Do not trigger if issues are transport-driven\n\n• S-R2.4 — Penalty & Expedite Cost Control\n  Owner: logistics_cost_manager\n  Trigger: supply.penalty.amount > 0.25%\n  Impact: Medium, CostAvoidance\n  Expected: -10.0–-30.0 %\n  Confidence: Medium\n  · IDENTIFY recurring penalties or expedites by lane and location\n  · CLASSIFY costs as avoidable vs justified for the affected lane-DC scope\n  · CORRECT underlying execution or planning issues for the affected lane-DC scope\n  ⚠ Trigger only if penalties/expedites are structurally recurring\n  ⚠ Do not trigger if cost increase is explained by approved service upgrades\n\n• S-R2.5 — Planning & Execution Alignment\n  Owner: s_and_op_lead\n  Trigger: supply.expedite.amount > 0.25%\n  Impact: Medium, CostAvoidance\n  Expected: 1.0–3.0 pp\n  Confidence: Medium\n  · IDENTIFY regions and channels affected by repeated late forecast-version changes\n  · ANALYSE root causes of plan-execution mismatch for the affected region and channel\n  · ENFORCE freeze windows and escalation rules for the affected region and channel\n  ⚠ Trigger only if expedites are caused by planning overrides or late changes\n  ⚠ Do not trigger if expedites are driven by external disruptions'"
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

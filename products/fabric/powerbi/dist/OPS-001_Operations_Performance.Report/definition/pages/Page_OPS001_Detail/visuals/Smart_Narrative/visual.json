@@ -10,22 +10,7 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "textbox",
-    "drillFilterOtherVisuals": true,
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'[Operations] Operations Performance\nEvidence grain: line_day | Strategic KPI: Overall Equipment Effectiveness (OEE) %'"
-                }
-              }
-            }
-          }
-        }
-      ]
-    }
+    "visualType": "smartNarrativeVisual",
+    "drillFilterOtherVisuals": true
   }
 }

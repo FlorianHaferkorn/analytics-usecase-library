@@ -10,28 +10,28 @@
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "textbox",
+    "visualType": "cardVisual",
     "query": {
       "queryState": {
         "Data": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Active Actions Text (SCM)"
+                }
+              },
+              "queryRef": "_Measures.Active Actions Text (SCM)",
+              "nativeQueryRef": "Active Actions Text (SCM)"
+            }
+          ]
         }
       }
-    },
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Recommended actions (from action codes)\n\n• S-F3.1 — Forecast Quality Orchestration\n  Owner: s_and_op_lead\n  Trigger: plan.forecast.accuracy.pct < 65.0%\n  Impact: Medium, CostAvoidance\n  Expected: 5.0–12.0 pp\n  Confidence: Medium\n  · DETECT sustained forecast accuracy deterioration for this SKU/location\n  · DIAGNOSE the dominant forecast error driver for this SKU/location\n  · ACTIVATE the corresponding execution Action Code for this SKU/location\n  ⚠ Trigger only if forecast error is structurally recurring\n  ⚠ Do not trigger if service containment actions already mitigate impact\n\n• S-F3.2 — Forecast Bias & Accuracy Correction\n  Owner: demand_planning_manager\n  Trigger: plan.forecast.bias.pct abs_gt 20.0%\n  Impact: Medium, CostAvoidance\n  Expected: 4.0–10.0 pp\n  Confidence: Medium\n  · Identify SKUs with persistent forecast bias\n  · Correct parameters, overrides, or input data\n  · Align planners on bias correction targets\n  ⚠ Trigger only if bias direction is consistent across periods\n  ⚠ Do not trigger if error is driven by one-off demand shocks\n\n• S-F3.3 — Service Impact Containment\n  Owner: supply_planning_manager\n  Trigger: plan.forecast.service_impact.pct > 5.0%\n  Impact: High, CostAvoidance\n  Expected: -1.0–-4.0 pp\n  Confidence: High\n  · Identify SKUs/locations with forecast-driven service loss\n  · Apply short-term allocation and prioritisation rules\n  · Align containment actions with customer service\n  ⚠ Trigger only if service impact is forecast-driven\n  ⚠ Do not trigger if OTIF loss is transport-driven\n\n• S-F3.4 — Re-Plan Discipline & Stability\n  Owner: planning_excellence_lead\n  Trigger: plan.replan.count > 6count\n  Impact: Medium, CostAvoidance\n  Expected: -20.0–-50.0 %\n  Confidence: Medium\n  · IDENTIFY cycles or planner scopes with excessive replans\n  · ANALYSE root causes of re-planning for the affected cycle or planner scope\n  · ENFORCE thresholds, freeze windows, and escalation rules for the affected cycle or planner scope\n  ⚠ Trigger only if replans are driven by planning overrides or governance breaches\n  ⚠ Do not trigger if replans are caused by external disruptions'"
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

@@ -10,22 +10,7 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "textbox",
-    "drillFilterOtherVisuals": true,
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'[Operations] Asset Performance\nEvidence grain: failure_event | Strategic KPI: MTBF (hours)'"
-                }
-              }
-            }
-          }
-        }
-      ]
-    }
+    "visualType": "smartNarrativeVisual",
+    "drillFilterOtherVisuals": true
   }
 }

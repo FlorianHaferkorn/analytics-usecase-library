@@ -114,6 +114,9 @@ def check_duplicate_unsuffixed(tmdl_by_file: dict) -> list:
 
     Returns a list of error strings (empty = no duplicates).
     """
+    # Measures that are intentionally shared verbatim across all domain models.
+    _CROSS_DOMAIN_SHARED = frozenset({"Action Effectiveness Delta"})
+
     # unsuffixed_name → set of SemanticModel names (without path root)
     model_map: dict = {}
     for file_path, names in tmdl_by_file.items():
@@ -122,7 +125,7 @@ def check_duplicate_unsuffixed(tmdl_by_file: dict) -> list:
             (p for p in parts if p.endswith(".SemanticModel")), file_path
         )
         for name in names:
-            if not _has_suffix(name):
+            if not _has_suffix(name) and name not in _CROSS_DOMAIN_SHARED:
                 model_map.setdefault(name, set()).add(model_name)
 
     return [

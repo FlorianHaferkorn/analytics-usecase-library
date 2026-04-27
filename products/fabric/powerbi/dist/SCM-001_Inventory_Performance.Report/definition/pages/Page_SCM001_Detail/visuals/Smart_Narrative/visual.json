@@ -10,22 +10,7 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "textbox",
-    "drillFilterOtherVisuals": true,
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'[Supply Chain] Inventory Performance\nEvidence grain: location_sku_month | Strategic KPI: Days in Inventory'"
-                }
-              }
-            }
-          }
-        }
-      ]
-    }
+    "visualType": "smartNarrativeVisual",
+    "drillFilterOtherVisuals": true
   }
 }

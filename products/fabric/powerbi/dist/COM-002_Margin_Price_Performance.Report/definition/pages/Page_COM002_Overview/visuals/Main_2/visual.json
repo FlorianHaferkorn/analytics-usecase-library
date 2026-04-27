@@ -10,7 +10,7 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "waterfallChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -42,11 +42,25 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Price Realization %"
+                  "Property": "Price Effect Amount"
                 }
               },
-              "queryRef": "_Measures.Price Realization %",
-              "nativeQueryRef": "Price Realization %"
+              "queryRef": "_Measures.Price Effect Amount",
+              "nativeQueryRef": "Price Effect Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Volume Effect Amount"
+                }
+              },
+              "queryRef": "_Measures.Volume Effect Amount",
+              "nativeQueryRef": "Volume Effect Amount"
             },
             {
               "field": {
@@ -61,20 +75,6 @@
               },
               "queryRef": "_Measures.Mix Effect Amount",
               "nativeQueryRef": "Mix Effect Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "COGS per Unit"
-                }
-              },
-              "queryRef": "_Measures.COGS per Unit",
-              "nativeQueryRef": "COGS per Unit"
             }
           ]
         }
@@ -88,46 +88,6 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "labelPosition": {
-              "expr": {
-                "Literal": {
-                  "Value": "'OutsideEnd'"
                 }
               }
             }
