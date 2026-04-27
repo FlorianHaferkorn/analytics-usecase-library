@@ -40,7 +40,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
   return (
     <aside style={{
       width: w, flexShrink: 0, height: '100%',
-      background: 'var(--panel)',
+      background: 'var(--bg)',
       borderRight: '1px solid var(--line)',
       display: 'flex', flexDirection: 'column',
       transition: 'width 240ms cubic-bezier(.2,.8,.2,1)',

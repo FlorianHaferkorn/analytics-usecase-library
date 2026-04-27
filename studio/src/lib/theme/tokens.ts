@@ -1,34 +1,42 @@
 /**
  * Design System Tokens - ActionReady Studio
  *
- * Single source for all design constants used across components.
  * Mirrors CSS custom properties for use in JS/TS (Framer Motion, computed styles).
+ * Accent uses oklch parametric model — default violet h=290, matching BI Framework template.
  */
 
 export const colors = {
-  /** --accent / mint */
+  /** Accent — oklch parametric violet (default). Override via data-accent or CSS var. */
+  accent: 'oklch(0.72 0.13 290)',
+  accentSoft: 'oklch(0.72 0.13 290 / 0.16)',
+  accentInk: 'oklch(0.12 0.02 290)',
+
+  /** Legacy brand aliases — kept for backward-compat */
   mint: {
     DEFAULT: '#00D4AA',
     light: '#33DDBB',
     dark: '#00A888',
   },
-  /** --accent-gold / gold */
   gold: {
     DEFAULT: '#FFB800',
     light: '#FFC833',
     dark: '#CC9300',
   },
-  /** Light design system base tokens */
-  ink:   '#0b0b0c',
-  bg:    '#fafaf9',
-  panel: '#ffffff',
-  accent: '#00D4AA',
-  accentGold: '#FFB800',
+
+  /** Surface palette (dark) */
+  bg:    '#0b0b0c',
+  bg2:   '#101012',
+  panel: '#131316',
+  ink:   '#f4f4f2',
+  ink2:  '#c9c9cd',
+  ink3:  '#8a8a90',
+  ink4:  '#5a5a60',
+
   semantic: {
-    success: '#00D4AA',
+    success: 'oklch(0.72 0.15 150)',
     warning: '#FFB800',
-    danger: '#EF4444',
-    info: '#3B82F6',
+    danger:  '#F44336',
+    info:    '#42A5F5',
   },
 } as const;
 
@@ -53,49 +61,61 @@ export const radii = {
 } as const;
 
 export const fonts = {
-  sans: "'Inter', ui-sans-serif, system-ui, sans-serif",
-  mono: "'JetBrains Mono', ui-monospace, monospace",
+  ui:      "'Geist', 'Inter', ui-sans-serif, system-ui, sans-serif",
+  sans:    "'Geist', 'Inter', ui-sans-serif, system-ui, sans-serif",
+  mono:    "'Geist Mono', 'JetBrains Mono', ui-monospace, monospace",
+  display: "'Geist', 'Inter', system-ui, sans-serif",
 } as const;
 
 export const transitions = {
   easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
-  fast: 150,
-  normal: 250,
-  slow: 400,
+  fast:    150,
+  normal:  250,
+  slow:    400,
 } as const;
 
 export const fontWeights = {
-  light: 300,
-  normal: 400,
-  medium: 500,
+  light:    300,
+  normal:   400,
+  medium:   500,
   semibold: 600,
-  bold: 700,
+  bold:     700,
 } as const;
 
 export const lineHeights = {
-  tight: 1.25,
-  normal: 1.5,
+  tight:   1.25,
+  normal:  1.5,
   relaxed: 1.75,
 } as const;
 
 export const letterSpacings = {
-  tight: '-0.025em',
+  tight:  '-0.025em',
   normal: '0em',
-  wide: '0.025em',
-  wider: '0.05em',
+  wide:   '0.025em',
+  wider:  '0.05em',
 } as const;
 
 export const shadows = {
   none: 'none',
-  sm: '0 1px 2px rgba(0,0,0,0.06)',
-  md: '0 4px 6px rgba(0,0,0,0.08)',
-  lg: '0 10px 15px rgba(0,0,0,0.10)',
-  xl: '0 20px 25px rgba(0,0,0,0.12)',
+  sm:   '0 1px 0 rgba(0,0,0,0.4)',
+  md:   '0 4px 16px rgba(0,0,0,0.4)',
+  lg:   '0 24px 48px -16px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.3)',
 } as const;
 
 /** RAG status colors for KPI cards */
 export const ragColors = {
-  red: colors.semantic.danger,
+  red:   colors.semantic.danger,
   amber: colors.gold.DEFAULT,
-  green: colors.mint.DEFAULT,
+  green: colors.semantic.success,
 } as const;
+
+/** Accent hue presets (matching Tweaks panel in BI Framework) */
+export const accentPresets = [
+  { name: 'Indigo',   h: 250, c: 0.13, l: 0.72 },
+  { name: 'Emerald',  h: 150, c: 0.13, l: 0.72 },
+  { name: 'Amber',    h:  75, c: 0.13, l: 0.72 },
+  { name: 'Rose',     h:  20, c: 0.13, l: 0.72 },
+  { name: 'Violet',   h: 290, c: 0.13, l: 0.72 },
+  { name: 'Teal',     h: 190, c: 0.13, l: 0.72 },
+  { name: 'Graphite', h: 250, c: 0.01, l: 0.55 },
+] as const;

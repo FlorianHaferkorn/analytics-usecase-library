@@ -1,50 +1,57 @@
 @import 'tailwindcss';
 
 :root {
-  /* ── Semantic role tokens (design system, dark theme) ── */
-  --bg:          #0d0e10;
-  --bg-2:        #131416;
-  --panel:       #1a1b1f;
-  --ink:         #eaebee;
-  --ink-2:       #b0b0b8;
-  --ink-3:       #6e6e78;
-  --ink-4:       #42424c;
+  /* ── Surface tokens (dark theme — mirrors BI Framework Studio.html) ── */
+  --bg:          #0b0b0c;
+  --bg-2:        #101012;
+  --panel:       #131316;
+  --ink:         #f4f4f2;
+  --ink-2:       #c9c9cd;
+  --ink-3:       #8a8a90;
+  --ink-4:       #5a5a60;
   --line:        rgba(255,255,255,0.08);
   --line-2:      rgba(255,255,255,0.04);
-  --hover:       rgba(255,255,255,0.05);
-  --accent:      #00D4AA;
-  --accent-soft: oklch(0.20 0.06 170);
-  --accent-ink:  #0a0a0a;
+  --hover:       rgba(255,255,255,0.04);
+
+  /* ── Accent (oklch parametric — default: violet h=290) ── */
+  --accent:      oklch(0.72 0.13 290);
+  --accent-soft: oklch(0.72 0.13 290 / 0.16);
+  --accent-ink:  oklch(0.12 0.02 290);
+
+  /* ── Legacy brand aliases (kept for backward-compat) ── */
+  --mint: #00D4AA;
+  --gold: #FFB800;
 
   /* ── Semantic state colors ── */
-  --success: #00D4AA;
-  --warning: #FFB800;
-  --danger:  #F44336;
-  --info:    #42A5F5;
+  --success:     oklch(0.72 0.15 150);
+  --warning:     #FFB800;
+  --danger:      #F44336;
+  --info:        #42A5F5;
   --positive-fg: oklch(0.75 0.15 150);
   --positive-bg: oklch(0.22 0.05 150 / 0.35);
   --negative-fg: oklch(0.75 0.15 28);
   --negative-bg: oklch(0.22 0.05 28 / 0.35);
 
-  /* ── Layout tokens ── */
-  --pad:    24px;
-  --gap:    20px;
-  --h-row:  44px;
-  --radius: 10px;
-
   /* ── Shadows (dark-theme calibrated) ── */
-  --shadow-sm: 0 1px 0 rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
-  --shadow-lg: 0 24px 48px -16px rgba(0,0,0,0.7), 0 8px 20px rgba(0,0,0,0.4);
+  --shadow-sm: 0 1px 0 rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 24px 48px -16px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.3);
   /* legacy aliases */
   --shadow-card:     var(--shadow-sm);
   --shadow-elevated: var(--shadow-md);
   --shadow-overlay:  var(--shadow-lg);
 
   /* ── Typography ── */
-  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
-  --font-display: 'Inter', system-ui, sans-serif;
+  --font-ui:      'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans:    var(--font-ui);
+  --font-mono:    'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: var(--font-ui);
+
+  /* ── Layout tokens (default: airy) ── */
+  --pad:    28px;
+  --gap:    28px;
+  --h-row:  48px;
+  --radius: 10px;
 
   /* ── Type scale ── */
   --text-2xs:  0.5625rem;
@@ -85,13 +92,40 @@
   --z-toast:    400;
 }
 
+/* ── Density variants ── */
+[data-density="dense"]    { --pad: 16px; --gap: 14px; --h-row: 36px; }
+[data-density="balanced"] { --pad: 20px; --gap: 18px; --h-row: 40px; }
+[data-density="airy"]     { --pad: 28px; --gap: 28px; --h-row: 48px; }
+
+/* ── Font pairing variants ── */
+[data-fonts="inter"] {
+  --font-ui:      'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+  --font-display: 'Inter', system-ui, sans-serif;
+}
+[data-fonts="ibm"] {
+  --font-ui:      'IBM Plex Sans', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+  --font-display: 'IBM Plex Sans', sans-serif;
+}
+[data-fonts="geist"] {
+  --font-ui:      'Geist', sans-serif;
+  --font-mono:    'Geist Mono', monospace;
+  --font-display: 'Geist', sans-serif;
+}
+[data-fonts="serif"] {
+  --font-ui:      'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-display: 'Instrument Serif', serif;
+}
+
 /* ── Base reset ── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
   height: 100%;
   color-scheme: dark;
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
   font-feature-settings: "cv11","ss01","ss03";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

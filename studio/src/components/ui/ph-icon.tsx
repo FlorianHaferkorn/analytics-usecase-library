@@ -14,6 +14,9 @@ import {
   CaretLeft,
   CaretRight,
   SquaresFour,
+  Sparkle,
+  Heart,
+  CheckCircle,
   type IconProps,
 } from '@phosphor-icons/react';
 
@@ -31,6 +34,9 @@ const ICON_MAP = {
   'caret-left': CaretLeft,
   'caret-right': CaretRight,
   'squares-four': SquaresFour,
+  'sparkle': Sparkle,
+  'heart': Heart,
+  'check-circle': CheckCircle,
 } as const;
 
 export type PhIconName = keyof typeof ICON_MAP;
