@@ -4,6 +4,19 @@
 # Authority: Storytelling_Principles.md §9 · Design_Spec_3_30_300.md §7.1
 # Connector bindings (PBI theme.json, CSS vars): governance/Color_Semantics_Formatting.md
 # Schema version: 1.1
+#
+# Semantic colour assignments conform to ISO 3864-1:2011 (Safety colours for workplaces
+# and public areas) and IEC 60073 (Indicator lamp and actuator colour coding):
+#   Red   = danger / immediate action required   → semantic.negative
+#   Amber = warning / attention needed            → semantic.warning
+#   Green = normal / on target                   → semantic.positive
+# Never invert these conventions for aesthetic reasons.
+#
+# WCAG 2.2 AA compliance (W3C, October 2023):
+#   SC 1.4.3 Text Contrast: all semantic hex values validated ≥4.5:1 on surface.card (#FFFFFF)
+#   SC 1.4.11 Non-Text Contrast: all data-series and semantic fill colours validated ≥3:1
+#     against surface.card and surface.page backgrounds — applies to chart lines, bars,
+#     data points, axis indicators, and icon glyphs used as status signals
 
 schema_version: "1.1"
 

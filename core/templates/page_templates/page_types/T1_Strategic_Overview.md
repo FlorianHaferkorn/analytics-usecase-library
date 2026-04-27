@@ -1,5 +1,7 @@
 ﻿# T1 – Strategic Overview
 
+> **Design basis:** Munzner (2014, *Visualization Analysis & Design*) nested model — domain task (executive strategy review) → data abstraction (KPI vs. target, trend, variance) → visual encoding (position-based kpi_card + line_chart). Shneiderman (1996): this page implements the *overview* tier of the overview-first mantra.
+
 ## Purpose
 
 The Strategic Overview page provides **executive-level clarity** on whether the organization is **on track against its strategic objectives**.

@@ -103,7 +103,8 @@ A connector implementation is **compliant** only when all items below are satisf
 |---|---|
 | All 4 semantic roles implemented | `positive`, `negative`, `warning`, `neutral` must be distinct and consistent |
 | No hard-coded colors | All colors via tool's theme/token system |
-| WCAG AA contrast | Minimum 4.5:1 for text on all semantic colors; 3:1 for large text |
+| WCAG 2.2 AA contrast (SC 1.4.3) | Minimum 4.5:1 for text on all semantic colors; 3:1 for large text |
+| WCAG 2.2 AA SC 1.4.11 Non-Text Contrast | Chart lines, fills, data points, and axis marks must achieve ≥3:1 against adjacent background |
 | Colorblind safety | Semantic signals always paired with icon or shape (never color alone) |
 
 ### 3.3 Visual Type Coverage
@@ -147,11 +148,15 @@ Connectors must enforce or validate these limits:
 
 ### 3.6 Accessibility
 
-| Requirement | Rule |
-|---|---|
-| Alt text / title | Every visual has a descriptive title (used as accessibility label) |
-| Focus order | KPI band → primary visuals → slicers → action panel |
-| WCAG AA | Minimum 4.5:1 contrast for all text; 3:1 for large text (≥18pt or ≥14pt bold) |
+Standard: **WCAG 2.2 AA** (W3C, October 2023).
+
+| Requirement | SC | Rule |
+|---|---|---|
+| Alt text / title | SC 1.1.1 | Every visual has a descriptive title (used as accessibility label) |
+| Focus order | SC 2.4.3 | KPI band → primary visuals → slicers → action panel |
+| Text contrast | SC 1.4.3 | Minimum 4.5:1 for text; 3:1 for large text (≥18pt or ≥14pt bold) |
+| Non-text contrast | SC 1.4.11 | Chart fills, data lines, data points, axis marks ≥3:1 against adjacent background |
+| Reflow exception | SC 1.4.10 | Fixed-pixel BI canvases (e.g. Power BI 1920×1080) are exempt from the 400%-zoom reflow requirement under the "two-dimensional content essential" provision. Connectors targeting fixed-pixel tools **must declare this exception explicitly** in their connector documentation. Web/Evidence connectors must support reflow (fluid grid, `clamp()` sizing). |
 
 ---
 
@@ -181,7 +186,7 @@ Run this checklist before a connector implementation is considered production-re
 ### Color Semantics
 - [ ] All 4 semantic roles (`positive`, `negative`, `warning`, `neutral`) implemented
 - [ ] No hard-coded colors — all via theme/token system
-- [ ] WCAG AA contrast verified on all semantic colors
+- [ ] WCAG 2.2 AA contrast verified on all semantic colors (SC 1.4.3 text + SC 1.4.11 non-text)
 - [ ] Colorblind safety: icon+color pairing on all signal elements
 
 ### Framework Hard Limits
@@ -199,7 +204,7 @@ Run this checklist before a connector implementation is considered production-re
 ### Accessibility
 - [ ] Every visual has a descriptive title
 - [ ] Focus order correct (KPI band → visuals → slicers → action)
-- [ ] WCAG AA contrast verified
+- [ ] WCAG 2.2 AA contrast verified (SC 1.4.3 + SC 1.4.11)
 
 ### Content Quality
 - [ ] Visual titles are question- or conclusion-form (per `Content_Quality_Guide.md §1`)

@@ -1,5 +1,7 @@
 # T3 – Operational Monitoring & Exceptions
 
+> **Design basis:** Munzner (2014) nested model — domain task (identify threshold breaches, triage, assign) → data abstraction (exception flag, deviation magnitude, entity) → visual encoding (exception table + sparkline). Shneiderman (1996): this page implements the *filter* and *zoom* tiers — users filter to exceptions and zoom to individual entity context.
+
 ## Purpose
 
 The Operational Monitoring page ensures **stable day-to-day performance** by identifying **where operations deviate from defined thresholds** and **who must react immediately**.

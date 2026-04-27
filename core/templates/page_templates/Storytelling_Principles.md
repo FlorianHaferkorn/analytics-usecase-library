@@ -4,7 +4,7 @@
 >
 > **Implements:** `Design_Spec_3_30_300.md` · `page_types/T1–T4` · `Content_Quality_Guide.md`
 >
-> **Research basis:** Knaflic (SWD), Few (Information Dashboard Design), Tufte (Visual Display of Quantitative Information), Nielsen Norman Group (Dashboard UX), IBCS (ISO/AWI 24896), MDPI Eye-Tracking Study 2024.
+> **Research basis:** Knaflic (2015, *Storytelling with Data*), Few (2004/2006/2012, *Information Dashboard Design*; 2005, *Bullet Graph Design Spec*), Tufte (1983, *Visual Display of Quantitative Information*), Nielsen Norman Group (2006, F-Pattern Eyetracking), Shneiderman (1996, "The Eyes Have It" — overview-first mantra), Ware (2013, *Information Visualization: Perception for Design* — pre-attentive attributes), Munzner (2014, *Visualization Analysis & Design* — nested What-Why-How model), IBCS (ISO/AWI 24896; Hichert/Faisst 2020), MDPI Eye-Tracking Study 2024.
 
 ---
 
@@ -109,6 +109,8 @@ The spatial layout of a page must mirror its information hierarchy. The most imp
 **Rule:** If the reader's first glance lands on decoration, a slicer, or a title instead of the key finding — the layout has failed. Place the signal where the eye goes first.
 
 ### Pre-Attentive Attributes — Priority and Use
+
+> **Source:** Ware (2013, *Information Visualization: Perception for Design*, 3rd ed., Chapter 5) — pre-attentive features are processed in parallel by the low-level visual system in under 250 ms, before serial attention engages. Knaflic (2015, SWD, pp. 103–135) operationalises the same attributes for dashboard storytelling.
 
 These attributes are processed before conscious attention. Use exactly **one** per canvas zone to direct focus. Using multiple simultaneously cancels each other out.
 
@@ -313,11 +315,15 @@ A reader who sees only the Overview should understand the situation. A reader wh
 
 | Source | Contribution |
 |---|---|
-| Cole Nussbaumer Knaflic — *Storytelling with Data* | Big Idea, pre-attentive attributes, decluttering, "So What?" test |
-| Stephen Few — *Information Dashboard Design* | Single-screen discipline, KPI context requirements, chart selection |
-| Edward Tufte — *The Visual Display of Quantitative Information* | Data-ink ratio, small multiples, sparklines, graphical integrity |
-| Nielsen Norman Group | F/Z-pattern, progressive disclosure, cognitive load |
-| IBCS / ISO/AWI 24896 | SUCCESS formula, unified notation, chart type selection |
+| Shneiderman (1996) — "The Eyes Have It", *IEEE Visual Languages* | Overview-first → zoom/filter → details-on-demand; theoretical foundation of 3-layer model |
+| Cole Nussbaumer Knaflic (2015) — *Storytelling with Data* | Big Idea, pre-attentive attributes, decluttering, direct labeling, "So What?" test |
+| Stephen Few (2004/2006/2012) — *Information Dashboard Design*; Few (2005) — *Bullet Graph Design Spec* | Single-screen discipline, KPI context, chart selection, variance driver analysis |
+| Edward Tufte (1983) — *The Visual Display of Quantitative Information* | Data-ink ratio, small multiples (p. 170), sparklines, graphical integrity |
+| Colin Ware (2013) — *Information Visualization: Perception for Design*, 3rd ed. | Pre-attentive attributes (Ch. 5); perceptual processing stages |
+| Cleveland & McGill (1984) — "Graphical Perception", *JASA* | Perceptual task hierarchy: position > length > angle > area; visual type selection rationale |
+| Munzner (2014) — *Visualization Analysis & Design* | Nested model: domain task → data abstraction → encoding; T1–T4 page type design basis |
+| Nielsen Norman Group (2006) — F-Pattern Eye-Tracking | F/Z-reading pattern; layout priority for top-left placement |
+| IBCS / ISO/AWI 24896; Hichert & Faisst (2020) | SUCCESS formula, unified notation, scenario encoding (AC/PL/FC/PY) |
 | MDPI Sensors — Eye-Tracking Study 2024 | Hierarchical layout order, attention zone empirical validation |
 | SQLBI — 3-30-300 Rule | Zone order, slicer placement, progressive disclosure in reporting |
 | Gestalt Psychology | Proximity, similarity, continuity, closure, common region |

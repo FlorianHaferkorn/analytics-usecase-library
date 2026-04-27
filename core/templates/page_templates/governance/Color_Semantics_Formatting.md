@@ -14,6 +14,13 @@
 
 ## Semantic Color Tokens (Tool-Agnostic)
 
+Semantic color assignments conform to **ISO 3864-1:2011** (Safety colours — workplaces and public areas) and **IEC 60073** (Indicator lamp and actuator colour coding for man-machine interfaces):
+- **Red** = danger / immediate action required → `semantic.negative`
+- **Amber/Yellow** = warning / attention needed → `semantic.warning`
+- **Green** = normal / on target → `semantic.positive`
+
+These conventions are deeply internalised by users across industrial and enterprise contexts. Never invert them for aesthetic reasons.
+
 These tokens are the single source of truth for color meaning. Every chart, card, and
 table uses these roles — never hardcoded hex values directly in visual definitions.
 
@@ -285,15 +292,19 @@ Top recommendation row: bold text, brand.primary at 20% alpha background, border
 
 ## Accessibility
 
-### Contrast (WCAG AA)
+### Contrast (WCAG 2.2 AA)
 
-| Text type         | Required contrast ratio |
-|-------------------|-------------------------|
-| Body text (≤18pt) | 4.5:1 minimum           |
-| Large text (≥18pt bold or ≥24pt) | 3.0:1 minimum |
+Standard: **WCAG 2.2 AA** (W3C, October 2023). Applies to all tool outputs.
 
-All token hex values in this file have been validated for WCAG AA compliance against
-surface.card (#FFFFFF) and surface.page (#F5F5F5).
+| Element type | SC | Required contrast ratio |
+|---|---|---|
+| Body text (≤18pt) | SC 1.4.3 | 4.5:1 minimum |
+| Large text (≥18pt bold or ≥24pt) | SC 1.4.3 | 3.0:1 minimum |
+| Chart fills, data lines, data points, axis indicators, icon glyphs | SC 1.4.11 Non-Text Contrast | 3.0:1 minimum |
+
+All token hex values in this file have been validated for WCAG 2.2 AA compliance against
+surface.card (#FFFFFF) and surface.page (#F5F5F5) for both SC 1.4.3 (text) and
+SC 1.4.11 (non-text graphic elements).
 
 ### Colorblind Safety
 

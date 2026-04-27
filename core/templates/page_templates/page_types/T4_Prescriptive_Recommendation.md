@@ -1,5 +1,7 @@
 ﻿# T4 – Prescriptive Recommendation
 
+> **Design basis:** Munzner (2014) nested model — domain task (decide and act) → data abstraction (trigger condition, recommended action, owner, expected impact) → visual encoding (action_card + detail matrix). Shneiderman (1996): this page implements the *details-on-demand* tier — reached via drillthrough from T1/T2/T3.
+
 ## Purpose
 
 The Prescriptive Recommendation page converts insights into **clear, accountable decisions**.
