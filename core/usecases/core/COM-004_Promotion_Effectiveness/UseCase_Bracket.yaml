@@ -80,6 +80,24 @@ prioritization:
   confidence: 0.65
   reach: division
   priority_score: 14
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Detail Matrix limited to promotion and product-category grain. No
+    individual-level customer or employee data is exposed. Row-level security
+    applied at SemanticModel level.
+  access_restriction: >
+    commercial_controlling_lead and sales_bi_lead roles; row-level security
+    enforced by Commercial.SemanticModel (entity filter per org role).
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (COM) — DAX measure that reads current filter context
+    and concatenates only triggered action texts. See Storytelling_Principles.md
+    §13.
 readiness:
   data_availability: partial
   org_capability: developing

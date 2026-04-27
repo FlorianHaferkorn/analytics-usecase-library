@@ -28,7 +28,7 @@ table uses these roles — never hardcoded hex values directly in visual definit
 |------------------------|-------------|-------------------------------------------------------|--------------------------------------|
 | semantic.positive      | #107C10     | Favourable delta, above target, good performance      | Brand accents, general categories    |
 | semantic.negative      | #A4262C     | Unfavourable delta, below target, critical exception  | Neutral data, category encoding      |
-| semantic.warning       | #C98A00     | Near threshold, attention needed, caution             | Positive signals, brand color        |
+| semantic.warning       | #C08000     | Near threshold, attention needed, caution             | Positive signals, brand color        |
 | semantic.neutral       | #605E5C     | No signal, informational, no target set               | Performance-coded data               |
 | brand.primary          | #0078D4     | First data series, primary KPI line, reference line   | Signal coding (use semantic.* only)  |
 | brand.secondary        | #50E6FF     | Second data series, supporting metrics                | Signal coding                        |
@@ -113,7 +113,7 @@ Theme generator: products/fabric/powerbi/tooling/theme_generator/
 :root {
   --color-positive:  #107C10;
   --color-negative:  #A4262C;
-  --color-warning:   #C98A00;
+  --color-warning:   #C08000;
   --color-neutral:   #605E5C;
   --color-primary:   #0078D4;
   --color-secondary: #50E6FF;

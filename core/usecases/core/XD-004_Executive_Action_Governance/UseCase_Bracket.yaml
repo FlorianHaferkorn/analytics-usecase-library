@@ -147,6 +147,20 @@ prioritization:
   reach: organization
   priority_score: 88
 
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Action governance metrics displayed at initiative and business-unit grain.
+    No individual employee attribution — action owners are referenced by role,
+    not identity. Row-level security applied at SemanticModel level.
+  access_restriction: >
+    executive_sponsor and xd_bi_lead roles; governance data visible to action
+    owners for their assigned initiatives only.
+  dpia_required: false
+  ai_generated_output: false
 readiness:
   data_availability: available
   org_capability: developing

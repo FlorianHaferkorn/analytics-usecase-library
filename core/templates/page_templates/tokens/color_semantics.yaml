@@ -23,7 +23,7 @@ schema_version: "1.1"
 semantic:
   positive: "#107C10"   # Favourable delta, above target — WCAG AA validated
   negative: "#A4262C"   # Unfavourable delta, below target — WCAG AA validated
-  warning:  "#C98A00"   # Near threshold, attention needed — WCAG AA validated
+  warning:  "#C08000"   # Near threshold, attention needed — WCAG 2.2 AA SC 1.4.11 validated (3.21:1 vs white)
   neutral:  "#605E5C"   # No signal, informational, no target set
 
 # Severity tints — 15% alpha overlays for row/background highlighting

@@ -67,6 +67,12 @@ table _Measures
 		displayFolder: 0_Summary
 		lineageTag: ff06d566-377c-4e83-a398-3504f9c49e0c
 
+
+	/// Purpose: Freshness timestamp for AI narrative — binds smartNarrativeVisual to latest loaded date.
+	measure 'Last Refresh (XD)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL('dim_date'), 'dim_date'[Date]), "DD MMM YYYY")
+		formatString: @
+		displayFolder: 0_Summary
+		lineageTag: 0d48ddf2-cce0-42c3-bf0d-6e08d514271d
 	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0

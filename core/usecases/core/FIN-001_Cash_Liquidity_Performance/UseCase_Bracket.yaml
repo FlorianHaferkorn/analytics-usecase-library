@@ -90,6 +90,24 @@ prioritization:
   confidence: 0.85
   reach: organization
   priority_score: 42
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Detail Matrix limited to legal-entity and cash-flow-category grain.
+    Processes financial positions of legal entities (not natural persons). No
+    employee or individual customer data is exposed.
+  access_restriction: >
+    finance_controlling_lead and finance_bi_lead roles; row-level security
+    enforced by Finance.SemanticModel (legal-entity filter per org role).
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (FIN) — DAX measure that reads current filter context
+    and concatenates only triggered action texts. See Storytelling_Principles.md
+    §13.
 readiness:
   data_availability: available
   org_capability: ready

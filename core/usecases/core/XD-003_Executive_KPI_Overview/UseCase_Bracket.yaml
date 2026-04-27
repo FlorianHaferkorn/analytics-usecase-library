@@ -88,6 +88,24 @@ prioritization:
   confidence: 0.9
   reach: organization
   priority_score: 90
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Detail Matrix limited to business-unit and strategic-KPI grain. Executive
+    overview displays aggregated cross-domain KPIs — no individual-level data is
+    exposed. Row-level security applied per business-unit scope.
+  access_restriction: >
+    executive_sponsor and xd_bi_lead roles; row-level security enforced by
+    cross-domain SemanticModel federation (business-unit filter per org role).
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (XD) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md
+    §13.
 readiness:
   data_availability: available
   org_capability: ready
