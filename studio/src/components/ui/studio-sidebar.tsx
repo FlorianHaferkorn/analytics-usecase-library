@@ -8,8 +8,8 @@ import { PhIcon, type PhIconName } from './ph-icon';
 import { type DomainStat } from '@/app/(studio)/layout';
 
 const navLabelStyle = {
-  padding: '8px 10px 4px',
-  fontSize: '0.5625rem', fontWeight: 500,
+  padding: '8px 10px 6px',
+  fontSize: 10.5, fontWeight: 500,
   color: 'var(--ink-4)', textTransform: 'uppercase' as const,
   letterSpacing: '0.08em',
 };
@@ -62,11 +62,11 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
           A
         </div>
         {!collapsed && (
-          <div style={{ lineHeight: 1.2, minWidth: 0 }}>
-            <div style={{ fontWeight: 600, fontSize: '0.875rem', letterSpacing: '-0.01em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
+          <div style={{ lineHeight: 1.1, minWidth: 0 }}>
+            <div style={{ fontWeight: 600, fontSize: 13.5, letterSpacing: '-0.01em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
               Action<span style={{ color: 'var(--accent)' }}>Ready</span>
             </div>
-            <div style={{ fontSize: '0.625rem', color: 'var(--ink-4)', whiteSpace: 'nowrap' }}>Studio v0.1.0</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>Studio</div>
           </div>
         )}
       </div>
@@ -80,13 +80,13 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
             display: 'flex', alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'flex-start',
             gap: 10, borderRadius: 8,
-            background: 'var(--ink)', color: 'var(--panel)',
-            fontWeight: 500, fontSize: '0.8125rem',
+            background: 'var(--ink)', color: 'var(--bg)',
+            fontWeight: 500, fontSize: 13,
             border: 'none', cursor: 'pointer', flexShrink: 0,
           }}
         >
           <PhIcon name="plus" size={14} />
-          {!collapsed && <><span>New element</span><span style={{ marginLeft: 'auto', opacity: 0.5, fontSize: '0.625rem', fontFamily: 'var(--font-mono)' }}>N</span></>}
+          {!collapsed && <><span>New element</span><span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: 10.5, fontFamily: 'var(--font-mono)' }}>N</span></>}
         </button>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('studio:open-command-palette'))}
@@ -96,12 +96,12 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
             justifyContent: collapsed ? 'center' : 'flex-start',
             gap: 10, borderRadius: 8,
             background: 'transparent', color: 'var(--ink-3)',
-            border: '1px solid var(--line)', fontSize: '0.8125rem',
+            border: '1px solid var(--line)', fontSize: 12.5,
             cursor: 'pointer', flexShrink: 0,
           }}
         >
           <PhIcon name="magnifying-glass" size={13} />
-          {!collapsed && <><span style={{ flex: 1, textAlign: 'left' }}>Search…</span><span style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>⌘K</span></>}
+          {!collapsed && <><span style={{ flex: 1, textAlign: 'left' }}>Search…</span><span style={{ fontSize: 10.5, fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>⌘K</span></>}
         </button>
       </div>
 
@@ -115,7 +115,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
                 href={m === 'forge' ? '/dashboard' : '/catalog'}
                 style={{
                   flex: 1, textAlign: 'center', padding: '5px 0',
-                  borderRadius: 6, fontSize: '0.625rem', fontWeight: mode === m ? 600 : 400,
+                  borderRadius: 6, fontSize: 10.5, fontWeight: mode === m ? 600 : 400,
                   textTransform: 'uppercase', letterSpacing: '0.06em',
                   textDecoration: 'none',
                   color: mode === m ? 'var(--ink)' : 'var(--ink-4)',
@@ -146,12 +146,12 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
                 display: 'flex', alignItems: 'center',
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 gap: 10,
-                height: 34, padding: collapsed ? 0 : '0 10px',
+                height: 32, padding: collapsed ? 0 : '0 10px',
                 paddingLeft: !collapsed && isActive ? 7 : !collapsed ? 10 : 0,
                 borderRadius: 7,
                 borderLeft: !collapsed && isActive ? '3px solid var(--accent)' : '3px solid transparent',
                 textDecoration: 'none',
-                fontSize: '0.8125rem',
+                fontSize: 13,
                 fontWeight: isActive ? 500 : 400,
                 color: isActive ? 'var(--ink)' : 'var(--ink-3)',
                 background: isActive ? 'var(--hover)' : 'transparent',
@@ -177,16 +177,16 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
                 height: 28, padding: '0 10px',
                 display: 'flex', alignItems: 'center', gap: 10,
                 borderRadius: 7,
-                color: 'var(--ink-3)', fontSize: '0.8125rem',
+                color: 'var(--ink-2)', fontSize: 12.5,
               }}>
                 <span style={{
                   width: 6, height: 6, borderRadius: 2, flexShrink: 0,
-                  background: `oklch(0.65 0.12 ${d.hue})`,
+                  background: `oklch(0.7 0.1 ${d.hue})`,
                 }} />
                 <span style={{ flex: 1, textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {d.name}
                 </span>
-                <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
                   {d.count}
                 </span>
               </div>
@@ -213,10 +213,10 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
         {!collapsed && (
           <>
             <div style={{ lineHeight: 1.2, flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 Aurora Group SE
               </div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>Analytics Platform</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>Analytics Platform</div>
             </div>
             <button
               onClick={toggle}

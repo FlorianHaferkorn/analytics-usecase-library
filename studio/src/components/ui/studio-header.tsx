@@ -55,11 +55,11 @@ export function StudioHeader() {
       }}
     >
       {/* Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--ink-3)', fontSize: 13 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
         {crumbs.map((crumb, i) => (
           <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {i > 0 && (
-              <PhIcon name="caret-right" size={12} />
+              <PhIcon name="caret-right" size={12} style={{ color: 'var(--ink-4)', flexShrink: 0 }} />
             )}
             <span style={{
               color: i === crumbs.length - 1 ? 'var(--ink)' : 'var(--ink-3)',
@@ -85,13 +85,14 @@ export function StudioHeader() {
       >
         <PhIcon name="magnifying-glass" size={13} />
         <span>Search…</span>
-        <span style={{
+        <kbd style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           minWidth: 18, height: 18, padding: '0 5px',
           fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 500,
           color: 'var(--ink-3)', background: 'var(--bg-2)',
           border: '1px solid var(--line)', borderRadius: 5,
-        }}>⌘K</span>
+          fontStyle: 'normal',
+        }}>⌘K</kbd>
       </button>
 
       {/* Drift + Notifications */}

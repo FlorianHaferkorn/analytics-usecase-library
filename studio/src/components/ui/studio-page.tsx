@@ -46,7 +46,7 @@ export function StudioPageHeader({
           </span>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <h1 style={{ margin: 0, fontSize: '1.625rem', fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--ink)' }}>
+          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
             {title}
           </h1>
           {badge && (
@@ -60,7 +60,7 @@ export function StudioPageHeader({
             </span>
           )}
         </div>
-        <p style={{ margin: 0, fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--ink-3)' }}>{description}</p>
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: 'var(--ink-3)' }}>{description}</p>
       </div>
       {actions && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>{actions}</div>
@@ -90,22 +90,22 @@ export function StudioMetric({
 
   return (
     <div style={{
-      padding: '16px', background: 'var(--panel)',
+      padding: 'var(--pad)', background: 'var(--panel)',
       border: '1px solid var(--line)', borderRadius: 'var(--radius)',
-      boxShadow: 'var(--shadow-sm)', display: 'flex', flexDirection: 'column', gap: 6,
+      display: 'flex', flexDirection: 'column', gap: 8,
     }}>
-      <div style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', letterSpacing: '-0.005em' }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--ink-3)', letterSpacing: '-0.005em' }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <span style={{ fontSize: '1.75rem', fontWeight: 500, letterSpacing: '-0.025em', color: 'var(--ink)', fontFamily: 'var(--font-display)' }}>
+        <span style={{ fontSize: 32, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)', fontFamily: 'var(--font-display)' }}>
           {value}
         </span>
         {trend && (
-          <span style={{ fontSize: '0.6875rem', color: positive ? 'var(--positive-fg)' : negative ? 'var(--negative-fg)' : 'var(--ink-4)' }}>
+          <span style={{ fontSize: 11.5, color: positive ? 'var(--positive-fg)' : negative ? 'var(--negative-fg)' : 'var(--ink-4)' }}>
             {trend}
           </span>
         )}
       </div>
-      {meta && <div style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', lineHeight: 1.5 }}>{meta}</div>}
+      {meta && <div style={{ fontSize: 11.5, color: 'var(--ink-4)', lineHeight: 1.5 }}>{meta}</div>}
     </div>
   );
 }
@@ -135,13 +135,13 @@ export function StudioPanel({
           justifyContent: 'space-between', gap: '16px', flexShrink: 0,
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxWidth: '72ch' }}>
-            {title && <h3 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>{title}</h3>}
-            {description && <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.6, color: 'var(--ink-3)' }}>{description}</p>}
+            {title && <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>{title}</h3>}
+            {description && <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-3)', marginTop: 2 }}>{description}</p>}
           </div>
           {action && <div style={{ flexShrink: 0 }}>{action}</div>}
         </div>
       )}
-      <div style={{ padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, minHeight: 0 }}>
+      <div style={{ padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)', flex: 1, minHeight: 0 }}>
         {children}
       </div>
     </section>
@@ -156,8 +156,8 @@ export function StudioEmptyState({ title, description }: { title: string; descri
       padding: '48px', background: 'var(--bg-2)',
       border: '1px solid var(--line)', borderRadius: 'var(--radius)', textAlign: 'center',
     }}>
-      <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 500, color: 'var(--ink)' }}>{title}</p>
-      <div style={{ fontSize: '0.8125rem', lineHeight: 1.65, color: 'var(--ink-3)', maxWidth: '56ch', margin: '0 auto' }}>{description}</div>
+      <p style={{ margin: 0, marginBottom: 6, fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>{title}</p>
+      <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--ink-3)', maxWidth: '56ch', margin: '0 auto' }}>{description}</div>
     </div>
   );
 }
@@ -205,7 +205,7 @@ export function StudioButton({
       style={{
         height: 32, padding: '0 12px', borderRadius: 7,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1, fontSize: '0.8125rem',
+        opacity: disabled ? 0.5 : 1, fontSize: 12.5,
         display: 'inline-flex', alignItems: 'center', gap: 6,
         transition: 'opacity var(--duration-fast)',
         ...appearances[variant],
@@ -237,9 +237,9 @@ export function StudioSegmentedControl<T extends string>({
             className="studio-button"
             onClick={() => onChange(opt.value)}
             style={{
-              padding: '9px 14px', background: 'transparent',
+              padding: '10px 14px', background: 'transparent',
               color: active ? 'var(--ink)' : 'var(--ink-3)',
-              fontSize: '0.8125rem', fontWeight: active ? 500 : 400,
+              fontSize: 13, fontWeight: active ? 500 : 400,
               border: 'none',
               borderBottom: `1.5px solid ${active ? 'var(--accent)' : 'transparent'}`,
               cursor: 'pointer', marginBottom: -1,
@@ -259,7 +259,7 @@ export function StudioSegmentedControl<T extends string>({
 export function StudioField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div style={{ minWidth: 0 }}>
-      <label style={{ display: 'block', marginBottom: 5, fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-3)' }}>
+      <label style={{ display: 'block', marginBottom: 5, fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)' }}>
         {label}
       </label>
       {children}
