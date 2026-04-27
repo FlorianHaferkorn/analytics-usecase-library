@@ -290,4 +290,66 @@ for date_obj in sampled_dates_qual:
 fmt = write_fact_delta(fact_qual_dir, pd.DataFrame(rows_qual), partition_by=["Fiscal Year"])
 print(f"Written fact_quality ({len(rows_qual):,} records) [{fmt}]")
 
+# fact_shipments (dc_product_week) – weekly shipped units and shipment count per DC × product
+# Scope: DCs only (18), 30 products, 261 ISO weeks in 2020-2024
+fact_ship_dir = facts / "fact_shipments"
+fact_ship_dir.mkdir(parents=True, exist_ok=True)
+rows_ship = []
+
+# Resolve DC org keys from dim_org
+try:
+    _org_df_ship = None
+    for p in (dims / "dim_org").rglob("*.parquet"):
+        _org_df_ship = pd.read_parquet(p)
+        break
+    if _org_df_ship is not None and "OrgType" in _org_df_ship.columns:
+        dc_org_keys_ship = _org_df_ship[_org_df_ship["OrgType"] == "DC"]["OrgKey"].astype(int).tolist()
+    else:
+        dc_org_keys_ship = [ok for ok in org_keys if ok % 4 == 0][:18]
+except Exception:
+    dc_org_keys_ship = org_keys[:5]
+
+ship_products = product_keys[:30]
+
+# Annual shipment growth (aligned with revenue ~6 % CAGR)
+_SHIP_GROWTH = {2020: 1.00, 2021: 1.04, 2022: 1.08, 2023: 1.14, 2024: 1.20}
+# Base weekly shipped units per DC-product
+_BASE_WEEKLY_SHIP = 4_200.0
+# Average units per shipment (determines shipment count)
+_AVG_UNITS_PER_SHIPMENT = 120.0
+
+# Generate one row per ISO week × DC × product
+week_dates = [d for d in fact_dates if d.dayofweek == 0]  # Mondays as week representatives
+print(f"Generating fact_shipments for {len(week_dates)} weeks × {len(dc_org_keys_ship)} DCs × {len(ship_products)} products ...")
+
+for date_obj in week_dates:
+    date_key    = int(date_obj.strftime("%Y%m%d"))
+    year        = date_obj.year
+    growth      = _SHIP_GROWTH.get(year, 1.0)
+    seasonality = apply_combined_seasonality(
+        date_obj,
+        base_factor=1.0,
+        monthly_weight=0.65,
+        weekly_weight=0.35,
+        seed=RANDOM_SEED,
+    )
+
+    for ok in dc_org_keys_ship:
+        rng_row = np.random.RandomState(RANDOM_SEED + ok * 1000 + (date_key % 10000))
+        for pk in ship_products:
+            noise         = float(rng_row.uniform(0.75, 1.25))
+            shipped_units = max(0, int(_BASE_WEEKLY_SHIP * growth * seasonality * noise))
+            shipment_cnt  = max(1, round(shipped_units / _AVG_UNITS_PER_SHIPMENT))
+            rows_ship.append({
+                "DateKey":        date_key,
+                "OrgKey":         int(ok),
+                "ProductKey":     int(pk),
+                "Shipped Units":  float(shipped_units),
+                "Shipment Count": int(shipment_cnt),
+            })
+
+df_ship = pd.DataFrame(rows_ship)
+fmt = write_fact_delta(fact_ship_dir, df_ship, partition_by=["Fiscal Year"])
+print(f"Written fact_shipments ({len(rows_ship):,} records) [{fmt}]")
+
 print("\n[OK] Operations gold data generation complete!")

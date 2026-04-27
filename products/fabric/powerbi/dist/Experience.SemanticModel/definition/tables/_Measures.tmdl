@@ -179,21 +179,21 @@ table _Measures
 		displayFolder: "XD-002"
 
 	/// XD-003
-	/// Gross Margin % - margin.gm.pct
-	/// Gross Margin % used in commercial and management reporting and P&L reconciliation.
-	measure 'Gross Margin %' =
+	/// Gross Margin % (XD) - margin.gm.pct
+	/// Gross Margin % used in Experience domain reporting and P&L reconciliation.
+	measure 'Gross Margin % (XD)' =
 		VAR NetSalesAmount =
 			[Net Sales Amount (XD)]
 		VAR GrossMarginAmount =
-			NetSalesAmount - [Cost of Goods Sold Amount]
+			NetSalesAmount - [Cost of Goods Sold Amount (XD)]
 		RETURN
 			DIVIDE ( GrossMarginAmount, NetSalesAmount )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Delta% Net Sales - sales.net_sales.delta_pct.ly
-	/// Relative variance of Net Sales vs Last Year.
-	measure 'Delta% Net Sales' =
+	/// Delta% Net Sales (XD) - sales.net_sales.delta_pct.ly
+	/// Relative variance of Net Sales vs Last Year, Experience domain view.
+	measure 'Delta% Net Sales (XD)' =
 		VAR ActualNetSales =
 			[Net Sales Amount (XD)]
 		VAR LastYearNetSales =
@@ -212,7 +212,7 @@ table _Measures
 		RETURN
 			AVERAGEX (
 				VALUES ( fact_sales[CustomerKey] ),
-				CALCULATE ( [Net Sales Amount (XD)] - [Cost of Goods Sold Amount] ) * HorizonYears
+				CALCULATE ( [Net Sales Amount (XD)] - [Cost of Goods Sold Amount (XD)] ) * HorizonYears
 			)
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
@@ -233,11 +233,6 @@ table _Measures
 	/// CLV (Customer Lifetime Value) - display name alias for report binding (maps to CLV)
 	measure 'CLV (Customer Lifetime Value)' = [CLV]
 		formatString: "#,0.00"
-		displayFolder: "XD-003"
-
-	/// OTIF % - display name alias for report binding (maps to OTIF % (XD))
-	measure 'OTIF %' = [OTIF % (XD)]
-		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// DSO Days (XD) - receivables days estimate for CCC cross-domain view
@@ -290,9 +285,9 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Revenue at Risk Amount - crm.revenue_at_risk.amount
+	/// Revenue at Risk Amount (XD) - crm.revenue_at_risk.amount
 	/// Net Sales Amount weighted by average of OTIF failure rate and First Pass Yield failure rate.
-	measure 'Revenue at Risk Amount' =
+	measure 'Revenue at Risk Amount (XD)' =
 		VAR OTIFFailureRate =
 			1 - [Ops OTIF %]
 		VAR FirstPassYieldFailureRate =
@@ -354,7 +349,7 @@ table _Measures
 	/// Aggregates downside risk across domains into a single index.
 	measure 'Enterprise Value-at-Risk Index' =
 		VAR RevenueAtRiskShare =
-			DIVIDE ( [Revenue at Risk Amount], [Net Sales Amount (XD)] )
+			DIVIDE ( [Revenue at Risk Amount (XD)], [Net Sales Amount (XD)] )
 		VAR DeliveryRisk =
 			1 - [OTIF % (XD)]
 		VAR QualityRisk =
@@ -366,9 +361,9 @@ table _Measures
 		formatString: "0"
 		displayFolder: "XD-003"
 
-	/// Cost of Goods Sold Amount - cost.cogs.amount
-	/// Total cost of goods sold; base measure for margin and PVM.
-	measure 'Cost of Goods Sold Amount' = SUM ( fact_sales[Cost of Goods Sold Amount] )
+	/// Cost of Goods Sold Amount (XD) - cost.cogs.amount
+	/// Total cost of goods sold; base measure for Experience domain margin calculations.
+	measure 'Cost of Goods Sold Amount (XD)' = SUM ( fact_sales[Cost of Goods Sold Amount] )
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 

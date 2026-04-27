@@ -70,11 +70,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "OTIF %"
+                  "Property": "OTIF % (XD)"
                 }
               },
               "queryRef": "_Measures.OTIF %",
-              "nativeQueryRef": "OTIF %"
+              "nativeQueryRef": "OTIF % (XD)"
             }
           ]
         }

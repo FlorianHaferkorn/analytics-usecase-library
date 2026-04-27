@@ -242,9 +242,9 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
-	/// Net Sales Amount - sales.net_sales.amount
-	/// Total invoiced revenue net of discounts and returns.
-	measure 'Net Sales Amount' = SUM ( fact_sales[Net Sales Amount] )
+	/// Net Sales Amount (FIN) - sales.net_sales.amount
+	/// Total invoiced revenue net of discounts and returns, Finance domain view.
+	measure 'Net Sales Amount (FIN)' = SUM ( fact_sales[Net Sales Amount] )
 		formatString: "#,0.00"
 		displayFolder: "FIN-002"
 

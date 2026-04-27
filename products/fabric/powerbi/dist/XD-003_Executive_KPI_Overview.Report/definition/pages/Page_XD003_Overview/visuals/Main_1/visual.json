@@ -42,11 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Delta% Net Sales"
+                  "Property": "Delta% Net Sales (XD)"
                 }
               },
               "queryRef": "_Measures.Delta% Net Sales",
-              "nativeQueryRef": "Delta% Net Sales"
+              "nativeQueryRef": "Delta% Net Sales (XD)"
             }
           ]
         }

@@ -222,15 +222,9 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 
-	/// Sales Units - sales.units
-	/// Measures sold units volume in the period.
-	measure 'Sales Units' = SUM ( fact_ops[Output Units] )
-		formatString: "#,0"
-		displayFolder: "OPS-003"
-
-	/// Complaint Count - crm.complaint.count
-	/// Count of logged customer complaints
-	measure 'Complaint Count' = COUNTROWS ( fact_experience )
+	/// Sales Units (OPS) - sales.units
+	/// Measures output units volume from operations in the period.
+	measure 'Sales Units (OPS)' = SUM ( fact_ops[Output Units] )
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 

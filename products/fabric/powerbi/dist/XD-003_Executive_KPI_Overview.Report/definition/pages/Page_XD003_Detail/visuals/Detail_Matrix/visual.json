@@ -66,11 +66,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Gross Margin %"
+                  "Property": "Gross Margin % (XD)"
                 }
               },
               "queryRef": "_Measures.Gross Margin %",
-              "nativeQueryRef": "Gross Margin %"
+              "nativeQueryRef": "Gross Margin % (XD)"
             },
             {
               "field": {
@@ -80,11 +80,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Delta% Net Sales"
+                  "Property": "Delta% Net Sales (XD)"
                 }
               },
               "queryRef": "_Measures.Delta% Net Sales",
-              "nativeQueryRef": "Delta% Net Sales"
+              "nativeQueryRef": "Delta% Net Sales (XD)"
             },
             {
               "field": {
@@ -94,11 +94,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "OTIF %"
+                  "Property": "OTIF % (XD)"
                 }
               },
               "queryRef": "_Measures.OTIF %",
-              "nativeQueryRef": "OTIF %"
+              "nativeQueryRef": "OTIF % (XD)"
             }
           ]
         }

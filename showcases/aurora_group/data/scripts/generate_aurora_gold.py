@@ -9,10 +9,12 @@ Uses shared utilities for realistic names, seasonality, and consistent time peri
 
 Run from repo root:
   py showcases/aurora_group/data/scripts/generate_aurora_gold.py
+  py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain dims
   py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain operations
   py showcases/aurora_group/data/scripts/generate_aurora_gold.py --domain supply_chain,experience,finance
 
-Domains: commercial, operations, supply_chain, experience, finance (default: all).
+Domains: dims, commercial, operations, supply_chain, experience, finance (default: all).
+  dims – enriches dim_org and dim_date with domain-specific columns (run first).
 """
 import argparse
 import pandas as pd
@@ -52,7 +54,7 @@ random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 profile = get_company_profile("aurora")
 
-DOMAINS = frozenset({"commercial", "operations", "supply_chain", "experience", "finance"})
+DOMAINS = frozenset({"dims", "commercial", "operations", "supply_chain", "experience", "finance"})
 
 
 def _resolve_keys():
@@ -85,6 +87,24 @@ def _resolve_keys():
         except Exception:
             break
     return org_keys, date_keys, product_keys, customer_keys
+
+
+def run_dims():
+    """Enrich dim_org (domain columns) and dim_date (CalendarYearMonth, MonthNumber, Week)."""
+    script = (gold / "generate_dims.py").resolve()
+    if not script.exists():
+        raise FileNotFoundError(f"Dims generator not found: {script}")
+    print("Running generate_dims.py …", flush=True)
+    subprocess.run([sys.executable, str(script)], cwd=str(repo_root.resolve()), check=True)
+
+
+def run_finance(_org_keys, _date_keys, _product_keys):
+    """Generate Finance facts: fact_finance, fact_cost, fact_labor, fact_output."""
+    script = (gold / "generate_finance_gold.py").resolve()
+    if not script.exists():
+        raise FileNotFoundError(f"Finance generator not found: {script}")
+    print("Running generate_finance_gold.py …", flush=True)
+    subprocess.run([sys.executable, str(script)], cwd=str(repo_root.resolve()), check=True)
 
 
 def run_operations(_org_keys, _date_keys, _product_keys):
@@ -470,6 +490,9 @@ def main():
 
     org_keys, date_keys, product_keys, customer_keys = _resolve_keys()
 
+    # dims must run before any domain so domain facts reference correct keys
+    if "dims" in selected or selected == DOMAINS:
+        run_dims()
     if "operations" in selected:
         run_operations(org_keys, date_keys, product_keys)
     if "supply_chain" in selected:
@@ -478,6 +501,8 @@ def main():
         run_experience_promo(org_keys, date_keys, customer_keys)
     if "finance" in selected or "experience" in selected:
         run_xd_finance(org_keys, date_keys, customer_keys)
+    if "finance" in selected or selected == DOMAINS:
+        run_finance(org_keys, date_keys, product_keys)
     if "commercial" in selected:
         run_commercial_derived_facts()
 

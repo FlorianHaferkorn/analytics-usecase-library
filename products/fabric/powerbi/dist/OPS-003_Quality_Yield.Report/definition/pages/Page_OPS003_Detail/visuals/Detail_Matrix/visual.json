@@ -164,11 +164,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Sales Units"
+                  "Property": "Sales Units (OPS)"
                 }
               },
               "queryRef": "_Measures.Sales Units",
-              "nativeQueryRef": "Sales Units"
+              "nativeQueryRef": "Sales Units (OPS)"
             },
             {
               "field": {
