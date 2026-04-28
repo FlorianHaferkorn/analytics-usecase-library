@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FORGE_NAV, REGISTRY_NAV, getNavMode, type NavItem } from '@/lib/navigation';
 import { PhIcon, type PhIconName } from './ph-icon';
 
@@ -25,8 +25,11 @@ interface SidebarProps {
 
 export function StudioSidebar({ domains = [] }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const mode = getNavMode(pathname);
   const [collapsed, setCollapsed] = useState(false);
+  const activeDomain = searchParams.get('domain');
 
   useEffect(() => {
     const stored = localStorage.getItem('sidebar-collapsed');
@@ -37,6 +40,17 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
     const next = !collapsed;
     setCollapsed(next);
     localStorage.setItem('sidebar-collapsed', String(next));
+  };
+
+  const onDomainClick = (name: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (activeDomain === name) {
+      params.delete('domain');
+    } else {
+      params.set('domain', name);
+    }
+    const qs = params.toString();
+    router.push(`${pathname}${qs ? `?${qs}` : ''}`);
   };
 
   const w = collapsed ? 68 : 248;
@@ -172,56 +186,69 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
         })}
       </nav>
 
-      {/* Domains section — only when expanded and data available */}
+      {/* Domains section — clickable filter (?domain=<name>) when expanded */}
       {!collapsed && domains.length > 0 && (
         <div style={{ padding: '12px 8px 4px' }}>
           <div style={navLabelStyle}>Domains</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {domains.map((d) => (
-              <div key={d.name} style={{
-                height: 28, padding: '0 10px',
-                display: 'flex', alignItems: 'center', gap: 10,
-                borderRadius: 7,
-                color: 'var(--ink-2)', fontSize: 12.5,
-              }}>
-                <span style={{
-                  width: 6, height: 6, borderRadius: 2, flexShrink: 0,
-                  background: `oklch(0.7 0.1 ${d.hue})`,
-                }} />
-                <span style={{ flex: 1, textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {d.name}
-                </span>
-                <span style={{ fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
-                  {d.count}
-                </span>
-              </div>
-            ))}
+            {domains.map((d) => {
+              const isActive = activeDomain === d.name;
+              return (
+                <button
+                  key={d.name}
+                  onClick={() => onDomainClick(d.name)}
+                  style={{
+                    height: 28, padding: '0 10px',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    borderRadius: 7,
+                    color: isActive ? 'var(--ink)' : 'var(--ink-2)',
+                    fontSize: 12.5,
+                    background: isActive ? 'var(--hover)' : 'transparent',
+                    border: 'none', cursor: 'pointer', textAlign: 'left',
+                    transition: 'background var(--duration-fast)',
+                  }}
+                  onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
+                  onMouseLeave={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                >
+                  <span style={{
+                    width: 6, height: 6, borderRadius: 2, flexShrink: 0,
+                    background: `oklch(0.7 0.1 ${d.hue})`,
+                  }} />
+                  <span style={{ flex: 1, textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {d.name}
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
+                    {d.count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
       <div style={{ flex: 1 }} />
 
-      {/* Footer */}
+      {/* User footer (per HANDOFF: Alex Haferkorn / Acme · Pro) */}
       <div style={{
         padding: '10px 12px', borderTop: '1px solid var(--line-2)', flexShrink: 0,
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <div style={{
           width: 28, height: 28, borderRadius: 999, flexShrink: 0,
-          background: 'linear-gradient(135deg, var(--accent), oklch(0.5 0.12 320))',
+          background: 'linear-gradient(135deg, oklch(0.62 0.13 250) 0%, oklch(0.55 0.18 320) 100%)',
           color: '#fff', display: 'grid', placeItems: 'center',
-          fontSize: '0.5625rem', fontWeight: 700,
+          fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-display)',
         }}>
-          AU
+          AH
         </div>
         {!collapsed && (
           <>
             <div style={{ lineHeight: 1.2, flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                Aurora Group SE
+                Alex Haferkorn
               </div>
-              <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>Analytics Platform</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>Acme · Pro</div>
             </div>
             <button
               onClick={toggle}

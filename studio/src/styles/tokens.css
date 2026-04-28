@@ -63,6 +63,7 @@
   /* Non-density defaults (used when no [data-density] attr is set) */
   --pad: 24px;
   --gap: 24px;
+  --h-row: 44px;
 
   /* ========== Radius, Motion, Z-Index ========== */
   --radius-sm: 4px;
@@ -91,20 +92,25 @@
 }
 
 /* ========== Density Scaling ========== */
+/* --row is the new alias; --h-row is the legacy alias used by OLD inline-styled
+   components (StudioSidebar, StudioHeader). Both kept in sync. */
 [data-density="airy"] {
   --row: var(--row-height-airy);
+  --h-row: var(--row-height-airy);
   --pad: 28px;
   --gap: 28px;
 }
 
 [data-density="balanced"] {
   --row: var(--row-height-balanced);
+  --h-row: var(--row-height-balanced);
   --pad: 20px;
   --gap: 18px;
 }
 
 [data-density="dense"] {
   --row: var(--row-height-dense);
+  --h-row: var(--row-height-dense);
   --pad: 16px;
   --gap: 14px;
 }

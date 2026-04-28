@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { StudioSidebar } from '@/components/ui/studio-sidebar';
 import { StudioHeader } from '@/components/ui/studio-header';
 import { GlobalOverlays } from '@/components/ui/global-overlays';
@@ -13,9 +14,13 @@ export default function RegistryLayout({ children }: { children: React.ReactNode
         overflow: 'hidden',
       }}
     >
-      <StudioSidebar />
+      <Suspense fallback={<aside style={{ borderRight: '1px solid var(--line)' }} />}>
+        <StudioSidebar />
+      </Suspense>
       <div style={{ display: 'flex', flexDirection: 'column', gridRow: '1 / -1', gridColumn: '2' }}>
-        <StudioHeader />
+        <Suspense fallback={<header style={{ height: 56, borderBottom: '1px solid var(--line)' }} />}>
+          <StudioHeader />
+        </Suspense>
         <main
           style={{
             flex: 1,

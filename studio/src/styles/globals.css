@@ -1,6 +1,47 @@
 @import './tokens.css';
 @import 'tailwindcss';
 
+/* ── Legacy alias tokens used by old StudioSidebar/StudioHeader (commit 58a837de —
+   typography 1:1 with BI Framework template). Kept here so the polished design
+   template look is preserved while the rebuild's new components mature. ── */
+:root {
+  /* font alias for inline-styled OLD components */
+  --font-ui:      var(--font-body);
+  --font-sans:    var(--font-body);
+
+  /* type scale used by inline styles */
+  --text-2xs:  0.5625rem;
+  --text-xs:   0.625rem;
+  --text-sm:   0.6875rem;
+  --text-base: 0.75rem;
+  --text-md:   0.8125rem;
+  --text-lg:   0.875rem;
+  --text-xl:   1.125rem;
+  --text-2xl:  1.375rem;
+  --text-3xl:  1.75rem;
+
+  /* font weights */
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* radius alias used by inline styles */
+  --radius:      10px;
+  --radius-full: 9999px;
+
+  /* shadow legacy aliases */
+  --shadow-card:     var(--shadow-sm);
+  --shadow-elevated: var(--shadow-md);
+  --shadow-overlay:  var(--shadow-lg);
+
+  /* transition tokens (referenced by inline styles in OLD components) */
+  --ease-out:        cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast:   150ms;
+  --duration-normal: 250ms;
+  --duration-slow:   400ms;
+}
+
 /* ── Base reset ── */
 *, *::before, *::after { box-sizing: border-box; }
 
