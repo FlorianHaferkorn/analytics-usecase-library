@@ -44,10 +44,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: ops.availability.pct
       visual_type: line_chart
-      ibcs_scenario: ac
-      annotations:
-      - label: "OEE below target — annotate the onset of unplanned availability losses driving 70% of the gap"
-        anchor: inflection
     - slot_id: Main_3
       kpi_ids:
       - ops.performance.pct

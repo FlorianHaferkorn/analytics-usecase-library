@@ -15,7 +15,7 @@ orchestration:
   - svc.tickets.created.count
   - svc.tickets.closed.count
   - svc.nps.index
-  supporting_kpi_ids:
+  supporting_kpi_ids: []
   action_code_ids:
   - X-S1.1
   - X-S1.2
@@ -43,10 +43,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: svc.backlog.count
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate the inflection where backlog accumulation rate exceeds resolution rate"
-        anchor: inflection
     - kpi_ids:
       - svc.fcr.pct
       - svc.aht.minutes

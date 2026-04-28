@@ -49,10 +49,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.gm.amount
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate the period where GM trend inflects below target — correlate with mix shift"
-        anchor: threshold_crossing
     - kpi_ids:
       - sales.price.realization_pct
       - sales.pvm.mix_effect.amount

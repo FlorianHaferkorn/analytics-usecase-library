@@ -48,10 +48,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: sales.promo.incremental.amount
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate the campaign with the widest gap between incremental sales and net ROI"
-        anchor: max_deviation
     - kpi_ids:
       - margin.promo.gm.pct
       - sales.price.realization_pct

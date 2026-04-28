@@ -2171,14 +2171,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 
 - kpi_id: enterprise.action_effectiveness_delta.amount
   kpi_key: Action Effectiveness Delta
-  kpi_type: outcome
+  kpi_type: diagnostic
   kpi_role: strategic
-  impact_dimension: Governance
+  impact_dimension: governance
   domain_tag: [Enterprise & Governance, Governance]
   use_case_ref:
   - XD-004
   action_code_ref: []
-  calc_type: average
+  calc_type: amount
   business:
     purpose: "Average EUR impact per achieved action execution — realized KPI delta per code."
     definition: "Average impact_value across achieved rows in fact_action_outcome."
@@ -4531,4 +4531,174 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+- kpi_id: fin.liquidity.dso.days
+  kpi_key: Liquidity DSO Days
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: liquidity
+  domain_tag: [Finance]
+  use_case_ref:
+  - FIN-001
+  action_code_ref:
+  - F-C1.1
+  calc_type: quantity
+  business:
+    purpose: "Tracks Days Sales Outstanding for liquidity monitoring and action outcome evaluation."
+    definition: "Receivables / (Net Sales / 365)."
+    grain_scope: "Company/segment; monthly close."
+    unit_format: "days (1 decimal)"
+    interpretation: "Lower is better; used as outcome KPI for receivables acceleration actions."
+  technical:
+    measure_name: "DSO Days"
+    description: "Days Sales Outstanding — used as success metric in F-C1.1 impact valuation."
+    depends_on_measures: []
+    lineage:
+    - fact_accounts_receivable.ar_amount
+    - fact_accounts_receivable.revenue_amount
+  governance:
+    business_owner: "Head of Treasury"
+    data_owner: "Finance BI"
+    steward: "Working Capital Analyst"
+    review_cycle: "monthly"
+    validation_process: "automated"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 28.04.2026
+- kpi_id: fin.liquidity.dpo.days
+  kpi_key: Liquidity DPO Days
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: liquidity
+  domain_tag: [Finance]
+  use_case_ref:
+  - FIN-001
+  action_code_ref:
+  - F-C1.2
+  calc_type: quantity
+  business:
+    purpose: "Tracks Days Payables Outstanding for liquidity monitoring and action outcome evaluation."
+    definition: "Payables / (COGS / 365)."
+    grain_scope: "Company/segment; monthly close."
+    unit_format: "days (1 decimal)"
+    interpretation: "Higher is better up to negotiated terms; used as outcome KPI for payables extension actions."
+  technical:
+    measure_name: "DPO Days"
+    description: "Days Payables Outstanding — used as success metric in F-C1.2 impact valuation."
+    depends_on_measures: []
+    lineage:
+    - fact_accounts_payable.ap_amount
+    - fact_accounts_payable.cogs_amount
+  governance:
+    business_owner: "Head of Treasury"
+    data_owner: "Finance BI"
+    steward: "Working Capital Analyst"
+    review_cycle: "monthly"
+    validation_process: "automated"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 28.04.2026
+- kpi_id: enterprise.actions_executed.count
+  kpi_key: Actions Executed Count
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: governance
+  domain_tag: [ActionReady]
+  use_case_ref:
+  - XD-004
+  action_code_ref: []
+  calc_type: count
+  business:
+    purpose: "Counts ActionReady actions with a recorded outcome to track governance execution velocity."
+    definition: "Count of rows in fact_action_outcome where outcome_status is not blank."
+    grain_scope: "Action execution; aggregated monthly by domain."
+    unit_format: "count"
+    interpretation: "Higher counts indicate active use of ActionReady recommendations."
+  technical:
+    measure_name: "Actions Executed Count"
+    description: "Number of action codes with a recorded outcome in fact_action_outcome."
+    depends_on_measures: []
+    lineage:
+    - fact_action_outcome.outcome_status
+  governance:
+    business_owner: "Chief Analytics Officer"
+    data_owner: "Enterprise Analytics"
+    steward: "Analytics Governance"
+    review_cycle: "monthly"
+    validation_process: "automated"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 28.04.2026
+- kpi_id: enterprise.avg_time_to_outcome.days
+  kpi_key: Avg Time-to-Outcome Days
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: governance
+  domain_tag: [ActionReady]
+  use_case_ref:
+  - XD-004
+  action_code_ref: []
+  calc_type: quantity
+  business:
+    purpose: "Measures how quickly ActionReady recommendations convert to confirmed outcomes."
+    definition: "Average of days_to_outcome across all executed action rows."
+    grain_scope: "Action execution; aggregated monthly by domain."
+    unit_format: "days (1 decimal)"
+    interpretation: "Lower values indicate faster action-to-outcome cycles."
+  technical:
+    measure_name: "Avg Time-to-Outcome Days"
+    description: "Average days between action execution and outcome confirmation."
+    depends_on_measures: []
+    lineage:
+    - fact_action_outcome.days_to_outcome
+  governance:
+    business_owner: "Chief Analytics Officer"
+    data_owner: "Enterprise Analytics"
+    steward: "Analytics Governance"
+    review_cycle: "monthly"
+    validation_process: "automated"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 28.04.2026
+- kpi_id: enterprise.action_roi.pct
+  kpi_key: Action ROI %
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: governance
+  domain_tag: [ActionReady]
+  use_case_ref:
+  - XD-004
+  action_code_ref: []
+  calc_type: percentage
+  business:
+    purpose: "Measures the financial return on ActionReady recommendation investments."
+    definition: "Total impact value of executed actions / total execution cost - 1."
+    grain_scope: "Action execution; aggregated monthly by domain."
+    unit_format: "% (1 decimal)"
+    interpretation: "Values above 0% indicate net-positive actions; negative values flag ineffective interventions."
+  technical:
+    measure_name: "Action ROI %"
+    description: "Average ROI of executed actions: total impact value / total execution cost - 1."
+    depends_on_measures: []
+    lineage:
+    - fact_action_outcome.impact_value
+    - fact_action_outcome.cost_to_execute
+  governance:
+    business_owner: "Chief Analytics Officer"
+    data_owner: "Enterprise Analytics"
+    steward: "Analytics Governance"
+    review_cycle: "monthly"
+    validation_process: "automated"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 28.04.2026
 ```

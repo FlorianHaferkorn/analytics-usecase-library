@@ -606,5 +606,353 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v0.1
     last_review: TBD
+- measure_name: "Average Handling Time (minutes)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service_Level"
+  category: "KPI"
+  expression:
+    logical: "Average Handling Time (minutes) = DIVIDE ( SUM ( fact_support_cases[Handle Time Minutes] ), COUNTROWS ( fact_support_cases ) )"
+    aggregation_method: average
+  documentation:
+    description: "Display alias for AHT Minutes; measures average time to handle a contact."
+    notes: "Grain: queue_day. Unit: minutes. Lineage: fact_support_cases[Handle Time Minutes]."
+  dependencies:
+    columns:
+      - "fact_support_cases[Handle Time Minutes]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "First Contact Resolution %"
+  is_kpi_measure: true
+  kpi_id_ref: "svc.fcr.pct"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service_Level"
+  category: "KPI"
+  expression:
+    logical: "First Contact Resolution % = DIVIDE ( CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[FCR Flag] = TRUE() ), COUNTROWS ( fact_support_cases ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Share of cases solved on first contact without escalation or rework."
+    notes: "Grain: queue_day. Unit: %. Lineage: fact_support_cases[FCR Flag]."
+  dependencies:
+    columns:
+      - "fact_support_cases[FCR Flag]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "First Pass Yield % (XD)"
+  is_kpi_measure: true
+  kpi_id_ref: "quality.fpy.pct"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "02_Quality"
+  category: "KPI"
+  expression:
+    logical: "First Pass Yield % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() ), COUNTROWS ( fact_fulfillment ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Delivery quality proxy via fulfillment in-full rate — Experience domain proxy for First Pass Yield."
+    notes: "Grain: order_day. Unit: %. Lineage: fact_fulfillment[In-Full Flag]."
+  dependencies:
+    columns:
+      - "fact_fulfillment[In-Full Flag]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Revenue at Risk Amount (XD)"
+  is_kpi_measure: true
+  kpi_id_ref: "crm.revenue_at_risk.amount"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "03_P&L"
+  category: "KPI"
+  expression:
+    logical: "Revenue at Risk Amount (XD) = [Net Sales Amount (XD)] * DIVIDE ( 1 - [Ops OTIF %] + 1 - [First Pass Yield % (XD)], 2 )"
+    aggregation_method: custom
+  documentation:
+    description: "Net Sales weighted by average of OTIF failure and First Pass Yield failure rates — Experience domain risk proxy."
+    notes: "Grain: month. Unit: EUR. Lineage: [Net Sales Amount (XD)], [Ops OTIF %], [First Pass Yield % (XD)]."
+  dependencies:
+    measures:
+      - "[Net Sales Amount (XD)]"
+      - "[Ops OTIF %]"
+      - "[First Pass Yield % (XD)]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Net Sales Amount (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "03_P&L"
+  category: "Base"
+  expression:
+    logical: "Net Sales Amount (XD) = SUM ( fact_sales[Net Sales Amount] )"
+    aggregation_method: sum
+  documentation:
+    description: "Total invoiced revenue net of discounts and returns — Experience domain view."
+    notes: "Grain: invoice_line, reported monthly. Unit: EUR. Lineage: fact_sales[Net Sales Amount]."
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Gross Margin % (XD)"
+  is_kpi_measure: true
+  kpi_id_ref: "margin.gm.pct"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "02_Quality"
+  category: "KPI"
+  expression:
+    logical: "Gross Margin % (XD) = DIVIDE ( [Net Sales Amount (XD)] - SUM ( fact_sales[Cost of Goods Sold Amount] ), [Net Sales Amount (XD)] )"
+    aggregation_method: custom
+  documentation:
+    description: "Gross Margin % for Experience domain reporting and cross-domain P&L reconciliation."
+    notes: "Grain: month. Unit: %. Lineage: [Net Sales Amount (XD)], fact_sales[Cost of Goods Sold Amount]."
+  dependencies:
+    measures:
+      - "[Net Sales Amount (XD)]"
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Delta% Net Sales (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "03_P&L"
+  category: "KPI"
+  expression:
+    logical: "Delta% Net Sales (XD) = DIVIDE ( [Net Sales Amount (XD)] - SUM ( fact_sales[Last Year Sales Amount] ), ABS ( SUM ( fact_sales[Last Year Sales Amount] ) ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Relative variance of Net Sales vs Last Year — Experience domain view."
+    notes: "Grain: month. Unit: %. Lineage: [Net Sales Amount (XD)], fact_sales[Last Year Sales Amount]."
+  dependencies:
+    measures:
+      - "[Net Sales Amount (XD)]"
+    columns:
+      - "fact_sales[Last Year Sales Amount]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "DSO Days (XD)"
+  is_kpi_measure: true
+  kpi_id_ref: "wc.dso.days"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "04_WorkingCapital"
+  category: "KPI"
+  expression:
+    logical: "DSO Days (XD) = DIVIDE ( SUM ( fact_sales[Net Sales Amount] ) * 0.12 * 365, SUM ( fact_sales[Net Sales Amount] ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Receivables days estimate for CCC cross-domain view — Experience domain proxy."
+    notes: "Grain: month. Unit: days. Lineage: fact_sales[Net Sales Amount] (scaled proxy)."
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "DIO Days (XD)"
+  is_kpi_measure: true
+  kpi_id_ref: "wc.dio.days"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "04_WorkingCapital"
+  category: "KPI"
+  expression:
+    logical: "DIO Days (XD) = DIVIDE ( SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.15 * 365, SUM ( fact_sales[Cost of Goods Sold Amount] ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Inventory days estimate for CCC cross-domain view — Experience domain proxy."
+    notes: "Grain: month. Unit: days. Lineage: fact_sales[Cost of Goods Sold Amount] (scaled proxy)."
+  dependencies:
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "DPO Days (XD)"
+  is_kpi_measure: true
+  kpi_id_ref: "wc.dpo.days"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "04_WorkingCapital"
+  category: "KPI"
+  expression:
+    logical: "DPO Days (XD) = DIVIDE ( SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.08 * 365, SUM ( fact_sales[Cost of Goods Sold Amount] ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Payables days estimate for CCC cross-domain view — Experience domain proxy."
+    notes: "Grain: month. Unit: days. Lineage: fact_sales[Cost of Goods Sold Amount] (scaled proxy)."
+  dependencies:
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Action Outcome Rate % (XD Log)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "08_Action_Outcomes"
+  category: "KPI"
+  expression:
+    logical: "Action Outcome Rate % (XD Log) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_log ), fact_action_log[Outcome Status] = \"Achieved\" ), COUNTROWS ( fact_action_log ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Measures share of actions that achieved the intended outcome — routed actions log view."
+    notes: "Grain: month. Unit: %. Lineage: fact_action_log[Outcome Status]."
+  dependencies:
+    columns:
+      - "fact_action_log[Outcome Status]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Actions Executed Count (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "08_Action_Outcomes"
+  category: "KPI"
+  expression:
+    logical: "Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )"
+    aggregation_method: count
+  documentation:
+    description: "Number of action codes with a recorded outcome — Service cross-domain proxy."
+    notes: "Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status]."
+  dependencies:
+    columns:
+      - "fact_action_outcome[outcome_status]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Action Outcome Rate % (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "08_Action_Outcomes"
+  category: "KPI"
+  expression:
+    logical: "Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = \"achieved\" ), COUNTROWS ( fact_action_outcome ) )"
+    aggregation_method: custom
+  documentation:
+    description: "Percentage of executed actions with a confirmed achieved outcome — Service cross-domain proxy."
+    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status]."
+  dependencies:
+    columns:
+      - "fact_action_outcome[outcome_status]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Avg Time-to-Outcome Days (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "08_Action_Outcomes"
+  category: "KPI"
+  expression:
+    logical: "Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )"
+    aggregation_method: average
+  documentation:
+    description: "Average days between action execution and outcome confirmation — Service cross-domain proxy."
+    notes: "Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome]."
+  dependencies:
+    columns:
+      - "fact_action_outcome[days_to_outcome]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Action ROI % (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "08_Action_Outcomes"
+  category: "KPI"
+  expression:
+    logical: "Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1"
+    aggregation_method: custom
+  documentation:
+    description: "Average ROI of executed actions — Service cross-domain proxy."
+    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute]."
+  dependencies:
+    columns:
+      - "fact_action_outcome[impact_value]"
+      - "fact_action_outcome[cost_to_execute]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Action Effectiveness Delta (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "08_Action_Outcomes"
+  category: "KPI"
+  expression:
+    logical: "Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = \"achieved\" ), fact_action_outcome[impact_value] )"
+    aggregation_method: average
+  documentation:
+    description: "Average EUR impact per achieved action execution — Service cross-domain proxy."
+    notes: "Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status]."
+  dependencies:
+    columns:
+      - "fact_action_outcome[impact_value]"
+      - "fact_action_outcome[outcome_status]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
+- measure_name: "Cost of Goods Sold Amount (XD)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "03_P&L"
+  category: "Base"
+  expression:
+    logical: "Cost of Goods Sold Amount (XD) = SUM ( fact_sales[Cost of Goods Sold Amount] )"
+    aggregation_method: sum
+  documentation:
+    description: "Total cost of goods sold — Experience domain base measure for cross-domain margin calculations."
+    notes: "Grain: invoice_line, reported monthly. Unit: EUR. Lineage: fact_sales[Cost of Goods Sold Amount]."
+  dependencies:
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Service BI"
+    status: active
+    version: "v1.0"
+    last_review: "28.04.2026"
 ```
 

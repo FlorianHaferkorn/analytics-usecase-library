@@ -43,10 +43,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: plan.forecast.mape.pct
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate periods where MAPE exceeds the 15% accuracy threshold and bias direction shifts"
-        anchor: threshold_crossing
     - kpi_ids:
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct

@@ -89,8 +89,10 @@ try {
   $lockFile = Join-Path $repoRoot ".tools/pbi-tools.lock"
   $pbiToolsExe = Join-Path $repoRoot ".tools/pbi-tools/pbi-tools.core.exe"
   if (Test-Path $lockFile) {
-    $lock = Get-Content $lockFile -Raw | ConvertFrom-StringData
-    $expectedHash = ($lock.sha256 ?? "placeholder_update_after_download").Trim('"')
+    $lockContent = Get-Content $lockFile -Raw
+    $sha256Match = [regex]::Match($lockContent, 'sha256\s*:\s*"?([^"\r\n]+)"?')
+    $sha256Val = if ($sha256Match.Success) { $sha256Match.Groups[1].Value.Trim() } else { "" }
+    $expectedHash = (if ($sha256Val) { $sha256Val } else { "placeholder_update_after_download" }).Trim('"')
     if (Test-Path $pbiToolsExe) {
       if ($expectedHash -ne "placeholder_update_after_download") {
         $actualHash = (Get-FileHash $pbiToolsExe -Algorithm SHA256).Hash.ToLower()

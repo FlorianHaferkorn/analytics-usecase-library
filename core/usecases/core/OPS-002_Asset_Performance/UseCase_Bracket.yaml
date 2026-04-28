@@ -46,10 +46,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: ops.availability.pct
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate planned vs unplanned downtime onset to separate systemic from event-driven availability loss"
-        anchor: inflection
     - kpi_ids:
       - ops.mttr.hours
       - ops.downtime.unplanned.pct

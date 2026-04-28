@@ -55,10 +55,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: crm.lifetime_revenue.amount
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate the CLV inflection point where retention deterioration first becomes visible"
-        anchor: inflection
     - kpi_ids:
       - crm.retention.pct
       - crm.churned_customers.count

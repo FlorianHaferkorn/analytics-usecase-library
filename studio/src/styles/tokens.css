@@ -85,11 +85,11 @@
   --z-toast: 100;
 
   /* ========== Font Families ========== */
-  /* Default: Geist + Geist Mono (loaded via next/font in app/layout.tsx as
-     --font-geist / --font-geist-mono). Overridable via [data-fonts] rules below. */
-  --font-display: var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-body:    var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    var(--font-geist-mono), 'Geist Mono', ui-monospace, 'SFMono-Regular', monospace;
+  /* Default: Inter + JetBrains Mono (loaded via next/font in app/layout.tsx as
+     --font-inter / --font-jetbrains-mono). Overridable via [data-fonts] rules below. */
+  --font-display: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 }
 
 /* ========== Density Scaling ========== */
@@ -117,16 +117,16 @@
 }
 
 /* ========== Font Pairings (data-fonts attribute) ========== */
-[data-fonts="geist"] {
-  --font-display: var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-body:    var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    var(--font-geist-mono), 'Geist Mono', ui-monospace, monospace;
+[data-fonts="inter"] {
+  --font-display: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 }
 
-[data-fonts="inter"] {
-  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-body:    'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+[data-fonts="geist"] {
+  --font-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-body:    'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    'Geist Mono', ui-monospace, monospace;
 }
 
 [data-fonts="ibm"] {
@@ -137,8 +137,8 @@
 
 [data-fonts="serif"] {
   --font-display: 'Instrument Serif', ui-serif, serif;
-  --font-body:    var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    var(--font-geist-mono), 'Geist Mono', ui-monospace, monospace;
+  --font-body:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace;
 }
 
 /* ========== Tailwind v4 @theme mapping ========== */

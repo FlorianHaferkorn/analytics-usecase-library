@@ -43,10 +43,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: supply.on_time.pct
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate supplier disruption events where OTIF dips below the 95% service level threshold"
-        anchor: threshold_crossing
     - kpi_ids:
       - supply.in_full.pct
       - supply.stockout_impact.pct

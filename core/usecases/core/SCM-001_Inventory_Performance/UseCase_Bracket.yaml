@@ -49,10 +49,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: inv.turnover
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate seasonal demand peaks and the point where turnover diverges from plan"
-        anchor: inflection
     - kpi_ids:
       - inv.stockout.pct
       - supply.otif.pct

@@ -71,6 +71,9 @@ orchestration:
     - wc.dio.days
     - wc.dpo.days
     - wc.dso.days
+    - enterprise.actions_executed.count
+    - enterprise.avg_time_to_outcome.days
+    - enterprise.action_roi.pct
   action_code_ids:
     # Impactful 15 — full outcome loop visible in this governance view
     - C-M2.1
@@ -116,7 +119,6 @@ ux_layout_rules:
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
       visual_type: kpi_card
-      ibcs_scenario: ac
     component_30s:
       - kpi_id: enterprise.action_outcome_rate.pct
         visual_type: trend_line

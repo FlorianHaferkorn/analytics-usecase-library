@@ -47,10 +47,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.cogs.pct
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate the period where COGS % trend exceeds the inflation-adjusted target line"
-        anchor: threshold_crossing
     - kpi_ids:
       - cost.opex.vs_plan.pct
       - cost.material.pct

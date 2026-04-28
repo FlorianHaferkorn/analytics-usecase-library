@@ -46,10 +46,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: res.occupancy.pct
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate over-utilization peaks that exceed the 85% sustainable occupancy threshold"
-        anchor: threshold_crossing
     - kpi_ids:
       - svc.sla.attainment.pct
       - res.overtime.pct

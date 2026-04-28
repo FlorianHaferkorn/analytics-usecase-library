@@ -44,10 +44,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: quality.scrap.pct
       visual_type: trend_line
-      ibcs_scenario: ac
-      annotations:
-      - label: "Annotate the first period where scrap % exceeds the 1pp deterioration threshold from baseline"
-        anchor: max_deviation
     - kpi_ids:
       - quality.rework.pct
       - quality.copq.amount

@@ -1,18 +1,20 @@
 import type { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import '@/styles/globals.css';
 
-const geist = Geist({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-geist',
+  variable: '--font-inter',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-geist-mono',
+  variable: '--font-jetbrains-mono',
+  weight: ['400', '500', '600'],
 });
 
 export const metadata: Metadata = {
@@ -30,8 +32,8 @@ export default function RootLayout({
       lang="en"
       data-theme="dark"
       data-density="airy"
-      data-fonts="geist"
-      className={`${geist.variable} ${geistMono.variable}`}
+      data-fonts="inter"
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body>
         <SessionProvider>{children}</SessionProvider>

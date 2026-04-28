@@ -59,10 +59,6 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: sales.net_sales.delta_pct.ly
       visual_type: line_chart
-      ibcs_scenario: ac
-      annotations:
-      - label: "Revenue growth on track but GM% and OTIF compression signal execution risk — annotate divergence onset"
-        anchor: max_deviation
     - slot_id: Main_3
       kpi_ids:
       - crm.clv.amount
