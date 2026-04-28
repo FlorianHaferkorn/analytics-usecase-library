@@ -8,6 +8,7 @@ import { DriftBadge } from '@/components/registry/drift-badge';
 import { NotificationBell } from '@/components/notifications/notification-bell';
 import { ProjectSwitcher } from '@/components/AppShell/ProjectSwitcher';
 import { PhIcon } from './ph-icon';
+import { KbdShortcut } from './kbd-shortcut';
 
 /** Build breadcrumb segments from the current pathname. */
 function useBreadcrumbs(pathname: string): string[] {
@@ -85,14 +86,7 @@ export function StudioHeader() {
       >
         <PhIcon name="magnifying-glass" size={13} />
         <span>Search…</span>
-        <kbd style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          minWidth: 18, height: 18, padding: '0 5px',
-          fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 500,
-          color: 'var(--ink-3)', background: 'var(--bg-2)',
-          border: '1px solid var(--line)', borderRadius: 5,
-          fontStyle: 'normal',
-        }}>⌘K</kbd>
+        <KbdShortcut k="K" />
       </button>
 
       {/* Drift + Notifications */}

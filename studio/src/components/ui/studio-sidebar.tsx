@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FORGE_NAV, REGISTRY_NAV, getNavMode, type NavItem } from '@/lib/navigation';
 import { PhIcon, type PhIconName } from './ph-icon';
+import { KbdShortcut } from './kbd-shortcut';
 
 export interface DomainStat {
   name: string;
@@ -105,7 +106,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
           }}
         >
           <PhIcon name="plus" size={14} />
-          {!collapsed && <><span>New element</span><span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: 10.5, fontFamily: 'var(--font-mono)' }}>N</span></>}
+          {!collapsed && <><span>New element</span><span style={{ marginLeft: 'auto' }}><KbdShortcut k="N" meta={false} style={{ background: 'transparent', borderColor: 'transparent', color: 'currentColor', opacity: 0.6 }} /></span></>}
         </button>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('studio:open-command-palette'))}
@@ -120,7 +121,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
           }}
         >
           <PhIcon name="magnifying-glass" size={13} />
-          {!collapsed && <><span style={{ flex: 1, textAlign: 'left' }}>Search…</span><span style={{ fontSize: 10.5, fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>⌘K</span></>}
+          {!collapsed && <><span style={{ flex: 1, textAlign: 'left' }}>Search…</span><KbdShortcut k="K" /></>}
         </button>
       </div>
 
@@ -236,7 +237,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
       }}>
         <div style={{
           width: 28, height: 28, borderRadius: 999, flexShrink: 0,
-          background: 'linear-gradient(135deg, oklch(0.62 0.13 250) 0%, oklch(0.55 0.18 320) 100%)',
+          background: 'linear-gradient(135deg, var(--accent) 0%, oklch(0.62 0.08 165) 100%)',
           color: '#fff', display: 'grid', placeItems: 'center',
           fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-display)',
         }}>

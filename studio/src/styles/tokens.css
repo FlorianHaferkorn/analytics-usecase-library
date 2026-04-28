@@ -33,10 +33,11 @@
   --warn-soft: oklch(0.94 0.06 75 / 0.6);
   --neutral: oklch(0.62 0.02 260);
 
-  /* ========== Accent (light theme — design default) ========== */
-  --accent:      oklch(0.62 0.13 250);
-  --accent-soft: oklch(0.62 0.13 250 / 0.12);
-  --accent-ink:  oklch(0.98 0.01 250);
+  /* ========== Accent — Aurora Group brand primary #2ECDE7 (cyan) ==========
+     Sourced from showcases/aurora_group/brand/brand_spec.yaml. Quiet, brand-aligned. */
+  --accent:      oklch(0.78 0.10 215);   /* #2ECDE7 cyan */
+  --accent-soft: oklch(0.78 0.10 215 / 0.12);
+  --accent-ink:  oklch(0.18 0.04 215);   /* dark teal — readable on accent bg */
 
   /* ========== Data Series Palette — 8 colors for chart rendering ========== */
   /* OKLCH equivalents of Microsoft Fluent palette (studio/docs/rebuild/MOCKUP_REFERENCE/tokens.js) */
@@ -166,9 +167,14 @@
   --color-data-7: var(--data-7);
   --color-data-8: var(--data-8);
 
+  /* Tailwind defaults — preflight applies font-family: var(--font-sans) to body.
+     Setting --font-sans here ensures Geist wins everywhere without per-element overrides. */
+  --font-sans: var(--font-body);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
+  --default-font-family: var(--font-body);
+  --default-mono-font-family: var(--font-mono);
 
   --radius: var(--radius-md);
   --radius-lg: var(--radius-lg);
@@ -202,8 +208,8 @@
   --shadow-md: 0 4px 16px oklch(0 0 0 / 0.4);
   --shadow-lg: 0 24px 48px -16px oklch(0 0 0 / 0.6);
 
-  /* Accent shifts brighter in dark mode (design line 62-64) */
-  --accent:      oklch(0.72 0.13 250);
-  --accent-soft: oklch(0.72 0.13 250 / 0.16);
-  --accent-ink:  oklch(0.12 0.02 250);
+  /* Accent — Aurora cyan, brighter for dark mode */
+  --accent:      oklch(0.84 0.10 215);   /* lighter cyan for dark bg */
+  --accent-soft: oklch(0.84 0.10 215 / 0.14);
+  --accent-ink:  oklch(0.12 0.04 215);
 }

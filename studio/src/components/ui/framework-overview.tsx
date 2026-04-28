@@ -38,8 +38,16 @@ function DonutChart({ pct = 82 }: { pct: number }) {
 
 /* ── Types ── */
 
-interface DomainEntry { name: string; count: number; hue: number }
+interface DomainEntry { name: string; count: number }
 interface TopKpi { id: string; name: string; ref: string; unit: string; domain: string }
+
+export interface ActivityItem {
+  role_title: string;       // e.g. "Sales BI Lead"
+  initials: string;         // e.g. "SB"
+  action: string;           // e.g. "certified" | "reviewed"
+  target_id: string;        // KPI / bracket / action id (mono)
+  time: string;             // human-readable
+}
 
 export interface FrameworkOverviewProps {
   stats: {
@@ -53,7 +61,24 @@ export interface FrameworkOverviewProps {
   };
   domains: DomainEntry[];
   topKpis: TopKpi[];
+  activity?: ActivityItem[];
 }
+
+/* ── Aurora-aligned domain colour ramp ──
+ * Quiet, low-chroma cool palette anchored to the brand cyan (215°).
+ * Indices wrap cyclically so any number of domains stays in-brand.
+ */
+const DOMAIN_COLORS = [
+  'oklch(0.72 0.07 215)',   // brand cyan, muted
+  'oklch(0.62 0.06 195)',   // teal
+  'oklch(0.55 0.05 245)',   // dusty blue
+  'oklch(0.68 0.05 165)',   // sage
+  'oklch(0.50 0.04 270)',   // muted indigo
+  'oklch(0.78 0.04 80)',    // warm sand (only neutral)
+  'oklch(0.45 0.04 220)',   // dark slate-blue
+  'oklch(0.65 0.05 140)',   // muted moss
+];
+const domainColor = (i: number) => DOMAIN_COLORS[i % DOMAIN_COLORS.length];
 
 /* ── Shared style tokens ── */
 const card: React.CSSProperties = {
@@ -68,13 +93,9 @@ const cardHead: React.CSSProperties = {
   display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
 };
 
-/* ── Activity feed data ── */
-const FEED = [
-  { initials: 'AH', name: 'A. Haferkorn', action: 'certified',    target: 'sales.net_sales.amount', time: '2h ago',  color: 'var(--accent)' },
-  { initials: 'FM', name: 'F. Müller',    action: 'drafted',      target: 'cost.opex.per_unit',     time: '5h ago',  color: 'var(--warning)' },
-  { initials: 'MS', name: 'M. Schmidt',   action: 'reviewed',     target: 'margin.gross.pct',       time: '1d ago',  color: 'var(--info)' },
-  { initials: 'AH', name: 'A. Haferkorn', action: 'connected',    target: 'src.crm',                time: '2d ago',  color: 'var(--accent)' },
-  { initials: 'FM', name: 'F. Müller',    action: 'commented on', target: 'cac.blended',            time: '3d ago',  color: 'var(--warning)' },
+/* ── Fallback activity (used only when no real activity prop is passed) ── */
+const FALLBACK_ACTIVITY: ActivityItem[] = [
+  { role_title: 'Analyst', initials: '??', action: 'reviewed', target_id: 'no.activity', time: '—' },
 ];
 
 /* ── Demo sparkline data sets ── */
@@ -142,15 +163,15 @@ function CompositionCard({ stats, domains }: { stats: FrameworkOverviewProps['st
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {/* Domain bar */}
           <div style={{ display: 'flex', height: 8, borderRadius: 999, overflow: 'hidden', background: 'var(--line-2)' }}>
-            {domains.map((d) => (
-              <div key={d.name} title={`${d.name} · ${d.count}`} style={{ flex: d.count, background: `oklch(0.7 0.1 ${d.hue})` }} />
+            {domains.map((d, i) => (
+              <div key={d.name} title={`${d.name} · ${d.count}`} style={{ flex: d.count, background: domainColor(i) }} />
             ))}
           </div>
           {/* Domain list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {domains.map((d) => (
+            {domains.map((d, i) => (
               <div key={d.name} style={{ display: 'grid', gridTemplateColumns: '12px 1fr auto auto', gap: 12, alignItems: 'center', fontSize: 13 }}>
-                <span style={{ width: 8, height: 8, borderRadius: 2, background: `oklch(0.7 0.1 ${d.hue})` }} />
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: domainColor(i) }} />
                 <span style={{ color: 'var(--ink-2)', textTransform: 'capitalize' }}>{d.name}</span>
                 <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-3)', fontSize: 11.5 }}>
                   {Math.round((d.count / total) * 100)}%
@@ -172,7 +193,8 @@ const ghostSmall: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 5,
 };
 
-function ActivityFeed() {
+function ActivityFeed({ items }: { items: ActivityItem[] }) {
+  const feed = items.length > 0 ? items : FALLBACK_ACTIVITY;
   return (
     <div style={card}>
       <div style={cardHead}>
@@ -182,7 +204,7 @@ function ActivityFeed() {
         </div>
       </div>
       <div style={{ padding: '4px 0 12px' }}>
-        {FEED.map((item, i) => (
+        {feed.map((item, i) => (
           <div key={i} style={{
             display: 'flex', gap: 12, alignItems: 'flex-start',
             padding: '10px var(--pad)',
@@ -190,14 +212,14 @@ function ActivityFeed() {
           }}>
             <div style={{
               width: 24, height: 24, borderRadius: 99, flexShrink: 0,
-              background: `oklch(0.65 0.12 ${(i * 60) % 360})`, color: '#fff',
+              background: domainColor(i), color: 'oklch(0.16 0.02 215)',
               display: 'grid', placeItems: 'center',
-              fontSize: 10, fontWeight: 600,
+              fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-display)',
             }}>{item.initials}</div>
             <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.5 }}>
-              <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{item.name}</span>
+              <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{item.role_title}</span>
               <span style={{ color: 'var(--ink-3)' }}> {item.action} </span>
-              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.92em' }}>{item.target}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.92em', wordBreak: 'break-all' }}>{item.target_id}</span>
               <div style={{ color: 'var(--ink-4)', fontSize: 11.5, marginTop: 2 }}>{item.time}</div>
             </div>
           </div>
@@ -232,7 +254,7 @@ function KeyMetricsRow({ topKpis }: { topKpis: TopKpi[] }) {
 
 /* ── Main export ── */
 
-export function FrameworkOverview({ stats, domains, topKpis }: FrameworkOverviewProps) {
+export function FrameworkOverview({ stats, domains, topKpis, activity = [] }: FrameworkOverviewProps) {
   const inReviewLine = stats.inReview > 0
     ? `${stats.inReview} KPI${stats.inReview !== 1 ? 's' : ''} need review.`
     : 'No KPIs awaiting review.';
@@ -269,7 +291,7 @@ export function FrameworkOverview({ stats, domains, topKpis }: FrameworkOverview
       {/* 2-column: composition + activity */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 'var(--gap)', alignItems: 'start' }}>
         <CompositionCard stats={stats} domains={domains} />
-        <ActivityFeed />
+        <ActivityFeed items={activity} />
       </div>
 
       {/* Key metrics */}
