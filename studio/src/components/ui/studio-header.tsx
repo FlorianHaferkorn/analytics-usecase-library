@@ -93,6 +93,50 @@ export function StudioHeader() {
       <DriftBadge report={driftReport} loading={driftLoading} onClick={runScan} />
       <NotificationBell count={activeCount} onClick={() => {}} />
 
+      {/* Settings (opens Tweaks panel) */}
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('studio:open-tweaks'))}
+        aria-label="Settings"
+        title="Settings"
+        style={{
+          width: 30, height: 30, borderRadius: 7,
+          display: 'grid', placeItems: 'center',
+          color: 'var(--ink-3)', background: 'transparent',
+          border: 'none', cursor: 'pointer',
+        }}
+      >
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+             strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <circle cx="8" cy="8" r="2" />
+          <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3 3l1.5 1.5M11.5 11.5 13 13M3 13l1.5-1.5M11.5 4.5 13 3" />
+        </svg>
+      </button>
+
+      {/* Avatar stack — collaborators on the active framework */}
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft: 4 }}>
+        {[
+          { i: 'RO', c: 'oklch(0.6 0.13 30)' },
+          { i: 'LC', c: 'oklch(0.6 0.13 180)' },
+          { i: 'MP', c: 'oklch(0.6 0.13 280)' },
+        ].map((a, idx) => (
+          <div
+            key={a.i}
+            title={a.i}
+            style={{
+              width: 26, height: 26, borderRadius: 999,
+              background: a.c, color: '#fff',
+              display: 'grid', placeItems: 'center',
+              fontSize: 10, fontWeight: 600,
+              border: '2px solid var(--bg)',
+              marginLeft: idx === 0 ? 0 : -8,
+              fontFamily: 'var(--font-display)',
+            }}
+          >
+            {a.i}
+          </div>
+        ))}
+      </div>
+
       {/* Project switcher */}
       <ProjectSwitcher />
 

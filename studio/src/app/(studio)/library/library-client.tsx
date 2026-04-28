@@ -113,10 +113,13 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
             <span className="font-medium text-foreground">{activeDomain}</span>
             <button
               onClick={handleClearDomainFilter}
-              className="ml-1 text-foreground-muted hover:text-foreground"
+              className="ml-1 text-foreground-muted hover:text-foreground inline-flex items-center"
               title="Clear filter"
+              aria-label="Clear filter"
             >
-              ✕
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="m4 4 8 8M12 4l-8 8" />
+              </svg>
             </button>
           </div>
         )}

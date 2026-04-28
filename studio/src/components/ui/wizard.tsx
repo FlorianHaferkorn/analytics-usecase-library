@@ -151,7 +151,11 @@ export function Wizard({ open, onClose, onSave }: Props) {
               </div>
             ))}
           </div>
-          <button onClick={onClose} style={{ width: 28, height: 28, display: 'grid', placeItems: 'center', borderRadius: 6, color: 'var(--ink-3)', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '0.875rem' }}>✕</button>
+          <button onClick={onClose} aria-label="Close" style={{ width: 28, height: 28, display: 'grid', placeItems: 'center', borderRadius: 6, color: 'var(--ink-3)', border: 'none', background: 'transparent', cursor: 'pointer' }}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="m4 4 8 8M12 4l-8 8" />
+            </svg>
+          </button>
         </div>
 
         {/* Body */}
@@ -237,7 +241,10 @@ export function Wizard({ open, onClose, onSave }: Props) {
               </div>
               {(generating || isLoadingDraft) && (
                 <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: 'var(--accent-soft)', color: 'var(--accent)', fontSize: '0.8125rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  ✦ {isLoadingDraft ? 'Analyzing…' : 'Drafting definition and checking for duplicates…'}
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2" />
+                  </svg>
+                  {isLoadingDraft ? 'Analyzing…' : 'Drafting definition and checking for duplicates…'}
                 </div>
               )}
               {genError && (
@@ -251,7 +258,10 @@ export function Wizard({ open, onClose, onSave }: Props) {
           {step === 2 && draft && (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'oklch(0.52 0.14 150)', fontSize: '0.75rem', marginBottom: 8 }}>
-                ✦ Draft ready — review and edit before saving.
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2" />
+                </svg>
+                Draft ready — review and edit before saving.
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: 4 }}>{draft.ref}</div>
               <div style={{ marginBottom: 10 }}>
