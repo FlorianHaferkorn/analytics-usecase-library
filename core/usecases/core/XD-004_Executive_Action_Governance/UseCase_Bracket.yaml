@@ -10,6 +10,7 @@ governance:
 orchestration:
   strategic_kpi_id: enterprise.action_outcome_rate.pct
   influencing_kpi_ids:
+    - enterprise.action_effectiveness_delta.amount
     - enterprise.value_at_risk.index
   supporting_kpi_ids:
     # Cross-domain KPIs pulled into closure via Impactful 15 action code trigger chains
