@@ -83,11 +83,12 @@
   --z-modal: 90;
   --z-toast: 100;
 
-  /* ========== Font Families (set via next/font) ========== */
-  /* Defaults: Inter sans + JetBrains Mono, overridden by [data-fonts] rules below */
-  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  /* ========== Font Families ========== */
+  /* Default: Geist + Geist Mono (loaded via next/font in app/layout.tsx as
+     --font-geist / --font-geist-mono). Overridable via [data-fonts] rules below. */
+  --font-display: var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), 'Geist Mono', ui-monospace, 'SFMono-Regular', monospace;
 }
 
 /* ========== Density Scaling ========== */
@@ -115,28 +116,28 @@
 }
 
 /* ========== Font Pairings (data-fonts attribute) ========== */
+[data-fonts="geist"] {
+  --font-display: var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-body:    var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), 'Geist Mono', ui-monospace, monospace;
+}
+
 [data-fonts="inter"] {
   --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-body:    'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
 }
 
 [data-fonts="ibm"] {
   --font-display: 'IBM Plex Sans', system-ui, sans-serif;
-  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-}
-
-[data-fonts="geist"] {
-  --font-display: 'Geist', system-ui, sans-serif;
-  --font-body: 'Geist', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --font-body:    'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono:    'IBM Plex Mono', ui-monospace, monospace;
 }
 
 [data-fonts="serif"] {
   --font-display: 'Instrument Serif', ui-serif, serif;
-  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-body:    var(--font-geist), 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), 'Geist Mono', ui-monospace, monospace;
 }
 
 /* ========== Tailwind v4 @theme mapping ========== */
