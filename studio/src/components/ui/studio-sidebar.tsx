@@ -5,7 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FORGE_NAV, REGISTRY_NAV, getNavMode, type NavItem } from '@/lib/navigation';
 import { PhIcon, type PhIconName } from './ph-icon';
-import { type DomainStat } from '@/app/(studio)/layout';
+
+export interface DomainStat {
+  name: string;
+  count: number;
+  hue: number;
+}
 
 const navLabelStyle = {
   padding: '8px 10px 6px',

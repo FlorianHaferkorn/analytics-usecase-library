@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CommandPalette } from './CommandPalette';
@@ -48,10 +48,12 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
-      <Sidebar
-        onNew={() => setWizardOpen(true)}
-        onCommand={() => setCommandOpen(true)}
-      />
+      <Suspense fallback={<aside className="w-[248px] border-r border-border" />}>
+        <Sidebar
+          onNew={() => setWizardOpen(true)}
+          onCommand={() => setCommandOpen(true)}
+        />
+      </Suspense>
 
       <div className="flex flex-col flex-1 min-w-0">
         <Topbar onSettings={() => setSettingsOpen(true)} />
