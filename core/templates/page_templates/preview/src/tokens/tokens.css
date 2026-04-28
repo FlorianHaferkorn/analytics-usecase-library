@@ -1,0 +1,190 @@
+/* ==========================================================================
+   Design Tokens — Single Source of Truth
+   --------------------------------------------------------------------------
+   All components consume ONLY these variables. Inline px values are forbidden
+   (enforced via ESLint no-restricted-syntax rule).
+
+   Layers:
+     1. Base       — raw inputs (canvas size, density factor, zoom scale)
+     2. Grid       — derived from base (lu-w, lu-h, outer, gutter)
+     3. Type scale — typographic steps scaled by --scale
+     4. Spacing    — 4px-baseline, scaled by --density
+     5. Color      — semantic palette (surface, text, border, status)
+     6. Radius/Shadow — elevation primitives
+   ========================================================================== */
+
+:root {
+  /* ---------- 1. Base inputs (overridden at runtime via setProperty) ---------- */
+  --canvas-w: 1280;     /* logical canvas width in px */
+  --canvas-h: 720;      /* logical canvas height in px */
+  --density: 1;         /* 0.8 dense | 1.0 balanced | 1.2 airy */
+  --scale: 1;           /* typography zoom factor */
+
+  /* ---------- 2. Grid (derived) ---------- */
+  --grid-cols: 12;
+  --grid-rows: 12;
+  --outer: calc(32px * var(--density));
+  --gutter: calc(16px * var(--density));
+
+  /* logical unit size = (canvas - 2*outer - (cols-1)*gutter) / cols */
+  --lu-w: calc(
+    (var(--canvas-w) * 1px - 2 * var(--outer) - (var(--grid-cols) - 1) * var(--gutter))
+    / var(--grid-cols)
+  );
+  --lu-h: calc(
+    (var(--canvas-h) * 1px - 2 * var(--outer) - (var(--grid-rows) - 1) * var(--gutter))
+    / var(--grid-rows)
+  );
+
+  /* ---------- 3. Type scale (modular, 1.125 ratio) ---------- */
+  --fs-xs: calc(10px * var(--scale));
+  --fs-sm: calc(11.5px * var(--scale));
+  --fs-md: calc(13px * var(--scale));
+  --fs-lg: calc(15px * var(--scale));
+  --fs-xl: calc(18px * var(--scale));
+  --fs-2xl: calc(22px * var(--scale));
+  --fs-display: calc(28px * var(--scale));
+
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --ls-tight: -0.02em;
+  --ls-normal: 0em;
+  --ls-wide: 0.04em;
+  --ls-caps: 0.08em;
+
+  --ff-sans: "Inter", "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --ff-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --ff-display: var(--ff-sans);
+
+  /* ---------- 4. Spacing (4px baseline, density-scaled) ---------- */
+  --sp-0: 0;
+  --sp-1: calc(4px * var(--density));
+  --sp-2: calc(8px * var(--density));
+  --sp-3: calc(12px * var(--density));
+  --sp-4: calc(16px * var(--density));
+  --sp-5: calc(20px * var(--density));
+  --sp-6: calc(24px * var(--density));
+  --sp-8: calc(32px * var(--density));
+  --sp-10: calc(40px * var(--density));
+  --sp-12: calc(48px * var(--density));
+
+  /* ---------- 5. Color (light theme default) ---------- */
+  /* surface */
+  --c-surface-0: #ffffff;
+  --c-surface-1: #fafafa;
+  --c-surface-2: #f4f4f5;
+  --c-surface-3: #ececee;
+
+  /* ink */
+  --c-ink-1: #0b0b0c;
+  --c-ink-2: #3b3b40;
+  --c-ink-3: #6b6b72;
+  --c-ink-4: #9b9ba3;
+  --c-ink-5: #c4c4c9;
+
+  /* border */
+  --c-line-1: #e5e5e8;
+  --c-line-2: #ececee;
+
+  /* semantic status */
+  --c-positive: #107c10;
+  --c-positive-soft: #e6f4ea;
+  --c-negative: #a4262c;
+  --c-negative-soft: #fbe9ea;
+  --c-warning: #c98a00;
+  --c-warning-soft: #fcf3dc;
+  --c-info: #0078d4;
+  --c-info-soft: #e3f1fb;
+
+  /* accent (theme-tintable via oklch) */
+  --accent-h: 250;
+  --accent-c: 0.13;
+  --accent-l: 0.5;
+  --c-accent: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+  --c-accent-soft: oklch(0.95 0.04 var(--accent-h));
+  --c-accent-ink: #ffffff;
+
+  /* severity tints (T3 exception table) */
+  --c-sev-critical: var(--c-negative);
+  --c-sev-high: #d97706;
+  --c-sev-medium: var(--c-warning);
+  --c-sev-low: var(--c-ink-4);
+
+  /* ---------- 6. Radius & Shadow ---------- */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-xl: 12px;
+  --r-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(11, 11, 12, 0.05);
+  --shadow-md: 0 2px 8px rgba(11, 11, 12, 0.08);
+  --shadow-lg: 0 8px 24px rgba(11, 11, 12, 0.12);
+  --shadow-xl: 0 16px 48px rgba(11, 11, 12, 0.18);
+
+  /* ---------- 7. Motion ---------- */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* -------------------- Density presets -------------------- */
+[data-density="dense"]    { --density: 0.8; }
+[data-density="balanced"] { --density: 1.0; }
+[data-density="airy"]     { --density: 1.2; }
+
+/* -------------------- Dark theme -------------------- */
+[data-theme="dark"] {
+  --c-surface-0: #0b0b0c;
+  --c-surface-1: #111113;
+  --c-surface-2: #17171a;
+  --c-surface-3: #1e1e22;
+
+  --c-ink-1: #f5f5f7;
+  --c-ink-2: #d0d0d5;
+  --c-ink-3: #9b9ba3;
+  --c-ink-4: #6b6b72;
+  --c-ink-5: #3b3b40;
+
+  --c-line-1: #2a2a2e;
+  --c-line-2: #1e1e22;
+
+  --c-positive-soft: rgba(16, 124, 16, 0.16);
+  --c-negative-soft: rgba(164, 38, 44, 0.20);
+  --c-warning-soft: rgba(201, 138, 0, 0.18);
+  --c-info-soft: rgba(0, 120, 212, 0.16);
+
+  --c-accent-soft: oklch(0.25 0.06 var(--accent-h));
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* -------------------- Base resets -------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--ff-sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  color: var(--c-ink-1);
+  background: var(--c-surface-1);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.mono { font-family: var(--ff-mono); }
+.display { font-family: var(--ff-display); }

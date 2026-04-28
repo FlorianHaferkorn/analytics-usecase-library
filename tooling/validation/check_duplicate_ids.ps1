@@ -28,7 +28,7 @@ $issues = @()
 # Action Code IDs
 $actionCodeIds = @{}
 Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\' -and $_.Name -ne 'impactful_15.yaml' -and $_.Name -notlike '*_business_case.yaml'
 } | ForEach-Object {
   $id = $null
   Get-Content -Path $_.FullName | ForEach-Object {

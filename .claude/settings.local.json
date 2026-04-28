@@ -2,12 +2,19 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.anthropic.com)",
       "Bash(curl -s https://raw.githubusercontent.com/data-goblin/power-bi-agentic-development/main/plugins/fabric-cli/skills/fabric-cli/SKILL.md)",
       "Bash(py -3 -c \":*)",
-      "WebFetch(domain:api.anthropic.com)",
       "Bash(npm run *)",
       "Bash(npx tsc *)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git fetch *)",
+      "Bash(git push *)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)",
+      "Bash(rm .git/index.lock)"
     ]
   }
 }

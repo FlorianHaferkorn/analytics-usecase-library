@@ -1,0 +1,198 @@
+/* Studio Token Spec — OKLCH CSS Variables
+ * Authority: studio/docs/rebuild/TOKEN_SPEC.md
+ * All color values in OKLCH only. No hex/hsl/rgb for theme colors.
+ */
+
+/* Dark theme (default) */
+:root {
+  /* ========== Dark Theme (data-theme="dark" — default) ========== */
+  --bg: oklch(0.18 0.01 260);
+  --bg-2: oklch(0.22 0.01 260);
+  --panel: oklch(0.24 0.01 260);
+  --panel-2: oklch(0.27 0.01 260);
+
+  --ink: oklch(0.96 0.005 260);
+  --ink-2: oklch(0.86 0.005 260);
+  --ink-3: oklch(0.68 0.005 260);
+  --ink-4: oklch(0.52 0.005 260);
+
+  --line: oklch(0.30 0.01 260);
+  --line-2: oklch(0.26 0.01 260);
+  --hover: oklch(0.28 0.01 260 / 0.6);
+
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.35);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.40);
+  --shadow-lg: 0 12px 28px oklch(0 0 0 / 0.50);
+
+  /* ========== Semantic Colors (both themes) ========== */
+  --positive: oklch(0.60 0.15 150);
+  --positive-soft: oklch(0.92 0.06 150 / 0.5);
+  --negative: oklch(0.55 0.18 25);
+  --negative-soft: oklch(0.93 0.07 25 / 0.5);
+  --warn: oklch(0.70 0.15 75);
+  --warn-soft: oklch(0.94 0.06 75 / 0.6);
+  --neutral: oklch(0.62 0.02 260);
+
+  /* ========== Accent (JS-driven, preset: Indigo) ========== */
+  /* Written at runtime from user tweaks in Settings */
+  --accent: oklch(0.62 0.13 250);
+  --accent-soft: oklch(0.62 0.13 250 / 0.12);
+  --accent-ink: oklch(0.12 0.02 250);
+
+  /* ========== Data Series Palette — 8 colors for chart rendering ========== */
+  /* OKLCH equivalents of Microsoft Fluent palette (studio/docs/rebuild/MOCKUP_REFERENCE/tokens.js) */
+  /* Theme-independent; same values in light & dark */
+  --data-1: oklch(0.60 0.20 243.5);  /* Indigo — formerly #0078D4 */
+  --data-2: oklch(0.90 0.14 203.6);  /* Cyan — formerly #50E6FF */
+  --data-3: oklch(0.59 0.16 276.1);  /* Violet — formerly #8661C5 */
+  --data-4: oklch(0.64 0.26 77.6);   /* Orange — formerly #F7630C */
+  --data-5: oklch(0.58 0.11 169.3);  /* Teal — formerly #008575 */
+  --data-6: oklch(0.56 0.23 344.1);  /* Magenta — formerly #E3008C */
+  --data-7: oklch(0.65 0.17 58.5);   /* Coral — formerly #EF6950 */
+  --data-8: oklch(0.82 0.34 104.1);  /* Gold — formerly #FFB900 */
+
+  /* ========== Density Tokens ========== */
+  --spacing-density-airy: 1.25;
+  --spacing-density-balanced: 1.0;
+  --spacing-density-dense: 0.8;
+
+  --row-height-airy: 48px;
+  --row-height-balanced: 40px;
+  --row-height-dense: 36px;
+
+  /* Non-density defaults (used when no [data-density] attr is set) */
+  --pad: 24px;
+  --gap: 24px;
+
+  /* ========== Radius, Motion, Z-Index ========== */
+  --radius-sm: 4px;
+  --radius-md: 7px;
+  --radius-card: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --motion-fast: 120ms;
+  --motion-normal: 240ms;
+  --motion-slow: 420ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --z-sidebar: 20;
+  --z-topbar: 30;
+  --z-dropdown: 50;
+  --z-tweaks: 80;
+  --z-modal: 90;
+  --z-toast: 100;
+
+  /* ========== Font Families (set via next/font) ========== */
+  /* Defaults: Inter sans + JetBrains Mono, overridden by [data-fonts] rules below */
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+/* ========== Density Scaling ========== */
+[data-density="airy"] {
+  --row: var(--row-height-airy);
+  --pad: 28px;
+  --gap: 28px;
+}
+
+[data-density="balanced"] {
+  --row: var(--row-height-balanced);
+  --pad: 20px;
+  --gap: 18px;
+}
+
+[data-density="dense"] {
+  --row: var(--row-height-dense);
+  --pad: 16px;
+  --gap: 14px;
+}
+
+/* ========== Font Pairings (data-fonts attribute) ========== */
+[data-fonts="inter"] {
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+[data-fonts="ibm"] {
+  --font-display: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+[data-fonts="geist"] {
+  --font-display: 'Geist', system-ui, sans-serif;
+  --font-body: 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+[data-fonts="serif"] {
+  --font-display: 'Instrument Serif', ui-serif, serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ========== Tailwind v4 @theme mapping ========== */
+@theme {
+  --color-background: var(--bg);
+  --color-background-muted: var(--bg-2);
+  --color-foreground: var(--ink);
+  --color-foreground-muted: var(--ink-2);
+  --color-foreground-subtle: var(--ink-3);
+  --color-border: var(--line);
+  --color-border-subtle: var(--line-2);
+  --color-panel: var(--panel);
+  --color-panel-elevated: var(--panel-2);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-warn: var(--warn);
+  --color-data-1: var(--data-1);
+  --color-data-2: var(--data-2);
+  --color-data-3: var(--data-3);
+  --color-data-4: var(--data-4);
+  --color-data-5: var(--data-5);
+  --color-data-6: var(--data-6);
+  --color-data-7: var(--data-7);
+  --color-data-8: var(--data-8);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --radius: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --spacing-density-airy: var(--spacing-density-airy);
+  --spacing-density-balanced: var(--spacing-density-balanced);
+  --spacing-density-dense: var(--spacing-density-dense);
+
+  --row-height-airy: var(--row-height-airy);
+  --row-height-balanced: var(--row-height-balanced);
+  --row-height-dense: var(--row-height-dense);
+}
+
+/* Light theme (toggled via data-theme="light") */
+:root[data-theme="light"] {
+  --bg: oklch(0.985 0.003 260);
+  --bg-2: oklch(0.965 0.003 260);
+  --panel: oklch(1 0 0);
+  --panel-2: oklch(0.975 0.003 260);
+
+  --ink: oklch(0.18 0.01 260);
+  --ink-2: oklch(0.34 0.01 260);
+  --ink-3: oklch(0.52 0.008 260);
+  --ink-4: oklch(0.68 0.005 260);
+
+  --line: oklch(0.90 0.005 260);
+  --line-2: oklch(0.93 0.004 260);
+  --hover: oklch(0.94 0.005 260 / 0.8);
+
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.06);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 28px oklch(0 0 0 / 0.12);
+}

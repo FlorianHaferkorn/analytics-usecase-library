@@ -47,8 +47,12 @@ $triggerMapTemplateSchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map
 $triggerMapDeploySchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_deploy.schema.json"
 
 $actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\' -and $_.Name -ne 'impactful_15.yaml'
+  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\' -and $_.Name -ne 'impactful_15.yaml' -and $_.Name -notlike '*_business_case.yaml'
 }
+$businessCaseFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*_business_case.yaml" | Where-Object {
+  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
+}
+$businessCaseSchema = Join-Path -Path $aiSchemaDir -ChildPath "business_case.schema.json"
 $bracketFiles = Get-ChildItem -Path (Join-Path $rootPath "core\usecases\core") -Recurse -Filter "UseCase_Bracket.yaml" -ErrorAction SilentlyContinue
 # Resolve org_roles: showcase from env ANALYTICS_SHOWCASE (default aurora_group), else core
 $showcaseName = if ($env:ANALYTICS_SHOWCASE) { $env:ANALYTICS_SHOWCASE.Trim() } else { "aurora_group" }
@@ -79,6 +83,9 @@ function Invoke-Validation {
 Write-Host "Schema validation" -ForegroundColor Cyan
 
 Invoke-Validation -Schema $actionCodeSchema -Targets ($actionCodeFiles | Select-Object -ExpandProperty FullName)
+if ($businessCaseFiles -and $businessCaseFiles.Count -gt 0) {
+  Invoke-Validation -Schema $businessCaseSchema -Targets ($businessCaseFiles | Select-Object -ExpandProperty FullName)
+}
 if ($bracketFiles -and $bracketFiles.Count -gt 0) {
   Invoke-Validation -Schema $bracketSchema -Targets ($bracketFiles | Select-Object -ExpandProperty FullName)
 }

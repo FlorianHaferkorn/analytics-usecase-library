@@ -231,9 +231,8 @@ def scan_action_codes(repo_root: Path) -> Tuple[Dict[str, Dict[str, Any]], List[
         # Skip meta/index files (impactful_15.yaml, golden_20.yaml style)
         if p.name in ("impactful_15.yaml",):
             continue
-        # Skip business case companion files — they share the action code id but
-        # lack trigger/impact/execution structure and must not override the main entry.
-        if "_business_case" in p.name:
+        # Skip business-case sidecars — different schema, validated by check_business_cases.py
+        if p.name.endswith("_business_case.yaml"):
             continue
         rel = _to_repo_rel(repo_root, p)
         try:
