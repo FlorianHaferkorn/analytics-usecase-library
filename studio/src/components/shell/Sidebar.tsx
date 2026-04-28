@@ -93,17 +93,17 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
         </div>
         {!collapsed && (
           <div className="flex flex-col leading-tight">
-            <div className="font-semibold text-xs font-display">Studio</div>
+            <div className="font-semibold text-[13.5px] tracking-[-0.01em] font-display">Studio</div>
             <div className="text-2xs text-foreground-subtle">Analytics Framework</div>
           </div>
         )}
       </div>
 
       {/* Actions */}
-      <div className="px-3 py-3.5 flex flex-col gap-1.5">
+      <div className="px-3 pt-3.5 pb-1.5 flex flex-col gap-1.5">
         <button
           onClick={onNew}
-          className="h-8.5 px-2.5 flex items-center justify-center gap-2.5 rounded-lg bg-foreground text-background font-medium text-xs hover:opacity-90 transition-opacity"
+          className="h-8.5 px-2.5 flex items-center justify-center gap-2.5 rounded-lg bg-foreground text-background font-medium text-[13px] hover:opacity-90 transition-opacity"
           title={collapsed ? 'New Element (N)' : undefined}
         >
           <svg
@@ -154,14 +154,14 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
 
       {/* Nav */}
       <nav className="px-2 py-3 flex flex-col gap-0.25">
-        {!collapsed && <div className="text-2xs font-medium text-foreground-subtle px-2.5 py-1.5">Workspace</div>}
+        {!collapsed && <div className="text-2xs font-medium text-foreground-subtle px-2.5 py-1.5 tracking-[0.08em] uppercase">Workspace</div>}
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
               key={item.id}
               href={item.href}
-              className={`h-8 px-2.5 flex items-center justify-center gap-2.5 rounded-lg text-xs font-medium transition-colors relative ${
+              className={`h-8 px-2.5 flex items-center justify-center gap-2.5 rounded-lg text-[13px] font-medium transition-colors relative ${
                 active
                   ? 'bg-hover text-foreground'
                   : 'text-foreground-muted hover:bg-hover'
@@ -184,21 +184,21 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
       {/* Domains Section */}
       {!collapsed && (
         <div className="px-2 py-3 flex flex-col gap-0.25">
-          <div className="text-2xs font-medium text-foreground-subtle px-2.5 py-1.5">Domains</div>
+          <div className="text-2xs font-medium text-foreground-subtle px-2.5 py-1.5 tracking-[0.08em] uppercase">Domains</div>
           {DOMAINS.map((domain) => {
             const active = activeDomain === domain.id;
             return (
               <button
                 key={domain.id}
                 onClick={() => handleDomainClick(domain.id)}
-                className={`h-7 px-2.5 flex items-center gap-2.5 rounded-lg text-xs font-medium transition-colors relative ${
+                className={`h-7 px-2.5 flex items-center gap-2.5 rounded-lg text-[12.5px] font-medium transition-colors relative ${
                   active
                     ? 'bg-hover text-foreground'
                     : 'text-foreground-muted hover:bg-hover'
                 }`}
               >
                 <div
-                  className="w-2 h-2 rounded flex-shrink-0"
+                  className="w-1.5 h-1.5 flex-shrink-0 rounded-[2px]"
                   style={{ backgroundColor: domain.color }}
                 />
                 {domain.label}
@@ -213,9 +213,9 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
 
       {/* User Footer */}
       {!collapsed ? (
-        <div className="px-3 py-3.5 flex items-center gap-2.5 border-t border-border-subtle">
+        <div className="px-3 py-2.5 flex items-center gap-2.5 border-t border-border-subtle">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-background flex-shrink-0"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-background flex-shrink-0"
             style={{
               background: 'linear-gradient(135deg, oklch(0.62 0.13 250) 0%, oklch(0.55 0.18 320) 100%)',
             }}
@@ -223,14 +223,14 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
             AH
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold text-foreground truncate">Alex Haferkorn</div>
+            <div className="text-[12.5px] font-semibold text-foreground truncate">Alex Haferkorn</div>
             <div className="text-2xs text-foreground-subtle truncate">Acme · Pro</div>
           </div>
         </div>
       ) : (
-        <div className="px-3 py-3.5 flex items-center justify-center border-t border-border-subtle">
+        <div className="px-3 py-2.5 flex items-center justify-center border-t border-border-subtle">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-background"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-background"
             style={{
               background: 'linear-gradient(135deg, oklch(0.62 0.13 250) 0%, oklch(0.55 0.18 320) 100%)',
             }}

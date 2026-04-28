@@ -24,27 +24,26 @@ export function LibraryTabs({ tabs, activeTab }: LibraryTabsProps) {
   };
 
   return (
-    <div className="flex gap-1 border-b border-border mb-4">
+    <div className="flex gap-0.5 border-b border-border mb-4">
       {tabs.map((tab) => {
         const active = activeTab === tab.id;
         return (
           <button
             key={tab.id}
             onClick={() => handleTabClick(tab.id)}
-            className={`px-3.5 py-2.5 text-xs font-medium transition-colors flex items-center gap-2 relative ${
+            className={`px-3.5 py-2.5 text-[13px] transition-colors flex items-center gap-2 relative ${
               active
-                ? 'text-foreground'
-                : 'text-foreground-muted hover:text-foreground'
+                ? 'font-medium text-foreground'
+                : 'font-normal text-foreground-muted hover:text-foreground'
             }`}
             style={{
-              borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
-              marginBottom: '-2px',
+              borderBottom: active ? '1.5px solid var(--accent)' : '1.5px solid transparent',
+              marginBottom: '-1px',
             }}
           >
             {tab.label}
             <span
-              className="text-2xs font-mono"
-              style={{ opacity: active ? 1 : 0.7 }}
+              className={`text-2xs font-mono ${active ? 'text-foreground-muted' : 'text-foreground-subtle'}`}
             >
               {tab.count}
             </span>

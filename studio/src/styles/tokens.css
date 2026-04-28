@@ -36,7 +36,7 @@
   /* ========== Accent (JS-driven, preset: Indigo) ========== */
   /* Written at runtime from user tweaks in Settings */
   --accent: oklch(0.62 0.13 250);
-  --accent-soft: oklch(0.62 0.13 250 / 0.14);
+  --accent-soft: oklch(0.62 0.13 250 / 0.12);
   --accent-ink: oklch(0.12 0.02 250);
 
   /* ========== Data Series Palette — 8 colors for chart rendering ========== */
@@ -56,13 +56,18 @@
   --spacing-density-balanced: 1.0;
   --spacing-density-dense: 0.8;
 
-  --row-height-airy: 44px;
-  --row-height-balanced: 36px;
-  --row-height-dense: 30px;
+  --row-height-airy: 48px;
+  --row-height-balanced: 40px;
+  --row-height-dense: 36px;
+
+  /* Non-density defaults (used when no [data-density] attr is set) */
+  --pad: 24px;
+  --gap: 24px;
 
   /* ========== Radius, Motion, Z-Index ========== */
   --radius-sm: 4px;
   --radius-md: 7px;
+  --radius-card: 10px;
   --radius-lg: 12px;
   --radius-xl: 16px;
 
@@ -88,17 +93,20 @@
 /* ========== Density Scaling ========== */
 [data-density="airy"] {
   --row: var(--row-height-airy);
-  --pad: 16px;
+  --pad: 28px;
+  --gap: 28px;
 }
 
 [data-density="balanced"] {
   --row: var(--row-height-balanced);
-  --pad: 12px;
+  --pad: 20px;
+  --gap: 18px;
 }
 
 [data-density="dense"] {
   --row: var(--row-height-dense);
-  --pad: 8px;
+  --pad: 16px;
+  --gap: 14px;
 }
 
 /* ========== Font Pairings (data-fonts attribute) ========== */

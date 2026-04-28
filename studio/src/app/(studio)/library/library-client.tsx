@@ -52,16 +52,16 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-5xl mx-auto">
+    <div className="flex flex-col h-full max-w-5xl mx-auto px-[var(--pad)]">
       {/* Header */}
-      <div className="flex items-end justify-between mb-6 pb-4">
+      <div className="flex items-end justify-between mb-5">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground mb-1">Library</h1>
-          <p className="text-sm text-foreground-muted">
+          <h1 className="text-[28px] font-medium tracking-[-0.02em] text-foreground mb-1">Library</h1>
+          <p className="text-[13px] text-foreground-muted">
             The single source of truth for every metric, dimension and source.
           </p>
         </div>
-        <button className="px-3.5 py-2 flex items-center gap-2 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90 transition-opacity">
+        <button className="px-3.5 py-2 flex items-center gap-2 rounded-lg bg-foreground text-background text-[13px] font-medium hover:opacity-90 transition-opacity">
           <svg
             width="14"
             height="14"
@@ -82,7 +82,7 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
       <LibraryTabs tabs={tabs} activeTab={activeTab} />
 
       {/* Filters */}
-      <div className="flex gap-3 mb-4 items-center">
+      <div className="flex gap-2 mb-[14px] items-center">
         <div className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg border border-border bg-panel">
           <svg
             width="13"
@@ -102,7 +102,7 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search ${activeTab}…`}
-            className="flex-1 bg-transparent text-sm text-foreground outline-none"
+            className="flex-1 bg-transparent text-[13px] text-foreground outline-none"
           />
           <span className="text-2xs font-mono text-foreground-muted opacity-50">/</span>
         </div>

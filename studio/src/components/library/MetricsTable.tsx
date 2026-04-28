@@ -60,58 +60,58 @@ export function MetricsTable({ metrics, searchQuery }: MetricsTableProps) {
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full text-sm">
+      <table className="w-full text-[13px]">
         <thead>
           <tr className="border-b border-border bg-panel-subtle">
-            <th className="px-4 py-2.5 text-left text-2xs font-semibold text-foreground-muted uppercase">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Name
             </th>
-            <th className="px-4 py-2.5 text-left text-2xs font-semibold text-foreground-muted uppercase">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Key
             </th>
-            <th className="px-4 py-2.5 text-left text-2xs font-semibold text-foreground-muted uppercase">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Type
             </th>
-            <th className="px-4 py-2.5 text-left text-2xs font-semibold text-foreground-muted uppercase">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Domain
             </th>
-            <th className="px-4 py-2.5 text-left text-2xs font-semibold text-foreground-muted uppercase">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Owner
             </th>
-            <th className="px-4 py-2.5 text-left text-2xs font-semibold text-foreground-muted uppercase">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Grain
             </th>
-            <th className="px-4 py-2.5 text-left text-2xs font-semibold text-foreground-muted uppercase">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Updated
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">
+        <tbody className="divide-y divide-border-subtle">
           {filtered.map((metric) => (
             <tr
               key={metric.kpi_id}
               onClick={() => handleRowClick(metric.kpi_id)}
               className="hover:bg-hover cursor-pointer transition-colors"
             >
-              <td className="px-4 py-3 font-medium text-foreground">
+              <td className="px-6 py-3.5 font-medium text-foreground">
                 {metric.kpi_key}
               </td>
-              <td className="px-4 py-3 text-2xs font-mono text-foreground-muted">
+              <td className="px-6 py-3.5 text-2xs font-mono text-foreground-muted">
                 {metric.technical.dax_name}
               </td>
-              <td className="px-4 py-3 text-xs text-foreground-muted">
+              <td className="px-6 py-3.5 text-foreground-muted">
                 {metric.kpi_type}
               </td>
-              <td className="px-4 py-3 text-xs text-foreground-muted">
+              <td className="px-6 py-3.5 text-foreground-muted">
                 {metric.domain_tag?.[0] || '—'}
               </td>
-              <td className="px-4 py-3 text-xs text-foreground-muted">
+              <td className="px-6 py-3.5 text-foreground-muted">
                 {metric.governance.business_owner || '—'}
               </td>
-              <td className="px-4 py-3 text-xs text-foreground-muted">
+              <td className="px-6 py-3.5 text-foreground-muted">
                 {metric.business.grain_scope || '—'}
               </td>
-              <td className="px-4 py-3 text-xs text-foreground-muted">
+              <td className="px-6 py-3.5 text-foreground-muted">
                 {metric.governance.last_review
                   ? new Date(metric.governance.last_review).toLocaleDateString()
                   : '—'}
