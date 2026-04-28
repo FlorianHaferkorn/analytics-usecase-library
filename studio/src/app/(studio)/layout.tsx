@@ -82,7 +82,7 @@ export default async function StudioLayout({
             background: 'var(--bg)',
           }}
         >
-          <div style={{ width: '100%', maxWidth: '1680px', margin: '0 auto' }}>
+          <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
             {children}
           </div>
         </main>

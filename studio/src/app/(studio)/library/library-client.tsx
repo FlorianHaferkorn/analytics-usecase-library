@@ -52,7 +52,7 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-5xl mx-auto px-[var(--pad)]">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-end justify-between mb-5">
         <div>

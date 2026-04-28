@@ -131,7 +131,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
             {(['forge', 'registry'] as const).map((m) => (
               <Link
                 key={m}
-                href={m === 'forge' ? '/dashboard' : '/catalog'}
+                href={m === 'forge' ? '/overview' : '/catalog'}
                 style={{
                   flex: 1, textAlign: 'center', padding: '5px 0',
                   borderRadius: 6, fontSize: 10.5, fontWeight: mode === m ? 600 : 400,
