@@ -96,19 +96,24 @@ function greeting(): string {
 /* ── Sub-sections ── */
 
 function StatGrid({ stats }: { stats: FrameworkOverviewProps['stats'] }) {
-  const items = [
-    { label: 'KPIs', value: stats.kpiCount, hint: `${stats.certified} certified` },
-    { label: 'Brackets', value: stats.bracketCount, hint: 'use cases' },
-    { label: 'Actions', value: stats.actionCount, hint: 'action codes' },
-    { label: 'In Review', value: stats.pendingReviews, hint: 'need attention' },
+  const items: { label: string; value: number; hint: string; trend?: string }[] = [
+    { label: 'KPIs', value: stats.kpiCount, hint: `${stats.certified} certified · ${stats.inReview} in review` },
+    { label: 'Brackets', value: stats.bracketCount, hint: 'Use cases' },
+    { label: 'Actions', value: stats.actionCount, hint: 'Action codes' },
+    { label: 'In review', value: stats.pendingReviews, hint: 'Need attention' },
   ];
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--gap)' }}>
       {items.map((item) => (
-        <div key={item.label} style={{ ...card, padding: '16px 20px' }}>
-          <p style={{ fontSize: 11, color: 'var(--ink-4)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 6 }}>{item.label}</p>
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 500, color: 'var(--ink)', lineHeight: 1 }}>{item.value}</p>
-          <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 4 }}>{item.hint}</p>
+        <div key={item.label} style={{ ...card, padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ fontSize: 12, color: 'var(--ink-3)', letterSpacing: '-0.005em' }}>{item.label}</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1 }}>{item.value}</div>
+            {item.trend && (
+              <span style={{ fontSize: 11.5, color: item.trend.startsWith('+') ? 'oklch(0.52 0.14 150)' : 'oklch(0.55 0.15 30)' }}>{item.trend}</span>
+            )}
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>{item.hint}</div>
         </div>
       ))}
     </div>
@@ -121,63 +126,80 @@ function CompositionCard({ stats, domains }: { stats: FrameworkOverviewProps['st
   return (
     <div style={card}>
       <div style={cardHead}>
-        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>Framework composition</span>
-        <button style={{ fontSize: 12, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>View all →</button>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em' }}>Framework composition</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>How your KPIs are distributed across domains</div>
+        </div>
+        <button style={ghostSmall}>View all →</button>
       </div>
-      <div style={{ padding: '20px var(--pad)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 32, padding: 'var(--pad)', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
           <DonutChart pct={certPct} />
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', marginBottom: 2 }}>Certified</p>
-            <p style={{ fontSize: 12, color: 'var(--ink-3)' }}>{stats.certified} of {stats.kpiCount} KPIs</p>
-            <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 6 }}>{stats.inReview} in review</p>
+          <div style={{ fontSize: 11.5, color: 'var(--ink-3)', textAlign: 'center', lineHeight: 1.3 }}>
+            Documentation<br/>coverage
           </div>
         </div>
-        {/* Domain bar */}
-        <div style={{ display: 'flex', height: 8, borderRadius: 999, overflow: 'hidden', gap: 2, marginBottom: 14 }}>
-          {domains.map((d) => (
-            <div key={d.name} style={{ flex: d.count / total, background: `hsl(${d.hue} 60% 55%)`, minWidth: 4 }} />
-          ))}
-        </div>
-        {/* Domain list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {domains.map((d) => (
-            <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: `hsl(${d.hue} 60% 55%)`, flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: 'var(--ink-2)', flex: 1, textTransform: 'capitalize' }}>{d.name}</span>
-              <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>{Math.round((d.count / total) * 100)}%</span>
-              <span style={{ fontSize: 11, color: 'var(--ink-4)', minWidth: 24, textAlign: 'right' }}>{d.count}</span>
-            </div>
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Domain bar */}
+          <div style={{ display: 'flex', height: 8, borderRadius: 999, overflow: 'hidden', background: 'var(--line-2)' }}>
+            {domains.map((d) => (
+              <div key={d.name} title={`${d.name} · ${d.count}`} style={{ flex: d.count, background: `oklch(0.7 0.1 ${d.hue})` }} />
+            ))}
+          </div>
+          {/* Domain list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {domains.map((d) => (
+              <div key={d.name} style={{ display: 'grid', gridTemplateColumns: '12px 1fr auto auto', gap: 12, alignItems: 'center', fontSize: 13 }}>
+                <span style={{ width: 8, height: 8, borderRadius: 2, background: `oklch(0.7 0.1 ${d.hue})` }} />
+                <span style={{ color: 'var(--ink-2)', textTransform: 'capitalize' }}>{d.name}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-3)', fontSize: 11.5 }}>
+                  {Math.round((d.count / total) * 100)}%
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-4)', fontSize: 11.5, width: 28, textAlign: 'right' }}>{d.count}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
+const ghostSmall: React.CSSProperties = {
+  height: 26, padding: '0 10px', borderRadius: 6,
+  fontSize: 12, color: 'var(--ink-2)', background: 'transparent',
+  border: '1px solid transparent', cursor: 'pointer',
+  display: 'inline-flex', alignItems: 'center', gap: 5,
+};
+
 function ActivityFeed() {
   return (
     <div style={card}>
       <div style={cardHead}>
-        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>Recent activity</span>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em' }}>Recent activity</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>Across the framework</div>
+        </div>
       </div>
-      <div style={{ padding: '8px 0' }}>
+      <div style={{ padding: '4px 0 12px' }}>
         {FEED.map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px var(--pad)' }}>
+          <div key={i} style={{
+            display: 'flex', gap: 12, alignItems: 'flex-start',
+            padding: '10px var(--pad)',
+            borderTop: i === 0 ? 'none' : '1px solid var(--line-2)',
+          }}>
             <div style={{
-              width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-              background: item.color, color: 'var(--accent-ink)',
+              width: 24, height: 24, borderRadius: 99, flexShrink: 0,
+              background: `oklch(0.65 0.12 ${(i * 60) % 360})`, color: '#fff',
               display: 'grid', placeItems: 'center',
-              fontSize: 10, fontWeight: 700,
+              fontSize: 10, fontWeight: 600,
             }}>{item.initials}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>{item.name}</span>
-              {' '}
-              <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{item.action}</span>
-              {' '}
-              <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--accent)', wordBreak: 'break-all' }}>{item.target}</span>
+            <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.5 }}>
+              <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{item.name}</span>
+              <span style={{ color: 'var(--ink-3)' }}> {item.action} </span>
+              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.92em' }}>{item.target}</span>
+              <div style={{ color: 'var(--ink-4)', fontSize: 11.5, marginTop: 2 }}>{item.time}</div>
             </div>
-            <span style={{ fontSize: 11, color: 'var(--ink-4)', flexShrink: 0, whiteSpace: 'nowrap' }}>{item.time}</span>
           </div>
         ))}
       </div>
@@ -211,38 +233,37 @@ function KeyMetricsRow({ topKpis }: { topKpis: TopKpi[] }) {
 /* ── Main export ── */
 
 export function FrameworkOverview({ stats, domains, topKpis }: FrameworkOverviewProps) {
+  const inReviewLine = stats.inReview > 0
+    ? `${stats.inReview} KPI${stats.inReview !== 1 ? 's' : ''} need review.`
+    : 'No KPIs awaiting review.';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
       {/* Hero */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+      <section style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, paddingTop: 12 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: 4 }}>
-            {greeting()}, Aurora Group
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)', letterSpacing: 0 }}>
+            FRAMEWORK · v1.0.0 · main
+          </div>
+          <h1 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 36, fontWeight: 500, color: 'var(--ink)',
+            letterSpacing: '-0.025em',
+            margin: '6px 0 4px',
+          }}>
+            {greeting()}, Alex.
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>
-            Your framework is healthy.{stats.inReview > 0 && ` ${stats.inReview} KPI${stats.inReview !== 1 ? 's' : ''} need review.`}
-          </p>
+          <div style={{ color: 'var(--ink-3)', fontSize: 14 }}>
+            Your framework is <span style={{ color: 'var(--ink)' }}>healthy</span>. {inReviewLine}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button style={{
-            height: 32, padding: '0 14px', borderRadius: 7,
-            border: '1px solid var(--line)', background: 'var(--panel)',
-            fontSize: 13, color: 'var(--ink-2)', cursor: 'pointer',
-          }}>
-            History
-          </button>
-          <button style={{
-            height: 32, padding: '0 14px', borderRadius: 7,
-            background: 'var(--accent)', border: 'none',
-            color: 'var(--accent-ink)', fontSize: 13, fontWeight: 500, cursor: 'pointer',
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-          }}>
-            ✦ Draft with AI →
-          </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button style={ghostBtn}>History</button>
+          <button style={ghostBtn}>v1.0.0</button>
+          <button style={primaryBtn}>Draft with AI</button>
         </div>
-      </div>
+      </section>
 
-      {/* Stat grid */}
+      {/* Stat grid (4 columns, matches design) */}
       <StatGrid stats={stats} />
 
       {/* 2-column: composition + activity */}
@@ -256,3 +277,18 @@ export function FrameworkOverview({ stats, domains, topKpis }: FrameworkOverview
     </div>
   );
 }
+
+const ghostBtn: React.CSSProperties = {
+  height: 32, padding: '0 12px', borderRadius: 7,
+  border: '1px solid var(--line)', background: 'var(--panel)',
+  fontSize: 12.5, color: 'var(--ink-2)', cursor: 'pointer',
+  display: 'inline-flex', alignItems: 'center', gap: 6,
+};
+
+const primaryBtn: React.CSSProperties = {
+  height: 32, padding: '0 14px', borderRadius: 7,
+  background: 'var(--ink)', color: 'var(--bg)',
+  fontSize: 12.5, fontWeight: 500, cursor: 'pointer',
+  border: 'none',
+  display: 'inline-flex', alignItems: 'center', gap: 6,
+};
