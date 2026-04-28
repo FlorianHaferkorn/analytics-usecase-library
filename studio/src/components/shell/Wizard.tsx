@@ -41,7 +41,7 @@ export function Wizard({ isOpen, onClose }: WizardProps) {
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-md max-h-96 bg-panel rounded-lg shadow-lg border border-border flex flex-col overflow-hidden"
+        className="w-full max-w-2xl bg-panel rounded-xl shadow-lg border border-border flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

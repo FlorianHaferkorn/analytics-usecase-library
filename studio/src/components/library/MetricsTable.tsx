@@ -112,8 +112,8 @@ export function MetricsTable({ metrics, searchQuery }: MetricsTableProps) {
                 {metric.business.grain_scope || '—'}
               </td>
               <td className="px-6 py-3.5 text-foreground-muted">
-                {metric.governance.last_review
-                  ? new Date(metric.governance.last_review).toLocaleDateString()
+                {metric.metadata_quality?.last_review
+                  ? new Date(metric.metadata_quality.last_review).toLocaleDateString()
                   : '—'}
               </td>
             </tr>
