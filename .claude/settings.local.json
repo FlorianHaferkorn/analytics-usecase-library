@@ -3,7 +3,12 @@
     "allow": [
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(curl -s https://raw.githubusercontent.com/data-goblin/power-bi-agentic-development/main/plugins/fabric-cli/skills/fabric-cli/SKILL.md)",
-      "Bash(py -3 -c \":*)"
+      "Bash(py -3 -c \":*)",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(rm .git/index.lock)"
     ]
   }
 }
