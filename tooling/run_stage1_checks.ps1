@@ -50,7 +50,7 @@ $checks = @(
 
 # Python-based checks (cross-platform, invoked separately)
 $pythonChecks = @(
-  @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--catalog", "core/kpi_catalog/KPI_Catalog.md", "--dist-dir", "products/fabric/powerbi/dist", "--ignore-missing") }
+  @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--repo-root", $rootPath) }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"

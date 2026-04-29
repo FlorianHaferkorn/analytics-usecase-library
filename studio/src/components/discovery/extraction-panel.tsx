@@ -564,7 +564,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
               fontSize: '0.8125rem',
             }}
           >
-            {drafting ? 'Branch wird erstellt...' : hasConflicts ? 'Conflicts zuerst prüfen' : 'Draft-Branch erstellen'}
+            {drafting ? 'Creating branch…' : hasConflicts ? 'Resolve conflicts first' : 'Create draft branch'}
           </StudioButton>
         </div>
       )}

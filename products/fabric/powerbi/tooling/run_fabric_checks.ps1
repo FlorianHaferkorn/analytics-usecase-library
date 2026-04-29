@@ -91,8 +91,8 @@ try {
   if (Test-Path $lockFile) {
     $lockContent = Get-Content $lockFile -Raw
     $sha256Match = [regex]::Match($lockContent, 'sha256\s*:\s*"?([^"\r\n]+)"?')
-    $sha256Val = if ($sha256Match.Success) { $sha256Match.Groups[1].Value.Trim() } else { "" }
-    $expectedHash = (if ($sha256Val) { $sha256Val } else { "placeholder_update_after_download" }).Trim('"')
+    if ($sha256Match.Success) { $sha256Val = $sha256Match.Groups[1].Value.Trim() } else { $sha256Val = "" }
+    if ($sha256Val) { $expectedHash = $sha256Val.Trim('"') } else { $expectedHash = "placeholder_update_after_download" }
     if (Test-Path $pbiToolsExe) {
       if ($expectedHash -ne "placeholder_update_after_download") {
         $actualHash = (Get-FileHash $pbiToolsExe -Algorithm SHA256).Hash.ToLower()

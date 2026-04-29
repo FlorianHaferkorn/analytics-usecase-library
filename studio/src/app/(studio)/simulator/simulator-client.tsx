@@ -169,16 +169,15 @@ export function SimulatorClient({ brackets, spines }: Props) {
       {/* Illustrative data banner */}
       <StudioPanel tone="warning" title="Illustrative Simulation" description="This view operates on synthetic seeded values, not live production data.">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>Keine Echtdaten</span>
+          <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>No live data</span>
         </div>
         <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: '4px' }}>
-          Diese Simulation zeigt eine <strong style={{ color: 'var(--ink)' }}>Sensitivitätsanalyse</strong>: Wie verändert sich der strategische KPI,
-          wenn Treiber-KPIs variieren? Die Ausgangswerte werden anhand der KPI-ID-Konventionen
-          (z.&nbsp;B. <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.pct</code> → 30&ndash;80&thinsp;%,&nbsp;
-          <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.days</code> → 20&ndash;50) synthetisch erzeugt.
+          This simulation runs a <strong style={{ color: 'var(--ink)' }}>sensitivity analysis</strong>: how does the strategic KPI change when driver KPIs vary? Baseline values are synthesised from KPI-ID conventions
+          (e.&nbsp;g. <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.pct</code> → 30&ndash;80&thinsp;%,&nbsp;
+          <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.days</code> → 20&ndash;50).
         </p>
         <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>
-          Für produktive Szenarien: echte Datenpipeline anschließen und Basiswerte im Use-Case-Bracket hinterlegen.
+          For production scenarios: connect a real data pipeline and store baseline values in the use-case bracket.
         </p>
       </StudioPanel>
 

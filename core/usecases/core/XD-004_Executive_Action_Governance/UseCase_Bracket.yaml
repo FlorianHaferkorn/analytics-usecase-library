@@ -75,7 +75,6 @@ orchestration:
     - enterprise.avg_time_to_outcome.days
     - enterprise.action_roi.pct
   action_code_ids:
-    # Impactful 15 — full outcome loop visible in this governance view
     - C-M2.1
     - C-M2.2
     - C-C3.1
