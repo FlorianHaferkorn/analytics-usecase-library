@@ -36,7 +36,7 @@ table fact_quality_costs
 		source =
 			let
 				Source = #table(
-				type table [DateKey = Int64, OrgKey = Int64, ProductKey = Int64,
+				type table [DateKey = Int64.Type, OrgKey = Int64.Type, ProductKey = Int64.Type,
 				#"COPQ Amount" = Decimal.Type, #"Scrap Cost Amount" = Decimal.Type,
 				#"Rework Cost Amount" = Decimal.Type, #"Warranty Cost Amount" = Decimal.Type],
 				{}
