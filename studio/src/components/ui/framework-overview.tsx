@@ -279,9 +279,28 @@ export function FrameworkOverview({ stats, domains, topKpis, activity = [] }: Fr
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={ghostBtn}>History</button>
-          <button style={ghostBtn}>v1.0.0</button>
-          <button style={primaryBtn}>Draft with AI</button>
+          <button style={ghostBtn}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <circle cx="8" cy="8" r="5.5" />
+              <path d="M8 5v3l2 1.5" />
+            </svg>
+            History
+          </button>
+          <button style={ghostBtn}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <circle cx="4" cy="3.5" r="1.3" />
+              <circle cx="4" cy="12.5" r="1.3" />
+              <circle cx="12" cy="6" r="1.3" />
+              <path d="M4 5v6M5.3 6c2.5 0 3.7-.4 5.4-1.4" />
+            </svg>
+            v1.0.0
+          </button>
+          <button style={primaryBtn}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2" />
+            </svg>
+            Draft with AI
+          </button>
         </div>
       </section>
 

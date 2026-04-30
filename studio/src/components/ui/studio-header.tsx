@@ -142,12 +142,12 @@ export function StudioHeader() {
 
       <div style={{ width: 1, height: 20, background: 'var(--line)' }} />
 
-      {/* Ask Studio CTA */}
+      {/* Ask Studio CTA — per Studio.html: accent bg + accent-ink */}
       <button
         onClick={() => window.dispatchEvent(new CustomEvent('studio:open-ai-assist'))}
         style={{
           height: 30, padding: '0 12px', borderRadius: 7,
-          background: 'var(--ink)', color: 'var(--bg)',
+          background: 'var(--accent)', color: 'var(--accent-ink)',
           fontSize: 12.5, fontWeight: 500, cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 6, border: 'none',
         }}

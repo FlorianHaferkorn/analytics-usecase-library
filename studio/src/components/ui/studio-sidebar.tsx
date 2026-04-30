@@ -91,8 +91,8 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
         )}
       </div>
 
-      {/* New + Search */}
-      <div style={{ padding: '14px 8px 6px', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+      {/* New + Search — Mockup: padding 14px 12px 6px */}
+      <div style={{ padding: '14px 12px 6px', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('studio:open-wizard'))}
           style={{
