@@ -25,8 +25,10 @@ from typing import Any, Dict, List, Tuple
 try:
     import yaml
 except ImportError:
-    print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
-    sys.exit(1)
+    if __name__ == "__main__":
+        print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
+        sys.exit(1)
+    raise
 
 REPO = Path(__file__).resolve().parents[2]
 

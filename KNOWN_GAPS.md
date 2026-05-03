@@ -2,7 +2,18 @@
 
 This document tracks known limitations, placeholder content, and deferred activation steps for the Analytics Usecase Library (Spur 1 — Fabric Showcase).
 
-Last updated: 2026-03-27
+> ⚠️ **Last full audit:** 2026-03-27. Items below may have been resolved since — **always verify against the current codebase before assuming an item is still open**:
+> - For a file mentioned by an item, check `git log -p -- <path>` since 2026-03-27.
+> - For a feature, run the relevant validation gate ([`CONTRIBUTING.md`](CONTRIBUTING.md) § "Validation gates").
+> - For a "Resolved" entry at the bottom: trust it (those are append-only history).
+>
+> If you confirm an item is now resolved, move it to the **Resolved Items** table at the bottom and link the commit.
+
+## How to read this file
+
+- **Section 1, 1a** — missing data / pending model integrations.
+- **Sections 2–6** — activation steps for features that need an external action (theme save, design tool setup, CI wiring).
+- **Resolved Items** — append-only changelog of past gaps. Useful as evidence when an audit asks "what was deferred and when did it ship?"
 
 ---
 
