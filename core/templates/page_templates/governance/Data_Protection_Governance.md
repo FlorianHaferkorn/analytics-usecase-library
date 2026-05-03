@@ -125,4 +125,4 @@ data_protection:
 
 ## 9. Enforcement
 
-The `data_protection` block is validated by `tooling/preflight.py` via `tooling/validation/schemas/usecase_bracket.schema.json`. Use cases without a `data_protection` block will generate a schema validation warning and must be remediated before production deployment.
+The `data_protection` block is validated by `tooling/preflight.py` via `tooling/generator/schemas/usecase_bracket.schema.json`. Use cases without a `data_protection` block will generate a schema validation warning and must be remediated before production deployment.

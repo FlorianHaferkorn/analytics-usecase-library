@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Action Code Definition v2.0 (AI Mirror)",
-  "description": "Aligned mirror of tooling/validation/schemas/action_code.schema.json. Kept here to avoid schema drift for AI tooling. Lean v2.0: removed lifecycle, category, tags, strategic_alignment; KPI lists as IDs only; governance roles at top level.",
+  "title": "Action Code Definition v2.0",
+  "description": "Action Code Definition (Lean v2.0). Removed lifecycle, category, tags, strategic_alignment; KPI lists as IDs only; governance roles at top level. This file is the single source of truth for action-code schema validation.",
   "type": "object",
   "additionalProperties": false,
   "required": [

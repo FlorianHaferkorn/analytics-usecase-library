@@ -213,6 +213,11 @@ def main(argv=None) -> int:
         action="store_true",
         help="Treat unplanned missing measures as errors instead of warnings",
     )
+    parser.add_argument(
+        "--ignore-missing",
+        action="store_true",
+        help="No-op compatibility flag; missing measures are warnings by default unless --strict is passed.",
+    )
     args = parser.parse_args(argv)
 
     repo_root = Path(args.repo_root)

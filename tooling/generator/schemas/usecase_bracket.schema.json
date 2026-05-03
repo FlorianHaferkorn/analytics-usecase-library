@@ -403,6 +403,70 @@
           "description": "Summary readiness signal. Green = ready to implement, Amber = gaps to close, Red = not ready."
         }
       }
+    },
+    "data_protection": {
+      "type": "object",
+      "description": "DSGVO Art. 25 Privacy by Design and by Default — required when any personal data or individually attributable operational data is processed or displayed. See core/templates/page_templates/governance/Data_Protection_Governance.md",
+      "required": ["personal_data", "legal_basis"],
+      "additionalProperties": false,
+      "properties": {
+        "personal_data": {
+          "type": "boolean",
+          "description": "True if the use case processes or displays any personal data (including pseudonymised data, employee-level metrics, individual customer records, or any data where natural persons can be identified directly or indirectly)"
+        },
+        "personal_data_categories": {
+          "type": "array",
+          "description": "DSGVO Art. 4(1) data categories present. Required when personal_data = true.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "contact_data",
+              "identification_data",
+              "financial_data",
+              "behavioural_data",
+              "performance_data",
+              "health_data",
+              "special_category_art9"
+            ]
+          }
+        },
+        "legal_basis": {
+          "type": "string",
+          "description": "DSGVO Art. 6(1) legal basis for processing. Required even when personal_data = false (to confirm the assessment was made).",
+          "enum": [
+            "not_applicable",
+            "art6_1a_consent",
+            "art6_1b_contract",
+            "art6_1c_legal_obligation",
+            "art6_1e_public_task",
+            "art6_1f_legitimate_interest"
+          ]
+        },
+        "data_minimisation": {
+          "type": "string",
+          "description": "DSGVO Art. 5(1)(c) — describe how data is minimised to what is necessary for the stated analytical purpose"
+        },
+        "retention_period_days": {
+          "type": "integer",
+          "description": "Maximum number of days raw personal data is retained before aggregation or deletion. Required when personal_data = true."
+        },
+        "access_restriction": {
+          "type": "string",
+          "description": "Who is authorised to access the report (role-based or row-level security description)"
+        },
+        "dpia_required": {
+          "type": "boolean",
+          "description": "DSGVO Art. 35 — Data Protection Impact Assessment required (true when processing is large-scale, systematic, or uses special categories)"
+        },
+        "ai_generated_output": {
+          "type": "boolean",
+          "description": "True if the report uses AI-generated narrative (Smart Narrative, Copilot, LLM). When true, the grounding rules in Storytelling_Principles.md §13 are mandatory."
+        },
+        "ai_grounding_measure": {
+          "type": "string",
+          "description": "DAX measure or query that grounds the AI narrative output. Required when ai_generated_output = true. Must reference the same filter context as the KPI cards on the same page."
+        }
+      }
     }
   }
 }
