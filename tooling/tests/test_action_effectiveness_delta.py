@@ -61,8 +61,9 @@ try:
     _spec.loader.exec_module(_mod)
     run_checks = _mod.run_checks
     _VALIDATOR_AVAILABLE = True
-except SystemExit:
-    # Validator calls sys.exit(2) when pandas is not installed
+except (SystemExit, ImportError):
+    # Validator raises ImportError (or, in older versions, sys.exit(2))
+    # when pandas/yaml are not installed.
     run_checks = None  # type: ignore[assignment]
     _VALIDATOR_AVAILABLE = False
 
