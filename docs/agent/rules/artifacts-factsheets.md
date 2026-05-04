@@ -16,7 +16,7 @@
 
 ## UseCase_Bracket.yaml (SSOT for machine-readable config)
 
-- **Schema:** `tooling/validation/schemas/usecase_bracket.schema.json`
+- **Schema:** `tooling/generator/schemas/usecase_bracket.schema.json`
 - **Required keys:** `schema_version`, `id`, `title`, `domain`, `governance` (owner_role, steward_role), `orchestration` (strategic_kpi_id, influencing_kpi_ids, action_code_ids), `value_driver_model`, `ux_layout_rules`, `documentation`.
 - **Governance:** `owner_role` and `steward_role` must exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context).
 - **Orchestration:** All KPI IDs must exist in `core/kpi_catalog/`; all action code IDs must exist in `core/action_codes/`.
@@ -26,6 +26,6 @@
 ## Schemas
 
 - Business factsheet: Minimal frontmatter only (no YAML blocks in body).
-- UseCase_Bracket: `tooling/validation/schemas/usecase_bracket.schema.json`
+- UseCase_Bracket: `tooling/generator/schemas/usecase_bracket.schema.json`
 
 When adding or changing sections or frontmatter, ensure output still validates against schema and passes Stage 1 (`.\tooling\run_stage1_checks.ps1`).

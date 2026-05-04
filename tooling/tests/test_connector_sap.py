@@ -34,6 +34,13 @@ except ImportError:
 _needs_pyarrow = pytest.mark.skipif(not _HAS_PYARROW, reason="pyarrow not installed")
 
 from tooling.connectors.base import ConnectorAdapter, ConnectorResult, ParquetSink
+
+# The SAP adapter and schema_map import pyarrow at module level. Skip the
+# entire module if pyarrow isn't available — every test in this file already
+# exercises pyarrow-dependent paths.
+if not _HAS_PYARROW:
+    pytest.skip("pyarrow not installed", allow_module_level=True)
+
 from tooling.connectors.sap.adapter import SAPConfig, SAPConnectorAdapter
 from tooling.connectors.sap.mock_service import MockSAPService
 from tooling.connectors.sap.schema_map import (

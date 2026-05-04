@@ -29,8 +29,10 @@ from typing import Any, Dict, List, Optional
 try:
     import yaml
 except ImportError:
-    print("ERROR: PyYAML required — pip install pyyaml", file=sys.stderr)
-    sys.exit(1)
+    if __name__ == "__main__":
+        print("ERROR: PyYAML required — pip install pyyaml", file=sys.stderr)
+        sys.exit(1)
+    raise
 
 
 # ── Action code text formatter ────────────────────────────────────────────────

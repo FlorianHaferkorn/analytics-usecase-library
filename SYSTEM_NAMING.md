@@ -43,7 +43,7 @@ Scope: scripts, checks, generators, tests, hooks, schemas, templates, and direct
 
 ### JSON schemas
 - Pattern: `<name>.schema.json` — already consistent in `tooling/generator/schemas/`
-- Note: `tooling/validation/schemas/` duplicates `tooling/generator/schemas/`; prefer the `tooling/generator/schemas/` copies
+- Schemas live in `tooling/generator/schemas/` only. The old `tooling/validation/schemas/` directory has been removed.
 
 ### Markdown docs
 - Root-level governance docs: `UPPER_SNAKE_CASE.md` (README, CLAUDE, CHANGELOG, TAXONOMY, etc.)

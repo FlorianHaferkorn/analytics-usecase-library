@@ -19,8 +19,10 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:
-    print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
-    sys.exit(2)
+    if __name__ == "__main__":
+        print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
+        sys.exit(2)
+    raise
 
 # ─── Suffix helpers ────────────────────────────────────────────────────────────
 
@@ -210,6 +212,11 @@ def main(argv=None) -> int:
         "--strict",
         action="store_true",
         help="Treat unplanned missing measures as errors instead of warnings",
+    )
+    parser.add_argument(
+        "--ignore-missing",
+        action="store_true",
+        help="No-op compatibility flag; missing measures are warnings by default unless --strict is passed.",
     )
     args = parser.parse_args(argv)
 

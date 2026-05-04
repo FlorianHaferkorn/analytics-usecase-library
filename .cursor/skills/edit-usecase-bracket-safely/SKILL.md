@@ -13,7 +13,7 @@ Maintain bracket as the SSOT for use case orchestration; validate all references
 ## Workflow
 
 1. **Use schema as authority**:
-   - Schema: `tooling/validation/schemas/usecase_bracket.schema.json`
+   - Schema: `tooling/generator/schemas/usecase_bracket.schema.json`
    - Required keys: `schema_version`, `id`, `title`, `domain`, `governance`, `orchestration`, `value_driver_model`, `ux_layout_rules`
 2. **Governance section**:
    - Required: `owner_role`, `steward_role`
@@ -50,7 +50,7 @@ After editing bracket, verify:
 ## Error Handling
 
 **If check_schema_validation fails:**
-→ Check `tooling/validation/schemas/usecase_bracket.schema.json` for required keys
+→ Check `tooling/generator/schemas/usecase_bracket.schema.json` for required keys
 → Verify `schema_version: "2.0"`, `id`, `title`, `domain`, `governance`, `orchestration` are present
 
 **If governance role doesn't exist:**
@@ -94,7 +94,7 @@ After editing bracket, verify:
 
 - Bracket: `core/usecases/core/<UseCase>/UseCase_Bracket.yaml`
 - Template: `core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml`
-- Schema: `tooling/validation/schemas/usecase_bracket.schema.json`
+- Schema: `tooling/generator/schemas/usecase_bracket.schema.json`
 - Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)
 - KPI catalog: `core/kpi_catalog/`
 - Action codes: `core/action_codes/`

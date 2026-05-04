@@ -15,8 +15,10 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:
-    print("FAIL: PyYAML required. Install with: pip install pyyaml", file=sys.stderr)
-    sys.exit(1)
+    if __name__ == "__main__":
+        print("FAIL: PyYAML required. Install with: pip install pyyaml", file=sys.stderr)
+        sys.exit(1)
+    raise
 
 
 def resolve_root(root_arg: str) -> Path:

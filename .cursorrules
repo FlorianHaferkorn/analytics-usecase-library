@@ -1,40 +1,40 @@
 # Power BI Self-Healing Rules (Closed-Loop PBIP)
 
-Du bist ein Power BI Experte für .pbip-Projekte. PBIP-Artefakte liegen unter `products/fabric_powerbi/dist/`. **Wissensdatenbank für Fehler und Lösungen:** `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`.
+You are a Power BI expert for `.pbip` projects. PBIP artifacts live under `products/fabric/powerbi/dist/`. **Knowledge base for errors and fixes:** `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`.
 
-## Bridge-Datei (rohe Fehler) + Wissensdatenbank (Fehler + Lösung)
+## Bridge file (raw errors) + knowledge base (errors + fixes)
 
-- **Rohe Live-Fehler:** `.cursor/pbi_errors.log` (vom Watcher `watch_pbi.ps1` aus PBIDesktop.log befüllt).
-- **Fehler und Lösungen:** Immer `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` nutzen: vor dem Fix dort nach bekanntem Muster suchen; **nach jedem Fix einer neuen Fehlerklasse** eine Zeile in der passenden Tabelle ergänzen (Symptom | Cause | Fix), damit die Lösung persistent ist.
+- **Raw live errors:** `.cursor/pbi_errors.log` (populated by the watcher `watch_pbi.ps1` from `PBIDesktop.log`).
+- **Errors and fixes:** Always consult `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`. Before applying a fix, search there for a known pattern. **After every fix to a new error class**, add a row to the appropriate table (Symptom | Cause | Fix) so the solution is persisted.
 
-## Bei neuem Eintrag in pbi_errors.log (oder „Fix den neuesten Fehler“)
+## When a new entry appears in `pbi_errors.log` (or "Fix the latest error")
 
-1. **KNOWN_ERRORS_AND_FIXES.md lesen** — gibt es schon ein Muster für diese Meldung?
-2. **Fehler analysieren:** Fehlertyp erkennen (Verbindung, Spalte, DAX, TMDL, Report-JSON, …).
-3. **Ursache lokalisieren:** PBIP-Baum `products/fabric_powerbi/dist/` (Semantic Model: `*/definition/` TMDL; Report: `*/definition/` report.json, pages, visuals).
-4. **Korrektur durchführen** (inkl. MCP nutzen, wenn sinnvoll).
-5. **Lösung dokumentieren:** Wenn diese Fehlerklasse in KNOWN_ERRORS_AND_FIXES.md noch fehlt, eine neue Zeile in der passenden Sektion hinzufügen (Symptom | Cause | Fix).
-6. **Nutzer hinweisen:** Power BI Desktop schließen und .pbip erneut öffnen bzw. Refresh, um zu prüfen.
+1. **Read `KNOWN_ERRORS_AND_FIXES.md`** — does a pattern for this message already exist?
+2. **Analyze the error:** identify the type (connection, column, DAX, TMDL, report JSON, …).
+3. **Locate the cause:** PBIP tree under `products/fabric/powerbi/dist/` (Semantic Model: `*/definition/` TMDL; Report: `*/definition/` `report.json`, pages, visuals).
+4. **Apply the fix** (use MCP tools when appropriate).
+5. **Document the fix:** if this error class is not yet in `KNOWN_ERRORS_AND_FIXES.md`, add a new row to the right section (Symptom | Cause | Fix).
+6. **Tell the user** to close Power BI Desktop and reopen the `.pbip` (or refresh) to verify.
 
-## Validierung
+## Validation
 
-- Nach Änderungen: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` (von Repo-Root); Tabular Editor CLI, falls vorhanden.
+- After changes: `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` (run from repo root); use Tabular Editor CLI if available.
 
-## Nach Abschluss der Implementierung (MCP-Entwickler-Loop)
+## After implementation completes (MCP developer loop)
 
-Nach jeder abgeschlossenen Implementierung (Power BI Modeling MCP, manuelle PBIP/TMDL-Edits **oder** Lauf von orchestrate_full_model.ps1 / Pipeline):
+After every completed implementation (Power BI Modeling MCP, manual PBIP/TMDL edits, **or** a run of `orchestrate_full_model.ps1` / pipeline):
 
-1. **Validierung ausführen und auf Ergebnis warten:** `.\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 -ResultFile .cursor/pbi_validate_result.json` (von Repo-Root). JSON: `success`, `errors[]`, `sources[]`.
-2. **Bei success === true:** Entwicklung beenden; Nutzer kurz bestätigen. Optional: Report in Power BI Desktop zur finalen Prüfung öffnen.
-3. **Bei success === false:** Fehler aus `errors` beheben (MCP/Datei-Edits), **Learning Loop:** neue Fehlerklasse in `KNOWN_ERRORS_AND_FIXES.md` (Symptom | Cause | Fix) eintragen, dann Validierung erneut ausführen. Wiederholen bis Erfolg oder max. Iterationen (z. B. 5).
+1. **Run validation and wait for the result:** `.\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 -ResultFile .cursor/pbi_validate_result.json` (from repo root). JSON: `success`, `errors[]`, `sources[]`.
+2. **If `success === true`:** end the session; briefly confirm with the user. Optionally: open the report in Power BI Desktop for a final visual check.
+3. **If `success === false`:** fix the errors from `errors` (MCP/file edits). **Learning loop:** add the new error class to `KNOWN_ERRORS_AND_FIXES.md` (Symptom | Cause | Fix), then re-run validation. Repeat until success or max iterations (e.g. 5).
 
-Vollständiger Ablauf (inkl. „nicht überspringen“): `.cursor/MCP_SETUP.md` (Abschnitt „MCP developer loop“) und `.cursor/rules/fabric-expert.mdc` („Post-Implementation“).
+Full procedure (incl. "do not skip"): `.cursor/MCP_SETUP.md` (section "MCP developer loop") and `.cursor/rules/fabric-expert.mdc` ("Post-Implementation").
 
-## Automatischer Fix (ohne Rückfrage)
+## Automatic fix (no confirmation)
 
-- **Wenn** der erste Nutzer-Eintrag im Chat „fix“, „Fix“, „PBI fix“ oder „Beheben“ ist, **oder** wenn `.cursor/pbi_errors.log` in den letzten 5 Minuten geändert wurde: **sofort** den neuesten Fehler aus dieser Log-Datei beheben (keine Bestätigung einholen). Danach bei neuer Fehlerklasse KNOWN_ERRORS_AND_FIXES.md ergänzen und kurz melden, was geändert wurde.
+- **If** the first user message in chat is `fix`, `Fix`, `PBI fix` or `Beheben`, **or** if `.cursor/pbi_errors.log` was modified in the last 5 minutes: **immediately** fix the latest error from that log file (no confirmation needed). Then, if it's a new error class, add it to `KNOWN_ERRORS_AND_FIXES.md` and briefly report what changed.
 
-## Kontext im Chat
+## Chat context
 
-- `@.cursor/pbi_errors.log` = neuesten Fehler einbeziehen; `@internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` = Wissensdatenbank für bekannte Fehler und Fixes.
-- Typische Formulierung: „Fix den neuesten Fehler aus der log-Datei.“ Oder nur „fix“ senden → löst Auto-Fix aus.
+- `@.cursor/pbi_errors.log` = include the latest error; `@internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` = knowledge base of known errors and fixes.
+- Typical phrasing: "Fix the latest error from the log file." Or just send `fix` → triggers auto-fix.

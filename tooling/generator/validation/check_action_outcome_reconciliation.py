@@ -28,14 +28,18 @@ from pathlib import Path
 try:
     import pandas as pd
 except ImportError:
-    print("ERROR: pandas not installed. Run: pip install pandas pyarrow", file=sys.stderr)
-    sys.exit(2)
+    if __name__ == "__main__":
+        print("ERROR: pandas not installed. Run: pip install pandas pyarrow", file=sys.stderr)
+        sys.exit(2)
+    raise
 
 try:
     import yaml
 except ImportError:
-    print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
-    sys.exit(2)
+    if __name__ == "__main__":
+        print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
+        sys.exit(2)
+    raise
 
 
 def load_fact(fact_dir: Path) -> pd.DataFrame:

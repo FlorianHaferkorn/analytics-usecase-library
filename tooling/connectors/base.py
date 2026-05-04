@@ -21,10 +21,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Generic, Iterator, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Generic, Iterator, List, Optional, TypeVar
 
-import pyarrow as pa
-import pyarrow.parquet as pq
+if TYPE_CHECKING:
+    import pyarrow as pa  # used only for type hints; runtime imports are deferred
 
 Source = TypeVar("Source")
 
@@ -108,6 +108,9 @@ class ConnectorAdapter(ABC, Generic[Source]):
         Hive-partitioned sub-directories; otherwise a single file is written.
         Returns the list of Parquet files created.
         """
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
         dest = sink.root / entity
         dest.mkdir(parents=True, exist_ok=True)
 
@@ -145,6 +148,8 @@ class ConnectorAdapter(ABC, Generic[Source]):
 
     def run(self, config: Source, sink: ParquetSink) -> ConnectorResult:
         """Execute the full pipeline: validate → extract → land."""
+        import pyarrow.parquet as pq
+
         errors = self.validate(config)
         if errors:
             return ConnectorResult(
