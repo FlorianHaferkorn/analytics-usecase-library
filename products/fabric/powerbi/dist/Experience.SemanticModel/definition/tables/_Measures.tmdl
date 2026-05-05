@@ -49,24 +49,24 @@ table _Measures
 	/// SLA Attainment % - svc.sla.attainment.pct
 	/// Measures how many cases meet the committed SLA.
 	measure 'SLA Attainment %' =
-		VAR CasesWithinSla =
-			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[SLA Met Flag] = TRUE() )
-		VAR TotalCases =
-			COUNTROWS ( fact_support_cases )
-		RETURN
-			DIVIDE ( CasesWithinSla, TotalCases )
+			VAR CasesWithinSla =
+				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[SLA Met Flag] = TRUE() )
+			VAR TotalCases =
+				COUNTROWS ( fact_support_cases )
+			RETURN
+				DIVIDE ( CasesWithinSla, TotalCases )
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
 	/// FCR % - svc.fcr.pct
 	/// Shows the share of cases solved on first contact.
 	measure 'FCR %' =
-		VAR FirstContactResolvedCases =
-			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[FCR Flag] = TRUE() )
-		VAR TotalCases =
-			COUNTROWS ( fact_support_cases )
-		RETURN
-			DIVIDE ( FirstContactResolvedCases, TotalCases )
+			VAR FirstContactResolvedCases =
+				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[FCR Flag] = TRUE() )
+			VAR TotalCases =
+				COUNTROWS ( fact_support_cases )
+			RETURN
+				DIVIDE ( FirstContactResolvedCases, TotalCases )
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
@@ -79,38 +79,38 @@ table _Measures
 	/// Backlog Count - svc.backlog.count
 	/// Quantifies unresolved work in queue.
 	measure 'Backlog Count' =
-		VAR BacklogCases =
-			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Backlog Flag] = TRUE() )
-		RETURN
-			BacklogCases
+			VAR BacklogCases =
+				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Backlog Flag] = TRUE() )
+			RETURN
+				BacklogCases
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
 	/// NPS Index - crm.nps.index
 	/// Measures customer advocacy and experience quality.
 	measure 'NPS Index' =
-		VAR Promoters =
-			CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
-		VAR Detractors =
-			CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 )
-		VAR TotalResponses =
-			COUNTROWS ( fact_nps )
-		VAR NetPromoterShare =
-			DIVIDE ( Promoters - Detractors, TotalResponses )
-		RETURN
-			ROUND ( NetPromoterShare * 100, 0 )
+			VAR Promoters =
+				CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
+			VAR Detractors =
+				CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 )
+			VAR TotalResponses =
+				COUNTROWS ( fact_nps )
+			VAR NetPromoterShare =
+				DIVIDE ( Promoters - Detractors, TotalResponses )
+			RETURN
+				ROUND ( NetPromoterShare * 100, 0 )
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
 	/// Escalation % - svc.escalation.pct
 	/// Measures frequency of escalated cases.
 	measure 'Escalation %' =
-		VAR EscalatedCases =
-			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Escalation Flag] = TRUE() )
-		VAR TotalCases =
-			COUNTROWS ( fact_support_cases )
-		RETURN
-			DIVIDE ( EscalatedCases, TotalCases )
+			VAR EscalatedCases =
+				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Escalation Flag] = TRUE() )
+			VAR TotalCases =
+				COUNTROWS ( fact_support_cases )
+			RETURN
+				DIVIDE ( EscalatedCases, TotalCases )
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
@@ -123,10 +123,10 @@ table _Measures
 	/// Tickets Closed Count - svc.tickets.closed.count
 	/// Counts customer service tickets closed in the period.
 	measure 'Tickets Closed Count' =
-		VAR ClosedTickets =
-			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Open Case Flag] = FALSE() )
-		RETURN
-			ClosedTickets
+			VAR ClosedTickets =
+				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Open Case Flag] = FALSE() )
+			RETURN
+				ClosedTickets
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
@@ -151,18 +151,18 @@ table _Measures
 	/// Occupancy % - res.occupancy.pct
 	/// Measures active vs idle share of time.
 	measure 'Occupancy %' =
-		VAR TalkMinutes =
-			SUM ( fact_workforce_management[Talk Time Minutes] )
-		VAR WrapMinutes =
-			SUM ( fact_workforce_management[Wrap Time Minutes] )
-		VAR IdleMinutes =
-			SUM ( fact_workforce_management[Idle Time Minutes] )
-		VAR ActiveMinutes =
-			TalkMinutes + WrapMinutes
-		VAR TotalAvailableMinutes =
-			ActiveMinutes + IdleMinutes
-		RETURN
-			DIVIDE ( ActiveMinutes, TotalAvailableMinutes )
+			VAR TalkMinutes =
+				SUM ( fact_workforce_management[Talk Time Minutes] )
+			VAR WrapMinutes =
+				SUM ( fact_workforce_management[Wrap Time Minutes] )
+			VAR IdleMinutes =
+				SUM ( fact_workforce_management[Idle Time Minutes] )
+			VAR ActiveMinutes =
+				TalkMinutes + WrapMinutes
+			VAR TotalAvailableMinutes =
+				ActiveMinutes + IdleMinutes
+			RETURN
+				DIVIDE ( ActiveMinutes, TotalAvailableMinutes )
 		formatString: "0.0%"
 		displayFolder: "XD-002"
 
@@ -182,50 +182,50 @@ table _Measures
 	/// Gross Margin % (XD) - margin.gm.pct
 	/// Gross Margin % used in Experience domain reporting and P&L reconciliation.
 	measure 'Gross Margin % (XD)' =
-		VAR NetSalesAmount =
-			[Net Sales Amount (XD)]
-		VAR GrossMarginAmount =
-			NetSalesAmount - [Cost of Goods Sold Amount (XD)]
-		RETURN
-			DIVIDE ( GrossMarginAmount, NetSalesAmount )
+			VAR NetSalesAmount =
+				[Net Sales Amount (XD)]
+			VAR GrossMarginAmount =
+				NetSalesAmount - [Cost of Goods Sold Amount (XD)]
+			RETURN
+				DIVIDE ( GrossMarginAmount, NetSalesAmount )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// Delta% Net Sales (XD) - sales.net_sales.delta_pct.ly
 	/// Relative variance of Net Sales vs Last Year, Experience domain view.
 	measure 'Delta% Net Sales (XD)' =
-		VAR ActualNetSales =
-			[Net Sales Amount (XD)]
-		VAR LastYearNetSales =
-			SUM ( fact_sales[Last Year Sales Amount] )
-		VAR NetSalesDelta =
-			ActualNetSales - LastYearNetSales
-		RETURN
-			DIVIDE ( NetSalesDelta, LastYearNetSales )
+			VAR ActualNetSales =
+				[Net Sales Amount (XD)]
+			VAR LastYearNetSales =
+				SUM ( fact_sales[Last Year Sales Amount] )
+			VAR NetSalesDelta =
+				ActualNetSales - LastYearNetSales
+			RETURN
+				DIVIDE ( NetSalesDelta, LastYearNetSales )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// CLV - crm.clv.amount
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investme...
 	measure 'CLV' =
-		VAR HorizonYears = 3
-		RETURN
-			AVERAGEX (
-				VALUES ( fact_sales[CustomerKey] ),
-				CALCULATE ( [Net Sales Amount (XD)] - [Cost of Goods Sold Amount (XD)] ) * HorizonYears
-			)
+			VAR HorizonYears = 3
+			RETURN
+				AVERAGEX (
+					VALUES ( fact_sales[CustomerKey] ),
+					CALCULATE ( [Net Sales Amount (XD)] - [Cost of Goods Sold Amount (XD)] ) * HorizonYears
+				)
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
 	/// Ops OTIF % - ops.otif.pct
 	/// Delivery reliability measured by orders delivered on-time and in-full.
 	measure 'Ops OTIF %' =
-		VAR OTIFFulfillments =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
-		VAR TotalFulfillments =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( OTIFFulfillments, TotalFulfillments )
+			VAR OTIFFulfillments =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+			VAR TotalFulfillments =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
@@ -237,81 +237,81 @@ table _Measures
 
 	/// DSO Days (XD) - receivables days estimate for CCC cross-domain view
 	measure 'DSO Days (XD)' =
-		VAR AccountsReceivableProxy =
-			SUM ( fact_sales[Net Sales Amount] ) * 0.12
-		VAR NetSalesAmount =
-			SUM ( fact_sales[Net Sales Amount] )
-		VAR AnnualizedReceivables =
-			AccountsReceivableProxy * 365
-		RETURN
-			DIVIDE ( AnnualizedReceivables, NetSalesAmount )
+			VAR AccountsReceivableProxy =
+				SUM ( fact_sales[Net Sales Amount] ) * 0.12
+			VAR NetSalesAmount =
+				SUM ( fact_sales[Net Sales Amount] )
+			VAR AnnualizedReceivables =
+				AccountsReceivableProxy * 365
+			RETURN
+				DIVIDE ( AnnualizedReceivables, NetSalesAmount )
 		formatString: "0"
 		displayFolder: "XD-003"
 
 	/// DIO Days (XD) - inventory days estimate for CCC cross-domain view
 	measure 'DIO Days (XD)' =
-		VAR InventoryProxy =
-			SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.15
-		VAR CostOfGoodsSoldAmount =
-			SUM ( fact_sales[Cost of Goods Sold Amount] )
-		VAR AnnualizedInventory =
-			InventoryProxy * 365
-		RETURN
-			DIVIDE ( AnnualizedInventory, CostOfGoodsSoldAmount )
+			VAR InventoryProxy =
+				SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.15
+			VAR CostOfGoodsSoldAmount =
+				SUM ( fact_sales[Cost of Goods Sold Amount] )
+			VAR AnnualizedInventory =
+				InventoryProxy * 365
+			RETURN
+				DIVIDE ( AnnualizedInventory, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "XD-003"
 
 	/// DPO Days (XD) - payables days estimate for CCC cross-domain view
 	measure 'DPO Days (XD)' =
-		VAR AccountsPayableProxy =
-			SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.08
-		VAR CostOfGoodsSoldAmount =
-			SUM ( fact_sales[Cost of Goods Sold Amount] )
-		VAR AnnualizedPayables =
-			AccountsPayableProxy * 365
-		RETURN
-			DIVIDE ( AnnualizedPayables, CostOfGoodsSoldAmount )
+			VAR AccountsPayableProxy =
+				SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.08
+			VAR CostOfGoodsSoldAmount =
+				SUM ( fact_sales[Cost of Goods Sold Amount] )
+			VAR AnnualizedPayables =
+				AccountsPayableProxy * 365
+			RETURN
+				DIVIDE ( AnnualizedPayables, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "XD-003"
 
 	/// First Pass Yield % (XD) - delivery quality proxy via fulfillment in-full rate
 	measure 'First Pass Yield % (XD)' =
-		VAR InFullDeliveries =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
-		VAR TotalDeliveries =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( InFullDeliveries, TotalDeliveries )
+			VAR InFullDeliveries =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
+			VAR TotalDeliveries =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( InFullDeliveries, TotalDeliveries )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// Revenue at Risk Amount (XD) - crm.revenue_at_risk.amount
 	/// Net Sales Amount weighted by average of OTIF failure rate and First Pass Yield failure rate.
 	measure 'Revenue at Risk Amount (XD)' =
-		VAR OTIFFailureRate =
-			1 - [Ops OTIF %]
-		VAR FirstPassYieldFailureRate =
-			1 - [First Pass Yield % (XD)]
-		VAR CombinedRiskFactor =
-			DIVIDE ( OTIFFailureRate + FirstPassYieldFailureRate, 2 )
-		VAR NetSalesAmount =
-			SUM ( fact_sales[Net Sales Amount] )
-		RETURN
-			NetSalesAmount * CombinedRiskFactor
+			VAR OTIFFailureRate =
+				1 - [Ops OTIF %]
+			VAR FirstPassYieldFailureRate =
+				1 - [First Pass Yield % (XD)]
+			VAR CombinedRiskFactor =
+				DIVIDE ( OTIFFailureRate + FirstPassYieldFailureRate, 2 )
+			VAR NetSalesAmount =
+				SUM ( fact_sales[Net Sales Amount] )
+			RETURN
+				NetSalesAmount * CombinedRiskFactor
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
 	/// Cash Conversion Cycle (Days) - ops.working_capital.ccc.days
 	/// Combines receivables, inventory, and payables days to show cash efficiency.
 	measure 'Cash Conversion Cycle (Days)' =
-		VAR DaysSalesOutstanding =
-			[DSO Days (XD)]
-		VAR DaysInventoryOutstanding =
-			[DIO Days (XD)]
-		VAR DaysPayablesOutstanding =
-			[DPO Days (XD)]
-		RETURN
-			DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
+			VAR DaysSalesOutstanding =
+				[DSO Days (XD)]
+			VAR DaysInventoryOutstanding =
+				[DIO Days (XD)]
+			VAR DaysPayablesOutstanding =
+				[DPO Days (XD)]
+			RETURN
+				DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
 		formatString: "0"
 		displayFolder: "XD-003"
 
@@ -336,28 +336,28 @@ table _Measures
 	/// Action Outcome Rate % - enterprise.action_outcome_rate.pct
 	/// Measures share of actions that achieved the intended outcome.
 	measure 'Action Outcome Rate % (XD Log)' =
-		VAR AchievedActions =
-			CALCULATE ( COUNTROWS ( fact_action_log ), fact_action_log[Outcome Status] = "Achieved" )
-		VAR TotalActions =
-			COUNTROWS ( fact_action_log )
-		RETURN
-			DIVIDE ( AchievedActions, TotalActions )
+			VAR AchievedActions =
+				CALCULATE ( COUNTROWS ( fact_action_log ), fact_action_log[Outcome Status] = "Achieved" )
+			VAR TotalActions =
+				COUNTROWS ( fact_action_log )
+			RETURN
+				DIVIDE ( AchievedActions, TotalActions )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// Enterprise Value-at-Risk Index - enterprise.value_at_risk.index
 	/// Aggregates downside risk across domains into a single index.
 	measure 'Enterprise Value-at-Risk Index' =
-		VAR RevenueAtRiskShare =
-			DIVIDE ( [Revenue at Risk Amount (XD)], [Net Sales Amount (XD)] )
-		VAR DeliveryRisk =
-			1 - [OTIF % (XD)]
-		VAR QualityRisk =
-			1 - [First Pass Yield % (XD)]
-		VAR AverageRisk =
-			DIVIDE ( RevenueAtRiskShare + DeliveryRisk + QualityRisk, 3 )
-		RETURN
-			ROUND ( AverageRisk * 100, 0 )
+			VAR RevenueAtRiskShare =
+				DIVIDE ( [Revenue at Risk Amount (XD)], [Net Sales Amount (XD)] )
+			VAR DeliveryRisk =
+				1 - [OTIF % (XD)]
+			VAR QualityRisk =
+				1 - [First Pass Yield % (XD)]
+			VAR AverageRisk =
+				DIVIDE ( RevenueAtRiskShare + DeliveryRisk + QualityRisk, 3 )
+			RETURN
+				ROUND ( AverageRisk * 100, 0 )
 		formatString: "0"
 		displayFolder: "XD-003"
 
@@ -376,12 +376,12 @@ table _Measures
 	/// OTIF % - supply.otif.pct
 	/// Measures share of orders delivered on time and in full.
 	measure 'OTIF % (XD)' =
-		VAR OTIFFulfillments =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
-		VAR TotalFulfillments =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( OTIFFulfillments, TotalFulfillments )
+			VAR OTIFFulfillments =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+			VAR TotalFulfillments =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 

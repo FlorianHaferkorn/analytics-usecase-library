@@ -49,14 +49,14 @@ table _Measures
 	/// Days in Inventory - inv.dio.days
 	/// Measures inventory holding period in days.
 	measure 'Days in Inventory' =
-		VAR AverageInventoryAmount =
-			SUM ( fact_inventory[Average Inventory Amount] )
-		VAR CostOfGoodsSoldAmount =
-			SUM ( fact_cogs[COGS Amount] )
-		VAR DailyCostOfGoodsSoldAmount =
-			DIVIDE ( CostOfGoodsSoldAmount, 365 )
-		RETURN
-			DIVIDE ( AverageInventoryAmount, DailyCostOfGoodsSoldAmount )
+			VAR AverageInventoryAmount =
+				SUM ( fact_inventory[Average Inventory Amount] )
+			VAR CostOfGoodsSoldAmount =
+				SUM ( fact_cogs[COGS Amount] )
+			VAR DailyCostOfGoodsSoldAmount =
+				DIVIDE ( CostOfGoodsSoldAmount, 365 )
+			RETURN
+				DIVIDE ( AverageInventoryAmount, DailyCostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "SCM-001"
 
@@ -69,24 +69,24 @@ table _Measures
 	/// Stockout Rate % - inv.stockout.pct
 	/// Measures how often inventory is unavailable when demanded.
 	measure 'Stockout Rate %' =
-		VAR StockoutEvents =
-			CALCULATE ( COUNTROWS ( fact_stockout ), fact_stockout[Stockout Flag] = TRUE() )
-		VAR TotalStockoutObservations =
-			COUNTROWS ( fact_stockout )
-		RETURN
-			DIVIDE ( StockoutEvents, TotalStockoutObservations )
+			VAR StockoutEvents =
+				CALCULATE ( COUNTROWS ( fact_stockout ), fact_stockout[Stockout Flag] = TRUE() )
+			VAR TotalStockoutObservations =
+				COUNTROWS ( fact_stockout )
+			RETURN
+				DIVIDE ( StockoutEvents, TotalStockoutObservations )
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
 
 	/// OTIF % - supply.otif.pct
 	/// Measures share of orders delivered on time and in full.
 	measure 'OTIF %' =
-		VAR OTIFFulfillments =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
-		VAR TotalFulfillments =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( OTIFFulfillments, TotalFulfillments )
+			VAR OTIFFulfillments =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+			VAR TotalFulfillments =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
 
@@ -99,14 +99,14 @@ table _Measures
 	/// Forecast Accuracy % - plan.forecast.accuracy.pct
 	/// Measures how close forecasted demand is to actual demand.
 	measure 'Forecast Accuracy %' =
-		VAR ForecastUnits =
-			SUM ( fact_forecast[Forecast Units] )
-		VAR ActualUnits =
-			SUM ( fact_sales[Sales Units] )
-		VAR ForecastErrorShare =
-			ABS ( DIVIDE ( ForecastUnits - ActualUnits, ActualUnits ) )
-		RETURN
-			IF ( ActualUnits = 0, BLANK(), 1 - ForecastErrorShare )
+			VAR ForecastUnits =
+				SUM ( fact_forecast[Forecast Units] )
+			VAR ActualUnits =
+				SUM ( fact_sales[Sales Units] )
+			VAR ForecastErrorShare =
+				ABS ( DIVIDE ( ForecastUnits - ActualUnits, ActualUnits ) )
+			RETURN
+				IF ( ActualUnits = 0, BLANK(), 1 - ForecastErrorShare )
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
 
@@ -120,24 +120,24 @@ table _Measures
 	/// On-Time % - supply.on_time.pct
 	/// Measures share of deliveries arriving on time.
 	measure 'On-Time %' =
-		VAR OnTimeDeliveries =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[On-Time Flag] = TRUE() )
-		VAR TotalDeliveries =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( OnTimeDeliveries, TotalDeliveries )
+			VAR OnTimeDeliveries =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[On-Time Flag] = TRUE() )
+			VAR TotalDeliveries =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( OnTimeDeliveries, TotalDeliveries )
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
 	/// In-Full % - supply.in_full.pct
 	/// Measures share of deliveries with complete quantities.
 	measure 'In-Full %' =
-		VAR InFullDeliveries =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
-		VAR TotalDeliveries =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( InFullDeliveries, TotalDeliveries )
+			VAR InFullDeliveries =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
+			VAR TotalDeliveries =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( InFullDeliveries, TotalDeliveries )
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
@@ -175,53 +175,53 @@ table _Measures
 	/// Forecast MAPE % - plan.forecast.mape.pct
 	/// Measures mean absolute percentage error in forecast.
 	measure 'Forecast MAPE %' =
-		AVERAGEX (
-			VALUES ( fact_forecast[ProductKey] ),
-			VAR ForecastUnits =
-				CALCULATE ( SUM ( fact_forecast[Forecast Units] ) )
-			VAR ActualUnits =
-				CALCULATE ( SUM ( fact_sales[Sales Units] ) )
-			RETURN
-				IF ( ActualUnits = 0, BLANK(), ABS ( DIVIDE ( ForecastUnits - ActualUnits, ActualUnits ) ) )
-		)
+			AVERAGEX (
+				VALUES ( fact_forecast[ProductKey] ),
+				VAR ForecastUnits =
+					CALCULATE ( SUM ( fact_forecast[Forecast Units] ) )
+				VAR ActualUnits =
+					CALCULATE ( SUM ( fact_sales[Sales Units] ) )
+				RETURN
+					IF ( ActualUnits = 0, BLANK(), ABS ( DIVIDE ( ForecastUnits - ActualUnits, ActualUnits ) ) )
+			)
 		formatString: "0.0%"
 		displayFolder: "SCM-003"
 
 	/// Forecast Bias % - plan.forecast.bias.pct
 	/// Measures systematic over- or under-forecasting.
 	measure 'Forecast Bias %' =
-		VAR ForecastUnits =
-			SUM ( fact_forecast[Forecast Units] )
-		VAR ActualUnits =
-			SUM ( fact_sales[Sales Units] )
-		VAR ForecastBiasUnits =
-			ForecastUnits - ActualUnits
-		RETURN
-			DIVIDE ( ForecastBiasUnits, ActualUnits )
+			VAR ForecastUnits =
+				SUM ( fact_forecast[Forecast Units] )
+			VAR ActualUnits =
+				SUM ( fact_sales[Sales Units] )
+			VAR ForecastBiasUnits =
+				ForecastUnits - ActualUnits
+			RETURN
+				DIVIDE ( ForecastBiasUnits, ActualUnits )
 		formatString: "0.0%"
 		displayFolder: "SCM-003"
 
 	/// Service Impact % - plan.forecast.service_impact.pct
 	/// Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast un...
 	measure 'Service Impact %' =
-		VAR StockoutImpactRate =
-			[Stockout Impact %]
-		VAR TotalLostDemandUnits =
-			SUM ( fact_stockout[Lost Demand Units] )
-		VAR UnderForecastLostDemandUnits =
-			SUMX (
-				fact_stockout,
-				VAR ActualDemandUnits =
-					fact_stockout[Demand Units]
-				VAR ForecastUnits =
-					CALCULATE ( SUM ( fact_forecast[Forecast Units] ) )
-				RETURN
-					IF ( ForecastUnits < ActualDemandUnits, fact_stockout[Lost Demand Units], 0 )
-			)
-		VAR UnderForecastLostShare =
-			DIVIDE ( UnderForecastLostDemandUnits, TotalLostDemandUnits )
-		RETURN
-			StockoutImpactRate * UnderForecastLostShare
+			VAR StockoutImpactRate =
+				[Stockout Impact %]
+			VAR TotalLostDemandUnits =
+				SUM ( fact_stockout[Lost Demand Units] )
+			VAR UnderForecastLostDemandUnits =
+				SUMX (
+					fact_stockout,
+					VAR ActualDemandUnits =
+						fact_stockout[Demand Units]
+					VAR ForecastUnits =
+						CALCULATE ( SUM ( fact_forecast[Forecast Units] ) )
+					RETURN
+						IF ( ForecastUnits < ActualDemandUnits, fact_stockout[Lost Demand Units], 0 )
+				)
+			VAR UnderForecastLostShare =
+				DIVIDE ( UnderForecastLostDemandUnits, TotalLostDemandUnits )
+			RETURN
+				StockoutImpactRate * UnderForecastLostShare
 		formatString: "0.0%"
 		displayFolder: "SCM-003"
 

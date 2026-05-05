@@ -96,12 +96,12 @@ table _Measures
 	/// Gross Margin % vs Plan - margin.gm.vs_plan.pct
 	/// Measures gross margin rate variance versus plan.
 	measure 'Gross Margin % vs Plan' =
-		VAR ActualGM =
-			[Gross Margin Amount]
-		VAR PlanGM =
-			SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )
-		RETURN
-			DIVIDE ( ActualGM - PlanGM, ABS ( PlanGM ) )
+			VAR ActualGM =
+				[Gross Margin Amount]
+			VAR PlanGM =
+				SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )
+			RETURN
+				DIVIDE ( ActualGM - PlanGM, ABS ( PlanGM ) )
 		formatString: 0.0%
 		displayFolder: COM-002
 		lineageTag: e0113c41-42e6-499e-a751-b2df2801d43f
@@ -123,12 +123,12 @@ table _Measures
 	/// Customer Retention % - crm.retention.pct
 	/// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
 	measure 'Customer Retention %' =
-		VAR ActiveRetained =
-			CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE (), fact_customer_events[Churn Flag] = FALSE () )
-		VAR TotalActive =
-			CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
-		RETURN
-			DIVIDE ( ActiveRetained, TotalActive )
+			VAR ActiveRetained =
+				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE (), fact_customer_events[Churn Flag] = FALSE () )
+			VAR TotalActive =
+				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
+			RETURN
+				DIVIDE ( ActiveRetained, TotalActive )
 		formatString: 0.0%
 		displayFolder: COM-003
 		lineageTag: 4f295ec4-6dc4-4c21-b4c9-3bf7320a80d2
@@ -150,14 +150,14 @@ table _Measures
 	/// Net Promoter Score (NPS) - crm.nps.index
 	/// Measures customer advocacy and likelihood to recommend.
 	measure 'Net Promoter Score (NPS)' =
-		VAR Promoters =
-			CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
-		VAR Detractors =
-			CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 )
-		VAR TotalResponses =
-			COUNTROWS ( fact_nps )
-		RETURN
-			ROUND ( DIVIDE ( Promoters - Detractors, TotalResponses ) * 100, 0 )
+			VAR Promoters =
+				CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
+			VAR Detractors =
+				CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 )
+			VAR TotalResponses =
+				COUNTROWS ( fact_nps )
+			RETURN
+				ROUND ( DIVIDE ( Promoters - Detractors, TotalResponses ) * 100, 0 )
 		formatString: #,0.0
 		displayFolder: COM-003
 		lineageTag: 423ca51b-6145-4a39-93c9-1b82d1d2b7ef
@@ -172,12 +172,12 @@ table _Measures
 	/// Revenue at Risk Amount - crm.revenue_at_risk.amount
 	/// Net Sales weighted by customer churn risk rate.
 	measure 'Revenue at Risk Amount' =
-		VAR ChurnedCount =
-			CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
-		VAR ActiveCount =
-			CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
-		RETURN
-			[Net Sales Amount] * DIVIDE ( ChurnedCount, ActiveCount )
+			VAR ChurnedCount =
+				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
+			VAR ActiveCount =
+				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
+			RETURN
+				[Net Sales Amount] * DIVIDE ( ChurnedCount, ActiveCount )
 		formatString: #,0.00
 		displayFolder: COM-003
 

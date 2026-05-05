@@ -49,14 +49,14 @@ table _Measures
 	/// CCC Days - wc.ccc.days
 	/// Measures cash conversion cycle length.
 	measure 'CCC Days' =
-		VAR DaysSalesOutstanding =
-			[DSO Days]
-		VAR DaysInventoryOutstanding =
-			[DIO Days]
-		VAR DaysPayablesOutstanding =
-			[DPO Days]
-		RETURN
-			DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
+			VAR DaysSalesOutstanding =
+				[DSO Days]
+			VAR DaysInventoryOutstanding =
+				[DIO Days]
+			VAR DaysPayablesOutstanding =
+				[DPO Days]
+			RETURN
+				DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
 		formatString: "0"
 		displayFolder: "FIN-001"
 
@@ -75,68 +75,68 @@ table _Measures
 	/// Cash vs Plan % - fin.cash.vs_plan.pct
 	/// Measures deviation of cash balance versus plan.
 	measure 'Cash vs Plan %' =
-		VAR ActualCashBalance =
-			SUM ( fact_cash_position[Cash Balance Amount] )
-		VAR PlannedCashBalance =
-			SUM ( fact_cash_position[Plan Cash Amount] )
-		VAR CashVariance =
-			ActualCashBalance - PlannedCashBalance
-		RETURN
-			DIVIDE ( CashVariance, PlannedCashBalance )
+			VAR ActualCashBalance =
+				SUM ( fact_cash_position[Cash Balance Amount] )
+			VAR PlannedCashBalance =
+				SUM ( fact_cash_position[Plan Cash Amount] )
+			VAR CashVariance =
+				ActualCashBalance - PlannedCashBalance
+			RETURN
+				DIVIDE ( CashVariance, PlannedCashBalance )
 		formatString: "0.0%"
 		displayFolder: "FIN-001"
 
 	/// DSO Days - wc.dso.days
 	/// Measures days sales outstanding for receivables.
 	measure 'DSO Days' =
-		VAR AccountsReceivableAmount =
-			SUM ( fact_accounts_receivable[AR Amount] )
-		VAR RevenueAmount =
-			SUM ( fact_accounts_receivable[Revenue Amount] )
-		VAR AnnualizedReceivables =
-			AccountsReceivableAmount * 365
-		RETURN
-			DIVIDE ( AnnualizedReceivables, RevenueAmount )
+			VAR AccountsReceivableAmount =
+				SUM ( fact_accounts_receivable[AR Amount] )
+			VAR RevenueAmount =
+				SUM ( fact_accounts_receivable[Revenue Amount] )
+			VAR AnnualizedReceivables =
+				AccountsReceivableAmount * 365
+			RETURN
+				DIVIDE ( AnnualizedReceivables, RevenueAmount )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
 	/// DIO Days - wc.dio.days
 	/// Measures days inventory outstanding.
 	measure 'DIO Days' =
-		VAR InventoryAmount =
-			SUM ( fact_inventory[Inventory Amount] )
-		VAR CostOfGoodsSoldAmount =
-			SUM ( fact_inventory[COGS Amount] )
-		VAR AnnualizedInventory =
-			InventoryAmount * 365
-		RETURN
-			DIVIDE ( AnnualizedInventory, CostOfGoodsSoldAmount )
+			VAR InventoryAmount =
+				SUM ( fact_inventory[Inventory Amount] )
+			VAR CostOfGoodsSoldAmount =
+				SUM ( fact_inventory[COGS Amount] )
+			VAR AnnualizedInventory =
+				InventoryAmount * 365
+			RETURN
+				DIVIDE ( AnnualizedInventory, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
 	/// DPO Days - wc.dpo.days
 	/// Measures days payables outstanding.
 	measure 'DPO Days' =
-		VAR AccountsPayableAmount =
-			SUM ( fact_accounts_payable[AP Amount] )
-		VAR CostOfGoodsSoldAmount =
-			SUM ( fact_accounts_payable[COGS Amount] )
-		VAR AnnualizedPayables =
-			AccountsPayableAmount * 365
-		RETURN
-			DIVIDE ( AnnualizedPayables, CostOfGoodsSoldAmount )
+			VAR AccountsPayableAmount =
+				SUM ( fact_accounts_payable[AP Amount] )
+			VAR CostOfGoodsSoldAmount =
+				SUM ( fact_accounts_payable[COGS Amount] )
+			VAR AnnualizedPayables =
+				AccountsPayableAmount * 365
+			RETURN
+				DIVIDE ( AnnualizedPayables, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
 	/// Supply Chain Service Level % - scm.service_level.pct
 	/// Measures supply chain service level performance.
 	measure 'Supply Chain Service Level %' =
-		VAR OTIFFulfillments =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
-		VAR TotalFulfillments =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( OTIFFulfillments, TotalFulfillments )
+			VAR OTIFFulfillments =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+			VAR TotalFulfillments =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "FIN-001"
 
@@ -168,14 +168,14 @@ table _Measures
 	/// OpEx vs Plan % - cost.opex.vs_plan.pct
 	/// Measures OpEx variance versus plan.
 	measure 'OpEx vs Plan %' =
-		VAR ActualOperatingExpense =
-			SUM ( fact_finance[OpEx Amount] )
-		VAR PlannedOperatingExpense =
-			SUM ( fact_finance[Plan OpEx Amount] )
-		VAR OperatingExpenseVariance =
-			ActualOperatingExpense - PlannedOperatingExpense
-		RETURN
-			DIVIDE ( OperatingExpenseVariance, PlannedOperatingExpense )
+			VAR ActualOperatingExpense =
+				SUM ( fact_finance[OpEx Amount] )
+			VAR PlannedOperatingExpense =
+				SUM ( fact_finance[Plan OpEx Amount] )
+			VAR OperatingExpenseVariance =
+				ActualOperatingExpense - PlannedOperatingExpense
+			RETURN
+				DIVIDE ( OperatingExpenseVariance, PlannedOperatingExpense )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -188,15 +188,15 @@ table _Measures
 	/// Labor Productivity % - ops.labor.productivity.pct
 	/// Shows output efficiency relative to labor input.
 	measure 'Labor Productivity %' =
-		VAR OutputUnits =
-			SUM ( fact_output[Output Units] )
-		VAR LaborHours =
-			SUM ( fact_labor[Labor Hours] )
-		VAR BaselineRate = 100.0
-		VAR OutputPerLaborHour =
-			DIVIDE ( OutputUnits, LaborHours ) * 100
-		RETURN
-			DIVIDE ( OutputPerLaborHour, BaselineRate )
+			VAR OutputUnits =
+				SUM ( fact_output[Output Units] )
+			VAR LaborHours =
+				SUM ( fact_labor[Labor Hours] )
+			VAR BaselineRate = 100.0
+			VAR OutputPerLaborHour =
+				DIVIDE ( OutputUnits, LaborHours ) * 100
+			RETURN
+				DIVIDE ( OutputPerLaborHour, BaselineRate )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -227,12 +227,12 @@ table _Measures
 	/// Operations Service Level % - ops.service_level.pct
 	/// Measures on-time or in-full performance for operational delivery.
 	measure 'Operations Service Level %' =
-		VAR OTIFFulfillments =
-			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
-		VAR TotalFulfillments =
-			COUNTROWS ( fact_fulfillment )
-		RETURN
-			DIVIDE ( OTIFFulfillments, TotalFulfillments )
+			VAR OTIFFulfillments =
+				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+			VAR TotalFulfillments =
+				COUNTROWS ( fact_fulfillment )
+			RETURN
+				DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 

@@ -49,42 +49,42 @@ table _Measures
 	/// OEE % - ops.oee.pct
 	/// Measures manufacturing performance combining availability, performance, and quality.
 	measure 'OEE %' =
-		VAR AvailabilityRate =
-			[Availability %]
-		VAR PerformanceRate =
-			[Performance %]
-		VAR QualityRate =
-			[Quality %]
-		RETURN
-			AvailabilityRate * PerformanceRate * QualityRate
+			VAR AvailabilityRate =
+				[Availability %]
+			VAR PerformanceRate =
+				[Performance %]
+			VAR QualityRate =
+				[Quality %]
+			RETURN
+				AvailabilityRate * PerformanceRate * QualityRate
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
 	/// Availability % - ops.availability.pct
 	/// Uptime share relative to planned production time.
 	measure 'Availability %' =
-		VAR RunTimeMinutes =
-			SUM ( fact_ops[Run Time Minutes] )
-		VAR PlannedTimeMinutes =
-			SUM ( fact_ops[Planned Time Minutes] )
-		RETURN
-			DIVIDE ( RunTimeMinutes, PlannedTimeMinutes )
+			VAR RunTimeMinutes =
+				SUM ( fact_ops[Run Time Minutes] )
+			VAR PlannedTimeMinutes =
+				SUM ( fact_ops[Planned Time Minutes] )
+			RETURN
+				DIVIDE ( RunTimeMinutes, PlannedTimeMinutes )
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
 	/// Performance % - ops.performance.pct
 	/// Throughput speed versus theoretical maximum.
 	measure 'Performance %' =
-		VAR ActualOutputUnits =
-			SUM ( fact_ops[Output Units] )
-		VAR RunTimeMinutes =
-			SUM ( fact_ops[Run Time Minutes] )
-		VAR StandardRateUnitsPerMinute =
-			AVERAGE ( fact_ops[Standard Rate Units Per Minute] )
-		VAR TheoreticalOutputUnits =
-			RunTimeMinutes * StandardRateUnitsPerMinute
-		RETURN
-			DIVIDE ( ActualOutputUnits, TheoreticalOutputUnits )
+			VAR ActualOutputUnits =
+				SUM ( fact_ops[Output Units] )
+			VAR RunTimeMinutes =
+				SUM ( fact_ops[Run Time Minutes] )
+			VAR StandardRateUnitsPerMinute =
+				AVERAGE ( fact_ops[Standard Rate Units Per Minute] )
+			VAR TheoreticalOutputUnits =
+				RunTimeMinutes * StandardRateUnitsPerMinute
+			RETURN
+				DIVIDE ( ActualOutputUnits, TheoreticalOutputUnits )
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
@@ -115,10 +115,10 @@ table _Measures
 	/// Planned Output Units - ops.planned_output.units
 	/// Captures planned production output volume.
 	measure 'Planned Output Units' =
-		VAR PlannedOutputUnits =
-			SUMX ( fact_ops, fact_ops[Standard Rate Units Per Minute] * fact_ops[Planned Time Minutes] )
-		RETURN
-			PlannedOutputUnits
+			VAR PlannedOutputUnits =
+				SUMX ( fact_ops, fact_ops[Standard Rate Units Per Minute] * fact_ops[Planned Time Minutes] )
+			RETURN
+				PlannedOutputUnits
 		formatString: "#,0"
 		displayFolder: "OPS-001"
 
@@ -211,14 +211,14 @@ table _Measures
 	/// Defect Density - quality.defect_density
 	/// Measures defect count per 1,000 units produced.
 	measure 'Defect Density' =
-		VAR DefectCount =
-			SUM ( fact_quality[Defect Count] )
-		VAR TotalUnits =
-			SUM ( fact_quality[Total Units] )
-		VAR DefectRate =
-			DIVIDE ( DefectCount, TotalUnits )
-		RETURN
-			DefectRate * 1000
+			VAR DefectCount =
+				SUM ( fact_quality[Defect Count] )
+			VAR TotalUnits =
+				SUM ( fact_quality[Total Units] )
+			VAR DefectRate =
+				DIVIDE ( DefectCount, TotalUnits )
+			RETURN
+				DefectRate * 1000
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 
