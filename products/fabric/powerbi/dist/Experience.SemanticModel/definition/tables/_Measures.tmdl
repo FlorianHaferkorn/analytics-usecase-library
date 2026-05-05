@@ -33,9 +33,48 @@ table _Measures
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
-	/// Purpose: Cross-domain proxy — average EUR impact per achieved action execution.
-	/// enterprise.action_effectiveness_delta.amount - Action Effectiveness Delta (XD)
-	measure 'Action Effectiveness Delta (XD)' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+
+
+	/// ActionReady Logic: X-S1.1 - Service Level Orchestration
+	measure 'Action_X-S1.1_Text' = IF ( [SLA Attainment %] < 0.88, "🔴 L3 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [SLA Attainment %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify SLA-breaching queues — Redeploy to breaching teams — Review SLA daily", IF ( [SLA Attainment %] < 0.92, "🟠 L2 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [SLA Attainment %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify SLA-breaching queues — Redeploy to breaching teams — Review SLA daily", IF ( [SLA Attainment %] < 0.95, "🟡 L1 — X-S1.1 — Service Level Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [SLA Attainment %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify SLA-breaching queues — Redeploy to breaching teams — Review SLA daily", BLANK () ) ) )
+		formatString: @
+		isHidden
+		displayFolder: 9_ActionReady_Logic
+		lineageTag: d5108477-5fae-4b1b-b4a1-b36e2cb6bdad
+
+		annotation ActionReady_ActionCodeId = "X-S1.1"
+
+	/// ActionReady Logic: X-S1.3 - FCR Improvement Programme
+	measure 'Action_X-S1.3_Text' = IF ( [First Contact Resolution %] < 0.55, "🔴 L3 — X-S1.3 — FCR Improvement Programme" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [First Contact Resolution %], "0.0%" ) & UNICHAR ( 10 ) & "→ Analyse repeat-contact causes — Implement agent coaching — Review FCR weekly", IF ( [First Contact Resolution %] < 0.65, "🟠 L2 — X-S1.3 — FCR Improvement Programme" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [First Contact Resolution %], "0.0%" ) & UNICHAR ( 10 ) & "→ Analyse repeat-contact causes — Implement agent coaching — Review FCR weekly", IF ( [First Contact Resolution %] < 0.75, "🟡 L1 — X-S1.3 — FCR Improvement Programme" & UNICHAR ( 10 ) & "Owner: head_of_service_operations | " & FORMAT ( [First Contact Resolution %], "0.0%" ) & UNICHAR ( 10 ) & "→ Analyse repeat-contact causes — Implement agent coaching — Review FCR weekly", BLANK () ) ) )
+		formatString: @
+		isHidden
+		displayFolder: 9_ActionReady_Logic
+		lineageTag: 1da22171-7171-4535-bf62-1f6a4cee8ec9
+
+		annotation ActionReady_ActionCodeId = "X-S1.3"
+
+	/// Purpose: Dynamic KPI summary string for the Detail page narrative header.
+	measure 'Narrative Text (XD)' = VAR _sla = [SLA Attainment %] VAR _fcr = [First Contact Resolution %] VAR _aht = [Average Handling Time (minutes)] VAR _util = [Utilization %] VAR _shrink = [Shrinkage %] VAR _clv = [CLV (Customer Lifetime Value)] RETURN "SLA: " & FORMAT ( _sla, "0.0%" ) & "  |  FCR: " & FORMAT ( _fcr, "0.0%" ) & "  |  AHT: " & FORMAT ( _aht, "0.0" ) & "min" & UNICHAR ( 10 ) & "Utilization: " & FORMAT ( _util, "0.0%" ) & "  |  Shrinkage: " & FORMAT ( _shrink, "0.0%" ) & "  |  CLV: €" & FORMAT ( _clv, "#,0" )
+		formatString: @
+		isHidden
+		displayFolder: 0_Summary
+		lineageTag: eee81ba8-c780-4aff-abdf-cb5bfc91134a
+
+	/// Purpose: Concatenates all currently triggered action recommendations.
+	measure 'Active Actions Text (XD)' = VAR _rows = FILTER ( { [Action_X-S1.1_Text], [Action_X-S1.3_Text], [Action_X-R2.1_Text], [Action_X-R2.2_Text], [Action_X-R2.3_Text], [Action_X-R2.4_Text], [Action_X-E3.2_Text], [Action_X-E3.3_Text] }, NOT ISBLANK ( [Value] ) ) VAR _result = CONCATENATEX ( _rows, [Value], UNICHAR ( 10 ) & UNICHAR ( 10 ) ) RETURN IF ( ISBLANK ( _result ), "✅ All KPIs within tolerance — no actions triggered.", _result )
+		formatString: @
+		isHidden
+		displayFolder: 0_Summary
+		lineageTag: ff06d566-377c-4e83-a398-3504f9c49e0c
+
+
+	/// Purpose: Freshness timestamp for AI narrative — binds smartNarrativeVisual to latest loaded date.
+	measure 'Last Refresh (XD)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL('dim_date'), 'dim_date'[Date]), "DD MMM YYYY")
+		formatString: @
+		displayFolder: 0_Summary
+		lineageTag: 0d48ddf2-cce0-42c3-bf0d-6e08d514271d
+	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
+	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
@@ -387,7 +426,7 @@ table _Measures
 
 	/// ActionReady Logic
 	/// ActionReady Logic: X-R2.1
-	measure 'Action_X-R2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_workforce_management" & UNICHAR(10) & "Steps:"
+	measure 'Action_X-R2.1_Text' = IF ( [Utilization %] < 0.55 || [Utilization %] > 0.95, "🔴 L3 — X-R2.1 — Resource Utilization Rebalancing" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Utilization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify over/under-utilized teams — Rebalance scheduling — Review weekly", IF ( [Utilization %] < 0.6 || [Utilization %] > 0.92, "🟠 L2 — X-R2.1 — Resource Utilization Rebalancing" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Utilization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify over/under-utilized teams — Rebalance scheduling — Review weekly", IF ( [Utilization %] < 0.65 || [Utilization %] > 0.9, "🟡 L1 — X-R2.1 — Resource Utilization Rebalancing" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Utilization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify over/under-utilized teams — Rebalance scheduling — Review weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -395,7 +434,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-R2.1"
 
 	/// ActionReady Logic: X-R2.2
-	measure 'Action_X-R2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: workforce_management_lead" & UNICHAR(10) & "Steps:"
+	measure 'Action_X-R2.2_Text' = IF ( [Occupancy %] < 0.55 || [Occupancy %] > 0.95, "🔴 L3 — X-R2.2 — Occupancy Optimisation" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Occupancy %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify occupancy outliers — Adjust staffing plan — Monitor daily", IF ( [Occupancy %] < 0.6 || [Occupancy %] > 0.92, "🟠 L2 — X-R2.2 — Occupancy Optimisation" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Occupancy %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify occupancy outliers — Adjust staffing plan — Monitor daily", IF ( [Occupancy %] < 0.65 || [Occupancy %] > 0.9, "🟡 L1 — X-R2.2 — Occupancy Optimisation" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Occupancy %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify occupancy outliers — Adjust staffing plan — Monitor daily", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -403,7 +442,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-R2.2"
 
 	/// ActionReady Logic: X-R2.3
-	measure 'Action_X-R2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_X-R2.3_Text' = IF ( [Shrinkage %] > 0.35, "🔴 L3 — X-R2.3 — Shrinkage Reduction" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Shrinkage %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify shrinkage categories — Address scheduling and absence — Review monthly", IF ( [Shrinkage %] > 0.3, "🟠 L2 — X-R2.3 — Shrinkage Reduction" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Shrinkage %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify shrinkage categories — Address scheduling and absence — Review monthly", IF ( [Shrinkage %] > 0.25, "🟡 L1 — X-R2.3 — Shrinkage Reduction" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Shrinkage %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify shrinkage categories — Address scheduling and absence — Review monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -411,7 +450,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-R2.3"
 
 	/// ActionReady Logic: X-R2.4
-	measure 'Action_X-R2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_X-R2.4_Text' = IF ( [Overtime %] > 0.18, "🔴 L3 — X-R2.4 — Overtime Containment" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Overtime %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overtime drivers — Adjust headcount or schedule — Review weekly", IF ( [Overtime %] > 0.12, "🟠 L2 — X-R2.4 — Overtime Containment" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Overtime %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overtime drivers — Adjust headcount or schedule — Review weekly", IF ( [Overtime %] > 0.08, "🟡 L1 — X-R2.4 — Overtime Containment" & UNICHAR ( 10 ) & "Owner: head_of_workforce_management | " & FORMAT ( [Overtime %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overtime drivers — Adjust headcount or schedule — Review weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -419,7 +458,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-R2.4"
 
 	/// ActionReady Logic: X-E3.2
-	measure 'Action_X-E3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_enterprise_controlling" & UNICHAR(10) & "Steps:"
+	measure 'Action_X-E3.2_Text' = IF ( [Enterprise Value-at-Risk Index] > 0.7, "🔴 L3 — X-E3.2 — Cross-Domain Risk Prioritisation" & UNICHAR ( 10 ) & "Owner: head_of_enterprise_controlling | " & FORMAT ( [Enterprise Value-at-Risk Index], "0.000" ) & UNICHAR ( 10 ) & "→ Identify highest-risk KPIs — Escalate to steering — Review risk index monthly", IF ( [Enterprise Value-at-Risk Index] > 0.5, "🟠 L2 — X-E3.2 — Cross-Domain Risk Prioritisation" & UNICHAR ( 10 ) & "Owner: head_of_enterprise_controlling | " & FORMAT ( [Enterprise Value-at-Risk Index], "0.000" ) & UNICHAR ( 10 ) & "→ Identify highest-risk KPIs — Escalate to steering — Review risk index monthly", IF ( [Enterprise Value-at-Risk Index] > 0.3, "🟡 L1 — X-E3.2 — Cross-Domain Risk Prioritisation" & UNICHAR ( 10 ) & "Owner: head_of_enterprise_controlling | " & FORMAT ( [Enterprise Value-at-Risk Index], "0.000" ) & UNICHAR ( 10 ) & "→ Identify highest-risk KPIs — Escalate to steering — Review risk index monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -427,7 +466,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "X-E3.2"
 
 	/// ActionReady Logic: X-E3.3
-	measure 'Action_X-E3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: chief_of_staff_pmo_lead" & UNICHAR(10) & "Steps:"
+	measure 'Action_X-E3.3_Text' = IF ( [Action Effectiveness Delta] < -0.3, "🔴 L3 — X-E3.3 — Strategy Execution Monitoring" & UNICHAR ( 10 ) & "Owner: head_of_enterprise_controlling | " & FORMAT ( [Action Effectiveness Delta], "+0.000;-0.000" ) & UNICHAR ( 10 ) & "→ Identify underperforming actions — Review execution quality — Escalate failures", IF ( [Action Effectiveness Delta] < -0.2, "🟠 L2 — X-E3.3 — Strategy Execution Monitoring" & UNICHAR ( 10 ) & "Owner: head_of_enterprise_controlling | " & FORMAT ( [Action Effectiveness Delta], "+0.000;-0.000" ) & UNICHAR ( 10 ) & "→ Identify underperforming actions — Review execution quality — Escalate failures", IF ( [Action Effectiveness Delta] < -0.1, "🟡 L1 — X-E3.3 — Strategy Execution Monitoring" & UNICHAR ( 10 ) & "Owner: head_of_enterprise_controlling | " & FORMAT ( [Action Effectiveness Delta], "+0.000;-0.000" ) & UNICHAR ( 10 ) & "→ Identify underperforming actions — Review execution quality — Escalate failures", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"

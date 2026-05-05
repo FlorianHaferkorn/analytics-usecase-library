@@ -25,6 +25,7 @@ Visual types in this framework use abstract identifiers that are independent of 
 | `kpi_card` | Single KPI with value, delta, reference, optional sparkline | `KPI_Cards` | T1, T2, T3, T4 |
 | `kpi_card_hero` | Large-format KPI card for single dominant metric | `KPI_Cards` | T1 |
 | `kpi_card_compact` | Small-format KPI card for 6-card rows | `KPI_Cards` | T3 |
+| `kpi_bullet_graph` | KPI with actual bar + target marker + qualitative bands (Few 2005); replaces gauge in space-constrained layouts | `KPI_Cards` | T1, T2 |
 | `status_tile` | Traffic-light tile: entity × status | `KPI_Cards`, `Exceptions` | T3 |
 
 ---
@@ -120,13 +121,15 @@ Rules:
 
 ## 3. Disallowed Abstract Types
 
-The following abstract types are explicitly **not part of this framework** and must not be introduced by connectors:
+The following abstract types are explicitly **not part of this framework** and must not be introduced by connectors.
+
+**Perceptual basis:** Cleveland & McGill (1984, "Graphical Perception", *JASA*) established through controlled experiment that position along a common scale is the most accurately decoded visual encoding, while angle, area, and volume encodings produce systematically larger decoding errors. This hierarchy directly drives the disallow list below.
 
 | Abstract Type | Reason |
 |---|---|
-| `pie_chart` / `donut_chart` | Part-to-whole comparison without spatial position is perceptually inaccurate; use `stacked_bar_100pct` |
-| `gauge` / `speedometer` | Wastes 80% of visual space on chrome; use `kpi_card` with delta |
-| `radar_chart` / `spider_chart` | No clear decision axis; perception of area is unreliable |
+| `pie_chart` / `donut_chart` | Angle/area encoding — perceptually inferior to position (Cleveland & McGill 1984); use `stacked_bar_100pct` |
+| `gauge` / `speedometer` | Wastes 80% of visual space on chrome; angle encoding less accurate than bar position (Few 2005, Bullet Graph Spec); use `kpi_card` with delta |
+| `radar_chart` / `spider_chart` | No clear decision axis; area encoding is unreliable (Cleveland & McGill 1984) |
 | `treemap` | Area encoding is less accurate than position; exceptions require governance approval |
 | `3d_chart` | Introduces perspective distortion; adds no data value |
 | `animated_chart` | Distracting in analytical contexts; use only for live operational monitoring |

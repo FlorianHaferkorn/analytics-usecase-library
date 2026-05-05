@@ -10,22 +10,7 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "textbox",
-    "drillFilterOtherVisuals": true,
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'[Commercial / CustomerValue] Customer Value\nEvidence grain: customer_month | Strategic KPI: CLV (Customer Lifetime Value)'"
-                }
-              }
-            }
-          }
-        }
-      ]
-    }
+    "visualType": "smartNarrativeVisual",
+    "drillFilterOtherVisuals": true
   }
 }

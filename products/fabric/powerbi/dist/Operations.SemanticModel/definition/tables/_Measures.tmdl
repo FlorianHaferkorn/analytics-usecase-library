@@ -33,9 +33,30 @@ table _Measures
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 
-	/// Purpose: Cross-domain proxy — average EUR impact per achieved action execution.
-	/// enterprise.action_effectiveness_delta.amount - Action Effectiveness Delta (XD)
-	measure 'Action Effectiveness Delta (XD)' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+
+
+	/// Purpose: Dynamic KPI summary string for the Detail page narrative header.
+	measure 'Narrative Text (OPS)' = VAR _oee = [OEE %] VAR _a = [Availability %] VAR _p = [Performance %] VAR _q = [Quality %] VAR _fpy = [First Pass Yield %] VAR _copq = [Cost of Poor Quality] RETURN "OEE: " & FORMAT ( _oee, "0.0%" ) & "  =  Avail: " & FORMAT ( _a, "0.0%" ) & "  x  Perf: " & FORMAT ( _p, "0.0%" ) & "  x  Qual: " & FORMAT ( _q, "0.0%" ) & UNICHAR ( 10 ) & "FPY: " & FORMAT ( _fpy, "0.0%" ) & "  |  CoPQ: " & FORMAT ( _copq, "€#,0" )
+		formatString: @
+		isHidden
+		displayFolder: 0_Summary
+		lineageTag: 3021cf39-e452-4730-994c-67c10e3fae26
+
+	/// Purpose: Concatenates all currently triggered action recommendations.
+	measure 'Active Actions Text (OPS)' = VAR _rows = FILTER ( { [Action_O-O1.1_Text], [Action_O-O1.2_Text], [Action_O-O1.3_Text], [Action_O-O1.4_Text], [Action_O-A2.1_Text], [Action_O-A2.4_Text], [Action_O-A2.5_Text], [Action_O-Q3.1_Text], [Action_O-Q3.3_Text], [Action_O-Q3.4_Text] }, NOT ISBLANK ( [Value] ) ) VAR _result = CONCATENATEX ( _rows, [Value], UNICHAR ( 10 ) & UNICHAR ( 10 ) ) RETURN IF ( ISBLANK ( _result ), "✅ All KPIs within tolerance — no actions triggered.", _result )
+		formatString: @
+		isHidden
+		displayFolder: 0_Summary
+		lineageTag: ca76b3ef-928c-4506-be86-6f96924d6a33
+
+
+	/// Purpose: Freshness timestamp for AI narrative — binds smartNarrativeVisual to latest loaded date.
+	measure 'Last Refresh (OPS)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL('dim_date'), 'dim_date'[Date]), "DD MMM YYYY")
+		formatString: @
+		displayFolder: 0_Summary
+		lineageTag: a993b6d5-bd3d-4d4b-b8f1-c6b3952844d2
+	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
+	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
@@ -230,7 +251,7 @@ table _Measures
 
 	/// ActionReady Logic
 	/// ActionReady Logic: O-O1.1
-	measure 'Action_O-O1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-O1.1_Text' = IF ( [Availability %] < 0.8, "🔴 L3 — O-O1.1 — Operations Stabilisation" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Availability %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify recurring downtime — Execute corrective actions — Monitor availability weekly", IF ( [Availability %] < 0.85, "🟠 L2 — O-O1.1 — Operations Stabilisation" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Availability %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify recurring downtime — Execute corrective actions — Monitor availability weekly", IF ( [Availability %] < 0.9, "🟡 L1 — O-O1.1 — Operations Stabilisation" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Availability %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify recurring downtime — Execute corrective actions — Monitor availability weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -238,7 +259,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-O1.1"
 
 	/// ActionReady Logic: O-O1.2
-	measure 'Action_O-O1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: production_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-O1.2_Text' = IF ( [Performance %] < 0.85, "🔴 L3 — O-O1.2 — Performance Recovery" & UNICHAR ( 10 ) & "Owner: production_manager | " & FORMAT ( [Performance %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify speed-loss causes — Eliminate micro-stoppages — Monitor performance weekly", IF ( [Performance %] < 0.9, "🟠 L2 — O-O1.2 — Performance Recovery" & UNICHAR ( 10 ) & "Owner: production_manager | " & FORMAT ( [Performance %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify speed-loss causes — Eliminate micro-stoppages — Monitor performance weekly", IF ( [Performance %] < 0.95, "🟡 L1 — O-O1.2 — Performance Recovery" & UNICHAR ( 10 ) & "Owner: production_manager | " & FORMAT ( [Performance %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify speed-loss causes — Eliminate micro-stoppages — Monitor performance weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -246,7 +267,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-O1.2"
 
 	/// ActionReady Logic: O-O1.3
-	measure 'Action_O-O1.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: quality_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-O1.3_Text' = IF ( [Quality %] < 0.94, "🔴 L3 — O-O1.3 — Quality Stabilisation" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Quality %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify top defect categories — Implement quality controls — Monitor daily", IF ( [Quality %] < 0.96, "🟠 L2 — O-O1.3 — Quality Stabilisation" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Quality %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify top defect categories — Implement quality controls — Monitor daily", IF ( [Quality %] < 0.98, "🟡 L1 — O-O1.3 — Quality Stabilisation" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Quality %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify top defect categories — Implement quality controls — Monitor daily", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -254,7 +275,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-O1.3"
 
 	/// ActionReady Logic: O-O1.4
-	measure 'Action_O-O1.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: operations_director" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-O1.4_Text' = IF ( [OEE %] < 0.65, "🔴 L3 — O-O1.4 — OEE Improvement" & UNICHAR ( 10 ) & "Owner: plant_manager | " & FORMAT ( [OEE %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify OEE constraint factor — Execute targeted improvement — Review weekly", IF ( [OEE %] < 0.7, "🟠 L2 — O-O1.4 — OEE Improvement" & UNICHAR ( 10 ) & "Owner: plant_manager | " & FORMAT ( [OEE %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify OEE constraint factor — Execute targeted improvement — Review weekly", IF ( [OEE %] < 0.75, "🟡 L1 — O-O1.4 — OEE Improvement" & UNICHAR ( 10 ) & "Owner: plant_manager | " & FORMAT ( [OEE %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify OEE constraint factor — Execute targeted improvement — Review weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -262,7 +283,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-O1.4"
 
 	/// ActionReady Logic: O-A2.1
-	measure 'Action_O-A2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-A2.1_Text' = IF ( [Availability %] < 0.84, "🔴 L3 — O-A2.1 — Reliability Orchestration" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Availability %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify chronic failure modes — Execute corrective maintenance — Monitor weekly", IF ( [Availability %] < 0.88, "🟠 L2 — O-A2.1 — Reliability Orchestration" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Availability %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify chronic failure modes — Execute corrective maintenance — Monitor weekly", IF ( [Availability %] < 0.92, "🟡 L1 — O-A2.1 — Reliability Orchestration" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Availability %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify chronic failure modes — Execute corrective maintenance — Monitor weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -270,7 +291,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-A2.1"
 
 	/// ActionReady Logic: O-A2.2
-	measure 'Action_O-A2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: reliability_engineer" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-A2.2_Text' = IF ( [MTBF (hours)] < 60, "🔴 L3 — O-A2.2 — MTBF Improvement" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [MTBF (hours)], "0.0" ) & UNICHAR ( 10 ) & "→ Analyse recurring failures — Implement reliability fixes — Review MTBF monthly", IF ( [MTBF (hours)] < 72, "🟠 L2 — O-A2.2 — MTBF Improvement" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [MTBF (hours)], "0.0" ) & UNICHAR ( 10 ) & "→ Analyse recurring failures — Implement reliability fixes — Review MTBF monthly", IF ( [MTBF (hours)] < 90, "🟡 L1 — O-A2.2 — MTBF Improvement" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [MTBF (hours)], "0.0" ) & UNICHAR ( 10 ) & "→ Analyse recurring failures — Implement reliability fixes — Review MTBF monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -278,7 +299,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-A2.2"
 
 	/// ActionReady Logic: O-A2.3
-	measure 'Action_O-A2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_supervisor" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-A2.3_Text' = IF ( [MTTR (hours)] > 15, "🔴 L3 — O-A2.3 — MTTR Reduction" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [MTTR (hours)], "0.0" ) & UNICHAR ( 10 ) & "→ Identify slow repair categories — Standardise procedures — Review MTTR monthly", IF ( [MTTR (hours)] > 10, "🟠 L2 — O-A2.3 — MTTR Reduction" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [MTTR (hours)], "0.0" ) & UNICHAR ( 10 ) & "→ Identify slow repair categories — Standardise procedures — Review MTTR monthly", IF ( [MTTR (hours)] > 8, "🟡 L1 — O-A2.3 — MTTR Reduction" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [MTTR (hours)], "0.0" ) & UNICHAR ( 10 ) & "→ Identify slow repair categories — Standardise procedures — Review MTTR monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -286,7 +307,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-A2.3"
 
 	/// ActionReady Logic: O-A2.4
-	measure 'Action_O-A2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_planner" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-A2.4_Text' = IF ( [PM Compliance %] < 0.85, "🔴 L3 — O-A2.4 — PM Compliance Enforcement" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [PM Compliance %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overdue PM tasks — Reschedule and prioritise — Monitor compliance weekly", IF ( [PM Compliance %] < 0.9, "🟠 L2 — O-A2.4 — PM Compliance Enforcement" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [PM Compliance %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overdue PM tasks — Reschedule and prioritise — Monitor compliance weekly", IF ( [PM Compliance %] < 0.95, "🟡 L1 — O-A2.4 — PM Compliance Enforcement" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [PM Compliance %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify overdue PM tasks — Reschedule and prioritise — Monitor compliance weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -294,7 +315,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-A2.4"
 
 	/// ActionReady Logic: O-A2.5
-	measure 'Action_O-A2.5_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_supply_coordinator" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-A2.5_Text' = IF ( [Spare Parts Stockout %] > 0.2, "🔴 L3 — O-A2.5 — Spare Parts Availability" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Spare Parts Stockout %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify critical stockouts — Emergency replenishment — Review coverage monthly", IF ( [Spare Parts Stockout %] > 0.1, "🟠 L2 — O-A2.5 — Spare Parts Availability" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Spare Parts Stockout %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify critical stockouts — Emergency replenishment — Review coverage monthly", IF ( [Spare Parts Stockout %] > 0.05, "🟡 L1 — O-A2.5 — Spare Parts Availability" & UNICHAR ( 10 ) & "Owner: maintenance_manager | " & FORMAT ( [Spare Parts Stockout %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify critical stockouts — Emergency replenishment — Review coverage monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -302,7 +323,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-A2.5"
 
 	/// ActionReady Logic: O-Q3.1
-	measure 'Action_O-Q3.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_quality" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-Q3.1_Text' = IF ( [First Pass Yield %] < 0.94, "🔴 L3 — O-Q3.1 — Quality & Yield Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [First Pass Yield %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify yield loss sources — Implement process controls — Review FPY daily", IF ( [First Pass Yield %] < 0.96, "🟠 L2 — O-Q3.1 — Quality & Yield Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [First Pass Yield %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify yield loss sources — Implement process controls — Review FPY daily", IF ( [First Pass Yield %] < 0.98, "🟡 L1 — O-Q3.1 — Quality & Yield Orchestration" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [First Pass Yield %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify yield loss sources — Implement process controls — Review FPY daily", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -310,7 +331,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-Q3.1"
 
 	/// ActionReady Logic: O-Q3.2
-	measure 'Action_O-Q3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: quality_engineer" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-Q3.2_Text' = IF ( [Defect Density] > 0.004, "🔴 L3 — O-Q3.2 — Defect Density Reduction" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Defect Density], "0.0000" ) & UNICHAR ( 10 ) & "→ Identify defect-dense processes — Apply statistical controls — Monitor weekly", IF ( [Defect Density] > 0.0025, "🟠 L2 — O-Q3.2 — Defect Density Reduction" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Defect Density], "0.0000" ) & UNICHAR ( 10 ) & "→ Identify defect-dense processes — Apply statistical controls — Monitor weekly", IF ( [Defect Density] > 0.001, "🟡 L1 — O-Q3.2 — Defect Density Reduction" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Defect Density], "0.0000" ) & UNICHAR ( 10 ) & "→ Identify defect-dense processes — Apply statistical controls — Monitor weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -318,7 +339,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-Q3.2"
 
 	/// ActionReady Logic: O-Q3.3
-	measure 'Action_O-Q3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: production_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-Q3.3_Text' = IF ( [Scrap Rate %] > 0.06, "🔴 L3 — O-Q3.3 — Scrap Rate Reduction" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Scrap Rate %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify high-scrap lines — Root cause and correct — Review monthly", IF ( [Scrap Rate %] > 0.04, "🟠 L2 — O-Q3.3 — Scrap Rate Reduction" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Scrap Rate %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify high-scrap lines — Root cause and correct — Review monthly", IF ( [Scrap Rate %] > 0.02, "🟡 L1 — O-Q3.3 — Scrap Rate Reduction" & UNICHAR ( 10 ) & "Owner: quality_manager | " & FORMAT ( [Scrap Rate %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify high-scrap lines — Root cause and correct — Review monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -326,7 +347,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-Q3.3"
 
 	/// ActionReady Logic: O-Q3.4
-	measure 'Action_O-Q3.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_quality" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-Q3.4_Text' = IF ( [Cost of Poor Quality] > 200000, "🔴 L3 — O-Q3.4 — CoPQ Reduction" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [Cost of Poor Quality], "€#,0" ) & UNICHAR ( 10 ) & "→ Quantify CoPQ by category — Prioritise reduction projects — Review monthly", IF ( [Cost of Poor Quality] > 100000, "🟠 L2 — O-Q3.4 — CoPQ Reduction" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [Cost of Poor Quality], "€#,0" ) & UNICHAR ( 10 ) & "→ Quantify CoPQ by category — Prioritise reduction projects — Review monthly", IF ( [Cost of Poor Quality] > 50000, "🟡 L1 — O-Q3.4 — CoPQ Reduction" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [Cost of Poor Quality], "€#,0" ) & UNICHAR ( 10 ) & "→ Quantify CoPQ by category — Prioritise reduction projects — Review monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
@@ -334,7 +355,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "O-Q3.4"
 
 	/// ActionReady Logic: O-Q3.5
-	measure 'Action_O-Q3.5_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: quality_manager" & UNICHAR(10) & "Steps:"
+	measure 'Action_O-Q3.5_Text' = IF ( [Complaint Rate %] > 0.01, "🔴 L3 — O-Q3.5 — Complaint Rate Reduction" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [Complaint Rate %], "0.00%" ) & UNICHAR ( 10 ) & "→ Identify complaint root causes — Implement corrective actions — Review monthly", IF ( [Complaint Rate %] > 0.006, "🟠 L2 — O-Q3.5 — Complaint Rate Reduction" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [Complaint Rate %], "0.00%" ) & UNICHAR ( 10 ) & "→ Identify complaint root causes — Implement corrective actions — Review monthly", IF ( [Complaint Rate %] > 0.003, "🟡 L1 — O-Q3.5 — Complaint Rate Reduction" & UNICHAR ( 10 ) & "Owner: head_of_quality | " & FORMAT ( [Complaint Rate %], "0.00%" ) & UNICHAR ( 10 ) & "→ Identify complaint root causes — Implement corrective actions — Review monthly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"

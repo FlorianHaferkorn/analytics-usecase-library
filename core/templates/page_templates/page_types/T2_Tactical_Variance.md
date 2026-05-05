@@ -1,5 +1,7 @@
 ﻿# T2 – Tactical Variance & Drivers
 
+> **Design basis:** Munzner (2014) nested model — domain task (explain gap vs. target) → data abstraction (delta, driver decomposition) → visual encoding (waterfall for variance bridge). Few (2004, *Information Dashboard Design*): variance analysis requires showing both the overall gap and its component drivers simultaneously.
+
 ## Purpose
 
 The Tactical Variance page explains **why performance deviates from targets or expectations**.

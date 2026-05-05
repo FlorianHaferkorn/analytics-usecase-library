@@ -85,6 +85,27 @@ prioritization:
   confidence: 0.9
   reach: organization
   priority_score: 45
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  # COM-001 processes aggregated commercial KPIs (Net Sales, GM%) at invoice-line grain.
+  # Invoice lines carry customer/product identifiers but no natural-person data.
+  # Aggregate-level display (DACH region, product category) does not identify individuals.
+  legal_basis: not_applicable
+  data_minimisation: >
+    Detail Matrix limited to business-unit grain (region, channel, product_category,
+    customer_segment). No individual-level customer or employee data is exposed.
+    Row-level security applied at SemanticModel level — see commercial_sales data contract.
+  access_restriction: >
+    commercial_controlling_lead and sales_bi_lead roles; row-level security enforced
+    by Commercial.SemanticModel (entity filter per org role).
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (COM) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. smartNarrativeVisual auto-reads same
+    page filter context as KPI cards. See Storytelling_Principles.md §13.
 readiness:
   data_availability: available
   org_capability: ready

@@ -18,6 +18,9 @@ Primary Decision: <Platzhalter>
 - Frage 3: <Platzhalter>
 
 ## 3. Standard 3-30-300 Page Structure
+
+> **Research basis:** The 3-30-300 reading layer model operationalises the Visual Information-Seeking Mantra of Shneiderman (1996, "The Eyes Have It: A Task by Data Type Taxonomy for Information Visualizations"): *overview first, zoom and filter, then details on demand.* The SQLBI 3-30-300 rule adapts this principle for BI time-budgets. The layer sequence also reflects Sweller (1988, Cognitive Load Theory): presenting overview before detail minimises extraneous cognitive load.
+
 ### 3-Second Layer
 - Zweck: Status/Signal (Was ist passiert?)
 - KPI/Status: Headline-KPIs

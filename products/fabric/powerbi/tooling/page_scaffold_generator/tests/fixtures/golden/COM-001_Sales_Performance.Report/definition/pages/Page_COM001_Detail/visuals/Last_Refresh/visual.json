@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "Last_Refresh",
+  "position": {
+    "x": 1592,
+    "y": 32,
+    "z": 15001,
+    "height": 70,
+    "width": 296,
+    "tabOrder": 3005
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Last Refresh (COM)"
+                }
+              },
+              "queryRef": "_Measures.Last Refresh (COM)",
+              "nativeQueryRef": "Last Refresh (COM)"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

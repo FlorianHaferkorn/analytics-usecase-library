@@ -19,8 +19,10 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:
-    print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
-    sys.exit(2)
+    if __name__ == "__main__":
+        print("ERROR: pyyaml not installed. Run: pip install pyyaml", file=sys.stderr)
+        sys.exit(2)
+    raise
 
 
 def load_kpi_measure_map(catalog_path: Path) -> dict[str, str]:

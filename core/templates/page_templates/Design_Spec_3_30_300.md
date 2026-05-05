@@ -25,7 +25,7 @@ From `reporting_principles.md §3`:
 
 ### 1.2 Progressive Disclosure — The 3-30-300 Model
 
-The 3-30-300 model (authoritative reference: [SQLBI](https://www.sqlbi.com/articles/introducing-the-3-30-300-rule-for-better-reports/)) structures information by the time a reader has available:
+The 3-30-300 model (authoritative reference: [SQLBI](https://www.sqlbi.com/articles/introducing-the-3-30-300-rule-for-better-reports/); underlying theory: Shneiderman 1996, "The Eyes Have It" — *overview first, zoom and filter, then details on demand*) structures information by the time a reader has available:
 
 | Layer | Time | Question answered | Design goal |
 |---|---|---|---|
@@ -42,9 +42,9 @@ From `reporting_principles.md §6`:
 
 Hard limits (from `REPORT_BEST_PRACTICES.md`):
 - Max **20 visible visuals** per page
-- Max **6 data fields** per visual
-- Max **3 slicers** per page (from `ux_design_system.md §5.1`)
-- **No vertical scroll** on report pages (design to fit one screen)
+- Max **6 data fields** per visual — exceeding this overloads working memory (Miller 1956, "The Magical Number Seven": working memory capacity ≈ 7±2 chunks)
+- Max **3 slicers** per page (from `ux_design_system.md §5.1`) — choice reaction time grows as log₂(n+1) with option count (Hick 1952 / Hyman 1953)
+- **No vertical scroll** on report pages (design to fit one screen) — extraneous cognitive load from navigation competes with analytical load (Sweller 1988, Cognitive Load Theory)
 - **No pie/donut charts** — use 100% stacked bars
 
 ---
@@ -64,7 +64,13 @@ Use Z-pattern for the **Overview (3s/30s) page**. Use F-pattern for the **Detail
 
 | Source | What it governs |
 |---|---|
-| [SQLBI — 3-30-300 rule](https://www.sqlbi.com/articles/introducing-the-3-30-300-rule-for-better-reports/) | Zone order, slicer placement, overview-first principle |
+| Shneiderman (1996) "The Eyes Have It", *IEEE Visual Languages* | Overview-first → zoom/filter → details-on-demand; theoretical basis for the 3-layer model |
+| [SQLBI — 3-30-300 rule](https://www.sqlbi.com/articles/introducing-the-3-30-300-rule-for-better-reports/) | Zone order, slicer placement, overview-first principle; BI-practice adaptation of Shneiderman |
+| Sweller (1988) Cognitive Load Theory, *Cognitive Science* | Intrinsic vs. extraneous vs. germane load; basis for visual count limits and progressive disclosure |
+| Miller (1956) "The Magical Number Seven", *Psychological Review* | 7±2 working-memory chunks; basis for max-6-fields-per-visual rule |
+| Hick (1952) / Hyman (1953) reaction-time law | Choice RT grows as log₂(n+1); basis for max-3-slicers rule |
+| Cleveland & McGill (1984) *JASA* | Perceptual task hierarchy: position > length > angle > area; drives visual whitelist priorities |
+| Munzner (2014) *Visualization Analysis & Design* | Nested model: domain task → data abstraction → visual encoding; basis for T1–T4 page type design |
 | [Microsoft PBI design tips](https://learn.microsoft.com/en-us/power-bi/create-reports/service-dashboards-design-tips) | Top-left priority, tell a story on one screen, audience + device awareness |
 | [Tremor dashboard template](https://tremor.so/) | KPI card hierarchy, chart containers, table structure — web reference |
 | [Tabler layout fluid](https://tabler.io/) | Fluid 12-column grid, clean spacing — web reference |
@@ -411,7 +417,11 @@ Tooltips appear on chart hover. Minimum content:
 
 ## 9. Accessibility
 
-- **WCAG AA contrast minimum:** 4.5:1 for body text, 3:1 for large text (≥18pt or ≥14pt bold)
+Standard: **WCAG 2.2 AA** (W3C, October 2023). Supersedes WCAG 2.1; SC 1.4.3, 1.4.11, 1.4.10 apply.
+
+- **SC 1.4.3 Contrast (text):** 4.5:1 for body text, 3:1 for large text (≥18pt or ≥14pt bold)
+- **SC 1.4.11 Non-Text Contrast:** All data-series fills, chart lines, data points, and axis indicators must achieve ≥3:1 contrast against their adjacent background — applies to every semantic color token and brand palette entry
+- **SC 1.4.10 Reflow (Power BI exception):** Fixed-pixel Power BI canvases (1920×1080) are exempt from the 400%-zoom reflow requirement under the "two-dimensional layout essential" provision of SC 1.4.10; this exception must be documented per connector — see `Connector_Spec.md §4`
 - **Colorblind safety:** Signal colors always paired with icon + optional weight change
 - **Tab order:** KPI band → primary visuals → secondary visuals → slicers → action panel
 - **Alt text / description:** Every visual has a descriptive title (used as alt text in accessible exports)

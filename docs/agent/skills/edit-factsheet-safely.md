@@ -59,7 +59,7 @@ After editing Business Factsheet or Bracket, verify:
 → KPI definitions belong in `core/kpi_catalog/` only
 
 **If schema validation fails (bracket):**
-→ Check bracket against `tooling/validation/schemas/usecase_bracket.schema.json`
+→ Check bracket against `tooling/generator/schemas/usecase_bracket.schema.json`
 → Verify required keys: `id`, `title`, `domain`, `governance`, `orchestration`, `value_driver_model`, `ux_layout_rules`
 
 ## Examples
@@ -138,6 +138,6 @@ documentation:
 ## Key paths
 
 - Template: `core/usecases/templates/usecase_factsheet_business.md`, `UseCase_Bracket_TEMPLATE.yaml`
-- Schemas: `tooling/validation/schemas/usecase_bracket.schema.json`, `tooling/generator/schemas/layout_330300.schema.json`
+- Schemas: `tooling/generator/schemas/usecase_bracket.schema.json`, `tooling/generator/schemas/layout_330300.schema.json`
 - KPI catalog: `core/kpi_catalog/`
 - Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)

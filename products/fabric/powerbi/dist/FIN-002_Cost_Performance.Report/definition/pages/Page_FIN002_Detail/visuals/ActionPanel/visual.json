@@ -10,28 +10,28 @@
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "textbox",
+    "visualType": "cardVisual",
     "query": {
       "queryState": {
         "Data": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Active Actions Text (FIN)"
+                }
+              },
+              "queryRef": "_Measures.Active Actions Text (FIN)",
+              "nativeQueryRef": "Active Actions Text (FIN)"
+            }
+          ]
         }
       }
-    },
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Recommended actions (from action codes)\n\n• F-K2.1 — Cost Take-Out Orchestration\n  Owner: finance_director\n  Trigger: cost.unit.amount > 0.05%\n  Impact: High, CostAvoidance\n  Expected: 2.0–6.0 %\n  Confidence: High\n  · DETECT sustained unit cost deterioration for this plant/product\n  · IDENTIFY the dominant cost driver (Material, Labor, OpEx) for this plant/product\n  · ACTIVATE the corresponding execution Action Code for this plant/product\n  ⚠ Trigger only if deviation is structural, not volume-mix driven\n  ⚠ Do not trigger if margin erosion is price-driven (handled in COM-002)\n\n• F-K2.2 — Material Cost Discipline\n  Owner: head_of_procurement\n  Trigger: cost.material.pct > 0.05%\n  Impact: Medium, CostAvoidance\n  Expected: 1.0–4.0 %\n  Confidence: Medium\n  · Identify plants/products with rising material cost share\n  · Analyze scrap, yield, and spec adherence\n  · Implement corrective sourcing or usage actions\n  ⚠ Trigger only if yield remains within guardrails\n  ⚠ Do not trigger if unit cost increase is labor-driven\n\n• F-K2.3 — Labor Productivity Recovery\n  Owner: plant_manager\n  Trigger: ops.labor.productivity.pct < -6.0pp\n  Impact: Medium, CostAvoidance\n  Expected: 3.0–8.0 pp\n  Confidence: Medium\n  · Identify lines and shifts with productivity decline\n  · Analyze staffing, shift balance, and idle time\n  · Implement corrective scheduling and supervision actions\n  ⚠ Trigger only if defect rate remains within guardrails\n  ⚠ Do not trigger if productivity drop is driven by approved training or ramp-up\n\n• F-K2.4 — OpEx Spend Control\n  Owner: head_of_controlling\n  Trigger: cost.opex.vs_plan.pct > 5.0pp\n  Impact: Medium, CostAvoidance\n  Expected: 2.0–6.0 pp\n  Confidence: High\n  · IDENTIFY entities or plants exceeding OpEx plan for this scope\n  · CLASSIFY spend by discretionary vs committed for this scope\n  · FREEZE, DEFER, or RE-APPROVE expenses for this scope\n  ⚠ Trigger only if service levels remain within agreed thresholds\n  ⚠ Do not trigger for costs already approved by executive committee'"
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

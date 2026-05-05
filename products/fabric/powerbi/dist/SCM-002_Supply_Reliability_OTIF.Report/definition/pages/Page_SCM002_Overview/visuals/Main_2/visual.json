@@ -10,7 +10,7 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "waterfallChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -42,39 +42,39 @@
                       "Entity": "_Measures"
                     }
                   },
+                  "Property": "OTIF %"
+                }
+              },
+              "queryRef": "_Measures.OTIF %",
+              "nativeQueryRef": "OTIF %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "On-Time %"
+                }
+              },
+              "queryRef": "_Measures.On-Time %",
+              "nativeQueryRef": "On-Time %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
                   "Property": "In-Full %"
                 }
               },
               "queryRef": "_Measures.In-Full %",
               "nativeQueryRef": "In-Full %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Stockout Impact %"
-                }
-              },
-              "queryRef": "_Measures.Stockout Impact %",
-              "nativeQueryRef": "Stockout Impact %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Penalty Amount"
-                }
-              },
-              "queryRef": "_Measures.Penalty Amount",
-              "nativeQueryRef": "Penalty Amount"
             }
           ]
         }
@@ -88,46 +88,6 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "labelPosition": {
-              "expr": {
-                "Literal": {
-                  "Value": "'OutsideEnd'"
                 }
               }
             }

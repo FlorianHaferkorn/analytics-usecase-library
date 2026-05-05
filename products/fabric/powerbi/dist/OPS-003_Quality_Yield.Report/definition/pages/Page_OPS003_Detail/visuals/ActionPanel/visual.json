@@ -10,28 +10,28 @@
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "textbox",
+    "visualType": "cardVisual",
     "query": {
       "queryState": {
         "Data": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Active Actions Text (OPS)"
+                }
+              },
+              "queryRef": "_Measures.Active Actions Text (OPS)",
+              "nativeQueryRef": "Active Actions Text (OPS)"
+            }
+          ]
         }
       }
-    },
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Recommended actions (from action codes)\n\n• O-Q3.1 — Quality & Yield Orchestration\n  Owner: head_of_quality\n  Trigger: quality.fpy.pct < 96.0%\n  Impact: High, CostAvoidance\n  Expected: 1.0–3.0 pp\n  Confidence: High\n  · DETECT sustained FPY deterioration on this production line\n  · DIAGNOSE the dominant quality loss driver for this line\n  · ACTIVATE the corresponding execution Action Code for this line\n  ⚠ Trigger only if throughput impact remains within tolerance\n  ⚠ Do not trigger if quality loss is driven by temporary ramp-up\n\n• O-Q3.2 — Process Defect Elimination\n  Owner: quality_engineer\n  Trigger: quality.defect_density > 0.25%\n  Impact: High, CostAvoidance\n  Expected: -20.0–-50.0 %\n  Confidence: High\n  · IDENTIFY top defect categories and process steps on this production line\n  · PERFORM root-cause analysis on dominant defects for this line\n  · IMPLEMENT corrective and preventive actions on this line\n  ⚠ Trigger only if defect concentration exceeds Pareto threshold\n  ⚠ Do not trigger if defects are dominated by external material causes\n\n• O-Q3.3 — Scrap & Rework Reduction\n  Owner: production_manager\n  Trigger: quality.scrap.pct > 4.0%\n  Impact: Medium, CostAvoidance\n  Expected: -0.5–-2.0 pp\n  Confidence: Medium\n  · IDENTIFY dominant scrap and rework drivers on this production line\n  · ANALYSE rework loops and root causes for this line\n  · IMPLEMENT process or control corrections on this line\n  ⚠ Trigger only if FPY deterioration is confirmed\n  ⚠ Do not trigger if scrap increase is short-term mix-driven\n\n• O-Q3.4 — COPQ Reduction\n  Owner: head_of_quality\n  Trigger: quality.copq.amount > 0.25%\n  Impact: High, CostAvoidance\n  Expected: -10.0–-30.0 %\n  Confidence: Medium\n  · IDENTIFY each production line with rising COPQ\n  · RANK COPQ drivers by financial impact for this line\n  · ACTIVATE targeted quality actions on top drivers for this line\n  ⚠ Trigger only if COPQ increase is structurally recurring\n  ⚠ Do not trigger if COPQ spike is driven by isolated recall events\n\n• O-Q3.5 — Complaint-Driven Stabilisation\n  Owner: quality_manager\n  Trigger: quality.complaint.pct > 0.6%\n  Impact: High, RiskAvoidance\n  Expected: -20.0–-50.0 %\n  Confidence: Medium\n  · IDENTIFY products with rising complaint rates in this plant-product scope\n  · MAP complaints to production defects and processes in this plant-product scope\n  · EXECUTE stabilisation and containment actions in this plant-product scope\n  ⚠ Trigger only if complaint trend is structurally increasing\n  ⚠ Do not trigger if complaints are driven by distribution or service issues'"
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

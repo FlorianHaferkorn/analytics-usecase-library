@@ -10,28 +10,28 @@
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "textbox",
+    "visualType": "cardVisual",
     "query": {
       "queryState": {
         "Data": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Active Actions Text (COM)"
+                }
+              },
+              "queryRef": "_Measures.Active Actions Text (COM)",
+              "nativeQueryRef": "Active Actions Text (COM)"
+            }
+          ]
         }
       }
-    },
-    "objects": {
-      "text": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Recommended actions (from action codes)\n\n• C-P4.1 — Promo Calendar Discipline\n  Owner: trade_marketing_lead\n  Trigger: sales.promo.roi.pct < -5.0%\n  Impact: High, DirectMarginImprovement\n  Expected: 5.0–20.0 pp\n  Confidence: High\n  · IDENTIFY each {entity} with repeated negative ROI\n  · REVIEW mechanics and baseline assumptions for this {entity}\n  · STOP, REPLACE, or RESEQUENCE this {entity} based on ROI analysis\n  ⚠ Trigger only if baseline quality checks pass (baseline sales/qty present)\n  ⚠ Do not trigger if Promo Gross Margin % remains above target\n\n• C-M2.1 — Price Realization Guardrails\n  Owner: pricing_lead\n  Trigger: sales.price.realization_pct < 0.92%\n  Impact: High, DirectMarginImprovement\n  Expected: 1.0–3.0 pp\n  Confidence: High\n  · IDENTIFY each {entity} where price realization falls below threshold\n  · FREEZE discretionary discounts for this {entity}\n  · ENFORCE approval workflow for any price exception on this {entity}\n  ⚠ Trigger only if Gross Margin % < 25%\n  ⚠ Do not trigger if mix effect is primary negative driver\n\n• C-M2.2 — Mix Optimization (Margin-Driven)\n  Owner: category_manager\n  Trigger: sales.pvm.mix_effect.amount < -75000amount\n  Impact: Medium, DirectMarginImprovement\n  Expected: 0.3–1.2 pp\n  Confidence: Medium\n  · IDENTIFY each {entity} with persistent negative mix effect\n  · RANK SKUs by margin contribution for this {entity}\n  · ADJUST sales targets and focus lists for this {entity}\n  ⚠ Trigger only if price realization is within guardrails\n  ⚠ Do not trigger if negative mix is driven by temporary availability constraints'"
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

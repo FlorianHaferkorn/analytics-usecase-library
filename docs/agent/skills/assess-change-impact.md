@@ -118,7 +118,7 @@ After making changes (if user confirms), verify:
 ## Key paths
 
 - Templates: `core/usecases/templates/usecase_factsheet_business.md`, `UseCase_Bracket_TEMPLATE.yaml`
-- Schemas: `tooling/validation/schemas/usecase_bracket.schema.json`
+- Schemas: `tooling/generator/schemas/usecase_bracket.schema.json`
 - KPI catalog: `core/kpi_catalog/`
 - Action codes: `core/action_codes/`
 - Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)

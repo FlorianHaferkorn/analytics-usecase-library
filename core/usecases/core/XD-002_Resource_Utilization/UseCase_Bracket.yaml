@@ -74,6 +74,30 @@ prioritization:
   confidence: 0.7
   reach: division
   priority_score: 16
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: true
+  personal_data_categories:
+    - performance_data
+  legal_basis: art6_1b_contract
+  data_minimisation: >
+    Detail Matrix limited to agent_group grain — individual agent metrics are
+    aggregated before display; groups with fewer than 5 agents apply statistical
+    disclosure limitation. Raw agent_day records are not exposed in the report
+    layer.
+  retention_period_days: 90
+  access_restriction: >
+    service_operations_workforce_planning and
+    workforce_management_service_ops_bi_lead roles only; row-level security
+    enforced by Experience.SemanticModel. Individual agent records not
+    accessible via report drill-through.
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (XD) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md
+    §13.
 readiness:
   data_availability: partial
   org_capability: developing

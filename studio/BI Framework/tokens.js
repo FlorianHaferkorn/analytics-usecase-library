@@ -6,7 +6,7 @@ window.TOKENS = {
   // Semantic (performance signals — never decoration)
   positive: '#107C10',
   negative: '#A4262C',
-  warning:  '#C98A00',
+  warning:  '#C08000',
   neutral:  '#605E5C',
 
   // Brand / data series

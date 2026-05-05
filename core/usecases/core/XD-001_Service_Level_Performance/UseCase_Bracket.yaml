@@ -71,6 +71,24 @@ prioritization:
   confidence: 0.75
   reach: division
   priority_score: 17
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Detail Matrix limited to service-channel, queue, and SLA-category grain.
+    Service metrics attributed to channels and queues — no individual agent or
+    customer is identified. Row-level security applied at SemanticModel level.
+  access_restriction: >
+    service_operations_lead and xd_bi_lead roles; row-level security enforced by
+    Experience.SemanticModel (entity filter per org role).
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (XD) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md
+    §13.
 readiness:
   data_availability: partial
   org_capability: ready

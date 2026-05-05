@@ -27,8 +27,10 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     import yaml
 except ImportError:
-    print("ERROR: PyYAML required — pip install pyyaml", file=sys.stderr)
-    sys.exit(1)
+    if __name__ == "__main__":
+        print("ERROR: PyYAML required — pip install pyyaml", file=sys.stderr)
+        sys.exit(1)
+    raise
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 

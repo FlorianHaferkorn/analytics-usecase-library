@@ -10,7 +10,7 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "waterfallChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -21,19 +21,47 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "dim_date"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
         "Y": {
           "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "OEE %"
+                }
+              },
+              "queryRef": "_Measures.OEE %",
+              "nativeQueryRef": "OEE %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Availability %"
+                }
+              },
+              "queryRef": "_Measures.Availability %",
+              "nativeQueryRef": "Availability %"
+            },
             {
               "field": {
                 "Measure": {
@@ -61,20 +89,6 @@
               },
               "queryRef": "_Measures.Quality %",
               "nativeQueryRef": "Quality %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Throughput Units"
-                }
-              },
-              "queryRef": "_Measures.Throughput Units",
-              "nativeQueryRef": "Throughput Units"
             }
           ]
         }
@@ -88,46 +102,6 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "labelPosition": {
-              "expr": {
-                "Literal": {
-                  "Value": "'OutsideEnd'"
                 }
               }
             }

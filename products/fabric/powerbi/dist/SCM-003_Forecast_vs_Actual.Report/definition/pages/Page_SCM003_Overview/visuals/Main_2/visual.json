@@ -10,7 +10,7 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "waterfallChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -56,25 +56,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Service Impact %"
+                  "Property": "Forecast MAPE %"
                 }
               },
-              "queryRef": "_Measures.Service Impact %",
-              "nativeQueryRef": "Service Impact %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Re-Plan Count"
-                }
-              },
-              "queryRef": "_Measures.Re-Plan Count",
-              "nativeQueryRef": "Re-Plan Count"
+              "queryRef": "_Measures.Forecast MAPE %",
+              "nativeQueryRef": "Forecast MAPE %"
             }
           ]
         }
@@ -88,46 +74,6 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "labelPosition": {
-              "expr": {
-                "Literal": {
-                  "Value": "'OutsideEnd'"
                 }
               }
             }

@@ -19,7 +19,7 @@ Generate a new use case directory with `Business_Factsheet.md` and `UseCase_Brac
    - **No YAML blocks in body** (Lean 2.0: all machine config in bracket).
 4. **Complete UseCase_Bracket.yaml**:
    - Template: `core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml`
-   - Schema: `tooling/validation/schemas/usecase_bracket.schema.json`
+   - Schema: `tooling/generator/schemas/usecase_bracket.schema.json`
    - Required keys: `schema_version`, `id`, `title`, `domain`, `governance` (owner_role, steward_role), `orchestration` (strategic_kpi_id, influencing_kpi_ids, action_code_ids), `value_driver_model`, `ux_layout_rules`
    - Governance roles must exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context)
    - KPI IDs must exist in `core/kpi_catalog/`
@@ -71,7 +71,7 @@ After scaffold completion, verify:
 
 - Templates: `core/usecases/templates/usecase_factsheet_business.md`, `UseCase_Bracket_TEMPLATE.yaml`
 - New use case: `core/usecases/core/<ID>_Title/`
-- Schemas: `tooling/validation/schemas/usecase_bracket.schema.json`
+- Schemas: `tooling/generator/schemas/usecase_bracket.schema.json`
 - Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)
 - KPI catalog: `core/kpi_catalog/`
 - Action codes: `core/action_codes/`

@@ -4,7 +4,7 @@ This folder holds the **framework** org role registry: schema reference and a **
 
 ## Contents
 
-- **Schema:** The authoritative schema for org role files is `tooling/validation/schemas/org_roles.schema.json`. All `org_roles.yaml` files must conform to it.
+- **Schema:** The authoritative schema for org role files is `tooling/generator/schemas/org_roles.schema.json`. All `org_roles.yaml` files must conform to it.
 - **Minimal `org_roles.yaml`:** The file in this folder contains only the role IDs referenced by `core/usecases/` and `core/action_codes/` (id, title, domain). This keeps the framework self-consistent so Stage 1 and the registry can run without a customer showcase.
 
 ## Customer / showcase-specific lists
