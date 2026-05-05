@@ -47,6 +47,7 @@ from tooling.connectors.sap.schema_map import (
     FACT_GL_JOURNAL_SCHEMA,
     FACT_INVENTORY_SCHEMA,
     FACT_SALES_SCHEMA,
+    SAP_FIELD_MAP_REGISTRY,
     SAP_SCHEMA_REGISTRY,
 )
 
@@ -323,3 +324,136 @@ class TestSchemaMap:
     def test_all_schemas_are_pyarrow_schemas(self):
         for name, schema in SAP_SCHEMA_REGISTRY.items():
             assert isinstance(schema, pa.Schema), f"{name} schema is not pa.Schema"
+
+
+# ── Field map translation (regression: live mode was returning all-null columns)
+
+@_needs_pyarrow
+class TestFieldMapTranslation:
+    """
+    Regression tests for the SAP→Aurora field-name translation in
+    _odata_results_to_batch().
+
+    Before the fix, _odata_results_to_batch used Aurora column names (e.g.
+    "Net Sales Amount") as keys when fetching values from the SAP OData JSON
+    row, but OData responses carry SAP technical field names (e.g. "NETWR").
+    This caused every column in live extractions to silently become NULL.
+
+    These tests inject a synthetic OData row using SAP field names and assert
+    that the resulting RecordBatch contains the correct non-null values.
+    """
+
+    def _adapter(self):
+        return SAPConnectorAdapter()
+
+    def test_field_map_registry_covers_all_entities(self):
+        for entity in SAP_SCHEMA_REGISTRY:
+            assert entity in SAP_FIELD_MAP_REGISTRY, (
+                f"SAP_FIELD_MAP_REGISTRY is missing entity '{entity}'"
+            )
+
+    def test_field_map_registry_covers_all_schema_columns(self):
+        """Every Aurora schema column must appear as a key in its field map."""
+        for entity, schema in SAP_SCHEMA_REGISTRY.items():
+            aurora_to_sap = SAP_FIELD_MAP_REGISTRY[entity]
+            aurora_names = {f.name for f in schema}
+            mapped_names = set(aurora_to_sap.keys())
+            unmapped = aurora_names - mapped_names
+            assert not unmapped, (
+                f"'{entity}' has schema columns with no SAP field mapping: {unmapped}"
+            )
+
+    def test_odata_results_to_batch_uses_sap_field_names(self):
+        """
+        Simulate a live OData JSON row using SAP technical field names.
+        The resulting batch column must contain the row value, not NULL.
+        """
+        adapter = self._adapter()
+        sap_row = {
+            "InvoiceLineID": "5000000001-0001",
+            "FKDAT": 20250115,
+            "VKORG": "1000",
+            "MATNR": "P-MAT-001",
+            "KUNNR": "C-1001",
+            "AKTNR": "PR-001",
+            "KWMENG": 10.0,
+            "KBETR_LIST": 100.0,
+            "KBETR_NET": 95.0,
+            "KBETR_DISC": 5.0,
+            "NETWR": 950.0,
+            "VPRSV": 400.0,
+            "GJAHR": 2025,
+            "POPER": 1,
+        }
+        batch = adapter._odata_results_to_batch([sap_row], "fact_sales", FACT_SALES_SCHEMA)
+        assert batch.num_rows == 1
+
+        col_dict = batch.to_pydict()
+        assert col_dict["Net Sales Amount"][0] == 950.0, (
+            "Net Sales Amount (NETWR) was not translated from SAP field name"
+        )
+        assert col_dict["List Price Amount"][0] == 100.0, (
+            "List Price Amount (KBETR_LIST) was not translated"
+        )
+        assert col_dict["Net Price Amount"][0] == 95.0, (
+            "Net Price Amount (KBETR_NET) was not translated"
+        )
+        assert col_dict["Quantity"][0] == 10.0, (
+            "Quantity (KWMENG) was not translated"
+        )
+        null_cols = [
+            name for name, vals in col_dict.items() if vals[0] is None
+        ]
+        assert not null_cols, (
+            f"Columns returned NULL after field-name translation: {null_cols}"
+        )
+
+    def test_odata_results_to_batch_gl_journal(self):
+        """Regression check for fact_gl_journal field translation."""
+        adapter = self._adapter()
+        sap_row = {
+            "JournalLineID": "100000001-001",
+            "HKONT": "400000",
+            "KOSTL": "CC100",
+            "PRCTR": "PC100",
+            "BUDAT": 20250115,
+            "DMBTR": 12345.67,
+            "WAERS": "EUR",
+            "SHKZG": "S",
+            "GJAHR": 2025,
+            "MONAT": 1,
+            "BLART": "RV",
+        }
+        batch = adapter._odata_results_to_batch([sap_row], "fact_gl_journal", FACT_GL_JOURNAL_SCHEMA)
+        col_dict = batch.to_pydict()
+        assert col_dict["Amount"][0] == 12345.67, "Amount (DMBTR) was not translated"
+        assert col_dict["AccountKey"][0] == "400000", "AccountKey (HKONT) was not translated"
+        null_cols = [name for name, vals in col_dict.items() if vals[0] is None]
+        assert not null_cols, f"Columns returned NULL: {null_cols}"
+
+    def test_odata_results_to_batch_inventory(self):
+        """Regression check for fact_inventory including Obsolete columns."""
+        adapter = self._adapter()
+        sap_row = {
+            "MATNR": "P-MAT-001",
+            "WERKS": "PL01",
+            "LGORT": "SL01",
+            "STICHDAT": 20250115,
+            "SALK3": 50000.0,
+            "MLMAA": 2500.0,
+            "LBKUM": 1000.0,
+            "EISBE": 50.0,
+            "GJAHR": 2025,
+            "POPER": 1,
+        }
+        batch = adapter._odata_results_to_batch([sap_row], "fact_inventory", FACT_INVENTORY_SCHEMA)
+        col_dict = batch.to_pydict()
+        assert col_dict["Average Inventory Amount"][0] == 50000.0
+        assert col_dict["Obsolete Inventory Amount"][0] == 2500.0, (
+            "Obsolete Inventory Amount (MLMAA) was not translated"
+        )
+        assert col_dict["Obsolete Inventory Units"][0] == 50.0, (
+            "Obsolete Inventory Units (EISBE) was not translated"
+        )
+        null_cols = [name for name, vals in col_dict.items() if vals[0] is None]
+        assert not null_cols, f"Columns returned NULL: {null_cols}"
