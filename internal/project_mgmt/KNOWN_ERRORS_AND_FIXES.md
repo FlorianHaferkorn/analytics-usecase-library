@@ -148,6 +148,8 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 | VS Code workspace tasks fail immediately with `pwsh` not found on Windows | `.vscode/tasks.json` assumed PowerShell 7 (`pwsh`) is installed, but some Windows environments only have Windows PowerShell (`powershell`). | Use `powershell` in workspace tasks unless PowerShell 7 is a hard requirement, or document/install `pwsh` explicitly before relying on those tasks. |
 | Unerwartetes Token "```" in Ausdruck (generate_tmdl_measures.ps1, Zeile ~814) | In PowerShell inside **double** quotes, backtick (`` ` ``) escapes the next character; `` "```" `` is parsed incorrectly. | Use **single** quotes for literal backticks: `` $lines += ($t2 + '```') ``. No other change; the script was later updated to not output ``` at all (see TMDL measure row above). |
 
+| `Last Refresh (DOMAIN)` visual shows future date (e.g. "31 Dec 2028") on all Detail pages | `MAXX(ALL('dim_date'), 'dim_date'[Date])` returns the last calendar row in dim_date (2028-12-31), which is a future planning date, not the actual data load date | Replace `MAXX(ALL('dim_date'), 'dim_date'[Date])` with `MAXX(ALL(primary_fact_table), RELATED('dim_date'[Date]))` using the domain's primary fact table: COM→fact_sales, FIN→fact_finance, OPS→fact_ops, SCM→fact_inventory, XD→fact_support_cases. This iterates actual fact rows and looks up the max date in dim_date via the existing relationship, reflecting real data freshness. |
+
 ---
 
 ## Studio (Next.js / TypeScript) — ActionReady Studio

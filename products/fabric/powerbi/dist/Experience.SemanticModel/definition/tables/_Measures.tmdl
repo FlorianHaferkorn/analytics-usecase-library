@@ -69,7 +69,7 @@ table _Measures
 
 
 	/// Purpose: Freshness timestamp for AI narrative — binds smartNarrativeVisual to latest loaded date.
-	measure 'Last Refresh (XD)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL('dim_date'), 'dim_date'[Date]), "DD MMM YYYY")
+	measure 'Last Refresh (XD)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL(fact_support_cases), RELATED('dim_date'[Date])), "DD MMM YYYY")
 		formatString: @
 		displayFolder: 0_Summary
 		lineageTag: 0d48ddf2-cce0-42c3-bf0d-6e08d514271d
