@@ -68,6 +68,7 @@ studio/.next/
 
 # CI run logs (local only – not versioned)
 internal/metrics/runs/*.json
+internal/metrics/generation_runs/*.json
 
 # Backup files
 *.bak
