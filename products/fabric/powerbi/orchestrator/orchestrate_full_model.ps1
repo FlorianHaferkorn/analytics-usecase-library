@@ -842,7 +842,6 @@ foreach ($domainName in $byDomain.Keys) {
     Write-Host "  [$domainName] $outputModel" -ForegroundColor Gray
 }
 Write-Host "  Reports: products\fabric\powerbi\dist\<UC>.Report (datasetReference = ..\<Domain>.SemanticModel)" -ForegroundColor Gray
-Write-Host "  Aurora showcase models: $auroraModelRootParam\<Domain>.SemanticModel" -ForegroundColor Gray
 
 Write-Host ([Environment]::NewLine + "Next Steps:") -ForegroundColor Yellow
 Write-Host "  1. Open a domain model in Power BI Desktop (e.g. products\fabric\powerbi\dist\Commercial.SemanticModel)" -ForegroundColor Gray

@@ -19,10 +19,7 @@ if __name__ == "__main__":
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 from page_scaffold_generator.config_loader import ConfigLoader
 
-try:
-    from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA
-except ImportError:
-    from schema_registry import VISUAL_SCHEMA  # type: ignore[no-redef]
+from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA
 
 # Semantic color fallbacks (canonical tokens, used when token files are unavailable).
 # Source authority: Storytelling_Principles.md §9 · tokens/color_semantics.yaml
