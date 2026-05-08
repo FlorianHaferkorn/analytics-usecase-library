@@ -1,3 +1,0 @@
-relationship dim_case_queue_fact_workforce_management
-	fromColumn: fact_workforce_management.QueueKey
-	toColumn: dim_case_queue.QueueKey

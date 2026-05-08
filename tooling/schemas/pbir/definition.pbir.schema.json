@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.1.0/schema.json",
-  "title": "PBIR Report Definition",
-  "description": "Cached schema for definition.pbir files. Source: Microsoft Fabric JSON Schemas.",
+  "$id": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+  "title": "PBIR definition.pbir",
+  "description": "Cached schema for definition.pbir (report-to-model binding). Source: Microsoft Fabric JSON Schemas.",
   "type": "object",
   "required": ["$schema", "version", "datasetReference"],
   "properties": {

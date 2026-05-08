@@ -1,3 +1,0 @@
-relationship dim_lane_fact_fulfillment
-	fromColumn: fact_fulfillment.LaneKey
-	toColumn: dim_lane.LaneKey

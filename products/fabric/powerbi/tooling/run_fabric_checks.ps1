@@ -4,12 +4,11 @@
 .DESCRIPTION
   Invokes scripts under products/fabric/powerbi/tooling/validation/ against
   core paths and products/fabric/powerbi/dist. Run from repository root.
-  When -AuroraTablesDir is specified, runs the same checks against the Aurora showcase tables directory
-  (e.g. showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables).
+  When -AuroraTablesDir is specified, runs the same checks against an additional tables directory.
 .EXAMPLE
   .\products\fabric\powerbi\tooling\run_fabric_checks.ps1
 .EXAMPLE
-  .\products\fabric\powerbi\tooling\run_fabric_checks.ps1 -AuroraTablesDir "showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables"
+  .\products\fabric\powerbi\tooling\run_fabric_checks.ps1 -AuroraTablesDir "products/fabric/powerbi/dist/Commercial.SemanticModel/definition/tables"
 #>
 Param(
   [string]$DistRoot       = "products/fabric/powerbi/dist",
@@ -179,6 +178,16 @@ try {
     Write-Host ">> check_report_theme_compliance.py" -ForegroundColor Cyan
     Invoke-Python3 -Arguments @($checkThemeCompliance, "--dist-root", $distRootResolved)
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
+  $checkSchemaVersions = Join-Path $repoRoot "products/fabric/powerbi/tooling/validation/check_schema_versions.py"
+  if (Test-Path $checkSchemaVersions) {
+    Write-Host ""
+    Write-Host ">> check_schema_versions.py" -ForegroundColor Cyan
+    Invoke-Python3 -Arguments @($checkSchemaVersions, "--dist-root", $distRootResolved, "--explain-known-fix")
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -eq 1) { $failed++ }
+    # exit 2 = no reports found (warn only, do not fail the gate)
   }
 
   # ── Telemetry: record this run ────────────────────────────────────────────

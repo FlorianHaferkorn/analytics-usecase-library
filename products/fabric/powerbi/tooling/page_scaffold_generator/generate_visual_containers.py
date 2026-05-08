@@ -19,6 +19,11 @@ if __name__ == "__main__":
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 from page_scaffold_generator.config_loader import ConfigLoader
 
+try:
+    from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA
+except ImportError:
+    from schema_registry import VISUAL_SCHEMA  # type: ignore[no-redef]
+
 # Semantic color fallbacks (canonical tokens, used when token files are unavailable).
 # Source authority: Storytelling_Principles.md §9 · tokens/color_semantics.yaml
 _COLOR_DEFAULTS = {
@@ -48,8 +53,6 @@ def _load_resolved_tokens() -> dict:
 
 
 _RESOLVED_TOKENS = _load_resolved_tokens()
-
-VISUAL_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json"
 
 # Default grid: 1920×1080, 32px margin, 16px gutter
 DEFAULT_CANVAS_WIDTH = 1920

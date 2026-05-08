@@ -91,7 +91,7 @@ if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder.
 $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog folder." }
 
-$resolvedTmdlPath = Resolve-RepoPath -ProvidedPath $TmdlPath -DefaultRelative "showcases/aurora_group/semantic_models"
+$resolvedTmdlPath = Resolve-RepoPath -ProvidedPath $TmdlPath -DefaultRelative "products/fabric/powerbi/dist"
 if (-not $resolvedTmdlPath) { throw "Unable to resolve TMDL path." }
 
 # Find use case

@@ -263,9 +263,9 @@ def main(argv=None) -> int:
     all_warnings = cov_warnings
 
     for w in all_warnings:
-        print(f"  ⚠  {w}")
+        print(f"  WARN  {w}")
     for e in all_errors:
-        print(f"  ❌ {e}")
+        print(f"  ERROR  {e}")
 
     output_path = Path(args.output)
     report = {
@@ -278,10 +278,10 @@ def main(argv=None) -> int:
     print(f"Drift report written to {output_path}")
 
     if all_errors:
-        print(f"\n❌ {len(all_errors)} error(s) found.")
+        print(f"\nFAIL: {len(all_errors)} error(s) found.")
         return 1
 
-    print(f"✅ No catalog↔TMDL drift found ({len(all_warnings)} warning(s)).")
+    print(f"OK: No catalog<->TMDL drift found ({len(all_warnings)} warning(s)).")
     return 0
 
 

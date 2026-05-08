@@ -54,7 +54,21 @@ import os
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
+_REPO_ROOT = Path(__file__).resolve().parents[5]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+try:
+    from products.fabric.powerbi.tooling.schema_registry import (
+        PLATFORM_PROPERTIES_SCHEMA as _PLATFORM_SCHEMA,
+        SEMANTIC_MODEL_SCHEMA as _SM_SCHEMA,
+    )
+except ImportError:
+    _PLATFORM_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json"
+    _SM_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/definitionProperties/1.0.0/schema.json"
 
 
 # SQL type → TMDL dataType mapping
@@ -210,7 +224,7 @@ def map_type(sql_type: str) -> str:
 def generate_platform_file(model_name: str) -> str:
     """Generate the .platform metadata file content."""
     return json.dumps({
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+        "$schema": _PLATFORM_SCHEMA,
         "metadata": {
             "type": "SemanticModel",
             "displayName": model_name
@@ -225,6 +239,7 @@ def generate_platform_file(model_name: str) -> str:
 def generate_pbism() -> str:
     """Generate the definition.pbism connection file."""
     return json.dumps({
+        "$schema": _SM_SCHEMA,
         "version": "4.0",
         "settings": {}
     }, indent=2)

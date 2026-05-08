@@ -70,26 +70,47 @@ Bei Fehlern: Generator wirft `ValueError` mit klarer Fehlermeldung → **Schritt
 ### 4. Post-Generation Validierung
 
 ```bash
+# Schema drift gate (immer ausführen — prüft alle $schema URLs)
+py -3 products/fabric/powerbi/tooling/validation/check_schema_versions.py --explain-known-fix
+
+# Vollständige Fabric-Prüfung (inkl. neuer Schema-Version-Check)
+.\products\fabric\powerbi\tooling\run_fabric_checks.ps1
+
+# Optional: pbi-cli Zusatz-Audit (skip gracefully wenn nicht installiert)
+.\products\fabric\powerbi\tooling\validation\check_with_pbi_cli.ps1
+
+# Optional: Desktop-Validierung
 .\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 \
   -ResultFile .cursor/pbi_validate_result.json
 ```
 
 Ergebnis auswerten:
-- `success === true` → Weiter zu **Schritt 7**
-- `success === false` → **Schritt 5**
+- Alle Checks grün → Weiter zu **Schritt 7**
+- Fehler → **Schritt 5**
 
-### 5. Lernschleife (Fehler beheben)
+### 5. Lernschleife (Fehler beheben) — PFLICHT
 
-1. **Fehler analysieren**: Fehlermeldung aus Generator, Validierung oder Power BI Desktop
-2. **KNOWN_ERRORS_AND_FIXES.md prüfen**: Ist dieses Muster bereits dokumentiert?
-   - **Ja**: Dokumentierte Lösung anwenden
-   - **Nein**: Ursache analysieren (Generator-Code, Bracket, KPI-Katalog, TMDL)
-3. **Fix anwenden**:
-   - Wenn Fehler in generierten Dateien: Dateien korrigieren
-   - Wenn Fehler im Generator: → **Schritt 6**
-4. **PFLICHT: Neue Fehlerklasse dokumentieren**
-   - In `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` neue Zeile eintragen:
-   - `| Symptom/Meldung | Ursache | Fix |`
+Dies ist die wichtigste Phase. Jeder neue Fehler **muss** in eine dauerhafte Prävention umgewandelt werden.
+
+1. **Vor dem Fix**: `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` lesen — ist das Muster bereits dokumentiert?
+   - **Ja**: Dokumentierte Lösung direkt anwenden
+   - **Nein**: Ursache analysieren (Generator, Bracket, KPI-Katalog, TMDL, Schema-Version)
+
+2. **Fix anwenden**:
+   - Fehler in generierten Dateien → Dateien korrigieren
+   - Fehler in Generator/Adapter → **Schritt 6**
+   - Schema-Drift → `schema_registry.py` prüfen, ggf. `update_schema_manifest.py` ausführen
+
+3. **PFLICHT: Neue Fehlerklasse dauerhaft verhindern** (eines davon):
+   - Unit-Test in `tests/` anlegen der den Fehler reproduziert → Fix → Test grün
+   - Validator-Regel in `check_schema_versions.py` oder `check_pbir_schema.ps1` ergänzen
+   - Generator-Invariante in `visual_validator.py` oder `pbip_writer.py` hinzufügen
+   - Schema-Manifest-Update via `update_schema_manifest.py`
+
+4. **PFLICHT: KNOWN_ERRORS_AND_FIXES.md aktualisieren**
+   - `| Symptom/Meldung | Ursache | Fix |` in passende Sektion eintragen
+   - Befehl der den Fehler zukünftig fängt angeben
+
 5. **Re-validieren**: Zurück zu Schritt 3 oder 4 (max 5 Iterationen)
 
 ### 6. Generator-Fix (bei Bug im Generator)
@@ -130,6 +151,9 @@ Ergebnis auswerten:
 - [ ] `.pbip` mit `pbipProperties/1.0.0` Schema
 - [ ] Visual-Ordner ohne Sonderzeichen (`,` `:` `\` `/`)
 - [ ] Sprechende Seitennamen (z.B. `Page_COM001_Overview`)
+- [ ] Kein `.pbi/localSettings.json` oder `.pbi/cache.abf` committed
+- [ ] `check_schema_versions.py` läuft ohne Fehler (alle `$schema` URLs stimmen mit Registry überein)
+- [ ] `schema_manifest.json` ist aktuell (`update_schema_manifest.py --check-only` grün)
 
 ### Semantic Model
 - [ ] Alle TMDL-Dateien: nur Tabs, kein Mixed Indentation
@@ -166,3 +190,10 @@ Ergebnis auswerten:
 | KPI Catalog | `core/kpi_catalog/` |
 | Use Case Brackets | `core/usecases/core/<ID>/UseCase_Bracket.yaml` |
 | BPA Rules | `tooling/linters/powerbi/bpa-rules-*.json` |
+| **Schema Registry** | `products/fabric/powerbi/tooling/schema_registry.py` |
+| **Schema Manifest** | `tooling/schemas/pbir/schema_manifest.json` |
+| **Schema Drift Check** | `products/fabric/powerbi/tooling/validation/check_schema_versions.py` |
+| **Manifest Updater** | `products/fabric/powerbi/tooling/update_schema_manifest.py` |
+| **Migration Audit** | `products/fabric/powerbi/tooling/migration/audit_report_versions.py` |
+| **Rename Cascade Audit** | `products/fabric/powerbi/tooling/migration/audit_rename_cascade.py` |
+| **pbi-cli Wrapper** | `products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1` |

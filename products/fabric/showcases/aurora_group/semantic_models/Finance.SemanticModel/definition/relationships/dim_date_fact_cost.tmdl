@@ -1,3 +1,0 @@
-relationship dim_date_fact_cost
-	fromColumn: fact_cost.DateKey
-	toColumn: dim_date.DateKey

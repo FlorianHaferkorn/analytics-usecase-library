@@ -9,16 +9,23 @@ import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+from products.fabric.powerbi.tooling.schema_registry import (
+    REPORT_SCHEMA as _REPORT_SCHEMA,
+    PAGES_METADATA_SCHEMA as _PAGES_SCHEMA,
+    VERSION_METADATA_SCHEMA as _VERSION_SCHEMA,
+    PBIP_SCHEMA as _PBIP_SCHEMA,
+    DEFINITION_PBIR_SCHEMA as _DEFINITION_PBIR_SCHEMA,
+    DEFINITION_PBIR_VERSION as _DEFINITION_PBIR_VERSION,
+)
+
 
 class PBIPWriter:
     """Writes PBIP folder structure and JSON files."""
 
-    REPORT_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.0.0/schema.json"
-    PAGES_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json"
-    # Desktop resolves version.json via versionMetadata schema (not "version"); version value 2.0.0 per sample.
-    VERSION_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json"
-    # Power BI Desktop (Feb 2026+) expects pbipProperties schema; itemShortcut is rejected.
-    PBIP_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json"
+    REPORT_SCHEMA = _REPORT_SCHEMA
+    PAGES_SCHEMA = _PAGES_SCHEMA
+    VERSION_SCHEMA = _VERSION_SCHEMA
+    PBIP_SCHEMA = _PBIP_SCHEMA
     PBIXPROJ_VERSION = "1.25"
 
     def __init__(self, report_path: Path):
@@ -287,8 +294,8 @@ class PBIPWriter:
                                          byPath references are silently rejected by the Fabric Items API.
         """
         pbir_data = {
-            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
-            "version": "4.0",
+            "$schema": _DEFINITION_PBIR_SCHEMA,
+            "version": _DEFINITION_PBIR_VERSION,
         }
 
         if connection_type == "byConnection":

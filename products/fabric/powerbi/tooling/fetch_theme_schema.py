@@ -9,8 +9,8 @@ Strategy (in priority order):
   2. If not and network is available, download the pinned version and cache it.
   3. If network is unavailable, return None — caller decides whether to skip or fail.
 
-Pinned version: reportThemeSchema-2.145.json (matches $schema in generated theme files).
-Update PINNED_VERSION when upgrading to a new Power BI Desktop release.
+Pinned version is controlled by schema_registry.THEME_SCHEMA_PINNED_VERSION.
+Update that constant when upgrading to a new Power BI Desktop release.
 """
 
 from __future__ import annotations
@@ -19,12 +19,12 @@ import json
 import urllib.request
 from pathlib import Path
 
-PINNED_VERSION = "2.145"
-SCHEMA_FILENAME = f"reportThemeSchema-{PINNED_VERSION}.json"
-SCHEMA_URL = (
-    "https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main"
-    f"/Report%20Theme%20JSON%20Schema/{SCHEMA_FILENAME}"
+from products.fabric.powerbi.tooling.schema_registry import (
+    THEME_SCHEMA_PINNED_VERSION as PINNED_VERSION,
+    THEME_SCHEMA_URL as SCHEMA_URL,
 )
+
+SCHEMA_FILENAME = f"reportThemeSchema-{PINNED_VERSION}.json"
 
 _HERE = Path(__file__).resolve().parent
 SCHEMA_CACHE_PATH = _HERE / SCHEMA_FILENAME

@@ -34,6 +34,11 @@ except ImportError:
         sys.exit(1)
     raise
 
+try:
+    from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA as _VISUAL_SCHEMA
+except ImportError:
+    _VISUAL_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json"
+
 
 # ── Action code text formatter ────────────────────────────────────────────────
 
@@ -132,7 +137,7 @@ def build_action_panel_text(
 # ── ActionPanel visual.json writer ────────────────────────────────────────────
 
 ACTION_PANEL_TEMPLATE: Dict[str, Any] = {
-    "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+    "$schema": _VISUAL_SCHEMA,
     "name": "ActionPanel",
     "position": {
         "x": 1592, "y": 118, "z": 15000,

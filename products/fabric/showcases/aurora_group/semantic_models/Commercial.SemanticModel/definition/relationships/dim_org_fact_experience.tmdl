@@ -1,3 +1,0 @@
-relationship dim_org_fact_experience
-	fromColumn: fact_experience.OrgKey
-	toColumn: dim_org.OrgKey

@@ -1,3 +1,0 @@
-relationship dim_date_fact_customer_value
-	fromColumn: fact_customer_value.DateKey
-	toColumn: dim_date.DateKey

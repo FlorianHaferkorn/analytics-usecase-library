@@ -275,56 +275,6 @@ function Get-PbiToolsCompileOutputPath {
     return (Join-Path $compileRoot ($folderItem.Name + ".pbix"))
 }
 
-function Sync-SemanticModelsToAuroraShowcase {
-    param()
-
-    $showcaseRoot = Join-Path $script:RepoRoot $script:AuroraShowcaseModelRoot
-    if (-not (Test-Path $showcaseRoot)) {
-        New-Item -ItemType Directory -Path $showcaseRoot -Force | Out-Null
-    }
-
-    $fabricDistRoot = Join-Path $script:RepoRoot $script:FabricDistRoot
-    if (-not (Test-Path $fabricDistRoot)) {
-        throw "Fabric dist root missing for showcase sync: $fabricDistRoot"
-    }
-
-    Get-ChildItem -Path $fabricDistRoot -Directory -Filter "*.SemanticModel" -ErrorAction SilentlyContinue | ForEach-Object {
-        $sourcePath = $_.FullName
-        $targetPath = Join-Path $showcaseRoot $_.Name
-
-        if (Test-Path $targetPath) {
-            Remove-Item $targetPath -Recurse -Force
-        }
-
-        Copy-Item -Path $sourcePath -Destination $showcaseRoot -Recurse -Force
-        Write-Host "  Synced showcase model: $($_.Name)" -ForegroundColor Green
-    }
-}
-
-function Test-AuroraShowcaseSemanticModelsReady {
-    param([string]$ShowcaseRoot)
-
-    $missingArtifacts = @()
-    Get-ChildItem -Path $ShowcaseRoot -Directory -Filter "*.SemanticModel" -ErrorAction SilentlyContinue | ForEach-Object {
-        $pbismPath = Join-Path $_.FullName "definition.pbism"
-        $definitionPath = Join-Path $_.FullName "definition"
-        $nestedPath = Join-Path $_.FullName $_.Name
-        if (-not (Test-Path $pbismPath)) {
-            $missingArtifacts += "missing definition.pbism: $($_.FullName)"
-        }
-        if (-not (Test-Path $definitionPath)) {
-            $missingArtifacts += "missing definition folder: $($_.FullName)"
-        }
-        if (Test-Path $nestedPath) {
-            $missingArtifacts += "nested semantic model folder remains: $nestedPath"
-        }
-    }
-
-    if ($missingArtifacts.Count -gt 0) {
-        throw ($missingArtifacts -join "; ")
-    }
-}
-
 # PHASE 0: BUILD REGISTRY (required for Measure binding and Action Panel)
 $state.phase = "registry"
 $state.iteration = 0
@@ -738,7 +688,6 @@ $state.phase = "validate_fabric_output"
 $state.iteration = 6
 $distReportRoot = Join-Path $script:RepoRoot "products\fabric\powerbi\dist"
 $distRootParam = "products/fabric/powerbi/dist"
-$auroraModelRootParam = ($script:AuroraShowcaseModelRoot -replace '\\', '/')
 
 Invoke-WithRetry "Validate Fabric output" {
     # (0a) Normalize TMDL tabs (all .tmdl under dist) before any other TMDL steps
@@ -752,13 +701,6 @@ Invoke-WithRetry "Validate Fabric output" {
     if (Test-Path $ensureScript) {
         try { & $ensureScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch { Write-Verbose "Optional ensure-pbip-desktop-ready: $($_.Exception.Message)" }
     }
-
-    # (0a) Sync semantic models to the Aurora showcase path and enforce the same Desktop readiness there.
-    Sync-SemanticModelsToAuroraShowcase
-    if (Test-Path $ensureScript) {
-        try { & $ensureScript -DistRoot $auroraModelRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch { Write-Verbose "Optional ensure-pbip-desktop-ready (Aurora showcase): $($_.Exception.Message)" }
-    }
-    Test-AuroraShowcaseSemanticModelsReady -ShowcaseRoot (Join-Path $script:RepoRoot $script:AuroraShowcaseModelRoot)
 
     # (0b) Auto-fix best practices: summarizeBy: none + diagram layout (Spaghetti) so they are always applied
     foreach ($domainName in $byDomain.Keys) {

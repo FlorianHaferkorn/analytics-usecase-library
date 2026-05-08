@@ -1,7 +1,7 @@
 # products/fabric/powerbi/orchestrator/setup_connection.ps1
 
 Param(
-    [string]$WorkspaceRoot = "showcases/aurora_group/semantic_models",
+    [string]$WorkspaceRoot = "products/fabric/powerbi/dist",
     [string]$ModelName = "Commercial",
     [string]$ConnectionName = "local_pbip"
 )

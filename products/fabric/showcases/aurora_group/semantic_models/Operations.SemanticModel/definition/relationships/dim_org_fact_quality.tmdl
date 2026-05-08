@@ -1,3 +1,0 @@
-relationship dim_org_fact_quality
-	fromColumn: fact_quality.OrgKey
-	toColumn: dim_org.OrgKey

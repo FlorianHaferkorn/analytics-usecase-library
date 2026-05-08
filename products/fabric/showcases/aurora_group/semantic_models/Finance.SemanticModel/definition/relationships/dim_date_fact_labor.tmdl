@@ -1,3 +1,0 @@
-relationship dim_date_fact_labor
-	fromColumn: fact_labor.DateKey
-	toColumn: dim_date.DateKey

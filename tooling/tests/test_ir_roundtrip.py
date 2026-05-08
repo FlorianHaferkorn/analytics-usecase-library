@@ -1,8 +1,8 @@
 """
-IR roundtrip parity tests — Week 4 acceptance gate.
+IR roundtrip parity tests.
 
 Tests: bracket YAML → BracketCompiler → DashboardSpec → PBIPAdapter.render()
-       produces structurally valid PBIP output.
+       produces structurally valid PBIP output that matches scaffold-writer layout.
 
 These tests use in-memory bracket data so they run without a full repo checkout.
 The fixture bracket covers the minimum required structure (Overview + Detail pages,
@@ -70,6 +70,7 @@ from tooling.generator_core.ir.specs import (
 from products.fabric.powerbi.tooling.adapters.pbip import (
     PBIPAdapter,
     _build_tmdl_measures,
+    _speaking_report_name,
 )
 from tooling.generator_core.adapters.base import RenderResult
 
@@ -136,47 +137,100 @@ class TestBracketCompiler:
 
 # ── PBIP adapter render tests ─────────────────────────────────────────────────
 
+def _report_prefix(spec) -> str:
+    """Return the report folder prefix used in render() output keys."""
+    return f"{_speaking_report_name(spec.use_case_id, spec.title)}.Report"
+
+
 class TestPBIPAdapterRender:
     def test_render_returns_render_result(self, minimal_spec):
         result = PBIPAdapter().render(minimal_spec)
         assert isinstance(result, RenderResult)
 
     def test_definition_pbir_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        assert "COM-001.Report/definition.pbir" in result.files
+        assert f"{prefix}/definition.pbir" in result.files
+
+    def test_pbip_root_file_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
+        base = _speaking_report_name(minimal_spec.use_case_id, minimal_spec.title)
+        result = PBIPAdapter().render(minimal_spec)
+        assert f"{prefix}/{base}.pbip" in result.files
+
+    def test_version_json_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
+        result = PBIPAdapter().render(minimal_spec)
+        assert f"{prefix}/definition/version.json" in result.files
 
     def test_report_json_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        assert "COM-001.Report/definition/report.json" in result.files
+        assert f"{prefix}/definition/report.json" in result.files
 
     def test_pages_json_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        assert "COM-001.Report/definition/pages/pages.json" in result.files
+        assert f"{prefix}/definition/pages/pages.json" in result.files
 
     def test_overview_page_json_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        assert "COM-001.Report/definition/pages/Overview/page.json" in result.files
+        assert f"{prefix}/definition/pages/Overview/page.json" in result.files
 
     def test_detail_page_json_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        assert "COM-001.Report/definition/pages/Detail/page.json" in result.files
+        assert f"{prefix}/definition/pages/Detail/page.json" in result.files
 
     def test_definition_pbir_valid_json(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        content = result.files["COM-001.Report/definition.pbir"]
+        content = result.files[f"{prefix}/definition.pbir"]
         data = json.loads(content.decode("utf-8"))
         assert "datasetReference" in data
 
-    def test_pages_json_contains_both_pages(self, minimal_spec):
+    def test_definition_pbir_uses_registry_schema(self, minimal_spec):
+        from products.fabric.powerbi.tooling.schema_registry import DEFINITION_PBIR_SCHEMA
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        pages = json.loads(result.files["COM-001.Report/definition/pages/pages.json"])
+        data = json.loads(result.files[f"{prefix}/definition.pbir"].decode())
+        assert data["$schema"] == DEFINITION_PBIR_SCHEMA
+
+    def test_report_json_uses_registry_schema(self, minimal_spec):
+        from products.fabric.powerbi.tooling.schema_registry import REPORT_SCHEMA
+        prefix = _report_prefix(minimal_spec)
+        result = PBIPAdapter().render(minimal_spec)
+        data = json.loads(result.files[f"{prefix}/definition/report.json"].decode())
+        assert data["$schema"] == REPORT_SCHEMA
+
+    def test_version_json_uses_registry_schema(self, minimal_spec):
+        from products.fabric.powerbi.tooling.schema_registry import VERSION_METADATA_SCHEMA
+        prefix = _report_prefix(minimal_spec)
+        result = PBIPAdapter().render(minimal_spec)
+        data = json.loads(result.files[f"{prefix}/definition/version.json"].decode())
+        assert data["$schema"] == VERSION_METADATA_SCHEMA
+
+    def test_pages_json_contains_both_pages(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
+        result = PBIPAdapter().render(minimal_spec)
+        pages = json.loads(result.files[f"{prefix}/definition/pages/pages.json"].decode())
         assert "Overview" in pages["pageOrder"]
         assert "Detail" in pages["pageOrder"]
 
     def test_kpi_cards_visual_json_present(self, minimal_spec):
+        prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
-        key = "COM-001.Report/definition/pages/Overview/visuals/KPI_Cards/visual.json"
+        key = f"{prefix}/definition/pages/Overview/visuals/KPI_Cards/visual.json"
         assert key in result.files
+
+    def test_visual_json_uses_registry_schema(self, minimal_spec):
+        from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA
+        prefix = _report_prefix(minimal_spec)
+        result = PBIPAdapter().render(minimal_spec)
+        key = f"{prefix}/definition/pages/Overview/visuals/KPI_Cards/visual.json"
+        data = json.loads(result.files[key].decode())
+        assert data["$schema"] == VISUAL_SCHEMA
 
     def test_write_to_filesystem(self, minimal_spec, tmp_path):
         result = PBIPAdapter().render(minimal_spec)
@@ -187,6 +241,19 @@ class TestPBIPAdapterRender:
 
     def test_adapter_name(self):
         assert PBIPAdapter().name == "pbip"
+
+
+class TestSpeakingReportName:
+    def test_simple_title(self):
+        assert _speaking_report_name("COM-001", "Sales Performance") == "COM-001_Sales_Performance"
+
+    def test_special_chars_sanitized(self):
+        name = _speaking_report_name("FIN-002", "Revenue/Cost: Analysis")
+        assert "/" not in name
+        assert ":" not in name
+
+    def test_empty_title_uses_id_only(self):
+        assert _speaking_report_name("OPS-003", "") == "OPS-003"
 
 
 # ── TMDL generation tests ─────────────────────────────────────────────────────

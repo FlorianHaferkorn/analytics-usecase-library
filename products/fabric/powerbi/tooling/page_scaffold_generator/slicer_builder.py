@@ -7,12 +7,13 @@ Builds Power BI slicer visual structures.
 import uuid
 from typing import Dict, Any, Optional
 from .layout_calculator import Position
+from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA as _VISUAL_SCHEMA
 
 
 class SlicerBuilder:
     """Builds slicer JSON structures for PBIP format."""
-    
-    VISUAL_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json"
+
+    VISUAL_SCHEMA = _VISUAL_SCHEMA
     
     def __init__(self):
         """Initialize slicer builder."""

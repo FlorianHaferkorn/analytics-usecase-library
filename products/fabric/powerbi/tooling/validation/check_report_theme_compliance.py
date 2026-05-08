@@ -23,8 +23,10 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-
-REPORT_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.0.0/schema.json"
+try:
+    from products.fabric.powerbi.tooling.schema_registry import REPORT_SCHEMA
+except ImportError:
+    REPORT_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.0.0/schema.json"
 HEX_COLOR_RE = re.compile(r"#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?")
 
 STYLE_OBJECT_PROPERTIES: dict[str, set[str]] = {

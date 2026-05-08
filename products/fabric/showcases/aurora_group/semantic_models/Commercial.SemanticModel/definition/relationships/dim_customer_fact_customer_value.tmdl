@@ -1,3 +1,0 @@
-relationship dim_customer_fact_customer_value
-	fromColumn: fact_customer_value.CustomerKey
-	toColumn: dim_customer.CustomerKey

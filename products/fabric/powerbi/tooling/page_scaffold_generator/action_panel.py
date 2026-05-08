@@ -15,11 +15,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
-# PBIP schema URL for visual containers
-_VISUAL_SCHEMA = (
-    "https://developer.microsoft.com/json-schemas/fabric/"
-    "item/report/definition/visualContainer/1.2.0/schema.json"
-)
+from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA as _VISUAL_SCHEMA
 
 
 def _entity_ref(table: str, column: str) -> Dict[str, Any]:

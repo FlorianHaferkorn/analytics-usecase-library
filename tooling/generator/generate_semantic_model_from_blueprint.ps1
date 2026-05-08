@@ -1,6 +1,6 @@
 # Generate Semantic Model TMDL from Blueprint YAML
 # Purpose: Generate TMDL semantic model structure from domain blueprint YAML
-# Usage: .\generate_semantic_model_from_blueprint.ps1 -Blueprint "showcases/aurora_group/models/Commercial.yaml" -Output "showcases/aurora_group/semantic_models/Commercial.SemanticModel"
+# Usage: .\generate_semantic_model_from_blueprint.ps1 -Blueprint "products/fabric/powerbi/blueprints/Commercial.yaml" -Output "products/fabric/powerbi/dist/Commercial.SemanticModel"
 
 param(
 	[Parameter(Mandatory=$true)]

@@ -12,6 +12,7 @@ Canvas size: 1280 × 720 (Power BI default widescreen)
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -28,16 +29,20 @@ from tooling.generator_core.ir.specs import (
     VisualSpec,
     VisualType,
 )
+from products.fabric.powerbi.tooling.schema_registry import (
+    REPORT_SCHEMA as _REPORT_SCHEMA,
+    PAGE_SCHEMA as _PAGE_SCHEMA,
+    VISUAL_SCHEMA as _VISUAL_SCHEMA,
+    PAGES_METADATA_SCHEMA as _PAGES_SCHEMA,
+    VERSION_METADATA_SCHEMA as _VERSION_METADATA_SCHEMA,
+    PBIP_SCHEMA as _PBIP_SCHEMA,
+    DEFINITION_PBIR_SCHEMA as _DEFINITION_PBIR_SCHEMA,
+    DEFINITION_PBIR_VERSION as _DEFINITION_PBIR_VERSION,
+)
 
 # Power BI canvas dimensions in pixels
 _CANVAS_W = 1280
 _CANVAS_H = 720
-
-# PBIP schema constants
-_REPORT_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/1.0.0/schema.json"
-_PAGE_SCHEMA   = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.0.0/schema.json"
-_VISUAL_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.2.0/schema.json"
-_PAGES_SCHEMA  = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pages/1.0.0/schema.json"
 
 # IR VisualType → Power BI PBIP visualType strings
 _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {
@@ -177,10 +182,36 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
 
 def _build_definition_pbir(semantic_model: str) -> Dict[str, Any]:
     return {
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/definitionProperties/2.0.0/schema.json",
-        "version": "4.0",
+        "$schema": _DEFINITION_PBIR_SCHEMA,
+        "version": _DEFINITION_PBIR_VERSION,
         "datasetReference": {"byPath": {"path": f"../../{semantic_model}"}},
     }
+
+
+def _build_version_json() -> Dict[str, Any]:
+    """Build definition/version.json — required by Desktop and validate_pbip."""
+    return {
+        "$schema": _VERSION_METADATA_SCHEMA,
+        "version": "2.0.0",
+    }
+
+
+def _build_pbip_root() -> Dict[str, Any]:
+    """Build the root .pbip file that tells Desktop which artifact this folder is."""
+    return {
+        "$schema": _PBIP_SCHEMA,
+        "version": "1.0",
+        "artifacts": [{"report": {"path": "."}}],
+    }
+
+
+def _speaking_report_name(use_case_id: str, title: str) -> str:
+    """Derive speaking report folder name (e.g. 'COM-001_Sales_Performance').
+
+    Matches the convention used by the scaffold writer: ID + sanitized title.
+    """
+    safe_title = re.sub(r'[<>:"/\\|?*\s]+', "_", title).strip("_")
+    return f"{use_case_id}_{safe_title}" if safe_title else use_case_id
 
 
 def _build_tmdl_measures(measures: List[MeasureSpec]) -> str:
@@ -319,14 +350,18 @@ class PBIPAdapter(GeneratorAdapter):
 
     def render(self, spec: DashboardSpec) -> RenderResult:
         files: Dict[str, bytes] = {}
-        report_name = f"{spec.use_case_id}.Report"
+        base_name = _speaking_report_name(spec.use_case_id, spec.title)
+        report_name = f"{base_name}.Report"
+        pbip_filename = f"{base_name}.pbip"
 
         def _json(obj: Any) -> bytes:
             return json.dumps(obj, indent=2, ensure_ascii=False).encode("utf-8")
 
-        files[f"{report_name}/definition.pbir"]            = _json(_build_definition_pbir(spec.semantic_model))
-        files[f"{report_name}/definition/report.json"]     = _json(_build_report_json(spec))
-        files[f"{report_name}/definition/pages/pages.json"] = _json(_build_pages_json(spec.pages))
+        files[f"{report_name}/{pbip_filename}"]              = _json(_build_pbip_root())
+        files[f"{report_name}/definition.pbir"]              = _json(_build_definition_pbir(spec.semantic_model))
+        files[f"{report_name}/definition/version.json"]      = _json(_build_version_json())
+        files[f"{report_name}/definition/report.json"]       = _json(_build_report_json(spec))
+        files[f"{report_name}/definition/pages/pages.json"]  = _json(_build_pages_json(spec.pages))
 
         for page in spec.pages:
             base = f"{report_name}/definition/pages/{page.id}"

@@ -10,12 +10,13 @@ from .layout_calculator import LayoutCalculator, Position
 from .grid_calculator import GridCalculator, GridPosition
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
+from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE_SCHEMA
 
 
 class PageBuilder:
     """Builds page JSON structures for PBIP format."""
-    
-    PAGE_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json"
+
+    PAGE_SCHEMA = _PAGE_SCHEMA
     
     def __init__(self):
         """Initialize page builder."""

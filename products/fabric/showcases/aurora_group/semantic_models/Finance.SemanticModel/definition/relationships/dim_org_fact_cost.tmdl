@@ -1,3 +1,0 @@
-relationship dim_org_fact_cost
-	fromColumn: fact_cost.OrgKey
-	toColumn: dim_org.OrgKey

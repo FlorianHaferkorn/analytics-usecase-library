@@ -21,7 +21,7 @@ Param(
   [string]$TargetTablesDir = "",
   # When set with TargetTablesDir: write one _Measures_<UC>.tmdl per use case (delta). Only touched use cases are written; others stay unchanged.
   [switch]$PerUseCaseFiles,
-  # Compatibility flag for Aurora demo flows. Keeps Aurora-specific invocation style but still writes to dist.
+  # Deprecated: no-op. Semantic models write directly to dist; showcase mirror was removed.
   [switch]$UseAuroraShowcase,
   # Skip generation of _ActionReady_Logic.tmdl (action-text measures).
   [switch]$SkipActionLogic
@@ -952,7 +952,7 @@ if (-not $script:UseIRPath) {
 # Primary output: dist domain semantic model. Aurora showcase copies are synced from dist by the orchestrator.
 $resolvedTablesDir = $null
 if ($UseAuroraShowcase) {
-  Write-Host "UseAuroraShowcase selected: writing canonical semantic model output to dist; Aurora showcase copies should be synced from dist." -ForegroundColor Gray
+  Write-Host "UseAuroraShowcase is deprecated and has no effect; semantic models always write to dist." -ForegroundColor Yellow
 }
 if ($TargetTablesDir -and $TargetTablesDir.Trim().Length -gt 0) {
   if (Test-Path $TargetTablesDir) { $resolvedTablesDir = (Resolve-Path $TargetTablesDir).Path }

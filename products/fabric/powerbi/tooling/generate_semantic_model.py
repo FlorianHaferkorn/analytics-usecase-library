@@ -39,6 +39,7 @@ from pathlib import Path
 import yaml
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from tooling.utils.yaml_loader import load_yaml  # shared utility
+from products.fabric.powerbi.tooling.schema_registry import SEMANTIC_MODEL_SCHEMA as _SM_SCHEMA
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Paths (relative to this script)
@@ -256,7 +257,7 @@ def generate_domain(domain: str, gold_path: str, dry_run: bool = False):
     # 5. definition.pbism
     pbism = {
         "settings": {},
-        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/definitionProperties/1.0.0/schema.json",
+        "$schema": _SM_SCHEMA,
         "version": "4.2"
     }
     write_file(model_dir / "definition.pbism", json.dumps(pbism, indent=4), dry_run)

@@ -7,12 +7,13 @@ Builds Power BI visual placeholder structures.
 import uuid
 from typing import Dict, Any, Optional, List
 from .layout_calculator import Position
+from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA as _VISUAL_SCHEMA
 
 
 class VisualBuilder:
     """Builds visual JSON structures for PBIP format."""
-    
-    VISUAL_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json"
+
+    VISUAL_SCHEMA = _VISUAL_SCHEMA
     
     def __init__(self):
         """Initialize visual builder."""
