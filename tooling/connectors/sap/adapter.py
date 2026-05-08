@@ -38,6 +38,7 @@ from tooling.connectors.sap.schema_map import (
     FACT_GL_JOURNAL_SCHEMA,
     FACT_INVENTORY_SCHEMA,
     FACT_SALES_SCHEMA,
+    SAP_FIELD_MAP_REGISTRY,
     SAP_SCHEMA_REGISTRY,
 )
 
@@ -221,12 +222,20 @@ class SAPConnectorAdapter(ConnectorAdapter[SAPConfig]):
         entity: str,
         schema: pa.Schema,
     ) -> pa.RecordBatch:
-        """Convert OData JSON result rows to an Arrow RecordBatch."""
+        """Convert OData JSON result rows to an Arrow RecordBatch.
+
+        SAP OData responses use SAP technical field names (e.g. "NETWR"),
+        while the Aurora schema uses display names (e.g. "Net Sales Amount").
+        SAP_FIELD_MAP_REGISTRY[entity] maps Aurora name → SAP field name so
+        each column is fetched under the correct key from the response row.
+        """
+        aurora_to_sap = SAP_FIELD_MAP_REGISTRY.get(entity, {})
         columns: Dict[str, List] = {field.name: [] for field in schema}
 
         for row in results:
             for f in schema:
-                raw = row.get(f.name)
+                sap_field = aurora_to_sap.get(f.name, f.name)
+                raw = row.get(sap_field)
                 if pa.types.is_integer(f.type) and raw is not None:
                     raw = int(raw)
                 elif pa.types.is_floating(f.type) and raw is not None:

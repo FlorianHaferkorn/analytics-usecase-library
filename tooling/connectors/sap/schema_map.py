@@ -60,6 +60,7 @@ VBAK_VBAP_FIELD_MAP: dict[str, str] = {
     "KWMENG":           "Quantity",
     # Pricing amounts (EUR)
     "KBETR_LIST":       "List Price Amount",
+    "KBETR_NET":        "Net Price Amount",
     "NETWR":            "Net Sales Amount",
     "KBETR_DISC":       "Discount Amount",
     "VPRSV":            "Cost of Goods Sold Amount",
@@ -120,6 +121,8 @@ MARA_MBEW_FIELD_MAP: dict[str, str] = {
     "STICHDAT": "DateKey",
     "LBKUM":   "Average Inventory Units",
     "SALK3":   "Average Inventory Amount",
+    "EISBE":   "Obsolete Inventory Units",
+    "MLMAA":   "Obsolete Inventory Amount",
     "GJAHR":   "FiscalYear",
     "POPER":   "FiscalMonth",
 }
@@ -130,4 +133,16 @@ SAP_SCHEMA_REGISTRY: dict[str, pa.Schema] = {
     "fact_sales":       FACT_SALES_SCHEMA,
     "fact_gl_journal":  FACT_GL_JOURNAL_SCHEMA,
     "fact_inventory":   FACT_INVENTORY_SCHEMA,
+}
+
+# ── Reverse look-up: Aurora column name → SAP OData field name ────────────────
+# Used by _odata_results_to_batch to translate live SAP responses into the
+# Aurora column names that the Arrow schema expects.  Falls back to f.name
+# (identity) for any column not in the map — this is correct for synthetic
+# columns such as InvoiceLineID and JournalLineID that are assembled by the
+# adapter before _odata_results_to_batch is called.
+SAP_FIELD_MAP_REGISTRY: dict[str, dict[str, str]] = {
+    "fact_sales": {aurora: sap for sap, aurora in VBAK_VBAP_FIELD_MAP.items()},
+    "fact_gl_journal": {aurora: sap for sap, aurora in BKPF_BSEG_FIELD_MAP.items()},
+    "fact_inventory": {aurora: sap for sap, aurora in MARA_MBEW_FIELD_MAP.items()},
 }
