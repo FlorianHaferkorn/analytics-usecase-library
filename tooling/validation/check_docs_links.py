@@ -25,14 +25,6 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 DEPRECATED_PATTERNS: list[tuple[str, str]] = [
     (
-        r"showcases/aurora_group/semantic_models",
-        "aurora_group/semantic_models was deleted; use products/fabric/powerbi/dist/ instead",
-    ),
-    (
-        r"products/fabric/showcases/aurora_group/semantic_models",
-        "aurora_group/semantic_models was deleted; use products/fabric/powerbi/dist/ instead",
-    ),
-    (
         r"tooling[/\\]generation[/\\]",
         "tooling/generation/ was renamed; use tooling/generator/ (or current script path)",
     ),

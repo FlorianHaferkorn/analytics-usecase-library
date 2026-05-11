@@ -133,7 +133,7 @@ Run from **repository root**:
    `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`  
    TMDL syntax, PBIP readiness, measures vs KPI catalog, TMDL vs measure dictionary, DAX best practices.
 
-**Recommendation:** Run Stage 1 on every PR targeting main. Run Fabric checks on every PR that changes `core/kpi_catalog/`, `core/semantic_models/`, or `products/fabric/powerbi/dist/`.
+**Recommendation:** Run Stage 1 on every PR targeting main. Run Fabric checks on every PR that changes `core/kpi_catalog/`, `core/semantic_models/`, `products/fabric/powerbi/dist/`, or Aurora showcase semantic models under `products/fabric/showcases/aurora_group/semantic_models/`.
 
 ### 4.2 Optional: Environment Setup and Release (FabricAutomation Pattern)
 
