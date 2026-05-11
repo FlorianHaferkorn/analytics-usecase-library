@@ -47,7 +47,7 @@ When implementing in Fabric/Power BI, use these in combination with this guide:
 | Stage 1 validation (docs, refs, structure) | `tooling/run_stage1_checks.ps1` |
 | Full validation (Stage 1 + Fabric checks) | `tooling/run_all_checks.ps1` |
 | Fabric-only checks (measures vs KPI, TMDL vs dictionary, DAX) | `products/fabric/powerbi/tooling/run_fabric_checks.ps1` |
-| TMDL measure generation from KPI catalog | `tooling/generation/generate_tmdl_measures.ps1` |
+| TMDL measure generation from KPI catalog | `tooling/generator/generate_tmdl_measures.ps1` |
 
 Output for generated TMDL and reports: `products/fabric/powerbi/dist`. Pipeline: `products/fabric/powerbi/orchestrator/orchestrate_full_model.ps1`. See **DEMO_AND_VERIFICATION.md** for run and verification steps.
 

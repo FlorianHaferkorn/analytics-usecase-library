@@ -1,4 +1,4 @@
-<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+﻿<!-- AUTO-GENERATED from docs/agent/ â€” do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
 name: fabric-powerbi-validation
@@ -24,15 +24,15 @@ Run Fabric-specific checks for TMDL syntax, DAX best practices, measure dictiona
    - TMDL vs measure dictionary consistency
    - DAX best practices (via BPA rules)
 3. **On failure, diagnose**:
-   - **Measures vs KPI**: KPI IDs in measure dictionary don't match catalog → fix `core/semantic_models/domains/*.yaml` measure dictionary OR add KPI to catalog.
-   - **TMDL vs dictionary**: Measures in TMDL don't match dictionary → regenerate TMDL or update dictionary.
-   - **Diagram layout**: Model view layout violates spaghetti principle → fix `diagramLayout.json` (see layout rules below).
-   - **TMDL syntax**: Indentation or syntax error → check tabs-only indentation, no `:=` in DAX.
+   - **Measures vs KPI**: KPI IDs in measure dictionary don't match catalog â†’ fix `core/semantic_models/domains/*.yaml` measure dictionary OR add KPI to catalog.
+   - **TMDL vs dictionary**: Measures in TMDL don't match dictionary â†’ regenerate TMDL or update dictionary.
+   - **Diagram layout**: Model view layout violates spaghetti principle â†’ fix `diagramLayout.json` (see layout rules below).
+   - **TMDL syntax**: Indentation or syntax error â†’ check tabs-only indentation, no `:=` in DAX.
 4. **For regeneration**:
    ```powershell
-   .\tooling\generation\generate_tmdl_measures.ps1 -UseCase <id>
+   .\\tooling\\generator\\generate_tmdl_measures.ps1 -UseCase <id>
    # OR for all:
-   .\tooling\generation\generate_all_measures.ps1
+   .\\tooling\\generator\\generate_all_measures.ps1
    ```
 
 ## TMDL rules
@@ -68,3 +68,4 @@ Validated by `check_diagram_layout.ps1` (part of Fabric checks).
 - Measure dictionaries: `core/semantic_models/domains/`
 - KPI catalog: `core/kpi_catalog/`
 - BPA rules: `tooling/linters/powerbi/bpa-rules-tmdl.json`
+

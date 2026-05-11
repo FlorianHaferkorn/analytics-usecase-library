@@ -15,7 +15,6 @@ Templates are the fastest way to make implementation:
 ## Current references (until templates are migrated/created here)
 
 - Sample report/theme scaffold: `showcases/sample_pbip_report/`
-- Aurora PBIP assets: `showcases/aurora_group/semantic_models/`
 - Page templates and governance: `core/templates/page_templates/`
 
 ## Themes

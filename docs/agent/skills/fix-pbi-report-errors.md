@@ -82,7 +82,7 @@ Ist das Fehlermuster bereits dokumentiert?
 
 **Fehlende Measures:**
 1. KPI im Katalog anlegen (`core/kpi_catalog/`)
-2. Measures regenerieren: `.\tooling\generation\generate_tmdl_measures.ps1 -UseCase <ID> -OverwriteExisting`
+2. Measures regenerieren: `.\tooling\generator\generate_tmdl_measures.ps1 -UseCase <ID> -OverwriteExisting`
 
 ### 5. Generator-Fix (wenn Bug im Generator)
 

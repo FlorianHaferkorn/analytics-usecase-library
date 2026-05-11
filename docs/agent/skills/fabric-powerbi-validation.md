@@ -22,9 +22,9 @@ Run Fabric-specific checks for TMDL syntax, DAX best practices, measure dictiona
    - **TMDL syntax**: Indentation or syntax error → check tabs-only indentation, no `:=` in DAX.
 4. **For regeneration**:
    ```powershell
-   .\tooling\generation\generate_tmdl_measures.ps1 -UseCase <id>
-   # OR for all:
-   .\tooling\generation\generate_all_measures.ps1
+   .\tooling\generator\generate_tmdl_measures.ps1 -UseCase <id>
+   # OR for all use cases: run orchestrate_full_model.ps1
+   .\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1
    ```
 
 ## TMDL rules

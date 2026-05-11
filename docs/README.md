@@ -1,49 +1,82 @@
-# ActionReady Analytics Platform — Entry Point
+# Analytics Framework — Navigation Hub
 
-This is the single public navigation entry for all audiences.
+New to the repo? Start with **[`ONBOARDING.md`](../ONBOARDING.md)** — one-hour guided path for Day 1.
 
-## For executives
+Want the architecture picture first? See **[`docs/architecture/README.md`](architecture/README.md)** — Golden Thread diagram, folder roles, source vs. generated.
 
-- Start with: `docs/presentations/executive_summary.md`
-- Full narrative: `docs/presentations/framework_overview.md`
-- Current status and roadmap: `internal/presentation_status_and_roadmap.md`
+---
 
-## For implementers
+## Role-based entry points
 
-- Core framework (tool-agnostic): `core/`
-- Platform product (Fabric/Power BI): `products/fabric/powerbi/`
-- Implementation playbook: `core/implementation_guides/playbook_strategy_to_first_report.md`
-- Core stability contract (artifact roles, IDs, allowed edges): `core/strategy_operating_model/operating_model/core_constitution.md`
+### Business / Domain Lead
 
-## For maintainers
+You define KPIs, own use cases, and drive decision-oriented analytics.
 
-- Shared tooling and checks: `tooling/`
-- Maintainer-only strategy/CI/archive: `internal/`
+| Start here | Purpose |
+|---|---|
+| [`core/usecases/core/`](../core/usecases/core/) | Browse existing use cases by domain |
+| [`core/kpi_catalog/golden_20.yaml`](../core/kpi_catalog/golden_20.yaml) | The 20 strategic KPIs that form the Golden Thread |
+| [`core/action_codes/`](../core/action_codes/) | Action recommendations triggered by KPI deviations |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md) → "Adding a new use case" | How to add your use case |
 
-## Quality gates
+### Power BI Developer
 
-- **Stage 1 (mandatory):** `.\tooling\run_stage1_checks.ps1` — schema, factsheets, KPI/action consistency, governance. No merge or release without Stage 1 green.
-- Full validation: `.\tooling\run_all_checks.ps1`
-- Fabric-only checks: `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`
+You build and maintain semantic models and reports on Microsoft Fabric.
 
-**Zero tolerance:** CI and release must not skip Stage 1. Branch protection should require the Stage 1 check to pass before merge. See [.github/workflows/stage1.yml](../.github/workflows/stage1.yml).
+| Start here | Purpose |
+|---|---|
+| [`products/fabric/powerbi/README.md`](../products/fabric/powerbi/README.md) | Fabric entry point — folder structure, workflow, validation |
+| [`products/fabric/powerbi/dist/`](../products/fabric/powerbi/dist/) | Generated semantic models and reports (read to understand output) |
+| [`products/fabric/powerbi/orchestrator/`](../products/fabric/powerbi/orchestrator/) | Source scripts for generation and orchestration |
+| [`products/fabric/powerbi/docs/`](../products/fabric/powerbi/docs/) | Fabric-specific architecture, TMDL conventions, PBIR structure |
+| `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` | Fabric validation gate |
 
-## Prerequisite
+### Data Engineer
 
-Run once from repo root:
+You build and own the data pipelines that feed Silver and Gold layers.
 
-```powershell
-cd tooling\validation
-npm ci
-```
+| Start here | Purpose |
+|---|---|
+| [`core/data_contracts/`](../core/data_contracts/) | Silver-layer schemas (domains and sources) |
+| [`core/strategy_operating_model/operating_model/`](../core/strategy_operating_model/operating_model/) | Data layer standard (Silver-first model) |
+| [`core/implementation_guides/playbook_strategy_to_first_report.md`](../core/implementation_guides/playbook_strategy_to_first_report.md) | Step 3: Silver contracts and semantic requirements |
 
-## Structure at a glance
+### Maintainer / Platform Engineer
 
-```yaml
-core/        # tool-agnostic framework SSOT
-products/    # platform/domain product packages
-tooling/     # shared generation/validation/automation
-showcases/   # reference implementations
-docs/        # entry points and architecture
-internal/    # maintainer-only CI, strategy, archive
-```
+You own CI, tooling, governance, and releases.
+
+| Start here | Purpose |
+|---|---|
+| [`tooling/README.md`](../tooling/README.md) | Overview of all validators, generators, and automation |
+| `.\tooling\run_stage1_checks.ps1` | Mandatory pre-merge gate |
+| [`internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`](../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) | Curated error knowledge base |
+| [`internal/continuity/runbook.md`](../internal/continuity/runbook.md) | Release and maintenance runbook |
+
+### AI Agent User (Cursor / Claude / Copilot)
+
+You use AI tools to accelerate development inside this repo.
+
+| Start here | Purpose |
+|---|---|
+| [`AGENTS.md`](../AGENTS.md) | Agent operating rules (all tools) |
+| [`CLAUDE.md`](../CLAUDE.md) | Claude Code–specific rules and TMDL/DAX conventions |
+| [`docs/agent/README.md`](agent/README.md) | Skills index — reusable agent workflows |
+| [`docs/agent/skills/`](agent/skills/) | Individual skill files (add-usecase-scaffold, fix-stage1-failure, …) |
+
+---
+
+## Canonical reading path (any role, 60 min)
+
+Follow [`ONBOARDING.md`](../ONBOARDING.md). It is structured to get you productive in one hour without reading this index end-to-end.
+
+---
+
+## Quality gates (run from repo root)
+
+| Gate | Command | Required |
+|---|---|---|
+| Stage 1 (always) | `.\tooling\run_stage1_checks.ps1` | Before every merge |
+| Fabric | `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` | When changing Fabric output |
+| OSS | `bash products/open_source_stack/tooling/run_oss_checks.sh` | When changing OSS stack |
+| Full local | `.\tooling\run_all_checks.ps1` | Before release |
+| Health scorecard | `python tooling/health_scorecard.py` | Recommended |

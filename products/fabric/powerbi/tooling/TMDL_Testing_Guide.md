@@ -129,7 +129,7 @@ code --install-extension analysis-services.TMDL
 ### 3. Beispiel: COM-001 (Sales Performance) testen
 ```powershell
 # Schritt 1: Measures generieren
-./tooling/generation/generate_tmdl_measures.ps1 -UseCase "COM-001" -OverwriteExisting
+./tooling/generator/generate_tmdl_measures.ps1 -UseCase "COM-001" -OverwriteExisting
 
 # Schritt 2: Syntax validieren
 ./products/fabric/powerbi/tooling/test_tmdl.ps1 -TmdlFile "products\fabric/powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl"

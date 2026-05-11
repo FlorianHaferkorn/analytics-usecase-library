@@ -28,7 +28,7 @@ Multi-Operations:
 ```powershell
 do {
     # Generate measures
-    ./tooling/generation/generate_tmdl_measures.ps1 -UseCase $UseCase
+    ./tooling/generator/generate_tmdl_measures.ps1 -UseCase $UseCase
     
     # Validate
     $result = ./products/fabric/powerbi/tooling/test_tmdl.ps1 -TmdlFile $tmdlPath

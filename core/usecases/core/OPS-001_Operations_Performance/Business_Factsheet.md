@@ -19,7 +19,7 @@ factsheet_type: business
 - **Reporting Level:** Tactical / Operational
 - **Analytics Stage:** Diagnostic
 - **Related Data Contract:** core/data_contracts/domains/operations.yaml
-- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Aurora: showcases/aurora_group/semantic_models/Operations.SemanticModel (domain model for OPS-*).
+- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Implementation: products/fabric/powerbi/dist/Operations.SemanticModel (domain model for OPS-*).
 
 ---
 

@@ -37,7 +37,7 @@ Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Cod
 .\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1 -UseCase <ID> -UseAuroraData
 
 # Oder nur Measures generieren
-.\tooling\generation\generate_tmdl_measures.ps1 -UseCase <ID>
+.\tooling\generator\generate_tmdl_measures.ps1 -UseCase <ID>
 ```
 
 **Validierung:**

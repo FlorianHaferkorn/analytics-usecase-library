@@ -11,14 +11,12 @@ The primary goal is to turn abstract framework concepts into tangible, high-qual
 
 Included:
 
-- Complete reference implementations (e.g., Aurora Group)
-- Example data contracts and sample datasets
-- Semantic models built according to ActionReady standards
-- Fully structured use cases (business + technical)
-- Report designs, screenshots, and navigation flows
+- Company profile, operating model, and synthetic gold data (Aurora Group)
+- Archived PBIP example for structural reference (sample_pbip_report)
 
 Not included:
 
+- Semantic models and reports — these are in `products/fabric/powerbi/dist/`
 - Customer-specific implementations (kept in separate project repositories)
 - Internal drafts, prototypes, or experiments
 - Tool-specific implementation guides (see `products/fabric/powerbi/docs/`)
@@ -27,25 +25,25 @@ Not included:
 
 ```yaml
 showcases/
-  aurora_group/        → Full end-to-end reference implementation
+  aurora_group/        → Company profile, operating model, and synthetic gold data
     company/           → Business profile, value chain, org model
-    data/              → Sample data contracts and synthetic data
-    semantic_model/    → ActionReady semantic model applied to Aurora
-    usecases/          → Core/Extended Aurora use cases (link to core/usecases/core)
-    reporting/         → Screenshots, navigation map, page flows
+    data/              → Synthetic gold layer (fact_*, dim_*) + generation scripts
+    usecases/          → Aurora demo scope (pointers to core/usecases/core)
+  sample_pbip_report/  → ARCHIVED — structural reference only; do not use for new work
 ```
+
+> **Semantic models and reports are NOT stored here.**
+> Generated artefacts live in `products/fabric/powerbi/dist/`.
 
 ### aurora_group/
 
-This is the flagship showcase.  
-It demonstrates the entire ActionReady stack:
+This is the active showcase. It provides company context (Aurora Group is the synthetic demo company used across all framework examples).  
+It demonstrates:
 
-- Company-layer alignment  
-- Operating model principles  
-- ActionReady semantic layer  
-- Action Codes in action  
-- KPIs, measures, and reporting design  
-- Page templates (3-30-300) applied in real context  
+- Company-layer alignment (strategy to KPIs)
+- Operating model principles
+- Synthetic gold data aligned to data contracts (`core/data_contracts/`)
+- Demo use case scope aligned to `core/usecases/core/`
 
 ## Usage
 

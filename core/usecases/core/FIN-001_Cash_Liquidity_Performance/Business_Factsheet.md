@@ -19,7 +19,7 @@ factsheet_type: business
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Predictive
 - **Related Data Contract:** core/data_contracts/domains/finance.yaml
-- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Aurora: showcases/aurora_group/semantic_models/Finance.SemanticModel (domain model for FIN-*).
+- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Implementation: products/fabric/powerbi/dist/Finance.SemanticModel (domain model for FIN-*).
 
 ---
 

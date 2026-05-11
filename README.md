@@ -50,14 +50,14 @@ Run all commands from the **repository root**.
 
 ```powershell
 # Generate TMDL measures from the KPI catalog
-.\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
+.\tooling\generator\generate_tmdl_measures.ps1 -UseCase COM-001 -OverwriteExisting
 
 # Validate
 .\tooling\run_stage1_checks.ps1
 .\products\fabric\powerbi\tooling\run_fabric_checks.ps1
 ```
 
-Output lands in `products/fabric/powerbi/dist/<Domain>.SemanticModel/`. Layout, PBIP, and theme details live in `products/fabric/powerbi/docs/`.
+Output lands in `products/fabric/powerbi/dist/<Domain>.SemanticModel/`. See `products/fabric/powerbi/README.md` for full workflow details.
 
 ## Validation gates
 

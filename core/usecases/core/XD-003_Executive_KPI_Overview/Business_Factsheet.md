@@ -22,7 +22,7 @@ factsheet_type: business
 - **Reporting Level:** Strategic
 - **Analytics Stage:** Descriptive / Diagnostic
 - **Related Data Contract:** core/data_contracts/domains/executive.yaml
-- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Aurora: showcases/aurora_group/semantic_models/Experience.SemanticModel (domain model for XD-*).
+- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Implementation: products/fabric/powerbi/dist/Experience.SemanticModel (domain model for XD-*).
 
 ---
 

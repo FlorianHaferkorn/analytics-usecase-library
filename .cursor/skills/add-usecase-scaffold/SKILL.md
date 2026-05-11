@@ -1,4 +1,4 @@
-<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+﻿<!-- AUTO-GENERATED from docs/agent/ â€” do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
 name: add-usecase-scaffold
@@ -14,7 +14,7 @@ Generate a new use case directory with `Business_Factsheet.md` and `UseCase_Brac
 
 1. **Use generation script** (if available):
    ```powershell
-   .\tooling\generation\new_usecase.ps1 -Id "XXX-###" -Title "Use Case Title"
+   .\\tooling\\generator\\new_usecase.ps1 -Id "XXX-###" -Title "Use Case Title"
    ```
    - ID format: `COM-001`, `FIN-001`, `OPS-001`, `SCM-001`, `XD-001` (domain prefix + number).
 2. **If script unavailable, create manually**:
@@ -55,19 +55,19 @@ After scaffold completion, verify:
 ## Error Handling
 
 **If generation script fails or doesn't exist:**
-→ Create directory and files manually using templates in `core/usecases/templates/`
+â†’ Create directory and files manually using templates in `core/usecases/templates/`
 
 **If KPI ID doesn't exist in catalog:**
-→ Use `add-kpi-reference-safely` skill OR add KPI to `core/kpi_catalog/` first
+â†’ Use `add-kpi-reference-safely` skill OR add KPI to `core/kpi_catalog/` first
 
 **If governance role doesn't exist:**
-→ Add role to `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context) before referencing in bracket
+â†’ Add role to `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context) before referencing in bracket
 
 **If action code ID doesn't exist:**
-→ Use `add-action-code-and-wire-up` skill OR create action code in `core/action_codes/` first
+â†’ Use `add-action-code-and-wire-up` skill OR create action code in `core/action_codes/` first
 
 **If Stage 1 fails after scaffold:**
-→ Use `fix-stage1-failure` skill to diagnose and fix specific check
+â†’ Use `fix-stage1-failure` skill to diagnose and fix specific check
 
 ## Guardrails
 
@@ -83,3 +83,4 @@ After scaffold completion, verify:
 - Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)
 - KPI catalog: `core/kpi_catalog/`
 - Action codes: `core/action_codes/`
+

@@ -6,7 +6,7 @@ Generate a new use case directory with `Business_Factsheet.md` and `UseCase_Brac
 
 1. **Use generation script** (if available):
    ```powershell
-   .\tooling\generation\new_usecase.ps1 -Id "XXX-###" -Title "Use Case Title"
+   .\tooling\generator\new_usecase.ps1 -Id "XXX-###" -Title "Use Case Title"
    ```
    - ID format: `COM-001`, `FIN-001`, `OPS-001`, `SCM-001`, `XD-001` (domain prefix + number).
 2. **If script unavailable, create manually**:

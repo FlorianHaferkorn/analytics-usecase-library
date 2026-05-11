@@ -5,7 +5,7 @@
 Domain-specific semantic model blueprints that:
 
 - Define which use cases, tables, relationships, and measures belong to each domain
-- Drive TMDL generation (via `tooling/generation/` or the Fabric orchestrator)
+- Drive TMDL generation (via `tooling/generator/` or the Fabric orchestrator)
 - Rely on **data contracts** in `core/data_contracts/domains/`. Aurora gold data lives in `showcases/aurora_group/data/gold/`.
 
 ## Architecture
@@ -63,7 +63,7 @@ display_folders: [...]
 
 ```powershell
 # Generate Commercial semantic model from blueprint (output to Fabric dist)
-./tooling/generation/generate_semantic_model_from_blueprint.ps1 `
+./tooling/generator/generate_semantic_model_from_blueprint.ps1 `
   -Blueprint "products/fabric/powerbi/blueprints/Commercial.yaml" `
   -Output "products/fabric/powerbi/dist/Commercial.SemanticModel"
 ```

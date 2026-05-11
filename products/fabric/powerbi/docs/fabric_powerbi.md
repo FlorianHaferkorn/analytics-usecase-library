@@ -31,7 +31,7 @@ Not included:
 - **KPI catalog:** `core/kpi_catalog/` — source for measure definitions and KPI mapping; used by TMDL generation.
 - **Validation:** `tooling/run_stage1_checks.ps1` (docs/structure); `tooling/run_all_checks.ps1` (Stage 1 + Fabric checks).
 - **Fabric checks:** `products/fabric/powerbi/tooling/run_fabric_checks.ps1` — measures vs KPI, TMDL vs measure dictionary, DAX best practices.
-- **TMDL generation:** `tooling/generation/generate_tmdl_measures.ps1` — generates `_Measures.tmdl` from KPI catalog; output to `products/fabric/powerbi/dist` or a showcase path.
+- **TMDL generation:** `tooling/generator/generate_tmdl_measures.ps1` — generates `_Measures.tmdl` from KPI catalog; output to `products/fabric/powerbi/dist`.
 
 ---
 

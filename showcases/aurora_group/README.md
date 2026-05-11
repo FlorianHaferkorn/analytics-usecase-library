@@ -1,5 +1,8 @@
 # Aurora Group Showcase
 
+> **Scope:** Company profile, operating model, and synthetic gold data only.
+> Semantic models and reports are **not** stored here — they live in `products/fabric/powerbi/dist/`.
+
 Purpose: Demonstrate the ActionReady Analytics Framework with a **realistic synthetic company**. Aurora is tool-agnostic: company profile, operating model, and gold data. Report creation, semantic models, and pipeline live under the **tool-specific product** (e.g. Fabric: `products/fabric/powerbi/`).
 
 ## What Aurora contains

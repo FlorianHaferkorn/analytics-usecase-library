@@ -1,4 +1,4 @@
-<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+﻿<!-- AUTO-GENERATED from docs/agent/ â€” do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
 name: fix-pbi-report-errors
@@ -8,24 +8,24 @@ version: "1.1.0"
 
 # Fix Power BI Report Errors
 
-Diagnose- und Reparatur-Workflow für Fehler in Power BI Reports und Semantic Models. Jeder Fix wird in der Knowledge Base dokumentiert, damit sich Fehler nicht wiederholen.
+Diagnose- und Reparatur-Workflow fÃ¼r Fehler in Power BI Reports und Semantic Models. Jeder Fix wird in der Knowledge Base dokumentiert, damit sich Fehler nicht wiederholen.
 
-Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Code, Cursor, Copilot, etc.) und von Menschen gleichermaßen verwendet werden.
+Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Code, Cursor, Copilot, etc.) und von Menschen gleichermaÃŸen verwendet werden.
 
 ## Wann verwenden
 
-- Power BI Desktop zeigt Fehler beim Öffnen eines Reports
+- Power BI Desktop zeigt Fehler beim Ã–ffnen eines Reports
 - Visuals sind leer, Felder landen im Filter statt in Field Wells
-- TMDL-Validierung schlägt fehl
+- TMDL-Validierung schlÃ¤gt fehl
 - Measures fehlen oder DAX-Fehler
 - Pipeline/Orchestrator meldet Fehler
-- `.cursor/pbi_errors.log` enthält neue Einträge
+- `.cursor/pbi_errors.log` enthÃ¤lt neue EintrÃ¤ge
 
 ## Workflow
 
 ### 1. Fehler erfassen
 
-**Quellen für Fehlermeldungen:**
+**Quellen fÃ¼r Fehlermeldungen:**
 
 | Quelle | Pfad |
 |--------|------|
@@ -35,12 +35,12 @@ Dieses Dokument ist **tool-agnostisch** -- es kann von jedem AI-Tool (Claude Cod
 | Quality Checks | `internal/reviews/run_all_checks_failures.json` |
 | Post-Impl Validation | `.cursor/pbi_validate_result.json` |
 
-### 2. Knowledge Base prüfen
+### 2. Knowledge Base prÃ¼fen
 
 **Vor jeder Analyse:** `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` durchsuchen.
 
 Ist das Fehlermuster bereits dokumentiert?
-- **Ja**: Dokumentierte Lösung anwenden → Schritt 4
+- **Ja**: Dokumentierte LÃ¶sung anwenden â†’ Schritt 4
 - **Nein**: Weiter mit Schritt 3
 
 ### 3. Fehler-Triage
@@ -50,27 +50,27 @@ Ist das Fehlermuster bereits dokumentiert?
 | Symptom | Wahrscheinliche Ursache | Wo suchen |
 |---------|------------------------|-----------|
 | Visuals leer, Felder im Filter | Falsche queryState-Rolle (`Data` statt `Values`/`Category`+`Y`) | `visual_builder.py` / generierte `visual.json` |
-| Report öffnet auf falscher Seite | `activePageName` in `pages.json` überschrieben | `pbip_writer.py` / `pages.json` |
-| Schema-Fehler beim Öffnen | Fehlende/falsche `$schema` in `.pbip`, `definition.pbir`, `version.json` | `pbip_writer.py` / generierte JSON-Dateien |
+| Report Ã¶ffnet auf falscher Seite | `activePageName` in `pages.json` Ã¼berschrieben | `pbip_writer.py` / `pages.json` |
+| Schema-Fehler beim Ã–ffnen | Fehlende/falsche `$schema` in `.pbip`, `definition.pbir`, `version.json` | `pbip_writer.py` / generierte JSON-Dateien |
 | `datasetReference` Fehler | `datasetReference` in `report.json` statt in `definition.pbir` | `pbip_writer.py` |
 | Visual-Ordner nicht ladbar | Sonderzeichen im Ordnernamen (`,` `:` etc.) | `page_builder.py` |
-| Theme nicht erkannt | `apply_report_theme.ps1` fehlgeschlagen | `report.json` → `themeCollection.customTheme` |
+| Theme nicht erkannt | `apply_report_theme.ps1` fehlgeschlagen | `report.json` â†’ `themeCollection.customTheme` |
 
 #### Semantic Model Fehler (TMDL, DAX, Relationships)
 
 | Symptom | Wahrscheinliche Ursache | Wo suchen |
 |---------|------------------------|-----------|
 | TMDL Indentation Error | Spaces statt Tabs oder Mixed Indentation | `*.tmdl` Dateien in `definition/tables/` |
-| `formatString` ungültiger Einzug | Nur 1 Tab statt 2 Tabs bei Measure-Properties | `_Measures.tmdl`, `generate_tmdl_measures.ps1` |
+| `formatString` ungÃ¼ltiger Einzug | Nur 1 Tab statt 2 Tabs bei Measure-Properties | `_Measures.tmdl`, `generate_tmdl_measures.ps1` |
 | Measure nicht gefunden | Base-Measure nicht als KPI angelegt | `core/kpi_catalog/`, `_Measures.tmdl` |
 | DAX Spalte nicht gefunden | Falsche Tabelle/Spalte in DAX-Expression | `_Measures.tmdl`, Tabellen-TMDL |
 | Duplicate Measure | Measure in `_Measures.tmdl` UND `_ActionReady_Logic.tmdl` | `generate_tmdl_measures.ps1` |
-| Modell unvollständig | Fehlende `ref table` in `model.tmdl` | `model.tmdl` |
-| Keine Relationships | `relationships.tmdl` fehlt oder unvollständig | `relationships.tmdl` |
+| Modell unvollstÃ¤ndig | Fehlende `ref table` in `model.tmdl` | `model.tmdl` |
+| Keine Relationships | `relationships.tmdl` fehlt oder unvollstÃ¤ndig | `relationships.tmdl` |
 
 ### 4. Fix anwenden
 
-#### Quick-Fixes (häufigste Probleme)
+#### Quick-Fixes (hÃ¤ufigste Probleme)
 
 **TMDL Indentation:**
 ```bash
@@ -83,14 +83,14 @@ Ist das Fehlermuster bereits dokumentiert?
 ```
 
 **Report-Visuals mit falscher queryState-Rolle:**
-1. Prüfen ob `visual_builder.py` den Bug enthält (Schritt 5)
-2. Oder direkt in der generierten `visual.json` die Rolle ändern:
-   - Charts: `"Data"` → `"Category"` + `"Y"`
-   - Tables: `"Data"` → `"Values"`
+1. PrÃ¼fen ob `visual_builder.py` den Bug enthÃ¤lt (Schritt 5)
+2. Oder direkt in der generierten `visual.json` die Rolle Ã¤ndern:
+   - Charts: `"Data"` â†’ `"Category"` + `"Y"`
+   - Tables: `"Data"` â†’ `"Values"`
 
 **Fehlende Measures:**
 1. KPI im Katalog anlegen (`core/kpi_catalog/`)
-2. Measures regenerieren: `.\tooling\generation\generate_tmdl_measures.ps1 -UseCase <ID> -OverwriteExisting`
+2. Measures regenerieren: `.\\tooling\\generator\\generate_tmdl_measures.ps1 -UseCase <ID> -OverwriteExisting`
 
 ### 5. Generator-Fix (wenn Bug im Generator)
 
@@ -100,12 +100,12 @@ Wenn der Fehler nicht in den generierten Dateien liegt, sondern im Generator-Cod
    - `visual_builder.py`: queryState-Rollen, Visual-Struktur
    - `page_builder.py`: Layout, Slot-Zuordnung, Fallback-Visuals
    - `pbip_writer.py`: Dateistruktur, JSON-Schemas
-   - `config_loader.py`: Bracket-Parsing, KPI-Auflösung
+   - `config_loader.py`: Bracket-Parsing, KPI-AuflÃ¶sung
    - `slicer_builder.py`: Slicer-Konfiguration
 
 2. **Fix implementieren**
 
-3. **Test hinzufügen** (Pflicht!):
+3. **Test hinzufÃ¼gen** (Pflicht!):
    ```bash
    # In tests/test_visual_validator.py oder tests/test_scaffold_generator.py
    python -m pytest products/fabric/powerbi/tooling/page_scaffold_generator/tests/ -v
@@ -115,7 +115,7 @@ Wenn der Fehler nicht in den generierten Dateien liegt, sondern im Generator-Cod
    ```bash
    python products/fabric/powerbi/tooling/page_scaffold_generator/generate_full_report.py \
      --use-case COM-001 --force-full
-   # Für alle Use Cases wiederholen
+   # FÃ¼r alle Use Cases wiederholen
    ```
 
 ### 6. Validierung
@@ -149,13 +149,13 @@ In `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` eine neue Zeile in der pass
 - `## datasetReference` -- Datenbindung
 - `## Scripts / Generator` -- PowerShell/Python Bugs
 
-Wenn der Fehler durch einen automatischen Check abgefangen werden kann: Check in `run_fabric_checks.ps1` oder `visual_validator.py` ergänzen.
+Wenn der Fehler durch einen automatischen Check abgefangen werden kann: Check in `run_fabric_checks.ps1` oder `visual_validator.py` ergÃ¤nzen.
 
 ## Diagnose-Hilfen
 
 ### queryState-Rollen-Referenz
 
-| Visual Type | Korrekte Rollen | Falsch (häufig) |
+| Visual Type | Korrekte Rollen | Falsch (hÃ¤ufig) |
 |-------------|----------------|-----------------|
 | lineChart, waterfallChart, clusteredBarChart | Category + Y | Data |
 | tableEx | Values | Data |
@@ -168,17 +168,17 @@ Wenn der Fehler durch einen automatischen Check abgefangen werden kann: Check in
 ### TMDL Indentation-Referenz
 
 ```
-table 'fact_sales'                          ← 0 Tabs
-→   lineageTag: abc-123                     ← 1 Tab (Tabellen-Property)
-→   partition 'fact_sales' = m              ← 1 Tab
-→   →   source = ...                        ← 2 Tabs
-→   column 'Net Sales Amount'               ← 1 Tab
-→   →   dataType: decimal                   ← 2 Tabs (Spalten-Property)
-→   →   summarizeBy: none                   ← 2 Tabs
-→   →   annotation SummarizationSetBy = User← 2 Tabs
-→   measure 'Net Sales' = SUM(...)          ← 1 Tab
-→   →   formatString: #,##0                 ← 2 Tabs (Measure-Property)
-→   →   displayFolder: 1_Revenue            ← 2 Tabs
+table 'fact_sales'                          â† 0 Tabs
+â†’   lineageTag: abc-123                     â† 1 Tab (Tabellen-Property)
+â†’   partition 'fact_sales' = m              â† 1 Tab
+â†’   â†’   source = ...                        â† 2 Tabs
+â†’   column 'Net Sales Amount'               â† 1 Tab
+â†’   â†’   dataType: decimal                   â† 2 Tabs (Spalten-Property)
+â†’   â†’   summarizeBy: none                   â† 2 Tabs
+â†’   â†’   annotation SummarizationSetBy = Userâ† 2 Tabs
+â†’   measure 'Net Sales' = SUM(...)          â† 1 Tab
+â†’   â†’   formatString: #,##0                 â† 2 Tabs (Measure-Property)
+â†’   â†’   displayFolder: 1_Revenue            â† 2 Tabs
 ```
 
 ## Key Paths
@@ -195,3 +195,4 @@ table 'fact_sales'                          ← 0 Tabs
 | BPA Rules | `tooling/linters/powerbi/bpa-rules-report.json`, `bpa-rules-tmdl.json`, `bpa-rules-dax.json` |
 | Error Log (Desktop) | `.cursor/pbi_errors.log` |
 | Error Watcher | `watch_pbi.ps1` |
+

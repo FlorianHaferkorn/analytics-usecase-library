@@ -219,7 +219,7 @@ $state.phase = "measure_generation"
 $state.iteration = 2
 
 Invoke-WithRetry "Generate TMDL Measures" {
-    $result = & ./tooling/generation/generate_tmdl_measures.ps1 `
+    $result = & ./tooling/generator/generate_tmdl_measures.ps1 `
         -UseCase $UseCase `
         -UseCasesRoot "core/usecases/core" `
         -KpiCatalogRoot "core/kpi_catalog" `

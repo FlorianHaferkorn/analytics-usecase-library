@@ -19,7 +19,7 @@ factsheet_type: business
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
 - **Related Data Contract:** core/data_contracts/domains/supply_chain.yaml
-- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Aurora: showcases/aurora_group/semantic_models/SupplyChain.SemanticModel (domain model for SCM-*).
+- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Implementation: products/fabric/powerbi/dist/SupplyChain.SemanticModel (domain model for SCM-*).
 
 ---
 

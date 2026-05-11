@@ -18,7 +18,7 @@ factsheet_type: business
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Descriptive / Diagnostic
 - **Related Data Contract:** core/data_contracts/domains/commercial_sales.yaml
-- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Aurora: showcases/aurora_group/semantic_models/Commercial.SemanticModel (domain model for COM-*).
+- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Implementation: products/fabric/powerbi/dist/Commercial.SemanticModel (domain model for COM-*).
 
 ---
 
