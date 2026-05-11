@@ -125,4 +125,4 @@ Settings reference: `.claude/settings.json` → `hooks.PostToolUse[].hooks[].com
 
 ---
 
-*Complement to `TAXONOMY.md` (content IDs) and `CLAUDE.md` (agent operating rules).*
+*Complement to `TAXONOMY.md` (content IDs) and `AGENTS.md` (agent operating rules).*

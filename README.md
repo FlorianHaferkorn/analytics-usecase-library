@@ -28,6 +28,17 @@ This framework explicitly connects **strategy → KPIs → use cases → semanti
 - **Automation & AI Ready**  
   Structured metadata enables automation, Copilot, and AI agents without rework.
 
+## For AI agents
+
+> **Start here if you are an AI assistant, coding agent, or LLM-based tool.**
+
+Read [`AGENTS.md`](AGENTS.md) — it contains the complete, universal operating rules:
+Golden Thread principle, use case and KPI conventions, CI gates (Stage 1), TMDL/DAX hard rules, Power BI / PBIP development, and the full skill index.
+
+Tool-specific overrides: Claude → [`CLAUDE.md`](CLAUDE.md) · Cursor → `.cursor/rules/` (auto-loaded) · Copilot → `.github/copilot-instructions.md`
+
+---
+
 ## Getting started
 
 **New to the repo?** Start with [`ONBOARDING.md`](ONBOARDING.md) — single Day-1 guide covering setup, reading order, glossary, and a first task.
