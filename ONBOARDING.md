@@ -57,7 +57,7 @@ Continue to the next section when you can answer: *what is the Golden Thread?*
 - `internal/` — maintainer notes, archive, CI specs. Ignore until needed.
 
 **One key naming convention:** Use case IDs follow the pattern `<DOMAIN>-<NNN>`: e.g. `COM-001`, `FIN-002`, `OPS-003`.
-KPI IDs use dots: `sales.net_sales.amount`, `fin.cash.balance`. See [`TAXONOMY.md`](TAXONOMY.md) for the full scheme.
+KPI IDs use dots: `sales.net_sales.amount`, `fin.cash.balance`. See [`TAXONOMY.md`](docs/reference/TAXONOMY.md) for the full scheme.
 
 ---
 
@@ -179,12 +179,12 @@ It should end with `Stage 1 checks passed.`
 
 | Question | Where to look |
 |---|---|
-| What is a KPI ID? What is an action code ID? | [`TAXONOMY.md`](TAXONOMY.md) |
-| What does TMDL / PBIP / IR / MCP mean? | [`GLOSSARY.md`](GLOSSARY.md) |
-| How do I name a file or script? | [`SYSTEM_NAMING.md`](SYSTEM_NAMING.md) |
+| What is a KPI ID? What is an action code ID? | [`TAXONOMY.md`](docs/reference/TAXONOMY.md) |
+| What does TMDL / PBIP / IR / MCP mean? | [`GLOSSARY.md`](docs/reference/GLOSSARY.md) |
+| How do I name a file or script? | [`SYSTEM_NAMING.md`](docs/reference/SYSTEM_NAMING.md) |
 | How do I add a new use case? | [`CONTRIBUTING.md`](CONTRIBUTING.md) → "Adding a new use case" |
 | Which gate must pass before merge? | Stage 1: `.\tooling\run_stage1_checks.ps1` |
-| What is deferred or not yet implemented? | [`KNOWN_GAPS.md`](KNOWN_GAPS.md) |
+| What is deferred or not yet implemented? | [`KNOWN_GAPS.md`](internal/project_mgmt/KNOWN_GAPS.md) |
 | How does the Fabric/Power BI pipeline work? | [`products/fabric/powerbi/README.md`](products/fabric/powerbi/README.md) |
 | How does the Evidence/OSS stack work? | [`products/open_source_stack/README.md`](products/open_source_stack/README.md) |
 | How do AI agents (Cursor, Claude, Copilot) work here? | [`AGENTS.md`](AGENTS.md) |

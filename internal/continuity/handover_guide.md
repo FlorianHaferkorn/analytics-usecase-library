@@ -31,7 +31,7 @@ By **Friday of Week 2**, you will have:
 
 **Reading (60 min):**
 - `README.md` (skip to "How to get started" section)
-- `TAXONOMY.md` (skim; focus on domain prefixes and ID schemes)
+- `docs/reference/TAXONOMY.md` (skim; focus on domain prefixes and ID schemes)
 - `.claude/settings.json` (understand pre-commit hooks and validation)
 
 **Hands-on (90 min):**
@@ -425,7 +425,7 @@ By **Friday of Week 2**, you will have:
    - Examples: "Add a new KPI to domain X," "Extend use case Y with a new action code," "Create a new use case"
 
 2. **Plan the work:**
-   - Review TAXONOMY.md for ID scheme
+   - Review `docs/reference/TAXONOMY.md` for ID scheme
    - Sketch the Golden Thread: Strategy → KPI → Use Case → Action
    - Schedule 1-hour design review with your mentor
 

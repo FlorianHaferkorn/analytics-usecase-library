@@ -18,7 +18,7 @@
 - **Use cases:** `core/usecases/core/`, `core/usecases/templates/` — Business_Factsheet.md, UseCase_Bracket.yaml per use case.
 - **Framework:** `core/kpi_catalog/`, `core/action_codes/`, `core/templates/` — KPI catalog, action code YAML, page/measure/data-contract templates.
 - **Data contracts:** `core/data_contracts/domains/`, `core/data_contracts/sources/` — domain and source-level contracts.
-- **Semantic models:** `core/semantic_models/domains/` — measure dictionaries (tool-agnostic); conceptual design in `core/strategy_operating_model/operating_model/semantic_layer.md`. TMDL/PBIP output lives under `products/fabric/powerbi/dist/` or `showcases/…/semantic_models/`. (Legacy core_action_ready archived.)
+- **Semantic models:** `core/semantic_models/domains/` — measure dictionaries (tool-agnostic); conceptual design in `core/strategy_operating_model/operating_model/semantic_layer.md`. TMDL/PBIP output lives under `products/fabric/powerbi/dist/`. (Legacy core_action_ready and showcase semantic_models archived.)
 - **Docs:** `docs/company/`, `docs/operating_model/` — strategy and operating model; authority for structure and naming.
 - **Internal:** `tooling/` — validation, generation, maintenance, Power BI MCP; `tooling/generator/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
 

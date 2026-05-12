@@ -1,6 +1,6 @@
 # System Naming Conventions
 
-Scope: scripts, checks, generators, tests, hooks, schemas, templates, and directories that make up the **tooling system** of this repo. This document is the authority for system-level naming. Content-level naming (KPI IDs, action codes, domain tags) is governed by `TAXONOMY.md`.
+Scope: scripts, checks, generators, tests, hooks, schemas, templates, and directories that make up the **tooling system** of this repo. This document is the authority for system-level naming. Content-level naming (KPI IDs, action codes, domain tags) is governed by [`TAXONOMY.md`](TAXONOMY.md).
 
 ---
 
@@ -108,7 +108,7 @@ Settings reference: `.claude/settings.json` → `hooks.PostToolUse[].hooks[].com
 |------|--------------|
 | `tooling/git-hooks/pre-commit` | Git hook file — must be named exactly `pre-commit` |
 | `products/fabric/powerbi/deployment/.azure-pipelines/*.yml` | Azure DevOps pipeline names are consumed by external tooling |
-| Action code YAML files (`C-M2.1.yaml`, etc.) | IDs defined by `TAXONOMY.md`; rename would break cross-references |
+| Action code YAML files (`C-M2.1.yaml`, etc.) | IDs defined by [`TAXONOMY.md`](TAXONOMY.md); rename would break cross-references |
 | `UseCase_Bracket.yaml` | Well-established cross-repo contract name; schema validators reference it |
 | `dbt_project.yml` | dbt framework requirement |
 
@@ -125,4 +125,4 @@ Settings reference: `.claude/settings.json` → `hooks.PostToolUse[].hooks[].com
 
 ---
 
-*Complement to `TAXONOMY.md` (content IDs) and `AGENTS.md` (agent operating rules).*
+*Complement to [`TAXONOMY.md`](TAXONOMY.md) (content IDs) and [`AGENTS.md`](../../AGENTS.md) (agent operating rules).*

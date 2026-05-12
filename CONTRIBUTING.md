@@ -6,7 +6,7 @@ Thank you for considering a contribution to the Analytics Strategy-to-Action Fra
 
 ## Development workflow
 
-1. **Pick a task** — open issue, item from `KNOWN_GAPS.md`, or `internal/technical_backlog.md`.
+1. **Pick a task** — open issue, item from [`KNOWN_GAPS.md`](internal/project_mgmt/KNOWN_GAPS.md), or `internal/technical_backlog.md`.
 2. **Create a branch** — `git checkout -b <type>/<short-name>` (e.g. `feat/add-hr-usecases`). Types: `feat`, `fix`, `docs`, `refactor`, `chore`.
 3. **Make changes** — follow the conventions below.
 4. **Run Stage 1 checks** — `.\tooling\run_stage1_checks.ps1` (must pass before merge).
@@ -29,16 +29,16 @@ Run all commands from the **repository root**.
 
 ## Code conventions
 
-- **Core ontology** (YAML/Markdown in `core/`): follow existing naming. IDs and file names are governed by [`TAXONOMY.md`](TAXONOMY.md) and [`SYSTEM_NAMING.md`](SYSTEM_NAMING.md).
+- **Core ontology** (YAML/Markdown in `core/`): follow existing naming. IDs and file names are governed by [`TAXONOMY.md`](docs/reference/TAXONOMY.md) and [`SYSTEM_NAMING.md`](docs/reference/SYSTEM_NAMING.md).
 - **Python**: follow PEP 8; use `logging` instead of bare `print` for diagnostics; no bare `except:`.
 - **PowerShell**: use `Write-Verbose` in non-critical `catch` blocks; prefer splatting over long parameter lists.
 - **Tests**: add or update tests for any code change under `tooling/` or `products/`. Run with `python -m pytest`.
-- **Script and file naming**: see [`SYSTEM_NAMING.md`](SYSTEM_NAMING.md) (verb-first, snake_case, role-prefixed).
-- **TMDL / PBIP**: hard rules enforced by PostToolUse hooks — see [`CLAUDE.md`](CLAUDE.md) § "TMDL Conventions".
+- **Script and file naming**: see [`SYSTEM_NAMING.md`](docs/reference/SYSTEM_NAMING.md) (verb-first, snake_case, role-prefixed).
+- **TMDL / PBIP**: hard rules enforced by PostToolUse hooks — see [`AGENTS.md`](AGENTS.md) § "TMDL Conventions".
 
 ## Adding a new use case
 
-1. Create folder: `core/usecases/core/<ID>_<Name>/` (ID format per [`TAXONOMY.md`](TAXONOMY.md)).
+1. Create folder: `core/usecases/core/<ID>_<Name>/` (ID format per [`TAXONOMY.md`](docs/reference/TAXONOMY.md)).
 2. Add `Business_Factsheet.md` (start from a template in `core/templates/`).
 3. Add `UseCase_Bracket.yaml` matching the schema in `tooling/generator/schemas/`.
 4. Reference KPIs from `core/kpi_catalog/` (create the KPI in the catalog first if it's new).

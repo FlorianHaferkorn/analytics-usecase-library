@@ -91,7 +91,7 @@ Before final sign-off, the customer (or escrow agent) verifies:
 - [ ] `README.md` — Overview and getting started
 - [ ] `CLAUDE.md` — Framework rules and standards
 - [ ] `CONTRIBUTING.md` — Development workflow
-- [ ] `TAXONOMY.md` — ID schemes and naming conventions
+- [ ] `docs/reference/TAXONOMY.md` — ID schemes and naming conventions
 - [ ] `internal/continuity/README.md` — Dossier index
 - [ ] `internal/continuity/architecture_overview.md` — System design
 - [ ] `internal/continuity/runbook.md` — Operational procedures

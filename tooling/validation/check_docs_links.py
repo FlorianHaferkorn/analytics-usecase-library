@@ -25,6 +25,22 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 DEPRECATED_PATTERNS: list[tuple[str, str]] = [
     (
+        r"\]\(GLOSSARY\.md\)",
+        "GLOSSARY.md moved to docs/reference/GLOSSARY.md — update the link",
+    ),
+    (
+        r"\]\(TAXONOMY\.md\)",
+        "TAXONOMY.md moved to docs/reference/TAXONOMY.md — update the link",
+    ),
+    (
+        r"\]\(SYSTEM_NAMING\.md\)",
+        "SYSTEM_NAMING.md moved to docs/reference/SYSTEM_NAMING.md — update the link",
+    ),
+    (
+        r"\]\(KNOWN_GAPS\.md\)",
+        "KNOWN_GAPS.md moved to internal/project_mgmt/KNOWN_GAPS.md — update the link",
+    ),
+    (
         r"tooling[/\\]generation[/\\]",
         "tooling/generation/ was renamed; use tooling/generator/ (or current script path)",
     ),
@@ -110,6 +126,10 @@ def check_deprecated(content: str, filepath: Path, repo_root: Path) -> list[str]
     errors: list[str] = []
     rel = filepath.relative_to(repo_root).as_posix()
     if filepath.name in DEPRECATED_CHECK_EXCLUSIONS:
+        return errors
+    # Files that live inside docs/reference/ are the canonical location of the
+    # moved reference docs — relative sibling links there are valid, not deprecated.
+    if filepath.parent.relative_to(repo_root).as_posix() == "docs/reference":
         return errors
     for pattern, message in DEPRECATED_PATTERNS:
         if re.search(pattern, content, re.IGNORECASE):

@@ -131,5 +131,5 @@ Is the file under products/fabric/powerbi/orchestrator/ or tooling/ ?  → SOURC
 - [`ONBOARDING.md`](../../ONBOARDING.md) — one-hour walkthrough for new colleagues
 - [`core/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`](../../core/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md) — full Golden Thread narrative
 - [`CONTRIBUTING.md`](../../CONTRIBUTING.md) — workflow, conventions, validation gates
-- [`GLOSSARY.md`](../../GLOSSARY.md) — TMDL, PBIP, IR, MCP, and other acronyms
-- [`TAXONOMY.md`](../../TAXONOMY.md) — ID schemes, domain prefixes, naming rules
+- [`GLOSSARY.md`](../reference/GLOSSARY.md) — TMDL, PBIP, IR, MCP, and other acronyms
+- [`TAXONOMY.md`](../reference/TAXONOMY.md) — ID schemes, domain prefixes, naming rules

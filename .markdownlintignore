@@ -1,2 +1,5 @@
-_internal/reviews/**
-codetests/**
+# Generated / vendor content — not linted
+products/fabric/powerbi/dist/**
+internal/archive/**
+internal/metrics/**
+node_modules/**

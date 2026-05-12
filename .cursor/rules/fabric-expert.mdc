@@ -65,6 +65,12 @@ Run Fabric validation from repo root:
 
 Stage 1 (`. \tooling\run_stage1_checks.ps1`) still applies for any changes that touch core or cross-references; for Fabric-only artifact edits, Fabric checks are the primary gate.
 
+## Auto-fix shortcut
+
+If the first user message in the chat is exactly `fix`, `Fix`, `PBI fix`, or `Beheben`, **or** if `.cursor/pbi_errors.log` was modified in the last 5 minutes: immediately fix the latest error from that log file without waiting for confirmation. After fixing, if this error class is not yet in `KNOWN_ERRORS_AND_FIXES.md`, add a row and briefly report what changed.
+
+Context to attach: `@.cursor/pbi_errors.log` + `@internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`.
+
 ## Scope
 
 - `products/fabric/powerbi/` — tooling, dist, reports, semantic models.

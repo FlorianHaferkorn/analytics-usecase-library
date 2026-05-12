@@ -54,8 +54,8 @@ Run all commands from the **repository root**.
 
 - [`docs/README.md`](docs/README.md) — global navigation hub for all audiences
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — workflow, validation gates, conventions
-- [`TAXONOMY.md`](TAXONOMY.md) — IDs, domain prefixes, naming
-- [`GLOSSARY.md`](GLOSSARY.md) — TMDL, PBIP, IR, MCP, and other acronyms
+- [`TAXONOMY.md`](docs/reference/TAXONOMY.md) — IDs, domain prefixes, naming
+- [`GLOSSARY.md`](docs/reference/GLOSSARY.md) — TMDL, PBIP, IR, MCP, and other acronyms
 
 **Implementing a use case end-to-end (Fabric example, COM-001):**
 

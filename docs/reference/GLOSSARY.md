@@ -55,12 +55,14 @@ Acronyms and terms that appear across the repo. Look here first when something i
 |---|---|
 | **MCP** | Model Context Protocol. Tool-server protocol used by Studio (`studio/mcp-server.mjs`) and by the agent integrations to expose validators, deployers, and DAX execution to AI tools. |
 | **Skill** | A reusable agent workflow (e.g. `add-usecase-scaffold`, `fix-stage1-failure`). Tool-agnostic Markdown in `docs/agent/skills/`; tool-specific wrappers (Cursor / Copilot) are generated. |
-| **CLAUDE.md / AGENTS.md** | Operating rules for AI agents working in this repo. `CLAUDE.md` is for Claude Code; `AGENTS.md` documents skills shared across all agents. Both are kept in sync manually. |
+| **AGENTS.md / CLAUDE.md** | Operating rules for AI agents. `AGENTS.md` is the universal rule set for all agents (Claude, Cursor, Copilot, …). `CLAUDE.md` is a thin Claude-specific overlay. Both live at repo root. |
 | **Hooks (PostToolUse)** | Bash scripts in `.claude/hooks/` that run automatically after Write/Edit on TMDL or PBIR files to enforce style. Configured in `.claude/settings.json`. |
 
 ## Domain prefixes
 
 See [`TAXONOMY.md`](TAXONOMY.md) for full ID schemes.
+
+> These reference docs live in `docs/reference/`. Links within this folder are relative.
 
 | Prefix | Domain |
 |---|---|

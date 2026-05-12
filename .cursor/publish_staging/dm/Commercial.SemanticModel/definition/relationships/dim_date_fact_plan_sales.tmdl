@@ -1,3 +1,0 @@
-relationship dim_date_fact_plan_sales
-	fromColumn: fact_plan_sales.DateKey
-	toColumn: dim_date.DateKey

@@ -78,3 +78,10 @@ internal/metrics/generation_runs/*.json
 .tools/dotnet/
 .tools/*.zip
 drift_report.json
+
+# Local agent / IDE artifacts (machine-specific, never commit)
+.claude/settings.local.json
+.cursor/publish_staging/
+.cursor/*result*.json
+.cursor/pbi_errors.log
+.pytest_cache/
