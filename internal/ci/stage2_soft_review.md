@@ -12,7 +12,7 @@ Stage 2 checks only for:
 - Confusing optional vs required wording (core vs extended)
 
 Stage 2 explicitly does **not**:
-- Enforce style/formatting (markdownlint)
+- Enforce style/formatting (no markdownlint — all rules were disabled and removed)
 - Re-run Stage 1 checks
 - Discuss implementation tools (DAX/TMDL/Fabric, etc.)
 - Propose new artifacts or V2 features

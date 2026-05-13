@@ -370,10 +370,7 @@ foreach ($useCaseId in $useCasesToCheck) {
 # 20) Mojibake scan
 Invoke-LocalScript -RelativePath "tooling/validation/check_mojibake.ps1" -Arguments @{ Root = $repoRoot }
 
-# 21) Markdownlint (if available) - Auto-fix enabled
-Invoke-LocalScript -RelativePath "tooling/validation/check_markdownlint.ps1" -Arguments @{ Root = $repoRoot; Fix = $true }
-
-# 22) YAML format check (if parser available)
+# 21) YAML format check (if parser available)
 Invoke-LocalScript -RelativePath "tooling/validation/check_yaml_format.ps1" -Arguments @{ Root = $repoRoot }
 
 # 23) Schema validation (Action Codes, Maps) via JSON Schema
