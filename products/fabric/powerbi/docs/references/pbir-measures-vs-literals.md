@@ -1,6 +1,6 @@
-> **Source**: data-goblin/power-bi-agentic-development v0.17.1 — adopted 2026-04-05
-
 # Using Measures vs Literals in Visual Properties
+
+> **Source**: data-goblin/power-bi-agentic-development v0.17.1 — adopted 2026-04-05
 
 ## Overview
 

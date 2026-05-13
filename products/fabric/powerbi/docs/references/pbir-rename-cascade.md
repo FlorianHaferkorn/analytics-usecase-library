@@ -1,6 +1,6 @@
-> **Source**: data-goblin/power-bi-agentic-development v0.17.1 — adopted 2026-04-05
-
 # Rename Cascade Reference
+
+> **Source**: data-goblin/power-bi-agentic-development v0.17.1 — adopted 2026-04-05
 
 Detailed before/after examples for every location that must be updated when renaming tables, measures, or columns in a PBIP project.
 

@@ -1,0 +1,10 @@
+# All node_modules at any depth
+**/node_modules/**
+# Generated output
+products/fabric/powerbi/dist/**
+# Historical / archive
+internal/archive/**
+CHANGELOG.md
+# Cursor/IDE config files — tool-specific format, not authored docs
+.cursor/**
+.claude/**

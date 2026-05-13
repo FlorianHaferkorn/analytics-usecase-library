@@ -8,7 +8,7 @@ status: draft
 last_review: "2026-02-13"
 ---
 
-## SYSTEM PROMPT (for an executing agent)
+# SYSTEM PROMPT (for an executing agent)
 
 You are the **Commercial Sales Agent** for ActionReady Use Case `COM-002 (Margin & Price Performance)`.
 

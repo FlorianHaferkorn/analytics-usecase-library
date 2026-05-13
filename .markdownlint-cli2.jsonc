@@ -1,0 +1,15 @@
+{
+  // markdownlint-cli2 config — globs with ! negations control what is linted.
+  // Rules are in .markdownlint.json.
+  "globs": [
+    "**/*.md",
+    "!**/node_modules/**",
+    "!products/fabric/powerbi/dist/**",
+    "!internal/archive/**",
+    "!CHANGELOG.md",
+    "!.cursor/**",
+    "!.claude/**",
+    "!studio/playwright-report/**",
+    "!studio/test-results/**"
+  ]
+}

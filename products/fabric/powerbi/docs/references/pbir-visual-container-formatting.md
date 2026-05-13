@@ -1,6 +1,6 @@
-> **Source**: data-goblin/power-bi-agentic-development v0.17.1 — adopted 2026-04-05
-
 # Visual Container Formatting
+
+> **Source**: data-goblin/power-bi-agentic-development v0.17.1 — adopted 2026-04-05
 
 Every visual in a Power BI report is wrapped in a "container" -- think of it as a picture frame around a painting. The painting is your chart or table. The frame is everything else: the title bar above it, the background behind it, the border around it, the shadow beneath it, the rounded corners, the padding between the frame edge and the painting, the little header icons in the top-right corner.
 
