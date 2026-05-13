@@ -1,6 +1,12 @@
 {
-  // markdownlint-cli2 config — globs with ! negations control what is linted.
-  // Rules are in .markdownlint.json.
+  // markdownlint-cli2 config - globs with ! negations control what is linted.
+  // Keep rules explicit here so markdownlint-cli2 never falls back to defaults.
+  "config": {
+    "default": false,
+    "MD010": true,
+    "MD041": { "front_matter_title": "" },
+    "MD047": true
+  },
   "globs": [
     "**/*.md",
     "!**/node_modules/**",
