@@ -15,6 +15,9 @@ if __name__ == "__main__":
     _parent = Path(__file__).resolve().parent
     if str(_parent.parent) not in sys.path:
         sys.path.insert(0, str(_parent.parent))
+    # workspace root must be on sys.path so absolute `products.*` imports resolve
+    if str(_parent.parents[4]) not in sys.path:
+        sys.path.insert(0, str(_parent.parents[4]))
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 from page_scaffold_generator.config_loader import ConfigLoader
