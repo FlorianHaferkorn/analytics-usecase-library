@@ -46,12 +46,18 @@ def get_default_report_output_path(repo_root: Path, use_case_id: str) -> Path:
     return repo_root / DIST_RELATIVE / f"{folder_name}.Report"
 
 
-# Allow running as script from repo root or from tooling dir
+# Allow running as script from repo root or from tooling dir.
+# Both tooling/ (for page_scaffold_generator.*) and the workspace root
+# (for products.fabric.powerbi.tooling.* absolute imports) must be on sys.path
+# before any module-level imports below are executed.
 if __name__ == "__main__":
     _this_dir = Path(__file__).resolve().parent  # page_scaffold_generator
     _tooling = _this_dir.parent  # fabric/powerbi/tooling
+    _repo_root = _tooling.parents[3]  # /workspace
     if str(_tooling) not in sys.path:
         sys.path.insert(0, str(_tooling))
+    if str(_repo_root) not in sys.path:
+        sys.path.insert(0, str(_repo_root))
 
 from page_scaffold_generator.scaffold_generator import PageScaffoldGenerator
 from page_scaffold_generator.pbip_reader import report_exists_for_update

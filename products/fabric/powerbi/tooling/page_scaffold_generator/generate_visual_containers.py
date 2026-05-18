@@ -9,12 +9,18 @@ Conditional formatting uses Brand Blue Dark theme colors (good, neutral, bad).
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# Allow running as script or from tooling
+# Allow running as script or from tooling.
+# Both tooling/ (for page_scaffold_generator.*) and the workspace root
+# (for products.fabric.powerbi.tooling.* absolute imports) must be on sys.path
+# before any module-level imports below are executed.
 if __name__ == "__main__":
     import sys
     _parent = Path(__file__).resolve().parent
     if str(_parent.parent) not in sys.path:
         sys.path.insert(0, str(_parent.parent))
+    _repo_root = _parent.parents[4]  # /workspace
+    if str(_repo_root) not in sys.path:
+        sys.path.insert(0, str(_repo_root))
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 from page_scaffold_generator.config_loader import ConfigLoader
