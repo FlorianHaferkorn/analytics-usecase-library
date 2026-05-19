@@ -13,8 +13,11 @@ from typing import Any, Dict, List, Optional, Tuple
 if __name__ == "__main__":
     import sys
     _parent = Path(__file__).resolve().parent
+    _repo_root = _parent.parents[4]  # page_scaffold_generator/tooling/powerbi/fabric/products/workspace
     if str(_parent.parent) not in sys.path:
         sys.path.insert(0, str(_parent.parent))
+    if str(_repo_root) not in sys.path:
+        sys.path.insert(0, str(_repo_root))
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 from page_scaffold_generator.config_loader import ConfigLoader
