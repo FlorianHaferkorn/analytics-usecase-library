@@ -13,8 +13,10 @@ from typing import Any, Dict, List, Optional, Tuple
 if __name__ == "__main__":
     import sys
     _parent = Path(__file__).resolve().parent
-    if str(_parent.parent) not in sys.path:
-        sys.path.insert(0, str(_parent.parent))
+    # Add tooling/ (for page_scaffold_generator package) and workspace root (for products.* imports)
+    for _p in [str(_parent.parent), str(_parent.parents[4])]:
+        if _p not in sys.path:
+            sys.path.insert(0, _p)
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 from page_scaffold_generator.config_loader import ConfigLoader
