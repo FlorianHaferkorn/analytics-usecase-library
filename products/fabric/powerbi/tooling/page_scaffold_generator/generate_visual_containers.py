@@ -13,8 +13,13 @@ from typing import Any, Dict, List, Optional, Tuple
 if __name__ == "__main__":
     import sys
     _parent = Path(__file__).resolve().parent
+    # Add tooling/ so page_scaffold_generator.* imports resolve
     if str(_parent.parent) not in sys.path:
         sys.path.insert(0, str(_parent.parent))
+    # Add workspace root so `products.*` absolute imports resolve
+    _repo_root = str(_parent.parents[4])
+    if _repo_root not in sys.path:
+        sys.path.insert(0, _repo_root)
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 from page_scaffold_generator.config_loader import ConfigLoader
