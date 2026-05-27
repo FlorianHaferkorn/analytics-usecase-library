@@ -70,6 +70,47 @@ Implemented as additive tooling:
 - Visual regression manifest that can run Power BI first, then OSS/Evidence adapters with the same contract.
 - Self-healing registry where every fix has a regression test and `KNOWN_ERRORS_AND_FIXES.md` entry.
 
+## Core / Gold / Generator Audit (Phase 1 follow-up)
+
+Date: 2026-05-27. Covers `core/`, `tooling/generator/`, `tooling/generator_core/`, `showcases/aurora_group/data/gold/`, and all active repair/fix scripts outside `internal/archive/`.
+
+### Decision Matrix — Core / Generator / Gold
+
+| Area | Status | Affected Files | Why Relevant | Risk If Unchanged | Recommended Change |
+|---|---|---|---|---|---|
+| KPI catalog, use cases, action codes, data contracts, templates | keep | `core/kpi_catalog/`, `core/usecases/`, `core/action_codes/`, `core/data_contracts/`, `core/templates/` | SSOT for entire Golden Thread. | Drift from validators or reports. | Keep canonical; strengthen CI cross-checks. |
+| `core/agents/` single agent file | integrate + harden | `core/agents/Commercial/Commercial_Sales_Agent_COM-002.system_prompt.md` | Orphaned agent; no schema, versioning, or CI. | Agent rolls out with stale KPI/bracket linkage. | Move under `docs/agent/` or add schema + CI validation. |
+| `core/data_contracts/sources/synthetic/generate_gold_layer_contract_v2.py` | integrate | same | Second gold generator overlaps Aurora; column/grain drift risk. | Two entrypoints can diverge silently. | Consolidate into Aurora orchestrator; archive this file. |
+| `tooling/generator/schemas/*.schema.json` | keep | 17 schema files | Stage 1 schema validation SSOT. | Schema drift in brackets/action codes. | Keep; fix autogen header path references (`tooling/agent/` → `tooling/generator/`). |
+| Duplicate `dashboard_spec.schema.json` | delete | `tooling/generator/schemas/dashboard_spec.schema.json` | Two copies exist; IR copy is canonical per CHANGELOG. | Generator and IR diverge on schema. | Delete generator copy; update any consumers to `tooling/ir/schemas/dashboard_spec.schema.json`. |
+| `measures_from_ir.py` vs `generate_tmdl_measures.ps1` | integrate | `tooling/generator/measures_from_ir.py`, `products/fabric/powerbi/orchestrator/generate_tmdl_measures.ps1` | CHANGELOG says PS1 replaced by IR path; orchestrator still uses PS1. | IR-first architecture is incomplete. | Wire `measures_from_ir.py` into orchestrator Phase 2; deprecate PS1 path. |
+| `preflight_measure_names.py` not wired in orchestrator | harden | `tooling/generator/preflight_measure_names.py` | Prevents duplicate measure names across domains — documented as Phase 2 orchestrator gate. | Duplicate measure names cause silent overrides. | Wire into `orchestrate_full_model.ps1` Phase 2. |
+| `check_action_outcome_reconciliation.py`, `check_business_cases.py` | harden | `tooling/generator/validation/` | Strong quality checks tested in pytest but absent from Stage 1 / CI jobs. | Quality regressions pass CI undetected. | Add to Stage 1 or CI pytest job with strict flag. |
+| `tooling/generator_core/` IR pipeline | keep | `ir/`, `adapters/`, `preflight/`, `intelligence/` | Canonical IR, adapter contract, preflight and self-learning KB. | Nothing critical to delete. | Add preflight-on-all-brackets test to CI. |
+| `generate_missing_facts.py` | integrate + delete | `showcases/aurora_group/data/gold/generate_missing_facts.py` | Creates three fact tables not produced by main orchestrator (quality_costs, complaints, supplier_risk). Parquet already in repo. | Generator gap remains; script stays as post-hoc repair. | Inline logic into domain generators; call from `generate_aurora_gold.py`; delete script. |
+| `check_fact_coverage.py` not in CI | harden | `showcases/aurora_group/data/gold/check_fact_coverage.py` | Detects missing facts/partitions; not wired to any gate. | Coverage holes go undetected. | Call from `generate_aurora_gold.py` as post-gen step; wire to CI on gold PRs. |
+| `KNOWN_GAPS.md` §1 stale | delete entry | `internal/project_mgmt/KNOWN_GAPS.md` | States three facts lack Parquet; committed Delta partitions exist for all three. | False urgency for resolved items. | Remove/update stale §1 after `generate_missing_facts.py` is merged. |
+| TMDL `/// Data contract pending` stubs for three facts | harden | `products/fabric/powerbi/dist/*.SemanticModel/definition/tables/` | Gold data exists but measures return BLANK(); TMDL not updated. | Reports appear broken for quality/complaints/supplier domains. | Regenerate affected TMDL after gold facts are wired into orchestrator. |
+| `tooling/fix_bracket_component30s.py` | archive | root `tooling/` | Line-oriented YAML repair for stale `component_30s` field; run-once maintenance. | Agents may copy obsolete pattern. | Run once to confirm brackets clean; archive to `internal/archive/tooling/maintenance/`. |
+| `graph.json` in generator | keep advisory | `tooling/generator/graph/graph.json` | Knowledge graph KPI→measure→contract; documentation only, not automated. | No active risk. | Wire to ontology/registry or formally mark as design artifact. |
+| `compliance/` reference to `prune_expired_rows.py` | harden | `compliance/*.md` | Compliance docs reference a file that does not exist. | Agents follow broken references. | Implement or remove the reference. |
+
+### Priority Order
+
+| Priority | Action |
+|---|---|
+| P0 | Merge `generate_missing_facts.py` into aurora orchestrator; update KNOWN_GAPS stale entry; regenerate TMDL stubs for three facts. |
+| P0 | Wire `preflight_measure_names.py` into orchestrator Phase 2. |
+| P1 | Delete duplicate `dashboard_spec.schema.json` under `tooling/generator/schemas/`; fix autogen header paths. |
+| P1 | Add `check_action_outcome_reconciliation` + `check_business_cases` to Stage 1 or CI pytest job (strict). |
+| P1 | Archive `tooling/fix_bracket_component30s.py` after confirming brackets clean. |
+| P2 | Consolidate `generate_gold_layer_contract_v2.py` into Aurora orchestrator or archive. |
+| P2 | Complete IR migration: orchestrator calls `measures_from_ir.py`; PS1 deprecated. |
+| P2 | `check_fact_coverage.py` into post-gen step and CI PR trigger on gold changes. |
+| P2 | Schema + CI for `core/agents/`. |
+| P3 | Implement or remove `prune_expired_rows.py` from compliance docs. |
+| P3 | Wire `graph.json` to registry or formally archive as design artifact. |
+
 ## Validation Snapshot
 
 - `py -3 -m pytest tooling/tests/test_report_quality_p0.py -q`: passed.

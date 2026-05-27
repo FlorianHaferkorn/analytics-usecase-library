@@ -90,12 +90,15 @@ foreach ($check in $checks) {
   Write-Host "OK $($check.Path)"
 }
 
-# Run Python checks
+# Run Python checks — prefer py launcher (avoids Windows Store alias for 'python')
 $pythonExe = $null
-foreach ($cmd in @("python", "python3", "py")) {
+foreach ($cmd in @("py -3", "python3", "python")) {
   try {
-    $ver = (& $cmd --version 2>&1) -join " "
-    if ($ver -match "Python 3") { $pythonExe = $cmd; break }
+    $parts = $cmd -split " "
+    $exe   = $parts[0]
+    $xargs = @($parts[1..([Math]::Min(999,$parts.Count-1))] | Where-Object { $null -ne $_ }) + @("--version")
+    $ver   = (& $exe $xargs 2>&1) -join " "
+    if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") { $pythonExe = $cmd; break }
   } catch { continue }
 }
 if ($pythonExe) {
@@ -103,7 +106,10 @@ if ($pythonExe) {
     $script = Join-Path $rootPath $pyCheck.Script
     if (-not (Test-Path $script)) { Write-Warning "Python check not found: $($pyCheck.Script)"; continue }
     Write-Host "START $($pyCheck.Script)"
-    & $pythonExe $script @($pyCheck.Args)
+    $parts   = $pythonExe -split " "
+    $exe     = $parts[0]
+    $xargs   = @($parts[1..([Math]::Min(999,$parts.Count-1))] | Where-Object { $null -ne $_ }) + @($script) + $pyCheck.Args
+    & $exe $xargs
     $exitCode = $LASTEXITCODE
     $status = if ($exitCode -eq 0) { "pass" } else { "fail" }
     $checkResults += @{ check = $pyCheck.Script; status = $status; exit_code = $exitCode }
@@ -118,7 +124,7 @@ if ($pythonExe) {
   Write-Warning "Python 3 not found; skipping Python checks."
 }
 
-# Write results on success
+# Write results regardless of outcome so diagnostics are always available
 $resultsPayload = @{
   timestamp = (Get-Date -Format "o")
   stage = "stage1"
@@ -129,6 +135,11 @@ $json = $resultsPayload | ConvertTo-Json -Depth 4
 $json | Out-File -FilePath (Join-Path $resultsDir "latest_results.json") -Encoding utf8
 $timestampFile = (Get-Date -Format "yyyy-MM-dd_HHmm") + "_stage1.json"
 $json | Out-File -FilePath (Join-Path $runsDir $timestampFile) -Encoding utf8
+
+if ($overallStatus -eq "fail") {
+  Write-Host "Stage 1 FAILED. Results written to tooling/validation/results/latest_results.json and internal/metrics/runs/$timestampFile" -ForegroundColor Red
+  exit 1
+}
 
 Write-Host "Stage 1 checks passed. Results written to tooling/validation/results/latest_results.json and internal/metrics/runs/$timestampFile" -ForegroundColor Green
 exit 0

@@ -190,6 +190,15 @@ try {
     # exit 2 = no reports found (warn only, do not fail the gate)
   }
 
+  # ── P0 Report quality checks ─────────────────────────────────────────────
+  $checkReportQuality = Join-Path $repoRoot "products/fabric/powerbi/tooling/validation/check_report_quality.ps1"
+  if (Test-Path $checkReportQuality) {
+    Write-Host ""
+    Write-Host ">> check_report_quality.ps1 (P0 static quality)" -ForegroundColor Cyan
+    & $checkReportQuality -DistRoot $distRootResolved
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
   # ── Telemetry: record this run ────────────────────────────────────────────
   $telemetryScript = Join-Path $repoRoot "tooling\generator_core\intelligence\telemetry.py"
   if (Test-Path $telemetryScript) {

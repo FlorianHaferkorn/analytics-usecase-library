@@ -17,26 +17,17 @@ This document tracks known limitations, placeholder content, and deferred activa
 
 ---
 
-## 1. Missing Fact Tables — Gold Layer Data Contracts
+## 1. Three Fact Tables — TMDL Stub Still Has `/// Data contract pending` Comment
 
-Three fact tables are missing Parquet data in the Gold Layer. The TMDL definitions are in place (reports load cleanly with empty partitions), but the measures return BLANK until real data is provisioned.
+Parquet data for `fact_quality_costs`, `fact_complaints`, and `fact_supplier_risk` **is committed** (Delta/Parquet partitions 2020–2024 under `showcases/aurora_group/data/gold/facts/`). The gap that remains is the TMDL still contains `/// Data contract pending` comments and the measures return `BLANK()` until the semantic model is regenerated against the live gold data.
 
-| Fact Table | Used By | Missing Columns | Status |
-|---|---|---|---|
-| `fact_quality_costs` | OPS-003 `[Cost of Poor Quality]` | COPQ Amount, Scrap/Rework/Warranty Cost | Stub TMDL ✅ — Parquet pending MES integration |
-| `fact_complaints` | OPS-003 `[Complaint Rate %]` | Complaint Count, Resolved Count, Resolution Days | Stub TMDL ✅ — Parquet pending CRM feed |
-| `fact_supplier_risk` | FIN-001 `[Supplier Risk Score]` | Risk Score, Delivery/Quality/Financial Risk | Stub TMDL ✅ — Parquet pending procurement data contract |
+| Fact Table | TMDL Location | Action |
+|---|---|---|
+| `fact_quality_costs` | `Operations.SemanticModel/definition/tables/fact_quality_costs.tmdl` | Remove `/// Data contract pending`; wire M partition to gold path |
+| `fact_complaints` | `Operations.SemanticModel/definition/tables/fact_complaints.tmdl` | Same |
+| `fact_supplier_risk` | `Finance.SemanticModel/definition/tables/fact_supplier_risk.tmdl` | Same |
 
-**How to provision Parquet data (local machine with pyarrow):**
-```bash
-python3 showcases/aurora_group/data/gold/generate_missing_facts.py
-```
-This generates ~60K synthetic rows per table using the same seed and company profile as existing facts. Once run, commit the new `facts/fact_quality_costs/`, `facts/fact_complaints/`, `facts/fact_supplier_risk/` folders.
-
-**TMDL locations:**
-- `products/fabric/powerbi/dist/Operations.SemanticModel/definition/tables/fact_quality_costs.tmdl`
-- `products/fabric/powerbi/dist/Operations.SemanticModel/definition/tables/fact_complaints.tmdl`
-- `products/fabric/powerbi/dist/Finance.SemanticModel/definition/tables/fact_supplier_risk.tmdl`
+> **Note:** The one-time backfill script (`generate_missing_facts.py`) has been archived to `internal/archive/showcases/gold_maintenance/`. The data is already present; no script needs to be run.
 
 ---
 
@@ -138,3 +129,5 @@ These JSON templates work standalone (grid layouts). To use them with Penpot/Fig
 | No action-code outcome loop in reports | 2026-04-20 | `[Action Outcome Rate %]` and 3 companion measures in all 5 domain models |
 | deploy_pbip required manual Power BI Desktop | 2026-04-20 | `deploy_pbip` MCP tool chains IR generation → `fab import` automatically |
 | No DAX execution without Desktop | 2026-04-20 | `execute_dax` MCP tool wraps `execute_dax.py` via fab+az CLI |
+| Missing Parquet for fact_quality_costs, fact_complaints, fact_supplier_risk | 2026-05-27 | Gold data committed (2020–2024 partitions). One-time script `generate_missing_facts.py` archived to `internal/archive/showcases/gold_maintenance/`. Remaining gap: regenerate TMDL to remove stub comments (tracked in §1 above). |
+| `fix_bracket_component30s.py` one-time repair | 2026-05-27 | All 16 UseCase_Bracket.yaml files confirmed clean. Script archived to `internal/archive/tooling/maintenance/`. |
