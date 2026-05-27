@@ -1,4 +1,6 @@
-# Use Case Library (WHAT)
+# Use Case Library
+
+> **New to the repo?** Start with [`ONBOARDING.md`](../../ONBOARDING.md) at the repo root. This folder's README describes the structure for contributors who already know the framework.
 
 ## Purpose
 

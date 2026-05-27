@@ -1,24 +1,50 @@
 # Architecture Overview
 
-This document provides the mental model for the repository structure. Read it alongside [`ONBOARDING.md`](../../ONBOARDING.md).
+This is the canonical reference for the framework's mental model: the Golden Thread, folder responsibilities, and source-vs-generated rules.
+
+Read it alongside [`ONBOARDING.md`](../../ONBOARDING.md). If you just want to orient quickly, use the "I want to…" navigation at the bottom.
 
 ---
 
 ## The Golden Thread
 
-Every artifact in this repo traces back to a strategic intent through one unbroken chain:
+Every artifact in this repo traces back to a strategic intent through one unbroken chain. This chain — the **Golden Thread** — has six links:
 
 ```mermaid
 flowchart LR
-  Strategy["Strategy\nPattern"] --> KPI["KPI Catalog\ncore/kpi_catalog/"]
-  KPI --> UseCase["Use Case\ncore/usecases/"]
-  UseCase --> Contract["Data Contract\ncore/data_contracts/"]
+  Strategy["Strategic intent"] --> KpiCatalog["KPI Catalog\ncore/kpi_catalog/"]
+  KpiCatalog --> UseCase["Use Case\ncore/usecases/"]
+  UseCase --> DataContract["Data Contract\ncore/data_contracts/"]
   UseCase --> SemanticModel["Semantic Model\nproducts/.../dist/*.SemanticModel"]
   SemanticModel --> Report["Report\nproducts/.../dist/*.Report"]
-  Report --> Action["Action Code\ncore/action_codes/"]
+  Report --> ActionCode["Action Code\ncore/action_codes/"]
 ```
 
-No artifact re-defines what another artifact has already defined. KPI meaning lives only in the KPI catalog. Action logic lives only in action codes. Reports and use cases reference — they never redefine.
+**In plain language:**
+
+1. A company has a strategic goal.
+2. A **KPI** is defined to measure it — exactly once, in the KPI catalog.
+3. A **Use Case** frames the business question and references the KPI.
+4. A **Data Contract** names the tables and fields the use case needs.
+5. A **Semantic Model** translates those fields into calculated measures.
+6. A **Report** shows the result and surfaces deviations.
+7. When a KPI deviates, an **Action Code** recommends what to do.
+
+**The rule that holds the chain together:** No artifact re-defines what another has already defined. KPI meaning lives only in the KPI catalog. Action logic lives only in action codes. Reports and use cases *reference* — they never redefine.
+
+**Canonical example — COM-001:**
+
+```
+Strategy pattern (Margin-First)
+  └─ Strategic KPI: margin.gm.pct           [core/kpi_catalog/golden_20.yaml]
+       └─ Use Case: COM-001                  [core/usecases/core/COM-001_Sales_Performance/]
+            └─ Data contract                 [core/data_contracts/domains/commercial_sales.yaml]
+            └─ Measure: Gross Margin %       [products/fabric/powerbi/dist/Commercial.SemanticModel/]
+                 └─ Report page              [products/fabric/powerbi/dist/COM-001_Sales_Performance.Report/]
+                      └─ Actions: C-M2.1, C-S1.1, C-S1.2  [core/action_codes/Commercial/]
+```
+
+**Health scorecard validation (H1 metric):** The automated scorecard checks that every strategic KPI traces through all five layers (catalog → bracket → measure dictionary → data contract → action code). Run `python tooling/health_scorecard.py` to verify.
 
 ---
 
@@ -125,6 +151,21 @@ Is the file under products/fabric/powerbi/orchestrator/ or tooling/ ?  → SOURC
 ```
 
 ---
+
+## I want to…
+
+| Goal | Where to go |
+|---|---|
+| Understand the framework from scratch | [`ONBOARDING.md`](../../ONBOARDING.md) — Reader track |
+| Find all use cases | [`core/usecases/UseCase_Inventory.md`](../../core/usecases/UseCase_Inventory.md) |
+| Read a KPI definition | [`core/kpi_catalog/golden_20.yaml`](../../core/kpi_catalog/golden_20.yaml) |
+| Read an action code | [`core/action_codes/<Domain>/`](../../core/action_codes/) |
+| Read a data contract | [`core/data_contracts/domains/`](../../core/data_contracts/domains/) |
+| Understand a term or acronym | [`GLOSSARY.md`](../reference/GLOSSARY.md) |
+| Add a new use case | [`CONTRIBUTING.md`](../../CONTRIBUTING.md) — "Adding a new use case" |
+| Run validation | `.\tooling\run_stage1_checks.ps1` (see Validation Gates above) |
+| Understand a specific platform (Fabric/Power BI) | [`products/fabric/powerbi/README.md`](../../products/fabric/powerbi/README.md) |
+| Fix a validation error | [`internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`](../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) |
 
 ## Further Reading
 

@@ -39,7 +39,7 @@ Format: `<DOMAIN>-<NNN>`
 Uppercase domain prefix, dash, three-digit sequence number.
 
 - Folder name: `<ID>_<Descriptive_Name>` (e.g. `COM-001_Sales_Performance`)
-- Each folder contains `Business_Factsheet.md` and `UseCase_Bracket_v2.0.yaml`
+- Each folder contains `Business_Factsheet.md` and `UseCase_Bracket.yaml` (schema version declared inside the file as `schema_version: '2.0'`)
 
 ### Action Code IDs
 

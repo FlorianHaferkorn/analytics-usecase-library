@@ -1,12 +1,26 @@
 # Analytics Framework — Navigation Hub
 
-New to the repo? Start with **[`ONBOARDING.md`](../ONBOARDING.md)** — one-hour guided path for Day 1.
+New to the repo? Start with **[`ONBOARDING.md`](../ONBOARDING.md)** — pick Reader or Contributor track and follow it.
 
-Want the architecture picture first? See **[`docs/architecture/README.md`](architecture/README.md)** — Golden Thread diagram, folder roles, source vs. generated.
+Want the architecture picture first? See **[`docs/architecture/README.md`](architecture/README.md)** — Golden Thread diagram, folder map, source vs. generated.
 
 ---
 
 ## Role-based entry points
+
+### Explorer / New colleague (no technical background required)
+
+You want to understand what this framework is, what it contains, and how it works.
+
+| Start here | Purpose |
+|---|---|
+| [`ONBOARDING.md`](../ONBOARDING.md) — Reader track | 45-minute guided path, no installation needed |
+| [`docs/reference/GLOSSARY.md`](reference/GLOSSARY.md) | Plain-language definitions of all terms and acronyms |
+| [`core/usecases/UseCase_Inventory.md`](../core/usecases/UseCase_Inventory.md) | One-line overview of every use case in the framework |
+
+After the Reader track you can answer: what is the Golden Thread, where are KPIs defined, and what is a use case.
+
+---
 
 ### Business / Domain Lead
 
@@ -68,6 +82,12 @@ You use AI tools to accelerate development inside this repo.
 ## Canonical reading path (any role, 60 min)
 
 Follow [`ONBOARDING.md`](../ONBOARDING.md). It is structured to get you productive in one hour without reading this index end-to-end.
+
+---
+
+## Maintaining onboarding docs
+
+Each doc has a defined role. Before adding new content, check [`docs/ONBOARDING_OWNERS.md`](ONBOARDING_OWNERS.md) to confirm where it belongs.
 
 ---
 

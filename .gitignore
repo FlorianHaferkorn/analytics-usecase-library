@@ -13,6 +13,7 @@ products/fabric/powerbi/tooling/theme_generator/themes/**/*.md
 
 # Generated review outputs
 internal/reviews/*.md
+!internal/reviews/full_repo_quality_audit.md
 
 # Node.js dependencies (reproducible via npm ci)
 tooling/validation/node_modules/
