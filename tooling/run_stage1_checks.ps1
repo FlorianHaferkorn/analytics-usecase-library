@@ -52,7 +52,9 @@ $checks = @(
 # Python-based checks (cross-platform, invoked separately)
 $pythonChecks = @(
   @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--repo-root", $rootPath) },
-  @{ Script = "tooling/validation/check_docs_links.py"; Args = @("--repo-root", $rootPath) }
+  @{ Script = "tooling/validation/check_docs_links.py"; Args = @("--repo-root", $rootPath) },
+  @{ Script = "tooling/generator/validation/check_action_outcome_reconciliation.py"; Args = @("--strict") },
+  @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"

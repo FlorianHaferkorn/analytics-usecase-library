@@ -1,6 +1,5 @@
 /// Cost of Poor Quality facts per entity-product-month (scrap, rework, warranty, inspection costs).
-/// Data contract pending: source table fact_quality_costs in Gold Layer not yet available.
-/// Stub: returns empty partition until Gold Layer table is provisioned.
+/// Source: Gold Layer — showcases/aurora_group/data/gold/facts/fact_quality_costs (Parquet, 2020–2024).
 table fact_quality_costs
 	lineageTag: b3e21a04-9f12-4d88-a751-cc7a3b1f8e91
 	column DateKey
@@ -35,11 +34,9 @@ table fact_quality_costs
 		mode: import
 		source =
 			let
-				Source = #table(
-				type table [DateKey = Int64.Type, OrgKey = Int64.Type, ProductKey = Int64.Type,
-				#"COPQ Amount" = Decimal.Type, #"Scrap Cost Amount" = Decimal.Type,
-				#"Rework Cost Amount" = Decimal.Type, #"Warranty Cost Amount" = Decimal.Type],
-				{}
-				)
+				Source = Folder.Files(GoldDataPath & "/facts/fact_quality_costs"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
 			in
-				Source
+				ParquetData

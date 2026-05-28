@@ -116,16 +116,16 @@ def main():
     brackets = load_brackets(usecases_root)
     errors = check_uniqueness(brackets, measure_map)
 
-    print(f"Preflight: {len(brackets)} brackets, {len(measure_map)} KPI→measure mappings")
+    print(f"Preflight: {len(brackets)} brackets, {len(measure_map)} KPI->measure mappings")
 
     if errors:
-        print(f"\n❌ {len(errors)} measure-name conflict(s) found:\n")
+        print(f"\nFAIL: {len(errors)} measure-name conflict(s) found:\n")
         for e in errors:
             print(f"  {e}")
         print("\nOrchestrator will abort. Resolve conflicts before generating TMDL.")
         sys.exit(1)
 
-    print("✅ No measure-name conflicts found.")
+    print("OK: No measure-name conflicts found.")
     sys.exit(0)
 
 

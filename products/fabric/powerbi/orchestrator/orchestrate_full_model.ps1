@@ -332,6 +332,32 @@ $state.domainMeasurePaths = @()
 $byDomain = Get-UseCaseIdsGroupedByDomain -UseCaseIds $script:SelectedUseCaseIds
 $byDomainAll = Get-UseCaseIdsGroupedByDomain -UseCaseIds $allIdsFromRoot
 $ucRootForScript = $UseCaseRoot -replace '\\', '/'
+
+# Phase 2 preflight: detect measure-name collisions across brackets within a domain before generation
+$preflightScript = Join-Path $script:RepoRoot "tooling\generator\preflight_measure_names.py"
+if (Test-Path $preflightScript) {
+    Write-Host "Phase 2 preflight: measure-name uniqueness check..." -ForegroundColor Cyan
+    $pyExe = $null
+    foreach ($cmd in @("py -3", "python3", "python")) {
+        try {
+            $parts = $cmd -split " "
+            $ver = (& $parts[0] @($parts[1..99] | Where-Object { $_ }) "--version" 2>&1) -join " "
+            if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") { $pyExe = $cmd; break }
+        } catch { continue }
+    }
+    if ($pyExe) {
+        $pyParts = $pyExe -split " "
+        & $pyParts[0] @($pyParts[1..99] | Where-Object { $_ }) $preflightScript `
+            --usecases-root $ucRootForScript `
+            --catalog "core/kpi_catalog/KPI_Catalog.md"
+        if ($LASTEXITCODE -ne 0) {
+            throw "Preflight failed: duplicate measure names detected. Resolve conflicts before generating TMDL."
+        }
+    } else {
+        Write-Warning "Python 3 not found; skipping measure-name preflight."
+    }
+}
+
 Invoke-WithRetry "Generate Measures (Aurora per domain)" {
     foreach ($domainName in $byDomain.Keys) {
         $ucIdsForMeasures = if ($byDomainAll[$domainName]) { @($byDomainAll[$domainName]) } else { $byDomain[$domainName] }
