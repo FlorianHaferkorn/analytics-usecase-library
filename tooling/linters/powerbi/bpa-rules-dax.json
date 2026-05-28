@@ -21,8 +21,9 @@
     {
       "id": "dax.format.forbidden",
       "severity": "error",
-      "description": "Do not use FORMAT() in computational measures (format with formatString).",
-      "forbidRegex": "(?i)FORMAT\\s*\\("
+      "description": "Do not use FORMAT() in computational measures (format with formatString). Exception: FORMAT() used in text concatenation (& FORMAT) is allowed for text-returning measures.",
+      "forbidRegex": "(?i)FORMAT\\s*\\(",
+      "allowWhenContains": ["& FORMAT(", "& FORMAT ("]
     },
     {
       "id": "dax.removefilters.preferred",

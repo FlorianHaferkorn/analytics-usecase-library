@@ -40,13 +40,15 @@ except ImportError:
 # ── Visual type mapping (bracket → PBIP visualType) ──────────────────────────
 
 VISUAL_TYPE_MAP: Dict[str, List[str]] = {
-    "kpi_card":   ["cardVisual", "kpiVisual", "card"],
-    "trend_line": ["lineChart", "lineClusteredColumnComboChart", "lineStackedColumnComboChart"],
-    "bar_chart":  ["barChart", "clusteredBarChart", "clusteredColumnChart", "columnChart"],
-    "waterfall":  ["waterfallChart"],
-    "scatter":    ["scatterChart"],
-    "matrix":     ["pivotTable"],
-    "table":      ["tableEx"],
+    "kpi_card":              ["cardVisual", "kpiVisual", "card"],
+    "trend_line":            ["lineChart", "lineClusteredColumnComboChart", "lineStackedColumnComboChart"],
+    "line_chart":            ["lineChart", "lineClusteredColumnComboChart", "lineStackedColumnComboChart"],
+    "bar_chart":             ["barChart", "clusteredBarChart", "clusteredColumnChart", "columnChart"],
+    "bar_chart_horizontal":  ["barChart", "clusteredBarChart"],
+    "waterfall":             ["waterfallChart"],
+    "scatter":               ["scatterChart"],
+    "matrix":                ["pivotTable"],
+    "table":                 ["tableEx"],
 }
 
 PAGE_TYPE_LABELS: Dict[str, str] = {

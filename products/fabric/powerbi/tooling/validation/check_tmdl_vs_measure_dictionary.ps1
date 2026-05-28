@@ -76,8 +76,12 @@ $dictMeasures = Get-MeasureNamesFromDict -Root $MeasureDictRoot
 $tmdlMeasures = Get-MeasureNamesFromTmdl -Files $tmdlFiles
 
 $missingInTmdl = $dictMeasures | Where-Object { $_ -notin $tmdlMeasures } | Sort-Object
-# Exclude generated action step text measures (Action_<code>_Text); they are emitted by the pipeline and not in domain measure dictionaries.
-$tmdlMeasuresRequiringDict = $tmdlMeasures | Where-Object { $_ -notmatch '^Action_[A-Z0-9.-]+_Text$' }
+# Exclude framework-generated measures: Action text measures, utility measures emitted by the pipeline.
+# These are not in domain measure dictionaries by design.
+$tmdlMeasuresRequiringDict = $tmdlMeasures | Where-Object {
+  $_ -notmatch '^Action_[A-Z0-9.\-]+_Text$' -and
+  $_ -notmatch '^(Active Actions Text|Last Refresh|Narrative Text)\b'
+}
 $missingInDict = $tmdlMeasuresRequiringDict | Where-Object { $_ -notin $dictMeasures } | Sort-Object
 
 Write-Host "TMDL <-> Measure Dictionary consistency"
