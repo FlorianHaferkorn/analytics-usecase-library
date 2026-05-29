@@ -836,6 +836,46 @@ Invoke-WithRetry "Validate Fabric output" {
     }
 }
 
+# PHASE 7: Deterministic self-heal on generated reports (max 3 iterations)
+$repairScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\validation\repair_report_quality.ps1"
+$fabricChecksScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\run_fabric_checks.ps1"
+if (Test-Path $repairScript) {
+    Write-Host ([Environment]::NewLine + "Phase 7: Report Quality Self-Heal ...") -ForegroundColor Cyan
+    $timestamp7 = Get-Date -Format "yyyyMMdd_HHmmss"
+    $runDir7 = Join-Path $script:RepoRoot "internal/metrics/runs/${timestamp7}_orchestrator"
+    New-Item -ItemType Directory -Path $runDir7 -Force | Out-Null
+    $fixLog7 = Join-Path $runDir7 "self_heal_log.json"
+    try {
+        & $repairScript -DistRoot $distRootParam -MaxIterations 3 -Summary -FixLogPath $fixLog7
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  Phase 7: Self-heal applied. Re-running fabric checks ..." -ForegroundColor Cyan
+            if (Test-Path $fabricChecksScript) {
+                $fabricOutPostHeal = & $fabricChecksScript -DistRoot $distRootParam 2>&1 | Out-String
+                if ($LASTEXITCODE -ne 0) {
+                    $state.warnings += @{
+                        phase   = "Phase 7 Self-Heal"
+                        message = "Fabric checks failed after self-heal (exit $LASTEXITCODE). $fixLog7"
+                    }
+                    Write-Host "  Phase 7: Fabric checks still failing after self-heal." -ForegroundColor Yellow
+                } else {
+                    Write-Host "  Phase 7: All reports green after self-heal." -ForegroundColor Green
+                }
+            } else {
+                Write-Host "  Phase 7: Self-heal OK (fabric re-check skipped -- script missing)." -ForegroundColor Green
+            }
+        } elseif ($LASTEXITCODE -eq 3) {
+            $state.warnings += @{ phase = "Phase 7 Self-Heal"; message = "Some violations stalled. See $fixLog7" }
+            Write-Host "  Phase 7: Stalled -- see repair log at $fixLog7" -ForegroundColor Yellow
+        } else {
+            $state.warnings += @{ phase = "Phase 7 Self-Heal"; message = "Self-heal exit $LASTEXITCODE. Log: $fixLog7" }
+        }
+    } catch {
+        $state.warnings += @{ phase = "Phase 7 Self-Heal"; message = "Self-heal script error: $_" }
+    }
+} else {
+    Write-Host "  Phase 7: repair_report_quality.ps1 not found -- skipping self-heal." -ForegroundColor DarkGray
+}
+
 # FINAL SUMMARY
 $elapsed = ((Get-Date) - $state.startTime).TotalSeconds
 

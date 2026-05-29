@@ -1,0 +1,147 @@
+name: Source Update Discovery
+
+# Runs weekly (Sunday 06:00 UTC) and can be triggered manually.
+# Checks for new versions of:
+#   - Microsoft PBIR/PBIP schemas (via discover_schema_latest.py)
+#   - Tabular Editor BPA rules (via tooling/quality/check_upstream_sources.py)
+#   - Any other allowlisted upstream references
+#
+# On success: uploads discovery report as artefact.
+# If drift detected: opens / updates a draft PR with schema_registry.py changes.
+
+on:
+  schedule:
+    - cron: "0 6 * * 0"   # Every Sunday at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      update_registry:
+        description: "Update schema_registry.py and open a PR if drift is found"
+        required: false
+        default: "false"
+        type: choice
+        options: ["true", "false"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  discover-schemas:
+    name: Schema & Source Discovery
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install PyYAML requests jsonschema packaging
+
+      - name: Discover latest Microsoft PBIR schemas
+        id: schema_discover
+        run: |
+          mkdir -p internal/reviews
+          discover_rc=0
+          python products/fabric/powerbi/tooling/discover_schema_latest.py \
+            --fail-if-behind \
+            --json-out > internal/reviews/schema_update_report.json || discover_rc=$?
+
+          python -c "
+import json, pathlib, sys, datetime
+
+report_json = pathlib.Path('internal/reviews/schema_update_report.json')
+report_md = pathlib.Path('internal/reviews/schema_update_report.md')
+now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+
+def write_failure(reason: str) -> None:
+    report_md.write_text(
+        '\n'.join([
+            '# Schema Update Report',
+            '',
+            f'Generated: {now}',
+            '',
+            f'_Discovery failed: {reason}_',
+        ]) + '\n',
+        encoding='utf-8',
+    )
+
+if not report_json.exists() or report_json.stat().st_size == 0:
+    write_failure('no JSON output file')
+    sys.exit(0)
+
+try:
+    data = json.loads(report_json.read_text(encoding='utf-8'))
+except json.JSONDecodeError as exc:
+    write_failure(f'invalid JSON ({exc})')
+    sys.exit(0)
+
+lines = [
+    '# Schema Update Report',
+    '',
+    f'Generated: {now}',
+    '',
+    '| Schema | Pinned | Latest | Status |',
+    '|---|---|---|---|',
+]
+for item in data if isinstance(data, list) else []:
+    status = 'UP-TO-DATE' if item.get('pinned') == item.get('latest') else 'UPDATE AVAILABLE'
+    lines.append(
+        f\"| {item.get('name', '?')} | {item.get('pinned', '?')} | {item.get('latest', '?')} | {status} |\"
+    )
+report_md.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+print('Schema report written.')
+"
+
+          if [ "$discover_rc" -ne 0 ]; then
+            echo "Schema discovery exited $discover_rc (schemas may be behind latest)."
+          fi
+          echo "report_written=true" >> "$GITHUB_OUTPUT"
+
+      - name: Check upstream BPA rules and external references
+        id: upstream_check
+        run: |
+          python tooling/quality/check_upstream_sources.py \
+            --output internal/reviews/upstream_sources_report.md \
+            --summary
+
+      - name: Upload discovery reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-update-reports-${{ github.run_number }}
+          path: |
+            internal/reviews/schema_update_report.md
+            internal/reviews/upstream_sources_report.md
+          retention-days: 30
+
+      - name: Open PR if registry drift detected and update requested
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.update_registry == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python products/fabric/powerbi/tooling/discover_schema_latest.py \
+            --update-comments --update-manifest
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="chore/schema-registry-update-${{ github.run_id }}"
+          git checkout -B "$BRANCH"
+          git add products/fabric/powerbi/tooling/schema_registry.py \
+                  internal/reviews/schema_update_report.md \
+                  tooling/schemas/ || true
+          if git diff --cached --quiet; then
+            echo "No registry changes to commit."
+          else
+            git commit -m "chore: update schema_registry.py to latest Microsoft PBIR schemas"
+            git push -u origin "$BRANCH"
+            gh pr create \
+              --head "$BRANCH" \
+              --title "chore: schema registry update $(date +%Y-%m-%d)" \
+              --body "$(cat internal/reviews/schema_update_report.md)" \
+              --label "automated,schema-update" \
+              --draft
+          fi

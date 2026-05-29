@@ -1,0 +1,286 @@
+# Known Errors & Fix Classification
+# ─────────────────────────────────────────────────────────────────────────────
+# Machine-readable knowledge base for the Quality Platform.
+# Human-readable companion: internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md
+#
+# Fields per entry:
+#   id               – stable identifier (snake_case)
+#   signature        – regex or exact string pattern found in validator output
+#   check            – validator check ID (matches tooling_manifest.yaml)
+#   scope            – report | model | kpi | governance | all
+#   severity         – critical | warning | info
+#   category         – structural | schema | dax | tmdl | governance | content
+#   deterministic_fix – true = self_heal can fix; false = human / agent action required
+#   fix_id           – self_heal fix function ID (null if not deterministic)
+#   manual_fix       – short description of what a human/agent should do
+#   regression_test  – test function in tooling/tests/ that covers this case (if any)
+#   docs             – reference doc or KNOWN_ERRORS_AND_FIXES.md heading
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "1.0"
+
+errors:
+
+  # ── Report / Structural ────────────────────────────────────────────────────
+
+  - id: page_wrong_size
+    signature: "page:size.*Unexpected page (width|height)"
+    check: report.structural
+    scope: report
+    severity: critical
+    category: structural
+    deterministic_fix: true
+    fix_id: "page:size"
+    manual_fix: null
+    regression_test: test_self_heal_page_size
+    docs: "KNOWN_ERRORS_AND_FIXES.md#page-size-mismatch"
+
+  - id: visual_out_of_bounds
+    signature: "visual:bounds.*Visual is outside page bounds"
+    check: report.structural
+    scope: report
+    severity: critical
+    category: structural
+    deterministic_fix: true
+    fix_id: "visual:bounds"
+    manual_fix: null
+    regression_test: test_self_heal_visual_bounds
+    docs: "KNOWN_ERRORS_AND_FIXES.md#visual-out-of-bounds"
+
+  - id: visual_position_incomplete
+    signature: "visual:bounds.*must include numeric x, y, width, height"
+    check: report.structural
+    scope: report
+    severity: critical
+    category: structural
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Add complete position block to visual.json: x, y, width, height."
+    regression_test: null
+    docs: "products/fabric/powerbi/docs/references/pbir-visual-json.md"
+
+  - id: missing_required_slots
+    signature: "page:required-slots.*Missing required visual slots"
+    check: report.structural
+    scope: report
+    severity: critical
+    category: structural
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Add missing visual slot JSON files to the page definition directory."
+    regression_test: null
+    docs: "products/fabric/powerbi/docs/references/pbir-visual-json.md"
+
+  - id: forbidden_visual_type
+    signature: "visual:forbidden-type.*Forbidden visual type"
+    check: report.structural
+    scope: report
+    severity: critical
+    category: structural
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Replace the forbidden visual type (pie/donut/gauge/treemap) with an approved alternative."
+    regression_test: null
+    docs: "tooling/linters/powerbi/bpa-rules-report.json"
+
+  # ── Schema ─────────────────────────────────────────────────────────────────
+
+  - id: schema_url_mismatch
+    signature: "\\$schema.*mismatch|schema version.*does not match registry"
+    check: pbir.schema_versions
+    scope: report
+    severity: critical
+    category: schema
+    deterministic_fix: true
+    fix_id: "schema:url"
+    manual_fix: "Update $schema URL in the JSON file to match schema_registry.py pinned version."
+    regression_test: test_schema_url_repair_dry_run
+    docs: "products/fabric/powerbi/docs/references/pbir-schemas-versions.md"
+
+  - id: pbir_json_syntax_error
+    signature: "JSON syntax error|Unexpected token"
+    check: hook.validate_pbir_structure
+    scope: report
+    severity: critical
+    category: schema
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Fix malformed JSON in the affected .json file. Use a JSON linter."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#pbir-json-syntax-error"
+
+  - id: pbir_folder_invalid_name
+    signature: "pbir.folder.invalid_name|folder name.*invalid characters"
+    check: pbir.schema
+    scope: report
+    severity: critical
+    category: schema
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Rename the folder to use only alphanumeric, hyphen, and underscore characters."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#pbir-folder-invalid-name"
+
+  # ── TMDL / DAX ─────────────────────────────────────────────────────────────
+
+  - id: tmdl_tab_violation
+    signature: "tab.*violation|spaces instead of tabs|TMDL.*indentation"
+    check: tmdl.syntax
+    scope: model
+    severity: critical
+    category: tmdl
+    deterministic_fix: true
+    fix_id: "tmdl:tabs"
+    manual_fix: "Replace leading spaces with tabs in the affected .tmdl file."
+    regression_test: null
+    docs: "core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md"
+
+  - id: tmdl_walrus_operator
+    signature: ":= |TMDL.*`:=`"
+    check: hook.validate_tmdl_style
+    scope: model
+    severity: critical
+    category: tmdl
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Replace ':=' with '=' in the TMDL measure or column expression."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#tmdl-walrus-operator"
+
+  - id: tmdl_description_property
+    signature: "description:.*TMDL|`description:` property"
+    check: hook.validate_tmdl_style
+    scope: model
+    severity: critical
+    category: tmdl
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Replace 'description: ...' with '/// Purpose: ...' comment above the measure."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#tmdl-description-property"
+
+  - id: tmdl_m_table_name_collision
+    signature: "m.*table.*name.*collision|duplicate member"
+    check: tmdl.syntax
+    scope: model
+    severity: critical
+    category: tmdl
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Rename the M-expression variable or the table to avoid collision with a reserved name."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#tmdl-m-expression-table-name-collision"
+
+  - id: dax_format_forbidden
+    signature: "dax.format.forbidden"
+    check: tmdl.dax_bpa
+    scope: model
+    severity: warning
+    category: dax
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Avoid FORMAT() outside text concatenation contexts, or add allowWhenContains entry to bpa-rules-dax.json."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#dax-format-forbidden"
+
+  - id: dax_if_nesting
+    signature: "dax.ifnesting.avoid"
+    check: tmdl.dax_bpa
+    scope: model
+    severity: warning
+    category: dax
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Refactor nested IF() to use SWITCH() or separate measures."
+    regression_test: null
+    docs: "tooling/linters/powerbi/bpa-rules-dax.json"
+
+  # ── PBIP Readiness ─────────────────────────────────────────────────────────
+
+  - id: pbip_auto_datetime_table
+    signature: "pbip.model.auto_datetime_table|LocalDateTable_|DateTableTemplate_"
+    check: tmdl.pbip_readiness
+    scope: model
+    severity: warning
+    category: tmdl
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Delete auto-generated LocalDateTable_*.tmdl and DateTableTemplate_*.tmdl. Remove references in model.tmdl, relationships.tmdl, and dim_date variation blocks."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#pbip-auto-datetime-table"
+
+  - id: pbip_mdx_hidden
+    signature: "pbip.column.mdx_hidden|isAvailableInMDX.*false"
+    check: tmdl.pbip_readiness
+    scope: model
+    severity: warning
+    category: tmdl
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Add 'isAvailableInMDX: false' after the isHidden property on the hidden column in .tmdl."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#pbip-isavailableinmdx-false"
+
+  # ── PowerShell Tooling ─────────────────────────────────────────────────────
+
+  - id: powershell_em_dash
+    signature: "Unerwartetes Token|unexpected token.*em.dash|\\u2014"
+    check: null
+    scope: all
+    severity: critical
+    category: structural
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Replace em-dashes (--) with double hyphens (--) in PowerShell string literals."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#powershell-em-dash-parsing"
+
+  - id: powershell_null_conditional
+    signature: "\\?\\.Source|\\?\\."
+    check: null
+    scope: all
+    severity: critical
+    category: structural
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Use PowerShell 5.x-compatible null check: '(Get-Command foo -ErrorAction SilentlyContinue)' instead of '(Get-Command foo)?.Source'."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#powershell-null-conditional-operator"
+
+  - id: python_unicode_encode_error
+    signature: "UnicodeEncodeError|charmap.*codec"
+    check: null
+    scope: all
+    severity: critical
+    category: governance
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Replace non-ASCII characters (arrows, checkmarks) in Python print statements with ASCII equivalents (OK:, FAIL:, ->)."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#unicodeencodeerror-on-windows"
+
+  # ── Governance ─────────────────────────────────────────────────────────────
+
+  - id: broken_doc_link
+    signature: "broken.*link|deprecated.*path|file not found.*docs"
+    check: gov.docs_links
+    scope: governance
+    severity: warning
+    category: governance
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Update the broken link in the markdown file to the correct path."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#broken-documentation-links"
+
+  - id: markdown_tabs
+    signature: "MD010.*hard tab"
+    check: gov.markdownlint
+    scope: governance
+    severity: warning
+    category: governance
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: "Replace hard tab characters with spaces in the markdown file."
+    regression_test: null
+    docs: "KNOWN_ERRORS_AND_FIXES.md#markdownlint-md010"

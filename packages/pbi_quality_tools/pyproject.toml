@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pbi-quality-tools"
+version = "0.1.0"
+description = "Standalone Power BI / PBIP quality toolkit: validate, repair, and diagnose reports."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "jsonschema>=4.17.0",
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+pbi-quality = "pbi_quality_tools.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pbi_quality_tools*"]
