@@ -1,14 +1,22 @@
 <#
 .SYNOPSIS
-  Runs the repository quality gate entrypoint.
+  Canonical repository quality gate: Stage 1 + Fabric/PBIR checks.
 .DESCRIPTION
-  This is intentionally additive for Phase 2 P0: it keeps existing Stage 1 and
-  Fabric checks available, then adds the new static report quality gate.
+  Single entry point for local pre-commit and CI. Runs:
+    1. tooling/run_stage1_checks.ps1  (governance, docs, YAML, registry)
+    2. products/fabric/powerbi/tooling/run_fabric_checks.ps1
+       (TMDL, PBIR, pbir-cli --qa, P0 report quality, bindings-adjacent checks)
+
+  Use -SkipStage1 when Stage 1 already ran in the same session (CI stage1 job).
+
+.EXAMPLE
+  .\tooling\quality\run_quality_gate.ps1
+.EXAMPLE
+  .\tooling\quality\run_quality_gate.ps1 -SkipStage1
 #>
 Param(
     [switch]$SkipStage1,
-    [switch]$SkipFabric,
-    [switch]$IncludeSchema
+    [switch]$SkipFabric
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,7 +24,9 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $PSCommandPath
 $repoRoot = (Get-Item $scriptDir).Parent.Parent.FullName
 
-function Invoke-Step {
+$failed = 0
+
+function Invoke-GateStep {
     param(
         [string]$Name,
         [scriptblock]$Command
@@ -24,21 +34,27 @@ function Invoke-Step {
     Write-Host ""
     Write-Host "== $Name ==" -ForegroundColor Cyan
     & $Command
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) {
+        $script:failed++
+    }
 }
 
 if (-not $SkipStage1) {
-    Invoke-Step "Stage 1" { & (Join-Path $repoRoot "tooling/run_stage1_checks.ps1") }
+    Invoke-GateStep "Stage 1" {
+        & (Join-Path $repoRoot "tooling/run_stage1_checks.ps1")
+    }
 }
 
 if (-not $SkipFabric) {
-    Invoke-Step "Fabric / Power BI checks" { & (Join-Path $repoRoot "products/fabric/powerbi/tooling/run_fabric_checks.ps1") }
-}
-
-Invoke-Step "P0 report quality checks" {
-    $reportQuality = Join-Path $repoRoot "products/fabric/powerbi/tooling/validation/check_report_quality.ps1"
-    if ($IncludeSchema) {
-        & $reportQuality -IncludeSchema
-    } else {
-        & $reportQuality
+    Invoke-GateStep "Fabric / Power BI checks" {
+        & (Join-Path $repoRoot "products/fabric/powerbi/tooling/run_fabric_checks.ps1")
     }
 }
+
+Write-Host ""
+if ($failed -gt 0) {
+    Write-Host "Quality gate: $failed step(s) failed." -ForegroundColor Red
+    exit 1
+}
+Write-Host "Quality gate passed." -ForegroundColor Green
+exit 0

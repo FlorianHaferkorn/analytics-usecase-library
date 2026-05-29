@@ -55,8 +55,9 @@ When an audit reports missing or inconsistent SSOT content (e.g. `audit_ssot_con
 
 ## Before committing
 
-1. Run Stage 1 from repo root: `.\tooling\run_stage1_checks.ps1`
-2. If Fabric/Power BI artifacts changed: `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`
+1. Run the quality gate from repo root: `.\tooling\quality\run_quality_gate.ps1`
+   (runs Stage 1 + Fabric checks in one pass; equivalent to running both separately)
+2. If only core/governance changed (no Fabric artifacts): `.\tooling\run_stage1_checks.ps1` is sufficient.
 3. Fix any failures before committing. Use the `fix-stage1-failure` skill if needed.
 4. **After fixing any build, validation, or Desktop error:** If that error class is not yet in [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md), add one row (Symptom | Cause | Fix) to the appropriate section so the same mistake is not repeated. See that file’s “Updating this list” section.
 

@@ -1,17 +1,14 @@
 # Stage 1 CI: hard gate for all PRs. Must pass before merge.
-# See: tooling/run_stage1_checks.ps1, .cursor/rules/stage1-awareness.mdc
+# See: tooling/run_stage1_checks.ps1, tooling/quality/run_quality_gate.ps1
 #
 # Job responsibilities:
 #   python-checks  — pytest (all tests incl. report_quality), health scorecard.
 #                    Runs on ubuntu-latest for speed.
 #   fabric-bindings — PBIR visual binding checks per domain.
 #                    Runs on ubuntu-latest with Python only.
-#   stage1         — Core governance checks via run_stage1_checks.ps1 (PowerShell).
-#                    Runs on windows-latest; includes registry builder, drift,
-#                    markdownlint, docs links, and all other PS1 validators.
-#
-# Previously separate catalog-tmdl-drift and duplicate registry builder jobs
-# have been consolidated: stage1 already runs both via run_stage1_checks.ps1.
+#   stage1         — Core governance (run_stage1_checks.ps1) then Fabric quality
+#                    gate (run_quality_gate.ps1 -SkipStage1) on windows-latest.
+#                    Includes TMDL, PBIR, pbir-cli --qa, P0 report quality.
 
 name: Stage 1
 
@@ -99,6 +96,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r tooling/validation/requirements-data-contracts.txt
 
+      - name: Install Fabric check dependencies
+        run: |
+          python -m pip install -r products/fabric/powerbi/tooling/requirements-fabric-checks.txt
+
       - name: Install test dependencies
         run: python -m pip install -r tooling/tests/requirements.txt
 
@@ -109,6 +110,13 @@ jobs:
       - name: Run Stage 1 checks
         shell: pwsh
         run: ./tooling/run_stage1_checks.ps1 -Root $env:GITHUB_WORKSPACE
+        working-directory: ${{ github.workspace }}
+
+      - name: Run Fabric quality gate
+        shell: pwsh
+        env:
+          PYTHONIOENCODING: utf-8
+        run: ./tooling/quality/run_quality_gate.ps1 -SkipStage1
         working-directory: ${{ github.workspace }}
 
       - name: Upload drift report

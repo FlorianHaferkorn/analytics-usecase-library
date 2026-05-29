@@ -44,7 +44,8 @@ Run all scripts from the **repository root**.
 | Task | Command |
 |---|---|
 | Stage 1 (required before commit) | `.\tooling\run_stage1_checks.ps1` |
-| Fabric / Power BI validation | `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` |
+| **Quality gate (Stage 1 + Fabric)** | `.\tooling\quality\run_quality_gate.ps1` |
+| Fabric / Power BI validation only | `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` |
 | Full suite | `.\tooling\run_all_checks.ps1` |
 | Full model generation | `.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1` |
 

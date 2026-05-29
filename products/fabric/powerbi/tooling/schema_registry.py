@@ -26,21 +26,16 @@ _BASE = "https://developer.microsoft.com/json-schemas/fabric"
 
 
 # ── Report JSON (definition/report.json) ───────────────────────────────────────
-# Pinned: 3.0.0  |  Latest known: 3.0.0  |  Updated: 2026-05
-REPORT_SCHEMA = f"{_BASE}/item/report/definition/report/3.0.0/schema.json"
+# Pinned: 3.2.0  |  Latest known: 3.2.0  |  Updated: 2026-05 (pbir-cli validate --qa)
+REPORT_SCHEMA = f"{_BASE}/item/report/definition/report/3.2.0/schema.json"
 
 # ── Page JSON (definition/pages/<name>/page.json) ──────────────────────────────
-# Pinned: 2.0.0  |  Latest known: 2.1.0 (March 2026, Custom Totals)
-# Upgrade note: page 2.1.0 adds Custom Totals support; structurally additive.
-PAGE_SCHEMA = f"{_BASE}/item/report/definition/page/2.0.0/schema.json"
+# Pinned: 2.1.0  |  Latest known: 2.1.0 (March 2026, Custom Totals)
+PAGE_SCHEMA = f"{_BASE}/item/report/definition/page/2.1.0/schema.json"
 
 # ── Visual container JSON (definition/pages/<p>/visuals/<v>/visual.json) ────────
-# Pinned: 2.3.0  |  Latest known: 2.7.0 (March 2026, Custom Totals)
-# Upgrade note for 2.7.0: query object uses additionalProperties:false — the
-# legacy "Commands" / SemanticQueryDataShapeCommand block must be absent.
-# Our generators do not write that block, so bumping to 2.7.0 should be safe
-# after golden-fixture tests pass. Track at: https://github.com/microsoft/json-schemas
-VISUAL_SCHEMA = f"{_BASE}/item/report/definition/visualContainer/2.3.0/schema.json"
+# Pinned: 2.7.0  |  Latest known: 2.7.0 (March 2026, Custom Totals)
+VISUAL_SCHEMA = f"{_BASE}/item/report/definition/visualContainer/2.7.0/schema.json"
 
 # ── Pages metadata JSON (definition/pages/pages.json) ──────────────────────────
 # Pinned: 1.0.0  |  Latest known: 1.0.0  |  Updated: 2026-05

@@ -1,0 +1,5 @@
+# Python dependencies for Fabric / Power BI validation gates
+# Installed in CI (stage1 job) and locally before run_fabric_checks.ps1
+jsonschema>=4.17.0
+pbir-cli>=0.9.21
+PyYAML>=6.0

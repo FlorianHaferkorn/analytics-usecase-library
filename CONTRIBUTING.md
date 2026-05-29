@@ -9,7 +9,7 @@ Thank you for considering a contribution to the Analytics Strategy-to-Action Fra
 1. **Pick a task** — open issue, item from [`KNOWN_GAPS.md`](internal/project_mgmt/KNOWN_GAPS.md), or `internal/technical_backlog.md`.
 2. **Create a branch** — `git checkout -b <type>/<short-name>` (e.g. `feat/add-hr-usecases`). Types: `feat`, `fix`, `docs`, `refactor`, `chore`.
 3. **Make changes** — follow the conventions below.
-4. **Run Stage 1 checks** — `.\tooling\run_stage1_checks.ps1` (must pass before merge).
+4. **Run the quality gate** — `.\tooling\quality\run_quality_gate.ps1` (Stage 1 + Fabric; must pass before merge).
 5. **Run the health scorecard** — `python tooling/health_scorecard.py` to verify framework metrics.
 6. **Commit & push** — conventional-style messages (`feat:`, `fix:`, `docs:`, `refactor:`).
 7. **Open a PR** — target `main`; describe what changed and why.
@@ -18,8 +18,9 @@ Thank you for considering a contribution to the Analytics Strategy-to-Action Fra
 
 | Gate | Command | Scope | Required |
 |------|---------|-------|----------|
-| **Stage 1** | `.\tooling\run_stage1_checks.ps1` | Docs, refs, structure, KPI ↔ use case consistency | Yes (CI / pre-merge) |
-| **Fabric** | `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` | TMDL, measures, DAX | If you changed Fabric output |
+| **Quality gate** | `.\tooling\quality\run_quality_gate.ps1` | Stage 1 + Fabric/PBIR (CI runs this on Windows) | Yes (CI / pre-merge) |
+| **Stage 1 only** | `.\tooling\run_stage1_checks.ps1` | Docs, refs, structure, KPI consistency | Subset of quality gate |
+| **Fabric only** | `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` | TMDL, PBIR, pbir-cli, P0 report quality | Subset of quality gate |
 | **OSS** | `bash products/open_source_stack/tooling/run_oss_checks.sh` | Evidence.dev, dbt, adapters | If you changed OSS stack |
 | **Full local** | `.\tooling\run_all_checks.ps1` | Stage 1 + Fabric | Recommended before release |
 | **Health scorecard** | `python tooling/health_scorecard.py` | H1-H5 framework metrics | Recommended |
