@@ -199,6 +199,29 @@ try {
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 
+  # ── pbir-cli structural + quality validation ─────────────────────────────
+  # pbir-cli validates report schemas and runs QA checks (hidden visuals,
+  # overlapping objects, filter sanity). Does NOT require a live model
+  # connection. --qa = schema + quality; --fields requires live XMLA.
+  $pbirCliCmd = Get-Command pbir -ErrorAction SilentlyContinue
+  if ($pbirCliCmd) {
+    Write-Host ""
+    Write-Host ">> pbir-cli validate --qa (schema + quality checks)" -ForegroundColor Cyan
+    $reportDirs = Get-ChildItem -Path $distRootResolved -Filter "*.Report" -Directory -ErrorAction SilentlyContinue
+    if ($reportDirs) {
+      foreach ($rDir in $reportDirs) {
+        Write-Host "   $($rDir.Name)" -ForegroundColor DarkGray
+        & pbir validate $rDir.FullName --qa 2>&1 | ForEach-Object { Write-Host "   $_" }
+        if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+      }
+    } else {
+      Write-Host "   No .Report directories found in $distRootResolved" -ForegroundColor Yellow
+    }
+  } else {
+    Write-Host ""
+    Write-Host ">> pbir-cli: not found -- install with 'pip install pbir-cli' to enable schema + QA checks" -ForegroundColor Yellow
+  }
+
   # ── Telemetry: record this run ────────────────────────────────────────────
   $telemetryScript = Join-Path $repoRoot "tooling\generator_core\intelligence\telemetry.py"
   if (Test-Path $telemetryScript) {

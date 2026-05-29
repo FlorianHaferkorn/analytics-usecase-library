@@ -32,7 +32,7 @@ $ErrorActionPreference = "Stop"
 
 # ── Locate repo root ──────────────────────────────────────────────────────────
 $scriptDir = Split-Path -Parent $PSCommandPath
-$repoRoot  = (Get-Item $scriptDir).Parent.Parent.Parent.FullName
+$repoRoot  = (Get-Item $scriptDir).Parent.Parent.Parent.Parent.Parent.FullName
 
 # ── Resolve SchemaDir ─────────────────────────────────────────────────────────
 if (-not $SchemaDir) {
@@ -65,11 +65,19 @@ Write-Host "Schemas from:           $SchemaDir" -ForegroundColor Cyan
 Write-Host ""
 
 # ── Check jsonschema availability ─────────────────────────────────────────────
+$script:pythonExeParts = $null
 $useJsonschema = $false
-try {
-    $pyCheck = python3 -c "import jsonschema; print('ok')" 2>$null
-    $useJsonschema = ($pyCheck -eq "ok")
-} catch { }
+foreach ($cmd in @("py -3", "python3", "python")) {
+    $parts = $cmd -split " "
+    try {
+        $pyCheck = & $parts[0] @($parts[1..99] | Where-Object { $_ }) "-c" "import jsonschema; print('ok')" 2>$null
+        if ($LASTEXITCODE -eq 0 -and $pyCheck -eq "ok") {
+            $script:pythonExeParts = $parts
+            $useJsonschema = $true
+            break
+        }
+    } catch { continue }
+}
 
 if ($useJsonschema) {
     Write-Host "  Using: Python jsonschema (full JSON Schema Draft-7)" -ForegroundColor DarkGray
@@ -90,45 +98,25 @@ function Get-RelPath([string]$AbsPath) {
 }
 
 function Validate-WithJsonschema([string]$JsonFile, [string]$SchemaFile) {
-    $relJson   = Get-RelPath $JsonFile
-    $pyResult  = python3 - <<'PYEOF' 2>&1
-import sys, json, jsonschema, pathlib
+    $relJson = Get-RelPath $JsonFile
+    $pyHelper = Join-Path $scriptDir "validate_pbir_jsonschema.py"
+    if (-not (Test-Path $pyHelper)) {
+        Add-Violation $relJson "validate_pbir_jsonschema.py not found beside check_pbir_schema.ps1"
+        return
+    }
+    $pyArgs = @($script:pythonExeParts[1..99] | Where-Object { $_ }) + @($pyHelper, $JsonFile, $SchemaFile)
+    $output = & $script:pythonExeParts[0] @pyArgs 2>&1
+    if ($LASTEXITCODE -eq 2) {
+        foreach ($line in @($output)) {
+            Add-Violation $relJson "$line"
+        }
+        return
+    }
 
-json_path   = sys.argv[1]
-schema_path = sys.argv[2]
-
-with open(json_path,   encoding="utf-8") as f: instance = json.load(f)
-with open(schema_path, encoding="utf-8") as f: schema   = json.load(f)
-
-validator = jsonschema.Draft7Validator(schema)
-errors    = sorted(validator.iter_errors(instance), key=lambda e: list(e.path))
-
-for e in errors:
-    path = "/".join(str(p) for p in e.path) if e.path else "(root)"
-    print(f"  SCHEMA: [{path}] {e.message}")
-PYEOF
-
-    $args   = @($JsonFile, $SchemaFile)
-    $output = python3 -c @"
-import sys, json, jsonschema, pathlib
-
-json_path   = sys.argv[1]
-schema_path = sys.argv[2]
-
-with open(json_path,   encoding='utf-8') as f: instance = json.load(f)
-with open(schema_path, encoding='utf-8') as f: schema   = json.load(f)
-
-validator = jsonschema.Draft7Validator(schema)
-errors    = sorted(validator.iter_errors(instance), key=lambda e: list(e.path))
-
-for e in errors:
-    path = '/'.join(str(p) for p in e.path) if e.path else '(root)'
-    print(f'{path}|{e.message}')
-"@ $JsonFile $SchemaFile 2>&1
-
-    foreach ($line in $output) {
-        if ($line -and $line -match "\|") {
-            $parts   = $line -split "\|", 2
+    foreach ($line in @($output)) {
+        $text = "$line"
+        if ($text -and $text -match "\|") {
+            $parts   = $text -split "\|", 2
             $path    = $parts[0]
             $message = $parts[1]
             Add-Violation $relJson "[$path] $message"
@@ -209,6 +197,40 @@ function Validate-Structural-Pbir([string]$JsonFile) {
     }
 }
 
+# ── Folder name validation ────────────────────────────────────────────────────
+# Power BI Desktop silently ignores pages/visuals/bookmarks whose folder names
+# contain characters outside [a-zA-Z0-9_-]. No error dialog is shown -- the
+# object simply vanishes from the loaded report. This is the hardest-to-debug
+# class of PBIR errors. Validate early to catch it before opening in Desktop.
+function Validate-FolderNames([string]$PagesDir) {
+    $validNameRe = [regex]'^[\w\-]+$'
+    Get-ChildItem -Path $PagesDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+        # strip optional .Page suffix before checking
+        $pageName = $_.Name -replace '\.Page$', ''
+        if (-not $validNameRe.IsMatch($pageName)) {
+            Add-Violation (Get-RelPath $_.FullName) "Page folder '$pageName' contains invalid characters. Only a-z, A-Z, 0-9, _ and - are allowed. Desktop silently ignores pages with invalid names."
+        }
+        $visualsDir = Join-Path $_.FullName "visuals"
+        if (Test-Path $visualsDir) {
+            Get-ChildItem -Path $visualsDir -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+                if (-not $validNameRe.IsMatch($_.Name)) {
+                    Add-Violation (Get-RelPath $_.FullName) "Visual folder '$($_.Name)' contains invalid characters. Only a-z, A-Z, 0-9, _ and - are allowed. Desktop silently ignores visuals with invalid names."
+                }
+            }
+        }
+    }
+    # bookmarks
+    $bookmarksDir = Join-Path (Split-Path -Parent $PagesDir) "bookmarks"
+    if (Test-Path $bookmarksDir) {
+        Get-ChildItem -Path $bookmarksDir -Filter "*.bookmark.json" -ErrorAction SilentlyContinue | ForEach-Object {
+            $bName = $_.BaseName -replace '\.bookmark$', ''
+            if (-not $validNameRe.IsMatch($bName)) {
+                Add-Violation (Get-RelPath $_.FullName) "Bookmark '$bName' contains invalid characters. Only a-z, A-Z, 0-9, _ and - are allowed."
+            }
+        }
+    }
+}
+
 # ── Scan files ────────────────────────────────────────────────────────────────
 $visualSchema = Join-Path $SchemaDir "visual.schema.json"
 $pageSchema   = Join-Path $SchemaDir "page.schema.json"
@@ -230,6 +252,7 @@ if (Test-Path $pbirFile) {
 # pages/**/page.json and visuals/**/visual.json
 $pagesDir = Join-Path $defDir "pages"
 if (Test-Path $pagesDir) {
+    Validate-FolderNames $pagesDir
     Get-ChildItem -Path $pagesDir -Recurse -File -Filter "page.json" | ForEach-Object {
         $scannedFiles++
         if ($useJsonschema -and (Test-Path $pageSchema)) {
@@ -261,5 +284,5 @@ if ($violations.Count -gt 0) {
     exit 1
 }
 
-Write-Host "PBIR schema check passed — no violations found." -ForegroundColor Green
+Write-Host "PBIR schema check passed -- no violations found." -ForegroundColor Green
 exit 0

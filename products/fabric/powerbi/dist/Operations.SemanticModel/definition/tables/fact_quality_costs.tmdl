@@ -35,8 +35,9 @@ table fact_quality_costs
 		source =
 			let
 				Source = Folder.Files(GoldDataPath & "/facts/fact_quality_costs"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet") and not Text.Contains([Folder Path], "_delta_log")),
+				SortedFiles = Table.Sort(FilteredFiles, {{"Date modified", Order.Descending}}),
+				FirstFile = SortedFiles{0}[Content],
 				ParquetData = Parquet.Document(FirstFile)
 			in
 				ParquetData
