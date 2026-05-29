@@ -6,6 +6,7 @@ table dim_date
 		sourceColumn: DateKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column Date
 		dataType: DateTime
 		sourceColumn: Date

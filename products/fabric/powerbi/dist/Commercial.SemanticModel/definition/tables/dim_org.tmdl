@@ -5,6 +5,7 @@ table dim_org
 	column OrgKey
 		dataType: int64
 		isHidden
+		isAvailableInMDX: false
 		lineageTag: ce83f39d-834b-41dd-bb92-e499a27eb510
 		summarizeBy: none
 		sourceColumn: OrgKey

@@ -6,6 +6,7 @@ table dim_product
 		sourceColumn: ProductKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column ProductCode
 		dataType: String
 		sourceColumn: ProductCode

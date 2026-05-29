@@ -8,6 +8,7 @@ table dim_org
 		sourceColumn: OrgKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	/// Display name for the org node (store name, country name, etc.)
 	column OrgName
 		dataType: String
@@ -19,6 +20,7 @@ table dim_org
 		sourceColumn: OrgCode
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	/// Hierarchy level: Country | Store
 	column OrgLevel
 		dataType: String
@@ -40,24 +42,28 @@ table dim_org
 		sourceColumn: OrgName
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	/// Alias column — maps to Country for backward compatibility with report visuals
 	column Region
 		dataType: String
 		sourceColumn: Country
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	/// Alias column — maps to OrgLevel for backward compatibility with report visuals
 	column Channel
 		dataType: String
 		sourceColumn: OrgLevel
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	/// Alias column — maps to OrgCode for backward compatibility with report visuals
 	column Customer
 		dataType: String
 		sourceColumn: OrgCode
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	partition dim_org = m
 		mode: import
 		source =

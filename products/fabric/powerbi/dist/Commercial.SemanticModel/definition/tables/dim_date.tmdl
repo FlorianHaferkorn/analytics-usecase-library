@@ -5,6 +5,7 @@ table dim_date
 	column DateKey
 		dataType: int64
 		isHidden
+		isAvailableInMDX: false
 		lineageTag: 14673ef0-1b4e-4fc4-9a56-d518fcb92036
 		summarizeBy: none
 		sourceColumn: DateKey
@@ -15,10 +16,6 @@ table dim_date
 		summarizeBy: none
 		sourceColumn: Date
 
-		variation Variation
-			isDefault
-			relationship: 4c2fd2a9-e4dc-4127-a8dc-e63351b2ffc4
-			defaultHierarchy: LocalDateTable_4396b67b-45eb-4309-9608-e56451dd861e.Datumshierarchie
 
 	column Year
 		dataType: int64

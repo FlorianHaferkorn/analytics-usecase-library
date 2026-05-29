@@ -6,6 +6,7 @@ table dim_org
 		sourceColumn: OrgKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column Plant
 		dataType: String
 		sourceColumn: Plant

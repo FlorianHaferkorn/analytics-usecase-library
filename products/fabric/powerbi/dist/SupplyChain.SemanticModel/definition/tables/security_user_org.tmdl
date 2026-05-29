@@ -12,6 +12,7 @@ table security_user_org
 		sourceColumn: OrgKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 
 	partition security_user_org = m
 		mode: import

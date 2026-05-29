@@ -6,6 +6,7 @@ table dim_customer
 		sourceColumn: CustomerKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column CustomerCode
 		dataType: String
 		sourceColumn: CustomerCode

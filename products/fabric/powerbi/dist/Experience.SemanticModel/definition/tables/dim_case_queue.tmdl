@@ -6,6 +6,7 @@ table dim_case_queue
 		sourceColumn: QueueKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column QueueName
 		dataType: String
 		sourceColumn: QueueName

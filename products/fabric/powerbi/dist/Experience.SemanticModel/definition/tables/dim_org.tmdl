@@ -6,6 +6,7 @@ table dim_org
 		sourceColumn: OrgKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column Region
 		dataType: String
 		sourceColumn: Region

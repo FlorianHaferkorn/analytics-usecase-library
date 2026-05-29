@@ -6,6 +6,7 @@ table dim_asset
 		sourceColumn: AssetKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column AssetCode
 		dataType: String
 		sourceColumn: AssetCode

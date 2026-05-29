@@ -6,6 +6,7 @@ table dim_issue_type
 		sourceColumn: IssueKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column IssueType
 		dataType: String
 		sourceColumn: IssueType

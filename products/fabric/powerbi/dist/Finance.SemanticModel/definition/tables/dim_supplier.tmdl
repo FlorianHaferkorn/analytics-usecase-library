@@ -6,6 +6,7 @@ table dim_supplier
 		sourceColumn: SupplierKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column SupplierCode
 		dataType: String
 		sourceColumn: SupplierCode

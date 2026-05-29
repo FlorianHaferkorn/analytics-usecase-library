@@ -6,6 +6,7 @@ table dim_lane
 		sourceColumn: LaneKey
 		summarizeBy: none
 		isHidden
+		isAvailableInMDX: false
 	column Origin
 		dataType: String
 		sourceColumn: Origin

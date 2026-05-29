@@ -5,6 +5,7 @@ table dim_customer
 	column CustomerKey
 		dataType: int64
 		isHidden
+		isAvailableInMDX: false
 		lineageTag: 208e913a-e6ca-4cd0-9034-a658ea4340aa
 		summarizeBy: none
 		sourceColumn: CustomerKey

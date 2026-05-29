@@ -10,7 +10,7 @@ annotation PBI_ProTooling = ["TMDL-Extension","DevMode"]
 
 annotation PBI_QueryOrder = ["_ActionReady_Logic","_Measures","dim_customer","dim_date","dim_org","dim_product","dim_promo","fact_customer_events","fact_customer_value","fact_experience","fact_nps","fact_plan_sales","fact_promo","fact_sales","security_user_org","GoldDataPath"]
 
-annotation __PBI_TimeIntelligenceEnabled = 1
+annotation __PBI_TimeIntelligenceEnabled = 0
 
 ref table _ActionReady_Logic
 ref table _Measures
@@ -27,7 +27,6 @@ ref table fact_plan_sales
 ref table fact_promo
 ref table fact_sales
 ref table security_user_org
-ref table DateTableTemplate_951ad0c0-ac6e-4bcf-97c8-d3dc699ada15
 ref table LocalDateTable_4396b67b-45eb-4309-9608-e56451dd861e
 
 ref role OrgAccess

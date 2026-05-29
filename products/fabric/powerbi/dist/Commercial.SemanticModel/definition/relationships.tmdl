@@ -82,8 +82,4 @@ relationship dim_promo_fact_sales
 	fromColumn: fact_sales.PromoKey
 	toColumn: dim_promo.PromoKey
 
-relationship 4c2fd2a9-e4dc-4127-a8dc-e63351b2ffc4
-	joinOnDateBehavior: datePartOnly
-	fromColumn: dim_date.Date
-	toColumn: LocalDateTable_4396b67b-45eb-4309-9608-e56451dd861e.Date
 
