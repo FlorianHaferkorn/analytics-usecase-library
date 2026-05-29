@@ -2,12 +2,15 @@
 .SYNOPSIS
   Validates PBIR JSON files against cached Microsoft JSON schemas.
 .DESCRIPTION
-  Checks all visual.json, page.json, and definition.pbir files in a PBIP report
-  directory against the JSON schemas cached in tooling/schemas/pbir/.
+  Checks PBIR JSON files in a report definition folder against the Microsoft JSON
+  Schema declared in each file's $schema property.
 
-  Uses Python (jsonschema package) for full JSON Schema Draft-7 validation when
-  available, falling back to structural PowerShell checks when jsonschema is not
-  installed.
+  Cached schemas live under tooling/schemas/pbir/microsoft/ (run cache_pbir_schemas.py
+  to refresh). Legacy stub files (visual.schema.json, etc.) are used only when
+  $schema is missing.
+
+  Uses Python jsonschema (+ report_quality $ref resolution) when available,
+  falling back to structural PowerShell checks when jsonschema is not installed.
 
   Schemas cached in: tooling/schemas/pbir/
   Schema source:     https://developer.microsoft.com/json-schemas/fabric/item/report/
@@ -97,14 +100,18 @@ function Get-RelPath([string]$AbsPath) {
     $AbsPath.Replace($repoRoot, "").TrimStart("/\")
 }
 
-function Validate-WithJsonschema([string]$JsonFile, [string]$SchemaFile) {
+function Validate-WithJsonschema([string]$JsonFile) {
     $relJson = Get-RelPath $JsonFile
     $pyHelper = Join-Path $scriptDir "validate_pbir_jsonschema.py"
     if (-not (Test-Path $pyHelper)) {
         Add-Violation $relJson "validate_pbir_jsonschema.py not found beside check_pbir_schema.ps1"
         return
     }
-    $pyArgs = @($script:pythonExeParts[1..99] | Where-Object { $_ }) + @($pyHelper, $JsonFile, $SchemaFile)
+    $env:PYTHONPATH = @(
+        (Join-Path $repoRoot "tooling"),
+        $env:PYTHONPATH
+    ) -join [System.IO.Path]::PathSeparator
+    $pyArgs = @($script:pythonExeParts[1..99] | Where-Object { $_ }) + @($pyHelper, $JsonFile, $SchemaDir)
     $output = & $script:pythonExeParts[0] @pyArgs 2>&1
     if ($LASTEXITCODE -eq 2) {
         foreach ($line in @($output)) {
@@ -231,21 +238,35 @@ function Validate-FolderNames([string]$PagesDir) {
     }
 }
 
-# ── Scan files ────────────────────────────────────────────────────────────────
-$visualSchema = Join-Path $SchemaDir "visual.schema.json"
-$pageSchema   = Join-Path $SchemaDir "page.schema.json"
-$pbirSchema   = Join-Path $SchemaDir "definition.pbir.schema.json"
-
+# ── Scan files (validate against each file's $schema URL) ─────────────────────
 $scannedFiles = 0
 
-# definition.pbir
+function Invoke-PbirJsonCheck([string]$JsonFile, [scriptblock]$StructuralCheck) {
+    $script:scannedFiles++
+    if ($useJsonschema) {
+        Validate-WithJsonschema $JsonFile
+    } else {
+        & $StructuralCheck $JsonFile
+    }
+}
+
+# definition.pbir + report.json at definition root
 $pbirFile = Join-Path $defDir "definition.pbir"
 if (Test-Path $pbirFile) {
-    $scannedFiles++
-    if ($useJsonschema -and (Test-Path $pbirSchema)) {
-        Validate-WithJsonschema $pbirFile $pbirSchema
-    } else {
-        Validate-Structural-Pbir $pbirFile
+    Invoke-PbirJsonCheck $pbirFile { param($f) Validate-Structural-Pbir $f }
+}
+$reportJson = Join-Path $defDir "report.json"
+if (Test-Path $reportJson) {
+    Invoke-PbirJsonCheck $reportJson {
+        param($f)
+        $relJson = Get-RelPath $f
+        try {
+            $obj = Get-Content $f -Raw -Encoding UTF8 | ConvertFrom-Json
+        } catch {
+            Add-Violation $relJson "JSON parse error: $_"
+            return
+        }
+        if (-not $obj.'$schema') { Add-Violation $relJson 'missing required: $schema' }
     }
 }
 
@@ -254,21 +275,11 @@ $pagesDir = Join-Path $defDir "pages"
 if (Test-Path $pagesDir) {
     Validate-FolderNames $pagesDir
     Get-ChildItem -Path $pagesDir -Recurse -File -Filter "page.json" | ForEach-Object {
-        $scannedFiles++
-        if ($useJsonschema -and (Test-Path $pageSchema)) {
-            Validate-WithJsonschema $_.FullName $pageSchema
-        } else {
-            Validate-Structural-Page $_.FullName
-        }
+        Invoke-PbirJsonCheck $_.FullName { param($f) Validate-Structural-Page $f }
     }
 
     Get-ChildItem -Path $pagesDir -Recurse -File -Filter "visual.json" | ForEach-Object {
-        $scannedFiles++
-        if ($useJsonschema -and (Test-Path $visualSchema)) {
-            Validate-WithJsonschema $_.FullName $visualSchema
-        } else {
-            Validate-Structural-Visual $_.FullName
-        }
+        Invoke-PbirJsonCheck $_.FullName { param($f) Validate-Structural-Visual $f }
     }
 }
 

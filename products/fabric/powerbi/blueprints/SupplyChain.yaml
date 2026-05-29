@@ -112,6 +112,8 @@ tables:
       hierarchies:
         - name: Location Hierarchy
           levels: [Region, Channel, Location]
+        - name: Org Hierarchy
+          levels: [Country, OrgLevel, OrgName]
 
     - table_name: dim_product
       description: "Product dimension with ABC/XYZ classification for supply chain analysis"

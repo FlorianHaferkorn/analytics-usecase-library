@@ -1,6 +1,6 @@
 /// Organisation/location dimension for supply chain — sourced from Gold Layer aurora_group org hierarchy.
 /// Columns align with current parquet schema: OrgKey, OrgName, OrgCode, OrgLevel, OrgType, Country.
-/// Legacy report columns (Location, Region, Channel, Customer) are mapped to closest equivalents.
+/// Legacy columns (Location, Region, Channel, Customer) and 'Location Hierarchy' preserved for report bindings; 'Org Hierarchy' maps Gold parquet.
 table dim_org
 	lineageTag: 2a591969-855c-5b30-89fc-0f293f64c6e2
 	column OrgKey
@@ -76,8 +76,16 @@ table dim_org
 			in
 				ParquetData
 
-	hierarchy 'Org Hierarchy'
+	hierarchy 'Location Hierarchy'
 		lineageTag: 9421cf1e-41bb-5e42-b7f4-829ff3547b3e
+		level Region
+			column: Region
+		level Channel
+			column: Channel
+		level Location
+			column: Location
+	hierarchy 'Org Hierarchy'
+		lineageTag: a8c4e219-7b3f-5d2a-9e61-4f0c8b2a1d05
 		level Country
 			column: Country
 		level OrgLevel
