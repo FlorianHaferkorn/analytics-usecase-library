@@ -24,20 +24,6 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Net Sales % vs Plan"
-                }
-              },
-              "queryRef": "_Measures.Net Sales % vs Plan",
-              "nativeQueryRef": "Net Sales % vs Plan"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
                   "Property": "Price Effect Amount"
                 }
               },

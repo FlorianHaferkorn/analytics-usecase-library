@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Main_1",
   "position": {
     "x": 32,
@@ -11,7 +11,6 @@
   },
   "visual": {
     "visualType": "lineChart",
-    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
         "Category": {
@@ -24,11 +23,12 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth",
+              "active": true
             }
           ]
         },
@@ -79,6 +79,7 @@
           ]
         }
       }
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }
