@@ -10,7 +10,7 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "waterfallChart",
+    "visualType": "clusteredColumnChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
