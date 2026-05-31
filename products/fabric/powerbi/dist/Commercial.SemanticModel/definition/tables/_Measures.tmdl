@@ -46,7 +46,7 @@ table _Measures
 
 	/// Delta% Net Sales - sales.net_sales.delta_pct.ly
 	/// Relative variance of Net Sales vs Last Year.
-	measure 'Delta% Net Sales' = DIVIDE ( [Net Sales Amount] - SUM ( fact_sales[Last Year Sales Amount] ), ABS ( SUM ( fact_sales[Last Year Sales Amount] ) ) )
+	measure 'Delta% Net Sales' = DIVIDE ( [Net Sales Amount] - [Last Year Net Sales Amount], ABS ( [Last Year Net Sales Amount] ) )
 		formatString: 0.0%
 		displayFolder: COM-001
 		lineageTag: c2d3b6fc-63b3-4a35-8e35-8a1813849c9b
