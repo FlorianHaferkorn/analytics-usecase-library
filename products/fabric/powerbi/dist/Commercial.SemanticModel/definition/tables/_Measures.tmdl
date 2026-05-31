@@ -23,9 +23,23 @@ table _Measures
 		displayFolder: COM-001
 		lineageTag: b3b3dc9a-b1c6-4e73-a22a-0d10f0e34c74
 
+	/// Plan Sales Amount - sales.plan.amount
+	/// Total planned sales amount; baseline for variance and PVM calculations.
+	measure 'Plan Sales Amount' = SUM ( fact_sales[Plan Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: a1f4c7d2-3e8b-4f91-b5d0-9c2e17a83f6b
+
+	/// Last Year Net Sales Amount - sales.net_sales.ly.amount
+	/// Prior year net sales for year-over-year trend comparison.
+	measure 'Last Year Net Sales Amount' = SUM ( fact_sales[Last Year Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: d5e9b3a7-6f2c-4d1e-8a4b-0f7c25b91e3d
+
 	/// Net Sales % vs Plan - sales.net_sales.delta_pct.plan
 	/// Relative variance of Net Sales vs Plan.
-	measure 'Net Sales % vs Plan' = DIVIDE ( [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ), ABS ( SUM ( fact_sales[Plan Sales Amount] ) ) )
+	measure 'Net Sales % vs Plan' = DIVIDE ( [Net Sales Amount] - [Plan Sales Amount], ABS ( [Plan Sales Amount] ) )
 		formatString: 0.0%
 		displayFolder: COM-001
 		lineageTag: b2f7a0cd-ec9f-4019-9545-8d8e600a94a6

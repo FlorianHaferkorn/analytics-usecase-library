@@ -47,6 +47,34 @@
               },
               "queryRef": "_Measures.Net Sales Amount",
               "nativeQueryRef": "Net Sales Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Plan Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Plan Sales Amount",
+              "nativeQueryRef": "Plan Sales Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Last Year Net Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Last Year Net Sales Amount",
+              "nativeQueryRef": "Last Year Net Sales Amount"
             }
           ]
         }

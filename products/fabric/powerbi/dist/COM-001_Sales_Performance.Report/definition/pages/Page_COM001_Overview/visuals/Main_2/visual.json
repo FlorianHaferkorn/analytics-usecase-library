@@ -14,24 +14,6 @@
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "Date"
-                }
-              },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
-            }
-          ]
-        },
         "Y": {
           "projections": [
             {

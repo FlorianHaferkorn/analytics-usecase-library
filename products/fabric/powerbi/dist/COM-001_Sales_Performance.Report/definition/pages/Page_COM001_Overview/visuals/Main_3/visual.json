@@ -47,6 +47,20 @@
               },
               "queryRef": "_Measures.Net Sales Amount",
               "nativeQueryRef": "Net Sales Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Gross Margin %"
+                }
+              },
+              "queryRef": "_Measures.Gross Margin %",
+              "nativeQueryRef": "Gross Margin %"
             }
           ]
         }
