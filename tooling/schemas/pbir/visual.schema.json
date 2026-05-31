@@ -1,10 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "$id": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "title": "PBIR Visual Container",
   "description": "Cached schema for PBIR visual.json files. Source: Microsoft Fabric JSON Schemas.",
   "type": "object",
-  "required": ["$schema", "name", "position"],
+  "required": [
+    "$schema",
+    "name",
+    "position"
+  ],
   "properties": {
     "$schema": {
       "type": "string",
@@ -17,13 +21,35 @@
     },
     "position": {
       "type": "object",
-      "required": ["x", "y", "height", "width"],
+      "required": [
+        "x",
+        "y",
+        "height",
+        "width"
+      ],
       "properties": {
-        "x": { "type": "number", "minimum": 0 },
-        "y": { "type": "number", "minimum": 0 },
-        "height": { "type": "number", "minimum": 1 },
-        "width": { "type": "number", "minimum": 1 },
-        "tabOrder": { "type": ["integer", "null"] }
+        "x": {
+          "type": "number",
+          "minimum": 0
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0
+        },
+        "height": {
+          "type": "number",
+          "minimum": 1
+        },
+        "width": {
+          "type": "number",
+          "minimum": 1
+        },
+        "tabOrder": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
       },
       "additionalProperties": false
     },
@@ -37,7 +63,15 @@
     }
   },
   "oneOf": [
-    { "required": ["visual"] },
-    { "required": ["visualGroup"] }
+    {
+      "required": [
+        "visual"
+      ]
+    },
+    {
+      "required": [
+        "visualGroup"
+      ]
+    }
   ]
 }
