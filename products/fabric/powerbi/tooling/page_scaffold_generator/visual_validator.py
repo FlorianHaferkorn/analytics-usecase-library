@@ -19,7 +19,9 @@ VISUAL_TYPE_ROLES: Dict[str, Optional[set]] = {
     "areaChart": {"Category", "Y"},
     "waterfallChart": {"Category", "Y"},
     "clusteredBarChart": {"Category", "Y"},
-    "clusteredColumnChart": {"Category", "Y"},
+    # Category is optional for clusteredColumnChart: each Y-measure renders as one bar
+    # (no category axis = PVM decomposition view, e.g. Price/Volume/Mix as separate bars)
+    "clusteredColumnChart": {"Y"},
     "hundredPercentStackedBarChart": {"Category", "Y"},
     "hundredPercentStackedColumnChart": {"Category", "Y"},
     "stackedBarChart": {"Category", "Y"},

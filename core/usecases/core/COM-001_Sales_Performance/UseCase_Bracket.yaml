@@ -49,11 +49,10 @@ ux_layout_rules:
       visual_type: line_chart
     - slot_id: Main_2
       kpi_ids:
-      - sales.net_sales.delta_pct.plan
       - sales.pvm.price_effect.amount
       - sales.pvm.volume_effect.amount
       - sales.pvm.mix_effect.amount
-      visual_type: waterfall
+      visual_type: clustered_column
     - slot_id: Main_3
       kpi_id: sales.net_sales.amount
       visual_type: bar_chart_horizontal

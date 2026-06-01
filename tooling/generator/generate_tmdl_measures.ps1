@@ -637,13 +637,14 @@ function Resolve-MeasureFormatString {
     return '#,0.0'
   }
   if ($classifier -match '(^|[\s._-])amount([\s._-]|$)|currency|value') {
-    return '#,0.00'
+    # No decimals — Power BI visuals auto-scale to K/M/B via displayUnits
+    return '#,0'
   }
   if ($classifier -match '(^|[\s._-])index([\s._-]|$)|score|rate') {
     return '#,0.0'
   }
 
-  return '#,0.00'
+  return '#,0'
 }
 
 function Build-ActionReadyLogicTable {

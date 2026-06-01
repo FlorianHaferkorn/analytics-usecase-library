@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.2.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
   "themeCollection": {
     "baseTheme": {
       "name": "CY25SU10",
@@ -11,17 +11,14 @@
       "type": "SharedResources"
     },
     "customTheme": {
-      "name": "Aurora_Group__Monochromatic__Light___2ECDE7.json",
+      "name": "Aurora_Group__Divergent__Dark_22765734605356192.json",
       "reportVersionAtImport": {
-        "visual": "2.1.0",
-        "report": "3.0.0",
-        "page": "2.3.0"
+        "visual": "2.9.0",
+        "report": "3.3.0",
+        "page": "2.3.1"
       },
       "type": "RegisteredResources"
     }
-  },
-  "filterConfig": {
-    "filters": []
   },
   "objects": {
     "section": [
@@ -51,18 +48,6 @@
       }
     ]
   },
-  "settings": {
-    "useStylableVisualContainerHeader": true,
-    "exportDataMode": "AllowSummarized",
-    "defaultFilterActionIsDataFilter": true,
-    "defaultDrillFilterOtherVisuals": true,
-    "allowChangeFilterTypes": true,
-    "useEnhancedTooltips": true,
-    "useDefaultAggregateDisplayName": true,
-    "queryLimitOption": "None",
-    "customMemoryLimit": "1048576",
-    "customTimeoutLimit": "225"
-  },
   "resourcePackages": [
     {
       "name": "SharedResources",
@@ -80,11 +65,23 @@
       "type": "RegisteredResources",
       "items": [
         {
-          "name": "Aurora_Group__Monochromatic__Light___2ECDE7.json",
-          "path": "Aurora_Group__Monochromatic__Light___2ECDE7.json",
+          "name": "Aurora_Group__Divergent__Dark_22765734605356192.json",
+          "path": "Aurora_Group__Divergent__Dark_22765734605356192.json",
           "type": "CustomTheme"
         }
       ]
     }
-  ]
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultFilterActionIsDataFilter": true,
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true,
+    "queryLimitOption": "None",
+    "customMemoryLimit": "1048576",
+    "customTimeoutLimit": "225"
+  }
 }

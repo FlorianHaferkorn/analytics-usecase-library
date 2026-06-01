@@ -159,6 +159,14 @@ class VisualBuilder:
                         }
                     }
                 }
+            ],
+            # Auto display units: Power BI auto-scales large amounts to K / M / B
+            "calloutValue": [
+                {
+                    "properties": {
+                        "displayUnits": {"expr": {"Literal": {"Value": "0L"}}}
+                    }
+                }
             ]
         }
         # Cards use "Data" role for measure aggregation
@@ -175,7 +183,7 @@ class VisualBuilder:
         name: Optional[str] = None,
         title: Optional[str] = None,
         category_entity: str = "dim_date",
-        category_property: str = "Date",
+        category_property: str = "CalendarYearMonth",
     ) -> Dict[str, Any]:
         """
         Build Line Chart visual placeholder (trend: category axis + measure(s)).
@@ -186,7 +194,7 @@ class VisualBuilder:
             name: Optional visual name
             title: Optional display title
             category_entity: Table for X-axis (default dim_date)
-            category_property: Column for X-axis (default Date)
+            category_property: Column for X-axis (default CalendarYearMonth for monthly granularity)
         
         Returns:
             Visual JSON structure
@@ -310,6 +318,51 @@ class VisualBuilder:
                 }
             ]
         }
+        return visual
+
+    def build_clustered_column(
+        self,
+        position: Position,
+        measures: Optional[List[str]] = None,
+        name: Optional[str] = None,
+        title: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Build Clustered Column Chart for multi-measure decomposition (e.g. PVM components).
+
+        No category axis — each measure becomes one bar.  Use this instead of waterfallChart
+        when decomposing effects (Price/Volume/Mix) that do not have a time or entity dimension.
+
+        Args:
+            position: Position and size
+            measures: List of measure references (Y-axis, one bar per measure)
+            name: Optional visual name
+            title: Optional display title
+
+        Returns:
+            Visual JSON structure
+        """
+        visual = self._build_base_visual("clusteredColumnChart", position, name=name)
+        y_proj = [self._measure_projection(m) for m in measures] if measures else []
+        visual["visual"]["query"] = {
+            "queryState": {
+                "Y": {"projections": y_proj},
+            }
+        }
+        visual["visual"]["objects"] = {
+            "dataLabels": [
+                {
+                    "properties": {
+                        "show": {"expr": {"Literal": {"Value": "true"}}},
+                        "labelPosition": {"expr": {"Literal": {"Value": "'InsideEnd'"}}}
+                    }
+                }
+            ]
+        }
+        if title:
+            visual["visual"]["visualContainerObjects"] = {
+                "title": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{title}'"}}}, "show": {"expr": {"Literal": {"Value": "true"}}}}}]
+            }
         return visual
 
     def build_stacked_bar(
@@ -716,6 +769,10 @@ class VisualBuilder:
             "bar_chart_vertical": "bar_chart_vertical",
             "bar_chart": "bar_chart",
             "ranked_bar": "bar_chart_horizontal",
+            # PVM decomposition: multiple Y measures, no category axis
+            "clustered_column": "clustered_column",
+            "pvm_column": "clustered_column",
+            "pvm": "clustered_column",
         }
         normalized_type = alias_map.get(normalized_type, normalized_type)
         measures = measures or []
@@ -747,6 +804,8 @@ class VisualBuilder:
             )
         if normalized_type == "waterfall":
             return self.build_waterfall(position, measures=measures, name=name)
+        if normalized_type == "clustered_column":
+            return self.build_clustered_column(position, measures=measures, name=name, title=title)
         if normalized_type in ("stacked_bar", "hundred_percent_stacked_bar"):
             return self.build_stacked_bar(position, measures=measures, name=name)
         if normalized_type == "funnel":

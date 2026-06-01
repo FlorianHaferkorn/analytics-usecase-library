@@ -158,6 +158,20 @@ class PageBuilder:
                 slicers.append(sl)
                 continue
 
+            if visual_type == "slicer_region":
+                # Region slicer for Overview cross-filter (dim_org.Region)
+                sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.Region", name=slot_id)
+                sl["position"]["tabOrder"] = tab + i
+                slicers.append(sl)
+                continue
+
+            if visual_type == "slicer_product":
+                # Product Category slicer for Overview cross-filter (dim_product.Category)
+                sl = self.slicer_builder.build_categorical_slicer(position, field="dim_product.Category", name=slot_id)
+                sl["position"]["tabOrder"] = tab + i
+                slicers.append(sl)
+                continue
+
             # 30s chart slots (Main_1/2/3): use component_30s binding when available;
             # fallback for unbound main slots: clusteredBarChart with KPI card measures (ranking view)
             if slot_id in _main_slot_binding:
