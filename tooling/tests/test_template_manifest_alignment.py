@@ -176,6 +176,58 @@ class TestBracketVariantAlignment:
         )
 
 
+class TestBracketSlotManifestAlignment:
+    """When template_variant is set, Main_2 visual_type must match manifest information_block."""
+
+    _VARIANCE_VISUAL_TYPES = {"waterfall"}
+    _RANKING_VISUAL_TYPES = {"bar_chart", "bar_chart_horizontal", "bar_chart_column", "bar_chart_vertical"}
+    _TREND_VISUAL_TYPES = {"line_chart", "trend_line", "area_chart"}
+
+    def _slot_block(self, manifest: dict, variant_id: str, slot_id: str, page: str = "overview_slots") -> str | None:
+        for family in manifest.get("page_families", []):
+            for variant in family.get("variants", []):
+                if variant.get("variant_id") != variant_id:
+                    continue
+                for slot in variant.get(page, []):
+                    if slot.get("slot_id") == slot_id:
+                        return slot.get("information_block")
+        return None
+
+    def test_t2_driver_bridge_main2_uses_variance_visual(self):
+        manifest = _load_manifest()
+        expected_block = self._slot_block(manifest, "T2_DriverBridge", "Main_2")
+        assert expected_block == "variance_explanation"
+
+        errors: list[str] = []
+        for bracket_path in _all_brackets():
+            try:
+                doc = yaml.safe_load(bracket_path.read_text(encoding="utf-8"))
+            except yaml.YAMLError:
+                continue
+            if not isinstance(doc, dict):
+                continue
+
+            p1 = (doc.get("ux_layout_rules") or {}).get("page_1_summary") or {}
+            if p1.get("template_variant") != "T2_DriverBridge":
+                continue
+
+            for item in p1.get("component_30s") or []:
+                if not isinstance(item, dict):
+                    continue
+                if item.get("slot_id") != "Main_2":
+                    continue
+
+                vt = (item.get("visual_type") or "").strip().lower()
+                if vt not in self._VARIANCE_VISUAL_TYPES:
+                    errors.append(
+                        f"{bracket_path.relative_to(REPO_ROOT)}: T2_DriverBridge Main_2 uses "
+                        f"visual_type '{vt}' but template_manifest requires "
+                        f"variance_explanation (use waterfall with Plan → drivers → Actual)."
+                    )
+
+        assert not errors, "\n".join(f"  - {e}" for e in errors)
+
+
 class TestManifestInternalConsistency:
     """Smoke checks on template_manifest.yaml internal references."""
 
@@ -218,3 +270,31 @@ class TestManifestInternalConsistency:
             "template_manifest.yaml references information blocks not in visual_registry:\n"
             + "\n".join(f"  - {e}" for e in errors)
         )
+
+    def test_grid_template_slots_declared_in_manifest(self):
+        """Every slot_id in grid_templates/*.json must appear in grid_template_slots."""
+        import json
+
+        manifest = _load_manifest()
+        declared = manifest.get("grid_template_slots") or {}
+        assert declared, "template_manifest.yaml must define grid_template_slots"
+
+        grid_dir = REPO_ROOT / "core" / "templates" / "page_templates" / "grid_templates"
+        errors: list[str] = []
+        for path in sorted(grid_dir.glob("*.json")):
+            data = json.loads(path.read_text(encoding="utf-8"))
+            template_id = data.get("template_id") or path.stem
+            slot_ids = [s["slot_id"] for s in data.get("slots", []) if isinstance(s, dict)]
+            allowed = set(declared.get(template_id) or [])
+            if not allowed:
+                errors.append(
+                    f"{path.name}: template_id '{template_id}' missing from grid_template_slots"
+                )
+                continue
+            for slot_id in slot_ids:
+                if slot_id not in allowed:
+                    errors.append(
+                        f"{path.name}: slot '{slot_id}' not declared under "
+                        f"grid_template_slots.{template_id}"
+                    )
+        assert not errors, "\n".join(f"  - {e}" for e in errors)

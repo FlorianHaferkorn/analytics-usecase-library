@@ -1,0 +1,16 @@
+id: O-O1.2
+action_code_id: O-O1.2
+kpi_id: ops.performance.pct
+impact_range_eur_min: 300000
+impact_range_eur_likely: 1000000
+impact_range_eur_max: 3000000
+time_to_effect_days: 45
+confidence: medium
+evidence_source_url: "https://www.leanproduction.com/oee/"
+owner: Production Manager / Ops Excellence Lead
+assumptions:
+  - "Production value 50M EUR/year per plant; 1 pp OEE performance gain recovers approx. 500k EUR output value."
+  - "Impact formula: Performance_pp_gain x Hourly_Production_Value x Operating_Hours; 2-6 pp gain range per action code."
+  - "Micro-stop reduction and line balancing are primary levers; standard rates and takt times must be defined before activation."
+  - "Medium confidence reflects operator-dependent execution risk and potential hidden quality impact if standards bypassed."
+  - "Trigger gated on availability >= 90%; do not activate if O-O1.1 (Operations Stabilisation) is already in progress on same line."

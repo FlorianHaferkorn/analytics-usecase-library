@@ -40,19 +40,19 @@ ROWS_PER_YEAR = 120   # ~10 outcome events per action code per year
 IMPACTFUL_15 = [
     ("C-M2.1", "Commercial",  "COM-001"),
     ("C-M2.2", "Commercial",  "COM-001"),
+    ("C-S1.1", "Commercial",  "COM-001"),
+    ("C-S1.2", "Commercial",  "COM-001"),
     ("C-C3.1", "Commercial",  "COM-003"),
-    ("C-C3.2", "Commercial",  "COM-003"),
-    ("C-P4.1", "Commercial",  "COM-002"),
     ("F-C1.1", "Finance",     "FIN-001"),
+    ("F-C1.2", "Finance",     "FIN-001"),
     ("F-K2.1", "Finance",     "FIN-002"),
     ("O-A2.1", "Operations",  "OPS-001"),
+    ("O-O1.1", "Operations",  "OPS-001"),
+    ("O-O1.2", "Operations",  "OPS-001"),
+    ("O-O1.3", "Operations",  "OPS-001"),
     ("O-Q3.1", "Operations",  "OPS-002"),
-    ("O-Q3.2", "Operations",  "OPS-002"),
-    ("S-I1.2", "SupplyChain", "SCM-001"),
-    ("S-R2.1", "SupplyChain", "SCM-001"),
-    ("S-F3.1", "SupplyChain", "SCM-002"),
-    ("X-S1.1", "Service",     "XD-001"),
-    ("X-S1.2", "Service",     "XD-001"),
+    ("S-I1.1", "SupplyChain", "SCM-001"),
+    ("S-R2.1", "SupplyChain", "SCM-002"),
 ]
 
 # Outcome status distribution by severity

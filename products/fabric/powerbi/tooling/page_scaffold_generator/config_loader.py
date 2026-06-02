@@ -674,6 +674,9 @@ class ConfigLoader:
                     slots["needs_trend"] = True
                 elif vt == "waterfall":
                     slots["needs_variance"] = True
+                elif vt == "bar_chart_column":
+                    # Clustered column is not a variance bridge; do not set needs_variance
+                    pass
                 elif vt in ("bar_chart", "bar_chart_horizontal", "bar_chart_vertical"):
                     # Heuristic: multi-KPI bar chart indicates variance/bridge; otherwise ranking.
                     kpi_ids = item.get("kpi_ids")

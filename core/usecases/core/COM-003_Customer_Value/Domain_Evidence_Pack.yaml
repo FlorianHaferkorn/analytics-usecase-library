@@ -252,8 +252,8 @@ source_inventory:
 
 action_logic_seeds:
   - trigger_driver: crm.retention.pct
-    trigger_diagnostic: crm.revenue_at_risk.amount
-    trigger_condition: "Revenue at risk > 5% of total active customer revenue AND NPS declining"
+    trigger_diagnostic: crm.churned_customers.count
+    trigger_condition: "Churned customers rising vs prior period AND revenue at risk > 5% of active customer revenue"
     guardrail: "Exclude negative-CLV customers from retention actions"
     action_description: Proactive retention outreach for at-risk high-value customers.
     expected_outcome_kpi: crm.clv.amount

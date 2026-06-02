@@ -161,6 +161,47 @@ foreach ($report in $reports) {
         }
     }
 
+    # 8. page.json name/displayName must match folder and use case ID
+    foreach ($pageDir in $pageDirs) {
+        $pageJsonPath = Join-Path $pageDir.FullName "page.json"
+        if (-not (Test-Path $pageJsonPath)) { continue }
+        try {
+            $pageObj = Get-Content -Raw $pageJsonPath | ConvertFrom-Json
+        } catch {
+            $errs.Add("Page '$($pageDir.Name)': page.json is not valid JSON")
+            continue
+        }
+        if ($pageObj.name -ne $pageDir.Name) {
+            $errs.Add("Page '$($pageDir.Name)': page.json name '$($pageObj.name)' does not match folder name")
+        }
+        if ($ucId -and $pageObj.displayName -and ($pageObj.displayName -notmatch [regex]::Escape($ucId))) {
+            $errs.Add("Page '$($pageDir.Name)': displayName '$($pageObj.displayName)' does not reference use case $ucId")
+        }
+    }
+
+    if (Test-Path $pagesJsonPath) {
+        try {
+            $pagesMeta = Get-Content -Raw $pagesJsonPath | ConvertFrom-Json
+            $order = @($pagesMeta.pageOrder)
+            foreach ($entry in $order) {
+                $expectedDir = Join-Path $pagesDir $entry
+                if (-not (Test-Path $expectedDir)) {
+                    $errs.Add("pages.json pageOrder references '$entry' but no matching page directory exists")
+                }
+            }
+            foreach ($pageDir in $pageDirs) {
+                $pj = Join-Path $pageDir.FullName "page.json"
+                if (-not (Test-Path $pj)) { continue }
+                $pageObj = Get-Content -Raw $pj | ConvertFrom-Json
+                if ($order -contains $pageDir.Name -and $pageObj.name -ne $pageDir.Name) {
+                    $errs.Add("pages.json lists '$($pageDir.Name)' but its page.json name is '$($pageObj.name)'")
+                }
+            }
+        } catch {
+            $errs.Add("pages.json is not valid JSON: $($_.Exception.Message)")
+        }
+    }
+
     # Report per report
     if ($errs.Count -gt 0) {
         Write-Host "  FAIL  $reportName" -ForegroundColor Red

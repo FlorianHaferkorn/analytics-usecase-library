@@ -23,6 +23,7 @@ orchestration:
   - inv.turnover
   - inv.stockout.pct
   - inv.obsolete.pct
+  - inv.excess_inventory.amount
   - supply.otif.pct
   - supply.on_time.pct
   - supply.in_full.pct
@@ -32,6 +33,7 @@ orchestration:
   - plan.forecast.bias.pct
   - plan.forecast.service_impact.pct
   - plan.replan.count
+  - fin.overdue_ar.pct
   action_code_ids:
   - F-C1.1
   - F-C1.2

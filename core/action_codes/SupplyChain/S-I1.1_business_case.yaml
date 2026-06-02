@@ -1,0 +1,16 @@
+id: S-I1.1
+action_code_id: S-I1.1
+kpi_id: inv.dio.days
+impact_range_eur_min: 500000
+impact_range_eur_likely: 2000000
+impact_range_eur_max: 6000000
+time_to_effect_days: 60
+confidence: high
+evidence_source_url: "https://www.gartner.com/en/supply-chain/insights/inventory-optimization"
+owner: Chief Supply Chain Officer / Head of Planning
+assumptions:
+  - "Baseline inventory value 40M EUR; DIO 55 days; 5-15 day reduction releases 1.6-6M EUR in cash via CashRelease = DIO_reduction x (COGS / 365)."
+  - "Orchestration impact exceeds single-lever execution: coordinated activation of the dominant driver (excess, stockout, obsolescence, planning) avoids contradictory stock actions."
+  - "COGS basis 300M EUR; cost of capital 5%; cash release from DIO reduction plus avoided working capital interest."
+  - "Service-level guardrail maintained at OTIF 97%+; orchestration suspended if OTIF deteriorates below threshold."
+  - "Range reflects portfolio breadth: min (single focused SKU-location cluster) to max (multi-category coordinated program across top-50 SKU-locations by value)."

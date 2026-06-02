@@ -246,8 +246,8 @@ source_inventory:
 
 action_logic_seeds:
   - trigger_driver: margin.gm.pct
-    trigger_diagnostic: sales.price.realization_pct
-    trigger_condition: "GM% below target by > 2pp AND price realization < 90% for 2 consecutive months"
+    trigger_diagnostic: sales.pvm.price_effect.amount
+    trigger_condition: "GM% below target by > 2pp AND price effect is negative for 2 consecutive months"
     guardrail: "Do not trigger if volume is already below plan by > 10%"
     action_description: Discount discipline review and price realisation improvement program.
     expected_outcome_kpi: margin.gm.pct

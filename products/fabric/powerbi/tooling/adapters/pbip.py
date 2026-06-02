@@ -6,7 +6,7 @@ knowledge (PBIP schema URLs, visualType strings, canvas dimensions, TMDL
 format). The generator_core framework only knows the abstract GeneratorAdapter
 interface — this is the concrete PBI implementation.
 
-Canvas size: 1280 × 720 (Power BI default widescreen)
+Canvas size: 1920 × 1080 (standard HD widescreen, matches all bracket definitions)
 """
 
 from __future__ import annotations
@@ -40,9 +40,9 @@ from products.fabric.powerbi.tooling.schema_registry import (
     DEFINITION_PBIR_VERSION as _DEFINITION_PBIR_VERSION,
 )
 
-# Power BI canvas dimensions in pixels
-_CANVAS_W = 1280
-_CANVAS_H = 720
+# Power BI canvas dimensions in pixels — must match bracket report_canvas (1920 × 1080)
+_CANVAS_W = 1920
+_CANVAS_H = 1080
 
 # IR VisualType → Power BI PBIP visualType strings
 _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {
@@ -76,12 +76,14 @@ _QUERY_ROLE_MAP: Dict[VisualType, Dict[str, str]] = {
 # Private rendering helpers
 # ---------------------------------------------------------------------------
 
-def _px(pos: Position) -> Dict[str, int]:
+def _px(pos: Position, z: int = 10000, tab_order: int = 3000) -> Dict[str, int]:
     return {
         "x": round(pos.x * _CANVAS_W),
         "y": round(pos.y * _CANVAS_H),
+        "z": z,
         "width":  round(pos.width  * _CANVAS_W),
         "height": round(pos.height * _CANVAS_H),
+        "tabOrder": tab_order,
     }
 
 
@@ -117,7 +119,7 @@ def _build_query_state(vspec: VisualSpec) -> Dict[str, Any]:
 
     if b.filter_column and vspec.visual_type == VisualType.SLICER:
         table = b.filter_table or "dim_date"
-        qs["Field"] = {"projections": [_projection(_entity_ref(table, b.filter_column), f"{table}.{b.filter_column}", b.filter_column)]}
+        qs["Values"] = {"projections": [_projection(_entity_ref(table, b.filter_column), f"{table}.{b.filter_column}", b.filter_column)]}
 
     if b.columns and vspec.visual_type in (VisualType.MATRIX, VisualType.TABLE):
         projections = []
@@ -130,12 +132,12 @@ def _build_query_state(vspec: VisualSpec) -> Dict[str, Any]:
     return qs
 
 
-def _build_visual_json(vspec: VisualSpec) -> Dict[str, Any]:
+def _build_visual_json(vspec: VisualSpec, tab_order: int = 3000) -> Dict[str, Any]:
     pbip_type = _VISUAL_TYPE_MAP.get(vspec.visual_type, ["cardVisual"])[0]
     visual: Dict[str, Any] = {
         "$schema": _VISUAL_SCHEMA,
         "name": vspec.id,
-        "position": _px(vspec.position),
+        "position": _px(vspec.position, z=10000, tab_order=tab_order),
         "visual": {
             "visualType": pbip_type,
             "query": {"queryState": _build_query_state(vspec)},
@@ -156,11 +158,9 @@ def _build_page_json(page: PageSpec) -> Dict[str, Any]:
         "$schema": _PAGE_SCHEMA,
         "name": page.id,
         "displayName": page.display_name,
-        "displayOption": 1,
+        "displayOption": "FitToPage",
         "width": _CANVAS_W,
         "height": _CANVAS_H,
-        "background": {"transparency": 100},
-        "ordinal": page.order,
     }
 
 
@@ -429,8 +429,10 @@ class PBIPAdapter(GeneratorAdapter):
         for page in spec.pages:
             base = f"{report_name}/definition/pages/{page.id}"
             files[f"{base}/page.json"] = _json(_build_page_json(page))
-            for vspec in page.visuals:
-                files[f"{base}/visuals/{vspec.id}/visual.json"] = _json(_build_visual_json(vspec))
+            for tab_idx, vspec in enumerate(page.visuals):
+                files[f"{base}/visuals/{vspec.id}/visual.json"] = _json(
+                    _build_visual_json(vspec, tab_order=3000 + tab_idx)
+                )
 
         # Semantic model scaffold — required by Power BI Desktop to open the report locally.
         # definition.pbism, database.tmdl and model.tmdl are ONE-TIME seeds: they must NOT

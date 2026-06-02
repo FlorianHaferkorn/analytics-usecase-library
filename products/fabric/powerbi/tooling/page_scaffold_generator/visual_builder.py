@@ -769,6 +769,7 @@ class VisualBuilder:
             "trend": "trend_line",
             "bar_chart_horizontal": "bar_chart_horizontal",
             "bar_chart_vertical": "bar_chart_vertical",
+            "bar_chart_column": "clustered_column",
             "bar_chart": "bar_chart",
             "ranked_bar": "bar_chart_horizontal",
             # PVM decomposition: multiple Y measures, no category axis

@@ -8,13 +8,11 @@ governance:
 orchestration:
   # strategic_kpi_id drives the business guardrail (GM% is the ultimate P&L health signal)
   strategic_kpi_id: margin.gm.pct
-  # First 3 influencing → KPI card band on Overview page (generator rule: component_3s + [:3])
-  # Card band: Net Sales Amount | % vs Plan | % vs LY | GM% (strategic is Net Sales from component_3s)
-  # Note: sales.net_sales.amount is NOT in top-3 to avoid duplication with component_3s lead card
+  # First 3 influencing → KPI card band on Overview (generator: component_3s lead + deduped influencing, max 4)
+  # Strategic margin.gm.pct must NOT repeat in influencing_kpi_ids (registry causal_links rule)
   influencing_kpi_ids:
   - sales.net_sales.delta_pct.plan
   - sales.net_sales.delta_pct.ly
-  - margin.gm.pct
   - sales.net_sales.amount
   - sales.pvm.price_effect.amount
   - sales.pvm.volume_effect.amount
@@ -62,11 +60,15 @@ ux_layout_rules:
         - Plan Sales Amount             # direct measure name (no catalog ID exists yet)
         - Last Year Net Sales Amount    # direct measure name (no catalog ID exists yet)
     - slot_id: Main_2
+      # T2_DriverBridge / variance_explanation: Plan → PVM drivers → Actual (IBCS bridge)
+      visual_type: waterfall
+      comparison: vs_plan
       kpi_ids:
-      - sales.pvm.price_effect.amount
-      - sales.pvm.volume_effect.amount
-      - sales.pvm.mix_effect.amount
-      visual_type: bar_chart_column
+        - Plan Sales Amount
+        - sales.pvm.price_effect.amount
+        - sales.pvm.volume_effect.amount
+        - sales.pvm.mix_effect.amount
+        - sales.net_sales.amount
     - slot_id: Main_3
       # Q1: Where are deviations largest? — % vs Plan by Region (sorted ascending = worst first)
       visual_type: bar_chart_horizontal

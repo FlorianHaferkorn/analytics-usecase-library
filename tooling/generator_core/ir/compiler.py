@@ -52,20 +52,26 @@ from .specs import (
 # ---------------------------------------------------------------------------
 
 # Overview page layout (fraction of 1280×720 canvas)
+# Layout uses fractional coordinates (0–1) relative to a 1920 × 1080 canvas.
+# 32px margin = 32/1920 ≈ 0.0167 horizontal, 32/1080 ≈ 0.0296 vertical.
+# KPI band: y=0.0296–0.174 (≈156 px tall), Main row: y=0.218 onward.
 _OVERVIEW_LAYOUT: Dict[str, Dict[str, float]] = {
-    "KPI_Cards":   {"x": 0.0,    "y": 0.0,    "w": 0.80,  "h": 0.18},
-    "Slicer_Date": {"x": 0.80,   "y": 0.0,    "w": 0.20,  "h": 0.18},
-    "Main_1":      {"x": 0.0,    "y": 0.19,   "w": 0.50,  "h": 0.40},
-    "Main_2":      {"x": 0.50,   "y": 0.19,   "w": 0.50,  "h": 0.40},
-    "Main_3":      {"x": 0.0,    "y": 0.60,   "w": 1.00,  "h": 0.40},
+    # KPI card band: full width minus 32 px margins each side; height ≈156 px
+    "KPI_Cards":   {"x": 0.0167, "y": 0.0296, "w": 0.9666, "h": 0.1444},
+    # Date slicer below KPI band; same horizontal span; height ≈70 px
+    "Slicer_Date": {"x": 0.0167, "y": 0.189,  "w": 0.9666, "h": 0.0648},
+    # Three equal-width main chart columns, below slicer; height ≈750 px
+    "Main_1":      {"x": 0.0167, "y": 0.268,  "w": 0.3111, "h": 0.694},
+    "Main_2":      {"x": 0.3444, "y": 0.268,  "w": 0.3111, "h": 0.694},
+    "Main_3":      {"x": 0.6722, "y": 0.268,  "w": 0.3111, "h": 0.694},
 }
 
-# Detail page layout
+# Detail page layout: slicer pane (left), narrative + matrix (centre), action panel (right)
 _DETAIL_LAYOUT: Dict[str, Dict[str, float]] = {
-    "Slicer_Pane":     {"x": 0.0,    "y": 0.0,    "w": 0.16,  "h": 1.00},
-    "Smart_Narrative": {"x": 0.165,  "y": 0.0,    "w": 0.55,  "h": 0.18},
-    "Detail_Matrix":   {"x": 0.165,  "y": 0.19,   "w": 0.61,  "h": 0.81},
-    "ActionPanel":     {"x": 0.78,   "y": 0.0,    "w": 0.22,  "h": 1.00},
+    "Slicer_Pane":     {"x": 0.0167, "y": 0.0296, "w": 0.1333, "h": 0.9407},
+    "Smart_Narrative": {"x": 0.1667, "y": 0.0296, "w": 0.6389, "h": 0.0926},
+    "Detail_Matrix":   {"x": 0.1667, "y": 0.137,  "w": 0.6389, "h": 0.833},
+    "ActionPanel":     {"x": 0.8222, "y": 0.0296, "w": 0.1611, "h": 0.9407},
 }
 
 # Map bracket visual_type → VisualType enum

@@ -52,6 +52,7 @@ jobs:
             --fail-if-behind \
             --json-out > internal/reviews/schema_update_report.json || discover_rc=$?
 
+          report_rc=0
           python -c "
 import json, pathlib, sys, datetime
 
@@ -73,13 +74,13 @@ def write_failure(reason: str) -> None:
 
 if not report_json.exists() or report_json.stat().st_size == 0:
     write_failure('no JSON output file')
-    sys.exit(0)
+    sys.exit(1)
 
 try:
     data = json.loads(report_json.read_text(encoding='utf-8'))
 except json.JSONDecodeError as exc:
     write_failure(f'invalid JSON ({exc})')
-    sys.exit(0)
+    sys.exit(1)
 
 lines = [
     '# Schema Update Report',
@@ -96,12 +97,25 @@ for item in data if isinstance(data, list) else []:
     )
 report_md.write_text('\n'.join(lines) + '\n', encoding='utf-8')
 print('Schema report written.')
-"
+" || report_rc=$?
 
           if [ "$discover_rc" -ne 0 ]; then
             echo "Schema discovery exited $discover_rc (schemas may be behind latest)."
+            echo "discovery_failed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "discovery_failed=false" >> "$GITHUB_OUTPUT"
           fi
+
+          if [ "$report_rc" -ne 0 ]; then
+            echo "Schema report generation failed with exit code $report_rc."
+            exit "$report_rc"
+          fi
+
           echo "report_written=true" >> "$GITHUB_OUTPUT"
+
+          if [ "$discover_rc" -ne 0 ]; then
+            exit "$discover_rc"
+          fi
 
       - name: Check upstream BPA rules and external references
         id: upstream_check

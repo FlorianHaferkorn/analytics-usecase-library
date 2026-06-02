@@ -21,6 +21,16 @@ orchestration:
   - ops.pm_compliance.pct
   - ops.scrap.pct
   - quality.fpy.pct
+  - crm.complaint.count
+  - ops.failure.count
+  - ops.spare_parts.stockout.pct
+  - quality.complaint.pct
+  - quality.copq.amount
+  - quality.defect_density
+  - quality.rework.pct
+  - quality.scrap.pct
+  - ops.speed_loss.pct
+  - ops.changeover.minutes
   action_code_ids:
   - O-O1.1
   - O-O1.2

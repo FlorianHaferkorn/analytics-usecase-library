@@ -22,6 +22,7 @@ orchestration:
   - plan.forecast.service_impact.pct
   - plan.replan.count
   - sales.units
+  - inv.excess_inventory.amount
   action_code_ids:
   - S-I1.1
   - S-I1.2

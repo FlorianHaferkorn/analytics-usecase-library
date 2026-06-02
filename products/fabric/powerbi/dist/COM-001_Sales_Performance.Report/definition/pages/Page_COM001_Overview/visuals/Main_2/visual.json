@@ -15,25 +15,24 @@
     "query": {
       "queryState": {
         "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            }
-          ]
+          "projections": []
         },
         "Y": {
           "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Plan Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Plan Sales Amount",
+              "nativeQueryRef": "Plan Sales Amount"
+            },
             {
               "field": {
                 "Measure": {
@@ -75,6 +74,20 @@
               },
               "queryRef": "_Measures.Mix Effect Amount",
               "nativeQueryRef": "Mix Effect Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Net Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Net Sales Amount",
+              "nativeQueryRef": "Net Sales Amount"
             }
           ]
         }

@@ -20,3 +20,23 @@
   owner: cx_analytics_lead
   eta_date: "2026-09-30"
   reason: "Service NPS measure 'NPS Index (Service)' not yet implemented separately from crm.nps.index ('NPS Index') in Experience model"
+
+- kpi_id: ops.speed_loss.pct
+  owner: ops_analytics_lead
+  eta_date: "2026-09-30"
+  reason: "Speed loss rate is a diagnostic OEE sub-KPI added in DEP; measure implementation in Operations model pending sprint planning"
+
+- kpi_id: ops.changeover.minutes
+  owner: ops_analytics_lead
+  eta_date: "2026-09-30"
+  reason: "Changeover time is a Six Big Losses diagnostic KPI added in DEP; measure implementation in Operations model pending sprint planning"
+
+- kpi_id: fin.overdue_ar.pct
+  owner: fin_analytics_lead
+  eta_date: "2026-09-30"
+  reason: "Overdue AR % is a cash cycle diagnostic KPI added in FIN-001 DEP; measure implementation in Finance model pending sprint planning"
+
+- kpi_id: inv.excess_inventory.amount
+  owner: scm_analytics_lead
+  eta_date: "2026-09-30"
+  reason: "Excess inventory amount is a working capital diagnostic KPI added in SCM-001 DEP; measure implementation in Supply Chain model pending sprint planning"
