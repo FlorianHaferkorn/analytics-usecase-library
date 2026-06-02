@@ -1,6 +1,6 @@
 {
   "name": "Aurora_Group__Monochromatic__Light__#2ECDE7",
-  "$schema": "https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main/Report%20Theme%20JSON%20Schema/reportThemeSchema-2.145.json",
+  "$schema": "https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main/Report%20Theme%20JSON%20Schema/reportThemeSchema-2.154.json",
   "dataColors": [
     "#249FB3",
     "#19717F",
@@ -14,20 +14,6 @@
   "minimum": "#79989C",
   "center": "#F0F0F0",
   "maximum": "#249FB3",
-  "firstLevelElements": "#252423",
-  "secondLevelElements": "#4A4948",
-  "thirdLevelElements": "#6E6D6B",
-  "fourthLevelElements": "#939290",
-  "background": "#FBFBFB",
-  "secondaryBackground": "#FFFFFF",
-  "accent": "#E6E9EC",
-  "tableAccent": "#E6E9EC",
-  "hyperlink": "#0078D4",
-  "visitedHyperlink": "#0078D4",
-  "good": "#519872",
-  "neutral": "#F6AE2D",
-  "bad": "#EC4E20",
-  "null": "#FFFFFF",
   "textClasses": {
     "callout": {
       "fontSize": 40,
@@ -318,21 +304,6 @@
           {
             "fontSize": 14,
             "fontFamily": "Segoe UI Light"
-          }
-        ]
-      }
-    },
-    "card": {
-      "*": {
-        "title": [
-          {
-            "show": false
-          }
-        ],
-        "labels": [
-          {
-            "fontSize": 40,
-            "bold": true
           }
         ]
       }
@@ -845,46 +816,6 @@
         ]
       }
     },
-    "slicer": {
-      "*": {
-        "title": [
-          {
-            "show": false
-          }
-        ],
-        "header": [
-          {
-            "show": true,
-            "textSize": 14
-          }
-        ],
-        "background": [
-          {
-            "show": false
-          }
-        ],
-        "border": [
-          {
-            "show": false
-          }
-        ],
-        "dropShadow": [
-          {
-            "show": false
-          }
-        ],
-        "items": [
-          {
-            "background": {
-              "solid": {
-                "color": "#F6F6F6"
-              }
-            },
-            "textSize": 14
-          }
-        ]
-      }
-    },
     "listSlicer": {
       "*": {
         "background": [
@@ -1381,6 +1312,35 @@
           }
         ]
       }
+    },
+    "card": {
+      "*": {
+        "title": [
+          {
+            "show": false
+          }
+        ],
+        "labels": [
+          {
+            "fontSize": 40,
+            "bold": true
+          }
+        ]
+      }
     }
-  }
+  },
+  "firstLevelElements": "#252423",
+  "secondLevelElements": "#4A4948",
+  "thirdLevelElements": "#6E6D6B",
+  "fourthLevelElements": "#939290",
+  "background": "#FBFBFB",
+  "secondaryBackground": "#FFFFFF",
+  "accent": "#E6E9EC",
+  "tableAccent": "#E6E9EC",
+  "hyperlink": "#0078D4",
+  "visitedHyperlink": "#0078D4",
+  "good": "#519872",
+  "neutral": "#F6AE2D",
+  "bad": "#EC4E20",
+  "null": "#FFFFFF"
 }
