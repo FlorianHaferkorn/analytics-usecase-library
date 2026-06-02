@@ -18,6 +18,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from tooling.generator_core.adapters.base import GeneratorAdapter, RenderResult
+from products.fabric.powerbi.tooling.theme_registration import (
+    custom_theme_collection_name,
+    prepare_registered_theme_bytes,
+    registered_theme_filename,
+)
 from tooling.generator_core.ir.specs import (
     AdapterTarget,
     Binding,
@@ -148,6 +153,36 @@ def _build_visual_json(vspec: VisualSpec, tab_order: int = 3000) -> Dict[str, An
         visual["visual"]["objects"] = {
             "general": [{"properties": {"paragraphs": [{"textRuns": [{"value": vspec.config.get("text", "")}]}]}}]
         }
+    if vspec.visual_type == VisualType.SLICER:
+        visual["visual"]["objects"] = {
+            "data": [
+                {
+                    "properties": {
+                        "mode": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "'Dropdown'",
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "general": [
+                {
+                    "properties": {
+                        "orientation": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "1D",
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+        }
+        visual["visual"]["drillFilterOtherVisuals"] = True
     if vspec.visual_type == VisualType.SMART_NARRATIVE:
         visual["visual"]["visualType"] = "smartNarrativeVisual"
     return visual
@@ -172,8 +207,17 @@ def _build_pages_json(pages: List[PageSpec]) -> Dict[str, Any]:
     }
 
 
+def _safe_theme_filename(theme_path: Path) -> str:
+    """Sanitize theme filename for RegisteredResources (matches apply_report_theme)."""
+    return registered_theme_filename(theme_path.stem)
+
+
 def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
-    theme_name = Path(spec.theme_path).stem if spec.theme_path else None
+    theme_stem: str | None = None
+    theme_filename: str | None = None
+    if spec.theme_path:
+        theme_stem = custom_theme_collection_name(Path(spec.theme_path).stem)
+        theme_filename = registered_theme_filename(theme_stem)
     theme_collection: Dict[str, Any] = {
         "baseTheme": {
             "name": "CY25SU10",
@@ -182,9 +226,9 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
         }
     }
     resource_packages: list = []
-    if theme_name:
+    if theme_stem and theme_filename:
         theme_collection["customTheme"] = {
-            "name": f"{theme_name}.json",
+            "name": theme_stem,
             "reportVersionAtImport": {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"},
             "type": "RegisteredResources",
         }
@@ -197,7 +241,7 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
             {
                 "name": "RegisteredResources",
                 "type": "RegisteredResources",
-                "items": [{"name": f"{theme_name}.json", "path": f"{theme_name}.json", "type": "CustomTheme"}],
+                "items": [{"name": theme_filename, "path": theme_filename, "type": "CustomTheme"}],
             },
         ]
     report: Dict[str, Any] = {
@@ -461,8 +505,7 @@ class PBIPAdapter(GeneratorAdapter):
         if spec.theme_path:
             theme_file = Path(spec.theme_path)
             if theme_file.exists():
-                files[f"{report_name}/StaticResources/RegisteredResources/{theme_file.name}"] = (
-                    theme_file.read_bytes()
-                )
+                safe_name, theme_bytes = prepare_registered_theme_bytes(theme_file)
+                files[f"{report_name}/StaticResources/RegisteredResources/{safe_name}"] = theme_bytes
 
         return RenderResult(files=files, adapter=self.name, no_overwrite_paths=no_overwrite)

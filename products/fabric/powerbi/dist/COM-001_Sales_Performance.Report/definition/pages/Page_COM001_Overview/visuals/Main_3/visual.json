@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Main_3",
   "position": {
     "x": 1280,
@@ -7,7 +7,7 @@
     "z": 10000,
     "height": 758,
     "width": 608,
-    "tabOrder": 3004
+    "tabOrder": 3006
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -24,11 +24,11 @@
                       "Entity": "dim_org"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "Region"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "dim_org.Region",
+              "nativeQueryRef": "Region"
             }
           ]
         },
@@ -42,53 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Gross Margin %"
+                  "Property": "Net Sales % vs Plan"
                 }
               },
-              "queryRef": "_Measures.Gross Margin %",
-              "nativeQueryRef": "Gross Margin %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Gross Margin Amount"
-                }
-              },
-              "queryRef": "_Measures.Gross Margin Amount",
-              "nativeQueryRef": "Gross Margin Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "List Price Amount"
-                }
-              },
-              "queryRef": "_Measures.List Price Amount",
-              "nativeQueryRef": "List Price Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Net Price Amount"
-                }
-              },
-              "queryRef": "_Measures.Net Price Amount",
-              "nativeQueryRef": "Net Price Amount"
+              "queryRef": "_Measures.Net Sales % vs Plan",
+              "nativeQueryRef": "Net Sales % vs Plan"
             }
           ]
         }

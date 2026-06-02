@@ -44,6 +44,29 @@ table dim_customer
 
 		annotation SummarizationSetBy = Automatic
 
+	hierarchy dim_customer_Hierarchy
+		lineageTag: b506a8c4
+
+		level CustomerCode
+			lineageTag: 17e0bb98
+			column: CustomerCode
+
+		level CustomerName
+			lineageTag: d88640c6
+			column: CustomerName
+
+		level Segment
+			lineageTag: 84d9c167
+			column: Segment
+
+		level Channel
+			lineageTag: eca0fd69
+			column: Channel
+
+		level Region
+			lineageTag: 6b71924a
+			column: Region
+
 	partition dim_customer = m
 		mode: import
 		source =

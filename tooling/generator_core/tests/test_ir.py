@@ -315,3 +315,32 @@ class TestBracketCompiler:
         fin_bracket.write_text(yaml.dump(bracket))
         spec = compiler.compile(fin_bracket)
         assert spec.domain == "Finance"
+
+
+class TestTriggerFormatting:
+    def test_format_trigger_skips_redundant_amount_unit(self):
+        from ..ir.compiler import _format_trigger
+
+        ac = {
+            "trigger": {
+                "levels": {
+                    "L2": {
+                        "condition": {
+                            "metric_kpi_id": "sales.pvm.price_effect.amount",
+                            "comparator": "lt",
+                            "threshold": {"value": 0, "unit": "amount"},
+                        }
+                    }
+                }
+            }
+        }
+        assert _format_trigger(ac) == "sales.pvm.price_effect.amount < 0"
+
+
+class TestMeasureNameResolution:
+    def test_component_binding_resolves_kpi_id_to_measure_name(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+        main1 = spec.overview_page().visual_by_id("Main_1")
+        assert main1.binding.measure == "Net Sales Amount"

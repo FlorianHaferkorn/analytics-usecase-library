@@ -26,20 +26,20 @@ _BASE = "https://developer.microsoft.com/json-schemas/fabric"
 
 
 # ── Report JSON (definition/report.json) ───────────────────────────────────────
-# Pinned: 3.2.0  |  Latest known: 3.2.0  |  Updated: 2026-05 (pbir-cli validate --qa)
-REPORT_SCHEMA = f"{_BASE}/item/report/definition/report/3.2.0/schema.json"
+# Pinned: 3.3.0  |  Latest known: 3.3.0  |  Updated: 2026-06 (schema discovery)
+REPORT_SCHEMA = f"{_BASE}/item/report/definition/report/3.3.0/schema.json"
 
 # ── Page JSON (definition/pages/<name>/page.json) ──────────────────────────────
 # Pinned: 2.1.0  |  Latest known: 2.1.0 (March 2026, Custom Totals)
 PAGE_SCHEMA = f"{_BASE}/item/report/definition/page/2.1.0/schema.json"
 
 # ── Visual container JSON (definition/pages/<p>/visuals/<v>/visual.json) ────────
-# Pinned: 2.7.0  |  Latest known: 2.7.0 (March 2026, Custom Totals)
-VISUAL_SCHEMA = f"{_BASE}/item/report/definition/visualContainer/2.7.0/schema.json"
+# Pinned: 2.9.0  |  Latest known: 2.9.0 (June 2026, schema discovery)
+VISUAL_SCHEMA = f"{_BASE}/item/report/definition/visualContainer/2.9.0/schema.json"
 
 # ── Pages metadata JSON (definition/pages/pages.json) ──────────────────────────
-# Pinned: 1.0.0  |  Latest known: 1.0.0  |  Updated: 2026-05
-PAGES_METADATA_SCHEMA = f"{_BASE}/item/report/definition/pagesMetadata/1.0.0/schema.json"
+# Pinned: 1.1.0  |  Latest known: 1.1.0  |  Updated: 2026-06 (schema discovery)
+PAGES_METADATA_SCHEMA = f"{_BASE}/item/report/definition/pagesMetadata/1.1.0/schema.json"
 
 # ── Version metadata JSON (definition/version.json) ────────────────────────────
 # Pinned: 1.0.0  |  Latest known: 1.0.0  |  Updated: 2026-05
@@ -65,14 +65,14 @@ SEMANTIC_MODEL_SCHEMA = f"{_BASE}/item/semanticModel/definitionProperties/1.0.0/
 
 # ── Fabric Git integration .platform file ──────────────────────────────────────
 # Used by create_direct_lake_model.py for .platform metadata files.
-# Pinned: 2.0.0  |  Latest known: 2.0.0  |  Updated: 2026-05
-PLATFORM_PROPERTIES_SCHEMA = f"{_BASE}/gitIntegration/platformProperties/2.0.0/schema.json"
+# Pinned: 2.1.0  |  Latest known: 2.1.0  |  Updated: 2026-06 (schema discovery)
+PLATFORM_PROPERTIES_SCHEMA = f"{_BASE}/gitIntegration/platformProperties/2.1.0/schema.json"
 
 # ── Report theme schema ─────────────────────────────────────────────────────────
 # Source: github.com/microsoft/powerbi-desktop-samples / Report Theme JSON Schema
-# Pinned: 2.152  |  Latest known: 2.152 (Power BI Desktop 2.152.x, March 2026)
+# Pinned: 2.154  |  Latest known: 2.154 (Power BI Desktop 2.154.x, June 2026)
 # Update THEME_SCHEMA_PINNED_VERSION when a new monthly Desktop release ships.
-THEME_SCHEMA_PINNED_VERSION = "2.152"
+THEME_SCHEMA_PINNED_VERSION = "2.154"
 THEME_SCHEMA_URL = (
     "https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main"
     f"/Report%20Theme%20JSON%20Schema/reportThemeSchema-{THEME_SCHEMA_PINNED_VERSION}.json"

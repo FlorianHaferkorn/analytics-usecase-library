@@ -23,10 +23,15 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-try:
-    from products.fabric.powerbi.tooling.schema_registry import REPORT_SCHEMA
-except ImportError:
-    REPORT_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.0.0/schema.json"
+_REPO_ROOT = Path(__file__).resolve().parents[5]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from products.fabric.powerbi.tooling.schema_registry import REPORT_SCHEMA
+from products.fabric.powerbi.tooling.theme_registration import (
+    custom_theme_collection_name,
+    find_registered_custom_theme_item,
+)
 HEX_COLOR_RE = re.compile(r"#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?")
 
 STYLE_OBJECT_PROPERTIES: dict[str, set[str]] = {
@@ -153,13 +158,45 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
                 errors.append(f"{report_dir.name}: referenced base theme file missing: {expected_path.relative_to(report_dir)}")
 
     if registered_package and custom_theme.get("name"):
-        custom_item = get_package_item(registered_package, "CustomTheme", custom_theme["name"])
+        custom_logical_name = custom_theme["name"]
+        if custom_logical_name.endswith(".json"):
+            errors.append(
+                f"{report_dir.name}: themeCollection.customTheme.name must be the theme logical name "
+                f"(no .json extension), not '{custom_logical_name}'"
+            )
+
+        custom_item = find_registered_custom_theme_item(registered_package, custom_logical_name)
         if not custom_item:
-            errors.append(f"{report_dir.name}: RegisteredResources package missing CustomTheme item for {custom_theme['name']}")
+            errors.append(
+                f"{report_dir.name}: RegisteredResources package missing CustomTheme item for "
+                f"{custom_logical_name}"
+            )
         else:
             expected_path = report_dir / "StaticResources" / "RegisteredResources" / custom_item.get("path", "")
             if not expected_path.exists():
                 errors.append(f"{report_dir.name}: referenced custom theme file missing: {expected_path.relative_to(report_dir)}")
+            else:
+                try:
+                    theme_payload = load_json(expected_path)
+                except json.JSONDecodeError as exc:
+                    errors.append(
+                        f"{report_dir.name}: invalid custom theme JSON at "
+                        f"{expected_path.relative_to(report_dir)} - {exc}"
+                    )
+                else:
+                    expected_name = custom_theme_collection_name(custom_logical_name)
+                    if theme_payload.get("name") != expected_name:
+                        errors.append(
+                            f"{report_dir.name}: custom theme internal name "
+                            f"'{theme_payload.get('name')}' must match themeCollection.customTheme.name "
+                            f"'{expected_name}'"
+                        )
+                    item_name = custom_item.get("name", "")
+                    if not item_name.endswith(".json"):
+                        errors.append(
+                            f"{report_dir.name}: resourcePackages CustomTheme item name must include .json extension "
+                            f"(got '{item_name}')"
+                        )
 
     visual_paths = sorted(report_dir.glob("definition/pages/**/visual.json"))
     visuals_with_theme_objects = 0

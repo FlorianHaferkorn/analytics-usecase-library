@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Detail_Matrix",
   "position": {
     "x": 344,
@@ -63,14 +63,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_product"
+                      "Entity": "dim_customer"
                     }
                   },
-                  "Property": "ProductCode"
+                  "Property": "Segment"
                 }
               },
-              "queryRef": "dim_product.ProductCode",
-              "nativeQueryRef": "ProductCode"
+              "queryRef": "dim_customer.Segment",
+              "nativeQueryRef": "Segment"
             },
             {
               "field": {
@@ -80,11 +80,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Gross Margin Amount"
+                  "Property": "Net Sales Amount"
                 }
               },
-              "queryRef": "_Measures.Gross Margin Amount",
-              "nativeQueryRef": "Gross Margin Amount"
+              "queryRef": "_Measures.Net Sales Amount",
+              "nativeQueryRef": "Net Sales Amount"
             },
             {
               "field": {
@@ -94,11 +94,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Gross Margin % vs Plan"
+                  "Property": "Net Sales % vs Plan"
                 }
               },
-              "queryRef": "_Measures.Gross Margin % vs Plan",
-              "nativeQueryRef": "Gross Margin % vs Plan"
+              "queryRef": "_Measures.Net Sales % vs Plan",
+              "nativeQueryRef": "Net Sales % vs Plan"
             },
             {
               "field": {
@@ -108,11 +108,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "List Price Amount"
+                  "Property": "Delta% Net Sales"
                 }
               },
-              "queryRef": "_Measures.List Price Amount",
-              "nativeQueryRef": "List Price Amount"
+              "queryRef": "_Measures.Delta% Net Sales",
+              "nativeQueryRef": "Delta% Net Sales"
             },
             {
               "field": {
@@ -122,11 +122,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Net Price Amount"
+                  "Property": "Price Effect Amount"
                 }
               },
-              "queryRef": "_Measures.Net Price Amount",
-              "nativeQueryRef": "Net Price Amount"
+              "queryRef": "_Measures.Price Effect Amount",
+              "nativeQueryRef": "Price Effect Amount"
             },
             {
               "field": {
@@ -136,11 +136,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Price Realization %"
+                  "Property": "Volume Effect Amount"
                 }
               },
-              "queryRef": "_Measures.Price Realization %",
-              "nativeQueryRef": "Price Realization %"
+              "queryRef": "_Measures.Volume Effect Amount",
+              "nativeQueryRef": "Volume Effect Amount"
             },
             {
               "field": {
@@ -155,20 +155,6 @@
               },
               "queryRef": "_Measures.Mix Effect Amount",
               "nativeQueryRef": "Mix Effect Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "COGS per Unit"
-                }
-              },
-              "queryRef": "_Measures.COGS per Unit",
-              "nativeQueryRef": "COGS per Unit"
             },
             {
               "field": {

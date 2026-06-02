@@ -12,12 +12,16 @@ from __future__ import annotations
 import argparse
 import glob
 import json
-import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from products.fabric.powerbi.tooling.theme_registration import (
+    custom_theme_collection_name,
+    registered_theme_filename,
+    write_registered_theme,
+)
 
 # Repo root (apply_report_theme.py lives in products/fabric/powerbi/tooling/)
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -27,12 +31,6 @@ THEME_GENERATOR_CONFIG = REPO_ROOT / "products" / "fabric" / "powerbi" / "toolin
 SHOWCASES_DIR = REPO_ROOT / "showcases"
 DEFAULT_BASE_THEME = "CY25SU10"
 REPORT_VERSION_AT_IMPORT = {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"}
-
-
-def _safe_filename(name: str) -> str:
-    """Return a safe filename stem (no path, no .json)."""
-    stem = Path(name).stem if name else "theme"
-    return re.sub(r"[^\w\-]", "_", stem) or "theme"
 
 
 def _find_theme_in_generator(theme_name: str) -> Optional[Path]:
@@ -260,12 +258,12 @@ def apply_theme(
         raise ValueError("Theme failed validation against pinned report theme schema. Fix or run with --no-validate.")
 
     custom_stem = custom_theme_name if custom_theme_name else payload.get("name") or theme_path.stem
-    custom_stem = _safe_filename(custom_stem)
-    custom_filename = f"{custom_stem}.json"
+    custom_stem = custom_theme_collection_name(custom_stem)
+    custom_filename = registered_theme_filename(custom_stem)
 
     registered_dir = report_path / "StaticResources" / "RegisteredResources"
     dest = registered_dir / custom_filename
-    shutil.copy2(theme_path, dest)
+    write_registered_theme(theme_path, dest)
 
     data = _read_report_json(definition_path)
     if "themeCollection" not in data:
@@ -277,7 +275,7 @@ def apply_theme(
         "type": "SharedResources",
     }
     tc["customTheme"] = {
-        "name": custom_filename,
+        "name": custom_stem,
         "reportVersionAtImport": REPORT_VERSION_AT_IMPORT,
         "type": "RegisteredResources",
     }

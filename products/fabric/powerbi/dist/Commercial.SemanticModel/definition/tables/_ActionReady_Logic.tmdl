@@ -3,14 +3,6 @@
 /// DO NOT EDIT MANUALLY - regenerate via generate_tmdl_measures.ps1
 table _ActionReady_Logic
 	isHidden
-	lineageTag: cabb0c42-e175-416a-9ec4-da45015975c4
-
-	column _Placeholder
-		dataType: string
-		isHidden
-		lineageTag: 4c9001e9-a547-4a09-bcd7-f0561aea0737
-		summarizeBy: none
-		sourceColumn: _Placeholder
 
 	partition _ActionReady_Logic = m
 		mode: import
@@ -20,3 +12,8 @@ table _ActionReady_Logic
 				in
 					Source
 
+	column _Placeholder
+		dataType: string
+		sourceColumn: _Placeholder
+		isHidden
+		summarizeBy: none

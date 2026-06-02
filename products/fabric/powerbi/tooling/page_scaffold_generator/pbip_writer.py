@@ -17,6 +17,10 @@ from products.fabric.powerbi.tooling.schema_registry import (
     DEFINITION_PBIR_SCHEMA as _DEFINITION_PBIR_SCHEMA,
     DEFINITION_PBIR_VERSION as _DEFINITION_PBIR_VERSION,
 )
+from products.fabric.powerbi.tooling.theme_registration import (
+    custom_theme_collection_name,
+    registered_theme_filename,
+)
 
 
 class PBIPWriter:
@@ -233,8 +237,10 @@ class PBIPWriter:
         # Add custom theme if provided
 
         if theme_name:
+            theme_stem = custom_theme_collection_name(theme_name)
+            theme_filename = registered_theme_filename(theme_stem)
             report_data["themeCollection"]["customTheme"] = {
-                "name": f"{theme_name}.json",
+                "name": theme_stem,
                 "reportVersionAtImport": {
                     "visual": "2.1.0",
                     "report": "3.0.0",
@@ -260,8 +266,8 @@ class PBIPWriter:
                     "type": "RegisteredResources",
                     "items": [
                         {
-                            "name": f"{theme_name}.json",
-                            "path": f"{theme_name}.json",
+                            "name": theme_filename,
+                            "path": theme_filename,
                             "type": "CustomTheme"
                         }
                     ]

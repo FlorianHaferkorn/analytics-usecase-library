@@ -104,7 +104,7 @@ Report-level theme, filters, settings, and resource packages:
       "type": "SharedResources"
     },
     "customTheme": {
-      "name": "MyCustomTheme.json",
+      "name": "MyCustomTheme",
       "reportVersionAtImport": {"visual": "2.1.0", "report": "2.1.0", "page": "2.0.0"},
       "type": "RegisteredResources"
     }

@@ -2,7 +2,6 @@
     "completed":  [
                       "Build Registry",
                       "Check Aurora Data",
-                      "Generate Measures (Aurora per domain)",
                       "Validate TMDL Syntax",
                       "Create Tables from Contracts (per domain)",
                       "Sync model.tmdl refs",
@@ -11,43 +10,74 @@
                       "Write Hierarchies to TMDL",
                       "Write diagram layout",
                       "Validate TMDL Syntax",
-                      "Run Quality Checks",
-                      "Validate Fabric output"
+                      "Run Quality Checks"
                   ],
-    "measuresFile":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl",
     "validateErrors":  [
 
                        ],
     "warnings":  [
-
+                     {
+                         "message":  "Self-heal script error: Traceback (most recent call last):",
+                         "phase":  "Phase 7 Self-Heal"
+                     }
                  ],
     "iteration":  6,
     "errors":  [
                    {
-                       "phase":  "Generate Report from Template",
-                       "iteration":  5,
-                       "error":  "Unknown ux_visual_type \u0027line_chart\u0027; defaulting to lineChart (trend)"
+                       "phase":  "Generate Measures (Aurora per domain)",
+                       "iteration":  2,
+                       "error":  "In C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:86\r\n+ ... s += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \" ...\r\n+                                                              ~~~~\nUnerwartetes Token \"\u0027, \u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:86\r\n+ ... lines += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) ...\r\n+                                                                  ~\nSchließende \")\" fehlt in einem Ausdruck.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:90\r\n+ ... += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \"\\\" ...\r\n+                                                                ~~\nUnerwartetes Token \"\"\"\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:92\r\n+ ... $t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \"\\\"\") }\r\n+                                                              ~~~~~~~~~~~~\nUnerwartetes Token \"\u0027) + \"\\\"\") }\r\n  $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }\r\n  if ($displayFolder) { $lines += ($t2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:124 Zeichen:88\r\n+ ...  ($t2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\"\u0027, \u0027\\\"\u0027) + \"\\\" ...\r\n+                                                           ~~~~~~~\nUnerwartetes Token \"\"\u0027, \u0027\\\"\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:124 Zeichen:95\r\n+ ... 2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\"\u0027, \u0027\\\"\u0027) + \"\\\"\") }\r\n+                                                              ~~~~~~~~~~~~\nUnerwartetes Token \"\u0027) + \"\\\"\") }\r\n  if ($null -ne $trustScore) {\r\n    $lines += ($t2 + \"annotation ActionReady_TrustScore = \\\"$trustScore\\\"\")\r\n  }\r\n  $lines += \"\"\r\n  return $lines\r\n}\r\n  if ($block.Success) {\r\n    foreach ($line in ($block.Groups[\u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:132 Zeichen:39\r\n+     foreach ($line in ($block.Groups[\u0027body\u0027].Value -split \"\\r?\\n\")) {\r\n+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nUnerwartetes Token \"body\u0027].Value -split \"\\r?\\n\")) {\r\n      $trimmed = $line.Trim()\r\n      if (-not $trimmed) { continue }\r\n      if ($trimmed -match \u0027^\\s*-\\s*\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:146 Zeichen:8\r\n+       }\r\n+        ~\nSchließende \")\" fehlt in einem Ausdruck.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:152 Zeichen:1\r\n+ }\r\n+ ~\nUnerwartetes Token \"}\" in Ausdruck oder Anweisung."
+                   },
+                   {
+                       "phase":  "Generate Measures (Aurora per domain)",
+                       "iteration":  2,
+                       "error":  "In C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:86\r\n+ ... s += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \" ...\r\n+                                                              ~~~~\nUnerwartetes Token \"\u0027, \u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:86\r\n+ ... lines += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) ...\r\n+                                                                  ~\nSchließende \")\" fehlt in einem Ausdruck.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:90\r\n+ ... += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \"\\\" ...\r\n+                                                                ~~\nUnerwartetes Token \"\"\"\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:92\r\n+ ... $t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \"\\\"\") }\r\n+                                                              ~~~~~~~~~~~~\nUnerwartetes Token \"\u0027) + \"\\\"\") }\r\n  $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }\r\n  if ($displayFolder) { $lines += ($t2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:124 Zeichen:88\r\n+ ...  ($t2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\"\u0027, \u0027\\\"\u0027) + \"\\\" ...\r\n+                                                           ~~~~~~~\nUnerwartetes Token \"\"\u0027, \u0027\\\"\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:124 Zeichen:95\r\n+ ... 2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\"\u0027, \u0027\\\"\u0027) + \"\\\"\") }\r\n+                                                              ~~~~~~~~~~~~\nUnerwartetes Token \"\u0027) + \"\\\"\") }\r\n  if ($null -ne $trustScore) {\r\n    $lines += ($t2 + \"annotation ActionReady_TrustScore = \\\"$trustScore\\\"\")\r\n  }\r\n  $lines += \"\"\r\n  return $lines\r\n}\r\n  if ($block.Success) {\r\n    foreach ($line in ($block.Groups[\u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:132 Zeichen:39\r\n+     foreach ($line in ($block.Groups[\u0027body\u0027].Value -split \"\\r?\\n\")) {\r\n+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nUnerwartetes Token \"body\u0027].Value -split \"\\r?\\n\")) {\r\n      $trimmed = $line.Trim()\r\n      if (-not $trimmed) { continue }\r\n      if ($trimmed -match \u0027^\\s*-\\s*\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:146 Zeichen:8\r\n+       }\r\n+        ~\nSchließende \")\" fehlt in einem Ausdruck.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:152 Zeichen:1\r\n+ }\r\n+ ~\nUnerwartetes Token \"}\" in Ausdruck oder Anweisung."
+                   },
+                   {
+                       "phase":  "Generate Measures (Aurora per domain)",
+                       "iteration":  2,
+                       "error":  "In C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:86\r\n+ ... s += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \" ...\r\n+                                                              ~~~~\nUnerwartetes Token \"\u0027, \u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:86\r\n+ ... lines += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) ...\r\n+                                                                  ~\nSchließende \")\" fehlt in einem Ausdruck.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:90\r\n+ ... += ($t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \"\\\" ...\r\n+                                                                ~~\nUnerwartetes Token \"\"\"\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:122 Zeichen:92\r\n+ ... $t2 + \"formatString: \\\"\" + $formatString.Replace(\u0027\"\u0027, \u0027\"\"\u0027) + \"\\\"\") }\r\n+                                                              ~~~~~~~~~~~~\nUnerwartetes Token \"\u0027) + \"\\\"\") }\r\n  $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }\r\n  if ($displayFolder) { $lines += ($t2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:124 Zeichen:88\r\n+ ...  ($t2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\"\u0027, \u0027\\\"\u0027) + \"\\\" ...\r\n+                                                           ~~~~~~~\nUnerwartetes Token \"\"\u0027, \u0027\\\"\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:124 Zeichen:95\r\n+ ... 2 + \"displayFolder: \\\"\" + $displayFolder.Replace(\u0027\"\u0027, \u0027\\\"\u0027) + \"\\\"\") }\r\n+                                                              ~~~~~~~~~~~~\nUnerwartetes Token \"\u0027) + \"\\\"\") }\r\n  if ($null -ne $trustScore) {\r\n    $lines += ($t2 + \"annotation ActionReady_TrustScore = \\\"$trustScore\\\"\")\r\n  }\r\n  $lines += \"\"\r\n  return $lines\r\n}\r\n  if ($block.Success) {\r\n    foreach ($line in ($block.Groups[\u0027\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:132 Zeichen:39\r\n+     foreach ($line in ($block.Groups[\u0027body\u0027].Value -split \"\\r?\\n\")) {\r\n+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nUnerwartetes Token \"body\u0027].Value -split \"\\r?\\n\")) {\r\n      $trimmed = $line.Trim()\r\n      if (-not $trimmed) { continue }\r\n      if ($trimmed -match \u0027^\\s*-\\s*\" in Ausdruck oder Anweisung.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:146 Zeichen:8\r\n+       }\r\n+        ~\nSchließende \")\" fehlt in einem Ausdruck.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\tooling\\generator\\generate_tmdl_measures.ps1:152 Zeichen:1\r\n+ }\r\n+ ~\nUnerwartetes Token \"}\" in Ausdruck oder Anweisung."
                    },
                    {
                        "phase":  "Generate Report from Template",
                        "iteration":  5,
-                       "error":  "Unknown ux_visual_type \u0027line_chart\u0027; defaulting to lineChart (trend)"
+                       "error":  "Traceback (most recent call last):"
                    },
                    {
                        "phase":  "Generate Report from Template",
                        "iteration":  5,
-                       "error":  "Unknown ux_visual_type \u0027line_chart\u0027; defaulting to lineChart (trend)"
+                       "error":  "Traceback (most recent call last):"
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "Traceback (most recent call last):"
+                   },
+                   {
+                       "phase":  "Validate Fabric output",
+                       "iteration":  6,
+                       "error":  "Traceback (most recent call last):"
+                   },
+                   {
+                       "phase":  "Validate Fabric output",
+                       "iteration":  6,
+                       "error":  "Traceback (most recent call last):"
+                   },
+                   {
+                       "phase":  "Validate Fabric output",
+                       "iteration":  6,
+                       "error":  "Traceback (most recent call last):"
                    }
                ],
     "phase":  "validate_fabric_output",
-    "scopeName":  "Commercial",
-    "scopeType":  "Domain",
+    "scopeName":  "COM-001",
+    "scopeType":  "UseCase",
     "startTime":  {
-                      "value":  "\/Date(1775560836037)\/",
+                      "value":  "\/Date(1780409124722)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Dienstag, 7. April 2026 13:20:36"
+                      "DateTime":  "Dienstag, 2. Juni 2026 16:05:24"
                   },
     "domainMeasurePaths":  [
-                               "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl"
+
                            ]
 }

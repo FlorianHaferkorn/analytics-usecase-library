@@ -470,11 +470,22 @@ switch ($Operation) {
             $inColumn = $false
             $needSummarize = $false
             $addedSummarize = $false
+            $columnIsNumeric = $false
             $columnIndent = "`t`t"
             for ($i = 0; $i -lt $lines.Count; $i++) {
                 $line = $lines[$i]
-                if ($line -match '^\s+column\s+') { $inColumn = $true; $needSummarize = $true; $addedSummarize = $false }
-                elseif ($line -match '^\s+partition\s') { $inColumn = $false }
+                if ($line -match '^\s+column\s+') {
+                    $inColumn = $true
+                    $needSummarize = $true
+                    $addedSummarize = $false
+                    $columnIsNumeric = $false
+                }
+                elseif ($line -match '^\s+partition\s') { $inColumn = $false; $columnIsNumeric = $false }
+                elseif ($inColumn -and $line -match '^\s+dataType:\s*(int64|double|decimal|int32)') { $columnIsNumeric = $true }
+                elseif ($inColumn -and $columnIsNumeric -and $line -match '^\s+summarizeBy:\s*(?!none)') {
+                    $line = ($line -replace 'summarizeBy:\s*\S+', 'summarizeBy: none')
+                    $needSummarize = $false
+                }
                 elseif ($inColumn -and $line -match '^\s+summarizeBy') { $needSummarize = $false }
                 if ($line -match '^\s+summarizeBy:\s*none' -and $out.Count -gt 0 -and $out[-1] -match '^\s+summarizeBy:\s*none') { continue }
                 $out += $line

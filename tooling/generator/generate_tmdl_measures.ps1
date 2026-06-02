@@ -119,36 +119,32 @@ function Build-MeasureBlock {
   }
   $lines += ($t1 + "measure '$name' = " + $daxOneLine)
   $formatString = Resolve-MeasureFormatString -Measure $Measure
-  if ($formatString) { $lines += ($t2 + "formatString: \"" + $formatString.Replace('"', '""') + "\"") }
+  if ($formatString) { $lines += ($t2 + 'formatString: "' + ($formatString -replace '"', '""') + '"') }
   $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }
-  if ($displayFolder) { $lines += ($t2 + "displayFolder: \"" + $displayFolder.Replace('"', '\"') + "\"") }
+  if ($displayFolder) { $lines += ($t2 + 'displayFolder: "' + ($displayFolder -replace '"', '\"') + '"') }
   if ($null -ne $trustScore) {
-    $lines += ($t2 + "annotation ActionReady_TrustScore = \"$trustScore\"")
+    $lines += ($t2 + "annotation ActionReady_TrustScore = `"$trustScore`"")
   }
   $lines += ""
   return $lines
 }
-  if ($block.Success) {
-    foreach ($line in ($block.Groups['body'].Value -split "\r?\n")) {
-      $trimmed = $line.Trim()
-      if (-not $trimmed) { continue }
-      if ($trimmed -match '^\s*-\s*(.*)$') {
-        $value = $matches[1].Trim()
-      } else {
-        continue
+
+function Get-FrontMatterBlock {
+  param([string]$Path)
+  if (-not (Test-Path $Path)) { return $null }
+  $lines = Get-Content -Path $Path
+  if ($lines.Count -lt 2 -or $lines[0].Trim() -ne '---') { return $null }
+  for ($i = 1; $i -lt $lines.Count; $i++) {
+    if ($lines[$i].Trim() -eq '---') {
+      if ($i -le 1) { return @{ Text = ""; Lines = @() } }
+      $blockLines = @($lines[1..($i - 1)])
+      return @{
+        Text  = ($blockLines -join [Environment]::NewLine)
+        Lines = $blockLines
       }
-      if (-not $value) { continue }
-      if ($value -match '^(?<val>[^#]+)\s*(#.*)?$') { $value = $matches['val'].TrimEnd() }
-      if ($value.StartsWith('"') -and $value.EndsWith('"')) {
-        $value = $value.Trim('"')
-      } elseif ($value.StartsWith("'") -and $value.EndsWith("'")) {
-        $value = $value.Trim("'")
-      }
-      if ($value) { $items += $value }
     }
-    return $items
   }
-  return @()
+  return $null
 }
 
 function Get-ScalarValue {

@@ -275,6 +275,35 @@ function Get-PbiToolsCompileOutputPath {
     return (Join-Path $compileRoot ($folderItem.Name + ".pbix"))
 }
 
+# When relationship_ops writes definition/relationships/*.tmdl, drop legacy relationships.tmdl
+# after migrating any blocks that exist only in the monolith (e.g. RLS security_*).
+function Remove-RelationshipsMonolithWhenPerFilePresent {
+    param([string]$DefinitionPath)
+    if (-not $DefinitionPath) { return }
+    $monolith = Join-Path $DefinitionPath "relationships.tmdl"
+    $relDir = Join-Path $DefinitionPath "relationships"
+    if (-not (Test-Path $monolith) -or -not (Test-Path $relDir)) { return }
+    $perFile = @(Get-ChildItem $relDir -Filter "*.tmdl" -File -ErrorAction SilentlyContinue)
+    if ($perFile.Count -eq 0) { return }
+
+    $content = Get-Content -Path $monolith -Raw -Encoding utf8
+    $blocks = [regex]::Matches($content, '(?ms)^relationship\s+(\S+)\s*\r?\n(.*?)(?=^relationship\s+|\z)')
+    $utf8 = New-Object System.Text.UTF8Encoding $false
+    foreach ($block in $blocks) {
+        $relName = $block.Groups[1].Value
+        $target = Join-Path $relDir "$relName.tmdl"
+        if (Test-Path $target) { continue }
+        $body = ($block.Groups[2].Value.TrimEnd() -split "\r?\n" | ForEach-Object {
+            if ($_ -match '^\s*(fromColumn|toColumn)\s*:\s*(.+)$') { "`t$($matches[1]): $($matches[2].Trim())" } else { $_ }
+        }) -join "`r`n"
+        $tmdl = "relationship $relName`r`n$body`r`n"
+        [System.IO.File]::WriteAllText($target, $tmdl, $utf8)
+        Write-Host "  Migrated relationship from monolith: $relName" -ForegroundColor Cyan
+    }
+    Remove-Item -LiteralPath $monolith -Force
+    Write-Host "  Removed duplicate relationships.tmdl (using relationships/*.tmdl)" -ForegroundColor Gray
+}
+
 # PHASE 0: BUILD REGISTRY (required for Measure binding and Action Panel)
 $state.phase = "registry"
 $state.iteration = 0
@@ -569,6 +598,7 @@ Invoke-WithRetry "Create Relationships" {
         $finalCount = 0
         if (Test-Path $relDir) { $finalCount = (Get-ChildItem $relDir -Filter "*.tmdl" -ErrorAction SilentlyContinue).Count }
         Write-Host "  [$domainName] Relationships: $finalCount" -ForegroundColor Green
+        Remove-RelationshipsMonolithWhenPerFilePresent -DefinitionPath $defPath
     }
 }
 

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Main_1",
   "position": {
     "x": 32,
@@ -7,7 +7,7 @@
     "z": 10000,
     "height": 758,
     "width": 608,
-    "tabOrder": 3002
+    "tabOrder": 3004
   },
   "visual": {
     "visualType": "lineChart",
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -42,11 +42,39 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Gross Margin Amount"
+                  "Property": "Net Sales Amount"
                 }
               },
-              "queryRef": "_Measures.Gross Margin Amount",
-              "nativeQueryRef": "Gross Margin Amount"
+              "queryRef": "_Measures.Net Sales Amount",
+              "nativeQueryRef": "Net Sales Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Plan Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Plan Sales Amount",
+              "nativeQueryRef": "Plan Sales Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Last Year Net Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Last Year Net Sales Amount",
+              "nativeQueryRef": "Last Year Net Sales Amount"
             }
           ]
         }

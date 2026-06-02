@@ -187,13 +187,16 @@ class ConfigLoader:
                 val, unit = th, ""
             if metric and comp and val is not None:
                 comp_text = "<" if comp == "lt" else ">" if comp == "gt" else comp
-                thresh = self._format_threshold_value(val, unit)
+                thresh = self._format_threshold_value(val, unit, metric)
                 return f"{metric} {comp_text} {thresh}".strip()
         return None
 
     @staticmethod
-    def _format_threshold_value(val: Any, unit: str) -> str:
+    def _format_threshold_value(val: Any, unit: str, metric: str = "") -> str:
         unit = (unit or "").strip()
+        metric = (metric or "").strip()
+        if unit and metric and (metric.endswith(f".{unit}") or metric.split(".")[-1] == unit):
+            unit = ""
         if unit in ("%", "pp"):
             return f"{val}{unit}"
         if unit:

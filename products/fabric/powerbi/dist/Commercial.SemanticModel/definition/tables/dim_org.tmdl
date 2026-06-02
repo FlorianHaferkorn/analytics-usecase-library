@@ -40,7 +40,7 @@ table dim_org
 		dataType: double
 		formatString: 0
 		lineageTag: 5378ad63-be0b-440a-9ad1-3339bac5dbf4
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: ParentOrgKey
 
 		annotation SummarizationSetBy = Automatic
@@ -74,7 +74,7 @@ table dim_org
 		dataType: double
 		formatString: 0
 		lineageTag: a7a5f7e9-59d3-465e-8ea6-2f0d1ff0baae
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: Close DateKey
 
 		annotation SummarizationSetBy = Automatic
@@ -181,6 +181,29 @@ table dim_org
 		level OrgName
 			lineageTag: 4dbeb5f3-acdd-4c88-a4be-85619c3b1059
 			column: OrgName
+
+	hierarchy dim_org_Hierarchy
+		lineageTag: 1a60d3b8
+
+		level OrgCode
+			lineageTag: 583b94c1
+			column: OrgCode
+
+		level OrgName
+			lineageTag: 194764fc
+			column: OrgName
+
+		level Region
+			lineageTag: 473ea5fb
+			column: Region
+
+		level Country
+			lineageTag: d4e5aec0
+			column: Country
+
+		level Channel
+			lineageTag: 1e23def4
+			column: Channel
 
 	partition dim_org = m
 		mode: import

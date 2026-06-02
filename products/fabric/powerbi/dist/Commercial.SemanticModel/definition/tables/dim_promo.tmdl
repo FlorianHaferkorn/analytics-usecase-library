@@ -70,6 +70,21 @@ table dim_promo
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	hierarchy dim_promo_Hierarchy
+		lineageTag: fd4b7e25
+
+		level Promotion
+			lineageTag: 58bc2ee5
+			column: Promotion
+
+		level PromoType
+			lineageTag: 83c1c006
+			column: PromoType
+
+		level Mechanic
+			lineageTag: cd35a8fa
+			column: Mechanic
+
 	partition dim_promo = m
 		mode: import
 		source =

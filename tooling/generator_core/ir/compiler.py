@@ -135,9 +135,12 @@ def _find_action_code_file(ac_id: str, action_codes_root: Path) -> Optional[Path
     return None
 
 
-def _format_threshold_value(val: Any, unit: str) -> str:
-    """Format threshold for display; avoid concatenating word units (e.g. 0amount)."""
+def _format_threshold_value(val: Any, unit: str, metric: str = "") -> str:
+    """Format threshold for display; avoid redundant units (e.g. metric ending in .amount)."""
     unit = (unit or "").strip()
+    metric = (metric or "").strip()
+    if unit and metric and (metric.endswith(f".{unit}") or metric.split(".")[-1] == unit):
+        unit = ""
     if unit in ("%", "pp"):
         return f"{val}{unit}"
     if unit:
@@ -168,7 +171,7 @@ def _format_trigger(ac: Dict[str, Any]) -> Optional[str]:
             val, unit = th, ""
         if metric and comp and val is not None:
             comp_text = "<" if comp == "lt" else ">" if comp == "gt" else comp
-            return f"{metric} {comp_text} {_format_threshold_value(val, unit)}".strip()
+            return f"{metric} {comp_text} {_format_threshold_value(val, unit, metric)}".strip()
     return None
 
 
@@ -183,6 +186,52 @@ def _format_impact(ac: Dict[str, Any]) -> Optional[str]:
     if isinstance(val, dict) and val.get("method"):
         return f"Impact: {val.get('method')}"
     return None
+
+
+def _measure_name_map(measures: List[MeasureSpec]) -> Dict[str, str]:
+    return {m.kpi_id: m.name for m in measures}
+
+
+def _resolve_measure_ref(ref: str, kpi_map: Dict[str, str]) -> str:
+    if not ref:
+        return ref
+    return kpi_map.get(ref, ref)
+
+
+def _component_measure_refs(comp: Dict[str, Any]) -> List[str]:
+    kids = comp.get("kpi_ids") or []
+    if not isinstance(kids, list):
+        kids = [kids] if kids else []
+    kid = comp.get("kpi_id")
+    if kid:
+        kids = [kid] + [k for k in kids if k != kid]
+    return [str(k) for k in kids if k]
+
+
+_EVIDENCE_DIM_TOKENS: Dict[str, tuple[str, str]] = {
+    "entity": ("dim_org", "OrgName"),
+    "region": ("dim_org", "Region"),
+    "channel": ("dim_org", "Channel"),
+    "product_category": ("dim_product", "Category"),
+    "customer_segment": ("dim_customer", "Segment"),
+}
+
+
+def _resolve_evidence_columns(
+    comp_300s: Dict[str, Any], kpi_map: Dict[str, str]
+) -> tuple[List[str], List[str]]:
+    cols_raw = comp_300s.get("evidence_columns") or []
+    dim_cols: List[str] = []
+    measures: List[str] = []
+    for token in cols_raw:
+        if not isinstance(token, str):
+            continue
+        if token in _EVIDENCE_DIM_TOKENS:
+            table, col = _EVIDENCE_DIM_TOKENS[token]
+            dim_cols.append(f"{table}.{col}")
+        else:
+            measures.append(_resolve_measure_ref(token, kpi_map))
+    return dim_cols, measures
 
 
 def _position(layout: Dict[str, Dict[str, float]], slot: str) -> Position:
@@ -325,8 +374,9 @@ class BracketCompiler:
         semantic_model = f"{domain}.SemanticModel"
 
         measures = self._compile_measures(bracket)
-        overview = self._compile_overview(bracket)
-        detail, evidence_table, action_panel = self._compile_detail(bracket, use_case_id)
+        kpi_map = _measure_name_map(measures)
+        overview = self._compile_overview(bracket, kpi_map)
+        detail, evidence_table, action_panel = self._compile_detail(bracket, use_case_id, kpi_map)
 
         return DashboardSpec(
             use_case_id=use_case_id,
@@ -409,7 +459,7 @@ class BracketCompiler:
     # Overview page
     # ------------------------------------------------------------------
 
-    def _compile_overview(self, bracket: Dict) -> PageSpec:
+    def _compile_overview(self, bracket: Dict, kpi_map: Dict[str, str]) -> PageSpec:
         ux = bracket.get("ux_layout_rules", {})
         page1 = ux.get("page_1_summary", {})
         # Prefer template_variant ("T2_DriverBridge") over page_type ("T2_Tactical_Variance")
@@ -419,7 +469,9 @@ class BracketCompiler:
         visuals: List[VisualSpec] = []
 
         # KPI cards: component_3s lead + influencing (deduped, max 4)
-        kpi_measures = _card_kpi_ids(bracket)
+        kpi_measures = [
+            _resolve_measure_ref(k, kpi_map) for k in _card_kpi_ids(bracket)
+        ]
         visuals.append(VisualSpec(
             id="KPI_Cards",
             visual_type=VisualType.KPI_CARD,
@@ -445,14 +497,22 @@ class BracketCompiler:
                 slot_id = f"Main_{i}"
                 vt_str = comp.get("visual_type", "trend_line") if isinstance(comp, dict) else "trend_line"
                 vt = _VISUAL_TYPE_MAP.get(vt_str, VisualType.TREND_LINE)
-                measure = (comp.get("kpi_id") or comp.get("measure", "")) if isinstance(comp, dict) else ""
-                category = (comp.get("category", "dim_date.Date")) if isinstance(comp, dict) else "dim_date.Date"
+                measure_refs = [
+                    _resolve_measure_ref(k, kpi_map) for k in _component_measure_refs(comp)
+                ]
+                category = (comp.get("category_field") or comp.get("category", "dim_date.Date")) if isinstance(comp, dict) else "dim_date.Date"
+                if len(measure_refs) > 1:
+                    binding = Binding(measures=measure_refs, category=category)
+                elif len(measure_refs) == 1:
+                    binding = Binding(measure=measure_refs[0], category=category)
+                else:
+                    binding = Binding(category=category)
                 visuals.append(VisualSpec(
                     id=slot_id,
                     visual_type=vt,
                     page_role=PageRole.OVERVIEW,
                     position=_position(_OVERVIEW_LAYOUT, slot_id),
-                    binding=Binding(measure=measure or None, category=category),
+                    binding=binding,
                 ))
         elif isinstance(comp_30s, dict):
             # Single object form
@@ -480,7 +540,7 @@ class BracketCompiler:
     # ------------------------------------------------------------------
 
     def _compile_detail(
-        self, bracket: Dict, use_case_id: str
+        self, bracket: Dict, use_case_id: str, kpi_map: Dict[str, str]
     ) -> Tuple[PageSpec, Optional[EvidenceTableSpec], Optional[ActionPanelSpec]]:
         ux = bracket.get("ux_layout_rules", {})
         page2 = ux.get("page_2_execution", {})
@@ -512,12 +572,20 @@ class BracketCompiler:
         eg = bracket.get("evidence_grain") or (
             {"grain": comp_300s.get("evidence_grain")} if isinstance(comp_300s, dict) and comp_300s.get("evidence_grain") else {}
         )
-        _detail_measures = _card_kpi_ids(bracket)
+        _detail_measures = [
+            _resolve_measure_ref(k, kpi_map) for k in _card_kpi_ids(bracket)
+        ]
+        _detail_columns: List[str] = []
+        if isinstance(comp_300s, dict) and comp_300s.get("evidence_columns"):
+            _detail_columns, _detail_measures = _resolve_evidence_columns(comp_300s, kpi_map)
         # Legacy fallback
         if not _detail_measures:
-            _detail_measures = bracket.get("primary_kpi_ids") or []
+            _detail_measures = [
+                _resolve_measure_ref(k, kpi_map)
+                for k in (bracket.get("primary_kpi_ids") or [])
+            ]
         if eg:
-            cols = eg.get("columns", [])
+            cols = _detail_columns or eg.get("columns", [])
             grain = eg.get("grain", "")
             evidence_table = EvidenceTableSpec(
                 grain=grain,
