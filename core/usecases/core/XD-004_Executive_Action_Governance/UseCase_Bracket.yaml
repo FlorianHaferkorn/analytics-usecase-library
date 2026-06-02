@@ -20,6 +20,7 @@ orchestration:
     - crm.lifetime_revenue.amount
     - fin.liquidity.inventory.amount
     - inv.obsolete.pct
+    - inv.stockout.pct
     - inv.turnover
     - margin.cogs.pct
     - ops.downtime.unplanned.pct
