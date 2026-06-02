@@ -9,10 +9,18 @@ interface CommandItem {
   action: () => void;
 }
 
+interface ExtraCommand {
+  id: string;
+  label: string;
+  category: string;
+  action: () => void;
+}
+
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   onNew?: () => void;
+  extraCommands?: ExtraCommand[];
 }
 
 const DEFAULT_COMMANDS: CommandItem[] = [
@@ -42,18 +50,38 @@ const DEFAULT_COMMANDS: CommandItem[] = [
   },
 ];
 
-export function CommandPalette({ isOpen, onClose, onNew }: CommandPaletteProps) {
+export function CommandPalette({ isOpen, onClose, onNew, extraCommands = [] }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const allCommands: CommandItem[] = [
+    ...DEFAULT_COMMANDS,
+    ...extraCommands.map((c) => ({
+      id: c.id,
+      label: c.label,
+      category: c.category,
+      action: c.action,
+    })),
+    {
+      id: 'nav-templates',
+      label: 'Go to Report Templates',
+      category: 'Navigation',
+      action: () => {
+        window.location.href = '/templates';
+      },
+    },
+  ];
+
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
+      setQuery('');
+      setSelected(0);
     }
   }, [isOpen]);
 
-  const filtered = DEFAULT_COMMANDS.filter(
+  const filtered = allCommands.filter(
     (cmd) =>
       cmd.label.toLowerCase().includes(query.toLowerCase()) ||
       cmd.category.toLowerCase().includes(query.toLowerCase())

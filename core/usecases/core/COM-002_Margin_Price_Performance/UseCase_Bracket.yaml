@@ -38,7 +38,8 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Commercial Summary & Insights
-    page_type: T1_Strategic_Overview
+    page_type: T2_Tactical_Variance
+    template_variant: T2_DriverBridge
     template_id: pulse
     decision_question: "Is our gross margin holding against price and mix pressure?"
     big_idea: "Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers."
@@ -56,7 +57,8 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Commercial Execution
-    page_type: T2_Tactical_Variance
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
       evidence_grain: invoice_line

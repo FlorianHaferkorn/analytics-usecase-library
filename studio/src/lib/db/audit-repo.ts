@@ -10,6 +10,8 @@ import { chainEvent } from './audit-chain';
 
 export type AuditEntityType =
   | 'bracket'
+  | 'factsheet'
+  | 'kpi'
   | 'project'
   | 'theme'
   | 'discovery'

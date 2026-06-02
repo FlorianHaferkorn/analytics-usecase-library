@@ -1,33 +1,4 @@
 model Model
-	culture: de-DE
+	culture: en-US
 	defaultPowerBIDataSourceVersion: powerBI_V3
-	sourceQueryCulture: de-DE
-	dataAccessOptions
-		legacyRedirects
-		returnErrorValuesAsNull
-
-annotation PBI_ProTooling = ["TMDL-Extension","DevMode"]
-
-annotation PBI_QueryOrder = ["_ActionReady_Logic","_Measures","dim_customer","dim_date","dim_org","dim_product","dim_promo","fact_customer_events","fact_customer_value","fact_experience","fact_nps","fact_plan_sales","fact_promo","fact_sales","security_user_org","GoldDataPath"]
-
-annotation __PBI_TimeIntelligenceEnabled = 0
-
-ref table _ActionReady_Logic
-ref table _Measures
-ref table dim_customer
-ref table dim_date
-ref table dim_org
-ref table dim_product
-ref table dim_promo
-ref table fact_customer_events
-ref table fact_customer_value
-ref table fact_experience
-ref table fact_nps
-ref table fact_plan_sales
-ref table fact_promo
-ref table fact_sales
-ref table security_user_org
-ref table LocalDateTable_4396b67b-45eb-4309-9608-e56451dd861e
-
-ref role OrgAccess
-
+	discourageImplicitMeasures

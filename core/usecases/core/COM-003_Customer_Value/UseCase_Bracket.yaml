@@ -45,6 +45,7 @@ ux_layout_rules:
   page_1_summary:
     title: Commercial / CustomerValue Summary & Insights
     page_type: T1_Strategic_Overview
+    template_variant: T1_Portfolio
     template_id: pulse
     decision_question: "Are we growing and protecting Customer Lifetime Value?"
     big_idea: "Customer Lifetime Value growth has stalled — churn acceleration in the mid-tier segment is eroding the base and requires targeted retention investment."
@@ -62,7 +63,8 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Commercial / CustomerValue Execution
-    page_type: T2_Tactical_Variance
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
       evidence_grain: customer_month

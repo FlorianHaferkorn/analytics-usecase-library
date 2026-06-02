@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AiField } from '@/components/ai/ai-field';
 
-type ElementKind = 'kpi' | 'bracket' | 'action';
+type ElementKind = 'kpi' | 'bracket' | 'action' | 'source';
 
 interface DraftResult {
   name: string;
@@ -19,20 +19,23 @@ interface DraftResult {
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSave?: (kind: ElementKind, draft: DraftResult) => void;
+  onSave?: (kind: ElementKind, draft: DraftResult) => void | Promise<void>;
+  saving?: boolean;
+  saveError?: string | null;
 }
 
 const KINDS: Array<{ id: ElementKind; label: string; desc: string; letter: string }> = [
-  { id: 'kpi',     letter: 'K', label: 'KPI',       desc: 'A measurable number — count, sum, ratio or model output.' },
-  { id: 'bracket', letter: 'B', label: 'Use Case',  desc: 'An analytics use case linking strategy to driver KPIs.' },
-  { id: 'action',  letter: 'A', label: 'Action',    desc: 'A triggered action code with KPI conditions and logic.' },
+  { id: 'kpi', letter: 'K', label: 'KPI', desc: 'A measurable number — count, sum, ratio or model output.' },
+  { id: 'source', letter: 'S', label: 'Data Source', desc: 'A governed source system or fact table contract.' },
+  { id: 'bracket', letter: 'B', label: 'Use Case', desc: 'Factsheet + bracket for an analytics use case.' },
+  { id: 'action', letter: 'A', label: 'Action', desc: 'A triggered action code with KPI conditions and logic.' },
 ];
 
 function slug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 40);
 }
 
-export function Wizard({ open, onClose, onSave }: Props) {
+export function Wizard({ open, onClose, onSave, saving = false, saveError = null }: Props) {
   const [step, setStep] = useState(0);
   const [kind, setKind] = useState<ElementKind>('kpi');
   const [prompt, setPrompt] = useState('');
@@ -168,7 +171,7 @@ export function Wizard({ open, onClose, onSave }: Props) {
               <p style={{ color: 'var(--ink-3)', margin: '0 0 20px', fontSize: '0.875rem' }}>
                 Pick a primitive. You can change the type at any time.
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
                 {KINDS.map((o) => {
                   const active = kind === o.id;
                   return (
@@ -335,9 +338,16 @@ export function Wizard({ open, onClose, onSave }: Props) {
               ✦ {isLoadingDraft ? 'Analyzing…' : generating ? 'Drafting…' : 'Generate draft'}
             </button>
           )}
+          {saveError && step === 2 && (
+            <div style={{ marginRight: 'auto', fontSize: '0.75rem', color: 'var(--warning)' }}>{saveError}</div>
+          )}
           {step === 2 && draft && (
-            <button onClick={() => { onSave?.(kind, draft); onClose(); }} style={primaryBtn}>
-              ✓ Save to framework
+            <button
+              onClick={() => void onSave?.(kind, draft)}
+              disabled={saving}
+              style={{ ...primaryBtn, opacity: saving ? 0.7 : 1 }}
+            >
+              {saving ? 'Saving…' : '✓ Save to framework'}
             </button>
           )}
         </div>

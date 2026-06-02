@@ -27,7 +27,8 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 3. Read the relevant skill from `.cursor/skills/` for the artifact type before editing:
    - Factsheet edit → `edit-factsheet-safely`
    - Bracket edit → `edit-usecase-bracket-safely`
-   - New use case → `add-usecase-scaffold`
+   - New use case → `add-usecase-scaffold` (**read Research-to-Core Standard first: `docs/process/research-to-core-standard.md`**)
+   - Domain evidence review → `docs/process/research-to-core-checklist.md`
    - KPI reference → `add-kpi-reference-safely`
    - Action code create/update → `add-action-code-and-wire-up`
    - Fabric/TMDL/DAX → `fabric-powerbi-validation`

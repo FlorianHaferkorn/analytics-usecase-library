@@ -935,6 +935,47 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     completeness_score: 1.0
     last_review: 23.01.2026
 
+- kpi_id: inv.excess_inventory.amount
+  kpi_key: Excess Inventory Value
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Working Capital
+  domain_tag: [Supply Chain, Finance]
+  use_case_ref:
+  - SCM-001
+  - FIN-001
+  action_code_ref:
+  - S-I1.1
+  - S-I1.4
+  calc_type: amount
+  business:
+    purpose: "Measures the value of inventory exceeding forward demand cover."
+    definition: "Inventory value exceeding X months of forward demand (typically > 6 months of projected consumption). Primary working capital lock-up driver when DIO is high."
+    grain_scope: "SKU/location; aggregated to product category and plant monthly."
+    unit_format: "EUR (2 decimals)"
+    interpretation: "Lower is better; excess inventory ties up working capital and increases obsolescence risk. Reduction directly improves DIO and cash conversion."
+  technical:
+    measure_name: "Excess Inventory Amount"
+    description: "Inventory value beyond coverage threshold."
+    depends_on_measures:
+    - inv.dio.days
+    lineage:
+    - fact_inventory.Stock Value
+    - fact_demand_forecast.Monthly Demand Forecast
+  governance:
+    business_owner: "Head of Supply Chain"
+    data_owner: "Supply Chain BI"
+    steward: "Inventory Controller"
+    review_cycle: "monthly"
+    validation_process: "manual review"
+    qa_rules:
+    - Stock Value >= 0
+    - Coverage threshold must be documented per product category
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 01.06.2026
+
 - kpi_id: inv.obsolete.pct
   kpi_key: Obsolete Inventory %
   kpi_type: diagnostic
@@ -2022,6 +2063,123 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     completeness_score: 1.0
     last_review: 23.01.2026
 
+- kpi_id: ops.scrap.pct
+  kpi_key: Scrap Rate %
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Quality
+  domain_tag: [Operations, Quality]
+  use_case_ref:
+  - OPS-001
+  - OPS-003
+  action_code_ref:
+  - O-Q3.1
+  - O-Q3.2
+  calc_type: rate
+  business:
+    purpose: "Measures unrecoverable quality loss as a share of total output."
+    definition: "Scrapped Units / Total Units × 100. Corresponds to Six Big Losses Categories 5 (Process Defects) and 6 (Startup/Reduced Yield)."
+    grain_scope: "Line/shift aggregated to plant and period."
+    unit_format: "'% (2 decimals)'"
+    interpretation: "Lower is better; elevated scrap drives COPQ and contributes directly to OEE Quality Rate loss."
+  technical:
+    measure_name: "Scrap Rate %"
+    description: "Unrecoverable quality loss rate."
+    depends_on_measures: []
+    lineage:
+    - fact_ops.Scrapped Units
+    - fact_ops.Total Units Produced
+  governance:
+    business_owner: "Head of Operations"
+    data_owner: "Operations BI"
+    steward: "Quality Controller"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+    - Scrap Rate % bounded between 0 % and 100 %
+    - Reconciles to quality yield (1 - ops.scrap.pct ≈ ops.quality.pct within rounding)
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 01.06.2026
+
+- kpi_id: ops.speed_loss.pct
+  kpi_key: Speed Loss Rate %
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Efficiency
+  domain_tag: [Operations, Operational Efficiency]
+  use_case_ref:
+  - OPS-001
+  action_code_ref:
+  - O-O1.2
+  calc_type: rate
+  business:
+    purpose: "Isolates chronic speed reduction from intermittent minor stops."
+    definition: "Speed Loss = (1 - Performance Rate) adjusted to exclude minor stop events. Corresponds to Six Big Losses Category 4 (Reduced Speed)."
+    grain_scope: "Line/shift aggregated to plant and period."
+    unit_format: "'% (1 decimal)'"
+    interpretation: "Lower is better; speed losses are often misclassified as acceptable safety margin versus ISO ideal cycle time."
+  technical:
+    measure_name: "Speed Loss Rate %"
+    description: "Chronic speed reduction component of performance loss."
+    depends_on_measures:
+    - ops.performance.pct
+    lineage:
+    - fact_ops.Actual Cycle Time
+    - fact_ops.Ideal Cycle Time
+    - fact_ops.Minor Stop Count
+  governance:
+    business_owner: "Head of Operations"
+    data_owner: "Operations BI"
+    steward: "OEE Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+    - ops.speed_loss.pct + minor_stops_contribution ≤ 1 - ops.performance.pct
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 0.7
+    last_review: 01.06.2026
+
+- kpi_id: ops.changeover.minutes
+  kpi_key: Changeover Time (min)
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Efficiency
+  domain_tag: [Operations, Operational Efficiency]
+  use_case_ref:
+  - OPS-001
+  action_code_ref:
+  - O-O1.3
+  calc_type: duration
+  business:
+    purpose: "Measures time lost to product or format changeovers."
+    definition: "Average minutes from last good piece of previous run to first good piece of next run, including mechanical setup, parameter adjustment, and trial run waste. Directly drives Six Big Losses Category 2 (Setup & Adjustment)."
+    grain_scope: "Changeover event level; aggregated by line and period."
+    unit_format: "minutes (1 decimal)"
+    interpretation: "Lower is better; SMED methodology targets < 10 minutes for high-mix lines."
+  technical:
+    measure_name: "Changeover Time Minutes"
+    description: "Average changeover duration per setup event."
+    depends_on_measures: []
+    lineage:
+    - fact_ops_changeover.Start Timestamp
+    - fact_ops_changeover.End Timestamp
+  governance:
+    business_owner: "Head of Operations"
+    data_owner: "Operations BI"
+    steward: "Production Planner"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+    - Changeover Time >= 0
+    - Outliers > 4 × average require manual review
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 0.7
+    last_review: 01.06.2026
+
 - kpi_id: inv.turnover
   kpi_key: Inventory Turnover
   kpi_type: diagnostic
@@ -3006,6 +3164,44 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+
+- kpi_id: fin.overdue_ar.pct
+  kpi_key: Overdue AR %
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Liquidity
+  domain_tag: [Finance, Corporate & Strategy]
+  use_case_ref:
+  - FIN-001
+  action_code_ref:
+  - F-C1.2
+  calc_type: rate
+  business:
+    purpose: "Measures the proportion of accounts receivable past due date."
+    definition: "Overdue AR (past due date) / Total AR × 100. Customer-level overdue analysis enables targeted collection."
+    grain_scope: "Customer/entity level; aggregated monthly."
+    unit_format: "'% (1 decimal)'"
+    interpretation: "Higher overdue AR directly increases DSO. Values > 15 % signal systemic collection issues."
+  technical:
+    measure_name: "Overdue AR %"
+    description: "Share of accounts receivable past due date."
+    depends_on_measures: []
+    lineage:
+    - fact_ar.Overdue Amount
+    - fact_ar.Total AR Amount
+  governance:
+    business_owner: "Head of Treasury"
+    data_owner: "Finance BI"
+    steward: "Credit Controller"
+    review_cycle: "monthly"
+    validation_process: "manual review"
+    qa_rules:
+    - Bounded between 0 % and 100 %
+    - Overdue AR Amount <= Total AR Amount
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 01.06.2026
 
 - kpi_id: fin.cash.ocf
   kpi_key: Operating Cash Flow

@@ -6,15 +6,20 @@ governance:
   owner_role: commercial_controlling_lead
   steward_role: sales_bi_lead
 orchestration:
+  # strategic_kpi_id drives the business guardrail (GM% is the ultimate P&L health signal)
   strategic_kpi_id: margin.gm.pct
+  # First 3 influencing → KPI card band on Overview page (generator rule: component_3s + [:3])
+  # Card band: Net Sales Amount | % vs Plan | % vs LY | GM% (strategic is Net Sales from component_3s)
+  # Note: sales.net_sales.amount is NOT in top-3 to avoid duplication with component_3s lead card
   influencing_kpi_ids:
-  - cost.cogs.amount
-  - sales.net_sales.amount
   - sales.net_sales.delta_pct.plan
   - sales.net_sales.delta_pct.ly
+  - margin.gm.pct
+  - sales.net_sales.amount
   - sales.pvm.price_effect.amount
   - sales.pvm.volume_effect.amount
   - sales.pvm.mix_effect.amount
+  - cost.cogs.amount
   supporting_kpi_ids:
   - sales.price.list.amount
   - sales.price.net.amount
@@ -34,31 +39,43 @@ ux_layout_rules:
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T2_Tactical_Variance
+    template_variant: T2_DriverBridge
     template_id: pulse
     decision_question: "Are we on track for our Commercial targets this month?"
     big_idea: "Net Sales is above plan but GM% is below target — adverse mix in DACH is the primary driver and requires attention."
     component_3s:
-      kpi_id: margin.gm.pct
+      # Lead card: Net Sales Amount — primary metric of this use case (Q1/Q5)
+      # Generator uses strategic + first 3 influencing for the 4-card band:
+      # Net Sales Amount | Net Sales % vs Plan | Delta% Net Sales | Gross Margin %
+      kpi_id: sales.net_sales.amount
       visual_type: kpi_card
-      sparkline_field: GmPct_Monthly
+      sparkline_field: NetSales_Monthly
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: sales.net_sales.amount
+      # Q5: Trend over time — Actual vs Plan vs Last Year (monthly granularity)
+      # kpi_ids: catalog IDs resolve via config_loader; direct measure names fall back as-is
       visual_type: line_chart
+      kpi_ids:
+        - sales.net_sales.amount        # → Net Sales Amount
+        - Plan Sales Amount             # direct measure name (no catalog ID exists yet)
+        - Last Year Net Sales Amount    # direct measure name (no catalog ID exists yet)
     - slot_id: Main_2
       kpi_ids:
       - sales.pvm.price_effect.amount
       - sales.pvm.volume_effect.amount
       - sales.pvm.mix_effect.amount
-      visual_type: clustered_column
+      visual_type: bar_chart_column
     - slot_id: Main_3
-      kpi_id: sales.net_sales.amount
+      # Q1: Where are deviations largest? — % vs Plan by Region (sorted ascending = worst first)
       visual_type: bar_chart_horizontal
+      kpi_id: sales.net_sales.delta_pct.plan
+      category_field: dim_org.Region
   page_2_execution:
     title: Commercial Execution
-    page_type: T2_Tactical_Variance
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
     template_id: action_matrix
     decision_question: "Which entities explain the revenue and margin gap vs Plan?"
     big_idea: "DACH and CEE account for 80% of the Plan gap — mix degradation and price concessions are the root causes."

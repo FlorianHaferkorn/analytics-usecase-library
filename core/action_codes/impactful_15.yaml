@@ -47,8 +47,8 @@ action_code_ids:
 
   - id: F-K2.1
     domain: Finance
-    name: Working Capital Optimization
-    rationale: Bridges DIO/DPO/DSO to cash conversion; strategic for Finance domain.
+    name: Cost Take-Out Orchestration
+    rationale: Orchestrates cost-lever activation across Material/Labor/OpEx; most-referenced Finance cost action.
 
   # ── Operations ────────────────────────────────────────────────
   - id: O-A2.1
@@ -67,15 +67,15 @@ action_code_ids:
     rationale: Tier-2 quality action; closes the loop from defect containment.
 
   # ── Supply Chain ──────────────────────────────────────────────
+  - id: S-I1.1
+    domain: SupplyChain
+    name: Inventory Orchestration
+    rationale: Orchestration action covering both excess and stockout triggers; dispatches to S-I1.2/S-I1.3/S-I1.4.
+
   - id: S-I1.2
     domain: SupplyChain
     name: Safety Stock Recalibration
     rationale: Most-referenced SCM action; directly prevents stockouts.
-
-  - id: S-R2.1
-    domain: SupplyChain
-    name: Replenishment Order Expedite
-    rationale: L2 intervention when stockout risk is confirmed; bridges plan to execution.
 
   - id: S-F3.1
     domain: SupplyChain

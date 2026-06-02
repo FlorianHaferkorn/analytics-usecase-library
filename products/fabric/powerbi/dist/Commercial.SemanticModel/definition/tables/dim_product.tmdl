@@ -5,7 +5,7 @@ table dim_product
 	column ProductKey
 		dataType: int64
 		isHidden
-		isAvailableInMDX: false
+		isAvailableInMdx: false
 		lineageTag: 646b3500-35ab-4353-a633-3802a2cc93da
 		summarizeBy: none
 		sourceColumn: ProductKey

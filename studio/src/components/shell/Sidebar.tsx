@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { KbdShortcut } from '@/components/ui/kbd-shortcut';
 
 interface NavItem {
   id: string;
@@ -21,7 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'overview', label: 'Overview', icon: 'Home', href: '/overview' },
   { id: 'canvas', label: 'Canvas', icon: 'Graph', href: '/canvas' },
   { id: 'library', label: 'Library', icon: 'Library', href: '/library' },
-  { id: 'detail', label: 'Detail', icon: 'Book', href: '/detail' },
+  { id: 'templates', label: 'Report Templates', icon: 'Book', href: '/templates' },
 ];
 
 const DOMAINS: Domain[] = [
@@ -74,7 +75,8 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
     } else {
       current.delete('domain');
     }
-    router.push(`${pathname}?${current.toString()}`);
+    const qs = current.toString();
+    router.push(qs ? `${pathname}?${qs}` : (pathname ?? '/library'));
   };
 
   return (
@@ -121,7 +123,9 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
           {!collapsed && (
             <>
               New element
-              <span className="ml-auto opacity-60 text-2xs font-mono">N</span>
+              <span className="ml-auto opacity-60">
+                <KbdShortcut k="N" meta={false} />
+              </span>
             </>
           )}
         </button>
@@ -129,7 +133,8 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
         <button
           onClick={onCommand}
           className="h-8 px-2.5 flex items-center justify-center gap-2.5 rounded-lg bg-transparent text-foreground-subtle border border-border text-xs hover:bg-hover transition-colors"
-          title={collapsed ? 'Search (⌘K)' : undefined}
+          title={collapsed ? 'Search' : undefined}
+          aria-label="Search"
         >
           <svg
             width="13"
@@ -146,7 +151,9 @@ export function Sidebar({ onNew, onCommand }: SidebarProps) {
           {!collapsed && (
             <>
               Search…
-              <span className="ml-auto text-2xs font-mono">⌘K</span>
+              <span className="ml-auto">
+                <KbdShortcut k="K" />
+              </span>
             </>
           )}
         </button>

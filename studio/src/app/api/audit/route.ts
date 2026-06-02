@@ -14,7 +14,14 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get('projectId') ?? 'default';
-  const entityType = searchParams.get('entityType') as 'bracket' | 'project' | 'theme' | 'discovery' | null;
+  const entityType = searchParams.get('entityType') as
+    | 'bracket'
+    | 'factsheet'
+    | 'kpi'
+    | 'project'
+    | 'theme'
+    | 'discovery'
+    | null;
   const entityId = searchParams.get('entityId');
   const limit = Number(searchParams.get('limit') ?? '50');
   const offset = Number(searchParams.get('offset') ?? '0');

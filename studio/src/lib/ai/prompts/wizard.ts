@@ -45,6 +45,20 @@ JSON schema:
   "description": "string"
 }`;
 
+export const SOURCE_SYSTEM_PROMPT = `${SHARED_INSTRUCTIONS}
+
+Kind: Data Source
+
+JSON schema:
+{
+  "name": "string (system or table name)",
+  "ref": "string (e.g. src.commercial.erp_sales)",
+  "domain": "string",
+  "type": "string (one of: ERP, CRM, Lakehouse, API, File)",
+  "grain": "string",
+  "description": "string"
+}`;
+
 export const ACTION_SYSTEM_PROMPT = `${SHARED_INSTRUCTIONS}
 
 Kind: Action Code

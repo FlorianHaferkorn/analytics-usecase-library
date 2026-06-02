@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 /* ── Sub-components ── */
 
 function Sparkline({ data, color = 'var(--accent)', height = 32 }: { data: number[]; color?: string; height?: number }) {
@@ -39,7 +41,7 @@ function DonutChart({ pct = 82 }: { pct: number }) {
 /* ── Types ── */
 
 interface DomainEntry { name: string; count: number }
-interface TopKpi { id: string; name: string; ref: string; unit: string; domain: string }
+interface TopKpi { id: string; name: string; ref: string; unit: string; domain: string; completeness: number }
 
 export interface ActivityItem {
   role_title: string;       // e.g. "Sales BI Lead"
@@ -50,6 +52,7 @@ export interface ActivityItem {
 }
 
 export interface FrameworkOverviewProps {
+  userName?: string;
   stats: {
     kpiCount: number;
     bracketCount: number;
@@ -58,10 +61,19 @@ export interface FrameworkOverviewProps {
     certified: number;
     inReview: number;
     totalDomains: number;
+    golden20Present: number;
+    golden20Total: number;
+    orphanActions: number;
   };
   domains: DomainEntry[];
   topKpis: TopKpi[];
   activity?: ActivityItem[];
+  auditSparkline?: number[];
+  drift?: {
+    errorCount: number;
+    warningCount: number;
+    topIssues: Array<{ artifactId: string; message: string; severity: string }>;
+  };
 }
 
 /* ── Aurora-aligned domain colour ramp ──
@@ -93,19 +105,6 @@ const cardHead: React.CSSProperties = {
   display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
 };
 
-/* ── Fallback activity (used only when no real activity prop is passed) ── */
-const FALLBACK_ACTIVITY: ActivityItem[] = [
-  { role_title: 'Analyst', initials: '??', action: 'reviewed', target_id: 'no.activity', time: '—' },
-];
-
-/* ── Demo sparkline data sets ── */
-const SPARK_SETS = [
-  [40,42,41,45,44,48,47,50,52,55,54,58],
-  [60,58,57,59,62,60,65,64,66,68,67,70],
-  [30,32,31,33,35,34,36,38,37,39,41,40],
-  [50,49,51,53,52,55,57,56,58,60,59,62],
-];
-
 /* ── Greeting helper ── */
 function greeting(): string {
   const h = new Date().getHours();
@@ -117,11 +116,14 @@ function greeting(): string {
 /* ── Sub-sections ── */
 
 function StatGrid({ stats }: { stats: FrameworkOverviewProps['stats'] }) {
+  const goldenPct = stats.golden20Total > 0
+    ? Math.round((stats.golden20Present / stats.golden20Total) * 100)
+    : 0;
   const items: { label: string; value: number; hint: string; trend?: string }[] = [
-    { label: 'KPIs', value: stats.kpiCount, hint: `${stats.certified} certified · ${stats.inReview} in review` },
+    { label: 'KPIs', value: stats.kpiCount, hint: `${stats.certified} certified · Golden 20 ${goldenPct}%` },
     { label: 'Brackets', value: stats.bracketCount, hint: 'Use cases' },
-    { label: 'Actions', value: stats.actionCount, hint: 'Action codes' },
-    { label: 'In review', value: stats.pendingReviews, hint: 'Need attention' },
+    { label: 'Actions', value: stats.actionCount, hint: stats.orphanActions > 0 ? `${stats.orphanActions} unreferenced` : 'All wired to brackets' },
+    { label: 'In review', value: stats.pendingReviews, hint: 'KPIs + drift errors' },
   ];
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--gap)' }}>
@@ -151,7 +153,7 @@ function CompositionCard({ stats, domains }: { stats: FrameworkOverviewProps['st
           <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em' }}>Framework composition</div>
           <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>How your KPIs are distributed across domains</div>
         </div>
-        <button style={ghostSmall}>View all →</button>
+        <Link href="/library?tab=kpis" style={{ ...ghostSmall, textDecoration: 'none' }}>View all →</Link>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 32, padding: 'var(--pad)', alignItems: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
@@ -194,17 +196,20 @@ const ghostSmall: React.CSSProperties = {
 };
 
 function ActivityFeed({ items }: { items: ActivityItem[] }) {
-  const feed = items.length > 0 ? items : FALLBACK_ACTIVITY;
   return (
     <div style={card}>
       <div style={cardHead}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em' }}>Recent activity</div>
-          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>Across the framework</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>From audit log</div>
         </div>
       </div>
       <div style={{ padding: '4px 0 12px' }}>
-        {feed.map((item, i) => (
+        {items.length === 0 ? (
+          <div style={{ padding: '16px var(--pad)', fontSize: 12.5, color: 'var(--ink-3)' }}>
+            No recent audit events. Edits to KPIs, brackets, or factsheets will appear here.
+          </div>
+        ) : items.map((item, i) => (
           <div key={i} style={{
             display: 'flex', gap: 12, alignItems: 'flex-start',
             padding: '10px var(--pad)',
@@ -229,35 +234,104 @@ function ActivityFeed({ items }: { items: ActivityItem[] }) {
   );
 }
 
+function NeedsAttentionCard({ drift, auditSparkline }: {
+  drift: NonNullable<FrameworkOverviewProps['drift']>;
+  auditSparkline: number[];
+}) {
+  const total = drift.errorCount + drift.warningCount;
+  const hasSpark = auditSparkline.some((v) => v > 0);
+  return (
+    <div style={card}>
+      <div style={cardHead}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em' }}>Needs attention</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>
+            {total === 0 ? 'No drift issues detected' : `${drift.errorCount} errors · ${drift.warningCount} warnings`}
+          </div>
+        </div>
+        <Link href="/registry/health" style={{ ...ghostSmall, textDecoration: 'none' }}>Drift scan →</Link>
+      </div>
+      <div style={{ padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {hasSpark && (
+          <div>
+            <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginBottom: 6 }}>Audit events (14 days)</div>
+            <Sparkline data={auditSparkline} height={36} />
+          </div>
+        )}
+        {drift.topIssues.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>Framework references are consistent.</div>
+        ) : (
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {drift.topIssues.map((issue) => (
+              <li key={`${issue.artifactId}-${issue.message.slice(0, 24)}`} style={{ fontSize: 12.5, lineHeight: 1.45 }}>
+                <span style={{
+                  fontSize: 10, fontWeight: 600, textTransform: 'uppercase', marginRight: 6,
+                  color: issue.severity === 'error' ? 'oklch(0.55 0.15 30)' : 'oklch(0.62 0.12 80)',
+                }}>{issue.severity}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.92em' }}>{issue.artifactId}</span>
+                <span style={{ color: 'var(--ink-3)' }}> — {issue.message}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function KeyMetricsRow({ topKpis }: { topKpis: TopKpi[] }) {
   if (topKpis.length === 0) return null;
   return (
-    <div style={{ ...card, display: 'grid', gridTemplateColumns: `repeat(${topKpis.length}, 1fr)` }}>
+    <div>
+      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink-2)', marginBottom: 10 }}>Golden 20 — documentation coverage</div>
+      <div style={{ ...card, display: 'grid', gridTemplateColumns: `repeat(${Math.min(topKpis.length, 4)}, 1fr)` }}>
       {topKpis.map((kpi, i) => (
-        <div key={kpi.id} style={{
-          padding: '18px 20px',
-          borderLeft: i > 0 ? '1px solid var(--line-2)' : 'none',
-          display: 'flex', flexDirection: 'column', gap: 6,
-        }}>
+        <Link
+          key={kpi.id}
+          href={`/detail/kpi/${encodeURIComponent(kpi.id)}`}
+          style={{
+            padding: '18px 20px',
+            borderLeft: i > 0 ? '1px solid var(--line-2)' : 'none',
+            display: 'flex', flexDirection: 'column', gap: 6,
+            textDecoration: 'none', color: 'inherit',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: i === 0 ? 'var(--success)' : 'var(--line)', flexShrink: 0 }} />
+            <div style={{
+              width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+              background: kpi.completeness >= 80 ? 'var(--success)' : kpi.completeness >= 50 ? 'var(--warning)' : 'var(--line)',
+            }} />
             <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{kpi.name}</span>
           </div>
           <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>{kpi.ref}</span>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, color: 'var(--ink)', lineHeight: 1 }}>—</span>
-          <Sparkline data={SPARK_SETS[i % SPARK_SETS.length] ?? [0, 1]} height={32} />
-        </div>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, color: 'var(--ink)', lineHeight: 1 }}>{kpi.completeness}%</span>
+          <span style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{kpi.domain || '—'} · metadata complete</span>
+        </Link>
       ))}
+      </div>
     </div>
   );
 }
 
 /* ── Main export ── */
 
-export function FrameworkOverview({ stats, domains, topKpis, activity = [] }: FrameworkOverviewProps) {
+export function FrameworkOverview({
+  userName = 'there',
+  stats,
+  domains,
+  topKpis,
+  activity = [],
+  auditSparkline = [],
+  drift,
+}: FrameworkOverviewProps) {
+  const driftErrors = drift?.errorCount ?? 0;
+  const healthLabel = driftErrors > 0 ? 'needs attention' : stats.inReview > 0 ? 'mostly healthy' : 'healthy';
   const inReviewLine = stats.inReview > 0
     ? `${stats.inReview} KPI${stats.inReview !== 1 ? 's' : ''} need review.`
-    : 'No KPIs awaiting review.';
+    : driftErrors > 0
+      ? `${driftErrors} drift error${driftErrors !== 1 ? 's' : ''} to resolve.`
+      : 'No KPIs awaiting review.';
+  const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
       {/* Hero */}
@@ -272,35 +346,35 @@ export function FrameworkOverview({ stats, domains, topKpis, activity = [] }: Fr
             letterSpacing: '-0.025em',
             margin: '6px 0 4px',
           }}>
-            {greeting()}, Alex.
+            {greeting()}, {displayName}.
           </h1>
           <div style={{ color: 'var(--ink-3)', fontSize: 14 }}>
-            Your framework is <span style={{ color: 'var(--ink)' }}>healthy</span>. {inReviewLine}
+            Your framework is <span style={{ color: 'var(--ink)' }}>{healthLabel}</span>. {inReviewLine}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={ghostBtn}>
+          <Link href="/canvas" style={{ ...ghostBtn, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <circle cx="8" cy="8" r="5.5" />
               <path d="M8 5v3l2 1.5" />
             </svg>
-            History
-          </button>
-          <button style={ghostBtn}>
+            Canvas
+          </Link>
+          <Link href="/library" style={{ ...ghostBtn, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <circle cx="4" cy="3.5" r="1.3" />
               <circle cx="4" cy="12.5" r="1.3" />
               <circle cx="12" cy="6" r="1.3" />
               <path d="M4 5v6M5.3 6c2.5 0 3.7-.4 5.4-1.4" />
             </svg>
-            v1.0.0
-          </button>
-          <button style={primaryBtn}>
+            Library
+          </Link>
+          <Link href="/delivery" style={{ ...primaryBtn, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2" />
             </svg>
-            Draft with AI
-          </button>
+            Delivery
+          </Link>
         </div>
       </section>
 
@@ -312,6 +386,10 @@ export function FrameworkOverview({ stats, domains, topKpis, activity = [] }: Fr
         <CompositionCard stats={stats} domains={domains} />
         <ActivityFeed items={activity} />
       </div>
+
+      {drift && (
+        <NeedsAttentionCard drift={drift} auditSparkline={auditSparkline} />
+      )}
 
       {/* Key metrics */}
       <KeyMetricsRow topKpis={topKpis} />

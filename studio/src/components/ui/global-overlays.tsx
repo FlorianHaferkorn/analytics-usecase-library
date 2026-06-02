@@ -22,7 +22,7 @@ interface ChatMessage {
 
 // ─── Inline Chat Panel ────────────────────────────────────────────────────────
 
-function ChatPanel({
+export function ChatPanel({
   entityContext,
   onClose,
 }: {
@@ -316,6 +316,7 @@ function ChatPanel({
 }
 
 // ─── GlobalOverlays ───────────────────────────────────────────────────────────
+// Legacy overlay host (Wizard + ui/command-palette). Active shell uses StudioAppShell.
 
 export interface GlobalOverlaysProps {
   paletteItems?: SerializablePaletteItem[];
@@ -359,7 +360,13 @@ export function GlobalOverlays({ paletteItems = [] }: GlobalOverlaysProps) {
         createdAt: new Date().toISOString(),
       });
       setWizardOpen(false);
-      router.push(kind === 'bracket' ? '/compose' : '/catalog');
+      if (kind === 'bracket') {
+        router.push('/library');
+      } else if (kind === 'kpi') {
+        router.push('/library?tab=kpis');
+      } else {
+        router.push('/library');
+      }
     },
     [setPendingWizardDraft, router],
   );
@@ -367,7 +374,11 @@ export function GlobalOverlays({ paletteItems = [] }: GlobalOverlaysProps) {
   // Reconstruct full PaletteItem[] from serializable items by adding onSelect handlers
   const fullItems: PaletteItem[] = paletteItems.map((item) => ({
     ...item,
-    onSelect: item.sub ? () => router.push(item.sub!) : undefined,
+    onSelect: item.href
+      ? () => router.push(item.href!)
+      : item.sub?.startsWith('/')
+        ? () => router.push(item.sub!)
+        : undefined,
   }));
 
   return (

@@ -1,0 +1,316 @@
+evidence_pack_version: "1.0"
+use_case_id: COM-002
+use_case_title: Margin & Price Performance
+domain: Commercial
+authored_date: "2026-06-01"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+process_scope:
+  description: >
+    Gross margin protection and price realisation management. Covers GM% trending,
+    price/discount analysis, COGS drivers, and mix-adjusted margin decomposition.
+    Enables targeted margin recovery actions without volume sacrifice.
+  in_scope:
+    - Gross Margin % and absolute GM by product, channel, region
+    - Price realization rate (net price vs list price)
+    - COGS variance analysis (material cost, labour, overhead)
+    - Mix effect on gross margin
+    - Discount and rebate leakage
+  out_of_scope:
+    - Promotional ROI deep dives (COM-004)
+    - Long-term list price strategy
+    - Capital cost and EBITDA bridge (FIN-002)
+  industry_segment: B2B manufacturing and distribution
+  applicable_frameworks:
+    - name: Price/Volume/Mix Methodology (McKinsey / Deloitte Commercial Excellence)
+      id: PVM-FRAMEWORK
+    - name: APQC PCF — Category 11.0 Manage Financial Resources (Gross Margin)
+      id: APQC-PCF-11
+    - name: Simon-Kucher Pricing Power Framework
+      id: SK-PRICING
+
+canonical_domain_model:
+  outcome_kpis:
+    - id: margin.gm.pct
+      name: Gross Margin %
+      definition: "(Net Sales - COGS) / Net Sales × 100"
+      unit: "%"
+      direction: maximize
+      benchmark_target: "25–45% for B2B manufacturing (APQC); improvement target +0.5–1.5pp (Deloitte)"
+      benchmark_source_id: SRC-006
+
+  driver_kpis:
+    - id: sales.price.realization_pct
+      name: Price Realization Rate
+      definition: "Net Price / List Price × 100. Measures discount discipline."
+      unit: "%"
+      direction: maximize
+      drives: margin.gm.pct
+      causal_mechanism: >
+        Each 1pp decline in price realization typically reduces GM% by 0.8–1.2pp
+        in B2B manufacturing (Simon-Kucher data). Price realization is the fastest lever.
+      benchmark_target: "≥ 90% (Simon-Kucher B2B Pricing Study 2023)"
+      benchmark_source_id: SRC-003
+
+    - id: cost.cogs.amount
+      name: COGS Amount
+      definition: Direct cost of goods sold (material + direct labour + variable overhead).
+      unit: EUR
+      direction: minimize
+      drives: margin.gm.pct
+      causal_mechanism: >
+        COGS increases directly erode GM%. Key drivers: raw material price increases,
+        labour productivity losses, yield/scrap increases.
+      benchmark_target: ""
+      benchmark_source_id: ""
+
+    - id: sales.pvm.mix_effect.amount
+      name: Mix Effect on Margin
+      definition: Margin variance attributable to product/channel/customer mix shifts.
+      unit: EUR
+      direction: maximize
+      drives: margin.gm.pct
+      causal_mechanism: >
+        Negative mix effect signals growth in structurally lower-margin products.
+        Mix management is a strategic lever for long-term GM% improvement.
+      benchmark_target: ""
+      benchmark_source_id: ""
+
+  diagnostic_kpis:
+    - id: sales.pvm.price_effect.amount
+      name: Price Effect (PVM)
+      definition: GM variance from price changes.
+      unit: EUR
+      direction: maximize
+      diagnoses: margin.gm.pct
+
+    - id: sales.price.net.amount
+      name: Net Price (Average)
+      definition: Average net selling price after discounts, rebates, and returns.
+      unit: EUR
+      direction: maximize
+      diagnoses: sales.price.realization_pct
+
+  guardrails:
+    - description: Volume guardrail on margin recovery actions
+      condition: >
+        Do not trigger pure margin recovery actions (price increases) if volume is already
+        below plan by > 10%. Price recovery at the cost of significant volume loss destroys
+        more value than temporary margin dilution.
+      affected_kpis: [margin.gm.pct, sales.net_sales.amount]
+
+  wrong_interpretations:
+    - description: Gross Margin improvement through COGS reduction alone
+      why_wrong: >
+        COGS reduction via quality reduction or supply shortcuts can temporarily improve
+        GM% but triggers warranty claims, returns, and customer churn that ultimately
+        destroy more value. COGS and quality KPIs must be monitored together.
+      source_id: SRC-004
+
+    - description: Price realisation without volume context
+      why_wrong: >
+        A 95% price realisation rate looks healthy, but if it was achieved by losing
+        volume on high-margin products and retaining volume on low-margin products,
+        the mix effect will destroy GM% regardless of list price discipline.
+      source_id: SRC-003
+
+    - description: Margin by product without channel attribution
+      why_wrong: >
+        The same product can have very different net margins across channels
+        (direct vs distributor vs online). Reporting margin at product level only
+        hides channel-specific discount patterns.
+      source_id: SRC-005
+
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.5
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "APQC PCF Category 11.0 — Manage Financial Resources: Gross Margin Definition"
+      author: APQC
+      year: 2024
+      url: "https://www.apqc.org"
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [outcome_kpis, process_scope]
+
+    - id: SRC-002
+      category: ACA
+      title: "Dolan, R.J. & Simon, H. (1996). Power Pricing. Free Press."
+      author: "Dolan, R.J.; Simon, H."
+      year: 1996
+      url: "https://www.simonandschuster.com/books/Power-Pricing/Robert-J-Dolan/9780684834436"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, wrong_interpretations]
+      notes: Classic pricing reference; age waiver applies.
+
+    - id: SRC-003
+      category: PRO
+      title: "Simon-Kucher & Partners: Global Pricing Study 2023 — B2B Price Realisation Benchmarks"
+      author: Simon-Kucher
+      year: 2023
+      url: "https://www.simon-kucher.com/en/insights/global-pricing-study"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [driver_kpis, benchmark_targets, wrong_interpretations]
+
+    - id: SRC-004
+      category: RSK
+      title: "Gadiesh, O. & Gilbert, J.L. (1998). Profit pools: A fresh look at strategy. Harvard Business Review."
+      author: "Gadiesh, O.; Gilbert, J.L."
+      year: 1998
+      url: "https://hbr.org/1998/05/profit-pools-a-fresh-look-at-strategy"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [wrong_interpretations, guardrails]
+      notes: Classic reference; age waiver applies.
+
+    - id: SRC-005
+      category: IMP
+      title: "Deloitte: Commercial Excellence — Gross Margin Improvement in Manufacturing (2023)"
+      author: Deloitte Consulting
+      year: 2023
+      url: "https://www2.deloitte.com/insights/manufacturing-commercial-excellence"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [actions_by_root_cause, wrong_interpretations, diagnostic_kpis]
+
+    - id: SRC-006
+      category: BNK
+      title: "APQC Open Standards Benchmarking — Gross Margin % Benchmarks by Industry 2024"
+      author: APQC
+      year: 2024
+      url: "https://www.apqc.org/benchmarking"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [benchmark_targets]
+
+    - id: SRC-007
+      category: ACA
+      title: "Hinterhuber, A. (2008). Customer value-based pricing strategies: why companies resist. Journal of Business Strategy."
+      author: "Hinterhuber, A."
+      year: 2008
+      url: "https://doi.org/10.1108/02756660810887079"
+      doi: "10.1108/02756660810887079"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis, guardrails]
+
+    - id: SRC-008
+      category: IMP
+      title: "McKinsey: Capturing Value in B2B Pricing (2022)"
+      author: McKinsey
+      year: 2022
+      url: "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/pricing"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [actions_by_root_cause, diagnostic_kpis]
+
+    - id: SRC-009
+      category: BNK
+      title: "Gartner CFO/Finance Research — Gross Margin and COGS Benchmarks 2023"
+      author: Gartner
+      year: 2023
+      url: "https://www.gartner.com/en/finance/insights"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [benchmark_targets]
+
+    - id: SRC-010
+      category: STD
+      title: "IFRS — IAS 2 Inventories: COGS Definition and Gross Margin Calculation Standard"
+      author: IFRS Foundation
+      year: 2023
+      url: "https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/"
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [outcome_kpis, driver_kpis]
+
+    - id: SRC-011
+      category: RSK
+      title: "Nagle, T.T. & Müller, G. (2018). The Strategy and Tactics of Pricing. Routledge."
+      author: "Nagle, T.T.; Müller, G."
+      year: 2018
+      url: "https://www.routledge.com/The-Strategy-and-Tactics-of-Pricing/Nagle-Muller/p/book/9781138192041"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [wrong_interpretations, guardrails]
+
+action_logic_seeds:
+  - trigger_driver: margin.gm.pct
+    trigger_diagnostic: sales.price.realization_pct
+    trigger_condition: "GM% below target by > 2pp AND price realization < 90% for 2 consecutive months"
+    guardrail: "Do not trigger if volume is already below plan by > 10%"
+    action_description: Discount discipline review and price realisation improvement program.
+    expected_outcome_kpi: margin.gm.pct
+    action_code_candidate: C-M2.1
+
+  - trigger_driver: margin.gm.pct
+    trigger_diagnostic: sales.pvm.mix_effect.amount
+    trigger_condition: "Mix effect is negative and contributing > 30% of total GM gap"
+    guardrail: "Exclude seasonal product mix shifts"
+    action_description: Strategic mix management — shift volume toward higher-margin products.
+    expected_outcome_kpi: margin.gm.pct
+    action_code_candidate: C-M2.2
+
+required_data_model:
+  required_facts:
+    - table: fact_sales
+      description: Sales transactions with net price, list price, COGS, discount, rebate by product, channel, customer.
+  required_dimensions:
+    - name: dim_product
+      grain_relevance: SKU/category for mix analysis.
+    - name: dim_org
+      grain_relevance: Channel/region attribution.
+    - name: dim_customer
+      grain_relevance: Customer segment profitability.
+  preferred_grain: product-channel-month
+  minimum_grain: product-month
+  minimum_history_months: 24
+  required_measures:
+    - name: Gross Margin %
+      formula_seed: "(Net Sales - COGS) / Net Sales"
+      source_id: SRC-001
+    - name: Price Realization Rate
+      formula_seed: "Net Price / List Price"
+      source_id: SRC-003
+
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: partial
+  bracket_coverage: partial
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md
+        field: "Section 8 Success Criteria"
+        description: "Benchmark targets not stated (GM% range 25-45%, price realisation ≥ 90%)."
+        evidence_reference: SRC-006 SRC-003
+        remediation: "Add benchmark targets."
+        status: open
+
+    mapping_gaps:
+      - gap_type: mapping_gap
+        severity: medium
+        affected_artifact: core/usecases/core/COM-002_Margin_Price_Performance/UseCase_Bracket.yaml
+        field: component_30s
+        description: "Price realization vs discount visual missing from the 30s layer."
+        evidence_reference: SRC-003 SRC-008
+        remediation: "Add a visual slot for price realization rate trend."
+        status: open
+
+    schema_gaps: []
+    generator_gaps: []
+    model_gaps: []

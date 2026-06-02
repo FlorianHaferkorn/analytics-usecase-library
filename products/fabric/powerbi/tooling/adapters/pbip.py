@@ -173,19 +173,79 @@ def _build_pages_json(pages: List[PageSpec]) -> Dict[str, Any]:
 
 
 def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
-    return {
-        "$schema": _REPORT_SCHEMA,
-        "themeCollection": {"baseTheme": {"name": "CY24SU06"}},
-        "settings": {"useStylableVisualContainerHeader": True},
+    theme_name = Path(spec.theme_path).stem if spec.theme_path else None
+    theme_collection: Dict[str, Any] = {
+        "baseTheme": {
+            "name": "CY25SU10",
+            "reportVersionAtImport": {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"},
+            "type": "SharedResources",
+        }
     }
+    resource_packages: list = []
+    if theme_name:
+        theme_collection["customTheme"] = {
+            "name": f"{theme_name}.json",
+            "reportVersionAtImport": {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"},
+            "type": "RegisteredResources",
+        }
+        resource_packages = [
+            {
+                "name": "SharedResources",
+                "type": "SharedResources",
+                "items": [{"name": "CY25SU10", "path": "BaseThemes/CY25SU10.json", "type": "BaseTheme"}],
+            },
+            {
+                "name": "RegisteredResources",
+                "type": "RegisteredResources",
+                "items": [{"name": f"{theme_name}.json", "path": f"{theme_name}.json", "type": "CustomTheme"}],
+            },
+        ]
+    report: Dict[str, Any] = {
+        "$schema": _REPORT_SCHEMA,
+        "themeCollection": theme_collection,
+        "settings": {
+            "useStylableVisualContainerHeader": True,
+            "exportDataMode": "AllowSummarized",
+            "defaultFilterActionIsDataFilter": True,
+            "defaultDrillFilterOtherVisuals": True,
+            "allowChangeFilterTypes": True,
+            "useEnhancedTooltips": True,
+            "useDefaultAggregateDisplayName": True,
+        },
+    }
+    if resource_packages:
+        report["resourcePackages"] = resource_packages
+    return report
 
 
 def _build_definition_pbir(semantic_model: str) -> Dict[str, Any]:
+    # Path is relative to definition.pbir (report root). Both report and model
+    # land in dist/, so a single ../ step reaches the sibling model folder.
     return {
         "$schema": _DEFINITION_PBIR_SCHEMA,
         "version": _DEFINITION_PBIR_VERSION,
-        "datasetReference": {"byPath": {"path": f"../../{semantic_model}"}},
+        "datasetReference": {"byPath": {"path": f"../{semantic_model}"}},
     }
+
+
+def _build_definition_pbism() -> Dict[str, Any]:
+    """Build definition.pbism — mandatory root descriptor for every PBIP SemanticModel."""
+    return {"version": "4.2", "settings": {"qnaEnabled": True}}
+
+
+def _build_database_tmdl(database_name: str) -> str:
+    """Build definition/database.tmdl — required by Power BI Desktop and Fabric API."""
+    return f"database '{database_name}'\n\tcompatibilityLevel: 1702\n\tcompatibilityMode: powerBI\n"
+
+
+def _build_model_tmdl() -> str:
+    """Build definition/model.tmdl — required for Import mode models."""
+    return (
+        "model Model\n"
+        "\tculture: en-US\n"
+        "\tdefaultPowerBIDataSourceVersion: powerBI_V3\n"
+        "\tdiscourageImplicitMeasures\n"
+    )
 
 
 def _build_version_json() -> Dict[str, Any]:
@@ -209,8 +269,11 @@ def _speaking_report_name(use_case_id: str, title: str) -> str:
     """Derive speaking report folder name (e.g. 'COM-001_Sales_Performance').
 
     Matches the convention used by the scaffold writer: ID + sanitized title.
+    Only word characters and hyphens are kept; everything else becomes '_'.
+    This intentionally strips '&', '(', ')', '+', '!', ',', ';', '#', etc.
+    so that folder names remain safe on all filesystems and in Power BI Service.
     """
-    safe_title = re.sub(r'[<>:"/\\|?*\s]+', "_", title).strip("_")
+    safe_title = re.sub(r'[^\w-]+', "_", title).strip("_")
     return f"{use_case_id}_{safe_title}" if safe_title else use_case_id
 
 
@@ -369,9 +432,35 @@ class PBIPAdapter(GeneratorAdapter):
             for vspec in page.visuals:
                 files[f"{base}/visuals/{vspec.id}/visual.json"] = _json(_build_visual_json(vspec))
 
-        if spec.measures:
-            files[f"{spec.semantic_model}/definition/tables/_Measures.tmdl"] = (
-                _build_tmdl_measures(spec.measures).encode("utf-8")
+        # Semantic model scaffold — required by Power BI Desktop to open the report locally.
+        # definition.pbism, database.tmdl and model.tmdl are ONE-TIME seeds: they must NOT
+        # overwrite an existing real semantic model (overwriting model.tmdl triggers the AS
+        # error PFE_TM_DDL_MODIFIED_CULTURE_OR_COLLATION_AFTER_CHILDREN_CREATION).
+        no_overwrite: set = set()
+        if spec.semantic_model:
+            db_name = spec.semantic_model.replace(".SemanticModel", "")
+            pbism_key = f"{spec.semantic_model}/definition.pbism"
+            db_key    = f"{spec.semantic_model}/definition/database.tmdl"
+            model_key = f"{spec.semantic_model}/definition/model.tmdl"
+            files[pbism_key] = (
+                json.dumps(_build_definition_pbism(), indent=2, ensure_ascii=False).encode("utf-8")
             )
+            files[db_key]    = _build_database_tmdl(db_name).encode("utf-8")
+            files[model_key] = _build_model_tmdl().encode("utf-8")
+            # Mark all three as "write only if missing" so they never clobber a real model.
+            no_overwrite.update({pbism_key, db_key, model_key})
 
-        return RenderResult(files=files, adapter=self.name)
+            if spec.measures:
+                files[f"{spec.semantic_model}/definition/tables/_Measures.tmdl"] = (
+                    _build_tmdl_measures(spec.measures).encode("utf-8")
+                )
+
+        # Embed custom theme file into StaticResources/RegisteredResources/
+        if spec.theme_path:
+            theme_file = Path(spec.theme_path)
+            if theme_file.exists():
+                files[f"{report_name}/StaticResources/RegisteredResources/{theme_file.name}"] = (
+                    theme_file.read_bytes()
+                )
+
+        return RenderResult(files=files, adapter=self.name, no_overwrite_paths=no_overwrite)

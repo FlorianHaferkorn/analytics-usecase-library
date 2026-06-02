@@ -11,7 +11,7 @@ table security_user_org
 	column OrgKey
 		dataType: int64
 		isHidden
-		isAvailableInMDX: false
+		isAvailableInMdx: false
 		lineageTag: 2cf2d9c9-6977-466d-9683-0615073726c9
 		summarizeBy: none
 		sourceColumn: OrgKey

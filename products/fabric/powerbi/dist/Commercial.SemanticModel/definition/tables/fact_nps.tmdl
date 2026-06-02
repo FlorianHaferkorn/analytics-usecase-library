@@ -5,7 +5,7 @@ table fact_nps
 	column ResponseID
 		dataType: string
 		isHidden
-		isAvailableInMDX: false
+		isAvailableInMdx: false
 		lineageTag: 3b727281-33b4-4c20-844e-01408034a12c
 		summarizeBy: none
 		sourceColumn: ResponseID

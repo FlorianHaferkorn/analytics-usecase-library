@@ -5,7 +5,7 @@
  * typed FactsheetSummary objects. Server-side only (fs access).
  */
 
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const CORE_USECASES_DIR = join(
@@ -186,19 +186,37 @@ function parseFactsheet(raw: string): FactsheetSummary | null {
   };
 }
 
-/** Load a single Business Factsheet by use case ID (e.g. "COM-001"). */
-export async function loadFactsheet(useCaseId: string): Promise<FactsheetSummary | null> {
+async function resolveFactsheetPath(useCaseId: string): Promise<string | null> {
   const dirs = await readdir(CORE_USECASES_DIR);
   const match = dirs.find((d) => d.startsWith(useCaseId));
   if (!match) return null;
+  return join(CORE_USECASES_DIR, match, 'Business_Factsheet.md');
+}
 
-  const factsheetPath = join(CORE_USECASES_DIR, match, 'Business_Factsheet.md');
+/** Load raw Business_Factsheet.md for editing. */
+export async function loadFactsheetMarkdown(useCaseId: string): Promise<string | null> {
+  const path = await resolveFactsheetPath(useCaseId);
+  if (!path) return null;
   try {
-    const raw = await readFile(factsheetPath, 'utf-8');
-    return parseFactsheet(raw);
+    return await readFile(path, 'utf-8');
   } catch {
     return null;
   }
+}
+
+/** Persist full markdown (frontmatter + body). */
+export async function saveFactsheetMarkdown(useCaseId: string, markdown: string): Promise<boolean> {
+  const path = await resolveFactsheetPath(useCaseId);
+  if (!path) return false;
+  await writeFile(path, markdown, 'utf-8');
+  return true;
+}
+
+/** Load a single Business Factsheet by use case ID (e.g. "COM-001"). */
+export async function loadFactsheet(useCaseId: string): Promise<FactsheetSummary | null> {
+  const raw = await loadFactsheetMarkdown(useCaseId);
+  if (!raw) return null;
+  return parseFactsheet(raw);
 }
 
 /** Load all Business Factsheets from core/usecases/core/. */

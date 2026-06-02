@@ -4,10 +4,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { KBD } from './badges';
 
 export interface PaletteItem {
-  kind: 'kpi' | 'bracket' | 'action' | 'dimension' | 'page' | 'action-item';
+  kind: 'kpi' | 'usecase' | 'bracket' | 'action' | 'dimension' | 'page' | 'action-item';
   id: string;
   label: string;
+  /** Display subtitle (domain tag, entity type label). Not a navigation path. */
   sub?: string;
+  /** Detail or page route; preferred for navigation when set. */
+  href?: string;
   status?: string;
   onSelect?: () => void;
 }
@@ -20,16 +23,23 @@ interface Props {
 }
 
 const KIND_ICON: Record<string, string> = {
-  kpi: 'K', bracket: 'B', action: 'A', dimension: 'D', page: '→', 'action-item': '⚡',
+  kpi: 'K',
+  usecase: 'U',
+  bracket: 'B',
+  action: 'A',
+  dimension: 'D',
+  page: '→',
+  'action-item': '⚡',
 };
 
+/** Canonical routes (see studio/next.config.ts redirects for legacy paths). */
 const NAV_ACTIONS: PaletteItem[] = [
-  { kind: 'page', id: 'steering',  label: 'Open Steering Hub',    sub: '/steering' },
-  { kind: 'page', id: 'lineage',   label: 'Open Lineage Graph',   sub: '/lineage' },
-  { kind: 'page', id: 'registry',  label: 'Open Registry',        sub: '/registry' },
-  { kind: 'page', id: 'discovery', label: 'Open Discovery',       sub: '/discovery' },
-  { kind: 'page', id: 'delivery',  label: 'Open Delivery',        sub: '/delivery' },
-  { kind: 'page', id: 'brand-lab', label: 'Open Brand Lab',       sub: '/brand-lab' },
+  { kind: 'page', id: 'overview', label: 'Open Overview', href: '/overview' },
+  { kind: 'page', id: 'canvas', label: 'Open Canvas', href: '/canvas' },
+  { kind: 'page', id: 'library', label: 'Open Library', href: '/library' },
+  { kind: 'page', id: 'delivery', label: 'Open Delivery', href: '/delivery' },
+  { kind: 'page', id: 'registry', label: 'Open Registry Health', href: '/registry/health' },
+  { kind: 'page', id: 'templates', label: 'Open Report Templates', href: '/templates' },
 ];
 
 export function CommandPalette({ items = [], onNavigate }: Props) {
@@ -107,7 +117,14 @@ export function CommandPalette({ items = [], onNavigate }: Props) {
             <>
               <SectionHead>Pages</SectionHead>
               {actions.map((it) => (
-                <PaletteRow key={it.id} item={it} onSelect={() => { onNavigate?.(it.sub ?? '/'); close(); }} />
+                <PaletteRow
+                  key={it.id}
+                  item={it}
+                  onSelect={() => {
+                    onNavigate?.(it.href ?? (it.sub?.startsWith('/') ? it.sub : '/'));
+                    close();
+                  }}
+                />
               ))}
             </>
           )}

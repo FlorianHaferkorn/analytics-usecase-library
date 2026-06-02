@@ -21,7 +21,7 @@ from ..ir.specs import (
     VisualSpec,
     VisualType,
 )
-from ..ir.compiler import BracketCompiler
+from ..ir.compiler import BracketCompiler, _card_kpi_ids
 
 
 # ---------------------------------------------------------------------------
@@ -240,6 +240,9 @@ class TestBracketCompiler:
         assert ap is not None
         assert spec.action_panel is not None
         assert spec.action_panel.enabled is True
+        assert "not found" not in (spec.action_panel.rendered_text or "").lower()
+        assert "C-S1.1" in spec.action_panel.rendered_text
+        assert "Accelerate Top Account Penetration" in spec.action_panel.rendered_text
 
     def test_detail_has_evidence_matrix(self, tmp_dirs, bracket_file):
         _, kpi_root, ac_root = tmp_dirs
@@ -251,6 +254,31 @@ class TestBracketCompiler:
         assert matrix is not None
         assert spec.evidence_table is not None
         assert spec.evidence_table.grain == "customer_invoice_line"
+
+    def test_card_kpi_ids_deduplicates_lead_and_influencing(self):
+        bracket = {
+            "orchestration": {
+                "strategic_kpi_id": "margin.gm.pct",
+                "influencing_kpi_ids": [
+                    "sales.net_sales.delta_pct.plan",
+                    "sales.net_sales.delta_pct.ly",
+                    "margin.gm.pct",
+                    "sales.net_sales.amount",
+                ],
+            },
+            "ux_layout_rules": {
+                "page_1_summary": {
+                    "component_3s": {"kpi_id": "sales.net_sales.amount"},
+                }
+            },
+        }
+        ids = _card_kpi_ids(bracket)
+        assert ids == [
+            "sales.net_sales.amount",
+            "sales.net_sales.delta_pct.plan",
+            "sales.net_sales.delta_pct.ly",
+            "margin.gm.pct",
+        ]
 
     def test_measures_compiled_from_catalog(self, tmp_dirs, bracket_file):
         _, kpi_root, ac_root = tmp_dirs

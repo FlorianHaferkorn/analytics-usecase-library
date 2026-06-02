@@ -73,7 +73,17 @@ class PageBuilder:
             if not isinstance(_kids, list):
                 _kids = [_kids] if _kids else []
             _measures = [_kpi_to_measure.get(k, k) for k in _kids if isinstance(k, str) and k.strip()]
-            _main_slot_binding[_slot_name] = {"visual_type": _vt, "measures": _measures}
+            # category_field from bracket: "table.Column" → split into entity/property
+            _cat_field = _c_item.get("category_field")
+            _cat_entity, _cat_prop = None, None
+            if _cat_field and isinstance(_cat_field, str) and "." in _cat_field:
+                _cat_entity, _cat_prop = _cat_field.split(".", 1)
+            _main_slot_binding[_slot_name] = {
+                "visual_type": _vt,
+                "measures": _measures,
+                "category_entity": _cat_entity,
+                "category_property": _cat_prop,
+            }
 
         # Detect absolute-position mode (Figma-sourced layouts)
         position_mode = grid_blueprint.get("position_mode", "grid")
@@ -179,8 +189,11 @@ class PageBuilder:
                 _ux_vt = _binding["visual_type"]
                 _measures = _binding["measures"]
                 _title = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
+                _cat_entity = _binding.get("category_entity")
+                _cat_prop = _binding.get("category_property")
                 vis = self.visual_builder.build_by_ux_visual_type(
-                    _ux_vt, position, name=slot_id, measures=_measures, title=_title
+                    _ux_vt, position, name=slot_id, measures=_measures, title=_title,
+                    category_entity=_cat_entity, category_property=_cat_prop,
                 )
             elif slot_id in _MAIN_SLOTS_ORDER and card_measure_names:
                 # Unbound main slot — entity comparison bar (OrgName axis) for KPI card measures

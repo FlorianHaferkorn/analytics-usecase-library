@@ -5,7 +5,7 @@ table dim_date
 	column DateKey
 		dataType: int64
 		isHidden
-		isAvailableInMDX: false
+		isAvailableInMdx: false
 		lineageTag: 14673ef0-1b4e-4fc4-9a56-d518fcb92036
 		summarizeBy: none
 		sourceColumn: DateKey
@@ -15,7 +15,6 @@ table dim_date
 		lineageTag: 826ae2f1-c10a-4a6f-ad57-f237555b4217
 		summarizeBy: none
 		sourceColumn: Date
-
 
 	column Year
 		dataType: int64
@@ -71,6 +70,23 @@ table dim_date
 		lineageTag: a2a820ec-17c9-445a-8682-c092351c1c86
 		summarizeBy: none
 		sourceColumn: Fiscal Period
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: 6eaa375d-1dbe-4012-b5b7-78adbd8ba160
+		summarizeBy: sum
+		sourceColumn: MonthNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column Week
+		dataType: string
+		lineageTag: 9c9768f5-54cd-49c1-9abf-736e94c7467d
+		summarizeBy: none
+		sourceColumn: Week
 
 		annotation SummarizationSetBy = Automatic
 

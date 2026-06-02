@@ -32,6 +32,23 @@ def _derive_data_palette(primary: str, secondary: str) -> List[str]:
     return [primary, secondary] + _FRAMEWORK_DATA_COLORS[2:]
 
 
+def _resolve_template_family(page_block: Dict[str, Any]) -> str:
+    """Derive the T1/T2/T3/T4 family letter from a page block in ux_layout_rules.
+
+    Resolution order:
+      1. ``template_variant``  e.g. "T2_DriverBridge"  → "T2"
+      2. ``page_type``         e.g. "T2_Tactical_Variance" → "T2"
+      3. Falls back to "T2" so existing reports keep working.
+    """
+    for field in ("template_variant", "page_type"):
+        raw = (page_block.get(field) or "").strip()
+        if raw:
+            family = raw.split("_")[0].upper()
+            if family in ("T1", "T2", "T3", "T4"):
+                return family
+    return "T2"
+
+
 class ConfigLoader:
     """Loads configuration files for scaffold generation."""
     
@@ -125,6 +142,25 @@ class ConfigLoader:
         text = f"{domain_prefix}{title}\nEvidence grain: {grain} | Strategic KPI: {kpi_name}"
         return text
 
+    def _card_kpi_ids(self, bracket: Dict[str, Any]) -> List[str]:
+        """KPI card band: component_3s lead + influencing KPIs, deduped, max 4."""
+        ux = bracket.get("ux_layout_rules") or {}
+        p1 = ux.get("page_1_summary") or {}
+        c3s = p1.get("component_3s") if isinstance(p1, dict) else {}
+        orch = bracket.get("orchestration") or {}
+        lead = (c3s.get("kpi_id") if isinstance(c3s, dict) else None) or orch.get("strategic_kpi_id")
+        influencing = orch.get("influencing_kpi_ids") or []
+        out: List[str] = []
+        seen: set = set()
+        for kid in ([lead] if lead else []) + list(influencing):
+            if not kid or kid in seen:
+                continue
+            seen.add(str(kid))
+            out.append(str(kid))
+            if len(out) >= 4:
+                break
+        return out
+
     def _format_trigger_condition(self, ac: Dict[str, Any]) -> Optional[str]:
         """Build a short human-readable trigger condition from action code trigger.levels."""
         trigger = ac.get("trigger") or {}
@@ -151,8 +187,18 @@ class ConfigLoader:
                 val, unit = th, ""
             if metric and comp and val is not None:
                 comp_text = "<" if comp == "lt" else ">" if comp == "gt" else comp
-                return f"{metric} {comp_text} {val}{unit}".strip()
+                thresh = self._format_threshold_value(val, unit)
+                return f"{metric} {comp_text} {thresh}".strip()
         return None
+
+    @staticmethod
+    def _format_threshold_value(val: Any, unit: str) -> str:
+        unit = (unit or "").strip()
+        if unit in ("%", "pp"):
+            return f"{val}{unit}"
+        if unit:
+            return f"{val} {unit}"
+        return str(val)
 
     def _format_impact_summary(self, ac: Dict[str, Any]) -> Optional[str]:
         """Build a short impact summary from action code impact / impact_valuation."""
@@ -644,16 +690,15 @@ class ConfigLoader:
             if not isinstance(p1, dict):
                 p1 = {}
             _apply_from_component_30s(p1.get("component_30s"))
-            # Overview pages are typically diagnostic/variance.
-            template = "T2"
+            # Derive template family from template_variant (preferred) or page_type.
+            # template_variant: "T2_DriverBridge" → family "T2"
+            # page_type: "T2_Tactical_Variance" → family "T2"
+            template = _resolve_template_family(p1)
             # Pass through for builder: exact visual_type per position (round-trip from layout editor).
             c3s = p1.get("component_3s")
             c30s = p1.get("component_30s")
-            # Card KPI IDs: strategic (component_3s) + first 3 influencing from orchestration
-            orch = (bracket.get("orchestration") or {}) if isinstance(bracket, dict) else {}
-            strategic = (c3s.get("kpi_id") if isinstance(c3s, dict) else None) or orch.get("strategic_kpi_id", "")
-            influencing = orch.get("influencing_kpi_ids") or []
-            card_kpi_ids = ([strategic] if strategic else []) + list(influencing)[:3]
+            # Card KPI IDs: component_3s lead + influencing (deduped, max 4)
+            card_kpi_ids = self._card_kpi_ids(bracket)
             kpi_to_measure = self.load_kpi_id_to_measure_name_map()
             card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
             template_id = ux.get("page_template") or p1.get("template_id")
@@ -720,17 +765,13 @@ class ConfigLoader:
             if not isinstance(c300, dict):
                 c300 = {}
             has_action_panel = bool(c300.get("action_panel", False))
-            # Detail pages are execution-focused; treat as prescriptive when action panel is enabled.
-            template = "T4" if has_action_panel else "T2"
+            # Derive template family from bracket page_type/template_variant; fall back to
+            # T4 when action panel is explicitly configured, otherwise T2.
+            template = _resolve_template_family(p2) or ("T4" if has_action_panel else "T2")
             slots["needs_detail_matrix"] = True
             slots["needs_prescriptive"] = has_action_panel
             # Use same KPI cards as overview (strategic + influencing) so detail cards have measure bindings
-            orch = (bracket.get("orchestration") or {}) if isinstance(bracket, dict) else {}
-            p1 = ux.get("page_1_summary") or {}
-            c3s = p1.get("component_3s") if isinstance(p1, dict) else {}
-            strategic = (c3s.get("kpi_id") if isinstance(c3s, dict) else None) or orch.get("strategic_kpi_id", "")
-            influencing = orch.get("influencing_kpi_ids") or []
-            card_kpi_ids = ([strategic] if strategic else []) + list(influencing)[:3]
+            card_kpi_ids = self._card_kpi_ids(bracket)
             kpi_to_measure = self.load_kpi_id_to_measure_name_map()
             card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
             template_id = ux.get("page_template") or p2.get("template_id")

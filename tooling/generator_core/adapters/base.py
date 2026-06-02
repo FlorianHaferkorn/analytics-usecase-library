@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from ..ir.specs import AdapterTarget, DashboardSpec, VisualType
 
@@ -37,17 +37,27 @@ class RenderResult:
         files: Dict[str, bytes],
         adapter: str,
         warnings: Optional[List[str]] = None,
+        no_overwrite_paths: Optional[Set[str]] = None,
     ) -> None:
         self.files    = files                   # {relative_path: bytes}
         self.adapter  = adapter
         self.warnings: List[str] = warnings or []
         self.file_count = len(files)
+        # Paths that are written only when the target does NOT already exist on disk.
+        # Use for one-time scaffold files (definition.pbism, database.tmdl, model.tmdl)
+        # that must not overwrite a real, human-authored semantic model.
+        self.no_overwrite_paths: Set[str] = no_overwrite_paths or set()
 
     def write_to(self, dest_dir: Path) -> List[Path]:
-        """Write all rendered files to dest_dir, creating subdirectories."""
+        """Write all rendered files to dest_dir, creating subdirectories.
+
+        Files listed in no_overwrite_paths are skipped when the target already exists.
+        """
         written: List[Path] = []
         for rel_path, content in self.files.items():
             target = dest_dir / rel_path
+            if rel_path in self.no_overwrite_paths and target.exists():
+                continue
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(content)
             written.append(target)

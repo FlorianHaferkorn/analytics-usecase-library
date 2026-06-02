@@ -1,0 +1,3033 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Studio — Analytics Framework</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  // Tweakable defaults — edited live by the host
+  window.__TWEAKS__ = /*EDITMODE-BEGIN*/{
+    "theme": "dark",
+    "accentHue": 250,
+    "accentChroma": 0.13,
+    "accentLightness": 0.62,
+    "density": "airy",
+    "fontPairing": "inter",
+    "sidebar": "expanded"
+  }/*EDITMODE-END*/;
+</script>
+
+<style>
+  :root {
+    --bg: #fafaf9;
+    --bg-2: #f4f4f2;
+    --panel: #ffffff;
+    --ink: #0b0b0c;
+    --ink-2: #3a3a3d;
+    --ink-3: #6a6a70;
+    --ink-4: #9a9aa0;
+    --line: rgba(11,11,12,0.08);
+    --line-2: rgba(11,11,12,0.04);
+    --hover: rgba(11,11,12,0.035);
+    --accent: oklch(0.62 0.13 250);
+    --accent-soft: oklch(0.62 0.13 250 / 0.12);
+    --accent-ink: oklch(0.98 0.01 250);
+    --shadow-sm: 0 1px 0 rgba(11,11,12,0.04), 0 1px 2px rgba(11,11,12,0.04);
+    --shadow-md: 0 4px 16px rgba(11,11,12,0.06), 0 2px 4px rgba(11,11,12,0.04);
+    --shadow-lg: 0 24px 48px -16px rgba(11,11,12,0.18), 0 8px 16px rgba(11,11,12,0.06);
+    --radius: 10px;
+    --pad: 24px;
+    --gap: 24px;
+    --h-row: 44px;
+    --font-ui: "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+    --font-display: "Inter", system-ui, sans-serif;
+  }
+  [data-theme="dark"] {
+    --bg: #0b0b0c;
+    --bg-2: #101012;
+    --panel: #131316;
+    --ink: #f4f4f2;
+    --ink-2: #c9c9cd;
+    --ink-3: #8a8a90;
+    --ink-4: #5a5a60;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.04);
+    --hover: rgba(255,255,255,0.04);
+    --accent: oklch(0.72 0.13 250);
+    --accent-soft: oklch(0.72 0.13 250 / 0.16);
+    --accent-ink: oklch(0.12 0.02 250);
+    --shadow-sm: 0 1px 0 rgba(0,0,0,0.4);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+    --shadow-lg: 0 24px 48px -16px rgba(0,0,0,0.6);
+  }
+  [data-density="dense"]  { --pad: 16px; --gap: 14px; --h-row: 36px; }
+  [data-density="balanced"] { --pad: 20px; --gap: 18px; --h-row: 40px; }
+  [data-density="airy"]   { --pad: 28px; --gap: 28px; --h-row: 48px; }
+
+  [data-fonts="ibm"]    { --font-ui: "IBM Plex Sans", sans-serif; --font-mono: "IBM Plex Mono", monospace; --font-display: "IBM Plex Sans", sans-serif; }
+  [data-fonts="geist"]  { --font-ui: "Geist", sans-serif; --font-mono: "Geist Mono", monospace; --font-display: "Geist", sans-serif; }
+  [data-fonts="serif"]  { --font-ui: "Inter", sans-serif; --font-mono: "JetBrains Mono", monospace; --font-display: "Instrument Serif", serif; }
+
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%; }
+  body {
+    font-family: var(--font-ui);
+    font-feature-settings: "cv11","ss01","ss03";
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.005em;
+    overflow: hidden;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  input, textarea { font: inherit; color: inherit; }
+  ::selection { background: var(--accent-soft); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
+
+  .mono { font-family: var(--font-mono); font-size: 0.82em; letter-spacing: 0; }
+  .display { font-family: var(--font-display); }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+
+// ======== src/icons.jsx ========
+// Minimal stroked icons — 16px grid, 1.5 stroke
+const Icon = ({ d, size = 16, stroke = 1.5, fill = "none", children, ...p }) => (
+  <svg width={size} height={size} viewBox="0 0 16 16" fill={fill}
+       stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" {...p}>
+    {d && <path d={d} />}{children}
+  </svg>
+);
+
+const I = {
+  Home:    (p) => <Icon {...p}><path d="M2.5 7 8 2.5 13.5 7v6a.5.5 0 0 1-.5.5h-3v-4h-3v4H3a.5.5 0 0 1-.5-.5z"/></Icon>,
+  Graph:   (p) => <Icon {...p}><circle cx="3.5" cy="8" r="1.6"/><circle cx="12.5" cy="3.5" r="1.6"/><circle cx="12.5" cy="12.5" r="1.6"/><path d="M5 7.2l6-3M5 8.8l6 3"/></Icon>,
+  Library: (p) => <Icon {...p}><rect x="2.5" y="2.5" width="4" height="11" rx="1"/><rect x="7" y="2.5" width="2.5" height="11" rx="1"/><path d="m11.2 4.2 2.1.7-2.3 8.2-2.1-.7z"/></Icon>,
+  Metric:  (p) => <Icon {...p}><path d="M2.5 12.5V8M6 12.5V4M9.5 12.5V7M13 12.5V2.5"/></Icon>,
+  Dim:     (p) => <Icon {...p}><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M2.5 6h11M6 2.5v11"/></Icon>,
+  Source:  (p) => <Icon {...p}><ellipse cx="8" cy="4" rx="5" ry="1.8"/><path d="M3 4v8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8V4M3 8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8"/></Icon>,
+  Event:   (p) => <Icon {...p}><path d="M8 2.5 2.8 8l5.2 5.5L13.2 8z"/></Icon>,
+  Plus:    (p) => <Icon {...p}><path d="M8 3v10M3 8h10"/></Icon>,
+  Search:  (p) => <Icon {...p}><circle cx="7" cy="7" r="4"/><path d="m10 10 3.5 3.5"/></Icon>,
+  Filter:  (p) => <Icon {...p}><path d="M2.5 3h11l-4 5v4l-3 1.5V8z"/></Icon>,
+  Sparkle: (p) => <Icon {...p}><path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2"/></Icon>,
+  Chat:    (p) => <Icon {...p}><path d="M2.5 4a1.5 1.5 0 0 1 1.5-1.5h8A1.5 1.5 0 0 1 13.5 4v5a1.5 1.5 0 0 1-1.5 1.5H7l-3 2.5v-2.5H4A1.5 1.5 0 0 1 2.5 9z"/></Icon>,
+  Bell:    (p) => <Icon {...p}><path d="M4 11.5V7a4 4 0 0 1 8 0v4.5M2.5 11.5h11M6.5 13.5a1.5 1.5 0 0 0 3 0"/></Icon>,
+  Clock:   (p) => <Icon {...p}><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l2 1.5"/></Icon>,
+  Check:   (p) => <Icon {...p}><path d="m3 8.5 3 3 7-7"/></Icon>,
+  Warn:    (p) => <Icon {...p}><path d="M8 2.5 14 13H2z"/><path d="M8 6.5v3M8 11.2v.3"/></Icon>,
+  ArrowR:  (p) => <Icon {...p}><path d="M3 8h10M9.5 4.5 13 8l-3.5 3.5"/></Icon>,
+  Chevron: (p) => <Icon {...p}><path d="m5 3.5 4 4.5-4 4.5"/></Icon>,
+  ChevronD:(p) => <Icon {...p}><path d="m3.5 6 4.5 4 4.5-4"/></Icon>,
+  Settings:(p) => <Icon {...p}><circle cx="8" cy="8" r="2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3 3l1.5 1.5M11.5 11.5 13 13M3 13l1.5-1.5M11.5 4.5 13 3"/></Icon>,
+  User:    (p) => <Icon {...p}><circle cx="8" cy="5.5" r="2.5"/><path d="M3 13.5c.8-2.3 2.7-3.5 5-3.5s4.2 1.2 5 3.5"/></Icon>,
+  X:       (p) => <Icon {...p}><path d="m4 4 8 8M12 4l-8 8"/></Icon>,
+  Drag:    (p) => <Icon {...p}><circle cx="6" cy="4" r=".7" fill="currentColor"/><circle cx="10" cy="4" r=".7" fill="currentColor"/><circle cx="6" cy="8" r=".7" fill="currentColor"/><circle cx="10" cy="8" r=".7" fill="currentColor"/><circle cx="6" cy="12" r=".7" fill="currentColor"/><circle cx="10" cy="12" r=".7" fill="currentColor"/></Icon>,
+  Link:    (p) => <Icon {...p}><path d="M7 9 9 7M6.5 10.5 5 12a2.5 2.5 0 0 1-3.5-3.5L3 7M9.5 5.5 11 4a2.5 2.5 0 0 1 3.5 3.5L13 9"/></Icon>,
+  Branch:  (p) => <Icon {...p}><circle cx="4" cy="3.5" r="1.3"/><circle cx="4" cy="12.5" r="1.3"/><circle cx="12" cy="6" r="1.3"/><path d="M4 5v6M5.3 6c2.5 0 3.7-.4 5.4-1.4"/></Icon>,
+  Book:    (p) => <Icon {...p}><path d="M2.5 3.5A1 1 0 0 1 3.5 2.5h10a1 1 0 0 1 1 1v9.5L8 11 1.5 13V3.5z" fill="none"/><path d="M8 4.5v6.5"/></Icon>,
+  Eye:     (p) => <Icon {...p}><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="1.8"/></Icon>,
+  Edit:    (p) => <Icon {...p}><path d="M3 13h2.5l7-7-2.5-2.5-7 7z"/><path d="m9 5 2.5 2.5"/></Icon>,
+  Copy:    (p) => <Icon {...p}><rect x="5" y="5" width="8.5" height="8.5" rx="1.2"/><path d="M10 5V3.5A1 1 0 0 0 9 2.5H3.5a1 1 0 0 0-1 1V9a1 1 0 0 0 1 1H5"/></Icon>,
+};
+
+window.I = I;
+window.Icon = Icon;
+
+
+// ======== src/data.jsx ========
+// Fake, coherent analytics-framework data
+const FRAMEWORK = {
+  domains: [
+    { id: "revenue",    name: "Revenue",      count: 34, color: "250" },
+    { id: "growth",     name: "Growth",       count: 22, color: "180" },
+    { id: "product",    name: "Product",      count: 41, color: "310" },
+    { id: "retention",  name: "Retention",    count: 18, color: "30"  },
+    { id: "operations", name: "Operations",   count: 27, color: "140" },
+  ],
+
+  metrics: [
+    { id: "mrr",              domain: "revenue",   name: "Monthly Recurring Revenue", ref: "met.revenue.mrr",            type: "Sum",    unit: "USD",  owner: "R. Okafor",     grain: "day",   status: "certified", updated: "2h ago",  deps: 4 },
+    { id: "arr",              domain: "revenue",   name: "Annual Recurring Revenue",  ref: "met.revenue.arr",            type: "Sum",    unit: "USD",  owner: "R. Okafor",     grain: "day",   status: "certified", updated: "2h ago",  deps: 2 },
+    { id: "nrr",              domain: "revenue",   name: "Net Revenue Retention",     ref: "met.revenue.nrr",            type: "Ratio",  unit: "%",    owner: "L. Chen",       grain: "month", status: "certified", updated: "1d ago",  deps: 5 },
+    { id: "grr",              domain: "revenue",   name: "Gross Revenue Retention",   ref: "met.revenue.grr",            type: "Ratio",  unit: "%",    owner: "L. Chen",       grain: "month", status: "review",    updated: "3d ago",  deps: 3 },
+    { id: "cac",              domain: "growth",    name: "Customer Acquisition Cost", ref: "met.growth.cac",             type: "Ratio",  unit: "USD",  owner: "M. Park",       grain: "week",  status: "certified", updated: "4h ago",  deps: 6 },
+    { id: "ltv",              domain: "retention", name: "Customer Lifetime Value",   ref: "met.retention.ltv",          type: "Model",  unit: "USD",  owner: "M. Park",       grain: "month", status: "review",    updated: "yday",    deps: 7 },
+    { id: "dau",              domain: "product",   name: "Daily Active Users",        ref: "met.product.dau",            type: "Count",  unit: "users",owner: "S. Villanueva", grain: "day",   status: "certified", updated: "12m ago", deps: 2 },
+    { id: "mau",              domain: "product",   name: "Monthly Active Users",      ref: "met.product.mau",            type: "Count",  unit: "users",owner: "S. Villanueva", grain: "day",   status: "certified", updated: "12m ago", deps: 2 },
+    { id: "activation_rate",  domain: "product",   name: "Activation Rate",           ref: "met.product.activation_rate",type: "Ratio",  unit: "%",    owner: "S. Villanueva", grain: "day",   status: "certified", updated: "1h ago",  deps: 4 },
+    { id: "churn_logo",       domain: "retention", name: "Logo Churn",                ref: "met.retention.churn_logo",   type: "Ratio",  unit: "%",    owner: "L. Chen",       grain: "month", status: "certified", updated: "yday",    deps: 3 },
+    { id: "time_to_value",    domain: "product",   name: "Time to Value",             ref: "met.product.time_to_value",  type: "Median", unit: "days", owner: "A. Haferkorn",  grain: "week",  status: "draft",     updated: "5m ago",  deps: 3 },
+    { id: "ticket_volume",    domain: "operations",name: "Support Ticket Volume",     ref: "met.ops.ticket_volume",      type: "Count",  unit: "count",owner: "J. Wiremu",     grain: "day",   status: "certified", updated: "30m ago", deps: 1 },
+  ],
+
+  dimensions: [
+    { id: "plan_tier",  name: "Plan Tier",         ref: "dim.plan_tier",     cardinality: 4,    source: "billing" },
+    { id: "region",     name: "Region",            ref: "dim.region",        cardinality: 7,    source: "crm" },
+    { id: "channel",    name: "Acquisition Channel",ref:"dim.channel",       cardinality: 12,   source: "attribution" },
+    { id: "cohort",     name: "Signup Cohort",     ref: "dim.cohort",        cardinality: 48,   source: "events" },
+    { id: "company_size",name:"Company Size",      ref: "dim.company_size",  cardinality: 5,    source: "crm" },
+    { id: "device",     name: "Device",            ref: "dim.device",        cardinality: 3,    source: "events" },
+  ],
+
+  sources: [
+    { id: "billing",     name: "Stripe Billing",      ref: "src.billing",     rows: "1.2M",  lastSync: "3m ago" },
+    { id: "events",      name: "Product Events",      ref: "src.events",      rows: "412M",  lastSync: "live"   },
+    { id: "crm",         name: "CRM",                 ref: "src.crm",         rows: "48k",   lastSync: "1h ago" },
+    { id: "attribution", name: "Attribution Pipeline",ref: "src.attribution", rows: "9.4M",  lastSync: "12m ago"},
+    { id: "support",     name: "Support Tickets",     ref: "src.support",     rows: "640k",  lastSync: "5m ago" },
+  ],
+
+  activity: [
+    { who: "R. Okafor",     what: "certified",       target: "met.revenue.nrr",       when: "2h ago" },
+    { who: "A. Haferkorn",  what: "drafted",         target: "met.product.time_to_value", when: "5m ago" },
+    { who: "M. Park",       what: "commented on",    target: "met.retention.ltv",     when: "1h ago" },
+    { who: "S. Villanueva", what: "updated SQL for", target: "met.product.activation_rate", when: "1h ago" },
+    { who: "L. Chen",       what: "requested review for", target: "met.revenue.grr",  when: "3d ago" },
+  ],
+};
+
+// Graph layout for canvas (hand-placed for narrative clarity)
+const GRAPH = {
+  nodes: [
+    // sources (left column)
+    { id: "src.events",      kind: "source",    x: 60,  y: 120, label: "Product Events",    sub: "412M rows · live" },
+    { id: "src.billing",     kind: "source",    x: 60,  y: 260, label: "Stripe Billing",    sub: "1.2M rows · 3m"   },
+    { id: "src.crm",         kind: "source",    x: 60,  y: 400, label: "CRM",               sub: "48k rows · 1h"    },
+    { id: "src.attribution", kind: "source",    x: 60,  y: 540, label: "Attribution",       sub: "9.4M rows · 12m"  },
+
+    // dimensions (col 2, small)
+    { id: "dim.plan_tier",   kind: "dimension", x: 310, y: 210, label: "Plan Tier",        sub: "4 values"   },
+    { id: "dim.region",      kind: "dimension", x: 310, y: 300, label: "Region",           sub: "7 values"   },
+    { id: "dim.channel",     kind: "dimension", x: 310, y: 470, label: "Channel",          sub: "12 values"  },
+    { id: "dim.cohort",      kind: "dimension", x: 310, y: 120, label: "Signup Cohort",    sub: "48 values"  },
+
+    // base metrics (col 3)
+    { id: "met.product.dau",             kind: "metric", x: 560, y: 120, label: "DAU",                 sub: "count · day" },
+    { id: "met.product.mau",             kind: "metric", x: 560, y: 200, label: "MAU",                 sub: "count · day" },
+    { id: "met.product.activation_rate", kind: "metric", x: 560, y: 290, label: "Activation Rate",     sub: "ratio · day" },
+    { id: "met.revenue.mrr",             kind: "metric", x: 560, y: 380, label: "MRR",                 sub: "sum · day"   },
+    { id: "met.retention.churn_logo",    kind: "metric", x: 560, y: 470, label: "Logo Churn",          sub: "ratio · mo"  },
+    { id: "met.growth.cac",              kind: "metric", x: 560, y: 560, label: "CAC",                 sub: "ratio · wk"  },
+
+    // derived (col 4)
+    { id: "met.revenue.nrr",     kind: "derived",  x: 830, y: 200, label: "NRR",   sub: "derived · certified" },
+    { id: "met.revenue.arr",     kind: "derived",  x: 830, y: 380, label: "ARR",   sub: "derived · certified" },
+    { id: "met.retention.ltv",   kind: "derived",  x: 830, y: 510, label: "LTV",   sub: "model · review"      },
+
+    // north star (col 5)
+    { id: "goal.efficient_growth", kind: "goal", x: 1080, y: 340, label: "Efficient Growth", sub: "North Star" },
+  ],
+  edges: [
+    ["src.events", "dim.cohort"],
+    ["src.events", "met.product.dau"],
+    ["src.events", "met.product.mau"],
+    ["src.events", "met.product.activation_rate"],
+    ["src.billing", "met.revenue.mrr"],
+    ["src.billing", "dim.plan_tier"],
+    ["src.crm", "dim.region"],
+    ["src.crm", "met.retention.churn_logo"],
+    ["src.attribution", "dim.channel"],
+    ["src.attribution", "met.growth.cac"],
+    ["met.revenue.mrr", "met.revenue.arr"],
+    ["met.revenue.mrr", "met.revenue.nrr"],
+    ["met.retention.churn_logo", "met.revenue.nrr"],
+    ["met.retention.churn_logo", "met.retention.ltv"],
+    ["met.revenue.mrr", "met.retention.ltv"],
+    ["met.revenue.nrr", "goal.efficient_growth"],
+    ["met.revenue.arr", "goal.efficient_growth"],
+    ["met.growth.cac", "goal.efficient_growth"],
+    ["met.retention.ltv", "goal.efficient_growth"],
+  ],
+};
+
+// Use Cases — the actual T1-T4 artifacts the framework delivers
+const USE_CASES = [
+  { id: "XD-003", title: "Executive KPI Overview",      bracket: "XD",  domain: "Executive",   tier: "T1", question: "Are we on track against our strategic objectives?",        owner: "CFO Office",     audience: "Board · ExCo",     freq: "Monthly", status: "live",    actions: ["A-S2.1"], updated: "2h ago" },
+  { id: "COM-001",title: "Sales Performance — Variance",bracket: "COM", domain: "Commercial",  tier: "T2", question: "Why are we off target, and which levers explain the gap?",owner: "Commercial VP",   audience: "Sales Leadership", freq: "Weekly",  status: "live",    actions: ["C-V1.1","C-V1.2"], updated: "5h ago" },
+  { id: "COM-002",title: "Margin Price Performance",    bracket: "COM", domain: "Commercial",  tier: "T4", question: "What action, for which entity, with what expected impact?",owner: "Commercial VP",  audience: "Account Mgmt",     freq: "Weekly",  status: "live",    actions: ["C-M1.1","C-M1.2"], updated: "yday" },
+  { id: "FIN-001",title: "Cash & Liquidity",            bracket: "FIN", domain: "Finance",     tier: "T3", question: "Where is execution breaking now?",                        owner: "Treasury",        audience: "Finance Ops",      freq: "Daily",   status: "live",    actions: ["F-L1.1"], updated: "12m ago" },
+  { id: "OPS-002",title: "Delivery Reliability — OTIF", bracket: "OPS", domain: "Operations",  tier: "T3", question: "Where are we outside threshold, and who needs to act now?",owner: "SCM Director",   audience: "Ops · CS Teams",    freq: "Hourly",  status: "live",    actions: ["O-D1.1","O-D1.2"], updated: "30m ago" },
+  { id: "GROW-004",title:"Acquisition Channel Mix",     bracket: "GROW",domain: "Growth",      tier: "T2", question: "Which channels deliver the best CAC-LTV ratio?",         owner: "Marketing VP",    audience: "Growth Team",       freq: "Weekly",  status: "review",  actions: ["G-C1.1"], updated: "3d ago" },
+  { id: "PRD-007",title: "Activation & Onboarding",     bracket: "PRD", domain: "Product",     tier: "T2", question: "What's blocking new users from activating?",            owner: "Product VP",      audience: "Product Team",      freq: "Weekly",  status: "live",    actions: ["P-A1.1"], updated: "1d ago" },
+  { id: "RET-002",title: "Logo Churn Drivers",          bracket: "RET", domain: "Retention",   tier: "T4", question: "Which accounts to save, and how?",                       owner: "CS Director",      audience: "CS · Account Mgmt",  freq: "Weekly",  status: "draft",   actions: ["R-S1.1"], updated: "2d ago" },
+  { id: "XD-005", title: "Strategic Portfolio Review",  bracket: "XD",  domain: "Executive",   tier: "T1", question: "Where should we invest next quarter?",                   owner: "CEO Office",       audience: "ExCo",               freq: "Quarterly",status: "live",    actions: [],          updated: "1w ago" },
+];
+
+const ACTION_CODES = [
+  { id: "C-M1.1", name: "Reduce promo depth in DACH Core",       domain: "Commercial",  trigger: "GM% < 18% for 3 consecutive months", owner: "CM DACH",    impact: "+€1.2M",  priority: "High",   active: 6 },
+  { id: "C-M1.2", name: "Renegotiate tier pricing",              domain: "Commercial",  trigger: "Promo depth > 17% AND GM gap > 0.5pp",owner: "CM Region",  impact: "+€0.6M",  priority: "Medium", active: 3 },
+  { id: "C-V1.1", name: "Volume recovery — DACH",                domain: "Commercial",  trigger: "Volume gap > €2M YTD",               owner: "Sales VP",   impact: "+€2.1M",  priority: "High",   active: 1 },
+  { id: "C-V1.2", name: "Mix shift to Growth segment",           domain: "Commercial",  trigger: "Growth share < 35%",                 owner: "Sales VP",   impact: "+€0.8M",  priority: "Medium", active: 2 },
+  { id: "O-D1.1", name: "OTIF exception escalation",             domain: "Operations",  trigger: "OTIF < 90% for 7d rolling",          owner: "SCM Lead",   impact: "Service",  priority: "Critical",active: 4 },
+  { id: "O-D1.2", name: "Lead-time root-cause review",           domain: "Operations",  trigger: "Avg lead-time > target +1d",         owner: "Ops Lead",   impact: "Service",  priority: "High",   active: 2 },
+  { id: "F-L1.1", name: "Cash conversion sweep",                 domain: "Finance",     trigger: "DSO > 45d",                          owner: "Treasury",   impact: "Cash",     priority: "High",   active: 1 },
+  { id: "P-A1.1", name: "Activation friction unblock",           domain: "Product",     trigger: "Activation rate drops > 2pp WoW",    owner: "PM",         impact: "+5pp",     priority: "Medium", active: 1 },
+  { id: "G-C1.1", name: "Pause underperforming channel",         domain: "Growth",      trigger: "CAC-LTV ratio > 0.5",                owner: "Mktg Lead",  impact: "−CAC",     priority: "High",   active: 0 },
+  { id: "R-S1.1", name: "Save play — at-risk Core accounts",     domain: "Retention",   trigger: "Health score < 40 AND ARR > €100k",  owner: "CSM",        impact: "Retain ARR",priority: "Critical",active: 3 },
+  { id: "A-S2.1", name: "Strategic review — DACH",               domain: "Executive",   trigger: "Region off Plan > 3 months",         owner: "ExCo",       impact: "Strategic",priority: "High",   active: 1 },
+];
+
+const BRACKETS = [
+  { id: "XD",   label: "Executive Decisions",     count: 2, color: "250" },
+  { id: "COM",  label: "Commercial",              count: 2, color: "30"  },
+  { id: "FIN",  label: "Finance",                 count: 1, color: "150" },
+  { id: "OPS",  label: "Operations",              count: 1, color: "190" },
+  { id: "GROW", label: "Growth",                  count: 1, color: "310" },
+  { id: "PRD",  label: "Product",                 count: 1, color: "180" },
+  { id: "RET",  label: "Retention",               count: 1, color: "75"  },
+];
+
+window.FRAMEWORK = FRAMEWORK;
+window.GRAPH = GRAPH;
+window.USE_CASES = USE_CASES;
+window.ACTION_CODES = ACTION_CODES;
+window.BRACKETS = BRACKETS;
+
+
+// ======== src/shell.jsx ========
+// Shell: sidebar + topbar + command palette scaffolding
+const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+const NAV_ITEMS = [
+  { id: "dashboard", label: "Overview",   icon: "Home" },
+  { id: "usecases",  label: "Use Cases",  icon: "Book" },
+  { id: "canvas",    label: "Canvas",     icon: "Graph" },
+  { id: "library",   label: "Library",    icon: "Library" },
+];
+
+const Pill = ({ tone = "neutral", children }) => {
+  const tones = {
+    neutral:  { bg: "var(--hover)",    fg: "var(--ink-2)", bd: "var(--line)" },
+    accent:   { bg: "var(--accent-soft)", fg: "var(--accent)", bd: "transparent" },
+    positive: { bg: "oklch(0.92 0.06 150 / 0.5)", fg: "oklch(0.42 0.12 150)", bd: "transparent" },
+    warn:     { bg: "oklch(0.94 0.06 75 / 0.6)",  fg: "oklch(0.48 0.14 60)",  bd: "transparent" },
+    draft:    { bg: "var(--line-2)", fg: "var(--ink-3)", bd: "var(--line)" },
+  };
+  const t = tones[tone] || tones.neutral;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 6,
+      padding: "2px 8px", borderRadius: 999,
+      fontSize: 11.5, fontWeight: 500, letterSpacing: "-0.005em",
+      background: t.bg, color: t.fg, border: `1px solid ${t.bd}`,
+      whiteSpace: "nowrap",
+    }}>{children}</span>
+  );
+};
+
+const StatusDot = ({ status }) => {
+  const colors = {
+    certified: "oklch(0.6 0.15 150)",
+    review:    "oklch(0.7 0.15 75)",
+    draft:     "var(--ink-4)",
+  };
+  return <span style={{
+    display: "inline-block", width: 6, height: 6, borderRadius: 99,
+    background: colors[status] || "var(--ink-4)"
+  }} />;
+};
+
+const KBD = ({ children }) => (
+  <span style={{
+    display: "inline-flex", alignItems: "center", justifyContent: "center",
+    minWidth: 18, height: 18, padding: "0 5px",
+    fontFamily: "var(--font-mono)", fontSize: 10.5, fontWeight: 500,
+    color: "var(--ink-3)", background: "var(--bg-2)",
+    border: "1px solid var(--line)", borderRadius: 5,
+  }}>{children}</span>
+);
+
+function Sidebar({ route, setRoute, collapsed, setCollapsed, onNew, onCmd }) {
+  const w = collapsed ? 68 : 248;
+  return (
+    <aside style={{
+      width: w, flexShrink: 0, height: "100%",
+      borderRight: "1px solid var(--line)",
+      background: "var(--bg)",
+      display: "flex", flexDirection: "column",
+      transition: "width 240ms cubic-bezier(.2,.8,.2,1)",
+      position: "relative",
+    }}>
+      {/* Brand */}
+      <div style={{
+        height: 56, padding: "0 16px",
+        display: "flex", alignItems: "center", gap: 10,
+        borderBottom: "1px solid var(--line-2)",
+      }}>
+        <div style={{
+          width: 26, height: 26, borderRadius: 7,
+          background: "var(--ink)", color: "var(--bg)",
+          display: "grid", placeItems: "center",
+          fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 14,
+          letterSpacing: "-0.04em",
+        }}>S</div>
+        {!collapsed && (
+          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
+            <div style={{ fontWeight: 600, fontSize: 13.5, letterSpacing: "-0.01em" }}>Studio</div>
+            <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Analytics Framework</div>
+          </div>
+        )}
+      </div>
+
+      {/* New + Search */}
+      <div style={{ padding: "14px 12px 6px", display: "flex", flexDirection: "column", gap: 6 }}>
+        <button onClick={onNew} style={{
+          height: 34, padding: collapsed ? 0 : "0 10px",
+          display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "flex-start",
+          gap: 10, borderRadius: 8,
+          background: "var(--ink)", color: "var(--bg)",
+          fontWeight: 500, fontSize: 13,
+        }}>
+          <I.Plus size={14} stroke={2} />
+          {!collapsed && <>New element<span style={{marginLeft:"auto",opacity:.6}}><KBD>N</KBD></span></>}
+        </button>
+        <button onClick={onCmd} style={{
+          height: 32, padding: collapsed ? 0 : "0 10px",
+          display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "flex-start",
+          gap: 10, borderRadius: 8,
+          background: "transparent", color: "var(--ink-3)",
+          border: "1px solid var(--line)", fontSize: 12.5,
+        }}>
+          <I.Search size={13} />
+          {!collapsed && <>Search framework…<span style={{marginLeft:"auto"}}><KBD>⌘K</KBD></span></>}
+        </button>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ padding: "12px 8px", display: "flex", flexDirection: "column", gap: 1 }}>
+        {!collapsed && <div style={navHeader}>Workspace</div>}
+        {NAV_ITEMS.map(item => {
+          const Active = route === item.id;
+          const IconC = I[item.icon];
+          return (
+            <button key={item.id} onClick={() => setRoute(item.id)} style={{
+              height: 32, padding: collapsed ? 0 : "0 10px",
+              display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "flex-start",
+              gap: 10, borderRadius: 7,
+              background: Active ? "var(--hover)" : "transparent",
+              color: Active ? "var(--ink)" : "var(--ink-2)",
+              fontWeight: Active ? 500 : 400, fontSize: 13,
+              position: "relative",
+            }} onMouseEnter={e => !Active && (e.currentTarget.style.background = "var(--hover)")}
+              onMouseLeave={e => !Active && (e.currentTarget.style.background = "transparent")}>
+              <IconC size={15} stroke={Active ? 1.8 : 1.5} />
+              {!collapsed && item.label}
+              {!collapsed && Active && <span style={{
+                position: "absolute", left: -8, top: 8, bottom: 8, width: 2,
+                background: "var(--accent)", borderRadius: 2,
+              }}/>}
+            </button>
+          );
+        })}
+      </nav>
+
+      {!collapsed && (
+        <div style={{ padding: "8px" }}>
+          <div style={navHeader}>Domains</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {FRAMEWORK.domains.map(d => (
+              <button key={d.id} style={{
+                height: 28, padding: "0 10px",
+                display: "flex", alignItems: "center", gap: 10, borderRadius: 7,
+                color: "var(--ink-2)", fontSize: 12.5,
+              }} onMouseEnter={e => e.currentTarget.style.background = "var(--hover)"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                <span style={{
+                  width: 6, height: 6, borderRadius: 2,
+                  background: `oklch(0.7 0.1 ${d.color})`,
+                }}/>
+                <span>{d.name}</span>
+                <span style={{marginLeft:"auto",color:"var(--ink-4)",fontSize:11}} className="mono">{d.count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ flex: 1 }} />
+
+      {/* Footer */}
+      <div style={{
+        padding: "10px 12px", borderTop: "1px solid var(--line-2)",
+        display: "flex", alignItems: "center", gap: 10,
+      }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: 99,
+          background: "linear-gradient(135deg, var(--accent), oklch(0.5 0.12 320))",
+          color: "#fff", display: "grid", placeItems: "center",
+          fontSize: 11, fontWeight: 600,
+        }}>AH</div>
+        {!collapsed && (
+          <>
+            <div style={{ lineHeight: 1.2, flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis" }}>Alex Haferkorn</div>
+              <div style={{ fontSize: 11, color: "var(--ink-3)" }}>Acme · Pro</div>
+            </div>
+            <button onClick={() => setCollapsed(!collapsed)} style={{ color: "var(--ink-3)" }} title="Collapse">
+              <I.Chevron size={14} />
+            </button>
+          </>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+const navHeader = {
+  padding: "8px 10px 6px",
+  fontSize: 10.5, fontWeight: 500,
+  color: "var(--ink-4)", textTransform: "uppercase",
+  letterSpacing: "0.08em",
+};
+
+function Topbar({ route, onCmd, onToggleTweaks }) {
+  const title = {
+    dashboard: "Overview",
+    usecases: "Use Cases",
+    usecase: "Use Case",
+    canvas: "Canvas",
+    library: "Library",
+    detail: "Net Revenue Retention",
+  }[route] || "Studio";
+
+  const crumb = {
+    dashboard: ["Framework", "Overview"],
+    usecases: ["Framework", "Use Cases"],
+    usecase: ["Framework", "Use Cases", "Detail"],
+    canvas: ["Framework", "Canvas"],
+    library: ["Framework", "Library"],
+    detail: ["Framework", "Revenue", "Net Revenue Retention"],
+  }[route] || ["Framework"];
+
+  return (
+    <header style={{
+      height: 56, flexShrink: 0,
+      borderBottom: "1px solid var(--line)",
+      padding: "0 20px",
+      display: "flex", alignItems: "center", gap: 12,
+      background: "var(--bg)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ink-3)", fontSize: 13 }}>
+        {crumb.map((c, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <I.Chevron size={12} stroke={1.5} />}
+            <span style={{ color: i === crumb.length - 1 ? "var(--ink)" : "var(--ink-3)",
+                           fontWeight: i === crumb.length - 1 ? 500 : 400 }}>{c}</span>
+          </React.Fragment>
+        ))}
+      </div>
+
+      <div style={{ flex: 1 }} />
+
+      <button onClick={onCmd} style={{
+        height: 30, padding: "0 10px",
+        display: "flex", alignItems: "center", gap: 8, borderRadius: 7,
+        border: "1px solid var(--line)", color: "var(--ink-3)", fontSize: 12.5,
+      }}>
+        <I.Search size={13} />
+        <span>Search…</span>
+        <KBD>⌘K</KBD>
+      </button>
+
+      <button style={iconBtn} title="Notifications"><I.Bell size={15}/></button>
+      <button onClick={onToggleTweaks} style={iconBtn} title="Settings"><I.Settings size={15}/></button>
+
+      <div style={{ display: "flex", alignItems: "center", marginLeft: 4 }}>
+        {[
+          { i: "RO", c: "oklch(0.6 0.13 30)" },
+          { i: "LC", c: "oklch(0.6 0.13 180)" },
+          { i: "MP", c: "oklch(0.6 0.13 280)" },
+        ].map((a, i) => (
+          <div key={i} style={{
+            width: 26, height: 26, borderRadius: 99,
+            background: a.c, color: "#fff",
+            display: "grid", placeItems: "center",
+            fontSize: 10, fontWeight: 600,
+            border: "2px solid var(--bg)",
+            marginLeft: i === 0 ? 0 : -8,
+          }}>{a.i}</div>
+        ))}
+      </div>
+
+      <div style={{ width: 1, height: 20, background: "var(--line)" }} />
+
+      <button style={{
+        height: 30, padding: "0 12px", borderRadius: 7,
+        background: "var(--accent)", color: "var(--accent-ink)",
+        fontSize: 12.5, fontWeight: 500,
+        display: "flex", alignItems: "center", gap: 6,
+      }}>
+        <I.Sparkle size={13} stroke={1.8}/>
+        Ask Studio
+      </button>
+    </header>
+  );
+}
+
+const iconBtn = {
+  width: 30, height: 30, borderRadius: 7,
+  display: "grid", placeItems: "center",
+  color: "var(--ink-2)",
+};
+
+// Command palette (⌘K)
+function CommandPalette({ open, onClose, onNav }) {
+  const [q, setQ] = useState("");
+  const inputRef = useRef(null);
+  useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 10); }, [open]);
+  if (!open) return null;
+
+  const items = [
+    ...FRAMEWORK.metrics.map(m => ({ kind: "metric", id: m.id, label: m.name, sub: m.ref, status: m.status })),
+    ...FRAMEWORK.dimensions.map(d => ({ kind: "dimension", id: d.id, label: d.name, sub: d.ref })),
+    ...FRAMEWORK.sources.map(s => ({ kind: "source", id: s.id, label: s.name, sub: s.ref })),
+  ].filter(i => !q || i.label.toLowerCase().includes(q.toLowerCase()) || i.sub.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+
+  const actions = [
+    { label: "Create new metric", kind: "action", icon: "Plus", run: () => { onNav("wizard"); onClose(); } },
+    { label: "Open canvas", kind: "action", icon: "Graph", run: () => { onNav("canvas"); onClose(); } },
+    { label: "Open library", kind: "action", icon: "Library", run: () => { onNav("library"); onClose(); } },
+  ];
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 100,
+      background: "rgba(11,11,12,0.35)", backdropFilter: "blur(4px)",
+      display: "grid", placeItems: "start center", paddingTop: "14vh",
+      animation: "fadeIn 120ms ease",
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        width: 640, maxWidth: "90vw", background: "var(--panel)",
+        borderRadius: 12, border: "1px solid var(--line)", boxShadow: "var(--shadow-lg)",
+        overflow: "hidden",
+      }}>
+        <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid var(--line-2)" }}>
+          <I.Search size={16} />
+          <input ref={inputRef} value={q} onChange={e => setQ(e.target.value)}
+                 placeholder="Search metrics, dimensions, sources, or type a command…"
+                 style={{ flex: 1, background: "transparent", border: 0, outline: 0, fontSize: 14 }} />
+          <KBD>esc</KBD>
+        </div>
+
+        <div style={{ maxHeight: 420, overflow: "auto", padding: 8 }}>
+          {!q && (
+            <>
+              <div style={paletteHeader}>Actions</div>
+              {actions.map((a, i) => {
+                const IC = I[a.icon];
+                return (
+                  <button key={i} onClick={a.run} style={paletteRow}>
+                    <IC size={14}/> <span>{a.label}</span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+          <div style={paletteHeader}>{q ? "Results" : "Recent"}</div>
+          {items.map(it => (
+            <button key={it.kind + it.id} onClick={onClose} style={paletteRow}>
+              {it.kind === "metric" && <I.Metric size={14} />}
+              {it.kind === "dimension" && <I.Dim size={14} />}
+              {it.kind === "source" && <I.Source size={14} />}
+              <span>{it.label}</span>
+              <span className="mono" style={{ marginLeft: "auto", color: "var(--ink-4)", fontSize: 11 }}>{it.sub}</span>
+              {it.status && <StatusDot status={it.status} />}
+            </button>
+          ))}
+          {q && items.length === 0 && (
+            <div style={{ padding: 24, textAlign: "center", color: "var(--ink-3)", fontSize: 13 }}>
+              No results for "{q}". <span style={{color:"var(--accent)"}}>Create "{q}" →</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const paletteHeader = {
+  padding: "8px 10px 4px",
+  fontSize: 10.5, fontWeight: 500, color: "var(--ink-4)",
+  textTransform: "uppercase", letterSpacing: "0.08em",
+};
+const paletteRow = {
+  width: "100%", padding: "8px 10px",
+  display: "flex", alignItems: "center", gap: 10,
+  borderRadius: 7, fontSize: 13, color: "var(--ink)",
+  textAlign: "left",
+};
+
+Object.assign(window, { Sidebar, Topbar, CommandPalette, Pill, StatusDot, KBD, NAV_ITEMS });
+
+
+// ======== src/dashboard.jsx ========
+// Dashboard — framework overview
+function Sparkline({ data, color = "var(--accent)", height = 32 }) {
+  const max = Math.max(...data), min = Math.min(...data);
+  const range = max - min || 1;
+  const w = 120;
+  const pts = data.map((v, i) => [(i / (data.length - 1)) * w, height - ((v - min) / range) * (height - 4) - 2]);
+  const d = "M" + pts.map(p => p.join(",")).join(" L");
+  const areaD = d + ` L${w},${height} L0,${height} Z`;
+  return (
+    <svg width={w} height={height} style={{display:"block"}}>
+      <path d={areaD} fill={color} opacity="0.08" />
+      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={pts[pts.length-1][0]} cy={pts[pts.length-1][1]} r="2.5" fill={color} />
+    </svg>
+  );
+}
+
+function DonutCoverage({ pct = 82 }) {
+  const r = 36, c = 2 * Math.PI * r;
+  return (
+    <svg width="96" height="96" viewBox="0 0 96 96">
+      <circle cx="48" cy="48" r={r} stroke="var(--line)" strokeWidth="6" fill="none"/>
+      <circle cx="48" cy="48" r={r} stroke="var(--accent)" strokeWidth="6" fill="none"
+              strokeLinecap="round" strokeDasharray={c}
+              strokeDashoffset={c * (1 - pct/100)}
+              transform="rotate(-90 48 48)"
+              style={{ transition: "stroke-dashoffset 600ms ease" }}/>
+      <text x="48" y="52" textAnchor="middle" fontFamily="var(--font-display)"
+            fontSize="22" fontWeight="500" fill="var(--ink)">{pct}%</text>
+    </svg>
+  );
+}
+
+function DomainBar() {
+  const total = FRAMEWORK.domains.reduce((a,b) => a + b.count, 0);
+  return (
+    <div style={{ display: "flex", height: 8, borderRadius: 99, overflow: "hidden", background: "var(--line-2)" }}>
+      {FRAMEWORK.domains.map(d => (
+        <div key={d.id} title={`${d.name} · ${d.count}`} style={{
+          flex: d.count, background: `oklch(0.7 0.1 ${d.color})`,
+        }}/>
+      ))}
+    </div>
+  );
+}
+
+function StatCard({ label, value, hint, trend }) {
+  return (
+    <div style={{
+      padding: "var(--pad)", background: "var(--panel)",
+      border: "1px solid var(--line)", borderRadius: "var(--radius)",
+      display: "flex", flexDirection: "column", gap: 8,
+    }}>
+      <div style={{ fontSize: 12, color: "var(--ink-3)", letterSpacing: "-0.005em" }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <div className="display" style={{ fontSize: 32, fontWeight: 500, letterSpacing: "-0.02em" }}>{value}</div>
+        {trend && <span style={{
+          fontSize: 11.5, color: trend.startsWith("+") ? "oklch(0.52 0.14 150)" : "oklch(0.55 0.15 30)",
+        }}>{trend}</span>}
+      </div>
+      {hint && <div style={{ fontSize: 11.5, color: "var(--ink-4)" }}>{hint}</div>}
+    </div>
+  );
+}
+
+function Dashboard({ onOpenDetail }) {
+  const totalMetrics = FRAMEWORK.metrics.length;
+  const certified = FRAMEWORK.metrics.filter(m => m.status === "certified").length;
+
+  return (
+    <div style={{ padding: "var(--pad)", display: "flex", flexDirection: "column", gap: "var(--gap)", maxWidth: 1400, margin: "0 auto", width: "100%" }}>
+      {/* Hero */}
+      <section style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, paddingTop: 12 }}>
+        <div>
+          <div style={{ fontSize: 12, color: "var(--ink-3)" }} className="mono">FRAMEWORK · v2.4.1 · main</div>
+          <h1 className="display" style={{ fontSize: 36, margin: "6px 0 4px", letterSpacing: "-0.025em", fontWeight: 500 }}>
+            Good afternoon, Alex.
+          </h1>
+          <div style={{ color: "var(--ink-3)", fontSize: 14 }}>
+            Your framework is <span style={{color:"var(--ink)"}}>healthy</span>. 3 metrics need review and 1 draft is waiting on your input.
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button style={ghostBtn}><I.Clock size={14}/> History</button>
+          <button style={ghostBtn}><I.Branch size={14}/> v2.4.1</button>
+          <button style={primaryBtn}><I.Sparkle size={14} stroke={1.8}/> Draft with AI</button>
+        </div>
+      </section>
+
+      {/* Stat grid */}
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "var(--gap)" }}>
+        <StatCard label="Metrics" value={totalMetrics} trend="+3" hint={`${certified} certified · ${totalMetrics - certified} in review`} />
+        <StatCard label="Dimensions" value={FRAMEWORK.dimensions.length} hint="Spanning 5 sources" />
+        <StatCard label="Sources connected" value={FRAMEWORK.sources.length} hint="All healthy" trend="+1" />
+        <StatCard label="Pending reviews" value="3" hint="Oldest 3d" trend="−2" />
+      </section>
+
+      {/* Two-column */}
+      <section style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "var(--gap)" }}>
+        {/* Coverage + composition */}
+        <div style={card}>
+          <div style={cardHead}>
+            <div>
+              <div style={cardTitle}>Framework composition</div>
+              <div style={cardSub}>How your metrics are distributed across domains</div>
+            </div>
+            <button style={ghostSmall}>View all <I.ArrowR size={12}/></button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 32, padding: "var(--pad)", alignItems: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+              <DonutCoverage pct={82}/>
+              <div style={{ fontSize: 11.5, color: "var(--ink-3)", textAlign: "center" }}>
+                Documentation<br/>coverage
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <DomainBar/>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {FRAMEWORK.domains.map(d => (
+                  <div key={d.id} style={{ display: "grid", gridTemplateColumns: "12px 1fr auto auto", gap: 12, alignItems: "center", fontSize: 13 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: 2, background: `oklch(0.7 0.1 ${d.color})` }}/>
+                    <span>{d.name}</span>
+                    <span className="mono" style={{ color: "var(--ink-3)", fontSize: 11.5 }}>
+                      {Math.round((d.count / FRAMEWORK.domains.reduce((a,b)=>a+b.count,0)) * 100)}%
+                    </span>
+                    <span className="mono" style={{ color: "var(--ink-4)", fontSize: 11.5, width: 28, textAlign: "right" }}>{d.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Activity */}
+        <div style={card}>
+          <div style={cardHead}>
+            <div>
+              <div style={cardTitle}>Recent activity</div>
+              <div style={cardSub}>Across the framework</div>
+            </div>
+          </div>
+          <div style={{ padding: "4px 0 12px" }}>
+            {FRAMEWORK.activity.map((a, i) => (
+              <div key={i} style={{
+                padding: "10px var(--pad)", display: "flex", gap: 12, alignItems: "flex-start",
+                borderTop: i === 0 ? "none" : "1px solid var(--line-2)",
+              }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: 99,
+                  background: `oklch(0.65 0.12 ${(i*60) % 360})`, color: "#fff",
+                  display: "grid", placeItems: "center", fontSize: 10, fontWeight: 600, flexShrink: 0,
+                }}>{a.who.split(/[.\s]/).map(s=>s[0]).join("")}</div>
+                <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, lineHeight: 1.5 }}>
+                  <span style={{ fontWeight: 500 }}>{a.who}</span>
+                  <span style={{ color: "var(--ink-3)" }}> {a.what} </span>
+                  <span className="mono" style={{ color: "var(--accent)" }}>{a.target}</span>
+                  <div style={{ color: "var(--ink-4)", fontSize: 11.5, marginTop: 2 }}>{a.when}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Top metrics */}
+      <section style={card}>
+        <div style={cardHead}>
+          <div>
+            <div style={cardTitle}>Key metrics</div>
+            <div style={cardSub}>Certified metrics powering your north-star</div>
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button style={ghostSmall}><I.Filter size={12}/> Filter</button>
+            <button style={ghostSmall}>Open canvas <I.ArrowR size={12}/></button>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", padding: "0 var(--pad) var(--pad)" }}>
+          {[
+            { m: "mrr",   v: "$4.82M", t: "+6.1%", spark: [12,14,13,15,17,18,17,20,22,21,24,26] },
+            { m: "nrr",   v: "114%",   t: "+2pts", spark: [100,102,104,103,107,110,111,112,113,114,114,114] },
+            { m: "dau",   v: "128k",   t: "+4.4%", spark: [80,82,85,90,88,92,94,98,105,112,120,128] },
+            { m: "activation_rate", v: "41%", t: "−1pt", spark: [44,45,44,43,43,42,42,43,42,41,41,41] },
+          ].map((k, i) => {
+            const m = FRAMEWORK.metrics.find(x => x.id === k.m);
+            return (
+              <button key={i} onClick={() => onOpenDetail(m)} style={{
+                textAlign: "left", padding: "16px 0",
+                borderRight: i < 3 ? "1px solid var(--line-2)" : "none",
+                paddingRight: 20, paddingLeft: i === 0 ? 0 : 20,
+                display: "flex", flexDirection: "column", gap: 10,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <StatusDot status={m.status}/>
+                  <span style={{ fontSize: 12.5, fontWeight: 500 }}>{m.name}</span>
+                </div>
+                <div className="mono" style={{ fontSize: 10.5, color: "var(--ink-4)" }}>{m.ref}</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <div className="display" style={{ fontSize: 24, fontWeight: 500 }}>{k.v}</div>
+                  <span style={{ fontSize: 11.5, color: k.t.startsWith("+") ? "oklch(0.52 0.14 150)" : "oklch(0.55 0.15 30)" }}>{k.t}</span>
+                </div>
+                <Sparkline data={k.spark} color={k.t.startsWith("+") ? "var(--accent)" : "oklch(0.6 0.14 30)"}/>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+const card = {
+  background: "var(--panel)",
+  border: "1px solid var(--line)",
+  borderRadius: "var(--radius)",
+  overflow: "hidden",
+};
+const cardHead = {
+  padding: "18px var(--pad)",
+  borderBottom: "1px solid var(--line-2)",
+  display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12,
+};
+const cardTitle = { fontSize: 14, fontWeight: 500, letterSpacing: "-0.01em" };
+const cardSub = { fontSize: 12, color: "var(--ink-3)", marginTop: 2 };
+
+const ghostBtn = {
+  height: 32, padding: "0 12px", borderRadius: 7,
+  border: "1px solid var(--line)", background: "var(--panel)",
+  fontSize: 12.5, color: "var(--ink-2)",
+  display: "inline-flex", alignItems: "center", gap: 6,
+};
+const primaryBtn = {
+  height: 32, padding: "0 14px", borderRadius: 7,
+  background: "var(--ink)", color: "var(--bg)",
+  fontSize: 12.5, fontWeight: 500,
+  display: "inline-flex", alignItems: "center", gap: 6,
+};
+const ghostSmall = {
+  height: 26, padding: "0 10px", borderRadius: 6,
+  fontSize: 12, color: "var(--ink-2)",
+  display: "inline-flex", alignItems: "center", gap: 5,
+};
+
+Object.assign(window, { Dashboard, Sparkline, StatCard, card, cardHead, cardTitle, cardSub, ghostBtn, primaryBtn, ghostSmall });
+
+
+// ======== src/canvas.jsx ========
+// Canvas — node graph of the framework
+function Canvas({ onOpenDetail }) {
+  const [zoom, setZoom] = useState(0.85);
+  const [pan, setPan] = useState({ x: 0, y: 20 });
+  const [sel, setSel] = useState(null);
+  const [hover, setHover] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const dragRef = useRef(null);
+  const [nodes, setNodes] = useState(GRAPH.nodes);
+
+  const nodeMap = useMemo(() => Object.fromEntries(nodes.map(n => [n.id, n])), [nodes]);
+
+  const onMouseDown = (e) => {
+    if (e.target.closest("[data-node]")) return;
+    dragRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
+    setDragging(true);
+  };
+  const onMouseMove = (e) => {
+    if (dragging && dragRef.current) {
+      setPan({ x: e.clientX - dragRef.current.x, y: e.clientY - dragRef.current.y });
+    }
+  };
+  const onMouseUp = () => { setDragging(false); dragRef.current = null; };
+
+  const onWheel = (e) => {
+    e.preventDefault();
+    const next = Math.max(0.4, Math.min(1.6, zoom - e.deltaY * 0.001));
+    setZoom(next);
+  };
+
+  const nodeKinds = {
+    source:    { bg: "var(--panel)", border: "var(--line)",           accent: "oklch(0.6 0.04 250)", icon: "Source" },
+    dimension: { bg: "var(--panel)", border: "var(--line)",           accent: "oklch(0.7 0.1 310)",  icon: "Dim" },
+    metric:    { bg: "var(--panel)", border: "var(--line)",           accent: "oklch(0.7 0.1 250)",  icon: "Metric" },
+    derived:   { bg: "var(--panel)", border: "var(--accent)",         accent: "var(--accent)",       icon: "Metric" },
+    goal:      { bg: "var(--ink)",   border: "var(--ink)",            accent: "var(--bg)",           icon: "Sparkle" },
+  };
+
+  const NODE_W = 178, NODE_H = 56;
+
+  const edgePath = (from, to) => {
+    const x1 = from.x + NODE_W, y1 = from.y + NODE_H/2;
+    const x2 = to.x,             y2 = to.y + NODE_H/2;
+    const mx = (x1 + x2) / 2;
+    return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
+  };
+
+  const isHighlighted = (edge) => {
+    if (!sel && !hover) return false;
+    const target = sel || hover;
+    return edge[0] === target || edge[1] === target;
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "var(--bg-2)" }}>
+      {/* Toolbar */}
+      <div style={{
+        height: 48, flexShrink: 0, padding: "0 var(--pad)",
+        display: "flex", alignItems: "center", gap: 8,
+        borderBottom: "1px solid var(--line)", background: "var(--bg)",
+      }}>
+        <button style={ghostSmall}><I.Filter size={12}/> All domains</button>
+        <button style={ghostSmall}>Layer: Logical</button>
+        <div style={{ width: 1, height: 18, background: "var(--line)" }}/>
+        <button style={ghostSmall}><I.Plus size={12}/> Add node</button>
+        <button style={ghostSmall}><I.Link size={12}/> Connect</button>
+        <div style={{ flex: 1 }}/>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, color: "var(--ink-3)" }} className="mono">
+          {Math.round(zoom * 100)}%
+        </div>
+        <div style={{ display: "flex", border: "1px solid var(--line)", borderRadius: 6, overflow: "hidden" }}>
+          <button onClick={() => setZoom(z => Math.max(0.4, z - 0.1))} style={{ padding: "6px 10px", color: "var(--ink-2)" }}>−</button>
+          <div style={{ width: 1, background: "var(--line)" }}/>
+          <button onClick={() => { setZoom(0.85); setPan({x:0,y:20}); }} style={{ padding: "6px 10px", color: "var(--ink-2)", fontSize: 12 }}>Fit</button>
+          <div style={{ width: 1, background: "var(--line)" }}/>
+          <button onClick={() => setZoom(z => Math.min(1.6, z + 0.1))} style={{ padding: "6px 10px", color: "var(--ink-2)" }}>+</button>
+        </div>
+      </div>
+
+      {/* Viewport */}
+      <div
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        onWheel={onWheel}
+        style={{
+          flex: 1, position: "relative", overflow: "hidden",
+          cursor: dragging ? "grabbing" : "grab",
+          backgroundImage: `radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0)`,
+          backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
+          backgroundPosition: `${pan.x}px ${pan.y}px`,
+        }}
+      >
+        <div style={{
+          position: "absolute", top: 0, left: 0,
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transformOrigin: "0 0",
+          width: 1300, height: 700,
+        }}>
+          {/* Edges */}
+          <svg width="1300" height="700" style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "visible" }}>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-4)"/>
+              </marker>
+              <marker id="arrow-hl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+              </marker>
+            </defs>
+            {GRAPH.edges.map(([a, b], i) => {
+              const from = nodeMap[a], to = nodeMap[b];
+              if (!from || !to) return null;
+              const hl = isHighlighted([a, b]);
+              return (
+                <path key={i} d={edgePath(from, to)}
+                      fill="none"
+                      stroke={hl ? "var(--accent)" : "var(--ink-4)"}
+                      strokeWidth={hl ? 1.5 : 1}
+                      opacity={sel || hover ? (hl ? 1 : 0.15) : 0.55}
+                      markerEnd={`url(#${hl ? "arrow-hl" : "arrow"})`}
+                      style={{ transition: "opacity 160ms, stroke 160ms, stroke-width 160ms" }}/>
+              );
+            })}
+          </svg>
+
+          {/* Nodes */}
+          {nodes.map(n => {
+            const k = nodeKinds[n.kind];
+            const IC = I[k.icon];
+            const isSel = sel === n.id;
+            const dim = (sel || hover) && !isHighlightedNode(n.id, sel || hover);
+            return (
+              <div key={n.id} data-node
+                   onMouseEnter={() => setHover(n.id)}
+                   onMouseLeave={() => setHover(null)}
+                   onClick={() => setSel(sel === n.id ? null : n.id)}
+                   onDoubleClick={() => n.kind !== "goal" && n.kind !== "source" && onOpenDetail({ ref: n.id, name: n.label })}
+                   style={{
+                     position: "absolute", left: n.x, top: n.y,
+                     width: NODE_W, height: NODE_H,
+                     background: n.kind === "goal" ? "var(--ink)" : "var(--panel)",
+                     color: n.kind === "goal" ? "var(--bg)" : "var(--ink)",
+                     border: `1px solid ${isSel ? "var(--accent)" : k.border}`,
+                     borderRadius: 10,
+                     boxShadow: isSel ? `0 0 0 3px var(--accent-soft), var(--shadow-md)` : "var(--shadow-sm)",
+                     padding: "10px 12px",
+                     display: "flex", flexDirection: "column", gap: 3,
+                     cursor: "pointer",
+                     opacity: dim ? 0.3 : 1,
+                     transition: "opacity 160ms, box-shadow 160ms, border-color 160ms",
+                   }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{
+                    width: 18, height: 18, borderRadius: 5,
+                    background: n.kind === "goal" ? "rgba(255,255,255,0.1)" : k.accent + "20",
+                    color: n.kind === "goal" ? "var(--bg)" : k.accent,
+                    display: "grid", placeItems: "center",
+                  }}><IC size={11}/></span>
+                  <span style={{ fontSize: 12.5, fontWeight: 500, letterSpacing: "-0.005em" }}>{n.label}</span>
+                </div>
+                <span className="mono" style={{ fontSize: 10, color: n.kind === "goal" ? "rgba(255,255,255,0.5)" : "var(--ink-4)", marginLeft: 24 }}>
+                  {n.sub}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Legend */}
+        <div style={{
+          position: "absolute", left: 20, bottom: 20,
+          background: "var(--panel)", border: "1px solid var(--line)",
+          borderRadius: 10, padding: "12px 14px",
+          display: "flex", flexDirection: "column", gap: 6,
+          fontSize: 11.5, boxShadow: "var(--shadow-sm)",
+        }}>
+          <div style={{ fontSize: 10.5, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 2 }}>Legend</div>
+          {[
+            ["Source", "Source"], ["Dimension", "Dim"], ["Metric", "Metric"], ["Derived", "Metric"], ["North star", "Sparkle"],
+          ].map(([l, ic]) => {
+            const IC = I[ic];
+            return (
+              <div key={l} style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ink-2)" }}>
+                <IC size={12} stroke={1.3}/><span>{l}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Inspector */}
+        {sel && nodeMap[sel] && (
+          <div style={{
+            position: "absolute", right: 20, top: 20, bottom: 20,
+            width: 320, background: "var(--panel)",
+            border: "1px solid var(--line)", borderRadius: 12,
+            boxShadow: "var(--shadow-md)",
+            display: "flex", flexDirection: "column",
+            overflow: "hidden",
+          }}>
+            <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--line-2)", display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{nodeMap[sel].kind}</div>
+                <div style={{ fontSize: 16, fontWeight: 500, marginTop: 4, letterSpacing: "-0.01em" }}>{nodeMap[sel].label}</div>
+                <div className="mono" style={{ fontSize: 11, color: "var(--ink-4)", marginTop: 4 }}>{nodeMap[sel].id}</div>
+              </div>
+              <button onClick={() => setSel(null)} style={iconBtn}><I.X size={13}/></button>
+            </div>
+            <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 14, fontSize: 12.5 }}>
+              <InspectorRow label="Description" value="The definitive measure of recurring revenue, aggregated daily from billing events."/>
+              <InspectorRow label="Owner" value="R. Okafor"/>
+              <InspectorRow label="Dependencies" value={`${GRAPH.edges.filter(e => e[1] === sel).length} inputs · ${GRAPH.edges.filter(e => e[0] === sel).length} outputs`}/>
+              <InspectorRow label="Last updated" value="2h ago"/>
+            </div>
+            <div style={{ padding: 14, marginTop: "auto", borderTop: "1px solid var(--line-2)", display: "flex", gap: 6 }}>
+              <button onClick={() => onOpenDetail({ ref: sel, name: nodeMap[sel].label })} style={{ ...ghostBtn, flex: 1, justifyContent: "center" }}>
+                <I.Eye size={12}/> Open
+              </button>
+              <button style={{ ...primaryBtn, flex: 1, justifyContent: "center" }}>
+                <I.Edit size={12}/> Edit
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function InspectorRow({ label, value }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <div style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
+      <div style={{ color: "var(--ink-2)", lineHeight: 1.5 }}>{value}</div>
+    </div>
+  );
+}
+
+function isHighlightedNode(id, target) {
+  if (id === target) return true;
+  return GRAPH.edges.some(e => (e[0] === target && e[1] === id) || (e[1] === target && e[0] === id));
+}
+
+Object.assign(window, { Canvas });
+
+
+// ======== src/library.jsx ========
+// Library — catalog of framework elements
+function Library({ onOpenDetail }) {
+  const [tab, setTab] = useState("metrics");
+  const [q, setQ] = useState("");
+  const [domain, setDomain] = useState("all");
+
+  const tabs = [
+    { id: "metrics",    label: "Metrics",    count: FRAMEWORK.metrics.length, icon: "Metric" },
+    { id: "dimensions", label: "Dimensions", count: FRAMEWORK.dimensions.length, icon: "Dim" },
+    { id: "sources",    label: "Sources",    count: FRAMEWORK.sources.length, icon: "Source" },
+  ];
+
+  const rows = tab === "metrics" ? FRAMEWORK.metrics
+             : tab === "dimensions" ? FRAMEWORK.dimensions
+             : FRAMEWORK.sources;
+
+  const filtered = rows.filter(r => {
+    if (q && !(`${r.name} ${r.ref}`).toLowerCase().includes(q.toLowerCase())) return false;
+    if (tab === "metrics" && domain !== "all" && r.domain !== domain) return false;
+    return true;
+  });
+
+  return (
+    <div style={{ padding: "var(--pad)", maxWidth: 1400, margin: "0 auto", width: "100%" }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20 }}>
+        <div>
+          <h1 className="display" style={{ fontSize: 28, margin: 0, letterSpacing: "-0.02em", fontWeight: 500 }}>Library</h1>
+          <div style={{ color: "var(--ink-3)", fontSize: 13, marginTop: 4 }}>
+            The single source of truth for every metric, dimension and source.
+          </div>
+        </div>
+        <button style={primaryBtn}><I.Plus size={14}/> New metric</button>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 2, borderBottom: "1px solid var(--line)", marginBottom: 16 }}>
+        {tabs.map(t => {
+          const IC = I[t.icon];
+          const active = tab === t.id;
+          return (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{
+              padding: "10px 14px", display: "flex", alignItems: "center", gap: 8,
+              fontSize: 13, color: active ? "var(--ink)" : "var(--ink-3)",
+              fontWeight: active ? 500 : 400,
+              borderBottom: `1.5px solid ${active ? "var(--accent)" : "transparent"}`,
+              marginBottom: -1,
+            }}>
+              <IC size={13}/>
+              {t.label}
+              <span className="mono" style={{ fontSize: 10.5, color: "var(--ink-4)" }}>{t.count}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center" }}>
+        <div style={{
+          flex: 1, height: 34, padding: "0 12px",
+          display: "flex", alignItems: "center", gap: 10,
+          border: "1px solid var(--line)", borderRadius: 8,
+          background: "var(--panel)",
+        }}>
+          <I.Search size={13}/>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder={`Search ${tab}…`}
+                 style={{ flex: 1, background: "transparent", border: 0, outline: 0, fontSize: 13 }}/>
+          <KBD>/</KBD>
+        </div>
+        {tab === "metrics" && (
+          <select value={domain} onChange={e => setDomain(e.target.value)} style={selectStyle}>
+            <option value="all">All domains</option>
+            {FRAMEWORK.domains.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </select>
+        )}
+        <button style={ghostBtn}><I.Filter size={13}/> Filter</button>
+      </div>
+
+      {/* Table */}
+      <div style={{ ...card }}>
+        {tab === "metrics" && (
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <th style={thStyle}>Name</th>
+                <th style={thStyle}>Ref</th>
+                <th style={thStyle}>Type</th>
+                <th style={thStyle}>Domain</th>
+                <th style={thStyle}>Owner</th>
+                <th style={thStyle}>Grain</th>
+                <th style={thStyle}>Deps</th>
+                <th style={thStyle}>Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((m, i) => {
+                const d = FRAMEWORK.domains.find(x => x.id === m.domain);
+                return (
+                  <tr key={m.id} onClick={() => onOpenDetail(m)} style={rowStyle}>
+                    <td style={{ ...tdStyle, fontWeight: 500 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <StatusDot status={m.status}/>
+                        {m.name}
+                        <Pill tone={m.status === "certified" ? "positive" : m.status === "review" ? "warn" : "draft"}>{m.status}</Pill>
+                      </div>
+                    </td>
+                    <td style={{ ...tdStyle, color: "var(--ink-3)" }} className="mono">{m.ref}</td>
+                    <td style={tdStyle}>{m.type}</td>
+                    <td style={tdStyle}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: 2, background: `oklch(0.7 0.1 ${d.color})` }}/>
+                        {d.name}
+                      </span>
+                    </td>
+                    <td style={tdStyle}>{m.owner}</td>
+                    <td style={tdStyle}>{m.grain}</td>
+                    <td style={{ ...tdStyle, color: "var(--ink-3)" }} className="mono">{m.deps}</td>
+                    <td style={{ ...tdStyle, color: "var(--ink-3)" }}>{m.updated}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+        {tab === "dimensions" && (
+          <table style={tableStyle}>
+            <thead><tr>
+              <th style={thStyle}>Name</th><th style={thStyle}>Ref</th>
+              <th style={thStyle}>Source</th><th style={thStyle}>Cardinality</th>
+            </tr></thead>
+            <tbody>
+              {filtered.map(d => (
+                <tr key={d.id} style={rowStyle}>
+                  <td style={{ ...tdStyle, fontWeight: 500 }}>{d.name}</td>
+                  <td style={{ ...tdStyle, color: "var(--ink-3)" }} className="mono">{d.ref}</td>
+                  <td style={tdStyle}>{d.source}</td>
+                  <td style={{ ...tdStyle, color: "var(--ink-3)" }} className="mono">{d.cardinality}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {tab === "sources" && (
+          <table style={tableStyle}>
+            <thead><tr>
+              <th style={thStyle}>Name</th><th style={thStyle}>Ref</th>
+              <th style={thStyle}>Rows</th><th style={thStyle}>Last sync</th>
+            </tr></thead>
+            <tbody>
+              {filtered.map(s => (
+                <tr key={s.id} style={rowStyle}>
+                  <td style={{ ...tdStyle, fontWeight: 500 }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                      <StatusDot status="certified"/> {s.name}
+                    </span>
+                  </td>
+                  <td style={{ ...tdStyle, color: "var(--ink-3)" }} className="mono">{s.ref}</td>
+                  <td style={{ ...tdStyle, color: "var(--ink-3)" }} className="mono">{s.rows}</td>
+                  <td style={tdStyle}>{s.lastSync}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const tableStyle = { width: "100%", borderCollapse: "collapse", fontSize: 13 };
+const thStyle = {
+  textAlign: "left", fontWeight: 500, fontSize: 11,
+  color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em",
+  padding: "12px var(--pad)", borderBottom: "1px solid var(--line)",
+};
+const tdStyle = { padding: "14px var(--pad)", borderBottom: "1px solid var(--line-2)" };
+const rowStyle = { cursor: "pointer", transition: "background 120ms" };
+
+const selectStyle = {
+  height: 34, padding: "0 10px", borderRadius: 8,
+  border: "1px solid var(--line)", background: "var(--panel)",
+  fontSize: 13, color: "var(--ink)",
+};
+
+Object.assign(window, { Library });
+
+
+// ======== src/detail.jsx ========
+// Detail view — metric detail with inline editing & comments
+function Detail({ metric: metricProp, onBack }) {
+  const metric = metricProp || FRAMEWORK.metrics.find(m => m.id === "nrr");
+  const [tab, setTab] = useState("overview");
+  const [editingName, setEditingName] = useState(false);
+  const [name, setName] = useState(metric.name);
+  const [desc, setDesc] = useState(
+    "Measures how revenue from existing customers evolves over time, inclusive of expansions, downgrades, and churn. Calculated as ending ARR from the starting cohort divided by starting ARR."
+  );
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [comments, setComments] = useState([
+    { who: "R. Okafor", when: "2h ago", text: "I moved this to certified — cohort logic matches the board definition now." },
+    { who: "L. Chen",   when: "yday",   text: "Can we add an expansion-only cut? Useful for the finance review." },
+  ]);
+  const [draft, setDraft] = useState("");
+
+  useEffect(() => { setName(metric.name); }, [metric]);
+
+  const sql = `select
+  cohort_month,
+  sum(ending_arr) / nullif(sum(starting_arr), 0) as nrr
+from {{ ref('fct_customer_arr') }}
+where cohort_month >= date_trunc('month', current_date) - interval '12 month'
+group by 1;`;
+
+  const tabs = [
+    { id: "overview",     label: "Overview" },
+    { id: "definition",   label: "Definition" },
+    { id: "lineage",      label: "Lineage" },
+    { id: "comments",     label: "Comments", count: comments.length },
+    { id: "history",      label: "History" },
+  ];
+
+  return (
+    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+      {/* Main */}
+      <div style={{ flex: 1, overflow: "auto" }}>
+        <div style={{ padding: "var(--pad)", maxWidth: 900, margin: "0 auto", width: "100%" }}>
+          {/* Header */}
+          <div style={{ paddingTop: 8 }}>
+            <button onClick={onBack} style={{ ...ghostSmall, marginBottom: 14, paddingLeft: 0 }}>
+              <I.Chevron size={12} style={{ transform: "rotate(180deg)" }}/> Back to library
+            </button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{metric.ref}</span>
+              <Pill tone="positive"><I.Check size={10} stroke={2}/> Certified</Pill>
+              <Pill tone="neutral">{metric.type}</Pill>
+              <Pill tone="neutral">{metric.domain}</Pill>
+            </div>
+
+            {editingName ? (
+              <input autoFocus value={name} onChange={e => setName(e.target.value)}
+                     onBlur={() => setEditingName(false)}
+                     onKeyDown={e => e.key === "Enter" && setEditingName(false)}
+                     className="display"
+                     style={{
+                       fontSize: 36, fontWeight: 500, letterSpacing: "-0.025em",
+                       width: "100%", border: 0, outline: 0, padding: 0,
+                       borderBottom: "2px solid var(--accent)", background: "transparent",
+                     }}/>
+            ) : (
+              <h1 onClick={() => setEditingName(true)} className="display" style={{
+                fontSize: 36, margin: 0, fontWeight: 500, letterSpacing: "-0.025em",
+                cursor: "text", padding: "0 4px", marginLeft: -4, borderRadius: 6,
+                transition: "background 120ms",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--hover)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                {name}
+              </h1>
+            )}
+
+            {editingDesc ? (
+              <textarea autoFocus value={desc} onChange={e => setDesc(e.target.value)}
+                        onBlur={() => setEditingDesc(false)}
+                        style={{
+                          width: "100%", border: "1px solid var(--accent)", borderRadius: 8,
+                          padding: 10, fontSize: 14.5, lineHeight: 1.6, background: "transparent",
+                          resize: "vertical", minHeight: 80, outline: 0, marginTop: 10,
+                        }}/>
+            ) : (
+              <p onClick={() => setEditingDesc(true)} style={{
+                fontSize: 14.5, lineHeight: 1.6, color: "var(--ink-2)", marginTop: 12,
+                cursor: "text", padding: "8px 4px", marginLeft: -4, borderRadius: 6,
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--hover)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                {desc}
+              </p>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 2, borderBottom: "1px solid var(--line)", marginTop: 22, marginBottom: 20 }}>
+            {tabs.map(t => {
+              const active = tab === t.id;
+              return (
+                <button key={t.id} onClick={() => setTab(t.id)} style={{
+                  padding: "10px 14px", display: "flex", alignItems: "center", gap: 6,
+                  fontSize: 13, color: active ? "var(--ink)" : "var(--ink-3)",
+                  fontWeight: active ? 500 : 400,
+                  borderBottom: `1.5px solid ${active ? "var(--accent)" : "transparent"}`,
+                  marginBottom: -1,
+                }}>
+                  {t.label}
+                  {t.count != null && (
+                    <span className="mono" style={{
+                      fontSize: 10, padding: "1px 6px", borderRadius: 99,
+                      background: "var(--hover)", color: "var(--ink-3)",
+                    }}>{t.count}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Tab content */}
+          {tab === "overview" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--gap)" }}>
+              <div style={card}>
+                <div style={{ ...cardHead, paddingTop: 14, paddingBottom: 14 }}>
+                  <div style={cardTitle}>Latest value</div>
+                  <span className="mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>as of today</span>
+                </div>
+                <div style={{ padding: "var(--pad)", display: "grid", gridTemplateColumns: "auto 1fr", gap: 28, alignItems: "center" }}>
+                  <div>
+                    <div className="display" style={{ fontSize: 48, fontWeight: 500, letterSpacing: "-0.03em" }}>114%</div>
+                    <div style={{ fontSize: 12, color: "oklch(0.52 0.14 150)" }}>+2 pts vs last month</div>
+                  </div>
+                  <Sparkline data={[100,102,104,103,107,110,111,112,113,114,114,114]} height={56}/>
+                </div>
+              </div>
+
+              <div style={card}>
+                <div style={cardHead}><div style={cardTitle}>Dimensions</div>
+                  <button style={ghostSmall}><I.Plus size={11}/> Add</button>
+                </div>
+                <div style={{ padding: "var(--pad)", display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {["Plan Tier", "Region", "Signup Cohort", "Channel"].map(d => (
+                    <Pill key={d} tone="neutral"><I.Dim size={10}/>{d}</Pill>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab === "definition" && (
+            <div style={card}>
+              <div style={cardHead}>
+                <div><div style={cardTitle}>SQL definition</div><div style={cardSub}>Compiled via dbt · ref: fct_customer_arr</div></div>
+                <button style={ghostSmall}><I.Copy size={12}/> Copy</button>
+              </div>
+              <pre className="mono" style={{
+                margin: 0, padding: "var(--pad)",
+                fontSize: 12.5, lineHeight: 1.7,
+                background: "var(--bg-2)",
+                color: "var(--ink-2)", overflow: "auto",
+              }}>{sql}</pre>
+            </div>
+          )}
+
+          {tab === "lineage" && (
+            <div style={{ ...card, padding: "var(--pad)", fontSize: 13, color: "var(--ink-3)" }}>
+              Upstream: <span className="mono" style={{color:"var(--ink)"}}>src.billing</span> →
+              <span className="mono" style={{color:"var(--ink)"}}> met.revenue.mrr</span>.
+              Downstream: <span className="mono" style={{color:"var(--ink)"}}>goal.efficient_growth</span>.
+              <div style={{ marginTop: 10 }}><button style={ghostBtn}><I.Graph size={13}/> Open in Canvas</button></div>
+            </div>
+          )}
+
+          {tab === "comments" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {comments.map((c, i) => (
+                <div key={i} style={{ ...card, padding: "14px var(--pad)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                    <div style={{
+                      width: 24, height: 24, borderRadius: 99,
+                      background: `oklch(0.65 0.12 ${(i*80) % 360})`, color: "#fff",
+                      display: "grid", placeItems: "center", fontSize: 10, fontWeight: 600,
+                    }}>{c.who.split(/[.\s]/).map(s=>s[0]).join("")}</div>
+                    <span style={{ fontSize: 12.5, fontWeight: 500 }}>{c.who}</span>
+                    <span style={{ fontSize: 11.5, color: "var(--ink-4)" }}>{c.when}</span>
+                  </div>
+                  <div style={{ fontSize: 13.5, lineHeight: 1.55, color: "var(--ink-2)" }}>{c.text}</div>
+                </div>
+              ))}
+              <div style={{ ...card, padding: 12, display: "flex", gap: 10, alignItems: "center" }}>
+                <input value={draft} onChange={e => setDraft(e.target.value)}
+                       placeholder="Leave a comment or @mention someone…"
+                       style={{ flex: 1, border: 0, outline: 0, fontSize: 13, background: "transparent" }}
+                       onKeyDown={e => {
+                         if (e.key === "Enter" && draft.trim()) {
+                           setComments([...comments, { who: "A. Haferkorn", when: "just now", text: draft }]);
+                           setDraft("");
+                         }
+                       }}/>
+                <button style={primaryBtn} onClick={() => {
+                  if (!draft.trim()) return;
+                  setComments([...comments, { who: "A. Haferkorn", when: "just now", text: draft }]);
+                  setDraft("");
+                }}>Comment</button>
+              </div>
+            </div>
+          )}
+
+          {tab === "history" && (
+            <div style={{ ...card, padding: "6px 0" }}>
+              {[
+                ["R. Okafor",     "certified definition",        "2h ago"],
+                ["A. Haferkorn",  "edited description",          "yday"],
+                ["L. Chen",       "added dimension 'Region'",    "3d ago"],
+                ["M. Park",       "created metric",              "2w ago"],
+              ].map((e, i) => (
+                <div key={i} style={{
+                  padding: "12px var(--pad)",
+                  borderTop: i === 0 ? "none" : "1px solid var(--line-2)",
+                  display: "flex", alignItems: "center", gap: 12,
+                }}>
+                  <I.Clock size={13}/>
+                  <div style={{ fontSize: 13, flex: 1 }}>
+                    <span style={{ fontWeight: 500 }}>{e[0]}</span>
+                    <span style={{ color: "var(--ink-3)" }}> {e[1]}</span>
+                  </div>
+                  <span style={{ fontSize: 11.5, color: "var(--ink-4)" }}>{e[2]}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Right rail */}
+      <aside style={{
+        width: 300, flexShrink: 0, borderLeft: "1px solid var(--line)",
+        padding: "var(--pad)", overflow: "auto", background: "var(--bg)",
+      }}>
+        <div style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Properties</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, fontSize: 12.5 }}>
+          <PropRow label="Owner"><OwnerChip name="R. Okafor"/></PropRow>
+          <PropRow label="Reviewers">
+            <div style={{ display: "flex", gap: 4 }}>
+              <OwnerChip name="L. Chen" small/>
+              <OwnerChip name="M. Park" small/>
+            </div>
+          </PropRow>
+          <PropRow label="Domain"><Pill>Revenue</Pill></PropRow>
+          <PropRow label="Type">Ratio</PropRow>
+          <PropRow label="Grain">Month</PropRow>
+          <PropRow label="Unit"><span className="mono">%</span></PropRow>
+          <PropRow label="Sources"><span className="mono" style={{ color: "var(--ink-2)" }}>src.billing</span></PropRow>
+          <PropRow label="Created">Mar 14, 2025</PropRow>
+        </div>
+
+        <div style={{ margin: "24px 0 12px", fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Studio AI
+        </div>
+        <div style={{
+          padding: 14, borderRadius: 10,
+          background: "linear-gradient(180deg, var(--accent-soft), transparent)",
+          border: "1px solid var(--line)",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 12 }}>
+            <I.Sparkle size={12} stroke={1.8}/>
+            <span style={{ fontWeight: 500 }}>Suggestions</span>
+          </div>
+          <div style={{ fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.5, marginBottom: 10 }}>
+            Your definition references <span className="mono">fct_customer_arr</span> but omits mid-month contractions. Shall I draft a fix?
+          </div>
+          <button style={{ ...primaryBtn, width: "100%", justifyContent: "center" }}>Review draft</button>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function PropRow({ label, children }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "90px 1fr", alignItems: "center", gap: 8 }}>
+      <span style={{ color: "var(--ink-4)", fontSize: 11.5 }}>{label}</span>
+      <span style={{ color: "var(--ink-2)" }}>{children}</span>
+    </div>
+  );
+}
+function OwnerChip({ name, small }) {
+  const init = name.split(/[.\s]/).map(s=>s[0]).join("");
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span style={{
+        width: small ? 18 : 20, height: small ? 18 : 20, borderRadius: 99,
+        background: `oklch(0.6 0.13 ${name.charCodeAt(0) * 7 % 360})`,
+        color: "#fff", fontSize: 9, fontWeight: 600,
+        display: "grid", placeItems: "center",
+      }}>{init}</span>
+      {!small && <span style={{ fontSize: 12.5 }}>{name}</span>}
+    </span>
+  );
+}
+
+Object.assign(window, { Detail });
+
+
+// ======== src/wizard.jsx ========
+// Wizard — create new element with AI assist
+function Wizard({ open, onClose }) {
+  const [step, setStep] = useState(0);
+  const [kind, setKind] = useState("metric");
+  const [prompt, setPrompt] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [draft, setDraft] = useState(null);
+
+  useEffect(() => { if (!open) { setStep(0); setKind("metric"); setPrompt(""); setDraft(null); } }, [open]);
+
+  const runAI = () => {
+    setGenerating(true);
+    setTimeout(() => {
+      setGenerating(false);
+      setDraft({
+        name: prompt ? titleCase(prompt) : "Qualified Pipeline Velocity",
+        ref: "met.growth." + slug(prompt || "qualified_pipeline_velocity"),
+        domain: "Growth",
+        type: "Ratio",
+        grain: "week",
+        unit: "USD/day",
+        description: "Measures how quickly qualified opportunities convert to closed-won revenue, normalized by cycle length.",
+        sql: `select
+  week,
+  sum(closed_won_arr) / nullif(avg(cycle_days), 0) as velocity
+from {{ ref('fct_opportunities') }}
+where stage in ('qualified','closed_won')
+group by 1;`,
+        sources: ["src.crm", "src.billing"],
+      });
+      setStep(2);
+    }, 900);
+  };
+
+  if (!open) return null;
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 90,
+      background: "rgba(11,11,12,0.4)", backdropFilter: "blur(4px)",
+      display: "grid", placeItems: "center", padding: 40,
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        width: 720, maxWidth: "100%", maxHeight: "88vh",
+        background: "var(--panel)", borderRadius: 14,
+        border: "1px solid var(--line)", boxShadow: "var(--shadow-lg)",
+        display: "flex", flexDirection: "column", overflow: "hidden",
+      }}>
+        {/* Stepper */}
+        <div style={{ padding: "16px 24px", borderBottom: "1px solid var(--line-2)", display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>New element</div>
+          <div style={{ flex: 1, display: "flex", gap: 6 }}>
+            {["Choose", "Describe", "Review"].map((s, i) => (
+              <div key={s} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12,
+                color: i === step ? "var(--ink)" : "var(--ink-4)", fontWeight: i === step ? 500 : 400 }}>
+                <span style={{
+                  width: 18, height: 18, borderRadius: 99,
+                  background: i <= step ? "var(--accent)" : "var(--bg-2)",
+                  color: i <= step ? "var(--accent-ink)" : "var(--ink-4)",
+                  display: "grid", placeItems: "center", fontSize: 10, fontWeight: 600,
+                }}>{i < step ? "✓" : i + 1}</span>
+                {s}
+                {i < 2 && <span style={{ width: 16, height: 1, background: "var(--line)", marginLeft: 4 }}/>}
+              </div>
+            ))}
+          </div>
+          <button onClick={onClose} style={iconBtn}><I.X size={14}/></button>
+        </div>
+
+        <div style={{ flex: 1, overflow: "auto", padding: 28 }}>
+          {/* Step 0 */}
+          {step === 0 && (
+            <div>
+              <h2 className="display" style={{ fontSize: 22, fontWeight: 500, margin: "0 0 6px", letterSpacing: "-0.02em" }}>What are you creating?</h2>
+              <p style={{ color: "var(--ink-3)", margin: "0 0 22px", fontSize: 13.5 }}>
+                Pick a primitive. You can always change type later.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+                {[
+                  { id: "metric",    icon: "Metric", label: "Metric",    desc: "A measurable number — count, sum, ratio or model." },
+                  { id: "dimension", icon: "Dim",    label: "Dimension", desc: "A categorical slice — cohort, region, channel." },
+                  { id: "source",    icon: "Source", label: "Source",    desc: "A connected upstream data source." },
+                ].map(o => {
+                  const IC = I[o.icon];
+                  const active = kind === o.id;
+                  return (
+                    <button key={o.id} onClick={() => setKind(o.id)} style={{
+                      padding: 16, borderRadius: 10,
+                      border: `1px solid ${active ? "var(--accent)" : "var(--line)"}`,
+                      boxShadow: active ? "0 0 0 3px var(--accent-soft)" : "none",
+                      background: "var(--panel)", textAlign: "left",
+                      display: "flex", flexDirection: "column", gap: 8,
+                      transition: "all 120ms",
+                    }}>
+                      <IC size={18} stroke={1.5}/>
+                      <div style={{ fontSize: 13.5, fontWeight: 500 }}>{o.label}</div>
+                      <div style={{ fontSize: 12, color: "var(--ink-3)", lineHeight: 1.5 }}>{o.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Step 1 */}
+          {step === 1 && (
+            <div>
+              <h2 className="display" style={{ fontSize: 22, fontWeight: 500, margin: "0 0 6px", letterSpacing: "-0.02em" }}>Describe your {kind}</h2>
+              <p style={{ color: "var(--ink-3)", margin: "0 0 16px", fontSize: 13.5 }}>
+                Studio will draft the definition, dependencies and SQL. You can edit anything afterwards.
+              </p>
+              <div style={{
+                padding: 14, borderRadius: 10,
+                border: "1px solid var(--line)",
+                background: "var(--panel)",
+              }}>
+                <textarea value={prompt} onChange={e => setPrompt(e.target.value)}
+                          placeholder={`e.g. "Velocity of qualified pipeline, weekly, for enterprise plan customers"`}
+                          style={{
+                            width: "100%", minHeight: 110, border: 0, outline: 0,
+                            background: "transparent", fontSize: 14, lineHeight: 1.5, resize: "vertical",
+                          }}/>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 11, color: "var(--ink-4)" }}>Try:</span>
+                  {["Weekly activation by cohort", "Net new ARR per rep", "P50 support response time"].map(s => (
+                    <button key={s} onClick={() => setPrompt(s)} style={{
+                      fontSize: 11.5, padding: "4px 10px", borderRadius: 99,
+                      border: "1px solid var(--line)", color: "var(--ink-2)",
+                    }}>{s}</button>
+                  ))}
+                </div>
+              </div>
+              {generating && (
+                <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: "var(--accent-soft)", color: "var(--accent)", fontSize: 12.5, display: "flex", alignItems: "center", gap: 8 }}>
+                  <I.Sparkle size={13} stroke={1.8}/> Drafting definition and checking for duplicates…
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 2 */}
+          {step === 2 && draft && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "oklch(0.52 0.14 150)", fontSize: 12, marginBottom: 8 }}>
+                <I.Sparkle size={12} stroke={1.8}/> Draft ready — review and edit before saving.
+              </div>
+              <div className="mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>{draft.ref}</div>
+              <h2 className="display" style={{ fontSize: 26, fontWeight: 500, margin: "4px 0 12px", letterSpacing: "-0.02em" }}>{draft.name}</h2>
+              <div style={{ color: "var(--ink-2)", fontSize: 13.5, lineHeight: 1.6, marginBottom: 18 }}>{draft.description}</div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 18 }}>
+                {[["Domain", draft.domain], ["Type", draft.type], ["Grain", draft.grain], ["Unit", draft.unit]].map(([k,v]) => (
+                  <div key={k} style={{ padding: 10, border: "1px solid var(--line)", borderRadius: 8 }}>
+                    <div style={{ fontSize: 10.5, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{k}</div>
+                    <div style={{ fontSize: 13, fontWeight: 500, marginTop: 2 }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>SQL</div>
+              <pre className="mono" style={{
+                margin: 0, padding: 14, borderRadius: 10,
+                background: "var(--bg-2)", border: "1px solid var(--line)",
+                fontSize: 12, lineHeight: 1.7, color: "var(--ink-2)", overflow: "auto",
+              }}>{draft.sql}</pre>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--line-2)", display: "flex", justifyContent: "space-between", gap: 8 }}>
+          <button style={ghostBtn} onClick={() => step === 0 ? onClose() : setStep(step - 1)}>
+            {step === 0 ? "Cancel" : "Back"}
+          </button>
+          {step === 0 && <button style={primaryBtn} onClick={() => setStep(1)}>Continue <I.ArrowR size={12}/></button>}
+          {step === 1 && (
+            <button style={primaryBtn} onClick={runAI} disabled={generating}>
+              <I.Sparkle size={12} stroke={1.8}/> {generating ? "Drafting…" : "Generate draft"}
+            </button>
+          )}
+          {step === 2 && <button style={primaryBtn} onClick={onClose}><I.Check size={12} stroke={2}/> Save to framework</button>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function titleCase(s) { return s.replace(/\b\w/g, c => c.toUpperCase()); }
+function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 40); }
+
+Object.assign(window, { Wizard });
+
+
+// ======== src/tweaks.jsx ========
+// Tweaks panel
+function Tweaks({ open, onClose, tweaks, setTweak }) {
+  if (!open) return null;
+
+  const hues = [
+    { name: "Indigo",  h: 250 },
+    { name: "Emerald", h: 150 },
+    { name: "Amber",   h: 75 },
+    { name: "Rose",    h: 20 },
+    { name: "Violet",  h: 290 },
+    { name: "Teal",    h: 190 },
+    { name: "Graphite",h: 250, chroma: 0.01, lightness: 0.38 },
+  ];
+
+  return (
+    <div style={{
+      position: "fixed", right: 16, bottom: 16, zIndex: 80,
+      width: 312, background: "var(--panel)",
+      border: "1px solid var(--line)", borderRadius: 12,
+      boxShadow: "var(--shadow-lg)", overflow: "hidden",
+    }}>
+      <div style={{
+        padding: "12px 14px", borderBottom: "1px solid var(--line-2)",
+        display: "flex", alignItems: "center", gap: 10,
+      }}>
+        <I.Settings size={13}/>
+        <span style={{ fontSize: 13, fontWeight: 500 }}>Tweaks</span>
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--ink-4)" }}>Live preview</span>
+        <button onClick={onClose} style={iconBtn}><I.X size={12}/></button>
+      </div>
+
+      <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 16 }}>
+
+        <TweakSection label="Theme">
+          <div style={{ display: "flex", gap: 6 }}>
+            {["light", "dark"].map(t => (
+              <button key={t} onClick={() => setTweak("theme", t)} style={{
+                flex: 1, padding: "8px 10px", borderRadius: 7,
+                border: `1px solid ${tweaks.theme === t ? "var(--accent)" : "var(--line)"}`,
+                background: tweaks.theme === t ? "var(--accent-soft)" : "var(--panel)",
+                color: tweaks.theme === t ? "var(--accent)" : "var(--ink-2)",
+                fontSize: 12, textTransform: "capitalize", fontWeight: tweaks.theme === t ? 500 : 400,
+              }}>{t}</button>
+            ))}
+          </div>
+        </TweakSection>
+
+        <TweakSection label="Accent color">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 6 }}>
+            {hues.map(h => {
+              const sel = tweaks.accentHue === h.h && (tweaks.accentChroma ?? 0.13) === (h.chroma ?? 0.13);
+              return (
+                <button key={h.name} title={h.name}
+                  onClick={() => {
+                    setTweak("accentHue", h.h);
+                    setTweak("accentChroma", h.chroma ?? 0.13);
+                    setTweak("accentLightness", h.lightness ?? 0.62);
+                  }}
+                  style={{
+                    aspectRatio: "1", borderRadius: 7,
+                    background: `oklch(${h.lightness ?? 0.62} ${h.chroma ?? 0.13} ${h.h})`,
+                    border: `2px solid ${sel ? "var(--ink)" : "transparent"}`,
+                    outline: "1px solid var(--line)",
+                    cursor: "pointer",
+                }}/>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ink-4)", marginBottom: 4 }}>
+              <span>Fine-tune hue</span><span className="mono">{tweaks.accentHue}°</span>
+            </div>
+            <input type="range" min="0" max="360" value={tweaks.accentHue}
+                   onChange={e => setTweak("accentHue", +e.target.value)}
+                   style={{ width: "100%", accentColor: "var(--accent)" }}/>
+          </div>
+        </TweakSection>
+
+        <TweakSection label="Density">
+          <div style={{ display: "flex", gap: 4, background: "var(--bg-2)", padding: 3, borderRadius: 7 }}>
+            {["airy", "balanced", "dense"].map(d => (
+              <button key={d} onClick={() => setTweak("density", d)} style={{
+                flex: 1, padding: "5px 8px", borderRadius: 5,
+                background: tweaks.density === d ? "var(--panel)" : "transparent",
+                boxShadow: tweaks.density === d ? "var(--shadow-sm)" : "none",
+                color: tweaks.density === d ? "var(--ink)" : "var(--ink-3)",
+                fontSize: 11.5, textTransform: "capitalize",
+                fontWeight: tweaks.density === d ? 500 : 400,
+              }}>{d}</button>
+            ))}
+          </div>
+        </TweakSection>
+
+        <TweakSection label="Font pairing">
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {[
+              { id: "inter", label: "Inter · JetBrains Mono", sample: "Aa" },
+              { id: "ibm",   label: "IBM Plex Sans · Mono",    sample: "Aa" },
+              { id: "geist", label: "Geist · Geist Mono",      sample: "Aa" },
+              { id: "serif", label: "Inter · Instrument Serif", sample: "Aa" },
+            ].map(f => {
+              const sel = tweaks.fontPairing === f.id;
+              return (
+                <button key={f.id} onClick={() => setTweak("fontPairing", f.id)} style={{
+                  padding: "8px 10px", borderRadius: 7,
+                  border: `1px solid ${sel ? "var(--accent)" : "var(--line)"}`,
+                  background: sel ? "var(--accent-soft)" : "var(--panel)",
+                  display: "flex", alignItems: "center", gap: 10,
+                  fontSize: 12, textAlign: "left",
+                }}>
+                  <span style={{
+                    width: 28, height: 24, display: "grid", placeItems: "center",
+                    background: "var(--bg-2)", borderRadius: 5,
+                    fontSize: 14, fontWeight: 500,
+                    fontFamily: f.id === "ibm" ? "IBM Plex Sans" : f.id === "geist" ? "Geist" : f.id === "serif" ? "Instrument Serif" : "Inter",
+                  }}>{f.sample}</span>
+                  <span style={{ color: sel ? "var(--accent)" : "var(--ink-2)", fontWeight: sel ? 500 : 400 }}>{f.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </TweakSection>
+
+        <TweakSection label="Sidebar">
+          <div style={{ display: "flex", gap: 4, background: "var(--bg-2)", padding: 3, borderRadius: 7 }}>
+            {["expanded", "collapsed"].map(s => (
+              <button key={s} onClick={() => setTweak("sidebar", s)} style={{
+                flex: 1, padding: "5px 8px", borderRadius: 5,
+                background: tweaks.sidebar === s ? "var(--panel)" : "transparent",
+                boxShadow: tweaks.sidebar === s ? "var(--shadow-sm)" : "none",
+                color: tweaks.sidebar === s ? "var(--ink)" : "var(--ink-3)",
+                fontSize: 11.5, textTransform: "capitalize",
+                fontWeight: tweaks.sidebar === s ? 500 : 400,
+              }}>{s}</button>
+            ))}
+          </div>
+        </TweakSection>
+
+      </div>
+    </div>
+  );
+}
+
+function TweakSection({ label, children }) {
+  return (
+    <div>
+      <div style={{
+        fontSize: 10.5, color: "var(--ink-4)",
+        textTransform: "uppercase", letterSpacing: "0.08em",
+        marginBottom: 8, fontWeight: 500,
+      }}>{label}</div>
+      {children}
+    </div>
+  );
+}
+
+Object.assign(window, { Tweaks });
+
+
+// ======== src/usecases.jsx ========
+// Use Cases — T1-T4 Tier system, the actual deliverable artifacts
+// ───────── Tier semantics ─────────
+const TIERS = {
+  T1: { label: "Strategic Overview",      tag: "T1", time: "3s",   color: "250", desc: "Are we on track?",                  audience: "Board · ExCo" },
+  T2: { label: "Tactical Variance",        tag: "T2", time: "30s",  color: "30",  desc: "Why are we off?",                   audience: "Leadership" },
+  T3: { label: "Operational Monitoring",   tag: "T3", time: "5min", color: "190", desc: "What's breaking now?",              audience: "Ops Teams" },
+  T4: { label: "Prescriptive Recommendation", tag: "T4", time: "30min", color: "150", desc: "What should we do, and where?", audience: "Owners" },
+};
+
+// ───────── Tier badge ─────────
+function TierBadge({ tier, large }) {
+  const t = TIERS[tier];
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 6,
+      padding: large ? "4px 10px" : "2px 8px",
+      borderRadius: 6,
+      fontFamily: "var(--font-mono)",
+      fontSize: large ? 11 : 10,
+      fontWeight: 600, letterSpacing: "0.04em",
+      background: `oklch(0.7 0.1 ${t.color} / 0.14)`,
+      color: `oklch(0.45 0.13 ${t.color})`,
+      border: `1px solid oklch(0.7 0.1 ${t.color} / 0.3)`,
+    }}>
+      {t.tag} · {t.time}
+    </span>
+  );
+}
+
+// ───────── Mini chart primitives ─────────
+function MiniLine({ data, color = "var(--accent)", refLine, height = 80 }) {
+  const max = Math.max(...data.flat(), refLine ?? -Infinity);
+  const min = Math.min(...data.flat(), refLine ?? Infinity);
+  const range = (max - min) || 1;
+  const W = 280;
+  const series = Array.isArray(data[0]) ? data : [data];
+  const colors = [color, "var(--ink-4)"];
+  const yFor = v => height - ((v - min) / range) * (height - 8) - 4;
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${height}`} preserveAspectRatio="none" style={{ display: "block" }}>
+      {refLine != null && (
+        <g>
+          <line x1="0" x2={W} y1={yFor(refLine)} y2={yFor(refLine)}
+                stroke="var(--ink-4)" strokeDasharray="3 3" strokeWidth="1" opacity="0.5"/>
+          <text x={W-2} y={yFor(refLine)-3} textAnchor="end" fontSize="9" fill="var(--ink-4)" fontFamily="var(--font-mono)">Plan</text>
+        </g>
+      )}
+      {series.map((s, si) => {
+        const pts = s.map((v, i) => [(i / (s.length - 1)) * W, yFor(v)]);
+        const d = "M" + pts.map(p => p.join(",")).join(" L");
+        return <path key={si} d={d} fill="none" stroke={colors[si]} strokeWidth={si===0?1.6:1} strokeLinejoin="round" strokeLinecap="round" opacity={si===0?1:0.5}/>;
+      })}
+    </svg>
+  );
+}
+
+function MiniWaterfall({ bars }) {
+  const W = 280, H = 90;
+  let cum = 0;
+  const positions = bars.map(b => {
+    if (b.type === "start" || b.type === "end") {
+      const start = 0;
+      const v = b.value;
+      cum = b.type === "end" ? cum : v;
+      return { ...b, start, top: v };
+    }
+    const start = cum;
+    cum += b.value;
+    return { ...b, start, top: cum };
+  });
+  const all = positions.flatMap(p => [p.start, p.top, p.value]);
+  const max = Math.max(...all, 0);
+  const min = Math.min(...all, 0);
+  const range = (max - min) || 1;
+  const yFor = v => H - ((v - min) / range) * (H - 16) - 8;
+  const bw = (W - bars.length * 4) / bars.length;
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H+18}`} preserveAspectRatio="none" style={{ display: "block" }}>
+      {positions.map((p, i) => {
+        const x = i * (bw + 4);
+        const isAnchor = p.type === "start" || p.type === "end";
+        const y0 = isAnchor ? yFor(0) : yFor(p.start);
+        const y1 = isAnchor ? yFor(p.top) : yFor(p.top);
+        const top = Math.min(y0, y1), bot = Math.max(y0, y1);
+        const fill = isAnchor ? "var(--ink)" : (p.value >= 0 ? "oklch(0.6 0.13 150)" : "oklch(0.6 0.15 30)");
+        return (
+          <g key={i}>
+            <rect x={x} y={top} width={bw} height={Math.max(2, bot-top)} fill={fill} rx="1"/>
+            <text x={x + bw/2} y={H+10} textAnchor="middle" fontSize="9" fill="var(--ink-3)" fontFamily="var(--font-mono)">{p.label}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function MiniHBar({ rows, max }) {
+  const m = max || Math.max(...rows.map(r => Math.abs(r.value)));
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {rows.map((r, i) => {
+        const w = (Math.abs(r.value) / m) * 100;
+        const neg = r.value < 0;
+        const color = r.color || (neg ? "oklch(0.6 0.15 30)" : "oklch(0.55 0.12 150)");
+        return (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "60px 1fr 50px", alignItems: "center", gap: 8, fontSize: 10.5 }}>
+            <span style={{ color: "var(--ink-2)" }}>{r.label}</span>
+            <div style={{ position: "relative", height: 10, background: "var(--bg-2)", borderRadius: 2 }}>
+              <div style={{ position: neg ? "absolute" : "static", right: neg ? "50%" : "auto", left: neg ? "auto" : "50%", marginLeft: neg ? 0 : 0,
+                            width: `${w/2}%`, height: "100%", background: color, borderRadius: 2 }}/>
+              <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "var(--line)" }}/>
+            </div>
+            <span className="mono" style={{ color: "var(--ink-3)", textAlign: "right", fontSize: 10 }}>{r.value > 0 ? "+" : ""}{r.value.toFixed(1)}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MiniStack100({ rows }) {
+  const colors = ["oklch(0.55 0.12 250)", "oklch(0.7 0.12 30)", "oklch(0.65 0.12 150)"];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {rows.map((r, i) => (
+        <div key={i} style={{ display: "grid", gridTemplateColumns: "60px 1fr", alignItems: "center", gap: 8, fontSize: 10.5 }}>
+          <span style={{ color: "var(--ink-2)" }}>{r.label}</span>
+          <div style={{ display: "flex", height: 14, borderRadius: 2, overflow: "hidden", border: "0.5px solid var(--line)" }}>
+            {r.values.map((v, vi) => (
+              <div key={vi} style={{ flex: v, background: colors[vi], display: "grid", placeItems: "center", color: "white", fontSize: 9 }} className="mono">
+                {v > 12 ? `${v}` : ""}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ───────── KPI tile ─────────
+function KpiTile({ label, value, delta, deltaDir, period, polarity }) {
+  const goodDir = polarity === "lower_is_better" ? "down" : "up";
+  const isGood = deltaDir === goodDir;
+  const color = isGood ? "oklch(0.55 0.13 150)" : "oklch(0.55 0.16 30)";
+  return (
+    <div style={{ flex: 1, padding: "10px 12px", background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 6, minWidth: 0 }}>
+      <div style={{ fontSize: 10, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: "0.05em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</div>
+      <div className="display" style={{ fontSize: 22, fontWeight: 500, marginTop: 2, letterSpacing: "-0.02em" }}>{value}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2, fontSize: 10.5 }}>
+        <span style={{ color, fontWeight: 500 }}>{deltaDir === "up" ? "▲" : "▼"} {delta}</span>
+        <span style={{ color: "var(--ink-4)" }}>{period}</span>
+      </div>
+    </div>
+  );
+}
+
+// ───────── Chart card ─────────
+function ChartCard({ q, children }) {
+  return (
+    <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 6, padding: 12, display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+      <div style={{ fontSize: 11, fontWeight: 500, color: "var(--ink-2)", lineHeight: 1.35 }}>{q}</div>
+      <div style={{ flex: 1 }}>{children}</div>
+    </div>
+  );
+}
+
+function SignalRow({ tier, title, body, dest }) {
+  const tone = tier === "T1" ? "oklch(0.55 0.14 75)" : tier === "T2" ? "oklch(0.55 0.16 30)" : "oklch(0.55 0.13 250)";
+  return (
+    <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderLeft: `2px solid ${tone}`, borderRadius: 4, padding: "8px 12px", display: "flex", alignItems: "center", gap: 12 }}>
+      <span style={{ fontSize: 9, fontWeight: 700, color: tone, letterSpacing: "0.05em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+        {tier === "T1" ? "Strategic Signal" : tier === "T2" ? "Tactical Signal" : "Signal"}
+      </span>
+      <div style={{ flex: 1, fontSize: 11, lineHeight: 1.4 }}>
+        <strong>{title}</strong> <span style={{ color: "var(--ink-3)" }}>{body}</span>
+      </div>
+      {dest && <span className="mono" style={{ fontSize: 9, color: "var(--ink-4)" }}>→ {dest}</span>}
+    </div>
+  );
+}
+
+// ───────── Tier renderers ─────────
+function PulseFrame({ uc, children }) {
+  return (
+    <div style={{
+      background: "var(--bg-2)", border: "1px solid var(--line)", borderRadius: 8,
+      padding: 14, display: "flex", flexDirection: "column", gap: 10,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span className="mono" style={{ fontSize: 9.5, color: "var(--ink-4)", letterSpacing: "0.06em" }}>
+          {uc.bracket} · {uc.domain.toUpperCase()} · OVERVIEW
+        </span>
+        <div style={{ flex: 1 }}/>
+        <TierBadge tier={uc.tier}/>
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+        <h2 className="display" style={{ fontSize: 18, fontWeight: 500, margin: 0, letterSpacing: "-0.015em" }}>{uc.title}</h2>
+      </div>
+      <div style={{ fontSize: 11, color: "var(--ink-3)", fontStyle: "italic", marginTop: -4 }}>
+        Decision: <span style={{ color: "var(--ink-2)", fontStyle: "normal" }}>{uc.question}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function T1Render({ uc }) {
+  const kpis = [
+    { label: "Net Sales YTD",  value: "€42.3M", delta: "8.2%", deltaDir: "down", period: "vs Plan" },
+    { label: "Gross Margin %", value: "38.4%",  delta: "1.2pp", deltaDir: "down", period: "vs PY" },
+    { label: "OTIF %",         value: "94.1%",  delta: "0.8pp", deltaDir: "up",   period: "vs Plan" },
+    { label: "NPS",            value: "52",     delta: "4",     deltaDir: "up",   period: "vs Q-1" },
+    { label: "CLV",            value: "€18.4K", delta: "2.1%",  deltaDir: "up",   period: "vs PY" },
+  ];
+  return (
+    <PulseFrame uc={uc}>
+      <div style={{ display: "flex", gap: 6 }}>{kpis.map((k, i) => <KpiTile key={i} {...k}/>)}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+        <ChartCard q="How has Net Sales developed vs Plan over 12mo?">
+          <MiniLine data={[[42,43.5,45,44,43,42.5,42,41.5,42,42.8,43,42.3], [40,41,42,42.5,43,43.5,43.8,44,44,44.2,44.3,44.5]]} refLine={45}/>
+        </ChartCard>
+        <ChartCard q="Which strategic units are on and off track?">
+          <MiniHBar rows={[
+            { label: "DACH",    value: -3.1 },
+            { label: "Nordics", value: -0.9 },
+            { label: "Benelux", value: -0.5 },
+            { label: "Iberia",  value:  0.3 },
+            { label: "UK & I",  value:  0.6 },
+            { label: "CEE",     value:  0.8 },
+          ]}/>
+        </ChartCard>
+        <ChartCard q="How is revenue distributed across the portfolio?">
+          <MiniStack100 rows={[
+            { label: "FY2024",  values: [52,32,16] },
+            { label: "FY2025",  values: [48,34,18] },
+            { label: "YTD2026", values: [45,35,20] },
+          ]}/>
+        </ChartCard>
+      </div>
+      <SignalRow tier="T1" title="DACH region requires strategic review."
+        body="Net Sales -€3.1M vs Plan YTD; consistent with 3-month downward trend. Escalate to T2 for driver analysis."
+        dest="T2 TACTICAL"/>
+    </PulseFrame>
+  );
+}
+
+function T2Render({ uc }) {
+  const kpis = [
+    { label: "Net Sales YTD", value: "€42.3M", delta: "€4.2M", deltaDir: "down", period: "vs Plan" },
+    { label: "Volume",        value: "182K u", delta: "6.4%",  deltaDir: "down", period: "vs Plan" },
+    { label: "ASP",           value: "€232",   delta: "1.8%",  deltaDir: "down", period: "vs PY" },
+    { label: "Promo Depth",   value: "14.2%",  delta: "2.1pp", deltaDir: "up",   period: "vs Plan", polarity: "lower_is_better" },
+  ];
+  return (
+    <PulseFrame uc={uc}>
+      <div style={{ display: "flex", gap: 6 }}>{kpis.map((k, i) => <KpiTile key={i} {...k}/>)}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+        <ChartCard q="When did the gap begin? Net Sales vs Plan, 12mo.">
+          <MiniLine data={[45,45.2,45,44.3,43,42,41.5,41,41.8,42.3,42.5,42.3]} refLine={45}/>
+        </ChartCard>
+        <ChartCard q="Which factors explain the −€4.2M gap vs Plan?">
+          <MiniWaterfall bars={[
+            { label: "Plan",   value: 46.5, type: "start" },
+            { label: "Vol",    value: -3.1 },
+            { label: "Price",  value: -0.8 },
+            { label: "Mix",    value: -0.5 },
+            { label: "FX",     value:  0.2 },
+            { label: "Actual", value: 42.3, type: "end" },
+          ]}/>
+        </ChartCard>
+        <ChartCard q="Which regions drive the largest deviation?">
+          <MiniHBar rows={[
+            { label: "DACH",    value: -3.1 },
+            { label: "Nordics", value: -0.9 },
+            { label: "Benelux", value: -0.5 },
+            { label: "Iberia",  value:  0.3 },
+            { label: "UK & I",  value:  0.6 },
+          ]}/>
+        </ChartCard>
+      </div>
+      <SignalRow tier="T2" title="Volume decline in DACH is the dominant driver (−€3.1M, 74% of gap)."
+        body="Price effect secondary (−€0.8M). Promotional depth up 2.1pp — validate pricing levers."
+        dest="T4 RECOMMEND"/>
+    </PulseFrame>
+  );
+}
+
+function T3Render({ uc }) {
+  const kpis = [
+    { label: "Open Exceptions",  value: "14",    delta: "3",   deltaDir: "up",   period: "vs yday", polarity: "lower_is_better" },
+    { label: "Critical",         value: "3",     delta: "1",   deltaDir: "up",   period: "vs yday", polarity: "lower_is_better" },
+    { label: "OTIF (7d)",        value: "91.4%", delta: "2.6pp", deltaDir: "down", period: "vs SLA" },
+    { label: "Avg Age (open)",   value: "4.2d",  delta: "0.8d", deltaDir: "up",   period: "vs target", polarity: "lower_is_better" },
+  ];
+  const exceptions = [
+    { e: "SO-24891 · Müller AG",    sev: "critical", m: "OTIF",     a: "0%",   t: "≥95%", o: "CS · DACH",   age: "4d" },
+    { e: "SO-24903 · Volta BV",     sev: "critical", m: "Lead Time",a: "11d",  t: "≤7d",  o: "Ops · BNX",   age: "3d" },
+    { e: "SO-24867 · Siemens",      sev: "critical", m: "Fill Rate",a: "62%",  t: "≥90%", o: "SCM · DACH",  age: "6d" },
+    { e: "SO-24912 · Philips",      sev: "warning",  m: "OTIF",     a: "88%",  t: "≥95%", o: "CS · BNX",    age: "2d" },
+    { e: "SO-24920 · Bosch",        sev: "warning",  m: "Fill Rate",a: "84%",  t: "≥90%", o: "SCM · DACH",  age: "1d" },
+  ];
+  const sevColor = { critical: "oklch(0.55 0.16 25)", warning: "oklch(0.55 0.14 70)", info: "var(--ink-3)" };
+  return (
+    <PulseFrame uc={uc}>
+      <div style={{ display: "flex", gap: 6 }}>{kpis.map((k, i) => <KpiTile key={i} {...k}/>)}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10 }}>
+        <ChartCard q="Which shipments are above the overdue threshold?">
+          <div style={{ overflow: "auto", marginTop: -2 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+              <thead>
+                <tr>{["Sev","Entity","Metric","Actual","Threshold","Owner","Age"].map(h => (
+                  <th key={h} style={{ textAlign: "left", padding: "4px 6px", fontWeight: 500, fontSize: 9.5, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.04em", borderBottom: "1px solid var(--line)" }}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {exceptions.map((r, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--line-2)" }}>
+                    <td style={{ padding: "5px 6px" }}>
+                      <span style={{ width: 7, height: 7, display: "inline-block", borderRadius: 99, background: sevColor[r.sev] }}/>
+                    </td>
+                    <td style={{ padding: "5px 6px", fontWeight: 500 }}>{r.e}</td>
+                    <td style={{ padding: "5px 6px", color: "var(--ink-3)" }}>{r.m}</td>
+                    <td className="mono" style={{ padding: "5px 6px", color: sevColor[r.sev], fontWeight: 600 }}>{r.a}</td>
+                    <td className="mono" style={{ padding: "5px 6px", color: "var(--ink-4)" }}>{r.t}</td>
+                    <td style={{ padding: "5px 6px", color: "var(--ink-3)" }}>{r.o}</td>
+                    <td className="mono" style={{ padding: "5px 6px", color: "var(--ink-3)" }}>{r.age}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </ChartCard>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <ChartCard q="Are exceptions increasing? Last 30d.">
+            <MiniLine data={[[1,2,1,2,2,2,3], [5,4,6,5,7,8,11]]} color="oklch(0.55 0.16 25)"/>
+          </ChartCard>
+          <ChartCard q="Which owner team has the most criticals?">
+            <MiniHBar rows={[
+              { label: "SCM DACH", value: 4, color: "oklch(0.55 0.16 25)" },
+              { label: "CS DACH",  value: 3, color: "oklch(0.55 0.16 25)" },
+              { label: "Ops BNX",  value: 2, color: "oklch(0.55 0.14 70)" },
+              { label: "CS BNX",   value: 2, color: "oklch(0.55 0.14 70)" },
+            ]}/>
+          </ChartCard>
+        </div>
+      </div>
+    </PulseFrame>
+  );
+}
+
+function T4Render({ uc }) {
+  const rows = [
+    { entity: "Müller Industrie AG", seg: "Core",   rev: "€4.2M", gm: "11.3%", promo: "22.4%", delta: -3.7, action: "C-M1.1", crit: true },
+    { entity: "Siemens Mobility",    seg: "Core",   rev: "€3.8M", gm: "13.1%", promo: "19.8%", delta: -2.9, action: "C-M1.1", crit: true },
+    { entity: "Bosch GmbH",          seg: "Core",   rev: "€2.9M", gm: "14.8%", promo: "18.2%", delta: -1.2, action: "C-M1.2" },
+    { entity: "Volta BV",            seg: "Growth", rev: "€1.8M", gm: "15.2%", promo: "17.1%", delta: -0.8, action: "C-M1.2" },
+    { entity: "Atlas Copco",         seg: "Growth", rev: "€1.6M", gm: "16.3%", promo: "15.9%", delta: -0.3, action: "C-M1.2" },
+    { entity: "Nordex Energy",       seg: "Core",   rev: "€1.4M", gm: "17.1%", promo: "14.8%", delta:  0.1, action: null },
+    { entity: "Continental AG",      seg: "Core",   rev: "€1.2M", gm: "18.4%", promo: "13.2%", delta:  0.4, action: null },
+    { entity: "Hella KGaA",          seg: "Growth", rev: "€0.9M", gm: "19.1%", promo: "12.4%", delta:  1.1, action: null },
+  ];
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.delta)));
+  return (
+    <PulseFrame uc={uc}>
+      <div style={{ display: "grid", gridTemplateColumns: "150px 1fr 220px", gap: 10 }}>
+        {/* Slicer pane */}
+        <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 6, padding: 10, fontSize: 10.5, display: "flex", flexDirection: "column", gap: 10 }}>
+          {[
+            { label: "Period",  items: ["YTD 2026","Last Q","Last M"], active: ["YTD 2026"] },
+            { label: "Region",  items: ["DACH","Nordics","Benelux"],   active: ["DACH"] },
+            { label: "Segment", items: ["Core","Growth","Emerging"],   active: ["Core","Growth"] },
+            { label: "Priority",items: ["High","Medium","Low"],        active: ["High","Medium"] },
+          ].map((g, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 9.5, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{g.label}</div>
+              {g.items.map(it => (
+                <div key={it} style={{ display: "flex", alignItems: "center", gap: 6, padding: "2px 0" }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 2, border: "1px solid var(--line)", background: g.active.includes(it) ? "var(--accent)" : "var(--bg)" }}/>
+                  <span style={{ color: g.active.includes(it) ? "var(--ink)" : "var(--ink-3)" }}>{it}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        {/* Center matrix */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderLeft: "2px solid var(--accent)", borderRadius: 4, padding: "8px 12px", fontSize: 11, lineHeight: 1.45 }}>
+            <strong>GM% in DACH below 18% threshold for 3 consecutive months.</strong>{" "}
+            <span style={{ color: "var(--ink-3)" }}>Promo depth +2.1pp YoY; 6 accounts account for 72% of the margin gap. Recommended: reduce promo depth by 15% — expected recovery of +0.8pp GM% by EOM.</span>
+          </div>
+          <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 6, overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+              <thead>
+                <tr>{["Account","Seg","Rev YTD","GM%","Promo","GM% vs Thr.","Action"].map(h => (
+                  <th key={h} style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500, fontSize: 9.5, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.04em", borderBottom: "1px solid var(--line)" }}>{h}</th>
+                ))}</tr>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--line-2)", background: r.crit ? "oklch(0.95 0.04 25 / 0.5)" : "transparent" }}>
+                    <td style={{ padding: "5px 8px", fontWeight: 500 }}>{r.entity}</td>
+                    <td style={{ padding: "5px 8px", color: "var(--ink-3)" }}>{r.seg}</td>
+                    <td className="mono" style={{ padding: "5px 8px", textAlign: "left" }}>{r.rev}</td>
+                    <td className="mono" style={{ padding: "5px 8px" }}>{r.gm}</td>
+                    <td className="mono" style={{ padding: "5px 8px", color: "var(--ink-3)" }}>{r.promo}</td>
+                    <td style={{ padding: "5px 8px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ position: "relative", flex: 1, height: 10, background: "var(--bg-2)", borderRadius: 2 }}>
+                          <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "var(--line)" }}/>
+                          <div style={{
+                            position: "absolute",
+                            left: r.delta < 0 ? `${50 - (Math.abs(r.delta)/maxAbs)*50}%` : "50%",
+                            width: `${(Math.abs(r.delta)/maxAbs)*50}%`,
+                            top: 1, bottom: 1, borderRadius: 1,
+                            background: r.delta < 0 ? "oklch(0.6 0.15 30)" : "oklch(0.55 0.12 150)",
+                          }}/>
+                        </div>
+                        <span className="mono" style={{ fontSize: 10, color: r.delta < 0 ? "oklch(0.5 0.15 30)" : "oklch(0.45 0.12 150)", width: 40, textAlign: "right" }}>
+                          {r.delta > 0 ? "+" : ""}{r.delta.toFixed(1)}pp
+                        </span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "5px 8px" }}>
+                      {r.action && (
+                        <span className="mono" style={{ fontSize: 9, color: "var(--accent)", background: "var(--accent-soft)", padding: "1px 5px", borderRadius: 2, fontWeight: 600 }}>
+                          {r.action}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {/* Action panel */}
+        <div style={{ background: "var(--panel)", border: "1px solid var(--accent)", borderRadius: 6, padding: 12, display: "flex", flexDirection: "column", gap: 8, fontSize: 10.5 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span className="mono" style={{ fontSize: 9, fontWeight: 700, color: "var(--accent)", letterSpacing: "0.05em" }}>ACTION · C-M1.1</span>
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 500, lineHeight: 1.35 }}>Reduce promo depth by 15% in DACH Core accounts</div>
+          <div style={{ color: "var(--ink-3)", lineHeight: 1.45 }}>GM% &lt; 18% for 3 months; 2 accounts (Müller, Siemens) explain 58% of gap.</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 4 }}>
+            {["Cap discount at 18% for Q-end","Review mix with CM","Alert buyer in SAP CRM","Reforecast GM% weekly"].map((s, i) => (
+              <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
+                <span className="mono" style={{ fontSize: 9, color: "var(--ink-4)", marginTop: 1 }}>{i+1}.</span>
+                <span style={{ flex: 1 }}>{s}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 6, paddingTop: 8, borderTop: "1px solid var(--line-2)" }}>
+            <div><div style={{ fontSize: 9, color: "var(--ink-4)", textTransform: "uppercase" }}>Owner</div><div style={{ fontWeight: 500 }}>CM DACH</div></div>
+            <div><div style={{ fontSize: 9, color: "var(--ink-4)", textTransform: "uppercase" }}>Due</div><div style={{ fontWeight: 500 }}>End of month</div></div>
+            <div><div style={{ fontSize: 9, color: "var(--ink-4)", textTransform: "uppercase" }}>Impact</div><div style={{ fontWeight: 600, color: "oklch(0.5 0.13 150)" }}>+€1.2M</div></div>
+            <div><div style={{ fontSize: 9, color: "var(--ink-4)", textTransform: "uppercase" }}>Priority</div><div style={{ fontWeight: 500 }}>High</div></div>
+          </div>
+        </div>
+      </div>
+    </PulseFrame>
+  );
+}
+
+const TIER_RENDERER = { T1: T1Render, T2: T2Render, T3: T3Render, T4: T4Render };
+
+// ───────── Catalog (list view) ─────────
+function UseCases({ open }) {
+  const [tier, setTier] = useState("all");
+  const [bracket, setBracket] = useState("all");
+  const [view, setView] = useState("grid");
+  const [selected, setSelected] = useState(null);
+  const [q, setQ] = useState("");
+
+  const filtered = useMemo(() => USE_CASES.filter(uc => {
+    if (tier !== "all" && uc.tier !== tier) return false;
+    if (bracket !== "all" && uc.bracket !== bracket) return false;
+    if (q && !(`${uc.title} ${uc.id} ${uc.question}`).toLowerCase().includes(q.toLowerCase())) return false;
+    return true;
+  }), [tier, bracket, q]);
+
+  if (selected) return <UseCaseDetail uc={selected} onBack={() => setSelected(null)} onOpen={open}/>;
+
+  return (
+    <div style={{ padding: "var(--pad)", maxWidth: 1500, margin: "0 auto", width: "100%" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 4 }}>
+        <div>
+          <div style={{ fontSize: 12, color: "var(--ink-3)" }} className="mono">USE CASE LIBRARY · 9 ACTIVE · 2 DRAFT</div>
+          <h1 className="display" style={{ fontSize: 32, margin: "6px 0 4px", letterSpacing: "-0.025em", fontWeight: 500 }}>
+            Use Cases
+          </h1>
+          <div style={{ color: "var(--ink-3)", fontSize: 13.5 }}>
+            Each use case is a tiered answer to one decision question. Build them once, ship as Pulse layouts.
+          </div>
+        </div>
+        <button style={primaryBtn}><I.Plus size={14}/> New use case</button>
+      </div>
+
+      {/* Decision-time hierarchy strip */}
+      <div style={{ marginTop: 24, marginBottom: 22, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+        {Object.entries(TIERS).map(([t, info]) => {
+          const count = USE_CASES.filter(u => u.tier === t).length;
+          const active = tier === t;
+          return (
+            <button key={t} onClick={() => setTier(active ? "all" : t)} style={{
+              textAlign: "left", padding: 14, borderRadius: 10,
+              background: "var(--panel)",
+              border: `1px solid ${active ? "var(--accent)" : "var(--line)"}`,
+              boxShadow: active ? "0 0 0 3px var(--accent-soft)" : "var(--shadow-sm)",
+              transition: "all 160ms",
+              display: "flex", flexDirection: "column", gap: 8, position: "relative", overflow: "hidden",
+            }}>
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `oklch(0.7 0.1 ${info.color})` }}/>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span className="mono" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", color: `oklch(0.45 0.13 ${info.color})` }}>
+                  {info.tag} · {info.time}
+                </span>
+                <span className="mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>{count}</span>
+              </div>
+              <div className="display" style={{ fontSize: 16, fontWeight: 500, letterSpacing: "-0.01em" }}>{info.label}</div>
+              <div style={{ fontSize: 11.5, color: "var(--ink-3)" }}>{info.desc}</div>
+              <div style={{ fontSize: 10.5, color: "var(--ink-4)", marginTop: 2 }}>{info.audience}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Bracket chips */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em", marginRight: 4 }}>Bracket</span>
+        {[{ id: "all", label: "All", count: USE_CASES.length }, ...BRACKETS].map(b => {
+          const active = bracket === b.id;
+          return (
+            <button key={b.id} onClick={() => setBracket(b.id)} style={{
+              padding: "5px 10px", borderRadius: 99, fontSize: 11.5,
+              border: `1px solid ${active ? "var(--ink)" : "var(--line)"}`,
+              background: active ? "var(--ink)" : "var(--panel)",
+              color: active ? "var(--bg)" : "var(--ink-2)",
+              fontWeight: active ? 500 : 400,
+              display: "inline-flex", alignItems: "center", gap: 6,
+            }}>
+              {b.color && <span style={{ width: 6, height: 6, borderRadius: 99, background: `oklch(0.7 0.1 ${b.color})` }}/>}
+              {b.label}
+              <span className="mono" style={{ fontSize: 10, opacity: 0.7 }}>{b.count}</span>
+            </button>
+          );
+        })}
+        <div style={{ flex: 1 }}/>
+        <div style={{ height: 30, padding: "0 10px", display: "flex", alignItems: "center", gap: 8, border: "1px solid var(--line)", borderRadius: 7, background: "var(--panel)", width: 240 }}>
+          <I.Search size={12}/>
+          <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search use cases…" style={{ flex: 1, border: 0, outline: 0, background: "transparent", fontSize: 12.5 }}/>
+        </div>
+        <div style={{ display: "flex", border: "1px solid var(--line)", borderRadius: 7, overflow: "hidden", height: 30 }}>
+          {[["grid", "Grid"], ["list", "List"]].map(([id, l]) => (
+            <button key={id} onClick={() => setView(id)} style={{
+              padding: "0 12px", fontSize: 12, color: view === id ? "var(--ink)" : "var(--ink-3)",
+              background: view === id ? "var(--hover)" : "transparent", fontWeight: view === id ? 500 : 400,
+            }}>{l}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Cards or list */}
+      {view === "grid" ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+          {filtered.map(uc => <UseCaseCard key={uc.id} uc={uc} onClick={() => setSelected(uc)}/>)}
+        </div>
+      ) : (
+        <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 10, overflow: "hidden" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead><tr>
+              {["Tier","ID","Title","Decision Question","Owner","Audience","Freq","Status","Updated"].map(h => (
+                <th key={h} style={{ textAlign: "left", fontWeight: 500, fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em", padding: "12px var(--pad)", borderBottom: "1px solid var(--line)" }}>{h}</th>
+              ))}
+            </tr></thead>
+            <tbody>
+              {filtered.map(uc => (
+                <tr key={uc.id} onClick={() => setSelected(uc)} style={{ cursor: "pointer", transition: "background 120ms" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "var(--hover)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)" }}><TierBadge tier={uc.tier}/></td>
+                  <td className="mono" style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)", color: "var(--ink-3)" }}>{uc.id}</td>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)", fontWeight: 500 }}>{uc.title}</td>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)", color: "var(--ink-3)", fontStyle: "italic" }}>{uc.question}</td>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)" }}>{uc.owner}</td>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)", color: "var(--ink-3)" }}>{uc.audience}</td>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)" }}>{uc.freq}</td>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)" }}>
+                    <Pill tone={uc.status === "live" ? "positive" : uc.status === "review" ? "warn" : "draft"}>{uc.status}</Pill>
+                  </td>
+                  <td style={{ padding: "12px var(--pad)", borderBottom: "1px solid var(--line-2)", color: "var(--ink-4)", fontSize: 12 }}>{uc.updated}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UseCaseCard({ uc, onClick }) {
+  const Renderer = TIER_RENDERER[uc.tier];
+  const bracketColor = (BRACKETS.find(b => b.id === uc.bracket) || {}).color || "250";
+  return (
+    <button onClick={onClick} style={{
+      textAlign: "left", padding: 0, borderRadius: 12,
+      background: "var(--panel)", border: "1px solid var(--line)",
+      overflow: "hidden", display: "flex", flexDirection: "column",
+      transition: "border-color 160ms, box-shadow 160ms, transform 160ms",
+      boxShadow: "var(--shadow-sm)",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.boxShadow = "var(--shadow-md)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+    onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--line)"; e.currentTarget.style.boxShadow = "var(--shadow-sm)"; e.currentTarget.style.transform = "translateY(0)"; }}>
+      {/* Mini preview */}
+      <div style={{ height: 200, background: "var(--bg-2)", padding: 10, overflow: "hidden", position: "relative", borderBottom: "1px solid var(--line)" }}>
+        <div style={{ transform: "scale(0.42)", transformOrigin: "top left", width: "238%", height: "238%", pointerEvents: "none" }}>
+          <Renderer uc={uc}/>
+        </div>
+      </div>
+      {/* Meta */}
+      <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 6, height: 6, borderRadius: 99, background: `oklch(0.7 0.1 ${bracketColor})` }}/>
+          <span className="mono" style={{ fontSize: 10.5, color: "var(--ink-4)", letterSpacing: "0.04em" }}>{uc.id} · {uc.bracket}</span>
+          <div style={{ flex: 1 }}/>
+          <TierBadge tier={uc.tier}/>
+        </div>
+        <div style={{ fontSize: 14.5, fontWeight: 500, letterSpacing: "-0.01em", lineHeight: 1.3 }}>{uc.title}</div>
+        <div style={{ fontSize: 12, color: "var(--ink-3)", fontStyle: "italic", lineHeight: 1.4 }}>"{uc.question}"</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4, fontSize: 11, color: "var(--ink-4)" }}>
+          <span>{uc.owner}</span>
+          <span>·</span>
+          <span>{uc.freq}</span>
+          <span style={{ flex: 1 }}/>
+          <Pill tone={uc.status === "live" ? "positive" : uc.status === "review" ? "warn" : "draft"}>{uc.status}</Pill>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// ───────── Use Case Detail ─────────
+function UseCaseDetail({ uc, onBack }) {
+  const [tab, setTab] = useState("preview");
+  const [activeTier, setActiveTier] = useState(uc.tier);
+  const Renderer = TIER_RENDERER[activeTier];
+
+  const tabs = [
+    { id: "preview",   label: "Preview" },
+    { id: "spec",      label: "Specification" },
+    { id: "lineage",   label: "Lineage" },
+    { id: "actions",   label: "Action Codes", count: uc.actions.length },
+    { id: "history",   label: "History" },
+  ];
+
+  return (
+    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+      <div style={{ flex: 1, overflow: "auto" }}>
+        <div style={{ padding: "var(--pad)", maxWidth: 1300, margin: "0 auto", width: "100%" }}>
+          <button onClick={onBack} style={{ ...ghostSmall, marginBottom: 14, paddingLeft: 0 }}>
+            <I.Chevron size={12} style={{ transform: "rotate(180deg)" }}/> Back to use cases
+          </button>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>{uc.id}</span>
+            <TierBadge tier={uc.tier} large/>
+            <Pill tone={uc.status === "live" ? "positive" : uc.status === "review" ? "warn" : "draft"}>{uc.status}</Pill>
+            <span style={{ fontSize: 12, color: "var(--ink-4)" }}>· {uc.bracket} · {uc.domain}</span>
+          </div>
+
+          <h1 className="display" style={{ fontSize: 36, margin: "0 0 8px", fontWeight: 500, letterSpacing: "-0.025em" }}>{uc.title}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: "var(--bg-2)", border: "1px solid var(--line)", borderLeft: "3px solid var(--accent)", borderRadius: 6, marginBottom: 18 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Decision</span>
+            <span style={{ fontSize: 14, fontStyle: "italic", color: "var(--ink-2)" }}>{uc.question}</span>
+          </div>
+
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 2, borderBottom: "1px solid var(--line)", marginBottom: 22 }}>
+            {tabs.map(t => {
+              const active = tab === t.id;
+              return (
+                <button key={t.id} onClick={() => setTab(t.id)} style={{
+                  padding: "10px 14px", display: "flex", alignItems: "center", gap: 6,
+                  fontSize: 13, color: active ? "var(--ink)" : "var(--ink-3)",
+                  fontWeight: active ? 500 : 400,
+                  borderBottom: `1.5px solid ${active ? "var(--accent)" : "transparent"}`,
+                  marginBottom: -1,
+                }}>
+                  {t.label}
+                  {t.count != null && (
+                    <span className="mono" style={{ fontSize: 10, padding: "1px 6px", borderRadius: 99, background: "var(--hover)", color: "var(--ink-3)" }}>{t.count}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {tab === "preview" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {/* Tier switcher — narrative path */}
+              <div style={{ display: "flex", alignItems: "center", gap: 0, padding: "10px 12px", background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 10 }}>
+                <span style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em", marginRight: 12 }}>Decision flow</span>
+                {Object.keys(TIERS).map((t, i) => {
+                  const active = activeTier === t;
+                  const isUcTier = uc.tier === t;
+                  return (
+                    <React.Fragment key={t}>
+                      {i > 0 && <span style={{ color: "var(--ink-4)", margin: "0 4px" }}>→</span>}
+                      <button onClick={() => setActiveTier(t)} style={{
+                        padding: "5px 10px", borderRadius: 6, fontSize: 11,
+                        background: active ? `oklch(0.7 0.1 ${TIERS[t].color} / 0.2)` : "transparent",
+                        color: active ? `oklch(0.4 0.13 ${TIERS[t].color})` : "var(--ink-3)",
+                        fontWeight: active ? 600 : 400,
+                        border: isUcTier && !active ? `1px dashed oklch(0.7 0.1 ${TIERS[t].color} / 0.5)` : "1px solid transparent",
+                        position: "relative",
+                      }} className="mono">
+                        {t} · {TIERS[t].time}
+                      </button>
+                    </React.Fragment>
+                  );
+                })}
+                <div style={{ flex: 1 }}/>
+                <button style={ghostSmall}><I.Eye size={12}/> Open full</button>
+                <button style={{ ...ghostSmall, marginLeft: 4 }}><I.Edit size={12}/> Edit layout</button>
+              </div>
+
+              <Renderer uc={uc}/>
+
+              {/* Validation rules */}
+              <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 10, padding: "var(--pad)" }}>
+                <div style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Tier validation</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12.5 }}>
+                  {[
+                    { ok: true,  text: `KPI band — ${activeTier === "T1" ? "5" : "4"} cards, full width` },
+                    { ok: true,  text: "Slicer bar within Pulse limit (≤3 slicers)" },
+                    { ok: activeTier !== "T1", text: "Variance/waterfall reconciles to total Δ" },
+                    { ok: activeTier === "T4", text: "Action panel mandatory for T4" },
+                    { ok: true,  text: "Decision question matches tier-time hierarchy" },
+                    { ok: activeTier !== "T1" || true, text: "Strategic signal — no owner, no steps" },
+                  ].map((v, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ width: 14, height: 14, borderRadius: 99, background: v.ok ? "oklch(0.92 0.08 150)" : "oklch(0.92 0.08 30)", color: v.ok ? "oklch(0.4 0.14 150)" : "oklch(0.4 0.16 30)", display: "grid", placeItems: "center", fontSize: 9, fontWeight: 700 }}>
+                        {v.ok ? "✓" : "!"}
+                      </span>
+                      <span style={{ color: "var(--ink-2)" }}>{v.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab === "spec" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 10 }}>
+                <div style={cardHead}><div style={cardTitle}>Use case specification</div><span className="mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>YAML</span></div>
+                <pre className="mono" style={{ margin: 0, padding: "var(--pad)", fontSize: 12, lineHeight: 1.7, background: "var(--bg-2)", color: "var(--ink-2)", overflow: "auto" }}>
+{`id: ${uc.id}
+title: "${uc.title}"
+bracket: ${uc.bracket}
+domain: ${uc.domain}
+tier: ${uc.tier}
+decision_question: |
+  ${uc.question}
+audience: ${uc.audience}
+owner: ${uc.owner}
+frequency: ${uc.freq}
+metrics:
+  primary: [met.commercial.net_sales, met.commercial.gm_pct]
+  secondary: [met.commercial.volume, met.commercial.asp]
+dimensions: [dim.region, dim.segment, dim.period]
+slicers: [Period, Region, ${uc.tier === "T4" ? "Priority" : "Business Unit"}]
+action_codes:
+${uc.actions.map(a => `  - ${a}`).join("\n") || "  []"}
+status: ${uc.status}`}
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {tab === "lineage" && (
+            <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 10, padding: "var(--pad)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 18 }}>
+                <span className="mono" style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase" }}>Sources</span>
+                <span style={{ flex: 1, height: 1, background: "var(--line)" }}/>
+                <span className="mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>Metrics</span>
+                <span style={{ flex: 1, height: 1, background: "var(--line)" }}/>
+                <span className="mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>This use case</span>
+                <span style={{ flex: 1, height: 1, background: "var(--line)" }}/>
+                <span className="mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>Actions</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16 }}>
+                {[
+                  ["src.billing", "src.crm", "src.events"],
+                  ["met.commercial.net_sales", "met.commercial.gm_pct", "met.commercial.volume"],
+                  [uc.id + " · " + uc.title],
+                  uc.actions.length ? uc.actions : ["—"],
+                ].map((col, i) => (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {col.map(item => (
+                      <div key={item} style={{
+                        padding: "10px 12px", background: i === 2 ? "var(--ink)" : "var(--bg-2)",
+                        color: i === 2 ? "var(--bg)" : "var(--ink-2)",
+                        border: "1px solid var(--line)",
+                        borderRadius: 6, fontSize: 12, fontFamily: i === 2 ? "var(--font-ui)" : "var(--font-mono)",
+                        fontWeight: i === 2 ? 500 : 400,
+                      }}>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tab === "actions" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {uc.actions.length === 0 && (
+                <div style={{ padding: 28, textAlign: "center", color: "var(--ink-3)", border: "1px dashed var(--line)", borderRadius: 10, fontSize: 13 }}>
+                  No action codes linked. Add one to make this a T4 use case.
+                </div>
+              )}
+              {uc.actions.map(aId => {
+                const a = ACTION_CODES.find(x => x.id === aId);
+                if (!a) return null;
+                return (
+                  <div key={aId} style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 10, padding: "var(--pad)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                      <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: "var(--accent)", background: "var(--accent-soft)", padding: "3px 8px", borderRadius: 4 }}>{a.id}</span>
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>{a.name}</span>
+                      <div style={{ flex: 1 }}/>
+                      <Pill tone={a.priority === "Critical" ? "warn" : a.priority === "High" ? "accent" : "neutral"}>{a.priority}</Pill>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginTop: 10 }}>
+                      <PropPair label="Trigger" value={a.trigger} mono/>
+                      <PropPair label="Owner" value={a.owner}/>
+                      <PropPair label="Impact" value={a.impact} bold/>
+                      <PropPair label="Active instances" value={a.active}/>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {tab === "history" && (
+            <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: 10, padding: "6px 0" }}>
+              {[
+                ["A. Haferkorn", `published v1.2 to ${uc.audience}`, uc.updated],
+                ["R. Okafor",    "added action code C-M1.1",         "2d ago"],
+                ["L. Chen",      "validated tier classification",    "5d ago"],
+                ["M. Park",      `created use case ${uc.id}`,        "2w ago"],
+              ].map((e, i) => (
+                <div key={i} style={{ padding: "12px var(--pad)", borderTop: i === 0 ? "none" : "1px solid var(--line-2)", display: "flex", alignItems: "center", gap: 12 }}>
+                  <I.Clock size={13}/>
+                  <div style={{ fontSize: 13, flex: 1 }}>
+                    <span style={{ fontWeight: 500 }}>{e[0]}</span>
+                    <span style={{ color: "var(--ink-3)" }}> {e[1]}</span>
+                  </div>
+                  <span style={{ fontSize: 11.5, color: "var(--ink-4)" }}>{e[2]}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Right rail */}
+      <aside style={{ width: 300, flexShrink: 0, borderLeft: "1px solid var(--line)", padding: "var(--pad)", overflow: "auto", background: "var(--bg)" }}>
+        <div style={{ fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Properties</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14, fontSize: 12.5 }}>
+          <PropRow label="Tier"><TierBadge tier={uc.tier}/></PropRow>
+          <PropRow label="Bracket"><Pill>{uc.bracket}</Pill></PropRow>
+          <PropRow label="Domain">{uc.domain}</PropRow>
+          <PropRow label="Owner"><OwnerChip name={uc.owner}/></PropRow>
+          <PropRow label="Audience">{uc.audience}</PropRow>
+          <PropRow label="Frequency">{uc.freq}</PropRow>
+          <PropRow label="Last updated">{uc.updated}</PropRow>
+        </div>
+
+        <div style={{ margin: "24px 0 12px", fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Decision-time hierarchy
+        </div>
+        <div style={{ background: "var(--bg-2)", border: "1px solid var(--line)", borderRadius: 10, padding: 12, fontSize: 11.5, lineHeight: 1.5 }}>
+          A <strong>{uc.tier}</strong> use case must answer its decision in
+          <span style={{ color: "var(--accent)", fontWeight: 600 }}> {TIERS[uc.tier].time} </span>
+          for <strong>{TIERS[uc.tier].audience}</strong>.
+          <div style={{ marginTop: 8, color: "var(--ink-3)", fontSize: 11 }}>
+            Pulse principle: 3s read → 30s scan → 5min investigate → 30min decide.
+          </div>
+        </div>
+
+        <div style={{ margin: "24px 0 12px", fontSize: 11, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          Studio AI
+        </div>
+        <div style={{ padding: 14, borderRadius: 10, background: "linear-gradient(180deg, var(--accent-soft), transparent)", border: "1px solid var(--line)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 12 }}>
+            <I.Sparkle size={12} stroke={1.8}/><span style={{ fontWeight: 500 }}>Suggestion</span>
+          </div>
+          <div style={{ fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.5, marginBottom: 10 }}>
+            {uc.tier === "T1" || uc.tier === "T2"
+              ? "This use case escalates to a T4 prescriptive layer. Want me to draft the recommended actions?"
+              : "Detected 3 candidate metrics not yet linked. Auto-add to the spec?"}
+          </div>
+          <button style={{ ...primaryBtn, width: "100%", justifyContent: "center" }}>Review draft</button>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function PropPair({ label, value, mono, bold }) {
+  return (
+    <div>
+      <div style={{ fontSize: 10.5, color: "var(--ink-4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>
+      <div style={{ fontSize: 12.5, marginTop: 3, fontFamily: mono ? "var(--font-mono)" : "var(--font-ui)", fontWeight: bold ? 600 : 400, color: bold ? "oklch(0.5 0.13 150)" : "var(--ink-2)" }}>{value}</div>
+    </div>
+  );
+}
+
+
+
+// ======== src/app.jsx ========
+// App — root component, routing, tweaks state, Tweaks host protocol
+function App() {
+  const [tweaks, setTweaks] = useState(window.__TWEAKS__);
+  const [route, setRoute] = useState("dashboard");
+  const [detailMetric, setDetailMetric] = useState(null);
+  const [cmdOpen, setCmdOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(tweaks.sidebar === "collapsed");
+
+  useEffect(() => { setSidebarCollapsed(tweaks.sidebar === "collapsed"); }, [tweaks.sidebar]);
+
+  // Apply tweaks to root element
+  useEffect(() => {
+    const r = document.documentElement;
+    r.dataset.theme = tweaks.theme;
+    r.dataset.density = tweaks.density;
+    r.dataset.fonts = tweaks.fontPairing;
+    r.style.setProperty("--accent", `oklch(${tweaks.accentLightness ?? 0.62} ${tweaks.accentChroma ?? 0.13} ${tweaks.accentHue})`);
+    r.style.setProperty("--accent-soft", `oklch(${tweaks.accentLightness ?? 0.62} ${tweaks.accentChroma ?? 0.13} ${tweaks.accentHue} / 0.14)`);
+    r.style.setProperty("--accent-ink", tweaks.theme === "dark" ? `oklch(0.12 0.02 ${tweaks.accentHue})` : `oklch(0.98 0.01 ${tweaks.accentHue})`);
+  }, [tweaks]);
+
+  const setTweak = useCallback((k, v) => {
+    setTweaks(t => {
+      const next = { ...t, [k]: v };
+      // persist
+      window.parent?.postMessage({ type: "__edit_mode_set_keys", edits: { [k]: v } }, "*");
+      return next;
+    });
+  }, []);
+
+  // Edit mode protocol
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (e.data?.type === "__activate_edit_mode")   { setEditMode(true); setTweaksOpen(true); }
+      if (e.data?.type === "__deactivate_edit_mode") { setEditMode(false); setTweaksOpen(false); }
+    };
+    window.addEventListener("message", onMsg);
+    window.parent?.postMessage({ type: "__edit_mode_available" }, "*");
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
+  // Keybinds
+  useEffect(() => {
+    const onKey = (e) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); setCmdOpen(o => !o); }
+      else if (e.key.toLowerCase() === "n" && !e.target.matches("input,textarea")) { setWizardOpen(true); }
+      else if (e.key === "Escape") { setCmdOpen(false); setWizardOpen(false); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const openDetail = (m) => { setDetailMetric(m); setRoute("detail"); };
+
+  return (
+    <div style={{ height: "100vh", display: "flex", overflow: "hidden" }}>
+      <Sidebar route={route} setRoute={setRoute}
+               collapsed={sidebarCollapsed}
+               setCollapsed={(v) => { setSidebarCollapsed(v); setTweak("sidebar", v ? "collapsed" : "expanded"); }}
+               onNew={() => setWizardOpen(true)}
+               onCmd={() => setCmdOpen(true)}/>
+
+      <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0, background: "var(--bg)" }}>
+        <Topbar route={route}
+                onCmd={() => setCmdOpen(true)}
+                onToggleTweaks={() => setTweaksOpen(o => !o)}/>
+        <div style={{ flex: 1, overflow: "auto" }}>
+          {route === "dashboard" && <Dashboard onOpenDetail={openDetail}/>}
+          {route === "canvas"    && <Canvas onOpenDetail={openDetail}/>}
+          {route === "library"   && <Library onOpenDetail={openDetail}/>}
+          {route === "usecases"  && <UseCases open={openDetail}/>}
+          {route === "detail"    && <Detail metric={detailMetric} onBack={() => setRoute("library")}/>}
+        </div>
+      </main>
+
+      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNav={setRoute}/>
+      <Wizard open={wizardOpen} onClose={() => setWizardOpen(false)}/>
+      <Tweaks open={tweaksOpen} onClose={() => setTweaksOpen(false)} tweaks={tweaks} setTweak={setTweak}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+
+</script>
+</body>
+</html>

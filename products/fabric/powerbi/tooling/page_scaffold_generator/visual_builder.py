@@ -753,6 +753,8 @@ class VisualBuilder:
         name: Optional[str] = None,
         measures: Optional[List[str]] = None,
         title: Optional[str] = None,
+        category_entity: Optional[str] = None,
+        category_property: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build visual from ux_layout_rules visual_type (round-trip from layout editor).
@@ -783,11 +785,15 @@ class VisualBuilder:
             )
         if normalized_type == "trend_line":
             return self.build_line_chart(
-                position, measures=measures, name=name, title=title
+                position, measures=measures, name=name, title=title,
+                category_entity=category_entity or "dim_date",
+                category_property=category_property or "CalendarYearMonth",
             )
         if normalized_type == "bar_chart":
             return self.build_horizontal_bar(
-                position, measures=measures, name=name, title=title
+                position, measures=measures, name=name, title=title,
+                category_entity=category_entity or "dim_org",
+                category_property=category_property or "OrgName",
             )
         if normalized_type == "bar_chart_horizontal":
             return self.build_horizontal_bar(
@@ -795,12 +801,14 @@ class VisualBuilder:
                 measures=measures,
                 name=name,
                 title=title,
-                category_entity="dim_org",
-                category_property="OrgName",
+                category_entity=category_entity or "dim_org",
+                category_property=category_property or "OrgName",
             )
         if normalized_type == "bar_chart_vertical":
             return self.build_line_chart(
-                position, measures=measures, name=name, title=title, category_entity="dim_org", category_property="OrgName"
+                position, measures=measures, name=name, title=title,
+                category_entity=category_entity or "dim_org",
+                category_property=category_property or "OrgName",
             )
         if normalized_type == "waterfall":
             return self.build_waterfall(position, measures=measures, name=name)

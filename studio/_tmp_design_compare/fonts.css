@@ -1,0 +1,45 @@
+/* ============================================================
+   Nagarro Brand Fonts — Equip + Equip Extended
+   ------------------------------------------------------------
+   Licensed proprietary face. For Nagarro branding only.
+   Weight mapping per the Lingo brand system:
+     100 Thin · 200 ExtraLight · 300 Light · 400 Regular
+     500 Medium · 700 Bold · 800 ExtraBold · 900 Black
+   File paths are relative to this stylesheet (root of project).
+   ============================================================ */
+
+/* ── Equip — body / UI text (16 styles) ──────────────────── */
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 100; font-display: swap; src: url('fonts/EquipThi.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 100; font-display: swap; src: url('fonts/EquipThiIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 200; font-display: swap; src: url('fonts/EquipXLig.woff2')     format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 200; font-display: swap; src: url('fonts/EquipXLigIta.woff2')  format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 300; font-display: swap; src: url('fonts/EquipLig.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 300; font-display: swap; src: url('fonts/EquipLigIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/EquipReg.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 400; font-display: swap; src: url('fonts/EquipIta.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/EquipMed.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 500; font-display: swap; src: url('fonts/EquipMedIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/EquipBol.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 700; font-display: swap; src: url('fonts/EquipBolIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 800; font-display: swap; src: url('fonts/EquipXBol.woff2')     format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 800; font-display: swap; src: url('fonts/EquipXBolIta.woff2')  format('woff2'); }
+@font-face { font-family: 'Equip'; font-style: normal; font-weight: 900; font-display: swap; src: url('fonts/EquipBla.ttf')        format('truetype'); }
+@font-face { font-family: 'Equip'; font-style: italic; font-weight: 900; font-display: swap; src: url('fonts/EquipBlaIta.woff2')   format('woff2'); }
+
+/* ── Equip Extended — display / headlines (16 styles) ────── */
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 100; font-display: swap; src: url('fonts/EquipExtThi.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 100; font-display: swap; src: url('fonts/EquipExtThiIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 200; font-display: swap; src: url('fonts/EquipExtXLig.woff2')     format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 200; font-display: swap; src: url('fonts/EquipExtXLigIta.woff2')  format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 300; font-display: swap; src: url('fonts/EquipExtLig.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 300; font-display: swap; src: url('fonts/EquipExtLigIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 400; font-display: swap; src: url('fonts/EquipExtReg.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 400; font-display: swap; src: url('fonts/EquipExtIta.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 500; font-display: swap; src: url('fonts/EquipExtMed.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 500; font-display: swap; src: url('fonts/EquipExtMedIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 700; font-display: swap; src: url('fonts/EquipExtBol.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 700; font-display: swap; src: url('fonts/EquipExtBolIta.woff2')   format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 800; font-display: swap; src: url('fonts/EquipExtXBol.woff2')     format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 800; font-display: swap; src: url('fonts/EquipExtXBolIta.woff2')  format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: normal; font-weight: 900; font-display: swap; src: url('fonts/EquipExtBla.woff2')      format('woff2'); }
+@font-face { font-family: 'Equip Extended'; font-style: italic; font-weight: 900; font-display: swap; src: url('fonts/EquipExtBlaIta.woff2')   format('woff2'); }

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COM-001 Sales Performance vs Plan &amp; LY — Reference Report</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--background);font-family:var(--font-sans);color:var(--text-primary)}
+
+.top-bar{height:10px;background:var(--mint);position:sticky;top:0;z-index:300}
+.rpt-header{background:var(--petrol);height:56px;display:flex;align-items:center;gap:var(--s-4);padding:0 var(--s-6);position:sticky;top:10px;z-index:299;border-bottom:1px solid rgba(255,255,255,0.08)}
+.rpt-logo img{height:22px}
+.rpt-sep{width:1px;height:18px;background:rgba(255,255,255,0.15);margin:0 var(--s-3)}
+.rpt-uc{font-family:var(--font-mono);font-size:10px;font-weight:var(--fw-bold);background:rgba(71,215,172,0.15);border:1px solid rgba(71,215,172,0.25);color:var(--mint);padding:2px 8px;border-radius:var(--r-sm)}
+.rpt-title{font-family:var(--font-display);font-weight:var(--fw-bold);font-size:var(--fs-base);color:var(--text-on-dark);letter-spacing:-0.01em}
+.rpt-meta{margin-left:auto;display:flex;align-items:center;gap:var(--s-3)}
+.rpt-period{font-size:var(--fs-xs);color:var(--text-on-dark-muted);font-family:var(--font-mono)}
+.rules-btn{font-size:var(--fs-xs);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:var(--text-on-dark-muted);padding:4px 12px;border-radius:var(--r-sm);cursor:pointer;transition:all var(--dur-fast)}
+.rules-btn:hover,.rules-btn.on{background:rgba(71,215,172,0.15);border-color:rgba(71,215,172,0.35);color:var(--mint)}
+.rpt-back{font-size:var(--fs-xs);color:rgba(71,215,172,0.7);text-decoration:none}
+.rpt-back:hover{color:var(--mint)}
+
+.page-tabs{background:var(--nightfall);display:flex;padding:0 var(--s-6);position:sticky;top:66px;z-index:290;border-bottom:1px solid rgba(255,255,255,0.06)}
+.tab{padding:10px var(--s-5);font-size:var(--fs-sm);color:var(--text-on-dark-muted);cursor:pointer;border-bottom:3px solid transparent;transition:all var(--dur-fast);user-select:none}
+.tab:hover{color:var(--text-on-dark)}
+.tab.active{color:var(--text-on-dark);border-bottom-color:var(--mint)}
+.tab-badge{font-family:var(--font-mono);font-size:9px;background:rgba(71,215,172,0.12);color:var(--mint);padding:1px 5px;border-radius:var(--r-sm);margin-left:var(--s-2)}
+
+/* Slicer bar — Rule 1 */
+.slicer-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:var(--s-3) var(--s-6);display:flex;align-items:center;gap:var(--s-5);position:sticky;top:107px;z-index:280;flex-wrap:wrap}
+.slicer{display:flex;align-items:center;gap:var(--s-2)}
+.slicer-lbl{font-size:10px;color:var(--text-muted);font-weight:var(--fw-semibold);white-space:nowrap}
+.slicer-chip{font-size:var(--fs-xs);background:var(--surface-muted);border:1px solid var(--border);border-radius:var(--r-sm);padding:3px 10px;color:var(--text-secondary);cursor:pointer}
+.slicer-chip.sel{background:var(--mint-light);border-color:rgba(71,215,172,0.4);color:var(--mint-dark);font-weight:var(--fw-semibold)}
+.slicer-divider{width:1px;height:18px;background:var(--border)}
+.slicer-state{font-size:10px;font-family:var(--font-mono);background:var(--surface-muted);border:1px solid var(--border-light);color:var(--text-muted);padding:2px 8px;border-radius:var(--r-sm);margin-left:auto}
+
+.page{padding:var(--s-5) var(--s-6) var(--s-10)}
+.page.hidden{display:none}
+
+/* KPI cards */
+.kpi-row{display:flex;gap:var(--s-4);margin-bottom:var(--s-5)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-sm);padding:var(--s-4) var(--s-5);flex:1;min-width:0;position:relative}
+.kpi-card.primary{border-top:3px solid var(--mint)}
+.kpi-lbl{font-size:var(--fs-xs);color:var(--text-muted);margin-bottom:var(--s-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi-val{font-family:var(--font-display);font-weight:var(--fw-bold);font-size:var(--fs-3xl);color:var(--petrol);line-height:1;margin-bottom:var(--s-2)}
+.kpi-val.neg{color:var(--sunset)}
+.kpi-val.pos{color:var(--mint-dark)}
+.kpi-deltas{display:flex;gap:var(--s-3);flex-wrap:wrap}
+.kd{font-size:var(--fs-xs);display:flex;align-items:center;gap:2px}
+.kd.pos{color:var(--mint-dark)}.kd.neg{color:var(--sunset)}.kd-lbl{color:var(--text-muted)}
+.kpi-spark{margin-top:var(--s-3);border-top:1px solid var(--border-light);padding-top:var(--s-2)}
+
+/* Charts grid */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4);margin-bottom:var(--s-5)}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-sm);padding:var(--s-5);position:relative;overflow:hidden}
+.chart-title{font-weight:var(--fw-semibold);font-size:var(--fs-sm);color:var(--petrol);margin-bottom:2px}
+.chart-sub{font-size:var(--fs-xs);color:var(--text-muted);margin-bottom:var(--s-4)}
+.chart-legend{display:flex;gap:var(--s-4);margin-bottom:var(--s-3);flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:var(--s-1);font-size:var(--fs-xs);color:var(--text-secondary)}
+.leg-line{width:20px;height:2px;border-radius:1px}
+
+/* Horizontal bar rows */
+.bar-rows{display:flex;flex-direction:column;gap:var(--s-3)}
+.bar-row{display:flex;align-items:center;gap:var(--s-3)}
+.bar-lbl{font-size:var(--fs-xs);color:var(--text-secondary);min-width:110px;flex-shrink:0;line-height:1.3}
+.bar-lbl.alert{color:var(--sunset);font-weight:var(--fw-semibold)}
+.bar-track{flex:1;background:var(--surface-muted);border-radius:var(--r-sm);height:20px;position:relative}
+.bar-fill{height:100%;border-radius:var(--r-sm)}
+.bar-ref{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--mint);border-radius:1px}
+.bar-num{font-size:var(--fs-xs);font-weight:var(--fw-semibold);min-width:38px;text-align:right;flex-shrink:0}
+.bar-delta{font-size:10px;min-width:44px;text-align:right;flex-shrink:0;font-family:var(--font-mono)}
+
+/* Ranked diverging bars */
+.rank-rows{display:flex;flex-direction:column;gap:var(--s-3)}
+.rank-row{display:flex;align-items:center;gap:var(--s-3)}
+.rank-lbl{font-size:var(--fs-xs);min-width:110px;flex-shrink:0;line-height:1.3}
+.rank-center{flex:1;display:flex;align-items:center;gap:0;position:relative}
+.rank-zero{position:absolute;left:50%;top:-4px;bottom:-4px;width:1px;background:var(--border)}
+.rank-pos{margin-left:50%;height:20px;border-radius:0 var(--r-sm) var(--r-sm) 0}
+.rank-neg{margin-left:calc(50% - var(--w));height:20px;border-radius:var(--r-sm) 0 0 var(--r-sm)}
+.rank-num{font-size:var(--fs-xs);font-weight:var(--fw-semibold);min-width:50px;text-align:right;flex-shrink:0;font-family:var(--font-mono)}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:var(--fs-sm)}
+th{text-align:right;font-size:10px;font-weight:var(--fw-semibold);color:var(--text-muted);padding:var(--s-2) var(--s-3);border-bottom:2px solid var(--mint);white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:9px var(--s-3);border-bottom:1px solid var(--border-light);text-align:right;color:var(--text-secondary);white-space:nowrap}
+td:first-child{text-align:left;font-weight:var(--fw-medium);color:var(--petrol)}
+tr:hover td{background:var(--surface-hover)}
+.subtotal td{font-weight:var(--fw-bold);color:var(--petrol);border-top:1px solid var(--border);border-bottom:2px solid var(--border);background:var(--surface-muted)}
+.pos{color:var(--mint-dark)!important;font-weight:var(--fw-semibold)!important}
+.neg{color:var(--sunset)!important;font-weight:var(--fw-semibold)!important}
+.neg-strong{color:var(--sunset)!important;font-weight:var(--fw-bold)!important}
+.neutral{color:var(--text-muted)!important}
+.guardrail-breach{background:rgba(248,72,94,0.04)!important}
+.guardrail-breach td:first-child{color:var(--sunset)!important;font-weight:var(--fw-bold)!important}
+
+/* Persistence badges */
+.persist-badge{display:inline-flex;align-items:center;gap:2px;font-size:9px;font-weight:var(--fw-bold);font-family:var(--font-mono);padding:1px 5px;border-radius:2px}
+.pb-down{background:rgba(248,72,94,0.12);color:var(--sunset)}
+.pb-up{background:rgba(71,215,172,0.12);color:var(--mint-dark)}
+.pb-flat{background:var(--surface-muted);color:var(--text-muted)}
+
+/* Smart narrative */
+.narrative{background:var(--petrol);border-radius:var(--r-md);padding:var(--s-5) var(--s-6)}
+.narrative-title{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--mint);margin-bottom:var(--s-4);font-family:var(--font-mono)}
+.narrative-body{display:flex;flex-direction:column;gap:var(--s-4)}
+.narrative-layer{display:flex;gap:var(--s-4);align-items:flex-start}
+.nar-tag{font-family:var(--font-mono);font-size:9px;font-weight:var(--fw-bold);color:var(--petrol);background:var(--mint);padding:2px 6px;border-radius:2px;flex-shrink:0;margin-top:2px}
+.nar-text{font-size:var(--fs-sm);color:var(--text-on-dark-muted);line-height:1.6}
+.nar-text strong{color:var(--text-on-dark)}
+
+/* Action codes */
+.action-header{display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-4)}
+.action-pulse{width:8px;height:8px;background:var(--sunset);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.action-title-txt{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--sunset)}
+.action-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s-4)}
+.action-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--sunset);border-radius:var(--r-md);padding:var(--s-5)}
+.ac-id{font-family:var(--font-mono);font-size:10px;font-weight:var(--fw-bold);color:var(--sunset);margin-bottom:4px}
+.ac-name{font-weight:var(--fw-bold);font-size:var(--fs-base);color:var(--petrol);margin-bottom:var(--s-3)}
+.ac-meta{display:flex;gap:var(--s-2);flex-wrap:wrap;margin-bottom:var(--s-3)}
+.ac-tag{font-size:9px;font-weight:var(--fw-semibold);font-family:var(--font-mono);padding:1px 6px;border-radius:2px}
+.ac-trigger{font-size:var(--fs-xs);color:var(--text-secondary);line-height:1.5;margin-bottom:var(--s-3)}
+.ac-kpis{font-size:10px;font-family:var(--font-mono);color:var(--text-muted);margin-bottom:var(--s-3)}
+.ac-steps{list-style:none;display:flex;flex-direction:column;gap:var(--s-2);margin-bottom:var(--s-3)}
+.ac-steps li{font-size:var(--fs-xs);color:var(--text-secondary);display:flex;gap:var(--s-2);line-height:1.4}
+.ac-steps li::before{content:'→';color:var(--sunset);flex-shrink:0}
+.ac-impact{background:var(--surface-muted);border-radius:var(--r-sm);padding:var(--s-2) var(--s-3);font-size:var(--fs-xs)}
+.ac-impact-val{font-weight:var(--fw-bold);color:var(--petrol)}
+.ac-escalate{font-size:10px;color:var(--text-muted);margin-top:var(--s-2);font-family:var(--font-mono)}
+
+/* Section headers in detail */
+.detail-sec{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--mint-dark);margin-bottom:var(--s-4);margin-top:var(--s-6);display:flex;align-items:center;gap:var(--s-3)}
+.detail-sec:first-child{margin-top:0}
+.detail-sec-src{font-family:var(--font-mono);font-size:9px;color:var(--text-muted)}
+
+/* Key observations */
+.observations{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:var(--s-5);margin-top:var(--s-5)}
+.obs-title{font-size:var(--fs-xs);font-weight:var(--fw-semibold);color:var(--mint-dark);margin-bottom:var(--s-4)}
+.obs-list{list-style:none;display:flex;flex-direction:column;gap:var(--s-3)}
+.obs-item{display:flex;gap:var(--s-3);align-items:flex-start;font-size:var(--fs-sm);color:var(--text-secondary);line-height:1.5}
+.obs-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+
+/* Rule annotation badges */
+.rb{position:absolute;width:20px;height:20px;background:var(--lavender);color:white;border-radius:50%;font-size:9px;font-weight:var(--fw-bold);display:none;align-items:center;justify-content:center;cursor:pointer;z-index:50;transition:transform var(--dur-fast);top:var(--s-3);right:var(--s-3)}
+.rb:hover{transform:scale(1.2)}
+.rules-on .rb{display:flex}
+.tooltip{position:fixed;background:var(--petrol);color:var(--text-on-dark);font-size:var(--fs-xs);padding:var(--s-3) var(--s-4);border-radius:var(--r-md);max-width:320px;line-height:1.6;z-index:9999;box-shadow:var(--shadow-xl);pointer-events:none;opacity:0;transition:opacity var(--dur-fast);border:1px solid rgba(71,215,172,0.2)}
+.tooltip.show{opacity:1}
+.tooltip strong{color:var(--mint);display:block;margin-bottom:4px;font-family:var(--font-mono)}
+.tooltip em{color:var(--mint);font-style:normal}
+
+/* Rule legend strip */
+.rule-strip{display:none;background:var(--nightfall);padding:var(--s-4) var(--s-6);flex-wrap:wrap;gap:var(--s-4);border-top:1px solid rgba(255,255,255,0.06)}
+.rules-on .rule-strip{display:flex}
+.rs-item{display:flex;align-items:center;gap:var(--s-2);font-size:10px;color:var(--text-on-dark-muted)}
+.rs-num{width:18px;height:18px;background:var(--lavender);color:white;border-radius:50%;font-size:9px;font-weight:var(--fw-bold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</head>
+<body id="body">
+
+<div class="top-bar"></div>
+
+<header class="rpt-header">
+  <div class="rpt-logo"><img src="assets/nagarro-logo-mint.png" alt="Nagarro"></div>
+  <div class="rpt-sep"></div>
+  <span class="rpt-uc">COM-001</span>
+  <span class="rpt-title">Sales Performance vs Plan &amp; LY</span>
+  <div class="rpt-meta">
+    <span class="rpt-period">May 2026 · Q2 YTD</span>
+    <button class="rules-btn" id="rulesBtn" onclick="toggleRules()">Show rules</button>
+    <a href="BI Framework.html#viz-rules" class="rpt-back">← Framework</a>
+  </div>
+</header>
+
+<div class="page-tabs">
+  <div class="tab active" onclick="go('overview',this)">Overview <span class="tab-badge">3 · 30 s</span></div>
+  <div class="tab" onclick="go('detail',this)">Detail <span class="tab-badge">300 s</span></div>
+</div>
+
+<!-- Slicer bar · Rule 1: max 3 slicers, active state visible -->
+<div class="slicer-bar">
+  <div class="slicer">
+    <span class="slicer-lbl">Date</span>
+    <span class="slicer-chip sel">Q2 2026 (YTD)</span>
+    <span class="slicer-chip">L12M</span>
+    <span class="slicer-chip">FY 2026</span>
+  </div>
+  <div class="slicer-divider"></div>
+  <div class="slicer">
+    <span class="slicer-lbl">Region</span>
+    <span class="slicer-chip sel">All Regions</span>
+  </div>
+  <div class="slicer-divider"></div>
+  <div class="slicer">
+    <span class="slicer-lbl">Product</span>
+    <span class="slicer-chip sel">All Categories</span>
+  </div>
+  <span class="slicer-state">3 / 3 slicers · all active</span>
+</div>
+
+<!-- ══ OVERVIEW PAGE ══ -->
+<div class="page" id="page-overview">
+
+  <!-- 3-second layer: KPI cards · Rule 5 (card as visual unit) -->
+  <div class="kpi-row" style="position:relative">
+    <div class="rb" style="top:-4px;right:-4px;position:absolute" data-r="2">R2</div>
+    <div class="kpi-card primary">
+      <div class="kpi-lbl">Net Sales Amount</div>
+      <div class="kpi-val">€24.8M</div>
+      <div class="kpi-deltas">
+        <div class="kd neg">▼ -8.1% <span class="kd-lbl">vs Plan</span></div>
+        <div class="kd neg">▼ -3.1% <span class="kd-lbl">vs LY</span></div>
+      </div>
+      <div class="kpi-spark">
+        <svg viewBox="0 0 120 22" width="100%" height="22" style="display:block">
+          <polyline points="0,12 20,8 40,3 60,16 80,14 100,10 120,5" fill="none" stroke="var(--petrol)" stroke-width="1.5"/>
+          <polyline points="0,8 20,5 40,2 60,12 80,10 100,7 120,2" fill="none" stroke="var(--mint)" stroke-width="1" stroke-dasharray="4,3"/>
+          <circle cx="120" cy="5" r="2.5" fill="var(--sunset)"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);font-family:var(--font-mono);margin-top:1px"><span>Oct'25</span><span style="color:var(--sunset)">May'26</span></div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Net Sales vs Plan</div>
+      <div class="kpi-val neg">-8.1%</div>
+      <div class="kpi-deltas">
+        <div class="kd neg">-€2.2M gap vs Plan €27.0M</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Net Sales vs Last Year</div>
+      <div class="kpi-val neg">-3.1%</div>
+      <div class="kpi-deltas">
+        <div class="kd neg">-€0.8M vs LY €25.6M</div>
+      </div>
+    </div>
+    <div class="kpi-card primary">
+      <div class="kpi-lbl">Gross Margin %</div>
+      <div class="kpi-val neg">31.2%</div>
+      <div class="kpi-deltas">
+        <div class="kd neg">▼ -2.5pp <span class="kd-lbl">vs Plan 33.7%</span></div>
+        <div class="kd neg">▼ -0.9pp <span class="kd-lbl">vs LY 32.1%</span></div>
+      </div>
+      <div class="kpi-spark">
+        <svg viewBox="0 0 120 22" width="100%" height="22" style="display:block">
+          <polyline points="0,11 20,5 40,2 60,13 80,16 100,16 120,18" fill="none" stroke="var(--sunset)" stroke-width="1.5"/>
+          <circle cx="120" cy="18" r="2.5" fill="var(--sunset)"/>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);font-family:var(--font-mono);margin-top:1px"><span>Oct'25</span><span style="color:var(--sunset)">May'26 ↓</span></div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Volume Effect (dominant driver)</div>
+      <div class="kpi-val neg">-€2.8M</div>
+      <div class="kpi-deltas">
+        <div class="kd pos">Price +€0.3M</div>
+        <div class="kd pos">Mix +€0.5M</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 30-second layer: charts · Rule 2 -->
+  <div class="charts">
+
+    <!-- Trend chart · Rule 9 (line+area) · Rule 3 (plan ref line) -->
+    <div class="chart-card">
+      <div class="rb" data-r="9">R9</div>
+      <div class="chart-title">Net Sales — L12M Trend vs Plan &amp; LY</div>
+      <div class="chart-sub">Monthly · all regions · all products · shaded area = plan gap</div>
+      <div class="chart-legend">
+        <div class="leg"><div class="leg-line" style="background:var(--petrol);height:2.5px"></div>Actual</div>
+        <div class="leg"><div class="leg-line" style="background:var(--mint);height:2px;opacity:0.7"></div>Plan (ref.)</div>
+        <div class="leg"><div class="leg-line" style="background:var(--limestone)"></div>Last Year</div>
+      </div>
+      <svg viewBox="0 0 600 165" style="width:100%">
+        <line x1="50" y1="21.8" x2="590" y2="21.8" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="45.5" x2="590" y2="45.5" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="69.1" x2="590" y2="69.1" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="92.7" x2="590" y2="92.7" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="116.4" x2="590" y2="116.4" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="140" x2="590" y2="140" stroke="var(--border)" stroke-width="1"/>
+        <text x="44" y="145" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">19M</text>
+        <text x="44" y="121" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">21M</text>
+        <text x="44" y="97" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">23M</text>
+        <text x="44" y="73" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">25M</text>
+        <text x="44" y="49" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">27M</text>
+        <text x="44" y="26" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">29M</text>
+        <polygon points="50,86.8 99,106.9 148,99.8 197,79.7 246,65.5 295,47.8 344,31.3 393,103.4 442,106.9 491,88 540,93.9 590,71.5 590,45.5 540,69.1 491,75 442,92.7 393,86.8 344,33.6 295,39.5 246,57.3 197,63.2 148,80.9 99,86.8 50,69.1" fill="rgba(248,72,94,0.07)"/>
+        <polyline points="50,103.4 99,117.5 148,106.9 197,86.8 246,71.5 295,58.5 344,44.3 393,106.9 442,102.2 491,91.5 540,83.3 590,62" fill="none" stroke="var(--limestone)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polyline points="50,69.1 99,86.8 148,80.9 197,63.2 246,57.3 295,39.5 344,33.6 393,86.8 442,92.7 491,75 540,69.1 590,45.5" fill="none" stroke="var(--mint)" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <polyline points="50,86.8 99,106.9 148,99.8 197,79.7 246,65.5 295,47.8 344,31.3 393,103.4 442,106.9 491,88 540,93.9 590,71.5" fill="none" stroke="var(--petrol)" stroke-width="2.5"/>
+        <line x1="378" y1="10" x2="378" y2="145" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="214" y="13" text-anchor="middle" font-size="9" fill="var(--text-muted)">FY 2025</text>
+        <text x="484" y="13" text-anchor="middle" font-size="9" fill="var(--text-muted)">FY 2026</text>
+        <circle cx="590" cy="71.5" r="5" fill="var(--sunset)" stroke="white" stroke-width="2"/>
+        <text x="50" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Jun</text>
+        <text x="99" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Jul</text>
+        <text x="148" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Aug</text>
+        <text x="197" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Sep</text>
+        <text x="246" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Oct</text>
+        <text x="295" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Nov</text>
+        <text x="344" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Dec</text>
+        <text x="393" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Jan</text>
+        <text x="442" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Feb</text>
+        <text x="491" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Mar</text>
+        <text x="540" y="158" text-anchor="middle" font-size="9" fill="var(--text-muted)">Apr</text>
+        <text x="590" y="158" text-anchor="middle" font-size="9" fill="var(--sunset)" font-weight="bold">May</text>
+      </svg>
+    </div>
+
+    <!-- PVM waterfall · Rule 8 (waterfall for decomposition) -->
+    <div class="chart-card">
+      <div class="rb" data-r="8">R8</div>
+      <div class="chart-title">PVM Bridge — Net Sales Gap vs Plan</div>
+      <div class="chart-sub">Q2 YTD · Price / Volume / Mix effect decomposition · gap = -€2.2M</div>
+      <div class="chart-legend">
+        <div class="leg"><div class="leg-line" style="background:var(--petrol);height:10px;width:10px;border-radius:1px"></div>Plan / Actual</div>
+        <div class="leg"><div class="leg-line" style="background:var(--mint-dark);height:10px;width:10px;border-radius:1px"></div>Positive</div>
+        <div class="leg"><div class="leg-line" style="background:var(--sunset);height:10px;width:10px;border-radius:1px"></div>Negative</div>
+      </div>
+      <svg viewBox="0 0 520 185" style="width:100%">
+        <line x1="50" y1="58.2" x2="490" y2="58.2" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="83.6" x2="490" y2="83.6" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="109.1" x2="490" y2="109.1" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="134.6" x2="490" y2="134.6" stroke="var(--border-light)" stroke-width="1"/>
+        <line x1="50" y1="160" x2="490" y2="160" stroke="var(--border)" stroke-width="1"/>
+        <text x="44" y="165" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">23M</text>
+        <text x="44" y="139" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">24M</text>
+        <text x="44" y="113" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">25M</text>
+        <text x="44" y="88" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">26M</text>
+        <text x="44" y="62" text-anchor="end" font-size="9" fill="var(--text-muted)" font-family="monospace">27M</text>
+        <!-- connectors -->
+        <line x1="105" y1="58.2" x2="122" y2="58.2" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+        <line x1="177" y1="50.6" x2="194" y2="50.6" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+        <line x1="249" y1="121.8" x2="266" y2="121.8" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+        <line x1="321" y1="109.1" x2="338" y2="109.1" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+        <line x1="393" y1="114.2" x2="410" y2="114.2" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,2"/>
+        <!-- bars -->
+        <rect x="50" y="58.2" width="55" height="101.8" fill="var(--petrol)" rx="2"/>
+        <rect x="122" y="50.6" width="55" height="7.6" fill="var(--mint-dark)" rx="2"/>
+        <rect x="194" y="50.6" width="55" height="71.2" fill="var(--sunset)" rx="2"/>
+        <rect x="266" y="109.1" width="55" height="12.7" fill="var(--mint-dark)" rx="2"/>
+        <rect x="338" y="109.1" width="55" height="5.1" fill="rgba(248,72,94,0.5)" rx="2"/>
+        <rect x="410" y="114.2" width="55" height="45.8" fill="var(--sunset)" rx="2" opacity="0.85"/>
+        <!-- value labels -->
+        <text x="77" y="50" text-anchor="middle" font-size="9" fill="var(--petrol)" font-weight="bold">€27.0M</text>
+        <text x="149" y="44" text-anchor="middle" font-size="9" fill="var(--mint-dark)" font-weight="bold">+€0.3M</text>
+        <text x="221" y="46" text-anchor="middle" font-size="9" fill="var(--sunset)" font-weight="bold">-€2.8M</text>
+        <text x="293" y="103" text-anchor="middle" font-size="9" fill="var(--mint-dark)" font-weight="bold">+€0.5M</text>
+        <text x="365" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">-€0.2M</text>
+        <text x="437" y="107" text-anchor="middle" font-size="9" fill="var(--sunset)" font-weight="bold">€24.8M</text>
+        <!-- x labels -->
+        <text x="77" y="175" text-anchor="middle" font-size="9" fill="var(--text-muted)">Plan</text>
+        <text x="149" y="175" text-anchor="middle" font-size="9" fill="var(--mint-dark)">+ Price</text>
+        <text x="221" y="175" text-anchor="middle" font-size="9" fill="var(--sunset)">− Volume</text>
+        <text x="293" y="175" text-anchor="middle" font-size="9" fill="var(--mint-dark)">+ Mix</text>
+        <text x="365" y="175" text-anchor="middle" font-size="9" fill="var(--text-muted)">Residual</text>
+        <text x="437" y="175" text-anchor="middle" font-size="9" fill="var(--sunset)">Actual</text>
+      </svg>
+    </div>
+
+    <!-- GM% by region · Rule 3 (reference lines) · Rule 10 (bar for comparison) -->
+    <div class="chart-card">
+      <div class="rb" data-r="3">R3</div>
+      <div class="chart-title">GM% by Region vs Plan Target</div>
+      <div class="chart-sub">Current quarter · reference line = plan target per region · guardrail = 30.0%</div>
+      <div class="bar-rows" style="margin-top:var(--s-2)">
+        <div class="bar-row">
+          <div class="bar-lbl">Americas</div>
+          <div class="bar-track"><div class="bar-fill" style="width:99%;background:var(--mint-dark)"></div><div class="bar-ref" style="left:100%"></div></div>
+          <div class="bar-num" style="color:var(--mint-dark)">36.1%</div>
+          <div class="bar-delta" style="color:var(--mint-dark)">-0.4pp</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-lbl">North Europe</div>
+          <div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--nightfall)"></div><div class="bar-ref" style="left:100%"></div></div>
+          <div class="bar-num">34.2%</div>
+          <div class="bar-delta neg">-1.8pp</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-lbl">Asia Pacific</div>
+          <div class="bar-track"><div class="bar-fill" style="width:96.6%;background:var(--nightfall)"></div><div class="bar-ref" style="left:100%"></div></div>
+          <div class="bar-num">33.8%</div>
+          <div class="bar-delta neg">-1.2pp</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-lbl">Central Europe</div>
+          <div class="bar-track"><div class="bar-fill" style="width:95.5%;background:var(--petrol)"></div><div class="bar-ref" style="left:100%"></div></div>
+          <div class="bar-num">31.5%</div>
+          <div class="bar-delta neg">-1.5pp</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-lbl alert">South Europe !</div>
+          <div class="bar-track"><div class="bar-fill" style="width:93.2%;background:var(--sunset)"></div><div class="bar-ref" style="left:100%"></div></div>
+          <div class="bar-num neg">28.9%</div>
+          <div class="bar-delta neg-strong">-2.1pp</div>
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:var(--s-2);display:flex;align-items:center;gap:4px;font-family:var(--font-mono)">
+          <div style="width:12px;height:2px;background:var(--mint);display:inline-block;border-radius:1px"></div>
+          Reference line = individual plan target · South Europe below 30% guardrail
+        </div>
+      </div>
+    </div>
+
+    <!-- Top/Bottom segments · Rule 10 (ranked bar) -->
+    <div class="chart-card">
+      <div class="rb" data-r="10">R10</div>
+      <div class="chart-title">Net Sales Gap vs Plan — Top &amp; Bottom Segments</div>
+      <div class="chart-sub">Q2 YTD · Region × Channel · sorted by absolute impact · zero-line = plan</div>
+      <div class="rank-rows" style="margin-top:var(--s-2)">
+        <div class="rank-row">
+          <div class="rank-lbl" style="color:var(--mint-dark)">N.Eur · Premium</div>
+          <div class="rank-center">
+            <div class="rank-zero"></div>
+            <div class="rank-pos" style="width:66.7%;background:var(--mint-dark)"></div>
+          </div>
+          <div class="rank-num pos">+€1.2M</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-lbl" style="color:var(--mint-dark)">Americas · KA</div>
+          <div class="rank-center">
+            <div class="rank-zero"></div>
+            <div class="rank-pos" style="width:44.4%;background:var(--mint-dark)"></div>
+          </div>
+          <div class="rank-num pos">+€0.8M</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-lbl neg">S.Eur · B2B</div>
+          <div class="rank-center">
+            <div class="rank-zero"></div>
+            <div class="rank-neg" style="--w:30.6%;width:30.6%;background:var(--sunset);margin-left:calc(50% - 30.6%);border-radius:var(--r-sm) 0 0 var(--r-sm)"></div>
+          </div>
+          <div class="rank-num neg">-€1.1M</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-lbl neg">C.Eur · Value</div>
+          <div class="rank-center">
+            <div class="rank-zero"></div>
+            <div class="rank-neg" style="--w:38.9%;width:38.9%;background:var(--sunset);margin-left:calc(50% - 38.9%);border-radius:var(--r-sm) 0 0 var(--r-sm)"></div>
+          </div>
+          <div class="rank-num neg">-€1.4M</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-lbl neg" style="font-weight:var(--fw-semibold)">S.Eur · B2C Val.</div>
+          <div class="rank-center">
+            <div class="rank-zero"></div>
+            <div class="rank-neg" style="--w:50%;width:50%;background:var(--sunset);margin-left:0;border-radius:var(--r-sm) 0 0 var(--r-sm)"></div>
+          </div>
+          <div class="rank-num neg-strong">-€1.8M</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key observations -->
+  <div class="observations">
+    <div class="obs-title">Key observations — Q2 YTD May 2026</div>
+    <ul class="obs-list">
+      <li class="obs-item"><div class="obs-dot" style="background:var(--sunset)"></div>Volume is the dominant gap driver (-€2.8M). Price integrity is intact (+€0.3M) — the gap is an execution and demand issue, not a pricing issue. Mix is marginally positive (+€0.5M) at company level but negative in South and Central Europe.</li>
+      <li class="obs-item"><div class="obs-dot" style="background:var(--sunset)"></div>South Europe B2C Value: 3rd consecutive month of volume decline, largest single segment gap at -€1.8M. Gross Margin at 28.9% breaches the 30% guardrail for the 2nd consecutive quarter.</li>
+      <li class="obs-item"><div class="obs-dot" style="background:var(--mint-dark)"></div>North Europe Premium and Americas Key Accounts are the only segments outperforming plan. Americas is driven by a favorable mix shift to high-margin Key Account contracts (+€0.8M, GM% 36.1%).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ DETAIL PAGE ══ -->
+<div class="page hidden" id="page-detail">
+
+  <!-- PVM by Region -->
+  <div class="detail-sec">Price / Volume / Mix decomposition by Region <span class="detail-sec-src">Source: COM-001 Business_Factsheet.md §5.2 · UseCase_Bracket.yaml orchestration</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Region</th><th>Price Effect</th><th>Volume Effect</th><th>Mix Effect</th><th>Total Gap</th><th>vs Plan %</th></tr></thead>
+      <tbody>
+        <tr><td>North Europe</td><td class="pos">+€0.2M</td><td class="pos">+€0.1M</td><td class="neutral">+€0.0M</td><td class="pos">+€0.3M</td><td class="pos">+4.1%</td></tr>
+        <tr><td>Asia Pacific</td><td class="pos">+€0.1M</td><td class="neg">-€0.3M</td><td class="neutral">-€0.2M</td><td class="neg">-€0.4M</td><td class="neg">-6.5%</td></tr>
+        <tr><td>Americas</td><td class="neutral">+€0.0M</td><td class="pos">+€0.5M</td><td class="pos">+€0.3M</td><td class="pos">+€0.8M</td><td class="pos">+18.2%</td></tr>
+        <tr><td>Central Europe</td><td class="pos">+€0.1M</td><td class="neg">-€0.8M</td><td class="neg">-€0.7M</td><td class="neg-strong">-€1.4M</td><td class="neg-strong">-25.9%</td></tr>
+        <tr class="guardrail-breach"><td>South Europe</td><td class="neg">-€0.1M</td><td class="neg">-€1.5M</td><td class="neg">-€0.3M</td><td class="neg-strong">-€1.9M</td><td class="neg-strong">-30.2%</td></tr>
+        <tr class="subtotal"><td>Total</td><td class="pos">+€0.3M</td><td class="neg-strong">-€2.0M</td><td class="neg">-€0.9M</td><td class="neg-strong">-€2.6M</td><td class="neg-strong">-8.1%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="font-size:10px;color:var(--text-muted);margin-top:var(--s-2);font-family:var(--font-mono)">Note: regional PVM is an approximate attribution. Total may differ slightly from KPI card due to rounding. South Europe row = guardrail breach (GM% below 30%).</div>
+
+  <!-- Persistence analysis -->
+  <div class="detail-sec" style="margin-top:var(--s-8)">Segment persistence — last 3 months Net Sales gap vs Plan <span class="detail-sec-src">Source: COM-001 Business_Factsheet.md §5.4 300-Second Layer · golden_thread §7 Reports→Actions</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Segment</th><th>Mar '26</th><th>Apr '26</th><th>May '26</th><th>Trend (3M)</th><th>Persistence</th></tr></thead>
+      <tbody>
+        <tr><td>N.Europe · Premium</td><td class="pos">+€0.9M</td><td class="pos">+€1.1M</td><td class="pos">+€1.2M</td><td class="pos">Improving</td><td><span class="persist-badge pb-up">3× above plan</span></td></tr>
+        <tr><td>Americas · Key Accounts</td><td class="pos">+€0.5M</td><td class="pos">+€0.6M</td><td class="pos">+€0.8M</td><td class="pos">Improving</td><td><span class="persist-badge pb-up">3× above plan</span></td></tr>
+        <tr><td>C.Europe · Key Accounts</td><td class="pos">+€0.1M</td><td class="neg">-€0.1M</td><td class="neg">-€0.2M</td><td class="neg">Deteriorating</td><td><span class="persist-badge pb-flat">Watch</span></td></tr>
+        <tr><td>N.Europe · Standard</td><td class="neg">-€0.2M</td><td class="neg">-€0.3M</td><td class="neg">-€0.4M</td><td class="neg">Deteriorating</td><td><span class="persist-badge pb-down">2× below plan</span></td></tr>
+        <tr><td>C.Europe · Value</td><td class="neg">-€0.9M</td><td class="neg">-€1.2M</td><td class="neg-strong">-€1.4M</td><td class="neg-strong">Worsening</td><td><span class="persist-badge pb-down">3× below plan !</span></td></tr>
+        <tr><td>S.Europe · B2B Contracts</td><td class="neg">-€0.7M</td><td class="neg">-€0.9M</td><td class="neg-strong">-€1.1M</td><td class="neg-strong">Worsening</td><td><span class="persist-badge pb-down">3× below plan !</span></td></tr>
+        <tr class="guardrail-breach"><td>S.Europe · B2C Value</td><td class="neg-strong">-€1.2M</td><td class="neg-strong">-€1.5M</td><td class="neg-strong">-€1.8M</td><td class="neg-strong">Worsening</td><td><span class="persist-badge pb-down">3× below plan !</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Gap decomposition full -->
+  <div class="detail-sec" style="margin-top:var(--s-8)">Full gap decomposition — Region × Channel vs Plan &amp; LY <span class="detail-sec-src">Source: COM-001 Business_Factsheet.md §5.4 — 300-Second Layer</span></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Segment</th><th>Actual</th><th>Plan</th><th>Gap €</th><th>Gap %</th><th>LY</th><th>vs LY %</th><th>GM%</th></tr></thead>
+      <tbody>
+        <tr><td>N.Europe — Premium</td><td>€8.2M</td><td>€7.0M</td><td class="pos">+€1.2M</td><td class="pos">+17.1%</td><td>€7.5M</td><td class="pos">+9.3%</td><td>34.2%</td></tr>
+        <tr><td>N.Europe — Standard</td><td>€4.1M</td><td>€4.5M</td><td class="neg">-€0.4M</td><td class="neg">-8.9%</td><td>€4.3M</td><td class="neg">-4.7%</td><td>32.8%</td></tr>
+        <tr><td>C.Europe — Key Accounts</td><td>€3.8M</td><td>€4.0M</td><td class="neg">-€0.2M</td><td class="neg">-5.0%</td><td>€3.9M</td><td class="neg">-2.6%</td><td>33.1%</td></tr>
+        <tr><td>C.Europe — Value Channel</td><td>€2.6M</td><td>€4.0M</td><td class="neg-strong">-€1.4M</td><td class="neg-strong">-35.0%</td><td>€3.4M</td><td class="neg-strong">-23.5%</td><td>29.8%</td></tr>
+        <tr class="guardrail-breach"><td>S.Europe — B2B Contracts</td><td>€2.9M</td><td>€4.0M</td><td class="neg-strong">-€1.1M</td><td class="neg-strong">-27.5%</td><td>€3.5M</td><td class="neg-strong">-17.1%</td><td>30.2%</td></tr>
+        <tr class="guardrail-breach"><td>S.Europe — B2C Value</td><td>€2.2M</td><td>€4.0M</td><td class="neg-strong">-€1.8M</td><td class="neg-strong">-45.0%</td><td>€3.1M</td><td class="neg-strong">-29.0%</td><td class="neg-strong">25.1%</td></tr>
+        <tr><td>Asia Pacific</td><td>€5.8M</td><td>€6.2M</td><td class="neg">-€0.4M</td><td class="neg">-6.5%</td><td>€5.5M</td><td class="pos">+5.5%</td><td>33.8%</td></tr>
+        <tr><td>Americas — Key Accounts</td><td>€5.2M</td><td>€4.4M</td><td class="pos">+€0.8M</td><td class="pos">+18.2%</td><td>€4.4M</td><td class="pos">+18.2%</td><td>36.1%</td></tr>
+        <tr class="subtotal"><td>Total</td><td>€24.8M</td><td>€27.0M</td><td class="neg-strong">-€2.2M</td><td class="neg-strong">-8.1%</td><td>€25.6M</td><td class="neg">-3.1%</td><td class="neg-strong">31.2%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="font-size:10px;color:var(--sunset);margin-top:var(--s-2);font-family:var(--font-mono)">Guardrail breach: South Europe GM% 28.9% below 30% floor (2nd consecutive quarter). Central Europe Value Channel GM% 29.8% approaching floor.</div>
+
+  <!-- Smart Narrative -->
+  <div class="detail-sec" style="margin-top:var(--s-8)">Smart narrative — synthesized finding <span class="detail-sec-src">Source: ux_design_system.md §4 — 3-30-300 · golden_thread §6</span></div>
+  <div class="narrative">
+    <div class="narrative-title">// Automated narrative — COM-001 · May 2026 · generated from governed measures</div>
+    <div class="narrative-body">
+      <div class="narrative-layer">
+        <div class="nar-tag">3 s</div>
+        <div class="nar-text">Net Sales at <strong>€24.8M</strong> are <strong>-8.1% vs Plan</strong> (€27.0M) and <strong>-3.1% vs Last Year</strong> (€25.6M). Gross Margin at <strong>31.2%</strong> is -2.5pp below plan — South Europe has breached the 30% guardrail.</div>
+      </div>
+      <div class="narrative-layer">
+        <div class="nar-tag">30 s</div>
+        <div class="nar-text">The gap is <strong>volume-driven</strong> (-€2.8M), concentrated in <strong>South Europe B2C Value</strong> (-€1.8M, 3rd consecutive month) and <strong>Central Europe Value Channel</strong> (-€1.4M). Price effects are <strong>marginally positive</strong> (+€0.3M), confirming list-price integrity is intact. Mix is positive at company level (+€0.5M) but negative in both South (-€0.3M) and Central Europe (-€0.7M), showing the volume loss is concentrated in <strong>lower-margin value SKUs</strong>.</div>
+      </div>
+      <div class="narrative-layer">
+        <div class="nar-tag">300 s</div>
+        <div class="nar-text">South Europe B2C Value has deteriorated for <strong>3 consecutive months</strong> (-€1.2M → -€1.5M → -€1.8M), with GM% at 25.1% — the lowest in the portfolio. Central Europe Value Channel at -35% vs plan is consistent with a structural channel loss, not a one-off deviation. <strong>Americas Key Accounts</strong> (+€0.8M, +18.2%) and <strong>North Europe Premium</strong> (+€1.2M, +17.1%) are the two offsetting outperformers; both show improving momentum. A €6M annual margin impact is implied if South Europe GM% remains below 30% guardrail for the full year (Source: COM-001 Decision Scenario B).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action codes — T4 prescriptive page -->
+  <div class="detail-sec" style="margin-top:var(--s-8)">
+    <div class="action-pulse"></div>
+    3 Action Codes triggered — T4 Prescriptive layer
+    <span class="detail-sec-src">Source: action_codes/Commercial/ · golden_thread §7 Reports→Actions · AGENTS.md Report Page Structure</span>
+  </div>
+  <div class="action-grid">
+    <div class="action-card">
+      <div class="ac-id">C-M2.1</div>
+      <div class="ac-name">Mix Recovery</div>
+      <div class="ac-meta">
+        <span class="ac-tag" style="background:rgba(248,72,94,0.1);color:var(--sunset)">IMMEDIATE</span>
+        <span class="ac-tag" style="background:var(--surface-muted);color:var(--text-muted)">impact: margin</span>
+      </div>
+      <div class="ac-trigger">Trigger: Mix effect -€1.3M in South Europe and Central Europe. South Europe GM% 28.9% — below 30% guardrail for 2nd consecutive quarter. Mix shift from premium to value SKUs confirmed in segment matrix.</div>
+      <div class="ac-kpis">KPI trigger IDs: margin.gm.pct · sales.pvm.mix_effect.amount · sales.price.realization_pct</div>
+      <ul class="ac-steps">
+        <li>Analyse SKU-level mix shift per region — identify which value SKUs are displacing premium products and why</li>
+        <li>Quantify promotional depth per SKU tier — check if excessive discounting is driving value-SKU over-indexing</li>
+        <li>Propose per-region mix guardrail targets for Commercial Review in June (e.g. max 35% volume from Value tier in South Europe)</li>
+        <li>Align with COM-002 (Margin Management): ensure pricing review covers affected product-region combinations</li>
+      </ul>
+      <div class="ac-impact"><span class="ac-impact-val">Expected recovery: +€0.8–1.2M GM impact</span> over 90 days if mix guardrails enforced</div>
+      <div class="ac-escalate">Owner: Category Manager · Decision: Commercial Controlling Lead<br>Escalate if not actioned within 14 days: CCO</div>
+    </div>
+    <div class="action-card">
+      <div class="ac-id">C-S1.1</div>
+      <div class="ac-name">Volume Recovery</div>
+      <div class="ac-meta">
+        <span class="ac-tag" style="background:rgba(248,72,94,0.15);color:var(--sunset)">IMMEDIATE</span>
+        <span class="ac-tag" style="background:var(--surface-muted);color:var(--text-muted)">impact: revenue</span>
+      </div>
+      <div class="ac-trigger">Trigger: Volume effect -€2.8M total, concentrated in South Europe B2C (-€1.5M) for 3 consecutive months. Persistence badge "3× below plan" — qualifies as structural, not one-off.</div>
+      <div class="ac-kpis">KPI trigger IDs: sales.net_sales.amount · sales.pvm.volume_effect.amount · sales.net_sales.delta_pct.plan</div>
+      <ul class="ac-steps">
+        <li>Run root-cause split for South Europe B2C: demand issue vs execution/distribution gap vs lost accounts</li>
+        <li>Pull top-10 at-risk accounts in South Europe B2C for immediate commercial outreach</li>
+        <li>Validate whether volume loss coincides with competitor price actions or distribution channel changes</li>
+        <li>Define volume recovery target with Regional Sales Director for Q3 (Jun–Aug): minimum -€0.9M gap to close</li>
+      </ul>
+      <div class="ac-impact"><span class="ac-impact-val">Expected recovery: +€1.5–2.0M revenue</span> over 60 days with targeted account intervention</div>
+      <div class="ac-escalate">Owner: Regional Sales Director (S.Europe) · Decision: Sales Leadership Team<br>Escalate if gap worsens in June: CCO + Board flag</div>
+    </div>
+    <div class="action-card">
+      <div class="ac-id">C-S1.2</div>
+      <div class="ac-name">Strategic Account Defense</div>
+      <div class="ac-meta">
+        <span class="ac-tag" style="background:rgba(251,216,114,0.2);color:#A07820)">SHORT-TERM</span>
+        <span class="ac-tag" style="background:var(--surface-muted);color:var(--text-muted)">impact: revenue</span>
+      </div>
+      <div class="ac-trigger">Trigger: Central Europe Value Channel -35% vs plan (-€1.4M), 3rd consecutive month. Persistence analysis shows structured channel contraction, not seasonal dip. C.Europe KA approaching plan miss (-€0.2M) indicates broader channel health issue.</div>
+      <div class="ac-kpis">KPI trigger IDs: sales.net_sales.amount · crm.retention.pct · sales.net_sales.delta_pct.plan</div>
+      <ul class="ac-steps">
+        <li>Review contract renewal status for top-5 Central Europe Value channel accounts (by revenue contribution)</li>
+        <li>Prepare re-engagement proposals with revised terms before Q3 planning cycle (deadline: 15 Jun)</li>
+        <li>Assess whether channel contraction reflects structural market shift (digitisation, distributor consolidation) vs addressable churn</li>
+        <li>Flag concentration risk if Central Europe Value channel falls below 8% of total revenue</li>
+      </ul>
+      <div class="ac-impact"><span class="ac-impact-val">At risk: €1.2–1.6M annualised revenue</span> if channel contraction continues at current rate</div>
+      <div class="ac-escalate">Owner: Key Account Manager (C.Europe) · Decision: Commercial Controlling Lead<br>Escalate if no contract renewal signal by 30 Jun: Sales VP</div>
+    </div>
+  </div>
+</div>
+
+<!-- Rule legend strip -->
+<div class="rule-strip" id="ruleStrip">
+  <div class="rs-item"><div class="rs-num">R1</div>Max 3 slicers · active state always visible — ux_design_system.md §5.1</div>
+  <div class="rs-item"><div class="rs-num">R2</div>3-30-300 layer separation — ux_design_system.md §4 · golden_thread §6</div>
+  <div class="rs-item"><div class="rs-num">R3</div>Reference lines at plan/guardrail targets — ux_design_system.md §5.1</div>
+  <div class="rs-item"><div class="rs-num">R8</div>Waterfall for PVM decomposition — COM-001 Factsheet §5.2</div>
+  <div class="rs-item"><div class="rs-num">R9</div>Line + area for trend with plan/LY — ux_design_system.md §5.1</div>
+  <div class="rs-item"><div class="rs-num">R10</div>Ranked bar for cross-sectional comparison — COM-001 Factsheet §5.2</div>
+</div>
+
+<div class="tooltip" id="tt"></div>
+
+<script>
+const RULES = {
+  2: {t:"Rule 2 — 3-30-300 Layer Separation",d:"KPI cards = 3-second orientation. Main charts = 30-second driver analysis. Detail table = 300-second validation. Each layer has a distinct decision purpose.\n\nSource: ux_design_system.md §4 · golden_thread_strategy_to_action.md §6"},
+  3: {t:"Rule 3 — Reference Lines",d:"A vertical reference line appears at the plan target for each region. The gap between the bar end and the reference line is immediately readable without numbers.\n\nSource: ux_design_system.md §5.1 Components · COM-001 Business_Factsheet.md §5.2 (Notes: Guardrails)"},
+  8: {t:"Rule 8 — Waterfall for PVM Decomposition",d:"The waterfall chart is the canonical visual for Price-Volume-Mix bridge analysis. Floating bars represent each driver's contribution to the total gap. No other chart type is appropriate for additive variance decomposition.\n\nSource: COM-001 Business_Factsheet.md §5.2 — PVM Bridge"},
+  9: {t:"Rule 9 — Line + Area for Trend",d:"Trend over time uses a line chart with area fill showing the plan-actual gap (shaded red). Actual is solid dark, Plan is dashed Mint, LY is dashed Limestone. Three distinct visual treatments, each readable independently.\n\nSource: ux_design_system.md §5.1 · COM-001 Business_Factsheet.md §5.2 — Net Sales vs Plan/LY"},
+  10:{t:"Rule 10 — Ranked Bar for Cross-Sectional Comparison",d:"A diverging horizontal bar chart sorted by absolute impact from the zero-line (= plan). Positive segments shown right in Mint, negative segments shown left in Sunset. The reader instantly identifies the biggest gaps.\n\nSource: COM-001 Business_Factsheet.md §5.2 — Top/Bottom Segments"},
+};
+
+const tt = document.getElementById('tt');
+document.querySelectorAll('.rb').forEach(b => {
+  b.addEventListener('mouseenter', e => {
+    const r = RULES[parseInt(b.dataset.r)];
+    if(!r) return;
+    tt.innerHTML = `<strong>${r.t}</strong>${r.d.replace(/\n/g,'<br>')}`;
+    tt.classList.add('show');
+  });
+  b.addEventListener('mousemove', e => {
+    tt.style.left = (e.clientX+14)+'px';
+    tt.style.top = (e.clientY-8)+'px';
+  });
+  b.addEventListener('mouseleave', () => tt.classList.remove('show'));
+});
+
+function toggleRules(){
+  const on = document.getElementById('body').classList.toggle('rules-on');
+  const btn = document.getElementById('rulesBtn');
+  btn.classList.toggle('on',on);
+  btn.textContent = on ? 'Hide rules' : 'Show rules';
+}
+
+function go(id,tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('page-'+id).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+}
+</script>
+</body>
+</html>

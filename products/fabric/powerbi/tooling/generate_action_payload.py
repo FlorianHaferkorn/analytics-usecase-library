@@ -65,8 +65,17 @@ def _format_trigger(ac: Dict[str, Any]) -> Optional[str]:
             val, unit = th, ""
         if metric and comp and val is not None:
             comp_text = "<" if comp == "lt" else ">" if comp == "gt" else comp
-            return f"{metric} {comp_text} {val}{unit}".strip()
+            return f"{metric} {comp_text} {_format_threshold_value(val, unit)}".strip()
     return None
+
+
+def _format_threshold_value(val: Any, unit: str) -> str:
+    unit = (unit or "").strip()
+    if unit in ("%", "pp"):
+        return f"{val}{unit}"
+    if unit:
+        return f"{val} {unit}"
+    return str(val)
 
 
 def _format_impact(ac: Dict[str, Any]) -> Optional[str]:
@@ -225,12 +234,15 @@ def process_use_case(
         print()
         return True
 
-    # Find matching .Report in dist/
-    report_dir: Optional[Path] = None
-    for d in dist_root.iterdir():
-        if d.is_dir() and d.name.startswith(uc_id) and d.name.endswith(".Report"):
-            report_dir = d
-            break
+    # Prefer orchestrator-canonical report folder (use case directory name), then any match.
+    uc_folder_name = bracket_path.parent.name
+    preferred = dist_root / f"{uc_folder_name}.Report"
+    report_dir: Optional[Path] = preferred if preferred.is_dir() else None
+    if report_dir is None:
+        for d in sorted(dist_root.iterdir()):
+            if d.is_dir() and d.name.startswith(uc_id) and d.name.endswith(".Report"):
+                report_dir = d
+                break
 
     if not report_dir:
         print(f"  WARN [{uc_id}] No .Report directory found in {dist_root} — skipping write")
@@ -238,7 +250,7 @@ def process_use_case(
 
     try:
         out = write_action_panel_visual(report_dir, text)
-        print(f"  OK  [{uc_id}] ActionPanel written → {out.relative_to(dist_root.parent.parent.parent.parent)}")
+        print(f"  OK  [{uc_id}] ActionPanel written -> {out.relative_to(dist_root.parent.parent.parent.parent)}")
     except Exception as e:
         print(f"  FAIL [{uc_id}] {e}", file=sys.stderr)
         return False

@@ -23,20 +23,6 @@ table _Measures
 		displayFolder: COM-001
 		lineageTag: b3b3dc9a-b1c6-4e73-a22a-0d10f0e34c74
 
-	/// Plan Sales Amount - sales.plan.amount
-	/// Total planned sales amount; baseline for variance and PVM calculations.
-	measure 'Plan Sales Amount' = SUM ( fact_sales[Plan Sales Amount] )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: a1f4c7d2-3e8b-4f91-b5d0-9c2e17a83f6b
-
-	/// Last Year Net Sales Amount - sales.net_sales.ly.amount
-	/// Prior year net sales for year-over-year trend comparison.
-	measure 'Last Year Net Sales Amount' = SUM ( fact_sales[Last Year Sales Amount] )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: d5e9b3a7-6f2c-4d1e-8a4b-0f7c25b91e3d
-
 	/// Net Sales % vs Plan - sales.net_sales.delta_pct.plan
 	/// Relative variance of Net Sales vs Plan.
 	measure 'Net Sales % vs Plan' = DIVIDE ( [Net Sales Amount] - [Plan Sales Amount], ABS ( [Plan Sales Amount] ) )
@@ -183,18 +169,6 @@ table _Measures
 		displayFolder: COM-003
 		lineageTag: 34267a54-b7df-455f-bdfb-7cd5cc05f14a
 
-	/// Revenue at Risk Amount - crm.revenue_at_risk.amount
-	/// Net Sales weighted by customer churn risk rate.
-	measure 'Revenue at Risk Amount' =
-			VAR ChurnedCount =
-				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
-			VAR ActiveCount =
-				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
-			RETURN
-				[Net Sales Amount] * DIVIDE ( ChurnedCount, ActiveCount )
-		formatString: #,0.00
-		displayFolder: COM-003
-
 	/// Promo ROI % - sales.promo.roi.pct
 	/// Measures profitability of promotions relative to spend.
 	measure 'Promo ROI %' = DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
@@ -222,34 +196,6 @@ table _Measures
 		formatString: 0.0%
 		displayFolder: COM-004
 		lineageTag: e9fa718c-ee1d-45ec-896e-f75929ef5cc5
-
-	/// Baseline Sales Amount - sales.promo.baseline_sales.amount
-	/// Additional sales generated during promotion period above the non-promoted baseline.
-	measure 'Baseline Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] )
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: 601dff29-03a0-46cd-8adc-81a574037a44
-
-	/// Cannibalized Sales Amount - sales.promo.cannibalized_sales.amount
-	/// Sales volume from non-promoted products lost due to consumer switching to promoted SKUs.
-	measure 'Cannibalized Sales Amount' = [Baseline Sales Amount] * 0.15
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: 7872106a-0a2b-40d3-ad29-b894adac4616
-
-	/// Promo Cost - sales.promo.cost.amount
-	/// Total spend on promotional activities including media, trade, and execution costs.
-	measure 'Promo Cost' = SUM ( fact_promo[Promo Cost] )
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: c892ab8a-b5eb-4c39-a53b-895469dd733a
-
-	/// Incremental Gross Margin Amount - sales.promo.incremental_gm.amount
-	/// Gross margin contribution attributable to promotional uplift net of promo costs.
-	measure 'Incremental Gross Margin Amount' = [Incremental Sales Amount] * DIVIDE ( [Gross Margin Amount], [Net Sales Amount] ) - [Promo Cost]
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: 6ce6a631-7d86-4e74-858e-bb3e331cd569
 
 	/// ActionReady Logic: C-C3.1 - Customer Retention Intervention
 	measure 'Action_C-C3.1_Text' = IF ( [Customer Retention %] < 0.9, "🔴 L3 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Assign CRM recovery — Review retention monthly", IF ( [Customer Retention %] < 0.94, "🟠 L2 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Assign CRM recovery — Review retention monthly", IF ( [Customer Retention %] < 0.97, "🟡 L1 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Assign CRM recovery — Review retention monthly", BLANK () ) ) )
@@ -328,31 +274,88 @@ table _Measures
 
 		annotation ActionReady_ActionCodeId = "C-S1.2"
 
+	/// Plan Sales Amount - sales.plan.amount
+	/// Total planned sales amount; baseline for variance and PVM calculations.
+	measure 'Plan Sales Amount' = SUM ( fact_sales[Plan Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: a1f4c7d2-3e8b-4f91-b5d0-9c2e17a83f6b
+
+	/// Last Year Net Sales Amount - sales.net_sales.ly.amount
+	/// Prior year net sales for year-over-year trend comparison.
+	measure 'Last Year Net Sales Amount' = SUM ( fact_sales[Last Year Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: d5e9b3a7-6f2c-4d1e-8a4b-0f7c25b91e3d
+
+	/// Revenue at Risk Amount - crm.revenue_at_risk.amount
+	/// Net Sales weighted by customer churn risk rate.
+	measure 'Revenue at Risk Amount' =
+			VAR ChurnedCount =
+				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
+			VAR ActiveCount =
+				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
+			RETURN
+				[Net Sales Amount] * DIVIDE ( ChurnedCount, ActiveCount )
+		formatString: #,0.00
+		displayFolder: COM-003
+		lineageTag: 553c0a8c-120a-4a9a-93ee-a64e69763ba1
+
+	/// Baseline Sales Amount - sales.promo.baseline_sales.amount
+	/// Additional sales generated during promotion period above the non-promoted baseline.
+	measure 'Baseline Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 601dff29-03a0-46cd-8adc-81a574037a44
+
+	/// Cannibalized Sales Amount - sales.promo.cannibalized_sales.amount
+	/// Sales volume from non-promoted products lost due to consumer switching to promoted SKUs.
+	measure 'Cannibalized Sales Amount' = [Baseline Sales Amount] * 0.15
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 7872106a-0a2b-40d3-ad29-b894adac4616
+
+	/// Promo Cost - sales.promo.cost.amount
+	/// Total spend on promotional activities including media, trade, and execution costs.
+	measure 'Promo Cost' = SUM ( fact_promo[Promo Cost] )
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: c892ab8a-b5eb-4c39-a53b-895469dd733a
+
+	/// Incremental Gross Margin Amount - sales.promo.incremental_gm.amount
+	/// Gross margin contribution attributable to promotional uplift net of promo costs.
+	measure 'Incremental Gross Margin Amount' = [Incremental Sales Amount] * DIVIDE ( [Gross Margin Amount], [Net Sales Amount] ) - [Promo Cost]
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 6ce6a631-7d86-4e74-858e-bb3e331cd569
+
 	/// enterprise.actions_executed.count - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
 	measure 'Actions Executed Count' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
-		displayFolder: "8_Action_Outcomes"
+		displayFolder: 8_Action_Outcomes
+		lineageTag: 8a1dc24e-d854-4fb6-a63d-763d6560da2a
 
 	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
 	/// Percentage of executed actions with a confirmed achieved outcome.
 	measure 'Action Outcome Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
-		displayFolder: "8_Action_Outcomes"
+		displayFolder: 8_Action_Outcomes
+		lineageTag: d94de4fe-7447-4eef-a048-4c9ecb1f2f12
 
 	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
 	measure 'Avg Time-to-Outcome Days' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
-		displayFolder: "8_Action_Outcomes"
+		displayFolder: 8_Action_Outcomes
+		lineageTag: 9df5ed96-85c9-4c33-a63e-85d7e7b6cbc6
 
 	/// enterprise.action_roi.pct - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
 	measure 'Action ROI %' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
-		displayFolder: "8_Action_Outcomes"
-
-
+		displayFolder: 8_Action_Outcomes
+		lineageTag: 3a0eba01-7388-4c8d-b11c-0cd00de4aa17
 
 	/// Purpose: Dynamic KPI summary string for the Detail page narrative header.
 	measure 'Narrative Text (COM)' = VAR _s = [Net Sales Amount] VAR _g = [Gross Margin %] VAR _p = [Net Sales % vs Plan] VAR _pr = [Price Realization %] VAR _r = [Customer Retention %] VAR _d = SWITCH ( TRUE (), ABS ( [Price Effect Amount] ) >= ABS ( [Volume Effect Amount] ) && ABS ( [Price Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Price: " & FORMAT ( [Price Effect Amount], "+€#,0;-€#,0" ), ABS ( [Volume Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Volume: " & FORMAT ( [Volume Effect Amount], "+€#,0;-€#,0" ), "Mix: " & FORMAT ( [Mix Effect Amount], "+€#,0;-€#,0" ) ) RETURN "Sales: " & FORMAT ( _s, "€#,0" ) & "  |  vs Plan: " & FORMAT ( _p, "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "GM: " & FORMAT ( _g, "0.0%" ) & "  |  Price Realiz.: " & FORMAT ( _pr, "0.0%" ) & "  |  Retention: " & FORMAT ( _r, "0.0%" ) & UNICHAR ( 10 ) & "Top driver: " & _d
@@ -368,16 +371,17 @@ table _Measures
 		displayFolder: 0_Summary
 		lineageTag: e2f183c6-4732-445d-b9eb-bac62152482e
 
-
 	/// Purpose: Freshness timestamp for AI narrative — binds smartNarrativeVisual to latest loaded date.
 	measure 'Last Refresh (COM)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL('dim_date'), 'dim_date'[Date]), "DD MMM YYYY")
 		formatString: @
 		displayFolder: 0_Summary
 		lineageTag: 14b66349-5da9-40a9-a53b-a7e873aba164
+
 	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
-		displayFolder: "8_Action_Outcomes"
+		displayFolder: 8_Action_Outcomes
+		lineageTag: 753c3ac0-719e-471c-8890-280ecebf38a1
 
 	column Column1
 		dataType: string
@@ -393,3 +397,4 @@ table _Measures
 					Source = #table(type table[Column1 = text], {})
 				in
 					Source
+

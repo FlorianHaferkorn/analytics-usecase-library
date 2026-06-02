@@ -82,4 +82,3 @@ relationship dim_promo_fact_sales
 	fromColumn: fact_sales.PromoKey
 	toColumn: dim_promo.PromoKey
 
-

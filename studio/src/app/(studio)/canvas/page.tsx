@@ -1,25 +1,39 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
+import { buildLineageGraph } from '@/lib/core/lineage-builder';
+import { buildGoldenThreadData } from '@/lib/studio/build-golden-thread-data';
+import { CanvasView } from '@/components/canvas/canvas-view';
 
 export const metadata: Metadata = {
   title: 'Canvas | Studio',
 };
 
-export default function CanvasPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function CanvasPage() {
+  const [lineage, goldenThread] = await Promise.all([
+    buildLineageGraph(),
+    buildGoldenThreadData(),
+  ]);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Canvas</h1>
-        <p className="text-foreground-muted">Golden Thread lineage graph.</p>
+        <h1 className="text-[28px] font-medium tracking-[-0.02em] text-foreground mb-1">
+          Canvas
+        </h1>
+        <p className="text-[13px] text-foreground-muted">
+          Data lineage and Golden Thread — pan, zoom, open entities in Detail.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        <div className="p-6 rounded-lg bg-panel border border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Lineage Graph</h2>
-          <p className="text-foreground-muted text-sm">
-            Phase 1 placeholder. Data wiring in Phase 4.
-          </p>
-        </div>
-      </div>
+      <Suspense
+        fallback={
+          <div className="h-[480px] rounded-lg border border-border bg-panel animate-pulse" />
+        }
+      >
+        <CanvasView lineage={lineage} goldenThread={goldenThread} />
+      </Suspense>
     </div>
   );
 }

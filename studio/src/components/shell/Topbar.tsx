@@ -4,9 +4,10 @@ import { usePathname } from 'next/navigation';
 
 interface TopbarProps {
   onSettings?: () => void;
+  onAskStudio?: () => void;
 }
 
-export function Topbar({ onSettings }: TopbarProps) {
+export function Topbar({ onSettings, onAskStudio }: TopbarProps) {
   const pathname = usePathname();
 
   // Build breadcrumb from pathname
@@ -32,10 +33,21 @@ export function Topbar({ onSettings }: TopbarProps) {
       </div>
 
       {/* Actions */}
+      {onAskStudio && (
+        <button
+          type="button"
+          onClick={onAskStudio}
+          className="mr-2 px-3 py-1.5 rounded-lg text-sm text-foreground-muted hover:bg-hover transition-colors"
+        >
+          Ask Studio
+        </button>
+      )}
       <button
+        type="button"
         onClick={onSettings}
+        aria-label="Settings"
         className="p-2 rounded-lg text-foreground-subtle hover:bg-hover transition-colors"
-        title="Settings (⌘,)"
+        title="Settings"
       >
         <svg
           width="16"

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "KPI_Cards",
+  "position": {
+    "x": 32,
+    "y": 32,
+    "z": 10000,
+    "height": 156,
+    "width": 1856,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "layout": [
+        {
+          "properties": {
+            "columnCount": {
+              "expr": {
+                "Literal": {
+                  "Value": "4L"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Enterprise Value-at-Risk Index"
+                }
+              },
+              "queryRef": "_Measures.Enterprise Value-at-Risk Index",
+              "nativeQueryRef": "Enterprise Value-at-Risk Index"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Gross Margin % (XD)"
+                }
+              },
+              "queryRef": "_Measures.Gross Margin % (XD)",
+              "nativeQueryRef": "Gross Margin % (XD)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Delta% Net Sales (XD)"
+                }
+              },
+              "queryRef": "_Measures.Delta% Net Sales (XD)",
+              "nativeQueryRef": "Delta% Net Sales (XD)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "CLV (Customer Lifetime Value)"
+                }
+              },
+              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
+              "nativeQueryRef": "CLV (Customer Lifetime Value)"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

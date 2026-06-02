@@ -12,6 +12,7 @@ import { NextRequest } from 'next/server';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
 import { requireAuth } from '@/lib/auth/session';
+import { logAuditEvent } from '@/lib/db/audit-repo';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
 
@@ -44,7 +45,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const [, authError] = await requireAuth();
+  const [user, authError] = await requireAuth();
   if (authError) return authError;
 
   const { id } = await params;
@@ -74,7 +75,26 @@ export async function PUT(
 
   const targetPath = join(CORE_USECASES_DIR, match, 'UseCase_Bracket.yaml');
 
+  let beforeYaml = '';
+  try {
+    beforeYaml = await readFile(targetPath, 'utf-8');
+  } catch {
+    beforeYaml = '';
+  }
+
   await writeFile(targetPath, yaml, 'utf-8');
+
+  logAuditEvent(
+    'bracket',
+    id,
+    'update',
+    {
+      before: { length: beforeYaml.length },
+      after: { length: yaml.length },
+    },
+    'default',
+    user!.email,
+  );
 
   return apiSuccess({ saved: true, path: `core/usecases/core/${match}/UseCase_Bracket.yaml` });
 }

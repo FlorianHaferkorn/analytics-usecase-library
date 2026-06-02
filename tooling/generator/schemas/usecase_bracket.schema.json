@@ -145,10 +145,20 @@
               "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
               "description": "Page type classification from core/templates/page_templates/page_types/."
             },
+            "template_variant": {
+              "type": "string",
+              "enum": [
+                "T1_Portfolio", "T1_Trend",
+                "T2_DriverBridge", "T2_Comparative", "T2_Funnel",
+                "T3_ExceptionQueue", "T3_ProcessControl", "T3_IncidentMonitor",
+                "T4_ActionDecision", "T4_OptionComparison", "T4_Sensitivity"
+              ],
+              "description": "Template variant from core/templates/page_templates/template_manifest.yaml. Determines slot structure and visual contract. Decision tree: see studio/docs/rebuild/PAGE_TYPE_TAXONOMY.md §4."
+            },
             "template_id": {
               "type": "string",
-              "enum": ["pulse", "investigator"],
-              "description": "Grid page template for Overview (3s/30s): pulse = 6 KPI slots + 3 main; investigator = left slicer + focus + support."
+              "enum": ["pulse", "pulse_asymmetric", "executive_kpi", "investigator", "investigator_focus", "action_matrix"],
+              "description": "Grid page template. Auto-resolved from template_variant if not specified. See template_manifest.yaml for variant→template mapping."
             },
             "annotation_waiver": {
               "type": "boolean",
@@ -229,6 +239,20 @@
                     "type": "string",
                     "enum": ["Main_1", "Main_2", "Main_3"],
                     "description": "Explicit slot assignment for Overview (when set, overrides heuristic)."
+                  },
+                  "category_field": {
+                    "type": "string",
+                    "description": "Dimension field for the category axis (e.g. dim_org.Region). Used when bar/column visuals need explicit axis binding."
+                  },
+                  "comparison": {
+                    "type": "string",
+                    "enum": ["vs_plan", "vs_py", "vs_prior_month", "vs_prior_refresh", "vs_target"],
+                    "description": "Reference period for the delta calculation on this visual."
+                  },
+                  "status_logic": {
+                    "type": "string",
+                    "enum": ["higher_is_better", "lower_is_better"],
+                    "description": "Signal direction for threshold colouring on this visual."
                   }
                 },
                 "required": ["visual_type"]
@@ -258,9 +282,19 @@
               "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
               "description": "Page type classification from core/templates/page_templates/page_types/."
             },
+            "template_variant": {
+              "type": "string",
+              "enum": [
+                "T1_Portfolio", "T1_Trend",
+                "T2_DriverBridge", "T2_Comparative", "T2_Funnel",
+                "T3_ExceptionQueue", "T3_ProcessControl", "T3_IncidentMonitor",
+                "T4_ActionDecision", "T4_OptionComparison", "T4_Sensitivity"
+              ],
+              "description": "Template variant from template_manifest.yaml. For detail pages, T4_ActionDecision is standard when action_panel = true."
+            },
             "template_id": {
               "type": "string",
-              "enum": ["investigator", "action_matrix"],
+              "enum": ["investigator", "investigator_focus", "action_matrix"],
               "description": "Grid page template for Detail (300s): investigator = left slicer + focus + support; action_matrix = narrative + matrix."
             },
             "component_300s": {
@@ -304,6 +338,10 @@
         "business_factsheet": {
           "type": "string",
           "description": "Relative path to Business_Factsheet.md."
+        },
+        "evidence_pack": {
+          "type": "string",
+          "description": "Relative path to a domain evidence pack YAML (optional supplementary reference material)."
         }
       }
     },

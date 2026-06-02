@@ -33,10 +33,12 @@ factsheet_type: business
 
 ## 2. Core Business Questions
 
-- What is OEE and its components (availability, performance, quality) by line/plant?
-- Where are the largest downtime and speed losses, and what are the top causes?
-- How does throughput vary by shift, line, and product mix?
-- Which targeted actions will lift OEE fastest with minimal risk?
+- What is OEE and its components (availability, performance, quality) by line/plant, and how does each compare to world-class targets (85% OEE, 90% Availability, 95% Performance, 99.9% Quality)?
+- Which of the Six Big Loss categories (Breakdowns, Setup/Adjustment, Minor Stops, Reduced Speed, Process Defects, Startup Waste) dominate the OEE gap on each line?
+- Where are the largest downtime and speed losses, and what are the top cause codes driving them?
+- What is the reliability trend (MTBF, MTTR) for critical assets, and is PM compliance above the 85% threshold?
+- How does throughput vary by shift, line, and product mix, and is speed loss driven by authorised or unauthorised speed reductions?
+- Which targeted actions will lift OEE fastest with minimal risk, and what guardrails apply (planned shutdowns, qualification runs)?
 
 **Example Query Patterns (optional):**
 
@@ -130,10 +132,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
-- Impact: OEE uplift toward target; reduced downtime minutes; improved throughput vs plan.  
-- Adoption: Used in weekly ops reviews; action codes triggered with <5% false positives.  
-- Quality: Cause coding coverage high; KPI definitions consistent across ops UCs.  
+- Impact: OEE uplift toward target (85% world class — Industry Week / SMRP survey); Availability ≥ 90%; Performance ≥ 95%; Quality ≥ 99.9% (ISO 22400-2 world-class reference).
+- Adoption: Used in weekly ops reviews and daily tiered meetings; action codes triggered with <5% false positives.
+- Quality: Cause coding coverage ≥ 95% per plant; Six Big Losses classification applied consistently; KPI definitions consistent across ops use cases (ISO 22400-2 aligned).
 - Decision Frequency: Weekly ops and daily tiered meetings.
+- Evidence Grounding: OEE components calculated per ISO 22400-2:2014. Six Big Losses classification follows JIPM/Nakajima framework. MTBF/MTTR defined per SMRP BMP 2023.
 
 ---
 

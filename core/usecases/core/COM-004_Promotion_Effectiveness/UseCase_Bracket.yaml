@@ -38,6 +38,7 @@ ux_layout_rules:
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T1_Strategic_Overview
+    template_variant: T1_Portfolio
     template_id: pulse
     decision_question: "Are our promotions generating profitable incremental volume?"
     big_idea: "Promotion ROI is below threshold — cannibalization and insufficient incremental lift signal that promotional mechanics need redesign before next campaign cycle."
@@ -55,7 +56,8 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Commercial Execution
-    page_type: T2_Tactical_Variance
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
       evidence_grain: promotion

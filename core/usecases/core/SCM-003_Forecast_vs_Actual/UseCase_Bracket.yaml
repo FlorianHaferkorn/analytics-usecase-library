@@ -32,7 +32,8 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Supply Chain / Planning Summary & Insights
-    page_type: T1_Strategic_Overview
+    page_type: T2_Tactical_Variance
+    template_variant: T2_Comparative
     template_id: pulse
     decision_question: "Is forecast accuracy sufficient to support production and inventory planning?"
     big_idea: "Forecast error is above threshold — systematic bias in the mid-range SKU cluster is driving overstock in two regions and requires model recalibration."
@@ -50,7 +51,8 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Supply Chain / Planning Execution
-    page_type: T2_Tactical_Variance
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
       evidence_grain: sku_location_month

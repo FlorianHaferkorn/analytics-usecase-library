@@ -145,12 +145,14 @@ interface Props {
   onNodeOpen?: (id: string, label: string) => void;
   onNodeEdit?: (id: string) => void;
   emptyMessage?: string;
+  /** Pre-select a node (e.g. from `?focus=kpi:ID` on /canvas). */
+  initialSelectedId?: string | null;
 }
 
-export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessage }: Props) {
+export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessage, initialSelectedId }: Props) {
   const [zoom, setZoom] = useState(0.85);
   const [pan, setPan] = useState({ x: 40, y: 40 });
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<string | null>(initialSelectedId ?? null);
   const [hover, setHover] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const dragRef = useRef<{ x: number; y: number } | null>(null);
@@ -158,6 +160,20 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
 
   const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
   const activeTarget = sel ?? hover;
+
+  useEffect(() => {
+    if (!initialSelectedId || !nodeMap.has(initialSelectedId)) return;
+    setSel(initialSelectedId);
+    const node = nodeMap.get(initialSelectedId);
+    const el = viewportRef.current;
+    if (!node || !el) return;
+    const vp = el.getBoundingClientRect();
+    const z = 0.85;
+    setPan({
+      x: vp.width / 2 - (node.x + NODE_W / 2) * z,
+      y: vp.height / 2 - (node.y + NODE_H / 2) * z,
+    });
+  }, [initialSelectedId, nodeMap]);
 
   useEffect(() => {
     const el = viewportRef.current;

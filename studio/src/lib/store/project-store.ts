@@ -92,7 +92,7 @@ export interface ProjectState {
   markClean: () => void;
 }
 
-export type WizardDraftKind = 'kpi' | 'bracket' | 'action';
+export type WizardDraftKind = 'kpi' | 'bracket' | 'action' | 'source';
 
 export interface WizardDraft {
   kind: WizardDraftKind;

@@ -1,0 +1,314 @@
+evidence_pack_version: "1.0"
+use_case_id: COM-003
+use_case_title: Customer Value
+domain: Commercial
+authored_date: "2026-06-01"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+process_scope:
+  description: >
+    Customer lifetime value maximisation through retention, churn prevention,
+    and targeted upsell/cross-sell actions. Covers CLV estimation, churn prediction
+    signals, segment profitability, and revenue at risk management.
+  in_scope:
+    - Customer Lifetime Value (CLV) by segment and key account
+    - Retention Rate and churn signals
+    - Revenue at risk (customers below CLV threshold or engagement threshold)
+    - Net Promoter Score as loyalty signal
+    - Upsell/cross-sell conversion rates
+  out_of_scope:
+    - Acquisition funnel specifics (CST-010)
+    - Promotion ROI (COM-004)
+    - Win-loss pipeline (COM-010)
+  industry_segment: B2B and B2C with recurring purchase patterns
+  applicable_frameworks:
+    - name: "Gupta, S. & Lehmann, D.R. (2005) CLV Framework — Customer Lifetime Value Theory"
+      id: CLV-FRAMEWORK
+    - name: RFM Analysis (Recency, Frequency, Monetary) — Segmentation Framework
+      id: RFM-FRAMEWORK
+    - name: APQC PCF 4.1 — Manage Customer Relationships
+      id: APQC-PCF-4.1
+
+canonical_domain_model:
+  outcome_kpis:
+    - id: crm.clv.amount
+      name: Customer Lifetime Value
+      definition: >
+        Present value of future cash flows from a customer relationship.
+        Simplified: CLV = (Average Purchase Value × Purchase Frequency × Customer Lifespan) - CAC
+      unit: EUR
+      direction: maximize
+      benchmark_target: "CLV:CAC ratio ≥ 3:1 (HubSpot / Gartner B2B benchmark)"
+      benchmark_source_id: SRC-004
+
+  driver_kpis:
+    - id: crm.retention.pct
+      name: Customer Retention Rate
+      definition: "(Customers at end of period - New customers) / Customers at start × 100"
+      unit: "%"
+      direction: maximize
+      drives: crm.clv.amount
+      causal_mechanism: >
+        A 5% increase in customer retention produces a 25–95% increase in profit
+        (Reichheld & Schefter 2000). Retention is the highest-leverage CLV driver.
+      benchmark_target: "85–95% for B2B SaaS; 70–80% for B2B distribution (Gartner 2023)"
+      benchmark_source_id: SRC-004
+
+    - id: crm.revenue_at_risk.amount
+      name: Revenue at Risk
+      definition: >
+        Net Sales attributed to customers showing churn signals (NPS < threshold,
+        purchase frequency decline, or engagement score below floor).
+      unit: EUR
+      direction: minimize
+      drives: crm.clv.amount
+      causal_mechanism: >
+        Revenue at risk is the leading indicator for actual churn revenue impact.
+        Monitoring enables proactive retention before loss is realised.
+      benchmark_target: ""
+      benchmark_source_id: ""
+
+    - id: crm.nps.index
+      name: Net Promoter Score
+      definition: "% Promoters - % Detractors based on 0–10 likelihood to recommend."
+      unit: index
+      direction: maximize
+      drives: crm.clv.amount
+      causal_mechanism: >
+        NPS is a leading indicator of retention. NPS < 30 is associated with elevated
+        churn risk in B2B relationships (Bain & Company research).
+      benchmark_target: "NPS ≥ 50 world class; ≥ 30 acceptable (Bain & Company)"
+      benchmark_source_id: SRC-003
+
+  diagnostic_kpis:
+    - id: crm.churned_customers.count
+      name: Churned Customers Count
+      definition: Customers lost in the period (no purchase or contract lapse).
+      unit: count
+      direction: minimize
+      diagnoses: crm.retention.pct
+
+    - id: crm.active_customers.count
+      name: Active Customers Count
+      definition: Customers with at least one purchase/engagement in the measurement period.
+      unit: count
+      direction: maximize
+      diagnoses: crm.retention.pct
+
+  guardrails:
+    - description: Low-value customer churn is acceptable
+      condition: >
+        Revenue at risk and churn alerts must be filtered by CLV threshold.
+        Churning unprofitable customers (CLV < 0 or below threshold) is a strategic goal,
+        not a problem. Do not trigger retention actions for negative-CLV customers.
+      affected_kpis: [crm.revenue_at_risk.amount, crm.retention.pct]
+
+  wrong_interpretations:
+    - description: Retention Rate masking profitable churn
+      why_wrong: >
+        A high retention rate that retains mainly low-value or negative-margin customers
+        inflates the metric while reducing portfolio profitability. Retention must always
+        be paired with CLV segmentation.
+      source_id: SRC-001
+
+    - description: NPS as a standalone revenue predictor
+      why_wrong: >
+        NPS measures advocacy intent, not actual purchase or retention behavior.
+        In B2B settings, NPS can remain high even as purchasing declines if the
+        contact respondent is not the decision maker.
+      source_id: SRC-005
+
+    - description: Average CLV hiding segment bimodality
+      why_wrong: >
+        Average CLV is meaningless if the customer portfolio is bimodal (a few large
+        accounts driving most value and many small accounts with negative contribution).
+        Segment-level CLV is required.
+      source_id: SRC-001
+
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.3
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: ACA
+      title: "Gupta, S. & Lehmann, D.R. (2005). Managing Customers as Investments. Wharton School Publishing."
+      author: "Gupta, S.; Lehmann, D.R."
+      year: 2005
+      url: "https://wsp.wharton.upenn.edu/book/managing-customers-investments/"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [outcome_kpis, wrong_interpretations]
+      notes: Foundational CLV text; age waiver applies.
+
+    - id: SRC-002
+      category: ACA
+      title: "Reichheld, F.F. & Schefter, P. (2000). E-loyalty: Your secret weapon on the web. Harvard Business Review."
+      author: "Reichheld, F.F.; Schefter, P."
+      year: 2000
+      url: "https://hbr.org/2000/07/e-loyalty-your-secret-weapon-on-the-web"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis]
+      notes: Classic 5% retention = 25-95% profit increase finding. Age waiver.
+
+    - id: SRC-003
+      category: PRO
+      title: "Bain & Company: Net Promoter System — NPS Benchmark Data 2023"
+      author: "Bain & Company / Fred Reichheld"
+      year: 2023
+      url: "https://www.netpromotersystem.com"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [driver_kpis, benchmark_targets]
+
+    - id: SRC-004
+      category: BNK
+      title: "Gartner: Customer Retention and CLV Benchmarks for B2B Companies 2023"
+      author: Gartner
+      year: 2023
+      url: "https://www.gartner.com/en/sales/insights/customer-retention"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [benchmark_targets, outcome_kpis]
+
+    - id: SRC-005
+      category: ACA
+      title: "Keiningham, T.L. et al. (2007). A longitudinal examination of net promoter and firm revenue growth. Journal of Marketing."
+      author: "Keiningham, T.L. et al."
+      year: 2007
+      url: "https://doi.org/10.1509/jmkg.71.3.039"
+      doi: "10.1509/jmkg.71.3.039"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [wrong_interpretations, driver_kpis]
+
+    - id: SRC-006
+      category: IMP
+      title: "McKinsey: The Value of Customer Experience, Quantified (2022)"
+      author: McKinsey
+      year: 2022
+      url: "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-value-of-getting-personalization-right"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [actions_by_root_cause, driver_kpis]
+
+    - id: SRC-007
+      category: STD
+      title: "APQC PCF 4.1 — Manage Customer Service Relationships: CLV and Retention KPI definitions"
+      author: APQC
+      year: 2024
+      url: "https://www.apqc.org"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, required_data_model]
+
+    - id: SRC-008
+      category: BNK
+      title: "Forrester Research: Customer Experience Index 2023 — B2B Loyalty and CLV Benchmarks"
+      author: Forrester
+      year: 2023
+      url: "https://www.forrester.com/report/the-forrester-wave-cx-2023"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [benchmark_targets]
+
+    - id: SRC-009
+      category: IMP
+      title: "Salesforce: State of the Connected Customer 2023 — Retention and CLV Data"
+      author: Salesforce Research
+      year: 2023
+      url: "https://www.salesforce.com/research/customer-engagement/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 12
+      supports: [diagnostic_kpis, benchmark_targets]
+
+    - id: SRC-010
+      category: ACA
+      title: "Fader, P.S. & Hardie, B.G.S. (2010). Customer-base valuation in a contractual setting: The perils of ignoring heterogeneity. Marketing Science."
+      author: "Fader, P.S.; Hardie, B.G.S."
+      year: 2010
+      url: "https://doi.org/10.1287/mksc.1090.0547"
+      doi: "10.1287/mksc.1090.0547"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, wrong_interpretations]
+
+    - id: SRC-011
+      category: RSK
+      title: "Villanueva, J., Yoo, S., & Hanssens, D.M. (2008). The impact of marketing-induced versus word-of-mouth customer acquisition on customer equity growth. JMR."
+      author: "Villanueva, J. et al."
+      year: 2008
+      url: "https://doi.org/10.1509/jmkr.45.1.48"
+      doi: "10.1509/jmkr.45.1.48"
+      scores: { authority: 3, recency: 2, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [wrong_interpretations]
+
+action_logic_seeds:
+  - trigger_driver: crm.retention.pct
+    trigger_diagnostic: crm.revenue_at_risk.amount
+    trigger_condition: "Revenue at risk > 5% of total active customer revenue AND NPS declining"
+    guardrail: "Exclude negative-CLV customers from retention actions"
+    action_description: Proactive retention outreach for at-risk high-value customers.
+    expected_outcome_kpi: crm.clv.amount
+    action_code_candidate: C-C3.1
+
+required_data_model:
+  required_facts:
+    - table: fact_sales
+      description: Transactions with customer_id for CLV calculation.
+    - table: fact_crm_interactions
+      description: NPS surveys, complaints, engagement scores linked to customer_id.
+  required_dimensions:
+    - name: dim_customer
+      grain_relevance: Individual customer CLV and segment assignment.
+    - name: dim_date
+      grain_relevance: Cohort analysis for retention rate calculation.
+  preferred_grain: customer-month
+  minimum_grain: customer-quarter
+  minimum_history_months: 24
+  required_measures:
+    - name: Customer Lifetime Value
+      formula_seed: "NPV of future margin contribution per customer"
+      source_id: SRC-001
+    - name: Retention Rate
+      formula_seed: "(Active customers end - New customers) / Active customers start"
+      source_id: SRC-003
+
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: partial
+  bracket_coverage: partial
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/COM-003_Customer_Value/Business_Factsheet.md
+        field: "Section 8 Success Criteria"
+        description: "CLV:CAC ratio benchmark (≥ 3:1) and retention benchmark (85-95% B2B) not stated."
+        evidence_reference: SRC-004 SRC-003
+        remediation: "Add CLV and retention benchmark targets."
+        status: open
+
+    mapping_gaps:
+      - gap_type: mapping_gap
+        severity: medium
+        affected_artifact: core/usecases/core/COM-003_Customer_Value/UseCase_Bracket.yaml
+        field: component_30s
+        description: "Revenue at risk visual is a domain requirement but may not be in the 30s layer."
+        evidence_reference: SRC-001
+        remediation: "Verify and add revenue at risk visual slot."
+        status: open
+
+    schema_gaps: []
+    generator_gaps: []
+    model_gaps: []

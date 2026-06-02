@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "template_manifest.schema.json",
+  "title": "Template Manifest",
+  "description": "Single source of truth for all page type families, variants, slot bindings, and grid template assignments. Authority: studio/docs/rebuild/PAGE_TEMPLATE_DOCTRINE.md + PAGE_TYPE_TAXONOMY.md.",
+  "type": "object",
+  "required": ["manifest_version", "design_canvas", "production_canvas", "grid", "page_families"],
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "description": "Semantic version of this manifest schema.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "design_canvas": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width":  {"type": "integer", "minimum": 100},
+        "height": {"type": "integer", "minimum": 100}
+      },
+      "additionalProperties": false
+    },
+    "production_canvas": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width":  {"type": "integer", "minimum": 100},
+        "height": {"type": "integer", "minimum": 100}
+      },
+      "additionalProperties": false
+    },
+    "grid": {
+      "type": "object",
+      "required": ["columns", "rows"],
+      "properties": {
+        "columns":             {"type": "integer", "minimum": 1},
+        "rows":                {"type": "integer", "minimum": 1},
+        "outer_margin_px":     {"type": "integer", "minimum": 0},
+        "gutter_px":           {"type": "integer", "minimum": 0},
+        "internal_padding_px": {"type": "integer", "minimum": 0},
+        "zone_gap_px":         {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "page_families": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/page_family"}
+    }
+  },
+  "additionalProperties": false,
+
+  "$defs": {
+
+    "family_id": {
+      "type": "string",
+      "enum": ["T1", "T2", "T3", "T4"]
+    },
+
+    "variant_id": {
+      "type": "string",
+      "enum": [
+        "T1_Portfolio", "T1_Trend",
+        "T2_DriverBridge", "T2_Comparative", "T2_Funnel",
+        "T3_ExceptionQueue", "T3_ProcessControl", "T3_IncidentMonitor",
+        "T4_ActionDecision", "T4_OptionComparison", "T4_Sensitivity"
+      ]
+    },
+
+    "grid_template": {
+      "type": ["string", "null"],
+      "enum": [
+        "pulse", "pulse_asymmetric", "executive_kpi",
+        "investigator", "investigator_focus", "action_matrix",
+        null
+      ]
+    },
+
+    "information_block_id": {
+      "type": ["string", "null"],
+      "enum": [
+        "status_signal", "time_trend", "variance_explanation",
+        "entity_ranking", "exception_list", "structural_mix",
+        "prescriptive_action", "detail_matrix", "root_cause_context",
+        null
+      ]
+    },
+
+    "slot": {
+      "type": "object",
+      "required": ["slot_id", "information_block", "mandatory"],
+      "properties": {
+        "slot_id":           {"type": "string"},
+        "information_block": {"$ref": "#/$defs/information_block_id"},
+        "mandatory":         {"type": "boolean"},
+        "note":              {"type": "string"},
+        "filter_rule":       {"type": "string"},
+        "condition":         {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+
+    "variant": {
+      "type": "object",
+      "required": ["variant_id", "name", "description", "grid_template", "overview_slots", "detail_slots"],
+      "properties": {
+        "variant_id":               {"$ref": "#/$defs/variant_id"},
+        "name":                     {"type": "string"},
+        "description":              {"type": "string"},
+        "grid_template":            {"$ref": "#/$defs/grid_template"},
+        "alternate_grid_template":  {"$ref": "#/$defs/grid_template"},
+        "overview_slots": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/slot"}
+        },
+        "detail_slots": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/slot"}
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "page_family": {
+      "type": "object",
+      "required": ["family_id", "name", "decision_question", "audience", "time_horizon",
+                   "primary_layers", "reading_pattern", "disallowed_slots",
+                   "mandatory_slots", "max_slicers", "narrative_template", "variants"],
+      "properties": {
+        "family_id":           {"$ref": "#/$defs/family_id"},
+        "name":                {"type": "string"},
+        "decision_question":   {"type": "string"},
+        "audience":            {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "time_horizon":        {"type": "string"},
+        "primary_layers":      {"type": "array", "items": {"type": "string", "enum": ["3s", "30s", "300s"]}, "minItems": 1},
+        "reading_pattern":     {"type": "string", "enum": ["z_pattern", "f_pattern", "gutenberg"]},
+        "disallowed_slots":    {"type": "array", "items": {"type": "string"}},
+        "mandatory_slots":     {"type": "array", "items": {"type": "string"}},
+        "max_slicers":         {"type": "integer", "minimum": 0},
+        "narrative_template":  {"type": "string"},
+        "action_code_required":{"type": "boolean"},
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/variant"}
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

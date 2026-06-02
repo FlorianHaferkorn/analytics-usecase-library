@@ -5,7 +5,7 @@ table dim_promo
 	column PromoKey
 		dataType: int64
 		isHidden
-		isAvailableInMDX: false
+		isAvailableInMdx: false
 		lineageTag: 5e00bc9c-86bb-4aac-a0d8-a71021843be7
 		summarizeBy: none
 		sourceColumn: PromoKey

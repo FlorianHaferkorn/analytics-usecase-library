@@ -92,6 +92,10 @@ export interface UseCaseBracketV20Lean {
     };
     page_1_summary: {
       title: string;
+      /** Page type classification (T1–T4 family). */
+      page_type?: 'T1_Strategic_Overview' | 'T2_Tactical_Variance' | 'T3_Operational_Monitoring' | 'T4_Prescriptive_Recommendation';
+      /** Template variant from template_manifest.yaml. */
+      template_variant?: 'T1_Portfolio' | 'T1_Trend' | 'T2_DriverBridge' | 'T2_Comparative' | 'T2_Funnel' | 'T3_ExceptionQueue' | 'T3_ProcessControl' | 'T3_IncidentMonitor' | 'T4_ActionDecision' | 'T4_OptionComparison' | 'T4_Sensitivity';
       /**
        * Grid page template for Overview (3s/30s): pulse = 6 KPI slots + 3 main; investigator = left slicer + focus + support.
        */
@@ -137,6 +141,10 @@ export interface UseCaseBracketV20Lean {
     };
     page_2_execution: {
       title: string;
+      /** Page type classification (T1–T4 family). */
+      page_type?: 'T1_Strategic_Overview' | 'T2_Tactical_Variance' | 'T3_Operational_Monitoring' | 'T4_Prescriptive_Recommendation';
+      /** Template variant from template_manifest.yaml. */
+      template_variant?: 'T1_Portfolio' | 'T1_Trend' | 'T2_DriverBridge' | 'T2_Comparative' | 'T2_Funnel' | 'T3_ExceptionQueue' | 'T3_ProcessControl' | 'T3_IncidentMonitor' | 'T4_ActionDecision' | 'T4_OptionComparison' | 'T4_Sensitivity';
       /**
        * Grid page template for Detail (300s): investigator = left slicer + focus + support; action_matrix = narrative + matrix.
        */

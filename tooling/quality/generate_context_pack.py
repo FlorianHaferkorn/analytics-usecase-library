@@ -53,7 +53,7 @@ def _load_known_errors() -> list[dict]:
     if yaml is None or not KNOWN_ERRORS.exists():
         return []
     with open(KNOWN_ERRORS, encoding="utf-8") as f:
-        data = yaml.safe_load(f)
+        data = yaml.safe_load(f) or {}
     return data.get("errors", [])
 
 

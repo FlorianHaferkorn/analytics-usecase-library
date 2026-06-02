@@ -1,0 +1,512 @@
+# Template Manifest — Analytics Use Case Library
+#
+# Single source of truth for all page type definitions, variants, slot bindings,
+# and grid template assignments.
+#
+# Authority:
+#   - PAGE_TEMPLATE_DOCTRINE.md (rules and source evidence)
+#   - PAGE_TYPE_TAXONOMY.md (variant definitions and mapping)
+#   - VISUAL_BAUKASTEN.md (information block contracts per slot)
+#
+# Every UseCase_Bracket.yaml ux_layout_rules.template_variant must resolve to an
+# entry in this manifest. The template compiler validates this at build time.
+#
+# Schema: tooling/generator/schemas/template_manifest.schema.json (pending)
+
+manifest_version: "1.0.0"
+design_canvas:
+  width: 1280
+  height: 720
+production_canvas:
+  width: 1920
+  height: 1080
+grid:
+  columns: 12
+  rows: 12
+  outer_margin_px: 32
+  gutter_px: 16
+  internal_padding_px: 8
+  zone_gap_px: 40
+
+# ─────────────────────────────────────────────────────────────────────────────
+# T1 – Strategic Overview
+# Primary Decision: "Are we on track against strategic targets?"
+# Source: PAGE_TEMPLATE_DOCTRINE.md §3.1, T1_Strategic_Overview.md
+# ─────────────────────────────────────────────────────────────────────────────
+page_families:
+
+  - family_id: T1
+    name: "Strategic Overview"
+    decision_question: "Are we on track against strategic targets?"
+    audience: ["executives", "board", "senior_leadership"]
+    time_horizon: "monthly_quarterly"
+    primary_layers: ["3s", "30s"]
+    reading_pattern: "z_pattern"
+    disallowed_slots: ["Exceptions", "Root_Cause", "Prescriptive", "Funnel", "Detail_Matrix"]
+    mandatory_slots: ["KPI_Cards"]
+    max_slicers: 3
+    narrative_template: "{domain} is {status} – {primary_kpi} is {delta} vs {reference}, {momentum}."
+
+    variants:
+
+      - variant_id: T1_Portfolio
+        name: "Executive KPI Portfolio"
+        description: "4–6 strategic KPIs, portfolio breadth view, no drill-down"
+        grid_template: executive_kpi
+        alternate_grid_template: pulse
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: true
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: true
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: true
+          - slot_id: Main_2
+            information_block: entity_ranking
+            mandatory: false
+          - slot_id: Main_3
+            information_block: structural_mix
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Focus_Area
+            information_block: time_trend
+            mandatory: true
+          - slot_id: Support_1
+            information_block: entity_ranking
+            mandatory: false
+          - slot_id: Support_2
+            information_block: detail_matrix
+            mandatory: false
+
+      - variant_id: T1_Trend
+        name: "Strategic Trend Monitor"
+        description: "One primary KPI; emphasis on trajectory and momentum"
+        grid_template: pulse
+        alternate_grid_template: null
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: true
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: true
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: true
+          - slot_id: Main_2
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Main_3
+            information_block: entity_ranking
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Focus_Area
+            information_block: time_trend
+            mandatory: true
+          - slot_id: Support_1
+            information_block: detail_matrix
+            mandatory: false
+          - slot_id: Support_2
+            information_block: null
+            mandatory: false
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # T2 – Tactical Variance
+  # Primary Decision: "Why are we off target, and which levers explain the gap?"
+  # Source: T2_Tactical_Variance.md, VISUAL_BAUKASTEN.md Block 3
+  # ─────────────────────────────────────────────────────────────────────────
+
+  - family_id: T2
+    name: "Tactical Variance"
+    decision_question: "Why are we off target, and which levers explain the gap?"
+    audience: ["management", "domain_leads", "function_heads"]
+    time_horizon: "monthly"
+    primary_layers: ["30s"]
+    reading_pattern: "z_pattern"
+    disallowed_slots: ["Exceptions", "Root_Cause", "Prescriptive", "Detail_Matrix"]
+    mandatory_slots: ["KPI_Cards", "Variance"]
+    max_slicers: 3
+    narrative_template: "The {delta} gap vs {reference} is driven by {top_driver} ({magnitude}) — intervention in {area} is required."
+
+    variants:
+
+      - variant_id: T2_DriverBridge
+        name: "Driver Bridge"
+        description: "Waterfall-centric; decomposes a single KPI gap into named drivers"
+        grid_template: executive_kpi
+        alternate_grid_template: pulse_asymmetric
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: true
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: true
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: true
+          - slot_id: Main_2
+            information_block: variance_explanation
+            mandatory: true
+          - slot_id: Main_3
+            information_block: entity_ranking
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Focus_Area
+            information_block: variance_explanation
+            mandatory: true
+          - slot_id: Support_1
+            information_block: entity_ranking
+            mandatory: false
+          - slot_id: Support_2
+            information_block: detail_matrix
+            mandatory: false
+
+      - variant_id: T2_Comparative
+        name: "Comparative Variance"
+        description: "Side-by-side entity comparison; which segment/region drives the gap"
+        grid_template: pulse
+        alternate_grid_template: null
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: true
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: true
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: true
+          - slot_id: Main_2
+            information_block: entity_ranking
+            mandatory: true
+          - slot_id: Main_3
+            information_block: structural_mix
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Focus_Area
+            information_block: entity_ranking
+            mandatory: true
+          - slot_id: Support_1
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Support_2
+            information_block: detail_matrix
+            mandatory: false
+
+      - variant_id: T2_Funnel
+        name: "Funnel Loss"
+        description: "Sequential process loss; where in the funnel value/volume is lost"
+        grid_template: pulse_asymmetric
+        alternate_grid_template: null
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: true
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: true
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Main_2
+            information_block: variance_explanation
+            mandatory: false
+            note: "For T2_Funnel variant, Main_2 uses visual_type_hint: funnelChart instead of waterfall"
+          - slot_id: Main_3
+            information_block: entity_ranking
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Focus_Area
+            information_block: detail_matrix
+            mandatory: true
+          - slot_id: Support_1
+            information_block: entity_ranking
+            mandatory: false
+          - slot_id: Support_2
+            information_block: null
+            mandatory: false
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # T3 – Operational Monitoring
+  # Primary Decision: "Where is execution breaking right now, and who must act?"
+  # Source: T3_Operational_Monitoring.md, VISUAL_BAUKASTEN.md Block 5
+  # ─────────────────────────────────────────────────────────────────────────
+
+  - family_id: T3
+    name: "Operational Monitoring"
+    decision_question: "Where is execution breaking right now, and who must act?"
+    audience: ["operational_managers", "process_owners", "shift_leads"]
+    time_horizon: "daily_weekly"
+    primary_layers: ["30s", "300s"]
+    reading_pattern: "f_pattern"
+    disallowed_slots: ["Variance", "Prescriptive", "Funnel"]
+    mandatory_slots: ["Exceptions"]
+    max_slicers: 3
+    narrative_template: "{exception_count} {entity_type} are currently outside threshold — {critical_count} require immediate attention in {area}."
+
+    variants:
+
+      - variant_id: T3_ExceptionQueue
+        name: "Exception Queue"
+        description: "Ranked list of threshold breaches; entity, severity, age, owner"
+        grid_template: pulse
+        alternate_grid_template: investigator
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: false
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: false
+          - slot_id: Main_1
+            information_block: exception_list
+            mandatory: true
+          - slot_id: Main_2
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Main_3
+            information_block: entity_ranking
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Slicer_Entity
+            information_block: null
+            mandatory: false
+          - slot_id: Smart_Narrative
+            information_block: null
+            mandatory: false
+          - slot_id: Detail_Matrix
+            information_block: detail_matrix
+            mandatory: true
+            filter_rule: "exceptions_only"
+          - slot_id: ActionPanel
+            information_block: null
+            mandatory: false
+            note: "Operational action signals only; no full prescriptive panel"
+
+      - variant_id: T3_ProcessControl
+        name: "Process Control"
+        description: "SLA / OTD / quality metrics with trend; control chart concept"
+        grid_template: pulse
+        alternate_grid_template: null
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: true
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: true
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: true
+          - slot_id: Main_2
+            information_block: exception_list
+            mandatory: true
+          - slot_id: Main_3
+            information_block: entity_ranking
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Focus_Area
+            information_block: detail_matrix
+            mandatory: true
+            filter_rule: "exceptions_only"
+          - slot_id: Support_1
+            information_block: root_cause_context
+            mandatory: false
+            condition: "needs_root_cause = true"
+          - slot_id: Support_2
+            information_block: entity_ranking
+            mandatory: false
+
+      - variant_id: T3_IncidentMonitor
+        name: "Incident Monitor"
+        description: "Real-time or near-real-time exception tracking; short refresh cycle"
+        grid_template: pulse_asymmetric
+        alternate_grid_template: null
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: true
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: false
+          - slot_id: Main_1
+            information_block: exception_list
+            mandatory: true
+          - slot_id: Main_2
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Main_3
+            information_block: entity_ranking
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: true
+          - slot_id: Focus_Area
+            information_block: detail_matrix
+            mandatory: true
+            filter_rule: "critical_only"
+          - slot_id: Support_1
+            information_block: entity_ranking
+            mandatory: false
+          - slot_id: Support_2
+            information_block: null
+            mandatory: false
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # T4 – Prescriptive Recommendation
+  # Primary Decision: "What is the best next action, for which entity, with what impact?"
+  # Source: T4_Prescriptive_Recommendation.md, VISUAL_BAUKASTEN.md Block 7
+  # ─────────────────────────────────────────────────────────────────────────
+
+  - family_id: T4
+    name: "Prescriptive Recommendation"
+    decision_question: "What is the best next action, for which entity, with what expected impact?"
+    audience: ["decision_owners", "decision_makers"]
+    time_horizon: "triggered"
+    primary_layers: ["3s", "30s"]
+    reading_pattern: "f_pattern"
+    disallowed_slots: ["Variance", "Exceptions", "Funnel"]
+    mandatory_slots: ["Prescriptive"]
+    max_slicers: 3
+    action_code_required: true
+    narrative_template: "{trigger_condition} in {context}. Recommended: {action} by {owner} — expected impact {impact} by {deadline}."
+
+    variants:
+
+      - variant_id: T4_ActionDecision
+        name: "Action Decision"
+        description: "Single primary recommendation; Impact-Owner-Deadline immediately visible"
+        grid_template: action_matrix
+        alternate_grid_template: investigator_focus
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: false
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: false
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Main_2
+            information_block: entity_ranking
+            mandatory: false
+          - slot_id: Main_3
+            information_block: root_cause_context
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: false
+          - slot_id: Slicer_Entity
+            information_block: null
+            mandatory: false
+          - slot_id: Smart_Narrative
+            information_block: null
+            mandatory: false
+          - slot_id: Detail_Matrix
+            information_block: detail_matrix
+            mandatory: true
+            note: "Shows affected entities sorted by impact relevance"
+          - slot_id: ActionPanel
+            information_block: prescriptive_action
+            mandatory: true
+
+      - variant_id: T4_OptionComparison
+        name: "Option Comparison"
+        description: "Two or three options explicitly compared; ranked by impact/effort/risk"
+        grid_template: investigator_focus
+        alternate_grid_template: null
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: false
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: false
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Main_2
+            information_block: entity_ranking
+            mandatory: false
+            note: "Impact-effort scatter for option comparison; needs_prescriptive = true"
+          - slot_id: Main_3
+            information_block: root_cause_context
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: false
+          - slot_id: Focus_Area
+            information_block: prescriptive_action
+            mandatory: true
+            note: "Recommendation table comparing options"
+          - slot_id: Support_1
+            information_block: detail_matrix
+            mandatory: false
+          - slot_id: Support_2
+            information_block: null
+            mandatory: false
+
+      - variant_id: T4_Sensitivity
+        name: "Sensitivity Check"
+        description: "Recommendation with scenario validation; impact under key assumptions"
+        grid_template: investigator_focus
+        alternate_grid_template: null
+        overview_slots:
+          - slot_id: KPI_Cards
+            information_block: status_signal
+            mandatory: false
+          - slot_id: Slicer_Date
+            information_block: null
+            mandatory: false
+          - slot_id: Main_1
+            information_block: time_trend
+            mandatory: false
+          - slot_id: Main_2
+            information_block: entity_ranking
+            mandatory: false
+          - slot_id: Main_3
+            information_block: root_cause_context
+            mandatory: false
+        detail_slots:
+          - slot_id: Slicer_Pane
+            information_block: null
+            mandatory: false
+          - slot_id: Focus_Area
+            information_block: prescriptive_action
+            mandatory: true
+          - slot_id: Support_1
+            information_block: detail_matrix
+            mandatory: true
+            note: "Sensitivity scenarios; entity affected by assumption changes"
+          - slot_id: Support_2
+            information_block: null
+            mandatory: false

@@ -49,6 +49,7 @@ ux_layout_rules:
   page_1_summary:
     title: Executive / Cross-Functional Summary & Insights
     page_type: T1_Strategic_Overview
+    template_variant: T1_Portfolio
     template_id: pulse
     decision_question: "Are we on track across all strategic KPIs this quarter?"
     big_idea: "Revenue growth is on track but GM% compression and OTIF decline signal execution risk that requires executive intervention."
@@ -67,7 +68,8 @@ ux_layout_rules:
       visual_type: bar_chart_horizontal
   page_2_execution:
     title: Executive / Cross-Functional Risk Prioritisation
-    page_type: T1_Strategic_Overview
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
     template_id: action_matrix
     decision_question: "Which business units require executive intervention this quarter?"
     big_idea: "Two business units are below threshold on both GM% and service level — escalation and resource reallocation required."

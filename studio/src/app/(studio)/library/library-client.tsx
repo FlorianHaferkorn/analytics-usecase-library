@@ -1,51 +1,83 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CatalogKpi } from '@/lib/core/catalog-loader';
+import type { ActionCodeDefinitionV20AIMirror, DataContract, UseCaseBracketV20Lean } from '@/lib/schemas';
 import { LibraryTabs } from '@/components/library/LibraryTabs';
 import { MetricsTable } from '@/components/library/MetricsTable';
+import { EntityTable } from '@/components/library/EntityTable';
+import {
+  actionRows,
+  dimensionRows,
+  filterLibraryRows,
+  sourceRows,
+  useCaseRows,
+} from '@/lib/studio/library-rows';
 
 interface LibraryClientProps {
   metrics: CatalogKpi[];
+  contracts: DataContract[];
+  actions: ActionCodeDefinitionV20AIMirror[];
+  useCases: UseCaseBracketV20Lean[];
 }
 
-export function LibraryClient({ metrics }: LibraryClientProps) {
+export function LibraryClient({
+  metrics,
+  contracts,
+  actions,
+  useCases,
+}: LibraryClientProps) {
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '');
 
-  const activeTab = searchParams.get('tab') || 'metrics';
+  // Canonical tab slug per DETAIL_IA.md; accept legacy ?tab=metrics from mockups.
+  const tabParam = searchParams.get('tab');
+  const activeTab = tabParam === 'metrics' ? 'kpis' : tabParam || 'kpis';
   const activeDomain = searchParams.get('domain');
 
-  // Handle "/" hotkey for search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only trigger if not in input/textarea
       if (
         e.key === '/' &&
-        !(
-          document.activeElement?.tagName === 'INPUT' ||
-          document.activeElement?.tagName === 'TEXTAREA'
-        )
+        !(document.activeElement instanceof HTMLInputElement) &&
+        !(document.activeElement instanceof HTMLTextAreaElement)
       ) {
         e.preventDefault();
-        const searchInput = document.getElementById('library-search') as HTMLInputElement;
-        searchInput?.focus();
+        (document.getElementById('library-search') as HTMLInputElement)?.focus();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const dimRows = useMemo(
+    () => filterLibraryRows(dimensionRows(contracts), searchQuery, activeDomain),
+    [contracts, searchQuery, activeDomain],
+  );
+  const srcRows = useMemo(
+    () => filterLibraryRows(sourceRows(contracts), searchQuery, activeDomain),
+    [contracts, searchQuery, activeDomain],
+  );
+  const actRows = useMemo(
+    () => filterLibraryRows(actionRows(actions), searchQuery, activeDomain),
+    [actions, searchQuery, activeDomain],
+  );
+  const ucRows = useMemo(
+    () => filterLibraryRows(useCaseRows(useCases), searchQuery, activeDomain),
+    [useCases, searchQuery, activeDomain],
+  );
+
   const tabs = [
-    { id: 'metrics', label: 'Metrics', count: metrics.length },
-    { id: 'dimensions', label: 'Dimensions', count: 0 },
-    { id: 'sources', label: 'Sources', count: 0 },
+    { id: 'kpis', label: 'Metrics', count: metrics.length },
+    { id: 'dimensions', label: 'Dimensions', count: dimensionRows(contracts).length },
+    { id: 'sources', label: 'Sources', count: contracts.length },
+    { id: 'actions', label: 'Action Codes', count: actions.length },
+    { id: 'usecases', label: 'Use Cases', count: useCases.length },
   ];
 
   const handleClearDomainFilter = () => {
-    const current = new URLSearchParams(searchParams);
+    const current = new URLSearchParams(searchParams.toString());
     current.delete('domain');
     window.history.pushState(null, '', `?${current.toString()}`);
     window.location.reload();
@@ -53,35 +85,17 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <div className="flex items-end justify-between mb-5">
         <div>
           <h1 className="text-[28px] font-medium tracking-[-0.02em] text-foreground mb-1">Library</h1>
           <p className="text-[13px] text-foreground-muted">
-            The single source of truth for every metric, dimension and source.
+            Governed KPIs, dimensions, sources, action codes, and use cases.
           </p>
         </div>
-        <button className="px-3.5 py-2 flex items-center gap-2 rounded-lg bg-foreground text-background text-[13px] font-medium hover:opacity-90 transition-opacity">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            <line x1="7" y1="1" x2="7" y2="13" />
-            <line x1="1" y1="7" x2="13" y2="7" />
-          </svg>
-          New metric
-        </button>
       </div>
 
-      {/* Tabs */}
       <LibraryTabs tabs={tabs} activeTab={activeTab} />
 
-      {/* Filters */}
       <div className="flex gap-2 mb-[14px] items-center">
         <div className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-lg border border-border bg-panel">
           <svg
@@ -92,6 +106,7 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
+            aria-hidden
           >
             <circle cx="5" cy="5" r="4" />
             <line x1="8.5" y1="8.5" x2="12" y2="12" />
@@ -112,41 +127,32 @@ export function LibraryClient({ metrics }: LibraryClientProps) {
             <span className="text-foreground-muted">Domain:</span>
             <span className="font-medium text-foreground">{activeDomain}</span>
             <button
+              type="button"
               onClick={handleClearDomainFilter}
-              className="ml-1 text-foreground-muted hover:text-foreground inline-flex items-center"
-              title="Clear filter"
-              aria-label="Clear filter"
+              className="ml-1 text-foreground-muted hover:text-foreground"
+              aria-label="Clear domain filter"
             >
-              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="m4 4 8 8M12 4l-8 8" />
-              </svg>
+              ×
             </button>
           </div>
         )}
       </div>
 
-      {/* Content */}
       <div className="flex-1">
-        {activeTab === 'metrics' && (
+        {activeTab === 'kpis' && (
           <MetricsTable metrics={metrics} searchQuery={searchQuery} />
         )}
-
         {activeTab === 'dimensions' && (
-          <div className="flex items-center justify-center py-16 rounded-lg border border-border bg-panel">
-            <div className="text-center">
-              <p className="text-sm font-medium text-foreground mb-1">Dimensions</p>
-              <p className="text-2xs text-foreground-muted">Coming in Phase 2</p>
-            </div>
-          </div>
+          <EntityTable rows={dimRows} emptyLabel="No dimensions match your filters." />
         )}
-
         {activeTab === 'sources' && (
-          <div className="flex items-center justify-center py-16 rounded-lg border border-border bg-panel">
-            <div className="text-center">
-              <p className="text-sm font-medium text-foreground mb-1">Data Sources</p>
-              <p className="text-2xs text-foreground-muted">Coming in Phase 2</p>
-            </div>
-          </div>
+          <EntityTable rows={srcRows} emptyLabel="No data sources match your filters." />
+        )}
+        {activeTab === 'actions' && (
+          <EntityTable rows={actRows} emptyLabel="No action codes match your filters." />
+        )}
+        {activeTab === 'usecases' && (
+          <EntityTable rows={ucRows} emptyLabel="No use cases match your filters." />
         )}
       </div>
     </div>

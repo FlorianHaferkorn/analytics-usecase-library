@@ -33,7 +33,8 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Operations Summary & Insights
-    page_type: T1_Strategic_Overview
+    page_type: T3_Operational_Monitoring
+    template_variant: T3_ProcessControl
     template_id: pulse
     decision_question: "Is product quality yield within acceptable thresholds?"
     big_idea: "Scrap rate is trending above target — yield losses are concentrated in two production lines and require root-cause containment before end of quarter."
@@ -52,6 +53,7 @@ ux_layout_rules:
   page_2_execution:
     title: Operations Execution
     page_type: T3_Operational_Monitoring
+    template_variant: T3_ProcessControl
     template_id: action_matrix
     component_300s:
       evidence_grain: line_day

@@ -5,7 +5,7 @@ table dim_org
 	column OrgKey
 		dataType: int64
 		isHidden
-		isAvailableInMDX: false
+		isAvailableInMdx: false
 		lineageTag: ce83f39d-834b-41dd-bb92-e499a27eb510
 		summarizeBy: none
 		sourceColumn: OrgKey
@@ -28,18 +28,6 @@ table dim_org
 		summarizeBy: none
 		sourceColumn: Country
 
-	column Region
-		dataType: string
-		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
-		summarizeBy: none
-		sourceColumn: Region
-
-	column Channel
-		dataType: string
-		lineageTag: b2c3d4e5-f6a7-8901-bcde-f12345678901
-		summarizeBy: none
-		sourceColumn: Channel
-
 	column OrgLevel
 		dataType: string
 		lineageTag: dad7d672-656a-4b88-94cd-bd6ab467b065
@@ -49,10 +37,10 @@ table dim_org
 		annotation SummarizationSetBy = Automatic
 
 	column ParentOrgKey
-		dataType: int64
+		dataType: double
 		formatString: 0
 		lineageTag: 5378ad63-be0b-440a-9ad1-3339bac5dbf4
-		summarizeBy: none
+		summarizeBy: count
 		sourceColumn: ParentOrgKey
 
 		annotation SummarizationSetBy = Automatic
@@ -83,11 +71,103 @@ table dim_org
 		annotation SummarizationSetBy = Automatic
 
 	column 'Close DateKey'
-		dataType: int64
+		dataType: double
 		formatString: 0
 		lineageTag: a7a5f7e9-59d3-465e-8ea6-2f0d1ff0baae
-		summarizeBy: none
+		summarizeBy: count
 		sourceColumn: Close DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Channel
+		dataType: string
+		lineageTag: b2c3d4e5-f6a7-8901-bcde-f12345678901
+		summarizeBy: none
+		sourceColumn: Channel
+
+	column Entity
+		dataType: string
+		lineageTag: 39e4b0e7-7f98-4b0c-a217-3cc2792d230d
+		summarizeBy: none
+		sourceColumn: Entity
+
+		annotation SummarizationSetBy = Automatic
+
+	column Plant
+		dataType: string
+		lineageTag: 0e005605-837d-4f28-8e8a-550d840b14a8
+		summarizeBy: none
+		sourceColumn: Plant
+
+		annotation SummarizationSetBy = Automatic
+
+	column Line
+		dataType: string
+		lineageTag: 09839e43-4f7d-489e-b20b-dbf717d55d36
+		summarizeBy: none
+		sourceColumn: Line
+
+		annotation SummarizationSetBy = Automatic
+
+	column Shift
+		dataType: string
+		lineageTag: 70b71624-70c0-41a0-83b5-a1eda3d03377
+		summarizeBy: none
+		sourceColumn: Shift
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location
+		dataType: string
+		lineageTag: 19ab1378-2a15-4e5a-b6b4-94d77fcdaceb
+		summarizeBy: none
+		sourceColumn: Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column Customer
+		dataType: string
+		lineageTag: 25b7f83b-6796-44d2-8bc5-fc8f95dbf628
+		summarizeBy: none
+		sourceColumn: Customer
+
+		annotation SummarizationSetBy = Automatic
+
+	column Queue
+		dataType: string
+		lineageTag: f5f9b59e-0bc3-4ea4-8d6e-a65f523f489c
+		summarizeBy: none
+		sourceColumn: Queue
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Agent Group'
+		dataType: string
+		lineageTag: 59ac4bb0-4801-43d6-b74a-cfccaaaf79be
+		summarizeBy: none
+		sourceColumn: Agent Group
+
+		annotation SummarizationSetBy = Automatic
+
+	column IssueType
+		dataType: string
+		lineageTag: af17654f-d28a-467d-b0d7-a4adc21f551e
+		summarizeBy: none
+		sourceColumn: IssueType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Severity
+		dataType: string
+		lineageTag: bc4fdadc-6056-48e3-8b3d-8e5870d53905
+		summarizeBy: none
+		sourceColumn: Severity
 
 		annotation SummarizationSetBy = Automatic
 

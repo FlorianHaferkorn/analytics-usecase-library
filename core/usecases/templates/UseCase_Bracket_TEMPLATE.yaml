@@ -40,6 +40,22 @@ ux_layout_rules:
   report_structure: "2-Page-Lead"
   page_1_summary:
     title: "[Domain] Summary & Insights"
+
+    # Template variant — choose one based on the primary decision question:
+    #   T1_Portfolio  → "Are we on track?" — 4-6 KPIs, portfolio breadth
+    #   T1_Trend      → "Are we on track?" — single KPI, momentum emphasis
+    #   T2_DriverBridge  → "Why are we off target?" — waterfall variance decomposition
+    #   T2_Comparative   → "Why are we off target?" — entity/segment comparison
+    #   T2_Funnel        → "Why are we off target?" — sequential process loss
+    #   T3_ExceptionQueue   → "Where is execution breaking?" — severity-ranked exceptions
+    #   T3_ProcessControl   → "Where is execution breaking?" — SLA/OTD trend + exceptions
+    #   T3_IncidentMonitor  → "Where is execution breaking?" — real-time incident tracking
+    #   T4_ActionDecision   → "What should we do?" — single primary recommendation
+    #   T4_OptionComparison → "What should we do?" — ranked option comparison
+    #   T4_Sensitivity      → "What should we do?" — recommendation + scenario check
+    # Full decision tree: studio/docs/rebuild/PAGE_TYPE_TAXONOMY.md §4
+    # template_variant: "[e.g., T2_DriverBridge]"
+
     component_3s:
       kpi_id: "[strategic_kpi_id]"
       visual_type: "kpi_card"

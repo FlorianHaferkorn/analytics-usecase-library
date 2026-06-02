@@ -5,7 +5,7 @@ table fact_experience
 	column 'Complaint ID'
 		dataType: string
 		isHidden
-		isAvailableInMDX: false
+		isAvailableInMdx: false
 		lineageTag: 2dee2667-d34a-492a-9271-445ddc5a1050
 		summarizeBy: none
 		sourceColumn: Complaint ID

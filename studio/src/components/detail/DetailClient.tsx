@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { CatalogKpi } from '@/lib/core/catalog-loader';
 import { Pill } from './Pill';
+import { DetailHistoryTab } from './DetailHistoryTab';
 
 interface Comment {
   who: string;
@@ -21,18 +22,6 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]['id'];
 
-const INITIAL_COMMENTS: Comment[] = [
-  { who: 'R. Okafor', when: '2h ago', text: 'I moved this to certified — cohort logic matches the board definition now.' },
-  { who: 'L. Chen', when: 'yday', text: 'Can we add an expansion-only cut? Useful for the finance review.' },
-];
-
-const HISTORY = [
-  ['R. Okafor', 'certified definition', '2h ago'],
-  ['A. Haferkorn', 'edited description', 'yday'],
-  ['L. Chen', "added dimension 'Region'", '3d ago'],
-  ['M. Park', 'created metric', '2w ago'],
-] as const;
-
 interface DetailClientProps {
   kpi: CatalogKpi | null;
   type: string;
@@ -48,8 +37,24 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
       'Measures how revenue from existing customers evolves over time, inclusive of expansions, downgrades, and churn.'
   );
   const [editingDesc, setEditingDesc] = useState(false);
-  const [comments, setComments] = useState<Comment[]>(INITIAL_COMMENTS);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  const persistKpi = useCallback(async (patch: { kpi_key?: string; business?: { definition?: string } }) => {
+    if (!kpi) return;
+    setSaveStatus('saving');
+    try {
+      const res = await fetch('/api/core/kpis', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kpi_id: kpi.kpi_id, ...patch }),
+      });
+      setSaveStatus(res.ok ? 'saved' : 'error');
+    } catch {
+      setSaveStatus('error');
+    }
+  }, [kpi]);
 
   const domain = kpi?.domain_tag?.[0] ?? 'Revenue';
   const kpiType = kpi?.kpi_type ?? 'Ratio';
@@ -81,6 +86,13 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
             Back to library
           </Link>
 
+          {saveStatus === 'saved' && (
+            <p className="text-2xs text-positive mb-2">Saved to KPI catalog</p>
+          )}
+          {saveStatus === 'error' && (
+            <p className="text-2xs text-red-400 mb-2">Save failed — check auth and try again</p>
+          )}
+
           {/* Pill row */}
           <div className="flex items-center gap-2 mb-2">
             <span className="font-mono text-[11px] text-foreground-subtle">{ref}</span>
@@ -95,7 +107,10 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              onBlur={() => setEditingName(false)}
+              onBlur={() => {
+                setEditingName(false);
+                if (kpi && name !== kpi.kpi_key) void persistKpi({ kpi_key: name });
+              }}
               onKeyDown={(e) => e.key === 'Enter' && setEditingName(false)}
               className="w-full bg-transparent text-foreground outline-none border-b-2 border-accent"
               style={{ fontSize: 36, fontWeight: 500, letterSpacing: '-0.025em', padding: '0 4px', marginLeft: -4 }}
@@ -116,7 +131,12 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
               autoFocus
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              onBlur={() => setEditingDesc(false)}
+              onBlur={() => {
+                setEditingDesc(false);
+                if (kpi && desc !== kpi.business.definition) {
+                  void persistKpi({ business: { definition: desc } });
+                }
+              }}
               className="w-full bg-transparent text-foreground-muted outline-none border border-accent rounded-lg resize-vertical"
               style={{ fontSize: 14.5, lineHeight: 1.6, padding: 10, marginTop: 10, minHeight: 80 }}
             />
@@ -263,26 +283,8 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
           )}
 
           {/* Tab: History */}
-          {tab === 'history' && (
-            <div className="rounded-[var(--radius-card)] border border-border bg-panel overflow-hidden">
-              {HISTORY.map((e, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center gap-3 ${i > 0 ? 'border-t border-border-subtle' : ''}`}
-                  style={{ padding: '12px var(--pad)' }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-foreground-subtle flex-shrink-0">
-                    <circle cx="6.5" cy="6.5" r="5.5" />
-                    <polyline points="6.5 3.5 6.5 6.5 8.5 7.5" />
-                  </svg>
-                  <div className="text-[13px] flex-1">
-                    <span className="font-medium text-foreground">{e[0]}</span>
-                    <span className="text-foreground-muted"> {e[1]}</span>
-                  </div>
-                  <span className="text-[11.5px] text-foreground-subtle">{e[2]}</span>
-                </div>
-              ))}
-            </div>
+          {tab === 'history' && kpi && (
+            <DetailHistoryTab entityId={kpi.kpi_id} entityTypes={['kpi']} />
           )}
 
         </div>

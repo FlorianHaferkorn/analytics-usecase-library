@@ -199,6 +199,23 @@ try {
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 
+  # ── PBIR JSON schema validation (all .Report folders) ────────────────────
+  $checkPbirSchema = Join-Path $validationDir "check_pbir_schema.ps1"
+  if (Test-Path $checkPbirSchema) {
+    Write-Host ""
+    Write-Host ">> check_pbir_schema.ps1 (PBIR JSON schema, all Reports)" -ForegroundColor Cyan
+    $reportDirsForSchema = Get-ChildItem -Path $distRootResolved -Filter "*.Report" -Directory -ErrorAction SilentlyContinue
+    if ($reportDirsForSchema) {
+      foreach ($rDir in $reportDirsForSchema) {
+        Write-Host "   $($rDir.Name)" -ForegroundColor DarkGray
+        & $checkPbirSchema -ReportPath $rDir.FullName
+        if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+      }
+    } else {
+      Write-Host "   No .Report directories found in $distRootResolved" -ForegroundColor Yellow
+    }
+  }
+
   # ── pbir-cli structural + quality validation ─────────────────────────────
   # pbir-cli validates report schemas and runs QA checks (hidden visuals,
   # overlapping objects, filter sanity). Does NOT require a live model

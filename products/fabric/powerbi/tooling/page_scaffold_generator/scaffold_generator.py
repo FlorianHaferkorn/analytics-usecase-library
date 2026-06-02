@@ -72,8 +72,7 @@ class PageScaffoldGenerator:
         self.page_id = f"Page_{uc_normalized}_{self.page_name.capitalize()}"
 
         # Get display name
-        display_name = self.config_loader.get_use_case_display_name(self.use_case_id)
-        page_display_name = f"{display_name} - {self.page_name.capitalize()}"
+        page_display_name = f"{self.use_case_id} - {self.page_name.capitalize()}"
         
         # Build page metadata (canvas: report_canvas > grid_blueprint.canvas > default)
         report_canvas = self.page_config.get('report_canvas')

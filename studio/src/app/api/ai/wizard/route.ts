@@ -1,12 +1,18 @@
 import { generateText } from 'ai';
 import { createServerModel } from '@/lib/ai/orchestrator';
-import { KPI_SYSTEM_PROMPT, BRACKET_SYSTEM_PROMPT, ACTION_SYSTEM_PROMPT } from '@/lib/ai/prompts/wizard';
+import {
+  KPI_SYSTEM_PROMPT,
+  BRACKET_SYSTEM_PROMPT,
+  ACTION_SYSTEM_PROMPT,
+  SOURCE_SYSTEM_PROMPT,
+} from '@/lib/ai/prompts/wizard';
 import { requireAuth } from '@/lib/auth/session';
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   kpi: KPI_SYSTEM_PROMPT,
   bracket: BRACKET_SYSTEM_PROMPT,
   action: ACTION_SYSTEM_PROMPT,
+  source: SOURCE_SYSTEM_PROMPT,
 };
 
 export async function POST(request: Request) {

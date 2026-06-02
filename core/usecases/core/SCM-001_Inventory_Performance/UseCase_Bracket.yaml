@@ -39,6 +39,7 @@ ux_layout_rules:
   page_1_summary:
     title: Supply Chain Summary & Insights
     page_type: T1_Strategic_Overview
+    template_variant: T1_Portfolio
     template_id: pulse
     decision_question: "Is inventory turning efficiently without stockout or obsolescence risk?"
     big_idea: "Inventory turnover is deteriorating — dead stock in three SKU clusters is tying up working capital and masking the true demand signal for replenishment planning."
@@ -57,6 +58,7 @@ ux_layout_rules:
   page_2_execution:
     title: Supply Chain Execution
     page_type: T3_Operational_Monitoring
+    template_variant: T3_ExceptionQueue
     template_id: action_matrix
     component_300s:
       evidence_grain: location_sku_month

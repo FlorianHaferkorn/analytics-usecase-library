@@ -82,13 +82,25 @@ _VISUAL_TYPE_MAP: Dict[str, VisualType] = {
     "action_panel":   VisualType.ACTION_PANEL,
 }
 
-# Map bracket page_type → PageType enum
+# Map bracket page_type / template_variant → PageType enum.
+# Both short forms ("T2") and full forms ("T2_Tactical_Variance", "T2_DriverBridge") are
+# supported; resolution uses the first two characters of the key.
 _PAGE_TYPE_MAP: Dict[str, PageType] = {
     "T1": PageType.T1_STRATEGIC_OVERVIEW,
     "T2": PageType.T2_TACTICAL_VARIANCE,
     "T3": PageType.T3_OPERATIONAL_MONITORING,
     "T4": PageType.T4_PRESCRIPTIVE_RECOMMENDATION,
 }
+
+
+def _resolve_page_type(raw: str) -> PageType:
+    """Resolve a page_type or template_variant string to a PageType enum.
+
+    Handles short ("T2") and long ("T2_Tactical_Variance", "T2_DriverBridge") forms.
+    Falls back to T1 when the string is unrecognised.
+    """
+    family = (raw or "").strip()[:2].upper()
+    return _PAGE_TYPE_MAP.get(family, PageType.T1_STRATEGIC_OVERVIEW)
 
 
 # ---------------------------------------------------------------------------
@@ -109,9 +121,61 @@ def _find_kpi_file(kpi_id: str, catalog_root: Path) -> Optional[Path]:
 
 def _find_action_code_file(ac_id: str, action_codes_root: Path) -> Optional[Path]:
     """Find action code YAML anywhere under action_codes_root, skip decision_spines/."""
+    if not action_codes_root.is_dir():
+        return None
     for f in action_codes_root.rglob(f"{ac_id}.yaml"):
-        if "decision_spines" not in str(f):
+        if "decision_spines" not in f.parts:
             return f
+    return None
+
+
+def _format_threshold_value(val: Any, unit: str) -> str:
+    """Format threshold for display; avoid concatenating word units (e.g. 0amount)."""
+    unit = (unit or "").strip()
+    if unit in ("%", "pp"):
+        return f"{val}{unit}"
+    if unit:
+        return f"{val} {unit}"
+    return str(val)
+
+
+def _format_trigger(ac: Dict[str, Any]) -> Optional[str]:
+    trigger = ac.get("trigger") or {}
+    if not isinstance(trigger, dict):
+        return None
+    levels = trigger.get("levels") or {}
+    if not isinstance(levels, dict):
+        return None
+    for level_key in ("L2", "L1", "L3"):
+        level = levels.get(level_key)
+        if not isinstance(level, dict):
+            continue
+        cond = level.get("condition") or {}
+        if not isinstance(cond, dict):
+            continue
+        metric = cond.get("metric_kpi_id") or ""
+        comp = cond.get("comparator") or ""
+        th = cond.get("threshold")
+        if isinstance(th, dict):
+            val, unit = th.get("value"), (th.get("unit") or "")
+        else:
+            val, unit = th, ""
+        if metric and comp and val is not None:
+            comp_text = "<" if comp == "lt" else ">" if comp == "gt" else comp
+            return f"{metric} {comp_text} {_format_threshold_value(val, unit)}".strip()
+    return None
+
+
+def _format_impact(ac: Dict[str, Any]) -> Optional[str]:
+    impact = ac.get("impact") or {}
+    if isinstance(impact, dict) and impact.get("category"):
+        cat = impact.get("category", "")
+        val = ac.get("impact_valuation") or {}
+        method = val.get("method", "") if isinstance(val, dict) else ""
+        return f"Impact: {cat}, {method}" if method else f"Impact: {cat}"
+    val = ac.get("impact_valuation") or {}
+    if isinstance(val, dict) and val.get("method"):
+        return f"Impact: {val.get('method')}"
     return None
 
 
@@ -120,45 +184,78 @@ def _position(layout: Dict[str, Dict[str, float]], slot: str) -> Position:
     return Position(x=g["x"], y=g["y"], width=g["w"], height=g["h"])
 
 
+def _card_kpi_ids(bracket: Dict[str, Any]) -> List[str]:
+    """KPI card band: component_3s lead + influencing KPIs, deduped, max 4."""
+    ux = bracket.get("ux_layout_rules") or {}
+    p1 = ux.get("page_1_summary") or {}
+    c3s = p1.get("component_3s") if isinstance(p1, dict) else {}
+    orch = bracket.get("orchestration") or {}
+    lead = (c3s.get("kpi_id") if isinstance(c3s, dict) else None) or orch.get("strategic_kpi_id")
+    influencing = orch.get("influencing_kpi_ids") or []
+    out: List[str] = []
+    seen: set = set()
+    for kid in ([lead] if lead else []) + list(influencing):
+        if not kid or kid in seen:
+            continue
+        seen.add(kid)
+        out.append(str(kid))
+        if len(out) >= 4:
+            break
+    return out
+
+
 def _render_action_text(
     action_code_ids: List[str],
     action_codes_root: Path,
     payload_mode: str = "full",
-    title: str = "Recommended Actions",
+    title: str = "Recommended actions (from action codes)",
 ) -> str:
     """Build ActionPanel display text from action code YAMLs."""
-    lines: List[str] = [f"=== {title} ===", ""]
+    lines: List[str] = [title, ""]
     for ac_id in action_code_ids:
+        if not isinstance(ac_id, str) or not ac_id.strip():
+            continue
+        ac_id = ac_id.strip()
         ac_path = _find_action_code_file(ac_id, action_codes_root)
         if not ac_path:
-            lines.append(f"[{ac_id}: not found]")
+            lines.append(f"• {ac_id} (definition not found)")
             lines.append("")
             continue
         ac = _load_yaml(ac_path)
-        name = ac.get("name", ac_id)
-        owner = ac.get("owner", "")
-        lines.append(f"[{ac_id}] {name}")
-        if owner:
-            lines.append(f"Owner: {owner}")
-        if payload_mode in ("full", "summary"):
-            # Trigger condition
-            trigger = ac.get("trigger", {})
-            for lvl in ("L1", "L2", "L3"):
-                cond = trigger.get("levels", {}).get(lvl, {}).get("condition", "")
-                if cond:
-                    lines.append(f"Trigger ({lvl}): {cond}")
-                    break
-            # Impact
-            impact = ac.get("impact", {})
-            impact_cat = impact.get("category", "")
-            impact_val = ac.get("impact_valuation", {}).get("method", "")
-            if impact_cat:
-                lines.append(f"Impact: {impact_cat}" + (f" ({impact_val})" if impact_val else ""))
+        name = ac.get("name") or ac_id
+        owner = ac.get("owner_role") or ac.get("owner") or "—"
+        lines.append(f"• {ac_id} — {name}")
+        lines.append(f"  Owner: {owner}")
+        if payload_mode != "minimal":
+            trigger_text = _format_trigger(ac)
+            if trigger_text:
+                lines.append(f"  Trigger: {trigger_text}")
+            impact_text = _format_impact(ac)
+            if impact_text:
+                lines.append(f"  {impact_text}")
+            impact = ac.get("impact") or {}
+            if isinstance(impact, dict):
+                rng = impact.get("expected_range") or {}
+                if isinstance(rng, dict) and rng.get("value_low") is not None:
+                    lo = rng.get("value_low")
+                    hi = rng.get("value_high")
+                    unit = (rng.get("unit") or "").strip()
+                    range_str = f"{lo}–{hi} {unit}".strip()
+                    lines.append(f"  Expected: {range_str}")
+                conf = impact.get("confidence") or {}
+                if isinstance(conf, dict) and conf.get("level"):
+                    lines.append(f"  Confidence: {conf['level']}")
         if payload_mode == "full":
-            steps = ac.get("operational_execution", {}).get("steps", [])
-            for i, step in enumerate(steps[:3], 1):
-                step_text = step if isinstance(step, str) else step.get("description", str(step))
-                lines.append(f"  {i}. {step_text}")
+            exec_block = ac.get("operational_execution") or {}
+            steps = exec_block.get("steps") or [] if isinstance(exec_block, dict) else []
+            for step in list(steps)[:3]:
+                if isinstance(step, str):
+                    lines.append(f"  · {step}")
+            gating = ac.get("trigger", {}).get("gating_rules") if isinstance(ac.get("trigger"), dict) else []
+            if isinstance(gating, list) and gating:
+                lines.append(f"  ⚠ {gating[0]}")
+                if len(gating) > 1:
+                    lines.append(f"  ⚠ {gating[1]}")
         lines.append("")
     return "\n".join(lines).strip()
 
@@ -196,8 +293,8 @@ class BracketCompiler:
         action_codes_root: Path,
         target_adapter: AdapterTarget = AdapterTarget.PBIP,
     ) -> None:
-        self.kpi_catalog_root = Path(kpi_catalog_root)
-        self.action_codes_root = Path(action_codes_root)
+        self.kpi_catalog_root = Path(kpi_catalog_root).resolve()
+        self.action_codes_root = Path(action_codes_root).resolve()
         self.target_adapter = target_adapter
         self.warnings: List[CompilerWarning] = []
 
@@ -209,6 +306,11 @@ class BracketCompiler:
         """Compile bracket YAML into a DashboardSpec."""
         self.warnings = []
         bracket_path = Path(bracket_path)
+        if not self.action_codes_root.is_dir():
+            self.warnings.append(CompilerWarning(
+                "MISSING_ACTION_CODES_ROOT",
+                f"Action codes root not found: {self.action_codes_root}",
+            ))
         bracket = _load_yaml(bracket_path)
 
         use_case_id = bracket.get("id", bracket_path.parent.name.split("_")[0])
@@ -261,9 +363,17 @@ class BracketCompiler:
         specs: List[MeasureSpec] = []
         seen: set = set()
 
+        # KPI IDs live under orchestration (Lean 2.0 bracket schema)
+        orch = bracket.get("orchestration") or {}
         kpi_ids: List[str] = []
-        kpi_ids += bracket.get("primary_kpi_ids", [])
-        kpi_ids += bracket.get("influencing_kpi_ids", [])
+        strategic = orch.get("strategic_kpi_id")
+        if strategic:
+            kpi_ids.append(strategic)
+        kpi_ids += orch.get("influencing_kpi_ids") or []
+        kpi_ids += orch.get("supporting_kpi_ids") or []
+        # Legacy top-level fields kept for backwards compatibility
+        kpi_ids += bracket.get("primary_kpi_ids") or []
+        kpi_ids += bracket.get("influencing_kpi_ids") or []
 
         for kpi_id in kpi_ids:
             if kpi_id in seen:
@@ -296,13 +406,14 @@ class BracketCompiler:
     def _compile_overview(self, bracket: Dict) -> PageSpec:
         ux = bracket.get("ux_layout_rules", {})
         page1 = ux.get("page_1_summary", {})
-        page_type_str = page1.get("page_type", "T1")
-        page_type = _PAGE_TYPE_MAP.get(page_type_str, PageType.T1_STRATEGIC_OVERVIEW)
+        # Prefer template_variant ("T2_DriverBridge") over page_type ("T2_Tactical_Variance")
+        page_type_str = page1.get("template_variant") or page1.get("page_type") or "T1"
+        page_type = _resolve_page_type(page_type_str)
 
         visuals: List[VisualSpec] = []
 
-        # KPI cards
-        kpi_measures = [k for k in bracket.get("primary_kpi_ids", [])]
+        # KPI cards: component_3s lead + influencing (deduped, max 4)
+        kpi_measures = _card_kpi_ids(bracket)
         visuals.append(VisualSpec(
             id="KPI_Cards",
             visual_type=VisualType.KPI_CARD,
@@ -391,14 +502,21 @@ class BracketCompiler:
 
         # Evidence / detail matrix
         evidence_table: Optional[EvidenceTableSpec] = None
-        eg = bracket.get("evidence_grain", {})
+        # evidence_grain may be a top-level key or inside component_300s
+        eg = bracket.get("evidence_grain") or (
+            {"grain": comp_300s.get("evidence_grain")} if isinstance(comp_300s, dict) and comp_300s.get("evidence_grain") else {}
+        )
+        _detail_measures = _card_kpi_ids(bracket)
+        # Legacy fallback
+        if not _detail_measures:
+            _detail_measures = bracket.get("primary_kpi_ids") or []
         if eg:
             cols = eg.get("columns", [])
             grain = eg.get("grain", "")
             evidence_table = EvidenceTableSpec(
                 grain=grain,
                 columns=cols,
-                measures=bracket.get("primary_kpi_ids", []),
+                measures=_detail_measures,
                 sort_by=eg.get("sort_by"),
                 limit=eg.get("limit", 500),
                 data_bars=eg.get("data_bars", False),
@@ -410,7 +528,7 @@ class BracketCompiler:
                 position=_position(_DETAIL_LAYOUT, "Detail_Matrix"),
                 binding=Binding(
                     columns=cols,
-                    measures=bracket.get("primary_kpi_ids", []),
+                    measures=_detail_measures,
                     sort_by=eg.get("sort_by"),
                 ),
             ))
