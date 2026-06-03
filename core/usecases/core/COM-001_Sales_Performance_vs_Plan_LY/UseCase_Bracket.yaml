@@ -1,0 +1,20 @@
+schema_version: '2.0'
+id: COM-001-variant
+title: Sales Performance vs Plan & LY (Variant)
+domain: Commercial
+governance:
+  owner_role: commercial_controlling_lead
+  steward_role: sales_bi_lead
+orchestration:
+  strategic_kpi_id: margin.gm.pct
+  influencing_kpi_ids:
+  - sales.net_sales.delta_pct.plan
+  - sales.net_sales.delta_pct.ly
+  - sales.net_sales.amount
+  action_code_ids: []
+ux_layout_rules:
+  page_1_summary:
+    page_type: T1
+    component_3s: []
+  page_2_execution:
+    component_300s: {}
