@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "KPI_Cards",
   "position": {
     "x": 32,
@@ -25,40 +25,25 @@
             }
           }
         }
+      ],
+      "calloutValue": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "query": {
       "queryState": {
         "Data": {
           "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Gross Margin %"
-                }
-              },
-              "queryRef": "_Measures.Gross Margin %",
-              "nativeQueryRef": "Gross Margin %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Cost of Goods Sold Amount"
-                }
-              },
-              "queryRef": "_Measures.Cost of Goods Sold Amount",
-              "nativeQueryRef": "Cost of Goods Sold Amount"
-            },
             {
               "field": {
                 "Measure": {
@@ -86,6 +71,34 @@
               },
               "queryRef": "_Measures.Net Sales % vs Plan",
               "nativeQueryRef": "Net Sales % vs Plan"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Delta% Net Sales"
+                }
+              },
+              "queryRef": "_Measures.Delta% Net Sales",
+              "nativeQueryRef": "Delta% Net Sales"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Price Effect Amount"
+                }
+              },
+              "queryRef": "_Measures.Price Effect Amount",
+              "nativeQueryRef": "Price Effect Amount"
             }
           ]
         }

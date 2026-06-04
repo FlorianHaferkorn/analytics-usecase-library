@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "Slicer_Entity",
+  "name": "Slicer_Region",
   "position": {
-    "x": 32,
-    "y": 548,
+    "x": 656,
+    "y": 204,
     "z": 5000,
-    "height": 500,
-    "width": 296,
-    "tabOrder": 3001
+    "height": 70,
+    "width": 608,
+    "tabOrder": 3002
   },
   "visual": {
     "visualType": "slicer",
@@ -23,11 +23,11 @@
                       "Entity": "dim_org"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "Region"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "dim_org.Region",
+              "nativeQueryRef": "Region"
             }
           ]
         }
