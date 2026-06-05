@@ -1,0 +1,112 @@
+schema_version: '2.0'
+id: COM-001-LY
+title: Sales Performance vs Plan & Last Year
+domain: Commercial
+governance:
+  owner_role: commercial_controlling_lead
+  steward_role: sales_bi_lead
+orchestration:
+  strategic_kpi_id: margin.gm.pct
+  influencing_kpi_ids:
+  - sales.net_sales.delta_pct.plan
+  - sales.net_sales.delta_pct.ly
+  - sales.net_sales.amount
+  - sales.pvm.price_effect.amount
+  - sales.pvm.volume_effect.amount
+  - sales.pvm.mix_effect.amount
+  - cost.cogs.amount
+  supporting_kpi_ids:
+  - sales.price.list.amount
+  - sales.price.net.amount
+  action_code_ids:
+  - C-M2.1
+  - C-S1.1
+  - C-S1.2
+value_driver_model:
+  formula: margin.gm.pct = f(sales.net_sales.amount, sales.net_sales.delta_pct.plan, sales.net_sales.delta_pct.ly)
+  impact_direction: maximize
+  primary_driver: sales.net_sales.amount
+  impact_logic: Improving net sales is the primary lever for maximizing gross margin %.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: Commercial Summary & Insights
+    page_type: T2_Tactical_Variance
+    template_variant: T2_DriverBridge
+    template_id: pulse
+    decision_question: "Are we on track vs Plan and Last Year?"
+    big_idea: "Compare current Net Sales against both Plan and Last Year to identify trend deviations."
+    component_3s:
+      kpi_id: sales.net_sales.amount
+      visual_type: kpi_card
+      sparkline_field: NetSales_Monthly
+      comparison: vs_plan_and_ly
+      status_logic: higher_is_better
+    component_30s:
+    - slot_id: Main_1
+      visual_type: line_chart
+      kpi_ids:
+        - sales.net_sales.amount
+        - Plan Sales Amount
+        - Last Year Net Sales Amount
+    - slot_id: Main_2
+      visual_type: waterfall
+      comparison: vs_plan
+      kpi_ids:
+        - Plan Sales Amount
+        - sales.pvm.price_effect.amount
+        - sales.pvm.volume_effect.amount
+        - sales.pvm.mix_effect.amount
+        - sales.net_sales.amount
+    - slot_id: Main_3
+      visual_type: bar_chart_horizontal
+      kpi_id: sales.net_sales.delta_pct.ly
+      category_field: dim_org.Region
+  page_2_execution:
+    title: Commercial Execution
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
+    template_id: action_matrix
+    decision_question: "Which entities explain the revenue gap vs Plan and Last Year?"
+    big_idea: "Identify regions and channels with the largest deviation vs both benchmarks."
+    component_300s:
+      evidence_grain: invoice_line
+      evidence_columns:
+      - region
+      - channel
+      - product_category
+      - customer_segment
+      - sales.net_sales.amount
+      - sales.net_sales.delta_pct.plan
+      - sales.net_sales.delta_pct.ly
+      - margin.gm.pct
+      action_panel: true
+      payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: low
+  confidence: 0.9
+  reach: organization
+  priority_score: 45
+data_protection:
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Detail Matrix limited to business-unit grain. No individual-level data exposed.
+  access_restriction: >
+    commercial_controlling_lead and sales_bi_lead roles; row-level security enforced
+    by Commercial.SemanticModel.
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (COM) — DAX measure for Smart Narrative grounding.
+readiness:
+  data_availability: available
+  org_capability: ready
+  stakeholder_alignment: aligned
+  overall_readiness: green
+overrides:
+  data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md
