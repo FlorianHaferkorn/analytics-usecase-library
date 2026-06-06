@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Smart_Narrative",
   "position": {
     "x": 344,
@@ -10,7 +10,22 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "smartNarrativeVisual",
-    "drillFilterOtherVisuals": true
+    "visualType": "textbox",
+    "drillFilterOtherVisuals": true,
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'[Commercial] Sales Performance vs Plan & LY\nEvidence grain: invoice_line | Strategic KPI: Gross Margin %'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

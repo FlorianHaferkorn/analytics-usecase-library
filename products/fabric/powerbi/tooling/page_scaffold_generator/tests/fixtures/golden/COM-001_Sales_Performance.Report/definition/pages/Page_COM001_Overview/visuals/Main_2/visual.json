@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Main_2",
   "position": {
     "x": 656,
@@ -7,7 +7,7 @@
     "z": 10000,
     "height": 758,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
     "visualType": "waterfallChart",
@@ -42,11 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Net Sales % vs Plan"
+                  "Property": "Plan Sales Amount"
                 }
               },
-              "queryRef": "_Measures.Net Sales % vs Plan",
-              "nativeQueryRef": "Net Sales % vs Plan"
+              "queryRef": "_Measures.Plan Sales Amount",
+              "nativeQueryRef": "Plan Sales Amount"
             },
             {
               "field": {
@@ -89,6 +89,20 @@
               },
               "queryRef": "_Measures.Mix Effect Amount",
               "nativeQueryRef": "Mix Effect Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Net Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Net Sales Amount",
+              "nativeQueryRef": "Net Sales Amount"
             }
           ]
         }
