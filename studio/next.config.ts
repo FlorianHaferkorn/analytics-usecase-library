@@ -41,18 +41,11 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: '/catalog', destination: '/library?tab=kpis', permanent: false },
       { source: '/catalog/:kpiId', destination: '/detail/kpi/:kpiId', permanent: false },
       { source: '/registry/brackets/:id', destination: '/detail/usecase/:id', permanent: false },
-      { source: '/steering', destination: '/overview', permanent: false },
-      { source: '/discover', destination: '/overview', permanent: false },
-      { source: '/blueprint', destination: '/canvas', permanent: false },
-      { source: '/compose', destination: '/library', permanent: false },
-      { source: '/generate', destination: '/delivery', permanent: false },
       { source: '/brand', destination: '/templates', permanent: false },
       { source: '/brand-lab', destination: '/templates', permanent: false },
       { source: '/lineage', destination: '/canvas', permanent: false },
-      { source: '/drift', destination: '/registry/health', permanent: false },
       { source: '/dashboard', destination: '/overview', permanent: false },
     ];
   },

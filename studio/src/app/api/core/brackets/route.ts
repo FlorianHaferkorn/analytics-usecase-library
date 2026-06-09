@@ -7,8 +7,37 @@ import { apiCreated, apiError, apiSuccess, apiValidationError } from '@/lib/api/
 import { ErrorCode } from '@/lib/api/error-codes';
 import { logAuditEvent } from '@/lib/db/audit-repo';
 import { requireAuth } from '@/lib/auth/session';
+import { auth, type ProjectMembership } from '@/lib/auth/config';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
+
+function projectAccessDeniedResponse(): Response {
+  return new Response(JSON.stringify({ error: 'Forbidden', code: 'PROJECT_ACCESS_DENIED' }), {
+    status: 403,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+function getMembershipsFromSession(session: unknown): ProjectMembership[] {
+  const anySession = session as Record<string, unknown> | null | undefined;
+  return (anySession?.project_memberships as ProjectMembership[] | undefined) ?? [];
+}
+
+async function enforceLegacyProjectHeader(request: Request): Promise<Response | null> {
+  const headerProjectId = request.headers.get('X-Project-Id');
+  if (!headerProjectId) return null;
+
+  const session = await auth();
+  // No session => let the canonical handler return 401/appropriate response.
+  if (!session?.user?.email) return null;
+
+  const memberships = getMembershipsFromSession(session);
+  const isMember = memberships.some((m) => m.projectId === headerProjectId);
+  const gracefulFallback = memberships.length === 0 && headerProjectId === 'default';
+
+  if (!isMember && !gracefulFallback) return projectAccessDeniedResponse();
+  return null;
+}
 
 function slugify(value: string): string {
   return value
@@ -61,6 +90,9 @@ export async function GET(request: Request) {
   const [, authError] = await requireAuth();
   if (authError) return authError;
 
+  const denied = await enforceLegacyProjectHeader(request);
+  if (denied) return denied;
+
   const { searchParams } = new URL(request.url);
   const domain = searchParams.get('domain');
 
@@ -76,6 +108,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const [user, authError] = await requireAuth();
   if (authError) return authError;
+
+  const denied = await enforceLegacyProjectHeader(request);
+  if (denied) return denied;
 
   const body = await request.json() as { id?: string; title?: string; yaml?: string };
   if (!body.id || !body.title || !body.yaml) {

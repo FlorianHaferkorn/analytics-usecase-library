@@ -37,7 +37,15 @@ export default auth((req) => {
   }
 
   // 2. Authentication gate — redirect to login if not signed in.
-  if (!req.auth) {
+  // In this codebase `req.auth` can be non-null even when the browser has no
+  // session cookie. To make the gate deterministic, check the cookie header
+  // for NextAuth's JWT session token.
+  const cookieHeader = req.headers.get('cookie') ?? '';
+  const hasNextAuthToken =
+    /(?:^|;\s*)(?:__Secure-)?next-auth\.session-token=/.test(cookieHeader) ||
+    /(?:^|;\s*)(?:__Host-)?next-auth\.session-token=/.test(cookieHeader);
+
+  if (!hasNextAuthToken) {
     const loginUrl = new URL('/login', req.nextUrl.origin);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);

@@ -84,7 +84,9 @@ export async function buildOverviewBundle(): Promise<OverviewBundle> {
       counts: { error: 0, warning: 0, info: 0 },
       artifactCounts: { kpis: 0, brackets: 0, actions: 0 },
     })),
-    Promise.resolve(getAuditEvents('default', 100, 0)),
+    // Studio soll auch dann rendern können, wenn die lokale SQLite persistence
+    // (native Module) im Dev-Environment nicht lädt (z.B. NODE_MODULE_VERSION mismatch).
+    Promise.resolve(getAuditEvents('default', 100, 0)).catch(() => []),
   ]);
 
   const referencedActions = new Set<string>();

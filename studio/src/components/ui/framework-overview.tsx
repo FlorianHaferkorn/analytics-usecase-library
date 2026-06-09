@@ -123,7 +123,7 @@ function StatGrid({ stats }: { stats: FrameworkOverviewProps['stats'] }) {
     { label: 'KPIs', value: stats.kpiCount, hint: `${stats.certified} certified · Golden 20 ${goldenPct}%` },
     { label: 'Brackets', value: stats.bracketCount, hint: 'Use cases' },
     { label: 'Actions', value: stats.actionCount, hint: stats.orphanActions > 0 ? `${stats.orphanActions} unreferenced` : 'All wired to brackets' },
-    { label: 'In review', value: stats.pendingReviews, hint: 'KPIs + drift errors' },
+    { label: 'In review', value: stats.pendingReviews, hint: 'KPI set + drift errors' },
   ];
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--gap)' }}>
@@ -151,7 +151,7 @@ function CompositionCard({ stats, domains }: { stats: FrameworkOverviewProps['st
       <div style={cardHead}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em' }}>Framework composition</div>
-          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>How your KPIs are distributed across domains</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>How your KPI set is distributed across domains</div>
         </div>
         <Link href="/library?tab=kpis" style={{ ...ghostSmall, textDecoration: 'none' }}>View all →</Link>
       </div>
@@ -207,7 +207,7 @@ function ActivityFeed({ items }: { items: ActivityItem[] }) {
       <div style={{ padding: '4px 0 12px' }}>
         {items.length === 0 ? (
           <div style={{ padding: '16px var(--pad)', fontSize: 12.5, color: 'var(--ink-3)' }}>
-            No recent audit events. Edits to KPIs, brackets, or factsheets will appear here.
+            No recent audit events. Edits to KPI definitions, brackets, or factsheets will appear here.
           </div>
         ) : items.map((item, i) => (
           <div key={i} style={{
@@ -330,7 +330,7 @@ export function FrameworkOverview({
     ? `${stats.inReview} KPI${stats.inReview !== 1 ? 's' : ''} need review.`
     : driftErrors > 0
       ? `${driftErrors} drift error${driftErrors !== 1 ? 's' : ''} to resolve.`
-      : 'No KPIs awaiting review.';
+      : 'No KPI definitions awaiting review.';
   const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
@@ -339,6 +339,9 @@ export function FrameworkOverview({
         <div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-3)', letterSpacing: 0 }}>
             FRAMEWORK · v1.0.0 · main
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginTop: 10 }}>
+            ActionReady Studio
           </div>
           <h1 style={{
             fontFamily: 'var(--font-display)',
@@ -358,7 +361,7 @@ export function FrameworkOverview({
               <circle cx="8" cy="8" r="5.5" />
               <path d="M8 5v3l2 1.5" />
             </svg>
-            Canvas
+            Open Canvas
           </Link>
           <Link href="/library" style={{ ...ghostBtn, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -367,13 +370,13 @@ export function FrameworkOverview({
               <circle cx="12" cy="6" r="1.3" />
               <path d="M4 5v6M5.3 6c2.5 0 3.7-.4 5.4-1.4" />
             </svg>
-            Library
+            Open Library
           </Link>
           <Link href="/delivery" style={{ ...primaryBtn, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2" />
             </svg>
-            Delivery
+            Open Delivery
           </Link>
         </div>
       </section>
