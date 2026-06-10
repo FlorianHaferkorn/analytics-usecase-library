@@ -344,3 +344,34 @@ class TestMeasureNameResolution:
         spec = compiler.compile(bracket_file)
         main1 = spec.overview_page().visual_by_id("Main_1")
         assert main1.binding.measure == "Net Sales Amount"
+
+
+class TestRealCatalogResolution:
+    """A2 (durable IR fix): the compiler resolves real KPIs to display-name
+    measures with real DAX from KPI_Catalog.md + the measure dictionaries --
+    never the dotted-id BLANK() stubs that produced 96 missing-measure criticals.
+    Proven against Aurora COM-001.
+    """
+
+    def _repo_root(self) -> Path:
+        return Path(__file__).resolve().parents[3]
+
+    def test_com001_resolves_named_measures_with_dax(self):
+        repo_root = self._repo_root()
+        bracket = repo_root / "core" / "usecases" / "core" / "COM-001_Sales_Performance" / "UseCase_Bracket.yaml"
+        if not bracket.exists():
+            pytest.skip("real repo layout not present")
+
+        compiler = BracketCompiler(repo_root / "core" / "kpi_catalog", repo_root / "core" / "action_codes")
+        spec = compiler.compile(bracket)
+        names = {m.name for m in spec.measures}
+
+        assert len(spec.measures) >= 10
+        assert not [w for w in compiler.warnings if w.code == "MISSING_KPI"]
+        # Names match report bindings (display names), never dotted kpi ids.
+        assert "Gross Margin %" in names
+        assert "Net Sales Amount" in names
+        assert not any("." in n and " " not in n for n in names), f"dotted-id measure name leaked: {names}"
+        # The north-star measure carries real DAX, not a BLANK() placeholder.
+        gm = next(m for m in spec.measures if m.name == "Gross Margin %")
+        assert gm.dax and "BLANK" not in gm.dax
