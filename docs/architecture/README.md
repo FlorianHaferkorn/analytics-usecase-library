@@ -169,6 +169,7 @@ Is the file under products/fabric/powerbi/orchestrator/ or tooling/ ?  → SOURC
 
 ## Further Reading
 
+- [`adr/`](adr/README.md) — Architecture Decision Records (significant, immutable decisions)
 - [`ONBOARDING.md`](../../ONBOARDING.md) — one-hour walkthrough for new colleagues
 - [`core/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`](../../core/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md) — full Golden Thread narrative
 - [`CONTRIBUTING.md`](../../CONTRIBUTING.md) — workflow, conventions, validation gates
