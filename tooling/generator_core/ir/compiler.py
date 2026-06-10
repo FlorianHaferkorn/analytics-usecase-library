@@ -24,7 +24,6 @@ Design notes
 
 from __future__ import annotations
 
-import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -552,7 +551,10 @@ class BracketCompiler:
                 measure_refs = [
                     _resolve_measure_ref(k, kpi_map) for k in _component_measure_refs(comp)
                 ]
-                category = (comp.get("category_field") or comp.get("category", "dim_date.Date")) if isinstance(comp, dict) else "dim_date.Date"
+                category = (
+                    comp.get("category_field") or comp.get("category", "dim_date.Date")
+                    if isinstance(comp, dict) else "dim_date.Date"
+                )
                 if len(measure_refs) > 1:
                     binding = Binding(measures=measure_refs, category=category)
                 elif len(measure_refs) == 1:
@@ -622,7 +624,9 @@ class BracketCompiler:
         evidence_table: Optional[EvidenceTableSpec] = None
         # evidence_grain may be a top-level key or inside component_300s
         eg = bracket.get("evidence_grain") or (
-            {"grain": comp_300s.get("evidence_grain")} if isinstance(comp_300s, dict) and comp_300s.get("evidence_grain") else {}
+            {"grain": comp_300s.get("evidence_grain")}
+            if isinstance(comp_300s, dict) and comp_300s.get("evidence_grain")
+            else {}
         )
         _detail_measures = [
             _resolve_measure_ref(k, kpi_map) for k in _card_kpi_ids(bracket)

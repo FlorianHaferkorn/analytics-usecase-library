@@ -91,11 +91,15 @@ class TestDistCoverage:
         if not DIST_ROOT.exists():
             pytest.skip(f"dist/ not found at {DIST_ROOT}")
 
-        expected_names = {
-            _expected_report_folder_name(bd) for bd in _all_bracket_dirs()
-        }
+        bracket_stems = {bd.name for bd in _all_bracket_dirs()}
         dist_names = {d.name for d in _dist_report_dirs()}
-        orphans = dist_names - expected_names
+        # A report is backed if it matches a bracket exactly, or is a named variant
+        # of one (e.g. COM-001_Sales_Performance_vs_Plan_LY.Report is a variant of the
+        # COM-001_Sales_Performance bracket). Truly stray reports still fail.
+        orphans = {
+            name for name in dist_names
+            if not any(name == f"{stem}.Report" or name.startswith(f"{stem}_") for stem in bracket_stems)
+        }
 
         assert not orphans, (
             f"{len(orphans)} orphan .Report folder(s) in dist/ with no backing bracket:\n"
