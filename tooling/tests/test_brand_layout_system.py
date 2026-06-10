@@ -599,9 +599,10 @@ if __name__ == "__main__":
     failed = sum(1 for s, _, _ in results if s == FAIL)
     warned = sum(1 for s, _, _ in results if s == WARN)
 
-    print(f"\n{'─'*72}")
+    # Use ASCII to avoid Windows console encoding issues (cp1252).
+    print(f"\n{'-'*72}")
     print(f"  Brand Design + Layout Spec — Test Suite")
-    print(f"{'─'*72}")
+    print(f"{'-'*72}")
 
     if failed:
         print(f"\n  FAILURES ({failed}):")
@@ -618,6 +619,6 @@ if __name__ == "__main__":
                 print(f"    ⚠  {name}: {detail}")
 
     print(f"\n  RESULTS:  {passed} passed  /  {failed} failed  /  {warned} warnings  /  {total} total")
-    print(f"{'─'*72}\n")
+    print(f"{'-'*72}\n")
 
     sys.exit(1 if failed else 0)

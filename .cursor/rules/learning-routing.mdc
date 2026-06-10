@@ -1,0 +1,39 @@
+---
+description: Learning routing (where to store fixes)
+alwaysApply: true
+globs: "**/*"
+---
+
+# Learning Routing & Workflow Invariant
+
+The assistant must prevent repeating the same error across new chats by always routing “learned information” to the correct SSOT, and by running the relevant validations.
+
+## 1) Read these files early (before starting implementation)
+- `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` (error-symptom → root-cause → fix recipes)
+- `core/kpi_catalog/planned.yaml` (planned KPI measures that should be warnings, not strict errors)
+
+## 2) Route new learning by error type
+- **Catalog↔TMDL drift strict failing because a measure is missing in `_Measures.tmdl`:**
+  - Add / update the corresponding entry in `core/kpi_catalog/planned.yaml` with:
+    - `kpi_id`
+    - `owner`
+    - `eta_date`
+    - `reason` (one line)
+  - Do not add this to `KNOWN_ERRORS_AND_FIXES.md` unless the drift-check logic itself is broken.
+
+- **PBIR/visual binding failures: a `visual.json` Measure `Property` is not found in the domain `_Measures.tmdl`:**
+  - Fix generator/orchestrator so it binds to the correct **display name**.
+  - Add a regression test (or update the existing measure-binding test expectations).
+  - If this is a new error class/pattern: add a row to `KNOWN_ERRORS_AND_FIXES.md`.
+
+- **TMDL/DAX/semantic model structural issues (formatString/displayFolder/blank stubs/invalid naming):**
+  - Fix the generator output.
+  - If the same structural violation appears again: add a row to `KNOWN_ERRORS_AND_FIXES.md`.
+
+- **Any other recurring failure (schema state inconsistencies, empty decision fields, missing artifacts):**
+  - Add symptom → root cause → fix steps to `KNOWN_ERRORS_AND_FIXES.md`.
+
+## 3) Verify after edits
+- Always run the most relevant available validation(s) after substantive changes.
+- If Stage 1 checks are applicable: rely on `.\tooling\run_stage1_checks.ps1` (repo root).
+
