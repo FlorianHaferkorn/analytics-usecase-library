@@ -17,6 +17,7 @@ This mirrors the existing graceful-skip precedent in
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -25,7 +26,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-from .models import Violation
+from .models import Severity, Violation
 
 # Environment flag that opts in to ANY external (non-Python) backend.
 # Unset / falsey == compliance mode: nothing external runs by default.
@@ -119,17 +120,21 @@ class ExternalCliBackend(ValidationBackend):
 class MicrosoftReportAuthorBackend(ExternalCliBackend):
     """Tier 1 oracle: Microsoft's official ``powerbi-report-author`` CLI.
 
-    Runs the official offline preflight per ``.Report`` directory. The mapping is
-    intentionally exit-code based for now (pass / fail); structured per-finding
-    parsing and severity mapping is a deliberate follow-up (ADR 0001,
-    implementation step 3), gated on the validation spike that pins the exact
-    output format. Until then this backend only ever augments -- it never breaks
-    the Tier 0 floor.
+    Runs the official offline preflight (``--no-schema``) per ``.Report``
+    directory and parses the structured ``diagnostics`` envelope into
+    :class:`Violation` objects. Because this tier is opt-in, official ``error``
+    diagnostics map to ``critical`` and ``warning`` to ``warning``; anything else
+    is ``info``. It only ever augments -- when not opted in it returns nothing and
+    never touches an external process.
     """
 
     name = "powerbi-report-author"
     tier = 1
     cli = "powerbi-report-author"
+
+    # Official diagnostic severity -> our severity. Tier 1 is opt-in, so blocking
+    # PBIR errors surface as critical.
+    _SEVERITY_MAP: dict[str, Severity] = {"error": "critical", "warning": "warning"}
 
     def validate(self, dist_root: Path) -> list[Violation]:
         if not self.is_available(allow_external=external_allowed()):
@@ -144,7 +149,7 @@ class MicrosoftReportAuthorBackend(ExternalCliBackend):
     def _validate_one(self, report_dir: Path) -> list[Violation]:
         try:
             proc = subprocess.run(
-                [self.cli, "validate", str(report_dir)],
+                [self.cli, "validate", str(report_dir), "--no-schema", "--format", "json"],
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -159,18 +164,53 @@ class MicrosoftReportAuthorBackend(ExternalCliBackend):
                     message=f"external validator could not run: {exc}",
                 )
             ]
-        if proc.returncode == 0:
-            return []
-        output = (proc.stdout + proc.stderr).strip() or f"exit code {proc.returncode}"
-        first_line = output.splitlines()[0][:200]
-        return [
-            Violation(
-                check="backend.powerbi-report-author",
-                severity="warning",
-                pointer=str(report_dir),
-                message=f"official validator reported issues: {first_line}",
-            )
-        ]
+        return self._parse(proc, report_dir)
+
+    def _parse(self, proc: subprocess.CompletedProcess[str], report_dir: Path) -> list[Violation]:
+        try:
+            data = json.loads(proc.stdout)["data"]
+            diagnostics = data["diagnostics"]
+        except (json.JSONDecodeError, KeyError, TypeError):
+            # Unparseable output: fall back to a single advisory keyed on exit code.
+            if proc.returncode == 0:
+                return []
+            output = (proc.stdout + proc.stderr).strip().splitlines()
+            message = output[0][:200] if output else f"exit code {proc.returncode}"
+            return [
+                Violation(
+                    check="backend.powerbi-report-author",
+                    severity="warning",
+                    pointer=str(report_dir),
+                    message=f"official validator reported issues: {message}",
+                )
+            ]
+
+        violations: list[Violation] = []
+        for code, entry in (diagnostics or {}).items():
+            severity = self._SEVERITY_MAP.get((entry or {}).get("severity", ""), "info")
+            for item in entry.get("items") or []:
+                violations.append(self._to_violation(code, severity, item, report_dir))
+        return violations
+
+    @staticmethod
+    def _to_violation(code: str, severity: Severity, item: dict, report_dir: Path) -> Violation:
+        file = item.get("file") or str(report_dir)
+        try:
+            pointer = str(Path(file).resolve().relative_to(Path.cwd()))
+        except ValueError:
+            pointer = file
+        json_path = item.get("path")
+        if json_path:
+            pointer = f"{pointer}#{json_path}"
+        message = item.get("message", "")
+        if file and file in message:  # strip the trailing absolute path the CLI appends
+            message = message.split(file)[0].rstrip(": ").rstrip()
+        return Violation(
+            check=f"powerbi-report-author.{code}",
+            severity=severity,
+            pointer=pointer,
+            message=message[:200] or code,
+        )
 
 
 def all_backends() -> list[ValidationBackend]:
