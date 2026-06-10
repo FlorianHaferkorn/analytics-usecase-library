@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import types
 from pathlib import Path
 
@@ -106,28 +107,68 @@ def _fake_proc(returncode: int, stdout: str = "", stderr: str = "") -> types.Sim
     return types.SimpleNamespace(returncode=returncode, stdout=stdout, stderr=stderr)
 
 
-def test_validate_maps_clean_exit_to_no_violations(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    report_dir = tmp_path / "X.Report"
+_PASSED_ENVELOPE = json.dumps({"data": {"result": "passed", "errorCount": 0, "warningCount": 0, "diagnostics": {}}})
+
+
+def _diag_envelope(severity: str = "error") -> str:
+    abs_file = "/abs/X.Report/definition/pages/P/visuals/V/visual.json"
+    return json.dumps(
+        {
+            "data": {
+                "result": "failed",
+                "diagnostics": {
+                    "PBIR_ROLE_UNKNOWN": {
+                        "severity": severity,
+                        "items": [
+                            {
+                                "message": f'Unknown role "Data" for visualType "textbox": {abs_file}',
+                                "file": abs_file,
+                                "path": "Data",
+                            }
+                        ],
+                    }
+                },
+            }
+        }
+    )
+
+
+def _wire_external(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, proc: types.SimpleNamespace) -> None:
     monkeypatch.setenv(ALLOW_EXTERNAL_ENV, "1")
     monkeypatch.setattr(bk.shutil, "which", lambda _cli: "/usr/bin/powerbi-report-author")
-    monkeypatch.setattr("tooling.report_quality.pbir.iter_report_dirs", lambda _root: [report_dir])
-    monkeypatch.setattr(bk.subprocess, "run", lambda *a, **k: _fake_proc(0))
+    monkeypatch.setattr("tooling.report_quality.pbir.iter_report_dirs", lambda _root: [tmp_path / "X.Report"])
+    monkeypatch.setattr(bk.subprocess, "run", lambda *a, **k: proc)
 
+
+def test_validate_parses_clean_report_to_no_violations(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _wire_external(monkeypatch, tmp_path, _fake_proc(0, stdout=_PASSED_ENVELOPE))
     assert MicrosoftReportAuthorBackend().validate(tmp_path) == []
 
 
-def test_validate_maps_nonzero_exit_to_warning(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    report_dir = tmp_path / "X.Report"
-    monkeypatch.setenv(ALLOW_EXTERNAL_ENV, "1")
-    monkeypatch.setattr(bk.shutil, "which", lambda _cli: "/usr/bin/powerbi-report-author")
-    monkeypatch.setattr("tooling.report_quality.pbir.iter_report_dirs", lambda _root: [report_dir])
-    monkeypatch.setattr(bk.subprocess, "run", lambda *a, **k: _fake_proc(1, stdout="invalid role on visual\n"))
+def test_validate_parses_diagnostics_to_violations(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _wire_external(monkeypatch, tmp_path, _fake_proc(1, stdout=_diag_envelope("error")))
+    violations = MicrosoftReportAuthorBackend().validate(tmp_path)
+    assert len(violations) == 1
+    v = violations[0]
+    assert v.check == "powerbi-report-author.PBIR_ROLE_UNKNOWN"
+    assert v.severity == "critical"  # official 'error' -> critical (opt-in tier)
+    assert "Unknown role" in v.message
+    assert "/abs/X.Report" not in v.message  # trailing absolute path stripped
+    assert v.pointer.endswith("#Data")
 
+
+def test_validate_maps_warning_severity(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _wire_external(monkeypatch, tmp_path, _fake_proc(0, stdout=_diag_envelope("warning")))
+    violations = MicrosoftReportAuthorBackend().validate(tmp_path)
+    assert [v.severity for v in violations] == ["warning"]
+
+
+def test_validate_unparseable_output_falls_back(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _wire_external(monkeypatch, tmp_path, _fake_proc(1, stdout="not json", stderr="boom\n"))
     violations = MicrosoftReportAuthorBackend().validate(tmp_path)
     assert len(violations) == 1
     assert violations[0].severity == "warning"
     assert violations[0].check == "backend.powerbi-report-author"
-    assert "invalid role on visual" in violations[0].message
 
 
 def test_validate_handles_missing_binary_gracefully(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -144,3 +185,48 @@ def test_validate_handles_missing_binary_gracefully(monkeypatch: pytest.MonkeyPa
     assert len(violations) == 1
     assert violations[0].severity == "info"
     assert "could not run" in violations[0].message
+
+
+# ── authoring-metadata snapshot loader ────────────────────────────────────────
+
+
+def test_loader_reads_custom_snapshot(tmp_path: Path) -> None:
+    from tooling.report_quality import authoring_metadata as am
+
+    snap = tmp_path / "snap.json"
+    snap.write_text(
+        json.dumps(
+            {
+                "_meta": {},
+                "visualTypes": {
+                    "lineChart": {"requiredRoles": ["Category", "Y"], "roles": {"Category": "Grouping", "Y": "Measure"}}
+                },
+            }
+        )
+    )
+    assert am.is_available(path=snap) is True
+    assert am.required_roles("lineChart", path=snap) == ["Category", "Y"]
+    assert am.is_known_role("lineChart", "Y", path=snap) is True
+    assert am.is_known_role("lineChart", "Data", path=snap) is False
+    assert am.known_visual_types(path=snap) == ["lineChart"]
+    assert am.required_roles("unknownType", path=snap) == []
+
+
+def test_loader_missing_snapshot_is_graceful(tmp_path: Path) -> None:
+    from tooling.report_quality import authoring_metadata as am
+
+    missing = tmp_path / "does_not_exist.json"
+    assert am.is_available(path=missing) is False
+    assert am.required_roles("lineChart", path=missing) == []
+    assert am.roles("lineChart", path=missing) == {}
+
+
+def test_vendored_snapshot_matches_known_roles() -> None:
+    """The committed snapshot carries authoritative roles for the types we use."""
+    from tooling.report_quality import authoring_metadata as am
+
+    assert am.is_available() is True  # default vendored path
+    assert am.required_roles("lineChart") == ["Category", "Y"]
+    assert am.required_roles("cardVisual") == ["Data"]
+    assert am.is_known_role("tableEx", "Values") is True
+    assert am.is_known_role("pivotTable", "Rows") is True
