@@ -255,6 +255,17 @@ def validate_visual(
                 f"Visual '{name}' ({visual_type}): missing queryState roles {sorted(missing)}. "
                 f"Has: {sorted(actual_roles)}"
             )
+        # Authoritative unknown-role check (ADR 0001): flag roles that are not valid
+        # for this visual type per the official metadata snapshot. Skipped when the
+        # snapshot is unavailable or does not cover this type (local-only types).
+        if _authoring_metadata is not None and _authoring_metadata.is_available():
+            known_roles = set(_authoring_metadata.roles(visual_type))
+            unknown_roles = actual_roles - known_roles
+            if known_roles and unknown_roles:
+                errors.append(
+                    f"Visual '{name}' ({visual_type}): unknown queryState roles "
+                    f"{sorted(unknown_roles)} (valid roles: {sorted(known_roles)})."
+                )
     else:
         # No-data-role visuals (textbox, shape, image, actionButton) must not carry a
         # data queryState -- it is invalid per the official metadata (PBIR_ROLE_UNKNOWN).
