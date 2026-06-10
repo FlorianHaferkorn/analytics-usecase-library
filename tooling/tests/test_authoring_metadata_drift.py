@@ -49,3 +49,31 @@ def test_generator_role_table_is_behaviour_preserving() -> None:
 
     assert vv._authoring_metadata is not None and vv._authoring_metadata.is_available()
     assert vv.VISUAL_TYPE_ROLES == vv._FALLBACK_ROLES
+
+
+def _visual(visual_type: str, query_state: dict | None) -> dict:
+    inner: dict = {"visualType": visual_type, "objects": {}}
+    if query_state is not None:
+        inner["query"] = {"queryState": query_state}
+    return {
+        "$schema": "https://example.com/schema.json",
+        "name": "V",
+        "position": {"x": 0, "y": 0, "z": 1, "height": 100, "width": 100, "tabOrder": 1},
+        "visual": inner,
+    }
+
+
+def test_validator_flags_unknown_role_via_snapshot() -> None:
+    """With the snapshot available, a role invalid for the visual type is flagged."""
+    from products.fabric.powerbi.tooling.page_scaffold_generator import visual_validator as vv
+
+    assert vv._authoring_metadata is not None and vv._authoring_metadata.is_available()
+    errors = vv.validate_visual(_visual("lineChart", {"Category": {}, "Y": {}, "Bogus": {}}))
+    assert any("unknown queryState roles" in e and "Bogus" in e for e in errors), errors
+
+
+def test_validator_accepts_official_roles_via_snapshot() -> None:
+    from products.fabric.powerbi.tooling.page_scaffold_generator import visual_validator as vv
+
+    errors = vv.validate_visual(_visual("lineChart", {"Category": {}, "Y": {}}))
+    assert not any("unknown queryState roles" in e for e in errors), errors

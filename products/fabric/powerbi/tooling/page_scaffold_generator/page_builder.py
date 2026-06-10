@@ -126,7 +126,6 @@ class PageBuilder:
                         },
                         "visual": {
                             "visualType": "textbox",
-                            "query": {"queryState": {"Data": {"projections": []}}},
                             "objects": {
                                 "text": [
                                     {
@@ -564,7 +563,6 @@ class PageBuilder:
                 },
                 "visual": {
                     "visualType": "textbox",
-                    "query": {"queryState": {"Data": {"projections": []}}},
                     "objects": {
                         "text": [
                             {
@@ -599,7 +597,6 @@ class PageBuilder:
                 },
                 "visual": {
                     "visualType": "textbox",
-                    "query": {"queryState": {"Data": {"projections": []}}},
                     "objects": {
                         "text": [
                             {
