@@ -2867,6 +2867,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 27.01.2026
 
 - kpi_id: wc.dso.days
+  synonyms: ["Days Sales Outstanding", "Receivables Days", "Average Collection Period", "Debitorenlaufzeit", "Forderungslaufzeit"]
+  example_question: "Why did DSO increase in the Nordics region last quarter?"
   kpi_key: DSO Days
   kpi_type: diagnostic
   kpi_role: strategic
@@ -3016,6 +3018,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 27.01.2026
 
 - kpi_id: wc.dio.days
+  synonyms: ["Days Inventory Outstanding", "Days Sales of Inventory", "Inventory Days", "Lagerreichweite", "Bestandsreichweite"]
+  example_question: "Which product categories are driving up DIO this quarter?"
   kpi_key: DIO Days
   kpi_type: diagnostic
   kpi_role: strategic
@@ -3054,6 +3058,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: wc.dpo.days
+  synonyms: ["Days Payable Outstanding", "Payables Days", "Creditor Days", "Kreditorenlaufzeit"]
+  example_question: "Are we extending DPO with our largest suppliers this year?"
   kpi_key: DPO Days
   kpi_type: diagnostic
   kpi_role: strategic
@@ -3091,6 +3097,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: wc.ccc.days
+  synonyms: ["Cash Conversion Cycle", "Net Operating Cycle", "Cash Cycle", "Geldumschlagsdauer"]
+  example_question: "What pushed the cash conversion cycle higher this month?"
   kpi_key: CCC Days
   kpi_type: diagnostic
   kpi_role: strategic
@@ -3129,6 +3137,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: fin.cash.balance
+  synonyms: ["Cash and Cash Equivalents", "Cash Position", "Liquide Mittel", "Kassenbestand"]
+  example_question: "How has our cash balance tracked versus plan this year?"
   kpi_key: Cash Balance
   kpi_type: diagnostic
   kpi_role: supporting
@@ -3166,6 +3176,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: fin.overdue_ar.pct
+  synonyms: ["Past-Due AR %", "Overdue Receivables %", "Überfällige Forderungen", "Forderungsüberfälligkeitsquote"]
+  example_question: "Which customers are driving the rise in overdue AR?"
   kpi_key: Overdue AR %
   kpi_type: diagnostic
   kpi_role: supporting
@@ -3204,6 +3216,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 01.06.2026
 
 - kpi_id: fin.cash.ocf
+  synonyms: ["Operating Cash Flow", "Cash Flow from Operations", "OCF", "Operativer Cashflow"]
+  example_question: "Why did operating cash flow fall short of plan in Q2?"
   kpi_key: Operating Cash Flow
   kpi_type: diagnostic
   kpi_role: supporting
@@ -3244,6 +3258,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - fin.liquidity.operating_cash_flow
 
 - kpi_id: fin.cash.vs_plan.pct
+  synonyms: ["Cash Plan Variance %", "Cash Budget Variance", "Liquiditätsplanabweichung"]
+  example_question: "How far is cash tracking from the liquidity plan this month?"
   kpi_key: Cash vs Plan %
   kpi_type: diagnostic
   kpi_role: supporting
@@ -3797,6 +3813,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: cost.material.pct
+  synonyms: ["Material Cost Ratio", "Material Intensity", "Materialkostenquote", "Materialintensität"]
+  example_question: "Which products have the highest material cost ratio?"
   kpi_key: Material Cost %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -3835,6 +3853,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: cost.opex.vs_plan.pct
+  synonyms: ["OpEx Budget Variance %", "Operating Expense Variance", "Betriebskostenabweichung"]
+  example_question: "Where is OpEx running over plan this quarter?"
   kpi_key: OpEx vs Plan %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -3872,6 +3892,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: cost.unit.amount
+  synonyms: ["Cost per Unit", "Average Cost per Unit", "Stückkosten", "Selbstkosten je Stück"]
+  example_question: "How did unit cost change after the plant ramp-up?"
   kpi_key: Unit Cost Amount
   kpi_type: diagnostic
   kpi_role: strategic
@@ -3919,6 +3941,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: margin.gm.amount
+  synonyms: ["Gross Profit", "Gross Income", "Rohertrag", "Bruttoergebnis vom Umsatz"]
+  example_question: "What drove the change in gross margin amount this month?"
   kpi_key: Gross Margin Amount
   kpi_type: diagnostic
   kpi_role: supporting
@@ -4042,6 +4066,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: margin.cogs.pct
+  synonyms: ["COGS Ratio", "Cost of Sales %", "Umsatzkostenquote", "Materialaufwandsquote"]
+  example_question: "Why did COGS % of sales rise in Consumer Electronics?"
   kpi_key: COGS % of Sales
   kpi_type: diagnostic
   kpi_role: supporting
