@@ -4,30 +4,35 @@ table fact_sales
 
 	column DateKey
 		dataType: int64
+		isHidden
 		lineageTag: 19232719-76c0-42a2-90ce-7239277216b3
 		summarizeBy: none
 		sourceColumn: DateKey
 
 	column OrgKey
 		dataType: int64
+		isHidden
 		lineageTag: fa274d38-2fc0-4fed-8f11-2e49098b7d95
 		summarizeBy: none
 		sourceColumn: OrgKey
 
 	column ProductKey
 		dataType: int64
+		isHidden
 		lineageTag: 63565a20-8e17-44be-a040-c4f8eae27bc0
 		summarizeBy: none
 		sourceColumn: ProductKey
 
 	column CustomerKey
 		dataType: int64
+		isHidden
 		lineageTag: b4ac7422-6e99-4c7b-9ab7-8c0b6885d927
 		summarizeBy: none
 		sourceColumn: CustomerKey
 
 	column PromoKey
 		dataType: int64
+		isHidden
 		lineageTag: 60a8344d-b26e-40da-a116-e8296c8e5938
 		summarizeBy: none
 		sourceColumn: PromoKey

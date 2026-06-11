@@ -24,7 +24,7 @@ Health metrics are tracked across releases and reviewed at each major version.
 | H5 | Factsheet Quality Score | Average section completeness across core Business Factsheets | ≥80% | Business Owners |
 | H6 | Prioritization & Readiness Coverage % | Use cases with both a prioritization and a readiness block | ≥80% | Framework Owner |
 | H7 | Report Binding Integrity % | Generated report visual bindings that resolve to a defined TMDL measure | 100% | Data Engineering |
-| H8 | AI-Readiness / Linguistic Coverage % | Governed column synonyms present in the model linguistic schema (Copilot/Q&A) | 100% | Data Engineering |
+| H8 | AI-Readiness / Linguistic Coverage % | Governed synonyms in the linguistic schema (Copilot/Q&A) + AI-surface hygiene (0 visible keys, 0 weak descriptions) | 100% | Data Engineering |
 
 ---
 
@@ -199,10 +199,21 @@ A domain contributes only when its contract carries `synonyms`; today that is
 Aurora **Commercial** (`Region`, `Channel`, `Net Sales Amount` → 7 governed
 synonyms, 100% present). Other domains join as their contracts are curated.
 
+**AI-surface hygiene (folded in).** H8 is the composite AI-readiness gate: in
+addition to linguistic coverage it must show **0 visible surrogate/FK keys** (C1 —
+`*Key` join columns are hidden, not on the user/AI surface) and **0 name-restating
+or low-information descriptions** (C2). Either defect turns H8 red even at 100%
+synonym coverage. Both checks run standalone for CI:
+
+```bash
+python3 tooling/validation/check_ai_surface_hygiene.py --domain Commercial --strict
+python3 tooling/validation/check_ai_surface_hygiene.py --domain Commercial --fix   # hide visible keys
+```
+
 **How to check:**
 
 ```bash
-python3 tooling/health_scorecard.py                                            # H8 row
+python3 tooling/health_scorecard.py                                            # H8 row (coverage + hygiene)
 python3 -m products.fabric.powerbi.tooling.linguistic_schema --all --check     # CI gate (exit 1 on a gap)
 ```
 

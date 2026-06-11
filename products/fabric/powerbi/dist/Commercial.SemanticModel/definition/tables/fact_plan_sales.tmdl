@@ -4,18 +4,21 @@ table fact_plan_sales
 
 	column DateKey
 		dataType: int64
+		isHidden
 		lineageTag: 957e7f4d-ae9a-4f98-84eb-d2932a12806b
 		summarizeBy: none
 		sourceColumn: DateKey
 
 	column OrgKey
 		dataType: int64
+		isHidden
 		lineageTag: cbff39ad-1fbb-4551-ba84-c54a7026f2d7
 		summarizeBy: none
 		sourceColumn: OrgKey
 
 	column ProductKey
 		dataType: int64
+		isHidden
 		lineageTag: db614a9f-a83a-4eaf-a0a0-2d6461a39b24
 		summarizeBy: none
 		sourceColumn: ProductKey

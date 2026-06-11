@@ -44,6 +44,7 @@ table dim_promo
 
 	column 'Start DateKey'
 		dataType: int64
+		isHidden
 		formatString: 0
 		lineageTag: 155037cc-e137-494d-863a-de4ef14367b6
 		summarizeBy: none
@@ -53,6 +54,7 @@ table dim_promo
 
 	column 'End DateKey'
 		dataType: int64
+		isHidden
 		formatString: 0
 		lineageTag: 33e22aad-e49c-4497-85c7-7739bf2c1852
 		summarizeBy: none

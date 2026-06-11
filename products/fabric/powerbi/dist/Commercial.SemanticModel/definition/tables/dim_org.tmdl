@@ -38,6 +38,7 @@ table dim_org
 
 	column ParentOrgKey
 		dataType: double
+		isHidden
 		formatString: 0
 		lineageTag: 5378ad63-be0b-440a-9ad1-3339bac5dbf4
 		summarizeBy: none
@@ -63,6 +64,7 @@ table dim_org
 
 	column 'Open DateKey'
 		dataType: int64
+		isHidden
 		formatString: 0
 		lineageTag: 2c45bb63-bffe-4c3c-b49f-cc5b7835d447
 		summarizeBy: none
@@ -72,6 +74,7 @@ table dim_org
 
 	column 'Close DateKey'
 		dataType: double
+		isHidden
 		formatString: 0
 		lineageTag: a7a5f7e9-59d3-465e-8ea6-2f0d1ff0baae
 		summarizeBy: none

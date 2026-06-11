@@ -609,13 +609,17 @@ def compute_h8(repo_root: Path) -> Dict[str, Any]:
     dist_root = repo_root / "products" / "fabric" / "powerbi" / "dist"
     contracts_dir = repo_root / "core" / "data_contracts" / "domains"
 
-    try:  # projection helpers (Epic A2); unavailable -> visible non-pass, never false-green
+    try:  # projection + hygiene helpers (Epic A2/C); unavailable -> non-pass, never false-green
         if str(repo_root) not in sys.path:
             sys.path.insert(0, str(repo_root))
         from products.fabric.powerbi.tooling.linguistic_schema import (
             DOMAIN_CONTRACT,
             build_table_descriptions,
             parse_culture_tmdl,
+        )
+        from tooling.validation.check_ai_surface_hygiene import (
+            visible_keys,
+            weak_descriptions,
         )
     except Exception as exc:
         return {"metric": "H8", "name": name, "score": 0.0, "target": target,
@@ -663,21 +667,35 @@ def compute_h8(repo_root: Path) -> Dict[str, Any]:
                 else:
                     missing.setdefault(f"{domain}:{key[0]}.{key[1]}", []).append(syn)
 
-    if total == 0:
-        return {"metric": "H8", "name": name, "score": 100.0, "target": target,
-                "details": {"note": "no governed synonyms to project", "domains": domains_checked},
-                "status": "pass"}
+    # Fold in AI-surface hygiene (Epic C): visible surrogate/FK keys + weak
+    # descriptions on the same (Aurora) domains. H8 is the composite AI-readiness
+    # gate -- coverage AND hygiene must be clean to pass.
+    hyg_keys: Dict[str, List[str]] = {}
+    hyg_weak: Dict[str, List[str]] = {}
+    for domain in domains_checked:
+        vk = visible_keys(dist_root, domain)
+        wd = weak_descriptions(repo_root, domain)
+        if vk:
+            hyg_keys[domain] = vk
+        if wd:
+            hyg_weak[domain] = [f"{obj} ({reason})" for obj, reason in wd]
+    hygiene_clean = not hyg_keys and not hyg_weak
 
+    coverage_complete = (total == 0) or (present == total)
+    score = 100.0 if total == 0 else round(100.0 * present / total, 1)
+    details: Dict[str, Any] = {
+        "domains": domains_checked,
+        "governed_synonyms": total,
+        "present": present,
+        "missing": missing,
+        "hygiene": {"visible_keys": hyg_keys, "weak_descriptions": hyg_weak},
+    }
+    if total == 0:
+        details["note"] = "no governed synonyms to project"
     return {
-        "metric": "H8", "name": name,
-        "score": round(100.0 * present / total, 1), "target": target,
-        "details": {
-            "domains": domains_checked,
-            "governed_synonyms": total,
-            "present": present,
-            "missing": missing,
-        },
-        "status": "pass" if present == total else "below_target",
+        "metric": "H8", "name": name, "score": score, "target": target,
+        "details": details,
+        "status": "pass" if (coverage_complete and hygiene_clean) else "below_target",
     }
 
 
@@ -776,6 +794,10 @@ def print_console(results: Dict[str, Any]) -> None:
             if details.get("missing"):
                 dropped = "; ".join(f"{k}: {', '.join(v)}" for k, v in details["missing"].items())
                 print(f"         Dropped: {dropped}")
+            hyg = details.get("hygiene", {})
+            n_keys = sum(len(v) for v in hyg.get("visible_keys", {}).values())
+            n_weak = sum(len(v) for v in hyg.get("weak_descriptions", {}).values())
+            print(f"         Hygiene: {n_keys} visible key(s), {n_weak} weak description(s)")
 
     overall = results["overall_status"]
     color = GREEN if overall == "pass" else RED

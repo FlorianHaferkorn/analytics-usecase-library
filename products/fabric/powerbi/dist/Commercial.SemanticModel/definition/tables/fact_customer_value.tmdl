@@ -4,12 +4,14 @@ table fact_customer_value
 
 	column DateKey
 		dataType: int64
+		isHidden
 		lineageTag: fde25fd9-12b0-4930-97c4-486f804c54c3
 		summarizeBy: none
 		sourceColumn: DateKey
 
 	column CustomerKey
 		dataType: int64
+		isHidden
 		lineageTag: dfd87a54-a5b7-4178-9528-b8bc567ecb56
 		summarizeBy: none
 		sourceColumn: CustomerKey

@@ -437,6 +437,22 @@ class TestComputeH8:
         assert result["details"]["governed_synonyms"] == 7
         assert result["details"]["present"] == 7
         assert "Commercial" in result["details"]["domains"]
+        # Epic C: hygiene folded into the gate, clean on the cleaned Commercial model
+        hyg = result["details"]["hygiene"]
+        assert hyg["visible_keys"] == {} and hyg["weak_descriptions"] == {}
+
+    def test_red_when_a_visible_key_is_reintroduced(self, tmp_path):
+        # Coverage is complete, but a visible surrogate key fails the hygiene half.
+        self._seed(tmp_path, ["Sales Region", "Geo"])
+        tdir = tmp_path / "products" / "fabric" / "powerbi" / "dist" / "Commercial.SemanticModel" / "definition" / "tables"
+        tdir.mkdir(parents=True, exist_ok=True)
+        (tdir / "fact_x.tmdl").write_text(
+            "table fact_x\n\tcolumn OrgKey\n\t\tdataType: int64\n\t\tsourceColumn: OrgKey\n",
+            encoding="utf-8",
+        )
+        result = compute_h8(tmp_path)
+        assert result["status"] == "below_target"
+        assert result["details"]["hygiene"]["visible_keys"]["Commercial"] == ["fact_x.OrgKey"]
 
     def _seed(self, root: Path, culture_synonyms):
         """Write a Commercial contract (Region has 2 synonyms) and a culture file whose
