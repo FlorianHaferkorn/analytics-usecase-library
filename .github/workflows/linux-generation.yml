@@ -39,20 +39,25 @@ jobs:
         shell: pwsh
         run: $PSVersionTable.PSVersion.ToString()
 
-      - name: Build registry (Python, non-fatal)
-        run: python tooling/ontology/registry_builder.py --repo-root . || true
+      - name: Build IR with measure overlay (display names + DAX)
+        run: |
+          python tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog \
+            --fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml \
+            --out ir_v1.json
 
-      - name: Generate measures on Linux (pwsh, scratch dir)
+      - name: Generate Commercial measures on Linux (pwsh, IR pipeline, scratch)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path scratch_gen | Out-Null
-          ./tooling/generator/generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot core/usecases/core -KpiCatalogRoot core/kpi_catalog -DistRoot products/fabric/powerbi/dist -TargetTablesDir scratch_gen -OverwriteExisting
+          ./tooling/generator/generate_tmdl_measures.ps1 -IRPath ir_v1.json -UseCase COM-001,COM-002,COM-003,COM-004 -TargetTablesDir scratch_gen -OverwriteExisting
 
-      - name: Assert a _Measures.tmdl was produced
+      - name: Assert display-named measures with real DAX (no BLANK)
         run: |
           test -s scratch_gen/_Measures.tmdl
-          echo "Linux generation produced $(grep -c '^\tmeasure ' scratch_gen/_Measures.tmdl) measure(s)."
+          grep -q "measure 'Gross Margin %' = DIVIDE" scratch_gen/_Measures.tmdl
+          grep -q "measure 'Net Sales Amount' = SUM" scratch_gen/_Measures.tmdl
+          if grep -q "= BLANK()" scratch_gen/_Measures.tmdl; then echo "BLANK measures in Commercial output"; exit 1; fi
+          echo "Linux IR generation: display-named Commercial measures with real DAX, no BLANK."
 
       - name: Assert committed dist was not modified
-        run: |
-          git diff --quiet -- products/fabric/powerbi/dist || (echo "generation must not touch committed dist" && exit 1)
+        run: git diff --quiet -- products/fabric/powerbi/dist || (echo "generation must not touch committed dist" && exit 1)
