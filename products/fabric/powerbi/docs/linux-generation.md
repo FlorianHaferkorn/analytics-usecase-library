@@ -19,6 +19,21 @@ CI capability: [`.github/workflows/linux-generation.yml`](../../../../.github/wo
 builds the registry (Python) and generates measures (pwsh) into a scratch dir,
 asserting output is produced and committed `dist/` is untouched.
 
+## Linguistic schema (cultures/) — pure-Python, Linux-native
+
+The **third projection** of the governed catalog (after the `///` block and the viz
+tooltip) is the model linguistic schema — curated column synonyms emitted into
+`cultures/<culture>.tmdl` for Copilot/Q&A. It is pure Python (no pwsh, no Power BI
+Desktop), so it regenerates on Linux unchanged and is deterministic/idempotent:
+
+```bash
+python3 -m products.fabric.powerbi.tooling.linguistic_schema --all          # emit
+python3 -m products.fabric.powerbi.tooling.linguistic_schema --all --check  # gate (exit 1 on a gap)
+```
+
+Coverage is gated by **H8 (AI-Readiness / Linguistic Coverage)** in the health
+scorecard. Source/format: `core/semantic_models/AI_Description_Standard.md`.
+
 ## Known gap: standalone vs. full-pipeline output
 
 The **IR pipeline produces correct output on Linux** — verified end to end:
@@ -69,7 +84,8 @@ names, real DAX, 0 `BLANK()`** (`Gross Margin % = DIVIDE ( ... )`,
 3. **Project the standard:** run the enricher (`enrich_measure_docs.py`) so `///`
    blocks project the AI-description standard.
 4. **Re-baseline** `dist/` + golden fixtures in one reviewed commit, every gate
-   green (pytest, `pbi-quality validate` 0 criticals, H7, scorecard).
+   green (pytest, `pbi-quality validate` 0 criticals, H7, H8 linguistic coverage,
+   scorecard).
 
 The Commercial domain is now reproducible on Linux; completing step 1 extends
 this to all domains and unlocks the golden-build regeneration.

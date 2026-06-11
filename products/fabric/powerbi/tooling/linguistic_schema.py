@@ -218,12 +218,53 @@ def emit_for_domain(
 # CLI
 # ─────────────────────────────────────────────────────────────────────────────
 
+def check_coverage(
+    domains: List[str],
+    dist_root: Path = DIST,
+    contracts_dir: Path = DATA_CONTRACTS,
+    culture: str = DEFAULT_CULTURE,
+) -> Dict[str, List[str]]:
+    """Return ``{"<domain>:<table>.<column>": [dropped synonyms]}`` — empty when the
+    committed linguistic schema covers every governed synonym (the gate is green).
+    """
+    gaps: Dict[str, List[str]] = {}
+    for domain in domains:
+        contract = Path(contracts_dir) / DOMAIN_CONTRACT[domain]
+        if not contract.exists():
+            continue
+        governed: Dict[Tuple[str, str], List[str]] = {}
+        for tbl in build_table_descriptions(contract):
+            for col in tbl.columns:
+                if col.synonyms:
+                    governed[(tbl.name, col.name)] = list(col.synonyms)
+        if not governed:
+            continue
+        culture_terms: Dict[Tuple[str, str], set] = {}
+        cfile = Path(dist_root) / f"{domain}.SemanticModel" / "definition" / "cultures" / f"{culture}.tmdl"
+        if cfile.exists():
+            schema = parse_culture_tmdl(cfile.read_text(encoding="utf-8"))
+            for ent in (schema.get("Entities") or {}).values():
+                b = (ent.get("Definition") or {}).get("Binding") or {}
+                key = (b.get("ConceptualEntity"), b.get("ConceptualProperty"))
+                culture_terms.setdefault(key, set()).update(
+                    next(iter(term)) for term in (ent.get("Terms") or [])
+                )
+        for key, syns in governed.items():
+            dropped = [s for s in syns if s not in culture_terms.get(key, set())]
+            if dropped:
+                gaps[f"{domain}:{key[0]}.{key[1]}"] = dropped
+    return gaps
+
+
 def main(argv: List[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Emit the TMDL linguistic schema (cultures/) from data contracts."
     )
     parser.add_argument("--domain", "-d", choices=list(DOMAIN_CONTRACT.keys()))
-    parser.add_argument("--all", "-a", action="store_true", help="Emit for all domains")
+    parser.add_argument("--all", "-a", action="store_true", help="Emit (or check) all domains")
+    parser.add_argument("--check", action="store_true",
+                        help="Verify the committed linguistic schema covers every governed "
+                             "synonym; exit 1 on any gap (no files written).")
     parser.add_argument("--culture", default=DEFAULT_CULTURE, help="Culture, e.g. en-US")
     parser.add_argument("--dist-root", default=str(DIST))
     parser.add_argument("--contracts-dir", default=str(DATA_CONTRACTS))
@@ -234,6 +275,18 @@ def main(argv: List[str] | None = None) -> int:
         return 1
 
     domains = list(DOMAIN_CONTRACT.keys()) if args.all else [args.domain]
+
+    if args.check:
+        gaps = check_coverage(domains, Path(args.dist_root), Path(args.contracts_dir), args.culture)
+        if gaps:
+            print("  ✗ Linguistic coverage gap — governed synonyms missing from the schema:")
+            for loc, dropped in sorted(gaps.items()):
+                print(f"      {loc}: {', '.join(dropped)}")
+            print("    Regenerate: python3 -m products.fabric.powerbi.tooling.linguistic_schema --all")
+            return 1
+        print("  ✅  Linguistic coverage: all governed synonyms present.")
+        return 0
+
     for domain in domains:
         contract = Path(args.contracts_dir) / DOMAIN_CONTRACT[domain]
         if not contract.exists():
