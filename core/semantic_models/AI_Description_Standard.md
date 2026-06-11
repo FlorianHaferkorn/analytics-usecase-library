@@ -58,6 +58,7 @@ One line per populated facet, in priority order:
 /// Grain: <grain> · Unit: <unit> · Good: <good_is>_is_better
 /// Drivers: <name> (<direction>), ...
 /// Owner: <owner> · Status: <status> · Actions: <codes>
+/// Example question: <example_question>
 ```
 
 ### Visualization tool — compact tooltip (tool-agnostic)
@@ -120,6 +121,7 @@ Rendered entirely from the governed catalogs (no hand-written text):
 /// Grain: month (aggregated from invoice_line) · Unit: % · Good: higher_is_better
 /// Drivers: Net Sales Amount (positive), Cost of Goods Sold Amount (negative), Net Sales % vs Plan (positive)
 /// Owner: Profitability Analytics · Status: active · Actions: C-M2.1, C-M2.2, C-S1.1
+/// Example question: Why did Gross Margin % drop in Region North last quarter?
 ```
 
 **Viz tooltip:**
@@ -177,6 +179,15 @@ data contracts (`core/data_contracts/domains/*.yaml`).
 `allowed_values` and `synonyms` are optional contract fields the renderer omits
 when absent. Enriching them for the **filter/slicer columns** (region, channel,
 category, status) yields the largest NL-querying accuracy gain.
+
+**Values coverage (B2).** `tooling/validation/check_values_coverage.py` reports which
+*enumerable* dimension columns (low-cardinality categorical attributes — text, not a
+key/identifier, not high-cardinality) carry `allowed_values`. Aurora Commercial:
+`Region`, `Channel`, `Quarter` and the customer-dimension `Region`/`Channel` are
+enumerated; the business-governed domains (`Category`, `Subcategory`, `Segment`,
+`PromoType`, `Mechanic`) are reported as a gap to be curated — never guessed.
+Run `python3 tooling/validation/check_values_coverage.py --domain Commercial`
+(add `--strict` to gate).
 
 The curated column `synonyms` are *also* the source for the **linguistic schema**
 projection (above): each column with synonyms becomes a bound entity in

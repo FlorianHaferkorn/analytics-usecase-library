@@ -11,7 +11,7 @@ dimension:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
       - {name: Year, type: int}
-      - {name: Quarter, type: text}
+      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
       - {name: Week, type: text, nullable: true}
@@ -50,8 +50,8 @@ dimension:
       - {name: CustomerCode, type: text}
       - {name: CustomerName, type: text}
       - {name: Segment, type: text, nullable: true}
-      - {name: Channel, type: text, nullable: true}
-      - {name: Region, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet]}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
 
   - name: dim_promo
     description: "Promotion dimension (type, mechanic, date range) for promo effectiveness."
