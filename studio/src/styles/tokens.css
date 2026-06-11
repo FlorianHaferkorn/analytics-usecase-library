@@ -185,22 +185,25 @@
   --spacing-density-balanced: var(--spacing-density-balanced);
   --spacing-density-dense: var(--spacing-density-dense);
 
-  --row-height-airy: var(--row-height-airy);
-  --row-height-balanced: var(--row-height-balanced);
-  --row-height-dense: var(--row-height-dense);
+  /* Avoid self-referential CSS variables in @theme mapping.
+     These values are the density row-height bases used by legacy `--h-row`. */
+  --row-height-airy: 48px;
+  --row-height-balanced: 40px;
+  --row-height-dense: 36px;
 }
 
 /* Dark theme (toggled via data-theme="dark") — design's TWEAKS default */
 :root[data-theme="dark"] {
-  --bg:      oklch(0.094 0.003 280);   /* #0b0b0c */
-  --bg-2:    oklch(0.115 0.003 280);   /* #101012 */
-  --panel:   oklch(0.135 0.003 280);   /* #131316 */
-  --panel-2: oklch(0.155 0.003 280);
+  /* Studio / dark variant (source: "Studio Design System.html") */
+  --bg:      #0b0b0c;
+  --bg-2:    #101012;
+  --panel:   #131316;
+  --panel-2: #101012;
 
-  --ink:     oklch(0.965 0.003 80);    /* #f4f4f2 */
-  --ink-2:   oklch(0.83 0.005 280);    /* #c9c9cd */
-  --ink-3:   oklch(0.61 0.005 280);    /* #8a8a90 */
-  --ink-4:   oklch(0.42 0.005 280);    /* #5a5a60 */
+  --ink:     #f4f4f2;
+  --ink-2:   #c9c9cd;
+  --ink-3:   #8a8a90;
+  --ink-4:   #5a5a60;
 
   --line:    oklch(1 0 0 / 0.08);      /* rgba(255,255,255,0.08) */
   --line-2:  oklch(1 0 0 / 0.04);
@@ -210,8 +213,8 @@
   --shadow-md: 0 4px 16px oklch(0 0 0 / 0.4);
   --shadow-lg: 0 24px 48px -16px oklch(0 0 0 / 0.6);
 
-  /* Accent — Aurora cyan, brighter for dark mode */
-  --accent:      oklch(0.84 0.10 215);   /* lighter cyan for dark bg */
-  --accent-soft: oklch(0.84 0.10 215 / 0.14);
-  --accent-ink:  oklch(0.12 0.04 215);
+  /* Accent (source: "Studio Design System.html") */
+  --accent:      oklch(0.72 0.13 250);
+  --accent-soft: oklch(0.72 0.13 250 / 0.16);
+  --accent-ink:  oklch(0.12 0.02 250);
 }
