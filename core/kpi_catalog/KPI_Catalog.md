@@ -864,6 +864,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: inv.dio.days
+  synonyms: ["Days Inventory Outstanding", "Days of Supply", "Lagerreichweite", "Bestandsreichweite"]
+  example_question: "Where is days-of-supply highest across the network?"
   kpi_key: Days in Inventory
   kpi_type: diagnostic
   kpi_role: strategic
@@ -909,6 +911,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: inv.stockout.pct
+  synonyms: ["Out-of-Stock Rate", "OOS", "Fehlmengenquote", "Fehlbestandsquote"]
+  example_question: "Which SKUs stock out most often?"
   kpi_key: Stockout Rate %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -989,6 +993,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 01.06.2026
 
 - kpi_id: inv.obsolete.pct
+  synonyms: ["Dead Stock %", "Obsolescence Rate", "Obsoleszenzquote", "Ladenhüter-Anteil"]
+  example_question: "How much inventory value is obsolete by category?"
   kpi_key: Obsolete Inventory %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -1026,6 +1032,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: plan.forecast.accuracy.pct
+  synonyms: ["Demand Forecast Accuracy", "Forecast Attainment", "Prognosegenauigkeit", "Vorhersagegenauigkeit"]
+  example_question: "Where is forecast accuracy weakest this cycle?"
   kpi_key: Forecast Accuracy %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -1150,6 +1158,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: supply.otif.pct
+  synonyms: ["On Time In Full", "Delivery Reliability", "DIFOT", "Liefertreue"]
+  example_question: "Which lanes are missing the OTIF target this month?"
   kpi_key: OTIF %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -1197,6 +1207,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: supply.on_time.pct
+  synonyms: ["On-Time Delivery", "OTD", "Termintreue", "Liefertermintreue"]
+  example_question: "What is driving late deliveries on the DACH lanes?"
   kpi_key: On-Time %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -2201,6 +2213,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 01.06.2026
 
 - kpi_id: inv.turnover
+  synonyms: ["Inventory Turns", "Stock Turnover", "Lagerumschlag", "Umschlagshäufigkeit"]
+  example_question: "Which categories have the slowest inventory turnover?"
   kpi_key: Inventory Turnover
   kpi_type: diagnostic
   kpi_role: supporting
@@ -2240,6 +2254,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - ops.inventory.turnover
 
 - kpi_id: plan.forecast.mape.pct
+  synonyms: ["Mean Absolute Percentage Error", "MAPE", "WMAPE", "mittlerer absoluter prozentualer Fehler"]
+  example_question: "Which product families have the highest MAPE?"
   kpi_key: Forecast MAPE %
   kpi_type: diagnostic
   kpi_role: supporting
@@ -2277,6 +2293,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: supply.in_full.pct
+  synonyms: ["Fill Rate", "Order Fill Rate", "Mengentreue", "Lieferbereitschaftsgrad"]
+  example_question: "Which products fall short on in-full delivery?"
   kpi_key: In-Full %
   kpi_type: diagnostic
   kpi_role: supporting
@@ -4280,6 +4298,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: scm.supplier_risk.score
+  synonyms: ["Supplier Risk Rating", "Vendor Risk Index", "Lieferantenrisiko-Score", "Lieferantenrisikobewertung"]
+  example_question: "Which suppliers carry the highest risk score?"
   kpi_key: Supplier Risk Score
   kpi_type: diagnostic
   kpi_role: supporting

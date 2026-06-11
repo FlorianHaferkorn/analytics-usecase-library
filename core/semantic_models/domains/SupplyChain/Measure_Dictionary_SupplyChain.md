@@ -776,7 +776,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: Absolute Error = [[Forecast Units]] / [[Actual Units]]
+    logical: Absolute Error = ABS ( [Forecast Units] - [Actual Units] )
     aggregation_method: sum
   documentation:
     description: Absolute forecast error used for accuracy and MAPE.
@@ -798,7 +798,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: Forecast Error Qty = [[Forecast Units]] / [[Actual Units]]
+    logical: Forecast Error Qty = [Forecast Units] - [Actual Units]
     aggregation_method: sum
   documentation:
     description: Forecast units minus actual units.

@@ -1,0 +1,485 @@
+culture en-US
+	linguisticMetadata =
+			{
+				"Version": "1.0.0",
+				"Language": "en-US",
+				"Entities": {
+					"dim_lane.origin": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_lane",
+								"ConceptualProperty": "Origin"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Origin": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Ship-From": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Source DC": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Versandort": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Quelle": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_lane.destination": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_lane",
+								"ConceptualProperty": "Destination"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Destination": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Ship-To": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Delivery Country": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Zielland": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Empfangsort": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_lane.mode": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_lane",
+								"ConceptualProperty": "Mode"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Mode": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Transport Mode": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Shipping Mode": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Verkehrsträger": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Transportmodus": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.location": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Location"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Location": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Site": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Distribution Center": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Node": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Standort": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Lager": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.region": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Region"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Region": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Geography": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Territory": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Vertriebsregion": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Gebiet": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.channel": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Channel"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Channel": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Distribution Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Route to Market": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Vertriebskanal": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Absatzkanal": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.customer": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Customer"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Customer": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Account": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Ship-To": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Consignee": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Warenempfänger": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_product.category": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "Category"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Category": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Product Group": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Warengruppe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Produktgruppe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_product.subcategory": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "Subcategory"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Subcategory": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sub Category": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Untergruppe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Unterkategorie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_product.abc_class": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "ABC_Class"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"ABC_Class": {
+									"State": "Generated"
+								}
+							},
+							{
+								"ABC Class": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"ABC Classification": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"ABC-Analyse": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"ABC-Klassifizierung": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_product.xyz_class": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "XYZ_Class"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"XYZ_Class": {
+									"State": "Generated"
+								}
+							},
+							{
+								"XYZ Class": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"XYZ Classification": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"XYZ-Analyse": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"RSU-Analyse": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					}
+				}
+			}
