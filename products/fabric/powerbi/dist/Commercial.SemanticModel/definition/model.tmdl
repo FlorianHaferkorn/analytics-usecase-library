@@ -17,3 +17,4 @@ ref table fact_plan_sales
 ref table fact_promo
 ref table fact_sales
 ref table security_user_org
+ref culture en-US

@@ -58,6 +58,7 @@ One line per populated facet, in priority order:
 /// Grain: <grain> · Unit: <unit> · Good: <good_is>_is_better
 /// Drivers: <name> (<direction>), ...
 /// Owner: <owner> · Status: <status> · Actions: <codes>
+/// Example question: <example_question>
 ```
 
 ### Visualization tool — compact tooltip (tool-agnostic)
@@ -65,6 +66,51 @@ One line per populated facet, in priority order:
 ```text
 <definition> (<unit>, <good_is> is better). Top drivers: <names>.
 ```
+
+### Linguistic schema — Copilot / Q&A (`cultures/<culture>.tmdl`)
+
+The first two projections are **description text**. Native Power BI Q&A and Copilot
+do not read description prose — they read the model's **linguistic schema**
+(`cultures` / `linguisticMetadata`). So a synonym that only reaches `///` is visible
+to an LLM *handed the raw TMDL* but invisible to *in-product* natural language.
+
+The third projection closes that gap. Curated column `synonyms` (governed source,
+below) are projected into a TMDL `culture` object's `linguisticMetadata` — the
+Power BI Q&A linguistic schema (LSDL v1.0.0) — by
+[`linguistic_schema.py`](../../products/fabric/powerbi/tooling/linguistic_schema.py)
+and referenced from `model.tmdl` via `ref culture <culture>`. It is deterministic
+and idempotent (same contract → byte-identical output) and never LLM-generated at
+build time.
+
+```tmdl
+culture en-US
+	linguisticMetadata =
+			{
+				"Version": "1.0.0",
+				"Language": "en-US",
+				"Entities": {
+					"<table>.<column-slug>": {
+						"Definition": { "Binding": {
+							"ConceptualEntity": "<table>", "ConceptualProperty": "<column>" } },
+						"State": "Generated",
+						"Terms": [
+							{ "<column>":  { "State": "Generated" } },
+							{ "<synonym>": { "Type": "Noun", "State": "Authored", "Source": "User" } }
+						]
+					}
+				}
+			}
+```
+
+The first term is the object's own name (`Generated`); each curated synonym is an
+`Authored` noun. Columns without `synonyms` produce no entity; a domain with no
+curated synonyms produces no culture file. Regenerate:
+`python3 -m products.fabric.powerbi.tooling.linguistic_schema --domain Commercial`.
+
+> **TMDL keyword:** the object is `culture <name>` (and `ref culture <name>` in
+> `model.tmdl`), per the MS Learn TMDL reference and the SpaceParts sample. Current
+> TMDL rejects `cultureInfo` as an *Unsupported object type*, so `culture` is the
+> only accepted keyword — a Power BI Desktop round-trip is confirmatory only.
 
 ---
 
@@ -80,6 +126,7 @@ Rendered entirely from the governed catalogs (no hand-written text):
 /// Grain: month (aggregated from invoice_line) · Unit: % · Good: higher_is_better
 /// Drivers: Net Sales Amount (positive), Cost of Goods Sold Amount (negative), Net Sales % vs Plan (positive)
 /// Owner: Profitability Analytics · Status: active · Actions: C-M2.1, C-M2.2, C-S1.1
+/// Example question: Why did Gross Margin % drop in Region North last quarter?
 ```
 
 **Viz tooltip:**
@@ -137,6 +184,22 @@ data contracts (`core/data_contracts/domains/*.yaml`).
 `allowed_values` and `synonyms` are optional contract fields the renderer omits
 when absent. Enriching them for the **filter/slicer columns** (region, channel,
 category, status) yields the largest NL-querying accuracy gain.
+
+**Values coverage (B2).** `tooling/validation/check_values_coverage.py` reports which
+*enumerable* dimension columns (low-cardinality categorical attributes — text, not a
+key/identifier, not high-cardinality) carry `allowed_values`. Aurora Commercial:
+`Region`, `Channel`, `Quarter` and the customer-dimension `Region`/`Channel` are
+enumerated; the business-governed domains (`Category`, `Subcategory`, `Segment`,
+`PromoType`, `Mechanic`) are reported as a gap to be curated — never guessed.
+Run `python3 tooling/validation/check_values_coverage.py --domain Commercial`
+(add `--strict` to gate).
+
+The curated column `synonyms` are *also* the source for the **linguistic schema**
+projection (above): each column with synonyms becomes a bound entity in
+`cultures/<culture>.tmdl`, so the same governed source reaches the `///` block, the
+viz tooltip **and** in-product Copilot/Q&A. For Aurora Commercial today:
+`dim_org.Region → {Sales Region, Geo}`, `dim_org.Channel → {Sales Channel, Route to
+Market}`, `fact_sales.Net Sales Amount → {Revenue, Net Revenue, Umsatz}`.
 
 ---
 

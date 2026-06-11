@@ -12,18 +12,21 @@ table fact_nps
 
 	column DateKey
 		dataType: int64
+		isHidden
 		lineageTag: a46bcae1-3d28-43e2-a628-1f528203f2ed
 		summarizeBy: none
 		sourceColumn: DateKey
 
 	column CustomerKey
 		dataType: int64
+		isHidden
 		lineageTag: c57b0e58-3c1a-42f6-a6b7-551682e0b1c3
 		summarizeBy: none
 		sourceColumn: CustomerKey
 
 	column OrgKey
 		dataType: int64
+		isHidden
 		lineageTag: 57120206-3225-4531-b704-c169bd9aff71
 		summarizeBy: none
 		sourceColumn: OrgKey

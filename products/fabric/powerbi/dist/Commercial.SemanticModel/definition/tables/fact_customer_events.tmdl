@@ -4,18 +4,21 @@ table fact_customer_events
 
 	column DateKey
 		dataType: int64
+		isHidden
 		lineageTag: 26ef791b-d865-4a3e-a46a-3056a69845b3
 		summarizeBy: none
 		sourceColumn: DateKey
 
 	column CustomerKey
 		dataType: int64
+		isHidden
 		lineageTag: 91ff3a4d-5978-40d3-bfab-0414d8d5a73d
 		summarizeBy: none
 		sourceColumn: CustomerKey
 
 	column OrgKey
 		dataType: int64
+		isHidden
 		lineageTag: 77caa6ad-f632-4fee-b2a6-52c3a0871940
 		summarizeBy: none
 		sourceColumn: OrgKey

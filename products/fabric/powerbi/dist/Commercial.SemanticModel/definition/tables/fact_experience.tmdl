@@ -12,18 +12,21 @@ table fact_experience
 
 	column CustomerKey
 		dataType: int64
+		isHidden
 		lineageTag: 2741bcae-0da1-41f3-b39a-f88a1cc3b6ad
 		summarizeBy: none
 		sourceColumn: CustomerKey
 
 	column OrgKey
 		dataType: int64
+		isHidden
 		lineageTag: 9d04d920-0737-4395-aa8c-86e08fbfd7d3
 		summarizeBy: none
 		sourceColumn: OrgKey
 
 	column DateKey
 		dataType: int64
+		isHidden
 		lineageTag: 5e819811-a746-40f5-adfa-9ce1c9f1d222
 		summarizeBy: none
 		sourceColumn: DateKey

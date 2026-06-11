@@ -17,6 +17,7 @@ from health_scorecard import (
     compute_h3,
     compute_h4,
     compute_h5,
+    compute_h8,
     run_scorecard,
 )
 
@@ -419,6 +420,97 @@ class TestExtractSection:
 
 
 # ---------------------------------------------------------------------------
+# H8 — AI-Readiness / Linguistic Coverage
+# ---------------------------------------------------------------------------
+
+class TestComputeH8:
+    """H8 gates governed synonyms reaching the model linguistic schema."""
+
+    def test_passes_on_real_commercial(self):
+        """The committed Commercial culture file covers every governed synonym."""
+        repo_root = Path(__file__).resolve().parents[2]
+        result = compute_h8(repo_root)
+        assert result["metric"] == "H8"
+        assert result["status"] == "pass"
+        assert result["score"] == 100.0
+        # Region(2) + Channel(2) + Net Sales Amount(3) = 7 governed synonyms on Commercial
+        assert result["details"]["governed_synonyms"] == 7
+        assert result["details"]["present"] == 7
+        assert "Commercial" in result["details"]["domains"]
+        # Epic C: hygiene folded into the gate, clean on the cleaned Commercial model
+        hyg = result["details"]["hygiene"]
+        assert hyg["visible_keys"] == {} and hyg["weak_descriptions"] == {}
+
+    def test_red_when_a_visible_key_is_reintroduced(self, tmp_path):
+        # Coverage is complete, but a visible surrogate key fails the hygiene half.
+        self._seed(tmp_path, ["Sales Region", "Geo"])
+        tdir = tmp_path / "products" / "fabric" / "powerbi" / "dist" / "Commercial.SemanticModel" / "definition" / "tables"
+        tdir.mkdir(parents=True, exist_ok=True)
+        (tdir / "fact_x.tmdl").write_text(
+            "table fact_x\n\tcolumn OrgKey\n\t\tdataType: int64\n\t\tsourceColumn: OrgKey\n",
+            encoding="utf-8",
+        )
+        result = compute_h8(tmp_path)
+        assert result["status"] == "below_target"
+        assert result["details"]["hygiene"]["visible_keys"]["Commercial"] == ["fact_x.OrgKey"]
+
+    def _seed(self, root: Path, culture_synonyms):
+        """Write a Commercial contract (Region has 2 synonyms) and a culture file whose
+        Region entity carries `culture_synonyms`."""
+        contracts = root / "core" / "data_contracts" / "domains"
+        contracts.mkdir(parents=True)
+        (contracts / "commercial_sales.yaml").write_text(
+            "domain: commercial_sales\n"
+            "dimension:\n"
+            "  - name: dim_org\n"
+            "    columns:\n"
+            "      - {name: Region, type: text, synonyms: [Sales Region, Geo]}\n"
+            "fact: []\n",
+            encoding="utf-8",
+        )
+        from tooling.generator_core.ai_description import ColumnDescription, TableDescription
+        from products.fabric.powerbi.tooling.linguistic_schema import (
+            build_linguistic_schema, render_culture_tmdl,
+        )
+        tables = [TableDescription(
+            name="dim_org",
+            columns=[ColumnDescription(name="Region", synonyms=list(culture_synonyms))],
+        )]
+        cdir = root / "products" / "fabric" / "powerbi" / "dist" / "Commercial.SemanticModel" / "definition" / "cultures"
+        cdir.mkdir(parents=True)
+        (cdir / "en-US.tmdl").write_text(
+            render_culture_tmdl(build_linguistic_schema(tables)), encoding="utf-8"
+        )
+
+    def test_pass_when_all_synonyms_present(self, tmp_path):
+        self._seed(tmp_path, ["Sales Region", "Geo"])
+        result = compute_h8(tmp_path)
+        assert result["status"] == "pass"
+        assert (result["details"]["present"], result["details"]["governed_synonyms"]) == (2, 2)
+
+    def test_red_when_governed_synonym_dropped(self, tmp_path):
+        # Contract governs [Sales Region, Geo]; culture only carries [Sales Region].
+        self._seed(tmp_path, ["Sales Region"])
+        result = compute_h8(tmp_path)
+        assert result["status"] == "below_target"
+        assert result["score"] < 100.0
+        assert result["details"]["missing"]["Commercial:dim_org.Region"] == ["Geo"]
+
+    def test_red_when_culture_file_absent(self, tmp_path):
+        # Governed synonyms exist but no linguistic schema was emitted at all.
+        contracts = tmp_path / "core" / "data_contracts" / "domains"
+        contracts.mkdir(parents=True)
+        (contracts / "commercial_sales.yaml").write_text(
+            "domain: c\ndimension:\n  - name: dim_org\n    columns:\n"
+            "      - {name: Region, type: text, synonyms: [Sales Region, Geo]}\nfact: []\n",
+            encoding="utf-8",
+        )
+        result = compute_h8(tmp_path)
+        assert result["status"] == "below_target"
+        assert result["details"]["present"] == 0
+
+
+# ---------------------------------------------------------------------------
 # run_scorecard integration
 # ---------------------------------------------------------------------------
 
@@ -443,8 +535,8 @@ class TestRunScorecard:
         self._ensure_registry(repo_root)
         results = run_scorecard(repo_root)
         assert "metrics" in results
-        assert len(results["metrics"]) == 7
-        assert {m["metric"] for m in results["metrics"]} >= {"H1", "H7"}
+        assert len(results["metrics"]) == 8
+        assert {m["metric"] for m in results["metrics"]} >= {"H1", "H7", "H8"}
         for m in results["metrics"]:
             assert "score" in m
             assert "target" in m

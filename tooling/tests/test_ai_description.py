@@ -33,6 +33,9 @@ def test_aurora_margin_gm_pct_renders_optimal_depth():
     assert "Drivers:" in sl
     assert "higher_is_better" in sl
     assert "Owner:" in sl
+    # B1: the optional few-shot grounding question is projected when present
+    assert d.example_question
+    assert f"/// Example question: {d.example_question}" in sl
 
     viz = d.render_viz()
     assert "higher is better" in viz
@@ -44,7 +47,18 @@ def test_render_omits_missing_facets():
     assert d.render_semantic_layer() == "/// A thing."
     assert "Formula" not in d.render_semantic_layer()
     assert "Owner" not in d.render_semantic_layer()
+    assert "Example question" not in d.render_semantic_layer()  # B1: omitted, never guessed
     assert d.render_viz() == "A thing."
+
+
+def test_example_question_renders_as_last_facet():
+    d = AIDescription(
+        kpi_id="x.y", name="X", definition="A thing.",
+        example_question="How did X move last quarter?",
+    )
+    lines = d.render_semantic_layer().splitlines()
+    assert lines[0] == "/// A thing."
+    assert lines[-1] == "/// Example question: How did X move last quarter?"
 
 
 def test_unknown_kpi_returns_none():
@@ -143,6 +157,8 @@ def test_enricher_projects_standard_and_preserves_non_catalog():
     out = enrich_text(_SAMPLE_TMDL, _repo_root())
     # the catalog KPI gets the rendered standard block; its stale doc is gone
     assert "/// Formula:" in out
+    # B1: the enricher delegates to the standard renderer, so example_question flows through
+    assert "/// Example question:" in out
     assert "/// stale hand-written comment" not in out
     # the non-catalog measure keeps its existing doc untouched
     assert "/// Purpose: A bespoke non-catalog helper" in out

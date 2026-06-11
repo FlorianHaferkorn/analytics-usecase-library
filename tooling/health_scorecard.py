@@ -2,7 +2,7 @@
 Framework Health Scorecard
 ==========================
 
-Automates the H1-H6 metrics defined in:
+Automates the H1-H8 metrics defined in:
   core/strategy_operating_model/operating_model/framework_health_metrics.md
 
 Usage:
@@ -594,8 +594,113 @@ def compute_h7(repo_root: Path) -> Dict[str, Any]:
     }
 
 
+def compute_h8(repo_root: Path) -> Dict[str, Any]:
+    """H8: AI-Readiness / Linguistic Coverage.
+
+    % of governed column synonyms (data-contract ``synonyms``) that are present in
+    the committed model linguistic schema (``cultures/<culture>.tmdl``). This is the
+    gate that keeps Copilot/Q&A synonyms from silently regressing: drop a governed
+    synonym from the linguistic schema and H8 goes red even though the ``///``
+    description text (H2) stays green. Mirrors H7 -- it reads dist/ and never
+    reports false-green when the projection tooling is unavailable.
+    """
+    name = "AI-Readiness / Linguistic Coverage"
+    target = 100.0
+    dist_root = repo_root / "products" / "fabric" / "powerbi" / "dist"
+    contracts_dir = repo_root / "core" / "data_contracts" / "domains"
+
+    try:  # projection + hygiene helpers (Epic A2/C); unavailable -> non-pass, never false-green
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
+        from products.fabric.powerbi.tooling.linguistic_schema import (
+            DOMAIN_CONTRACT,
+            build_table_descriptions,
+            parse_culture_tmdl,
+        )
+        from tooling.validation.check_ai_surface_hygiene import (
+            visible_keys,
+            weak_descriptions,
+        )
+    except Exception as exc:
+        return {"metric": "H8", "name": name, "score": 0.0, "target": target,
+                "details": {"error": f"projection helpers unavailable: {exc}"},
+                "status": "below_target"}
+
+    total = 0
+    present = 0
+    missing: Dict[str, List[str]] = {}
+    domains_checked: List[str] = []
+
+    for domain, contract_name in sorted(DOMAIN_CONTRACT.items()):
+        contract = contracts_dir / contract_name
+        if not contract.exists():
+            continue
+        governed: Dict[tuple, List[str]] = {}
+        for tbl in build_table_descriptions(contract):
+            for col in tbl.columns:
+                if col.synonyms:
+                    governed[(tbl.name, col.name)] = list(col.synonyms)
+        if not governed:
+            continue
+        domains_checked.append(domain)
+
+        # Parse the committed linguistic schema into (table, column) -> term set.
+        culture_terms: Dict[tuple, Set[str]] = {}
+        cultures_dir = dist_root / f"{domain}.SemanticModel" / "definition" / "cultures"
+        for culture_file in (sorted(cultures_dir.glob("*.tmdl")) if cultures_dir.exists() else []):
+            try:
+                schema = parse_culture_tmdl(culture_file.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            for ent in (schema.get("Entities") or {}).values():
+                binding = (ent.get("Definition") or {}).get("Binding") or {}
+                key = (binding.get("ConceptualEntity"), binding.get("ConceptualProperty"))
+                terms = {next(iter(term)) for term in (ent.get("Terms") or [])}
+                culture_terms.setdefault(key, set()).update(terms)
+
+        for key, syns in governed.items():
+            have = culture_terms.get(key, set())
+            for syn in syns:
+                total += 1
+                if syn in have:
+                    present += 1
+                else:
+                    missing.setdefault(f"{domain}:{key[0]}.{key[1]}", []).append(syn)
+
+    # Fold in AI-surface hygiene (Epic C): visible surrogate/FK keys + weak
+    # descriptions on the same (Aurora) domains. H8 is the composite AI-readiness
+    # gate -- coverage AND hygiene must be clean to pass.
+    hyg_keys: Dict[str, List[str]] = {}
+    hyg_weak: Dict[str, List[str]] = {}
+    for domain in domains_checked:
+        vk = visible_keys(dist_root, domain)
+        wd = weak_descriptions(repo_root, domain)
+        if vk:
+            hyg_keys[domain] = vk
+        if wd:
+            hyg_weak[domain] = [f"{obj} ({reason})" for obj, reason in wd]
+    hygiene_clean = not hyg_keys and not hyg_weak
+
+    coverage_complete = (total == 0) or (present == total)
+    score = 100.0 if total == 0 else round(100.0 * present / total, 1)
+    details: Dict[str, Any] = {
+        "domains": domains_checked,
+        "governed_synonyms": total,
+        "present": present,
+        "missing": missing,
+        "hygiene": {"visible_keys": hyg_keys, "weak_descriptions": hyg_weak},
+    }
+    if total == 0:
+        details["note"] = "no governed synonyms to project"
+    return {
+        "metric": "H8", "name": name, "score": score, "target": target,
+        "details": details,
+        "status": "pass" if (coverage_complete and hygiene_clean) else "below_target",
+    }
+
+
 def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
-    """Run all H1-H7 metrics and return results dict."""
+    """Run all H1-H8 metrics and return results dict."""
     if repo_root is None:
         repo_root = _repo_root()
 
@@ -610,6 +715,7 @@ def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
         compute_h5(repo_root),
         compute_h6(repo_root),
         compute_h7(repo_root),
+        compute_h8(repo_root),
     ]
 
     all_pass = all(m["status"] == "pass" for m in metrics)
@@ -682,6 +788,16 @@ def print_console(results: Dict[str, Any]) -> None:
             print(f"         {details['with_both']}/{details['total_use_cases']} use cases with prioritization + readiness")
             if details.get("missing"):
                 print(f"         Missing: {', '.join(details['missing'])}")
+        if "governed_synonyms" in details:
+            print(f"         {details['present']}/{details['governed_synonyms']} governed synonyms in the linguistic schema "
+                  f"({', '.join(details.get('domains', [])) or 'no domains'})")
+            if details.get("missing"):
+                dropped = "; ".join(f"{k}: {', '.join(v)}" for k, v in details["missing"].items())
+                print(f"         Dropped: {dropped}")
+            hyg = details.get("hygiene", {})
+            n_keys = sum(len(v) for v in hyg.get("visible_keys", {}).values())
+            n_weak = sum(len(v) for v in hyg.get("weak_descriptions", {}).values())
+            print(f"         Hygiene: {n_keys} visible key(s), {n_weak} weak description(s)")
 
     overall = results["overall_status"]
     color = GREEN if overall == "pass" else RED

@@ -4,6 +4,7 @@ table fact_promo
 
 	column PromoKey
 		dataType: int64
+		isHidden
 		lineageTag: ff22d92c-67b6-47f4-890b-40157317e88f
 		summarizeBy: none
 		sourceColumn: PromoKey

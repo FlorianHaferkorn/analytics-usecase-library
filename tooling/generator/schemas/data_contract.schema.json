@@ -24,13 +24,24 @@
                 "type": {"type": "string"},
                 "role": {"type": "string"},
                 "ref": {"type": "string"},
-                "nullable": {"type": "boolean"}
+                "nullable": {"type": "boolean"},
+                "description": {"type": "string"},
+                "allowed_values": {
+                  "type": "array",
+                  "description": "Enumerated domain of values — grounds NL -> column-value mapping and the column `Values:` projection.",
+                  "items": {"type": ["string", "number", "boolean"]}
+                },
+                "synonyms": {
+                  "type": "array",
+                  "description": "Curated natural-language synonyms — projected into the model linguistic schema (cultures/linguisticMetadata) for Copilot/Q&A and into the `///` Synonyms facet.",
+                  "items": {"type": "string"}
+                }
               },
-              "additionalProperties": false
+              "additionalProperties": true
             }
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       }
     },
     "fact": {
@@ -51,13 +62,26 @@
                 "type": {"type": "string"},
                 "agg": {"type": "string"},
                 "ref": {"type": "string"},
-                "nullable": {"type": "boolean"}
+                "nullable": {"type": "boolean"},
+                "unit": {"type": "string"},
+                "cardinality": {"type": "string"},
+                "description": {"type": "string"},
+                "allowed_values": {
+                  "type": "array",
+                  "description": "Enumerated domain of values — grounds NL -> column-value mapping and the column `Values:` projection.",
+                  "items": {"type": ["string", "number", "boolean"]}
+                },
+                "synonyms": {
+                  "type": "array",
+                  "description": "Curated natural-language synonyms — projected into the model linguistic schema (cultures/linguisticMetadata) for Copilot/Q&A and into the `///` Synonyms facet.",
+                  "items": {"type": "string"}
+                }
               },
-              "additionalProperties": false
+              "additionalProperties": true
             }
           }
         },
-        "additionalProperties": false
+        "additionalProperties": true
       }
     },
     "settings": {
