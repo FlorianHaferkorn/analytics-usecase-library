@@ -3332,6 +3332,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - C-M2.2
   - C-S1.1
   calc_type: ratio
+  good_is: higher
+  synonyms: ["GM%", "Gross Margin Rate", "Bruttomarge %"]
+  example_question: "Why did Gross Margin % drop in Region North last quarter?"
   causal_links:
     model_type: local_linear_beta
     as_of: "2026-02-01"
