@@ -56,10 +56,13 @@ names, real DAX, 0 `BLANK()`** (`Gross Margin % = DIVIDE ( ... )`,
 
 ## Remaining for a full all-domain golden build
 
-1. **Overlay backfill:** 51 overlay entries are still `-- TBD: see Measure
-   Dictionary`; KPIs whose DAX is TBD emit `BLANK()`. Backfill them from the
-   measure dictionaries (`expression.logical`) so every domain — not just
-   Commercial — regenerates with real DAX.
+1. **Author missing DAX (content gap):** 51 overlay entries are still
+   `-- TBD: see Measure Dictionary`, so those KPIs emit `BLANK()` in non-Commercial
+   domains. They **cannot be auto-backfilled** — checking the measure dictionaries,
+   only 4/51 carry real DAX in `expression.logical`; the other 47 hold prose or
+   pseudo-code (e.g. `Baseline amount of …`, `COUNTIF(…)`). The DAX for these KPIs
+   has not been authored yet; completing the overlay is a content task, not an
+   extraction. (Commercial is complete, which is why it regenerates cleanly.)
 2. **Orchestrator on Linux:** scope its source→artifact subset to run on
    pwsh-linux and gate out the non-Linux phases (Power BI Desktop readiness,
    Fabric/Azure deploy).
