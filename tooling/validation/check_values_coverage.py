@@ -50,6 +50,8 @@ _IDENTIFIER_SUFFIXES = ("Key", "Code", "Id", "ID", "Name")
 # Documented high-cardinality / free-text columns — labels, not enumerable domains.
 _NOT_ENUMERABLE = {
     "Country", "City", "Brand", "ProductFamily", "Month", "Week", "Promotion",
+    # high-cardinality references (confirmed against the Aurora gold data)
+    "Entity", "Plant", "Location", "Customer",
 }
 
 

@@ -22,10 +22,10 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: Region, type: text, nullable: true}
-      - {name: Channel, type: text, nullable: true}
-      - {name: Queue, type: text, nullable: true}
-      - {name: Agent Group, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
+      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet]}
+      - {name: Queue, type: text, nullable: true, allowed_values: [Order Management, "Returns & Refunds", Technical Support, "Billing & Payments", General Support, VIP Support]}
+      - {name: Agent Group, type: text, nullable: true, allowed_values: ["Tier 1 – General", "Tier 2 – Specialist", "Tier 3 – Expert", Back-Office, Escalation Team, VIP Desk]}
 
   - name: dim_case_queue
     description: "Support case queue dimension (queue name, channel, region)."
@@ -33,9 +33,9 @@ dimension:
     scd_type: 1
     columns:
       - {name: QueueKey, type: int, role: key}
-      - {name: QueueName, type: text}
-      - {name: Channel, type: text, nullable: true}
-      - {name: Region, type: text, nullable: true}
+      - {name: QueueName, type: text, allowed_values: [Billing, Returns, Sales Support, Technical Support]}
+      - {name: Channel, type: text, nullable: true, allowed_values: [Phone, Email, Chat]}
+      - {name: Region, type: text, nullable: true, allowed_values: [Americas, EMEA]}
 
   - name: dim_issue_type
     description: "Issue type dimension (type, severity) for case classification."
@@ -43,8 +43,8 @@ dimension:
     scd_type: 1
     columns:
       - {name: IssueKey, type: int, role: key}
-      - {name: IssueType, type: text}
-      - {name: Severity, type: text, nullable: true}
+      - {name: IssueType, type: text, allowed_values: [Billing, Delivery, Order, Product, Technical]}
+      - {name: Severity, type: text, nullable: true, allowed_values: [High, Medium, Low]}
 
 fact:
   - name: fact_support_cases

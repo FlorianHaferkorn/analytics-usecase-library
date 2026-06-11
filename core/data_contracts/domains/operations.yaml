@@ -23,9 +23,9 @@ dimension:
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Plant, type: text}
-      - {name: Line, type: text}
-      - {name: Shift, type: text, nullable: true}
-      - {name: Region, type: text, nullable: true}
+      - {name: Line, type: text, allowed_values: [Line A, Line B, Line C, Line D]}
+      - {name: Shift, type: text, nullable: true, allowed_values: [Day Shift, Afternoon Shift, Night Shift]}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
       - {name: Country, type: text, nullable: true}
 
   - name: dim_asset
@@ -36,8 +36,8 @@ dimension:
       - {name: AssetKey, type: int, role: key}
       - {name: AssetCode, type: text}
       - {name: AssetName, type: text}
-      - {name: AssetClass, type: text}
-      - {name: Criticality, type: text, nullable: true}
+      - {name: AssetClass, type: text, allowed_values: [Assembly Line, Production Line, Finishing Station, Packaging Station, Quality Control, Warehouse]}
+      - {name: Criticality, type: text, nullable: true, allowed_values: [High, Medium, Low]}
       - {name: OrgKey, type: int, ref: dim_org}
 
   - name: dim_product
@@ -48,8 +48,8 @@ dimension:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
       - {name: ProductName, type: text}
-      - {name: Category, type: text}
-      - {name: Subcategory, type: text, nullable: true}
+      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics]}
+      - {name: Subcategory, type: text, nullable: true, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming]}
 
 fact:
   - name: fact_ops

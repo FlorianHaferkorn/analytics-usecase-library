@@ -23,8 +23,8 @@ dimension:
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Location, type: text}
-      - {name: Region, type: text, nullable: true}
-      - {name: Channel, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
+      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet]}
       - {name: Customer, type: text, nullable: true}
 
   - name: dim_product
@@ -35,10 +35,10 @@ dimension:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
       - {name: ProductName, type: text}
-      - {name: Category, type: text}
-      - {name: Subcategory, type: text, nullable: true}
-      - {name: ABC_Class, type: text, nullable: true}
-      - {name: XYZ_Class, type: text, nullable: true}
+      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics]}
+      - {name: Subcategory, type: text, nullable: true, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming]}
+      - {name: ABC_Class, type: text, nullable: true, allowed_values: [A, B, C]}
+      - {name: XYZ_Class, type: text, nullable: true, allowed_values: [X, Y, Z]}
 
   - name: dim_lane
     description: "Transport lane dimension (origin, destination, mode) for fulfillment."
@@ -46,9 +46,9 @@ dimension:
     scd_type: 1
     columns:
       - {name: LaneKey, type: int, role: key}
-      - {name: Origin, type: text}
-      - {name: Destination, type: text}
-      - {name: Mode, type: text, nullable: true}
+      - {name: Origin, type: text, allowed_values: [DC-AT-01, DC-AT-02, DC-BE-01, DC-CH-01, DC-CH-02, DC-DE-01, DC-DE-02, DC-NL-01]}
+      - {name: Destination, type: text, allowed_values: [AT, BE, CH, DE, DK, ES, LU, NL, NO, SE]}
+      - {name: Mode, type: text, nullable: true, allowed_values: [Road, Rail, Air, Sea]}
 
 fact:
   - name: fact_inventory
