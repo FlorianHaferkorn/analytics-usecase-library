@@ -224,8 +224,12 @@ function Get-YamlBlockIds {
 
 function Get-ChunkValue {
   param([string]$Chunk,[string]$Key)
+  # Double-quoted scalar: key: "value"
   $m = [regex]::Match($Chunk, "(?m)^\s*$Key\s*:\s*""([^""]*)""")
   if ($m.Success) { return $m.Groups[1].Value }
+  # Unquoted scalar: key: value  (rest of line; not a list [, literal block |, or comment #)
+  $m = [regex]::Match($Chunk, "(?m)^\s*$Key\s*:\s*(?![\[\|#])([^\r\n#]+)")
+  if ($m.Success) { return $m.Groups[1].Value.Trim() }
   return $null
 }
 

@@ -40,15 +40,46 @@ threads feed it and should be consolidated:
    Desktop readiness, Fabric/Azure deploy). The Linux generation path should be
    scoped to the source→TMDL/PBIR steps and skip Desktop/Fabric.
 
+## Diagnostic: the generator cannot currently reproduce `dist/` from source
+
+Running the canonical generator on Linux surfaced concrete, **platform-agnostic**
+correctness bugs — the committed `dist/` is NOT reproducible from the current
+sources today:
+
+- **Fixed here:** `Get-ChunkValue` only matched *double-quoted* YAML scalars
+  (`key: "value"`), but the catalog stores `kpi_key: Gross Margin %` unquoted, so
+  every measure name fell back to the dotted `kpi_id`. Added an unquoted-scalar
+  fallback → display names now resolve on any platform.
+- **Still open:** measure DAX comes out `BLANK()`. The KPI catalog carries no DAX
+  (only `technical.measure_name`/lineage); the DAX lives in the **measure
+  overlay** (`products/fabric/powerbi/specs/fabric_measure_overlay.yaml`) and the
+  measure dictionaries. The correct path is the IR:
+  `build_ir.py --kpi-catalog … --fabric-overlay …` produces an IR with both the
+  display name and the DAX, but the generator's `-IrFile` path does not propagate
+  `dax_expression` into the emitted measure (and several overlay entries are still
+  `-- TBD: see Measure Dictionary`).
+
+### Correct Linux generation pipeline (target)
+
+```bash
+python tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog \
+  --fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml \
+  --out ir_v1.json
+pwsh ./tooling/generator/generate_tmdl_measures.ps1 -IrFile ir_v1.json \
+  -TargetTablesDir <domain tables dir> -OverwriteExisting
+```
+
 ## Path to the golden-build regeneration
 
-1. Make the orchestrator's source→artifact subset run end-to-end on pwsh-linux
+1. Fix `dax_expression` propagation in the generator's IR path and backfill the
+   overlay's `TBD` entries from the measure dictionaries (single DAX source).
+2. Make the orchestrator's source→artifact subset run end-to-end on pwsh-linux
    (skip Desktop/Fabric phases behind a flag).
-2. Reconcile the IR paths so display-named measures are produced on Linux.
 3. Run the enricher (`enrich_measure_docs.py`) so `///` blocks project the
    AI-description standard.
 4. Re-baseline `dist/` + golden fixtures in one reviewed commit, with every gate
    green (pytest, `pbi-quality validate` 0 criticals, H7, scorecard).
 
-Until then: keep converging incrementally; `dist/` stays consistent with the
+Until then a clean `rm -rf dist && regenerate` would **not** reproduce the current
+artifacts — keep converging incrementally; `dist/` stays consistent with the
 tests, and the Linux generator is proven runnable.
