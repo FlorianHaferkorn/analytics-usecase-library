@@ -293,9 +293,25 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "C-S1.1"
 
 	/// ActionReady Logic: C-S1.2 - Sales Gap Recovery via Price & Pack Adjustment
-	measure 'Action_C-S1.2_Text' = IF ( [Net Sales % vs Plan] < -0.08, "🔴 L3 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.05, "🟠 L2 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.02, "🟡 L1 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", BLANK () ) ) )
+	measure 'Action_C-S1.2_Text' = IF ( [Net Sales % vs Plan] < -0.08, "🔴 L3 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: sales_director | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.05, "🟠 L2 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: sales_director | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.02, "🟡 L1 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: sales_director | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", BLANK () ) ) )
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "sales_director"
 		annotation ActionReady_ActionCodeId = "C-S1.2"
+
+	/// ActionReady Logic: C-C3.1 - Customer Retention Intervention
+	measure 'Action_C-C3.1_Text' = IF ( [Customer Retention %] < 0.9, "🔴 L3 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Prioritize by revenue at risk/CLV — Assign recovery actions — Review CLV monthly", IF ( [Customer Retention %] < 0.94, "🟠 L2 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Prioritize by revenue at risk/CLV — Assign recovery actions — Review CLV monthly", IF ( [Customer Retention %] < 0.97, "🟡 L1 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Prioritize by revenue at risk/CLV — Assign recovery actions — Review CLV monthly", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "commercial_controlling_lead"
+		annotation ActionReady_ActionCodeId = "C-C3.1"
+
+	/// ActionReady Logic: C-C3.2 - Complaint & Advocacy Recovery
+	measure 'Action_C-C3.2_Text' = IF ( [Net Promoter Score (NPS)] < -5, "🔴 L3 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Close high-value complaint clusters — Restore advocacy — Review quarterly", IF ( [Net Promoter Score (NPS)] < 5, "🟠 L2 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Close high-value complaint clusters — Restore advocacy — Review quarterly", IF ( [Net Promoter Score (NPS)] < 20, "🟡 L1 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Close high-value complaint clusters — Restore advocacy — Review quarterly", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "commercial_controlling_lead"
+		annotation ActionReady_ActionCodeId = "C-C3.2"
