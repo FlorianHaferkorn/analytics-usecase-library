@@ -96,3 +96,31 @@ def test_column_render_omits_missing_facets():
     rendered = c.render_semantic_layer()
     assert rendered == "/// Foo. Type: text"
     assert "Values:" not in rendered and "FK->" not in rendered
+
+
+def test_generator_emits_standard_doc_block_for_catalog_kpi():
+    """The TMDL measure writer projects the standard /// block from the catalog."""
+    from products.fabric.powerbi.tooling.adapters.pbip import _build_tmdl_measures
+    from generator_core.ir.specs import MeasureSpec
+
+    m = MeasureSpec(
+        kpi_id="margin.gm.pct",
+        name="Gross Margin %",
+        dax="DIVIDE([Gross Margin Amount],[Net Sales Amount])",
+        format_string="0.0%",
+        display_folder="02_Margin",
+    )
+    tmdl = _build_tmdl_measures([m])
+    assert "/// Formula:" in tmdl
+    assert "Drivers:" in tmdl
+    assert "Owner:" in tmdl
+    assert "/// Purpose:" not in tmdl  # the standard block supersedes the bland Purpose line
+
+
+def test_generator_falls_back_to_purpose_for_unknown_kpi():
+    from products.fabric.powerbi.tooling.adapters.pbip import _build_tmdl_measures
+    from generator_core.ir.specs import MeasureSpec
+
+    m = MeasureSpec(kpi_id="x.y.z", name="Alpha", dax="0", format_string="#,0", description="Tracks alpha")
+    tmdl = _build_tmdl_measures([m])
+    assert "/// Purpose: Tracks alpha" in tmdl

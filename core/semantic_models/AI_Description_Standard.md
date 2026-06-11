@@ -152,5 +152,7 @@ the model.
 - `Gross Margin %` exists in both the Commercial and Profitability measure
   dictionaries; the renderer prefers the use case's domain but the duplicate
   should be de-duplicated (one governed measure per KPI — backlog A4).
-- Generators should emit the rendered `///` block instead of bespoke comments, so
-  the semantic layer is a projection of this standard rather than a parallel copy.
+- The Python generation path (the PBIP adapter, `_build_tmdl_measures`) now emits
+  the rendered `///` block, so the semantic layer is a projection of this standard
+  rather than a parallel copy. The PowerShell path (`generate_tmdl_measures.ps1`)
+  should follow.

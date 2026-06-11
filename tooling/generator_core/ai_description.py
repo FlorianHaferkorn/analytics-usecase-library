@@ -12,6 +12,7 @@ guessed.
 
 from __future__ import annotations
 
+import functools
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -30,6 +31,7 @@ _UNIT_RE = re.compile(r"Unit:\s*([^.\n]+)", re.IGNORECASE)
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+@functools.lru_cache(maxsize=8)
 def load_kpi_catalog(catalog_md: Path) -> Dict[str, dict]:
     """Return ``kpi_id -> full kpi dict`` parsed from ``KPI_Catalog.md``.
 
@@ -58,6 +60,7 @@ def load_kpi_catalog(catalog_md: Path) -> Dict[str, dict]:
     return out
 
 
+@functools.lru_cache(maxsize=8)
 def load_measure_dictionary(domains_dir: Path) -> Dict[str, List[dict]]:
     """Return ``measure_name -> [measure dict, ...]`` across all domain dictionaries.
 
