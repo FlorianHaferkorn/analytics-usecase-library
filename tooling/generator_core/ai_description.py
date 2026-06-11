@@ -228,3 +228,133 @@ def build_description(kpi_id: str, repo_root: Path) -> Optional[AIDescription]:
         example_question=str(kpi.get("example_question", "")).strip(),
         domain=domain,
     )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Tables & columns (from the data contracts)
+# ──────────────────────────────────────────────────────────────────────────────
+
+_CURRENCY_TYPES = {"currency", "money"}
+
+
+@dataclass
+class ColumnDescription:
+    name: str
+    data_type: str = ""
+    role: str = ""           # key | foreign_key | measure | attribute
+    unit: str = ""
+    ref: str = ""            # FK target table
+    nullable: bool = False
+    description: str = ""
+    allowed_values: List[str] = field(default_factory=list)   # the gap that most helps NL->column
+    synonyms: List[str] = field(default_factory=list)
+
+    def render_semantic_layer(self) -> str:
+        """Render the column's TMDL ``///`` doc line."""
+        meta = []
+        if self.data_type:
+            meta.append(f"Type: {self.data_type}")
+        if self.unit:
+            meta.append(f"Unit: {self.unit}")
+        if self.role:
+            meta.append(f"Role: {self.role}")
+        if self.ref:
+            meta.append(f"FK->{self.ref}")
+        if self.allowed_values:
+            meta.append("Values: " + ", ".join(str(v) for v in self.allowed_values))
+        if self.synonyms:
+            meta.append("Synonyms: " + ", ".join(self.synonyms))
+        head = self.description.rstrip(".") if self.description else self.name
+        suffix = (" " + " · ".join(meta)) if meta else ""
+        return f"/// {head}.{suffix}"
+
+
+@dataclass
+class TableDescription:
+    name: str
+    kind: str = ""           # fact | dimension
+    description: str = ""
+    purpose: str = ""
+    grain: str = ""
+    columns: List[ColumnDescription] = field(default_factory=list)
+
+    def render_semantic_layer(self) -> str:
+        bits = [b.rstrip(".") for b in (self.description, self.purpose) if b]
+        head = ". ".join(bits) or self.name
+        meta = []
+        if self.grain:
+            meta.append(f"Grain: {self.grain}")
+        if self.kind:
+            meta.append(f"Type: {self.kind}")
+        suffix = (" " + " · ".join(meta)) if meta else ""
+        return f"/// {head}.{suffix}"
+
+    def render_viz(self) -> str:
+        return (self.description.rstrip(".") if self.description else self.name) + "."
+
+
+def _column_role(col: dict) -> str:
+    if col.get("role") == "key" or str(col.get("name", "")).endswith("Key"):
+        return "foreign_key" if col.get("ref") else "key"
+    if col.get("agg"):
+        return "measure"
+    return "attribute"
+
+
+def _column_unit(col: dict) -> str:
+    if col.get("unit"):
+        return str(col["unit"])
+    return "EUR" if col.get("type") in _CURRENCY_TYPES else ""
+
+
+def _table_kind(table: dict) -> str:
+    name = str(table.get("name", ""))
+    if name.startswith("fact"):
+        return "fact"
+    if name.startswith("dim"):
+        return "dimension"
+    return "fact" if table.get("grain") else "dimension"
+
+
+def build_table_descriptions(contract_path: Path) -> List[TableDescription]:
+    """Build table + column descriptions from one data-contract YAML (best-effort)."""
+    contract_path = Path(contract_path)
+    if not contract_path.is_file():
+        return []
+    try:
+        doc = yaml.safe_load(contract_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError:
+        return []
+    out: List[TableDescription] = []
+    tables = []
+    for key in ("fact", "dimension", "tables", "facts"):
+        val = doc.get(key)
+        if isinstance(val, list):
+            tables.extend(val)
+    for t in tables:
+        if not isinstance(t, dict) or not t.get("name"):
+            continue
+        cols: List[ColumnDescription] = []
+        for c in (t.get("columns") or []):
+            if not isinstance(c, dict) or not c.get("name"):
+                continue
+            cols.append(ColumnDescription(
+                name=str(c["name"]),
+                data_type=str(c.get("type", "")),
+                role=_column_role(c),
+                unit=_column_unit(c),
+                ref=str(c.get("ref", "")),
+                nullable=bool(c.get("nullable", False)),
+                description=str(c.get("description", "")),
+                allowed_values=list(c.get("allowed_values") or []),
+                synonyms=list(c.get("synonyms") or []),
+            ))
+        out.append(TableDescription(
+            name=str(t["name"]),
+            kind=_table_kind(t),
+            description=str(t.get("description", "")),
+            purpose=str(t.get("purpose", "")),
+            grain=str(t.get("grain", "")),
+            columns=cols,
+        ))
+    return out

@@ -90,6 +90,56 @@ Gross margin divided by net sales (%, higher is better). Top drivers: Net Sales 
 
 ---
 
+## Tables & columns (data contracts)
+
+The same principle applies to tables and columns — and for natural-language
+querying (text-to-DAX, data agents) **column context is the single biggest
+lever**: an agent maps "sales in the north" to a column only if it knows the
+column's meaning, its allowed values and its synonyms. Source of truth: the
+data contracts (`core/data_contracts/domains/*.yaml`).
+
+### Table field contract
+
+| Field | Source | Req. | Why for AI |
+|---|---|---|---|
+| `description` + `purpose` | contract table | ✅ | what the table holds and is for |
+| `grain` | contract `grain` | ✅ | safe joins / aggregation |
+| `kind` (fact/dimension) | inferred from name/grain | ✅ | query planning |
+
+### Column field contract
+
+| Field | Source | Req. | Why for AI |
+|---|---|---|---|
+| `description` | contract column `description` | ✅ | what the column means |
+| `data_type` + `unit` | contract `type` (`currency`→EUR) / `unit` | ✅ | format & aggregation |
+| `role` (key/foreign_key/measure/attribute) | inferred from `role`/`agg`/`ref` | ✅ | join vs. group vs. aggregate |
+| `ref` (FK target) | contract `ref` | ⭐ | relationship grounding |
+| `allowed_values` | contract `allowed_values` | ⭐ | **NL → column value mapping** |
+| `synonyms` | contract `synonyms` | ⭐ | NL phrasing → column |
+
+### Render — column TMDL `///`
+
+```text
+/// <description>. Type: <type> · Unit: <unit> · Role: <role> · FK-><ref> · Values: <a, b, ...> · Synonyms: <...>
+```
+
+### Aurora worked example — `commercial_sales`
+
+```text
+# fact_sales (table)
+/// Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year. Core revenue and margin reporting; PVM and variance analysis. Grain: invoice_line · Type: fact
+# columns
+/// Invoiced revenue net of discounts and returns. Type: currency · Unit: EUR · Role: measure · Synonyms: Revenue, Net Revenue, Umsatz
+/// Sales region grouping countries. Type: text · Role: attribute · Values: DACH, Benelux, Nordics, SouthernEurope, CEE · Synonyms: Sales Region, Geo
+/// Go-to-market sales channel. Type: text · Role: attribute · Values: Retail, Online, Wholesale, Marketplace, Outlet · Synonyms: Sales Channel, Route to Market
+```
+
+`allowed_values` and `synonyms` are optional contract fields the renderer omits
+when absent. Enriching them for the **filter/slicer columns** (region, channel,
+category, status) yields the largest NL-querying accuracy gain.
+
+---
+
 ## Depth & quality bar
 
 A description meets the bar when the ✅ fields render and the ⭐ fields are

@@ -53,6 +53,7 @@ def test_unknown_kpi_returns_none():
 
 def test_loaders_are_best_effort(tmp_path: Path):
     from generator_core.ai_description import (
+        build_table_descriptions,
         load_fact_grains,
         load_kpi_catalog,
         load_measure_dictionary,
@@ -61,3 +62,37 @@ def test_loaders_are_best_effort(tmp_path: Path):
     assert load_kpi_catalog(tmp_path / "missing.md") == {}
     assert load_measure_dictionary(tmp_path / "missing") == {}
     assert load_fact_grains(tmp_path / "missing") == {}
+    assert build_table_descriptions(tmp_path / "missing.yaml") == []
+
+
+def test_aurora_tables_and_columns_render_with_context():
+    from generator_core.ai_description import build_table_descriptions
+
+    contract = _repo_root() / "core" / "data_contracts" / "domains" / "commercial_sales.yaml"
+    by = {t.name: t for t in build_table_descriptions(contract)}
+    assert "fact_sales" in by and "dim_org" in by
+
+    fs = by["fact_sales"]
+    assert fs.kind == "fact" and fs.grain == "invoice_line"
+    assert fs.render_semantic_layer().startswith("/// ")
+    # foreign-key column resolves its target
+    org_fk = next(c for c in fs.columns if c.name == "OrgKey")
+    assert org_fk.role == "foreign_key" and org_fk.ref == "dim_org"
+    # currency measure column carries a unit
+    ns = next(c for c in fs.columns if c.name == "Net Sales Amount")
+    assert ns.role == "measure" and ns.unit == "EUR"
+
+    # categorical column carries allowed values + synonyms (the NL->column lever)
+    region = next(c for c in by["dim_org"].columns if c.name == "Region")
+    assert "DACH" in region.allowed_values
+    sl = region.render_semantic_layer()
+    assert "Values:" in sl and "Synonyms:" in sl
+
+
+def test_column_render_omits_missing_facets():
+    from generator_core.ai_description import ColumnDescription
+
+    c = ColumnDescription(name="Foo", data_type="text")
+    rendered = c.render_semantic_layer()
+    assert rendered == "/// Foo. Type: text"
+    assert "Values:" not in rendered and "FK->" not in rendered
