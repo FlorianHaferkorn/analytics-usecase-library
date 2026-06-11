@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tooling/tests", "products"]
+testpaths = ["tooling/tests", "tooling/generator_core/tests", "products"]
 pythonpath = ["tooling", "tooling/ontology"]
 norecursedirs = ["products/fabric/powerbi/deployment/scripts/modules/tests"]
 

@@ -39,6 +39,10 @@ jobs:
       - name: Run tests
         run: python -m pytest --tb=short -q
 
+      - name: Report quality gate (0 criticals)
+        run: |
+          python -c "import sys; sys.path.insert(0, 'packages/pbi_quality_tools'); from pbi_quality_tools.cli import main; raise SystemExit(main(['validate', '--summary']))"
+
       - name: Health scorecard
         run: python tooling/health_scorecard.py
 
