@@ -164,6 +164,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: crm.nps.index
+  synonyms: ["Net Promoter Score", "Promoter Score", "Weiterempfehlungsrate", "NPS"]
+  example_question: "Which segments are driving the change in NPS this quarter?"
   kpi_key: Net Promoter Score (NPS)
   kpi_type: diagnostic
   kpi_role: strategic
@@ -4333,6 +4335,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: svc.sla.attainment.pct
+  synonyms: ["Service Level", "SLA Compliance", "Telephone Service Factor", "Servicegrad", "Servicelevel"]
+  example_question: "Which queues are missing the SLA this week?"
   kpi_key: SLA Attainment %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -4379,6 +4383,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: svc.fcr.pct
+  synonyms: ["First Contact Resolution", "First Call Resolution", "One-Touch Resolution", "Erstlösungsquote", "Erstkontaktlösung"]
+  example_question: "Where is first contact resolution lowest, and why?"
   kpi_key: First Contact Resolution %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -4415,6 +4421,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: svc.aht.minutes
+  synonyms: ["Average Handle Time", "Average Handling Time", "Handle Time", "durchschnittliche Bearbeitungszeit"]
+  example_question: "What is pushing average handle time up on chat?"
   kpi_key: Average Handling Time (minutes)
   kpi_type: diagnostic
   kpi_role: strategic
@@ -4451,6 +4459,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: svc.backlog.count
+  synonyms: ["Support Backlog", "Open Ticket Backlog", "Unresolved Tickets", "Rückstand", "offene Tickets"]
+  example_question: "Which queues have the largest case backlog?"
   kpi_key: Backlog Count
   kpi_type: diagnostic
   kpi_role: strategic
@@ -4489,6 +4499,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: svc.nps.index
+  synonyms: ["Net Promoter Score", "Service NPS", "Weiterempfehlungsrate", "NPS"]
+  example_question: "Why did NPS dip for the Returns queue?"
   kpi_key: NPS Index
   kpi_type: diagnostic
   kpi_role: strategic
@@ -4524,6 +4536,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: svc.escalation.pct
+  synonyms: ["Escalation Rate", "Ticket Escalation Rate", "Transfer Rate", "Eskalationsquote", "Eskalationsrate"]
+  example_question: "Which issue types escalate most often?"
   kpi_key: Escalation %
   kpi_type: diagnostic
   kpi_role: strategic

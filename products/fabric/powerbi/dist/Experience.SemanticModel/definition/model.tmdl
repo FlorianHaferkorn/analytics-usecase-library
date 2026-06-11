@@ -13,3 +13,4 @@ ref table fact_support_cases
 ref table fact_workforce_management
 ref table fact_nps
 ref table security_user_org
+ref culture en-US
