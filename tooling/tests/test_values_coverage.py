@@ -50,17 +50,14 @@ def test_commercial_safe_fills_are_covered():
         assert loc in cov.covered, f"{loc} should carry allowed_values"
 
 
-def test_commercial_deferred_domains_reported_as_gap():
+def test_commercial_is_fully_enumerated():
+    # the 5 business-governed domains were curated from the Aurora gold data
     cov = domain_coverage("Commercial", _CONTRACTS)
-    # business-governed domains are reported, not invented
-    assert set(cov.missing) == {
-        "dim_product.Category",
-        "dim_product.Subcategory",
-        "dim_customer.Segment",
-        "dim_promo.PromoType",
-        "dim_promo.Mechanic",
-    }
-    assert cov.enumerable == 10 and len(cov.covered) == 5
+    assert cov.missing == []
+    assert cov.enumerable == 10 and len(cov.covered) == 10
+    for loc in ("dim_product.Category", "dim_product.Subcategory", "dim_customer.Segment",
+                "dim_promo.PromoType", "dim_promo.Mechanic"):
+        assert loc in cov.covered
 
 
 def test_domain_coverage_is_deterministic():
@@ -75,6 +72,19 @@ def test_report_mode_exits_zero():
     assert main(["--domain", "Commercial"]) == 0
 
 
-def test_strict_mode_flags_the_gap():
-    # the deferred domains are still missing, so --strict fails (the gate is honest)
-    assert main(["--domain", "Commercial", "--strict"]) == 1
+def test_strict_passes_when_fully_enumerated():
+    assert main(["--domain", "Commercial", "--strict"]) == 0
+
+
+def test_strict_flags_a_gap(tmp_path):
+    # an enumerable dim column with no allowed_values must fail --strict (the gate works)
+    cdir = tmp_path / "domains"
+    cdir.mkdir(parents=True)
+    (cdir / "commercial_sales.yaml").write_text(
+        "domain: commercial_sales\n"
+        "dimension:\n  - name: dim_product\n    columns:\n"
+        "      - {name: Category, type: text}\n"   # enumerable, no allowed_values
+        "fact: []\n",
+        encoding="utf-8",
+    )
+    assert main(["--domain", "Commercial", "--strict", "--contracts-dir", str(cdir)]) == 1

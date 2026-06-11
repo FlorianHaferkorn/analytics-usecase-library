@@ -27,6 +27,11 @@ TMDL culture serialization reference:
   https://learn.microsoft.com/analysis-services/tmdl/tmdl-reference-tabular-object
 LSDL (linguistic schema) binding reference:
   products/fabric/powerbi/docs/references/pbir-rename-cascade.md (Culture Files)
+
+Keyword note: the object is declared ``culture <name>`` (with ``ref culture <name>``
+in model.tmdl) per the MS Learn TMDL reference above and the SpaceParts sample.
+Current TMDL rejects ``cultureInfo`` as an "Unsupported object type" — so ``culture``
+is the correct (and only accepted) keyword; a Desktop round-trip is confirmatory only.
 """
 
 from __future__ import annotations

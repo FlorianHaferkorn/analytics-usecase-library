@@ -107,6 +107,11 @@ The first term is the object's own name (`Generated`); each curated synonym is a
 curated synonyms produces no culture file. Regenerate:
 `python3 -m products.fabric.powerbi.tooling.linguistic_schema --domain Commercial`.
 
+> **TMDL keyword:** the object is `culture <name>` (and `ref culture <name>` in
+> `model.tmdl`), per the MS Learn TMDL reference and the SpaceParts sample. Current
+> TMDL rejects `cultureInfo` as an *Unsupported object type*, so `culture` is the
+> only accepted keyword — a Power BI Desktop round-trip is confirmatory only.
+
 ---
 
 ## Aurora worked example — `margin.gm.pct` (COM-001)
