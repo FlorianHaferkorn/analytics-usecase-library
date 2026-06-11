@@ -152,7 +152,13 @@ the model.
 - `Gross Margin %` exists in both the Commercial and Profitability measure
   dictionaries; the renderer prefers the use case's domain but the duplicate
   should be de-duplicated (one governed measure per KPI — backlog A4).
-- The Python generation path (the PBIP adapter, `_build_tmdl_measures`) now emits
-  the rendered `///` block, so the semantic layer is a projection of this standard
-  rather than a parallel copy. The PowerShell path (`generate_tmdl_measures.ps1`)
-  should follow.
+- Both generation paths now project the standard: the Python PBIP adapter
+  (`_build_tmdl_measures`) emits the rendered block directly, and the PowerShell
+  path is covered by the post-generation enricher
+  (`tooling/generator/enrich_measure_docs.py`), wired into the orchestrator right
+  after measure generation. The enricher rewrites the `///` of any measure that
+  resolves to a catalog KPI; non-catalog measures and warning lines are preserved,
+  and it is idempotent.
+- Action-outcome measures still use `/// Purpose:` and have tests asserting it.
+  Once a regeneration enriches them, relax those assertions to accept the rendered
+  block (the standard supersedes the literal `Purpose:` keyword).

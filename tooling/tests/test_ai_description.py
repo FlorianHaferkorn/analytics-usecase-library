@@ -124,3 +124,35 @@ def test_generator_falls_back_to_purpose_for_unknown_kpi():
     m = MeasureSpec(kpi_id="x.y.z", name="Alpha", dax="0", format_string="#,0", description="Tracks alpha")
     tmdl = _build_tmdl_measures([m])
     assert "/// Purpose: Tracks alpha" in tmdl
+
+
+_SAMPLE_TMDL = (
+    "table _Measures\n"
+    "\t/// stale hand-written comment\n"
+    "\tmeasure 'Gross Margin %' = DIVIDE ( [a], [b] )\n"
+    '\t\tformatString: "0.0%"\n'
+    "\t/// Purpose: A bespoke non-catalog helper\n"
+    "\tmeasure 'Some Bespoke Helper' = 1\n"
+    '\t\tformatString: "#,0"\n'
+)
+
+
+def test_enricher_projects_standard_and_preserves_non_catalog():
+    from generator.enrich_measure_docs import enrich_text
+
+    out = enrich_text(_SAMPLE_TMDL, _repo_root())
+    # the catalog KPI gets the rendered standard block; its stale doc is gone
+    assert "/// Formula:" in out
+    assert "/// stale hand-written comment" not in out
+    # the non-catalog measure keeps its existing doc untouched
+    assert "/// Purpose: A bespoke non-catalog helper" in out
+    # measure lines + formatString are preserved verbatim
+    assert "measure 'Gross Margin %' = DIVIDE ( [a], [b] )" in out
+    assert "measure 'Some Bespoke Helper' = 1" in out
+
+
+def test_enricher_is_idempotent():
+    from generator.enrich_measure_docs import enrich_text
+
+    once = enrich_text(_SAMPLE_TMDL, _repo_root())
+    assert enrich_text(once, _repo_root()) == once
