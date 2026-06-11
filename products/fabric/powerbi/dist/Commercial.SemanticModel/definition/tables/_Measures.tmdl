@@ -40,8 +40,10 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	/// sales.net_sales.amount - Net Sales Amount
-	/// Total invoiced revenue net of discounts and returns.
+	/// Sum of net sales after discounts and rebates.
+	/// Formula: SUM ( fact_sales[Net Sales Amount] )
+	/// Grain: invoice_line, reported monthly · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-S1.1, C-S1.2
 	measure 'Net Sales Amount' = SUM ( fact_sales[Net Sales Amount] )
 		formatString: "#,0"
 		displayFolder: "COM-001"
@@ -61,92 +63,119 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "COM-001"
 
-	/// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
-	/// Relative variance of Net Sales vs Plan.
+	/// Variance of net sales versus plan as a percentage.
+	/// Formula: ([Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] )) / (SUM ( fact_sales[Plan Sales Amount] ))
+	/// Grain: month · Unit: %
+	/// Owner: Commercial BI · Status: active · Actions: C-S1.2
 	measure 'Net Sales % vs Plan' = DIVIDE ( [Net Sales Amount] - [Plan Sales Amount], ABS ( [Plan Sales Amount] ) )
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
-	/// cost.cogs.amount - Cost of Goods Sold Amount
-	/// Total cost of goods sold for invoiced revenue; base for margin and PVM.
+	/// Total cost of goods sold aligned to invoiced revenue.
+	/// Formula: SUM ( fact_sales[Cost of Goods Sold Amount] )
+	/// Grain: invoice_line, reported monthly · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Cost of Goods Sold Amount' = SUM ( fact_sales[Cost of Goods Sold Amount] )
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.pvm.volume_effect.amount - Volume Effect Amount
-	/// Measures the variance caused purely by quantity changes at plan price.
+	/// PVM driver quantifying the net sales impact from volume change.
+	/// Formula: ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * (fact_sales[Plan Sales Amount]) / (PlanQty) )
+	/// Grain: invoice_line aggregated monthly · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Volume Effect Amount' = SUMX ( fact_sales, ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) )
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
-	/// Relative variance of Net Sales vs Last Year.
+	/// Alias for Net Sales % vs LY (TMDL display name).
+	/// Formula: ([Net Sales Amount] - SUM ( fact_sales[Last Year Sales Amount] )) / (SUM ( fact_sales[Last Year Sales Amount] ))
+	/// Owner: Commercial BI · Status: active
 	measure 'Delta% Net Sales' = DIVIDE ( [Net Sales Amount] - [Last Year Net Sales Amount], ABS ( [Last Year Net Sales Amount] ) )
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.pvm.price_effect.amount - Price Effect Amount
-	/// Quantifies the pure price impact in the PVM bridge.
+	/// PVM driver quantifying the net sales impact from price change.
+	/// Formula: ( (fact_sales[Net Sales Amount]) / (fact_sales[Quantity]) - (fact_sales[Plan Sales Amount]) / (fact_sales[Plan Quantity]) ) * fact_sales[Quantity] )
+	/// Grain: invoice_line aggregated monthly · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-S1.1
 	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Price Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
-	/// margin.gm.pct - Gross Margin %
-	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	/// Gross margin divided by net sales.
+	/// Formula: (Net Sales Amount - COGS Amount) / Net Sales Amount
+	/// Grain: month (aggregated from invoice_line) · Unit: % · Good: higher_is_better
+	/// Drivers: Net Sales Amount (positive), Cost of Goods Sold Amount (negative), Net Sales % vs Plan (positive)
+	/// Owner: Profitability Analytics · Status: active · Actions: C-M2.1, C-M2.2, C-S1.1
+	/// Example question: Why did Gross Margin % drop in Region North last quarter?
 	measure 'Gross Margin %' = DIVIDE ( [Gross Margin Amount], [Net Sales Amount] )
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.pvm.mix_effect.amount - Mix Effect Amount
-	/// Captures the residual effect from changes in product, channel, or region mix.
+	/// Residual PVM driver capturing mix impact after price and volume effects.
+	/// Formula: [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
+	/// Grain: month · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-M2.2
 	measure 'Mix Effect Amount' = [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.price.list.amount - List Price Amount
-	/// Total list price (before discounts) for price realization and discount analysis.
+	/// Sum of list price amount before discounts.
+	/// Formula: SUM ( fact_sales[List Price Amount] )
+	/// Grain: invoice_line, reported monthly · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'List Price Amount' = SUM ( fact_sales[List Price Amount] )
 		formatString: "#,0"
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.price.net.amount - Net Price Amount
-	/// Total net price (after discounts) for price realization and discount analysis.
+	/// Sum of net price amount after discounts.
+	/// Formula: SUM ( fact_sales[Net Price Amount] )
+	/// Grain: invoice_line, reported monthly · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Net Price Amount' = SUM ( fact_sales[Net Price Amount] )
 		formatString: "#,0"
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// cost.cogs_per_unit.amount - COGS per Unit
-	/// Shows unit cost level relative to sold volume.
+	/// Unit cost calculated as COGS divided by quantity sold.
+	/// Formula: ([Cost of Goods Sold Amount]) / (SUM ( fact_sales[Quantity] ))
+	/// Grain: invoice_line, reported monthly · Unit: EUR per unit
+	/// Owner: Commercial BI · Status: active
 	measure 'COGS per Unit' = DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
 		formatString: "#,0"
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.price.realization_pct - Price Realization %
-	/// Shows how much of list price is realized after discounts.
+	/// Discount discipline metric comparing net price to list price.
+	/// Formula: ([Net Price Amount]) / ([List Price Amount])
+	/// Grain: month or promo · Unit: %
+	/// Owner: Commercial BI · Status: active · Actions: C-M2.1
 	measure 'Price Realization %' = DIVIDE ( [Net Price Amount], [List Price Amount] )
 		formatString: "0.0%"
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// margin.gm.amount - Gross Margin Amount
-	/// Absolute gross margin in currency.
+	/// Gross margin amount for the selected period.
+	/// Formula: [Net Sales Amount] - [Cost of Goods Sold Amount]
+	/// Grain: month · Unit: EUR
+	/// Owner: Innovation Analytics · Status: active · Actions: C-M2.1, C-M2.2
 	measure 'Gross Margin Amount' = [Net Sales Amount] - [Cost of Goods Sold Amount]
 		formatString: "#,0"
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// margin.gm.vs_plan.pct - Gross Margin % vs Plan
-	/// Measures gross margin rate variance versus plan.
+	/// Relative variance of GM% versus plan.
+	/// Formula: (Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.
+	/// Grain: month · Unit: percentage-point
+	/// Owner: Profitability Analytics · Status: active
 	measure 'Gross Margin % vs Plan' =
 			VAR ActualGM =
 				[Gross Margin Amount]
@@ -158,15 +187,17 @@ table _Measures
 		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.churned_customers.count - Churned Customers
-	/// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+	/// Alias for Churned Customers Count (TMDL display name).
+	/// Formula: Distinct customers with no qualifying transactions in the current period but active in the look-back window.
+	/// Owner: CRM BI · Status: active
 	measure 'Churned Customers' = CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
 		formatString: "#,0"
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.retention.pct - Customer Retention %
-	/// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+	/// Retained customers as share of opening active base in the period.
+	/// Formula: (Active Customers at end of period) / (Active Customers at start of period).
+	/// Owner: CRM BI · Status: active · Actions: C-C3.1
 	measure 'Customer Retention %' =
 			VAR ActiveRetained =
 				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE (), fact_customer_events[Churn Flag] = FALSE () )
@@ -178,8 +209,10 @@ table _Measures
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.nps.index - Net Promoter Score (NPS)
 	/// Measures customer advocacy and likelihood to recommend.
+	/// Formula: VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 ) VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 ) VAR TotalResponses = COUNTROWS ( fact_nps ) RETURN ROUND ( DIVIDE ( Promoters - Detractors, TotalResponses ) * 100, 0 )
+	/// Grain: month · Unit: NPS index (-100 to +100)
+	/// Owner: Commercial BI · Status: active · Actions: C-C3.2
 	measure 'Net Promoter Score (NPS)' =
 			VAR Promoters =
 				CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
@@ -193,36 +226,42 @@ table _Measures
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.complaint.count - Complaint Count
-	/// Provide the absolute number of logged complaints.
+	/// Number of complaints in the selected context.
+	/// Formula: COUNTROWS ( fact_experience )
+	/// Owner: Operations Analytics · Status: active · Actions: C-C3.2
 	measure 'Complaint Count' = SUM ( fact_complaints[Complaint Count] )
 		formatString: "#,0"
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.active_customers.count - Active Customers
-	/// Number of unique active customers in the reporting period.
+	/// Alias for Active Customers Count (TMDL display name).
+	/// Formula: Distinct customers with at least one qualifying transaction in the period.
+	/// Owner: CRM BI · Status: active
 	measure 'Active Customers' = CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
 		formatString: "#,0"
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.lifetime_revenue.amount - Customer Lifetime Revenue Amount
-	/// Sum of realized revenue across the customer lifecycle.
+	/// Total realised revenue per customer across lifecycle; resets date context to accumulate.
+	/// Formula: Sum of net sales amount from first purchase to date for the customer.
+	/// Owner: CRM BI · Status: active
 	measure 'Customer Lifetime Revenue Amount' = SUMX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( SUM ( fact_sales[Net Sales Amount] ) ) )
 		formatString: "#,0"
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.clv.amount - CLV (Customer Lifetime Value)
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+	/// Formula: AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
+	/// Grain: customer · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-C3.1
 	measure 'CLV (Customer Lifetime Value)' = AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
 		formatString: "#,0"
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// crm.revenue_at_risk.amount - Revenue at Risk Amount
-	/// Quantify revenue exposure from customers flagged as churn-risk.
+	/// Exposure sizing from churn-risk customers based on CLV remaining and attrition risk.
+	/// Formula: CLV Remaining Amount * Attrition Risk %.
+	/// Owner: CRM BI · Status: active · Actions: C-C3.1
 	measure 'Revenue at Risk Amount' =
 			VAR ChurnedCount =
 				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
@@ -234,53 +273,67 @@ table _Measures
 		displayFolder: "COM-003"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.promo.baseline_sales.amount - Baseline Sales Amount
-	/// Baseline sales for incremental calculation.
+	/// Baseline sales amount for promotion uplift calculations.
+	/// Formula: SUM ( fact_promo[Baseline Sales Amount] )
+	/// Grain: promotion · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-P4.1
 	measure 'Baseline Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] )
 		formatString: "#,0"
 		displayFolder: "COM-004"
 
-	/// sales.promo.cost.amount - Promo Cost
-	/// Total promotion cost for ROI and spend analysis.
+	/// Total promotion cost captured in promo systems.
+	/// Formula: SUM ( fact_promo[Promo Cost] )
+	/// Grain: promotion · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-P4.1
 	measure 'Promo Cost' = SUM ( fact_promo[Promo Cost] )
 		formatString: "#,0"
 		displayFolder: "COM-004"
 
-	/// sales.promo.incremental.amount - Incremental Sales Amount
-	/// Additional sales due to promotion.
+	/// Incremental sales generated by promotion versus baseline sales.
+	/// Formula: [Net Sales Amount] - [Baseline Sales Amount]
+	/// Grain: promotion · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-P4.1
 	measure 'Incremental Sales Amount' = [Net Sales Amount] - [Baseline Sales Amount]
 		formatString: "#,0"
 		displayFolder: "COM-004"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.promo.cannibalized_sales.amount - Cannibalized Sales Amount
-	/// Sales lost on non-promoted items versus baseline (cannibalization in value).
+	/// Sales amount lost on non-promoted items versus baseline (cannibalization in value).
+	/// Formula: MAX ( 0, SUM ( fact_promo[Baseline Non-Promo Sales Amount] ) - SUM ( fact_sales[Net Sales Amount] ) WHERE fact_sales[Promo Flag] = FALSE )
+	/// Grain: promotion · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Cannibalized Sales Amount' = [Baseline Sales Amount] * 0.15
 		formatString: "#,0"
 		displayFolder: "COM-004"
 
-	/// sales.promo.incremental_gm.amount - Incremental Gross Margin Amount
-	/// Incremental gross margin from promotions for ROI numerator.
+	/// Gross margin attributable to incremental promo sales (used e.g. in Promo ROI %). Same logic as Promo Gross Margin Uplift Amount; alternate name for report/KPI alignment.
+	/// Formula: [Incremental Sales Amount] * 0.35
+	/// Grain: promotion · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-P4.1
 	measure 'Incremental Gross Margin Amount' = [Incremental Sales Amount] * DIVIDE ( [Gross Margin Amount], [Net Sales Amount] ) - [Promo Cost]
 		formatString: "#,0"
 		displayFolder: "COM-004"
 
-	/// sales.promo.roi.pct - Promo ROI %
-	/// Measures profitability of promotions relative to spend.
+	/// Alias for Promotion ROI % (TMDL display name).
+	/// Formula: (Incremental GM Amount - Promo Cost Amount) / Promo Cost Amount
+	/// Owner: Profitability Analytics · Status: active · Actions: C-P4.1
 	measure 'Promo ROI %' = DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
 		formatString: "0.0%"
 		displayFolder: "COM-004"
 		annotation ActionReady_TrustScore = "1"
 
-	/// margin.promo.gm.pct - GM % During Promo
-	/// Gross margin rate during promo periods.
+	/// Alias for Promo Gross Margin % (TMDL display name).
+	/// Formula: ([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount]) WHERE fact_sales[Promo Flag] = "Yes"
+	/// Owner: Commercial BI · Status: active · Actions: C-P4.1
 	measure 'GM % During Promo' = DIVIDE ( [Incremental Gross Margin Amount], [Incremental Sales Amount] )
 		formatString: "0.0%"
 		displayFolder: "COM-004"
 		annotation ActionReady_TrustScore = "1"
 
-	/// sales.promo.cannibalization.pct - Cannibalization %
-	/// Measures share of promo uplift offset by decline in non-promoted sales.
+	/// Share of promotional uplift offset by losses in non-promoted items.
+	/// Formula: ([Cannibalized Sales Amount]) / ([Incremental Sales Amount])
+	/// Grain: promotion · Unit: %
+	/// Owner: Commercial BI · Status: active
 	measure 'Cannibalization %' = DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
 		formatString: "0.0%"
 		displayFolder: "COM-004"
@@ -342,29 +395,37 @@ table _Measures
 		annotation ActionReady_ResponsibleRole = "commercial_controlling_lead"
 		annotation ActionReady_ActionCodeId = "C-C3.2"
 
-	/// enterprise.actions_executed.count - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
+	/// Formula: COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
+	/// Grain: month · Unit: count
+	/// Owner: Commercial BI · Status: active
 	measure 'Actions Executed Count' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 		lineageTag: 8a1dc24e-d854-4fb6-a63d-763d6560da2a
 
-	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
-	/// Percentage of executed actions with a confirmed achieved outcome.
+	/// Share of routed actions that achieved the intended outcome.
+	/// Formula: Successful Actions / Routed Actions.
+	/// Grain: action_instance · Unit: %
+	/// Owner: Executive Office · Status: active
 	measure 'Action Outcome Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
 		lineageTag: d94de4fe-7447-4eef-a048-4c9ecb1f2f12
 
-	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
+	/// Formula: AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
+	/// Grain: month · Unit: days
+	/// Owner: Commercial BI · Status: active
 	measure 'Avg Time-to-Outcome Days' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
 		displayFolder: "8_Action_Outcomes"
 		lineageTag: 9df5ed96-85c9-4c33-a63e-85d7e7b6cbc6
 
-	/// enterprise.action_roi.pct - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
+	/// Formula: DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
+	/// Grain: month · Unit: %
+	/// Owner: Commercial BI · Status: active
 	measure 'Action ROI %' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
 		displayFolder: "8_Action_Outcomes"
@@ -377,7 +438,10 @@ table _Measures
 		displayFolder: 0_Summary
 		lineageTag: 8204f978-f3e2-42aa-8331-705090a1d6ed
 
-	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
+	/// Average EUR impact per achieved action execution.
+	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+	/// Grain: month · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"

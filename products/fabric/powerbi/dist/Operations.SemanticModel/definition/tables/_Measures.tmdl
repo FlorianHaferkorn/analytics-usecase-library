@@ -55,7 +55,10 @@ table _Measures
 		formatString: @
 		displayFolder: 0_Summary
 		lineageTag: a993b6d5-bd3d-4d4b-b8f1-c6b3952844d2
-	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
+	/// Average EUR impact per achieved action execution.
+	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+	/// Grain: month · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
@@ -81,8 +84,10 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
-	/// Availability % - ops.availability.pct
-	/// Uptime share relative to planned production time.
+	/// Uptime control: Run Time / Planned Production Time.
+	/// Formula: SUM(fact_ops[Run Time Minutes]) / SUM(fact_ops[Planned Time Minutes])
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.1, O-A2.3, O-O1.1
 	measure 'Availability %' =
 			VAR RunTimeMinutes =
 				SUM ( fact_ops[Run Time Minutes] )
@@ -93,8 +98,10 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
-	/// Performance % - ops.performance.pct
-	/// Throughput speed versus theoretical maximum.
+	/// Speed vs standard: Actual Output / Theoretical Output.
+	/// Formula: Actual output / Theoretical maximum output
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-O1.2
 	measure 'Performance %' =
 			VAR ActualOutputUnits =
 				SUM ( fact_ops[Output Units] )
@@ -109,32 +116,43 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
-	/// Quality % - ops.quality.pct
-	/// Yield of conforming units relative to total units produced.
+	/// First pass yield: Good Units / Total Units.
+	/// Formula: Good units / Total units
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-O1.3
 	measure 'Quality %' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
 
-	/// Overall Equipment Effectiveness (OEE) % - display name alias for report binding
+	/// Display alias for OEE %. Composite measure combining availability, performance, and quality in manufacturing.
+	/// Formula: [OEE %]
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations BI · Status: active · Actions: O-O1.1, O-O1.3, O-O1.4
 	measure 'Overall Equipment Effectiveness (OEE) %' = [OEE %]
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
-	/// Throughput Units - ops.throughput.units
-	/// Measures total output volume in units.
+	/// Volume output over time.
+	/// Formula: Sum of produced units in the period.
+	/// Grain: line_day · Unit: qty
+	/// Owner: Operations Analytics · Status: active · Actions: O-O1.2, O-O1.4
 	measure 'Throughput Units' = SUM ( fact_ops[Output Units] )
 		formatString: "#,0"
 		displayFolder: "OPS-001"
 
-	/// Downtime % - ops.downtime.pct
-	/// Measures share of planned production time lost to downtime.
+	/// Loss share: Downtime / Planned Production Time.
+	/// Formula: Downtime Minutes / Planned Time Minutes.
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations Analytics · Status: active
 	measure 'Downtime %' = VAR Downtime = SUM ( fact_ops[Downtime Minutes] ) VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] ) RETURN DIVIDE ( Downtime, PlannedTime )
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
-	/// Planned Output Units - ops.planned_output.units
-	/// Captures planned production output volume.
+	/// Planned production output units.
+	/// Formula: Sum of planned output units for the period.
+	/// Grain: line_day · Unit: units
+	/// Owner: Operations Analytics · Status: active · Actions: O-O1.4, O-Q3.1, O-Q3.2, O-Q3.3
 	measure 'Planned Output Units' =
 			VAR PlannedOutputUnits =
 				SUMX ( fact_ops, fact_ops[Standard Rate Units Per Minute] * fact_ops[Planned Time Minutes] )
@@ -143,94 +161,121 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "OPS-001"
 
-	/// OPS-002
-	/// MTBF (hours) - ops.mtbf.hours
-	/// Measures average operating time between failures.
+	/// Mean time between failures.
+	/// Formula: Operating Time Hours / Number of Failures.
+	/// Grain: asset · Unit: hours
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.2, O-A2.4
 	measure 'MTBF (hours)' = VAR FailureCount = COUNTROWS ( fact_ops_failures ) VAR OperatingTime = SUMX ( fact_ops, DIVIDE ( fact_ops[Run Time Minutes], 60 ) ) RETURN DIVIDE ( OperatingTime, FailureCount )
 		formatString: "0"
 		displayFolder: "OPS-002"
 
-	/// MTTR (hours) - ops.mttr.hours
-	/// Measures average repair time after failures.
+	/// Mean time to repair.
+	/// Formula: Total Repair Time Hours / Number of Failures.
+	/// Grain: asset · Unit: hours
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.3, O-A2.5
 	measure 'MTTR (hours)' = VAR FailureCount = COUNTROWS ( fact_ops_failures ) VAR TotalRepairTime = SUM ( fact_ops_failures[Repair Duration Hours] ) RETURN DIVIDE ( TotalRepairTime, FailureCount )
 		formatString: "0"
 		displayFolder: "OPS-002"
 
-	/// Unplanned Downtime % - ops.downtime.unplanned.pct
-	/// Measures unplanned downtime share of planned time.
+	/// Unplanned downtime share of planned time.
+	/// Formula: Unplanned Downtime Minutes / Planned Time Minutes.
+	/// Grain: asset_day · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.1, O-A2.2
 	measure 'Unplanned Downtime %' = VAR UnplannedDowntime = SUMX ( fact_ops_failures, fact_ops_failures[Downtime Minutes] ) VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] ) RETURN DIVIDE ( UnplannedDowntime, PlannedTime )
 		formatString: "0.0%"
 		displayFolder: "OPS-002"
 
-	/// Spare Parts Stockout % - ops.spare_parts.stockout.pct
-	/// Measures stockout frequency for critical spare parts.
+	/// Maintenance readiness via stockout rate for parts.
+	/// Formula: Stockout Events / Total Parts Requests.
+	/// Grain: month · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.5
 	measure 'Spare Parts Stockout %' = VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE () ) VAR TotalRequests = COUNTROWS ( fact_maintenance ) RETURN DIVIDE ( StockoutCount, TotalRequests )
 		formatString: "0.0%"
 		displayFolder: "OPS-002"
 
-	/// PM Compliance % - ops.pm_compliance.pct
-	/// Tracks adherence to preventive maintenance plan.
+	/// Preventive maintenance discipline: on-time PM orders / planned PM orders.
+	/// Formula: Completed PM Orders / Planned PM Orders.
+	/// Grain: month · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.4
 	measure 'PM Compliance %' = VAR CompletedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", fact_maintenance[Order Status] = "Completed" ) VAR PlannedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM" ) RETURN DIVIDE ( CompletedPM, PlannedPM )
 		formatString: "0.0%"
 		displayFolder: "OPS-002"
 
-	/// Failure Count - ops.failure.count
-	/// Counts equipment or process failures in the period.
+	/// Count of failure events.
+	/// Formula: SUM(fact_ops_failures[Failure Start DateTime])
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.2, O-A2.3, O-A2.5
 	measure 'Failure Count' = COUNTROWS ( fact_ops_failures )
 		formatString: "#,0"
 		displayFolder: "OPS-002"
 
-	/// Inventory Value Amount - ops.inventory.value.amount
-	/// Tracks inventory value for maintenance-relevant items.
+	/// Total inventory value in the selected scope.
+	/// Formula: Sum of inventory value amount for the selected scope.
+	/// Grain: location_sku_day · Unit: EUR
+	/// Owner: Supply Chain Analytics · Status: active
 	measure 'Inventory Value Amount' = SUM ( fact_inventory[Average Inventory Amount] )
 		formatString: "#,0.00"
 		displayFolder: "OPS-002"
 
-	/// Preventive Maintenance Task Count - ops.pm.task.count
-	/// Counts preventive maintenance tasks executed or scheduled.
+	/// Count of preventive maintenance tasks.
+	/// Formula: Count of PM tasks in the period.
+	/// Grain: asset_day · Unit: count
+	/// Owner: Operations Analytics · Status: active · Actions: O-A2.4
 	measure 'Preventive Maintenance Task Count' = COUNTROWS ( fact_maintenance )
 		formatString: "#,0"
 		displayFolder: "OPS-002"
 
-	/// Safety Incident Count - ops.safety.incident.count
-	/// Counts safety incidents recorded in the period.
+	/// Count of safety incidents in the period.
+	/// Formula: Count of recorded safety incidents.
+	/// Grain: site_day · Unit: count
+	/// Owner: Operations Analytics · Status: active
 	measure 'Safety Incident Count' = VAR _pending = "Requires fact_safety_incidents table (not yet in data contract)" RETURN BLANK()
 		formatString: "#,0"
 		displayFolder: "OPS-002"
 
-	/// OPS-003
-	/// First Pass Yield % - quality.fpy.pct
-	/// Measures share of units produced without rework or scrap.
+	/// Good units / total units at first pass.
+	/// Formula: SUM(fact_quality[Good Units]) / SUM(fact_quality[Total Units])
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.1, O-Q3.2
 	measure 'First Pass Yield %' = VAR GoodUnits = SUM ( fact_quality[Good Units] ) VAR TotalUnits = SUM ( fact_quality[Total Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "OPS-003"
 
-	/// Scrap Rate % - quality.scrap.pct
-	/// Measures share of units scrapped in production.
+	/// Scrap units / total units.
+	/// Formula: Scrap Units / Total Units.
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.1, O-Q3.3, O-Q3.4
 	measure 'Scrap Rate %' = VAR ScrapUnits = SUM ( fact_quality[Scrap Units] ) VAR TotalUnits = SUM ( fact_quality[Total Units] ) RETURN DIVIDE ( ScrapUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "OPS-003"
 
-	/// Rework Rate % - quality.rework.pct
-	/// Measures share of units requiring rework.
+	/// Reworked units / total units.
+	/// Formula: Reworked Units / Total Units.
+	/// Grain: line_day · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.1, O-Q3.3
 	measure 'Rework Rate %' = VAR ReworkUnits = SUM ( fact_quality[Rework Units] ) VAR TotalUnits = SUM ( fact_quality[Total Units] ) RETURN DIVIDE ( ReworkUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "OPS-003"
 
-	/// Cost of Poor Quality - quality.copq.amount
-	/// Captures financial impact of scrap, rework, and warranty/complaints.
+	/// Financial impact from scrap, rework, and warranty/complaint costs.
+	/// Formula: Sum of cost impacts for quality failures in period.
+	/// Grain: month · Unit: EUR
+	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.4, O-Q3.5
 	measure 'Cost of Poor Quality' = SUM ( fact_quality_costs[COPQ Amount] )
 		formatString: "#,0.00"
 		displayFolder: "OPS-003"
 
-	/// Complaint Rate % - quality.complaint.pct
-	/// Measures customer complaints relative to shipped units.
+	/// Complaints / units shipped.
+	/// Formula: Complaint Count / Units Shipped.
+	/// Grain: month · Unit: %
+	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.5
 	measure 'Complaint Rate %' = VAR Complaints = SUM ( fact_complaints[Complaint Count] ) VAR ShippedUnits = SUM ( fact_shipments[Shipped Units] ) RETURN DIVIDE ( Complaints, ShippedUnits )
 		formatString: "0.0%"
 		displayFolder: "OPS-003"
 
-	/// Defect Density - quality.defect_density
-	/// Measures defect count per 1,000 units produced.
+	/// Defects per 1k units.
+	/// Formula: (Defect Count / Total Units) * 1,000.
+	/// Grain: line_day · Unit: defects per 1k units
+	/// Owner: Operations Analytics · Status: active · Actions: O-Q3.2
 	measure 'Defect Density' =
 			VAR DefectCount =
 				SUM ( fact_quality[Defect Count] )
