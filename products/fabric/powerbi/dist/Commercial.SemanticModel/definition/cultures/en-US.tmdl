@@ -1,0 +1,105 @@
+culture en-US
+	linguisticMetadata =
+			{
+				"Version": "1.0.0",
+				"Language": "en-US",
+				"Entities": {
+					"dim_org.region": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Region"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Region": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sales Region": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Geo": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.channel": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Channel"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Channel": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sales Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Route to Market": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"fact_sales.net_sales_amount": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "fact_sales",
+								"ConceptualProperty": "Net Sales Amount"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Net Sales Amount": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Revenue": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Net Revenue": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Umsatz": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					}
+				}
+			}

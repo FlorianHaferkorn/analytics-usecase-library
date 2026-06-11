@@ -351,7 +351,18 @@ def generate_domain(domain: str, gold_path: str, dry_run: bool = False):
         )
         write_file(role_dir / f"{role['role_name']}.tmdl", content, dry_run)
 
-    # 11. Summary
+    # 11. Linguistic schema (cultures/) — third projection of the governed catalog
+    #     (Epic A2): curated column synonyms → cultures/<culture>.tmdl for Copilot/Q&A.
+    #     Best-effort: a failure here must never break semantic-model generation.
+    if not dry_run:
+        try:
+            from products.fabric.powerbi.tooling.linguistic_schema import emit_for_domain
+            _, n_syn, _ = emit_for_domain(domain, DIST, DATA_CONTRACTS)
+            print(f"  ✅  Linguistic:    {n_syn} synonym entit{'y' if n_syn == 1 else 'ies'} (cultures/)")
+        except Exception as exc:
+            print(f"  ⚠️   Linguistic schema emit skipped: {exc}")
+
+    # 12. Summary
     print(f"  ✅  Tables:        {len(generated_tables)}")
     print(f"  ✅  Relationships: {len(rels)}")
     print(f"  ✅  Roles:         {len(blueprint.get('security_roles', []))}")

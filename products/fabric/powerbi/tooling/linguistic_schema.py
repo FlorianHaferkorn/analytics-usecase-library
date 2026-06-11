@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""
+linguistic_schema.py — Epic A2: linguistic-schema projection (Copilot/Q&A readiness)
+====================================================================================
+
+The *third* projection of the governed catalog. PR #283 projects the catalog into
+two AI surfaces — the TMDL ``///`` doc block and the viz tooltip (see
+``core/semantic_models/AI_Description_Standard.md``). Both are **description text**.
+Native Power BI Q&A and Copilot do not read description prose; they read the model's
+**linguistic schema** (``cultures`` / ``linguisticMetadata``). So curated synonyms
+that only reach ``///`` are invisible to in-product natural language.
+
+This module closes that gap: it projects the curated, governed ``synonyms`` on data
+contract columns into a TMDL ``culture`` object's ``linguisticMetadata`` (Power BI
+Q&A linguistic schema, LSDL v1.0.0), written to
+``<Domain>.SemanticModel/definition/cultures/<culture>.tmdl`` and referenced from
+``model.tmdl`` via ``ref culture <culture>``.
+
+Source of truth: data-contract column ``synonyms`` (one governed source, many
+projections — never hand-authored here, never LLM-generated at build time).
+
+Properties (Epic A2 acceptance):
+  * Deterministic + idempotent — same contract yields byte-identical output.
+  * TMDL-style clean — tab indentation only, no ``:=``, no ``description:`` property.
+
+TMDL culture serialization reference:
+  https://learn.microsoft.com/analysis-services/tmdl/tmdl-reference-tabular-object
+LSDL (linguistic schema) binding reference:
+  products/fabric/powerbi/docs/references/pbir-rename-cascade.md (Culture Files)
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Dict, List, Tuple
+
+from tooling.generator_core.ai_description import (
+    TableDescription,
+    build_table_descriptions,
+)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Constants & paths
+# ─────────────────────────────────────────────────────────────────────────────
+
+LSDL_VERSION = "1.0.0"
+DEFAULT_CULTURE = "en-US"
+
+_SCRIPT_DIR = Path(__file__).resolve().parent                 # products/fabric/powerbi/tooling/
+_PBIP_ROOT = _SCRIPT_DIR.parent                               # products/fabric/powerbi/
+_PROJECT_ROOT = _PBIP_ROOT.parent.parent.parent               # analytics-usecase-library/
+DIST = _PBIP_ROOT / "dist"
+DATA_CONTRACTS = _PROJECT_ROOT / "core" / "data_contracts" / "domains"
+
+# Domain → data contract filename — mirrors generate_semantic_model.DOMAIN_CONTRACT.
+DOMAIN_CONTRACT: Dict[str, str] = {
+    "Commercial": "commercial_sales.yaml",
+    "Finance": "finance.yaml",
+    "Operations": "operations.yaml",
+    "SupplyChain": "supply_chain.yaml",
+    "Experience": "experience.yaml",
+}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Linguistic schema (LSDL) builder — deterministic
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _slug(name: str) -> str:
+    """Stable lookup-key fragment from an object name (key is arbitrary; the
+    ``ConceptualEntity``/``ConceptualProperty`` carry the real binding)."""
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+
+
+def _entity(table: str, column: str, synonyms: List[str]) -> dict:
+    """One LSDL entity: bind a model column and list its terms.
+
+    The first term is the object's own name (Generated); each curated synonym is an
+    Authored noun sourced from the governed catalog.
+    """
+    terms: List[dict] = [{column: {"State": "Generated"}}]
+    for syn in synonyms:
+        terms.append({syn: {"Type": "Noun", "State": "Authored", "Source": "User"}})
+    return {
+        "Definition": {
+            "Binding": {"ConceptualEntity": table, "ConceptualProperty": column}
+        },
+        "State": "Generated",
+        "Terms": terms,
+    }
+
+
+def build_linguistic_schema(
+    tables: List[TableDescription], culture: str = DEFAULT_CULTURE
+) -> dict:
+    """Build the LSDL document from table/column descriptions.
+
+    Only columns that carry curated ``synonyms`` produce an entity. Tables are
+    iterated in name order and columns in contract order, so the output is a pure
+    function of the contract (deterministic, idempotent).
+    """
+    entities: Dict[str, dict] = {}
+    for table in sorted(tables, key=lambda t: t.name):
+        for col in table.columns:
+            if not col.synonyms:
+                continue
+            key = f"{table.name}.{_slug(col.name)}"
+            entities[key] = _entity(table.name, col.name, list(col.synonyms))
+    return {"Version": LSDL_VERSION, "Language": culture, "Entities": entities}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TMDL rendering — tab-indented, hook-clean
+# ─────────────────────────────────────────────────────────────────────────────
+
+def render_culture_tmdl(schema: dict, culture: str = DEFAULT_CULTURE) -> str:
+    """Render the ``cultures/<culture>.tmdl`` file content.
+
+    Layout (TMDL): the ``culture`` object declares ``linguisticMetadata`` as a
+    multi-line ``=`` expression. The JSON body is serialized with **tab**
+    indentation and prefixed to TMDL expression level (3 tabs), so every line
+    begins with tabs — never spaces — satisfying the TMDL-style hook.
+    """
+    body = json.dumps(schema, indent="\t", ensure_ascii=False)
+    indented = "\n".join((f"\t\t\t{line}" if line else line) for line in body.split("\n"))
+    return f"culture {culture}\n\tlinguisticMetadata =\n{indented}\n"
+
+
+def parse_culture_tmdl(text: str) -> dict:
+    """Inverse of :func:`render_culture_tmdl` — extract the LSDL JSON back out.
+
+    Used by the round-trip test (Epic A2 risk mitigation). Strips the ``culture``
+    header and the ``linguisticMetadata =`` property line, dedents the body and
+    parses it as JSON.
+    """
+    lines = text.split("\n")
+    try:
+        start = next(i for i, l in enumerate(lines) if l.lstrip().startswith("{"))
+    except StopIteration as exc:  # pragma: no cover - defensive
+        raise ValueError("no JSON body found in culture TMDL") from exc
+    body = "\n".join(l[3:] if l.startswith("\t\t\t") else l for l in lines[start:])
+    return json.loads(body)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# model.tmdl wiring
+# ─────────────────────────────────────────────────────────────────────────────
+
+def ensure_model_ref(model_tmdl_path: Path, culture: str = DEFAULT_CULTURE) -> bool:
+    """Ensure ``model.tmdl`` declares ``ref culture <culture>`` (idempotent).
+
+    Inserted directly after the last ``ref table`` line to keep ref groups ordered.
+    Returns ``True`` if the file was modified.
+    """
+    text = model_tmdl_path.read_text(encoding="utf-8")
+    ref_line = f"ref culture {culture}"
+    lines = text.splitlines()
+    if any(l.strip() == ref_line for l in lines):
+        return False
+    insert_at = len(lines)
+    for i, l in enumerate(lines):
+        if l.startswith("ref table "):
+            insert_at = i + 1
+    lines.insert(insert_at, ref_line)
+    new_text = "\n".join(lines)
+    if text.endswith("\n"):
+        new_text += "\n"
+    model_tmdl_path.write_text(new_text, encoding="utf-8")
+    return True
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Emitter
+# ─────────────────────────────────────────────────────────────────────────────
+
+def emit_for_domain(
+    domain: str,
+    dist_root: Path = DIST,
+    contracts_dir: Path = DATA_CONTRACTS,
+    culture: str = DEFAULT_CULTURE,
+) -> Tuple[Path, int, bool]:
+    """Write ``cultures/<culture>.tmdl`` for one domain and wire up ``model.tmdl``.
+
+    Returns ``(culture_file, entity_count, model_ref_added)``.
+    """
+    if domain not in DOMAIN_CONTRACT:
+        raise KeyError(f"unknown domain '{domain}'")
+    contract = Path(contracts_dir) / DOMAIN_CONTRACT[domain]
+    tables = build_table_descriptions(contract)
+    schema = build_linguistic_schema(tables, culture)
+    n_entities = len(schema["Entities"])
+
+    def_dir = Path(dist_root) / f"{domain}.SemanticModel" / "definition"
+    out = def_dir / "cultures" / f"{culture}.tmdl"
+
+    # Don't emit an empty linguistic schema: a culture with no curated synonyms adds
+    # nothing for Q&A/Copilot and only creates noise. Domains gain a culture file once
+    # their contracts carry synonyms (A2 ships Commercial; others follow as curated).
+    if n_entities == 0:
+        return out, 0, False
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render_culture_tmdl(schema, culture), encoding="utf-8")
+
+    model_ref_added = False
+    model_tmdl = def_dir / "model.tmdl"
+    if model_tmdl.exists():
+        model_ref_added = ensure_model_ref(model_tmdl, culture)
+
+    return out, n_entities, model_ref_added
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLI
+# ─────────────────────────────────────────────────────────────────────────────
+
+def main(argv: List[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Emit the TMDL linguistic schema (cultures/) from data contracts."
+    )
+    parser.add_argument("--domain", "-d", choices=list(DOMAIN_CONTRACT.keys()))
+    parser.add_argument("--all", "-a", action="store_true", help="Emit for all domains")
+    parser.add_argument("--culture", default=DEFAULT_CULTURE, help="Culture, e.g. en-US")
+    parser.add_argument("--dist-root", default=str(DIST))
+    parser.add_argument("--contracts-dir", default=str(DATA_CONTRACTS))
+    args = parser.parse_args(argv)
+
+    if not args.domain and not args.all:
+        parser.print_help()
+        return 1
+
+    domains = list(DOMAIN_CONTRACT.keys()) if args.all else [args.domain]
+    for domain in domains:
+        contract = Path(args.contracts_dir) / DOMAIN_CONTRACT[domain]
+        if not contract.exists():
+            print(f"  ⚠️  {domain}: contract not found ({contract}) — skipped")
+            continue
+        out, n, added = emit_for_domain(
+            domain, Path(args.dist_root), Path(args.contracts_dir), args.culture
+        )
+        if n == 0:
+            print(f"  ○   {domain}: no curated synonyms — culture skipped")
+            continue
+        ref_note = " (+ref culture)" if added else ""
+        print(f"  ✅  {domain}: {n} synonym entit{'y' if n == 1 else 'ies'} → {out}{ref_note}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -66,6 +66,46 @@ One line per populated facet, in priority order:
 <definition> (<unit>, <good_is> is better). Top drivers: <names>.
 ```
 
+### Linguistic schema — Copilot / Q&A (`cultures/<culture>.tmdl`)
+
+The first two projections are **description text**. Native Power BI Q&A and Copilot
+do not read description prose — they read the model's **linguistic schema**
+(`cultures` / `linguisticMetadata`). So a synonym that only reaches `///` is visible
+to an LLM *handed the raw TMDL* but invisible to *in-product* natural language.
+
+The third projection closes that gap. Curated column `synonyms` (governed source,
+below) are projected into a TMDL `culture` object's `linguisticMetadata` — the
+Power BI Q&A linguistic schema (LSDL v1.0.0) — by
+[`linguistic_schema.py`](../../products/fabric/powerbi/tooling/linguistic_schema.py)
+and referenced from `model.tmdl` via `ref culture <culture>`. It is deterministic
+and idempotent (same contract → byte-identical output) and never LLM-generated at
+build time.
+
+```tmdl
+culture en-US
+	linguisticMetadata =
+			{
+				"Version": "1.0.0",
+				"Language": "en-US",
+				"Entities": {
+					"<table>.<column-slug>": {
+						"Definition": { "Binding": {
+							"ConceptualEntity": "<table>", "ConceptualProperty": "<column>" } },
+						"State": "Generated",
+						"Terms": [
+							{ "<column>":  { "State": "Generated" } },
+							{ "<synonym>": { "Type": "Noun", "State": "Authored", "Source": "User" } }
+						]
+					}
+				}
+			}
+```
+
+The first term is the object's own name (`Generated`); each curated synonym is an
+`Authored` noun. Columns without `synonyms` produce no entity; a domain with no
+curated synonyms produces no culture file. Regenerate:
+`python3 -m products.fabric.powerbi.tooling.linguistic_schema --domain Commercial`.
+
 ---
 
 ## Aurora worked example — `margin.gm.pct` (COM-001)
@@ -137,6 +177,13 @@ data contracts (`core/data_contracts/domains/*.yaml`).
 `allowed_values` and `synonyms` are optional contract fields the renderer omits
 when absent. Enriching them for the **filter/slicer columns** (region, channel,
 category, status) yields the largest NL-querying accuracy gain.
+
+The curated column `synonyms` are *also* the source for the **linguistic schema**
+projection (above): each column with synonyms becomes a bound entity in
+`cultures/<culture>.tmdl`, so the same governed source reaches the `///` block, the
+viz tooltip **and** in-product Copilot/Q&A. For Aurora Commercial today:
+`dim_org.Region → {Sales Region, Geo}`, `dim_org.Channel → {Sales Channel, Route to
+Market}`, `fact_sales.Net Sales Amount → {Revenue, Net Revenue, Umsatz}`.
 
 ---
 
