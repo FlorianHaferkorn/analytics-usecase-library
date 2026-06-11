@@ -91,6 +91,8 @@ table _Measures
 	/// Formula: Cases with SLA Met Flag = 1 divided by total cases in period.
 	/// Grain: day_queue · Unit: %
 	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.2, X-S1.4
+	/// Synonyms: Service Level, SLA Compliance, Telephone Service Factor, Servicegrad, Servicelevel
+	/// Example question: Which queues are missing the SLA this week?
 	measure 'SLA Attainment %' =
 			VAR CasesWithinSla =
 				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[SLA Met Flag] = TRUE() )
@@ -123,6 +125,8 @@ table _Measures
 	/// Formula: Count of open cases at period end.
 	/// Grain: day_queue · Unit: count
 	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.2
+	/// Synonyms: Support Backlog, Open Ticket Backlog, Unresolved Tickets, Rückstand, offene Tickets
+	/// Example question: Which queues have the largest case backlog?
 	measure 'Backlog Count' =
 			VAR BacklogCases =
 				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Backlog Flag] = TRUE() )
@@ -135,6 +139,8 @@ table _Measures
 	/// Formula: %Promoters minus %Detractors from NPS survey.
 	/// Grain: month · Unit: index
 	/// Owner: Service Analytics · Status: active
+	/// Synonyms: Net Promoter Score, Service NPS, Weiterempfehlungsrate, NPS
+	/// Example question: Why did NPS dip for the Returns queue?
 	measure 'NPS Index' =
 			VAR Promoters =
 				CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
@@ -153,6 +159,8 @@ table _Measures
 	/// Formula: Escalated cases divided by total cases.
 	/// Grain: day_queue · Unit: %
 	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.3
+	/// Synonyms: Escalation Rate, Ticket Escalation Rate, Transfer Rate, Eskalationsquote, Eskalationsrate
+	/// Example question: Which issue types escalate most often?
 	measure 'Escalation %' =
 			VAR EscalatedCases =
 				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Escalation Flag] = TRUE() )
@@ -188,6 +196,8 @@ table _Measures
 	/// Formula: DIVIDE ( CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[FCR Flag] = TRUE() ), COUNTROWS ( fact_support_cases ) )
 	/// Grain: queue_day · Unit: %
 	/// Owner: Service BI · Status: active · Actions: X-S1.3
+	/// Synonyms: First Contact Resolution, First Call Resolution, One-Touch Resolution, Erstlösungsquote, Erstkontaktlösung
+	/// Example question: Where is first contact resolution lowest, and why?
 	measure 'First Contact Resolution %' = [FCR %]
 		formatString: "0.0%"
 		displayFolder: "XD-001"
@@ -196,6 +206,8 @@ table _Measures
 	/// Formula: DIVIDE ( SUM ( fact_support_cases[Handle Time Minutes] ), COUNTROWS ( fact_support_cases ) )
 	/// Grain: queue_day · Unit: minutes
 	/// Owner: Service BI · Status: active · Actions: X-S1.4
+	/// Synonyms: Average Handle Time, Average Handling Time, Handle Time, durchschnittliche Bearbeitungszeit
+	/// Example question: What is pushing average handle time up on chat?
 	measure 'Average Handling Time (minutes)' = [AHT Minutes]
 		formatString: "#,0"
 		displayFolder: "XD-001"

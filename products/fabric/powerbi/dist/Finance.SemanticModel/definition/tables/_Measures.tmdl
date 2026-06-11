@@ -73,6 +73,8 @@ table _Measures
 	/// Formula: [DSO Days] + [DIO Days] - [DPO Days]
 	/// Grain: month · Unit: days
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.1
+	/// Synonyms: Cash Conversion Cycle, Net Operating Cycle, Cash Cycle, Geldumschlagsdauer
+	/// Example question: What pushed the cash conversion cycle higher this month?
 	measure 'CCC Days' =
 			VAR DaysSalesOutstanding =
 				[DSO Days]
@@ -89,6 +91,8 @@ table _Measures
 	/// Formula: SUM(fact_cash_position[Cash Balance Amount]) at MAX(DateKey) in filter context
 	/// Grain: day · Unit: EUR
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.1, F-C1.2
+	/// Synonyms: Cash and Cash Equivalents, Cash Position, Liquide Mittel, Kassenbestand
+	/// Example question: How has our cash balance tracked versus plan this year?
 	measure 'Cash Balance' = SUM ( fact_cash_position[Cash Balance Amount] )
 		formatString: "#,0.00"
 		displayFolder: "FIN-001"
@@ -97,6 +101,8 @@ table _Measures
 	/// Formula: Net cash flows from operations for the period.
 	/// Grain: month · Unit: EUR
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.2, S-I1.2, F-C1.4
+	/// Synonyms: Operating Cash Flow, Cash Flow from Operations, OCF, Operativer Cashflow
+	/// Example question: Why did operating cash flow fall short of plan in Q2?
 	measure 'Operating Cash Flow' = SUM ( fact_cash_flow[Operating Cash Flow Amount] )
 		formatString: "#,0.00"
 		displayFolder: "FIN-001"
@@ -105,6 +111,8 @@ table _Measures
 	/// Formula: (Cash Balance - Cash Plan) / Cash Plan.
 	/// Grain: month · Unit: %
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.1
+	/// Synonyms: Cash Plan Variance %, Cash Budget Variance, Liquiditätsplanabweichung
+	/// Example question: How far is cash tracking from the liquidity plan this month?
 	measure 'Cash vs Plan %' =
 			VAR ActualCashBalance =
 				SUM ( fact_cash_position[Cash Balance Amount] )
@@ -121,6 +129,8 @@ table _Measures
 	/// Formula: SUM(fact_ar[AR Amount]) / (SUM(fact_ar[Revenue Amount]) / 365)
 	/// Grain: month · Unit: days
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.2
+	/// Synonyms: Days Sales Outstanding, Receivables Days, Average Collection Period, Debitorenlaufzeit, Forderungslaufzeit
+	/// Example question: Why did DSO increase in the Nordics region last quarter?
 	measure 'DSO Days' =
 			VAR AccountsReceivableAmount =
 				SUM ( fact_accounts_receivable[AR Amount] )
@@ -137,6 +147,8 @@ table _Measures
 	/// Formula: SUM(fact_inventory[Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
 	/// Grain: month · Unit: days
 	/// Owner: Finance Analytics · Status: active · Actions: S-I1.2
+	/// Synonyms: Days Inventory Outstanding, Days Sales of Inventory, Inventory Days, Lagerreichweite, Bestandsreichweite
+	/// Example question: Which product categories are driving up DIO this quarter?
 	measure 'DIO Days' =
 			VAR InventoryAmount =
 				SUM ( fact_inventory[Inventory Amount] )
@@ -153,6 +165,8 @@ table _Measures
 	/// Formula: SUM(fact_ap[AP Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
 	/// Grain: month · Unit: days
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.4
+	/// Synonyms: Days Payable Outstanding, Payables Days, Creditor Days, Kreditorenlaufzeit
+	/// Example question: Are we extending DPO with our largest suppliers this year?
 	measure 'DPO Days' =
 			VAR AccountsPayableAmount =
 				SUM ( fact_accounts_payable[AP Amount] )
@@ -183,6 +197,8 @@ table _Measures
 	/// Formula: Composite risk score derived from supplier risk factors.
 	/// Grain: supplier_month · Unit: score
 	/// Owner: Risk Analytics · Status: active
+	/// Synonyms: Supplier Risk Rating, Vendor Risk Index, Lieferantenrisiko-Score, Lieferantenrisikobewertung
+	/// Example question: Which suppliers carry the highest risk score?
 	measure 'Supplier Risk Score' = VAR _pending = "Requires fact_supplier_risk table (not yet in data contract)" RETURN BLANK()
 		formatString: "0"
 		displayFolder: "FIN-001"
@@ -198,6 +214,8 @@ table _Measures
 	/// Formula: SUM(fact_cost[COGS Amount]) / SUM(fact_output[Output Units])
 	/// Grain: plant_line_product_month · Unit: EUR per unit
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.1, F-K2.2, F-K2.3, F-K2.4
+	/// Synonyms: Cost per Unit, Average Cost per Unit, Stückkosten, Selbstkosten je Stück
+	/// Example question: How did unit cost change after the plant ramp-up?
 	measure 'Unit Cost Amount' = VAR TotalCost = SUM ( fact_cost[COGS Amount] ) VAR OutputUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( TotalCost, OutputUnits )
 		formatString: "#,0"
 		displayFolder: "FIN-002"
@@ -206,6 +224,8 @@ table _Measures
 	/// Formula: SUM(fact_finance[COGS Amount]) / SUM(fact_finance[Net Sales Amount])
 	/// Grain: month · Unit: %
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.1
+	/// Synonyms: COGS Ratio, Cost of Sales %, Umsatzkostenquote, Materialaufwandsquote
+	/// Example question: Why did COGS % of sales rise in Consumer Electronics?
 	measure 'COGS % of Sales' = VAR COGS = SUM ( fact_finance[COGS Amount] ) VAR NetSales = SUM ( fact_finance[Net Sales Amount] ) RETURN DIVIDE ( COGS, NetSales )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
@@ -214,6 +234,8 @@ table _Measures
 	/// Formula: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
 	/// Grain: month · Unit: %
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.4
+	/// Synonyms: OpEx Budget Variance %, Operating Expense Variance, Betriebskostenabweichung
+	/// Example question: Where is OpEx running over plan this quarter?
 	measure 'OpEx vs Plan %' =
 			VAR ActualOperatingExpense =
 				SUM ( fact_finance[OpEx Amount] )
@@ -230,6 +252,8 @@ table _Measures
 	/// Formula: Material Cost Amount / Net Sales Amount.
 	/// Grain: month · Unit: %
 	/// Owner: Finance Analytics · Status: active · Actions: F-K2.2
+	/// Synonyms: Material Cost Ratio, Material Intensity, Materialkostenquote, Materialintensität
+	/// Example question: Which products have the highest material cost ratio?
 	measure 'Material Cost %' = VAR MaterialCost = SUM ( fact_finance[Material Cost Amount] ) VAR NetSales = SUM ( fact_finance[Net Sales Amount] ) RETURN DIVIDE ( MaterialCost, NetSales )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
@@ -301,6 +325,8 @@ table _Measures
 	/// Formula: Good Units / Total Units Produced.
 	/// Grain: line_day · Unit: %
 	/// Owner: Operations Analytics · Status: active
+	/// Synonyms: Process Yield, Throughput Yield, Ausbeute, Gutausbeute, Ausbeutegrad
+	/// Example question: How has process yield trended since the line upgrade?
 	measure 'Yield %' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"

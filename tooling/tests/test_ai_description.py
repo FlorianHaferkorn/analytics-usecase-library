@@ -51,6 +51,15 @@ def test_render_omits_missing_facets():
     assert d.render_viz() == "A thing."
 
 
+def test_synonyms_render_when_present():
+    d = AIDescription(kpi_id="x.y", name="X", definition="A thing.",
+                      synonyms=["Alpha", "Beta", "Gamma"])
+    sl = d.render_semantic_layer()
+    assert "/// Synonyms: Alpha, Beta, Gamma" in sl
+    # omitted when absent (never guessed)
+    assert "Synonyms" not in AIDescription(kpi_id="x.y", name="X", definition="A thing.").render_semantic_layer()
+
+
 def test_example_question_renders_as_last_facet():
     d = AIDescription(
         kpi_id="x.y", name="X", definition="A thing.",
