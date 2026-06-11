@@ -4,8 +4,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: Gross Margin %
-  is_kpi_measure: true
-  kpi_id_ref: margin.gm.pct
+  is_kpi_measure: false
+  kpi_id_ref: ''
   semantic_model: Profitability_SemanticModel
   display_folder: 01_Margin
   category: KPI

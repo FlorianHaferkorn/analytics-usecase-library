@@ -4,8 +4,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: Net Sales Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -194,8 +194,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: v1.0
     last_review: 06.02.2026
 - measure_name: Gross Margin %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.gm.pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
