@@ -114,7 +114,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: OTIF = COUNTIF(fact_fulfillment[OTIF Flag] = TRUE) / COUNT(fact_fulfillment[Order Qty])
+    logical: OTIF = DIVIDE ( CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE ), COUNTROWS ( fact_fulfillment ) )
   documentation:
     description: On-Time In-Full orders share.
     notes: 'Grain: order. Unit: %.

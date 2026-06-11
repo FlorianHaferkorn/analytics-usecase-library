@@ -156,6 +156,8 @@ class AIDescription:
             gov.append(f"Actions: {', '.join(self.action_codes)}")
         if gov:
             lines.append("/// " + " · ".join(gov))
+        if self.synonyms:
+            lines.append(f"/// Synonyms: {', '.join(self.synonyms)}")
         if self.example_question:
             lines.append(f"/// Example question: {self.example_question}")
         return "\n".join(lines)

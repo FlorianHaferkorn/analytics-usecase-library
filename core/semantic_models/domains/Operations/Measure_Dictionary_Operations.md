@@ -293,7 +293,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 02_Throughput
   category: Base
   expression:
-    logical: Standard Output Units = SUM(fact_ops[Planned Time Minutes])
+    logical: Standard Output Units = SUMX ( fact_ops, fact_ops[Planned Time Minutes] * fact_ops[Standard Rate Units Per Minute] )
     aggregation_method: sum
   documentation:
     description: Theoretical output based on planned time and standard rate.

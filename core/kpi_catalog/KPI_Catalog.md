@@ -668,6 +668,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     completeness_score: 1.0
     last_review: 23.01.2026
 
+# Intentional dual-lens: quality.scrap.pct (strategic/Efficiency) and ops.scrap.pct
+# (supporting/Quality) reference the SAME governed measure "Scrap Rate %" — one measure
+# is emitted (Operations.SemanticModel); the two entries differ only in role/impact lens.
 - kpi_id: quality.scrap.pct
   synonyms: ["Scrap Ratio", "Reject Rate", "Waste Rate", "Ausschussquote", "Ausschussrate"]
   example_question: "What is driving the scrap rate up in Fashion?"

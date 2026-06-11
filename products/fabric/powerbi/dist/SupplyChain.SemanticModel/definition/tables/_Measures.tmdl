@@ -73,6 +73,8 @@ table _Measures
 	/// Formula: SUM(fact_inventory[Average Inventory Amount]) / (SUM(fact_cogs[COGS Amount]) / 365)
 	/// Grain: location_sku_month · Unit: days
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.1, S-I1.2, S-I1.4, S-I1.5
+	/// Synonyms: Days Inventory Outstanding, Days of Supply, Lagerreichweite, Bestandsreichweite
+	/// Example question: Where is days-of-supply highest across the network?
 	measure 'Days in Inventory' =
 			VAR AverageInventoryAmount =
 				SUM ( fact_inventory[Average Inventory Amount] )
@@ -89,6 +91,8 @@ table _Measures
 	/// Formula: COGS / Average Inventory.
 	/// Grain: location_sku_month · Unit: x
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.2
+	/// Synonyms: Inventory Turns, Stock Turnover, Lagerumschlag, Umschlagshäufigkeit
+	/// Example question: Which categories have the slowest inventory turnover?
 	measure 'Inventory Turnover' = DIVIDE ( SUM ( fact_cogs[COGS Amount] ), SUM ( fact_inventory[Average Inventory Amount] ) )
 		formatString: "#,0"
 		displayFolder: "SCM-001"
@@ -97,6 +101,8 @@ table _Measures
 	/// Formula: Stockout Events / Total Demand Events.
 	/// Grain: location_sku_day · Unit: %
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.1, S-I1.3, S-I1.5
+	/// Synonyms: Out-of-Stock Rate, OOS, Fehlmengenquote, Fehlbestandsquote
+	/// Example question: Which SKUs stock out most often?
 	measure 'Stockout Rate %' =
 			VAR StockoutEvents =
 				CALCULATE ( COUNTROWS ( fact_stockout ), fact_stockout[Stockout Flag] = TRUE() )
@@ -108,9 +114,11 @@ table _Measures
 		displayFolder: "SCM-001"
 
 	/// On-Time In-Full orders share.
-	/// Formula: COUNTIF(fact_fulfillment[OTIF Flag] = TRUE) / COUNT(fact_fulfillment[Order Qty])
+	/// Formula: DIVIDE ( CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE ), COUNTROWS ( fact_fulfillment ) )
 	/// Grain: order · Unit: %
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.3, S-I1.1, S-I1.3, S-R2.1, S-R2.2, S-R2.5
+	/// Synonyms: On Time In Full, Delivery Reliability, DIFOT, Liefertreue
+	/// Example question: Which lanes are missing the OTIF target this month?
 	measure 'OTIF %' =
 			VAR OTIFFulfillments =
 				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
@@ -125,6 +133,8 @@ table _Measures
 	/// Formula: Obsolete Inventory Value / Total Inventory Value.
 	/// Grain: location_sku_month · Unit: %
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.4
+	/// Synonyms: Dead Stock %, Obsolescence Rate, Obsoleszenzquote, Ladenhüter-Anteil
+	/// Example question: How much inventory value is obsolete by category?
 	measure 'Obsolete Inventory %' = DIVIDE ( SUM ( fact_inventory[Obsolete Inventory Amount] ), SUM ( fact_inventory[Average Inventory Amount] ) )
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
@@ -133,6 +143,8 @@ table _Measures
 	/// Formula: 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual Units])
 	/// Grain: sku_month · Unit: %
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.1, S-F3.2, S-F3.4, S-I1.5
+	/// Synonyms: Demand Forecast Accuracy, Forecast Attainment, Prognosegenauigkeit, Vorhersagegenauigkeit
+	/// Example question: Where is forecast accuracy weakest this cycle?
 	measure 'Forecast Accuracy %' =
 			VAR ForecastUnits =
 				SUM ( fact_forecast[Forecast Units] )
@@ -157,6 +169,8 @@ table _Measures
 	/// Formula: On-Time Deliveries / Total Deliveries.
 	/// Grain: shipment · Unit: %
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.2
+	/// Synonyms: On-Time Delivery, OTD, Termintreue, Liefertermintreue
+	/// Example question: What is driving late deliveries on the DACH lanes?
 	measure 'On-Time %' =
 			VAR OnTimeDeliveries =
 				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[On-Time Flag] = TRUE() )
@@ -171,6 +185,8 @@ table _Measures
 	/// Formula: In-Full Deliveries / Total Deliveries.
 	/// Grain: shipment · Unit: %
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.3
+	/// Synonyms: Fill Rate, Order Fill Rate, Mengentreue, Lieferbereitschaftsgrad
+	/// Example question: Which products fall short on in-full delivery?
 	measure 'In-Full %' =
 			VAR InFullDeliveries =
 				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
@@ -224,6 +240,8 @@ table _Measures
 	/// Alias for MAPE % (TMDL display name).
 	/// Formula: Mean(|Forecast - Actual| / Actual).
 	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.2
+	/// Synonyms: Mean Absolute Percentage Error, MAPE, WMAPE, mittlerer absoluter prozentualer Fehler
+	/// Example question: Which product families have the highest MAPE?
 	measure 'Forecast MAPE %' =
 			AVERAGEX (
 				VALUES ( fact_forecast[ProductKey] ),
