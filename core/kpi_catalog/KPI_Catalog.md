@@ -308,6 +308,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.performance.pct
+  synonyms: ["Performance Rate", "Speed Factor", "Leistungsgrad", "Leistung", "Leistungsfaktor"]
+  example_question: "Where are speed losses hurting performance this week?"
   kpi_key: Performance %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -346,6 +348,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.quality.pct
+  synonyms: ["Quality Rate", "Yield", "Qualitätsgrad", "Gutanteil", "Qualitätsfaktor"]
+  example_question: "Which lines are below the quality target this month?"
   kpi_key: Quality %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -421,6 +425,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.mtbf.hours
+  synonyms: ["Mean Time Between Failures", "Reliability Interval", "Mittlere Betriebsdauer zwischen Ausfällen", "mittlere Zeit zwischen Ausfällen"]
+  example_question: "Which assets have the worst MTBF this quarter?"
   kpi_key: MTBF (hours)
   kpi_type: diagnostic
   kpi_role: strategic
@@ -464,6 +470,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.mttr.hours
+  synonyms: ["Mean Time To Repair", "Mean Time To Restore", "Mittlere Reparaturdauer", "mittlere Wiederherstellungszeit"]
+  example_question: "Where is MTTR longest, and why?"
   kpi_key: MTTR (hours)
   kpi_type: diagnostic
   kpi_role: strategic
@@ -613,6 +621,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: quality.fpy.pct
+  synonyms: ["First Pass Yield", "First Time Yield", "Erstausbeute", "Gutausbeute im ersten Durchgang"]
+  example_question: "Which products have the lowest first pass yield?"
   kpi_key: First Pass Yield %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -657,6 +667,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: quality.scrap.pct
+  synonyms: ["Scrap Ratio", "Reject Rate", "Waste Rate", "Ausschussquote", "Ausschussrate"]
+  example_question: "What is driving the scrap rate up in Fashion?"
   kpi_key: Scrap Rate %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -1373,6 +1385,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.oee.pct
+  synonyms: ["Overall Equipment Effectiveness", "Equipment Effectiveness", "Gesamtanlageneffektivität", "GAE", "Anlageneffektivität"]
+  example_question: "Which production lines have the lowest OEE this month?"
   kpi_key: Overall Equipment Effectiveness (OEE) %
   kpi_type: diagnostic
   kpi_role: strategic
@@ -1696,6 +1710,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.yield.pct
+  synonyms: ["Process Yield", "Throughput Yield", "Ausbeute", "Gutausbeute", "Ausbeutegrad"]
+  example_question: "How has process yield trended since the line upgrade?"
   kpi_key: Yield %
   kpi_type: diagnostic
   kpi_role: supporting
@@ -1875,6 +1891,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.availability.pct
+  synonyms: ["Availability Rate", "Uptime", "Verfügbarkeit", "Anlagenverfügbarkeit", "Verfügbarkeitsgrad"]
+  example_question: "What is dragging availability down on Line B?"
   kpi_key: Availability %
   kpi_type: diagnostic
   kpi_role: supporting
@@ -2025,6 +2043,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: ops.downtime.unplanned.pct
+  synonyms: ["Unscheduled Downtime", "Breakdown Downtime", "Ungeplante Stillstandszeit", "ungeplanter Stillstand"]
+  example_question: "Which assets cause the most unplanned downtime?"
   kpi_key: Unplanned Downtime %
   kpi_type: diagnostic
   kpi_role: supporting

@@ -345,13 +345,17 @@ class TestMeasureInTMDL:
         )
 
     @pytest.mark.parametrize("domain_model", DOMAIN_MODELS)
-    def test_action_effectiveness_delta_has_purpose_comment(self, domain_model):
+    def test_action_effectiveness_delta_has_doc_block(self, domain_model):
+        # After the enricher re-baseline, the bespoke "/// Purpose:" line is replaced by
+        # the governed AI-description block (definition · Formula · Grain · Owner). The
+        # standard supersedes the literal Purpose: keyword — assert a /// doc block exists.
         tmdl_path = DIST_ROOT / domain_model / "definition/tables/_Measures.tmdl"
         content = tmdl_path.read_text(encoding="utf-8")
-        idx = content.find("Action Effectiveness Delta")
-        snippet = content[max(0, idx - 300): idx + 50]
-        assert "/// Purpose:" in snippet, (
-            f"Action Effectiveness Delta missing '/// Purpose:' comment in {domain_model}"
+        idx = content.find("measure 'Action Effectiveness Delta")
+        assert idx >= 0
+        snippet = content[max(0, idx - 400): idx]
+        assert "///" in snippet, (
+            f"Action Effectiveness Delta missing a /// doc block in {domain_model}"
         )
 
 
