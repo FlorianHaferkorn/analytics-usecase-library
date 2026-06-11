@@ -55,7 +55,10 @@ table _Measures
 		formatString: @
 		displayFolder: 0_Summary
 		lineageTag: 572855aa-5876-4357-93b3-d499c62f415f
-	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
+	/// Average EUR impact per achieved action execution.
+	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+	/// Grain: month · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
@@ -66,9 +69,10 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	/// SCM-001
-	/// Days in Inventory - inv.dio.days
-	/// Measures inventory holding period in days.
+	/// Working capital efficiency via inventory days.
+	/// Formula: SUM(fact_inventory[Average Inventory Amount]) / (SUM(fact_cogs[COGS Amount]) / 365)
+	/// Grain: location_sku_month · Unit: days
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.1, S-I1.2, S-I1.4, S-I1.5
 	measure 'Days in Inventory' =
 			VAR AverageInventoryAmount =
 				SUM ( fact_inventory[Average Inventory Amount] )
@@ -81,14 +85,18 @@ table _Measures
 		formatString: "0"
 		displayFolder: "SCM-001"
 
-	/// Inventory Turnover - inv.turnover
-	/// Measures how often inventory is sold and replaced.
+	/// Velocity of inventory: COGS / Avg Inventory.
+	/// Formula: COGS / Average Inventory.
+	/// Grain: location_sku_month · Unit: x
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.2
 	measure 'Inventory Turnover' = DIVIDE ( SUM ( fact_cogs[COGS Amount] ), SUM ( fact_inventory[Average Inventory Amount] ) )
 		formatString: "#,0"
 		displayFolder: "SCM-001"
 
-	/// Stockout Rate % - inv.stockout.pct
-	/// Measures how often inventory is unavailable when demanded.
+	/// Service risk from stockout occurrences.
+	/// Formula: Stockout Events / Total Demand Events.
+	/// Grain: location_sku_day · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.1, S-I1.3, S-I1.5
 	measure 'Stockout Rate %' =
 			VAR StockoutEvents =
 				CALCULATE ( COUNTROWS ( fact_stockout ), fact_stockout[Stockout Flag] = TRUE() )
@@ -99,8 +107,10 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
 
-	/// OTIF % - supply.otif.pct
-	/// Measures share of orders delivered on time and in full.
+	/// On-Time In-Full orders share.
+	/// Formula: COUNTIF(fact_fulfillment[OTIF Flag] = TRUE) / COUNT(fact_fulfillment[Order Qty])
+	/// Grain: order · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.3, S-I1.1, S-I1.3, S-R2.1, S-R2.2, S-R2.5
 	measure 'OTIF %' =
 			VAR OTIFFulfillments =
 				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
@@ -111,14 +121,18 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
 
-	/// Obsolete Inventory % - inv.obsolete.pct
-	/// Measures share of inventory considered obsolete.
+	/// Share of obsolete stock vs total stock.
+	/// Formula: Obsolete Inventory Value / Total Inventory Value.
+	/// Grain: location_sku_month · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-I1.4
 	measure 'Obsolete Inventory %' = DIVIDE ( SUM ( fact_inventory[Obsolete Inventory Amount] ), SUM ( fact_inventory[Average Inventory Amount] ) )
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
 
-	/// Forecast Accuracy % - plan.forecast.accuracy.pct
-	/// Measures how close forecasted demand is to actual demand.
+	/// Planning quality: 1 - |Forecast - Actual| / Actual.
+	/// Formula: 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual Units])
+	/// Grain: sku_month · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.1, S-F3.2, S-F3.4, S-I1.5
 	measure 'Forecast Accuracy %' =
 			VAR ForecastUnits =
 				SUM ( fact_forecast[Forecast Units] )
@@ -131,15 +145,18 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
 
-	/// Sales Units - sales.units
-	/// Measures sold units volume in the period.
+	/// Total units sold in the period.
+	/// Formula: Sum of sold units across transactions.
+	/// Grain: invoice_line · Unit: units
+	/// Owner: Growth Analytics · Status: active · Actions: O-Q3.5, S-F3.1, S-F3.2, S-I1.1, S-I1.2, S-I1.3, S-I1.5
 	measure 'Sales Units' = SUM ( fact_sales[Sales Units] )
 		formatString: "#,0"
 		displayFolder: "SCM-001"
 
-	/// SCM-002
-	/// On-Time % - supply.on_time.pct
-	/// Measures share of deliveries arriving on time.
+	/// On-time deliveries share.
+	/// Formula: On-Time Deliveries / Total Deliveries.
+	/// Grain: shipment · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.2
 	measure 'On-Time %' =
 			VAR OnTimeDeliveries =
 				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[On-Time Flag] = TRUE() )
@@ -150,8 +167,10 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
-	/// In-Full % - supply.in_full.pct
-	/// Measures share of deliveries with complete quantities.
+	/// In-full deliveries share.
+	/// Formula: In-Full Deliveries / Total Deliveries.
+	/// Grain: shipment · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.3
 	measure 'In-Full %' =
 			VAR InFullDeliveries =
 				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
@@ -162,39 +181,49 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
-	/// Stockout Impact % - supply.stockout_impact.pct
-	/// Measures lost demand share due to stockouts.
+	/// Lost demand share due to stockout.
+	/// Formula: Lost Demand Qty / Total Demand Qty.
+	/// Grain: location_sku_day · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.3
 	measure 'Stockout Impact %' = DIVIDE ( SUM ( fact_stockout[Lost Demand Units] ), SUM ( fact_stockout[Demand Units] ) )
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
-	/// Penalty Amount - supply.penalty.amount
-	/// Captures penalties for service level breaches.
+	/// Penalties incurred for service misses.
+	/// Formula: Sum of penalty charges incurred in the period.
+	/// Grain: order · Unit: EUR
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.4
 	measure 'Penalty Amount' = SUM ( fact_fulfillment[Penalty Amount] )
 		formatString: "#,0.00"
 		displayFolder: "SCM-002"
 
-	/// Expedite Cost Amount - supply.expedite.amount
-	/// Captures additional cost for expedited shipments.
+	/// Additional cost for expedited shipping.
+	/// Formula: Sum of expedite fees and premium freight charges.
+	/// Grain: shipment · Unit: EUR
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.4, S-R2.5
 	measure 'Expedite Cost Amount' = SUM ( fact_fulfillment[Expedite Cost] )
 		formatString: "#,0.00"
 		displayFolder: "SCM-002"
 
-	/// Order Lines Count - order.lines
-	/// Counts order lines processed in the period.
+	/// Count of order line items.
+	/// Formula: Count of order line items.
+	/// Grain: order_line · Unit: count
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.3, S-R2.3
 	measure 'Order Lines Count' = COUNTROWS ( fact_fulfillment )
 		formatString: "#,0"
 		displayFolder: "SCM-002"
 
-	/// Shipments Count - shipments.count
-	/// Counts shipments executed in the period.
+	/// Count of shipments executed.
+	/// Formula: Count of shipment records.
+	/// Grain: shipment · Unit: count
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-R2.1, S-R2.2, S-R2.4, S-R2.5
 	measure 'Shipments Count' = COUNTROWS ( fact_fulfillment )
 		formatString: "#,0"
 		displayFolder: "SCM-002"
 
-	/// SCM-003
-	/// Forecast MAPE % - plan.forecast.mape.pct
-	/// Measures mean absolute percentage error in forecast.
+	/// Alias for MAPE % (TMDL display name).
+	/// Formula: Mean(|Forecast - Actual| / Actual).
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.2
 	measure 'Forecast MAPE %' =
 			AVERAGEX (
 				VALUES ( fact_forecast[ProductKey] ),
@@ -208,8 +237,9 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-003"
 
-	/// Forecast Bias % - plan.forecast.bias.pct
-	/// Measures systematic over- or under-forecasting.
+	/// Alias for Bias % (TMDL display name). Forecast error direction (Forecast - Actual) / Actual.
+	/// Formula: (Forecast - Actual) / Actual.
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.1, S-F3.2
 	measure 'Forecast Bias %' =
 			VAR ForecastUnits =
 				SUM ( fact_forecast[Forecast Units] )
@@ -222,8 +252,10 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-003"
 
-	/// Service Impact % - plan.forecast.service_impact.pct
-	/// Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast un...
+	/// Portion of service misses attributable to forecast error.
+	/// Formula: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
+	/// Grain: sku_month · Unit: %
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.3
 	measure 'Service Impact %' =
 			VAR StockoutImpactRate =
 				[Stockout Impact %]
@@ -246,14 +278,18 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-003"
 
-	/// Re-Plan Count - plan.replan.count
-	/// Counts number of replanning cycles in a period.
+	/// Number of re-plans within period.
+	/// Formula: Total replan events logged in planning system.
+	/// Grain: month · Unit: count
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.1, S-F3.4
 	measure 'Re-Plan Count' = DISTINCTCOUNT ( fact_forecast[Forecast Version] )
 		formatString: "#,0"
 		displayFolder: "SCM-003"
 
-	/// Plans Count - plans.count
-	/// Counts planning cycles or plan versions in the period.
+	/// Count of plan records or plan versions.
+	/// Formula: Count of plan records or plan versions.
+	/// Grain: plan_version · Unit: count
+	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.4
 	measure 'Plans Count' = DISTINCTCOUNT ( fact_forecast[Forecast Version] )
 		formatString: "#,0"
 		displayFolder: "SCM-003"

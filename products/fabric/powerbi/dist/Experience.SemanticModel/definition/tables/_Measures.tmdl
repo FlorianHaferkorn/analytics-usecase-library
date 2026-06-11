@@ -73,7 +73,10 @@ table _Measures
 		formatString: @
 		displayFolder: 0_Summary
 		lineageTag: 0d48ddf2-cce0-42c3-bf0d-6e08d514271d
-	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
+	/// Average EUR impact per achieved action execution.
+	/// Formula: AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+	/// Grain: month · Unit: EUR
+	/// Owner: Commercial BI · Status: active
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
@@ -84,9 +87,10 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	/// XD-001
-	/// SLA Attainment % - svc.sla.attainment.pct
-	/// Measures how many cases meet the committed SLA.
+	/// Cases meeting SLA divided by total cases.
+	/// Formula: Cases with SLA Met Flag = 1 divided by total cases in period.
+	/// Grain: day_queue · Unit: %
+	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.2, X-S1.4
 	measure 'SLA Attainment %' =
 			VAR CasesWithinSla =
 				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[SLA Met Flag] = TRUE() )
@@ -115,8 +119,10 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// Backlog Count - svc.backlog.count
-	/// Quantifies unresolved work in queue.
+	/// Open cases not resolved.
+	/// Formula: Count of open cases at period end.
+	/// Grain: day_queue · Unit: count
+	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.2
 	measure 'Backlog Count' =
 			VAR BacklogCases =
 				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Backlog Flag] = TRUE() )
@@ -125,8 +131,10 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// NPS Index - crm.nps.index
-	/// Measures customer advocacy and experience quality.
+	/// NPS score from surveys: %Promoters - %Detractors.
+	/// Formula: %Promoters minus %Detractors from NPS survey.
+	/// Grain: month · Unit: index
+	/// Owner: Service Analytics · Status: active
 	measure 'NPS Index' =
 			VAR Promoters =
 				CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
@@ -141,8 +149,10 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// Escalation % - svc.escalation.pct
-	/// Measures frequency of escalated cases.
+	/// Escalated cases / total cases.
+	/// Formula: Escalated cases divided by total cases.
+	/// Grain: day_queue · Unit: %
+	/// Owner: Service Analytics · Status: active · Actions: X-S1.1, X-S1.3
 	measure 'Escalation %' =
 			VAR EscalatedCases =
 				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Escalation Flag] = TRUE() )
@@ -153,14 +163,18 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
-	/// Tickets Created Count - svc.tickets.created.count
-	/// Counts customer service tickets created in the period.
+	/// Count of newly created service tickets.
+	/// Formula: Count of newly created service tickets.
+	/// Grain: ticket_day · Unit: count
+	/// Owner: Service Analytics · Status: active · Actions: X-R2.1, X-R2.2, X-R2.3, X-R2.4, X-S1.1, X-S1.2
 	measure 'Tickets Created Count' = COUNTROWS ( fact_support_cases )
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// Tickets Closed Count - svc.tickets.closed.count
-	/// Counts customer service tickets closed in the period.
+	/// Count of closed service tickets.
+	/// Formula: Count of closed service tickets.
+	/// Grain: ticket_day · Unit: count
+	/// Owner: Service Analytics · Status: active · Actions: X-S1.3, X-S1.4
 	measure 'Tickets Closed Count' =
 			VAR ClosedTickets =
 				CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Open Case Flag] = FALSE() )
@@ -170,25 +184,34 @@ table _Measures
 		displayFolder: "XD-001"
 
 
-	/// First Contact Resolution % - display name alias for report binding (maps to FCR %)
+	/// Share of cases solved on first contact without escalation or rework.
+	/// Formula: DIVIDE ( CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[FCR Flag] = TRUE() ), COUNTROWS ( fact_support_cases ) )
+	/// Grain: queue_day · Unit: %
+	/// Owner: Service BI · Status: active · Actions: X-S1.3
 	measure 'First Contact Resolution %' = [FCR %]
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
-	/// Average Handling Time (minutes) - display name alias (maps to AHT Minutes)
+	/// Display alias for AHT Minutes; measures average time to handle a contact.
+	/// Formula: DIVIDE ( SUM ( fact_support_cases[Handle Time Minutes] ), COUNTROWS ( fact_support_cases ) )
+	/// Grain: queue_day · Unit: minutes
+	/// Owner: Service BI · Status: active · Actions: X-S1.4
 	measure 'Average Handling Time (minutes)' = [AHT Minutes]
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// XD-002
-	/// Utilization % - res.utilization.pct
-	/// Measures productive time versus paid time for agents.
+	/// Productive time vs paid time.
+	/// Formula: Productive time divided by paid time.
+	/// Grain: agent_day or queue_day · Unit: %
+	/// Owner: Service Analytics · Status: active · Actions: X-R2.1, X-R2.2, X-R2.3, X-R2.4
 	measure 'Utilization %' = DIVIDE ( SUM ( fact_workforce_management[Work Time Minutes] ), SUM ( fact_workforce_management[Paid Time Minutes] ) )
 		formatString: "0.0%"
 		displayFolder: "XD-002"
 
-	/// Occupancy % - res.occupancy.pct
-	/// Measures active vs idle share of time.
+	/// Active vs available time: (Talk + Wrap) / (Talk + Wrap + Idle).
+	/// Formula: (Talk + Wrap) / (Talk + Wrap + Idle).
+	/// Grain: agent_day or queue_day · Unit: %
+	/// Owner: Service Analytics · Status: active · Actions: X-R2.1, X-R2.2
 	measure 'Occupancy %' =
 			VAR TalkMinutes =
 				SUM ( fact_workforce_management[Talk Time Minutes] )
@@ -205,14 +228,18 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-002"
 
-	/// Overtime % - res.overtime.pct
-	/// Shows overtime share of total hours.
+	/// Overtime minutes / paid time minutes.
+	/// Formula: Overtime hours divided by total hours.
+	/// Grain: agent_day or region_week · Unit: %
+	/// Owner: Service Analytics · Status: active · Actions: X-R2.1, X-R2.4
 	measure 'Overtime %' = DIVIDE ( SUM ( fact_workforce_management[Overtime Minutes] ), SUM ( fact_workforce_management[Paid Time Minutes] ) )
 		formatString: "0.0%"
 		displayFolder: "XD-002"
 
-	/// Shrinkage % - res.shrinkage.pct
-	/// Measures non-productive share of paid time.
+	/// Shrinkage minutes / paid time minutes.
+	/// Formula: Non-productive time divided by paid time.
+	/// Grain: agent_day · Unit: %
+	/// Owner: Service Analytics · Status: active · Actions: X-R2.3
 	measure 'Shrinkage %' = DIVIDE ( SUM ( fact_workforce_management[Shrinkage Minutes] ), SUM ( fact_workforce_management[Paid Time Minutes] ) )
 		formatString: "0.0%"
 		displayFolder: "XD-002"
@@ -269,7 +296,10 @@ table _Measures
 		displayFolder: "XD-003"
 
 
-	/// CLV (Customer Lifetime Value) - display name alias for report binding (maps to CLV)
+	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+	/// Formula: AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
+	/// Grain: customer · Unit: EUR
+	/// Owner: Commercial BI · Status: active · Actions: C-C3.1
 	measure 'CLV (Customer Lifetime Value)' = [CLV]
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
@@ -340,8 +370,9 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
-	/// Cash Conversion Cycle (Days) - ops.working_capital.ccc.days
-	/// Combines receivables, inventory, and payables days to show cash efficiency.
+	/// Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.
+	/// Formula: DSO + DIO - DPO.
+	/// Owner: Finance BI · Status: active
 	measure 'Cash Conversion Cycle (Days)' =
 			VAR DaysSalesOutstanding =
 				[DSO Days (XD)]
@@ -354,20 +385,25 @@ table _Measures
 		formatString: "0"
 		displayFolder: "XD-003"
 
-	/// Digital Adoption Rate % - people.digital_adoption.pct
-	/// Measure how much of all eligible process transactions are executed via digital tools instead of m...
+	/// Alias for Digital Adoption % (TMDL display name).
+	/// Formula: Alias for Digital Adoption % (TMDL display name).
+	/// Owner: Innovation Analytics · Status: active
 	measure 'Digital Adoption Rate %' = VAR _pending = "Requires fact_it Digital Users and fact_hr Total Headcount (not yet in data contracts)" RETURN BLANK()
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Attrition Risk % - people.attrition_risk.pct
-	/// Probability of employee attrition
+	/// Average attrition risk for the selected population.
+	/// Formula: Probability of attrition for the selected population in the period.
+	/// Grain: month · Unit: %
+	/// Owner: Innovation Analytics · Status: active
 	measure 'Attrition Risk %' = VAR _pending = "Requires predictive attrition model output table (not yet in data contracts)" RETURN BLANK()
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Actions Routed Count - enterprise.action_routed.count
-	/// Counts action codes routed for execution.
+	/// Count of routed action instances.
+	/// Formula: Count of routed action instances in the period.
+	/// Grain: action_instance · Unit: count
+	/// Owner: Executive Office · Status: active · Actions: X-E3.3
 	measure 'Actions Routed Count' = COUNTROWS ( fact_action_log )
 		formatString: "#,0"
 		displayFolder: "XD-003"
@@ -384,8 +420,10 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Enterprise Value-at-Risk Index - enterprise.value_at_risk.index
-	/// Aggregates downside risk across domains into a single index.
+	/// Composite enterprise risk index based on domain signals.
+	/// Formula: Weighted index of normalized domain risk signals.
+	/// Grain: entity_month · Unit: index
+	/// Owner: Risk Analytics · Status: active · Actions: X-E3.2
 	measure 'Enterprise Value-at-Risk Index' =
 			VAR RevenueAtRiskShare =
 				DIVIDE ( [Revenue at Risk Amount (XD)], [Net Sales Amount (XD)] )
