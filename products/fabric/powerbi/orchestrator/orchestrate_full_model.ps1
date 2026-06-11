@@ -426,6 +426,36 @@ Invoke-WithRetry "Generate Measures (Aurora per domain)" {
     $state.measuresFile = if ($state.domainMeasurePaths.Count -gt 0) { $state.domainMeasurePaths[0] } else { $null }
 }
 
+# Project the AI-description standard onto the generated /// blocks (catalog -> semantic layer).
+# Non-fatal: measures already exist; enrichment only rewrites the /// docs. See
+# core/semantic_models/AI_Description_Standard.md.
+Invoke-WithRetry "Project AI-description standard onto measures" {
+    $enrichScript = Join-Path $script:RepoRoot "tooling\generator\enrich_measure_docs.py"
+    if (-not (Test-Path $enrichScript)) {
+        Write-Host "  enrich_measure_docs.py not found, skipping" -ForegroundColor Yellow
+        return
+    }
+    $pyExe = $null
+    foreach ($cmd in @("py -3", "python3", "python")) {
+        try {
+            $parts = $cmd -split " "
+            $ver = (& $parts[0] @($parts[1..99] | Where-Object { $_ }) "--version" 2>&1) -join " "
+            if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") { $pyExe = $cmd; break }
+        } catch { continue }
+    }
+    if (-not $pyExe) {
+        Write-Warning "Python 3 not found; skipping measure-doc enrichment."
+        return
+    }
+    $pyParts = $pyExe -split " "
+    foreach ($measuresPath in $state.domainMeasurePaths) {
+        & $pyParts[0] @($pyParts[1..99] | Where-Object { $_ }) $enrichScript --file $measuresPath
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  doc enrichment skipped for $measuresPath (non-fatal)" -ForegroundColor DarkYellow
+        }
+    }
+}
+
 Invoke-WithRetry "Validate TMDL Syntax" {
     if (-not (Test-Path ./products/fabric/powerbi/tooling/test_tmdl.ps1)) {
         Write-Host "  test_tmdl.ps1 not found, skipping" -ForegroundColor Yellow

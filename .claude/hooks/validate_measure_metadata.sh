@@ -5,7 +5,9 @@
 # Every committed measure must have:
 #   1. formatString  — prevents blank/wrong number formatting in visuals
 #   2. displayFolder — prevents all measures dumping into the root field well
-#   3. /// Purpose:  — intent documentation per TMDL conventions
+#   3. /// doc comment — any /// description line above the measure (the
+#      generator emits `/// <name> - <id>` + `/// <description>`, not a literal
+#      "Purpose:" keyword; this hook accepts any non-empty /// doc line)
 #
 # Exit codes:
 #   0 = pass or not applicable
@@ -48,7 +50,7 @@ lines = pathlib.Path(path).read_text(encoding="utf-8", errors="replace").splitli
 MEASURE_RE  = re.compile(r"^\t\s*measure\s+")
 FORMAT_RE   = re.compile(r"^\t\s+formatString\s*:")
 FOLDER_RE   = re.compile(r"^\t\s+displayFolder\s*:")
-PURPOSE_RE  = re.compile(r"^\t*///\s*Purpose:")
+PURPOSE_RE  = re.compile(r"^\t*///\s*\S")  # any /// doc comment above the measure
 # Block ends when we hit something at the same indentation level
 BLOCK_END_RE = re.compile(r"^\t(measure|column|partition|hierarchy|table|annotation)\b")
 
@@ -84,7 +86,7 @@ while i < len(lines):
         if not has_folder:
             missing.append("displayFolder")
         if not has_purpose:
-            missing.append("/// Purpose: comment")
+            missing.append("/// doc comment")
         if missing:
             issues.append(f"  Measure '{name}' (line {start+1}) is missing: {', '.join(missing)}")
         continue
@@ -106,7 +108,7 @@ lines = pathlib.Path(path).read_text(encoding="utf-8", errors="replace").splitli
 MEASURE_RE  = re.compile(r"^\t\s*measure\s+")
 FORMAT_RE   = re.compile(r"^\t\s+formatString\s*:")
 FOLDER_RE   = re.compile(r"^\t\s+displayFolder\s*:")
-PURPOSE_RE  = re.compile(r"^\t*///\s*Purpose:")
+PURPOSE_RE  = re.compile(r"^\t*///\s*\S")  # any /// doc comment above the measure
 BLOCK_END_RE = re.compile(r"^\t(measure|column|partition|hierarchy|table|annotation)\b")
 
 issues = []
@@ -138,7 +140,7 @@ while i < len(lines):
         if not has_folder:
             missing.append("displayFolder")
         if not has_purpose:
-            missing.append("/// Purpose: comment")
+            missing.append("/// doc comment")
         if missing:
             issues.append(f"  Measure '{name}' (line {start+1}) is missing: {', '.join(missing)}")
         continue
@@ -164,7 +166,7 @@ if echo "$PY_OUT" | grep -q "^MEASURE_ISSUES_FOUND"; then
     echo "Required on every measure:" >&2
     echo "  formatString: \"#,0.00\"   -- or \"0%\", \"@\" for text, etc." >&2
     echo "  displayFolder: \"1_Sales\"  -- prevents root-level measure clutter" >&2
-    echo "  /// Purpose: ...          -- above the measure declaration" >&2
+    echo "  /// <description>         -- any /// doc line above the measure" >&2
     echo "" >&2
     echo "Reference: core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md" >&2
     echo "" >&2

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "ActionPanel",
   "position": {
     "x": 1592,
@@ -23,11 +23,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Active Actions Text (COM)"
+                  "Property": "Active Actions Text"
                 }
               },
-              "queryRef": "_Measures.Active Actions Text (COM)",
-              "nativeQueryRef": "Active Actions Text (COM)"
+              "queryRef": "_Measures.Active Actions Text",
+              "nativeQueryRef": "Active Actions Text"
             }
           ]
         }

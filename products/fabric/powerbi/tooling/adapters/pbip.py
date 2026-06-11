@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import re
-import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -25,10 +24,8 @@ from products.fabric.powerbi.tooling.theme_registration import (
 )
 from tooling.generator_core.ir.specs import (
     AdapterTarget,
-    Binding,
     DashboardSpec,
     MeasureSpec,
-    PageRole,
     PageSpec,
     Position,
     VisualSpec,
@@ -124,7 +121,11 @@ def _build_query_state(vspec: VisualSpec) -> Dict[str, Any]:
 
     if b.filter_column and vspec.visual_type == VisualType.SLICER:
         table = b.filter_table or "dim_date"
-        qs["Values"] = {"projections": [_projection(_entity_ref(table, b.filter_column), f"{table}.{b.filter_column}", b.filter_column)]}
+        qs["Values"] = {
+            "projections": [
+                _projection(_entity_ref(table, b.filter_column), f"{table}.{b.filter_column}", b.filter_column)
+            ]
+        }
 
     if b.columns and vspec.visual_type in (VisualType.MATRIX, VisualType.TABLE):
         projections = []
@@ -321,6 +322,33 @@ def _speaking_report_name(use_case_id: str, title: str) -> str:
     return f"{use_case_id}_{safe_title}" if safe_title else use_case_id
 
 
+_REPO_ROOT = Path(__file__).resolve().parents[5]
+
+
+def _measure_doc_lines(measure: MeasureSpec, indent: str) -> List[str]:
+    """The rendered AI-description ``///`` block for a measure.
+
+    The description is a *projection* of the governed catalog (see
+    ``core/semantic_models/AI_Description_Standard.md``) -- definition, formula,
+    grain/unit/good_is, causal drivers and owner/status pulled from the KPI
+    catalog + measure dictionaries. Falls back to a single ``/// Purpose:`` line
+    when the KPI is not in the catalog (e.g. synthetic/ad-hoc measures).
+    """
+    kpi_id = getattr(measure, "kpi_id", "") or ""
+    if kpi_id:
+        try:
+            from tooling.generator_core.ai_description import build_description
+
+            desc = build_description(kpi_id, _REPO_ROOT)
+            if desc is not None:
+                rendered = desc.render_semantic_layer().strip()
+                if rendered:
+                    return [f"{indent}{line}" for line in rendered.splitlines()]
+        except Exception:
+            pass
+    return [f"{indent}/// Purpose: {measure.description or measure.name}"]
+
+
 def _build_tmdl_measures(measures: List[MeasureSpec]) -> str:
     t1, t2 = "\t", "\t\t"
     lines: List[str] = [
@@ -338,8 +366,7 @@ def _build_tmdl_measures(measures: List[MeasureSpec]) -> str:
     ]
     for m in measures:
         dax = " ".join(m.dax.split())
-        lines += [
-            f"{t1}/// Purpose: {m.description or m.name}",
+        lines += _measure_doc_lines(m, t1) + [
             f"{t1}measure '{m.name}' = {dax}",
             f'{t2}formatString: "{m.format_string}"',
         ]

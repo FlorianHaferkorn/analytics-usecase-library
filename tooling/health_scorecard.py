@@ -549,8 +549,53 @@ def _ensure_registry(repo_root: Path) -> Path:
     return registry_path
 
 
+def compute_h7(repo_root: Path) -> Dict[str, Any]:
+    """H7: Report Binding Integrity.
+
+    % of generated reports whose visual measure bindings all resolve to a
+    defined TMDL measure in dist/ (not core/). This is the gate that catches
+    semantic-model regressions the core-level metrics (H2) cannot see -- e.g.
+    the Commercial _Measures.tmdl regression that produced 96 missing-measure
+    criticals while H2 stayed green.
+    """
+    name = "Report Binding Integrity"
+    dist_root = repo_root / "products" / "fabric" / "powerbi" / "dist"
+    try:
+        from report_quality.cli import validate
+        from report_quality.pbir import iter_report_dirs
+    except Exception as exc:  # validator unavailable -> visible non-pass, never false-green
+        return {"metric": "H7", "name": name, "score": 0.0, "target": 100.0,
+                "details": {"error": f"validator unavailable: {exc}"}, "status": "below_target"}
+
+    reports = iter_report_dirs(dist_root) if dist_root.exists() else []
+    if not reports:
+        return {"metric": "H7", "name": name, "score": 100.0, "target": 100.0,
+                "details": {"total_reports": 0, "note": "no reports to validate"}, "status": "pass"}
+
+    criticals = [v for v in validate(dist_root) if v.severity == "critical"]
+    report_names = [p.name for p in reports]
+    affected = {rn for rn in report_names for v in criticals if rn in v.pointer}
+    clean = len(report_names) - len(affected)
+    by_class: Dict[str, int] = {}
+    for v in criticals:
+        by_class[v.check] = by_class.get(v.check, 0) + 1
+
+    return {
+        "metric": "H7", "name": name,
+        "score": round(100.0 * clean / len(report_names), 1), "target": 100.0,
+        "details": {
+            "total_reports": len(report_names),
+            "clean_reports": clean,
+            "affected_reports": sorted(affected),
+            "total_criticals": len(criticals),
+            "by_class": by_class,
+        },
+        "status": "pass" if not criticals else "below_target",
+    }
+
+
 def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
-    """Run all H1-H6 metrics and return results dict."""
+    """Run all H1-H7 metrics and return results dict."""
     if repo_root is None:
         repo_root = _repo_root()
 
@@ -564,6 +609,7 @@ def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
         compute_h4(repo_root),
         compute_h5(repo_root),
         compute_h6(repo_root),
+        compute_h7(repo_root),
     ]
 
     all_pass = all(m["status"] == "pass" for m in metrics)
@@ -627,6 +673,11 @@ def print_console(results: Dict[str, Any]) -> None:
             low = [f"{k}({v}/5)" for k, v in pts.items() if v < 4]
             if low:
                 print(f"         Below 4/5: {', '.join(low)}")
+        if "total_criticals" in details:
+            print(f"         {details['clean_reports']}/{details['total_reports']} reports with all bindings "
+                  f"resolved ({details['total_criticals']} criticals)")
+            if details.get("affected_reports"):
+                print(f"         Affected: {', '.join(details['affected_reports'])}")
         if "total_use_cases" in details:
             print(f"         {details['with_both']}/{details['total_use_cases']} use cases with prioritization + readiness")
             if details.get("missing"):

@@ -24,9 +24,9 @@ dimension:
       - {name: OrgKey, type: int, role: key}
       - {name: OrgCode, type: text}
       - {name: OrgName, type: text}
-      - {name: Region, type: text}
-      - {name: Country, type: text}
-      - {name: Channel, type: text}
+      - {name: Region, type: text, description: "Sales region grouping countries.", allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Geo]}
+      - {name: Country, type: text, description: "Country of the selling org unit."}
+      - {name: Channel, type: text, description: "Go-to-market sales channel.", allowed_values: [Retail, Online, Wholesale, Marketplace, Outlet], synonyms: [Sales Channel, Route to Market]}
 
   - name: dim_product
     description: "Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name)."
@@ -77,8 +77,8 @@ fact:
       - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
       - {name: PromoKey, type: int, ref: dim_promo, nullable: true, cardinality: many-to-one}
       - {name: Promo Flag, type: boolean, nullable: true}   # identifies promotional transactions
-      - {name: Net Sales Amount, type: currency, agg: sum}
-      - {name: Quantity, type: decimal, agg: sum}
+      - {name: Net Sales Amount, type: currency, agg: sum, description: "Invoiced revenue net of discounts and returns.", synonyms: [Revenue, Net Revenue, Umsatz]}
+      - {name: Quantity, type: decimal, agg: sum, description: "Units sold on the invoice line.", unit: units}
       - {name: Plan Quantity, type: decimal, agg: sum, nullable: true}
       - {name: List Price Amount, type: currency, agg: sum}
       - {name: Net Price Amount, type: currency, agg: sum}

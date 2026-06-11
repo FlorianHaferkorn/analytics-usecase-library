@@ -6,6 +6,10 @@ jsonschema>=4.17.0
 typer>=0.9.0
 rich>=13.7.0
 
+# Aurora KPI snapshot build (showcases/aurora_group/data/build_kpi_snapshot.py)
+# — aggregates gold parquet into studio/data/aurora_kpi_snapshot.json for Studio
+duckdb>=1.0.0
+
 # Golden Thread Discovery Studio & UX Layout Editor (optional — Streamlit apps)
 # streamlit>=1.28.0
 # python-dotenv>=1.0.0

@@ -443,7 +443,8 @@ class TestRunScorecard:
         self._ensure_registry(repo_root)
         results = run_scorecard(repo_root)
         assert "metrics" in results
-        assert len(results["metrics"]) == 6
+        assert len(results["metrics"]) == 7
+        assert {m["metric"] for m in results["metrics"]} >= {"H1", "H7"}
         for m in results["metrics"]:
             assert "score" in m
             assert "target" in m

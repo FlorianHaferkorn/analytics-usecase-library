@@ -24,7 +24,6 @@ Design notes
 
 from __future__ import annotations
 
-import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -352,6 +351,62 @@ class BracketCompiler:
         self.action_codes_root = Path(action_codes_root).resolve()
         self.target_adapter = target_adapter
         self.warnings: List[CompilerWarning] = []
+        # Lazy, cached resolvers parsed from the real markdown sources.
+        self._kpi_names: Optional[Dict[str, str]] = None
+        self._mdict_by_name: Optional[Dict[str, List[dict]]] = None
+
+    def _ensure_resolvers(self) -> None:
+        if self._kpi_names is not None:
+            return
+        from .catalog_readers import load_kpi_catalog_names, load_measure_dictionary
+
+        self._kpi_names = load_kpi_catalog_names(self.kpi_catalog_root / "KPI_Catalog.md")
+        domains_dir = self.kpi_catalog_root.parent / "semantic_models" / "domains"
+        self._mdict_by_name = load_measure_dictionary(domains_dir)
+
+    def _resolve_measure(
+        self, kpi_id: str, bracket: Dict, domain: str
+    ) -> Optional[Tuple[str, str, str]]:
+        """Resolve a kpi_id to ``(name, dax, display_folder)`` or ``None``.
+
+        Resolution chain (first hit wins):
+          1. per-KPI YAML file (legacy / unit-test fixtures)
+          2. catalog display name (``kpi_key``) + DAX from the measure dictionary,
+             preferring the entry in this use case's ``domain`` (so ``Gross Margin %``
+             resolves to the Commercial measure, not the ``(XD)`` variant)
+          3. catalog display name with a BLANK() placeholder + warning if no DAX
+
+        Resolving by display name (not ``kpi_id``) guarantees the measure name
+        matches what report visuals bind to -- the failure mode that produced the
+        96 missing-measure criticals.
+        """
+        kpi_file = _find_kpi_file(kpi_id, self.kpi_catalog_root)
+        if kpi_file:
+            kpi = _load_yaml(kpi_file)
+            return (
+                kpi.get("name", kpi_id),
+                kpi.get("dax_expression", "BLANK()"),
+                kpi.get("display_folder", bracket.get("id", "")),
+            )
+
+        self._ensure_resolvers()
+        assert self._kpi_names is not None and self._mdict_by_name is not None
+
+        display_name = self._kpi_names.get(kpi_id)
+        if not display_name:
+            return None
+
+        entries = self._mdict_by_name.get(display_name, [])
+        entry = next((e for e in entries if e["domain"] == domain), entries[0] if entries else None)
+        if entry:
+            return (display_name, entry["dax"], entry["display_folder"] or bracket.get("id", ""))
+
+        self.warnings.append(CompilerWarning(
+            "PLACEHOLDER_DAX",
+            f"KPI '{kpi_id}' resolved to measure '{display_name}' but no DAX found in any "
+            f"Measure_Dictionary; emitting BLANK() placeholder",
+        ))
+        return (display_name, "BLANK()", bracket.get("id", ""))
 
     # ------------------------------------------------------------------
     # Public API
@@ -373,7 +428,7 @@ class BracketCompiler:
         title = bracket.get("title", use_case_id)
         semantic_model = f"{domain}.SemanticModel"
 
-        measures = self._compile_measures(bracket)
+        measures = self._compile_measures(bracket, domain)
         kpi_map = _measure_name_map(measures)
         overview = self._compile_overview(bracket, kpi_map)
         detail, evidence_table, action_panel = self._compile_detail(bracket, use_case_id, kpi_map)
@@ -415,7 +470,7 @@ class BracketCompiler:
     # Measures
     # ------------------------------------------------------------------
 
-    def _compile_measures(self, bracket: Dict) -> List[MeasureSpec]:
+    def _compile_measures(self, bracket: Dict, domain: str) -> List[MeasureSpec]:
         specs: List[MeasureSpec] = []
         seen: set = set()
 
@@ -435,22 +490,18 @@ class BracketCompiler:
             if kpi_id in seen:
                 continue
             seen.add(kpi_id)
-            kpi_file = _find_kpi_file(kpi_id, self.kpi_catalog_root)
-            if not kpi_file:
+            resolved = self._resolve_measure(kpi_id, bracket, domain)
+            if resolved is None:
                 self.warnings.append(CompilerWarning(
-                    "MISSING_KPI", f"KPI '{kpi_id}' not found in catalog"
+                    "MISSING_KPI", f"KPI '{kpi_id}' not found in catalog or measure dictionary"
                 ))
                 continue
-            kpi = _load_yaml(kpi_file)
-            name = kpi.get("name", kpi_id)
-            dax = kpi.get("dax_expression", f"// TODO: DAX for {kpi_id}")
-            fmt = kpi.get("format_string", "#,0")
-            folder = kpi.get("display_folder", bracket.get("id", ""))
+            name, dax, folder = resolved
             specs.append(MeasureSpec(
                 kpi_id=kpi_id,
                 name=name,
                 dax=dax,
-                format_string=fmt,
+                format_string="#,0",
                 display_folder=folder,
             ))
         return specs
@@ -500,7 +551,10 @@ class BracketCompiler:
                 measure_refs = [
                     _resolve_measure_ref(k, kpi_map) for k in _component_measure_refs(comp)
                 ]
-                category = (comp.get("category_field") or comp.get("category", "dim_date.Date")) if isinstance(comp, dict) else "dim_date.Date"
+                category = (
+                    comp.get("category_field") or comp.get("category", "dim_date.Date")
+                    if isinstance(comp, dict) else "dim_date.Date"
+                )
                 if len(measure_refs) > 1:
                     binding = Binding(measures=measure_refs, category=category)
                 elif len(measure_refs) == 1:
@@ -570,7 +624,9 @@ class BracketCompiler:
         evidence_table: Optional[EvidenceTableSpec] = None
         # evidence_grain may be a top-level key or inside component_300s
         eg = bracket.get("evidence_grain") or (
-            {"grain": comp_300s.get("evidence_grain")} if isinstance(comp_300s, dict) and comp_300s.get("evidence_grain") else {}
+            {"grain": comp_300s.get("evidence_grain")}
+            if isinstance(comp_300s, dict) and comp_300s.get("evidence_grain")
+            else {}
         )
         _detail_measures = [
             _resolve_measure_ref(k, kpi_map) for k in _card_kpi_ids(bracket)

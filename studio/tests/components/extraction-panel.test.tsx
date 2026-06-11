@@ -94,11 +94,11 @@ describe('ExtractionPanel', () => {
   it('shows Draft-Branch button when elements exist', () => {
     const text = kpiResponse('KPI-001', 'Revenue');
     render(<ExtractionPanel lastResponse={text} sourceNames={[]} />);
-    expect(screen.getByText('Draft-Branch erstellen')).toBeTruthy();
+    expect(screen.getByText('Create draft branch')).toBeTruthy();
   });
 
   it('does not show Draft-Branch button when no elements', () => {
     render(<ExtractionPanel lastResponse="no structured data here" sourceNames={[]} />);
-    expect(screen.queryByText('Draft-Branch erstellen')).toBeNull();
+    expect(screen.queryByText('Create draft branch')).toBeNull();
   });
 });
