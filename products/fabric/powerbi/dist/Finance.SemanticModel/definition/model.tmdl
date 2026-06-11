@@ -20,3 +20,4 @@ ref table fact_cost
 ref table fact_output
 ref table fact_labor
 ref table security_user_org
+ref culture en-US

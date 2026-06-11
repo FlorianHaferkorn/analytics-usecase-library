@@ -21,9 +21,9 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: Entity, type: text}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
-      - {name: Country, type: text, nullable: true}
+      - {name: Entity, type: text, synonyms: [Legal Entity, Company Code, Gesellschaft, Buchungskreis]}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
+      - {name: Country, type: text, nullable: true, synonyms: [Country of Domicile, Land, Sitzland]}
 
   - name: dim_customer
     description: "Customer dimension for AR and revenue attribution."
@@ -33,7 +33,7 @@ dimension:
       - {name: CustomerKey, type: int, role: key}
       - {name: CustomerCode, type: text}
       - {name: CustomerName, type: text}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
 
   - name: dim_supplier
     description: "Supplier dimension for AP and procurement attribution."
@@ -43,7 +43,7 @@ dimension:
       - {name: SupplierKey, type: int, role: key}
       - {name: SupplierCode, type: text}
       - {name: SupplierName, type: text}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Sales Region, Territory, Vertriebsregion]}
 
   - name: dim_product
     description: "Product dimension for finance (inventory, COGS, cost)."
@@ -53,7 +53,7 @@ dimension:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
       - {name: ProductName, type: text}
-      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics]}
+      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
 
 fact:
   - name: fact_cash_position

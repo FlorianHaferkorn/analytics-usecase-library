@@ -427,17 +427,17 @@ class TestComputeH8:
     """H8 gates governed synonyms reaching the model linguistic schema."""
 
     def test_passes_on_real_commercial(self):
-        """The committed Commercial culture file covers every governed synonym."""
+        """Every governed synonym across the enriched domains is in the linguistic schema."""
         repo_root = Path(__file__).resolve().parents[2]
         result = compute_h8(repo_root)
         assert result["metric"] == "H8"
         assert result["status"] == "pass"
         assert result["score"] == 100.0
-        # Region(2) + Channel(2) + Net Sales Amount(3) = 7 governed synonyms on Commercial
-        assert result["details"]["governed_synonyms"] == 7
-        assert result["details"]["present"] == 7
+        # All governed synonyms present (count grows as domains are enriched, so don't hardcode).
+        assert result["details"]["present"] == result["details"]["governed_synonyms"]
+        assert result["details"]["governed_synonyms"] >= 7  # Commercial alone contributes 7
         assert "Commercial" in result["details"]["domains"]
-        # Epic C: hygiene folded into the gate, clean on the cleaned Commercial model
+        # Epic C: hygiene folded into the gate, clean across the enriched domains
         hyg = result["details"]["hygiene"]
         assert hyg["visible_keys"] == {} and hyg["weak_descriptions"] == {}
 
