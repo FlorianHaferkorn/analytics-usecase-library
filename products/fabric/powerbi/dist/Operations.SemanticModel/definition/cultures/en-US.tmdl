@@ -1,0 +1,325 @@
+culture en-US
+	linguisticMetadata =
+			{
+				"Version": "1.0.0",
+				"Language": "en-US",
+				"Entities": {
+					"dim_asset.assetclass": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_asset",
+								"ConceptualProperty": "AssetClass"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"AssetClass": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Equipment Class": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Asset Category": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Anlagenklasse": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Gerätetyp": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_asset.criticality": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_asset",
+								"ConceptualProperty": "Criticality"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Criticality": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Asset Criticality": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kritikalität": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kritikalitätsstufe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.plant": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Plant"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Plant": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Site": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Facility": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Werk": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Standort": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.line": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Line"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Line": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Production Line": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Work Center": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Fertigungslinie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Produktionslinie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.shift": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Shift"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Shift": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Work Shift": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Schicht": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Arbeitsschicht": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.region": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Region"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Region": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sales Region": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Territory": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Vertriebsregion": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_product.category": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "Category"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Category": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Product Group": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Warengruppe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Produktgruppe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_product.subcategory": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_product",
+								"ConceptualProperty": "Subcategory"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Subcategory": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sub Category": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Untergruppe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Unterkategorie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					}
+				}
+			}

@@ -275,7 +275,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     logical: Unplanned Downtime Minutes = SUM(fact_ops[Unplanned Downtime Minutes])
     aggregation_method: sum
   documentation:
-    description: Unplanned downtime minutes.
+    description: Minutes of production time lost to unscheduled breakdowns and equipment failures.
     notes: 'Source: fact_ops[Unplanned Downtime].'
   dependencies:
     columns:
@@ -813,7 +813,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     logical: Output Units = SUM(fact_ops[Output Units])
     aggregation_method: sum
   documentation:
-    description: Total output units.
+    description: Total good units produced in the period.
     notes: 'Source: fact_ops[Output Units].'
   dependencies:
     columns:
@@ -834,7 +834,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     logical: Defect Count = SUM(fact_quality[Defect Count])
     aggregation_method: count
   documentation:
-    description: Total defect count.
+    description: Number of defective units detected during quality inspection.
     notes: 'Source: fact_quality[Defect Count].'
   dependencies:
     columns:
@@ -882,7 +882,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     logical: Planned Output Units = Sum of planned output units for the period.
     aggregation_method: sum
   documentation:
-    description: Planned production output units.
+    description: Scheduled target output for the period at standard run rate.
     notes: 'Grain: line_day. Unit: units.
 
       Lineage: fact_ops[Planned Output Units].

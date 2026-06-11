@@ -12,3 +12,4 @@ ref table dim_product
 ref table fact_ops
 ref table fact_inventory_snapshot
 ref table security_user_org
+ref culture en-US
