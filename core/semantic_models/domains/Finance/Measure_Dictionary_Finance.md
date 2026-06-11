@@ -437,7 +437,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: Base
   expression:
     logical: Labor Hours = SUM(fact_labor[Labor Hours])
-    aggregation_method: ratio
+    aggregation_method: sum
   documentation:
     description: Labor hours for productivity calculations.
     notes: 'Source: fact_labor.'
@@ -597,8 +597,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 06_Profitability
   category: KPI
   expression:
-    logical: EBITDA Margin = SUM(fact_finance[EBITDA])
-    aggregation_method: sum
+    logical: EBITDA Margin = DIVIDE ( SUM ( fact_finance[EBITDA] ), SUM ( fact_finance[Net Sales] ) )
+    aggregation_method: ratio
   documentation:
     description: EBITDA / Net Sales.
     notes: 'Grain: month. Unit: %.
