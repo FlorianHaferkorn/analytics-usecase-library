@@ -9,6 +9,7 @@
 import type { ReportData } from './html-report-builder';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
 import type { KpiSnapshot, TrendPoint, WaterfallDriver, EvidenceRow } from '@/lib/dashboard/sample-data';
+import { getAuroraKpiValue, type AuroraKpiValue } from '@/lib/aurora/kpi-snapshot';
 
 /**
  * Build ReportData from bracket KPIs.
@@ -24,31 +25,41 @@ export function buildReportDataFromBracket(
   bracketKpiIds: string[],
   projectName: string,
 ): ReportData {
-  // Build KPI snapshots from catalog metadata
+  // Build KPI snapshots from catalog metadata, hydrated with real values from
+  // the Aurora gold snapshot when the KPI has been computed (falls back to the
+  // catalog-only stub for KPIs not yet wired into the snapshot).
   const kpis: KpiSnapshot[] = bracketKpiIds
     .map((id) => kpiMap.get(id))
     .filter((k): k is CatalogKpi => !!k)
-    .map((kpi) => ({
-      kpiId: kpi.kpi_id,
-      label: kpi.kpi_key ?? kpi.kpi_id,
-      value: 0,
-      previousValue: 0,
-      target: 0,
-      unit: inferUnit(kpi),
-      status: 'on-track' as const,
-    }));
+    .map((kpi) => {
+      const actual = getAuroraKpiValue(kpi.kpi_id);
+      return {
+        kpiId: kpi.kpi_id,
+        label: kpi.kpi_key ?? kpi.kpi_id,
+        value: actual?.value ?? 0,
+        previousValue: actual?.previousValue ?? 0,
+        target: actual?.target ?? 0,
+        unit: actual?.unit ?? inferUnit(kpi),
+        status: deriveStatus(actual),
+      };
+    });
 
-  // Build trend from strategic KPI (placeholder periods)
+  // Build trend from the strategic KPI's real monthly series when available.
   const strategicKpi = kpiMap.get(bracketKpiIds[0]);
-  const trend: TrendPoint[] = generatePlaceholderTrend(12);
+  const strategicActual = strategicKpi ? getAuroraKpiValue(strategicKpi.kpi_id) : undefined;
+  const trend: TrendPoint[] = strategicActual?.trend.length
+    ? strategicActual.trend.map((p) => ({ period: p.period, value: p.value }))
+    : generatePlaceholderTrend(12);
   const trendLabel = strategicKpi?.kpi_key ?? bracketId;
 
-  // Build waterfall from influencing KPIs
+  // Build waterfall from influencing KPIs — use the real month-over-month delta
+  // for KPIs present in the snapshot, otherwise leave the driver at zero.
   const waterfall: WaterfallDriver[] = bracketKpiIds.slice(1, 6).map((id) => {
     const kpi = kpiMap.get(id);
+    const actual = kpi ? getAuroraKpiValue(kpi.kpi_id) : undefined;
     return {
       driver: kpi?.kpi_key ?? id,
-      delta: 0,
+      delta: actual ? round2(actual.value - actual.previousValue) : 0,
     };
   });
 
@@ -64,6 +75,24 @@ export function buildReportDataFromBracket(
     waterfall,
     evidence,
   };
+}
+
+/**
+ * Derive a RAG status from actual vs. target. Treats target as a
+ * higher-is-better goal: on-track within 2% under target, at-risk within 10%,
+ * off-track beyond. Neutral (on-track) when no actual or no meaningful target
+ * (the snapshot sets target = value for KPIs without a plan reference).
+ */
+function deriveStatus(actual: AuroraKpiValue | undefined): KpiSnapshot['status'] {
+  if (!actual || !actual.target) return 'on-track';
+  const deviation = (actual.value - actual.target) / Math.abs(actual.target);
+  if (deviation >= -0.02) return 'on-track';
+  if (deviation >= -0.1) return 'at-risk';
+  return 'off-track';
+}
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
 }
 
 function inferUnit(kpi: CatalogKpi): string {
