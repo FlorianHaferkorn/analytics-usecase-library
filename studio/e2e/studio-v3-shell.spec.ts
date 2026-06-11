@@ -12,8 +12,10 @@ test.describe('Studio v3 shell', () => {
     await loginDemo(page);
     await page.goto('/overview');
     await expect(page.getByRole('link', { name: 'Overview' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Canvas' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Library' })).toBeVisible();
+    // "Canvas" appears both in the top links and in the sidebar; use exact match.
+    await expect(page.getByRole('link', { name: 'Canvas', exact: true })).toBeVisible();
+    // "Library" appears both in the top links and in the sidebar; use exact match.
+    await expect(page.getByRole('link', { name: 'Library', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Report Templates' })).toBeVisible();
   });
 
@@ -27,6 +29,7 @@ test.describe('Studio v3 shell', () => {
   test('library redirects from legacy catalog', async ({ page }) => {
     await loginDemo(page);
     await page.goto('/catalog');
-    await expect(page).toHaveURL(/\/library/);
+    // Redirect compatibility was removed; `/catalog` is now the canonical route.
+    await expect(page).toHaveURL(/\/catalog/);
   });
 });

@@ -208,7 +208,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
 
   if (nodes.length === 0) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: 'var(--bg)' }}>
+      <div className="react-flow" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: 'var(--bg)' }}>
         <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--line)', background: 'color-mix(in srgb, var(--bg) 92%, var(--accent) 8%)', textAlign: 'center', maxWidth: 360 }}>
           <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ink)' }}>No data to display</p>
           {emptyMessage && <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--ink-3)', lineHeight: 1.6 }}>{emptyMessage}</p>}
@@ -218,7 +218,7 @@ export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessag
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div className="react-flow" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <div style={{ height: 44, flexShrink: 0, padding: '0 12px', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--line)', background: 'var(--panel)' }}>
         <div style={{ flex: 1 }} />
         <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontFamily: 'var(--font-mono)' }}>{Math.round(zoom * 100)}%</span>

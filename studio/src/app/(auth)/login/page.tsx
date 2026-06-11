@@ -16,7 +16,9 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') ?? '/steering';
+  // Avoid redirecting unauthenticated users into the Steering hub (which can chain
+  // into additional redirects). Use Overview as the safe default.
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/overview';
 
   const handleDemoLogin = async () => {
     setIsLoading(true);

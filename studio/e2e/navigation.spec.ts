@@ -4,7 +4,7 @@ test.describe('Navigation', () => {
   test('landing page shows stats and module links', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('ActionReady Studio')).toBeVisible();
-    await expect(page.getByText('KPIs')).toBeVisible();
+    await expect(page.getByText('KPIs', { exact: true })).toBeVisible();
   });
 
   test('sidebar renders all module links', async ({ page }) => {

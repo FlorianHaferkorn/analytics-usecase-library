@@ -12,9 +12,9 @@ test.describe('Delivery Engine', () => {
     await page.waitForTimeout(1000);
 
     // Check for adapter buttons
-    await expect(page.getByText('Microsoft Fabric / Power BI')).toBeVisible();
-    await expect(page.getByText('Open Source Stack')).toBeVisible();
-    await expect(page.getByText('CI/CD Pipeline')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Microsoft Fabric / Power BI' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Open Source Stack' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'CI/CD Pipeline' })).toBeVisible();
 
     // Check for export button
     await expect(page.getByText(/Export to/)).toBeVisible();

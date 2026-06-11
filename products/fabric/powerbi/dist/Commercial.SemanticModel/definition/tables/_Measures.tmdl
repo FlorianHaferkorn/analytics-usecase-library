@@ -1,99 +1,151 @@
 /// Consolidated Measures for: COM-001, COM-002, COM-003, COM-004
 table _Measures
-	lineageTag: b1c2fb2b-ce7b-414c-8c62-306e56a68937
 
-	/// Gross Margin % - margin.gm.pct
-	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-	measure 'Gross Margin %' = DIVIDE ( [Gross Margin Amount], [Net Sales Amount] )
-		formatString: 0.0%
-		displayFolder: COM-001
-		lineageTag: 10b2b718-b1a3-4e8f-8d9a-f95b9c5961c3
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
 
-	/// Cost of Goods Sold Amount - cost.cogs.amount
-	/// Total cost of goods sold for invoiced revenue; base for margin and PVM.
-	measure 'Cost of Goods Sold Amount' = SUM ( fact_sales[Cost of Goods Sold Amount] )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: 1e99b2a8-324b-402e-bc36-7cb17a72ccd2
+	/// Purpose: Dynamic KPI summary string for the Detail page narrative header.
+	measure 'Narrative Text' = VAR _s = [Net Sales Amount] VAR _g = [Gross Margin %] VAR _p = [Net Sales % vs Plan] VAR _pr = [Price Realization %] VAR _r = [Customer Retention %] VAR _d = SWITCH ( TRUE (), ABS ( [Price Effect Amount] ) >= ABS ( [Volume Effect Amount] ) && ABS ( [Price Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Price: " & FORMAT ( [Price Effect Amount], "+€#,0;-€#,0" ), ABS ( [Volume Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Volume: " & FORMAT ( [Volume Effect Amount], "+€#,0;-€#,0" ), "Mix: " & FORMAT ( [Mix Effect Amount], "+€#,0;-€#,0" ) ) RETURN "Sales: " & FORMAT ( _s, "€#,0" ) & "  |  vs Plan: " & FORMAT ( _p, "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "GM: " & FORMAT ( _g, "0.0%" ) & "  |  Price Realiz.: " & FORMAT ( _pr, "0.0%" ) & "  |  Retention: " & FORMAT ( _r, "0.0%" ) & UNICHAR ( 10 ) & "Top driver: " & _d
+		formatString: @
+		isHidden
+		displayFolder: 0_Summary
+		lineageTag: 3ad8de7c-7774-4630-8bfa-dbdd04372fd0
 
-	/// Net Sales Amount - sales.net_sales.amount
+	/// Purpose: Concatenates all currently triggered action recommendations.
+	measure 'Active Actions Text' = VAR _rows = FILTER ( { [Action_C-C3.1_Text], [Action_C-C3.2_Text], [Action_C-M2.1_Text], [Action_C-M2.2_Text], [Action_C-P4.1_Text], [Action_C-S1.1_Text], [Action_C-S1.2_Text] }, NOT ISBLANK ( [Value] ) ) VAR _result = CONCATENATEX ( _rows, [Value], UNICHAR ( 10 ) & UNICHAR ( 10 ) ) RETURN IF ( ISBLANK ( _result ), "✅ All KPIs within tolerance — no actions triggered.", _result )
+		formatString: @
+		isHidden
+		displayFolder: 0_Summary
+		lineageTag: e8f01d6f-95ec-4b18-a1b4-4ce5b77884fc
+
+	/// Purpose: Domain-suffixed alias for COM visuals.
+	measure 'Active Actions Text (COM)' = [Active Actions Text]
+		formatString: @
+		isHidden
+		displayFolder: 0_Summary
+
+	/// Purpose: Freshness timestamp for AI narrative — binds Last_Refresh visuals.
+	measure 'Last Refresh (COM)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL('dim_date'), 'dim_date'[Date]), "DD MMM YYYY")
+		formatString: @
+		displayFolder: 0_Summary
+
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
+
+	/// sales.net_sales.amount - Net Sales Amount
 	/// Total invoiced revenue net of discounts and returns.
 	measure 'Net Sales Amount' = SUM ( fact_sales[Net Sales Amount] )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: b3b3dc9a-b1c6-4e73-a22a-0d10f0e34c74
+		formatString: "#,0"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Net Sales % vs Plan - sales.net_sales.delta_pct.plan
+	/// fact_sales[Plan Sales Amount] - Plan Sales Amount
+	/// Planned net sales used as comparison baseline in COM-001 visuals.
+	measure 'Plan Sales Amount' =
+			SUM ( fact_sales[Plan Sales Amount] )
+		formatString: "#,0"
+		displayFolder: "COM-001"
+
+	/// fact_sales[Last Year Sales Amount] - Last Year Net Sales Amount
+	/// Prior-year net sales used as comparison baseline in COM-001 visuals.
+	measure 'Last Year Net Sales Amount' =
+			SUM ( fact_sales[Last Year Sales Amount] )
+		formatString: "#,0"
+		displayFolder: "COM-001"
+
+	/// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
 	/// Relative variance of Net Sales vs Plan.
 	measure 'Net Sales % vs Plan' = DIVIDE ( [Net Sales Amount] - [Plan Sales Amount], ABS ( [Plan Sales Amount] ) )
-		formatString: 0.0%
-		displayFolder: COM-001
-		lineageTag: b2f7a0cd-ec9f-4019-9545-8d8e600a94a6
+		formatString: "0.0%"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Delta% Net Sales - sales.net_sales.delta_pct.ly
-	/// Relative variance of Net Sales vs Last Year.
-	measure 'Delta% Net Sales' = DIVIDE ( [Net Sales Amount] - [Last Year Net Sales Amount], ABS ( [Last Year Net Sales Amount] ) )
-		formatString: 0.0%
-		displayFolder: COM-001
-		lineageTag: c2d3b6fc-63b3-4a35-8e35-8a1813849c9b
+	/// cost.cogs.amount - Cost of Goods Sold Amount
+	/// Total cost of goods sold for invoiced revenue; base for margin and PVM.
+	measure 'Cost of Goods Sold Amount' = SUM ( fact_sales[Cost of Goods Sold Amount] )
+		formatString: "#,0"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Price Effect Amount - sales.pvm.price_effect.amount
-	/// Quantifies the pure price impact in the PVM bridge.
-	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Price Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: 41545bc4-a6ac-4a31-9358-56df9fdb2aac
-
-	/// Volume Effect Amount - sales.pvm.volume_effect.amount
+	/// sales.pvm.volume_effect.amount - Volume Effect Amount
 	/// Measures the variance caused purely by quantity changes at plan price.
 	measure 'Volume Effect Amount' = SUMX ( fact_sales, ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: 580b2dec-362e-4e44-9bd1-deac41df833c
+		formatString: "#,0"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Mix Effect Amount - sales.pvm.mix_effect.amount
+	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
+	/// Relative variance of Net Sales vs Last Year.
+	measure 'Delta% Net Sales' = DIVIDE ( [Net Sales Amount] - [Last Year Net Sales Amount], ABS ( [Last Year Net Sales Amount] ) )
+		formatString: "0.0%"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
+
+	/// sales.pvm.price_effect.amount - Price Effect Amount
+	/// Quantifies the pure price impact in the PVM bridge.
+	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Price Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
+		formatString: "#,0"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
+
+	/// margin.gm.pct - Gross Margin %
+	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	measure 'Gross Margin %' = DIVIDE ( [Gross Margin Amount], [Net Sales Amount] )
+		formatString: "0.0%"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
+
+	/// sales.pvm.mix_effect.amount - Mix Effect Amount
 	/// Captures the residual effect from changes in product, channel, or region mix.
 	measure 'Mix Effect Amount' = [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: ab2d5d57-cae3-4582-abea-92ff9d3b271a
+		formatString: "#,0"
+		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Gross Margin Amount - margin.gm.amount
-	/// Absolute gross margin in currency.
-	measure 'Gross Margin Amount' = [Net Sales Amount] - [Cost of Goods Sold Amount]
-		formatString: #,0.00
-		displayFolder: COM-002
-		lineageTag: 03f08d7f-23da-4831-9935-ae83e07e3c8e
-
-	/// List Price Amount - sales.price.list.amount
+	/// sales.price.list.amount - List Price Amount
 	/// Total list price (before discounts) for price realization and discount analysis.
 	measure 'List Price Amount' = SUM ( fact_sales[List Price Amount] )
-		formatString: #,0.00
-		displayFolder: COM-002
-		lineageTag: d17712ff-6b3c-4b55-9b34-22e9f97ff5a5
+		formatString: "#,0"
+		displayFolder: "COM-002"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Net Price Amount - sales.price.net.amount
+	/// sales.price.net.amount - Net Price Amount
 	/// Total net price (after discounts) for price realization and discount analysis.
 	measure 'Net Price Amount' = SUM ( fact_sales[Net Price Amount] )
-		formatString: #,0.00
-		displayFolder: COM-002
-		lineageTag: ee4b6ee4-4571-425a-9e3f-d8370692f1c3
+		formatString: "#,0"
+		displayFolder: "COM-002"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Price Realization % - sales.price.realization_pct
-	/// Shows how much of list price is realized after discounts.
-	measure 'Price Realization %' = DIVIDE ( [Net Price Amount], [List Price Amount] )
-		formatString: 0.0%
-		displayFolder: COM-002
-		lineageTag: 910c92c2-da5b-4fba-b7b8-004ce0856170
-
-	/// COGS per Unit - cost.cogs_per_unit.amount
+	/// cost.cogs_per_unit.amount - COGS per Unit
 	/// Shows unit cost level relative to sold volume.
 	measure 'COGS per Unit' = DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
-		formatString: #,0.00
-		displayFolder: COM-002
-		lineageTag: 92e31c4c-5f77-412f-97dd-754a65e78152
+		formatString: "#,0"
+		displayFolder: "COM-002"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Gross Margin % vs Plan - margin.gm.vs_plan.pct
+	/// sales.price.realization_pct - Price Realization %
+	/// Shows how much of list price is realized after discounts.
+	measure 'Price Realization %' = DIVIDE ( [Net Price Amount], [List Price Amount] )
+		formatString: "0.0%"
+		displayFolder: "COM-002"
+		annotation ActionReady_TrustScore = "1"
+
+	/// margin.gm.amount - Gross Margin Amount
+	/// Absolute gross margin in currency.
+	measure 'Gross Margin Amount' = [Net Sales Amount] - [Cost of Goods Sold Amount]
+		formatString: "#,0"
+		displayFolder: "COM-002"
+		annotation ActionReady_TrustScore = "1"
+
+	/// margin.gm.vs_plan.pct - Gross Margin % vs Plan
 	/// Measures gross margin rate variance versus plan.
 	measure 'Gross Margin % vs Plan' =
 			VAR ActualGM =
@@ -102,25 +154,18 @@ table _Measures
 				SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )
 			RETURN
 				DIVIDE ( ActualGM - PlanGM, ABS ( PlanGM ) )
-		formatString: 0.0%
-		displayFolder: COM-002
-		lineageTag: e0113c41-42e6-499e-a751-b2df2801d43f
+		formatString: "0.0%"
+		displayFolder: "COM-002"
+		annotation ActionReady_TrustScore = "1"
 
-	/// CLV (Customer Lifetime Value) - crm.clv.amount
-	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
-	measure 'CLV (Customer Lifetime Value)' = AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
-		formatString: #,0.00
-		displayFolder: COM-003
-		lineageTag: 03246498-dfec-4236-8de6-ed9a6e551634
+	/// crm.churned_customers.count - Churned Customers
+	/// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+	measure 'Churned Customers' = CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
+		formatString: "#,0"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Customer Lifetime Revenue Amount - crm.lifetime_revenue.amount
-	/// Sum of realized revenue across the customer lifecycle.
-	measure 'Customer Lifetime Revenue Amount' = SUMX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( SUM ( fact_sales[Net Sales Amount] ) ) )
-		formatString: #,0.00
-		displayFolder: COM-003
-		lineageTag: 227ed712-5388-496e-b813-5f70f32b336a
-
-	/// Customer Retention % - crm.retention.pct
+	/// crm.retention.pct - Customer Retention %
 	/// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
 	measure 'Customer Retention %' =
 			VAR ActiveRetained =
@@ -129,25 +174,11 @@ table _Measures
 				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
 			RETURN
 				DIVIDE ( ActiveRetained, TotalActive )
-		formatString: 0.0%
-		displayFolder: COM-003
-		lineageTag: 4f295ec4-6dc4-4c21-b4c9-3bf7320a80d2
+		formatString: "0.0%"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Churned Customers - crm.churned_customers.count
-	/// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
-	measure 'Churned Customers' = CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
-		formatString: #,0
-		displayFolder: COM-003
-		lineageTag: ccba5dd6-2da4-4192-b00f-d0aac7eac4bf
-
-	/// Active Customers - crm.active_customers.count
-	/// Number of unique active customers in the reporting period.
-	measure 'Active Customers' = CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
-		formatString: #,0
-		displayFolder: COM-003
-		lineageTag: 4cf0a970-adc2-43fa-8110-b36c161189e6
-
-	/// Net Promoter Score (NPS) - crm.nps.index
+	/// crm.nps.index - Net Promoter Score (NPS)
 	/// Measures customer advocacy and likelihood to recommend.
 	measure 'Net Promoter Score (NPS)' =
 			VAR Promoters =
@@ -158,138 +189,40 @@ table _Measures
 				COUNTROWS ( fact_nps )
 			RETURN
 				ROUND ( DIVIDE ( Promoters - Detractors, TotalResponses ) * 100, 0 )
-		formatString: #,0.0
-		displayFolder: COM-003
-		lineageTag: 423ca51b-6145-4a39-93c9-1b82d1d2b7ef
+		formatString: "#,0.0"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Complaint Count - crm.complaint.count
+	/// crm.complaint.count - Complaint Count
 	/// Provide the absolute number of logged complaints.
 	measure 'Complaint Count' = SUM ( fact_complaints[Complaint Count] )
-		formatString: #,0
-		displayFolder: COM-003
-		lineageTag: 34267a54-b7df-455f-bdfb-7cd5cc05f14a
+		formatString: "#,0"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Promo ROI % - sales.promo.roi.pct
-	/// Measures profitability of promotions relative to spend.
-	measure 'Promo ROI %' = DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
-		formatString: 0.0%
-		displayFolder: COM-004
-		lineageTag: 196a4a51-8c51-4776-8d03-e514518eef0f
+	/// crm.active_customers.count - Active Customers
+	/// Number of unique active customers in the reporting period.
+	measure 'Active Customers' = CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
+		formatString: "#,0"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Incremental Sales Amount - sales.promo.incremental.amount
-	/// Additional sales due to promotion.
-	measure 'Incremental Sales Amount' = [Net Sales Amount] - [Baseline Sales Amount]
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: d6029ff3-2184-423c-9e45-c9bffb2d6eb2
+	/// crm.lifetime_revenue.amount - Customer Lifetime Revenue Amount
+	/// Sum of realized revenue across the customer lifecycle.
+	measure 'Customer Lifetime Revenue Amount' = SUMX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( SUM ( fact_sales[Net Sales Amount] ) ) )
+		formatString: "#,0"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// GM % During Promo - margin.promo.gm.pct
-	/// Gross margin rate during promo periods.
-	measure 'GM % During Promo' = DIVIDE ( [Incremental Gross Margin Amount], [Incremental Sales Amount] )
-		formatString: 0.0%
-		displayFolder: COM-004
-		lineageTag: fa91fbea-f202-4e1b-99cf-9d5a40cf4e2d
+	/// crm.clv.amount - CLV (Customer Lifetime Value)
+	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+	measure 'CLV (Customer Lifetime Value)' = AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
+		formatString: "#,0"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Cannibalization % - sales.promo.cannibalization.pct
-	/// Measures share of promo uplift offset by decline in non-promoted sales.
-	measure 'Cannibalization %' = DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
-		formatString: 0.0%
-		displayFolder: COM-004
-		lineageTag: e9fa718c-ee1d-45ec-896e-f75929ef5cc5
-
-	/// ActionReady Logic: C-C3.1 - Customer Retention Intervention
-	measure 'Action_C-C3.1_Text' = IF ( [Customer Retention %] < 0.9, "🔴 L3 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Assign CRM recovery — Review retention monthly", IF ( [Customer Retention %] < 0.94, "🟠 L2 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Assign CRM recovery — Review retention monthly", IF ( [Customer Retention %] < 0.97, "🟡 L1 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Assign CRM recovery — Review retention monthly", BLANK () ) ) )
-		formatString: @
-		isHidden
-		displayFolder: 9_ActionReady_Logic
-		lineageTag: 7058923c-7285-4196-9ea8-290dc84d3478
-
-		annotation ActionReady_ResponsibleRole = "TBD"
-
-		annotation ActionReady_ActionCodeId = "C-C3.1"
-
-	/// ActionReady Logic: C-C3.2 - Complaint & Advocacy Recovery
-	measure 'Action_C-C3.2_Text' = IF ( [Net Promoter Score (NPS)] < -5, "🔴 L3 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_bi_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Map complaint patterns — Execute recovery actions — Review NPS monthly", IF ( [Net Promoter Score (NPS)] < 5, "🟠 L2 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_bi_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Map complaint patterns — Execute recovery actions — Review NPS monthly", IF ( [Net Promoter Score (NPS)] < 20, "🟡 L1 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_bi_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Map complaint patterns — Execute recovery actions — Review NPS monthly", BLANK () ) ) )
-		formatString: @
-		isHidden
-		displayFolder: 9_ActionReady_Logic
-		lineageTag: 7ad6611e-a4b4-41c0-a73f-3cb3d1c6ec9b
-
-		annotation ActionReady_ResponsibleRole = "TBD"
-
-		annotation ActionReady_ActionCodeId = "C-C3.2"
-
-	/// ActionReady Logic: C-M2.1 - Price Realization Guardrails
-	measure 'Action_C-M2.1_Text' = IF ( [Price Realization %] < 0.9, "🔴 L3 — C-M2.1 — Price Realization Guardrails" & UNICHAR ( 10 ) & "Owner: pricing_lead | " & FORMAT ( [Price Realization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Freeze discretionary discounts — Enforce approvals — Review realization monthly", IF ( [Price Realization %] < 0.92, "🟠 L2 — C-M2.1 — Price Realization Guardrails" & UNICHAR ( 10 ) & "Owner: pricing_lead | " & FORMAT ( [Price Realization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Freeze discretionary discounts — Enforce approvals — Review realization monthly", IF ( [Price Realization %] < 0.95, "🟡 L1 — C-M2.1 — Price Realization Guardrails" & UNICHAR ( 10 ) & "Owner: pricing_lead | " & FORMAT ( [Price Realization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Freeze discretionary discounts — Enforce approvals — Review realization monthly", BLANK () ) ) )
-		formatString: @
-		isHidden
-		displayFolder: 9_ActionReady_Logic
-		lineageTag: b08a8653-d0c1-4437-ab5c-ed12c9a710b8
-
-		annotation ActionReady_ResponsibleRole = "TBD"
-
-		annotation ActionReady_ActionCodeId = "C-M2.1"
-
-	/// ActionReady Logic: C-M2.2 - Mix Optimization (Margin-Driven)
-	measure 'Action_C-M2.2_Text' = IF ( [Mix Effect Amount] < -200000, "🔴 L3 — C-M2.2 — Mix Optimization (Margin-Driven)" & UNICHAR ( 10 ) & "Owner: category_manager | " & FORMAT ( [Mix Effect Amount], "€#,0" ) & UNICHAR ( 10 ) & "→ Identify negative-mix entities — Rank SKUs by margin — Monitor mix monthly", IF ( [Mix Effect Amount] < -75000, "🟠 L2 — C-M2.2 — Mix Optimization (Margin-Driven)" & UNICHAR ( 10 ) & "Owner: category_manager | " & FORMAT ( [Mix Effect Amount], "€#,0" ) & UNICHAR ( 10 ) & "→ Identify negative-mix entities — Rank SKUs by margin — Monitor mix monthly", IF ( [Mix Effect Amount] < 0, "🟡 L1 — C-M2.2 — Mix Optimization (Margin-Driven)" & UNICHAR ( 10 ) & "Owner: category_manager | " & FORMAT ( [Mix Effect Amount], "€#,0" ) & UNICHAR ( 10 ) & "→ Identify negative-mix entities — Rank SKUs by margin — Monitor mix monthly", BLANK () ) ) )
-		formatString: @
-		isHidden
-		displayFolder: 9_ActionReady_Logic
-		lineageTag: 7625780f-655b-402e-85e9-ab84efbc3579
-
-		annotation ActionReady_ResponsibleRole = "TBD"
-
-		annotation ActionReady_ActionCodeId = "C-M2.2"
-
-	/// ActionReady Logic: C-P4.1 - Promo Calendar Discipline
-	measure 'Action_C-P4.1_Text' = IF ( [Promo ROI %] < -0.1, "🔴 L3 — C-P4.1 — Promo Calendar Discipline" & UNICHAR ( 10 ) & "Owner: trade_marketing_lead | " & FORMAT ( [Promo ROI %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify negative-ROI promos — Review and resequence — Validate ROI next cycle", IF ( [Promo ROI %] < -0.05, "🟠 L2 — C-P4.1 — Promo Calendar Discipline" & UNICHAR ( 10 ) & "Owner: trade_marketing_lead | " & FORMAT ( [Promo ROI %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify negative-ROI promos — Review and resequence — Validate ROI next cycle", IF ( [Promo ROI %] < 0.0, "🟡 L1 — C-P4.1 — Promo Calendar Discipline" & UNICHAR ( 10 ) & "Owner: trade_marketing_lead | " & FORMAT ( [Promo ROI %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify negative-ROI promos — Review and resequence — Validate ROI next cycle", BLANK () ) ) )
-		formatString: @
-		isHidden
-		displayFolder: 9_ActionReady_Logic
-		lineageTag: d627406e-31bd-4233-9b7f-75213545ef92
-
-		annotation ActionReady_ResponsibleRole = "TBD"
-
-		annotation ActionReady_ActionCodeId = "C-P4.1"
-
-	/// ActionReady Logic: C-S1.1 - Price Discipline Enforcement
-	measure 'Action_C-S1.1_Text' = IF ( [Gross Margin %] < 0.22, "🔴 L3 — C-S1.1 — Price Discipline Enforcement" & UNICHAR ( 10 ) & "Owner: pricing_manager | " & FORMAT ( [Gross Margin %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify GM-breaching entities — Freeze new discounts — Review realization weekly", IF ( [Gross Margin %] < 0.23, "🟠 L2 — C-S1.1 — Price Discipline Enforcement" & UNICHAR ( 10 ) & "Owner: pricing_manager | " & FORMAT ( [Gross Margin %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify GM-breaching entities — Freeze new discounts — Review realization weekly", IF ( [Gross Margin %] < 0.25, "🟡 L1 — C-S1.1 — Price Discipline Enforcement" & UNICHAR ( 10 ) & "Owner: pricing_manager | " & FORMAT ( [Gross Margin %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify GM-breaching entities — Freeze new discounts — Review realization weekly", BLANK () ) ) )
-		formatString: @
-		isHidden
-		displayFolder: 9_ActionReady_Logic
-		lineageTag: 7278170f-70f6-4b54-9f25-fedf05c4778f
-
-		annotation ActionReady_ResponsibleRole = "TBD"
-
-		annotation ActionReady_ActionCodeId = "C-S1.1"
-
-	/// ActionReady Logic: C-S1.2 - Sales Gap Recovery via Price & Pack Adjustment
-	measure 'Action_C-S1.2_Text' = IF ( [Net Sales % vs Plan] < -0.08, "🔴 L3 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.05, "🟠 L2 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.02, "🟡 L1 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", BLANK () ) ) )
-		formatString: @
-		isHidden
-		displayFolder: 9_ActionReady_Logic
-		lineageTag: ca6ac992-ac43-4b0f-aed7-e7b460716be2
-
-		annotation ActionReady_ResponsibleRole = "TBD"
-
-		annotation ActionReady_ActionCodeId = "C-S1.2"
-
-	/// Plan Sales Amount - sales.plan.amount
-	/// Total planned sales amount; baseline for variance and PVM calculations.
-	measure 'Plan Sales Amount' = SUM ( fact_sales[Plan Sales Amount] )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: a1f4c7d2-3e8b-4f91-b5d0-9c2e17a83f6b
-
-	/// Last Year Net Sales Amount - sales.net_sales.ly.amount
-	/// Prior year net sales for year-over-year trend comparison.
-	measure 'Last Year Net Sales Amount' = SUM ( fact_sales[Last Year Sales Amount] )
-		formatString: #,0.00
-		displayFolder: COM-001
-		lineageTag: d5e9b3a7-6f2c-4d1e-8a4b-0f7c25b91e3d
-
-	/// Revenue at Risk Amount - crm.revenue_at_risk.amount
-	/// Net Sales weighted by customer churn risk rate.
+	/// crm.revenue_at_risk.amount - Revenue at Risk Amount
+	/// Quantify revenue exposure from customers flagged as churn-risk.
 	measure 'Revenue at Risk Amount' =
 			VAR ChurnedCount =
 				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Churn Flag] = TRUE () )
@@ -297,37 +230,117 @@ table _Measures
 				CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), fact_customer_events[Activity Flag] = TRUE () )
 			RETURN
 				[Net Sales Amount] * DIVIDE ( ChurnedCount, ActiveCount )
-		formatString: #,0.00
-		displayFolder: COM-003
-		lineageTag: 553c0a8c-120a-4a9a-93ee-a64e69763ba1
+		formatString: "#,0"
+		displayFolder: "COM-003"
+		annotation ActionReady_TrustScore = "1"
 
-	/// Baseline Sales Amount - sales.promo.baseline_sales.amount
-	/// Additional sales generated during promotion period above the non-promoted baseline.
+	/// sales.promo.baseline_sales.amount - Baseline Sales Amount
+	/// Baseline sales for incremental calculation.
 	measure 'Baseline Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] )
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: 601dff29-03a0-46cd-8adc-81a574037a44
+		formatString: "#,0"
+		displayFolder: "COM-004"
 
-	/// Cannibalized Sales Amount - sales.promo.cannibalized_sales.amount
-	/// Sales volume from non-promoted products lost due to consumer switching to promoted SKUs.
-	measure 'Cannibalized Sales Amount' = [Baseline Sales Amount] * 0.15
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: 7872106a-0a2b-40d3-ad29-b894adac4616
-
-	/// Promo Cost - sales.promo.cost.amount
-	/// Total spend on promotional activities including media, trade, and execution costs.
+	/// sales.promo.cost.amount - Promo Cost
+	/// Total promotion cost for ROI and spend analysis.
 	measure 'Promo Cost' = SUM ( fact_promo[Promo Cost] )
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: c892ab8a-b5eb-4c39-a53b-895469dd733a
+		formatString: "#,0"
+		displayFolder: "COM-004"
 
-	/// Incremental Gross Margin Amount - sales.promo.incremental_gm.amount
-	/// Gross margin contribution attributable to promotional uplift net of promo costs.
+	/// sales.promo.incremental.amount - Incremental Sales Amount
+	/// Additional sales due to promotion.
+	measure 'Incremental Sales Amount' = [Net Sales Amount] - [Baseline Sales Amount]
+		formatString: "#,0"
+		displayFolder: "COM-004"
+		annotation ActionReady_TrustScore = "1"
+
+	/// sales.promo.cannibalized_sales.amount - Cannibalized Sales Amount
+	/// Sales lost on non-promoted items versus baseline (cannibalization in value).
+	measure 'Cannibalized Sales Amount' = [Baseline Sales Amount] * 0.15
+		formatString: "#,0"
+		displayFolder: "COM-004"
+
+	/// sales.promo.incremental_gm.amount - Incremental Gross Margin Amount
+	/// Incremental gross margin from promotions for ROI numerator.
 	measure 'Incremental Gross Margin Amount' = [Incremental Sales Amount] * DIVIDE ( [Gross Margin Amount], [Net Sales Amount] ) - [Promo Cost]
-		formatString: #,0.00
-		displayFolder: COM-004
-		lineageTag: 6ce6a631-7d86-4e74-858e-bb3e331cd569
+		formatString: "#,0"
+		displayFolder: "COM-004"
+
+	/// sales.promo.roi.pct - Promo ROI %
+	/// Measures profitability of promotions relative to spend.
+	measure 'Promo ROI %' = DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
+		formatString: "0.0%"
+		displayFolder: "COM-004"
+		annotation ActionReady_TrustScore = "1"
+
+	/// margin.promo.gm.pct - GM % During Promo
+	/// Gross margin rate during promo periods.
+	measure 'GM % During Promo' = DIVIDE ( [Incremental Gross Margin Amount], [Incremental Sales Amount] )
+		formatString: "0.0%"
+		displayFolder: "COM-004"
+		annotation ActionReady_TrustScore = "1"
+
+	/// sales.promo.cannibalization.pct - Cannibalization %
+	/// Measures share of promo uplift offset by decline in non-promoted sales.
+	measure 'Cannibalization %' = DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
+		formatString: "0.0%"
+		displayFolder: "COM-004"
+		annotation ActionReady_TrustScore = "1"
+
+	/// ActionReady Logic: C-M2.1 - Price Realization Guardrails
+	measure 'Action_C-M2.1_Text' = IF ( [Price Realization %] < 0.9, "🔴 L3 — C-M2.1 — Price Realization Guardrails" & UNICHAR ( 10 ) & "Owner: pricing_lead | " & FORMAT ( [Price Realization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Freeze discretionary discounts — Enforce approvals — Review realization monthly", IF ( [Price Realization %] < 0.92, "🟠 L2 — C-M2.1 — Price Realization Guardrails" & UNICHAR ( 10 ) & "Owner: pricing_lead | " & FORMAT ( [Price Realization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Freeze discretionary discounts — Enforce approvals — Review realization monthly", IF ( [Price Realization %] < 0.95, "🟡 L1 — C-M2.1 — Price Realization Guardrails" & UNICHAR ( 10 ) & "Owner: pricing_lead | " & FORMAT ( [Price Realization %], "0.0%" ) & UNICHAR ( 10 ) & "→ Freeze discretionary discounts — Enforce approvals — Review realization monthly", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "pricing_lead"
+		annotation ActionReady_ActionCodeId = "C-M2.1"
+
+	/// ActionReady Logic: C-M2.2 - Mix Optimization (Margin-Driven)
+	measure 'Action_C-M2.2_Text' = IF ( [Mix Effect Amount] < -200000, "🔴 L3 — C-M2.2 — Mix Optimization (Margin-Driven)" & UNICHAR ( 10 ) & "Owner: category_manager | " & FORMAT ( [Mix Effect Amount], "€#,0" ) & UNICHAR ( 10 ) & "→ Identify negative-mix entities — Rank SKUs by margin — Monitor mix monthly", IF ( [Mix Effect Amount] < -75000, "🟠 L2 — C-M2.2 — Mix Optimization (Margin-Driven)" & UNICHAR ( 10 ) & "Owner: category_manager | " & FORMAT ( [Mix Effect Amount], "€#,0" ) & UNICHAR ( 10 ) & "→ Identify negative-mix entities — Rank SKUs by margin — Monitor mix monthly", IF ( [Mix Effect Amount] < 0, "🟡 L1 — C-M2.2 — Mix Optimization (Margin-Driven)" & UNICHAR ( 10 ) & "Owner: category_manager | " & FORMAT ( [Mix Effect Amount], "€#,0" ) & UNICHAR ( 10 ) & "→ Identify negative-mix entities — Rank SKUs by margin — Monitor mix monthly", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "category_manager"
+		annotation ActionReady_ActionCodeId = "C-M2.2"
+
+	/// ActionReady Logic: C-P4.1 - Promo Calendar Discipline
+	measure 'Action_C-P4.1_Text' = IF ( [Promo ROI %] < -0.1, "🔴 L3 — C-P4.1 — Promo Calendar Discipline" & UNICHAR ( 10 ) & "Owner: trade_marketing_lead | " & FORMAT ( [Promo ROI %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify negative-ROI promos — Review and resequence — Validate ROI next cycle", IF ( [Promo ROI %] < -0.05, "🟠 L2 — C-P4.1 — Promo Calendar Discipline" & UNICHAR ( 10 ) & "Owner: trade_marketing_lead | " & FORMAT ( [Promo ROI %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify negative-ROI promos — Review and resequence — Validate ROI next cycle", IF ( [Promo ROI %] < 0.0, "🟡 L1 — C-P4.1 — Promo Calendar Discipline" & UNICHAR ( 10 ) & "Owner: trade_marketing_lead | " & FORMAT ( [Promo ROI %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify negative-ROI promos — Review and resequence — Validate ROI next cycle", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "trade_marketing_lead"
+		annotation ActionReady_ActionCodeId = "C-P4.1"
+
+	/// ActionReady Logic: C-S1.1 - Price Discipline Enforcement
+	measure 'Action_C-S1.1_Text' = IF ( [Gross Margin %] < 0.22, "🔴 L3 — C-S1.1 — Price Discipline Enforcement" & UNICHAR ( 10 ) & "Owner: pricing_manager | " & FORMAT ( [Gross Margin %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify GM-breaching entities — Freeze new discounts — Review realization weekly", IF ( [Gross Margin %] < 0.23, "🟠 L2 — C-S1.1 — Price Discipline Enforcement" & UNICHAR ( 10 ) & "Owner: pricing_manager | " & FORMAT ( [Gross Margin %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify GM-breaching entities — Freeze new discounts — Review realization weekly", IF ( [Gross Margin %] < 0.25, "🟡 L1 — C-S1.1 — Price Discipline Enforcement" & UNICHAR ( 10 ) & "Owner: pricing_manager | " & FORMAT ( [Gross Margin %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify GM-breaching entities — Freeze new discounts — Review realization weekly", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "pricing_manager"
+		annotation ActionReady_ActionCodeId = "C-S1.1"
+
+	/// ActionReady Logic: C-S1.2 - Sales Gap Recovery via Price & Pack Adjustment
+	measure 'Action_C-S1.2_Text' = IF ( [Net Sales % vs Plan] < -0.08, "🔴 L3 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: sales_director | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.05, "🟠 L2 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: sales_director | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", IF ( [Net Sales % vs Plan] < -0.02, "🟡 L1 — C-S1.2 — Sales Gap Recovery" & UNICHAR ( 10 ) & "Owner: sales_director | " & FORMAT ( [Net Sales % vs Plan], "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "→ Identify plan-breaching entities — Apply price/pack adjustments — Review uplift", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "sales_director"
+		annotation ActionReady_ActionCodeId = "C-S1.2"
+
+	/// ActionReady Logic: C-C3.1 - Customer Retention Intervention
+	measure 'Action_C-C3.1_Text' = IF ( [Customer Retention %] < 0.9, "🔴 L3 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Prioritize by revenue at risk/CLV — Assign recovery actions — Review CLV monthly", IF ( [Customer Retention %] < 0.94, "🟠 L2 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Prioritize by revenue at risk/CLV — Assign recovery actions — Review CLV monthly", IF ( [Customer Retention %] < 0.97, "🟡 L1 — C-C3.1 — Customer Retention Intervention" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Customer Retention %], "0.0%" ) & UNICHAR ( 10 ) & "→ Identify at-risk segments — Prioritize by revenue at risk/CLV — Assign recovery actions — Review CLV monthly", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "commercial_controlling_lead"
+		annotation ActionReady_ActionCodeId = "C-C3.1"
+
+	/// ActionReady Logic: C-C3.2 - Complaint & Advocacy Recovery
+	measure 'Action_C-C3.2_Text' = IF ( [Net Promoter Score (NPS)] < -5, "🔴 L3 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Close high-value complaint clusters — Restore advocacy — Review quarterly", IF ( [Net Promoter Score (NPS)] < 5, "🟠 L2 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Close high-value complaint clusters — Restore advocacy — Review quarterly", IF ( [Net Promoter Score (NPS)] < 20, "🟡 L1 — C-C3.2 — Complaint & Advocacy Recovery" & UNICHAR ( 10 ) & "Owner: commercial_controlling_lead | " & FORMAT ( [Net Promoter Score (NPS)], "#,0.0" ) & UNICHAR ( 10 ) & "→ Close high-value complaint clusters — Restore advocacy — Review quarterly", BLANK () ) ) )
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "commercial_controlling_lead"
+		annotation ActionReady_ActionCodeId = "C-C3.2"
 
 	/// enterprise.actions_executed.count - Actions Executed Count
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
@@ -364,37 +377,8 @@ table _Measures
 		displayFolder: 0_Summary
 		lineageTag: 8204f978-f3e2-42aa-8331-705090a1d6ed
 
-	/// Purpose: Concatenates all currently triggered action recommendations.
-	measure 'Active Actions Text (COM)' = VAR _rows = FILTER ( { [Action_C-C3.1_Text], [Action_C-C3.2_Text], [Action_C-M2.1_Text], [Action_C-M2.2_Text], [Action_C-P4.1_Text], [Action_C-S1.1_Text], [Action_C-S1.2_Text] }, NOT ISBLANK ( [Value] ) ) VAR _result = CONCATENATEX ( _rows, [Value], UNICHAR ( 10 ) & UNICHAR ( 10 ) ) RETURN IF ( ISBLANK ( _result ), "✅ All KPIs within tolerance — no actions triggered.", _result )
-		formatString: @
-		isHidden
-		displayFolder: 0_Summary
-		lineageTag: e2f183c6-4732-445d-b9eb-bac62152482e
-
-	/// Purpose: Freshness timestamp for AI narrative — binds smartNarrativeVisual to latest loaded date.
-	measure 'Last Refresh (COM)' = "✦ AI Summary — Data as of " & FORMAT(MAXX(ALL('dim_date'), 'dim_date'[Date]), "DD MMM YYYY")
-		formatString: @
-		displayFolder: 0_Summary
-		lineageTag: 14b66349-5da9-40a9-a53b-a7e873aba164
-
 	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 		lineageTag: 753c3ac0-719e-471c-8890-280ecebf38a1
-
-	column Column1
-		dataType: string
-		isHidden
-		lineageTag: b525edd9-3ac2-485b-b5ab-1a3dd31865d2
-		summarizeBy: none
-		sourceColumn: Column1
-
-	partition _Measures = m
-		mode: import
-		source =
-				let
-					Source = #table(type table[Column1 = text], {})
-				in
-					Source
-

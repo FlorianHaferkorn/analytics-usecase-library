@@ -20,6 +20,9 @@ interface Domain {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'overview', label: 'Overview', icon: 'Home', href: '/overview' },
+  { id: 'discovery', label: 'Discovery', icon: 'Search', href: '/discover' },
+  { id: 'steering', label: 'Steering', icon: 'Graph', href: '/steering' },
+  { id: 'registry', label: 'Registry', icon: 'Database', href: '/catalog' },
   { id: 'canvas', label: 'Canvas', icon: 'Graph', href: '/canvas' },
   { id: 'library', label: 'Library', icon: 'Library', href: '/library' },
   { id: 'templates', label: 'Report Templates', icon: 'Book', href: '/templates' },

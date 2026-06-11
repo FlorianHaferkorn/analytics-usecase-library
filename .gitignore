@@ -67,6 +67,16 @@ package-lock.json
 # Next.js build artifacts
 studio/.next/
 
+# Studio local/dev artifacts (should not be committed)
+# - SQLite WAL/SHM files created by better-sqlite3
+studio/data/*.db-wal
+studio/data/*.db-shm
+studio/data/*.db-journal
+
+# - Playwright local report/test run metadata
+studio/playwright-report/index.html
+studio/test-results/.last-run.json
+
 # CI run logs (local only – not versioned)
 internal/metrics/runs/*.json
 internal/metrics/generation_runs/*.json

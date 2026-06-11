@@ -19,9 +19,10 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev',
+    command: 'node scripts/reset-studio-db.mjs && npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    // Keep tests deterministic: tenant isolation depends on a clean SQLite DB.
+    reuseExistingServer: false,
     timeout: 30000,
   },
 });
