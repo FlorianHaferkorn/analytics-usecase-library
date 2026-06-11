@@ -3,14 +3,17 @@ table fact_inventory
 	lineageTag: a0c1818b-0b64-5372-b78b-4fe07f17dbd0
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column ProductKey
 		dataType: Int64
+		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
 	column 'Inventory Amount'

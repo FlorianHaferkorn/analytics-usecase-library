@@ -3,14 +3,17 @@ table fact_fulfillment
 	lineageTag: f256ee67-528f-42be-99fd-4076ff3085a2
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column ProductKey
 		dataType: Int64
+		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
 	column 'OTIF Flag'

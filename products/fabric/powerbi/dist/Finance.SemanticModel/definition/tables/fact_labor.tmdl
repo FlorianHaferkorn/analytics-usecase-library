@@ -3,10 +3,12 @@ table fact_labor
 	lineageTag: 7fc2929f-2791-54f3-87dc-b249edff6d5c
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column 'Labor Hours'

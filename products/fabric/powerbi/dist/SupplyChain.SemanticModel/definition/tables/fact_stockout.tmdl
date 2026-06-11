@@ -3,14 +3,17 @@ table fact_stockout
 	lineageTag: 00314c33-62fd-56b2-ac23-17d0083cae28
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column ProductKey
 		dataType: Int64
+		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
 	column 'Stockout Flag'

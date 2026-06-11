@@ -3,10 +3,12 @@ table fact_finance
 	lineageTag: 7695af1c-a6a0-5a03-ae42-602bfa3f849f
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column 'Net Sales Amount'

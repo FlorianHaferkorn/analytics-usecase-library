@@ -3,14 +3,17 @@ table fact_accounts_receivable
 	lineageTag: ead2939b-cbac-5a75-9965-31e40f59dc23
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column CustomerKey
 		dataType: Int64
+		isHidden
 		sourceColumn: CustomerKey
 		summarizeBy: none
 	column 'AR Amount'

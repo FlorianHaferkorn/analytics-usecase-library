@@ -3,14 +3,17 @@ table fact_quality
 	lineageTag: 09fce7df-982f-47d4-ab54-d57bb3ff1b15
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column ProductKey
 		dataType: Int64
+		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
 	column 'Total Units'

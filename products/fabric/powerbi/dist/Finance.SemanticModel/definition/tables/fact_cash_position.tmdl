@@ -3,10 +3,12 @@ table fact_cash_position
 	lineageTag: 21615652-3685-5a91-80c6-a0b778cf7bd2
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column 'Cash Balance Amount'

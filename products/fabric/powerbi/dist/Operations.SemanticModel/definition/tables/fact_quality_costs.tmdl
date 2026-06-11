@@ -4,14 +4,17 @@ table fact_quality_costs
 	lineageTag: b3e21a04-9f12-4d88-a751-cc7a3b1f8e91
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column ProductKey
 		dataType: Int64
+		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
 	column 'COPQ Amount'

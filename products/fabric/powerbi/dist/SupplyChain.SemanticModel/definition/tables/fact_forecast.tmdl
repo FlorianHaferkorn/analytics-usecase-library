@@ -3,14 +3,17 @@ table fact_forecast
 	lineageTag: 1b37e8e8-5725-5388-b536-d9bdc5114e28
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column ProductKey
 		dataType: Int64
+		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column 'Forecast Units'

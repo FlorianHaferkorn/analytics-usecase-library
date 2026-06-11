@@ -11,7 +11,7 @@ dimension:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
       - {name: Year, type: int}
-      - {name: Quarter, type: text}
+      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
 

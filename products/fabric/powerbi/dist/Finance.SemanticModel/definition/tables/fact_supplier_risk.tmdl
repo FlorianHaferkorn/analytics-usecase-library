@@ -4,10 +4,12 @@ table fact_supplier_risk
 	lineageTag: a7c3e218-6b4f-4d9a-8e31-2f5c7b1a9d04
 	column SupplierKey
 		dataType: Int64
+		isHidden
 		sourceColumn: SupplierKey
 		summarizeBy: none
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column 'Risk Score'
