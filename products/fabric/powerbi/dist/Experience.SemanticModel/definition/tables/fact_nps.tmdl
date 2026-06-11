@@ -3,14 +3,17 @@ table fact_nps
 	lineageTag: d19a9cd5-e967-5d2f-b7e9-b2d0c7113e64
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column QueueKey
 		dataType: Int64
+		isHidden
 		sourceColumn: QueueKey
 		summarizeBy: none
 	column 'NPS Score'

@@ -3,18 +3,22 @@ table fact_sales
 	lineageTag: 4abd72a9-83bb-4ea9-9fa8-36b5196ee5ed
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column ProductKey
 		dataType: Int64
+		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
 	column CustomerKey
 		dataType: Int64
+		isHidden
 		sourceColumn: CustomerKey
 		summarizeBy: none
 	column 'Net Sales Amount'

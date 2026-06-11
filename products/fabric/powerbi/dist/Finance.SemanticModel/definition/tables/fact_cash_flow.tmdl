@@ -3,10 +3,12 @@ table fact_cash_flow
 	lineageTag: 24f42843-9e38-540c-99d2-a5ae947766cf
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column 'Operating Cash Flow Amount'

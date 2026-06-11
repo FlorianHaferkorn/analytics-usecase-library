@@ -3,14 +3,17 @@ table fact_ops
 	lineageTag: aac0d26d-e7fa-52e7-b358-3b9c146655d6
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column AssetKey
 		dataType: Int64
+		isHidden
 		sourceColumn: AssetKey
 		summarizeBy: none
 	column 'Planned Time Minutes'

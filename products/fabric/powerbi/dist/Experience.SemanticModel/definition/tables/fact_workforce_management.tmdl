@@ -3,14 +3,17 @@ table fact_workforce_management
 	lineageTag: 5d91568c-7a74-546e-8b46-78611de04414
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column QueueKey
 		dataType: Int64
+		isHidden
 		sourceColumn: QueueKey
 		summarizeBy: none
 	column 'Work Time Minutes'

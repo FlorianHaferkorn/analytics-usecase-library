@@ -3,18 +3,22 @@ table fact_support_cases
 	lineageTag: 75a4617a-8ba8-520a-86b7-92fd0ff154a6
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column QueueKey
 		dataType: Int64
+		isHidden
 		sourceColumn: QueueKey
 		summarizeBy: none
 	column IssueKey
 		dataType: Int64
+		isHidden
 		sourceColumn: IssueKey
 		summarizeBy: none
 	column 'SLA Met Flag'

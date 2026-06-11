@@ -3,10 +3,12 @@ table fact_action_log
 	lineageTag: c1f4d892-7b3e-4a18-b9c0-e5d2f8a31074
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column 'Action Code'

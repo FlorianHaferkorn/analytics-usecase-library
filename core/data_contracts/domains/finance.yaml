@@ -11,7 +11,7 @@ dimension:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
       - {name: Year, type: int}
-      - {name: Quarter, type: text}
+      - {name: Quarter, type: text, allowed_values: [Q1, Q2, Q3, Q4]}
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
 
@@ -22,7 +22,7 @@ dimension:
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Entity, type: text}
-      - {name: Region, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
       - {name: Country, type: text, nullable: true}
 
   - name: dim_customer
@@ -33,7 +33,7 @@ dimension:
       - {name: CustomerKey, type: int, role: key}
       - {name: CustomerCode, type: text}
       - {name: CustomerName, type: text}
-      - {name: Region, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
 
   - name: dim_supplier
     description: "Supplier dimension for AP and procurement attribution."
@@ -43,7 +43,7 @@ dimension:
       - {name: SupplierKey, type: int, role: key}
       - {name: SupplierCode, type: text}
       - {name: SupplierName, type: text}
-      - {name: Region, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
 
   - name: dim_product
     description: "Product dimension for finance (inventory, COGS, cost)."
@@ -53,7 +53,7 @@ dimension:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
       - {name: ProductName, type: text}
-      - {name: Category, type: text}
+      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics]}
 
 fact:
   - name: fact_cash_position

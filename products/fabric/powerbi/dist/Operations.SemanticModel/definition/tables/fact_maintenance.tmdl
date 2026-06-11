@@ -3,10 +3,12 @@ table fact_maintenance
 	lineageTag: 7ea6afb8-4f67-4ff6-919f-fb7e5d9a1bbe
 	column AssetKey
 		dataType: Int64
+		isHidden
 		sourceColumn: AssetKey
 		summarizeBy: none
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column 'Order Type'

@@ -4,14 +4,17 @@ table fact_complaints
 	lineageTag: d4f8c109-2a31-4b7e-9c82-f1e3a5d0b294
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	column CustomerKey
 		dataType: Int64
+		isHidden
 		sourceColumn: CustomerKey
 		summarizeBy: none
 	column 'Complaint Count'

@@ -25,6 +25,7 @@ table dim_asset
 		summarizeBy: none
 	column OrgKey
 		dataType: Int64
+		isHidden
 		sourceColumn: OrgKey
 		summarizeBy: none
 	partition dim_asset = m

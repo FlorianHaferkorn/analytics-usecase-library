@@ -3,10 +3,12 @@ table fact_ops_failures
 	lineageTag: ee7878cf-ae5e-4333-b5ff-208a5a77007b
 	column AssetKey
 		dataType: Int64
+		isHidden
 		sourceColumn: AssetKey
 		summarizeBy: none
 	column DateKey
 		dataType: Int64
+		isHidden
 		sourceColumn: DateKey
 		summarizeBy: none
 	column 'Failure Start DateTime'
