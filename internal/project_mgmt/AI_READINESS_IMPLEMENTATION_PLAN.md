@@ -1,6 +1,6 @@
 # AI-Readiness & PBIR Tooling — Implementation Plan
 
-> **Status:** Proposed · **Owner:** Analytics Platform · **Created:** 2026-06-11
+> **Status:** Implemented — M1–M3 + follow-ups (PRs #285–#289) · **Owner:** Analytics Platform · **Created:** 2026-06-11
 > **Source inputs:** [`pbir.tools`](https://github.com/maxanatsko/pbir.tools) (PBIR automation CLI) and
 > [Tabular Editor — *AI readiness and best practices for semantic models*](https://tabulareditor.com/blog/ai-readiness-and-best-practices-for-semantic-models-a-comprehensive-guide).
 > **Builds on:** the AI-description standard merged in PR #283 (`ai_description.py`, `AI_Description_Standard.md`, H7 binding integrity).
@@ -124,7 +124,21 @@ M3 (Agent ergonomics) : D1 → D2                  [P2]  ← benchmark parity
 ## 9. Open questions / decisions
 
 - **D-1 (decision):** Confirm the linguistic-schema emission target — TMDL `cultures` block in the SemanticModel definition (preferred) vs. a separate linguistic file. *Default: TMDL `cultures` in-definition.*
-- **D-2 (input):** Source of curated synonyms — extend data contracts with a `synonyms` list per column (preferred), or a dedicated synonyms registry. *Default: data-contract `synonyms`.*
+- **D-2 (input):** Source of curated synonyms — extend data contracts with a `synonyms` list per column (preferred), or a dedicated synonyms registry. *Default: data-contract `synonyms`.* ✅ adopted.
+
+---
+
+## 10. Implementation status
+
+| Milestone | Tasks | PR | State |
+|---|---|---|---|
+| **M1** Readiness core | A1 governed source + schema · A2 linguistic-schema emitter (`cultures/`) · A3 **H8** gate · A4 docs | #285 | ✅ Done |
+| **M2** Anchors | B1 `example_question` projection · B2 `Values:` coverage check + safe fills | #286 | ✅ Done |
+| **M2** Hygiene | C1 hide visible keys (25 hidden) · C2 description lint — folded into H8 | #287 | ✅ Done |
+| **M3** Ergonomics | D1 `pbi inspect` · D2 H7-safe bulk-set (`pbir.tools` parity, no dep) | #288 | ✅ Done |
+| Follow-ups | B2 enum domains curated from Aurora gold data (10/10) · A2 `culture` keyword verified | #289 | ✅ Done |
+
+Decisions **D-1** (TMDL `cultures` in-definition) and **D-2** (data-contract `synonyms`) adopted as their defaults. Aurora Commercial is the proof domain; other domains adopt synonyms/values as their contracts are curated. Non-goals (N1 no third-party dependency, N2 no build-time LLM synonyms, N3 no DAX authoring) held throughout. Full suite green (839 passed); H7 and H8 at 100%.
 
 ---
 
