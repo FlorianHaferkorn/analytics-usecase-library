@@ -333,28 +333,28 @@ table _Measures
 	/// Number of action codes with a recorded outcome in fact_action_outcome.
 	measure 'Actions Executed Count' = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
 		formatString: #,0
-		displayFolder: 8_Action_Outcomes
+		displayFolder: "8_Action_Outcomes"
 		lineageTag: 8a1dc24e-d854-4fb6-a63d-763d6560da2a
 
 	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
 	/// Percentage of executed actions with a confirmed achieved outcome.
 	measure 'Action Outcome Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
 		formatString: 0.0%
-		displayFolder: 8_Action_Outcomes
+		displayFolder: "8_Action_Outcomes"
 		lineageTag: d94de4fe-7447-4eef-a048-4c9ecb1f2f12
 
 	/// enterprise.avg_time_to_outcome.days - Avg Time-to-Outcome Days
 	/// Average days between action execution and outcome confirmation.
 	measure 'Avg Time-to-Outcome Days' = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
 		formatString: #,0.0
-		displayFolder: 8_Action_Outcomes
+		displayFolder: "8_Action_Outcomes"
 		lineageTag: 9df5ed96-85c9-4c33-a63e-85d7e7b6cbc6
 
 	/// enterprise.action_roi.pct - Action ROI %
 	/// Average ROI of executed actions: total impact value / total execution cost - 1.
 	measure 'Action ROI %' = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
 		formatString: 0.0%
-		displayFolder: 8_Action_Outcomes
+		displayFolder: "8_Action_Outcomes"
 		lineageTag: 3a0eba01-7388-4c8d-b11c-0cd00de4aa17
 
 	/// Purpose: Dynamic KPI summary string for the Detail page narrative header.
@@ -380,7 +380,7 @@ table _Measures
 	/// Purpose: Cross-domain measure — average impact value of achieved actions from fact_action_outcome.
 	measure 'Action Effectiveness Delta' = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
 		formatString: #,0
-		displayFolder: 8_Action_Outcomes
+		displayFolder: "8_Action_Outcomes"
 		lineageTag: 753c3ac0-719e-471c-8890-280ecebf38a1
 
 	column Column1
