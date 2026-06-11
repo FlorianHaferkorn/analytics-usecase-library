@@ -1,0 +1,390 @@
+culture en-US
+	linguisticMetadata =
+			{
+				"Version": "1.0.0",
+				"Language": "en-US",
+				"Entities": {
+					"dim_case_queue.queuename": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_case_queue",
+								"ConceptualProperty": "QueueName"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"QueueName": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Queue": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Work Queue": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Warteschlange": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_case_queue.channel": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_case_queue",
+								"ConceptualProperty": "Channel"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Channel": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Contact Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Interaction Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kontaktkanal": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kanal": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_case_queue.region": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_case_queue",
+								"ConceptualProperty": "Region"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Region": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Geography": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Geo": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Service Region": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_issue_type.issuetype": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_issue_type",
+								"ConceptualProperty": "IssueType"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"IssueType": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Case Type": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Ticket Type": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Request Type": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Falltyp": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Anliegenart": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_issue_type.severity": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_issue_type",
+								"ConceptualProperty": "Severity"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Severity": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Severity Level": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Priority": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Schweregrad": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Priorität": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.region": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Region"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Region": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Geography": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Territory": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Vertriebsregion": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Gebiet": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.channel": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Channel"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Channel": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Sales Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Distribution Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Vertriebskanal": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.queue": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Queue"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Queue": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Support Queue": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Work Queue": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Warteschlange": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Routing Queue": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_org.agent_group": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_org",
+								"ConceptualProperty": "Agent Group"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Agent Group": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Team": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Skill Group": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Agententeam": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Support Team": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					}
+				}
+			}
