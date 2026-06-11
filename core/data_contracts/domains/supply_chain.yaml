@@ -22,10 +22,10 @@ dimension:
     scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
-      - {name: Location, type: text}
-      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
-      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet]}
-      - {name: Customer, type: text, nullable: true}
+      - {name: Location, type: text, synonyms: [Site, Distribution Center, Node, Standort, Lager]}
+      - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE], synonyms: [Geography, Territory, Vertriebsregion, Gebiet]}
+      - {name: Channel, type: text, nullable: true, allowed_values: [Retail, Online, Wholesale, Marketplace, Direct, Outlet], synonyms: [Distribution Channel, Route to Market, Vertriebskanal, Absatzkanal]}
+      - {name: Customer, type: text, nullable: true, synonyms: [Account, Ship-To, Consignee, Warenempfänger]}
 
   - name: dim_product
     description: "Product dimension with ABC/XYZ classification for supply chain."
@@ -35,10 +35,10 @@ dimension:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
       - {name: ProductName, type: text}
-      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics]}
-      - {name: Subcategory, type: text, nullable: true, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming]}
-      - {name: ABC_Class, type: text, nullable: true, allowed_values: [A, B, C]}
-      - {name: XYZ_Class, type: text, nullable: true, allowed_values: [X, Y, Z]}
+      - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
+      - {name: Subcategory, type: text, nullable: true, allowed_values: [Apparel, Footwear, Accessories, Jewelry, Furniture, Decor, Kitchenware, Bedding, Lighting, TVs, Audio, Computers, Smartphones, Gaming], synonyms: [Sub Category, Untergruppe, Unterkategorie]}
+      - {name: ABC_Class, type: text, nullable: true, allowed_values: [A, B, C], synonyms: [ABC Class, ABC Classification, ABC-Analyse, ABC-Klassifizierung]}
+      - {name: XYZ_Class, type: text, nullable: true, allowed_values: [X, Y, Z], synonyms: [XYZ Class, XYZ Classification, XYZ-Analyse, RSU-Analyse]}
 
   - name: dim_lane
     description: "Transport lane dimension (origin, destination, mode) for fulfillment."
@@ -46,9 +46,9 @@ dimension:
     scd_type: 1
     columns:
       - {name: LaneKey, type: int, role: key}
-      - {name: Origin, type: text, allowed_values: [DC-AT-01, DC-AT-02, DC-BE-01, DC-CH-01, DC-CH-02, DC-DE-01, DC-DE-02, DC-NL-01]}
-      - {name: Destination, type: text, allowed_values: [AT, BE, CH, DE, DK, ES, LU, NL, NO, SE]}
-      - {name: Mode, type: text, nullable: true, allowed_values: [Road, Rail, Air, Sea]}
+      - {name: Origin, type: text, allowed_values: [DC-AT-01, DC-AT-02, DC-BE-01, DC-CH-01, DC-CH-02, DC-DE-01, DC-DE-02, DC-NL-01], synonyms: [Ship-From, Source DC, Versandort, Quelle]}
+      - {name: Destination, type: text, allowed_values: [AT, BE, CH, DE, DK, ES, LU, NL, NO, SE], synonyms: [Ship-To, Delivery Country, Zielland, Empfangsort]}
+      - {name: Mode, type: text, nullable: true, allowed_values: [Road, Rail, Air, Sea], synonyms: [Transport Mode, Shipping Mode, Verkehrsträger, Transportmodus]}
 
 fact:
   - name: fact_inventory

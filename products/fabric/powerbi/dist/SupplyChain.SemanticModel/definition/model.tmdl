@@ -17,3 +17,4 @@ ref table fact_forecast
 ref table fact_sales
 ref table fact_procurement
 ref table security_user_org
+ref culture en-US
