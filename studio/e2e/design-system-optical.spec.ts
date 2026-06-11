@@ -149,9 +149,9 @@ test.describe('Design System — optical Premium checks', () => {
       };
 
       // Dataset assertions (theme/density/fonts)
-      if (dataset.theme !== 'dark') mismatches.push({ token: 'data-theme', actual: dataset.theme, expected: 'dark' });
-      if (dataset.density !== 'airy') mismatches.push({ token: 'data-density', actual: dataset.density, expected: 'airy' });
-      if (dataset.fonts !== 'inter') mismatches.push({ token: 'data-fonts', actual: dataset.fonts, expected: 'inter' });
+      if (dataset.theme !== 'dark') mismatches.push({ token: 'data-theme', actual: dataset.theme ?? '', expected: 'dark' });
+      if (dataset.density !== 'airy') mismatches.push({ token: 'data-density', actual: dataset.density ?? '', expected: 'airy' });
+      if (dataset.fonts !== 'inter') mismatches.push({ token: 'data-fonts', actual: dataset.fonts ?? '', expected: 'inter' });
 
       // Color token comparisons
       expectColorVar('--bg', ds.bg);

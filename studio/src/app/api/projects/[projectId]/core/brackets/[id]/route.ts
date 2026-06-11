@@ -5,6 +5,7 @@
  * handler so tenant isolation is deterministic.
  */
 import { auth, type ProjectMembership } from '@/lib/auth/config';
+import { NextRequest } from 'next/server';
 import { GET as coreGET, PUT as corePUT } from '@/app/api/core/brackets/[id]/route';
 
 function projectAccessDeniedResponse(): Response {
@@ -34,7 +35,7 @@ async function enforceProjectAccess(projectId: string): Promise<Response | null>
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ projectId: string; id: string }> },
 ) {
   const { projectId } = await params;
@@ -44,7 +45,7 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ projectId: string; id: string }> },
 ) {
   const { projectId } = await params;
