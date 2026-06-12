@@ -1,6 +1,6 @@
 measure_name: Action Effectiveness Delta
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: enterprise.action_effectiveness_delta.amount
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 08_Action_Outcomes
 category: KPI

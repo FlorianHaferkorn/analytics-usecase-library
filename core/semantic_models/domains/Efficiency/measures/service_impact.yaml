@@ -1,6 +1,6 @@
 measure_name: Service Impact %
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: plan.forecast.service_impact.pct
 semantic_model: Efficiency_SemanticModel
 category: KPI
 expression:

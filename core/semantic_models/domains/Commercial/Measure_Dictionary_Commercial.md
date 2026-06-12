@@ -117,8 +117,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Net Sales % vs LY
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.delta_pct.ly
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -147,8 +147,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Gross Margin Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.gm.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -231,8 +231,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Gross Margin % vs Plan
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.gm.vs_plan.pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -352,8 +352,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Price Realization %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.price.realization_pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 03_Pricing
   category: KPI
@@ -380,8 +380,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Promotion ROI %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.promo.roi.pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: KPI
@@ -497,8 +497,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Promo Gross Margin %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.promo.gm.pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -965,8 +965,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Delta% Net Sales
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.delta_pct.ly
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -986,8 +986,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Net Sales
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: KPI
@@ -1006,8 +1006,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: GM % During Promo
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.promo.gm.pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 02_Margin
   category: KPI
@@ -1068,8 +1068,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Actions Executed Count
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.actions_executed.count
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1089,8 +1089,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Avg Time-to-Outcome Days
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.avg_time_to_outcome.days
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1110,8 +1110,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Action ROI %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_roi.pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1132,8 +1132,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Action Effectiveness Delta
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_effectiveness_delta.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -1154,8 +1154,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Action Outcome Rate %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_outcome_rate.pct
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI

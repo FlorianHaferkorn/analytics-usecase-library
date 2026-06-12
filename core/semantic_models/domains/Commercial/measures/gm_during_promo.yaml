@@ -1,6 +1,6 @@
 measure_name: GM % During Promo
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: margin.promo.gm.pct
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 02_Margin
 category: KPI

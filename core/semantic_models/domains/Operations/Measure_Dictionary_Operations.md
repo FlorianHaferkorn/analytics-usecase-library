@@ -1148,8 +1148,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     last_review: 28.04.2026
 
 - measure_name: Actions Executed Count (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.actions_executed.count
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1169,8 +1169,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   semantic_model: Operations_SemanticModel
 
 - measure_name: Action Outcome Rate % (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_outcome_rate.pct
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1190,8 +1190,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   semantic_model: Operations_SemanticModel
 
 - measure_name: Avg Time-to-Outcome Days (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.avg_time_to_outcome.days
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1211,8 +1211,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   semantic_model: Operations_SemanticModel
 
 - measure_name: Action ROI % (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_roi.pct
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -1233,8 +1233,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   semantic_model: Operations_SemanticModel
 
 - measure_name: Action Effectiveness Delta (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_effectiveness_delta.amount
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:

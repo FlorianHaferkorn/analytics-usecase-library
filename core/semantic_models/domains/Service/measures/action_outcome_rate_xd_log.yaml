@@ -1,6 +1,6 @@
 measure_name: Action Outcome Rate % (XD Log)
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: enterprise.action_outcome_rate.pct
 semantic_model: Service_SemanticModel
 display_folder: 08_Action_Outcomes
 category: KPI

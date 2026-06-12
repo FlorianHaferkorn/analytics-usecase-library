@@ -6,8 +6,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: OEE %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.oee.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -95,8 +95,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_finance.Net Sales Amount
 
 - measure_name: Availability %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.availability.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -112,8 +112,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: 04.11.2025
 
 - measure_name: Performance %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.performance.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -129,8 +129,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: 04.11.2025
 
 - measure_name: Quality %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.quality.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -271,8 +271,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout.Lost Demand Units
 
 - measure_name: Service Impact %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: plan.forecast.service_impact.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:

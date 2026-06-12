@@ -1,6 +1,6 @@
 measure_name: Average Handling Time (minutes)
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: svc.aht.minutes
 semantic_model: Service_SemanticModel
 display_folder: 01_Service_Level
 category: KPI

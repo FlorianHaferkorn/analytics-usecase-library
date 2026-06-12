@@ -634,8 +634,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: TBD
 
 - measure_name: Average Handling Time (minutes)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: svc.aht.minutes
   semantic_model: Service_SemanticModel
   display_folder: 01_Service_Level
   category: KPI
@@ -764,8 +764,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Delta% Net Sales (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.delta_pct.ly
   semantic_model: Service_SemanticModel
   display_folder: 03_P&L
   category: KPI
@@ -850,8 +850,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Action Outcome Rate % (XD Log)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_outcome_rate.pct
   semantic_model: Service_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
@@ -871,8 +871,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 28.04.2026
 
 - measure_name: Actions Executed Count (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.actions_executed.count
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -892,8 +892,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Service_SemanticModel
 
 - measure_name: Action Outcome Rate % (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_outcome_rate.pct
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -913,8 +913,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Service_SemanticModel
 
 - measure_name: Avg Time-to-Outcome Days (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.avg_time_to_outcome.days
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -934,8 +934,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Service_SemanticModel
 
 - measure_name: Action ROI % (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_roi.pct
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
@@ -956,8 +956,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Service_SemanticModel
 
 - measure_name: Action Effectiveness Delta (XD)
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_effectiveness_delta.amount
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:

@@ -34,8 +34,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Digital
 
 - measure_name: Digital Adoption Rate %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: people.digital_adoption.pct
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 02_Digital
   category: KPI
@@ -214,8 +214,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: TBD
 
 - measure_name: Gross Margin Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.gm.amount
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI

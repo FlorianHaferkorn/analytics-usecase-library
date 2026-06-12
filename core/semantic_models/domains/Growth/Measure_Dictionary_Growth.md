@@ -6,8 +6,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: Net Sales Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.amount
   semantic_model: Growth_SemanticModel
   display_folder: 01_Growth
   category: KPI

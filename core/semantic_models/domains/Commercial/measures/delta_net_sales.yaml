@@ -1,6 +1,6 @@
 measure_name: Delta% Net Sales
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: sales.net_sales.delta_pct.ly
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 01_Revenue
 category: KPI
