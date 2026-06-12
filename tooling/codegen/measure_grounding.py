@@ -48,6 +48,19 @@ def resources(e: dict) -> tuple:
     return agg, frozenset(cols), frozenset(meas)
 
 
+def identity(e: dict) -> tuple:
+    """Full calculation identity: aggregation + resources + normalised DAX.
+
+    Two instances are the *same* measure only if they compute the same thing.
+    Dependency columns alone can collide while the DAX bodies differ (e.g.
+    Digital Adoption %), so the normalised logical expression is part of the key.
+    """
+    agg, cols, meas = resources(e)
+    dax = (e.get("expression") or {}).get("logical", "") or ""
+    body = re.sub(r"\s+", "", dax.split("=", 1)[-1]).lower()
+    return agg, cols, meas, body
+
+
 def load() -> dict:
     kpi = {}
     for f in glob.glob(str(REPO / "core/kpi_catalog/kpis/*.yaml")):
@@ -70,14 +83,14 @@ def main() -> int:
     multi = {k: v for k, v in groups.items() if len(v) > 1}
     unify, distinct = [], []
     for k, insts in sorted(multi.items()):
-        sigs = {resources(e) for _, e in insts}
+        sigs = {identity(e) for _, e in insts}
         (unify if len(sigs) == 1 else distinct).append((k, insts))
 
     def kpi_drift(insts) -> bool:
         by_ref = defaultdict(set)
         for _, e in insts:
             if e.get("kpi_id_ref"):
-                by_ref[e["kpi_id_ref"]].add(resources(e))
+                by_ref[e["kpi_id_ref"]].add(identity(e))
         return any(len(s) > 1 for s in by_ref.values())
 
     L = []
