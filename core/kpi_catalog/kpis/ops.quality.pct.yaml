@@ -1,0 +1,45 @@
+kpi_id: ops.quality.pct
+synonyms:
+- Quality Rate
+- Yield
+- Qualitätsgrad
+- Gutanteil
+- Qualitätsfaktor
+example_question: Which lines are below the quality target this month?
+kpi_key: Quality %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-001
+action_code_ref:
+- O-O1.3
+calc_type: rate
+business:
+  purpose: Yield of conforming units relative to total units produced.
+  definition: Good units / Total units
+  grain_scope: Machine/line level; per shift or day, aggregated monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher quality means fewer defects; low values indicate scrap/rework issues.
+technical:
+  measure_name: Quality %
+  description: Yield of conforming units relative to total units produced.
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Good Units
+  - fact_ops.Output Units
+governance:
+  business_owner: Head of Manufacturing
+  data_owner: Manufacturing BI
+  steward: Quality Engineer
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Quality % bounded between 0 % and 100 %; reconcile to scrap/rework reporting within +/- 1 pp.
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

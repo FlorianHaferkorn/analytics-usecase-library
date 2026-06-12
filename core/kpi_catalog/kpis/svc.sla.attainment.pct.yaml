@@ -1,0 +1,53 @@
+kpi_id: svc.sla.attainment.pct
+synonyms:
+- Service Level
+- SLA Compliance
+- Telephone Service Factor
+- Servicegrad
+- Servicelevel
+example_question: Which queues are missing the SLA this week?
+kpi_key: SLA Attainment %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Service
+domain_tag:
+- Service & Experience
+use_case_ref:
+- XD-001
+- XD-002
+- XD-003
+action_code_ref:
+- X-S1.1
+- X-S1.2
+- X-S1.4
+calc_type: ratio
+business:
+  purpose: Measures how many cases meet the committed SLA.
+  definition: Cases with SLA Met Flag = 1 divided by total cases in period.
+  grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher is better; interpret jointly with backlog and escalation %.
+technical:
+  measure_name: SLA Attainment %
+  description: Measures how many cases meet the committed SLA.
+  depends_on_measures:
+  - svc.backlog.count
+  - svc.fcr.pct
+  - svc.aht.minutes
+  - svc.escalation.pct
+  - svc.tickets.created.count
+  - svc.tickets.closed.count
+  lineage:
+  - fact_support_cases.SLA Met Flag
+governance:
+  business_owner: Head of Service
+  data_owner: Service Analytics
+  steward: Service Ops Analyst
+  review_cycle: monthly
+  validation_process: automated + spot checks
+  qa_rules:
+  - Total cases > 0 for reported slice
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

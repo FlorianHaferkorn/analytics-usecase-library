@@ -1,0 +1,41 @@
+kpi_id: plan.forecast.bias.pct
+kpi_key: Forecast Bias %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+- Operational Efficiency
+use_case_ref:
+- SCM-003
+action_code_ref:
+- S-F3.1
+- S-F3.2
+calc_type: rate
+business:
+  purpose: Measures systematic over- or under-forecasting.
+  definition: (Forecast - Actual) / Actual.
+  grain_scope: SKU/week; aggregated monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Values near 0 are best; positive bias indicates over-forecasting.
+technical:
+  measure_name: Forecast Bias %
+  description: Measures systematic over- or under-forecasting.
+  depends_on_measures: []
+  lineage:
+  - fact_forecast.Forecast Units
+governance:
+  business_owner: Supply Planning Lead
+  data_owner: Supply Chain BI
+  steward: Planner
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Actual Demand > 0
+  - Bias bounded and reviewed for outliers
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026
+aliases:
+- sales.forecast.bias_pct

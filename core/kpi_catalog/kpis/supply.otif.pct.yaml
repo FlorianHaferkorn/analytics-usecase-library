@@ -1,0 +1,54 @@
+kpi_id: supply.otif.pct
+synonyms:
+- On Time In Full
+- Delivery Reliability
+- DIFOT
+- Liefertreue
+example_question: Which lanes are missing the OTIF target this month?
+kpi_key: OTIF %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+- Operational Efficiency
+use_case_ref:
+- SCM-001
+- SCM-002
+- SCM-003
+action_code_ref:
+- S-F3.3
+- S-I1.1
+- S-I1.3
+- S-R2.1
+- S-R2.2
+- S-R2.5
+calc_type: rate
+business:
+  purpose: Measures share of orders delivered on time and in full.
+  definition: OTIF Orders / Total Orders.
+  grain_scope: Order/day; aggregated weekly or monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher is better; key service level indicator.
+technical:
+  measure_name: OTIF %
+  description: Measures share of orders delivered on time and in full.
+  depends_on_measures:
+  - supply.on_time.pct
+  - supply.in_full.pct
+  - supply.stockout_impact.pct
+  lineage:
+  - fact_fulfillment.OTIF Flag
+governance:
+  business_owner: Head of Supply Chain / Logistics
+  data_owner: Supply Chain BI
+  steward: Logistics Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Total Orders > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

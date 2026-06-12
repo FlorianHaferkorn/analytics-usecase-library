@@ -1,0 +1,34 @@
+kpi_id: ops.safety.incident.count
+kpi_key: Safety Incident Count
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-002
+action_code_ref: []
+calc_type: count
+business:
+  purpose: Counts safety incidents recorded in the period.
+  definition: Count of recorded safety incidents.
+  grain_scope: Site; aggregated by period.
+  unit_format: count
+  interpretation: Higher counts indicate higher safety risk.
+technical:
+  measure_name: Safety Incident Count
+  description: Counts safety incidents recorded in the period.
+  depends_on_measures: []
+  lineage: []
+governance:
+  business_owner: EHS Manager
+  data_owner: EHS BI
+  steward: Safety Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

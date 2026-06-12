@@ -1,0 +1,38 @@
+kpi_id: sales.promo.cannibalized_sales.amount
+kpi_key: Cannibalized Sales Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-004
+action_code_ref: []
+calc_type: amount
+business:
+  purpose: Sales lost on non-promoted items versus baseline (cannibalization in value).
+  definition: MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales).
+  grain_scope: Promo campaign / product / period.
+  unit_format: EUR (2 decimals)
+  interpretation: Numerator for Cannibalization %; higher means more cannibalization.
+technical:
+  measure_name: Cannibalized Sales Amount
+  description: Sales amount lost on non-promoted items versus baseline.
+  depends_on_measures:
+  - sales.net_sales.amount
+  lineage:
+  - fact_promo.Baseline Non-Promo Sales Amount
+  - fact_sales.Net Sales Amount
+  - fact_sales.Promo Flag
+governance:
+  business_owner: Head of Marketing Controlling
+  data_owner: BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Lost non-promo floored at 0
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

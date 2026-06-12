@@ -377,8 +377,13 @@ class TestCatalogEntry:
         )
 
     def test_catalog_entry_has_correct_measure_name(self):
-        content = CATALOG_PATH.read_text(encoding="utf-8")
-        assert 'measure_name: "Action Effectiveness Delta"' in content, (
+        # KPI_Catalog.md is a generated view; assert on parsed data, not on the
+        # incidental YAML quoting of the rendered block.
+        import yaml
+        block = CATALOG_PATH.read_text(encoding="utf-8").split("```yaml", 1)[1].rsplit("```", 1)[0]
+        entries = {e["kpi_id"]: e for e in yaml.safe_load(block)}
+        entry = entries["enterprise.action_effectiveness_delta.amount"]
+        assert entry["technical"]["measure_name"] == "Action Effectiveness Delta", (
             "KPI catalog entry for action_effectiveness_delta missing correct measure_name"
         )
 

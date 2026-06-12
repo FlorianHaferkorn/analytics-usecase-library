@@ -1,0 +1,38 @@
+kpi_id: ops.otif.pct
+kpi_key: OTIF %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- XD-003
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Delivery reliability measured by orders delivered on-time and in-full.
+  definition: On-Time In-Full deliveries / Total Deliveries
+  grain_scope: Order/shipment level; aggregated weekly/monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher OTIF indicates better delivery reliability; low values reflect service and execution issues.
+technical:
+  measure_name: Ops OTIF %
+  description: Delivery reliability measured by orders delivered on-time and in-full.
+  depends_on_measures:
+  - supply.otif.pct
+  lineage:
+  - fact_fulfillment.OTIF Flag
+governance:
+  business_owner: Head of Supply Chain / Finance
+  data_owner: Supply Chain BI
+  steward: Inventory Controller
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Inventory days reconcile to inventory and COGS within +/- 1 day
+  - 'Bounded: DSO/DIO/DPO derived days must be >= 0'
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026

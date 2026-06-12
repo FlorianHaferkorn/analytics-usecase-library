@@ -1,0 +1,46 @@
+kpi_id: ops.performance.pct
+synonyms:
+- Performance Rate
+- Speed Factor
+- Leistungsgrad
+- Leistung
+- Leistungsfaktor
+example_question: Where are speed losses hurting performance this week?
+kpi_key: Performance %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-001
+action_code_ref:
+- O-O1.2
+calc_type: rate
+business:
+  purpose: Throughput speed versus theoretical maximum.
+  definition: Actual output / Theoretical maximum output
+  grain_scope: Machine/line level; per shift or day, aggregated monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher performance indicates faster throughput; values above 100 % require validation of standard rates.
+technical:
+  measure_name: Performance %
+  description: Throughput speed versus theoretical maximum.
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Output Units
+  - fact_ops.Run Time Minutes
+  - fact_ops.Standard Rate Units Per Minute
+governance:
+  business_owner: Head of Manufacturing
+  data_owner: Manufacturing BI
+  steward: Production Engineer
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Performance % bounded between 0 % and 150 %; investigate values outside expected range by line.
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

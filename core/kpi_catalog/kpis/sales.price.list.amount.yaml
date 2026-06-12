@@ -1,0 +1,36 @@
+kpi_id: sales.price.list.amount
+kpi_key: List Price Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Growth
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-001
+- COM-002
+- COM-004
+action_code_ref: []
+calc_type: amount
+business:
+  purpose: Total list price (before discounts) for price realization and discount analysis.
+  definition: Sum of list price amount at invoice line grain.
+  grain_scope: Invoice line aggregated to reporting period.
+  unit_format: currency
+  interpretation: Base for Price Realization %; required input for sales.price.realization_pct.
+technical:
+  measure_name: List Price Amount
+  description: Total list price amount from fact_sales; data requirement for semantic model.
+  depends_on_measures: []
+  lineage:
+  - fact_sales.List Price Amount
+governance:
+  business_owner: Head of Sales Controlling
+  data_owner: Pricing Team
+  steward: Pricing Analyst
+  review_cycle: quarterly
+  validation_process: reconciled to price books
+  qa_rules: []
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 2026-02-22

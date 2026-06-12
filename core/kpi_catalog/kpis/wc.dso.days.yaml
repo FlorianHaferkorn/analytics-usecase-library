@@ -1,0 +1,45 @@
+kpi_id: wc.dso.days
+synonyms:
+- Days Sales Outstanding
+- Receivables Days
+- Average Collection Period
+- Debitorenlaufzeit
+- Forderungslaufzeit
+example_question: Why did DSO increase in the Nordics region last quarter?
+kpi_key: DSO Days
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Liquidity
+domain_tag:
+- Finance
+- Corporate & Strategy
+use_case_ref:
+- FIN-001
+action_code_ref:
+- F-C1.2
+calc_type: amount
+business:
+  purpose: Measures days sales outstanding for receivables.
+  definition: Receivables / (Net Sales / 365).
+  grain_scope: Company/segment; monthly close.
+  unit_format: days
+  interpretation: Lower is better; rising DSO indicates collection issues.
+technical:
+  measure_name: DSO Days
+  description: Measures days sales outstanding for receivables.
+  depends_on_measures: []
+  lineage:
+  - fact_accounts_receivable.AR Amount
+  - fact_accounts_receivable.Revenue Amount
+governance:
+  business_owner: Head of Treasury
+  data_owner: Finance BI
+  steward: Working Capital Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Net Sales > 0
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

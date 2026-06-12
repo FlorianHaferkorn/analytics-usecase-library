@@ -1,0 +1,35 @@
+kpi_id: ops.service_level.pct
+kpi_key: Operations Service Level %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- FIN-002
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures on-time or in-full performance for operational delivery.
+  definition: On-Time or In-Full Deliveries / Total Deliveries.
+  grain_scope: Site/product; aggregated by period.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher values indicate better service performance.
+technical:
+  measure_name: Operations Service Level %
+  description: Measures on-time or in-full performance for operational delivery.
+  depends_on_measures: []
+  lineage:
+  - fact_fulfillment.OTIF Flag
+governance:
+  business_owner: Head of Operations
+  data_owner: Operations BI
+  steward: Operations Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

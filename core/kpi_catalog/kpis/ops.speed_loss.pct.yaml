@@ -1,0 +1,40 @@
+kpi_id: ops.speed_loss.pct
+kpi_key: Speed Loss Rate %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-001
+action_code_ref:
+- O-O1.2
+calc_type: rate
+business:
+  purpose: Isolates chronic speed reduction from intermittent minor stops.
+  definition: Speed Loss = (1 - Performance Rate) adjusted to exclude minor stop events. Corresponds to Six Big Losses Category 4 (Reduced Speed).
+  grain_scope: Line/shift aggregated to plant and period.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Lower is better; speed losses are often misclassified as acceptable safety margin versus ISO ideal cycle time.
+technical:
+  measure_name: Speed Loss Rate %
+  description: Chronic speed reduction component of performance loss.
+  depends_on_measures:
+  - ops.performance.pct
+  lineage:
+  - fact_ops.Actual Cycle Time
+  - fact_ops.Ideal Cycle Time
+  - fact_ops.Minor Stop Count
+governance:
+  business_owner: Head of Operations
+  data_owner: Operations BI
+  steward: OEE Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - ops.speed_loss.pct + minor_stops_contribution ≤ 1 - ops.performance.pct
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.7
+  last_review: 01.06.2026

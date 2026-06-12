@@ -1,0 +1,40 @@
+kpi_id: ops.planned_output.units
+kpi_key: Planned Output Units
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-001
+- OPS-003
+action_code_ref:
+- O-O1.4
+- O-Q3.1
+- O-Q3.2
+- O-Q3.3
+calc_type: count
+business:
+  purpose: Captures planned production output volume.
+  definition: Sum of planned output units for the period.
+  grain_scope: Line/site; aggregated by period.
+  unit_format: units
+  interpretation: Baseline for comparing actual throughput.
+technical:
+  measure_name: Planned Output Units
+  description: Captures planned production output volume.
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Planned Time Minutes
+governance:
+  business_owner: Head of Operations
+  data_owner: Operations BI
+  steward: Production Planner
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

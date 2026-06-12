@@ -1,0 +1,40 @@
+kpi_id: plan.forecast.service_impact.pct
+kpi_key: Service Impact %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Supply Chain
+use_case_ref:
+- SCM-003
+action_code_ref:
+- S-F3.3
+calc_type: rate
+business:
+  purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).
+  definition: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
+  grain_scope: Calculated at location_sku_day or sku_week; reported at sku_month aggregated by Date, Org, Product.
+  unit_format: '%'
+  interpretation: Lower values are better; high impact indicates forecast under-coverage driving service loss.
+technical:
+  measure_name: Service Impact %
+  description: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage.
+  depends_on_measures: []
+  lineage:
+  - fact_forecast.Forecast Units
+  - fact_stockout.Demand Units
+  - fact_stockout.Lost Demand Units
+governance:
+  business_owner: Head of Supply Chain Planning
+  data_owner: Supply Chain BI
+  steward: Demand Planner
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - KPI only valid when Total Demand Qty > 0.
+  - Service Impact % must be <= Stockout Impact %.
+  - Under-Forecast Lost Demand Share must be between 0 % and 100 %.
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

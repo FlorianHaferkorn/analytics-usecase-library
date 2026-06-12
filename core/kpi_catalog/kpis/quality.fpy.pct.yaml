@@ -1,0 +1,51 @@
+kpi_id: quality.fpy.pct
+synonyms:
+- First Pass Yield
+- First Time Yield
+- Erstausbeute
+- Gutausbeute im ersten Durchgang
+example_question: Which products have the lowest first pass yield?
+kpi_key: First Pass Yield %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-003
+action_code_ref:
+- O-Q3.1
+- O-Q3.2
+calc_type: rate
+business:
+  purpose: Measures share of units produced without rework or scrap.
+  definition: Good Units / Total Units.
+  grain_scope: Line/day; aggregated monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher is better; low FPY indicates process instability.
+technical:
+  measure_name: First Pass Yield %
+  description: Measures share of units produced without rework or scrap.
+  depends_on_measures:
+  - quality.scrap.pct
+  - quality.rework.pct
+  - quality.copq.amount
+  - quality.complaint.pct
+  - quality.defect_density
+  lineage:
+  - fact_quality.Good Units
+  - fact_quality.Total Units
+governance:
+  business_owner: Head of Quality
+  data_owner: Operations BI
+  steward: Quality Manager
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Total Units > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

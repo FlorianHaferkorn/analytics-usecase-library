@@ -1,0 +1,39 @@
+kpi_id: sales.net_sales.amount
+kpi_key: Net Sales Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Growth
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-001
+- COM-002
+- COM-003
+- COM-004
+action_code_ref:
+- C-S1.1
+- C-S1.2
+calc_type: amount
+business:
+  purpose: Total invoiced revenue net of discounts and returns.
+  definition: Sum of all invoice line amounts net of VAT and returns.
+  grain_scope: Invoice line.
+  unit_format: EUR (2 decimals)
+  interpretation: Represents total top-line sales.
+technical:
+  measure_name: Net Sales Amount
+  description: Total invoiced revenue net of discounts and returns.
+  depends_on_measures: []
+  lineage:
+  - fact_sales.Net Sales Amount
+governance:
+  business_owner: Head of Sales
+  data_owner: BI Engineering
+  steward: Sales Analyst
+  review_cycle: quarterly
+  validation_process: dual control
+  qa_rules: []
+  version: v2.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

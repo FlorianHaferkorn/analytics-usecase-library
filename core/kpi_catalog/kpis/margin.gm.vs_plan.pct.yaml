@@ -1,0 +1,38 @@
+kpi_id: margin.gm.vs_plan.pct
+kpi_key: Gross Margin % vs Plan
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Finance
+- Commercial
+use_case_ref:
+- COM-002
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures gross margin rate variance versus plan.
+  definition: (Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.
+  grain_scope: Company/segment; monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Positive values indicate better-than-plan margin.
+technical:
+  measure_name: Gross Margin % vs Plan
+  description: Measures gross margin rate variance versus plan.
+  depends_on_measures:
+  - sales.net_sales.amount
+  - cost.cogs.amount
+  lineage:
+  - fact_plan_sales.Plan Gross Margin Amount
+governance:
+  business_owner: Head of Controlling
+  data_owner: BI Engineering
+  steward: Controlling Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Plan GM % available for reported period
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026

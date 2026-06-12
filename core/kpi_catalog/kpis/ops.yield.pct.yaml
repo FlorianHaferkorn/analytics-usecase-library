@@ -1,0 +1,43 @@
+kpi_id: ops.yield.pct
+synonyms:
+- Process Yield
+- Throughput Yield
+- Ausbeute
+- Gutausbeute
+- Ausbeutegrad
+example_question: How has process yield trended since the line upgrade?
+kpi_key: Yield %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- FIN-002
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures ratio of good output to total input.
+  definition: Good Units / Total Units Produced.
+  grain_scope: Line/shift; aggregated by period.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher yield indicates better process efficiency.
+technical:
+  measure_name: Yield %
+  description: Measures ratio of good output to total input.
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Good Units
+  - fact_ops.Output Units
+governance:
+  business_owner: Head of Manufacturing
+  data_owner: Manufacturing BI
+  steward: Process Engineer
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

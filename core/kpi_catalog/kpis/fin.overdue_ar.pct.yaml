@@ -1,0 +1,45 @@
+kpi_id: fin.overdue_ar.pct
+synonyms:
+- Past-Due AR %
+- Overdue Receivables %
+- Überfällige Forderungen
+- Forderungsüberfälligkeitsquote
+example_question: Which customers are driving the rise in overdue AR?
+kpi_key: Overdue AR %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Liquidity
+domain_tag:
+- Finance
+- Corporate & Strategy
+use_case_ref:
+- FIN-001
+action_code_ref:
+- F-C1.2
+calc_type: rate
+business:
+  purpose: Measures the proportion of accounts receivable past due date.
+  definition: Overdue AR (past due date) / Total AR × 100. Customer-level overdue analysis enables targeted collection.
+  grain_scope: Customer/entity level; aggregated monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher overdue AR directly increases DSO. Values > 15 % signal systemic collection issues.
+technical:
+  measure_name: Overdue AR %
+  description: Share of accounts receivable past due date.
+  depends_on_measures: []
+  lineage:
+  - fact_ar.Overdue Amount
+  - fact_ar.Total AR Amount
+governance:
+  business_owner: Head of Treasury
+  data_owner: Finance BI
+  steward: Credit Controller
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Bounded between 0 % and 100 %
+  - Overdue AR Amount <= Total AR Amount
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 01.06.2026

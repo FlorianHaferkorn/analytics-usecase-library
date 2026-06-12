@@ -1,0 +1,42 @@
+kpi_id: sales.pvm.price_effect.amount
+kpi_key: Price Effect Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Growth
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-001
+- COM-004
+action_code_ref:
+- C-S1.1
+calc_type: amount
+business:
+  purpose: Quantifies the pure price impact in the PVM bridge.
+  definition: (Actual Price - Plan Price) x Actual Quantity.
+  grain_scope: Aggregated to reporting period / segment.
+  unit_format: EUR (2 decimals)
+  interpretation: Positive values indicate price gains; negative values represent price pressure.
+technical:
+  measure_name: Price Effect Amount
+  description: Quantifies the pure price impact in the PVM bridge.
+  depends_on_measures:
+  - sales.net_sales.amount
+  lineage:
+  - fact_sales.Net Sales Amount
+  - fact_sales.Plan Quantity
+  - fact_sales.Plan Sales Amount
+  - fact_sales.Quantity
+governance:
+  business_owner: Head of Sales Controlling
+  data_owner: BI Engineering
+  steward: Sales Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Plan price locked before period
+  - Exclude items without plan price
+  version: v1.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

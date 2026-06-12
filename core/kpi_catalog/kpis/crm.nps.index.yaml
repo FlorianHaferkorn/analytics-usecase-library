@@ -1,0 +1,42 @@
+kpi_id: crm.nps.index
+synonyms:
+- Net Promoter Score
+- Promoter Score
+- Weiterempfehlungsrate
+- NPS
+example_question: Which segments are driving the change in NPS this quarter?
+kpi_key: Net Promoter Score (NPS)
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Customer
+domain_tag:
+- Customer & Market
+use_case_ref:
+- COM-003
+action_code_ref:
+- C-C3.2
+calc_type: rate
+business:
+  purpose: Measures customer advocacy and likelihood to recommend.
+  definition: (%Promoters - %Detractors) from survey responses in the period.
+  grain_scope: Survey response aggregated by period, segment, or region.
+  unit_format: Index (-100 to 100)
+  interpretation: '''>0 is positive, >50 strong advocacy; track trend and segment gaps.'''
+technical:
+  measure_name: NPS Index
+  description: Measures customer advocacy and likelihood to recommend.
+  depends_on_measures: []
+  lineage:
+  - fact_nps.NPS Score
+governance:
+  business_owner: Head of Customer Experience
+  data_owner: CX BI
+  steward: Customer Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Valid responses >= 80% of surveyed population
+  version: v2.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026
