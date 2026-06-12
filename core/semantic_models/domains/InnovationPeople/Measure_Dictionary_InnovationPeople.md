@@ -6,13 +6,11 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: Digital Adoption %
-  is_kpi_measure: false
-  kpi_id_ref: ''
-  semantic_model: InnovationPeople_SemanticModel
-  display_folder: 02_Digital
+  is_kpi_measure: true
+  kpi_id_ref: people.digital_adoption.pct
   category: KPI
   expression:
-    logical: Digital Adoption % = SUM(fact_it[Digital Users])
+    logical: Digital Adoption % = DIVIDE ( SUM ( fact_it[Digital Users] ), SUM ( fact_hr[Headcount] ) )
     aggregation_method: ratio
   documentation:
     description: Digital tool users divided by total employees.
@@ -28,10 +26,12 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_it[Digital Users]
     - fact_hr[Headcount]
   governance:
-    owner: Innovation Analytics
     status: active
     version: v1.2
     last_review: TBD
+    owner: Innovation Analytics
+  semantic_model: InnovationPeople_SemanticModel
+  display_folder: 02_Digital
 
 - measure_name: Digital Adoption Rate %
   is_kpi_measure: false

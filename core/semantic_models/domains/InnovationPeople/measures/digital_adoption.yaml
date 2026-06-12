@@ -1,14 +1,7 @@
-measure_name: Digital Adoption %
-is_kpi_measure: false
-kpi_id_ref: ''
+$ref: digital_adoption
 semantic_model: InnovationPeople_SemanticModel
 display_folder: 02_Digital
-category: KPI
-expression:
-  logical: Digital Adoption % = SUM(fact_it[Digital Users])
-  aggregation_method: ratio
 documentation:
-  description: Digital tool users divided by total employees.
   notes: 'Grain: month. Unit: %.
 
     Lineage: fact_it[Digital Users], fact_hr[Headcount].
@@ -16,12 +9,5 @@ documentation:
     QA: Headcount > 0; identity consistency.
 
     '
-dependencies:
-  columns:
-  - fact_it[Digital Users]
-  - fact_hr[Headcount]
 governance:
   owner: Innovation Analytics
-  status: active
-  version: v1.2
-  last_review: TBD
