@@ -1,0 +1,21 @@
+measure_name: Labor Hours
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Finance_SemanticModel
+display_folder: 05_Productivity
+category: Base
+expression:
+  logical: Labor Hours = SUM(fact_labor[Labor Hours])
+  aggregation_method: sum
+documentation:
+  description: Labor hours for productivity calculations.
+  notes: 'Source: fact_labor.'
+dependencies:
+  columns:
+  - fact_labor[Labor Hours]
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

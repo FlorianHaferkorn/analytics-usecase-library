@@ -1,0 +1,28 @@
+measure_name: OpEx vs Plan %
+is_kpi_measure: true
+kpi_id_ref: cost.opex.vs_plan.pct
+semantic_model: Finance_SemanticModel
+display_folder: 04_OpEx
+category: KPI
+expression:
+  logical: OpEx vs Plan % = (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
+  aggregation_method: ratio
+documentation:
+  description: 'Overhead control: (OpEx - Plan) / Plan.'
+  notes: 'Grain: month. Unit: %.
+
+    Lineage: fact_opex[OpEx], plan_opex.
+
+    QA: Plan available; sign conventions consistent.
+
+    '
+dependencies:
+  columns:
+  - fact_opex[OpEx]
+  - plan_opex[Plan OpEx]
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

@@ -1,0 +1,27 @@
+measure_name: Shipments Count
+is_kpi_measure: true
+kpi_id_ref: shipments.count
+semantic_model: SupplyChain_SemanticModel
+display_folder: 02_Service
+category: KPI
+expression:
+  logical: Shipments Count = Count of shipment records.
+  aggregation_method: count
+documentation:
+  description: Count of shipments executed.
+  notes: 'Grain: shipment. Unit: count.
+
+    Lineage: fact_shipment[Shipment ID].
+
+    QA: Exclude canceled shipments.
+
+    '
+dependencies:
+  columns:
+  - fact_shipment[Shipment ID]
+governance:
+  owner: Supply Chain Analytics
+  status: active
+  version: v0.1
+  last_review: 2026-03-27
+  review_due: 2027-03-31

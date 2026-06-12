@@ -1,0 +1,26 @@
+measure_name: Rebate Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 03_Pricing
+category: Base
+expression:
+  logical: Rebate Amount = SUM(fact_sales[Rebate Amount])
+  aggregation_method: sum
+documentation:
+  description: Total rebate amount applied to sales.
+  notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
+
+    Lineage: fact_sales[Rebate Amount].
+
+    QA: Rebates follow contractual terms and cut-off rules.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[Rebate Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

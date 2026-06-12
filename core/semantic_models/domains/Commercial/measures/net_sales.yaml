@@ -1,0 +1,19 @@
+measure_name: Net Sales
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 01_Revenue
+category: KPI
+expression:
+  logical: Net Sales = Alias for Net Sales Amount (TMDL display name, e.g. test models).
+  aggregation_method: sum
+documentation:
+  description: Alias for Net Sales Amount (TMDL display name, e.g. test models).
+  notes: Same as Net Sales Amount.
+dependencies:
+  columns: []
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

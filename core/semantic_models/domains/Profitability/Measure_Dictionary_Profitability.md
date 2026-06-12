@@ -1,5 +1,7 @@
 # Measure Dictionary - Profitability
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
@@ -30,6 +32,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin Amount
   is_kpi_measure: true
   kpi_id_ref: margin.gm.amount
@@ -57,6 +60,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin % vs Plan
   is_kpi_measure: true
   kpi_id_ref: margin.gm.vs_plan.pct
@@ -83,6 +87,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Promotion ROI %
   is_kpi_measure: true
   kpi_id_ref: sales.promo.roi.pct
@@ -110,6 +115,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Promo ROI %
   is_kpi_measure: true
   kpi_id_ref: sales.promo.roi.pct
@@ -129,6 +135,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Net Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -153,6 +160,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin Amount LY
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -177,6 +185,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin % LY
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -201,6 +210,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Plan Gross Margin %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -226,6 +236,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Promo Cost Amount
   is_kpi_measure: true
   kpi_id_ref: sales.promo.cost.amount
@@ -250,6 +261,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Promo COGS Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -275,6 +287,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Incremental Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -301,6 +314,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Incremental GM Amount
   is_kpi_measure: true
   kpi_id_ref: sales.promo.incremental_gm.amount
@@ -325,6 +339,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Promo Gross Margin %
   is_kpi_measure: true
   kpi_id_ref: margin.promo.gm.pct
@@ -353,6 +368,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Cost Base Volume Amount
   is_kpi_measure: true
   kpi_id_ref: cost.base_volume.amount
@@ -379,6 +395,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v0.1
     last_review: TBD
+
 - measure_name: Opex Base Amount
   is_kpi_measure: true
   kpi_id_ref: cost.opex.base.amount

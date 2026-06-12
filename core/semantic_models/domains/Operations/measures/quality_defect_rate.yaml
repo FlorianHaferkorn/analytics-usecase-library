@@ -1,0 +1,28 @@
+measure_name: Quality Defect Rate %
+is_kpi_measure: true
+kpi_id_ref: ops.quality.defect_rate.pct
+semantic_model: Operations_SemanticModel
+display_folder: 04_Quality
+category: KPI
+expression:
+  logical: Quality Defect Rate % = Defective Units / Total Produced Units.
+  aggregation_method: ratio
+documentation:
+  description: Defect count divided by total output units.
+  notes: 'Grain: line_day. Unit: %.
+
+    Lineage: fact_quality[Defect Count], fact_ops[Output Units].
+
+    QA: Output Units > 0; ensure defect definition consistent.
+
+    '
+dependencies:
+  columns:
+  - fact_quality[Defect Count]
+  - fact_ops[Output Units]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v0.1
+  last_review: 2026-03-27
+  review_due: 2027-03-31

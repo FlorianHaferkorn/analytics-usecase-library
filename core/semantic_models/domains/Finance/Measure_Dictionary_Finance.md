@@ -1,5 +1,7 @@
 # Measure Dictionary - Finance
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ## Aggregation Method Conventions
@@ -50,6 +52,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
   kpi_id_ref: fin.cash.ocf
@@ -77,6 +80,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Cash vs Plan %
   is_kpi_measure: true
   kpi_id_ref: fin.cash.vs_plan.pct
@@ -106,6 +110,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: CCC Days
   is_kpi_measure: true
   kpi_id_ref: wc.ccc.days
@@ -135,6 +140,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: DSO Days
   is_kpi_measure: true
   kpi_id_ref: wc.dso.days
@@ -163,6 +169,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: DIO Days
   is_kpi_measure: true
   kpi_id_ref: wc.dio.days
@@ -191,6 +198,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: DPO Days
   is_kpi_measure: true
   kpi_id_ref: wc.dpo.days
@@ -219,6 +227,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: AR Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -240,6 +249,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Revenue Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -261,6 +271,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: AP Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -282,6 +293,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Inventory Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -303,6 +315,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Net Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -324,6 +337,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: COGS Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -345,6 +359,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Material Cost Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -366,6 +381,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: OpEx Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -387,6 +403,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Plan OpEx Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -408,6 +425,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -429,6 +447,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Labor Hours
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -450,6 +469,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Unit Cost Amount
   is_kpi_measure: true
   kpi_id_ref: cost.unit.amount
@@ -478,6 +498,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: COGS % of Sales
   is_kpi_measure: true
   kpi_id_ref: margin.cogs.pct
@@ -506,6 +527,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: OpEx vs Plan %
   is_kpi_measure: true
   kpi_id_ref: cost.opex.vs_plan.pct
@@ -534,6 +556,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Material Cost %
   is_kpi_measure: true
   kpi_id_ref: cost.material.pct
@@ -562,6 +585,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Labor Productivity %
   is_kpi_measure: true
   kpi_id_ref: ops.labor.productivity.pct
@@ -590,6 +614,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: EBITDA Margin
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -618,6 +643,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: COGS Amount (AP)
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -639,127 +665,133 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
-- measure_name: "Net Sales Amount (FIN)"
+
+- measure_name: Net Sales Amount (FIN)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Finance_SemanticModel"
-  display_folder: "03_Cost"
-  category: "Base"
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 03_Cost
+  category: Base
   expression:
-    logical: "Net Sales Amount (FIN) = SUM ( fact_sales[Net Sales Amount] )"
+    logical: Net Sales Amount (FIN) = SUM ( fact_sales[Net Sales Amount] )
     aggregation_method: sum
   documentation:
-    description: "Total invoiced revenue net of discounts and returns, Finance domain view."
-    notes: "Grain: invoice_line, reported monthly. Unit: EUR. Lineage: fact_sales[Net Sales Amount]."
+    description: Total invoiced revenue net of discounts and returns, Finance domain view.
+    notes: 'Grain: invoice_line, reported monthly. Unit: EUR. Lineage: fact_sales[Net Sales Amount].'
   dependencies:
     columns:
-      - "fact_sales[Net Sales Amount]"
+    - fact_sales[Net Sales Amount]
   governance:
-    owner: "Finance BI"
+    owner: Finance BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Actions Executed Count (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Actions Executed Count (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Finance_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )"
+    logical: Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
     aggregation_method: count
   documentation:
-    description: "Number of action codes with a recorded outcome — Finance domain cross-domain view."
-    notes: "Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status]."
+    description: Number of action codes with a recorded outcome — Finance domain cross-domain view.
+    notes: 'Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Finance BI"
+    owner: Finance BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Outcome Rate % (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action Outcome Rate % (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Finance_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = \"achieved\" ), COUNTROWS ( fact_action_outcome ) )"
+    logical: Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
     aggregation_method: custom
   documentation:
-    description: "Percentage of executed actions with a confirmed achieved outcome — Finance domain cross-domain proxy."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status]."
+    description: Percentage of executed actions with a confirmed achieved outcome — Finance domain cross-domain proxy.
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Finance BI"
+    owner: Finance BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Avg Time-to-Outcome Days (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Avg Time-to-Outcome Days (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Finance_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )"
+    logical: Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
     aggregation_method: average
   documentation:
-    description: "Average days between action execution and outcome confirmation — Finance domain cross-domain proxy."
-    notes: "Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome]."
+    description: Average days between action execution and outcome confirmation — Finance domain cross-domain proxy.
+    notes: 'Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome].'
   dependencies:
     columns:
-      - "fact_action_outcome[days_to_outcome]"
+    - fact_action_outcome[days_to_outcome]
   governance:
-    owner: "Finance BI"
+    owner: Finance BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action ROI % (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action ROI % (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Finance_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1"
+    logical: Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
     aggregation_method: custom
   documentation:
-    description: "Average ROI of executed actions — Finance domain cross-domain proxy."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute]."
+    description: Average ROI of executed actions — Finance domain cross-domain proxy.
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute].'
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[cost_to_execute]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[cost_to_execute]
   governance:
-    owner: "Finance BI"
+    owner: Finance BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Effectiveness Delta (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action Effectiveness Delta (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Finance_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Finance_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = \"achieved\" ), fact_action_outcome[impact_value] )"
+    logical: Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
     aggregation_method: average
   documentation:
-    description: "Average EUR impact per achieved action execution — Finance domain cross-domain proxy."
-    notes: "Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status]."
+    description: Average EUR impact per achieved action execution — Finance domain cross-domain proxy.
+    notes: 'Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Finance BI"
+    owner: Finance BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
+    version: v1.0
+    last_review: 28.04.2026
 ```
 

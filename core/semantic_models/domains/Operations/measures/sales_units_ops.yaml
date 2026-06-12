@@ -1,0 +1,20 @@
+measure_name: Sales Units (OPS)
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Operations_SemanticModel
+display_folder: 03_Quality
+category: Base
+expression:
+  logical: Sales Units (OPS) = SUM ( fact_ops[Output Units] )
+  aggregation_method: sum
+documentation:
+  description: Output units volume from operations — Operations domain view.
+  notes: 'Grain: line_day. Unit: units. Lineage: fact_ops[Output Units].'
+dependencies:
+  columns:
+  - fact_ops[Output Units]
+governance:
+  owner: Operations BI
+  status: active
+  version: v1.0
+  last_review: 28.04.2026

@@ -1,0 +1,25 @@
+measure_name: Turnover Rate %
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: InnovationPeople_SemanticModel
+display_folder: 04_People
+category: KPI
+expression:
+  logical: Turnover Rate % = [[Exits Count]] / [[Average Headcount]]
+  aggregation_method: ratio
+documentation:
+  description: Employee exits divided by average headcount.
+  notes: 'Grain: month. Unit: %.
+
+    QA: Headcount > 0; exits non-negative.
+
+    '
+dependencies:
+  measures:
+  - '[Exits Count]'
+  - '[Average Headcount]'
+governance:
+  owner: Innovation Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

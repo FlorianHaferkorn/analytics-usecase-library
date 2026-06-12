@@ -1,5 +1,7 @@
 # Measure Dictionary - Operations
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ## Aggregation Method Conventions
@@ -31,16 +33,14 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: OEE = Availability % * Performance % * Quality % = (SUM(Run Time) / SUM(Planned Time)) * (SUM(Output Units) /
-      (SUM(Planned Time) * Standard Rate)) * (SUM(Good Units) / SUM(Output Units))
+    logical: OEE = Availability % * Performance % * Quality % = (SUM(Run Time) / SUM(Planned Time)) * (SUM(Output Units) / (SUM(Planned Time) * Standard Rate)) * (SUM(Good Units) / SUM(Output Units))
   documentation:
     description: Overall equipment effectiveness combining availability, performance, and quality.
     notes: 'Grain: line_day. Unit: %.
 
       Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes], fact_ops[Output Units], fact_ops[Good Units].
 
-      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace Perf divisor with theoretical output
-      when available.
+      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace Perf divisor with theoretical output when available.
 
       '
   dependencies:
@@ -55,6 +55,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Availability %
   is_kpi_measure: true
   kpi_id_ref: ops.availability.pct
@@ -83,6 +84,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Performance %
   is_kpi_measure: true
   kpi_id_ref: ops.performance.pct
@@ -112,6 +114,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Planned Hours
   is_kpi_measure: true
   kpi_id_ref: ops.planned.hours
@@ -140,6 +143,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     status: active
     version: v1.0
     last_review: 27.01.2026
+
 - measure_name: Quality %
   is_kpi_measure: true
   kpi_id_ref: ops.quality.pct
@@ -168,6 +172,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Throughput Units
   is_kpi_measure: true
   kpi_id_ref: ops.throughput.units
@@ -195,6 +200,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Downtime %
   is_kpi_measure: true
   kpi_id_ref: ops.downtime.pct
@@ -223,6 +229,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Run Time Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -244,6 +251,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Downtime Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -265,6 +273,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Unplanned Downtime Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -286,6 +295,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Standard Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -308,6 +318,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Failure Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -329,6 +340,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: MTBF (hours)
   is_kpi_measure: true
   kpi_id_ref: ops.mtbf.hours
@@ -357,6 +369,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: MTTR (hours)
   is_kpi_measure: true
   kpi_id_ref: ops.mttr.hours
@@ -384,6 +397,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Unplanned Downtime %
   is_kpi_measure: true
   kpi_id_ref: ops.downtime.unplanned.pct
@@ -412,6 +426,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Spare Parts Stockout %
   is_kpi_measure: true
   kpi_id_ref: ops.spare_parts.stockout.pct
@@ -440,6 +455,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: PM Compliance %
   is_kpi_measure: true
   kpi_id_ref: ops.pm_compliance.pct
@@ -468,6 +484,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: First Pass Yield %
   is_kpi_measure: true
   kpi_id_ref: quality.fpy.pct
@@ -496,6 +513,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Scrap Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.scrap.pct
@@ -524,6 +542,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Rework Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.rework.pct
@@ -552,6 +571,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Total Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -573,6 +593,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Good Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -594,6 +615,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Scrap Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -615,6 +637,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Rework Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -636,6 +659,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Cost of Poor Quality
   is_kpi_measure: true
   kpi_id_ref: quality.copq.amount
@@ -663,6 +687,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Complaint Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.complaint.pct
@@ -691,6 +716,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Complaint Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -712,6 +738,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Shipped Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -733,6 +760,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Defect Density
   is_kpi_measure: true
   kpi_id_ref: quality.defect_density
@@ -761,6 +789,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Planned Time
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -782,6 +811,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Run Time
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -803,6 +833,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -824,6 +855,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Defect Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -845,6 +877,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Failure Count
   is_kpi_measure: true
   kpi_id_ref: ops.failure.count
@@ -872,6 +905,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Planned Output Units
   is_kpi_measure: true
   kpi_id_ref: ops.planned_output.units
@@ -899,6 +933,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Preventive Maintenance Task Count
   is_kpi_measure: true
   kpi_id_ref: ops.pm.task.count
@@ -926,6 +961,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Production Volume Units
   is_kpi_measure: true
   kpi_id_ref: ops.production.volume
@@ -953,6 +989,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Quality Defect Rate %
   is_kpi_measure: true
   kpi_id_ref: ops.quality.defect_rate.pct
@@ -981,6 +1018,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Safety Incident Count
   is_kpi_measure: true
   kpi_id_ref: ops.safety.incident.count
@@ -1008,6 +1046,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Operations Service Level %
   is_kpi_measure: true
   kpi_id_ref: ops.service_level.pct
@@ -1036,6 +1075,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Yield %
   is_kpi_measure: true
   kpi_id_ref: ops.yield.pct
@@ -1064,147 +1104,154 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
-- measure_name: "Overall Equipment Effectiveness (OEE) %"
+
+- measure_name: Overall Equipment Effectiveness (OEE) %
   is_kpi_measure: true
-  kpi_id_ref: "ops.oee.pct"
-  semantic_model: "Operations_SemanticModel"
-  display_folder: "01_Manufacturing"
-  category: "KPI"
+  kpi_id_ref: ops.oee.pct
+  semantic_model: Operations_SemanticModel
+  display_folder: 01_Manufacturing
+  category: KPI
   expression:
-    logical: "Overall Equipment Effectiveness (OEE) % = [OEE %]"
+    logical: Overall Equipment Effectiveness (OEE) % = [OEE %]
     aggregation_method: custom
   documentation:
-    description: "Display alias for OEE %. Composite measure combining availability, performance, and quality in manufacturing."
-    notes: "Grain: line_day. Unit: %. Lineage: [OEE %]. QA: Composite of Availability %, Performance %, Quality %."
+    description: Display alias for OEE %. Composite measure combining availability, performance, and quality in manufacturing.
+    notes: 'Grain: line_day. Unit: %. Lineage: [OEE %]. QA: Composite of Availability %, Performance %, Quality %.'
   dependencies:
     measures:
-      - "[OEE %]"
+    - '[OEE %]'
   governance:
-    owner: "Operations BI"
+    owner: Operations BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Sales Units (OPS)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Sales Units (OPS)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Operations_SemanticModel"
-  display_folder: "03_Quality"
-  category: "Base"
+  kpi_id_ref: ''
+  semantic_model: Operations_SemanticModel
+  display_folder: 03_Quality
+  category: Base
   expression:
-    logical: "Sales Units (OPS) = SUM ( fact_ops[Output Units] )"
+    logical: Sales Units (OPS) = SUM ( fact_ops[Output Units] )
     aggregation_method: sum
   documentation:
-    description: "Output units volume from operations — Operations domain view."
-    notes: "Grain: line_day. Unit: units. Lineage: fact_ops[Output Units]."
+    description: Output units volume from operations — Operations domain view.
+    notes: 'Grain: line_day. Unit: units. Lineage: fact_ops[Output Units].'
   dependencies:
     columns:
-      - "fact_ops[Output Units]"
+    - fact_ops[Output Units]
   governance:
-    owner: "Operations BI"
+    owner: Operations BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Actions Executed Count (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Actions Executed Count (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Operations_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Operations_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )"
+    logical: Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
     aggregation_method: count
   documentation:
-    description: "Number of action codes with a recorded outcome — Operations cross-domain proxy."
-    notes: "Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status]."
+    description: Number of action codes with a recorded outcome — Operations cross-domain proxy.
+    notes: 'Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Operations BI"
+    owner: Operations BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Outcome Rate % (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action Outcome Rate % (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Operations_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Operations_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = \"achieved\" ), COUNTROWS ( fact_action_outcome ) )"
+    logical: Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
     aggregation_method: custom
   documentation:
-    description: "Percentage of executed actions with a confirmed achieved outcome — Operations cross-domain proxy."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status]."
+    description: Percentage of executed actions with a confirmed achieved outcome — Operations cross-domain proxy.
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Operations BI"
+    owner: Operations BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Avg Time-to-Outcome Days (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Avg Time-to-Outcome Days (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Operations_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Operations_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )"
+    logical: Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
     aggregation_method: average
   documentation:
-    description: "Average days between action execution and outcome confirmation — Operations cross-domain proxy."
-    notes: "Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome]."
+    description: Average days between action execution and outcome confirmation — Operations cross-domain proxy.
+    notes: 'Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome].'
   dependencies:
     columns:
-      - "fact_action_outcome[days_to_outcome]"
+    - fact_action_outcome[days_to_outcome]
   governance:
-    owner: "Operations BI"
+    owner: Operations BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action ROI % (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action ROI % (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Operations_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Operations_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1"
+    logical: Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
     aggregation_method: custom
   documentation:
-    description: "Average ROI of executed actions — Operations cross-domain proxy."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute]."
+    description: Average ROI of executed actions — Operations cross-domain proxy.
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute].'
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[cost_to_execute]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[cost_to_execute]
   governance:
-    owner: "Operations BI"
+    owner: Operations BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Effectiveness Delta (XD)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action Effectiveness Delta (XD)
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Operations_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Operations_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = \"achieved\" ), fact_action_outcome[impact_value] )"
+    logical: Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
     aggregation_method: average
   documentation:
-    description: "Average EUR impact per achieved action execution — Operations cross-domain proxy."
-    notes: "Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status]."
+    description: Average EUR impact per achieved action execution — Operations cross-domain proxy.
+    notes: 'Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Operations BI"
+    owner: Operations BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
+    version: v1.0
+    last_review: 28.04.2026
 ```
 

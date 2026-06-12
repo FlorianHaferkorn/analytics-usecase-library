@@ -1,0 +1,19 @@
+measure_name: Total Process Cost Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Efficiency_SemanticModel
+category: Base
+expression:
+  logical: Total Process Cost Amount = Total process cost in the selected context.
+  aggregation_method: sum
+documentation:
+  description: Total process cost in the selected context.
+  notes: ''
+governance:
+  owner: Manufacturing BI
+  status: active
+  version: v2.0
+  last_review: 12.10.2025
+dependencies:
+  columns:
+  - fact_cost.COGS Amount

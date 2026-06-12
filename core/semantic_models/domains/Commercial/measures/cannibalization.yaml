@@ -1,0 +1,30 @@
+measure_name: Cannibalization %
+is_kpi_measure: true
+kpi_id_ref: sales.promo.cannibalization.pct
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 04_Promo
+category: KPI
+expression:
+  logical: Cannibalization % = ([Cannibalized Sales Amount]) / ([Incremental Sales Amount])
+  aggregation_method: ratio
+documentation:
+  description: Share of promotional uplift offset by losses in non-promoted items.
+  notes: 'Grain: promotion. Unit: %.
+
+    Lineage: fact_sales[Net Sales Amount], fact_sales[Promo Flag], fact_promo[Baseline Non-Promo Sales Amount], dim_product[ProductFamily].
+
+    QA: Requires clear promo flagging, non-promo baseline for comparable items, grouping via ProductFamily; DIVIDE protects divide-by-zero; lost non-promo is floored at 0.
+
+    '
+dependencies:
+  measures:
+  - '[Incremental Sales Amount]'
+  columns:
+  - fact_sales[Net Sales Amount]
+  - fact_sales[Promo Flag]
+  - fact_promo[Baseline Non-Promo Sales Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

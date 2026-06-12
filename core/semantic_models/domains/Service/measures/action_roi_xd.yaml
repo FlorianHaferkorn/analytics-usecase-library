@@ -1,0 +1,21 @@
+measure_name: Action ROI % (XD)
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Service_SemanticModel
+display_folder: 08_Action_Outcomes
+category: KPI
+expression:
+  logical: Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
+  aggregation_method: custom
+documentation:
+  description: Average ROI of executed actions — Service cross-domain proxy.
+  notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute].'
+dependencies:
+  columns:
+  - fact_action_outcome[impact_value]
+  - fact_action_outcome[cost_to_execute]
+governance:
+  owner: Service BI
+  status: active
+  version: v1.0
+  last_review: 28.04.2026

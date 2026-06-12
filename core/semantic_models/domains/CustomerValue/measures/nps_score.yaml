@@ -1,0 +1,20 @@
+measure_name: NPS Score
+is_kpi_measure: true
+kpi_id_ref: crm.nps.index
+semantic_model: CustomerValue_SemanticModel
+display_folder: 02_CX
+category: KPI
+expression:
+  logical: NPS Score = (%Promoters - %Detractors) from survey responses in the period.
+  aggregation_method: average
+documentation:
+  description: Average NPS score across responses in the current context.
+  notes: Use survey weights upstream if required.
+dependencies:
+  columns:
+  - fact_nps[NPS Score]
+governance:
+  owner: CX BI
+  status: active
+  version: v1.2
+  last_review: 12.12.2025

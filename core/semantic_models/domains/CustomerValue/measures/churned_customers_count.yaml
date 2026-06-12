@@ -1,0 +1,21 @@
+measure_name: Churned Customers Count
+is_kpi_measure: true
+kpi_id_ref: crm.churned_customers.count
+semantic_model: CustomerValue_SemanticModel
+display_folder: 01_Retention
+category: KPI
+expression:
+  logical: Churned Customers Count = Distinct customers with no qualifying transactions in the current period but active in the look-back window.
+  aggregation_method: count
+documentation:
+  description: Customers flagged as churned in the selected period.
+  notes: Depends on churn flag in fact_customer_events.
+dependencies:
+  columns:
+  - dim_customer[CustomerKey]
+  - fact_customer_events[Churn Flag]
+governance:
+  owner: CRM BI
+  status: active
+  version: v1.2
+  last_review: 12.12.2025

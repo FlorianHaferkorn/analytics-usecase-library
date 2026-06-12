@@ -1,0 +1,26 @@
+measure_name: NPS Index
+is_kpi_measure: true
+kpi_id_ref: svc.nps.index
+semantic_model: Service_SemanticModel
+display_folder: 04_Experience
+category: KPI
+expression:
+  logical: NPS Index = %Promoters minus %Detractors from NPS survey.
+  aggregation_method: average
+documentation:
+  description: 'NPS score from surveys: %Promoters - %Detractors.'
+  notes: 'Grain: month. Unit: index.
+
+    Lineage: fact_nps[NPS Score].
+
+    QA: Score in [0;10]; promoter/detractor rules consistent.
+
+    '
+dependencies:
+  columns:
+  - fact_nps[NPS Score]
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

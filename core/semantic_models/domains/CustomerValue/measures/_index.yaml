@@ -1,0 +1,17 @@
+order:
+- net_sales_amount
+- customer_lifetime_value_amount
+- customer_lifetime_revenue_amount
+- active_customers_count
+- churned_customers_count
+- customer_retention
+- revenue_at_risk_amount
+- nps_score
+- customer_complaints_count
+- cogs_amount
+- margin_amount
+- gross_margin
+- complaint_rate
+- active_customers
+- churned_customers
+- clv

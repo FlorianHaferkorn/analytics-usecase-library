@@ -1,0 +1,21 @@
+measure_name: COGS Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: SupplyChain_SemanticModel
+display_folder: 01_Inventory
+category: Base
+expression:
+  logical: COGS Amount = SUM(fact_cogs[COGS Amount])
+  aggregation_method: sum
+documentation:
+  description: COGS base for inventory turnover and DIO.
+  notes: 'Source: fact_cogs[COGS Amount].'
+dependencies:
+  columns:
+  - fact_cogs[COGS Amount]
+governance:
+  owner: Supply Chain Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

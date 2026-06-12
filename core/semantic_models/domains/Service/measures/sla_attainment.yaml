@@ -1,0 +1,29 @@
+measure_name: SLA Attainment %
+is_kpi_measure: true
+kpi_id_ref: svc.sla.attainment.pct
+semantic_model: Service_SemanticModel
+display_folder: 01_Service
+category: KPI
+expression:
+  logical: SLA Attainment % = Cases with SLA Met Flag = 1 divided by total cases in period.
+  aggregation_method: ratio
+documentation:
+  description: Cases meeting SLA divided by total cases.
+  notes: 'Grain: day_queue. Unit: %.
+
+    Lineage: fact_cases[SLA Met Flag].
+
+    QA: One row per case; SLA flag logic consistent.
+
+    '
+dependencies:
+  columns:
+  - fact_cases[SLA Met Flag]
+  measures:
+  - Cases SLA Met
+  - Cases Resolved
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

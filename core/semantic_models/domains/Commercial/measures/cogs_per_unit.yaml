@@ -1,0 +1,28 @@
+measure_name: COGS per Unit
+is_kpi_measure: true
+kpi_id_ref: cost.cogs_per_unit.amount
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 02_Margin
+category: KPI
+expression:
+  logical: COGS per Unit = ([Cost of Goods Sold Amount]) / (SUM ( fact_sales[Quantity] ))
+  aggregation_method: sum
+documentation:
+  description: Unit cost calculated as COGS divided by quantity sold.
+  notes: 'Grain: invoice_line, reported monthly. Unit: EUR per unit.
+
+    Lineage: [Cost of Goods Sold Amount], fact_sales[Quantity].
+
+    QA: DIVIDE protects divide-by-zero; quantity must be positive.
+
+    '
+dependencies:
+  measures:
+  - '[Cost of Goods Sold Amount]'
+  columns:
+  - fact_sales[Quantity]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

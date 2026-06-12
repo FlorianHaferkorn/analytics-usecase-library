@@ -1,0 +1,21 @@
+measure_name: Downtime Minutes
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Operations_SemanticModel
+display_folder: 03_Downtime
+category: Base
+expression:
+  logical: Downtime Minutes = SUM(fact_ops[Downtime Minutes])
+  aggregation_method: sum
+documentation:
+  description: Total downtime minutes (planned + unplanned if not split).
+  notes: 'Source: fact_ops[Downtime Minutes].'
+dependencies:
+  columns:
+  - fact_ops[Downtime Minutes]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

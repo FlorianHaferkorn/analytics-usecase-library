@@ -1,0 +1,29 @@
+measure_name: Price Effect Amount
+is_kpi_measure: true
+kpi_id_ref: sales.pvm.price_effect.amount
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 03_PVM
+category: Driver
+expression:
+  logical: Price Effect Amount = ( (fact_sales[Net Sales Amount]) / (fact_sales[Quantity]) - (fact_sales[Plan Sales Amount]) / (fact_sales[Plan Quantity]) ) * fact_sales[Quantity] )
+  aggregation_method: sum
+documentation:
+  description: PVM driver quantifying the net sales impact from price change.
+  notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
+
+    Lineage: fact_sales[Net Sales Amount], fact_sales[Plan Sales Amount], fact_sales[Quantity], fact_sales[Plan Quantity].
+
+    QA: Plan quantities/prices must be available; watch for zero quantities.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[Net Sales Amount]
+  - fact_sales[Plan Sales Amount]
+  - fact_sales[Quantity]
+  - fact_sales[Plan Quantity]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

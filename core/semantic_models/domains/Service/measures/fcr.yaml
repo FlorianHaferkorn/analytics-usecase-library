@@ -1,0 +1,29 @@
+measure_name: FCR %
+is_kpi_measure: true
+kpi_id_ref: svc.fcr.pct
+semantic_model: Service_SemanticModel
+display_folder: 01_Service
+category: KPI
+expression:
+  logical: FCR % = Cases with FCR Flag = 1 divided by total cases.
+  aggregation_method: ratio
+documentation:
+  description: Cases resolved on first contact divided by total cases.
+  notes: 'Grain: day_queue. Unit: %.
+
+    Lineage: fact_cases[FCR Flag].
+
+    QA: Flag accuracy; exclude reopened cases if policy requires.
+
+    '
+dependencies:
+  columns:
+  - fact_cases[FCR Flag]
+  measures:
+  - Cases FCR
+  - Cases Resolved
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

@@ -1,0 +1,28 @@
+measure_name: Gross Margin Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 02_Margin
+category: KPI
+expression:
+  logical: Gross Margin Amount = [Net Sales Amount] - [Cost of Goods Sold Amount]
+  aggregation_method: sum
+documentation:
+  description: Profit pool calculated as net sales minus cost of goods sold.
+  notes: 'Grain: invoice_line, reported monthly. Unit: EUR.
+
+    Lineage: [Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
+
+    QA: COGS must align to sales grain; currency handled upstream.
+
+    '
+dependencies:
+  measures:
+  - '[Net Sales Amount]'
+  columns:
+  - fact_sales[Cost of Goods Sold Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

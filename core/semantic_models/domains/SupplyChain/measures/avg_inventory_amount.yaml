@@ -1,0 +1,21 @@
+measure_name: Avg Inventory Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: SupplyChain_SemanticModel
+display_folder: 01_Inventory
+category: Base
+expression:
+  logical: Avg Inventory Amount = SUM(fact_inventory[Average Inventory Amount])
+  aggregation_method: sum
+documentation:
+  description: Average inventory value used as base for DIO and turnover.
+  notes: 'Source: fact_inventory[Average Inventory Amount].'
+dependencies:
+  columns:
+  - fact_inventory[Average Inventory Amount]
+governance:
+  owner: Supply Chain Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

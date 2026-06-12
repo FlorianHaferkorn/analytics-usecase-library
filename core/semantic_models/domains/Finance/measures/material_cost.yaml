@@ -1,0 +1,28 @@
+measure_name: Material Cost %
+is_kpi_measure: true
+kpi_id_ref: cost.material.pct
+semantic_model: Finance_SemanticModel
+display_folder: 03_Cost
+category: KPI
+expression:
+  logical: Material Cost % = Material Cost Amount / Net Sales Amount.
+  aggregation_method: ratio
+documentation:
+  description: Material cost / Net Sales.
+  notes: 'Grain: month. Unit: %.
+
+    Lineage: fact_cost[Material Cost], fact_finance[Net Sales].
+
+    QA: Net Sales > 0; material cost completeness.
+
+    '
+dependencies:
+  columns:
+  - fact_cost[Material Cost]
+  - fact_finance[Net Sales]
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

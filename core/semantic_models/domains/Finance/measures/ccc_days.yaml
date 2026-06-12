@@ -1,0 +1,29 @@
+measure_name: CCC Days
+is_kpi_measure: true
+kpi_id_ref: wc.ccc.days
+semantic_model: Finance_SemanticModel
+display_folder: 02_WorkingCapital
+category: KPI
+expression:
+  aggregation_method: ratio
+  logical: CCC = [DSO Days] + [DIO Days] - [DPO Days]
+documentation:
+  description: Working capital cycle time.
+  notes: 'Grain: month. Unit: days.
+
+    Lineage: DSO, DIO, DPO measures.
+
+    QA: Ensure consistent revenue/COGS bases across components.
+
+    '
+dependencies:
+  measures:
+  - '[DSO (days)]'
+  - '[DIO (days)]'
+  - '[DPO (days)]'
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

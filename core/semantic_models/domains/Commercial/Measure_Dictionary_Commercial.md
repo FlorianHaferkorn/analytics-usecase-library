@@ -1,5 +1,7 @@
 # Measure Dictionary - Commercial
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
@@ -29,6 +31,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: List Price Amount
   is_kpi_measure: true
   kpi_id_ref: sales.price.list.amount
@@ -55,6 +58,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 06.02.2026
+
 - measure_name: Net Price Amount
   is_kpi_measure: true
   kpi_id_ref: sales.price.net.amount
@@ -81,6 +85,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 06.02.2026
+
 - measure_name: Net Sales % vs Plan
   is_kpi_measure: true
   kpi_id_ref: sales.net_sales.delta_pct.plan
@@ -110,6 +115,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Net Sales % vs LY
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -139,6 +145,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Gross Margin Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -167,6 +174,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Cost of Goods Sold Amount
   is_kpi_measure: true
   kpi_id_ref: cost.cogs.amount
@@ -193,6 +201,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 06.02.2026
+
 - measure_name: Gross Margin %
   is_kpi_measure: true
   kpi_id_ref: margin.gm.pct
@@ -220,6 +229,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Gross Margin % vs Plan
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -227,8 +237,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: KPI
   expression:
-    logical: Gross Margin % vs Plan = (([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount]) - (SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM (
-      fact_sales[Plan Sales Amount] ))) / ((SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] )))
+    logical: Gross Margin % vs Plan = (([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount]) - (SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] ))) / ((SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] )))
     aggregation_method: ratio
   documentation:
     description: Relative variance of gross margin rate versus plan.
@@ -252,6 +261,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Price Effect Amount
   is_kpi_measure: true
   kpi_id_ref: sales.pvm.price_effect.amount
@@ -281,6 +291,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Volume Effect Amount
   is_kpi_measure: true
   kpi_id_ref: sales.pvm.volume_effect.amount
@@ -309,6 +320,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Mix Effect Amount
   is_kpi_measure: true
   kpi_id_ref: sales.pvm.mix_effect.amount
@@ -338,6 +350,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Price Realization %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -365,6 +378,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Promotion ROI %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -393,6 +407,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Incremental Sales Amount
   is_kpi_measure: true
   kpi_id_ref: sales.promo.incremental.amount
@@ -420,6 +435,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Cannibalized Sales Amount
   is_kpi_measure: true
   kpi_id_ref: sales.promo.cannibalized_sales.amount
@@ -448,6 +464,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Cannibalization %
   is_kpi_measure: true
   kpi_id_ref: sales.promo.cannibalization.pct
@@ -478,6 +495,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Promo Gross Margin %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -505,6 +523,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: COGS per Unit
   is_kpi_measure: true
   kpi_id_ref: cost.cogs_per_unit.amount
@@ -533,6 +552,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Plan Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -559,6 +579,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Last Year Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -585,6 +606,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Plan Gross Margin Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -613,6 +635,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Net Price Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -639,6 +662,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: List Price Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -665,6 +689,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Cost of Goods Sold Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -691,6 +716,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Plan COGS Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -717,6 +743,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Quantity
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -743,6 +770,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Plan Quantity
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -769,6 +797,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Discount Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -795,6 +824,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Rebate Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -821,6 +851,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Surcharge Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -847,6 +878,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Promo Gross Margin Uplift Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -875,6 +907,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Incremental Gross Margin Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -903,6 +936,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Baseline Sales Amount
   is_kpi_measure: true
   kpi_id_ref: sales.promo.baseline_sales.amount
@@ -929,6 +963,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Baseline Quantity
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -955,6 +990,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Funding Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -981,6 +1017,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Promo Cost
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -1007,6 +1044,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Delta% Net Sales
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -1027,6 +1065,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: Net Sales
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -1046,6 +1085,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+
 - measure_name: GM % During Promo
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -1065,146 +1105,153 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
-- measure_name: "CLV (Customer Lifetime Value)"
+
+- measure_name: CLV (Customer Lifetime Value)
   is_kpi_measure: true
-  kpi_id_ref: "crm.clv.amount"
-  semantic_model: "Commercial_Sales_SemanticModel"
-  display_folder: "03_Customer_Value"
-  category: "KPI"
+  kpi_id_ref: crm.clv.amount
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 03_Customer_Value
+  category: KPI
   expression:
-    logical: "CLV (Customer Lifetime Value) = AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )"
+    logical: CLV (Customer Lifetime Value) = AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
     aggregation_method: custom
   documentation:
-    description: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments."
-    notes: "Grain: customer. Unit: EUR. Lineage: fact_customer_value[CLV Amount]. QA: Ensure fact_customer_value is populated with multi-year horizon CLV estimates."
+    description: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+    notes: 'Grain: customer. Unit: EUR. Lineage: fact_customer_value[CLV Amount]. QA: Ensure fact_customer_value is populated with multi-year horizon CLV estimates.'
   dependencies:
     columns:
-      - "fact_customer_value[CLV Amount]"
+    - fact_customer_value[CLV Amount]
   governance:
-    owner: "Commercial BI"
+    owner: Commercial BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Net Promoter Score (NPS)"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Net Promoter Score (NPS)
   is_kpi_measure: true
-  kpi_id_ref: "crm.nps.index"
-  semantic_model: "Commercial_Sales_SemanticModel"
-  display_folder: "03_Customer_Value"
-  category: "KPI"
+  kpi_id_ref: crm.nps.index
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 03_Customer_Value
+  category: KPI
   expression:
-    logical: "Net Promoter Score (NPS) = VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 ) VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 ) VAR TotalResponses = COUNTROWS ( fact_nps ) RETURN ROUND ( DIVIDE ( Promoters - Detractors, TotalResponses ) * 100, 0 )"
+    logical: Net Promoter Score (NPS) = VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 ) VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 ) VAR TotalResponses = COUNTROWS ( fact_nps ) RETURN ROUND ( DIVIDE ( Promoters - Detractors, TotalResponses ) * 100, 0 )
     aggregation_method: custom
   documentation:
-    description: "Measures customer advocacy and likelihood to recommend."
-    notes: "Grain: month. Unit: NPS index (-100 to +100). Lineage: fact_nps[NPS Score]. QA: Promoters (9-10), Passives (7-8), Detractors (0-6)."
+    description: Measures customer advocacy and likelihood to recommend.
+    notes: 'Grain: month. Unit: NPS index (-100 to +100). Lineage: fact_nps[NPS Score]. QA: Promoters (9-10), Passives (7-8), Detractors (0-6).'
   dependencies:
     columns:
-      - "fact_nps[NPS Score]"
+    - fact_nps[NPS Score]
   governance:
-    owner: "Commercial BI"
+    owner: Commercial BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Actions Executed Count"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Actions Executed Count
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Commercial_Sales_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Actions Executed Count = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )"
+    logical: Actions Executed Count = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
     aggregation_method: count
   documentation:
-    description: "Number of action codes with a recorded outcome in fact_action_outcome."
-    notes: "Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status]."
+    description: Number of action codes with a recorded outcome in fact_action_outcome.
+    notes: 'Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Commercial BI"
+    owner: Commercial BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Avg Time-to-Outcome Days"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Avg Time-to-Outcome Days
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Commercial_Sales_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Avg Time-to-Outcome Days = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )"
+    logical: Avg Time-to-Outcome Days = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
     aggregation_method: average
   documentation:
-    description: "Average days between action execution and outcome confirmation."
-    notes: "Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome]."
+    description: Average days between action execution and outcome confirmation.
+    notes: 'Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome].'
   dependencies:
     columns:
-      - "fact_action_outcome[days_to_outcome]"
+    - fact_action_outcome[days_to_outcome]
   governance:
-    owner: "Commercial BI"
+    owner: Commercial BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action ROI %"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action ROI %
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Commercial_Sales_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action ROI % = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1"
+    logical: Action ROI % = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
     aggregation_method: custom
   documentation:
-    description: "Average ROI of executed actions: total impact value / total execution cost - 1."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute]."
+    description: 'Average ROI of executed actions: total impact value / total execution cost - 1.'
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute].'
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[cost_to_execute]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[cost_to_execute]
   governance:
-    owner: "Commercial BI"
+    owner: Commercial BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Effectiveness Delta"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action Effectiveness Delta
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Commercial_Sales_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Effectiveness Delta = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = \"achieved\" ), fact_action_outcome[impact_value] )"
+    logical: Action Effectiveness Delta = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
     aggregation_method: average
   documentation:
-    description: "Average EUR impact per achieved action execution."
-    notes: "Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status]."
+    description: Average EUR impact per achieved action execution.
+    notes: 'Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Commercial BI"
+    owner: Commercial BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Outcome Rate %"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Action Outcome Rate %
   is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "Commercial_Sales_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+  kpi_id_ref: ''
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Outcome Rate % = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = \"achieved\" ), COUNTROWS ( fact_action_outcome ) )"
+    logical: Action Outcome Rate % = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
     aggregation_method: custom
   documentation:
-    description: "Percentage of executed actions with a confirmed achieved outcome."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status]."
+    description: Percentage of executed actions with a confirmed achieved outcome.
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status].'
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Commercial BI"
+    owner: Commercial BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
+    version: v1.0
+    last_review: 28.04.2026
 ```

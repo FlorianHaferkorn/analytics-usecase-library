@@ -1,0 +1,27 @@
+measure_name: Gross Margin Amount
+is_kpi_measure: true
+kpi_id_ref: margin.gm.amount
+semantic_model: Profitability_SemanticModel
+display_folder: 01_Margin
+category: KPI
+expression:
+  logical: Gross Margin Amount = Net Sales Amount - COGS Amount
+  aggregation_method: sum
+documentation:
+  description: 'Profit pool: net sales minus COGS.'
+  notes: 'Grain: month. Unit: EUR.
+
+    Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
+
+    QA: Currency alignment; COGS completeness.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[Net Sales Amount]
+  - fact_sales[Cost of Goods Sold Amount]
+governance:
+  owner: Profitability Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

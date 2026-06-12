@@ -1,0 +1,27 @@
+measure_name: Gross Margin %
+is_kpi_measure: true
+kpi_id_ref: margin.gm.pct
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 02_Margin
+category: KPI
+expression:
+  logical: Gross Margin % = ([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount])
+  aggregation_method: ratio
+documentation:
+  description: Gross margin rate as a share of net sales.
+  notes: 'Grain: month. Unit: %.
+
+    Lineage: [Gross Margin Amount], [Net Sales Amount].
+
+    QA: DIVIDE protects divide-by-zero; ensure sales not zero for meaningful result.
+
+    '
+dependencies:
+  measures:
+  - '[Gross Margin Amount]'
+  - '[Net Sales Amount]'
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

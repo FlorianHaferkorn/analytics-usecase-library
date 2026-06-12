@@ -1,0 +1,31 @@
+measure_name: Gross Margin % vs Plan
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 02_Margin
+category: KPI
+expression:
+  logical: Gross Margin % vs Plan = (([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount]) - (SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] ))) / ((SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] )))
+  aggregation_method: ratio
+documentation:
+  description: Relative variance of gross margin rate versus plan.
+  notes: 'Grain: month. Unit: percentage-point.
+
+    Lineage: [Gross Margin Amount], [Net Sales Amount], [Plan Gross Margin Amount], [Plan Sales Amount].
+
+    QA: Requires plan sales and plan COGS populated; DIVIDE protects divide-by-zero.
+
+    '
+dependencies:
+  measures:
+  - '[Gross Margin Amount]'
+  - '[Net Sales Amount]'
+  - '[Plan Gross Margin Amount]'
+  - '[Plan Sales Amount]'
+  columns:
+  - fact_sales[Plan COGS Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

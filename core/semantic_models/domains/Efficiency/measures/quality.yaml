@@ -1,0 +1,16 @@
+measure_name: Quality %
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Efficiency_SemanticModel
+category: KPI
+expression:
+  logical: Quality % = (GoodUnits) / (TotalUnits)
+  aggregation_method: ratio
+documentation:
+  description: Good units / Total units
+  notes: ''
+governance:
+  owner: Manufacturing BI
+  status: active
+  version: v1.0
+  last_review: 04.11.2025

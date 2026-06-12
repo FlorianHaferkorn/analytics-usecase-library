@@ -1,0 +1,25 @@
+measure_name: Absenteeism %
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: InnovationPeople_SemanticModel
+display_folder: 04_People
+category: KPI
+expression:
+  logical: Absenteeism % = [[Absent Hours]] / [[Scheduled Hours]]
+  aggregation_method: ratio
+documentation:
+  description: Absent hours divided by scheduled hours.
+  notes: 'Grain: month. Unit: %.
+
+    QA: Scheduled hours > 0; absenteeism bounded 0-100%.
+
+    '
+dependencies:
+  measures:
+  - '[Absent Hours]'
+  - '[Scheduled Hours]'
+governance:
+  owner: Innovation Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

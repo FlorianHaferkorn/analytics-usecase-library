@@ -1,0 +1,26 @@
+measure_name: Supplier Risk Score
+is_kpi_measure: true
+kpi_id_ref: scm.supplier_risk.score
+semantic_model: Risk_SemanticModel
+display_folder: 03_Supply
+category: KPI
+expression:
+  logical: Supplier Risk Score = Composite risk score derived from supplier risk factors.
+  aggregation_method: average
+documentation:
+  description: Average supplier risk score across the selected scope.
+  notes: 'Grain: supplier_month. Unit: score.
+
+    Lineage: fact_supplier_risk[Risk Score].
+
+    QA: Supplier score normalization documented.
+
+    '
+dependencies:
+  columns:
+  - fact_supplier_risk[Risk Score]
+governance:
+  owner: Risk Analytics
+  status: active
+  version: v0.1
+  last_review: TBD

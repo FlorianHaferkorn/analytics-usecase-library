@@ -1,0 +1,27 @@
+measure_name: Gross Margin per FTE Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: InnovationPeople_SemanticModel
+display_folder: 04_People
+category: KPI
+expression:
+  logical: Gross Margin per FTE Amount = [[Gross Margin Amount]] / [[Average FTE]]
+  aggregation_method: sum
+documentation:
+  description: Gross margin per FTE.
+  notes: 'Grain: month. Unit: EUR per FTE.
+
+    Lineage: fact_financials[GrossMarginAmount], fact_hr_headcount[FTEFactor].
+
+    QA: FTE > 0; currency alignment.
+
+    '
+dependencies:
+  measures:
+  - '[Gross Margin Amount]'
+  - '[Average FTE]'
+governance:
+  owner: Innovation Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

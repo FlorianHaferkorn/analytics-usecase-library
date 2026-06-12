@@ -1,0 +1,21 @@
+measure_name: Action Effectiveness Delta (XD)
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Service_SemanticModel
+display_folder: 08_Action_Outcomes
+category: KPI
+expression:
+  logical: Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
+  aggregation_method: average
+documentation:
+  description: Average EUR impact per achieved action execution — Service cross-domain proxy.
+  notes: 'Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status].'
+dependencies:
+  columns:
+  - fact_action_outcome[impact_value]
+  - fact_action_outcome[outcome_status]
+governance:
+  owner: Service BI
+  status: active
+  version: v1.0
+  last_review: 28.04.2026

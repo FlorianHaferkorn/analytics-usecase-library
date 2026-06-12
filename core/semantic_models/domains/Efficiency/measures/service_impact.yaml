@@ -1,0 +1,20 @@
+measure_name: Service Impact %
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Efficiency_SemanticModel
+category: KPI
+expression:
+  logical: Service Impact % = [Under-Forecast Lost Demand Share %] / [Stockout Impact %]
+  aggregation_method: ratio
+documentation:
+  description: Service Impact % = Stockout Impact % x Under-Forecast Lost Demand Share %.
+  notes: sku_month aggregated by Date, Org, Product.
+governance:
+  owner: Supply Chain BI
+  status: active
+  version: v0.1
+display_folder: 08_SCM_Service
+dependencies:
+  measures:
+  - Under-Forecast Lost Demand Share %
+  - Stockout Impact %

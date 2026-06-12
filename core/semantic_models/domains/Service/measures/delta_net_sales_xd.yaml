@@ -1,0 +1,22 @@
+measure_name: Delta% Net Sales (XD)
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Service_SemanticModel
+display_folder: 03_P&L
+category: KPI
+expression:
+  logical: Delta% Net Sales (XD) = DIVIDE ( [Net Sales Amount (XD)] - SUM ( fact_sales[Last Year Sales Amount] ), ABS ( SUM ( fact_sales[Last Year Sales Amount] ) ) )
+  aggregation_method: custom
+documentation:
+  description: Relative variance of Net Sales vs Last Year — Experience domain view.
+  notes: 'Grain: month. Unit: %. Lineage: [Net Sales Amount (XD)], fact_sales[Last Year Sales Amount].'
+dependencies:
+  measures:
+  - '[Net Sales Amount (XD)]'
+  columns:
+  - fact_sales[Last Year Sales Amount]
+governance:
+  owner: Service BI
+  status: active
+  version: v1.0
+  last_review: 28.04.2026

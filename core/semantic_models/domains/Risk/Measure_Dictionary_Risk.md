@@ -1,5 +1,7 @@
 # Measure Dictionary - Risk
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
@@ -29,6 +31,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v0.1
     last_review: TBD
+
 - measure_name: Supplier Risk Score
   is_kpi_measure: true
   kpi_id_ref: scm.supplier_risk.score

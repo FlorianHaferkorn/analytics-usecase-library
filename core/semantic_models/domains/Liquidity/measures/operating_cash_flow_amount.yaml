@@ -1,0 +1,20 @@
+measure_name: Operating Cash Flow Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Liquidity_SemanticModel
+display_folder: 01_CashFlow
+category: Base
+expression:
+  aggregation_method: sum
+  logical: Operating Cash Flow Amount = SUM(fact_cashflow[Operating Cash Flow Amount])
+documentation:
+  description: Operating cash flow amount from the cash flow statement.
+  notes: ''
+governance:
+  owner: Finance BI
+  status: active
+  version: v1.0
+  last_review: 04.11.2025
+dependencies:
+  columns:
+  - fact_cashflow[Operating Cash Flow Amount]

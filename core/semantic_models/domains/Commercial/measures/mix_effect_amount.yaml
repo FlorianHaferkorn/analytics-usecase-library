@@ -1,0 +1,29 @@
+measure_name: Mix Effect Amount
+is_kpi_measure: true
+kpi_id_ref: sales.pvm.mix_effect.amount
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 03_PVM
+category: Driver
+expression:
+  logical: Mix Effect Amount = [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
+  aggregation_method: sum
+documentation:
+  description: Residual PVM driver capturing mix impact after price and volume effects.
+  notes: 'Grain: month. Unit: EUR.
+
+    Lineage: [Net Sales Amount], [Price Effect Amount], [Volume Effect Amount], [Plan Sales Amount].
+
+    QA: Uses plan sales as baseline; ensure consistent grain.
+
+    '
+dependencies:
+  measures:
+  - '[Net Sales Amount]'
+  - '[Price Effect Amount]'
+  - '[Volume Effect Amount]'
+  - '[Plan Sales Amount]'
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

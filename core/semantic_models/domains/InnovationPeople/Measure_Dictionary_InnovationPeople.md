@@ -1,5 +1,7 @@
 # Measure Dictionary - Innovation & People
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
@@ -30,6 +32,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Digital Adoption Rate %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -49,6 +52,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin per FTE Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -76,6 +80,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Personnel Cost Ratio %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -103,6 +108,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Revenue per FTE
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -129,6 +135,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Attrition Risk %
   is_kpi_measure: true
   kpi_id_ref: people.attrition_risk.pct
@@ -153,6 +160,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Turnover Rate %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -178,6 +186,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Absenteeism %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -203,6 +212,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin Amount
   is_kpi_measure: false
   kpi_id_ref: ''

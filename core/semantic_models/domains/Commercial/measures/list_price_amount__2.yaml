@@ -1,0 +1,26 @@
+measure_name: List Price Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 03_Pricing
+category: Base
+expression:
+  logical: List Price Amount = SUM ( fact_sales[List Price Amount] )
+  aggregation_method: sum
+documentation:
+  description: Aggregated list price amount for pricing metrics.
+  notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
+
+    Lineage: fact_sales[List Price Amount].
+
+    QA: List price should exclude taxes/surcharges.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[List Price Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

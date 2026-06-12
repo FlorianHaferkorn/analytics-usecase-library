@@ -1,0 +1,22 @@
+measure_name: Gross Margin % (XD)
+is_kpi_measure: true
+kpi_id_ref: margin.gm.pct
+semantic_model: Service_SemanticModel
+display_folder: 02_Quality
+category: KPI
+expression:
+  logical: Gross Margin % (XD) = DIVIDE ( [Net Sales Amount (XD)] - SUM ( fact_sales[Cost of Goods Sold Amount] ), [Net Sales Amount (XD)] )
+  aggregation_method: custom
+documentation:
+  description: Gross Margin % for Experience domain reporting and cross-domain P&L reconciliation.
+  notes: 'Grain: month. Unit: %. Lineage: [Net Sales Amount (XD)], fact_sales[Cost of Goods Sold Amount].'
+dependencies:
+  measures:
+  - '[Net Sales Amount (XD)]'
+  columns:
+  - fact_sales[Cost of Goods Sold Amount]
+governance:
+  owner: Service BI
+  status: active
+  version: v1.0
+  last_review: 28.04.2026

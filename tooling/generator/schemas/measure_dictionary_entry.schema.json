@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Measure Dictionary Entry",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "measure_name",
+    "is_kpi_measure",
+    "kpi_id_ref",
+    "semantic_model",
+    "category",
+    "expression",
+    "documentation",
+    "governance"
+  ],
+  "properties": {
+    "measure_name": { "type": "string", "minLength": 1 },
+    "is_kpi_measure": { "type": "boolean" },
+    "kpi_id_ref": { "type": ["string", "null"] },
+    "semantic_model": { "type": "string", "minLength": 1 },
+    "display_folder": { "type": "string" },
+    "category": { "type": "string", "minLength": 1 },
+    "expression": {
+      "type": "object",
+      "required": ["logical", "aggregation_method"],
+      "properties": {
+        "logical": { "type": "string", "minLength": 1 },
+        "aggregation_method": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "documentation": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "dependencies": { "type": "object", "additionalProperties": true },
+    "governance": {
+      "type": "object",
+      "required": ["owner", "status"],
+      "properties": {
+        "owner": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

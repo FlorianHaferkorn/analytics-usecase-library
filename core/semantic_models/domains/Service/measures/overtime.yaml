@@ -1,0 +1,30 @@
+measure_name: Overtime %
+is_kpi_measure: true
+kpi_id_ref: res.overtime.pct
+semantic_model: Service_SemanticModel
+display_folder: 05_Workforce
+category: KPI
+expression:
+  logical: Overtime % = Overtime hours divided by total hours.
+  aggregation_method: ratio
+documentation:
+  description: Overtime minutes / paid time minutes.
+  notes: 'Grain: agent_day or region_week. Unit: %.
+
+    Lineage: fact_wfm[Overtime Minutes], fact_wfm[Paid Time Minutes].
+
+    QA: Paid Time > 0; overtime rules consistent.
+
+    '
+dependencies:
+  columns:
+  - fact_wfm[Overtime Minutes]
+  - fact_wfm[Paid Time Minutes]
+  measures:
+  - Overtime Minutes
+  - Paid Time Minutes
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

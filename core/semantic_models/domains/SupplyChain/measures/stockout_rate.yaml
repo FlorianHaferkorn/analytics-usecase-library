@@ -1,0 +1,27 @@
+measure_name: Stockout Rate %
+is_kpi_measure: true
+kpi_id_ref: inv.stockout.pct
+semantic_model: SupplyChain_SemanticModel
+display_folder: 02_Service
+category: KPI
+expression:
+  logical: Stockout Rate % = Stockout Events / Total Demand Events.
+  aggregation_method: ratio
+documentation:
+  description: Service risk from stockout occurrences.
+  notes: 'Grain: location_sku_day. Unit: %.
+
+    Lineage: fact_stockout[Stockout Flag], demand events.
+
+    QA: Demand denominator > 0; flag accuracy.
+
+    '
+dependencies:
+  columns:
+  - fact_stockout[Stockout Flag]
+governance:
+  owner: Supply Chain Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

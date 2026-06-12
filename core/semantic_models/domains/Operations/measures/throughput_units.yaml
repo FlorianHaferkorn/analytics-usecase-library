@@ -1,0 +1,27 @@
+measure_name: Throughput Units
+is_kpi_measure: true
+kpi_id_ref: ops.throughput.units
+semantic_model: Operations_SemanticModel
+display_folder: 02_Throughput
+category: KPI
+expression:
+  logical: Throughput Units = Sum of produced units in the period.
+  aggregation_method: sum
+documentation:
+  description: Volume output over time.
+  notes: 'Grain: line_day. Unit: qty.
+
+    Lineage: fact_ops[Output Units].
+
+    QA: Units consistent with quality measures.
+
+    '
+dependencies:
+  columns:
+  - fact_ops[Output Units]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

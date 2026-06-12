@@ -1,0 +1,28 @@
+measure_name: PM Compliance %
+is_kpi_measure: true
+kpi_id_ref: ops.pm_compliance.pct
+semantic_model: Operations_SemanticModel
+display_folder: 05_Maintenance
+category: KPI
+expression:
+  logical: PM Compliance % = Completed PM Orders / Planned PM Orders.
+  aggregation_method: ratio
+documentation:
+  description: 'Preventive maintenance discipline: on-time PM orders / planned PM orders.'
+  notes: 'Grain: month. Unit: %.
+
+    Lineage: fact_maintenance[PM On Time], fact_maintenance[PM Planned].
+
+    QA: PM Planned > 0; on-time flag logic consistent.
+
+    '
+dependencies:
+  columns:
+  - fact_maintenance[PM On Time]
+  - fact_maintenance[PM Planned]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

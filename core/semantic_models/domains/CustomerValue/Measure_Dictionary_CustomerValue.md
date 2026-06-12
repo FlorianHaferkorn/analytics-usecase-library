@@ -1,5 +1,7 @@
 # Measure Dictionary - CustomerValue
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
@@ -23,6 +25,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Customer Lifetime Value Amount
   is_kpi_measure: true
   kpi_id_ref: crm.clv.amount
@@ -30,8 +33,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Customer
   category: KPI
   expression:
-    logical: Customer Lifetime Value Amount = Sum of expected future gross margin per customer discounted over the chosen
-      time horizon.
+    logical: Customer Lifetime Value Amount = Sum of expected future gross margin per customer discounted over the chosen time horizon.
     aggregation_method: sum
   documentation:
     description: Discounted lifetime value per customer sourced from the CLV mart.
@@ -44,6 +46,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Customer Lifetime Revenue Amount
   is_kpi_measure: true
   kpi_id_ref: crm.lifetime_revenue.amount
@@ -66,6 +69,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Active Customers Count
   is_kpi_measure: true
   kpi_id_ref: crm.active_customers.count
@@ -87,6 +91,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Churned Customers Count
   is_kpi_measure: true
   kpi_id_ref: crm.churned_customers.count
@@ -94,8 +99,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: Churned Customers Count = Distinct customers with no qualifying transactions in the current period but active
-      in the look-back window.
+    logical: Churned Customers Count = Distinct customers with no qualifying transactions in the current period but active in the look-back window.
     aggregation_method: count
   documentation:
     description: Customers flagged as churned in the selected period.
@@ -109,6 +113,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Customer Retention %
   is_kpi_measure: true
   kpi_id_ref: crm.retention.pct
@@ -130,6 +135,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Revenue at Risk Amount
   is_kpi_measure: true
   kpi_id_ref: crm.revenue_at_risk.amount
@@ -141,8 +147,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     aggregation_method: sum
   documentation:
     description: Exposure sizing from churn-risk customers based on CLV remaining and attrition risk.
-    notes: Attrition Risk % delivered as 0�100 is auto-scaled to 0�1. CLV and Remaining follow finance-approved discount rate
-      and CLV horizon (use finance WACC and agreed horizon).
+    notes: Attrition Risk % delivered as 0�100 is auto-scaled to 0�1. CLV and Remaining follow finance-approved discount rate and CLV horizon (use finance WACC and agreed horizon).
   dependencies:
     columns:
     - fact_customer_value[CLV Remaining Amount]
@@ -152,6 +157,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: NPS Score
   is_kpi_measure: true
   kpi_id_ref: crm.nps.index
@@ -172,6 +178,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Customer Complaints Count
   is_kpi_measure: true
   kpi_id_ref: crm.complaint.count
@@ -192,6 +199,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: COGS Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -212,6 +220,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Margin Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -233,6 +242,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Gross Margin %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -254,6 +264,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 12.12.2025
+
 - measure_name: Complaint Rate %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -275,6 +286,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: TBD
+
 - measure_name: Active Customers
   is_kpi_measure: true
   kpi_id_ref: crm.active_customers.count
@@ -294,6 +306,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Churned Customers
   is_kpi_measure: true
   kpi_id_ref: crm.churned_customers.count
@@ -301,8 +314,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: Churned Customers = Distinct customers with no qualifying transactions in the current period but active in the
-      look-back window.
+    logical: Churned Customers = Distinct customers with no qualifying transactions in the current period but active in the look-back window.
     aggregation_method: sum
   documentation:
     description: Alias for Churned Customers Count (TMDL display name).
@@ -314,6 +326,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: CLV
   is_kpi_measure: true
   kpi_id_ref: crm.clv.amount
