@@ -4,8 +4,11 @@ use_case_title: Cost Performance
 domain: Finance / Operations
 authored_date: "2026-06-11"
 authored_by: framework-architect-agent
-reviewed_by: ""
-status: draft
+reviewed_by: "framework-architect-agent — SQ-E evidence gate pass + mapping triage (2026-06-12)"
+status: approved
+approved_by: "Framework Architect — repo owner (authorized 2026-06-12)"
+approved_date: "2026-06-12"
+approval_basis: "16/16 SQ-E gate; all deferred items classified model_gap (no schema_gap); see docs/process/evidence-to-model-uplift-scope.md"
 
 process_scope:
   description: >

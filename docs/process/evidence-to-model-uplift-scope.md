@@ -54,6 +54,29 @@ and Stage-1/Fabric checks enforce a closed chain. For each new diagnostic KPI or
 (`orchestrate_full_model.ps1`) and the page scaffold generator — they are *generated*, never
 hand-edited in `dist/`.
 
+### 3a. Lean authoring path (the chain is grown — only 4 steps are true SSOT)
+
+The 9-step chain has accreted redundancy. Of the steps, only **4 are genuine source-of-truth
+files an author touches**; the rest are generated outputs or restatements kept in sync by
+validators:
+
+| Step | Verdict |
+|---|---|
+| 1 domain contract · 3 KPI catalog · 6 bracket · 7 generator logic | **Essential — author these** |
+| 8 TMDL · 9 report | **Generated — not authoring work** |
+| 2 synthetic contract | **Redundant restatement of #1** (even diverges on column naming) |
+| 4 measure dictionary | **Redundant restatement of #3** — sole purpose is sync via `check_kpi_vs_measure_dictionary.ps1` |
+| 5 Fabric overlay | **Optional** — author only when Fabric DAX/format genuinely diverges |
+
+**Working rule for this uplift:** author #1, #3, #6, #7; touch #2/#4/#5 only the minimum needed
+to pass the sync-validators (overlay only when divergent). This makes the real per-workstream
+surface **≈4 files**, not 9.
+
+**Separate tech-debt (not in this uplift):** collapse the dual contract (#1+#2 → one SSOT) and
+**auto-generate the measure dictionary (#4) from the KPI catalog (#3)**. That refactor touches
+the generator + every existing domain, so it ships as its own streamlining PR, not inside a
+content workstream.
+
 ---
 
 ## 4. Environment reality (confirmed in-session)
@@ -181,9 +204,11 @@ bracket + generator logic + DEP update, then regenerate TMDL/report and validate
 
 ## 8. Cross-cutting phases
 
-- **Phase 0 — Governance enablement (prereq).** Reviewer validates source scores/extraction;
-  Framework Architect promotes the relevant DEPs `draft → reviewed → approved`. Confirm no
-  `*.schema.json` change is needed (expected: none). Confirm the WS-6 semantic-model decision.
+- **Phase 0 — Governance enablement (prereq). ✅ DONE 2026-06-12.** The 10 DEPs carrying the
+  deferred backlog were promoted `draft → approved` (Framework Architect, repo owner) on the
+  basis of the 16/16 SQ-E gate pass + mapping triage. No `*.schema.json` change is required (all
+  deferred items are `model_gaps`). The WS-6 semantic-model decision (new `Executive.SemanticModel`)
+  is recommended and revisited when WS-6 starts.
 - **Phase 1 — Core + synthetic (per workstream).** Steps 1–7 of §3. Validatable with `pytest`
   + registry builder locally now.
 - **Phase 2 — Generate (per workstream).** Run `orchestrate_full_model.ps1` (pwsh, available)
