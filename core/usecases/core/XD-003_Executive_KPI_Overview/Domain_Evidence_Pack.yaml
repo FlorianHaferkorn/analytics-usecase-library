@@ -1,0 +1,556 @@
+evidence_pack_version: "1.0"
+use_case_id: XD-003
+use_case_title: Executive KPI Overview
+domain: Executive / Cross-Functional
+authored_date: "2026-06-11"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+process_scope:
+  description: >
+    Enterprise-wide strategic performance management cockpit for the executive
+    committee. Aggregates certified financial, commercial, customer, service,
+    operations, working-capital, and people KPIs into a single strategic view and
+    condenses cross-domain downside into one composite Enterprise Value-at-Risk
+    Index. The index is a weighted, normalized aggregation of domain risk signals
+    (Corporate / Enterprise Performance Management plus COSO ERM portfolio-view
+    thinking) — it is explicitly NOT a financial Value-at-Risk (VaR) market-loss
+    measure. Scope covers descriptive and diagnostic surfacing of where the
+    enterprise is on/off track and routing of cross-domain interventions through
+    the 3-30-300 navigation.
+  in_scope:
+    - Enterprise Value-at-Risk Index as a weighted composite of normalized domain risk signals
+    - Strategic monitoring of Gross Margin %, Net Sales % vs LY, CLV, SLA Attainment, OTIF, Cash Conversion Cycle, Digital Adoption, and Attrition Risk
+    - Balanced-Scorecard-style four-perspective roll-up (financial, customer, internal process, learning & growth) into one executive cockpit
+    - Cross-domain risk prioritisation — ranking entities/business units by aggregated value-at-risk and material driver contribution
+    - Plan and prior-year (LY) comparators for all headline KPIs at entity-month grain
+    - Executive action routing to domain leads via the X-E3.2 Cross-Domain Risk Prioritisation action code
+  out_of_scope:
+    - Detailed domain diagnostics and root-cause remediation (owned by domain use cases COM-/FIN-/OPS-/SCM-)
+    - Operational incident tracking and standalone domain scorecards without executive alignment
+    - Execution/governance of whether routed actions actually moved KPIs (owned by XD-004)
+    - Financial market Value-at-Risk / treasury VaR modelling (different methodology and meaning)
+    - Statutory financial consolidation, close, and external regulatory reporting
+  industry_segment: "Cross-industry, enterprise/executive"
+  applicable_frameworks:
+    - name: "Kaplan & Norton — Balanced Scorecard & Strategy Maps (four-perspective strategic measurement)"
+      id: BSC-STRATEGY-MAP
+    - name: "COSO Enterprise Risk Management — Integrating with Strategy and Performance (2017) — portfolio view of risk"
+      id: COSO-ERM-2017
+    - name: "ISO 31000:2018 — Risk Management Guidelines (principles, framework, process)"
+      id: ISO-31000-2018
+    - name: "Gartner Corporate / Enterprise Performance Management (CPM/EPM)"
+      id: GARTNER-CPM-EPM
+    - name: "OKR Methodology — Objectives & Key Results (Doerr)"
+      id: OKR-METHOD
+
+canonical_domain_model:
+  outcome_kpis:
+    - id: enterprise.value_at_risk.index
+      name: Enterprise Value-at-Risk Index
+      definition: >
+        Weighted, normalized composite index of downside risk aggregated across
+        domains. Each contributing domain KPI is normalized to its target/plan,
+        scored for downside deviation, and weighted by financial and strategic
+        materiality, then summed into a single 0–100 style index. This is a
+        composite management index (COSO ERM portfolio view), NOT a financial
+        market Value-at-Risk loss measure.
+      unit: index
+      direction: minimize
+      benchmark_target: >
+        No universal external benchmark exists for a bespoke composite index.
+        Target is an internally calibrated risk-appetite band (e.g. green < 30,
+        amber 30–60, red > 60) anchored to COSO ERM risk-appetite/tolerance
+        methodology and the firm's own materiality model — the methodology, not a
+        single number, is what is benchmarked.
+      benchmark_source_id: SRC-002
+    - id: margin.gm.pct
+      name: Gross Margin %
+      role: guardrail
+      definition: "(Net Sales - COGS) / Net Sales × 100. Co-headline profitability outcome and guardrail."
+      unit: "%"
+      direction: maximize
+      causal_mechanism: >
+        Profitability outcome that must not be traded away for growth. Feeds the
+        financial perspective of the scorecard and is a high-weight contributor to
+        the value-at-risk index when compression appears.
+      benchmark_target: "Sector-specific; 25–45% GM% typical for B2B manufacturing (cross-industry benchmark)"
+      benchmark_source_id: SRC-007
+
+  driver_kpis:
+    - id: margin.gm.pct
+      name: Gross Margin %
+      definition: "(Net Sales - COGS) / Net Sales × 100."
+      unit: "%"
+      direction: maximize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Primary driver. Margin compression below target raises the financial-perspective
+        risk contribution and lifts the composite index (impact_direction minimize).
+      benchmark_target: "25–45% GM% for B2B manufacturing (cross-industry)"
+      benchmark_source_id: SRC-007
+    - id: sales.net_sales.delta_pct.ly
+      name: Net Sales % vs LY
+      definition: "(Actual Net Sales - LY Net Sales) / LY Net Sales × 100."
+      unit: "%"
+      direction: maximize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Growth-trajectory driver. Sustained negative LY delta signals structural
+        revenue decline, increasing strategic (financial-perspective) risk weight.
+      benchmark_target: "5–10% YoY growth typical for manufacturing B2B (Gartner CPM/EPM context)"
+      benchmark_source_id: SRC-005
+    - id: crm.clv.amount
+      name: Customer Lifetime Value
+      definition: "Present value of future margin contribution per customer relationship."
+      unit: EUR
+      direction: maximize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Customer-perspective driver (Balanced Scorecard). Declining CLV erodes future
+        cash-flow base and raises the customer-risk contribution to the index.
+      benchmark_target: "CLV:CAC ratio ≥ 3:1 (B2B benchmark)"
+      benchmark_source_id: SRC-005
+    - id: svc.sla.attainment.pct
+      name: SLA Attainment %
+      definition: "% of service interactions meeting the agreed service-level target."
+      unit: "%"
+      direction: maximize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Internal-process / service-quality driver. SLA breaches signal experience
+        risk and downstream churn, raising the service-risk contribution.
+      benchmark_target: "≥ 95% SLA attainment typical world-class target"
+      benchmark_source_id: SRC-006
+    - id: ops.otif.pct
+      name: OTIF %
+      definition: "On-Time-In-Full delivery performance (orders delivered complete and on time)."
+      unit: "%"
+      direction: maximize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Internal-process / fulfilment driver. OTIF decline indicates supply
+        reliability risk that compounds with cash and customer risk.
+      benchmark_target: "≥ 95% OTIF best-in-class (cross-industry)"
+      benchmark_source_id: SRC-007
+    - id: ops.working_capital.ccc.days
+      name: Cash Conversion Cycle (Days)
+      definition: "DSO + DIO - DPO. Days of working capital tied up in operations."
+      unit: days
+      direction: minimize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Financial-liquidity driver. A lengthening CCC ties up cash and raises
+        liquidity risk weighting in the composite index.
+      benchmark_target: "Sector-specific; lower is better — improvement vs own baseline and peer band"
+      benchmark_source_id: SRC-007
+    - id: people.digital_adoption.pct
+      name: Digital Adoption %
+      definition: "% of target users actively adopting the deployed digital tools/capabilities."
+      unit: "%"
+      direction: maximize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Learning-&-growth / intangible-capital driver (Skandia Navigator renewal &
+        development perspective). Low adoption signals stalled transformation value,
+        a leading risk to future performance.
+      benchmark_target: "Internally calibrated against rollout plan; renewal & development perspective"
+      benchmark_source_id: SRC-008
+    - id: people.attrition_risk.pct
+      name: Attrition Risk %
+      definition: "% of (key/critical-role) workforce flagged at elevated risk of leaving."
+      unit: "%"
+      direction: minimize
+      drives: enterprise.value_at_risk.index
+      causal_mechanism: >
+        Learning-&-growth / human-capital driver. Rising attrition risk in key roles
+        threatens capability continuity and raises the people-risk contribution.
+      benchmark_target: "Lower is better; calibrated to critical-role retention target"
+      benchmark_source_id: SRC-008
+
+  diagnostic_kpis:
+    - id: enterprise.var_contribution.margin
+      name: Value-at-Risk Contribution — Margin
+      definition: "Weighted normalized margin-downside contribution to the Enterprise Value-at-Risk Index."
+      unit: index_points
+      direction: minimize
+      diagnoses: margin.gm.pct
+      causal_mechanism: "Decomposes how much of the composite index is driven by margin compression for this entity-period."
+    - id: enterprise.var_contribution.growth
+      name: Value-at-Risk Contribution — Growth
+      definition: "Weighted normalized revenue-growth-downside contribution to the index."
+      unit: index_points
+      direction: minimize
+      diagnoses: sales.net_sales.delta_pct.ly
+      causal_mechanism: "Isolates the share of value-at-risk attributable to negative LY growth trajectory."
+    - id: enterprise.var_contribution.service
+      name: Value-at-Risk Contribution — Service & Fulfilment
+      definition: "Combined weighted SLA + OTIF downside contribution to the index."
+      unit: index_points
+      direction: minimize
+      diagnoses: ops.otif.pct
+      causal_mechanism: "Shows when service reliability and fulfilment failures are the dominant risk driver."
+    - id: enterprise.var_contribution.working_capital
+      name: Value-at-Risk Contribution — Working Capital
+      definition: "Weighted CCC-deterioration contribution to the index."
+      unit: index_points
+      direction: minimize
+      diagnoses: ops.working_capital.ccc.days
+      causal_mechanism: "Quantifies the liquidity-risk share so cash and service signals can be read together."
+    - id: enterprise.var_contribution.people
+      name: Value-at-Risk Contribution — People
+      definition: "Combined weighted attrition-risk + low-digital-adoption contribution to the index."
+      unit: index_points
+      direction: minimize
+      diagnoses: people.attrition_risk.pct
+      causal_mechanism: "Surfaces intangible / human-capital risk (Skandia renewal & development) feeding the index."
+
+  guardrails:
+    - description: Composite index must not override a healthy underlying portfolio
+      condition: >
+        Do not trigger enterprise escalation when the index rises solely because of
+        a single non-material domain signal already covered by an active domain
+        action. COSO ERM portfolio view requires materiality and double-counting
+        checks before executive routing.
+      affected_kpis:
+        - enterprise.value_at_risk.index
+    - description: Do not act on transient or low-confidence index movement
+      condition: >
+        Suppress action when the index movement falls within normal volatility / the
+        risk-appetite band, or when plan/LY comparators are incomplete for material
+        KPIs (data-quality guardrail). ISO 31000 monitoring & review requires
+        confidence before treatment.
+      affected_kpis:
+        - enterprise.value_at_risk.index
+        - margin.gm.pct
+    - description: Profitability guardrail on growth-led interventions
+      condition: >
+        Do not endorse pure volume/growth recovery actions when GM% is already below
+        target — protect margin while closing the growth gap.
+      affected_kpis:
+        - margin.gm.pct
+        - sales.net_sales.delta_pct.ly
+
+  wrong_interpretations:
+    - description: Treating the composite index as a precise financial VaR
+      why_wrong: >
+        Enterprise Value-at-Risk Index is a weighted, normalized management composite
+        of domain risk signals — not a statistical financial Value-at-Risk
+        (probability-weighted monetary loss at a confidence level). Reading it as a
+        precise EUR loss figure implies false precision. COSO ERM and ISO 31000 treat
+        such aggregations as decision-support, not actuarial measures.
+      source_id: SRC-002
+    - description: Over-rotating on a single headline KPI without cross-domain context
+      why_wrong: >
+        Acting on one KPI (e.g. margin) in isolation ignores the Balanced Scorecard
+        principle that financial, customer, process, and learning perspectives must
+        be balanced. A favourable one-off (e.g. FX) can mask structural weakness in
+        other domains; the index exists precisely to prevent single-lever myopia.
+      source_id: SRC-001
+    - description: Aggregating the index without materiality weighting (false equivalence)
+      why_wrong: >
+        Summing normalized domain risks with equal weights overweights financially
+        large but strategically minor risks and underweights small-but-critical ones.
+        Bain/Kaplan-Norton strategy-execution research shows execution value is lost
+        when prioritisation is not materiality-weighted.
+      source_id: SRC-009
+    - description: Reading a stable index as 'no action needed' despite hidden offsetting risks
+      why_wrong: >
+        A flat composite can hide two opposite-moving domain risks netting out.
+        Without drilling the per-domain VaR contributions, leadership misses that one
+        domain is deteriorating while another temporarily improves — the opposite of
+        the COSO portfolio-view intent.
+      source_id: SRC-002
+
+required_data_model:
+  required_facts:
+    - table: fact_kpi_snapshot
+      description: >
+        Cross-domain certified KPI values at entity-month grain (actual, plan, LY)
+        for all headline and driver KPIs, with normalized/target columns to support
+        index construction.
+    - table: fact_exec_summary
+      description: >
+        Pre-aggregated executive comparators (Revenue, Gross Margin, EBITDA, DSO/DIO/DPO,
+        OTIF %, Turnover %, Actions Routed/Outcome) sourced from finance, commercial,
+        supply chain, and people contracts (existing executive.yaml contract).
+    - table: fact_risk_weights
+      description: >
+        Materiality and strategic weights per domain/KPI used to construct the
+        Enterprise Value-at-Risk Index (referenced by X-E3.2).
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: Month-level minimum with plan/LY references for executive cadence.
+    - name: dim_org
+      grain_relevance: Entity / business unit / region for cross-domain risk attribution and RLS.
+    - name: dim_domain
+      grain_relevance: Tags each KPI/risk contribution to its domain for portfolio-view decomposition.
+    - name: dim_kpi
+      grain_relevance: Identifies KPI, its target/direction, and normalization basis for the index.
+  preferred_grain: entity-domain-month
+  minimum_grain: entity-month
+  minimum_history_months: 24
+  required_measures:
+    - name: Enterprise Value-at-Risk Index
+      formula_seed: "weighted_sum( normalize(domain_risk_score_k) × materiality_weight_k ) across domains k"
+      source_id: SRC-002
+    - name: Value-at-Risk Contribution (per domain)
+      formula_seed: "normalize(domain_risk_score_k) × materiality_weight_k, expressed as index points"
+      source_id: SRC-002
+    - name: Gross Margin %
+      formula_seed: "(Net Sales - COGS) / Net Sales"
+      source_id: SRC-007
+    - name: Net Sales % vs LY
+      formula_seed: "(Net Sales - LY Net Sales) / LY Net Sales"
+      source_id: SRC-005
+    - name: Cash Conversion Cycle (Days)
+      formula_seed: "DSO + DIO - DPO"
+      source_id: SRC-007
+
+action_logic_seeds:
+  - trigger_driver: margin.gm.pct
+    trigger_diagnostic: enterprise.var_contribution.margin
+    trigger_condition: "Enterprise Value-at-Risk Index in amber/red AND margin contribution is the dominant component for the entity for 2 consecutive months"
+    guardrail: "Suppress if margin dip is a known one-off and other domains are green; avoid acting on single non-material signal"
+    action_description: >
+      Trigger Cross-Domain Risk Prioritisation — rank entities by aggregated
+      value-at-risk, surface margin as the lead contributor, and route a focused
+      review to Finance/Commercial leads.
+    expected_outcome_kpi: enterprise.value_at_risk.index
+    action_code_candidate: X-E3.2
+  - trigger_driver: ops.otif.pct
+    trigger_diagnostic: enterprise.var_contribution.service
+    trigger_condition: "Index rising with service+fulfilment contribution material AND working-capital contribution also rising in same entities"
+    guardrail: "Exclude entities whose service risk is already covered by an active domain OTIF action; avoid double-counting"
+    action_description: >
+      Prioritise entities where service reliability and cash pressure compound into
+      enterprise downside, and route coordinated intervention to Operations/SCM and
+      Finance leads.
+    expected_outcome_kpi: enterprise.value_at_risk.index
+    action_code_candidate: X-E3.2
+  - trigger_driver: people.attrition_risk.pct
+    trigger_diagnostic: enterprise.var_contribution.people
+    trigger_condition: "People (attrition + low digital adoption) contribution becomes a top-3 component of the index for strategic entities"
+    guardrail: "Do not escalate when attrition risk concerns non-critical roles or movement is within normal band"
+    action_description: >
+      Surface intangible/human-capital risk to executives and route talent-retention
+      and adoption-acceleration focus to People leads before capability erosion
+      compounds financial risk.
+    expected_outcome_kpi: enterprise.value_at_risk.index
+    action_code_candidate: X-E3.2
+
+source_inventory:
+  summary:
+    total_sources: 12
+    portfolio_score: 12.8
+    categories_covered:
+      - STD
+      - ACA
+      - PRO
+      - BNK
+      - IMP
+      - RSK
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: ACA
+      title: "Kaplan, R.S. & Norton, D.P. (1996). The Balanced Scorecard: Translating Strategy into Action. Harvard Business School Press."
+      author: "Kaplan, R.S.; Norton, D.P."
+      publication: Harvard Business School Press
+      year: 1996
+      url: "https://store.hbr.org/product/the-balanced-scorecard-translating-strategy-into-action/6513"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [process_scope, outcome_kpis, driver_kpis, wrong_interpretations]
+      notes: "Foundational four-perspective strategic measurement standard (ISBN 978-0875846514). Age waiver — canonical management standard."
+    - id: SRC-002
+      category: STD
+      title: "COSO (2017). Enterprise Risk Management — Integrating with Strategy and Performance (portfolio view of risk)."
+      author: "COSO (Committee of Sponsoring Organizations of the Treadway Commission)"
+      publication: COSO / AICPA
+      year: 2017
+      url: "https://www.coso.org/guidance-erm"
+      doi: ""
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, diagnostic_kpis, guardrails, wrong_interpretations, benchmark_target]
+      notes: "Grounds value-at-risk index as a portfolio-view composite with risk-appetite/tolerance bands."
+    - id: SRC-003
+      category: STD
+      title: "ISO 31000:2018 — Risk Management — Guidelines."
+      author: "International Organization for Standardization"
+      publication: ISO
+      year: 2018
+      url: "https://www.iso.org/standard/65694.html"
+      doi: ""
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [process_scope, guardrails]
+      notes: "Principles/framework/process; monitoring & review supports confidence guardrails."
+    - id: SRC-004
+      category: ACA
+      title: "Kaplan, R.S. & Norton, D.P. (2004). Strategy Maps: Converting Intangible Assets into Tangible Outcomes. Harvard Business School Press."
+      author: "Kaplan, R.S.; Norton, D.P."
+      publication: Harvard Business School Press
+      year: 2004
+      url: "https://www.hbs.edu/faculty/Pages/item.aspx?num=14723"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [process_scope, driver_kpis]
+      notes: "Cause-effect linkage across perspectives; supports driver-tree logic. Age waiver — foundational."
+    - id: SRC-005
+      category: BNK
+      title: "Gartner — Enterprise/Corporate Performance Management (EPM/CPM) Glossary and Benchmark Guidance."
+      author: Gartner
+      publication: Gartner Research
+      year: 2024
+      url: "https://www.gartner.com/en/information-technology/glossary/epm-enterprise-performance-management"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, driver_kpis, benchmark_target]
+      notes: "EPM/CPM monitor-and-manage definition; supports cockpit scope and growth benchmark band."
+    - id: SRC-006
+      category: PRO
+      title: "AXELOS — ITIL 4: Service Value System & SLA / service-quality practice guidance."
+      author: AXELOS / PeopleCert
+      publication: AXELOS
+      year: 2019
+      url: "https://www.axelos.com/resource-hub/practice/continual-improvement-itil-4-practice-guide"
+      scores: { authority: 3, recency: 2, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [driver_kpis, benchmark_target]
+      notes: "Grounds SLA attainment as a service-quality driver in the internal-process perspective."
+    - id: SRC-007
+      category: BNK
+      title: "APQC Open Standards Benchmarking — Gross Margin, Cash Conversion Cycle, and OTIF by Industry."
+      author: APQC
+      publication: APQC
+      year: 2024
+      url: "https://www.apqc.org/benchmarking"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [outcome_kpis, driver_kpis, benchmark_target]
+      notes: "Cross-industry benchmark ranges for GM%, CCC, OTIF."
+    - id: SRC-008
+      category: ACA
+      title: "Edvinsson, L. & Malone, M.S. (1997). Intellectual Capital: Realizing Your Company's True Value (Skandia Navigator)."
+      author: "Edvinsson, L.; Malone, M.S."
+      publication: HarperBusiness
+      year: 1997
+      url: "https://www.harpercollins.com/products/intellectual-capital-leif-edvinssonmichael-s-malone"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 11
+      supports: [driver_kpis, diagnostic_kpis]
+      notes: "Grounds digital adoption & people/attrition as intangible/renewal-and-development capital. Age waiver — foundational intangible-value reference (ISBN 978-0887308413)."
+    - id: SRC-009
+      category: RSK
+      title: "Mankins, M.C. & Steele, R. (2005). Turning Great Strategy into Great Performance. Harvard Business Review / Bain & Company."
+      author: "Mankins, M.C.; Steele, R."
+      publication: Harvard Business Review
+      year: 2005
+      url: "https://www.bain.com/insights/turning-great-strategy-into-great-performance/"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [wrong_interpretations, guardrails]
+      notes: "Strategy-to-performance gap (~37–40% of value lost in execution); supports materiality-weighting risk. Age waiver."
+    - id: SRC-010
+      category: IMP
+      title: "Doerr, J. (2018). Measure What Matters: OKRs (Objectives & Key Results) and CFRs."
+      author: "Doerr, J."
+      publication: Portfolio / Penguin
+      year: 2018
+      url: "https://www.whatmatters.com/the-book"
+      doi: ""
+      scores: { authority: 2, recency: 3, domain_relevance: 2, independence: 2, content_role: 2 }
+      total_score: 11
+      supports: [process_scope, driver_kpis]
+      notes: "OKR check-in cadence and focus/alignment grounding for executive review rhythm (ISBN 978-0525536222)."
+    - id: SRC-011
+      category: PRO
+      title: "AICPA & CIMA / IFAC — Corporate Performance Management and integrated reporting guidance."
+      author: "AICPA & CIMA"
+      publication: AICPA & CIMA
+      year: 2023
+      url: "https://www.aicpa-cima.com/topic/management-accounting"
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [process_scope, required_data_model]
+      notes: "Professional-body grounding for cross-domain performance roll-up and certified definitions."
+    - id: SRC-012
+      category: IMP
+      title: "McKinsey — Linking the balanced scorecard / strategic KPI cockpits to value (performance management practice)."
+      author: McKinsey & Company
+      publication: McKinsey.com
+      year: 2022
+      url: "https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [process_scope, wrong_interpretations]
+      notes: "Practitioner grounding for executive cockpit design and avoidance of single-lever myopia."
+
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: partial
+  bracket_coverage: partial
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md
+        field: "Section 8 Success Criteria"
+        description: "Risk-appetite band thresholds for the Enterprise Value-at-Risk Index (green/amber/red) and benchmark sources not stated."
+        evidence_reference: SRC-002 SRC-007
+        remediation: "Add index risk-appetite bands and cross-domain benchmark targets to Section 8."
+        status: open
+      - gap_type: content_gap
+        severity: low
+        affected_artifact: core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md
+        field: "Section 9 Risks & Wrong Interpretations"
+        description: "Composite-index-as-financial-VaR misinterpretation not explicitly called out."
+        evidence_reference: SRC-002
+        remediation: "Add wrong-interpretation note distinguishing the management composite from financial VaR."
+        status: open
+
+    mapping_gaps:
+      - gap_type: mapping_gap
+        severity: low
+        affected_artifact: core/usecases/core/XD-003_Executive_KPI_Overview/UseCase_Bracket.yaml
+        field: page_2_execution.component_300s.evidence_columns
+        description: "Per-domain value-at-risk contribution columns are a domain requirement for the risk-prioritisation matrix but are not yet listed as evidence columns."
+        evidence_reference: SRC-002
+        remediation: "Add per-domain VaR contribution columns to the page-2 risk-prioritisation evidence grain."
+        status: open
+
+    schema_gaps: []
+    generator_gaps: []
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/executive.yaml
+        field: "fact_kpi_snapshot, fact_risk_weights, dim_domain, dim_kpi"
+        description: >
+          The executive contract currently exposes only fact_exec_summary at entity_month.
+          A cross-domain fact_kpi_snapshot (actual/plan/LY normalized values), a
+          fact_risk_weights materiality table, and dim_domain / dim_kpi dimensions are
+          required to construct the weighted Enterprise Value-at-Risk Index but do not
+          yet exist in any data contract.
+        evidence_reference: SRC-002 SRC-007
+        remediation: "Extend executive.yaml (or a dedicated risk mart) with fact_kpi_snapshot, fact_risk_weights, dim_domain, dim_kpi; align with X-E3.2 semantic_dependencies."
+        status: open
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: products/fabric/powerbi/dist/Experience.SemanticModel
+        field: "Enterprise Value-at-Risk Index measure"
+        description: "The weighted_sum index measure and per-domain VaR contribution measures need definition and validation against the COSO portfolio-view methodology."
+        evidence_reference: SRC-002
+        remediation: "Define and validate Enterprise Value-at-Risk Index + contribution measures in _Measures.tmdl."
+        status: open

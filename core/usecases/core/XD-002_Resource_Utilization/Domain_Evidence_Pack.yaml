@@ -1,0 +1,796 @@
+evidence_pack_version: "1.0"
+use_case_id: XD-002
+use_case_title: Resource Utilization
+domain: Experience / Service
+authored_date: "2026-06-11"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Workforce resource utilization management for a multi-channel service / contact-centre
+    operation. Covers utilization (productive time over paid time), occupancy (handle time
+    over available time), shrinkage (unproductive paid time), overtime, and the service-level
+    guardrail (SLA) that utilization must not breach. Grounded in contact-centre workforce
+    management (WFM) theory — Erlang C staffing, occupancy-vs-utilization definitions, and
+    shrinkage planning — and in ISO 18295-1. The use case answers whether utilization is
+    sustainable: high enough to be efficient, but not so high that occupancy creates burnout,
+    attrition, and SLA risk.
+  in_scope:
+    - Utilization % — productive (work) time over total paid time, against a target band
+    - Occupancy % — handle (talk + wrap) time over available/logged-in time
+    - Shrinkage % — unproductive paid time (training, meetings, breaks, system downtime)
+    - Overtime % — overtime minutes over paid minutes as a capacity-stress signal
+    - SLA attainment as the service-quality guardrail that constrains utilization push
+    - Backlog and inflow (tickets created) as the demand context for staffing decisions
+    - Channel, region, queue, and agent-group attribution of utilization imbalance
+    - Capacity-imbalance diagnosis: demand surge vs structural shrinkage vs routing/skill mismatch
+  out_of_scope:
+    - SLA driver decomposition, FCR/AHT quality analysis, NPS linkage (XD-001)
+    - Individual agent performance ranking and disciplinary use (privacy-restricted)
+    - Recruitment, onboarding, and HR attrition modelling beyond capacity signalling
+    - Sales pipeline and field-service dispatch scheduling
+    - Long-range workforce strategy and headcount budgeting beyond the capacity model re-run
+  industry_segment: >
+    Multi-channel contact-centre and case-based service operations across B2B and B2C —
+    telecom, SaaS/technology support, financial services, utilities, BPO/outsourced contact
+    centres, and shared-service desks. WFM principles (Erlang C, occupancy, shrinkage) apply
+    to any volume-driven, schedule-managed service operation.
+  applicable_frameworks:
+    - name: Contact-centre Workforce Management — Erlang C staffing model and occupancy/utilization theory
+      id: WFM-ERLANG-C
+    - name: ISO 18295-1:2017 — Customer contact centres — Requirements (staffing, scheduling, agent welfare)
+      id: ISO-18295-1
+    - name: COPC Customer Experience (CX) Standard — staffing, scheduling, and shrinkage metrics
+      id: COPC-CX
+    - name: SWPP / ICMI — Society of Workforce Planning Professionals / International Customer Management Institute WFM benchmarks
+      id: SWPP-ICMI
+    - name: ITIL 4 — Capacity and Performance Management (service capacity alignment)
+      id: ITIL-4-CPM
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: res.utilization.pct
+      name: Resource Utilization %
+      definition: >
+        Productive (work) time divided by total paid time. The strategic KPI: how much of paid
+        time is spent on the primary task. Utilization spans the full shift including internal
+        shrinkage, distinguishing it from occupancy (which counts only logged-in/available time).
+        Utilization = 1 − Shrinkage% when shrinkage is the only non-productive paid time.
+      unit: "%"
+      direction: maximize
+      benchmark_target: "Typically a sustainable band ~60–75% of paid time productive; consistent with ~30–35% shrinkage (SWPP/ICMI/COPC WFM practice)"
+      benchmark_source_id: SRC-006
+
+    - id: svc.sla.attainment.pct
+      name: SLA Attainment %
+      role: service_guardrail
+      definition: >
+        Share of cases resolved within the agreed SLA target time. In this use case SLA is the
+        co-outcome guardrail: utilization must be raised without breaching service level. It is
+        not a causal driver of utilization but the constraint that bounds it.
+      unit: "%"
+      direction: maximize
+      causal_mechanism: >
+        Pushing occupancy/utilization too high degrades responsiveness and increases errors and
+        attrition, eventually breaking SLA. SLA is the service-quality boundary on the efficiency
+        push — read together with utilization, never traded against it (ISO 18295-1; XD-001).
+      benchmark_target: "90–95% within SLA target — must be protected while improving utilization"
+      benchmark_source_id: SRC-001
+
+  driver_kpis:
+    - id: res.occupancy.pct
+      name: Occupancy %
+      definition: >
+        Handle time (talk + wrap) divided by available/logged-in time — the share of available
+        time actually spent on contacts versus waiting. The primary capacity lever: occupancy
+        rises when available capacity is well matched to demand, but has a hard sustainable ceiling.
+      unit: "%"
+      direction: maximize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        Occupancy converts available time into productive handling, lifting utilization. But it is
+        bounded: above ~85–90% for sustained periods, agents have no recovery time, errors and
+        attrition rise, and AHT inflates — eroding the very capacity gain. Occupancy is a
+        guardrailed lever, not a maximize-to-100% target (Erlang C / Callcentrehelper).
+      benchmark_target: "Sustainable target ~80–85%; sustained >90% causes burnout/attrition risk"
+      benchmark_source_id: SRC-002
+
+    - id: res.shrinkage.pct
+      name: Shrinkage %
+      definition: >
+        Unproductive paid time (training, meetings, coaching, breaks, system downtime, absence)
+        divided by total paid time. The dominant suppressor of utilization; planned shrinkage is
+        budgeted, unplanned shrinkage is the actionable gap.
+      unit: "%"
+      direction: minimize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        Every point of shrinkage is paid time not on the primary task, directly reducing
+        utilization (Utilization ≈ 1 − Shrinkage). Erlang C staffing must inflate headcount to
+        cover shrinkage; under-forecasting shrinkage causes understaffing and SLA risk.
+      benchmark_target: "Industry norm ~30–35% on-site (35–40% remote); excess above plan is actionable (SWPP/ICMI)"
+      benchmark_source_id: SRC-006
+
+    - id: res.overtime.pct
+      name: Overtime %
+      definition: >
+        Overtime minutes divided by paid minutes. A capacity-stress signal: rising overtime with
+        stable headcount indicates demand outstripping scheduled capacity — a precursor to burnout
+        and a costly (≈1.5×) substitute for permanent capacity.
+      unit: "%"
+      direction: minimize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        Overtime temporarily lifts available capacity but at premium cost and welfare risk.
+        Sustained high overtime signals a structural capacity gap that the Erlang C model should
+        resolve with permanent headcount, not recurring overtime (capacity model re-run trigger).
+      benchmark_target: "Target low single digits (<8%); sustained high overtime signals capacity gap"
+      benchmark_source_id: SRC-008
+
+    - id: svc.backlog.count
+      name: Case Backlog (Open WIP)
+      definition: >
+        Count of open/unresolved cases — the demand-pressure context. Growing backlog with low
+        utilization reveals a routing/skill mismatch (capacity exists but is not applied to queued
+        work); growing backlog with high utilization reveals a genuine capacity shortfall.
+      unit: count
+      direction: minimize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        Backlog is the demand signal that should pull idle capacity into productive work. Idle
+        capacity alongside rising backlog is a scheduling/skill-routing defect, not a headcount
+        problem — distinguishing the two is the core capacity-balance diagnosis.
+      benchmark_target: "Stable/declining; interpret jointly with utilization to locate the imbalance"
+      benchmark_source_id: SRC-003
+
+    - id: svc.tickets.created.count
+      name: Tickets Created (Demand)
+      definition: >
+        New cases created in the period — the inflow/demand input to the capacity model. Step
+        changes (product launch, campaign, seasonality) shift required staffing and utilization.
+      unit: count
+      direction: minimize
+      drives: svc.backlog.count
+      causal_mechanism: >
+        Demand volume is the Erlang C input that sets required staffing. A sustained volume
+        step-change (not a transient spike) requires a permanent capacity adjustment rather than
+        overtime; transient spikes are absorbed by scheduling flexibility.
+      benchmark_target: "Track vs forecast; sustained step-change triggers capacity model re-run"
+      benchmark_source_id: SRC-002
+
+  diagnostic_kpis:
+    - id: res.schedule_adherence.pct
+      name: Schedule Adherence %
+      definition: >
+        Share of scheduled on-task time that agents actually spent on task (adhering to the
+        published schedule). Isolates execution shrinkage (off-schedule behaviour) from planned
+        shrinkage; low adherence depresses utilization even when staffing is adequate.
+      unit: "%"
+      direction: maximize
+      diagnoses: res.shrinkage.pct
+      causal_mechanism: >
+        Adherence below target means scheduled capacity is not delivered on task, inflating
+        effective shrinkage and lowering utilization independent of headcount. Industry practice
+        targets ~90% adherence (SWPP/ICMI). It is the actionable execution lever within shrinkage.
+
+    - id: res.shrinkage.unplanned.pct
+      name: Unplanned Shrinkage %
+      definition: >
+        Shrinkage above the planned/budgeted level (unscheduled absence, unplanned system downtime,
+        overrunning meetings). Separates the controllable, actionable portion of shrinkage from the
+        budgeted portion already built into the staffing model.
+      unit: "%"
+      direction: minimize
+      diagnoses: res.shrinkage.pct
+      causal_mechanism: >
+        Planned shrinkage is staffed for; unplanned shrinkage is the gap that causes understaffing
+        and SLA risk. Targeting unplanned shrinkage (not total) avoids cutting legitimate training
+        and coaching that protect quality.
+
+    - id: res.idle.pct
+      name: Idle / Available-Not-Occupied %
+      definition: >
+        Available (logged-in) time not spent handling contacts divided by available time — the
+        complement of occupancy. High idle alongside backlog signals a routing/skill mismatch.
+      unit: "%"
+      direction: minimize
+      diagnoses: res.occupancy.pct
+      causal_mechanism: >
+        Idle available time with queued work is a routing or skill-coverage defect: capacity exists
+        but cannot be applied to the demand. This isolates the 'low-utilization-despite-demand'
+        scenario from a true capacity shortfall.
+
+    - id: res.forecast_accuracy.pct
+      name: Forecast Accuracy %
+      definition: >
+        Accuracy of volume/AHT forecasts versus actuals (e.g., 1 − MAPE). Poor forecast accuracy
+        causes systematic over- or under-staffing, distorting utilization and occupancy.
+      unit: "%"
+      direction: maximize
+      diagnoses: res.utilization.pct
+      causal_mechanism: >
+        Erlang C staffing is only as good as its volume/AHT/shrinkage inputs. Low forecast accuracy
+        produces structural under/over-staffing that no scheduling action can fix — pointing to the
+        forecasting process rather than the floor.
+
+  guardrails:
+    - description: Do not push occupancy above the sustainable ceiling
+      condition: >
+        Do not trigger occupancy/utilization-increase actions when occupancy is already at or above
+        ~85–90% sustained. Beyond this ceiling agents have no recovery time; AHT inflates, errors and
+        attrition rise, and SLA degrades — the apparent efficiency gain reverses (Erlang C / WFM).
+      affected_kpis:
+        - res.occupancy.pct
+        - res.utilization.pct
+        - svc.sla.attainment.pct
+    - description: Do not raise utilization at the expense of SLA / service quality
+      condition: >
+        Block utilization-push actions when SLA attainment is at/below target or trending down.
+        Utilization is bounded by the service-level guardrail — efficiency must never be bought with
+        a service-quality breach (ISO 18295-1; XD-001 linkage).
+      affected_kpis:
+        - res.utilization.pct
+        - svc.sla.attainment.pct
+    - description: Do not cut planned shrinkage that protects quality and welfare
+      condition: >
+        Do not target budgeted training, coaching, breaks, or compliance time to lift utilization.
+        Only unplanned shrinkage is actionable; cutting planned shrinkage harms quality, compliance,
+        and agent welfare (COPC CX Standard; ISO 18295-1 agent-welfare requirements).
+      affected_kpis:
+        - res.shrinkage.pct
+        - res.shrinkage.unplanned.pct
+    - description: Do not substitute sustained overtime for structural capacity
+      condition: >
+        Do not treat recurring high overtime as a steady-state solution. Sustained overtime at ≈1.5×
+        cost and rising attrition must trigger a capacity model re-run (permanent headcount), not be
+        normalised as the operating mode.
+      affected_kpis:
+        - res.overtime.pct
+        - res.utilization.pct
+
+  wrong_interpretations:
+    - description: "Confusing occupancy with utilization"
+      why_wrong: >
+        Occupancy (handle time / available time) and utilization (productive time / total paid time)
+        are different denominators. Occupancy ignores shrinkage; utilization includes it. Treating
+        them as interchangeable — e.g., targeting 85% utilization the way one targets 85% occupancy —
+        produces impossible staffing plans, because utilization is necessarily lower once shrinkage is
+        counted. They must be defined and tracked separately (Callcentrehelper / WFM theory).
+      source_id: SRC-002
+    - description: "Driving occupancy toward 100% to maximize efficiency"
+      why_wrong: >
+        Occupancy above ~85–90% sustained leaves no recovery time between contacts; AHT inflates,
+        error and reopen rates climb, and burnout drives attrition — which removes capacity and
+        worsens the metric. The Erlang relationship is non-linear: chasing the last points of
+        occupancy is self-defeating. There is a sustainable ceiling, not a 100% target.
+      source_id: SRC-002
+    - description: "Reading low utilization as overstaffing without checking routing/skill"
+      why_wrong: >
+        Low utilization alongside a growing backlog usually means capacity exists but is mis-routed or
+        skill-mismatched, not that there are too many agents. Cutting headcount in this state worsens
+        SLA. Always separate idle-with-demand (routing/skill defect) from idle-without-demand
+        (genuine overstaffing) before acting.
+      source_id: SRC-003
+    - description: "Treating all shrinkage as waste to be eliminated"
+      why_wrong: >
+        Planned shrinkage (training, coaching, breaks, compliance) is budgeted, value-protecting time
+        that the staffing model already accounts for. Eliminating it to lift utilization damages
+        quality, compliance, and welfare. Only unplanned shrinkage above plan is actionable; the
+        target is the variance to plan, not zero shrinkage (SWPP/ICMI; COPC CX Standard).
+      source_id: SRC-006
+    - description: "Normalising sustained overtime as steady-state capacity"
+      why_wrong: >
+        Persistent high overtime masks a structural capacity gap. Because overtime costs ≈1.5× and
+        degrades welfare and retention, reading it as 'the team is just busy' delays the permanent
+        capacity adjustment the Erlang model calls for and accelerates attrition.
+      source_id: SRC-008
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_workforce_management
+      description: >
+        WFM backbone at agent-day grain. Provides Work Time, Paid Time, Talk Time, Wrap Time,
+        Idle Time, Overtime Minutes, and Shrinkage Minutes per agent-day, with DateKey/OrgKey/QueueKey.
+        Source of utilization, occupancy, shrinkage, overtime, and idle measures.
+    - table: fact_support_cases
+      description: >
+        Case facts at case grain. Provides SLA Met Flag (service guardrail), Backlog/Open Case Flag,
+        and created/closed counts — the demand and service-level context that bounds utilization
+        decisions and locates capacity imbalance.
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: >
+        Time axis for utilization/occupancy/overtime/shrinkage trends and seasonality. Week-level for
+        operational balancing, Month-level for capacity review; Week / Month columns in the contract.
+    - name: dim_org
+      grain_relevance: >
+        Region / Channel / Queue / Agent Group hierarchy. Agent Group is the privacy-safe display
+        grain (individual agent metrics aggregated); Channel/Region required for imbalance attribution.
+    - name: dim_case_queue
+      grain_relevance: >
+        Queue-level (QueueName, Channel, Region) join between WFM capacity and case demand — required
+        to match staffing to backlog/inflow per queue and to locate routing/skill mismatch.
+
+  preferred_grain: agent_day
+  minimum_grain: queue-day
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    queue-day grain is acceptable for reporting where agent_day is privacy-restricted; statistical
+    disclosure limitation applies to agent groups with fewer than 5 agents (per the bracket's
+    data_minimisation). Raw agent_day is retained for computation but not exposed in the report layer.
+  required_measures:
+    - name: Utilization %
+      formula_seed: "SUM(Work_Time_Minutes) / SUM(Paid_Time_Minutes)"
+      source_id: SRC-006
+    - name: Occupancy %
+      formula_seed: "(SUM(Talk_Time_Minutes) + SUM(Wrap_Time_Minutes)) / (SUM(Talk) + SUM(Wrap) + SUM(Idle_Time_Minutes))"
+      source_id: SRC-002
+    - name: Shrinkage %
+      formula_seed: "SUM(Shrinkage_Minutes) / SUM(Paid_Time_Minutes)"
+      source_id: SRC-006
+    - name: Overtime %
+      formula_seed: "SUM(Overtime_Minutes) / SUM(Paid_Time_Minutes)"
+      source_id: SRC-008
+    - name: Idle / Available-Not-Occupied %
+      formula_seed: "SUM(Idle_Time_Minutes) / (SUM(Talk) + SUM(Wrap) + SUM(Idle_Time_Minutes))"
+      source_id: SRC-002
+    - name: SLA Attainment % (guardrail)
+      formula_seed: "COUNT(cases WHERE SLA_Met_Flag = TRUE) / COUNT(cases)"
+      source_id: SRC-001
+    - name: Schedule Adherence %
+      formula_seed: "On_Task_Time_within_Schedule / Scheduled_On_Task_Time"
+      source_id: SRC-007
+    - name: Unplanned Shrinkage %
+      formula_seed: "(SUM(Shrinkage_Minutes) - Planned_Shrinkage_Minutes) / SUM(Paid_Time_Minutes)"
+      source_id: SRC-006
+    - name: Required Staffing (Erlang C)
+      formula_seed: "ErlangC(forecast_volume, AHT, service_level_target) inflated by Shrinkage%"
+      source_id: SRC-004
+    - name: Case Backlog (Open WIP)
+      formula_seed: "COUNT(cases WHERE Open_Case_Flag = TRUE) at period end"
+      source_id: SRC-003
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: res.utilization.pct
+    trigger_diagnostic: res.shrinkage.unplanned.pct
+    trigger_condition: "Utilization below target band AND unplanned shrinkage above plan AND backlog rising"
+    guardrail: "Do not cut planned shrinkage; do not act if SLA is breaching (protect service quality)"
+    action_description: >
+      Utilization recovery: decompose shrinkage into planned vs unplanned, run schedule-adherence
+      analysis, and recover unplanned shrinkage (absence, system downtime, overrunning meetings)
+      without touching budgeted training/coaching time.
+    expected_outcome_kpi: res.utilization.pct
+    action_code_candidate: X-R2.1
+
+  - trigger_driver: svc.tickets.created.count
+    trigger_diagnostic: res.overtime.pct
+    trigger_condition: "Sustained demand step-change (created volume up > X% for 3+ weeks) AND overtime > 8% AND occupancy near ceiling"
+    guardrail: "Distinguish transient spike from structural step-change; do not normalise sustained overtime"
+    action_description: >
+      Capacity adjustment: re-run the Erlang C capacity model with the new volume/AHT/shrinkage
+      inputs; convert recurring overtime into a permanent capacity plan where the step-change is
+      structural rather than transient.
+    expected_outcome_kpi: res.overtime.pct
+    action_code_candidate: X-R2.2
+
+  - trigger_driver: res.occupancy.pct
+    trigger_diagnostic: res.idle.pct
+    trigger_condition: "Backlog rising WHILE idle/available-not-occupied is high in some groups and occupancy is high in others (imbalance)"
+    guardrail: "Do not push any group's occupancy above the ~85–90% sustainable ceiling"
+    action_description: >
+      Capacity reallocation: cross-skill or re-route work from idle-with-capacity groups to
+      overloaded queues; rebalance schedules to flatten occupancy peaks and apply idle capacity
+      to backlog — a routing/skill fix, not a headcount change.
+    expected_outcome_kpi: res.utilization.pct
+    action_code_candidate: X-R2.3
+
+  - trigger_driver: res.shrinkage.pct
+    trigger_diagnostic: res.schedule_adherence.pct
+    trigger_condition: "Shrinkage above plan AND schedule adherence < 90% AND SLA at risk"
+    guardrail: "Target unplanned shrinkage and adherence only; protect planned training/welfare time"
+    action_description: >
+      Shrinkage / adherence control: tighten schedule adherence, reduce unplanned absence and
+      off-schedule time, and address system-downtime drivers to release latent productive capacity
+      and stabilise SLA.
+    expected_outcome_kpi: res.shrinkage.pct
+    action_code_candidate: X-R2.4
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 12
+    portfolio_score: 12.7
+    categories_covered:
+      - STD
+      - ACA
+      - PRO
+      - BNK
+      - IMP
+      - RSK
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "ISO 18295-1:2017 — Customer contact centres — Part 1: Requirements for customer contact centres (staffing, scheduling, agent welfare, service level)"
+      author: "International Organization for Standardization"
+      publication: "ISO"
+      year: 2017
+      url: "https://www.iso.org/standard/64739.html"
+      doi: ""
+      scores:
+        authority: 3
+        recency: 2
+        domain_relevance: 3
+        independence: 3
+        content_role: 3
+      total_score: 14
+      supports:
+        - process_scope
+        - outcome_kpis
+        - guardrails
+      notes: >
+        Authoritative contact-centre standard covering staffing adequacy, scheduling, agent welfare,
+        and service level. Grounds the SLA service-guardrail and the welfare-based occupancy ceiling.
+
+    - id: SRC-002
+      category: PRO
+      title: "Call Centre Helper — Occupancy vs Utilisation definitions and the occupancy ceiling (why 85%+ sustained is risky)"
+      author: "Call Centre Helper (industry reference)"
+      publication: "Call Centre Helper"
+      year: 2023
+      url: "https://www.callcentrehelper.com/difference-occupancy-utilisation-132518.htm"
+      doi: ""
+      scores:
+        authority: 2
+        recency: 3
+        domain_relevance: 3
+        independence: 2
+        content_role: 3
+      total_score: 13
+      supports:
+        - driver_kpis
+        - guardrails
+        - wrong_interpretations
+      notes: >
+        Definitive practitioner reference distinguishing occupancy (handle/available) from
+        utilisation (productive/total paid) and the ~85% sustainable occupancy ceiling. Core source
+        for the occupancy-vs-utilization wrong interpretation and the burnout guardrail.
+
+    - id: SRC-003
+      category: ACA
+      title: "Aksin, Z., Armony, M., & Mehrotra, V. (2007). The modern call center: a multi-disciplinary perspective on operations management research. Production and Operations Management, 16(6), 665–688."
+      author: "Aksin, Z.; Armony, M.; Mehrotra, V."
+      publication: "Production and Operations Management (Wiley/POMS)"
+      year: 2007
+      url: "https://doi.org/10.1111/j.1937-5956.2007.tb00288.x"
+      doi: "10.1111/j.1937-5956.2007.tb00288.x"
+      scores:
+        authority: 3
+        recency: 1
+        domain_relevance: 3
+        independence: 3
+        content_role: 3
+      total_score: 13
+      supports:
+        - driver_kpis
+        - diagnostic_kpis
+        - wrong_interpretations
+      notes: >
+        Authoritative academic review of call-centre operations management, staffing, occupancy and
+        the staffing-vs-service-level tradeoff. Age waiver applies — foundational, heavily cited.
+        Grounds the backlog/routing-imbalance diagnosis and idle-vs-overstaffing distinction.
+
+    - id: SRC-004
+      category: ACA
+      title: "Gans, N., Koole, G., & Mandelbaum, A. (2003). Telephone call centers: tutorial, review, and research prospects. Manufacturing & Service Operations Management, 5(2), 79–141."
+      author: "Gans, N.; Koole, G.; Mandelbaum, A."
+      publication: "Manufacturing & Service Operations Management (INFORMS)"
+      year: 2003
+      url: "https://doi.org/10.1287/msom.5.2.79.16071"
+      doi: "10.1287/msom.5.2.79.16071"
+      scores:
+        authority: 3
+        recency: 1
+        domain_relevance: 3
+        independence: 3
+        content_role: 3
+      total_score: 13
+      supports:
+        - process_scope
+        - required_measures
+        - driver_kpis
+      notes: >
+        Canonical reference for Erlang C call-centre staffing theory and the occupancy/utilization
+        relationship. Age waiver applies — the definitive staffing-model tutorial. Grounds the
+        Required Staffing (Erlang C) measure and the capacity-model re-run logic.
+
+    - id: SRC-005
+      category: ACA
+      title: "Brown, L., Gans, N., Mandelbaum, A., Sakov, A., Shen, H., Zeltyn, S., & Zhao, L. (2005). Statistical analysis of a telephone call center: a queueing-science perspective. Journal of the American Statistical Association, 100(469), 36–50."
+      author: "Brown, L. et al."
+      publication: "Journal of the American Statistical Association (Taylor & Francis)"
+      year: 2005
+      url: "https://doi.org/10.1198/016214504000001808"
+      doi: "10.1198/016214504000001808"
+      scores:
+        authority: 3
+        recency: 1
+        domain_relevance: 3
+        independence: 3
+        content_role: 2
+      total_score: 12
+      supports:
+        - driver_kpis
+        - diagnostic_kpis
+      notes: >
+        Empirical queueing-science study of call-centre operations (arrival, AHT, abandonment, and
+        staffing). Age waiver applies. Supports forecast-accuracy and demand-input diagnostics.
+
+    - id: SRC-006
+      category: BNK
+      title: "SWPP / ICMI Workforce Management Benchmarks — shrinkage (30–35%), utilization, and schedule adherence targets"
+      author: "Society of Workforce Planning Professionals (SWPP) / ICMI"
+      publication: "SWPP / ICMI"
+      year: 2023
+      url: "https://www.swpp.org/"
+      doi: ""
+      scores:
+        authority: 2
+        recency: 3
+        domain_relevance: 3
+        independence: 2
+        content_role: 3
+      total_score: 13
+      supports:
+        - outcome_kpis
+        - driver_kpis
+        - benchmark_targets
+        - wrong_interpretations
+      notes: >
+        Primary WFM benchmark source for shrinkage (~30–35% on-site, 35–40% remote), utilization
+        bands, and adherence. Grounds the shrinkage benchmark and the 'shrinkage-as-waste' caution.
+
+    - id: SRC-007
+      category: PRO
+      title: "ICMI — Schedule Adherence as a WFM metric and ~90% adherence target (contact-centre measurement practice)"
+      author: "ICMI (International Customer Management Institute)"
+      publication: "ICMI"
+      year: 2025
+      url: "https://www.icmi.com/resources/2025/what-contact-centers-are-measuring"
+      doi: ""
+      scores:
+        authority: 2
+        recency: 3
+        domain_relevance: 3
+        independence: 2
+        content_role: 3
+      total_score: 13
+      supports:
+        - diagnostic_kpis
+        - required_measures
+        - benchmark_targets
+      notes: >
+        Contact-centre management body. Supports schedule adherence definition and the ~90% adherence
+        practice target used in the shrinkage/adherence diagnostic and X-R2.4.
+
+    - id: SRC-008
+      category: BNK
+      title: "Contact Center Pipeline — agent occupancy, overtime cost (~1.5×), and burnout/attrition risk benchmarks"
+      author: "Contact Center Pipeline"
+      publication: "Contact Center Pipeline"
+      year: 2022
+      url: "https://blog.contactcenterpipeline.com/2015/09/the-ugly-truth-about-agent-occupancy-or-why-85-may-be-too-low/"
+      doi: ""
+      scores:
+        authority: 2
+        recency: 2
+        domain_relevance: 3
+        independence: 2
+        content_role: 3
+      total_score: 12
+      supports:
+        - driver_kpis
+        - benchmark_targets
+        - wrong_interpretations
+      notes: >
+        Industry analysis of occupancy ceilings, overtime cost, and burnout. Supports the overtime
+        driver, the ~1.5× overtime cost figure, and the sustained-overtime wrong interpretation.
+
+    - id: SRC-009
+      category: STD
+      title: "COPC Customer Experience (CX) Standard — staffing, scheduling, shrinkage, and agent-welfare metrics"
+      author: "COPC Inc."
+      publication: "COPC CX Standard"
+      year: 2023
+      url: "https://www.copc.com/copc-standards/copc-cx-standard/"
+      doi: ""
+      scores:
+        authority: 2
+        recency: 3
+        domain_relevance: 3
+        independence: 2
+        content_role: 3
+      total_score: 13
+      supports:
+        - process_scope
+        - guardrails
+        - wrong_interpretations
+      notes: >
+        Industry CX/operations standard defining staffing and shrinkage management with an explicit
+        welfare and quality balance. Grounds the 'do-not-cut-planned-shrinkage' guardrail.
+
+    - id: SRC-010
+      category: IMP
+      title: "Deloitte — Workforce Management in service operations: capacity planning, shrinkage, and overtime control (2023)"
+      author: "Deloitte Consulting"
+      publication: "Deloitte Insights"
+      year: 2023
+      url: "https://www2.deloitte.com/us/en/insights/focus/technology-and-the-future-of-work/workforce-management.html"
+      doi: ""
+      scores:
+        authority: 3
+        recency: 3
+        domain_relevance: 2
+        independence: 2
+        content_role: 2
+      total_score: 12
+      supports:
+        - actions_by_root_cause
+        - guardrails
+      notes: >
+        Practitioner guidance on capacity planning and overtime/shrinkage control in service
+        operations. Supports the capacity-adjustment and reallocation action logic seeds.
+
+    - id: SRC-011
+      category: STD
+      title: "ITIL 4 — Capacity and Performance Management practice (aligning service capacity to demand)"
+      author: "AXELOS / PeopleCert"
+      publication: "ITIL 4"
+      year: 2019
+      url: "https://www.axelos.com/certifications/itil-service-management/itil-4-foundation"
+      doi: ""
+      scores:
+        authority: 3
+        recency: 3
+        domain_relevance: 2
+        independence: 2
+        content_role: 2
+      total_score: 12
+      supports:
+        - process_scope
+        - driver_kpis
+      notes: >
+        ITIL 4 Capacity and Performance Management grounds the demand-to-capacity alignment and the
+        SLA service-guardrail linkage between staffing decisions and service level.
+
+    - id: SRC-012
+      category: RSK
+      title: "Workforce-management practitioner discourse on occupancy burnout / attrition and 'shrinkage theatre' (over-cutting shrinkage) 2020–2024"
+      author: "WFM practitioner community (referencing SWPP/ICMI and ISO 18295-1)"
+      publication: "WFM practitioner literature"
+      year: 2022
+      url: "https://www.callcentrehelper.com/the-ugly-truth-about-agent-occupancy-132518.htm"
+      doi: ""
+      scores:
+        authority: 2
+        recency: 3
+        domain_relevance: 3
+        independence: 2
+        content_role: 2
+      total_score: 12
+      supports:
+        - wrong_interpretations
+        - guardrails
+      notes: >
+        Anti-pattern source: pushing occupancy to maximize efficiency causes burnout and attrition;
+        cutting all shrinkage damages quality and welfare. Anchored to SWPP/ICMI and ISO 18295-1.
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: partial
+  factsheet_coverage: partial
+  bracket_coverage: partial
+  action_code_coverage: partial
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-002_Resource_Utilization/UseCase_Bracket.yaml
+        field: orchestration.supporting_kpi_ids
+        description: >
+          Diagnostic KPIs from the domain model (res.schedule_adherence.pct, res.shrinkage.unplanned.pct,
+          res.idle.pct, res.forecast_accuracy.pct) are not represented. They are required to separate
+          actionable unplanned shrinkage from planned, and routing imbalance from genuine overstaffing.
+        evidence_reference: SRC-002 SRC-006 SRC-007
+        remediation: "Add adherence, unplanned-shrinkage, idle, and forecast-accuracy diagnostics to supporting_kpi_ids. Close when DEP approved."
+        status: open
+
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md
+        field: "Section 8 Success Criteria"
+        description: >
+          Benchmark bands not quantified: utilization sustainable band, occupancy ~80–85% ceiling,
+          shrinkage 30–35% norm, overtime <8%, adherence ~90%. Section 8 states qualitative goals only.
+        evidence_reference: SRC-002 SRC-006 SRC-008
+        remediation: "Add quantified target bands to Section 8. Close when DEP approved."
+        status: open
+
+    mapping_gaps:
+      - gap_type: mapping_gap
+        severity: high
+        affected_artifact: core/usecases/core/XD-002_Resource_Utilization/UseCase_Bracket.yaml
+        field: ux_layout_rules.page_1_summary.component_30s (Main_1)
+        description: >
+          Main_1 trend shows res.occupancy.pct (the primary driver) rather than the strategic KPI
+          res.utilization.pct. Domain evidence requires the strategic KPI as the lead trend with the
+          target band, answering 'Is utilization sustainable?' before 'Why?'. Occupancy belongs in Main_2.
+        evidence_reference: SRC-002 SRC-006
+        remediation: "Set Main_1 kpi_id to res.utilization.pct vs target band; move occupancy to Main_2. Close when DEP approved."
+        status: open
+
+      - gap_type: mapping_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-002_Resource_Utilization/UseCase_Bracket.yaml
+        field: ux_layout_rules.page_1_summary.component_30s (occupancy visual band)
+        description: >
+          Occupancy should be displayed against a sustainable-ceiling band (~85–90% upper bound), not as
+          a maximize-to-100% metric. Without the ceiling overlay the visual invites the burnout
+          anti-pattern of pushing occupancy ever higher.
+        evidence_reference: SRC-002 SRC-008
+        remediation: "Add an upper-ceiling band overlay (~85–90%) to the occupancy visual. Close when DEP approved."
+        status: open
+
+    schema_gaps: []
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/experience.yaml
+        field: fact_workforce_management (schedule adherence / planned shrinkage)
+        description: >
+          The contract has Shrinkage Minutes but no scheduled/on-task time or planned-shrinkage baseline,
+          so Schedule Adherence % and Unplanned Shrinkage % (the actionable levers) cannot be computed.
+          Total shrinkage alone cannot separate budgeted from controllable shrinkage.
+        evidence_reference: SRC-006 SRC-007
+        remediation: >
+          Add scheduled on-task minutes and a planned-shrinkage baseline to fact_workforce_management
+          and Experience.SemanticModel; define Schedule Adherence % and Unplanned Shrinkage % measures.
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/experience.yaml
+        field: forecast vs actual (forecast accuracy)
+        description: >
+          No forecast (volume/AHT) versus actual records exist, so Forecast Accuracy % cannot be
+          computed. Without it, structural over/under-staffing from poor forecasts is indistinguishable
+          from floor-level scheduling issues, weakening the capacity-model re-run trigger (X-R2.2).
+        evidence_reference: SRC-004 SRC-005
+        remediation: >
+          Add a forecast fact (forecast volume/AHT vs actuals) to the experience contract and a
+          Forecast Accuracy % measure to Experience.SemanticModel.
+        status: open

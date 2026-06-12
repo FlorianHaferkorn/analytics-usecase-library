@@ -1,0 +1,586 @@
+evidence_pack_version: "1.0"
+use_case_id: FIN-002
+use_case_title: Cost Performance
+domain: Finance / Operations
+authored_date: "2026-06-11"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+process_scope:
+  description: >
+    Unit-cost and conversion-cost performance management across plants, lines, and products.
+    Covers cost-of-goods decomposition (material, labor, overhead/OpEx), standard-costing
+    variance analysis (price vs usage, rate vs efficiency, volume/absorption), and the
+    quality/yield drivers that determine true conversion cost per good unit. Enables early
+    corrective actions that reduce unit cost without shifting cost downstream into scrap,
+    rework, warranty, or service failure.
+  in_scope:
+    - Unit Cost Amount (cost per good unit produced) vs plan and vs last year by plant/line/product
+    - COGS % of sales as the margin guardrail co-outcome
+    - Cost-bucket decomposition (material %, labor, overhead/OpEx vs plan)
+    - Standard-costing variance analysis (material price vs usage, labor rate vs efficiency, fixed-cost absorption/volume)
+    - Yield- and scrap-driven conversion cost (cost of poor quality embedded in unit cost)
+    - Early corrective action triggers on material, labor, OpEx, and quality drivers
+  out_of_scope:
+    - Detailed OEE / availability-performance tuning (OPS-001)
+    - Supplier purchase-price-variance (PPV) negotiation and sourcing strategy (OPS-002)
+    - Logistics and distribution cost ratio (OPS-009)
+    - Working-capital and inventory valuation for cash purposes (FIN-001, SCM-001)
+    - Long-term capacity / CapEx footprint decisions
+  industry_segment: Discrete and process manufacturing companies producing to standard cost
+  applicable_frameworks:
+    - name: "IAS 2 Inventories — Cost of Inventories and Cost of Conversion (IFRS)"
+      id: IAS-2
+    - name: "ISO 22400-2 KPIs for Manufacturing Operations Management (productivity, yield, scrap)"
+      id: ISO-22400
+    - name: "APQC PCF 8.0 — Manage Financial Resources: Perform Cost Management"
+      id: APQC-PCF-8
+    - name: "IMA Conceptual Framework for Managerial Costing / Standard Costing & Variance Analysis (CIMA)"
+      id: IMA-CFMC
+    - name: "ISA-95 / IEC 62264 Enterprise-Control System Integration (Level 3 cost-to-output linkage)"
+      id: ISA-95
+
+canonical_domain_model:
+  outcome_kpis:
+    - id: cost.unit.amount
+      name: Unit Cost Amount
+      definition: >
+        Fully-loaded cost per good unit produced = (Material Cost + Labor Cost + Overhead/Conversion Cost)
+        / Good Output Units. Per IAS 2, conversion cost includes direct labor plus a systematic
+        allocation of variable and fixed production overhead at normal capacity.
+      unit: EUR per unit
+      direction: minimize
+      benchmark_target: "Sector-specific; track to plan ±2% and to standard cost; total manufacturing cost trended via APQC OSB total-cost-of-manufacturing-as-%-of-revenue"
+      benchmark_source_id: SRC-006
+
+    - id: margin.cogs.pct
+      name: COGS % of Sales
+      role: guardrail
+      definition: "COGS Amount / Net Sales Amount × 100. Margin co-outcome — unit-cost actions must not raise COGS %."
+      unit: "%"
+      direction: minimize
+      causal_mechanism: >
+        Co-outcome guardrail: unit cost can fall while COGS % rises (or vice versa) when mix or
+        volume shifts. COGS % is the financial translation of unit-cost discipline into margin and
+        is benchmarked by industry. It is a derived margin guardrail, not a causal driver of unit cost.
+      benchmark_target: "Sector-specific; benchmarked via APQC OSB 'Cost of goods sold as a percentage of revenue'"
+      benchmark_source_id: SRC-006
+
+  driver_kpis:
+    - id: cost.material.pct
+      name: Material Cost %
+      definition: "Material Cost Amount / COGS Amount × 100 (share of cost from purchased materials and consumables)."
+      unit: "%"
+      direction: minimize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Material is the largest and fastest-moving cost bucket in most manufacturing. Material cost %
+        moves with purchase price (price variance) and consumption efficiency (usage/yield variance).
+        It is the primary structural lever on unit cost before labor or overhead redesign.
+      benchmark_target: "Industry-specific; benchmarked via APQC OSB 'Material costs as a percentage of cost of goods sold'"
+      benchmark_source_id: SRC-006
+
+    - id: cost.opex.vs_plan.pct
+      name: OpEx vs Plan %
+      definition: "(Actual OpEx − Plan OpEx) / Plan OpEx × 100. Overhead/operating-expense overspend against plan."
+      unit: "%"
+      direction: minimize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Overhead and operating expense are absorbed into unit cost through the conversion-cost
+        allocation. OpEx running over plan inflates absorbed cost per unit; the gap signals structural
+        overspend versus temporary ramp-up. Per IAS 2, only normal-capacity overhead is absorbable.
+      benchmark_target: "Within ±3% of plan; structural overspend escalated above tolerance"
+      benchmark_source_id: SRC-002
+
+    - id: ops.labor.productivity.pct
+      name: Labor Productivity %
+      definition: "Good Output Units per labor hour, indexed vs standard (standard hours earned / actual hours × 100)."
+      unit: "%"
+      direction: maximize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Labor cost per unit = labor rate / units-per-hour. Falling productivity raises conversion cost
+        per unit even at constant wage rates. Decomposes into labor rate variance (price) and labor
+        efficiency variance (productivity) per standard costing.
+      benchmark_target: "≥100% of standard (earned hours ≥ actual hours); ISO 22400 productivity index"
+      benchmark_source_id: SRC-003
+
+    - id: ops.production.volume
+      name: Production Volume
+      definition: "Good output units produced in the period. Determines fixed-cost absorption per unit."
+      unit: count
+      direction: maximize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Fixed conversion cost is spread over output volume. Lower volume raises fixed cost per unit
+        even when total spend is flat — an absorption effect, not an efficiency loss. Per IAS 2,
+        unabsorbed fixed overhead at abnormally low volume must be expensed, not capitalized into inventory.
+      benchmark_target: "At or above normal capacity used for overhead absorption (IAS 2 normal capacity)"
+      benchmark_source_id: SRC-001
+
+    - id: ops.quality.defect_rate.pct
+      name: Defect Rate %
+      definition: "Defective (scrap + rework) units / total units produced × 100."
+      unit: "%"
+      direction: minimize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Defects consume material, labor, and overhead that produce no saleable unit, so they re-load
+        onto the cost of good units (cost of poor quality). Rising defect rate raises unit cost even
+        when nominal spend is unchanged.
+      benchmark_target: "Cost of poor quality 15–20% of sales typical; world-class <5% (ASQ)"
+      benchmark_source_id: SRC-007
+
+    - id: ops.yield.pct
+      name: Yield %
+      definition: "Good (saleable) units / total units started × 100. First-pass yield of conversion."
+      unit: "%"
+      direction: maximize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Yield is the inverse driver of scrap-loaded cost: every point of yield loss spreads the full
+        input cost of started units over fewer good units, raising cost per good unit. Yield and defect
+        rate are the quality drivers that determine true conversion cost per saleable unit.
+      benchmark_target: "Maximize toward 100%; benchmarked via APQC OSB 'Scrap and rework costs as a percentage of cost of goods sold'"
+      benchmark_source_id: SRC-006
+
+  diagnostic_kpis:
+    - id: cost.material.price_variance.amount
+      name: Material Price Variance
+      definition: "Actual Quantity × (Standard Price − Actual Price). Isolates purchase-price effect on material cost."
+      unit: EUR
+      direction: maximize
+      diagnoses: cost.material.pct
+      causal_mechanism: >
+        Separates whether material cost % moved because of purchase price (a sourcing/procurement issue)
+        rather than consumption. Adverse price variance points to procurement/commodity action, not shopfloor action.
+
+    - id: cost.material.usage_variance.amount
+      name: Material Usage (Quantity) Variance
+      definition: "Standard Price × (Standard Quantity − Actual Quantity). Isolates consumption/yield effect on material cost."
+      unit: EUR
+      direction: maximize
+      diagnoses: cost.material.pct
+      causal_mechanism: >
+        Separates whether material cost % moved because more material was consumed per unit (yield/scrap,
+        recipe drift, calibration). Adverse usage variance points to shopfloor/quality action, not procurement.
+
+    - id: cost.labor.rate_variance.amount
+      name: Labor Rate Variance
+      definition: "Actual Hours × (Standard Rate − Actual Rate). Isolates wage-rate effect on labor cost."
+      unit: EUR
+      direction: maximize
+      diagnoses: ops.labor.productivity.pct
+      causal_mechanism: >
+        Separates labor cost movement caused by wage rate / overtime / skill-mix from movement caused by efficiency.
+        Adverse rate variance points to scheduling, overtime, and shift-mix decisions.
+
+    - id: cost.labor.efficiency_variance.amount
+      name: Labor Efficiency Variance
+      definition: "Standard Rate × (Standard Hours for actual output − Actual Hours). Isolates productivity effect on labor cost."
+      unit: EUR
+      direction: maximize
+      diagnoses: ops.labor.productivity.pct
+      causal_mechanism: >
+        Separates labor cost movement caused by hours-per-unit (true productivity) from wage rate.
+        Adverse efficiency variance points to line balancing, training, downtime, and changeover action.
+
+    - id: cost.overhead.absorption_variance.amount
+      name: Fixed Overhead Volume / Absorption Variance
+      definition: "(Actual Volume − Budgeted Normal Volume) × Standard Fixed Overhead Rate. Isolates volume/absorption effect on unit cost."
+      unit: EUR
+      direction: maximize
+      diagnoses: cost.opex.vs_plan.pct
+      causal_mechanism: >
+        Distinguishes a unit-cost rise caused by under-absorption (low volume spreading fixed cost over
+        fewer units) from a genuine spend overrun. Under-absorption is a demand/scheduling issue, not an overspend.
+
+    - id: cost.copq.scrap_rework.amount
+      name: Cost of Poor Quality (Scrap + Rework)
+      definition: "Material + labor + overhead consumed by scrapped and reworked units, expressed in EUR and as % of COGS."
+      unit: EUR
+      direction: minimize
+      diagnoses: ops.yield.pct
+      causal_mechanism: >
+        Quantifies how much of the unit-cost gap is scrap/rework-driven rather than price or overhead.
+        Confirms that the real lever is quality/yield improvement, not headline cost cutting.
+
+  guardrails:
+    - description: Do not cut maintenance, quality, or prevention spend to hit a short-term cost target
+      condition: >
+        Block OpEx / overhead reduction actions that lower preventive maintenance, inspection, or
+        quality-prevention spend when defect rate or scrap variance is rising. Cutting prevention/appraisal
+        cost shifts cost downstream into internal failure (scrap/rework) and external failure (warranty/returns),
+        raising total cost of poor quality even as the line item falls.
+      affected_kpis:
+        - cost.unit.amount
+        - ops.quality.defect_rate.pct
+        - ops.yield.pct
+
+    - description: Do not declare unit-cost improvement that is only a volume/absorption artifact
+      condition: >
+        Do not trigger structural cost-reduction actions when a unit-cost change is explained by the
+        fixed-overhead absorption variance (volume up or down) rather than by efficiency or price.
+        Reading an absorption swing as a real efficiency gain or loss misdirects action.
+      affected_kpis:
+        - cost.unit.amount
+        - ops.production.volume
+
+    - description: Do not optimise unit cost in a way that raises COGS % or shifts cost to another stage
+      condition: >
+        Block material-substitution or make-vs-buy actions that reduce one plant's unit cost while raising
+        COGS % at the entity level or moving cost into logistics, service, or warranty downstream.
+      affected_kpis:
+        - cost.unit.amount
+        - margin.cogs.pct
+
+  wrong_interpretations:
+    - description: Unit cost fell only because volume rose (fixed-cost absorption)
+      why_wrong: >
+        A lower unit cost driven by higher production volume spreading fixed overhead over more units is
+        an absorption effect, not an efficiency or price improvement. When volume normalizes the gain
+        reverses. Per IAS 2 the inverse case — abnormally low volume — must expense unabsorbed fixed
+        overhead rather than capitalize it. Always decompose unit-cost change into price, efficiency, and
+        volume/absorption before claiming a structural win.
+      source_id: SRC-001
+
+    - description: Cutting quality, inspection, or maintenance spend reduces cost
+      why_wrong: >
+        Treating prevention and appraisal spend as pure cost ignores that it suppresses internal and
+        external failure cost. The cost of poor quality already runs 15–20% of sales for typical
+        manufacturers; cutting prevention shifts cost downstream into scrap, rework, warranty, and lost
+        sales, raising total cost while the cut line item looks improved.
+      source_id: SRC-008
+
+    - description: Material cost % read without splitting price from usage/yield
+      why_wrong: >
+        A rise in material cost % can be caused by purchase price (a procurement/commodity issue) or by
+        consumption/yield loss (a shopfloor/quality issue). Each has a different owner and corrective action.
+        Without the material price-vs-usage variance split, controllers correct the wrong lever.
+      source_id: SRC-004
+
+    - description: Reducing unit cost at one stage that shifts cost downstream
+      why_wrong: >
+        Cheaper inputs or compressed cycle times can lower a plant's unit cost while increasing scrap,
+        warranty, returns, or expedited-freight cost elsewhere. Unit cost must be evaluated against COGS %
+        and total cost of poor quality, not in isolation, to avoid value-destroying local optimisation.
+      source_id: SRC-005
+
+source_inventory:
+  summary:
+    total_sources: 12
+    portfolio_score: 13.7
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "IAS 2 Inventories — Cost of Inventories, Cost of Conversion, Allocation of Fixed and Variable Production Overheads (IFRS Foundation)"
+      author: IFRS Foundation
+      publication: IFRS Foundation
+      year: 2024
+      url: "https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [outcome_kpis, driver_kpis, wrong_interpretations, required_measures, guardrails]
+      notes: Defines conversion cost and normal-capacity overhead absorption underpinning the unit-cost definition.
+
+    - id: SRC-002
+      category: STD
+      title: "APQC Process Classification Framework (PCF) 8.0 — Manage Financial Resources: 8.2 Perform Planning and Management Accounting (Cost Management)"
+      author: APQC
+      publication: APQC
+      year: 2024
+      url: "https://www.apqc.org/resource-library/resource-listing/80-manage-financial-resources-definitions-and-key-measures-pcf"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, driver_kpis, required_measures]
+      notes: Cost-management process — analyze cost drivers, benchmark, link to activity-based measures.
+
+    - id: SRC-003
+      category: STD
+      title: "ISO 22400-2:2014 Automation systems and integration — KPIs for Manufacturing Operations Management, Part 2: Definitions and descriptions (productivity, yield, scrap ratio)"
+      author: ISO/TC 184
+      publication: International Organization for Standardization
+      year: 2014
+      url: "https://www.iso.org/standard/54497.html"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, required_measures]
+      notes: Classic operations-KPI standard; age waiver applies (foundational MOM KPI definitions).
+
+    - id: SRC-004
+      category: PRO
+      title: "Standard Costing and Variance Analysis (CIMA / AICPA & CIMA Topic Gateway) — material price/usage and labour rate/efficiency variances"
+      author: "AICPA & CIMA (Chartered Institute of Management Accountants)"
+      publication: AICPA & CIMA
+      year: 2020
+      url: "https://www.cimaglobal.com/Documents/ImportedDocuments/cid_tg_standard_costing_and_variance_analysis_mar08.pdf.pdf"
+      doi: ""
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [diagnostic_kpis, wrong_interpretations, required_measures]
+
+    - id: SRC-005
+      category: PRO
+      title: "IMA Statement on Management Accounting — Conceptual Framework for Managerial Costing (resource consumption, cost behaviour for decisions)"
+      author: "Institute of Management Accountants (IMA) Managerial Costing Conceptual Framework Task Force"
+      publication: IMA (Institute of Management Accountants)
+      year: 2019
+      url: "https://www.imanet.org/research-publications/statements-on-management-accounting/conceptual-framework-for-managerial-costing"
+      doi: ""
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [process_scope, wrong_interpretations, guardrails]
+
+    - id: SRC-006
+      category: BNK
+      title: "APQC Open Standards Benchmarking — Cost of Goods Sold % of Revenue; Material Costs % of COGS; Scrap and Rework Costs % of COGS; Total Cost of Manufacturing % of Revenue"
+      author: APQC
+      publication: APQC Open Standards Benchmarking
+      year: 2024
+      url: "https://www.apqc.org/resources/benchmarking/open-standards-benchmarking/measures/cost-goods-sold-percentage-revenue"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [benchmark_target, outcome_kpis, driver_kpis]
+
+    - id: SRC-007
+      category: BNK
+      title: "ASQ (American Society for Quality) — Cost of Quality / Cost of Poor Quality benchmark (15–20% of sales typical; <5% world-class)"
+      author: "American Society for Quality (ASQ)"
+      publication: ASQ Quality Press / Quality Cost Body of Knowledge
+      year: 2023
+      url: "https://asq.org/quality-resources/cost-of-quality"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [benchmark_target, driver_kpis, wrong_interpretations]
+
+    - id: SRC-008
+      category: IMP
+      title: "McKinsey & Company: Investing in quality manufacturing — higher quality output, lower cost of quality"
+      author: McKinsey Operations Practice
+      publication: McKinsey.com
+      year: 2023
+      url: "https://www.mckinsey.com/capabilities/operations/our-insights/manufacturing-quality-today-higher-quality-output-lower-cost-of-quality"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [guardrails, wrong_interpretations, actions_by_root_cause]
+
+    - id: SRC-009
+      category: IMP
+      title: "Deloitte: Global Cost Survey — Cost Management and Reduction (tactical vs strategic cost actions; 63% miss targets)"
+      author: Deloitte Consulting
+      publication: Deloitte Insights
+      year: 2023
+      url: "https://www2.deloitte.com/us/en/pages/operations/articles/gx-global-cost-management-survey.html"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [actions_by_root_cause, wrong_interpretations]
+
+    - id: SRC-010
+      category: ACA
+      title: "Cooper, R. & Kaplan, R.S. (1988). Measure Costs Right: Make the Right Decisions. Harvard Business Review (activity-based costing, cost drivers, overhead allocation)."
+      author: "Cooper, R.; Kaplan, R.S."
+      publication: Harvard Business Review
+      year: 1988
+      url: "https://hbr.org/1988/09/measure-costs-right-make-the-right-decisions"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, diagnostic_kpis, wrong_interpretations]
+      notes: Foundational ABC / cost-driver reference; classic age waiver applies.
+
+    - id: SRC-011
+      category: STD
+      title: "ANSI/ISA-95 (IEC 62264) Enterprise-Control System Integration — Level 3 manufacturing operations to enterprise cost linkage"
+      author: "International Society of Automation (ISA) / IEC"
+      publication: ISA / IEC
+      year: 2025
+      url: "https://www.isa.org/standards-and-publications/isa-standards/isa-95-standard"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [process_scope, required_data_model]
+      notes: Justifies the cost-to-output (fact_cost ↔ fact_output) integration grain at Level 3/4.
+
+    - id: SRC-012
+      category: RSK
+      title: "Kaplan, R.S. & Anderson, S.R. (2007). Time-Driven Activity-Based Costing — capacity cost rate and cost of unused (idle) capacity (risk of misreading absorption)."
+      author: "Kaplan, R.S.; Anderson, S.R."
+      publication: Harvard Business School Press / HBS Working Paper 04-045
+      year: 2007
+      url: "https://www.hbs.edu/ris/Publication%20Files/04-045_d62528d4-7931-4ea1-a205-d9683c639d6e.pdf"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [wrong_interpretations, guardrails]
+      notes: Cost of unused capacity clarifies the volume/absorption misinterpretation; classic age waiver applies.
+
+action_logic_seeds:
+  - trigger_driver: cost.material.pct
+    trigger_diagnostic: cost.material.usage_variance.amount
+    trigger_condition: "Material Cost % above plan by > 2pp for 2 consecutive months AND usage variance is adverse (price variance not the cause)"
+    guardrail: "Do not trigger if the gap is a price variance owned by procurement (route to OPS-002), or if volume/absorption explains the move"
+    action_description: Cost variance investigation — split material price vs usage/yield variance by plant-line-product and launch yield/recipe corrective action where usage is the driver.
+    expected_outcome_kpi: cost.unit.amount
+    action_code_candidate: F-K2.1
+
+  - trigger_driver: ops.labor.productivity.pct
+    trigger_diagnostic: cost.labor.efficiency_variance.amount
+    trigger_condition: "Labor Productivity < 95% of standard AND labor efficiency variance adverse for 2 consecutive months"
+    guardrail: "Exclude planned training, ramp-up, or new-product qualification periods; do not cut headcount that raises defect rate"
+    action_description: Labor productivity recovery — line balancing, changeover reduction, and standard-time re-validation where efficiency (not rate) drives the gap.
+    expected_outcome_kpi: cost.unit.amount
+    action_code_candidate: F-K2.2
+
+  - trigger_driver: cost.opex.vs_plan.pct
+    trigger_diagnostic: cost.overhead.absorption_variance.amount
+    trigger_condition: "OpEx vs Plan > +5% AND absorption variance confirms structural overspend (not low-volume under-absorption)"
+    guardrail: "Do not cut maintenance, inspection, or quality-prevention spend; do not act if the gap is pure volume/absorption"
+    action_description: OpEx containment — cost-driver decomposition and overhead variance bridge separating structural overspend from temporary ramp-up or absorption swings.
+    expected_outcome_kpi: cost.unit.amount
+    action_code_candidate: F-K2.3
+
+  - trigger_driver: ops.yield.pct
+    trigger_diagnostic: cost.copq.scrap_rework.amount
+    trigger_condition: "Yield % below target AND defect rate rising AND scrap/rework cost > 10% of COGS for the line"
+    guardrail: "Quality/yield action must increase, not reduce, prevention and appraisal spend (cost of poor quality guardrail)"
+    action_description: Yield and quality cost-out — root-cause scrap/rework reduction targeting the cost of poor quality embedded in unit cost.
+    expected_outcome_kpi: cost.unit.amount
+    action_code_candidate: F-K2.4
+
+required_data_model:
+  required_facts:
+    - table: fact_cost
+      description: Cost breakdown (COGS Amount, Material Cost Amount, Overhead Amount) per plant-line-product-month — the core unit-cost numerator.
+    - table: fact_output
+      description: Output Units per plant-line-product-month — the unit-cost denominator (good output) for cost per unit.
+    - table: fact_finance
+      description: P&L facts (Net Sales, COGS, OpEx, Plan OpEx, Material Cost) per entity-month for COGS % and OpEx-vs-plan control.
+    - table: fact_labor
+      description: Labor Hours per plant-line-month for labor productivity and rate/efficiency variance.
+    - table: fact_ops
+      description: Output/Good/Scrap Units and standard rate per line-day for productivity and yield drivers (operations contract).
+    - table: fact_quality
+      description: Total/Good/Scrap/Rework Units and Defect Count per line-day for defect rate, yield, and cost-of-poor-quality (operations contract).
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: Month-level minimum for cost variance trending; week/day for operational yield and labor drivers.
+    - name: dim_org
+      grain_relevance: Plant/line attribution of unit cost and absorption; entity level for OpEx and COGS % control.
+    - name: dim_product
+      grain_relevance: Product/category-level material %, yield, and unit-cost mix analysis.
+    - name: security_user_org
+      grain_relevance: Row-level security so controllers see only their cost-centers (no individual employee attribution).
+  preferred_grain: plant-line-product-month
+  minimum_grain: plant-product-month (with entity-month for OpEx/COGS %)
+  minimum_history_months: 24
+  required_measures:
+    - name: Unit Cost Amount
+      formula_seed: "(Material Cost Amount + Labor Cost + Overhead Amount) / Output Units (good units)"
+      source_id: SRC-001
+    - name: COGS % of Sales
+      formula_seed: "COGS Amount / Net Sales Amount × 100"
+      source_id: SRC-006
+    - name: Material Cost %
+      formula_seed: "Material Cost Amount / COGS Amount × 100"
+      source_id: SRC-006
+    - name: OpEx vs Plan %
+      formula_seed: "(OpEx Amount − Plan OpEx Amount) / Plan OpEx Amount × 100"
+      source_id: SRC-002
+    - name: Material Price Variance
+      formula_seed: "Actual Quantity × (Standard Price − Actual Price)"
+      source_id: SRC-004
+    - name: Material Usage Variance
+      formula_seed: "Standard Price × (Standard Quantity − Actual Quantity)"
+      source_id: SRC-004
+    - name: Labor Efficiency Variance
+      formula_seed: "Standard Rate × (Standard Hours for actual output − Actual Hours)"
+      source_id: SRC-004
+    - name: Fixed Overhead Absorption / Volume Variance
+      formula_seed: "(Actual Volume − Normal/Budgeted Volume) × Standard Fixed Overhead Rate"
+      source_id: SRC-001
+    - name: Yield %
+      formula_seed: "Good Units / Total Units × 100"
+      source_id: SRC-003
+    - name: Cost of Poor Quality (Scrap + Rework) % of COGS
+      formula_seed: "(Scrap + Rework cost) / COGS Amount × 100"
+      source_id: SRC-007
+
+mapping_readiness:
+  kpi_catalog_coverage: partial
+  factsheet_coverage: partial
+  bracket_coverage: partial
+  action_code_coverage: partial
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md
+        field: "Section 8 Success Criteria"
+        description: "Benchmark targets not stated (plan ±2% on unit cost, COGS % vs APQC OSB sector benchmark, COPQ 15–20% of sales / world-class <5%)."
+        evidence_reference: SRC-006 SRC-007
+        remediation: "Add benchmark targets and COPQ band to Section 8."
+        status: open
+
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/FIN-002_Cost_Performance/UseCase_Bracket.yaml
+        field: orchestration.supporting_kpi_ids
+        description: >
+          Standard-costing diagnostics (material price vs usage variance, labor rate vs efficiency
+          variance, fixed-overhead absorption variance) are the root-cause layer but are not represented
+          as supporting KPIs in the bracket.
+        evidence_reference: SRC-004 SRC-001
+        remediation: "Add variance diagnostics to supporting_kpi_ids or document them as derived measures."
+        status: open
+
+    mapping_gaps:
+      - gap_type: mapping_gap
+        severity: medium
+        affected_artifact: core/usecases/core/FIN-002_Cost_Performance/UseCase_Bracket.yaml
+        field: page_1_summary.component_30s
+        description: >
+          The unit-cost variance bridge (plan → material price/usage → labor rate/efficiency →
+          absorption → actual) is the core domain visual but is configured as trend/bar rather than a
+          reconciled waterfall/bridge.
+        evidence_reference: SRC-004 SRC-001
+        remediation: "Add unit-cost variance waterfall reconciling plan to actual via the standard-costing variances."
+        status: open
+
+    schema_gaps: []
+    generator_gaps: []
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/finance.yaml
+        field: "fact_cost (Labor Cost Amount); fact_labor (Labor Cost Amount, Standard Hours)"
+        description: >
+          Unit cost and labor variances need Labor Cost Amount and standard hours/rates. fact_cost carries
+          COGS/Material/Overhead but no labor cost; fact_labor carries Labor Hours only (no cost or standard).
+        evidence_reference: SRC-001 SRC-004
+        remediation: "Add Labor Cost Amount (and standard rate/hours reference) to the finance contract so unit cost and labor variances reconcile."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/finance.yaml
+        field: "standard cost reference (Standard Price, Standard Quantity, Standard Fixed Overhead Rate, Normal Volume)"
+        description: >
+          Standard-costing variance diagnostics require standard price/quantity/rate and normal capacity,
+          which are not present in the finance or operations contracts.
+        evidence_reference: SRC-004 SRC-001
+        remediation: "Add a standard-cost reference table/columns (standard price, standard usage, standard labor rate, fixed-overhead rate, normal volume)."
+        status: open
