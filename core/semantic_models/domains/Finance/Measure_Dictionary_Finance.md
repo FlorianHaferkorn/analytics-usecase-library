@@ -56,12 +56,21 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
   kpi_id_ref: fin.cash.ocf
-  semantic_model: Finance_SemanticModel
-  display_folder: 01_Liquidity
   category: KPI
   expression:
-    logical: Operating Cash Flow = Net cash flows from operations for the period.
     aggregation_method: sum
+    logical: Operating Cash Flow = SUM(fact_cashflow[Operating Cash Flow Amount]) for the reporting period
+  governance:
+    status: active
+    owner: Finance Analytics
+    version: v1.2
+    last_review: 2026-03-27
+    review_due: 2027-03-31
+  dependencies:
+    columns:
+    - fact_cashflow[Operating Cash Flow Amount]
+  semantic_model: Finance_SemanticModel
+  display_folder: 01_Liquidity
   documentation:
     description: Cash generated from operating activities.
     notes: 'Grain: month. Unit: EUR.
@@ -71,15 +80,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
       QA: Align with cash flow statement; sign conventions consistent.
 
       '
-  dependencies:
-    columns:
-    - fact_cashflow[OCF]
-  governance:
-    owner: Finance Analytics
-    status: active
-    version: v1.2
-    last_review: 2026-03-27
-    review_due: 2027-03-31
 
 - measure_name: Cash vs Plan %
   is_kpi_measure: true

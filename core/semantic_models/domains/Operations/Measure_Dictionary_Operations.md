@@ -1022,12 +1022,21 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 - measure_name: Safety Incident Count
   is_kpi_measure: true
   kpi_id_ref: ops.safety.incident.count
-  semantic_model: Operations_SemanticModel
-  display_folder: 05_Safety
   category: KPI
   expression:
-    logical: Safety Incident Count = Count of recorded safety incidents.
+    logical: Safety Incident Count = Count of recorded safety incidents in the selected period.
     aggregation_method: count
+  dependencies:
+    columns:
+    - fact_safety[Incident ID]
+  governance:
+    status: active
+    version: v0.1
+    owner: Operations Analytics
+    last_review: 2026-03-27
+    review_due: 2027-03-31
+  semantic_model: Operations_SemanticModel
+  display_folder: 05_Safety
   documentation:
     description: Count of safety incidents in the period.
     notes: 'Grain: site_day. Unit: count.
@@ -1037,15 +1046,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
       QA: Harmonize incident classification and severity.
 
       '
-  dependencies:
-    columns:
-    - fact_safety[Incident Count]
-  governance:
-    owner: Operations Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
 
 - measure_name: Operations Service Level %
   is_kpi_measure: true

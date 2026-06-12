@@ -73,7 +73,10 @@ def test_shared_refs_resolve():
     """Every ``$ref`` per-measure file points at an existing shared definition,
     and only the expected per-domain leaves are overridden."""
     shared_dir = REPO / "core/semantic_models/shared/measures"
-    allowed_overrides = {"$ref", "semantic_model", "documentation", "governance"}
+    # A reference may only override per-model presentation/ownership metadata; the
+    # identity and calculation (measure_name, expression, dependencies, category,
+    # kpi_id_ref, is_kpi_measure) must live solely in the shared definition.
+    allowed_overrides = {"$ref", "semantic_model", "display_folder", "documentation", "governance"}
     dangling = {}
     for md in _dict_paths():
         for raw in _raw_files(md):

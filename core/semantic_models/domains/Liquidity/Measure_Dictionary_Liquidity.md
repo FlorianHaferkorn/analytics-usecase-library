@@ -29,20 +29,23 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
   kpi_id_ref: fin.cash.ocf
-  semantic_model: Liquidity_SemanticModel
-  display_folder: 01_CashFlow
   category: KPI
   expression:
     aggregation_method: sum
     logical: Operating Cash Flow = SUM(fact_cashflow[Operating Cash Flow Amount]) for the reporting period
+  governance:
+    status: active
+    owner: Finance BI
+    version: v1.0
+    last_review: 04.11.2025
+  dependencies:
+    columns:
+    - fact_cashflow[Operating Cash Flow Amount]
+  semantic_model: Liquidity_SemanticModel
+  display_folder: 01_CashFlow
   documentation:
     description: Cash generated from operations
     notes: ''
-  governance:
-    owner: Finance BI
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
 
 - measure_name: Inventory Amount
   is_kpi_measure: true

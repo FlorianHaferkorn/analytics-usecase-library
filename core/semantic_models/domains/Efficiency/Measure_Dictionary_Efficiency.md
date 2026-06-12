@@ -148,19 +148,23 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 - measure_name: Inventory Turnover
   is_kpi_measure: true
   kpi_id_ref: inv.turnover
-  semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
     logical: Inventory Turnover = COGS / Average Inventory
     aggregation_method: sum
+  dependencies:
+    columns:
+    - fact_cogs[COGS Amount]
+    - fact_inventory[Average Inventory Amount]
+  governance:
+    status: active
+    owner: Supply Chain BI
+    version: v1.0
+    last_review: 04.11.2025
+  semantic_model: Efficiency_SemanticModel
   documentation:
     description: COGS / Average Inventory
     notes: ''
-  governance:
-    owner: Supply Chain BI
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
 
 - measure_name: Ops OTIF %
   is_kpi_measure: true

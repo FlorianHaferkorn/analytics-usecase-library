@@ -1,0 +1,13 @@
+measure_name: Inventory Turnover
+is_kpi_measure: true
+kpi_id_ref: inv.turnover
+category: KPI
+expression:
+  logical: Inventory Turnover = COGS / Average Inventory
+  aggregation_method: sum
+dependencies:
+  columns:
+  - fact_cogs[COGS Amount]
+  - fact_inventory[Average Inventory Amount]
+governance:
+  status: active

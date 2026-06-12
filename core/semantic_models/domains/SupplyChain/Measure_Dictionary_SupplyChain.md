@@ -57,12 +57,22 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
 - measure_name: Inventory Turnover
   is_kpi_measure: true
   kpi_id_ref: inv.turnover
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: Inventory Turnover = COGS / Average Inventory.
+    logical: Inventory Turnover = COGS / Average Inventory
     aggregation_method: sum
+  dependencies:
+    columns:
+    - fact_cogs[COGS Amount]
+    - fact_inventory[Average Inventory Amount]
+  governance:
+    status: active
+    owner: Supply Chain Analytics
+    version: v1.2
+    last_review: 2026-03-27
+    review_due: 2027-03-31
+  semantic_model: SupplyChain_SemanticModel
+  display_folder: 01_Inventory
   documentation:
     description: 'Velocity of inventory: COGS / Avg Inventory.'
     notes: 'Grain: location_sku_month. Unit: x.
@@ -72,16 +82,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
       QA: Avg Inventory > 0; COGS completeness.
 
       '
-  dependencies:
-    columns:
-    - fact_inventory[Average Inventory Amount]
-    - fact_cogs[COGS Amount]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v1.2
-    last_review: 2026-03-27
-    review_due: 2027-03-31
 
 - measure_name: Stockout Rate %
   is_kpi_measure: true
