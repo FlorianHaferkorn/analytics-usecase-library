@@ -21,9 +21,6 @@ order:
 - plan_sales_amount
 - last_year_sales_amount
 - plan_gross_margin_amount
-- net_price_amount__2
-- list_price_amount__2
-- cost_of_goods_sold_amount__2
 - plan_cogs_amount
 - quantity
 - plan_quantity
