@@ -383,11 +383,17 @@ class BracketCompiler:
         kpi_file = _find_kpi_file(kpi_id, self.kpi_catalog_root)
         if kpi_file:
             kpi = _load_yaml(kpi_file)
-            return (
-                kpi.get("name", kpi_id),
-                kpi.get("dax_expression", "BLANK()"),
-                kpi.get("display_folder", bracket.get("id", "")),
-            )
+            # Only legacy fixtures carry an inline display name + DAX. Production
+            # per-KPI catalog files use ``kpi_key`` + ``technical.measure_name``
+            # and keep DAX in the measure dictionary, so fall through to the
+            # display-name resolver (step 2) instead of short-circuiting to a
+            # ``kpi_id`` name + ``BLANK()`` DAX.
+            if "name" in kpi or "dax_expression" in kpi:
+                return (
+                    kpi.get("name", kpi_id),
+                    kpi.get("dax_expression", "BLANK()"),
+                    kpi.get("display_folder", bracket.get("id", "")),
+                )
 
         self._ensure_resolvers()
         assert self._kpi_names is not None and self._mdict_by_name is not None
