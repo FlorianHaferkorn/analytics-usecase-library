@@ -708,7 +708,7 @@ source_inventory:
 # ──────────────────────────────────────────
 mapping_readiness:
   kpi_catalog_coverage: partial
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: partial
   semantic_model_coverage: partial
@@ -725,7 +725,8 @@ mapping_readiness:
           actionable unplanned shrinkage from planned, and routing imbalance from genuine overstaffing.
         evidence_reference: SRC-002 SRC-006 SRC-007
         remediation: "Add adherence, unplanned-shrinkage, idle, and forecast-accuracy diagnostics to supporting_kpi_ids. Close when DEP approved."
-        status: open
+        status: deferred
+        resolution: "Blocked by model_gap: schedule-adherence / unplanned-shrinkage / idle / forecast-accuracy KPIs not yet in catalog or experience contract."
 
       - gap_type: content_gap
         severity: medium
@@ -736,7 +737,8 @@ mapping_readiness:
           shrinkage 30–35% norm, overtime <8%, adherence ~90%. Section 8 states qualitative goals only.
         evidence_reference: SRC-002 SRC-006 SRC-008
         remediation: "Add quantified target bands to Section 8. Close when DEP approved."
-        status: open
+        status: resolved
+        resolution: "Section 8 Success Criteria now states grounded benchmark bands — utilization sustainable band, occupancy ~80–85% ceiling, shrinkage 30–35% norm, overtime <8%, schedule adherence ~90% (SWPP/ICMI/COPC WFM practice)."
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -749,7 +751,8 @@ mapping_readiness:
           target band, answering 'Is utilization sustainable?' before 'Why?'. Occupancy belongs in Main_2.
         evidence_reference: SRC-002 SRC-006
         remediation: "Set Main_1 kpi_id to res.utilization.pct vs target band; move occupancy to Main_2. Close when DEP approved."
-        status: open
+        status: rejected
+        resolution: "Strategic KPI (res.utilization.pct) is already the 3-second headline card; Main_1 correctly leads with the occupancy driver, consistent with COM-001. No change."
 
       - gap_type: mapping_gap
         severity: medium
@@ -761,7 +764,8 @@ mapping_readiness:
           anti-pattern of pushing occupancy ever higher.
         evidence_reference: SRC-002 SRC-008
         remediation: "Add an upper-ceiling band overlay (~85–90%) to the occupancy visual. Close when DEP approved."
-        status: open
+        status: deferred
+        resolution: "Occupancy upper-ceiling band overlay (~85–90%) is a bracket-visual/generator change; defer."
 
     schema_gaps: []
     generator_gaps: []
@@ -779,7 +783,8 @@ mapping_readiness:
         remediation: >
           Add scheduled on-task minutes and a planned-shrinkage baseline to fact_workforce_management
           and Experience.SemanticModel; define Schedule Adherence % and Unplanned Shrinkage % measures.
-        status: open
+        status: deferred
+        resolution: "Requires experience data-contract changes (scheduled on-task minutes + planned-shrinkage baseline; forecast vs actual volume/AHT fact)."
 
       - gap_type: model_gap
         severity: medium
@@ -793,4 +798,5 @@ mapping_readiness:
         remediation: >
           Add a forecast fact (forecast volume/AHT vs actuals) to the experience contract and a
           Forecast Accuracy % measure to Experience.SemanticModel.
-        status: open
+        status: deferred
+        resolution: "Requires experience data-contract changes (scheduled on-task minutes + planned-shrinkage baseline; forecast vs actual volume/AHT fact)."

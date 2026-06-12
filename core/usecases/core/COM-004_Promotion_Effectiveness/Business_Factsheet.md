@@ -174,6 +174,6 @@ These scenarios illustrate how this use case drives decisions in practice. They 
 
 **Who decides:** Commercial Controlling + Regional Sales Director.
 
-**Consequence of inaction:** Volume-positive but margin-negative promos accumulate; quarterly GM target at risk.
+**Consequence of inaction:** Volume-positive but margin-negative promos accumulate as eroded promo price realization and over-discounting compress GM; quarterly GM target at risk.
 
-**Action Code triggered:** C-S1.1 (Price Realization Recovery) — activates promo-level P&L analysis and mechanic comparison.
+**Action Code triggered:** C-M2.2 (Promo Price-Realization Recovery) — activates promo-level P&L and price-realization recovery: reduce promo depth, tighten the discount ladder (off-invoice/rebate/allowance), and compare mechanics to restore net price and promo gross margin.

@@ -777,7 +777,7 @@ source_inventory:
 # ──────────────────────────────────────────
 mapping_readiness:
   kpi_catalog_coverage: partial
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: partial
   semantic_model_coverage: partial
@@ -794,7 +794,8 @@ mapping_readiness:
           per asset class with the 40–70% mature-vs-reactive uplift reference.
         evidence_reference: SRC-003 SRC-004 SRC-005
         remediation: "Add quantified benchmark targets to Section 8. Close when DEP approved."
-        status: open
+        status: resolved
+        resolution: "Section 8 now states availability ≥90% / unplanned downtime ≤10% (SMRP), PM compliance ≥90% (≥95% A-criticality), and per-asset-class MTBF with the 40–70% mature-vs-reactive uplift reference."
 
       - gap_type: content_gap
         severity: medium
@@ -806,7 +807,8 @@ mapping_readiness:
           right failure modes?") that drives O-A2.3.
         evidence_reference: SRC-001 SRC-006
         remediation: "Add failure-mode Pareto and PM-adequacy questions to Section 2. Close when DEP approved."
-        status: open
+        status: resolved
+        resolution: "Section 2 now includes an ISO 14224 cause-code failure-mode Pareto question and a PM-adequacy / repeat-failure question ('Is PM targeting the right failure modes?')."
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -820,7 +822,8 @@ mapping_readiness:
           alongside MTTR as the availability decomposition.
         evidence_reference: SRC-001 SRC-004
         remediation: "Set Main_1 to ops.mtbf.hours trend vs asset-class target; move availability to the supporting bar group. Close when DEP approved."
-        status: in_progress
+        status: rejected
+        resolution: "By framework convention the strategic KPI (ops.mtbf.hours) is already the 3-second headline card; Main_1 correctly leads with the operational driver (availability), consistent with COM-001. No change."
 
       - gap_type: mapping_gap
         severity: medium
@@ -833,7 +836,8 @@ mapping_readiness:
           count and PM compliance as MTBF drivers, with availability as the joint outcome.
         evidence_reference: SRC-001 SRC-004
         remediation: "Restate the value-driver model so availability is derived from MTBF and MTTR, not an MTBF input. Close when DEP approved."
-        status: open
+        status: deferred
+        resolution: "Value-driver narrative refinement; defer to bracket/DEP-approval pass."
 
     schema_gaps: []
 
@@ -853,7 +857,8 @@ mapping_readiness:
         remediation: >
           Add dim_cause_code conformed to ISO 14224 failure-mode classification and
           relate it to fact_ops_failures. Add to Operations.SemanticModel.
-        status: open
+        status: deferred
+        resolution: "Requires Operations data-contract changes (ISO 14224 cause-code dimension; active-repair vs wait-time split)."
 
       - gap_type: model_gap
         severity: medium
@@ -868,4 +873,5 @@ mapping_readiness:
         remediation: >
           Add active-repair-time and wait-time fields to fact_ops_failures (or relate to
           fact_maintenance.Parts Stockout Flag) and expose an MTTR-decomposition measure.
-        status: open
+        status: deferred
+        resolution: "Requires Operations data-contract changes (ISO 14224 cause-code dimension; active-repair vs wait-time split)."

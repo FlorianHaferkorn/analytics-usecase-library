@@ -404,7 +404,7 @@ source_inventory:
 
 mapping_readiness:
   kpi_catalog_coverage: complete
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: partial
   semantic_model_coverage: partial
@@ -418,7 +418,8 @@ mapping_readiness:
         description: "Accuracy/MAPE/bias benchmark bands not stated numerically (accuracy ~80%+ stable SKUs, |bias| within +/-5%, MAPE target by SKU class)."
         evidence_reference: SRC-003 SRC-004
         remediation: "Add benchmark bands and the WMAPE aggregation note to Section 8."
-        status: open
+        status: resolved
+        resolution: "Section 8 now states accuracy ~80%+ for stable SKUs, |bias| within +/-5%, MAPE <=15-20% by SKU class, plus a WMAPE aggregation note."
       - gap_type: content_gap
         severity: high
         affected_artifact: core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
@@ -429,7 +430,8 @@ mapping_readiness:
           poor forecastability is not called out.
         evidence_reference: SRC-005 SRC-006 SRC-007
         remediation: "Add WMAPE/bias, FVA-vs-naive, and forecastability interpretations."
-        status: open
+        status: resolved
+        resolution: "Section 9 now states MAPE asymmetry, averaging-MAPE-hides-bias, forecastability via CoV, and FVA vs naive (worse-than-naive destroys value; easy-SKU accuracy masks poor forecastability)."
       - gap_type: content_gap
         severity: medium
         affected_artifact: core/usecases/core/SCM-003_Forecast_vs_Actual/UseCase_Bracket.yaml
@@ -439,7 +441,8 @@ mapping_readiness:
           grid so users can separate 'hard to forecast' from 'badly forecast'.
         evidence_reference: SRC-005 SRC-007
         remediation: "Ensure CoV/FVA diagnostics are available alongside MAPE/bias in the detail grid."
-        status: open
+        status: deferred
+        resolution: "Evidence-column add blocked by model_gap (naive-benchmark series + lag dimension required for FVA/CoV); defer."
 
     mapping_gaps: []
     schema_gaps: []
@@ -455,4 +458,5 @@ mapping_readiness:
           stored naive-benchmark forecast.
         evidence_reference: SRC-005 SRC-006
         remediation: "Verify lag derivation from Forecast Version vs actual month; add a naive-benchmark forecast series for FVA."
-        status: open
+        status: deferred
+        resolution: "Requires supply_chain contract: forecast lag dimension + stored naive-benchmark series for FVA."

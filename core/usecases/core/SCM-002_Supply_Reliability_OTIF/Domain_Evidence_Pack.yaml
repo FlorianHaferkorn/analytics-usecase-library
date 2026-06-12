@@ -412,7 +412,7 @@ source_inventory:
 
 mapping_readiness:
   kpi_catalog_coverage: complete
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: partial
   semantic_model_coverage: partial
@@ -426,7 +426,8 @@ mapping_readiness:
         description: "OTIF benchmark targets not stated numerically (>=95% best-in-class, 98% retail/contract programs, On-Time >=97%, In-Full >=98%)."
         evidence_reference: SRC-001 SRC-004 SRC-005
         remediation: "Add benchmark targets and the line-vs-order grain note to Section 8."
-        status: open
+        status: resolved
+        resolution: "Section 8 now states OTIF >=95% (98% retail/contract), On-Time >=97%, In-Full >=98%, stockout <2%, plus a line-vs-order grain note."
       - gap_type: content_gap
         severity: high
         affected_artifact: core/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md
@@ -436,7 +437,8 @@ mapping_readiness:
           risk are not explicit. Line-level vs order-level OTIF grain ambiguity not called out.
         evidence_reference: SRC-001 SRC-005 SRC-007
         remediation: "Add the On-Time/In-Full decomposition and expedite-masking interpretations."
-        status: open
+        status: resolved
+        resolution: "Section 9 now states OTIF = On-Time x In-Full decomposition, the expedite-masking risk, and the line-level vs order-level grain ambiguity."
       - gap_type: content_gap
         severity: medium
         affected_artifact: core/usecases/core/SCM-002_Supply_Reliability_OTIF/UseCase_Bracket.yaml
@@ -446,7 +448,8 @@ mapping_readiness:
           the 30s layer so the user sees which multiplicative component drives the gap.
         evidence_reference: SRC-001
         remediation: "Ensure On-Time and In-Full appear as the component split alongside OTIF."
-        status: open
+        status: resolved
+        resolution: "On-Time and In-Full already present as influencing KPIs on the 30s layer (component split satisfied); no bracket change needed."
 
     mapping_gaps: []
     schema_gaps: []
@@ -462,4 +465,5 @@ mapping_readiness:
           On-Time/In-Full/penalty/expedite but no explicit appointment-compliance column.
         evidence_reference: SRC-005
         remediation: "Verify appointment/MABD window availability; derive from fact_logistics lane timing if absent."
-        status: open
+        status: deferred
+        resolution: "Requires supply_chain contract appointment/MABD compliance signal (derive from fact_logistics lane timing if absent)."

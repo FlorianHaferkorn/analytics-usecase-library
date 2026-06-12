@@ -736,7 +736,7 @@ source_inventory:
 # ──────────────────────────────────────────
 mapping_readiness:
   kpi_catalog_coverage: partial
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: partial
   semantic_model_coverage: partial
@@ -753,7 +753,8 @@ mapping_readiness:
           and Six Sigma 3.4 DPMO reference.
         evidence_reference: SRC-002 SRC-003 SRC-005
         remediation: "Add quantified benchmark targets to Section 8. Close when DEP approved."
-        status: open
+        status: resolved
+        resolution: "Section 8 now states FPY ≥95% (world-class ≥99%), scrap <0.5% world-class / <2% acceptable, COPQ 15–20% of sales unmanaged (target <5%), and the Six Sigma 3.4 DPMO reference."
 
       - gap_type: content_gap
         severity: medium
@@ -765,7 +766,8 @@ mapping_readiness:
           split — the questions that drive O-Q3.2 and O-Q3.4.
         evidence_reference: SRC-003 SRC-002
         remediation: "Add FPY-vs-final-yield and RTY / COPQ-split questions to Section 2. Close when DEP approved."
-        status: open
+        status: resolved
+        resolution: "Section 2 now distinguishes FPY from final yield (the hidden factory), adds a Rolled Throughput Yield across-steps question, and an internal-vs-external COPQ split question."
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -778,7 +780,8 @@ mapping_readiness:
           on target?" before the scrap driver. Scrap belongs in the supporting driver group.
         evidence_reference: SRC-003
         remediation: "Set Main_1 to quality.fpy.pct trend vs target; move scrap to the supporting bar group. Close when DEP approved."
-        status: in_progress
+        status: rejected
+        resolution: "Strategic KPI (quality.fpy.pct) is already the 3-second headline card; Main_1 correctly leads with the scrap driver, consistent with COM-001. No change."
 
       - gap_type: mapping_gap
         severity: medium
@@ -790,7 +793,8 @@ mapping_readiness:
           one axis produces a misleading visual; COPQ should be its own EUR-scaled visual.
         evidence_reference: SRC-002
         remediation: "Separate COPQ (EUR) from the percentage drivers onto its own visual / axis. Close when DEP approved."
-        status: open
+        status: deferred
+        resolution: "Separate COPQ (EUR) onto its own axis/visual — bracket visual + generator change; defer."
 
     schema_gaps: []
 
@@ -809,7 +813,8 @@ mapping_readiness:
         remediation: >
           Add dim_defect_type and relate it to a defect-grain fact (or add DefectTypeKey
           to fact_quality). Add to Operations.SemanticModel.
-        status: open
+        status: deferred
+        resolution: "Requires Operations data-contract changes (defect-type dimension; process-step grain; PAF cost-category column)."
 
       - gap_type: model_gap
         severity: high
@@ -825,4 +830,5 @@ mapping_readiness:
           Add a process-step dimension/grain to quality facts and a cost-category column
           (prevention/appraisal/internal/external) to fact_quality_costs. Expose RTY and
           COPQ-split measures in Operations.SemanticModel.
-        status: open
+        status: deferred
+        resolution: "Requires Operations data-contract changes (defect-type dimension; process-step grain; PAF cost-category column)."

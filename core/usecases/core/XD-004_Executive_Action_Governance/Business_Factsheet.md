@@ -12,7 +12,7 @@ factsheet_type: business
 ## 0. Metadata (Mandatory)
 
 - **Use Case ID:** XD-004
-- **Domain:** Executive / Governance
+- **Domain:** Experience
 - **Business Owner:** Chief of Staff / Executive PMO
 - **KPI Owner:** Executive Office / PMO Analytics
 - **Decision Owner:** Executive Committee
@@ -47,9 +47,12 @@ factsheet_type: business
 | KPI ID | Role |
 |--------|------|
 | enterprise.action_outcome_rate.pct | Strategic |
-| enterprise.action_routed.count | Influencing |
+| enterprise.action_effectiveness_delta.amount | Influencing |
+| enterprise.value_at_risk.index | Influencing |
 
-**Action Codes:** X-E3.3
+> The deprecated `enterprise.action_routed.count` influencing KPI has been retired; routed volume is read as governance context (a vanity activity count), not as an influencing driver of outcome rate.
+
+**Action Codes:** X-E3.3 (Executive Action Governance), plus the cross-domain Impactful-15 action codes whose executed actions feed the closed loop: C-M2.1, C-M2.2, C-S1.1, C-S1.2, C-C3.1, F-C1.1, F-C1.2, F-K2.1, O-A2.1, O-O1.1, O-O1.2, O-O1.3, O-Q3.1, S-I1.1, S-R2.1.
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
@@ -138,6 +141,8 @@ This use case subscribes to a single executive governance action that escalates 
 - High routed action count is not positive if outcome rate deteriorates.
 - Late actions should not be treated as ineffective without checking the agreed evaluation window.
 - Governance metrics must not be used to second-guess domain remediation logic without domain context.
+- **Survivorship bias in the action-effectiveness delta:** Computing outcome rate and effectiveness delta only over completed actions ignores triggered deviations that never generated a routed action (coverage gap) and stalled actions silently dropped. The "survivors" can look effective while the underlying population is failing — Action Coverage % must be read alongside outcome rate so the identify-but-never-execute gap is not masked (SRC-006).
+- **Correlation ≠ causation in the effectiveness delta:** A target KPI improving after an action does not prove the action caused it — seasonality, concurrent actions, or market shifts confound naive before/after deltas. The effectiveness delta needs a defined attribution method (before/after baseline window, ideally with a control/counterfactual) before its EUR lift is treated as realized benefit (SRC-009).
 
 ---
 

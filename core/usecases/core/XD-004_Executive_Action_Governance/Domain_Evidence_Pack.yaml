@@ -439,7 +439,7 @@ source_inventory:
 
 mapping_readiness:
   kpi_catalog_coverage: complete
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: complete
   semantic_model_coverage: partial
@@ -457,7 +457,8 @@ mapping_readiness:
           16 cross-domain Impactful-15 codes.
         evidence_reference: SRC-001 SRC-013
         remediation: "Update Section 3 to reflect action_effectiveness_delta + value_at_risk influencers and the cross-domain action-code set; retire action_routed.count reference."
-        status: open
+        status: resolved
+        resolution: "Section 3 now lists enterprise.action_effectiveness_delta.amount + enterprise.value_at_risk.index as influencing KPIs and the full bracket action-code set (X-E3.3 plus the 15 cross-domain Impactful-15 codes); the deprecated action_routed.count reference is retired."
       - gap_type: content_gap
         severity: low
         affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md
@@ -465,7 +466,8 @@ mapping_readiness:
         description: "Survivorship bias and correlation≠causation in effectiveness delta not explicitly stated."
         evidence_reference: SRC-006 SRC-009
         remediation: "Add coverage/survivorship and attribution caveats to Section 9."
-        status: open
+        status: resolved
+        resolution: "Section 9 now adds survivorship-bias (coverage read alongside outcome rate, SRC-006) and correlation-not-causation attribution (SRC-009) caveats for the action-effectiveness delta."
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -478,7 +480,8 @@ mapping_readiness:
           (only days_to_outcome is listed).
         evidence_reference: SRC-003 SRC-006
         remediation: "Add latency, coverage, and time-to-impact columns to the page-2 outcome-detail evidence grain."
-        status: open
+        status: deferred
+        resolution: "Action Coverage requires a triggered-deviation ledger (model_gap); evidence-column add deferred."
       - gap_type: mapping_gap
         severity: low
         affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/UseCase_Bracket.yaml
@@ -486,7 +489,8 @@ mapping_readiness:
         description: "Bracket domain is 'Experience' while factsheet metadata says 'Executive / Governance'; influencing KPI list differs from factsheet."
         evidence_reference: SRC-001
         remediation: "Reconcile domain label and influencing-KPI list between bracket and factsheet."
-        status: open
+        status: resolved
+        resolution: "Factsheet domain + influencing KPIs aligned to bracket SSOT (Experience)."
 
     schema_gaps: []
     generator_gaps: []
@@ -503,7 +507,8 @@ mapping_readiness:
           survivorship bias.
         evidence_reference: SRC-006 SRC-001
         remediation: "Add a triggered-deviation ledger (or extend fact_action_governance) capturing detected deviations and whether an action was routed; link to dim_action_code/dim_domain."
-        status: open
+        status: deferred
+        resolution: "Requires governance contract: triggered-deviation ledger + before/after KPI-baseline attribution measure."
       - gap_type: model_gap
         severity: medium
         affected_artifact: products/fabric/powerbi/dist/Experience.SemanticModel
@@ -515,4 +520,5 @@ mapping_readiness:
           yet validated against BRM/decision-yield methodology.
         evidence_reference: SRC-001 SRC-009
         remediation: "Define and validate Action Effectiveness Delta with before/after baseline windows and an attribution guard in _Measures.tmdl."
-        status: open
+        status: deferred
+        resolution: "Requires governance contract: triggered-deviation ledger + before/after KPI-baseline attribution measure."

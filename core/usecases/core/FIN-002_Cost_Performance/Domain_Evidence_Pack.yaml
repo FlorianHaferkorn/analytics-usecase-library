@@ -519,7 +519,7 @@ required_data_model:
 
 mapping_readiness:
   kpi_catalog_coverage: partial
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: partial
   semantic_model_coverage: partial
@@ -533,7 +533,8 @@ mapping_readiness:
         description: "Benchmark targets not stated (plan ±2% on unit cost, COGS % vs APQC OSB sector benchmark, COPQ 15–20% of sales / world-class <5%)."
         evidence_reference: SRC-006 SRC-007
         remediation: "Add benchmark targets and COPQ band to Section 8."
-        status: open
+        status: resolved
+        resolution: "Benchmark targets added to Section 8: unit cost within plan ±2%, COGS % vs APQC OSB sector benchmark, COPQ 15–20% of sales unmanaged / world-class <5%."
 
       - gap_type: content_gap
         severity: medium
@@ -545,7 +546,8 @@ mapping_readiness:
           as supporting KPIs in the bracket.
         evidence_reference: SRC-004 SRC-001
         remediation: "Add variance diagnostics to supporting_kpi_ids or document them as derived measures."
-        status: open
+        status: resolved
+        resolution: "Documented in factsheet as derived standard-costing variances; bracket KPI-ID add deferred until catalog IDs + standard-cost columns exist (see model_gap)."
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -558,7 +560,8 @@ mapping_readiness:
           reconciled waterfall/bridge.
         evidence_reference: SRC-004 SRC-001
         remediation: "Add unit-cost variance waterfall reconciling plan to actual via the standard-costing variances."
-        status: open
+        status: deferred
+        resolution: "Bracket visual + standard-cost reference columns required (model_gap); defer to generator/DEP-approval pass."
 
     schema_gaps: []
     generator_gaps: []
@@ -572,7 +575,8 @@ mapping_readiness:
           COGS/Material/Overhead but no labor cost; fact_labor carries Labor Hours only (no cost or standard).
         evidence_reference: SRC-001 SRC-004
         remediation: "Add Labor Cost Amount (and standard rate/hours reference) to the finance contract so unit cost and labor variances reconcile."
-        status: open
+        status: deferred
+        resolution: "Requires finance data-contract columns (labour cost, standard price/qty/rate, normal volume)."
 
       - gap_type: model_gap
         severity: medium
@@ -583,4 +587,5 @@ mapping_readiness:
           which are not present in the finance or operations contracts.
         evidence_reference: SRC-004 SRC-001
         remediation: "Add a standard-cost reference table/columns (standard price, standard usage, standard labor rate, fixed-overhead rate, normal volume)."
-        status: open
+        status: deferred
+        resolution: "Requires finance data-contract columns (labour cost, standard price/qty/rate, normal volume)."

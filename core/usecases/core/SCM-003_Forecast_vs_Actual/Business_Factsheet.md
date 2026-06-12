@@ -137,6 +137,20 @@ Structured summary of action codes (definitions remain in YAML).
 - Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
 - Decision Frequency: Monthly S&OP and weekly planning reviews.
 
+**Benchmark Bands (grounded):**
+
+- **Forecast accuracy ~80%+** for stable SKUs (FMCG mature items ~85-90%);
+  new/intermittent SKUs are far lower and must be benchmarked separately.
+- **|Bias| within ±5%** (effectively unbiased); |bias| > 10% signals a
+  systematic correction is needed.
+- **MAPE ≤ 15-20%** for mature/stable demand; the MAPE target must be set **by
+  SKU class** (ABC/XYZ), with volatile SKUs carrying a higher acceptable band.
+
+> **WMAPE aggregation note:** Aggregate accuracy/MAPE across a portfolio using
+> **volume-weighted MAPE (WMAPE = ΣABS(Actual − Forecast) / ΣActual)**, not a
+> simple SKU average. A simple average is dominated by low-volume SKUs (small
+> actuals inflate percentage error) and distorts the portfolio view.
+
 ---
 
 ## 9. Risks & Wrong Interpretations (Short)
@@ -144,6 +158,25 @@ Structured summary of action codes (definitions remain in YAML).
 - Misinterpreting bias/accuracy on launch or promo items.  
 - Service impact overstated if OTIF/stockout not properly linked.  
 - Re-plan counts misleading if process changes not tracked.  
+- **MAPE asymmetry:** MAPE penalizes over-forecast and under-forecast unevenly
+  and structurally favors under-forecasting, so optimizing MAPE alone can induce
+  a downward bias that drives stockouts. Magnitude (MAPE) and direction (bias)
+  must always be read together.
+- **Averaging MAPE hides bias:** A simple SKU-average MAPE is dominated by
+  low-volume SKUs and conceals systematic bias entirely — a portfolio can show
+  acceptable mean MAPE while being heavily over-forecast. Use WMAPE and always
+  report bias alongside magnitude.
+- **Forecastability (CoV):** High MAPE on a high-CoV (low-forecastability) SKU is
+  largely irreducible; high MAPE on a low-CoV SKU is a fixable process failure.
+  The coefficient of variation (CoV = stddev/mean of demand) separates "hard to
+  forecast" from "badly forecast" — do not set absolute MAPE targets that ignore
+  it.
+- **Forecast Value Added vs naive:** Always check accuracy against a naive
+  (random-walk/seasonal-naive) benchmark. **A forecast worse than naive is
+  destroying value** and the process should be simplified — a common, costly
+  failure mode. High accuracy reported on easy, stable SKUs masks poor
+  forecastability management and can hide a negative-FVA process on the SKUs that
+  matter.
 
 
 

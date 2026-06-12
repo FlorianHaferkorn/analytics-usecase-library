@@ -35,7 +35,9 @@ factsheet_type: business
 
 - Which assets/lines have the highest unplanned downtime and what are the root causes?
 - How do MTBF/MTTR trend by asset class and site?
+- Which failure modes dominate? (ISO 14224 cause-code Pareto — which few cause codes drive most failures on critical assets?)
 - Is preventive maintenance executed on time and effective?
+- Is PM targeting the right failure modes? (high PM compliance with high repeat-failure rate signals a PM-adequacy gap, not an execution win)
 - Where do spare-part stockouts create maintenance risk?
 - Which actions reduce downtime fastest with acceptable cost?
 
@@ -135,6 +137,7 @@ Structured summary of action codes (definitions remain in YAML).
 ## 8. Success Criteria
 
 - Impact: Reduce unplanned downtime % below target; MTBF improves to targets; MTTR reduced; PM compliance = target; stockouts reduced.  
+- Benchmark targets (SMRP Best Practice Metrics): Availability ≥ 90% with unplanned downtime ≤ 10% of planned production time (world-class threshold). PM compliance ≥ 90% (world class), rising to ≥ 95% for A-criticality assets. MTBF set per asset class rather than plant-wide — mature PM programmes achieve 40–70% higher MTBF than reactive baselines (Aberdeen / SMRP BMP reference), so target each asset class against its own reliable-vs-reactive uplift.  
 - Adoption: Used in weekly maintenance/reliability reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; KPI definitions consistent across ops UCs.  
 - Decision Frequency: Weekly maintenance and monthly reliability review.

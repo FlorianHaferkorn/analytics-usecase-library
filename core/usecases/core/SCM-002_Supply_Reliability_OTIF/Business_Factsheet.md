@@ -170,6 +170,20 @@ Structured summary of action codes (definitions remain in YAML).
   totals.  
 - Decision Frequency: Weekly supply/logistics review.
 
+**Benchmark Targets (grounded):**
+
+- **OTIF ≥ 95%** for best-in-class delivery reliability; **98%** for
+  retail/contract OTIF compliance programs (e.g., Walmart OTIF). SCOR superior
+  is ~96%, advantage 90%, median 85%.
+- **On-Time ≥ 97%** (best-in-class delivery reliability, SCOR/CSCMP).
+- **In-Full ≥ 98%** (SCOR Orders Delivered In Full, superior range).
+- **Stockout impact < 2%** world-class (< 5% acceptable).
+
+> **Grain note:** OTIF can be measured at **line grain** (each order line scored
+> independently) or **order grain** (the whole order fails if any line is late or
+> short). Order-level OTIF is almost always lower; the grain must be fixed and
+> stated explicitly before comparing to a customer's program target.
+
 ---
 
 ## 9. Risks & Wrong Interpretations (Short)
@@ -177,6 +191,20 @@ Structured summary of action codes (definitions remain in YAML).
 - Misapplied force majeure exclusions inflating OTIF.
 - Missing penalty/expedite capture understates cost.
 - Stockout impact misread if demand not captured consistently.
+- **OTIF is multiplicative: OTIF = On-Time × In-Full.** Reading aggregate OTIF
+  without the component split hides whether the gap is a transport problem
+  (On-Time) or an availability problem (In-Full) — e.g., 90% OTIF can be 97%
+  On-Time × 93% In-Full or 93% On-Time × 97% In-Full, each demanding a different
+  fix. Always read OTIF alongside its two components.
+- **Expedite masking:** OTIF held at target while expedite cost rises is not
+  reliability — it is structural unreliability hidden by premium freight at
+  penalty/recovery cost. The recovered margin may be negative. Read OTIF
+  alongside expedite and penalty cost, never in isolation.
+- **Line-level vs order-level grain ambiguity:** A single short or late line
+  breaks the whole order under order-level (and retailer PO-line) accounting, so
+  order-level OTIF is almost always lower than line-level. Comparing a line-level
+  internal figure against an order/PO-line program target understates exposure;
+  the grain must be fixed and stated.
 
 ---
 

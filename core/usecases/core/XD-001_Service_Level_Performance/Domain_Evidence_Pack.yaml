@@ -743,7 +743,7 @@ source_inventory:
 # ──────────────────────────────────────────
 mapping_readiness:
   kpi_catalog_coverage: partial
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: partial
   semantic_model_coverage: partial
@@ -760,7 +760,8 @@ mapping_readiness:
           required to target SLA-recovery action and to avoid the abandonment/reopen blind spots.
         evidence_reference: SRC-001 SRC-003 SRC-007
         remediation: "Add aging, reopen, abandonment, and ASA diagnostics to supporting_kpi_ids. Close when DEP approved."
-        status: open
+        status: deferred
+        resolution: "Blocked by model_gap: backlog-aging / reopen / abandonment / ASA KPIs not yet in catalog or experience contract; documented in DEP driver tree."
 
       - gap_type: content_gap
         severity: medium
@@ -771,7 +772,8 @@ mapping_readiness:
           ASA ~38–45s. Section 8 states qualitative goals only.
         evidence_reference: SRC-001 SRC-007
         remediation: "Add quantified benchmark targets to Section 8. Close when DEP approved."
-        status: open
+        status: resolved
+        resolution: "Section 8 Success Criteria now states grounded benchmark targets — SLA attainment 90–95% within target (<80% = breach risk), FCR 70–79%, ASA ~38–45s (ITIL 4 / ISO/IEC 20000-1 / MetricNet-HDI)."
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -784,7 +786,8 @@ mapping_readiness:
           target overlay, answering 'Is SLA on target?' before 'Why?'. Backlog belongs in Main_2.
         evidence_reference: SRC-001 SRC-011
         remediation: "Set Main_1 kpi_id to svc.sla.attainment.pct vs_target; move backlog to Main_2. Close when DEP approved."
-        status: open
+        status: rejected
+        resolution: "Strategic KPI (svc.sla.attainment.pct) is already the 3-second headline card; Main_1 correctly leads with the backlog driver, consistent with COM-001. No change."
 
       - gap_type: mapping_gap
         severity: medium
@@ -796,7 +799,8 @@ mapping_readiness:
           gaming is invisible.
         evidence_reference: SRC-001 SRC-012
         remediation: "Add backlog_age_bucket and reopen_flag to evidence_columns. Close when DEP approved."
-        status: open
+        status: deferred
+        resolution: "Blocked by model_gap — backlog_age_bucket / reopen_flag columns do not exist in the experience contract."
 
     schema_gaps: []
     generator_gaps: []
@@ -814,7 +818,8 @@ mapping_readiness:
         remediation: >
           Add offered/abandoned contact events and answer-timestamp (ASA) to the experience contract
           and Experience.SemanticModel; define Abandonment % and ASA measures.
-        status: open
+        status: deferred
+        resolution: "Requires experience data-contract changes (offered/abandoned events + answer timestamp; reopen flag + case open/close timestamps)."
 
       - gap_type: model_gap
         severity: medium
@@ -828,4 +833,5 @@ mapping_readiness:
         remediation: >
           Add Reopen Flag and case open/close timestamps (to derive age) to fact_support_cases;
           add Reopen % and Backlog Aging measures to Experience.SemanticModel.
-        status: open
+        status: deferred
+        resolution: "Requires experience data-contract changes (offered/abandoned events + answer timestamp; reopen flag + case open/close timestamps)."

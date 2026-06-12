@@ -486,7 +486,8 @@ mapping_readiness:
           The promo realization/over-discounting trigger should map to C-M2.2 for consistency.
         evidence_reference: SRC-001 SRC-009
         remediation: "Align Scenario B action code with the bracket (C-M2.2) or document why the cross-use-case C-S1.1 code applies."
-        status: open
+        status: resolved
+        resolution: "Scenario B action code corrected from C-S1.1 to bracket code C-M2.2 (promo price-realization recovery / over-discounting) in Business_Factsheet.md Section 10."
 
     mapping_gaps: []
 
@@ -506,4 +507,5 @@ mapping_readiness:
           baseline-relative incrementality rather than apparent gross uplift.
         evidence_reference: SRC-003 SRC-004 SRC-005
         remediation: "Validate Incremental Sales Amount and Cannibalization % measures in _Measures.tmdl against the baseline/incremental/cannibalization decomposition."
-        status: open
+        status: deferred
+        resolution: "Model-layer: requires baseline-relative incremental/cannibalization measure validation in Commercial.SemanticModel _Measures.tmdl."

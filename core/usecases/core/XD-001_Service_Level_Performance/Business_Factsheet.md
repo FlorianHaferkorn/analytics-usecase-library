@@ -153,6 +153,9 @@ Structured summary of action codes (definitions remain in YAML).
 - OneLake canonical dims used (dim_date, dim_org, security_user_org;
   dim_queue optional).
 - Data latency =24h.
+- Backlog-aging, reopen, abandonment, and ASA diagnostics are pending data-model
+  support: the required columns and KPIs are not yet in the catalog or experience
+  data contract (see Domain_Evidence_Pack driver tree and model gaps).
 
 ---
 
@@ -160,6 +163,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 - Impact: SLA attainment to target; backlog/escalations reduced; FCR up; NPS
   improved.  
+- Benchmark Targets: SLA attainment 90–95% of cases within the agreed target time
+  (sustained attainment <80% signals SLA-breach risk and penalty exposure); FCR in
+  the industry good range of 70–79%; Average Speed of Answer (ASA) ~38–45s in
+  peer-group benchmarks. Targets are grounded in ITIL 4 / ISO/IEC 20000-1 and
+  MetricNet/HDI service-desk benchmarks.  
 - Adoption: Used in weekly service ops reviews; action codes triggered with <5%
   false positives.  
 - Quality: KPI definitions consistent across service channels; reconciled to

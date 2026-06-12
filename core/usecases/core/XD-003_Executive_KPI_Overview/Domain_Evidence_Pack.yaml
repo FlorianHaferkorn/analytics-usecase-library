@@ -496,7 +496,7 @@ source_inventory:
 
 mapping_readiness:
   kpi_catalog_coverage: complete
-  factsheet_coverage: partial
+  factsheet_coverage: complete
   bracket_coverage: partial
   action_code_coverage: complete
   semantic_model_coverage: partial
@@ -510,7 +510,8 @@ mapping_readiness:
         description: "Risk-appetite band thresholds for the Enterprise Value-at-Risk Index (green/amber/red) and benchmark sources not stated."
         evidence_reference: SRC-002 SRC-007
         remediation: "Add index risk-appetite bands and cross-domain benchmark targets to Section 8."
-        status: open
+        status: resolved
+        resolution: "Section 8 now states green (<30) / amber (30-60) / red (>60) risk-appetite bands and cites cross-domain benchmark sources (SRC-002 COSO ERM, SRC-007 APQC, SRC-005 Gartner EPM)."
       - gap_type: content_gap
         severity: low
         affected_artifact: core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md
@@ -518,7 +519,8 @@ mapping_readiness:
         description: "Composite-index-as-financial-VaR misinterpretation not explicitly called out."
         evidence_reference: SRC-002
         remediation: "Add wrong-interpretation note distinguishing the management composite from financial VaR."
-        status: open
+        status: resolved
+        resolution: "Section 9 now explicitly distinguishes the management composite index from a statistical financial VaR market-risk measure (SRC-002)."
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -528,7 +530,8 @@ mapping_readiness:
         description: "Per-domain value-at-risk contribution columns are a domain requirement for the risk-prioritisation matrix but are not yet listed as evidence columns."
         evidence_reference: SRC-002
         remediation: "Add per-domain VaR contribution columns to the page-2 risk-prioritisation evidence grain."
-        status: open
+        status: deferred
+        resolution: "Per-domain VaR-contribution columns blocked by model_gap (fact_kpi_snapshot / fact_risk_weights / dim_domain do not yet exist); defer."
 
     schema_gaps: []
     generator_gaps: []
@@ -545,7 +548,8 @@ mapping_readiness:
           yet exist in any data contract.
         evidence_reference: SRC-002 SRC-007
         remediation: "Extend executive.yaml (or a dedicated risk mart) with fact_kpi_snapshot, fact_risk_weights, dim_domain, dim_kpi; align with X-E3.2 semantic_dependencies."
-        status: open
+        status: deferred
+        resolution: "Requires a cross-domain risk mart (executive contract) + Enterprise Value-at-Risk Index measure definition in the semantic model."
       - gap_type: model_gap
         severity: medium
         affected_artifact: products/fabric/powerbi/dist/Experience.SemanticModel
@@ -553,4 +557,5 @@ mapping_readiness:
         description: "The weighted_sum index measure and per-domain VaR contribution measures need definition and validation against the COSO portfolio-view methodology."
         evidence_reference: SRC-002
         remediation: "Define and validate Enterprise Value-at-Risk Index + contribution measures in _Measures.tmdl."
-        status: open
+        status: deferred
+        resolution: "Requires a cross-domain risk mart (executive contract) + Enterprise Value-at-Risk Index measure definition in the semantic model."

@@ -153,6 +153,10 @@ Structured summary of action codes (definitions remain in YAML).
   training/ramp-up.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org).
 - Data latency =24h.
+- Schedule-adherence, unplanned-shrinkage, idle, and forecast-accuracy diagnostics
+  are pending data-model support: the required columns and KPIs are not yet in the
+  catalog or experience data contract (see Domain_Evidence_Pack driver tree and
+  model gaps).
 
 ---
 
@@ -160,6 +164,12 @@ Structured summary of action codes (definitions remain in YAML).
 
 - Impact: Utilization/occupancy within bands; overtime/shrinkage reduced; SLA
   stable/improved; backlog controlled.  
+- Benchmark Bands: utilization held within a sustainable band (productive paid time,
+  consistent with ~30–35% shrinkage); occupancy targeted at ~80–85% with a hard
+  sustainable ceiling (sustained >90% drives burnout/attrition risk); shrinkage at
+  the industry norm of ~30–35% on-site (excess above plan is the actionable gap);
+  overtime in low single digits (<8%); schedule adherence ~90%. Bands are grounded
+  in SWPP/ICMI/COPC WFM practice and contact-centre occupancy benchmarks.  
 - Adoption: Used in weekly WFM/service ops reviews; action codes triggered with
   <5% false positives.  
 - Quality: KPI definitions consistent across XD-001/002; reconciled to source

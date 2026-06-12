@@ -34,7 +34,10 @@ factsheet_type: business
 ## 2. Core Business Questions
 
 - What is FPY and scrap/rework performance by line, product, and shift?
+- How large is the gap between FPY and final yield? (the "hidden factory" — reworked units that pass eventually but failed first time, masking the true first-pass defect rate)
+- What is Rolled Throughput Yield across all process steps? (cumulative first-pass yield the per-step FPY hides — e.g. ten steps at 90% FPY give only ~35% RTY)
 - Which defect types and steps drive the most quality losses and COPQ?
+- How does COPQ split between internal failure (scrap, rework, retest) and external failure (complaints, returns, warranty)? (a rising external-failure share signals escapes reaching customers, not just an internal-yield problem)
 - How do complaints correlate with plant/line/product performance?
 - Which actions reduce defects fastest with minimal throughput impact?
 
@@ -134,6 +137,7 @@ Structured summary of action codes (definitions remain in YAML).
 ## 8. Success Criteria
 
 - Impact: FPY improves to targets; scrap/rework reduced; COPQ reduced; complaint rate lowered.  
+- Benchmark targets: FPY ≥ 95% in most manufacturing, world-class high-volume discrete ≥ 99% (Six Sigma 99.99966%, i.e. 3.4 DPMO reference). Scrap < 0.5% world-class discrete / < 2% acceptable for most processes (ISO 22400-2 / benchmark data). COPQ runs 15–20% of sales when unmanaged (Juran/Crosby/ASQ); world-class quality programmes hold it < 5% of sales.  
 - Adoption: Used in weekly quality/ops reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; reconciled units with production totals.  
 - Decision Frequency: Weekly and monthly quality review.

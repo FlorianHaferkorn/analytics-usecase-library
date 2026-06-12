@@ -120,6 +120,7 @@ Structured summary of action codes (definitions remain in YAML).
 - Required grain: plant_line_product_month for unit-cost diagnostics, with entity_month finance views for OpEx control.
 - Required time range: 12-24 months history plus current plan and baseline comparatives.
 - Required slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket.
+- Standard-costing root-cause layer: the variance diagnostics — material price vs usage variance, labour rate vs efficiency variance, and fixed-overhead absorption (volume) variance — are provided as derived measures that decompose the unit-cost gap to its owner (procurement, shopfloor/quality, scheduling) before any corrective action is triggered.
 
 ---
 
@@ -138,6 +139,12 @@ Structured summary of action codes (definitions remain in YAML).
 - Adoption: Used in monthly ops/finance reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across finance/ops; reconciled to source totals.  
 - Decision Frequency: Monthly and weekly cost reviews.
+
+**Benchmark Targets:**
+
+- Unit Cost Amount: track within plan ±2% (and to standard cost) by plant/line/product.
+- COGS % of Sales: benchmarked against the APQC Open Standards Benchmarking sector benchmark ("Cost of goods sold as a percentage of revenue").
+- Cost of Poor Quality (COPQ): 15–20% of sales is typical for unmanaged operations; world-class is <5% of sales.
 
 ---
 
