@@ -28,6 +28,7 @@ import yaml
 
 REPO = Path(__file__).resolve().parents[2]
 DOMAINS = REPO / "core" / "semantic_models" / "domains"
+SHARED_MEASURES = REPO / "core" / "semantic_models" / "shared" / "measures"
 FENCE_OPEN = "```yaml"
 FENCE_CLOSE = "```"
 
@@ -96,13 +97,44 @@ def _ensure_note(pre: str) -> str:
     return "".join(lines)
 
 
+def _deep_merge(base: dict, over: dict) -> dict:
+    """Recursively merge ``over`` onto ``base`` (nested dicts merged, leaves replaced)."""
+    out = dict(base)
+    for k, v in over.items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge(out[k], v)
+        else:
+            out[k] = v
+    return out
+
+
+def _resolve(entry: dict) -> dict:
+    """Expand a ``$ref`` to a shared measure: deep-merge the per-domain overrides
+    (e.g. ``semantic_model``, ``documentation.description``, ``governance.owner``)
+    onto the single shared definition. Non-ref entries pass through unchanged.
+
+    Defining a measure once and materialising it per model keeps the SSOT free of
+    duplicated definitions while the generated views/TMDL still carry one measure
+    per semantic model.
+    """
+    ref = entry.get("$ref")
+    if not ref:
+        return entry
+    shared = yaml.safe_load((SHARED_MEASURES / f"{ref}.yaml").read_text(encoding="utf-8"))
+    return _deep_merge(shared, {k: v for k, v in entry.items() if k != "$ref"})
+
+
 def _load_files(md_path: Path) -> list[dict]:
     mdir = _measures_dir(md_path)
     order = yaml.safe_load((mdir / "_index.yaml").read_text(encoding="utf-8"))["order"]
     on_disk = {p.stem for p in mdir.glob("*.yaml") if p.name != "_index.yaml"}
     if set(order) != on_disk:
         raise SystemExit(f"{mdir}: index/_files mismatch {set(order) ^ on_disk}")
-    return [yaml.safe_load((mdir / f"{s}.yaml").read_text(encoding="utf-8")) for s in order]
+    return [_resolve(yaml.safe_load((mdir / f"{s}.yaml").read_text(encoding="utf-8"))) for s in order]
+
+
+# Public alias so consumers (tests, analysis tools) resolve measures identically.
+load_resolved_measures = _load_files
 
 
 def cmd_extract(_args) -> int:
@@ -113,7 +145,12 @@ def cmd_extract(_args) -> int:
         mdir = _measures_dir(md)
         mdir.mkdir(parents=True, exist_ok=True)
         for slug, e in zip(order, entries):
-            (mdir / f"{slug}.yaml").write_text(_dump(e), encoding="utf-8")
+            fp = mdir / f"{slug}.yaml"
+            if fp.is_file():
+                existing = yaml.safe_load(fp.read_text(encoding="utf-8"))
+                if isinstance(existing, dict) and "$ref" in existing:
+                    continue  # preserve a shared-measure reference; do not re-materialise
+            fp.write_text(_dump(e), encoding="utf-8")
         (mdir / "_index.yaml").write_text(
             yaml.safe_dump({"order": order}, sort_keys=False, allow_unicode=True),
             encoding="utf-8",

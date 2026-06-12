@@ -1150,108 +1150,108 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: false
   kpi_id_ref: ''
-  semantic_model: Operations_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
     logical: Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
     aggregation_method: count
   documentation:
-    description: Number of action codes with a recorded outcome — Operations cross-domain proxy.
     notes: 'Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status].'
+    description: Number of action codes with a recorded outcome — Operations cross-domain proxy.
   dependencies:
     columns:
     - fact_action_outcome[outcome_status]
   governance:
-    owner: Operations BI
     status: active
     version: v1.0
     last_review: 28.04.2026
+    owner: Operations BI
+  semantic_model: Operations_SemanticModel
 
 - measure_name: Action Outcome Rate % (XD)
   is_kpi_measure: false
   kpi_id_ref: ''
-  semantic_model: Operations_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
     logical: Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
     aggregation_method: custom
   documentation:
-    description: Percentage of executed actions with a confirmed achieved outcome — Operations cross-domain proxy.
     notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status].'
+    description: Percentage of executed actions with a confirmed achieved outcome — Operations cross-domain proxy.
   dependencies:
     columns:
     - fact_action_outcome[outcome_status]
   governance:
-    owner: Operations BI
     status: active
     version: v1.0
     last_review: 28.04.2026
+    owner: Operations BI
+  semantic_model: Operations_SemanticModel
 
 - measure_name: Avg Time-to-Outcome Days (XD)
   is_kpi_measure: false
   kpi_id_ref: ''
-  semantic_model: Operations_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
     logical: Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
     aggregation_method: average
   documentation:
-    description: Average days between action execution and outcome confirmation — Operations cross-domain proxy.
     notes: 'Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome].'
+    description: Average days between action execution and outcome confirmation — Operations cross-domain proxy.
   dependencies:
     columns:
     - fact_action_outcome[days_to_outcome]
   governance:
-    owner: Operations BI
     status: active
     version: v1.0
     last_review: 28.04.2026
+    owner: Operations BI
+  semantic_model: Operations_SemanticModel
 
 - measure_name: Action ROI % (XD)
   is_kpi_measure: false
   kpi_id_ref: ''
-  semantic_model: Operations_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
     logical: Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
     aggregation_method: custom
   documentation:
-    description: Average ROI of executed actions — Operations cross-domain proxy.
     notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute].'
+    description: Average ROI of executed actions — Operations cross-domain proxy.
   dependencies:
     columns:
     - fact_action_outcome[impact_value]
     - fact_action_outcome[cost_to_execute]
   governance:
-    owner: Operations BI
     status: active
     version: v1.0
     last_review: 28.04.2026
+    owner: Operations BI
+  semantic_model: Operations_SemanticModel
 
 - measure_name: Action Effectiveness Delta (XD)
   is_kpi_measure: false
   kpi_id_ref: ''
-  semantic_model: Operations_SemanticModel
   display_folder: 08_Action_Outcomes
   category: KPI
   expression:
     logical: Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
     aggregation_method: average
   documentation:
-    description: Average EUR impact per achieved action execution — Operations cross-domain proxy.
     notes: 'Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status].'
+    description: Average EUR impact per achieved action execution — Operations cross-domain proxy.
   dependencies:
     columns:
     - fact_action_outcome[impact_value]
     - fact_action_outcome[outcome_status]
   governance:
-    owner: Operations BI
     status: active
     version: v1.0
     last_review: 28.04.2026
+    owner: Operations BI
+  semantic_model: Operations_SemanticModel
 ```
 

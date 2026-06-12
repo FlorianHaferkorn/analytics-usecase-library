@@ -74,6 +74,11 @@ def load() -> dict:
             continue
         dom = Path(f).parts[-3]
         e = yaml.safe_load(open(f, encoding="utf-8"))
+        if isinstance(e, dict) and "$ref" in e:  # resolve shared-measure references
+            shared = yaml.safe_load(
+                (REPO / "core/semantic_models/shared/measures" / f"{e['$ref']}.yaml").read_text(encoding="utf-8")
+            )
+            e = {**shared, **{k: v for k, v in e.items() if k != "$ref"}, "_shared": True}
         groups[slug(e["measure_name"])].append((dom, e))
     return kpi, groups
 
@@ -103,10 +108,14 @@ def main() -> int:
              f"(UNIFY **{len(unify)}**, DISTINCT **{len(distinct)}**)\n")
 
     L.append("\n## UNIFY — one measure (same resource + aggregation): define once\n")
+    L.append("_`shared ✓` = already defined once under `shared/measures/` and "
+             "materialised per model via `$ref`._\n")
     for k, insts in unify:
         doms = ", ".join(sorted({d for d, _ in insts}))
         refs = sorted({e.get("kpi_id_ref") for _, e in insts if e.get("kpi_id_ref")})
-        L.append(f"- **{k}** ×{len(insts)} — {doms}" + (f" — kpi `{refs[0]}`" if refs else ""))
+        shared = " — **shared ✓**" if all(e.get("_shared") for _, e in insts) else ""
+        L.append(f"- **{k}** ×{len(insts)} — {doms}"
+                 + (f" — kpi `{refs[0]}`" if refs else "") + shared)
 
     L.append("\n## DISTINCT — different measures sharing a name (different resources)\n")
     for k, insts in distinct:

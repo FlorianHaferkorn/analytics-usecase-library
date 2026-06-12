@@ -32,6 +32,14 @@ def _block(md: Path) -> list:
 
 
 def _files(md: Path) -> list:
+    # Resolve $ref shared-measure references the same way render/check/the
+    # generator do, so the view-match and schema checks see real measures.
+    from codegen.measure_dictionary_files import load_resolved_measures
+
+    return load_resolved_measures(md)
+
+
+def _raw_files(md: Path) -> list:
     mdir = md.parent / "measures"
     order = yaml.safe_load((mdir / "_index.yaml").read_text(encoding="utf-8"))["order"]
     return [yaml.safe_load((mdir / f"{s}.yaml").read_text(encoding="utf-8")) for s in order]
@@ -59,6 +67,24 @@ def test_index_covers_all_files_exactly():
         on_disk = {p.stem for p in mdir.glob("*.yaml") if p.name != "_index.yaml"}
         assert set(order) == on_disk, f"{md.parent.name}: {set(order) ^ on_disk}"
         assert len(order) == len(set(order)), f"{md.parent.name}: duplicate id in _index"
+
+
+def test_shared_refs_resolve():
+    """Every ``$ref`` per-measure file points at an existing shared definition,
+    and only the expected per-domain leaves are overridden."""
+    shared_dir = REPO / "core/semantic_models/shared/measures"
+    allowed_overrides = {"$ref", "semantic_model", "documentation", "governance"}
+    dangling = {}
+    for md in _dict_paths():
+        for raw in _raw_files(md):
+            if "$ref" not in raw:
+                continue
+            if not (shared_dir / f"{raw['$ref']}.yaml").is_file():
+                dangling[f"{md.parent.name}/{raw['$ref']}"] = "shared file missing"
+            extra = set(raw) - allowed_overrides
+            if extra:
+                dangling[f"{md.parent.name}/{raw['$ref']}"] = f"unexpected override keys: {extra}"
+    assert not dangling, dangling
 
 
 def test_all_measure_files_schema_valid():

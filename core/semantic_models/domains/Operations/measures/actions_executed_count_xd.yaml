@@ -1,20 +1,6 @@
-measure_name: Actions Executed Count (XD)
-is_kpi_measure: false
-kpi_id_ref: ''
+$ref: actions_executed_count_xd
 semantic_model: Operations_SemanticModel
-display_folder: 08_Action_Outcomes
-category: KPI
-expression:
-  logical: Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
-  aggregation_method: count
 documentation:
   description: Number of action codes with a recorded outcome — Operations cross-domain proxy.
-  notes: 'Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status].'
-dependencies:
-  columns:
-  - fact_action_outcome[outcome_status]
 governance:
   owner: Operations BI
-  status: active
-  version: v1.0
-  last_review: 28.04.2026
