@@ -74,6 +74,11 @@ order:
 - sales.units
 - people.digital_adoption.pct
 - people.attrition_risk.pct
+- people.absenteeism.pct
+- people.turnover.pct
+- people.revenue_per_fte.amount
+- people.personnel_cost.pct
+- people.gm_per_fte.amount
 - wc.dso.days
 - fin.liquidity.inventory.amount
 - fin.liquidity.payables.amount
@@ -102,6 +107,7 @@ order:
 - sales.promo.incremental.amount
 - margin.cogs.pct
 - margin.gm.vs_plan.pct
+- margin.ebitda.pct
 - cost.base_volume.amount
 - cost.opex.base.amount
 - enterprise.value_at_risk.index

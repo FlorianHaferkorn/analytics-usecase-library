@@ -1,11 +1,11 @@
 measure_name: Personnel Cost Ratio %
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: people.personnel_cost.pct
 semantic_model: InnovationPeople_SemanticModel
 display_folder: 04_People
 category: KPI
 expression:
-  logical: Personnel Cost Ratio % = [[Personnel Cost Amount]] / [[Revenue Amount]]
+  logical: Personnel Cost Ratio % = DIVIDE ( SUM ( fact_hr[Personnel Cost] ), SUM ( fact_sales[Net Sales Amount] ) )
   aggregation_method: ratio
 documentation:
   description: Personnel cost / revenue.
@@ -17,9 +17,9 @@ documentation:
 
     '
 dependencies:
-  measures:
-  - '[Personnel Cost Amount]'
-  - '[Revenue Amount]'
+  columns:
+  - fact_hr[Personnel Cost]
+  - fact_sales[Net Sales Amount]
 governance:
   owner: Innovation Analytics
   status: active

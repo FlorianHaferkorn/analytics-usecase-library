@@ -1,11 +1,11 @@
 measure_name: Turnover Rate %
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: people.turnover.pct
 semantic_model: InnovationPeople_SemanticModel
 display_folder: 04_People
 category: KPI
 expression:
-  logical: Turnover Rate % = [[Exits Count]] / [[Average Headcount]]
+  logical: Turnover Rate % = DIVIDE ( SUM ( fact_hr[Leavers] ), AVERAGE ( fact_hr[Headcount] ) )
   aggregation_method: ratio
 documentation:
   description: Employee exits divided by average headcount.
@@ -15,9 +15,9 @@ documentation:
 
     '
 dependencies:
-  measures:
-  - '[Exits Count]'
-  - '[Average Headcount]'
+  columns:
+  - fact_hr[Leavers]
+  - fact_hr[Headcount]
 governance:
   owner: Innovation Analytics
   status: active

@@ -1,11 +1,11 @@
 measure_name: Absenteeism %
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: people.absenteeism.pct
 semantic_model: InnovationPeople_SemanticModel
 display_folder: 04_People
 category: KPI
 expression:
-  logical: Absenteeism % = [[Absent Hours]] / [[Scheduled Hours]]
+  logical: Absenteeism % = DIVIDE ( SUM ( fact_hr[Absent Hours] ), SUM ( fact_hr[Scheduled Hours] ) )
   aggregation_method: ratio
 documentation:
   description: Absent hours divided by scheduled hours.
@@ -15,9 +15,9 @@ documentation:
 
     '
 dependencies:
-  measures:
-  - '[Absent Hours]'
-  - '[Scheduled Hours]'
+  columns:
+  - fact_hr[Absent Hours]
+  - fact_hr[Scheduled Hours]
 governance:
   owner: Innovation Analytics
   status: active

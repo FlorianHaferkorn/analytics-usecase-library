@@ -1,12 +1,12 @@
 measure_name: Revenue per FTE
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: people.revenue_per_fte.amount
 semantic_model: InnovationPeople_SemanticModel
 display_folder: 04_People
 category: KPI
 expression:
-  logical: Revenue per FTE = [[Revenue Amount]] / [[Average FTE]]
-  aggregation_method: sum
+  logical: Revenue per FTE = DIVIDE ( SUM ( fact_sales[Net Sales Amount] ), SUM ( fact_hr[FTE] ) )
+  aggregation_method: ratio
 formatString: 'EUR #,0'
 documentation:
   description: Total revenue divided by average FTE.
@@ -16,9 +16,9 @@ documentation:
 
     '
 dependencies:
-  measures:
-  - '[Revenue Amount]'
-  - '[Average FTE]'
+  columns:
+  - fact_sales[Net Sales Amount]
+  - fact_hr[FTE]
 governance:
   owner: Innovation Analytics
   status: active

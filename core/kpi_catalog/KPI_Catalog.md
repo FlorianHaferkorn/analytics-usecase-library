@@ -3123,6 +3123,192 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     completeness_score: 1.0
     last_review: 27.01.2026
 
+- kpi_id: people.absenteeism.pct
+  kpi_key: Absenteeism %
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Workforce
+  domain_tag:
+  - People & Culture
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Monitor absence as a share of scheduled working time.
+    definition: Absent Hours / Scheduled Hours
+    grain_scope: Org; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher values indicate more lost working time and possible engagement or health issues.
+  technical:
+    measure_name: Absenteeism %
+    description: Absent hours divided by scheduled hours.
+    depends_on_measures: []
+    lineage:
+    - fact_hr.Absent Hours
+    - fact_hr.Scheduled Hours
+  governance:
+    business_owner: Head of HR
+    data_owner: People Analytics
+    steward: HR Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Absenteeism % bounded between 0 % and 100 %
+    - Absent Hours <= Scheduled Hours
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 12.06.2026
+
+- kpi_id: people.turnover.pct
+  kpi_key: Turnover Rate %
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Workforce
+  domain_tag:
+  - People & Culture
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Track workforce attrition through realised leavers.
+    definition: Leavers / Average Headcount
+    grain_scope: Org; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher values signal retention problems and knowledge loss.
+  technical:
+    measure_name: Turnover Rate %
+    description: Employee leavers divided by average headcount.
+    depends_on_measures: []
+    lineage:
+    - fact_hr.Leavers
+    - fact_hr.Headcount
+  governance:
+    business_owner: Head of HR
+    data_owner: People Analytics
+    steward: HR Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Turnover % >= 0
+    - Headcount > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 12.06.2026
+
+- kpi_id: people.revenue_per_fte.amount
+  kpi_key: Revenue per FTE
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Workforce
+  domain_tag:
+  - People & Culture
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Measure workforce revenue productivity.
+    definition: Net Sales Amount / FTE
+    grain_scope: Org; monthly.
+    unit_format: '''EUR per FTE'''
+    interpretation: Higher values indicate greater revenue generated per full-time equivalent.
+  technical:
+    measure_name: Revenue per FTE
+    description: Net sales divided by FTE.
+    depends_on_measures:
+    - sales.net_sales.amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_hr.FTE
+  governance:
+    business_owner: Head of HR
+    data_owner: People Analytics
+    steward: HR Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - FTE > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 12.06.2026
+
+- kpi_id: people.personnel_cost.pct
+  kpi_key: Personnel Cost Ratio %
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Workforce
+  domain_tag:
+  - People & Culture
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Track personnel cost intensity relative to revenue.
+    definition: Personnel Cost / Net Sales Amount
+    grain_scope: Org; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher values indicate a larger share of revenue consumed by personnel cost.
+  technical:
+    measure_name: Personnel Cost Ratio %
+    description: Personnel cost divided by net sales.
+    depends_on_measures:
+    - sales.net_sales.amount
+    lineage:
+    - fact_hr.Personnel Cost
+    - fact_sales.Net Sales Amount
+  governance:
+    business_owner: Head of HR
+    data_owner: People Analytics
+    steward: HR Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Net Sales Amount > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 12.06.2026
+
+- kpi_id: people.gm_per_fte.amount
+  kpi_key: Gross Margin per FTE Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Workforce
+  domain_tag:
+  - People & Culture
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Measure workforce margin productivity.
+    definition: Gross Margin Amount / FTE
+    grain_scope: Org; monthly.
+    unit_format: '''EUR per FTE'''
+    interpretation: Higher values indicate greater gross margin generated per full-time equivalent.
+  technical:
+    measure_name: Gross Margin per FTE Amount
+    description: Gross margin divided by FTE.
+    depends_on_measures:
+    - margin.gm.amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.Cost of Goods Sold Amount
+    - fact_hr.FTE
+  governance:
+    business_owner: Head of HR
+    data_owner: People Analytics
+    steward: HR Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - FTE > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 12.06.2026
+
 - kpi_id: wc.dso.days
   synonyms:
   - Days Sales Outstanding
@@ -4533,6 +4719,43 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+
+- kpi_id: margin.ebitda.pct
+  kpi_key: EBITDA Margin
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Profitability
+  domain_tag:
+  - Finance
+  use_case_ref: []
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: EBITDA profitability relative to net sales for P&L reporting.
+    definition: EBITDA Amount / Net Sales Amount
+    grain_scope: Entity-month; finance reporting.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher values indicate stronger operating profitability before interest, tax, depreciation and amortisation.
+  technical:
+    measure_name: EBITDA Margin
+    description: EBITDA divided by net sales.
+    depends_on_measures: []
+    lineage:
+    - fact_finance.EBITDA Amount
+    - fact_finance.Net Sales Amount
+  governance:
+    business_owner: Head of Controlling
+    data_owner: BI Engineering
+    steward: Controlling Analyst
+    review_cycle: quarterly
+    validation_process: dual control
+    qa_rules:
+    - Value in [-100%; 100%]
+    - Reconcile with P&L EBITDA +/- 0.5 pp
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 12.06.2026
 
 - kpi_id: cost.base_volume.amount
   deprecated: true

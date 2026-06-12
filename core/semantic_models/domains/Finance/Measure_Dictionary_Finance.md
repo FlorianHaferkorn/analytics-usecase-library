@@ -616,13 +616,13 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     review_due: 2027-03-31
 
 - measure_name: EBITDA Margin
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.ebitda.pct
   semantic_model: Finance_SemanticModel
   display_folder: 06_Profitability
   category: KPI
   expression:
-    logical: EBITDA Margin = DIVIDE ( SUM ( fact_finance[EBITDA] ), SUM ( fact_finance[Net Sales] ) )
+    logical: EBITDA Margin = DIVIDE ( SUM ( fact_finance[EBITDA Amount] ), SUM ( fact_finance[Net Sales Amount] ) )
     aggregation_method: ratio
   documentation:
     description: EBITDA / Net Sales.
@@ -635,8 +635,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
       '
   dependencies:
     columns:
-    - fact_finance[EBITDA]
-    - fact_finance[Net Sales]
+    - fact_finance[EBITDA Amount]
+    - fact_finance[Net Sales Amount]
   governance:
     owner: Finance Analytics
     status: active
