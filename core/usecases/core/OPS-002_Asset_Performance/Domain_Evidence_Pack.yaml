@@ -1,0 +1,526 @@
+evidence_pack_version: "1.0"
+use_case_id: OPS-002
+use_case_title: Asset Performance
+domain: Operations
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Asset reliability and maintenance performance for asset-intensive production. Covers the
+    reliability/maintainability balance (MTBF, MTTR, availability), preventive maintenance
+    discipline, spare-parts readiness, and the safety guardrail on maintenance trade-offs.
+    Distinct from OPS-001 (OEE) — this use case isolates the asset/maintenance layer that
+    feeds the Availability pillar of OEE rather than the full equipment-effectiveness picture.
+  in_scope:
+    - Asset reliability (MTBF) and maintainability (MTTR) per ISO 14224 failure taxonomy
+    - Equipment availability and unplanned downtime analysis (EN 15341 / ISO 22400-2)
+    - Preventive maintenance compliance and PM workload (proactive vs reactive ratio)
+    - Failure event Pareto by asset, cause, and failure mode
+    - Spare-parts stockout and maintenance inventory capital trade-off
+    - Maintenance safety guardrail (incident-free reliability recovery)
+  out_of_scope:
+    - Full OEE / performance & quality losses (OPS-001)
+    - Predictive maintenance / condition monitoring algorithms (OPS-013)
+    - Capital replacement and asset lifecycle financial modelling (OPS-008)
+    - Energy and sustainability metrics (ISO 50001 scope)
+  industry_segment: >
+    Asset-intensive manufacturing and process industries — automotive, FMCG, chemicals,
+    food & beverage, pharma, utilities. Applicable to any environment where unplanned asset
+    failure is a material driver of lost output.
+  applicable_frameworks:
+    - name: ISO 14224:2016 — Collection and exchange of reliability and maintenance data for equipment
+      id: ISO-14224
+    - name: EN 15341:2019+A1:2022 — Maintenance — Maintenance Key Performance Indicators
+      id: EN-15341
+    - name: ISO 55000:2024 — Asset management — Vocabulary, overview and principles
+      id: ISO-55000
+    - name: ISO 22400-2:2014 — Manufacturing operations KPIs (Availability)
+      id: ISO-22400-2
+    - name: SMRP Best Practice Metrics (6th Edition) — Reliability & Maintenance KPIs
+      id: SMRP-BMP
+    - name: Reliability-Centered Maintenance (RCM — Nowlan & Heap / Moubray RCM II)
+      id: RCM
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: ops.mtbf.hours
+      name: MTBF (hours)
+      definition: >
+        Mean Time Between Failures = Operating Time Hours / Number of Failures. The primary
+        reliability outcome: how long an asset runs between functional failures. ISO 14224
+        defines the failure event and operating-time basis for this calculation.
+      unit: hours
+      direction: maximize
+      benchmark_target: "Asset-criticality specific; rising trend on critical assets is the goal (SMRP BMP)"
+      benchmark_source_id: SRC-005
+      iso_reference: "ISO 14224:2016 clause 3 (failure) and Annex C (reliability parameters)"
+
+  driver_kpis:
+    - id: ops.availability.pct
+      name: Availability %
+      definition: >
+        Availability = Available Time / Planned Time. The asset-uptime outcome that MTBF and
+        MTTR jointly produce: Availability ≈ MTBF / (MTBF + MTTR). EN 15341 technical KPI T.
+      unit: "%"
+      direction: maximize
+      drives: ops.mtbf.hours
+      causal_mechanism: >
+        Availability is the bridge from reliability to OEE. It rises with MTBF and falls with
+        MTTR; a plant can hold availability with poor MTBF only by absorbing high reactive
+        repair load — an unstable state that eventually erodes both (SMRP BMP; EN 15341).
+      benchmark_target: "90% world class for critical assets (SMRP BMP)"
+      benchmark_source_id: SRC-005
+
+    - id: ops.mttr.hours
+      name: MTTR (hours)
+      definition: >
+        Mean Time To Repair = Total Repair Time Hours / Number of Failures. Measures
+        maintainability — detection, logistics, active repair, and restoration time.
+      unit: hours
+      direction: minimize
+      drives: ops.availability.pct
+      causal_mechanism: >
+        Even with stable MTBF, rising MTTR reduces availability directly. High MTTR usually
+        signals spare-parts stockout, skill gaps, or poor repair documentation (ISO 14224
+        maintenance-data model isolates these sub-components).
+      benchmark_target: "Declining trend; asset-criticality specific (SMRP BMP)"
+      benchmark_source_id: SRC-005
+
+    - id: ops.downtime.unplanned.pct
+      name: Unplanned Downtime %
+      definition: >
+        Unplanned Downtime Minutes / Planned Time Minutes. The reactive-loss share of planned
+        production time — the dominant availability destroyer in most plants.
+      unit: "%"
+      direction: minimize
+      drives: ops.availability.pct
+      causal_mechanism: >
+        Unplanned downtime is the visible symptom of low MTBF. EN 15341 separates it from
+        planned maintenance windows; conflating the two distorts the reliability signal.
+      benchmark_target: "< 10% of planned time (Plant Engineering survey, sector-dependent)"
+      benchmark_source_id: SRC-009
+
+    - id: ops.pm_compliance.pct
+      name: PM Compliance %
+      definition: >
+        Completed PM Orders / Planned PM Orders within the schedule window. Measures adherence
+        to the preventive-maintenance plan — the leading indicator of future MTBF.
+      unit: "%"
+      direction: maximize
+      drives: ops.mtbf.hours
+      causal_mechanism: >
+        PM compliance below the world-class threshold is a leading indicator of MTBF decline
+        within 2–4 months on critical assets. Nowlan & Heap show PM only helps age-related
+        failure modes — so compliance must be paired with failure-mode analysis, not pursued
+        blindly (SRC-006, SRC-005).
+      benchmark_target: "90% or higher within compliance window (SMRP BMP 6th ed.)"
+      benchmark_source_id: SRC-005
+
+    - id: ops.spare_parts.stockout.pct
+      name: Spare Parts Stockout %
+      definition: >
+        Stockout Events / Total Parts Requests. The maintenance-logistics constraint that
+        inflates MTTR when a needed part is unavailable at the point of repair.
+      unit: "%"
+      direction: minimize
+      drives: ops.mttr.hours
+      causal_mechanism: >
+        A spare-parts stockout converts a short active-repair task into an extended wait,
+        directly lifting MTTR and availability loss. It is the most common controllable MTTR
+        driver (ISO 14224 maintenance-data; SMRP BMP).
+      benchmark_target: "Critical-spare service level > 95% (Reliabilityweb Uptime Elements)"
+      benchmark_source_id: SRC-010
+
+  diagnostic_kpis:
+    - id: ops.failure.count
+      name: Failure Count
+      definition: "Count of recorded failure events (fact_ops_failures). The numerator behind MTBF."
+      unit: count
+      direction: minimize
+      diagnoses: ops.mtbf.hours
+      causal_mechanism: >
+        Failure count Pareto by asset and failure mode is the entry point for root-cause work.
+        A small set of bad actors typically drives the majority of failures (RCM II, SRC-007).
+
+    - id: ops.pm.task.count
+      name: Preventive Maintenance Task Count
+      definition: "Count of PM tasks executed in the period. Proxy for proactive maintenance workload."
+      unit: count
+      direction: maximize
+      diagnoses: ops.pm_compliance.pct
+      causal_mechanism: >
+        PM task volume contextualises compliance: high compliance on a thin PM plan can still
+        leave critical failure modes uncovered. Read alongside the proactive/reactive ratio.
+
+    - id: ops.inventory.value.amount
+      name: Inventory Value Amount (Spare Parts)
+      definition: "Average value of maintenance/spare-parts inventory for the scope (fact_inventory)."
+      unit: EUR
+      direction: minimize
+      diagnoses: ops.spare_parts.stockout.pct
+      causal_mechanism: >
+        The capital counter-weight to stockout: availability can always be bought with more
+        spares, so spares value is the guardrail that keeps stockout reduction economically
+        honest (ISO 55000 cost/risk/performance balance, SRC-003).
+
+  guardrails:
+    - description: Planned maintenance and scheduled shutdowns
+      condition: >
+        Downtime during planned maintenance windows, scheduled overhauls, or approved
+        shutdowns must NOT be counted as unplanned downtime or availability loss. EN 15341
+        and ISO 22400-2 exclude planned windows from the reliability calculation.
+      affected_kpis: [ops.downtime.unplanned.pct, ops.availability.pct]
+
+    - description: Safety is a hard constraint, not a trade-off
+      condition: >
+        MTBF/availability recovery actions must not raise the maintenance safety-incident
+        count. Deferring lock-out/tag-out or running an asset past a safety limit to protect
+        uptime is prohibited — safety incidents veto the reliability action (ISO 55000 risk).
+      affected_kpis: [ops.safety.incident.count, ops.mtbf.hours, ops.availability.pct]
+
+    - description: Spare-parts capital ceiling
+      condition: >
+        Stockout-reduction actions must respect the maintenance-inventory budget. Buying
+        availability with unbounded critical-spare stock is a false economy beyond the
+        criticality-justified service level (ISO 55000, SRC-010).
+      affected_kpis: [ops.spare_parts.stockout.pct, ops.inventory.value.amount]
+
+  wrong_interpretations:
+    - description: "High availability masking low reliability (reactive treadmill)"
+      why_wrong: >
+        Availability can be held high through fast reactive repair even as MTBF falls. This
+        hides a deteriorating asset behind a healthy uptime number until a major failure.
+        Always read availability alongside MTBF trend (EN 15341; SMRP BMP).
+      source_id: SRC-002
+
+    - description: "Chasing PM compliance on the wrong failure modes"
+      why_wrong: >
+        Nowlan & Heap demonstrated most failures are not age-related, so calendar-based PM
+        does not improve MTBF for random-failure modes — 100% PM compliance can be wasted
+        effort. Compliance must be targeted via failure-mode analysis (RCM).
+      source_id: SRC-006
+
+    - description: "MTBF as a single fleet-wide average"
+      why_wrong: >
+        A fleet-average MTBF hides bad actors. ISO 14224 requires reliability data at the
+        equipment-unit and failure-mode level; averaging across dissimilar assets produces a
+        meaningless number that defeats targeted action.
+      source_id: SRC-001
+
+    - description: "Treating all downtime as unplanned"
+      why_wrong: >
+        Including planned maintenance in unplanned-downtime or availability-loss inflates the
+        reliability problem and misdirects action toward reactive firefighting. EN 15341
+        defines the planned/unplanned split explicitly.
+      source_id: SRC-002
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_ops
+      description: >
+        Production-time backbone. Must contain: Run Time Minutes, Planned Time Minutes,
+        asset_id, shift_id. Provides operating-time basis for availability and MTBF.
+    - table: fact_ops_failures
+      description: >
+        Failure event log. Must contain: failure event records, Downtime Minutes,
+        Repair Duration Hours, asset_id, failure_start/end, cause_code, failure_mode.
+        Required for MTBF, MTTR, and failure Pareto per ISO 14224.
+    - table: fact_maintenance
+      description: >
+        Maintenance work-order log. Must contain: Order Type (PM/CM), Order Status,
+        Parts Stockout Flag, PM_due_date, PM_completed_date. Required for PM compliance,
+        PM task count, and spare-parts stockout.
+    - table: fact_inventory
+      description: >
+        Spare-parts inventory. Must contain: Average Inventory Amount at maintenance-store
+        grain. Required for the spares capital guardrail.
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for MTBF/availability trend. CalendarWeek + CalendarMonth required."
+    - name: dim_org
+      grain_relevance: "Plant → Line → Asset hierarchy. Asset level mandatory for reliability diagnostics."
+    - name: dim_failure_mode
+      grain_relevance: >
+        ISO 14224 failure-mode taxonomy for failure Pareto and RCM targeting.
+        Not present in the current data contract — classified as model_gap.
+    - name: dim_cause_code
+      grain_relevance: >
+        Maintenance failure cause codes for downtime-reason Pareto and action specificity.
+        Required for O-A2.2 targeting. Currently not in the data contract — model_gap.
+    - name: dim_order_type
+      grain_relevance: "PM vs CM (corrective) split — required for proactive/reactive ratio and PM compliance."
+
+  preferred_grain: asset-day
+  minimum_grain: line-day
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    line-day grain is acceptable only where asset-level failure attribution is structurally
+    unavailable. Requires explicit waiver in the bracket; MTBF bad-actor analysis is degraded.
+
+  required_measures:
+    - name: MTBF (hours)
+      formula_seed: "Operating_Time_Hours / Number_of_Failures"
+      source_id: SRC-001
+    - name: MTTR (hours)
+      formula_seed: "Total_Repair_Time_Hours / Number_of_Failures"
+      source_id: SRC-005
+    - name: Availability %
+      formula_seed: "Available_Time / Planned_Time   (≈ MTBF / (MTBF + MTTR))"
+      source_id: SRC-002
+    - name: Unplanned Downtime %
+      formula_seed: "Unplanned_Downtime_Minutes / Planned_Time_Minutes"
+      source_id: SRC-002
+    - name: PM Compliance %
+      formula_seed: "Completed_PM_Orders / Planned_PM_Orders (within window)"
+      source_id: SRC-005
+    - name: Spare Parts Stockout %
+      formula_seed: "Parts_Stockout_Events / Total_Parts_Requests"
+      source_id: SRC-010
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: ops.mtbf.hours
+    trigger_diagnostic: ops.failure.count
+    trigger_condition: "MTBF declining trend on critical assets AND failure count concentrated in a bad-actor Pareto"
+    guardrail: "Exclude planned maintenance windows and force majeure"
+    action_description: >
+      Reliability orchestration: rank assets by criticality × MTBF gap, launch failure-mode
+      root-cause on the top bad actors, sequence the downstream MTBF/MTTR/PM actions.
+    expected_outcome_kpi: ops.mtbf.hours
+    action_code_candidate: O-A2.1
+
+  - trigger_driver: ops.mtbf.hours
+    trigger_diagnostic: ops.failure.count
+    trigger_condition: "Repeat failures of the same mode on a critical asset (failure count rising for one cause_code)"
+    guardrail: "Confirm failure mode is addressable by design/maintenance, not operator error"
+    action_description: >
+      Failure reduction: eliminate the dominant failure mode via FMEA, design-out, or
+      condition-based task — RCM-style targeting rather than blanket PM.
+    expected_outcome_kpi: ops.mtbf.hours
+    action_code_candidate: O-A2.2
+
+  - trigger_driver: ops.availability.pct
+    trigger_diagnostic: ops.mttr.hours
+    trigger_condition: "MTTR rising while MTBF stable (availability loss is maintainability-driven)"
+    guardrail: "Exclude major overhauls from MTTR baseline"
+    action_description: >
+      Repair-time reduction: standard repair procedures, kitted spares, technician skill
+      coverage, and improved fault detection to compress MTTR.
+    expected_outcome_kpi: ops.mttr.hours
+    action_code_candidate: O-A2.3
+
+  - trigger_driver: ops.pm_compliance.pct
+    trigger_diagnostic: ops.pm.task.count
+    trigger_condition: "PM compliance < 90% for 3 months on assets with age-related failure modes"
+    guardrail: "Validate the PM plan covers the actual failure modes (avoid PM for random failures)"
+    action_description: >
+      Preventive maintenance discipline: clear the PM backlog, right-size the PM plan to
+      failure modes, and restore compliance on age-degrading assets.
+    expected_outcome_kpi: ops.mtbf.hours
+    action_code_candidate: O-A2.4
+
+  - trigger_driver: ops.spare_parts.stockout.pct
+    trigger_diagnostic: ops.inventory.value.amount
+    trigger_condition: "Spare-parts stockout driving MTTR up AND critical-spare service level below target"
+    guardrail: "Respect the maintenance-inventory budget; prioritise by asset criticality"
+    action_description: >
+      Spare-parts readiness: criticality-based min/max for critical spares, vendor-managed
+      inventory where viable, without breaching the spares capital ceiling.
+    expected_outcome_kpi: ops.mttr.hours
+    action_code_candidate: O-A2.5
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 14.0
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "ISO 14224:2016 — Petroleum, petrochemical and natural gas industries — Collection and exchange of reliability and maintenance data for equipment"
+      author: "International Organization for Standardization"
+      year: 2016
+      url: "https://www.iso.org/standard/64076.html"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, required_data_model, required_dimensions, wrong_interpretations]
+
+    - id: SRC-002
+      category: STD
+      title: "EN 15341:2019+A1:2022 — Maintenance — Maintenance Key Performance Indicators (CEN)"
+      author: "European Committee for Standardization (CEN)"
+      year: 2022
+      url: "https://standards.iteh.ai/catalog/standards/cen/7d046ef9-0294-41a0-8cd5-d2c6c02ff742/en-15341-2019"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [driver_kpis, required_measures, wrong_interpretations]
+
+    - id: SRC-003
+      category: STD
+      title: "ISO 55000:2024 — Asset management — Vocabulary, overview and principles"
+      author: "International Organization for Standardization"
+      year: 2024
+      url: "https://www.iso.org/standard/83053.html"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, guardrails]
+
+    - id: SRC-004
+      category: STD
+      title: "ISO 22400-2:2014 — Automation systems and integration — KPIs for manufacturing operations management — Part 2"
+      author: "International Organization for Standardization"
+      year: 2014
+      url: "https://www.iso.org/standard/56847.html"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis]
+      notes: "Availability definition link to OEE (OPS-001). 2014 version remains authoritative; classic exception."
+
+    - id: SRC-005
+      category: PRO
+      title: "SMRP Best Practice Metrics, 6th Edition — MTBF, MTTR, Availability, PM Compliance definitions and world-class benchmarks"
+      author: "Society for Maintenance & Reliability Professionals (SMRP)"
+      year: 2023
+      url: "https://www.smrp.org/page/SMRPBestPracticeMetrics"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [outcome_kpis, driver_kpis, required_measures, benchmark_targets]
+      notes: "PM compliance world-class ≥ 90%; availability ≥ 90% on critical assets."
+
+    - id: SRC-006
+      category: ACA
+      title: "Nowlan, F.S. & Heap, H.F. (1978). Reliability-Centered Maintenance. United Airlines / US Department of Defense."
+      author: "Nowlan, F.S.; Heap, H.F."
+      year: 1978
+      url: "https://apps.dtic.mil/sti/citations/ADA066579"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, wrong_interpretations]
+      notes: "Origin of RCM and the age-vs-random failure-pattern findings. Age waiver — foundational, not superseded."
+
+    - id: SRC-007
+      category: ACA
+      title: "Moubray, J. (1997). Reliability-Centred Maintenance (RCM II), 2nd ed. Industrial Press."
+      author: "John Moubray"
+      year: 1997
+      url: "https://www.industrialpress.com/reliability-centered-maintenance-second-edition"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [diagnostic_kpis, action_logic_seeds, guardrails]
+      notes: "Definitive RCM practitioner text. Age waiver — standard reference for failure-mode-driven maintenance."
+
+    - id: SRC-008
+      category: ACA
+      title: "Muchiri, P. & Pintelon, L. (2008). Performance measurement using overall equipment effectiveness (OEE). International Journal of Production Research, 46(13), 3517–3535."
+      author: "Muchiri, P.; Pintelon, L."
+      year: 2008
+      url: "https://doi.org/10.1080/00207540601313243"
+      doi: "10.1080/00207540601313243"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis, wrong_interpretations]
+      notes: "Establishes availability as the dominant loss driver and the reliability→OEE link."
+
+    - id: SRC-009
+      category: BNK
+      title: "Plant Engineering Maintenance Survey (2023) — PM compliance, reactive/proactive ratio, unplanned downtime benchmarks"
+      author: "Plant Engineering / CFE Media"
+      year: 2023
+      url: "https://www.plantengineering.com/maintenance-survey/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [benchmark_targets, driver_kpis]
+
+    - id: SRC-010
+      category: IMP
+      title: "Reliabilityweb — Uptime Elements: Asset Management Body of Knowledge (spares strategy, defect elimination)"
+      author: "Reliabilityweb.com / T. O'Hanlon"
+      year: 2022
+      url: "https://reliabilityweb.com/uptime-elements"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, action_logic_seeds, benchmark_targets]
+
+    - id: SRC-011
+      category: RSK
+      title: "Smith, A.M. & Hinchcliffe, G.R. (2004). RCM — Gateway to World Class Maintenance. Elsevier Butterworth-Heinemann."
+      author: "Smith, A.M.; Hinchcliffe, G.R."
+      year: 2004
+      url: "https://doi.org/10.1016/B978-0-7506-7461-4.X5000-0"
+      doi: "10.1016/B978-0-7506-7461-4.X5000-0"
+      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [wrong_interpretations, guardrails]
+      notes: "Anti-pattern source for over-maintenance and PM applied to non-age-related failure modes."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: partial
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md
+        field: "Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: PM compliance ≥ 90%, critical-asset availability ≥ 90%
+          (SMRP BMP). Add to make the success criteria measurable.
+        evidence_reference: SRC-005
+        remediation: "Add SMRP world-class targets to the factsheet success criteria."
+        status: open
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/kpi_catalog/kpis/ops.safety.incident.count.yaml
+        field: technical.lineage
+        description: >
+          ops.safety.incident.count has empty lineage — no backing fact table. The safety
+          guardrail cannot be computed until a fact_safety (or fact_hse) source exists.
+        evidence_reference: SRC-003
+        remediation: "Define a safety/HSE fact in the operations data contract and bind the KPI lineage."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/operations.yaml
+        field: dim_failure_mode / dim_cause_code
+        description: >
+          No failure-mode or cause-code dimension exists. ISO 14224 failure Pareto and RCM
+          targeting (O-A2.2) require failure-mode and cause attribution at the asset grain.
+        evidence_reference: SRC-001 SRC-007
+        remediation: "Add dim_failure_mode and dim_cause_code per ISO 14224 taxonomy to the operations contract."
+        status: open
