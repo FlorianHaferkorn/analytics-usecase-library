@@ -131,6 +131,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** Promo ROI >=120% (1.2x), noting that ~59% of CPG promotions fail to break even globally and 72% in the US (McKinsey); only ~45% of gross promotional lift is truly incremental, the rest being switching/stockpiling (Ailawadi et al. 2006, JMR); promotional price elasticity averages ~-3.6 vs ~-2.6 overall, so discount depth must be justified against realization erosion (Bijmolt, Van Heerde & Pieters 2005, JMR).  
 - Impact: Higher promo ROI (>=120%), higher incremental GM, reduced cannibalization.
 - Adoption: Used in promo/post-event reviews; actions logged via Action Codes.
 - Quality: Uplift and ROI reconcile to baseline and costs; definitions aligned with COM-001/002.
