@@ -1,0 +1,517 @@
+evidence_pack_version: "1.0"
+use_case_id: XD-004
+use_case_title: Executive Action Governance
+domain: Experience
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    META governance over the actions the analytics framework itself recommends: whether
+    executive-routed action codes are completed on time, owned without ambiguity, and produce
+    the intended KPI outcome. This use case governs the action-to-outcome loop — closure rate,
+    time-to-action, accountability coverage, and outcome (not status) realisation — across the
+    Impactful 15 action codes routed for execution. It is decision-governance and
+    data/analytics-governance methodology applied to the framework's own recommendations.
+    Distinct from XD-003 (executive KPI roll-up of business performance) — this use case isolates
+    the governance of action follow-through, not the underlying domain KPIs.
+  in_scope:
+    - Action Outcome Rate — share of routed actions that achieved the intended outcome (closure quality)
+    - Time-to-outcome / time-to-action as the latency driver of the action-to-outcome loop
+    - Accountability coverage — every routed action has a single owner role, due date, status, outcome flag
+    - Recommendation adoption / execution velocity (actions executed vs routed)
+    - Action ROI and effectiveness delta — verified value per executed action, not administrative closure
+    - Lifecycle-deviation escalation (L1 Monitoring / L2 Delayed / L3 Ineffective) via X-E3.3
+    - Decision-rights and responsibility-assignment guardrails on routed actions (RAPID / RACI)
+  out_of_scope:
+    - Domain-level remediation logic and root-cause analysis of underlying business KPIs
+    - Re-triggering or tuning domain action-code thresholds (owned by the domain use cases)
+    - Executive KPI performance roll-up itself (XD-003)
+    - Enterprise risk index construction and weighting (XD-003 / Risk domain)
+  industry_segment: >
+    Cross-industry executive / PMO governance. Applicable to any enterprise running a
+    decision-intelligence or action-management cadence where analytics recommendations are
+    routed to owners and must be governed for follow-through and verified outcome.
+  applicable_frameworks:
+    - name: COBIT 2019 — Governance of Enterprise IT; EDM (Evaluate, Direct, Monitor) decision oversight
+      id: COBIT-2019
+    - name: DAMA-DMBOK2 — Data Management Body of Knowledge; data & analytics governance
+      id: DAMA-DMBOK2
+    - name: G20/OECD Principles of Corporate Governance (2023) — board accountability & lines of accountability
+      id: OECD-CG-2023
+    - name: Bain RAPID — decision-rights framework (Recommend/Agree/Perform/Input/Decide)
+      id: RAPID
+    - name: PMI PMBOK Guide — RACI / Responsibility Assignment Matrix (single accountable owner)
+      id: PMBOK-RACI
+    - name: COSO ERM (2017) — Enterprise Risk Management; governance & accountability of execution risk
+      id: COSO-ERM
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: enterprise.action_outcome_rate.pct
+      name: Action Outcome Rate %
+      definition: >
+        Successful Actions / Routed Actions. The share of executive-routed action instances that
+        achieved the intended, agreed outcome within the evaluation window — closure QUALITY, not
+        administrative closure. The primary governance outcome of the action-to-outcome loop.
+      unit: "%"
+      direction: maximize
+      causal_mechanism: >
+        The terminal measure of decision accountability: it confirms whether recommendations
+        crossed the "last mile" from insight to delivered effect. Closing the action-action gap
+        (insight-rich but action-poor) is the central thesis of decision-centric governance
+        (COBIT EDM; Gartner; HBR last-mile).
+      benchmark_target: "World-class executive action closure / outcome rate ≥ 85–90%; outcome-verified (not status-only). Decision-centric programs that tie governance to outcomes materially outperform the ~14% of organisations rated highly on acting quickly on insight"
+      benchmark_source_id: SRC-009
+      catalog_ref: "enterprise.action_outcome_rate.pct (strategic; rate)"
+
+  driver_kpis:
+    - id: enterprise.avg_time_to_outcome.days
+      name: Avg Time-to-Outcome Days
+      definition: >
+        Average days_to_outcome across executed action rows (fact_action_outcome) — the latency
+        between an action being routed/executed and a confirmed outcome. The time driver of
+        follow-through.
+      unit: days
+      direction: minimize
+      drives: enterprise.action_outcome_rate.pct
+      causal_mechanism: >
+        Latency is where follow-through decays: the longer an action sits between routing and
+        confirmed outcome, the higher the probability it stalls, is overtaken by events, or is
+        closed administratively without effect. Time-to-action is the operational lever of the
+        execution premium (Kaplan & Norton).
+      benchmark_target: "Time-to-decision / time-to-outcome trending down cycle over cycle; X-E3.3 default follow-up window 90 days, outcome assessed after the domain review window"
+      benchmark_source_id: SRC-004
+
+    - id: enterprise.actions_executed.count
+      name: Actions Executed Count
+      definition: >
+        Count of routed actions with a recorded outcome (fact_action_outcome.outcome_status not
+        blank). Measures recommendation ADOPTION / execution velocity relative to routed volume.
+      unit: count
+      direction: maximize
+      drives: enterprise.action_outcome_rate.pct
+      causal_mechanism: >
+        Execution count is the adoption bridge between routing and outcome: routed-but-never-
+        executed actions are the dominant failure mode of analytics governance — programs fail when
+        they generate activity without execution (Gartner D&A governance; HBR last-mile).
+      benchmark_target: "Execution coverage of routed actions trending up; routed-without-execution backlog trending down"
+      benchmark_source_id: SRC-008
+
+    - id: enterprise.action_effectiveness_delta.amount
+      name: Action Effectiveness Delta
+      definition: >
+        Average impact_value (EUR) across achieved rows in fact_action_outcome — realised KPI delta
+        per executed action code. Distinguishes outcome-positive closure from administrative closure.
+      unit: EUR
+      direction: maximize
+      drives: enterprise.action_outcome_rate.pct
+      causal_mechanism: >
+        Effectiveness delta is the value proof of accountability: it prevents "closing for closure's
+        sake" by requiring a measured KPI improvement before an action is counted as a success
+        (outcome-based, not status-based — COBIT EDM monitoring; OECD board accountability).
+      benchmark_target: "Effectiveness delta positive on average; X-E3.3 expected outcome-rate lift 10–25pp"
+      benchmark_source_id: SRC-001
+
+  diagnostic_kpis:
+    - id: enterprise.action_routed.count
+      name: Actions Routed Count
+      definition: >
+        Count of routed action instances in the period (fact_action_governance). The denominator
+        of outcome rate and the volume signal of governance load.
+      unit: count
+      direction: neutral
+      diagnoses: enterprise.action_outcome_rate.pct
+      causal_mechanism: >
+        Routed volume is diagnostic, not an outcome: rising routed count WITHOUT a rise in outcome
+        rate is the canonical governance anti-pattern (over-routing / activity without delivery).
+        It normalises execution and outcome counts so closure quality can be read independently of
+        volume. (Deprecated KPI per catalog; retained as the X-E3.3 trigger denominator.)
+      note: "Catalog flags this KPI deprecated; it remains the X-E3.3 trigger_kpi and outcome-rate denominator."
+
+    - id: enterprise.action_roi.pct
+      name: Action ROI %
+      definition: >
+        Total impact_value of executed actions / total cost_to_execute − 1 (fact_action_outcome).
+        The financial-return diagnostic behind effectiveness delta.
+      unit: "%"
+      direction: maximize
+      diagnoses: enterprise.action_effectiveness_delta.amount
+      causal_mechanism: >
+        Action ROI exposes net-negative interventions (ROI < 0%) that an outcome flag alone would
+        miss — guarding against governance that rewards motion over value (COSO ERM execution risk).
+
+  guardrails:
+    - description: Govern lifecycle quality, not domain remediation logic
+      condition: >
+        Executive action governance evaluates follow-through and outcome of routed actions; it must
+        NEVER re-derive, second-guess, or re-tune the domain's remediation logic or KPI thresholds.
+        Domain action ownership is preserved (X-E3.3 exclusions; DEC-SPINE-XD-EXEC domain-agnostic rule).
+      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.action_effectiveness_delta.amount]
+
+    - description: Outcome evaluated only after the agreed review window; exclude informational actions
+      condition: >
+        An action must NOT be scored ineffective before its domain-defined evaluation window has
+        elapsed, and informational / observation-only actions must be excluded so governance signal
+        is not diluted by noise (X-E3.3 gating rules; false-negatives from short windows).
+      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.avg_time_to_outcome.days]
+
+    - description: Single accountable owner per routed action (decision-rights integrity)
+      condition: >
+        Every routed action must carry exactly ONE accountable owner role with a due date, status,
+        and evaluable outcome flag — no shared or null accountability. This is the RACI single-A /
+        RAPID single-D rule applied to routed actions (PMBOK RAM; Bain RAPID).
+      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.action_routed.count]
+
+    - description: Outcome counted only on verified KPI movement, not administrative closure
+      condition: >
+        A "successful" action requires evidence of the agreed KPI improvement (pre/post or
+        before-after attribution); status=Completed without a verified outcome flag must NOT be
+        counted as a successful outcome (COBIT EDM monitor; outcome-based governance).
+      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.action_effectiveness_delta.amount, enterprise.action_roi.pct]
+
+  wrong_interpretations:
+    - description: "Reading rising routed-action volume as governance success"
+      why_wrong: >
+        High routed (or completed) action count is not positive if outcome rate deteriorates. Over-
+        routing creates visible activity with no delivered effect — the decision-action gap where
+        organisations remain insight-rich but action-poor (HBR last-mile; Gartner decision-centric).
+      source_id: SRC-010
+
+    - description: "Treating administrative closure as a successful outcome (status, not effect)"
+      why_wrong: >
+        Closing an action by status without verifying the intended KPI movement optimises for
+        closure rather than impact. Governance must monitor delivered outcome, not box-ticking —
+        COBIT EDM separates directing/monitoring from the appearance of compliance.
+      source_id: SRC-001
+
+    - description: "Scoring late actions as ineffective before the agreed evaluation window"
+      why_wrong: >
+        A late action is not the same as an ineffective one. Marking it ineffective before its
+        domain review window has elapsed produces false negatives and erodes trust in the
+        governance signal (X-E3.3 risk: short outcome windows). Time and effect are distinct.
+      source_id: SRC-008
+
+    - description: "Diffuse or shared accountability for routed actions"
+      why_wrong: >
+        When ownership is shared, ambiguous, or null, follow-through decays — 'everyone's
+        responsibility is no one's'. Clear decision rights (one Decider / one Accountable) are the
+        precondition for closure; matrixed ambiguity is the root of stalled actions (RAPID; RACI).
+      source_id: SRC-005
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_action_governance
+      description: >
+        Action-instance lifecycle log (grain: action_instance). Must contain ActionInstanceId,
+        ActionCodeKey, OwnerRole, Status, Routed Actions, Successful Actions, Outcome Success Flag,
+        Due Date, Completion Date, Evaluation Date. Source of outcome rate, routed count, and the
+        accountability/closure guardrails (governance.yaml).
+    - table: fact_action_outcome
+      description: >
+        Action-outcome log (grain: action_outcome). Must contain action_code_id, domain,
+        outcome_status, days_to_outcome, impact_value, cost_to_execute. Source of execution count,
+        time-to-outcome, effectiveness delta and Action ROI (governance.yaml).
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for outcome-rate and time-to-outcome trend. Month + Quarter required."
+    - name: dim_org
+      grain_relevance: "Entity → Region for accountability concentration and ownership heatmap."
+    - name: dim_action_code
+      grain_relevance: >
+        ActionCode → DomainActionCode → ActionFamily. Mandatory to attribute outcome to the
+        routed action code and to separate governance failure from domain execution complexity.
+    - name: dim_owner_role
+      grain_relevance: >
+        Owner-role dimension for accountability coverage and the owner/domain heatmap. OwnerRole
+        is currently a degenerate text column on fact_action_governance, not a conformed
+        dimension — classified as model_gap.
+
+  preferred_grain: action_instance
+  minimum_grain: action_instance-month
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    action_instance-month aggregation is acceptable only where instance-level routing cannot be
+    reconstructed. Requires explicit waiver in the bracket; owner-level accountability and
+    lifecycle-deviation (L1/L2/L3) diagnostics are degraded below instance grain.
+
+  required_measures:
+    - name: Action Outcome Rate %
+      formula_seed: "Successful_Actions / Routed_Actions"
+      source_id: SRC-001
+    - name: Actions Routed Count
+      formula_seed: "COUNT(routed action instances in period)"
+      source_id: SRC-006
+    - name: Actions Executed Count
+      formula_seed: "COUNT(fact_action_outcome WHERE outcome_status IS NOT BLANK)"
+      source_id: SRC-008
+    - name: Avg Time-to-Outcome Days
+      formula_seed: "AVG(fact_action_outcome.days_to_outcome)"
+      source_id: SRC-004
+    - name: Action Effectiveness Delta
+      formula_seed: "AVG(fact_action_outcome.impact_value WHERE outcome = achieved)"
+      source_id: SRC-001
+    - name: Action ROI %
+      formula_seed: "SUM(impact_value) / SUM(cost_to_execute) - 1"
+      source_id: SRC-011
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: enterprise.action_routed.count
+    trigger_diagnostic: enterprise.action_outcome_rate.pct
+    trigger_condition: "Routed action count rising while outcome rate flat/declining (over-routing: activity without delivery)"
+    guardrail: "Govern lifecycle only; exclude informational actions; do not re-tune domain logic"
+    action_description: >
+      Executive action governance (meta): track routed action codes at instance level, expose the
+      routed-vs-outcome gap by domain/owner, and escalate the lifecycle deviation (L1 Monitoring /
+      L2 Delayed / L3 Ineffective) to the executive governance forum.
+    expected_outcome_kpi: enterprise.action_outcome_rate.pct
+    action_code_candidate: X-E3.3
+
+  - trigger_driver: enterprise.avg_time_to_outcome.days
+    trigger_diagnostic: enterprise.actions_executed.count
+    trigger_condition: "Time-to-outcome lengthening on a routed quality action while execution stalls (defect-containment follow-through decaying)"
+    guardrail: "Single accountable owner per instance; outcome only after the domain review window"
+    action_description: >
+      Govern follow-through on a routed Operations quality action: confirm the defect-containment
+      action has a single owner and due date, that it is executed (not just routed), and that the
+      FPY/defect outcome is verified before closure.
+    expected_outcome_kpi: enterprise.action_outcome_rate.pct
+    action_code_candidate: O-Q3.1
+
+  - trigger_driver: enterprise.action_effectiveness_delta.amount
+    trigger_diagnostic: enterprise.action_roi.pct
+    trigger_condition: "Working-capital action closed by status but effectiveness delta / ROI not realised (administrative closure)"
+    guardrail: "Count success only on verified KPI movement; ROI < 0% flags ineffective intervention"
+    action_description: >
+      Govern outcome (not status) on a routed Finance working-capital action: require the
+      before/after CCC-DIO improvement and a positive ROI before the action is counted successful;
+      escalate as L3 Ineffective if completed without realised effect.
+    expected_outcome_kpi: enterprise.action_effectiveness_delta.amount
+    action_code_candidate: F-C1.1
+
+  - trigger_driver: enterprise.action_outcome_rate.pct
+    trigger_diagnostic: enterprise.action_routed.count
+    trigger_condition: "Commercial price-realization actions concentrated on owners with chronically low closure (accountability concentration)"
+    guardrail: "One accountable owner role per routed action (RACI single-A / RAPID single-D)"
+    action_description: >
+      Govern accountability coverage on routed Commercial actions: surface owner roles where price-
+      realization actions repeatedly stall, enforce single-owner decision rights, and reassign or
+      escalate the ownership gap rather than re-routing the domain action.
+    expected_outcome_kpi: enterprise.action_outcome_rate.pct
+    action_code_candidate: C-M2.1
+
+  - trigger_driver: enterprise.actions_executed.count
+    trigger_diagnostic: enterprise.avg_time_to_outcome.days
+    trigger_condition: "Inventory orchestration actions routed but never executed (recommendation adoption gap / last mile)"
+    guardrail: "Exclude observation-only actions; evaluate adoption against routed volume"
+    action_description: >
+      Govern recommendation adoption on a routed Supply Chain orchestration action: close the
+      last-mile gap between routing and execution, confirm the action was acted on within the
+      follow-up window, and escalate the adoption gap as L2 Delayed where execution is absent.
+    expected_outcome_kpi: enterprise.actions_executed.count
+    action_code_candidate: S-I1.1
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.0
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "COBIT 2019 Framework: Governance and Management Objectives (ISACA) — EDM (Evaluate, Direct, Monitor) governance of enterprise IT and decisions"
+      author: "ISACA"
+      year: 2018
+      url: "https://www.isaca.org/resources/cobit"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [process_scope, driver_kpis, guardrails, wrong_interpretations, required_measures]
+      notes: "Governance-of-decisions anchor; EDM separates directing/monitoring from execution — basis for outcome-based (not status-based) governance."
+
+    - id: SRC-002
+      category: STD
+      title: "DAMA-DMBOK2 — Data Management Body of Knowledge, 2nd Edition (data & analytics governance; governance at the centre of the DAMA wheel)"
+      author: "DAMA International"
+      year: 2017
+      url: "https://www.dama.org/cpages/body-of-knowledge"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [process_scope, guardrails]
+      notes: "Canonical data & analytics governance reference; positions governance as the core capability underpinning analytics value."
+
+    - id: SRC-003
+      category: STD
+      title: "G20/OECD Principles of Corporate Governance (2023) — board accountability and clear lines of accountability for management"
+      author: "OECD / G20"
+      year: 2023
+      url: "https://www.oecd.org/en/publications/g20-oecd-principles-of-corporate-governance-2023_ed750b30-en.html"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, guardrails, wrong_interpretations]
+      notes: "Corporate-governance standard; mandates clear lines of accountability and board monitoring of follow-through."
+
+    - id: SRC-004
+      category: ACA
+      title: "Kaplan, R.S. & Norton, D.P. (2008). The Execution Premium: Linking Strategy to Operations for Competitive Advantage. Harvard Business Press."
+      author: "Kaplan, R.S.; Norton, D.P."
+      year: 2008
+      url: "https://store.hbr.org/product/the-execution-premium-linking-strategy-to-operations-for-competitive-advantage/2116"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [outcome_kpis, driver_kpis, required_measures]
+      notes: "Strategy-execution anchor; the execution gap (strategy formulated vs delivered) is the parent thesis. Age waiver — foundational."
+
+    - id: SRC-005
+      category: ACA
+      title: "Rogers, P. & Blenko, M. (2006). Who Has the D? How Clear Decision Roles Enhance Organizational Performance. Harvard Business Review (origin of Bain RAPID)."
+      author: "Rogers, P.; Blenko, M. (Bain & Company)"
+      year: 2006
+      url: "https://hbr.org/2006/01/who-has-the-d-how-clear-decision-roles-enhance-organizational-performance"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [guardrails, wrong_interpretations]
+      notes: "Decision-rights / accountability foundation behind the single-owner guardrail. Age waiver — seminal."
+
+    - id: SRC-006
+      category: PRO
+      title: "PMI — A Guide to the Project Management Body of Knowledge (PMBOK Guide): RACI / Responsibility Assignment Matrix (single accountable owner)"
+      author: "Project Management Institute (PMI)"
+      year: 2021
+      url: "https://www.pmi.org/standards/pmbok"
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [guardrails, required_measures]
+      notes: "RAM/RACI standard — exactly one accountable per task; basis for accountability-coverage guardrail and measure."
+
+    - id: SRC-007
+      category: PRO
+      title: "Bain & Company — RAPID® Decision-Making Framework (Recommend, Agree, Perform, Input, Decide)"
+      author: "Bain & Company"
+      year: 2023
+      url: "https://www.bain.com/insights/rapid-decision-making/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [process_scope, guardrails, wrong_interpretations]
+      notes: "Practitioner decision-rights tool; single-D accountability operationalises the routed-action ownership rule."
+
+    - id: SRC-008
+      category: BNK
+      title: "Gartner — Predicts 80% of Data & Analytics Governance Initiatives Will Fail by 2027 (decision-centric governance benchmark)"
+      author: "Gartner, Inc."
+      year: 2024
+      url: "https://www.gartner.com/en/newsroom/press-releases/2024-02-28-gartner-predicts-80-percent-of-data-and-analytics-governance-initiatives-will-fail-by-2027-due-to-a-lack-of-a-real-or-manufactured-crisis-"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, wrong_interpretations, benchmark_targets]
+      notes: "Benchmark/market signal: governance that does not enable prioritised outcomes fails; 65% use data to justify prior decisions."
+
+    - id: SRC-009
+      category: IMP
+      title: "Harvard Business Review Analytic Services / Teradata — Bridging the Last Mile in Data Analytics (insight-to-action implementation)"
+      author: "Harvard Business Review Analytic Services"
+      year: 2017
+      url: "https://hbr.org/sponsored/2017/11/bridging-the-last-mile-in-data-analytics"
+      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 12
+      supports: [outcome_kpis, action_logic_seeds, benchmark_targets]
+      notes: "Implementation guidance for the last mile: only ~14% of organisations rated highly on acting quickly on insight; 44% ineffective at deriving insight."
+
+    - id: SRC-010
+      category: RSK
+      title: "The decision-action gap — 'insight-rich, action-poor': why analytics never lead to action (HBR last-mile / decision-centric analytics)"
+      author: "Harvard Business Review (last-mile analytics literature)"
+      year: 2026
+      url: "https://hbr.org/2026/03/the-last-mile-problem-slowing-ai-transformation"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [wrong_interpretations, action_logic_seeds]
+      notes: "Anti-pattern source: analytics activity without delivered action; over-routing produces visible motion with no outcome."
+
+    - id: SRC-011
+      category: RSK
+      title: "COSO — Enterprise Risk Management: Integrating with Strategy and Performance (2017); governance & accountability of execution risk"
+      author: "Committee of Sponsoring Organizations of the Treadway Commission (COSO)"
+      year: 2017
+      url: "https://www.coso.org/guidance-erm"
+      scores: { authority: 3, recency: 2, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [diagnostic_kpis, guardrails]
+      notes: "Risk-governance lens on execution: net-negative interventions (ROI < 0%) are an execution-risk anti-pattern to surface, not reward."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: complete
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md
+        field: "Section 8 Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: action outcome/closure rate ≥ 85–90% (outcome-verified),
+          time-to-outcome trending down within the X-E3.3 90-day follow-up window, and 100%
+          accountability coverage (single owner, due date, status, outcome flag). Added to make the
+          success criteria measurable against a world-class decision-governance reference.
+        evidence_reference: SRC-008 SRC-009 SRC-004
+        remediation: "Add outcome-rate / time-to-outcome / accountability-coverage targets to the factsheet success criteria."
+        status: resolved
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/governance.yaml
+        field: dim_owner_role (conformed owner-role dimension)
+        description: >
+          OwnerRole exists only as a degenerate text column on fact_action_governance; there is no
+          conformed dim_owner_role. The accountability-coverage guardrail, owner/domain heatmap, and
+          ownership-concentration diagnostics (single-A / single-D enforcement) require a governed
+          owner-role dimension to attribute and slice closure quality by accountable owner.
+        evidence_reference: SRC-005 SRC-006
+        remediation: "Add dim_owner_role to the governance contract and conform fact_action_governance.OwnerRole to it."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/governance.yaml
+        field: fact_action_outcome PreKPIValue / PostKPIValue (verified-outcome lineage)
+        description: >
+          X-E3.3 outcome evaluation references PreKPIValue / PostKPIValue (before-after attribution),
+          but fact_action_outcome carries only outcome_status and impact_value — the pre/post KPI
+          lineage that distinguishes verified outcome from administrative closure is not defined in
+          the data contract. Without it the "verified KPI movement" guardrail cannot be enforced in-model.
+        evidence_reference: SRC-001
+        remediation: "Add PreKPIValue / PostKPIValue (or a verified-outcome flag with KPI lineage) to fact_action_outcome and bind the outcome-rate measure to it."
+        status: open

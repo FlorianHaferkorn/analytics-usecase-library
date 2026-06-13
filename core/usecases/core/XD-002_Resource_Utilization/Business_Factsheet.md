@@ -158,6 +158,12 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** Defend utilization/occupancy
+  within a 75-85% sustainable band — above ~85% quality, SLA and agent
+  sustainability degrade (burnout/attrition risk, SQM; Kingman queueing law);
+  professional-services billable optimum ~75% (SPI Research); overtime < 8%
+  (X-R2.4 L1) and structural shrinkage < 25% (X-R2.3 L1). Utilization is a band
+  to defend, not a number to maximise.
 - Impact: Utilization/occupancy within bands; overtime/shrinkage reduced; SLA
   stable/improved; backlog controlled.  
 - Adoption: Used in weekly WFM/service ops reviews; action codes triggered with
