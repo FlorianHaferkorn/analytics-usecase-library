@@ -132,6 +132,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** Forecast accuracy ~80–90% (≈10–20% WMAPE) for stable, high-volume demand; forecast bias near 0 (within a ±5% tracking-signal band); positive Forecast Value Added (FVA) versus a naive last-period benchmark. Targets are set per forecastability segment (ABC/XYZ, demand volatility) — intermittent SKUs are read against their own baseline, not a flat number (IBF / CSCMP / FVA).  
 - Impact: Accuracy improves to target; bias within bands; reduced service impact; fewer re-plans.  
 - Adoption: Used in monthly S&OP/planning reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
