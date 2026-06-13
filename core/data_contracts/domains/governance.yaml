@@ -43,6 +43,14 @@ dimension:
       - {name: DomainActionCode, type: text, nullable: true}
       - {name: ActionFamily, type: text, nullable: true}
 
+  - name: dim_owner_role
+    scd_type: 1
+    columns:
+      - {name: OwnerRoleKey, type: int, role: key}
+      - {name: Owner Role, type: text}
+      - {name: Role Level, type: text, allowed_values: [Executive, Senior, Lead, Analyst]}
+      - {name: Function, type: text, allowed_values: [Finance, Operations, Commercial, SupplyChain, Quality, Experience]}
+
 fact:
   - name: fact_dq
     grain: dataset_month
@@ -107,6 +115,11 @@ fact:
       - {name: days_to_outcome, type: int, agg: avg, nullable: true}
       - {name: impact_value, type: currency, agg: sum, nullable: true}
       - {name: cost_to_execute, type: currency, agg: sum, nullable: true}
+      - {name: Pre KPI Value, type: decimal}
+      - {name: Post KPI Value, type: decimal}
+      - {name: KPI Delta, type: decimal}
+      - {name: Outcome Status, type: text, allowed_values: [Successful, Routed, No Change, Failed]}
+      - {name: Action Effectiveness Delta Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_action_governance
     grain: action_instance
@@ -115,7 +128,8 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: ActionCodeKey, type: int, ref: dim_action_code, cardinality: many-to-one}
-      - {name: OwnerRole, type: text}
+      - {name: OwnerRoleKey, type: int, ref: dim_owner_role, cardinality: many-to-one}
+      - {name: OwnerRole, type: text}   # retained free-text for backward-compat; OwnerRoleKey is the conformed reference
       - {name: Status, type: text}
       - {name: Routed Actions, type: int, agg: sum}
       - {name: Successful Actions, type: int, agg: sum, nullable: true}
@@ -131,12 +145,14 @@ quality_rules:
     fact_audit: per-audit-cycle   # findings loaded within 5 business days of audit close
     fact_projects: monthly
     fact_security: monthly
+    fact_action_outcome: per-action-cycle   # outcome verified within 5 business days of action closure
   key_nullability:
     - "fact_dq.DateKey, DatasetKey, Valid Records, Total Records: never null"
     - "fact_compliance.DateKey, OrgKey, Incidents, Breaches: never null"
     - "fact_audit.Finding ID: unique per row; never null"
     - "fact_security.DateKey, Incidents: never null"
-    - "fact_action_governance.ActionInstanceId, DateKey, ActionCodeKey, OwnerRole, Status, Routed Actions: never null"
+    - "fact_action_governance.ActionInstanceId, DateKey, ActionCodeKey, OwnerRoleKey, OwnerRole, Status, Routed Actions: never null"
+    - "fact_action_outcome.ActionOutcomeId, DateKey, ActionCodeKey, action_code_id, Pre KPI Value, Post KPI Value, KPI Delta, Outcome Status: never null"
   value_ranges:
     - "fact_dq.Valid Records: >= 0; <= Total Records"
     - "fact_compliance.Incidents: >= 0; Breaches >= 0; Breaches <= Incidents"
@@ -146,11 +162,15 @@ quality_rules:
     - "fact_action_governance.Routed Actions: >= 0"
     - "fact_action_governance.Successful Actions: >= 0 when present; <= Routed Actions when present"
     - "fact_action_governance.Outcome Success Flag: in [0; 1] when present"
+    - "fact_action_outcome.KPI Delta: = Post KPI Value - Pre KPI Value"
+    - "fact_action_outcome.Outcome Status: Successful requires verified KPI movement (KPI Delta != 0); administrative closure without KPI movement is not Successful"
   referential_integrity:
     - "fact_dq.DatasetKey → dim_dataset (required)"
     - "fact_projects.ProjectKey → dim_project (required)"
     - "fact_projects.OrgKey → dim_org (nullable)"
     - "fact_action_governance.ActionCodeKey → dim_action_code (required)"
+    - "fact_action_governance.OwnerRoleKey → dim_owner_role (required)"
+    - "fact_action_outcome.ActionCodeKey → dim_action_code (required)"
 
 settings:
   timezone: Europe/Berlin

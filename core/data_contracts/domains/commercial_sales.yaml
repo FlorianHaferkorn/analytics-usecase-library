@@ -54,16 +54,17 @@ dimension:
       - {name: Region, type: text, nullable: true, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
 
   - name: dim_promo
-    description: "Promotion dimension (type, mechanic, date range) for promo effectiveness."
-    purpose: "Promo ROI, incremental sales, and cannibalization analysis."
+    description: "Promotion dimension (name, type, mechanic, discount depth, date range) for promo effectiveness."
+    purpose: "Promo mechanic comparison, ROI, realization, incremental sales, elasticity, and cannibalization analysis."
     scd_type: 1
     columns:
       - {name: PromoKey, type: int, role: key}
-      - {name: Promotion, type: text}
-      - {name: PromoType, type: text, nullable: true, allowed_values: [Discount, Bundle, Multi-buy, None]}
-      - {name: Mechanic, type: text, nullable: true, allowed_values: [PercentOff, MultiBuy, FixedPrice, None]}
-      - {name: StartDateKey, type: int, ref: dim_date, nullable: true}
-      - {name: EndDateKey, type: int, ref: dim_date, nullable: true}
+      - {name: Promo Name, type: text, synonyms: [Promotion, Campaign Name]}
+      - {name: Promo Type, type: text, nullable: true, description: "Promotional mechanic family for comparison.", allowed_values: [TPR, Display, Feature, "Feature+Display", BOGO, Bundle], synonyms: [Promotion Type, Mechanic Type]}
+      - {name: Mechanic, type: text, nullable: true, description: "Specific offer mechanic applied within the promo type."}
+      - {name: Discount Depth Band, type: text, nullable: true, description: "Banded discount depth for elasticity comparison.", allowed_values: ["0-10%", "10-20%", "20-30%", "30%+"], synonyms: [Depth Band, Discount Band]}
+      - {name: Start Date, type: date, nullable: true}
+      - {name: End Date, type: date, nullable: true}
 
 fact:
   - name: fact_sales
@@ -100,14 +101,20 @@ fact:
       - {name: Plan Gross Margin Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_promo
-    description: "Promotion costs and baseline (sales, quantity, non-promo baseline) per promotion."
-    purpose: "Promo ROI, incremental sales, and cannibalization calculations."
-    grain: promotion
+    description: "Promotion baseline, incremental, cannibalization, cost, and margin per promo, SKU, and period."
+    purpose: "Promo ROI, incremental sales, realization, and cannibalization calculations (COM-004)."
+    grain: promo_product_period
     columns:
       - {name: PromoKey, type: int, ref: dim_promo, cardinality: many-to-one}
-      - {name: Promo Cost, type: currency, agg: sum}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: Baseline Sales Amount, type: currency, agg: sum, nullable: true, description: "Expected non-promo sales used as the incremental reference level."}
+      - {name: Incremental Sales Amount, type: currency, agg: sum, nullable: true, description: "Promo sales above baseline (Promo Sales - Baseline Sales)."}
+      - {name: Cannibalized Sales Amount, type: currency, agg: sum, nullable: true, description: "Sales lost on non-promoted comparable items vs baseline."}
+      - {name: Promo Cost Amount, type: currency, agg: sum, nullable: true, description: "Total promotional spend for ROI.", synonyms: [Promo Cost, Trade Spend]}
+      - {name: Incremental GM Amount, type: currency, agg: sum, nullable: true, description: "Incremental gross margin from the promotion (ROI numerator).", synonyms: [Incremental Gross Margin Amount]}
       - {name: Funding Amount, type: currency, agg: sum, nullable: true}
-      - {name: Baseline Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Baseline Quantity, type: decimal, agg: sum, nullable: true}
       - {name: Baseline Non-Promo Sales Amount, type: currency, agg: sum, nullable: true}   # for cannibalization calculations
 
@@ -173,15 +180,22 @@ quality_rules:
     - "fact_customer_events.Activity Flag, Churn Flag: never null"
     - "fact_nps.NPS Score: never null; ResponseID unique per row"
     - "fact_customer_value.CLV Amount: never null"
+    - "fact_promo.PromoKey, ProductKey, DateKey: never null (grain keys)"
   value_ranges:
     - "fact_nps.NPS Score: integer in [0; 10]"
     - "fact_customer_value.CLV Amount: >= 0; CLV Remaining Amount >= 0 when present"
     - "fact_customer_events.Attrition Risk %: in [0; 1] when present"
     - "fact_sales.Discount Amount: >= 0 when present (no negative discount)"
+    - "fact_promo.Promo Cost Amount: >= 0 when present (no negative promo spend)"
+    - "fact_promo.Cannibalized Sales Amount: >= 0 when present (floored at 0)"
   referential_integrity:
     - "fact_sales.CustomerKey → dim_customer (nullable; absent = unidentified customer)"
     - "fact_sales.PromoKey → dim_promo (nullable; absent = non-promotional transaction)"
     - "fact_customer_events.CustomerKey → dim_customer (required)"
+    - "fact_promo.PromoKey → dim_promo (required)"
+    - "fact_promo.ProductKey → dim_product (required)"
+    - "fact_promo.DateKey → dim_date (required)"
+    - "fact_promo.OrgKey → dim_org (nullable; absent = promo not org-scoped)"
 
 settings:
   timezone: Europe/Berlin
