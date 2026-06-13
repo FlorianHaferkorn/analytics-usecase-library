@@ -93,7 +93,7 @@ impact_valuation:
     method: before_after
   success_window:
     duration: P60D
-    metric_kpi_id: fin.liquidity.dso.days
+    metric_kpi_id: wc.dso.days
     success_criteria:
       kind: return_to_baseline
       baseline_window: P60D

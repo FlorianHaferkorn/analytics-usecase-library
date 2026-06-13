@@ -734,7 +734,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_key: Scrap Rate %
   kpi_type: diagnostic
   kpi_role: strategic
-  impact_dimension: Efficiency
+  impact_dimension: Quality
   domain_tag:
   - Operations
   - Operational Efficiency
@@ -2270,48 +2270,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: ops.scrap.pct
-  kpi_key: Scrap Rate %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Quality
-  domain_tag:
-  - Operations
-  - Quality
-  use_case_ref:
-  - OPS-001
-  - OPS-003
-  action_code_ref:
-  - O-Q3.1
-  - O-Q3.2
-  calc_type: rate
-  business:
-    purpose: Measures unrecoverable quality loss as a share of total output.
-    definition: Scrapped Units / Total Units × 100. Corresponds to Six Big Losses Categories 5 (Process Defects) and 6 (Startup/Reduced Yield).
-    grain_scope: Line/shift aggregated to plant and period.
-    unit_format: '''% (2 decimals)'''
-    interpretation: Lower is better; elevated scrap drives COPQ and contributes directly to OEE Quality Rate loss.
-  technical:
-    measure_name: Scrap Rate %
-    description: Unrecoverable quality loss rate.
-    depends_on_measures: []
-    lineage:
-    - fact_ops.Scrapped Units
-    - fact_ops.Total Units Produced
-  governance:
-    business_owner: Head of Operations
-    data_owner: Operations BI
-    steward: Quality Controller
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Scrap Rate % bounded between 0 % and 100 %
-    - Reconciles to quality yield (1 - ops.scrap.pct ≈ ops.quality.pct within rounding)
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 01.06.2026
 
 - kpi_id: ops.speed_loss.pct
   kpi_key: Speed Loss Rate %
@@ -5438,80 +5396,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: fin.liquidity.dso.days
-  kpi_key: Liquidity DSO Days
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: liquidity
-  domain_tag:
-  - Finance
-  use_case_ref:
-  - FIN-001
-  action_code_ref:
-  - F-C1.1
-  calc_type: quantity
-  business:
-    purpose: Tracks Days Sales Outstanding for liquidity monitoring and action outcome evaluation.
-    definition: Receivables / (Net Sales / 365).
-    grain_scope: Company/segment; monthly close.
-    unit_format: days (1 decimal)
-    interpretation: Lower is better; used as outcome KPI for receivables acceleration actions.
-  technical:
-    measure_name: DSO Days
-    description: Days Sales Outstanding — used as success metric in F-C1.1 impact valuation.
-    depends_on_measures: []
-    lineage:
-    - fact_accounts_receivable.ar_amount
-    - fact_accounts_receivable.revenue_amount
-  governance:
-    business_owner: Head of Treasury
-    data_owner: Finance BI
-    steward: Working Capital Analyst
-    review_cycle: monthly
-    validation_process: automated
-    qa_rules: []
-    version: v1.0
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 28.04.2026
-
-- kpi_id: fin.liquidity.dpo.days
-  kpi_key: Liquidity DPO Days
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: liquidity
-  domain_tag:
-  - Finance
-  use_case_ref:
-  - FIN-001
-  action_code_ref:
-  - F-C1.2
-  calc_type: quantity
-  business:
-    purpose: Tracks Days Payables Outstanding for liquidity monitoring and action outcome evaluation.
-    definition: Payables / (COGS / 365).
-    grain_scope: Company/segment; monthly close.
-    unit_format: days (1 decimal)
-    interpretation: Higher is better up to negotiated terms; used as outcome KPI for payables extension actions.
-  technical:
-    measure_name: DPO Days
-    description: Days Payables Outstanding — used as success metric in F-C1.2 impact valuation.
-    depends_on_measures: []
-    lineage:
-    - fact_accounts_payable.ap_amount
-    - fact_accounts_payable.cogs_amount
-  governance:
-    business_owner: Head of Treasury
-    data_owner: Finance BI
-    steward: Working Capital Analyst
-    review_cycle: monthly
-    validation_process: automated
-    qa_rules: []
-    version: v1.0
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 28.04.2026
 
 - kpi_id: enterprise.actions_executed.count
   kpi_key: Actions Executed Count
