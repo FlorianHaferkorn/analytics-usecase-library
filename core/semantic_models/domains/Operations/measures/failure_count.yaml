@@ -1,15 +1,17 @@
 measure_name: Failure Count
-is_kpi_measure: false
-kpi_id_ref: ''
+is_kpi_measure: true
+kpi_id_ref: ops.failure.count
 semantic_model: Operations_SemanticModel
 display_folder: 04_Reliability
-category: Base
+category: KPI
 expression:
-  logical: Failure Count = SUM(fact_ops_failures[Failure Start DateTime])
+  logical: Failure Count = COUNT ( fact_ops_failures[Failure Start DateTime] )
   aggregation_method: count
 documentation:
-  description: Count of failure events.
-  notes: 'Source: fact_ops_failures[Failure Start].'
+  description: Count of recorded equipment or process failure events.
+  notes: 'Grain: failure_event. Unit: count. Source: fact_ops_failures (one row per
+    failure event), matching the ops.failure.count lineage. Feeds MTBF/MTTR reliability
+    measures. QA: de-duplicate failure events; confirm consistent failure taxonomy.'
 dependencies:
   columns:
   - fact_ops_failures[Failure Start DateTime]

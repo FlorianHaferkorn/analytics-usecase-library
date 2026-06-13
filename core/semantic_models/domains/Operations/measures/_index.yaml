@@ -32,7 +32,6 @@ order:
 - run_time
 - output_units
 - defect_count
-- failure_count__2
 - planned_output_units
 - preventive_maintenance_task_count
 - production_volume_units

@@ -174,7 +174,7 @@ canonical_domain_model:
         found 63% of surveyed plants underestimate speed losses by misclassifying them
         as "acceptable" versus the ISO ideal cycle time.
 
-    - id: ops.scrap.pct
+    - id: quality.scrap.pct
       name: Scrap Rate
       definition: >
         Scrap Rate = Scrapped Units / Total Units. Measures unrecoverable quality loss.
@@ -223,7 +223,7 @@ canonical_domain_model:
         Scrap and FPY from trial runs must NOT inflate the operational quality loss KPIs.
       affected_kpis:
         - ops.quality.pct
-        - ops.scrap.pct
+        - quality.scrap.pct
 
     - description: Force majeure events
       condition: >
@@ -802,10 +802,10 @@ mapping_readiness:
         field: orchestration.supporting_kpi_ids
         description: >
           MTBF (ops.mtbf.hours), MTTR (ops.mttr.hours), PM Compliance (ops.pm_compliance.pct),
-          and Scrap Rate (ops.scrap.pct) exist in the KPI catalog but are NOT listed in
+          and Scrap Rate (quality.scrap.pct) exist in the KPI catalog but are NOT listed in
           supporting_kpi_ids. These are required diagnostic KPIs per the domain model.
         evidence_reference: SRC-008 SRC-010 SRC-001
-        remediation: "Add ops.mtbf.hours, ops.mttr.hours, ops.pm_compliance.pct, ops.scrap.pct to supporting_kpi_ids. Core updated; close gap when DEP status is approved."
+        remediation: "Add ops.mtbf.hours, ops.mttr.hours, ops.pm_compliance.pct, quality.scrap.pct to supporting_kpi_ids. Core updated; close gap when DEP status is approved."
         status: in_progress
 
       - gap_type: content_gap

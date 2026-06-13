@@ -19,7 +19,6 @@ orchestration:
   - ops.mtbf.hours
   - ops.mttr.hours
   - ops.pm_compliance.pct
-  - ops.scrap.pct
   - quality.fpy.pct
   - crm.complaint.count
   - ops.failure.count
@@ -104,7 +103,7 @@ ux_layout_rules:
       - ops.mtbf.hours
       - ops.mttr.hours
       - ops.pm_compliance.pct
-      - ops.scrap.pct
+      - quality.scrap.pct
       - quality.fpy.pct
       action_panel: true
       payload_mode: full

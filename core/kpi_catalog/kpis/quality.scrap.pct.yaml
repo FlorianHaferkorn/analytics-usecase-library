@@ -9,7 +9,7 @@ example_question: What is driving the scrap rate up in Fashion?
 kpi_key: Scrap Rate %
 kpi_type: diagnostic
 kpi_role: strategic
-impact_dimension: Efficiency
+impact_dimension: Quality
 domain_tag:
 - Operations
 - Operational Efficiency

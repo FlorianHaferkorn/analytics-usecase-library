@@ -53,7 +53,6 @@ order:
 - ops.working_capital.ccc.days
 - ops.downtime.pct
 - ops.downtime.unplanned.pct
-- ops.scrap.pct
 - ops.speed_loss.pct
 - ops.changeover.minutes
 - inv.turnover
@@ -124,8 +123,6 @@ order:
 - res.shrinkage.pct
 - svc.tickets.created.count
 - svc.tickets.closed.count
-- fin.liquidity.dso.days
-- fin.liquidity.dpo.days
 - enterprise.actions_executed.count
 - enterprise.avg_time_to_outcome.days
 - enterprise.action_roi.pct

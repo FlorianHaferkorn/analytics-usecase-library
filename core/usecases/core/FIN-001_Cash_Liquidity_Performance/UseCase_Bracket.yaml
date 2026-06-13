@@ -15,8 +15,6 @@ orchestration:
   - wc.dio.days
   - wc.dpo.days
   supporting_kpi_ids:
-  - fin.liquidity.dso.days
-  - fin.liquidity.dpo.days
   - scm.service_level.pct
   - scm.supplier_risk.score
   - fin.liquidity.inventory.amount
