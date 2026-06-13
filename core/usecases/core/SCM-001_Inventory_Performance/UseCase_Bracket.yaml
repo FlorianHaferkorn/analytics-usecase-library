@@ -51,11 +51,17 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: inv.turnover
       visual_type: trend_line
-    - kpi_ids:
+    - slot_id: Main_2
+      kpi_ids:
       - inv.stockout.pct
       - supply.otif.pct
       - inv.obsolete.pct
       visual_type: bar_chart
+    - slot_id: Main_3
+      # Forecast Accuracy trend vs target — upstream driver of DIO and the excess/stockout trade-off (content_gap fix)
+      kpi_id: plan.forecast.accuracy.pct
+      visual_type: trend_line
+      comparison: vs_target
   page_2_execution:
     title: Supply Chain Execution
     page_type: T3_Operational_Monitoring
