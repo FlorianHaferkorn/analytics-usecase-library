@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Domain Evidence Pack",
+  "description": "Schema for core/usecases/core/<UC>/Domain_Evidence_Pack.yaml. Structural validation only; arithmetic invariants (total_score = sum(scores), portfolio_score = mean, categories_covered, no dangling source refs) are enforced by tooling/tests/test_evidence_pack_files.py.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "evidence_pack_version",
+    "use_case_id",
+    "use_case_title",
+    "domain",
+    "status",
+    "process_scope",
+    "canonical_domain_model",
+    "required_data_model",
+    "action_logic_seeds",
+    "source_inventory",
+    "mapping_readiness"
+  ],
+  "properties": {
+    "evidence_pack_version": { "type": "string", "minLength": 1 },
+    "use_case_id": { "type": "string", "pattern": "^[A-Z]{2,4}-[0-9]{3}$" },
+    "use_case_title": { "type": "string", "minLength": 1 },
+    "domain": { "type": "string", "minLength": 1 },
+    "authored_date": { "type": "string" },
+    "authored_by": { "type": "string" },
+    "reviewed_by": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "in_review", "approved"] },
+
+    "process_scope": { "type": "object", "additionalProperties": true },
+    "canonical_domain_model": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["outcome_kpis", "driver_kpis"],
+      "properties": {
+        "outcome_kpis": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/kpi_node" } },
+        "driver_kpis": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/kpi_node" } },
+        "diagnostic_kpis": { "type": "array", "items": { "$ref": "#/$defs/kpi_node" } },
+        "guardrails": { "type": "array" },
+        "wrong_interpretations": { "type": "array" }
+      }
+    },
+    "required_data_model": { "type": "object", "additionalProperties": true },
+    "action_logic_seeds": { "type": "array", "minItems": 1 },
+
+    "source_inventory": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["summary", "sources"],
+      "properties": {
+        "summary": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["total_sources", "portfolio_score", "categories_covered", "min_threshold_met"],
+          "properties": {
+            "total_sources": { "type": "integer", "minimum": 1 },
+            "portfolio_score": { "type": "number" },
+            "categories_covered": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/source_category" }
+            },
+            "min_threshold_met": { "type": "boolean" }
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/source" }
+        }
+      }
+    },
+
+    "mapping_readiness": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["gap_summary"],
+      "properties": {
+        "gap_summary": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "content_gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } },
+            "mapping_gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } },
+            "schema_gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } },
+            "generator_gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } },
+            "model_gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } }
+          }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "source_category": { "type": "string", "enum": ["STD", "ACA", "PRO", "BNK", "IMP", "RSK"] },
+    "score_value": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "kpi_node": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "direction": { "type": "string" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "category", "title", "year", "url", "scores", "total_score"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^SRC-[0-9]{3}$" },
+        "category": { "$ref": "#/$defs/source_category" },
+        "title": { "type": "string", "minLength": 1 },
+        "author": { "type": "string" },
+        "year": { "type": "integer" },
+        "url": { "type": "string", "format": "uri" },
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["authority", "recency", "domain_relevance", "independence", "content_role"],
+          "properties": {
+            "authority": { "$ref": "#/$defs/score_value" },
+            "recency": { "$ref": "#/$defs/score_value" },
+            "domain_relevance": { "$ref": "#/$defs/score_value" },
+            "independence": { "$ref": "#/$defs/score_value" },
+            "content_role": { "$ref": "#/$defs/score_value" }
+          }
+        },
+        "total_score": { "type": "integer", "minimum": 5, "maximum": 15 },
+        "supports": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["gap_type", "severity", "status"],
+      "properties": {
+        "gap_type": {
+          "type": "string",
+          "enum": ["content_gap", "mapping_gap", "schema_gap", "generator_gap", "model_gap"]
+        },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "status": { "type": "string", "enum": ["open", "in_progress", "resolved"] }
+      }
+    }
+  }
+}
