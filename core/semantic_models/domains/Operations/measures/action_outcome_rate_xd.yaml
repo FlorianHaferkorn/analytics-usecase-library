@@ -1,0 +1,6 @@
+$ref: action_outcome_rate_xd
+semantic_model: Operations_SemanticModel
+documentation:
+  description: Percentage of executed actions with a confirmed achieved outcome — Operations cross-domain proxy.
+governance:
+  owner: Operations BI

@@ -1,0 +1,26 @@
+measure_name: Plan Sales Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 01_Revenue
+category: Base
+expression:
+  logical: Plan Sales Amount = SUM(fact_sales[Plan Sales Amount])
+  aggregation_method: sum
+documentation:
+  description: Plan net sales amount for variance calculations.
+  notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
+
+    Lineage: fact_sales[Plan Sales Amount].
+
+    QA: Ensure plan data is complete for variance logic.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[Plan Sales Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

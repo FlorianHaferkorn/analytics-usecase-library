@@ -1,0 +1,27 @@
+measure_name: Planned Output Units
+is_kpi_measure: true
+kpi_id_ref: ops.planned_output.units
+semantic_model: Operations_SemanticModel
+display_folder: 01_Ops
+category: KPI
+expression:
+  logical: Planned Output Units = Sum of planned output units for the period.
+  aggregation_method: sum
+documentation:
+  description: Scheduled target output for the period at standard run rate.
+  notes: 'Grain: line_day. Unit: units.
+
+    Lineage: fact_ops[Planned Output Units].
+
+    QA: Align planning calendar with actuals.
+
+    '
+dependencies:
+  columns:
+  - fact_ops[Planned Output Units]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v0.1
+  last_review: 2026-03-27
+  review_due: 2027-03-31

@@ -1,0 +1,29 @@
+measure_name: Escalation %
+is_kpi_measure: true
+kpi_id_ref: svc.escalation.pct
+semantic_model: Service_SemanticModel
+display_folder: 01_Service
+category: KPI
+expression:
+  logical: Escalation % = Escalated cases divided by total cases.
+  aggregation_method: ratio
+documentation:
+  description: Escalated cases / total cases.
+  notes: 'Grain: day_queue. Unit: %.
+
+    Lineage: fact_cases[Escalation Flag].
+
+    QA: Escalation definition consistent; total cases > 0.
+
+    '
+dependencies:
+  columns:
+  - fact_cases[Escalation Flag]
+  measures:
+  - Escalated Cases
+  - Cases Resolved
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

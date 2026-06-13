@@ -1,0 +1,20 @@
+measure_name: COGS Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: CustomerValue_SemanticModel
+display_folder: 02_Margin
+category: Supporting
+expression:
+  logical: COGS Amount = SUM(fact_sales[Cost of Goods Sold Amount])
+  aggregation_method: sum
+documentation:
+  description: Cost of goods sold aggregated for the current filter context.
+  notes: ''
+dependencies:
+  columns:
+  - fact_sales[Cost of Goods Sold Amount]
+governance:
+  owner: CRM BI
+  status: active
+  version: v1.2
+  last_review: 12.12.2025

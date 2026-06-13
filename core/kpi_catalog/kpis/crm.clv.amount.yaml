@@ -1,0 +1,44 @@
+kpi_id: crm.clv.amount
+kpi_key: CLV (Customer Lifetime Value)
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Customer
+domain_tag:
+- Customer & Market
+use_case_ref:
+- COM-003
+- XD-003
+action_code_ref:
+- C-C3.1
+calc_type: amount
+business:
+  purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+  definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
+  grain_scope: Customer level; calculated on cohort or segment basis.
+  unit_format: EUR (2 decimals)
+  interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
+technical:
+  measure_name: CLV
+  description: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+  depends_on_measures:
+  - crm.lifetime_revenue.amount
+  - crm.retention.pct
+  - crm.churned_customers.count
+  - crm.active_customers.count
+  - crm.nps.index
+  - crm.complaint.count
+  - cost.cogs.amount
+  lineage:
+  - fact_sales.CustomerKey
+governance:
+  business_owner: Head of CRM / Marketing Analytics
+  data_owner: CRM BI
+  steward: Customer Insights Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Reconciles to CLV model outputs within an agreed tolerance
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

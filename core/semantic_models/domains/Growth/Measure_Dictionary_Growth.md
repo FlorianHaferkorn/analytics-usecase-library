@@ -1,11 +1,13 @@
 # Measure Dictionary - Growth
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: Net Sales Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.amount
   semantic_model: Growth_SemanticModel
   display_folder: 01_Growth
   category: KPI
@@ -29,6 +31,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Net Sales Delta % vs LY
   is_kpi_measure: true
   kpi_id_ref: sales.net_sales.delta_pct.ly
@@ -56,6 +59,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Price Realization %
   is_kpi_measure: true
   kpi_id_ref: sales.price.realization_pct
@@ -83,6 +87,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Forecast Net Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -109,6 +114,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Sales Units
   is_kpi_measure: true
   kpi_id_ref: sales.units

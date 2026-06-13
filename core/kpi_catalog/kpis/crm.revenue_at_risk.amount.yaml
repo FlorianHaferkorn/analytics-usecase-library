@@ -1,0 +1,40 @@
+kpi_id: crm.revenue_at_risk.amount
+kpi_key: Revenue at Risk Amount
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Customer
+domain_tag:
+- Customer & Market
+- Operations
+use_case_ref:
+- COM-003
+- XD-003
+action_code_ref:
+- C-C3.1
+calc_type: amount
+business:
+  purpose: Quantify revenue exposure from delivery and quality execution failures.
+  definition: Net Sales Amount × average of (1 - OTIF %) and (1 - First Pass Yield %).
+  grain_scope: Customer/segment; monthly.
+  unit_format: EUR (0 decimals)
+  interpretation: Higher values indicate more revenue at risk from ops failures; prioritize OTIF and quality actions.
+technical:
+  measure_name: Revenue at Risk Amount
+  description: Net Sales Amount weighted by combined OTIF failure rate and First Pass Yield failure rate.
+  depends_on_measures:
+  - ops.otif.pct
+  - quality.fpy.pct
+  lineage:
+  - fact_sales.Net Sales Amount
+governance:
+  business_owner: Head of Operations
+  data_owner: Ops BI
+  steward: Operations Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - At-risk revenue reconciles to Net Sales weighted by OTIF/FPY failure rates within +/- 1 %
+  version: v1.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 20.04.2026

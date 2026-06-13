@@ -1,0 +1,34 @@
+kpi_id: enterprise.action_outcome_rate.pct
+kpi_key: Action Outcome Rate %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Governance
+domain_tag:
+- Enterprise & Governance
+- Governance
+use_case_ref:
+- XD-004
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures share of actions that achieved the intended outcome.
+  definition: Successful Actions / Routed Actions.
+  grain_scope: Action instance; aggregated by period and domain.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher values indicate better execution effectiveness.
+technical:
+  measure_name: Action Outcome Rate %
+  description: Measures share of actions that achieved the intended outcome.
+  depends_on_measures: []
+  lineage: []
+governance:
+  business_owner: Executive Office
+  data_owner: PMO Analytics
+  steward: PMO Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

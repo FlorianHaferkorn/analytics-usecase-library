@@ -1,0 +1,29 @@
+measure_name: Net Sales % vs LY
+is_kpi_measure: true
+kpi_id_ref: sales.net_sales.delta_pct.ly
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 01_Revenue
+category: KPI
+expression:
+  logical: Net Sales % vs LY = ([Net Sales Amount] - [Last Year Sales Amount]) / [Last Year Sales Amount]
+  aggregation_method: ratio
+documentation:
+  description: Variance of net sales versus last year as a percentage.
+  notes: 'Grain: month. Unit: %.
+
+    Lineage: [Net Sales Amount], fact_sales[Last Year Sales Amount].
+
+    QA: Requires aligned last-year calendar mapping; DIVIDE protects divide-by-zero.
+
+    '
+dependencies:
+  measures:
+  - '[Net Sales Amount]'
+  - '[Last Year Sales Amount]'
+  columns:
+  - fact_sales[Last Year Sales Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

@@ -1,0 +1,21 @@
+measure_name: Scrap Units
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Operations_SemanticModel
+display_folder: 06_Quality
+category: Base
+expression:
+  logical: Scrap Units = SUM(fact_quality[Scrap Units])
+  aggregation_method: sum
+documentation:
+  description: Scrapped units in the selected context.
+  notes: 'Source: fact_quality[Scrap Units].'
+dependencies:
+  columns:
+  - fact_quality[Scrap Units]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

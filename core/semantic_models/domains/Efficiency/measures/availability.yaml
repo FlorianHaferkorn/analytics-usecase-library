@@ -1,0 +1,16 @@
+measure_name: Availability %
+is_kpi_measure: true
+kpi_id_ref: ops.availability.pct
+semantic_model: Efficiency_SemanticModel
+category: KPI
+expression:
+  logical: Availability % = (RunTime) / (PlannedTime)
+  aggregation_method: ratio
+documentation:
+  description: Available time / Planned time
+  notes: ''
+governance:
+  owner: Supply Chain BI
+  status: active
+  version: v1.0
+  last_review: 04.11.2025

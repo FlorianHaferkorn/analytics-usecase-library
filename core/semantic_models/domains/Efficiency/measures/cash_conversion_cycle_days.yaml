@@ -1,0 +1,17 @@
+measure_name: Cash Conversion Cycle (Days)
+is_kpi_measure: true
+kpi_id_ref: ops.working_capital.ccc.days
+semantic_model: Efficiency_SemanticModel
+category: KPI
+expression:
+  logical: Cash Conversion Cycle (Days) = DSO + DIO - DPO.
+  aggregation_method: ratio
+documentation:
+  description: Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.
+  notes: Cross-domain view; the canonical Working Capital definition is maintained in Measure_Dictionary_Liquidity.
+governance:
+  owner: Finance BI
+  status: active
+  version: v1.1
+  last_review: 11.11.2025
+display_folder: 02_WorkingCapital

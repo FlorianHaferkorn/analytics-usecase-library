@@ -1,0 +1,29 @@
+measure_name: AHT Minutes
+is_kpi_measure: true
+kpi_id_ref: svc.aht.minutes
+semantic_model: Service_SemanticModel
+display_folder: 02_Efficiency
+category: KPI
+expression:
+  logical: AHT Minutes = Total handle time divided by number of cases/contacts.
+  aggregation_method: sum
+documentation:
+  description: Average handle time per case/contact.
+  notes: 'Grain: day_queue. Unit: minutes.
+
+    Lineage: fact_cases[Handle Time Minutes].
+
+    QA: Include talk + wrap; ensure time unit consistency.
+
+    '
+dependencies:
+  columns:
+  - fact_cases[Handle Time Minutes]
+  measures:
+  - Total Handle Time Minutes
+  - Cases Resolved
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

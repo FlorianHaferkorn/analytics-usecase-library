@@ -1,0 +1,19 @@
+measure_name: Digital Adoption Rate %
+is_kpi_measure: true
+kpi_id_ref: people.digital_adoption.pct
+semantic_model: InnovationPeople_SemanticModel
+display_folder: 02_Digital
+category: KPI
+expression:
+  logical: Digital Adoption Rate % = Alias for Digital Adoption % (TMDL display name).
+  aggregation_method: ratio
+documentation:
+  description: Alias for Digital Adoption % (TMDL display name).
+  notes: Same as Digital Adoption %.
+dependencies:
+  columns: []
+governance:
+  owner: Innovation Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

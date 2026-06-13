@@ -1,5 +1,7 @@
 # Measure Dictionary - SupplyChain
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ## Aggregation Method Conventions
@@ -51,15 +53,26 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Inventory Turnover
   is_kpi_measure: true
   kpi_id_ref: inv.turnover
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: Inventory Turnover = COGS / Average Inventory.
+    logical: Inventory Turnover = COGS / Average Inventory
     aggregation_method: sum
+  dependencies:
+    columns:
+    - fact_cogs[COGS Amount]
+    - fact_inventory[Average Inventory Amount]
+  governance:
+    status: active
+    owner: Supply Chain Analytics
+    version: v1.2
+    last_review: 2026-03-27
+    review_due: 2027-03-31
+  semantic_model: SupplyChain_SemanticModel
+  display_folder: 01_Inventory
   documentation:
     description: 'Velocity of inventory: COGS / Avg Inventory.'
     notes: 'Grain: location_sku_month. Unit: x.
@@ -69,16 +82,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
       QA: Avg Inventory > 0; COGS completeness.
 
       '
-  dependencies:
-    columns:
-    - fact_inventory[Average Inventory Amount]
-    - fact_cogs[COGS Amount]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v1.2
-    last_review: 2026-03-27
-    review_due: 2027-03-31
+
 - measure_name: Stockout Rate %
   is_kpi_measure: true
   kpi_id_ref: inv.stockout.pct
@@ -106,6 +110,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: OTIF %
   is_kpi_measure: true
   kpi_id_ref: supply.otif.pct
@@ -133,6 +138,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Obsolete Inventory %
   is_kpi_measure: true
   kpi_id_ref: inv.obsolete.pct
@@ -161,6 +167,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Forecast Accuracy %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.accuracy.pct
@@ -169,8 +176,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: Forecast Accuracy = 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual
-      Units])
+    logical: Forecast Accuracy = 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual Units])
   documentation:
     description: 'Planning quality: 1 - |Forecast - Actual| / Actual.'
     notes: 'Grain: sku_month. Unit: %.
@@ -190,6 +196,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: MAPE %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.mape.pct
@@ -222,6 +229,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Forecast Bias %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.bias.pct
@@ -243,6 +251,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Forecast MAPE %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.mape.pct
@@ -264,6 +273,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Bias %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.bias.pct
@@ -292,6 +302,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Service Impact %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.service_impact.pct
@@ -299,8 +310,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: Service Impact % = Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast
-      is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
+    logical: Service Impact % = Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
     aggregation_method: ratio
   documentation:
     description: Portion of service misses attributable to forecast error.
@@ -328,6 +338,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Re-Plan Count
   is_kpi_measure: true
   kpi_id_ref: plan.replan.count
@@ -355,6 +366,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: On-Time %
   is_kpi_measure: true
   kpi_id_ref: supply.on_time.pct
@@ -382,6 +394,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: In-Full %
   is_kpi_measure: true
   kpi_id_ref: supply.in_full.pct
@@ -409,6 +422,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Stockout Impact %
   is_kpi_measure: true
   kpi_id_ref: supply.stockout_impact.pct
@@ -437,6 +451,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Penalty Amount
   is_kpi_measure: true
   kpi_id_ref: supply.penalty.amount
@@ -464,6 +479,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Expedite Cost Amount
   is_kpi_measure: true
   kpi_id_ref: supply.expedite.amount
@@ -491,6 +507,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Avg Inventory Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -512,6 +529,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: COGS Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -533,6 +551,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: On-Time In-Full Orders
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -555,6 +574,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: OTIF Orders
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -577,6 +597,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Total Orders
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -598,6 +619,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: On-Time Deliveries
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -620,6 +642,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: In-Full Deliveries
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -642,6 +665,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Demand Occurrences
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -663,6 +687,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Stockout Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -685,6 +710,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Lost Demand Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -706,6 +732,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Demand Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -727,6 +754,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Forecast Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -748,6 +776,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Actual Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -769,6 +798,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Absolute Error
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -791,6 +821,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Forecast Error Qty
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -813,6 +844,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Under-Forecast Lost Demand Qty
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -837,6 +869,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Under-Forecast Lost Demand Share %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -859,6 +892,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v1.2
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Inventory Value Amount
   is_kpi_measure: true
   kpi_id_ref: ops.inventory.value.amount
@@ -886,6 +920,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Supply Chain Service Level %
   is_kpi_measure: true
   kpi_id_ref: scm.service_level.pct
@@ -913,6 +948,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Order Lines Count
   is_kpi_measure: true
   kpi_id_ref: order.lines
@@ -940,6 +976,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Plans Count
   is_kpi_measure: true
   kpi_id_ref: plans.count
@@ -967,6 +1004,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
+
 - measure_name: Shipments Count
   is_kpi_measure: true
   kpi_id_ref: shipments.count
@@ -994,127 +1032,133 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
-- measure_name: "OTIF % (XD)"
+
+- measure_name: OTIF % (XD)
   is_kpi_measure: true
-  kpi_id_ref: "supply.otif.pct"
-  semantic_model: "SupplyChain_SemanticModel"
-  display_folder: "01_Service_Level"
-  category: "KPI"
+  kpi_id_ref: supply.otif.pct
+  semantic_model: SupplyChain_SemanticModel
+  display_folder: 01_Service_Level
+  category: KPI
   expression:
-    logical: "OTIF % (XD) = VAR OTIFFulfillments = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() ) VAR TotalFulfillments = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( OTIFFulfillments, TotalFulfillments )"
+    logical: OTIF % (XD) = VAR OTIFFulfillments = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() ) VAR TotalFulfillments = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( OTIFFulfillments, TotalFulfillments )
     aggregation_method: custom
   documentation:
-    description: "Measures share of orders delivered on time and in full — Supply Chain cross-domain view."
-    notes: "Grain: order_day. Unit: %. Lineage: fact_fulfillment[OTIF Flag]."
+    description: Measures share of orders delivered on time and in full — Supply Chain cross-domain view.
+    notes: 'Grain: order_day. Unit: %. Lineage: fact_fulfillment[OTIF Flag].'
   dependencies:
     columns:
-      - "fact_fulfillment[OTIF Flag]"
+    - fact_fulfillment[OTIF Flag]
   governance:
-    owner: "Supply Chain BI"
+    owner: Supply Chain BI
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Actions Executed Count (XD)"
-  is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "SupplyChain_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+    version: v1.0
+    last_review: 28.04.2026
+
+- measure_name: Actions Executed Count (XD)
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.actions_executed.count
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )"
+    logical: Actions Executed Count (XD) = COUNTROWS ( FILTER ( fact_action_outcome, NOT ISBLANK ( fact_action_outcome[outcome_status] ) ) )
     aggregation_method: count
   documentation:
-    description: "Number of action codes with a recorded outcome — Supply Chain cross-domain proxy."
-    notes: "Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status]."
+    notes: 'Grain: month. Unit: count. Lineage: fact_action_outcome[outcome_status].'
+    description: Number of action codes with a recorded outcome — Supply Chain cross-domain proxy.
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Supply Chain BI"
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Outcome Rate % (XD)"
-  is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "SupplyChain_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+    version: v1.0
+    last_review: 28.04.2026
+    owner: Supply Chain BI
+  semantic_model: SupplyChain_SemanticModel
+
+- measure_name: Action Outcome Rate % (XD)
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_outcome_rate.pct
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = \"achieved\" ), COUNTROWS ( fact_action_outcome ) )"
+    logical: Action Outcome Rate % (XD) = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_outcome ), fact_action_outcome[outcome_status] = "achieved" ), COUNTROWS ( fact_action_outcome ) )
     aggregation_method: custom
   documentation:
-    description: "Percentage of executed actions with confirmed achieved outcome — Supply Chain cross-domain proxy."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status]."
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[outcome_status].'
+    description: Percentage of executed actions with confirmed achieved outcome — Supply Chain cross-domain proxy.
   dependencies:
     columns:
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Supply Chain BI"
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Avg Time-to-Outcome Days (XD)"
-  is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "SupplyChain_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+    version: v1.0
+    last_review: 28.04.2026
+    owner: Supply Chain BI
+  semantic_model: SupplyChain_SemanticModel
+
+- measure_name: Avg Time-to-Outcome Days (XD)
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.avg_time_to_outcome.days
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )"
+    logical: Avg Time-to-Outcome Days (XD) = AVERAGEX ( fact_action_outcome, fact_action_outcome[days_to_outcome] )
     aggregation_method: average
   documentation:
-    description: "Average days between action execution and outcome confirmation — Supply Chain cross-domain proxy."
-    notes: "Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome]."
+    notes: 'Grain: month. Unit: days. Lineage: fact_action_outcome[days_to_outcome].'
+    description: Average days between action execution and outcome confirmation — Supply Chain cross-domain proxy.
   dependencies:
     columns:
-      - "fact_action_outcome[days_to_outcome]"
+    - fact_action_outcome[days_to_outcome]
   governance:
-    owner: "Supply Chain BI"
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action ROI % (XD)"
-  is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "SupplyChain_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+    version: v1.0
+    last_review: 28.04.2026
+    owner: Supply Chain BI
+  semantic_model: SupplyChain_SemanticModel
+
+- measure_name: Action ROI % (XD)
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_roi.pct
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1"
+    logical: Action ROI % (XD) = DIVIDE ( SUMX ( fact_action_outcome, fact_action_outcome[impact_value] ), SUMX ( fact_action_outcome, fact_action_outcome[cost_to_execute] ) ) - 1
     aggregation_method: custom
   documentation:
-    description: "Average ROI of executed actions — Supply Chain cross-domain proxy."
-    notes: "Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute]."
+    notes: 'Grain: month. Unit: %. Lineage: fact_action_outcome[impact_value], fact_action_outcome[cost_to_execute].'
+    description: Average ROI of executed actions — Supply Chain cross-domain proxy.
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[cost_to_execute]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[cost_to_execute]
   governance:
-    owner: "Supply Chain BI"
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
-- measure_name: "Action Effectiveness Delta (XD)"
-  is_kpi_measure: false
-  kpi_id_ref: ""
-  semantic_model: "SupplyChain_SemanticModel"
-  display_folder: "08_Action_Outcomes"
-  category: "KPI"
+    version: v1.0
+    last_review: 28.04.2026
+    owner: Supply Chain BI
+  semantic_model: SupplyChain_SemanticModel
+
+- measure_name: Action Effectiveness Delta (XD)
+  is_kpi_measure: true
+  kpi_id_ref: enterprise.action_effectiveness_delta.amount
+  display_folder: 08_Action_Outcomes
+  category: KPI
   expression:
-    logical: "Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = \"achieved\" ), fact_action_outcome[impact_value] )"
+    logical: Action Effectiveness Delta (XD) = AVERAGEX ( FILTER ( fact_action_outcome, fact_action_outcome[outcome_status] = "achieved" ), fact_action_outcome[impact_value] )
     aggregation_method: average
   documentation:
-    description: "Average EUR impact per achieved action execution — Supply Chain cross-domain proxy."
-    notes: "Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status]."
+    notes: 'Grain: month. Unit: EUR. Lineage: fact_action_outcome[impact_value], fact_action_outcome[outcome_status].'
+    description: Average EUR impact per achieved action execution — Supply Chain cross-domain proxy.
   dependencies:
     columns:
-      - "fact_action_outcome[impact_value]"
-      - "fact_action_outcome[outcome_status]"
+    - fact_action_outcome[impact_value]
+    - fact_action_outcome[outcome_status]
   governance:
-    owner: "Supply Chain BI"
     status: active
-    version: "v1.0"
-    last_review: "28.04.2026"
+    version: v1.0
+    last_review: 28.04.2026
+    owner: Supply Chain BI
+  semantic_model: SupplyChain_SemanticModel
 ```
 

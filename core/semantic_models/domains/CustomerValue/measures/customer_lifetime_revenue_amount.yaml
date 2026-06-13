@@ -1,0 +1,22 @@
+measure_name: Customer Lifetime Revenue Amount
+is_kpi_measure: true
+kpi_id_ref: crm.lifetime_revenue.amount
+semantic_model: CustomerValue_SemanticModel
+display_folder: 01_Revenue
+category: KPI
+expression:
+  logical: Customer Lifetime Revenue Amount = Sum of net sales amount from first purchase to date for the customer.
+  aggregation_method: sum
+documentation:
+  description: Total realised revenue per customer across lifecycle; resets date context to accumulate.
+  notes: Uses Net Sales Amount as base; lifecycle completeness handled upstream.
+dependencies:
+  measures:
+  - Net Sales Amount
+  columns:
+  - dim_customer[CustomerKey]
+governance:
+  owner: CRM BI
+  status: active
+  version: v1.2
+  last_review: 12.12.2025

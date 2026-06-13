@@ -1,0 +1,40 @@
+kpi_id: quality.rework.pct
+kpi_key: Rework Rate %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-003
+action_code_ref:
+- O-Q3.1
+- O-Q3.3
+calc_type: rate
+business:
+  purpose: Measures share of units requiring rework.
+  definition: Reworked Units / Total Units.
+  grain_scope: Line/day; aggregated monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Lower is better; high rework impacts throughput and cost.
+technical:
+  measure_name: Rework Rate %
+  description: Measures share of units requiring rework.
+  depends_on_measures: []
+  lineage:
+  - fact_quality.Rework Units
+  - fact_quality.Total Units
+governance:
+  business_owner: Head of Quality
+  data_owner: Operations BI
+  steward: Quality Manager
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Total Units > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

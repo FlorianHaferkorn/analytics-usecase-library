@@ -1,0 +1,21 @@
+measure_name: Shipped Units
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Operations_SemanticModel
+display_folder: 06_Quality
+category: Base
+expression:
+  logical: Shipped Units = SUM(fact_shipments[Shipped Units])
+  aggregation_method: sum
+documentation:
+  description: Units shipped used as denominator for complaint rate.
+  notes: 'Source: fact_shipments[Shipped Units].'
+dependencies:
+  columns:
+  - fact_shipments[Shipped Units]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

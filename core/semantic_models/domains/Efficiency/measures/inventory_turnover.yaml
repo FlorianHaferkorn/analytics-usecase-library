@@ -1,0 +1,9 @@
+$ref: inventory_turnover
+semantic_model: Efficiency_SemanticModel
+documentation:
+  description: COGS / Average Inventory
+  notes: ''
+governance:
+  owner: Supply Chain BI
+  version: v1.0
+  last_review: 04.11.2025

@@ -1,0 +1,38 @@
+kpi_id: ops.spare_parts.stockout.pct
+kpi_key: Spare Parts Stockout %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-002
+action_code_ref:
+- O-A2.5
+calc_type: rate
+business:
+  purpose: Measures stockout frequency for critical spare parts.
+  definition: Stockout Events / Total Parts Requests.
+  grain_scope: Site/part; monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Lower is better; stockouts drive downtime and MTTR.
+technical:
+  measure_name: Spare Parts Stockout %
+  description: Measures stockout frequency for critical spare parts.
+  depends_on_measures: []
+  lineage:
+  - fact_maintenance.Parts Stockout Flag
+governance:
+  business_owner: Head of Maintenance
+  data_owner: Operations BI
+  steward: Spare Parts Planner
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Requests count > 0
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

@@ -1,0 +1,35 @@
+kpi_id: people.attrition_risk.pct
+kpi_key: Attrition Risk %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: governance
+domain_tag:
+- People & Culture
+use_case_ref:
+- XD-003
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Monitor risk of employee attrition across key roles and segments.
+  definition: Probability of attrition for the selected population in the period.
+  grain_scope: Org/role/segment; monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher values signal retention risk and require targeted actions.
+technical:
+  measure_name: Attrition Risk %
+  description: Probability of employee attrition
+  depends_on_measures: []
+  lineage: []
+governance:
+  business_owner: Head of HR
+  data_owner: People Analytics
+  steward: HR Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Attrition risk bounded between 0 % and 100 %
+  - Headcount > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 27.01.2026

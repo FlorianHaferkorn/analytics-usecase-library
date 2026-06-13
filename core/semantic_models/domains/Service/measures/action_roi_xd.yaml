@@ -1,0 +1,6 @@
+$ref: action_roi_xd
+semantic_model: Service_SemanticModel
+documentation:
+  description: Average ROI of executed actions — Service cross-domain proxy.
+governance:
+  owner: Service BI

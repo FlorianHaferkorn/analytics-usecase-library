@@ -1,0 +1,26 @@
+measure_name: Plan COGS Amount
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 02_Margin
+category: Base
+expression:
+  logical: Plan COGS Amount = SUM(fact_sales[Plan COGS Amount])
+  aggregation_method: sum
+documentation:
+  description: Planned cost of goods sold for variance logic.
+  notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
+
+    Lineage: fact_sales[Plan COGS Amount].
+
+    QA: Plan COGS available for the same plan horizon as sales.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[Plan COGS Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

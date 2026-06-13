@@ -1,0 +1,26 @@
+measure_name: Net Sales Amount
+is_kpi_measure: true
+kpi_id_ref: sales.net_sales.amount
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 01_Revenue
+category: KPI
+expression:
+  logical: Net Sales Amount = SUM ( fact_sales[Net Sales Amount] )
+  aggregation_method: sum
+documentation:
+  description: Sum of net sales after discounts and rebates.
+  notes: 'Grain: invoice_line, reported monthly. Unit: EUR.
+
+    Lineage: fact_sales[Net Sales Amount].
+
+    QA: Excludes VAT/returns; currency conversion handled upstream.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[Net Sales Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

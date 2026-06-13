@@ -1,0 +1,28 @@
+measure_name: DIO Days
+is_kpi_measure: true
+kpi_id_ref: wc.dio.days
+semantic_model: Finance_SemanticModel
+display_folder: 02_WorkingCapital
+category: KPI
+expression:
+  aggregation_method: ratio
+  logical: DIO = SUM(fact_inventory[Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
+documentation:
+  description: 'Inventory efficiency: Inventory / (COGS/365).'
+  notes: 'Grain: month. Unit: days.
+
+    Lineage: fact_inventory[Inventory], fact_cogs[COGS].
+
+    QA: Inventory valuation consistent; COGS aligned to period.
+
+    '
+dependencies:
+  columns:
+  - fact_inventory[Inventory]
+  - fact_cogs[COGS]
+governance:
+  owner: Finance Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

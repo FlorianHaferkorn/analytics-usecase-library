@@ -1,0 +1,24 @@
+measure_name: Gross Margin % LY
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Profitability_SemanticModel
+display_folder: 01_Margin
+category: Supporting
+expression:
+  logical: Gross Margin % LY = [[Gross Margin %]]
+  aggregation_method: ratio
+documentation:
+  description: Last year gross margin rate for variance analysis.
+  notes: 'Grain: month. Unit: %.
+
+    QA: Calendar alignment; filters identical except date shift.
+
+    '
+dependencies:
+  measures:
+  - '[Gross Margin %]'
+governance:
+  owner: Profitability Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

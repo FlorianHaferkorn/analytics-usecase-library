@@ -1,0 +1,36 @@
+kpi_id: crm.churned_customers.count
+kpi_key: Churned Customers
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Customer
+domain_tag:
+- Customer & Market
+use_case_ref:
+- COM-003
+action_code_ref: []
+calc_type: count
+business:
+  purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+  definition: Distinct customers with no qualifying transactions in the current period but active in the look-back window.
+  grain_scope: Customer/segment; monthly or quarterly.
+  unit_format: count
+  interpretation: Higher counts indicate deteriorating retention; validate against cohort definitions.
+technical:
+  measure_name: Churned Customers
+  description: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+  depends_on_measures: []
+  lineage:
+  - dim_customer.CustomerKey
+  - fact_customer_events.Churn Flag
+governance:
+  business_owner: Head of CRM / Marketing Analytics
+  data_owner: CRM BI
+  steward: Customer Insights Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Reconciles to churn cohort counts within +/- 0.5 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

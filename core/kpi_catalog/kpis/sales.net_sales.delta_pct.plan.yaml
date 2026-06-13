@@ -1,0 +1,40 @@
+kpi_id: sales.net_sales.delta_pct.plan
+kpi_key: Net Sales % vs Plan
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Growth
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-001
+- COM-002
+- COM-003
+- COM-004
+action_code_ref:
+- C-S1.2
+calc_type: rate
+business:
+  purpose: Relative variance of Net Sales vs Plan.
+  definition: (Net Sales Amount - Plan Sales Amount) / Plan Sales Amount
+  grain_scope: Aggregated to reporting period.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Positive values indicate outperformance vs plan; negative values indicate shortfall.
+technical:
+  measure_name: Net Sales % vs Plan
+  description: Relative variance of Net Sales vs Plan.
+  depends_on_measures:
+  - sales.net_sales.amount
+  lineage:
+  - fact_sales.Plan Sales Amount
+governance:
+  business_owner: Head of Sales Controlling
+  data_owner: Commercial BI
+  steward: Sales Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Reconciles to Net Sales and Plan revenue within +/- 0.1 pp
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

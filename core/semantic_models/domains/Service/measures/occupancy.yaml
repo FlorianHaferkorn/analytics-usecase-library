@@ -1,0 +1,31 @@
+measure_name: Occupancy %
+is_kpi_measure: true
+kpi_id_ref: res.occupancy.pct
+semantic_model: Service_SemanticModel
+display_folder: 05_Workforce
+category: KPI
+expression:
+  logical: Occupancy % = (Talk + Wrap) / (Talk + Wrap + Idle).
+  aggregation_method: ratio
+documentation:
+  description: 'Active vs available time: (Talk + Wrap) / (Talk + Wrap + Idle).'
+  notes: 'Grain: agent_day or queue_day. Unit: %.
+
+    Lineage: fact_wfm[Talk Time Minutes], fact_wfm[Wrap Time Minutes], fact_wfm[Idle Time Minutes].
+
+    QA: Ensure no double counting; time totals align.
+
+    '
+dependencies:
+  columns:
+  - fact_wfm[Talk Time Minutes]
+  - fact_wfm[Wrap Time Minutes]
+  - fact_wfm[Idle Time Minutes]
+  measures:
+  - Talk+Wrap Minutes
+  - Idle Time Minutes
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

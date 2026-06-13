@@ -1,0 +1,28 @@
+measure_name: Availability %
+is_kpi_measure: true
+kpi_id_ref: ops.availability.pct
+semantic_model: Operations_SemanticModel
+display_folder: 01_Ops
+category: KPI
+expression:
+  aggregation_method: ratio
+  logical: Availability = SUM(fact_ops[Run Time Minutes]) / SUM(fact_ops[Planned Time Minutes])
+documentation:
+  description: 'Uptime control: Run Time / Planned Production Time.'
+  notes: 'Grain: line_day. Unit: %.
+
+    Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes].
+
+    QA: Planned Time > 0; consistent shift definitions.
+
+    '
+dependencies:
+  columns:
+  - fact_ops[Run Time Minutes]
+  - fact_ops[Planned Time Minutes]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

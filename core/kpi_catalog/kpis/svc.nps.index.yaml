@@ -1,0 +1,41 @@
+kpi_id: svc.nps.index
+synonyms:
+- Net Promoter Score
+- Service NPS
+- Weiterempfehlungsrate
+- NPS
+example_question: Why did NPS dip for the Returns queue?
+kpi_key: NPS Index
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Experience
+domain_tag:
+- Service & Experience
+use_case_ref:
+- XD-001
+action_code_ref: []
+calc_type: ratio
+business:
+  purpose: Measures customer advocacy and experience quality.
+  definition: '%Promoters minus %Detractors from NPS survey.'
+  grain_scope: survey_event aggregated to month by Org/Channel.
+  unit_format: '''index'''
+  interpretation: Higher is better; explain shifts with FCR, AHT, escalation %.
+technical:
+  measure_name: NPS Index (Service)
+  description: Measures customer advocacy and experience quality.
+  depends_on_measures: []
+  lineage:
+  - fact_nps.NPS Score
+governance:
+  business_owner: Head of Service
+  data_owner: Service Analytics
+  steward: CX Analyst
+  review_cycle: monthly
+  validation_process: survey QA + automation
+  qa_rules:
+  - Score in [-100;100]; promoter/detractor thresholds documented
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

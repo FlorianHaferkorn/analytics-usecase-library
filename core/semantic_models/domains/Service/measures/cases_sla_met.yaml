@@ -1,0 +1,20 @@
+measure_name: Cases SLA Met
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Service_SemanticModel
+display_folder: 01_Service
+category: Helper
+expression:
+  logical: Cases SLA Met = SUM(fact_cases[SLA Met Flag])
+  aggregation_method: sum
+documentation:
+  description: Cases where SLA was met.
+  notes: ''
+dependencies:
+  columns:
+  - fact_cases[SLA Met Flag]
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

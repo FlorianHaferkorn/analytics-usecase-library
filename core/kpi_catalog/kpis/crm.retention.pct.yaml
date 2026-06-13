@@ -1,0 +1,37 @@
+kpi_id: crm.retention.pct
+kpi_key: Customer Retention %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: customer
+domain_tag:
+- Customer & Market
+use_case_ref:
+- COM-003
+action_code_ref:
+- C-C3.1
+calc_type: rate
+business:
+  purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+  definition: (Active Customers at end of period) / (Active Customers at start of period).
+  grain_scope: Customer / segment / org; monthly or quarterly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher retention indicates better loyalty and relationship quality; interpret jointly with churn and CLV.
+technical:
+  measure_name: Customer Retention %
+  description: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+  depends_on_measures: []
+  lineage:
+  - fact_customer_events.Activity Flag
+governance:
+  business_owner: Head of Marketing
+  data_owner: CRM BI
+  steward: Customer Insights Analyst
+  review_cycle: quarterly
+  validation_process: automated
+  qa_rules:
+  - Retention % within [0;100]
+  - Active Customers Start > 0 for any reported slice
+  version: v2.0
+metadata_quality:
+  completeness_score: 0.97
+  last_review: 23.01.2026

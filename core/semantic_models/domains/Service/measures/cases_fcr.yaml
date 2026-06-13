@@ -1,0 +1,20 @@
+measure_name: Cases FCR
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Service_SemanticModel
+display_folder: 01_Service
+category: Helper
+expression:
+  logical: Cases FCR = SUM(fact_cases[FCR Flag])
+  aggregation_method: sum
+documentation:
+  description: Cases resolved on first contact.
+  notes: ''
+dependencies:
+  columns:
+  - fact_cases[FCR Flag]
+governance:
+  owner: Service Analytics
+  status: active
+  version: v1.2
+  last_review: TBD

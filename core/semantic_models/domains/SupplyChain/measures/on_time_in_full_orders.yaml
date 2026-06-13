@@ -1,0 +1,22 @@
+measure_name: On-Time In-Full Orders
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: SupplyChain_SemanticModel
+display_folder: 02_Service
+category: Base
+expression:
+  logical: On-Time In-Full Orders = SUM(fact_fulfillment[OTIF Flag])
+  aggregation_method: sum
+documentation:
+  description: OTIF order quantity used as numerator for OTIF %.
+  notes: 'Source: fact_fulfillment[OTIF Flag], [Order Qty].'
+dependencies:
+  columns:
+  - fact_fulfillment[OTIF Flag]
+  - fact_fulfillment[Order Qty]
+governance:
+  owner: Supply Chain Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

@@ -1,0 +1,34 @@
+kpi_id: enterprise.avg_time_to_outcome.days
+kpi_key: Avg Time-to-Outcome Days
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: governance
+domain_tag:
+- ActionReady
+use_case_ref:
+- XD-004
+action_code_ref: []
+calc_type: quantity
+business:
+  purpose: Measures how quickly ActionReady recommendations convert to confirmed outcomes.
+  definition: Average of days_to_outcome across all executed action rows.
+  grain_scope: Action execution; aggregated monthly by domain.
+  unit_format: days (1 decimal)
+  interpretation: Lower values indicate faster action-to-outcome cycles.
+technical:
+  measure_name: Avg Time-to-Outcome Days
+  description: Average days between action execution and outcome confirmation.
+  depends_on_measures: []
+  lineage:
+  - fact_action_outcome.days_to_outcome
+governance:
+  business_owner: Chief Analytics Officer
+  data_owner: Enterprise Analytics
+  steward: Analytics Governance
+  review_cycle: monthly
+  validation_process: automated
+  qa_rules: []
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 28.04.2026

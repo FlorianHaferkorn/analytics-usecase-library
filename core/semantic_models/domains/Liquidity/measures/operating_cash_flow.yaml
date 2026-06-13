@@ -1,0 +1,10 @@
+$ref: operating_cash_flow
+semantic_model: Liquidity_SemanticModel
+display_folder: 01_CashFlow
+documentation:
+  description: Cash generated from operations
+  notes: ''
+governance:
+  owner: Finance BI
+  version: v1.0
+  last_review: 04.11.2025

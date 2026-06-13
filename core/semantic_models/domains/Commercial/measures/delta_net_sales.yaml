@@ -1,0 +1,20 @@
+measure_name: Delta% Net Sales
+is_kpi_measure: true
+kpi_id_ref: sales.net_sales.delta_pct.ly
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 01_Revenue
+category: KPI
+expression:
+  logical: Delta% Net Sales = ([Net Sales Amount] - SUM ( fact_sales[Last Year Sales Amount] )) / (SUM ( fact_sales[Last Year Sales Amount] ))
+  aggregation_method: ratio
+documentation:
+  description: Alias for Net Sales % vs LY (TMDL display name).
+  notes: Same as Net Sales % vs LY.
+dependencies:
+  measures: []
+  columns: []
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

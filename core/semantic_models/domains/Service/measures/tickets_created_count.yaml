@@ -1,0 +1,26 @@
+measure_name: Tickets Created Count
+is_kpi_measure: true
+kpi_id_ref: svc.tickets.created.count
+semantic_model: Service_SemanticModel
+display_folder: 01_Service
+category: KPI
+expression:
+  logical: Tickets Created Count = Count of newly created service tickets.
+  aggregation_method: count
+documentation:
+  description: Count of newly created service tickets.
+  notes: 'Grain: ticket_day. Unit: count.
+
+    Lineage: fact_ticket[Ticket ID].
+
+    QA: De-duplicate re-opened tickets if tracked separately.
+
+    '
+dependencies:
+  columns:
+  - fact_ticket[Ticket ID]
+governance:
+  owner: Service Analytics
+  status: active
+  version: v0.1
+  last_review: TBD

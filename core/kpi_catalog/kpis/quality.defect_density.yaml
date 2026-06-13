@@ -1,0 +1,39 @@
+kpi_id: quality.defect_density
+kpi_key: Defect Density
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-003
+action_code_ref:
+- O-Q3.2
+calc_type: rate
+business:
+  purpose: Measures defect count per 1,000 units produced.
+  definition: (Defect Count / Total Units) * 1,000.
+  grain_scope: Line/day; aggregated monthly.
+  unit_format: defects per 1k units
+  interpretation: Lower is better; indicates process stability.
+technical:
+  measure_name: Defect Density
+  description: Measures defect count per 1,000 units produced.
+  depends_on_measures: []
+  lineage:
+  - fact_quality.Defect Count
+  - fact_quality.Total Units
+governance:
+  business_owner: Head of Quality
+  data_owner: Operations BI
+  steward: Quality Manager
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Total Units > 0
+  - Defect Count >= 0
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

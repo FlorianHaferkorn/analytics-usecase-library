@@ -1,0 +1,27 @@
+measure_name: Preventive Maintenance Task Count
+is_kpi_measure: true
+kpi_id_ref: ops.pm.task.count
+semantic_model: Operations_SemanticModel
+display_folder: 01_Ops
+category: KPI
+expression:
+  logical: Preventive Maintenance Task Count = Count of PM tasks in the period.
+  aggregation_method: count
+documentation:
+  description: Count of preventive maintenance tasks.
+  notes: 'Grain: asset_day. Unit: count.
+
+    Lineage: fact_maintenance[PM Task Count].
+
+    QA: Distinguish completed vs scheduled if needed.
+
+    '
+dependencies:
+  columns:
+  - fact_maintenance[PM Task Count]
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v0.1
+  last_review: 2026-03-27
+  review_due: 2027-03-31

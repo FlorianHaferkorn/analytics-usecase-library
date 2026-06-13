@@ -1,0 +1,36 @@
+kpi_id: fin.liquidity.dpo.days
+kpi_key: Liquidity DPO Days
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: liquidity
+domain_tag:
+- Finance
+use_case_ref:
+- FIN-001
+action_code_ref:
+- F-C1.2
+calc_type: quantity
+business:
+  purpose: Tracks Days Payables Outstanding for liquidity monitoring and action outcome evaluation.
+  definition: Payables / (COGS / 365).
+  grain_scope: Company/segment; monthly close.
+  unit_format: days (1 decimal)
+  interpretation: Higher is better up to negotiated terms; used as outcome KPI for payables extension actions.
+technical:
+  measure_name: DPO Days
+  description: Days Payables Outstanding — used as success metric in F-C1.2 impact valuation.
+  depends_on_measures: []
+  lineage:
+  - fact_accounts_payable.ap_amount
+  - fact_accounts_payable.cogs_amount
+governance:
+  business_owner: Head of Treasury
+  data_owner: Finance BI
+  steward: Working Capital Analyst
+  review_cycle: monthly
+  validation_process: automated
+  qa_rules: []
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 28.04.2026

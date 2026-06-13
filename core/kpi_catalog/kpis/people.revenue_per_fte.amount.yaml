@@ -1,0 +1,36 @@
+kpi_id: people.revenue_per_fte.amount
+kpi_key: Revenue per FTE
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Workforce
+domain_tag:
+- People & Culture
+use_case_ref: []
+action_code_ref: []
+calc_type: ratio
+business:
+  purpose: Measure workforce revenue productivity.
+  definition: Net Sales Amount / FTE
+  grain_scope: Org; monthly.
+  unit_format: '''EUR per FTE'''
+  interpretation: Higher values indicate greater revenue generated per full-time equivalent.
+technical:
+  measure_name: Revenue per FTE
+  description: Net sales divided by FTE.
+  depends_on_measures:
+  - sales.net_sales.amount
+  lineage:
+  - fact_sales.Net Sales Amount
+  - fact_hr.FTE
+governance:
+  business_owner: Head of HR
+  data_owner: People Analytics
+  steward: HR Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - FTE > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 12.06.2026

@@ -1,0 +1,6 @@
+$ref: actions_executed_count_xd
+semantic_model: Service_SemanticModel
+documentation:
+  description: Number of action codes with a recorded outcome — Service cross-domain proxy.
+governance:
+  owner: Service BI

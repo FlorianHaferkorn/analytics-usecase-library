@@ -1,0 +1,21 @@
+measure_name: Customer Retention %
+is_kpi_measure: true
+kpi_id_ref: crm.retention.pct
+semantic_model: CustomerValue_SemanticModel
+display_folder: 01_Retention
+category: KPI
+expression:
+  logical: Customer Retention % = (Active Customers at end of period) / (Active Customers at start of period).
+  aggregation_method: ratio
+documentation:
+  description: Retained customers as share of opening active base in the period.
+  notes: Relies on activity/churn flags in fact_customer_events.
+dependencies:
+  measures:
+  - Active Customers Count
+  - Churned Customers Count
+governance:
+  owner: CRM BI
+  status: active
+  version: v1.2
+  last_review: 12.12.2025

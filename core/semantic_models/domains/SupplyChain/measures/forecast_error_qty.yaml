@@ -1,0 +1,22 @@
+measure_name: Forecast Error Qty
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: SupplyChain_SemanticModel
+display_folder: 03_Forecast
+category: Base
+expression:
+  logical: Forecast Error Qty = [Forecast Units] - [Actual Units]
+  aggregation_method: sum
+documentation:
+  description: Forecast units minus actual units.
+  notes: Derived from Forecast Units and Actual Units.
+dependencies:
+  measures:
+  - '[Forecast Units]'
+  - '[Actual Units]'
+governance:
+  owner: Supply Chain Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

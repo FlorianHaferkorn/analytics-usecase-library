@@ -1,0 +1,21 @@
+measure_name: Gross Margin %
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: CustomerValue_SemanticModel
+display_folder: 02_Margin
+category: Supporting
+expression:
+  logical: Gross Margin % = ([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount])
+  aggregation_method: ratio
+documentation:
+  description: Gross margin percentage derived from margin and net sales.
+  notes: Supporting only; not a required KPI in CustomerValue scope.
+dependencies:
+  measures:
+  - Margin Amount
+  - Net Sales Amount
+governance:
+  owner: CRM BI
+  status: active
+  version: v1.2
+  last_review: 12.12.2025

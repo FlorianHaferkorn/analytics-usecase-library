@@ -1,0 +1,48 @@
+kpi_id: ops.availability.pct
+synonyms:
+- Availability Rate
+- Uptime
+- Verfügbarkeit
+- Anlagenverfügbarkeit
+- Verfügbarkeitsgrad
+example_question: What is dragging availability down on Line B?
+kpi_key: Availability %
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Efficiency
+domain_tag:
+- Operations
+- Operational Efficiency
+use_case_ref:
+- OPS-001
+- OPS-002
+action_code_ref:
+- O-A2.1
+- O-A2.3
+- O-O1.1
+calc_type: rate
+business:
+  purpose: Uptime share relative to planned production time.
+  definition: Available time / Planned time
+  grain_scope: Machine/line level; per shift or day, aggregated monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher availability indicates less downtime; low values typically reflect maintenance or scheduling issues.
+technical:
+  measure_name: Availability %
+  description: Uptime share relative to planned production time.
+  depends_on_measures: []
+  lineage:
+  - fact_ops.Run Time Minutes
+  - fact_ops.Planned Time Minutes
+governance:
+  business_owner: Head of Operations
+  data_owner: Operations BI
+  steward: Operations Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Availability % bounded between 0 % and 100 %; reconciles to planned/available time from MES within +/- 1 pp.
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

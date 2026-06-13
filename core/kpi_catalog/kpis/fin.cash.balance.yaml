@@ -1,0 +1,44 @@
+kpi_id: fin.cash.balance
+synonyms:
+- Cash and Cash Equivalents
+- Cash Position
+- Liquide Mittel
+- Kassenbestand
+example_question: How has our cash balance tracked versus plan this year?
+kpi_key: Cash Balance
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Liquidity
+domain_tag:
+- Finance
+- Corporate & Strategy
+use_case_ref:
+- FIN-001
+action_code_ref:
+- F-C1.1
+- F-C1.2
+calc_type: amount
+business:
+  purpose: Tracks cash and cash equivalents at period end.
+  definition: Cash and cash equivalents balance.
+  grain_scope: Company/segment; monthly close.
+  unit_format: EUR (2 decimals)
+  interpretation: Higher balance improves liquidity buffer; consider seasonality and debt strategy.
+technical:
+  measure_name: Cash Balance
+  description: Tracks cash and cash equivalents at period end.
+  depends_on_measures: []
+  lineage:
+  - fact_cash_position.Cash Balance Amount
+governance:
+  business_owner: Head of Treasury
+  data_owner: Finance BI
+  steward: Cash Management Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules:
+  - Reconciles to balance sheet cash accounts within +/- 0.5 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026

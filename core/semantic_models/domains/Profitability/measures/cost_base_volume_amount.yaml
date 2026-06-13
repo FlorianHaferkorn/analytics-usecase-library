@@ -1,0 +1,26 @@
+measure_name: Cost Base Volume Amount
+is_kpi_measure: true
+kpi_id_ref: cost.base_volume.amount
+semantic_model: Profitability_SemanticModel
+display_folder: 02_Cost
+category: KPI
+expression:
+  logical: Cost Base Volume Amount = Baseline amount of cost volume for the selected period.
+  aggregation_method: sum
+documentation:
+  description: Baseline cost volume amount for variance analysis.
+  notes: 'Grain: cost_center_month. Unit: EUR.
+
+    Lineage: fact_cost[Base Volume Amount].
+
+    QA: Baseline aligned with planning cycle.
+
+    '
+dependencies:
+  columns:
+  - fact_cost[Base Volume Amount]
+governance:
+  owner: Profitability Analytics
+  status: active
+  version: v0.1
+  last_review: TBD

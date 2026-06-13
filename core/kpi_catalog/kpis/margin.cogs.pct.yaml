@@ -1,0 +1,45 @@
+kpi_id: margin.cogs.pct
+synonyms:
+- COGS Ratio
+- Cost of Sales %
+- Umsatzkostenquote
+- Materialaufwandsquote
+example_question: Why did COGS % of sales rise in Consumer Electronics?
+kpi_key: COGS % of Sales
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Finance
+- Commercial
+use_case_ref:
+- FIN-002
+action_code_ref:
+- F-K2.1
+calc_type: rate
+business:
+  purpose: Shows cost share relative to net sales.
+  definition: COGS Amount / Net Sales Amount.
+  grain_scope: Invoice line aggregated to period.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Lower is better; complements gross margin %.
+technical:
+  measure_name: COGS % of Sales
+  description: Shows cost share relative to net sales.
+  depends_on_measures:
+  - sales.net_sales.amount
+  lineage:
+  - fact_finance.COGS Amount
+  - fact_finance.Net Sales Amount
+governance:
+  business_owner: Head of Controlling
+  data_owner: BI Engineering
+  steward: Controlling Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026

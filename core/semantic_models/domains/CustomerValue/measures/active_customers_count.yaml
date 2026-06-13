@@ -1,0 +1,21 @@
+measure_name: Active Customers Count
+is_kpi_measure: true
+kpi_id_ref: crm.active_customers.count
+semantic_model: CustomerValue_SemanticModel
+display_folder: 01_Retention
+category: KPI
+expression:
+  logical: Active Customers Count = Distinct customers with at least one qualifying transaction in the period.
+  aggregation_method: count
+documentation:
+  description: Active customers in the period based on activity flag.
+  notes: Forms the base for retention/churn metrics.
+dependencies:
+  columns:
+  - dim_customer[CustomerKey]
+  - fact_customer_events[Activity Flag]
+governance:
+  owner: CRM BI
+  status: active
+  version: v1.2
+  last_review: 12.12.2025

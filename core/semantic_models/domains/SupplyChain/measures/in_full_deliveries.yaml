@@ -1,0 +1,22 @@
+measure_name: In-Full Deliveries
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: SupplyChain_SemanticModel
+display_folder: 02_Service
+category: Base
+expression:
+  logical: In-Full Deliveries = SUM(fact_fulfillment[In-Full Flag])
+  aggregation_method: sum
+documentation:
+  description: In-full delivery quantity used as numerator for In-Full %.
+  notes: 'Source: fact_fulfillment[In-Full Flag], [Order Qty].'
+dependencies:
+  columns:
+  - fact_fulfillment[In-Full Flag]
+  - fact_fulfillment[Order Qty]
+governance:
+  owner: Supply Chain Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

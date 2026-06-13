@@ -1,0 +1,6 @@
+$ref: avg_time_to_outcome_days_xd
+semantic_model: SupplyChain_SemanticModel
+documentation:
+  description: Average days between action execution and outcome confirmation — Supply Chain cross-domain proxy.
+governance:
+  owner: Supply Chain BI

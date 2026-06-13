@@ -1,0 +1,17 @@
+order:
+- gross_margin
+- gross_margin_amount
+- gross_margin_vs_plan
+- promotion_roi
+- promo_roi
+- net_sales_amount
+- gross_margin_amount_ly
+- gross_margin_ly
+- plan_gross_margin
+- promo_cost_amount
+- promo_cogs_amount
+- incremental_sales_amount
+- incremental_gm_amount
+- promo_gross_margin
+- cost_base_volume_amount
+- opex_base_amount

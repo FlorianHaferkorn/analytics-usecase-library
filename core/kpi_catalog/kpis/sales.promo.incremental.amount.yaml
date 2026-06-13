@@ -1,0 +1,41 @@
+kpi_id: sales.promo.incremental.amount
+kpi_key: Incremental Sales Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-002
+- COM-003
+- COM-004
+action_code_ref:
+- C-P4.1
+calc_type: amount
+business:
+  purpose: Additional sales due to promotion.
+  definition: Promo Sales Amount - Baseline Sales Amount
+  grain_scope: Promo period/product
+  unit_format: EUR (2 decimals)
+  interpretation: Input to promo ROI.
+technical:
+  measure_name: Incremental Sales Amount
+  description: Additional sales due to promotion.
+  depends_on_measures:
+  - sales.net_sales.amount
+  - sales.promo.baseline_sales.amount
+  lineage:
+  - fact_promo.Baseline Sales Amount
+  - fact_sales.Net Sales Amount
+governance:
+  business_owner: Head of Marketing Controlling
+  data_owner: BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Baseline method documented; overlap handling
+  version: v2.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

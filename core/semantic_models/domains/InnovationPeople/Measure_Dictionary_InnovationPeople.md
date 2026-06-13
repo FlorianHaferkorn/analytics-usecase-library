@@ -1,16 +1,16 @@
 # Measure Dictionary - Innovation & People
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: Digital Adoption %
-  is_kpi_measure: false
-  kpi_id_ref: ''
-  semantic_model: InnovationPeople_SemanticModel
-  display_folder: 02_Digital
+  is_kpi_measure: true
+  kpi_id_ref: people.digital_adoption.pct
   category: KPI
   expression:
-    logical: Digital Adoption % = SUM(fact_it[Digital Users])
+    logical: Digital Adoption % = DIVIDE ( SUM ( fact_it[Digital Users] ), SUM ( fact_hr[Headcount] ) )
     aggregation_method: ratio
   documentation:
     description: Digital tool users divided by total employees.
@@ -26,13 +26,16 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_it[Digital Users]
     - fact_hr[Headcount]
   governance:
-    owner: Innovation Analytics
     status: active
     version: v1.2
     last_review: TBD
+    owner: Innovation Analytics
+  semantic_model: InnovationPeople_SemanticModel
+  display_folder: 02_Digital
+
 - measure_name: Digital Adoption Rate %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: people.digital_adoption.pct
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 02_Digital
   category: KPI
@@ -49,15 +52,16 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin per FTE Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: people.gm_per_fte.amount
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI
   expression:
-    logical: Gross Margin per FTE Amount = [[Gross Margin Amount]] / [[Average FTE]]
-    aggregation_method: sum
+    logical: Gross Margin per FTE Amount = DIVIDE ( [Gross Margin Amount], SUM ( fact_hr[FTE] ) )
+    aggregation_method: ratio
   documentation:
     description: Gross margin per FTE.
     notes: 'Grain: month. Unit: EUR per FTE.
@@ -68,22 +72,22 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
       '
   dependencies:
-    measures:
-    - '[Gross Margin Amount]'
-    - '[Average FTE]'
+    columns:
+    - fact_hr[FTE]
   governance:
     owner: Innovation Analytics
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Personnel Cost Ratio %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: people.personnel_cost.pct
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI
   expression:
-    logical: Personnel Cost Ratio % = [[Personnel Cost Amount]] / [[Revenue Amount]]
+    logical: Personnel Cost Ratio % = DIVIDE ( SUM ( fact_hr[Personnel Cost] ), SUM ( fact_sales[Net Sales Amount] ) )
     aggregation_method: ratio
   documentation:
     description: Personnel cost / revenue.
@@ -95,23 +99,24 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
       '
   dependencies:
-    measures:
-    - '[Personnel Cost Amount]'
-    - '[Revenue Amount]'
+    columns:
+    - fact_hr[Personnel Cost]
+    - fact_sales[Net Sales Amount]
   governance:
     owner: Innovation Analytics
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Revenue per FTE
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: people.revenue_per_fte.amount
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI
   expression:
-    logical: Revenue per FTE = [[Revenue Amount]] / [[Average FTE]]
-    aggregation_method: sum
+    logical: Revenue per FTE = DIVIDE ( SUM ( fact_sales[Net Sales Amount] ), SUM ( fact_hr[FTE] ) )
+    aggregation_method: ratio
   formatString: 'EUR #,0'
   documentation:
     description: Total revenue divided by average FTE.
@@ -121,14 +126,15 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
       '
   dependencies:
-    measures:
-    - '[Revenue Amount]'
-    - '[Average FTE]'
+    columns:
+    - fact_sales[Net Sales Amount]
+    - fact_hr[FTE]
   governance:
     owner: Innovation Analytics
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Attrition Risk %
   is_kpi_measure: true
   kpi_id_ref: people.attrition_risk.pct
@@ -153,14 +159,15 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Turnover Rate %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: people.turnover.pct
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI
   expression:
-    logical: Turnover Rate % = [[Exits Count]] / [[Average Headcount]]
+    logical: Turnover Rate % = DIVIDE ( SUM ( fact_hr[Leavers] ), AVERAGE ( fact_hr[Headcount] ) )
     aggregation_method: ratio
   documentation:
     description: Employee exits divided by average headcount.
@@ -170,22 +177,23 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
       '
   dependencies:
-    measures:
-    - '[Exits Count]'
-    - '[Average Headcount]'
+    columns:
+    - fact_hr[Leavers]
+    - fact_hr[Headcount]
   governance:
     owner: Innovation Analytics
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Absenteeism %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: people.absenteeism.pct
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI
   expression:
-    logical: Absenteeism % = [[Absent Hours]] / [[Scheduled Hours]]
+    logical: Absenteeism % = DIVIDE ( SUM ( fact_hr[Absent Hours] ), SUM ( fact_hr[Scheduled Hours] ) )
     aggregation_method: ratio
   documentation:
     description: Absent hours divided by scheduled hours.
@@ -195,17 +203,18 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
       '
   dependencies:
-    measures:
-    - '[Absent Hours]'
-    - '[Scheduled Hours]'
+    columns:
+    - fact_hr[Absent Hours]
+    - fact_hr[Scheduled Hours]
   governance:
     owner: Innovation Analytics
     status: active
     version: v1.2
     last_review: TBD
+
 - measure_name: Gross Margin Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: margin.gm.amount
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI

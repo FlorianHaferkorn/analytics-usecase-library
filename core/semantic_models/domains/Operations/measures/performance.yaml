@@ -1,0 +1,29 @@
+measure_name: Performance %
+is_kpi_measure: true
+kpi_id_ref: ops.performance.pct
+semantic_model: Operations_SemanticModel
+display_folder: 01_Ops
+category: KPI
+expression:
+  logical: Performance % = Actual output / Theoretical maximum output
+  aggregation_method: ratio
+documentation:
+  description: 'Speed vs standard: Actual Output / Theoretical Output.'
+  notes: 'Grain: line_day. Unit: %.
+
+    Lineage: fact_ops[Output Units], standards.
+
+    QA: Standards maintained; guard against zero standard.
+
+    '
+dependencies:
+  columns:
+  - fact_ops[Output Units]
+  measures:
+  - '[Standard Output]'
+governance:
+  owner: Operations Analytics
+  status: active
+  version: v1.2
+  last_review: 2026-03-27
+  review_due: 2027-03-31

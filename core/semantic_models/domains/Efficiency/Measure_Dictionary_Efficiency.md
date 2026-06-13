@@ -1,11 +1,13 @@
 # Measure Dictionary - Efficiency
 
+> **Generated view.** The source of truth is the per-measure files under [`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate this file with `python tooling/codegen/measure_dictionary_files.py render`.
+
 Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: OEE %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.oee.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -31,6 +33,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_ops.Output Units
     - fact_ops.Good Units
     - fact_ops.Standard Rate Units Per Minute
+
 - measure_name: Total Process Cost Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -50,6 +53,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
     - fact_cost.COGS Amount
+
 - measure_name: Produced Units Qty
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -69,6 +73,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
     - fact_output.Output Units
+
 - measure_name: Net Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -88,9 +93,10 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
     - fact_finance.Net Sales Amount
+
 - measure_name: Availability %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.availability.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -104,9 +110,10 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 04.11.2025
+
 - measure_name: Performance %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.performance.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -120,9 +127,10 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 04.11.2025
+
 - measure_name: Quality %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: ops.quality.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
@@ -136,22 +144,28 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 04.11.2025
+
 - measure_name: Inventory Turnover
   is_kpi_measure: true
   kpi_id_ref: inv.turnover
-  semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
     logical: Inventory Turnover = COGS / Average Inventory
     aggregation_method: sum
+  dependencies:
+    columns:
+    - fact_cogs[COGS Amount]
+    - fact_inventory[Average Inventory Amount]
+  governance:
+    status: active
+    owner: Supply Chain BI
+    version: v1.0
+    last_review: 04.11.2025
+  semantic_model: Efficiency_SemanticModel
   documentation:
     description: COGS / Average Inventory
     notes: ''
-  governance:
-    owner: Supply Chain BI
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
+
 - measure_name: Ops OTIF %
   is_kpi_measure: true
   kpi_id_ref: ops.otif.pct
@@ -172,6 +186,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     measures:
     - OTIF Deliveries Count
     - Total Deliveries Count
+
 - measure_name: Cash Conversion Cycle (Days)
   is_kpi_measure: true
   kpi_id_ref: ops.working_capital.ccc.days
@@ -189,6 +204,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: v1.1
     last_review: 11.11.2025
   display_folder: 02_WorkingCapital
+
 - measure_name: Forecast Error Qty
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -209,6 +225,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     columns:
     - fact_forecast.Forecast Units
     - fact_sales.Sales Units
+
 - measure_name: Under-Forecast Lost Demand Qty
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -230,6 +247,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - Forecast Error Qty
     columns:
     - fact_stockout.Lost Demand Units
+
 - measure_name: Under-Forecast Lost Demand Share %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -251,9 +269,10 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - Under-Forecast Lost Demand Qty
     columns:
     - fact_stockout.Lost Demand Units
+
 - measure_name: Service Impact %
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: plan.forecast.service_impact.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:

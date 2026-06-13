@@ -1,0 +1,43 @@
+kpi_id: enterprise.value_at_risk.index
+kpi_key: Enterprise Value-at-Risk Index
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Risk
+domain_tag:
+- Enterprise & Governance
+- Corporate & Strategy
+use_case_ref:
+- XD-003
+action_code_ref:
+- X-E3.2
+calc_type: ratio
+business:
+  purpose: Aggregates downside risk across domains into a single index.
+  definition: Weighted index of normalized domain risk signals.
+  grain_scope: Entity or business unit; aggregated by period.
+  unit_format: index
+  interpretation: Higher index indicates higher enterprise risk exposure.
+technical:
+  measure_name: Enterprise Value-at-Risk Index
+  description: Aggregates downside risk across domains into a single index.
+  depends_on_measures:
+  - margin.gm.pct
+  - sales.net_sales.delta_pct.ly
+  - crm.clv.amount
+  - svc.sla.attainment.pct
+  - ops.otif.pct
+  - ops.working_capital.ccc.days
+  - people.digital_adoption.pct
+  - people.attrition_risk.pct
+  lineage: []
+governance:
+  business_owner: Chief Risk Officer
+  data_owner: Enterprise Risk
+  steward: Risk Analyst
+  review_cycle: monthly
+  validation_process: manual review
+  qa_rules: []
+  version: v0.1
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

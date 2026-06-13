@@ -1,0 +1,6 @@
+$ref: actions_executed_count_xd
+semantic_model: SupplyChain_SemanticModel
+documentation:
+  description: Number of action codes with a recorded outcome — Supply Chain cross-domain proxy.
+governance:
+  owner: Supply Chain BI

@@ -1,0 +1,35 @@
+kpi_id: enterprise.action_roi.pct
+kpi_key: Action ROI %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: governance
+domain_tag:
+- ActionReady
+use_case_ref:
+- XD-004
+action_code_ref: []
+calc_type: percentage
+business:
+  purpose: Measures the financial return on ActionReady recommendation investments.
+  definition: Total impact value of executed actions / total execution cost - 1.
+  grain_scope: Action execution; aggregated monthly by domain.
+  unit_format: '% (1 decimal)'
+  interpretation: Values above 0% indicate net-positive actions; negative values flag ineffective interventions.
+technical:
+  measure_name: Action ROI %
+  description: 'Average ROI of executed actions: total impact value / total execution cost - 1.'
+  depends_on_measures: []
+  lineage:
+  - fact_action_outcome.impact_value
+  - fact_action_outcome.cost_to_execute
+governance:
+  business_owner: Chief Analytics Officer
+  data_owner: Enterprise Analytics
+  steward: Analytics Governance
+  review_cycle: monthly
+  validation_process: automated
+  qa_rules: []
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 28.04.2026

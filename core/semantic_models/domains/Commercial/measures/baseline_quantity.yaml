@@ -1,0 +1,26 @@
+measure_name: Baseline Quantity
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 04_Promo
+category: Base
+expression:
+  logical: Baseline Quantity = SUM(fact_promo[Baseline Quantity])
+  aggregation_method: sum
+documentation:
+  description: Baseline quantity for promotion uplift calculations.
+  notes: 'Grain: promotion. Unit: units.
+
+    Lineage: fact_promo[Baseline Quantity].
+
+    QA: Baseline quantity aligned to baseline sales.
+
+    '
+dependencies:
+  columns:
+  - fact_promo[Baseline Quantity]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

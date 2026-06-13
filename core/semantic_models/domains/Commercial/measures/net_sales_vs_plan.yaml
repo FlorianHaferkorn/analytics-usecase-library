@@ -1,0 +1,29 @@
+measure_name: Net Sales % vs Plan
+is_kpi_measure: true
+kpi_id_ref: sales.net_sales.delta_pct.plan
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 01_Revenue
+category: KPI
+expression:
+  logical: Net Sales % vs Plan = ([Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] )) / (SUM ( fact_sales[Plan Sales Amount] ))
+  aggregation_method: ratio
+documentation:
+  description: Variance of net sales versus plan as a percentage.
+  notes: 'Grain: month. Unit: %.
+
+    Lineage: [Net Sales Amount], fact_sales[Plan Sales Amount].
+
+    QA: Plan Sales Amount must be populated for the same grain; DIVIDE protects divide-by-zero.
+
+    '
+dependencies:
+  measures:
+  - '[Net Sales Amount]'
+  - '[Plan Sales Amount]'
+  columns:
+  - fact_sales[Plan Sales Amount]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026

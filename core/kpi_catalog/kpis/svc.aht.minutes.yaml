@@ -1,0 +1,42 @@
+kpi_id: svc.aht.minutes
+synonyms:
+- Average Handle Time
+- Average Handling Time
+- Handle Time
+- durchschnittliche Bearbeitungszeit
+example_question: What is pushing average handle time up on chat?
+kpi_key: Average Handling Time (minutes)
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Service
+domain_tag:
+- Service & Experience
+use_case_ref:
+- XD-001
+action_code_ref:
+- X-S1.4
+calc_type: ratio
+business:
+  purpose: Measures average time to handle a contact.
+  definition: Total handle time divided by number of cases/contacts.
+  grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
+  unit_format: '''minutes (1 decimal)'''
+  interpretation: Lower is better, but balance with FCR and NPS.
+technical:
+  measure_name: AHT Minutes
+  description: Measures average time to handle a contact.
+  depends_on_measures: []
+  lineage:
+  - fact_support_cases.Handle Time Minutes
+governance:
+  business_owner: Head of Service
+  data_owner: Service Analytics
+  steward: Service Ops Analyst
+  review_cycle: monthly
+  validation_process: automated
+  qa_rules:
+  - Handle time unit consistent; exclude outliers per policy
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 23.01.2026

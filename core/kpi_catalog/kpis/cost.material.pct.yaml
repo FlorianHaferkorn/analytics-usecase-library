@@ -1,0 +1,45 @@
+kpi_id: cost.material.pct
+synonyms:
+- Material Cost Ratio
+- Material Intensity
+- Materialkostenquote
+- Materialintensität
+example_question: Which products have the highest material cost ratio?
+kpi_key: Material Cost %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Profitability
+domain_tag:
+- Finance
+- Corporate & Strategy
+use_case_ref:
+- FIN-002
+action_code_ref:
+- F-K2.2
+calc_type: rate
+business:
+  purpose: Shows material cost share of net sales.
+  definition: Material Cost Amount / Net Sales Amount.
+  grain_scope: Company/segment; monthly close.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Lower is better; increases indicate supplier or price pressure.
+technical:
+  measure_name: Material Cost %
+  description: Shows material cost share of net sales.
+  depends_on_measures:
+  - sales.net_sales.amount
+  lineage:
+  - fact_finance.Material Cost Amount
+  - fact_finance.Net Sales Amount
+governance:
+  business_owner: Head of Controlling
+  data_owner: Finance BI
+  steward: Finance Analyst
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Value between 0 % and 100 %
+  version: v1.0
+metadata_quality:
+  completeness_score: 0.8
+  last_review: 23.01.2026

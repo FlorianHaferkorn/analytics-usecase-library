@@ -1,0 +1,20 @@
+measure_name: Average Handling Time (minutes)
+is_kpi_measure: true
+kpi_id_ref: svc.aht.minutes
+semantic_model: Service_SemanticModel
+display_folder: 01_Service_Level
+category: KPI
+expression:
+  logical: Average Handling Time (minutes) = DIVIDE ( SUM ( fact_support_cases[Handle Time Minutes] ), COUNTROWS ( fact_support_cases ) )
+  aggregation_method: average
+documentation:
+  description: Display alias for AHT Minutes; measures average time to handle a contact.
+  notes: 'Grain: queue_day. Unit: minutes. Lineage: fact_support_cases[Handle Time Minutes].'
+dependencies:
+  columns:
+  - fact_support_cases[Handle Time Minutes]
+governance:
+  owner: Service BI
+  status: active
+  version: v1.0
+  last_review: 28.04.2026

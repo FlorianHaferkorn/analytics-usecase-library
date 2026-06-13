@@ -1,0 +1,26 @@
+measure_name: Plan Quantity
+is_kpi_measure: false
+kpi_id_ref: ''
+semantic_model: Commercial_Sales_SemanticModel
+display_folder: 01_Revenue
+category: Base
+expression:
+  logical: Plan Quantity = SUM(fact_sales[Plan Quantity])
+  aggregation_method: sum
+documentation:
+  description: Planned quantity sold for variance logic.
+  notes: 'Grain: invoice_line aggregated monthly. Unit: units.
+
+    Lineage: fact_sales[Plan Quantity].
+
+    QA: Plan quantity aligned to plan sales.
+
+    '
+dependencies:
+  columns:
+  - fact_sales[Plan Quantity]
+governance:
+  owner: Commercial BI
+  status: active
+  version: v1.2
+  last_review: 06.02.2026
