@@ -287,7 +287,7 @@ action_logic_seeds:
 source_inventory:
   summary:
     total_sources: 11
-    portfolio_score: 14.0
+    portfolio_score: 13.5
     categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
     min_threshold_met: true
 
@@ -384,7 +384,7 @@ source_inventory:
       url: "https://www.mckinsey.com/capabilities/operations/our-insights"
       scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
       total_score: 12
-      supports: [action_logic_seeds, guardrails]
+      supports: [actions_by_root_cause, guardrails]
 
     - id: SRC-010
       category: RSK
