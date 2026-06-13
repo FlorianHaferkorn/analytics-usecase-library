@@ -1552,7 +1552,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - ops.availability.pct
     - ops.performance.pct
     - ops.quality.pct
-    lineage: []
+    lineage:
+    - fact_ops.Run Time Minutes
+    - fact_ops.Planned Time Minutes
+    - fact_ops.Output Units
+    - fact_ops.Good Units
+    - fact_ops.Standard Rate Units Per Minute
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -3551,7 +3556,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - wc.dso.days
     - wc.dio.days
     - wc.dpo.days
-    lineage: []
+    lineage:
+    - fact_accounts_receivable.AR Amount
+    - fact_accounts_receivable.Revenue Amount
+    - fact_inventory.Inventory Amount
+    - fact_inventory.COGS Amount
+    - fact_accounts_payable.AP Amount
+    - fact_accounts_payable.COGS Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
