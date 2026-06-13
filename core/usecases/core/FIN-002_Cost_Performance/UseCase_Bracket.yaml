@@ -20,6 +20,7 @@ orchestration:
   - cost.base_volume.amount
   - cost.opex.base.amount
   - ops.service_level.pct
+  - margin.ebitda.pct
   action_code_ids:
   - F-K2.1
   - F-K2.2
