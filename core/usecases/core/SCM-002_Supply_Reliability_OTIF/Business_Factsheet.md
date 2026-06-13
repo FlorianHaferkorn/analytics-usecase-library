@@ -162,6 +162,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** OTIF ≥ 95% (≥ 98% under large-retail
+  compliance regimes, e.g. Walmart); On-Time ≥ 97%; In-Full ≥ 98% line fill rate
+  (Gartner Hierarchy of Supply Chain Metrics; CSCMP Supply Chain Benchmark; Walmart
+  OTIF program). OTIF is a joint On-Time AND In-Full condition, so aggregate OTIF is
+  always ≤ min(On-Time %, In-Full %) — set component targets accordingly.  
 - Impact: OTIF raised to target; penalties/expedites reduced; stockout impact
   reduced.  
 - Adoption: Used in weekly supply/logistics reviews; action codes triggered with

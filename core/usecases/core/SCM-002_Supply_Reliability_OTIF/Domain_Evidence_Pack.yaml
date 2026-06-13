@@ -429,7 +429,7 @@ mapping_readiness:
           On-Time ≥ 97%, In-Full ≥ 98% (Gartner / CSCMP). Add to make success criteria measurable.
         evidence_reference: SRC-004 SRC-005
         remediation: "Add OTIF/On-Time/In-Full world-class targets to the factsheet."
-        status: open
+        status: resolved
 
     mapping_gaps: []
 

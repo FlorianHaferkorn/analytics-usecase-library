@@ -494,7 +494,7 @@ mapping_readiness:
           (SMRP BMP). Add to make the success criteria measurable.
         evidence_reference: SRC-005
         remediation: "Add SMRP world-class targets to the factsheet success criteria."
-        status: open
+        status: resolved
 
     mapping_gaps: []
 
