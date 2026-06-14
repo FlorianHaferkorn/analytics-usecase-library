@@ -134,6 +134,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** SG&A cost at or below the APQC Open Standards Benchmarking industry median (APQC); favourable net cost variance vs standard with material price and usage variances both controlled (CIMA Official Terminology; Horngren's Cost Accounting 17e); stable-to-declining COGS % with input inflation fully recovered in pricing; OPEX within plan via zero-based justify-from-zero discipline (McKinsey/Deloitte ZBB).  
 - Impact: Reduced unit cost vs plan; improved COGS %; material cost % lowered; productivity improved.  
 - Adoption: Used in monthly ops/finance reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across finance/ops; reconciled to source totals.  

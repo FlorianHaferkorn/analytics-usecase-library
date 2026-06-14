@@ -59,11 +59,21 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: fin.cash.balance
       visual_type: trend_line
-    - kpi_ids:
+    - slot_id: Main_2
+      kpi_ids:
       - fin.cash.ocf
       - fin.cash.vs_plan.pct
       - wc.dso.days
       visual_type: bar_chart
+    - slot_id: Main_3
+      # CCC bridge: DSO + DIO − DPO → CCC decomposition (mapping_gap fix; IBCS bridge)
+      visual_type: waterfall
+      comparison: vs_target
+      kpi_ids:
+      - wc.dso.days
+      - wc.dio.days
+      - wc.dpo.days
+      - wc.ccc.days
   page_2_execution:
     title: Finance Execution
     page_type: T4_Prescriptive_Recommendation

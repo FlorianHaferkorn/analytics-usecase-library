@@ -1,0 +1,450 @@
+evidence_pack_version: "1.0"
+use_case_id: SCM-002
+use_case_title: Supply Reliability & OTIF
+domain: Supply Chain
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Customer-facing delivery reliability measured as OTIF (On-Time In-Full) — the joint
+    achievement of delivering the right quantity at the committed time. Covers the two OTIF
+    components (on-time, in-full), the stockout impact that erodes in-full, and the cost of
+    failure (penalties/chargebacks and expedite/premium freight). OTIF is the reliability
+    core of the SCOR Perfect Order; perfect-condition and documentation accuracy are out of
+    scope here.
+  in_scope:
+    - OTIF measured jointly at the order/case level (SCOR Perfect Order reliability core)
+    - On-Time delivery to the customer-committed date/receipt window
+    - In-Full fulfilment (line/quantity completeness) and allocation discipline
+    - Stockout impact (lost demand) as the upstream driver of in-full failure
+    - Cost of unreliability: chargebacks/penalties and expedite/premium freight
+    - OTIF segmentation by customer, lane/carrier, and SKU
+  out_of_scope:
+    - Perfect-condition (damage-free) and documentation-accuracy components of Perfect Order
+    - Inbound supplier OTIF and supplier scorecarding (SCM upstream use case)
+    - Inventory positioning and DIO optimisation (SCM-001)
+    - Demand forecasting accuracy (SCM-003)
+  industry_segment: >
+    Manufacturing and distribution serving retail, grocery, and B2B channels — most acute
+    where customers impose OTIF compliance regimes with financial penalties (e.g., large
+    retail). Applicable to any make-to-stock or make-to-order fulfilment operation.
+  applicable_frameworks:
+    - name: SCOR Digital Standard — RL.1.1 Perfect Order Fulfillment (Reliability attribute)
+      id: SCOR-DS
+    - name: ASCM/APICS Dictionary (16th ed.) — OTIF, Perfect Order, Fill Rate definitions
+      id: ASCM-DICT
+    - name: Gartner Hierarchy of Supply Chain Metrics — Perfect Order
+      id: GARTNER-HSCM
+    - name: CSCMP Supply Chain Benchmarks — OTIF / Perfect Order by industry
+      id: CSCMP-BNK
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: supply.otif.pct
+      name: OTIF %
+      definition: >
+        OTIF Orders / Total Orders, where an order is OTIF only if it is delivered both
+        On-Time AND In-Full. The reliability core of the SCOR Perfect Order (RL.1.1). Because
+        it is a joint (AND) condition, aggregate OTIF is always ≤ min(On-Time %, In-Full %).
+      unit: "%"
+      direction: maximize
+      benchmark_target: "≥ 95% world-class perfect-order reliability; large-retail compliance regimes target 98% (Gartner; Walmart OTIF)"
+      benchmark_source_id: SRC-004
+      scor_reference: "SCOR-DS RL.1.1 Perfect Order Fulfillment"
+
+  driver_kpis:
+    - id: supply.on_time.pct
+      name: On-Time %
+      definition: >
+        On-Time Deliveries / Total Deliveries, measured against the customer-committed delivery
+        date or receipt window — not the internal ship date. SCOR delivery-performance component.
+      unit: "%"
+      direction: maximize
+      drives: supply.otif.pct
+      causal_mechanism: >
+        On-time failure is typically driven by transport execution and lane/carrier
+        variability. It is one of the two multiplicative gates on OTIF; analyse by lane and
+        carrier (SCOR-DS; ASCM Dictionary).
+      benchmark_target: "≥ 97% (Gartner hierarchy of metrics)"
+      benchmark_source_id: SRC-004
+
+    - id: supply.in_full.pct
+      name: In-Full %
+      definition: >
+        In-Full Deliveries / Total Deliveries — the order/line is shipped complete with the
+        full ordered quantity. Driven by inventory availability and allocation discipline.
+      unit: "%"
+      direction: maximize
+      drives: supply.otif.pct
+      causal_mechanism: >
+        In-full failure is an availability/allocation problem: insufficient stock or
+        prioritisation forces partial shipments. Fill-rate (cycle service level) theory links
+        in-full directly to safety-stock and allocation policy (Chopra & Meindl; Silver et al.).
+      benchmark_target: "≥ 98% line fill rate (CSCMP world-class)"
+      benchmark_source_id: SRC-005
+
+  diagnostic_kpis:
+    - id: supply.stockout_impact.pct
+      name: Stockout Impact %
+      definition: "Lost Demand Qty / Total Demand Qty (fact_stockout). The demand-side measure of in-full failure."
+      unit: "%"
+      direction: minimize
+      diagnoses: supply.in_full.pct
+      causal_mechanism: >
+        Stockout impact quantifies the demand actually lost to unavailability, isolating the
+        in-full failures that are inventory-driven from those that are allocation-driven
+        (Silver, Pyke & Thomas — fill-rate vs service-level distinction).
+
+    - id: supply.penalty.amount
+      name: Penalty Amount
+      definition: "Sum of penalty/chargeback charges incurred (fact_fulfillment). The financial cost of OTIF failure."
+      unit: EUR
+      direction: minimize
+      diagnoses: supply.otif.pct
+      causal_mechanism: >
+        In compliance regimes, every non-OTIF case carries a chargeback (e.g., Walmart's 3%
+        of COGS on non-compliant cases). Penalty amount converts OTIF failure into a P&L
+        number and is the burning-platform for action (SRC-007).
+
+    - id: supply.expedite.amount
+      name: Expedite Cost Amount
+      definition: "Sum of expedite fees and premium freight (fact_fulfillment). The cost of buying on-time reactively."
+      unit: EUR
+      direction: minimize
+      diagnoses: supply.on_time.pct
+      causal_mechanism: >
+        Expedite spend is OTIF achieved unsustainably: on-time held up by premium freight
+        masks a structural reliability problem and erodes margin. Read alongside OTIF, never
+        in isolation (Gartner cost-to-serve).
+
+  guardrails:
+    - description: Measure OTIF at the customer commitment, not the internal ship date
+      condition: >
+        On-Time and OTIF must be evaluated against the customer-committed delivery date or
+        receipt window. Measuring at ship/dispatch inflates OTIF and hides last-mile failure
+        (SCOR-DS delivery-performance definition; Walmart measures at DC receipt window).
+      affected_kpis: [supply.on_time.pct, supply.otif.pct]
+
+    - description: Do not buy OTIF with unbounded expedite
+      condition: >
+        OTIF-recovery actions must respect the expedite/premium-freight budget. On-time bought
+        through premium freight is not a sustainable reliability gain.
+      affected_kpis: [supply.on_time.pct, supply.expedite.amount]
+
+    - description: Do not protect On-Time by sacrificing In-Full
+      condition: >
+        Splitting orders into partial shipments can flatter On-Time while failing In-Full.
+        OTIF being a joint condition, partial-shipment gaming must not be used to hit the
+        on-time number (Novack & Thomas — component trade-off).
+      affected_kpis: [supply.on_time.pct, supply.in_full.pct, supply.otif.pct]
+
+  wrong_interpretations:
+    - description: "Multiplying On-Time % × In-Full % to estimate OTIF"
+      why_wrong: >
+        OTIF is a joint AND condition measured at the order level, not the product of the two
+        component percentages. On-time and in-full failures are correlated (a stockout often
+        causes both), so On-Time % × In-Full % overstates true OTIF. Measure OTIF directly.
+      source_id: SRC-003
+
+    - description: "Aggregate OTIF hiding customer- or SKU-level failure"
+      why_wrong: >
+        A 95% aggregate OTIF can conceal a pattern where a few high-penalty customers or SKUs
+        chronically fail. Perfect-order performance must be segmented to target root causes
+        (Novack & Thomas; SCOR-DS).
+      source_id: SRC-003
+
+    - description: "Treating high OTIF as unambiguously good regardless of cost"
+      why_wrong: >
+        OTIF achieved through excess safety stock or premium expedite is a false win. Read OTIF
+        with expedite cost, penalty cost, and inventory to confirm the reliability is
+        structural, not bought (Gartner cost-to-serve).
+      source_id: SRC-004
+
+    - description: "Measuring On-Time at ship rather than customer receipt"
+      why_wrong: >
+        Ship-date on-time ignores transit variability and the customer's receiving window,
+        the very thing OTIF is meant to protect. Compliance regimes measure at receipt.
+      source_id: SRC-007
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_fulfillment
+      description: >
+        Order/line fulfilment backbone. Must contain: OTIF Flag, On-Time Flag, In-Full Flag,
+        Expedite Cost, Penalty Amount, order_id, line_id, customer_id, carrier/lane,
+        committed_date, delivered_date. The single source for all OTIF KPIs.
+    - table: fact_stockout
+      description: >
+        Demand-loss log. Must contain: Lost Demand Units, SKU, location, period. Required to
+        compute Stockout Impact % and attribute in-full failure to availability.
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for OTIF trend; CalendarWeek + CalendarMonth required."
+    - name: dim_customer
+      grain_relevance: "Customer/channel segmentation — mandatory to isolate high-penalty compliance accounts."
+    - name: dim_carrier_lane
+      grain_relevance: "Carrier and lane attribution for on-time root cause. Not confirmed in the contract — model_gap."
+    - name: dim_product
+      grain_relevance: "SKU-level OTIF for in-full and stockout Pareto."
+
+  preferred_grain: order-line-day
+  minimum_grain: order-day
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    order-day grain is acceptable only where line-level fulfilment is structurally unavailable;
+    in-full root-cause (which line failed) is degraded under the waiver.
+
+  required_measures:
+    - name: OTIF %
+      formula_seed: "OTIF_Orders / Total_Orders   (order is OTIF iff On-Time AND In-Full)"
+      source_id: SRC-001
+    - name: On-Time %
+      formula_seed: "On_Time_Deliveries / Total_Deliveries (vs committed date/window)"
+      source_id: SRC-001
+    - name: In-Full %
+      formula_seed: "In_Full_Deliveries / Total_Deliveries"
+      source_id: SRC-001
+    - name: Stockout Impact %
+      formula_seed: "Lost_Demand_Qty / Total_Demand_Qty"
+      source_id: SRC-008
+    - name: Penalty Amount
+      formula_seed: "SUM(Penalty/Chargeback charges)"
+      source_id: SRC-007
+    - name: Expedite Cost Amount
+      formula_seed: "SUM(Expedite fees + premium freight)"
+      source_id: SRC-004
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: supply.otif.pct
+    trigger_diagnostic: supply.penalty.amount
+    trigger_condition: "OTIF below target AND penalty amount concentrated in a few customers/SKUs"
+    guardrail: "Segment before acting; measure at customer receipt window"
+    action_description: >
+      OTIF orchestration: rank the OTIF gap by customer × penalty exposure, decompose each
+      into on-time vs in-full failure, and sequence the component actions.
+    expected_outcome_kpi: supply.otif.pct
+    action_code_candidate: S-R2.1
+
+  - trigger_driver: supply.on_time.pct
+    trigger_diagnostic: supply.expedite.amount
+    trigger_condition: "On-Time below target on specific lanes/carriers (expedite spend rising to compensate)"
+    guardrail: "Respect the expedite budget — do not buy on-time with premium freight"
+    action_description: >
+      Fulfilment & transport stabilisation: carrier/lane performance management, dispatch
+      scheduling, and committed-date discipline to lift structural on-time.
+    expected_outcome_kpi: supply.on_time.pct
+    action_code_candidate: S-R2.2
+
+  - trigger_driver: supply.in_full.pct
+    trigger_diagnostic: supply.stockout_impact.pct
+    trigger_condition: "In-Full below target driven by stockout impact on specific SKUs"
+    guardrail: "Do not over-stock beyond criticality-justified service level (SCM-001 link)"
+    action_description: >
+      In-full & stockout-impact reduction: allocation rules for constrained SKUs, safety-stock
+      review on chronic failers, and substitution policy.
+    expected_outcome_kpi: supply.in_full.pct
+    action_code_candidate: S-R2.3
+
+  - trigger_driver: supply.penalty.amount
+    trigger_diagnostic: supply.expedite.amount
+    trigger_condition: "Penalty + expedite cost rising faster than OTIF recovery (cost of unreliability outpacing service gain)"
+    guardrail: "Optimise total cost of unreliability, not penalty alone"
+    action_description: >
+      Penalty & expedite cost control: target the highest cost-per-point customers, renegotiate
+      windows where feasible, and stop expedite that costs more than the penalty it avoids.
+    expected_outcome_kpi: supply.penalty.amount
+    action_code_candidate: S-R2.4
+
+  - trigger_driver: supply.otif.pct
+    trigger_diagnostic: supply.in_full.pct
+    trigger_condition: "OTIF failure traced to planning/execution misalignment (commitments exceed supply plan)"
+    guardrail: "Align order promising with the constrained supply plan"
+    action_description: >
+      Planning & execution alignment: ATP/CTP order promising against the real supply plan so
+      committed dates are achievable, closing the gap between sales promises and fulfilment.
+    expected_outcome_kpi: supply.otif.pct
+    action_code_candidate: S-R2.5
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.5
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "SCOR Digital Standard — RL.1.1 Perfect Order Fulfillment and Reliability sub-metrics (On-Time, In-Full)"
+      author: "ASCM (Association for Supply Chain Management, formerly APICS)"
+      year: 2022
+      url: "https://www.ascm.org/corporate-solutions/standards-tools/scor-ds/"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [outcome_kpis, driver_kpis, required_measures, wrong_interpretations]
+
+    - id: SRC-002
+      category: PRO
+      title: "ASCM/APICS Dictionary, 16th Edition — OTIF, Perfect Order, Fill Rate definitions"
+      author: "ASCM (formerly APICS)"
+      year: 2022
+      url: "https://www.ascm.org/learning-development/certify-credentials/dictionary/"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [outcome_kpis, driver_kpis]
+
+    - id: SRC-003
+      category: ACA
+      title: "Novack, R.A. & Thomas, D.J. (2004). The challenges of implementing the perfect order concept. Transportation Journal, 43(1), 5–16."
+      author: "Novack, R.A.; Thomas, D.J."
+      year: 2004
+      url: "https://trid.trb.org/View/757948"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [wrong_interpretations, guardrails]
+      notes: "Foundational on perfect-order component interaction and the aggregate-hiding trap. Age waiver."
+
+    - id: SRC-004
+      category: BNK
+      title: "Gartner Hierarchy of Supply Chain Metrics — Perfect Order benchmarking framework"
+      author: "Gartner"
+      year: 2023
+      url: "https://www.gartner.com/en/supply-chain/research/hierarchy-of-metrics"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [benchmark_targets, outcome_kpis, wrong_interpretations]
+
+    - id: SRC-005
+      category: BNK
+      title: "CSCMP Supply Chain Benchmark / State of Logistics — OTIF and fill-rate by industry"
+      author: "Council of Supply Chain Management Professionals (CSCMP)"
+      year: 2023
+      url: "https://cscmp.org/CSCMP/Research/State_of_Logistics_Report"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [benchmark_targets, driver_kpis]
+
+    - id: SRC-006
+      category: ACA
+      title: "Chopra, S. & Meindl, P. (2022). Supply Chain Management: Strategy, Planning, and Operation, 8th ed. Pearson."
+      author: "Chopra, S.; Meindl, P."
+      year: 2022
+      url: "https://www.pearson.com/en-us/subject-catalog/p/supply-chain-management/P200000006183"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [driver_kpis]
+      notes: "Cycle service level / fill rate theory underpinning the in-full driver."
+
+    - id: SRC-007
+      category: IMP
+      title: "Walmart On-Time In-Full (OTIF) Supplier Program — definition, receipt-window measurement, and chargeback policy"
+      author: "Walmart (supplier compliance program)"
+      year: 2023
+      url: "https://corporate.walmart.com/suppliers"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [diagnostic_kpis, guardrails, required_measures, wrong_interpretations]
+      notes: "Real-world OTIF compliance regime: cases on-time-and-in-full / cases ordered at DC receipt window; ~3% COGS chargeback on non-compliant cases."
+
+    - id: SRC-008
+      category: ACA
+      title: "Silver, E.A., Pyke, D.F. & Thomas, D.J. (2017). Inventory and Production Management in Supply Chains, 4th ed. CRC Press."
+      author: "Silver, E.A.; Pyke, D.F.; Thomas, D.J."
+      year: 2017
+      url: "https://www.routledge.com/Inventory-and-Production-Management-in-Supply-Chains/Silver-Pyke-Thomas/p/book/9781466558618"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [diagnostic_kpis]
+      notes: "Fill-rate vs service-level distinction behind the stockout-impact diagnostic."
+
+    - id: SRC-009
+      category: IMP
+      title: "McKinsey & Company — Improving on-time-in-full and service reliability (Operations Practice)"
+      author: "McKinsey Operations Practice"
+      year: 2022
+      url: "https://www.mckinsey.com/capabilities/operations/our-insights"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 12
+      supports: [actions_by_root_cause, guardrails]
+
+    - id: SRC-010
+      category: RSK
+      title: "Supply Chain Dive — OTIF chargeback regimes and metric-gaming pitfalls (retail compliance reporting)"
+      author: "Supply Chain Dive (Industry Dive)"
+      year: 2023
+      url: "https://www.supplychaindive.com/topic/last-mile-delivery/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [wrong_interpretations, guardrails]
+      notes: "Anti-pattern source: partial-shipment gaming, ship-vs-receipt measurement, expedite masking."
+
+    - id: SRC-011
+      category: ACA
+      title: "Bowersox, D.J., Closs, D.J., Cooper, M.B. & Bowersox, J.C. (2020). Supply Chain Logistics Management, 5th ed. McGraw-Hill."
+      author: "Bowersox, D.J. et al."
+      year: 2020
+      url: "https://www.mheducation.com/highered/product/supply-chain-logistics-management-bowersox-closs/M9781260547825.html"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, outcome_kpis]
+      notes: "Perfect-order concept and delivery-reliability framing."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: partial
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md
+        field: "Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: OTIF ≥ 95% world-class (≥ 98% under retail compliance),
+          On-Time ≥ 97%, In-Full ≥ 98% (Gartner / CSCMP). Add to make success criteria measurable.
+        evidence_reference: SRC-004 SRC-005
+        remediation: "Add OTIF/On-Time/In-Full world-class targets to the factsheet."
+        status: resolved
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/supply_chain.yaml
+        field: dim_carrier_lane
+        description: >
+          On-Time root cause requires carrier/lane attribution. No confirmed carrier/lane
+          dimension on fact_fulfillment, so on-time failure cannot be Pareto'd by lane.
+        evidence_reference: SRC-001
+        remediation: "Add carrier/lane attributes (or a dim_carrier_lane) to the fulfilment contract."
+        status: open

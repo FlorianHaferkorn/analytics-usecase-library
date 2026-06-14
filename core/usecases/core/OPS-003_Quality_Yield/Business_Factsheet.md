@@ -133,6 +133,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** First Pass Yield ≥ 99% (RTY exposes the hidden factory below it); COPQ < 5% of sales world-class (15–20% for poor performers, Juran); defect density 6σ ≈ 3.4 DPMO (4σ ≈ 6,210 DPMO); automotive field quality at PPM level (IATF 16949). Scrap and rework on a declining trend, with prevention favoured over appraisal/inspection.  
 - Impact: FPY improves to targets; scrap/rework reduced; COPQ reduced; complaint rate lowered.  
 - Adoption: Used in weekly quality/ops reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; reconciled units with production totals.  

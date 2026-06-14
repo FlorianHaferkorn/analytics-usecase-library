@@ -1,0 +1,515 @@
+evidence_pack_version: "1.0"
+use_case_id: SCM-003
+use_case_title: Forecast vs Actual
+domain: Supply Chain / Planning
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Demand forecasting accuracy and bias: how closely the demand forecast tracks actual
+    sales by SKU/location/period, the error (MAPE/WMAPE) and directional bias that erode it,
+    the service and re-plan consequences those errors generate, and whether the forecasting
+    process itself adds value over a naive benchmark (Forecast Value Added). Distinct from
+    SCM-001 (inventory optimization) — this use case isolates the quality of the demand
+    signal that feeds supply and inventory planning within the S&OP / IBP cycle.
+  in_scope:
+    - Forecast Accuracy % and the error decomposition (MAPE, WMAPE) that drives it
+    - Forecast Bias % as the directional (over/under-forecasting) signal distinct from error magnitude
+    - Service impact (OTIF/stockout) attributable to forecast error, and re-plan frequency as instability
+    - Forecast Value Added (FVA) versus a naive benchmark — whether the process adds or destroys value
+    - Forecastability segmentation (ABC/XYZ, demand volatility) as the context for accuracy targets
+    - Forecast-gaming guardrail (no sandbagging / hockey-stick bias to hit a target number)
+  out_of_scope:
+    - Promotion-specific uplift modelling (COM-004)
+    - Portfolio mix and assortment strategy (COM-009)
+    - Detailed inventory optimization and safety-stock sizing (SCM-001)
+    - Supply-side capacity and constraint planning (separate supply planning use case)
+  industry_segment: >
+    Any demand-driven supply chain — CPG/FMCG, retail, industrial distribution, manufacturing,
+    pharma, and B2B. Applicable wherever a periodic demand forecast feeds production, procurement,
+    and inventory decisions through an S&OP / IBP process.
+  applicable_frameworks:
+    - name: APICS / ASCM Sales & Operations Planning (S&OP) body of knowledge
+      id: ASCM-SOP
+    - name: ASCM SCOR Digital Standard — Plan process (forecasting, demand planning)
+      id: ASCM-SCOR
+    - name: IBF forecast error metrics (MAPE, WMAPE, bias, MAD) and benchmarking
+      id: IBF-METRICS
+    - name: Forecast Value Added (FVA) analysis — naive-benchmark process evaluation
+      id: FVA
+    - name: CSCMP Suggested Minimum Supply Chain Benchmarking Standards
+      id: CSCMP-BENCH
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: plan.forecast.accuracy.pct
+      name: Forecast Accuracy %
+      definition: >
+        Forecast Accuracy = 1 − WMAPE (or 100% − MAPE) at the chosen grain. The proportion of
+        demand the forecast correctly anticipated. The primary planning outcome and the strategic
+        KPI of SCM-003; it gates production, procurement, and inventory decisions in S&OP.
+      unit: "%"
+      direction: maximize
+      benchmark_target: "World-class ~80–90% (≈10–20% WMAPE) for stable/high-volume SKUs; lumpy/intermittent SKUs far lower — read against forecastability, not a single flat target (IBF)"
+      benchmark_source_id: SRC-007
+      iso_reference: "APICS/ASCM S&OP demand-plan accuracy; IBF forecast error metrics"
+
+  driver_kpis:
+    - id: plan.forecast.mape.pct
+      name: Forecast Error (MAPE / WMAPE) %
+      definition: >
+        Mean / Weighted Mean Absolute Percentage Error of forecast versus actual. The magnitude
+        of forecast error irrespective of direction. The primary lever on accuracy; WMAPE is
+        preferred over plain MAPE because small actuals inflate MAPE.
+      unit: "%"
+      direction: minimize
+      drives: plan.forecast.accuracy.pct
+      causal_mechanism: >
+        Accuracy is the complement of error: every point of WMAPE is a point of lost accuracy.
+        WMAPE weights error by volume so high-revenue SKUs dominate the number, making it the
+        actionable entry point for error reduction (Hyndman & Athanasopoulos; IBF).
+      benchmark_target: "World-class 10–20% WMAPE for stable high-volume demand; intermittent demand structurally higher (IBF; Makridakis M-competitions)"
+      benchmark_source_id: SRC-007
+
+    - id: plan.forecast.bias.pct
+      name: Forecast Bias %
+      definition: >
+        Signed mean forecast error: (Forecast − Actual) / Actual over the period. Measures
+        systematic over- or under-forecasting (direction), distinct from MAPE which measures
+        magnitude only.
+      unit: "%"
+      direction: target_zero
+      drives: plan.forecast.accuracy.pct
+      causal_mechanism: >
+        Bias is the directional defect MAPE cannot see: a forecast can have moderate MAPE yet
+        persistent positive bias that systematically overstocks. Bias near zero is the
+        precondition for accuracy gains to translate into balanced inventory (IBF; Gilliland).
+      benchmark_target: "World-class |bias| ≈ 0 (within ±5% tracking-signal band); persistent one-sided bias indicates process or gaming problem (IBF; Gilliland)"
+      benchmark_source_id: SRC-007
+
+    - id: plan.forecast.service_impact.pct
+      name: Forecast Service Impact %
+      definition: >
+        Share of OTIF misses / stockouts attributable to forecast error (under-forecast driving
+        shortage, over-forecast driving excess/obsolescence). Translates forecast quality into a
+        service and working-capital consequence.
+      unit: "%"
+      direction: minimize
+      drives: plan.forecast.accuracy.pct
+      causal_mechanism: >
+        Forecast error is only material where it breaks service or ties up capital. Linking error
+        to OTIF/stockout focuses action on the SKU/location clusters where accuracy actually
+        moves the business outcome (ASCM S&OP; CSCMP).
+      benchmark_target: "Declining trend; forecast-attributable service misses should fall as accuracy rises and bias centres (CSCMP benchmarking)"
+      benchmark_source_id: SRC-006
+
+    - id: plan.replan.count
+      name: Re-Plan Count
+      definition: >
+        Count of forecast-driven re-plan / re-forecast events in the period. A measure of plan
+        instability and nervousness in the S&OP cycle.
+      unit: count
+      direction: minimize
+      drives: plan.forecast.accuracy.pct
+      causal_mechanism: >
+        Frequent re-plans signal a forecast the organisation does not trust; they consume
+        planner capacity and propagate nervousness into supply. Stable accuracy reduces re-plan
+        volume; high re-plans with stable accuracy point to process churn, not signal change (ASCM S&OP).
+      benchmark_target: "Declining trend; re-plans should track genuine demand shifts, not process churn (ASCM S&OP)"
+      benchmark_source_id: SRC-001
+
+  diagnostic_kpis:
+    - id: plan.forecast.fva
+      name: Forecast Value Added (FVA)
+      definition: "Accuracy of the analyst/statistical forecast minus accuracy of a naive benchmark (e.g. last period = next period). Positive FVA means the process adds value."
+      unit: "%"
+      direction: maximize
+      diagnoses: plan.forecast.mape.pct
+      causal_mechanism: >
+        FVA is the lean diagnostic for the forecasting process itself: if a process step does not
+        beat the naive benchmark, it is waste and should be removed. Negative FVA explains
+        persistent error that model tuning alone cannot fix (Gilliland FVA; SAS).
+
+    - id: plans.count
+      name: Plan / Forecast Version Count
+      definition: "Count of stored forecast versions (fact_forecast). Denominator context for re-plan frequency and FVA step comparison."
+      unit: count
+      direction: minimize
+      diagnoses: plan.replan.count
+      causal_mechanism: >
+        Version count exposes how many process hands touch the forecast; each touch is an FVA
+        step to evaluate. Excess versions without accuracy gain is process waste (Gilliland FVA).
+
+    - id: sales.units
+      name: Actual Sales Units
+      definition: "Actual demand realised (fact_sales). The actuals denominator behind every accuracy, MAPE, and bias calculation."
+      unit: count
+      direction: maximize
+      diagnoses: plan.forecast.accuracy.pct
+      causal_mechanism: >
+        Small or intermittent actuals inflate MAPE and destabilise accuracy; actual-volume context
+        is required to choose WMAPE over MAPE and to segment by forecastability (IBF; Hyndman).
+
+  guardrails:
+    - description: Forecast must never be gamed to hit a target (no sandbagging / hockey-stick bias)
+      condition: >
+        Forecasts must NOT be padded down (sandbagging) or inflated (hockey-stick) to make a
+        target acceptable or beatable. Deliberate bias to game an incentive corrupts the demand
+        signal and propagates excess or shortage downstream (Gilliland worst practices; IBF bias guidance).
+      affected_kpis: [plan.forecast.bias.pct, plan.forecast.accuracy.pct, plan.replan.count]
+
+    - description: Exclude launches and promotions from baseline accuracy
+      condition: >
+        New-product launches and promotional periods must be flagged and segmented out of baseline
+        statistical accuracy so deliberate demand-shaping is not read as a forecasting failure
+        (ASCM S&OP; FVA process segmentation).
+      affected_kpis: [plan.forecast.accuracy.pct, plan.forecast.mape.pct]
+
+    - description: Read accuracy against forecastability, not a single flat target
+      condition: >
+        Accuracy and MAPE targets must be set per forecastability segment (ABC/XYZ, demand
+        coefficient of variation). Holding lumpy/intermittent SKUs to a stable-demand target sets
+        an unachievable goal and misdirects effort (forecastability; IBF benchmarking).
+      affected_kpis: [plan.forecast.accuracy.pct, plan.forecast.mape.pct]
+
+  wrong_interpretations:
+    - description: "Reading forecast bias from MAPE (confusing magnitude with direction)"
+      why_wrong: >
+        MAPE/WMAPE is unsigned — it cannot reveal systematic over- or under-forecasting. A low-MAPE
+        forecast can still carry persistent positive bias that quietly overstocks. Bias must be
+        measured separately with a signed metric / tracking signal (IBF forecast error metrics).
+      source_id: SRC-007
+
+    - description: "Benchmarking accuracy against a flat industry number, ignoring forecastability"
+      why_wrong: >
+        Comparing a portfolio's accuracy to a single industry figure is misleading when demand
+        volatility (forecastability) differs. Low accuracy on intermittent demand is not poor
+        forecasting; benchmarking is 'dead' without a forecastability baseline (forecastability source).
+      source_id: SRC-010
+
+    - description: "Assuming a complex statistical/model step always adds value"
+      why_wrong: >
+        A forecasting step that does not beat a naive benchmark destroys value. Without FVA analysis,
+        organisations invest in model complexity that makes the forecast worse than 'last period =
+        next period' — the central finding of FVA and the M-competitions (Gilliland; Makridakis).
+      source_id: SRC-008
+
+    - description: "Treating raw MAPE as reliable on low-volume / intermittent SKUs"
+      why_wrong: >
+        MAPE is inflated to extreme or undefined values when actuals are small or zero, over-weighting
+        low-volume items. WMAPE (volume-weighted) must be used instead so the number reflects business
+        impact (Hyndman & Athanasopoulos; IBF WMAPE guidance).
+      source_id: SRC-003
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_forecast
+      description: >
+        Forecast version log. Must contain: forecast quantity, forecast_version, snapshot_date,
+        sku_id, location_id, period, and method/source. Provides accuracy, MAPE, bias, FVA step
+        comparison and re-plan derivation.
+    - table: fact_sales
+      description: >
+        Actual demand fact. Must contain: actual sales/shipped units at sku/location/period grain.
+        The actuals denominator for accuracy, MAPE, WMAPE, and bias.
+    - table: fact_fulfillment
+      description: >
+        Order fulfilment fact (OTIF). Must contain: ordered vs delivered lines, on-time flag, at
+        sku/location/order grain. Required to attribute service impact to forecast error.
+    - table: fact_stockout
+      description: >
+        Stockout / shortage events. Must contain: stockout records at sku/location/period grain.
+        Required for the under-forecast → shortage side of service impact.
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for accuracy/bias trend and re-plan. CalendarMonth + CalendarWeek required."
+    - name: dim_org
+      grain_relevance: "Region → Channel → Location hierarchy. Location level mandatory for forecast diagnostics."
+    - name: dim_product
+      grain_relevance: "SKU → Category → Family for accuracy ranking and bias decomposition."
+    - name: dim_forecastability
+      grain_relevance: >
+        ABC/XYZ and demand-volatility (coefficient of variation) classification for setting
+        segment-specific accuracy targets. Not present in the current data contract — model_gap.
+    - name: security_user_org
+      grain_relevance: "Row-level security mapping of user to org/site for the SupplyChain semantic model."
+
+  preferred_grain: sku-location-month
+  minimum_grain: category-location-month
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    category-location-month grain is acceptable only where SKU-level forecast/actual alignment is
+    structurally unavailable. Requires explicit waiver in the bracket; bad-actor SKU bias analysis
+    and forecastability segmentation are degraded.
+
+  required_measures:
+    - name: Forecast Accuracy %
+      formula_seed: "1 - (SUM(ABS(Forecast - Actual)) / SUM(Actual))"
+      source_id: SRC-007
+    - name: Forecast Error (WMAPE) %
+      formula_seed: "SUM(ABS(Forecast - Actual)) / SUM(Actual)"
+      source_id: SRC-003
+    - name: Forecast Bias %
+      formula_seed: "SUM(Forecast - Actual) / SUM(Actual)"
+      source_id: SRC-007
+    - name: Forecast Value Added (FVA)
+      formula_seed: "Accuracy_Process - Accuracy_Naive_Benchmark"
+      source_id: SRC-008
+    - name: Forecast Service Impact %
+      formula_seed: "Forecast_Attributable_Service_Misses / Total_Service_Misses"
+      source_id: SRC-006
+    - name: Re-Plan Count
+      formula_seed: "DISTINCTCOUNT(Replan_Event_Id)"
+      source_id: SRC-001
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: plan.forecast.bias.pct
+    trigger_diagnostic: plan.forecast.fva
+    trigger_condition: "Persistent one-sided bias on a SKU/location cluster AND tracking signal outside ±band"
+    guardrail: "Confirm bias is not a flagged launch/promo; rule out sandbagging/hockey-stick gaming"
+    action_description: >
+      Forecast bias correction: decompose bias by product family and input source, identify the
+      systematic over/under-forecast driver, and recentre the baseline so bias returns toward zero.
+    expected_outcome_kpi: plan.forecast.bias.pct
+    action_code_candidate: S-F3.1
+
+  - trigger_driver: plan.forecast.mape.pct
+    trigger_diagnostic: plan.forecast.fva
+    trigger_condition: "WMAPE above target AND FVA low/negative (model not beating naive benchmark)"
+    guardrail: "Use WMAPE not raw MAPE; validate against forecastability segment before refitting"
+    action_description: >
+      Model refit / FVA cleanup: run FVA across the process steps, strip steps that do not beat the
+      naive benchmark, and refit the statistical model on the high-error volume-weighted SKUs.
+    expected_outcome_kpi: plan.forecast.mape.pct
+    action_code_candidate: S-F3.2
+
+  - trigger_driver: plan.forecast.mape.pct
+    trigger_diagnostic: sales.units
+    trigger_condition: "High WMAPE concentrated in volatile / intermittent (XYZ-Z) or new-launch demand"
+    guardrail: "Confirm the segment is genuinely low-forecastability before changing method"
+    action_description: >
+      Forecast method review / demand sensing: switch high-volatility or launch SKUs from statistical
+      baseline to demand-sensing / analogous / bottom-up methods sized to their forecastability.
+    expected_outcome_kpi: plan.forecast.mape.pct
+    action_code_candidate: S-F3.3
+
+  - trigger_driver: plan.forecast.service_impact.pct
+    trigger_diagnostic: plan.replan.count
+    trigger_condition: "Forecast-attributable service misses rising AND re-plan count elevated"
+    guardrail: "Link service miss to forecast error (not supply constraint) before acting"
+    action_description: >
+      Service-impact containment: trace OTIF/stockout misses to under/over-forecast, stabilise the
+      affected forecasts, and reduce re-plan nervousness on the impacted SKU/location set.
+    expected_outcome_kpi: plan.forecast.service_impact.pct
+    action_code_candidate: S-F3.4
+
+  - trigger_driver: plan.forecast.accuracy.pct
+    trigger_diagnostic: plan.forecast.fva
+    trigger_condition: "Portfolio accuracy below target with no forecastability-aware targets set"
+    guardrail: "Set segment-specific targets; do not benchmark against a flat industry number"
+    action_description: >
+      Forecastability-based target reset: segment the portfolio by ABC/XYZ and demand volatility,
+      set achievable accuracy/MAPE targets per segment, and reallocate planner effort to the
+      forecastable, high-impact SKUs where FVA is positive.
+    expected_outcome_kpi: plan.forecast.accuracy.pct
+    action_code_candidate: S-F3.1
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.1
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "ASCM (formerly APICS) — Sales & Operations Planning (S&OP): aligning supply and demand in the planning cycle"
+      author: "Association for Supply Chain Management (ASCM/APICS)"
+      year: 2023
+      url: "https://www.ascm.org/topics/sales-and-operations-planning/"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, driver_kpis, guardrails, required_measures]
+
+    - id: SRC-002
+      category: STD
+      title: "ASCM SCOR Digital Standard — Plan process (demand planning and forecasting reference processes and metrics)"
+      author: "Association for Supply Chain Management (ASCM)"
+      year: 2022
+      url: "https://www.ascm.org/corporate-transformation/standards-tools/scor-ds/"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, required_data_model]
+
+    - id: SRC-003
+      category: ACA
+      title: "Hyndman, R.J. & Athanasopoulos, G. — Forecasting: Principles and Practice (3rd ed.), §5.8 Evaluating point forecast accuracy (MAPE, WMAPE, MASE, scaled errors)"
+      author: "Rob J. Hyndman; George Athanasopoulos"
+      year: 2021
+      url: "https://otexts.com/fpp3/accuracy.html"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [driver_kpis, required_measures, wrong_interpretations]
+      notes: "Definitive open-access forecasting text; basis for WMAPE-over-MAPE and accuracy-evaluation logic."
+
+    - id: SRC-004
+      category: ACA
+      title: "Makridakis, S., Spiliotis, E. & Assimakopoulos, V. (2020). The M4 Competition: 100,000 time series and 61 forecasting methods. International Journal of Forecasting 36(1), 54–74."
+      author: "Makridakis, S.; Spiliotis, E.; Assimakopoulos, V."
+      year: 2020
+      url: "https://www.sciencedirect.com/science/article/pii/S0169207019301128"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis, wrong_interpretations]
+      notes: "M-competition evidence that simple methods often match complex ones — grounds the FVA / method-review logic."
+
+    - id: SRC-005
+      category: STD
+      title: "ASCM / APICS CPIM — Master Planning of Resources and Detailed Scheduling (demand management and forecasting body of knowledge)"
+      author: "Association for Supply Chain Management (ASCM/APICS)"
+      year: 2023
+      url: "https://www.ascm.org/learning-development/certifications-credentials/cpim/"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [process_scope, guardrails]
+      notes: "Certification body of knowledge; independence 2 (sector membership body)."
+
+    - id: SRC-006
+      category: BNK
+      title: "CSCMP Suggested Minimum Supply Chain Benchmarking Standards (forecast accuracy and demand-planning benchmark metrics)"
+      author: "Council of Supply Chain Management Professionals (CSCMP)"
+      year: 2014
+      url: "https://cscmp.org/CSCMP/CSCMP/Store/StoreLayouts/Item_Detail.aspx?iProductCode=RS10-MIMBNCH&Category=RSCH"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, required_measures, benchmark_targets]
+
+    - id: SRC-007
+      category: PRO
+      title: "IBF — Forecast Error Metrics to Assess Performance (MAPE, WMAPE, bias/MAD; tracking signal)"
+      author: "Institute of Business Forecasting & Planning (IBF)"
+      year: 2022
+      url: "https://ibf.org/knowledge/posts/forecast-error-metrics-to-assess-performance-39"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [outcome_kpis, driver_kpis, wrong_interpretations, benchmark_targets]
+
+    - id: SRC-008
+      category: IMP
+      title: "Gilliland, M. — Forecast Value Added Analysis: Step by Step (SAS white paper) — naive-benchmark process evaluation"
+      author: "Michael Gilliland (SAS Institute)"
+      year: 2019
+      url: "https://www.sas.com/content/dam/SAS/en_us/doc/whitepaper1/forecast-value-added-analysis-106186.pdf"
+      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 12
+      supports: [diagnostic_kpis, action_logic_seeds, wrong_interpretations, required_measures]
+      notes: "Vendor-authored (SAS) but the canonical FVA reference; independence 2."
+
+    - id: SRC-009
+      category: IMP
+      title: "Gilliland, M. (2010). The Business Forecasting Deal: Exposing Myths, Eliminating Bad Practices, Providing Practical Solutions. Wiley/SAS Business Series."
+      author: "Michael Gilliland"
+      year: 2010
+      url: "https://www.wiley.com/en-us/The+Business+Forecasting+Deal%3A+Exposing+Myths%2C+Eliminating+Bad+Practices%2C+Providing+Practical+Solutions-p-9780470574430"
+      scores: { authority: 2, recency: 1, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 11
+      supports: [diagnostic_kpis, guardrails, wrong_interpretations]
+      notes: "Practitioner reference for FVA and forecasting worst practices; independence 2 (SAS-affiliated)."
+
+    - id: SRC-010
+      category: RSK
+      title: "Forecast Accuracy Benchmarking Is Dead (Long Live Forecastability) — risk of benchmarking accuracy without a forecastability baseline"
+      author: "Demand Planning / S&OP / IBP practitioner blog"
+      year: 2019
+      url: "https://demand-planning.com/2019/04/15/forecastability/"
+      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 12
+      supports: [guardrails, wrong_interpretations]
+      notes: "Anti-pattern source: flat-benchmark accuracy comparison without forecastability is misleading."
+
+    - id: SRC-011
+      category: RSK
+      title: "TBM — Eliminate Bias from Demand Planning: forecast gaming, sandbagging and hockey-stick bias as S&OP anti-patterns"
+      author: "TBM Consulting Group"
+      year: 2021
+      url: "https://tbmcg.com/resources/blog/sop-eliminate-bias-from-demand-planning/"
+      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 12
+      supports: [guardrails, wrong_interpretations]
+      notes: "Anti-pattern source for sandbagging / hockey-stick forecast gaming and its downstream excess/shortage effects."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: complete
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
+        field: "Section 8 Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: world-class accuracy ~80–90% (10–20% WMAPE) for stable
+          high-volume demand, bias near zero (±5% tracking-signal band), and positive FVA versus a
+          naive benchmark — read against forecastability, not a flat number (IBF / CSCMP / FVA).
+          Added to make success criteria measurable.
+        evidence_reference: SRC-006 SRC-007 SRC-008
+        remediation: "Add accuracy / WMAPE / bias / FVA world-class targets to the factsheet success criteria."
+        status: resolved
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/supply_chain.yaml
+        field: dim_forecastability (ABC/XYZ + demand coefficient of variation)
+        description: >
+          No forecastability dimension exists. Segment-specific accuracy targets and the
+          forecastability-aware action (S-F3.1 / S-F3.3) require ABC/XYZ and demand-volatility
+          classification at the SKU/location grain, which the current data contract does not define.
+        evidence_reference: SRC-007 SRC-010
+        remediation: "Add dim_forecastability (ABC/XYZ + CoV bands) to the supply_chain contract and bind it to SKU/location grain."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/supply_chain.yaml
+        field: fact_forecast (naive-benchmark and FVA step lineage)
+        description: >
+          FVA requires a naive-benchmark forecast and per-step forecast versions stored alongside the
+          analyst/statistical forecast. fact_forecast is referenced by the factsheet but its
+          naive-benchmark and process-step lineage is not defined in the data contract.
+        evidence_reference: SRC-008
+        remediation: "Define fact_forecast with naive-benchmark and per-step version columns and bind the FVA measure lineage."
+        status: open

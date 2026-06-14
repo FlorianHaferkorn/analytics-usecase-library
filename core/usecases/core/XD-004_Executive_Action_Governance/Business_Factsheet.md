@@ -126,6 +126,7 @@ This use case subscribes to a single executive governance action that escalates 
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** Action outcome / closure rate ≥ 85–90% (outcome-verified, not status-only); time-to-outcome trending down within the X-E3.3 90-day follow-up window; 100% accountability coverage (single owner role, due date, status, and evaluable outcome flag per routed action). Grounded in decision-centric governance evidence — only ~14% of organisations rate highly on acting quickly on insight, and Gartner predicts 80% of D&A governance initiatives fail by 2027 where governance is not tied to outcomes (HBR last-mile; Gartner; Kaplan & Norton execution premium).
 - **Impact:** Action outcome rate improves quarter over quarter while overdue backlog decreases.
 - **Adoption:** Used in executive governance cadence and PMO follow-up reviews.
 - **Quality:** 100% of routed executive actions have owner, due date, status, and evaluable outcome flag.

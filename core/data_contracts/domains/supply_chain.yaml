@@ -50,11 +50,33 @@ dimension:
       - {name: Destination, type: text, allowed_values: [AT, BE, CH, DE, DK, ES, LU, NL, NO, SE], synonyms: [Ship-To, Delivery Country, Zielland, Empfangsort]}
       - {name: Mode, type: text, nullable: true, allowed_values: [Road, Rail, Air, Sea], synonyms: [Transport Mode, Shipping Mode, Verkehrsträger, Transportmodus]}
 
+  - name: dim_carrier_lane
+    description: "Carrier-lane dimension (carrier, origin, destination, lane, mode) for on-time root cause."
+    purpose: "Carrier and lane-level on-time delivery root cause analysis (SCM-002)."
+    scd_type: 1
+    columns:
+      - {name: CarrierLaneKey, type: int, role: key}
+      - {name: Carrier, type: text, synonyms: [Carrier Name, Transporteur, Spediteur, Frachtführer]}
+      - {name: Origin, type: text, synonyms: [Ship-From, Source DC, Versandort, Quelle]}
+      - {name: Destination, type: text, synonyms: [Ship-To, Delivery Country, Zielland, Empfangsort]}
+      - {name: Lane, type: text, synonyms: [Origin-Destination, Route, Verbindung, Strecke]}
+      - {name: Mode, type: text, nullable: true, allowed_values: [Road, Rail, Air, Sea], synonyms: [Transport Mode, Shipping Mode, Verkehrsträger, Transportmodus]}
+
+  - name: dim_forecastability
+    description: "Forecastability segmentation (ABC/XYZ class, demand CoV band) for segment-specific targets."
+    purpose: "Segment-specific forecast accuracy targets and FVA benchmarking (SCM-003)."
+    scd_type: 1
+    columns:
+      - {name: ForecastabilityKey, type: int, role: key}
+      - {name: ABC_Class, type: text, allowed_values: [A, B, C], synonyms: [ABC Class, ABC Classification, ABC-Analyse, ABC-Klassifizierung]}
+      - {name: XYZ_Class, type: text, allowed_values: [X, Y, Z], synonyms: [XYZ Class, XYZ Classification, XYZ-Analyse, RSU-Analyse]}
+      - {name: Demand_CoV_Band, type: text, allowed_values: [Low, Medium, High], synonyms: [Demand CoV Band, Coefficient of Variation Band, Variabilitätsklasse, Streuungsband]}
+
 fact:
   - name: fact_inventory
-    description: "Inventory snapshot (average/obsolete) at location-SKU-month grain."
-    purpose: "Inventory value and obsolescence reporting."
-    grain: location_sku_month
+    description: "Daily inventory snapshot (on-hand/average/obsolete) at location-SKU-day grain for precise DIO."
+    purpose: "Inventory value, days inventory outstanding (DIO), and obsolescence reporting (SCM-001)."
+    grain: location_sku_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -83,6 +105,7 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product, nullable: true}
       - {name: LaneKey, type: int, ref: dim_lane, nullable: true}
+      - {name: CarrierLaneKey, type: int, ref: dim_carrier_lane, nullable: true}
       - {name: OTIF Flag, type: boolean}
       - {name: On-Time Flag, type: boolean, nullable: true}
       - {name: In-Full Flag, type: boolean, nullable: true}
@@ -104,14 +127,18 @@ fact:
       - {name: Demand Units, type: decimal, agg: sum}
 
   - name: fact_forecast
-    description: "Demand forecast by SKU, location, and month (with version)."
-    purpose: "Forecast accuracy and planning."
+    description: "Demand forecast by SKU, location, and month with naive/statistical/consensus forecast and actuals for FVA."
+    purpose: "Forecast accuracy, segment-specific targets, and Forecast Value Added (FVA) vs naive benchmark (SCM-003)."
     grain: sku_location_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: ForecastabilityKey, type: int, ref: dim_forecastability, nullable: true}
       - {name: Forecast Units, type: decimal, agg: sum}
+      - {name: Naive Forecast Units, type: decimal, agg: sum, nullable: true}
+      - {name: Statistical Forecast Units, type: decimal, agg: sum, nullable: true}
+      - {name: Actual Units, type: decimal, agg: sum, nullable: true}
       - {name: Forecast Version, type: text, nullable: true}
 
   - name: fact_sales
@@ -194,10 +221,15 @@ quality_rules:
     - "fact_fulfillment.Penalty Amount: >= 0 when present"
     - "fact_stockout.Demand Units: >= 0; Lost Demand Units >= 0 and <= Demand Units when present"
     - "fact_forecast.Forecast Units: >= 0"
+    - "fact_forecast.Naive Forecast Units: >= 0 when present"
+    - "fact_forecast.Statistical Forecast Units: >= 0 when present"
+    - "fact_forecast.Actual Units: >= 0 when present"
   referential_integrity:
     - "fact_fulfillment.LaneKey → dim_lane (nullable; absent = direct or unrouted shipment)"
+    - "fact_fulfillment.CarrierLaneKey → dim_carrier_lane (nullable; absent = carrier/lane not resolved)"
     - "fact_fulfillment.ProductKey → dim_product (nullable)"
     - "fact_forecast.OrgKey → dim_org (nullable; absent = company-wide forecast)"
+    - "fact_forecast.ForecastabilityKey → dim_forecastability (nullable; absent = unsegmented SKU)"
 
 settings:
   timezone: Europe/Berlin

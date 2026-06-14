@@ -105,3 +105,4 @@ overrides:
   data_contract_ref: core/data_contracts/domains/supply_chain.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md
+  evidence_pack: ./Domain_Evidence_Pack.yaml

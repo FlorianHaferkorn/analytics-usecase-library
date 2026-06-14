@@ -50,11 +50,17 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.gm.amount
       visual_type: trend_line
-    - kpi_ids:
+    - slot_id: Main_2
+      kpi_ids:
       - sales.price.realization_pct
       - sales.pvm.mix_effect.amount
       - cost.cogs_per_unit.amount
       visual_type: bar_chart
+    - slot_id: Main_3
+      # Price Realization Rate trend vs target — pricing-discipline signal (mapping_gap fix)
+      kpi_id: sales.price.realization_pct
+      visual_type: trend_line
+      comparison: vs_target
   page_2_execution:
     title: Commercial Execution
     page_type: T4_Prescriptive_Recommendation

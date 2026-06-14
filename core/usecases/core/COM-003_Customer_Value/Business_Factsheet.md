@@ -136,6 +136,7 @@ customer_month grain is provided by domain contract facts fact_customer_value an
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** CLV:CAC ratio ≥ 3:1 (Gartner / HubSpot B2B benchmark); Customer Retention 85–95% for B2B SaaS (70–80% for B2B distribution) (Gartner 2023); NPS ≥ 50 world-class, ≥ 30 acceptable (Bain & Company).  
 - Impact: CLV uplift in priority segments; churn reduced vs target; margin improvement on low-margin high-revenue accounts.  
 - Adoption: Used in monthly account/retention reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across COM-001/002/003; reconciled revenue/margin to source totals.  

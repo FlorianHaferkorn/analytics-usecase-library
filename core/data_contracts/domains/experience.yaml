@@ -38,13 +38,45 @@ dimension:
       - {name: Region, type: text, nullable: true, allowed_values: [Americas, EMEA], synonyms: [Geography, Geo, Service Region]}
 
   - name: dim_issue_type
-    description: "Issue type dimension (type, severity) for case classification."
-    purpose: "Issue-type and severity analysis for support."
+    description: "Issue type dimension (type, category, severity) for case classification, FCR, and escalation Pareto."
+    purpose: "Issue-type, category, and severity analysis for support (FCR and escalation Pareto)."
     scd_type: 1
     columns:
-      - {name: IssueKey, type: int, role: key}
-      - {name: IssueType, type: text, allowed_values: [Billing, Delivery, Order, Product, Technical], synonyms: [Case Type, Ticket Type, Request Type, Falltyp, Anliegenart]}
-      - {name: Severity, type: text, nullable: true, allowed_values: [High, Medium, Low], synonyms: [Severity Level, Priority, Schweregrad, Priorität]}
+      - {name: IssueTypeKey, type: int, role: key}
+      - {name: Issue Type, type: text, allowed_values: [Billing, Delivery, Order, Product, Technical], synonyms: [Case Type, Ticket Type, Request Type, Falltyp, Anliegenart]}
+      - {name: Issue Category, type: text, nullable: true, synonyms: [Issue Group, Category, Anliegenkategorie]}
+      - {name: Severity, type: text, nullable: true, allowed_values: [Critical, High, Medium, Low], synonyms: [Severity Level, Priority, Schweregrad, Priorität]}
+
+  - name: dim_sla_policy
+    description: "SLA policy dimension (priority, response/resolution targets, force-majeure exclusion) for SLA attainment."
+    purpose: "Correct SLA attainment with force-majeure exclusion (XD-001)."
+    scd_type: 1
+    columns:
+      - {name: SlaPolicyKey, type: int, role: key}
+      - {name: SLA Name, type: text, synonyms: [SLA Policy, Service Level Agreement, SLA-Richtlinie]}
+      - {name: Priority, type: text, allowed_values: [P1, P2, P3, P4], synonyms: [SLA Priority, Severity Tier, Prioritätsstufe]}
+      - {name: Response Target Minutes, type: decimal, synonyms: [Response SLA, First Response Target, Reaktionszeitziel]}
+      - {name: Resolution Target Minutes, type: decimal, synonyms: [Resolution SLA, Resolution Target, Lösungszeitziel]}
+      - {name: Force Majeure Exclusion Flag, type: boolean, synonyms: [Force Majeure Flag, SLA Exclusion, Höhere-Gewalt-Ausschluss]}
+
+  - name: dim_shrinkage_category
+    description: "Shrinkage category dimension (category, paid flag) for shrinkage decomposition."
+    purpose: "Shrinkage decomposition for utilization (XD-002)."
+    scd_type: 1
+    columns:
+      - {name: ShrinkageCategoryKey, type: int, role: key}
+      - {name: Shrinkage Category, type: text, allowed_values: [Training, Meetings, Breaks, Absence, SystemDowntime, Coaching], synonyms: [Shrinkage Reason, Shrinkage Type, Schwundkategorie]}
+      - {name: Paid Flag, type: boolean, synonyms: [Paid Shrinkage Flag, Bezahlt-Kennzeichen]}
+
+  - name: dim_agent_skill
+    description: "Agent skill dimension (skill group, level, channel) for skill-based utilization and occupancy."
+    purpose: "Skill-based utilization and occupancy analysis (XD-002)."
+    scd_type: 2
+    columns:
+      - {name: AgentSkillKey, type: int, role: key}
+      - {name: Skill Group, type: text, synonyms: [Skill, Competency Group, Kompetenzgruppe]}
+      - {name: Skill Level, type: text, allowed_values: [Junior, Intermediate, Senior, Expert], synonyms: [Proficiency, Seniority, Qualifikationsstufe]}
+      - {name: Channel, type: text, allowed_values: [Voice, Chat, Email, Social], synonyms: [Contact Channel, Interaction Channel, Kontaktkanal, Kanal]}
 
 fact:
   - name: fact_support_cases
@@ -55,7 +87,8 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
-      - {name: IssueKey, type: int, ref: dim_issue_type, nullable: true, cardinality: many-to-one}
+      - {name: IssueTypeKey, type: int, ref: dim_issue_type, nullable: true, cardinality: many-to-one}
+      - {name: SlaPolicyKey, type: int, ref: dim_sla_policy, nullable: true, cardinality: many-to-one}
       - {name: SLA Met Flag, type: boolean}
       - {name: FCR Flag, type: boolean}
       - {name: Handle Time Minutes, type: decimal}
@@ -71,6 +104,8 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
+      - {name: ShrinkageCategoryKey, type: int, ref: dim_shrinkage_category, nullable: true, cardinality: many-to-one}
+      - {name: AgentSkillKey, type: int, ref: dim_agent_skill, nullable: true, cardinality: many-to-one}
       - {name: Work Time Minutes, type: decimal, agg: sum}
       - {name: Paid Time Minutes, type: decimal, agg: sum}
       - {name: Talk Time Minutes, type: decimal, agg: sum}
@@ -107,8 +142,11 @@ quality_rules:
     - "fact_workforce_management.Idle Time Minutes: >= 0"
   referential_integrity:
     - "fact_support_cases.QueueKey → dim_case_queue (nullable)"
-    - "fact_support_cases.IssueKey → dim_issue_type (nullable)"
+    - "fact_support_cases.IssueTypeKey → dim_issue_type (nullable)"
+    - "fact_support_cases.SlaPolicyKey → dim_sla_policy (nullable; absent = no SLA policy assigned)"
     - "fact_workforce_management.QueueKey → dim_case_queue (nullable)"
+    - "fact_workforce_management.ShrinkageCategoryKey → dim_shrinkage_category (nullable; absent = unclassified shrinkage)"
+    - "fact_workforce_management.AgentSkillKey → dim_agent_skill (nullable; absent = no skill profile)"
 
 settings:
   timezone: Europe/Berlin

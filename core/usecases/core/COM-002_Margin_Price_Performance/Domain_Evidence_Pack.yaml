@@ -299,7 +299,7 @@ mapping_readiness:
         description: "Benchmark targets not stated (GM% range 25-45%, price realisation ≥ 90%)."
         evidence_reference: SRC-006 SRC-003
         remediation: "Add benchmark targets."
-        status: open
+        status: resolved
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -309,7 +309,7 @@ mapping_readiness:
         description: "Price realization vs discount visual missing from the 30s layer."
         evidence_reference: SRC-003 SRC-008
         remediation: "Add a visual slot for price realization rate trend."
-        status: open
+        status: resolved
 
     schema_gaps: []
     generator_gaps: []

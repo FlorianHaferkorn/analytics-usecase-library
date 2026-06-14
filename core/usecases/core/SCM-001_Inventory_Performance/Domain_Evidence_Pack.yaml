@@ -314,7 +314,7 @@ mapping_readiness:
         description: "Six Big Losses equivalent for inventory not explicitly stated. Needs explicit question about excess vs. stockout tradeoff and forecast accuracy root cause."
         evidence_reference: SRC-002 SRC-004
         remediation: "Add questions about DIO vs OTIF tradeoff and forecast accuracy driver."
-        status: open
+        status: resolved
 
       - gap_type: content_gap
         severity: medium
@@ -323,7 +323,7 @@ mapping_readiness:
         description: "DIO benchmark (30-60 days FMCG, 60-90 days manufacturing), OTIF ≥ 95%, Stockout < 2% not stated."
         evidence_reference: SRC-004 SRC-010
         remediation: "Add benchmark targets."
-        status: open
+        status: resolved
 
       - gap_type: content_gap
         severity: high
@@ -335,7 +335,7 @@ mapping_readiness:
           should be visually explicit.
         evidence_reference: SRC-002 SRC-004
         remediation: "Add forecast accuracy trend and DIO vs OTIF comparison visuals."
-        status: open
+        status: resolved
 
     mapping_gaps: []
 

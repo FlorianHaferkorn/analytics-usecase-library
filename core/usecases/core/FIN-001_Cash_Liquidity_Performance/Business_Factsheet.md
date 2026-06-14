@@ -163,6 +163,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** Cash Conversion Cycle < 45 days and DSO < 40 days world-class (Hackett Group Working Capital Study 2023), DPO 45–60 days; minimum liquidity buffer ≥ 30 days of operating expenses (AFP Treasury Standard), typical manufacturing target 60–90 days.  
 - Impact: Positive cash vs plan; CCC reduced toward target; DSO/DIO down and DPO
   optimized.  
 - Adoption: Used in monthly treasury/WC reviews; action codes triggered with <5%

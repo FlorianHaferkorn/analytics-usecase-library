@@ -158,6 +158,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** SLA attainment commonly contracted at 90–95% of cases within target (ITIL 4 SLM / ISO/IEC 20000-1); first-contact resolution world-class ~70–80%+ (service-desk average ~74%, desktop support ~84%, HDI / MetricNet); SLA attainment always validated against CSAT/NPS to avoid the "watermelon" effect (green outside, red inside). AHT optimised FCR-adjusted, escalation rate on a declining trend, and backlog stable with cases closed ≥ created.  
 - Impact: SLA attainment to target; backlog/escalations reduced; FCR up; NPS
   improved.  
 - Adoption: Used in weekly service ops reviews; action codes triggered with <5%

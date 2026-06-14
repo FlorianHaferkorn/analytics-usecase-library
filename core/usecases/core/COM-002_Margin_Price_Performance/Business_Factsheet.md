@@ -132,6 +132,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** Gross Margin 25–45% for B2B manufacturing with a +0.5–1.5 pp annual improvement goal (APQC; Deloitte); Price Realization Rate ≥ 90% (Simon-Kucher Global Pricing Study 2023).  
 - Impact: +0.5-1.5 pp GM % improvement in targeted channels/SKUs; price realization uplift to =95%.  
 - Adoption: Used in monthly pricing reviews; action codes triggered with <5% false positives.  
 - Quality: Variance bridge reconciles to 100% of GM gap; no KPI-definition conflicts.  
