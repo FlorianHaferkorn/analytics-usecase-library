@@ -349,7 +349,7 @@ mapping_readiness:
           These are required diagnostic KPIs per the domain model.
         evidence_reference: SRC-003 SRC-007
         remediation: "Add fin.overdue_ar.pct and fin.cash.ocf to supporting_kpi_ids if not present."
-        status: open
+        status: resolved
 
       - gap_type: content_gap
         severity: medium
@@ -358,7 +358,7 @@ mapping_readiness:
         description: "Benchmark targets not stated (CCC < 45 days world class, DSO < 40 days, liquidity buffer ≥ 30 days OPEX)."
         evidence_reference: SRC-003 SRC-007
         remediation: "Add benchmark targets."
-        status: open
+        status: resolved
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -370,7 +370,7 @@ mapping_readiness:
           but likely not explicitly represented as a waterfall chart.
         evidence_reference: SRC-002 SRC-008
         remediation: "Add CCC waterfall/bridge visual showing DSO, DIO, DPO components."
-        status: open
+        status: resolved
 
     schema_gaps: []
     generator_gaps: []

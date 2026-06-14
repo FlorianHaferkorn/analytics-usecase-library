@@ -160,6 +160,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** Net Sales actuals within ±3% of plan (Gartner Sales Benchmark 2024); Gross Margin 25–45% for B2B manufacturing (APQC Open Standards Benchmarking); 5–10% YoY net-sales growth as a B2B-manufacturing sector reference (Gartner).
 - Impact: Net Sales vs Plan/LY gaps reduced; GM % at or above target.
 - Adoption: Used in monthly sales performance reviews; actions tracked via
   Action Codes.

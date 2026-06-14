@@ -36,6 +36,7 @@ factsheet_type: business
 - Where are inventory days and turnover off target by location/channel/category?
 - Which items drive stockouts and OTIF misses?
 - Where is excess/obsolete inventory accumulating?
+- What is the trade-off between inventory holding cost (DIO/excess) and service risk (stockouts/OTIF), and is the current balance optimal?
 - Which actions reduce inventory without hurting service level?
 - How does forecast accuracy impact inventory KPIs?
 
@@ -132,6 +133,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** DIO 30–60 days (FMCG) / 60–90 days (manufacturing) (CSCMP 2023); Stockout Rate < 2% world-class (< 5% acceptable); OTIF ≥ 95% world-class (≥ 90% acceptable, SCOR); Forecast Accuracy ≥ 80% MAPE-based (APQC / CSCMP).  
 - Impact: Lower DIO/raise turnover to targets; reduce stockouts and OTIF misses; reduce obsolete %.  
 - Adoption: Used in monthly S&OP/inventory reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
