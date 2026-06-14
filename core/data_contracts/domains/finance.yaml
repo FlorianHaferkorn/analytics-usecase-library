@@ -55,6 +55,16 @@ dimension:
       - {name: ProductName, type: text}
       - {name: Category, type: text, allowed_values: [Fashion, "Home & Living", Consumer Electronics], synonyms: [Product Group, Warengruppe, Produktgruppe]}
 
+  - name: dim_cost_category
+    description: "Cost-category dimension for activity-based costing and variance decomposition."
+    purpose: "ABC/causal overhead attribution and price/usage/volume/mix variance decomposition."
+    scd_type: 1
+    columns:
+      - {name: CostCategoryKey, type: int, role: key}
+      - {name: Cost Category, type: text, allowed_values: [Material, Labor, Overhead, SG&A, Logistics], synonyms: [Cost Element, Kostenart, Kostenkategorie]}
+      - {name: Cost Type, type: text, allowed_values: [Fixed, Variable], synonyms: [Cost Behavior, Fixkostenart, Kostenverhalten]}
+      - {name: Activity, type: text, nullable: true, synonyms: [Cost Driver, Activity Pool, Aktivität, Kostentreiber]}
+
 fact:
   - name: fact_cash_position
     description: "Daily cash balance and plan cash per entity."
@@ -87,6 +97,11 @@ fact:
       - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
       - {name: AR Amount, type: currency, agg: sum}
       - {name: Revenue Amount, type: currency, agg: sum}
+      - {name: Overdue AR Amount, type: currency, agg: sum, nullable: true}
+      - {name: AR 0-30 Days Amount, type: currency, agg: sum, nullable: true}
+      - {name: AR 31-60 Days Amount, type: currency, agg: sum, nullable: true}
+      - {name: AR 61-90 Days Amount, type: currency, agg: sum, nullable: true}
+      - {name: AR Over 90 Days Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_accounts_payable
     description: "Accounts payable and COGS by entity and supplier per month."
@@ -132,9 +147,13 @@ fact:
       - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
+      - {name: CostCategoryKey, type: int, ref: dim_cost_category, nullable: true, cardinality: many-to-one}
       - {name: COGS Amount, type: currency, agg: sum}
       - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
       - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
+      - {name: Actual Cost Amount, type: currency, agg: sum}
+      - {name: Standard Cost Amount, type: currency, agg: sum, nullable: true}
+      - {name: Plan/Budget Cost Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_output
     description: "Output units per plant-line-product-month."
@@ -170,16 +189,21 @@ quality_rules:
     - "fact_accounts_receivable.AR Amount, Revenue Amount: never null"
     - "fact_accounts_payable.AP Amount, COGS Amount: never null"
     - "fact_finance.Net Sales Amount, COGS Amount, EBITDA Amount: never null"
+    - "fact_cost.Actual Cost Amount: never null"
     - "fact_output.Output Units: never null; must be >= 0"
   value_ranges:
     - "fact_cash_position.Cash Balance Amount: may be negative (overdraft); no range constraint"
     - "fact_output.Output Units: >= 0"
     - "fact_labor.Labor Hours: >= 0"
     - "fact_cost.COGS Amount: >= 0"
+    - "fact_cost.Actual Cost Amount: >= 0"
+    - "fact_accounts_receivable.AR 0-30 Days Amount, AR 31-60 Days Amount, AR 61-90 Days Amount, AR Over 90 Days Amount: each >= 0; sum of buckets = AR Amount"
+    - "fact_accounts_receivable.Overdue AR Amount: >= 0; = AR 31-60 + AR 61-90 + AR Over 90 (excludes current 0-30)"
   referential_integrity:
     - "fact_accounts_receivable.CustomerKey → dim_customer (nullable)"
     - "fact_accounts_payable.SupplierKey → dim_supplier (nullable)"
     - "fact_cost.ProductKey → dim_product (required)"
+    - "fact_cost.CostCategoryKey → dim_cost_category (nullable; absent = uncategorized cost)"
 
 settings:
   timezone: Europe/Berlin
