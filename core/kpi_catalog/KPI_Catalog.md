@@ -1816,7 +1816,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Safety Incident Count
     description: Counts safety incidents recorded in the period.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_safety.Incident Count
   governance:
     business_owner: EHS Manager
     data_owner: EHS BI
