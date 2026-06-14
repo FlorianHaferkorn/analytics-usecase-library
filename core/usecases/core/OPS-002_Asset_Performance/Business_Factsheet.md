@@ -134,6 +134,7 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 8. Success Criteria
 
+- **Benchmark Targets (world-class reference):** critical-asset Availability ≥ 90% and PM Compliance ≥ 90% within the schedule window (SMRP Best Practice Metrics, 6th ed.); Unplanned Downtime < 10% of planned time (Plant Engineering Maintenance Survey); critical-spare service level > 95% (Reliabilityweb Uptime Elements). MTBF and MTTR targets are asset-criticality specific — set per asset class, with a rising-MTBF / falling-MTTR trend on critical assets as the goal.  
 - Impact: Reduce unplanned downtime % below target; MTBF improves to targets; MTTR reduced; PM compliance = target; stockouts reduced.  
 - Adoption: Used in weekly maintenance/reliability reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; KPI definitions consistent across ops UCs.  
