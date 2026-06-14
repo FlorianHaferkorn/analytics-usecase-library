@@ -2,527 +2,479 @@ evidence_pack_version: "1.0"
 use_case_id: COM-004
 use_case_title: Promotion Effectiveness
 domain: Commercial
-authored_date: "2026-06-13"
+authored_date: "2026-06-11"
 authored_by: framework-architect-agent
-reviewed_by: ""
-status: draft
+reviewed_by: "framework-architect-agent — SQ-E evidence gate pass + mapping triage (2026-06-12)"
+status: approved
+approved_by: "Framework Architect — repo owner (authorized 2026-06-12)"
+approved_date: "2026-06-12"
+approval_basis: "16/16 SQ-E gate; all deferred items classified model_gap (no schema_gap); see docs/process/evidence-to-model-uplift-scope.md"
 
-# ──────────────────────────────────────────
-# 1. PROCESS SCOPE
-# ──────────────────────────────────────────
 process_scope:
   description: >
-    Trade and consumer promotion effectiveness: whether promotional investment generates
-    true incremental sales and gross margin rather than subsidising baseline demand. Isolates
-    the promotion P&L — incremental lift above a measured baseline, the discount/realization
-    leakage that erodes margin, cannibalization that offsets uplift, and the ROI that ties it
-    together. Distinct from COM-002 (long-term pricing strategy) and COM-009 (omni-channel mix)
-    — this use case evaluates the incremental return of a promotion event, not list-price
-    architecture or channel allocation.
+    Post-event and in-flight evaluation of trade and consumer promotions against true
+    incremental sales, incremental gross margin, and promotion ROI. Covers baseline
+    decomposition (separating promotional uplift from baseline demand), price realization
+    leakage during promo windows, cannibalization and pull-forward effects, and prescriptive
+    redesign of promo mechanics. Anchored in Revenue Growth Management (RGM) and Trade
+    Promotion Management/Optimization (TPM/TPO) practice for B2B/B2C manufacturers.
   in_scope:
-    - Promotion ROI as the strategic outcome (incremental margin returned per unit of promo spend)
-    - Incremental sales measured against a stable baseline (lift decomposition vs subsidised demand)
-    - Promotion gross margin and price realization (list-to-net discount/rebate/surcharge leakage)
-    - Cannibalization of related SKUs/baseline demand shifted into the promo window
-    - Promotion-cost and incremental-GM reconstruction at campaign/event grain
-    - Margin and baseline-integrity guardrails (no GM-destroying or baseline-eroding promotions)
+    - Promotion ROI % measured on incremental gross margin net of promo cost (not apparent gross uplift)
+    - Baseline vs incremental sales decomposition (true lift net of pull-forward and cannibalization)
+    - Cannibalization % across related SKUs and product families within a promotion window
+    - Price realization (net vs list) leakage from discounts, rebates, and surcharges during promos
+    - Promo gross margin % vs standard gross margin % as a profitability guardrail
+    - Mechanic, depth, timing, channel, and category targeting of promotional investment
   out_of_scope:
-    - Long-term list-price and pack-price architecture (COM-002)
-    - Assortment / range optimisation
-    - Omni-channel mix and media allocation (COM-009)
-    - Long-run brand-equity and loyalty measurement (separate brand use case)
-  industry_segment: >
-    Consumer packaged goods, retail, food & beverage, and any branded-goods environment where
-    trade and consumer promotions are a material P&L line (typically 15–25% of gross revenue in
-    CPG) and incremental lift must be separated from baseline subsidy.
+    - Long-term list pricing strategy and price architecture (COM-002)
+    - Assortment and range optimization
+    - Omni-channel mix and channel strategy (COM-009)
+    - Marketing-mix media attribution and above-the-line advertising effectiveness
+  industry_segment: B2B and B2C consumer goods manufacturing/distribution (FMCG/CPG-style trade promotions)
   applicable_frameworks:
-    - name: MASB Marketing Metric Audit Protocol (MMAP) — linking marketing metrics to financial outcomes
-      id: MASB-MMAP
-    - name: Return on Marketing Investment (ROMI) — contribution to profit net of marketing spend
-      id: ROMI
-    - name: Baseline & incremental-lift measurement (retail-measurement methodology)
-      id: BASELINE-LIFT
-    - name: Promotion P&L decomposition — switching / stockpiling / incremental lift
-      id: PROMO-DECOMP
-    - name: Price realization (list-to-net) and discount-depth elasticity
-      id: PRICE-REALIZATION
+    - name: APQC PCF Category 3.0 — Market and Sell Products and Services (3.3 Manage advertising, pricing, and promotional activities)
+      id: APQC-PCF-3
+    - name: Revenue Growth Management (RGM) / Trade Promotion Management & Optimization (TPM/TPO) practice framework
+      id: RGM-TPM-TPO
+    - name: ESMA Guidelines on Alternative Performance Measures (ratio/ROI disclosure and reconciliation discipline)
+      id: ESMA-APM-2015
 
-# ──────────────────────────────────────────
-# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
-# ──────────────────────────────────────────
 canonical_domain_model:
   outcome_kpis:
     - id: sales.promo.roi.pct
       name: Promotion ROI %
       definition: >
-        Incremental Gross Margin generated by a promotion / Promotion Cost. The strategic
-        outcome of the use case — whether promotional investment returns more incremental
-        margin than it costs. A value above 100% (1.0x) clears breakeven; below it the
-        promotion destroys margin (ROMI logic, MASB).
+        Incremental gross margin generated by a promotion divided by total promotion cost,
+        expressed as a percentage. The strategic profitability outcome of a promotion.
+        Formula intent: Incremental Gross Margin / Promo Cost × 100.
       unit: "%"
       direction: maximize
-      benchmark_target: "ROI >= 120% (1.2x) target; globally ~59% of CPG promotions fail to break even (72% in the US)"
-      benchmark_source_id: SRC-009
-      framework_reference: "ROMI / MASB MMAP — contribution to profit net of marketing spend"
+      benchmark_target: ">=120% (>1.2x payback); 30-40% of promotions typically destroy value with negative ROI (Simon-Kucher)"
+      benchmark_source_id: SRC-007
 
-  driver_kpis:
     - id: sales.promo.incremental.amount
       name: Incremental Sales Amount
+      role: co-outcome
       definition: >
-        Actual promoted sales minus the modelled baseline (the sales that would have occurred
-        without the promotion). The true uplift created by the event, net of demand that was
-        already going to happen.
+        Sales causally attributable to the promotion, equal to actual promo-period sales
+        minus modelled baseline sales, net of pull-forward and cannibalization. The volume
+        outcome that ROI is built on.
       unit: EUR
       direction: maximize
-      drives: sales.promo.roi.pct
       causal_mechanism: >
-        Incremental sales is the primary ROI lever (bracket primary_driver): every euro of
-        genuine uplift converts to incremental margin at the promo GM rate. Only the share of
-        promoted volume above baseline is incremental — retailer studies show roughly 45% of
-        gross promotional lift is truly incremental, the remainder being switching/stockpiling
-        (Ailawadi et al. 2006).
-      benchmark_target: "~45% of gross promotional lift is incremental for the retailer (CVS study, Ailawadi et al. 2006)"
+        Incremental sales are the numerator of value creation but only convert to ROI when
+        priced and costed: positive incremental volume at a margin-destroying discount can
+        still yield negative ROI. Reported alongside, not above, sales.promo.roi.pct.
+      benchmark_target: "True incremental lift only ~one-third of apparent promo bump on average (Van Heerde et al.)"
       benchmark_source_id: SRC-004
 
+  driver_kpis:
     - id: margin.promo.gm.pct
       name: Promo Gross Margin %
-      definition: >
-        Gross Margin on promoted volume = (Net Promo Sales − COGS) / Net Promo Sales. The
-        margin rate at which incremental promotional volume is actually realised after discount.
+      definition: "(Promo Net Sales - Promo COGS) / Promo Net Sales × 100 during the promotion window."
       unit: "%"
       direction: maximize
       drives: sales.promo.roi.pct
       causal_mechanism: >
-        Promo GM% is the conversion rate from incremental sales to incremental margin. Deep
-        discounts can lift volume while collapsing GM%, so high incremental sales at low promo
-        GM% still destroys ROI — the volume-positive / margin-negative trap (NielsenIQ; McKinsey).
-      benchmark_target: "Promo GM% should not fall materially below standard GM% (volume-positive/margin-negative guardrail)"
-      benchmark_source_id: SRC-006
+        ROI is incremental gross margin over promo cost; the margin rate on promoted units is
+        the conversion factor from incremental volume to incremental profit. A promo GM% well
+        below standard GM% mechanically suppresses ROI even when volume lifts.
+      benchmark_target: "Promo GM% within 5-8pp of standard GM%; wider gap signals over-discounting"
+      benchmark_source_id: SRC-009
 
     - id: sales.price.realization_pct
       name: Price Realization %
-      definition: >
-        Net Price / List Price. The share of list price actually captured after discounts,
-        rebates, and surcharges. Quantifies list-to-net leakage during promotions.
+      definition: "Net Price Amount / List Price Amount × 100 — share of list price actually realized after discounts, rebates, and surcharges."
       unit: "%"
       direction: maximize
       drives: sales.promo.roi.pct
       causal_mechanism: >
-        Realization is the discount-depth lever on ROI: deeper discounts raise promotional
-        price elasticity (avg short-term promo elasticity ≈ −3.6 vs ≈ −2.6 overall) but each
-        point of realization lost is margin given away. ROI optimisation balances depth-driven
-        lift against realization erosion (Bijmolt, Van Heerde & Pieters 2005).
-      benchmark_target: "Average price elasticity ≈ −2.6; promotional price elasticity ≈ −3.6 (meta-analysis, Bijmolt et al. 2005)"
-      benchmark_source_id: SRC-005
+        Promotions leak value through the discount ladder (off-invoice, rebates, allowances).
+        Falling price realization during a promo directly compresses net sales and promo GM%,
+        eroding ROI before any volume benefit is counted.
+      benchmark_target: "Healthy promos sustain price realization above the channel norm; <75% flags deep-discount leakage"
+      benchmark_source_id: SRC-001
 
     - id: sales.promo.cannibalization.pct
       name: Cannibalization %
       definition: >
-        Cannibalized (related-SKU and baseline) sales lost / Promoted incremental sales. The
-        share of apparent uplift that is merely demand shifted from other SKUs, periods, or the
-        item's own baseline rather than genuinely new.
+        Share of apparent promo uplift sourced from sales shifted away from the brand's own
+        related SKUs/product family rather than from new incremental demand. Cannibalized
+        Sales / Apparent Uplift × 100.
       unit: "%"
       direction: minimize
-      drives: sales.promo.roi.pct
+      drives: sales.promo.incremental.amount
       causal_mechanism: >
-        Cannibalization offsets gross lift: switching and forward-buying/pantry-loading move
-        existing demand into the promo window, inflating apparent uplift while net incremental
-        value is far smaller. Ignoring it overstates ROI; structural cannibalization trains
-        buyers to wait for promotions (Ailawadi et al. 2007 stockpiling decomposition; Circana).
-      benchmark_target: "Net of cannibalization/halo; only ~45% of gross lift typically incremental (Ailawadi et al.)"
-      benchmark_source_id: SRC-007
+        Higher cannibalization means a larger fraction of the bump is internal sales transfer,
+        reducing true incremental sales and thus ROI. Cross-brand switching is the only source
+        that creates genuine incremental category volume.
+      benchmark_target: "Cross-brand switching averages ~33% of the bump (not 75%); high own-brand cannibalization is value-neutral"
+      benchmark_source_id: SRC-005
 
+  diagnostic_kpis:
     - id: sales.price.list.amount
       name: List Price Amount
-      definition: >
-        Gross list price before promotional discounts, rebates, or surcharges. The numerator
-        anchor of the realization ladder.
+      definition: Gross list (pre-discount) price value of promoted lines; the realization ceiling.
       unit: EUR
       direction: maximize
-      drives: sales.price.realization_pct
-      causal_mechanism: >
-        List price is the reference against which realization is measured; without an accurate
-        list anchor the discount depth and leakage of a promotion cannot be quantified.
+      diagnoses: sales.price.realization_pct
+      causal_mechanism: Establishes the denominator for realization; isolates whether leakage is from list erosion or discount depth.
 
     - id: sales.price.net.amount
       name: Net Price Amount
-      definition: >
-        Net price actually realised after all discount, rebate, and surcharge components. The
-        achieved-price endpoint of the list-to-net waterfall.
+      definition: Realized net price value of promoted lines after all discount components.
       unit: EUR
       direction: maximize
-      drives: sales.price.realization_pct
-      causal_mechanism: >
-        Net price is the realised value per unit; the gap between list and net is the leakage
-        the promotion creates. Net price feeds both realization and promo GM%.
-
-  diagnostic_kpis:
-    - id: sales.promo.baseline_sales.amount
-      name: Baseline Sales Amount
-      definition: "Modelled sales that would have occurred without the promotion (fact_promo). The denominator-of-truth for incremental lift."
-      unit: EUR
-      direction: context
-      diagnoses: sales.promo.incremental.amount
-      causal_mechanism: >
-        Baseline is the foundation of incremental measurement: an over-stated baseline
-        understates uplift and a mis-specified one is the single largest source of ROI error.
-        Baseline integrity is what separates lift from subsidy (NielsenIQ baseline methodology).
-
-    - id: sales.promo.cost.amount
-      name: Promotion Cost Amount
-      definition: "Total trade and promotional spend for the event (fact_promo): off-invoice, scan-down, fixtures, and funding. The ROI denominator."
-      unit: EUR
-      direction: minimize
-      diagnoses: sales.promo.roi.pct
-      causal_mechanism: >
-        Promotion cost is the investment side of ROI. CPG trade spend is typically 15–25% of
-        gross revenue — the second-largest P&L line after COGS — so cost accuracy directly drives
-        ROI accuracy (McKinsey; Gartner CPG benchmark).
+      diagnoses: sales.price.realization_pct
+      causal_mechanism: Net vs list gap quantifies the discount/rebate/surcharge leakage driving realization down during promos.
 
     - id: sales.promo.incremental_gm.amount
       name: Incremental Gross Margin Amount
-      definition: "Incremental sales valued at promo GM% minus promo cost (fact_promo + fact_sales). The ROI numerator."
+      definition: Gross margin on incremental (baseline-adjusted) promoted volume; the numerator of promotion ROI.
       unit: EUR
       direction: maximize
       diagnoses: sales.promo.roi.pct
       causal_mechanism: >
-        Incremental GM is what ROI actually returns. It collapses incremental volume, promo GM%,
-        and cannibalization into the single margin number the business keeps.
+        Links incremental volume and promo GM% into the profit that ROI divides by promo cost;
+        negative incremental GM is the decisive stop signal for a promotion.
 
-    - id: sales.promo.cannibalized_sales.amount
-      name: Cannibalized Sales Amount
-      definition: "Baseline/related-SKU sales shifted into the promo window (fact_promo). The numerator behind cannibalization %."
+    - id: sales.promo.baseline_sales.amount
+      name: Baseline Sales Amount
+      definition: Modelled non-promotional sales that would have occurred absent the promotion.
       unit: EUR
-      direction: minimize
-      diagnoses: sales.promo.cannibalization.pct
-      causal_mechanism: >
-        Cannibalized sales attributes the non-incremental share of lift to the SKUs/periods it
-        was pulled from, exposing harmful promotions that shuffle demand rather than grow it.
-
-    - id: cost.cogs.amount
-      name: Cost of Goods Sold Amount
-      definition: "Cost of goods sold on promoted volume (fact_sales). Required to convert net sales into gross margin."
-      unit: EUR
-      direction: minimize
-      diagnoses: margin.promo.gm.pct
-      causal_mechanism: >
-        COGS is the cost basis of promo GM%; without it the margin consequence of a discount
-        cannot be separated from its volume effect.
-
-    - id: sales.pvm.volume_effect.amount
-      name: "Price-Volume-Mix: Volume Effect"
-      definition: "Volume component of the PVM bridge (fact_sales). Isolates promotion-driven volume from price and mix."
-      unit: EUR
-      direction: context
+      direction: maximize
       diagnoses: sales.promo.incremental.amount
       causal_mechanism: >
-        The volume effect separates the quantity uplift of a promotion from the price-down and
-        mix effects in the PVM bridge, validating that incremental sales is genuine volume rather
-        than a price/mix artefact.
+        The baseline is the reference line for incrementality; a mis-specified (too low) baseline
+        overstates uplift and ROI. Stability of the baseline assumption governs trust in the whole tree.
 
   guardrails:
-    - description: Margin floor — promotions must not be margin-destroying to buy volume
+    - description: Do not scale a promotion with negative incremental gross margin
       condition: >
-        A promotion whose incremental GM is negative (promo cost exceeds incremental margin, ROI
-        < 100%) must not run on volume justification alone. Volume-positive / margin-negative
-        promotions accumulate into quarterly GM shortfalls (NielsenIQ; McKinsey).
-      affected_kpis: [sales.promo.roi.pct, margin.promo.gm.pct, sales.promo.incremental_gm.amount]
+        Do NOT trigger a scale-up or repeat action when sales.promo.incremental_gm.amount is
+        negative or sales.promo.roi.pct is below 100%, even if sales.promo.incremental.amount
+        (volume uplift) is strongly positive. Volume that loses margin destroys value.
+      affected_kpis:
+        - sales.promo.roi.pct
+        - sales.promo.incremental_gm.amount
+        - sales.promo.incremental.amount
 
-    - description: Baseline integrity — uplift is only valid against a stable, defensible baseline
+    - description: Do not credit uplift dominated by own-brand cannibalization or pull-forward
       condition: >
-        Incremental sales and ROI must be computed against a stable, documented baseline model
-        aligned with COM-001/002. A mis-specified or drifting baseline overstates uplift and
-        invalidates the ROI — the largest single error source (NielsenIQ baseline methodology).
-      affected_kpis: [sales.promo.incremental.amount, sales.promo.roi.pct, sales.promo.baseline_sales.amount]
+        Do NOT treat apparent uplift as incremental when sales.promo.cannibalization.pct is high
+        or the bump is concentrated in pull-forward/stockpiling. Re-base ROI on true incremental
+        (cross-brand and category-expansion) volume before any continue/scale decision.
+      affected_kpis:
+        - sales.promo.incremental.amount
+        - sales.promo.cannibalization.pct
+        - sales.promo.roi.pct
 
-    - description: Net-of-cannibalization — report incremental value net of cannibalization and halo
+    - description: Do not deepen discount when price realization is already eroded
       condition: >
-        ROI and incremental sales must be reported net of cannibalization and halo effects.
-        Gross lift overstates value because switching and forward-buying shift existing demand;
-        only ~45% of gross lift is typically incremental (Ailawadi et al. 2006).
-      affected_kpis: [sales.promo.roi.pct, sales.promo.cannibalization.pct, sales.promo.cannibalized_sales.amount]
+        Do NOT increase promo depth to chase volume when sales.price.realization_pct is below the
+        channel norm and margin.promo.gm.pct is below standard GM%; deeper discounts compound
+        realization leakage faster than they add profitable volume.
+      affected_kpis:
+        - sales.price.realization_pct
+        - margin.promo.gm.pct
 
   wrong_interpretations:
-    - description: "Reading gross uplift as incremental value"
+    - description: Reading apparent gross uplift as true incremental lift
       why_wrong: >
-        Apparent lift includes brand-switching and stockpiling/forward-buying that merely shift
-        existing demand. Retailer decomposition shows roughly 45% of gross lift is incremental;
-        treating 100% as incremental massively overstates ROI (Ailawadi et al. 2006).
+        The raw promo "bump" includes baseline sales, pull-forward (timing shifts), and
+        cannibalization. On average only about one-third of the bump is genuinely incremental.
+        Crediting the full bump overstates incremental sales and inflates ROI, leading to repeats
+        of value-destroying promos.
       source_id: SRC-004
 
-    - description: "Mis-specified baseline inflating uplift and ROI"
+    - description: Ignoring cannibalization and treating own-brand switching as incremental
       why_wrong: >
-        Incremental sales is entirely relative to the baseline. An understated baseline makes a
-        mediocre promotion look incremental and an unstable baseline makes ROI unreproducible —
-        baseline integrity is the precondition for any lift measurement (NielsenIQ).
-      source_id: SRC-006
-
-    - description: "Chasing volume while ignoring the GM / realization consequence"
-      why_wrong: >
-        Deep discounts raise promotional elasticity (≈ −3.6) and generate volume, but each point
-        of realization lost is margin given away. High incremental sales at collapsed promo GM%
-        still destroys ROI (Bijmolt, Van Heerde & Pieters 2005).
+        Sales shifted from a brand's own related SKUs/family create no new category volume. The
+        common assumption that ~75% of the bump is brand switching is wrong; cross-brand switching
+        (the only truly incremental source) averages ~33%. Ignoring cannibalization double-counts
+        internal transfers as growth.
       source_id: SRC-005
 
-    - description: "Treating price promotions as loyalty/equity builders"
+    - description: Computing promotion ROI on revenue uplift without the margin and cost legs
       why_wrong: >
-        Promotions produce short-term spikes but do not build long-term loyalty; repeated deep
-        promotions can train buyers to wait and erode base price. Promotion ROI must be judged on
-        incremental margin, not assumed equity effects (Sharp / Ehrenberg-Bass).
-      source_id: SRC-011
+        ROI must divide incremental gross margin by promo cost. Measuring "ROI" on incremental
+        revenue ignores discount-driven margin compression and trade spend, so a deeply discounted
+        promo can show strong revenue lift yet negative true ROI. As a disclosed ratio APM, ROI
+        must be defined and reconciled consistently.
+      source_id: SRC-008
 
-# ──────────────────────────────────────────
-# 3. REQUIRED DATA MODEL
-# ──────────────────────────────────────────
-required_data_model:
-  required_facts:
-    - table: fact_promo
-      description: >
-        Promotion event ledger. Must contain: promotion_id, baseline_sales, promo_cost,
-        incremental_sales, cannibalized_sales, promo_type, mechanic, channel, product grain.
-        Provides baseline, incremental lift, promo cost, cannibalization and ROI.
-    - table: fact_sales
-      description: >
-        Invoice-line sales fact. Must contain: list_price, net_price, gross_sales, net_sales,
-        cogs, quantity at invoice-line grain. Provides realization, promo GM%, PVM volume effect
-        and uplift reconstruction.
-
-  required_dimensions:
-    - name: dim_date
-      grain_relevance: "Time axis for promo window vs baseline period and pre/post event analysis. Promo period + CalendarWeek required."
-    - name: dim_org
-      grain_relevance: "Region → Channel hierarchy. Channel level mandatory for ROI-by-channel ranking."
-    - name: dim_product
-      grain_relevance: "Product → Category/Subcategory and related-item links for uplift, GM, and cannibalization Pareto."
-    - name: dim_promo
-      grain_relevance: >
-        Promotion → promo_type → mechanic taxonomy for promo-level ROI, depth and mechanic
-        comparison. Mechanic/depth attributes required for realization and elasticity analysis.
-    - name: security_user_org
-      grain_relevance: "Row-level security mapping of user to org scope; enforced by Commercial.SemanticModel."
-
-  preferred_grain: promotion-product-week
-  minimum_grain: promotion-week
-  minimum_history_months: 12
-  grain_waiver_condition: >
-    promotion-week grain is acceptable only where invoice-line attribution to a promotion is
-    structurally unavailable. Requires explicit waiver in the bracket; price-realization and
-    SKU-level cannibalization diagnostics are degraded without invoice-line sales.
-
-  required_measures:
-    - name: Promotion ROI %
-      formula_seed: "Incremental_Gross_Margin / Promotion_Cost"
-      source_id: SRC-002
-    - name: Incremental Sales Amount
-      formula_seed: "Promoted_Sales - Baseline_Sales"
-      source_id: SRC-004
-    - name: Promo Gross Margin %
-      formula_seed: "(Net_Promo_Sales - COGS) / Net_Promo_Sales"
-      source_id: SRC-006
-    - name: Price Realization %
-      formula_seed: "Net_Price / List_Price"
-      source_id: SRC-005
-    - name: Cannibalization %
-      formula_seed: "Cannibalized_Sales / Incremental_Sales"
-      source_id: SRC-007
-    - name: Incremental Gross Margin Amount
-      formula_seed: "Incremental_Sales * Promo_GM_pct - Promotion_Cost"
-      source_id: SRC-001
-
-# ──────────────────────────────────────────
-# 4. ACTION LOGIC SEEDS
-# ──────────────────────────────────────────
-action_logic_seeds:
-  - trigger_driver: sales.promo.roi.pct
-    trigger_diagnostic: sales.promo.incremental_gm.amount
-    trigger_condition: "Promo ROI below threshold (< 120%, near/under breakeven) with thin or negative incremental GM"
-    guardrail: "Use baseline-validated incremental margin; do not justify on gross volume"
-    action_description: >
-      Promotion ROI recovery: rank promotions by ROI gap × spend, isolate the events returning
-      below breakeven, and redesign or stop the loss-making mechanics before the next cycle.
-    expected_outcome_kpi: sales.promo.roi.pct
-    action_code_candidate: C-P4.1
-
-  - trigger_driver: sales.promo.cannibalization.pct
-    trigger_diagnostic: sales.promo.cannibalized_sales.amount
-    trigger_condition: "Cannibalization rate spiking (e.g. > 30%) while gross lift looks positive (demand shifted, not created)"
-    guardrail: "Decompose switching/stockpiling vs true incremental before acting; protect baseline integrity"
-    action_description: >
-      Promo mix optimisation: run cannibalization decomposition by product pair and campaign type,
-      retire promotions that shuffle baseline demand, and protect genuinely incremental mechanics.
-    expected_outcome_kpi: sales.promo.cannibalization.pct
-    action_code_candidate: C-M2.1
-
-  - trigger_driver: margin.promo.gm.pct
-    trigger_diagnostic: sales.price.realization_pct
-    trigger_condition: "Promo GM% materially below standard GM% with price realization collapsing (volume-positive/margin-negative)"
-    guardrail: "Apply margin floor; balance discount depth against realization erosion"
-    action_description: >
-      Mechanic depth correction: compare mechanics on depth vs realization, cap discount depth
-      where elasticity does not justify the margin given away, and shift to lower-leakage mechanics.
-    expected_outcome_kpi: margin.promo.gm.pct
-    action_code_candidate: C-M2.2
-
-  - trigger_driver: sales.promo.incremental.amount
-    trigger_diagnostic: sales.promo.baseline_sales.amount
-    trigger_condition: "Reported uplift sensitive to baseline assumptions; baseline drift suspected to overstate incrementality"
-    guardrail: "Re-validate and stabilise baseline model aligned with COM-001/002 before re-scoring promotions"
-    action_description: >
-      Baseline integrity remediation: re-fit and freeze the baseline, re-score affected promotions
-      on the corrected baseline, and re-rank ROI on defensible incremental sales.
-    expected_outcome_kpi: sales.promo.incremental.amount
-    action_code_candidate: C-P4.1
-
-  - trigger_driver: sales.price.realization_pct
-    trigger_diagnostic: sales.price.net.amount
-    trigger_condition: "List-to-net leakage widening (deep discounts/rebates) eroding net price during promotions"
-    guardrail: "Confirm leakage is promotion-driven vs structural list-price issue (route structural to COM-002)"
-    action_description: >
-      Price realization recovery: run the list-to-net waterfall by mechanic and channel, target
-      the deepest leakage components, and tighten promo terms to recover realised price.
-    expected_outcome_kpi: sales.price.realization_pct
-    action_code_candidate: C-M2.2
-
-# ──────────────────────────────────────────
-# 5. SOURCE INVENTORY
-# ──────────────────────────────────────────
 source_inventory:
   summary:
-    total_sources: 11
+    total_sources: 12
     portfolio_score: 12.8
-    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    categories_covered:
+      - STD
+      - ACA
+      - PRO
+      - BNK
+      - IMP
+      - RSK
     min_threshold_met: true
 
   sources:
     - id: SRC-001
       category: STD
-      title: "MASB Marketing Metric Audit Protocol (MMAP) — standard process linking marketing metrics to financial performance"
-      author: "Marketing Accountability Standards Board (MASB)"
-      year: 2023
-      url: "https://themasb.org/projects/underway/marketing-metric-audit-protocol/"
-      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
-      total_score: 13
-      supports: [process_scope, required_measures, outcome_kpis]
-      notes: "Independent standards body for marketing measurement; MMAP links promotion metrics to cash/financial outcomes."
+      title: "APQC Process Classification Framework (PCF) — 3.0 Market and Sell Products and Services: Definitions and Key Measures (incl. 3.3 Manage advertising, pricing, and promotional activities)"
+      author: APQC
+      publication: APQC
+      year: 2024
+      url: "https://www.apqc.org/resource-library/resource-listing/30-market-and-sell-products-and-services-definitions-and-key-3"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports:
+        - process_scope
+        - applicable_frameworks
+        - required_dimensions
+        - driver_kpis
 
     - id: SRC-002
       category: STD
-      title: "MASB — Return on Marketing Investment (ROMI): contribution to profit net of marketing spend (FAQ / standards guidance)"
-      author: "Marketing Accountability Standards Board (MASB)"
-      year: 2023
-      url: "https://themasb.org/faq/"
-      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
-      total_score: 13
-      supports: [outcome_kpis, required_measures, process_scope]
-      notes: "Defines ROMI as the contribution to profit attributable to marketing net of spend — the ROI outcome logic."
+      title: "ESMA Guidelines on Alternative Performance Measures (ESMA/2015/1415) — definition, reconciliation, and consistent disclosure of ratio APMs such as ROI"
+      author: European Securities and Markets Authority (ESMA)
+      publication: ESMA
+      year: 2015
+      url: "https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 11
+      supports:
+        - outcome_kpis
+        - wrong_interpretations
 
     - id: SRC-003
       category: ACA
-      title: "Blattberg, R.C. & Neslin, S.A. — Sales Promotion: Concepts, Methods, and Strategies. Prentice Hall."
-      author: "Blattberg, Robert C.; Neslin, Scott A."
-      year: 1990
-      url: "https://www.amazon.com/Sales-Promotion-Concepts-Methods-Strategies/dp/013442302X"
-      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
-      total_score: 12
-      supports: [process_scope, canonical_domain_model, driver_kpis]
-      notes: "Foundational academic reference on promotion effects on sales and profit; age waiver — definitional text."
+      title: "Decomposing the Sales Promotion Bump with Store Data"
+      author: "Van Heerde, H.J.; Leeflang, P.S.H.; Wittink, D.R."
+      publication: "Marketing Science (INFORMS), 23(3), 317-334"
+      year: 2004
+      url: "https://doi.org/10.1287/mksc.1040.0061"
+      doi: "10.1287/mksc.1040.0061"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports:
+        - outcome_kpis
+        - driver_kpis
+        - diagnostic_kpis
+        - wrong_interpretations
 
     - id: SRC-004
       category: ACA
-      title: "Ailawadi, K.L., Harlam, B.A., César, J. & Trounce, D. (2006). Promotion Profitability for a Retailer. Journal of Marketing Research, 43(4), 518–535."
-      author: "Ailawadi, K.L.; Harlam, B.A.; César, J.; Trounce, D."
-      year: 2006
-      url: "https://journals.sagepub.com/doi/10.1509/jmkr.43.4.518"
-      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
-      total_score: 14
-      supports: [driver_kpis, wrong_interpretations, guardrails, benchmark_targets]
-      notes: "CVS study: ~45% of gross promotional lift is incremental; decomposes switching/stockpiling/incremental and halo."
+      title: "Is 75% of the Sales Promotion Bump Due to Brand Switching? No, Only 33% Is"
+      author: "Van Heerde, H.J.; Gupta, S.; Wittink, D.R."
+      publication: "Journal of Marketing Research (AMA), 40(4), 481-491"
+      year: 2003
+      url: "https://doi.org/10.1509/jmkr.40.4.481.19386"
+      doi: "10.1509/jmkr.40.4.481.19386"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports:
+        - outcome_kpis
+        - wrong_interpretations
+        - benchmark_target
 
     - id: SRC-005
       category: ACA
-      title: "Bijmolt, T.H.A., Van Heerde, H.J. & Pieters, R.G.M. (2005). New Empirical Generalizations on the Determinants of Price Elasticity. Journal of Marketing Research, 42(2), 141–156."
-      author: "Bijmolt, T.H.A.; Van Heerde, H.J.; Pieters, R.G.M."
-      year: 2005
-      url: "https://journals.sagepub.com/doi/10.1509/jmkr.42.2.141.62296"
-      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
-      total_score: 14
-      supports: [driver_kpis, wrong_interpretations, required_measures, benchmark_targets]
-      notes: "Meta-analysis: average price elasticity ≈ −2.6, promotional price elasticity ≈ −3.6 — discount-depth logic."
+      title: "The Effect of Promotion on Consumption: Buying More and Consuming It Faster"
+      author: "Ailawadi, K.L.; Neslin, S.A."
+      publication: "Journal of Marketing Research (AMA), 35(3), 390-398"
+      year: 1998
+      url: "https://doi.org/10.1177/002224379803500309"
+      doi: "10.1177/002224379803500309"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports:
+        - driver_kpis
+        - diagnostic_kpis
+        - wrong_interpretations
 
     - id: SRC-006
       category: PRO
-      title: "NielsenIQ — How to measure trade promotion effectiveness (baseline vs incremental lift; discount/feature/display; trade efficiency)"
-      author: "NielsenIQ (NIQ)"
-      year: 2022
-      url: "https://nielseniq.com/global/en/insights/analysis/2022/how-to-measure-trade-promotion-effectiveness/"
+      title: "NielsenIQ CPG Dictionary — Incremental Lift per Week of Support (baseline vs actual incrementality definition)"
+      author: NielsenIQ
+      publication: NielsenIQ
+      year: 2024
+      url: "https://microsites.nielseniq.com/cpg-dictionary/dictionary/incremental-lift-per-week-of-support/"
+      doi: ""
       scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
       total_score: 13
-      supports: [driver_kpis, diagnostic_kpis, guardrails, required_measures]
-      notes: "Retail-measurement methodology: actual vs baseline = lift; trade efficiency > $1 to break even."
+      supports:
+        - outcome_kpis
+        - diagnostic_kpis
+        - required_measures
 
     - id: SRC-007
-      category: PRO
-      title: "Circana — What incrementality reveals that attribution alone cannot (incremental demand vs subsidising existing buyers)"
-      author: "Circana (formerly IRI/NPD)"
-      year: 2024
-      url: "https://www.circana.com/post/what-incrementality-attribution-reveals-that-attribution-alone-cannot"
+      category: BNK
+      title: "Simon-Kucher — Promotion Effectiveness: typically 30-40% of promotions are value destroyers with negative ROI"
+      author: Simon-Kucher & Partners
+      publication: Simon-Kucher Insights
+      year: 2023
+      url: "https://www.simon-kucher.com/en/insights/how-best-measure-promotional-effectiveness-everything-you-need-know-calculating-promotion"
+      doi: ""
       scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
       total_score: 13
-      supports: [driver_kpis, wrong_interpretations, diagnostic_kpis]
-      notes: "Practitioner measurement source on incrementality vs subsidy, penetration, and event payback."
+      supports:
+        - benchmark_target
+        - outcome_kpis
+        - wrong_interpretations
 
     - id: SRC-008
       category: BNK
-      title: "Gartner — CPG Marketing Budget Benchmark (marketing/trade spend as % of revenue; TPM/TPO benchmarks)"
-      author: "Gartner, Inc."
-      year: 2025
-      url: "https://www.gartner.com/en/marketing/research/cpg-marketing-budget-benchmark"
-      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 2, content_role: 2 }
-      total_score: 12
-      supports: [process_scope, diagnostic_kpis, benchmark_targets]
-      notes: "Benchmark source for CPG marketing/trade spend as a share of revenue; trade spend is 2nd-largest P&L line after COGS."
+      title: "NielsenIQ CPG Dictionary — Trade Efficiency (promo lift per $ of markdown; >$1 break-even, $0-1 sub-break-even, negative = no lift)"
+      author: NielsenIQ
+      publication: NielsenIQ
+      year: 2024
+      url: "https://microsites.nielseniq.com/cpg-dictionary/dictionary/trade-efficiency/"
+      doi: ""
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports:
+        - benchmark_target
+        - outcome_kpis
+        - driver_kpis
 
     - id: SRC-009
-      category: BNK
-      title: "McKinsey & Company — How analytics can drive growth in consumer-packaged-goods trade promotions"
-      author: "McKinsey & Company"
-      year: 2021
-      url: "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/how-analytics-can-drive-growth-in-consumer-packaged-goods-trade-promotions"
-      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
-      total_score: 13
-      supports: [outcome_kpis, guardrails, benchmark_targets]
-      notes: "Benchmark: CPG invests ~20% of revenue in trade promotions; ~59% lose money globally (72% in the US); best-in-class return 5x the least efficient."
+      category: IMP
+      title: "How Precision Revenue Growth Management Transforms CPG Promotions"
+      author: McKinsey & Company (Growth, Marketing & Sales Practice)
+      publication: McKinsey.com
+      year: 2023
+      url: "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/how-precision-revenue-growth-management-transforms-cpg-promotions"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports:
+        - driver_kpis
+        - action_logic_seeds
+        - benchmark_target
 
     - id: SRC-010
       category: IMP
-      title: "Vividly — How Trade Promotion Optimization Can Elevate Your Trade Promotion Strategy (TPM/TPO practitioner guidance)"
-      author: "Vividly"
+      title: "Revenue Growth Management — AI-enabled pricing, promotion, mix, and trade optimization (RGM capability guide)"
+      author: Boston Consulting Group (BCG)
+      publication: BCG.com
       year: 2024
-      url: "https://www.govividly.com/blog/cpg-trade-promotion-optimization"
-      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 1, content_role: 3 }
-      total_score: 12
-      supports: [action_logic_seeds, diagnostic_kpis, driver_kpis]
-      notes: "Practitioner TPM/TPO implementation source on incremental sales, lift, cannibalization, halo, and forward-buying; vendor — independence 1."
+      url: "https://www.bcg.com/capabilities/pricing-revenue-management/revenue-growth-management"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports:
+        - process_scope
+        - action_logic_seeds
 
     - id: SRC-011
       category: RSK
-      title: "Sharp, B. — How Brands Grow (Ehrenberg-Bass Institute): price promotions produce short-term spikes but do not build loyalty/equity. Oxford University Press."
-      author: "Byron Sharp / Ehrenberg-Bass Institute for Marketing Science"
-      year: 2010
-      url: "https://global.oup.com/academic/product/how-brands-grow-9780195573565"
-      scores: { authority: 3, recency: 1, domain_relevance: 2, independence: 3, content_role: 3 }
-      total_score: 12
-      supports: [wrong_interpretations, guardrails]
-      notes: "Anti-pattern/risk source: promotions do not build long-term loyalty and can erode base price; age waiver — foundational empirical generalisation."
+      title: "What Incrementality Reveals That Attribution Alone Cannot (pull-forward and cannibalization as non-incremental sources)"
+      author: Circana (formerly IRI/NPD)
+      publication: Circana
+      year: 2024
+      url: "https://www.circana.com/post/what-incrementality-attribution-reveals-that-attribution-alone-cannot"
+      doi: ""
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports:
+        - wrong_interpretations
+        - guardrails
 
-# ──────────────────────────────────────────
-# 6. MAPPING READINESS
-# ──────────────────────────────────────────
+    - id: SRC-012
+      category: PRO
+      title: "The Importance of Incremental Lift (baseline-relative measurement of promotion effectiveness)"
+      author: Nielsen
+      publication: Nielsen Insights
+      year: 2019
+      url: "https://www.nielsen.com/insights/2019/the-importance-of-incremental-lift/"
+      doi: ""
+      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 11
+      supports:
+        - outcome_kpis
+        - diagnostic_kpis
+
+action_logic_seeds:
+  - trigger_driver: sales.promo.cannibalization.pct
+    trigger_diagnostic: sales.promo.baseline_sales.amount
+    trigger_condition: "Cannibalization % > 30% AND Promotion ROI % < 100% for the campaign wave"
+    guardrail: "Do not credit own-brand-switching uplift as incremental; re-base ROI on true (cross-brand + category-expansion) volume before acting"
+    action_description: >
+      Run cannibalization decomposition by product pair / product family and campaign type;
+      de-overlap promotions on substitutes and shift mechanic toward cross-brand-switching
+      categories to convert internal transfer into true incremental volume.
+    expected_outcome_kpi: sales.promo.roi.pct
+    action_code_candidate: C-M2.1
+
+  - trigger_driver: margin.promo.gm.pct
+    trigger_diagnostic: sales.price.realization_pct
+    trigger_condition: "Promo GM% > 5pp below standard GM% AND Price Realization % < 75% during the promo window"
+    guardrail: "Do not deepen discount to chase volume when realization is already eroded and promo GM% is below standard"
+    action_description: >
+      Trigger promo-level P&L and price-realization recovery: reduce promo depth, tighten the
+      discount ladder (off-invoice/rebate/allowance), and compare mechanics to restore net price
+      and promo gross margin.
+    expected_outcome_kpi: sales.promo.roi.pct
+    action_code_candidate: C-M2.2
+
+  - trigger_driver: sales.promo.incremental.amount
+    trigger_diagnostic: sales.promo.incremental_gm.amount
+    trigger_condition: "Incremental Gross Margin Amount negative OR Promotion ROI % < 100% despite positive volume uplift"
+    guardrail: "Do not scale or repeat a promotion with negative incremental gross margin even if volume lifts"
+    action_description: >
+      Redesign or stop the promotion mechanic: standardize only payback-positive mechanics/depths,
+      reallocate trade spend to channels and categories with proven incremental ROI, and retire
+      value-destroying formats before the next campaign cycle.
+    expected_outcome_kpi: sales.promo.roi.pct
+    action_code_candidate: C-P4.1
+
+required_data_model:
+  required_facts:
+    - table: fact_promo
+      description: "Promotion costs and baseline (Promo Cost, Funding Amount, Baseline Sales/Quantity, Baseline Non-Promo Sales Amount) per promotion — basis for incrementality and cannibalization."
+    - table: fact_sales
+      description: "Invoice-line sales with Net Sales Amount, List/Net Price Amount, Discount Amount, COGS, Quantity, Promo Flag and PromoKey — basis for uplift, realization, and promo GM reconstruction."
+  required_dimensions:
+    - name: dim_promo
+      grain_relevance: "Promotion, PromoType, Mechanic, and Start/End date range — the campaign grain for ROI and uplift evaluation."
+    - name: dim_date
+      grain_relevance: "Promo period vs baseline period windowing; promo calendar alignment for pull-forward detection."
+    - name: dim_product
+      grain_relevance: "Category/Subcategory/Brand and ProductFamily for mix targeting and cannibalization across comparable items."
+    - name: dim_org
+      grain_relevance: "Region and Channel attribution of promo ROI and realization; basis for row-level security."
+  preferred_grain: promotion (campaign) with invoice-line sales retained for uplift and realization diagnostics
+  minimum_grain: promotion-product_category-channel
+  minimum_history_months: 12
+  required_measures:
+    - name: Incremental Sales Amount
+      formula_seed: "Promo-period Net Sales Amount (Promo Flag = true) - Baseline Sales Amount, net of cannibalized and pull-forward sales"
+      source_id: SRC-006
+    - name: Baseline Sales Amount
+      formula_seed: "Modelled non-promotional sales over the promo window from fact_promo Baseline Sales Amount"
+      source_id: SRC-006
+    - name: Promo Gross Margin %
+      formula_seed: "(Promo Net Sales Amount - Promo Cost of Goods Sold Amount) / Promo Net Sales Amount × 100"
+      source_id: SRC-009
+    - name: Price Realization %
+      formula_seed: "SUM(Net Price Amount) / SUM(List Price Amount) × 100"
+      source_id: SRC-001
+    - name: Cannibalization %
+      formula_seed: "Cannibalized (own-family) Sales Amount / Apparent Uplift × 100"
+      source_id: SRC-005
+    - name: Incremental Gross Margin Amount
+      formula_seed: "Incremental Sales Amount × Promo Gross Margin % (gross margin on baseline-adjusted volume)"
+      source_id: SRC-009
+    - name: Promotion ROI %
+      formula_seed: "Incremental Gross Margin Amount / Promo Cost × 100"
+      source_id: SRC-008
+
 mapping_readiness:
   kpi_catalog_coverage: complete
   factsheet_coverage: complete
   bracket_coverage: complete
-  action_code_coverage: complete
+  action_code_coverage: partial
   semantic_model_coverage: partial
 
   gap_summary:
@@ -530,14 +482,15 @@ mapping_readiness:
       - gap_type: content_gap
         severity: medium
         affected_artifact: core/usecases/core/COM-004_Promotion_Effectiveness/Business_Factsheet.md
-        field: "Section 8 Success Criteria / benchmark targets"
+        field: "Section 10 Typical Decision Scenarios — Scenario B Action Code"
         description: >
-          Benchmark targets not stated: promo ROI >= 120% (~59% of CPG promos fail to break even
-          globally, 72% in the US), ~45% of gross lift incremental, promotional price elasticity
-          ≈ −3.6 (McKinsey / Ailawadi et al. / Bijmolt et al.). Added to make success criteria measurable.
-        evidence_reference: SRC-009 SRC-004 SRC-005
-        remediation: "Add promo ROI / incremental-share / elasticity world-class targets to the factsheet success criteria."
+          Scenario B references action code C-S1.1 (Price Realization Recovery), which is a
+          COM-001 sales-performance code, while the bracket's promo realization action is C-M2.2.
+          The promo realization/over-discounting trigger should map to C-M2.2 for consistency.
+        evidence_reference: SRC-001 SRC-009
+        remediation: "Align Scenario B action code with the bracket (C-M2.2) or document why the cross-use-case C-S1.1 code applies."
         status: resolved
+        resolution: "Scenario B action code corrected from C-S1.1 to bracket code C-M2.2 (promo price-realization recovery / over-discounting) in Business_Factsheet.md Section 10."
 
     mapping_gaps: []
 
@@ -547,25 +500,15 @@ mapping_readiness:
 
     model_gaps:
       - gap_type: model_gap
-        severity: high
-        affected_artifact: core/data_contracts/domains/commercial_sales.yaml
-        field: dim_promo (promo_type / mechanic / depth attributes)
-        description: >
-          The promotion taxonomy (promo_type, mechanic, discount depth) required for mechanic
-          comparison, realization, and elasticity analysis (C-M2.2) is not fully defined as a
-          conformed dim_promo with depth attributes in the commercial_sales contract.
-        evidence_reference: SRC-005 SRC-006
-        remediation: "Define dim_promo with promo_type, mechanic and discount-depth attributes conformed to fact_promo and fact_sales."
-        status: open
-
-      - gap_type: model_gap
         severity: medium
-        affected_artifact: core/data_contracts/domains/commercial_sales.yaml
-        field: fact_promo (baseline_sales / cannibalized_sales lineage and related-item links)
+        affected_artifact: products/fabric/powerbi/dist/Commercial.SemanticModel
+        field: "Incremental Sales / Cannibalization measures"
         description: >
-          Incremental and cannibalization measurement require baseline_sales and cannibalized_sales
-          with related-item / product-hierarchy links. fact_promo is referenced by the factsheet but
-          its baseline and cannibalization lineage (and SKU-pair relationships) are not defined in the contract.
-        evidence_reference: SRC-004 SRC-007
-        remediation: "Define fact_promo baseline_sales/cannibalized_sales lineage and related-item links to bind incremental and cannibalization measures."
-        status: open
+          fact_promo provides Baseline Sales and Baseline Non-Promo Sales, but the incremental and
+          cannibalization measures must net out pull-forward and own-family transfer per the
+          decomposition methodology; needs validation that the semantic-model measures follow
+          baseline-relative incrementality rather than apparent gross uplift.
+        evidence_reference: SRC-003 SRC-004 SRC-005
+        remediation: "Validate Incremental Sales Amount and Cannibalization % measures in _Measures.tmdl against the baseline/incremental/cannibalization decomposition."
+        status: deferred
+        resolution: "Model-layer: requires baseline-relative incremental/cannibalization measure validation in Commercial.SemanticModel _Measures.tmdl."

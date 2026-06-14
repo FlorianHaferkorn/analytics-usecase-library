@@ -340,7 +340,7 @@ mapping_readiness:
         description: "Benchmark targets not stated (±3% plan tolerance, sector GM% range)."
         evidence_reference: SRC-004 SRC-006
         remediation: "Add benchmark targets to Section 8."
-        status: resolved
+        status: open
 
       - gap_type: content_gap
         severity: medium
@@ -351,7 +351,7 @@ mapping_readiness:
           Main_2 is configured as waterfall with Plan Sales Amount, three PVM effects, and Net Sales Amount.
         evidence_reference: SRC-003 SRC-009
         remediation: "Validate generated Main_2 waterfall reconciles Plan + PVM effects to Net Sales; close when DEP approved."
-        status: resolved
+        status: in_progress
 
     mapping_gaps: []
 

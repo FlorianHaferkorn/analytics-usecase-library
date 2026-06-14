@@ -33,7 +33,12 @@ technical:
   - ops.availability.pct
   - ops.performance.pct
   - ops.quality.pct
-  lineage: []
+  lineage:
+  - fact_ops.Run Time Minutes
+  - fact_ops.Planned Time Minutes
+  - fact_ops.Output Units
+  - fact_ops.Good Units
+  - fact_ops.Standard Rate Units Per Minute
 governance:
   business_owner: Head of Manufacturing
   data_owner: Manufacturing BI
