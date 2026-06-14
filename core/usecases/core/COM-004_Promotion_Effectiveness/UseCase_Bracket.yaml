@@ -109,3 +109,4 @@ overrides:
   data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md
+  evidence_pack: ./Domain_Evidence_Pack.yaml

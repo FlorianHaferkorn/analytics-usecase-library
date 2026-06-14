@@ -1,0 +1,521 @@
+evidence_pack_version: "1.0"
+use_case_id: OPS-003
+use_case_title: Quality & Yield
+domain: Operations
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Manufacturing quality and yield performance: first pass yield, the scrap and rework
+    losses that erode it, the cost of poor quality (COPQ) those losses generate, and the
+    field-quality signal (customer complaints) that confirms whether internal quality
+    actually reaches the customer. Distinct from OPS-001 (full OEE) — this use case isolates
+    the Quality pillar of OEE and the cost/defect decomposition behind it.
+  in_scope:
+    - First Pass Yield (FPY) and the internal-quality loss decomposition (scrap, rework)
+    - Defect density and defect-mode Pareto per ISO 9001 / IATF 16949 defect taxonomy
+    - Cost of Poor Quality (COPQ) on the prevention–appraisal–failure (PAF) model
+    - Field quality: customer complaint rate linked to shipped product
+    - Statistical process control (SPC) signals as the leading indicator of yield drift
+    - Quality safety/compliance guardrail (no nonconforming product shipped to hit yield)
+  out_of_scope:
+    - Full OEE / availability & performance losses (OPS-001)
+    - Asset reliability and maintenance (OPS-002)
+    - Supplier quality scorecarding and incoming inspection (separate procurement use case)
+    - Warranty financial provisioning and recall management (finance/legal scope)
+  industry_segment: >
+    Discrete and process manufacturing — automotive, electronics, FMCG, pharma, chemicals,
+    food & beverage. Applicable to any environment where internal defect generation is a
+    material driver of cost and customer dissatisfaction.
+  applicable_frameworks:
+    - name: ISO 22400-2:2014 — Manufacturing operations KPIs (Quality ratio, Scrap ratio)
+      id: ISO-22400-2
+    - name: ISO 9001:2015 — Quality management systems — Requirements
+      id: ISO-9001
+    - name: ISO 9000:2015 — Quality management systems — Fundamentals and vocabulary
+      id: ISO-9000
+    - name: IATF 16949:2016 — Automotive quality management system (defect prevention)
+      id: IATF-16949
+    - name: AIAG SPC — Statistical Process Control Reference Manual
+      id: AIAG-SPC
+    - name: Cost of Quality — Prevention/Appraisal/Failure (PAF) model (Juran / ASQ)
+      id: COQ-PAF
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: quality.fpy.pct
+      name: First Pass Yield %
+      definition: >
+        First Pass Yield = Units Passing First Time / Units Started. The proportion of product
+        that conforms on the first attempt without scrap or rework. The primary quality outcome
+        and the Quality pillar of OEE (ISO 22400-2 quality ratio).
+      unit: "%"
+      direction: maximize
+      benchmark_target: "99% world class; rolled throughput yield (RTY) reveals the hidden factory below it (ASQ / Six Sigma)"
+      benchmark_source_id: SRC-009
+      iso_reference: "ISO 22400-2:2014 quality ratio; ISO 9000:2015 conformity definition"
+
+  driver_kpis:
+    - id: quality.scrap.pct
+      name: Scrap Rate %
+      definition: >
+        Scrap Units / Units Started. Units that fail to meet specification and cannot be
+        reworked — the irrecoverable share of yield loss (ISO 22400-2 scrap ratio).
+      unit: "%"
+      direction: minimize
+      drives: quality.fpy.pct
+      causal_mechanism: >
+        Scrap is the hard floor on FPY: every scrapped unit is a first-pass failure that also
+        consumes material and capacity. Scrap Pareto by defect mode is the entry point for
+        root-cause work (ISO 9001 corrective action; AIAG SPC).
+      benchmark_target: "Sector-specific; declining trend with < 1% world-class discrete manufacturing (ASQ)"
+      benchmark_source_id: SRC-008
+
+    - id: quality.rework.pct
+      name: Rework Rate %
+      definition: >
+        Rework Units / Units Started. Units that initially failed but were recovered through
+        additional operations. Recovers output but consumes hidden capacity and cost.
+      unit: "%"
+      direction: minimize
+      drives: quality.fpy.pct
+      causal_mechanism: >
+        Rework is the "hidden factory": it props up final yield while masking a first-pass
+        failure. High rework with stable final yield signals a detection-based (not
+        prevention-based) quality system (Crosby; Six Sigma RTY).
+      benchmark_target: "Declining trend; rework should not substitute for first-pass capability (Six Sigma)"
+      benchmark_source_id: SRC-010
+
+    - id: quality.defect_density
+      name: Defect Density
+      definition: >
+        Defects / Unit (or per million opportunities, DPMO). Normalises defect volume to
+        output so dissimilar products and lines can be compared on a like basis.
+      unit: ratio
+      direction: minimize
+      drives: quality.fpy.pct
+      causal_mechanism: >
+        Defect density is the SPC-controllable signal upstream of scrap and rework. Rising
+        density precedes yield loss; SPC control limits detect the drift before it becomes
+        scrap (AIAG SPC; Montgomery).
+      benchmark_target: "6σ ≈ 3.4 DPMO; 4σ ≈ 6,210 DPMO (Six Sigma sigma-level benchmark)"
+      benchmark_source_id: SRC-009
+
+    - id: quality.copq.amount
+      name: Cost of Poor Quality (COPQ)
+      definition: >
+        Sum of prevention, appraisal, internal-failure (scrap/rework), and external-failure
+        (complaints/warranty) costs. Translates quality loss into a P&L number on the PAF model.
+      unit: EUR
+      direction: minimize
+      drives: quality.fpy.pct
+      causal_mechanism: >
+        COPQ is the financial consequence of low FPY. Reading only visible scrap understates
+        it — appraisal and external-failure costs are the larger, hidden share (Juran; ASQ PAF).
+      benchmark_target: "World-class COPQ < 5% of sales; poor performers 15–20% of sales (Juran)"
+      benchmark_source_id: SRC-006
+
+    - id: quality.complaint.pct
+      name: Complaint Rate %
+      definition: >
+        Customer Complaints / Units Shipped. The external-quality outcome — whether internal
+        quality actually reaches the customer. The escape signal for the quality system.
+      unit: "%"
+      direction: minimize
+      drives: quality.copq.amount
+      causal_mechanism: >
+        Complaint rate is the external-failure tail of COPQ and the validation that FPY gains
+        are real, not inspection-masked. Rising complaints with stable FPY indicate defect
+        escapes (ISO 9001 customer-satisfaction; IATF 16949).
+      benchmark_target: "Declining trend; PPM-level for automotive supply (IATF 16949)"
+      benchmark_source_id: SRC-004
+
+  diagnostic_kpis:
+    - id: quality.defect.count
+      name: Defect Count
+      definition: "Count of recorded defect events (fact_quality). The numerator behind density and scrap Pareto."
+      unit: count
+      direction: minimize
+      diagnoses: quality.defect_density
+      causal_mechanism: >
+        Defect-count Pareto by mode, line, and product is the root-cause entry point. A small
+        set of defect modes typically drives the majority of yield loss (Juran 80/20; ISO 9001).
+
+    - id: ops.planned_output.units
+      name: Planned Output Units
+      definition: "Planned good-unit output for the period (fact_ops). Denominator context for yield and density."
+      unit: count
+      direction: maximize
+      diagnoses: quality.fpy.pct
+      causal_mechanism: >
+        Planned output normalises defect and scrap volumes; without it, raw defect counts
+        cannot be compared across lines of different scale.
+
+    - id: crm.complaint.count
+      name: Customer Complaint Count
+      definition: "Raw count of customer complaints (fact_complaints). Numerator behind complaint rate."
+      unit: count
+      direction: minimize
+      diagnoses: quality.complaint.pct
+      causal_mechanism: >
+        Complaint count linked to product and ship period attributes external failures to the
+        internal defect mode that caused them — closing the internal-to-field quality loop.
+
+  guardrails:
+    - description: Safety and conformity are hard constraints, not yield trade-offs
+      condition: >
+        Nonconforming product must NEVER be shipped or reclassified as good to protect a yield
+        or output number. Conformity to specification vetoes the yield action (ISO 9001
+        nonconforming-output control; IATF 16949).
+      affected_kpis: [quality.fpy.pct, quality.complaint.pct, quality.scrap.pct]
+
+    - description: Exclude qualification and trial runs from FPY
+      condition: >
+        Planned qualification runs, first-article trials, and validation batches must be flagged
+        and excluded from FPY and scrap so deliberate learning is not read as process failure
+        (IATF 16949 PPAP; ISO 9001).
+      affected_kpis: [quality.fpy.pct, quality.scrap.pct]
+
+    - description: COPQ must use the full PAF model, not visible scrap only
+      condition: >
+        Cost of Poor Quality must include prevention, appraisal, internal failure AND external
+        failure. Reporting only scrap understates COPQ and misdirects investment away from
+        prevention (Juran; ASQ Cost of Quality).
+      affected_kpis: [quality.copq.amount]
+
+  wrong_interpretations:
+    - description: "High final yield masking low first-pass capability (hidden factory)"
+      why_wrong: >
+        Final yield can be held high by rework loops even as first-pass capability falls.
+        Rolled Throughput Yield (RTY = product of step FPYs) exposes the hidden factory that a
+        single final-yield number conceals (Six Sigma; ASQ).
+      source_id: SRC-010
+
+    - description: "Equating COPQ with visible scrap cost"
+      why_wrong: >
+        Scrap is the visible tip; appraisal (inspection) and external-failure (warranty,
+        complaints) costs are the larger hidden share. Scrap-only COPQ understates the problem
+        and starves prevention investment (Juran; Crosby).
+      source_id: SRC-006
+
+    - description: "Inspection-based quality treated as prevention"
+      why_wrong: >
+        Detecting defects via 100% inspection does not improve first-pass capability and adds
+        appraisal cost. Quality must be built in (prevention), not inspected in — Crosby's and
+        Deming's central thesis (Quality is Free).
+      source_id: SRC-011
+
+    - description: "Fleet-average defect density hiding bad actors"
+      why_wrong: >
+        Averaging defect density across dissimilar products and lines produces a meaningless
+        number. ISO 9001 and SPC require defect data at the product/process-step level to
+        target action (AIAG SPC; Montgomery).
+      source_id: SRC-005
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_quality
+      description: >
+        Quality event log. Must contain: units started, good units, scrap units, rework units,
+        defect_count, line_id, product_id, defect_mode, cause_code, shift_id. Provides FPY,
+        scrap, rework, and defect density per ISO 22400-2.
+    - table: fact_quality_costs
+      description: >
+        Cost-of-quality ledger. Must contain: prevention, appraisal, internal-failure and
+        external-failure cost categories at line/product grain. Required for COPQ on the PAF model.
+    - table: fact_complaints
+      description: >
+        Customer complaint log. Must contain: complaint records, product_id, ship_period,
+        defect_mode, cause_code. Required for complaint rate and the internal-to-field link.
+    - table: fact_shipments
+      description: >
+        Shipped-units fact. Must contain: units shipped at product/period grain. Denominator
+        for complaint rate (complaints per unit shipped).
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for FPY/scrap trend and SPC. CalendarWeek + CalendarMonth required."
+    - name: dim_org
+      grain_relevance: "Plant → Line → Workcenter hierarchy. Line level mandatory for quality diagnostics."
+    - name: dim_product
+      grain_relevance: "Product → Product Family for FPY and defect Pareto by product."
+    - name: dim_defect_mode
+      grain_relevance: >
+        ISO 9001 / IATF 16949 defect-mode taxonomy for defect Pareto and root cause.
+        Not present in the current data contract — classified as model_gap.
+    - name: dim_cause_code
+      grain_relevance: >
+        Quality cause codes for defect-reason Pareto and action specificity (O-Q3.1).
+        Currently not in the data contract — model_gap.
+
+  preferred_grain: line-product-day
+  minimum_grain: line-day
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    line-day grain is acceptable only where product-level defect attribution is structurally
+    unavailable. Requires explicit waiver in the bracket; defect-mode bad-actor analysis is degraded.
+
+  required_measures:
+    - name: First Pass Yield %
+      formula_seed: "Units_Passing_First_Time / Units_Started"
+      source_id: SRC-001
+    - name: Scrap Rate %
+      formula_seed: "Scrap_Units / Units_Started"
+      source_id: SRC-001
+    - name: Rework Rate %
+      formula_seed: "Rework_Units / Units_Started"
+      source_id: SRC-010
+    - name: Defect Density (DPMO)
+      formula_seed: "Defects / (Units * Opportunities) * 1_000_000"
+      source_id: SRC-009
+    - name: Cost of Poor Quality
+      formula_seed: "Prevention + Appraisal + Internal_Failure + External_Failure"
+      source_id: SRC-006
+    - name: Complaint Rate %
+      formula_seed: "Customer_Complaints / Units_Shipped"
+      source_id: SRC-004
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: quality.fpy.pct
+    trigger_diagnostic: quality.defect.count
+    trigger_condition: "FPY declining on a line AND defect count concentrated in a bad-actor mode Pareto"
+    guardrail: "Exclude qualification/trial runs; confirm defect mode is process-addressable"
+    action_description: >
+      Yield recovery orchestration: rank lines/products by FPY gap × volume, run defect-mode
+      root cause on the top bad actors, sequence the scrap/rework/SPC actions.
+    expected_outcome_kpi: quality.fpy.pct
+    action_code_candidate: O-Q3.1
+
+  - trigger_driver: quality.copq.amount
+    trigger_diagnostic: quality.rework.pct
+    trigger_condition: "COPQ rising while final yield stable (hidden factory: rework masking first-pass failure)"
+    guardrail: "Use full PAF COPQ; do not optimise scrap alone"
+    action_description: >
+      COPQ reduction: expose the hidden factory via RTY, eliminate the dominant rework loop,
+      and shift spend from appraisal to prevention.
+    expected_outcome_kpi: quality.copq.amount
+    action_code_candidate: O-Q3.2
+
+  - trigger_driver: quality.defect_density
+    trigger_diagnostic: quality.defect.count
+    trigger_condition: "Defect density drifting toward SPC control limits before scrap materialises"
+    guardrail: "Validate SPC control limits are current and capability study is valid"
+    action_description: >
+      Process parameter control: SPC-driven parameter correction and capability (Cp/Cpk)
+      restoration to arrest density drift before it becomes scrap.
+    expected_outcome_kpi: quality.defect_density
+    action_code_candidate: O-Q3.3
+
+  - trigger_driver: quality.complaint.pct
+    trigger_diagnostic: crm.complaint.count
+    trigger_condition: "Complaint rate rising while internal FPY stable (defect escapes reaching the customer)"
+    guardrail: "Link complaints to internal defect mode before acting; protect conformity"
+    action_description: >
+      Field-quality containment: trace complaints to the internal defect mode, contain the
+      escape, and close the detection gap that let it ship.
+    expected_outcome_kpi: quality.complaint.pct
+    action_code_candidate: O-Q3.4
+
+  - trigger_driver: quality.scrap.pct
+    trigger_diagnostic: quality.defect.count
+    trigger_condition: "Scrap concentrated in defect modes traceable to material/supplier variation"
+    guardrail: "Confirm material specification variance vs internal process cause"
+    action_description: >
+      Material/process quality: isolate material-driven scrap, tighten incoming specification
+      and SPC on the affected step, rather than blanket inspection.
+    expected_outcome_kpi: quality.scrap.pct
+    action_code_candidate: O-Q3.5
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.4
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "ISO 22400-2:2014 — Automation systems and integration — KPIs for manufacturing operations management — Part 2 (quality ratio, scrap ratio)"
+      author: "International Organization for Standardization"
+      year: 2014
+      url: "https://www.iso.org/standard/54497.html"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, required_measures, required_data_model]
+
+    - id: SRC-002
+      category: STD
+      title: "ISO 9001:2015 — Quality management systems — Requirements"
+      author: "International Organization for Standardization"
+      year: 2015
+      url: "https://www.iso.org/standard/62085.html"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, guardrails, wrong_interpretations]
+
+    - id: SRC-003
+      category: STD
+      title: "ISO 9000:2015 — Quality management systems — Fundamentals and vocabulary (defect, nonconformity, conformity)"
+      author: "International Organization for Standardization"
+      year: 2015
+      url: "https://www.iso.org/standard/45481.html"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [outcome_kpis, process_scope]
+
+    - id: SRC-004
+      category: STD
+      title: "IATF 16949:2016 — Quality management system for automotive production (defect prevention, PPM, PPAP)"
+      author: "International Automotive Task Force (IATF)"
+      year: 2016
+      url: "https://www.aiag.org/expertise-areas/quality/iatf-16949-2016"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis, guardrails, required_measures]
+      notes: "Industry-consortium standard built on ISO 9001; independence 2 (sector body)."
+
+    - id: SRC-005
+      category: PRO
+      title: "AIAG Statistical Process Control (SPC) Reference Manual, 2nd Edition"
+      author: "Automotive Industry Action Group (AIAG)"
+      year: 2005
+      url: "https://www.aiag.org/training-and-resources/manuals/details/SPC-3"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, action_logic_seeds, wrong_interpretations]
+
+    - id: SRC-006
+      category: ACA
+      title: "Juran, J.M. & De Feo, J.A. (2016). Juran's Quality Handbook, 7th Edition (Cost of Poor Quality / PAF model). McGraw-Hill."
+      author: "Juran, J.M.; De Feo, J.A."
+      year: 2016
+      url: "https://www.mhprofessional.com/juran-s-quality-handbook-the-complete-guide-to-performance-excellence-7th-edition-9781259643613-usa"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [driver_kpis, guardrails, wrong_interpretations, benchmark_targets]
+      notes: "Definitive COPQ reference; world-class COPQ < 5% of sales vs 15–20% for poor performers."
+
+    - id: SRC-007
+      category: ACA
+      title: "Montgomery, D.C. (2019). Introduction to Statistical Quality Control, 8th Edition. Wiley."
+      author: "Douglas C. Montgomery"
+      year: 2019
+      url: "https://www.wiley.com/en-us/Introduction+to+Statistical+Quality+Control%2C+8th+Edition-p-9781119399308"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis, wrong_interpretations]
+      notes: "Authoritative SPC / process-capability text behind the defect-density control logic."
+
+    - id: SRC-008
+      category: PRO
+      title: "ASQ — Cost of Quality and Quality Cost categories (Prevention/Appraisal/Failure); scrap and yield metrics"
+      author: "American Society for Quality (ASQ)"
+      year: 2023
+      url: "https://asq.org/quality-resources/cost-of-quality"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [driver_kpis, required_measures, benchmark_targets]
+
+    - id: SRC-009
+      category: BNK
+      title: "Six Sigma sigma-level / DPMO benchmark and Rolled Throughput Yield (3.4 DPMO at 6σ)"
+      author: "iSixSigma / Six Sigma body of knowledge"
+      year: 2023
+      url: "https://www.isixsigma.com/capability-indices-process-capability/understanding-first-time-and-roll-throughput-yields/"
+      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 12
+      supports: [outcome_kpis, driver_kpis, benchmark_targets]
+
+    - id: SRC-010
+      category: IMP
+      title: "First Pass Yield, Rolled Throughput Yield and the 'hidden factory' — practitioner guidance"
+      author: "ASQ / Lean Six Sigma practitioner literature"
+      year: 2023
+      url: "https://www.machinemetrics.com/blog/first-pass-yield"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, action_logic_seeds, wrong_interpretations]
+
+    - id: SRC-011
+      category: RSK
+      title: "Crosby, P.B. (1979). Quality Is Free — prevention vs appraisal; quality is built in, not inspected in. McGraw-Hill."
+      author: "Philip B. Crosby"
+      year: 1979
+      url: "https://archive.org/details/qualityisfreeart00cros"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [wrong_interpretations, guardrails]
+      notes: "Anti-pattern source for inspection-based (detection) quality and COPQ underreporting. Age waiver — foundational."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: complete
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md
+        field: "Section 8 Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: FPY 99% world-class, COPQ < 5% of sales (15–20% poor
+          performers), 6σ ≈ 3.4 DPMO (Juran / ASQ / Six Sigma). Added to make success criteria measurable.
+        evidence_reference: SRC-006 SRC-008 SRC-009
+        remediation: "Add FPY / COPQ / DPMO world-class targets to the factsheet success criteria."
+        status: resolved
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/operations.yaml
+        field: dim_defect_mode / dim_cause_code
+        description: >
+          No defect-mode or quality cause-code dimension exists. ISO 9001 / IATF 16949 defect
+          Pareto and root-cause targeting (O-Q3.1) require defect-mode and cause attribution at
+          the line/product grain.
+        evidence_reference: SRC-002 SRC-004
+        remediation: "Add dim_defect_mode and dim_cause_code per ISO 9001 / IATF 16949 taxonomy to the operations contract."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/operations.yaml
+        field: fact_quality_costs (PAF cost categories)
+        description: >
+          COPQ requires prevention, appraisal, internal-failure and external-failure cost
+          categories. fact_quality_costs is referenced by the factsheet but its PAF cost-category
+          lineage is not defined in the data contract.
+        evidence_reference: SRC-006
+        remediation: "Define fact_quality_costs with PAF cost categories and bind COPQ measure lineage."
+        status: open

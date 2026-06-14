@@ -1,0 +1,542 @@
+evidence_pack_version: "1.0"
+use_case_id: FIN-002
+use_case_title: Cost Performance
+domain: Finance / Operations
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Cost and OPEX/COGS performance: unit cost vs plan, the cost-bucket decomposition (material,
+    labor, overhead/OPEX) that drives it, the COGS share that erodes margin, and the budget-vs-actual
+    variance discipline that explains whether a cost move is price, volume, mix, or efficiency. Cost
+    is read through standard-costing variance analysis and activity/cost-to-serve attribution, not raw
+    spend. Distinct from OPS-001 (full OEE/performance tuning) and OPS-002 (supplier PPV) — this use
+    case isolates the cost performance and cost-variance story behind margin.
+  in_scope:
+    - Unit cost vs plan / LY and the fixed/variable cost split per plant/line/product
+    - Cost-bucket decomposition (material, labor, overhead/OPEX) and variance attribution
+    - COGS % of sales and the margin-erosion signal that follows cost movement
+    - Budget-vs-actual OPEX variance and overhead control (structural vs ramp-up)
+    - Standard-costing variance analysis: price/rate, quantity/usage, volume, mix and efficiency variances
+    - Cost-to-serve / activity-based attribution of overhead to product and cost object
+    - Cost guardrail: cost reduction must not destroy throughput, quality, or service capability
+  out_of_scope:
+    - Full OEE / availability & performance tuning (OPS-001)
+    - Supplier purchase-price-variance specifics and procurement scorecarding (OPS-002)
+    - Logistics cost ratio (OPS-009)
+    - Statutory financial reporting cost allocation and IFRS inventory valuation (finance/legal scope)
+  industry_segment: >
+    Discrete and process manufacturing and asset-intensive operations — automotive, electronics, FMCG,
+    pharma, chemicals, industrials. Applicable to any environment where material, labor and overhead
+    are material P&L levers and budget-vs-actual cost variance drives operational decisions.
+  applicable_frameworks:
+    - name: CIMA Official Terminology — standard costing & variance analysis (price, usage, volume, mix variances)
+      id: CIMA-TERM
+    - name: IMA Conceptual Framework for Managerial Costing — causality principle for cost attribution
+      id: IMA-MCF
+    - name: Activity-Based Costing / Cost-to-serve (Kaplan & Cooper) — cause-and-effect overhead assignment
+      id: ABC-K&C
+    - name: Standard-costing variance model (price/rate, quantity/usage, volume, mix, efficiency)
+      id: STD-COST-VAR
+    - name: Zero-Based Budgeting — justify-from-zero OPEX/G&A discipline
+      id: ZBB
+    - name: APQC Open Standards Benchmarking — SG&A / G&A cost benchmarks
+      id: APQC-OSB
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: cost.unit.amount
+      name: Unit Cost Amount
+      definition: >
+        Fully-loaded cost per produced unit = Total Cost / Units Produced, compared to plan and LY.
+        The strategic cost outcome — the single number that absorbs material, labor and overhead and
+        the volume that fixed cost is spread across. Read against standard cost via variance analysis.
+      unit: EUR
+      direction: minimize
+      benchmark_target: "Declining unit cost vs plan; favourable net cost variance (price + usage + volume) vs standard (CIMA management-by-exception)"
+      benchmark_source_id: SRC-001
+      cima_reference: "CIMA Official Terminology — standard cost = planned unit cost; variance = standard vs actual"
+
+  driver_kpis:
+    - id: margin.cogs.pct
+      name: COGS % of Sales
+      definition: >
+        Cost of Goods Sold / Net Sales. The margin lens on cost performance — translates unit-cost
+        movement into the share of revenue consumed by production cost.
+      unit: "%"
+      direction: minimize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        COGS % is the bridge from unit cost to margin: rising unit cost or eroding price recovery expands
+        COGS % and compresses gross margin. It must be decomposed into price, volume and mix before action,
+        not read as a single ratio (CIMA variance analysis; Horngren cost-volume-profit).
+      benchmark_target: "Stable or declining COGS %; expansion flagged when input inflation outpaces price recovery (Horngren CVP)"
+      benchmark_source_id: SRC-004
+
+    - id: cost.opex.vs_plan.pct
+      name: OPEX vs Plan %
+      definition: >
+        (Actual OPEX − Planned OPEX) / Planned OPEX. The budget-vs-actual overhead variance — the
+        direct measure of OPEX/G&A control against the plan.
+      unit: "%"
+      direction: minimize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        OPEX overrun flows straight to EBIT and inflates allocated unit cost. Zero-based budgeting reframes
+        each OPEX line as justify-from-zero rather than prior-year-plus, exposing structural overspend
+        versus approved ramp-up (McKinsey/Deloitte ZBB; APQC SG&A benchmark).
+      benchmark_target: "OPEX within plan; SG&A cost as % of revenue at or below APQC median for the industry (APQC OSB)"
+      benchmark_source_id: SRC-007
+
+    - id: cost.material.pct
+      name: Material Cost %
+      definition: >
+        Material Cost / Total Cost (or / Net Sales). The largest cost bucket in most manufacturing and the
+        primary structural lever on unit cost, per the bracket value-driver model.
+      unit: "%"
+      direction: minimize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Material cost % moves on price, usage/yield and mix. The standard-costing material variance splits
+        it into a price variance (purchasing) and a usage/quantity variance (consumption/yield) so the right
+        owner acts — conflating the two misdirects action (CIMA; Horngren material variances).
+      benchmark_target: "Favourable material price + usage variance vs standard; declining material % at constant mix (CIMA)"
+      benchmark_source_id: SRC-001
+
+    - id: ops.labor.productivity.pct
+      name: Labor Productivity %
+      definition: >
+        Output / Labor Input (units per labor hour, or earned vs actual hours). The labor efficiency lens —
+        the rate/efficiency component behind the labor cost bucket.
+      unit: "%"
+      direction: maximize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Labor productivity drives the labor-cost variance: the standard-costing labor variance splits into a
+        rate variance (wage) and an efficiency variance (hours). Falling productivity raises labor cost per
+        unit independent of wage rate (CIMA labor variances; Horngren).
+      benchmark_target: "Rising units/hour; favourable labor efficiency variance vs standard (CIMA)"
+      benchmark_source_id: SRC-001
+
+    - id: ops.production.volume
+      name: Production Volume
+      definition: >
+        Good units produced in the period. The denominator that fixed cost is absorbed across — the volume
+        lever in the cost equation.
+      unit: count
+      direction: maximize
+      drives: cost.unit.amount
+      causal_mechanism: >
+        Volume is the fixed-cost-absorption lever: a volume drop spreads fixed cost over fewer units and lifts
+        unit cost even with every efficiency held constant. The fixed-overhead volume variance isolates this
+        absorption effect from true efficiency loss (Horngren overhead variances; CIMA).
+      benchmark_target: "Volume at or above plan; fixed-overhead volume variance not masking efficiency loss (Horngren)"
+      benchmark_source_id: SRC-004
+
+  diagnostic_kpis:
+    - id: ops.quality.defect_rate.pct
+      name: Defect Rate %
+      definition: "Defective units / units produced (fact_quality). Diagnostic for the rework/scrap cost embedded in OPEX and unit cost."
+      unit: "%"
+      direction: minimize
+      diagnoses: cost.opex.vs_plan.pct
+      causal_mechanism: >
+        Rising defect rate generates rework and scrap cost that surfaces as OPEX overrun and inflated unit
+        cost. Tracing OPEX variance to defect-driven rework distinguishes a quality cause from headcount or
+        input-price causes before acting (cross-link to OPS-003).
+
+    - id: ops.yield.pct
+      name: Yield %
+      definition: "Good output / input (fact_ops/fact_quality). Diagnostic for material usage variance and material cost %."
+      unit: "%"
+      direction: maximize
+      diagnoses: cost.material.pct
+      causal_mechanism: >
+        Yield loss is a material usage variance: every point of yield lost consumes material that produces no
+        sellable unit, raising material cost %. Yield diagnoses whether a material-% rise is a price effect or a
+        consumption/yield effect (CIMA usage variance).
+
+    - id: sales.net_sales.amount
+      name: Net Sales Amount
+      definition: "Net sales for the period (fact_finance/fact_sales). Denominator context for COGS % and cost-to-serve."
+      unit: EUR
+      direction: maximize
+      diagnoses: margin.cogs.pct
+      causal_mechanism: >
+        Net sales is the denominator behind COGS % and the revenue base for cost-to-serve. Without it, cost
+        movement cannot be separated from price/volume revenue effects, and COGS % swings are misread
+        (Horngren CVP).
+
+  guardrails:
+    - description: Cost reduction must not destroy throughput, quality, or service capability
+      condition: >
+        A cost action must NEVER be taken that degrades production throughput, product quality, or customer
+        service to hit a cost number. Cost is a constrained optimisation, not a standalone target — strategic
+        cost reduction protects the capabilities that fuel advantage and cuts the costs that do not (HBR
+        strategic cost cutting; do not "cut to the bone").
+      affected_kpis: [cost.unit.amount, margin.cogs.pct, cost.opex.vs_plan.pct]
+
+    - description: Decompose variance into price, usage, volume and mix before acting
+      condition: >
+        A cost or COGS % movement must be split into its price/rate, usage/quantity, volume and mix variances
+        before any action. Acting on a net variance hides offsetting causes and assigns blame to the wrong owner
+        (CIMA variance analysis; Horngren standard costing).
+      affected_kpis: [cost.unit.amount, cost.material.pct, margin.cogs.pct]
+
+    - description: Allocate overhead on a causal basis, not an arbitrary volume key
+      condition: >
+        Overhead and OPEX must be attributed to product/cost object on a cause-and-effect (activity) basis.
+        Spreading overhead on a single volume key cross-subsidises high-cost products and produces misleading
+        unit cost — the causality principle of managerial costing (IMA MCF; Kaplan & Cooper ABC).
+      affected_kpis: [cost.unit.amount, cost.opex.vs_plan.pct]
+
+    - description: Separate structural overspend from approved ramp-up and transformation
+      condition: >
+        OPEX-vs-plan variance must distinguish structural overspend from approved ramp-up, training, or
+        transformation investment. Zero-based budgeting justifies each line from zero so deliberate investment
+        is not cut as waste (McKinsey/Deloitte ZBB).
+      affected_kpis: [cost.opex.vs_plan.pct]
+
+  wrong_interpretations:
+    - description: "Reading net cost variance and missing offsetting price/usage effects"
+      why_wrong: >
+        A favourable net cost variance can hide a large unfavourable usage variance offset by a favourable
+        price variance (or vice versa). Only the decomposed price/usage/volume/mix variances reveal the real
+        cause; the net number is a management-by-exception trap (CIMA variance analysis).
+      source_id: SRC-001
+
+    - description: "Unit cost spike read as inefficiency when it is fixed-cost absorption from a volume drop"
+      why_wrong: >
+        A volume shortfall spreads fixed cost over fewer units and lifts unit cost with no loss of efficiency.
+        Reading this as an efficiency problem triggers the wrong action; the fixed-overhead volume variance
+        isolates absorption from true efficiency loss (Horngren overhead variances).
+      source_id: SRC-004
+
+    - description: "Arbitrary overhead allocation distorting product unit cost"
+      why_wrong: >
+        Allocating overhead on a single volume-based key over- and under-costs products that consume support
+        activities very differently, producing cross-subsidies and misleading unit cost. Activity-based,
+        causal attribution corrects the distortion (Kaplan & Cooper; IMA causality principle).
+      source_id: SRC-005
+
+    - description: "Across-the-board (salami-slice) cost cutting treated as strategic cost reduction"
+      why_wrong: >
+        Uniform across-the-board cuts ignore which costs fuel competitive advantage and which do not, leaving
+        the organisation weaker and the gains unsustainable. Strategic cost reduction is selective and
+        capability-aware, not a flat percentage cut (HBR; strategic cost reduction).
+      source_id: SRC-011
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_cost
+      description: >
+        Cost ledger at cost-center / cost-category grain. Must contain: material, labor and overhead cost
+        amounts, standard cost, plan/budget amount, cost_bucket, line_id, product_id, period. Provides unit
+        cost, cost-bucket decomposition and standard-vs-actual variance.
+    - table: fact_finance
+      description: >
+        Finance fact for COGS, net sales and OPEX at entity/period grain. Must contain: COGS, net_sales,
+        actual_opex, planned_opex, cost_center. Required for COGS %, OPEX-vs-plan and margin lineage.
+    - table: fact_output
+      description: >
+        Production output fact. Must contain: units produced (good), product_id, line_id, period. Denominator
+        for unit cost and the volume lever for fixed-cost absorption.
+    - table: fact_labor
+      description: >
+        Labor fact. Must contain: actual hours, earned/standard hours, labor cost, wage rate, line_id. Required
+        for labor productivity and the labor rate/efficiency variance.
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for cost trend, budget-vs-actual and variance. CalendarMonth + CalendarQuarter required."
+    - name: dim_org
+      grain_relevance: "Entity → Plant → Line hierarchy. Plant/Line level mandatory for unit-cost diagnostics."
+    - name: dim_product
+      grain_relevance: "Product → Product Category for unit cost, material % and cost-to-serve attribution."
+    - name: security_user_org
+      grain_relevance: "Row-level security: cost-center filter per org role enforced by Finance.SemanticModel."
+    - name: dim_cost_category
+      grain_relevance: >
+        Cost-bucket / activity taxonomy (material / labor / overhead → activity) for causal overhead
+        attribution and variance decomposition. Not present in the current data contract — classified as model_gap.
+
+  preferred_grain: plant_line_product_month
+  minimum_grain: entity_month
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    entity_month grain is acceptable only for OPEX/overhead control views where product-level cost attribution
+    is structurally unavailable. Requires explicit waiver in the bracket; product-level unit-cost and material-%
+    bad-actor analysis is degraded.
+
+  required_measures:
+    - name: Unit Cost Amount
+      formula_seed: "Total_Cost / Units_Produced"
+      source_id: SRC-001
+    - name: COGS % of Sales
+      formula_seed: "COGS / Net_Sales"
+      source_id: SRC-004
+    - name: OPEX vs Plan %
+      formula_seed: "(Actual_OPEX - Planned_OPEX) / Planned_OPEX"
+      source_id: SRC-007
+    - name: Material Cost %
+      formula_seed: "Material_Cost / Total_Cost"
+      source_id: SRC-001
+    - name: Labor Productivity %
+      formula_seed: "Output_Units / Labor_Hours (or Earned_Hours / Actual_Hours)"
+      source_id: SRC-003
+    - name: Material Usage Variance
+      formula_seed: "(Actual_Qty - Standard_Qty_for_Output) * Standard_Price"
+      source_id: SRC-002
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: cost.unit.amount
+    trigger_diagnostic: ops.production.volume
+    trigger_condition: "Unit cost above plan AND production volume below plan (fixed-cost absorption suspected)"
+    guardrail: "Split fixed/variable; isolate fixed-overhead volume variance from efficiency loss before acting"
+    action_description: >
+      Cost variance investigation: decompose the unit-cost gap into price, usage, volume and efficiency
+      variances by plant/line/product, separate the fixed-cost absorption effect from true efficiency loss,
+      and rank the addressable variances by value.
+    expected_outcome_kpi: cost.unit.amount
+    action_code_candidate: F-K2.1
+
+  - trigger_driver: cost.material.pct
+    trigger_diagnostic: ops.yield.pct
+    trigger_condition: "Material cost % rising while yield declining (usage/consumption variance, not price)"
+    guardrail: "Separate material price variance (purchasing) from usage variance (yield) before acting"
+    action_description: >
+      Material cost containment: split the material variance into price and usage components, attribute the
+      usage share to yield loss and the price share to purchasing, and target the dominant component rather
+      than blanket sourcing pressure.
+    expected_outcome_kpi: cost.material.pct
+    action_code_candidate: F-K2.2
+
+  - trigger_driver: cost.opex.vs_plan.pct
+    trigger_diagnostic: ops.quality.defect_rate.pct
+    trigger_condition: "OPEX above plan while revenue on track; defect rate up (rework cost) or headcount creep"
+    guardrail: "Use ZBB justify-from-zero; separate structural overspend from approved ramp-up/transformation"
+    action_description: >
+      OPEX containment: decompose the OPEX overrun via a cost-driver variance bridge into rework/quality,
+      headcount and input-inflation components, apply zero-based justification, and protect approved
+      transformation spend.
+    expected_outcome_kpi: cost.opex.vs_plan.pct
+    action_code_candidate: F-K2.3
+
+  - trigger_driver: margin.cogs.pct
+    trigger_diagnostic: sales.net_sales.amount
+    trigger_condition: "COGS % expanding while net sales flat or up (input inflation outpacing price recovery)"
+    guardrail: "Decompose COGS movement into price/volume/mix; protect throughput and quality"
+    action_description: >
+      Margin protection: decompose the COGS % expansion into input-price, volume and mix effects, quantify
+      the pricing-recovery gap, and sequence the cost and price actions that close it without harming service.
+    expected_outcome_kpi: margin.cogs.pct
+    action_code_candidate: F-K2.4
+
+  - trigger_driver: cost.unit.amount
+    trigger_diagnostic: cost.opex.vs_plan.pct
+    trigger_condition: "Unit cost above plan AND overhead allocation suspected to be distorting product cost"
+    guardrail: "Allocate overhead on a causal/activity basis; do not optimise on an arbitrary volume key"
+    action_description: >
+      Cost-to-serve re-attribution: re-allocate overhead to products and cost objects on an activity/causal
+      basis, expose cross-subsidised high-cost products, and re-rank unit-cost bad actors on the corrected
+      attribution.
+    expected_outcome_kpi: cost.unit.amount
+    action_code_candidate: F-K2.1
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.3
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "CIMA Official Terminology — management accounting: standard costing & variance analysis (standard cost, price/usage/volume/mix variances)"
+      author: "Chartered Institute of Management Accountants (CIMA)"
+      year: 2005
+      url: "https://www.cimaglobal.com/Documents/ImportedDocuments/cid_tg_standard_costing_and_variance_analysis_mar08.pdf"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [outcome_kpis, driver_kpis, required_measures, wrong_interpretations]
+      notes: "Definitive professional terminology for standard cost and variance decomposition. Age waiver — foundational terminology."
+
+    - id: SRC-002
+      category: STD
+      title: "IMA — Conceptual Framework for Managerial Costing (causality principle for cost attribution)"
+      author: "Institute of Management Accountants (IMA)"
+      year: 2014
+      url: "https://www.imanet.org/research-publications/statements-on-management-accounting/conceptual-framework-for-managerial-costing"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [guardrails, required_data_model, required_measures]
+
+    - id: SRC-003
+      category: STD
+      title: "IMA Statement on Management Accounting — Implementing Activity-Based Costing"
+      author: "Institute of Management Accountants (IMA)"
+      year: 2019
+      url: "https://www.imanet.org/research-publications/statements-on-management-accounting/implementing-activity-based-costing"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis, required_measures, guardrails]
+
+    - id: SRC-004
+      category: ACA
+      title: "Datar, S.M. & Rajan, M.V. — Horngren's Cost Accounting: A Managerial Emphasis, 17th Edition (CVP, standard costing, variance analysis). Pearson."
+      author: "Datar, S.M.; Rajan, M.V.; Horngren, C.T."
+      year: 2020
+      url: "https://www.pearson.com/en-us/subject-catalog/p/horngrens-cost-accounting-a-managerial-emphasis/P200000005816"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, driver_kpis, required_measures, wrong_interpretations, benchmark_targets]
+      notes: "Definitive cost-accounting text behind unit cost, COGS %, CVP and overhead variance logic."
+
+    - id: SRC-005
+      category: ACA
+      title: "Kaplan, R.S. & Cooper, R. (1998). Cost & Effect: Using Integrated Cost Systems to Drive Profitability and Performance (activity-based costing). HBS Press."
+      author: "Kaplan, R.S.; Cooper, R."
+      year: 1998
+      url: "https://www.hbs.edu/faculty/Pages/item.aspx?num=120"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [guardrails, wrong_interpretations, action_logic_seeds]
+      notes: "Foundational ABC / cost-to-serve reference for causal overhead attribution. Age waiver — seminal."
+
+    - id: SRC-006
+      category: PRO
+      title: "APQC — Finance Organization Key Benchmarks (cost, productivity and efficiency benchmarks for the finance function)"
+      author: "APQC (American Productivity & Quality Center)"
+      year: 2024
+      url: "https://www.apqc.org/resource-library/resource-collection/finance-organization-key-benchmarks"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [driver_kpis, benchmark_targets]
+
+    - id: SRC-007
+      category: BNK
+      title: "APQC Open Standards Benchmarking — Selling, general & administrative (SG&A) costs as a percentage of business entity revenue"
+      author: "APQC (American Productivity & Quality Center)"
+      year: 2024
+      url: "https://www.apqc.org/resources/benchmarking/open-standards-benchmarking/measures/selling-general-and-administrative-sga"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [driver_kpis, required_measures, benchmark_targets]
+      notes: "Quantified cross-industry SG&A/G&A benchmark for the OPEX-vs-plan target."
+
+    - id: SRC-008
+      category: IMP
+      title: "McKinsey — Why zero-based budgeting makes sense again (ZBB OPEX/G&A justify-from-zero cost discipline)"
+      author: "McKinsey & Company"
+      year: 2023
+      url: "https://www.mckinsey.com/capabilities/operations/our-insights/why-zero-based-budgeting-makes-sense-again"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, guardrails, action_logic_seeds]
+
+    - id: SRC-009
+      category: IMP
+      title: "Deloitte — Embracing Cost Management Discipline: the hidden benefits of Zero-Based Budgeting (ZBB)"
+      author: "Deloitte"
+      year: 2023
+      url: "https://www.deloitte.com/ca/en/services/consulting/perspectives/cost-management-discipline-benefits-zero-based-budgeting-zbb.html"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, guardrails, action_logic_seeds]
+      notes: "Practitioner ZBB implementation guidance corroborating SRC-008 for OPEX containment (F-K2.3)."
+
+    - id: SRC-010
+      category: PRO
+      title: "ASQ — Cost of Quality (Prevention/Appraisal/Failure) — quality cost embedded in OPEX and unit cost"
+      author: "American Society for Quality (ASQ)"
+      year: 2023
+      url: "https://asq.org/quality-resources/cost-of-quality"
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [diagnostic_kpis, action_logic_seeds]
+      notes: "Links defect/rework cost to OPEX overrun (cross-link to OPS-003); domain_relevance 2 (quality-cost, not core costing)."
+
+    - id: SRC-011
+      category: RSK
+      title: "Harvard Business Review — Cutting Costs Without Drawing Blood (against-the-grain risks of indiscriminate, across-the-board cost cutting)"
+      author: "Harvard Business Review"
+      year: 2000
+      url: "https://hbr.org/2000/09/cutting-costs-without-drawing-blood"
+      scores: { authority: 2, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 12
+      supports: [guardrails, wrong_interpretations]
+      notes: "Anti-pattern source for salami-slice cost cutting that destroys value. Age waiver — foundational strategic-cost argument."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: complete
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md
+        field: "Section 8 Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: SG&A at/below APQC industry median, favourable net cost variance vs
+          standard, stable/declining COGS %, OPEX within plan (CIMA / Horngren / APQC). Added to make the
+          success criteria measurable against a world-class reference.
+        evidence_reference: SRC-001 SRC-004 SRC-007
+        remediation: "Add SG&A / cost-variance / COGS % world-class targets to the factsheet success criteria."
+        status: resolved
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/finance.yaml
+        field: dim_cost_category (activity / cost-bucket taxonomy)
+        description: >
+          No cost-category / activity dimension exists to support causal (activity-based) overhead attribution
+          and price/usage/volume/mix variance decomposition. ABC re-attribution (F-K2.1) and material/labor
+          variance split (F-K2.2) require a cost-bucket → activity taxonomy at the line/product grain.
+        evidence_reference: SRC-002 SRC-005
+        remediation: "Add dim_cost_category with an activity/cost-bucket taxonomy per the IMA managerial-costing causality principle to the finance contract."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/finance.yaml
+        field: fact_cost (standard cost + plan/budget columns)
+        description: >
+          Variance analysis requires standard cost and plan/budget amounts alongside actual cost at the same
+          grain. fact_cost is referenced by the factsheet but its standard-cost and plan-amount lineage is not
+          defined in the data contract, so price/usage/volume variances cannot be bound to a measure.
+        evidence_reference: SRC-001
+        remediation: "Define fact_cost with standard_cost and plan_amount columns and bind the variance measures' lineage."
+        status: open

@@ -1,0 +1,553 @@
+evidence_pack_version: "1.0"
+use_case_id: XD-002
+use_case_title: Resource Utilization
+domain: Experience / Service
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Service-operations workforce capacity and utilization: how productive agent capacity
+    (utilization), the share of logged-in time spent on contacts (occupancy), and the
+    non-productive (shrinkage) and premium (overtime) time around them combine to deliver
+    service-level attainment without degrading quality or burning out the workforce. This use
+    case isolates the supply side (workforce capacity) of the service equation; the demand and
+    SLA-driver side sits in XD-001. Utilization is treated as a band to defend, not a number
+    to maximise — sustained over-utilization harms quality and throughput.
+  in_scope:
+    - Resource Utilization % and the capacity band it must stay within
+    - Occupancy % as the primary productive-time lever behind utilization
+    - Shrinkage % decomposition (training, meetings, breaks, system downtime) eroding capacity
+    - Overtime % as the premium-cost signal of structural under-capacity
+    - SLA attainment and backlog as the service guardrails utilization must not breach
+    - Sustainable-utilization guardrail (occupancy/utilization above ~85% harms quality)
+  out_of_scope:
+    - SLA performance drivers, AHT and routing logic (XD-001)
+    - Sales pipeline and demand generation
+    - Field-service dispatching and route optimisation
+    - Recruiting, compensation and HR case management (people domain)
+  industry_segment: >
+    Service operations with a managed workforce against queued demand — contact centres,
+    shared-service centres, support and back-office operations, and professional-services
+    delivery teams. Applicable to any environment where billable/productive time against a
+    finite workforce is the binding constraint on service delivery.
+  applicable_frameworks:
+    - name: ISO 22400-2:2014 — Manufacturing operations KPIs (utilization efficiency, allocation ratio)
+      id: ISO-22400-2
+    - name: ISO 22400-1:2014 — KPIs for manufacturing operations management — overview & terminology
+      id: ISO-22400-1
+    - name: Erlang C / queueing-theoretic staffing (M/M/N) for capacity planning
+      id: ERLANG-C
+    - name: Theory of Constraints (Goldratt) — utilisation subordinated to the system constraint
+      id: TOC
+    - name: Kingman's formula (VUT) — utilization–variability–lead-time congestion law
+      id: KINGMAN-VUT
+    - name: Contact-centre WFM practice — occupancy/shrinkage 75–85% sustainable band (SQM / APQC)
+      id: WFM-PRACTICE
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: res.utilization.pct
+      name: Resource Utilization %
+      definition: >
+        Productive (contact-handling) time / total available paid time. The proportion of the
+        workforce's capacity converted into service output. The primary capacity outcome and the
+        utilization-efficiency analogue of ISO 22400-2; a band to defend, not a number to maximise.
+      unit: "%"
+      direction: maximize
+      benchmark_target: "Defend a 70–85% band (X-R2.1 L1); sustainable WFM band 75–85%, SPI professional-services optimum ~75% billable; above ~85% quality and throughput degrade"
+      benchmark_source_id: SRC-006
+      iso_reference: "ISO 22400-2:2014 utilization efficiency / allocation ratio"
+
+  driver_kpis:
+    - id: res.occupancy.pct
+      name: Occupancy %
+      definition: >
+        Time spent handling contacts / time logged in and available. The share of available
+        time actually consumed by work — the primary productive-time lever behind utilization.
+      unit: "%"
+      direction: maximize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        Occupancy converts available capacity into utilised capacity: raising occupancy lifts
+        utilization for a fixed headcount. But the relationship is bounded — per Kingman's law,
+        occupancy above ~85% drives waiting time up nonlinearly and erodes quality, so occupancy
+        is a band, not a maximand (SQM WFM band; Kingman VUT).
+      benchmark_target: "75–85% sustainable; above 85% correlates with burnout, attrition and CSAT decline (SQM)"
+      benchmark_source_id: SRC-006
+
+    - id: res.shrinkage.pct
+      name: Shrinkage %
+      definition: >
+        Non-productive paid time (training, meetings, breaks, system downtime, off-phone work)
+        / total paid time. The capacity leak between paid time and available time.
+      unit: "%"
+      direction: minimize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        Shrinkage is the structural floor on achievable utilization: every point of shrinkage is
+        paid capacity unavailable for work. Misclassified shrinkage corrupts the capacity model
+        and the Erlang-C staffing calculation downstream (APQC utilization definition; Erlang-C).
+      benchmark_target: "Controllable shrinkage minimised; X-R2.3 flags structural shrinkage > 25% (L1)"
+      benchmark_source_id: SRC-007
+
+    - id: res.overtime.pct
+      name: Overtime %
+      definition: >
+        Overtime hours / scheduled hours. The premium-cost signal that scheduled capacity is
+        structurally short of demand and is being closed with paid-premium hours.
+      unit: "%"
+      direction: minimize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        Sustained overtime is the cost tail of under-capacity: it props up utilization and SLA at
+        1.5× cost while masking a structural staffing gap, and prolonged overtime drives fatigue
+        and attrition that further erode capacity (WFM practice; X-R2.4 thresholds).
+      benchmark_target: "Structural overtime contained; X-R2.4 flags > 8% (L1), > 12% (L2), > 18% (L3)"
+      benchmark_source_id: SRC-006
+
+    - id: svc.sla.attainment.pct
+      name: SLA Attainment %
+      definition: >
+        Contacts answered/resolved within the service-level target / total contacts. The service
+        guardrail that utilization actions must not breach — the quality side of the capacity trade.
+      unit: "%"
+      direction: maximize
+      drives: res.utilization.pct
+      causal_mechanism: >
+        SLA attainment is the binding service constraint on utilization: per Erlang-C, service
+        level is a nonlinear function of staffing and occupancy. Pushing utilization up past the
+        sustainable band collapses SLA via congestion, so SLA vetoes over-utilization (Erlang-C; Kingman).
+      benchmark_target: "Maintained within target band; SLA is a guardrail (X-R2.1/2.2 guardrail_kpi)"
+      benchmark_source_id: SRC-008
+
+    - id: svc.backlog.count
+      name: Backlog Count
+      definition: >
+        Open/unresolved contacts carried into the next period. The accumulated work signal that
+        reveals whether utilization is actually clearing demand or merely deferring it.
+      unit: count
+      direction: minimize
+      drives: svc.sla.attainment.pct
+      causal_mechanism: >
+        Backlog is the queue made visible: when arrival rate exceeds productive capacity the
+        queue grows, and per Kingman/queueing theory the closer utilization runs to saturation
+        the faster backlog accumulates and the more volatile lead time becomes (Kingman VUT; Erlang-C).
+      benchmark_target: "Controlled / stable; rising backlog at high utilization signals saturation"
+      benchmark_source_id: SRC-011
+
+  diagnostic_kpis:
+    - id: svc.tickets.created.count
+      name: Tickets Created Count
+      definition: "Inbound contact/ticket volume for the period (fact_support_cases). The demand denominator behind utilization and the volume guardrail on every action code."
+      unit: count
+      direction: context
+      diagnoses: res.utilization.pct
+      causal_mechanism: >
+        Demand volume is the arrival rate in the capacity equation; without it, utilization and
+        occupancy cannot be normalised and the action-code volume guardrails (≥150–500 contacts)
+        cannot be applied to suppress small-sample false positives (Erlang-C; X-R2.* gating).
+
+    - id: svc.aht.minutes
+      name: Average Handle Time (minutes)
+      definition: "Mean contact-handling time (fact_workforce_management / fact_support_cases). Service-time input to the capacity and occupancy calculation."
+      unit: minutes
+      direction: context
+      diagnoses: res.occupancy.pct
+      causal_mechanism: >
+        AHT is the service-time term in both Erlang-C staffing and occupancy: rising AHT raises
+        occupancy for fixed volume and shifts the workload toward the over-utilization region
+        without any change in headcount (Erlang-C service time; occupancy definition).
+
+    - id: people.attrition_risk.pct
+      name: Attrition Risk %
+      definition: "Modelled attrition-risk signal for the workforce (X-R2.1 success metric). The sustainability diagnostic behind over-utilization."
+      unit: "%"
+      direction: minimize
+      diagnoses: res.utilization.pct
+      causal_mechanism: >
+        Attrition risk is the human cost of running utilization/occupancy above the sustainable
+        band: sustained over-utilization and overtime raise burnout and turnover, which destroy
+        future capacity — the feedback loop that makes utilization-maximisation self-defeating (SQM).
+
+  guardrails:
+    - description: Utilization is a band to defend, not a number to maximise — sustained over-utilization harms quality and throughput
+      condition: >
+        Utilization/occupancy must NOT be pushed above the sustainable band (~85%) to hit a
+        capacity number. Per Kingman's law, as utilization approaches saturation waiting time and
+        lead-time variability rise nonlinearly; above ~85% occupancy quality, SLA and agent
+        sustainability degrade. SLA attainment and attrition risk veto further utilization (Kingman VUT; SQM).
+      affected_kpis: [res.utilization.pct, res.occupancy.pct, svc.sla.attainment.pct]
+
+    - description: Exclude training, ramp-up and approved surge from utilization and shrinkage
+      condition: >
+        Planned training, onboarding/ramp-up, legally mandated absence and executive-approved
+        surge coverage must be flagged and excluded so deliberate non-productive time is not read
+        as utilization failure or controllable shrinkage (X-R2.1/2.3/2.4 exclusions).
+      affected_kpis: [res.utilization.pct, res.shrinkage.pct, res.overtime.pct]
+
+    - description: Subordinate local utilization to the system constraint (Theory of Constraints)
+      condition: >
+        Maximising utilization of non-constraint teams or queues does not improve system
+        throughput and creates excess work-in-process and backlog elsewhere. Local utilization
+        must be subordinated to the binding constraint; an idle non-bottleneck is not waste (Goldratt ToC).
+      affected_kpis: [res.utilization.pct, svc.backlog.count]
+
+    - description: Aggregate agent metrics to group grain before display (privacy by design)
+      condition: >
+        Individual agent utilization/occupancy must be aggregated to agent_group grain before
+        display; groups below 5 agents apply statistical disclosure limitation. Raw agent_day
+        records are not exposed in the report layer (DSGVO Art. 25; bracket data_minimisation).
+      affected_kpis: [res.utilization.pct, res.occupancy.pct]
+
+  wrong_interpretations:
+    - description: "Treating utilization as a metric to maximise toward 100%"
+      why_wrong: >
+        Higher utilization looks more efficient but is bounded by queueing physics: per Kingman's
+        formula, waiting time rises nonlinearly (toward infinity) as utilization approaches 1, so
+        running near saturation collapses SLA and lead-time stability. The target is a band, not a max.
+      source_id: SRC-011
+
+    - description: "Maximising busy-ness of every team / every queue (local optima)"
+      why_wrong: >
+        Keeping every team fully occupied feels productive but, per Theory of Constraints, only
+        throughput at the system constraint matters; utilising non-constraint capacity just builds
+        backlog and WIP. A company where everyone is always busy can be globally inefficient (Goldratt).
+      source_id: SRC-004
+
+    - description: "Misclassifying shrinkage, distorting the capacity view"
+      why_wrong: >
+        Lumping or mis-tagging non-productive time (training vs. system downtime vs. off-phone)
+        corrupts both the utilization denominator and the Erlang-C staffing model, producing wrong
+        capacity decisions. Shrinkage must be decomposed by controllable category (APQC; WFM practice).
+      source_id: SRC-007
+
+    - description: "Fleet-average utilization hiding over- and under-loaded queues"
+      why_wrong: >
+        A healthy blended utilization can hide one team running at 95% (burnout) alongside another
+        at 55% (idle). Queue/agent-group-level data is required to act; an average is a meaningless
+        target because the queueing penalty at the saturated end is nonlinear (Kingman; WFM practice).
+      source_id: SRC-009
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_workforce_management
+      description: >
+        WFM time record. Must contain: paid time, available/logged-in time, productive
+        (contact-handling) time, shrinkage time by category, overtime hours, scheduled hours,
+        agent_id, agent_group, queue_id. Provides utilization, occupancy, shrinkage and overtime.
+    - table: fact_support_cases
+      description: >
+        Support-case / contact log. Must contain: tickets created, tickets closed, backlog,
+        handle time (AHT), SLA outcome, queue_id, channel. Provides demand volume, SLA attainment
+        and backlog, and the volume guardrail for the action codes.
+    - table: fact_action_execution
+      description: >
+        Action execution log (X-R2.* tracking). Must contain: ActionCode, Queue, TriggerLevel,
+        ActivatedLever, ExecutedDate. Required to gate against overlapping WFM actions on a queue.
+    - table: fact_action_outcome
+      description: >
+        Action outcome ledger. Must contain: ActionCode, pre/post utilization (and shrinkage/
+        overtime) at 14/30/90d windows. Required for before/after impact attribution.
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for utilization/occupancy trend and shrinkage seasonality. Week + Month required."
+    - name: dim_org
+      grain_relevance: "Region → Site → Agent Group hierarchy. Agent-group level mandatory for capacity diagnostics and privacy aggregation."
+    - name: dim_case_queue
+      grain_relevance: "Queue → Channel for utilization-by-queue ranking and capacity reallocation (X-R2.2)."
+    - name: dim_shrinkage_category
+      grain_relevance: >
+        Controllable vs non-controllable shrinkage taxonomy (training, meeting, break, system
+        downtime, off-phone) for shrinkage decomposition and X-R2.3 targeting.
+        Not present in the current data contract — classified as model_gap.
+    - name: dim_agent_skill
+      grain_relevance: >
+        Skill/competency attributes to separate true idle capacity from skill-mismatch idle
+        (Scenario A). Currently not in the experience data contract — model_gap.
+
+  preferred_grain: agent-queue-day
+  minimum_grain: queue-day
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    queue-day grain is acceptable only where agent-level attribution is structurally unavailable
+    or suppressed for privacy. Requires explicit waiver in the bracket; skill-mismatch and
+    bad-actor (per-agent-group) analysis is degraded and shrinkage decomposition is coarsened.
+
+  required_measures:
+    - name: Resource Utilization %
+      formula_seed: "Productive_Time / Total_Available_Paid_Time"
+      source_id: SRC-001
+    - name: Occupancy %
+      formula_seed: "Contact_Handling_Time / Logged_In_Available_Time"
+      source_id: SRC-009
+    - name: Shrinkage %
+      formula_seed: "Non_Productive_Paid_Time / Total_Paid_Time"
+      source_id: SRC-007
+    - name: Overtime %
+      formula_seed: "Overtime_Hours / Scheduled_Hours"
+      source_id: SRC-006
+    - name: SLA Attainment %
+      formula_seed: "Contacts_Within_Target / Total_Contacts"
+      source_id: SRC-008
+    - name: Backlog Count
+      formula_seed: "Open_Contacts_Carried_Forward"
+      source_id: SRC-011
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: res.utilization.pct
+    trigger_diagnostic: svc.tickets.created.count
+    trigger_condition: "Utilization sustained outside the 70–85% band on a queue over a rolling 4 weeks (≥2 consecutive periods), volume ≥ 200 contacts"
+    guardrail: "Exclude approved surge and training weeks; do not push above the sustainable band; SLA and attrition-risk veto"
+    action_description: >
+      Resource utilization orchestration: detect structurally recurring band violations by queue,
+      diagnose the dominant utilization driver (occupancy, shrinkage, overtime or routing), and
+      activate the corresponding execution action code without conflicting WFM actions.
+    expected_outcome_kpi: res.utilization.pct
+    action_code_candidate: X-R2.1
+
+  - trigger_driver: res.occupancy.pct
+    trigger_diagnostic: svc.tickets.created.count
+    trigger_condition: "Utilization/occupancy imbalance across queues is queue-structural (not individual) over a rolling 5 days (≥3 consecutive), volume ≥ 150 contacts"
+    guardrail: "Subordinate to system constraint; protect SLA and quality; avoid skill-mismatch reallocation; exclude queues under overtime containment"
+    action_description: >
+      Capacity reallocation and load balancing: identify queues with sustained imbalance and shift
+      capacity across queues/channels to lift under-utilised teams and relieve over-utilised ones,
+      validating SLA and backlog impact daily.
+    expected_outcome_kpi: res.utilization.pct
+    action_code_candidate: X-R2.2
+
+  - trigger_driver: res.shrinkage.pct
+    trigger_diagnostic: svc.aht.minutes
+    trigger_condition: "Structural shrinkage > 25% on a queue/agent-group over a rolling 4 weeks (≥2 consecutive), volume ≥ 200 contacts"
+    guardrail: "Exclude planned training/onboarding and legally mandated absence; do not underinvest in necessary training; protect morale and SLA"
+    action_description: >
+      Shrinkage and productive-time control: decompose shrinkage by controllable category, target
+      the dominant avoidable drivers via planning/adherence/scheduling discipline, and recover
+      capacity into utilization while monitoring weekly.
+    expected_outcome_kpi: res.shrinkage.pct
+    action_code_candidate: X-R2.3
+
+  - trigger_driver: res.overtime.pct
+    trigger_diagnostic: svc.tickets.created.count
+    trigger_condition: "Structural overtime > 8% (L1) / > 12% (L2) / > 18% (L3) on a queue over a rolling 3 months (≥2 consecutive), volume ≥ 500 contacts"
+    guardrail: "Exclude approved peak/surge and on-call contractual overtime; avoid creating backlog by cutting overtime too aggressively; protect SLA"
+    action_description: >
+      Overtime and fatigue containment: separate structural overtime from approved surge, address
+      the root cause (demand step-change, misallocation or shrinkage), and re-run the capacity
+      model so premium hours are replaced by sustainable scheduled capacity.
+    expected_outcome_kpi: res.overtime.pct
+    action_code_candidate: X-R2.4
+
+  - trigger_driver: res.utilization.pct
+    trigger_diagnostic: svc.backlog.count
+    trigger_condition: "Utilization at/above the upper band while backlog and lead-time variability are rising (queue running toward saturation)"
+    guardrail: "Treat as over-utilization risk, not a capacity win; protect SLA and attrition risk; add capacity rather than push occupancy higher"
+    action_description: >
+      Over-utilization containment: recognise the Kingman saturation signature (high utilization +
+      rising backlog/variability), cap occupancy at the sustainable band, and route to capacity
+      reallocation (X-R2.2) or overtime containment (X-R2.4) instead of driving utilization higher.
+    expected_outcome_kpi: res.utilization.pct
+    action_code_candidate: X-R2.1
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 12.9
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "ISO 22400-2:2014 — Automation systems and integration — KPIs for manufacturing operations management — Part 2 (utilization efficiency, allocation ratio)"
+      author: "International Organization for Standardization"
+      year: 2014
+      url: "https://www.iso.org/standard/54497.html"
+      scores: { authority: 3, recency: 2, domain_relevance: 2, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [outcome_kpis, required_measures, required_data_model]
+      notes: "Canonical utilization-efficiency KPI definition; domain_relevance 2 — manufacturing framing adapted to workforce capacity."
+
+    - id: SRC-002
+      category: STD
+      title: "ISO 22400-1:2014 — KPIs for manufacturing operations management — Part 1: Overview, concepts and terminology"
+      author: "International Organization for Standardization"
+      year: 2014
+      url: "https://www.iso.org/standard/56847.html"
+      scores: { authority: 3, recency: 2, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [process_scope, outcome_kpis]
+      notes: "Terminology and KPI-composition framework underpinning the utilization definition."
+
+    - id: SRC-003
+      category: ACA
+      title: "Aksin, Z., Armony, M., Mehrotra, V. — A Practice-Oriented Overview of Call Center Workforce Planning (Erlang-C / queueing-theoretic staffing). INFORMS Stochastic Systems."
+      author: "Aksin, Armony, Mehrotra (INFORMS)"
+      year: 2021
+      url: "https://pubsonline.informs.org/doi/10.1287/stsy.2021.0008"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [driver_kpis, required_measures, action_logic_seeds]
+      notes: "Peer-reviewed queueing/staffing reference behind the Erlang-C capacity and SLA logic."
+
+    - id: SRC-004
+      category: ACA
+      title: "Goldratt, E.M. & Cox, J. (1984/2004). The Goal: A Process of Ongoing Improvement (Theory of Constraints). North River Press."
+      author: "Eliyahu M. Goldratt; Jeff Cox"
+      year: 2004
+      url: "https://en.wikipedia.org/wiki/The_Goal_(novel)"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 13
+      supports: [guardrails, wrong_interpretations]
+      notes: "Foundational Theory-of-Constraints source for subordinating local utilization to the system constraint. Age waiver — foundational."
+
+    - id: SRC-005
+      category: PRO
+      title: "SPI Research — Professional Services Maturity Benchmark (billable utilization; ~75% optimal threshold)"
+      author: "Service Performance Insight (SPI Research)"
+      year: 2025
+      url: "https://forms.workday.com/content/dam/web/en-us/documents/reports/SPI_2025_Benchmark_Report.pdf"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [outcome_kpis, benchmark_targets]
+      notes: "Professional-services billable-utilization benchmark; ~75% optimal, declining industry trend. Independence 2 (commercial benchmark)."
+
+    - id: SRC-006
+      category: PRO
+      title: "SQM Group — Call centre occupancy/utilization benchmark and the 75–85% sustainable band (over-85% burnout/attrition risk)"
+      author: "SQM Group"
+      year: 2024
+      url: "https://www.sqmgroup.com/resources/library/blog/top-10-call-center-productivity-metrics"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [outcome_kpis, driver_kpis, benchmark_targets]
+      notes: "WFM-practice benchmark for the sustainable occupancy band and over-utilization harm."
+
+    - id: SRC-007
+      category: BNK
+      title: "APQC — Call agent utilization rate (Open Standards Benchmarking measure) and shrinkage-adjusted productive-time definition"
+      author: "APQC (American Productivity & Quality Center)"
+      year: 2023
+      url: "https://www.apqc.org/resources/benchmarking/open-standards-benchmarking/measures/call-agent-utilization-rate"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [driver_kpis, required_measures, benchmark_targets]
+      notes: "Independent cross-industry benchmark defining utilization net of planned downtime/shrinkage."
+
+    - id: SRC-008
+      category: BNK
+      title: "Erlang C staffing benchmark — relating staffing, occupancy and service level for capacity planning (practitioner reference)"
+      author: "Assembled (Erlang-C workforce-planning reference)"
+      year: 2024
+      url: "https://www.assembled.com/blog/how-to-use-erlang-c-to-plan-staffing"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 12
+      supports: [driver_kpis, required_measures]
+      notes: "Applied Erlang-C staffing reference linking occupancy/utilization to SLA attainment."
+
+    - id: SRC-009
+      category: IMP
+      title: "Calabrio — Calculating occupancy rate in contact centres (WFM practitioner implementation)"
+      author: "Calabrio"
+      year: 2024
+      url: "https://www.calabrio.com/wfo/quality-management/calculating-occupancy-rate-in-contact-centers/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, required_measures, wrong_interpretations]
+      notes: "Implementation guidance for the occupancy measure and queue-level (not fleet-average) reading."
+
+    - id: SRC-010
+      category: IMP
+      title: "Brundage et al. (NIST) — A hierarchical structure of key performance indicators for ISO 22400 (KPI implementation)"
+      author: "U.S. National Institute of Standards and Technology (NIST)"
+      year: 2017
+      url: "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=919754"
+      scores: { authority: 3, recency: 2, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [required_data_model, required_measures]
+      notes: "Reference implementation of ISO 22400 utilization KPIs as a measure hierarchy."
+
+    - id: SRC-011
+      category: RSK
+      title: "Kingman, J.F.C. (1961) — Kingman's formula (VUT): mean queue waiting time rises nonlinearly as utilization approaches saturation"
+      author: "John F. C. Kingman"
+      year: 1961
+      url: "https://en.wikipedia.org/wiki/Kingman%27s_formula"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [outcome_kpis, driver_kpis, guardrails, wrong_interpretations]
+      notes: "Anti-pattern / risk source: over-utilization (>~85%) drives lead-time and variability up nonlinearly. Age waiver — foundational queueing law."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: complete
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md
+        field: "Section 8 Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: sustainable utilization/occupancy band 75–85% with the
+          over-85% caution, overtime < 8% (X-R2.4 L1), shrinkage < 25% (X-R2.3 L1), SPI ~75%
+          billable optimum. Added to make the success criteria measurable.
+        evidence_reference: SRC-006 SRC-005 SRC-007
+        remediation: "Add the utilization band, overtime/shrinkage thresholds and over-utilization caution to the factsheet success criteria."
+        status: resolved
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/experience.yaml
+        field: dim_shrinkage_category
+        description: >
+          No shrinkage-category dimension exists. X-R2.3 shrinkage decomposition and the
+          controllable-vs-non-controllable wrong-interpretation guardrail require a shrinkage
+          taxonomy (training, meeting, break, system downtime, off-phone) at the agent-group grain.
+        evidence_reference: SRC-007
+        remediation: "Add dim_shrinkage_category (controllable/non-controllable taxonomy) to the experience contract and bind it to fact_workforce_management."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/experience.yaml
+        field: dim_agent_skill
+        description: >
+          No skill/competency dimension exists. Scenario A (agents available but not qualified for
+          queued work) and capacity reallocation (X-R2.2) require skill attributes to separate true
+          idle capacity from skill-mismatch idle.
+        evidence_reference: SRC-008
+        remediation: "Add dim_agent_skill and bind skill coverage to fact_workforce_management for skill-aware capacity reallocation."
+        status: open

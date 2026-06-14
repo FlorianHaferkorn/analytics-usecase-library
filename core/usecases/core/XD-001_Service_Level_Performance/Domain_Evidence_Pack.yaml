@@ -1,0 +1,544 @@
+evidence_pack_version: "1.0"
+use_case_id: XD-001
+use_case_title: Service Level Performance
+domain: Experience / Service (cross-domain)
+authored_date: "2026-06-13"
+authored_by: framework-architect-agent
+reviewed_by: ""
+status: draft
+
+# ──────────────────────────────────────────
+# 1. PROCESS SCOPE
+# ──────────────────────────────────────────
+process_scope:
+  description: >
+    Cross-domain (XD) service-level performance: SLA attainment as the contracted service
+    outcome, the operational drivers that move it (first-contact resolution, average handle
+    time, backlog and escalation), the ticket-flow balance (created vs closed) behind backlog,
+    and the experience signal (NPS) that validates whether SLA compliance actually translates
+    into customer-perceived service quality. Spans IT/customer-service operations and the
+    experience layer — hence "XD" rather than a single functional domain.
+  in_scope:
+    - SLA attainment % as the contracted service-level outcome (ITIL 4 SLM; ISO/IEC 20000-1)
+    - First-contact resolution (FCR) and average handle time (AHT) as the core drivers
+    - Backlog and ticket-flow balance (tickets created vs closed) behind queue growth
+    - Escalation rate as the capability/quality-gap signal upstream of SLA failure
+    - NPS as the experience validation that SLA attainment reaches the customer (anti-watermelon)
+    - Service-quality guardrails: no SLA gaming, no FCR inflation, force-majeure exclusion
+  out_of_scope:
+    - Sales pipeline and opportunity management (COM-010)
+    - Marketing journey / campaign analytics
+    - Field-service parts and dispatch operations (scoped separately)
+    - Workforce scheduling and shrinkage optimisation (workforce-management use case)
+  industry_segment: >
+    Any organisation running a customer-service or IT-service operation against service-level
+    agreements — IT service desks, contact centres, B2B/B2C support, shared-service centres,
+    BPO/outsourced service providers. Applicable wherever contracted response/resolution times
+    and customer satisfaction are managed together.
+  applicable_frameworks:
+    - name: ITIL 4 — Service Level Management practice (service utility, warranty, experience targets)
+      id: ITIL4-SLM
+    - name: ISO/IEC 20000-1:2018 — IT service management system requirements (service level management clause)
+      id: ISO-20000-1
+    - name: COPC Customer Experience (CX) Standard, Release 8.0 — contact-centre/service performance management
+      id: COPC-CX
+    - name: SERVQUAL — service-quality measurement (responsiveness, reliability, assurance, empathy, tangibles)
+      id: SERVQUAL
+    - name: SERVQUAL Gaps Model — conceptual model of service quality (perception vs expectation gaps)
+      id: SERVQUAL-GAPS
+
+# ──────────────────────────────────────────
+# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
+# ──────────────────────────────────────────
+canonical_domain_model:
+  outcome_kpis:
+    - id: svc.sla.attainment.pct
+      name: SLA Attainment %
+      definition: >
+        SLA Attainment = Cases Meeting Their SLA Target / Cases In Scope. The contracted
+        service-level outcome — the share of cases resolved (or responded to) within the agreed
+        response/resolution window. The primary service-management outcome under ITIL 4 Service
+        Level Management and ISO/IEC 20000-1.
+      unit: "%"
+      direction: maximize
+      benchmark_target: "Commonly contracted at 90–95% within target; SLA compliance alone must be validated against CSAT/NPS to avoid the watermelon effect (ITIL 4 SLM)"
+      benchmark_source_id: SRC-001
+      iso_reference: "ISO/IEC 20000-1:2018 service level management; ITIL 4 Service Level Management practice"
+
+  driver_kpis:
+    - id: svc.fcr.pct
+      name: First Contact Resolution %
+      definition: >
+        Cases Resolved at First Contact / Total Cases. The proportion of cases closed without a
+        repeat contact or reopen. The single strongest operational driver of both SLA attainment
+        and customer satisfaction.
+      unit: "%"
+      direction: maximize
+      drives: svc.sla.attainment.pct
+      causal_mechanism: >
+        High FCR removes repeat contacts from the queue, freeing capacity that directly lifts SLA
+        attainment, and is the metric most strongly correlated with customer satisfaction in
+        service operations (HDI / MetricNet benchmark; ITIL 4 SLM).
+      benchmark_target: "World-class ~70–80%+ depending on channel/complexity; service-desk average ~74%, desktop support ~84% (HDI / MetricNet)"
+      benchmark_source_id: SRC-006
+
+    - id: svc.aht.minutes
+      name: Average Handle Time (minutes)
+      definition: >
+        Average time to handle a case (talk/work + after-call work). An efficiency driver that
+        must be balanced against FCR and quality, not minimised in isolation.
+      unit: minutes
+      direction: minimize
+      drives: svc.sla.attainment.pct
+      causal_mechanism: >
+        Lower AHT increases throughput and protects SLA under load, but cutting AHT at the
+        expense of FCR or quality creates repeat contacts and escalations that erode SLA and
+        satisfaction (COPC CX Standard; SERVQUAL responsiveness vs reliability balance).
+      benchmark_target: "Sector-specific; optimise for FCR-adjusted AHT, never raw AHT alone (COPC CX Standard)"
+      benchmark_source_id: SRC-003
+
+    - id: svc.backlog.count
+      name: Backlog Count
+      definition: >
+        Open, unresolved cases at period end. The primary operational lever: a rising backlog is
+        the leading indicator of imminent SLA failure as aging cases breach their targets.
+      unit: count
+      direction: minimize
+      drives: svc.sla.attainment.pct
+      causal_mechanism: >
+        Backlog is the integral of (tickets created − tickets closed); once it grows, aging cases
+        breach SLA windows and attainment falls. Backlog is the SSOT-designated primary driver of
+        SLA attainment for XD-001 (ITIL 4 SLM demand/capacity balance).
+      benchmark_target: "Declining or stable trend with closed ≥ created; aging within SLA windows (ITIL 4 SLM)"
+      benchmark_source_id: SRC-001
+
+    - id: svc.escalation.pct
+      name: Escalation Rate %
+      definition: >
+        Escalated Cases / Total Cases. The share of cases that could not be resolved at the
+        current tier. A capability/quality-gap signal upstream of both SLA failure and
+        dissatisfaction.
+      unit: "%"
+      direction: minimize
+      drives: svc.sla.attainment.pct
+      causal_mechanism: >
+        Rising escalation signals an FCR/capability gap that lengthens resolution paths, consumes
+        scarce tier-2 capacity, and pushes cases toward SLA breach — and is a direct service-quality
+        gap in SERVQUAL terms (SERVQUAL Gaps Model; COPC CX Standard).
+      benchmark_target: "Low single-digit %; declining trend as FCR/capability improves (COPC CX Standard)"
+      benchmark_source_id: SRC-005
+
+    - id: svc.nps.index
+      name: NPS Index
+      definition: >
+        Net Promoter Score for the service interaction. The experience outcome that validates
+        whether SLA attainment is actually experienced as good service by the customer.
+      unit: index
+      direction: maximize
+      drives: svc.sla.attainment.pct
+      causal_mechanism: >
+        NPS (and CSAT) is the anti-watermelon check: SLA can read green while customers are red
+        inside. Experience metrics confirm that SLA gains are real service quality, not metric
+        gaming (Watermelon SLA risk; SERVQUAL; ACSI).
+      benchmark_target: "Sector-specific; track alongside SLA to detect watermelon SLAs (green outside / red inside)"
+      benchmark_source_id: SRC-011
+
+  diagnostic_kpis:
+    - id: svc.tickets.created.count
+      name: Tickets Created Count
+      definition: "Count of cases opened in the period (fact_service_cases). The inflow side of the backlog balance."
+      unit: count
+      direction: minimize
+      diagnoses: svc.backlog.count
+      causal_mechanism: >
+        Created volume is the demand signal; a spike (seasonal, campaign, incident) drives backlog
+        unless closure capacity matches it. Distinguishes a demand surge from a capacity gap.
+
+    - id: svc.tickets.closed.count
+      name: Tickets Closed Count
+      definition: "Count of cases resolved/closed in the period (fact_service_cases). The outflow side of the backlog balance."
+      unit: count
+      direction: maximize
+      diagnoses: svc.backlog.count
+      causal_mechanism: >
+        Closure throughput is the capacity signal; closed < created grows backlog regardless of
+        SLA target. The created-vs-closed gap localises whether backlog is demand- or capacity-driven.
+
+    - id: svc.escalation.count
+      name: Escalation Count
+      definition: "Raw count of escalation events (fact_service_cases). Numerator behind escalation rate."
+      unit: count
+      direction: minimize
+      diagnoses: svc.escalation.pct
+      causal_mechanism: >
+        Escalation count by queue, issue type and severity is the root-cause entry point for the
+        capability gap that drives escalation rate and downstream SLA breach.
+
+  guardrails:
+    - description: SLA attainment must be validated against the customer experience (anti-watermelon)
+      condition: >
+        SLA attainment may NEVER be reported as service success without a paired CSAT/NPS check.
+        A green SLA with falling NPS is a "watermelon SLA" (green outside, red inside) and must be
+        flagged, not celebrated (Watermelon SLA risk; ITIL 4 SLM experience targets).
+      affected_kpis: [svc.sla.attainment.pct, svc.nps.index]
+
+    - description: Exclude force-majeure / uncontrollable breaches from SLA attainment
+      condition: >
+        SLA breaches caused by force-majeure, customer-side delay, or agreed exclusions must be
+        flagged and excluded from controllable SLA attainment so uncontrollable events are not read
+        as service failure (ISO/IEC 20000-1 service level management; ITIL 4 SLM).
+      affected_kpis: [svc.sla.attainment.pct]
+
+    - description: FCR must not be inflated by premature or improper closure
+      condition: >
+        First-contact resolution must NEVER be raised by closing-and-reopening, premature closure,
+        or reclassifying unresolved cases. FCR must be measured on genuine resolution confirmed by
+        no repeat contact within the reopen window (HDI / MetricNet; COPC CX Standard).
+      affected_kpis: [svc.fcr.pct, svc.nps.index]
+
+    - description: AHT must be optimised FCR-adjusted, never minimised in isolation
+      condition: >
+        Average handle time must not be cut at the expense of first-contact resolution or quality.
+        Raw-AHT minimisation that lowers FCR creates repeat contacts and escalations that erode SLA
+        and satisfaction (COPC CX Standard; SERVQUAL responsiveness vs reliability).
+      affected_kpis: [svc.aht.minutes, svc.fcr.pct]
+
+  wrong_interpretations:
+    - description: "Watermelon SLA — green SLA masking poor customer experience"
+      why_wrong: >
+        SLA attainment can read green while customers are dissatisfied ("red inside"). Reporting
+        SLA without a paired CSAT/NPS check hides the experience gap; SLA compliance is necessary
+        but not sufficient for service quality (Watermelon SLA anti-pattern; SERVQUAL Gaps Model).
+      source_id: SRC-011
+
+    - description: "Treating low AHT as efficiency when it suppresses FCR"
+      why_wrong: >
+        Cutting handle time can lower first-contact resolution, generating repeat contacts and
+        escalations that increase total cost and breach SLA later. AHT must be read together with
+        FCR, never as a standalone efficiency win (COPC CX Standard; MetricNet).
+      source_id: SRC-003
+
+    - description: "FCR inflated by reopen/close gaming"
+      why_wrong: >
+        FCR can be propped up by premature closure or close-and-reopen patterns. Genuine FCR
+        requires no repeat contact within the reopen window; gamed FCR diverges from CSAT and
+        understates true rework (HDI / MetricNet first-level-resolution guidance).
+      source_id: SRC-006
+
+    - description: "Channel-blind NPS movements attributed to service quality"
+      why_wrong: >
+        NPS shifts can be driven by channel mix or survey composition rather than service quality.
+        Without controlling for channel and respondent mix, NPS movement is misattributed — a
+        composition/expectation gap in SERVQUAL terms (SERVQUAL; ACSI methodology).
+      source_id: SRC-004
+
+# ──────────────────────────────────────────
+# 3. REQUIRED DATA MODEL
+# ──────────────────────────────────────────
+required_data_model:
+  required_facts:
+    - table: fact_service_cases
+      description: >
+        Service-case event log. Must contain: case_id, created_ts, closed_ts, sla_target,
+        sla_met_flag, first_contact_resolved_flag, handle_time_minutes, escalation_flag,
+        reopen_flag, queue_id, channel_id, issue_type, severity. Provides SLA attainment, FCR,
+        AHT, backlog, escalation, and ticket-flow per ITIL 4 SLM / ISO/IEC 20000-1.
+    - table: fact_sla_definitions
+      description: >
+        SLA contract reference. Must contain: queue/issue-type/severity → response and resolution
+        target windows, exclusion rules (force-majeure, customer-side). Required to compute SLA
+        attainment correctly and apply the force-majeure exclusion guardrail.
+    - table: fact_nps_survey
+      description: >
+        Experience survey results. Must contain: survey_id, case_id or channel/period link, nps
+        score, csat score, response_ts. Required for NPS/CSAT and the anti-watermelon validation
+        of SLA attainment.
+    - table: fact_service_backlog
+      description: >
+        Period-end backlog snapshot. Must contain: open case count and aging buckets at
+        queue/period grain. Denominator/context for backlog trend and aging-to-SLA analysis.
+
+  required_dimensions:
+    - name: dim_date
+      grain_relevance: "Time axis for SLA/backlog trend. CalendarWeek + CalendarMonth required (weekly service reviews)."
+    - name: dim_org
+      grain_relevance: "Organisation → Region → Service-unit hierarchy. Region/unit level mandatory for SLA diagnostics."
+    - name: dim_queue
+      grain_relevance: "Queue / channel for SLA-by-queue ranking and backlog decomposition. Queue level mandatory."
+    - name: dim_issue_type
+      grain_relevance: >
+        Issue-type / severity taxonomy for FCR and escalation Pareto by case type.
+        Not fully present in the current data contract — classified as model_gap.
+    - name: dim_sla_policy
+      grain_relevance: >
+        SLA-policy dimension binding queue/issue/severity to target windows and exclusion rules.
+        Currently not in the data contract — model_gap.
+
+  preferred_grain: case-queue-day
+  minimum_grain: queue-day
+  minimum_history_months: 12
+  grain_waiver_condition: >
+    queue-day grain is acceptable only where case-level SLA attribution is structurally
+    unavailable. Requires explicit waiver in the bracket; FCR and escalation bad-actor analysis
+    by issue type is degraded.
+
+  required_measures:
+    - name: SLA Attainment %
+      formula_seed: "Cases_Meeting_SLA / Cases_In_Scope"
+      source_id: SRC-001
+    - name: First Contact Resolution %
+      formula_seed: "Cases_Resolved_First_Contact / Total_Cases"
+      source_id: SRC-006
+    - name: Average Handle Time
+      formula_seed: "SUM(Handle_Time_Minutes) / Cases_Handled"
+      source_id: SRC-003
+    - name: Backlog Count
+      formula_seed: "Open_Cases_At_Period_End (= Created − Closed, cumulative)"
+      source_id: SRC-001
+    - name: Escalation Rate %
+      formula_seed: "Escalated_Cases / Total_Cases"
+      source_id: SRC-005
+    - name: NPS Index
+      formula_seed: "%Promoters − %Detractors"
+      source_id: SRC-007
+
+# ──────────────────────────────────────────
+# 4. ACTION LOGIC SEEDS
+# ──────────────────────────────────────────
+action_logic_seeds:
+  - trigger_driver: svc.sla.attainment.pct
+    trigger_diagnostic: svc.backlog.count
+    trigger_condition: "SLA attainment declining on a queue AND backlog rising with closed < created"
+    guardrail: "Exclude force-majeure breaches; confirm demand surge vs capacity gap before acting"
+    action_description: >
+      SLA recovery orchestration: rank queues by SLA gap × volume, decompose backlog by category
+      and aging, and sequence the capacity/closure actions to arrest aging cases before they breach.
+    expected_outcome_kpi: svc.sla.attainment.pct
+    action_code_candidate: X-S1.1
+
+  - trigger_driver: svc.backlog.count
+    trigger_diagnostic: svc.tickets.closed.count
+    trigger_condition: "Backlog growing because closed throughput < created inflow (capacity gap)"
+    guardrail: "Confirm closure shortfall is capacity-driven, not a demand spike; protect FCR/quality"
+    action_description: >
+      Backlog stabilisation: lift closure throughput on the constrained queues without sacrificing
+      FCR — rebalance capacity, target aging cohorts, and bring closed ≥ created.
+    expected_outcome_kpi: svc.backlog.count
+    action_code_candidate: X-S1.2
+
+  - trigger_driver: svc.nps.index
+    trigger_diagnostic: svc.escalation.count
+    trigger_condition: "NPS declining while SLA on target (watermelon) AND escalations rising"
+    guardrail: "Validate SLA-vs-experience divergence; trace escalations to resolution-quality gaps"
+    action_description: >
+      Service-quality review: run the anti-watermelon SLA-vs-NPS divergence analysis, root-cause
+      escalations to resolution-quality gaps, and close the experience gap behind a green SLA.
+    expected_outcome_kpi: svc.nps.index
+    action_code_candidate: X-S1.3
+
+  - trigger_driver: svc.aht.minutes
+    trigger_diagnostic: svc.fcr.pct
+    trigger_condition: "AHT optimisation opportunity AND FCR stable/high (efficiency without quality loss)"
+    guardrail: "Optimise FCR-adjusted AHT only; never cut AHT where it depresses FCR"
+    action_description: >
+      Handling-time optimisation: target FCR-adjusted AHT reduction on long-handle queues — remove
+      avoidable handling waste while holding first-contact resolution and quality.
+    expected_outcome_kpi: svc.aht.minutes
+    action_code_candidate: X-S1.4
+
+  - trigger_driver: svc.fcr.pct
+    trigger_diagnostic: svc.escalation.count
+    trigger_condition: "FCR declining AND escalations concentrated in a capability/knowledge gap by issue type"
+    guardrail: "Confirm FCR is genuine (no reopen gaming) before attributing to capability"
+    action_description: >
+      First-contact uplift: rank issue types by FCR gap × escalation volume, close the
+      capability/knowledge gap at tier 1, and convert repeat-contact cases into first-contact
+      resolutions to relieve SLA and backlog pressure.
+    expected_outcome_kpi: svc.fcr.pct
+    action_code_candidate: X-S1.3
+
+# ──────────────────────────────────────────
+# 5. SOURCE INVENTORY
+# ──────────────────────────────────────────
+source_inventory:
+  summary:
+    total_sources: 11
+    portfolio_score: 13.0
+    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    min_threshold_met: true
+
+  sources:
+    - id: SRC-001
+      category: STD
+      title: "ITIL 4 Practitioner: Service Level Management practice — setting and managing business-based service-level targets (SLA)"
+      author: "AXELOS / PeopleCert"
+      year: 2023
+      url: "https://www.peoplecert.org/browse-certifications/it-governance-and-service-management/ITIL-1/itil-4-practitioner-service-level-management-3867"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, driver_kpis, required_measures, guardrails]
+
+    - id: SRC-002
+      category: STD
+      title: "ISO/IEC 20000-1:2018 — Information technology — Service management — Part 1: Service management system requirements (service level management)"
+      author: "International Organization for Standardization / IEC"
+      year: 2018
+      url: "https://www.iso.org/standard/70636.html"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, outcome_kpis, guardrails]
+
+    - id: SRC-003
+      category: STD
+      title: "COPC Customer Experience (CX) Standard, Release 8.0 — performance-management standard for service/contact-centre operations"
+      author: "COPC Inc."
+      year: 2026
+      url: "https://www.copc.com/press/copc-inc-announces-the-new-copc-customer-experience-cx-standard-release-8-0/"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [driver_kpis, guardrails, wrong_interpretations]
+      notes: "Industry CX performance-management standard (AHT/FCR/quality balance); independence 2 (sector body)."
+
+    - id: SRC-004
+      category: ACA
+      title: "Parasuraman, A., Zeithaml, V.A. & Berry, L.L. (1988). SERVQUAL: A Multiple-Item Scale for Measuring Consumer Perceptions of Service Quality. Journal of Retailing, 64(1), 12–40."
+      author: "Parasuraman, A.; Zeithaml, V.A.; Berry, L.L."
+      year: 1988
+      url: "https://www.scirp.org/reference/referencespapers?referenceid=2456392"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [driver_kpis, wrong_interpretations, required_measures]
+      notes: "Foundational service-quality measurement (5 dimensions: reliability, responsiveness, assurance, empathy, tangibles)."
+
+    - id: SRC-005
+      category: ACA
+      title: "Parasuraman, A., Zeithaml, V.A. & Berry, L.L. (1985). A Conceptual Model of Service Quality and Its Implications for Future Research. Journal of Marketing, 49(4), 41–50 (Gaps Model)."
+      author: "Parasuraman, A.; Zeithaml, V.A.; Berry, L.L."
+      year: 1985
+      url: "https://journals.sagepub.com/doi/10.1177/002224298504900403"
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 12
+      supports: [driver_kpis, wrong_interpretations]
+      notes: "Gaps model of service quality (perception vs expectation). Age waiver — foundational service-quality theory."
+
+    - id: SRC-006
+      category: PRO
+      title: "HDI / MetricNet — First Level Resolution & First Contact Resolution Rate (Metric of the Month): benchmarks and FCR–CSAT correlation"
+      author: "HDI (Help Desk Institute) / MetricNet"
+      year: 2023
+      url: "https://www.thinkhdi.com/~/media/HDICorp/Files/Library-Archive/Insider%20Articles/First%20Level%20Resolution.pdf"
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, required_measures, wrong_interpretations, benchmark_targets]
+      notes: "Authoritative service-desk benchmarking on FCR; FCR strongly correlated with customer satisfaction."
+
+    - id: SRC-007
+      category: PRO
+      title: "American Customer Satisfaction Index (ACSI) — cross-industry customer-satisfaction benchmarking methodology"
+      author: "American Customer Satisfaction Index LLC / University of Michigan (Ross School of Business)"
+      year: 2024
+      url: "https://theacsi.org/products/acsi-benchmarks/"
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 13
+      supports: [outcome_kpis, required_measures, wrong_interpretations]
+      notes: "U.S. national CSAT benchmark; grounds NPS/CSAT methodology and channel-mix caution; domain_relevance 2 (general CX, not service-desk specific)."
+
+    - id: SRC-008
+      category: BNK
+      title: "MetricNet — Service Desk Benchmarks: cost per ticket, first contact resolution rate (service-desk avg ~74%), and level-1 resolution benchmarks"
+      author: "MetricNet, LLC"
+      year: 2024
+      url: "https://www.metricnet.com/benchmarking/service-desk-benchmarks/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, benchmark_targets]
+      notes: "Service-desk benchmark database — FCR, cost per ticket, escalation cost; world-class FCR bands."
+
+    - id: SRC-009
+      category: BNK
+      title: "Zendesk CX Trends — benchmark report (response-time and CSAT bands; CSAT vs first-response/resolution speed)"
+      author: "Zendesk"
+      year: 2025
+      url: "https://www.zendesk.com/newsroom/articles/2025-cx-trends-report/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 1, content_role: 3 }
+      total_score: 12
+      supports: [outcome_kpis, benchmark_targets]
+      notes: "Vendor benchmark — response-time/CSAT bands (e.g. CSAT peaks at fast first response). Independence 1 (vendor)."
+
+    - id: SRC-010
+      category: IMP
+      title: "First-contact resolution and SLA management — practitioner implementation guidance (queue/SLA reporting, backlog and aging)"
+      author: "ITSM / service-operations practitioner literature (MetricNet Metric of the Month series)"
+      year: 2024
+      url: "https://www.metricnet.com/metric-of-the-month/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 13
+      supports: [driver_kpis, action_logic_seeds, required_data_model]
+      notes: "Practitioner guidance on operationalising FCR/SLA/backlog metrics and reporting cadence."
+
+    - id: SRC-011
+      category: RSK
+      title: "The Watermelon SLA / watermelon effect — SLAs green on the outside, red on the inside (SLA gaming anti-pattern; CSAT/XLA as remedy)"
+      author: "Joe The IT Guy (ITSM practitioner) / watermelon-SLA literature"
+      year: 2023
+      url: "https://www.joetheitguy.com/itsm-basics-how-to-recognize-and-deal-with-watermelon-slas/"
+      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 12
+      supports: [wrong_interpretations, guardrails]
+      notes: "Anti-pattern source: SLA metrics met while customers dissatisfied; motivates the anti-watermelon SLA-vs-NPS guardrail."
+
+# ──────────────────────────────────────────
+# 6. MAPPING READINESS
+# ──────────────────────────────────────────
+mapping_readiness:
+  kpi_catalog_coverage: complete
+  factsheet_coverage: complete
+  bracket_coverage: complete
+  action_code_coverage: complete
+  semantic_model_coverage: partial
+
+  gap_summary:
+    content_gaps:
+      - gap_type: content_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md
+        field: "Section 8 Success Criteria / benchmark targets"
+        description: >
+          Benchmark targets not stated: SLA commonly contracted at 90–95% within target, FCR
+          world-class ~70–80%+ (service-desk avg ~74%, desktop support ~84%), and SLA validated
+          against CSAT/NPS to avoid the watermelon effect (ITIL 4 SLM / HDI / MetricNet). Added to
+          make success criteria measurable.
+        evidence_reference: SRC-001 SRC-006 SRC-008
+        remediation: "Add SLA / FCR / CSAT-validation world-class targets to the factsheet success criteria."
+        status: resolved
+
+    mapping_gaps: []
+
+    schema_gaps: []
+
+    generator_gaps: []
+
+    model_gaps:
+      - gap_type: model_gap
+        severity: high
+        affected_artifact: core/data_contracts/domains/experience.yaml
+        field: dim_sla_policy / fact_sla_definitions (SLA target windows & exclusions)
+        description: >
+          No SLA-policy dimension or SLA-definitions fact binds queue/issue-type/severity to
+          response/resolution target windows and force-majeure exclusion rules. Correct SLA
+          attainment (X-S1.1) and the force-majeure exclusion guardrail require this lineage.
+        evidence_reference: SRC-001 SRC-002
+        remediation: "Add fact_sla_definitions and dim_sla_policy (target windows + exclusion rules) to the experience contract and bind the SLA Attainment measure lineage."
+        status: open
+
+      - gap_type: model_gap
+        severity: medium
+        affected_artifact: core/data_contracts/domains/experience.yaml
+        field: dim_issue_type (issue-type / severity taxonomy)
+        description: >
+          No standardised issue-type/severity dimension exists for FCR and escalation Pareto by
+          case type. FCR uplift and service-quality review (X-S1.3) require issue-type and
+          severity attribution at the case grain.
+        evidence_reference: SRC-003 SRC-006
+        remediation: "Add dim_issue_type (issue-type + severity taxonomy) to the experience contract for FCR/escalation diagnostics."
+        status: open
