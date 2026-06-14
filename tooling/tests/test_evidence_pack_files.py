@@ -71,9 +71,9 @@ def test_evidence_pack_invariants(path: Path):
         f"{uc}: total_sources {summary['total_sources']} != {len(sources)}"
     )
 
-    # 4. portfolio_score == round(mean(total_score), 1)
+    # 4. portfolio_score == round(mean(total_score), 1)  (exact, fp-safe)
     mean = statistics.mean(s["total_score"] for s in sources)
-    assert abs(summary["portfolio_score"] - mean) <= 0.05, (
+    assert summary["portfolio_score"] == round(mean, 1), (
         f"{uc}: portfolio_score {summary['portfolio_score']} != round(mean,1) {round(mean, 1)}"
     )
 

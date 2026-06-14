@@ -140,7 +140,7 @@
           "enum": ["content_gap", "mapping_gap", "schema_gap", "generator_gap", "model_gap"]
         },
         "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
-        "status": { "type": "string", "enum": ["open", "in_progress", "resolved"] }
+        "status": { "type": "string", "enum": ["open", "in_progress", "resolved", "deferred", "rejected"] }
       }
     }
   }

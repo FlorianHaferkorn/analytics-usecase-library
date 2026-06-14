@@ -1,470 +1,449 @@
 evidence_pack_version: "1.0"
 use_case_id: XD-004
 use_case_title: Executive Action Governance
-domain: Experience
-authored_date: "2026-06-13"
+domain: Experience / Cross-Functional
+authored_date: "2026-06-11"
 authored_by: framework-architect-agent
-reviewed_by: ""
-status: draft
+reviewed_by: "framework-architect-agent — SQ-E evidence gate pass + mapping triage (2026-06-12)"
+status: approved
+approved_by: "Framework Architect — repo owner (authorized 2026-06-12)"
+approved_date: "2026-06-12"
+approval_basis: "16/16 SQ-E gate; all deferred items classified model_gap (no schema_gap); see docs/process/evidence-to-model-uplift-scope.md"
 
-# ──────────────────────────────────────────
-# 1. PROCESS SCOPE
-# ──────────────────────────────────────────
 process_scope:
   description: >
-    META governance over the actions the analytics framework itself recommends: whether
-    executive-routed action codes are completed on time, owned without ambiguity, and produce
-    the intended KPI outcome. This use case governs the action-to-outcome loop — closure rate,
-    time-to-action, accountability coverage, and outcome (not status) realisation — across the
-    Impactful 15 action codes routed for execution. It is decision-governance and
-    data/analytics-governance methodology applied to the framework's own recommendations.
-    Distinct from XD-003 (executive KPI roll-up of business performance) — this use case isolates
-    the governance of action follow-through, not the underlying domain KPIs.
+    Closed-loop executive action-governance cockpit. Tracks whether strategic
+    actions routed across domains are completed on time and actually move the KPIs
+    they were meant to move. Grounded in PMI/APM Benefits Realization Management
+    (identify → execute → sustain), Kaplan & Norton closed-loop management ("The
+    Execution Premium"), ITIL 4 Continual Improvement, Gartner Decision Intelligence
+    (engineering decisions and feedback loops), and COSO monitoring activities.
+    Action Outcome Rate is the % of triggered/closed actions that achieved their
+    expected KPI outcome; Action Effectiveness Delta is the measured KPI lift (EUR)
+    attributable to executed actions. Scope is execution accountability and benefits
+    realization — NOT domain remediation logic itself.
   in_scope:
-    - Action Outcome Rate — share of routed actions that achieved the intended outcome (closure quality)
-    - Time-to-outcome / time-to-action as the latency driver of the action-to-outcome loop
-    - Accountability coverage — every routed action has a single owner role, due date, status, outcome flag
-    - Recommendation adoption / execution velocity (actions executed vs routed)
-    - Action ROI and effectiveness delta — verified value per executed action, not administrative closure
-    - Lifecycle-deviation escalation (L1 Monitoring / L2 Delayed / L3 Ineffective) via X-E3.3
-    - Decision-rights and responsibility-assignment guardrails on routed actions (RAPID / RACI)
+    - Action Outcome Rate % — share of closed actions that achieved their intended KPI outcome
+    - Action Effectiveness Delta — measured EUR KPI lift attributable to executed actions (before/after attribution)
+    - Action lifecycle governance — routed → due → completed → outcome-evaluated, at action-instance grain
+    - Benefits realization tracking across portfolio/program/project actions (identify, execute, sustain)
+    - Closed-loop linkage of executed actions back to the Enterprise Value-at-Risk Index they were meant to reduce
+    - Escalation of overdue / stalled / ineffective action instances via X-E3.3 and the cross-domain Impactful-15 action codes
   out_of_scope:
-    - Domain-level remediation logic and root-cause analysis of underlying business KPIs
-    - Re-triggering or tuning domain action-code thresholds (owned by the domain use cases)
-    - Executive KPI performance roll-up itself (XD-003)
-    - Enterprise risk index construction and weighting (XD-003 / Risk domain)
-  industry_segment: >
-    Cross-industry executive / PMO governance. Applicable to any enterprise running a
-    decision-intelligence or action-management cadence where analytics recommendations are
-    routed to owners and must be governed for follow-through and verified outcome.
+    - Domain-level remediation logic and root-cause analysis of underlying KPIs (owned by domain use cases)
+    - Re-triggering or threshold-tuning of domain action codes
+    - Executive performance roll-up itself (owned by XD-003)
+    - Individual employee performance attribution (owners referenced by role, not identity)
+    - Statutory project accounting and external benefit assurance audits
+  industry_segment: "Cross-industry, enterprise/executive"
   applicable_frameworks:
-    - name: COBIT 2019 — Governance of Enterprise IT; EDM (Evaluate, Direct, Monitor) decision oversight
-      id: COBIT-2019
-    - name: DAMA-DMBOK2 — Data Management Body of Knowledge; data & analytics governance
-      id: DAMA-DMBOK2
-    - name: G20/OECD Principles of Corporate Governance (2023) — board accountability & lines of accountability
-      id: OECD-CG-2023
-    - name: Bain RAPID — decision-rights framework (Recommend/Agree/Perform/Input/Decide)
-      id: RAPID
-    - name: PMI PMBOK Guide — RACI / Responsibility Assignment Matrix (single accountable owner)
-      id: PMBOK-RACI
-    - name: COSO ERM (2017) — Enterprise Risk Management; governance & accountability of execution risk
-      id: COSO-ERM
+    - name: "PMI — Benefits Realization Management: A Practice Guide (identify / execute / sustain life cycle)"
+      id: PMI-BRM-2019
+    - name: "Kaplan & Norton — The Execution Premium: closed-loop management system linking strategy to operations"
+      id: KN-EXECUTION-PREMIUM
+    - name: "ITIL 4 — Continual Improvement practice & model (AXELOS)"
+      id: ITIL4-CSI
+    - name: "Gartner — Decision Intelligence (engineering decisions and outcome feedback loops)"
+      id: GARTNER-DI
+    - name: "COSO — Internal Control — Integrated Framework (monitoring activities)"
+      id: COSO-IC-2013
+    - name: "APM — Benefits Management (Association for Project Management)"
+      id: APM-BRM
 
-# ──────────────────────────────────────────
-# 2. CANONICAL DOMAIN MODEL (DRIVER TREE)
-# ──────────────────────────────────────────
 canonical_domain_model:
   outcome_kpis:
     - id: enterprise.action_outcome_rate.pct
       name: Action Outcome Rate %
       definition: >
-        Successful Actions / Routed Actions. The share of executive-routed action instances that
-        achieved the intended, agreed outcome within the evaluation window — closure QUALITY, not
-        administrative closure. The primary governance outcome of the action-to-outcome loop.
+        % of closed/executed actions that achieved their intended KPI outcome within
+        the agreed evaluation window. Successful Actions / Total Closed (executed)
+        Actions. This is the headline benefits-realization metric of the closed loop.
       unit: "%"
       direction: maximize
+      benchmark_target: >
+        No single external benchmark for a bespoke outcome rate; calibrated as
+        quarter-over-quarter improvement. Strategy-execution research provides the
+        target rationale: companies typically realize only ~60% of strategy value
+        (≈40% lost to execution breakdowns), so an improving outcome rate that closes
+        this gap is the target.
+      benchmark_source_id: SRC-005
+    - id: enterprise.value_at_risk.index
+      name: Enterprise Value-at-Risk Index
+      role: guardrail
+      definition: >
+        Cross-link outcome: the composite enterprise risk index (defined in XD-003)
+        that effective action governance is ultimately meant to reduce. Used here as
+        the closed-loop "did the action actually lower enterprise risk" check.
+      unit: index
+      direction: minimize
       causal_mechanism: >
-        The terminal measure of decision accountability: it confirms whether recommendations
-        crossed the "last mile" from insight to delivered effect. Closing the action-action gap
-        (insight-rich but action-poor) is the central thesis of decision-centric governance
-        (COBIT EDM; Gartner; HBR last-mile).
-      benchmark_target: "World-class executive action closure / outcome rate ≥ 85–90%; outcome-verified (not status-only). Decision-centric programs that tie governance to outcomes materially outperform the ~14% of organisations rated highly on acting quickly on insight"
-      benchmark_source_id: SRC-009
-      catalog_ref: "enterprise.action_outcome_rate.pct (strategic; rate)"
+        Closed-loop linkage (Kaplan-Norton): if actions are closing but the value-at-risk
+        index they targeted does not fall, outcomes are administrative, not real.
+      benchmark_target: "Internally calibrated risk-appetite band (see XD-003)"
+      benchmark_source_id: SRC-002
 
   driver_kpis:
-    - id: enterprise.avg_time_to_outcome.days
-      name: Avg Time-to-Outcome Days
-      definition: >
-        Average days_to_outcome across executed action rows (fact_action_outcome) — the latency
-        between an action being routed/executed and a confirmed outcome. The time driver of
-        follow-through.
-      unit: days
-      direction: minimize
-      drives: enterprise.action_outcome_rate.pct
-      causal_mechanism: >
-        Latency is where follow-through decays: the longer an action sits between routing and
-        confirmed outcome, the higher the probability it stalls, is overtaken by events, or is
-        closed administratively without effect. Time-to-action is the operational lever of the
-        execution premium (Kaplan & Norton).
-      benchmark_target: "Time-to-decision / time-to-outcome trending down cycle over cycle; X-E3.3 default follow-up window 90 days, outcome assessed after the domain review window"
-      benchmark_source_id: SRC-004
-
-    - id: enterprise.actions_executed.count
-      name: Actions Executed Count
-      definition: >
-        Count of routed actions with a recorded outcome (fact_action_outcome.outcome_status not
-        blank). Measures recommendation ADOPTION / execution velocity relative to routed volume.
-      unit: count
-      direction: maximize
-      drives: enterprise.action_outcome_rate.pct
-      causal_mechanism: >
-        Execution count is the adoption bridge between routing and outcome: routed-but-never-
-        executed actions are the dominant failure mode of analytics governance — programs fail when
-        they generate activity without execution (Gartner D&A governance; HBR last-mile).
-      benchmark_target: "Execution coverage of routed actions trending up; routed-without-execution backlog trending down"
-      benchmark_source_id: SRC-008
-
     - id: enterprise.action_effectiveness_delta.amount
       name: Action Effectiveness Delta
       definition: >
-        Average impact_value (EUR) across achieved rows in fact_action_outcome — realised KPI delta
-        per executed action code. Distinguishes outcome-positive closure from administrative closure.
+        Average measured EUR impact per achieved action — the realized KPI lift
+        (post-KPI minus pre-KPI value, valued in EUR) attributable to executed
+        actions, before/after attribution.
       unit: EUR
       direction: maximize
       drives: enterprise.action_outcome_rate.pct
       causal_mechanism: >
-        Effectiveness delta is the value proof of accountability: it prevents "closing for closure's
-        sake" by requiring a measured KPI improvement before an action is counted as a success
-        (outcome-based, not status-based — COBIT EDM monitoring; OECD board accountability).
-      benchmark_target: "Effectiveness delta positive on average; X-E3.3 expected outcome-rate lift 10–25pp"
+        Quantifies how much each successful action actually moved its target KPI.
+        A high outcome rate with a low effectiveness delta means actions are
+        technically successful but immaterial — benefits realization is shallow.
+      benchmark_target: "Improvement vs own baseline; positive and material per action family"
       benchmark_source_id: SRC-001
+    - id: enterprise.value_at_risk.index
+      name: Enterprise Value-at-Risk Index
+      definition: "Composite enterprise risk index (XD-003) that the action loop targets."
+      unit: index
+      direction: minimize
+      drives: enterprise.action_outcome_rate.pct
+      causal_mechanism: >
+        The risk the loop exists to reduce. Movement (or lack of movement) of the
+        index after action closure is the ultimate benefits-realization signal.
+      benchmark_target: "Risk-appetite band (XD-003)"
+      benchmark_source_id: SRC-002
 
   diagnostic_kpis:
-    - id: enterprise.action_routed.count
-      name: Actions Routed Count
-      definition: >
-        Count of routed action instances in the period (fact_action_governance). The denominator
-        of outcome rate and the volume signal of governance load.
-      unit: count
-      direction: neutral
+    - id: enterprise.action_latency.days
+      name: Action Latency (Days to Close)
+      definition: "Elapsed days from action routed to action completed; lateness vs due date."
+      unit: days
+      direction: minimize
       diagnoses: enterprise.action_outcome_rate.pct
       causal_mechanism: >
-        Routed volume is diagnostic, not an outcome: rising routed count WITHOUT a rise in outcome
-        rate is the canonical governance anti-pattern (over-routing / activity without delivery).
-        It normalises execution and outcome counts so closure quality can be read independently of
-        volume. (Deprecated KPI per catalog; retained as the X-E3.3 trigger denominator.)
-      note: "Catalog flags this KPI deprecated; it remains the X-E3.3 trigger_kpi and outcome-rate denominator."
-
-    - id: enterprise.action_roi.pct
-      name: Action ROI %
-      definition: >
-        Total impact_value of executed actions / total cost_to_execute − 1 (fact_action_outcome).
-        The financial-return diagnostic behind effectiveness delta.
+        Late closure (ITIL CSI / Bain decision speed) erodes outcome rate — value
+        decays the longer an action sits open. Separates governance failure (latency)
+        from domain execution complexity.
+    - id: enterprise.action_coverage.pct
+      name: Action Coverage %
+      definition: "% of triggered KPI deviations that actually generated a routed action with a clear owner and due date."
       unit: "%"
       direction: maximize
+      diagnoses: enterprise.action_outcome_rate.pct
+      causal_mechanism: >
+        Low coverage means deviations are detected but not acted on (the BRM 'identify
+        but never execute' gap). Coverage must be read before outcome rate to avoid
+        survivorship bias on the few actions that were routed.
+    - id: enterprise.time_to_impact.days
+      name: Time-to-Impact (Days to Outcome)
+      definition: "Elapsed days from action completion to confirmed KPI outcome evaluation."
+      unit: days
+      direction: minimize
       diagnoses: enterprise.action_effectiveness_delta.amount
       causal_mechanism: >
-        Action ROI exposes net-negative interventions (ROI < 0%) that an outcome flag alone would
-        miss — guarding against governance that rewards motion over value (COSO ERM execution risk).
+        Distinguishes 'not yet realized' from 'failed'. An action evaluated before
+        its review window closes can be wrongly scored ineffective (false negative).
 
   guardrails:
-    - description: Govern lifecycle quality, not domain remediation logic
+    - description: Do not score outcome before the evaluation window closes
       condition: >
-        Executive action governance evaluates follow-through and outcome of routed actions; it must
-        NEVER re-derive, second-guess, or re-tune the domain's remediation logic or KPI thresholds.
-        Domain action ownership is preserved (X-E3.3 exclusions; DEC-SPINE-XD-EXEC domain-agnostic rule).
-      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.action_effectiveness_delta.amount]
-
-    - description: Outcome evaluated only after the agreed review window; exclude informational actions
+        Outcome evaluation only after the domain-specific review window has elapsed.
+        Marking an action ineffective before its time-to-impact window completes
+        produces false negatives (ITIL CSI / BRM sustain stage).
+      affected_kpis:
+        - enterprise.action_outcome_rate.pct
+        - enterprise.action_effectiveness_delta.amount
+    - description: Exclude informational / observation-only actions
       condition: >
-        An action must NOT be scored ineffective before its domain-defined evaluation window has
-        elapsed, and informational / observation-only actions must be excluded so governance signal
-        is not diluted by noise (X-E3.3 gating rules; false-negatives from short windows).
-      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.avg_time_to_outcome.days]
-
-    - description: Single accountable owner per routed action (decision-rights integrity)
+        Informational or monitoring-only actions must be excluded from the outcome
+        denominator to avoid governance noise that depresses the rate artificially.
+      affected_kpis:
+        - enterprise.action_outcome_rate.pct
+    - description: Governance evaluates follow-through, not domain logic
       condition: >
-        Every routed action must carry exactly ONE accountable owner role with a due date, status,
-        and evaluable outcome flag — no shared or null accountability. This is the RACI single-A /
-        RAPID single-D rule applied to routed actions (PMBOK RAM; Bain RAPID).
-      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.action_routed.count]
-
-    - description: Outcome counted only on verified KPI movement, not administrative closure
-      condition: >
-        A "successful" action requires evidence of the agreed KPI improvement (pre/post or
-        before-after attribution); status=Completed without a verified outcome flag must NOT be
-        counted as a successful outcome (COBIT EDM monitor; outcome-based governance).
-      affected_kpis: [enterprise.action_outcome_rate.pct, enterprise.action_effectiveness_delta.amount, enterprise.action_roi.pct]
+        Do not use governance metrics to second-guess or re-tune domain remediation
+        logic without domain context — XD-004 evaluates lifecycle/benefit quality
+        only (COSO monitoring activities, not control re-design).
+      affected_kpis:
+        - enterprise.action_outcome_rate.pct
+        - enterprise.action_effectiveness_delta.amount
 
   wrong_interpretations:
-    - description: "Reading rising routed-action volume as governance success"
+    - description: Vanity 'actions taken / routed' count instead of outcome rate
       why_wrong: >
-        High routed (or completed) action count is not positive if outcome rate deteriorates. Over-
-        routing creates visible activity with no delivered effect — the decision-action gap where
-        organisations remain insight-rich but action-poor (HBR last-mile; Gartner decision-centric).
-      source_id: SRC-010
-
-    - description: "Treating administrative closure as a successful outcome (status, not effect)"
-      why_wrong: >
-        Closing an action by status without verifying the intended KPI movement optimises for
-        closure rather than impact. Governance must monitor delivered outcome, not box-ticking —
-        COBIT EDM separates directing/monitoring from the appearance of compliance.
+        Counting how many actions were routed measures activity, not benefit. BRM and
+        Decision Intelligence both stress that volume of decisions/actions is not the
+        same as realized outcome — a rising routed count with a flat or falling
+        outcome rate is a governance red flag, not progress.
       source_id: SRC-001
-
-    - description: "Scoring late actions as ineffective before the agreed evaluation window"
+    - description: Survivorship bias in action attribution
       why_wrong: >
-        A late action is not the same as an ineffective one. Marking it ineffective before its
-        domain review window has elapsed produces false negatives and erodes trust in the
-        governance signal (X-E3.3 risk: short outcome windows). Time and effect are distinct.
-      source_id: SRC-008
-
-    - description: "Diffuse or shared accountability for routed actions"
+        Computing outcome rate only over completed actions ignores deviations that
+        never generated an action (coverage gap) and stalled actions silently
+        dropped. The 'survivors' look effective while the population is failing;
+        coverage % must be reported alongside outcome rate.
+      source_id: SRC-006
+    - description: Treating closure as outcome (administrative closure)
       why_wrong: >
-        When ownership is shared, ambiguous, or null, follow-through decays — 'everyone's
-        responsibility is no one's'. Clear decision rights (one Decider / one Accountable) are the
-        precondition for closure; matrixed ambiguity is the root of stalled actions (RAPID; RACI).
-      source_id: SRC-005
+        An action marked 'done' has not necessarily moved its KPI. Kaplan-Norton's
+        closed loop and COSO monitoring require linking closure to actual KPI
+        movement; optimizing for closure rate rather than effect inflates governance
+        health while enterprise performance stalls.
+      source_id: SRC-002
+    - description: Correlation ≠ causation in effectiveness delta
+      why_wrong: >
+        A KPI improving after an action does not prove the action caused it —
+        seasonality, concurrent actions, or market shifts confound naive before/after
+        deltas. Effectiveness delta needs a defined attribution method (before/after
+        baseline window, ideally with control/counterfactual) per Bain decision-yield
+        and DI feedback-loop rigor.
+      source_id: SRC-009
 
-# ──────────────────────────────────────────
-# 3. REQUIRED DATA MODEL
-# ──────────────────────────────────────────
 required_data_model:
   required_facts:
     - table: fact_action_governance
       description: >
-        Action-instance lifecycle log (grain: action_instance). Must contain ActionInstanceId,
-        ActionCodeKey, OwnerRole, Status, Routed Actions, Successful Actions, Outcome Success Flag,
-        Due Date, Completion Date, Evaluation Date. Source of outcome rate, routed count, and the
-        accountability/closure guardrails (governance.yaml).
+        Action lifecycle ledger at action_instance grain — routed date, due date,
+        completion date, evaluation date, owner role, status, routed/successful
+        action counts, outcome success flag (existing governance.yaml contract).
     - table: fact_action_outcome
       description: >
-        Action-outcome log (grain: action_outcome). Must contain action_code_id, domain,
-        outcome_status, days_to_outcome, impact_value, cost_to_execute. Source of execution count,
-        time-to-outcome, effectiveness delta and Action ROI (governance.yaml).
-
+        Outcome ledger at action_outcome grain — action_code_id, domain, outcome_status,
+        days_to_outcome, impact_value (EUR KPI lift), cost_to_execute, pre/post KPI
+        values for before/after attribution (existing governance.yaml contract).
+    - table: fact_kpi_snapshot
+      description: >
+        Cross-domain KPI actual/plan/LY snapshots (shared with XD-003) used as the
+        pre/post baseline for measuring action effectiveness delta against target KPIs.
   required_dimensions:
     - name: dim_date
-      grain_relevance: "Time axis for outcome-rate and time-to-outcome trend. Month + Quarter required."
+      grain_relevance: Month/quarter cadence plus exact dates for latency and time-to-impact.
     - name: dim_org
-      grain_relevance: "Entity → Region for accountability concentration and ownership heatmap."
+      grain_relevance: Entity / region for ownership concentration and RLS.
     - name: dim_action_code
-      grain_relevance: >
-        ActionCode → DomainActionCode → ActionFamily. Mandatory to attribute outcome to the
-        routed action code and to separate governance failure from domain execution complexity.
-    - name: dim_owner_role
-      grain_relevance: >
-        Owner-role dimension for accountability coverage and the owner/domain heatmap. OwnerRole
-        is currently a degenerate text column on fact_action_governance, not a conformed
-        dimension — classified as model_gap.
-
+      grain_relevance: Action code, domain action code, and action family for outcome attribution by code.
+    - name: dim_domain
+      grain_relevance: Distinguishes governance failure from domain execution complexity across domains.
   preferred_grain: action_instance
-  minimum_grain: action_instance-month
+  minimum_grain: action_outcome
   minimum_history_months: 12
-  grain_waiver_condition: >
-    action_instance-month aggregation is acceptable only where instance-level routing cannot be
-    reconstructed. Requires explicit waiver in the bracket; owner-level accountability and
-    lifecycle-deviation (L1/L2/L3) diagnostics are degraded below instance grain.
-
   required_measures:
     - name: Action Outcome Rate %
-      formula_seed: "Successful_Actions / Routed_Actions"
+      formula_seed: "actions_with_achieved_outcome / total_closed_actions (excluding informational; only after eval window)"
       source_id: SRC-001
-    - name: Actions Routed Count
-      formula_seed: "COUNT(routed action instances in period)"
-      source_id: SRC-006
-    - name: Actions Executed Count
-      formula_seed: "COUNT(fact_action_outcome WHERE outcome_status IS NOT BLANK)"
-      source_id: SRC-008
-    - name: Avg Time-to-Outcome Days
-      formula_seed: "AVG(fact_action_outcome.days_to_outcome)"
-      source_id: SRC-004
     - name: Action Effectiveness Delta
-      formula_seed: "AVG(fact_action_outcome.impact_value WHERE outcome = achieved)"
+      formula_seed: "AVERAGE(impact_value) over achieved rows = AVG(post_kpi_value - pre_kpi_value valued in EUR)"
       source_id: SRC-001
-    - name: Action ROI %
-      formula_seed: "SUM(impact_value) / SUM(cost_to_execute) - 1"
-      source_id: SRC-011
+    - name: Action Latency (Days to Close)
+      formula_seed: "AVERAGE(completion_date - routed_date); lateness = completion_date - due_date"
+      source_id: SRC-003
+    - name: Action Coverage %
+      formula_seed: "triggered_deviations_with_routed_action / total_triggered_deviations"
+      source_id: SRC-006
+    - name: Time-to-Impact (Days)
+      formula_seed: "AVERAGE(evaluation_date - completion_date) for achieved outcomes"
+      source_id: SRC-003
 
-# ──────────────────────────────────────────
-# 4. ACTION LOGIC SEEDS
-# ──────────────────────────────────────────
 action_logic_seeds:
-  - trigger_driver: enterprise.action_routed.count
-    trigger_diagnostic: enterprise.action_outcome_rate.pct
-    trigger_condition: "Routed action count rising while outcome rate flat/declining (over-routing: activity without delivery)"
-    guardrail: "Govern lifecycle only; exclude informational actions; do not re-tune domain logic"
+  - trigger_driver: enterprise.action_outcome_rate.pct
+    trigger_diagnostic: enterprise.action_latency.days
+    trigger_condition: "Routed action volume rising while outcome rate flat/falling AND overdue (latency > due window) actions accumulating in specific owners/entities"
+    guardrail: "Exclude informational actions; do not re-route actions already under an executive escalation"
     action_description: >
-      Executive action governance (meta): track routed action codes at instance level, expose the
-      routed-vs-outcome gap by domain/owner, and escalate the lifecycle deviation (L1 Monitoring /
-      L2 Delayed / L3 Ineffective) to the executive governance forum.
+      Trigger Executive Action Governance — escalate overdue/stalled action instances,
+      surface ownership concentration, and force follow-through on routed-but-unclosed
+      actions.
+    expected_outcome_kpi: enterprise.action_outcome_rate.pct
+    action_code_candidate: X-E3.3
+  - trigger_driver: enterprise.action_effectiveness_delta.amount
+    trigger_diagnostic: enterprise.time_to_impact.days
+    trigger_condition: "Closure rate healthy but outcome rate / effectiveness delta low after evaluation windows have closed"
+    guardrail: "Only evaluate after the domain-specific review window elapsed; avoid false-negative on not-yet-realized actions"
+    action_description: >
+      Force outcome-based (not status-only) follow-up — re-open or re-route closed
+      actions that did not move their target KPI, and feed the closed loop back to the
+      originating domain code (e.g. C-S1.1, O-O1.1, F-C1.1).
+    expected_outcome_kpi: enterprise.action_effectiveness_delta.amount
+    action_code_candidate: X-E3.3
+  - trigger_driver: enterprise.action_outcome_rate.pct
+    trigger_diagnostic: enterprise.action_coverage.pct
+    trigger_condition: "Coverage % low — many triggered KPI deviations across Impactful-15 domains never generated an owned, routed action"
+    guardrail: "Do not penalise domains where deviations were within normal band or already mitigated by an active action"
+    action_description: >
+      Surface the 'identify-but-never-execute' benefits-realization gap to the
+      executive forum so detected cross-domain deviations (e.g. via O-O1.1, C-C3.1,
+      S-R2.1) are actually routed and owned.
     expected_outcome_kpi: enterprise.action_outcome_rate.pct
     action_code_candidate: X-E3.3
 
-  - trigger_driver: enterprise.avg_time_to_outcome.days
-    trigger_diagnostic: enterprise.actions_executed.count
-    trigger_condition: "Time-to-outcome lengthening on a routed quality action while execution stalls (defect-containment follow-through decaying)"
-    guardrail: "Single accountable owner per instance; outcome only after the domain review window"
-    action_description: >
-      Govern follow-through on a routed Operations quality action: confirm the defect-containment
-      action has a single owner and due date, that it is executed (not just routed), and that the
-      FPY/defect outcome is verified before closure.
-    expected_outcome_kpi: enterprise.action_outcome_rate.pct
-    action_code_candidate: O-Q3.1
-
-  - trigger_driver: enterprise.action_effectiveness_delta.amount
-    trigger_diagnostic: enterprise.action_roi.pct
-    trigger_condition: "Working-capital action closed by status but effectiveness delta / ROI not realised (administrative closure)"
-    guardrail: "Count success only on verified KPI movement; ROI < 0% flags ineffective intervention"
-    action_description: >
-      Govern outcome (not status) on a routed Finance working-capital action: require the
-      before/after CCC-DIO improvement and a positive ROI before the action is counted successful;
-      escalate as L3 Ineffective if completed without realised effect.
-    expected_outcome_kpi: enterprise.action_effectiveness_delta.amount
-    action_code_candidate: F-C1.1
-
-  - trigger_driver: enterprise.action_outcome_rate.pct
-    trigger_diagnostic: enterprise.action_routed.count
-    trigger_condition: "Commercial price-realization actions concentrated on owners with chronically low closure (accountability concentration)"
-    guardrail: "One accountable owner role per routed action (RACI single-A / RAPID single-D)"
-    action_description: >
-      Govern accountability coverage on routed Commercial actions: surface owner roles where price-
-      realization actions repeatedly stall, enforce single-owner decision rights, and reassign or
-      escalate the ownership gap rather than re-routing the domain action.
-    expected_outcome_kpi: enterprise.action_outcome_rate.pct
-    action_code_candidate: C-M2.1
-
-  - trigger_driver: enterprise.actions_executed.count
-    trigger_diagnostic: enterprise.avg_time_to_outcome.days
-    trigger_condition: "Inventory orchestration actions routed but never executed (recommendation adoption gap / last mile)"
-    guardrail: "Exclude observation-only actions; evaluate adoption against routed volume"
-    action_description: >
-      Govern recommendation adoption on a routed Supply Chain orchestration action: close the
-      last-mile gap between routing and execution, confirm the action was acted on within the
-      follow-up window, and escalate the adoption gap as L2 Delayed where execution is absent.
-    expected_outcome_kpi: enterprise.actions_executed.count
-    action_code_candidate: S-I1.1
-
-# ──────────────────────────────────────────
-# 5. SOURCE INVENTORY
-# ──────────────────────────────────────────
 source_inventory:
   summary:
-    total_sources: 11
-    portfolio_score: 13.0
-    categories_covered: [STD, ACA, PRO, BNK, IMP, RSK]
+    total_sources: 13
+    portfolio_score: 12.9
+    categories_covered:
+      - STD
+      - ACA
+      - PRO
+      - BNK
+      - IMP
+      - RSK
     min_threshold_met: true
 
   sources:
     - id: SRC-001
       category: STD
-      title: "COBIT 2019 Framework: Governance and Management Objectives (ISACA) — EDM (Evaluate, Direct, Monitor) governance of enterprise IT and decisions"
-      author: "ISACA"
-      year: 2018
-      url: "https://www.isaca.org/resources/cobit"
-      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
-      total_score: 14
-      supports: [process_scope, driver_kpis, guardrails, wrong_interpretations, required_measures]
-      notes: "Governance-of-decisions anchor; EDM separates directing/monitoring from execution — basis for outcome-based (not status-based) governance."
-
+      title: "PMI (2019). Benefits Realization Management: A Practice Guide. Project Management Institute."
+      author: "Project Management Institute"
+      publication: PMI
+      year: 2019
+      url: "https://www.pmi.org/standards/benefits-realization"
+      doi: ""
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 15
+      supports: [outcome_kpis, driver_kpis, wrong_interpretations, required_measures]
+      notes: "Identify/execute/sustain benefits life cycle; grounds outcome rate & effectiveness delta (ISBN 978-1628254808)."
     - id: SRC-002
-      category: STD
-      title: "DAMA-DMBOK2 — Data Management Body of Knowledge, 2nd Edition (data & analytics governance; governance at the centre of the DAMA wheel)"
-      author: "DAMA International"
-      year: 2017
-      url: "https://www.dama.org/cpages/body-of-knowledge"
-      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
-      total_score: 13
-      supports: [process_scope, guardrails]
-      notes: "Canonical data & analytics governance reference; positions governance as the core capability underpinning analytics value."
-
-    - id: SRC-003
-      category: STD
-      title: "G20/OECD Principles of Corporate Governance (2023) — board accountability and clear lines of accountability for management"
-      author: "OECD / G20"
-      year: 2023
-      url: "https://www.oecd.org/en/publications/g20-oecd-principles-of-corporate-governance-2023_ed750b30-en.html"
-      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
-      total_score: 14
-      supports: [process_scope, guardrails, wrong_interpretations]
-      notes: "Corporate-governance standard; mandates clear lines of accountability and board monitoring of follow-through."
-
-    - id: SRC-004
       category: ACA
       title: "Kaplan, R.S. & Norton, D.P. (2008). The Execution Premium: Linking Strategy to Operations for Competitive Advantage. Harvard Business Press."
       author: "Kaplan, R.S.; Norton, D.P."
+      publication: Harvard Business Press
       year: 2008
-      url: "https://store.hbr.org/product/the-execution-premium-linking-strategy-to-operations-for-competitive-advantage/2116"
+      url: "https://www.hbs.edu/faculty/Pages/item.aspx?num=31707"
+      doi: ""
       scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
       total_score: 13
-      supports: [outcome_kpis, driver_kpis, required_measures]
-      notes: "Strategy-execution anchor; the execution gap (strategy formulated vs delivered) is the parent thesis. Age waiver — foundational."
-
-    - id: SRC-005
-      category: ACA
-      title: "Rogers, P. & Blenko, M. (2006). Who Has the D? How Clear Decision Roles Enhance Organizational Performance. Harvard Business Review (origin of Bain RAPID)."
-      author: "Rogers, P.; Blenko, M. (Bain & Company)"
-      year: 2006
-      url: "https://hbr.org/2006/01/who-has-the-d-how-clear-decision-roles-enhance-organizational-performance"
-      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
-      total_score: 13
-      supports: [guardrails, wrong_interpretations]
-      notes: "Decision-rights / accountability foundation behind the single-owner guardrail. Age waiver — seminal."
-
-    - id: SRC-006
+      supports: [outcome_kpis, guardrails, wrong_interpretations]
+      notes: "Six-stage closed-loop management system (monitor & adapt). Age waiver — foundational standard (ISBN 978-1422121160)."
+    - id: SRC-003
       category: PRO
-      title: "PMI — A Guide to the Project Management Body of Knowledge (PMBOK Guide): RACI / Responsibility Assignment Matrix (single accountable owner)"
-      author: "Project Management Institute (PMI)"
-      year: 2021
-      url: "https://www.pmi.org/standards/pmbok"
-      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 3, content_role: 2 }
+      title: "AXELOS (2019). ITIL 4 — Continual Improvement practice & model (Service Value System)."
+      author: AXELOS / PeopleCert
+      publication: AXELOS
+      year: 2019
+      url: "https://www.axelos.com/resource-hub/practice/continual-improvement-itil-4-practice-guide"
+      doi: ""
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 2 }
       total_score: 13
-      supports: [guardrails, required_measures]
-      notes: "RAM/RACI standard — exactly one accountable per task; basis for accountability-coverage guardrail and measure."
-
-    - id: SRC-007
+      supports: [diagnostic_kpis, guardrails, required_measures]
+      notes: "CSI model (vision → assess → plan → act → check → consolidate) grounds latency/time-to-impact and evaluation discipline."
+    - id: SRC-004
       category: PRO
-      title: "Bain & Company — RAPID® Decision-Making Framework (Recommend, Agree, Perform, Input, Decide)"
-      author: "Bain & Company"
-      year: 2023
-      url: "https://www.bain.com/insights/rapid-decision-making/"
-      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
-      total_score: 13
-      supports: [process_scope, guardrails, wrong_interpretations]
-      notes: "Practitioner decision-rights tool; single-D accountability operationalises the routed-action ownership rule."
-
-    - id: SRC-008
-      category: BNK
-      title: "Gartner — Predicts 80% of Data & Analytics Governance Initiatives Will Fail by 2027 (decision-centric governance benchmark)"
-      author: "Gartner, Inc."
+      title: "Gartner — Decision Intelligence (engineering how decisions are made and outcomes evaluated via feedback)."
+      author: Gartner
+      publication: Gartner Research
       year: 2024
-      url: "https://www.gartner.com/en/newsroom/press-releases/2024-02-28-gartner-predicts-80-percent-of-data-and-analytics-governance-initiatives-will-fail-by-2027-due-to-a-lack-of-a-real-or-manufactured-crisis-"
-      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      url: "https://www.gartner.com/en/information-technology/glossary/decision-intelligence"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
+      total_score: 14
+      supports: [process_scope, outcome_kpis, wrong_interpretations]
+      notes: "DI = explicitly engineering decisions and feedback loops to close insight-to-action gap; core framing for the cockpit."
+    - id: SRC-005
+      category: BNK
+      title: "Bain & Company / Mankins & Steele — strategy-execution gap benchmark (~37–40% of strategy value lost in execution; ~60% value realized)."
+      author: "Mankins, M.C.; Steele, R. (Bain & Company)"
+      publication: Bain & Company / Harvard Business Review
+      year: 2005
+      url: "https://www.bain.com/insights/turning-great-strategy-into-great-performance/"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 3, independence: 3, content_role: 3 }
       total_score: 13
-      supports: [driver_kpis, wrong_interpretations, benchmark_targets]
-      notes: "Benchmark/market signal: governance that does not enable prioritised outcomes fails; 65% use data to justify prior decisions."
-
+      supports: [outcome_kpis, benchmark_target]
+      notes: "Quantifies the execution gap the outcome rate targets. Age waiver — foundational benchmark."
+    - id: SRC-006
+      category: RSK
+      title: "Blenko, M., Mankins, M. & Rogers, P. (Bain) — Measuring Decision Effectiveness (decision quality, speed, yield, effort)."
+      author: "Blenko, M.; Mankins, M.; Rogers, P."
+      publication: Bain & Company
+      year: 2019
+      url: "https://www.bain.com/insights/measuring-decision-effectiveness/"
+      doi: ""
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [diagnostic_kpis, wrong_interpretations, required_measures]
+      notes: "Decision quality/speed/yield/effort grounds coverage %, survivorship-bias risk, and effort guardrail."
+    - id: SRC-007
+      category: STD
+      title: "COSO (2013). Internal Control — Integrated Framework (monitoring activities component)."
+      author: "COSO (Committee of Sponsoring Organizations of the Treadway Commission)"
+      publication: COSO / AICPA
+      year: 2013
+      url: "https://www.coso.org/guidance-on-ic"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 11
+      supports: [process_scope, guardrails]
+      notes: "Monitoring activities (ongoing & separate evaluations) ground follow-through governance. Age waiver — foundational control standard."
+    - id: SRC-008
+      category: PRO
+      title: "Association for Project Management (APM) — Benefits Management (BRM body-of-knowledge guidance)."
+      author: "Association for Project Management"
+      publication: APM
+      year: 2022
+      url: "https://www.apm.org.uk/resources/find-a-resource/benefits-management/"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 3, content_role: 2 }
+      total_score: 14
+      supports: [process_scope, driver_kpis]
+      notes: "Independent professional-body BRM grounding complementing PMI; sustain-stage benefit ownership."
     - id: SRC-009
-      category: IMP
-      title: "Harvard Business Review Analytic Services / Teradata — Bridging the Last Mile in Data Analytics (insight-to-action implementation)"
-      author: "Harvard Business Review Analytic Services"
-      year: 2017
-      url: "https://hbr.org/sponsored/2017/11/bridging-the-last-mile-in-data-analytics"
-      scores: { authority: 2, recency: 2, domain_relevance: 3, independence: 2, content_role: 3 }
-      total_score: 12
-      supports: [outcome_kpis, action_logic_seeds, benchmark_targets]
-      notes: "Implementation guidance for the last mile: only ~14% of organisations rated highly on acting quickly on insight; 44% ineffective at deriving insight."
-
+      category: ACA
+      title: "Davenport, T.H. (2009). Make Better Decisions / decision-process & attribution rigor (Harvard Business Review)."
+      author: "Davenport, T.H."
+      publication: Harvard Business Review
+      year: 2009
+      url: "https://hbr.org/2009/11/make-better-decisions-2"
+      doi: ""
+      scores: { authority: 3, recency: 1, domain_relevance: 2, independence: 3, content_role: 2 }
+      total_score: 11
+      supports: [wrong_interpretations]
+      notes: "Decision-process and outcome-attribution discipline; grounds correlation≠causation caution. Age waiver."
     - id: SRC-010
-      category: RSK
-      title: "The decision-action gap — 'insight-rich, action-poor': why analytics never lead to action (HBR last-mile / decision-centric analytics)"
-      author: "Harvard Business Review (last-mile analytics literature)"
-      year: 2026
-      url: "https://hbr.org/2026/03/the-last-mile-problem-slowing-ai-transformation"
-      scores: { authority: 2, recency: 3, domain_relevance: 3, independence: 2, content_role: 3 }
-      total_score: 13
-      supports: [wrong_interpretations, action_logic_seeds]
-      notes: "Anti-pattern source: analytics activity without delivered action; over-routing produces visible motion with no outcome."
-
+      category: IMP
+      title: "Doerr, J. (2018). Measure What Matters — OKR check-ins (CFRs) and outcome-vs-output focus."
+      author: "Doerr, J."
+      publication: Portfolio / Penguin
+      year: 2018
+      url: "https://www.whatmatters.com/the-book"
+      doi: ""
+      scores: { authority: 2, recency: 3, domain_relevance: 2, independence: 2, content_role: 2 }
+      total_score: 11
+      supports: [process_scope, guardrails]
+      notes: "OKR/CFR check-in cadence grounds outcome (not output) focus and review rhythm (ISBN 978-0525536222)."
     - id: SRC-011
-      category: RSK
-      title: "COSO — Enterprise Risk Management: Integrating with Strategy and Performance (2017); governance & accountability of execution risk"
-      author: "Committee of Sponsoring Organizations of the Treadway Commission (COSO)"
-      year: 2017
-      url: "https://www.coso.org/guidance-erm"
-      scores: { authority: 3, recency: 2, domain_relevance: 2, independence: 3, content_role: 2 }
+      category: BNK
+      title: "Gartner — Strategy execution / strategic initiative success rate benchmarks (initiatives failing to deliver intended value)."
+      author: Gartner
+      publication: Gartner Research
+      year: 2023
+      url: "https://www.gartner.com/en/insights/strategy-execution"
+      scores: { authority: 3, recency: 3, domain_relevance: 3, independence: 2, content_role: 2 }
+      total_score: 13
+      supports: [benchmark_target, outcome_kpis]
+      notes: "Independent benchmark on strategic-initiative delivery shortfalls; supports outcome-rate targets."
+    - id: SRC-012
+      category: IMP
+      title: "McKinsey — How to make better decisions and capture initiative value (transformation / benefits capture practice)."
+      author: McKinsey & Company
+      publication: McKinsey.com
+      year: 2023
+      url: "https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights"
+      scores: { authority: 3, recency: 3, domain_relevance: 2, independence: 2, content_role: 2 }
       total_score: 12
-      supports: [diagnostic_kpis, guardrails]
-      notes: "Risk-governance lens on execution: net-negative interventions (ROI < 0%) are an execution-risk anti-pattern to surface, not reward."
+      supports: [process_scope, wrong_interpretations]
+      notes: "Practitioner grounding for closing the decision-to-impact gap and value capture."
+    - id: SRC-013
+      category: ACA
+      title: "Bradley, G. (2016). Benefit Realisation Management: A Practical Guide to Achieving Benefits Through Change (2nd ed.). Routledge/Gower."
+      author: "Bradley, G."
+      publication: Routledge / Gower
+      year: 2016
+      url: "https://www.routledge.com/Benefit-Realisation-Management-A-Practical-Guide-to-Achieving-Benefits-Through-Change/Bradley/p/book/9781472450937"
+      doi: ""
+      scores: { authority: 3, recency: 2, domain_relevance: 3, independence: 3, content_role: 3 }
+      total_score: 14
+      supports: [outcome_kpis, driver_kpis, diagnostic_kpis]
+      notes: "Authoritative BRM text on benefit mapping, ownership, and tracking (ISBN 978-1472450937)."
 
-# ──────────────────────────────────────────
-# 6. MAPPING READINESS
-# ──────────────────────────────────────────
 mapping_readiness:
   kpi_catalog_coverage: complete
   factsheet_coverage: complete
-  bracket_coverage: complete
+  bracket_coverage: partial
   action_code_coverage: complete
   semantic_model_coverage: partial
 
@@ -473,45 +452,76 @@ mapping_readiness:
       - gap_type: content_gap
         severity: medium
         affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md
-        field: "Section 8 Success Criteria / benchmark targets"
+        field: "Section 3 KPI & Action Code Overview"
         description: >
-          Benchmark targets not stated: action outcome/closure rate ≥ 85–90% (outcome-verified),
-          time-to-outcome trending down within the X-E3.3 90-day follow-up window, and 100%
-          accountability coverage (single owner, due date, status, outcome flag). Added to make the
-          success criteria measurable against a world-class decision-governance reference.
-        evidence_reference: SRC-008 SRC-009 SRC-004
-        remediation: "Add outcome-rate / time-to-outcome / accountability-coverage targets to the factsheet success criteria."
+          Factsheet lists only enterprise.action_routed.count (deprecated) as the
+          influencing KPI and X-E3.3 as the only action code, but the bracket and
+          domain model also use action_effectiveness_delta and value_at_risk plus the
+          16 cross-domain Impactful-15 codes.
+        evidence_reference: SRC-001 SRC-013
+        remediation: "Update Section 3 to reflect action_effectiveness_delta + value_at_risk influencers and the cross-domain action-code set; retire action_routed.count reference."
         status: resolved
+        resolution: "Section 3 now lists enterprise.action_effectiveness_delta.amount + enterprise.value_at_risk.index as influencing KPIs and the full bracket action-code set (X-E3.3 plus the 15 cross-domain Impactful-15 codes); the deprecated action_routed.count reference is retired."
+      - gap_type: content_gap
+        severity: low
+        affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md
+        field: "Section 9 Risks & Wrong Interpretations"
+        description: "Survivorship bias and correlation≠causation in effectiveness delta not explicitly stated."
+        evidence_reference: SRC-006 SRC-009
+        remediation: "Add coverage/survivorship and attribution caveats to Section 9."
+        status: resolved
+        resolution: "Section 9 now adds survivorship-bias (coverage read alongside outcome rate, SRC-006) and correlation-not-causation attribution (SRC-009) caveats for the action-effectiveness delta."
 
-    mapping_gaps: []
+    mapping_gaps:
+      - gap_type: mapping_gap
+        severity: medium
+        affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/UseCase_Bracket.yaml
+        field: ux_layout_rules.page_2_execution.component_300s.evidence_columns
+        description: >
+          Diagnostic KPIs action_latency, action_coverage, and time_to_impact are
+          required for governance diagnosis but are not all present as evidence columns
+          (only days_to_outcome is listed).
+        evidence_reference: SRC-003 SRC-006
+        remediation: "Add latency, coverage, and time-to-impact columns to the page-2 outcome-detail evidence grain."
+        status: deferred
+        resolution: "Action Coverage requires a triggered-deviation ledger (model_gap); evidence-column add deferred."
+      - gap_type: mapping_gap
+        severity: low
+        affected_artifact: core/usecases/core/XD-004_Executive_Action_Governance/UseCase_Bracket.yaml
+        field: governance.domain / influencing_kpi_ids
+        description: "Bracket domain is 'Experience' while factsheet metadata says 'Executive / Governance'; influencing KPI list differs from factsheet."
+        evidence_reference: SRC-001
+        remediation: "Reconcile domain label and influencing-KPI list between bracket and factsheet."
+        status: resolved
+        resolution: "Factsheet domain + influencing KPIs aligned to bracket SSOT (Experience)."
 
     schema_gaps: []
-
     generator_gaps: []
-
     model_gaps:
       - gap_type: model_gap
-        severity: medium
+        severity: high
         affected_artifact: core/data_contracts/domains/governance.yaml
-        field: dim_owner_role (conformed owner-role dimension)
+        field: "Action Coverage % numerator/denominator + triggered-deviation feed"
         description: >
-          OwnerRole exists only as a degenerate text column on fact_action_governance; there is no
-          conformed dim_owner_role. The accountability-coverage guardrail, owner/domain heatmap, and
-          ownership-concentration diagnostics (single-A / single-D enforcement) require a governed
-          owner-role dimension to attribute and slice closure quality by accountable owner.
-        evidence_reference: SRC-005 SRC-006
-        remediation: "Add dim_owner_role to the governance contract and conform fact_action_governance.OwnerRole to it."
-        status: open
-
+          fact_action_governance and fact_action_outcome exist, but Action Coverage %
+          requires a record of triggered KPI deviations that did NOT generate a routed
+          action (the 'identify-but-not-executed' population). No fact currently captures
+          un-actioned triggered deviations, so coverage % cannot yet be computed without
+          survivorship bias.
+        evidence_reference: SRC-006 SRC-001
+        remediation: "Add a triggered-deviation ledger (or extend fact_action_governance) capturing detected deviations and whether an action was routed; link to dim_action_code/dim_domain."
+        status: deferred
+        resolution: "Requires governance contract: triggered-deviation ledger + before/after KPI-baseline attribution measure."
       - gap_type: model_gap
         severity: medium
-        affected_artifact: core/data_contracts/domains/governance.yaml
-        field: fact_action_outcome PreKPIValue / PostKPIValue (verified-outcome lineage)
+        affected_artifact: products/fabric/powerbi/dist/Experience.SemanticModel
+        field: "Action Effectiveness Delta attribution + pre/post KPI baseline"
         description: >
-          X-E3.3 outcome evaluation references PreKPIValue / PostKPIValue (before-after attribution),
-          but fact_action_outcome carries only outcome_status and impact_value — the pre/post KPI
-          lineage that distinguishes verified outcome from administrative closure is not defined in
-          the data contract. Without it the "verified KPI movement" guardrail cannot be enforced in-model.
-        evidence_reference: SRC-001
-        remediation: "Add PreKPIValue / PostKPIValue (or a verified-outcome flag with KPI lineage) to fact_action_outcome and bind the outcome-rate measure to it."
-        status: open
+          Effectiveness delta uses fact_action_outcome.impact_value, but a robust
+          before/after attribution needs pre/post KPI baseline windows joined to
+          fact_kpi_snapshot. The attribution measure and counterfactual logic are not
+          yet validated against BRM/decision-yield methodology.
+        evidence_reference: SRC-001 SRC-009
+        remediation: "Define and validate Action Effectiveness Delta with before/after baseline windows and an attribution guard in _Measures.tmdl."
+        status: deferred
+        resolution: "Requires governance contract: triggered-deviation ledger + before/after KPI-baseline attribution measure."

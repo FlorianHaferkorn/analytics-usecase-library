@@ -174,7 +174,7 @@ canonical_domain_model:
         found 63% of surveyed plants underestimate speed losses by misclassifying them
         as "acceptable" versus the ISO ideal cycle time.
 
-    - id: quality.scrap.pct
+    - id: ops.scrap.pct
       name: Scrap Rate
       definition: >
         Scrap Rate = Scrapped Units / Total Units. Measures unrecoverable quality loss.
@@ -223,7 +223,7 @@ canonical_domain_model:
         Scrap and FPY from trial runs must NOT inflate the operational quality loss KPIs.
       affected_kpis:
         - ops.quality.pct
-        - quality.scrap.pct
+        - ops.scrap.pct
 
     - description: Force majeure events
       condition: >
@@ -802,11 +802,11 @@ mapping_readiness:
         field: orchestration.supporting_kpi_ids
         description: >
           MTBF (ops.mtbf.hours), MTTR (ops.mttr.hours), PM Compliance (ops.pm_compliance.pct),
-          and Scrap Rate (quality.scrap.pct) exist in the KPI catalog but are NOT listed in
+          and Scrap Rate (ops.scrap.pct) exist in the KPI catalog but are NOT listed in
           supporting_kpi_ids. These are required diagnostic KPIs per the domain model.
         evidence_reference: SRC-008 SRC-010 SRC-001
-        remediation: "Add ops.mtbf.hours, ops.mttr.hours, ops.pm_compliance.pct, quality.scrap.pct to supporting_kpi_ids. Core updated; close gap when DEP status is approved."
-        status: resolved
+        remediation: "Add ops.mtbf.hours, ops.mttr.hours, ops.pm_compliance.pct, ops.scrap.pct to supporting_kpi_ids. Core updated; close gap when DEP status is approved."
+        status: in_progress
 
       - gap_type: content_gap
         severity: high
@@ -817,7 +817,7 @@ mapping_readiness:
           asset_id. These are required dimensions for root cause drill-down per the domain model.
         evidence_reference: SRC-002 SRC-008
         remediation: "Add cause_code, loss_type, maintenance_type, asset to evidence_columns. Core updated; close gap when DEP status is approved."
-        status: resolved
+        status: in_progress
 
       - gap_type: content_gap
         severity: medium
@@ -829,7 +829,7 @@ mapping_readiness:
           ("What is the reliability trend for critical assets?").
         evidence_reference: SRC-002 SRC-010
         remediation: "Add two questions: Six Big Losses Pareto and asset reliability trend. Core updated; close gap when DEP status is approved."
-        status: resolved
+        status: in_progress
 
       - gap_type: content_gap
         severity: medium
@@ -840,7 +840,7 @@ mapping_readiness:
           Performance 95%, Quality 99.9% (ISO 22400 / SMRP reference).
         evidence_reference: SRC-009 SRC-010
         remediation: "Add benchmark targets to Section 8. Core updated; close gap when DEP status is approved."
-        status: resolved
+        status: in_progress
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -854,7 +854,7 @@ mapping_readiness:
           drill-down. This answers the core question "Is OEE on target?" before "Why not?"
         evidence_reference: SRC-004 SRC-012
         remediation: "Change Main_1 kpi_id to ops.oee.pct with comparison: vs_target; move Availability to Main_2. Core updated; close gap when DEP status is approved."
-        status: resolved
+        status: in_progress
 
       - gap_type: mapping_gap
         severity: critical
@@ -871,7 +871,7 @@ mapping_readiness:
           as a grouped bar chart for the current period vs target for each driver.
           Remove ops.throughput.units from this visual.
           Core updated; close gap when DEP status is approved.
-        status: resolved
+        status: in_progress
 
       - gap_type: mapping_gap
         severity: medium
@@ -883,7 +883,7 @@ mapping_readiness:
           ISO 22400-2 defines OEE as a product (×), not a general function f().
         evidence_reference: SRC-001
         remediation: "Update formula to: ops.oee.pct = ops.availability.pct × ops.performance.pct × ops.quality.pct. Core updated; close gap when DEP status is approved."
-        status: resolved
+        status: in_progress
 
     schema_gaps: []
 

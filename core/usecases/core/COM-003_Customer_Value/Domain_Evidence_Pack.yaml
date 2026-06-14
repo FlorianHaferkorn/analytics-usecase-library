@@ -297,7 +297,7 @@ mapping_readiness:
         description: "CLV:CAC ratio benchmark (≥ 3:1) and retention benchmark (85-95% B2B) not stated."
         evidence_reference: SRC-004 SRC-003
         remediation: "Add CLV and retention benchmark targets."
-        status: resolved
+        status: open
 
     mapping_gaps:
       - gap_type: mapping_gap
@@ -307,7 +307,7 @@ mapping_readiness:
         description: "Revenue at risk visual is a domain requirement but may not be in the 30s layer."
         evidence_reference: SRC-001
         remediation: "Verify and add revenue at risk visual slot."
-        status: resolved
+        status: open
 
     schema_gaps: []
     generator_gaps: []
