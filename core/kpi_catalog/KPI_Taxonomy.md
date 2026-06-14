@@ -141,5 +141,30 @@ This document provides a **readable, domain-oriented view** of the KPI Catalog. 
 ## Naming Convention
 
 - **Format:** `domain.topic.metric` (e.g. `sales.net_sales.amount`, `inv.dio.days`).
-- **Domains:** sales, margin, cost, crm, fin, wc, ops, quality, inv, supply, plan, svc, res, people.
+- **Domains (owning prefix):** sales, margin, cost, crm, fin, wc, ops, quality, inv, supply, plan, svc, res, people, enterprise.
 - **Source of truth:** `core/kpi_catalog/KPI_Catalog.md` and schema. This taxonomy is derived and may lag; always validate against the catalog.
+
+### Cross-domain (dual-lens) measures — intentional, not duplicates
+
+Some business concepts are deliberately surfaced as a measure in **more than one domain's
+semantic model** because each domain semantic model (`core/semantic_models/domains/<Domain>/`)
+owns its own measure and a cross-domain scorecard needs a local copy. These are **intentional**
+and must **not** be deleted as "duplicate KPIs" — each id has its own generated measure, dictionary
+entry, and downstream references (action codes, ontology registry, brackets, tests).
+
+| Concept | Primary owner (canonical) | Cross-domain copy | Why the copy exists |
+|---------|---------------------------|-------------------|---------------------|
+| Cash Conversion Cycle | `wc.ccc.days` (Finance / Liquidity, FIN-001 strategic) | `ops.working_capital.ccc.days` (Operations / Efficiency) | consumed by the executive scorecards (XD-003/XD-004) and `enterprise.value_at_risk.index` |
+| On-Time-In-Full | `supply.otif.pct` (Supply Chain) | `ops.otif.pct` (Operations) | operations-lens service reference |
+
+**Rule:** when a metric is needed in another domain's view, reference the **canonical** id where
+possible; only add an explicit, documented domain-scoped copy (as above) when the per-domain
+semantic model genuinely requires its own measure.
+
+### Known prefix outliers (migrate toward canonical over time)
+
+- `scm.*` (e.g. `scm.service_level.pct`, `scm.supplier_risk.score`) overlaps with the canonical
+  Supply-Chain prefix `supply.*` — prefer `supply.*` for new ids.
+- Singular/legacy noun prefixes `shipments.*`, `plans.*`, `order.*` predate the `domain.topic.metric`
+  convention — keep working but avoid for new KPIs.
+
