@@ -85,6 +85,198 @@ culture en-US
 							}
 						]
 					},
+					"dim_cause_code.causecategory": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_cause_code",
+								"ConceptualProperty": "CauseCategory"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"CauseCategory": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Cause Group": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Cause Class": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Ursachenkategorie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_defect_mode.defectcategory": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_defect_mode",
+								"ConceptualProperty": "DefectCategory"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"DefectCategory": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Defect Group": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Defect Class": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Fehlerkategorie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_failure_mode.failuremechanism": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_failure_mode",
+								"ConceptualProperty": "FailureMechanism"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"FailureMechanism": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Failure Mechanism": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Degradation Mechanism": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Schadensmechanismus": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_loss_type.biglosscategory": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_loss_type",
+								"ConceptualProperty": "BigLossCategory"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"BigLossCategory": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Six Big Losses": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Loss Category": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Verlustart": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Verlustkategorie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_loss_type.losspillar": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_loss_type",
+								"ConceptualProperty": "LossPillar"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"LossPillar": {
+									"State": "Generated"
+								}
+							},
+							{
+								"OEE Pillar": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"OEE Component": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"OEE-Komponente": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
 					"dim_org.plant": {
 						"Definition": {
 							"Binding": {
