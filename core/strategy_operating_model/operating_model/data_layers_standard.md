@@ -127,4 +127,24 @@ The template ensures every project has the **same structure** to fill in (dimens
 
 ---
 
+## 8. Sources & Grounding
+
+The layered model in this standard is the industry **medallion (lakehouse) architecture** —
+Bronze (raw) → Silver (validated/conformed) → Gold (consumption-ready) — with a Kimball
+dimensional model at the Gold layer. Grounded in:
+
+- **Medallion lakehouse architecture** (origin of the bronze/silver/gold quality-layer pattern) —
+  Databricks: <https://docs.databricks.com/aws/en/lakehouse/medallion> · Microsoft Learn
+  (Azure Databricks): <https://learn.microsoft.com/en-us/azure/databricks/lakehouse/medallion> ·
+  Microsoft Fabric OneLake:
+  <https://learn.microsoft.com/en-us/fabric/onelake/onelake-medallion-lakehouse-architecture>
+- **Gold-layer dimensional modelling** (star schema, conformed dimensions) — Kimball Group,
+  Dimensional Modeling Techniques:
+  <https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/>
+
+> This framework deliberately *defines Silver* (via data contracts) and *delivers Gold + Semantics*;
+> Staging/Bronze are out of scope unless a project adds them (see §2).
+
+---
+
 **Location:** `core/strategy_operating_model/operating_model/data_layers_standard.md`
