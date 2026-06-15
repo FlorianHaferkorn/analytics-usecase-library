@@ -1,10 +1,38 @@
 # ADR 0001 — Pluggable Validation Backends and Capability Tiers
 
-- **Status:** Proposed
+- **Status:** Proposed — deferred 2026-06-15 (framework not adopted for the current direction; the textbox bugfix it surfaced was kept via PR #308 — see "Status update" below)
 - **Date:** 2026-06-10
 - **Scope:** Power BI / PBIR report authoring and validation tooling
 - **Supersedes:** —
 - **Related:** [`quality-tooling-map.md`](../quality-tooling-map.md), [`README.md`](../README.md)
+
+---
+
+## Status update — 2026-06-15
+
+This proposal was **prototyped end-to-end** in PR #282 (branch
+`claude/youthful-keller-uuj25o`): a Tier-0 `NativeBackend` plus a Tier-1
+`MicrosoftReportAuthorBackend`, the vendored authoring-metadata snapshot, and
+the diagnostics parser — all behind a default-off `PBI_QUALITY_ALLOW_EXTERNAL`
+switch, exactly as designed below.
+
+**Decision: deferred — not adopted for the current direction.** The full
+pluggable-backend framework is heavier surface than the project needs today, so
+PR #282 was **closed unmerged**. (The prototype branch had also fallen ~40k
+lines behind `main`, where a direct merge would have reverted #304–#307.)
+
+The one concrete correctness win the spike surfaced **was kept**: generated
+`textbox` visuals emitted an invalid empty `Data` queryState
+(`PBIR_ROLE_UNKNOWN` — textboxes take no data roles). That fix — the
+`page_builder.py` emitter change plus the deterministic, dependency-free
+no-data-role guard in `visual_validator.py` — was extracted to **PR #308 and
+merged to `main`**, without any of the snapshot/backend machinery.
+
+This ADR is **retained as a parked proposal** so the design is not lost. The
+full prototype remains available on the closed PR #282 /
+`claude/youthful-keller-uuj25o` branch for reference. Revisit by re-extracting
+the framework cleanly off `main` and moving this ADR to `Accepted`, or by
+superseding it with a new ADR.
 
 ---
 
