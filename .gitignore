@@ -96,3 +96,10 @@ drift_report.json
 .cursor/*result*.json
 .cursor/pbi_errors.log
 .pytest_cache/
+
+# Python build artifacts (`python -m build`) — root-anchored so the tracked
+# products/fabric/powerbi/dist/ is never affected
+/build/
+/*.egg-info/
+/dist/*.whl
+/dist/*.tar.gz
