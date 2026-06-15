@@ -1,6 +1,6 @@
 ﻿# Page Templates
 
-This directory defines the **standardized page types** used across the Analytics Use Case Library.
+This directory defines the **standardized page types** used across ALUCA (Analytics Library of Use Cases).
 Page templates are not visual themes or report layouts – they are **decision templates**.
 
 Each page type exists to answer **one specific decision question**.

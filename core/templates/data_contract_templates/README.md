@@ -2,8 +2,8 @@
 
 ## Purpose
 
-These templates define the **standard structure for Data Contracts** used in the
-Analytics Use Case Library.
+These templates define the **standard structure for Data Contracts** used in
+ALUCA (Analytics Library of Use Cases).
 
 Data Contracts specify **what data must look like** to support KPIs, Use Cases,
 and Action Codes — not how data is ingested or transformed.

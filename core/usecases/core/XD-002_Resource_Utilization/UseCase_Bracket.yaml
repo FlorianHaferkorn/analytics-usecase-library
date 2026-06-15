@@ -24,6 +24,10 @@ orchestration:
   - X-R2.2
   - X-R2.3
   - X-R2.4
+primary_kpi_ids:
+  - res.utilization.pct
+  - res.occupancy.pct
+
 value_driver_model:
   formula: res.utilization.pct = f(res.occupancy.pct, svc.sla.attainment.pct, res.overtime.pct, res.shrinkage.pct, svc.backlog.count,
     svc.tickets.created.count)

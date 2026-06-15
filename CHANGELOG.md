@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Analytics Use Case Framework are documented here.
+All notable changes to ALUCA (Analytics Library of Use Cases) are documented here.
 
 ## How to Read This Changelog
 
@@ -19,6 +19,8 @@ The `[1.0.0]` release marks the Lean Core v1.0 consolidation: a production-ready
 ### Added
 
 ### Changed
+
+- **Project rebrand → ALUCA** (Analytics Library of Use Cases). The framework, the distribution package (renamed `analytics-usecase-library` → `aluca`), and the CLI are now branded **ALUCA**; the former internal codename "Lodestar" is retired. Added an `aluca` console entry point (equivalent to `python -m tooling.generator_core`). Documentation headers updated repo-wide. No use-case content, schema `$id`s, or GitHub repository-slug changes.
 
 ### Fixed
 

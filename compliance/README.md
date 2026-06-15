@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains the compliance documentation package for the Analytics Use Case Library, tailored for German market procurement requirements under DSGVO (Datenschutz-Grundverordnung / EU General Data Protection Regulation).
+This directory contains the compliance documentation package for ALUCA (Analytics Library of Use Cases), tailored for German market procurement requirements under DSGVO (Datenschutz-Grundverordnung / EU General Data Protection Regulation).
 
 This package addresses the primary objections from mid-size German customers during procurement: data protection impact assessment, processor agreements, retention policy, and EU hosting guarantees. All documents are designed to be completed collaboratively between the technology team and legal counsel.
 

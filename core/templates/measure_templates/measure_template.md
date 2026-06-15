@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Standardized template for defining **semantic model measures** in the Analytics Use Case Library.
+Standardized template for defining **semantic model measures** in ALUCA (Analytics Library of Use Cases).
 
 This template ensures:
 

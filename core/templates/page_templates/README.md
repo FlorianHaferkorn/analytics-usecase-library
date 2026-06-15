@@ -3,7 +3,7 @@
 > **Canonical UX standards:** [ux_design_system.md](../../strategy_operating_model/operating_model/ux_design_system.md).
 > These templates implement the UX system; they must not redefine layout or interaction principles.
 
-This folder defines the **only allowed page types** for reports built with the Analytics Use Case Library.
+This folder defines the **only allowed page types** for reports built with ALUCA (Analytics Library of Use Cases).
 
 The goal is not design freedom, but **decision clarity, scalability, and reuse**.
 

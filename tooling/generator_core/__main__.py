@@ -1,13 +1,16 @@
 """
-CLI entry point for generator_core.
+ALUCA generator core — CLI entry point.
+
+Preferred invocation is the ``aluca`` console script; ``python -m
+tooling.generator_core`` remains an equivalent alias.
 
 Usage
 -----
-    python -m tooling.generator_core preflight --bracket <path>
-    python -m tooling.generator_core compile   --bracket <path> [--dry-run]
-    python -m tooling.generator_core score     --bracket <path>
-    python -m tooling.generator_core telemetry --stats
-    python -m tooling.generator_core kb        --list [--category tmdl_syntax]
+    aluca preflight --bracket <path>
+    aluca compile   --bracket <path> [--dry-run]
+    aluca score     --bracket <path>
+    aluca telemetry --stats
+    aluca kb        --list [--category tmdl_syntax]
 
 Run from the repo root so that default paths resolve correctly.
 """
@@ -173,8 +176,8 @@ def cmd_kb(args: argparse.Namespace) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        prog="python -m tooling.generator_core",
-        description="Generator Core CLI — compile, preflight, score, telemetry",
+        prog="aluca",
+        description="ALUCA — Analytics Library of Use Cases: compile, preflight, score, telemetry",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 

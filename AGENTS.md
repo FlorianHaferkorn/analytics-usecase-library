@@ -1,4 +1,4 @@
-# Agent Instructions — Analytics Use Case Library
+# Agent Instructions — ALUCA (Analytics Library of Use Cases)
 
 > **Universal entry point for all AI agents** (Claude, Cursor, Copilot, Codex, Aider, …).
 > Tool-specific overrides live alongside their tool's config: Claude → `CLAUDE.md`, Cursor → `.cursor/rules/`.

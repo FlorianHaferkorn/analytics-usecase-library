@@ -1,7 +1,7 @@
 # Layout Grid System — Framework Governance
 #
 # Authority:   This file is the canonical source for all visual positioning,
-# spacing, and grid calculations across the Analytics Use Case Library.
+# spacing, and grid calculations across ALUCA (Analytics Library of Use Cases).
 #
 # Implements:  Design_Spec_3_30_300.md §3 (Canvas & Grid)
 # Aligns with: Storytelling_Principles.md §11 (White Space)

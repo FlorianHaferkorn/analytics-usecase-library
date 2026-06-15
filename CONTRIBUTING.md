@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for considering a contribution to the Analytics Strategy-to-Action Framework.
+Thank you for considering a contribution to ALUCA (Analytics Library of Use Cases) — the Analytics Strategy-to-Action Framework.
 
 > **First time here?** See [`ONBOARDING.md`](ONBOARDING.md) for environment setup, reading order, and a first task. This doc covers the development workflow only.
 

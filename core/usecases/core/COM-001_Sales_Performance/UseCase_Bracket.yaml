@@ -25,6 +25,10 @@ orchestration:
   - C-M2.1
   - C-S1.1
   - C-S1.2
+primary_kpi_ids:
+  - margin.gm.pct
+  - sales.net_sales.amount
+
 value_driver_model:
   formula: margin.gm.pct = f(sales.net_sales.amount, sales.net_sales.delta_pct.plan, sales.net_sales.delta_pct.ly, sales.pvm.price_effect.amount,
     sales.pvm.volume_effect.amount, sales.pvm.mix_effect.amount)

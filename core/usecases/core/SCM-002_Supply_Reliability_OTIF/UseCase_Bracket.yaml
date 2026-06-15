@@ -22,6 +22,10 @@ orchestration:
   - S-R2.3
   - S-R2.4
   - S-R2.5
+primary_kpi_ids:
+  - supply.otif.pct
+  - supply.on_time.pct
+
 value_driver_model:
   formula: supply.otif.pct = f(supply.on_time.pct, supply.in_full.pct, supply.stockout_impact.pct)
   impact_direction: maximize

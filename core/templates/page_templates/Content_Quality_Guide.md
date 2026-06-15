@@ -1,6 +1,6 @@
 # Content Quality Guide — Page Templates
 
-> **Authority:** This document defines content quality standards for all text, labels, and narrative elements in Analytics Use Case Library reports.
+> **Authority:** This document defines content quality standards for all text, labels, and narrative elements in ALUCA (Analytics Library of Use Cases) reports.
 >
 > **Governs:** Visual titles, KPI card labels, Smart Narrative, Action Panel copy, KPI selection criteria.
 >

@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "analytics-usecase-library"
+name = "aluca"
 version = "2.1.0"
-description = "Analytics Strategy-to-Action Framework — Use Case Library"
+description = "ALUCA — Analytics Library of Use Cases: a Strategy-to-Action analytics framework"
 requires-python = ">=3.11"
 dependencies = [
     "pyyaml>=6.0",
@@ -9,6 +13,12 @@ dependencies = [
     "typer>=0.9.0",
     "rich>=13.7.0",
 ]
+
+[project.scripts]
+aluca = "aluca:main"
+
+[tool.setuptools]
+py-modules = ["aluca"]
 
 [tool.pytest.ini_options]
 testpaths = ["tooling/tests", "tooling/generator_core/tests", "products"]
