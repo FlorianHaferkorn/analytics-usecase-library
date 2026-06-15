@@ -27,6 +27,10 @@ orchestration:
   - C-M2.2
   - C-P4.1
   - C-S1.2
+primary_kpi_ids:
+  - margin.gm.pct
+  - margin.gm.amount
+
 value_driver_model:
   formula: margin.gm.pct = f(margin.gm.amount, sales.price.realization_pct, sales.pvm.mix_effect.amount, cost.cogs_per_unit.amount,
     margin.gm.vs_plan.pct)

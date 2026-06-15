@@ -23,6 +23,10 @@ orchestration:
   - O-Q3.3
   - O-Q3.4
   - O-Q3.5
+primary_kpi_ids:
+  - quality.fpy.pct
+  - quality.scrap.pct
+
 value_driver_model:
   formula: quality.fpy.pct = f(quality.scrap.pct, quality.rework.pct, quality.copq.amount, quality.complaint.pct, quality.defect_density)
   impact_direction: maximize

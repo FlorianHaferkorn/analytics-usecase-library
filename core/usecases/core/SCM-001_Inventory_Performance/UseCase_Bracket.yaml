@@ -29,6 +29,10 @@ orchestration:
   - S-I1.3
   - S-I1.4
   - S-I1.5
+primary_kpi_ids:
+  - inv.dio.days
+  - inv.turnover
+
 value_driver_model:
   formula: inv.dio.days = f(inv.turnover, inv.stockout.pct, supply.otif.pct, inv.obsolete.pct, plan.forecast.accuracy.pct)
   impact_direction: minimize

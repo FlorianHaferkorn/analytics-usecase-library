@@ -26,6 +26,10 @@ orchestration:
   - F-K2.2
   - F-K2.3
   - F-K2.4
+primary_kpi_ids:
+  - cost.unit.amount
+  - cost.material.pct
+
 value_driver_model:
   formula: cost.unit.amount = f(margin.cogs.pct, cost.opex.vs_plan.pct, cost.material.pct, ops.labor.productivity.pct, ops.production.volume,
     ops.quality.defect_rate.pct, ops.yield.pct)

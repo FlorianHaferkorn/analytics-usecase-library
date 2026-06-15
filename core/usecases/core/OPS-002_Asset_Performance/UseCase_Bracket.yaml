@@ -24,6 +24,10 @@ orchestration:
   - O-A2.3
   - O-A2.4
   - O-A2.5
+primary_kpi_ids:
+  - ops.mtbf.hours
+  - ops.failure.count
+
 value_driver_model:
   formula: ops.mtbf.hours = f(ops.failure.count, ops.mttr.hours, ops.downtime.unplanned.pct, ops.pm_compliance.pct, ops.spare_parts.stockout.pct,
     ops.availability.pct)
