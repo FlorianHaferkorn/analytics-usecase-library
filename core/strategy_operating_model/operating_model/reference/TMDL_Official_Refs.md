@@ -28,5 +28,42 @@ Purpose: Single place to reference the authoritative Microsoft docs for Tabular 
 
 ---
 
-Last updated: 04.11.2025
+## Sources & Grounding
+
+This document is a **link index** to the authoritative Microsoft documentation for TMDL. The
+"Canon (Microsoft)" links above were each verified to resolve to official `learn.microsoft.com`,
+`marketplace.visualstudio.com`, or `powerbi.microsoft.com` pages. The primary specification and
+the Tabular Object Model (TOM) it serializes are the grounding for everything in this repo's
+TMDL usage:
+
+- **Tabular Model Definition Language (TMDL) — overview & spec** (object types, syntax,
+  indentation, compatibility level, TMDL API) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview>
+- **Get started with TMDL — how-to** (serialize/deserialize via the AMO/TOM `TmdlSerializer`;
+  authoring and deployment) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-how-to>
+- **Tabular Object Model (TOM)** (the object hierarchy that TMDL is fully compatible with — every
+  TMDL object exposes the same properties as TOM) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/analysis-services/tom/introduction-to-the-tabular-object-model-tom-in-analysis-services-amo>
+- **Work with TMDL view in Power BI Desktop** (code-first editing inside Desktop — the basis for
+  the "Desktop is preview/canvas-only" policy) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-tmdl-view>
+- **Power BI project (PBIP) semantic model folder** (where TMDL lives in a PBIP `definition/`
+  folder) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset>
+- **TMDL Visual Studio Code extension (official, `analysis-services.TMDL`)** (language service +
+  diagnostics) — Visual Studio Marketplace:
+  <https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL>
+- **TMDL view — General Availability announcement** (reference) — Microsoft Power BI Blog:
+  <https://powerbi.microsoft.com/en-us/blog/tmdl-view-generally-available/>
+
+> All links verified to resolve as official Microsoft sources. Note: the GA-announcement link
+> in the Canon list above uses the `de-de` locale; the equivalent `en-us` post is the same
+> article. The `view=sql-analysis-services-2025` query parameter on the Canon links pins the
+> docs to a specific Analysis Services version and is optional (the unversioned URLs above
+> resolve to the current version).
+
+---
+
+Last updated: 15.06.2026
 

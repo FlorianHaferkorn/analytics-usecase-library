@@ -64,3 +64,38 @@ AI-first operations are safe only if the framework remains:
 
 Reference: `ai_readiness.md` and the Core Constitution.
 
+---
+
+## Sources & Grounding
+
+The AI-first operating model in this document — AI performs mechanical work under gates, while
+humans approve semantic changes and production actions — aligns with established MLOps/LLMOps
+automation practices (CI/CD, continuous training, pipeline-driven deployment) and with the
+human-in-the-loop pattern for agentic workflows. Grounded in:
+
+- **MLOps automation** (CI/CD and continuous training/delivery via ML pipelines; maturity levels
+  that motivate the gate-driven, PR-first, reproducible workflow here) — Google Cloud,
+  *MLOps: Continuous delivery and automation pipelines in machine learning*:
+  <https://cloud.google.com/architecture/mlops-continuous-delivery-and-automation-pipelines-in-machine-learning>
+- **MLOps on Azure** (DevOps-based model lifecycle: reproducible pipelines, deployment, monitoring,
+  and end-to-end lineage that underpin the required gates and audit events) — Microsoft Learn,
+  *MLOps: Model management, deployment, and monitoring with Azure Machine Learning*:
+  <https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-management-and-deployment> ·
+  *MLOps Maturity Model* (Azure Architecture Center):
+  <https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/mlops-maturity-model>
+- **Human-in-the-loop & agentic workflows** (predefined checkpoints where an agent pauses for human
+  review/approval before continuing — the basis for "semantics require humans" and "autopilot with
+  human approval") — Google Cloud, *Choose a design pattern for your agentic AI system*
+  (human-in-the-loop pattern):
+  <https://cloud.google.com/architecture/choose-design-pattern-agentic-ai-system> ·
+  *Multi-agent AI system on Google Cloud*:
+  <https://cloud.google.com/architecture/multiagent-ai-system>
+- **AI risk governance** (auditability, accountability, and human oversight as binding controls
+  that justify the non-negotiable gates and logged, reproducible AI actions) — NIST AI Risk
+  Management Framework (AI RMF 1.0): <https://www.nist.gov/itl/ai-risk-management-framework>
+
+> This document defines binding guardrails for *operating* the framework with AI; it does not
+> introduce new business meaning. The cited MLOps/agentic sources motivate *how* AI automates
+> mechanical work safely under gates, not the framework's specific KPI/Action-Code/contract
+> semantics, which remain human-owned (see "Core policy").
+

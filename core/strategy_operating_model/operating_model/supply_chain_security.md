@@ -68,3 +68,32 @@ For every operation (install/update/build/validate/deploy), emit immutable audit
 - IR: `tooling/ir/`
 - Adapter manifest schema: `products/adapters/adapter_manifest.schema.json`
 
+---
+
+## Sources & Grounding
+
+The supply-chain controls in this standard — signed artifacts, build provenance/attestation,
+SBOMs, and secure-development practices — mirror the prevailing industry frameworks for
+software supply-chain integrity. Grounded in:
+
+- **SLSA (Supply-chain Levels for Software Artifacts)** (build-track levels, provenance, and
+  attestation that underpin the "signed artifacts" + "SBOM + provenance" requirements) —
+  official specification: <https://slsa.dev/spec/v1.0/levels> · OpenSSF project page:
+  <https://openssf.org/projects/slsa/>
+- **NIST SSDF, SP 800-218** (Secure Software Development Framework — the secure-build and
+  least-privilege practices behind this standard) — NIST CSRC:
+  <https://csrc.nist.gov/pubs/sp/800/218/final>
+- **SBOM (Software Bill of Materials)** (the "SBOM reference" requirement, including the NTIA
+  minimum-elements lineage) — CISA: <https://www.cisa.gov/sbom>
+- **CycloneDX** (OWASP / Ecma ECMA-424 SBOM format accepted by this standard) —
+  <https://cyclonedx.org/> · **SPDX** (Linux Foundation / ISO/IEC 5962 SBOM format accepted by
+  this standard) — <https://spdx.dev/>
+- **Sigstore** (keyless signing + transparency log, the reference toolchain for "signed and
+  verified" artifacts) — <https://www.sigstore.dev/>
+- **OpenSSF (Open Source Security Foundation)** (umbrella for SLSA, Sigstore, and supply-chain
+  best practices) — <https://openssf.org/>
+
+> These are external reference frameworks. This document remains a **binding internal operating
+> standard**: where a framework offers options, the requirements above (signing, SBOM+provenance,
+> least privilege, auditability) are the enforced floor for this repository.
+

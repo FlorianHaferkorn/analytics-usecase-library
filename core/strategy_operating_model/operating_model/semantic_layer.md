@@ -140,3 +140,15 @@ When applied consistently, the semantic layer ensures that:
 - and action-oriented analytics remains interpretable and governed.
 
 The semantic layer enables decision intelligence by providing structure, not control.
+
+---
+
+## Sources & Grounding
+
+The "semantic layer" / "metrics layer" concept — a single governed place where business meaning and metric definitions live once and are consumed consistently across tools — is an established industry pattern. The structural standards in this document (star schema, conformed dimensions, measures over calculated columns, governed metadata) are grounded in the following primary sources:
+
+- **Semantic data model** (organizing data to reflect its business meaning and relationships, maintaining consistency) — Gartner Information Technology Glossary: <https://www.gartner.com/en/information-technology/glossary/semantic-data-model>
+- **Microsoft tabular / TMDL semantic model** (the governed semantic model in which measures, dimensions, and relationships are defined once) — Microsoft Learn, Power BI semantic models / TMDL: <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview> · <https://learn.microsoft.com/en-us/fabric/data-warehouse/semantic-models>
+- **dbt Semantic Layer (MetricFlow)** (define metrics once, as code, and serve them consistently to every downstream tool) — dbt Developer Hub: <https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-sl> · <https://docs.getdbt.com/docs/build/about-metricflow>
+- **Star-schema modelling: facts at explicit grain, conformed shared dimensions** — Kimball Group, Dimensional Modeling Techniques: <https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/> · Conformed Dimensions: <https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/conformed-dimension/>
+- **Business logic via measures, not calculated columns** (measures are context-dependent calculations; the recommended place for analytical/business logic) — Microsoft Learn, Measures in tabular models: <https://learn.microsoft.com/en-us/analysis-services/tabular-models/measures-ssas-tabular>

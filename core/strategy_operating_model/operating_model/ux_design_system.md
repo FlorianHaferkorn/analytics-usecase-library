@@ -100,3 +100,36 @@ When applied consistently, the UX Design System ensures that:
 
 The UX Design System enables action by reducing cognitive friction, not by adding visual complexity.
 
+## 8. Sources & Grounding
+
+The normative standards in this document draw on established design-system practice,
+data-visualization research, and accessibility standards. The minimalism, hierarchy,
+and consistency principles align with **Tufte/Few** data-visualization research and
+**Munzner's** task-and-channel framework; the layout-token and component approach
+aligns with mature **design systems** (Material Design, design tokens); the density,
+contrast, and navigation standards align with **WCAG** accessibility requirements.
+Grounded in:
+
+- **Material Design 3 — design systems and design tokens** (platform-agnostic style
+  tokens for color, typography, spacing; basis for layout, density, and component
+  standardization) — Google Material Design: <https://m3.material.io/> · Design
+  tokens overview: <https://m3.material.io/foundations/design-tokens/overview>
+- **Data-visualization best practice — minimalism and visual hierarchy** (erase
+  non-data ink; at-a-glance design; basis for the minimalism and hierarchy
+  principles) — Edward Tufte, *The Visual Display of Quantitative Information*:
+  <https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/> ·
+  Stephen Few, Perceptual Edge: <https://www.perceptualedge.com/library.php>
+- **Visualization Analysis and Design — task/channel framework** (matching visual
+  encodings to analytical tasks; basis for choosing chart types and the no-pie /
+  100% stacked-bar guardrails) — Tamara Munzner (UBC):
+  <https://www.cs.ubc.ca/~tmm/vadbook/>
+- **WCAG (Web Content Accessibility Guidelines) 2.2** (perceivable contrast, visible
+  state, predictable navigation; basis for the accessibility and density standards) —
+  W3C Web Accessibility Initiative: <https://www.w3.org/TR/WCAG22/> · WCAG 2 overview:
+  <https://www.w3.org/WAI/standards-guidelines/wcag/>
+
+> This document operationalizes — it does not redefine — the reporting principles in
+> [reporting_principles.md](../company/reporting_principles.md), which carry their own
+> grounding (IBCS, Tufte, Few). Customer branding and tool-specific configuration are
+> intentionally out of scope (see §6).
+

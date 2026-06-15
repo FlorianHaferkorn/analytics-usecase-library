@@ -158,3 +158,32 @@ When domains are applied consistently:
 
 Domains provide the structural backbone for scalable, governed analytics.
 
+---
+
+## Sources & Grounding
+
+The domain model in this document — business-driven, stable boundaries with explicit
+ownership, broader than a use case but narrower than company strategy, with each use case
+belonging to exactly one primary domain — is a business-capability decomposition grounded
+in **Domain-Driven Design** and the **data mesh** notion of domain ownership. The scope/
+boundary and "owns meaning, not pipelines" rules mirror DDD bounded contexts and data-mesh
+domain ownership. Grounded in:
+
+- **Domain-Driven Design** (subdomains, bounded contexts, ubiquitous language; decomposition
+  by business capability rather than technical layer) — Eric Evans, *Domain-Driven Design:
+  Tackling Complexity in the Heart of Software* (2003), DDD Reference (CC BY 4.0):
+  <https://www.domainlanguage.com/wp-content/uploads/2016/05/DDD_Reference_2015-03.pdf> ·
+  DDD Resources: <https://www.domainlanguage.com/ddd/>
+- **Domain analysis / business-capability decomposition** (designing around business
+  capabilities, identifying subdomains and bounded contexts, aligning team ownership to
+  domain boundaries) — Microsoft Azure Architecture Center:
+  <https://learn.microsoft.com/en-us/azure/architecture/microservices/model/domain-analysis>
+- **Data mesh — domain ownership** (domain-oriented decentralized data ownership, built on
+  Evans' domain-driven design; domains own analytical data as a product) — Zhamak Dehghani,
+  *Data Mesh Principles and Logical Architecture* (martinfowler.com):
+  <https://martinfowler.com/articles/data-mesh-principles.html>
+
+> This framework's domains are **business constructs for ownership and governance**, not
+> technical layers: a Domain Owner owns KPI meaning, prioritization and interpretation — not
+> ingestion, pipelines, tooling or report development (see §6) — consistent with DDD's
+> "owns the model" and data mesh's domain-ownership principle.

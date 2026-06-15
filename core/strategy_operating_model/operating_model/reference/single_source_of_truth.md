@@ -103,4 +103,26 @@ Use relative links where possible.
   - Validation tooling starts using a different canonical reference.
 - Review SSOT in every release candidate / customer-ready milestone.
 
+---
 
+## Sources & Grounding
+
+The "one authoritative location per concept" principle in this document — the single source
+of truth / system of record, the golden record for shared business data, and the contract-based
+definition of each canonical artifact — is grounded in the established data-management
+literature and standards:
+
+- **Single source of truth / system of record** (one authoritative, consistent source for a
+  given data element; "golden record") — DAMA International, DAMA-DMBOK (Data Management Body of
+  Knowledge): <https://dama.org/learning-resources/dama-data-management-body-of-knowledge-dmbok/>
+- **Master Data Management (MDM)** (managing shared, critical reference/master data to provide a
+  single source of truth across systems; a DAMA knowledge area) — DAMA International, DAMA-DMBOK:
+  <https://dama.org/learning-resources/dama-data-management-body-of-knowledge-dmbok/> · concept
+  overview, DAMA-DMBOK framework: <https://www.damadmbok.org/copy-of-about-dama-dmbok>
+- **Data contracts** (formal, machine-readable agreement defining schema, grain, keys, quality
+  expectations between producer and consumer) — Open Data Contract Standard (ODCS), a Bitol /
+  Linux Foundation AI & Data project: <https://bitol.io/> · specification:
+  <https://bitol-io.github.io/open-data-contract-standard/v3.0.1/home/>
+
+> This document defines *where* each concept canonically lives; it does not define the business
+> content itself (that stays in the referenced artifacts — see Scope).

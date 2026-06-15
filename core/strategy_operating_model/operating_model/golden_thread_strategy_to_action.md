@@ -350,3 +350,42 @@ AI can support identification, reuse, and creation of artifacts within the defin
 
 As a result, the Golden Thread remains stable, understandable, and scalable over time.
 
+---
+
+## Sources & Grounding
+
+The Golden Thread is an opinionated synthesis, but its core mechanics — translating strategy
+into a small set of steering KPIs, linking those KPIs through cause-and-effect logic to
+decisions and actions, and closing the loop back to execution — are grounded in established
+strategy-execution and performance-management frameworks:
+
+- **Balanced Scorecard** (translating strategy into a balanced set of objectives and measures
+  across perspectives; the origin of "Strategic KPIs that must be actively steered") — Kaplan &
+  Norton, *The Balanced Scorecard—Measures That Drive Performance*, Harvard Business Review
+  (1992): <https://hbr.org/2005/07/the-balanced-scorecard-measures-that-drive-performance> ·
+  Harvard Business School Faculty & Research:
+  <https://www.hbs.edu/faculty/Pages/item.aspx?num=9161>
+- **Strategy Maps** (the cause-and-effect "line of sight" linking strategic objectives to
+  measurable outcomes — the conceptual basis for the Golden Thread's Strategy → KPI → Use Case →
+  Action chain) — Kaplan & Norton, *Having Trouble with Your Strategy? Then Map It*, Harvard
+  Business Review (2000): <https://hbr.org/2000/09/having-trouble-with-your-strategy-then-map-it> ·
+  *Strategy Maps: Converting Intangible Assets into Tangible Outcomes*, Harvard Business School
+  Press (2004): <https://www.hbs.edu/faculty/Pages/item.aspx?num=15760>
+- **Strategy-to-execution / closing the formulation–execution gap** (most organizations fail at
+  executing strategy, not formulating it — the problem the Golden Thread addresses) — Kaplan &
+  Norton, *The Execution Premium: Linking Strategy to Operations for Competitive Advantage*,
+  Harvard Business School Press (2008): <https://www.hbs.edu/faculty/Pages/item.aspx?num=31707>
+- **Objectives and Key Results (OKRs)** (cascading a small set of objectives into measurable key
+  results so intent becomes steerable — parallels the Strategic KPI → Key Question logic) —
+  Andy Grove (origin at Intel) and John Doerr, *Measure What Matters*; What Matters OKR origin
+  story: <https://www.whatmatters.com/articles/the-origin-story> · OKR definition:
+  <https://www.whatmatters.com/faqs/okr-meaning-definition-example>
+- **3-30-300 reporting principle** (the layered 3s/30s/300s report hierarchy in §6) — SQLBI
+  (Marco Russo), *Introducing the 3-30-300 rule for better reports*, which paraphrases
+  Shneiderman's visual information-seeking mantra:
+  <https://www.sqlbi.com/articles/introducing-the-3-30-300-rule-for-better-reports/>
+
+> The Golden Thread combines these methodologies into a single closed loop
+> (signal → decision → action → outcome → learning); the framework's specific artifacts
+> (Use Cases, Action Codes, KPI Catalog, Semantic Model) are this repo's own constructs.
+

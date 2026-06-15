@@ -95,3 +95,33 @@ When AI readiness is established:
 - and productivity increases without loss of control.
 
 AI readiness enables scale by making structure consumable, not by automating decisions.
+
+---
+
+## 7. Sources & Grounding
+
+The AI-readiness principles in this document — grounding over generation, quality before
+assistance, enforced security and auditability, and documented guardrails — align with
+recognized AI risk-management and responsible-AI frameworks, and with industry guidance on
+preparing data and analytics for AI consumption. Grounded in:
+
+- **AI risk management** (Govern–Map–Measure–Manage functions; trustworthy-AI characteristics
+  including validity, security, accountability, transparency, and privacy that underpin the
+  quality, security, and guardrail principles here) — NIST AI Risk Management Framework
+  (AI RMF 1.0): <https://www.nist.gov/itl/ai-risk-management-framework> ·
+  publication: <https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10> ·
+  NIST AI Resource Center (AI RMF Core): <https://airc.nist.gov/airmf-resources/airmf/5-sec-core/>
+- **Responsible AI standards** (binding goals and requirements for accountability, transparency,
+  privacy, and security that mirror this document's security and guardrail principles) —
+  Microsoft Responsible AI principles and Standard:
+  <https://www.microsoft.com/en-us/ai/principles-and-approach>
+- **AI-ready data** (data readiness as a precondition for reliable AI; quality, metadata, and
+  governance underpinning the "quality precedes assistance" principle) — Gartner, *AI-Ready Data
+  Essentials to Capture AI Value*: <https://www.gartner.com/en/articles/ai-ready-data> ·
+  Gartner, *Lack of AI-Ready Data Puts AI Projects at Risk*:
+  <https://www.gartner.com/en/newsroom/press-releases/2025-02-26-lack-of-ai-ready-data-puts-ai-projects-at-risk>
+
+> This document does not introduce new analytical meaning; it makes existing, governed structure
+> reliably consumable by assisted analytics, copilots, and agents (see §1). The cited frameworks
+> motivate *why* grounding, quality, security, and guardrails are mandatory, not the framework's
+> specific KPI/Action-Code definitions.

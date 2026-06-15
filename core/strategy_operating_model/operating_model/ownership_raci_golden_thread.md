@@ -62,3 +62,33 @@ No layer may redefine meaning owned by another layer (e.g. use cases do not defi
 - **Stage 1 and validation:** `AGENTS.md`, `tooling/run_stage1_checks.ps1`
 
 This document defines **who** owns each layer; the other documents define **what** and **how**.
+
+---
+
+## 6. Sources & Grounding
+
+The ownership model in this document applies the **RACI responsibility-assignment matrix**
+(Responsible, Accountable, Consulted, Informed) to the Golden Thread, combined with the
+data-management concepts of **data ownership and stewardship** and the governance principle
+that accountability is single and explicit. Grounded in:
+
+- **RACI / Responsibility Assignment Matrix** (R/A/C/I roles; A is a single point of
+  accountability) — Project Management Institute (PMI), "Roles, responsibilities, and
+  resources":
+  <https://www.pmi.org/learning/library/best-practices-managing-people-quality-management-7012>
+- **Data ownership & stewardship** (data owners, data stewards, governance roles and
+  responsibilities) — DAMA International, *Data Management Body of Knowledge* (DAMA-DMBOK®):
+  <https://dama.org/learning-resources/dama-data-management-body-of-knowledge-dmbok/> ·
+  DAMA International, "What is Data Management?":
+  <https://dama.org/about-dama/what-is-data-management/>
+- **Accountability in governance** (distinguishing governance accountability from management
+  responsibility; RACI applied per practice) — ISACA, COBIT (Control Objectives for
+  Information and Related Technologies): <https://www.isaca.org/resources/cobit>
+
+> This framework uses **role-based** (not person-named) ownership so it survives
+> reorganizations, and enforces a single **Accountable (A)** per layer so drift can be traced
+> back to one owner (see §2–§4).
+
+---
+
+**Location:** `core/strategy_operating_model/operating_model/ownership_raci_golden_thread.md`

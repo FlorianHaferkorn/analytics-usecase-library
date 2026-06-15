@@ -233,3 +233,35 @@ Use this checklist to confirm a domain is ready for Level 4 transition:
 - [ ] Domain Lead and Business Owner named in use case metadata
 - [ ] RACI for the domain exists in `ownership_raci_golden_thread.md`
 - [ ] Action codes presented to and accepted by domain leadership
+
+---
+
+## Sources & Grounding
+
+The five-level model in this document is an action-oriented adaptation of established
+**analytics and data-management maturity models**. The progression from descriptive
+reporting through diagnostic, decision-oriented use cases, action codes and measured
+learning mirrors the industry maturity frameworks below; the rubric dimensions
+(KPI governance, semantic model and data-contract maturity, governance/learning loop)
+draw on the data-management maturity literature. Grounded in:
+
+- **Gartner Analytic Ascendancy Model** (the descriptive → diagnostic → predictive →
+  prescriptive progression of increasing analytic value) and **Gartner Data & Analytics
+  Maturity Assessment** — Gartner:
+  <https://www.gartner.com/en/data-analytics/research/data-analytics-maturity-score> ·
+  <https://www.gartner.com/en/data-analytics/topics/data-analytics-strategy>
+- **TDWI Analytics Maturity Model** (five phases: Nascent, Early, Established, Mature,
+  Advanced/Visionary, scored across multiple dimensions) — Fern Halper / TDWI,
+  Analytics Maturity Model Assessment Guide:
+  <https://tdwi.org/research/2023/03/ppm-all-tdwi-analytics-maturity-model-guide.aspx> ·
+  <https://go.tdwi.org/rs/626-EMC-557/images/TDWI_Analytics-Maturity-Model-Assessment-Guide_2020.pdf>
+- **DAMA-DMBOK** (the body of knowledge that defines the data-management practice areas a
+  maturity assessment scores) — DAMA International:
+  <https://dama.org/learning-resources/dama-data-management-body-of-knowledge-dmbok/>
+- **CMMI Data Management Maturity (DMM) Model** (a capability-maturity reference model for
+  data management used to score the data-foundation dimensions) — ISACA / CMMI Institute:
+  <https://cmmiinstitute.com/company>
+
+> This framework's levels are deliberately **action-centric** (Levels 4–5 add action codes,
+> closed-loop execution and measured impact) rather than purely analytic-capability stages;
+> the maturity models above inform the lower levels and the self-assessment rubric (§6).
