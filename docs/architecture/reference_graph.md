@@ -6,8 +6,9 @@
 ## Coverage
 
 - Use cases: **16**  (evidence packs: 16/16, factsheets: 16/16)
-- KPIs in catalog: **127**  — reachable from use cases: **120**, on roadmap (planned.yaml): 12, orphan: **1**
-- Action codes: **65**  — reachable: **52**, orphan: **13**
+- KPIs in catalog: **127**  — reachable: **122**, roadmap (planned.yaml): 12, orphan: **0**
+- Action codes: **52**  — reachable: **52**, orphan: **0**
+- Decision spines: **13**  — use-case-mapped: **13**, unmapped: **0**
 
 ## Integrity (must be empty)
 
@@ -35,24 +36,16 @@
 | XD-003 | 27 | 1 | ✓ | executive.yaml |
 | XD-004 | 68 | 16 | ✓ | governance.yaml |
 
-## Orphans (not reachable from any use case; review for Phase 3)
+## Orphans (not reachable from any use case; review)
 
 **KPIs** (excludes planned.yaml roadmap):
 
-- `fin.liquidity.payables.amount`
+_none_
 
 **Action codes:**
 
-- `DEC-SPINE-COM-CUSTOMER_VALUE`
-- `DEC-SPINE-COM-PRICE_MARGIN`
-- `DEC-SPINE-FIN-COST`
-- `DEC-SPINE-FIN-LIQUIDITY`
-- `DEC-SPINE-OPS-ASSET`
-- `DEC-SPINE-OPS-PERFORMANCE`
-- `DEC-SPINE-OPS-QUALITY`
-- `DEC-SPINE-SCM-FORECAST`
-- `DEC-SPINE-SCM-INVENTORY`
-- `DEC-SPINE-SCM-OTIF`
-- `DEC-SPINE-XD-EXEC`
-- `DEC-SPINE-XD-RESOURCE`
-- `DEC-SPINE-XD-SERVICE`
+_none_
+
+**Decision spines (unmapped):**
+
+_none_

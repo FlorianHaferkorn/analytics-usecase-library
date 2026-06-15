@@ -3,13 +3,14 @@
 
 Use cases are the content root. From the 16 use cases we walk:
   use_case --(bracket)--> KPIs, action_codes, data_contract
-  action_code --(use_case_links / kpis)--> use_cases, KPIs
+  action_code --(use_case_links / kpis / nested metric_kpi_id)--> use_cases, KPIs
+  decision_spine --(DecisionSpine_UseCase_Map / nested metric_kpi_id)--> use_cases, KPIs
   KPI --(depends_on_measures)--> KPIs        (transitive)
   KPI --(technical.lineage)--> fact.Column   (data contract)
 
-Anything in the catalog/action-code/contract families that is NOT reachable from a
-use case (and not on the planned.yaml roadmap) is an *orphan* candidate. Anything a
-use case or action code references that does NOT exist is a *dangling* reference.
+Anything in the catalog/action-code families NOT reachable from a use case (and not on
+the planned.yaml roadmap) is an *orphan* candidate. Anything a use case / action code /
+decision spine references that does NOT exist is a *dangling* reference.
 
 Usage:
   python tooling/reference_graph.py            # write docs/architecture/reference_graph.md
@@ -26,6 +27,7 @@ REPO = Path(__file__).resolve().parents[1]
 UC_DIR = REPO / "core/usecases/core"
 KPI_DIR = REPO / "core/kpi_catalog/kpis"
 AC_DIR = REPO / "core/action_codes"
+SPINE_DIR = AC_DIR / "decision_spines"
 PLANNED = REPO / "core/kpi_catalog/planned.yaml"
 REPORT = REPO / "docs/architecture/reference_graph.md"
 
@@ -37,32 +39,64 @@ def _load(p: Path) -> dict:
         return {}
 
 
+def _collect(obj, key: str) -> list:
+    """All string values stored under `key`, anywhere in a nested dict/list."""
+    out = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k == key and isinstance(v, str):
+                out.append(v)
+            else:
+                out += _collect(v, key)
+    elif isinstance(obj, list):
+        for x in obj:
+            out += _collect(x, key)
+    return out
+
+
 def build():
-    g: dict = {"use_cases": {}, "kpis": {}, "action_codes": {}}
+    g: dict = {"use_cases": {}, "kpis": {}, "action_codes": {}, "decision_spines": {}}
 
     # --- KPI catalog ---
-    kpi_files = {p.stem: _load(p) for p in KPI_DIR.glob("*.yaml") if p.name != "_index.yaml"}
-    for kid, d in kpi_files.items():
-        g["kpis"][kid] = {
+    for p in KPI_DIR.glob("*.yaml"):
+        if p.name == "_index.yaml":
+            continue
+        d = _load(p)
+        g["kpis"][p.stem] = {
             "depends_on": list((d.get("technical") or {}).get("depends_on_measures") or []),
             "lineage": list((d.get("technical") or {}).get("lineage") or []),
-            "use_case_ref": list(d.get("use_case_ref") or []),
         }
     planned = {e.get("kpi_id") for e in (_load(PLANNED) if PLANNED.exists() else []) if isinstance(e, dict)}
 
-    # --- action codes (skip *_business_case.yaml; key by id) ---
+    # --- action codes (exclude decision_spines/ and *_business_case.yaml) ---
     for p in AC_DIR.rglob("*.yaml"):
-        if p.name.endswith("_business_case.yaml"):
+        if p.name.endswith("_business_case.yaml") or SPINE_DIR in p.parents:
             continue
         d = _load(p)
         acid = d.get("id")
         if not acid:
             continue
-        links = (d.get("use_case_links") or {})
-        kpis = (d.get("kpis") or {})
+        links = d.get("use_case_links") or {}
+        kp = d.get("kpis") or {}
+        kpis = list(kp.get("trigger_kpis") or []) + list(kp.get("guardrail_kpis") or []) + list(kp.get("outcome_kpis") or [])
+        kpis += _collect(d, "metric_kpi_id")  # nested guardrail / escalation-level refs
         g["action_codes"][acid] = {
             "use_cases": list(links.get("core_use_cases") or []) + list(links.get("related_use_cases") or []),
-            "kpis": list(kpis.get("trigger_kpis") or []) + list(kpis.get("guardrail_kpis") or []) + list(kpis.get("outcome_kpis") or []),
+            "kpis": sorted(set(kpis)),
+        }
+
+    # --- decision spines (own family; linked via DecisionSpine_UseCase_Map.yaml) ---
+    spine_map = (_load(SPINE_DIR / "DecisionSpine_UseCase_Map.yaml").get("decision_spines") or {}) if SPINE_DIR.exists() else {}
+    for p in SPINE_DIR.glob("*.yaml") if SPINE_DIR.exists() else []:
+        if p.name == "DecisionSpine_UseCase_Map.yaml":
+            continue
+        d = _load(p)
+        sid = d.get("id")
+        if not sid:
+            continue
+        g["decision_spines"][sid] = {
+            "use_cases": list((spine_map.get(sid) or {}).get("use_cases") or []),
+            "kpis": sorted(set(_collect(d, "metric_kpi_id"))),
         }
 
     # --- use cases (brackets) ---
@@ -87,9 +121,11 @@ def build():
     uc = g["use_cases"]
     reach_ac = {a for u in uc.values() for a in u["action_codes"]}
     reach_ac |= {acid for acid, a in g["action_codes"].items() if set(a["use_cases"]) & set(uc)}
+    reach_spine = {sid for sid, s in g["decision_spines"].items() if set(s["use_cases"]) & set(uc)}
+
     reach_kpi = {k for u in uc.values() for k in u["kpis"]}
     reach_kpi |= {k for acid in reach_ac for k in g["action_codes"].get(acid, {}).get("kpis", [])}
-    # expand transitively through depends_on_measures
+    reach_kpi |= {k for sid in reach_spine for k in g["decision_spines"].get(sid, {}).get("kpis", [])}
     frontier = set(reach_kpi)
     while frontier:
         nxt = set()
@@ -101,15 +137,19 @@ def build():
 
     catalog = set(g["kpis"])
     all_ac = set(g["action_codes"])
-    referenced_kpi = {k for u in uc.values() for k in u["kpis"]} | {k for a in g["action_codes"].values() for k in a["kpis"]}
+    referenced_kpi = ({k for u in uc.values() for k in u["kpis"]}
+                      | {k for a in g["action_codes"].values() for k in a["kpis"]}
+                      | {k for s in g["decision_spines"].values() for k in s["kpis"]})
     referenced_ac = {a for u in uc.values() for a in u["action_codes"]}
 
     return g, dict(
         planned=planned,
         reach_kpi=reach_kpi & catalog,
         reach_ac=reach_ac & all_ac,
+        reach_spine=reach_spine,
         orphan_kpi=sorted(catalog - reach_kpi - planned),
         orphan_ac=sorted(all_ac - reach_ac),
+        orphan_spine=sorted(set(g["decision_spines"]) - reach_spine),
         dangling_kpi=sorted(referenced_kpi - catalog),
         dangling_ac=sorted(referenced_ac - all_ac),
         catalog=catalog, all_ac=all_ac,
@@ -126,8 +166,9 @@ def render(g, a) -> str:
          "## Coverage",
          "",
          f"- Use cases: **{len(uc)}**  (evidence packs: {sum(u['has_evidence_pack'] for u in uc.values())}/{len(uc)}, factsheets: {sum(u['has_factsheet'] for u in uc.values())}/{len(uc)})",
-         f"- KPIs in catalog: **{len(a['catalog'])}**  — reachable from use cases: **{len(a['reach_kpi'])}**, on roadmap (planned.yaml): {len(a['planned'])}, orphan: **{len(a['orphan_kpi'])}**",
+         f"- KPIs in catalog: **{len(a['catalog'])}**  — reachable: **{len(a['reach_kpi'])}**, roadmap (planned.yaml): {len(a['planned'])}, orphan: **{len(a['orphan_kpi'])}**",
          f"- Action codes: **{len(a['all_ac'])}**  — reachable: **{len(a['reach_ac'])}**, orphan: **{len(a['orphan_ac'])}**",
+         f"- Decision spines: **{len(g['decision_spines'])}**  — use-case-mapped: **{len(a['reach_spine'])}**, unmapped: **{len(a['orphan_spine'])}**",
          "",
          "## Integrity (must be empty)",
          "",
@@ -141,11 +182,13 @@ def render(g, a) -> str:
     for uid in sorted(uc):
         u = uc[uid]
         L.append(f"| {uid} | {len(u['kpis'])} | {len(u['action_codes'])} | {'✓' if u['has_evidence_pack'] else '—'} | {(u['data_contract'] or '').split('/')[-1]} |")
-    L += ["", "## Orphans (not reachable from any use case; review for Phase 3)", "",
+    L += ["", "## Orphans (not reachable from any use case; review)", "",
           "**KPIs** (excludes planned.yaml roadmap):", "",
           "\n".join(f"- `{k}`" for k in a["orphan_kpi"]) or "_none_", "",
           "**Action codes:**", "",
-          "\n".join(f"- `{k}`" for k in a["orphan_ac"]) or "_none_", ""]
+          "\n".join(f"- `{k}`" for k in a["orphan_ac"]) or "_none_", "",
+          "**Decision spines (unmapped):**", "",
+          "\n".join(f"- `{k}`" for k in a["orphan_spine"]) or "_none_", ""]
     return "\n".join(L)
 
 
@@ -163,7 +206,7 @@ def main(argv):
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(render(g, a), encoding="utf-8")
     print(f"wrote {REPORT.relative_to(REPO)}")
-    print(f"  orphans: {len(a['orphan_kpi'])} KPI, {len(a['orphan_ac'])} action code; "
+    print(f"  orphans: {len(a['orphan_kpi'])} KPI, {len(a['orphan_ac'])} action code, {len(a['orphan_spine'])} spine; "
           f"dangling: {len(a['dangling_kpi'])} KPI, {len(a['dangling_ac'])} AC")
     return 0
 
