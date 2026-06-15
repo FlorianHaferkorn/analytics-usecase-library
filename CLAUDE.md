@@ -1,4 +1,4 @@
-# Claude-Specific Agent Instructions — Analytics Use Case Library
+# Claude-Specific Agent Instructions — ALUCA (Analytics Library of Use Cases)
 
 > **Read [`AGENTS.md`](AGENTS.md) first.** It contains the complete, universal rules for all agents.
 > This file contains **only Claude Code–specific additions** that override or extend AGENTS.md.

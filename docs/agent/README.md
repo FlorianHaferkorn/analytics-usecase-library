@@ -1,6 +1,6 @@
 # Agent Rules and Skills (Canonical Location)
 
-This directory is the **single source of truth (SSOT)** for all agent rules and skills used in the Analytics Use Case Library. Tool-specific configurations (`.cursor/`, `.github/`, etc.) are **generated** from these canonical files.
+This directory is the **single source of truth (SSOT)** for all agent rules and skills used in ALUCA (Analytics Library of Use Cases). Tool-specific configurations (`.cursor/`, `.github/`, etc.) are **generated** from these canonical files.
 
 ## Structure
 

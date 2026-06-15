@@ -1,7 +1,7 @@
 # Taxonomy Reference
 
 This document defines the naming conventions, ID schemes, and domain structure
-used across the Analytics Strategy-to-Action Framework.
+used across ALUCA (Analytics Library of Use Cases).
 
 ## Domain Prefixes
 

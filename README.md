@@ -1,6 +1,6 @@
-# Analytics Strategy-to-Action Framework
+# ALUCA — Analytics Library of Use Cases
 
-A pragmatic, scalable framework to translate **business strategy into action-ready analytics**.
+> **ALUCA** (**A**nalytics **L**ibrary of **U**se **CA**ses) — a pragmatic, scalable Strategy-to-Action framework to translate **business strategy into action-ready analytics**.
 
 This repository provides a complete, enterprise-grade blueprint to move from
 **strategic objectives → KPIs → insights → decisions → actions** — consistently and sustainably.

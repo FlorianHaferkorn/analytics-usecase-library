@@ -1,6 +1,6 @@
 # Vendor Continuity Dossier
 
-**Purpose:** Enable a new engineer, a customer, or an escrow agent to operate and regenerate the Analytics Strategy-to-Action Framework without the original team.
+**Purpose:** Enable a new engineer, a customer, or an escrow agent to operate and regenerate ALUCA (Analytics Library of Use Cases) without the original team.
 
 This dossier provides everything needed to:
 - Understand the system architecture and critical dependencies

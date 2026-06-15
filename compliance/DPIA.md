@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-This Data Protection Impact Assessment (DPIA) evaluates the processing of personal data within the Analytics Use Case Library platform. The purpose of this document is to identify, assess, and mitigate privacy and data protection risks arising from analytics processing, reporting, and action-code execution workflows.
+This Data Protection Impact Assessment (DPIA) evaluates the processing of personal data within the ALUCA (Analytics Library of Use Cases) platform. The purpose of this document is to identify, assess, and mitigate privacy and data protection risks arising from analytics processing, reporting, and action-code execution workflows.
 
 ⚠️ TO BE COMPLETED BY LEGAL: Add a summary of the overall privacy risk level (low / moderate / high) and whether further consultation with the supervisory authority (Datenschutzbehörde) is required under Art. 36 DSGVO.
 
@@ -17,7 +17,7 @@ This Data Protection Impact Assessment (DPIA) evaluates the processing of person
 
 ## 2. Scope of Processing
 
-The Analytics Use Case Library is a multi-tenant data analytics platform that enables organizations to:
+ALUCA is a multi-tenant data analytics platform that enables organizations to:
 
 - Ingest event data and transaction records (potentially containing personal identifiers)
 - Execute machine-readable action codes that reference users and outcomes
