@@ -64,6 +64,142 @@ culture en-US
 							}
 						]
 					},
+					"dim_promo.promo_name": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_promo",
+								"ConceptualProperty": "Promo Name"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Promo Name": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Promotion": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Campaign Name": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_promo.promo_type": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_promo",
+								"ConceptualProperty": "Promo Type"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Promo Type": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Promotion Type": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_promo.promo_mechanic": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_promo",
+								"ConceptualProperty": "Promo Mechanic"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Promo Mechanic": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Mechanic": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Offer Mechanic": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"fact_promo.promo_cost_amount": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "fact_promo",
+								"ConceptualProperty": "Promo Cost Amount"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Promo Cost Amount": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Promo Cost": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Trade Spend": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"fact_promo.incremental_gm_amount": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "fact_promo",
+								"ConceptualProperty": "Incremental GM Amount"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Incremental GM Amount": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Incremental Gross Margin Amount": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
 					"fact_sales.net_sales_amount": {
 						"Definition": {
 							"Binding": {

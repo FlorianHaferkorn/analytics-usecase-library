@@ -60,9 +60,9 @@ dimension:
     columns:
       - {name: PromoKey, type: int, role: key}
       - {name: Promo Name, type: text, synonyms: [Promotion, Campaign Name]}
-      - {name: Promo Type, type: text, nullable: true, description: "Promotional mechanic family for comparison.", allowed_values: [TPR, Display, Feature, "Feature+Display", BOGO, Bundle], synonyms: [Promotion Type, Mechanic Type]}
-      - {name: Mechanic, type: text, nullable: true, description: "Specific offer mechanic applied within the promo type."}
-      - {name: Discount Depth Band, type: text, nullable: true, description: "Banded discount depth for elasticity comparison.", allowed_values: ["0-10%", "10-20%", "20-30%", "30%+"], synonyms: [Depth Band, Discount Band]}
+      - {name: Promo Type, type: text, nullable: true, description: "Promotion type family.", allowed_values: [Bundle, "Multi-buy", Discount, "None"], synonyms: [Promotion Type]}
+      - {name: Promo Mechanic, type: text, nullable: true, description: "Specific offer mechanic applied.", allowed_values: [FixedPrice, MultiBuy, PercentOff, "None"], synonyms: [Mechanic, Offer Mechanic]}
+      - {name: "Discount %", type: decimal, nullable: true, description: "Promotion discount depth as a fraction (0-1)."}
       - {name: Start Date, type: date, nullable: true}
       - {name: End Date, type: date, nullable: true}
 
