@@ -55,7 +55,7 @@ def _collect(obj, key: str) -> list:
 
 
 def build():
-    g: dict = {"use_cases": {}, "kpis": {}, "action_codes": {}, "decision_spines": {}}
+    g: dict = {"use_cases": {}, "kpis": {}, "action_codes": {}, "decision_spines": {}, "measures": {}}
 
     # --- KPI catalog ---
     for p in KPI_DIR.glob("*.yaml"):
@@ -67,6 +67,15 @@ def build():
             "lineage": list((d.get("technical") or {}).get("lineage") or []),
         }
     planned = {e.get("kpi_id") for e in (_load(PLANNED) if PLANNED.exists() else []) if isinstance(e, dict)}
+
+    # --- semantic measures: only the structured measure.kpi_id_ref -> KPI edge ---
+    # (registry + view drift are enforced separately by test_measure_dictionary_files;
+    #  fuzzy measure->measure prose deps are deliberately NOT modelled — they'd make the gate flaky)
+    for p in (REPO / "core/semantic_models").rglob("measures/*.yaml"):
+        d = _load(p)
+        if not isinstance(d, dict) or "measure_name" not in d:
+            continue
+        g["measures"][p.stem] = {"kpi_id_ref": (d.get("kpi_id_ref") or "").strip()}
 
     # --- action codes (exclude decision_spines/ and *_business_case.yaml) ---
     for p in AC_DIR.rglob("*.yaml"):
@@ -137,6 +146,7 @@ def build():
 
     catalog = set(g["kpis"])
     all_ac = set(g["action_codes"])
+    backed_kpis = {m["kpi_id_ref"] for m in g["measures"].values() if m["kpi_id_ref"]}
     referenced_kpi = ({k for u in uc.values() for k in u["kpis"]}
                       | {k for a in g["action_codes"].values() for k in a["kpis"]}
                       | {k for s in g["decision_spines"].values() for k in s["kpis"]})
@@ -152,6 +162,9 @@ def build():
         orphan_spine=sorted(set(g["decision_spines"]) - reach_spine),
         dangling_kpi=sorted(referenced_kpi - catalog),
         dangling_ac=sorted(referenced_ac - all_ac),
+        dangling_measure_kpi=sorted(backed_kpis - catalog),
+        kpis_without_measure=sorted((reach_kpi & catalog) - backed_kpis),
+        n_measures=len(g["measures"]), n_backed=len(backed_kpis & catalog),
         catalog=catalog, all_ac=all_ac,
     )
 
@@ -169,11 +182,13 @@ def render(g, a) -> str:
          f"- KPIs in catalog: **{len(a['catalog'])}**  — reachable: **{len(a['reach_kpi'])}**, roadmap (planned.yaml): {len(a['planned'])}, orphan: **{len(a['orphan_kpi'])}**",
          f"- Action codes: **{len(a['all_ac'])}**  — reachable: **{len(a['reach_ac'])}**, orphan: **{len(a['orphan_ac'])}**",
          f"- Decision spines: **{len(g['decision_spines'])}**  — use-case-mapped: **{len(a['reach_spine'])}**, unmapped: **{len(a['orphan_spine'])}**",
+         f"- Semantic measures: **{a['n_measures']}**  — backing a catalog KPI: **{a['n_backed']}** (registry/drift gated by `test_measure_dictionary_files`)",
          "",
          "## Integrity (must be empty)",
          "",
          f"- Dangling KPI references (used but not in catalog): **{a['dangling_kpi'] or 'none'}**",
          f"- Dangling action-code references (used but missing): **{a['dangling_ac'] or 'none'}**",
+         f"- Measures backing a non-existent KPI (dangling): **{a['dangling_measure_kpi'] or 'none'}**",
          "",
          "## Per use case",
          "",
@@ -188,7 +203,9 @@ def render(g, a) -> str:
           "**Action codes:**", "",
           "\n".join(f"- `{k}`" for k in a["orphan_ac"]) or "_none_", "",
           "**Decision spines (unmapped):**", "",
-          "\n".join(f"- `{k}`" for k in a["orphan_spine"]) or "_none_", ""]
+          "\n".join(f"- `{k}`" for k in a["orphan_spine"]) or "_none_", "",
+          "## Reachable KPIs with no backing measure (review — not a gate)", "",
+          "\n".join(f"- `{k}`" for k in a["kpis_without_measure"]) or "_none_", ""]
     return "\n".join(L)
 
 
@@ -200,6 +217,8 @@ def main(argv):
             problems.append(f"dangling KPI refs: {a['dangling_kpi']}")
         if a["dangling_ac"]:
             problems.append(f"dangling action-code refs: {a['dangling_ac']}")
+        if a["dangling_measure_kpi"]:
+            problems.append(f"measures backing non-existent KPIs: {a['dangling_measure_kpi']}")
         if problems:
             print("REFERENCE GRAPH FAIL:\n  " + "\n  ".join(problems)); return 1
         print("reference graph OK — no dangling references"); return 0
@@ -207,7 +226,8 @@ def main(argv):
     REPORT.write_text(render(g, a), encoding="utf-8")
     print(f"wrote {REPORT.relative_to(REPO)}")
     print(f"  orphans: {len(a['orphan_kpi'])} KPI, {len(a['orphan_ac'])} action code, {len(a['orphan_spine'])} spine; "
-          f"dangling: {len(a['dangling_kpi'])} KPI, {len(a['dangling_ac'])} AC")
+          f"dangling: {len(a['dangling_kpi'])} KPI, {len(a['dangling_ac'])} AC, {len(a['dangling_measure_kpi'])} measure; "
+          f"measures: {a['n_measures']} ({a['n_backed']} KPI-backing); KPIs w/o measure: {len(a['kpis_without_measure'])}")
     return 0
 
 

@@ -34,6 +34,9 @@ def test_no_dangling_references():
     assert not a["dangling_ac"], (
         f"use cases reference action codes that do not exist: {a['dangling_ac']}"
     )
+    assert not a["dangling_measure_kpi"], (
+        f"semantic measures back KPIs missing from the catalog: {a['dangling_measure_kpi']}"
+    )
 
 
 def test_reference_graph_report_in_sync():
