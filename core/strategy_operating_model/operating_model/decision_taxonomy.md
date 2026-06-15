@@ -65,3 +65,35 @@ Use case metadata can optionally include `decision_type: [Diagnose, Intervene]` 
 - **3-30-300:** Steer often maps to 3-second layer; Diagnose to 30-second; Intervene and detail to 300-second.
 - **Golden Thread:** Key Questions → Use Cases → Actions; decision types tag the use case layer for clarity.
 - **Optional:** Add `decision_type` to Business Factsheet template and schema if tooling or AI should filter by type.
+
+---
+
+## 6. Sources & Grounding
+
+The decision types in this taxonomy describe *how* analytics supports decisions. They are
+grounded in the industry **analytics-capability spectrum** (descriptive → diagnostic →
+predictive → prescriptive), the discipline of **Decision Intelligence**, and established
+**decision-making frameworks** that match a decision to its context and its accountable roles.
+Grounded in:
+
+- **Analytics-capability spectrum & Decision Intelligence** (descriptive → diagnostic →
+  predictive → prescriptive analytics; data-driven decision making) — Gartner, Data &
+  Analytics: <https://www.gartner.com/en/topics/data-and-analytics>
+- **Prescriptive analytics** (answers "What should be done?" — the basis of the *Intervene*
+  decision type) — Gartner Information Technology Glossary:
+  <https://www.gartner.com/en/information-technology/glossary/prescriptive-analytics>
+- **Cynefin framework** (matching the decision response to its context: simple/obvious,
+  complicated, complex, chaotic, disorder) — David J. Snowden & Mary E. Boone, "A Leader's
+  Framework for Decision Making," Harvard Business Review, November 2007:
+  <https://hbr.org/2007/11/a-leaders-framework-for-decision-making>
+- **RAPID® decision-making framework** (clarifying decision roles — Recommend, Agree,
+  Perform, Input, Decide) — Bain & Company:
+  <https://www.bain.com/insights/rapid-decision-making/>
+
+> This taxonomy maps each decision type to the analytics capability that supports it
+> (e.g. *Diagnose* ↔ diagnostic analytics, *Forecast* ↔ predictive analytics, *Intervene* ↔
+> prescriptive analytics) and links to the Golden Thread and action codes (see §3–§5).
+
+---
+
+**Location:** `core/strategy_operating_model/operating_model/decision_taxonomy.md`

@@ -399,3 +399,37 @@ measure 'Action Outcome Rate % (XD Log)' = ...
 
 **End of Allowed Subset**
 
+---
+
+## Sources & Grounding
+
+This document defines a **team-chosen subset** of the official Tabular Model Definition Language
+(TMDL) and the Tabular Object Model (TOM) it serializes. The object types, properties, data
+types, indentation/`:`/`=` rules, partition modes, and relationship semantics referenced here are
+governed by Microsoft's official specification; the *restrictions and policies* (mandatory
+descriptions, naming/format conventions, allowed `dataType` whitelist) are this repo's own
+narrowing. Grounded in:
+
+- **Tabular Model Definition Language (TMDL) — overview & spec** (object declaration, the `:`
+  property delimiter vs. `=` expression delimiter, whitespace/tab indentation rules, casing,
+  folder structure — the basis for §3–§7 and the style rules) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview>
+- **TMDL Reference — Objects overview** (1:1 mapping of every TMDL property to its TOM property —
+  the basis for the `dataType`, `formatString`, `summarizeBy`, `sortByColumn`, `isHidden`
+  properties in §5–§6) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-reference-tabular-object>
+- **Tabular Object Model (TOM)** (the model → table → column/measure/relationship object
+  hierarchy that this subset constrains) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/analysis-services/tom/introduction-to-the-tabular-object-model-tom-in-analysis-services-amo>
+- **Work with TMDL view in Power BI Desktop** (the preview/canvas + code-first authoring model
+  underlying the "Desktop is preview/canvas-only; authoring happens in TMDL" scope note) —
+  Microsoft Learn: <https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-tmdl-view>
+- **Power BI Desktop project (PBIP) semantic model folder** (the `definition/` TMDL folder layout
+  — `model.tmdl`, `tables/`, `relationships.tmdl`, `database.tmdl` — assumed by this repo's PBIP
+  structure) — Microsoft Learn:
+  <https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset>
+
+> The links above are the **authoritative spec**. Where this document is stricter than TMDL
+> (e.g. "descriptions mandatory", a closed `dataType` whitelist, EU format strings), those are
+> **deliberate team policies layered on top of** the official language, not part of it.
+

@@ -157,3 +157,29 @@ When applied consistently, these principles ensure that reporting:
 
 These principles define the non-negotiable decision quality of reporting.
 
+## 12. Sources & Grounding
+
+The decision-quality criteria in this document draw on established standards and
+literature for business communication and analytical data presentation. The
+actionability, consistency, and notation principles align with the **IBCS SUCCESS**
+rules; the cognitive-simplicity and transparency principles align with the work of
+**Edward Tufte** and **Stephen Few** on minimizing non-data ink and designing for
+at-a-glance comprehension. Grounded in:
+
+- **IBCS (International Business Communication Standards) — SUCCESS rules** (semantic
+  notation, visual integrity, information density, clutter avoidance; basis for the
+  consistency and variance-notation principles) — IBCS Association:
+  <https://www.ibcs.com/standards/> · IBCS overview: <https://www.ibcs.com/IBCS/>
+- **Edward Tufte — graphical excellence and the data-ink ratio** ("show the data";
+  erase non-data ink; basis for cognitive simplicity) — *The Visual Display of
+  Quantitative Information*, Edward Tufte:
+  <https://www.edwardtufte.com/book/the-visual-display-of-quantitative-information/>
+- **Stephen Few — dashboard design for decision support** (at-a-glance monitoring,
+  avoiding decoration; basis for the actionability and clarity principles) —
+  Perceptual Edge (library of articles): <https://www.perceptualedge.com/library.php>
+
+> These are presentation and communication standards. This framework adds the
+> decision-and-action layer (Action Codes, Use Cases) on top of them; where this
+> document and an external standard differ, the principles in this document take
+> precedence (see §10).
+

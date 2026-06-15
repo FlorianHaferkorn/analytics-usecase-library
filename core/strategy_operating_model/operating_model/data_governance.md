@@ -220,3 +220,28 @@ When applied consistently, data governance ensures that:
 - and compliance requirements are met without slowing delivery.
 
 Data governance enables scale by protecting trust, not by enforcing control.
+
+---
+
+## Sources & Grounding
+
+The governance model in this document — explicit ownership, measurable data quality,
+least-privilege security, lineage/traceability, and change-impact awareness — is grounded
+in the established bodies of knowledge and standards for data management and IT governance:
+
+- **Data management framework & knowledge areas** (data governance, data quality, security,
+  metadata/lineage as DAMA knowledge areas) — DAMA International, DAMA-DMBOK (Data Management
+  Body of Knowledge): <https://dama.org/learning-resources/dama-data-management-body-of-knowledge-dmbok/>
+- **Governance and management of enterprise IT** (governance vs. management separation,
+  governance objectives) — ISACA, COBIT 2019: <https://www.isaca.org/resources/cobit>
+- **Corporate governance of information technology** (board/executive accountability for IT;
+  responsibility, strategy, conformance principles) — ISO/IEC 38500:2024, Governance of IT for
+  the organization: <https://www.iso.org/standard/81684.html>
+- **Data quality** (measurable quality expectations, completeness, accuracy) — ISO 8000-1:2022,
+  Data quality — Part 1: Overview: <https://www.iso.org/standard/81745.html>
+- **Personal data protection** (classification and explicit handling of personally identifiable
+  and sensitive data; least-privilege access) — Regulation (EU) 2016/679 (GDPR), official
+  consolidated text on EUR-Lex: <https://eur-lex.europa.eu/eli/reg/2016/679/oj/eng>
+
+> Governance here safeguards analytical *meaning, quality, and trust*; it does not define
+> strategy or KPIs (see §1). Enforcement is automated via the Registry Engine and CI gates (§8).
