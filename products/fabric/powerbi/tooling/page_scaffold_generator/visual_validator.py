@@ -187,9 +187,9 @@ def validate_visual(
     # 2. queryState roles
     visual_type = inner.get("visualType", "")
     expected_roles = VISUAL_TYPE_ROLES.get(visual_type)
+    query_state = inner.get("query", {}).get("queryState", {})
+    actual_roles = set(query_state.keys())
     if expected_roles is not None:
-        query_state = inner.get("query", {}).get("queryState", {})
-        actual_roles = set(query_state.keys())
         # "Data" role is only valid for card-type visuals
         if "Data" in actual_roles and visual_type not in ("cardVisual", "card", "multiRowCard"):
             errors.append(
@@ -202,9 +202,14 @@ def validate_visual(
                 f"Visual '{name}' ({visual_type}): missing queryState roles {sorted(missing)}. "
                 f"Has: {sorted(actual_roles)}"
             )
-    elif expected_roles is None:
-        # Visuals like textbox should not have queryState with data roles
-        pass
+    else:
+        # No-data-role visuals (textbox, shape, image, actionButton) must not carry a
+        # data queryState -- it is invalid per the official metadata (PBIR_ROLE_UNKNOWN).
+        if query_state:
+            errors.append(
+                f"Visual '{name}' ({visual_type}): has queryState roles "
+                f"{sorted(actual_roles)} but '{visual_type}' takes no data roles. Remove the query."
+            )
 
     # 3. Folder-safe name (no commas, colons, backslash, slash)
     if _UNSAFE_NAME_CHARS.search(name):

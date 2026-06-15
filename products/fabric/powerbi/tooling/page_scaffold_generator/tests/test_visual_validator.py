@@ -186,6 +186,32 @@ class TestValidatorDetectsErrors:
         errors = validate_visual(visual, canvas_width=1920, canvas_height=1080)
         assert any("exceeds canvas" in e for e in errors), f"Should detect out-of-bounds: {errors}"
 
+    def test_detects_data_role_on_textbox(self):
+        """A textbox carrying a data queryState should fail (PBIR_ROLE_UNKNOWN)."""
+        bad_visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "ActionPanel",
+            "position": {"x": 0, "y": 0, "z": 10000, "height": 300, "width": 400, "tabOrder": 3000},
+            "visual": {
+                "visualType": "textbox",
+                "query": {"queryState": {"Data": {"projections": []}}},
+                "objects": {},
+            },
+        }
+        errors = validate_visual(bad_visual)
+        assert any("takes no data roles" in e for e in errors), f"Should reject queryState on textbox: {errors}"
+
+    def test_accepts_textbox_without_query(self):
+        """A textbox with no query is valid."""
+        visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "SmartNarrative",
+            "position": {"x": 0, "y": 0, "z": 10000, "height": 300, "width": 400, "tabOrder": 3000},
+            "visual": {"visualType": "textbox", "objects": {}},
+        }
+        errors = validate_visual(visual)
+        assert not any("takes no data roles" in e for e in errors), f"Plain textbox should pass: {errors}"
+
 
 class TestValidatePage:
     """Verify page-level validation aggregates visual errors."""
