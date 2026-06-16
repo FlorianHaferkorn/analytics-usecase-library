@@ -1,0 +1,59 @@
+---
+last-reviewed: 2026-06-16
+shelf-life-days: 90
+---
+# Architektur — Zentraler Anlaufpunkt (_INDEX)
+
+> **Einstieg in die Architektur-Ebene.** Ein neuer Chat/Agent liest **zuerst diese
+> Datei** und navigiert von hier gezielt weiter — **nicht** den ganzen Ordner.
+> Entscheidungen leben in den ADRs (`adr/`), Belege in `prior-art-…`, offene Punkte
+> im Ledger unten — nicht verstreut im Fließtext.
+
+| Feld | Wert |
+|---|---|
+| Stand | 2026-06-16 |
+| Rolle | L0-Navigation der Architektur-Ebene |
+| ADR-Liste | `adr/README.md` (chronologischer Index der Decision Records) |
+
+---
+
+## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
+
+| Deine Aufgabe ist … | Lies (in dieser Reihenfolge) | NICHT nötig |
+|---|---|---|
+| Agent-Skills/Tools integrieren (offiziell-first) | `adr/0002-official-first-agent-integration-and-guided-workflow.md` → `../agent/guided-agent-development-workflow.md` | Migration |
+| Aktivierung/Onboarding + Capability-Gating | `adr/0003-customer-activation-and-capability-gating.md` → `../agent/capability-manifest.md` | ADR-0001 |
+| Validierungs-Backends / Capability-Tiers verstehen | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | ADR-0002/0003, Migration |
+| Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
+| Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
+| Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
+
+Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
+
+---
+
+## 2. Dokument-Register (jede `*.md` im Bereich — Drift-Gate)
+
+| Doc | Zweck | Lies-wenn |
+|---|---|---|
+| `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | ADR: pluggable Validation-Backends + Capability-Tiers (Status: deferred) | Validierungsstrategie |
+| `adr/0002-official-first-agent-integration-and-guided-workflow.md` | ADR: official-first Agent-Integration + GADW (Proposed) | Agent-Integration |
+| `adr/0003-customer-activation-and-capability-gating.md` | ADR: Customer-Activation + Capability-Gating (Proposed) | Aktivierung/Onboarding |
+| `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
+| `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
+| `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
+| `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
+
+<!-- Ausgenommen (EXEMPT_FILES): README.md, adr/README.md, NAVIGATION_PHILOSOPHY.md.
+     check_index.py erzwingt: jede nicht-exempte *.md im Subtree ist hier gelistet. -->
+
+---
+
+## 3. Offene Punkte (Ledger — hier abhaken, NICHT im Fließtext)
+
+| ID | Punkt | Status | Datum |
+|---|---|---|---|
+| A-1 | ADR-0002/0003 reviewen + Reihenfolge mergen (#312) | offen | 2026-06-16 |
+| A-2 | Build-vs-buy: eigener `docs/agent`-Generator vs. `ruler`/`rulesync` (ADR-0002) | offen | 2026-06-16 |
+| A-3 | `docs/agent/` auf `_INDEX.md`-Navigation heben (Kollision mit `_index.yaml` klären) | offen | 2026-06-16 |
+| A-4 | Diesen Index in `CLAUDE.md`-Routing als Pflicht-Erstkontakt für Architektur-Aufgaben verlinken | offen | 2026-06-16 |
