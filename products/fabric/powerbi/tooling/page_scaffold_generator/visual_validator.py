@@ -14,7 +14,21 @@ from typing import Dict, Any, List, Optional
 # Mapping: Power BI visualType -> required queryState roles.
 # Charts need Category+Y (or X+Y for scatter), tables need Values, cards use Data.
 # None means no queryState required (e.g. textbox).
-VISUAL_TYPE_ROLES: Dict[str, Optional[set]] = {
+#
+# The authoritative source is the vendored authoring-metadata snapshot captured
+# from Microsoft's official CLI (ADR 0001). _FALLBACK_ROLES below is the
+# pure-Python floor used verbatim when the snapshot is unavailable; the snapshot
+# overlays it for every type except the documented local-policy deviations.
+
+# Defensive import: in contexts without the repo root on sys.path (e.g. the
+# generator's own unit tests) this is skipped and the fallback table is used.
+try:
+    from tooling.report_quality import authoring_metadata as _authoring_metadata
+except Exception:  # pragma: no cover - import-context dependent
+    _authoring_metadata = None
+
+
+_FALLBACK_ROLES: Dict[str, Optional[set]] = {
     "lineChart": {"Category", "Y"},
     "areaChart": {"Category", "Y"},
     "waterfallChart": {"Category", "Y"},
@@ -41,6 +55,45 @@ VISUAL_TYPE_ROLES: Dict[str, Optional[set]] = {
     "image": None,
     "slicer": {"Values"},
 }
+
+# Intentional local deviations from Microsoft's official requiredRoles. These keys
+# keep their _FALLBACK_ROLES value and are NOT overwritten by the snapshot:
+#   clusteredColumnChart -> {Y}            (Category optional: PVM decomposition view)
+#   pivotTable           -> {Rows, Values} (stricter than official {Values})
+#   card / multiRowCard  -> {Data}         (legacy cards driven like cardVisual)
+#   stacked* / funnelChart                 (absent from the official catalogue v0.1.1)
+_LOCAL_ROLE_POLICY = frozenset({
+    "clusteredColumnChart",
+    "pivotTable",
+    "card",
+    "multiRowCard",
+    "stackedBarChart",
+    "stackedColumnChart",
+    "funnelChart",
+})
+
+
+def _build_visual_type_roles() -> Dict[str, Optional[set]]:
+    """Snapshot-sourced role table with documented local deviations and a floor.
+
+    Equals _FALLBACK_ROLES exactly today (the snapshot agrees for every non-policy
+    type -- guarded by tests); sourcing it from the snapshot keeps it in sync with
+    the official metadata and makes drift detectable.
+    """
+    table: Dict[str, Optional[set]] = dict(_FALLBACK_ROLES)
+    am = _authoring_metadata
+    if am is None or not am.is_available():
+        return table
+    for visual_type in table:
+        if visual_type in _LOCAL_ROLE_POLICY:
+            continue  # keep the deliberate local value
+        required = set(am.required_roles(visual_type))
+        if required:  # snapshot knows this type -> use the authoritative roles
+            table[visual_type] = required
+    return table
+
+
+VISUAL_TYPE_ROLES: Dict[str, Optional[set]] = _build_visual_type_roles()
 
 # ─── Slot whitelist ───────────────────────────────────────────────────────────
 
@@ -175,7 +228,7 @@ def validate_visual(
     if "$schema" not in visual:
         errors.append(f"Visual '{name}': missing $schema")
     if "name" not in visual:
-        errors.append(f"Visual: missing 'name' field")
+        errors.append("Visual: missing 'name' field")
     pos = visual.get("position", {})
     for field in ("x", "y", "height", "width"):
         if field not in pos:
@@ -202,6 +255,17 @@ def validate_visual(
                 f"Visual '{name}' ({visual_type}): missing queryState roles {sorted(missing)}. "
                 f"Has: {sorted(actual_roles)}"
             )
+        # Authoritative unknown-role check (ADR 0001): flag roles that are not valid
+        # for this visual type per the official metadata snapshot. Skipped when the
+        # snapshot is unavailable or does not cover this type (local-only types).
+        if _authoring_metadata is not None and _authoring_metadata.is_available():
+            known_roles = set(_authoring_metadata.roles(visual_type))
+            unknown_roles = actual_roles - known_roles
+            if known_roles and unknown_roles:
+                errors.append(
+                    f"Visual '{name}' ({visual_type}): unknown queryState roles "
+                    f"{sorted(unknown_roles)} (valid roles: {sorted(known_roles)})."
+                )
     else:
         # No-data-role visuals (textbox, shape, image, actionButton) must not carry a
         # data queryState -- it is invalid per the official metadata (PBIR_ROLE_UNKNOWN).

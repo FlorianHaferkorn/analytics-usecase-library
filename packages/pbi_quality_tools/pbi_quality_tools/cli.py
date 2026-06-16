@@ -134,6 +134,7 @@ def _doctor(pbip_root: Path) -> int:
         from tooling.report_quality.cli import validate  # type: ignore[import]
         from tooling.report_quality.pbir import iter_report_dirs  # type: ignore[import]
         from tooling.report_quality.models import violations_summary  # type: ignore[import]
+        from tooling.report_quality.backends import active_tier, tier_report  # type: ignore[import]
     except ImportError as e:
         print(f"ERROR importing report_quality: {e}", file=sys.stderr)
         return 2
@@ -148,6 +149,9 @@ def _doctor(pbip_root: Path) -> int:
 
     print(f"pbi-quality doctor: {pbip_root}")
     print(f"  Reports found : {len(reports)}")
+    print(f"  Active tier   : {active_tier()}")
+    for status in tier_report():
+        print(f"    {status}")
     print(f"  Critical      : {summ['critical']}")
     print(f"  Warning       : {summ['warning']}")
     print(f"  Info          : {summ['info']}")
