@@ -31,6 +31,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Index drift-gate (_INDEX.md completeness)
+        run: python3 scripts/check_index.py --strict
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
