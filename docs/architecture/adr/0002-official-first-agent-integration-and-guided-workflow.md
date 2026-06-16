@@ -4,7 +4,7 @@
 - **Date:** 2026-06-16
 - **Scope:** Agent skills/tools strategy; how ALUCA consumes first-party vendor agent tooling
 - **Supersedes:** —
-- **Related:** [`0001-pluggable-validation-backends-and-capability-tiers.md`](0001-pluggable-validation-backends-and-capability-tiers.md), [`0003-customer-activation-and-capability-gating.md`](0003-customer-activation-and-capability-gating.md), [`../../agent/README.md`](../../agent/README.md), [`../../agent/guided-agent-development-workflow.md`](../../agent/guided-agent-development-workflow.md)
+- **Related:** [`0001-pluggable-validation-backends-and-capability-tiers.md`](0001-pluggable-validation-backends-and-capability-tiers.md), [`0003-customer-activation-and-capability-gating.md`](0003-customer-activation-and-capability-gating.md), [`../prior-art-agentic-integration-and-migration.md`](../prior-art-agentic-integration-and-migration.md), [`../../agent/README.md`](../../agent/README.md), [`../../agent/guided-agent-development-workflow.md`](../../agent/guided-agent-development-workflow.md)
 
 ---
 
@@ -107,6 +107,19 @@ in summary:
 4  Validate        MS PBIR validate / Desktop   MS Tier-1/2 oracle (ADR-0001); ALUCA Tier-0 floor always on
 5  Prep-for-AI     semantic-model AI-readiness  MS; ALUCA: linguistic_schema / synonyms / lineage
 ```
+
+## Prior art
+
+The "consume official, generate the overlay down to each tool" pattern is
+well-trodden (full notes + sources:
+[`../prior-art-agentic-integration-and-migration.md`](../prior-art-agentic-integration-and-migration.md)).
+Microsoft's `skills-for-fabric` already auto-generates per-tool shims
+(`CLAUDE.md`, `.cursorrules`, `AGENTS.md`, `.mcp.json`) from one bundle; the open
+**Agent Skills** standard (`agentskills.io`) keeps skills portable; and
+single-source → many-agent generators (`ruler`, `rulesync`, `npx skills`) already
+do exactly what the `docs/agent/` generator does. So **adopting one (e.g.
+`ruler`, which also emits `.mcp.json`) vs. extending our own is an open
+build-vs-buy decision**, not a green-field build.
 
 ## Consequences
 

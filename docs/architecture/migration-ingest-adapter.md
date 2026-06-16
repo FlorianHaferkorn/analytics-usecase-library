@@ -1,7 +1,7 @@
 # Design sketch — Migration Adapter Architecture (Hub-and-Spoke, N-to-M)
 
 > **Status:** Sketch / forward-looking. Not yet scheduled.
-> **Decision context:** [`adr/0002-official-first-agent-integration-and-guided-workflow.md`](adr/0002-official-first-agent-integration-and-guided-workflow.md) (migration corollary).
+> **Decision context:** [`adr/0002-official-first-agent-integration-and-guided-workflow.md`](adr/0002-official-first-agent-integration-and-guided-workflow.md) (migration corollary). · **Prior art / sources:** [`prior-art-agentic-integration-and-migration.md`](prior-art-agentic-integration-and-migration.md).
 
 ## Why
 
@@ -64,6 +64,28 @@ whole economic argument:
    **governed KPI semantics**. Every migration becomes a *governed* model
    regardless of source — and the output is a draft for human review, never a
    silent 1:1 clone.
+
+## Prior art & refinements
+
+The N+M-over-N×M choice is textbook — Pandoc states it outright, and LLVM IR plus
+the "Canonical Data Model" literature make the same case (sources:
+[`prior-art-agentic-integration-and-migration.md`](prior-art-agentic-integration-and-migration.md)).
+Four field lessons sharpen the sketch:
+
+- **Migration is a governance *process*, not a converter** (Microsoft's own
+  guidance; rationalization cases consolidate the large majority of legacy
+  reports). Ingest should drive **inventory → prioritize-by-usage → decommission
+  → consolidate**, not "import everything."
+- **Reconcile, don't clone.** Ingested metrics are matched against the KPI catalog
+  (match / propose-new / flag-duplicate), with a **fast-path** ("accept-as-is,
+  flag for later") so governance never stalls the migration.
+- **Separate semantics-readers from layout-readers.** Metric/calculation logic
+  (reconcile to catalog) and visual layout (map to `DashboardSpec` visuals) have
+  different fidelity profiles and review flows.
+- **Don't be a semantic layer; integrate with one.** Optionally bind
+  `DashboardSpec` metrics to a dbt/Cube definition — metric governed upstream,
+  layout/use-case governed by ALUCA. Semantic-layer hubs own *what a metric
+  means*, not report layout; that gap is exactly ALUCA's lane.
 
 ## Open questions (for a future ADR if pursued)
 

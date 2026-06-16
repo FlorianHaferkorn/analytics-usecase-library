@@ -4,7 +4,7 @@
 - **Date:** 2026-06-16
 - **Scope:** How customers activate agent skills/tools securely; the onboarding surface
 - **Supersedes:** —
-- **Related:** [`0001-pluggable-validation-backends-and-capability-tiers.md`](0001-pluggable-validation-backends-and-capability-tiers.md), [`0002-official-first-agent-integration-and-guided-workflow.md`](0002-official-first-agent-integration-and-guided-workflow.md), [`../../agent/capability-manifest.md`](../../agent/capability-manifest.md), [`../../agent/studio-activation-ux.md`](../../agent/studio-activation-ux.md)
+- **Related:** [`0001-pluggable-validation-backends-and-capability-tiers.md`](0001-pluggable-validation-backends-and-capability-tiers.md), [`0002-official-first-agent-integration-and-guided-workflow.md`](0002-official-first-agent-integration-and-guided-workflow.md), [`../../agent/capability-manifest.md`](../../agent/capability-manifest.md), [`../../agent/studio-activation-ux.md`](../../agent/studio-activation-ux.md), [`../prior-art-agentic-integration-and-migration.md`](../prior-art-agentic-integration-and-migration.md)
 
 ---
 
@@ -83,6 +83,29 @@ diverge because they all write the **one** source of truth.
   remote; no outbound unless `allow_network`.
 - **Always legible:** `doctor` reflects the active state so activation is never a
   silent surprise; the manifest is the single audit artifact.
+
+## Enforcement model — the manifest declares, the host enforces
+
+A capability manifest is **review metadata, not a sandbox.** Prior art is explicit
+on this — MCPB/plugin manifests *declare* tools and sensitive config for review,
+and hosts do **not** auto-audit third-party servers (sources:
+[`../prior-art-agentic-integration-and-migration.md`](../prior-art-agentic-integration-and-migration.md)).
+ALUCA therefore pairs the manifest with two enforcement layers it must *target*,
+not replace:
+
+1. **The host permission engine (deny-first).** The generator emits agent
+   permissions as a deny-first allowlist — e.g. Claude Code `settings.json`
+   `allow`/`ask`/`deny`, with MCP tools named `mcp__<server>__<tool>`. External
+   and network tools ship in `ask`/`deny` by default; `external.allow_external`
+   in the manifest merely *promotes* a tool into `allow`. A deny is unoverridable.
+2. **Tool annotations + human-in-the-loop.** ALUCA's own MCP tools are annotated
+   read-only vs. destructive, so safe schema/DAX reads can auto-approve while
+   model edits / deploys force confirmation. ALUCA does **not** auto-trust
+   external MCP servers — that remains an explicit admin allowlist decision.
+
+So the manifest is the **single artifact a reviewer reads**; the permission engine
+is what actually **gates execution**. Conflating the two would be a security
+mistake.
 
 ## Consequences
 
