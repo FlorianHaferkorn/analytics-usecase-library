@@ -45,6 +45,17 @@ ALLOWLIST = [
         "last_checked": "2026-05",
         "local_owner": "fabric",
     },
+    {
+        "id": "ref.skills_for_fabric",
+        "name": "Microsoft skills-for-fabric",
+        "source": "microsoft/skills-for-fabric",
+        "api_url": "https://api.github.com/repos/microsoft/skills-for-fabric/commits/main",
+        "local_pin_comment": ".ruler/ shims + docs/architecture/adr/0002 (official-first overlay)",
+        "review_required": True,
+        "license": "MIT",
+        "last_checked": "2026-06",
+        "local_owner": "fabric",
+    },
 ]
 
 OUTPUT_PATH = Path("internal/reviews/upstream_sources_report.md")

@@ -139,9 +139,16 @@ unchanged across environments.
 
 ## Open items (tracked in ADR-0002)
 
+**Remaining:**
 - Add a `skills-for-fabric`-compatible **target** to the `docs/agent/` generator
   so ALUCA overlay skills emit in the official `SKILL.md` shape.
-- Pin the upstream `skills-for-fabric` version and schedule a quarterly
-  re-review (the data-goblin review's cadence note still applies).
-- Decide which existing ALUCA skill docs are now **retired in favor of upstream**
-  (the data-goblin "adopt" mechanics) vs. **kept as overlay** (governance).
+
+**Done (2026-06-16):**
+- Build-vs-buy generator → `ruler`, **shim-only** (long-tail agents only; `AGENTS.md`
+  SSOT untouched).
+- Upstream pin + cadence → `skills-for-fabric` registered in
+  `tooling/quality/check_upstream_sources.py`; the automated check is tightened to
+  **twice-weekly** (`.github/workflows/source-updates.yml`).
+- Retire-vs-keep of skill docs →
+  [`../architecture/skills-retire-vs-keep.md`](../architecture/skills-retire-vs-keep.md)
+  (11 KEEP, 3 THIN, 0 full retire).
