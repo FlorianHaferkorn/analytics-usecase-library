@@ -1,6 +1,6 @@
 # ADR 0002 — Official-First Agent Integration and the Guided Agent Development Workflow
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-06-16
 - **Scope:** Agent skills/tools strategy; how ALUCA consumes first-party vendor agent tooling
 - **Supersedes:** —
@@ -160,7 +160,8 @@ SSOT that the ecosystem standard (`AGENTS.md`) already uses.
 - We take a soft dependency on the cadence and stability of a vendor preview;
   the overlay generator and a periodic upstream re-review become standing work.
 - Two formats to keep in sync (canonical `docs/agent/` Markdown → official
-  `SKILL.md`) until the generator target exists.
+  `SKILL.md`); the generator target (`generate_official_skills()`) now bridges
+  them mechanically, so this is a standing generate-and-check cost, not manual sync.
 - Mapping ALUCA gates onto vendor stage boundaries assumes those boundaries stay
   reasonably stable; skill renames upstream will require overlay updates.
 
