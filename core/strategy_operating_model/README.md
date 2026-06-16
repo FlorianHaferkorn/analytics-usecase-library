@@ -1,7 +1,8 @@
 # Strategy + Operating Model
 
-> **Repository entry point:** [README.md](../../README.md).  
-> This document is the docs hub for Strategy and Operating Model; start from the root README for onboarding.
+> **Navigation:** [`_INDEX.md`](_INDEX.md) is the agent-facing entry point for this area
+> (lies-wenn routing + complete document register, drift-gate enforced).  
+> **Repository entry point:** [README.md](../../README.md) — start here for onboarding.
 
 This area defines the framework's **WHY** and **HOW**:
 

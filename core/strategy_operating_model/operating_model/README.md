@@ -1,5 +1,7 @@
 # Analytics Operating Model (HOW)
 
+> **Navigation:** area entry point is [`../_INDEX.md`](../_INDEX.md) (lies-wenn routing for the whole `strategy_operating_model/` subtree).
+
 Purpose:
 This folder defines **how analytics is designed, governed, built, and operated** to consistently translate business strategy into action-ready insights.  
 It is the methodological backbone of the framework.

@@ -60,7 +60,7 @@ ux_layout_rules:
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
-      evidence_grain: promotion
+      evidence_grain: promo_product_period
       evidence_columns:
       - promotion
       - promo_type

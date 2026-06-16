@@ -1,5 +1,7 @@
 # Company Layer (WHY)
 
+> **Navigation:** area entry point is [`../_INDEX.md`](../_INDEX.md) (lies-wenn routing for the whole `strategy_operating_model/` subtree).
+
 Purpose:
 The Company layer defines **why analytics exists** in the organization.  
 It establishes the strategic context, priorities, and decision logic that all downstream analytics artifacts must support.
