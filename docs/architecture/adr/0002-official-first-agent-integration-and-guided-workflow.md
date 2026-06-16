@@ -131,9 +131,17 @@ and keeps ADR-0001's default-off posture before it is wired in.
 copilot → `.github/copilot-instructions.md`) and applies no MCP when no
 `[mcp_servers]` are defined (`--no-mcp`), so the default-off posture holds; a
 `--dry-run` wrote nothing. A `.ruler/ruler.toml` scaffold (default-off) is committed.
-The **cutover** — letting `ruler apply` manage the hand-authored `AGENTS.md` /
-`CLAUDE.md` and supersede `tooling/generator/generate_tool_configs.py` — overwrites
-SSOT files and is a separate, reviewed migration (no blind `apply`).
+**Implemented (2026-06-16): shim-only.** Finding: the major agents (Copilot,
+Cursor, Codex, Gemini, Windsurf, Zed, Kilo, Roo, …) already read **`AGENTS.md`**,
+which this repo hand-authors — so they need no shim. `ruler` is therefore wired
+for the **long-tail agents with distinct native config files** only (Cline,
+Amazon Q, Crush, Goose, Junie, Kiro, Warp, Trae, Firebase, OpenHands, Augment,
+Antigravity, Firebender); their generated shims (in `.ruler/00-canonical.md`)
+point back to `AGENTS.md` / `docs/agent/` and are **git-ignored**
+(`npx @intellectronica/ruler apply --no-mcp`). `AGENTS.md`, `CLAUDE.md`, and
+`generate_tool_configs.py` are untouched. A **full cutover** (ruler owning
+`AGENTS.md`/`CLAUDE.md`) was **deliberately not taken** — it would overwrite the
+SSOT that the ecosystem standard (`AGENTS.md`) already uses.
 
 ## Consequences
 
