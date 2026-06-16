@@ -139,11 +139,10 @@ unchanged across environments.
 
 ## Open items (tracked in ADR-0002)
 
-**Remaining:**
-- Add a `skills-for-fabric`-compatible **target** to the `docs/agent/` generator
-  so ALUCA overlay skills emit in the official `SKILL.md` shape.
-
-**Done (2026-06-16):**
+**All resolved (2026-06-16).**
+- `skills-for-fabric`-compatible **target** added to the `docs/agent/` generator —
+  ALUCA overlay skills emit in the official `SKILL.md` shape at `skills/<name>/SKILL.md`
+  (`generate_official_skills()` in `tooling/generator/generate_tool_configs.py`).
 - Build-vs-buy generator → `ruler`, **shim-only** (long-tail agents only; `AGENTS.md`
   SSOT untouched).
 - Upstream pin + cadence → `skills-for-fabric` registered in
