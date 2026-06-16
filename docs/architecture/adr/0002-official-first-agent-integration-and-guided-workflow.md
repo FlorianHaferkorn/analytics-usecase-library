@@ -4,7 +4,7 @@
 - **Date:** 2026-06-16
 - **Scope:** Agent skills/tools strategy; how ALUCA consumes first-party vendor agent tooling
 - **Supersedes:** —
-- **Related:** [`0001-pluggable-validation-backends-and-capability-tiers.md`](0001-pluggable-validation-backends-and-capability-tiers.md), [`../../agent/README.md`](../../agent/README.md), [`../../agent/guided-agent-development-workflow.md`](../../agent/guided-agent-development-workflow.md)
+- **Related:** [`0001-pluggable-validation-backends-and-capability-tiers.md`](0001-pluggable-validation-backends-and-capability-tiers.md), [`0003-customer-activation-and-capability-gating.md`](0003-customer-activation-and-capability-gating.md), [`../../agent/README.md`](../../agent/README.md), [`../../agent/guided-agent-development-workflow.md`](../../agent/guided-agent-development-workflow.md)
 
 ---
 
