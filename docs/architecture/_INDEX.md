@@ -27,6 +27,7 @@ shelf-life-days: 90
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
 | Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
+| Skill-Docs retire-vs-keep entscheiden (ADR-0002) | `skills-retire-vs-keep.md` | Rest |
 
 Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 
@@ -43,6 +44,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
+| `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
 
 <!-- Ausgenommen (EXEMPT_FILES): README.md, adr/README.md, NAVIGATION_PHILOSOPHY.md.
      check_index.py erzwingt: jede nicht-exempte *.md im Subtree ist hier gelistet. -->
@@ -57,3 +59,5 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | A-2 | Build-vs-buy Overlay-Generator | **erledigt — shim-only** (2026-06-16): `ruler` für Long-Tail-Agenten (distinkte Configs); `AGENTS.md`/`CLAUDE.md` unberührt | 2026-06-16 |
 | A-3 | `docs/agent/` auf `_INDEX.md`-Navigation heben | **erledigt** (#314) | 2026-06-16 |
 | A-4 | Architektur-Index in `CLAUDE.md`-Routing verlinken | **erledigt** (#314) | 2026-06-16 |
+| A-5 | Skill-Docs retire-vs-keep (ADR-0002) | **erledigt** (`skills-retire-vs-keep.md`: 11 KEEP, 3 THIN) | 2026-06-16 |
+| A-6 | Upstream `skills-for-fabric` pin + Cadence | **erledigt**: ALLOWLIST + Cron Mo+Do (`source-updates.yml`) | 2026-06-16 |

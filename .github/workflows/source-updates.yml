@@ -1,6 +1,6 @@
 name: Source Update Discovery
 
-# Runs weekly (Sunday 06:00 UTC) and can be triggered manually.
+# Runs twice weekly (Mon + Thu 06:00 UTC) and can be triggered manually.
 # Checks for new versions of:
 #   - Microsoft PBIR/PBIP schemas (via discover_schema_latest.py)
 #   - Tabular Editor BPA rules (via tooling/quality/check_upstream_sources.py)
@@ -11,7 +11,7 @@ name: Source Update Discovery
 
 on:
   schedule:
-    - cron: "0 6 * * 0"   # Every Sunday at 06:00 UTC
+    - cron: "0 6 * * 1,4"   # Mon and Thu at 06:00 UTC (tightened for fast-moving upstreams)
   workflow_dispatch:
     inputs:
       update_registry:
