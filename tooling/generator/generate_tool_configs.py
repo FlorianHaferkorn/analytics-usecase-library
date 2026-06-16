@@ -5,6 +5,7 @@ Reads docs/agent/rules/*.md + _index.yaml and docs/agent/skills/*.md + _index.ya
 then produces tool-specific wrappers:
   - .cursor/rules/*.mdc        (YAML frontmatter + body)
   - .cursor/skills/*/SKILL.md  (YAML frontmatter + body)
+  - skills/*/SKILL.md          (official Agent-Skills / skills-for-fabric layout, repo root)
   - .github/copilot-instructions.md  (concat of alwaysApply rules)
 
 Version tracking:
@@ -27,7 +28,10 @@ try:
 except ImportError:
     yaml = None  # type: ignore[assignment]
 
-AUTOGEN_HEADER = "<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/generator/generate_tool_configs.py -->\n\n"
+AUTOGEN_HEADER = (
+    "<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. "
+    "Run: python tooling/generator/generate_tool_configs.py -->\n\n"
+)
 
 
 def load_index(index_path: Path) -> Dict[str, Any]:
@@ -98,6 +102,46 @@ def generate_cursor_skills(root: Path) -> int:
     return count
 
 
+def generate_official_skills(root: Path) -> int:
+    """Generate skills/<name>/SKILL.md in the official Agent-Skills / skills-for-fabric
+    layout (frontmatter first, at repo root) so ALUCA overlay skills sit *alongside*
+    the official vendor skills — ADR-0002 "extend, never fork"."""
+    skills_dir = root / "docs" / "agent" / "skills"
+    index = load_index(skills_dir / "_index.yaml")
+    out_base = root / "skills"
+    note = (
+        "<!-- AUTO-GENERATED from docs/agent/skills/ — do not edit; "
+        "run tooling/generator/generate_tool_configs.py -->\n\n"
+    )
+    count = 0
+
+    for name, meta in index.get("skills", {}).items():
+        src = skills_dir / f"{name}.md"
+        if not src.exists():
+            print(f"  WARN: {src} not found, skipping")
+            continue
+        body = src.read_text(encoding="utf-8")
+
+        # Official format: YAML frontmatter MUST be first (line 1) — no header before it.
+        fm_lines = ["---"]
+        fm_lines.append(f'name: {meta.get("name", name)}')
+        fm_lines.append(f'description: {meta.get("description", name)}')
+        version = meta.get("version")
+        if version:
+            fm_lines.append(f'version: "{version}"')
+        fm_lines.append("license: MIT")
+        fm_lines.append("source: ALUCA (Analytics Library of Use Cases) — governance overlay")
+        fm_lines.append("---")
+
+        out_dir = out_base / name
+        out_dir.mkdir(parents=True, exist_ok=True)
+        content = "\n".join(fm_lines) + "\n\n" + note + body
+        (out_dir / "SKILL.md").write_text(content, encoding="utf-8")
+        count += 1
+
+    return count
+
+
 def generate_copilot_instructions(root: Path) -> int:
     """Generate .github/copilot-instructions.md from alwaysApply rules."""
     rules_dir = root / "docs" / "agent" / "rules"
@@ -130,8 +174,12 @@ def main() -> None:
 
     rules = generate_cursor_rules(root)
     skills = generate_cursor_skills(root)
+    official = generate_official_skills(root)
     copilot = generate_copilot_instructions(root)
-    print(f"Generated: {rules} Cursor rules, {skills} Cursor skills, {copilot} Copilot instructions")
+    print(
+        f"Generated: {rules} Cursor rules, {skills} Cursor skills, "
+        f"{official} official skills, {copilot} Copilot instructions"
+    )
 
 
 if __name__ == "__main__":

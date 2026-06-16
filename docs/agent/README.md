@@ -27,6 +27,7 @@ docs/agent/
 |--------|----------------|--------|
 | Cursor rules | `.cursor/rules/*.mdc` | MDC with YAML frontmatter (`description`, `alwaysApply`, `globs`) |
 | Cursor skills | `.cursor/skills/*/SKILL.md` | Markdown with YAML frontmatter (`name`, `description`) |
+| Official skills | `skills/*/SKILL.md` | Official Agent-Skills / skills-for-fabric layout — frontmatter first (`name`, `description`, `version`, `license`, `source`) |
 
 Future targets may include `.github/`, Copilot instructions, or other tool-specific formats.
 
