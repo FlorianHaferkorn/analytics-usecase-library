@@ -1,6 +1,6 @@
 # Storytelling Principles — 3-30-300 Framework
 
-> **Authority:** This document governs the narrative and content standards for all pages built with the Analytics Use Case Library. It translates established data storytelling research into binding rules for the framework.
+> **Authority:** This document governs the narrative and content standards for all pages built with ALUCA (Analytics Library of Use Cases). It translates established data storytelling research into binding rules for the framework.
 >
 > **Implements:** `Design_Spec_3_30_300.md` · `page_types/T1–T4` · `Content_Quality_Guide.md`
 >

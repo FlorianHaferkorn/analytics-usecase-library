@@ -37,6 +37,10 @@ orchestration:
   - svc.tickets.closed.count
   action_code_ids:
   - X-E3.2
+primary_kpi_ids:
+  - enterprise.value_at_risk.index
+  - margin.gm.pct
+
 value_driver_model:
   formula: enterprise.value_at_risk.index = f(margin.gm.pct, sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
     ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct)

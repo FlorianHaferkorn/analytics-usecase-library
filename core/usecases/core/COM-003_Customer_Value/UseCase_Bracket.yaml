@@ -33,6 +33,10 @@ orchestration:
   action_code_ids:
   - C-C3.1
   - C-C3.2
+primary_kpi_ids:
+  - crm.clv.amount
+  - crm.retention.pct
+
 value_driver_model:
   formula: crm.clv.amount = f(crm.lifetime_revenue.amount, crm.retention.pct, crm.churned_customers.count, crm.active_customers.count,
     crm.nps.index, crm.complaint.count)

@@ -1,7 +1,7 @@
 # Color Semantics and Formatting Rules — Framework Governance
 #
 # Authority:   This file is the canonical source for color tokens, semantic roles,
-# and typography rules for all Analytics Use Case Library pages.
+# and typography rules for all ALUCA (Analytics Library of Use Cases) pages.
 #
 # Tool-agnostic: Tokens are defined as abstract semantic roles with hex defaults.
 # Connector-specific bindings (PBI theme roles, CSS variables, etc.)

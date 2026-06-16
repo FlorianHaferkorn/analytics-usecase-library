@@ -21,6 +21,10 @@ orchestration:
   - X-S1.2
   - X-S1.3
   - X-S1.4
+primary_kpi_ids:
+  - svc.sla.attainment.pct
+  - svc.backlog.count
+
 value_driver_model:
   formula: svc.sla.attainment.pct = f(svc.fcr.pct, svc.aht.minutes, svc.backlog.count, svc.escalation.pct,
     svc.tickets.created.count, svc.tickets.closed.count)

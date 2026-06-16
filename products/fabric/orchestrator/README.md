@@ -387,7 +387,7 @@ SELECT * FROM silver.transactions_cleaned
 
 ## Lizenz
 
-Dieses Tool ist Teil des Analytics Use Case Library Framework. Siehe root README für Lizenzdetails.
+Dieses Tool ist Teil von ALUCA (Analytics Library of Use Cases). Siehe root README für Lizenzdetails.
 
 ---
 

@@ -1,4 +1,4 @@
-# Agent Instructions — Analytics Use Case Library
+# Agent Instructions — ALUCA (Analytics Library of Use Cases)
 
 > **Universal entry point for all AI agents** (Claude, Cursor, Copilot, Codex, Aider, …).
 > Tool-specific overrides live alongside their tool's config: Claude → `CLAUDE.md`, Cursor → `.cursor/rules/`.
@@ -36,6 +36,13 @@ Use cases and reports **reference** governed definitions — they do not define 
 ---
 
 ## Scripts and CI
+
+> **⚠️ GitHub Actions is quota-blocked until 2026-07-01.** Until then, every CI run on this
+> repo fails instantly at the runner level (jobs complete in ~1s with no logs / HTTP 404) —
+> regardless of the code. This affects `main` and every branch equally. **Treat all GitHub
+> Actions failures before that date as infrastructure, not code defects, and do not re-run or
+> "fix" them.** The authoritative gate is the **local** test suite: `python3 -m pytest -q`
+> (must be green before commit). Re-validate via CI only after the quota window reopens.
 
 Run all scripts from the **repository root**.
 

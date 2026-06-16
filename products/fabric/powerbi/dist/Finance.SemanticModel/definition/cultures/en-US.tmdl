@@ -4,6 +4,124 @@ culture en-US
 				"Version": "1.0.0",
 				"Language": "en-US",
 				"Entities": {
+					"dim_cost_category.cost_category": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_cost_category",
+								"ConceptualProperty": "Cost Category"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Cost Category": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Cost Element": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kostenart": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kostenkategorie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_cost_category.cost_type": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_cost_category",
+								"ConceptualProperty": "Cost Type"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Cost Type": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Cost Behavior": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Fixkostenart": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kostenverhalten": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_cost_category.activity": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_cost_category",
+								"ConceptualProperty": "Activity"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Activity": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Cost Driver": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Activity Pool": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Aktivität": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kostentreiber": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
 					"dim_customer.region": {
 						"Definition": {
 							"Binding": {

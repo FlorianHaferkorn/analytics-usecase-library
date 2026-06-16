@@ -403,3 +403,16 @@ When applied consistently, the lakehouse architecture ensures that:
 - and analytical logic is portable across platforms.
 
 The lakehouse architecture enables scale by providing structure, not constraint.
+
+---
+
+## Sources & Grounding
+
+This architecture applies the industry **lakehouse + medallion** pattern (bronze/silver/gold quality layers) with Delta Lake / Parquet storage and Kimball dimensional modelling at the Gold layer. The specific claims in this document are grounded in the following primary sources:
+
+- **Medallion lakehouse architecture** (bronze raw → silver enriched → gold curated quality layers) — Databricks: <https://docs.databricks.com/aws/en/lakehouse/medallion> · Microsoft Learn (Azure Databricks): <https://learn.microsoft.com/en-us/azure/databricks/lakehouse/medallion>
+- **Medallion architecture on Microsoft Fabric OneLake** (lakehouse per layer; silver/gold stored as Delta tables; partitioning vs. Liquid Clustering guidance) — Microsoft Learn: <https://learn.microsoft.com/en-us/fabric/onelake/onelake-medallion-lakehouse-architecture>
+- **Delta Lake / Parquet storage format** (ACID transactions, time travel, schema evolution; Delta stores data internally as Parquet) — Delta Lake project home: <https://delta.io/> · GitHub (delta-io/delta): <https://github.com/delta-io/delta> · Microsoft Learn (Fabric Delta Lake storage): <https://learn.microsoft.com/en-us/fabric/onelake/onelake-medallion-lakehouse-architecture#delta-lake-storage>
+- **Partitioning, OPTIMIZE & Z-Ordering / data skipping** (co-locate related data to reduce files read) — Delta Lake documentation (Optimizations): <https://docs.delta.io/latest/optimizations-oss.html>
+- **Gold-layer dimensional modelling** (star schema, fact/dimension tables, conformed dimensions, explicit grain) — Kimball Group, Dimensional Modeling Techniques: <https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/>
+- **Direct Lake mode for semantic-model consumption of the Gold layer** (Power BI semantic model storage mode reading Delta tables directly from OneLake; gold layer cited as the ideal Direct Lake source) — Microsoft Learn: <https://learn.microsoft.com/en-us/fabric/fundamentals/direct-lake-overview>

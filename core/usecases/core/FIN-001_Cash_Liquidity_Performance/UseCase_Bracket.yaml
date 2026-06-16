@@ -37,6 +37,10 @@ orchestration:
   - F-C1.2
   - S-I1.2
   - F-C1.4
+primary_kpi_ids:
+  - wc.ccc.days
+  - wc.dso.days
+
 value_driver_model:
   formula: wc.ccc.days = wc.dso.days + wc.dio.days - wc.dpo.days
   impact_direction: minimize

@@ -11,13 +11,6 @@
   },
   "visual": {
     "visualType": "textbox",
-    "query": {
-      "queryState": {
-        "Data": {
-          "projections": []
-        }
-      }
-    },
     "objects": {
       "text": [
         {

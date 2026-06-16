@@ -1,6 +1,6 @@
 # Data Protection Governance — DSGVO Art. 25 Privacy by Design
 
-> **Authority:** This document defines binding data protection rules for all use cases and reports built with the Analytics Use Case Library.
+> **Authority:** This document defines binding data protection rules for all use cases and reports built with ALUCA (Analytics Library of Use Cases).
 >
 > **Legal basis:** Regulation (EU) 2016/679 (DSGVO/GDPR), Article 25 — Data Protection by Design and by Default; Article 5 — Principles relating to processing; Article 35 — Data Protection Impact Assessment.
 >

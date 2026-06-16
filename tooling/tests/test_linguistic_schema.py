@@ -184,7 +184,8 @@ def test_emit_for_domain_idempotent(tmp_path):
     model_after_second = (def_dir / "model.tmdl").read_text(encoding="utf-8")
 
     assert first == second
-    assert (n1, n2) == (3, 3)
+    # 8 synonym-bearing commercial entities after the dim_promo additions (was 3)
+    assert (n1, n2) == (8, 8)
     assert added1 is True and added2 is False           # ref added once, not duplicated
     assert model_after_first == model_after_second
     assert model_after_first.count("ref culture en-US") == 1

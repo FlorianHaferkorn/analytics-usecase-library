@@ -6,7 +6,7 @@
 > **Implements:** `Page_Spec_3_30_300.md` · `governance/Layout_Grid_System.md` · `governance/Slot_Definitions.md`
 > **Machine-readable tokens:** `tokens/layout_grid.yaml` · `tokens/color_semantics.yaml` · `tokens/typography.yaml`
 
-This document is the authoritative **tool-agnostic** layout design specification for all analytical pages built with the Analytics Use Case Library. It is written for frontend designers and layout engineers who implement the 3-30-300 framework across tools (Power BI/Fabric, Apache Superset, Grafana, Metabase, web export, and any future connector).
+This document is the authoritative **tool-agnostic** layout design specification for all analytical pages built with ALUCA (Analytics Library of Use Cases). It is written for frontend designers and layout engineers who implement the 3-30-300 framework across tools (Power BI/Fabric, Apache Superset, Grafana, Metabase, web export, and any future connector).
 
 How to translate this spec into a specific tool is defined in `connectors/` — see [Connector_Spec.md](connectors/../Connector_Spec.md) and [Abstract_Visual_Types.md](Abstract_Visual_Types.md).
 

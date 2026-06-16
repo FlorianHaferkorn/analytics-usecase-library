@@ -21,6 +21,10 @@ orchestration:
   - S-F3.2
   - S-F3.3
   - S-F3.4
+primary_kpi_ids:
+  - plan.forecast.accuracy.pct
+  - plan.forecast.mape.pct
+
 value_driver_model:
   formula: plan.forecast.accuracy.pct = f(plan.forecast.mape.pct, plan.forecast.bias.pct, plan.forecast.service_impact.pct,
     plan.replan.count)

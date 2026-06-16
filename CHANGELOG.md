@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Analytics Use Case Framework are documented here.
+All notable changes to ALUCA (Analytics Library of Use Cases) are documented here.
 
 ## How to Read This Changelog
 
@@ -21,6 +21,23 @@ The `[1.0.0]` release marks the Lean Core v1.0 consolidation: a production-ready
 ### Changed
 
 ### Fixed
+
+---
+
+## [2.1.0] - 2026-06-15
+
+### Added
+
+- **ADR-0001 decision record** (Pluggable Validation Backends and Capability Tiers) under `docs/architecture/adr/`, with its outcome recorded: the framework is **deferred** (not adopted for the current direction); only the textbox correctness fix below was kept.
+
+### Changed
+
+- **Project rebrand → ALUCA** (Analytics Library of Use Cases). The framework, the distribution package (renamed `analytics-usecase-library` → `aluca`), and the CLI are now branded **ALUCA**; the former internal codename "Lodestar" is retired. Added an `aluca` console entry point (equivalent to `python -m tooling.generator_core`). Documentation headers updated repo-wide. No use-case content, schema `$id`s, or GitHub repository-slug changes.
+
+### Fixed
+
+- **Use-case preflight**: added `primary_kpi_ids` to all 16 use-case brackets so the KPI preflight gate passes 16/16.
+- **Generator (textbox visuals)**: removed the invalid empty `Data` queryState that the official Power BI validator flags as `PBIR_ROLE_UNKNOWN`; added a deterministic, dependency-free no-data-role guard in `visual_validator.py`.
 
 ---
 

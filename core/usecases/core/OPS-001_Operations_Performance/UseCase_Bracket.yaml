@@ -35,6 +35,10 @@ orchestration:
   - O-O1.2
   - O-O1.3
   - O-O1.4
+primary_kpi_ids:
+  - ops.oee.pct
+  - ops.availability.pct
+
 value_driver_model:
   formula: ops.oee.pct = ops.availability.pct × ops.performance.pct × ops.quality.pct
   impact_direction: maximize

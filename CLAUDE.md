@@ -1,4 +1,4 @@
-# Claude-Specific Agent Instructions — Analytics Use Case Library
+# Claude-Specific Agent Instructions — ALUCA (Analytics Library of Use Cases)
 
 > **Read [`AGENTS.md`](AGENTS.md) first.** It is the universal entry point and primary
 > router for all agents (Golden Thread, use-case/framework rules, scripts/CI, TMDL,

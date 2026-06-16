@@ -8,7 +8,7 @@
 
 ## 1. System Context & Purpose
 
-The **Analytics Strategy-to-Action Framework** is a pragmatic, scalable blueprint for translating business strategy into action-ready analytics. Unlike typical BI tools that serve reports, this framework ensures that:
+**ALUCA (Analytics Library of Use Cases)** is a pragmatic, scalable blueprint for translating business strategy into action-ready analytics. Unlike typical BI tools that serve reports, this framework ensures that:
 
 - **Strategy is traced to KPIs** — Every KPI links back to a strategic objective.
 - **KPIs are action-ready** — Designed to trigger decisions, not just describe performance.

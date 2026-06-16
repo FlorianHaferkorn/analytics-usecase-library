@@ -43,3 +43,31 @@ Origin: [ActionReady Holistic Manifesto](../../../internal/vision/ACTIONREADY_HO
 - Single source of truth: `reference/single_source_of_truth.md`
 - Framework audit & trust signals: `data_governance.md` §8–§9
 - Playbook: `core/implementation_guides/playbook_strategy_to_first_report.md`
+
+---
+
+## Sources & Grounding
+
+This overview applies the standard **Target Operating Model (TOM)** discipline — translating
+strategy into a coherent design of people, process, technology and governance — specialized
+to a **data & analytics operating model**. The "Core components" and "Quality gates" sections
+correspond to the people/process/technology/governance layers of a TOM, and the tool-agnostic
+core / product-implementation split reflects a federated D&A operating-model design. Grounded in:
+
+- **Data & analytics operating model design** (linking the operating model to strategy and
+  quantifiable business outcomes; architecture and scope of D&A work) — Gartner, *How to
+  Design a High-Impact Data and Analytics Operating Model*:
+  <https://www.gartner.com/en/documents/5881411> · Gartner Data & Analytics Strategy:
+  <https://www.gartner.com/en/data-analytics/topics/data-analytics-strategy>
+- **Target Operating Model components** (the people / process / technology / governance
+  layers a TOM is built from) — KPMG Target Operating Model (Powered Enterprise, six layers
+  including Process, People, Technology, Performance Insights and Governance):
+  <https://kpmg.com/xx/en/what-we-do/services/advisory/consulting/kpmg-powered-enterprise/kpmg-target-operating-model.html>
+- **Data & analytics operating model in practice** (operating-model archetypes and the
+  centralized/federated/decentralized trade-offs) — Deloitte, Data & Analytics Operating
+  Model:
+  <https://www2.deloitte.com/us/en/pages/consulting/articles/data-analytics-operating-model.html>
+
+> This framework keeps **core definitions tool-agnostic** and pushes tool-specific work to
+> product implementations — a federated operating-model choice; the governance "Quality gates"
+> above are the framework's process layer (CI, registry audit, pre-commit).

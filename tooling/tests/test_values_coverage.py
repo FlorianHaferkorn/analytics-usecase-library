@@ -56,7 +56,7 @@ def test_commercial_is_fully_enumerated():
     assert cov.missing == []
     assert cov.enumerable == 10 and len(cov.covered) == 10
     for loc in ("dim_product.Category", "dim_product.Subcategory", "dim_customer.Segment",
-                "dim_promo.PromoType", "dim_promo.Mechanic"):
+                "dim_promo.Promo Type", "dim_promo.Promo Mechanic"):
         assert loc in cov.covered
 
 

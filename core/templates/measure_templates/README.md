@@ -6,7 +6,7 @@
 ## Purpose
 
 This folder contains the **standard template for defining semantic model measures**
-in the Analytics Use Case Library.
+in ALUCA (Analytics Library of Use Cases).
 
 It ensures that measures are:
 

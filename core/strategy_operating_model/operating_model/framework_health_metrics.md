@@ -254,3 +254,29 @@ Assessed on 2026-03-27 against the current framework state.
 Health metric results from CI runs are stored in
 `internal/metrics/runs/*_stage1.json`. Aggregate health scoring is a manual
 review step pending automated H1/H5 scoring tooling.
+
+---
+
+## Sources & Grounding
+
+The health-metric design in this document — defining each metric against an explicit goal and
+target, distinguishing predictive (leading) from confirmatory (lagging) signals, and tracking
+delivery/stability health continuously rather than as a one-time gate — is grounded in the
+established measurement and KPI literature:
+
+- **Goal-driven metric definition** (deriving metrics top-down from goals via questions, so each
+  metric is purposeful) — Goal-Question-Metric (GQM) approach, Basili, Caldiera & Rombach, *The
+  Goal Question Metric Approach* (Encyclopedia of Software Engineering, 1994):
+  <https://www.cs.umd.edu/users/mvz/handouts/gqm.pdf>
+- **Leading vs. lagging indicators** (balancing predictive drivers against outcome measures) —
+  Balanced Scorecard, Robert S. Kaplan & David P. Norton, Harvard Business Review, *The Balanced
+  Scorecard — Measures That Drive Performance* (1992):
+  <https://hbr.org/1992/01/the-balanced-scorecard-measures-that-drive-performance-2>
+- **Software delivery & stability health metrics** (deployment frequency, lead time for changes,
+  change failure rate, time to restore — velocity vs. stability) — DORA (DevOps Research and
+  Assessment), software delivery performance metrics:
+  <https://dora.dev/guides/dora-metrics/>
+
+> These external frameworks inform *how* health metrics are designed (goal-anchored, balanced,
+> continuous). The concrete H1–H8 metrics, targets, and checks are framework-specific and defined
+> in the sections above.

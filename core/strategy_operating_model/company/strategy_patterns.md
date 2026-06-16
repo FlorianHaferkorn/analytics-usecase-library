@@ -235,3 +235,46 @@ When two patterns are active simultaneously and both signal deviation at the sam
 Scope and limits of **automated reasoning** (AI urgency, action suggestion from governed logic, triage, assisted authoring) are defined in a single place so that tooling and product stay aligned:
 
 - **[internal/vision/automated_reasoning_scope_and_limits.md](../../../internal/vision/automated_reasoning_scope_and_limits.md)** — what is in scope, what is out of scope or limited, and how it relates to strategy patterns, urgency rules (§8), and conflict resolution (§11).
+
+---
+
+## Sources & Grounding
+
+The "strategy patterns" in this document (Margin-First, Cash-First, Growth-First) are this
+framework's own KPI-and-use-case packaging. Their underlying logic — that a company should make
+an explicit strategic choice, accept trade-offs and guardrails, and align its operating focus to
+that choice — draws on the canonical strategy frameworks below:
+
+- **Porter's generic strategies** (a firm must choose a clear strategic position — cost
+  leadership, differentiation, or focus — rather than be "stuck in the middle"; the basis for the
+  "choose or blend a pattern" logic and explicit trade-offs) — Michael E. Porter, *Competitive
+  Strategy: Techniques for Analyzing Industries and Competitors*, Free Press (1980); Harvard
+  Business School Institute for Strategy and Competitiveness, Strategic Positioning:
+  <https://www.isc.hbs.edu/strategy/business-strategy/Pages/strategic-positioning.aspx>
+- **Porter's Five Forces** (industry structure as the context that makes a given strategic
+  emphasis — margin, cash, or growth — appropriate) — Michael E. Porter, *How Competitive Forces
+  Shape Strategy*, Harvard Business Review (1979):
+  <https://hbr.org/1979/03/how-competitive-forces-shape-strategy> · Harvard Business School
+  Institute for Strategy and Competitiveness:
+  <https://www.isc.hbs.edu/strategy/business-strategy/Pages/the-five-forces.aspx>
+- **Treacy & Wiersema value disciplines** (market leaders pick one value discipline —
+  operational excellence, customer intimacy, or product leadership — and align everything to it;
+  the conceptual parallel to choosing a primary pattern) — Michael Treacy & Fred Wiersema,
+  *Customer Intimacy and Other Value Disciplines*, Harvard Business Review (1993):
+  <https://hbr.org/1993/01/customer-intimacy-and-other-value-disciplines>
+- **Blue Ocean Strategy / value innovation** (the simultaneous pursuit of differentiation and
+  low cost; basis for treating margin and growth as steerable trade-offs rather than fixed
+  opposites) — W. Chan Kim & Renée Mauborgne (INSEAD), *Blue Ocean Strategy*, Harvard Business
+  School Press (2005): <https://www.blueoceanstrategy.com/what-is-blue-ocean-strategy/> · Value
+  Innovation: <https://www.blueoceanstrategy.com/tools/value-innovation/>
+- **Balanced Scorecard** (each pattern anchors a small set of Strategic KPIs that must live in
+  the KPI Catalog and semantic model — the BSC principle of translating strategy into governed
+  measures) — Kaplan & Norton, *The Balanced Scorecard—Measures That Drive Performance*, Harvard
+  Business Review (1992):
+  <https://hbr.org/2005/07/the-balanced-scorecard-measures-that-drive-performance>
+
+> The specific KPI IDs, use-case clusters, guardrail values, and urgency rules in this document
+> are framework-internal constructs; only the strategic-choice methodology they instantiate is
+> grounded above. The reference guardrail values in §10 are explicitly illustrative, not sourced
+> thresholds.
+

@@ -15,4 +15,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 
 | ADR | Title | Status |
 |---|---|---|
-| [0001](0001-pluggable-validation-backends-and-capability-tiers.md) | Pluggable Validation Backends and Capability Tiers | Proposed |
+| [0001](0001-pluggable-validation-backends-and-capability-tiers.md) | Pluggable Validation Backends and Capability Tiers | Proposed — deferred 2026-06-15 (bugfix kept via #308) |

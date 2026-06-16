@@ -66,3 +66,41 @@ The alignment map (Strategy → KPIs → Use Cases → Action Codes) is maintain
 - Golden Thread narrative: `core/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`
 
 Use the Inventory as the single reference for which use cases support which strategic KPIs.
+
+---
+
+## Sources & Grounding
+
+This document is a canonical placeholder: its company-specific content is illustrative, but the
+*method* it prescribes — anchoring a few strategic priorities, expressing them as a small set of
+Strategic KPIs that must be actively steered, deriving executive key questions, and reviewing
+them on a fixed cadence — follows established strategy and performance-management frameworks:
+
+- **Balanced Scorecard** (translating strategic priorities into a balanced, governed set of
+  measures and targets, reviewed regularly — the basis for the "Strategic priorities → KPI
+  alignment → review cadence" structure) — Kaplan & Norton, *The Balanced Scorecard—Measures
+  That Drive Performance*, Harvard Business Review (1992):
+  <https://hbr.org/2005/07/the-balanced-scorecard-measures-that-drive-performance> · Harvard
+  Business School Faculty & Research: <https://www.hbs.edu/faculty/Pages/item.aspx?num=9161>
+- **Strategy Maps / strategy-to-execution** (linking priorities to measurable objectives and to
+  operations so strategy is steerable, not just stated) — Kaplan & Norton, *Having Trouble with
+  Your Strategy? Then Map It*, Harvard Business Review (2000):
+  <https://hbr.org/2000/09/having-trouble-with-your-strategy-then-map-it> · *The Execution
+  Premium: Linking Strategy to Operations for Competitive Advantage*, Harvard Business School
+  Press (2008): <https://www.hbs.edu/faculty/Pages/item.aspx?num=31707>
+- **Treacy & Wiersema value disciplines** (choosing a strategic focus — e.g. profitable growth
+  vs. operational reliability vs. customer value — and aligning the operating model to it; the
+  basis for the "Strategic priorities" list) — Michael Treacy & Fred Wiersema, *Customer
+  Intimacy and Other Value Disciplines*, Harvard Business Review (1993):
+  <https://hbr.org/1993/01/customer-intimacy-and-other-value-disciplines>
+- **Objectives and Key Results (OKRs)** (cascading a small set of objectives into measurable
+  results with a regular review rhythm — parallels the monthly KPI target/exception review and
+  quarterly strategy review) — Andy Grove (origin at Intel) and John Doerr, *Measure What
+  Matters*; What Matters OKR origin story:
+  <https://www.whatmatters.com/articles/the-origin-story> · OKR definition:
+  <https://www.whatmatters.com/faqs/okr-meaning-definition-example>
+
+> The strategic priorities, key questions, ownership roles, and review cadence in this file are
+> placeholder examples for an adopting organization to replace; only the goal-setting and
+> performance-management methodology they follow is grounded above.
+

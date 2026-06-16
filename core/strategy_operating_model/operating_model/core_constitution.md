@@ -107,3 +107,27 @@ No other edge types are considered stable without an explicit constitution updat
 - **Registry Gate (ontology)**: `py -3 tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict`
 - **Tool-specific validation**: lives in `products/<tool>/tooling/` (must never redefine Core SSOT).
 
+---
+
+## Sources & Grounding
+
+This constitution is **framework-internal by design**: the artifact roles, the Golden Thread
+edge set, the ID schemes (`COM-001`, `domain.topic.metric`, …), and the SSOT boundaries are
+**this repository's own invariants** and have no external authority — they should not be
+attributed to a published standard. What *can* be grounded are the general governance practices
+the document leans on:
+
+- **ISO/IEC 38500 — Governance of IT for the organization** (the "roles, not names",
+  separation of governance from execution, and decision-authority posture behind the
+  non-negotiable principles) — ISO: <https://www.iso.org/standard/81684.html>
+- **RFC 2119 / BCP 14 — normative requirement keywords** (the "must / non-negotiable /
+  mandatory" language used throughout to mark absolute requirements vs. allowances) — IETF:
+  <https://www.rfc-editor.org/rfc/rfc2119.html>
+- **Architecture Decision Records (ADR)** (the "additive evolution / deprecation over deletion"
+  and controlled-change posture; ADRs are the recognized practice for recording stable
+  architectural decisions) — <https://adr.github.io/>
+
+> The principles above are *informed by* these external practices; the **specific roles, IDs,
+> edges, and SSOT rules in this document are internal framework law** and are authoritative only
+> within this repository. They are not derived from, nor certified against, any external standard.
+

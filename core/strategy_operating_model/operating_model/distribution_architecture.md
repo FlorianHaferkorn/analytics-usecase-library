@@ -90,3 +90,32 @@ When applied consistently, the distribution architecture ensures that:
 - and strategic intent is preserved from data to decision.
 
 The distribution architecture enables impact by aligning analytical delivery with decision-making structure.
+
+## 8. Sources & Grounding
+
+This document defines distribution in tool-agnostic terms (decision horizon, audience,
+governance). The concrete delivery mechanisms it implies — workspaces for
+collaboration, apps for broad consumer distribution, deployment pipelines and Git for
+report lifecycle / ALM, and role-based access for governance — map directly to the
+**Microsoft Power BI / Microsoft Fabric** distribution and lifecycle model. Grounded in:
+
+- **Power BI content distribution and sharing** (distribute to consumers via
+  workspaces, apps, direct access, or embedding; basis for the reporting-levels and
+  audience model) — Microsoft Learn, Power BI implementation planning:
+  <https://learn.microsoft.com/power-bi/guidance/powerbi-implementation-planning-content-distribution-sharing>
+- **Power BI apps and workspaces** (packaged, read-only content for broad audiences;
+  collaboration vs. consumption separation; basis for distribution principles) —
+  Microsoft Learn: <https://learn.microsoft.com/power-bi/collaborate-share/service-create-distribute-apps> ·
+  Apps overview: <https://learn.microsoft.com/power-bi/explore-reports/end-user-apps>
+- **Lifecycle management in Microsoft Fabric — deployment pipelines and Git** (dev /
+  test / production stages; release management; basis for report lifecycle / ALM) —
+  Microsoft Learn: <https://learn.microsoft.com/fabric/cicd/cicd-overview> ·
+  Deployment pipelines: <https://learn.microsoft.com/fabric/cicd/deployment-pipelines/intro-to-deployment-pipelines>
+- **Governance: workspace roles and permissions** (Admin/Member/Contributor/Viewer;
+  Build vs. Write; row-level security; basis for the governance and review section) —
+  Microsoft Learn: <https://learn.microsoft.com/power-bi/collaborate-share/service-roles-new-workspaces>
+
+> This framework keeps the distribution *logic* (audience, decision level, governance
+> intent) tool-agnostic; the Microsoft references above are the canonical
+> implementation target, not a constraint. Distribution governance here focuses on
+> meaning and audience, not on technical delivery (see §6).

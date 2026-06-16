@@ -4,6 +4,124 @@ culture en-US
 				"Version": "1.0.0",
 				"Language": "en-US",
 				"Entities": {
+					"dim_agent_skill.skill_group": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_agent_skill",
+								"ConceptualProperty": "Skill Group"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Skill Group": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Skill": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Competency Group": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kompetenzgruppe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_agent_skill.skill_level": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_agent_skill",
+								"ConceptualProperty": "Skill Level"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Skill Level": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Proficiency": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Seniority": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Qualifikationsstufe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_agent_skill.channel": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_agent_skill",
+								"ConceptualProperty": "Channel"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Channel": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Contact Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Interaction Channel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kontaktkanal": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Kanal": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
 					"dim_case_queue.queuename": {
 						"Definition": {
 							"Binding": {
@@ -122,17 +240,17 @@ culture en-US
 							}
 						]
 					},
-					"dim_issue_type.issuetype": {
+					"dim_issue_type.issue_type": {
 						"Definition": {
 							"Binding": {
 								"ConceptualEntity": "dim_issue_type",
-								"ConceptualProperty": "IssueType"
+								"ConceptualProperty": "Issue Type"
 							}
 						},
 						"State": "Generated",
 						"Terms": [
 							{
-								"IssueType": {
+								"Issue Type": {
 									"State": "Generated"
 								}
 							},
@@ -166,6 +284,43 @@ culture en-US
 							},
 							{
 								"Anliegenart": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_issue_type.issue_category": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_issue_type",
+								"ConceptualProperty": "Issue Category"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Issue Category": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Issue Group": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Category": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Anliegenkategorie": {
 									"Type": "Noun",
 									"State": "Authored",
 									"Source": "User"
@@ -379,6 +534,258 @@ culture en-US
 							},
 							{
 								"Support Team": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_shrinkage_category.shrinkage_category": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_shrinkage_category",
+								"ConceptualProperty": "Shrinkage Category"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Shrinkage Category": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Shrinkage Reason": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Shrinkage Type": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Schwundkategorie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_shrinkage_category.paid_flag": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_shrinkage_category",
+								"ConceptualProperty": "Paid Flag"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Paid Flag": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Paid Shrinkage Flag": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Bezahlt-Kennzeichen": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_sla_policy.sla_name": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_sla_policy",
+								"ConceptualProperty": "SLA Name"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"SLA Name": {
+									"State": "Generated"
+								}
+							},
+							{
+								"SLA Policy": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Service Level Agreement": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"SLA-Richtlinie": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_sla_policy.priority": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_sla_policy",
+								"ConceptualProperty": "Priority"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Priority": {
+									"State": "Generated"
+								}
+							},
+							{
+								"SLA Priority": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Severity Tier": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Prioritätsstufe": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_sla_policy.response_target_minutes": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_sla_policy",
+								"ConceptualProperty": "Response Target Minutes"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Response Target Minutes": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Response SLA": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"First Response Target": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Reaktionszeitziel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_sla_policy.resolution_target_minutes": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_sla_policy",
+								"ConceptualProperty": "Resolution Target Minutes"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Resolution Target Minutes": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Resolution SLA": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Resolution Target": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Lösungszeitziel": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							}
+						]
+					},
+					"dim_sla_policy.force_majeure_exclusion_flag": {
+						"Definition": {
+							"Binding": {
+								"ConceptualEntity": "dim_sla_policy",
+								"ConceptualProperty": "Force Majeure Exclusion Flag"
+							}
+						},
+						"State": "Generated",
+						"Terms": [
+							{
+								"Force Majeure Exclusion Flag": {
+									"State": "Generated"
+								}
+							},
+							{
+								"Force Majeure Flag": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"SLA Exclusion": {
+									"Type": "Noun",
+									"State": "Authored",
+									"Source": "User"
+								}
+							},
+							{
+								"Höhere-Gewalt-Ausschluss": {
 									"Type": "Noun",
 									"State": "Authored",
 									"Source": "User"

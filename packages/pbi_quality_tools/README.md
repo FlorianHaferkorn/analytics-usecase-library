@@ -1,6 +1,6 @@
 # pbi-quality-tools
 
-A standalone Power BI / PBIP quality toolkit extracted from the Analytics Use Case Library.
+A standalone Power BI / PBIP quality toolkit extracted from ALUCA (Analytics Library of Use Cases).
 
 Use it **without cloning the full repo** to validate, repair, and diagnose Power BI report artifacts.
 
@@ -47,7 +47,7 @@ pbi-quality validate --dist-root products/fabric/powerbi/dist --summary
 
 ## What is NOT included (repo-only)
 
-The following capabilities require the full Analytics Use Case Library repo:
+The following capabilities require the full ALUCA repo:
 
 - Golden Thread validation (KPI catalog, action codes, use case brackets)
 - Measure Dictionary vs TMDL reconciliation

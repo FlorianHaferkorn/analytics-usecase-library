@@ -109,3 +109,14 @@ When applied consistently, the Measure System ensures that:
 - semantic models remain maintainable as complexity grows.
 
 The Measure System enables scale by preserving meaning, not by introducing control.
+
+---
+
+## Sources & Grounding
+
+The Measure System builds on the **DAX measure** concept in Microsoft tabular semantic models and the broader "define a metric once, reuse everywhere" principle. Its specific claims — measures as the home of business logic, the measure-vs-calculated-column distinction, and singular reusable KPI definitions — are grounded in the following primary sources:
+
+- **DAX measures** (Data Analysis Expressions; measures are dynamic, context-dependent calculations evaluated per filter/slicer selection) — Microsoft Learn, DAX overview: <https://learn.microsoft.com/en-us/dax/dax-overview> · Create measures in Power BI Desktop: <https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-measures>
+- **Measures in Microsoft tabular models** (a measure is a calculation created with a DAX formula; fundamental difference between a measure and a calculated column) — Microsoft Learn: <https://learn.microsoft.com/en-us/analysis-services/tabular-models/measures-ssas-tabular>
+- **Business logic via measures, not calculated columns** (measures evaluate by user-selected filter context; calculated columns are materialized per row) — Microsoft Learn, DAX overview (Calculations): <https://learn.microsoft.com/en-us/dax/dax-overview#calculations>
+- **"Define once" / single governed metric definition** (define business metrics once, as code, and serve them consistently to every downstream tool) — dbt Semantic Layer (MetricFlow): <https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-sl> · Gartner "semantic data model" (consistency of data definitions): <https://www.gartner.com/en/information-technology/glossary/semantic-data-model>

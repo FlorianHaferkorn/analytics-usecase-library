@@ -34,7 +34,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-__version__ = "1.0.0"
+__version__ = "2.1.0"
 
 # Convenience re-exports
 from .ir.specs import DashboardSpec, VisualSpec, MeasureSpec, PageSpec, VisualType, PageRole
