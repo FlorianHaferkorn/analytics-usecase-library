@@ -182,6 +182,9 @@ Structured summary of action codes (definitions remain in YAML).
 - Misapplied force majeure exclusions inflating OTIF.
 - Missing penalty/expedite capture understates cost.
 - Stockout impact misread if demand not captured consistently.
+- **OTIF is multiplicative: OTIF = On-Time × In-Full.** Reading aggregate OTIF without the component split hides whether the gap is a transport problem (On-Time) or an availability problem (In-Full) — e.g., 90% OTIF can be 97% On-Time × 93% In-Full or 93% On-Time × 97% In-Full, each demanding a different fix. Always read OTIF alongside its two components.
+- **Expedite masking:** OTIF held at target while expedite cost rises is not reliability — it is structural unreliability hidden by premium freight at penalty/recovery cost. The recovered margin may be negative. Read OTIF alongside expedite and penalty cost, never in isolation.
+- **Line-level vs order-level grain ambiguity:** A single short or late line breaks the whole order under order-level (and retailer PO-line) accounting, so order-level OTIF is almost always lower than line-level. Comparing a line-level internal figure against an order/PO-line program target understates exposure; the grain must be fixed and stated.
 
 ---
 

@@ -37,6 +37,8 @@ factsheet_type: business
 - How do MTBF/MTTR trend by asset class and site?
 - Is preventive maintenance executed on time and effective?
 - Where do spare-part stockouts create maintenance risk?
+- Which failure modes dominate? (ISO 14224 cause-code Pareto — which few cause codes drive most failures on critical assets?)
+- Is PM targeting the right failure modes? (high PM compliance with high repeat-failure rate signals a PM-adequacy gap, not an execution win)
 - Which actions reduce downtime fastest with acceptable cost?
 
 **Example Query Patterns (optional):**
