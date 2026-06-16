@@ -1,0 +1,17 @@
+# Ruler — cross-agent config generator. Build-vs-buy: adopt (ADR-0002), shim-only.
+# Targets ONLY long-tail agents with distinct native config files. The major agents
+# (Copilot, Cursor, Codex, Gemini, Windsurf, Zed, Kilo, Roo, …) read AGENTS.md, which
+# this repo hand-authors — so they are already covered and intentionally NOT listed
+# here (listing them would overwrite AGENTS.md / CLAUDE.md). See ADR-0002.
+#
+# Source: .ruler/*.md (a thin pointer to AGENTS.md / CLAUDE.md / docs/agent).
+# Generated shims are git-ignored (regenerate with: npx @intellectronica/ruler apply --no-mcp).
+# MCP: no [mcp_servers.*] → nothing applied by default (ADR-0001 default-off).
+
+default_agents = ["cline", "amazonqcli", "antigravity", "augmentcode", "crush", "firebase", "firebender", "goose", "junie", "kiro", "openhands", "trae", "warp"]
+
+[gitignore]
+enabled = true
+
+[backup]
+enabled = false

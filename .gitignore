@@ -103,3 +103,22 @@ drift_report.json
 /*.egg-info/
 /dist/*.whl
 /dist/*.tar.gz
+
+
+# START Ruler Generated Files
+/.agent/rules/ruler.md
+/.amazonq/mcp.json
+/.amazonq/rules/ruler_q_rules.md
+/.augment/rules/ruler_augment_instructions.md
+/.clinerules
+/.crush.json
+/.goosehints
+/.idx/airules.md
+/.junie/guidelines.md
+/.kiro/steering/ruler_kiro_instructions.md
+/.openhands/microagents/repo.md
+/.trae/rules/project_rules.md
+/CRUSH.md
+/WARP.md
+/firebender.json
+# END Ruler Generated Files

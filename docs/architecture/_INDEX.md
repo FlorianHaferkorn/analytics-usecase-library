@@ -54,6 +54,6 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | ID | Punkt | Status | Datum |
 |---|---|---|---|
 | A-1 | ADR-0002/0003 reviewen + mergen | **erledigt** (#313/#314) | 2026-06-16 |
-| A-2 | Build-vs-buy Overlay-Generator | **entschieden**: `ruler` evaluieren/adoptieren (s. ADR-0002) | 2026-06-16 |
+| A-2 | Build-vs-buy Overlay-Generator | **erledigt — shim-only** (2026-06-16): `ruler` für Long-Tail-Agenten (distinkte Configs); `AGENTS.md`/`CLAUDE.md` unberührt | 2026-06-16 |
 | A-3 | `docs/agent/` auf `_INDEX.md`-Navigation heben | **erledigt** (#314) | 2026-06-16 |
 | A-4 | Architektur-Index in `CLAUDE.md`-Routing verlinken | **erledigt** (#314) | 2026-06-16 |

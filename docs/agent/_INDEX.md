@@ -40,4 +40,4 @@ Sub-Bereiche mit eigenem Index: `rules/_INDEX.md`, `skills/_INDEX.md`.
 | ID | Punkt | Status | Datum |
 |---|---|---|---|
 | AG-1 | GADW Stage 0 an GOI-/NAVIGATION-Einstieg angleichen | **erledigt** | 2026-06-16 |
-| AG-2 | Build-vs-buy: `ruler` statt eigenem Generator (= ADR-0002 A-2) | **entschieden** (s. ADR-0002) | 2026-06-16 |
+| AG-2 | Build-vs-buy: `ruler` statt eigenem Generator (= ADR-0002 A-2) | **erledigt — shim-only** | 2026-06-16 |
