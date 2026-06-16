@@ -121,6 +121,22 @@ off for downstream Copilot / data-agent consumption.
 The right-hand column never changes. That is the whole point: **swapping the
 execution layer does not change what "done" means.**
 
+## Gate command (bundled Tier-0)
+
+The always-on gates run as one command — `python3 scripts/gadw_gate.py`:
+
+| Gate | Stage | Check |
+|---|---|---|
+| Navigation | — | `check_index.py --strict` (index/ledger drift) |
+| Use Case | 0 | `aluca preflight` (KPI catalog / Golden Thread) |
+| Validate | 4 | `pbi-quality validate` (report-quality Tier-0 floor) |
+
+Per-stage PASS/FAIL, non-zero exit if any gate fails (`--verbose` shows each
+gate's output). This is the **fast, offline dev-loop gate**; the heavier Stage-1
+governance + Fabric quality gate (PowerShell) stays the full CI gate. The
+right-hand "Gates" column of the fallback matrix above *is* this command —
+unchanged across environments.
+
 ## Open items (tracked in ADR-0002)
 
 - Add a `skills-for-fabric`-compatible **target** to the `docs/agent/` generator
