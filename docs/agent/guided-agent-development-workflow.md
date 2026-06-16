@@ -25,6 +25,21 @@ identical. **The gates are the contract; the mechanics are pluggable.**
 
 ---
 
+## Entry — repo reading order (before any stage)
+
+The workflow runs inside the repo's navigation discipline
+([`../NAVIGATION_PHILOSOPHY.md`](../NAVIGATION_PHILOSOPHY.md)). Before Stage 0 the
+agent enters **top-down — never scan folders**:
+
+1. `GOI_DOKTRIN.md` (how to work) → `CLAUDE.md` (project rules + Bereichs-Landkarte).
+2. Task type → open the area `_INDEX.md` ([`_INDEX.md`](_INDEX.md) for agent work,
+   [`../architecture/_INDEX.md`](../architecture/_INDEX.md) for the ADRs) → follow its
+   „lies-wenn" row to the 1–2 detail docs.
+3. Read the relevant **ledger** first (what is already decided?); on completion tick
+   it off **in the same step** and keep `check_index.py --strict` green.
+
+Only then proceed to Stage 0.
+
 ## Stage 0 — Use Case (contract)
 
 | | |

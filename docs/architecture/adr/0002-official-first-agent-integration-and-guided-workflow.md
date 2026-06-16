@@ -117,9 +117,14 @@ Microsoft's `skills-for-fabric` already auto-generates per-tool shims
 (`CLAUDE.md`, `.cursorrules`, `AGENTS.md`, `.mcp.json`) from one bundle; the open
 **Agent Skills** standard (`agentskills.io`) keeps skills portable; and
 single-source → many-agent generators (`ruler`, `rulesync`, `npx skills`) already
-do exactly what the `docs/agent/` generator does. So **adopting one (e.g.
-`ruler`, which also emits `.mcp.json`) vs. extending our own is an open
-build-vs-buy decision**, not a green-field build.
+do exactly what the `docs/agent/` generator does. So this is a build-vs-buy
+decision, not a green-field build. **Decision (2026-06-16): adopt — evaluate
+`ruler`** as the overlay generator (single canonical source → per-tool configs,
+emits `.mcp.json`, `--check`-style drift gate that composes with `check_index.py`)
+rather than hand-maintaining a bespoke one; the differentiator is the overlay
+*content*, not the generator. Guardrail: a short spike must confirm `ruler` covers
+our targets (`.claude`, `.cursor`, `.github/copilot-instructions.md`, `AGENTS.md`)
+and keeps ADR-0001's default-off posture before it is wired in.
 
 ## Consequences
 
