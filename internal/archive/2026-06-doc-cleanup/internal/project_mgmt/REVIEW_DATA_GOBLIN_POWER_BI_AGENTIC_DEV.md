@@ -1,5 +1,16 @@
 # Review: data-goblin/power-bi-agentic-development
 
+> ⚠️ **Status update (2026-06-16) — partially superseded.** This review assessed
+> a *community* plugin marketplace. Microsoft has since shipped a **first-party**
+> equivalent — **Power BI Agentic / Skills for Fabric** (`microsoft/skills-for-fabric`),
+> with cross-tool shims incl. Claude Code. The "adopt" mechanics here
+> (`rename-cascade`, `pbir-structure`, visual examples, formatting rules) are now
+> better sourced from the official skills. The **"What We Do Better"** section
+> (KPI governance, use-case brackets, lineage) remains accurate and is ALUCA's
+> moat. Strategy going forward: **official core, ALUCA overlay** — see
+> [`docs/architecture/adr/0002-official-first-agent-integration-and-guided-workflow.md`](../../../../../docs/architecture/adr/0002-official-first-agent-integration-and-guided-workflow.md).
+> Retained as historical context.
+
 > **Reviewed**: 2026-04-04 (initial partial) + 2026-04-04 (complete — all 6 plugins)  
 > **Repo**: <https://github.com/data-goblin/power-bi-agentic-development>  
 > **Version at review**: 0.17.1 (daily release cadence — re-check quarterly)  
