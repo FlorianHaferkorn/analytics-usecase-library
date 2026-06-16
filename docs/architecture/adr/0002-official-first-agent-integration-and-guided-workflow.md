@@ -126,6 +126,15 @@ rather than hand-maintaining a bespoke one; the differentiator is the overlay
 our targets (`.claude`, `.cursor`, `.github/copilot-instructions.md`, `AGENTS.md`)
 and keeps ADR-0001's default-off posture before it is wired in.
 
+**Spike result (2026-06-16): confirmed.** `ruler apply` selects our targets
+(`agentsmd`, `claude`, `copilot`, `cursor`; per-agent `output_path` configurable —
+copilot → `.github/copilot-instructions.md`) and applies no MCP when no
+`[mcp_servers]` are defined (`--no-mcp`), so the default-off posture holds; a
+`--dry-run` wrote nothing. A `.ruler/ruler.toml` scaffold (default-off) is committed.
+The **cutover** — letting `ruler apply` manage the hand-authored `AGENTS.md` /
+`CLAUDE.md` and supersede `tooling/generator/generate_tool_configs.py` — overwrites
+SSOT files and is a separate, reviewed migration (no blind `apply`).
+
 ## Consequences
 
 **Positive**

@@ -1,0 +1,26 @@
+# Ruler — cross-agent config generator. Build-vs-buy decision: adopt (ADR-0002).
+# Spike confirmed 2026-06-16: covers our targets; MCP default-off (no [mcp_servers]).
+#
+# ⚠️ `ruler apply` WRITES/overwrites the agent config files for the agents below
+#    (incl. the hand-authored AGENTS.md / CLAUDE.md). The full cutover — letting
+#    ruler own those files and supersede tooling/generator/generate_tool_configs.py —
+#    is a SEPARATE, REVIEWED migration. Do not run a blind `apply` against the repo.
+#    See docs/architecture/adr/0002-official-first-agent-integration-and-guided-workflow.md.
+#
+# Sources: ruler reads .ruler/*.md (migrated from docs/agent/ at cutover) and
+# distributes them to each agent below.
+
+default_agents = ["agentsmd", "claude", "copilot", "cursor"]
+
+[gitignore]
+enabled = true   # ruler manages generated files in .gitignore
+
+[backup]
+enabled = true   # .bak before overwriting an existing config
+
+[agents.copilot]
+output_path = ".github/copilot-instructions.md"
+
+# MCP — ADR-0001 compliance mode: intentionally NO [mcp_servers.*] here, so nothing
+# is applied by default (run with --no-mcp to be explicit). Enabling an MCP server is
+# an explicit, auditable edit, never a silent default.
