@@ -15,3 +15,12 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: check-index
+        name: index drift-gate (_INDEX.md completeness)
+        entry: python3 scripts/check_index.py --strict
+        language: system
+        pass_filenames: false
+        files: \.md$

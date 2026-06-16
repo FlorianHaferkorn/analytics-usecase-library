@@ -44,9 +44,15 @@ Version 3 · Stand 31.05.2026
 - Keine Sub-Agents für: triviale Aufgaben, reine Formatierung, Einzelfragen.
 - Modell-Staffelung (wo steuerbar): Haiku für Mechanisches (Formatieren, Extrahieren), Sonnet als Standard, Opus für Architektur/harte Trade-offs; im Zweifel kleineres Modell.
 
-## 4. Code-Standards
+## 4. Code-Standards (Data/Analytics-Stack)
 
-- Python: Type-Hints überall; reine Funktionen, klare I/O-Grenzen; PEP8; Pfade über `pathlib`. 
+- **Python** (Generatoren/Validierung/Tests): Type-Hints überall; reine Funktionen, klare I/O-Grenzen; PEP8 + `ruff`/`ruff-format`; Pfade über `pathlib`; keine Seiteneffekte beim Import; `pytest` mit Golden-Fixtures — neue Logik immer mit Test.
+- **PowerShell** (Stage-1, Quality-Gate, Fabric-Orchestrierung): `Set-StrictMode -Version Latest`; `$ErrorActionPreference = "Stop"`; Approved Verbs; typisierte Parameter; idempotent + re-runnable.
+- **TMDL/PBIR** (Hard-Rules, vom PostToolUse-Hook erzwungen): keine Tabs (nur Spaces), kein `:=` (nur `=`), kein `description:` in TMDL; `.json`/`.pbir` in PBIP-Ordnern syntaktisch valide. Verstoß = sofortiger Block.
+- **YAML-Artefakte** (`UseCase_Bracket.yaml`, Action Codes, Data Contracts, KPI-Katalog): schema-validiert; SSOT-Disziplin — KPIs/Action Codes **referenzieren**, nie neu definieren (Golden Thread).
+- **Generated vs. source** strikt trennen: `dist/`/generierte Artefakte nie von Hand editieren — Quelle ändern + neu generieren.
+- **Definition of Done je Change**: Stage-1 + Quality-Gate grün, `check_index.py` grün, betroffene Tests grün — vor „fertig" prüfen, nicht produzieren.
+
 ## 5. Recherche & Quellen
 - Bei faktischen Fragen zur Gegenwart: web_search nutzen, nicht aus Training antworten.
 - Quellenzahl nach Risiko: Triviales/Etabliertes 0 Quellen; Volatiles (Versionen/Preise/APIs) 1; Methodik-/Architektur-Entscheidungen ≥3 seriöse. Quellenkonflikte offenlegen, nicht glätten.
