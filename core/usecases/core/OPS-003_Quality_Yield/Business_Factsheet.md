@@ -35,6 +35,9 @@ factsheet_type: business
 
 - What is FPY and scrap/rework performance by line, product, and shift?
 - Which defect types and steps drive the most quality losses and COPQ?
+- How large is the gap between FPY and final yield? (the "hidden factory" — reworked units that pass eventually but failed first time, masking the true first-pass defect rate)
+- What is Rolled Throughput Yield across all process steps? (cumulative first-pass yield the per-step FPY hides — e.g. ten steps at 90% FPY give only ~35% RTY)
+- How does COPQ split between internal failure (scrap, rework, retest) and external failure (complaints, returns, warranty)? (a rising external-failure share signals escapes reaching customers, not just an internal-yield problem)
 - How do complaints correlate with plant/line/product performance?
 - Which actions reduce defects fastest with minimal throughput impact?
 

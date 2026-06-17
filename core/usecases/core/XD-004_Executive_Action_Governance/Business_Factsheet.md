@@ -139,6 +139,8 @@ This use case subscribes to a single executive governance action that escalates 
 - High routed action count is not positive if outcome rate deteriorates.
 - Late actions should not be treated as ineffective without checking the agreed evaluation window.
 - Governance metrics must not be used to second-guess domain remediation logic without domain context.
+- **Survivorship bias in the action-effectiveness delta:** Computing outcome rate and effectiveness delta only over completed actions ignores triggered deviations that never generated a routed action (coverage gap) and stalled actions silently dropped. The "survivors" can look effective while the underlying population is failing — Action Coverage % must be read alongside outcome rate so the identify-but-never-execute gap is not masked (SRC-006).
+- **Correlation ≠ causation in the effectiveness delta:** A target KPI improving after an action does not prove the action caused it — seasonality, concurrent actions, or market shifts confound naive before/after deltas. The effectiveness delta needs a defined attribution method (before/after baseline window, ideally with a control/counterfactual) before its EUR lift is treated as realized benefit (SRC-009).
 
 ---
 

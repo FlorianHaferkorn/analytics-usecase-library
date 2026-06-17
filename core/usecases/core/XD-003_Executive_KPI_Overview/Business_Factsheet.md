@@ -146,6 +146,14 @@ Structured summary of action codes (definitions remain in YAML).
 - Quality: 100% KPI certification and plan/LY availability; RLS applied correctly for exec roles.
 - Decision Frequency: At least monthly executive review with documented action-code follow-ups.
 
+**Enterprise Value-at-Risk Index — risk-appetite bands:** The index is governed against an internally calibrated risk-appetite band anchored to COSO ERM risk-appetite/tolerance methodology and the firm's own materiality model:
+
+- **Green (< 30):** Within risk appetite — monitor only; no executive escalation required.
+- **Amber (30–60):** Approaching tolerance — review the dominant per-domain contribution and confirm whether an active domain action already covers it before routing.
+- **Red (> 60):** Beyond tolerance — trigger Cross-Domain Risk Prioritisation (X-E3.2) and route a focused review to the relevant domain leads.
+
+The thresholds calibrate the *methodology*, not a universal external number; a bespoke composite index has no universal external benchmark. The underlying headline-KPI targets are benchmarked against cross-domain sources: APQC Open Standards Benchmarking (SRC-007) for Gross Margin %, Cash Conversion Cycle, and OTIF; Gartner EPM/CPM (SRC-005) for the Net Sales growth band; and COSO ERM (SRC-002) for the risk-appetite/tolerance band construction.
+
 ---
 
 ## 9. Risks & Wrong Interpretations (Short)
@@ -153,6 +161,7 @@ Structured summary of action codes (definitions remain in YAML).
 - Misalignment of KPI definitions across domains could lead to conflicting executive narratives.
 - Incomplete plan/LY data would misstate growth and margin performance.
 - Over-rotating on single KPIs without cross-checking drivers (e.g., margin vs service) could trigger suboptimal actions.
+- **Composite index is NOT a financial Value-at-Risk (VaR):** The Enterprise Value-at-Risk Index is a weighted, normalized *management composite* of domain risk signals (COSO ERM portfolio view), not a statistical financial Value-at-Risk market-risk measure. It does not express a probability-weighted monetary loss at a confidence level, and reading it as a precise EUR loss figure implies false precision (SRC-002). Treat it as decision-support for prioritisation, not an actuarial or treasury VaR number.
 
 
 
