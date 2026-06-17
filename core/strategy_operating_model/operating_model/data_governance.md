@@ -95,7 +95,7 @@ This prevents silent breakage and uncontrolled drift as analytics evolves.
 ## 7. Artifact Design Laws
 
 The framework enforces a small set of non-negotiable design laws across all governed artifacts.
-These laws are derived from the [ActionReady Holistic Manifesto](../../../internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md) and apply uniformly.
+These laws are derived from the [ActionReady Holistic Manifesto](../../../internal/archive/phase2_experiments/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md) and apply uniformly.
 
 ### 7.1. Separation of Concerns
 

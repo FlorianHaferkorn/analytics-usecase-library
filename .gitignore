@@ -29,6 +29,9 @@ __pycache__/
 tooling/.venv/
 .venv/
 
+# Stray pip install metadata (should never be committed into the tree)
+*.dist-info/
+
 # Generated registry outputs (produced by registry_builder.py)
 tooling/ontology/out/
 

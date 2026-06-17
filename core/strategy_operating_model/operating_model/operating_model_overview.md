@@ -35,7 +35,7 @@ Define how strategy is translated into governed analytics and action at scale.
 Binding design principles are codified in `data_governance.md` §7:
 Separation of Concerns, SSOT, Transitive Integrity, Roles-Not-Names, Zero-Tolerance Gatekeeping.
 
-Origin: [ActionReady Holistic Manifesto](../../../internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md)
+Origin: [ActionReady Holistic Manifesto](../../../internal/archive/phase2_experiments/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md)
 
 ## Related documents
 

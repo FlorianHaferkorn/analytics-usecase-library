@@ -4,7 +4,18 @@
 
 **Tracking:** Work items are tracked in the repo-scope GitHub Project and can be converted to issues directly from this list.
 
-**Last updated:** 2026-03-29
+**Last updated:** 2026-06-17
+
+---
+
+## Un-wired tooling (wire-or-remove)
+
+These scripts are functional but referenced by no workflow, runner, hook, README, AGENTS.md, or CLAUDE.md. Decide per item: wire into a gate, or remove. (Surfaced by the 2026-06-17 hygiene audit; a third such script, `tooling/scripts/check_brackets_schema.py`, was removed in the same pass as fully superseded by the pytest schema suite.)
+
+| File | Size | Note |
+|------|------|------|
+| `tooling/hooks/pre_push_gate.py` | small | Docstring claims a PreToolUse/pre-push hook, but `.claude/settings.json` defines no such hook (only PostToolUse bash hooks). Wire into pre-commit/settings, or remove. |
+| `tooling/validation/check_page_dod.py` | 442 lines (CLI w/ `__main__`) | Page Definition-of-Done checker; only self-references, not in any gate/runner/README. Wire into a gate, or document as a manual tool. |
 
 ---
 

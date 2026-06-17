@@ -68,9 +68,9 @@ The Tier 1 backend (`tooling/report_quality/backends.py`) parses this into
 | `slicer` | `Values` | ✓ |
 
 This metadata is vendored offline by
-[`refresh_authoring_metadata.py`](../../../../tooling/report_quality/refresh_authoring_metadata.py)
+[`refresh_authoring_metadata.py`](../../../../../tooling/report_quality/refresh_authoring_metadata.py)
 into `tooling/schemas/pbir/authoring_metadata_snapshot.json` and read at runtime
-by [`authoring_metadata.py`](../../../../tooling/report_quality/authoring_metadata.py)
+by [`authoring_metadata.py`](../../../../../tooling/report_quality/authoring_metadata.py)
 — so the Python floor gets authoritative roles **without** the CLI on site
 (ADR 0001 snapshot pattern).
 
