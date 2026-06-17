@@ -115,3 +115,8 @@ overrides:
 documentation:
   business_factsheet: ./Business_Factsheet.md
   evidence_pack: ./Domain_Evidence_Pack.yaml
+
+use_case_links:
+  - use_case_id: COM-001
+    link_type: depends_on
+    reason: "FIN-002 unit cost model depends on Net Sales and GM% sourced from COM-001 to correctly separate volume effect from cost-structure effect."

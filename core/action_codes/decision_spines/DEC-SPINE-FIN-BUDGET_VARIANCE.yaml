@@ -1,0 +1,72 @@
+schema_version: "1.0"
+
+id: "DEC-SPINE-FIN-BUDGET_VARIANCE"
+name: "Budget Variance and P&L Bridge Discipline"
+owner_domains: ["Finance"]
+impact_dimension: "Profitability"
+
+purpose:
+  intent: >
+    Explain and correct EBIT deviations from budget by decomposing the P&L gap
+    into its controllable bridge components — revenue, COGS, gross margin, OpEx,
+    and headcount — and routing corrective action to the correct cost centre or
+    revenue driver.
+
+decision_context:
+  decision_type: "Prescriptive"
+  primary_question: >
+    Is the EBIT variance driven by revenue shortfall, cost overrun, or margin mix —
+    and which lever should we activate first?
+  decision_owner_roles:
+    - "treasury_finance_controlling"
+    - "finance_bi_lead"
+
+decision_tradeoffs:
+  improves:
+    - "EBIT vs. budget"
+    - "Cost centre discipline"
+    - "Forecast accuracy"
+  risks:
+    - "Aggressive cost freeze risks service quality and growth investment"
+    - "Budget reforecast reduces accountability if used too frequently"
+    - "Revenue-only focus ignores structural cost problems"
+
+when_not_to_act:
+  conditions:
+    - description: "Period close in progress"
+      signal: "Finance close not yet complete (close flag = false); variance data is preliminary and may change materially before posting"
+    - description: "Approved exceptional items"
+      signal: "Variance is caused by a one-off item (restructuring charge, impairment, extraordinary legal cost) with executive approval and documented accounting treatment"
+    - description: "FX-driven variance"
+      signal: "EBIT gap is primarily FX-driven (FX bridge component > 60% of total gap); operational action codes are not applicable to FX effects"
+
+escalation_logic:
+  principle: "Escalate as unfavourable EBIT variance widens; distinguish structural from one-off before triggering cost actions"
+  escalation_path:
+    - level: "EarlyWarning"
+      action: "Flag unfavourable variance to Head of Controlling; initiate cost centre owner review within 5 business days of period close"
+    - level: "RequiredIntervention"
+      action: "Activate cost containment (F-K2.3 or F-K2.4) for top overspending cost centres; CFO briefed at monthly finance review"
+    - level: "PrescriptiveExecution"
+      action: "Trigger mandatory budget reforecast (F-K2.1); executive management committee presentation required within 10 business days"
+
+decision_confidence:
+  level: "High"
+  rationale:
+    - "P&L bridge decomposition is deterministic given complete GL data; confidence is high once period close is finalised"
+    - "Bridge component attribution (volume vs. price vs. mix) requires clean product/channel dimensional data; confidence reduced if dimensions are incomplete"
+    - "Budget reforecast accuracy depends on revenue forecast quality; commercial volume assumptions carry medium uncertainty"
+
+governance:
+  ownership:
+    accountable_role: "treasury_finance_controlling"
+    consulted_roles:
+      - "finance_bi_lead"
+      - "cost_centre_owners"
+  change_policy:
+    - "Spine changes require CFO and Head of Controlling sign-off"
+    - "Budget variance thresholds reviewed at annual budget setting"
+
+quality_rules:
+  - "No KPI IDs or thresholds are defined in the spine."
+  - "Spine must remain domain-agnostic within its decision field."

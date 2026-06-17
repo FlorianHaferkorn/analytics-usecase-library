@@ -114,3 +114,8 @@ overrides:
 documentation:
   business_factsheet: ./Business_Factsheet.md
   evidence_pack: ./Domain_Evidence_Pack.yaml
+
+use_case_links:
+  - use_case_id: COM-003
+    link_type: feeds_into
+    reason: "Workforce utilisation and SLA attainment from XD-002 are upstream levers that directly affect customer retention and CLV in COM-003."

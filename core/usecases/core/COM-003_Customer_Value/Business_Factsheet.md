@@ -19,7 +19,7 @@ factsheet_type: business
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Predictive
 - **Related Data Contract:** core/data_contracts/domains/commercial_sales.yaml
-- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Implementation: products/fabric/powerbi/dist/Commercial.SemanticModel (domain model for COM-*).
+- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Aurora: showcases/aurora_group/semantic_models/Commercial.SemanticModel (domain model for COM-*).
 
 ---
 
@@ -27,7 +27,7 @@ factsheet_type: business
 
 **Purpose:** Maximise customer lifetime value by improving retention, reducing churn, and prioritising profitable segments.  
 **Business Value:** Higher CLV and margin through targeted retention/upsell actions; reduced revenue leakage from churn; better allocation of sales/marketing spend.  
-**Out of Scope:** Promotion ROI deep dives (COM-004); acquisition funnel specifics (CST-010); win-loss pipeline (COM-010).
+**Out of Scope:** Promotion ROI deep dives (COM-004); acquisition funnel specifics (planned: CST-010); win-loss pipeline (planned: COM-010).
 
 ---
 
@@ -58,17 +58,21 @@ factsheet_type: business
 
 **Action Codes:** C-C3.1, C-C3.2
 
+**CLV Definition:** `crm.clv.amount` represents 12-month forward gross margin per customer, discounted at the company's cost of capital. It combines predicted retention probability, expected purchase volume, and net margin per unit — not lifetime revenue alone. This forward-looking definition allows CLV to be used as both a retention-priority signal and a margin-guardrail input.
+
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
 ## 4. Action Codes (Summary)
 
-Structured summary of action codes (definitions remain in YAML).
+**C-C3.1 — Customer Retention Intervention**
+Fires when customer retention deteriorates persistently below target for two or more consecutive months while revenue at risk is materially increasing, signalling that the customer base is losing material accounts without a coordinated response. Owned by the Commercial Controlling Lead. Identifies segments or customers with sustained retention deterioration, prioritises the book of business by revenue at risk and CLV, assigns targeted recovery actions to account and CRM owners, and reviews retention and CLV recovery monthly. Expected to improve retention by 1–4 pp within 1–3 months. Not triggered for new customers in their first 90 days of onboarding, customers under active contractual lock-in, or segments with an approved strategic exit decision.
 
+**C-C3.2 — Complaint & Advocacy Recovery**
+Fires when NPS falls persistently below threshold or complaint volume rises for two or more consecutive months, indicating that an unresolved service or product issue is eroding customer advocacy before it converts into visible churn. Owned by the Commercial Controlling Lead. Identifies segments and products with falling advocacy and rising complaints, maps the complaint pattern to channel, product, and account ownership, executes recovery actions closing the highest-value issue clusters first, and reviews complaint volume, NPS, and retention monthly. Expected to recover NPS by 5–15 index points within 1–3 months. Not triggered if complaints are already covered by an open major-incident workflow, if a spike is caused by a known one-off product recall with separate governance, or if survey coverage in the segment is below the agreed minimum sample size.
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
+> Full machine-readable trigger conditions, thresholds, and routing in `UseCase_Bracket.yaml` (SSOT).
 
 
 ---
@@ -84,6 +88,8 @@ Structured summary of action codes (definitions remain in YAML).
 - Active Customers Count  
 - NPS Index  
 - Customer Complaints Count  
+
+_Filter Interaction: Customer Segment slicer cascades to all CLV and churn visuals. Region slicer is independent and applies to the 30-second distribution chart only._
 
 ### 5.2 30-Second Layer (Main Visuals)
 
@@ -117,6 +123,7 @@ Structured summary of action codes (definitions remain in YAML).
 - Required grain: customer_month for retention, churn, CLV, and at-risk prioritization, with invoice-line sales detail available for margin guardrails.
 - Required time range: 24 months history to distinguish structural erosion from temporary customer noise.
 - Required slicers: Date, Region/Channel, Customer Segment, Product Category.
+- **Data latency SLA:** Customer activity and CLV data refreshed monthly within 3 business days of period close; churn flags updated daily; any CLV data >5 business days stale triggers data quality alert before monthly review.
 
 
 ### Evidence grain
@@ -132,23 +139,52 @@ customer_month grain is provided by domain contract facts fact_customer_value an
 - Customer hierarchy/segment stable; new customers excluded from early churn logic.
 - OneLake canonical dims (dim_date, dim_org, dim_product, security_user_org) used.
 
+### 7.4 Data Protection & Privacy (DSGVO / GDPR)
+
+This use case processes customer-level personal data and is subject to DSGVO (GDPR) obligations. The following controls are mandatory before go-live:
+
+**Legal basis:** Analytics processing relies on legitimate interest (Art. 6(1)(f) DSGVO) for internal CRM segmentation. Customer-level CLV and churn scoring does not constitute automated decision-making with legal effects (Art. 22 DSGVO) provided the score is used only to prioritise human-initiated outreach — not to refuse service or assign pricing automatically. Legal basis review required if scope changes.
+
+**Data minimisation:** Only the minimum customer attributes required for CLV and RFM scoring are retained in the analytical layer. Name, address, and contact fields are not included in the semantic model. The customer identifier is a pseudonymous internal ID; re-identification requires a separate key held by the Data Protection Officer.
+
+**Retention:** Customer scoring data is retained for a maximum of 36 months in the analytical environment. Source transaction data follows the applicable retention schedule in the data contract. Purge processes are automated and documented in the data retention register.
+
+**Data subject rights:** Customers exercising right of erasure (Art. 17 DSGVO) or right of access (Art. 15 DSGVO) must be removed or surfaced from all scoring tables within 30 days. The DPO owns the erasure workflow; the Data Engineering Lead is responsible for execution. A documented process for fulfilling these requests in the analytical layer is required before go-live.
+
+**Access restriction:** Customer-level score data is classified as Confidential. Access is restricted to named roles (Commercial Controlling, CRM Analytics, Senior Sales Management) and enforced via Row-Level Security in the semantic model. Bulk data export is blocked at report level; any extract requires DPO co-approval and is logged.
+
+**DSGVO owner:** Data Protection Officer. Review cycle: annual DPIA review; interim review required if processing scope changes.
+
 ---
 
 ## 8. Success Criteria
 
-- **Benchmark Targets (world-class reference):** CLV:CAC ratio ≥ 3:1 (Gartner / HubSpot B2B benchmark); Customer Retention 85–95% for B2B SaaS (70–80% for B2B distribution) (Gartner 2023); NPS ≥ 50 world-class, ≥ 30 acceptable (Bain & Company).  
-- Impact: CLV uplift in priority segments; churn reduced vs target; margin improvement on low-margin high-revenue accounts.  
-- Adoption: Used in monthly account/retention reviews; action codes triggered with <5% false positives.  
-- Quality: KPI definitions consistent across COM-001/002/003; reconciled revenue/margin to source totals.  
-- Decision Frequency: Monthly account performance review.
+- **Impact:** Portfolio CLV stable or growing ≥5% year-over-year in top-20% customer segment; churn rate in high-CLV segment below 10% measured monthly.
+- **Adoption:** Dashboard used in monthly Customer Value Review (Commercial Controlling Lead + Sales Director); ≥80% of at-risk customer flags result in documented C-C3.1 or C-C3.2 action within 10 business days.
+- **Quality:** CLV calculation reconciles within ±5% of Finance-reported customer margin monthly; churn flag accuracy validated against CRM actuals quarterly with <2% misclassification rate.
+- **Decision Frequency:** Monthly (Customer Value Review); quarterly CLV cohort analysis; Action Code closures tracked by Commercial Controlling within 45 days.
 
 ---
 
 ## 9. Risks & Wrong Interpretations (Short)
 
-- Misclassifying churn due to timing of inactivity flags.  
-- Over-discounting to "save" churn without margin guardrails.  
-- Using inconsistent CLV models across segments leading to false comparisons.
+- **Risk:** CLV model uses trailing 24-month actuals — a recent churn spike is underweighted, leading to false confidence in portfolio CLV.
+  **Owner:** Commercial Controlling Lead.
+  **Detection:** CLV growth >5% in same month as churn count increase >20%.
+  **Mitigation:** Add 3-month leading churn indicator alongside CLV in dashboard; alert when churn trend diverges from CLV trend.
+  **Escalation:** If divergence persists 2 months, Analytics Lead reviews CLV model weighting with Finance.
+
+- **Risk:** Customer segment labels change in CRM without notification, causing segment-level CLV comparisons to be distorted.
+  **Owner:** Sales Ops BI Lead.
+  **Detection:** Segment distribution shift >10pp month-over-month without business explanation.
+  **Mitigation:** CRM segment taxonomy changes require Commercial Controlling sign-off before system update.
+  **Escalation:** If unauthorized segment change detected, Sales Ops BI Lead freezes segment dimension until cause is confirmed.
+
+- **Risk:** High-CLV customers with negative gross margin are retained without repricing, creating a portfolio CLV illusion.
+  **Owner:** Pricing Lead.
+  **Detection:** Customers in top-20% CLV with GM% below 10% for 3+ consecutive months.
+  **Mitigation:** Monthly negative-margin audit for high-CLV accounts; repricing decision documented in Action Code log.
+  **Escalation:** If negative-margin account not actioned within 60 days, Commercial Director reviews retention vs. repricing trade-off.
 
 ---
 
@@ -184,3 +220,17 @@ These scenarios illustrate how this use case drives decisions in practice. They 
 **Consequence of inaction:** Unresolved complaints erode trust; revenue at risk compounds as dissatisfied customers churn silently.
 
 **Action Code triggered:** C-C3.2 (Complaint & Advocacy Recovery) — activates root-cause analysis by product, channel, and customer segment with advocacy recovery follow-up.
+
+### Scenario C: High-CLV Customer with Persistently Negative Gross Margin
+
+**Situation:** A Key Account customer ranks in the top 5% by CLV (€420K 12-month forward GM). However, detailed margin analysis shows that the account is currently generating negative GM% of −3% due to a combination of deep contractual discounts, high logistics cost-to-serve, and low-margin product mix. Retention rate for this customer is 100% — they are not at churn risk.
+
+**Decision question:** Should C-C3.1 be triggered to protect this account, or should a repricing conversation replace the retention intervention?
+
+**Who decides:** CCO + Commercial Controlling Lead + Account Manager.
+
+**When NOT to act:** If the account's negative margin is documented within an approved strategic account plan (e.g., anchor customer generating referrals, locking out a competitor, or supporting a market-entry objective), no corrective action should fire. CLV as a forward-looking metric will reflect recovery once the strategic rationale matures. The margin-guardrail trigger in C-C3.1 (`margin.gm.pct` as guardrail KPI) is specifically designed to block retention spend on structurally loss-making accounts — but that gating logic does not override an explicitly approved strategic exception. Verify the strategic account designation before launching any intervention.
+
+**Action Code triggered:** None if within approved strategic account plan. If no strategic designation exists, initiate a repricing and cost-to-serve review with the account before triggering C-C3.1.
+
+---

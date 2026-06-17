@@ -137,3 +137,8 @@ overrides:
   data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md
+
+use_case_links:
+  - use_case_id: FIN-002
+    link_type: feeds_into
+    reason: "Net Sales and GM% from COM-001 are the primary revenue inputs for the FIN-002 unit cost and COGS driver model."

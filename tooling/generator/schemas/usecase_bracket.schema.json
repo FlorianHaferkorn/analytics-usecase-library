@@ -505,6 +505,49 @@
           "description": "DAX measure or query that grounds the AI narrative output. Required when ai_generated_output = true. Must reference the same filter context as the KPI cards on the same page."
         }
       }
+    },
+    "use_case_links": {
+      "type": "array",
+      "description": "Explicit cross-use-case dependency edges. Each entry documents a formal dependency between this UC and another.",
+      "items": {
+        "type": "object",
+        "required": ["use_case_id", "link_type", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "use_case_id": {
+            "type": "string",
+            "description": "ID of the linked use case (e.g. FIN-002, COM-003)."
+          },
+          "link_type": {
+            "type": "string",
+            "enum": ["guardrail_source", "churn_signal", "cost_context", "capacity_dependency", "data_dependency", "escalation_path", "feeds_into", "depends_on", "peer_context"],
+            "description": "The semantic type of the cross-UC relationship."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Narrative explaining why this dependency exists and when it activates."
+          }
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "description": "Security and access control specification for this use case.",
+      "additionalProperties": false,
+      "properties": {
+        "rls": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "model": {"type": "string", "description": "RLS model type (e.g. entity_hierarchy, flat_role)."},
+            "enforcement_layer": {"type": "string", "enum": ["semantic_model", "report", "both"]},
+            "role_table": {"type": "string", "description": "Dimension table that drives the RLS filter."},
+            "access_column": {"type": "string", "description": "Column in role_table used for row-level filtering."},
+            "test_requirement": {"type": "string", "description": "When and how RLS must be audited."}
+          }
+        }
+      }
     }
   }
 }
