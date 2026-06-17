@@ -8,7 +8,7 @@
 - Use cases: **16**  (evidence packs: 16/16, factsheets: 16/16)
 - KPIs in catalog: **127**  — reachable: **122**, roadmap (planned.yaml): 12, orphan: **0**
 - Action codes: **52**  — reachable: **52**, orphan: **0**
-- Decision spines: **13**  — use-case-mapped: **13**, unmapped: **0**
+- Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
 - Semantic measures: **232**  — backing a catalog KPI: **122** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
@@ -50,7 +50,9 @@ _none_
 
 **Decision spines (unmapped):**
 
-_none_
+- `DEC-SPINE-COM-BASKET_CROSSSELL`
+- `DEC-SPINE-COM-SEGMENTATION`
+- `DEC-SPINE-FIN-BUDGET_VARIANCE`
 
 ## Reachable KPIs with no backing measure (review — not a gate)
 

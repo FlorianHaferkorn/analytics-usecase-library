@@ -699,8 +699,88 @@ def compute_h8(repo_root: Path) -> Dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------------------
+# H9 — Cross-Use-Case Dependency Coverage %
+# ---------------------------------------------------------------------------
+
+def compute_h9(repo_root: Path) -> Dict[str, Any]:
+    """
+    H9: % of documented cross-UC dependency links that are bidirectional.
+
+    For every ``use_case_links`` entry in any UseCase_Bracket.yaml the linked UC
+    must also carry a reciprocal ``use_case_links`` entry pointing back. The score
+    is the share of unique UC pairs that are confirmed reciprocal.
+    """
+    usecases_dir = repo_root / "core" / "usecases"
+    uc_links: Dict[str, List[str]] = {}
+
+    for bracket_path in sorted(usecases_dir.rglob("UseCase_Bracket.yaml")):
+        if "templates" in bracket_path.parts:
+            continue
+        try:
+            data = yaml.safe_load(bracket_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(data, dict):
+            continue
+        uc_id = data.get("id", "")
+        if not uc_id:
+            continue
+        links = data.get("use_case_links")
+        if isinstance(links, list):
+            uc_links[uc_id] = [lnk.get("use_case_id", "") for lnk in links if isinstance(lnk, dict)]
+        else:
+            uc_links[uc_id] = []
+
+    directed_pairs: List[tuple] = []
+    for src, targets in uc_links.items():
+        for tgt in targets:
+            if tgt:
+                directed_pairs.append((src, tgt))
+
+    if not directed_pairs:
+        return {
+            "metric": "H9",
+            "name": "Cross-UC Dependency Coverage",
+            "score": 0.0,
+            "target": 100.0,
+            "status": "no_links",
+            "details": {"directed_pairs": 0, "reciprocal": 0, "missing_reciprocals": []},
+        }
+
+    reciprocal_count = 0
+    missing: List[str] = []
+    seen_pairs: Set[tuple] = set()
+
+    for (src, tgt) in directed_pairs:
+        pair = tuple(sorted([src, tgt]))
+        if pair in seen_pairs:
+            continue
+        seen_pairs.add(pair)
+        if tgt in uc_links.get(src, []) and src in uc_links.get(tgt, []):
+            reciprocal_count += 1
+        else:
+            missing.append(f"{src}<->{tgt}")
+
+    total_pairs = len(seen_pairs)
+    pct = (reciprocal_count / total_pairs) * 100 if total_pairs > 0 else 0.0
+
+    return {
+        "metric": "H9",
+        "name": "Cross-UC Dependency Coverage",
+        "score": round(pct, 1),
+        "target": 100.0,
+        "status": "pass" if pct >= 100.0 else "below_target",
+        "details": {
+            "total_unique_pairs": total_pairs,
+            "reciprocal_pairs": reciprocal_count,
+            "missing_reciprocals": missing,
+        },
+    }
+
+
 def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
-    """Run all H1-H8 metrics and return results dict."""
+    """Run all H1-H9 metrics and return results dict."""
     if repo_root is None:
         repo_root = _repo_root()
 
@@ -716,6 +796,7 @@ def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
         compute_h6(repo_root),
         compute_h7(repo_root),
         compute_h8(repo_root),
+        compute_h9(repo_root),
     ]
 
     all_pass = all(m["status"] == "pass" for m in metrics)

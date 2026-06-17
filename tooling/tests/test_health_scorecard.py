@@ -18,6 +18,7 @@ from health_scorecard import (
     compute_h4,
     compute_h5,
     compute_h8,
+    compute_h9,
     run_scorecard,
 )
 
@@ -535,8 +536,8 @@ class TestRunScorecard:
         self._ensure_registry(repo_root)
         results = run_scorecard(repo_root)
         assert "metrics" in results
-        assert len(results["metrics"]) == 8
-        assert {m["metric"] for m in results["metrics"]} >= {"H1", "H7", "H8"}
+        assert len(results["metrics"]) == 9
+        assert {m["metric"] for m in results["metrics"]} >= {"H1", "H7", "H8", "H9"}
         for m in results["metrics"]:
             assert "score" in m
             assert "target" in m
@@ -551,3 +552,50 @@ class TestRunScorecard:
         parsed = json.loads(output)
         assert parsed["meta"]["version"] != "unknown"
         assert "generated_at_utc" in parsed["meta"]
+
+
+# ---------------------------------------------------------------------------
+# H9 — Cross-UC Dependency Coverage
+# ---------------------------------------------------------------------------
+
+class TestComputeH9:
+    """H9 measures whether use_case_links edges are reciprocal."""
+
+    @staticmethod
+    def _write_bracket(repo_root: Path, uc_id: str, dir_name: str, links) -> None:
+        import yaml as _yaml
+        d = repo_root / "core" / "usecases" / "core" / dir_name
+        d.mkdir(parents=True, exist_ok=True)
+        body = {"id": uc_id}
+        if links is not None:
+            body["use_case_links"] = [
+                {"use_case_id": t, "link_type": "feeds_into", "reason": "test dependency edge"}
+                for t in links
+            ]
+        (d / "UseCase_Bracket.yaml").write_text(
+            _yaml.safe_dump(body, sort_keys=False), encoding="utf-8"
+        )
+
+    def test_no_links_returns_no_links_status(self, tmp_repo):
+        self._write_bracket(tmp_repo, "COM-001", "COM-001_Sales_Performance", None)
+        result = compute_h9(tmp_repo)
+        assert result["metric"] == "H9"
+        assert result["status"] == "no_links"
+        assert result["score"] == 0.0
+
+    def test_reciprocal_pair_scores_100(self, tmp_repo):
+        self._write_bracket(tmp_repo, "COM-001", "COM-001_Sales_Performance", ["FIN-002"])
+        self._write_bracket(tmp_repo, "FIN-002", "FIN-002_Cost_Performance", ["COM-001"])
+        result = compute_h9(tmp_repo)
+        assert result["score"] == 100.0
+        assert result["status"] == "pass"
+        assert result["details"]["reciprocal_pairs"] == 1
+        assert result["details"]["total_unique_pairs"] == 1
+
+    def test_one_way_link_flagged_as_missing(self, tmp_repo):
+        self._write_bracket(tmp_repo, "COM-001", "COM-001_Sales_Performance", ["FIN-002"])
+        self._write_bracket(tmp_repo, "FIN-002", "FIN-002_Cost_Performance", None)
+        result = compute_h9(tmp_repo)
+        assert result["score"] == 0.0
+        assert result["status"] == "below_target"
+        assert result["details"]["missing_reciprocals"] == ["COM-001<->FIN-002"]

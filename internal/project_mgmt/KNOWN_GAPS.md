@@ -115,6 +115,58 @@ These JSON templates work standalone (grid layouts). To use them with Penpot/Fig
 
 ---
 
+## 7. Industry-Variant Use-Case Tier — Deferred Epic (from branch `enhance-factsheets-quality`)
+
+The closed branch `claude/enhance-factsheets-quality-7YkI9` proposed a brand-new
+**industry-variant tier** of the use-case library. The *clean, self-contained*
+parts of that branch were salvaged (scorecard H9 cross-UC coverage, `use_case_links`
++ `security.rls` schema/bracket support, GDPR §7.4 prose for COM-003/XD-001, three
+domain-agnostic decision spines). The tier itself is **deferred** because it
+*defines net-new governance* (new ID taxonomy, new KPI namespaces, new action
+codes) and must be authored deliberately, not auto-generated off an abandoned
+branch.
+
+**What the tier introduces (all NOT yet in the catalog):**
+
+- **New ID taxonomy** `XXX-EXT-NNN` / `XXX-IND-<R|L|M>NNN` alongside the governed
+  `XXX-NNN` set, and a **new directory tree** `core/usecases/industry/<sector>/`.
+- **Six use cases**, only one of which (`COM-IND-R001`) has a draft bracket on the
+  branch — and even it is missing its `Business_Factsheet.md`:
+
+  | Spine (already salvaged) | Target UC (to author) | Sector |
+  |---|---|---|
+  | `DEC-SPINE-COM-BASKET_CROSSSELL` | `COM-IND-R001` Basket & Category Cross-Sell | Retail |
+  | `DEC-SPINE-COM-SEGMENTATION` | `COM-EXT-001` Customer Segmentation / RFM | Commercial |
+  | `DEC-SPINE-FIN-BUDGET_VARIANCE` | `FIN-EXT-001` Budget Variance / P&L Bridge | Finance |
+  | `DEC-SPINE-SCM-SUPPLIER_RISK` | `SCM-EXT-001` Supplier Risk | Supply Chain |
+  | `DEC-SPINE-SCM-LAST_MILE` | `SCM-IND-L001` Last-Mile Delivery | Logistics |
+  | `DEC-SPINE-OPS-OEE` | `OPS-IND-M001` OEE | Manufacturing |
+
+  > The three spines `DEC-SPINE-OPS-OEE`, `DEC-SPINE-SCM-LAST_MILE`,
+  > `DEC-SPINE-SCM-SUPPLIER_RISK` were **NOT** salvaged: their escalation paths cite
+  > action codes (`O-P2.1`, `S-L1.1/.2`, `S-P3.1/.2`) that don't exist yet.
+
+**Prerequisites before any of these UCs can pass the Golden Thread gates:**
+
+1. **KPIs** — `COM-IND-R001` alone references five KPIs absent from
+   `core/kpi_catalog/`, in two **new namespaces**:
+   `retail.basket.items_per_transaction`, `retail.category.crosssell_rate.pct`,
+   `retail.basket.value.average`, `retail.promotion.attachment_rate.pct`,
+   `customer.rfm.frequency_score`. The other five UCs will need their own.
+2. **Action codes** — author `O-P2.1`, `S-L1.1`, `S-L1.2`, `S-P3.1`, `S-P3.2` in
+   `core/action_codes/` before salvaging their spines.
+3. **Map wiring** — `DecisionSpine_UseCase_Map.yaml` entries for the six spines were
+   **intentionally left out** of this salvage (they pointed at non-existent UC IDs).
+   Add each entry only once its target UC exists.
+4. **Taxonomy decision** — the `EXT`/`IND-R/L/M` infix and `core/usecases/industry/`
+   tree are an architectural choice that should be ratified (ADR or strategy index)
+   before the directory convention is committed.
+
+Reference: branch `claude/enhance-factsheets-quality-7YkI9`; salvage audit in PR that
+introduced this entry.
+
+---
+
 ## Resolved Items
 
 | Item | Resolved | Notes |

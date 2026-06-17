@@ -121,3 +121,11 @@ overrides:
   data_contract_ref: core/data_contracts/domains/executive.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md
+
+security:
+  rls:
+    model: entity_hierarchy
+    enforcement_layer: semantic_model
+    role_table: security_user_org
+    access_column: entity_key
+    test_requirement: "DAX EVALUATE CALCULATETABLE(VALUES('_Measures'[Value At Risk Index]), USERELATIONSHIP(security_user_org[entity_key], dim_org[entity_key])) returns only rows for the signed-in user's assigned entities."
