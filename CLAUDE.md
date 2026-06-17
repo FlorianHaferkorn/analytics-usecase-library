@@ -95,3 +95,13 @@ Sonst öffnet `fab` blockierende interaktive Prompts.
 Mindestens Stage 1 (`.\tooling\run_stage1_checks.ps1`) vor jedem Commit; Python-Suite
 `python -m pytest tooling/tests/ products/ -q`. Alle Skripte aus der **Repo-Wurzel**
 ausführen. Eine Aufgabe gilt nie als fertig, solange Validierung Fehler zeigt.
+
+### GitHub-Actions-CI — bekannte Usage-Limit-Bedingung
+Bis **1. Juli** schlägt die GitHub-Actions-CI repo-weit fehl, weil das
+Actions-Usage-Limit erreicht ist — **auf `main` und allen Branches gleichermaßen**.
+Symptom: Jobs enden nach ~2 s mit `conclusion=failure`, **ohne Runner**
+(`runner_id: 0`, leerer `runner_name`), Logs liefern HTTP 404. Das ist **keine**
+Code-Ursache und durch keinen Diff zu beheben — es löst sich am 1. Juli von selbst.
+Daher: diese roten CI-Läufe **nicht untersuchen und nicht re-triggern**; stattdessen
+**lokal** validieren (Quality-Gate oben). Über das weitere Vorgehen (z. B. Merge)
+entscheidet der/die Maintainer:in.
