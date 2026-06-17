@@ -20,7 +20,7 @@ Recommended reading order:
 7. `operating_model/data_governance.md` §7–§9 (artifact design laws, framework audit, trust signals)
 8. `operating_model/reference/core_abi.md` (stable machine interface for adapters)
 
-Design principles origin: [`internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md`](../../internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md)
+Design principles origin: [`internal/archive/phase2_experiments/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md`](../../internal/archive/phase2_experiments/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md)
 
 For implementation, continue with:
 

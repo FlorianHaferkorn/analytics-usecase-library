@@ -11,23 +11,9 @@ This document tracks known limitations, placeholder content, and deferred activa
 
 ## How to read this file
 
-- **Section 1, 1a** — missing data / pending model integrations.
-- **Sections 2–6** — activation steps for features that need an external action (theme save, design tool setup, CI wiring).
+- **Section 1a** — missing data / pending model integrations.
+- **Sections 2–7** — activation steps and deferred epics that need an external action or deliberate authoring (theme save, design tool setup, industry-variant tier).
 - **Resolved Items** — append-only changelog of past gaps. Useful as evidence when an audit asks "what was deferred and when did it ship?"
-
----
-
-## 1. Three Fact Tables — TMDL Stub Still Has `/// Data contract pending` Comment
-
-Parquet data for `fact_quality_costs`, `fact_complaints`, and `fact_supplier_risk` **is committed** (Delta/Parquet partitions 2020–2024 under `showcases/aurora_group/data/gold/facts/`). The gap that remains is the TMDL still contains `/// Data contract pending` comments and the measures return `BLANK()` until the semantic model is regenerated against the live gold data.
-
-| Fact Table | TMDL Location | Action |
-|---|---|---|
-| `fact_quality_costs` | `Operations.SemanticModel/definition/tables/fact_quality_costs.tmdl` | Remove `/// Data contract pending`; wire M partition to gold path |
-| `fact_complaints` | `Operations.SemanticModel/definition/tables/fact_complaints.tmdl` | Same |
-| `fact_supplier_risk` | `Finance.SemanticModel/definition/tables/fact_supplier_risk.tmdl` | Same |
-
-> **Note:** The one-time backfill script (`generate_missing_facts.py`) has been archived to `internal/archive/showcases/gold_maintenance/`. The data is already present; no script needs to be run.
 
 ---
 
@@ -86,21 +72,6 @@ Similarly, Figma layouts are supported via `FigmaLayoutBridge` (requires Figma M
 ~~All date slicers used `dim_date.Date` (flat date picker), which rendered as a calendar widget without month grouping.~~
 
 **Resolved 2026-03-27:** All reports now use `dim_date.CalendarYearMonth` (format: `YYYY-MM`) as the default slicer field. The calculated column is defined in all 5 semantic model `dim_date.tmdl` files. Slicers render as a sortable dropdown grouped by month.
-
----
-
-## 5. `validate_bindings.py` — CI Integration ✅ Wired via MCP
-
-The CI validation script `products/fabric/powerbi/tooling/validate_bindings.py` is implemented and passes locally (15/15 reports, 0 errors). It is now also callable via the `validate_bindings` MCP tool in Studio.
-
-**To integrate in GitHub Actions:**
-```yaml
-# .github/workflows/validate.yml
-- name: Validate report bindings
-  run: python3 products/fabric/powerbi/tooling/validate_bindings.py --dist-dir products/fabric/powerbi/dist --strict
-```
-
-**MCP tool:** `studio mcp validate_bindings --strict` — returns exit code and full output.
 
 ---
 
@@ -181,5 +152,7 @@ introduced this entry.
 | No action-code outcome loop in reports | 2026-04-20 | `[Action Outcome Rate %]` and 3 companion measures in all 5 domain models |
 | deploy_pbip required manual Power BI Desktop | 2026-04-20 | `deploy_pbip` MCP tool chains IR generation → `fab import` automatically |
 | No DAX execution without Desktop | 2026-04-20 | `execute_dax` MCP tool wraps `execute_dax.py` via fab+az CLI |
-| Missing Parquet for fact_quality_costs, fact_complaints, fact_supplier_risk | 2026-05-27 | Gold data committed (2020–2024 partitions). One-time script `generate_missing_facts.py` archived to `internal/archive/showcases/gold_maintenance/`. Remaining gap: regenerate TMDL to remove stub comments (tracked in §1 above). |
+| Missing Parquet for fact_quality_costs, fact_complaints, fact_supplier_risk | 2026-05-27 | Gold data committed (2020–2024 partitions). One-time script `generate_missing_facts.py` archived to `internal/archive/showcases/gold_maintenance/`. |
 | `fix_bracket_component30s.py` one-time repair | 2026-05-27 | All 16 UseCase_Bracket.yaml files confirmed clean. Script archived to `internal/archive/tooling/maintenance/`. |
+| TMDL `/// Data contract pending` stubs on 3 fact tables (was §1) | 2026-06-17 | Stub comments removed and M partitions wired to the Gold path; no `.tmdl` contains the marker (commit `9348f59`). |
+| `validate_bindings.py` not wired into GitHub Actions (was §5) | 2026-06-17 | Already wired into `.github/workflows/stage1.yml` (per-domain `--strict`). |
