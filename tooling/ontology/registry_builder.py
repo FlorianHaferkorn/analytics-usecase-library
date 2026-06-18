@@ -488,9 +488,8 @@ def scan_usecase_brackets(repo_root: Path) -> Tuple[Dict[str, Dict[str, Any]], L
     if not uc_root.exists():
         return brackets, issues
     for p in uc_root.rglob("UseCase_Bracket.yaml"):
-        # Skip extended/industry scaffolds — aspirational use cases with unresolved refs
-        if any(part in ("extended", "industry") for part in p.relative_to(uc_root).parts):
-            continue
+        # Extension tiers (extended/, industry/<sector>/) are validated like core per ADR-0004:
+        # a tier use case must pass the same Golden Thread gate, not be skipped.
         rel = _to_repo_rel(repo_root, p)
         try:
             data = parse_yaml_file(p)
@@ -545,10 +544,8 @@ def scan_usecase_factsheets(repo_root: Path) -> Tuple[Dict[str, Dict[str, Any]],
     uc_root = repo_root / "core" / "usecases"
     out: Dict[str, Dict[str, Any]] = {}
     for p in uc_root.rglob("*_Factsheet.md"):
-        # ignore templates and extended/industry scaffolds
+        # ignore templates; extension tiers (extended/, industry/) are validated like core per ADR-0004.
         if "templates" in p.parts:
-            continue
-        if any(part in ("extended", "industry") for part in p.relative_to(uc_root).parts):
             continue
         rel = _to_repo_rel(repo_root, p)
         try:

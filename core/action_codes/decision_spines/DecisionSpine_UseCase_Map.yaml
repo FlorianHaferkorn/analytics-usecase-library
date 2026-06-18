@@ -3,6 +3,8 @@ decision_spines:
     use_cases: [COM-001, COM-002, COM-004]
   DEC-SPINE-COM-CUSTOMER_VALUE:
     use_cases: [COM-003]
+  DEC-SPINE-COM-BASKET_CROSSSELL:
+    use_cases: [COM-IND-R001]
   DEC-SPINE-FIN-LIQUIDITY:
     use_cases: [FIN-001]
   DEC-SPINE-FIN-COST:

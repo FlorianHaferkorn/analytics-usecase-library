@@ -22,8 +22,8 @@
     },
     "id": {
       "type": "string",
-      "pattern": "^[A-Z]{2,3}-\\d{3}$",
-      "description": "Use case ID (e.g. COM-001, FIN-002, XD-003)."
+      "pattern": "^[A-Z]{2,3}-(EXT-|IND-[A-Z])?\\d{3}$",
+      "description": "Use case ID. Core: COM-001. Extension tiers (ADR-0004): COM-EXT-001 (cross-industry), COM-IND-R001 (sector-specific; letter after IND- per ADR-0004 sector register)."
     },
     "title": {
       "type": "string",

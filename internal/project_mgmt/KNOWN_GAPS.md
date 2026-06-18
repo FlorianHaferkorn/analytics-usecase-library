@@ -129,12 +129,25 @@ branch.
 3. **Map wiring** — `DecisionSpine_UseCase_Map.yaml` entries for the six spines were
    **intentionally left out** of this salvage (they pointed at non-existent UC IDs).
    Add each entry only once its target UC exists.
-4. **Taxonomy decision** — the `EXT`/`IND-R/L/M` infix and `core/usecases/industry/`
-   tree are an architectural choice that should be ratified (ADR or strategy index)
-   before the directory convention is committed.
+4. **Taxonomy decision** ✅ **DONE (2026-06-18, ADR-0004)** — the `EXT`/`IND-<S>`
+   infix, the `extended/` and `industry/<sector>/` tier trees, and the sector-letter
+   register (R=Retail, L=Logistics, M=Manufacturing) are ratified in
+   `docs/architecture/adr/0004-industry-variant-use-case-tier-taxonomy.md`. The
+   bracket-schema `id` pattern and the `registry_builder` use-case scan were widened
+   so extension-tier UCs validate like core.
+
+**Delivered — first slice (2026-06-18):** `COM-IND-R001` Basket & Category Cross-Sell
+(Retail) is authored end-to-end and passes the Golden Thread gates: 5 new KPIs
+(`retail.basket.items_per_transaction`, `retail.category.crosssell_rate.pct`,
+`retail.basket.value.average`, `retail.promotion.attachment_rate.pct`,
+`customer.rfm.frequency_score`), the new commercial action code `C-M3.1` inheriting
+`DEC-SPINE-COM-BASKET_CROSSSELL`, the bracket + prose factsheet under
+`core/usecases/industry/retail/`, and the `DecisionSpine_UseCase_Map.yaml` entry —
+so prerequisites #1 and #3 are satisfied **for this UC**. The other five §7 use cases
+remain to be authored deliberately, one governed slice at a time.
 
 Reference: branch `claude/enhance-factsheets-quality-7YkI9`; salvage audit in PR that
-introduced this entry.
+introduced this entry; taxonomy ratified in ADR-0004.
 
 ---
 

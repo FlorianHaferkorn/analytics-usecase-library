@@ -1,0 +1,39 @@
+kpi_id: retail.basket.value.average
+kpi_key: Average Basket Value
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Growth
+domain_tag:
+- Commercial
+- Retail
+use_case_ref:
+- COM-IND-R001
+action_code_ref:
+- C-M3.1
+calc_type: amount
+business:
+  purpose: Average net sales value of a completed transaction.
+  definition: Net sales amount divided by total transactions in scope.
+  grain_scope: Transaction aggregated by Month, Store, Channel.
+  unit_format: EUR (2 decimals)
+  interpretation: The headline basket-economics guardrail; cross-sell actions must grow breadth without eroding average basket value.
+technical:
+  measure_name: Average Basket Value
+  description: Average net sales value per completed transaction.
+  depends_on_measures: []
+  lineage:
+  - fact_sales.Net Sales Amount
+  - fact_sales.Transaction Key
+governance:
+  business_owner: Head of Category Management
+  data_owner: Commercial BI Engineering
+  steward: Trade Marketing Analyst
+  review_cycle: monthly
+  validation_process: monthly reconciliation against POS net sales and transaction counts
+  qa_rules:
+  - Bounds [0; 100000]
+  - Net of VAT and returns; consistent with sales.net_sales.amount basis
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.06.2026

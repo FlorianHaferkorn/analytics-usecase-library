@@ -48,6 +48,9 @@ def parse_catalog(catalog_path: str) -> dict:
     content = Path(catalog_path).read_text(encoding="utf-8")
     blocks = re.split(r"^(?=- kpi_id:)", content, flags=re.MULTILINE)
     for block in blocks:
+        # The final entry's block carries the closing ``` fence (and any trailing
+        # prose), which breaks YAML parsing and would silently drop the last KPI.
+        block = block.split("\n```", 1)[0]
         try:
             doc = yaml.safe_load(block)
         except yaml.YAMLError:

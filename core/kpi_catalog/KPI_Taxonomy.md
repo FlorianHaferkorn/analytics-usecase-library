@@ -44,6 +44,20 @@ This document provides a **readable, domain-oriented view** of the KPI Catalog. 
 
 ---
 
+## Retail — Basket & Cross-Sell (COM-IND-R001)
+
+Industry-tier namespaces (`retail.*`, `customer.rfm.*`) introduced with the ADR-0004 use-case tier. Sector tag: `Retail`.
+
+| KPI ID | Short purpose | Used in |
+|--------|----------------|---------|
+| retail.category.crosssell_rate.pct | Share of transactions spanning ≥2 categories (strategic) | COM-IND-R001 |
+| retail.basket.items_per_transaction | Average distinct items per transaction | COM-IND-R001 |
+| retail.basket.value.average | Average net basket value (basket-economics guardrail) | COM-IND-R001 |
+| retail.promotion.attachment_rate.pct | Margin-accretive attachment on promoted baskets | COM-IND-R001 |
+| customer.rfm.frequency_score | RFM purchase-frequency score (segment average) | COM-IND-R001 |
+
+---
+
 ## Finance (FIN)
 
 | KPI ID | Short purpose | Used in |
