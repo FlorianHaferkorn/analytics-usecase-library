@@ -22,8 +22,8 @@
     },
     "id": {
       "type": "string",
-      "pattern": "^[A-Z]{2,3}-\\d{3}$",
-      "description": "Use case ID (e.g. COM-001, FIN-002, XD-003)."
+      "pattern": "^[A-Z]{2,3}-(EXT-|IND-[A-Z])?\\d{3}$",
+      "description": "Use case ID. Core: COM-001. Extension tiers (ADR-0004): COM-EXT-001 (cross-industry), COM-IND-R001 (sector-specific; letter after IND- per ADR-0004 sector register)."
     },
     "title": {
       "type": "string",
@@ -48,6 +48,11 @@
           "type": "string",
           "minLength": 2,
           "description": "Data/definition accountability role ID (must exist in org_roles.yaml)."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "active", "deprecated"],
+          "description": "Lifecycle gate (ADR-0004). Absent or 'active' = final: full Golden Thread enforcement (referential integrity, governed evidence grain, org roles are ERRORs). 'draft' = in elaboration: those reference checks are advisory (WARN) so an unfinished use case can be parked without breaking the build, while it is still scanned and inventoried. 'deprecated' = retired. Structural/schema validity is enforced in every state."
         }
       }
     },

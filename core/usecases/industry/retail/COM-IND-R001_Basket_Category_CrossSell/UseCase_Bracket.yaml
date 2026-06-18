@@ -1,0 +1,123 @@
+schema_version: '2.0'
+id: COM-IND-R001
+title: Basket & Category Cross-Sell
+domain: Commercial / Retail
+governance:
+  owner_role: category_manager
+  steward_role: trade_marketing_commercial_bi_lead
+  status: active
+orchestration:
+  strategic_kpi_id: retail.category.crosssell_rate.pct
+  influencing_kpi_ids:
+  - retail.basket.items_per_transaction
+  - retail.basket.value.average
+  - retail.promotion.attachment_rate.pct
+  - customer.rfm.frequency_score
+  action_code_ids:
+  - C-M3.1
+primary_kpi_ids:
+- retail.category.crosssell_rate.pct
+- retail.basket.value.average
+value_driver_model:
+  formula: retail.category.crosssell_rate.pct = f(retail.basket.items_per_transaction, retail.basket.value.average, retail.promotion.attachment_rate.pct,
+    customer.rfm.frequency_score)
+  impact_direction: maximize
+  primary_driver: retail.promotion.attachment_rate.pct
+  impact_logic: Lifting retail.promotion.attachment_rate.pct is the primary lever for maximizing retail.category.crosssell_rate.pct because margin-accretive attachment on promoted baskets is the fastest, lowest-cost path to broader category capture before placement or campaign investment.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: Retail / Basket & Cross-Sell Summary & Insights
+    page_type: T1_Strategic_Overview
+    template_variant: T1_Portfolio
+    template_id: pulse
+    decision_question: "Are we growing basket breadth and category cross-sell?"
+    big_idea: "Category cross-sell has stalled — high-affinity pairs are underactivated in core stores, leaving basket breadth and revenue per visit on the table."
+    component_3s:
+      kpi_id: retail.category.crosssell_rate.pct
+      visual_type: kpi_card
+    component_30s:
+    - slot_id: Main_1
+      kpi_id: retail.basket.value.average
+      visual_type: trend_line
+    - slot_id: Main_2
+      kpi_ids:
+      - retail.category.crosssell_rate.pct
+      - retail.promotion.attachment_rate.pct
+      visual_type: bar_chart
+    - slot_id: Main_3
+      kpi_id: retail.basket.items_per_transaction
+      visual_type: bar_chart_horizontal
+      category_field: dim_product.Category
+  page_2_execution:
+    title: Retail / Basket & Cross-Sell Execution
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: invoice_line
+      evidence_columns:
+      - category_pair
+      - store_format
+      - channel
+      - retail.category.crosssell_rate.pct
+      - retail.basket.value.average
+      - retail.basket.items_per_transaction
+      - retail.promotion.attachment_rate.pct
+      - customer.rfm.frequency_score
+      action_panel: true
+      payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.65
+  reach: division
+  priority_score: 15
+data_protection:
+  # DSGVO Art. 25 Privacy by Design and by Default
+  # Authority: core/templates/page_templates/governance/Data_Protection_Governance.md
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: >
+    Reporting is limited to category-pair, store-format, and customer-segment
+    grain — no individual customer records are exposed. The RFM frequency score
+    enters only as a segment-level average. If individual-customer targeting
+    enters scope, re-assess personal_data = true and apply
+    art6_1f_legitimate_interest.
+  access_restriction: >
+    category_manager and trade_marketing_commercial_bi_lead roles; row-level
+    security enforced by the Commercial semantic model (entity filter per org
+    role).
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: >
+    Active Actions Text (COM) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md §13.
+readiness:
+  data_availability: partial
+  org_capability: developing
+  stakeholder_alignment: partial
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
+  evidence_grain_note: >-
+    Evidence is governed at invoice_line grain (fact_sales, commercial_sales.yaml).
+    Basket, cross-sell, and attachment metrics are computed from transaction-line
+    detail and aggregated to category pair and store format in the action matrix.
+documentation:
+  business_factsheet: ./Business_Factsheet.md
+security:
+  rls:
+    model: entity_hierarchy
+    enforcement_layer: semantic_model
+    role_table: security_user_org
+    access_column: entity_key
+    test_requirement: "DAX EVALUATE CALCULATETABLE(VALUES('_Measures'[Category Cross-Sell Rate %]), USERELATIONSHIP(security_user_org[entity_key], dim_org[entity_key])) returns only rows for the signed-in user's assigned entities."
+use_case_links:
+- use_case_id: COM-004
+  link_type: peer_context
+  reason: "Promotion attachment mechanics are shared with COM-004 Promotion Effectiveness — cross-sell and promotion ROI must be read together to avoid double-counting incremental revenue."
+- use_case_id: COM-003
+  link_type: feeds_into
+  reason: "Sustained basket breadth and cross-sell raise repeat-purchase frequency, feeding the customer-value and retention outcomes tracked in COM-003."

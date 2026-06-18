@@ -39,10 +39,12 @@ core/usecases/
   templates/                - Business factsheet template and UseCase_Bracket template
     usecase_factsheet_business.md
     UseCase_Bracket_TEMPLATE.yaml
-  core/                     - Core use cases (universal)
-  extended/                 - Advanced / extended use cases
-  industry/                 - Industry-specific scenarios
+  core/                     - Core use cases (universal)        — IDs: XXX-NNN
+  extended/                 - Advanced / extended use cases     — IDs: XXX-EXT-NNN
+  industry/<sector>/        - Industry-specific scenarios       — IDs: XXX-IND-<S>NNN
 ```
+
+> **Tier ID taxonomy:** the `EXT`/`IND-<sector-letter>` scheme, the folder trees above, and the sector-letter register (R=Retail, L=Logistics, M=Manufacturing) are ratified in [ADR-0004](../../docs/architecture/adr/0004-industry-variant-use-case-tier-taxonomy.md). Extension-tier use cases reference governed KPIs, action codes, and decision spines and pass the **same** Golden Thread gates as core use cases.
 
 ### UseCase_Inventory.md
 
@@ -88,6 +90,8 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
 - OEE breakdown  
 - Production scrap analytics  
 - ESG & sustainability scoring
+
+**Instantiated:** `industry/retail/COM-IND-R001_Basket_Category_CrossSell/` — Basket & Category Cross-Sell (Retail), the first use case authored under the ADR-0004 tier taxonomy. The remaining industry/extension use cases tracked in `internal/project_mgmt/KNOWN_GAPS.md` §7 are authored deliberately, one governed slice at a time.
 
 ## Usage
 

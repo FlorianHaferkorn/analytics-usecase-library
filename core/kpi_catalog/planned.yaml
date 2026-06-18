@@ -70,3 +70,28 @@
   owner: fin_analytics_lead
   eta_date: "2026-09-30"
   reason: "Profitability KPI grounded in fact_finance (EBITDA Amount / Net Sales Amount); wired into the FIN-002 bracket — materialises on the next Finance model rebuild"
+
+- kpi_id: retail.category.crosssell_rate.pct
+  owner: commercial_bi_lead
+  eta_date: "2026-09-30"
+  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
+
+- kpi_id: retail.basket.items_per_transaction
+  owner: commercial_bi_lead
+  eta_date: "2026-09-30"
+  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
+
+- kpi_id: retail.basket.value.average
+  owner: commercial_bi_lead
+  eta_date: "2026-09-30"
+  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
+
+- kpi_id: retail.promotion.attachment_rate.pct
+  owner: commercial_bi_lead
+  eta_date: "2026-09-30"
+  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
+
+- kpi_id: customer.rfm.frequency_score
+  owner: commercial_bi_lead
+  eta_date: "2026-09-30"
+  reason: "RFM frequency score for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"

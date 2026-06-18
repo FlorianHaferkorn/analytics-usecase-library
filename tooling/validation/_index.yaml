@@ -10,8 +10,8 @@ version: "1.0"
 domains:
   COM:
     name: Commercial
-    scope: "Sales, Marketing, CRM, Pricing"
-    kpi_domain_keys: [sales, crm, marketing, pricing, commercial]
+    scope: "Sales, Marketing, CRM, Pricing, Retail"
+    kpi_domain_keys: [sales, crm, marketing, pricing, commercial, retail, customer]
     action_prefix: "C"
   FIN:
     name: Finance
@@ -64,13 +64,19 @@ id_patterns:
       - finance.cash_flow.amount
 
   use_case:
-    format: "<DOMAIN>-<NNN>"
-    regex: "^[A-Z]{2,4}-\\d{3}$"
+    # Core + extension tiers ratified in ADR-0004 (industry-variant use-case tier).
+    format: "<DOMAIN>-<NNN> | <DOMAIN>-EXT-<NNN> | <DOMAIN>-IND-<S><NNN>"
+    regex: "^[A-Z]{2,4}-(EXT-|IND-[A-Z])?\\d{3}$"
     folder_format: "<ID>_<Descriptive_Name>"
+    tiers:
+      core: "core/usecases/core/ — <DOMAIN>-<NNN> (governed core-16)"
+      extended: "core/usecases/extended/ — <DOMAIN>-EXT-<NNN> (cross-industry, sector-agnostic)"
+      industry: "core/usecases/industry/<sector>/ — <DOMAIN>-IND-<S><NNN> (sector-specific)"
+    sector_letters: { R: Retail, L: Logistics, M: Manufacturing }
     examples:
       - COM-001
-      - FIN-001
-      - XD-001
+      - COM-EXT-001
+      - COM-IND-R001
 
   action_code:
     format: "<Prefix>-<Type><Seq>.<Sub>"
@@ -100,6 +106,11 @@ action_types:
   C: "Cost"
   R: "Risk"
 
+# Use-case lifecycle gate (ADR-0004): a bracket's governance.status drives how
+# hard the Golden Thread is enforced. 'active' (or absent = default) = final →
+# referential / evidence-grain / org-role gaps are ERRORs. 'draft' = in
+# elaboration → those checks are advisory (WARN) so an unfinished use case can be
+# parked. 'deprecated' = retired. Structural/schema validity is enforced in all states.
 governance_statuses:
   - active
   - draft

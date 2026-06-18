@@ -5514,4 +5514,202 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 28.04.2026
+
+- kpi_id: retail.category.crosssell_rate.pct
+  kpi_key: Category Cross-Sell Rate %
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Retail
+  use_case_ref:
+  - COM-IND-R001
+  action_code_ref:
+  - C-M3.1
+  calc_type: rate
+  business:
+    purpose: Share of transactions that contain items from two or more distinct product categories.
+    definition: Transactions with >=2 distinct categories divided by total transactions in scope.
+    grain_scope: Transaction aggregated by Month, Store, Channel, Category pair.
+    unit_format: '% (1 decimal)'
+    interpretation: Higher values indicate stronger basket breadth and cross-sell capture; declining values signal weakening category affinity activation.
+  technical:
+    measure_name: Category Cross-Sell Rate %
+    description: Share of transactions spanning two or more product categories.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Transaction Key
+    - fact_sales.Category Key
+  governance:
+    business_owner: Head of Category Management
+    data_owner: Commercial BI Engineering
+    steward: Trade Marketing Analyst
+    review_cycle: monthly
+    validation_process: monthly reconciliation against POS transaction counts
+    qa_rules:
+    - Bounds [0%; 100%]
+    - Transaction denominator excludes voided and returns-only baskets
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.06.2026
+
+- kpi_id: retail.basket.items_per_transaction
+  kpi_key: Items per Transaction
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Retail
+  use_case_ref:
+  - COM-IND-R001
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Average number of distinct line items per completed transaction.
+    definition: Total line items divided by total transactions in scope.
+    grain_scope: Transaction aggregated by Month, Store, Channel.
+    unit_format: items (1 decimal)
+    interpretation: A core basket-size driver; rising values indicate broader baskets and successful attachment, falling values indicate basket erosion.
+  technical:
+    measure_name: Items per Transaction
+    description: Average distinct line items per completed transaction.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Line Item Key
+    - fact_sales.Transaction Key
+  governance:
+    business_owner: Head of Category Management
+    data_owner: Commercial BI Engineering
+    steward: Trade Marketing Analyst
+    review_cycle: monthly
+    validation_process: monthly reconciliation against POS line-item counts
+    qa_rules:
+    - Bounds [1; 50]
+    - Exclude voided and returns-only baskets from the denominator
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.06.2026
+
+- kpi_id: retail.basket.value.average
+  kpi_key: Average Basket Value
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Retail
+  use_case_ref:
+  - COM-IND-R001
+  action_code_ref:
+  - C-M3.1
+  calc_type: amount
+  business:
+    purpose: Average net sales value of a completed transaction.
+    definition: Net sales amount divided by total transactions in scope.
+    grain_scope: Transaction aggregated by Month, Store, Channel.
+    unit_format: EUR (2 decimals)
+    interpretation: The headline basket-economics guardrail; cross-sell actions must grow breadth without eroding average basket value.
+  technical:
+    measure_name: Average Basket Value
+    description: Average net sales value per completed transaction.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.Transaction Key
+  governance:
+    business_owner: Head of Category Management
+    data_owner: Commercial BI Engineering
+    steward: Trade Marketing Analyst
+    review_cycle: monthly
+    validation_process: monthly reconciliation against POS net sales and transaction counts
+    qa_rules:
+    - Bounds [0; 100000]
+    - Net of VAT and returns; consistent with sales.net_sales.amount basis
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.06.2026
+
+- kpi_id: retail.promotion.attachment_rate.pct
+  kpi_key: Promotion Attachment Rate %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Retail
+  use_case_ref:
+  - COM-IND-R001
+  action_code_ref:
+  - C-M3.1
+  calc_type: rate
+  business:
+    purpose: Share of promoted-item transactions that also contain at least one attached full-margin item from an affinity category.
+    definition: Promoted transactions with an attached affinity-category item divided by all promoted transactions in scope.
+    grain_scope: Transaction aggregated by Month, Store, Channel, Promotion.
+    unit_format: '% (1 decimal)'
+    interpretation: Measures whether promotion mechanics pull margin-accretive attachment rather than standalone deal-seeking; the primary lever for cross-sell rate.
+  technical:
+    measure_name: Promotion Attachment Rate %
+    description: Share of promoted transactions carrying an attached affinity-category item.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Promotion Key
+    - fact_sales.Category Key
+  governance:
+    business_owner: Head of Trade Marketing
+    data_owner: Commercial BI Engineering
+    steward: Trade Marketing Analyst
+    review_cycle: monthly
+    validation_process: monthly reconciliation against promotion participation logs
+    qa_rules:
+    - Bounds [0%; 100%]
+    - Denominator restricted to transactions containing at least one promoted item
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.06.2026
+
+- kpi_id: customer.rfm.frequency_score
+  kpi_key: RFM Frequency Score
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Customer
+  domain_tag:
+  - Commercial
+  - Retail
+  use_case_ref:
+  - COM-IND-R001
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Quintile score (1-5) of customer purchase frequency within the RFM model, averaged across the active base.
+    definition: Mean of per-customer frequency quintile scores (1=least frequent, 5=most frequent) over the active customer base in scope.
+    grain_scope: Customer aggregated to Segment by Month.
+    unit_format: score (1-5, 1 decimal)
+    interpretation: Higher frequency cohorts respond more strongly to cross-sell prompts; used to target attachment offers where repeat-visit behaviour already exists.
+  technical:
+    measure_name: RFM Frequency Score
+    description: Average customer purchase-frequency quintile score from the RFM model.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Customer Key
+    - fact_sales.Transaction Key
+  governance:
+    business_owner: Head of Customer Insight
+    data_owner: Commercial BI Engineering
+    steward: Customer Analytics Lead
+    review_cycle: quarterly
+    validation_process: quarterly recalibration of RFM quintile boundaries against the active base
+    qa_rules:
+    - Bounds [1; 5]
+    - Quintile boundaries recomputed each quarter on a trailing 12-month window
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.06.2026
 ```

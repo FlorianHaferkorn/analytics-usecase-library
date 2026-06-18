@@ -34,12 +34,19 @@ Examples: `sales.net_sales.amount`, `crm.clv.amount`, `sales.net_sales.delta_pct
 
 ### Use Case IDs
 
-Format: `<DOMAIN>-<NNN>`
+Three tiers, ratified in [ADR-0004](../architecture/adr/0004-industry-variant-use-case-tier-taxonomy.md):
 
-Uppercase domain prefix, dash, three-digit sequence number.
+| Tier | Format | Folder | Example |
+|------|--------|--------|---------|
+| Core (governed-16) | `<DOMAIN>-<NNN>` | `core/usecases/core/` | `COM-001` |
+| Cross-industry extension | `<DOMAIN>-EXT-<NNN>` | `core/usecases/extended/` | `COM-EXT-001` |
+| Industry / sector-specific | `<DOMAIN>-IND-<S><NNN>` | `core/usecases/industry/<sector>/` | `COM-IND-R001` |
 
-- Folder name: `<ID>_<Descriptive_Name>` (e.g. `COM-001_Sales_Performance`)
+Uppercase domain prefix; `EXT` marks a sector-agnostic extension; `IND-<S>` marks a sector-specific variant where `<S>` is a sector letter (**R**=Retail, **L**=Logistics, **M**=Manufacturing). The `<NNN>` sequence restarts per `(domain, tier[, sector])` namespace.
+
+- Folder name: `<ID>_<Descriptive_Name>` (e.g. `COM-001_Sales_Performance`, `COM-IND-R001_Basket_Category_CrossSell`)
 - Each folder contains `Business_Factsheet.md` and `UseCase_Bracket.yaml` (schema version declared inside the file as `schema_version: '2.0'`)
+- Extension-tier use cases pass the **same** Golden Thread gates as core.
 
 ### Action Code IDs
 

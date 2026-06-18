@@ -22,6 +22,7 @@ from registry_builder import (
     scan_action_codes,
     scan_kpi_catalog,
     scan_usecase_brackets,
+    validate_evidence_grains,
 )
 
 
@@ -499,3 +500,64 @@ class TestIntegration:
         assert len(uc_ids) > 0
         assert len(kpi_ids) > 0
         assert len(action_ids) > 0
+
+
+# ---------------------------------------------------------------------------
+# Lifecycle gate (ADR-0004): draft vs final use cases
+# ---------------------------------------------------------------------------
+
+class TestLifecycleGate:
+    """A draft use case parks unresolved references (advisory WARN); a final
+    (active / default) use case enforces them (ERROR)."""
+
+    REPO = Path(__file__).resolve().parents[2]
+    ALLOWED = {"invoice_line", "customer_month"}
+
+    @staticmethod
+    def _bracket(uc_id, status, grain):
+        gov = {"owner_role": "r1", "steward_role": "r2"}
+        if status is not None:
+            gov["status"] = status
+        return {
+            uc_id: {
+                "id": uc_id,
+                "source": "does/not/exist.yaml",
+                "raw": {
+                    "governance": gov,
+                    "ux_layout_rules": {
+                        "page_2_execution": {
+                            "component_300s": {"evidence_grain": grain}
+                        }
+                    },
+                },
+            }
+        }
+
+    def _grain_issue(self, status):
+        brackets = self._bracket("COM-IND-X001", status, "ungoverned_grain_xyz")
+        issues = validate_evidence_grains(brackets, self.ALLOWED, self.REPO)
+        gaps = [i for i in issues if i.code == "evidence_grain.governance_gap"]
+        assert len(gaps) == 1, f"expected one governance_gap, got {issues}"
+        return gaps[0]
+
+    def test_final_ungoverned_grain_is_error(self):
+        assert self._grain_issue("active").severity == "ERROR"
+
+    def test_default_status_is_final(self):
+        # status omitted -> treated as final/active -> blocking
+        assert self._grain_issue(None).severity == "ERROR"
+
+    def test_draft_ungoverned_grain_is_advisory(self):
+        assert self._grain_issue("draft").severity == "WARN"
+
+    def test_draft_placeholder_grain_is_advisory(self):
+        brackets = self._bracket("COM-IND-X001", "draft", "transaction_line")
+        issues = validate_evidence_grains(brackets, self.ALLOWED, self.REPO)
+        ph = [i for i in issues if i.code == "evidence_grain.placeholder_forbidden"]
+        assert len(ph) == 1 and ph[0].severity == "WARN"
+
+    def test_governed_grain_passes_in_any_status(self):
+        for status in ("active", "draft", None):
+            brackets = self._bracket("COM-IND-X001", status, "invoice_line")
+            issues = validate_evidence_grains(brackets, self.ALLOWED, self.REPO)
+            assert issues == [], f"governed grain should be clean (status={status})"

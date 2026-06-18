@@ -126,3 +126,8 @@ order:
 - enterprise.actions_executed.count
 - enterprise.avg_time_to_outcome.days
 - enterprise.action_roi.pct
+- retail.category.crosssell_rate.pct
+- retail.basket.items_per_transaction
+- retail.basket.value.average
+- retail.promotion.attachment_rate.pct
+- customer.rfm.frequency_score
