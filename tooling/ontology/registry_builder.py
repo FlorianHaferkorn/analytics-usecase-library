@@ -770,13 +770,8 @@ def build_linked_sets_from_brackets(brackets: Dict[str, Dict[str, Any]]) -> Tupl
     for uc_id, rec in brackets.items():
         raw = rec.get("raw", {})
         src = rec.get("source", "")
-        gov = raw.get("governance") if isinstance(raw, dict) else None
-        status = None
-        if isinstance(gov, dict):
-            status = gov.get("status")
-        is_active = (status == "active") or (status is None)  # default to active if not set
-        if not is_active:
-            continue
+        if not _bracket_lifecycle_active(rec):
+            continue  # draft/deprecated: parked, not part of the active gated set
         uc_ids_active.add(uc_id)
         orch = raw.get("orchestration") or raw.get("ontology_bracket") if isinstance(raw, dict) else None
         if not isinstance(orch, dict):
@@ -967,6 +962,23 @@ def scan_allowed_grains(repo_root: Path) -> Tuple[Set[str], List[Issue]]:
     return grains, issues
 
 
+def _bracket_lifecycle_active(rec: Dict[str, Any]) -> bool:
+    """True when a use-case bracket is governed at full strength.
+
+    Lifecycle gate (ADR-0004): a bracket is treated as **final** when
+    ``governance.status`` is ``active`` or absent (the default). ``draft`` and
+    ``deprecated`` use cases are still scanned and inventoried, but their
+    content/reference checks (referential integrity, evidence grain, org roles)
+    are **advisory (WARN)** rather than blocking — so a use case still being
+    elaborated (data need / evidence grain not yet resolved) can be parked in the
+    repo without breaking the build. Promote to ``active`` to enforce the full gate.
+    """
+    raw = rec.get("raw", {}) if isinstance(rec, dict) else {}
+    gov = raw.get("governance") if isinstance(raw, dict) else None
+    status = gov.get("status") if isinstance(gov, dict) else None
+    return (status == "active") or (status is None)
+
+
 def validate_evidence_grains(
     brackets: Dict[str, Dict[str, Any]],
     allowed_grains: Set[str],
@@ -998,6 +1010,16 @@ def validate_evidence_grains(
             continue
         eg = eg.strip()
 
+        # Lifecycle gate (ADR-0004): draft/deprecated use cases get advisory WARNs
+        # so an unfinished use case can be parked; final (active) use cases block.
+        sev = "ERROR" if _bracket_lifecycle_active(rec) else "WARN"
+        draft_suffix = (
+            ""
+            if sev == "ERROR"
+            else "\n\n  (DRAFT use case — advisory only; govern this grain before "
+            "promoting governance.status to 'active'.)"
+        )
+
         # Locate source line for precise reporting
         line = 1
         try:
@@ -1025,7 +1047,7 @@ def validate_evidence_grains(
                   Bitte pruefe internal/evidence_grain_audit_results.md und trage
                   die korrekte Grain ein.""")
             issues.append(
-                Issue("ERROR", "evidence_grain.placeholder_forbidden", msg, SourceLocation(src, line))
+                Issue(sev, "evidence_grain.placeholder_forbidden", msg + draft_suffix, SourceLocation(src, line))
             )
         elif allowed_grains and eg not in allowed_grains:
             close = difflib.get_close_matches(eg, sorted(allowed_grains), n=1, cutoff=0.6)
@@ -1051,7 +1073,7 @@ def validate_evidence_grains(
                   Hinweis: Ein Use Case darf nur referenzieren, was technisch durch
                   einen Contract abgesichert ist.""")
             issues.append(
-                Issue("ERROR", "evidence_grain.governance_gap", msg, SourceLocation(src, line))
+                Issue(sev, "evidence_grain.governance_gap", msg + draft_suffix, SourceLocation(src, line))
             )
     return issues
 
@@ -1311,11 +1333,13 @@ def _validate_org_roles(
             raw = rec.get("raw", {})
             src = rec.get("source", "")
             gov = raw.get("governance", {}) if isinstance(raw, dict) else {}
+            # Lifecycle gate (ADR-0004): draft use cases get advisory WARNs.
+            sev = "ERROR" if _bracket_lifecycle_active(rec) else "WARN"
             if isinstance(gov, dict):
                 for role_field in ("owner_role", "steward_role"):
                     role_val = gov.get(role_field)
                     if isinstance(role_val, str) and role_val.strip() and role_val.strip() not in valid_role_ids:
-                        issues.append(Issue("ERROR", "org_registry.invalid_role",
+                        issues.append(Issue(sev, "org_registry.invalid_role",
                                             f"UseCase '{uc_id}' governance.{role_field} '{role_val}' not found in {org_roles_ref}.",
                                             SourceLocation(src, 1)))
         for aid, arec in actions.items():

@@ -106,6 +106,11 @@ action_types:
   C: "Cost"
   R: "Risk"
 
+# Use-case lifecycle gate (ADR-0004): a bracket's governance.status drives how
+# hard the Golden Thread is enforced. 'active' (or absent = default) = final →
+# referential / evidence-grain / org-role gaps are ERRORs. 'draft' = in
+# elaboration → those checks are advisory (WARN) so an unfinished use case can be
+# parked. 'deprecated' = retired. Structural/schema validity is enforced in all states.
 governance_statuses:
   - active
   - draft

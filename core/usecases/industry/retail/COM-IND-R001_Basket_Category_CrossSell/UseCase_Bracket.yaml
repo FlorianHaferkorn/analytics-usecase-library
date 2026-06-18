@@ -5,6 +5,7 @@ domain: Commercial / Retail
 governance:
   owner_role: category_manager
   steward_role: trade_marketing_commercial_bi_lead
+  status: active
 orchestration:
   strategic_kpi_id: retail.category.crosssell_rate.pct
   influencing_kpi_ids:

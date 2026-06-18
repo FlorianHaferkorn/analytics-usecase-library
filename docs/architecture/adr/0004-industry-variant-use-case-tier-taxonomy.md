@@ -89,9 +89,12 @@ Five rules:
    `<DomainLetter>-<Theme><Group>.<Seq>` scheme. **No new schema, no new validator,
    no new namespace authority** is created by this tier.
 
-5. **Deliberate authoring, not generation.** Each extension use case is authored to
-   pass the same gates as a core use case (its KPIs, action codes, and spine map
-   entry must exist first). Tiers are never bulk-generated off an external branch.
+5. **Deliberate authoring, not generation — with a draft→final lifecycle.** Each
+   extension use case is authored to pass the same gates as a core use case (its
+   KPIs, action codes, and spine map entry must exist first). While it is still being
+   worked out it carries `governance.status: draft` and its reference checks are
+   advisory; it is promoted to `active` (final) only once it passes the full gate
+   (see *Lifecycle gate* below). Tiers are never bulk-generated off an external branch.
 
 ## What this ratifies vs. defers
 
@@ -103,6 +106,40 @@ Five rules:
 - **First instantiation:** `COM-IND-R001` (Retail Basket & Category Cross-Sell) is
   built as the proof slice under this taxonomy; the other five §7 use cases follow
   deliberately.
+
+## Lifecycle gate — draft vs. final
+
+A new use case is rarely born complete: the team first works out *how to serve it
+optimally*, and only then does the **data need** — and from it the **evidence
+grain** — become clear. The gate therefore keys off `governance.status` in the
+bracket:
+
+| `governance.status` | Meaning | Referential / evidence-grain / org-role checks |
+|---|---|---|
+| absent or `active` | **final** (governed) | **ERROR** — full Golden Thread enforcement |
+| `draft` | in elaboration | **advisory (WARN)** — parkable, still scanned & inventoried |
+| `deprecated` | retired | advisory |
+
+Structural/schema validity (well-formed bracket, valid ID, required fields) is
+enforced in **every** state — only *reference resolution* is relaxed for drafts. A
+half-formed use case can therefore live in the repo (visible in the inventory and
+the reference graph) without breaking the build, while every *final* use case stays
+strictly governed. `registry_builder` is the single enforcer; it scans all tiers
+(no blanket `extended/industry` skip) and applies the gate by status.
+
+**Evidence-grain workflow (draft → final).** When a use case is finalized, derive
+its evidence grain from the worked-out data need:
+
+1. If an **existing governed fact** already serves the need — directly, or via a
+   non-breaking rebuild that does not change other use cases — reference it (as
+   `COM-IND-R001` does with `invoice_line` from `fact_sales`).
+2. Otherwise introduce a **new governed fact table** in the relevant data contract,
+   so the grain is always backed by a **clean star schema** rather than an ungoverned
+   ad-hoc grain. A final use case may only reference a grain a contract guarantees.
+
+This is enforced mechanically: an ungoverned `evidence_grain` is an **ERROR** on a
+final use case but only a **WARN** on a draft — the draft can name its target grain
+before the supporting fact exists, then must govern it to go final.
 
 ## Consequences
 

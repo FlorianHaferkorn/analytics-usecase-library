@@ -134,7 +134,10 @@ branch.
    register (R=Retail, L=Logistics, M=Manufacturing) are ratified in
    `docs/architecture/adr/0004-industry-variant-use-case-tier-taxonomy.md`. The
    bracket-schema `id` pattern and the `registry_builder` use-case scan were widened
-   so extension-tier UCs validate like core.
+   so extension-tier UCs validate like core. A **draft→final lifecycle gate**
+   (`governance.status`) lets unfinished tier UCs be parked — reference and
+   evidence-grain checks are advisory while `draft`, enforced fully once `active`
+   (ADR-0004 *Lifecycle gate*).
 
 **Delivered — first slice (2026-06-18):** `COM-IND-R001` Basket & Category Cross-Sell
 (Retail) is authored end-to-end and passes the Golden Thread gates: 5 new KPIs
