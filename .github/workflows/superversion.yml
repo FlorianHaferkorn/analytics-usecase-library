@@ -1,0 +1,59 @@
+# Superversion CI: gate for the ALUCA × Meridian source-adapter layer.
+#
+# Runs the superversion adapter test suite (tooling/superversion/) plus the
+# _INDEX drift-gate. Kept as its own workflow (not folded into Stage 1) so the
+# layer has an isolated, fast signal and a clean rollback (delete this file).
+#
+# ⚠️ CI-Quota note (see CLAUDE.md / AGENTS.md): GitHub Actions is quota-blocked
+# repo-wide until 2026-07-01 — every run fails at the runner level (~seconds, no
+# runner, HTTP 404 logs) regardless of code, on main and all branches. Treat
+# those red runs as infrastructure, not code defects; do NOT re-run or "fix"
+# them. The authoritative gate until the window reopens is LOCAL:
+#   python -m pytest tooling/superversion/ -q
+#   python scripts/check_index.py --strict
+# (both must be green before commit). This workflow becomes meaningful again
+# once the quota window reopens.
+
+name: Superversion
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tooling/superversion/**"
+      - "core/usecases/**"
+      - "core/kpi_catalog/**"
+      - "scripts/check_index.py"
+      - ".github/workflows/superversion.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tooling/superversion/**"
+      - "core/usecases/**"
+      - "core/kpi_catalog/**"
+      - "scripts/check_index.py"
+      - ".github/workflows/superversion.yml"
+
+jobs:
+  superversion:
+    name: superversion (adapter tests + drift-gate)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Index drift-gate (_INDEX.md completeness)
+        run: python scripts/check_index.py --strict
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml pytest
+
+      - name: Run superversion adapter tests
+        run: python -m pytest tooling/superversion/ -q

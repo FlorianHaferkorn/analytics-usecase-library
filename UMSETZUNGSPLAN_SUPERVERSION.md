@@ -256,7 +256,7 @@ Tenant widersprechen heutigem lokal-first-Design).
 | I-1.5 CLI+Snapshots | ✅ | 2026-06-22 | `python -m pytest tooling/superversion/ -q` 63 passed, 1 skipped · `check_index.py --strict` Exit 0 · additive CLI `python -m tooling.superversion.from_aluca <bracket> [--out model.json] [--kpis dir]` + deterministische `model_to_json` (asdict, sort_keys=False, trailing newline); je UC eingecheckter Golden-Snapshot unter `tooling/superversion/tests/golden/<UC>.json` (5 Stück); Regressions-Test diff't byte-genau gegen Snapshot, CLI-Smoke (--out == golden, stdout == serializer), byte-stabiler Re-Run pro UC verifiziert (extern + Test) |
 | I-2.1 ADR Heimat/Vendoring [QA/SA] | ⬜ offen | | |
 | I-2.2 Meridian-Einzug | ⬜ offen | | |
-| I-2.3 CI-Job | ⬜ offen | | |
+| I-2.3 CI-Job | ✅ | 2026-06-22 | `.github/workflows/superversion.yml` (eigener Workflow) — Job `superversion` läuft `check_index.py --strict` + `pytest tooling/superversion/ -q`; path-gefiltert auf superversion/usecases/kpi_catalog/check_index; CI-Quota-Hinweis aus CLAUDE.md im Header dokumentiert · lokal grün: pytest 63 passed/1 skipped, `check_index --strict` Exit 0 · Workflow-Lint: YAML+Struktur validiert (actionlint env-seitig n/a) · vorgezogen vor I-2.2/I-2.4 (hängen an Meridian-Quelle, in Session n/v) · Rollback: Datei entfernen |
 | I-2.4 Pin-Drift-Sensor | ⬜ offen | | |
 | I-3.1 Adapter-Vertrag [QA/SA] | ⬜ offen | | |
 | I-3.2 TMDL-Emit | ⬜ offen | | |
