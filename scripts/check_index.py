@@ -84,7 +84,7 @@ def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> No
             continue  # kein Index regiert diesen Ordner — ok
         text = cache[owner]
         rel = md.resolve().relative_to(owner)
-        if not (_listed(str(rel), text) or _listed(rel.name, text)):
+        if not (_listed(rel.as_posix(), text) or _listed(rel.name, text)):
             idx_rel = (owner / "_INDEX.md").relative_to(REPO_ROOT)
             errors.append(f"[Vollständigkeit] {md.relative_to(REPO_ROOT)} fehlt im {idx_rel}")
 
