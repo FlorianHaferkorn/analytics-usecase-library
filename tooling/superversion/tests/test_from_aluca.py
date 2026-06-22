@@ -24,6 +24,8 @@ BRACKETS: dict[str, Path] = {
     "COM-001": REPO / "core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml",
     "COM-002": REPO / "core/usecases/core/COM-002_Margin_Price_Performance/UseCase_Bracket.yaml",
     "COM-003": REPO / "core/usecases/core/COM-003_Customer_Value/UseCase_Bracket.yaml",
+    "FIN-002": REPO / "core/usecases/core/FIN-002_Cost_Performance/UseCase_Bracket.yaml",
+    "SCM-002": REPO / "core/usecases/core/SCM-002_Supply_Reliability_OTIF/UseCase_Bracket.yaml",
 }
 
 
@@ -45,6 +47,20 @@ def com002() -> CanonicalModel:
 def com003() -> CanonicalModel:
     p = BRACKETS["COM-003"]
     assert p.exists(), f"COM-003 bracket missing: {p}"
+    return from_bracket_file(p, KPIS)
+
+
+@pytest.fixture(scope="module")
+def fin002() -> CanonicalModel:
+    p = BRACKETS["FIN-002"]
+    assert p.exists(), f"FIN-002 bracket missing: {p}"
+    return from_bracket_file(p, KPIS)
+
+
+@pytest.fixture(scope="module")
+def scm002() -> CanonicalModel:
+    p = BRACKETS["SCM-002"]
+    assert p.exists(), f"SCM-002 bracket missing: {p}"
     return from_bracket_file(p, KPIS)
 
 
@@ -216,13 +232,138 @@ def test_com003_governance_roles_carried(com003):
     )
 
 
-# ---- Cross-UC invariants (widen the I-1.1 patterns onto I-1.2 UCs) -------- #
+# --------------------------------------------------------------------------- #
+# I-1.3 — Cross-P&L breadth: FIN-002 (Cost Performance) + SCM-002 (Supply      #
+# Reliability / OTIF). FIN-002 exercises broad fact-routing (many fact         #
+# tables); SCM-002 exercises the _Measures fallback. Plus they widen the       #
+# neutral-core + determinism invariants (via BRACKETS).                        #
+# --------------------------------------------------------------------------- #
+
+# ---- FIN-002 · Cost Performance (broad fact-routing) ---------------------- #
+
+def test_fin002_builds_canonical_model(fin002):
+    assert isinstance(fin002, CanonicalModel)
+    assert fin002.semantic is not None and fin002.report is not None
+    assert fin002.semantic.name == "FIN-002_Cost_Performance"
+
+
+def test_fin002_broad_fact_routing(fin002):
+    """Cost KPIs span the P&L: lineage routes measures across several fact
+    tables rather than collapsing into one. Guards the per-lineage fact split."""
+    names = {t.name for t in fin002.semantic.tables}
+    assert {"fact_cost", "fact_finance", "fact_ops"} <= names, (
+        f"expected cost KPIs to route across multiple fact tables, got {names}"
+    )
+    # broad routing means several distinct fact tables, not a single bucket
+    fact_tables = {n for n in names if n.startswith("fact_")}
+    assert len(fact_tables) >= 4, f"expected broad fact-routing (>=4 facts), got {fact_tables}"
+
+
+def test_fin002_measure_count(fin002):
+    total = sum(len(t.measures) for t in fin002.semantic.tables)
+    assert total >= 10, f"expected >=10 measures from FIN-002, got {total}"
+
+
+def test_fin002_report_pages(fin002):
+    pages = fin002.report.pages
+    assert len(pages) == 2, "expected 2 pages (summary + execution)"
+    by_key = {p.name: p for p in pages}
+    assert by_key["page_1_summary"].visuals, "summary page has no visuals"
+    assert len(by_key["page_2_execution"].visuals) == 1
+
+
+def test_fin002_measure_binding_visuals(fin002):
+    page1 = next(p for p in fin002.report.pages if p.name == "page_1_summary")
+    assert all(v.binds_measures for v in page1.visuals), (
+        f"summary visuals must bind measures: "
+        f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
+    )
+    lead = next(v for v in page1.visuals if v.visual_id.endswith("3s_1"))
+    assert "Unit Cost Amount" in lead.bound_measures, (
+        f"lead card should bind the strategic measure, got {lead.bound_measures}"
+    )
+
+
+def test_fin002_governance_roles_carried(fin002):
+    names = {r.name for r in fin002.semantic.roles}
+    assert {"plant_ops_controllers", "finance_bi_lead"} <= names, (
+        f"governance roles not carried into model: {names}"
+    )
+
+
+# ---- SCM-002 · Supply Reliability / OTIF (_Measures fallback) ------------- #
+
+def test_scm002_builds_canonical_model(scm002):
+    assert isinstance(scm002, CanonicalModel)
+    assert scm002.semantic is not None and scm002.report is not None
+    assert scm002.semantic.name == "SCM-002_Supply_Reliability_OTIF"
+
+
+def test_scm002_fact_routing(scm002):
+    names = {t.name for t in scm002.semantic.tables}
+    assert "fact_fulfillment" in names, f"expected fact_fulfillment from lineage, got {names}"
+
+
+def test_scm002_measures_fallback_table(scm002):
+    """KPIs with column-less lineage (e.g. order.lines / shipments.count →
+    lineage ['fact_fulfillment'], no '<table>.<column>') land in the _Measures
+    fallback per the documented `_split_lineage` contract.
+
+    ⚠️ Known nuance (Ledger §6, shared with COM-003): a column-less lineage
+    entry that *is* a table name still routes to _Measures instead of that fact
+    table — note that fact_fulfillment ALSO exists as a real table here from
+    column-qualified lineage, so the same logical fact is split. Captured as
+    observed behaviour, not silently re-mapped (would touch _split_lineage for
+    all UCs → out of I-1.3 scope)."""
+    measures_tbl = next((t for t in scm002.semantic.tables if t.name == "_Measures"), None)
+    assert measures_tbl is not None, "expected _Measures fallback table for table-less lineage"
+    fallback_names = {m.name for m in measures_tbl.measures}
+    assert {"Order Lines Count", "Shipments Count"} <= fallback_names, (
+        f"expected column-less-lineage measures in _Measures, got {fallback_names}"
+    )
+
+
+def test_scm002_measure_count(scm002):
+    total = sum(len(t.measures) for t in scm002.semantic.tables)
+    assert total >= 6, f"expected >=6 measures from SCM-002, got {total}"
+
+
+def test_scm002_report_pages(scm002):
+    pages = scm002.report.pages
+    assert len(pages) == 2, "expected 2 pages (summary + execution)"
+    by_key = {p.name: p for p in pages}
+    assert by_key["page_1_summary"].visuals, "summary page has no visuals"
+    assert len(by_key["page_2_execution"].visuals) == 1
+
+
+def test_scm002_measure_binding_visuals(scm002):
+    page1 = next(p for p in scm002.report.pages if p.name == "page_1_summary")
+    assert all(v.binds_measures for v in page1.visuals), (
+        f"summary visuals must bind measures: "
+        f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
+    )
+    lead = next(v for v in page1.visuals if v.visual_id.endswith("3s_1"))
+    assert "OTIF %" in lead.bound_measures, (
+        f"lead card should bind the strategic measure, got {lead.bound_measures}"
+    )
+
+
+def test_scm002_governance_roles_carried(scm002):
+    names = {r.name for r in scm002.semantic.roles}
+    assert {"supply_chain_controlling_logistics_performance",
+            "logistics_supply_chain_bi_lead"} <= names, (
+        f"governance roles not carried into model: {names}"
+    )
+
+
+# ---- Cross-UC invariants (widen the I-1.1 patterns onto I-1.2/I-1.3 UCs) --- #
 
 @pytest.mark.parametrize("uc", sorted(BRACKETS))
 def test_neutral_core_no_dax_primacy_all_ucs(uc):
     """Invariant I1 (neutral core): NO use case may carry a hardcoded DAX
     expression in the source adapter — the dialect is the stack adapter's job.
-    Widens test_neutral_core_no_dax_primacy across COM-001/002/003."""
+    Widens test_neutral_core_no_dax_primacy across all BRACKETS
+    (COM-001/002/003, FIN-002, SCM-002)."""
     model = from_bracket_file(BRACKETS[uc], KPIS)
     for m in _all_measures(model):
         assert m.expression == "", (
