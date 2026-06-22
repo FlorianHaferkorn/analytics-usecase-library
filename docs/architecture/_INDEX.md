@@ -25,6 +25,7 @@ shelf-life-days: 90
 | Aktivierung/Onboarding + Capability-Gating | `adr/0003-customer-activation-and-capability-gating.md` → `../agent/capability-manifest.md` | ADR-0001 |
 | Validierungs-Backends / Capability-Tiers verstehen | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | ADR-0002/0003, Migration |
 | Industry-/Extension-Use-Cases anlegen (EXT/IND-Schema, Sektor-Register) | `adr/0004-industry-variant-use-case-tier-taxonomy.md` → `../../core/usecases/README.md` | ADR-0001/0002/0003 |
+| Superversion-Heimat / Meridian-Core einziehen (Vendoring, Pin, Contract-Mirror) | `adr/0005-superversion-home-and-meridian-vendoring.md` → `../../tooling/superversion/_INDEX.md` | ADR-0001/0002/0003 |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
 | Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
@@ -42,6 +43,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `adr/0002-official-first-agent-integration-and-guided-workflow.md` | ADR: official-first Agent-Integration + GADW (Proposed) | Agent-Integration |
 | `adr/0003-customer-activation-and-capability-gating.md` | ADR: Customer-Activation + Capability-Gating (Proposed) | Aktivierung/Onboarding |
 | `adr/0004-industry-variant-use-case-tier-taxonomy.md` | ADR: Industry-Variant Use-Case-Tier-Taxonomie (EXT/IND-Schema, Verzeichnisbaum, Sektor-Register) (Proposed) | Use-Case-Tier/Taxonomie |
+| `adr/0005-superversion-home-and-meridian-vendoring.md` | ADR: Superversion-Heimat (ALUCA) + Meridian-Core-Vendoring (gepinnt, Contract-Mirror, vendor-sync) (Accepted) | Superversion-Heimat/Meridian-Einzug |
 | `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
@@ -64,3 +66,4 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | A-5 | Skill-Docs retire-vs-keep (ADR-0002) | **erledigt** (`skills-retire-vs-keep.md`: 11 KEEP, 3 THIN) | 2026-06-16 |
 | A-6 | Upstream `skills-for-fabric` pin + Cadence | **erledigt**: ALLOWLIST + Cron Mo+Do (`source-updates.yml`) | 2026-06-16 |
 | A-7 | Industry-Variant-Use-Case-Tier-Taxonomie ratifizieren (KNOWN_GAPS §7 Prereq #4) | **erledigt** (ADR-0004): EXT/IND-Sektor-Schema, neue Tier-Bäume unter `core/usecases/`, Sektor-Register R/L/M | 2026-06-18 |
+| A-8 | Superversion-Heimat + Meridian-Einzug ratifizieren (UMSETZUNGSPLAN I-2.1 [QA/SA]) | **erledigt** (ADR-0005): ALUCA = Heimat; Meridian-Core vendored+pinned (vendor-sync default), `canonical_contract` als parity-gated Standalone-Mirror, Neutral-Core über die Naht gewahrt | 2026-06-22 |
