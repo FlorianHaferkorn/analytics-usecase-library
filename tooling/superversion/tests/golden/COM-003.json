@@ -1,0 +1,403 @@
+{
+  "semantic": {
+    "name": "COM-003_Customer_Value",
+    "tables": [
+      {
+        "name": "fact_sales",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "CLV",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "Sum of expected future gross margin per customer discounted over the chosen time horizon.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Revenue at Risk Amount",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "Net Sales Amount × average of (1 - OTIF %) and (1 - First Pass Yield %).",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Net Sales Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of all invoice line amounts net of VAT and returns.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Cost of Goods Sold Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of invoice line COGS amounts.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "dim_customer",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Customer Lifetime Revenue Amount",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "Sum of net sales amount from first purchase to date for the customer.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Churned Customers",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "Distinct customers with no qualifying transactions in the current period but active in the look-back window.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Active Customers",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "Distinct customers with at least one qualifying transaction in the period.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_customer_events",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Customer Retention %",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "(Active Customers at end of period) / (Active Customers at start of period).",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_nps",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "NPS Index",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "(%Promoters - %Detractors) from survey responses in the period.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_fulfillment",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Ops OTIF %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "On-Time In-Full deliveries / Total Deliveries",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "In-Full %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "In-Full Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "On-Time %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "On-Time Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "OTIF %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "OTIF Orders / Total Orders.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_complaints",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Complaint Rate %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Complaint Count / Units Shipped.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_quality_costs",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Cost of Poor Quality",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Sum of cost impacts for quality failures in period.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_quality",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Defect Density",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "(Defect Count / Total Units) * 1,000.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "First Pass Yield %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Good Units / Total Units.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Rework Rate %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Reworked Units / Total Units.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Scrap Rate %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Scrap Units / Total Units.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_stockout",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Stockout Impact %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "Lost Demand Qty / Total Demand Qty.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "_Measures",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Complaint Count",
+            "expression": "",
+            "display_folder": "Customer & Market",
+            "description": "Count of complaint records in the complaint/service system.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      }
+    ],
+    "relationships": [],
+    "roles": [
+      {
+        "name": "commercial_controlling_lead",
+        "model_permission": "read",
+        "table_permissions": []
+      },
+      {
+        "name": "sales_ops_bi_lead",
+        "model_permission": "read",
+        "table_permissions": []
+      }
+    ],
+    "compatibility_level": null
+  },
+  "report": {
+    "name": "COM-003_Customer_Value",
+    "theme": "",
+    "pages": [
+      {
+        "name": "page_1_summary",
+        "display_name": "Commercial / CustomerValue Summary & Insights",
+        "visuals": [
+          {
+            "visual_id": "page_1_summary_3s_1",
+            "visual_type": "kpi_card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "CLV"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_2",
+            "visual_type": "trend_line",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_1",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Customer Lifetime Revenue Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_3",
+            "visual_type": "bar_chart",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_2",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Customer Retention %",
+              "Churned Customers",
+              "Revenue at Risk Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_4",
+            "visual_type": "bar_chart_horizontal",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_3",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Revenue at Risk Amount"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      },
+      {
+        "name": "page_2_execution",
+        "display_name": "Commercial / CustomerValue Execution",
+        "visuals": [
+          {
+            "visual_id": "page_2_execution_300s_1",
+            "visual_type": "card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "CLV",
+              "Customer Retention %",
+              "Churned Customers",
+              "Revenue at Risk Amount",
+              "NPS Index",
+              "Complaint Count"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      }
+    ]
+  }
+}

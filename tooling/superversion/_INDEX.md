@@ -13,7 +13,7 @@ shelf-life-days: 90
 |---|---|
 | Stand | 2026-06-22 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
-| Status | Phase-0-Spike ✅ (7/7 Tests an COM-001); I-1..I-9 im Umsetzungsplan |
+| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs: COM-001/002/003, FIN-002, SCM-002; CLI + Golden-Snapshots); I-2..I-9 im Umsetzungsplan |
 | Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
@@ -22,7 +22,8 @@ shelf-life-days: 90
 |---|---|---|
 | Den Adapter erweitern/härten (I-1.x) | `from_aluca.py` → `canonical_contract.py` → `tests/test_from_aluca.py` | restlicher Plan |
 | Den Ziel-Vertrag verstehen (Felder, Parität) | `canonical_contract.py` (Spiegel von Meridians Modell) | Adapter-Logik |
-| Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` | — |
+| Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
+| Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
 | Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
 | Zielbild/Phasen/Premium-Floors | Repo-Root: PRODUCT_PLAN.md | Code |
 | Architektur/Wettbewerb (Hintergrund) | Repo-Root: SYNERGY_ALUCA_MERIDIAN.md | Code |

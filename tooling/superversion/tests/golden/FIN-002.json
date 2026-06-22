@@ -1,0 +1,283 @@
+{
+  "semantic": {
+    "name": "FIN-002_Cost_Performance",
+    "tables": [
+      {
+        "name": "fact_cost",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Unit Cost Amount",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "Total Cost Amount / Units Produced or Sold.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Cost Base Volume Amount",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "Baseline amount of cost volume for the selected period.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_finance",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "COGS % of Sales",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "COGS Amount / Net Sales Amount.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "OpEx vs Plan %",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "(OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Material Cost %",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "Material Cost Amount / Net Sales Amount.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Opex Base Amount",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "Baseline operating expense amount for the selected period.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "EBITDA Margin",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "EBITDA Amount / Net Sales Amount",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_output",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Labor Productivity %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Output Units or Net Sales divided by Labor Hours (normalized to % baseline).",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_ops",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Production Volume Units",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Sum of produced units for the period.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Quality Defect Rate %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Defective Units / Total Produced Units.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Yield %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "Good Units / Total Units Produced.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_sales",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Net Sales Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of all invoice line amounts net of VAT and returns.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_fulfillment",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Operations Service Level %",
+            "expression": "",
+            "display_folder": "Operations",
+            "description": "On-Time or In-Full Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      }
+    ],
+    "relationships": [],
+    "roles": [
+      {
+        "name": "plant_ops_controllers",
+        "model_permission": "read",
+        "table_permissions": []
+      },
+      {
+        "name": "finance_bi_lead",
+        "model_permission": "read",
+        "table_permissions": []
+      }
+    ],
+    "compatibility_level": null
+  },
+  "report": {
+    "name": "FIN-002_Cost_Performance",
+    "theme": "",
+    "pages": [
+      {
+        "name": "page_1_summary",
+        "display_name": "Finance / Operations Summary & Insights",
+        "visuals": [
+          {
+            "visual_id": "page_1_summary_3s_1",
+            "visual_type": "kpi_card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Unit Cost Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_2",
+            "visual_type": "trend_line",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_1",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "COGS % of Sales"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_3",
+            "visual_type": "bar_chart",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "OpEx vs Plan %",
+              "Material Cost %",
+              "Labor Productivity %"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      },
+      {
+        "name": "page_2_execution",
+        "display_name": "Finance / Operations Execution",
+        "visuals": [
+          {
+            "visual_id": "page_2_execution_300s_1",
+            "visual_type": "card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Unit Cost Amount",
+              "COGS % of Sales",
+              "Material Cost %",
+              "OpEx vs Plan %",
+              "Labor Productivity %",
+              "Production Volume Units",
+              "Quality Defect Rate %",
+              "Yield %"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      }
+    ]
+  }
+}

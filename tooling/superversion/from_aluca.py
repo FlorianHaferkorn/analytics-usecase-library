@@ -24,7 +24,11 @@ Mapping (Quelle → Ziel):
 """
 from __future__ import annotations
 
+import argparse
+import json
 import re
+import sys
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Optional
 
@@ -304,3 +308,52 @@ def from_bracket_file(bracket_path: Path, kpis_dir: Path) -> CanonicalModel:
     """Lädt ein UseCase_Bracket.yaml + den KPI-Katalog und baut das kanonische Modell."""
     bracket = yaml.safe_load(Path(bracket_path).read_text(encoding="utf-8"))
     return from_bracket(bracket, KpiCatalog(kpis_dir))
+
+
+# --------------------------------------------------------------------------- #
+# Serialisierung + CLI (I-1.5) — deterministisch, golden-snapshot-fähig        #
+# --------------------------------------------------------------------------- #
+
+def model_to_json(model: CanonicalModel) -> str:
+    """Deterministische JSON-Repräsentation des kanonischen Modells.
+
+    `asdict` erhält die Dataclass-Feldreihenfolge, `json.dumps` erhält die
+    Dict-Reihenfolge → gleicher Input liefert byte-stabilen Output (Invariante
+    I2). Endet mit Newline (POSIX-Textdatei, stabiler Golden-Snapshot)."""
+    return json.dumps(asdict(model), indent=2, ensure_ascii=False, sort_keys=False) + "\n"
+
+
+def _default_kpis_dir() -> Path:
+    """Repo-Standard-Katalog (tooling/superversion/from_aluca.py → repo-root)."""
+    return Path(__file__).resolve().parents[2] / "core" / "kpi_catalog" / "kpis"
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    """CLI: `python -m tooling.superversion.from_aluca <bracket> [--out model.json]`.
+
+    Additiv (Rollback: einfach nicht aufrufen). Ohne `--out` → stdout."""
+    parser = argparse.ArgumentParser(
+        prog="python -m tooling.superversion.from_aluca",
+        description="ALUCA UseCase-Bracket → kanonisches Modell (JSON).",
+    )
+    parser.add_argument("bracket", type=Path, help="Pfad zu UseCase_Bracket.yaml")
+    parser.add_argument("--out", type=Path, default=None,
+                        help="Ausgabedatei (Default: stdout)")
+    parser.add_argument("--kpis", type=Path, default=None,
+                        help=f"KPI-Katalog-Verzeichnis (Default: {_default_kpis_dir()})")
+    args = parser.parse_args(argv)
+
+    kpis_dir = args.kpis or _default_kpis_dir()
+    model = from_bracket_file(args.bracket, kpis_dir)
+    payload = model_to_json(model)
+
+    if args.out is not None:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(payload, encoding="utf-8")
+    else:
+        sys.stdout.write(payload)
+    return 0
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())
