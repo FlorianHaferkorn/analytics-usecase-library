@@ -166,12 +166,30 @@ def _kpi_ids_from_bracket(bracket: dict) -> list[str]:
 # Report-Mapping (3-30-300 Layout → Pages + Visuals)                          #
 # --------------------------------------------------------------------------- #
 
-def _collect_visual_kpi_ids(component: dict) -> list[str]:
+def _collect_visual_kpi_ids(component: dict, catalog: KpiCatalog) -> list[str]:
+    """KPI-IDs, die ein Visual an Measures bindet (dedupe, Reihenfolge erhalten).
+
+    - `kpi_id` / `kpi_ids`: explizite Referenzen — binden as-is (auch ohne
+      Katalog-Eintrag: graceful Platzhalter, wie `_measure_from_kpi`).
+    - `evidence_columns` (3-30-300 Detail-/Evidence-Grid, `component_300s`): eine
+      gemischte Liste aus Dimensions-Feldern (region, channel, …) UND KPI-IDs.
+      Nur **katalog-auflösbare** Spalten werden zu Measures; reine Dimensionen
+      sind keine Measures. Kein auflösbares Feld → leere Bindung (v0-Karte bleibt).
+    """
     out: list[str] = []
-    if "kpi_id" in component and component["kpi_id"]:
+    if component.get("kpi_id"):
         out.append(component["kpi_id"])
     out.extend(component.get("kpi_ids", []) or [])
-    return out
+    for col in component.get("evidence_columns", []) or []:
+        if isinstance(col, str) and catalog.get(col) is not None:
+            out.append(col)
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for i in out:
+        if i not in seen:
+            seen.add(i)
+            deduped.append(i)
+    return deduped
 
 
 def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportPage:
@@ -181,7 +199,7 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
     def add(component: dict, slot: str):
         nonlocal idx
         idx += 1
-        kpi_ids = _collect_visual_kpi_ids(component)
+        kpi_ids = _collect_visual_kpi_ids(component, catalog)
         # bound_measures: aufgelöste measure_names (Katalog) bzw. direkter Name
         bound = []
         for kid in kpi_ids:

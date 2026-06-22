@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 from tooling.superversion.canonical_contract import CanonicalModel
-from tooling.superversion.from_aluca import KpiCatalog, from_bracket_file
+from tooling.superversion.from_aluca import KpiCatalog, _page_from_layout, from_bracket_file
 
 REPO = Path(__file__).resolve().parents[3]
 BRACKET = REPO / "core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml"
@@ -354,6 +354,70 @@ def test_scm002_governance_roles_carried(scm002):
             "logistics_supply_chain_bi_lead"} <= names, (
         f"governance roles not carried into model: {names}"
     )
+
+
+# --------------------------------------------------------------------------- #
+# I-1.4 — component_300s Evidence-Grid sauber mappen. Der 3-30-300-Detail-Grid #
+# (`evidence_columns`) wird zu einem measure-bindenden Visual auf Page 2 statt #
+# einer leeren Karte. Dimensions-Spalten bleiben Dimensionen (keine Measures); #
+# ohne KPI-Spalten greift der v0-Karten-Fallback (binds_measures=False).        #
+# --------------------------------------------------------------------------- #
+
+def test_com001_evidence_grid_binds_measures(model):
+    """Named I-1.4 input: COM-001 component_300s. Page-2 evidence grid must now
+    bind its catalog-resolvable evidence_columns as measures."""
+    page2 = next(p for p in model.report.pages if p.name == "page_2_execution")
+    assert page2.visuals, "page_2_execution has no visual"
+    grid = page2.visuals[0]
+    assert grid.binds_measures, "evidence grid must bind measures (was empty card in v0)"
+    # KPI columns resolve to their catalog measure names
+    assert "Net Sales Amount" in grid.bound_measures
+    assert "Gross Margin %" in grid.bound_measures
+
+
+def test_com001_evidence_grid_excludes_dimension_columns(model):
+    """Dimension fields in evidence_columns (region, channel, …) are NOT measures."""
+    page2 = next(p for p in model.report.pages if p.name == "page_2_execution")
+    grid = page2.visuals[0]
+    for dim in ("region", "channel", "product_category", "customer_segment"):
+        assert dim not in grid.bound_measures, f"dimension {dim!r} leaked as a measure"
+
+
+def test_evidence_grid_bound_measures_deduped(model):
+    """bound_measures carries no duplicates (evidence_columns may repeat a KPI)."""
+    page2 = next(p for p in model.report.pages if p.name == "page_2_execution")
+    grid = page2.visuals[0]
+    assert len(grid.bound_measures) == len(set(grid.bound_measures)), (
+        f"duplicate bound measures: {grid.bound_measures}"
+    )
+
+
+def test_evidence_grid_graceful_when_no_kpi_columns():
+    """Fehlerfall/Rollback (I-1.4): an evidence grid with only dimension columns
+    (none resolvable in the catalog) yields the v0 empty card — binds_measures
+    stays False rather than crashing or binding dimension names."""
+    catalog = KpiCatalog(KPIS)
+    page = {
+        "title": "Dims only",
+        "component_300s": {
+            "evidence_grain": "row",
+            "evidence_columns": ["region", "channel", "product_category"],
+        },
+    }
+    rp = _page_from_layout("page_2_execution", page, catalog)
+    assert len(rp.visuals) == 1
+    assert rp.visuals[0].binds_measures is False
+    assert rp.visuals[0].bound_measures == []
+
+
+@pytest.mark.parametrize("uc", sorted(BRACKETS))
+def test_page2_evidence_grid_binds_measures_all_ucs(uc):
+    """Across all in-scope UCs the page-2 evidence grid binds measures (each one
+    carries KPI-id evidence_columns). Guards the I-1.4 fix from regressing."""
+    m = from_bracket_file(BRACKETS[uc], KPIS)
+    page2 = next((p for p in m.report.pages if p.name == "page_2_execution"), None)
+    assert page2 is not None and page2.visuals, f"[{uc}] no page_2 visual"
+    assert page2.visuals[0].binds_measures, f"[{uc}] evidence grid does not bind measures"
 
 
 # ---- Cross-UC invariants (widen the I-1.1 patterns onto I-1.2/I-1.3 UCs) --- #
