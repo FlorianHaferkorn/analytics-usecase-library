@@ -1,0 +1,228 @@
+{
+  "semantic": {
+    "name": "COM-001_Sales_Performance_vs_Plan_LY",
+    "tables": [
+      {
+        "name": "fact_sales",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Gross Margin %",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "(Net Sales Amount - COGS Amount) / Net Sales Amount",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Net Sales % vs Plan",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "(Net Sales Amount - Plan Sales Amount) / Plan Sales Amount",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Delta% Net Sales",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "(Net Sales - LY) / LY",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Net Sales Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of all invoice line amounts net of VAT and returns.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Price Effect Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "(Actual Price - Plan Price) x Actual Quantity.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Volume Effect Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "(Actual Quantity - Plan Quantity) x Plan Price.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Mix Effect Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Total variance - Price Effect - Volume Effect.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Cost of Goods Sold Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of invoice line COGS amounts.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "List Price Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of list price amount at invoice line grain.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Net Price Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of net price amount at invoice line grain.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      }
+    ],
+    "relationships": [],
+    "roles": [
+      {
+        "name": "commercial_controlling_lead",
+        "model_permission": "read",
+        "table_permissions": []
+      },
+      {
+        "name": "sales_bi_lead",
+        "model_permission": "read",
+        "table_permissions": []
+      }
+    ],
+    "compatibility_level": null
+  },
+  "report": {
+    "name": "COM-001_Sales_Performance_vs_Plan_LY",
+    "theme": "",
+    "pages": [
+      {
+        "name": "page_1_summary",
+        "display_name": "Commercial Summary & Insights",
+        "visuals": [
+          {
+            "visual_id": "page_1_summary_3s_1",
+            "visual_type": "kpi_card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Net Sales Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_2",
+            "visual_type": "line_chart",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_1",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Net Sales Amount",
+              "Plan Sales Amount",
+              "Last Year Net Sales Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_3",
+            "visual_type": "waterfall",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_2",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Plan Sales Amount",
+              "Price Effect Amount",
+              "Volume Effect Amount",
+              "Mix Effect Amount",
+              "Net Sales Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_4",
+            "visual_type": "bar_chart_horizontal",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_3",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Net Sales % vs Plan"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      },
+      {
+        "name": "page_2_execution",
+        "display_name": "Commercial Execution",
+        "visuals": [
+          {
+            "visual_id": "page_2_execution_300s_1",
+            "visual_type": "card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Net Sales Amount",
+              "Net Sales % vs Plan",
+              "Delta% Net Sales",
+              "Price Effect Amount",
+              "Volume Effect Amount",
+              "Mix Effect Amount",
+              "Gross Margin %"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      }
+    ]
+  }
+}

@@ -12,7 +12,13 @@ from pathlib import Path
 import pytest
 
 from tooling.superversion.canonical_contract import CanonicalModel
-from tooling.superversion.from_aluca import KpiCatalog, _page_from_layout, from_bracket_file
+from tooling.superversion.from_aluca import (
+    KpiCatalog,
+    _page_from_layout,
+    from_bracket_file,
+    main,
+    model_to_json,
+)
 
 REPO = Path(__file__).resolve().parents[3]
 BRACKET = REPO / "core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml"
@@ -447,6 +453,58 @@ def test_deterministic_rebuild(uc):
     a = from_bracket_file(BRACKETS[uc], KPIS)
     b = from_bracket_file(BRACKETS[uc], KPIS)
     assert repr(a) == repr(b), f"[{uc}] rebuild is not byte-stable (non-deterministic)"
+
+
+# --------------------------------------------------------------------------- #
+# I-1.5 — CLI + golden snapshot je UC. `model_to_json` ist deterministisch;    #
+# je UC liegt ein eingecheckter Snapshot unter tests/golden/. Der Regressions- #
+# test diff't den frisch gebauten gegen den Snapshot (byte-stabil, I2). Drift  #
+# = bewusst regenerieren (CLI) oder Bug fixen.                                  #
+# --------------------------------------------------------------------------- #
+
+GOLDEN = Path(__file__).resolve().parent / "golden"
+
+
+@pytest.mark.parametrize("uc", sorted(BRACKETS))
+def test_golden_snapshot_matches(uc):
+    """Regression: rebuilt model serialises byte-for-byte to the checked-in
+    golden snapshot. On intended change, regenerate via:
+        python -m tooling.superversion.from_aluca <bracket> --out tests/golden/<UC>.json
+    """
+    snapshot = GOLDEN / f"{uc}.json"
+    assert snapshot.exists(), (
+        f"missing golden snapshot for {uc}: {snapshot} — generate it via the CLI"
+    )
+    built = model_to_json(from_bracket_file(BRACKETS[uc], KPIS))
+    assert built == snapshot.read_text(encoding="utf-8"), (
+        f"[{uc}] model drifted from golden snapshot — fix the bug or regenerate "
+        "the snapshot deliberately via the CLI"
+    )
+
+
+@pytest.mark.parametrize("uc", sorted(BRACKETS))
+def test_model_to_json_byte_stable(uc):
+    """I2: serialising the same model twice is byte-identical (no set ordering,
+    no timestamps, deterministic field order)."""
+    model = from_bracket_file(BRACKETS[uc], KPIS)
+    assert model_to_json(model) == model_to_json(model)
+
+
+def test_cli_writes_snapshot_identical_to_golden(tmp_path):
+    """The CLI (`--out`) produces exactly the checked-in golden file — proves the
+    snapshots are reproducible from the documented command."""
+    out = tmp_path / "COM-001.json"
+    rc = main([str(BRACKETS["COM-001"]), "--out", str(out), "--kpis", str(KPIS)])
+    assert rc == 0
+    assert out.read_text(encoding="utf-8") == (GOLDEN / "COM-001.json").read_text(encoding="utf-8")
+
+
+def test_cli_stdout_matches_serializer(capsys):
+    """Without --out the CLI writes the deterministic JSON to stdout."""
+    rc = main([str(BRACKETS["SCM-002"]), "--kpis", str(KPIS)])
+    assert rc == 0
+    captured = capsys.readouterr().out
+    assert captured == model_to_json(from_bracket_file(BRACKETS["SCM-002"], KPIS))
 
 
 def test_contract_parity_with_meridian():

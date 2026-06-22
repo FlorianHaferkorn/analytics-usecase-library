@@ -1,0 +1,292 @@
+{
+  "semantic": {
+    "name": "COM-002_Margin_Price_Performance",
+    "tables": [
+      {
+        "name": "fact_sales",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Gross Margin %",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "(Net Sales Amount - COGS Amount) / Net Sales Amount",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Gross Margin Amount",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "Net Sales Amount - COGS Amount",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "List Price Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of list price amount at invoice line grain.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Net Price Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of net price amount at invoice line grain.",
+            "format_string": "",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Price Realization %",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Net Price Amount / List Price Amount.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Mix Effect Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Total variance - Price Effect - Volume Effect.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "COGS per Unit",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "COGS Amount / Units Sold.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Cost of Goods Sold Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of invoice line COGS amounts.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Incremental Gross Margin Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Incremental sales minus incremental COGS; proxy here as share of incremental sales.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Price Effect Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "(Actual Price - Plan Price) x Actual Quantity.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Volume Effect Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "(Actual Quantity - Plan Quantity) x Plan Price.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_plan_sales",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Gross Margin % vs Plan",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "(Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      },
+      {
+        "name": "fact_promo",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Baseline Sales Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of baseline sales from promo system.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Promo Cost",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of promo cost from promo systems.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          },
+          {
+            "name": "Incremental Sales Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Promo Sales Amount - Baseline Sales Amount",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {}
+          }
+        ]
+      }
+    ],
+    "relationships": [],
+    "roles": [
+      {
+        "name": "commercial_controlling_lead",
+        "model_permission": "read",
+        "table_permissions": []
+      },
+      {
+        "name": "commercial_bi_pricing_analytics_lead",
+        "model_permission": "read",
+        "table_permissions": []
+      }
+    ],
+    "compatibility_level": null
+  },
+  "report": {
+    "name": "COM-002_Margin_Price_Performance",
+    "theme": "",
+    "pages": [
+      {
+        "name": "page_1_summary",
+        "display_name": "Commercial Summary & Insights",
+        "visuals": [
+          {
+            "visual_id": "page_1_summary_3s_1",
+            "visual_type": "kpi_card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Gross Margin %"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_2",
+            "visual_type": "trend_line",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_1",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Gross Margin Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_3",
+            "visual_type": "waterfall",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_2",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Plan GM Amount",
+              "Price Effect Amount",
+              "Volume Effect Amount",
+              "Mix Effect Amount",
+              "Gross Margin Amount"
+            ]
+          },
+          {
+            "visual_id": "page_1_summary_30s_4",
+            "visual_type": "bar_chart",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "Main_3",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Price Realization %",
+              "Mix Effect Amount",
+              "COGS per Unit"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      },
+      {
+        "name": "page_2_execution",
+        "display_name": "Commercial Execution",
+        "visuals": [
+          {
+            "visual_id": "page_2_execution_300s_1",
+            "visual_type": "card",
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "title": "",
+            "has_title": true,
+            "binds_measures": true,
+            "bound_measures": [
+              "Gross Margin Amount",
+              "Gross Margin % vs Plan",
+              "List Price Amount",
+              "Net Price Amount",
+              "Price Realization %",
+              "Mix Effect Amount",
+              "COGS per Unit",
+              "Gross Margin %"
+            ]
+          }
+        ],
+        "width": 1280,
+        "height": 720,
+        "page_type": "Default",
+        "is_hidden": false
+      }
+    ]
+  }
+}
