@@ -250,7 +250,7 @@ Tenant widersprechen heutigem lokal-first-Design).
 |---|---|---|---|
 | Phase-0-Spike (from_aluca @ COM-001) | ✅ | 2026-06-22 | `pytest tooling/superversion/` 7/7 grün |
 | I-1.1 testpaths+_INDEX | ✅ | 2026-06-22 | `pytest tooling/superversion/` 7/7 grün · `check_index.py --strict` 0 Befunde · Discovery sammelt 7 Tests via testpaths · Bugfix: `check_index` nutzt `rel.as_posix()` (Windows-Backslash-False-Positive behoben) · pyproject truncation (Cloud-Sync) repariert |
-| I-1.2 COM-002/003 | ⬜ offen | | |
+| I-1.2 COM-002/003 | ✅ | 2026-06-22 | `python -m pytest tooling/superversion/ -q` 25 passed, 1 skipped (Meridian-Parity) · `check_index.py --strict` Exit 0 · neue Tests je UC (Tabellen aus Lineage, Measures-Anzahl, 2 Report-Pages, measure-bindende Visuals); neutraler Core (I1) + Determinismus (I2) auf COM-001/002/003 parametrisiert · ⚠️ UNKLAR: column-lose Lineage (z. B. `crm.complaint.count` → `['fact_experience']`) routet ins `_Measures`-Fallback statt in die gleichnamige Fact-Tabelle — als Beobachtung getestet (`test_com003_measures_fallback_to_measures_table`), NICHT still umgemappt (würde `_split_lineage` für alle UCs ändern → eigener Task) |
 | I-1.3 Cost+OTIF | ⬜ offen (FIN-002 + SCM-002 verifiziert vorhanden) | | |
 | I-1.4 component_300s | ⬜ offen | | |
 | I-1.5 CLI+Snapshots | ⬜ offen | | |
