@@ -18,9 +18,22 @@ Use --force-full to always do a full generate.
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Optional
+
+# I-3.3: this ALUCA prototype renderer is DEPRECATED in favour of the official-first
+# PBIR emit (`tooling/superversion/targets/pbir.py`, gated by `powerbi-report-author
+# validate`). It stays available only as an explicit rollback — opt in with
+# `--allow-deprecated-prototype` or env ALUCA_ALLOW_PROTOTYPE_RENDERER=1.
+_DEPRECATION_NOTICE = (
+    "DEPRECATED (I-3.3): the prototype PBIR renderer is superseded by the official-first\n"
+    "emit `python -m tooling.superversion.targets.pbir` via the target registry\n"
+    "(`render('pbir', canonical, dest)`), validated by `powerbi-report-author validate`.\n"
+    "To run this prototype anyway (rollback path), pass --allow-deprecated-prototype\n"
+    "or set ALUCA_ALLOW_PROTOTYPE_RENDERER=1."
+)
 
 # Repo root must be on sys.path before imports that use `products.fabric.*`
 _REPO_ROOT = Path(__file__).resolve().parents[5]
@@ -246,7 +259,18 @@ def main() -> int:
         action="store_true",
         help="Always full generate (overwrite); do not use delta update even if report exists.",
     )
+    parser.add_argument(
+        "--allow-deprecated-prototype",
+        action="store_true",
+        help="Opt in to the DEPRECATED prototype renderer (I-3.3 rollback path). "
+             "Without this flag (or ALUCA_ALLOW_PROTOTYPE_RENDERER=1) the command refuses to run.",
+    )
     args = parser.parse_args()
+
+    # I-3.3: prototype is deprecated; refuse to run unless explicitly opted in.
+    if not (args.allow_deprecated_prototype or os.environ.get("ALUCA_ALLOW_PROTOTYPE_RENDERER") == "1"):
+        print(_DEPRECATION_NOTICE, file=sys.stderr)
+        return 2
 
     repo_root = args.repo_root
     if repo_root is None:

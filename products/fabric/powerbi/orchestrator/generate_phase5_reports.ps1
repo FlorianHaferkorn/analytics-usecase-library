@@ -43,7 +43,10 @@ function Invoke-Phase5ReportGeneration {
         if (-not $datasetRef) { $datasetRef = "..\$($domainName).SemanticModel" }
         $reportFolderBaseName = Get-UseCaseReportFolderBaseName -UcId $ucId
         $reportFolder = Join-Path $distReportRoot "$reportFolderBaseName.Report"
-        $allArgs = $pyExeArgs + @($scriptPath, "--use-case", $ucId, "--output", $reportFolder, "--repo-root", $script:RepoRoot, "--dataset-reference", $datasetRef)
+        # I-3.3: the prototype renderer is deprecated; the orchestrator is its documented
+        # rollback path, so it opts in explicitly. New work uses the official-first PBIR
+        # emit (tooling/superversion/targets/pbir.py) gated by `powerbi-report-author validate`.
+        $allArgs = $pyExeArgs + @($scriptPath, "--allow-deprecated-prototype", "--use-case", $ucId, "--output", $reportFolder, "--repo-root", $script:RepoRoot, "--dataset-reference", $datasetRef)
         $pyOutput = & $pyExe @allArgs 2>&1
         if ($LASTEXITCODE -ne 0) {
             throw "generate_full_report.py failed for $ucId (exit $LASTEXITCODE). Check Bracket ux_layout_rules and page_scaffold_generator."
