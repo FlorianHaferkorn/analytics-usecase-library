@@ -26,6 +26,7 @@ shelf-life-days: 90
 | Validierungs-Backends / Capability-Tiers verstehen | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | ADR-0002/0003, Migration |
 | Industry-/Extension-Use-Cases anlegen (EXT/IND-Schema, Sektor-Register) | `adr/0004-industry-variant-use-case-tier-taxonomy.md` → `../../core/usecases/README.md` | ADR-0001/0002/0003 |
 | Superversion-Heimat / Meridian-Core einziehen (Vendoring, Pin, Contract-Mirror) | `adr/0005-superversion-home-and-meridian-vendoring.md` → `../../tooling/superversion/_INDEX.md` | ADR-0001/0002/0003 |
+| Superversion Stack-Targets emittieren (Adapter-Vertrag, Registry, render) | `adr/0006-superversion-target-adapter-contract.md` → `../../tooling/superversion/targets/base.py` | ADR-0001/0002/0003 |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
 | Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
@@ -44,6 +45,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `adr/0003-customer-activation-and-capability-gating.md` | ADR: Customer-Activation + Capability-Gating (Proposed) | Aktivierung/Onboarding |
 | `adr/0004-industry-variant-use-case-tier-taxonomy.md` | ADR: Industry-Variant Use-Case-Tier-Taxonomie (EXT/IND-Schema, Verzeichnisbaum, Sektor-Register) (Proposed) | Use-Case-Tier/Taxonomie |
 | `adr/0005-superversion-home-and-meridian-vendoring.md` | ADR: Superversion-Heimat (ALUCA) + Meridian-Core-Vendoring (gepinnt, Contract-Mirror, vendor-sync) (Accepted) | Superversion-Heimat/Meridian-Einzug |
+| `adr/0006-superversion-target-adapter-contract.md` | ADR: Superversion Target-(Stack-)Adapter-Vertrag (emit(canonical)→{Pfad:Inhalt}, Registry, render; Vertrag-only) (Accepted) | Stack-Target-Emit |
 | `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
@@ -67,3 +69,4 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | A-6 | Upstream `skills-for-fabric` pin + Cadence | **erledigt**: ALLOWLIST + Cron Mo+Do (`source-updates.yml`) | 2026-06-16 |
 | A-7 | Industry-Variant-Use-Case-Tier-Taxonomie ratifizieren (KNOWN_GAPS §7 Prereq #4) | **erledigt** (ADR-0004): EXT/IND-Sektor-Schema, neue Tier-Bäume unter `core/usecases/`, Sektor-Register R/L/M | 2026-06-18 |
 | A-8 | Superversion-Heimat + Meridian-Einzug ratifizieren (UMSETZUNGSPLAN I-2.1 [QA/SA]) | **erledigt** (ADR-0005): ALUCA = Heimat; Meridian-Core vendored+pinned (vendor-sync default), `canonical_contract` als parity-gated Standalone-Mirror, Neutral-Core über die Naht gewahrt | 2026-06-22 |
+| A-9 | Superversion Target-(Stack-)Adapter-Vertrag ratifizieren (UMSETZUNGSPLAN I-3.1 [QA/SA]) | **erledigt** (ADR-0006): `emit(canonical)→{Pfad:Inhalt}` + Registry + `render`-Dispatch in `tooling/superversion/targets/base.py`, feldgleich zu Meridian (ADR-0036), Vertrag-only (Registry leer; Adapter folgen I-3.2/3.3) | 2026-06-23 |

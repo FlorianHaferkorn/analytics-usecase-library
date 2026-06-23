@@ -20,3 +20,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0003](0003-customer-activation-and-capability-gating.md) | Customer Activation and Capability-Gating | Proposed |
 | [0004](0004-industry-variant-use-case-tier-taxonomy.md) | Industry-Variant Use-Case Tier Taxonomy | Proposed |
 | [0005](0005-superversion-home-and-meridian-vendoring.md) | Superversion Home & Meridian-Core Vendoring | Accepted |
+| [0006](0006-superversion-target-adapter-contract.md) | Superversion Target (Stack) Adapter Contract | Accepted |
