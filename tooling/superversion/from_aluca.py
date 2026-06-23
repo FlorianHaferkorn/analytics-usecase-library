@@ -50,6 +50,11 @@ class AlucaSourceError(ValueError):
     """Bracket/Katalog verletzt den Adapter-Vertrag (fehlende Pflichtfelder o. ä.)."""
 
 
+# Display-Folder-Marker für Measures ohne governten KPI-Katalog-Eintrag (kein
+# strategischer Anker). Das Golden-Thread-Gate (I-3.4) liest diesen Marker.
+UNRESOLVED_DISPLAY_FOLDER = "_Unresolved"
+
+
 # --------------------------------------------------------------------------- #
 # Katalog-Zugriff (KPI-ID → Definition)                                       #
 # --------------------------------------------------------------------------- #
@@ -109,7 +114,7 @@ def _measure_from_kpi(kpi_id: str, kpi: Optional[dict]) -> tuple[Measure, str]:
                 expression="",
                 expressions={},
                 description="HITL: no catalog entry — define measure/dialect.",
-                display_folder="_Unresolved",
+                display_folder=UNRESOLVED_DISPLAY_FOLDER,
             ),
             "",
         )
