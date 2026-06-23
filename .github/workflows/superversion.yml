@@ -57,3 +57,6 @@ jobs:
 
       - name: Run superversion adapter tests
         run: python -m pytest tooling/superversion/ -q
+
+      - name: Pin-drift sensor (advisory — reports, never bumps)
+        run: python scripts/check_superversion_pins.py
