@@ -27,7 +27,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_finance",
@@ -81,7 +85,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_output",
@@ -99,7 +107,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_ops",
@@ -135,7 +147,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_sales",
@@ -153,7 +169,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_fulfillment",
@@ -171,7 +191,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       }
     ],
     "relationships": [],
@@ -179,15 +203,19 @@
       {
         "name": "plant_ops_controllers",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       },
       {
         "name": "finance_bi_lead",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       }
     ],
-    "compatibility_level": null
+    "functions": [],
+    "compatibility_level": null,
+    "parse_parity": {}
   },
   "report": {
     "name": "FIN-002_Cost_Performance",
@@ -207,9 +235,15 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Unit Cost Amount"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_2",
@@ -221,9 +255,15 @@
             "title": "Main_1",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "COGS % of Sales"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_3",
@@ -235,16 +275,23 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "OpEx vs Plan %",
               "Material Cost %",
               "Labor Productivity %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       },
       {
@@ -261,6 +308,9 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Unit Cost Amount",
               "COGS % of Sales",
@@ -270,14 +320,20 @@
               "Production Volume Units",
               "Quality Defect Rate %",
               "Yield %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       }
-    ]
+    ],
+    "extension_measures": [],
+    "bookmarks": []
   }
 }

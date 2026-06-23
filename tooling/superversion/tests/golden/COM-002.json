@@ -108,7 +108,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_plan_sales",
@@ -126,7 +130,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_promo",
@@ -162,7 +170,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       }
     ],
     "relationships": [],
@@ -170,15 +182,19 @@
       {
         "name": "commercial_controlling_lead",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       },
       {
         "name": "commercial_bi_pricing_analytics_lead",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       }
     ],
-    "compatibility_level": null
+    "functions": [],
+    "compatibility_level": null,
+    "parse_parity": {}
   },
   "report": {
     "name": "COM-002_Margin_Price_Performance",
@@ -198,9 +214,15 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Gross Margin %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_2",
@@ -212,9 +234,15 @@
             "title": "Main_1",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Gross Margin Amount"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_3",
@@ -226,13 +254,19 @@
             "title": "Main_2",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Plan GM Amount",
               "Price Effect Amount",
               "Volume Effect Amount",
               "Mix Effect Amount",
               "Gross Margin Amount"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_4",
@@ -244,16 +278,23 @@
             "title": "Main_3",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Price Realization %",
               "Mix Effect Amount",
               "COGS per Unit"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       },
       {
@@ -270,6 +311,9 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Gross Margin Amount",
               "Gross Margin % vs Plan",
@@ -279,14 +323,20 @@
               "Mix Effect Amount",
               "COGS per Unit",
               "Gross Margin %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       }
-    ]
+    ],
+    "extension_measures": [],
+    "bookmarks": []
   }
 }

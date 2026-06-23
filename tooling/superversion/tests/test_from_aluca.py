@@ -507,21 +507,114 @@ def test_cli_stdout_matches_serializer(capsys):
     assert captured == model_to_json(from_bracket_file(BRACKETS["SCM-002"], KPIS))
 
 
+# --------------------------------------------------------------------------- #
+# I-2.2 — Meridian-core vendored (ADR-0005). canonical_contract re-exports the   #
+# real dataclasses when the vendored subtree is present; the mirror is the       #
+# standalone fallback. These guard the seam: full field-for-field parity (both   #
+# directions, ALL dataclasses), mirror≡originals output equivalence, manifest    #
+# integrity, and the soft-fallback contract.                                     #
+# --------------------------------------------------------------------------- #
+
+_CONTRACT_NAMES = (
+    "Column", "Measure", "RoleTablePermission", "RoleColumnPermission", "Role",
+    "Table", "Relationship", "ModelFunction", "SemanticModel",
+    "VisualCalculation", "Visual", "ReportPage", "ExtensionMeasure", "Bookmark",
+    "ReportModel", "CanonicalModel",
+)
+
+
+def test_vendored_meridian_present_and_active():
+    """The pinned Meridian subtree is vendored, intact, and re-exported by the
+    contract seam (ADR-0005). If this skips, the vendor is gone and CI must catch it."""
+    from tooling.superversion import _meridian_vendor as mv
+    from tooling.superversion import canonical_contract as cc
+    if not mv.PIN_PATH.exists():
+        pytest.skip("vendored Meridian subtree absent — standalone mirror mode")
+    assert mv.is_available(), "vendored subtree present but failed to load/verify"
+    assert cc.USING_MERIDIAN_ORIGINALS, "contract seam did not re-export vendored originals"
+
+
+def test_vendor_manifest_integrity():
+    """PIN.json sha256 manifest matches the vendored files (local-divergence guard,
+    ADR-0005 rule 6). Tampering with a vendored file must fail this."""
+    from tooling.superversion import _meridian_vendor as mv
+    if not mv.PIN_PATH.exists():
+        pytest.skip("vendored Meridian subtree absent")
+    import json
+    pin = json.loads(mv.PIN_PATH.read_text(encoding="utf-8"))
+    # _verify_manifest raises VendorUnavailable on any mismatch/missing file.
+    mv._verify_manifest(pin)
+    assert pin["files"], "manifest lists no files"
+
+
 def test_contract_parity_with_meridian():
-    """If Meridian is reachable in the same env, assert our mirrored contract matches
-    its real CanonicalModel field-for-field (PRODUCT_PLAN §0: 1:1 portability)."""
-    import importlib.util
-    mer = Path("/sessions/cool-zen-pascal/mnt/Freelancing")
-    if not (mer / "core/pbi_engine/model.py").exists():
-        pytest.skip("Meridian repo not reachable — parity check skipped")
-    import sys
-    sys.path.insert(0, str(mer))
+    """ADR-0005 rule 3 / I-2.2 DoD: the standalone mirror matches the vendored
+    Meridian contract **field-for-field, both directions, across ALL dataclasses**
+    (names, order, defaults) — so the mirror and the originals are interchangeable.
+    Located via the in-repo vendor path (not a hardcoded absolute path)."""
+    from tooling.superversion import _canonical_mirror as mirror
+    from tooling.superversion._meridian_vendor import VendorUnavailable, load_contract
     try:
-        from core.pbi_engine.parsers.tmdl_parser import Measure as MMeasure
-        from tooling.superversion.canonical_contract import Measure as AMeasure
-        mfields = {f for f in MMeasure.__dataclass_fields__}
-        afields = {f for f in AMeasure.__dataclass_fields__}
-        missing = mfields - afields
-        assert not missing, f"mirrored Measure missing Meridian fields: {missing}"
-    finally:
-        sys.path.remove(str(mer))
+        vendored = load_contract()
+    except VendorUnavailable:
+        pytest.skip("vendored Meridian subtree not reachable — parity check skipped")
+
+    for name in _CONTRACT_NAMES:
+        m = getattr(mirror, name)
+        v = vendored[name]
+        # field NAMES, both directions
+        mf, vf = set(m.__dataclass_fields__), set(v.__dataclass_fields__)
+        assert mf == vf, (
+            f"{name}: mirror-only={mf - vf}, vendor-only={vf - mf} "
+            "— mirror drifted from Meridian; re-sync the mirror + bump the pin"
+        )
+        # field ORDER
+        assert list(m.__dataclass_fields__) == list(v.__dataclass_fields__), (
+            f"{name}: field order differs between mirror and Meridian"
+        )
+        # field DEFAULTS (so asdict output is identical)
+        for fname, mfd in m.__dataclass_fields__.items():
+            vfd = v.__dataclass_fields__[fname]
+            import dataclasses as _dc
+            m_has = mfd.default is not _dc.MISSING or mfd.default_factory is not _dc.MISSING
+            v_has = vfd.default is not _dc.MISSING or vfd.default_factory is not _dc.MISSING
+            assert m_has == v_has, f"{name}.{fname}: default presence differs"
+            if mfd.default is not _dc.MISSING or vfd.default is not _dc.MISSING:
+                assert mfd.default == vfd.default, f"{name}.{fname}: default value differs"
+
+
+def test_mirror_and_originals_serialise_identically():
+    """The whole point of verbatim parity (Invariant I2): a model built under the
+    mirror serialises byte-identically to one built under Meridian's originals, so
+    output never depends on whether the vendored core is present."""
+    from tooling.superversion._meridian_vendor import VendorUnavailable, load_contract
+    try:
+        vendored = load_contract()
+    except VendorUnavailable:
+        pytest.skip("vendored Meridian subtree not reachable")
+    from tooling.superversion import _canonical_mirror as mirror
+
+    def build(ns) -> str:
+        # construct the same tiny model under each contract and serialise it
+        import dataclasses as _dc
+        import json as _json
+        sm = ns.SemanticModel(
+            name="X",
+            tables=[ns.Table(name="fact_x", measures=[ns.Measure(name="M", display_folder="D")])],
+            roles=[ns.Role(name="r")],
+        )
+        rep = ns.ReportModel(
+            name="X",
+            pages=[ns.ReportPage(name="p", visuals=[
+                ns.Visual(visual_id="v1", visual_type="card", bound_measures=["M"], binds_measures=True)
+            ])],
+        )
+        model = ns.CanonicalModel(semantic=sm, report=rep)
+        return _json.dumps(_dc.asdict(model), indent=2, ensure_ascii=False) + "\n"
+
+    class _Ns:
+        pass
+    ven_ns = _Ns()
+    for n in _CONTRACT_NAMES:
+        setattr(ven_ns, n, vendored[n])
+    assert build(mirror) == build(ven_ns), "mirror and Meridian originals serialise differently"

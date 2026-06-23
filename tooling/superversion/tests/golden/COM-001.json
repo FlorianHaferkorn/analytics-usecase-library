@@ -99,7 +99,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       }
     ],
     "relationships": [],
@@ -107,15 +111,19 @@
       {
         "name": "commercial_controlling_lead",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       },
       {
         "name": "sales_bi_lead",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       }
     ],
-    "compatibility_level": null
+    "functions": [],
+    "compatibility_level": null,
+    "parse_parity": {}
   },
   "report": {
     "name": "COM-001_Sales_Performance_vs_Plan_LY",
@@ -135,9 +143,15 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Net Sales Amount"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_2",
@@ -149,11 +163,17 @@
             "title": "Main_1",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Net Sales Amount",
               "Plan Sales Amount",
               "Last Year Net Sales Amount"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_3",
@@ -165,13 +185,19 @@
             "title": "Main_2",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Plan Sales Amount",
               "Price Effect Amount",
               "Volume Effect Amount",
               "Mix Effect Amount",
               "Net Sales Amount"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_4",
@@ -183,14 +209,21 @@
             "title": "Main_3",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Net Sales % vs Plan"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       },
       {
@@ -207,6 +240,9 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "Net Sales Amount",
               "Net Sales % vs Plan",
@@ -215,14 +251,20 @@
               "Volume Effect Amount",
               "Mix Effect Amount",
               "Gross Margin %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       }
-    ]
+    ],
+    "extension_measures": [],
+    "bookmarks": []
   }
 }
