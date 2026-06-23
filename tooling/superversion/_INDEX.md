@@ -13,7 +13,7 @@ shelf-life-days: 90
 |---|---|
 | Stand | 2026-06-23 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
-| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅; übrige I-3..I-9 im Umsetzungsplan |
+| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅; I-3.5 + übrige I-4..I-9 im Umsetzungsplan |
 | Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
@@ -27,6 +27,7 @@ shelf-life-days: 90
 | Stack-Target emittieren / neuen Adapter registrieren (ADR-0006) | `targets/base.py` (`emit(canonical)→{Pfad:Inhalt}`, Registry, `render`) → `tests/test_targets.py` | Source-Adapter |
 | TMDL-Semantic-Model emittieren (I-3.2) | `targets/tmdl.py` (Dialekt→DAX hier; TMDL-Hardrules) → `tests/test_tmdl_target.py` | restliche Targets |
 | PBIR-Report emittieren (I-3.3, official-first) | `targets/pbir.py` (`emit(canonical.report)`; Visual→PBIR-Typ/Rollen, HITL-Platzhalter; Gate `powerbi-report-author validate`) → `tests/test_pbir_target.py` | restliche Targets |
+| Golden-Thread prüfen (jede Measure hat Anker) (I-3.4) | `golden_thread.py` (`validate_golden_thread`/`assert_golden_thread`; CLI Stage-Gate) → `tests/test_golden_thread.py` | Targets |
 | Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
 | Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
 | Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
@@ -43,7 +44,7 @@ shelf-life-days: 90
 (Standalone-Mirror), `_meridian_vendor.py` (Vendor-Loader), `__init__.py`,
 `tests/test_from_aluca.py`, `targets/base.py` + `targets/tmdl.py` + `targets/pbir.py` (+
 `targets/__init__.py`, `tests/test_targets.py`, `tests/test_tmdl_target.py`,
-`tests/test_pbir_target.py`)
+`tests/test_pbir_target.py`), `golden_thread.py` (+ `tests/test_golden_thread.py`)
 sowie der vendored Meridian-Subtree unter
 `vendor/meridian/` (+ `PIN.json`) sind kein `*.md` und unterliegen nicht dem
 Index-Gate; sie sind über das Routing in §1 erreichbar.)*

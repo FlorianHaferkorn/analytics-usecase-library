@@ -60,3 +60,6 @@ jobs:
 
       - name: Pin-drift sensor (advisory — reports, never bumps)
         run: python scripts/check_superversion_pins.py
+
+      - name: Golden-Thread gate (measures must have a strategic anchor)
+        run: python -m tooling.superversion.golden_thread
