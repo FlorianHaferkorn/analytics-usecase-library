@@ -54,7 +54,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "fact_stockout",
@@ -72,7 +76,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       },
       {
         "name": "_Measures",
@@ -99,7 +107,11 @@
             "is_hidden": false,
             "expressions": {}
           }
-        ]
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       }
     ],
     "relationships": [],
@@ -107,15 +119,19 @@
       {
         "name": "supply_chain_controlling_logistics_performance",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       },
       {
         "name": "logistics_supply_chain_bi_lead",
         "model_permission": "read",
-        "table_permissions": []
+        "table_permissions": [],
+        "column_permissions": []
       }
     ],
-    "compatibility_level": null
+    "functions": [],
+    "compatibility_level": null,
+    "parse_parity": {}
   },
   "report": {
     "name": "SCM-002_Supply_Reliability_OTIF",
@@ -135,9 +151,15 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "OTIF %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_2",
@@ -149,9 +171,15 @@
             "title": "Main_1",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "On-Time %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           },
           {
             "visual_id": "page_1_summary_30s_3",
@@ -163,16 +191,23 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "In-Full %",
               "Stockout Impact %",
               "Penalty Amount"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       },
       {
@@ -189,6 +224,9 @@
             "title": "",
             "has_title": true,
             "binds_measures": true,
+            "has_tooltip_fields": false,
+            "has_tooltip_vco": false,
+            "visual_calculations": [],
             "bound_measures": [
               "On-Time %",
               "In-Full %",
@@ -198,14 +236,20 @@
               "Order Lines Count",
               "Shipments Count",
               "OTIF %"
-            ]
+            ],
+            "rows": [],
+            "columns": [],
+            "slicer_field": ""
           }
         ],
         "width": 1280,
         "height": 720,
         "page_type": "Default",
+        "has_mobile_layout": false,
         "is_hidden": false
       }
-    ]
+    ],
+    "extension_measures": [],
+    "bookmarks": []
   }
 }

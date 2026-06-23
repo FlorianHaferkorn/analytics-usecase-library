@@ -21,7 +21,8 @@ shelf-life-days: 90
 | Deine Aufgabe ist … | Lies (in dieser Reihenfolge) | NICHT nötig |
 |---|---|---|
 | Den Adapter erweitern/härten (I-1.x) | `from_aluca.py` → `canonical_contract.py` → `tests/test_from_aluca.py` | restlicher Plan |
-| Den Ziel-Vertrag verstehen (Felder, Parität) | `canonical_contract.py` (Spiegel von Meridians Modell) | Adapter-Logik |
+| Den Ziel-Vertrag verstehen (Felder, Parität) | `canonical_contract.py` (Seam) → `_canonical_mirror.py` (Standalone-Mirror) | Adapter-Logik |
+| Meridian-Einzug / Vendoring verstehen (ADR-0005) | `canonical_contract.py` → `_meridian_vendor.py` → `vendor/meridian/PIN.json` | Mirror-Felder |
 | Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
 | Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
 | Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
@@ -34,9 +35,11 @@ shelf-life-days: 90
 |---|---|---|
 | `_INDEX.md` | dieser Bereichs-Index | Erstkontakt |
 
-*(Code-Dateien `from_aluca.py`, `canonical_contract.py`, `__init__.py`,
-`tests/test_from_aluca.py` sind kein `*.md` und unterliegen nicht dem Index-Gate;
-sie sind über das Routing in §1 erreichbar.)*
+*(Code-Dateien `from_aluca.py`, `canonical_contract.py` (Seam), `_canonical_mirror.py`
+(Standalone-Mirror), `_meridian_vendor.py` (Vendor-Loader), `__init__.py`,
+`tests/test_from_aluca.py` sowie der vendored Meridian-Subtree unter
+`vendor/meridian/` (+ `PIN.json`) sind kein `*.md` und unterliegen nicht dem
+Index-Gate; sie sind über das Routing in §1 erreichbar.)*
 
 ## 3. Verwandte Top-Level-Artefakte (Repo-Root, kein lokaler Index-Owner)
 

@@ -30,19 +30,16 @@ import re
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import yaml
 
 from tooling.superversion.canonical_contract import (
     CanonicalModel,
-    Column,
     Measure,
-    Relationship,
     ReportModel,
     ReportPage,
     Role,
-    RoleTablePermission,
     SemanticModel,
     Table,
     Visual,

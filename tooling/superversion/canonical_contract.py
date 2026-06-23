@@ -1,121 +1,41 @@
-"""canonical_contract — strukturgleiche Spiegelung von Meridians kanonischem Modell.
+"""canonical_contract — the single contract seam (ADR-0005).
 
-Damit ALUCA eigenständig lauffähig bleibt (PRODUCT_PLAN §2 P5: kein Meridian-Import),
-spiegeln wir den Ziel-Vertrag aus `core.pbi_engine.model` / `.parsers.tmdl_parser` /
-`.parsers.pbir_parser` hier mit IDENTISCHEN Feldnamen.
+Exposes the canonical model dataclasses ALUCA's source adapter builds against.
+Per ADR-0005 rule 4 this module is the ONLY import point for the contract — no
+call site imports `core.pbi_engine` directly:
 
-Beim Einhängen in Meridian wird dieses Modul durch einen Import der Originale ersetzt:
+- When the **vendored Meridian core** is present and intact (`PIN.json` sha256
+  matches), this re-exports Meridian's **real** dataclasses (`_meridian_vendor`).
+- Otherwise it falls back to the **structure-identical mirror** (`_canonical_mirror`),
+  keeping ALUCA standalone-runnable (PRODUCT_PLAN F4).
 
-    from core.pbi_engine.model import CanonicalModel
-    from core.pbi_engine.parsers.tmdl_parser import SemanticModel, Table, Measure, ...
-    from core.pbi_engine.parsers.pbir_parser import ReportModel, ReportPage, Visual
+Because the mirror is verbatim, `from_aluca` + `model_to_json` produce byte-identical
+output in either mode (Invariant I2). Equivalence is guarded field-for-field, both
+directions, by `tests/test_from_aluca.py::test_contract_parity_with_meridian`,
+enforced in CI where the vendored core is present (ADR-0005 rule 3).
 
-Feldnamen wurden gegen Meridian-`origin/main` (Stand 2026-06-18) verifiziert. Wenn sich
-der Meridian-Vertrag ändert, fängt der Konformitätstest (test_contract_parity) das ab.
+`USING_MERIDIAN_ORIGINALS` records which path is active (introspection/tests only).
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Optional
+_NAMES = (
+    "Column", "Measure", "RoleTablePermission", "RoleColumnPermission", "Role",
+    "Table", "Relationship", "ModelFunction", "SemanticModel",
+    "VisualCalculation", "Visual", "ReportPage", "ExtensionMeasure", "Bookmark",
+    "ReportModel", "CanonicalModel",
+)
 
+try:
+    from tooling.superversion._meridian_vendor import load_contract as _load_contract
 
-@dataclass
-class Column:
-    name: str
-    data_type: str = ""
-    is_hidden: bool = False
-    description: str = ""
-    summarize_by: str = ""
+    _contract = _load_contract()
+    globals().update(_contract)
+    USING_MERIDIAN_ORIGINALS = True
+except Exception:
+    # Soft-fallback to the standalone mirror — never a hard error (ADR-0005 rule 4).
+    from tooling.superversion import _canonical_mirror as _m
 
+    globals().update({name: getattr(_m, name) for name in _NAMES})
+    USING_MERIDIAN_ORIGINALS = False
 
-@dataclass
-class Measure:
-    name: str
-    expression: str = ""
-    display_folder: str = ""
-    description: str = ""
-    format_string: str = ""
-    is_hidden: bool = False
-    expressions: dict = field(default_factory=dict)  # Dialekt-Map (core→dialekt direkt)
-
-
-@dataclass
-class RoleTablePermission:
-    table: str
-    filter_expression: str = ""
-
-
-@dataclass
-class Role:
-    name: str
-    model_permission: str = "read"
-    table_permissions: list[RoleTablePermission] = field(default_factory=list)
-
-
-@dataclass
-class Relationship:
-    from_table: str
-    from_column: str
-    to_table: str
-    to_column: str
-    cardinality: str = ""
-    cross_filter: str = ""
-    is_active: bool = True
-
-
-@dataclass
-class Table:
-    name: str
-    description: str = ""
-    is_hidden: bool = False
-    is_date_table: bool = False
-    columns: list[Column] = field(default_factory=list)
-    measures: list[Measure] = field(default_factory=list)
-
-
-@dataclass
-class SemanticModel:
-    name: str
-    tables: list[Table] = field(default_factory=list)
-    relationships: list[Relationship] = field(default_factory=list)
-    roles: list[Role] = field(default_factory=list)
-    compatibility_level: Optional[int] = None
-
-
-@dataclass
-class Visual:
-    visual_id: str
-    visual_type: str
-    x: float = 0
-    y: float = 0
-    width: float = 0
-    height: float = 0
-    title: str = ""
-    has_title: bool = True
-    binds_measures: bool = False
-    bound_measures: list[str] = field(default_factory=list)
-
-
-@dataclass
-class ReportPage:
-    name: str
-    display_name: str = ""
-    visuals: list[Visual] = field(default_factory=list)
-    width: int = 1280
-    height: int = 720
-    page_type: str = "Default"
-    is_hidden: bool = False
-
-
-@dataclass
-class ReportModel:
-    name: str
-    theme: str = ""
-    pages: list[ReportPage] = field(default_factory=list)
-
-
-@dataclass
-class CanonicalModel:
-    """Vereinheitlichtes kanonisches Modell: Semantik UND Report (wie Meridian)."""
-    semantic: SemanticModel
-    report: ReportModel
+__all__ = [*_NAMES, "USING_MERIDIAN_ORIGINALS"]
