@@ -24,6 +24,7 @@ shelf-life-days: 90
 | Den Ziel-Vertrag verstehen (Felder, Parität) | `canonical_contract.py` (Seam) → `_canonical_mirror.py` (Standalone-Mirror) | Adapter-Logik |
 | Meridian-Einzug / Vendoring verstehen (ADR-0005) | `canonical_contract.py` → `_meridian_vendor.py` → `vendor/meridian/PIN.json` | Mirror-Felder |
 | Pin-Drift prüfen (meldet, bumpt nie) | Repo-Root: `scripts/check_superversion_pins.py` (+ `tests/test_pin_sensor.py`) | Adapter-Logik |
+| Stack-Target emittieren / neuen Adapter registrieren (ADR-0006) | `targets/base.py` (`emit(canonical)→{Pfad:Inhalt}`, Registry, `render`) → `tests/test_targets.py` | Source-Adapter |
 | Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
 | Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
 | Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
@@ -38,7 +39,8 @@ shelf-life-days: 90
 
 *(Code-Dateien `from_aluca.py`, `canonical_contract.py` (Seam), `_canonical_mirror.py`
 (Standalone-Mirror), `_meridian_vendor.py` (Vendor-Loader), `__init__.py`,
-`tests/test_from_aluca.py` sowie der vendored Meridian-Subtree unter
+`tests/test_from_aluca.py`, `targets/base.py` (+ `targets/__init__.py`,
+`tests/test_targets.py`) sowie der vendored Meridian-Subtree unter
 `vendor/meridian/` (+ `PIN.json`) sind kein `*.md` und unterliegen nicht dem
 Index-Gate; sie sind über das Routing in §1 erreichbar.)*
 
