@@ -27,6 +27,7 @@ shelf-life-days: 90
 | Industry-/Extension-Use-Cases anlegen (EXT/IND-Schema, Sektor-Register) | `adr/0004-industry-variant-use-case-tier-taxonomy.md` → `../../core/usecases/README.md` | ADR-0001/0002/0003 |
 | Superversion-Heimat / Meridian-Core einziehen (Vendoring, Pin, Contract-Mirror) | `adr/0005-superversion-home-and-meridian-vendoring.md` → `../../tooling/superversion/_INDEX.md` | ADR-0001/0002/0003 |
 | Superversion Stack-Targets emittieren (Adapter-Vertrag, Registry, render) | `adr/0006-superversion-target-adapter-contract.md` → `../../tooling/superversion/targets/base.py` | ADR-0001/0002/0003 |
+| Studio-Cockpit: Ist-Stand + Soll-Schnitt für I-6 (Generate-Naht-Entscheidung) | `studio-capability-inventory.md` → `../../tooling/superversion/_INDEX.md` | ADRs (außer 0005/0006) |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
 | Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
@@ -51,6 +52,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
+| `studio-capability-inventory.md` | I-6.1 Studio-Inventur + Soll-Schnitt; legt Generate-Naht-Entscheidung (E-1) für I-6.2/6.3 offen | Studio-/I-6-Scoping |
 
 <!-- Ausgenommen (EXEMPT_FILES): README.md, adr/README.md, NAVIGATION_PHILOSOPHY.md.
      check_index.py erzwingt: jede nicht-exempte *.md im Subtree ist hier gelistet. -->
@@ -70,3 +72,5 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | A-7 | Industry-Variant-Use-Case-Tier-Taxonomie ratifizieren (KNOWN_GAPS §7 Prereq #4) | **erledigt** (ADR-0004): EXT/IND-Sektor-Schema, neue Tier-Bäume unter `core/usecases/`, Sektor-Register R/L/M | 2026-06-18 |
 | A-8 | Superversion-Heimat + Meridian-Einzug ratifizieren (UMSETZUNGSPLAN I-2.1 [QA/SA]) | **erledigt** (ADR-0005): ALUCA = Heimat; Meridian-Core vendored+pinned (vendor-sync default), `canonical_contract` als parity-gated Standalone-Mirror, Neutral-Core über die Naht gewahrt | 2026-06-22 |
 | A-9 | Superversion Target-(Stack-)Adapter-Vertrag ratifizieren (UMSETZUNGSPLAN I-3.1 [QA/SA]) | **erledigt** (ADR-0006): `emit(canonical)→{Pfad:Inhalt}` + Registry + `render`-Dispatch in `tooling/superversion/targets/base.py`, feldgleich zu Meridian (ADR-0036), Vertrag-only (Registry leer; Adapter folgen I-3.2/3.3) | 2026-06-23 |
+| A-10 | Studio-Inventur I-6.1 (`studio-capability-inventory.md`) | **erledigt** (Agent-Inventur): Studio real; 4 Soll-Bereiche EXISTS, aber Generate läuft über TS-Shadow-Pfad statt Python-Core | 2026-06-24 |
+| **E-1** | **Generate-Naht entscheiden (I-6.2/6.3-Blocker):** Studio-Generate auf Python-Core andocken vs. TS-Pfad behalten — [QA/SA], ggf. ADR-0007 | **offen** (Maintainer) | 2026-06-24 |
