@@ -29,6 +29,7 @@ shelf-life-days: 90
 | Superversion Stack-Targets emittieren (Adapter-Vertrag, Registry, render) | `adr/0006-superversion-target-adapter-contract.md` → `../../tooling/superversion/targets/base.py` | ADR-0001/0002/0003 |
 | Studio-Cockpit: Ist-Stand + Soll-Schnitt für I-6 (Generate-Naht-Entscheidung) | `studio-capability-inventory.md` → `adr/0007-studio-generate-docks-onto-superversion-core.md` | ADRs (außer 0005/0006/0007) |
 | Studio-Generate-Naht: dockt auf Python-Core (E-1 ratifiziert) | `adr/0007-studio-generate-docks-onto-superversion-core.md` → `../../tooling/superversion/e2e_smoke.py` | ADR-0001/0002/0003/0004 |
+| I-6.6 Modell-Routing/Token/ROI scopen (Research-Charter, LLM-/kundenagnostisch) | `studio-model-routing-research-charter.md` | ADRs (vor Synthese in ADR-0008) |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
 | Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
@@ -55,6 +56,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
 | `studio-capability-inventory.md` | I-6.1 Studio-Inventur + Soll-Schnitt; legt Generate-Naht-Entscheidung (E-1) für I-6.2/6.3 offen | Studio-/I-6-Scoping |
+| `studio-model-routing-research-charter.md` | I-6.6 Research-Charter (Proposed): Fragen/Quellen/Erfolgskriterien für Modell-Routing, Token-Opt., Tracking, ROI; LLM-/kundenagnostisch; geschichtete Config L0/L1/L2 → ADR-0008 | I-6.6-Scoping |
 
 <!-- Ausgenommen (EXEMPT_FILES): README.md, adr/README.md, NAVIGATION_PHILOSOPHY.md.
      check_index.py erzwingt: jede nicht-exempte *.md im Subtree ist hier gelistet. -->
@@ -76,3 +78,5 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | A-9 | Superversion Target-(Stack-)Adapter-Vertrag ratifizieren (UMSETZUNGSPLAN I-3.1 [QA/SA]) | **erledigt** (ADR-0006): `emit(canonical)→{Pfad:Inhalt}` + Registry + `render`-Dispatch in `tooling/superversion/targets/base.py`, feldgleich zu Meridian (ADR-0036), Vertrag-only (Registry leer; Adapter folgen I-3.2/3.3) | 2026-06-23 |
 | A-10 | Studio-Inventur I-6.1 (`studio-capability-inventory.md`) | **erledigt** (Agent-Inventur): Studio real; 4 Soll-Bereiche EXISTS, aber Generate läuft über TS-Shadow-Pfad statt Python-Core | 2026-06-24 |
 | **E-1** | Generate-Naht entscheiden (I-6.2/6.3-Blocker): Studio-Generate auf Python-Core andocken vs. TS-Pfad behalten | **erledigt** (ADR-0007): **andocken** — Studio ruft `from_aluca`→`targets.render`→Gate (I-3.4/I-3.5) über dünne Brücke; TS-Adapter = Preview-only/nicht-autoritativ; Gate-Report sichtbar; ehrliche Degradation offline | 2026-06-24 |
+| A-11 | I-6.6 Modell-Routing/Token/ROI: Research-Charter erstellen (vor teuren Läufen) | **erledigt** (`studio-model-routing-research-charter.md`, Proposed): Multi-Provider, LLM-/kundenagnostisch, T1–T5 mit Quellen/Erfolgskriterien, geschichtete Config L0/L1/L2 → ADR-0008 | 2026-06-24 |
+| **E-2** | Research-Charter I-6.6 freigeben + Läufe starten (T1 zuerst empfohlen) | **offen** (Maintainer) | 2026-06-24 |
