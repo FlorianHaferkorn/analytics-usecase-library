@@ -81,3 +81,10 @@ jobs:
       - name: Value-Gate (KPI value vs reference, advisory without engine)
         run: python -m tooling.superversion.eval.value_gate COM-001
 
+      # COMP-DSGVO gate (I-4.4): PII without row-level security → FAIL. Gated
+      # universal UCs are all personal_data: false, so this is green here; the
+      # blocking "PII-UC without RLS → red" behaviour is covered by
+      # tests/test_comp_gate.py (XD-002).
+      - name: COMP-DSGVO gate (PII without RLS → FAIL)
+        run: python -m tooling.superversion.eval.comp_gate
+
