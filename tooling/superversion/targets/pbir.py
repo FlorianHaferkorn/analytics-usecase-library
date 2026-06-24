@@ -74,7 +74,10 @@ _PLANS: dict[str, _TypePlan] = {
     "kpi_card": _TypePlan("cardVisual", "Data", "Measure", None, ()),
     "line_chart": _TypePlan("lineChart", "Y", "Measure", None, ("Category",)),
     "trend_line": _TypePlan("lineChart", "Y", "Measure", None, ("Category",)),
-    "bar_chart": _TypePlan("clusteredColumnChart", "Y", "Measure", None, ("Category",)),
+    # Both bar variants → clusteredBarChart: the Visual-Library (I-5.1) standardises
+    # length-encoding charts on clusteredBarChart (evidence S2), so we align with the
+    # registry rather than emit clusteredColumnChart (which it never sanctions).
+    "bar_chart": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
     "bar_chart_horizontal": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
     "waterfall": _TypePlan("waterfallChart", "Y", "Measure", 1, ("Category",)),
     "slicer": _TypePlan("slicer", "Values", "Column", 1, ()),
