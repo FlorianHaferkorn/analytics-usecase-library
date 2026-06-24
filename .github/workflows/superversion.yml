@@ -75,3 +75,9 @@ jobs:
       - name: E2E smoke (Bracket → TMDL+PBIR → validate, COM-001)
         run: python -m tooling.superversion.e2e_smoke --require-cli
 
+      # Value-Gate (I-4.2): advisory here (no live engine in CI to compute KPI
+      # values → exit 0). The blocking "wrong value → red" behaviour is covered
+      # by tests/test_value_gate.py in the suite above.
+      - name: Value-Gate (KPI value vs reference, advisory without engine)
+        run: python -m tooling.superversion.eval.value_gate COM-001
+
