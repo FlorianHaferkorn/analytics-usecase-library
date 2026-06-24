@@ -52,6 +52,48 @@ interface BridgePayload {
   error?: string;
 }
 
+export interface GateStage {
+  name: string;
+  status: 'PASS' | 'FAIL' | 'SKIP';
+  detail: string;
+}
+
+export interface GateReport {
+  ok: boolean;
+  stages: GateStage[];
+}
+
+export interface GenerateArtifact {
+  path: string;
+  bytes: number;
+}
+
+/** Result of the "Nach dem Core" generate step (I-6.3). */
+export interface GenerateResult {
+  available: boolean;
+  ok: boolean;
+  bracket?: string;
+  target?: string;
+  targetLabel?: string;
+  targetStatus?: string;
+  targetsAvailable: string[];
+  artifacts: GenerateArtifact[];
+  gate?: GateReport;
+  error?: string;
+}
+
+interface GeneratePayload {
+  ok: boolean;
+  bracket?: string;
+  target?: string;
+  target_label?: string;
+  target_status?: string;
+  targets_available?: string[];
+  artifacts?: GenerateArtifact[];
+  gate?: GateReport;
+  error?: string;
+}
+
 type ExecError = Error & { code?: string | number; stdout?: string };
 
 /** Spawn the bridge and resolve its stdout; reject (with stdout attached) on non-zero exit. */
@@ -111,6 +153,56 @@ export async function runPreCore(bracketId: string): Promise<PreCoreResult> {
       available: false,
       ok: false,
       engines: [],
+      error:
+        e.code === 'ENOENT'
+          ? `Python bridge unavailable (${PYTHON} not found)`
+          : e.message || 'bridge error',
+    };
+  }
+}
+
+function toGenerateResult(payload: GeneratePayload): GenerateResult {
+  return {
+    available: true,
+    ok: payload.ok,
+    bracket: payload.bracket,
+    target: payload.target,
+    targetLabel: payload.target_label,
+    targetStatus: payload.target_status,
+    targetsAvailable: payload.targets_available ?? [],
+    artifacts: payload.artifacts ?? [],
+    gate: payload.gate,
+    error: payload.error,
+  };
+}
+
+/**
+ * Emit a target + Gate-Report for a bracket via the Python bridge (I-6.3).
+ * `available: false` is a transport failure; `ok` otherwise mirrors the gate.
+ */
+export async function runGenerate(bracketId: string, target = 'tmdl'): Promise<GenerateResult> {
+  const bracketPath = await resolveBracketPath(bracketId);
+  if (!bracketPath) {
+    return { available: true, ok: false, targetsAvailable: [], artifacts: [], error: `Bracket not found: ${bracketId}` };
+  }
+
+  const args = ['-m', 'tooling.superversion.bridge', 'generate', bracketPath, '--target', target];
+  try {
+    return toGenerateResult(JSON.parse(await spawnBridge(args)) as GeneratePayload);
+  } catch (err) {
+    const e = err as ExecError;
+    if (e.stdout) {
+      try {
+        return toGenerateResult(JSON.parse(e.stdout) as GeneratePayload);
+      } catch {
+        /* not our JSON — fall through to transport-unavailable */
+      }
+    }
+    return {
+      available: false,
+      ok: false,
+      targetsAvailable: [],
+      artifacts: [],
       error:
         e.code === 'ENOENT'
           ? `Python bridge unavailable (${PYTHON} not found)`
