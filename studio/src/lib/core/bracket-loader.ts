@@ -18,7 +18,7 @@ const CORE_USECASES_DIR = join(
   'core'
 );
 
-async function resolveBracketPath(useCaseId: string): Promise<string | null> {
+export async function resolveBracketPath(useCaseId: string): Promise<string | null> {
   const dirs = await readdir(CORE_USECASES_DIR);
   const match = dirs.find((d) => d.startsWith(useCaseId));
   if (!match) return null;
