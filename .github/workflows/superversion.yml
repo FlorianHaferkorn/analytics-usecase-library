@@ -63,3 +63,15 @@ jobs:
 
       - name: Golden-Thread gate (measures must have a strategic anchor)
         run: python -m tooling.superversion.golden_thread
+
+      - name: Set up Node (for the official PBIR validator CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install official PBIR validator (powerbi-report-author)
+        run: npm install -g @microsoft/powerbi-report-authoring-cli
+
+      - name: E2E smoke (Bracket → TMDL+PBIR → validate, COM-001)
+        run: python -m tooling.superversion.e2e_smoke --require-cli
+
