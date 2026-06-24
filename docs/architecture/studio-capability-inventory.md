@@ -79,4 +79,10 @@ Diese Frage ist [QA/SA]-würdig (Opus) und sollte **vor** I-6.2-Code entschieden
 
 ## 5. Offene Entscheidung (an den Maintainer)
 
-**E-1 — Generate-Naht (§3):** Studio-Generate auf Python-Core andocken vs. TS-Pfad als UI-Schnellbahn behalten. Blockt sauberen Start von I-6.2/6.3. Empfehlung: **andocken** (eine Wahrheit, nutzt I-1…I-5), TS-Adapter höchstens als Preview-Renderer. Bedarf [QA/SA]-Ratifikation (ggf. ADR-0007).
+**E-1 — Generate-Naht (§3): ENTSCHIEDEN (2026-06-24, [`adr/0007-studio-generate-docks-onto-superversion-core.md`](adr/0007-studio-generate-docks-onto-superversion-core.md)).**
+Studio-Generate **dockt auf den Python-Core**: das Studio ruft `from_aluca` →
+`targets.render` (ADR-0006) → Golden-Thread-Gate (I-3.4) → E2E-Smoke (I-3.5) über
+eine dünne Brücke und zeigt deren Artefakte + Gate-Report. Die TS-Adapter werden zu
+**Preview-only/nicht-autoritativ** degradiert (Core gewinnt bei Divergenz); offline
+zeigt das Studio nur Preview mit „nicht gate-validiert" (keine Fake-Green-Auslieferung).
+I-6.2/6.3 implementieren die Brücke (Transport offen: Subprocess/CLI vs. lokales HTTP).
