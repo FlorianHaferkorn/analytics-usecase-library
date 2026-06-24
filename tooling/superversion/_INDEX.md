@@ -13,7 +13,7 @@ shelf-life-days: 90
 |---|---|
 | Stand | 2026-06-23 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
-| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅; übrige I-4..I-9 im Umsetzungsplan |
+| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅; übrige I-4..I-9 im Umsetzungsplan |
 | Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
@@ -30,6 +30,7 @@ shelf-life-days: 90
 | Golden-Thread prüfen (jede Measure hat Anker) (I-3.4) | `golden_thread.py` (`validate_golden_thread`/`assert_golden_thread`; CLI Stage-Gate) → `tests/test_golden_thread.py` | Targets |
 | E2E-Smoke fahren (Bracket→TMDL+PBIR→validate) (I-3.5) | `e2e_smoke.py` (`python -m tooling.superversion.e2e_smoke [--require-cli]`; Stage-Kette source→golden_thread→tmdl→pbir) → `tests/test_e2e_smoke.py` | Einzel-Targets |
 | KPI-**Werte** zertifizieren / Referenzdaten (I-4.1) | `eval/refdata.py` (Loader) + `eval/refcalc.py` (Referenz-Aggregation) + `eval/data/` (synthetischer Fakt + erwartete Werte je UC) → `tests/test_eval_refdata.py` | Targets |
+| Value-Gate: KPI-Zahl vs. Referenz (I-4.2) | `eval/value_gate.py` (`check_values`/`assert_values`; CLI `python -m tooling.superversion.eval.value_gate <UC> [--values f] [--advisory]`; FAIL bei Abweichung > Toleranz, ohne Werte advisory) → `tests/test_value_gate.py` | I-4.1-Referenzdaten |
 | Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
 | Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
 | Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
@@ -48,8 +49,9 @@ shelf-life-days: 90
 `targets/__init__.py`, `tests/test_targets.py`, `tests/test_tmdl_target.py`,
 `tests/test_pbir_target.py`), `golden_thread.py` (+ `tests/test_golden_thread.py`),
 `e2e_smoke.py` (+ `tests/test_e2e_smoke.py`), das `eval/`-Paket
-(`eval/__init__.py`, `eval/refdata.py`, `eval/refcalc.py`, `eval/data/*.yaml`,
-`eval/data/expected/*.yaml` + `tests/test_eval_refdata.py`)
+(`eval/__init__.py`, `eval/refdata.py`, `eval/refcalc.py`, `eval/value_gate.py`,
+`eval/data/*.yaml`, `eval/data/expected/*.yaml` + `tests/test_eval_refdata.py`,
+`tests/test_value_gate.py`)
 sowie der vendored Meridian-Subtree unter
 `vendor/meridian/` (+ `PIN.json`) sind kein `*.md` und unterliegen nicht dem
 Index-Gate; sie sind über das Routing in §1 erreichbar.)*

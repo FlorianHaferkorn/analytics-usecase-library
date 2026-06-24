@@ -16,6 +16,12 @@ from tooling.superversion.eval.refdata import (
     load_expectations,
 )
 
+# Note: the Value-Gate lives in `value_gate.py` and is used as a CLI stage gate
+# (`python -m tooling.superversion.eval.value_gate`), like `golden_thread`; it is
+# intentionally NOT re-exported here (re-exporting a `__main__`-run submodule
+# triggers a runpy double-import warning). Import it directly:
+#   from tooling.superversion.eval import value_gate
+
 __all__ = [
     "FormulaError", "recompute",
     "ReferenceDataset", "ExpectedKpi", "Expectations",
