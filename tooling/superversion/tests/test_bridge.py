@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from tooling.superversion import bridge
 
 REPO = Path(__file__).resolve().parents[3]
@@ -52,3 +54,33 @@ def test_cli_missing_bracket_is_json_error(capsys):
     assert code == 1
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is False and "not found" in payload["error"]
+
+
+# --- generate (I-6.3, "Nach dem Core") ---------------------------------------
+
+def test_generate_shape():
+    result = bridge.generate(COM001, KPIS, "tmdl")
+    assert result["target"] == "tmdl"
+    assert "tmdl" in result["targets_available"] and "pbir" in result["targets_available"]
+    assert result["artifacts"] and all(set(a) == {"path", "bytes"} for a in result["artifacts"])
+    stage_names = [s["name"] for s in result["gate"]["stages"]]
+    assert stage_names[:2] == ["source", "golden_thread"]  # gate is first-class
+    # ok mirrors the gate (no FAILED stage)
+    assert result["ok"] == result["gate"]["ok"]
+
+
+def test_generate_unknown_target_raises():
+    with pytest.raises(ValueError, match="unknown target"):
+        bridge.generate(COM001, KPIS, "nope")
+
+
+def test_cli_generate_emits_valid_json(capsys):
+    assert bridge.main(["generate", str(COM001), "--target", "tmdl"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["target"] == "tmdl" and "gate" in payload
+
+
+def test_cli_generate_unknown_target_is_json_error(capsys):
+    assert bridge.main(["generate", str(COM001), "--target", "nope"]) == 1
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is False and "unknown target" in payload["error"]
