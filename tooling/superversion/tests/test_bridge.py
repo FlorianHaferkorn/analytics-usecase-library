@@ -56,6 +56,16 @@ def test_cli_missing_bracket_is_json_error(capsys):
     assert payload["ok"] is False and "not found" in payload["error"]
 
 
+# --- ping (I-6.5 readiness probe) --------------------------------------------
+
+def test_cli_ping_reports_registries(capsys):
+    assert bridge.main(["ping"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is True
+    assert "tmdl" in payload["targets_available"]
+    assert "gov" in payload["engines_available"]
+
+
 # --- generate (I-6.3, "Nach dem Core") ---------------------------------------
 
 def test_generate_shape():

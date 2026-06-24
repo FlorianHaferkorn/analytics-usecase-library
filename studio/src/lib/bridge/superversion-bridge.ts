@@ -176,6 +176,35 @@ function toGenerateResult(payload: GeneratePayload): GenerateResult {
   };
 }
 
+export interface BridgePing {
+  available: boolean;
+  enginesAvailable: string[];
+  targetsAvailable: string[];
+  error?: string;
+}
+
+/** Cheap readiness probe for the Python bridge (I-6.5) — no model work. */
+export async function pingBridge(): Promise<BridgePing> {
+  try {
+    const payload = JSON.parse(
+      await spawnBridge(['-m', 'tooling.superversion.bridge', 'ping']),
+    ) as { ok: boolean; engines_available?: string[]; targets_available?: string[] };
+    return {
+      available: payload.ok === true,
+      enginesAvailable: payload.engines_available ?? [],
+      targetsAvailable: payload.targets_available ?? [],
+    };
+  } catch (err) {
+    const e = err as ExecError;
+    return {
+      available: false,
+      enginesAvailable: [],
+      targetsAvailable: [],
+      error: e.code === 'ENOENT' ? `Python bridge unavailable (${PYTHON} not found)` : e.message || 'bridge error',
+    };
+  }
+}
+
 /**
  * Emit a target + Gate-Report for a bracket via the Python bridge (I-6.3).
  * `available: false` is a transport failure; `ok` otherwise mirrors the gate.
