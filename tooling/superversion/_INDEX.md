@@ -13,7 +13,7 @@ shelf-life-days: 90
 |---|---|
 | Stand | 2026-06-23 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
-| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅, I-5.3 gov/eng/arch-Engines (Beta) ✅, I-5.4 Tool-Domänen-Packs ✅ (Stufe I-5 komplett); übrige I-6..I-9 im Umsetzungsplan |
+| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅, I-5.3 gov/eng/arch-Engines (Beta) ✅, I-5.4 Tool-Domänen-Packs ✅ (Stufe I-5 komplett); I-6.1 Studio-Inventur ✅ + E-1/ADR-0007 ✅, I-6.2 „Vor dem Core"-Bridge ✅; übrige I-6.3..I-9 im Umsetzungsplan |
 | Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
@@ -37,6 +37,7 @@ shelf-life-days: 90
 | Handover-Doku generieren (branded MD) (I-5.2) | `layer_tools/report_documenter.py` (`render_markdown(model)`; Business+Technical; CLI `python -m tooling.superversion.layer_tools.report_documenter <bracket> [--out]`; DOCX deferred=MD-only) → `tests/test_report_documenter.py` (+ Golden `tests/golden_docs/*.md`) | — |
 | gov/eng/arch-Engine ausführen/registrieren (I-5.3, Beta) | `layer_tools/engines/base.py` (Contract `run(canonical,mode)→[EngineFinding]`, Registry) + Beta-Engines `layer_tools/engines/gov_engine.py`, `layer_tools/engines/dataarch_engine.py`, `layer_tools/engines/dataeng_engine.py` + `layer_tools/engines/cli.py` (`python -m …engines.cli all\|<id> <bracket> [--mode]`) → `tests/test_engines.py` | — |
 | Tool-spezifisches Domänen-Regelpack ausführen (I-5.4, G7) | `layer_tools/packs/base.py` (Contract `check(canonical)→[str]` je Rule, Registry, `evaluate`; `planned`-Liste = API-abhängig „geplant", als `PACK_PLANNED` ausgegeben) + Packs `layer_tools/packs/unity_catalog.py`, `layer_tools/packs/purview.py`, `layer_tools/packs/dbt.py` + `layer_tools/packs/cli.py` (`python -m …packs.cli all\|<id> <bracket>`) → `tests/test_packs.py` | — |
+| Studio→Python-Bridge (ADR-0007, Subprocess-Seam, I-6.2) | `bridge.py` (`precore <bracket>` → JSON `{ok,bracket,engines[]}` aus den gov/eng/arch-Engines; rein/deterministisch; Fehler als JSON+Exit 1; das Studio spawnt dies, Studio-seitig `studio/src/lib/bridge/superversion-bridge.ts` + `studio/src/app/api/precore/route.ts` + Panel) → `tests/test_bridge.py` | Studio-UI-Code |
 | Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
 | Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
 | Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
