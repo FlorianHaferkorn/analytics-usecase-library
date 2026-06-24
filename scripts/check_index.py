@@ -33,7 +33,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 IGNORE_DIRS = {".git", "node_modules", "dist", "build", ".venv", "venv",
-               "__pycache__", ".stubs", ".next", "out", "target"}
+               "__pycache__", ".stubs", ".next", "out", "target", "golden_docs"}
 EXEMPT_FILES = {"_INDEX.md", "README.md", "README_Template.md", "_MANIFEST.md",
                 "CHANGELOG.md", "LICENSE.md", "NAVIGATION_PHILOSOPHY.md",
                 "_INDEX.area.md", "_INDEX.ledger.md"}
