@@ -13,7 +13,7 @@ shelf-life-days: 90
 |---|---|
 | Stand | 2026-06-23 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
-| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅; übrige I-5..I-9 im Umsetzungsplan |
+| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅; übrige I-5..I-9 im Umsetzungsplan |
 | Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
@@ -34,6 +34,7 @@ shelf-life-days: 90
 | Eval gegen ≥2 Ontologien / Regression (I-4.3) | `eval/data/supply_deliveries.yaml` + `eval/data/expected/SCM-002.yaml` (2. Ontologie) → `tests/test_eval_regression.py` (parametrisiert über `available_use_cases()`) | — |
 | COMP-DSGVO prüfen (PII ohne RLS → FAIL) (I-4.4) | `eval/comp_gate.py` (`check_compliance`/`assert_compliance`; CLI `python -m tooling.superversion.eval.comp_gate [--warn]`; liest `data_protection` je UC, RLS aus `Role.table_permissions`) → `tests/test_comp_gate.py` | — |
 | Visual-Library / Visual-Spec auflösen (I-5.1) | `layer_tools/visual_library.py` (lädt `core/templates/page_templates/visual_registry.yaml`; Block/Slot→Spec, allowed/forbidden pbip_type, `is_default`; CLI `list\|describe\|resolve`; Brücke `block_for_aluca_visual`/`sanctions` → I-3.3) → `tests/test_visual_library.py` | — |
+| Handover-Doku generieren (branded MD) (I-5.2) | `layer_tools/report_documenter.py` (`render_markdown(model)`; Business+Technical; CLI `python -m tooling.superversion.layer_tools.report_documenter <bracket> [--out]`; DOCX deferred=MD-only) → `tests/test_report_documenter.py` (+ Golden `tests/golden_docs/*.md`) | — |
 | Verstehen, was geprüft wird (DoD) | `tests/test_from_aluca.py` (+ `tests/golden/*.json` Snapshots) | — |
 | Modell als JSON exportieren / Snapshot regenerieren | `python -m tooling.superversion.from_aluca <bracket> --out tests/golden/*.json` | — |
 | Den Gesamt-Bauplan/die Reihenfolge | Repo-Root: UMSETZUNGSPLAN_SUPERVERSION.md | Code |
@@ -56,7 +57,10 @@ shelf-life-days: 90
 `eval/comp_gate.py`, `eval/data/*.yaml`, `eval/data/expected/*.yaml` +
 `tests/test_eval_refdata.py`, `tests/test_value_gate.py`,
 `tests/test_eval_regression.py`, `tests/test_comp_gate.py`), das `layer_tools/`-Paket
-(`layer_tools/__init__.py`, `layer_tools/visual_library.py` + `tests/test_visual_library.py`)
+(`layer_tools/__init__.py`, `layer_tools/visual_library.py`,
+`layer_tools/report_documenter.py` + `tests/test_visual_library.py`,
+`tests/test_report_documenter.py`; Doc-Snapshots unter `tests/golden_docs/`,
+Drift-Gate-ausgenommen wie `tests/golden/`)
 sowie der vendored Meridian-Subtree unter
 `vendor/meridian/` (+ `PIN.json`) sind kein `*.md` und unterliegen nicht dem
 Index-Gate; sie sind über das Routing in §1 erreichbar.)*
