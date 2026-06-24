@@ -100,6 +100,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         description="Studio→Superversion bridge (ADR-0007).",
     )
     sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("ping", help="cheap readiness probe — JSON {ok,targets_available} (I-6.5)")
     p_pre = sub.add_parser("precore", help="run gov/eng/arch engines against a bracket (JSON out)")
     p_pre.add_argument("bracket", nargs="?", type=Path, default=_DEFAULT_BRACKET)
     p_pre.add_argument("--kpis", type=Path, default=_KPIS)
@@ -110,9 +111,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        if not args.bracket.exists():
+        if args.command == "ping":
+            # No model work — proves the Python seam + registry import (engines/targets) are live.
+            result = {"ok": True, "engines_available": engines.available(),
+                      "targets_available": targets.available()}
+        elif not args.bracket.exists():
             raise FileNotFoundError(f"bracket not found: {args.bracket}")
-        if args.command == "precore":
+        elif args.command == "precore":
             result = precore(args.bracket, args.kpis)
         elif args.command == "generate":
             result = generate(args.bracket, args.kpis, args.target)
