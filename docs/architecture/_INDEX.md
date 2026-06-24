@@ -57,6 +57,11 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
 | `studio-capability-inventory.md` | I-6.1 Studio-Inventur + Soll-Schnitt; legt Generate-Naht-Entscheidung (E-1) für I-6.2/6.3 offen | Studio-/I-6-Scoping |
 | `studio-model-routing-research-charter.md` | I-6.6 Research-Charter (Proposed): Fragen/Quellen/Erfolgskriterien für Modell-Routing, Token-Opt., Tracking, ROI; LLM-/kundenagnostisch; geschichtete Config L0/L1/L2 → ADR-0008 | I-6.6-Scoping |
+| `research/I6-6/T1-routing.md` | I-6.6 Research (Draft): Per-Task-Modell-Routing (Multi-Provider) — Strategien, Task-Klasse→Rolle-Matrix, L0-Routing/Kaskade, agnostische Naht | ADR-0008-Synthese (Routing) |
+| `research/I6-6/T2-token-optimization.md` | I-6.6 Research (Draft): Token-Optimierung — Caching/Batch/structured output, Provider-Divergenzen, L0/L1-Empfehlung | ADR-0008-Synthese (Token) |
+| `research/I6-6/T3-tracking-observability.md` | I-6.6 Research (Draft): Token-/Kosten-Tracking — `llm_step_events`-Schema (lokal-first SQLite), OTel-GenAI-Mapping, Attribution | ADR-0008-Synthese (Tracking) |
+| `research/I6-6/T4-roi.md` | I-6.6 Research (Draft): ROI-Methodik (Kosten vs. Wert-Proxys: Zeit, Gate, KPI, Time-to-Market) als L2, Ehrlichkeitsregeln, T3-Plug-in | ADR-0008-Synthese (ROI) |
+| `research/I6-6/T5-config-architecture.md` | I-6.6 Research (Draft): geschichtete Config L0/L1/L2, Merge-Semantik (override/clamp/intersect/sticky), Schema-Skelett, Governance-Anschluss | ADR-0008-Synthese (Config) |
 
 <!-- Ausgenommen (EXEMPT_FILES): README.md, adr/README.md, NAVIGATION_PHILOSOPHY.md.
      check_index.py erzwingt: jede nicht-exempte *.md im Subtree ist hier gelistet. -->
@@ -79,4 +84,5 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | A-10 | Studio-Inventur I-6.1 (`studio-capability-inventory.md`) | **erledigt** (Agent-Inventur): Studio real; 4 Soll-Bereiche EXISTS, aber Generate läuft über TS-Shadow-Pfad statt Python-Core | 2026-06-24 |
 | **E-1** | Generate-Naht entscheiden (I-6.2/6.3-Blocker): Studio-Generate auf Python-Core andocken vs. TS-Pfad behalten | **erledigt** (ADR-0007): **andocken** — Studio ruft `from_aluca`→`targets.render`→Gate (I-3.4/I-3.5) über dünne Brücke; TS-Adapter = Preview-only/nicht-autoritativ; Gate-Report sichtbar; ehrliche Degradation offline | 2026-06-24 |
 | A-11 | I-6.6 Modell-Routing/Token/ROI: Research-Charter erstellen (vor teuren Läufen) | **erledigt** (`studio-model-routing-research-charter.md`, Proposed): Multi-Provider, LLM-/kundenagnostisch, T1–T5 mit Quellen/Erfolgskriterien, geschichtete Config L0/L1/L2 → ADR-0008 | 2026-06-24 |
-| **E-2** | Research-Charter I-6.6 freigeben + Läufe starten (T1 zuerst empfohlen) | **offen** (Maintainer) | 2026-06-24 |
+| **E-2** | Research-Charter I-6.6 freigeben + Läufe starten | **erledigt** (freigegeben, alle 5 parallel): fünf grounded Research-Drafts T1–T5 (Verzeichnis `research/I6-6/`, Quellen + Abrufdatum 2026-06-24; Ehrlichkeits-Flags: Google/OpenAI-Pricing 403 → unverified-official, Claude-Pricing verifiziert) | 2026-06-24 |
+| **E-3** | I-6.6 Synthese: ADR-0008 (Routing/Token/Tracking/ROI/Config) + Config-Schema aus den 5 Research-Drafts | **offen** (nächster Schritt) | 2026-06-24 |
