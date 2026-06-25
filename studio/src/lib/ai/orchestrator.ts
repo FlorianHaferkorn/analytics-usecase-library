@@ -1,13 +1,13 @@
 /**
- * AI Orchestrator — Server-side model router.
+ * AI Orchestrator — server-side model router (config-driven, ADR-0008 I-6.6).
  *
- * Supports Google Gemini (GOOGLE_API_KEY / GEMINI_API_KEY),
- * Anthropic Claude (ANTHROPIC_API_KEY), and OpenAI GPT (OPENAI_API_KEY).
- * Priority: Google → Anthropic → OpenAI.
+ * Model + provider choice comes from the layered AI config (`config/route-model.ts`),
+ * NOT from hardcoded constants. This module stays LLM-agnostic: it names no model id
+ * and no fixed provider priority — both arrive from the resolved config. The only place
+ * a model id lives is the L0 capability→model map (`config/defaults.ts`).
  *
- * All secret reads go through @/lib/secrets so that the provider
- * (env, Azure Key Vault, AWS Secrets Manager) is configured once via
- * the SECRETS_PROVIDER environment variable.
+ * All secret reads go through @/lib/secrets (provider chosen via SECRETS_PROVIDER).
+ * Provider *presence* is detected from env (presence, not value — allowed per studio/CLAUDE.md).
  */
 
 import { createAnthropic } from '@ai-sdk/anthropic';
@@ -15,77 +15,70 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { getSecret } from '@/lib/secrets';
+import { chooseModel } from './config/route-model';
+import type { Provider } from './config/defaults';
 
-export type AIProvider = 'google' | 'anthropic' | 'openai';
+export type AIProvider = Provider;
 
 interface ProviderConfig {
   provider: AIProvider;
   apiKey: string;
-  model?: string;
+  /** Concrete model id — resolved from config (ADR-0008); never defaulted here. */
+  model: string;
 }
 
-const DEFAULT_MODELS: Record<AIProvider, string> = {
-  google: 'gemini-2.0-flash',
-  anthropic: 'claude-sonnet-4-20250514',
-  openai: 'gpt-4o',
-};
-
-/** Create a language model instance from provider config. */
+/** Low-level provider-adapter boundary: build a model instance. Stays LLM-agnostic. */
 export function createModel(config: ProviderConfig): LanguageModel {
-  const modelId = config.model ?? DEFAULT_MODELS[config.provider];
-
   switch (config.provider) {
     case 'google': {
       const google = createGoogleGenerativeAI({ apiKey: config.apiKey });
-      return google(modelId);
+      return google(config.model);
     }
     case 'anthropic': {
       const anthropic = createAnthropic({ apiKey: config.apiKey });
-      return anthropic(modelId);
+      return anthropic(config.model);
     }
     case 'openai': {
       const openai = createOpenAI({ apiKey: config.apiKey });
-      return openai(modelId);
+      return openai(config.model);
     }
   }
 }
 
-/** Detect which AI provider is configured. Priority: Google → Anthropic → OpenAI. */
-export function detectServerProvider(): AIProvider | null {
-  if (process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY) return 'google';
-  if (process.env.ANTHROPIC_API_KEY) return 'anthropic';
-  if (process.env.OPENAI_API_KEY) return 'openai';
-  return null;
+/** Whether a BYO key is configured for a provider (env presence check, not value read). */
+export function providerSecretPresent(provider: Provider): boolean {
+  switch (provider) {
+    case 'google': return Boolean(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY);
+    case 'anthropic': return Boolean(process.env.ANTHROPIC_API_KEY);
+    case 'openai': return Boolean(process.env.OPENAI_API_KEY);
+  }
+}
+
+async function secretFor(provider: Provider): Promise<string> {
+  if (provider === 'google') {
+    try {
+      return await getSecret('GOOGLE_API_KEY');
+    } catch {
+      return await getSecret('GEMINI_API_KEY');
+    }
+  }
+  return getSecret(provider === 'anthropic' ? 'ANTHROPIC_API_KEY' : 'OPENAI_API_KEY');
 }
 
 /**
- * Create a server-side language model from secrets.
- * Secret names map directly to env-var names so that the dev-env adapter
- * works without any extra configuration.
- * Returns null if no AI provider is configured.
+ * Create a server-side language model for a task-role, driven by the layered config.
+ * Picks provider + concrete model via `chooseModel` (preferenceOrder ∩ allowed ∩ residency
+ * ∩ secret-present), then reads the secret and builds the model. Returns null if no usable
+ * provider is configured (callers already handle null).
  */
-export async function createServerModel(): Promise<LanguageModel | null> {
-  const provider = detectServerProvider();
-  if (!provider) return null;
-
-  let apiKey: string;
+export async function createServerModel(taskRole = 'default'): Promise<LanguageModel | null> {
+  const choice = chooseModel(taskRole, { secretPresent: providerSecretPresent });
+  if (!choice) return null;
   try {
-    if (provider === 'google') {
-      // Try GOOGLE_API_KEY first, fall back to GEMINI_API_KEY.
-      try {
-        apiKey = await getSecret('GOOGLE_API_KEY');
-      } catch {
-        apiKey = await getSecret('GEMINI_API_KEY');
-      }
-    } else if (provider === 'anthropic') {
-      apiKey = await getSecret('ANTHROPIC_API_KEY');
-    } else {
-      apiKey = await getSecret('OPENAI_API_KEY');
-    }
+    const apiKey = await secretFor(choice.provider);
+    return createModel({ provider: choice.provider, apiKey, model: choice.modelId });
   } catch {
-    // Secret not available — treat as unconfigured rather than crashing.
+    // Secret not retrievable — treat as unconfigured rather than crashing.
     return null;
   }
-
-  return createModel({ provider, apiKey });
 }
