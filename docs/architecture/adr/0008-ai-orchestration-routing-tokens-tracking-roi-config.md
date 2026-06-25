@@ -1,6 +1,6 @@
 # ADR 0008 — AI-Orchestrierung: Modell-Routing, Token-Optimierung, Tracking, ROI über eine geschichtete Config
 
-- **Status:** Proposed (zur Ratifikation)
+- **Status:** Accepted (ratifiziert 2026-06-24; Implementierung in I-6.6-Vertikalen, beginnend mit Schema + Resolver)
 - **Date:** 2026-06-24
 - **Scope:** Wie die **Studio-Produkt-KI** ihr Modell je Task wählt, Tokens optimiert, Verbrauch/Kosten trackt und ROI ausweist — gesteuert durch **eine geschichtete, LLM- und kundenagnostische Config**. Synthetisiert die fünf I-6.6-Research-Drafts (`../research/I6-6/T1…T5`) in Entscheidungen. Ratifiziert die **Architektur + Schema-Form**; die konkrete Implementierung ist I-6.6-Folgearbeit.
 - **Supersedes:** —
