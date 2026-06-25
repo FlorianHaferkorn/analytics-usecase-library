@@ -141,6 +141,33 @@ function initSchema(db: Database.Database) {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    -- AI usage telemetry, one row per LLM step (I-6.6 V3, ADR-0008 §6).
+    -- Local-first; no prompt/response content (PII). cost_usd nullable = UNCOMPUTED
+    -- (missing != zero); cost_verified flags unverified provider pricing.
+    CREATE TABLE IF NOT EXISTS llm_step_events (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL DEFAULT 'default',
+      use_case_id TEXT,
+      domain TEXT,
+      task_role TEXT NOT NULL,
+      capability_role TEXT NOT NULL,
+      provider TEXT NOT NULL,
+      model TEXT NOT NULL,
+      input_tokens INTEGER NOT NULL DEFAULT 0,
+      output_tokens INTEGER NOT NULL DEFAULT 0,
+      cache_read_tokens INTEGER NOT NULL DEFAULT 0,
+      cache_write_tokens INTEGER NOT NULL DEFAULT 0,
+      reasoning_tokens INTEGER NOT NULL DEFAULT 0,
+      latency_ms INTEGER NOT NULL DEFAULT 0,
+      ok INTEGER NOT NULL DEFAULT 1,
+      error TEXT,
+      cost_usd REAL,
+      cost_verified INTEGER NOT NULL DEFAULT 0,
+      price_table_version TEXT,
+      raw_usage_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     -- Ensure default project exists
     INSERT OR IGNORE INTO projects (id, name, strategy_anchor)
     VALUES ('default', 'Aurora Group', 'Profitable growth through margin quality, cash resilience & operational excellence');
