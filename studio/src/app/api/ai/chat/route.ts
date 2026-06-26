@@ -1,5 +1,6 @@
 import { streamText } from 'ai';
-import { createServerModel } from '@/lib/ai/orchestrator';
+import { resolveServerModel } from '@/lib/ai/orchestrator';
+import { extractUsage, safeRecordAiStep } from '@/lib/ai/telemetry';
 import { DISCOVERY_SYSTEM_PROMPT } from '@/lib/ai/prompts/discovery';
 import { discoveryTools } from '@/lib/ai/tools/discovery-tools';
 import { requireAuth } from '@/lib/auth/session';
@@ -17,13 +18,15 @@ export async function POST(request: Request) {
     entityContext?: EntityContext;
   };
 
-  const model = await createServerModel();
-  if (!model) {
+  const resolved = await resolveServerModel('source-discovery');
+  if (!resolved) {
     return new Response(
       JSON.stringify({ error: 'No LLM provider configured. Set GOOGLE_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY in .env.' }),
       { status: 503, headers: { 'Content-Type': 'application/json' } },
     );
   }
+  const { model, choice } = resolved;
+  const startedAt = Date.now();
 
   let systemPrompt = DISCOVERY_SYSTEM_PROMPT;
 
@@ -50,6 +53,13 @@ export async function POST(request: Request) {
       system: systemPrompt,
       messages,
       tools: discoveryTools,
+      onFinish: ({ usage }) => {
+        safeRecordAiStep({
+          taskRole: 'source-discovery', capabilityRole: choice.capabilityRole,
+          provider: choice.provider, model: choice.modelId,
+          usage: extractUsage(usage), latencyMs: Date.now() - startedAt, ok: true, rawUsage: usage,
+        });
+      },
     });
 
     return result.toTextStreamResponse();

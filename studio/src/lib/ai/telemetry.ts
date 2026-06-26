@@ -30,6 +30,39 @@ export interface AiStep {
   rawUsage?: unknown;
 }
 
+/** Subset of the AI SDK usage object we read (names vary across SDK/provider versions). */
+interface RawUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  promptTokens?: number;
+  completionTokens?: number;
+  cachedInputTokens?: number;
+  reasoningTokens?: number;
+  inputTokenDetails?: { cacheReadTokens?: number; cacheWriteTokens?: number };
+  outputTokenDetails?: { reasoningTokens?: number };
+}
+
+/** Normalize the AI SDK's `result.usage` into our token shape (tolerant of naming drift). */
+export function extractUsage(raw: unknown): AiStep['usage'] {
+  const u = (raw ?? {}) as RawUsage;
+  return {
+    inputTokens: u.inputTokens ?? u.promptTokens ?? 0,
+    outputTokens: u.outputTokens ?? u.completionTokens ?? 0,
+    cacheReadTokens: u.cachedInputTokens ?? u.inputTokenDetails?.cacheReadTokens,
+    cacheWriteTokens: u.inputTokenDetails?.cacheWriteTokens,
+    reasoningTokens: u.reasoningTokens ?? u.outputTokenDetails?.reasoningTokens,
+  };
+}
+
+/** Record a step, swallowing any telemetry error — telemetry must never break a request. */
+export function safeRecordAiStep(step: AiStep): void {
+  try {
+    recordAiStep(step);
+  } catch {
+    /* telemetry is best-effort; never propagate into the request path */
+  }
+}
+
 export function recordAiStep(step: AiStep): LlmStepEvent {
   const inputTokens = step.usage.inputTokens ?? 0;
   const outputTokens = step.usage.outputTokens ?? 0;
