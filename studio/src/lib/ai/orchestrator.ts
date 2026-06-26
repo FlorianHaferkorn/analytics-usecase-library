@@ -16,6 +16,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { getSecret } from '@/lib/secrets';
 import { chooseModel } from './config/route-model';
+import { loadAiConfigLayers } from './config/load-layers';
 import type { Provider } from './config/defaults';
 
 export type AIProvider = Provider;
@@ -70,9 +71,16 @@ async function secretFor(provider: Provider): Promise<string> {
  * Picks provider + concrete model via `chooseModel` (preferenceOrder ∩ allowed ∩ residency
  * ∩ secret-present), then reads the secret and builds the model. Returns null if no usable
  * provider is configured (callers already handle null).
+ *
+ * When `opts` (project/domain) is given, the customer's APPROVED L1/L2 override layers
+ * are folded in (I-6.6 V5); without it, only the universal L0 applies.
  */
-export async function createServerModel(taskRole = 'default'): Promise<LanguageModel | null> {
-  const choice = chooseModel(taskRole, { secretPresent: providerSecretPresent });
+export async function createServerModel(
+  taskRole = 'default',
+  opts?: { projectId?: string; domainId?: string },
+): Promise<LanguageModel | null> {
+  const layers = opts ? loadAiConfigLayers(opts.projectId ?? 'default', opts.domainId) : undefined;
+  const choice = chooseModel(taskRole, { secretPresent: providerSecretPresent, layers, domainId: opts?.domainId });
   if (!choice) return null;
   try {
     const apiKey = await secretFor(choice.provider);
