@@ -168,6 +168,26 @@ function initSchema(db: Database.Database) {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    -- Customer (L1) / domain (L2) AI-config override layers (I-6.6 V5, ADR-0008 §9).
+    -- Only status='approved' rows are served to the resolver; changes flow through the
+    -- approval lifecycle (two-person rule + audit). domain_id '' = L1 (tenant-wide).
+    CREATE TABLE IF NOT EXISTS ai_config_layers (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL DEFAULT 'default',
+      layer TEXT NOT NULL,
+      domain_id TEXT NOT NULL DEFAULT '',
+      config_json TEXT NOT NULL,
+      schema_version TEXT NOT NULL DEFAULT '1.0.0',
+      status TEXT NOT NULL DEFAULT 'draft',
+      submitted_by TEXT,
+      approved_by TEXT,
+      justification TEXT,
+      effective_hash TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE (project_id, layer, domain_id)
+    );
+
     -- Ensure default project exists
     INSERT OR IGNORE INTO projects (id, name, strategy_anchor)
     VALUES ('default', 'Aurora Group', 'Profitable growth through margin quality, cash resilience & operational excellence');
