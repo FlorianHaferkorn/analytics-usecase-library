@@ -1,5 +1,6 @@
 import { generateText } from 'ai';
-import { createServerModel } from '@/lib/ai/orchestrator';
+import { resolveServerModel } from '@/lib/ai/orchestrator';
+import { extractUsage, safeRecordAiStep } from '@/lib/ai/telemetry';
 import { requireAuth } from '@/lib/auth/session';
 import {
   reconcileDeterministic,
@@ -73,10 +74,12 @@ export async function POST(request: Request) {
       changeHint: body.change_hint,
     });
 
-    const model = await createServerModel();
-    if (model) {
+    const resolved = await resolveServerModel('bracket-synthesis');
+    if (resolved) {
+      const { model, choice } = resolved;
+      const startedAt = Date.now();
       try {
-        const { text } = await generateText({
+        const result = await generateText({
           model,
           system: RECONCILE_SYSTEM_PROMPT,
           prompt: JSON.stringify({
@@ -90,7 +93,11 @@ export async function POST(request: Request) {
           }),
           maxOutputTokens: 4096,
         });
-        const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
+        safeRecordAiStep({
+          taskRole: 'bracket-synthesis', capabilityRole: choice.capabilityRole, provider: choice.provider,
+          model: choice.modelId, usage: extractUsage(result.usage), latencyMs: Date.now() - startedAt, ok: true, rawUsage: result.usage,
+        });
+        const cleaned = result.text.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
         const parsed = JSON.parse(cleaned) as {
           target?: string;
           summary?: string;
@@ -107,6 +114,10 @@ export async function POST(request: Request) {
           });
         }
       } catch {
+        safeRecordAiStep({
+          taskRole: 'bracket-synthesis', capabilityRole: choice.capabilityRole, provider: choice.provider,
+          model: choice.modelId, usage: extractUsage(undefined), latencyMs: Date.now() - startedAt, ok: false,
+        });
         // fall through to deterministic
       }
     }
@@ -119,23 +130,33 @@ export async function POST(request: Request) {
   }
 
   const { prompt = '' } = body;
-  const model = await createServerModel();
-  if (!model) {
+  const resolved = await resolveServerModel('documentation');
+  if (!resolved) {
     return Response.json(fallbackFromPrompt(prompt));
   }
+  const { model, choice } = resolved;
+  const startedAt = Date.now();
 
   try {
-    const { text } = await generateText({
+    const result = await generateText({
       model,
       system: DRAFT_SYSTEM_PROMPT,
       prompt: prompt || 'A general business analytics use case.',
       maxOutputTokens: 256,
     });
 
-    const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
+    safeRecordAiStep({
+      taskRole: 'documentation', capabilityRole: choice.capabilityRole, provider: choice.provider,
+      model: choice.modelId, usage: extractUsage(result.usage), latencyMs: Date.now() - startedAt, ok: true, rawUsage: result.usage,
+    });
+    const cleaned = result.text.trim().replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
     const draft = JSON.parse(cleaned) as FactsheetDraft;
     return Response.json(draft);
   } catch {
+    safeRecordAiStep({
+      taskRole: 'documentation', capabilityRole: choice.capabilityRole, provider: choice.provider,
+      model: choice.modelId, usage: extractUsage(undefined), latencyMs: Date.now() - startedAt, ok: false,
+    });
     return Response.json(fallbackFromPrompt(prompt));
   }
 }

@@ -16,7 +16,7 @@ Three-layer separation (Studio only touches the first two):
 
 ### TypeScript
 - Strict mode enabled. No `any` types.
-- Types in `src/lib/schemas/` are **auto-generated** from `tooling/ai/schemas/*.schema.json`. Never edit them manually. Run `npm run generate:types` to regenerate.
+- Types in `src/lib/schemas/` are **auto-generated** from `tooling/generator/schemas/*.schema.json`. Never edit them manually. Run `npm run generate:types` to regenerate.
 - Use the `@/` path alias for all imports from `src/`.
 
 ### Components
@@ -40,7 +40,7 @@ Three-layer separation (Studio only touches the first two):
 - Token constants in `src/lib/theme/tokens.ts` for JS usage (Framer Motion, etc.).
 
 ### Validation
-- All Core artifacts validate against JSON schemas in `tooling/ai/schemas/`.
+- All Core artifacts validate against JSON schemas in `tooling/generator/schemas/`.
 - Runtime validation via Ajv in `src/lib/validation/schema-validator.ts`.
 - Never trust user input — always validate YAML against schema before persisting.
 
@@ -84,11 +84,11 @@ npm run generate:types # Regenerate TS types from JSON schemas
 Before committing:
 1. `npm run build` must succeed with zero errors.
 2. TypeScript strict — no implicit `any`.
-3. Run `npm run generate:types` if any schema in `tooling/ai/schemas/` changed.
+3. Run `npm run generate:types` if any schema in `tooling/generator/schemas/` changed.
 
 ## Schema Authority
 
-The JSON schemas in `tooling/ai/schemas/` are the SSOT:
+The JSON schemas in `tooling/generator/schemas/` are the SSOT:
 - `usecase_bracket.schema.json` → UseCaseBracket
 - `kpi_definition.schema.json` → KpiDefinition
 - `action_code.schema.json` → ActionCode

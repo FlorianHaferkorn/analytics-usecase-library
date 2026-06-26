@@ -15,7 +15,7 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { getSecret } from '@/lib/secrets';
-import { chooseModel } from './config/route-model';
+import { chooseModel, type ModelChoice } from './config/route-model';
 import { loadAiConfigLayers } from './config/load-layers';
 import type { Provider } from './config/defaults';
 
@@ -75,18 +75,35 @@ async function secretFor(provider: Provider): Promise<string> {
  * When `opts` (project/domain) is given, the customer's APPROVED L1/L2 override layers
  * are folded in (I-6.6 V5); without it, only the universal L0 applies.
  */
-export async function createServerModel(
+export interface ResolvedModel {
+  model: LanguageModel;
+  /** The routing decision — carry to telemetry (provider, modelId, capabilityRole). */
+  choice: ModelChoice;
+}
+
+/**
+ * Resolve the model AND expose the routing choice (for telemetry, I-6.6 V3). Same
+ * selection as createServerModel; returns null if no usable provider is configured.
+ */
+export async function resolveServerModel(
   taskRole = 'default',
   opts?: { projectId?: string; domainId?: string },
-): Promise<LanguageModel | null> {
+): Promise<ResolvedModel | null> {
   const layers = opts ? loadAiConfigLayers(opts.projectId ?? 'default', opts.domainId) : undefined;
   const choice = chooseModel(taskRole, { secretPresent: providerSecretPresent, layers, domainId: opts?.domainId });
   if (!choice) return null;
   try {
     const apiKey = await secretFor(choice.provider);
-    return createModel({ provider: choice.provider, apiKey, model: choice.modelId });
+    return { model: createModel({ provider: choice.provider, apiKey, model: choice.modelId }), choice };
   } catch {
-    // Secret not retrievable — treat as unconfigured rather than crashing.
     return null;
   }
+}
+
+export async function createServerModel(
+  taskRole = 'default',
+  opts?: { projectId?: string; domainId?: string },
+): Promise<LanguageModel | null> {
+  const resolved = await resolveServerModel(taskRole, opts);
+  return resolved?.model ?? null;
 }
