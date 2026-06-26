@@ -15,16 +15,9 @@ import { getDb } from './sqlite';
 import { logAuditEvent } from './audit-repo';
 import { validate } from '@/lib/validation/schema-validator';
 import type { AiConfigLayer } from '@/lib/ai/config/resolve';
+import { VALID_TRANSITIONS, type LayerStatus, type LayerAction } from '@/lib/ai/config/governance-types';
 
-export type LayerStatus = 'draft' | 'review' | 'approved' | 'rejected';
-type LayerAction = 'submit' | 'approve' | 'reject' | 'reopen';
-
-const VALID_TRANSITIONS: Record<LayerStatus, LayerAction[]> = {
-  draft: ['submit'],
-  review: ['approve', 'reject'],
-  approved: ['reopen'],
-  rejected: ['reopen'],
-};
+export type { LayerStatus } from '@/lib/ai/config/governance-types';
 
 export interface AiConfigLayerRow {
   id: string;
