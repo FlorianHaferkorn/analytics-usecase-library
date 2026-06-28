@@ -13,7 +13,7 @@ shelf-life-days: 90
 |---|---|
 | Stand | 2026-06-23 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
-| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅, I-5.3 gov/eng/arch-Engines (Beta) ✅, I-5.4 Tool-Domänen-Packs ✅ (Stufe I-5 komplett); I-6.1 Studio-Inventur ✅ + E-1/ADR-0007 ✅, I-6.2 „Vor dem Core"-Bridge ✅, I-6.3 „Nach dem Core" (Target + Gate-Report) ✅, I-6.4 E2E-Flow (Kunde-ohne-Builder) ✅, I-6.5 Standalone-Setup/Preflight (`bridge.py ping`) ✅, I-6.6 AI-Orchestrierung (ADR-0008, V1–V6 + UI) ✅ (Stufe I-6 komplett); I-7.1 OSI-Target (offiziell validiert) ✅, I-7.2 Databricks-Metric-View-Target (docs-validiert, Vendor-Validator geplant) ✅; übrige I-7.3, I-8, I-9 im Umsetzungsplan |
+| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅, I-5.3 gov/eng/arch-Engines (Beta) ✅, I-5.4 Tool-Domänen-Packs ✅ (Stufe I-5 komplett); I-6.1 Studio-Inventur ✅ + E-1/ADR-0007 ✅, I-6.2 „Vor dem Core"-Bridge ✅, I-6.3 „Nach dem Core" (Target + Gate-Report) ✅, I-6.4 E2E-Flow (Kunde-ohne-Builder) ✅, I-6.5 Standalone-Setup/Preflight (`bridge.py ping`) ✅, I-6.6 AI-Orchestrierung (ADR-0008, V1–V6 + UI) ✅ (Stufe I-6 komplett); I-7.1 OSI-Target (offiziell validiert) ✅, I-7.2 Databricks-Metric-View-Target (docs-validiert, Vendor-Validator geplant) ✅, I-7.3 Stack-Indifferenz-Test ✅ (Stufe I-7 komplett: 1 Core → TMDL/OSI/Databricks, KPI-Menge identisch); übrige I-8, I-9 im Umsetzungsplan |
 | Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
@@ -29,6 +29,7 @@ shelf-life-days: 90
 | PBIR-Report emittieren (I-3.3, official-first) | `targets/pbir.py` (`emit(canonical.report)`; Visual→PBIR-Typ/Rollen, HITL-Platzhalter; Gate `powerbi-report-author validate`) → `tests/test_pbir_target.py` | restliche Targets |
 | OSI-Target emittieren + offiziell validieren (I-7.1, Agnostik-Beweis) | `targets/osi.py` (`emit(canonical)→{name.osi.json}`; Canonical→OSI datasets/fields/metrics/relationships; Dialekt-Caveat: DAX→`MDX`) + offizielles Schema `targets/schemas/osi-schema.json` (OSI Core 0.2.0.dev0, Apache-2.0, upstream) → `tests/test_osi_target.py` (jsonschema-validate gegen das Schema) | restliche Targets |
 | Databricks-Metric-View-Target emittieren (I-7.2, 2. Semantic-Layer-Stack) | `targets/databricks.py` (`emit(canonical)→{table.metricview.yaml}`; je Fact-Table eine Metric-View: source/dimensions/measures; Status `beta`) + docs-abgeleitetes Schema `targets/schemas/databricks_metricview.schema.json` (aus offizieller YAML-Referenz, **nicht** der Vendor-Validator — Workspace-Validator = geplant, Präzedenz PBIR) → `tests/test_databricks_target.py` | restliche Targets |
+| Stack-Indifferenz prüfen (I-7.3, Agnostik-Lackmustest) | `tests/test_cross_target_equivalence.py` (ein Core → N Targets; KPI-/Measure-Namensmenge **identisch** über TMDL=OSI=Databricks=Canonical je UC, kein Invent/Drop/Rename; über alle `core/usecases/core/*`-Brackets parametrisiert) | Einzel-Target-Emit |
 | Golden-Thread prüfen (jede Measure hat Anker) (I-3.4) | `golden_thread.py` (`validate_golden_thread`/`assert_golden_thread`; CLI Stage-Gate) → `tests/test_golden_thread.py` | Targets |
 | E2E-Smoke fahren (Bracket→TMDL+PBIR→validate) (I-3.5) | `e2e_smoke.py` (`python -m tooling.superversion.e2e_smoke [--require-cli]`; Stage-Kette source→golden_thread→tmdl→pbir) → `tests/test_e2e_smoke.py` | Einzel-Targets |
 | KPI-**Werte** zertifizieren / Referenzdaten (I-4.1) | `eval/refdata.py` (Loader) + `eval/refcalc.py` (Referenz-Aggregation) + `eval/data/` (synthetischer Fakt + erwartete Werte je UC) → `tests/test_eval_refdata.py` | Targets |
@@ -58,8 +59,8 @@ shelf-life-days: 90
 `targets/databricks.py` (+ `targets/schemas/osi-schema.json` (offizielles OSI-Schema,
 vendored), `targets/schemas/databricks_metricview.schema.json` (docs-abgeleitet),
 `targets/__init__.py`, `tests/test_targets.py`, `tests/test_tmdl_target.py`,
-`tests/test_pbir_target.py`, `tests/test_osi_target.py`, `tests/test_databricks_target.py`),
-`golden_thread.py` (+ `tests/test_golden_thread.py`),
+`tests/test_pbir_target.py`, `tests/test_osi_target.py`, `tests/test_databricks_target.py`,
+`tests/test_cross_target_equivalence.py`), `golden_thread.py` (+ `tests/test_golden_thread.py`),
 `e2e_smoke.py` (+ `tests/test_e2e_smoke.py`), das `eval/`-Paket
 (`eval/__init__.py`, `eval/refdata.py`, `eval/refcalc.py`, `eval/value_gate.py`,
 `eval/comp_gate.py`, `eval/data/*.yaml`, `eval/data/expected/*.yaml` +
