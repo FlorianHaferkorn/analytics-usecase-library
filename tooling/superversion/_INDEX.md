@@ -13,7 +13,7 @@ shelf-life-days: 90
 |---|---|
 | Stand | 2026-06-23 |
 | Rolle | Bereichs-Index des Superversion-Source-Adapters (ALUCA-Bedeutung → kanonisches Modell) |
-| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅, I-5.3 gov/eng/arch-Engines (Beta) ✅, I-5.4 Tool-Domänen-Packs ✅ (Stufe I-5 komplett); I-6.1 Studio-Inventur ✅ + E-1/ADR-0007 ✅, I-6.2 „Vor dem Core"-Bridge ✅, I-6.3 „Nach dem Core" (Target + Gate-Report) ✅, I-6.4 E2E-Flow (Kunde-ohne-Builder) ✅, I-6.5 Standalone-Setup/Preflight (`bridge.py ping`) ✅, I-6.6 AI-Orchestrierung (ADR-0008, V1–V6 + UI) ✅ (Stufe I-6 komplett); I-7.1 OSI-Target (offiziell validiert) ✅, I-7.2 Databricks-Metric-View-Target (docs-validiert, Vendor-Validator geplant) ✅, I-7.3 Stack-Indifferenz-Test ✅ (Stufe I-7 komplett: 1 Core → TMDL/OSI/Databricks, KPI-Menge identisch); übrige I-8, I-9 im Umsetzungsplan |
+| Status | Phase-0-Spike ✅; I-1.1–I-1.5 ✅ (Adapter gehärtet an 5 UCs; CLI + Golden-Snapshots); I-2.x ✅; I-3.1 Vertrag ✅, I-3.2 TMDL ✅, I-3.3 PBIR (official-first) ✅, I-3.4 Golden-Thread-Gate ✅, I-3.5 E2E-Smoke ✅ (I-3 komplett); I-4.1 Value-Eval-Referenzdaten ✅, I-4.2 Value-Gate ✅, I-4.3 ≥2 Ontologien/Regression ✅, I-4.4 COMP-DSGVO ✅ (I-4 komplett); I-5.1 Visual-Library ✅, I-5.2 Report-Documenter ✅, I-5.3 gov/eng/arch-Engines (Beta) ✅, I-5.4 Tool-Domänen-Packs ✅ (Stufe I-5 komplett); I-6.1 Studio-Inventur ✅ + E-1/ADR-0007 ✅, I-6.2 „Vor dem Core"-Bridge ✅, I-6.3 „Nach dem Core" (Target + Gate-Report) ✅, I-6.4 E2E-Flow (Kunde-ohne-Builder) ✅, I-6.5 Standalone-Setup/Preflight (`bridge.py ping`) ✅, I-6.6 AI-Orchestrierung (ADR-0008, V1–V6 + UI) ✅ (Stufe I-6 komplett); I-7.1 OSI-Target (offiziell validiert) ✅, I-7.2 Databricks-Metric-View-Target (docs-validiert, Vendor-Validator geplant) ✅, I-7.3 Stack-Indifferenz-Test ✅ (Stufe I-7 komplett: 1 Core → TMDL/OSI/Databricks, KPI-Menge identisch); I-8.1 Wirkungs-Loop-ADR-0009 ✅ + I-8.2 Effekt-Tracking (`eval/wirkung.py`, before_after) ✅; übrige I-8.3, I-9 im Umsetzungsplan |
 | Verlinkt von | Umsetzungsplan (Repo-Root), PRODUCT_PLAN |
 
 ## 1. „Lies-wenn"-Routing (nur das Nötige lesen)
@@ -36,6 +36,7 @@ shelf-life-days: 90
 | Value-Gate: KPI-Zahl vs. Referenz (I-4.2) | `eval/value_gate.py` (`check_values`/`assert_values`; CLI `python -m tooling.superversion.eval.value_gate <UC> [--values f] [--advisory]`; FAIL bei Abweichung > Toleranz, ohne Werte advisory) → `tests/test_value_gate.py` | I-4.1-Referenzdaten |
 | Eval gegen ≥2 Ontologien / Regression (I-4.3) | `eval/data/supply_deliveries.yaml` + `eval/data/expected/SCM-002.yaml` (2. Ontologie) → `tests/test_eval_regression.py` (parametrisiert über `available_use_cases()`) | — |
 | COMP-DSGVO prüfen (PII ohne RLS → FAIL) (I-4.4) | `eval/comp_gate.py` (`check_compliance`/`assert_compliance`; CLI `python -m tooling.superversion.eval.comp_gate [--warn]`; liest `data_protection` je UC, RLS aus `Role.table_permissions`) → `tests/test_comp_gate.py` | — |
+| Wirkungs-Loop: Action→KPI-Effekt attribuieren (I-8.2, ADR-0009) | `eval/wirkung.py` (`ActionEvent`, `attribute(action,t0,t1,method)`→`[AttributionRecord]`; `before_after` deterministisch, `diff_in_diff`/`holdout` brauchen Kontroll-Segment=geplant; `snapshot_via_refcalc` = Snapshot aus governter `refcalc`; missing≠zero, Assoziation≠Kausalität) → `tests/test_wirkung.py` | — |
 | Visual-Library / Visual-Spec auflösen (I-5.1) | `layer_tools/visual_library.py` (lädt `core/templates/page_templates/visual_registry.yaml`; Block/Slot→Spec, allowed/forbidden pbip_type, `is_default`; CLI `list\|describe\|resolve`; Brücke `block_for_aluca_visual`/`sanctions` → I-3.3) → `tests/test_visual_library.py` | — |
 | Handover-Doku generieren (branded MD) (I-5.2) | `layer_tools/report_documenter.py` (`render_markdown(model)`; Business+Technical; CLI `python -m tooling.superversion.layer_tools.report_documenter <bracket> [--out]`; DOCX deferred=MD-only) → `tests/test_report_documenter.py` (+ Golden `tests/golden_docs/*.md`) | — |
 | gov/eng/arch-Engine ausführen/registrieren (I-5.3, Beta) | `layer_tools/engines/base.py` (Contract `run(canonical,mode)→[EngineFinding]`, Registry) + Beta-Engines `layer_tools/engines/gov_engine.py`, `layer_tools/engines/dataarch_engine.py`, `layer_tools/engines/dataeng_engine.py` + `layer_tools/engines/cli.py` (`python -m …engines.cli all\|<id> <bracket> [--mode]`) → `tests/test_engines.py` | — |
@@ -63,9 +64,9 @@ vendored), `targets/schemas/databricks_metricview.schema.json` (docs-abgeleitet)
 `tests/test_cross_target_equivalence.py`), `golden_thread.py` (+ `tests/test_golden_thread.py`),
 `e2e_smoke.py` (+ `tests/test_e2e_smoke.py`), das `eval/`-Paket
 (`eval/__init__.py`, `eval/refdata.py`, `eval/refcalc.py`, `eval/value_gate.py`,
-`eval/comp_gate.py`, `eval/data/*.yaml`, `eval/data/expected/*.yaml` +
+`eval/comp_gate.py`, `eval/wirkung.py`, `eval/data/*.yaml`, `eval/data/expected/*.yaml` +
 `tests/test_eval_refdata.py`, `tests/test_value_gate.py`,
-`tests/test_eval_regression.py`, `tests/test_comp_gate.py`), das `layer_tools/`-Paket
+`tests/test_eval_regression.py`, `tests/test_comp_gate.py`, `tests/test_wirkung.py`), das `layer_tools/`-Paket
 (`layer_tools/__init__.py`, `layer_tools/visual_library.py`,
 `layer_tools/report_documenter.py`, das `layer_tools/engines/`-Paket
 (`layer_tools/engines/base.py`, `layer_tools/engines/gov_engine.py`,
