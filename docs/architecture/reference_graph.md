@@ -9,7 +9,7 @@
 - KPIs in catalog: **132**  — reachable: **126**, roadmap (planned.yaml): 17, orphan: **0**
 - Action codes: **53**  — reachable: **53**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **232**  — backing a catalog KPI: **122** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **232**  — backing a catalog KPI: **123** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 
@@ -56,7 +56,6 @@ _none_
 
 ## Reachable KPIs with no backing measure (review — not a gate)
 
-- `fin.liquidity.inventory.amount`
 - `fin.overdue_ar.pct`
 - `inv.excess_inventory.amount`
 - `ops.changeover.minutes`
