@@ -23,4 +23,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0006](0006-superversion-target-adapter-contract.md) | Superversion Target (Stack) Adapter Contract | Accepted |
 | [0007](0007-studio-generate-docks-onto-superversion-core.md) | Studio Generate Docks onto the Superversion Core | Accepted |
 | [0008](0008-ai-orchestration-routing-tokens-tracking-roi-config.md) | AI Orchestration: Routing/Token/Tracking/ROI via Layered Config | Accepted |
-| [0009](0009-wirkungs-loop-action-kpi-attribution.md) | Wirkungs-Loop: Action → KPI-Snapshot-Delta → Attribution (Discovery I-8) | Proposed |
+| [0009](0009-wirkungs-loop-action-kpi-attribution.md) | Wirkungs-Loop: Action → KPI-Snapshot-Delta → Attribution (Discovery I-8) | Accepted |

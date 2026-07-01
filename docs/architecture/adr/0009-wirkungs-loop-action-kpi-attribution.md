@@ -1,6 +1,6 @@
 # ADR 0009 — Wirkungs-Loop (Decision Intelligence): Action → KPI-Snapshot-Delta → Attribution
 
-- **Status:** Proposed (Discovery für I-8; vor I-8.2-Implementierung ratifizieren — [QA/SA])
+- **Status:** Accepted (ratifiziert 2026-06-25; I-8.2 implementiert das `before_after`-Tracking deterministisch — `tooling/superversion/eval/wirkung.py`; `diff_in_diff`/`holdout` brauchen ein Kontroll-Segment = geplant; I-8.3 Refinement-Trigger offen)
 - **Date:** 2026-06-25
 - **Scope:** Das **Modell + die Verträge** für den Wirkungs-Loop (I-8): wie eine ausgelöste Action gegen die spätere KPI-Bewegung gemessen und ehrlich attribuiert wird, und wie die Wirkung als *reviewbarer* Refinement-Vorschlag in die Ontologie zurückfließt. **Kein Code** — Discovery. Implementierung folgt in I-8.2 (Effekt-Tracking) / I-8.3 (Ontologie-Feedback).
 - **Supersedes:** —
