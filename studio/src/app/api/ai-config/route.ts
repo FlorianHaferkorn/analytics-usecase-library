@@ -4,8 +4,10 @@
  *   POST { op, layer, domainId, config?, justification? }
  *        op = save | submit | approve | reject | reopen
  *
- * Auth required; actor = user.email. Approve requires admin (two-person rule is also
- * enforced in the repo). Only approved layers ever reach the resolver.
+ * Auth required; actor = user.email. Approve and reopen require admin (two-person
+ * rule is also enforced in the repo for approve). Reopen requires admin because it
+ * revokes an approved governance decision — the same privilege level needed to make
+ * one. Only approved layers ever reach the resolver.
  */
 
 import { requireAuth } from '@/lib/auth/session';
@@ -45,10 +47,14 @@ export async function POST(request: Request) {
     return apiValidationError(['op and layer (L1|L2) required']);
   }
 
-  if (op === 'approve') {
+  if (op === 'approve' || op === 'reopen') {
     const dbUser = findOrCreateUser(user.email, user.name);
     if (!checkAccess(PROJECT, dbUser.id, 'admin')) {
-      return apiError(ErrorCode.FORBIDDEN, 'Admin role required to approve config', 403);
+      const msg =
+        op === 'reopen'
+          ? 'Admin role required to reopen (revoke) an approved config'
+          : 'Admin role required to approve config';
+      return apiError(ErrorCode.FORBIDDEN, msg, 403);
     }
   }
 
