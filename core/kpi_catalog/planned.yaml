@@ -41,31 +41,6 @@
   eta_date: "2026-09-30"
   reason: "Excess inventory amount is a working capital diagnostic KPI added in SCM-001 DEP; measure implementation in Supply Chain model pending sprint planning"
 
-- kpi_id: people.absenteeism.pct
-  owner: people_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Workforce KPI grounded in fact_hr (Absent Hours / Scheduled Hours); People model not yet shipped to Power BI TMDL"
-
-- kpi_id: people.turnover.pct
-  owner: people_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Workforce KPI grounded in fact_hr (Leavers / Average Headcount); People model not yet shipped to Power BI TMDL"
-
-- kpi_id: people.revenue_per_fte.amount
-  owner: people_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Workforce productivity KPI grounded in fact_sales[Net Sales Amount] / fact_hr[FTE]; People model not yet shipped to Power BI TMDL"
-
-- kpi_id: people.personnel_cost.pct
-  owner: people_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Workforce KPI grounded in fact_hr[Personnel Cost] / fact_sales[Net Sales Amount]; People model not yet shipped to Power BI TMDL"
-
-- kpi_id: people.gm_per_fte.amount
-  owner: people_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Workforce productivity KPI grounded in Gross Margin Amount / fact_hr[FTE]; People model not yet shipped to Power BI TMDL"
-
 - kpi_id: margin.ebitda.pct
   owner: fin_analytics_lead
   eta_date: "2026-09-30"
