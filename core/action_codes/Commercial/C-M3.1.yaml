@@ -87,7 +87,7 @@ trigger:
   - Exclude small-format stores where adjacent placement is physically impossible
   - If a promotional campaign is active in the category pair, measure attachment before layering new mechanics
 impact_valuation:
-  method: IncrementalRevenuePerTransaction
+  method: RevenueUplift
   currency: EUR
   attribution:
     method: before_after
