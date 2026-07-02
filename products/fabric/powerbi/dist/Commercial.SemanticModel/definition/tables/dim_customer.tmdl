@@ -59,14 +59,6 @@ table dim_customer
 			lineageTag: 84d9c167
 			column: Segment
 
-		level Channel
-			lineageTag: eca0fd69
-			column: Channel
-
-		level Region
-			lineageTag: 6b71924a
-			column: Region
-
 	partition dim_customer = m
 		mode: import
 		source =

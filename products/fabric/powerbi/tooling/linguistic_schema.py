@@ -125,22 +125,26 @@ def build_linguistic_schema(
 def render_culture_tmdl(schema: dict, culture: str = DEFAULT_CULTURE) -> str:
     """Render the ``cultures/<culture>.tmdl`` file content.
 
-    Layout (TMDL): the ``culture`` object declares ``linguisticMetadata`` as a
-    multi-line ``=`` expression. The JSON body is serialized with **tab**
-    indentation and prefixed to TMDL expression level (3 tabs), so every line
-    begins with tabs — never spaces — satisfying the TMDL-style hook.
+    Layout (TMDL): ``linguisticMetadata`` is a nested object with two properties —
+    ``contentType: Json`` and ``content = <expression>``. Without an explicit
+    ``contentType``, Analysis Services' TMDL deserializer defaults to XML and
+    throws ``does not comply with the Xml content-type`` on this JSON body
+    (confirmed against ``Microsoft.AnalysisServices.Tabular.TmdlSerializer`` —
+    real Power BI Desktop crash, model never loads). The JSON body is serialized
+    with **tab** indentation and prefixed to TMDL expression level (3 tabs), so
+    every line begins with tabs — never spaces — satisfying the TMDL-style hook.
     """
     body = json.dumps(schema, indent="\t", ensure_ascii=False)
     indented = "\n".join((f"\t\t\t{line}" if line else line) for line in body.split("\n"))
-    return f"culture {culture}\n\tlinguisticMetadata =\n{indented}\n"
+    return f"culture {culture}\n\tlinguisticMetadata\n\t\tcontentType: Json\n\t\tcontent =\n{indented}\n"
 
 
 def parse_culture_tmdl(text: str) -> dict:
     """Inverse of :func:`render_culture_tmdl` — extract the LSDL JSON back out.
 
-    Used by the round-trip test (Epic A2 risk mitigation). Strips the ``culture``
-    header and the ``linguisticMetadata =`` property line, dedents the body and
-    parses it as JSON.
+    Used by the round-trip test (Epic A2 risk mitigation). Skips the ``culture``/
+    ``linguisticMetadata``/``contentType``/``content =`` header lines by finding
+    the first ``{``, dedents the body and parses it as JSON.
     """
     lines = text.split("\n")
     try:

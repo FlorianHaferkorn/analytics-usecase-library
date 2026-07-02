@@ -100,10 +100,6 @@ table dim_product
 			lineageTag: c961c696
 			column: Brand
 
-		level ProductFamily
-			lineageTag: 792811e5
-			column: ProductFamily
-
 	partition dim_product = m
 		mode: import
 		source =

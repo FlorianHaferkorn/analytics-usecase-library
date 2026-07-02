@@ -77,15 +77,15 @@ table dim_promo
 
 		level Promotion
 			lineageTag: 58bc2ee5
-			column: Promotion
+			column: PromoName
 
 		level PromoType
 			lineageTag: 83c1c006
-			column: PromoType
+			column: 'Promo Type'
 
 		level Mechanic
 			lineageTag: cd35a8fa
-			column: Mechanic
+			column: 'Promo Mechanic'
 
 	partition dim_promo = m
 		mode: import
