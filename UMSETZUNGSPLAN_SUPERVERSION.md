@@ -249,20 +249,33 @@ Shadow-Pfad, der den governten Python-Core NICHT aufruft (E-1), (b) 8 Tests sche
 auf Windows (bash-Abhängigkeit im E2E-Pfad), (c) es gab nie eine konsolidierte
 Premium-Abnahme (F1–F6). „PR gemerged" ≠ „läuft beim Kunden auf Windows" ≠ „premium".
 **Wette:** Diese Initiative schließt genau diese Strecke — danach ist ein customer-
-operabler PBI-E2E-MVP auf Windows nachweisbar premium (F1–F6 grün).
+operabler PBI-E2E-MVP auf Windows nachweisbar premium (F0–F6 grün).
 **Messgröße:** frischer Windows-Klon: `py -m pytest tooling/superversion/ -q` **0 failed**
-UND Studio treibt den Python-Core (kein Shadow-Emit) UND ein F1–F6-Abnahmebericht liegt vor.
+UND **BLANK()-Measure-Quote = 0** (das Produkt rechnet) UND Studio treibt den Python-Core
+(kein Shadow-Emit) UND ein F0–F6-Abnahmebericht liegt vor.
+
+> **⚠️ Schärfung aus Fable-Zielbild-Review (`SUPERVERSION_ZIELBILD_REVIEW.md`, 2026-07-02):**
+> Unabhängiges Review (anderes Modell) fand einen **Critical A1**, den der Kassensturz
+> übersah: Der „Compiler von Bedeutung zu Wirkung" **berechnet nichts** — KPI-Katalog trägt
+> keine Formel, `from_aluca` setzt `expressions={}`, kein Adapter füllt nach → alle 16 UCs
+> emittieren `BLANK()`-Measures und passieren F1–F6 trotzdem grün. Die Invariante „neutraler
+> Core" (I1) wurde überdehnt: neutral heißt *neutrale Formel*, nicht *keine Formel*. Der
+> Legacy-PS-Generator konnte echte DAX-Synthese (`SUM(fact_sales[…])` in `dist/`), wurde nie
+> portiert (= zweites Doppelsilo, A2). **Konsequenz:** I-10.0 (unten) ist neuer P0 **vor**
+> allem; F6-Value-Gate ist ohne Live-Ausführung ein Selbstvergleich (A4) → G1-minimal wird
+> F6-Enabler, nicht „optionaler Track". Voller Cut-Plan S-1..S-5 + Markt-Befunde (A3) im Review.
 
 | Task | Prio · Modell | DoD (Input · Output · Fehlerfall · Rollback · Prüfung) |
 |---|---|---|
+| **I-10.0** **Rechenfähigkeit** — Measures rechnen statt `BLANK()` (Review S-1, Critical A1/A2) | **P0 · Opus** | Input: `refcalc`-DSL (`eval/refcalc.py`) + KPI-Katalog (heute formel-los) + Legacy-DAX-Referenz (`products/fabric/powerbi/**/dist/**/_Measures.tmdl`). Output: (a) Formel-DSL in den KPI-Katalog gehoben (governt, referenziert — Golden Thread), (b) **deterministische DSL→DAX-Synthese** im TMDL-Target (`expressions['dax']` gefüllt, kein `BLANK()` mehr), analog SQL-Dialekt für neutralen Core, (c) **Paritätstest** neue Synthese == Legacy-`dist/` je UC, (d) Legacy-PS-Generator deprecaten (ein Emit-Pfad, löst A2). Fehlerfall: Formel für KPI unbekannt → expliziter HITL-Marker + Ledger, **nicht** stilles `BLANK()`. Rollback: Synthese hinter Flag, `BLANK()`-Pfad bleibt bis Parität grün. · **Prüfung (mechanisch):** `BLANK()`-Quote über alle 16 UCs = 0 · Paritätstest gegen Legacy grün · Determinismus (I2) byte-stabil · **[QA/SA]** vor Merge |
 | **I-10.1** Windows-Portabilität (8 bash-Fehler) | P0 · Sonnet | Input: `e2e_smoke.py`/`bridge.py` rufen `bash <hook>` via subprocess; Testlauf zeigt 8× `WinError 2`. Output: Hook-Aufruf plattformrobust — bash-Auflösung über `shutil.which("bash")` inkl. Git-Bash-Standardpfaden, sonst **sauberer SKIP mit Grund** statt Crash (der TMDL-Hook ist Dev-Gate, kein Kunden-Runtime-Zwang); reiner-Python-Fallback-Check wo möglich. Als Known Error in `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` eintragen. Fehlerfall: bash zwingend nötig aber fehlt → SKIP, nicht FAIL (außer `--require-cli`). Rollback: — · **Prüfung (mechanisch):** `py -m pytest tooling/superversion/ -q` **0 failed** auf Windows |
 | **I-10.2** E-1 Generate-Naht — Architektur-Entscheidung [QA/SA] | P0 · Opus | Input: `docs/architecture/studio-capability-inventory.md` (Shadow-Pfad-Befund), E-1 im Architektur-Ledger. Output: ADR (nächste freie Nr., `ls adr/` max+1): Studio-`fabric/oss/cicd-adapter.ts` ruft den governten Python-Core (`from_aluca`+Targets+`e2e_smoke`) auf **statt** TS-Reimplementierung — Aufruf-Vertrag (CLI/subprocess vs. Service), Determinismus über die Naht, kein Doppelsilo (P5). Fehlerfall: ADR-Nr-Kollision → max+1. Rollback: Status „proposed". · **Prüfung (agent QA/SA + `check_index --strict`)** |
 | **I-10.3** E-1 Umsetzung — Studio dockt an Python-Core an | P1 · Sonnet | Input: ADR aus I-10.2. Output: Studio-`generate`-Pfad ruft den Python-Core über den entschiedenen Vertrag; der TS-Shadow-Emitter wird entfernt/deprecated; Studio-Output == `e2e_smoke`-Output für denselben UC (byte-gleich, I2). Entsperrt I-6.2/6.3. Fehlerfall: Naht bricht → hinter Flag, Shadow bleibt bis grün. Rollback: Flag. · **Prüfung (mechanisch):** Studio-Generate == Core-Emit-Test grün |
 | **I-10.4** DOCX-Deliverable (Report-Documenter) | P1 · Sonnet | Input: `layer_tools/report_documenter.py` (heute nur MD, I-5.2-Rollback), Meridians `docx_branding` (Vendoring-Kandidat). Output: gebrandeter DOCX-Pfad über `new_document()`-Muster (Margins/Silbentrennung/Widow-Control), MD bleibt Fallback; `python-docx` als Dependency ergänzt. Fehlerfall: Branding-Layout bricht → MD-Fallback + Snapshot. Rollback: MD-only. · **Prüfung (mechanisch):** DOCX-Gen-Snapshot + öffnet in Word ohne Reparatur |
 | **I-10.5** Wirkungs-Loop-Verträge schließen (O-1..O-4) + ADR-0009 ratifizieren (E-5) | P2 · Opus | Input: `adr/0009-*.md` O-1..O-4 (Snapshot-Quelle, Kontroll-Segment, Wirkungsfenster, Speicher) + E-5. Output: O-1..O-4 je entschieden (ADR-Update), ADR-0009 Proposed→Accepted nach Maintainer-Ratifikation. Fehlerfall: Kundenkontext nötig → als bewusst-offen markieren, nicht raten. Rollback: Proposed. · **Prüfung (agent + check_index)** |
-| **I-10.6** Premium-Floor-Gesamt-Abnahme (F1–F6) [QA/SA] | P2 · Opus | Input: PRODUCT_PLAN §2 (F1–F6), Gesamtsystem nach I-10.1/10.3. Output: `docs/architecture/premium-acceptance-F1-F6.md` — je Floor Nachweis (F1 official-validator 0 Errors · F2 determinismus byte-stabil · F3 golden-thread grün · F4 standalone-smoke je Layer-Tool · F5 Handover-Doku · F6 ≥2 Referenz-Ontologien) mit Beleg/Kommando; rote Floors → Findings-Liste. Fehlerfall: Floor rot → ehrlich als offen ausweisen, nicht schönfärben. Rollback: — · **Prüfung (agent QA/SA):** jeder Floor grün-belegt ODER als offen geledgert |
+| **I-10.6** Premium-Floor-Gesamt-Abnahme (**F0**–F6) [QA/SA] | P2 · Opus | Input: PRODUCT_PLAN §2 (F1–F6) **+ neuer F0** (aus Review A1), Gesamtsystem nach I-10.0/10.1/10.3. Output: `docs/architecture/premium-acceptance-F0-F6.md` — je Floor Nachweis: **F0 „das Produkt rechnet" (BLANK()-Quote=0, echte DAX/SQL-Formel je Measure)** · F1 official-validator 0 Errors · F2 determinismus byte-stabil · F3 golden-thread grün · F4 standalone-smoke je Layer-Tool · F5 Handover-Doku · F6 ≥2 Referenz-Ontologien **+ Live-Ausführung des emittierten DAX gegen Referenzwerte (nicht Oracle-Selbstvergleich, A4)** mit Beleg/Kommando; rote Floors → Findings-Liste. Fehlerfall: Floor rot → ehrlich als offen ausweisen, nicht schönfärben. Rollback: — · **Prüfung (agent QA/SA):** jeder Floor grün-belegt ODER als offen geledgert |
 
-**Sequenz:** I-10.1 ∥ I-10.2 (beide P0, unabhängig) → I-10.3 (hängt an 10.2) → I-10.4 ∥ I-10.5 → I-10.6 (Abnahme zuletzt, hängt an 10.1+10.3). **G1 (Live-Tenant-Deploy) bleibt bewusst außerhalb** (eigener Track). **I-9 (Team/Org+Industry, Z4)** bleibt LATER — erst nach grüner I-10-Abnahme.
+**Sequenz:** **I-10.0 (P0, ZUERST — ohne Rechenfähigkeit nimmt die Abnahme ein leeres Produkt ab)** → I-10.1 ∥ I-10.2 → I-10.3 (hängt an 10.2; Studio-Naht nutzt den I-10.0-Rechenpfad) → I-10.4 ∥ I-10.5 → I-10.6 (Abnahme zuletzt, hängt an 10.0+10.1+10.3). **G1 (Live-Tenant-Deploy): Neubewertung nach Review A4** — nicht mehr komplett außerhalb, sondern **minimal als F6-Enabler** (Sandbox-Workspace + `executeQueries` gegen Referenzwerte, 2 UCs, opt-in; Review-Cut S-4) Teil von I-10.6; **voller** Deploy-Track bleibt LATER. **I-9 (Team/Org+Industry, Z4)** bleibt LATER — erst nach grüner I-10-Abnahme. **Markt-/ICP-Lücke (Review A3, Cut S-5)** = eigenes `PRODUCT_MARKET_BRIDGE.md`, Opus, kein Code — separat von I-10.
 
 ---
 
@@ -310,6 +323,7 @@ UND Studio treibt den Python-Core (kein Shadow-Emit) UND ein F1–F6-Abnahmeberi
 | I-8.2 Action→KPI-Effekt-Tracking | ✅ | 2026-06-25 | ADR-0009 ratifiziert (Accepted). `tooling/superversion/eval/wirkung.py`: `ActionEvent` (referenziert governte Action-Code-`outcome_kpis`) + `attribute(action, t0, t1, method) → [AttributionRecord]`. **Deterministisch + ehrlich:** `before_after` (Default; explizit „temporal coincidence, not causal"), `diff_in_diff`/`holdout` brauchen ein **Kontroll-Segment** → ohne = UNCOMPUTED (geplant), kein stilles Degradieren; **missing≠zero** (fehlender Snapshot → status `uncomputed`, `delta=None`, nie 0). `snapshot_via_refcalc(uc)` baut den KPI-Stand aus governter `refcalc`-Berechnung (eine Wahrheit, Golden Thread). **Prüfung:** `tests/test_wirkung.py` (before_after, missing→UNCOMPUTED, diff_in_diff/holdout mit/ohne Kontrolle, Determinismus, Snapshot=governte Werte, **DoD: für 1 Action KPI-Effekt nachvollziehbar attribuiert**). `pytest tooling/superversion/ -q` 254 passed · ruff clean · `check_index --strict` Exit 0. |
 | I-8.3 Feedback in die Ontologie (Refinement-Trigger) | ✅ | 2026-06-25 | `tooling/superversion/eval/refinement.py` `derive_refinements(records) → [RefinementProposal]`: leitet aus AttributionRecords (I-8.2) **reviewbare Vorschläge** ab — `no_effect` (Bewegung < Schwelle → Wirksamkeit prüfen) / `material_effect` (≥ Schwelle → als wirksam kandidieren, Kausalität via Kontroll-Segment verifizieren), relativ zur t0-Baseline. **Kein Auto-Mutate** (ADR-0009 §5): jeder Vorschlag trägt `status=pending_review` → Freigabe-Schleuse; der Core wird nie automatisch geändert. Ehrlichkeit: **kein Vorschlag aus uncomputed/0-Baseline** (missing ≠ Trigger). Rein/deterministisch. **Prüfung:** `tests/test_refinement.py` (no_effect/material/moderat-kein-Vorschlag/uncomputed/0-Baseline/Determinismus). `pytest tooling/superversion/ -q` 260 passed · ruff clean · `check_index --strict` Exit 0. **Stufe I-8 (Wirkungs-Loop) komplett** (Discovery-ADR + Effekt-Tracking + Refinement-Trigger); Rest (diff_in_diff/holdout-Kontrolle, O-1..O-4, Studio-Approval-UI) für spätere Vertiefung. |
 | I-9.x Team/Org+Industry | ⬜ offen (LATER, Discovery) | | |
+| I-10.0 Rechenfähigkeit (Measures rechnen statt BLANK()) [QA/SA] | ⬜ offen (**P0, ZUERST**) | | Fable-Review A1 (Critical): alle 16 UCs emittieren `BLANK()`, passieren F1–F6 grün; Legacy-PS konnte DAX-Synthese, nie portiert (A2). Show-Stopper für „premium" |
 | I-10.1 Windows-Portabilität (8 bash-Fehler) | ⬜ offen (P0) | | Befund: `py -m pytest` 251 passed / 8 failed (WinError 2, bash im e2e-Pfad) am 2026-06-25 |
 | I-10.2 E-1 Generate-Naht ADR [QA/SA] | ⬜ offen (P0) | | Studio-Shadow-Pfad ruft Python-Core nicht auf; blockt I-6.2/6.3 |
 | I-10.3 E-1 Umsetzung (Studio→Python-Core) | ⬜ offen (P1, hängt an 10.2) | | |
@@ -335,8 +349,10 @@ UND Studio treibt den Python-Core (kein Shadow-Emit) UND ein F1–F6-Abnahmeberi
 
 **Bewusst NICHT in diesem Plan (Stand 2026-06-22):**
 - **Kein Deprecaten von ALUCAs Eigen-Engine** (P5; Adapter ist additiv).
-- **Kein Live-Tenant-Deploy (G1)** — eigener Track, hängt an Tenant-Zugang; Handoff-Artefakt
-  shippt zuerst.
+- **Live-Tenant-Deploy (G1) — teil-revidiert (Fable-Review A4):** *voller* Deploy-Track bleibt
+  außerhalb, ABER ein **minimaler G1** (Sandbox-Workspace + `executeQueries` gegen Referenzwerte,
+  2 UCs) ist F6-Enabler und Teil von I-10.6 — ohne Live-Ausführung ist die Value-Zertifizierung
+  ein Oracle-Selbstvergleich.
 - **Kein Monolith-Merge** (Option B verworfen, PRODUCT_PLAN §9).
 - **Industry-Packs/Multi-Tenant** erst Z4 (I-9), nach MVP.
 
