@@ -1,0 +1,88 @@
+/// Action-code outcome facts (Wirkungs-Loop, ADR-0009): one row per executed action
+/// code with its recorded effect, filtered to the Experience domain.
+/// Source: Gold Layer — showcases/aurora_group/data/gold/facts/fact_action_outcome (Parquet).
+table fact_action_outcome
+	lineageTag: 8dd5a3d7-5fb7-40a2-acb5-c2407d8d9acb
+
+	column action_code_id
+		dataType: string
+		isHidden
+		lineageTag: be322fe9-dd3d-4831-a087-396192507b52
+		summarizeBy: none
+		sourceColumn: action_code_id
+
+	column use_case_id
+		dataType: string
+		isHidden
+		lineageTag: 0665567f-cf91-4926-9b8c-435255a1911a
+		summarizeBy: none
+		sourceColumn: use_case_id
+
+	column domain
+		dataType: string
+		isHidden
+		lineageTag: 9f51d2c9-4c47-40ff-942e-62f63bacd823
+		summarizeBy: none
+		sourceColumn: domain
+
+	column execution_date
+		dataType: string
+		isHidden
+		lineageTag: 66550b95-b079-4f5b-82fb-8514cbb68398
+		summarizeBy: none
+		sourceColumn: execution_date
+
+	column outcome_date
+		dataType: string
+		isHidden
+		lineageTag: 7600540a-aaf0-4b5f-857d-361b8c2868c6
+		summarizeBy: none
+		sourceColumn: outcome_date
+
+	column outcome_status
+		dataType: string
+		lineageTag: 47742d70-97c7-4ddc-a64c-ee1d36a7238f
+		summarizeBy: none
+		sourceColumn: outcome_status
+
+	column days_to_outcome
+		dataType: double
+		lineageTag: a67bcf40-20de-49f8-8747-217026112bac
+		summarizeBy: none
+		sourceColumn: days_to_outcome
+
+	column impact_value
+		dataType: double
+		lineageTag: 0142c32b-135d-4435-969b-a53dfbf2b803
+		summarizeBy: none
+		sourceColumn: impact_value
+
+	column cost_to_execute
+		dataType: double
+		lineageTag: 50b97c9e-cace-4afd-bbbf-252d2fa1faed
+		summarizeBy: none
+		sourceColumn: cost_to_execute
+
+	column severity_level
+		dataType: string
+		lineageTag: 0c87dd89-81b9-4a45-b11a-9b2d32f2a027
+		summarizeBy: none
+		sourceColumn: severity_level
+
+	column fiscal_year
+		dataType: int64
+		isHidden
+		lineageTag: b04994f2-da82-4af9-bdd4-643a4e457033
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	partition fact_action_outcome = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_action_outcome"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					ParquetData = Table.Combine(List.Transform(FilteredFiles[Content], each Parquet.Document(_))),
+					FilteredDomain = Table.SelectRows(ParquetData, each [domain] = "Experience")
+				in
+					FilteredDomain

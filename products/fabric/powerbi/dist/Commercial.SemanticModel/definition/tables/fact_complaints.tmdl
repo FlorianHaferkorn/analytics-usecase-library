@@ -1,0 +1,41 @@
+/// Customer complaint facts per entity-month (complaint count, resolution status).
+/// Source: Gold Layer — showcases/aurora_group/data/gold/facts/fact_complaints (Parquet, 2020–2024).
+table fact_complaints
+	lineageTag: 13fb807d-86f5-4c3f-95d8-1f1840dd640a
+	column DateKey
+		dataType: Int64
+		isHidden
+		sourceColumn: DateKey
+		summarizeBy: none
+	column OrgKey
+		dataType: Int64
+		isHidden
+		sourceColumn: OrgKey
+		summarizeBy: none
+	column CustomerKey
+		dataType: Int64
+		isHidden
+		sourceColumn: CustomerKey
+		summarizeBy: none
+	column 'Complaint Count'
+		dataType: Int64
+		sourceColumn: Complaint Count
+		summarizeBy: none
+	column 'Resolved Count'
+		dataType: Int64
+		sourceColumn: Resolved Count
+		summarizeBy: none
+	column 'Resolution Days'
+		dataType: Decimal
+		sourceColumn: Resolution Days
+		summarizeBy: none
+	partition fact_complaints = m
+		mode: import
+		source =
+			let
+				Source = Folder.Files(GoldDataPath & "/facts/fact_complaints"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet") and not Text.Contains([Folder Path], "_delta_log")),
+				SortedFiles = Table.Sort(FilteredFiles, {{"Date modified", Order.Descending}}),
+				ParquetData = Table.Combine(List.Transform(SortedFiles[Content], each Parquet.Document(_)))
+			in
+				ParquetData
