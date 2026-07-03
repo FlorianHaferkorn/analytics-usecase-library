@@ -1,6 +1,8 @@
 ---
 last-reviewed: {{YYYY-MM-DD}}
 shelf-life-days: 90
+# owns: *.ts, *.sql     # optional: Code-Completeness — Gate erzwingt HART, dass diese Dateien gelistet sind
+# status: living        # optional: living | historical | superseded — frozen → staleness-frei
 ---
 # {{Bereich}} — Zentraler Anlaufpunkt (_INDEX)
 
@@ -38,6 +40,7 @@ Ableitungsrichtung ist **immer abwärts**: L4 leitet aus L1–L3 ab, nie umgekeh
 | {{Aufgabe A}} | `{{doc1}}` → `{{doc2}}` | {{Rest}} |
 | {{Aufgabe B}} | `{{doc3}}` | {{Rest}} |
 | {{Aufgabe C}} | `{{doc4}}` → `{{doc5}}` | — |
+| {{Architektur-Entscheidung treffen}} | neuestes `docs/adr/NNNN-*.md` (Vorlage `_ADR.md`) | {{Rest}} |
 
 Faustregel: **Ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 
@@ -49,7 +52,10 @@ Faustregel: **Ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 |---|---|---|
 | `{{doc1}}` | {{Zweck}} | {{wann}} |
 | `{{doc2}}` | {{Zweck}} | {{wann}} |
-<!-- check_index.py erzwingt: jede Datei im Ordner ist hier gelistet. -->
+<!-- check_index.py erzwingt: jede *.md ist hier gelistet. Code-Bereiche: `owns:`-Glob im
+     Frontmatter setzen → das Gate erzwingt auch *.ts/*.sql etc. (Granularität wählst DU:
+     wenige Files direkt vs. Subdir-Module statt 193 Zeilen). Datierte/eingefrorene Docs:
+     `status: historical` (raus aus Staleness). >20 Zeilen → in Sub-Bereiche gruppieren. -->
 
 ---
 
@@ -58,3 +64,14 @@ Faustregel: **Ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | ID | Punkt | Status | Datum |
 |---|---|---|---|
 | {{S-1}} | {{…}} | offen / **erledigt** | {{YYYY-MM-DD}} |
+
+---
+
+## 5. Definition of Done (nur für Bereiche mit operativen Läufen — sonst entfernen)
+
+Konkret, nicht als Checkbox: was rein/raus geht und wie der Fehlerfall aussieht.
+
+- **Input:** {{was muss vorliegen}}
+- **Output:** {{was entsteht, wo}}
+- **Fehlerfall:** {{woran erkennt man Scheitern, was dann}}
+- **Rollback:** {{wie zurück in den Vorzustand}}

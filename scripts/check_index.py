@@ -26,8 +26,10 @@ Aufruf:  python3 scripts/check_index.py [--strict] [TEILBAUM]
 from __future__ import annotations
 
 import datetime as _dt
+import fnmatch
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -73,11 +75,39 @@ def _listed(token: str, text: str) -> bool:
     return re.search(r"(?<![\w/.\-])" + re.escape(token) + r"(?![\w])", text) is not None
 
 
+def _frontmatter(text: str) -> dict:
+    m = FRONT_RE.match(text)
+    return dict(re.findall(r"^(\S+):\s*(.+)$", m.group(1), re.MULTILINE)) if m else {}
+
+
+def _owns_globs(index_text: str) -> list[str]:
+    """Opt-in: ein _INDEX deklariert `owns: *.sql, *.ts` → Gate erzwingt auch diese Dateien."""
+    raw = _frontmatter(index_text).get("owns", "").strip().strip("[]")
+    return [g.strip().strip("'\"") for g in raw.split(",") if g.strip()] if raw else []
+
+
+def _non_navigated(p: Path) -> bool:
+    """Nicht-navigierter Bereich → aus Completeness UND Advisory raus: `_`-präfigierter Dir
+    (z. B. `_archive`) oder ein `.claude-no-index`-Marker an einem Vorfahren bis REPO_ROOT."""
+    d = (p if p.is_dir() else p.parent).resolve()
+    try:
+        if any(part.startswith("_") for part in d.relative_to(REPO_ROOT).parts):
+            return True
+    except ValueError:
+        pass
+    while True:
+        if (d / ".claude-no-index").exists():
+            return True
+        if d == REPO_ROOT or d.parent == d:
+            return False
+        d = d.parent
+
+
 def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> None:
     index_dirs = {idx.parent.resolve() for idx in indexes}
     cache = {idx.parent.resolve(): idx.read_text(encoding="utf-8", errors="replace") for idx in indexes}
     for md in root.rglob("*.md"):
-        if md.name == "_INDEX.md" or ignored(md):
+        if md.name == "_INDEX.md" or ignored(md) or _non_navigated(md):
             continue
         owner = next((p for p in md.resolve().parents if p in index_dirs), None)
         if owner is None:
@@ -87,12 +117,37 @@ def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> No
         if not (_listed(rel.as_posix(), text) or _listed(rel.name, text)):
             idx_rel = (owner / "_INDEX.md").relative_to(REPO_ROOT)
             errors.append(f"[Vollständigkeit] {md.relative_to(REPO_ROOT)} fehlt im {idx_rel}")
+    # owns: Code-/Glob-Completeness — HART, aber nur wo ein Index `owns:` deklariert (opt-in).
+    for d, text in cache.items():
+        globs = _owns_globs(text)
+        if not globs:
+            continue
+        for f in d.rglob("*"):
+            if not f.is_file() or f.name == "_INDEX.md" or ignored(f) or _non_navigated(f):
+                continue
+            if any(part in IGNORE_DIRS for part in f.parts):
+                continue
+            if next((p for p in f.resolve().parents if p in index_dirs), None) != d:
+                continue  # gehört einem tieferen Index
+            rel = f.resolve().relative_to(d)
+            if any(fnmatch.fnmatch(f.name, g) or fnmatch.fnmatch(str(rel), g) for g in globs):
+                if not (_listed(str(rel), text) or _listed(f.name, text)):
+                    idx_rel = (d / "_INDEX.md").relative_to(REPO_ROOT)
+                    errors.append(f"[Vollständigkeit/owns] {f.relative_to(REPO_ROOT)} "
+                                  f"(owns: {', '.join(globs)}) fehlt im {idx_rel}")
 
 
 def check_paths(index: Path, errors: list[str]) -> None:
     for raw in PATH_RE.findall(index.read_text(encoding="utf-8", errors="replace")):
         ref = raw.strip()
         if not ref or "/" not in ref or "{{" in ref or "*" in ref or ref.startswith(("http://", "https://")):
+            continue
+        # Prosa/Platzhalter/Verzeichnis-Referenzen NICHT als harte Datei-Pfade prüfen
+        # (kein `<passende Datei>`, kein `data/`-Verzeichnis im Fließtext) — nur echte Dateien:
+        if any(c in ref for c in " <>"):
+            continue
+        pathpart = ref.split("#", 1)[0]
+        if pathpart.endswith("/") or "." not in pathpart.rsplit("/", 1)[-1]:
             continue
         anchor = None
         if "#" in ref:
@@ -113,12 +168,53 @@ def check_placeholders(path: Path, strict: bool, errors: list[str], warnings: li
         (errors if strict else warnings).append(msg)
 
 
-def check_staleness(index: Path, warnings: list[str]) -> None:
-    m = FRONT_RE.match(index.read_text(encoding="utf-8", errors="replace"))
+def check_routing_quality(index: Path, warnings: list[str]) -> None:
+    """C/D: Routing-Qualität (advisory) — Lazy-Fill (identische lies-wenn-Zellen),
+    Register-Docs ohne Task-Routing-Zeile, und zu große Flach-Register (>20)."""
+    text = index.read_text(encoding="utf-8", errors="replace")
     rel = index.relative_to(REPO_ROOT)
-    if not m:
+    pathcount = Counter(p.strip() for p in PATH_RE.findall(text))
+    reg_paths, liesvals = [], []
+    for ln in text.splitlines():
+        s = ln.strip()
+        if not s.startswith("|") or re.match(r"^\|[\s:|-]+\|?$", s):
+            continue
+        cells = [c.strip() for c in s.strip("|").split("|")]
+        m = re.search(r"`([^`]+)`", cells[0]) if cells else None
+        if m and len(cells) >= 3:
+            reg_paths.append(m.group(1).strip())
+            liesvals.append(cells[-1])
+    if not reg_paths:
         return
-    fm = dict(re.findall(r"^(\S+):\s*(.+)$", m.group(1), re.MULTILINE))
+    for v, n in Counter(v for v in liesvals if v and "{{" not in v).items():
+        if n >= 3:
+            warnings.append(f"[Routing] {rel}: lies-wenn '{v[:40]}' {n}× identisch (Lazy-Fill? differenziert nicht)")
+    only_reg = [p for p in reg_paths if pathcount[p] <= 1]
+    if len(only_reg) >= 3:
+        warnings.append(f"[Routing] {rel}: {len(only_reg)}/{len(reg_paths)} Register-Docs in keiner "
+                        f"Task-Routing-Zeile (nur Flach-Register) — schwer erreichbar")
+    if len(reg_paths) > 20:
+        warnings.append(f"[Navigation] {rel}: {len(reg_paths)} Register-Zeilen (>20) — Sub-Index/Gruppen "
+                        f"erwägen (ein langes Flach-Register ist selbst ein Scan)")
+
+
+def check_dupes(root: Path, warnings: list[str]) -> None:
+    """J: ' N'-Kopien (iCloud) sind aus der Completeness ausgenommen — hier sichtbar machen."""
+    for f in root.rglob("*.md"):
+        if any(p in IGNORE_DIRS for p in f.parts) or _non_navigated(f):
+            continue
+        if DUPE_RE.search(f.name) or DUPE_RE.search(f.stem):
+            warnings.append(f"[Dupe] {f.relative_to(REPO_ROOT)}: sieht aus wie iCloud-Kopie (' N') — "
+                            f"aus dem Gate ausgenommen; prüfen/löschen")
+
+
+def check_staleness(index: Path, warnings: list[str]) -> None:
+    rel = index.relative_to(REPO_ROOT)
+    fm = _frontmatter(index.read_text(encoding="utf-8", errors="replace"))
+    if not fm:
+        return
+    if fm.get("status", "").strip().lower() in ("historical", "superseded", "frozen"):
+        return  # eingefrorenes Artefakt → staleness-frei (F)
     if "last-reviewed" not in fm:
         warnings.append(f"[Staleness] {rel}: kein last-reviewed-Feld"); return
     try:
@@ -128,6 +224,23 @@ def check_staleness(index: Path, warnings: list[str]) -> None:
         warnings.append(f"[Staleness] {rel}: last-reviewed/shelf-life-days unlesbar"); return
     if age > shelf:
         warnings.append(f"[Staleness] {rel}: vor {age} d reviewt (> {shelf} d) — auffrischen")
+
+
+def check_unindexed_areas(root: Path, indexes: list[Path], warnings: list[str]) -> None:
+    """Advisory: dateireicher Top-Level-Bereich ohne _INDEX.md irgendwo im Subtree →
+    Vollständigkeits-Lücke (z. B. scripts/ mit 26 .py). Kein harter Fehler."""
+    index_dirs = {idx.parent.resolve() for idx in indexes}
+    for child in sorted(p for p in root.iterdir() if p.is_dir()):
+        if child.name in IGNORE_DIRS or child.name.startswith(".") or _non_navigated(child):
+            continue
+        cr = child.resolve()
+        if any(d == cr or cr in d.parents for d in index_dirs):
+            continue  # Subtree hat schon irgendwo ein _INDEX.md
+        n = sum(1 for f in child.rglob("*")
+                if f.is_file() and not any(part in IGNORE_DIRS for part in f.parts))
+        if n >= 6:
+            warnings.append(f"[Navigation] {child.relative_to(REPO_ROOT)}/ hat {n} Dateien, "
+                            f"aber kein _INDEX.md — navigierbarer Bereich ohne Index (erwäge einen).")
 
 
 def main(argv: list[str]) -> int:
@@ -140,9 +253,12 @@ def main(argv: list[str]) -> int:
     errors: list[str] = []
     warnings: list[str] = []
     check_completeness(root, indexes, errors)
+    check_unindexed_areas(root, indexes, warnings)
+    check_dupes(root, warnings)
     for idx in indexes:
         check_paths(idx, errors)
         check_staleness(idx, warnings)
+        check_routing_quality(idx, warnings)
         check_placeholders(idx, strict, errors, warnings)
     for f in ("CLAUDE.md", "GOI_DOKTRIN.md"):
         check_placeholders(REPO_ROOT / f, strict, errors, warnings)

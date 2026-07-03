@@ -29,9 +29,12 @@ shelf-life-days: 60
 
 ## B — Entscheidungen (getroffen, mit Begründung + Datum)
 
-| ID | Entscheidung | Begründung | Datum |
-|---|---|---|---|
-| D1 | {{…}} | {{warum}} | {{JJJJ-MM-TT}} |
+> Spalte `ADR`: zeigt auf den vollen Entscheidungs-Record `docs/adr/NNNN-*.md` (Vorlage
+> `_ADR.md`), wenn das *durable Warum* + die Supersession-Kette dokumentiert sind — sonst „—".
+
+| ID | Entscheidung | Begründung | Datum | ADR |
+|---|---|---|---|---|
+| D1 | {{…}} | {{warum}} | {{JJJJ-MM-TT}} | {{ADR-NNNN / —}} |
 
 <!-- Regeln:
      • Fakten IMMER mit Quelle/Beleg (Feldname, Datei, Datum) — keine ungeprüften Annahmen.
