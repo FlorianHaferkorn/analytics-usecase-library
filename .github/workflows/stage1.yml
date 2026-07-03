@@ -121,7 +121,35 @@ jobs:
 
       - name: Install PowerShell modules
         shell: pwsh
-        run: Install-Module -Name powershell-yaml -Force -Scope CurrentUser
+        run: |
+          # Harden against the two most common causes of PSGallery's
+          # "No match was found for the specified search criteria and module
+          # name" on a fresh Windows runner: (1) TLS 1.2 not negotiated by
+          # default, so the gallery query silently returns nothing; (2) the
+          # NuGet package provider missing/stale, which Install-Module needs
+          # to even talk to PSGallery. Also retries a few times — PSGallery
+          # has occasional transient blips.
+          [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
+          if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+          }
+          if ((Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue).InstallationPolicy -ne 'Trusted') {
+            Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          }
+
+          $maxAttempts = 3
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            try {
+              Install-Module -Name powershell-yaml -Repository PSGallery -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
+              Write-Host "powershell-yaml installed (attempt $attempt)"
+              break
+            } catch {
+              Write-Warning "Install-Module attempt $attempt/$maxAttempts failed: $($_.Exception.Message)"
+              if ($attempt -eq $maxAttempts) { throw }
+              Start-Sleep -Seconds (5 * $attempt)
+            }
+          }
 
       - name: Run Stage 1 checks
         shell: pwsh
