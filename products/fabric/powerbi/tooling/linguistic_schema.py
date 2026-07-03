@@ -85,11 +85,17 @@ def _entity(table: str, column: str, synonyms: List[str]) -> dict:
     """One LSDL entity: bind a model column and list its terms.
 
     The first term is the object's own name (Generated); each curated synonym is an
-    Authored noun sourced from the governed catalog.
+    Authored noun sourced from the governed catalog. No ``Source`` key: Power BI
+    Desktop's internal Copilot/Q&A reader (``Microsoft.PowerBI.Lucia...``, not part
+    of the public Analysis Services TOM library, no published schema) throws
+    ``Error converting value "User" to type ...Serialization.Source`` on this field —
+    confirmed against a real Desktop open. The field is metadata-only (``Type``/
+    ``State`` already carry the term's semantics), so omitting it avoids the crash
+    without guessing an undocumented enum value.
     """
     terms: List[dict] = [{column: {"State": "Generated"}}]
     for syn in synonyms:
-        terms.append({syn: {"Type": "Noun", "State": "Authored", "Source": "User"}})
+        terms.append({syn: {"Type": "Noun", "State": "Authored"}})
     return {
         "Definition": {
             "Binding": {"ConceptualEntity": table, "ConceptualProperty": column}

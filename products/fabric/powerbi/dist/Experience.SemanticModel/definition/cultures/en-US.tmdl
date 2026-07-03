@@ -23,22 +23,19 @@ culture en-US
 							{
 								"Skill": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Competency Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kompetenzgruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -60,22 +57,19 @@ culture en-US
 							{
 								"Proficiency": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Seniority": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Qualifikationsstufe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -97,29 +91,25 @@ culture en-US
 							{
 								"Contact Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Interaction Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kontaktkanal": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kanal": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -141,22 +131,19 @@ culture en-US
 							{
 								"Queue": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Work Queue": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Warteschlange": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -178,29 +165,25 @@ culture en-US
 							{
 								"Contact Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Interaction Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kontaktkanal": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kanal": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -222,22 +205,19 @@ culture en-US
 							{
 								"Geography": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Geo": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Service Region": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -259,36 +239,31 @@ culture en-US
 							{
 								"Case Type": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Ticket Type": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Request Type": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Falltyp": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Anliegenart": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -310,22 +285,19 @@ culture en-US
 							{
 								"Issue Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Category": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Anliegenkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -347,29 +319,25 @@ culture en-US
 							{
 								"Severity Level": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Priority": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Schweregrad": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Priorität": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -391,29 +359,25 @@ culture en-US
 							{
 								"Geography": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Territory": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebsregion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Gebiet": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -435,22 +399,19 @@ culture en-US
 							{
 								"Sales Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Distribution Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebskanal": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -472,29 +433,25 @@ culture en-US
 							{
 								"Support Queue": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Work Queue": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Warteschlange": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Routing Queue": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -516,29 +473,25 @@ culture en-US
 							{
 								"Team": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Skill Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Agententeam": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Support Team": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -560,22 +513,19 @@ culture en-US
 							{
 								"Shrinkage Reason": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Shrinkage Type": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Schwundkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -597,15 +547,13 @@ culture en-US
 							{
 								"Paid Shrinkage Flag": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Bezahlt-Kennzeichen": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -627,22 +575,19 @@ culture en-US
 							{
 								"SLA Policy": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Service Level Agreement": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"SLA-Richtlinie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -664,22 +609,19 @@ culture en-US
 							{
 								"SLA Priority": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Severity Tier": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Prioritätsstufe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -701,22 +643,19 @@ culture en-US
 							{
 								"Response SLA": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"First Response Target": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Reaktionszeitziel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -738,22 +677,19 @@ culture en-US
 							{
 								"Resolution SLA": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Resolution Target": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Lösungszeitziel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -775,22 +711,19 @@ culture en-US
 							{
 								"Force Majeure Flag": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"SLA Exclusion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Höhere-Gewalt-Ausschluss": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]

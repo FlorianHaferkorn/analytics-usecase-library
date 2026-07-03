@@ -114,7 +114,6 @@ def test_authored_synonyms_are_tagged():
     assert net_sales["Terms"][1]["Revenue"] == {
         "Type": "Noun",
         "State": "Authored",
-        "Source": "User",
     }
 
 

@@ -23,22 +23,19 @@ culture en-US
 							{
 								"Cost Element": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kostenart": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kostenkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -60,22 +57,19 @@ culture en-US
 							{
 								"Cost Behavior": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Fixkostenart": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kostenverhalten": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -97,29 +91,25 @@ culture en-US
 							{
 								"Cost Driver": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Activity Pool": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Aktivität": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kostentreiber": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -141,22 +131,19 @@ culture en-US
 							{
 								"Sales Region": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Territory": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebsregion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -178,29 +165,25 @@ culture en-US
 							{
 								"Legal Entity": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Company Code": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Gesellschaft": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Buchungskreis": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -222,22 +205,19 @@ culture en-US
 							{
 								"Sales Region": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Territory": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebsregion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -259,22 +239,19 @@ culture en-US
 							{
 								"Country of Domicile": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Land": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Sitzland": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -296,22 +273,19 @@ culture en-US
 							{
 								"Product Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Warengruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Produktgruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -333,22 +307,19 @@ culture en-US
 							{
 								"Sales Region": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Territory": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebsregion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]

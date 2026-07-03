@@ -23,15 +23,13 @@ culture en-US
 							{
 								"Sales Region": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Geo": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -53,15 +51,13 @@ culture en-US
 							{
 								"Sales Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Route to Market": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -83,15 +79,13 @@ culture en-US
 							{
 								"Promotion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Campaign Name": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -113,8 +107,7 @@ culture en-US
 							{
 								"Promotion Type": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -136,15 +129,13 @@ culture en-US
 							{
 								"Mechanic": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Offer Mechanic": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -166,15 +157,13 @@ culture en-US
 							{
 								"Promo Cost": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Trade Spend": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -196,8 +185,7 @@ culture en-US
 							{
 								"Incremental Gross Margin Amount": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -219,22 +207,19 @@ culture en-US
 							{
 								"Revenue": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Net Revenue": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Umsatz": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
