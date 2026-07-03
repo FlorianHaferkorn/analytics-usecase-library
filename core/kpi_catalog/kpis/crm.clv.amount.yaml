@@ -16,10 +16,12 @@ business:
   definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
   grain_scope: Customer level; calculated on cohort or segment basis.
   unit_format: EUR (2 decimals)
-  interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
+  interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn
+    risk.
 technical:
   measure_name: CLV
-  description: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+  description: Estimate long-term value of a customer to prioritize retention, acquisition, and service
+    investments.
   depends_on_measures:
   - crm.lifetime_revenue.amount
   - crm.retention.pct
@@ -30,6 +32,10 @@ technical:
   - cost.cogs.amount
   lineage:
   - fact_sales.CustomerKey
+  calculation:
+    op: hitl
+    reason: AVERAGEX iterator over a different fact table (fact_customer_value) than documented in lineage
+      (fact_sales.CustomerKey) — lineage mismatch, beyond the grammar.
 governance:
   business_owner: Head of CRM / Marketing Analytics
   data_owner: CRM BI

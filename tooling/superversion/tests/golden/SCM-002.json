@@ -16,7 +16,9 @@
             "description": "OTIF Orders / Total Orders.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           },
           {
             "name": "On-Time %",
@@ -25,7 +27,9 @@
             "description": "On-Time Deliveries / Total Deliveries.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           },
           {
             "name": "In-Full %",
@@ -34,7 +38,9 @@
             "description": "In-Full Deliveries / Total Deliveries.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           },
           {
             "name": "Penalty Amount",
@@ -43,7 +49,9 @@
             "description": "Sum of penalty charges incurred in the period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Penalty Amount\", \"kind\": \"column\", \"table\": \"fact_fulfillment\"}}"
+            }
           },
           {
             "name": "Expedite Cost Amount",
@@ -52,7 +60,9 @@
             "description": "Sum of expedite fees and premium freight charges.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Expedite Cost\", \"kind\": \"column\", \"table\": \"fact_fulfillment\"}}"
+            }
           }
         ],
         "has_partition": false,
@@ -74,7 +84,9 @@
             "description": "Lost Demand Qty / Total Demand Qty.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"numerator\": {\"column\": \"Lost Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"op\": \"ratio\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -96,7 +108,9 @@
             "description": "Count of order line items.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"count\", \"table\": \"fact_fulfillment\"}"
+            }
           },
           {
             "name": "Shipments Count",
@@ -105,7 +119,9 @@
             "description": "Count of shipment records.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"count\", \"table\": \"fact_fulfillment\"}"
+            }
           }
         ],
         "has_partition": false,

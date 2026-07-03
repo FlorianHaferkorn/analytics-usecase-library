@@ -28,6 +28,10 @@ technical:
   - sales.pvm.volume_effect.amount
   lineage:
   - fact_sales.Net Sales Amount
+  calculation:
+    op: hitl
+    reason: Residual of a 4-term chain (Net Sales - Plan Sales - Price Effect - Volume Effect) — beyond
+      the binary delta grammar.
 governance:
   business_owner: Head of Sales Controlling
   data_owner: BI Engineering

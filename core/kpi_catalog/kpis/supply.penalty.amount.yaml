@@ -23,6 +23,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_fulfillment.Penalty Amount
+  calculation:
+    op: sum
+    column: Penalty Amount
 governance:
   business_owner: Head of Supply Chain / Logistics
   data_owner: Supply Chain BI

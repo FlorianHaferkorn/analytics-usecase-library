@@ -31,6 +31,7 @@ shelf-life-days: 90
 | Studio-Generate-Naht: dockt auf Python-Core (E-1 ratifiziert) | `adr/0007-studio-generate-docks-onto-superversion-core.md` → `../../tooling/superversion/e2e_smoke.py` | ADR-0001/0002/0003/0004 |
 | AI-Orchestrierung: Modell-Routing/Token/Tracking/ROI über geschichtete Config (I-6.6) | `adr/0008-ai-orchestration-routing-tokens-tracking-roi-config.md` → `research/I6-6/T5-config-architecture.md` | ADR-0001/0002/0003/0004 |
 | Wirkungs-Loop verstehen: Action → KPI-Delta → Attribution (I-8, Discovery) | `adr/0009-wirkungs-loop-action-kpi-attribution.md` → `../../core/action_codes/` | ADR-0001/0002/0003/0004 |
+| KPI-Formel-DSL + DAX-Synthese verstehen (I-10.0, Rechenfähigkeit statt BLANK()) | `adr/0010-kpi-calculation-dsl-and-dax-synthesis.md` → `../../tooling/superversion/targets/dax_synth.py` | ADR-0001/0002/0003/0004 |
 | I-6.6 Modell-Routing/Token/ROI scopen (Research-Charter, LLM-/kundenagnostisch) | `studio-model-routing-research-charter.md` | ADRs (vor Synthese in ADR-0008) |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
@@ -54,6 +55,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `adr/0007-studio-generate-docks-onto-superversion-core.md` | ADR: Studio-Generate dockt auf die Python-Superversion (E-1 ratifiziert; TS-Adapter = Preview-only, Gate-Report sichtbar, ehrliche Degradation) (Accepted) | Studio-Generate-Naht / I-6.2-6.3 |
 | `adr/0008-ai-orchestration-routing-tokens-tracking-roi-config.md` | ADR: AI-Orchestrierung — Modell-Routing (Fähigkeits-Rollen + Adapter-Naht), Token-Opt., lokal-first-Tracking, ROI, gesteuert über geschichtete L0/L1/L2-Config; LLM-/kundenagnostisch; Synthese der I-6.6-Research T1–T5 (Accepted) | I-6.6 / AI-Config-Architektur |
 | `adr/0009-wirkungs-loop-action-kpi-attribution.md` | ADR: Wirkungs-Loop (Decision Intelligence) — Action → KPI-Snapshot-Delta → Attribution (before_after/diff_in_diff/holdout), Feedback als reviewbarer Vorschlag (kein Auto-Mutate); Discovery für I-8 auf Action-Code-/Eval-Primitiven (Accepted; I-8.2 `before_after` implementiert) | I-8 / Wirkungs-Loop |
+| `adr/0010-kpi-calculation-dsl-and-dax-synthesis.md` | ADR: governte KPI-`technical.calculation`-DSL (sum/ratio/delta/delta_pct/rate/count/hitl) + deterministische DSL→DAX-Synthese (`from_aluca.py` resolvt, `../../tooling/superversion/targets/tmdl.py` + `../../tooling/superversion/targets/dax_synth.py` materialisieren); schließt Review-Befund A1 (BLANK()-Quote); Legacy-PS-Generator warn-deprecated (Accepted) | I-10.0 / Rechenfähigkeit |
 | `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |

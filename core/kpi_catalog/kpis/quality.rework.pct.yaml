@@ -25,6 +25,12 @@ technical:
   lineage:
   - fact_quality.Rework Units
   - fact_quality.Total Units
+  calculation:
+    op: ratio
+    numerator:
+      column: Rework Units
+    denominator:
+      column: Total Units
 governance:
   business_owner: Head of Quality
   data_owner: Operations BI

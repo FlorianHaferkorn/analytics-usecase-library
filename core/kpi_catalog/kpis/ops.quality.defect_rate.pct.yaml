@@ -23,6 +23,12 @@ technical:
   lineage:
   - fact_ops.Output Units
   - fact_quality.Defect Count
+  calculation:
+    op: ratio
+    numerator:
+      column: Defect Count
+    denominator:
+      column: Output Units
 governance:
   business_owner: Head of Quality
   data_owner: Quality BI

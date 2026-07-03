@@ -16,7 +16,9 @@
             "description": "(Net Sales Amount - COGS Amount) / Net Sales Amount",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Gross Margin Amount\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Net Sales % vs Plan",
@@ -25,7 +27,9 @@
             "description": "(Net Sales Amount - Plan Sales Amount) / Plan Sales Amount",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta_pct\", \"subtrahend\": {\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Delta% Net Sales",
@@ -34,7 +38,9 @@
             "description": "(Net Sales - LY) / LY",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta_pct\", \"subtrahend\": {\"column\": \"Last Year Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Net Sales Amount",
@@ -43,7 +49,9 @@
             "description": "Sum of all invoice line amounts net of VAT and returns.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Price Effect Amount",
@@ -52,7 +60,9 @@
             "description": "(Actual Price - Plan Price) x Actual Quantity.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "SUMX iterator over invoice lines comparing actual vs. plan unit price/quantity (PVM price effect) — beyond the sum/ratio/delta/rate/count grammar."
+            }
           },
           {
             "name": "Volume Effect Amount",
@@ -61,7 +71,9 @@
             "description": "(Actual Quantity - Plan Quantity) x Plan Price.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "SUMX iterator over invoice lines comparing actual vs. plan quantity (PVM volume effect) — beyond the sum/ratio/delta/rate/count grammar."
+            }
           },
           {
             "name": "Mix Effect Amount",
@@ -70,7 +82,9 @@
             "description": "Total variance - Price Effect - Volume Effect.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "Residual of a 4-term chain (Net Sales - Plan Sales - Price Effect - Volume Effect) — beyond the binary delta grammar."
+            }
           },
           {
             "name": "Cost of Goods Sold Amount",
@@ -79,7 +93,9 @@
             "description": "Sum of invoice line COGS amounts.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Cost of Goods Sold Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "List Price Amount",
@@ -88,7 +104,9 @@
             "description": "Sum of list price amount at invoice line grain.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"List Price Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Net Price Amount",
@@ -97,7 +115,9 @@
             "description": "Sum of net price amount at invoice line grain.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Price Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           }
         ],
         "has_partition": false,

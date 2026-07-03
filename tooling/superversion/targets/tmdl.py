@@ -6,11 +6,21 @@ semantic model FROM the canonical model — one `<table>.tmdl` per table under
 
 This is the **stack step where dialect/DAX is materialized** (Invariant I1: the
 source adapter `from_aluca` stays dialect-neutral; DAX is filled HERE). ALUCA defines
-*meaning*, not DAX (Golden Thread), so when a measure carries no dialect we emit a
-deterministic HITL placeholder (`BLANK()` + a `/// HITL:` marker) rather than invent
-business logic — mirroring ALUCA's BracketCompiler (missing → BLANK()/warning). A real
-DAX dialect, when present in `measure.expressions['dax']` (or `measure.expression`), is
-used verbatim.
+*meaning*, not DAX (Golden Thread). Three dialect sources are tried, in order:
+
+  1. `measure.expressions['dax']` / `measure.expression` — a real dialect override,
+     used verbatim (unchanged from before I-10.0).
+  2. `measure.expressions['dsl']` — the governed, stack-neutral formula resolved by
+     `from_aluca` from the KPI catalog's `technical.calculation` (I-10.0 / Cut S-1);
+     synthesized into real DAX HERE, deterministically, via `dax_synth.synthesize_dax`
+     (never on the source-adapter side — I1).
+  3. Neither present → a deterministic HITL placeholder (`BLANK()` + a `/// HITL:`
+     comment carrying the SPECIFIC reason from `expressions['hitl_reason']` when one
+     was recorded, else the generic "no catalog entry / no dialect" comment) —
+     mirroring ALUCA's BracketCompiler (missing → BLANK()/warning). This placeholder
+     is never silent: every occurrence carries a diagnosable `/// HITL:` reason, and
+     `hitl_gaps()` below counts them for the ledger (Review Befund A1: "gezählt,
+     nicht still BLANK()").
 
 TMDL hard-rules (AGENTS.md, enforced by `.claude/hooks/validate_tmdl_style.sh`):
   - TABS only (never leading spaces)
@@ -20,21 +30,39 @@ TMDL hard-rules (AGENTS.md, enforced by `.claude/hooks/validate_tmdl_style.sh`):
 """
 from __future__ import annotations
 
+import json
+
 from tooling.superversion.canonical_contract import CanonicalModel
+from tooling.superversion.targets import dax_synth
 from tooling.superversion.targets.base import TargetAdapter, register
 
 TAB = "\t"
 
+_GENERIC_HITL_REASON = "define DAX dialect (ALUCA carries meaning, not DAX)"
+
 
 def _dax_for(measure) -> tuple[str, bool]:
-    """(dax_expression, is_placeholder). Uses a real dialect when present; else a
-    deterministic HITL placeholder. Never emits ':=' (TMDL hard-rule)."""
-    dialect = (getattr(measure, "expressions", None) or {}).get("dax", "")
+    """(dax_expression, is_placeholder). Uses a real dialect when present, else
+    synthesizes DAX from the governed DSL formula (I-10.0), else a deterministic
+    HITL placeholder. Never emits ':=' (TMDL hard-rule)."""
+    exprs = getattr(measure, "expressions", None) or {}
+    dialect = exprs.get("dax", "")
     if dialect:
         return dialect.strip(), False
     if measure.expression:
         return measure.expression.strip(), False
+    dsl = exprs.get("dsl", "")
+    if dsl:
+        try:
+            resolved = json.loads(dsl)
+            return dax_synth.synthesize_dax(resolved), False
+        except (ValueError, dax_synth.SynthesisError):
+            pass  # malformed DSL payload — fall through to the HITL placeholder
     return "BLANK()", True
+
+
+def _hitl_reason(measure) -> str:
+    return (getattr(measure, "expressions", None) or {}).get("hitl_reason") or _GENERIC_HITL_REASON
 
 
 def _one_line(text: str) -> str:
@@ -54,7 +82,7 @@ def _render_measure(measure) -> list[str]:
         lines.append(f"{TAB}/// Purpose: {purpose}")
     dax, is_placeholder = _dax_for(measure)
     if is_placeholder:
-        lines.append(f"{TAB}/// HITL: define DAX dialect (ALUCA carries meaning, not DAX)")
+        lines.append(f"{TAB}/// HITL: {_one_line(_hitl_reason(measure))}")
     lines.append(f"{TAB}measure {_measure_name_literal(measure.name)} = {dax}")
     if measure.display_folder:
         lines.append(f"{TAB}{TAB}displayFolder: '{measure.display_folder}'")
@@ -96,6 +124,23 @@ def emit(canonical: CanonicalModel) -> dict[str, str]:
     for table in model.tables:
         out[f"{base}/{table.name}.tmdl"] = render_table(table)
     return out
+
+
+def hitl_gaps(canonical: CanonicalModel) -> list[str]:
+    """Human-in-the-loop gaps in the emitted TMDL (measures with no derivable DAX —
+    either no `technical.calculation` was authored, or it is an explicit `op: hitl`
+    marker) — for the E2E run / ledger (mirrors `targets/pbir.py::hitl_gaps`).
+
+    Every entry here is an explicit, diagnosable gap (Review Befund A1: "gezählt,
+    nicht still BLANK()"), never a silent one — each corresponds 1:1 to a
+    `/// HITL: <reason>` comment in the emitted TMDL."""
+    gaps: list[str] = []
+    for table in canonical.semantic.tables:
+        for measure in table.measures:
+            _, is_placeholder = _dax_for(measure)
+            if is_placeholder:
+                gaps.append(f"{table.name}.{measure.name}: {_hitl_reason(measure)}")
+    return gaps
 
 
 # Register the adapter. Marked `live` only once it passes the official validator

@@ -64,11 +64,14 @@ def test_tmdl_hardrules_no_spaces_no_assign_no_description(model):
 
 
 def test_neutral_core_placeholder_dax(model):
-    """Source stays dialect-neutral (I1): with no dialect, the emitter writes a
-    deterministic HITL BLANK() placeholder, never invented DAX."""
+    """Source stays dialect-neutral (I1): with no derivable formula, the emitter
+    writes a deterministic HITL BLANK() placeholder, never invented DAX. Since
+    I-10.0, COM-001's PVM-effect measures are the ones still gapped (documented
+    `op: hitl` — SUMX iterators beyond the sum/ratio/delta/rate/count grammar);
+    every placeholder carries a diagnosable `/// HITL:` reason, generic or specific."""
     blob = "\n".join(tmdl.emit(model).values())
     assert "= BLANK()" in blob
-    assert "/// HITL: define DAX" in blob
+    assert "/// HITL:" in blob
 
 
 def test_real_tmdl_hook_passes_on_emitted_files(model, tmp_path):

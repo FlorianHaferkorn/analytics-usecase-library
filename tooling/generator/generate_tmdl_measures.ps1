@@ -24,8 +24,42 @@ Param(
   # Deprecated: no-op. Semantic models write directly to dist; showcase mirror was removed.
   [switch]$UseAuroraShowcase,
   # Skip generation of _ActionReady_Logic.tmdl (action-text measures).
-  [switch]$SkipActionLogic
+  [switch]$SkipActionLogic,
+  # STRICT deprecation gate (I-10.0 / Cut S-1): with this switch, the script
+  # refuses to run at all instead of warning-and-continuing. Off by default so
+  # existing callers (`.github/workflows/linux-generation.yml`,
+  # `products/fabric/powerbi/tooling/adapter_build.ps1`) are not broken by this
+  # deprecation — flip it on deliberately once every caller has migrated.
+  [switch]$RejectDeprecatedLegacyGenerator
 )
+
+# DEPRECATED (I-10.0 / Cut S-1, Review Befund A2 "second doppelsilo"): this
+# generator and `tooling/superversion/targets/tmdl.py` produced two DIVERGING
+# semantic models for the same use case (this one carried real DAX via its own
+# `logical_expression_to_dax`/`dax_expression` path; the Python target emitted
+# BLANK() for everything). The Python source-adapter + TMDL target
+# (`from_aluca.py` -> `targets/tmdl.py` + `targets/dax_synth.py`) is now the
+# GOVERNED emit path and has closed the gap (KPI-catalog `technical.calculation`
+# DSL -> deterministic DAX synthesis, parity-tested against this script's own
+# `dist/` output in `tooling/superversion/tests/test_dax_parity_legacy.py`).
+# Not hard-removed/blocked by default: this script is still wired into
+# `.github/workflows/linux-generation.yml` and the PowerShell orchestrator, and
+# migrating those callers is a separate, larger task than I-10.0's scope
+# (governed formula + synthesis + parity) — ⚠️ UNKLAR/flagged, not silently
+# done here. Pass -RejectDeprecatedLegacyGenerator to make this script refuse
+# to run once callers have migrated.
+if ($RejectDeprecatedLegacyGenerator) {
+  throw "generate_tmdl_measures.ps1 is DEPRECATED (I-10.0 / Cut S-1, Review Befund A2) and " + `
+        "-RejectDeprecatedLegacyGenerator was passed. Use the Python source-adapter + TMDL " + `
+        "target instead: 'python -m tooling.superversion.from_aluca <bracket>' -> " + `
+        "'tooling.superversion.targets.tmdl', or the full chain via " + `
+        "'python -m tooling.superversion.e2e_smoke <bracket>'."
+}
+Write-Warning ("generate_tmdl_measures.ps1 is DEPRECATED (I-10.0 / Cut S-1, Review Befund A2 " + `
+  "'second doppelsilo') — the Python source-adapter + TMDL target " + `
+  "(tooling/superversion/from_aluca.py -> targets/tmdl.py + targets/dax_synth.py) is now the " + `
+  "governed emit path. This script keeps running unchanged for existing callers; pass " + `
+  "-RejectDeprecatedLegacyGenerator to make it refuse once callers have migrated.")
 
 $script:ToolRoot = Split-Path -Parent $PSScriptRoot
 # Repo root = three levels up from this script (tooling/generation -> repo root)

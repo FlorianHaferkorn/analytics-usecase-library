@@ -41,6 +41,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - cost.cogs.amount
     lineage:
     - fact_sales.CustomerKey
+    calculation:
+      op: hitl
+      reason: AVERAGEX iterator over a different fact table (fact_customer_value) than documented in lineage (fact_sales.CustomerKey) — lineage mismatch, beyond the grammar.
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -82,6 +85,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - quality.fpy.pct
     lineage:
     - fact_sales.Net Sales Amount
+    calculation:
+      op: hitl
+      reason: Multi-step DISTINCTCOUNT ratio (Churned/Active) multiplied by a Net Sales measure — beyond the binary grammar.
   governance:
     business_owner: Head of Operations
     data_owner: Ops BI
@@ -119,6 +125,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_experience
+    calculation:
+      op: hitl
+      reason: Catalog lineage points column-less at 'fact_experience', but the legacy DAX sums fact_complaints[Complaint Count] — documented lineage mismatch (see Ledger I-1.2); fixing lineage is a separate, already-flagged scope.
   governance:
     business_owner: Head of Customer Service
     data_owner: Service BI
@@ -156,6 +165,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_customer_events.Activity Flag
+    calculation:
+      op: hitl
+      reason: DISTINCTCOUNT with two simultaneous flag filters (Activity AND Churn) — beyond the single-filter rate() grammar.
   governance:
     business_owner: Head of Marketing
     data_owner: CRM BI
@@ -200,6 +212,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_nps.NPS Score
+    calculation:
+      op: hitl
+      reason: Multi-step CALCULATE/COUNTROWS formula (Promoters/Detractors/Total, NPS index scaling) — beyond the grammar.
   governance:
     business_owner: Head of Customer Experience
     data_owner: CX BI
@@ -237,6 +252,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - dim_customer.CustomerKey
     - fact_customer_events.Churn Flag
+    calculation:
+      op: hitl
+      reason: DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar.
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -274,6 +292,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - sales.net_sales.amount
     lineage:
     - dim_customer.CustomerKey
+    calculation:
+      op: hitl
+      reason: SUMX iterator with customer-row-context reset (cumulative lifetime value) — beyond the grammar.
   governance:
     business_owner: Head of Marketing
     data_owner: CRM BI
@@ -311,6 +332,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - dim_customer.CustomerKey
     - fact_customer_events.Activity Flag
+    calculation:
+      op: hitl
+      reason: DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar.
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -443,6 +467,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_output.Output Units
     - fact_labor.Labor Hours
+    calculation:
+      op: ratio
+      numerator:
+        column: Output Units
+      denominator:
+        column: Labor Hours
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -709,6 +739,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_quality.Good Units
     - fact_quality.Total Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Good Units
+      denominator:
+        column: Total Units
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -758,6 +794,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_quality.Scrap Units
     - fact_quality.Total Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Scrap Units
+      denominator:
+        column: Total Units
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -799,6 +841,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_quality.Rework Units
     - fact_quality.Total Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Rework Units
+      denominator:
+        column: Total Units
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -839,6 +887,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_quality_costs.COPQ Amount
+    calculation:
+      op: sum
+      column: COPQ Amount
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -879,6 +930,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_complaints.Complaint Count
     - fact_shipments.Shipped Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Complaint Count
+      denominator:
+        column: Shipped Units
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -921,6 +978,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_quality.Defect Count
     - fact_quality.Total Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Defect Count
+      denominator:
+        column: Total Units
+      scale: 1000
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -1300,6 +1364,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - supply.stockout_impact.pct
     lineage:
     - fact_fulfillment.OTIF Flag
+    calculation:
+      op: rate
+      column: OTIF Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1346,6 +1413,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment.On-Time Flag
+    calculation:
+      op: rate
+      column: On-Time Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1385,6 +1455,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_stockout.Lost Demand Units
+    - fact_stockout.Demand Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Lost Demand Units
+      denominator:
+        column: Demand Units
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1425,6 +1502,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment.Expedite Cost
+    calculation:
+      op: sum
+      column: Expedite Cost
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1463,6 +1543,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment.Penalty Amount
+    calculation:
+      op: sum
+      column: Penalty Amount
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1750,6 +1833,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_ops.Output Units
+    calculation:
+      op: sum
+      column: Output Units
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -1787,6 +1873,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops.Output Units
     - fact_quality.Defect Count
+    calculation:
+      op: ratio
+      numerator:
+        column: Defect Count
+      denominator:
+        column: Output Units
   governance:
     business_owner: Head of Quality
     data_owner: Quality BI
@@ -1859,6 +1951,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment.OTIF Flag
+    calculation:
+      op: rate
+      column: OTIF Flag
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -1903,6 +1998,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops.Good Units
     - fact_ops.Output Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Good Units
+      denominator:
+        column: Output Units
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -1942,6 +2043,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment
+    calculation:
+      op: count
   governance:
     business_owner: Head of Supply Chain
     data_owner: Supply Chain BI
@@ -2018,6 +2121,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment
+    calculation:
+      op: count
   governance:
     business_owner: Head of Logistics
     data_owner: Logistics BI
@@ -2139,6 +2244,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - supply.otif.pct
     lineage:
     - fact_fulfillment.OTIF Flag
+    calculation:
+      op: rate
+      column: OTIF Flag
   governance:
     business_owner: Head of Supply Chain / Finance
     data_owner: Supply Chain BI
@@ -2482,6 +2590,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment.In-Full Flag
+    calculation:
+      op: rate
+      column: In-Full Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -2631,6 +2742,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_sales.List Price Amount
+    calculation:
+      op: sum
+      column: List Price Amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: Pricing Team
@@ -2668,6 +2782,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_sales.Net Price Amount
+    calculation:
+      op: sum
+      column: Net Price Amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: Pricing Team
@@ -2709,6 +2826,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.List Price Amount
     - fact_sales.Net Price Amount
+    calculation:
+      op: ratio
+      numerator:
+        kpi: sales.price.net.amount
+      denominator:
+        kpi: sales.price.list.amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: Pricing Team
@@ -2753,6 +2876,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - sales.pvm.volume_effect.amount
     lineage:
     - fact_sales.Net Sales Amount
+    calculation:
+      op: hitl
+      reason: Residual of a 4-term chain (Net Sales - Plan Sales - Price Effect - Volume Effect) — beyond the binary delta grammar.
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -2794,6 +2920,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_sales.Net Sales Amount
+    calculation:
+      op: sum
+      column: Net Sales Amount
   governance:
     business_owner: Head of Sales
     data_owner: BI Engineering
@@ -2831,6 +2960,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - sales.net_sales.amount
     lineage:
     - fact_sales.Net Sales Amount
+    - fact_sales.Last Year Sales Amount
+    calculation:
+      op: delta_pct
+      minuend:
+        kpi: sales.net_sales.amount
+      subtrahend:
+        column: Last Year Sales Amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: Commercial BI
@@ -2874,6 +3010,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - sales.net_sales.amount
     lineage:
     - fact_sales.Plan Sales Amount
+    calculation:
+      op: delta_pct
+      minuend:
+        kpi: sales.net_sales.amount
+      subtrahend:
+        column: Plan Sales Amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: Commercial BI
@@ -2916,6 +3058,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Plan Quantity
     - fact_sales.Plan Sales Amount
     - fact_sales.Quantity
+    calculation:
+      op: hitl
+      reason: SUMX iterator over invoice lines comparing actual vs. plan unit price/quantity (PVM price effect) — beyond the sum/ratio/delta/rate/count grammar.
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -2955,6 +3100,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Plan Quantity
     - fact_sales.Plan Sales Amount
     - fact_sales.Quantity
+    calculation:
+      op: hitl
+      reason: SUMX iterator over invoice lines comparing actual vs. plan quantity (PVM volume effect) — beyond the sum/ratio/delta/rate/count grammar.
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -3784,6 +3932,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_sales.Cost of Goods Sold Amount
+    calculation:
+      op: sum
+      column: Cost of Goods Sold Amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -4032,6 +4183,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
+    calculation:
+      op: ratio
+      numerator:
+        kpi: margin.gm.amount
+      denominator:
+        kpi: sales.net_sales.amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -4072,6 +4229,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_promo.Promo Cost
+    calculation:
+      op: sum
+      column: Promo Cost
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4114,6 +4274,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Net Sales Amount
     - fact_sales.Cost of Goods Sold Amount
     - fact_promo.Baseline Sales Amount
+    calculation:
+      op: hitl
+      reason: Multi-term calculation (Incremental Sales x GM% minus Promo Cost) — beyond the binary delta/ratio grammar.
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4234,6 +4397,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - cost.cogs.amount
     lineage:
     - fact_sales.Quantity
+    calculation:
+      op: ratio
+      numerator:
+        kpi: cost.cogs.amount
+      denominator:
+        column: Quantity
   governance:
     business_owner: Head of Controlling
     data_owner: Finance BI
@@ -4360,6 +4529,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_finance.Material Cost Amount
     - fact_finance.Net Sales Amount
+    calculation:
+      op: ratio
+      numerator:
+        column: Material Cost Amount
+      denominator:
+        column: Net Sales Amount
   governance:
     business_owner: Head of Controlling
     data_owner: Finance BI
@@ -4404,6 +4579,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_finance.OpEx Amount
     - fact_finance.Plan OpEx Amount
+    calculation:
+      op: delta_pct
+      minuend:
+        column: OpEx Amount
+      subtrahend:
+        column: Plan OpEx Amount
   governance:
     business_owner: Head of Controlling
     data_owner: Finance BI
@@ -4459,6 +4640,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_cost.COGS Amount
     - fact_output.Output Units
+    calculation:
+      op: ratio
+      numerator:
+        column: COGS Amount
+      denominator:
+        column: Output Units
   governance:
     business_owner: Head of Controlling
     data_owner: Finance BI
@@ -4510,6 +4697,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
+    calculation:
+      op: delta
+      minuend:
+        kpi: sales.net_sales.amount
+      subtrahend:
+        kpi: cost.cogs.amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -4551,6 +4744,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_promo.Baseline Sales Amount
+    calculation:
+      op: sum
+      column: Baseline Sales Amount
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4592,6 +4788,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_promo.Baseline Sales Amount
     - fact_sales.Net Sales Amount
+    calculation:
+      op: delta
+      minuend:
+        kpi: sales.net_sales.amount
+      subtrahend:
+        kpi: sales.promo.baseline_sales.amount
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4638,6 +4840,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_finance.COGS Amount
     - fact_finance.Net Sales Amount
+    calculation:
+      op: ratio
+      numerator:
+        column: COGS Amount
+      denominator:
+        column: Net Sales Amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -4677,6 +4885,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - cost.cogs.amount
     lineage:
     - fact_plan_sales.Plan Gross Margin Amount
+    calculation:
+      op: hitl
+      reason: Multi-step VAR calculation (Plan GM derived from Plan Sales minus Plan COGS); catalog lineage lists only 1 column — beyond the grammar.
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -4713,6 +4924,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_finance.EBITDA Amount
     - fact_finance.Net Sales Amount
+    calculation:
+      op: ratio
+      numerator:
+        column: EBITDA Amount
+      denominator:
+        column: Net Sales Amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -4754,6 +4971,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_cost.COGS Amount
+    calculation:
+      op: sum
+      column: COGS Amount
   governance:
     business_owner: Head of Controlling
     data_owner: Finance BI
@@ -4792,6 +5012,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_finance.OpEx Amount
+    calculation:
+      op: sum
+      column: OpEx Amount
   governance:
     business_owner: Head of Controlling
     data_owner: Finance BI

@@ -24,6 +24,10 @@ technical:
   - cost.cogs.amount
   lineage:
   - fact_plan_sales.Plan Gross Margin Amount
+  calculation:
+    op: hitl
+    reason: Multi-step VAR calculation (Plan GM derived from Plan Sales minus Plan COGS); catalog lineage
+      lists only 1 column — beyond the grammar.
 governance:
   business_owner: Head of Controlling
   data_owner: BI Engineering

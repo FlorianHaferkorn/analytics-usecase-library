@@ -98,7 +98,7 @@ def _split_lineage(lineage_entry: str) -> tuple[str, str]:
     return "", lineage_entry.strip()
 
 
-def _measure_from_kpi(kpi_id: str, kpi: Optional[dict]) -> tuple[Measure, str]:
+def _measure_from_kpi(kpi_id: str, kpi: Optional[dict], catalog: "KpiCatalog") -> tuple[Measure, str]:
     """Baut ein Measure aus einer KPI-Definition. Gibt (Measure, source_table) zurück.
 
     Wenn die KPI im Katalog fehlt (direkte Measure-Namen im Bracket, z. B.
@@ -126,17 +126,123 @@ def _measure_from_kpi(kpi_id: str, kpi: Optional[dict]) -> tuple[Measure, str]:
     if lineage:
         source_table, _ = _split_lineage(lineage[0])
     domain = (kpi.get("domain_tag") or [""])[0]
-    # Dialekt-neutral: wir kennen aus ALUCA nur die fachliche Lineage, keinen fertigen
-    # DAX/SQL-Ausdruck. Wir tragen die Lineage als Provenance; Stack-Adapter füllt Dialekt.
+    # Dialekt-neutral (I1): from_aluca trägt die governte Formel-DSL (I-10.0), NIE
+    # fertiges DAX/SQL. `expressions['dsl']` ist ein deterministisch resolvter,
+    # stack-neutraler Formel-Ausdruck (JSON) — der Stack-Adapter (targets/tmdl.py)
+    # materialisiert daraus den Dialekt (dax_synth.py). Fehlt eine ableitbare Formel
+    # (kein `calculation`-Feld oder `op: hitl`), bleibt `expressions` leer bzw. trägt
+    # nur `hitl_reason` — NIEMALS stilles BLANK() ohne Grund (Review Befund A1).
+    expressions: dict = {}
+    resolved, hitl_reason = _resolve_calculation(kpi, catalog)
+    if resolved is not None:
+        expressions["dsl"] = json.dumps(resolved, sort_keys=True)
+    elif hitl_reason:
+        expressions["hitl_reason"] = hitl_reason
     measure = Measure(
         name=name,
         expression="",                       # kein DAX-Primat (neutraler Core)
-        expressions={},                      # Stack-Adapter ergänzt dax/sql
+        expressions=expressions,
         description=biz.get("definition", "") or biz.get("purpose", ""),
         format_string=_fmt_from_unit(biz.get("unit_format", "")),
         display_folder=domain,
     )
     return measure, source_table
+
+
+def _own_lineage_columns(kpi: dict) -> dict[str, str]:
+    """column-name (no table prefix) → table, from THIS KPI's own lineage list."""
+    out: dict[str, str] = {}
+    for entry in (kpi.get("technical", {}) or {}).get("lineage") or []:
+        if "." in entry:
+            table, col = entry.split(".", 1)
+            out[col.strip()] = table.strip()
+    return out
+
+
+def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], catalog: "KpiCatalog") -> Optional[dict]:
+    """calc_ref (kpi-id or bare column) → neutral {"kind": "column"|"measure", ...}.
+
+    Returns None if the reference cannot be resolved (unknown KPI id, or a
+    column not present in this KPI's own lineage) — the caller turns that into
+    an explicit HITL marker, never a silent placeholder.
+    """
+    if "kpi" in ref:
+        other = catalog.get(ref["kpi"])
+        if not other:
+            return None
+        other_name = (other.get("technical", {}) or {}).get("measure_name") or other.get("kpi_key")
+        if not other_name:
+            return None
+        return {"kind": "measure", "name": other_name}
+    if "column" in ref:
+        column = ref["column"]
+        table = own_cols.get(column)
+        if not table:
+            return None
+        return {"kind": "column", "table": table, "column": column}
+    return None
+
+
+def _resolve_calculation(kpi: dict, catalog: "KpiCatalog") -> tuple[Optional[dict], Optional[str]]:
+    """`technical.calculation` (governed, authored) → (resolved neutral formula,
+    HITL reason). Exactly one of the two is non-None (never both None without a
+    reason — Cut S-1: "Fehlerfall: KPI ohne ableitbare Formel → expliziter
+    HITL-Marker, NIEMALS stilles BLANK()")."""
+    calc = (kpi.get("technical", {}) or {}).get("calculation")
+    kpi_id = kpi.get("kpi_id", "?")
+    if not calc:
+        return None, None  # no calculation authored yet — generic "no dialect" HITL downstream
+    op = calc.get("op")
+    if op == "hitl":
+        return None, calc.get("reason") or f"HITL: '{kpi_id}' explicitly marked HITL."
+
+    own_cols = _own_lineage_columns(kpi)
+    lineage = (kpi.get("technical", {}) or {}).get("lineage") or []
+
+    def ref(key: str) -> Optional[dict]:
+        return _resolve_calc_ref(calc[key], own_cols, catalog)
+
+    try:
+        if op == "sum":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            return {"op": "sum", "ref": {"kind": "column", "table": table, "column": column}}, None
+
+        if op == "ratio":
+            numerator, denominator = ref("numerator"), ref("denominator")
+            if numerator is None or denominator is None:
+                raise KeyError("numerator/denominator")
+            resolved = {"op": "ratio", "numerator": numerator, "denominator": denominator}
+            if calc.get("scale"):
+                resolved["scale"] = calc["scale"]
+            return resolved, None
+
+        if op in ("delta", "delta_pct"):
+            minuend, subtrahend = ref("minuend"), ref("subtrahend")
+            if minuend is None or subtrahend is None:
+                raise KeyError("minuend/subtrahend")
+            return {"op": op, "minuend": minuend, "subtrahend": subtrahend}, None
+
+        if op == "rate":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            return {"op": "rate", "table": table, "column": column}, None
+
+        if op == "count":
+            if not lineage or "." in lineage[0]:
+                raise KeyError("bare-table lineage")
+            return {"op": "count", "table": lineage[0]}, None
+    except KeyError as exc:
+        return None, (
+            f"HITL: calculation for '{kpi_id}' (op={op!r}) failed to resolve "
+            f"({exc}) — check technical.lineage / referenced kpi ids."
+        )
+
+    return None, f"HITL: calculation for '{kpi_id}' has unknown op {op!r}."
 
 
 def _fmt_from_unit(unit: str) -> str:
@@ -258,7 +364,7 @@ def from_bracket(bracket: dict, catalog: KpiCatalog) -> CanonicalModel:
     measures_unrouted: list[Measure] = []
     for kid in _kpi_ids_from_bracket(bracket):
         kpi = catalog.get(kid)
-        measure, src_table = _measure_from_kpi(kid, kpi)
+        measure, src_table = _measure_from_kpi(kid, kpi, catalog)
         if src_table:
             t = tables_by_name.get(src_table)
             if t is None:

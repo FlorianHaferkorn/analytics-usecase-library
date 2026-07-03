@@ -1,0 +1,271 @@
+"""Parity test (Cut S-1 (d)): new DSL→DAX synthesis vs. the legacy PowerShell
+generator's checked-in output (`products/fabric/powerbi/dist/**/_Measures.tmdl`),
+for the 5 MVP use cases (COM-001/002/003, FIN-002, SCM-002).
+
+Per Cut S-1: "semantisch, nicht zwingend byte-gleich" — VAR-scaffolding and
+bracket-measure-reference style differ between the two generators (the legacy
+generator prefers `VAR x = SUM(...) ... RETURN DIVIDE(x, y)`; the new
+synthesizer prefers inline `DIVIDE ( SUM(...), SUM(...) )`), so this test
+normalizes BOTH sides down to the **set of terminal `table[Column]` references**
+they touch and asserts those sets are equal — not full-text equality. Where the
+legacy generator has no counterpart at all (a KPI never emitted historically,
+e.g. `margin.ebitda.pct`), parity is reported as "no legacy counterpart", not a
+failure — the whole point of this test is to catch DIVERGENCE, not to demand a
+legacy measure exist.
+
+Where the two generators genuinely diverge, that is a documented **finding**,
+not silently reconciled (Review Befund A2 methodology) — see the
+`KNOWN_DIVERGENCES` map below, each entry justified inline.
+"""
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+import pytest
+import yaml
+
+from tooling.superversion.from_aluca import KpiCatalog, _resolve_calculation
+from tooling.superversion.targets import dax_synth
+
+REPO = Path(__file__).resolve().parents[3]
+KPIS_DIR = REPO / "core/kpi_catalog/kpis"
+DIST = REPO / "products/fabric/powerbi/dist"
+
+# kpi_id -> (legacy dist file, legacy measure name)
+KPI_TO_LEGACY = {
+    "sales.net_sales.amount": ("Commercial.SemanticModel", "Net Sales Amount"),
+    "cost.cogs.amount": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
+    "sales.price.list.amount": ("Commercial.SemanticModel", "List Price Amount"),
+    "sales.price.net.amount": ("Commercial.SemanticModel", "Net Price Amount"),
+    "sales.promo.baseline_sales.amount": ("Commercial.SemanticModel", "Baseline Sales Amount"),
+    "sales.promo.cost.amount": ("Commercial.SemanticModel", "Promo Cost"),
+    "quality.copq.amount": ("Operations.SemanticModel", "Cost of Poor Quality"),
+    "ops.production.volume": ("Finance.SemanticModel", "Production Volume Units"),
+    "margin.gm.amount": ("Commercial.SemanticModel", "Gross Margin Amount"),
+    "sales.promo.incremental.amount": ("Commercial.SemanticModel", "Incremental Sales Amount"),
+    "margin.gm.pct": ("Commercial.SemanticModel", "Gross Margin %"),
+    "sales.price.realization_pct": ("Commercial.SemanticModel", "Price Realization %"),
+    "cost.cogs_per_unit.amount": ("Commercial.SemanticModel", "COGS per Unit"),
+    "cost.unit.amount": ("Finance.SemanticModel", "Unit Cost Amount"),
+    "margin.cogs.pct": ("Finance.SemanticModel", "COGS % of Sales"),
+    "cost.material.pct": ("Finance.SemanticModel", "Material Cost %"),
+    "ops.quality.defect_rate.pct": ("Finance.SemanticModel", "Quality Defect Rate %"),
+    "ops.yield.pct": ("Finance.SemanticModel", "Yield %"),
+    "quality.fpy.pct": ("Operations.SemanticModel", "First Pass Yield %"),
+    "quality.scrap.pct": ("Operations.SemanticModel", "Scrap Rate %"),
+    "quality.rework.pct": ("Operations.SemanticModel", "Rework Rate %"),
+    "quality.complaint.pct": ("Operations.SemanticModel", "Complaint Rate %"),
+    "quality.defect_density": ("Operations.SemanticModel", "Defect Density"),
+    "ops.labor.productivity.pct": ("Finance.SemanticModel", "Labor Productivity %"),
+    "cost.opex.vs_plan.pct": ("Finance.SemanticModel", "OpEx vs Plan %"),
+    "sales.net_sales.delta_pct.plan": ("Commercial.SemanticModel", "Net Sales % vs Plan"),
+    "sales.net_sales.delta_pct.ly": ("Commercial.SemanticModel", "Delta% Net Sales"),
+    "supply.on_time.pct": ("SupplyChain.SemanticModel", "On-Time %"),
+    "supply.in_full.pct": ("SupplyChain.SemanticModel", "In-Full %"),
+    "supply.otif.pct": ("SupplyChain.SemanticModel", "OTIF %"),
+    "ops.otif.pct": ("Experience.SemanticModel", "Ops OTIF %"),
+    "ops.service_level.pct": ("Finance.SemanticModel", "Operations Service Level %"),
+    "order.lines": ("SupplyChain.SemanticModel", "Order Lines Count"),
+    "shipments.count": ("SupplyChain.SemanticModel", "Shipments Count"),
+    "supply.stockout_impact.pct": ("SupplyChain.SemanticModel", "Stockout Impact %"),
+    "supply.penalty.amount": ("SupplyChain.SemanticModel", "Penalty Amount"),
+    "supply.expedite.amount": ("SupplyChain.SemanticModel", "Expedite Cost Amount"),
+    # No legacy counterpart was ever generated for these (new-territory KPIs) —
+    # parity is vacuous (nothing to diverge from), documented, not asserted.
+    "cost.base_volume.amount": (None, None),
+    "cost.opex.base.amount": (None, None),
+    "margin.ebitda.pct": (None, None),
+}
+
+# Documented, deliberate divergences (Review Befund A2 methodology: ledger, not
+# silently reconciled). Each maps kpi_id -> human-readable reason the raw
+# column-set differs from the legacy generator's.
+KNOWN_DIVERGENCES: dict[str, str] = {}
+
+_MEASURE_BLOCK_RE = re.compile(
+    r"measure '([^']+)' =\s*(.*?)(?=\n\t(?:///|measure |column )|\Z)", re.S
+)
+_TABLE_COL_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\[([^\]]+)\]")
+_COUNTROWS_BARE_TABLE_RE = re.compile(r"COUNTROWS\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
+# Negative lookbehind excludes the `[Column]` half of `table[Column]` (a
+# genuine column access, already handled by `_TABLE_COL_RE`) — only a bracket
+# NOT immediately preceded by an identifier character is a bracket-MEASURE
+# reference (`[Measure Name]`). Without this, a measure named e.g. "Net Sales
+# Amount" existing in ANY KPI's catalog entry would wrongly "resolve"
+# `fact_finance[Net Sales Amount]` (a raw column in a DIFFERENT table) by
+# matching on the bracket CONTENT alone — caught by a cross-domain name
+# collision (`fact_sales.Net Sales Amount` vs `fact_finance.Net Sales Amount`)
+# once the synthesis-side measures map spans the whole catalog (see
+# `_all_synthesized_dax`).
+_BRACKET_RE = re.compile(r"(?<![A-Za-z0-9_])\[([^\]]+)\]")
+_VAR_RE = re.compile(r"VAR\s+(\w+)\s*=\s*(.*?)(?=VAR\s+\w+\s*=|RETURN\b|\Z)", re.S)
+
+
+def _extract_column_refs(text: str) -> set[tuple[str, str]]:
+    """`table[Column]` refs plus bare `COUNTROWS ( table )` refs (which have no
+    bracket at all — represented as `(table, "*")`, matching the synthesis
+    side's `count` op sentinel)."""
+    refs = set(_TABLE_COL_RE.findall(text))
+    refs |= {(t, "*") for t in _COUNTROWS_BARE_TABLE_RE.findall(text)}
+    return refs
+
+
+def _load_dist_measures(model_name: str) -> dict[str, str]:
+    """{measure_name: raw_body_text} for every measure in one dist _Measures.tmdl."""
+    path = DIST / model_name / "definition/tables/_Measures.tmdl"
+    text = path.read_text(encoding="utf-8")
+    return {name: body for name, body in _MEASURE_BLOCK_RE.findall(text)}
+
+
+def _inline_vars(body: str) -> str:
+    """`VAR x = expr ... RETURN result` -> `result` with each VAR name substituted
+    by its (parenthesized) expression.
+
+    Deliberately a SINGLE pass per binding name (never re-scanning text a prior
+    substitution just inserted): DAX column/measure names routinely CONTAIN a
+    var name as a whole word (e.g. var `COGS` vs. column `fact_finance[COGS
+    Amount]`) — a naive repeat-until-fixpoint substitution would re-match and
+    re-wrap that inserted text forever. Bindings are resolved against EARLIER
+    bindings only (DAX requires VARs to be declared before use, so declaration
+    order is already dependency order), then substituted into the RETURN body
+    once each, longest name first (avoids one name being a prefix of another)."""
+    if "RETURN" not in body:
+        return body
+    var_part, _, return_part = body.partition("RETURN")
+    resolved: dict[str, str] = {}
+    for name, expr in _VAR_RE.findall(var_part):
+        e = expr.strip()
+        for prev_name in sorted(resolved, key=len, reverse=True):
+            e = re.sub(rf"\b{re.escape(prev_name)}\b", f"({resolved[prev_name]})", e)
+        resolved[name] = e
+    result = return_part.strip()
+    for name in sorted(resolved, key=len, reverse=True):
+        result = re.sub(rf"\b{re.escape(name)}\b", f"({resolved[name]})", result)
+    return result
+
+
+def _resolve_bracket_refs(text: str, measures: dict[str, str], depth: int = 4) -> str:
+    """Substitute `[Measure Name]` refs with that measure's own (VAR-inlined)
+    body, recursively, up to `depth` levels — resolves comparison-only measures
+    (e.g. `[Plan Sales Amount]`) down to their terminal `table[Column]`."""
+    for _ in range(depth):
+        changed = False
+
+        def _sub(m: "re.Match[str]") -> str:
+            nonlocal changed
+            name = m.group(1)
+            if name in measures:
+                changed = True
+                return f"({_inline_vars(measures[name])})"
+            return m.group(0)
+
+        new_text = _BRACKET_RE.sub(_sub, text)
+        if not changed:
+            break
+        text = new_text
+    return text
+
+
+def _leaf_column_set(model_name: str, measure_name: str) -> set[tuple[str, str]]:
+    measures = _load_dist_measures(model_name)
+    body = _inline_vars(measures[measure_name])
+    resolved = _resolve_bracket_refs(body, measures)
+    return _extract_column_refs(resolved)
+
+
+def _catalog() -> dict[str, dict]:
+    return {
+        f.stem: yaml.safe_load(f.read_text(encoding="utf-8"))
+        for f in KPIS_DIR.glob("*.yaml")
+        if f.stem != "_index"
+    }
+
+
+def _all_synthesized_dax(catalog: dict[str, dict]) -> dict[str, str]:
+    """measure_name -> synthesized DAX text, for every KPI with a resolvable
+    `technical.calculation` — built by calling the REAL production pipeline
+    (`from_aluca._resolve_calculation` + `dax_synth.synthesize_dax`), not a
+    parallel test-side re-implementation of the resolution/synthesis logic.
+    A sibling-measure reference (`{kpi: ...}`) resolves to a bracket ref
+    (`[Measure Name]`) in the synthesized DAX, same as it would in the real
+    emitted TMDL — resolving THOSE down to terminal columns reuses the exact
+    same `_resolve_bracket_refs`/`_inline_vars` machinery as the legacy side
+    (there is nothing to inline here — no VAR/RETURN scaffolding — so
+    `_inline_vars` is a no-op passthrough on synthesized text)."""
+    kpi_catalog = KpiCatalog(KPIS_DIR)
+    out: dict[str, str] = {}
+    for kpi in catalog.values():
+        measure_name = (kpi.get("technical", {}) or {}).get("measure_name")
+        if not measure_name:
+            continue
+        resolved, _hitl_reason = _resolve_calculation(kpi, kpi_catalog)
+        if resolved is None:
+            continue
+        out[measure_name] = dax_synth.synthesize_dax(resolved)
+    return out
+
+
+def _synthesized_leaf_columns(kpi_id: str, catalog: dict[str, dict]) -> set[tuple[str, str]] | None:
+    """Terminal (table, column) pairs the REAL synthesized DAX for `kpi_id`
+    touches, after resolving sibling-measure bracket refs — the synthesis-side
+    counterpart to `_leaf_column_set` above. Returns None if unresolvable
+    (op:hitl, missing calculation, no measure_name)."""
+    kpi = catalog.get(kpi_id)
+    if not kpi:
+        return None
+    measure_name = (kpi.get("technical", {}) or {}).get("measure_name")
+    if not measure_name:
+        return None
+    synthesized = _all_synthesized_dax(catalog)
+    dax_text = synthesized.get(measure_name)
+    if dax_text is None:
+        return None
+    resolved_text = _resolve_bracket_refs(dax_text, synthesized)
+    return _extract_column_refs(resolved_text)
+
+
+_PARITY_CASES = [(kid, model, name) for kid, (model, name) in KPI_TO_LEGACY.items() if model is not None]
+
+
+@pytest.mark.parametrize("kpi_id,model_name,measure_name", _PARITY_CASES, ids=[c[0] for c in _PARITY_CASES])
+def test_synthesis_matches_legacy_column_set(kpi_id, model_name, measure_name):
+    if kpi_id in KNOWN_DIVERGENCES:
+        pytest.skip(f"documented divergence: {KNOWN_DIVERGENCES[kpi_id]}")
+    catalog = _catalog()
+    synthesized = _synthesized_leaf_columns(kpi_id, catalog)
+    assert synthesized is not None, f"{kpi_id}: no resolvable calculation (check catalog authoring)"
+
+    legacy = _leaf_column_set(model_name, measure_name)
+    assert synthesized == legacy, (
+        f"{kpi_id} ({measure_name!r} in {model_name}) column-set diverges from legacy:\n"
+        f"  synthesized = {sorted(synthesized)}\n"
+        f"  legacy      = {sorted(legacy)}"
+    )
+
+
+def test_no_legacy_counterpart_kpis_are_still_resolvable():
+    """KPIs with no historical legacy measure (new territory) must still
+    resolve on the synthesis side — parity has nothing to compare against, but
+    the formula itself must not be broken."""
+    catalog = _catalog()
+    for kpi_id, (model_name, _) in KPI_TO_LEGACY.items():
+        if model_name is not None:
+            continue
+        assert _synthesized_leaf_columns(kpi_id, catalog) is not None, (
+            f"{kpi_id}: no legacy counterpart AND no resolvable synthesis — check catalog authoring"
+        )
+
+
+def test_parity_case_count_covers_all_non_hitl_core_kpis():
+    """Guard against silently shrinking parity coverage: every KPI carrying a
+    non-hitl `technical.calculation` that is referenced by the 5 core use cases
+    must appear in KPI_TO_LEGACY (mapped to a legacy measure, or explicitly
+    'no legacy counterpart') — never just missing from this file."""
+    catalog = _catalog()
+    computed_kpi_ids = {
+        kid for kid, kpi in catalog.items()
+        if (kpi.get("technical", {}) or {}).get("calculation", {}).get("op") not in (None, "hitl")
+    }
+    missing = computed_kpi_ids - set(KPI_TO_LEGACY)
+    assert not missing, f"KPIs with a calculation but no parity-test entry: {sorted(missing)}"

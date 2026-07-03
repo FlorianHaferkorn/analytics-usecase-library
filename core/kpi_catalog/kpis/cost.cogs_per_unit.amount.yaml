@@ -23,6 +23,12 @@ technical:
   - cost.cogs.amount
   lineage:
   - fact_sales.Quantity
+  calculation:
+    op: ratio
+    numerator:
+      kpi: cost.cogs.amount
+    denominator:
+      column: Quantity
 governance:
   business_owner: Head of Controlling
   data_owner: Finance BI

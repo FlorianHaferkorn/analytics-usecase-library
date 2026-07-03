@@ -25,6 +25,8 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_fulfillment
+  calculation:
+    op: count
 governance:
   business_owner: Head of Supply Chain
   data_owner: Supply Chain BI

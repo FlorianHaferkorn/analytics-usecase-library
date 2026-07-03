@@ -24,6 +24,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_quality_costs.COPQ Amount
+  calculation:
+    op: sum
+    column: COPQ Amount
 governance:
   business_owner: Head of Quality
   data_owner: Operations BI

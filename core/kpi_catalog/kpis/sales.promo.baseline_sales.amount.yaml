@@ -24,6 +24,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_promo.Baseline Sales Amount
+  calculation:
+    op: sum
+    column: Baseline Sales Amount
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering

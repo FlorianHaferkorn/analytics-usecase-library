@@ -24,6 +24,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_finance.OpEx Amount
+  calculation:
+    op: sum
+    column: OpEx Amount
 governance:
   business_owner: Head of Controlling
   data_owner: Finance BI
