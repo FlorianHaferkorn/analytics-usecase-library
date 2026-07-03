@@ -41,7 +41,6 @@ table fact_finance
 			let
 				Source = Folder.Files(GoldDataPath & "/facts/fact_finance"),
 				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
+				ParquetData = Table.Combine(List.Transform(FilteredFiles[Content], each Parquet.Document(_)))
 			in
 				ParquetData
