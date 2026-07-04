@@ -125,7 +125,7 @@ Screenshot-Abnahme mit bestandenem 5-Sekunden-Test vorliegt, und der Treue-Check
 
 | Task | Status | Datum | Ergebnis/Notiz |
 |---|---|---|---|
-| R1.1 Big Idea rendern | ⬜ offen | | |
+| R1.1 Big Idea rendern | ✅ | 2026-07-03 | Neue Zone 0 „Header" kanonisch in `Layout_Grid_System.md` + `Visual_Whitelist.md` ergänzt (nicht nur Pixel auf einer Seite geschoben — Governance-Autorität bleibt intakt); `Storytelling_Principles.md` §"Where the Big Idea Lives" korrigiert (Header zeigt die Aussage selbst, nicht nur die Frage). COM-002 Overview: neue `Header`-Textbox-Visual mit `bracket.ux_layout_rules.page_1_summary.big_idea` verdrahtet; KPI_Cards/Slicer_Date/Main_1-3 um 72px nach unten verschoben (Main-Charts entsprechend gekürzt, unterer Rand unverändert bei y=1048). **Restrisiko:** `textbox`-Visual-Typ war nirgends im Repo real deployt (nur experimenteller Adapter-Code) — Schema gegen vendortes PBIR-JSON-Schema geprüft (kein Typ-Constraint dort, da visualType-spezifische Objects nicht schema-typisiert sind), Best-Evidence-Struktur verwendet. **Prüfung:** `validate_bindings.py --strict` 0 Fehler, `report_quality.cli` 0 critical/warning/info, kein Overlap (16px Abstand Header→KPI), Drift-Gate + 949 Tests + H7=100% grün. **Offen für R1.6:** visuelle Bestätigung, dass die Textbox in Desktop korrekt rendert (Restrisiko oben). |
 | R1.2 Narrative verdrahten | ⬜ offen | | |
 | R1.3 Evidence-Tabelle kuratieren | ⬜ offen | | |
 | R1.4 Mixed-Scale auflösen | ⬜ offen | | |

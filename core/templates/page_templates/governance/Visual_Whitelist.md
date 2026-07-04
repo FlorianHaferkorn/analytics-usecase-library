@@ -17,6 +17,24 @@ If a visual is not listed here, it is **not allowed**.
 
 ## Allowed Visuals by Category
 
+### Header & Narrative
+
+| Visual | Allowed Slots | Allowed Templates |
+|------|---------------|-------------------|
+| Big Idea Textbox | `Header` (Zone 0, Overview/Summary pages only) | T1, T2, T3, T4 |
+| Smart Narrative (chart-grounded) | `Smart_Narrative` (Detail pages) | All templates |
+
+**Big Idea Textbox rules:**
+- Mandatory on every Overview/Summary page — Zone 0, one line, plain text (`textbox` visual type)
+- Text is exactly `UseCase_Bracket.yaml` → `ux_layout_rules.page_1_summary.big_idea` — never authored ad hoc in the report, never paraphrased
+- Answers the "so what" before any chart is read (Knaflic *Big Idea*; Storytelling_Principles.md §2)
+- Not a KPI value and not a slicer — decoration-free single sentence
+
+**Smart Narrative rules:**
+- Must be bound to a governed narrative measure (e.g. `Narrative Text (COM)`) — never left as an
+  unconfigured native Smart Narrative visual, which falls back to generic auto-text disconnected
+  from the use case's authored insight (UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.2)
+
 ### KPI & Targets
 
 | Visual | Allowed Slots | Allowed Templates |

@@ -42,8 +42,14 @@ It is **not** a title. It is the conclusion that the reader should leave the pag
 
 ### Where the Big Idea Lives
 
-- The page's **decision question banner** (above or below the KPI band) states the question form of the Big Idea.
-- The **Smart Narrative** on the Detail page states the answer form of the Big Idea in the current filter context.
+- The **Header** (Zone 0, above the KPI band — Layout_Grid_System.md) states the Big Idea itself,
+  verbatim from `UseCase_Bracket.yaml` → `ux_layout_rules.page_1_summary.big_idea`. It is the
+  conclusion, not the question — see "What the Big Idea Is" above.
+- `page_1_summary.decision_question` is the governed question the Big Idea answers; it grounds
+  authoring and evidence-table framing but is not separately rendered as its own banner.
+- The **Smart Narrative** on the Detail page restates the Big Idea's answer in the current filter
+  context (chart-grounded, bound to the use case's governed narrative measure — never left as
+  generic auto-text).
 - The **KPI band** provides the evidence for the Big Idea in 3 seconds.
 
 ### The "So What?" Test
