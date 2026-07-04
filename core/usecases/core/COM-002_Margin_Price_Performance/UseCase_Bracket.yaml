@@ -65,11 +65,15 @@ ux_layout_rules:
       - sales.pvm.mix_effect.amount
       - margin.gm.amount
     - slot_id: Main_3
-      # Price realization / mix / unit-cost drivers — pricing-discipline signal
-      kpi_ids:
-      - sales.price.realization_pct
-      - sales.pvm.mix_effect.amount
-      - cost.cogs_per_unit.amount
+      # Ranking slot (Slot_Definitions.md §3): entities ranked by a SINGLE performance
+      # measure — "Who are top/bottom performers? Where should attention focus?"
+      # dim_org.OrgName ranked by margin.gm.pct (the page's primary KPI, component_3s),
+      # one unit (%), default-sorted descending. Resolves the R1.4 mixed-scale bug: the
+      # prior three multi-unit drivers (price realization %, mix effect €, unit cost €)
+      # never belonged on one axis and are already surfaced correctly elsewhere —
+      # Main_2's PVM bridge (Price/Volume/Mix, all €) and Detail_Matrix's curated
+      # evidence columns (R1.3). PBIR: Main_3/visual.json (Golden Thread — must not drift).
+      kpi_id: margin.gm.pct
       visual_type: bar_chart
   page_2_execution:
     title: Commercial Execution

@@ -282,9 +282,7 @@
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "Price Realization %",
-              "Mix Effect Amount",
-              "COGS per Unit"
+              "Gross Margin %"
             ],
             "rows": [],
             "columns": [],
