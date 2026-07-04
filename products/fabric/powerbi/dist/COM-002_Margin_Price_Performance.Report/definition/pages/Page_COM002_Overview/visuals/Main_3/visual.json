@@ -84,7 +84,7 @@
           }
         }
       ],
-      "dataLabels": [
+      "labels": [
         {
           "properties": {
             "show": {
