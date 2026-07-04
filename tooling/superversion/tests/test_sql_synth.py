@@ -158,3 +158,56 @@ def test_identifier_quoting_is_idempotent_for_simple_names():
     assert s._ident("quantity") == "quantity"
     assert s._ident("Net Sales Amount") == "`Net Sales Amount`"
     assert s._ident("weird`name") == "`weird``name`"
+
+
+def test_referenced_measure_names_walks_recursively():
+    resolved = {
+        "op": "delta",
+        "minuend": _measure("A"),
+        "subtrahend": _expr({"op": "mul", "terms": [_measure("B"), _col("t", "c")]}),
+    }
+    assert s.referenced_measure_names(resolved) == {"A", "B"}
+
+
+def test_referenced_measure_names_empty_for_column_only_formula():
+    assert s.referenced_measure_names({"op": "sum", "ref": _col("t", "a")}) == set()
+
+
+# ---- order_measure_names --------------------------------------------------- #
+
+def test_order_measure_names_declaration_order_when_no_deps():
+    name_refs = [("A", set()), ("B", set()), ("C", set())]
+    assert s.order_measure_names(name_refs) == ["A", "B", "C"]
+
+
+def test_order_measure_names_moves_dependency_before_dependent():
+    # "Gross Margin %" declared FIRST but depends on the other two.
+    name_refs = [
+        ("Gross Margin %", {"Gross Margin Amount", "Net Sales Amount"}),
+        ("Gross Margin Amount", {"Net Sales Amount", "Cost of Goods Sold Amount"}),
+        ("Net Sales Amount", set()),
+        ("Cost of Goods Sold Amount", set()),
+    ]
+    order = s.order_measure_names(name_refs)
+    assert order.index("Net Sales Amount") < order.index("Gross Margin Amount")
+    assert order.index("Cost of Goods Sold Amount") < order.index("Gross Margin Amount")
+    assert order.index("Gross Margin Amount") < order.index("Gross Margin %")
+    assert order.index("Net Sales Amount") < order.index("Gross Margin %")
+
+
+def test_order_measure_names_stable_tie_break_by_original_index():
+    # Two independent chains — within each "wave" of ready nodes, original
+    # declaration order must be preserved (determinism, I2).
+    name_refs = [("D", {"B"}), ("C", set()), ("B", {"A"}), ("A", set())]
+    assert s.order_measure_names(name_refs) == ["C", "A", "B", "D"]
+
+
+def test_order_measure_names_cycle_never_hangs_and_appends_leftovers():
+    name_refs = [("X", {"Y"}), ("Y", {"X"}), ("Z", set())]
+    order = s.order_measure_names(name_refs)
+    assert set(order) == {"X", "Y", "Z"}
+    assert order[0] == "Z"  # the only cycle-free node is ready first
+
+
+def test_order_measure_names_empty_input():
+    assert s.order_measure_names([]) == []

@@ -74,29 +74,50 @@ CORE_5_BRACKETS = {
     "SCM-002": REPO / "core/usecases/core/SCM-002_Supply_Reliability_OTIF/UseCase_Bracket.yaml",
 }
 
-# The 4 ops with no flat Metric-View-expr SQL shape (need a per-key GROUP BY
-# subquery) — genuinely narrower than the DAX side's 0-HITL-gap result.
+# Known SQL gaps per UC (evidence-based, not derived — a regression guard,
+# same style as test_calculation_coverage.py::KNOWN_HITL_KPI_MEASURE_NAMES).
+# Two distinct reasons, both honest (never a guessed/wrong SQL expression):
+#   (a) one of the 4 ops with no flat Metric-View-expr SQL shape (needs a
+#       per-key GROUP BY subquery): pvm_volume_effect, pvm_price_effect,
+#       sumx_over_key, avgx_over_key — genuinely narrower than the DAX side's
+#       0-HITL-gap result.
+#   (b) a sibling-measure reference to a KPI this bracket does NOT itself bind
+#       as its own measure (e.g. COM-001's "Gross Margin %" divides by
+#       [Gross Margin Amount], but COM-001 never binds margin.gm.amount
+#       directly — DAX's `[Name]` resolves model-globally so this is invisible
+#       on that side, but Databricks' `MEASURE(...)` is scoped to measures
+#       actually defined in the SAME metric view, so a name absent from this
+#       bracket's own measure set is a genuine, structural gap here) — or a
+#       measure that transitively depends on an (a)/(b) gap (e.g. Mix Effect
+#       Amount depends on the (a)-gapped Price/Volume Effect Amount).
 KNOWN_SQL_GAP_MEASURE_NAMES = {
-    "Customer Lifetime Revenue Amount",  # sumx_over_key
-    "CLV",  # avgx_over_key
-    "Volume Effect Amount",  # pvm_volume_effect
-    "Price Effect Amount",  # pvm_price_effect
+    "COM-001": {"Price Effect Amount", "Volume Effect Amount", "Gross Margin %"},
+    "COM-002": {
+        "Price Effect Amount", "Volume Effect Amount", "Mix Effect Amount",
+        "Gross Margin Amount", "Gross Margin %", "Incremental Gross Margin Amount",
+        "Incremental Sales Amount",
+    },
+    "COM-003": {"CLV", "Customer Lifetime Revenue Amount"},
+    "FIN-002": set(),
+    "SCM-002": set(),
 }
 
 
 @pytest.mark.parametrize("uc,bracket", sorted(CORE_5_BRACKETS.items()))
 def test_sql_gaps_match_the_documented_scope_out(uc, bracket):
-    """`hitl_gaps()` for the 5 core UCs only ever names the 4 documented
-    no-flat-SQL-shape ops — everything else with a `technical.calculation`
-    must synthesize real Databricks SQL."""
+    """`hitl_gaps()` for the 5 core UCs only ever names the documented,
+    evidence-based gaps (KNOWN_SQL_GAP_MEASURE_NAMES) — everything else with a
+    `technical.calculation` must synthesize real Databricks SQL."""
     model = from_bracket_file(bracket, KPIS)
     gaps = databricks.hitl_gaps(model)
-    for gap in gaps:
-        measure_name = gap.split(":", 1)[0].split(".", 1)[-1]
-        assert measure_name in KNOWN_SQL_GAP_MEASURE_NAMES, (
-            f"[{uc}] unexpected SQL gap {gap!r} — either sql_synth should cover this op "
-            "or add it to KNOWN_SQL_GAP_MEASURE_NAMES with a documented reason"
-        )
+    gapped_names = {gap.split(":", 1)[0].split(".", 1)[-1] for gap in gaps}
+    assert gapped_names == KNOWN_SQL_GAP_MEASURE_NAMES[uc], (
+        f"[{uc}] SQL gaps drifted from the documented set — either sql_synth/ordering "
+        f"newly covers one of these (shrink the allowlist) or a new gap appeared "
+        f"(investigate, then extend the allowlist with a documented reason):\n"
+        f"  actual   = {sorted(gapped_names)}\n"
+        f"  expected = {sorted(KNOWN_SQL_GAP_MEASURE_NAMES[uc])}"
+    )
 
 
 @pytest.mark.parametrize("uc,bracket", sorted(CORE_5_BRACKETS.items()))
@@ -110,7 +131,7 @@ def test_covered_measures_never_null(uc, bracket):
         doc = yaml.safe_load(text)
         for m in doc.get("measures", []):
             seen.add(m["name"])
-            if m["name"] in KNOWN_SQL_GAP_MEASURE_NAMES:
+            if m["name"] in KNOWN_SQL_GAP_MEASURE_NAMES[uc]:
                 assert m["expr"] == "NULL" and m.get("comment", "").startswith("HITL:")
                 continue
             assert m["expr"] != "NULL", f"[{uc}] governed measure {m['name']!r} is still NULL"

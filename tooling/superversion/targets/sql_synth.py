@@ -44,6 +44,17 @@ A "ref" term is one of:
                                                         reference builtin)
   {"kind": "expr", "op": ..., ...}                 -- a nested resolved formula, rendered
                                                         recursively and parenthesized
+
+`synthesize_sql` is purely a formula→text function — it has no notion of
+"which view is this rendered into" or "measure definition order", so it
+cannot by itself guarantee a `MEASURE(...)` call it emits is actually valid
+Databricks Metric View SQL (the vendor only allows referencing an
+earlier-defined measure in the SAME view). `referenced_measure_names(resolved)`
+gives callers the structural information (every sibling-measure name touched,
+at any nesting depth) to check that BEFORE calling `synthesize_sql` —
+`targets/databricks.py` does exactly this, falling back to the HITL
+placeholder for a measure whose formula would need a cross-view or
+forward reference.
 """
 from __future__ import annotations
 
@@ -91,6 +102,77 @@ def _term(ref: dict) -> str:
     if kind == "expr":
         return f"( {synthesize_sql(ref)} )"
     raise SynthesisError(f"unknown ref kind: {kind!r}")
+
+
+def referenced_measure_names(resolved) -> set[str]:
+    """Every sibling-measure name referenced anywhere inside a resolved neutral
+    formula (any `{"kind": "measure", "name": ...}` ref, at any nesting depth),
+    collected structurally rather than by re-parsing synthesized SQL text.
+
+    Databricks Metric Views only allow `MEASURE(...)` to reference an
+    earlier-defined measure in the SAME view (docs.databricks.com/.../metric-
+    views/data-modeling/composability) — unlike DAX, where a bracket reference
+    is model-global and order-free. `synthesize_sql` itself has no view/ordering
+    context (it is a pure formula→text function), so callers
+    (`targets/databricks.py`) call this first to check every referenced name is
+    available in the current view before emitting a `MEASURE(...)` call —
+    never a dangling/forward/cross-view reference."""
+    names: set[str] = set()
+
+    def _walk(node) -> None:
+        if isinstance(node, dict):
+            if node.get("kind") == "measure" and node.get("name"):
+                names.add(node["name"])
+            for value in node.values():
+                _walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                _walk(item)
+
+    _walk(resolved)
+    return names
+
+
+def order_measure_names(name_refs: list[tuple[str, set[str]]]) -> list[str]:
+    """Stable topological sort of same-view measure names by sibling-`MEASURE()`
+    dependency: a measure referencing another measure in the SAME view must be
+    emitted AFTER it (Databricks' earlier-defined-in-this-view constraint).
+
+    `name_refs` is `[(name, refs), ...]` in the view's original declaration
+    order, where `refs` is that measure's `referenced_measure_names(...)`
+    ALREADY FILTERED to names present in this same view (a caller-side
+    concern — this function is dialect/view-context-free, it only sorts).
+
+    Recovers same-view forward references (declaration order in the KPI
+    catalog/bracket is not topologically sorted by dependency) so they
+    synthesize real SQL instead of an avoidable HITL gap — genuine cross-view
+    references are unaffected (a name outside this view's own `refs` is not
+    this function's concern; the caller's availability check still gaps it).
+
+    Kahn's algorithm, always picking the lowest-original-index ready node at
+    each step (deterministic, I2). A cycle (should not occur for a legitimate
+    KPI reference graph) never hangs or raises — leftover names are appended
+    in their original order, same as if this function were a no-op for them."""
+    order_index = {name: i for i, (name, _refs) in enumerate(name_refs)}
+    refs_by_name = {name: refs for name, refs in name_refs}
+    remaining = set(order_index)
+    placed: list[str] = []
+
+    while remaining:
+        ready = sorted(
+            (n for n in remaining if not (refs_by_name[n] & remaining)),
+            key=lambda n: order_index[n],
+        )
+        if not ready:
+            # cycle (or a ref outside this view, already excluded by the caller) —
+            # never hang; keep the rest in original order and stop.
+            placed.extend(sorted(remaining, key=lambda n: order_index[n]))
+            break
+        for n in ready:
+            placed.append(n)
+            remaining.discard(n)
+
+    return placed
 
 
 def synthesize_sql(resolved: dict) -> str:

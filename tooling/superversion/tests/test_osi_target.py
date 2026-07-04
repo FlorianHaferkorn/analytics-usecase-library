@@ -74,10 +74,21 @@ CORE_5_BRACKETS = {
     "SCM-002": REPO / "core/usecases/core/SCM-002_Supply_Reliability_OTIF/UseCase_Bracket.yaml",
 }
 
-# Same 4 no-flat-SQL-shape ops as targets/databricks.py's KNOWN_SQL_GAP_MEASURE_NAMES —
-# these get an MDX-only dialects list (DATABRICKS entry absent, not a placeholder).
+# Same evidence-based per-UC gap sets as targets/databricks.py's test suite
+# (test_databricks_target.py::KNOWN_SQL_GAP_MEASURE_NAMES) — these get an
+# MDX-only dialects list (DATABRICKS entry absent, not a placeholder). See
+# that file's comment for the two gap reasons (no-flat-SQL-shape op, or a
+# sibling-measure reference to a KPI this bracket doesn't itself bind).
 NO_DATABRICKS_DIALECT_MEASURE_NAMES = {
-    "Customer Lifetime Revenue Amount", "CLV", "Volume Effect Amount", "Price Effect Amount",
+    "COM-001": {"Price Effect Amount", "Volume Effect Amount", "Gross Margin %"},
+    "COM-002": {
+        "Price Effect Amount", "Volume Effect Amount", "Mix Effect Amount",
+        "Gross Margin Amount", "Gross Margin %", "Incremental Gross Margin Amount",
+        "Incremental Sales Amount",
+    },
+    "COM-003": {"CLV", "Customer Lifetime Revenue Amount"},
+    "FIN-002": set(),
+    "SCM-002": set(),
 }
 
 
@@ -94,25 +105,21 @@ def test_every_governed_metric_has_an_mdx_dialect(uc, bracket):
     placeholder-name fallback) across all 5 core use cases."""
     for metric in _metrics_for(bracket):
         dialects = {d["dialect"] for d in metric["expression"]["dialects"]}
-        if metric["name"] in NO_DATABRICKS_DIALECT_MEASURE_NAMES:
-            continue  # covered by test_no_databricks_dialect_for_documented_sql_gaps
+        if metric["name"] in NO_DATABRICKS_DIALECT_MEASURE_NAMES[uc]:
+            continue  # covered by test_databricks_dialect_present_except_documented_sql_gaps
         assert "MDX" in dialects, f"[{uc}] {metric['name']!r} has no MDX dialect entry"
 
 
 @pytest.mark.parametrize("uc,bracket", sorted(CORE_5_BRACKETS.items()))
 def test_databricks_dialect_present_except_documented_sql_gaps(uc, bracket):
-    """Every metric gets a DATABRICKS dialect entry too, EXCEPT the 4 ops with
-    no flat Metric-View-expr SQL shape — MDX-only for those, never a guessed
-    DATABRICKS expression."""
-    for metric in _metrics_for(bracket):
-        dialects = {d["dialect"] for d in metric["expression"]["dialects"]}
-        if metric["name"] in NO_DATABRICKS_DIALECT_MEASURE_NAMES:
-            assert "DATABRICKS" not in dialects, (
-                f"[{uc}] {metric['name']!r} unexpectedly has a DATABRICKS dialect "
-                "— sql_synth should have raised SynthesisError for this op"
-            )
-        else:
-            assert "DATABRICKS" in dialects, f"[{uc}] {metric['name']!r} missing expected DATABRICKS dialect"
+    """Every metric gets a DATABRICKS dialect entry too, EXCEPT the documented
+    gap set — MDX-only for those, never a guessed DATABRICKS expression."""
+    no_databricks = {m["name"] for m in _metrics_for(bracket) if "DATABRICKS" not in {d["dialect"] for d in m["expression"]["dialects"]}}
+    assert no_databricks == NO_DATABRICKS_DIALECT_MEASURE_NAMES[uc], (
+        f"[{uc}] no-DATABRICKS-dialect set drifted from the documented set:\n"
+        f"  actual   = {sorted(no_databricks)}\n"
+        f"  expected = {sorted(NO_DATABRICKS_DIALECT_MEASURE_NAMES[uc])}"
+    )
 
 
 def test_osi_hitl_gaps_are_never_silent():

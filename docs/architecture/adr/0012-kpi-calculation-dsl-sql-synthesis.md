@@ -90,23 +90,87 @@ not guessed.**
   narrower than `databricks.py`'s (a gap here means neither MDX nor DATABRICKS
   resolved, not just DATABRICKS).
 
-### 3. Result
+### 3. Sibling-measure reference validity: view-scoping + ordering (QA review finding, fixed before merge)
 
-49 of the 53 authored `technical.calculation` KPIs synthesize real Databricks
-SQL (the same 4 ops as above are the only gaps); all 5 MVP use cases' OSI
-metrics carry an MDX dialect for every resolvable KPI and a DATABRICKS dialect
-for 49 of them. Both targets' existing official/docs-derived schema validation
+At the catalog level (a KPI's `technical.calculation` resolved and synthesized
+in isolation, ignoring which canonical model it will be emitted into), 49 of
+the 53 authored KPIs produce a `synthesize_sql` result — the 4 ops above are
+the only op-level gaps. The independent QA review caught that this catalog-
+level number is **not** the same as "49 KPIs emit valid Databricks SQL in a
+real Metric View", because `MEASURE(x)` has a constraint `sql_synth.py` cannot
+see on its own: *x must be a measure defined EARLIER in the SAME metric
+view* (`docs.databricks.com/.../metric-views/data-modeling/composability`).
+`targets/databricks.py` emits one view **per source table**, and:
+
+- KPI-catalog declaration order (the order KPIs are referenced in a
+  `UseCase_Bracket.yaml`) is not topologically sorted by dependency — e.g.
+  COM-002's bracket lists `Gross Margin %` before the `Gross Margin Amount`
+  measure it divides by, which `MEASURE()` cannot reference forward.
+- Some KPI compositions cross source tables (e.g. `Incremental Gross Margin
+  Amount`, routed to `fact_sales`, references `Incremental Sales Amount`,
+  routed to `fact_promo`) — genuinely different views, unfixable by reordering.
+- A KPI can reference a sibling KPI that the CURRENT bracket never binds as
+  its own measure at all (e.g. COM-001's `Gross Margin %` divides by `[Gross
+  Margin Amount]`, but COM-001's bracket never references `margin.gm.amount`
+  directly) — DAX's `[Name]` resolves model-globally so this is invisible on
+  that side (Power BI has no such constraint), but a Databricks Metric View
+  has no measure with that name to reference at all. This is a genuine,
+  pre-existing gap in how `from_aluca.py` collects measures (bracket-bound
+  KPIs only, not their transitive sibling-KPI references) that predates this
+  task and affects any target requiring that reference to physically exist —
+  fixing it is a separate, larger change (auto-including transitively-
+  referenced KPI measures) and explicitly out of scope here.
+
+Fix, in two parts:
+1. **Correctness (blocking):** `sql_synth.referenced_measure_names(resolved)`
+   (new) structurally walks a resolved formula and collects every sibling-
+   measure name it touches, at any nesting depth. Both `targets/databricks.py`
+   (`_sql_for`) and `targets/osi.py` (`_dialects_for`) now check this set
+   against the measures actually available in the current view (same table,
+   defined earlier) BEFORE calling `synthesize_sql` — a reference outside that
+   set is a HITL gap (`NULL` / MDX-only), never an invalid `MEASURE()` call.
+2. **Coverage (recovers what's genuinely fixable):** `sql_synth.
+   order_measure_names(name_refs)` (new) — a stable topological sort so a
+   same-view forward reference (case 1 above) is resolved by REORDERING the
+   emitted `measures:` list, not gapped. `targets/databricks.py::_metric_view`
+   and `targets/osi.py`'s per-table grouping both apply this before computing
+   "available" sets. Cross-view (case 2) and dangling (case 3) references are
+   correctly left as gaps — no reordering fixes those.
+
+The real, per-use-case gap sets (after the ordering fix) are narrower than a
+naive "any reference outside declaration order" check would produce, and are
+pinned as regression tests (`test_databricks_target.py::
+KNOWN_SQL_GAP_MEASURE_NAMES`, `test_osi_target.py::
+NO_DATABRICKS_DIALECT_MEASURE_NAMES`) — e.g. COM-003 narrows to just `CLV`
+(avgx_over_key) and `Customer Lifetime Revenue Amount` (sumx_over_key), both
+pure op-level gaps; FIN-002 and SCM-002 have zero gaps of any kind.
+
+### 4. Result
+
+Both targets' existing official/docs-derived schema validation
 (`test_osi_target.py::test_osi_validates_against_official_schema`,
 `test_databricks_target.py::test_metricview_validates_against_docs_schema`)
 continue to pass unchanged — this is a content fix, not a structural one.
+Every measure the two targets now claim resolves is genuinely valid Databricks
+Metric View SQL (same-view, dependency-ordered), not merely "the op has a flat
+shape" — the distinction QA's review surfaced and this ADR now documents.
 
 ## What this ratifies vs. defers
 
 **Ratified:** `sql_synth.py`'s 11-op coverage and Databricks-SQL dialect
 choices (`TRY_DIVIDE`, `MEASURE()`, `CASE WHEN` filters); the explicit 4-op
-HITL scope-out for per-key aggregation; the OSI multi-dialect wiring.
+HITL scope-out for per-key aggregation; the OSI multi-dialect wiring; the
+view-scoped availability check + topological reordering (§3) that makes every
+non-gapped `MEASURE()` reference genuinely valid, not just op-shape-eligible.
 
 **Deferred (explicitly out of scope):**
+- Auto-including a KPI's transitively-referenced sibling-KPI measures (even
+  when not directly bracket-bound) so dangling sibling references (§3, case 3)
+  resolve too — would change `from_aluca.py`'s measure-collection contract for
+  every target (DAX included), not just the two SQL-flavored ones; materially
+  larger and riskier than this task.
+- A Metric View "joins"/composability-based fix for genuine cross-view
+  references (§3, case 2).
 - A GROUP BY-subquery or windowed-aggregate composition strategy for
   `sumx_over_key`/`avgx_over_key`/`pvm_volume_effect`/`pvm_price_effect` — would
   require either Metric View "joins"/composability features or a

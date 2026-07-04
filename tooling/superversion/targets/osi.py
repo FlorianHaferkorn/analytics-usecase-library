@@ -54,11 +54,19 @@ def _expression(expr: str, dialect: str) -> dict:
     return {"dialects": [{"dialect": dialect, "expression": expr}]}
 
 
-def _dialects_for(measure) -> tuple[list[dict], bool]:
+def _dialects_for(measure, available_measure_names: set[str]) -> tuple[list[dict], bool]:
     """([{"dialect":..., "expression":...}, ...], is_placeholder). Real dialect
     overrides win first; else synthesizes MDX (DAX, always — dax_synth covers
-    all 16 ops) and, when possible, an additional DATABRICKS (SQL) entry from
-    the same governed DSL; else a single placeholder dialect entry."""
+    all 16 ops, and DAX bracket references are model-global/order-free, no
+    constraint to check) and, when possible, an additional DATABRICKS (SQL)
+    entry from the same governed DSL; else a single placeholder dialect entry.
+
+    The DATABRICKS entry is only added once every sibling-measure reference it
+    touches is confirmed to already be in `available_measure_names` (metrics
+    emitted earlier in this document) — `MEASURE(...)` is a Databricks Metric
+    View construct with the same same-view/earlier-defined constraint
+    `targets/databricks.py` enforces; a forward/dangling reference is dropped
+    to MDX-only rather than emitted as an unusable DATABRICKS expression."""
     exprs = getattr(measure, "expressions", None) or {}
     dax_override = exprs.get("dax", "")
     if dax_override or measure.expression:
@@ -73,9 +81,11 @@ def _dialects_for(measure) -> tuple[list[dict], bool]:
             pass
         else:
             try:
+                if not sql_synth.referenced_measure_names(resolved) <= available_measure_names:
+                    raise sql_synth.SynthesisError("sibling measure reference not yet emitted earlier in this document")
                 dialects.append({"dialect": "DATABRICKS", "expression": sql_synth.synthesize_sql(resolved)})
             except sql_synth.SynthesisError:
-                pass  # op has no flat-SQL shape (e.g. sumx_over_key) — MDX-only is still honest
+                pass  # no flat-SQL shape, or a forward/dangling reference — MDX-only is still honest
             return dialects, False
 
     return [{"dialect": _MEASURE_DIALECT, "expression": measure.name}], True
@@ -83,6 +93,43 @@ def _dialects_for(measure) -> tuple[list[dict], bool]:
 
 def _hitl_reason(measure) -> str:
     return (getattr(measure, "expressions", None) or {}).get("hitl_reason") or _GENERIC_HITL_REASON
+
+
+def _same_view_refs(measure, view_measure_names: set[str]) -> set[str]:
+    """This measure's sibling-measure references, restricted to names present
+    in its OWN view (same table, mirroring `targets/databricks.py`'s identical
+    helper — DATABRICKS-dialect availability is scoped per-table, the same
+    physical shape `targets/databricks.py` actually emits, since a bare
+    `MEASURE(...)` cannot cross Metric Views)."""
+    exprs = getattr(measure, "expressions", None) or {}
+    dsl = exprs.get("dsl", "")
+    if not dsl:
+        return set()
+    try:
+        resolved = json.loads(dsl)
+    except ValueError:
+        return set()
+    return sql_synth.referenced_measure_names(resolved) & view_measure_names - {measure.name}
+
+
+def _iter_measures_with_available_names(canonical: CanonicalModel):
+    """Yields (table, measure, available_measure_names) in per-table
+    topologically-sorted order (same-view forward-reference recovery, see
+    `sql_synth.order_measure_names` — kept consistent with
+    `targets/databricks.py::_metric_view`'s identical reordering, since the
+    DATABRICKS dialect represents that same one-view-per-table shape).
+    `available_measure_names` resets per table (a bare `MEASURE(...)` cannot
+    cross Metric Views) and is every same-view measure name already emitted
+    earlier in this table's topological order."""
+    for table in canonical.semantic.tables:
+        view_measure_names = {m.name for m in table.measures}
+        name_refs = [(m.name, _same_view_refs(m, view_measure_names)) for m in table.measures]
+        measures_by_name = {m.name: m for m in table.measures}
+        ordered = [measures_by_name[n] for n in sql_synth.order_measure_names(name_refs)]
+        available: set[str] = set()
+        for m in ordered:
+            yield table, m, set(available)
+            available.add(m.name)
 
 
 def _dataset(table) -> dict:
@@ -118,15 +165,14 @@ def emit(canonical: CanonicalModel) -> dict[str, str]:
         datasets = [{"name": sm.name or "model", "source": sm.name or "model"}]
 
     metrics = []
-    for table in sm.tables:
-        for m in table.measures:
-            dialects, is_placeholder = _dialects_for(m)
-            metric: dict = {"name": m.name, "expression": {"dialects": dialects}}
-            if is_placeholder:
-                metric["description"] = f"HITL: {_hitl_reason(m)}"
-            elif m.description:
-                metric["description"] = m.description
-            metrics.append(metric)
+    for _table, m, available in _iter_measures_with_available_names(canonical):
+        dialects, is_placeholder = _dialects_for(m, available)
+        metric: dict = {"name": m.name, "expression": {"dialects": dialects}}
+        if is_placeholder:
+            metric["description"] = f"HITL: {_hitl_reason(m)}"
+        elif m.description:
+            metric["description"] = m.description
+        metrics.append(metric)
 
     relationships = []
     for i, rel in enumerate(sm.relationships):
@@ -157,11 +203,10 @@ def hitl_gaps(canonical: CanonicalModel) -> list[str]:
     the DATABRICKS dialect entry is absent for the 4 SQL-shapeless ops — a gap
     here means NEITHER dialect resolved."""
     gaps: list[str] = []
-    for table in canonical.semantic.tables:
-        for measure in table.measures:
-            _, is_placeholder = _dialects_for(measure)
-            if is_placeholder:
-                gaps.append(f"{table.name}.{measure.name}: {_hitl_reason(measure)}")
+    for table, measure, available in _iter_measures_with_available_names(canonical):
+        _, is_placeholder = _dialects_for(measure, available)
+        if is_placeholder:
+            gaps.append(f"{table.name}.{measure.name}: {_hitl_reason(measure)}")
     return gaps
 
 
