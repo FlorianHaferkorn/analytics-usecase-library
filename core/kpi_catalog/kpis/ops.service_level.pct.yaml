@@ -22,6 +22,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_fulfillment.OTIF Flag
+  calculation:
+    op: rate
+    column: OTIF Flag
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

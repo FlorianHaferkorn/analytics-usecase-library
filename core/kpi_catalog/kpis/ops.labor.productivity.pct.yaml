@@ -24,6 +24,12 @@ technical:
   lineage:
   - fact_output.Output Units
   - fact_labor.Labor Hours
+  calculation:
+    op: ratio
+    numerator:
+      column: Output Units
+    denominator:
+      column: Labor Hours
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

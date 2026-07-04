@@ -16,7 +16,9 @@
             "description": "Sum of expected future gross margin per customer discounted over the chosen time horizon.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "AVERAGEX iterator over a different fact table (fact_customer_value) than documented in lineage (fact_sales.CustomerKey) — lineage mismatch, beyond the grammar."
+            }
           },
           {
             "name": "Revenue at Risk Amount",
@@ -25,7 +27,9 @@
             "description": "Net Sales Amount × average of (1 - OTIF %) and (1 - First Pass Yield %).",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "Multi-step DISTINCTCOUNT ratio (Churned/Active) multiplied by a Net Sales measure — beyond the binary grammar."
+            }
           },
           {
             "name": "Net Sales Amount",
@@ -34,7 +38,9 @@
             "description": "Sum of all invoice line amounts net of VAT and returns.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Cost of Goods Sold Amount",
@@ -43,7 +49,9 @@
             "description": "Sum of invoice line COGS amounts.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Cost of Goods Sold Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           }
         ],
         "has_partition": false,
@@ -65,7 +73,9 @@
             "description": "Sum of net sales amount from first purchase to date for the customer.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "SUMX iterator with customer-row-context reset (cumulative lifetime value) — beyond the grammar."
+            }
           },
           {
             "name": "Churned Customers",
@@ -74,7 +84,9 @@
             "description": "Distinct customers with no qualifying transactions in the current period but active in the look-back window.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar."
+            }
           },
           {
             "name": "Active Customers",
@@ -83,7 +95,9 @@
             "description": "Distinct customers with at least one qualifying transaction in the period.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar."
+            }
           }
         ],
         "has_partition": false,
@@ -105,7 +119,9 @@
             "description": "(Active Customers at end of period) / (Active Customers at start of period).",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "DISTINCTCOUNT with two simultaneous flag filters (Activity AND Churn) — beyond the single-filter rate() grammar."
+            }
           }
         ],
         "has_partition": false,
@@ -127,7 +143,9 @@
             "description": "(%Promoters - %Detractors) from survey responses in the period.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "Multi-step CALCULATE/COUNTROWS formula (Promoters/Detractors/Total, NPS index scaling) — beyond the grammar."
+            }
           }
         ],
         "has_partition": false,
@@ -149,7 +167,9 @@
             "description": "On-Time In-Full deliveries / Total Deliveries",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           },
           {
             "name": "In-Full %",
@@ -158,7 +178,9 @@
             "description": "In-Full Deliveries / Total Deliveries.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           },
           {
             "name": "On-Time %",
@@ -167,7 +189,9 @@
             "description": "On-Time Deliveries / Total Deliveries.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           },
           {
             "name": "OTIF %",
@@ -176,7 +200,9 @@
             "description": "OTIF Orders / Total Orders.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -198,7 +224,9 @@
             "description": "Complaint Count / Units Shipped.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Shipped Units\", \"kind\": \"column\", \"table\": \"fact_shipments\"}, \"numerator\": {\"column\": \"Complaint Count\", \"kind\": \"column\", \"table\": \"fact_complaints\"}, \"op\": \"ratio\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -220,7 +248,9 @@
             "description": "Sum of cost impacts for quality failures in period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"COPQ Amount\", \"kind\": \"column\", \"table\": \"fact_quality_costs\"}}"
+            }
           }
         ],
         "has_partition": false,
@@ -242,7 +272,9 @@
             "description": "(Defect Count / Total Units) * 1,000.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Defect Count\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\", \"scale\": 1000}"
+            }
           },
           {
             "name": "First Pass Yield %",
@@ -251,7 +283,9 @@
             "description": "Good Units / Total Units.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Good Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Rework Rate %",
@@ -260,7 +294,9 @@
             "description": "Reworked Units / Total Units.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Rework Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Scrap Rate %",
@@ -269,7 +305,9 @@
             "description": "Scrap Units / Total Units.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Scrap Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -291,7 +329,9 @@
             "description": "Lost Demand Qty / Total Demand Qty.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"numerator\": {\"column\": \"Lost Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"op\": \"ratio\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -313,7 +353,9 @@
             "description": "Count of complaint records in the complaint/service system.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "Catalog lineage points column-less at 'fact_experience', but the legacy DAX sums fact_complaints[Complaint Count] — documented lineage mismatch (see Ledger I-1.2); fixing lineage is a separate, already-flagged scope."
+            }
           }
         ],
         "has_partition": false,

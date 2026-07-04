@@ -11,17 +11,24 @@ action_code_ref:
 - C-C3.1
 calc_type: rate
 business:
-  purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+  purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty
+    KPI.
   definition: (Active Customers at end of period) / (Active Customers at start of period).
   grain_scope: Customer / segment / org; monthly or quarterly.
   unit_format: '''% (1 decimal)'''
-  interpretation: Higher retention indicates better loyalty and relationship quality; interpret jointly with churn and CLV.
+  interpretation: Higher retention indicates better loyalty and relationship quality; interpret jointly
+    with churn and CLV.
 technical:
   measure_name: Customer Retention %
-  description: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+  description: Measure the share of customers that remain active from one period to the next, as a core
+    loyalty KPI.
   depends_on_measures: []
   lineage:
   - fact_customer_events.Activity Flag
+  calculation:
+    op: hitl
+    reason: DISTINCTCOUNT with two simultaneous flag filters (Activity AND Churn) — beyond the single-filter
+      rate() grammar.
 governance:
   business_owner: Head of Marketing
   data_owner: CRM BI

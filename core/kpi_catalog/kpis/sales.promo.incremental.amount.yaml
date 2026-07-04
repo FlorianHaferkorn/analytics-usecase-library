@@ -27,6 +27,12 @@ technical:
   lineage:
   - fact_promo.Baseline Sales Amount
   - fact_sales.Net Sales Amount
+  calculation:
+    op: delta
+    minuend:
+      kpi: sales.net_sales.amount
+    subtrahend:
+      kpi: sales.promo.baseline_sales.amount
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering

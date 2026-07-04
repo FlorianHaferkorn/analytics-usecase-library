@@ -23,6 +23,13 @@ technical:
   - sales.net_sales.amount
   lineage:
   - fact_sales.Net Sales Amount
+  - fact_sales.Last Year Sales Amount
+  calculation:
+    op: delta_pct
+    minuend:
+      kpi: sales.net_sales.amount
+    subtrahend:
+      column: Last Year Sales Amount
 governance:
   business_owner: Head of Sales Controlling
   data_owner: Commercial BI

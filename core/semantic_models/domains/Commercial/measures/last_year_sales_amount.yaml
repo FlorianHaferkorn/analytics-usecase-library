@@ -1,11 +1,11 @@
-measure_name: Last Year Sales Amount
+measure_name: Last Year Net Sales Amount
 is_kpi_measure: false
 kpi_id_ref: ''
 semantic_model: Commercial_Sales_SemanticModel
 display_folder: 01_Revenue
 category: Base
 expression:
-  logical: Last Year Sales Amount = SUM(fact_sales[Last Year Sales Amount])
+  logical: Last Year Net Sales Amount = SUM(fact_sales[Last Year Sales Amount])
   aggregation_method: sum
 documentation:
   description: Net sales amount from the comparable prior-year period.

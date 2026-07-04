@@ -114,3 +114,7 @@ overrides:
 documentation:
   business_factsheet: ./Business_Factsheet.md
   evidence_pack: ./Domain_Evidence_Pack.yaml
+use_case_links:
+  - use_case_id: COM-IND-R001
+    link_type: peer_context
+    reason: "Promotion attachment mechanics are shared with COM-IND-R001 basket/category cross-sell — promotion ROI and cross-sell lift must be read together to avoid double-counting incremental revenue (reciprocal of the COM-IND-R001 peer_context link)."

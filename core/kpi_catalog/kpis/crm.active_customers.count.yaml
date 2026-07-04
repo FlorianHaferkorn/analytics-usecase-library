@@ -22,6 +22,9 @@ technical:
   lineage:
   - dim_customer.CustomerKey
   - fact_customer_events.Activity Flag
+  calculation:
+    op: hitl
+    reason: DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar.
 governance:
   business_owner: Head of CRM / Marketing Analytics
   data_owner: CRM BI

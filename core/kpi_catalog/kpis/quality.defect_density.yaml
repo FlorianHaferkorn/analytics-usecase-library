@@ -24,6 +24,13 @@ technical:
   lineage:
   - fact_quality.Defect Count
   - fact_quality.Total Units
+  calculation:
+    op: ratio
+    numerator:
+      column: Defect Count
+    denominator:
+      column: Total Units
+    scale: 1000
 governance:
   business_owner: Head of Quality
   data_owner: Operations BI

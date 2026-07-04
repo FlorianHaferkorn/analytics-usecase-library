@@ -15,7 +15,8 @@ business:
   definition: On-Time In-Full deliveries / Total Deliveries
   grain_scope: Order/shipment level; aggregated weekly/monthly.
   unit_format: '''% (1 decimal)'''
-  interpretation: Higher OTIF indicates better delivery reliability; low values reflect service and execution issues.
+  interpretation: Higher OTIF indicates better delivery reliability; low values reflect service and execution
+    issues.
 technical:
   measure_name: Ops OTIF %
   description: Delivery reliability measured by orders delivered on-time and in-full.
@@ -23,6 +24,9 @@ technical:
   - supply.otif.pct
   lineage:
   - fact_fulfillment.OTIF Flag
+  calculation:
+    op: rate
+    column: OTIF Flag
 governance:
   business_owner: Head of Supply Chain / Finance
   data_owner: Supply Chain BI

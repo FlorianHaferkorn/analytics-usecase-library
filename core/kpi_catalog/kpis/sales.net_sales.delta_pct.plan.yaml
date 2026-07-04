@@ -26,6 +26,12 @@ technical:
   - sales.net_sales.amount
   lineage:
   - fact_sales.Plan Sales Amount
+  calculation:
+    op: delta_pct
+    minuend:
+      kpi: sales.net_sales.amount
+    subtrahend:
+      column: Plan Sales Amount
 governance:
   business_owner: Head of Sales Controlling
   data_owner: Commercial BI

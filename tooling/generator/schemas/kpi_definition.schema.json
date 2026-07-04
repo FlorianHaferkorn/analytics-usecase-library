@@ -38,7 +38,13 @@
     "calc_type": { "type": "string", "minLength": 1 },
 
     "business": { "type": "object", "additionalProperties": true },
-    "technical": { "type": "object", "additionalProperties": true },
+    "technical": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "calculation": { "$ref": "#/$defs/calculation" }
+      }
+    },
     "governance": { "type": "object", "additionalProperties": true },
     "metadata_quality": { "type": "object", "additionalProperties": true },
 
@@ -65,6 +71,92 @@
     }
   },
   "$defs": {
+    "calc_ref": {
+      "description": "A term inside a governed calculation: either another catalog KPI's own measure (resolved via its technical.measure_name, Golden Thread — must exist in the catalog) or a raw fact column drawn from THIS KPI's own technical.lineage (resolved by column-name match, table implied).",
+      "type": "object",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "required": ["kpi"],
+          "properties": { "kpi": { "type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$" } }
+        },
+        {
+          "additionalProperties": false,
+          "required": ["column"],
+          "properties": { "column": { "type": "string", "minLength": 1 } }
+        }
+      ]
+    },
+    "calculation": {
+      "description": "Governed, stack-neutral, machine-readable formula (I-10.0 / Cut S-1). Deliberately narrow grammar (sum/ratio/delta/delta_pct/rate/count) — a KPI whose real calculation is more complex (multi-term VAR chains, iterators, DISTINCTCOUNT-with-filters, …) MUST use op:hitl with an explicit reason rather than silently omitting this field (silent omission still renders BLANK() in the TMDL target, but without a diagnosable reason). The stack adapter (targets/tmdl.py + dax_synth.py) is the ONLY place this is materialized into a real dialect (DAX); this field itself never contains DAX (Invariant I1, neutral core).",
+      "type": "object",
+      "oneOf": [
+        {
+          "description": "sum(column) — a leaf aggregate over one of this KPI's own lineage columns.",
+          "additionalProperties": false,
+          "required": ["op", "column"],
+          "properties": {
+            "op": { "const": "sum" },
+            "column": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "description": "sum(numerator) / sum(denominator), optionally scaled (e.g. defects per 1,000 units).",
+          "additionalProperties": false,
+          "required": ["op", "numerator", "denominator"],
+          "properties": {
+            "op": { "const": "ratio" },
+            "numerator": { "$ref": "#/$defs/calc_ref" },
+            "denominator": { "$ref": "#/$defs/calc_ref" },
+            "scale": { "type": "number" }
+          }
+        },
+        {
+          "description": "minuend - subtrahend (e.g. Gross Margin Amount = Net Sales Amount - COGS Amount).",
+          "additionalProperties": false,
+          "required": ["op", "minuend", "subtrahend"],
+          "properties": {
+            "op": { "const": "delta" },
+            "minuend": { "$ref": "#/$defs/calc_ref" },
+            "subtrahend": { "$ref": "#/$defs/calc_ref" }
+          }
+        },
+        {
+          "description": "(minuend - subtrahend) / ABS(subtrahend) — variance-vs-baseline percentage (e.g. Net Sales % vs Plan).",
+          "additionalProperties": false,
+          "required": ["op", "minuend", "subtrahend"],
+          "properties": {
+            "op": { "const": "delta_pct" },
+            "minuend": { "$ref": "#/$defs/calc_ref" },
+            "subtrahend": { "$ref": "#/$defs/calc_ref" }
+          }
+        },
+        {
+          "description": "Share of rows where a boolean flag column (from this KPI's own lineage) is TRUE, over all rows of that table (e.g. OTIF %, On-Time %).",
+          "additionalProperties": false,
+          "required": ["op", "column"],
+          "properties": {
+            "op": { "const": "rate" },
+            "column": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "description": "Row count of this KPI's own lineage table (bare-table lineage entry, no column — e.g. Order Lines Count).",
+          "additionalProperties": false,
+          "required": ["op"],
+          "properties": { "op": { "const": "count" } }
+        },
+        {
+          "description": "Explicit human-in-the-loop marker: this KPI's real formula is outside the sum/ratio/delta/delta_pct/rate/count grammar. Renders as a documented BLANK() placeholder (never silent) and is counted by targets/tmdl.py::hitl_gaps().",
+          "additionalProperties": false,
+          "required": ["op", "reason"],
+          "properties": {
+            "op": { "const": "hitl" },
+            "reason": { "type": "string", "minLength": 10 }
+          }
+        }
+      ]
+    },
     "causal_link": {
       "type": "object",
       "additionalProperties": false,

@@ -28,6 +28,10 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_nps.NPS Score
+  calculation:
+    op: hitl
+    reason: Multi-step CALCULATE/COUNTROWS formula (Promoters/Detractors/Total, NPS index scaling) — beyond
+      the grammar.
 governance:
   business_owner: Head of Customer Experience
   data_owner: CX BI

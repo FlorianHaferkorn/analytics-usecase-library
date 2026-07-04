@@ -31,6 +31,12 @@ technical:
   lineage:
   - fact_finance.Material Cost Amount
   - fact_finance.Net Sales Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: Material Cost Amount
+    denominator:
+      column: Net Sales Amount
 governance:
   business_owner: Head of Controlling
   data_owner: Finance BI

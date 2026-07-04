@@ -17,7 +17,8 @@ business:
   definition: Net Sales Amount × average of (1 - OTIF %) and (1 - First Pass Yield %).
   grain_scope: Customer/segment; monthly.
   unit_format: EUR (0 decimals)
-  interpretation: Higher values indicate more revenue at risk from ops failures; prioritize OTIF and quality actions.
+  interpretation: Higher values indicate more revenue at risk from ops failures; prioritize OTIF and quality
+    actions.
 technical:
   measure_name: Revenue at Risk Amount
   description: Net Sales Amount weighted by combined OTIF failure rate and First Pass Yield failure rate.
@@ -26,6 +27,10 @@ technical:
   - quality.fpy.pct
   lineage:
   - fact_sales.Net Sales Amount
+  calculation:
+    op: hitl
+    reason: Multi-step DISTINCTCOUNT ratio (Churned/Active) multiplied by a Net Sales measure — beyond
+      the binary grammar.
 governance:
   business_owner: Head of Operations
   data_owner: Ops BI

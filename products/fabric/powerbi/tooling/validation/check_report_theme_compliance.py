@@ -192,10 +192,13 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
                             f"'{expected_name}'"
                         )
                     item_name = custom_item.get("name", "")
-                    if not item_name.endswith(".json"):
+                    if item_name != expected_name:
                         errors.append(
-                            f"{report_dir.name}: resourcePackages CustomTheme item name must include .json extension "
-                            f"(got '{item_name}')"
+                            f"{report_dir.name}: resourcePackages CustomTheme item name "
+                            f"'{item_name}' must equal themeCollection.customTheme.name "
+                            f"'{expected_name}' (no .json extension — mirrors the SharedResources/"
+                            f"BaseTheme item's own name/path split; the official pbir-cli validator "
+                            f"flags a mismatch here as THEME_FILE_NAME_MISMATCH)"
                         )
 
     visual_paths = sorted(report_dir.glob("definition/pages/**/visual.json"))

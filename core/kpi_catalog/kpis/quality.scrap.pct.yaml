@@ -33,6 +33,12 @@ technical:
   lineage:
   - fact_quality.Scrap Units
   - fact_quality.Total Units
+  calculation:
+    op: ratio
+    numerator:
+      column: Scrap Units
+    denominator:
+      column: Total Units
 governance:
   business_owner: Head of Quality
   data_owner: Operations BI

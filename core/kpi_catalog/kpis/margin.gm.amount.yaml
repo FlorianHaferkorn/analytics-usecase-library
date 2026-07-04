@@ -36,6 +36,12 @@ technical:
   lineage:
   - fact_sales.Cost of Goods Sold Amount
   - fact_sales.Net Sales Amount
+  calculation:
+    op: delta
+    minuend:
+      kpi: sales.net_sales.amount
+    subtrahend:
+      kpi: cost.cogs.amount
 governance:
   business_owner: Head of Controlling
   data_owner: BI Engineering

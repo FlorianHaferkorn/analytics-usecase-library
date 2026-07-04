@@ -181,6 +181,7 @@ def _read_report_json(definition_path: Path) -> Dict[str, Any]:
 def _write_report_json(definition_path: Path, data: Dict[str, Any]) -> None:
     with open(definition_path / "report.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
 
 
 def _ensure_resource_packages(data: Dict[str, Any], base_theme: str, custom_theme_filename: str) -> None:
@@ -212,11 +213,22 @@ def _ensure_resource_packages(data: Dict[str, Any], base_theme: str, custom_them
             "items": [],
         }
         packages.append(registered)
+    # `name` must be the theme's LOGICAL name (no .json), matching
+    # themeCollection.customTheme.name — exactly how the SharedResources/
+    # BaseTheme item above pairs `name: base_theme` (no extension) with
+    # `path: f"{base_theme}.json"` (with extension). Only `path` carries the
+    # extension. Getting this wrong (using the filename for both `name` and
+    # `path`) is what the official pbir-cli validator flags as
+    # THEME_FILE_NAME_MISMATCH — see check_report_theme_compliance.py.
+    custom_stem = Path(custom_theme_filename).stem
     reg_items = registered.get("items") or []
-    # Replace existing custom theme entry with same name
-    reg_items = [it for it in reg_items if it.get("name") != custom_theme_filename]
+    # Replace any existing entry for the SAME theme FILE, identified by `path`
+    # (stable) rather than `name` (the very field a pre-fix report.json may
+    # have wrong — comparing by name alone would miss it and leave a stale
+    # duplicate CustomTheme item behind).
+    reg_items = [it for it in reg_items if it.get("path") != custom_theme_filename]
     reg_items.append({
-        "name": custom_theme_filename,
+        "name": custom_stem,
         "path": custom_theme_filename,
         "type": "CustomTheme",
     })

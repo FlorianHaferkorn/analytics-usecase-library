@@ -30,6 +30,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_fulfillment.On-Time Flag
+  calculation:
+    op: rate
+    column: On-Time Flag
 governance:
   business_owner: Head of Supply Chain / Logistics
   data_owner: Supply Chain BI

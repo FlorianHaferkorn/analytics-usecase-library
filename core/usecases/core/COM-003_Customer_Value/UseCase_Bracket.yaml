@@ -135,3 +135,6 @@ use_case_links:
   - use_case_id: XD-002
     link_type: depends_on
     reason: "COM-003 CLV and retention outcomes are directly influenced by XD-002 service utilisation and SLA quality — service failures accelerate churn."
+  - use_case_id: COM-IND-R001
+    link_type: depends_on
+    reason: "COM-003 customer-value and repeat-purchase outcomes are fed by COM-IND-R001 basket/category cross-sell — sustained basket breadth raises purchase frequency and CLV (reciprocal of the COM-IND-R001 feeds_into link)."

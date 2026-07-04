@@ -6,10 +6,10 @@
 ## Coverage
 
 - Use cases: **16**  (evidence packs: 16/16, factsheets: 16/16)
-- KPIs in catalog: **132**  — reachable: **126**, roadmap (planned.yaml): 17, orphan: **0**
+- KPIs in catalog: **127**  — reachable: **126**, roadmap (planned.yaml): 12, orphan: **0**
 - Action codes: **53**  — reachable: **53**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **232**  — backing a catalog KPI: **122** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **227**  — backing a catalog KPI: **117** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 

@@ -25,6 +25,12 @@ technical:
   lineage:
   - fact_complaints.Complaint Count
   - fact_shipments.Shipped Units
+  calculation:
+    op: ratio
+    numerator:
+      column: Complaint Count
+    denominator:
+      column: Shipped Units
 governance:
   business_owner: Head of Quality
   data_owner: Operations BI

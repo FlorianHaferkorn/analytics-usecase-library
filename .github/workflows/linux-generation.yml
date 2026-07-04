@@ -39,6 +39,9 @@ jobs:
         shell: pwsh
         run: $PSVersionTable.PSVersion.ToString()
 
+      - name: Build ontology registry (SSOT — master_registry.json, value_map.json)
+        run: python tooling/ontology/registry_builder.py
+
       - name: Build IR with measure overlay (display names + DAX)
         run: |
           python tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog \

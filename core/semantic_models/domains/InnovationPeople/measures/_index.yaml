@@ -1,10 +1,5 @@
 order:
 - digital_adoption
 - digital_adoption_rate
-- gross_margin_per_fte_amount
-- personnel_cost_ratio
-- revenue_per_fte
 - attrition_risk
-- turnover_rate
-- absenteeism
 - gross_margin_amount

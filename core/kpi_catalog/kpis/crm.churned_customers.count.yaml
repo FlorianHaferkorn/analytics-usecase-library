@@ -11,17 +11,22 @@ action_code_ref: []
 calc_type: count
 business:
   purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
-  definition: Distinct customers with no qualifying transactions in the current period but active in the look-back window.
+  definition: Distinct customers with no qualifying transactions in the current period but active in the
+    look-back window.
   grain_scope: Customer/segment; monthly or quarterly.
   unit_format: count
   interpretation: Higher counts indicate deteriorating retention; validate against cohort definitions.
 technical:
   measure_name: Churned Customers
-  description: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+  description: Count customers that have stopped purchasing in the observation window as basis for churn
+    calculations.
   depends_on_measures: []
   lineage:
   - dim_customer.CustomerKey
   - fact_customer_events.Churn Flag
+  calculation:
+    op: hitl
+    reason: DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar.
 governance:
   business_owner: Head of CRM / Marketing Analytics
   data_owner: CRM BI

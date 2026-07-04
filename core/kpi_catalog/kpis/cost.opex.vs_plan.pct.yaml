@@ -29,6 +29,12 @@ technical:
   lineage:
   - fact_finance.OpEx Amount
   - fact_finance.Plan OpEx Amount
+  calculation:
+    op: delta_pct
+    minuend:
+      column: OpEx Amount
+    subtrahend:
+      column: Plan OpEx Amount
 governance:
   business_owner: Head of Controlling
   data_owner: Finance BI

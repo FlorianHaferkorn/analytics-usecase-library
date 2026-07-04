@@ -27,6 +27,12 @@ technical:
   lineage:
   - fact_sales.List Price Amount
   - fact_sales.Net Price Amount
+  calculation:
+    op: ratio
+    numerator:
+      kpi: sales.price.net.amount
+    denominator:
+      kpi: sales.price.list.amount
 governance:
   business_owner: Head of Sales Controlling
   data_owner: Pricing Team

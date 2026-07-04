@@ -16,7 +16,9 @@
             "description": "(Net Sales Amount - COGS Amount) / Net Sales Amount",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Gross Margin Amount\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Gross Margin Amount",
@@ -25,7 +27,9 @@
             "description": "Net Sales Amount - COGS Amount",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta\", \"subtrahend\": {\"kind\": \"measure\", \"name\": \"Cost of Goods Sold Amount\"}}"
+            }
           },
           {
             "name": "List Price Amount",
@@ -34,7 +38,9 @@
             "description": "Sum of list price amount at invoice line grain.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"List Price Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Net Price Amount",
@@ -43,7 +49,9 @@
             "description": "Sum of net price amount at invoice line grain.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Price Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Price Realization %",
@@ -52,7 +60,9 @@
             "description": "Net Price Amount / List Price Amount.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"kind\": \"measure\", \"name\": \"List Price Amount\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Net Price Amount\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Mix Effect Amount",
@@ -61,7 +71,9 @@
             "description": "Total variance - Price Effect - Volume Effect.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "Residual of a 4-term chain (Net Sales - Plan Sales - Price Effect - Volume Effect) — beyond the binary delta grammar."
+            }
           },
           {
             "name": "COGS per Unit",
@@ -70,7 +82,9 @@
             "description": "COGS Amount / Units Sold.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Quantity\", \"kind\": \"column\", \"table\": \"fact_sales\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Cost of Goods Sold Amount\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Cost of Goods Sold Amount",
@@ -79,7 +93,9 @@
             "description": "Sum of invoice line COGS amounts.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Cost of Goods Sold Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           },
           {
             "name": "Incremental Gross Margin Amount",
@@ -88,7 +104,9 @@
             "description": "Incremental sales minus incremental COGS; proxy here as share of incremental sales.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "Multi-term calculation (Incremental Sales x GM% minus Promo Cost) — beyond the binary delta/ratio grammar."
+            }
           },
           {
             "name": "Price Effect Amount",
@@ -97,7 +115,9 @@
             "description": "(Actual Price - Plan Price) x Actual Quantity.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "SUMX iterator over invoice lines comparing actual vs. plan unit price/quantity (PVM price effect) — beyond the sum/ratio/delta/rate/count grammar."
+            }
           },
           {
             "name": "Volume Effect Amount",
@@ -106,7 +126,9 @@
             "description": "(Actual Quantity - Plan Quantity) x Plan Price.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "SUMX iterator over invoice lines comparing actual vs. plan quantity (PVM volume effect) — beyond the sum/ratio/delta/rate/count grammar."
+            }
           }
         ],
         "has_partition": false,
@@ -128,7 +150,9 @@
             "description": "(Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "hitl_reason": "Multi-step VAR calculation (Plan GM derived from Plan Sales minus Plan COGS); catalog lineage lists only 1 column — beyond the grammar."
+            }
           }
         ],
         "has_partition": false,
@@ -150,7 +174,9 @@
             "description": "Sum of baseline sales from promo system.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Baseline Sales Amount\", \"kind\": \"column\", \"table\": \"fact_promo\"}}"
+            }
           },
           {
             "name": "Promo Cost",
@@ -159,7 +185,9 @@
             "description": "Sum of promo cost from promo systems.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Promo Cost\", \"kind\": \"column\", \"table\": \"fact_promo\"}}"
+            }
           },
           {
             "name": "Incremental Sales Amount",
@@ -168,7 +196,9 @@
             "description": "Promo Sales Amount - Baseline Sales Amount",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta\", \"subtrahend\": {\"kind\": \"measure\", \"name\": \"Baseline Sales Amount\"}}"
+            }
           }
         ],
         "has_partition": false,

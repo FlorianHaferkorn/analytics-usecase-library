@@ -27,6 +27,10 @@ technical:
   - fact_sales.Net Sales Amount
   - fact_sales.Cost of Goods Sold Amount
   - fact_promo.Baseline Sales Amount
+  calculation:
+    op: hitl
+    reason: Multi-term calculation (Incremental Sales x GM% minus Promo Cost) — beyond the binary delta/ratio
+      grammar.
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering

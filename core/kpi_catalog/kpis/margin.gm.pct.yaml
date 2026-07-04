@@ -47,7 +47,8 @@ causal_links:
       kind: abs_to_abs
       coefficient: -2.0e-06
       direction: negative
-      interpretation: Higher cost of goods sold reduces gross margin % when revenue does not increase proportionally.
+      interpretation: Higher cost of goods sold reduces gross margin % when revenue does not increase
+        proportionally.
     applicability:
       grain: month
       segments:
@@ -62,7 +63,8 @@ causal_links:
       kind: pct_to_pct
       coefficient: 0.3
       direction: positive
-      interpretation: Closing the net sales gap versus plan is associated with higher gross margin % through better fixed-cost absorption and mix.
+      interpretation: Closing the net sales gap versus plan is associated with higher gross margin % through
+        better fixed-cost absorption and mix.
     applicability:
       grain: month
       segments:
@@ -76,7 +78,8 @@ causal_links:
       kind: pct_to_pct
       coefficient: 0.25
       direction: positive
-      interpretation: Improving net sales growth versus prior year tends to improve gross margin % through scale and operating leverage.
+      interpretation: Improving net sales growth versus prior year tends to improve gross margin % through
+        scale and operating leverage.
     applicability:
       grain: month
       segments:
@@ -105,7 +108,8 @@ causal_links:
       kind: abs_to_abs
       coefficient: 1.0e-06
       direction: positive
-      interpretation: Positive volume effect improves gross margin % when incremental volume carries sufficient contribution margin.
+      interpretation: Positive volume effect improves gross margin % when incremental volume carries sufficient
+        contribution margin.
     applicability:
       grain: month
       segments:
@@ -120,7 +124,8 @@ causal_links:
       kind: abs_to_abs
       coefficient: 2.0e-06
       direction: positive
-      interpretation: Favorable product or customer mix improves gross margin % by shifting revenue toward higher-margin combinations.
+      interpretation: Favorable product or customer mix improves gross margin % by shifting revenue toward
+        higher-margin combinations.
     applicability:
       grain: month
       segments:
@@ -149,7 +154,8 @@ causal_links:
       kind: abs_to_abs
       coefficient: 2.0e-06
       direction: positive
-      interpretation: Higher gross margin amount is associated with higher gross margin % when revenue mix remains comparable.
+      interpretation: Higher gross margin amount is associated with higher gross margin % when revenue
+        mix remains comparable.
     applicability:
       grain: month
       segments:
@@ -164,7 +170,8 @@ causal_links:
       kind: abs_to_abs
       coefficient: 1.0e-06
       direction: positive
-      interpretation: Higher list price levels support gross margin % provided realization discipline is maintained.
+      interpretation: Higher list price levels support gross margin % provided realization discipline
+        is maintained.
     applicability:
       grain: month
       segments:
@@ -209,7 +216,8 @@ causal_links:
       kind: pp_to_pp
       coefficient: 0.9
       direction: positive
-      interpretation: Improving gross margin performance versus plan is strongly aligned with higher actual gross margin %.
+      interpretation: Improving gross margin performance versus plan is strongly aligned with higher actual
+        gross margin %.
     applicability:
       grain: month
       segments:
@@ -223,7 +231,8 @@ business:
   definition: (Net Sales Amount - COGS Amount) / Net Sales Amount
   grain_scope: Invoice line aggregated to reporting period, org, customer or product segments.
   unit_format: '''% (1 decimal)'''
-  interpretation: Values above 0 % indicate positive gross profit; trend over time shows structural profitability changes. Used for both operational management reporting and P&L reconciliation.
+  interpretation: Values above 0 % indicate positive gross profit; trend over time shows structural profitability
+    changes. Used for both operational management reporting and P&L reconciliation.
 technical:
   measure_name: Gross Margin %
   description: Gross Margin % used in commercial and management reporting and P&L reconciliation.
@@ -233,6 +242,12 @@ technical:
   lineage:
   - fact_sales.Cost of Goods Sold Amount
   - fact_sales.Net Sales Amount
+  calculation:
+    op: ratio
+    numerator:
+      kpi: margin.gm.amount
+    denominator:
+      kpi: sales.net_sales.amount
 governance:
   business_owner: Head of Controlling
   data_owner: BI Engineering

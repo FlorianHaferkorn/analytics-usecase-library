@@ -24,6 +24,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_promo.Promo Cost
+  calculation:
+    op: sum
+    column: Promo Cost
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering

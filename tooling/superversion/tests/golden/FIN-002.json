@@ -16,7 +16,9 @@
             "description": "Total Cost Amount / Units Produced or Sold.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_output\"}, \"numerator\": {\"column\": \"COGS Amount\", \"kind\": \"column\", \"table\": \"fact_cost\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Cost Base Volume Amount",
@@ -25,7 +27,9 @@
             "description": "Baseline amount of cost volume for the selected period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"COGS Amount\", \"kind\": \"column\", \"table\": \"fact_cost\"}}"
+            }
           }
         ],
         "has_partition": false,
@@ -47,7 +51,9 @@
             "description": "COGS Amount / Net Sales Amount.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"numerator\": {\"column\": \"COGS Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "OpEx vs Plan %",
@@ -56,7 +62,9 @@
             "description": "(OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"minuend\": {\"column\": \"OpEx Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"delta_pct\", \"subtrahend\": {\"column\": \"Plan OpEx Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}}"
+            }
           },
           {
             "name": "Material Cost %",
@@ -65,7 +73,9 @@
             "description": "Material Cost Amount / Net Sales Amount.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"numerator\": {\"column\": \"Material Cost Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Opex Base Amount",
@@ -74,7 +84,9 @@
             "description": "Baseline operating expense amount for the selected period.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"OpEx Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}}"
+            }
           },
           {
             "name": "EBITDA Margin",
@@ -83,7 +95,9 @@
             "description": "EBITDA Amount / Net Sales Amount",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"numerator\": {\"column\": \"EBITDA Amount\", \"kind\": \"column\", \"table\": \"fact_finance\"}, \"op\": \"ratio\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -105,7 +119,9 @@
             "description": "Output Units or Net Sales divided by Labor Hours (normalized to % baseline).",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Labor Hours\", \"kind\": \"column\", \"table\": \"fact_labor\"}, \"numerator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_output\"}, \"op\": \"ratio\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -127,7 +143,9 @@
             "description": "Sum of produced units for the period.",
             "format_string": "",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}}"
+            }
           },
           {
             "name": "Quality Defect Rate %",
@@ -136,7 +154,9 @@
             "description": "Defective Units / Total Produced Units.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}, \"numerator\": {\"column\": \"Defect Count\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
+            }
           },
           {
             "name": "Yield %",
@@ -145,7 +165,9 @@
             "description": "Good Units / Total Units Produced.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Output Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}, \"numerator\": {\"column\": \"Good Units\", \"kind\": \"column\", \"table\": \"fact_ops\"}, \"op\": \"ratio\"}"
+            }
           }
         ],
         "has_partition": false,
@@ -167,7 +189,9 @@
             "description": "Sum of all invoice line amounts net of VAT and returns.",
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
           }
         ],
         "has_partition": false,
@@ -189,7 +213,9 @@
             "description": "On-Time or In-Full Deliveries / Total Deliveries.",
             "format_string": "0.0%",
             "is_hidden": false,
-            "expressions": {}
+            "expressions": {
+              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
           }
         ],
         "has_partition": false,

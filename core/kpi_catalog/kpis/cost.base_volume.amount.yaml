@@ -25,6 +25,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_cost.COGS Amount
+  calculation:
+    op: sum
+    column: COGS Amount
 governance:
   business_owner: Head of Controlling
   data_owner: Finance BI

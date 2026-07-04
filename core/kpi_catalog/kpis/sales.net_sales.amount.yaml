@@ -26,6 +26,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_sales.Net Sales Amount
+  calculation:
+    op: sum
+    column: Net Sales Amount
 governance:
   business_owner: Head of Sales
   data_owner: BI Engineering

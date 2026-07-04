@@ -23,6 +23,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_sales.List Price Amount
+  calculation:
+    op: sum
+    column: List Price Amount
 governance:
   business_owner: Head of Sales Controlling
   data_owner: Pricing Team

@@ -22,6 +22,9 @@ technical:
   - sales.net_sales.amount
   lineage:
   - dim_customer.CustomerKey
+  calculation:
+    op: hitl
+    reason: SUMX iterator with customer-row-context reset (cumulative lifetime value) — beyond the grammar.
 governance:
   business_owner: Head of Marketing
   data_owner: CRM BI

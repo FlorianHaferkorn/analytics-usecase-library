@@ -40,6 +40,12 @@ technical:
   lineage:
   - fact_cost.COGS Amount
   - fact_output.Output Units
+  calculation:
+    op: ratio
+    numerator:
+      column: COGS Amount
+    denominator:
+      column: Output Units
 governance:
   business_owner: Head of Controlling
   data_owner: Finance BI

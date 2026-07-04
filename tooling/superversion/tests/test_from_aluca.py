@@ -433,16 +433,25 @@ def test_neutral_core_no_dax_primacy_all_ucs(uc):
     """Invariant I1 (neutral core): NO use case may carry a hardcoded DAX
     expression in the source adapter — the dialect is the stack adapter's job.
     Widens test_neutral_core_no_dax_primacy across all BRACKETS
-    (COM-001/002/003, FIN-002, SCM-002)."""
+    (COM-001/002/003, FIN-002, SCM-002).
+
+    I-10.0 correction (Review Befund A1): I1 means "neutral FORMULA", not "NO
+    formula". `expressions['dsl']` (the governed, stack-neutral calculation
+    resolved from the KPI catalog) and `expressions['hitl_reason']` (a
+    diagnosable reason string, not an expression) are allowed here — only a
+    real dialect key (`dax`, `sql`, ...) would violate neutrality, because
+    that is the stack adapter's job (`targets/tmdl.py`), never the source
+    adapter's."""
     model = from_bracket_file(BRACKETS[uc], KPIS)
     for m in _all_measures(model):
         assert m.expression == "", (
             f"[{uc}] measure {m.name!r} has a baked-in DAX expression — violates "
             "neutral core (I1); dialect must come from the stack adapter"
         )
-        assert m.expressions == {}, (
-            f"[{uc}] measure {m.name!r} carries a prefilled dialect map — the source "
-            "adapter stays dialect-neutral (I1)"
+        assert set(m.expressions) <= {"dsl", "hitl_reason"}, (
+            f"[{uc}] measure {m.name!r} carries a dialect key {set(m.expressions)!r} — "
+            "the source adapter stays dialect-neutral (I1); only the neutral 'dsl' "
+            "formula (or a 'hitl_reason' marker) may live here, never 'dax'/'sql'"
         )
 
 

@@ -31,6 +31,12 @@ technical:
   lineage:
   - fact_finance.COGS Amount
   - fact_finance.Net Sales Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: COGS Amount
+    denominator:
+      column: Net Sales Amount
 governance:
   business_owner: Head of Controlling
   data_owner: BI Engineering
