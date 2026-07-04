@@ -30,6 +30,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_sales.Sales Units
+  calculation:
+    op: sum
+    column: Sales Units
 governance:
   business_owner: Head of Sales
   data_owner: Commercial BI

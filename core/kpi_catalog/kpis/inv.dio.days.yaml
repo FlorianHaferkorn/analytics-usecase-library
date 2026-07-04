@@ -29,15 +29,20 @@ business:
 technical:
   measure_name: Days in Inventory
   description: Measures inventory holding period in days.
-  depends_on_measures:
-  - inv.turnover
-  - inv.stockout.pct
-  - supply.otif.pct
-  - inv.obsolete.pct
-  - plan.forecast.accuracy.pct
+  depends_on_measures: []
   lineage:
   - fact_cogs.COGS Amount
   - fact_inventory.Average Inventory Amount
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: mul
+        terms:
+        - column: Average Inventory Amount
+        - literal: 365
+    denominator:
+      column: COGS Amount
 governance:
   business_owner: Head of Supply Chain / Logistics
   data_owner: Supply Chain BI

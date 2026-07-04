@@ -30,6 +30,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_cash_position.Cash Balance Amount
+  calculation:
+    op: sum
+    column: Cash Balance Amount
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI

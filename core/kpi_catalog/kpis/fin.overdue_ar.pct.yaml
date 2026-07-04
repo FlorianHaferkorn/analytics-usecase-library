@@ -30,6 +30,12 @@ technical:
   lineage:
   - fact_ar.Overdue Amount
   - fact_ar.Total AR Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: Overdue Amount
+    denominator:
+      column: Total AR Amount
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI

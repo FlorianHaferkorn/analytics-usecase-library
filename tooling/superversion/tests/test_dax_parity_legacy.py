@@ -87,11 +87,85 @@ KPI_TO_LEGACY = {
     "crm.clv.amount": ("Commercial.SemanticModel", "CLV (Customer Lifetime Value)"),
     "crm.revenue_at_risk.amount": ("Commercial.SemanticModel", "Revenue at Risk Amount"),
     "crm.complaint.count": ("Commercial.SemanticModel", "Complaint Count"),
+    # COM-004 (Promotion Effectiveness) — not one of the 5 MVP use cases, but
+    # this test checks every non-hitl calculation in the whole catalog, not
+    # just the 5-UC subset (its docstring undersells its own scope).
+    "sales.promo.cannibalized_sales.amount": ("Commercial.SemanticModel", "Cannibalized Sales Amount"),
+    "sales.promo.roi.pct": ("Commercial.SemanticModel", "Promo ROI %"),
+    "margin.promo.gm.pct": ("Commercial.SemanticModel", "GM % During Promo"),
+    "sales.promo.cannibalization.pct": ("Commercial.SemanticModel", "Cannibalization %"),
+    # Operations domain (OPS-001/002/003) — I-10.0 follow-up, "finish ADR-0011"
+    # (extending the grammar closure beyond the 5 MVP use cases).
+    "ops.availability.pct": ("Operations.SemanticModel", "Availability %"),
+    "ops.performance.pct": ("Operations.SemanticModel", "Performance %"),
+    "ops.quality.pct": ("Operations.SemanticModel", "Quality %"),
+    "ops.oee.pct": ("Operations.SemanticModel", "OEE %"),
+    "ops.throughput.units": ("Operations.SemanticModel", "Throughput Units"),
+    "ops.downtime.pct": ("Operations.SemanticModel", "Downtime %"),
+    "ops.planned_output.units": ("Operations.SemanticModel", "Planned Output Units"),
+    "ops.mtbf.hours": ("Operations.SemanticModel", "MTBF (hours)"),
+    "ops.mttr.hours": ("Operations.SemanticModel", "MTTR (hours)"),
+    "ops.downtime.unplanned.pct": ("Operations.SemanticModel", "Unplanned Downtime %"),
+    "ops.failure.count": ("Operations.SemanticModel", "Failure Count"),
+    "ops.inventory.value.amount": ("Operations.SemanticModel", "Inventory Value Amount"),
+    "ops.pm.task.count": ("Operations.SemanticModel", "Preventive Maintenance Task Count"),
+    "ops.spare_parts.stockout.pct": ("Operations.SemanticModel", "Spare Parts Stockout %"),
+    "ops.pm_compliance.pct": ("Operations.SemanticModel", "PM Compliance %"),
+    # Finance domain (FIN-001 Cash/Liquidity) — I-10.0 follow-up, "finish ADR-0011".
+    "wc.dso.days": ("Finance.SemanticModel", "DSO Days"),
+    "wc.dio.days": ("Finance.SemanticModel", "DIO Days"),
+    "wc.dpo.days": ("Finance.SemanticModel", "DPO Days"),
+    "wc.ccc.days": ("Finance.SemanticModel", "CCC Days"),
+    "fin.cash.balance": ("Finance.SemanticModel", "Cash Balance"),
+    "fin.cash.ocf": ("Finance.SemanticModel", "Operating Cash Flow"),
+    "fin.cash.vs_plan.pct": ("Finance.SemanticModel", "Cash vs Plan %"),
+    "scm.service_level.pct": ("Finance.SemanticModel", "Supply Chain Service Level %"),
+    "fin.liquidity.inventory.amount": ("Finance.SemanticModel", "Inventory Amount"),
+    "fin.overdue_ar.pct": (None, None),  # new-territory, no legacy DAX ever generated
+    # SupplyChain domain (SCM-001 Inventory / SCM-003 Forecast) — I-10.0 follow-up.
+    "inv.dio.days": ("SupplyChain.SemanticModel", "Days in Inventory"),
+    "inv.turnover": ("SupplyChain.SemanticModel", "Inventory Turnover"),
+    "inv.stockout.pct": ("SupplyChain.SemanticModel", "Stockout Rate %"),
+    "inv.obsolete.pct": ("SupplyChain.SemanticModel", "Obsolete Inventory %"),
+    "plan.forecast.accuracy.pct": ("SupplyChain.SemanticModel", "Forecast Accuracy %"),
+    "plan.forecast.bias.pct": ("SupplyChain.SemanticModel", "Forecast Bias %"),
+    "plan.replan.count": ("SupplyChain.SemanticModel", "Re-Plan Count"),
+    "plans.count": ("SupplyChain.SemanticModel", "Plans Count"),
+    # sales.units: the governed calculation matches SupplyChain.SemanticModel's
+    # 'Sales Units' = SUM(fact_sales[Sales Units]) exactly (same as the catalog's
+    # own lineage). NOTE: Operations.SemanticModel's alias 'Sales Units (OPS)' =
+    # SUM(fact_ops[Output Units]) is a DIFFERENT, deliberate legacy proxy (Output
+    # Units standing in for Sales Units where OPS-003 has no transaction-level
+    # sales data) — a genuine, pre-existing per-semantic-model divergence this
+    # single-formula-per-KPI architecture can't represent; not checked here.
+    "sales.units": ("SupplyChain.SemanticModel", "Sales Units"),
     # No legacy counterpart was ever generated for these (new-territory KPIs) —
     # parity is vacuous (nothing to diverge from), documented, not asserted.
     "cost.base_volume.amount": (None, None),
     "cost.opex.base.amount": (None, None),
     "margin.ebitda.pct": (None, None),
+    # Experience domain (XD-001/002/003/004) — I-10.0 follow-up.
+    "svc.sla.attainment.pct": ("Experience.SemanticModel", "SLA Attainment %"),
+    "svc.fcr.pct": ("Experience.SemanticModel", "FCR %"),
+    "svc.escalation.pct": ("Experience.SemanticModel", "Escalation %"),
+    "svc.aht.minutes": ("Experience.SemanticModel", "AHT Minutes"),
+    "svc.backlog.count": ("Experience.SemanticModel", "Backlog Count"),
+    "svc.tickets.closed.count": ("Experience.SemanticModel", "Tickets Closed Count"),
+    "svc.tickets.created.count": ("Experience.SemanticModel", "Tickets Created Count"),
+    "svc.nps.index": ("Experience.SemanticModel", "NPS Index"),
+    "res.utilization.pct": ("Experience.SemanticModel", "Utilization %"),
+    "res.occupancy.pct": ("Experience.SemanticModel", "Occupancy %"),
+    "res.overtime.pct": ("Experience.SemanticModel", "Overtime %"),
+    "res.shrinkage.pct": ("Experience.SemanticModel", "Shrinkage %"),
+    "ops.working_capital.ccc.days": ("Experience.SemanticModel", "Cash Conversion Cycle (Days)"),
+    "enterprise.value_at_risk.index": ("Experience.SemanticModel", "Enterprise Value-at-Risk Index"),
+    "enterprise.actions_executed.count": ("Experience.SemanticModel", "Actions Executed Count (XD)"),
+    "enterprise.avg_time_to_outcome.days": ("Experience.SemanticModel", "Avg Time-to-Outcome Days (XD)"),
+    "enterprise.action_roi.pct": ("Experience.SemanticModel", "Action ROI % (XD)"),
+    "enterprise.action_effectiveness_delta.amount": ("Experience.SemanticModel", "Action Effectiveness Delta"),
+    # Chosen over the superseded 'Action Outcome Rate % (XD Log)' duplicate — see
+    # this KPI's own governance.qa_rules for why.
+    "enterprise.action_outcome_rate.pct": ("Experience.SemanticModel", "Action Outcome Rate % (XD)"),
 }
 
 # Documented, deliberate divergences (Review Befund A2 methodology: ledger, not
@@ -104,6 +178,12 @@ _MEASURE_BLOCK_RE = re.compile(
 )
 _TABLE_COL_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\[([^\]]+)\]")
 _COUNTROWS_BARE_TABLE_RE = re.compile(r"COUNTROWS\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
+# Legacy sometimes spells the same "count rows matching a condition" semantics
+# as `COUNTROWS ( FILTER ( table, cond ) )` instead of the synthesis side's
+# `CALCULATE ( COUNTROWS ( table ), cond )` — both touch the whole table (same
+# `(table, "*")` sentinel), so both spellings must normalize identically or a
+# purely textual-idiom difference reads as a false column-set divergence.
+_COUNTROWS_FILTER_TABLE_RE = re.compile(r"COUNTROWS\s*\(\s*FILTER\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,")
 # Negative lookbehind excludes the `[Column]` half of `table[Column]` (a
 # genuine column access, already handled by `_TABLE_COL_RE`) — only a bracket
 # NOT immediately preceded by an identifier character is a bracket-MEASURE
@@ -119,11 +199,14 @@ _VAR_RE = re.compile(r"VAR\s+(\w+)\s*=\s*(.*?)(?=VAR\s+\w+\s*=|RETURN\b|\Z)", re
 
 
 def _extract_column_refs(text: str) -> set[tuple[str, str]]:
-    """`table[Column]` refs plus bare `COUNTROWS ( table )` refs (which have no
-    bracket at all — represented as `(table, "*")`, matching the synthesis
-    side's `count` op sentinel)."""
+    """`table[Column]` refs plus bare `COUNTROWS ( table )` and
+    `COUNTROWS ( FILTER ( table, ... ) )` refs (neither has a `table[Column]`
+    bracket for the table itself — both represented as `(table, "*")`,
+    matching the synthesis side's `count`/`count_filtered`/`avg_filtered`
+    sentinel)."""
     refs = set(_TABLE_COL_RE.findall(text))
     refs |= {(t, "*") for t in _COUNTROWS_BARE_TABLE_RE.findall(text)}
+    refs |= {(t, "*") for t in _COUNTROWS_FILTER_TABLE_RE.findall(text)}
     return refs
 
 

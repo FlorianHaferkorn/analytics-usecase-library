@@ -11,19 +11,23 @@ action_code_ref: []
 calc_type: amount
 business:
   purpose: Sales lost on non-promoted items versus baseline (cannibalization in value).
-  definition: MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales).
+  definition: 'Proxy: 15% of Baseline Sales Amount, pending real non-promo-segment actuals (target formula:
+    MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales) once that segmentation is available).'
   grain_scope: Promo campaign / product / period.
   unit_format: EUR (2 decimals)
   interpretation: Numerator for Cannibalization %; higher means more cannibalization.
 technical:
   measure_name: Cannibalized Sales Amount
-  description: Sales amount lost on non-promoted items versus baseline.
+  description: Sales amount lost on non-promoted items versus baseline (15% proxy factor).
   depends_on_measures:
-  - sales.net_sales.amount
+  - sales.promo.baseline_sales.amount
   lineage:
-  - fact_promo.Baseline Non-Promo Sales Amount
-  - fact_sales.Net Sales Amount
-  - fact_sales.Promo Flag
+  - fact_promo.Baseline Sales Amount
+  calculation:
+    op: mul
+    terms:
+    - kpi: sales.promo.baseline_sales.amount
+    - literal: 0.15
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering
@@ -31,8 +35,9 @@ governance:
   review_cycle: quarterly
   validation_process: manual review
   qa_rules:
-  - Lost non-promo floored at 0
-  version: v1.0
+  - Documented proxy (15% of baseline) — replace with real non-promo actuals once segmentation
+    data is available
+  version: v1.1
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026

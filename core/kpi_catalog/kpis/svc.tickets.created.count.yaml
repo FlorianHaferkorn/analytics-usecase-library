@@ -28,6 +28,8 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_support_cases
+  calculation:
+    op: count
 governance:
   business_owner: Head of Service
   data_owner: Service Analytics

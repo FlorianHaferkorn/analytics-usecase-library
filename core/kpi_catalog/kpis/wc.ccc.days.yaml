@@ -37,6 +37,16 @@ technical:
   - fact_inventory.COGS Amount
   - fact_accounts_payable.AP Amount
   - fact_accounts_payable.COGS Amount
+  calculation:
+    op: delta
+    minuend:
+      calc:
+        op: add
+        terms:
+        - kpi: wc.dso.days
+        - kpi: wc.dio.days
+    subtrahend:
+      kpi: wc.dpo.days
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI

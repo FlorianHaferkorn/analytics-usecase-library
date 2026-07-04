@@ -21,6 +21,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_action_outcome.days_to_outcome
+  calculation:
+    op: avg
+    column: days_to_outcome
 governance:
   business_owner: Chief Analytics Officer
   data_owner: Enterprise Analytics

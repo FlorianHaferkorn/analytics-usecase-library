@@ -12,7 +12,11 @@ action_code_ref: []
 calc_type: amount
 business:
   purpose: Combines receivables, inventory, and payables days to show cash efficiency.
-  definition: DSO + DIO - DPO.
+  definition: DSO + DIO - DPO, where DSO/DIO/DPO are proxy days computed from Net
+    Sales/COGS Amount (Net Sales * 12% * 365 / Net Sales; COGS * 15% * 365 / COGS;
+    COGS * 8% * 365 / COGS) — a fixed-ratio proxy used in Experience-domain executive
+    reporting where the real receivables/inventory/payables fact tables (used by
+    Finance's wc.ccc.days) are not available.
   grain_scope: Company / region level.
   unit_format: days
   interpretation: Lower CCC means faster cash conversion and lower working capital.
@@ -20,7 +24,49 @@ technical:
   measure_name: Cash Conversion Cycle (Days)
   description: Combines receivables, inventory, and payables days to show cash efficiency.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_sales.Net Sales Amount
+  - fact_sales.Cost of Goods Sold Amount
+  calculation:
+    op: delta
+    minuend:
+      calc:
+        op: add
+        terms:
+        - calc:
+            op: ratio
+            numerator:
+              calc:
+                op: mul
+                terms:
+                - column: Net Sales Amount
+                - literal: 0.12
+                - literal: 365
+            denominator:
+              column: Net Sales Amount
+        - calc:
+            op: ratio
+            numerator:
+              calc:
+                op: mul
+                terms:
+                - column: Cost of Goods Sold Amount
+                - literal: 0.15
+                - literal: 365
+            denominator:
+              column: Cost of Goods Sold Amount
+    subtrahend:
+      calc:
+        op: ratio
+        numerator:
+          calc:
+            op: mul
+            terms:
+            - column: Cost of Goods Sold Amount
+            - literal: 0.08
+            - literal: 365
+        denominator:
+          column: Cost of Goods Sold Amount
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI
@@ -29,6 +75,10 @@ governance:
   validation_process: manual review
   qa_rules:
   - Input metrics reconciled before aggregation
+  - This is a fixed-ratio proxy (12%/15%/8% of Net Sales/COGS), distinct from Finance's
+    wc.ccc.days (real fact_accounts_receivable/fact_inventory/fact_accounts_payable-based
+    calculation) — both are legitimate legacy formulas for their respective reporting
+    contexts, not a bug.
   version: v1.1
 metadata_quality:
   completeness_score: 0.8

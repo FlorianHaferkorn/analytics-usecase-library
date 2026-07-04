@@ -31,6 +31,16 @@ technical:
   lineage:
   - fact_accounts_receivable.AR Amount
   - fact_accounts_receivable.Revenue Amount
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: mul
+        terms:
+        - column: AR Amount
+        - literal: 365
+    denominator:
+      column: Revenue Amount
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI

@@ -22,6 +22,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_inventory.Average Inventory Amount
+  calculation:
+    op: sum
+    column: Average Inventory Amount
 governance:
   business_owner: Head of Supply Chain
   data_owner: Supply Chain BI

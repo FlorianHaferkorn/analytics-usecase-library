@@ -22,14 +22,20 @@ resolved upstream in `from_aluca`, never reaches this module):
     rate             -- DIVIDE ( CALCULATE ( COUNTROWS ( t ), t[flag] = TRUE () ), COUNTROWS ( t ) )
     count            -- COUNTROWS ( table )
     mul              -- term_1 * term_2 * ... (n-ary)
+    add              -- term_1 + term_2 + ... (n-ary)
     delta_chain      -- minuend - sub_1 - sub_2 - ... (n-ary)
     distinctcount    -- DISTINCTCOUNT ( t[col] ), optionally CALCULATE-wrapped with 1+ flag filters
     count_threshold  -- CALCULATE ( COUNTROWS ( t ), t[col] <cmp> value )
     round            -- ROUND ( value, digits )
+    abs              -- ABS ( value )
     sumx_over_key    -- SUMX ( VALUES ( t[key] ), CALCULATE ( value ) )
     avgx_over_key    -- AVERAGEX ( VALUES ( t[key] ), CALCULATE ( value ) )
     pvm_volume_effect -- SUMX ( t, ( t[qty] - t[plan_qty] ) * DIVIDE ( t[plan_sales], t[plan_qty] ) )
     pvm_price_effect  -- SUMX ( t, ( DIVIDE ( t[net_price], t[qty] ) - DIVIDE ( t[plan_sales], t[plan_qty] ) ) * t[qty] )
+    avg               -- AVERAGE ( t[col] )
+    sumx_product      -- SUMX ( t, t[a] * t[b] )
+    count_filtered    -- CALCULATE ( COUNTROWS ( t ), t[col1] = v1, t[col2] = v2, ... ) (v: TRUE()/FALSE()/quoted string, or NOT ISBLANK ( t[col] ))
+    avg_filtered      -- CALCULATE ( AVERAGEX ( t, t[col] ), t[col1] = v1, ... ) (same filter shapes as count_filtered)
 
 A "ref" term is one of:
   {"kind": "column", "table": ..., "column": ...}  -- ``SUM ( table[column] )``
@@ -38,6 +44,8 @@ A "ref" term is one of:
                                                        recursively via `synthesize_dax` and
                                                        parenthesized (recursive `calc_ref`, e.g.
                                                        the VAR-chain shape of `margin.gm.vs_plan.pct`)
+  {"kind": "literal", "value": ...}                -- a bare numeric constant (e.g. the legacy
+                                                       `[Baseline Sales Amount] * 0.15` proxy factor)
 """
 from __future__ import annotations
 
@@ -50,6 +58,23 @@ def _format_number(n) -> str:
     if isinstance(n, float) and n.is_integer():
         return str(int(n))
     return str(n)
+
+
+def _dax_literal(value) -> str:
+    """A `count_filtered`/`avg_filtered` filter's `equals` value → its DAX
+    literal: `TRUE ()`/`FALSE ()` for a bool, a double-quoted string literal
+    (DAX escapes `"` by doubling it) for a string."""
+    if isinstance(value, bool):
+        return "TRUE ()" if value else "FALSE ()"
+    return f'"{value.replace(chr(34), chr(34) * 2)}"'
+
+
+def _dax_filter_condition(f: dict) -> str:
+    """A single `count_filtered`/`avg_filtered` filter → its DAX condition
+    text: an equality check, or `NOT ISBLANK ( table[column] )`."""
+    if f.get("not_blank"):
+        return f"NOT ISBLANK ( {f['table']}[{f['column']}] )"
+    return f"{f['table']}[{f['column']}] = {_dax_literal(f['equals'])}"
 
 
 def _term(ref: dict) -> str:
@@ -68,6 +93,11 @@ def _term(ref: dict) -> str:
         return f"[{name}]"
     if kind == "expr":
         return f"( {synthesize_dax(ref)} )"
+    if kind == "literal":
+        value = ref.get("value")
+        if value is None:
+            raise SynthesisError(f"literal ref missing value: {ref!r}")
+        return _format_number(value)
     raise SynthesisError(f"unknown ref kind: {kind!r}")
 
 
@@ -119,6 +149,12 @@ def synthesize_dax(resolved: dict) -> str:
             raise SynthesisError(f"mul needs 2+ terms: {resolved!r}")
         return " * ".join(_term(t) for t in terms)
 
+    if op == "add":
+        terms = resolved.get("terms") or []
+        if len(terms) < 2:
+            raise SynthesisError(f"add needs 2+ terms: {resolved!r}")
+        return " + ".join(_term(t) for t in terms)
+
     if op == "delta_chain":
         subtrahends = resolved.get("subtrahends") or []
         if not subtrahends:
@@ -154,6 +190,12 @@ def synthesize_dax(resolved: dict) -> str:
         value = resolved.get("value")
         digits = resolved.get("digits", 0)
         return f"ROUND ( {_term(value)}, {_format_number(digits)} )"
+
+    if op == "abs":
+        value = resolved.get("value")
+        if value is None:
+            raise SynthesisError(f"abs missing value: {resolved!r}")
+        return f"ABS ( {_term(value)} )"
 
     if op == "sumx_over_key":
         table, key_column, value = resolved.get("table"), resolved.get("key_column"), resolved.get("value")
@@ -191,5 +233,34 @@ def synthesize_dax(resolved: dict) -> str:
             f"SUMX ( {table}, ( DIVIDE ( {table}[{net_price}], {table}[{qty}] ) - "
             f"DIVIDE ( {table}[{plan_sales}], {table}[{plan_qty}] ) ) * {table}[{qty}] )"
         )
+
+    if op == "avg":
+        table, column = resolved.get("table"), resolved.get("column")
+        if not table or not column:
+            raise SynthesisError(f"avg missing table/column: {resolved!r}")
+        return f"AVERAGE ( {table}[{column}] )"
+
+    if op == "sumx_product":
+        table = resolved.get("table")
+        col_a, col_b = resolved.get("factor_a_column"), resolved.get("factor_b_column")
+        if not table or not col_a or not col_b:
+            raise SynthesisError(f"sumx_product missing fields: {resolved!r}")
+        return f"SUMX ( {table}, {table}[{col_a}] * {table}[{col_b}] )"
+
+    if op == "count_filtered":
+        table = resolved.get("table")
+        filters = resolved.get("filters") or []
+        if not table or not filters:
+            raise SynthesisError(f"count_filtered missing table/filters: {resolved!r}")
+        conditions = ", ".join(_dax_filter_condition(f) for f in filters)
+        return f"CALCULATE ( COUNTROWS ( {table} ), {conditions} )"
+
+    if op == "avg_filtered":
+        table, column = resolved.get("table"), resolved.get("column")
+        filters = resolved.get("filters") or []
+        if not table or not column or not filters:
+            raise SynthesisError(f"avg_filtered missing table/column/filters: {resolved!r}")
+        conditions = ", ".join(_dax_filter_condition(f) for f in filters)
+        return f"CALCULATE ( AVERAGEX ( {table}, {table}[{column}] ), {conditions} )"
 
     raise SynthesisError(f"unknown op: {op!r}")

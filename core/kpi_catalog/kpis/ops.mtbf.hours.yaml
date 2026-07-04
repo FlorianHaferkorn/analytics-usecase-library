@@ -29,13 +29,19 @@ technical:
   description: Measures average operating time between failures.
   depends_on_measures:
   - ops.failure.count
-  - ops.mttr.hours
-  - ops.downtime.unplanned.pct
-  - ops.pm_compliance.pct
-  - ops.spare_parts.stockout.pct
-  - ops.availability.pct
   lineage:
   - fact_ops.Run Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: ratio
+        numerator:
+          column: Run Time Minutes
+        denominator:
+          literal: 60
+    denominator:
+      kpi: ops.failure.count
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

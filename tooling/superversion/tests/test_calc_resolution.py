@@ -182,3 +182,138 @@ def test_unknown_op_becomes_hitl_with_diagnosable_reason():
     resolved, hitl = _resolve_calc_node({"op": "not_a_real_op"}, {}, [], CATALOG)
     assert resolved is None
     assert "unknown op" in hitl
+
+
+def test_literal_calc_ref_resolves_to_bare_value():
+    """`{"literal": n}` — a bare numeric constant term (e.g. the legacy
+    `[Baseline Sales Amount] * 0.15` proxy factor for Cannibalized Sales
+    Amount) — resolves without needing any lineage/catalog lookup."""
+    kpi = _kpi({"op": "mul", "terms": [{"kpi": "sales.net_sales.amount"}, {"literal": 0.15}]}, [])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "mul",
+        "terms": [{"kind": "measure", "name": "Net Sales Amount"}, {"kind": "literal", "value": 0.15}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == "[Net Sales Amount] * 0.15"
+
+
+def test_avg_resolves_column_to_table():
+    kpi = _kpi({"op": "avg", "column": "Standard Rate Units Per Minute"}, ["fact_ops.Standard Rate Units Per Minute"])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {"op": "avg", "table": "fact_ops", "column": "Standard Rate Units Per Minute"}
+
+
+def test_sumx_product_requires_same_table_for_both_factors():
+    kpi = _kpi(
+        {"op": "sumx_product", "factor_a": "Standard Rate Units Per Minute", "factor_b": "Planned Time Minutes"},
+        ["fact_ops.Standard Rate Units Per Minute", "fact_ops.Planned Time Minutes"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "sumx_product", "table": "fact_ops",
+        "factor_a_column": "Standard Rate Units Per Minute", "factor_b_column": "Planned Time Minutes",
+    }
+
+
+def test_sumx_product_different_tables_becomes_hitl():
+    kpi = _kpi(
+        {"op": "sumx_product", "factor_a": "A", "factor_b": "B"},
+        ["fact_x.A", "fact_y.B"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert resolved is None
+    assert "HITL:" in hitl
+
+
+def test_count_filtered_resolves_string_and_bool_filters():
+    kpi = _kpi(
+        {
+            "op": "count_filtered", "column": "Order Type",
+            "filters": [{"column": "Order Type", "equals": "PM"}, {"column": "Order Status", "equals": "Completed"}],
+        },
+        ["fact_maintenance.Order Type", "fact_maintenance.Order Status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [
+            {"table": "fact_maintenance", "column": "Order Type", "equals": "PM"},
+            {"table": "fact_maintenance", "column": "Order Status", "equals": "Completed"},
+        ],
+    }
+
+
+def test_count_filtered_unresolvable_filter_column_becomes_hitl():
+    kpi = _kpi(
+        {"op": "count_filtered", "column": "Order Type", "filters": [{"column": "Not In Lineage", "equals": "x"}]},
+        ["fact_maintenance.Order Type"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert resolved is None
+    assert "HITL:" in hitl
+
+
+def test_count_filtered_resolves_not_blank_filter():
+    kpi = _kpi(
+        {"op": "count_filtered", "column": "outcome_status", "filters": [{"column": "outcome_status", "not_blank": True}]},
+        ["fact_action_outcome.outcome_status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "count_filtered", "table": "fact_action_outcome",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "not_blank": True}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == (
+        "CALCULATE ( COUNTROWS ( fact_action_outcome ), NOT ISBLANK ( fact_action_outcome[outcome_status] ) )"
+    )
+
+
+def test_avg_filtered_resolves_column_and_filter():
+    kpi = _kpi(
+        {"op": "avg_filtered", "column": "impact_value", "filters": [{"column": "outcome_status", "equals": "achieved"}]},
+        ["fact_action_outcome.impact_value", "fact_action_outcome.outcome_status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "avg_filtered", "table": "fact_action_outcome", "column": "impact_value",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "equals": "achieved"}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == (
+        "CALCULATE ( AVERAGEX ( fact_action_outcome, fact_action_outcome[impact_value] ), "
+        'fact_action_outcome[outcome_status] = "achieved" )'
+    )
+
+
+def test_avg_filtered_unresolvable_column_becomes_hitl():
+    kpi = _kpi(
+        {"op": "avg_filtered", "column": "Not In Lineage", "filters": [{"column": "outcome_status", "equals": "achieved"}]},
+        ["fact_action_outcome.outcome_status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert resolved is None
+    assert "HITL:" in hitl
+
+
+def test_add_resolves_kpi_and_column_terms():
+    kpi = _kpi({"op": "add", "terms": [{"kpi": "wc.dso.days"}, {"kpi": "wc.dio.days"}]}, [])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "add",
+        "terms": [{"kind": "measure", "name": "DSO Days"}, {"kind": "measure", "name": "DIO Days"}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == "[DSO Days] + [DIO Days]"
+
+
+def test_abs_resolves_nested_calc():
+    kpi = _kpi({"op": "abs", "value": {"calc": {"op": "sum", "column": "A"}}}, ["fact_test.A"])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {"op": "abs", "value": {"kind": "expr", "op": "sum", "ref": {"kind": "column", "table": "fact_test", "column": "A"}}}
+    assert dax_synth.synthesize_dax(resolved) == "ABS ( ( SUM ( fact_test[A] ) ) )"

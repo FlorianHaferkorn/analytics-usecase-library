@@ -20,7 +20,10 @@ technical:
   description: Inventory value at period end
   depends_on_measures: []
   lineage:
-  - fact_inventory.Inventory Amount
+  - fact_inventory.Average Inventory Amount
+  calculation:
+    op: sum
+    column: Average Inventory Amount
 governance:
   business_owner: Head of Treasury / Supply Chain Finance
   data_owner: Finance BI

@@ -22,6 +22,13 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_action_outcome.impact_value
+  - fact_action_outcome.outcome_status
+  calculation:
+    op: avg_filtered
+    column: impact_value
+    filters:
+    - column: outcome_status
+      equals: achieved
 governance:
   business_owner: Executive Office
   data_owner: PMO Analytics

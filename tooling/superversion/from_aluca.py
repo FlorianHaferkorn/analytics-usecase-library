@@ -160,8 +160,8 @@ def _own_lineage_columns(kpi: dict) -> dict[str, str]:
 
 
 def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], lineage: list[str], catalog: "KpiCatalog") -> Optional[dict]:
-    """calc_ref (kpi-id, bare column, or nested `calc`) → neutral
-    {"kind": "column"|"measure"|"expr", ...}.
+    """calc_ref (kpi-id, bare column, nested `calc`, or bare numeric `literal`) →
+    neutral {"kind": "column"|"measure"|"expr"|"literal", ...}.
 
     Returns None if the reference cannot be resolved (unknown KPI id, a column
     not present in this KPI's own lineage, or an unresolvable nested `calc`) —
@@ -187,7 +187,25 @@ def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], lineage: list[str], c
         if nested is None:
             return None
         return {"kind": "expr", **nested}
+    if "literal" in ref:
+        return {"kind": "literal", "value": ref["literal"]}
     return None
+
+
+def _resolve_calc_filters(filters: list[dict], own_cols: dict[str, str]) -> list[dict]:
+    """Shared `count_filtered`/`avg_filtered` filter-list resolution: each filter's
+    `column` must be in this KPI's own lineage; raises KeyError (never a silent
+    placeholder) if not."""
+    resolved = []
+    for f in filters:
+        f_table = own_cols.get(f["column"])
+        if not f_table:
+            raise KeyError(f["column"])
+        if "not_blank" in f:
+            resolved.append({"table": f_table, "column": f["column"], "not_blank": True})
+        else:
+            resolved.append({"table": f_table, "column": f["column"], "equals": f["equals"]})
+    return resolved
 
 
 def _resolve_calc_node(
@@ -250,6 +268,12 @@ def _resolve_calc_node(
                 raise KeyError("terms")
             return {"op": "mul", "terms": terms}, None
 
+        if op == "add":
+            terms = [_resolve_calc_ref(t, own_cols, lineage, catalog) for t in calc["terms"]]
+            if len(terms) < 2 or any(t is None for t in terms):
+                raise KeyError("terms")
+            return {"op": "add", "terms": terms}, None
+
         if op == "delta_chain":
             minuend = ref("minuend")
             subtrahends = [_resolve_calc_ref(s, own_cols, lineage, catalog) for s in calc["subtrahends"]]
@@ -289,6 +313,12 @@ def _resolve_calc_node(
                 raise KeyError("value")
             return {"op": "round", "value": value, "digits": calc["digits"]}, None
 
+        if op == "abs":
+            value = ref("value")
+            if value is None:
+                raise KeyError("value")
+            return {"op": "abs", "value": value}, None
+
         if op in ("sumx_over_key", "avgx_over_key"):
             key_column = calc["key_column"]
             table = own_cols.get(key_column)
@@ -319,6 +349,39 @@ def _resolve_calc_node(
                 "net_price_column": net_price_col, "quantity_column": qty_col,
                 "plan_sales_column": plan_sales_col, "plan_quantity_column": plan_qty_col,
             }, None
+
+        if op == "avg":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            return {"op": "avg", "table": table, "column": column}, None
+
+        if op == "sumx_product":
+            col_a, col_b = calc["factor_a"], calc["factor_b"]
+            tables = {own_cols.get(col_a), own_cols.get(col_b)}
+            if None in tables or len(tables) != 1:
+                raise KeyError("factor_a/factor_b")
+            return {
+                "op": "sumx_product", "table": tables.pop(),
+                "factor_a_column": col_a, "factor_b_column": col_b,
+            }, None
+
+        if op == "count_filtered":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            filters = _resolve_calc_filters(calc["filters"], own_cols)
+            return {"op": "count_filtered", "table": table, "filters": filters}, None
+
+        if op == "avg_filtered":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            filters = _resolve_calc_filters(calc["filters"], own_cols)
+            return {"op": "avg_filtered", "table": table, "column": column, "filters": filters}, None
     except KeyError as exc:
         return None, f"(op={op!r}) failed to resolve ({exc})"
 

@@ -119,6 +119,16 @@ def test_mul_needs_at_least_two_terms():
         d.synthesize_dax({"op": "mul", "terms": [_measure("A")]})
 
 
+def test_add_two_terms():
+    resolved = {"op": "add", "terms": [_measure("DSO Days"), _measure("DIO Days")]}
+    assert d.synthesize_dax(resolved) == "[DSO Days] + [DIO Days]"
+
+
+def test_add_needs_at_least_two_terms():
+    with pytest.raises(d.SynthesisError):
+        d.synthesize_dax({"op": "add", "terms": [_measure("A")]})
+
+
 def test_delta_chain_four_terms():
     resolved = {
         "op": "delta_chain",
@@ -210,6 +220,119 @@ def test_pvm_price_effect():
     )
 
 
+def test_avg_leaf():
+    resolved = {"op": "avg", "table": "fact_ops", "column": "Standard Rate Units Per Minute"}
+    assert d.synthesize_dax(resolved) == "AVERAGE ( fact_ops[Standard Rate Units Per Minute] )"
+
+
+def test_sumx_product():
+    resolved = {"op": "sumx_product", "table": "fact_ops", "factor_a_column": "Standard Rate Units Per Minute", "factor_b_column": "Planned Time Minutes"}
+    assert d.synthesize_dax(resolved) == (
+        "SUMX ( fact_ops, fact_ops[Standard Rate Units Per Minute] * fact_ops[Planned Time Minutes] )"
+    )
+
+
+def test_count_filtered_string_and_bool_filters():
+    resolved = {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [
+            {"table": "fact_maintenance", "column": "Order Type", "equals": "PM"},
+            {"table": "fact_maintenance", "column": "Order Status", "equals": "Completed"},
+        ],
+    }
+    assert d.synthesize_dax(resolved) == (
+        'CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", '
+        'fact_maintenance[Order Status] = "Completed" )'
+    )
+
+
+def test_count_filtered_bool_filter_uses_true_false_literal():
+    resolved = {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [{"table": "fact_maintenance", "column": "Parts Stockout Flag", "equals": True}],
+    }
+    assert d.synthesize_dax(resolved) == (
+        "CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE () )"
+    )
+
+
+def test_count_filtered_string_value_escapes_embedded_quotes():
+    resolved = {
+        "op": "count_filtered", "table": "t",
+        "filters": [{"table": "t", "column": "c", "equals": 'a "quoted" value'}],
+    }
+    assert d.synthesize_dax(resolved) == 'CALCULATE ( COUNTROWS ( t ), t[c] = "a ""quoted"" value" )'
+
+
+def test_count_filtered_not_blank_filter():
+    resolved = {
+        "op": "count_filtered", "table": "fact_action_outcome",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "not_blank": True}],
+    }
+    assert d.synthesize_dax(resolved) == (
+        "CALCULATE ( COUNTROWS ( fact_action_outcome ), NOT ISBLANK ( fact_action_outcome[outcome_status] ) )"
+    )
+
+
+def test_avg_filtered_single_equals_filter():
+    resolved = {
+        "op": "avg_filtered", "table": "fact_action_outcome", "column": "impact_value",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "equals": "achieved"}],
+    }
+    assert d.synthesize_dax(resolved) == (
+        'CALCULATE ( AVERAGEX ( fact_action_outcome, fact_action_outcome[impact_value] ), '
+        'fact_action_outcome[outcome_status] = "achieved" )'
+    )
+
+
+def test_add_two_and_three_terms():
+    assert d.synthesize_dax({"op": "add", "terms": [_measure("A"), _measure("B")]}) == "[A] + [B]"
+    assert d.synthesize_dax({"op": "add", "terms": [_measure("A"), _measure("B"), _measure("C")]}) == "[A] + [B] + [C]"
+
+
+def test_abs_wraps_term():
+    resolved = {"op": "abs", "value": {"kind": "expr", "op": "delta", "minuend": _measure("A"), "subtrahend": _measure("B")}}
+    assert d.synthesize_dax(resolved) == "ABS ( ( [A] - [B] ) )"
+
+
+def test_one_minus_abs_ratio_composition():
+    """The exact Forecast Accuracy % shape: 1 - ABS ( ratio ( delta(...), column ) )."""
+    resolved = {
+        "op": "delta",
+        "minuend": {"kind": "literal", "value": 1},
+        "subtrahend": {
+            "kind": "expr", "op": "abs",
+            "value": {
+                "kind": "expr", "op": "ratio",
+                "numerator": {"kind": "expr", "op": "delta", "minuend": _col("fact_forecast", "Forecast Units"), "subtrahend": _col("fact_sales", "Sales Units")},
+                "denominator": _col("fact_sales", "Sales Units"),
+            },
+        },
+    }
+    assert d.synthesize_dax(resolved) == (
+        "1 - ( ABS ( ( DIVIDE ( ( SUM ( fact_forecast[Forecast Units] ) - SUM ( fact_sales[Sales Units] ) ), "
+        "SUM ( fact_sales[Sales Units] ) ) ) ) )"
+    )
+
+
+@pytest.mark.parametrize(
+    "resolved",
+    [
+        {"op": "avg", "table": "t"},  # missing column
+        {"op": "sumx_product", "table": "t"},  # missing factors
+        {"op": "count_filtered", "table": "t", "filters": []},  # empty filters
+        {"op": "count_filtered", "filters": [{"table": "t", "column": "c", "equals": True}]},  # missing table
+        {"op": "add", "terms": [_measure("A")]},  # needs 2+
+        {"op": "abs"},  # missing value
+        {"op": "avg_filtered", "table": "t", "filters": [{"table": "t", "column": "c", "equals": True}]},  # missing column
+        {"op": "avg_filtered", "table": "t", "column": "c", "filters": []},  # empty filters
+    ],
+)
+def test_new_ops_round2_malformed_raises_synthesis_error(resolved):
+    with pytest.raises(d.SynthesisError):
+        d.synthesize_dax(resolved)
+
+
 def test_nested_expr_ref_recurses_and_parenthesizes():
     resolved = {"op": "delta", "minuend": _measure("A"), "subtrahend": _expr({"op": "sum", "ref": _col("t", "b")})}
     assert d.synthesize_dax(resolved) == "[A] - ( SUM ( t[b] ) )"
@@ -235,6 +358,20 @@ def test_new_ops_malformed_raises_synthesis_error(resolved):
             d._term(resolved)
         else:
             d.synthesize_dax(resolved)
+
+
+def test_literal_term_bare_number():
+    resolved = {"op": "mul", "terms": [_measure("Baseline Sales Amount"), {"kind": "literal", "value": 0.15}]}
+    assert d.synthesize_dax(resolved) == "[Baseline Sales Amount] * 0.15"
+
+
+def test_literal_term_integer_float_renders_without_decimal():
+    assert d._term({"kind": "literal", "value": 2.0}) == "2"
+
+
+def test_literal_term_missing_value_raises():
+    with pytest.raises(d.SynthesisError):
+        d._term({"kind": "literal"})
 
 
 def test_never_emits_colon_equals():

@@ -12,7 +12,7 @@ action_code_ref:
 calc_type: ratio
 business:
   purpose: Measures profitability of promotions relative to spend.
-  definition: (Incremental GM Amount - Promo Cost Amount) / Promo Cost Amount
+  definition: Incremental GM Amount / Promo Cost Amount
   grain_scope: Promo campaign / product / period.
   unit_format: '''% (1 decimal)'''
   interpretation: Values > 0 indicate promotions adding value.
@@ -24,6 +24,12 @@ technical:
   - sales.promo.cost.amount
   lineage:
   - fact_promo.Promo Cost
+  calculation:
+    op: ratio
+    numerator:
+      kpi: sales.promo.incremental_gm.amount
+    denominator:
+      kpi: sales.promo.cost.amount
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering

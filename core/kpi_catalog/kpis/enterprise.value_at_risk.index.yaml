@@ -13,7 +13,9 @@ action_code_ref:
 calc_type: ratio
 business:
   purpose: Aggregates downside risk across domains into a single index.
-  definition: Weighted index of normalized domain risk signals.
+  definition: 'Average of three risk shares, scaled to 0-100: (1) Revenue-at-Risk
+    Share = (Net Sales * average(1-OTIF failure, 1-First-Pass-Yield failure)) /
+    Net Sales, (2) Delivery Risk = 1 - OTIF %, (3) Quality Risk = 1 - In-Full %.'
   grain_scope: Entity or business unit; aggregated by period.
   unit_format: index
   interpretation: Higher index indicates higher enterprise risk exposure.
@@ -21,22 +23,77 @@ technical:
   measure_name: Enterprise Value-at-Risk Index
   description: Aggregates downside risk across domains into a single index.
   depends_on_measures:
-  - margin.gm.pct
-  - sales.net_sales.delta_pct.ly
-  - crm.clv.amount
-  - svc.sla.attainment.pct
+  - sales.net_sales.amount
   - ops.otif.pct
-  - ops.working_capital.ccc.days
-  - people.digital_adoption.pct
-  - people.attrition_risk.pct
+  - supply.otif.pct
+  - supply.in_full.pct
   lineage: []
+  calculation:
+    op: round
+    digits: 0
+    value:
+      calc:
+        op: ratio
+        scale: 100
+        numerator:
+          calc:
+            op: add
+            terms:
+            - calc:
+                op: ratio
+                numerator:
+                  calc:
+                    op: mul
+                    terms:
+                    - kpi: sales.net_sales.amount
+                    - calc:
+                        op: ratio
+                        numerator:
+                          calc:
+                            op: add
+                            terms:
+                            - calc:
+                                op: delta
+                                minuend:
+                                  literal: 1
+                                subtrahend:
+                                  kpi: ops.otif.pct
+                            - calc:
+                                op: delta
+                                minuend:
+                                  literal: 1
+                                subtrahend:
+                                  kpi: supply.in_full.pct
+                        denominator:
+                          literal: 2
+                denominator:
+                  kpi: sales.net_sales.amount
+            - calc:
+                op: delta
+                minuend:
+                  literal: 1
+                subtrahend:
+                  kpi: supply.otif.pct
+            - calc:
+                op: delta
+                minuend:
+                  literal: 1
+                subtrahend:
+                  kpi: supply.in_full.pct
+        denominator:
+          literal: 3
 governance:
   business_owner: Chief Risk Officer
   data_owner: Enterprise Risk
   steward: Risk Analyst
   review_cycle: monthly
   validation_process: manual review
-  qa_rules: []
+  qa_rules:
+  - 'Faithfully reproduces legacy''s redundant round-trip (Revenue-at-Risk Share
+    is algebraically ~ average(DeliveryRisk, QualityRisk) already, since it divides
+    Net Sales * that same average back by Net Sales) rather than simplifying it
+    away — the round-trip changes zero-Net-Sales-denominator BLANK() behavior, so
+    collapsing it would be a silent value-level divergence, not a pure simplification.'
   version: v0.1
 metadata_quality:
   completeness_score: 1.0

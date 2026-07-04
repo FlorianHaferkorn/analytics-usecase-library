@@ -39,6 +39,12 @@ technical:
   - fact_ops.Output Units
   - fact_ops.Good Units
   - fact_ops.Standard Rate Units Per Minute
+  calculation:
+    op: mul
+    terms:
+    - kpi: ops.availability.pct
+    - kpi: ops.performance.pct
+    - kpi: ops.quality.pct
 governance:
   business_owner: Head of Manufacturing
   data_owner: Manufacturing BI

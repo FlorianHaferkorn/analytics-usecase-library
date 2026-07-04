@@ -25,6 +25,8 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_ops_failures
+  calculation:
+    op: count
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

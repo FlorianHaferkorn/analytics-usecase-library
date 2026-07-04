@@ -31,6 +31,12 @@ technical:
   lineage:
   - fact_ops_failures.Downtime Minutes
   - fact_ops.Planned Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Downtime Minutes
+    denominator:
+      column: Planned Time Minutes
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

@@ -24,6 +24,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_ops.Output Units
+  calculation:
+    op: sum
+    column: Output Units
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

@@ -31,6 +31,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_cash_flow.Operating Cash Flow Amount
+  calculation:
+    op: sum
+    column: Operating Cash Flow Amount
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI

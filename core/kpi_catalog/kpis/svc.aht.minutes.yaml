@@ -28,6 +28,14 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_support_cases.Handle Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Handle Time Minutes
+    denominator:
+      calc:
+        op: count
+        column: Handle Time Minutes
 governance:
   business_owner: Head of Service
   data_owner: Service Analytics
