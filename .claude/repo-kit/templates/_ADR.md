@@ -20,4 +20,10 @@ shelf-life-days: 365
 
 <!-- Ablage: docs/adr/{{NNNN}}-{{kebab-titel}}.md · im Bereichs-_INDEX registrieren ·
      im Ledger Tabelle B per Spalte ADR auf diese Datei zeigen. Supersession IMMER
-     explizit in der Status-Zeile verlinken (löst ab / erweitert), nie still ersetzen. -->
+     explizit in der Status-Zeile verlinken (löst ab / erweitert), nie still ersetzen.
+
+     ADR fällig, wenn mind. eines gilt: (a) teuer umkehrbar, (b) wirkt über ≥2 Bereiche/
+     Repos, (c) ersetzt/erweitert ein bestehendes ADR, (d) ein Dritter (Kunde, späteres
+     Ich) wird das Warum brauchen. Sonst genügt eine Ledger-Zeile Tabelle B ohne ADR —
+     nicht jede Entscheidung braucht ein ADR (sonst verwässert die Sammlung, siehe
+     CUT_PLAN_v3.2.md S1). -->

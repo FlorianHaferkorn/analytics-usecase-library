@@ -11,6 +11,8 @@ Subcommands (Ziel-Repo = $2 oder cwd):
   goi-snippet       druckt den passenden §4-Stack-Block für GOI_DOKTRIN.md (zum Einsetzen)
   prefill-goi F     schreibt §4 (erkannter Stack) in F UND blankt §8-Personenkontext → Platzhalter
   scaffold-index D  schreibt D/_INDEX.md aus dem realen Ordner (Register vollständig)
+  scaffold-rules    Monorepo mit Stacks in ≥2 Unterordnern → pfadgebundene .claude/rules/*.md
+                    (D7, ARCHITECTURE.md); Single-Stack-Repos: no-op (CLAUDE.md bleibt richtig)
   wire-gate         druckt (oder --apply) die Gate-Verdrahtung (pre-commit/CI/npm)
 
 Kein Tool, kein Netzwerk. Überschreibt nie (→ .new bei Konflikt).
@@ -199,6 +201,45 @@ def rule_seeds(root: Path, stacks: list[str]) -> list[tuple[str, str]]:
     return seeds
 
 
+def scaffold_stack_rules(root: Path) -> list[str]:
+    """D7 (docs/ARCHITECTURE.md): Monorepos mit Stacks in ≥2 verschiedenen direkten
+    Unterordnern (z. B. `rallylab/`=Python, `rallylab-web/`=Next.js) bekommen pfadgebundene
+    `.claude/rules/<dir>.md` (Anthropic-natives Lazy-Load per `paths:`-Frontmatter) statt
+    aller Stack-Regel-Seeds gebündelt in der immer geladenen CLAUDE.md — jede Regel lädt nur,
+    wenn tatsächlich Dateien unter ihrem Unterordner angefasst werden. Bei nur einem Stack im
+    ganzen Repo bleibt CLAUDE.md die richtige Ablage (kein Lazy-Load-Gewinn ohne Trennung).
+    Überschreibt nie eine bestehende Regel-Datei (User-editiert bleibt unangetastet)."""
+    per_dir: dict[Path, list[str]] = {}
+    try:
+        for d in sorted(p for p in root.iterdir() if p.is_dir()):
+            if d.name in IGNORE or d.name.startswith("."):
+                continue
+            stacks, _ = detect_stacks(d)
+            if stacks:
+                per_dir[d] = stacks
+    except OSError:
+        pass
+    if len(per_dir) < 2:
+        return []
+    rules_dir = root / ".claude" / "rules"
+    rules_dir.mkdir(parents=True, exist_ok=True)
+    written = []
+    for d, stacks in per_dir.items():
+        slug = re.sub(r"[^a-z0-9]+", "-", d.name.lower()).strip("-")
+        out = rules_dir / f"{slug}.md"
+        if out.exists():
+            continue
+        seeds = rule_seeds(d, stacks)
+        body = "\n\n".join(f"### {t}\n{h}" for t, h in seeds)
+        out.write_text(
+            f"---\npaths: [\"{d.name}/**\"]\n---\n"
+            f"# {', '.join(stacks)} — Stack-Regeln ({d.name}/, pfadgebunden — lädt nur hier)\n\n"
+            f"{body}\n",
+            encoding="utf-8")
+        written.append(str(out.relative_to(root)))
+    return written
+
+
 def detect(root: Path) -> dict:
     stacks, std = detect_stacks(root)
     doc, code = detect_areas(root)
@@ -225,7 +266,7 @@ def prefill_claude(claude_md: Path, root: Path) -> None:
     hint = (f"<!-- AUTO-DETECT: Stack = {', '.join(d['stacks'])} · "
             f"Doc-Bereiche = {', '.join(d['doc_areas']) or '—'} · "
             f"Code-Bereiche = {', '.join(d['code_areas']) or '—'}. "
-            f"Restliche {{{{…}}}} = echtes Urteil (deine Projektregeln). -->")
+            f"Restliche Platzhalter = echtes Urteil (deine Projektregeln). -->")
     txt = txt.replace("## Projekt-spezifische Regeln",
                       "## Projekt-spezifische Regeln\n\n" + hint, 1)
     # Regel-Block-SAATEN: generische `### {{Regel-Block N…}}` + {{…}} durch Stack-Saaten ersetzen
@@ -408,7 +449,7 @@ def main(argv: list[str]) -> int:
         print(__doc__); return 2
     cmd = argv[1]
     root = Path(argv[3]).resolve() if (cmd in ("prefill-claude", "scaffold-index", "prefill-goi") and len(argv) > 3) \
-        else Path(argv[2]).resolve() if (cmd in ("detect", "goi-snippet", "wire-gate") and len(argv) > 2 and not argv[2].startswith("--")) \
+        else Path(argv[2]).resolve() if (cmd in ("detect", "goi-snippet", "wire-gate", "scaffold-rules") and len(argv) > 2 and not argv[2].startswith("--")) \
         else Path.cwd()
     if cmd == "detect":
         print(json.dumps(detect(root), ensure_ascii=False, indent=2))
@@ -420,6 +461,10 @@ def main(argv: list[str]) -> int:
         prefill_goi(Path(argv[2]).resolve(), root)
     elif cmd == "scaffold-index":
         scaffold_index(Path(argv[2]).resolve(), root)
+    elif cmd == "scaffold-rules":
+        written = scaffold_stack_rules(root)
+        print(f"✓ .claude/rules/: {', '.join(written)}" if written
+              else "(kein Monorepo mit Stacks in ≥2 Unterordnern — CLAUDE.md bleibt richtig)")
     elif cmd == "wire-gate":
         wire_gate(root, "--apply" in argv)
     else:
