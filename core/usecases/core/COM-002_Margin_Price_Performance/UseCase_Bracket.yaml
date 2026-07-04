@@ -78,18 +78,24 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: invoice_line
+      # Curated ≤8 evidence columns (R1.3) — chosen to answer the decision_question
+      # "Is our gross margin holding against price and mix pressure?" in one scan.
+      # Locate (product_category, sku) → margin outcome (gm.amount, gm.pct) →
+      # variance signal (gm.vs_plan.pct: default sort worst-first + data bars, Top-20) →
+      # the two named pressure drivers (price realization, mix effect).
+      # Cut vs. prior 12: region/channel (covered by page slicers dim_org.OrgName +
+      # dim_date.CalendarYearMonth), list/net price absolutes (redundant once
+      # price.realization_pct is shown), cogs_per_unit (cost driver, not the
+      # price/mix pressure the decision_question asks about). Cut KPIs remain
+      # governed via orchestration.influencing_kpi_ids on page 1.
+      # PBIR implementation: Detail_Matrix/visual.json (Golden Thread — must not drift).
       evidence_columns:
-      - region
-      - channel
       - product_category
       - sku
       - margin.gm.amount
       - margin.gm.vs_plan.pct
-      - sales.price.list.amount
-      - sales.price.net.amount
       - sales.price.realization_pct
       - sales.pvm.mix_effect.amount
-      - cost.cogs_per_unit.amount
       - margin.gm.pct
       action_panel: true
       payload_mode: full
