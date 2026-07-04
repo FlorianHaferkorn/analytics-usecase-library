@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ExportResults, type ExportResultItem } from '@/components/delivery/export-results';
+import { GovernedPreviewSection } from '@/components/delivery/governed-preview';
 import { StudioInlineStat, StudioSelectionItem, StudioSelectionList } from '@/components/ui/studio-data';
 import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
 
@@ -23,16 +24,21 @@ const ADAPTERS = [
     name: 'Microsoft Fabric / Power BI',
     description: 'Generate TMDL measures, semantic model, and .pbip report layouts',
     outputs: ['TMDL measures', 'Semantic model (XMLA)', 'PBIP report layout', 'DAX queries'],
-    status: 'available' as const,
+    // I-10.3 (ADR-0007 rule 3): this export runs the TS shadow adapter, not the
+    // governed Python core — never labeled 'available'/authoritative. The
+    // Governed Preview below runs the real core for the same use case.
+    status: 'preview' as const,
     endpoint: '/api/export/fabric',
+    bridgeTarget: 'tmdl',
   },
   {
     id: 'opensource',
     name: 'Open Source Stack',
     description: 'Export as SQL transformations and Evidence.dev markdown reports',
     outputs: ['SQL transformations', 'Evidence.dev pages', 'DuckDB queries', 'YAML config'],
-    status: 'available' as const,
+    status: 'preview' as const,
     endpoint: '/api/export/opensource',
+    bridgeTarget: 'databricks',
   },
   {
     id: 'cicd',
@@ -41,6 +47,7 @@ const ADAPTERS = [
     outputs: ['GitHub Actions workflow', 'Validation pipeline', 'Fabric deploy script'],
     status: 'preview' as const,
     endpoint: '/api/export/cicd',
+    bridgeTarget: null,
   },
 ] as const;
 
@@ -130,7 +137,10 @@ export function DeliveryClient({ brackets }: Props) {
         title="Delivery"
         description="Package approved use cases for target stacks, validate export readiness, and keep the operational runbook attached to every delivery move."
         badge={adapter.name}
-        tone={adapter.status === 'available' ? 'success' : 'warning'}
+        // I-10.3 (ADR-0007 rule 3): every export adapter here is a TS preview,
+        // never the authoritative/gate-validated result — always 'warning'.
+        // The Governed Preview panel below reports the real gate verdict.
+        tone="warning"
       />
 
       <StudioMetricBar>
@@ -164,7 +174,8 @@ export function DeliveryClient({ brackets }: Props) {
                     <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>{a.name}</span>
                     <span style={{
                       fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600,
-                      backgroundColor: a.status === 'available' ? 'var(--accent)' : 'var(--warning)',
+                      // I-10.3 (ADR-0007 rule 3): every adapter here is preview-only.
+                      backgroundColor: 'var(--warning)',
                       color: 'var(--bg)',
                     }}>
                       {a.status}
@@ -299,6 +310,12 @@ export function DeliveryClient({ brackets }: Props) {
           </StudioPanel>
         </div>
       </div>
+
+      <GovernedPreviewSection
+        selectedBracketIds={selectedBracketItems.map((b) => b.id)}
+        bridgeTarget={adapter.bridgeTarget}
+        adapterName={adapter.name}
+      />
 
       {exportResults && (
         <ExportResults results={exportResults} adapterName={selectedAdapter} />
