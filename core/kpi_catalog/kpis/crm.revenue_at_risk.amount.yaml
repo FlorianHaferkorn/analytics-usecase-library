@@ -13,24 +13,44 @@ action_code_ref:
 - C-C3.1
 calc_type: amount
 business:
-  purpose: Quantify revenue exposure from delivery and quality execution failures.
-  definition: Net Sales Amount × average of (1 - OTIF %) and (1 - First Pass Yield %).
+  purpose: Quantify revenue exposure proportional to the customer attrition rate.
+  definition: Net Sales Amount × (Churned Customers / Active Customers).
   grain_scope: Customer/segment; monthly.
   unit_format: EUR (0 decimals)
-  interpretation: Higher values indicate more revenue at risk from ops failures; prioritize OTIF and quality
-    actions.
+  interpretation: Higher values indicate more revenue at risk from customer churn; prioritize retention actions
+    on high-value at-risk segments.
 technical:
   measure_name: Revenue at Risk Amount
-  description: Net Sales Amount weighted by combined OTIF failure rate and First Pass Yield failure rate.
+  description: Net Sales Amount weighted by the churned-to-active customer ratio.
   depends_on_measures:
-  - ops.otif.pct
-  - quality.fpy.pct
+  - sales.net_sales.amount
+  - crm.churned_customers.count
+  - crm.active_customers.count
   lineage:
   - fact_sales.Net Sales Amount
+  - fact_customer_events.CustomerKey
+  - fact_customer_events.Churn Flag
+  - fact_customer_events.Activity Flag
   calculation:
-    op: hitl
-    reason: Multi-step DISTINCTCOUNT ratio (Churned/Active) multiplied by a Net Sales measure — beyond
-      the binary grammar.
+    op: mul
+    terms:
+    - kpi: sales.net_sales.amount
+    - calc:
+        op: ratio
+        numerator:
+          calc:
+            op: distinctcount
+            column: CustomerKey
+            filters:
+            - column: Churn Flag
+              equals: true
+        denominator:
+          calc:
+            op: distinctcount
+            column: CustomerKey
+            filters:
+            - column: Activity Flag
+              equals: true
 governance:
   business_owner: Head of Operations
   data_owner: Ops BI
@@ -38,7 +58,7 @@ governance:
   review_cycle: quarterly
   validation_process: manual review
   qa_rules:
-  - At-risk revenue reconciles to Net Sales weighted by OTIF/FPY failure rates within +/- 1 %
+  - At-risk revenue reconciles to Net Sales weighted by the churned/active customer ratio within +/- 1 %
   version: v1.1
 metadata_quality:
   completeness_score: 1.0

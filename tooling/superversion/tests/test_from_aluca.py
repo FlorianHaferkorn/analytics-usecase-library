@@ -14,6 +14,7 @@ import pytest
 from tooling.superversion.canonical_contract import CanonicalModel
 from tooling.superversion.from_aluca import (
     KpiCatalog,
+    _measure_from_kpi,
     _page_from_layout,
     from_bracket_file,
     main,
@@ -133,8 +134,11 @@ def test_com002_builds_canonical_model(com002):
 
 def test_com002_tables_from_lineage(com002):
     names = {t.name for t in com002.semantic.tables}
-    # margin/price KPIs route to fact_sales; plan-vs and promo drivers split out.
-    assert {"fact_sales", "fact_plan_sales", "fact_promo"} <= names, (
+    # margin/price KPIs route to fact_sales; promo drivers split out. `margin.gm.vs_plan.pct`'s
+    # calculation (I-10.0 grammar extension) resolves against fact_sales[Plan Sales Amount]/
+    # [Plan COGS Amount] — matching the real legacy DAX, which never touched fact_plan_sales
+    # (that lineage entry was itself the bug: no such "Plan Gross Margin Amount" column exists).
+    assert {"fact_sales", "fact_promo"} <= names, (
         f"expected lineage-derived fact tables, got {names}"
     )
 
@@ -185,8 +189,10 @@ def test_com003_builds_canonical_model(com003):
 
 def test_com003_tables_from_lineage(com003):
     names = {t.name for t in com003.semantic.tables}
-    # CLV/retention route to fact_sales; segment dimension surfaces dim_customer.
-    assert {"fact_sales", "dim_customer"} <= names, (
+    # CLV/lifetime-revenue route to fact_sales/fact_customer_value; retention/churn/active
+    # route to fact_customer_events (I-10.0 grammar extension corrected these off a stale
+    # dim_customer.CustomerKey lineage entry — the real legacy DAX never touched dim_customer).
+    assert {"fact_sales", "fact_customer_events", "fact_customer_value"} <= names, (
         f"expected lineage-derived tables, got {names}"
     )
 
@@ -197,18 +203,23 @@ def test_com003_measure_count(com003):
     assert total >= 15, f"expected >=15 measures from COM-003, got {total}"
 
 
-def test_com003_measures_fallback_to_measures_table(com003):
+def test_measures_fallback_to_measures_table_for_column_less_lineage():
     """KPIs whose lineage carries no '<table>.<column>' land in the _Measures
-    fallback (documented `_split_lineage` contract). 'Complaint Count' has
-    lineage ['fact_experience'] (table-only, no column) → _Measures.
+    fallback (documented `_split_lineage` contract).
 
     ⚠️ Known nuance (Ledger §6): a column-less lineage entry that *is* a table
     name still routes to _Measures rather than to that fact table. Captured here
-    as observed behaviour, not silently re-mapped (scope guard: would touch
-    _split_lineage for all UCs → out of I-1.2 scope)."""
-    measures_tbl = next((t for t in com003.semantic.tables if t.name == "_Measures"), None)
-    assert measures_tbl is not None, "expected _Measures fallback table for table-less lineage"
-    assert "Complaint Count" in {m.name for m in measures_tbl.measures}
+    as a direct unit test of `_measure_from_kpi`/`_split_lineage` (not tied to a
+    real catalog KPI — `crm.complaint.count`, the previous real-world exemplar,
+    was itself the documented lineage bug and has since been corrected to
+    `fact_complaints.Complaint Count`, I-10.0 grammar extension)."""
+    kpi = {
+        "kpi_id": "test.bare_table_lineage",
+        "kpi_key": "Bare Table Lineage KPI",
+        "technical": {"measure_name": "Bare Table Lineage KPI", "lineage": ["fact_bare_table"]},
+    }
+    measure, source_table = _measure_from_kpi("test.bare_table_lineage", kpi, KpiCatalog(KPIS))
+    assert source_table == ""
 
 
 def test_com003_report_pages(com003):

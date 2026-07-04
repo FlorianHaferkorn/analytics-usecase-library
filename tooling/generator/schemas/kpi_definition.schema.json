@@ -72,7 +72,7 @@
   },
   "$defs": {
     "calc_ref": {
-      "description": "A term inside a governed calculation: either another catalog KPI's own measure (resolved via its technical.measure_name, Golden Thread — must exist in the catalog) or a raw fact column drawn from THIS KPI's own technical.lineage (resolved by column-name match, table implied).",
+      "description": "A term inside a governed calculation: another catalog KPI's own measure (resolved via its technical.measure_name, Golden Thread — must exist in the catalog), a raw fact column drawn from THIS KPI's own technical.lineage (resolved by column-name match, table implied), or a nested `calculation` (recursive — for VAR-chain-shaped formulas like `margin.gm.vs_plan.pct`'s Plan GM sub-expression).",
       "type": "object",
       "oneOf": [
         {
@@ -84,6 +84,11 @@
           "additionalProperties": false,
           "required": ["column"],
           "properties": { "column": { "type": "string", "minLength": 1 } }
+        },
+        {
+          "additionalProperties": false,
+          "required": ["calc"],
+          "properties": { "calc": { "$ref": "#/$defs/calculation" } }
         }
       ]
     },
@@ -141,13 +146,120 @@
           }
         },
         {
-          "description": "Row count of this KPI's own lineage table (bare-table lineage entry, no column — e.g. Order Lines Count).",
+          "description": "Row count of this KPI's own lineage table. Without `column`: bare-table lineage entry (e.g. Order Lines Count). With `column`: table is instead derived from that column in this KPI's own lineage (for use as a nested sub-expression, e.g. NPS TotalResponses = COUNTROWS(fact_nps) derived from the NPS Score column).",
           "additionalProperties": false,
           "required": ["op"],
-          "properties": { "op": { "const": "count" } }
+          "properties": {
+            "op": { "const": "count" },
+            "column": { "type": "string", "minLength": 1 }
+          }
         },
         {
-          "description": "Explicit human-in-the-loop marker: this KPI's real formula is outside the sum/ratio/delta/delta_pct/rate/count grammar. Renders as a documented BLANK() placeholder (never silent) and is counted by targets/tmdl.py::hitl_gaps().",
+          "description": "n-ary product of terms (e.g. Incremental Sales Amount * GM% for Incremental Gross Margin Amount).",
+          "additionalProperties": false,
+          "required": ["op", "terms"],
+          "properties": {
+            "op": { "const": "mul" },
+            "terms": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/calc_ref" } }
+          }
+        },
+        {
+          "description": "minuend minus a chain of 1+ subtrahends, left to right (e.g. Mix Effect Amount = Net Sales - Plan Sales - Price Effect - Volume Effect).",
+          "additionalProperties": false,
+          "required": ["op", "minuend", "subtrahends"],
+          "properties": {
+            "op": { "const": "delta_chain" },
+            "minuend": { "$ref": "#/$defs/calc_ref" },
+            "subtrahends": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/calc_ref" } }
+          }
+        },
+        {
+          "description": "DISTINCTCOUNT of a key column (from this KPI's own lineage), optionally under CALCULATE with 1+ boolean flag-column filters (e.g. Churned/Active Customers).",
+          "additionalProperties": false,
+          "required": ["op", "column"],
+          "properties": {
+            "op": { "const": "distinctcount" },
+            "column": { "type": "string", "minLength": 1 },
+            "filters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["column", "equals"],
+                "properties": {
+                  "column": { "type": "string", "minLength": 1 },
+                  "equals": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "description": "Row count of this KPI's own lineage table filtered by a numeric threshold on a column (e.g. NPS Promoters/Detractors banding).",
+          "additionalProperties": false,
+          "required": ["op", "column", "comparator", "value"],
+          "properties": {
+            "op": { "const": "count_threshold" },
+            "column": { "type": "string", "minLength": 1 },
+            "comparator": { "type": "string", "enum": [">=", "<=", ">", "<", "="] },
+            "value": { "type": "number" }
+          }
+        },
+        {
+          "description": "ROUND ( value, digits ) wrapper (e.g. NPS index rounded to whole numbers).",
+          "additionalProperties": false,
+          "required": ["op", "value", "digits"],
+          "properties": {
+            "op": { "const": "round" },
+            "value": { "$ref": "#/$defs/calc_ref" },
+            "digits": { "type": "integer", "minimum": 0 }
+          }
+        },
+        {
+          "description": "SUMX ( VALUES ( key_column ), CALCULATE ( value ) ) — per-key cumulative aggregation (e.g. Customer Lifetime Revenue).",
+          "additionalProperties": false,
+          "required": ["op", "key_column", "value"],
+          "properties": {
+            "op": { "const": "sumx_over_key" },
+            "key_column": { "type": "string", "minLength": 1 },
+            "value": { "$ref": "#/$defs/calc_ref" }
+          }
+        },
+        {
+          "description": "AVERAGEX ( VALUES ( key_column ), CALCULATE ( value ) ) — per-key average aggregation (e.g. CLV).",
+          "additionalProperties": false,
+          "required": ["op", "key_column", "value"],
+          "properties": {
+            "op": { "const": "avgx_over_key" },
+            "key_column": { "type": "string", "minLength": 1 },
+            "value": { "$ref": "#/$defs/calc_ref" }
+          }
+        },
+        {
+          "description": "PVM volume-effect leaf: SUMX over this KPI's own lineage table of (quantity - plan_quantity) * DIVIDE(plan_sales, plan_quantity), all row-context columns (no aggregation wrapper).",
+          "additionalProperties": false,
+          "required": ["op", "quantity", "plan_quantity", "plan_sales"],
+          "properties": {
+            "op": { "const": "pvm_volume_effect" },
+            "quantity": { "type": "string", "minLength": 1 },
+            "plan_quantity": { "type": "string", "minLength": 1 },
+            "plan_sales": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "description": "PVM price-effect leaf: SUMX over this KPI's own lineage table of (DIVIDE(net_price, quantity) - DIVIDE(plan_sales, plan_quantity)) * quantity, all row-context columns (no aggregation wrapper).",
+          "additionalProperties": false,
+          "required": ["op", "net_price", "quantity", "plan_sales", "plan_quantity"],
+          "properties": {
+            "op": { "const": "pvm_price_effect" },
+            "net_price": { "type": "string", "minLength": 1 },
+            "quantity": { "type": "string", "minLength": 1 },
+            "plan_sales": { "type": "string", "minLength": 1 },
+            "plan_quantity": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "description": "Explicit human-in-the-loop marker: this KPI's real formula is outside the governed grammar. Renders as a documented BLANK() placeholder (never silent) and is counted by targets/tmdl.py::hitl_gaps().",
           "additionalProperties": false,
           "required": ["op", "reason"],
           "properties": {

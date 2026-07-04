@@ -20,11 +20,14 @@ technical:
   description: Number of unique active customers in the reporting period.
   depends_on_measures: []
   lineage:
-  - dim_customer.CustomerKey
+  - fact_customer_events.CustomerKey
   - fact_customer_events.Activity Flag
   calculation:
-    op: hitl
-    reason: DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar.
+    op: distinctcount
+    column: CustomerKey
+    filters:
+    - column: Activity Flag
+      equals: true
 governance:
   business_owner: Head of CRM / Marketing Analytics
   data_owner: CRM BI

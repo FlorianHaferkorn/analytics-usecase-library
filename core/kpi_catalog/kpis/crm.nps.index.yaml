@@ -29,9 +29,31 @@ technical:
   lineage:
   - fact_nps.NPS Score
   calculation:
-    op: hitl
-    reason: Multi-step CALCULATE/COUNTROWS formula (Promoters/Detractors/Total, NPS index scaling) — beyond
-      the grammar.
+    op: round
+    digits: 0
+    value:
+      calc:
+        op: ratio
+        scale: 100
+        numerator:
+          calc:
+            op: delta
+            minuend:
+              calc:
+                op: count_threshold
+                column: NPS Score
+                comparator: '>='
+                value: 9
+            subtrahend:
+              calc:
+                op: count_threshold
+                column: NPS Score
+                comparator: '<='
+                value: 6
+        denominator:
+          calc:
+            op: count
+            column: NPS Score
 governance:
   business_owner: Head of Customer Experience
   data_owner: CX BI

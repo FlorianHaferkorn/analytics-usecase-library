@@ -15,16 +15,29 @@ Grammar (deliberately narrow — matches the legacy `dist/**/_Measures.tmdl` DAX
 patterns actually observed for the 5 MVP use cases; anything wider is `hitl`,
 resolved upstream in `from_aluca`, never reaches this module):
 
-    sum        -- SUM ( table[column] )
-    ratio      -- DIVIDE ( num, den ) [* scale]
-    delta      -- minuend - subtrahend
-    delta_pct  -- DIVIDE ( minuend - subtrahend, ABS ( subtrahend ) )
-    rate       -- DIVIDE ( CALCULATE ( COUNTROWS ( t ), t[flag] = TRUE () ), COUNTROWS ( t ) )
-    count      -- COUNTROWS ( table )
+    sum              -- SUM ( table[column] )
+    ratio            -- DIVIDE ( num, den ) [* scale]
+    delta            -- minuend - subtrahend
+    delta_pct        -- DIVIDE ( minuend - subtrahend, ABS ( subtrahend ) )
+    rate             -- DIVIDE ( CALCULATE ( COUNTROWS ( t ), t[flag] = TRUE () ), COUNTROWS ( t ) )
+    count            -- COUNTROWS ( table )
+    mul              -- term_1 * term_2 * ... (n-ary)
+    delta_chain      -- minuend - sub_1 - sub_2 - ... (n-ary)
+    distinctcount    -- DISTINCTCOUNT ( t[col] ), optionally CALCULATE-wrapped with 1+ flag filters
+    count_threshold  -- CALCULATE ( COUNTROWS ( t ), t[col] <cmp> value )
+    round            -- ROUND ( value, digits )
+    sumx_over_key    -- SUMX ( VALUES ( t[key] ), CALCULATE ( value ) )
+    avgx_over_key    -- AVERAGEX ( VALUES ( t[key] ), CALCULATE ( value ) )
+    pvm_volume_effect -- SUMX ( t, ( t[qty] - t[plan_qty] ) * DIVIDE ( t[plan_sales], t[plan_qty] ) )
+    pvm_price_effect  -- SUMX ( t, ( DIVIDE ( t[net_price], t[qty] ) - DIVIDE ( t[plan_sales], t[plan_qty] ) ) * t[qty] )
 
-A "ref" term is either {"kind": "column", "table": ..., "column": ...} (rendered
-as ``SUM ( table[column] )``) or {"kind": "measure", "name": ...} (rendered as
-``[Measure Name]``, a DAX measure reference to a sibling measure).
+A "ref" term is one of:
+  {"kind": "column", "table": ..., "column": ...}  -- ``SUM ( table[column] )``
+  {"kind": "measure", "name": ...}                 -- ``[Measure Name]`` (sibling measure reference)
+  {"kind": "expr", "op": ..., ...}                 -- a nested resolved formula, rendered
+                                                       recursively via `synthesize_dax` and
+                                                       parenthesized (recursive `calc_ref`, e.g.
+                                                       the VAR-chain shape of `margin.gm.vs_plan.pct`)
 """
 from __future__ import annotations
 
@@ -53,6 +66,8 @@ def _term(ref: dict) -> str:
         if not name:
             raise SynthesisError(f"measure ref missing name: {ref!r}")
         return f"[{name}]"
+    if kind == "expr":
+        return f"( {synthesize_dax(ref)} )"
     raise SynthesisError(f"unknown ref kind: {kind!r}")
 
 
@@ -97,5 +112,84 @@ def synthesize_dax(resolved: dict) -> str:
         if not table:
             raise SynthesisError(f"count missing table: {resolved!r}")
         return f"COUNTROWS ( {table} )"
+
+    if op == "mul":
+        terms = resolved.get("terms") or []
+        if len(terms) < 2:
+            raise SynthesisError(f"mul needs 2+ terms: {resolved!r}")
+        return " * ".join(_term(t) for t in terms)
+
+    if op == "delta_chain":
+        subtrahends = resolved.get("subtrahends") or []
+        if not subtrahends:
+            raise SynthesisError(f"delta_chain needs 1+ subtrahends: {resolved!r}")
+        parts = [_term(resolved.get("minuend"))] + [_term(s) for s in subtrahends]
+        return " - ".join(parts)
+
+    if op == "distinctcount":
+        table, column = resolved.get("table"), resolved.get("column")
+        if not table or not column:
+            raise SynthesisError(f"distinctcount missing table/column: {resolved!r}")
+        base = f"DISTINCTCOUNT ( {table}[{column}] )"
+        filters = resolved.get("filters") or []
+        if not filters:
+            return base
+        conditions = ", ".join(
+            f"{f['table']}[{f['column']}] = {'TRUE' if f['equals'] else 'FALSE'} ()"
+            for f in filters
+        )
+        return f"CALCULATE ( {base}, {conditions} )"
+
+    if op == "count_threshold":
+        table, column = resolved.get("table"), resolved.get("column")
+        comparator, value = resolved.get("comparator"), resolved.get("value")
+        if not table or not column or not comparator:
+            raise SynthesisError(f"count_threshold missing table/column/comparator: {resolved!r}")
+        return (
+            f"CALCULATE ( COUNTROWS ( {table} ), {table}[{column}] {comparator} "
+            f"{_format_number(value)} )"
+        )
+
+    if op == "round":
+        value = resolved.get("value")
+        digits = resolved.get("digits", 0)
+        return f"ROUND ( {_term(value)}, {_format_number(digits)} )"
+
+    if op == "sumx_over_key":
+        table, key_column, value = resolved.get("table"), resolved.get("key_column"), resolved.get("value")
+        if not table or not key_column:
+            raise SynthesisError(f"sumx_over_key missing table/key_column: {resolved!r}")
+        return f"SUMX ( VALUES ( {table}[{key_column}] ), CALCULATE ( {_term(value)} ) )"
+
+    if op == "avgx_over_key":
+        table, key_column, value = resolved.get("table"), resolved.get("key_column"), resolved.get("value")
+        if not table or not key_column:
+            raise SynthesisError(f"avgx_over_key missing table/key_column: {resolved!r}")
+        return f"AVERAGEX ( VALUES ( {table}[{key_column}] ), CALCULATE ( {_term(value)} ) )"
+
+    if op == "pvm_volume_effect":
+        table = resolved.get("table")
+        qty, plan_qty, plan_sales = (
+            resolved.get("quantity_column"), resolved.get("plan_quantity_column"), resolved.get("plan_sales_column"),
+        )
+        if not table or not qty or not plan_qty or not plan_sales:
+            raise SynthesisError(f"pvm_volume_effect missing fields: {resolved!r}")
+        return (
+            f"SUMX ( {table}, ( {table}[{qty}] - {table}[{plan_qty}] ) * "
+            f"DIVIDE ( {table}[{plan_sales}], {table}[{plan_qty}] ) )"
+        )
+
+    if op == "pvm_price_effect":
+        table = resolved.get("table")
+        net_price, qty, plan_sales, plan_qty = (
+            resolved.get("net_price_column"), resolved.get("quantity_column"),
+            resolved.get("plan_sales_column"), resolved.get("plan_quantity_column"),
+        )
+        if not table or not net_price or not qty or not plan_sales or not plan_qty:
+            raise SynthesisError(f"pvm_price_effect missing fields: {resolved!r}")
+        return (
+            f"SUMX ( {table}, ( DIVIDE ( {table}[{net_price}], {table}[{qty}] ) - "
+            f"DIVIDE ( {table}[{plan_sales}], {table}[{plan_qty}] ) ) * {table}[{qty}] )"
+        )
 
     raise SynthesisError(f"unknown op: {op!r}")

@@ -22,12 +22,10 @@ technical:
   description: Count of logged customer complaints
   depends_on_measures: []
   lineage:
-  - fact_experience
+  - fact_complaints.Complaint Count
   calculation:
-    op: hitl
-    reason: Catalog lineage points column-less at 'fact_experience', but the legacy DAX sums fact_complaints[Complaint
-      Count] — documented lineage mismatch (see Ledger I-1.2); fixing lineage is a separate, already-flagged
-      scope.
+    op: sum
+    column: Complaint Count
 governance:
   business_owner: Head of Customer Service
   data_owner: Service BI

@@ -31,19 +31,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: CLV
     description: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
-    depends_on_measures:
-    - crm.lifetime_revenue.amount
-    - crm.retention.pct
-    - crm.churned_customers.count
-    - crm.active_customers.count
-    - crm.nps.index
-    - crm.complaint.count
-    - cost.cogs.amount
+    depends_on_measures: []
     lineage:
-    - fact_sales.CustomerKey
+    - fact_customer_value.CustomerKey
+    - fact_customer_value.CLV Amount
     calculation:
-      op: hitl
-      reason: AVERAGEX iterator over a different fact table (fact_customer_value) than documented in lineage (fact_sales.CustomerKey) — lineage mismatch, beyond the grammar.
+      op: avgx_over_key
+      key_column: CustomerKey
+      value:
+        column: CLV Amount
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -72,22 +68,43 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - C-C3.1
   calc_type: amount
   business:
-    purpose: Quantify revenue exposure from delivery and quality execution failures.
-    definition: Net Sales Amount × average of (1 - OTIF %) and (1 - First Pass Yield %).
+    purpose: Quantify revenue exposure proportional to the customer attrition rate.
+    definition: Net Sales Amount × (Churned Customers / Active Customers).
     grain_scope: Customer/segment; monthly.
     unit_format: EUR (0 decimals)
-    interpretation: Higher values indicate more revenue at risk from ops failures; prioritize OTIF and quality actions.
+    interpretation: Higher values indicate more revenue at risk from customer churn; prioritize retention actions on high-value at-risk segments.
   technical:
     measure_name: Revenue at Risk Amount
-    description: Net Sales Amount weighted by combined OTIF failure rate and First Pass Yield failure rate.
+    description: Net Sales Amount weighted by the churned-to-active customer ratio.
     depends_on_measures:
-    - ops.otif.pct
-    - quality.fpy.pct
+    - sales.net_sales.amount
+    - crm.churned_customers.count
+    - crm.active_customers.count
     lineage:
     - fact_sales.Net Sales Amount
+    - fact_customer_events.CustomerKey
+    - fact_customer_events.Churn Flag
+    - fact_customer_events.Activity Flag
     calculation:
-      op: hitl
-      reason: Multi-step DISTINCTCOUNT ratio (Churned/Active) multiplied by a Net Sales measure — beyond the binary grammar.
+      op: mul
+      terms:
+      - kpi: sales.net_sales.amount
+      - calc:
+          op: ratio
+          numerator:
+            calc:
+              op: distinctcount
+              column: CustomerKey
+              filters:
+              - column: Churn Flag
+                equals: true
+          denominator:
+            calc:
+              op: distinctcount
+              column: CustomerKey
+              filters:
+              - column: Activity Flag
+                equals: true
   governance:
     business_owner: Head of Operations
     data_owner: Ops BI
@@ -95,7 +112,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     review_cycle: quarterly
     validation_process: manual review
     qa_rules:
-    - At-risk revenue reconciles to Net Sales weighted by OTIF/FPY failure rates within +/- 1 %
+    - At-risk revenue reconciles to Net Sales weighted by the churned/active customer ratio within +/- 1 %
     version: v1.1
   metadata_quality:
     completeness_score: 1.0
@@ -124,10 +141,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Count of logged customer complaints
     depends_on_measures: []
     lineage:
-    - fact_experience
+    - fact_complaints.Complaint Count
     calculation:
-      op: hitl
-      reason: Catalog lineage points column-less at 'fact_experience', but the legacy DAX sums fact_complaints[Complaint Count] — documented lineage mismatch (see Ledger I-1.2); fixing lineage is a separate, already-flagged scope.
+      op: sum
+      column: Complaint Count
   governance:
     business_owner: Head of Customer Service
     data_owner: Service BI
@@ -164,10 +181,27 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
     depends_on_measures: []
     lineage:
+    - fact_customer_events.CustomerKey
     - fact_customer_events.Activity Flag
+    - fact_customer_events.Churn Flag
     calculation:
-      op: hitl
-      reason: DISTINCTCOUNT with two simultaneous flag filters (Activity AND Churn) — beyond the single-filter rate() grammar.
+      op: ratio
+      numerator:
+        calc:
+          op: distinctcount
+          column: CustomerKey
+          filters:
+          - column: Activity Flag
+            equals: true
+          - column: Churn Flag
+            equals: false
+      denominator:
+        calc:
+          op: distinctcount
+          column: CustomerKey
+          filters:
+          - column: Activity Flag
+            equals: true
   governance:
     business_owner: Head of Marketing
     data_owner: CRM BI
@@ -213,8 +247,31 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_nps.NPS Score
     calculation:
-      op: hitl
-      reason: Multi-step CALCULATE/COUNTROWS formula (Promoters/Detractors/Total, NPS index scaling) — beyond the grammar.
+      op: round
+      digits: 0
+      value:
+        calc:
+          op: ratio
+          scale: 100
+          numerator:
+            calc:
+              op: delta
+              minuend:
+                calc:
+                  op: count_threshold
+                  column: NPS Score
+                  comparator: '>='
+                  value: 9
+              subtrahend:
+                calc:
+                  op: count_threshold
+                  column: NPS Score
+                  comparator: <=
+                  value: 6
+          denominator:
+            calc:
+              op: count
+              column: NPS Score
   governance:
     business_owner: Head of Customer Experience
     data_owner: CX BI
@@ -250,11 +307,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
     depends_on_measures: []
     lineage:
-    - dim_customer.CustomerKey
+    - fact_customer_events.CustomerKey
     - fact_customer_events.Churn Flag
     calculation:
-      op: hitl
-      reason: DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar.
+      op: distinctcount
+      column: CustomerKey
+      filters:
+      - column: Churn Flag
+        equals: true
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -291,10 +351,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
-    - dim_customer.CustomerKey
+    - fact_sales.CustomerKey
     calculation:
-      op: hitl
-      reason: SUMX iterator with customer-row-context reset (cumulative lifetime value) — beyond the grammar.
+      op: sumx_over_key
+      key_column: CustomerKey
+      value:
+        kpi: sales.net_sales.amount
   governance:
     business_owner: Head of Marketing
     data_owner: CRM BI
@@ -330,11 +392,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Number of unique active customers in the reporting period.
     depends_on_measures: []
     lineage:
-    - dim_customer.CustomerKey
+    - fact_customer_events.CustomerKey
     - fact_customer_events.Activity Flag
     calculation:
-      op: hitl
-      reason: DISTINCTCOUNT with a flag filter (not a plain row count) — beyond the count() grammar.
+      op: distinctcount
+      column: CustomerKey
+      filters:
+      - column: Activity Flag
+        equals: true
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -2876,9 +2941,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - sales.pvm.volume_effect.amount
     lineage:
     - fact_sales.Net Sales Amount
+    - fact_sales.Plan Sales Amount
     calculation:
-      op: hitl
-      reason: Residual of a 4-term chain (Net Sales - Plan Sales - Price Effect - Volume Effect) — beyond the binary delta grammar.
+      op: delta_chain
+      minuend:
+        kpi: sales.net_sales.amount
+      subtrahends:
+      - column: Plan Sales Amount
+      - kpi: sales.pvm.price_effect.amount
+      - kpi: sales.pvm.volume_effect.amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -3051,16 +3122,18 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: Price Effect Amount
     description: Quantifies the pure price impact in the PVM bridge.
-    depends_on_measures:
-    - sales.net_sales.amount
+    depends_on_measures: []
     lineage:
-    - fact_sales.Net Sales Amount
+    - fact_sales.Net Price Amount
     - fact_sales.Plan Quantity
     - fact_sales.Plan Sales Amount
     - fact_sales.Quantity
     calculation:
-      op: hitl
-      reason: SUMX iterator over invoice lines comparing actual vs. plan unit price/quantity (PVM price effect) — beyond the sum/ratio/delta/rate/count grammar.
+      op: pvm_price_effect
+      net_price: Net Price Amount
+      quantity: Quantity
+      plan_sales: Plan Sales Amount
+      plan_quantity: Plan Quantity
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -3101,8 +3174,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Plan Sales Amount
     - fact_sales.Quantity
     calculation:
-      op: hitl
-      reason: SUMX iterator over invoice lines comparing actual vs. plan quantity (PVM volume effect) — beyond the sum/ratio/delta/rate/count grammar.
+      op: pvm_volume_effect
+      quantity: Quantity
+      plan_quantity: Plan Quantity
+      plan_sales: Plan Sales Amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -4084,13 +4159,28 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Incremental gross margin from promo.
     depends_on_measures:
     - sales.promo.incremental.amount
+    - margin.gm.amount
+    - sales.net_sales.amount
+    - sales.promo.cost.amount
     lineage:
     - fact_sales.Net Sales Amount
     - fact_sales.Cost of Goods Sold Amount
     - fact_promo.Baseline Sales Amount
     calculation:
-      op: hitl
-      reason: Multi-term calculation (Incremental Sales x GM% minus Promo Cost) — beyond the binary delta/ratio grammar.
+      op: delta
+      minuend:
+        calc:
+          op: mul
+          terms:
+          - kpi: sales.promo.incremental.amount
+          - calc:
+              op: ratio
+              numerator:
+                kpi: margin.gm.amount
+              denominator:
+                kpi: sales.net_sales.amount
+      subtrahend:
+        kpi: sales.promo.cost.amount
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4695,13 +4785,21 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Gross Margin % vs Plan
     description: Measures gross margin rate variance versus plan.
     depends_on_measures:
-    - sales.net_sales.amount
-    - cost.cogs.amount
+    - margin.gm.amount
     lineage:
-    - fact_plan_sales.Plan Gross Margin Amount
+    - fact_sales.Plan Sales Amount
+    - fact_sales.Plan COGS Amount
     calculation:
-      op: hitl
-      reason: Multi-step VAR calculation (Plan GM derived from Plan Sales minus Plan COGS); catalog lineage lists only 1 column — beyond the grammar.
+      op: delta_pct
+      minuend:
+        kpi: margin.gm.amount
+      subtrahend:
+        calc:
+          op: delta
+          minuend:
+            column: Plan Sales Amount
+          subtrahend:
+            column: Plan COGS Amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering

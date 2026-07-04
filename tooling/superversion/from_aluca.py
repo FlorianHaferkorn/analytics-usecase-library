@@ -159,12 +159,14 @@ def _own_lineage_columns(kpi: dict) -> dict[str, str]:
     return out
 
 
-def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], catalog: "KpiCatalog") -> Optional[dict]:
-    """calc_ref (kpi-id or bare column) → neutral {"kind": "column"|"measure", ...}.
+def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], lineage: list[str], catalog: "KpiCatalog") -> Optional[dict]:
+    """calc_ref (kpi-id, bare column, or nested `calc`) → neutral
+    {"kind": "column"|"measure"|"expr", ...}.
 
-    Returns None if the reference cannot be resolved (unknown KPI id, or a
-    column not present in this KPI's own lineage) — the caller turns that into
-    an explicit HITL marker, never a silent placeholder.
+    Returns None if the reference cannot be resolved (unknown KPI id, a column
+    not present in this KPI's own lineage, or an unresolvable nested `calc`) —
+    the caller turns that into an explicit HITL marker, never a silent
+    placeholder.
     """
     if "kpi" in ref:
         other = catalog.get(ref["kpi"])
@@ -180,27 +182,26 @@ def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], catalog: "KpiCatalog"
         if not table:
             return None
         return {"kind": "column", "table": table, "column": column}
+    if "calc" in ref:
+        nested, _hitl = _resolve_calc_node(ref["calc"], own_cols, lineage, catalog)
+        if nested is None:
+            return None
+        return {"kind": "expr", **nested}
     return None
 
 
-def _resolve_calculation(kpi: dict, catalog: "KpiCatalog") -> tuple[Optional[dict], Optional[str]]:
-    """`technical.calculation` (governed, authored) → (resolved neutral formula,
-    HITL reason). Exactly one of the two is non-None (never both None without a
-    reason — Cut S-1: "Fehlerfall: KPI ohne ableitbare Formel → expliziter
-    HITL-Marker, NIEMALS stilles BLANK()")."""
-    calc = (kpi.get("technical", {}) or {}).get("calculation")
-    kpi_id = kpi.get("kpi_id", "?")
-    if not calc:
-        return None, None  # no calculation authored yet — generic "no dialect" HITL downstream
+def _resolve_calc_node(
+    calc: dict, own_cols: dict[str, str], lineage: list[str], catalog: "KpiCatalog"
+) -> tuple[Optional[dict], Optional[str]]:
+    """One governed `calculation` node (top-level `technical.calculation` OR a
+    nested `{"calc": {...}}` calc_ref) → (resolved neutral formula, failure
+    reason fragment). `own_cols`/`lineage` always come from the OWNING KPI —
+    nested nodes resolve against the same lineage as their parent, they don't
+    carry their own."""
     op = calc.get("op")
-    if op == "hitl":
-        return None, calc.get("reason") or f"HITL: '{kpi_id}' explicitly marked HITL."
-
-    own_cols = _own_lineage_columns(kpi)
-    lineage = (kpi.get("technical", {}) or {}).get("lineage") or []
 
     def ref(key: str) -> Optional[dict]:
-        return _resolve_calc_ref(calc[key], own_cols, catalog)
+        return _resolve_calc_ref(calc[key], own_cols, lineage, catalog)
 
     try:
         if op == "sum":
@@ -233,16 +234,119 @@ def _resolve_calculation(kpi: dict, catalog: "KpiCatalog") -> tuple[Optional[dic
             return {"op": "rate", "table": table, "column": column}, None
 
         if op == "count":
+            column = calc.get("column")
+            if column:
+                table = own_cols.get(column)
+                if not table:
+                    raise KeyError(column)
+                return {"op": "count", "table": table}, None
             if not lineage or "." in lineage[0]:
                 raise KeyError("bare-table lineage")
             return {"op": "count", "table": lineage[0]}, None
-    except KeyError as exc:
-        return None, (
-            f"HITL: calculation for '{kpi_id}' (op={op!r}) failed to resolve "
-            f"({exc}) — check technical.lineage / referenced kpi ids."
-        )
 
-    return None, f"HITL: calculation for '{kpi_id}' has unknown op {op!r}."
+        if op == "mul":
+            terms = [_resolve_calc_ref(t, own_cols, lineage, catalog) for t in calc["terms"]]
+            if len(terms) < 2 or any(t is None for t in terms):
+                raise KeyError("terms")
+            return {"op": "mul", "terms": terms}, None
+
+        if op == "delta_chain":
+            minuend = ref("minuend")
+            subtrahends = [_resolve_calc_ref(s, own_cols, lineage, catalog) for s in calc["subtrahends"]]
+            if minuend is None or not subtrahends or any(s is None for s in subtrahends):
+                raise KeyError("minuend/subtrahends")
+            return {"op": "delta_chain", "minuend": minuend, "subtrahends": subtrahends}, None
+
+        if op == "distinctcount":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            filters = []
+            for f in calc.get("filters") or []:
+                f_table = own_cols.get(f["column"])
+                if not f_table:
+                    raise KeyError(f["column"])
+                filters.append({"table": f_table, "column": f["column"], "equals": f["equals"]})
+            resolved = {"op": "distinctcount", "table": table, "column": column}
+            if filters:
+                resolved["filters"] = filters
+            return resolved, None
+
+        if op == "count_threshold":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            return {
+                "op": "count_threshold", "table": table, "column": column,
+                "comparator": calc["comparator"], "value": calc["value"],
+            }, None
+
+        if op == "round":
+            value = ref("value")
+            if value is None:
+                raise KeyError("value")
+            return {"op": "round", "value": value, "digits": calc["digits"]}, None
+
+        if op in ("sumx_over_key", "avgx_over_key"):
+            key_column = calc["key_column"]
+            table = own_cols.get(key_column)
+            value = ref("value")
+            if not table or value is None:
+                raise KeyError("key_column/value")
+            return {"op": op, "table": table, "key_column": key_column, "value": value}, None
+
+        if op == "pvm_volume_effect":
+            qty_col, plan_qty_col, plan_sales_col = calc["quantity"], calc["plan_quantity"], calc["plan_sales"]
+            tables = {own_cols.get(qty_col), own_cols.get(plan_qty_col), own_cols.get(plan_sales_col)}
+            if None in tables or len(tables) != 1:
+                raise KeyError("quantity/plan_quantity/plan_sales")
+            return {
+                "op": "pvm_volume_effect", "table": tables.pop(),
+                "quantity_column": qty_col, "plan_quantity_column": plan_qty_col, "plan_sales_column": plan_sales_col,
+            }, None
+
+        if op == "pvm_price_effect":
+            net_price_col, qty_col, plan_sales_col, plan_qty_col = (
+                calc["net_price"], calc["quantity"], calc["plan_sales"], calc["plan_quantity"],
+            )
+            tables = {own_cols.get(net_price_col), own_cols.get(qty_col), own_cols.get(plan_sales_col), own_cols.get(plan_qty_col)}
+            if None in tables or len(tables) != 1:
+                raise KeyError("net_price/quantity/plan_sales/plan_quantity")
+            return {
+                "op": "pvm_price_effect", "table": tables.pop(),
+                "net_price_column": net_price_col, "quantity_column": qty_col,
+                "plan_sales_column": plan_sales_col, "plan_quantity_column": plan_qty_col,
+            }, None
+    except KeyError as exc:
+        return None, f"(op={op!r}) failed to resolve ({exc})"
+
+    return None, f"has unknown op {op!r}"
+
+
+def _resolve_calculation(kpi: dict, catalog: "KpiCatalog") -> tuple[Optional[dict], Optional[str]]:
+    """`technical.calculation` (governed, authored) → (resolved neutral formula,
+    HITL reason). Exactly one of the two is non-None (never both None without a
+    reason — Cut S-1: "Fehlerfall: KPI ohne ableitbare Formel → expliziter
+    HITL-Marker, NIEMALS stilles BLANK()")."""
+    calc = (kpi.get("technical", {}) or {}).get("calculation")
+    kpi_id = kpi.get("kpi_id", "?")
+    if not calc:
+        return None, None  # no calculation authored yet — generic "no dialect" HITL downstream
+    op = calc.get("op")
+    if op == "hitl":
+        return None, calc.get("reason") or f"HITL: '{kpi_id}' explicitly marked HITL."
+
+    own_cols = _own_lineage_columns(kpi)
+    lineage = (kpi.get("technical", {}) or {}).get("lineage") or []
+
+    resolved, failure = _resolve_calc_node(calc, own_cols, lineage, catalog)
+    if resolved is not None:
+        return resolved, None
+    return None, (
+        f"HITL: calculation for '{kpi_id}' {failure} — check technical.lineage / referenced kpi ids."
+    )
 
 
 def _fmt_from_unit(unit: str) -> str:

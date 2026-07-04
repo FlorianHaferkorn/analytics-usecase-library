@@ -25,3 +25,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0008](0008-ai-orchestration-routing-tokens-tracking-roi-config.md) | AI Orchestration: Routing/Token/Tracking/ROI via Layered Config | Accepted |
 | [0009](0009-wirkungs-loop-action-kpi-attribution.md) | Wirkungs-Loop: Action → KPI-Snapshot-Delta → Attribution (Discovery I-8) | Accepted |
 | [0010](0010-kpi-calculation-dsl-and-dax-synthesis.md) | Governed KPI Calculation DSL + Deterministic DAX Synthesis (I-10.0) | Accepted |
+| [0011](0011-kpi-calculation-dsl-grammar-extension.md) | KPI Calculation DSL Grammar Extension (13-KPI Closure) | Accepted |

@@ -103,6 +103,140 @@ def test_malformed_or_unknown_raises_synthesis_error(resolved):
         d.synthesize_dax(resolved)
 
 
+def _expr(inner: dict):
+    return {"kind": "expr", **inner}
+
+
+# ---- I-10.0 grammar extension (13-KPI follow-up) -------------------------- #
+
+def test_mul_two_terms():
+    resolved = {"op": "mul", "terms": [_measure("Incremental Sales Amount"), _measure("Gross Margin %")]}
+    assert d.synthesize_dax(resolved) == "[Incremental Sales Amount] * [Gross Margin %]"
+
+
+def test_mul_needs_at_least_two_terms():
+    with pytest.raises(d.SynthesisError):
+        d.synthesize_dax({"op": "mul", "terms": [_measure("A")]})
+
+
+def test_delta_chain_four_terms():
+    resolved = {
+        "op": "delta_chain",
+        "minuend": _measure("Net Sales Amount"),
+        "subtrahends": [_col("fact_sales", "Plan Sales Amount"), _measure("Price Effect Amount"), _measure("Volume Effect Amount")],
+    }
+    assert d.synthesize_dax(resolved) == (
+        "[Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]"
+    )
+
+
+def test_delta_chain_needs_at_least_one_subtrahend():
+    with pytest.raises(d.SynthesisError):
+        d.synthesize_dax({"op": "delta_chain", "minuend": _measure("A"), "subtrahends": []})
+
+
+def test_distinctcount_no_filter():
+    resolved = {"op": "distinctcount", "table": "fact_customer_events", "column": "CustomerKey"}
+    assert d.synthesize_dax(resolved) == "DISTINCTCOUNT ( fact_customer_events[CustomerKey] )"
+
+
+def test_distinctcount_one_filter():
+    resolved = {
+        "op": "distinctcount", "table": "fact_customer_events", "column": "CustomerKey",
+        "filters": [{"table": "fact_customer_events", "column": "Churn Flag", "equals": True}],
+    }
+    assert d.synthesize_dax(resolved) == (
+        "CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), "
+        "fact_customer_events[Churn Flag] = TRUE () )"
+    )
+
+
+def test_distinctcount_two_filters_one_negated():
+    resolved = {
+        "op": "distinctcount", "table": "fact_customer_events", "column": "CustomerKey",
+        "filters": [
+            {"table": "fact_customer_events", "column": "Activity Flag", "equals": True},
+            {"table": "fact_customer_events", "column": "Churn Flag", "equals": False},
+        ],
+    }
+    assert d.synthesize_dax(resolved) == (
+        "CALCULATE ( DISTINCTCOUNT ( fact_customer_events[CustomerKey] ), "
+        "fact_customer_events[Activity Flag] = TRUE (), fact_customer_events[Churn Flag] = FALSE () )"
+    )
+
+
+def test_count_threshold():
+    resolved = {"op": "count_threshold", "table": "fact_nps", "column": "NPS Score", "comparator": ">=", "value": 9}
+    assert d.synthesize_dax(resolved) == "CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )"
+
+
+def test_round_wraps_nested_expr():
+    resolved = {"op": "round", "digits": 0, "value": _expr({"op": "ratio", "numerator": _measure("A"), "denominator": _measure("B"), "scale": 100})}
+    assert d.synthesize_dax(resolved) == "ROUND ( ( DIVIDE ( [A], [B] ) * 100 ), 0 )"
+
+
+def test_sumx_over_key():
+    resolved = {"op": "sumx_over_key", "table": "fact_sales", "key_column": "CustomerKey", "value": _measure("Net Sales Amount")}
+    assert d.synthesize_dax(resolved) == "SUMX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( [Net Sales Amount] ) )"
+
+
+def test_avgx_over_key():
+    resolved = {"op": "avgx_over_key", "table": "fact_customer_value", "key_column": "CustomerKey", "value": _col("fact_customer_value", "CLV Amount")}
+    assert d.synthesize_dax(resolved) == (
+        "AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )"
+    )
+
+
+def test_pvm_volume_effect():
+    resolved = {
+        "op": "pvm_volume_effect", "table": "fact_sales",
+        "quantity_column": "Quantity", "plan_quantity_column": "Plan Quantity", "plan_sales_column": "Plan Sales Amount",
+    }
+    assert d.synthesize_dax(resolved) == (
+        "SUMX ( fact_sales, ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * "
+        "DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) )"
+    )
+
+
+def test_pvm_price_effect():
+    resolved = {
+        "op": "pvm_price_effect", "table": "fact_sales",
+        "net_price_column": "Net Price Amount", "quantity_column": "Quantity",
+        "plan_sales_column": "Plan Sales Amount", "plan_quantity_column": "Plan Quantity",
+    }
+    assert d.synthesize_dax(resolved) == (
+        "SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Price Amount], fact_sales[Quantity] ) - "
+        "DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )"
+    )
+
+
+def test_nested_expr_ref_recurses_and_parenthesizes():
+    resolved = {"op": "delta", "minuend": _measure("A"), "subtrahend": _expr({"op": "sum", "ref": _col("t", "b")})}
+    assert d.synthesize_dax(resolved) == "[A] - ( SUM ( t[b] ) )"
+
+
+@pytest.mark.parametrize(
+    "resolved",
+    [
+        {"op": "mul", "terms": [_measure("A")]},
+        {"op": "delta_chain", "minuend": _measure("A"), "subtrahends": []},
+        {"op": "distinctcount", "table": "t"},  # missing column
+        {"op": "count_threshold", "table": "t", "column": "c"},  # missing comparator
+        {"op": "sumx_over_key", "key_column": "k", "value": _measure("A")},  # missing table
+        {"op": "avgx_over_key", "table": "t", "value": _measure("A")},  # missing key_column
+        {"op": "pvm_volume_effect", "table": "t"},  # missing columns
+        {"op": "pvm_price_effect", "table": "t"},  # missing columns
+        {"kind": "expr", "op": "unknown_op"},  # nested expr with unknown op bubbles up
+    ],
+)
+def test_new_ops_malformed_raises_synthesis_error(resolved):
+    with pytest.raises(d.SynthesisError):
+        if resolved.get("kind") == "expr":
+            d._term(resolved)
+        else:
+            d.synthesize_dax(resolved)
+
+
 def test_never_emits_colon_equals():
     """TMDL hard-rule (AGENTS.md): DAX assignment is '=', never ':=' — the
     synthesizer only returns the RHS expression, so this should be structurally

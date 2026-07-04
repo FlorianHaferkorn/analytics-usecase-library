@@ -23,14 +23,28 @@ technical:
   description: Incremental gross margin from promo.
   depends_on_measures:
   - sales.promo.incremental.amount
+  - margin.gm.amount
+  - sales.net_sales.amount
+  - sales.promo.cost.amount
   lineage:
   - fact_sales.Net Sales Amount
   - fact_sales.Cost of Goods Sold Amount
   - fact_promo.Baseline Sales Amount
   calculation:
-    op: hitl
-    reason: Multi-term calculation (Incremental Sales x GM% minus Promo Cost) — beyond the binary delta/ratio
-      grammar.
+    op: delta
+    minuend:
+      calc:
+        op: mul
+        terms:
+        - kpi: sales.promo.incremental.amount
+        - calc:
+            op: ratio
+            numerator:
+              kpi: margin.gm.amount
+            denominator:
+              kpi: sales.net_sales.amount
+    subtrahend:
+      kpi: sales.promo.cost.amount
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering

@@ -20,17 +20,18 @@ business:
 technical:
   measure_name: Price Effect Amount
   description: Quantifies the pure price impact in the PVM bridge.
-  depends_on_measures:
-  - sales.net_sales.amount
+  depends_on_measures: []
   lineage:
-  - fact_sales.Net Sales Amount
+  - fact_sales.Net Price Amount
   - fact_sales.Plan Quantity
   - fact_sales.Plan Sales Amount
   - fact_sales.Quantity
   calculation:
-    op: hitl
-    reason: SUMX iterator over invoice lines comparing actual vs. plan unit price/quantity (PVM price
-      effect) — beyond the sum/ratio/delta/rate/count grammar.
+    op: pvm_price_effect
+    net_price: Net Price Amount
+    quantity: Quantity
+    plan_sales: Plan Sales Amount
+    plan_quantity: Plan Quantity
 governance:
   business_owner: Head of Sales Controlling
   data_owner: BI Engineering
