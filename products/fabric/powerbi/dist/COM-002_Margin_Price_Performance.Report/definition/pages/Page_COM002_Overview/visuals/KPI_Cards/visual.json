@@ -53,39 +53,39 @@
                       "Entity": "_Measures"
                     }
                   },
+                  "Property": "Gross Margin % vs Plan"
+                }
+              },
+              "queryRef": "_Measures.Gross Margin % vs Plan",
+              "nativeQueryRef": "Gross Margin % vs Plan"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Price Realization %"
+                }
+              },
+              "queryRef": "_Measures.Price Realization %",
+              "nativeQueryRef": "Price Realization %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
                   "Property": "Gross Margin Amount"
                 }
               },
               "queryRef": "_Measures.Gross Margin Amount",
               "nativeQueryRef": "Gross Margin Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "List Price Amount"
-                }
-              },
-              "queryRef": "_Measures.List Price Amount",
-              "nativeQueryRef": "List Price Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Net Price Amount"
-                }
-              },
-              "queryRef": "_Measures.Net Price Amount",
-              "nativeQueryRef": "Net Price Amount"
             }
           ]
         }
