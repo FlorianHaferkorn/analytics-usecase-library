@@ -7,6 +7,7 @@ tmdl_parser + determinism.
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -90,12 +91,15 @@ def test_real_tmdl_hook_passes_on_emitted_files(model, tmp_path):
     """The actual PostToolUse hook (validate_tmdl_style.sh) exits 0 on emitted TMDL."""
     if not HOOK.exists():
         pytest.skip("TMDL hook not present")
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("bash not on PATH (I-10.1: plain Windows without WSL/Git Bash)")
     for rel, content in tmdl.emit(model).items():
         f = tmp_path / rel
         f.parent.mkdir(parents=True, exist_ok=True)
         f.write_text(content, encoding="utf-8")
         payload = json.dumps({"tool_name": "Write", "tool_input": {"file_path": str(f)}})
-        res = subprocess.run(["bash", str(HOOK)], input=payload, capture_output=True, text=True)
+        res = subprocess.run([bash, str(HOOK)], input=payload, capture_output=True, text=True)
         assert res.returncode == 0, f"hook blocked {rel}: {res.stdout}\n{res.stderr}"
 
 

@@ -21,7 +21,9 @@ Design notes:
     the npm CLI still runs the chain); `--require-cli` (used in CI, where the CLI
     is installed) turns the skip into a hard failure so the gate is enforced.
   - The TMDL gate is the same PostToolUse hook (`validate_tmdl_style.sh`) that
-    guards hand-written TMDL; if it is absent a structural fallback check runs.
+    guards hand-written TMDL, run via `bash`; if the hook script or `bash` itself
+    is absent (I-10.1: plain Windows without WSL/Git Bash) a structural fallback
+    check runs instead — never a crash.
   - Each stage prints `[e2e] <stage>: PASS|FAIL|SKIP — detail`; the process exit
     code is 0 only when no stage FAILED.
 """
@@ -68,23 +70,26 @@ class StageResult:
 
 def _stage_tmdl(model: CanonicalModel, dest: Path) -> StageResult:
     files = base.render("tmdl", model, dest)
-    if _TMDL_HOOK.exists():
+    bash = shutil.which("bash")
+    if _TMDL_HOOK.exists() and bash:
         for f in files:
             if f.suffix != ".tmdl":
                 continue
             payload = json.dumps({"tool_name": "Write", "tool_input": {"file_path": str(f)}})
-            proc = subprocess.run(["bash", str(_TMDL_HOOK)], input=payload,
+            proc = subprocess.run([bash, str(_TMDL_HOOK)], input=payload,
                                   capture_output=True, text=True)
             if proc.returncode != 0:
                 return StageResult("tmdl", "FAIL",
                                    f"hook blocked {f.name}: {(proc.stdout + proc.stderr).strip()[:200]}")
         return StageResult("tmdl", "PASS", f"{len(files)} file(s), hard-rule hook green")
-    # Fallback structural check when the hook isn't available.
+    # Fallback structural check when the hook script is absent, or there is no
+    # `bash` on PATH to run it (e.g. plain Windows without WSL/Git Bash — I-10.1:
+    # a missing `bash` must degrade to this check, not crash with WinError 2).
     for f in files:
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
             if line.startswith("  ") or ":=" in line:
                 return StageResult("tmdl", "FAIL", f"{f.name}:{i} violates TMDL hard-rules")
-    return StageResult("tmdl", "PASS", f"{len(files)} file(s), structural check (hook absent)")
+    return StageResult("tmdl", "PASS", f"{len(files)} file(s), structural check (hook or bash absent)")
 
 
 def _stage_pbir(model: CanonicalModel, dest: Path, *, require_cli: bool) -> StageResult:

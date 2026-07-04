@@ -51,6 +51,18 @@ def test_require_cli_turns_missing_cli_into_failure(monkeypatch):
     assert any(r.failed for r in results)
 
 
+def test_tmdl_stage_falls_back_when_bash_absent(monkeypatch):
+    """I-10.1: on plain Windows (no WSL/Git Bash), `bash` isn't on PATH — the TMDL
+    stage must degrade to the structural fallback check, not crash with
+    FileNotFoundError (WinError 2 on Windows)."""
+    monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: None)
+    results = e2e_smoke.run(COM001)
+    tmdl_stage = _by_name(results)["tmdl"]
+    assert tmdl_stage.status == "PASS"
+    assert "bash absent" in tmdl_stage.detail
+    assert not any(r.failed for r in results)
+
+
 def test_main_returns_one_for_missing_bracket(capsys):
     assert e2e_smoke.main([str(REPO / "does_not_exist.yaml")]) == 1
     assert "FAIL" in capsys.readouterr().out
