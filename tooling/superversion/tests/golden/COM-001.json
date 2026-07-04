@@ -61,7 +61,7 @@
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
             "expressions": {
-              "hitl_reason": "SUMX iterator over invoice lines comparing actual vs. plan unit price/quantity (PVM price effect) — beyond the sum/ratio/delta/rate/count grammar."
+              "dsl": "{\"net_price_column\": \"Net Price Amount\", \"op\": \"pvm_price_effect\", \"plan_quantity_column\": \"Plan Quantity\", \"plan_sales_column\": \"Plan Sales Amount\", \"quantity_column\": \"Quantity\", \"table\": \"fact_sales\"}"
             }
           },
           {
@@ -72,7 +72,7 @@
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
             "expressions": {
-              "hitl_reason": "SUMX iterator over invoice lines comparing actual vs. plan quantity (PVM volume effect) — beyond the sum/ratio/delta/rate/count grammar."
+              "dsl": "{\"op\": \"pvm_volume_effect\", \"plan_quantity_column\": \"Plan Quantity\", \"plan_sales_column\": \"Plan Sales Amount\", \"quantity_column\": \"Quantity\", \"table\": \"fact_sales\"}"
             }
           },
           {
@@ -83,7 +83,7 @@
             "format_string": "\\€#,0.00;-\\€#,0.00",
             "is_hidden": false,
             "expressions": {
-              "hitl_reason": "Residual of a 4-term chain (Net Sales - Plan Sales - Price Effect - Volume Effect) — beyond the binary delta grammar."
+              "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Net Sales Amount\"}, \"op\": \"delta_chain\", \"subtrahends\": [{\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}, {\"kind\": \"measure\", \"name\": \"Price Effect Amount\"}, {\"kind\": \"measure\", \"name\": \"Volume Effect Amount\"}]}"
             }
           },
           {

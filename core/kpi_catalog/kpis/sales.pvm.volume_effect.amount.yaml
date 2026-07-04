@@ -24,9 +24,10 @@ technical:
   - fact_sales.Plan Sales Amount
   - fact_sales.Quantity
   calculation:
-    op: hitl
-    reason: SUMX iterator over invoice lines comparing actual vs. plan quantity (PVM volume effect) —
-      beyond the sum/ratio/delta/rate/count grammar.
+    op: pvm_volume_effect
+    quantity: Quantity
+    plan_quantity: Plan Quantity
+    plan_sales: Plan Sales Amount
 governance:
   business_owner: Head of Sales Controlling
   data_owner: BI Engineering

@@ -71,6 +71,22 @@ KPI_TO_LEGACY = {
     "supply.stockout_impact.pct": ("SupplyChain.SemanticModel", "Stockout Impact %"),
     "supply.penalty.amount": ("SupplyChain.SemanticModel", "Penalty Amount"),
     "supply.expedite.amount": ("SupplyChain.SemanticModel", "Expedite Cost Amount"),
+    # The 13 KPIs closed by the DSL grammar extension (mul, delta_chain, distinctcount,
+    # count_threshold, round, sumx_over_key, avgx_over_key, pvm_volume_effect,
+    # pvm_price_effect, recursive calc_ref) — Cut S-1 follow-up, "go for 1".
+    "sales.pvm.volume_effect.amount": ("Commercial.SemanticModel", "Volume Effect Amount"),
+    "sales.pvm.price_effect.amount": ("Commercial.SemanticModel", "Price Effect Amount"),
+    "sales.pvm.mix_effect.amount": ("Commercial.SemanticModel", "Mix Effect Amount"),
+    "margin.gm.vs_plan.pct": ("Commercial.SemanticModel", "Gross Margin % vs Plan"),
+    "sales.promo.incremental_gm.amount": ("Commercial.SemanticModel", "Incremental Gross Margin Amount"),
+    "crm.churned_customers.count": ("Commercial.SemanticModel", "Churned Customers"),
+    "crm.active_customers.count": ("Commercial.SemanticModel", "Active Customers"),
+    "crm.retention.pct": ("Commercial.SemanticModel", "Customer Retention %"),
+    "crm.nps.index": ("Commercial.SemanticModel", "Net Promoter Score (NPS)"),
+    "crm.lifetime_revenue.amount": ("Commercial.SemanticModel", "Customer Lifetime Revenue Amount"),
+    "crm.clv.amount": ("Commercial.SemanticModel", "CLV (Customer Lifetime Value)"),
+    "crm.revenue_at_risk.amount": ("Commercial.SemanticModel", "Revenue at Risk Amount"),
+    "crm.complaint.count": ("Commercial.SemanticModel", "Complaint Count"),
     # No legacy counterpart was ever generated for these (new-territory KPIs) —
     # parity is vacuous (nothing to diverge from), documented, not asserted.
     "cost.base_volume.amount": (None, None),

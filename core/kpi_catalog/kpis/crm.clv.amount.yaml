@@ -22,20 +22,15 @@ technical:
   measure_name: CLV
   description: Estimate long-term value of a customer to prioritize retention, acquisition, and service
     investments.
-  depends_on_measures:
-  - crm.lifetime_revenue.amount
-  - crm.retention.pct
-  - crm.churned_customers.count
-  - crm.active_customers.count
-  - crm.nps.index
-  - crm.complaint.count
-  - cost.cogs.amount
+  depends_on_measures: []
   lineage:
-  - fact_sales.CustomerKey
+  - fact_customer_value.CustomerKey
+  - fact_customer_value.CLV Amount
   calculation:
-    op: hitl
-    reason: AVERAGEX iterator over a different fact table (fact_customer_value) than documented in lineage
-      (fact_sales.CustomerKey) — lineage mismatch, beyond the grammar.
+    op: avgx_over_key
+    key_column: CustomerKey
+    value:
+      column: CLV Amount
 governance:
   business_owner: Head of CRM / Marketing Analytics
   data_owner: CRM BI

@@ -63,12 +63,24 @@ def test_tmdl_hardrules_no_spaces_no_assign_no_description(model):
         assert "\tmeasure " in content  # tab-indented
 
 
-def test_neutral_core_placeholder_dax(model):
+def test_neutral_core_placeholder_dax():
     """Source stays dialect-neutral (I1): with no derivable formula, the emitter
-    writes a deterministic HITL BLANK() placeholder, never invented DAX. Since
-    I-10.0, COM-001's PVM-effect measures are the ones still gapped (documented
-    `op: hitl` — SUMX iterators beyond the sum/ratio/delta/rate/count grammar);
-    every placeholder carries a diagnosable `/// HITL:` reason, generic or specific."""
+    writes a deterministic HITL BLANK() placeholder, never invented DAX — every
+    placeholder carries a diagnosable `/// HITL:` reason, generic or specific.
+
+    Synthetic model (not COM-001): the DSL grammar extension (I-10.0 follow-up)
+    closed the last 13 documented HITL gaps referenced by the 5 MVP use cases,
+    so COM-001 itself now has 0 gaps to observe this on — this test exercises
+    the emitter's HITL/BLANK() contract directly instead."""
+    hitl_measure = Measure(
+        name="Unresolvable Measure",
+        expression="",
+        expressions={"hitl_reason": "HITL: no derivable formula — beyond the governed grammar."},
+    )
+    model = CanonicalModel(
+        semantic=SemanticModel(name="Synthetic", tables=[Table(name="fact_test", measures=[hitl_measure])]),
+        report=ReportModel(name="Synthetic"),
+    )
     blob = "\n".join(tmdl.emit(model).values())
     assert "= BLANK()" in blob
     assert "/// HITL:" in blob

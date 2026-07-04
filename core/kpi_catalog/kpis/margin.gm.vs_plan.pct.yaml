@@ -20,14 +20,21 @@ technical:
   measure_name: Gross Margin % vs Plan
   description: Measures gross margin rate variance versus plan.
   depends_on_measures:
-  - sales.net_sales.amount
-  - cost.cogs.amount
+  - margin.gm.amount
   lineage:
-  - fact_plan_sales.Plan Gross Margin Amount
+  - fact_sales.Plan Sales Amount
+  - fact_sales.Plan COGS Amount
   calculation:
-    op: hitl
-    reason: Multi-step VAR calculation (Plan GM derived from Plan Sales minus Plan COGS); catalog lineage
-      lists only 1 column — beyond the grammar.
+    op: delta_pct
+    minuend:
+      kpi: margin.gm.amount
+    subtrahend:
+      calc:
+        op: delta
+        minuend:
+          column: Plan Sales Amount
+        subtrahend:
+          column: Plan COGS Amount
 governance:
   business_owner: Head of Controlling
   data_owner: BI Engineering

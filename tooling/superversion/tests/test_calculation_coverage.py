@@ -30,16 +30,12 @@ CORE_5_BRACKETS = {
     "SCM-002": REPO / "core/usecases/core/SCM-002_Supply_Reliability_OTIF/UseCase_Bracket.yaml",
 }
 
-# The 13 KPIs deliberately left as explicit HITL (Cut S-1 scope-out: "komplexe
-# KPIs jenseits sum/ratio/delta bleiben HITL, aber gezählt") — everything else
-# referenced by the 5 core use cases must compute.
-KNOWN_HITL_KPI_MEASURE_NAMES = {
-    "Price Effect Amount", "Volume Effect Amount", "Mix Effect Amount",
-    "Gross Margin % vs Plan", "Incremental Gross Margin Amount",
-    "CLV", "Revenue at Risk Amount", "Customer Lifetime Revenue Amount",
-    "Churned Customers", "Active Customers", "Customer Retention %",
-    "NPS Index", "Complaint Count",
-}
+# Cut S-1 originally scoped out 13 KPIs as explicit HITL ("komplexe KPIs jenseits
+# sum/ratio/delta bleiben HITL, aber gezählt"). The DSL grammar extension (mul,
+# delta_chain, distinctcount, count_threshold, round, sumx_over_key, avgx_over_key,
+# pvm_volume_effect, pvm_price_effect, recursive calc_ref) now covers all 13 —
+# the 5 core use cases are fully computed, 0 documented HITL gaps remain.
+KNOWN_HITL_KPI_MEASURE_NAMES: set[str] = set()
 
 
 def _all_measures(model):
@@ -67,9 +63,11 @@ def test_zero_silent_blank_across_all_16_use_cases(bracket):
 
 @pytest.mark.parametrize("uc,bracket", sorted(CORE_5_BRACKETS.items()))
 def test_hitl_gaps_matches_the_documented_scope_out(uc, bracket):
-    """`hitl_gaps()` for the 5 core UCs only ever names the 13 KPIs explicitly
-    scoped out (Cut S-1) — never a KPI that has a `technical.calculation`
-    entry (those must resolve, or the test below catches it)."""
+    """`hitl_gaps()` for the 5 core UCs never names a KPI outside
+    `KNOWN_HITL_KPI_MEASURE_NAMES` (currently empty — the DSL grammar
+    extension closed the last 13 gaps) — never a KPI that has a
+    `technical.calculation` entry (those must resolve, or the test below
+    catches it)."""
     model = from_bracket_file(bracket, KPIS)
     gaps = tmdl.hitl_gaps(model)
     for gap in gaps:
@@ -81,11 +79,13 @@ def test_hitl_gaps_matches_the_documented_scope_out(uc, bracket):
         )
 
 
-def test_fin002_and_scm002_are_fully_computed():
-    """FIN-002 and SCM-002 reference no KPI in the deliberate HITL scope-out set
-    — 0 gaps, matching Cut S-1's `BLANK()`-quote=0 claim for these two UCs."""
-    for uc in ("FIN-002", "SCM-002"):
-        model = from_bracket_file(CORE_5_BRACKETS[uc], KPIS)
+def test_all_5_core_use_cases_are_fully_computed():
+    """All 5 MVP use cases (COM-001/002/003, FIN-002, SCM-002) reference zero
+    KPIs left as `op: hitl` — the DSL grammar extension closed the last 13
+    gaps (PVM effects, margin-vs-plan, promo incremental GM, COM-003 customer
+    analytics). 0 HITL gaps, matching Cut S-1's `BLANK()`-quote=0 target."""
+    for uc, bracket in CORE_5_BRACKETS.items():
+        model = from_bracket_file(bracket, KPIS)
         assert tmdl.hitl_gaps(model) == [], f"{uc} should be fully computed (0 HITL gaps)"
 
 

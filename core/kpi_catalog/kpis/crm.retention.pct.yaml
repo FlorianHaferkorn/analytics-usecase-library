@@ -24,11 +24,27 @@ technical:
     loyalty KPI.
   depends_on_measures: []
   lineage:
+  - fact_customer_events.CustomerKey
   - fact_customer_events.Activity Flag
+  - fact_customer_events.Churn Flag
   calculation:
-    op: hitl
-    reason: DISTINCTCOUNT with two simultaneous flag filters (Activity AND Churn) — beyond the single-filter
-      rate() grammar.
+    op: ratio
+    numerator:
+      calc:
+        op: distinctcount
+        column: CustomerKey
+        filters:
+        - column: Activity Flag
+          equals: true
+        - column: Churn Flag
+          equals: false
+    denominator:
+      calc:
+        op: distinctcount
+        column: CustomerKey
+        filters:
+        - column: Activity Flag
+          equals: true
 governance:
   business_owner: Head of Marketing
   data_owner: CRM BI
