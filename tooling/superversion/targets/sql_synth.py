@@ -10,7 +10,7 @@ Like `dax_synth.py`, this is the ONLY place SQL syntax is constructed for the
 calculation grammar; `from_aluca.py` never imports this module either (I1:
 the source adapter stays dialect-neutral for every stack, not just Power BI).
 
-Grammar coverage — 14 of the 19 ops translate to a flat SQL aggregate
+Grammar coverage — 16 of the 21 ops translate to a flat SQL aggregate
 expression (a Databricks Metric View measure `expr` is exactly that: one
 SQL expression over the view's single `source` table, no subquery):
 
