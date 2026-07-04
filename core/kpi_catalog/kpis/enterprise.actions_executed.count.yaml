@@ -21,6 +21,12 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_action_outcome.outcome_status
+  calculation:
+    op: count_filtered
+    column: outcome_status
+    filters:
+    - column: outcome_status
+      not_blank: true
 governance:
   business_owner: Chief Analytics Officer
   data_owner: Enterprise Analytics

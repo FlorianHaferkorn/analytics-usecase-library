@@ -192,6 +192,22 @@ def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], lineage: list[str], c
     return None
 
 
+def _resolve_calc_filters(filters: list[dict], own_cols: dict[str, str]) -> list[dict]:
+    """Shared `count_filtered`/`avg_filtered` filter-list resolution: each filter's
+    `column` must be in this KPI's own lineage; raises KeyError (never a silent
+    placeholder) if not."""
+    resolved = []
+    for f in filters:
+        f_table = own_cols.get(f["column"])
+        if not f_table:
+            raise KeyError(f["column"])
+        if "not_blank" in f:
+            resolved.append({"table": f_table, "column": f["column"], "not_blank": True})
+        else:
+            resolved.append({"table": f_table, "column": f["column"], "equals": f["equals"]})
+    return resolved
+
+
 def _resolve_calc_node(
     calc: dict, own_cols: dict[str, str], lineage: list[str], catalog: "KpiCatalog"
 ) -> tuple[Optional[dict], Optional[str]]:
@@ -356,13 +372,16 @@ def _resolve_calc_node(
             table = own_cols.get(column)
             if not table:
                 raise KeyError(column)
-            filters = []
-            for f in calc["filters"]:
-                f_table = own_cols.get(f["column"])
-                if not f_table:
-                    raise KeyError(f["column"])
-                filters.append({"table": f_table, "column": f["column"], "equals": f["equals"]})
+            filters = _resolve_calc_filters(calc["filters"], own_cols)
             return {"op": "count_filtered", "table": table, "filters": filters}, None
+
+        if op == "avg_filtered":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            filters = _resolve_calc_filters(calc["filters"], own_cols)
+            return {"op": "avg_filtered", "table": table, "column": column, "filters": filters}, None
     except KeyError as exc:
         return None, f"(op={op!r}) failed to resolve ({exc})"
 

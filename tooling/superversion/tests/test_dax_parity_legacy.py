@@ -144,6 +144,28 @@ KPI_TO_LEGACY = {
     "cost.base_volume.amount": (None, None),
     "cost.opex.base.amount": (None, None),
     "margin.ebitda.pct": (None, None),
+    # Experience domain (XD-001/002/003/004) — I-10.0 follow-up.
+    "svc.sla.attainment.pct": ("Experience.SemanticModel", "SLA Attainment %"),
+    "svc.fcr.pct": ("Experience.SemanticModel", "FCR %"),
+    "svc.escalation.pct": ("Experience.SemanticModel", "Escalation %"),
+    "svc.aht.minutes": ("Experience.SemanticModel", "AHT Minutes"),
+    "svc.backlog.count": ("Experience.SemanticModel", "Backlog Count"),
+    "svc.tickets.closed.count": ("Experience.SemanticModel", "Tickets Closed Count"),
+    "svc.tickets.created.count": ("Experience.SemanticModel", "Tickets Created Count"),
+    "svc.nps.index": ("Experience.SemanticModel", "NPS Index"),
+    "res.utilization.pct": ("Experience.SemanticModel", "Utilization %"),
+    "res.occupancy.pct": ("Experience.SemanticModel", "Occupancy %"),
+    "res.overtime.pct": ("Experience.SemanticModel", "Overtime %"),
+    "res.shrinkage.pct": ("Experience.SemanticModel", "Shrinkage %"),
+    "ops.working_capital.ccc.days": ("Experience.SemanticModel", "Cash Conversion Cycle (Days)"),
+    "enterprise.value_at_risk.index": ("Experience.SemanticModel", "Enterprise Value-at-Risk Index"),
+    "enterprise.actions_executed.count": ("Experience.SemanticModel", "Actions Executed Count (XD)"),
+    "enterprise.avg_time_to_outcome.days": ("Experience.SemanticModel", "Avg Time-to-Outcome Days (XD)"),
+    "enterprise.action_roi.pct": ("Experience.SemanticModel", "Action ROI % (XD)"),
+    "enterprise.action_effectiveness_delta.amount": ("Experience.SemanticModel", "Action Effectiveness Delta"),
+    # Chosen over the superseded 'Action Outcome Rate % (XD Log)' duplicate — see
+    # this KPI's own governance.qa_rules for why.
+    "enterprise.action_outcome_rate.pct": ("Experience.SemanticModel", "Action Outcome Rate % (XD)"),
 }
 
 # Documented, deliberate divergences (Review Befund A2 methodology: ledger, not
@@ -156,6 +178,12 @@ _MEASURE_BLOCK_RE = re.compile(
 )
 _TABLE_COL_RE = re.compile(r"([A-Za-z_][A-Za-z0-9_]*)\[([^\]]+)\]")
 _COUNTROWS_BARE_TABLE_RE = re.compile(r"COUNTROWS\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*\)")
+# Legacy sometimes spells the same "count rows matching a condition" semantics
+# as `COUNTROWS ( FILTER ( table, cond ) )` instead of the synthesis side's
+# `CALCULATE ( COUNTROWS ( table ), cond )` — both touch the whole table (same
+# `(table, "*")` sentinel), so both spellings must normalize identically or a
+# purely textual-idiom difference reads as a false column-set divergence.
+_COUNTROWS_FILTER_TABLE_RE = re.compile(r"COUNTROWS\s*\(\s*FILTER\s*\(\s*([A-Za-z_][A-Za-z0-9_]*)\s*,")
 # Negative lookbehind excludes the `[Column]` half of `table[Column]` (a
 # genuine column access, already handled by `_TABLE_COL_RE`) — only a bracket
 # NOT immediately preceded by an identifier character is a bracket-MEASURE
@@ -171,11 +199,14 @@ _VAR_RE = re.compile(r"VAR\s+(\w+)\s*=\s*(.*?)(?=VAR\s+\w+\s*=|RETURN\b|\Z)", re
 
 
 def _extract_column_refs(text: str) -> set[tuple[str, str]]:
-    """`table[Column]` refs plus bare `COUNTROWS ( table )` refs (which have no
-    bracket at all — represented as `(table, "*")`, matching the synthesis
-    side's `count` op sentinel)."""
+    """`table[Column]` refs plus bare `COUNTROWS ( table )` and
+    `COUNTROWS ( FILTER ( table, ... ) )` refs (neither has a `table[Column]`
+    bracket for the table itself — both represented as `(table, "*")`,
+    matching the synthesis side's `count`/`count_filtered`/`avg_filtered`
+    sentinel)."""
     refs = set(_TABLE_COL_RE.findall(text))
     refs |= {(t, "*") for t in _COUNTROWS_BARE_TABLE_RE.findall(text)}
+    refs |= {(t, "*") for t in _COUNTROWS_FILTER_TABLE_RE.findall(text)}
     return refs
 
 

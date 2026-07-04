@@ -20,9 +20,14 @@ technical:
   measure_name: Digital Adoption Rate %
   description: Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
   depends_on_measures: []
-  lineage:
-  - fact_hr.Headcount
-  - fact_it.Digital Users
+  lineage: []
+  calculation:
+    op: hitl
+    reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s
+      own DAX is a documented placeholder (VAR _pending = "Requires fact_it Digital
+      Users and fact_hr Total Headcount (not yet in data contracts)" RETURN BLANK())
+      — the source tables/columns do not exist yet in the data contract, upstream
+      of any DSL grammar question.'
 governance:
   business_owner: Head of Digital Transformation
   data_owner: Corporate BI

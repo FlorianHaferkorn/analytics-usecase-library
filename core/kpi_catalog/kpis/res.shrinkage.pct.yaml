@@ -24,6 +24,12 @@ technical:
   lineage:
   - fact_workforce_management.Paid Time Minutes
   - fact_workforce_management.Shrinkage Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Shrinkage Minutes
+    denominator:
+      column: Paid Time Minutes
 governance:
   business_owner: Head of Service
   data_owner: WFM Analytics

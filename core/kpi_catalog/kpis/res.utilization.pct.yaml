@@ -23,16 +23,16 @@ business:
 technical:
   measure_name: Utilization %
   description: Measures productive time versus paid time for agents.
-  depends_on_measures:
-  - res.occupancy.pct
-  - res.overtime.pct
-  - res.shrinkage.pct
-  - svc.sla.attainment.pct
-  - svc.backlog.count
-  - svc.tickets.created.count
+  depends_on_measures: []
   lineage:
   - fact_workforce_management.Paid Time Minutes
   - fact_workforce_management.Work Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Work Time Minutes
+    denominator:
+      column: Paid Time Minutes
 governance:
   business_owner: Head of Service
   data_owner: WFM Analytics

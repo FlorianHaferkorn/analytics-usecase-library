@@ -157,6 +157,22 @@ def test_count_filtered_string_value_escapes_embedded_quotes():
     assert s.synthesize_sql(resolved) == "COUNT ( CASE WHEN c = 'a ''quoted'' value' THEN 1 END )"
 
 
+def test_count_filtered_not_blank_filter():
+    resolved = {
+        "op": "count_filtered", "table": "fact_action_outcome",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "not_blank": True}],
+    }
+    assert s.synthesize_sql(resolved) == "COUNT ( CASE WHEN outcome_status IS NOT NULL THEN 1 END )"
+
+
+def test_avg_filtered_single_equals_filter():
+    resolved = {
+        "op": "avg_filtered", "table": "fact_action_outcome", "column": "impact_value",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "equals": "achieved"}],
+    }
+    assert s.synthesize_sql(resolved) == "AVG ( CASE WHEN outcome_status = 'achieved' THEN impact_value END )"
+
+
 def test_sumx_product_has_no_flat_sql_shape():
     with pytest.raises(s.SynthesisError):
         s.synthesize_sql({"op": "sumx_product", "table": "t", "factor_a_column": "a", "factor_b_column": "b"})
@@ -179,6 +195,8 @@ def test_abs_wraps_term():
         {"op": "count_filtered", "filters": [{"table": "t", "column": "c", "equals": True}]},
         {"op": "add", "terms": [_measure("A")]},
         {"op": "abs"},
+        {"op": "avg_filtered", "table": "t", "filters": [{"table": "t", "column": "c", "equals": True}]},
+        {"op": "avg_filtered", "table": "t", "column": "c", "filters": []},
     ],
 )
 def test_new_ops_round2_malformed_raises_synthesis_error(resolved):

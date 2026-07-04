@@ -98,6 +98,32 @@
         }
       ]
     },
+    "calc_filters": {
+      "description": "Shared filter-list shape for `count_filtered`/`avg_filtered`: 1+ conditions against columns from this KPI's own lineage table, each either an equality check (boolean or string) or a not-blank check.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "required": ["column", "equals"],
+            "properties": {
+              "column": { "type": "string", "minLength": 1 },
+              "equals": { "oneOf": [{ "type": "boolean" }, { "type": "string" }] }
+            }
+          },
+          {
+            "additionalProperties": false,
+            "required": ["column", "not_blank"],
+            "properties": {
+              "column": { "type": "string", "minLength": 1 },
+              "not_blank": { "const": true }
+            }
+          }
+        ]
+      }
+    },
     "calculation": {
       "description": "Governed, stack-neutral, machine-readable formula (I-10.0 / Cut S-1). Deliberately narrow grammar (sum/ratio/delta/delta_pct/rate/count) — a KPI whose real calculation is more complex (multi-term VAR chains, iterators, DISTINCTCOUNT-with-filters, …) MUST use op:hitl with an explicit reason rather than silently omitting this field (silent omission still renders BLANK() in the TMDL target, but without a diagnosable reason). The stack adapter (targets/tmdl.py + dax_synth.py) is the ONLY place this is materialized into a real dialect (DAX); this field itself never contains DAX (Invariant I1, neutral core).",
       "type": "object",
@@ -180,25 +206,23 @@
           }
         },
         {
-          "description": "CALCULATE ( COUNTROWS ( table ), filter_1, filter_2, ... ) — row count of this KPI's own lineage table under 1+ equality filters against boolean OR string column values (e.g. PM Compliance %'s Order Type = \"PM\" AND Order Status = \"Completed\"). Generalizes `rate`/`distinctcount`'s boolean-only filters to string equality, needed when the legacy DAX filters on a categorical column rather than a flag.",
+          "description": "CALCULATE ( COUNTROWS ( table ), filter_1, filter_2, ... ) — row count of this KPI's own lineage table under 1+ filters against boolean OR string column values, or a not-blank check (e.g. PM Compliance %'s Order Type = \"PM\" AND Order Status = \"Completed\"; Actions Executed Count's NOT ISBLANK(outcome_status)). Generalizes `rate`/`distinctcount`'s boolean-only filters to string equality and not-blank, needed when the legacy DAX filters on a categorical column or a has-a-value check rather than a flag.",
           "additionalProperties": false,
           "required": ["op", "column", "filters"],
           "properties": {
             "op": { "const": "count_filtered" },
             "column": { "type": "string", "minLength": 1 },
-            "filters": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["column", "equals"],
-                "properties": {
-                  "column": { "type": "string", "minLength": 1 },
-                  "equals": { "oneOf": [{ "type": "boolean" }, { "type": "string" }] }
-                }
-              }
-            }
+            "filters": { "$ref": "#/$defs/calc_filters" }
+          }
+        },
+        {
+          "description": "CALCULATE ( AVERAGEX ( table, table[column] ), filter_1, filter_2, ... ) — row average of this KPI's own lineage column, restricted to rows matching 1+ filters (e.g. Action Effectiveness Delta = AVERAGEX(FILTER(fact_action_outcome, outcome_status=\"achieved\"), impact_value)). Same filter shape as `count_filtered`; needed when the legacy DAX averages a subset of rows rather than the whole table.",
+          "additionalProperties": false,
+          "required": ["op", "column", "filters"],
+          "properties": {
+            "op": { "const": "avg_filtered" },
+            "column": { "type": "string", "minLength": 1 },
+            "filters": { "$ref": "#/$defs/calc_filters" }
           }
         },
         {

@@ -26,6 +26,21 @@ technical:
   - fact_workforce_management.Idle Time Minutes
   - fact_workforce_management.Talk Time Minutes
   - fact_workforce_management.Wrap Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: add
+        terms:
+        - column: Talk Time Minutes
+        - column: Wrap Time Minutes
+    denominator:
+      calc:
+        op: add
+        terms:
+        - column: Talk Time Minutes
+        - column: Wrap Time Minutes
+        - column: Idle Time Minutes
 governance:
   business_owner: Head of Service
   data_owner: WFM Analytics

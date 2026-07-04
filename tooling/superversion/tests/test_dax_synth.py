@@ -264,6 +264,27 @@ def test_count_filtered_string_value_escapes_embedded_quotes():
     assert d.synthesize_dax(resolved) == 'CALCULATE ( COUNTROWS ( t ), t[c] = "a ""quoted"" value" )'
 
 
+def test_count_filtered_not_blank_filter():
+    resolved = {
+        "op": "count_filtered", "table": "fact_action_outcome",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "not_blank": True}],
+    }
+    assert d.synthesize_dax(resolved) == (
+        "CALCULATE ( COUNTROWS ( fact_action_outcome ), NOT ISBLANK ( fact_action_outcome[outcome_status] ) )"
+    )
+
+
+def test_avg_filtered_single_equals_filter():
+    resolved = {
+        "op": "avg_filtered", "table": "fact_action_outcome", "column": "impact_value",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "equals": "achieved"}],
+    }
+    assert d.synthesize_dax(resolved) == (
+        'CALCULATE ( AVERAGEX ( fact_action_outcome, fact_action_outcome[impact_value] ), '
+        'fact_action_outcome[outcome_status] = "achieved" )'
+    )
+
+
 def test_add_two_and_three_terms():
     assert d.synthesize_dax({"op": "add", "terms": [_measure("A"), _measure("B")]}) == "[A] + [B]"
     assert d.synthesize_dax({"op": "add", "terms": [_measure("A"), _measure("B"), _measure("C")]}) == "[A] + [B] + [C]"
@@ -303,6 +324,8 @@ def test_one_minus_abs_ratio_composition():
         {"op": "count_filtered", "filters": [{"table": "t", "column": "c", "equals": True}]},  # missing table
         {"op": "add", "terms": [_measure("A")]},  # needs 2+
         {"op": "abs"},  # missing value
+        {"op": "avg_filtered", "table": "t", "filters": [{"table": "t", "column": "c", "equals": True}]},  # missing column
+        {"op": "avg_filtered", "table": "t", "column": "c", "filters": []},  # empty filters
     ],
 )
 def test_new_ops_round2_malformed_raises_synthesis_error(resolved):

@@ -31,6 +31,12 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_support_cases.Backlog Flag
+  calculation:
+    op: count_filtered
+    column: Backlog Flag
+    filters:
+    - column: Backlog Flag
+      equals: true
 governance:
   business_owner: Head of Service
   data_owner: Service Analytics

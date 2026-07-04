@@ -30,15 +30,12 @@ business:
 technical:
   measure_name: SLA Attainment %
   description: Measures how many cases meet the committed SLA.
-  depends_on_measures:
-  - svc.backlog.count
-  - svc.fcr.pct
-  - svc.aht.minutes
-  - svc.escalation.pct
-  - svc.tickets.created.count
-  - svc.tickets.closed.count
+  depends_on_measures: []
   lineage:
   - fact_support_cases.SLA Met Flag
+  calculation:
+    op: rate
+    column: SLA Met Flag
 governance:
   business_owner: Head of Service
   data_owner: Service Analytics

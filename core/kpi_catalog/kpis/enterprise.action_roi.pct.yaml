@@ -22,6 +22,17 @@ technical:
   lineage:
   - fact_action_outcome.impact_value
   - fact_action_outcome.cost_to_execute
+  calculation:
+    op: delta
+    minuend:
+      calc:
+        op: ratio
+        numerator:
+          column: impact_value
+        denominator:
+          column: cost_to_execute
+    subtrahend:
+      literal: 1
 governance:
   business_owner: Chief Analytics Officer
   data_owner: Enterprise Analytics

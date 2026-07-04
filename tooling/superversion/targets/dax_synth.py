@@ -34,7 +34,8 @@ resolved upstream in `from_aluca`, never reaches this module):
     pvm_price_effect  -- SUMX ( t, ( DIVIDE ( t[net_price], t[qty] ) - DIVIDE ( t[plan_sales], t[plan_qty] ) ) * t[qty] )
     avg               -- AVERAGE ( t[col] )
     sumx_product      -- SUMX ( t, t[a] * t[b] )
-    count_filtered    -- CALCULATE ( COUNTROWS ( t ), t[col1] = v1, t[col2] = v2, ... ) (v: TRUE()/FALSE() or a quoted string)
+    count_filtered    -- CALCULATE ( COUNTROWS ( t ), t[col1] = v1, t[col2] = v2, ... ) (v: TRUE()/FALSE()/quoted string, or NOT ISBLANK ( t[col] ))
+    avg_filtered      -- CALCULATE ( AVERAGEX ( t, t[col] ), t[col1] = v1, ... ) (same filter shapes as count_filtered)
 
 A "ref" term is one of:
   {"kind": "column", "table": ..., "column": ...}  -- ``SUM ( table[column] )``
@@ -60,12 +61,20 @@ def _format_number(n) -> str:
 
 
 def _dax_literal(value) -> str:
-    """A `count_filtered` filter's `equals` value → its DAX literal: `TRUE ()`/
-    `FALSE ()` for a bool, a double-quoted string literal (DAX escapes `"` by
-    doubling it) for a string."""
+    """A `count_filtered`/`avg_filtered` filter's `equals` value → its DAX
+    literal: `TRUE ()`/`FALSE ()` for a bool, a double-quoted string literal
+    (DAX escapes `"` by doubling it) for a string."""
     if isinstance(value, bool):
         return "TRUE ()" if value else "FALSE ()"
     return f'"{value.replace(chr(34), chr(34) * 2)}"'
+
+
+def _dax_filter_condition(f: dict) -> str:
+    """A single `count_filtered`/`avg_filtered` filter → its DAX condition
+    text: an equality check, or `NOT ISBLANK ( table[column] )`."""
+    if f.get("not_blank"):
+        return f"NOT ISBLANK ( {f['table']}[{f['column']}] )"
+    return f"{f['table']}[{f['column']}] = {_dax_literal(f['equals'])}"
 
 
 def _term(ref: dict) -> str:
@@ -243,7 +252,15 @@ def synthesize_dax(resolved: dict) -> str:
         filters = resolved.get("filters") or []
         if not table or not filters:
             raise SynthesisError(f"count_filtered missing table/filters: {resolved!r}")
-        conditions = ", ".join(f"{f['table']}[{f['column']}] = {_dax_literal(f['equals'])}" for f in filters)
+        conditions = ", ".join(_dax_filter_condition(f) for f in filters)
         return f"CALCULATE ( COUNTROWS ( {table} ), {conditions} )"
+
+    if op == "avg_filtered":
+        table, column = resolved.get("table"), resolved.get("column")
+        filters = resolved.get("filters") or []
+        if not table or not column or not filters:
+            raise SynthesisError(f"avg_filtered missing table/column/filters: {resolved!r}")
+        conditions = ", ".join(_dax_filter_condition(f) for f in filters)
+        return f"CALCULATE ( AVERAGEX ( {table}, {table}[{column}] ), {conditions} )"
 
     raise SynthesisError(f"unknown op: {op!r}")

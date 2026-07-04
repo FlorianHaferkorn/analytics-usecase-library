@@ -257,6 +257,49 @@ def test_count_filtered_unresolvable_filter_column_becomes_hitl():
     assert "HITL:" in hitl
 
 
+def test_count_filtered_resolves_not_blank_filter():
+    kpi = _kpi(
+        {"op": "count_filtered", "column": "outcome_status", "filters": [{"column": "outcome_status", "not_blank": True}]},
+        ["fact_action_outcome.outcome_status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "count_filtered", "table": "fact_action_outcome",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "not_blank": True}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == (
+        "CALCULATE ( COUNTROWS ( fact_action_outcome ), NOT ISBLANK ( fact_action_outcome[outcome_status] ) )"
+    )
+
+
+def test_avg_filtered_resolves_column_and_filter():
+    kpi = _kpi(
+        {"op": "avg_filtered", "column": "impact_value", "filters": [{"column": "outcome_status", "equals": "achieved"}]},
+        ["fact_action_outcome.impact_value", "fact_action_outcome.outcome_status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "avg_filtered", "table": "fact_action_outcome", "column": "impact_value",
+        "filters": [{"table": "fact_action_outcome", "column": "outcome_status", "equals": "achieved"}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == (
+        "CALCULATE ( AVERAGEX ( fact_action_outcome, fact_action_outcome[impact_value] ), "
+        'fact_action_outcome[outcome_status] = "achieved" )'
+    )
+
+
+def test_avg_filtered_unresolvable_column_becomes_hitl():
+    kpi = _kpi(
+        {"op": "avg_filtered", "column": "Not In Lineage", "filters": [{"column": "outcome_status", "equals": "achieved"}]},
+        ["fact_action_outcome.outcome_status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert resolved is None
+    assert "HITL:" in hitl
+
+
 def test_add_resolves_kpi_and_column_terms():
     kpi = _kpi({"op": "add", "terms": [{"kpi": "wc.dso.days"}, {"kpi": "wc.dio.days"}]}, [])
     resolved, hitl = _resolve_calculation(kpi, CATALOG)

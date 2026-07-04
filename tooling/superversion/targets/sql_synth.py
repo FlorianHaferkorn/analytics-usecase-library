@@ -10,7 +10,7 @@ Like `dax_synth.py`, this is the ONLY place SQL syntax is constructed for the
 calculation grammar; `from_aluca.py` never imports this module either (I1:
 the source adapter stays dialect-neutral for every stack, not just Power BI).
 
-Grammar coverage — 13 of the 18 ops translate to a flat SQL aggregate
+Grammar coverage — 14 of the 19 ops translate to a flat SQL aggregate
 expression (a Databricks Metric View measure `expr` is exactly that: one
 SQL expression over the view's single `source` table, no subquery):
 
@@ -28,7 +28,8 @@ SQL expression over the view's single `source` table, no subquery):
     round            -- ROUND ( value, digits )
     abs              -- ABS ( value )
     avg              -- AVG ( column )
-    count_filtered   -- COUNT ( CASE WHEN <filters> THEN 1 END )   (filters: bool or string equality)
+    count_filtered   -- COUNT ( CASE WHEN <filters> THEN 1 END )   (filters: bool/string equality, or IS NOT NULL)
+    avg_filtered     -- AVG ( CASE WHEN <filters> THEN column END )   (same filter shapes as count_filtered)
 
 Five ops are explicit `SynthesisError` (HITL) here, never guessed: DAX's
 SUMX/AVERAGEX-over-VALUES(key) pattern (`sumx_over_key`, `avgx_over_key`), the
@@ -92,12 +93,20 @@ def _ident(name: str) -> str:
 
 
 def _sql_literal(value) -> str:
-    """A `count_filtered` filter's `equals` value → its Databricks SQL literal:
-    `TRUE`/`FALSE` for a bool, a single-quoted string literal (SQL escapes `'`
-    by doubling it) for a string."""
+    """A `count_filtered`/`avg_filtered` filter's `equals` value → its
+    Databricks SQL literal: `TRUE`/`FALSE` for a bool, a single-quoted string
+    literal (SQL escapes `'` by doubling it) for a string."""
     if isinstance(value, bool):
         return "TRUE" if value else "FALSE"
     return f"'{value.replace(chr(39), chr(39) * 2)}'"
+
+
+def _sql_filter_condition(f: dict) -> str:
+    """A single `count_filtered`/`avg_filtered` filter → its SQL condition
+    text: an equality check, or `column IS NOT NULL`."""
+    if f.get("not_blank"):
+        return f"{_ident(f['column'])} IS NOT NULL"
+    return f"{_ident(f['column'])} = {_sql_literal(f['equals'])}"
 
 
 def _term(ref: dict) -> str:
@@ -300,7 +309,15 @@ def synthesize_sql(resolved: dict) -> str:
         filters = resolved.get("filters") or []
         if not resolved.get("table") or not filters:
             raise SynthesisError(f"count_filtered missing table/filters: {resolved!r}")
-        conditions = " AND ".join(f"{_ident(f['column'])} = {_sql_literal(f['equals'])}" for f in filters)
+        conditions = " AND ".join(_sql_filter_condition(f) for f in filters)
         return f"COUNT ( CASE WHEN {conditions} THEN 1 END )"
+
+    if op == "avg_filtered":
+        column = resolved.get("column")
+        filters = resolved.get("filters") or []
+        if not resolved.get("table") or not column or not filters:
+            raise SynthesisError(f"avg_filtered missing table/column/filters: {resolved!r}")
+        conditions = " AND ".join(_sql_filter_condition(f) for f in filters)
+        return f"AVG ( CASE WHEN {conditions} THEN {_ident(column)} END )"
 
     raise SynthesisError(f"unknown op: {op!r}")

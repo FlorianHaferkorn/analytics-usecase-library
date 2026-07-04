@@ -13,7 +13,7 @@ action_code_ref:
 calc_type: count
 business:
   purpose: Counts customer service tickets closed in the period.
-  definition: Count of closed service tickets.
+  definition: Count of cases with Open Case Flag = FALSE (closed).
   grain_scope: Ticket; aggregated by period and channel.
   unit_format: count
   interpretation: Higher counts indicate higher resolution throughput.
@@ -22,7 +22,13 @@ technical:
   description: Counts customer service tickets closed in the period.
   depends_on_measures: []
   lineage:
-  - fact_support_cases.Case Closed Date
+  - fact_support_cases.Open Case Flag
+  calculation:
+    op: count_filtered
+    column: Open Case Flag
+    filters:
+    - column: Open Case Flag
+      equals: false
 governance:
   business_owner: Head of Service
   data_owner: Service Analytics

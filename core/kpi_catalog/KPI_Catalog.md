@@ -2481,7 +2481,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: amount
   business:
     purpose: Combines receivables, inventory, and payables days to show cash efficiency.
-    definition: DSO + DIO - DPO.
+    definition: DSO + DIO - DPO, where DSO/DIO/DPO are proxy days computed from Net Sales/COGS Amount (Net Sales * 12% * 365 / Net Sales; COGS * 15% * 365 / COGS; COGS * 8% * 365 / COGS) — a fixed-ratio proxy used in Experience-domain executive reporting where the real receivables/inventory/payables fact tables (used by Finance's wc.ccc.days) are not available.
     grain_scope: Company / region level.
     unit_format: days
     interpretation: Lower CCC means faster cash conversion and lower working capital.
@@ -2489,7 +2489,49 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Cash Conversion Cycle (Days)
     description: Combines receivables, inventory, and payables days to show cash efficiency.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.Cost of Goods Sold Amount
+    calculation:
+      op: delta
+      minuend:
+        calc:
+          op: add
+          terms:
+          - calc:
+              op: ratio
+              numerator:
+                calc:
+                  op: mul
+                  terms:
+                  - column: Net Sales Amount
+                  - literal: 0.12
+                  - literal: 365
+              denominator:
+                column: Net Sales Amount
+          - calc:
+              op: ratio
+              numerator:
+                calc:
+                  op: mul
+                  terms:
+                  - column: Cost of Goods Sold Amount
+                  - literal: 0.15
+                  - literal: 365
+              denominator:
+                column: Cost of Goods Sold Amount
+      subtrahend:
+        calc:
+          op: ratio
+          numerator:
+            calc:
+              op: mul
+              terms:
+              - column: Cost of Goods Sold Amount
+              - literal: 0.08
+              - literal: 365
+          denominator:
+            column: Cost of Goods Sold Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -2498,6 +2540,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     validation_process: manual review
     qa_rules:
     - Input metrics reconciled before aggregation
+    - This is a fixed-ratio proxy (12%/15%/8% of Net Sales/COGS), distinct from Finance's wc.ccc.days (real fact_accounts_receivable/fact_inventory/fact_accounts_payable-based calculation) — both are legitimate legacy formulas for their respective reporting contexts, not a bug.
     version: v1.1
   metadata_quality:
     completeness_score: 0.8
@@ -2854,7 +2897,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: rate
   business:
     purpose: Measures share of actions that achieved the intended outcome.
-    definition: Successful Actions / Routed Actions.
+    definition: Rows in fact_action_outcome with outcome_status = "achieved" divided by all rows in fact_action_outcome.
     grain_scope: Action instance; aggregated by period and domain.
     unit_format: '''% (1 decimal)'''
     interpretation: Higher values indicate better execution effectiveness.
@@ -2862,14 +2905,29 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Action Outcome Rate %
     description: Measures share of actions that achieved the intended outcome.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_action_outcome.outcome_status
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: count_filtered
+          column: outcome_status
+          filters:
+          - column: outcome_status
+            equals: achieved
+      denominator:
+        calc:
+          op: count
+          column: outcome_status
   governance:
     business_owner: Executive Office
     data_owner: PMO Analytics
     steward: PMO Analyst
     review_cycle: monthly
     validation_process: manual review
-    qa_rules: []
+    qa_rules:
+    - 'Legacy carries two candidate formulas for this KPI id in Experience.SemanticModel: the canonical one used here (fact_action_outcome, lowercase "achieved", part of the actively-maintained Actions Executed/Avg Time-to-Outcome/Action ROI % sibling group) and an older ''Action Outcome Rate % (XD Log)'' variant (fact_action_log, "Achieved" capitalized) that has no surviving sibling measures — treated as a superseded duplicate, not the source of truth.'
     version: v0.1
   metadata_quality:
     completeness_score: 1.0
@@ -2899,6 +2957,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_action_outcome.impact_value
+    - fact_action_outcome.outcome_status
+    calculation:
+      op: avg_filtered
+      column: impact_value
+      filters:
+      - column: outcome_status
+        equals: achieved
   governance:
     business_owner: Executive Office
     data_owner: PMO Analytics
@@ -3429,9 +3494,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Digital Adoption Rate %
     description: Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
     depends_on_measures: []
-    lineage:
-    - fact_hr.Headcount
-    - fact_it.Digital Users
+    lineage: []
+    calculation:
+      op: hitl
+      reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires fact_it Digital Users and fact_hr Total Headcount (not yet in data contracts)" RETURN BLANK()) — the source tables/columns do not exist yet in the data contract, upstream of any DSL grammar question.'
   governance:
     business_owner: Head of Digital Transformation
     data_owner: Corporate BI
@@ -3467,6 +3533,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Probability of employee attrition
     depends_on_measures: []
     lineage: []
+    calculation:
+      op: hitl
+      reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires predictive attrition model output table (not yet in data contracts)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream of any DSL grammar question.'
   governance:
     business_owner: Head of HR
     data_owner: People Analytics
@@ -5211,7 +5280,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: ratio
   business:
     purpose: Aggregates downside risk across domains into a single index.
-    definition: Weighted index of normalized domain risk signals.
+    definition: 'Average of three risk shares, scaled to 0-100: (1) Revenue-at-Risk Share = (Net Sales * average(1-OTIF failure, 1-First-Pass-Yield failure)) / Net Sales, (2) Delivery Risk = 1 - OTIF %, (3) Quality Risk = 1 - In-Full %.'
     grain_scope: Entity or business unit; aggregated by period.
     unit_format: index
     interpretation: Higher index indicates higher enterprise risk exposure.
@@ -5219,22 +5288,73 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Enterprise Value-at-Risk Index
     description: Aggregates downside risk across domains into a single index.
     depends_on_measures:
-    - margin.gm.pct
-    - sales.net_sales.delta_pct.ly
-    - crm.clv.amount
-    - svc.sla.attainment.pct
+    - sales.net_sales.amount
     - ops.otif.pct
-    - ops.working_capital.ccc.days
-    - people.digital_adoption.pct
-    - people.attrition_risk.pct
+    - supply.otif.pct
+    - supply.in_full.pct
     lineage: []
+    calculation:
+      op: round
+      digits: 0
+      value:
+        calc:
+          op: ratio
+          scale: 100
+          numerator:
+            calc:
+              op: add
+              terms:
+              - calc:
+                  op: ratio
+                  numerator:
+                    calc:
+                      op: mul
+                      terms:
+                      - kpi: sales.net_sales.amount
+                      - calc:
+                          op: ratio
+                          numerator:
+                            calc:
+                              op: add
+                              terms:
+                              - calc:
+                                  op: delta
+                                  minuend:
+                                    literal: 1
+                                  subtrahend:
+                                    kpi: ops.otif.pct
+                              - calc:
+                                  op: delta
+                                  minuend:
+                                    literal: 1
+                                  subtrahend:
+                                    kpi: supply.in_full.pct
+                          denominator:
+                            literal: 2
+                  denominator:
+                    kpi: sales.net_sales.amount
+              - calc:
+                  op: delta
+                  minuend:
+                    literal: 1
+                  subtrahend:
+                    kpi: supply.otif.pct
+              - calc:
+                  op: delta
+                  minuend:
+                    literal: 1
+                  subtrahend:
+                    kpi: supply.in_full.pct
+          denominator:
+            literal: 3
   governance:
     business_owner: Chief Risk Officer
     data_owner: Enterprise Risk
     steward: Risk Analyst
     review_cycle: monthly
     validation_process: manual review
-    qa_rules: []
+    qa_rules:
+    - Faithfully reproduces legacy's redundant round-trip (Revenue-at-Risk Share is algebraically ~ average(DeliveryRisk, QualityRisk) already, since it divides Net Sales * that same average back by Net Sales) rather than simplifying it away — the round-trip changes zero-Net-Sales-denominator BLANK() behavior, so collapsing it would be a silent value-level divergence, not a pure simplification.
     version: v0.1
   metadata_quality:
     completeness_score: 1.0
@@ -5315,15 +5435,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: SLA Attainment %
     description: Measures how many cases meet the committed SLA.
-    depends_on_measures:
-    - svc.backlog.count
-    - svc.fcr.pct
-    - svc.aht.minutes
-    - svc.escalation.pct
-    - svc.tickets.created.count
-    - svc.tickets.closed.count
+    depends_on_measures: []
     lineage:
     - fact_support_cases.SLA Met Flag
+    calculation:
+      op: rate
+      column: SLA Met Flag
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5368,6 +5485,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_support_cases.FCR Flag
+    calculation:
+      op: rate
+      column: FCR Flag
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5411,6 +5531,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_support_cases.Handle Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        column: Handle Time Minutes
+      denominator:
+        calc:
+          op: count
+          column: Handle Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5457,6 +5585,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_support_cases.Backlog Flag
+    calculation:
+      op: count_filtered
+      column: Backlog Flag
+      filters:
+      - column: Backlog Flag
+        equals: true
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5499,6 +5633,32 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_nps.NPS Score
+    calculation:
+      op: round
+      digits: 0
+      value:
+        calc:
+          op: ratio
+          scale: 100
+          numerator:
+            calc:
+              op: delta
+              minuend:
+                calc:
+                  op: count_threshold
+                  column: NPS Score
+                  comparator: '>='
+                  value: 9
+              subtrahend:
+                calc:
+                  op: count_threshold
+                  column: NPS Score
+                  comparator: <=
+                  value: 6
+          denominator:
+            calc:
+              op: count
+              column: NPS Score
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5544,6 +5704,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_support_cases.Escalation Flag
+    calculation:
+      op: rate
+      column: Escalation Flag
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5582,16 +5745,16 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: Utilization %
     description: Measures productive time versus paid time for agents.
-    depends_on_measures:
-    - res.occupancy.pct
-    - res.overtime.pct
-    - res.shrinkage.pct
-    - svc.sla.attainment.pct
-    - svc.backlog.count
-    - svc.tickets.created.count
+    depends_on_measures: []
     lineage:
     - fact_workforce_management.Paid Time Minutes
     - fact_workforce_management.Work Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        column: Work Time Minutes
+      denominator:
+        column: Paid Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -5633,6 +5796,21 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_workforce_management.Idle Time Minutes
     - fact_workforce_management.Talk Time Minutes
     - fact_workforce_management.Wrap Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: add
+          terms:
+          - column: Talk Time Minutes
+          - column: Wrap Time Minutes
+      denominator:
+        calc:
+          op: add
+          terms:
+          - column: Talk Time Minutes
+          - column: Wrap Time Minutes
+          - column: Idle Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -5673,6 +5851,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_workforce_management.Overtime Minutes
     - fact_workforce_management.Paid Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        column: Overtime Minutes
+      denominator:
+        column: Paid Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -5712,6 +5896,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_workforce_management.Paid Time Minutes
     - fact_workforce_management.Shrinkage Minutes
+    calculation:
+      op: ratio
+      numerator:
+        column: Shrinkage Minutes
+      denominator:
+        column: Paid Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -5755,6 +5945,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_support_cases
+    calculation:
+      op: count
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5782,7 +5974,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: count
   business:
     purpose: Counts customer service tickets closed in the period.
-    definition: Count of closed service tickets.
+    definition: Count of cases with Open Case Flag = FALSE (closed).
     grain_scope: Ticket; aggregated by period and channel.
     unit_format: count
     interpretation: Higher counts indicate higher resolution throughput.
@@ -5791,7 +5983,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Counts customer service tickets closed in the period.
     depends_on_measures: []
     lineage:
-    - fact_support_cases.Case Closed Date
+    - fact_support_cases.Open Case Flag
+    calculation:
+      op: count_filtered
+      column: Open Case Flag
+      filters:
+      - column: Open Case Flag
+        equals: false
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -5827,6 +6025,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_action_outcome.outcome_status
+    calculation:
+      op: count_filtered
+      column: outcome_status
+      filters:
+      - column: outcome_status
+        not_blank: true
   governance:
     business_owner: Chief Analytics Officer
     data_owner: Enterprise Analytics
@@ -5862,6 +6066,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_action_outcome.days_to_outcome
+    calculation:
+      op: avg
+      column: days_to_outcome
   governance:
     business_owner: Chief Analytics Officer
     data_owner: Enterprise Analytics
@@ -5898,6 +6105,17 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_action_outcome.impact_value
     - fact_action_outcome.cost_to_execute
+    calculation:
+      op: delta
+      minuend:
+        calc:
+          op: ratio
+          numerator:
+            column: impact_value
+          denominator:
+            column: cost_to_execute
+      subtrahend:
+        literal: 1
   governance:
     business_owner: Chief Analytics Officer
     data_owner: Enterprise Analytics
