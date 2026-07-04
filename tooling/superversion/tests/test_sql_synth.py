@@ -78,6 +78,16 @@ def test_mul_two_terms():
     assert s.synthesize_sql(resolved) == "MEASURE ( `Incremental Sales Amount` ) * MEASURE ( `Gross Margin %` )"
 
 
+def test_add_two_terms():
+    resolved = {"op": "add", "terms": [_measure("DSO Days"), _measure("DIO Days")]}
+    assert s.synthesize_sql(resolved) == "MEASURE ( `DSO Days` ) + MEASURE ( `DIO Days` )"
+
+
+def test_add_needs_at_least_two_terms():
+    with pytest.raises(s.SynthesisError):
+        s.synthesize_sql({"op": "add", "terms": [_measure("A")]})
+
+
 def test_delta_chain_four_terms():
     resolved = {
         "op": "delta_chain",
@@ -152,12 +162,23 @@ def test_sumx_product_has_no_flat_sql_shape():
         s.synthesize_sql({"op": "sumx_product", "table": "t", "factor_a_column": "a", "factor_b_column": "b"})
 
 
+def test_add_two_terms():
+    assert s.synthesize_sql({"op": "add", "terms": [_measure("A"), _measure("B")]}) == "MEASURE ( A ) + MEASURE ( B )"
+
+
+def test_abs_wraps_term():
+    resolved = {"op": "abs", "value": _expr({"op": "delta", "minuend": _measure("A"), "subtrahend": _measure("B")})}
+    assert s.synthesize_sql(resolved) == "ABS ( ( MEASURE ( A ) - MEASURE ( B ) ) )"
+
+
 @pytest.mark.parametrize(
     "resolved",
     [
         {"op": "avg", "table": "t"},
         {"op": "count_filtered", "table": "t", "filters": []},
         {"op": "count_filtered", "filters": [{"table": "t", "column": "c", "equals": True}]},
+        {"op": "add", "terms": [_measure("A")]},
+        {"op": "abs"},
     ],
 )
 def test_new_ops_round2_malformed_raises_synthesis_error(resolved):

@@ -1150,15 +1150,20 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: Days in Inventory
     description: Measures inventory holding period in days.
-    depends_on_measures:
-    - inv.turnover
-    - inv.stockout.pct
-    - supply.otif.pct
-    - inv.obsolete.pct
-    - plan.forecast.accuracy.pct
+    depends_on_measures: []
     lineage:
     - fact_cogs.COGS Amount
     - fact_inventory.Average Inventory Amount
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: mul
+          terms:
+          - column: Average Inventory Amount
+          - literal: 365
+      denominator:
+        column: COGS Amount
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1205,6 +1210,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_stockout.Stockout Flag
+    calculation:
+      op: rate
+      column: Stockout Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1248,6 +1256,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_inventory.Stock Value
     - fact_demand_forecast.Monthly Demand Forecast
+    calculation:
+      op: hitl
+      reason: New-territory KPI — no legacy DAX counterpart to verify against (not in any products/fabric/powerbi/dist/*.SemanticModel). A months-of-forward-demand coverage threshold comparison per SKU is beyond the current grammar, and no threshold value is specified precisely enough to derive without guessing.
   governance:
     business_owner: Head of Supply Chain
     data_owner: Supply Chain BI
@@ -1293,6 +1304,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_inventory.Obsolete Inventory Amount
+    - fact_inventory.Average Inventory Amount
+    calculation:
+      op: ratio
+      numerator:
+        column: Obsolete Inventory Amount
+      denominator:
+        column: Average Inventory Amount
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1339,13 +1357,29 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: Forecast Accuracy %
     description: Measures how close forecasted demand is to actual demand.
-    depends_on_measures:
-    - plan.forecast.mape.pct
-    - plan.forecast.bias.pct
-    - plan.forecast.service_impact.pct
-    - plan.replan.count
+    depends_on_measures: []
     lineage:
     - fact_forecast.Forecast Units
+    - fact_sales.Sales Units
+    calculation:
+      op: delta
+      minuend:
+        literal: 1
+      subtrahend:
+        calc:
+          op: abs
+          value:
+            calc:
+              op: ratio
+              numerator:
+                calc:
+                  op: delta
+                  minuend:
+                    column: Forecast Units
+                  subtrahend:
+                    column: Sales Units
+              denominator:
+                column: Sales Units
   governance:
     business_owner: Supply Planning Lead
     data_owner: Supply Chain BI
@@ -1355,6 +1389,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules:
     - Actual Demand > 0
     - Value between 0 % and 100 %
+    - 'Known DAX nuance (I-10.0 follow-up): legacy DAX guards Sales Units = 0 with an explicit IF(...,BLANK(),...); the synthesized 1 - ABS(DIVIDE(...)) relies on DIVIDE''s native BLANK()-on-zero-denominator instead, which in DAX''s "-" operator coerces to 0 — so at exactly Sales Units = 0 the synthesized formula returns 1 where legacy returns BLANK(). Matches everywhere Actual Demand > 0 holds (the documented precondition above); the edge case has no flat-DSL fix without a dedicated IF/blank-guard op.'
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
@@ -1386,6 +1421,18 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_forecast.Forecast Units
+    - fact_sales.Sales Units
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: delta
+          minuend:
+            column: Forecast Units
+          subtrahend:
+            column: Sales Units
+      denominator:
+        column: Sales Units
   governance:
     business_owner: Supply Planning Lead
     data_owner: Supply Chain BI
@@ -1430,6 +1477,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_forecast.Forecast Version
+    calculation:
+      op: distinctcount
+      column: Forecast Version
   governance:
     business_owner: Supply Planning Lead
     data_owner: Supply Chain BI
@@ -1705,6 +1755,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_forecast.Forecast Units
     - fact_stockout.Demand Units
     - fact_stockout.Lost Demand Units
+    calculation:
+      op: hitl
+      reason: Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is [Stockout Impact %] * DIVIDE ( SUMX ( fact_stockout, IF ( context-filtered Forecast Units < row-level Demand Units, row-level Lost Demand Units, 0 ) ), SUM ( Lost Demand Units ) ) — a per-row conditional SUMX comparing a row-level column to a context-filtered aggregate (CALCULATE(SUM(...)) evaluated per row), beyond the current sum/ratio/mul/sumx_product-shaped grammar.
   governance:
     business_owner: Head of Supply Chain Planning
     data_owner: Supply Chain BI
@@ -2223,6 +2276,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_forecast.Forecast Version
+    calculation:
+      op: distinctcount
+      column: Forecast Version
   governance:
     business_owner: Supply Planning Lead
     data_owner: Supply Chain BI
@@ -2299,6 +2355,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_fulfillment.OTIF Flag
+    calculation:
+      op: rate
+      column: OTIF Flag
   governance:
     business_owner: Head of Supply Chain
     data_owner: Supply Chain BI
@@ -2663,6 +2722,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_cogs.COGS Amount
     - fact_inventory.Average Inventory Amount
+    calculation:
+      op: ratio
+      numerator:
+        column: COGS Amount
+      denominator:
+        column: Average Inventory Amount
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -2709,6 +2774,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_forecast.Forecast Units
+    calculation:
+      op: hitl
+      reason: Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is AVERAGEX ( VALUES ( fact_forecast[ProductKey] ), ABS ( DIVIDE ( per-key Forecast Units - per-key Sales Units, per-key Sales Units ) ) ) — a per-key iterator combining two independent CALCULATE(SUM(...)) lookups inside an ABS/DIVIDE per row, beyond sumx_over_key/avgx_over_key (which only wrap ONE value, not a composite ratio of two context-filtered sums) and beyond the current grammar.
   governance:
     business_owner: Supply Planning Lead
     data_owner: Supply Chain BI
@@ -3446,6 +3514,16 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_accounts_receivable.AR Amount
     - fact_accounts_receivable.Revenue Amount
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: mul
+          terms:
+          - column: AR Amount
+          - literal: 365
+      denominator:
+        column: Revenue Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -3481,7 +3559,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Inventory value at period end
     depends_on_measures: []
     lineage:
-    - fact_inventory.Inventory Amount
+    - fact_inventory.Average Inventory Amount
+    calculation:
+      op: sum
+      column: Average Inventory Amount
   governance:
     business_owner: Head of Treasury / Supply Chain Finance
     data_owner: Finance BI
@@ -3602,11 +3683,20 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: DIO Days
     description: Measures days inventory outstanding.
-    depends_on_measures:
-    - fin.liquidity.inventory.amount
+    depends_on_measures: []
     lineage:
     - fact_inventory.Inventory Amount
     - fact_inventory.COGS Amount
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: mul
+          terms:
+          - column: Inventory Amount
+          - literal: 365
+      denominator:
+        column: COGS Amount
   governance:
     business_owner: Head of Treasury / Supply Chain Finance
     data_owner: Finance BI
@@ -3652,6 +3742,16 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_accounts_payable.AP Amount
     - fact_accounts_payable.COGS Amount
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: mul
+          terms:
+          - column: AP Amount
+          - literal: 365
+      denominator:
+        column: COGS Amount
   governance:
     business_owner: Head of Treasury / Procurement Controlling
     data_owner: Finance BI
@@ -3704,6 +3804,16 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_inventory.COGS Amount
     - fact_accounts_payable.AP Amount
     - fact_accounts_payable.COGS Amount
+    calculation:
+      op: delta
+      minuend:
+        calc:
+          op: add
+          terms:
+          - kpi: wc.dso.days
+          - kpi: wc.dio.days
+      subtrahend:
+        kpi: wc.dpo.days
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -3749,6 +3859,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_cash_position.Cash Balance Amount
+    calculation:
+      op: sum
+      column: Cash Balance Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -3794,6 +3907,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ar.Overdue Amount
     - fact_ar.Total AR Amount
+    calculation:
+      op: ratio
+      numerator:
+        column: Overdue Amount
+      denominator:
+        column: Total AR Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -3841,6 +3960,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_cash_flow.Operating Cash Flow Amount
+    calculation:
+      op: sum
+      column: Operating Cash Flow Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -3887,6 +4009,17 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_cash_position.Cash Balance Amount
     - fact_cash_position.Plan Cash Amount
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: delta
+          minuend:
+            column: Cash Balance Amount
+          subtrahend:
+            column: Plan Cash Amount
+      denominator:
+        column: Plan Cash Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -5135,6 +5268,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Rates suppliers based on risk indicators.
     depends_on_measures: []
     lineage: []
+    calculation:
+      op: hitl
+      reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Finance.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires fact_supplier_risk table (not yet in data contract)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream of any DSL grammar question.'
   governance:
     business_owner: Head of Procurement
     data_owner: Supply Chain BI

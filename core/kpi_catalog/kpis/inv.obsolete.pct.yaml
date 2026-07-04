@@ -29,6 +29,13 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_inventory.Obsolete Inventory Amount
+  - fact_inventory.Average Inventory Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: Obsolete Inventory Amount
+    denominator:
+      column: Average Inventory Amount
 governance:
   business_owner: Head of Supply Chain / Logistics
   data_owner: Supply Chain BI

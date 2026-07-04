@@ -111,6 +111,26 @@ KPI_TO_LEGACY = {
     "ops.pm.task.count": ("Operations.SemanticModel", "Preventive Maintenance Task Count"),
     "ops.spare_parts.stockout.pct": ("Operations.SemanticModel", "Spare Parts Stockout %"),
     "ops.pm_compliance.pct": ("Operations.SemanticModel", "PM Compliance %"),
+    # Finance domain (FIN-001 Cash/Liquidity) — I-10.0 follow-up, "finish ADR-0011".
+    "wc.dso.days": ("Finance.SemanticModel", "DSO Days"),
+    "wc.dio.days": ("Finance.SemanticModel", "DIO Days"),
+    "wc.dpo.days": ("Finance.SemanticModel", "DPO Days"),
+    "wc.ccc.days": ("Finance.SemanticModel", "CCC Days"),
+    "fin.cash.balance": ("Finance.SemanticModel", "Cash Balance"),
+    "fin.cash.ocf": ("Finance.SemanticModel", "Operating Cash Flow"),
+    "fin.cash.vs_plan.pct": ("Finance.SemanticModel", "Cash vs Plan %"),
+    "scm.service_level.pct": ("Finance.SemanticModel", "Supply Chain Service Level %"),
+    "fin.liquidity.inventory.amount": ("Finance.SemanticModel", "Inventory Amount"),
+    "fin.overdue_ar.pct": (None, None),  # new-territory, no legacy DAX ever generated
+    # SupplyChain domain (SCM-001 Inventory / SCM-003 Forecast) — I-10.0 follow-up.
+    "inv.dio.days": ("SupplyChain.SemanticModel", "Days in Inventory"),
+    "inv.turnover": ("SupplyChain.SemanticModel", "Inventory Turnover"),
+    "inv.stockout.pct": ("SupplyChain.SemanticModel", "Stockout Rate %"),
+    "inv.obsolete.pct": ("SupplyChain.SemanticModel", "Obsolete Inventory %"),
+    "plan.forecast.accuracy.pct": ("SupplyChain.SemanticModel", "Forecast Accuracy %"),
+    "plan.forecast.bias.pct": ("SupplyChain.SemanticModel", "Forecast Bias %"),
+    "plan.replan.count": ("SupplyChain.SemanticModel", "Re-Plan Count"),
+    "plans.count": ("SupplyChain.SemanticModel", "Plans Count"),
     # sales.units: the governed calculation matches SupplyChain.SemanticModel's
     # 'Sales Units' = SUM(fact_sales[Sales Units]) exactly (same as the catalog's
     # own lineage). NOTE: Operations.SemanticModel's alias 'Sales Units (OPS)' =

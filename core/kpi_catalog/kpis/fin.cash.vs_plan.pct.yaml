@@ -29,6 +29,17 @@ technical:
   lineage:
   - fact_cash_position.Cash Balance Amount
   - fact_cash_position.Plan Cash Amount
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: delta
+        minuend:
+          column: Cash Balance Amount
+        subtrahend:
+          column: Plan Cash Amount
+    denominator:
+      column: Plan Cash Amount
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI

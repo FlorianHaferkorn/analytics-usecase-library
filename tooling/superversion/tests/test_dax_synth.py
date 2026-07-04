@@ -119,6 +119,16 @@ def test_mul_needs_at_least_two_terms():
         d.synthesize_dax({"op": "mul", "terms": [_measure("A")]})
 
 
+def test_add_two_terms():
+    resolved = {"op": "add", "terms": [_measure("DSO Days"), _measure("DIO Days")]}
+    assert d.synthesize_dax(resolved) == "[DSO Days] + [DIO Days]"
+
+
+def test_add_needs_at_least_two_terms():
+    with pytest.raises(d.SynthesisError):
+        d.synthesize_dax({"op": "add", "terms": [_measure("A")]})
+
+
 def test_delta_chain_four_terms():
     resolved = {
         "op": "delta_chain",
@@ -254,6 +264,36 @@ def test_count_filtered_string_value_escapes_embedded_quotes():
     assert d.synthesize_dax(resolved) == 'CALCULATE ( COUNTROWS ( t ), t[c] = "a ""quoted"" value" )'
 
 
+def test_add_two_and_three_terms():
+    assert d.synthesize_dax({"op": "add", "terms": [_measure("A"), _measure("B")]}) == "[A] + [B]"
+    assert d.synthesize_dax({"op": "add", "terms": [_measure("A"), _measure("B"), _measure("C")]}) == "[A] + [B] + [C]"
+
+
+def test_abs_wraps_term():
+    resolved = {"op": "abs", "value": {"kind": "expr", "op": "delta", "minuend": _measure("A"), "subtrahend": _measure("B")}}
+    assert d.synthesize_dax(resolved) == "ABS ( ( [A] - [B] ) )"
+
+
+def test_one_minus_abs_ratio_composition():
+    """The exact Forecast Accuracy % shape: 1 - ABS ( ratio ( delta(...), column ) )."""
+    resolved = {
+        "op": "delta",
+        "minuend": {"kind": "literal", "value": 1},
+        "subtrahend": {
+            "kind": "expr", "op": "abs",
+            "value": {
+                "kind": "expr", "op": "ratio",
+                "numerator": {"kind": "expr", "op": "delta", "minuend": _col("fact_forecast", "Forecast Units"), "subtrahend": _col("fact_sales", "Sales Units")},
+                "denominator": _col("fact_sales", "Sales Units"),
+            },
+        },
+    }
+    assert d.synthesize_dax(resolved) == (
+        "1 - ( ABS ( ( DIVIDE ( ( SUM ( fact_forecast[Forecast Units] ) - SUM ( fact_sales[Sales Units] ) ), "
+        "SUM ( fact_sales[Sales Units] ) ) ) ) )"
+    )
+
+
 @pytest.mark.parametrize(
     "resolved",
     [
@@ -261,6 +301,8 @@ def test_count_filtered_string_value_escapes_embedded_quotes():
         {"op": "sumx_product", "table": "t"},  # missing factors
         {"op": "count_filtered", "table": "t", "filters": []},  # empty filters
         {"op": "count_filtered", "filters": [{"table": "t", "column": "c", "equals": True}]},  # missing table
+        {"op": "add", "terms": [_measure("A")]},  # needs 2+
+        {"op": "abs"},  # missing value
     ],
 )
 def test_new_ops_round2_malformed_raises_synthesis_error(resolved):

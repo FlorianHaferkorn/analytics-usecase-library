@@ -27,11 +27,20 @@ business:
 technical:
   measure_name: DIO Days
   description: Measures days inventory outstanding.
-  depends_on_measures:
-  - fin.liquidity.inventory.amount
+  depends_on_measures: []
   lineage:
   - fact_inventory.Inventory Amount
   - fact_inventory.COGS Amount
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: mul
+        terms:
+        - column: Inventory Amount
+        - literal: 365
+    denominator:
+      column: COGS Amount
 governance:
   business_owner: Head of Treasury / Supply Chain Finance
   data_owner: Finance BI

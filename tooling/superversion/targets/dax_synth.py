@@ -22,10 +22,12 @@ resolved upstream in `from_aluca`, never reaches this module):
     rate             -- DIVIDE ( CALCULATE ( COUNTROWS ( t ), t[flag] = TRUE () ), COUNTROWS ( t ) )
     count            -- COUNTROWS ( table )
     mul              -- term_1 * term_2 * ... (n-ary)
+    add              -- term_1 + term_2 + ... (n-ary)
     delta_chain      -- minuend - sub_1 - sub_2 - ... (n-ary)
     distinctcount    -- DISTINCTCOUNT ( t[col] ), optionally CALCULATE-wrapped with 1+ flag filters
     count_threshold  -- CALCULATE ( COUNTROWS ( t ), t[col] <cmp> value )
     round            -- ROUND ( value, digits )
+    abs              -- ABS ( value )
     sumx_over_key    -- SUMX ( VALUES ( t[key] ), CALCULATE ( value ) )
     avgx_over_key    -- AVERAGEX ( VALUES ( t[key] ), CALCULATE ( value ) )
     pvm_volume_effect -- SUMX ( t, ( t[qty] - t[plan_qty] ) * DIVIDE ( t[plan_sales], t[plan_qty] ) )
@@ -138,6 +140,12 @@ def synthesize_dax(resolved: dict) -> str:
             raise SynthesisError(f"mul needs 2+ terms: {resolved!r}")
         return " * ".join(_term(t) for t in terms)
 
+    if op == "add":
+        terms = resolved.get("terms") or []
+        if len(terms) < 2:
+            raise SynthesisError(f"add needs 2+ terms: {resolved!r}")
+        return " + ".join(_term(t) for t in terms)
+
     if op == "delta_chain":
         subtrahends = resolved.get("subtrahends") or []
         if not subtrahends:
@@ -173,6 +181,12 @@ def synthesize_dax(resolved: dict) -> str:
         value = resolved.get("value")
         digits = resolved.get("digits", 0)
         return f"ROUND ( {_term(value)}, {_format_number(digits)} )"
+
+    if op == "abs":
+        value = resolved.get("value")
+        if value is None:
+            raise SynthesisError(f"abs missing value: {resolved!r}")
+        return f"ABS ( {_term(value)} )"
 
     if op == "sumx_over_key":
         table, key_column, value = resolved.get("table"), resolved.get("key_column"), resolved.get("value")

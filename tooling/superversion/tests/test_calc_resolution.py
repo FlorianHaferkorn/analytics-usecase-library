@@ -255,3 +255,22 @@ def test_count_filtered_unresolvable_filter_column_becomes_hitl():
     resolved, hitl = _resolve_calculation(kpi, CATALOG)
     assert resolved is None
     assert "HITL:" in hitl
+
+
+def test_add_resolves_kpi_and_column_terms():
+    kpi = _kpi({"op": "add", "terms": [{"kpi": "wc.dso.days"}, {"kpi": "wc.dio.days"}]}, [])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "add",
+        "terms": [{"kind": "measure", "name": "DSO Days"}, {"kind": "measure", "name": "DIO Days"}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == "[DSO Days] + [DIO Days]"
+
+
+def test_abs_resolves_nested_calc():
+    kpi = _kpi({"op": "abs", "value": {"calc": {"op": "sum", "column": "A"}}}, ["fact_test.A"])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {"op": "abs", "value": {"kind": "expr", "op": "sum", "ref": {"kind": "column", "table": "fact_test", "column": "A"}}}
+    assert dax_synth.synthesize_dax(resolved) == "ABS ( ( SUM ( fact_test[A] ) ) )"

@@ -24,6 +24,14 @@ technical:
   - fact_forecast.Forecast Units
   - fact_stockout.Demand Units
   - fact_stockout.Lost Demand Units
+  calculation:
+    op: hitl
+    reason: 'Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is
+      [Stockout Impact %] * DIVIDE ( SUMX ( fact_stockout, IF ( context-filtered
+      Forecast Units < row-level Demand Units, row-level Lost Demand Units, 0 ) ),
+      SUM ( Lost Demand Units ) ) — a per-row conditional SUMX comparing a row-level
+      column to a context-filtered aggregate (CALCULATE(SUM(...)) evaluated per row),
+      beyond the current sum/ratio/mul/sumx_product-shaped grammar.'
 governance:
   business_owner: Head of Supply Chain Planning
   data_owner: Supply Chain BI

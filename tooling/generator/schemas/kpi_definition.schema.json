@@ -211,6 +211,15 @@
           }
         },
         {
+          "description": "n-ary sum of terms (e.g. CCC Days = DSO Days + DIO Days - DPO Days, expressed as add(DSO, DIO) then delta(that, DPO)).",
+          "additionalProperties": false,
+          "required": ["op", "terms"],
+          "properties": {
+            "op": { "const": "add" },
+            "terms": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/calc_ref" } }
+          }
+        },
+        {
           "description": "minuend minus a chain of 1+ subtrahends, left to right (e.g. Mix Effect Amount = Net Sales - Plan Sales - Price Effect - Volume Effect).",
           "additionalProperties": false,
           "required": ["op", "minuend", "subtrahends"],
@@ -260,6 +269,15 @@
             "op": { "const": "round" },
             "value": { "$ref": "#/$defs/calc_ref" },
             "digits": { "type": "integer", "minimum": 0 }
+          }
+        },
+        {
+          "description": "ABS ( value ) wrapper (e.g. Forecast Accuracy % = 1 - ABS(forecast error ratio)).",
+          "additionalProperties": false,
+          "required": ["op", "value"],
+          "properties": {
+            "op": { "const": "abs" },
+            "value": { "$ref": "#/$defs/calc_ref" }
           }
         },
         {

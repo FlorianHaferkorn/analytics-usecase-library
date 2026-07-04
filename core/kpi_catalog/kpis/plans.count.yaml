@@ -23,6 +23,9 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_forecast.Forecast Version
+  calculation:
+    op: distinctcount
+    column: Forecast Version
 governance:
   business_owner: Supply Planning Lead
   data_owner: Supply Chain BI

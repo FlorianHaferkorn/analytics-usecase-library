@@ -252,6 +252,12 @@ def _resolve_calc_node(
                 raise KeyError("terms")
             return {"op": "mul", "terms": terms}, None
 
+        if op == "add":
+            terms = [_resolve_calc_ref(t, own_cols, lineage, catalog) for t in calc["terms"]]
+            if len(terms) < 2 or any(t is None for t in terms):
+                raise KeyError("terms")
+            return {"op": "add", "terms": terms}, None
+
         if op == "delta_chain":
             minuend = ref("minuend")
             subtrahends = [_resolve_calc_ref(s, own_cols, lineage, catalog) for s in calc["subtrahends"]]
@@ -290,6 +296,12 @@ def _resolve_calc_node(
             if value is None:
                 raise KeyError("value")
             return {"op": "round", "value": value, "digits": calc["digits"]}, None
+
+        if op == "abs":
+            value = ref("value")
+            if value is None:
+                raise KeyError("value")
+            return {"op": "abs", "value": value}, None
 
         if op in ("sumx_over_key", "avgx_over_key"):
             key_column = calc["key_column"]

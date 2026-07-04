@@ -30,6 +30,12 @@ technical:
   lineage:
   - fact_cogs.COGS Amount
   - fact_inventory.Average Inventory Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: COGS Amount
+    denominator:
+      column: Average Inventory Amount
 governance:
   business_owner: Head of Supply Chain / Logistics
   data_owner: Supply Chain BI

@@ -30,6 +30,16 @@ technical:
   lineage:
   - fact_accounts_payable.AP Amount
   - fact_accounts_payable.COGS Amount
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: mul
+        terms:
+        - column: AP Amount
+        - literal: 365
+    denominator:
+      column: COGS Amount
 governance:
   business_owner: Head of Treasury / Procurement Controlling
   data_owner: Finance BI

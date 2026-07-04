@@ -30,13 +30,29 @@ business:
 technical:
   measure_name: Forecast Accuracy %
   description: Measures how close forecasted demand is to actual demand.
-  depends_on_measures:
-  - plan.forecast.mape.pct
-  - plan.forecast.bias.pct
-  - plan.forecast.service_impact.pct
-  - plan.replan.count
+  depends_on_measures: []
   lineage:
   - fact_forecast.Forecast Units
+  - fact_sales.Sales Units
+  calculation:
+    op: delta
+    minuend:
+      literal: 1
+    subtrahend:
+      calc:
+        op: abs
+        value:
+          calc:
+            op: ratio
+            numerator:
+              calc:
+                op: delta
+                minuend:
+                  column: Forecast Units
+                subtrahend:
+                  column: Sales Units
+            denominator:
+              column: Sales Units
 governance:
   business_owner: Supply Planning Lead
   data_owner: Supply Chain BI
@@ -46,6 +62,13 @@ governance:
   qa_rules:
   - Actual Demand > 0
   - Value between 0 % and 100 %
+  - 'Known DAX nuance (I-10.0 follow-up): legacy DAX guards Sales Units = 0 with an
+    explicit IF(...,BLANK(),...); the synthesized 1 - ABS(DIVIDE(...)) relies on
+    DIVIDE''s native BLANK()-on-zero-denominator instead, which in DAX''s "-"
+    operator coerces to 0 — so at exactly Sales Units = 0 the synthesized formula
+    returns 1 where legacy returns BLANK(). Matches everywhere Actual Demand > 0
+    holds (the documented precondition above); the edge case has no flat-DSL
+    fix without a dedicated IF/blank-guard op.'
   version: v1.0
 metadata_quality:
   completeness_score: 0.8

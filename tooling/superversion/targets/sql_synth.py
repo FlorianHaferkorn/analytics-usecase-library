@@ -21,10 +21,12 @@ SQL expression over the view's single `source` table, no subquery):
     rate             -- TRY_DIVIDE ( SUM ( CASE WHEN flag = TRUE THEN 1 ELSE 0 END ), COUNT ( * ) )
     count            -- COUNT ( * )
     mul              -- term_1 * term_2 * ... (n-ary)
+    add              -- term_1 + term_2 + ... (n-ary)
     delta_chain      -- minuend - sub_1 - sub_2 - ... (n-ary)
     distinctcount    -- COUNT ( DISTINCT [CASE WHEN <filters> THEN] col [END] )
     count_threshold  -- COUNT ( CASE WHEN col <cmp> value THEN 1 END )
     round            -- ROUND ( value, digits )
+    abs              -- ABS ( value )
     avg              -- AVG ( column )
     count_filtered   -- COUNT ( CASE WHEN <filters> THEN 1 END )   (filters: bool or string equality)
 
@@ -244,6 +246,12 @@ def synthesize_sql(resolved: dict) -> str:
             raise SynthesisError(f"mul needs 2+ terms: {resolved!r}")
         return " * ".join(_term(t) for t in terms)
 
+    if op == "add":
+        terms = resolved.get("terms") or []
+        if len(terms) < 2:
+            raise SynthesisError(f"add needs 2+ terms: {resolved!r}")
+        return " + ".join(_term(t) for t in terms)
+
     if op == "delta_chain":
         subtrahends = resolved.get("subtrahends") or []
         if not subtrahends:
@@ -275,6 +283,12 @@ def synthesize_sql(resolved: dict) -> str:
         value = resolved.get("value")
         digits = resolved.get("digits", 0)
         return f"ROUND ( {_term(value)}, {_format_number(digits)} )"
+
+    if op == "abs":
+        value = resolved.get("value")
+        if value is None:
+            raise SynthesisError(f"abs missing value: {resolved!r}")
+        return f"ABS ( {_term(value)} )"
 
     if op == "avg":
         column = resolved.get("column")
