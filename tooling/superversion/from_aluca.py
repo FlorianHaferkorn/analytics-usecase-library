@@ -160,8 +160,8 @@ def _own_lineage_columns(kpi: dict) -> dict[str, str]:
 
 
 def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], lineage: list[str], catalog: "KpiCatalog") -> Optional[dict]:
-    """calc_ref (kpi-id, bare column, or nested `calc`) → neutral
-    {"kind": "column"|"measure"|"expr", ...}.
+    """calc_ref (kpi-id, bare column, nested `calc`, or bare numeric `literal`) →
+    neutral {"kind": "column"|"measure"|"expr"|"literal", ...}.
 
     Returns None if the reference cannot be resolved (unknown KPI id, a column
     not present in this KPI's own lineage, or an unresolvable nested `calc`) —
@@ -187,6 +187,8 @@ def _resolve_calc_ref(ref: dict, own_cols: dict[str, str], lineage: list[str], c
         if nested is None:
             return None
         return {"kind": "expr", **nested}
+    if "literal" in ref:
+        return {"kind": "literal", "value": ref["literal"]}
     return None
 
 
@@ -319,6 +321,36 @@ def _resolve_calc_node(
                 "net_price_column": net_price_col, "quantity_column": qty_col,
                 "plan_sales_column": plan_sales_col, "plan_quantity_column": plan_qty_col,
             }, None
+
+        if op == "avg":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            return {"op": "avg", "table": table, "column": column}, None
+
+        if op == "sumx_product":
+            col_a, col_b = calc["factor_a"], calc["factor_b"]
+            tables = {own_cols.get(col_a), own_cols.get(col_b)}
+            if None in tables or len(tables) != 1:
+                raise KeyError("factor_a/factor_b")
+            return {
+                "op": "sumx_product", "table": tables.pop(),
+                "factor_a_column": col_a, "factor_b_column": col_b,
+            }, None
+
+        if op == "count_filtered":
+            column = calc["column"]
+            table = own_cols.get(column)
+            if not table:
+                raise KeyError(column)
+            filters = []
+            for f in calc["filters"]:
+                f_table = own_cols.get(f["column"])
+                if not f_table:
+                    raise KeyError(f["column"])
+                filters.append({"table": f_table, "column": f["column"], "equals": f["equals"]})
+            return {"op": "count_filtered", "table": table, "filters": filters}, None
     except KeyError as exc:
         return None, f"(op={op!r}) failed to resolve ({exc})"
 

@@ -34,6 +34,12 @@ technical:
   lineage:
   - fact_ops.Run Time Minutes
   - fact_ops.Planned Time Minutes
+  calculation:
+    op: ratio
+    numerator:
+      column: Run Time Minutes
+    denominator:
+      column: Planned Time Minutes
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

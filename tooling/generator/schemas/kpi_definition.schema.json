@@ -89,6 +89,12 @@
           "additionalProperties": false,
           "required": ["calc"],
           "properties": { "calc": { "$ref": "#/$defs/calculation" } }
+        },
+        {
+          "description": "A bare numeric constant (e.g. a fixed proxy factor observed in legacy DAX, such as `[Baseline Sales Amount] * 0.15`) — never a business-logic guess, only used when the legacy formula itself hardcodes the constant.",
+          "additionalProperties": false,
+          "required": ["literal"],
+          "properties": { "literal": { "type": "number" } }
         }
       ]
     },
@@ -152,6 +158,47 @@
           "properties": {
             "op": { "const": "count" },
             "column": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "description": "AVERAGE(column) — a leaf aggregate over one of this KPI's own lineage columns (e.g. the Standard Rate Units Per Minute factor in Performance %'s theoretical-output denominator).",
+          "additionalProperties": false,
+          "required": ["op", "column"],
+          "properties": {
+            "op": { "const": "avg" },
+            "column": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "description": "SUMX ( table, table[factor_a] * table[factor_b] ) — row-context product of two columns from this KPI's own lineage table, summed (e.g. Planned Output Units = SUMX(fact_ops, Standard Rate * Planned Time)). Both columns must resolve to the SAME table.",
+          "additionalProperties": false,
+          "required": ["op", "factor_a", "factor_b"],
+          "properties": {
+            "op": { "const": "sumx_product" },
+            "factor_a": { "type": "string", "minLength": 1 },
+            "factor_b": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "description": "CALCULATE ( COUNTROWS ( table ), filter_1, filter_2, ... ) — row count of this KPI's own lineage table under 1+ equality filters against boolean OR string column values (e.g. PM Compliance %'s Order Type = \"PM\" AND Order Status = \"Completed\"). Generalizes `rate`/`distinctcount`'s boolean-only filters to string equality, needed when the legacy DAX filters on a categorical column rather than a flag.",
+          "additionalProperties": false,
+          "required": ["op", "column", "filters"],
+          "properties": {
+            "op": { "const": "count_filtered" },
+            "column": { "type": "string", "minLength": 1 },
+            "filters": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["column", "equals"],
+                "properties": {
+                  "column": { "type": "string", "minLength": 1 },
+                  "equals": { "oneOf": [{ "type": "boolean" }, { "type": "string" }] }
+                }
+              }
+            }
           }
         },
         {

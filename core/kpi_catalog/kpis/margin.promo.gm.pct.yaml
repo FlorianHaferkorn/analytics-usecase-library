@@ -13,7 +13,7 @@ action_code_ref:
 calc_type: ratio
 business:
   purpose: Gross margin rate during promo periods.
-  definition: (Promo NS - Promo COGS) / Promo NS
+  definition: Incremental Gross Margin Amount / Incremental Sales Amount
   grain_scope: Promo period/product
   unit_format: '''% (1 decimal)'''
   interpretation: Profitability of promotions.
@@ -21,12 +21,18 @@ technical:
   measure_name: GM % During Promo
   description: Gross margin rate during promo periods.
   depends_on_measures:
-  - sales.net_sales.amount
-  - cost.cogs.amount
+  - sales.promo.incremental_gm.amount
+  - sales.promo.incremental.amount
   lineage:
   - fact_sales.Cost of Goods Sold Amount
   - fact_sales.Net Sales Amount
   - fact_sales.Promo Flag
+  calculation:
+    op: ratio
+    numerator:
+      kpi: sales.promo.incremental_gm.amount
+    denominator:
+      kpi: sales.promo.incremental.amount
 governance:
   business_owner: Head of Marketing Controlling
   data_owner: BI Engineering

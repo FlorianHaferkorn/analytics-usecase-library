@@ -26,6 +26,13 @@ technical:
   - fact_ops.Actual Cycle Time
   - fact_ops.Ideal Cycle Time
   - fact_ops.Minor Stop Count
+  calculation:
+    op: hitl
+    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in
+      products/fabric/powerbi/dist/Operations.SemanticModel). "(1 - Performance Rate)
+      adjusted to exclude minor stop events" is a residual/decomposition formula whose
+      exact minor-stop adjustment isn't specified precisely enough to derive without
+      guessing, and is beyond the current grammar regardless.
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

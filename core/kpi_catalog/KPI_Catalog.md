@@ -447,6 +447,18 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_ops.Output Units
     - fact_ops.Run Time Minutes
     - fact_ops.Standard Rate Units Per Minute
+    calculation:
+      op: ratio
+      numerator:
+        column: Output Units
+      denominator:
+        calc:
+          op: mul
+          terms:
+          - column: Run Time Minutes
+          - calc:
+              op: avg
+              column: Standard Rate Units Per Minute
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -493,6 +505,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops.Good Units
     - fact_ops.Output Units
+    calculation:
+      op: ratio
+      numerator:
+        column: Good Units
+      denominator:
+        column: Output Units
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -583,13 +601,19 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measures average operating time between failures.
     depends_on_measures:
     - ops.failure.count
-    - ops.mttr.hours
-    - ops.downtime.unplanned.pct
-    - ops.pm_compliance.pct
-    - ops.spare_parts.stockout.pct
-    - ops.availability.pct
     lineage:
     - fact_ops.Run Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: ratio
+          numerator:
+            column: Run Time Minutes
+          denominator:
+            literal: 60
+      denominator:
+        kpi: ops.failure.count
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -632,9 +656,16 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: MTTR (hours)
     description: Measures average repair time after failures.
-    depends_on_measures: []
+    depends_on_measures:
+    - ops.failure.count
     lineage:
     - fact_ops_failures.Repair Duration Hours
+    calculation:
+      op: ratio
+      numerator:
+        column: Repair Duration Hours
+      denominator:
+        kpi: ops.failure.count
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -674,6 +705,24 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_maintenance.Order Type
     - fact_maintenance.Order Status
+    calculation:
+      op: ratio
+      numerator:
+        calc:
+          op: count_filtered
+          column: Order Type
+          filters:
+          - column: Order Type
+            equals: PM
+          - column: Order Status
+            equals: Completed
+      denominator:
+        calc:
+          op: count_filtered
+          column: Order Type
+          filters:
+          - column: Order Type
+            equals: PM
   governance:
     business_owner: Head of Maintenance
     data_owner: Operations BI
@@ -713,6 +762,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_maintenance.Parts Stockout Flag
+    calculation:
+      op: rate
+      column: Parts Stockout Flag
   governance:
     business_owner: Head of Maintenance
     data_owner: Operations BI
@@ -753,6 +805,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_ops.Output Units
+    calculation:
+      op: sum
+      column: Output Units
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -1706,6 +1761,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_ops.Output Units
     - fact_ops.Good Units
     - fact_ops.Standard Rate Units Per Minute
+    calculation:
+      op: mul
+      terms:
+      - kpi: ops.availability.pct
+      - kpi: ops.performance.pct
+      - kpi: ops.quality.pct
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -1746,6 +1807,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_ops_failures
+    calculation:
+      op: count
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -1783,6 +1846,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_inventory.Average Inventory Amount
+    calculation:
+      op: sum
+      column: Average Inventory Amount
   governance:
     business_owner: Head of Supply Chain
     data_owner: Supply Chain BI
@@ -1814,16 +1880,21 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: count
   business:
     purpose: Captures planned production output volume.
-    definition: Sum of planned output units for the period.
+    definition: Sum over line/day of (Standard Rate Units Per Minute * Planned Time Minutes).
     grain_scope: Line/site; aggregated by period.
     unit_format: units
     interpretation: Baseline for comparing actual throughput.
   technical:
     measure_name: Planned Output Units
-    description: Captures planned production output volume.
+    description: Captures planned production output volume (theoretical output at standard rate).
     depends_on_measures: []
     lineage:
     - fact_ops.Planned Time Minutes
+    - fact_ops.Standard Rate Units Per Minute
+    calculation:
+      op: sumx_product
+      factor_a: Standard Rate Units Per Minute
+      factor_b: Planned Time Minutes
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -1861,6 +1932,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_maintenance
+    calculation:
+      op: count
   governance:
     business_owner: Head of Maintenance
     data_owner: Maintenance BI
@@ -1980,6 +2053,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_safety.Incident Count
+    calculation:
+      op: hitl
+      reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Operations.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires fact_safety_incidents table (not yet in data contract)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream of any DSL grammar question.'
   governance:
     business_owner: EHS Manager
     data_owner: EHS BI
@@ -2271,6 +2347,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops.Run Time Minutes
     - fact_ops.Planned Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        column: Run Time Minutes
+      denominator:
+        column: Planned Time Minutes
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -2389,6 +2471,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops.Downtime Minutes
     - fact_ops.Planned Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        column: Downtime Minutes
+      denominator:
+        column: Planned Time Minutes
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -2436,6 +2524,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops_failures.Downtime Minutes
     - fact_ops.Planned Time Minutes
+    calculation:
+      op: ratio
+      numerator:
+        column: Downtime Minutes
+      denominator:
+        column: Planned Time Minutes
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -2478,6 +2572,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_ops.Actual Cycle Time
     - fact_ops.Ideal Cycle Time
     - fact_ops.Minor Stop Count
+    calculation:
+      op: hitl
+      reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel). "(1 - Performance Rate) adjusted to exclude minor stop events" is a residual/decomposition formula whose exact minor-stop adjustment isn't specified precisely enough to derive without guessing, and is beyond the current grammar regardless.
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -2517,6 +2614,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops_changeover.Start Timestamp
     - fact_ops_changeover.End Timestamp
+    calculation:
+      op: hitl
+      reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel). Average duration between two timestamp columns (AVERAGEX with a DATEDIFF-style row expression) is beyond the current sum/ratio/delta/count-shaped grammar.
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -3224,6 +3324,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_sales.Sales Units
+    calculation:
+      op: sum
+      column: Sales Units
   governance:
     business_owner: Head of Sales
     data_owner: Commercial BI
@@ -4208,7 +4311,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: ratio
   business:
     purpose: Measures profitability of promotions relative to spend.
-    definition: (Incremental GM Amount - Promo Cost Amount) / Promo Cost Amount
+    definition: Incremental GM Amount / Promo Cost Amount
     grain_scope: Promo campaign / product / period.
     unit_format: '''% (1 decimal)'''
     interpretation: Values > 0 indicate promotions adding value.
@@ -4220,6 +4323,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - sales.promo.cost.amount
     lineage:
     - fact_promo.Promo Cost
+    calculation:
+      op: ratio
+      numerator:
+        kpi: sales.promo.incremental_gm.amount
+      denominator:
+        kpi: sales.promo.cost.amount
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4249,7 +4358,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: ratio
   business:
     purpose: Gross margin rate during promo periods.
-    definition: (Promo NS - Promo COGS) / Promo NS
+    definition: Incremental Gross Margin Amount / Incremental Sales Amount
     grain_scope: Promo period/product
     unit_format: '''% (1 decimal)'''
     interpretation: Profitability of promotions.
@@ -4257,12 +4366,18 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: GM % During Promo
     description: Gross margin rate during promo periods.
     depends_on_measures:
-    - sales.net_sales.amount
-    - cost.cogs.amount
+    - sales.promo.incremental_gm.amount
+    - sales.promo.incremental.amount
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
     - fact_sales.Promo Flag
+    calculation:
+      op: ratio
+      numerator:
+        kpi: sales.promo.incremental_gm.amount
+      denominator:
+        kpi: sales.promo.incremental.amount
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4333,19 +4448,22 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   calc_type: amount
   business:
     purpose: Sales lost on non-promoted items versus baseline (cannibalization in value).
-    definition: MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales).
+    definition: 'Proxy: 15% of Baseline Sales Amount, pending real non-promo-segment actuals (target formula: MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales) once that segmentation is available).'
     grain_scope: Promo campaign / product / period.
     unit_format: EUR (2 decimals)
     interpretation: Numerator for Cannibalization %; higher means more cannibalization.
   technical:
     measure_name: Cannibalized Sales Amount
-    description: Sales amount lost on non-promoted items versus baseline.
+    description: Sales amount lost on non-promoted items versus baseline (15% proxy factor).
     depends_on_measures:
-    - sales.net_sales.amount
+    - sales.promo.baseline_sales.amount
     lineage:
-    - fact_promo.Baseline Non-Promo Sales Amount
-    - fact_sales.Net Sales Amount
-    - fact_sales.Promo Flag
+    - fact_promo.Baseline Sales Amount
+    calculation:
+      op: mul
+      terms:
+      - kpi: sales.promo.baseline_sales.amount
+      - literal: 0.15
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -4353,8 +4471,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     review_cycle: quarterly
     validation_process: manual review
     qa_rules:
-    - Lost non-promo floored at 0
-    version: v1.0
+    - Documented proxy (15% of baseline) — replace with real non-promo actuals once segmentation data is available
+    version: v1.1
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
@@ -4386,6 +4504,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_promo.Baseline Non-Promo Sales Amount
     - fact_sales.Net Sales Amount
     - fact_sales.Promo Flag
+    calculation:
+      op: ratio
+      numerator:
+        kpi: sales.promo.cannibalized_sales.amount
+      denominator:
+        kpi: sales.promo.incremental.amount
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering

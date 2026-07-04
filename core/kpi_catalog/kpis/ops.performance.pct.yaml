@@ -32,6 +32,18 @@ technical:
   - fact_ops.Output Units
   - fact_ops.Run Time Minutes
   - fact_ops.Standard Rate Units Per Minute
+  calculation:
+    op: ratio
+    numerator:
+      column: Output Units
+    denominator:
+      calc:
+        op: mul
+        terms:
+        - column: Run Time Minutes
+        - calc:
+            op: avg
+            column: Standard Rate Units Per Minute
 governance:
   business_owner: Head of Manufacturing
   data_owner: Manufacturing BI

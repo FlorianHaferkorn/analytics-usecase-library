@@ -24,6 +24,24 @@ technical:
   lineage:
   - fact_maintenance.Order Type
   - fact_maintenance.Order Status
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: count_filtered
+        column: Order Type
+        filters:
+        - column: Order Type
+          equals: PM
+        - column: Order Status
+          equals: Completed
+    denominator:
+      calc:
+        op: count_filtered
+        column: Order Type
+        filters:
+        - column: Order Type
+          equals: PM
 governance:
   business_owner: Head of Maintenance
   data_owner: Operations BI

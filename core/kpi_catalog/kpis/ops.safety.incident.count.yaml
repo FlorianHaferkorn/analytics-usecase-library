@@ -22,6 +22,12 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_safety.Incident Count
+  calculation:
+    op: hitl
+    reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Operations.SemanticModel''s
+      own DAX is a documented placeholder (VAR _pending = "Requires fact_safety_incidents
+      table (not yet in data contract)" RETURN BLANK()) — the source table does not exist
+      yet in the data contract, upstream of any DSL grammar question.'
 governance:
   business_owner: EHS Manager
   data_owner: EHS BI

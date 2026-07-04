@@ -118,6 +118,53 @@ def test_round_wraps_nested_expr():
     assert s.synthesize_sql(resolved) == "ROUND ( ( TRY_DIVIDE ( MEASURE ( A ), MEASURE ( B ) ) * 100 ), 0 )"
 
 
+def test_avg_leaf():
+    resolved = {"op": "avg", "table": "fact_ops", "column": "Standard Rate Units Per Minute"}
+    assert s.synthesize_sql(resolved) == "AVG ( `Standard Rate Units Per Minute` )"
+
+
+def test_count_filtered_string_and_bool_filters():
+    resolved = {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [
+            {"table": "fact_maintenance", "column": "Order Type", "equals": "PM"},
+            {"table": "fact_maintenance", "column": "Order Status", "equals": "Completed"},
+        ],
+    }
+    assert s.synthesize_sql(resolved) == "COUNT ( CASE WHEN `Order Type` = 'PM' AND `Order Status` = 'Completed' THEN 1 END )"
+
+
+def test_count_filtered_bool_filter():
+    resolved = {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [{"table": "fact_maintenance", "column": "Parts Stockout Flag", "equals": True}],
+    }
+    assert s.synthesize_sql(resolved) == "COUNT ( CASE WHEN `Parts Stockout Flag` = TRUE THEN 1 END )"
+
+
+def test_count_filtered_string_value_escapes_embedded_quotes():
+    resolved = {"op": "count_filtered", "table": "t", "filters": [{"table": "t", "column": "c", "equals": "a 'quoted' value"}]}
+    assert s.synthesize_sql(resolved) == "COUNT ( CASE WHEN c = 'a ''quoted'' value' THEN 1 END )"
+
+
+def test_sumx_product_has_no_flat_sql_shape():
+    with pytest.raises(s.SynthesisError):
+        s.synthesize_sql({"op": "sumx_product", "table": "t", "factor_a_column": "a", "factor_b_column": "b"})
+
+
+@pytest.mark.parametrize(
+    "resolved",
+    [
+        {"op": "avg", "table": "t"},
+        {"op": "count_filtered", "table": "t", "filters": []},
+        {"op": "count_filtered", "filters": [{"table": "t", "column": "c", "equals": True}]},
+    ],
+)
+def test_new_ops_round2_malformed_raises_synthesis_error(resolved):
+    with pytest.raises(s.SynthesisError):
+        s.synthesize_sql(resolved)
+
+
 def test_nested_expr_ref_recurses_and_parenthesizes():
     resolved = {"op": "delta", "minuend": _measure("A"), "subtrahend": _expr({"op": "sum", "ref": _col("t", "b")})}
     assert s.synthesize_sql(resolved) == "MEASURE ( A ) - ( SUM ( b ) )"
@@ -152,6 +199,16 @@ def test_no_flat_sql_shape_ops_raise_synthesis_error(op):
 def test_malformed_or_unknown_raises_synthesis_error(resolved):
     with pytest.raises(s.SynthesisError):
         s.synthesize_sql(resolved)
+
+
+def test_literal_term_bare_number():
+    resolved = {"op": "mul", "terms": [_measure("Baseline Sales Amount"), {"kind": "literal", "value": 0.15}]}
+    assert s.synthesize_sql(resolved) == "MEASURE ( `Baseline Sales Amount` ) * 0.15"
+
+
+def test_literal_term_missing_value_raises():
+    with pytest.raises(s.SynthesisError):
+        s._term({"kind": "literal"})
 
 
 def test_identifier_quoting_is_idempotent_for_simple_names():

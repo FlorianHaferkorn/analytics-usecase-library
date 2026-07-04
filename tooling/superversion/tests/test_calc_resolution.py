@@ -182,3 +182,76 @@ def test_unknown_op_becomes_hitl_with_diagnosable_reason():
     resolved, hitl = _resolve_calc_node({"op": "not_a_real_op"}, {}, [], CATALOG)
     assert resolved is None
     assert "unknown op" in hitl
+
+
+def test_literal_calc_ref_resolves_to_bare_value():
+    """`{"literal": n}` — a bare numeric constant term (e.g. the legacy
+    `[Baseline Sales Amount] * 0.15` proxy factor for Cannibalized Sales
+    Amount) — resolves without needing any lineage/catalog lookup."""
+    kpi = _kpi({"op": "mul", "terms": [{"kpi": "sales.net_sales.amount"}, {"literal": 0.15}]}, [])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "mul",
+        "terms": [{"kind": "measure", "name": "Net Sales Amount"}, {"kind": "literal", "value": 0.15}],
+    }
+    assert dax_synth.synthesize_dax(resolved) == "[Net Sales Amount] * 0.15"
+
+
+def test_avg_resolves_column_to_table():
+    kpi = _kpi({"op": "avg", "column": "Standard Rate Units Per Minute"}, ["fact_ops.Standard Rate Units Per Minute"])
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {"op": "avg", "table": "fact_ops", "column": "Standard Rate Units Per Minute"}
+
+
+def test_sumx_product_requires_same_table_for_both_factors():
+    kpi = _kpi(
+        {"op": "sumx_product", "factor_a": "Standard Rate Units Per Minute", "factor_b": "Planned Time Minutes"},
+        ["fact_ops.Standard Rate Units Per Minute", "fact_ops.Planned Time Minutes"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "sumx_product", "table": "fact_ops",
+        "factor_a_column": "Standard Rate Units Per Minute", "factor_b_column": "Planned Time Minutes",
+    }
+
+
+def test_sumx_product_different_tables_becomes_hitl():
+    kpi = _kpi(
+        {"op": "sumx_product", "factor_a": "A", "factor_b": "B"},
+        ["fact_x.A", "fact_y.B"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert resolved is None
+    assert "HITL:" in hitl
+
+
+def test_count_filtered_resolves_string_and_bool_filters():
+    kpi = _kpi(
+        {
+            "op": "count_filtered", "column": "Order Type",
+            "filters": [{"column": "Order Type", "equals": "PM"}, {"column": "Order Status", "equals": "Completed"}],
+        },
+        ["fact_maintenance.Order Type", "fact_maintenance.Order Status"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert hitl is None
+    assert resolved == {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [
+            {"table": "fact_maintenance", "column": "Order Type", "equals": "PM"},
+            {"table": "fact_maintenance", "column": "Order Status", "equals": "Completed"},
+        ],
+    }
+
+
+def test_count_filtered_unresolvable_filter_column_becomes_hitl():
+    kpi = _kpi(
+        {"op": "count_filtered", "column": "Order Type", "filters": [{"column": "Not In Lineage", "equals": "x"}]},
+        ["fact_maintenance.Order Type"],
+    )
+    resolved, hitl = _resolve_calculation(kpi, CATALOG)
+    assert resolved is None
+    assert "HITL:" in hitl

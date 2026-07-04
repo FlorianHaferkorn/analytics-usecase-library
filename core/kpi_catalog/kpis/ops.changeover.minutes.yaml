@@ -24,6 +24,12 @@ technical:
   lineage:
   - fact_ops_changeover.Start Timestamp
   - fact_ops_changeover.End Timestamp
+  calculation:
+    op: hitl
+    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in
+      products/fabric/powerbi/dist/Operations.SemanticModel). Average duration between
+      two timestamp columns (AVERAGEX with a DATEDIFF-style row expression) is beyond
+      the current sum/ratio/delta/count-shaped grammar.
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

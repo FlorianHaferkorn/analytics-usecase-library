@@ -210,6 +210,64 @@ def test_pvm_price_effect():
     )
 
 
+def test_avg_leaf():
+    resolved = {"op": "avg", "table": "fact_ops", "column": "Standard Rate Units Per Minute"}
+    assert d.synthesize_dax(resolved) == "AVERAGE ( fact_ops[Standard Rate Units Per Minute] )"
+
+
+def test_sumx_product():
+    resolved = {"op": "sumx_product", "table": "fact_ops", "factor_a_column": "Standard Rate Units Per Minute", "factor_b_column": "Planned Time Minutes"}
+    assert d.synthesize_dax(resolved) == (
+        "SUMX ( fact_ops, fact_ops[Standard Rate Units Per Minute] * fact_ops[Planned Time Minutes] )"
+    )
+
+
+def test_count_filtered_string_and_bool_filters():
+    resolved = {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [
+            {"table": "fact_maintenance", "column": "Order Type", "equals": "PM"},
+            {"table": "fact_maintenance", "column": "Order Status", "equals": "Completed"},
+        ],
+    }
+    assert d.synthesize_dax(resolved) == (
+        'CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", '
+        'fact_maintenance[Order Status] = "Completed" )'
+    )
+
+
+def test_count_filtered_bool_filter_uses_true_false_literal():
+    resolved = {
+        "op": "count_filtered", "table": "fact_maintenance",
+        "filters": [{"table": "fact_maintenance", "column": "Parts Stockout Flag", "equals": True}],
+    }
+    assert d.synthesize_dax(resolved) == (
+        "CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE () )"
+    )
+
+
+def test_count_filtered_string_value_escapes_embedded_quotes():
+    resolved = {
+        "op": "count_filtered", "table": "t",
+        "filters": [{"table": "t", "column": "c", "equals": 'a "quoted" value'}],
+    }
+    assert d.synthesize_dax(resolved) == 'CALCULATE ( COUNTROWS ( t ), t[c] = "a ""quoted"" value" )'
+
+
+@pytest.mark.parametrize(
+    "resolved",
+    [
+        {"op": "avg", "table": "t"},  # missing column
+        {"op": "sumx_product", "table": "t"},  # missing factors
+        {"op": "count_filtered", "table": "t", "filters": []},  # empty filters
+        {"op": "count_filtered", "filters": [{"table": "t", "column": "c", "equals": True}]},  # missing table
+    ],
+)
+def test_new_ops_round2_malformed_raises_synthesis_error(resolved):
+    with pytest.raises(d.SynthesisError):
+        d.synthesize_dax(resolved)
+
+
 def test_nested_expr_ref_recurses_and_parenthesizes():
     resolved = {"op": "delta", "minuend": _measure("A"), "subtrahend": _expr({"op": "sum", "ref": _col("t", "b")})}
     assert d.synthesize_dax(resolved) == "[A] - ( SUM ( t[b] ) )"
@@ -235,6 +293,20 @@ def test_new_ops_malformed_raises_synthesis_error(resolved):
             d._term(resolved)
         else:
             d.synthesize_dax(resolved)
+
+
+def test_literal_term_bare_number():
+    resolved = {"op": "mul", "terms": [_measure("Baseline Sales Amount"), {"kind": "literal", "value": 0.15}]}
+    assert d.synthesize_dax(resolved) == "[Baseline Sales Amount] * 0.15"
+
+
+def test_literal_term_integer_float_renders_without_decimal():
+    assert d._term({"kind": "literal", "value": 2.0}) == "2"
+
+
+def test_literal_term_missing_value_raises():
+    with pytest.raises(d.SynthesisError):
+        d._term({"kind": "literal"})
 
 
 def test_never_emits_colon_equals():

@@ -31,6 +31,12 @@ technical:
   lineage:
   - fact_ops.Good Units
   - fact_ops.Output Units
+  calculation:
+    op: ratio
+    numerator:
+      column: Good Units
+    denominator:
+      column: Output Units
 governance:
   business_owner: Head of Manufacturing
   data_owner: Manufacturing BI

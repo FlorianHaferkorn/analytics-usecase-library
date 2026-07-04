@@ -17,16 +17,21 @@ action_code_ref:
 calc_type: count
 business:
   purpose: Captures planned production output volume.
-  definition: Sum of planned output units for the period.
+  definition: Sum over line/day of (Standard Rate Units Per Minute * Planned Time Minutes).
   grain_scope: Line/site; aggregated by period.
   unit_format: units
   interpretation: Baseline for comparing actual throughput.
 technical:
   measure_name: Planned Output Units
-  description: Captures planned production output volume.
+  description: Captures planned production output volume (theoretical output at standard rate).
   depends_on_measures: []
   lineage:
   - fact_ops.Planned Time Minutes
+  - fact_ops.Standard Rate Units Per Minute
+  calculation:
+    op: sumx_product
+    factor_a: Standard Rate Units Per Minute
+    factor_b: Planned Time Minutes
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI

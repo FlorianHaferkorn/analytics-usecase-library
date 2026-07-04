@@ -30,6 +30,9 @@ resolved upstream in `from_aluca`, never reaches this module):
     avgx_over_key    -- AVERAGEX ( VALUES ( t[key] ), CALCULATE ( value ) )
     pvm_volume_effect -- SUMX ( t, ( t[qty] - t[plan_qty] ) * DIVIDE ( t[plan_sales], t[plan_qty] ) )
     pvm_price_effect  -- SUMX ( t, ( DIVIDE ( t[net_price], t[qty] ) - DIVIDE ( t[plan_sales], t[plan_qty] ) ) * t[qty] )
+    avg               -- AVERAGE ( t[col] )
+    sumx_product      -- SUMX ( t, t[a] * t[b] )
+    count_filtered    -- CALCULATE ( COUNTROWS ( t ), t[col1] = v1, t[col2] = v2, ... ) (v: TRUE()/FALSE() or a quoted string)
 
 A "ref" term is one of:
   {"kind": "column", "table": ..., "column": ...}  -- ``SUM ( table[column] )``
@@ -38,6 +41,8 @@ A "ref" term is one of:
                                                        recursively via `synthesize_dax` and
                                                        parenthesized (recursive `calc_ref`, e.g.
                                                        the VAR-chain shape of `margin.gm.vs_plan.pct`)
+  {"kind": "literal", "value": ...}                -- a bare numeric constant (e.g. the legacy
+                                                       `[Baseline Sales Amount] * 0.15` proxy factor)
 """
 from __future__ import annotations
 
@@ -50,6 +55,15 @@ def _format_number(n) -> str:
     if isinstance(n, float) and n.is_integer():
         return str(int(n))
     return str(n)
+
+
+def _dax_literal(value) -> str:
+    """A `count_filtered` filter's `equals` value → its DAX literal: `TRUE ()`/
+    `FALSE ()` for a bool, a double-quoted string literal (DAX escapes `"` by
+    doubling it) for a string."""
+    if isinstance(value, bool):
+        return "TRUE ()" if value else "FALSE ()"
+    return f'"{value.replace(chr(34), chr(34) * 2)}"'
 
 
 def _term(ref: dict) -> str:
@@ -68,6 +82,11 @@ def _term(ref: dict) -> str:
         return f"[{name}]"
     if kind == "expr":
         return f"( {synthesize_dax(ref)} )"
+    if kind == "literal":
+        value = ref.get("value")
+        if value is None:
+            raise SynthesisError(f"literal ref missing value: {ref!r}")
+        return _format_number(value)
     raise SynthesisError(f"unknown ref kind: {kind!r}")
 
 
@@ -191,5 +210,26 @@ def synthesize_dax(resolved: dict) -> str:
             f"SUMX ( {table}, ( DIVIDE ( {table}[{net_price}], {table}[{qty}] ) - "
             f"DIVIDE ( {table}[{plan_sales}], {table}[{plan_qty}] ) ) * {table}[{qty}] )"
         )
+
+    if op == "avg":
+        table, column = resolved.get("table"), resolved.get("column")
+        if not table or not column:
+            raise SynthesisError(f"avg missing table/column: {resolved!r}")
+        return f"AVERAGE ( {table}[{column}] )"
+
+    if op == "sumx_product":
+        table = resolved.get("table")
+        col_a, col_b = resolved.get("factor_a_column"), resolved.get("factor_b_column")
+        if not table or not col_a or not col_b:
+            raise SynthesisError(f"sumx_product missing fields: {resolved!r}")
+        return f"SUMX ( {table}, {table}[{col_a}] * {table}[{col_b}] )"
+
+    if op == "count_filtered":
+        table = resolved.get("table")
+        filters = resolved.get("filters") or []
+        if not table or not filters:
+            raise SynthesisError(f"count_filtered missing table/filters: {resolved!r}")
+        conditions = ", ".join(f"{f['table']}[{f['column']}] = {_dax_literal(f['equals'])}" for f in filters)
+        return f"CALCULATE ( COUNTROWS ( {table} ), {conditions} )"
 
     raise SynthesisError(f"unknown op: {op!r}")

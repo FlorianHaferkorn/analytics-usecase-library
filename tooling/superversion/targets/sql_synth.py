@@ -10,7 +10,7 @@ Like `dax_synth.py`, this is the ONLY place SQL syntax is constructed for the
 calculation grammar; `from_aluca.py` never imports this module either (I1:
 the source adapter stays dialect-neutral for every stack, not just Power BI).
 
-Grammar coverage — 11 of the 16 ops translate to a flat SQL aggregate
+Grammar coverage — 13 of the 18 ops translate to a flat SQL aggregate
 expression (a Databricks Metric View measure `expr` is exactly that: one
 SQL expression over the view's single `source` table, no subquery):
 
@@ -25,16 +25,19 @@ SQL expression over the view's single `source` table, no subquery):
     distinctcount    -- COUNT ( DISTINCT [CASE WHEN <filters> THEN] col [END] )
     count_threshold  -- COUNT ( CASE WHEN col <cmp> value THEN 1 END )
     round            -- ROUND ( value, digits )
+    avg              -- AVG ( column )
+    count_filtered   -- COUNT ( CASE WHEN <filters> THEN 1 END )   (filters: bool or string equality)
 
-Four ops are explicit `SynthesisError` (HITL) here, never guessed: DAX's
-SUMX/AVERAGEX-over-VALUES(key) pattern (`sumx_over_key`, `avgx_over_key`) and
-the fixed-shape PVM row-context iterators (`pvm_volume_effect`,
-`pvm_price_effect`) require a per-key GROUP BY subquery (or a windowed
-aggregate whose composition with a further reducer isn't a documented,
-vendor-confirmed Metric View pattern) — genuinely beyond a single flat SQL
-expression, not a missing line of code. Callers (`targets/databricks.py`,
-`targets/osi.py`) catch `SynthesisError` and fall back to their own
-placeholder + HITL-reason convention (mirrors `dax_synth`'s callers).
+Five ops are explicit `SynthesisError` (HITL) here, never guessed: DAX's
+SUMX/AVERAGEX-over-VALUES(key) pattern (`sumx_over_key`, `avgx_over_key`), the
+fixed-shape PVM row-context iterators (`pvm_volume_effect`, `pvm_price_effect`),
+and the generic row-context product-then-sum iterator (`sumx_product`) all
+require a per-key/per-row GROUP BY subquery (or a windowed aggregate whose
+composition with a further reducer isn't a documented, vendor-confirmed
+Metric View pattern) — genuinely beyond a single flat SQL expression, not a
+missing line of code. Callers (`targets/databricks.py`, `targets/osi.py`)
+catch `SynthesisError` and fall back to their own placeholder + HITL-reason
+convention (mirrors `dax_synth`'s callers).
 
 A "ref" term is one of:
   {"kind": "column", "table": ..., "column": ...}  -- ``SUM ( col )`` (table ignored: a
@@ -44,6 +47,7 @@ A "ref" term is one of:
                                                         reference builtin)
   {"kind": "expr", "op": ..., ...}                 -- a nested resolved formula, rendered
                                                         recursively and parenthesized
+  {"kind": "literal", "value": ...}                -- a bare numeric constant
 
 `synthesize_sql` is purely a formula→text function — it has no notion of
 "which view is this rendered into" or "measure definition order", so it
@@ -63,7 +67,7 @@ import re
 _SIMPLE_IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 # Ops dax_synth covers but sql_synth deliberately cannot (see module docstring).
-_NO_FLAT_SQL_SHAPE = {"sumx_over_key", "avgx_over_key", "pvm_volume_effect", "pvm_price_effect"}
+_NO_FLAT_SQL_SHAPE = {"sumx_over_key", "avgx_over_key", "pvm_volume_effect", "pvm_price_effect", "sumx_product"}
 
 
 class SynthesisError(ValueError):
@@ -85,6 +89,15 @@ def _ident(name: str) -> str:
     return f"`{(name or '').replace('`', '``')}`"
 
 
+def _sql_literal(value) -> str:
+    """A `count_filtered` filter's `equals` value → its Databricks SQL literal:
+    `TRUE`/`FALSE` for a bool, a single-quoted string literal (SQL escapes `'`
+    by doubling it) for a string."""
+    if isinstance(value, bool):
+        return "TRUE" if value else "FALSE"
+    return f"'{value.replace(chr(39), chr(39) * 2)}'"
+
+
 def _term(ref: dict) -> str:
     if not isinstance(ref, dict):
         raise SynthesisError(f"ref must be an object, got {ref!r}")
@@ -101,6 +114,11 @@ def _term(ref: dict) -> str:
         return f"MEASURE ( {_ident(name)} )"
     if kind == "expr":
         return f"( {synthesize_sql(ref)} )"
+    if kind == "literal":
+        value = ref.get("value")
+        if value is None:
+            raise SynthesisError(f"literal ref missing value: {ref!r}")
+        return _format_number(value)
     raise SynthesisError(f"unknown ref kind: {kind!r}")
 
 
@@ -257,5 +275,18 @@ def synthesize_sql(resolved: dict) -> str:
         value = resolved.get("value")
         digits = resolved.get("digits", 0)
         return f"ROUND ( {_term(value)}, {_format_number(digits)} )"
+
+    if op == "avg":
+        column = resolved.get("column")
+        if not resolved.get("table") or not column:
+            raise SynthesisError(f"avg missing table/column: {resolved!r}")
+        return f"AVG ( {_ident(column)} )"
+
+    if op == "count_filtered":
+        filters = resolved.get("filters") or []
+        if not resolved.get("table") or not filters:
+            raise SynthesisError(f"count_filtered missing table/filters: {resolved!r}")
+        conditions = " AND ".join(f"{_ident(f['column'])} = {_sql_literal(f['equals'])}" for f in filters)
+        return f"COUNT ( CASE WHEN {conditions} THEN 1 END )"
 
     raise SynthesisError(f"unknown op: {op!r}")

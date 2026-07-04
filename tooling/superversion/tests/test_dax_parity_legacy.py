@@ -87,6 +87,38 @@ KPI_TO_LEGACY = {
     "crm.clv.amount": ("Commercial.SemanticModel", "CLV (Customer Lifetime Value)"),
     "crm.revenue_at_risk.amount": ("Commercial.SemanticModel", "Revenue at Risk Amount"),
     "crm.complaint.count": ("Commercial.SemanticModel", "Complaint Count"),
+    # COM-004 (Promotion Effectiveness) — not one of the 5 MVP use cases, but
+    # this test checks every non-hitl calculation in the whole catalog, not
+    # just the 5-UC subset (its docstring undersells its own scope).
+    "sales.promo.cannibalized_sales.amount": ("Commercial.SemanticModel", "Cannibalized Sales Amount"),
+    "sales.promo.roi.pct": ("Commercial.SemanticModel", "Promo ROI %"),
+    "margin.promo.gm.pct": ("Commercial.SemanticModel", "GM % During Promo"),
+    "sales.promo.cannibalization.pct": ("Commercial.SemanticModel", "Cannibalization %"),
+    # Operations domain (OPS-001/002/003) — I-10.0 follow-up, "finish ADR-0011"
+    # (extending the grammar closure beyond the 5 MVP use cases).
+    "ops.availability.pct": ("Operations.SemanticModel", "Availability %"),
+    "ops.performance.pct": ("Operations.SemanticModel", "Performance %"),
+    "ops.quality.pct": ("Operations.SemanticModel", "Quality %"),
+    "ops.oee.pct": ("Operations.SemanticModel", "OEE %"),
+    "ops.throughput.units": ("Operations.SemanticModel", "Throughput Units"),
+    "ops.downtime.pct": ("Operations.SemanticModel", "Downtime %"),
+    "ops.planned_output.units": ("Operations.SemanticModel", "Planned Output Units"),
+    "ops.mtbf.hours": ("Operations.SemanticModel", "MTBF (hours)"),
+    "ops.mttr.hours": ("Operations.SemanticModel", "MTTR (hours)"),
+    "ops.downtime.unplanned.pct": ("Operations.SemanticModel", "Unplanned Downtime %"),
+    "ops.failure.count": ("Operations.SemanticModel", "Failure Count"),
+    "ops.inventory.value.amount": ("Operations.SemanticModel", "Inventory Value Amount"),
+    "ops.pm.task.count": ("Operations.SemanticModel", "Preventive Maintenance Task Count"),
+    "ops.spare_parts.stockout.pct": ("Operations.SemanticModel", "Spare Parts Stockout %"),
+    "ops.pm_compliance.pct": ("Operations.SemanticModel", "PM Compliance %"),
+    # sales.units: the governed calculation matches SupplyChain.SemanticModel's
+    # 'Sales Units' = SUM(fact_sales[Sales Units]) exactly (same as the catalog's
+    # own lineage). NOTE: Operations.SemanticModel's alias 'Sales Units (OPS)' =
+    # SUM(fact_ops[Output Units]) is a DIFFERENT, deliberate legacy proxy (Output
+    # Units standing in for Sales Units where OPS-003 has no transaction-level
+    # sales data) — a genuine, pre-existing per-semantic-model divergence this
+    # single-formula-per-KPI architecture can't represent; not checked here.
+    "sales.units": ("SupplyChain.SemanticModel", "Sales Units"),
     # No legacy counterpart was ever generated for these (new-territory KPIs) —
     # parity is vacuous (nothing to diverge from), documented, not asserted.
     "cost.base_volume.amount": (None, None),

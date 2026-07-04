@@ -27,9 +27,16 @@ business:
 technical:
   measure_name: MTTR (hours)
   description: Measures average repair time after failures.
-  depends_on_measures: []
+  depends_on_measures:
+  - ops.failure.count
   lineage:
   - fact_ops_failures.Repair Duration Hours
+  calculation:
+    op: ratio
+    numerator:
+      column: Repair Duration Hours
+    denominator:
+      kpi: ops.failure.count
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI
