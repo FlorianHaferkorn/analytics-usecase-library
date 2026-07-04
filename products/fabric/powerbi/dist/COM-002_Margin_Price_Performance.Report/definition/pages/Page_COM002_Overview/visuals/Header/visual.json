@@ -12,18 +12,16 @@
   "visual": {
     "visualType": "textbox",
     "objects": {
-      "general": [
+      "text": [
         {
           "properties": {
-            "paragraphs": [
-              {
-                "textRuns": [
-                  {
-                    "value": "Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers."
-                  }
-                ]
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers.'"
+                }
               }
-            ]
+            }
           }
         }
       ]

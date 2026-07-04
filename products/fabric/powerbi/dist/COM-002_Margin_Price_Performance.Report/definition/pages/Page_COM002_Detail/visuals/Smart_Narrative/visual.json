@@ -10,7 +10,28 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "smartNarrativeVisual",
-    "drillFilterOtherVisuals": true
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Narrative Text (COM)"
+                }
+              },
+              "queryRef": "_Measures.Narrative Text (COM)",
+              "nativeQueryRef": "Narrative Text (COM)"
+            }
+          ]
+        }
+      }
+    }
   }
 }
