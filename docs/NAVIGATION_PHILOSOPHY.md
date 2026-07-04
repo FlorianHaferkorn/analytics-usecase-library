@@ -37,6 +37,9 @@ Pro Entität (Kunde/Projekt/Modul) ein `_INDEX.md`-Ledger:
   Antwort sofort in A ein; wer entscheidet, in B. Themen-Notizen sind nur **Belege** —
   ihr offen/erledigt-Stand lebt ausschließlich im Ledger.
 - **Fakten mit Beleg** (Feldname, Datei, Datum), nie ungeprüfte Annahmen.
+- **Abgrenzung zu Auto-Memory:** Claude Codes eigenes Auto-Memory (`~/.claude/projects/.../memory/`)
+  ist maschinenlokal und nicht git-tracked — es ergänzt den Ledger (Pointer, persönliche
+  Arbeitspräferenzen), ersetzt ihn aber nicht. Bei Widerspruch gewinnt der Ledger.
 
 Ergebnis: kein Re-Derive, keine Doppelfragen, kein veralteter Status.
 
@@ -60,3 +63,18 @@ Ins `make check` / pre-commit / CI einhängen — dann kann der Index nicht stil
 4. Beim Abschluss: Ledger im selben Schritt nachziehen, Index-Gate grün halten.
 
 Mehr Disziplin, weniger Tokens, kein Status-Chaos — das ist der ganze Trick.
+
+## Wirkungsnachweis (ehrlich: nicht sauber gemessen)
+
+Der Fable-5-Review (2026-07-04, `CUT_PLAN_v3.2.md`) hat explizit offengelassen, ob sich der
+Gesamt-Prozessumfang (~2.400 LOC Mechanik für einen Solo-Betrieb über ~7 Repos) amortisiert —
+weder Prior Art noch eine eigene Messung belegen das. Eine saubere Vorher/Nachher-Messung
+(Sessions-Stichprobe über 2 Wochen, mit/ohne Index-Routing, gelesene Dateien/Tokens pro Task)
+ist **nicht** durchgeführt worden — das würde echte, über Zeit verteilte Arbeitssessions in
+mehreren Repos brauchen, keine einzelne Sitzung.
+
+Ein anekdotischer, nicht belastbarer Datenpunkt aus der Praxis: beim Aufbau von
+`powerbi-theme/tools/_INDEX.md` (14 Python-Module) genügte das „lies-wenn"-Routing, um bei
+Folgeaufgaben gezielt 1-2 Dateien zu lesen statt den ganzen `tools/`-Ordner zu scannen — aber
+ein einzelnes Beispiel ist kein Beweis, nur eine Beobachtung. **Die Annahme bleibt Annahme**,
+bis eine echte Messung existiert oder das Kit aufgrund gegenteiliger Erfahrung verschlankt wird.

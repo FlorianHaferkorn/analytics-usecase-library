@@ -28,6 +28,7 @@ from __future__ import annotations
 import datetime as _dt
 import fnmatch
 import re
+import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
@@ -35,7 +36,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 IGNORE_DIRS = {".git", "node_modules", "dist", "build", ".venv", "venv",
-               "__pycache__", ".stubs", ".next", "out", "target", "golden_docs"}
+               "__pycache__", ".stubs", ".next", "out", "target"}
 EXEMPT_FILES = {"_INDEX.md", "README.md", "README_Template.md", "_MANIFEST.md",
                 "CHANGELOG.md", "LICENSE.md", "NAVIGATION_PHILOSOPHY.md",
                 "_INDEX.area.md", "_INDEX.ledger.md"}
@@ -69,10 +70,46 @@ def ignored(md: Path) -> bool:
             or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem))
 
 
-def _listed(token: str, text: str) -> bool:
-    """Token (Pfad ODER Dateiname mit .md) als ABGEGRENZTES Vorkommen — kein
-    nackter Substring (sonst matcht der Stem 'd' überall, oder 'd.md' in 'abcd.md')."""
-    return re.search(r"(?<![\w/.\-])" + re.escape(token) + r"(?![\w])", text) is not None
+LIESWENN_HEADER_RE = re.compile(r"nicht\s*n(ö|oe)tig", re.IGNORECASE)
+
+
+def _register_entries(text: str) -> set[str]:
+    """Backtick-Tokens aus Tabellenzeilen außerhalb der lies-wenn-Routing-Tabelle.
+    Zählt NICHT: Fließtext (keine `|`-Zeile) und die lies-wenn-Tabelle selbst (erkannt
+    an ihrer 'NICHT nötig'-Kopfzeile) — deren 'Lies'/'NICHT nötig'-Spalten sind reine
+    Routing-Abkürzung, kein Ersatz für einen echten Register-Eintrag mit Zweck-Zeile
+    (sonst wäre eine Erwähnung in der Routing-Tabelle allein schon 'registriert').
+    Jede ANDERE Tabelle zählt mit ALLEN Zellen — auch gruppierte Unterbereichs-Register
+    (`architecture/` → `a.md`, `b.md`) sind eine bewusst unterstützte Register-Form
+    (siehe templates/_INDEX.area.md: 'Granularität wählst DU')."""
+    entries: set[str] = set()
+    in_lieswenn = False
+    for ln in text.splitlines():
+        s = ln.strip()
+        if not s.startswith("|"):
+            in_lieswenn = False
+            continue
+        if re.match(r"^\|[\s:|-]+\|?$", s):
+            continue  # Trennzeile — Tabellen-Zugehörigkeit bleibt wie zuvor
+        if LIESWENN_HEADER_RE.search(s):
+            in_lieswenn = True
+            continue
+        if in_lieswenn:
+            continue
+        for c in s.strip("|").split("|"):
+            for m in re.finditer(r"`([^`]+)`", c):
+                entries.add(m.group(1).strip())
+    return entries
+
+
+def _registered(rel: Path, entries: set[str], basename_unique: bool) -> bool:
+    """Datei gilt als registriert, wenn ihr voller Pfad ODER — nur bei im Teilbaum
+    eindeutigem Namen — ihr bloßer Dateiname als Register-Eintrag vorkommt. Ohne die
+    Eindeutigkeits-Bedingung würde EIN Basename-Eintrag mehrere gleichnamige Dateien
+    in verschiedenen Unterordnern gleichzeitig als 'gelistet' durchgehen lassen."""
+    if str(rel) in entries:
+        return True
+    return basename_unique and rel.name in entries
 
 
 def _frontmatter(text: str) -> dict:
@@ -103,38 +140,64 @@ def _non_navigated(p: Path) -> bool:
         d = d.parent
 
 
+def _owned_code_files(d: Path, text: str, index_dirs: set[Path]) -> list[Path]:
+    """Dateien unter `d`, die dessen `owns:`-Globs matchen und keinem tieferen Index gehören."""
+    globs = _owns_globs(text)
+    if not globs:
+        return []
+    out = []
+    for f in d.rglob("*"):
+        if not f.is_file() or f.name == "_INDEX.md" or ignored(f) or _non_navigated(f):
+            continue
+        if any(part in IGNORE_DIRS for part in f.parts):
+            continue
+        if next((p for p in f.resolve().parents if p in index_dirs), None) != d:
+            continue  # gehört einem tieferen Index
+        rel = f.resolve().relative_to(d)
+        if any(fnmatch.fnmatch(f.name, g) or fnmatch.fnmatch(str(rel), g) for g in globs):
+            out.append(f.resolve())
+    return out
+
+
 def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> None:
     index_dirs = {idx.parent.resolve() for idx in indexes}
     cache = {idx.parent.resolve(): idx.read_text(encoding="utf-8", errors="replace") for idx in indexes}
+    entries_cache = {d: _register_entries(t) for d, t in cache.items()}
+
+    # Governed .md + owns:-Code-Dateien je Owner sammeln — Basis für die Basename-
+    # Eindeutigkeits-Zählung (ein Basename-Register-Eintrag darf nur EINE Datei im
+    # Teilbaum abdecken, sonst deckt er versehentlich mehrere gleichnamige gleichzeitig).
+    governed: dict[Path, list[Path]] = {d: [] for d in index_dirs}
+    for md in root.rglob("*.md"):
+        if md.name == "_INDEX.md" or ignored(md) or _non_navigated(md):
+            continue
+        owner = next((p for p in md.resolve().parents if p in index_dirs), None)
+        if owner is not None:
+            governed[owner].append(md.resolve())
+    for d, text in cache.items():
+        governed[d].extend(_owned_code_files(d, text, index_dirs))
+    basename_counts = {d: Counter(f.name for f in files) for d, files in governed.items()}
+
     for md in root.rglob("*.md"):
         if md.name == "_INDEX.md" or ignored(md) or _non_navigated(md):
             continue
         owner = next((p for p in md.resolve().parents if p in index_dirs), None)
         if owner is None:
             continue  # kein Index regiert diesen Ordner — ok
-        text = cache[owner]
         rel = md.resolve().relative_to(owner)
-        if not (_listed(rel.as_posix(), text) or _listed(rel.name, text)):
+        unique = basename_counts[owner][md.name] == 1
+        if not _registered(rel, entries_cache[owner], unique):
             idx_rel = (owner / "_INDEX.md").relative_to(REPO_ROOT)
             errors.append(f"[Vollständigkeit] {md.relative_to(REPO_ROOT)} fehlt im {idx_rel}")
     # owns: Code-/Glob-Completeness — HART, aber nur wo ein Index `owns:` deklariert (opt-in).
     for d, text in cache.items():
-        globs = _owns_globs(text)
-        if not globs:
-            continue
-        for f in d.rglob("*"):
-            if not f.is_file() or f.name == "_INDEX.md" or ignored(f) or _non_navigated(f):
-                continue
-            if any(part in IGNORE_DIRS for part in f.parts):
-                continue
-            if next((p for p in f.resolve().parents if p in index_dirs), None) != d:
-                continue  # gehört einem tieferen Index
-            rel = f.resolve().relative_to(d)
-            if any(fnmatch.fnmatch(f.name, g) or fnmatch.fnmatch(str(rel), g) for g in globs):
-                if not (_listed(str(rel), text) or _listed(f.name, text)):
-                    idx_rel = (d / "_INDEX.md").relative_to(REPO_ROOT)
-                    errors.append(f"[Vollständigkeit/owns] {f.relative_to(REPO_ROOT)} "
-                                  f"(owns: {', '.join(globs)}) fehlt im {idx_rel}")
+        for f in _owned_code_files(d, text, index_dirs):
+            rel = f.relative_to(d)
+            unique = basename_counts[d][f.name] == 1
+            if not _registered(rel, entries_cache[d], unique):
+                idx_rel = (d / "_INDEX.md").relative_to(REPO_ROOT)
+                errors.append(f"[Vollständigkeit/owns] {f.relative_to(REPO_ROOT)} "
+                              f"(owns: {', '.join(_owns_globs(text))}) fehlt im {idx_rel}")
 
 
 def check_paths(index: Path, errors: list[str]) -> None:
@@ -159,10 +222,16 @@ def check_paths(index: Path, errors: list[str]) -> None:
             errors.append(f"[Anker] {index.relative_to(REPO_ROOT)} → '{ref}#{anchor}' trifft keine Überschrift")
 
 
+ALLOW_PLACEHOLDER_RE = re.compile(r"<!--\s*kit:allow-placeholder\s*-->")
+
+
 def check_placeholders(path: Path, strict: bool, errors: list[str], warnings: list[str]) -> None:
     if not path.exists() or path.name in TEMPLATE_NAMES:
         return
-    hits = PLACEHOLDER_RE.findall(path.read_text(encoding="utf-8", errors="replace"))
+    text = path.read_text(encoding="utf-8", errors="replace")
+    if ALLOW_PLACEHOLDER_RE.search(text):
+        return  # Escape-Hatch: Datei dokumentiert bewusst {{…}}-Syntax (z. B. Handlebars/Jinja-Beispiele)
+    hits = PLACEHOLDER_RE.findall(text)
     if hits:
         msg = f"[Platzhalter] {path.relative_to(REPO_ROOT)}: {len(hits)} ungefüllte {{…}} (z.B. {hits[0]})"
         (errors if strict else warnings).append(msg)
@@ -198,6 +267,37 @@ def check_routing_quality(index: Path, warnings: list[str]) -> None:
                         f"erwägen (ein langes Flach-Register ist selbst ein Scan)")
 
 
+def check_adr_criterion(index: Path, warnings: list[str]) -> None:
+    """S1: Advisory — Ledger-Tabelle B (erkannt an der Kopfzeile '...| ADR |') mit
+    mehreren Entscheidungen, aber KEINEM einzigen ADR-Verweis, deutet auf das
+    dokumentierte Governance-Vakuum hin (ADR-Layer bleibt leere Vorlage, siehe
+    CUT_PLAN_v3.2.md S1). Zählt nur echte Zeilen, keine ungefüllten {{…}}-Stubs."""
+    text = index.read_text(encoding="utf-8", errors="replace")
+    rel = index.relative_to(REPO_ROOT)
+    in_table = False
+    decisions = with_adr = 0
+    for ln in text.splitlines():
+        s = ln.strip()
+        if not s.startswith("|"):
+            in_table = False
+            continue
+        if re.match(r"^\|[\s:|-]+\|?$", s):
+            continue
+        cells = [c.strip() for c in s.strip("|").split("|")]
+        if cells and cells[-1].strip().upper() == "ADR":
+            in_table = True
+            continue
+        if not in_table or any("{{" in c for c in cells):
+            continue
+        decisions += 1
+        adr = cells[-1].strip()
+        if adr and adr not in ("—", "-"):
+            with_adr += 1
+    if decisions >= 5 and with_adr == 0:
+        warnings.append(f"[ADR] {rel}: {decisions} Entscheidungen in Tabelle B, aber kein einziger "
+                        f"ADR-Verweis — trägt eine davon ein durables Warum (siehe ADR-Kriterium)?")
+
+
 def check_dupes(root: Path, warnings: list[str]) -> None:
     """J: ' N'-Kopien (iCloud) sind aus der Completeness ausgenommen — hier sichtbar machen."""
     for f in root.rglob("*.md"):
@@ -226,6 +326,46 @@ def check_staleness(index: Path, warnings: list[str]) -> None:
         warnings.append(f"[Staleness] {rel}: vor {age} d reviewt (> {shelf} d) — auffrischen")
 
 
+def _git_last_commit_date(rel_dir: Path, exclude: str | None = None) -> _dt.date | None:
+    """Letztes Commit-Datum, das etwas unter `rel_dir` berührt hat (rein lokal, kein Netz,
+    D4/D5-konform). None wenn kein Git-Repo/keine Historie — Aufrufer behandelt das als
+    silent skip, kein Fehler."""
+    args = ["git", "log", "-1", "--format=%ad", "--date=short", "--", str(rel_dir)]
+    if exclude:
+        args.append(f":(exclude){rel_dir}/{exclude}")
+    try:
+        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5)
+        s = r.stdout.strip()
+        return _dt.date.fromisoformat(s) if s else None
+    except Exception:
+        return None
+
+
+def check_staleness_content(index: Path, warnings: list[str]) -> None:
+    """S2: git-gestützter Plausibilitäts-Check (advisory) — ergänzt die reine Datums-
+    Staleness um ein Mindestmaß an Inhalts-Signal (weder check_staleness noch die
+    verglichene Fiberplane-„Drift" lösen das vollständig, siehe CUT_PLAN_v3.2.md S2)."""
+    rel = index.relative_to(REPO_ROOT)
+    fm = _frontmatter(index.read_text(encoding="utf-8", errors="replace"))
+    if not fm or fm.get("status", "").strip().lower() in ("historical", "superseded", "frozen"):
+        return
+    if "last-reviewed" not in fm:
+        return
+    try:
+        stamp = _dt.date.fromisoformat(fm["last-reviewed"].strip())
+    except ValueError:
+        return
+    docs_commit = _git_last_commit_date(index.parent.relative_to(REPO_ROOT), exclude="_INDEX.md")
+    if docs_commit is None:
+        return  # kein Git-Repo/keine Historie unter diesem Pfad — silent skip
+    if docs_commit > stamp:
+        warnings.append(f"[Staleness/Inhalt] {rel}: Docs im Bereich jünger ({docs_commit}) als "
+                        f"last-reviewed ({stamp}) — Stempel nachziehen?")
+    elif stamp > docs_commit:
+        warnings.append(f"[Staleness/Inhalt] {rel}: last-reviewed ({stamp}) erneuert, aber kein "
+                        f"Bereichs-Doc seit {docs_commit} geändert — echte Durchsicht oder nur Stempel?")
+
+
 def check_unindexed_areas(root: Path, indexes: list[Path], warnings: list[str]) -> None:
     """Advisory: dateireicher Top-Level-Bereich ohne _INDEX.md irgendwo im Subtree →
     Vollständigkeits-Lücke (z. B. scripts/ mit 26 .py). Kein harter Fehler."""
@@ -248,18 +388,22 @@ def main(argv: list[str]) -> int:
     pos = [a for a in argv[1:] if not a.startswith("--")]
     root = (REPO_ROOT / pos[0]) if pos else REPO_ROOT
     indexes = find_indexes(root)
-    if not indexes:
-        print(f"[check-index] keine _INDEX.md unter {root} gefunden."); return 0
     errors: list[str] = []
     warnings: list[str] = []
-    check_completeness(root, indexes, errors)
-    check_unindexed_areas(root, indexes, warnings)
-    check_dupes(root, warnings)
-    for idx in indexes:
-        check_paths(idx, errors)
-        check_staleness(idx, warnings)
-        check_routing_quality(idx, warnings)
-        check_placeholders(idx, strict, errors, warnings)
+    if indexes:
+        check_completeness(root, indexes, errors)
+        check_unindexed_areas(root, indexes, warnings)
+        check_dupes(root, warnings)
+        for idx in indexes:
+            check_paths(idx, errors)
+            check_staleness(idx, warnings)
+            check_staleness_content(idx, warnings)
+            check_routing_quality(idx, warnings)
+            check_adr_criterion(idx, warnings)
+            check_placeholders(idx, strict, errors, warnings)
+    elif root == REPO_ROOT:
+        warnings.append("[Navigation] kein _INDEX.md im Repo — Navigation nicht eingerichtet")
+    # CLAUDE.md/GOI IMMER auf Platzhalter prüfen (auch ohne _INDEX — sonst keine Stub-Durchsetzung).
     for f in ("CLAUDE.md", "GOI_DOKTRIN.md"):
         check_placeholders(REPO_ROOT / f, strict, errors, warnings)
     for w in warnings:

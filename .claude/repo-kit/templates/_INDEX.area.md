@@ -55,7 +55,10 @@ Faustregel: **Ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 <!-- check_index.py erzwingt: jede *.md ist hier gelistet. Code-Bereiche: `owns:`-Glob im
      Frontmatter setzen → das Gate erzwingt auch *.ts/*.sql etc. (Granularität wählst DU:
      wenige Files direkt vs. Subdir-Module statt 193 Zeilen). Datierte/eingefrorene Docs:
-     `status: historical` (raus aus Staleness). >20 Zeilen → in Sub-Bereiche gruppieren. -->
+     `status: historical` (raus aus Staleness). >20 Zeilen → in Sub-Bereiche gruppieren.
+     Legitime {{…}}-Syntax dokumentieren (z. B. Handlebars/Jinja-Beispiele)? Dann
+     `<!-- kit:allow-placeholder -->` irgendwo in der Datei — schaltet den Platzhalter-
+     Check für genau diese Datei aus (pro Datei, kein globaler Bypass). -->
 
 ---
 
