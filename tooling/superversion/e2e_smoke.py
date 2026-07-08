@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -52,6 +53,28 @@ _DEFAULT_BRACKET = (
 _TMDL_HOOK = _REPO_ROOT / ".claude" / "hooks" / "validate_tmdl_style.sh"
 _PBIR_CLI = "powerbi-report-author"
 
+# Git for Windows' own installer default (not always added to PATH) — checked
+# only after PATH itself, so a real PATH-resolved bash (WSL, MSYS2, ...) always
+# wins. I-10.1 follow-up: plain shutil.which("bash") missed this common case.
+_GIT_BASH_FALLBACK_PATHS = [
+    Path(root) / "Git" / "bin" / "bash.exe"
+    for root in (os.environ.get("ProgramFiles"), os.environ.get("ProgramFiles(x86)"))
+    if root
+]
+
+
+def resolve_bash() -> Optional[str]:
+    """Find a usable `bash` — PATH first, then Git for Windows' default
+    install location. Returns None (never raises) if neither exists, so
+    callers can degrade honestly instead of crashing with WinError 2."""
+    on_path = shutil.which("bash")
+    if on_path:
+        return on_path
+    for candidate in _GIT_BASH_FALLBACK_PATHS:
+        if candidate.exists():
+            return str(candidate)
+    return None
+
 
 class StageResult:
     """Outcome of one pipeline stage: PASS / FAIL / SKIP + a one-line detail."""
@@ -70,7 +93,7 @@ class StageResult:
 
 def _stage_tmdl(model: CanonicalModel, dest: Path) -> StageResult:
     files = base.render("tmdl", model, dest)
-    bash = shutil.which("bash")
+    bash = resolve_bash()
     if _TMDL_HOOK.exists() and bash:
         for f in files:
             if f.suffix != ".tmdl":
