@@ -23,7 +23,7 @@ flowchart LR
 |---|---|---|---|---|
 | `quality_gate` | [`tooling/quality/run_quality_gate.ps1`](tooling/quality/run_quality_gate.ps1) | `all` | `pwsh` | Canonical local + CI entry point. Runs Stage 1 + Fabric checks. -SelfHeal for local repair loop. -- summary: `-Summary` |
 | `stage1_gate` | [`tooling/run_stage1_checks.ps1`](tooling/run_stage1_checks.ps1) | `governance` | `pwsh` | Governance, docs, YAML, registry, markdownlint. |
-| `fabric_gate` | [`products/fabric/powerbi/tooling/run_fabric_checks.ps1`](products/fabric/powerbi/tooling/run_fabric_checks.ps1) | `report` | `pwsh` | TMDL, PBIR, pbir-cli --qa, P0 report quality, bindings. |
+| `fabric_gate` | [`products/fabric/powerbi/tooling/run_fabric_checks.ps1`](products/fabric/powerbi/tooling/run_fabric_checks.ps1) | `report` | `pwsh` | TMDL, PBIR, pbir-cli --qa, fab-inspector BPA rules, P0 report quality, bindings. |
 
 ## Validators
 
@@ -49,6 +49,7 @@ flowchart LR
 | `tmdl.measures_vs_kpi` | [`products/fabric/powerbi/tooling/validation/check_measures_vs_kpi.ps1`](products/fabric/powerbi/tooling/validation/check_measures_vs_kpi.ps1) | `model` | `pwsh` | Checks that all TMDL measures align with KPI catalog definitions. |
 | `tmdl.dax_bpa` | [`products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1`](products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1) | `model` | `pwsh` | Runs DAX Best Practice Analyzer rules from tooling/linters/powerbi/bpa-rules-dax.json. |
 | `tmdl.with_pbi_cli` | [`products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1`](products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1) | `model` | `pwsh` | Runs pbir validate --qa against each .Report directory. |
+| `pbir.fab_inspector` | [`products/fabric/powerbi/tooling/validation/check_fab_inspector.ps1`](products/fabric/powerbi/tooling/validation/check_fab_inspector.ps1) | `report` | `pwsh` | Runs fab-inspector (PBI-Inspector V2) against fab-inspector-rules.json; logType:error rules block the gate. See docs/architecture/r3-2-fab-inspector-integration.md. |
 | `gov.kpi_catalog` | [`tooling/check_kpi_catalog_gaps.py`](tooling/check_kpi_catalog_gaps.py) | `kpi` | `python` | Checks for gaps and inconsistencies in the KPI catalog. |
 | `gov.docs_links` | [`tooling/validation/check_docs_links.py`](tooling/validation/check_docs_links.py) | `governance` | `python` | Validates documentation links and detects deprecated path references. |
 | `gov.markdownlint` | [`tooling/validation/check_markdownlint.ps1`](tooling/validation/check_markdownlint.ps1) | `governance` | `pwsh` | Runs markdownlint-cli2 with rules MD010 (tabs), MD041 (first heading), MD047 (final newline). |
@@ -97,6 +98,7 @@ flowchart LR
 | `bpa.tmdl` | [`tooling/linters/powerbi/bpa-rules-tmdl.json`](tooling/linters/powerbi/bpa-rules-tmdl.json) | `model` | `json` | TMDL structural rules: summarizeBy:none, tabs, no := operator. |
 | `bpa.report` | [`tooling/linters/powerbi/bpa-rules-report.json`](tooling/linters/powerbi/bpa-rules-report.json) | `report` | `json` | Report-level rules: forbidden visuals, slot requirements. |
 | `bpa.semanticmodel` | [`tooling/linters/powerbi/bpa-rules-semanticmodel.json`](tooling/linters/powerbi/bpa-rules-semanticmodel.json) | `model` | `json` | Semantic model best practices: isAvailableInMDX, hidden columns, auto date tables. |
+| `bpa.fab_inspector` | [`products/fabric/powerbi/tooling/validation/fab-inspector-rules.json`](products/fabric/powerbi/tooling/validation/fab-inspector-rules.json) | `report` | `json` | JSON-Logic rules for the fab-inspector (PBI-Inspector V2) engine: max visuals/page, no vertical scroll, theme-colour hygiene. All logType:error. |
 
 ## Reference Documentation
 

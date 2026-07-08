@@ -180,6 +180,14 @@ try {
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 
+  $checkFabInspector = Join-Path $validationDir "check_fab_inspector.ps1"
+  if (Test-Path $checkFabInspector) {
+    Write-Host ""
+    Write-Host ">> check_fab_inspector.ps1 (PBI-Inspector V2 / fab-inspector BPA rules)" -ForegroundColor Cyan
+    & $checkFabInspector -DistRoot $distRootResolved
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
   $checkSchemaVersions = Join-Path $repoRoot "products/fabric/powerbi/tooling/validation/check_schema_versions.py"
   if (Test-Path $checkSchemaVersions) {
     Write-Host ""

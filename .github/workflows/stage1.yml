@@ -156,6 +156,53 @@ jobs:
         run: ./tooling/run_stage1_checks.ps1 -Root $env:GITHUB_WORKSPACE
         working-directory: ${{ github.workspace }}
 
+      - name: Install fab-inspector CLI (PBI-Inspector V2)
+        shell: pwsh
+        # Cross-platform, PBIR-capable JSON-Logic rules engine used by
+        # check_fab_inspector.ps1. See .tools/fab-inspector.lock and
+        # docs/architecture/r3-2-fab-inspector-integration.md.
+        run: |
+          $lockContent = Get-Content ".tools/fab-inspector.lock" -Raw
+          $urlMatch = [regex]::Match($lockContent, 'download_url:\s*"([^"]+)"')
+          if (-not $urlMatch.Success) { Write-Error "fab-inspector.lock missing download_url"; exit 1 }
+          $downloadUrl = $urlMatch.Groups[1].Value
+          $sha256Match = [regex]::Match($lockContent, 'sha256:\s*"([^"]+)"')
+          $expectedHash = if ($sha256Match.Success) { $sha256Match.Groups[1].Value } else { "" }
+
+          New-Item -ItemType Directory -Force -Path ".tools/fab-inspector" | Out-Null
+          $zipPath = ".tools/fab-inspector.zip"
+          try {
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -MaximumRetryCount 3 -RetryIntervalSec 5
+          } catch {
+            Write-Warning "fab-inspector download failed: $($_.Exception.Message). check_fab_inspector.ps1 will skip gracefully."
+            exit 0
+          }
+
+          if ($expectedHash -and $expectedHash -ne "placeholder_update_after_download") {
+            $actualHash = (Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLower()
+            if ($actualHash -ne $expectedHash.ToLower()) {
+              Write-Error "fab-inspector hash mismatch. Expected $expectedHash, got $actualHash."
+              exit 1
+            }
+          } else {
+            Write-Warning "fab-inspector.lock contains placeholder SHA-256 -- update it with the hash printed below."
+            Write-Host "Downloaded fab-inspector.zip SHA-256: $((Get-FileHash $zipPath -Algorithm SHA256).Hash.ToLower())"
+          }
+
+          Expand-Archive $zipPath -DestinationPath ".tools/fab-inspector" -Force
+          $exe = Get-ChildItem -Path ".tools/fab-inspector" -Recurse -Filter "*.exe" -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match "(?i)fab-?insp" } | Select-Object -First 1
+          if (-not $exe) {
+            $exe = Get-ChildItem -Path ".tools/fab-inspector" -Recurse -Filter "*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if (-not $exe) {
+            Write-Warning "fab-inspector executable not found after extraction. check_fab_inspector.ps1 will skip gracefully."
+            exit 0
+          }
+          Write-Host "fab-inspector resolved to: $($exe.FullName)"
+          "FAB_INSPECTOR_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        working-directory: ${{ github.workspace }}
+
       - name: Run Fabric quality gate
         shell: pwsh
         env:
@@ -169,4 +216,12 @@ jobs:
         with:
           name: drift-report
           path: drift_report.json
+          if-no-files-found: ignore
+
+      - name: Upload fab-inspector BPA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fab-inspector-report
+          path: internal/metrics/runs/fab_inspector/
           if-no-files-found: ignore

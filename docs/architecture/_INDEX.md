@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-06-16
+last-reviewed: 2026-07-08
 shelf-life-days: 90
 ---
 # Architektur — Zentraler Anlaufpunkt (_INDEX)
@@ -11,7 +11,7 @@ shelf-life-days: 90
 
 | Feld | Wert |
 |---|---|
-| Stand | 2026-06-16 |
+| Stand | 2026-07-08 |
 | Rolle | L0-Navigation der Architektur-Ebene |
 | ADR-Liste | `adr/README.md` (chronologischer Index der Decision Records) |
 
@@ -25,6 +25,7 @@ shelf-life-days: 90
 | Aktivierung/Onboarding + Capability-Gating | `adr/0003-customer-activation-and-capability-gating.md` → `../agent/capability-manifest.md` | ADR-0001 |
 | Validierungs-Backends / Capability-Tiers verstehen | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` → `r3-1-tooling-audit-and-theme-decision.md` | ADR-0002/0003, Migration |
 | Tooling-Überlappung (eigen vs. offizieller Oracle) + Theme-Namens-Konflikt #7 | `r3-1-tooling-audit-and-theme-decision.md` | ADR-0002/0003/0004 |
+| Inspector V2 / fab-inspector / eigene JSON-Logic-BPA-Regeln in CI verstehen | `r3-2-fab-inspector-integration.md` | ADR-0002/0003/0004 |
 | Industry-/Extension-Use-Cases anlegen (EXT/IND-Schema, Sektor-Register) | `adr/0004-industry-variant-use-case-tier-taxonomy.md` → `../../core/usecases/README.md` | ADR-0001/0002/0003 |
 | Superversion-Heimat / Meridian-Core einziehen (Vendoring, Pin, Contract-Mirror) | `adr/0005-superversion-home-and-meridian-vendoring.md` → `../../tooling/superversion/_INDEX.md` | ADR-0001/0002/0003 |
 | Superversion Stack-Targets emittieren (Adapter-Vertrag, Registry, render) | `adr/0006-superversion-target-adapter-contract.md` → `../../tooling/superversion/targets/base.py` | ADR-0001/0002/0003 |
@@ -67,6 +68,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
 | `r3-1-tooling-audit-and-theme-decision.md` | R3.1: ADR-0001-Status-Korrektur (Tier-1-Oracle real gemerged aber unverdrahtet — jetzt verdrahtet), Theme-Namens-Konflikt #7 entschieden + gefixt, Überlappungs-Audit eigen vs. offizieller Oracle, Triage neuer repo-weiter Funde (Waterfall-Rolle, Theme-Properties, calloutValue, textbox) | Tooling-Audit / Theme-Konflikt / Oracle-Funde |
+| `r3-2-fab-inspector-integration.md` | R3.2: Tool-Wahl `fab-inspector` (PBI-Inspector V2, cross-platform, MIT) statt `pbir-cli`; 3 eigene JSON-Logic-Regeln (max Visuals/Seite, kein vertikales Scrollen, Theme-Farben) als `logType:error` CI-Gate, vorab gegen echten `dist/`-Baum verifiziert; CI-Wiring (`.tools/fab-inspector.lock`, `check_fab_inspector.ps1`, Artifact-Upload); dokumentierte Grenzen (Binary in Sandbox nicht ausführbar) | Inspector V2 / BPA-in-CI |
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
 | `studio-capability-inventory.md` | I-6.1 Studio-Inventur + Soll-Schnitt; legt Generate-Naht-Entscheidung (E-1) für I-6.2/6.3 offen | Studio-/I-6-Scoping |

@@ -44,7 +44,7 @@ gates:
     entrypoint: products/fabric/powerbi/tooling/run_fabric_checks.ps1
     runs_in: pwsh
     owner: fabric
-    docs: "TMDL, PBIR, pbir-cli --qa, P0 report quality, bindings."
+    docs: "TMDL, PBIR, pbir-cli --qa, fab-inspector BPA rules, P0 report quality, bindings."
     summary_mode: null
 
 # ── Report Quality Validators (Python) ──────────────────────────────────────
@@ -210,6 +210,14 @@ validators:
     runs_in: pwsh
     owner: fabric
     docs: "Runs pbir validate --qa against each .Report directory."
+
+  - id: pbir.fab_inspector
+    type: validator
+    scope: report
+    entrypoint: products/fabric/powerbi/tooling/validation/check_fab_inspector.ps1
+    runs_in: pwsh
+    owner: fabric
+    docs: "Runs fab-inspector (PBI-Inspector V2) against fab-inspector-rules.json; logType:error rules block the gate. See docs/architecture/r3-2-fab-inspector-integration.md."
 
   # ── Governance / Stage 1 Validators ───────────────────────────────────────
   - id: gov.kpi_catalog
@@ -424,6 +432,16 @@ bpa_rules:
     docs: "Semantic model best practices: isAvailableInMDX, hidden columns, auto date tables."
     source: custom
     last_checked: "2026-05"
+
+  - id: bpa.fab_inspector
+    type: bpa_rule
+    scope: report
+    entrypoint: products/fabric/powerbi/tooling/validation/fab-inspector-rules.json
+    runs_in: json
+    owner: fabric
+    docs: "JSON-Logic rules for the fab-inspector (PBI-Inspector V2) engine: max visuals/page, no vertical scroll, theme-colour hygiene. All logType:error."
+    source: "adapted from NatVanG/fab-inspector Rules/Base-rules.json (MIT)"
+    last_checked: "2026-07"
 
 # ── Reference Docs ────────────────────────────────────────────────────────────
 reference_docs:

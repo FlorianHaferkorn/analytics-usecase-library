@@ -89,6 +89,7 @@ internal/metrics/generation_runs/*.json
 
 # External tool binaries (download via .tools/README.md; not committed)
 .tools/pbi-tools/
+.tools/fab-inspector/
 .tools/dotnet/
 .tools/*.zip
 drift_report.json
