@@ -14,6 +14,9 @@ Brand decisions (primary color, typography, semantic signals) are made once by a
 - **Power BI** → theme JSON (data colors, good/bad/neutral/warning, font references)
 - **Web / Open Source Stack** → CSS custom properties, Sass variables
 - **Documentation** → Markdown color tables, design guidelines
+- **DOCX handover docs** (I-10.4) → branded Word document (margins, hyphenation,
+  widow/orphan control, colors, typography) — consumed by
+  `tooling/superversion/layer_tools/report_documenter.py`'s `render_docx()`
 
 The spec contains no tool-specific syntax. Tools read it and translate to their native format.
 
@@ -33,7 +36,8 @@ core/brand/
 │   ├── _color_math.py                # Lighten / darken / palette derivation (pure)
 │   ├── loader.py                     # Load + validate brand_spec.yaml (I/O boundary)
 │   ├── pbi_theme.py                  # BrandSpec dict → PBI theme JSON dict (pure)
-│   └── css_variables.py             # BrandSpec dict → CSS :root string (pure)
+│   ├── css_variables.py              # BrandSpec dict → CSS :root string (pure)
+│   └── docx_document.py              # BrandSpec dict + content → docx.Document (pure, I-10.4)
 └── tool_derivations/
     ├── powerbi_mapping.md            # BrandSpec → Power BI theme property mapping (reference)
     └── css_mapping.md               # BrandSpec → CSS custom property mapping (reference)

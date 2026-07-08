@@ -381,6 +381,120 @@ class TestCssVariables:
 
 
 # ─────────────────────────────────────────────
+# docx_document (I-10.4)
+# ─────────────────────────────────────────────
+
+import io
+
+from docx import Document
+from docx.document import Document as DocxDocumentType
+from docx.oxml.ns import qn
+
+from core.brand.derivations.docx_document import DocSection, DocTable, HandoverDoc, spec_to_docx
+
+
+@pytest.fixture(scope="module")
+def sample_handover_doc():
+    return HandoverDoc(
+        title="Sample Report — Handover Documentation",
+        subtitle_lines=["Test Product · a tagline", "Layer-Tool: report-documenter"],
+        sections=[
+            DocSection(heading="Business", level=1, paragraphs=["Report Pages:", "Overview — 2 visual(s): card, table"]),
+            DocSection(heading="KPIs & Meaning", level=2,
+                       table=DocTable(headers=["Measure", "Purpose", "Format"], rows=[["Net Sales", "Total sales", "#,0"]])),
+            DocSection(heading="Row-Level Security", level=2, paragraphs=["(no roles)"]),
+        ],
+    )
+
+
+@pytest.fixture(scope="module")
+def aurora_docx(aurora_spec, sample_handover_doc):
+    return spec_to_docx(aurora_spec, sample_handover_doc)
+
+
+def _reopen(document) -> Document:
+    """Round-trip a docx.Document through bytes, like a real consumer would."""
+    buf = io.BytesIO()
+    document.save(buf)
+    buf.seek(0)
+    return Document(buf)
+
+
+class TestDocxDocument:
+    def test_returns_document(self, aurora_docx):
+        assert isinstance(aurora_docx, DocxDocumentType)
+
+    def test_round_trips_through_save_and_reopen(self, aurora_docx):
+        # OOXML bytes aren't stable run-to-run (timestamps, relationship IDs) —
+        # the real determinism guarantee is that saved bytes reopen cleanly.
+        reopened = _reopen(aurora_docx)
+        assert len(reopened.paragraphs) > 0
+
+    def test_title_present(self, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        assert reopened.paragraphs[0].text == "Sample Report — Handover Documentation"
+
+    def test_brand_name_present(self, aurora_spec, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        texts = [p.text for p in reopened.paragraphs]
+        assert aurora_spec["identity"]["brand_name"] in texts
+
+    def test_section_headings_present(self, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        headings = [p.text for p in reopened.paragraphs if p.style.name.startswith("Heading")]
+        assert "Business" in headings
+        assert "KPIs & Meaning" in headings
+        assert "Row-Level Security" in headings
+
+    def test_table_rendered_with_headers_and_rows(self, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        assert len(reopened.tables) == 1
+        table = reopened.tables[0]
+        assert [c.text for c in table.rows[0].cells] == ["Measure", "Purpose", "Format"]
+        assert [c.text for c in table.rows[1].cells] == ["Net Sales", "Total sales", "#,0"]
+
+    def test_page_margins_set(self, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        section = reopened.sections[0]
+        assert section.left_margin == section.right_margin == section.top_margin == section.bottom_margin
+        assert section.left_margin.inches == pytest.approx(1.0)
+
+    def test_hyphenation_enabled(self, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        el = reopened.settings.element.find(qn("w:autoHyphenation"))
+        assert el is not None
+        assert el.get(qn("w:val")) == "1"
+
+    def test_widow_control_set_on_body_paragraphs(self, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        body_paragraphs = [p for p in reopened.paragraphs if p.text and not p.style.name.startswith("Heading")]
+        assert body_paragraphs, "expected at least one body paragraph"
+        for p in body_paragraphs:
+            assert p.paragraph_format.widow_control is True
+
+    def test_title_uses_brand_primary_color(self, aurora_spec, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        title_run = reopened.paragraphs[0].runs[0]
+        assert str(title_run.font.color.rgb) == aurora_spec["color"]["primary"].lstrip("#")
+
+    def test_body_font_matches_brand_typography(self, aurora_spec, aurora_docx):
+        reopened = _reopen(aurora_docx)
+        expected_font = aurora_spec["typography"]["font_family"]["primary"].split(",")[0].strip()
+        assert reopened.styles["Normal"].font.name == expected_font
+
+    def test_different_brand_produces_different_title_color(self, sample_handover_doc):
+        generic_spec = load_brand_spec(_REPO_ROOT / "core" / "brand" / "samples" / "generic_brand.yaml")
+        aurora_spec_local = load_brand_spec(_AURORA_SPEC)
+        assert generic_spec["color"]["primary"] != aurora_spec_local["color"]["primary"]
+
+        generic_doc = spec_to_docx(generic_spec, sample_handover_doc)
+        aurora_doc = spec_to_docx(aurora_spec_local, sample_handover_doc)
+        generic_color = str(_reopen(generic_doc).paragraphs[0].runs[0].font.color.rgb)
+        aurora_color = str(_reopen(aurora_doc).paragraphs[0].runs[0].font.color.rgb)
+        assert generic_color != aurora_color
+
+
+# ─────────────────────────────────────────────
 # Integration: derive_brand_artifacts (orchestrator)
 # ─────────────────────────────────────────────
 
