@@ -85,11 +85,17 @@ def _entity(table: str, column: str, synonyms: List[str]) -> dict:
     """One LSDL entity: bind a model column and list its terms.
 
     The first term is the object's own name (Generated); each curated synonym is an
-    Authored noun sourced from the governed catalog.
+    Authored noun sourced from the governed catalog. No ``Source`` key: Power BI
+    Desktop's internal Copilot/Q&A reader (``Microsoft.PowerBI.Lucia...``, not part
+    of the public Analysis Services TOM library, no published schema) throws
+    ``Error converting value "User" to type ...Serialization.Source`` on this field —
+    confirmed against a real Desktop open. The field is metadata-only (``Type``/
+    ``State`` already carry the term's semantics), so omitting it avoids the crash
+    without guessing an undocumented enum value.
     """
     terms: List[dict] = [{column: {"State": "Generated"}}]
     for syn in synonyms:
-        terms.append({syn: {"Type": "Noun", "State": "Authored", "Source": "User"}})
+        terms.append({syn: {"Type": "Noun", "State": "Authored"}})
     return {
         "Definition": {
             "Binding": {"ConceptualEntity": table, "ConceptualProperty": column}
@@ -125,22 +131,26 @@ def build_linguistic_schema(
 def render_culture_tmdl(schema: dict, culture: str = DEFAULT_CULTURE) -> str:
     """Render the ``cultures/<culture>.tmdl`` file content.
 
-    Layout (TMDL): the ``culture`` object declares ``linguisticMetadata`` as a
-    multi-line ``=`` expression. The JSON body is serialized with **tab**
-    indentation and prefixed to TMDL expression level (3 tabs), so every line
-    begins with tabs — never spaces — satisfying the TMDL-style hook.
+    Layout (TMDL): ``linguisticMetadata`` is a nested object with two properties —
+    ``contentType: Json`` and ``content = <expression>``. Without an explicit
+    ``contentType``, Analysis Services' TMDL deserializer defaults to XML and
+    throws ``does not comply with the Xml content-type`` on this JSON body
+    (confirmed against ``Microsoft.AnalysisServices.Tabular.TmdlSerializer`` —
+    real Power BI Desktop crash, model never loads). The JSON body is serialized
+    with **tab** indentation and prefixed to TMDL expression level (3 tabs), so
+    every line begins with tabs — never spaces — satisfying the TMDL-style hook.
     """
     body = json.dumps(schema, indent="\t", ensure_ascii=False)
     indented = "\n".join((f"\t\t\t{line}" if line else line) for line in body.split("\n"))
-    return f"culture {culture}\n\tlinguisticMetadata =\n{indented}\n"
+    return f"culture {culture}\n\tlinguisticMetadata\n\t\tcontentType: Json\n\t\tcontent =\n{indented}\n"
 
 
 def parse_culture_tmdl(text: str) -> dict:
     """Inverse of :func:`render_culture_tmdl` — extract the LSDL JSON back out.
 
-    Used by the round-trip test (Epic A2 risk mitigation). Strips the ``culture``
-    header and the ``linguisticMetadata =`` property line, dedents the body and
-    parses it as JSON.
+    Used by the round-trip test (Epic A2 risk mitigation). Skips the ``culture``/
+    ``linguisticMetadata``/``contentType``/``content =`` header lines by finding
+    the first ``{``, dedents the body and parses it as JSON.
     """
     lines = text.split("\n")
     try:

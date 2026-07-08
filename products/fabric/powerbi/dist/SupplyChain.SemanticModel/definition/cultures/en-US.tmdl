@@ -1,5 +1,7 @@
 culture en-US
-	linguisticMetadata =
+	linguisticMetadata
+		contentType: Json
+		content =
 			{
 				"Version": "1.0.0",
 				"Language": "en-US",
@@ -21,29 +23,25 @@ culture en-US
 							{
 								"Carrier Name": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Transporteur": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Spediteur": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Frachtführer": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -65,29 +63,25 @@ culture en-US
 							{
 								"Ship-From": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Source DC": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Versandort": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Quelle": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -109,29 +103,25 @@ culture en-US
 							{
 								"Ship-To": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Delivery Country": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Zielland": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Empfangsort": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -153,29 +143,25 @@ culture en-US
 							{
 								"Origin-Destination": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Route": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Verbindung": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Strecke": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -197,29 +183,25 @@ culture en-US
 							{
 								"Transport Mode": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Shipping Mode": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Verkehrsträger": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Transportmodus": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -241,29 +223,25 @@ culture en-US
 							{
 								"ABC Class": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"ABC Classification": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"ABC-Analyse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"ABC-Klassifizierung": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -285,29 +263,25 @@ culture en-US
 							{
 								"XYZ Class": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"XYZ Classification": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"XYZ-Analyse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"RSU-Analyse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -329,29 +303,25 @@ culture en-US
 							{
 								"Demand CoV Band": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Coefficient of Variation Band": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Variabilitätsklasse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Streuungsband": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -373,29 +343,25 @@ culture en-US
 							{
 								"Ship-From": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Source DC": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Versandort": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Quelle": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -417,29 +383,25 @@ culture en-US
 							{
 								"Ship-To": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Delivery Country": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Zielland": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Empfangsort": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -461,29 +423,25 @@ culture en-US
 							{
 								"Transport Mode": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Shipping Mode": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Verkehrsträger": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Transportmodus": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -505,36 +463,31 @@ culture en-US
 							{
 								"Site": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Distribution Center": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Node": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Standort": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Lager": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -556,29 +509,25 @@ culture en-US
 							{
 								"Geography": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Territory": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebsregion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Gebiet": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -600,29 +549,25 @@ culture en-US
 							{
 								"Distribution Channel": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Route to Market": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebskanal": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Absatzkanal": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -644,29 +589,25 @@ culture en-US
 							{
 								"Account": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Ship-To": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Consignee": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Warenempfänger": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -688,22 +629,19 @@ culture en-US
 							{
 								"Product Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Warengruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Produktgruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -725,22 +663,19 @@ culture en-US
 							{
 								"Sub Category": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Untergruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Unterkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -762,29 +697,25 @@ culture en-US
 							{
 								"ABC Class": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"ABC Classification": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"ABC-Analyse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"ABC-Klassifizierung": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -806,29 +737,25 @@ culture en-US
 							{
 								"XYZ Class": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"XYZ Classification": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"XYZ-Analyse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"RSU-Analyse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]

@@ -81,13 +81,21 @@ Zones map to LU rows. Zone gap (40px) is achieved by leaving an empty LU row bet
 OR by applying explicit offset in the scaffold generator.
 
 | Zone   | LU Rows | Purpose                                      | Reading Pattern |
-|--------|---------|----------------------------------------------|-----------------|
-| Zone 1 | 0–1     | 3-second layer: KPI band (no slicers)        | Both            |
-| Zone 2 | 2       | 30-second filter: slicer bar (top placement) | Z-pattern pages |
-| Zone 3 | 3–8     | 30-second drivers: trend, variance, ranking  | Both            |
+|--------|---------|-----------------------------------------------|-----------------|
+| Zone 0 | 0       | 3-second layer: Big Idea header (no slicers) | Both            |
+| Zone 1 | 1–2     | 3-second layer: KPI band (no slicers)        | Both            |
+| Zone 2 | 3       | 30-second filter: slicer bar (top placement) | Z-pattern pages |
+| Zone 3 | 4–9     | 30-second drivers: trend, variance, ranking  | Both            |
 | Zone 4 | 0–11    | 300-second detail: full-page (detail pages)  | F-pattern pages |
 
 Zone 4 occupies the full grid of the Detail page — it does not share a page with Zones 1–3.
+
+Rule: Zone 0 is mandatory on every Overview/Summary page (T1–T4). It renders the use case's
+governed `big_idea` (`UseCase_Bracket.yaml` → `ux_layout_rules.page_1_summary.big_idea`) as a
+single-line subtitle — the "so what" a reader gets before looking at any chart
+(Storytelling_Principles.md §2, "The Big Idea"). It is never a slicer, never optional, and its
+position/height is fixed across all reports (uniformity is a product requirement, not a
+convenience — R1.1/UMSETZUNGSPLAN_REPORT_EXZELLENZ.md).
 
 ---
 
@@ -99,13 +107,15 @@ All coordinates at 1280×720 design base. Connectors scale proportionally.
 
 | Slot ID       | col | row | col_span | row_span | x (px) | y (px) | w (px) | h (px) |
 |---------------|-----|-----|----------|----------|--------|--------|--------|--------|
-| KPI_Cards     |   0 |   0 |       12 |        2 |     32 |     32 |   1216 |     96 |
-| Slicer_Date   |   0 |   2 |       12 |        1 |     32 |    144 |   1216 |     40 |
-| Main_1 (Trend)|   0 |   3 |        4 |        6 |     32 |    200 |    395 |    320 |
-| Main_2 (Var.) |   4 |   3 |        4 |        6 |    443 |    200 |    395 |    320 |
-| Main_3 (Rank) |   8 |   3 |        4 |        6 |    853 |    200 |    395 |    320 |
+| Header        |   0 |   0 |       12 |        1 |     32 |     32 |   1216 |     40 |
+| KPI_Cards     |   0 |   1 |       12 |        2 |     32 |     88 |   1216 |     96 |
+| Slicer_Date   |   0 |   3 |       12 |        1 |     32 |    200 |   1216 |     40 |
+| Main_1 (Trend)|   0 |   4 |        4 |        6 |     32 |    256 |    395 |    320 |
+| Main_2 (Var.) |   4 |   4 |        4 |        6 |    443 |    256 |    395 |    320 |
+| Main_3 (Rank) |   8 |   4 |        4 |        6 |    853 |    256 |    395 |    320 |
 
-Note: Slicer_Date sits in Zone 2 (row 2), never in Zone 1 (rows 0–1).
+Note: Header sits in Zone 0 (row 0) — the Big Idea, never a slicer, never optional.
+      Slicer_Date sits in Zone 2 (row 3), never in Zone 0 or Zone 1 (rows 0–2).
       SQLBI rule: slicers never occupy the 3-second space.
 
 ### Detail Page — without Action Panel (T1/T2/T3 detail)
@@ -147,6 +157,7 @@ Reference sizes at 1280×720 design base. Scale proportionally for other canvas 
 
 | Visual type          | Standard w  | Standard h | Compact w | Compact h |
 |----------------------|-------------|------------|-----------|-----------|
+| Header (Big Idea)    | slot width  | 40px (1 LU)| —         | —         |
 | KPI Card             | 189px (2 LU)| 96px (2 LU)| 140px     |  80px     |
 | Trend chart          | 395px (4 LU)| 320px (6 LU)| 300px    | 200px     |
 | Waterfall / Variance | 395px (4 LU)| 320px (6 LU)| 300px    | 200px     |

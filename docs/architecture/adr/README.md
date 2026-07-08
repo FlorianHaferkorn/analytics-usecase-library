@@ -15,7 +15,7 @@ revisit a decision by adding a new ADR that supersedes the old one.
 
 | ADR | Title | Status |
 |---|---|---|
-| [0001](0001-pluggable-validation-backends-and-capability-tiers.md) | Pluggable Validation Backends and Capability Tiers | Proposed — deferred 2026-06-15 (bugfix kept via #308) |
+| [0001](0001-pluggable-validation-backends-and-capability-tiers.md) | Pluggable Validation Backends and Capability Tiers | Accepted — salvaged via #321 (2026-06-16), CLI-wired via #373 (2026-07-08) |
 | [0002](0002-official-first-agent-integration-and-guided-workflow.md) | Official-First Agent Integration and the Guided Agent Development Workflow | Proposed |
 | [0003](0003-customer-activation-and-capability-gating.md) | Customer Activation and Capability-Gating | Proposed |
 | [0004](0004-industry-variant-use-case-tier-taxonomy.md) | Industry-Variant Use-Case Tier Taxonomy | Proposed |

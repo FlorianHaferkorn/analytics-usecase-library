@@ -299,9 +299,7 @@
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "Price Realization %",
-              "Mix Effect Amount",
-              "COGS per Unit"
+              "Gross Margin %"
             ],
             "rows": [],
             "columns": [],
@@ -334,11 +332,8 @@
             "bound_measures": [
               "Gross Margin Amount",
               "Gross Margin % vs Plan",
-              "List Price Amount",
-              "Net Price Amount",
               "Price Realization %",
               "Mix Effect Amount",
-              "COGS per Unit",
               "Gross Margin %"
             ],
             "rows": [],

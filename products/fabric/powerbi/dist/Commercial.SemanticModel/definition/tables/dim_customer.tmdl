@@ -59,22 +59,12 @@ table dim_customer
 			lineageTag: 84d9c167
 			column: Segment
 
-		level Channel
-			lineageTag: eca0fd69
-			column: Channel
-
-		level Region
-			lineageTag: 6b71924a
-			column: Region
-
 	partition dim_customer = m
 		mode: import
 		source =
 				let
-					Source = Folder.Files(GoldDataPath & "/dimensions/dim_customer"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_customer"),
+					ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 				in
 					ParquetData
 

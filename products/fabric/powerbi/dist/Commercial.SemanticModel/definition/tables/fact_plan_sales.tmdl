@@ -57,10 +57,8 @@ table fact_plan_sales
 		mode: import
 		source =
 				let
-					Source = Folder.Files(GoldDataPath & "/facts/fact_plan_sales"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_plan_sales"),
+					ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 				in
 					ParquetData
 

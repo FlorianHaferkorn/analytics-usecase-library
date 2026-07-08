@@ -1,7 +1,7 @@
 /// Customer complaint facts per entity-month (complaint count, resolution status).
 /// Source: Gold Layer — showcases/aurora_group/data/gold/facts/fact_complaints (Parquet, 2020–2024).
 table fact_complaints
-	lineageTag: d4f8c109-2a31-4b7e-9c82-f1e3a5d0b294
+	lineageTag: 13fb807d-86f5-4c3f-95d8-1f1840dd640a
 	column DateKey
 		dataType: Int64
 		isHidden

@@ -114,7 +114,6 @@ def test_authored_synonyms_are_tagged():
     assert net_sales["Terms"][1]["Revenue"] == {
         "Type": "Noun",
         "State": "Authored",
-        "Source": "User",
     }
 
 
@@ -142,7 +141,9 @@ def test_rendered_tmdl_is_style_clean():
         assert not line.startswith("  "), f"leading spaces on line {n}: {line!r}"
         assert ":=" not in line, f"':=' on line {n}"
         assert not re.match(r"^\s*description:", line), f"'description:' on line {n}"
-    assert text.startswith(f"culture {DEFAULT_CULTURE}\n\tlinguisticMetadata =\n")
+    assert text.startswith(
+        f"culture {DEFAULT_CULTURE}\n\tlinguisticMetadata\n\t\tcontentType: Json\n\t\tcontent =\n"
+    )
 
 
 # ---------------------------------------------------------------------------

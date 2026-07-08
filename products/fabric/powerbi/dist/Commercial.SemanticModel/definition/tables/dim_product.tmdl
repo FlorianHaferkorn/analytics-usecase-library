@@ -100,18 +100,12 @@ table dim_product
 			lineageTag: c961c696
 			column: Brand
 
-		level ProductFamily
-			lineageTag: 792811e5
-			column: ProductFamily
-
 	partition dim_product = m
 		mode: import
 		source =
 				let
-					Source = Folder.Files(GoldDataPath & "/dimensions/dim_product"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_product"),
+					ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 				in
 					ParquetData
 

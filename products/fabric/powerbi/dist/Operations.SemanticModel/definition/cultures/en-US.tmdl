@@ -1,5 +1,7 @@
 culture en-US
-	linguisticMetadata =
+	linguisticMetadata
+		contentType: Json
+		content =
 			{
 				"Version": "1.0.0",
 				"Language": "en-US",
@@ -21,29 +23,25 @@ culture en-US
 							{
 								"Equipment Class": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Asset Category": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Anlagenklasse": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Gerätetyp": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -65,22 +63,19 @@ culture en-US
 							{
 								"Asset Criticality": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kritikalität": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Kritikalitätsstufe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -102,22 +97,19 @@ culture en-US
 							{
 								"Cause Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Cause Class": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Ursachenkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -139,22 +131,19 @@ culture en-US
 							{
 								"Defect Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Defect Class": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Fehlerkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -176,22 +165,19 @@ culture en-US
 							{
 								"Failure Mechanism": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Degradation Mechanism": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Schadensmechanismus": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -213,29 +199,25 @@ culture en-US
 							{
 								"Six Big Losses": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Loss Category": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Verlustart": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Verlustkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -257,22 +239,19 @@ culture en-US
 							{
 								"OEE Pillar": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"OEE Component": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"OEE-Komponente": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -294,29 +273,25 @@ culture en-US
 							{
 								"Site": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Facility": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Werk": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Standort": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -338,29 +313,25 @@ culture en-US
 							{
 								"Production Line": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Work Center": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Fertigungslinie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Produktionslinie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -382,22 +353,19 @@ culture en-US
 							{
 								"Work Shift": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Schicht": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Arbeitsschicht": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -419,22 +387,19 @@ culture en-US
 							{
 								"Sales Region": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Territory": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Vertriebsregion": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -456,22 +421,19 @@ culture en-US
 							{
 								"Product Group": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Warengruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Produktgruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]
@@ -493,22 +455,19 @@ culture en-US
 							{
 								"Sub Category": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Untergruppe": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							},
 							{
 								"Unterkategorie": {
 									"Type": "Noun",
-									"State": "Authored",
-									"Source": "User"
+									"State": "Authored"
 								}
 							}
 						]

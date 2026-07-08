@@ -14,6 +14,7 @@ import json
 import sys
 from pathlib import Path
 
+from .backends import MicrosoftReportAuthorBackend
 from .content_validator import validate_report_content
 from .dax_reference_validator import validate_report_measure_references
 from .models import Violation, violations_summary
@@ -53,6 +54,9 @@ def validate(dist_root: Path, *, include_schema: bool = False) -> list[Violation
         violations.extend(check_report(report_dir))
         violations.extend(validate_report_content(report_dir))
     violations.extend(validate_report_measure_references(dist_root))
+    # Tier 1 oracle (ADR-0001): opt-in via PBI_QUALITY_ALLOW_EXTERNAL, never touches
+    # an external process otherwise -- augments, never replaces, the Tier 0 floor.
+    violations.extend(MicrosoftReportAuthorBackend().validate(dist_root))
     return violations
 
 
