@@ -66,6 +66,25 @@ def test_cli_ping_reports_registries(capsys):
     assert "gov" in payload["engines_available"]
 
 
+def test_ping_advertises_all_four_real_targets(capsys):
+    """I-10.3: bridge.py previously only imported e2e_smoke (tmdl+pbir), so
+    Studio's target picker (GateReportPanel) could never offer osi/databricks
+    even though both targets are real and registered elsewhere (I-7.2/I-7.3).
+    Importing them here must not be a silent, easy-to-miss registration gap."""
+    assert bridge.main(["ping"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert set(payload["targets_available"]) == {"tmdl", "pbir", "osi", "databricks"}
+
+
+@pytest.mark.parametrize("target", ["osi", "databricks"])
+def test_generate_supports_osi_and_databricks_targets(target):
+    """Same I-10.3 gap: `generate` must actually work for both, not just be
+    listed in `targets_available` without being reachable."""
+    result = bridge.generate(COM001, KPIS, target)
+    assert result["target"] == target
+    assert result["artifacts"]
+
+
 # --- generate (I-6.3, "Nach dem Core") ---------------------------------------
 
 def test_generate_shape():

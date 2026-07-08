@@ -29,6 +29,8 @@ from tooling.superversion import e2e_smoke  # registers tmdl+pbir targets on imp
 from tooling.superversion.from_aluca import from_bracket_file
 from tooling.superversion.layer_tools import engines
 from tooling.superversion.targets import base as targets
+from tooling.superversion.targets import osi  # noqa: F401 — registers "osi"
+from tooling.superversion.targets import databricks  # noqa: F401 — registers "databricks"
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _KPIS = _REPO_ROOT / "core" / "kpi_catalog" / "kpis"
