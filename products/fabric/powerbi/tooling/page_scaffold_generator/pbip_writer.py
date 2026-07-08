@@ -240,7 +240,10 @@ class PBIPWriter:
             theme_stem = custom_theme_collection_name(theme_name)
             theme_filename = registered_theme_filename(theme_stem)
             report_data["themeCollection"]["customTheme"] = {
-                "name": theme_stem,
+                # Must equal the RegisteredResources item's "name"/"path" below (filename,
+                # with .json) — Fabric requires an exact match here; a bare logical name
+                # causes the published report to silently fall back to the base theme.
+                "name": theme_filename,
                 "reportVersionAtImport": {
                     "visual": "2.1.0",
                     "report": "3.0.0",

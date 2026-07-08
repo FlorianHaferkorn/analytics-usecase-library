@@ -275,7 +275,9 @@ def apply_theme(
         "type": "SharedResources",
     }
     tc["customTheme"] = {
-        "name": custom_stem,
+        # Must equal the RegisteredResources item's "name"/"path" (filename, with
+        # .json) — Fabric requires an exact match; see theme_registration.py.
+        "name": custom_filename,
         "reportVersionAtImport": REPORT_VERSION_AT_IMPORT,
         "type": "RegisteredResources",
     }
