@@ -68,10 +68,8 @@ table dim_org
 		mode: import
 		source =
 			let
-				Source = Folder.Files(GoldDataPath & "/dimensions/dim_org"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet") and not Text.Contains([Folder Path], "_delta_log")),
-				SortedFiles = Table.Sort(FilteredFiles, {{"Date modified", Order.Descending}}),
-				ParquetData = Table.Combine(List.Transform(SortedFiles[Content], each Parquet.Document(_)))
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_org"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 			in
 				ParquetData
 

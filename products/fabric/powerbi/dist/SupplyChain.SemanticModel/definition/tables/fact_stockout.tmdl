@@ -32,8 +32,7 @@ table fact_stockout
 		mode: import
 		source =
 			let
-				Source = Folder.Files(GoldDataPath & "/facts/fact_stockout"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				ParquetData = Table.Combine(List.Transform(FilteredFiles[Content], each Parquet.Document(_)))
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_stockout"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 			in
 				ParquetData

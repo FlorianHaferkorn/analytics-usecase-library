@@ -56,9 +56,8 @@ table fact_nps
 		mode: import
 		source =
 				let
-					Source = Folder.Files(GoldDataPath & "/facts/fact_nps"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					ParquetData = Table.Combine(List.Transform(FilteredFiles[Content], each Parquet.Document(_)))
+					ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_nps"),
+					ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 				in
 					ParquetData
 

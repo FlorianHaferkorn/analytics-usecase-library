@@ -32,8 +32,7 @@ table fact_inventory_snapshot
 		mode: import
 		source =
 			let
-				Source = Folder.Files(GoldDataPath & "/facts/fact_inventory_snapshot"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				ParquetData = Table.Combine(List.Transform(FilteredFiles[Content], each Parquet.Document(_)))
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/facts/fact_inventory_snapshot"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 			in
 				ParquetData

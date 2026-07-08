@@ -23,8 +23,7 @@ table dim_customer
 		mode: import
 		source =
 			let
-				Source = Folder.Files(GoldDataPath & "/dimensions/dim_customer"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				ParquetData = Table.Combine(List.Transform(FilteredFiles[Content], each Parquet.Document(_)))
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_customer"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 			in
 				ParquetData

@@ -35,8 +35,7 @@ table dim_org
 		mode: import
 		source =
 			let
-				Source = Folder.Files(GoldDataPath & "/dimensions/dim_org"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				ParquetData = Table.Combine(List.Transform(FilteredFiles[Content], each Parquet.Document(_)))
+				ActiveFiles = fn_DeltaCurrentFiles(GoldDataPath & "/dimensions/dim_org"),
+				ParquetData = Table.Combine(List.Transform(ActiveFiles[Content], each Parquet.Document(_)))
 			in
 				ParquetData
