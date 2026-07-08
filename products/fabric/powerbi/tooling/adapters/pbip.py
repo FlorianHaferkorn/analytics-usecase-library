@@ -229,9 +229,7 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
     resource_packages: list = []
     if theme_stem and theme_filename:
         theme_collection["customTheme"] = {
-            # Must equal the RegisteredResources item's "name"/"path" (filename, with
-            # .json) — Fabric requires an exact match; see theme_registration.py.
-            "name": theme_filename,
+            "name": theme_stem,
             "reportVersionAtImport": {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"},
             "type": "RegisteredResources",
         }

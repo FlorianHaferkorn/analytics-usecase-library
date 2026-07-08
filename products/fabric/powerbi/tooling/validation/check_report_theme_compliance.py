@@ -29,6 +29,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from products.fabric.powerbi.tooling.schema_registry import REPORT_SCHEMA
 from products.fabric.powerbi.tooling.theme_registration import (
+    custom_theme_collection_name,
     find_registered_custom_theme_item,
 )
 HEX_COLOR_RE = re.compile(r"#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?")
@@ -158,12 +159,10 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
 
     if registered_package and custom_theme.get("name"):
         custom_logical_name = custom_theme["name"]
-        if not custom_logical_name.endswith(".json"):
+        if custom_logical_name.endswith(".json"):
             errors.append(
-                f"{report_dir.name}: themeCollection.customTheme.name must include the .json "
-                f"extension and exactly match the RegisteredResources item name/path, not "
-                f"'{custom_logical_name}' (a bare name causes the published report to silently "
-                f"fall back to the base theme)"
+                f"{report_dir.name}: themeCollection.customTheme.name must be the theme logical name "
+                f"(no .json extension), not '{custom_logical_name}'"
             )
 
         custom_item = find_registered_custom_theme_item(registered_package, custom_logical_name)
@@ -172,13 +171,7 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
                 f"{report_dir.name}: RegisteredResources package missing CustomTheme item for "
                 f"{custom_logical_name}"
             )
-        elif custom_item.get("name") != custom_logical_name:
-            errors.append(
-                f"{report_dir.name}: themeCollection.customTheme.name '{custom_logical_name}' must "
-                f"exactly match the resourcePackages CustomTheme item name '{custom_item.get('name')}'"
-            )
-
-        if custom_item:
+        else:
             expected_path = report_dir / "StaticResources" / "RegisteredResources" / custom_item.get("path", "")
             if not expected_path.exists():
                 errors.append(f"{report_dir.name}: referenced custom theme file missing: {expected_path.relative_to(report_dir)}")
@@ -191,11 +184,12 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
                         f"{expected_path.relative_to(report_dir)} - {exc}"
                     )
                 else:
-                    if theme_payload.get("name") != custom_logical_name:
+                    expected_name = custom_theme_collection_name(custom_logical_name)
+                    if theme_payload.get("name") != expected_name:
                         errors.append(
                             f"{report_dir.name}: custom theme internal name "
                             f"'{theme_payload.get('name')}' must match themeCollection.customTheme.name "
-                            f"'{custom_logical_name}'"
+                            f"'{expected_name}'"
                         )
                     item_name = custom_item.get("name", "")
                     if not item_name.endswith(".json"):

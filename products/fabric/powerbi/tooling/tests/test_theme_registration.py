@@ -26,7 +26,7 @@ def test_prepare_registered_theme_bytes_aligns_internal_name(tmp_path: Path):
     filename, content = prepare_registered_theme_bytes(source)
 
     assert filename == "Aurora_Group__Monochromatic__Light___2ECDE7.json"
-    assert b'"name": "Aurora_Group__Monochromatic__Light___2ECDE7.json"' in content
+    assert b'"name": "Aurora_Group__Monochromatic__Light___2ECDE7"' in content
 
 
 def test_write_registered_theme_uses_dest_stem(tmp_path: Path):
@@ -38,7 +38,7 @@ def test_write_registered_theme_uses_dest_stem(tmp_path: Path):
 
     assert output_path == dest
     written = dest.read_text(encoding="utf-8")
-    assert '"name": "Brand_Rose__Monochromatic__Lig8107013084034419.json"' in written
+    assert '"name": "Brand_Rose__Monochromatic__Lig8107013084034419"' in written
 
 
 def test_write_registered_theme_sanitizes_unsafe_dest_filename(tmp_path: Path):
@@ -53,7 +53,7 @@ def test_write_registered_theme_sanitizes_unsafe_dest_filename(tmp_path: Path):
     assert expected.exists()
     assert not unsafe_dest.exists()
     written = expected.read_text(encoding="utf-8")
-    assert '"name": "Aurora_Group__Monochromatic__Light___2ECDE7.json"' in written
+    assert '"name": "Aurora_Group__Monochromatic__Light___2ECDE7"' in written
 
 
 def test_find_registered_custom_theme_item_matches_filename():
