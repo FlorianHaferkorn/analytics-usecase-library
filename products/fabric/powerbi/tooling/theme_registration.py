@@ -38,11 +38,13 @@ def find_registered_custom_theme_item(package: dict, logical_name: str) -> dict 
 
 
 def align_theme_name_to_registered_stem(payload: dict, registered_stem: str) -> bool:
-    """Set theme JSON ``name`` to match the RegisteredResources filename stem."""
-    stem = safe_theme_stem(registered_stem)
-    if payload.get("name") == stem:
+    """Set theme JSON ``name`` to match the RegisteredResources item name (with .json) —
+    must be identical to report.json's themeCollection.customTheme.name and the
+    resourcePackages item name/path, or Desktop's theme dialog crashes on mismatch."""
+    filename = registered_theme_filename(registered_stem)
+    if payload.get("name") == filename:
         return False
-    payload["name"] = stem
+    payload["name"] = filename
     return True
 
 

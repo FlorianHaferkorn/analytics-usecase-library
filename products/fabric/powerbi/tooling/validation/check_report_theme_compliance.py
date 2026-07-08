@@ -29,7 +29,6 @@ if str(_REPO_ROOT) not in sys.path:
 
 from products.fabric.powerbi.tooling.schema_registry import REPORT_SCHEMA
 from products.fabric.powerbi.tooling.theme_registration import (
-    custom_theme_collection_name,
     find_registered_custom_theme_item,
 )
 HEX_COLOR_RE = re.compile(r"#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?")
@@ -192,12 +191,11 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
                         f"{expected_path.relative_to(report_dir)} - {exc}"
                     )
                 else:
-                    expected_name = custom_theme_collection_name(custom_logical_name)
-                    if theme_payload.get("name") != expected_name:
+                    if theme_payload.get("name") != custom_logical_name:
                         errors.append(
                             f"{report_dir.name}: custom theme internal name "
                             f"'{theme_payload.get('name')}' must match themeCollection.customTheme.name "
-                            f"'{expected_name}'"
+                            f"'{custom_logical_name}'"
                         )
                     item_name = custom_item.get("name", "")
                     if not item_name.endswith(".json"):
