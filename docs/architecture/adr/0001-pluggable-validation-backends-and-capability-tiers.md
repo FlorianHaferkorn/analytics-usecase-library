@@ -1,10 +1,39 @@
 # ADR 0001 — Pluggable Validation Backends and Capability Tiers
 
-- **Status:** Proposed — deferred 2026-06-15 (framework not adopted for the current direction; the textbox bugfix it surfaced was kept via PR #308 — see "Status update" below)
+- **Status:** Accepted — salvaged via PR #321 (2026-06-16) and CLI-wired via PR #373 (2026-07-08); see "Status update — 2026-07-08" below
 - **Date:** 2026-06-10
 - **Scope:** Power BI / PBIR report authoring and validation tooling
 - **Supersedes:** —
-- **Related:** [`quality-tooling-map.md`](../quality-tooling-map.md), [`README.md`](../README.md)
+- **Related:** [`quality-tooling-map.md`](../quality-tooling-map.md), [`README.md`](../README.md), [`../r3-1-tooling-audit-and-theme-decision.md`](../r3-1-tooling-audit-and-theme-decision.md)
+
+---
+
+## Status update — 2026-07-08
+
+The "deferred, not adopted" status below is **stale**. One day after that
+2026-06-15 update, PR #321 (`feat(pbi-quality): pluggable validation backends
++ capability tiers (ADR-0001 impl, salvaged)`) merged the backend/tier
+scaffolding to `main` after all — `tooling/report_quality/backends.py`'s
+`NativeBackend` (Tier 0) and `MicrosoftReportAuthorBackend` (Tier 1) have
+been real, present code on `main` since 2026-06-16, correctly gated behind
+`PBI_QUALITY_ALLOW_EXTERNAL` exactly as designed below.
+
+What the salvage PR left incomplete: `tooling/report_quality/cli.py` (the
+entry point `report_quality.cli --summary` / `pbi-quality validate` actually
+call) never imported `backends.py`. `pbi-quality doctor` correctly reported
+the active tier, but Tier 1 findings never flowed into the returned
+violations list — step 2 of this ADR's own "Implementation notes" was never
+finished. Every "0 critical/warning/info" result from the CLI reflected only
+the Tier 0 floor; nobody had run the Tier 1 path with the flag set to notice.
+
+Fixed in PR #373: `MicrosoftReportAuthorBackend().validate(dist_root)` is now
+called from `validate()` in `cli.py`. The class handles opt-in gating and
+graceful skip entirely on its own, so this is a safe, one-line addition —
+default (unopted) behavior is unchanged and verified so.
+
+**Status is now `Accepted`.** Full audit, theme-name-conflict resolution
+(#7), and a triage of what the now-active Tier 1 oracle found across the
+repo: [`r3-1-tooling-audit-and-theme-decision.md`](../r3-1-tooling-audit-and-theme-decision.md).
 
 ---
 

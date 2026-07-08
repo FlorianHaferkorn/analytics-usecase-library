@@ -23,7 +23,8 @@ shelf-life-days: 90
 |---|---|---|
 | Agent-Skills/Tools integrieren (offiziell-first) | `adr/0002-official-first-agent-integration-and-guided-workflow.md` → `../agent/guided-agent-development-workflow.md` | Migration |
 | Aktivierung/Onboarding + Capability-Gating | `adr/0003-customer-activation-and-capability-gating.md` → `../agent/capability-manifest.md` | ADR-0001 |
-| Validierungs-Backends / Capability-Tiers verstehen | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | ADR-0002/0003, Migration |
+| Validierungs-Backends / Capability-Tiers verstehen | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` → `r3-1-tooling-audit-and-theme-decision.md` | ADR-0002/0003, Migration |
+| Tooling-Überlappung (eigen vs. offizieller Oracle) + Theme-Namens-Konflikt #7 | `r3-1-tooling-audit-and-theme-decision.md` | ADR-0002/0003/0004 |
 | Industry-/Extension-Use-Cases anlegen (EXT/IND-Schema, Sektor-Register) | `adr/0004-industry-variant-use-case-tier-taxonomy.md` → `../../core/usecases/README.md` | ADR-0001/0002/0003 |
 | Superversion-Heimat / Meridian-Core einziehen (Vendoring, Pin, Contract-Mirror) | `adr/0005-superversion-home-and-meridian-vendoring.md` → `../../tooling/superversion/_INDEX.md` | ADR-0001/0002/0003 |
 | Superversion Stack-Targets emittieren (Adapter-Vertrag, Registry, render) | `adr/0006-superversion-target-adapter-contract.md` → `../../tooling/superversion/targets/base.py` | ADR-0001/0002/0003 |
@@ -45,7 +46,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 
 | Doc | Zweck | Lies-wenn |
 |---|---|---|
-| `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | ADR: pluggable Validation-Backends + Capability-Tiers (Status: deferred) | Validierungsstrategie |
+| `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | ADR: pluggable Validation-Backends + Capability-Tiers (Accepted — salvaged #321, CLI-verdrahtet #373) | Validierungsstrategie |
 | `adr/0002-official-first-agent-integration-and-guided-workflow.md` | ADR: official-first Agent-Integration + GADW (Proposed) | Agent-Integration |
 | `adr/0003-customer-activation-and-capability-gating.md` | ADR: Customer-Activation + Capability-Gating (Proposed) | Aktivierung/Onboarding |
 | `adr/0004-industry-variant-use-case-tier-taxonomy.md` | ADR: Industry-Variant Use-Case-Tier-Taxonomie (EXT/IND-Schema, Verzeichnisbaum, Sektor-Register) (Proposed) | Use-Case-Tier/Taxonomie |
@@ -57,6 +58,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
+| `r3-1-tooling-audit-and-theme-decision.md` | R3.1: ADR-0001-Status-Korrektur (Tier-1-Oracle real gemerged aber unverdrahtet — jetzt verdrahtet), Theme-Namens-Konflikt #7 entschieden + gefixt, Überlappungs-Audit eigen vs. offizieller Oracle, Triage neuer repo-weiter Funde (Waterfall-Rolle, Theme-Properties, calloutValue, textbox) | Tooling-Audit / Theme-Konflikt / Oracle-Funde |
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
 | `studio-capability-inventory.md` | I-6.1 Studio-Inventur + Soll-Schnitt; legt Generate-Naht-Entscheidung (E-1) für I-6.2/6.3 offen | Studio-/I-6-Scoping |
