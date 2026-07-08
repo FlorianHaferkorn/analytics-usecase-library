@@ -37,6 +37,7 @@ shelf-life-days: 90
 | KPI-Formel-DSL: restliche 11 UCs verstehen (Full-Catalog-Closure, add/abs/avg_filtered/not_blank, alle 16 UCs) | `adr/0013-kpi-calculation-dsl-remaining-11-use-cases.md` → `../../tooling/superversion/targets/dax_synth.py` | ADR-0010/0011/0012 |
 | I-6.6 Modell-Routing/Token/ROI scopen (Research-Charter, LLM-/kundenagnostisch) | `studio-model-routing-research-charter.md` | ADRs (vor Synthese in ADR-0008) |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
+| Premium-Floor-Abnahme (F0–F6) verstehen — was ist grün belegt, was offen (I-10.6) | `premium-acceptance-F0-F6.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
 | Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
 | Skill-Docs retire-vs-keep entscheiden (ADR-0002) | `skills-retire-vs-keep.md` | Rest |
@@ -64,6 +65,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `adr/0013-kpi-calculation-dsl-remaining-11-use-cases.md` | ADR: schließt die restlichen 11 UCs (COM-004, OPS-001/002/003, FIN-001, SCM-001/003, XD-001/002/003/004) — 4 neue Grammatik-Ergänzungen (add/abs/avg_filtered/not_blank-Filter); 9 eindeutige, individuell begründete `hitl`-KPIs bleiben über alle 16 UCs (4× Legacy-BLANK()-Placeholder, 2× Grammatik-Limit, 3× Neuland/unterspezifiziert); inkl. Lineage-/Business-Doku-Korrekturen und Paritätstest-Normalizer-Fix (Accepted) | I-10.0-Folgeauftrag / Full-Catalog-Closure |
 | `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
+| `premium-acceptance-F0-F6.md` | I-10.6-Abnahmebericht: F0 (Rechenfähigkeit) grün für 5 MVP-UCs/offen für 9 KPIs über 11 UCs; F1 (Official-Validator) + F6-Teil2 (Live-DAX-Ausführung) ehrlich rot — beide brauchen eine echte Fabric-Tenant-Verbindung, die in dieser Sandbox fehlt; F2/F3/F4/F5/F6-Teil1 grün, live reproduziert mit Belegkommandos | Premium-Abnahme / I-10.6 |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
