@@ -31,9 +31,13 @@ called from `validate()` in `cli.py`. The class handles opt-in gating and
 graceful skip entirely on its own, so this is a safe, one-line addition —
 default (unopted) behavior is unchanged and verified so.
 
-**Status is now `Accepted`.** Full audit, theme-name-conflict resolution
-(#7), and a triage of what the now-active Tier 1 oracle found across the
-repo: [`r3-1-tooling-audit-and-theme-decision.md`](../r3-1-tooling-audit-and-theme-decision.md).
+**Status is now `Accepted`.** Full audit and a triage of what the now-active
+Tier 1 oracle found across the repo:
+[`r3-1-tooling-audit-and-theme-decision.md`](../r3-1-tooling-audit-and-theme-decision.md).
+Note that document's theme-name-conflict (#7) section honestly: a same-day
+fix attempt based on this Tier 1 oracle's opinion broke this repo's actual
+CI gate (a third, different, proprietary tool) and was reverted — #7 remains
+open pending Windows-based verification of that third tool's real rule.
 
 ---
 

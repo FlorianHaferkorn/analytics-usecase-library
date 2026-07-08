@@ -8,7 +8,11 @@ shelf-life-days: 90
 > Funden während R1.6-Vorbereitung (2026-07-08): der offizielle Tier-1-Oracle
 > (`powerbi-report-author`) wurde zum ersten Mal in dieser Session tatsächlich
 > ausgeführt statt nur referenziert — mit erheblichen, teils überraschenden
-> Ergebnissen.
+> Ergebnissen. **Nachtrag noch am selben Tag:** der in Abschnitt 2 zunächst als
+> „entschieden" markierte Theme-Namens-Konflikt stellte sich als Drei-Wege-
+> Konflikt heraus (ein drittes, bislang unentdecktes CI-gate-relevantes Tool,
+> `pbir-cli`, widerspricht dem npm-Oracle) und wurde zurückgerollt — siehe
+> Abschnitt 2 für den vollen Verlauf statt eine geschönte Zusammenfassung.
 
 ---
 
@@ -43,34 +47,46 @@ sollte bei nächster Gelegenheit auf „Accepted (salvaged via #321, CLI-Pfad
 verdrahtet #373)" aktualisiert werden — hier dokumentiert statt separat
 editiert, um den ADR-Verlauf nicht nachträglich umzuschreiben.
 
-## 2. Theme-Namens-Konflikt (#7) — entschieden: Offizielles Schema gewinnt
+## 2. Theme-Namens-Konflikt (#7) — NICHT entschieden: drei Tools, drei Meinungen
 
-Zwei lokale Prüfungen widersprachen sich seit Wochen:
+**Korrektur (2026-07-08, nach Push):** dieser Abschnitt behauptete ursprünglich,
+der Konflikt sei zugunsten des offiziellen npm-Oracle entschieden — das war
+voreilig und wurde durch einen roten CI-Lauf sofort widerlegt. Der tatsächliche
+Befund ist ein **Drei-Wege-Konflikt**, nicht zwei:
 
 | Quelle | Forderung |
 |---|---|
 | `check_report_theme_compliance.py` (eigen) | `customTheme.name` **ohne** `.json` |
-| `powerbi-report-author validate` (offiziell) | `customTheme.name` **mit** `.json`, muss exakt dem `resourcePackages`-Item entsprechen — sonst „the theme dialog will crash" |
+| `@microsoft/powerbi-report-authoring-cli` (npm, lokal installiert & getestet) | `customTheme.name` **mit** `.json`, muss exakt dem `resourcePackages`-Item entsprechen |
+| **`pbir-cli`** (PyPI, proprietäres Windows-Binary — **das tatsächliche CI-Gate dieses Repos**, `run_fabric_checks.ps1` → `pbir-cli validate --qa`) | `customTheme.name` **ohne** `.json` — widerspricht dem npm-Tool direkt |
 
-**Entscheidung: das offizielle Schema ist korrekt.** Begründung, nicht nur
-Autorität: der Generator selbst schreibt das `resourcePackages`-Item-`name`
-bereits **mit** `.json` (das hat die eigene Prüfung schon immer korrekt
-verlangt) — die beiden Felder müssen laut Fabric-Schema identisch sein, unsere
-eigene Prüfung verlangte für zwei Felder, die gleich sein müssen, zwei
-unterschiedliche Werte. Das ist kein Stilstreit, sondern ein echter,
-reproduzierbarer Bug mit konkreter Konsequenz (kaputter Theme-Dialog beim
-Publish).
+`pbir-cli` wurde in dieser Session zunächst übersehen, weil die npm-CLI-Recherche
+den Fokus auf die R1.6-Vorbereitung dominierte. Der Fix wurde ausschließlich auf
+Basis der npm-CLI vorgenommen (`de31a75`, `02d5407`) und dabei **das eigentliche
+CI-Gate ignoriert** — Ergebnis: „Stage 1 checks" fiel auf jedem Push seit
+`de31a75` rot (verifiziert per CI-Historie: `a677da2` grün, jeder Commit danach
+rot), weil `pbir-cli --qa` exakt die durch den Fix hergestellte Konvention
+ablehnt.
 
-**Fix (diese Session, `de31a75` + `02d5407`):** drei Schreibstellen
-(`pbip_writer.py`, `adapters/pbip.py`, `apply_report_theme.py`) auf den bereits
-berechneten Dateinamen (mit `.json`) umgestellt statt auf den bloßen Stamm;
-`theme_registration.py`s `align_theme_name_to_registered_stem` ebenso
-angepasst (dritte betroffene Stelle: das interne `name`-Feld der
-registrierten Theme-Datei selbst, das mit den beiden anderen exakt
-übereinstimmen muss); `check_report_theme_compliance.py`s Assertion umgedreht;
-alle 17 `report.json` + 33 registrierte Theme-Dateien + Golden-Fixtures
-nachgezogen. Verifiziert: offizieller Oracle zeigt 0 Theme-Naming-Diagnosen
-(vorher 34+17), eigene Prüfung 0 Fehler, volle Testsuite grün.
+**Korrekturmaßnahme (`8f2dbfa`):** `git revert --no-commit de31a75 02d5407`,
+danach die davon unabhängige Tier-1-Verdrahtung in `cli.py` erneut angewendet.
+Alle 59 theme-bezogenen Dateien sind wieder exakt auf dem `a677da2`-Stand
+(bare-stem-Konvention, bekannt CI-grün).
+
+**Warum nicht einfach die `pbir-cli`-Konvention übernehmen und fertig?**
+`pbir-cli` ist ein **proprietäres, Windows-only Binary** (PyPI-Wheel
+`pbir_cli-*-win_amd64`) — aus dieser Linux-Sandbox weder installierbar noch
+im Quelltext einsehbar. Die genaue Regel („warum genau lehnt es `.json` ab,
+und unter welchen Bedingungen wäre `.json` doch akzeptabel") lässt sich von
+hier aus nicht verifizieren, nur die Tatsache, dass die bare-stem-Konvention
+funktioniert. Eine erneute Änderung ohne echten Windows-Testlauf würde exakt
+denselben Fehler wiederholen.
+
+**Status: bewusst unentschieden, nicht „gefixt".** Empfehlung: R3.2 (Inspector
+V2 + BPA in CI) ist der richtige Ort, um `pbir-cli`s tatsächliches Verhalten
+mit einem echten Windows-Runner/-Rechner zu verifizieren, bevor die
+`.json`-Frage erneut angefasst wird. Bis dahin gilt: bare-stem-Konvention ist
+die einzige verifiziert-grüne, nicht anfassen.
 
 ## 3. Überlappungs-Audit — eigene Checks vs. offizieller Oracle
 
@@ -132,6 +148,10 @@ Generator (R2.3/R2.4-Rollout) oder einen eigenen Task, nicht in Ad-hoc-Patches.
   CI-Workflow setzen, Ergebnis als JSON-Artifact hochladen, aber `exit 0`
   erzwingen bis die 700+ Alt-Funde triagiert sind. Erst nach Abschluss der
   Theme- und Waterfall-Aufräumarbeiten (s. o.) auf „blockierend" umstellen.
+  **Zusätzlich, mit Priorität vor der `.json`-Frage:** `pbir-cli`s exakte
+  Theme-Namens-Regel auf einem echten Windows-Rechner/-Runner verifizieren
+  (Quelltext nicht einsehbar, Sandbox kann das Binary nicht installieren) —
+  erst danach Konflikt #7 erneut angehen.
 - **R3.3 (Scorecard-Gate):** die vier priorisierten Funde aus Abschnitt 4
   eignen sich als konkrete Knock-out-Kandidaten, sobald behoben.
 
@@ -141,5 +161,7 @@ Generator (R2.3/R2.4-Rollout) oder einen eigenen Task, nicht in Ad-hoc-Patches.
 |---|---|
 | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` | Ursprungs-ADR, Status-Korrektur in Abschnitt 1 |
 | `docs/references/powerbi-report-author-cli.md` | Spike-Notizen zur Oracle-CLI (vor dieser Session) |
+| `products/fabric/powerbi/tooling/run_fabric_checks.ps1` | Ruft `pbir-cli validate --qa` auf — das tatsächliche CI-Gate, s. Abschnitt 2 |
+| `docs/architecture/quality-tooling-map.md:26` | Bestehender Verweis auf `pbir-cli --qa` im `fabric_gate` |
 | `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §6 Ledger | R1.6-Vorbefund, R3.1-Zeile |
 | `quality-tooling-map.md` | Sollte nach diesem Dokument aktualisiert werden (Tier-1 jetzt verdrahtet) |
