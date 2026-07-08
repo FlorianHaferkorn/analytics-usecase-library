@@ -1,8 +1,3 @@
-expression GoldDataPath = "C:/Users/florianhaferkorn/VSCode/analytics-usecase-library/showcases/aurora_group/data/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
-	lineageTag: 2f5fd1ed-c270-5d25-aa2b-a84f4a131147
-	annotation PBI_NavigationStepName = GoldDataPath
-	annotation PBI_ResultType = Text
-
 expression fn_DeltaCurrentFiles =
 	(TableFolderPath as text) as table =>
 	let
@@ -21,7 +16,7 @@ expression fn_DeltaCurrentFiles =
 					ParsedValid = List.Select(ParsedAll, each _ <> null and Value.Is(_, type record) and (Record.HasFields(_, "add") or Record.HasFields(_, "remove"))),
 					ActionRows = List.Transform(ParsedValid, each if Record.HasFields(_, "add") then [Path = Record.Field(_, "add")[path], Action = "add"] else [Path = Record.Field(_, "remove")[path], Action = "remove"]),
 					ActionTable = Table.FromRecords(ActionRows, type table [Path = text, Action = text]),
-					Grouped = Table.Group(ActionTable, {"Path"}, {{"LastAction", each List.Last(_[Action]), type text}}),
+					Grouped = Table.Group(ActionTable, {{"Path"}}, {{{{"LastAction", each List.Last(_[Action]), type text}}}}),
 					ActivePaths = Table.SelectRows(Grouped, each [LastAction] = "add")[Path],
 					NormRootRaw = Text.Replace(TableFolderPath, "\", "/"),
 					NormRoot = if Text.EndsWith(NormRootRaw, "/") then NormRootRaw else NormRootRaw & "/",
@@ -34,12 +29,15 @@ expression fn_DeltaCurrentFiles =
 						in
 							if RelFolderClean = "" then [Name] else RelFolderClean & "/" & [Name]
 					),
-					FilteredActive = Table.SelectRows(WithRelPath, each List.Contains(ActivePaths, [RelPath]))
+					FilteredActive = Table.SelectRows(WithRelPath, each List.Contains(ActivePaths, [RelPath])),
+					ActiveNoHelper = Table.RemoveColumns(FilteredActive, {{"RelPath"}})
 				in
-					Table.RemoveColumns(FilteredActive, {"RelPath"})
+					ActiveNoHelper
 	in
 		Result
-	meta [IsParameterQuery=false]
 
-	annotation PBI_ResultType = Function
+expression GoldDataPath = "C:/Users/florianhaferkorn/VSCode/analytics-usecase-library/showcases/aurora_group/data/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 2f5fd1ed-c270-5d25-aa2b-a84f4a131147
+	annotation PBI_NavigationStepName = GoldDataPath
+	annotation PBI_ResultType = Text
 
