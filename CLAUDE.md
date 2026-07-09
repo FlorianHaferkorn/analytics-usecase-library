@@ -96,12 +96,29 @@ Mindestens Stage 1 (`.\tooling\run_stage1_checks.ps1`) vor jedem Commit; Python-
 `python -m pytest tooling/tests/ products/ -q`. Alle Skripte aus der **Repo-Wurzel**
 ausführen. Eine Aufgabe gilt nie als fertig, solange Validierung Fehler zeigt.
 
-### GitHub-Actions-CI — bekannte Usage-Limit-Bedingung
-Bis **1. Juli** schlägt die GitHub-Actions-CI repo-weit fehl, weil das
-Actions-Usage-Limit erreicht ist — **auf `main` und allen Branches gleichermaßen**.
-Symptom: Jobs enden nach ~2 s mit `conclusion=failure`, **ohne Runner**
-(`runner_id: 0`, leerer `runner_name`), Logs liefern HTTP 404. Das ist **keine**
-Code-Ursache und durch keinen Diff zu beheben — es löst sich am 1. Juli von selbst.
-Daher: diese roten CI-Läufe **nicht untersuchen und nicht re-triggern**; stattdessen
-**lokal** validieren (Quality-Gate oben). Über das weitere Vorgehen (z. B. Merge)
-entscheidet der/die Maintainer:in.
+### GitHub-Actions-CI — bekannte Usage-Limit-Bedingung (wiederkehrend)
+Das Actions-Usage-Limit ist wiederholt erschöpft — repo-weit, **auf `main` und
+allen Branches gleichermaßen**. Symptom: Jobs enden nach ~2 s mit
+`conclusion=failure`, **ohne Runner** (`runner_id: 0`, leerer `runner_name`),
+Logs liefern HTTP 404. Das ist **keine** Code-Ursache und durch keinen Diff zu
+beheben.
+
+Historie:
+- Erste Ausprägung: bis 1. Juli 2026 — hat sich am 1. Juli von selbst gelöst
+  (verifiziert durch durchgehend grüne CI-Läufe mit echten `runner_id`s bis
+  einschließlich PR #386).
+- Zweite Ausprägung (aktuell): erneut erschöpft, voraussichtlich **bis Anfang
+  August 2026**.
+
+Daher — für die Dauer jedes solchen Fensters: diese roten CI-Läufe **nicht
+untersuchen und nicht re-triggern**; stattdessen **lokal** validieren. Für die
+konsolidierte lokale Prüfung: `bash tooling/run_local_ci_check.sh` (führt
+Drift-Gate, Python-Testsuite, Fabric-Bindings-Validator, PBI-Quality-Tools,
+Health-Scorecard sowie die Studio-Checks — tsc/vitest/Playwright — in einem
+Durchlauf aus und meldet alle Ergebnisse statt beim ersten Fehler
+abzubrechen). Bekannte Lücke: die Windows-only Stage-1-/Fabric-Quality-Gate-
+PowerShell-Skripte (`run_stage1_checks.ps1`, `run_quality_gate.ps1`) laufen
+darin **nicht** — dafür ist während des Fensters entweder eine
+Windows-Umgebung nötig oder manuelle Prüfung durch den/die Maintainer:in vor
+dem Merge. Über das weitere Vorgehen (z. B. Merge) entscheidet der/die
+Maintainer:in.

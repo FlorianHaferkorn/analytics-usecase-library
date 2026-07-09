@@ -7,7 +7,6 @@ tmdl_parser + determinism.
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -21,6 +20,7 @@ from tooling.superversion.canonical_contract import (
     SemanticModel,
     Table,
 )
+from tooling.superversion.e2e_smoke import resolve_bash
 from tooling.superversion.from_aluca import from_bracket_file
 from tooling.superversion.targets import base
 from tooling.superversion.targets import tmdl  # noqa: F401 — registers the "tmdl" adapter
@@ -91,9 +91,9 @@ def test_real_tmdl_hook_passes_on_emitted_files(model, tmp_path):
     """The actual PostToolUse hook (validate_tmdl_style.sh) exits 0 on emitted TMDL."""
     if not HOOK.exists():
         pytest.skip("TMDL hook not present")
-    bash = shutil.which("bash")
+    bash = resolve_bash()
     if bash is None:
-        pytest.skip("bash not on PATH (I-10.1: plain Windows without WSL/Git Bash)")
+        pytest.skip("bash not on PATH or at the Git-for-Windows default install path (I-10.1)")
     for rel, content in tmdl.emit(model).items():
         f = tmp_path / rel
         f.parent.mkdir(parents=True, exist_ok=True)

@@ -63,6 +63,30 @@ def test_tmdl_stage_falls_back_when_bash_absent(monkeypatch):
     assert not any(r.failed for r in results)
 
 
+def test_resolve_bash_prefers_path_over_git_bash_fallback(monkeypatch):
+    monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: "/usr/bin/bash")
+    assert e2e_smoke.resolve_bash() == "/usr/bin/bash"
+
+
+def test_resolve_bash_falls_back_to_git_for_windows_default_path(monkeypatch, tmp_path):
+    """I-10.1 follow-up: Git for Windows' installer doesn't always add bash to
+    PATH — resolve_bash() must still find it at the documented default location
+    instead of reporting bash absent."""
+    fake_git_bash = tmp_path / "Git" / "bin" / "bash.exe"
+    fake_git_bash.parent.mkdir(parents=True)
+    fake_git_bash.touch()
+
+    monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: None)
+    monkeypatch.setattr(e2e_smoke, "_GIT_BASH_FALLBACK_PATHS", [fake_git_bash])
+    assert e2e_smoke.resolve_bash() == str(fake_git_bash)
+
+
+def test_resolve_bash_returns_none_when_nothing_found(monkeypatch, tmp_path):
+    monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: None)
+    monkeypatch.setattr(e2e_smoke, "_GIT_BASH_FALLBACK_PATHS", [tmp_path / "nope" / "bash.exe"])
+    assert e2e_smoke.resolve_bash() is None
+
+
 def test_main_returns_one_for_missing_bracket(capsys):
     assert e2e_smoke.main([str(REPO / "does_not_exist.yaml")]) == 1
     assert "FAIL" in capsys.readouterr().out
