@@ -11,7 +11,8 @@ if ($Root -and (Test-Path $Root)) {
   $rootPath = (Get-Location).Path
 }
 
-$cli = Join-Path $rootPath "tooling\validation\node_modules\.bin\markdownlint-cli2.cmd"
+$cliBase = Join-Path $rootPath "tooling\validation\node_modules\.bin\markdownlint-cli2"
+$cli = if ($IsWindows) { "$cliBase.cmd" } else { $cliBase }
 if (-not (Test-Path $cli)) {
   Write-Host "markdownlint-cli2 not found. Run: npm ci --prefix tooling/validation" -ForegroundColor Red
   exit 1

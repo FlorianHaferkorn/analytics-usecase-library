@@ -46,7 +46,7 @@ $markers = @(
 $hits = @()
 
 Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
-  $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '\\internal\\archive\\'
+  $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 } | ForEach-Object {
   $path = $_.FullName
   $lines = Get-Content -Path $path

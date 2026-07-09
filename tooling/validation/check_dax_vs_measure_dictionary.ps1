@@ -61,7 +61,7 @@ Write-Host "DAX definitions vs Measure Dictionaries" -ForegroundColor Cyan
 
 $missingByFile = @()
 Get-ChildItem -Path $useCasesRoot -Recurse -Filter "UseCase_Bracket.yaml" | Where-Object {
-  $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 } | ForEach-Object {
   $file = $_.FullName
   $content = Get-Content -Path $file -Raw

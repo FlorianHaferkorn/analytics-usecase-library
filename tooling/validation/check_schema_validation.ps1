@@ -47,10 +47,10 @@ $triggerMapTemplateSchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map
 $triggerMapDeploySchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_deploy.schema.json"
 
 $actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\' -and $_.Name -ne 'impactful_15.yaml' -and $_.Name -notlike '*_business_case.yaml'
+  $_.FullName -notmatch '[\\/]decision_spines[\\/]' -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]' -and $_.Name -ne 'impactful_15.yaml' -and $_.Name -notlike '*_business_case.yaml'
 }
 $businessCaseFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*_business_case.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '[\\/]decision_spines[\\/]' -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 }
 $businessCaseSchema = Join-Path -Path $aiSchemaDir -ChildPath "business_case.schema.json"
 $bracketFiles = Get-ChildItem -Path (Join-Path $rootPath "core\usecases\core") -Recurse -Filter "UseCase_Bracket.yaml" -ErrorAction SilentlyContinue

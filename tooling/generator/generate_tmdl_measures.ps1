@@ -1123,7 +1123,7 @@ if ($script:UseIRPath) {
   Write-Host "IR-first: $($useCaseData.Count) use cases, $($catalog.Count) measure specs, $($trustScores.Count) trust scores, $($useCaseBrackets.Count) brackets, $($allActionCodes.Count) action codes." -ForegroundColor Gray
 } else {
   $factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
-    $_.FullName -notmatch '\\templates\\' -and $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]templates[\\/]' -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   }
   if ($UseCase -and $UseCase.Count -gt 0) {
     $expandedUseCase = @()

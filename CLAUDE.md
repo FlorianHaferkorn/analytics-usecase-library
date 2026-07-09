@@ -96,12 +96,53 @@ Mindestens Stage 1 (`.\tooling\run_stage1_checks.ps1`) vor jedem Commit; Python-
 `python -m pytest tooling/tests/ products/ -q`. Alle Skripte aus der **Repo-Wurzel**
 ausführen. Eine Aufgabe gilt nie als fertig, solange Validierung Fehler zeigt.
 
-### GitHub-Actions-CI — bekannte Usage-Limit-Bedingung
-Bis **1. Juli** schlägt die GitHub-Actions-CI repo-weit fehl, weil das
-Actions-Usage-Limit erreicht ist — **auf `main` und allen Branches gleichermaßen**.
-Symptom: Jobs enden nach ~2 s mit `conclusion=failure`, **ohne Runner**
-(`runner_id: 0`, leerer `runner_name`), Logs liefern HTTP 404. Das ist **keine**
-Code-Ursache und durch keinen Diff zu beheben — es löst sich am 1. Juli von selbst.
-Daher: diese roten CI-Läufe **nicht untersuchen und nicht re-triggern**; stattdessen
-**lokal** validieren (Quality-Gate oben). Über das weitere Vorgehen (z. B. Merge)
-entscheidet der/die Maintainer:in.
+### GitHub-Actions-CI — bekannte Usage-Limit-Bedingung (bereits zweimal aufgetreten)
+Das Actions-Usage-Limit wurde erneut erreicht — diesmal bis **Anfang August**
+(Stand 2026-07-09; war zuvor schon bis 1. Juli erschöpft, hat sich also **nicht**
+dauerhaft von selbst gelöst, sondern tritt wiederkehrend auf). Wirkung:
+GitHub-Actions-CI schlägt repo-weit fehl — **auf `main` und allen Branches
+gleichermaßen**. Symptom: Jobs enden nach ~2 s mit `conclusion=failure`, **ohne
+Runner** (`runner_id: 0`, leerer `runner_name`), Logs liefern HTTP 404. Das ist
+**keine** Code-Ursache und durch keinen Diff zu beheben. Daher: diese roten
+CI-Läufe **nicht untersuchen und nicht re-triggern**. Über das weitere Vorgehen
+(z. B. Merge trotz rotem/fehlendem CI-Lauf) entscheidet der/die Maintainer:in.
+
+**Bis die Minutes zurück sind: lokal so nah wie möglich an CI validieren.**
+`pwsh` (PowerShell 7) lässt sich auch in Linux-Sandboxes installieren — der
+Proxy blockt zwar `github.com`-Release-Downloads und die PowerShell-Gallery,
+aber Microsofts eigenes APT-Repo (`packages.microsoft.com`) ist erreichbar:
+```bash
+curl -sSL -o /tmp/pwsh.deb https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+dpkg -i /tmp/pwsh.deb && apt-get update && apt-get install -y powershell
+```
+Damit läuft der **reale CI-Befehl** lokal komplett durch:
+```bash
+pwsh tooling/quality/run_quality_gate.ps1        # = Stage 1 + Fabric-Gate, wie in .github/workflows/stage1.yml
+python -m pytest tooling/tests/ products/ -q     # = python-checks-Job
+python3 scripts/check_index.py --strict          # Drift-Gate
+```
+Bekannte, unvermeidbare Lücken (klar als „SKIP"/graceful-skip erkennbar, nie als
+stiller Pass): `check_validate_data_contracts.ps1` (braucht `powershell-yaml`,
+nur via PSGallery installierbar, dort geblockt) und `pbir-cli` selbst
+(Windows-only Closed-Source-Binary, s. `r3-1-tooling-audit-and-theme-decision.md`).
+Alles andere — TMDL/PBIR/DAX/Theme/fab-inspector-BPA/Markdownlint/Governance —
+läuft und gated wie in echtem CI.
+
+**Dieser erste echte Nicht-Windows-Lauf hat 2026-07-09 drei bis dahin unsichtbare,
+systemische Windows-only-Bugs aufgedeckt und gefixt** (nur auf `windows-latest`
+lauffähig getestet, nie auf Linux/macOS): (1) Python-Erkennungsschleife in 3
+Skripten warf `Python 3 not found` trotz vorhandenem `python3` (PowerShell-
+Range-Operator-Bug bei Einzelwort-Kommandos); (2) **21 Dateien** benutzten
+`-notmatch '\word\'`-Excludes (z. B. `internal\archive\`, `decision_spines\`),
+die auf Linux/macOS (Forward-Slash-Pfade) **nie** matchen — dadurch wurden
+archivierte/ausgeschlossene Dateien fälschlich mitvalidiert (u. a. 17
+Falsch-Positive in `check_schema_validation.ps1`); (3) `check_markdownlint.ps1`
+hartkodierte den Windows-`.cmd`-Launcher. Alle drei Details + Fix:
+`internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` (Abschnitt „Scripts /
+Generator"). **Lehre:** diese Bugs waren so lange unsichtbar, weil CI
+ausschließlich auf `windows-latest` lief — ein lokaler Nicht-Windows-Lauf ist
+also nicht nur ein CI-Ersatz während der Usage-Limit-Ausfälle, sondern deckt
+eine ganze Klasse von Bugs auf, die reines Windows-CI strukturell nie findet.
+Bei künftigen neuen `check_*.ps1`-Skripten: Path-Excludes immer `[\\/]` statt
+`\` schreiben, Python-Erkennung nicht neu erfinden (bestehendes, jetzt
+korrigiertes Muster kopieren).
