@@ -192,6 +192,14 @@ try {
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 
+  $checkReportScorecard = Join-Path $validationDir "check_report_scorecard.ps1"
+  if (Test-Path $checkReportScorecard) {
+    Write-Host ""
+    Write-Host ">> check_report_scorecard.ps1 (IBCS scorecard: weighted points + knock-outs, R3.3)" -ForegroundColor Cyan
+    & $checkReportScorecard -DistRoot $distRootResolved
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
   $checkSchemaVersions = Join-Path $repoRoot "products/fabric/powerbi/tooling/validation/check_schema_versions.py"
   if (Test-Path $checkSchemaVersions) {
     Write-Host ""

@@ -225,3 +225,11 @@ jobs:
           name: fab-inspector-report
           path: internal/metrics/runs/fab_inspector/
           if-no-files-found: ignore
+
+      - name: Upload report scorecard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-scorecard
+          path: internal/metrics/runs/report_scorecard/
+          if-no-files-found: ignore

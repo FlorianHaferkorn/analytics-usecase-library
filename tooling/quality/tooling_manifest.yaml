@@ -44,7 +44,7 @@ gates:
     entrypoint: products/fabric/powerbi/tooling/run_fabric_checks.ps1
     runs_in: pwsh
     owner: fabric
-    docs: "TMDL, PBIR, pbir-cli --qa, fab-inspector BPA rules, P0 report quality, bindings."
+    docs: "TMDL, PBIR, pbir-cli --qa, fab-inspector BPA rules, report scorecard, P0 report quality, bindings."
     summary_mode: null
 
 # ── Report Quality Validators (Python) ──────────────────────────────────────
@@ -113,6 +113,14 @@ validators:
     runs_in: pwsh
     owner: fabric
     docs: "PowerShell wrapper that invokes the Python report_quality CLI within Fabric checks."
+
+  - id: pbir.report_scorecard
+    type: validator
+    scope: report
+    entrypoint: products/fabric/powerbi/tooling/validation/check_report_scorecard.ps1
+    runs_in: pwsh
+    owner: fabric
+    docs: "IBCS scorecard (R3.3): weighted points (100 - severity-weighted deductions) + Mixed-Scale/Unsorted-Evidence knock-outs, threshold 70%. Only -Enforce report(s) (default COM-002) fail the gate; others are scored/logged only pending R5.1 rollout."
 
   - id: pbir.report_pages
     type: validator

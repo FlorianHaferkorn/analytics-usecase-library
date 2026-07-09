@@ -82,6 +82,7 @@ studio/test-results/.last-run.json
 
 # CI run logs (local only – not versioned)
 internal/metrics/runs/*.json
+internal/metrics/runs/**/*.json
 internal/metrics/generation_runs/*.json
 
 # Backup files
