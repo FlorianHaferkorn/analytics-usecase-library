@@ -217,7 +217,7 @@ validators:
     entrypoint: products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1
     runs_in: pwsh
     owner: fabric
-    docs: "Runs pbir validate --qa against each .Report directory."
+    docs: "DEPRECATED (R3.4, 2026-07-09) -- never wired into CI, always skipped gracefully; superseded by pbir.fab_inspector. Kept for ad-hoc manual use only."
 
   - id: pbir.fab_inspector
     type: validator
