@@ -100,6 +100,7 @@ flowchart LR
 | `bpa.report` | [`tooling/linters/powerbi/bpa-rules-report.json`](tooling/linters/powerbi/bpa-rules-report.json) | `report` | `json` | Report-level rules: forbidden visuals, slot requirements. |
 | `bpa.semanticmodel` | [`tooling/linters/powerbi/bpa-rules-semanticmodel.json`](tooling/linters/powerbi/bpa-rules-semanticmodel.json) | `model` | `json` | Semantic model best practices: isAvailableInMDX, hidden columns, auto date tables. |
 | `bpa.fab_inspector` | [`products/fabric/powerbi/tooling/validation/fab-inspector-rules.json`](products/fabric/powerbi/tooling/validation/fab-inspector-rules.json) | `report` | `json` | JSON-Logic rules for the fab-inspector (PBI-Inspector V2) engine: max visuals/page, no vertical scroll, theme-colour hygiene. All logType:error. |
+| `bpa.design_rules` | [`core/templates/page_templates/design_rules.yaml`](core/templates/page_templates/design_rules.yaml) | `report` | `yaml` | R2.2 (Cut C2): formal constraints implementing Storytelling_Principles.md/Color_Semantics_Formatting.md -- one-message-per-chart, max semantic colors/page, max evidence columns, mandatory rendered sort, Big Idea header zone. Schema: tooling/generator/schemas/design_rules.schema.json. Consumed by R2.3 (generator enforcement, not yet built). |
 
 ## Reference Documentation
 

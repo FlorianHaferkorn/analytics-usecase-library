@@ -451,6 +451,16 @@ bpa_rules:
     source: "adapted from NatVanG/fab-inspector Rules/Base-rules.json (MIT)"
     last_checked: "2026-07"
 
+  - id: bpa.design_rules
+    type: bpa_rule
+    scope: report
+    entrypoint: core/templates/page_templates/design_rules.yaml
+    runs_in: yaml
+    owner: fabric
+    docs: "R2.2 (Cut C2): formal constraints implementing Storytelling_Principles.md/Color_Semantics_Formatting.md -- one-message-per-chart, max semantic colors/page, max evidence columns, mandatory rendered sort, Big Idea header zone. Schema: tooling/generator/schemas/design_rules.schema.json. Consumed by R2.3 (generator enforcement, not yet built)."
+    source: "Storytelling_Principles.md, Color_Semantics_Formatting.md, UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.3 precedent"
+    last_checked: "2026-07"
+
 # ── Reference Docs ────────────────────────────────────────────────────────────
 reference_docs:
   - id: ref.tmdl_allowed_subset

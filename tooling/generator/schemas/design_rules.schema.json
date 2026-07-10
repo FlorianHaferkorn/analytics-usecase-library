@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://alu-ca.internal/schemas/design_rules.schema.json",
+  "title": "Design Rules (R2.2, Cut C2)",
+  "description": "Formal, machine-checkable constraint file implementing Storytelling_Principles.md as enforceable rules. See core/templates/page_templates/design_rules.yaml.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "rules"],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/rule" }
+    }
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "check", "description", "source", "parameters"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Stable, uppercase-with-underscores identifier. Cited verbatim in the generator's refuse-to-emit error message (R2.3 DoD)."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "warning", "info"]
+        },
+        "check": {
+          "type": "string",
+          "enum": [
+            "single_unit_family_per_component",
+            "max_count",
+            "output_matches_declared_sort",
+            "header_text_equals_big_idea"
+          ],
+          "description": "One of a small, closed set of check types the R2.3 generator dispatches on -- deliberately not a generic expression language."
+        },
+        "description": { "type": "string", "minLength": 1 },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Which governed doc or verified finding this rule implements. Every rule must cite one -- no invented thresholds."
+        },
+        "parameters": { "type": "object" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "check": { "const": "single_unit_family_per_component" } }, "required": ["check"] },
+          "then": {
+            "properties": {
+              "parameters": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["scope", "field"],
+                "properties": {
+                  "scope": { "type": "string" },
+                  "field": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "check": { "const": "max_count" } }, "required": ["check"] },
+          "then": {
+            "properties": {
+              "parameters": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["scope", "max"],
+                "properties": {
+                  "scope": { "type": "string" },
+                  "field": { "type": "string" },
+                  "target": { "type": "string" },
+                  "max": { "type": "integer", "minimum": 1 }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "check": { "const": "output_matches_declared_sort" } }, "required": ["check"] },
+          "then": {
+            "properties": {
+              "parameters": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["scope", "generated_path"],
+                "properties": {
+                  "scope": { "type": "string" },
+                  "generated_path": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "check": { "const": "header_text_equals_big_idea" } }, "required": ["check"] },
+          "then": {
+            "properties": {
+              "parameters": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["scope", "field", "generated_path"],
+                "properties": {
+                  "scope": { "type": "string" },
+                  "field": { "type": "string" },
+                  "generated_path": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
