@@ -64,6 +64,12 @@ run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels
 run_check "Boutique rubric BC-CHART-01 (no mixed scale on one axis)" \
   python3 tooling/validation/check_mixed_scale.py
 
+# --- Boutique rubric: BC-NARR-04 KPI context (K6, advisory) -------------
+# Advisory scorecard signal (2/17 hero cards carry governed context); clearing the
+# rest is a curated rollout (KONZEPT §12). Coverage regression-guarded in pytest.
+run_check "Boutique rubric BC-NARR-04 (hero KPI has context — advisory)" \
+  python3 tooling/validation/check_kpi_context.py
+
 # --- PBI quality tools CLI ----------------------------------------------
 run_check "PBI quality-tools CLI (validate --summary)" \
   python3 -c "
