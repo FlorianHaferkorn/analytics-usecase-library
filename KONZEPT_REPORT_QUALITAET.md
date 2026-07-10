@@ -359,7 +359,7 @@ Geteilt wird ausschließlich Handwerkswissen und Recherche.
 | Cut | Status | Datum | Notiz |
 |---|---|---|---|
 | K1 Boutique-Bar definieren | 🟡 teilw. | 2026-07-10 | Rubrik als Daten: `core/templates/page_templates/tokens/boutique_craft_rubric.yaml` (30 Regeln/6 Dimensionen, 5 Knock-outs, structural/judge-Modus) + `governance/Boutique_Craft_Rubric.md` (Scoring-Modell + COM-002-Referenz-Scorecard). Befund: COM-002 reißt heute **BC-NARR-01** (Titel = Etikett, nicht Schlussfolgerung) → verfehlt die Bar trotz starker Struktur; Gap→Cut-Mapping zu K2/K3/K4 dokumentiert. Enforcement (Checks + Judge) = **K6**. |
-| K2 Intent+Design-Spec-Schicht | ⬜ offen | | baut auf C2 (`design_rules.yaml`) auf |
+| K2 Intent+Design-Spec-Schicht | 🟡 teilw. | 2026-07-10 | **Intent als Daten (Teil 1):** Bracket-Schema um `message`/`so_what`/`action_code_id` je `component_30s`-Exhibit erweitert (additiv, non-breaking); Validator `tooling/validation/check_exhibit_message.py` erzwingt **BC-NARR-01** (Titel = Aussage, nicht Etikett) via reiner `classify_message`-Heuristik (Label-Pattern `X by Y` → fail; Assertion-Signal EN/DE → pass), 15 Unit-Tests; COM-002-Pilot mit gegroundeten Statement-Messages befüllt (3/3 Statements, 0 Violations). Verifiziert: 256 Schema/Bracket-Tests + 582 Superversion-Golden + Page-DoD (0 failed) + Drift-Gate `--strict` grün. **Bewusst offen (K3):** Generator-Emit (`message` → gerenderter Visual-Titel) + `design_spec`-Teil — braucht PBIR/Windows-Validierung. |
 | K3 Maximize Power BI | ⬜ offen | | nutzt R1.6-Schema-Funde; Scope-Cuts aus R1.3/R1.5 |
 | K4 Content-Grounding-Layer | ⬜ offen | | Quellentyp-Katalog §6.3 als Grundlage |
 | K5 Zweiter Renderer (Web) | ⬜ offen | | Renderer-Wahl offen (Discovery) |

@@ -54,9 +54,13 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.gm.amount
       visual_type: trend_line
+      message: "Gross Margin € is running below plan and the shortfall widened through the period"
+      so_what: "The erosion compounds month over month — a trend, not a one-off dip."
     - slot_id: Main_2
       # T2_DriverBridge / variance_explanation: Plan GM → PVM drivers → Actual GM (IBCS bridge)
       visual_type: waterfall
+      message: "Price concessions and adverse mix, not volume, drive the Plan-to-Actual GM gap"
+      so_what: "The levers are commercial — price discipline and mix — not demand generation."
       comparison: vs_plan
       kpi_ids:
       - Plan GM Amount
@@ -75,6 +79,8 @@ ux_layout_rules:
       # evidence columns (R1.3). PBIR: Main_3/visual.json (Golden Thread — must not drift).
       kpi_id: margin.gm.pct
       visual_type: bar_chart
+      message: "GM% sits below target in a handful of org units that drag the portfolio"
+      so_what: "Focused intervention in those units beats a broad, thinly-spread program."
   page_2_execution:
     title: Commercial Execution
     page_type: T4_Prescriptive_Recommendation
