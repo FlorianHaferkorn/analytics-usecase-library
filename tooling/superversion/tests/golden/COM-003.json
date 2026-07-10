@@ -425,16 +425,14 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Retention is under pressure — churn counts and revenue at risk are climbing together",
+            "title": "Retention rate sits deepest below target in the mid-tier segments — that is where the churn originates",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "Customer Retention %",
-              "Churned Customers",
-              "Revenue at Risk Amount"
+              "Customer Retention %"
             ],
             "rows": [],
             "columns": [],

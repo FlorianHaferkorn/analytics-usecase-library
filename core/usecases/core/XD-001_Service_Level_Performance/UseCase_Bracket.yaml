@@ -50,13 +50,10 @@ ux_layout_rules:
       visual_type: trend_line
       message: "Service backlog is growing as resolution speed fails to keep pace with incoming case volume"
       so_what: "An unchecked backlog trend converts into missed SLAs within the next reporting cycle."
-    - kpi_ids:
-      - svc.fcr.pct
-      - svc.aht.minutes
-      - svc.escalation.pct
+    - kpi_id: svc.fcr.pct
       visual_type: bar_chart
-      message: "First-contact resolution is below where it needs to be, and escalations keep climbing"
-      so_what: "Escalations rising as FCR drops signals frontline agents need capability support, not just headcount."
+      message: "First-contact resolution is lowest on the case types that generate the most escalations"
+      so_what: "Ranking FCR by case type shows where a capability fix cuts escalations and backlog at once."
   page_2_execution:
     title: Service Queue Recovery & Execution
     page_type: T3_Operational_Monitoring

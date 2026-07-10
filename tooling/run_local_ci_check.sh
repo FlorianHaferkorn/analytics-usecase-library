@@ -61,10 +61,8 @@ run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels
   python3 tooling/validation/check_exhibit_message.py
 
 # --- Boutique rubric: BC-CHART-01 mixed-scale (K6) ----------------------
-# Advisory: 8 pre-existing mixed-scale exhibits are a documented backlog (KONZEPT §12).
-# NEW violations are blocked by the pytest regression guard (test_mixed_scale.py).
-run_check "Boutique rubric BC-CHART-01 (mixed-scale — advisory, 8 known backlog)" \
-  python3 tooling/validation/check_mixed_scale.py --exit-zero
+run_check "Boutique rubric BC-CHART-01 (no mixed scale on one axis)" \
+  python3 tooling/validation/check_mixed_scale.py
 
 # --- PBI quality tools CLI ----------------------------------------------
 run_check "PBI quality-tools CLI (validate --summary)" \

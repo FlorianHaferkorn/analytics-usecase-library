@@ -50,13 +50,10 @@ ux_layout_rules:
       visual_type: trend_line
       message: "Forecast error (MAPE) is running above threshold, driven by systematic bias in the mid-range SKU cluster"
       so_what: "A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides."
-    - kpi_ids:
-      - plan.forecast.bias.pct
-      - plan.forecast.service_impact.pct
-      - plan.replan.count
+    - kpi_id: plan.forecast.bias.pct
       visual_type: bar_chart
-      message: "Forecast bias is skewed high and pulling both service impact and replanning volume up with it"
-      so_what: "Rising replans are the operational cost of the bias — fixing the model reduces both errors and rework."
+      message: "Forecast bias skews high in a concentrated SKU cluster — systematic over-forecast, not random error"
+      so_what: "Ranking bias by SKU cluster isolates where a model recalibration removes most of the replanning load."
   page_2_execution:
     title: Supply Chain / Planning Execution
     page_type: T4_Prescriptive_Recommendation

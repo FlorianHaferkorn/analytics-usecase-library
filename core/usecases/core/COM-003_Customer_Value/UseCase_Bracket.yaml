@@ -63,13 +63,10 @@ ux_layout_rules:
       message: "Lifetime revenue is flattening as mid-tier churn accelerates and erodes the customer base"
       so_what: "Retention investment in the mid-tier segment is what stops the erosion before it compounds into lost revenue."
     - slot_id: Main_2
-      kpi_ids:
-      - crm.retention.pct
-      - crm.churned_customers.count
-      - crm.revenue_at_risk.amount
+      kpi_id: crm.retention.pct
       visual_type: bar_chart
-      message: "Retention is under pressure — churn counts and revenue at risk are climbing together"
-      so_what: "Rising churn and revenue-at-risk in lockstep signal the pressure is broad-based, not a single-segment fluke."
+      message: "Retention rate sits deepest below target in the mid-tier segments — that is where the churn originates"
+      so_what: "Ranking retention by segment pinpoints where to spend before churn compounds into lost CLV."
     - slot_id: Main_3
       # Revenue at Risk by segment — retention-prioritisation ranking (mapping_gap fix)
       kpi_id: crm.revenue_at_risk.amount

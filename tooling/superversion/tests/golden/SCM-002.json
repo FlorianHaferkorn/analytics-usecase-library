@@ -204,15 +204,13 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "In-full rate is holding, but stockout impact and penalty costs are both climbing on late deliveries",
+            "title": "Late-delivery penalties are concentrated in a short list of suppliers — a few relationships carry most of the exposure",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "In-Full %",
-              "Stockout Impact %",
               "Penalty Amount"
             ],
             "rows": [],

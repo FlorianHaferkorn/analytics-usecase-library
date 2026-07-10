@@ -67,13 +67,10 @@ ux_layout_rules:
       message: "Revenue growth vs last year is on track, but the pace has softened in the most recent months"
       so_what: "A softening growth rate is the first sign the on-track story could reverse next quarter."
     - slot_id: Main_3
-      kpi_ids:
-      - crm.clv.amount
-      - svc.sla.attainment.pct
-      - ops.otif.pct
+      kpi_id: enterprise.value_at_risk.index
       visual_type: bar_chart_horizontal
-      message: "Of the three ranked KPIs, OTIF is the one trailing furthest behind target"
-      so_what: "OTIF lagging the other two strategic KPIs is where executive intervention has the most leverage."
+      message: "Ranked by value-at-risk index, service and delivery are the KPIs sitting furthest below target"
+      so_what: "A normalized index makes the strategic KPIs comparable, so attention goes to the biggest exposure."
   page_2_execution:
     title: Executive / Cross-Functional Risk Prioritisation
     page_type: T4_Prescriptive_Recommendation

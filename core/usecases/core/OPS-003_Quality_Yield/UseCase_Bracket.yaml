@@ -51,13 +51,10 @@ ux_layout_rules:
       visual_type: trend_line
       message: "Scrap rate is trending above target, with yield losses concentrated in two production lines"
       so_what: "Containing the two lines driving the trend is faster than a plant-wide quality program."
-    - kpi_ids:
-      - quality.rework.pct
-      - quality.copq.amount
-      - quality.complaint.pct
+    - kpi_id: quality.copq.amount
       visual_type: bar_chart
-      message: "Rework, cost of poor quality, and complaints are all up together this period"
-      so_what: "When rework cost and complaints move together, the root cause is upstream in the process, not isolated defects."
+      message: "Cost of poor quality concentrates on a few lines — that is where yield loss turns into real money"
+      so_what: "Ranking COPQ by line prioritises containment where the financial impact is largest."
   page_2_execution:
     title: Operations Execution
     page_type: T3_Operational_Monitoring
