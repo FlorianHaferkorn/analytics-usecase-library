@@ -181,16 +181,24 @@ class TestScaffoldGenerator:
 
 class TestCOM002GoldenR23Fields:
     """
-    R2.3 (Cut C2) targeted golden comparison: COM-002 is the migrated
-    intent_rules_version: 2 reference Bracket. Rather than a full-directory
-    byte-identical fixture (see TestGoldenCOM001 in test_pbip_writer.py),
-    this compares ONLY the visuals/fields R2.3 actually generates --
-    Header (big_idea), Detail_Matrix (sort/topN/dataBars), Main_3
-    (auto-sort) -- against the real, committed dist/ output. The rest of
-    COM-002's visuals (KPI_Cards, Main_1, Main_2, Smart_Narrative,
-    ActionPanel) have pre-existing, unrelated drift from hand-patched
-    R1.x fixes that were never ported back into the generator -- out of
-    scope here, tracked separately.
+    R2.3/R2.4-Fund follow-up golden comparison: COM-002 is the migrated
+    intent_rules_version: 2 reference Bracket. All 8 of its generated
+    visuals now match the real, committed dist/ output byte-for-byte --
+    KPI_Cards, Main_1, Main_2, Main_3, Header (overview); Smart_Narrative,
+    Detail_Matrix, ActionPanel (detail). Closing this gap required porting
+    several previously hand-patched-only fixes back into the generator:
+    influencing_kpi_ids reorder (R1.5's real KPI card set), category_field
+    overrides + a waterfall category-field plumbing bug (Main_1/Main_2),
+    Main_2's kpi_ids reduced to the 3 PVM deltas dist/ actually renders,
+    clusteredBarChart's real "labels" object name instead of "dataLabels"
+    (R1.6), and Smart_Narrative/ActionPanel now bind to the governed
+    domain-level "Narrative Text (<SUFFIX>)"/"Active Actions Text (<SUFFIX>)"
+    DAX measures (cardVisual) instead of a synthesized textbox literal.
+    See UMSETZUNGSPLAN_REPORT_EXZELLENZ.md's R2.3-Fund follow-up ledger
+    entry for the full account, including the still-open, unrelated
+    concerns this did NOT resolve (Main_2's waterfallChart maxPerRole.Y=1
+    schema question, R1.6; the other 14 reports' own generator/dist sync,
+    R5.1's job).
     """
 
     DIST_OVERVIEW = (
@@ -262,6 +270,26 @@ class TestCOM002GoldenR23Fields:
         matrix = self._find_visual(generator, "Detail_Matrix")
 
         assert matrix["filterConfig"] == dist_matrix["filterConfig"]
+
+    def test_every_com002_visual_matches_real_dist_exactly(self):
+        """R2.3-Fund follow-up: full-visual byte-for-byte comparison, both
+        pages, every visual -- the complete generator/dist sync this class's
+        earlier field-scoped tests were building toward."""
+        mismatches = []
+        for page, dist_dir in (("overview", self.DIST_OVERVIEW), ("detail", self.DIST_DETAIL)):
+            generator = PageScaffoldGenerator("COM-002", page, repo_root=REPO_ROOT)
+            generator.load_config()
+            generator.generate()
+            for v in generator.page_structure["visuals"]:
+                name = v.get("name")
+                dist_file = dist_dir / name / "visual.json"
+                if not dist_file.exists():
+                    mismatches.append(f"{page}/{name}: no dist/ fixture")
+                    continue
+                dist_data = json.loads(dist_file.read_text(encoding="utf-8"))
+                if v.get("visual") != dist_data.get("visual"):
+                    mismatches.append(f"{page}/{name}")
+        assert not mismatches, f"Visuals diverging from real dist/: {mismatches}"
 
 
 class TestEvidenceColumnsUnresolvedTokenGuard:

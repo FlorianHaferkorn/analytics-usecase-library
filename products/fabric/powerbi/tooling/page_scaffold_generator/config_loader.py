@@ -163,6 +163,32 @@ class ConfigLoader:
                 return p
         return None
 
+    # R2.3-Fund follow-up: data_contract_ref -> domain semantic model suffix, verified
+    # against the real 'Narrative Text (<SUFFIX>)'/'Active Actions Text (<SUFFIX>)'
+    # measures in each *.SemanticModel/definition/tables/_Measures.tmdl (not
+    # invented) -- these are domain-level shared measures (one per
+    # *.SemanticModel, not per use case), cross-checked against the real,
+    # committed dist/ Smart_Narrative and ActionPanel visual.json bindings for
+    # COM-002 (COM), XD-003 (XD, data_contract=executive.yaml), and FIN-002 (FIN).
+    _DATA_CONTRACT_TO_DOMAIN_SUFFIX: Dict[str, str] = {
+        "commercial_sales.yaml": "COM",
+        "finance.yaml": "FIN",
+        "operations.yaml": "OPS",
+        "supply_chain.yaml": "SCM",
+        "experience.yaml": "XD",
+        "executive.yaml": "XD",
+    }
+
+    def _domain_measure_suffix(self, bracket: Dict[str, Any]) -> Optional[str]:
+        """Resolve the '(SUFFIX)' domain-measure-name suffix for this Bracket's
+        Smart_Narrative/ActionPanel binding, from overrides.data_contract_ref.
+        Returns None for an unmapped/missing data_contract_ref (e.g. XD-004's
+        governance.yaml -- not yet verified against a real semantic model;
+        callers fall back to the synthesized-text path rather than guess)."""
+        ref = (bracket.get("overrides") or {}).get("data_contract_ref") or ""
+        filename = ref.rsplit("/", 1)[-1]
+        return self._DATA_CONTRACT_TO_DOMAIN_SUFFIX.get(filename)
+
     def _format_smart_narrative(self, bracket: Dict[str, Any], use_case_id: str) -> str:
         """Build a one-line Smart Narrative context text for the 300s detail page."""
         title = bracket.get("title") or use_case_id
@@ -924,6 +950,14 @@ class ConfigLoader:
             detail_matrix_columns = resolved_dim_cols   # list of (table, col) tuples
             detail_matrix_measures = resolved_measures  # list of DAX measure name strings
             smart_narrative_text = self._format_smart_narrative(bracket, use_case_id)
+            # R2.3-Fund follow-up: real dist/ binds Smart_Narrative/ActionPanel to
+            # governed domain-level DAX measures (cardVisual + Data role), not a
+            # generator-synthesized literal string -- see _domain_measure_suffix's
+            # docstring. None when unresolvable; callers fall back to the
+            # synthesized text (smart_narrative_text / action_panel_content).
+            _domain_suffix = self._domain_measure_suffix(bracket)
+            narrative_measure_name = f"Narrative Text ({_domain_suffix})" if _domain_suffix else None
+            active_actions_measure_name = f"Active Actions Text ({_domain_suffix})" if _domain_suffix else None
 
             # R2.3: sort_by/top_n/highlight_rule (R2.1 fields) -> generated Detail_Matrix
             # sortDefinition/TopN filter/data-bar formatting, gated the same way as the
@@ -967,6 +1001,8 @@ class ConfigLoader:
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
                 "smart_narrative_text": smart_narrative_text,
+                "narrative_measure_name": narrative_measure_name,
+                "active_actions_measure_name": active_actions_measure_name,
                 "intent_rules_version": intent_rules_version,
                 "detail_matrix_sort_by": detail_matrix_sort_by,
                 "detail_matrix_top_n": detail_matrix_top_n,

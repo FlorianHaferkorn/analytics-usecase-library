@@ -48,6 +48,8 @@ class PageBuilder:
         detail_matrix_top_n: Optional[int] = None,
         detail_matrix_highlight_rule: Optional[Dict[str, str]] = None,
         detail_matrix_topn_field: Optional[tuple] = None,
+        narrative_measure_name: Optional[str] = None,
+        active_actions_measure_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -117,33 +119,44 @@ class PageBuilder:
 
             if slot_id == "ActionPanel":
                 if has_action_panel:
-                    text_value = (action_panel_content or "'Action Panel Placeholder'")
-                    vis = {
-                        "$schema": self.visual_builder.VISUAL_SCHEMA,
-                        "name": "ActionPanel",
-                        "position": {
-                            "x": position.x,
-                            "y": position.y,
-                            "z": 15000,
-                            "height": position.height,
-                            "width": position.width,
-                            "tabOrder": tab + i
-                        },
-                        "visual": {
-                            "visualType": "textbox",
-                            "objects": {
-                                "text": [
-                                    {
-                                        "properties": {
-                                            "text": {
-                                                "expr": {"Literal": {"Value": text_value}}
+                    if active_actions_measure_name:
+                        # R2.3-Fund follow-up: real dist/ binds ActionPanel to the
+                        # governed domain-level "Active Actions Text (<SUFFIX>)"
+                        # measure (auto-reads current filter context), not a
+                        # generator-synthesized literal action-code dump.
+                        vis = self.visual_builder.build_narrative_card(
+                            position, measure_ref=active_actions_measure_name, name="ActionPanel"
+                        )
+                        vis["position"]["z"] = 15000
+                    else:
+                        text_value = (action_panel_content or "'Action Panel Placeholder'")
+                        vis = {
+                            "$schema": self.visual_builder.VISUAL_SCHEMA,
+                            "name": "ActionPanel",
+                            "position": {
+                                "x": position.x,
+                                "y": position.y,
+                                "z": 15000,
+                                "height": position.height,
+                                "width": position.width,
+                                "tabOrder": tab + i
+                            },
+                            "visual": {
+                                "visualType": "textbox",
+                                "objects": {
+                                    "text": [
+                                        {
+                                            "properties": {
+                                                "text": {
+                                                    "expr": {"Literal": {"Value": text_value}}
+                                                }
                                             }
                                         }
-                                    }
-                                ]
+                                    ]
+                                }
                             }
                         }
-                    }
+                    vis["position"]["tabOrder"] = tab + i
                     visuals.append(vis)
                 continue
 
@@ -235,6 +248,15 @@ class PageBuilder:
                 measure_ref = (card_measure_names[0] if card_measure_names else None) or (card_kpi_ids[0] if card_kpi_ids else None)
                 title = (card_kpi_ids[0] if card_kpi_ids else measure_ref or slot_id).replace(".", " ").replace("_", " ").title() if (card_kpi_ids or card_measure_names) else None
                 vis = self.visual_builder.build_kpi_card(position, measure_ref=measure_ref, name=slot_id, title=title)
+            elif visual_type == "textbox" and narrative_measure_name:
+                # R2.3-Fund follow-up: real dist/ binds Smart_Narrative to the
+                # governed domain-level "Narrative Text (<SUFFIX>)" measure
+                # (auto-reads current filter context), not a generator-
+                # synthesized literal string.
+                vis = self.visual_builder.build_narrative_card(
+                    position, measure_ref=narrative_measure_name, name=slot_id
+                )
+                vis["position"]["tabOrder"] = tab + i
             elif visual_type == "textbox":
                 vis = self.visual_builder._build_base_visual("textbox", position, tab_order=tab + i, name=slot_id)
                 _sn_raw = smart_narrative_text or "Filtering active – review current selection."
@@ -370,6 +392,8 @@ class PageBuilder:
         detail_matrix_top_n: Optional[int] = None,
         detail_matrix_highlight_rule: Optional[Dict[str, str]] = None,
         detail_matrix_topn_field: Optional[tuple] = None,
+        narrative_measure_name: Optional[str] = None,
+        active_actions_measure_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -398,6 +422,11 @@ class PageBuilder:
             detail_matrix_top_n: Optional row limit for Detail_Matrix (R2.1/R2.3).
             detail_matrix_highlight_rule: Optional {"measure","type"} for Detail_Matrix (R2.1/R2.3).
             detail_matrix_topn_field: Optional (entity, property) tuple, the TopN filter's grain column.
+            narrative_measure_name: Optional governed "Narrative Text (<SUFFIX>)" DAX measure name;
+                when set, Smart_Narrative binds to it (cardVisual) instead of a synthesized textbox.
+            active_actions_measure_name: Optional governed "Active Actions Text (<SUFFIX>)" DAX
+                measure name; when set, ActionPanel binds to it (cardVisual) instead of a
+                synthesized textbox.
 
         Returns:
             Dictionary with 'visuals' and 'slicers' lists
@@ -423,6 +452,8 @@ class PageBuilder:
                 detail_matrix_top_n=detail_matrix_top_n,
                 detail_matrix_highlight_rule=detail_matrix_highlight_rule,
                 detail_matrix_topn_field=detail_matrix_topn_field,
+                narrative_measure_name=narrative_measure_name,
+                active_actions_measure_name=active_actions_measure_name,
             )
 
         # Determine slicer placement (default: top)

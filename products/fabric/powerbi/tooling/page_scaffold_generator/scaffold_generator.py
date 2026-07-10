@@ -131,6 +131,8 @@ class PageScaffoldGenerator:
         detail_matrix_top_n = self.page_config.get('detail_matrix_top_n') if self.page_name == 'detail' else None
         detail_matrix_highlight_rule = self.page_config.get('detail_matrix_highlight_rule') if self.page_name == 'detail' else None
         detail_matrix_topn_field = self.page_config.get('detail_matrix_topn_field') if self.page_name == 'detail' else None
+        narrative_measure_name = self.page_config.get('narrative_measure_name') if self.page_name == 'detail' else None
+        active_actions_measure_name = self.page_config.get('active_actions_measure_name') if self.page_name == 'detail' else None
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
@@ -154,6 +156,8 @@ class PageScaffoldGenerator:
             detail_matrix_top_n=detail_matrix_top_n,
             detail_matrix_highlight_rule=detail_matrix_highlight_rule,
             detail_matrix_topn_field=detail_matrix_topn_field,
+            narrative_measure_name=narrative_measure_name,
+            active_actions_measure_name=active_actions_measure_name,
         )
         
         self.page_structure = {
@@ -193,9 +197,13 @@ class PageScaffoldGenerator:
         # Validate Action Panel presence for T4
         if template == 'T4':
             has_action_panel = self.page_config.get('needs_action_panel', False)
+            # R2.3-Fund follow-up: ActionPanel is a cardVisual (bound to the
+            # governed Active Actions Text measure) when a domain suffix is
+            # resolvable, textbox otherwise (synthesized-text fallback) -- so
+            # identify it by name, not a single expected visualType.
             action_panel_visuals = [
                 v for v in self.page_structure["visuals"]
-                if v.get("visual", {}).get("visualType") == "textbox"
+                if v.get("name") == "ActionPanel"
             ]
             if has_action_panel and not action_panel_visuals:
                 errors.append("T4 template requires Action Panel but none found")

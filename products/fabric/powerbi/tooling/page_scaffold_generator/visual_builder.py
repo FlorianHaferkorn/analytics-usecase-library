@@ -126,6 +126,36 @@ class VisualBuilder:
 
         return visual
 
+    def build_narrative_card(
+        self,
+        position: Position,
+        measure_ref: str,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Build a cardVisual bound to a single domain-level narrative/action DAX
+        measure (Smart_Narrative -> "Narrative Text (<SUFFIX>)", ActionPanel ->
+        "Active Actions Text (<SUFFIX>)") -- the measure reads the current page
+        filter context and computes its own text, so the visual has no
+        formatting objects of its own (verified against the real, committed
+        dist/Smart_Narrative and dist/ActionPanel visual.json for COM-002 --
+        R2.3-Fund follow-up, replacing the prior generator-synthesized textbox).
+
+        Args:
+            position: Position and size
+            measure_ref: DAX measure name (e.g. "Narrative Text (COM)")
+            name: Optional visual name
+
+        Returns:
+            Visual JSON structure
+        """
+        visual = self._build_base_visual("cardVisual", position, name=name)
+        visual["visual"].pop("drillFilterOtherVisuals", None)
+        visual["visual"]["query"] = {
+            "queryState": {"Data": {"projections": [self._measure_projection(measure_ref)]}}
+        }
+        return visual
+
     def build_kpi_cards_multi(
         self,
         position: Position,
@@ -302,15 +332,10 @@ class VisualBuilder:
                     }
                 }
             ],
-            "layout": [
-                {
-                    "properties": {
-                        "clusteredGapSize": {"expr": {"Literal": {"Value": "10L"}}},
-                        "clusteredGapOverlaps": {"expr": {"Literal": {"Value": "false"}}}
-                    }
-                }
-            ],
-            "dataLabels": [
+            # R1.6/R2.3-Fund: clusteredBarChart's real formatting object is
+            # "labels", not "dataLabels" (R1.6 schema-verified this on COM-002's
+            # Main_3; never ported back into the generator until now).
+            "labels": [
                 {
                     "properties": {
                         "show": {"expr": {"Literal": {"Value": "true"}}},
@@ -319,6 +344,18 @@ class VisualBuilder:
                 }
             ]
         }
+        # R1.4/R2.3-Fund: clusteredGapSize/clusteredGapOverlaps only mean
+        # something when multiple measures cluster per category; inert (and
+        # dropped, per R1.4's COM-002 Main_3 precedent) for a single measure.
+        if measures and len(measures) > 1:
+            visual["visual"]["objects"]["layout"] = [
+                {
+                    "properties": {
+                        "clusteredGapSize": {"expr": {"Literal": {"Value": "10L"}}},
+                        "clusteredGapOverlaps": {"expr": {"Literal": {"Value": "false"}}}
+                    }
+                }
+            ]
         return visual
 
     def build_clustered_column(
@@ -948,7 +985,15 @@ class VisualBuilder:
                 category_property=category_property or "OrgName",
             )
         if normalized_type == "waterfall":
-            return self.build_waterfall(position, measures=measures, name=name)
+            # R2.3-Fund follow-up: category_entity/category_property were silently
+            # dropped here (never forwarded to build_waterfall), so a Bracket's
+            # category_field override on a waterfall component_30s entry had no
+            # effect -- always fell through to build_waterfall's own default.
+            return self.build_waterfall(
+                position, measures=measures, name=name,
+                category_entity=category_entity or "dim_date",
+                category_property=category_property or "Date",
+            )
         if normalized_type == "clustered_column":
             return self.build_clustered_column(position, measures=measures, name=name, title=title)
         if normalized_type in ("stacked_bar", "hundred_percent_stacked_bar"):

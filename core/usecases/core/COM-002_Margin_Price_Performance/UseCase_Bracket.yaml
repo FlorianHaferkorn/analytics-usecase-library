@@ -7,14 +7,20 @@ governance:
   steward_role: commercial_bi_pricing_analytics_lead
 orchestration:
   strategic_kpi_id: margin.gm.pct
+  # R2.3-Fund follow-up: order matters here -- _card_kpi_ids() takes the lead
+  # (component_3s.kpi_id) + first 3 unique influencing_kpi_ids for the KPI
+  # band. Reordered (same 7 KPIs, no membership change) to match R1.5's real,
+  # hand-patched dist/ card set (GM% | GM% vs Plan | Price Realization % | GM
+  # Amount) -- R1.5 changed which 3 KPIs the cards show but never updated this
+  # list's order, so the generator kept building the pre-R1.5 card set.
   influencing_kpi_ids:
+  - margin.gm.vs_plan.pct
+  - sales.price.realization_pct
   - margin.gm.amount
   - sales.price.list.amount
   - sales.price.net.amount
-  - sales.price.realization_pct
   - sales.pvm.mix_effect.amount
   - cost.cogs_per_unit.amount
-  - margin.gm.vs_plan.pct
   supporting_kpi_ids:
   - cost.cogs.amount
   - sales.promo.baseline_sales.amount
@@ -59,18 +65,30 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.gm.amount
       visual_type: trend_line
+      # R2.3-Fund follow-up: generator's trend_line default is CalendarYearMonth
+      # (matches COM-001's own dist/); COM-002's real dist/ uses daily Date
+      # grain for this specific trend -- explicit override, not a global default
+      # change (COM-001 stays on the monthly default, unaffected).
+      category_field: dim_date.Date
       message: Gross margin trend over time.
       unit: amount
     - slot_id: Main_2
-      # T2_DriverBridge / variance_explanation: Plan GM → PVM drivers → Actual GM (IBCS bridge)
+      # T2_DriverBridge / variance_explanation: PVM drivers bridging Plan to Actual GM.
+      # R2.3-Fund follow-up: real dist/ renders only the 3 PVM deltas (Price/
+      # Volume/Mix), not explicit Plan/Actual anchor bars -- kpi_ids reduced to
+      # match. Known, still-open concern from R1.6 (Desktop-Abnahme pending):
+      # waterfallChart's real capabilities schema allows maxPerRole.Y = 1, so
+      # even 3 measures in the Y role is not fully schema-compliant; a true fix
+      # needs a Breakdown-role/unpivoted-driver data model, not yet built. This
+      # sync only reproduces the currently-accepted dist/ output, it does not
+      # resolve that open question.
       visual_type: waterfall
       comparison: vs_plan
+      category_field: dim_date.CalendarYearMonth
       kpi_ids:
-      - Plan GM Amount
       - sales.pvm.price_effect.amount
       - sales.pvm.volume_effect.amount
       - sales.pvm.mix_effect.amount
-      - margin.gm.amount
       message: Price, volume, and mix effects bridge Plan to Actual gross margin.
       unit: amount
     - slot_id: Main_3
