@@ -49,6 +49,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Finance Summary & Insights
     page_type: T1_Strategic_Overview
@@ -63,12 +65,17 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: fin.cash.balance
       visual_type: trend_line
+      message: Cash balance trend over time.
+      unit: amount
     - slot_id: Main_2
-      kpi_ids:
-      - fin.cash.ocf
-      - fin.cash.vs_plan.pct
-      - wc.dso.days
+      # R2.4: was 3 KPIs of 2 different calc_types (amount vs. rate) on one
+      # axis -- a ONE_MESSAGE_PER_CHART violation. wc.dso.days duplicates
+      # Main_3's own bridge; fin.cash.vs_plan.pct moved to the Detail_Matrix
+      # (its own worst-first variance signal there).
+      kpi_id: fin.cash.ocf
       visual_type: bar_chart
+      message: Operating cash flow over time.
+      unit: amount
     - slot_id: Main_3
       # CCC bridge: DSO + DIO − DPO → CCC decomposition (mapping_gap fix; IBCS bridge)
       visual_type: waterfall
@@ -78,6 +85,8 @@ ux_layout_rules:
       - wc.dio.days
       - wc.dpo.days
       - wc.ccc.days
+      message: Cash conversion cycle bridges DSO, DIO, and DPO into total days.
+      unit: amount
   page_2_execution:
     title: Finance Execution
     page_type: T4_Prescriptive_Recommendation
@@ -85,21 +94,27 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: entity_month
+      # R2.4: curated 12→8. Cut fin.cash.ocf (now Main_2's own headline KPI),
+      # fin.liquidity.inventory.amount/scm.service_level.pct/scm.supplier_risk.score
+      # (cross-domain supporting KPIs, less central to the cash decision_question).
       evidence_columns:
       - entity
       - region
       - fin.cash.balance
-      - fin.cash.ocf
       - fin.cash.vs_plan.pct
       - wc.dso.days
       - wc.dio.days
       - wc.dpo.days
       - wc.ccc.days
-      - fin.liquidity.inventory.amount
-      - scm.service_level.pct
-      - scm.supplier_risk.score
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: fin.cash.vs_plan.pct
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: fin.cash.vs_plan.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: medium

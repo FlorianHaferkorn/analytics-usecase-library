@@ -852,6 +852,27 @@ class ConfigLoader:
                 "segment":           ("dim_customer", "Segment"),
                 "country":           ("dim_org", "Country"),
                 "org":               ("dim_org", "OrgName"),
+                # R2.4 (Cut C2): additions verified against the real, existing dim
+                # tables in each domain's *.SemanticModel/definition/tables/ TMDL --
+                # not invented. Tokens with no real backing table anywhere in the
+                # semantic model (e.g. "plant", "line", "shift", "location",
+                # "agent_group") are intentionally NOT added here; brackets using
+                # them are curated onto a real token instead (see per-bracket
+                # ledger notes), not silently passed through to become a bogus
+                # _Measures.<token> reference (the same failure class as R2.3's
+                # "sku" bug, just for tokens this dict never covered).
+                "asset":             ("dim_asset", "AssetName"),        # Operations.SemanticModel
+                "asset_class":       ("dim_asset", "AssetClass"),
+                "criticality":       ("dim_asset", "Criticality"),
+                "queue":             ("dim_case_queue", "QueueName"),   # Experience.SemanticModel
+                "issue_type":        ("dim_issue_type", "IssueType"),
+                "severity":          ("dim_issue_type", "Severity"),
+                "promotion":         ("dim_promo", "PromoName"),        # Commercial.SemanticModel
+                "promo_type":        ("dim_promo", "Promo Type"),
+                "mechanic":          ("dim_promo", "Promo Mechanic"),
+                "lane":              ("dim_lane", "Mode"),              # SupplyChain.SemanticModel
+                "abc_class":         ("dim_product", "ABC_Class"),
+                "xyz_class":         ("dim_product", "XYZ_Class"),
             }
             resolved_dim_cols: list = []
             resolved_measures: list = []

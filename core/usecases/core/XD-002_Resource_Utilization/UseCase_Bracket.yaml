@@ -37,6 +37,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Experience / Service Summary & Insights
     page_type: T1_Strategic_Overview
@@ -51,11 +53,16 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: res.occupancy.pct
       visual_type: trend_line
-    - kpi_ids:
+      message: Resource occupancy trend over time.
+      unit: ratio
+    - slot_id: Main_2
+      kpi_ids:
       - svc.sla.attainment.pct
       - res.overtime.pct
       - res.shrinkage.pct
       visual_type: bar_chart
+      message: SLA attainment, overtime, and shrinkage — utilization's three quality trade-offs.
+      unit: ratio
   page_2_execution:
     title: Workforce Balance & Execution
     page_type: T3_Operational_Monitoring
@@ -63,17 +70,30 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: agent_day
+      # R2.4: dropped 'agent_group' -- no backing dimension table anywhere in
+      # Experience.SemanticModel today, so the generator could not resolve it
+      # (would silently become a bogus _Measures.agent_group reference, the
+      # same failure class as R2.3's "sku" bug). NOTE: the data_minimisation
+      # note below still describes agent_group as the intended privacy grain
+      # -- that's the target design, not yet backed by a real dimension;
+      # tracked separately, not fixed here.
       evidence_columns:
       - entity
       - queue
       - channel
-      - agent_group
       - res.utilization.pct
       - res.occupancy.pct
       - res.overtime.pct
       - res.shrinkage.pct
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: res.utilization.pct
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: res.utilization.pct
+        type: data_bar
 prioritization:
   business_value: medium
   implementation_effort: medium

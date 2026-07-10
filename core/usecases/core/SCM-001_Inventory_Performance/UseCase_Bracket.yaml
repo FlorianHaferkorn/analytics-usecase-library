@@ -41,6 +41,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Supply Chain Summary & Insights
     page_type: T1_Strategic_Overview
@@ -55,17 +57,23 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: inv.turnover
       visual_type: trend_line
+      message: Inventory turnover trend over time.
+      unit: ratio
     - slot_id: Main_2
       kpi_ids:
       - inv.stockout.pct
       - supply.otif.pct
       - inv.obsolete.pct
       visual_type: bar_chart
+      message: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
+      unit: rate
     - slot_id: Main_3
       # Forecast Accuracy trend vs target — upstream driver of DIO and the excess/stockout trade-off (content_gap fix)
       kpi_id: plan.forecast.accuracy.pct
       visual_type: trend_line
       comparison: vs_target
+      message: Forecast accuracy trend vs. target.
+      unit: rate
   page_2_execution:
     title: Supply Chain Execution
     page_type: T3_Operational_Monitoring
@@ -73,21 +81,28 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: location_sku_month
+      # R2.4: curated 12→8. 'location' has no backing dimension table in
+      # SupplyChain.SemanticModel (dim_org's Region/OrgName already cover
+      # site-level cross-cuts elsewhere) -- dropped in favor of product_category
+      # + ABC/XYZ classification, the decision_question's own analytical lens.
       evidence_columns:
-      - location
-      - channel
       - product_category
       - abc_class
       - xyz_class
       - inv.turnover
       - inv.stockout.pct
-      - supply.otif.pct
       - inv.obsolete.pct
-      - plan.forecast.accuracy.pct
-      - sales.units
       - inv.dio.days
+      - supply.otif.pct
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: inv.obsolete.pct
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: inv.obsolete.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: medium

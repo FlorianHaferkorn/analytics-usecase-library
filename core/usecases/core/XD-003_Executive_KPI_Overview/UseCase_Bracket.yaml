@@ -50,6 +50,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Executive / Cross-Functional Summary & Insights
     page_type: T1_Strategic_Overview
@@ -64,12 +66,19 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: sales.net_sales.delta_pct.ly
       visual_type: line_chart
-    - slot_id: Main_3
-      kpi_ids:
-      - crm.clv.amount
-      - svc.sla.attainment.pct
-      - ops.otif.pct
+      message: Net sales growth vs. last year, trended.
+      unit: rate
+    - slot_id: Main_2
+      # R2.4: was slot_id Main_3 but positionally bound to Main_2 (component_30s
+      # binds by list position, not by its own slot_id label -- relabeled for
+      # clarity). Was also 3 KPIs of 3 different calc_types (amount/ratio/rate)
+      # on one axis -- a ONE_MESSAGE_PER_CHART violation. crm.clv.amount and
+      # svc.sla.attainment.pct moved to the Detail_Matrix; ops.otif.pct kept
+      # (matches Main_1's 'rate' family).
+      kpi_id: ops.otif.pct
       visual_type: bar_chart_horizontal
+      message: On-time-in-full delivery rate across the enterprise portfolio.
+      unit: rate
   page_2_execution:
     title: Executive / Cross-Functional Risk Prioritisation
     page_type: T4_Prescriptive_Recommendation
@@ -79,6 +88,8 @@ ux_layout_rules:
     big_idea: "Two business units are below threshold on both GM% and service level — escalation and resource reallocation required."
     component_300s:
       evidence_grain: entity_month
+      # R2.4: added crm.clv.amount and svc.sla.attainment.pct (moved off
+      # Main_2, see above) so both are still surfaced in the evidence table.
       evidence_columns:
       - entity
       - period
@@ -86,8 +97,17 @@ ux_layout_rules:
       - margin.gm.pct
       - sales.net_sales.delta_pct.ly
       - ops.otif.pct
+      - crm.clv.amount
+      - svc.sla.attainment.pct
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: enterprise.value_at_risk.index
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: enterprise.value_at_risk.index
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: low

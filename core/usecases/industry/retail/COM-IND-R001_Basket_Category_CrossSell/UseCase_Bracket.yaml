@@ -27,6 +27,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Retail / Basket & Cross-Sell Summary & Insights
     page_type: T1_Strategic_Overview
@@ -41,15 +43,21 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: retail.basket.value.average
       visual_type: trend_line
+      message: Average basket value trend over time.
+      unit: amount
     - slot_id: Main_2
       kpi_ids:
       - retail.category.crosssell_rate.pct
       - retail.promotion.attachment_rate.pct
       visual_type: bar_chart
+      message: Category cross-sell rate and promotion attachment rate.
+      unit: rate
     - slot_id: Main_3
       kpi_id: retail.basket.items_per_transaction
       visual_type: bar_chart_horizontal
       category_field: dim_product.Category
+      message: Product categories ranked by items per transaction.
+      unit: ratio
   page_2_execution:
     title: Retail / Basket & Cross-Sell Execution
     page_type: T4_Prescriptive_Recommendation
@@ -57,10 +65,14 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: invoice_line
+      # R2.4: category_pair/store_format have no backing dimension table in
+      # Commercial.SemanticModel (no dim_store_format, no category-pair bridge)
+      # -- replaced with category/customer_segment, both real dim_product/
+      # dim_customer columns.
       evidence_columns:
-      - category_pair
-      - store_format
+      - category
       - channel
+      - customer_segment
       - retail.category.crosssell_rate.pct
       - retail.basket.value.average
       - retail.basket.items_per_transaction
@@ -68,6 +80,13 @@ ux_layout_rules:
       - customer.rfm.frequency_score
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: retail.category.crosssell_rate.pct
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: retail.category.crosssell_rate.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: medium

@@ -38,6 +38,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T2_Tactical_Variance
@@ -63,6 +65,8 @@ ux_layout_rules:
         - sales.net_sales.amount        # → Net Sales Amount
         - Plan Sales Amount             # direct measure name (no catalog ID exists yet)
         - Last Year Net Sales Amount    # direct measure name (no catalog ID exists yet)
+      message: Net sales trend vs. plan and prior year.
+      unit: amount
     - slot_id: Main_2
       # T2_DriverBridge / variance_explanation: Plan → PVM drivers → Actual (IBCS bridge)
       visual_type: waterfall
@@ -73,11 +77,15 @@ ux_layout_rules:
         - sales.pvm.volume_effect.amount
         - sales.pvm.mix_effect.amount
         - sales.net_sales.amount
+      message: Price, volume, and mix effects bridge Plan to Actual net sales.
+      unit: amount
     - slot_id: Main_3
       # Q1: Where are deviations largest? — % vs Plan by Region (sorted ascending = worst first)
       visual_type: bar_chart_horizontal
       kpi_id: sales.net_sales.delta_pct.plan
       category_field: dim_org.Region
+      message: Regions ranked by net sales variance vs. plan.
+      unit: rate
   page_2_execution:
     title: Commercial Execution
     page_type: T4_Prescriptive_Recommendation
@@ -87,20 +95,28 @@ ux_layout_rules:
     big_idea: "DACH and CEE account for 80% of the Plan gap — mix degradation and price concessions are the root causes."
     component_300s:
       evidence_grain: invoice_line
+      # R2.4: curated 11→8 (Muster: COM-002 R1.3). Cut channel/customer_segment
+      # (region is the finer, decision-relevant cross-cut; both are covered by
+      # non-evidence-table context already) and delta_pct.ly (redundant next to
+      # delta_pct.plan, the decision_question's own "on track for targets" signal).
       evidence_columns:
       - region
-      - channel
       - product_category
-      - customer_segment
       - sales.net_sales.amount
       - sales.net_sales.delta_pct.plan
-      - sales.net_sales.delta_pct.ly
       - sales.pvm.price_effect.amount
       - sales.pvm.volume_effect.amount
       - sales.pvm.mix_effect.amount
       - margin.gm.pct
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: sales.net_sales.delta_pct.plan
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: sales.net_sales.delta_pct.plan
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: medium
