@@ -28,3 +28,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0011](0011-kpi-calculation-dsl-grammar-extension.md) | KPI Calculation DSL Grammar Extension (13-KPI Closure) | Accepted |
 | [0012](0012-kpi-calculation-dsl-sql-synthesis.md) | Governed KPI Calculation DSL → Databricks SQL Synthesis | Accepted |
 | [0013](0013-kpi-calculation-dsl-remaining-11-use-cases.md) | KPI Calculation DSL: Remaining 11 Use Cases (Full-Catalog Closure) | Accepted |
+| [0014](0014-generator-v2-insight-scoring-verification-composition.md) | Generator v2: Insight-Scoring, Verification, Composition (Two-Stage) | Proposed |
