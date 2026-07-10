@@ -83,6 +83,9 @@ class PageBuilder:
                 "measures": _measures,
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
+                # BC-NARR-01 (K2): the governed exhibit statement, rendered as the
+                # visual title when present (falls back to the measure label below).
+                "message": (_c_item.get("message") or "").strip() or None,
             }
 
         # Detect absolute-position mode (Figma-sourced layouts)
@@ -187,11 +190,13 @@ class PageBuilder:
                 _binding = _main_slot_binding[slot_id]
                 _ux_vt = _binding["visual_type"]
                 _measures = _binding["measures"]
-                _title = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
+                # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
+                _label = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
                 _cat_entity = _binding.get("category_entity")
                 _cat_prop = _binding.get("category_property")
                 vis = self.visual_builder.build_by_ux_visual_type(
-                    _ux_vt, position, name=slot_id, measures=_measures, title=_title,
+                    _ux_vt, position, name=slot_id, measures=_measures, title=_label,
+                    statement_title=_binding.get("message"),
                     category_entity=_cat_entity, category_property=_cat_prop,
                 )
             elif slot_id in _MAIN_SLOTS_ORDER and card_measure_names:
@@ -447,9 +452,10 @@ class PageBuilder:
                 # Resolve to DAX measure names for visual binding (semantic model uses measure names, not KPI IDs)
                 kpi_to_measure = kpi_id_to_measure_name or {}
                 measures = [kpi_to_measure.get(k, k) for k in kpi_ids_clean]
-                # Display title from measures (for tooltip/header)
+                # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
                 display_title = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 title = display_title.replace(".", " ").replace("_", " ").title()
+                _stmt = (item.get("message") or "").strip() or None
                 # Visual name must be folder-safe (no commas, no chars invalid in paths) so Fabric loads the visual
                 raw_name = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 if "," in raw_name or ":" in raw_name or "\\" in raw_name or "/" in raw_name:
@@ -457,7 +463,7 @@ class PageBuilder:
                 else:
                     name = raw_name
                 visual = self.visual_builder.build_by_ux_visual_type(
-                    vt, pos, name=name, measures=measures, title=title
+                    vt, pos, name=name, measures=measures, title=title, statement_title=_stmt
                 )
                 visual["position"]["tabOrder"] = tab_order + 100 + i * 100
                 visuals.append(visual)

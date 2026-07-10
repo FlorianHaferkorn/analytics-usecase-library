@@ -488,7 +488,9 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
             Visual(
                 visual_id=f"{page_key}_{slot}_{idx}",
                 visual_type=component.get("visual_type", "card"),
-                title=component.get("slot_id", "") or component.get("decision_question", ""),
+                # BC-NARR-01 (K2/K3): the governed exhibit statement wins the title when
+                # present; else fall back to the slot label / decision question.
+                title=component.get("message") or component.get("slot_id", "") or component.get("decision_question", ""),
                 bound_measures=bound,
                 binds_measures=bool(bound),
             )

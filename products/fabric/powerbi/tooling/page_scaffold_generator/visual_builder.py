@@ -360,9 +360,7 @@ class VisualBuilder:
             ]
         }
         if title:
-            visual["visual"]["visualContainerObjects"] = {
-                "title": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{title}'"}}}, "show": {"expr": {"Literal": {"Value": "true"}}}}}]
-            }
+            self._apply_title(visual, title)
         return visual
 
     def build_stacked_bar(
@@ -746,7 +744,43 @@ class VisualBuilder:
 
         return method(position, name=name)
 
+    def _apply_title(self, visual: Dict[str, Any], title: Optional[str]) -> Dict[str, Any]:
+        """Set the visual header (PBIR visualContainerObjects.title).
+
+        Single quotes are escaped for the DAX string literal — titles now carry
+        free-text exhibit statements (BC-NARR-01) that may contain apostrophes.
+        """
+        if title and str(title).strip():
+            _lit = str(title).strip().replace("'", "''")
+            visual["visual"]["visualContainerObjects"] = {
+                "title": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{_lit}'"}}}, "show": {"expr": {"Literal": {"Value": "true"}}}}}]
+            }
+        return visual
+
     def build_by_ux_visual_type(
+        self,
+        ux_visual_type: str,
+        position: Position,
+        name: Optional[str] = None,
+        measures: Optional[List[str]] = None,
+        title: Optional[str] = None,
+        category_entity: Optional[str] = None,
+        category_property: Optional[str] = None,
+        statement_title: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a visual and render ``statement_title`` — the governed exhibit
+        message (BC-NARR-01) — as its header for EVERY visual type (not only clustered
+        columns). ``title`` stays the label used for naming/tooltip; when a statement is
+        present it wins the header."""
+        visual = self._dispatch_ux_visual(
+            ux_visual_type, position, name=name, measures=measures, title=title,
+            category_entity=category_entity, category_property=category_property,
+        )
+        if statement_title:
+            self._apply_title(visual, statement_title)
+        return visual
+
+    def _dispatch_ux_visual(
         self,
         ux_visual_type: str,
         position: Position,
