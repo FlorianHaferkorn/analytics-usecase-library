@@ -56,6 +56,10 @@ run_check "Fabric bindings validator (validate_bindings.py --strict)" \
   python3 products/fabric/powerbi/tooling/validate_bindings.py \
     --dist-dir products/fabric/powerbi/dist --strict
 
+# --- Boutique rubric: BC-NARR-01 exhibit titles (K6) --------------------
+run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels)" \
+  python3 tooling/validation/check_exhibit_message.py
+
 # --- PBI quality tools CLI ----------------------------------------------
 run_check "PBI quality-tools CLI (validate --summary)" \
   python3 -c "

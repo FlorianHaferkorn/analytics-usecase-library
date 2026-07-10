@@ -73,3 +73,21 @@ def test_com002_pilot_all_exhibits_are_statements() -> None:
     assert failed == 0
     assert warned == 0
     assert passed >= 3  # Main_1, Main_2, Main_3
+
+
+# ── K6 gate: BC-NARR-01 knock-out enforced repo-wide ─────────────────────────
+def test_no_label_titles_across_all_brackets():
+    """Gate: no governed exhibit message may read as a label (BC-NARR-01 knock-out).
+
+    Missing messages are advisory (not authored yet), but a message that IS a label
+    is a hard violation anywhere in the library — this is what wires the rubric rule
+    into the test gate so titles-as-labels can never regress (K6).
+    """
+    brackets = sorted(REPO.glob("core/usecases/**/UseCase_Bracket.yaml"))
+    assert brackets, "no UseCase_Bracket.yaml files found"
+    offenders = []
+    for b in brackets:
+        _, _, failed, lines = check_bracket(b)
+        if failed:
+            offenders.append((b.relative_to(REPO), lines))
+    assert not offenders, f"BC-NARR-01 label-title violations: {offenders}"
