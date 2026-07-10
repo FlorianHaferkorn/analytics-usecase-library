@@ -5,6 +5,12 @@
 > wie beim Superversion-Plan: „nächster Task" / „merge + R-X.Y". Grundlage: die
 > Deep-Research-Synthese vom 2026-07-03 (23 adversarial verifizierte Claims;
 > Quellen-Referenzen `[n]` unten beziehen sich darauf) plus Maintainer-Review.
+>
+> **Konzept-Ebene darüber:** [`KONZEPT_REPORT_QUALITAET.md`](KONZEPT_REPORT_QUALITAET.md)
+> hebt die Zielhöhe von „valide + einheitlich" auf Boutique-Niveau und ergänzt diesen
+> Fahrplan um die Cuts K1–K7 (viz-tool-agnostische Intent-Spec, Craft-Core, Content-
+> Grounding, „Maximize Power BI"). Craft-Core dort ist geteiltes IP mit der Meridian-
+> Initiative — getrennte Tools, gemeinsames Handwerkswissen.
 
 ---
 
