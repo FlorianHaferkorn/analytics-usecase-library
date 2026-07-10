@@ -4,6 +4,7 @@ Visual Builder
 Builds Power BI visual placeholder structures.
 """
 
+import re
 import uuid
 from typing import Dict, Any, Optional, List
 from .layout_calculator import Position
@@ -442,6 +443,10 @@ class VisualBuilder:
         columns: Optional[list] = None,
         measures: Optional[List[str]] = None,
         name: Optional[str] = None,
+        sort_by: Optional[Dict[str, str]] = None,
+        top_n: Optional[int] = None,
+        top_n_field: Optional[tuple] = None,
+        highlight_rule: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Build Table visual placeholder.
@@ -451,6 +456,20 @@ class VisualBuilder:
             columns: Optional list of (entity, property) for dimension columns, e.g. [("dim_date", "Date")]
             measures: Optional list of DAX measure names for value columns, e.g. ["Net Sales Amount"]
             name: Optional visual name
+            sort_by: Optional {"measure": <DAX measure name>, "direction": "ascending"|"descending"}
+                (R2.1 component_300s.sort_by, resolved to a measure name). Emits
+                query.sortDefinition with isDefaultSort=true.
+            top_n: Optional row limit (R2.1 component_300s.top_n). Requires top_n_field.
+                Emits a filterConfig TopN filter ordered by sort_by's measure.
+            top_n_field: Optional (entity, property) tuple identifying the row-grain
+                dimension column the TopN filter targets (the most granular of
+                `columns` -- see MANDATORY_SORT_RENDERED / MAX_EVIDENCE_COLUMNS in
+                design_rules.yaml).
+            highlight_rule: Optional {"measure": <DAX measure name>, "type": "data_bar"}
+                (R2.1 component_300s.highlight_rule). "data_bar" is the only
+                schema-verified formatting pattern (R1.3 precedent) -- uses the
+                colorblind-safe blue/orange pair (ThemeDataColor 0/3) per
+                Color_Semantics_Formatting.md rather than semantic.positive/negative.
 
         Returns:
             Visual JSON structure
@@ -464,10 +483,28 @@ class VisualBuilder:
             for m in measures:
                 projections.append(self._measure_projection(m))
         # Table visual always uses "Values" role (column well); "Data" would land in filter
-        visual["visual"]["query"] = {"queryState": {"Values": {"projections": projections}}}
+        query: Dict[str, Any] = {"queryState": {"Values": {"projections": projections}}}
+
+        if sort_by and sort_by.get("measure"):
+            direction = "Descending" if str(sort_by.get("direction", "")).lower() == "descending" else "Ascending"
+            query["sortDefinition"] = {
+                "sort": [
+                    {
+                        "field": {
+                            "Measure": {
+                                "Expression": {"SourceRef": {"Entity": "_Measures"}},
+                                "Property": sort_by["measure"],
+                            }
+                        },
+                        "direction": direction,
+                    }
+                ],
+                "isDefaultSort": True,
+            }
+        visual["visual"]["query"] = query
 
         # Add table-specific objects
-        visual["visual"]["objects"] = {
+        objects: Dict[str, Any] = {
             "grid": [
                 {
                     "properties": {
@@ -503,7 +540,106 @@ class VisualBuilder:
                 }
             ]
         }
-        
+
+        if highlight_rule and highlight_rule.get("measure") and highlight_rule.get("type", "data_bar") == "data_bar":
+            objects["columnFormatting"] = [
+                {
+                    "properties": {
+                        "dataBars": {
+                            "positiveColor": {"solid": {"color": {"expr": {"ThemeDataColor": {"ColorId": 0, "Percent": 0}}}}},
+                            "negativeColor": {"solid": {"color": {"expr": {"ThemeDataColor": {"ColorId": 3, "Percent": 0}}}}},
+                            "axisColor": {"solid": {"color": {"expr": {"ThemeDataColor": {"ColorId": 0, "Percent": 0.7}}}}},
+                            "reverseDirection": {"expr": {"Literal": {"Value": "false"}}},
+                            "hideText": {"expr": {"Literal": {"Value": "false"}}},
+                            "totalMatchingOption": {"expr": {"Literal": {"Value": "1L"}}},
+                        }
+                    },
+                    "selector": {"metadata": f"_Measures.{highlight_rule['measure']}"},
+                }
+            ]
+
+        visual["visual"]["objects"] = objects
+
+        if top_n and top_n_field and sort_by and sort_by.get("measure"):
+            top_ent, top_prop = top_n_field
+            order_direction = 2 if str(sort_by.get("direction", "")).lower() == "descending" else 1
+            _topn_stem = re.sub(r"[^A-Za-z0-9]", "", sort_by["measure"])[:20]
+            visual["filterConfig"] = {
+                "filters": [
+                    {
+                        "name": f"TopN_{_topn_stem}_{name or 'Table'}",
+                        "field": {
+                            "Column": {
+                                "Expression": {"SourceRef": {"Entity": top_ent}},
+                                "Property": top_prop,
+                            }
+                        },
+                        "type": "TopN",
+                        "filter": {
+                            "Version": 2,
+                            "From": [
+                                {
+                                    "Name": "subquery",
+                                    "Expression": {
+                                        "Subquery": {
+                                            "Query": {
+                                                "Version": 2,
+                                                "From": [
+                                                    {"Name": "p", "Entity": top_ent, "Type": 0},
+                                                    {"Name": "m", "Entity": "_Measures", "Type": 0},
+                                                ],
+                                                "Select": [
+                                                    {
+                                                        "Column": {
+                                                            "Expression": {"SourceRef": {"Source": "p"}},
+                                                            "Property": top_prop,
+                                                        },
+                                                        "Name": "field",
+                                                    }
+                                                ],
+                                                "OrderBy": [
+                                                    {
+                                                        "Direction": order_direction,
+                                                        "Expression": {
+                                                            "Measure": {
+                                                                "Expression": {"SourceRef": {"Source": "m"}},
+                                                                "Property": sort_by["measure"],
+                                                            }
+                                                        },
+                                                    }
+                                                ],
+                                                "Top": top_n,
+                                            }
+                                        }
+                                    },
+                                    "Type": 2,
+                                },
+                                {"Name": "p", "Entity": top_ent, "Type": 0},
+                            ],
+                            "Where": [
+                                {
+                                    "Condition": {
+                                        "In": {
+                                            "Expressions": [
+                                                {
+                                                    "Column": {
+                                                        "Expression": {"SourceRef": {"Source": "p"}},
+                                                        "Property": top_prop,
+                                                    }
+                                                }
+                                            ],
+                                            "Table": {"SourceRef": {"Source": "subquery"}},
+                                        }
+                                    }
+                                }
+                            ],
+                        },
+                        "howCreated": "User",
+                        "isHiddenInViewMode": True,
+                    }
+                ]
+            }
+
         return visual
     
     def build_matrix(

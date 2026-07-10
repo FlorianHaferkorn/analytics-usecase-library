@@ -179,6 +179,91 @@ class TestScaffoldGenerator:
         assert len(errors) == 0, f"COM-001 detail should pass validation: {errors}"
 
 
+class TestCOM002GoldenR23Fields:
+    """
+    R2.3 (Cut C2) targeted golden comparison: COM-002 is the migrated
+    intent_rules_version: 2 reference Bracket. Rather than a full-directory
+    byte-identical fixture (see TestGoldenCOM001 in test_pbip_writer.py),
+    this compares ONLY the visuals/fields R2.3 actually generates --
+    Header (big_idea), Detail_Matrix (sort/topN/dataBars), Main_3
+    (auto-sort) -- against the real, committed dist/ output. The rest of
+    COM-002's visuals (KPI_Cards, Main_1, Main_2, Smart_Narrative,
+    ActionPanel) have pre-existing, unrelated drift from hand-patched
+    R1.x fixes that were never ported back into the generator -- out of
+    scope here, tracked separately.
+    """
+
+    DIST_OVERVIEW = (
+        REPO_ROOT
+        / "products/fabric/powerbi/dist/COM-002_Margin_Price_Performance.Report"
+        / "definition/pages/Page_COM002_Overview/visuals"
+    )
+    DIST_DETAIL = (
+        REPO_ROOT
+        / "products/fabric/powerbi/dist/COM-002_Margin_Price_Performance.Report"
+        / "definition/pages/Page_COM002_Detail/visuals"
+    )
+
+    def _find_visual(self, generator, name):
+        return next(v for v in generator.page_structure["visuals"] if v.get("name") == name)
+
+    def test_header_matches_real_dist(self):
+        dist_header = json.loads((self.DIST_OVERVIEW / "Header" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        header = self._find_visual(generator, "Header")
+
+        assert header["position"] == dist_header["position"]
+        assert header["visual"] == dist_header["visual"]
+
+    def test_main_3_sort_definition_matches_real_dist(self):
+        dist_main3 = json.loads((self.DIST_OVERVIEW / "Main_3" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        main3 = self._find_visual(generator, "Main_3")
+
+        generated_sort = main3["visual"]["query"]["sortDefinition"]
+        dist_sort = dist_main3["visual"]["query"]["sortDefinition"]
+        assert generated_sort == dist_sort
+
+    def test_detail_matrix_sort_definition_matches_real_dist(self):
+        dist_matrix = json.loads((self.DIST_DETAIL / "Detail_Matrix" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        matrix = self._find_visual(generator, "Detail_Matrix")
+
+        assert matrix["visual"]["query"]["sortDefinition"] == dist_matrix["visual"]["query"]["sortDefinition"]
+
+    def test_detail_matrix_databar_formatting_matches_real_dist(self):
+        dist_matrix = json.loads((self.DIST_DETAIL / "Detail_Matrix" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        matrix = self._find_visual(generator, "Detail_Matrix")
+
+        assert matrix["visual"]["objects"]["columnFormatting"] == dist_matrix["visual"]["objects"]["columnFormatting"]
+
+    def test_detail_matrix_topn_filter_matches_real_dist(self):
+        """The filter *name* is a cosmetic-only PBIR identifier; dist/ was
+        updated to the generator's new deterministic naming rule (R2.3),
+        see UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R2.3 ledger entry."""
+        dist_matrix = json.loads((self.DIST_DETAIL / "Detail_Matrix" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        matrix = self._find_visual(generator, "Detail_Matrix")
+
+        assert matrix["filterConfig"] == dist_matrix["filterConfig"]
+
+
 class TestConfigLoaderKpiMap:
     """Test KPI catalog loading and warning on failure."""
 

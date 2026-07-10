@@ -10,6 +10,7 @@ from .config_loader import ConfigLoader
 from .page_builder import PageBuilder
 from .pbip_writer import PBIPWriter
 from .visual_validator import validate_page
+from . import design_rules_enforcer
 
 
 class PageScaffoldGenerator:
@@ -43,11 +44,14 @@ class PageScaffoldGenerator:
         self.page_config = None
         self.page_id = None
         self.page_structure = None
-    
+        self.bracket = None
+
     def load_config(self):
         """Load all configuration files."""
         # Load page configuration
         self.page_config = self.config_loader.get_page_config(self.use_case_id, self.page_name)
+        # R2.3: raw bracket, needed by design_rules_enforcer (validate()).
+        self.bracket = self.config_loader.load_use_case_bracket(self.use_case_id)
         
         # Load governance files
         self.config = {
@@ -122,6 +126,11 @@ class PageScaffoldGenerator:
         detail_matrix_columns = self.page_config.get('detail_matrix_columns') if self.page_name == 'detail' else None
         detail_matrix_measures = self.page_config.get('detail_matrix_measures') if self.page_name == 'detail' else None
         smart_narrative_text = self.page_config.get('smart_narrative_text') if self.page_name == 'detail' else None
+        big_idea_text = self.page_config.get('big_idea_text') if self.page_name == 'overview' else None
+        detail_matrix_sort_by = self.page_config.get('detail_matrix_sort_by') if self.page_name == 'detail' else None
+        detail_matrix_top_n = self.page_config.get('detail_matrix_top_n') if self.page_name == 'detail' else None
+        detail_matrix_highlight_rule = self.page_config.get('detail_matrix_highlight_rule') if self.page_name == 'detail' else None
+        detail_matrix_topn_field = self.page_config.get('detail_matrix_topn_field') if self.page_name == 'detail' else None
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
@@ -140,6 +149,11 @@ class PageScaffoldGenerator:
             detail_matrix_columns=detail_matrix_columns,
             detail_matrix_measures=detail_matrix_measures,
             smart_narrative_text=smart_narrative_text,
+            big_idea_text=big_idea_text,
+            detail_matrix_sort_by=detail_matrix_sort_by,
+            detail_matrix_top_n=detail_matrix_top_n,
+            detail_matrix_highlight_rule=detail_matrix_highlight_rule,
+            detail_matrix_topn_field=detail_matrix_topn_field,
         )
         
         self.page_structure = {
@@ -199,6 +213,31 @@ class PageScaffoldGenerator:
         canvas_w = self.page_structure["metadata"].get("width", 1920)
         canvas_h = self.page_structure["metadata"].get("height", 1080)
         errors.extend(validate_page(self.page_structure, canvas_w, canvas_h))
+
+        # R2.3: design_rules.yaml enforcement (R2.2). No-op for brackets that have not
+        # opted into intent_rules_version: 2 (see design_rules_enforcer's own gating).
+        if self.bracket is not None:
+            rules = design_rules_enforcer.load_design_rules()
+            kpi_id_to_calc_type = self.config_loader.load_kpi_id_to_calc_type_map()
+            errors.extend(design_rules_enforcer.check_bracket_rules(rules, self.bracket, kpi_id_to_calc_type))
+            if self.page_name == "overview":
+                errors.extend(
+                    design_rules_enforcer.check_output_rules(
+                        rules, self.bracket, overview_visuals=self.page_structure["visuals"]
+                    )
+                )
+            elif self.page_name == "detail":
+                detail_matrix_visual = next(
+                    (v for v in self.page_structure["visuals"] if v.get("name") == "Detail_Matrix"), None
+                )
+                errors.extend(
+                    design_rules_enforcer.check_output_rules(
+                        rules,
+                        self.bracket,
+                        detail_matrix_sort_by=self.page_config.get("detail_matrix_sort_by"),
+                        detail_matrix_visual=detail_matrix_visual,
+                    )
+                )
 
         return errors
     

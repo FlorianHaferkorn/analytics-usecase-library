@@ -76,6 +76,7 @@ class ConfigLoader:
         self.kpi_catalog_path = self.repo_root / "core" / "kpi_catalog" / "KPI_Catalog.md"
         self.action_codes_root = self.repo_root / "core" / "action_codes"
         self._kpi_id_to_measure_name: Optional[Dict[str, str]] = None
+        self._kpi_id_to_calc_type: Optional[Dict[str, str]] = None
 
     def load_kpi_id_to_measure_name_map(self) -> Dict[str, str]:
         """
@@ -114,6 +115,42 @@ class ConfigLoader:
             self._kpi_id_to_measure_name = result
         except Exception as exc:
             logger.warning("Failed to parse KPI catalog at %s: %s", self.kpi_catalog_path, exc)
+        return result
+
+    def load_kpi_id_to_calc_type_map(self) -> Dict[str, str]:
+        """
+        Load KPI catalog and return mapping kpi_id -> calc_type (amount/rate/ratio/
+        count/percentage/quantity/index -- see validate_kpi_catalog.ps1's
+        $allowedCalc). Used by R2.2's ONE_MESSAGE_PER_CHART design rule to check that
+        a component_30s entry's declared `unit` (R2.1) matches every referenced KPI's
+        own governed calc_type. Same chunk-based parsing technique as
+        load_kpi_id_to_measure_name_map (the catalog's YAML block is not always valid
+        as a single document).
+        """
+        if self._kpi_id_to_calc_type is not None:
+            return self._kpi_id_to_calc_type
+        result: Dict[str, str] = {}
+        if not self.kpi_catalog_path.exists():
+            return result
+        try:
+            content = self.kpi_catalog_path.read_text(encoding="utf-8")
+            match = re.search(r"```yaml\s*\n(.*?)```", content, re.DOTALL)
+            if not match:
+                return result
+            block = match.group(1)
+            chunk_starts = list(re.finditer(r"(?m)^\s*-\s*kpi_id\s*:\s*([^\s#\r\n]+)", block))
+            for i, mo in enumerate(chunk_starts):
+                kpi_id = mo.group(1).strip()
+                start = mo.start()
+                end = chunk_starts[i + 1].start() if i + 1 < len(chunk_starts) else len(block)
+                chunk = block[start:end]
+                calc_type_m = re.search(r'(?m)^\s*calc_type\s*:\s*(?:"([^"]*)"|([^\r\n#]+))', chunk)
+                calc_type = (calc_type_m.group(1) or (calc_type_m.group(2) or "").strip()) if calc_type_m else None
+                if calc_type:
+                    result[kpi_id] = calc_type.strip().lower()
+            self._kpi_id_to_calc_type = result
+        except Exception as exc:
+            logger.warning("Failed to parse KPI catalog calc_type at %s: %s", self.kpi_catalog_path, exc)
         return result
 
     def _resolve_use_case_dir(self, use_case_id: str) -> Optional[Path]:
@@ -746,6 +783,11 @@ class ConfigLoader:
                 except FileNotFoundError:
                     pass
             report_canvas = ux.get("report_canvas") if isinstance(ux.get("report_canvas"), dict) else None
+            # R2.3: render big_idea verbatim in the Header (Zone 0) only once the bracket
+            # has opted into the R2.1 intent layer (intent_rules_version: 2) -- legacy
+            # brackets keep their current (Header-less) output unchanged.
+            intent_rules_version = ux.get("intent_rules_version")
+            big_idea_text = p1.get("big_idea") if intent_rules_version == 2 else None
             return {
                 "name": "overview",
                 "layer": [3, 30],
@@ -761,6 +803,8 @@ class ConfigLoader:
                 "card_kpi_ids": card_kpi_ids,
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
+                "intent_rules_version": intent_rules_version,
+                "big_idea_text": big_idea_text,
             }
 
         if page_name == "detail":
@@ -802,6 +846,7 @@ class ConfigLoader:
                 "category":          ("dim_product", "Category"),
                 "product_category":  ("dim_product", "Category"),
                 "subcategory":       ("dim_product", "Subcategory"),
+                "sku":               ("dim_product", "ProductCode"),
                 "brand":             ("dim_product", "Brand"),
                 "customer_segment":  ("dim_customer", "Segment"),
                 "segment":           ("dim_customer", "Segment"),
@@ -829,6 +874,34 @@ class ConfigLoader:
             detail_matrix_columns = resolved_dim_cols   # list of (table, col) tuples
             detail_matrix_measures = resolved_measures  # list of DAX measure name strings
             smart_narrative_text = self._format_smart_narrative(bracket, use_case_id)
+
+            # R2.3: sort_by/top_n/highlight_rule (R2.1 fields) -> generated Detail_Matrix
+            # sortDefinition/TopN filter/data-bar formatting, gated the same way as the
+            # Header (intent_rules_version: 2 only -- legacy brackets are unaffected).
+            intent_rules_version = ux.get("intent_rules_version")
+            detail_matrix_sort_by = None
+            detail_matrix_top_n = None
+            detail_matrix_highlight_rule = None
+            detail_matrix_topn_field = detail_matrix_columns[-1] if detail_matrix_columns else None
+            if intent_rules_version == 2:
+                raw_sort_by = c300.get("sort_by")
+                if isinstance(raw_sort_by, dict) and raw_sort_by.get("measure"):
+                    measure_ref = raw_sort_by["measure"]
+                    detail_matrix_sort_by = {
+                        "measure": kpi_to_measure.get(measure_ref, measure_ref),
+                        "direction": raw_sort_by.get("direction", "descending"),
+                    }
+                raw_top_n = c300.get("top_n")
+                if isinstance(raw_top_n, int):
+                    detail_matrix_top_n = raw_top_n
+                raw_highlight = c300.get("highlight_rule")
+                if isinstance(raw_highlight, dict) and raw_highlight.get("column"):
+                    column_ref = raw_highlight["column"]
+                    detail_matrix_highlight_rule = {
+                        "measure": kpi_to_measure.get(column_ref, column_ref),
+                        "type": raw_highlight.get("type", "data_bar"),
+                    }
+
             return {
                 "name": "detail",
                 "layer": [300],
@@ -844,6 +917,11 @@ class ConfigLoader:
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
                 "smart_narrative_text": smart_narrative_text,
+                "intent_rules_version": intent_rules_version,
+                "detail_matrix_sort_by": detail_matrix_sort_by,
+                "detail_matrix_top_n": detail_matrix_top_n,
+                "detail_matrix_highlight_rule": detail_matrix_highlight_rule,
+                "detail_matrix_topn_field": detail_matrix_topn_field,
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")
