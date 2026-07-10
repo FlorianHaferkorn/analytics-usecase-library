@@ -85,6 +85,10 @@ internal/metrics/runs/*.json
 internal/metrics/runs/**/*.json
 internal/metrics/generation_runs/*.json
 
+# Desktop Bridge screenshots (R4.1) — local proof-of-work, not versioned;
+# attach/paste into the PR or ledger entry instead of committing PNGs.
+internal/metrics/desktop_screenshots/
+
 # Backup files
 *.bak
 
