@@ -11,6 +11,12 @@ export interface ProjectMembership {
   role: string;
 }
 
+/** A single org membership entry embedded in the JWT (ADR-0014 Festlegung 5). */
+export interface OrgMembership {
+  orgId: string;
+  role: string;
+}
+
 const isProduction = process.env.NODE_ENV === 'production';
 const hasGitHubOAuth = Boolean(process.env.GITHUB_ID && process.env.GITHUB_SECRET);
 
@@ -64,8 +70,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           } catch {
             token.project_memberships = [];
           }
+          try {
+            const { lookupOrgMemberships } = await import(
+              /* webpackIgnore: true */ './org-membership-lookup'
+            );
+            token.org_memberships = await lookupOrgMemberships(email);
+          } catch {
+            token.org_memberships = [];
+          }
         } else {
           token.project_memberships = [];
+          token.org_memberships = [];
         }
       }
       return token;
@@ -77,6 +92,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.project_memberships) {
         (session as unknown as Record<string, unknown>).project_memberships =
           token.project_memberships;
+      }
+      if (token.org_memberships) {
+        (session as unknown as Record<string, unknown>).org_memberships =
+          token.org_memberships;
       }
       return session;
     },

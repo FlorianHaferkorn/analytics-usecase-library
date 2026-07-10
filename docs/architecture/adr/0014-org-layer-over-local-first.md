@@ -183,13 +183,19 @@ Acht Festlegungen:
   G1-Tenant) bleiben getrennt, diese Org-Schicht ist ein viertes, eigenständiges Konzept; das
   Datenmodell ist für lokale Solo-/Multi-Projekt-Nutzung vollständig ausreichend, für gehostete
   Multi-Org-Nutzung notwendig aber nicht hinreichend (Festlegung 7).
-- **Aufgeschoben (I-9.2):** tatsächliche Migration/Implementierung; Deployment-Topologie
-  (lokal vs. gehostet); Org-Einladungs-/Onboarding-UX inkl. Bootstrap der ersten `owner`-Zeile
-  (O-1); Isolationsprimitive für den gehosteten Fall — `tenant_id` je Leaf-Tabelle und/oder
-  Row-Level-Security (O-5); Org-Owner-Break-Glass-Override-Mechanismus (O-4); ob/wie
-  `core/organization/org_roles.yaml` für Anzeige-Zwecke (nicht Auth) verknüpft wird (O-3) —
-  optional, nicht blockierend; Abrechnung/Kontingente, falls I-9.2 sich für gehostet entscheidet
-  (O-2) — nur dann überhaupt relevant.
+- **Aufgeschoben (I-9.2), Stand nach dem lokal-only Slice (2026-07-10):** die
+  Datenmodell-/RBAC-/Auth-Token-Festlegungen (1, 2, 3, 4, 5, 6) sind implementiert und getestet
+  (`org-repo.ts`, `rbac-repo.ts::checkAccess`, `config.ts`/`org-membership-lookup.ts`, API-Routen
+  unter `api/org/**`, minimale UI unter `/organizations`) — s. Ledger-Zeile I-9.2. **Weiterhin
+  offen:** Deployment-Topologie (lokal vs. gehostet); Org-Einladungs-/Onboarding-UX inkl. Bootstrap
+  der ersten `owner`-Zeile (O-1 — die Implementierung verlangt bewusst einen bereits existierenden
+  Nutzer statt einen Phantom-Account zu provisionieren, entscheidet O-1 also nicht still mit);
+  Isolationsprimitive für den gehosteten Fall — `tenant_id` je Leaf-Tabelle und/oder
+  Row-Level-Security (O-5); Org-Owner-Break-Glass-Override-Mechanismus (O-4 — der lokal-only Slice
+  verhindert stattdessen nur, dass der letzte Owner entfernt wird, löst das Lockout-Szenario aber
+  nicht); ob/wie `core/organization/org_roles.yaml` für Anzeige-Zwecke (nicht Auth) verknüpft wird
+  (O-3) — optional, nicht blockierend; Abrechnung/Kontingente, falls I-9.2 sich für gehostet
+  entscheidet (O-2) — nur dann überhaupt relevant.
 
 ## Consequences
 

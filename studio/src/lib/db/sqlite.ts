@@ -188,6 +188,27 @@ function initSchema(db: Database.Database) {
       UNIQUE (project_id, layer, domain_id)
     );
 
+    -- Org layer over local-first (ADR-0014, I-9.2). Additive: organizations/org_members are new
+    -- tables, projects.org_id (added via migration below) is nullable -- NULL is the default,
+    -- unchanged solo mode, not a degraded fallback. created_at on org_members (not just
+    -- organizations) matches this repo's audit doctrine: a membership grant is a
+    -- security-relevant event like any other status change.
+    CREATE TABLE IF NOT EXISTS organizations (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS org_members (
+      user_id TEXT NOT NULL,
+      org_id TEXT NOT NULL,
+      org_role TEXT NOT NULL DEFAULT 'member',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (user_id, org_id),
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (org_id) REFERENCES organizations(id)
+    );
+
     -- Wirkungs-Loop refinement proposals (I-8.3/Studio-Approval-Verdrahtung, ADR-0009 par 5).
     -- Proposals are re-derived from the Python core on each compute (bridge.py
     -- attribute command); this table only persists the human decision so a
@@ -218,6 +239,10 @@ function initSchema(db: Database.Database) {
     ['bracket_lifecycle', 'project_id TEXT NOT NULL DEFAULT \'default\''],
     ['bracket_review_comments', 'project_id TEXT NOT NULL DEFAULT \'default\''],
     ['bracket_versions', 'project_id TEXT NOT NULL DEFAULT \'default\''],
+    // ADR-0014: nullable, NULL = solo/local-first default (not a degraded fallback).
+    // ON DELETE SET NULL: deleting an org reverts its projects to solo instead of
+    // orphaning or blocking the delete.
+    ['projects', 'org_id TEXT REFERENCES organizations(id) ON DELETE SET NULL'],
   ];
   for (const [table, colDef] of migrations) {
     try {

@@ -19,9 +19,11 @@ export type AuditEntityType =
   | 'plugin'
   | 'export'
   | 'governance'
-  | 'refinement';
+  | 'refinement'
+  | 'org'
+  | 'org_member';
 
-export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen';
+export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen' | 'add_member' | 'remove_member';
 
 export interface AuditEvent {
   id: string;
