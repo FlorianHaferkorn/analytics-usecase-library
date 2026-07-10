@@ -21,8 +21,7 @@ export function OperationalPlanPanel({
 }: Props) {
   return (
     <StudioPanel title="Operational Plan" description="Validation checks, runbook steps and scope signals for the current delivery move." tone={readinessWarnings.length === 0 ? 'success' : 'warning'}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h4 style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink-2)' }}>Operational Plan</h4>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <span style={{ fontSize: '0.625rem', color: readinessWarnings.length === 0 ? 'var(--accent)' : 'var(--warning)' }}>
           {readinessWarnings.length === 0 ? 'Ready for validation' : `${readinessWarnings.length} checks before export`}
         </span>

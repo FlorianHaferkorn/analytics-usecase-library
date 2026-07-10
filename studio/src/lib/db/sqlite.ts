@@ -188,6 +188,26 @@ function initSchema(db: Database.Database) {
       UNIQUE (project_id, layer, domain_id)
     );
 
+    -- Wirkungs-Loop refinement proposals (I-8.3/Studio-Approval-Verdrahtung, ADR-0009 par 5).
+    -- Proposals are re-derived from the Python core on each compute (bridge.py
+    -- attribute command); this table only persists the human decision so a
+    -- re-run doesn't lose it. proposal_key = action_code_id + '::' + kpi_id.
+    CREATE TABLE IF NOT EXISTS refinement_lifecycle (
+      proposal_key TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL DEFAULT 'default',
+      action_code_id TEXT NOT NULL,
+      kpi_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending_review',
+      trigger_kind TEXT NOT NULL,
+      rel_change REAL NOT NULL,
+      rationale TEXT NOT NULL,
+      decided_by TEXT,
+      justification TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+
     -- Ensure default project exists
     INSERT OR IGNORE INTO projects (id, name, strategy_anchor)
     VALUES ('default', 'Aurora Group', 'Profitable growth through margin quality, cash resilience & operational excellence');

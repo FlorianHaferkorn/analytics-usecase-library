@@ -113,3 +113,64 @@ def test_cli_generate_unknown_target_is_json_error(capsys):
     assert bridge.main(["generate", str(COM001), "--target", "nope"]) == 1
     payload = json.loads(capsys.readouterr().out)
     assert payload["ok"] is False and "unknown target" in payload["error"]
+
+
+# --- attribute (Studio-Approval-Verdrahtung, ADR-0009 §5) --------------------
+
+def test_attribute_resolves_outcome_kpis_from_governed_action_code():
+    # C-M2.1's outcome_kpis are ['sales.price.realization_pct', 'margin.gm.pct'];
+    # COM-001's reference data only has margin.gm.pct — the other stays honestly
+    # uncomputed rather than being silently dropped or faked as 0.
+    result = bridge.attribute("COM-001", "C-M2.1", {"margin.gm.pct": 0.45})
+    assert result["ok"] is True
+    assert result["outcome_kpis"] == ["sales.price.realization_pct", "margin.gm.pct"]
+    by_kpi = {r["kpi_id"]: r for r in result["attribution"]}
+    assert by_kpi["sales.price.realization_pct"]["status"] == "uncomputed"
+    assert by_kpi["margin.gm.pct"]["status"] == "computed"
+    assert by_kpi["margin.gm.pct"]["delta"] is not None
+
+
+def test_attribute_derives_refinement_proposals_as_pending_review():
+    result = bridge.attribute("COM-001", "C-M2.1", {"margin.gm.pct": 0.45})
+    assert result["refinements"], "a material delta should derive a proposal"
+    for p in result["refinements"]:
+        assert p["status"] == "pending_review"  # ADR-0009: never auto-applied
+
+
+def test_attribute_unknown_action_code_raises():
+    with pytest.raises(ValueError, match="unknown action_code_id"):
+        bridge.attribute("COM-001", "NOPE-0.0", {})
+
+
+def test_attribute_deterministic():
+    r1 = bridge.attribute("COM-001", "C-M2.1", {"margin.gm.pct": 0.45})
+    r2 = bridge.attribute("COM-001", "C-M2.1", {"margin.gm.pct": 0.45})
+    assert json.dumps(r1) == json.dumps(r2)
+
+
+def test_cli_attribute_emits_valid_json(capsys):
+    code = bridge.main(["attribute", "COM-001", "C-M2.1", "--t1", '{"margin.gm.pct": 0.45}'])
+    assert code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is True and payload["attribution"]
+
+
+def test_cli_attribute_unknown_action_code_is_json_error(capsys):
+    code = bridge.main(["attribute", "COM-001", "NOPE-0.0", "--t1", "{}"])
+    assert code == 1
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is False and "unknown action_code_id" in payload["error"]
+
+
+def test_cli_attribute_diff_in_diff_needs_control():
+    code = bridge.main([
+        "attribute", "COM-001", "C-M2.1",
+        "--t1", '{"margin.gm.pct": 0.45}', "--method", "diff_in_diff",
+    ])
+    assert code == 0
+    payload = json.loads(json.dumps(bridge.attribute(
+        "COM-001", "C-M2.1", {"margin.gm.pct": 0.45}, method="diff_in_diff",
+    )))
+    by_kpi = {r["kpi_id"]: r for r in payload["attribution"]}
+    assert by_kpi["margin.gm.pct"]["status"] == "uncomputed"
+    assert "control" in by_kpi["margin.gm.pct"]["note"]

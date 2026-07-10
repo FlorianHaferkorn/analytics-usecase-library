@@ -18,7 +18,8 @@ export type AuditEntityType =
   | 'notification_rule'
   | 'plugin'
   | 'export'
-  | 'governance';
+  | 'governance'
+  | 'refinement';
 
 export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen';
 

@@ -79,6 +79,19 @@ Sechs Festlegungen:
   Tabelle/Artefakt für ActionEvents + AttributionRecords), Snapshot-Quelle konkret verdrahtet;
   I-8.3 = Refinement-Trigger → Approval-Vorschlag. Messgröße: **für 1 Action ist der KPI-Effekt
   nachvollziehbar attribuiert.**
+- **Studio-Approval-Verdrahtung — implementiert (2026-07-10).** Festlegung 5 verlangt, dass ein
+  Refinement-Vorschlag durch die Freigabe-Schleuse läuft — bis hierhin gab es dafür keine
+  Studio-Oberfläche (`AttributionRecord`/`RefinementProposal` hatten null Referenzen unter
+  `studio/src`). Geschlossen: `bridge.py attribute <use_case> <action_code_id> --t1 <json>`
+  (governte `outcome_kpis`-Auflösung aus der Action-Code-YAML, t0 immer über
+  `snapshot_via_refcalc`, t1 als expliziter Caller-Input — ehrlich, solange O-1s
+  kundeneigener KPI-Feed nicht existiert) + eine neue `refinement_lifecycle`-Tabelle
+  (`pending_review→approved/rejected`, admin-gated Approve wie bei Brackets, audit-logged) +
+  ein neuer „Wirkungs-Loop Refinements"-Tab auf `/approvals`
+  (`RefinementProposalsPanel`). Bewusst **kein** Umbau des bestehenden
+  Bracket-Lifecycle-Systems zu einer polymorphen Approval-Engine — das hätte alle 11
+  bestehenden Governance-Dateien angefasst für einen einzigen neuen Item-Typ; stattdessen das
+  gleiche Muster (Workflow-Modul, RBAC-Admin-Gate, Audit-Log) parallel repliziert.
 
 ## Consequences
 
