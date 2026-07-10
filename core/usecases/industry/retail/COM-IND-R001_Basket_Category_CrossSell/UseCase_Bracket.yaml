@@ -41,14 +41,20 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: retail.basket.value.average
       visual_type: trend_line
+      message: "Average basket value is flat versus its prior trend, signalling the cross-sell stall"
+      so_what: "A flat basket value confirms the cross-sell stall is already showing up in revenue per visit."
     - slot_id: Main_2
       kpi_ids:
       - retail.category.crosssell_rate.pct
       - retail.promotion.attachment_rate.pct
       visual_type: bar_chart
+      message: "Cross-sell rate and promotion attachment are both below target in core stores"
+      so_what: "Two related levers falling short together means the fix is activation, not assortment."
     - slot_id: Main_3
       kpi_id: retail.basket.items_per_transaction
       visual_type: bar_chart_horizontal
+      message: "High-affinity category pairs are underactivated in core stores — the biggest untapped items-per-transaction opportunity"
+      so_what: "Activating these pairs first captures basket breadth without waiting on a full assortment redesign."
       category_field: dim_product.Category
   page_2_execution:
     title: Retail / Basket & Cross-Sell Execution

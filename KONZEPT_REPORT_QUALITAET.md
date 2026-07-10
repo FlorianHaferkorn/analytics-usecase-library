@@ -364,7 +364,7 @@ Geteilt wird ausschließlich Handwerkswissen und Recherche.
 | K4 Content-Grounding-Layer | ⬜ offen | | Quellentyp-Katalog §6.3 als Grundlage |
 | K5 Zweiter Renderer (Web) | ⬜ offen | | Renderer-Wahl offen (Discovery) |
 | K6 Boutique-Scorecard im Gate | 🟡 teilw. | 2026-07-10 | **Erste structural-Regel verdrahtet:** BC-NARR-01 (`check_exhibit_message.py`) ist jetzt Gate — als `run_check` in `tooling/run_local_ci_check.sh` UND als repo-weiter Pytest (`test_no_label_titles_across_all_brackets`): **0 Label-Violations repo-weit erzwungen**, fehlende Messages bleiben advisory (38 offen = K7-Backlog, non-blocking). Verifiziert: 16 Tests grün, CLI repo-weit 0 Violations/exit 0, Script-Syntax OK. **Bewusst offen:** restliche structural-Rubrik-Regeln + LLM-Judge = Rest von K6. |
-| K7 Rollout + Abnahme | ⬜ offen | | nach K3–K6; je Domäne Screenshot-Abnahme |
+| K7 Rollout + Abnahme | 🟡 teilw. | 2026-07-10 | **Intent-Rollout (Teil 1) — Backlog geräumt:** BC-NARR-01-Statement-Messages (`message`+`so_what`) für alle 38 offenen Exhibits über 16 Brackets autoriert (COM/FIN/OPS/SCM/XD core + COM-IND-R001), gegroundet in je `decision_question` + Exhibit-KPI (z.B. FIN-001 DSO/DIO/DPO-CCC, SCM-003 MAPE-Bias, FIN-002 COGS). Gate jetzt **41 Statements / 0 advisory / 0 Violations** (war 3/38/0). 4 Superversion-Goldens regeneriert — chirurgisch **title-only**. Verifiziert (unabhängig nachgefahren): 1409 Tests grün, Drift-Gate `--strict` grün, `message` ≤140/`so_what` ≤200. **Bewusst offen:** PBIR-`.Report`-Regenerierung + Screenshot-/LLM-Judge-Abnahme (Windows/Fabric) — der Abnahme-Teil von K7 bleibt offen. |
 
 ---
 

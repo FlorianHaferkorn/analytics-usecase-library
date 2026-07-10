@@ -51,11 +51,15 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: res.occupancy.pct
       visual_type: trend_line
+      message: "Occupancy is running above sustainable levels in two teams, raising burnout risk"
+      so_what: "Sustained overload in those teams threatens the service-quality consistency the SLA depends on."
     - kpi_ids:
       - svc.sla.attainment.pct
       - res.overtime.pct
       - res.shrinkage.pct
       visual_type: bar_chart
+      message: "Overtime and shrinkage are both elevated even as SLA attainment holds near target"
+      so_what: "Overtime absorbing the gap today is not sustainable — it is the early signal of the capacity shortfall to come."
   page_2_execution:
     title: Workforce Balance & Execution
     page_type: T3_Operational_Monitoring

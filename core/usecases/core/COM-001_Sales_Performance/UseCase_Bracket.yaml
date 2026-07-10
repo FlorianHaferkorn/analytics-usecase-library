@@ -59,6 +59,8 @@ ux_layout_rules:
       # Q5: Trend over time — Actual vs Plan vs Last Year (monthly granularity)
       # kpi_ids: catalog IDs resolve via config_loader; direct measure names fall back as-is
       visual_type: line_chart
+      message: "Net Sales is running ahead of Plan and prior year, but the lead has narrowed in recent months"
+      so_what: "A narrowing lead means the on-track story could flip without a rebound in the latest months."
       kpi_ids:
         - sales.net_sales.amount        # → Net Sales Amount
         - Plan Sales Amount             # direct measure name (no catalog ID exists yet)
@@ -66,6 +68,8 @@ ux_layout_rules:
     - slot_id: Main_2
       # T2_DriverBridge / variance_explanation: Plan → PVM drivers → Actual (IBCS bridge)
       visual_type: waterfall
+      message: "Price and mix effects, not volume, explain the swing between Plan and Actual Net Sales"
+      so_what: "The gap is a commercial mix problem, not a demand shortfall — fix pricing and channel mix, not volume push."
       comparison: vs_plan
       kpi_ids:
         - Plan Sales Amount
@@ -76,6 +80,8 @@ ux_layout_rules:
     - slot_id: Main_3
       # Q1: Where are deviations largest? — % vs Plan by Region (sorted ascending = worst first)
       visual_type: bar_chart_horizontal
+      message: "Net Sales gaps versus Plan are concentrated in a handful of regions, not spread evenly"
+      so_what: "Targeted regional action closes more of the gap than a blanket sales push."
       kpi_id: sales.net_sales.delta_pct.plan
       category_field: dim_org.Region
   page_2_execution:

@@ -63,15 +63,21 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: fin.cash.balance
       visual_type: trend_line
+      message: "Cash balance is trending down as DSO extension and payables compression squeeze liquidity"
+      so_what: "Without working-capital intervention, this trend erodes the safety margin before quarter-end."
     - slot_id: Main_2
       kpi_ids:
       - fin.cash.ocf
       - fin.cash.vs_plan.pct
       - wc.dso.days
       visual_type: bar_chart
+      message: "Operating cash flow is running below Plan while days sales outstanding keeps extending"
+      so_what: "A widening DSO alongside soft OCF confirms the cash drag is collection speed, not operating performance."
     - slot_id: Main_3
       # CCC bridge: DSO + DIO − DPO → CCC decomposition (mapping_gap fix; IBCS bridge)
       visual_type: waterfall
+      message: "DSO and DIO extensions, not DPO, are pushing the Cash Conversion Cycle above target"
+      so_what: "The lever is receivables and inventory days, not delaying payables further — that protects supplier relationships."
       comparison: vs_target
       kpi_ids:
       - wc.dso.days

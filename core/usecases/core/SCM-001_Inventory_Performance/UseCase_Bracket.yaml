@@ -55,16 +55,22 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: inv.turnover
       visual_type: trend_line
+      message: "Inventory turnover is deteriorating as dead stock builds up in three SKU clusters"
+      so_what: "Falling turnover ties up working capital that could fund faster-moving SKUs."
     - slot_id: Main_2
       kpi_ids:
       - inv.stockout.pct
       - supply.otif.pct
       - inv.obsolete.pct
       visual_type: bar_chart
+      message: "Stockouts and obsolete stock are both elevated even as OTIF holds near target"
+      so_what: "Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one."
     - slot_id: Main_3
       # Forecast Accuracy trend vs target — upstream driver of DIO and the excess/stockout trade-off (content_gap fix)
       kpi_id: plan.forecast.accuracy.pct
       visual_type: trend_line
+      message: "Forecast accuracy is running below target, the upstream driver behind the stockout and obsolescence gaps"
+      so_what: "Fixing forecast accuracy addresses the root cause instead of firefighting stockouts and dead stock separately."
       comparison: vs_target
   page_2_execution:
     title: Supply Chain Execution

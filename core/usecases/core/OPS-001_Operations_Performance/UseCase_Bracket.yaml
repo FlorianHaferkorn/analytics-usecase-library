@@ -65,11 +65,15 @@ ux_layout_rules:
       # OEE trend vs target — strategic KPI must be the primary trend (SQ-V04, mapping_gap fix)
       kpi_id: ops.oee.pct
       visual_type: line_chart
+      message: "OEE is running below target, with the gap widening over recent weeks"
+      so_what: "A widening OEE gap this close to target compounds into missed output if maintenance action doesn't land now."
       comparison: vs_target
     - slot_id: Main_2
       # Availability trend — dominant driver (Muchiri & Pintelon 2008 confirms primary driver)
       kpi_id: ops.availability.pct
       visual_type: line_chart
+      message: "Availability is the biggest drag on OEE, tracking below target for most of the period"
+      so_what: "Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks."
       comparison: vs_target
     - slot_id: Main_3
       # OEE component comparison — all three drivers at same % unit (SQ-V02 fix: no unit mixing)
@@ -78,6 +82,8 @@ ux_layout_rules:
       - ops.performance.pct
       - ops.quality.pct
       visual_type: bar_chart_horizontal
+      message: "Availability lags performance and quality as the weakest of the three OEE components"
+      so_what: "Prioritising availability fixes addresses the largest single component of the OEE shortfall."
   page_2_execution:
     title: Operations Execution
     page_type: T3_Operational_Monitoring

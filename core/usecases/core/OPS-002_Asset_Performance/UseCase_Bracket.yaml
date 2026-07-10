@@ -51,11 +51,15 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: ops.availability.pct
       visual_type: trend_line
+      message: "Asset availability is declining as maintenance backlog grows faster than it is resolved"
+      so_what: "At this trajectory, availability drops below the threshold needed to hold the production plan."
     - kpi_ids:
       - ops.mttr.hours
       - ops.downtime.unplanned.pct
       - ops.spare_parts.stockout.pct
       visual_type: bar_chart
+      message: "Repair time and unplanned downtime are up together, and spare-parts stockouts compound the delay"
+      so_what: "Stockouts turning short repairs into long ones is a fixable multiplier on the availability problem."
   page_2_execution:
     title: Operations Execution
     page_type: T3_Operational_Monitoring

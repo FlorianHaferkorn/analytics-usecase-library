@@ -53,11 +53,15 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.cogs.pct
       visual_type: trend_line
+      message: "COGS % is expanding faster than pricing can recover it, compressing operating margin"
+      so_what: "At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response."
     - kpi_ids:
       - cost.opex.vs_plan.pct
       - cost.material.pct
       - ops.labor.productivity.pct
       visual_type: bar_chart
+      message: "Opex is running over Plan while material cost share rises and labor productivity gains lag behind"
+      so_what: "Productivity gains aren't offsetting material inflation, so cost pressure keeps building on the P&L."
   page_2_execution:
     title: Finance / Operations Execution
     page_type: T4_Prescriptive_Recommendation

@@ -127,8 +127,12 @@ ux_layout_rules:
     component_30s:
       - kpi_id: enterprise.action_outcome_rate.pct
         visual_type: trend_line
+        message: "Action outcome rate is the KPI that verifies whether the governance cycle is closing on real business impact"
+        so_what: "Tracking verified outcomes, not just actions closed, keeps the governance cycle honest about impact delivered."
       - kpi_id: enterprise.value_at_risk.index
         visual_type: bar_chart
+        message: "Value at risk is concentrated where action follow-through is weakest across domains"
+        so_what: "Prioritising domains with the highest value at risk directs governance attention to where it matters most."
   page_2_execution:
     title: Executive Action Governance — Outcome Detail
     page_type: T4_Prescriptive_Recommendation

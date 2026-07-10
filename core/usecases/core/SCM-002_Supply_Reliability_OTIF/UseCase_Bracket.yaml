@@ -48,11 +48,15 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: supply.on_time.pct
       visual_type: trend_line
+      message: "On-time delivery is declining and is the main driver behind the OTIF slide"
+      so_what: "Because on-time performance is dragging OTIF down, carrier and lane-level fixes matter more than in-full stock buffers."
     - kpi_ids:
       - supply.in_full.pct
       - supply.stockout_impact.pct
       - supply.penalty.amount
       visual_type: bar_chart
+      message: "In-full rate is holding, but stockout impact and penalty costs are both climbing on late deliveries"
+      so_what: "Penalties rising on lateness, not quantity shortfalls, confirms the fix belongs with delivery timing, not order fill."
   page_2_execution:
     title: Supply Chain Execution
     page_type: T3_Operational_Monitoring

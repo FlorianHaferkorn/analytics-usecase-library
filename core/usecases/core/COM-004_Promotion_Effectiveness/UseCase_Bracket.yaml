@@ -53,11 +53,15 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: sales.promo.incremental.amount
       visual_type: trend_line
+      message: "Incremental volume from promotions is below the level needed to justify current promo spend"
+      so_what: "If incremental lift stays this low, promo spend is subsidising sales that would have happened anyway."
     - kpi_ids:
       - margin.promo.gm.pct
       - sales.price.realization_pct
       - sales.promo.cannibalization.pct
       visual_type: bar_chart
+      message: "Promo GM% and price realization are both under pressure while cannibalization stays high"
+      so_what: "High cannibalization eating into thin promo margin is why ROI is missing target — mechanics need redesign, not more spend."
   page_2_execution:
     title: Commercial Execution
     page_type: T4_Prescriptive_Recommendation
