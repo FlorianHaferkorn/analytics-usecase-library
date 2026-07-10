@@ -264,6 +264,57 @@ class TestCOM002GoldenR23Fields:
         assert matrix["filterConfig"] == dist_matrix["filterConfig"]
 
 
+class TestEvidenceColumnsUnresolvedTokenGuard:
+    """
+    R2.4 follow-up: config_loader.get_page_config('detail') must hard-fail on
+    an evidence_columns token shaped like a dimension reference (bare lowercase
+    snake_case word -- the shape of every real EVIDENCE_DIM_TOKENS key) that
+    resolves to neither a known dim token nor a governed KPI id, instead of
+    silently minting a bogus _Measures.<token> reference (the failure class
+    R2.3/R2.4 found and fixed case-by-case for "sku", "asset", "queue", ...).
+    """
+
+    def _write_bracket(self, tmp_path, use_case_id, evidence_columns):
+        uc_dir = tmp_path / "core" / "usecases" / "core" / f"{use_case_id}_Foo"
+        uc_dir.mkdir(parents=True)
+        cols = "\n".join(f"      - {c}" for c in evidence_columns)
+        (uc_dir / "UseCase_Bracket.yaml").write_text(
+            f"id: {use_case_id}\n"
+            "ux_layout_rules:\n"
+            "  page_2_execution:\n"
+            "    component_300s:\n"
+            "      evidence_columns:\n"
+            f"{cols}\n",
+            encoding="utf-8",
+        )
+        return ConfigLoader(tmp_path)
+
+    def test_unresolved_dim_like_token_raises(self, tmp_path):
+        loader = self._write_bracket(tmp_path, "TEST-001", ["totally_unknown_token"])
+        with pytest.raises(ValueError, match="unresolvable dimension token"):
+            loader.get_page_config("TEST-001", "detail")
+
+    def test_known_dim_token_does_not_raise(self, tmp_path):
+        loader = self._write_bracket(tmp_path, "TEST-002", ["region"])
+        cfg = loader.get_page_config("TEST-002", "detail")
+        assert cfg["detail_matrix_columns"] == [("dim_org", "Region")]
+
+    def test_raw_measure_name_escape_hatch_does_not_raise(self, tmp_path):
+        """Title-Case-with-spaces strings are the deliberate raw-measure-name
+        fallback (same pattern component_30s.kpi_ids already supports) --
+        never mistaken for an unresolved dimension token."""
+        loader = self._write_bracket(tmp_path, "TEST-003", ["Plan Sales Amount"])
+        cfg = loader.get_page_config("TEST-003", "detail")
+        assert cfg["detail_matrix_measures"] == ["Plan Sales Amount"]
+
+    def test_real_kpi_catalog_id_does_not_raise(self):
+        """A dotted KPI id never matches the dim-like-token shape even when
+        unresolved -- only genuinely bare-word tokens are guarded."""
+        loader = ConfigLoader(REPO_ROOT)
+        cfg = loader.get_page_config("COM-002", "detail")
+        assert any("Gross Margin" in m for m in cfg["detail_matrix_measures"])
+
+
 class TestConfigLoaderKpiMap:
     """Test KPI catalog loading and warning on failure."""
 

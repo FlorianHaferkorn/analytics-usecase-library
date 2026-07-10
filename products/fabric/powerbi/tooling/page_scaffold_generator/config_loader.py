@@ -876,6 +876,20 @@ class ConfigLoader:
             }
             resolved_dim_cols: list = []
             resolved_measures: list = []
+            # R2.4 follow-up: an evidence_columns token shaped like a dimension
+            # reference (bare lowercase snake_case word -- the exact shape of
+            # every real EVIDENCE_DIM_TOKENS key) that is neither a known dim
+            # token nor a known governed KPI id is almost certainly a typo'd or
+            # not-yet-modeled dimension (e.g. "plant", "agent_group") -- not a
+            # deliberate raw-measure-name escape hatch (those are always
+            # Title-Case-with-spaces DAX names, e.g. "Plan Sales Amount", and a
+            # dotted KPI id like "sales.net_sales.amount" never matches this
+            # shape either). Silently passing it through would mint a bogus
+            # _Measures.<token> reference -- the same failure class R2.3/R2.4
+            # found and fixed case-by-case ("sku", "asset", "queue", ...); this
+            # closes the class instead of the individual instances.
+            _DIM_LIKE_TOKEN = re.compile(r"^[a-z][a-z0-9_]*$")
+            unresolved_dim_like_tokens: list = []
             if isinstance(evidence_columns, list):
                 for col in evidence_columns:
                     if not isinstance(col, str):
@@ -883,10 +897,25 @@ class ConfigLoader:
                     token = col.strip().lower()
                     if token in EVIDENCE_DIM_TOKENS:
                         resolved_dim_cols.append(EVIDENCE_DIM_TOKENS[token])
+                    elif col in kpi_to_measure:
+                        resolved_measures.append(kpi_to_measure[col])
+                    elif _DIM_LIKE_TOKEN.match(token):
+                        unresolved_dim_like_tokens.append(col)
                     else:
-                        # Treat as KPI ID → resolve to DAX measure name
-                        measure_name = kpi_to_measure.get(col, col)
-                        resolved_measures.append(measure_name)
+                        # Genuine escape hatch: raw DAX measure name, used as-is
+                        # (same "no catalog ID exists yet" pattern component_30s
+                        # kpi_ids already supports).
+                        resolved_measures.append(col)
+            if unresolved_dim_like_tokens:
+                raise ValueError(
+                    f"{use_case_id}: component_300s.evidence_columns references "
+                    f"unresolvable dimension token(s) {unresolved_dim_like_tokens} -- "
+                    "not in EVIDENCE_DIM_TOKENS and not a governed KPI id in the "
+                    "catalog. Either add a verified (table, column) entry to "
+                    "config_loader.py's EVIDENCE_DIM_TOKENS (grounded against a "
+                    "real *.SemanticModel/definition/tables/dim_*.tmdl), or "
+                    "replace the token with a real dimension/KPI reference."
+                )
             # Explicit evidence_measures (if any) extend the resolved set
             if isinstance(evidence_measures_raw, list):
                 for m in evidence_measures_raw:
