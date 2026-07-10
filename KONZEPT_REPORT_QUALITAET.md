@@ -358,7 +358,7 @@ Geteilt wird ausschließlich Handwerkswissen und Recherche.
 
 | Cut | Status | Datum | Notiz |
 |---|---|---|---|
-| K1 Boutique-Bar definieren | ⬜ offen | | Craft-Core §5 ist der Entwurf; Referenz-Report ausstehend |
+| K1 Boutique-Bar definieren | 🟡 teilw. | 2026-07-10 | Rubrik als Daten: `core/templates/page_templates/tokens/boutique_craft_rubric.yaml` (30 Regeln/6 Dimensionen, 5 Knock-outs, structural/judge-Modus) + `governance/Boutique_Craft_Rubric.md` (Scoring-Modell + COM-002-Referenz-Scorecard). Befund: COM-002 reißt heute **BC-NARR-01** (Titel = Etikett, nicht Schlussfolgerung) → verfehlt die Bar trotz starker Struktur; Gap→Cut-Mapping zu K2/K3/K4 dokumentiert. Enforcement (Checks + Judge) = **K6**. |
 | K2 Intent+Design-Spec-Schicht | ⬜ offen | | baut auf C2 (`design_rules.yaml`) auf |
 | K3 Maximize Power BI | ⬜ offen | | nutzt R1.6-Schema-Funde; Scope-Cuts aus R1.3/R1.5 |
 | K4 Content-Grounding-Layer | ⬜ offen | | Quellentyp-Katalog §6.3 als Grundlage |
