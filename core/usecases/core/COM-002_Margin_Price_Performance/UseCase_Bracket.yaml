@@ -109,6 +109,15 @@ ux_layout_rules:
       - sales.price.realization_pct
       - sales.pvm.mix_effect.amount
       - margin.gm.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): worst-first + explicit Top-N as
+      # governed data, not a prose default. Sort key is the variance the
+      # decision_question hinges on (GM vs plan %), ascending = biggest shortfall
+      # first; Top-20 bounds the scan. PBIR emit (Detail_Matrix sortDefinition +
+      # Top-N filter) is the generator-side follow-up (Golden Thread — must not drift).
+      evidence_sort:
+        column: margin.gm.vs_plan.pct
+        direction: asc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

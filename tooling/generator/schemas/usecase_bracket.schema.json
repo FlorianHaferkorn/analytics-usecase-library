@@ -342,6 +342,30 @@
                   "type": "string",
                   "enum": ["full", "summary", "minimal"],
                   "description": "How much action code detail to inject."
+                },
+                "evidence_sort": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["column", "direction"],
+                  "description": "BC-CHART-10 (Craft-Core §5.4): governed worst-first sort of the evidence table so the reader scans the most-relevant rows first. Optional metadata (no measure binding); a future generator-emit cut wires it into the Detail_Matrix sortDefinition.",
+                  "properties": {
+                    "column": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Sort key — must be one of evidence_columns (the variance/severity signal the decision_question hinges on)."
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": ["asc", "desc"],
+                      "description": "Worst-first direction: asc when low is worse (e.g. margin vs_plan %), desc when high is worse (e.g. scrap %)."
+                    }
+                  }
+                },
+                "evidence_top_n": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100,
+                  "description": "BC-CHART-10: explicit Top-N cap on the evidence table (curated evidence, R1.3) — bounds the scan to the rows that matter."
                 }
               }
             }
