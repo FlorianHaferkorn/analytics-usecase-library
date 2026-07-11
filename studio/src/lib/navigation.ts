@@ -113,6 +113,14 @@ export const REGISTRY_NAV: readonly NavItem[] = [
     sidebarIcon: 'check-circle',
     color: 'var(--info)',
   },
+  {
+    href: '/organizations',
+    label: 'Organizations',
+    description: 'Optional grouping layer over projects (ADR-0014) — opt-in, not required',
+    icon: 'O',
+    sidebarIcon: 'buildings',
+    color: 'var(--info)',
+  },
 ] as const;
 
 /** Combined list used by legacy code — new code should prefer FORGE_NAV / REGISTRY_NAV. */

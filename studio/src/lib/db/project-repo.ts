@@ -9,6 +9,7 @@ export interface ProjectRow {
   name: string;
   strategy_anchor: string;
   theme_json: string;
+  org_id: string | null;
   created_at: string;
   updated_at: string;
 }
