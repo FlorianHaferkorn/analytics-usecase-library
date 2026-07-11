@@ -90,6 +90,12 @@ run_check "Content-Grounding §6.3 (benchmarks grounded + provenance)" \
 run_check "Boutique rubric BC-BRAND-01 (composed custom theme, never default)" \
   python3 tooling/validation/check_custom_theme.py --strict
 
+# --- Boutique rubric: BC-CHART-08 forbidden chart types (K6, blocking) --
+# Reuses the existing ForbiddenVisualTypes invariant: no pie/donut/gauge/treemap in
+# any dist report. All 17 clean, so run hard (--strict).
+run_check "Boutique rubric BC-CHART-08 (no forbidden chart types)" \
+  python3 tooling/validation/check_forbidden_charts.py --strict
+
 # --- Boutique-Craft Scorecard (K6 §9, advisory report) ------------------
 # Aggregates the wired structural rules into the rubric's weighted score + knock-out
 # status, and reports honest coverage (judge rules pending). Advisory — the artifact

@@ -18,6 +18,8 @@ Wiring (rule_id → validator invocation, exit 0 = pass):
     BC-CHART-01 → check_mixed_scale.py       (no mixed scale on one axis) [knock-out]
     BC-NARR-04  → check_kpi_context.py --strict (hero KPI carries context)
     BC-CHART-10 → check_evidence_sort.py --strict (evidence worst-first + Top-N) [knock-out]
+    BC-BRAND-01 → check_custom_theme.py --strict (composed custom theme)          [knock-out]
+    BC-CHART-08 → check_forbidden_charts.py --strict (no pie/donut/gauge/treemap)
 
 Usage:
     python tooling/report_quality/boutique_scorecard.py            # print scorecard
@@ -56,6 +58,7 @@ WIRED: dict[str, tuple[str, list[str]]] = {
     "BC-NARR-04": ("check_kpi_context.py", ["--strict"]),
     "BC-CHART-10": ("check_evidence_sort.py", ["--strict"]),
     "BC-BRAND-01": ("check_custom_theme.py", ["--strict"]),
+    "BC-CHART-08": ("check_forbidden_charts.py", ["--strict"]),
 }
 
 
