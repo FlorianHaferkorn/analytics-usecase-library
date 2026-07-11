@@ -85,6 +85,11 @@ ux_layout_rules:
       - ops.quality.defect_rate.pct
       - ops.yield.pct
       - cost.unit.amount
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: margin.cogs.pct
+        direction: desc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

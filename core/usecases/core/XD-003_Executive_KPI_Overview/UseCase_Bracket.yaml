@@ -89,6 +89,11 @@ ux_layout_rules:
       - margin.gm.pct
       - sales.net_sales.delta_pct.ly
       - ops.otif.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: enterprise.value_at_risk.index
+        direction: desc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

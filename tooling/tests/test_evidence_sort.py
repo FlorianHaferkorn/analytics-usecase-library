@@ -12,9 +12,9 @@ from tooling.validation.check_evidence_sort import check_bracket, classify_evide
 REPO = Path(__file__).resolve().parents[2]
 
 # Baseline coverage: evidence tables that declare a valid worst-first sort + Top-N.
-# COM-002 is the pilot (2026-07-11). This guard only ratchets up — coverage must
-# never drop below the baseline. Raise it as the K7-style rollout clears the backlog.
-_BASELINE_COVERED = 1
+# Full rollout 2026-07-11 — all 17 evidence tables governed (COM-002 pilot + 16
+# backlog). This guard only ratchets up — coverage must never drop below the baseline.
+_BASELINE_COVERED = 17
 
 
 def test_valid_ordering():

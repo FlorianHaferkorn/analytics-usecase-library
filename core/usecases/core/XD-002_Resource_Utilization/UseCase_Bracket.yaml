@@ -78,6 +78,11 @@ ux_layout_rules:
       - res.occupancy.pct
       - res.overtime.pct
       - res.shrinkage.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: res.overtime.pct
+        direction: desc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

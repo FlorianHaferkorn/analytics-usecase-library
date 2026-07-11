@@ -84,6 +84,11 @@ ux_layout_rules:
       - sales.promo.cannibalization.pct
       - sales.price.realization_pct
       - sales.promo.roi.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: sales.promo.roi.pct
+        direction: asc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

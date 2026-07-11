@@ -77,6 +77,11 @@ ux_layout_rules:
       - plans.count
       - sales.units
       - plan.forecast.accuracy.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: plan.forecast.mape.pct
+        direction: desc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

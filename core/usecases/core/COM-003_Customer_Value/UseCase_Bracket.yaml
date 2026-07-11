@@ -94,6 +94,11 @@ ux_layout_rules:
       - crm.nps.index
       - crm.complaint.count
       - crm.clv.amount
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: crm.revenue_at_risk.amount
+        direction: desc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

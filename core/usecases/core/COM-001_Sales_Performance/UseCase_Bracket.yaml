@@ -105,6 +105,11 @@ ux_layout_rules:
       - sales.pvm.volume_effect.amount
       - sales.pvm.mix_effect.amount
       - margin.gm.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: sales.net_sales.delta_pct.plan
+        direction: asc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

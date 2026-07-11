@@ -104,6 +104,11 @@ ux_layout_rules:
       - fin.liquidity.inventory.amount
       - scm.service_level.pct
       - scm.supplier_risk.score
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: fin.cash.vs_plan.pct
+        direction: asc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

@@ -72,6 +72,11 @@ ux_layout_rules:
       - svc.sla.attainment.pct
       - svc.backlog.count
       - svc.escalation.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: svc.sla.attainment.pct
+        direction: asc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

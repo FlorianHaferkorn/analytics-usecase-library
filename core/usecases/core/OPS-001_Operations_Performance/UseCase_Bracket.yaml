@@ -115,6 +115,11 @@ ux_layout_rules:
       - ops.pm_compliance.pct
       - quality.scrap.pct
       - quality.fpy.pct
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: ops.oee.pct
+        direction: asc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

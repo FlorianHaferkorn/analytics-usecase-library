@@ -77,6 +77,11 @@ ux_layout_rules:
       - ops.spare_parts.stockout.pct
       - ops.failure.count
       - ops.mtbf.hours
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: ops.downtime.unplanned.pct
+        direction: desc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:

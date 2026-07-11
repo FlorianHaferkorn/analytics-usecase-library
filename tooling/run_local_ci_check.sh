@@ -70,12 +70,12 @@ run_check "Boutique rubric BC-CHART-01 (no mixed scale on one axis)" \
 run_check "Boutique rubric BC-NARR-04 (hero KPI has context — advisory)" \
   python3 tooling/validation/check_kpi_context.py
 
-# --- Boutique rubric: BC-CHART-10 evidence sort (K6, advisory) -----------
-# Knock-out rule, run advisory during rollout: evidence tables must declare a
-# governed worst-first sort + explicit Top-N (COM-002 pilot 2026-07-11). Turns hard
-# (--strict) once the backlog is cleared. Coverage regression-guarded in pytest.
-run_check "Boutique rubric BC-CHART-10 (evidence table worst-first + Top-N — advisory)" \
-  python3 tooling/validation/check_evidence_sort.py
+# --- Boutique rubric: BC-CHART-10 evidence sort (K6, blocking) ----------
+# Knock-out rule, fully rolled out (2026-07-11): all 17 evidence tables declare a
+# governed worst-first sort + explicit Top-N. Hard gate (--strict) — 0 violations
+# enforced. Coverage regression-guarded in pytest (covered ≥ 17).
+run_check "Boutique rubric BC-CHART-10 (evidence table worst-first + Top-N)" \
+  python3 tooling/validation/check_evidence_sort.py --strict
 
 # --- PBI quality tools CLI ----------------------------------------------
 run_check "PBI quality-tools CLI (validate --summary)" \

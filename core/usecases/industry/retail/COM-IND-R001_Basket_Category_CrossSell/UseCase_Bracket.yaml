@@ -74,6 +74,11 @@ ux_layout_rules:
       - retail.basket.items_per_transaction
       - retail.promotion.attachment_rate.pct
       - customer.rfm.frequency_score
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
+      evidence_sort:
+        column: retail.category.crosssell_rate.pct
+        direction: asc
+      evidence_top_n: 20
       action_panel: true
       payload_mode: full
 prioritization:
