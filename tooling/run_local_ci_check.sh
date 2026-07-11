@@ -77,6 +77,13 @@ run_check "Boutique rubric BC-NARR-04 (hero KPI has context — advisory)" \
 run_check "Boutique rubric BC-CHART-10 (evidence table worst-first + Top-N)" \
   python3 tooling/validation/check_evidence_sort.py --strict
 
+# --- Content-Grounding §6.3: benchmark provenance (K4, blocking) ---------
+# Every benchmark ("what good looks like") must reference a real KPI (Golden Thread)
+# and cite a dated public source via a governed source_type — no fabricated industry
+# numbers. Registry is small + fully grounded, so run hard (--strict).
+run_check "Content-Grounding §6.3 (benchmarks grounded + provenance)" \
+  python3 tooling/validation/check_benchmarks.py --strict
+
 # --- PBI quality tools CLI ----------------------------------------------
 run_check "PBI quality-tools CLI (validate --summary)" \
   python3 -c "

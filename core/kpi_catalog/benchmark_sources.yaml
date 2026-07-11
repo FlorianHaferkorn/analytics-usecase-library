@@ -1,0 +1,47 @@
+# Benchmark source-type catalog — Content-Grounding §6.3 (KONZEPT_REPORT_QUALITAET.md)
+#
+# The allowed *types* of public source a benchmark may cite. A benchmark entry in
+# benchmarks.yaml MUST name a source_type from this list AND carry a concrete source
+# string + as_of date (tooling/validation/check_benchmarks.py enforces provenance) —
+# so a "what good looks like" figure can never be freely asserted in a report; it is
+# always traceable to a governed, dated, public reference (the third comparison axis
+# next to vs-plan and vs-prior-year).
+schema_version: '1.0'
+
+source_types:
+  industry_standard:
+    label: Industry standard / normative framework
+    examples: [TPM/Nakajima world-class OEE, IBCS, APICS/ASCM SCOR]
+  industry_association:
+    label: Branchen-/Fachverband report or statistic
+    examples: [VDMA, BVL Logistik-Indizes, BVR/Bankenstatistik]
+  market_report:
+    label: Published market-research report
+    examples: [sector market reports, analyst benchmarks]
+  official_statistics:
+    label: Official public statistics
+    examples: [Destatis, Bundesagentur für Arbeit, Eurostat]
+  financial_filings:
+    label: Sector KPIs derived from public financial filings
+    examples: [Geschäftsberichte, annual-report peer sets]
+  platform_benchmark:
+    label: Platform/vendor aggregated benchmark
+    examples: [ad-platform conversion benchmarks, SaaS vendor panels]
+
+# §6.3 domain guidance — which source types typically ground each domain. Advisory
+# (the validator does not force a domain match); documents where to look first.
+domains:
+  Commercial:
+    typical_source_types: [industry_association, market_report, official_statistics]
+  Finance:
+    typical_source_types: [financial_filings, industry_association, official_statistics]
+  Operations:
+    typical_source_types: [industry_standard, industry_association, official_statistics]
+  SupplyChain:
+    typical_source_types: [industry_standard, industry_association, official_statistics]
+  HR:
+    typical_source_types: [market_report, official_statistics]
+  Marketing:
+    typical_source_types: [platform_benchmark, industry_association]
+  Experience:
+    typical_source_types: [market_report, platform_benchmark, industry_association]

@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Benchmark registry (Content-Grounding §6.3)",
+  "description": "Governed 'what good looks like' references — the third comparison axis. Each entry references an existing KPI and cites a dated public source via a source_type from benchmark_sources.yaml.",
+  "type": "object",
+  "required": ["schema_version", "benchmarks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "benchmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kpi_id", "scope", "metric", "value", "unit", "direction", "source", "source_type", "as_of"],
+        "properties": {
+          "kpi_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Must resolve to a governed KPI under core/kpi_catalog/kpis/ (Golden Thread)."
+          },
+          "scope": { "type": "string", "minLength": 1, "description": "Population the benchmark describes (sector, geography, segment)." },
+          "metric": {
+            "type": "string",
+            "enum": ["world_class", "top_quartile", "median", "typical"],
+            "description": "Which point of the reference distribution this value is."
+          },
+          "value": { "type": "number", "description": "Benchmark value in the KPI's unit." },
+          "unit": {
+            "type": "string",
+            "enum": ["pct", "eur", "days", "count", "index", "ratio"],
+            "description": "Unit class of value (must be consistent with the KPI's unit_format)."
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["higher_is_better", "lower_is_better"],
+            "description": "Which side of the benchmark is good."
+          },
+          "components": {
+            "type": "object",
+            "description": "Optional multiplicative/additive breakdown (e.g. OEE availability/performance/quality).",
+            "additionalProperties": { "type": "number" }
+          },
+          "source": { "type": "string", "minLength": 12, "description": "Concrete citation: author/publisher, year, what the figure is. No bare assertions." },
+          "source_type": { "type": "string", "minLength": 1, "description": "Must be a key in benchmark_sources.yaml source_types." },
+          "as_of": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "description": "ISO date the benchmark was recorded/verified." },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}
