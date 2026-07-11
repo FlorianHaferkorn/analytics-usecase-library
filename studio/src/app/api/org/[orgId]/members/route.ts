@@ -19,13 +19,22 @@
 
 import { requireAuth } from '@/lib/auth/session';
 import { findOrCreateUser, findUserByEmail } from '@/lib/db/user-repo';
-import { addOrgMember, removeOrgMember, checkOrgAccess, listOrgMembers } from '@/lib/db/org-repo';
+import { addOrgMember, removeOrgMember, setMemberBusinessRole, checkOrgAccess, listOrgMembers, getOrgMember } from '@/lib/db/org-repo';
+import { loadOrgRoles } from '@/lib/core/org-role-loader';
 import { logAuditEvent } from '@/lib/db/audit-repo';
 import type { OrgRole } from '@/lib/auth/rbac-types';
 import { apiSuccess, apiError, apiValidationError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
 
 const VALID_ORG_ROLES: OrgRole[] = ['owner', 'admin', 'member'];
+
+/** businessRoleId must resolve against core/organization/org_roles.yaml, or be omitted/null. */
+async function validateBusinessRoleId(businessRoleId: unknown): Promise<string | null | undefined> {
+  if (businessRoleId === undefined || businessRoleId === null || businessRoleId === '') return null;
+  if (typeof businessRoleId !== 'string') return undefined;
+  const roles = await loadOrgRoles();
+  return roles.has(businessRoleId) ? businessRoleId : undefined;
+}
 
 export async function POST(request: Request, { params }: { params: Promise<{ orgId: string }> }) {
   const { orgId } = await params;
@@ -38,9 +47,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ org
   }
 
   const body = await request.json();
-  const { email, orgRole } = body as { email?: string; orgRole?: string };
+  const { email, orgRole, businessRoleId: rawBusinessRoleId } = body as { email?: string; orgRole?: string; businessRoleId?: string };
   if (!email?.trim() || !orgRole || !VALID_ORG_ROLES.includes(orgRole as OrgRole)) {
     return apiValidationError(['email required, orgRole must be one of owner/admin/member']);
+  }
+
+  const businessRoleId = await validateBusinessRoleId(rawBusinessRoleId);
+  if (businessRoleId === undefined) {
+    return apiValidationError(['businessRoleId does not match any role in core/organization/org_roles.yaml']);
   }
 
   // Granting 'owner' requires the actor to already be an owner — an admin
@@ -54,11 +68,49 @@ export async function POST(request: Request, { params }: { params: Promise<{ org
     return apiError(ErrorCode.NOT_FOUND, 'No user found for that email — they must sign in at least once first', 404);
   }
 
-  const member = addOrgMember(orgId, targetUser.id, orgRole as OrgRole);
+  const member = addOrgMember(orgId, targetUser.id, orgRole as OrgRole, businessRoleId);
 
   logAuditEvent('org_member', `${orgId}::${targetUser.id}`, 'add_member', {
     before: null,
-    after: { email: email.trim(), orgRole },
+    after: { email: email.trim(), orgRole, businessRoleId },
+  }, 'default', user.email);
+
+  return apiSuccess({ member });
+}
+
+/** Update an existing member's business_role_id (ADR-0014 O-3) — display-only, never org_role. */
+export async function PATCH(request: Request, { params }: { params: Promise<{ orgId: string }> }) {
+  const { orgId } = await params;
+  const [user, authErr] = await requireAuth();
+  if (authErr) return authErr;
+
+  const actor = findOrCreateUser(user.email, user.name);
+  if (!checkOrgAccess(orgId, actor.id, 'admin')) {
+    return apiError(ErrorCode.FORBIDDEN, 'Org admin role required', 403);
+  }
+
+  const body = await request.json();
+  const { email, businessRoleId: rawBusinessRoleId } = body as { email?: string; businessRoleId?: string | null };
+  if (!email?.trim()) {
+    return apiValidationError(['email required']);
+  }
+
+  const businessRoleId = await validateBusinessRoleId(rawBusinessRoleId);
+  if (businessRoleId === undefined) {
+    return apiValidationError(['businessRoleId does not match any role in core/organization/org_roles.yaml']);
+  }
+
+  const targetUser = findUserByEmail(email.trim());
+  if (!targetUser) return apiError(ErrorCode.NOT_FOUND, 'User not found', 404);
+
+  const before = getOrgMember(orgId, targetUser.id);
+  if (!before) return apiError(ErrorCode.NOT_FOUND, 'User is not a member of this organization', 404);
+
+  const member = setMemberBusinessRole(orgId, targetUser.id, businessRoleId);
+
+  logAuditEvent('org_member', `${orgId}::${targetUser.id}`, 'update_business_role', {
+    before: { businessRoleId: before.business_role_id },
+    after: { businessRoleId },
   }, 'default', user.email);
 
   return apiSuccess({ member });

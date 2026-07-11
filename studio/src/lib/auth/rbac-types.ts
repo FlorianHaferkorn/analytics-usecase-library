@@ -36,6 +36,7 @@ export interface OrgMember {
   user_id: string;
   org_id: string;
   org_role: OrgRole;
+  business_role_id: string | null;
   created_at: string;
 }
 

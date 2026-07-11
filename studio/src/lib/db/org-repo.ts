@@ -58,12 +58,30 @@ export function listOrgProjects(orgId: string): Array<{ id: string; name: string
 // path during self-testing (SQL text said org_id first, calls passed userId
 // first). Named binds make that whole mistake class impossible to reintroduce.
 
-export function addOrgMember(orgId: string, userId: string, orgRole: OrgRole): OrgMember {
+export function addOrgMember(
+  orgId: string,
+  userId: string,
+  orgRole: OrgRole,
+  businessRoleId: string | null = null,
+): OrgMember {
   const db = getDb();
   db.prepare(
-    'INSERT OR REPLACE INTO org_members (user_id, org_id, org_role) VALUES (@userId, @orgId, @orgRole)',
-  ).run({ userId, orgId, orgRole });
+    'INSERT OR REPLACE INTO org_members (user_id, org_id, org_role, business_role_id) VALUES (@userId, @orgId, @orgRole, @businessRoleId)',
+  ).run({ userId, orgId, orgRole, businessRoleId });
   return getOrgMember(orgId, userId)!;
+}
+
+/**
+ * Set (or clear, with null) a member's business_role_id — a display-only
+ * link to core/organization/org_roles.yaml (ADR-0014 O-3). Never touches
+ * org_role or any RBAC resolution path.
+ */
+export function setMemberBusinessRole(orgId: string, userId: string, businessRoleId: string | null): OrgMember | undefined {
+  const db = getDb();
+  db.prepare(
+    'UPDATE org_members SET business_role_id = @businessRoleId WHERE org_id = @orgId AND user_id = @userId',
+  ).run({ orgId, userId, businessRoleId });
+  return getOrgMember(orgId, userId);
 }
 
 export function removeOrgMember(orgId: string, userId: string): boolean {
@@ -80,6 +98,23 @@ export function getOrgMember(orgId: string, userId: string): OrgMember | undefin
 export function listOrgMembers(orgId: string): OrgMember[] {
   const db = getDb();
   return db.prepare('SELECT * FROM org_members WHERE org_id = ? ORDER BY created_at').all(orgId) as OrgMember[];
+}
+
+export interface OrgMemberWithUser extends OrgMember {
+  email: string;
+  name: string;
+}
+
+/** listOrgMembers, joined with users for display (email/name) — for the management UI. */
+export function listOrgMembersWithDetails(orgId: string): OrgMemberWithUser[] {
+  const db = getDb();
+  return db.prepare(
+    `SELECT om.*, u.email, u.name
+     FROM org_members om
+     JOIN users u ON u.id = om.user_id
+     WHERE om.org_id = ?
+     ORDER BY om.created_at`,
+  ).all(orgId) as OrgMemberWithUser[];
 }
 
 /** All org memberships for a user, across every org (JWT-token shape, ADR-0014 Festlegung 5). */

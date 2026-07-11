@@ -207,10 +207,16 @@ function initSchema(db: Database.Database) {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    -- business_role_id (ADR-0014 O-3) is a display-only link to
+    -- core/organization/org_roles.yaml (e.g. 'finance_bi_lead') -- purely
+    -- informational, never consulted by checkAccess/checkOrgAccess. No FK:
+    -- the role registry is a governed YAML file, not a DB table, same
+    -- pattern as bracket owner_role/steward_role fields.
     CREATE TABLE IF NOT EXISTS org_members (
       user_id TEXT NOT NULL,
       org_id TEXT NOT NULL,
       org_role TEXT NOT NULL DEFAULT 'member',
+      business_role_id TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       PRIMARY KEY (user_id, org_id),
       FOREIGN KEY (user_id) REFERENCES users(id),
@@ -250,6 +256,8 @@ function initSchema(db: Database.Database) {
     // ON DELETE SET NULL: deleting an org reverts its projects to solo instead of
     // orphaning or blocking the delete.
     ['projects', 'org_id TEXT REFERENCES organizations(id) ON DELETE SET NULL'],
+    // ADR-0014 O-3: display-only link to core/organization/org_roles.yaml.
+    ['org_members', 'business_role_id TEXT'],
   ];
   for (const [table, colDef] of migrations) {
     try {
