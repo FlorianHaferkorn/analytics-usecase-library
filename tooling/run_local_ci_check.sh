@@ -84,6 +84,12 @@ run_check "Boutique rubric BC-CHART-10 (evidence table worst-first + Top-N)" \
 run_check "Content-Grounding §6.3 (benchmarks grounded + provenance)" \
   python3 tooling/validation/check_benchmarks.py --strict
 
+# --- Boutique rubric: BC-BRAND-01 custom theme (K6, blocking) -----------
+# Knock-out: every report must register a composed custom theme, never the renderer
+# default. All 17 dist reports pass, so run hard (--strict).
+run_check "Boutique rubric BC-BRAND-01 (composed custom theme, never default)" \
+  python3 tooling/validation/check_custom_theme.py --strict
+
 # --- Boutique-Craft Scorecard (K6 §9, advisory report) ------------------
 # Aggregates the wired structural rules into the rubric's weighted score + knock-out
 # status, and reports honest coverage (judge rules pending). Advisory — the artifact

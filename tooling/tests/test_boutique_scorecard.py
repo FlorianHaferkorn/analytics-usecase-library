@@ -33,8 +33,8 @@ def test_all_pass_gives_full_subset_score():
 def test_failing_knockout_is_surfaced():
     card = score(run_validator=_all_fail)
     assert card["structural_score_pct"] == 0.0
-    # BC-CHART-01, BC-CHART-10, BC-NARR-01 are the scored knock-outs
-    assert set(card["knockouts_failed"]) == {"BC-CHART-01", "BC-CHART-10", "BC-NARR-01"}
+    # the scored knock-outs (BC-NARR-01/CHART-01/CHART-10/BRAND-01)
+    assert set(card["knockouts_failed"]) == {"BC-CHART-01", "BC-CHART-10", "BC-NARR-01", "BC-BRAND-01"}
 
 
 def test_coverage_is_partial_and_not_certifiable():
