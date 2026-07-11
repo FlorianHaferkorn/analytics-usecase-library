@@ -221,6 +221,20 @@
                                                         "height":  104,
                                                         "width":  234
                                                     }
+                                       },
+                                       {
+                                           "nodeIndex":  "dim_pvm_driver",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "3211f744-1fd1-4a79-932b-3e3d6570e352",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  960,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
                                        }
                                    ],
                          "ordinal":  0,

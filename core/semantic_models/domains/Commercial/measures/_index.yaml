@@ -11,6 +11,7 @@ order:
 - price_effect_amount
 - volume_effect_amount
 - mix_effect_amount
+- pvm_bridge_value
 - price_realization
 - promotion_roi
 - incremental_sales_amount

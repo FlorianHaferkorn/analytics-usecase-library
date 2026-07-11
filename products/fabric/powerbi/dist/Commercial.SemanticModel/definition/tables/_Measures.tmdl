@@ -128,6 +128,23 @@ table _Measures
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
 
+	/// Disconnected-table selector for the Main_2 PVM bridge waterfall (COM-002):
+	/// reads the current dim_pvm_driver[Driver] category bar and returns that
+	/// driver's existing effect measure -- lets a single Y-role measure serve
+	/// a 3-bar breakdown, since waterfallChart's real capabilities only allow
+	/// one measure in Y (Category carries the per-bar breakdown instead).
+	/// Formula: SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Price Effect", [Price Effect Amount], "Volume Effect", [Volume Effect Amount], "Mix Effect", [Mix Effect Amount] )
+	/// Grain: dim_pvm_driver[Driver] (3 rows, disconnected) · Unit: EUR
+	/// Owner: Commercial BI Pricing Analytics · Status: active
+	/// DAX runtime not verified against a live Power BI engine (authoring
+	/// sandbox has none) -- structurally reuses three already-verified
+	/// measures via a standard SWITCH+SELECTEDVALUE pattern; pending Desktop
+	/// confirmation (R1.6 follow-up).
+	measure 'PVM Bridge Value' = SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Price Effect", [Price Effect Amount], "Volume Effect", [Volume Effect Amount], "Mix Effect", [Mix Effect Amount], BLANK () )
+		formatString: "#,0"
+		displayFolder: "COM-002"
+		annotation ActionReady_TrustScore = "1"
+
 	/// Sum of list price amount before discounts.
 	/// Formula: SUM ( fact_sales[List Price Amount] )
 	/// Grain: invoice_line, reported monthly · Unit: EUR

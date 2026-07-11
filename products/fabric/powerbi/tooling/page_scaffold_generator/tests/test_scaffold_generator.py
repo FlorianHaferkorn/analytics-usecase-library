@@ -195,10 +195,15 @@ class TestCOM002GoldenR23Fields:
     domain-level "Narrative Text (<SUFFIX>)"/"Active Actions Text (<SUFFIX>)"
     DAX measures (cardVisual) instead of a synthesized textbox literal.
     See UMSETZUNGSPLAN_REPORT_EXZELLENZ.md's R2.3-Fund follow-up ledger
-    entry for the full account, including the still-open, unrelated
-    concerns this did NOT resolve (Main_2's waterfallChart maxPerRole.Y=1
-    schema question, R1.6; the other 14 reports' own generator/dist sync,
-    R5.1's job).
+    entry for the full account. R1.6's Main_2 maxPerRole.Y=1 concern (a
+    waterfallChart real-schema violation: 3 measures in the Y role) is now
+    also fixed -- a disconnected dim_pvm_driver selector table + a single
+    'PVM Bridge Value' SWITCH/SELECTEDVALUE measure replace the 3-measure
+    Y projection with one measure, Category carrying the breakdown. DAX
+    runtime is NOT verified against a live Power BI engine (none available
+    here) -- structurally valid TMDL reusing three already-verified
+    measures, pending Desktop confirmation. Still open, unrelated: the
+    other 14 reports' own generator/dist sync (R5.1's job).
     """
 
     DIST_OVERVIEW = (
@@ -225,6 +230,23 @@ class TestCOM002GoldenR23Fields:
 
         assert header["position"] == dist_header["position"]
         assert header["visual"] == dist_header["visual"]
+
+    def test_main_2_waterfall_has_exactly_one_y_measure(self):
+        """R1.6 follow-up: waterfallChart's real capabilities only allow one
+        measure in the Y role (confirmed against Microsoft's own Waterfall-
+        chart docs -- bars come from Category values, not multiple Y
+        measures). Regression guard against reintroducing the violation."""
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        main2 = self._find_visual(generator, "Main_2")
+
+        y_projections = main2["visual"]["query"]["queryState"]["Y"]["projections"]
+        assert len(y_projections) == 1, f"waterfallChart Y role must carry exactly 1 measure, got {len(y_projections)}"
+        assert y_projections[0]["nativeQueryRef"] == "PVM Bridge Value"
+
+        category_projections = main2["visual"]["query"]["queryState"]["Category"]["projections"]
+        assert category_projections[0]["queryRef"] == "dim_pvm_driver.Driver"
 
     def test_main_3_sort_definition_matches_real_dist(self):
         dist_main3 = json.loads((self.DIST_OVERVIEW / "Main_3" / "visual.json").read_text(encoding="utf-8"))

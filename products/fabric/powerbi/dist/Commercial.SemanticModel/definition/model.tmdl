@@ -9,6 +9,7 @@ ref table dim_date
 ref table dim_org
 ref table dim_product
 ref table dim_promo
+ref table dim_pvm_driver
 ref table fact_customer_events
 ref table fact_customer_value
 ref table fact_experience

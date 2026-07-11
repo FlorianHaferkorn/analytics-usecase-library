@@ -74,21 +74,27 @@ ux_layout_rules:
       unit: amount
     - slot_id: Main_2
       # T2_DriverBridge / variance_explanation: PVM drivers bridging Plan to Actual GM.
-      # R2.3-Fund follow-up: real dist/ renders only the 3 PVM deltas (Price/
-      # Volume/Mix), not explicit Plan/Actual anchor bars -- kpi_ids reduced to
-      # match. Known, still-open concern from R1.6 (Desktop-Abnahme pending):
-      # waterfallChart's real capabilities schema allows maxPerRole.Y = 1, so
-      # even 3 measures in the Y role is not fully schema-compliant; a true fix
-      # needs a Breakdown-role/unpivoted-driver data model, not yet built. This
-      # sync only reproduces the currently-accepted dist/ output, it does not
-      # resolve that open question.
+      # R1.6 follow-up (was open since R2.3-Fund): waterfallChart's real
+      # capabilities only allow ONE measure in the Y role (Category carries the
+      # per-bar breakdown) -- confirmed against Microsoft's own Waterfall-chart
+      # docs (learn.microsoft.com/power-bi/visuals/power-bi-visualization-
+      # waterfall-charts): a native waterfall's bars come from Category values,
+      # not from stacking multiple Y measures. Fixed via a disconnected
+      # selector table (dim_pvm_driver, 3 rows: Price/Volume/Mix Effect) +
+      # 'PVM Bridge Value', a new SWITCH/SELECTEDVALUE measure that reads the
+      # active Driver bar and returns the matching existing effect measure --
+      # see Commercial.SemanticModel/definition/tables/dim_pvm_driver.tmdl and
+      # _Measures.tmdl. "PVM Bridge Value" has no governed kpi_id (same
+      # "direct measure name, no catalog ID exists yet" pattern as Main_1's
+      # Bracket precedent elsewhere) -- it's a presentation-layer helper, not
+      # a business KPI with causal links/action codes of its own.
+      # DAX runtime not verified against a live Power BI engine (none
+      # available in the authoring sandbox) -- structurally valid TMDL,
+      # reuses three already-verified measures; pending Desktop confirmation.
       visual_type: waterfall
       comparison: vs_plan
-      category_field: dim_date.CalendarYearMonth
-      kpi_ids:
-      - sales.pvm.price_effect.amount
-      - sales.pvm.volume_effect.amount
-      - sales.pvm.mix_effect.amount
+      category_field: dim_pvm_driver.Driver
+      kpi_id: PVM Bridge Value
       message: Price, volume, and mix effects bridge Plan to Actual gross margin.
       unit: amount
     - slot_id: Main_3

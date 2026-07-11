@@ -351,6 +351,37 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: v1.2
     last_review: 06.02.2026
 
+- measure_name: PVM Bridge Value
+  is_kpi_measure: false
+  kpi_id_ref: null
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: COM-002
+  category: Supporting
+  expression:
+    logical: PVM Bridge Value = SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Price Effect", [Price Effect Amount], "Volume Effect", [Volume Effect Amount], "Mix Effect", [Mix Effect Amount] )
+    aggregation_method: none
+  documentation:
+    description: Presentation-layer selector for the COM-002 Main_2 PVM bridge waterfall -- returns the active Driver category's effect measure so a single Y-role measure can serve a 3-bar breakdown chart.
+    notes: 'Grain: dim_pvm_driver[Driver] (3 rows, disconnected). Unit: EUR.
+
+      Lineage: [Price Effect Amount], [Volume Effect Amount], [Mix Effect Amount], dim_pvm_driver[Driver].
+
+      QA: DAX runtime not verified against a live Power BI engine (none available in the authoring sandbox) -- structurally reuses three already-verified measures via a standard SWITCH+SELECTEDVALUE pattern; pending Desktop confirmation (R1.6 follow-up, UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R2.3-Fund follow-up ledger entry).
+
+      '
+  dependencies:
+    measures:
+    - '[Price Effect Amount]'
+    - '[Volume Effect Amount]'
+    - '[Mix Effect Amount]'
+    columns:
+    - dim_pvm_driver[Driver]
+  governance:
+    owner: commercial_bi_pricing_analytics_lead
+    status: active
+    version: v1.0
+    last_review: 11.07.2026
+
 - measure_name: Price Realization %
   is_kpi_measure: true
   kpi_id_ref: sales.price.realization_pct
