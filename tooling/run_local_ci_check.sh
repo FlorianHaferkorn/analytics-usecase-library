@@ -84,6 +84,13 @@ run_check "Boutique rubric BC-CHART-10 (evidence table worst-first + Top-N)" \
 run_check "Content-Grounding §6.3 (benchmarks grounded + provenance)" \
   python3 tooling/validation/check_benchmarks.py --strict
 
+# --- Boutique-Craft Scorecard (K6 §9, advisory report) ------------------
+# Aggregates the wired structural rules into the rubric's weighted score + knock-out
+# status, and reports honest coverage (judge rules pending). Advisory — the artifact
+# is the value; --strict would block on a scored knock-out failure.
+run_check "Boutique-Craft Scorecard (K6 §9 — rubric rollup, advisory)" \
+  python3 tooling/report_quality/boutique_scorecard.py
+
 # --- PBI quality tools CLI ----------------------------------------------
 run_check "PBI quality-tools CLI (validate --summary)" \
   python3 -c "
