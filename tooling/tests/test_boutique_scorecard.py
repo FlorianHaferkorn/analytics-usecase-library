@@ -52,14 +52,15 @@ def test_global_weights_sum_to_100():
 # Ratchets boutique quality at the aggregate level — a change that breaks a wired
 # rule, drops coverage, or fails a knock-out re-fires here. Raise the floors as
 # more rules are wired; never lower them.
-_MIN_SCORED_RULES = 6
-_MIN_COVERAGE_PCT = 24.6
+_MIN_SCORED_RULES = 7          # 6 structural + BC-NARR-03 via spec-heuristic judge
+_MIN_COVERAGE_PCT = 28.6
 
 
 def test_live_scorecard_does_not_regress():
-    card = score()  # real subprocess runner over the committed brackets/dist
+    from tooling.report_quality.judge import SpecHeuristicJudge
+    card = score(judge=SpecHeuristicJudge())  # real validators + spec-heuristic judge
     assert card["scored_rules"] >= _MIN_SCORED_RULES, card["scored_rules"]
     assert card["coverage_pct"] >= _MIN_COVERAGE_PCT, card["coverage_pct"]
-    # every wired rule currently passes on ALUCA — no silent breakage
+    # every scored rule currently passes on ALUCA — no silent breakage
     assert card["structural_score_pct"] == 100.0, card["structural_score_pct"]
     assert card["knockouts_failed"] == [], card["knockouts_failed"]

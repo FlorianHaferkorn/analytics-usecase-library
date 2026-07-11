@@ -48,6 +48,8 @@ except ImportError:  # pragma: no cover
     raise
 
 REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:          # allow `python tooling/report_quality/boutique_scorecard.py`
+    sys.path.insert(0, str(REPO))
 _RUBRIC = REPO / "core/templates/page_templates/tokens/boutique_craft_rubric.yaml"
 _VALID = REPO / "tooling/validation"
 
@@ -75,14 +77,23 @@ def load_rubric() -> dict[str, Any]:
     return yaml.safe_load(_RUBRIC.read_text(encoding="utf-8"))
 
 
-def score(run_validator=_run_validator, rubric: Optional[dict] = None) -> dict[str, Any]:
+def score(run_validator=_run_validator, rubric: Optional[dict] = None,
+          judge: Optional[Any] = None) -> dict[str, Any]:
     """Compute the scorecard. `run_validator` is injectable for testing.
 
+    `judge` (a report_quality.judge.Judge) optionally scores the `check: judge` rules;
+    verdicts that abstain (score=None) stay not_scored. Default None → structural only.
+
     Returns a dict with per-rule scores, dimension rollups, coverage, knock-out
-    status, and the achieved structural score over the scored subset.
+    status, and the achieved score over the scored subset.
     """
     rubric = rubric or load_rubric()
     pass_pct = rubric["scoring"]["pass_score_pct"]
+
+    verdicts = {}
+    if judge is not None:
+        from tooling.report_quality.judge import JudgeContext, run_judges  # noqa: PLC0415
+        verdicts = run_judges(rubric, JudgeContext(), judge)
 
     # global_weight per rule normalises all rules to sum 100 (rule.weight within its
     # dimension × dimension.weight), matching the rubric's dimension-weighted formula.
@@ -96,12 +107,21 @@ def score(run_validator=_run_validator, rubric: Optional[dict] = None) -> dict[s
             gweight = r["weight"] / dim_rule_weight * dim["weight"]
             rid = r["id"]
             entry = {"id": rid, "dimension": dim["id"], "severity": r["severity"],
-                     "global_weight": round(gweight, 3), "status": "not_scored", "score": None}
+                     "global_weight": round(gweight, 3), "status": "not_scored",
+                     "score": None, "method": None}
             if rid in WIRED:
                 passed = run_validator(*WIRED[rid])
                 entry["score"] = 1.0 if passed else 0.0
                 entry["status"] = "pass" if passed else "fail"
+                entry["method"] = "structural"
                 achieved += entry["score"] * gweight
+                scored_possible += gweight
+            elif rid in verdicts and verdicts[rid].score is not None:
+                v = verdicts[rid]
+                entry["score"] = v.score
+                entry["status"] = "pass" if v.score >= 1.0 else ("partial" if v.score > 0 else "fail")
+                entry["method"] = v.method
+                achieved += v.score * gweight
                 scored_possible += gweight
             if r["severity"] == "knock_out":
                 knockouts.append({"id": rid, "status": entry["status"], "score": entry["score"]})
@@ -137,9 +157,10 @@ def _print(card: dict[str, Any]) -> None:
           f"failed: {card['knockouts_failed'] or 'none'}")
     for r in card["rules"]:
         if r["score"] is not None:
-            mark = "✓" if r["score"] == 1.0 else "✗"
+            mark = "✓" if r["score"] == 1.0 else ("~" if r["score"] > 0 else "✗")
             ko = " [knock-out]" if r["severity"] == "knock_out" else ""
-            print(f"    {mark} {r['id']:14} ({r['dimension']}){ko}")
+            via = f" ({r['method']})" if r.get("method") and r["method"] != "structural" else ""
+            print(f"    {mark} {r['id']:14} ({r['dimension']}){ko}{via}")
     if card["certifiable"]:
         print("  → PASS (full rubric certifiable).")
     else:
@@ -152,7 +173,8 @@ def main() -> int:
     parser.add_argument("--strict", action="store_true", help="Exit 1 if a scored knock-out fails")
     args = parser.parse_args()
 
-    card = score()
+    from tooling.report_quality.judge import SpecHeuristicJudge  # noqa: PLC0415
+    card = score(judge=SpecHeuristicJudge())
     _print(card)
     if args.json:
         Path(args.json).write_text(json.dumps(card, indent=2), encoding="utf-8")
