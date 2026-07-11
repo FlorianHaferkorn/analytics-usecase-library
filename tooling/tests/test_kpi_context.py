@@ -11,10 +11,10 @@ from tooling.validation.check_kpi_context import check_bracket, has_context
 
 REPO = Path(__file__).resolve().parents[2]
 
-# Baseline coverage (2026-07-10): 2 of 17 hero KPI cards declare governed context.
-# Clearing the remaining 15 is a curated rollout (KONZEPT §12). This guard only ratchets
-# up — coverage must never drop below the baseline.
-_BASELINE_COVERED = 2
+# Baseline coverage: all 17 hero KPI cards declare governed context (comparison +
+# status_logic) as of the 2026-07-10 rollout. This guard only ratchets up — coverage
+# must never drop below the baseline.
+_BASELINE_COVERED = 17
 
 
 def test_has_context_true_cases():

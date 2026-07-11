@@ -47,6 +47,8 @@ ux_layout_rules:
     component_3s:
       kpi_id: res.utilization.pct
       visual_type: kpi_card
+      comparison: vs_plan
+      status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: res.occupancy.pct

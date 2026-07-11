@@ -124,6 +124,8 @@ ux_layout_rules:
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
       visual_type: kpi_card
+      comparison: vs_target
+      status_logic: higher_is_better
     component_30s:
       - kpi_id: enterprise.action_outcome_rate.pct
         visual_type: trend_line

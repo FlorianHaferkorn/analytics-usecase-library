@@ -56,6 +56,8 @@ ux_layout_rules:
     component_3s:
       kpi_id: crm.clv.amount
       visual_type: kpi_card
+      comparison: vs_py
+      status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: crm.lifetime_revenue.amount
