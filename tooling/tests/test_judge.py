@@ -51,3 +51,42 @@ def test_run_judges_covers_all_and_keeps_abstentions():
 def test_verdict_shape():
     v = Verdict("BC-X", 0.5, "spec_heuristic", "partial")
     assert (v.rule_id, v.score, v.method) == ("BC-X", 0.5, "spec_heuristic")
+
+
+# ── LLM backend seam (render-only half) ──────────────────────────────────────
+from tooling.report_quality.judge import (  # noqa: E402
+    LLMJudge, CompositeJudge, build_judge_prompt, parse_verdict, _rule_meta,
+)
+
+
+def test_prompt_builder_is_deterministic_and_complete():
+    p = build_judge_prompt(_rule_meta("BC-COLOR-01"), "<render>")
+    assert "BC-COLOR-01" in p and "SCORE:" in p and "<render>" in p
+    assert build_judge_prompt(_rule_meta("BC-COLOR-01"), "<render>") == p  # deterministic
+
+
+def test_parse_verdict_valid_and_malformed():
+    assert parse_verdict("BC-X", "SCORE: 1.0\nRATIONALE: clean").score == 1.0
+    assert parse_verdict("BC-X", "SCORE: 0.5").score == 0.5
+    assert parse_verdict("BC-X", "no score here").score is None       # malformed → abstain
+    assert parse_verdict("BC-X", "SCORE: 0.7").score is None          # off-scale → abstain
+
+
+def test_llm_judge_abstains_without_model_or_render():
+    assert LLMJudge().evaluate("BC-COLOR-01", JudgeContext()).score is None
+    # model but no render → still abstain (never guesses)
+    assert LLMJudge(complete=lambda p: "SCORE: 1.0").evaluate("BC-COLOR-01", JudgeContext()).score is None
+
+
+def test_llm_judge_scores_with_mock_model_and_render():
+    v = LLMJudge(complete=lambda p: "SCORE: 0.5\nRATIONALE: partial",
+                 render_provider=lambda rid: "<a rendered page>").evaluate("BC-COLOR-01", JudgeContext())
+    assert v.score == 0.5 and v.method == "llm"
+
+
+def test_composite_prefers_spec_heuristic_then_llm():
+    comp = CompositeJudge([SpecHeuristicJudge(),
+                           LLMJudge(complete=lambda p: "SCORE: 1.0\nRATIONALE: ok",
+                                    render_provider=lambda rid: "<render>")])
+    assert comp.evaluate("BC-NARR-03", JudgeContext()).method == "spec_heuristic"  # cheap wins
+    assert comp.evaluate("BC-COLOR-01", JudgeContext()).method == "llm"            # falls through

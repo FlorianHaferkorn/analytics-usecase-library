@@ -124,3 +124,96 @@ class SpecHeuristicJudge:
 def run_judges(rubric: dict[str, Any], ctx: JudgeContext, judge: Judge) -> dict[str, Verdict]:
     """Evaluate every judge rule with `judge`. Abstentions (score=None) stay not_scored."""
     return {r["id"]: judge.evaluate(r["id"], ctx) for r in judge_rules(rubric)}
+
+
+# ── Pluggable LLM backend (the render-only half) ─────────────────────────────
+# The genuinely render-dependent judge rules (muted context, visual hierarchy, direct
+# labelling …) need a model looking at a rendered report. This is the integration seam:
+# a `complete(prompt) -> str` callable (any model) + a `render_provider(rule) -> evidence`
+# are injected. Both pieces are a runtime/maintainer concern (a renderer + an API key),
+# so with neither wired the LLMJudge abstains — it never guesses. The prompt builder and
+# verdict parser are pure and unit-tested, so the contract is verified without a model.
+
+_RUBRIC_BY_ID: dict[str, dict[str, Any]] = {}
+
+
+def _rule_meta(rule_id: str, rubric: Optional[dict] = None) -> dict[str, Any]:
+    global _RUBRIC_BY_ID
+    if not _RUBRIC_BY_ID:
+        for dim in (rubric or load_rubric())["dimensions"]:
+            for r in dim["rules"]:
+                _RUBRIC_BY_ID[r["id"]] = {**r, "dimension": dim["id"]}
+    return _RUBRIC_BY_ID.get(rule_id, {"id": rule_id, "statement": "", "machine_hint": ""})
+
+
+def build_judge_prompt(rule: dict[str, Any], evidence: str) -> str:
+    """Deterministic judge prompt for one rule + rendered evidence. Pure — unit-tested."""
+    return (
+        "You are a boutique data-visualization critic scoring ONE craft rule against a "
+        "rendered report.\n\n"
+        f"RULE {rule.get('id')}: {rule.get('statement')}\n"
+        f"WHAT TO LOOK FOR: {rule.get('machine_hint')}\n\n"
+        f"RENDERED EVIDENCE:\n{evidence}\n\n"
+        "Respond in exactly this format, nothing else:\n"
+        "SCORE: <0.0 | 0.5 | 1.0>\n"
+        "RATIONALE: <one sentence>"
+    )
+
+
+def parse_verdict(rule_id: str, text: str) -> Verdict:
+    """Parse an LLM completion into a Verdict. Malformed → abstain (never guess a pass)."""
+    score: Optional[float] = None
+    rationale = ""
+    for line in (text or "").splitlines():
+        s = line.strip()
+        if s.upper().startswith("SCORE:"):
+            tok = s.split(":", 1)[1].strip()
+            try:
+                val = float(tok.split()[0])
+                if val in (0.0, 0.5, 1.0):
+                    score = val
+            except (ValueError, IndexError):
+                score = None
+        elif s.upper().startswith("RATIONALE:"):
+            rationale = s.split(":", 1)[1].strip()
+    if score is None:
+        return Verdict(rule_id, None, "abstain", "LLM output unparseable — abstaining")
+    return Verdict(rule_id, score, "llm", rationale or "(no rationale)")
+
+
+class LLMJudge:
+    """Render-based judge. `complete(prompt)->str` is any model; `render_provider(rule_id)
+    ->str` supplies the rendered evidence. With either missing, abstains (no fabrication)."""
+
+    def __init__(self, complete: Optional[Callable[[str], str]] = None,
+                 render_provider: Optional[Callable[[str], Optional[str]]] = None,
+                 rubric: Optional[dict] = None):
+        self._complete = complete
+        self._render = render_provider
+        self._rubric = rubric
+
+    def evaluate(self, rule_id: str, ctx: JudgeContext) -> Verdict:
+        if self._complete is None or self._render is None:
+            return Verdict(rule_id, None, "abstain", "no model + render wired (runtime concern)")
+        evidence = self._render(rule_id)
+        if not evidence:
+            return Verdict(rule_id, None, "abstain", "no rendered evidence available")
+        prompt = build_judge_prompt(_rule_meta(rule_id, self._rubric), evidence)
+        return parse_verdict(rule_id, self._complete(prompt))
+
+
+class CompositeJudge:
+    """Try each judge in order; the first non-abstaining verdict wins (spec-heuristic
+    before LLM, so cheap/deterministic decisions preempt a model call)."""
+
+    def __init__(self, judges: list[Judge]):
+        self._judges = judges
+
+    def evaluate(self, rule_id: str, ctx: JudgeContext) -> Verdict:
+        last = Verdict(rule_id, None, "abstain", "no judge decided")
+        for j in self._judges:
+            v = j.evaluate(rule_id, ctx)
+            if v.score is not None:
+                return v
+            last = v
+        return last
