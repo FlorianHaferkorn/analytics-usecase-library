@@ -6,6 +6,7 @@ export type ApprovalStatus = 'draft' | 'review' | 'approved' | 'rejected' | 'dep
 
 export interface ApprovalRecord {
   bracket_id: string;
+  project_id: string;
   status: ApprovalStatus;
   submitted_by: string | null;
   approved_by: string | null;
