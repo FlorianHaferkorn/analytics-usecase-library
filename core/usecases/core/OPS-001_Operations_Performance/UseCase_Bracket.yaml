@@ -60,6 +60,10 @@ ux_layout_rules:
       sparkline_field: OeePct_Daily
       comparison: vs_target
       status_logic: higher_is_better
+      # §6.3 third axis: annotate the hero with the governed world-class OEE
+      # benchmark (85%, benchmarks.yaml) IN ADDITION to vs_target — turns
+      # "OEE 76%" into "76% vs 82% target, 9pp below world-class 85%".
+      benchmark: true
     component_30s:
     - slot_id: Main_1
       # OEE trend vs target — strategic KPI must be the primary trend (SQ-V04, mapping_gap fix)

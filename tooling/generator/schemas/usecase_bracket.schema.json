@@ -197,6 +197,10 @@
                 "target_value": {
                   "type": "number",
                   "description": "Explicit target value (optional — used when target is a fixed threshold, not a measure)."
+                },
+                "benchmark": {
+                  "type": "boolean",
+                  "description": "BC-NARR-04 / §6.3: opt into the third comparison axis (vs. benchmark) — annotate the hero with its governed 'what good looks like' reference. ADDITIVE to `comparison` (vs plan/target), never a replacement. Requires a matching entry in core/kpi_catalog/benchmarks.yaml for this kpi_id (enforced by check_benchmarks.py)."
                 }
               }
             },

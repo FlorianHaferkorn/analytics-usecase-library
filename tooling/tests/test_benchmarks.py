@@ -12,6 +12,7 @@ import yaml
 
 from tooling.validation.check_benchmarks import (
     check_registry, validate_entry, _load_allowed_source_types,
+    check_bracket_links, _benchmarked_kpi_ids,
 )
 
 REPO = Path(__file__).resolve().parents[2]
@@ -75,3 +76,18 @@ def test_registry_conforms_to_schema():
 
 def test_source_types_load():
     assert "industry_standard" in _load_allowed_source_types()
+
+
+def test_benchmark_axis_links_are_intact():
+    """Every hero card opting into the benchmark axis has a governed benchmark."""
+    assert check_bracket_links() == []
+
+
+def test_ops001_hero_opts_into_benchmark_axis():
+    """The OPS-001 pilot wires OEE's hero to the world-class benchmark."""
+    ops = yaml.safe_load((REPO / "core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml").read_text())
+    card = ops["ux_layout_rules"]["page_1_summary"]["component_3s"]
+    assert card["benchmark"] is True
+    assert card["kpi_id"] in _benchmarked_kpi_ids()
+    # additive — the primary comparison is preserved
+    assert card["comparison"] == "vs_target"

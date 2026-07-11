@@ -87,6 +87,33 @@ def _load_allowed_source_types() -> set[str]:
     return set((data.get("source_types") or {}).keys())
 
 
+def _benchmarked_kpi_ids() -> set[str]:
+    data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8")) or {}
+    return {e.get("kpi_id") for e in data.get("benchmarks", []) or [] if e.get("kpi_id")}
+
+
+def check_bracket_links() -> list[tuple[str, str]]:
+    """Reverse Golden Thread: a hero card opting into the benchmark axis
+    (`component_3s.benchmark: true`) must have a governed benchmark for its KPI.
+
+    Returns [(bracket_id, violation), ...]. Ties the grounding layer to the report
+    model — a report can't claim a benchmark axis the registry can't back.
+    """
+    benchmarked = _benchmarked_kpi_ids()
+    out: list[tuple[str, str]] = []
+    for path in sorted(REPO.glob("core/usecases/**/UseCase_Bracket.yaml")):
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        card = ((data.get("ux_layout_rules", {}) or {})
+                .get("page_1_summary", {}) or {}).get("component_3s") or {}
+        if isinstance(card, dict) and card.get("benchmark") is True:
+            kpi_id = card.get("kpi_id", "")
+            if kpi_id not in benchmarked:
+                out.append((data.get("id", path.parent.name),
+                            f"hero card opts into benchmark axis but no benchmark "
+                            f"for '{kpi_id}' in benchmarks.yaml"))
+    return out
+
+
 def check_registry() -> list[tuple[str, str]]:
     """Return [(kpi_id, violation), ...] across the registry."""
     allowed = _load_allowed_source_types()
@@ -114,7 +141,13 @@ def main() -> int:
         print(f"    ⚠ {kpi_id}: {err}")
     ok = total - len({k for k, _ in violations})
     print(f"\nContent-Grounding §6.3: {ok}/{total} benchmarks grounded, {len(violations)} violation(s).")
-    if args.strict and violations:
+
+    link_violations = check_bracket_links()
+    for bid, err in link_violations:
+        print(f"    ⚠ {bid}: {err}")
+    print(f"Benchmark axis links: {len(link_violations)} broken.")
+
+    if args.strict and (violations or link_violations):
         return 1
     return 0
 
