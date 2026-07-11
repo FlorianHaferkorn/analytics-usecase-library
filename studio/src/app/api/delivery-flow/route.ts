@@ -21,9 +21,10 @@ export async function GET(request: Request): Promise<Response> {
     return apiValidationError(['bracketId query parameter is required']);
   }
   const target = searchParams.get('target') || 'tmdl';
+  const projectId = searchParams.get('projectId') ?? 'default';
 
   const bracketExists = Boolean(await resolveBracketPath(bracketId));
-  const approval = bracketExists ? getLifecycle(bracketId).status : null;
+  const approval = bracketExists ? getLifecycle(bracketId, projectId).status : null;
   // Only run the (subprocess) gate once the bracket is approved — no point
   // generating a deliverable the Freigabe-Schleuse has not cleared.
   const generate = approval === 'approved' ? await runGenerate(bracketId, target) : null;
