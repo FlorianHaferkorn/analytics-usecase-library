@@ -5,7 +5,7 @@
 
 import { requireAuth } from '@/lib/auth/session';
 import { findOrCreateUser } from '@/lib/db/user-repo';
-import { getOrganization, deleteOrganization, listOrgMembers, listOrgProjects, checkOrgAccess } from '@/lib/db/org-repo';
+import { getOrganization, deleteOrganization, listOrgMembersWithDetails, listOrgProjects, checkOrgAccess } from '@/lib/db/org-repo';
 import { logAuditEvent } from '@/lib/db/audit-repo';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
@@ -25,7 +25,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ org
 
   return apiSuccess({
     organization,
-    members: listOrgMembers(orgId),
+    members: listOrgMembersWithDetails(orgId),
     projects: listOrgProjects(orgId),
   });
 }

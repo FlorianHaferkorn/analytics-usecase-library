@@ -27,7 +27,7 @@ export function addProjectMember(
 }
 
 /** Remove a member from a project. */
-function removeProjectMember(projectId: string, userId: string): boolean {
+export function removeProjectMember(projectId: string, userId: string): boolean {
   const db = getDb();
   const result = db.prepare(
     'DELETE FROM project_members WHERE user_id = ? AND project_id = ?',
@@ -36,7 +36,7 @@ function removeProjectMember(projectId: string, userId: string): boolean {
 }
 
 /** Get a specific member's role in a project. */
-function getProjectMember(
+export function getProjectMember(
   projectId: string,
   userId: string,
 ): ProjectMember | undefined {

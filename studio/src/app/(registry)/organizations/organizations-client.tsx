@@ -10,7 +10,8 @@
 
 import { useEffect, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
-import { StudioFormField, StudioFormGrid, StudioInlineStat, StudioInput, StudioSelect } from '@/components/ui/studio-data';
+import { StudioFormField, StudioFormGrid, StudioInlineStat, StudioInput, StudioSelect, StudioTextarea } from '@/components/ui/studio-data';
+import { OrgMembersPanel, type OrgMemberRow } from '@/components/registry/org-members-panel';
 
 interface OrgSummary {
   id: string;
@@ -22,13 +23,6 @@ interface ProjectSummary {
   id: string;
   name: string;
   org_id: string | null;
-}
-
-interface OrgMemberRow {
-  user_id: string;
-  org_id: string;
-  org_role: 'owner' | 'admin' | 'member';
-  created_at: string;
 }
 
 interface OrgDetail {
@@ -48,9 +42,9 @@ export function OrganizationsClient({ initialOrganizations, projects }: Props) {
   const [detail, setDetail] = useState<OrgDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [newOrgName, setNewOrgName] = useState('');
-  const [memberEmail, setMemberEmail] = useState('');
-  const [memberRole, setMemberRole] = useState<'owner' | 'admin' | 'member'>('member');
   const [assignProjectId, setAssignProjectId] = useState('');
+  const [breakGlassProjectId, setBreakGlassProjectId] = useState<string | null>(null);
+  const [breakGlassJustification, setBreakGlassJustification] = useState('');
 
   async function loadDetail(orgId: string) {
     setError(null);
@@ -84,28 +78,6 @@ export function OrganizationsClient({ initialOrganizations, projects }: Props) {
     }
   }
 
-  async function addMember() {
-    if (!selectedId || !memberEmail.trim()) return;
-    const res = await fetch(`/api/org/${selectedId}/members`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: memberEmail.trim(), orgRole: memberRole }),
-    });
-    if (res.ok) {
-      setMemberEmail('');
-      loadDetail(selectedId);
-    } else {
-      const json = await res.json();
-      setError(json.error?.message ?? 'Failed to add member');
-    }
-  }
-
-  async function removeMember(email: string) {
-    if (!selectedId) return;
-    const res = await fetch(`/api/org/${selectedId}/members?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
-    if (res.ok) loadDetail(selectedId);
-  }
-
   async function assignProject() {
     if (!selectedId || !assignProjectId) return;
     const res = await fetch(`/api/org/${selectedId}/assign-project`, {
@@ -123,6 +95,24 @@ export function OrganizationsClient({ initialOrganizations, projects }: Props) {
     if (!selectedId) return;
     const res = await fetch(`/api/org/${selectedId}/assign-project?projectId=${encodeURIComponent(projectId)}`, { method: 'DELETE' });
     if (res.ok) loadDetail(selectedId);
+  }
+
+  async function breakGlass(projectId: string) {
+    if (!selectedId || !breakGlassJustification.trim()) return;
+    setError(null);
+    const res = await fetch(`/api/org/${selectedId}/break-glass`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, justification: breakGlassJustification.trim() }),
+    });
+    if (res.ok) {
+      setBreakGlassProjectId(null);
+      setBreakGlassJustification('');
+      loadDetail(selectedId);
+    } else {
+      const json = await res.json();
+      setError(json.error?.message ?? 'Break-glass override failed');
+    }
   }
 
   const unassignedProjects = projects.filter((p) => p.org_id !== selectedId);
@@ -170,34 +160,31 @@ export function OrganizationsClient({ initialOrganizations, projects }: Props) {
               <StudioInlineStat>{detail.members.length} member{detail.members.length === 1 ? '' : 's'} · {detail.projects.length} project{detail.projects.length === 1 ? '' : 's'}</StudioInlineStat>
             </StudioPanel>
 
-            <StudioPanel title="Members" description="Org role only grants project access as a fallback when no explicit project role is set (never overrides one).">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {detail.members.map((m) => (
-                  <div key={m.user_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)' }}>
-                    <span style={{ fontSize: '0.8125rem' }}>{m.user_id} — {m.org_role}</span>
-                  </div>
-                ))}
-                {detail.members.length === 0 && <StudioInlineStat>No members yet.</StudioInlineStat>}
-              </div>
-              <StudioFormGrid columns="2fr 1fr auto">
-                <StudioFormField label="Email"><StudioInput value={memberEmail} onChange={(e) => setMemberEmail(e.target.value)} placeholder="user@example.com" /></StudioFormField>
-                <StudioFormField label="Role">
-                  <StudioSelect value={memberRole} onChange={(e) => setMemberRole(e.target.value as typeof memberRole)}>
-                    <option value="member">member</option>
-                    <option value="admin">admin</option>
-                    <option value="owner">owner</option>
-                  </StudioSelect>
-                </StudioFormField>
-                <StudioFormField label=" "><StudioButton onClick={addMember} tone="success" variant="primary">Add</StudioButton></StudioFormField>
-              </StudioFormGrid>
-            </StudioPanel>
+            <OrgMembersPanel orgId={selectedId!} members={detail.members} onChanged={() => loadDetail(selectedId!)} />
 
             <StudioPanel title="Projects" description="Assigning a project here does not change its existing project_members rows (ADR-0014: sticky, no silent migration).">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {detail.projects.map((p) => (
-                  <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)' }}>
-                    <span style={{ fontSize: '0.8125rem' }}>{p.name}</span>
-                    <StudioButton onClick={() => unassignProject(p.id)} variant="ghost">Unassign</StudioButton>
+                  <div key={p.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 'var(--radius-sm)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.8125rem' }}>{p.name}</span>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <StudioButton onClick={() => setBreakGlassProjectId(breakGlassProjectId === p.id ? null : p.id)} variant="ghost">Break-glass override</StudioButton>
+                        <StudioButton onClick={() => unassignProject(p.id)} variant="ghost">Unassign</StudioButton>
+                      </div>
+                    </div>
+                    {breakGlassProjectId === p.id && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingTop: '4px', borderTop: '1px solid var(--line)' }}>
+                        <StudioInlineStat>Org-owner override (ADR-0014 O-4): grants YOU an explicit admin role on this project, audited. Use only if an old project role is capping your access below your org role.</StudioInlineStat>
+                        <StudioTextarea
+                          value={breakGlassJustification}
+                          onChange={(e) => setBreakGlassJustification(e.target.value)}
+                          placeholder="Justification for the override (required)"
+                          style={{ minHeight: '48px', fontSize: '0.75rem' }}
+                        />
+                        <StudioButton onClick={() => breakGlass(p.id)} disabled={!breakGlassJustification.trim()} variant="primary">Grant myself admin</StudioButton>
+                      </div>
+                    )}
                   </div>
                 ))}
                 {detail.projects.length === 0 && <StudioInlineStat>No projects assigned — this org groups no projects yet.</StudioInlineStat>}

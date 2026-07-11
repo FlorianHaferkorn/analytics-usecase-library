@@ -264,18 +264,47 @@ Acht Festlegungen:
 
 ## Open decisions (an I-9.2 oder späteren Kundenkontext)
 
-- **O-1 Org-Einladungs-/Onboarding-Flow, inkl. Bootstrap der ersten `owner`-Zeile.** Produkt-/
-  UX-Entscheidung, aus dem Repo heraus nicht generisch beantwortbar.
+O-1, O-3 und O-4 sind inzwischen (Follow-up nach I-9.2, siehe Ledger) je in ihrem
+aus-dem-Repo-heraus entscheidbaren Teil umgesetzt — analog zu ADR-0009s O-3/O-4-Präzedenz sind
+das reine interne Engineering-Entscheidungen ohne echten Kundenkontext-Bedarf. O-2 und O-5 bleiben
+bewusst offen (DoD-Fehlerfall-Klausel: „Kundenkontext nötig → als bewusst-offen markieren, nicht
+raten"), da sie erst relevant werden, falls I-9.2 sich für eine gehostete Topologie entscheidet —
+eine Entscheidung, die dieses ADR explizit nicht trifft.
+
+- **O-1 Org-Einladungs-/Onboarding-Flow — teilentschieden.** Der Bootstrap der ersten
+  `owner`-Zeile war bereits implementiert (`POST /api/org` ruft `createOrganization` gefolgt von
+  `addOrgMember(org.id, creator, 'owner')` — der Ersteller wird sofort erster Owner, exakt wie
+  ein Projekt-Ersteller heute schon Admin wird), nur ungetestet; jetzt per Regressionstest
+  (`tests/lib/org-rbac.test.ts`, „O-1 bootstrap") abgesichert. **Bewusst weiter offen:** der
+  eigentliche Einladungs-Flow (jemand OHNE bestehenden Account per E-Mail einladen, Accept/Decline)
+  bleibt eine Produkt-/UX-Entscheidung — `members/route.ts` provisioniert weiterhin bewusst
+  keinen Phantom-User für eine nie eingeloggte E-Mail (s. I-9.2-Ledgerzeile).
 - **O-2 Deployment-Topologie (lokal vs. gehostet) und alles, was gehostet mit sich bringt**
   (Abrechnung, Kontingente, Multi-Instance-Sync) — nur relevant, falls I-9.2 sich für gehostet
   entscheidet; bewusst nicht vorweggenommen.
-- **O-3 Anzeige-Verknüpfung zu `core/organization/org_roles.yaml`** (z. B. Org-Mitglied ↔
-  Business-Steward-Label in der Governance-UI) — optionale UX-Politur, nicht blockierend für I-9.2.
-- **O-4 Org-Owner-Break-Glass-Override.** Festlegung 4 erkennt an, dass „kein Merge" einen
-  Org-Owner unterhalb seiner Org-Rolle deckeln kann, wenn eine ältere, engere `project_members`-
-  Zeile besteht (potenzielles Lockout-Szenario auf einem Projekt der eigenen Org). Ob/wie ein
-  separater, auditierter Override-Mechanismus aussieht (statt eines stillen Rollen-Merges) ist
-  eine echte Sicherheits-/UX-Abwägung, die I-9.2 mit Tests treffen muss, nicht dieses ADR.
+- **O-3 Anzeige-Verknüpfung zu `core/organization/org_roles.yaml` — entschieden und umgesetzt.**
+  Neue nullable `org_members.business_role_id`-Spalte, rein anzeigend (nie von `checkAccess`/
+  `checkOrgAccess` gelesen), validiert gegen das echte `loadOrgRoles()`-Register beim Setzen, im
+  Members-Panel über die bestehende `RoleChip`-Komponente gerendert — dasselbe Muster, das
+  Bracket-`owner_role`/`steward_role` schon nutzen. Kein neues Konzept, nur dieselbe Verknüpfung
+  auf Org-Mitglieder ausgeweitet.
+- **O-4 Org-Owner-Break-Glass-Override — entschieden und umgesetzt.** Festlegung 4 erkennt an,
+  dass „kein Merge" einen Org-Owner unterhalb seiner Org-Rolle deckeln kann, wenn eine ältere,
+  engere `project_members`-Zeile besteht (potenzielles Lockout-Szenario auf einem Projekt der
+  eigenen Org). Statt eines stillen Rollen-Merges innerhalb `checkAccess` (was Festlegung 4
+  explizit ablehnt): eine separate, explizite, auditierte Mutation
+  (`POST /api/org/[orgId]/break-glass`) — nur der Org-**Owner** selbst (nicht Admin, kein
+  Fremdziel) kann sich damit eine echte `admin`-`project_members`-Zeile auf einem Projekt der
+  eigenen Org setzen, Pflicht-Begründung, vollständig auditiert (`entity_type: 'project_member'`,
+  `action: 'break_glass_override'`). `checkAccess`s Zwei-Stufen-Auflösung selbst bleibt
+  unverändert — danach löst sie nur die (jetzt echte) explizite Zeile auf, wie jede andere
+  `project_members`-Vergabe auch. Zwei Härtungen aus dem SA-Review desselben Schritts: (a) `POST`
+  verweigert, wenn der Owner laut `checkAccess` (explizite Zeile ODER Org-Fallback) bereits Admin
+  ist — sonst wäre der Mechanismus ein allgemeiner „Admin auf jedem Org-Projekt greifen"-Shortcut
+  statt eines echten Lockout-Recovery-Werkzeugs. (b) `DELETE` (Self-Revert) macht die Vergabe
+  reversibel — entfernt die eigene explizite Zeile wieder, fällt zurück auf die normale
+  Zwei-Stufen-Auflösung (die z. B. eine spätere Org-Rollen-Degradierung korrekt wiederspiegelt,
+  was eine liegengebliebene explizite Zeile sonst verdeckt hätte).
 - **O-5 Isolationsprimitive für eine gehostete Topologie.** `tenant_id` je Leaf-Tabelle und/oder
   Row-Level-Security vs. ausschließlich `project_id`-Joins — nur relevant, falls I-9.2 sich für
   gehostet entscheidet (s. O-2), aber selbst dann eine Datenmodell-Entscheidung, keine reine
