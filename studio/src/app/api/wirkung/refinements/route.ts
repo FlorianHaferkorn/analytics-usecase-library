@@ -36,10 +36,10 @@ export async function POST(request: Request) {
     return apiValidationError(['proposalKey and action required']);
   }
 
-  if (body.action === 'approve') {
+  if (body.action === 'approve' || body.action === 'reject') {
     const dbUser = findOrCreateUser(user.email, user.name);
     if (!checkAccess('default', dbUser.id, 'admin')) {
-      return apiError(ErrorCode.FORBIDDEN, 'Admin role required for approval', 403);
+      return apiError(ErrorCode.FORBIDDEN, 'Admin role required to approve or reject refinements', 403);
     }
   }
 
