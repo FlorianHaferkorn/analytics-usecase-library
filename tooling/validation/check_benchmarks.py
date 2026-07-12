@@ -127,6 +127,36 @@ def _load_allowed_source_types() -> set[str]:
     return set((data.get("source_types") or {}).keys())
 
 
+import re  # noqa: E402
+
+_STOP_TOKENS = {"and", "the", "services", "goods", "group", "sector", "industry"}
+
+
+def _industry_tokens(s: str) -> set[str]:
+    return {t for t in re.split(r"[^a-z0-9]+", (s or "").lower()) if len(t) >= 4 and t not in _STOP_TOKENS}
+
+
+def resolve_benchmark(benchmark: dict[str, Any], industry: str) -> tuple[Any, str]:
+    """Resolve a benchmark to the value a *specific* client should be compared against.
+
+    Returns (value, basis):
+      • normative → (value, "universal")           — a defined standard applies to all.
+      • empirical + matching segment → (segment value, "segment:<industry>").
+      • empirical, no match → (cross-industry value, "cross_industry_fallback") — the
+        number is honestly labelled a fallback, not a peer benchmark.
+
+    `industry` is a DEPLOYMENT parameter (ALUCA is a library — the client's industry is
+    supplied when the library is deployed, not committed). Pure function — unit-tested.
+    """
+    if benchmark.get("benchmark_class") != "empirical":
+        return benchmark.get("value"), "universal"
+    itoks = _industry_tokens(industry)
+    for seg in benchmark.get("segments", []) or []:
+        if _industry_tokens(str(seg.get("industry", ""))) & itoks:
+            return seg.get("value"), f"segment:{seg.get('industry')}"
+    return benchmark.get("value"), "cross_industry_fallback"
+
+
 def _benchmarked_kpi_ids() -> set[str]:
     data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8")) or {}
     return {e.get("kpi_id") for e in data.get("benchmarks", []) or [] if e.get("kpi_id")}

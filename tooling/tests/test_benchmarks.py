@@ -85,6 +85,25 @@ def test_bad_as_of_is_flagged():
     assert any("as_of" in e for e in validate_entry(_entry(sources=[_src(tier="primary"), _src(as_of="July 2026")]), _ALLOWED))
 
 
+def test_resolver_picks_segment_normative_and_fallback():
+    from tooling.validation.check_benchmarks import resolve_benchmark
+    nps = _empirical(segments=[{"industry": "Retail", "value": 45.0},
+                               {"industry": "SaaS / B2B software", "value": 35.0}])
+    assert resolve_benchmark(nps, "Omnichannel Retail & Consumer Goods") == (45.0, "segment:Retail")
+    assert resolve_benchmark(nps, "Aerospace")[1] == "cross_industry_fallback"
+    assert resolve_benchmark(_entry(), "anything") == (85.0, "universal")   # normative
+
+
+def test_resolver_on_committed_nps_across_industries():
+    """The committed NPS benchmark resolves peer-relatively — the whole point."""
+    from tooling.validation.check_benchmarks import resolve_benchmark
+    data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
+    nps = next(b for b in data["benchmarks"] if b["kpi_id"] == "crm.nps.index")
+    assert resolve_benchmark(nps, "SaaS platform")[0] == 35.0
+    assert resolve_benchmark(nps, "Grocery retail")[0] == 45.0
+    assert resolve_benchmark(nps, "Mining")[1] == "cross_industry_fallback"
+
+
 def test_committed_empirical_benchmarks_have_segments():
     """Every committed empirical benchmark is peer-relative (has ≥2 industry segments)."""
     data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
