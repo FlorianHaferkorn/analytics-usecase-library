@@ -375,3 +375,58 @@ class TestRealCatalogResolution:
         # The north-star measure carries real DAX, not a BLANK() placeholder.
         gm = next(m for m in spec.measures if m.name == "Gross Margin %")
         assert gm.dax and "BLANK" not in gm.dax
+
+
+class TestBenchmarkReferenceLabel:
+    """The third comparison axis is *visible*: a hero card opting into the benchmark
+    axis compiles to a peer-relative reference-label (K4 → render wiring)."""
+
+    def _repo_root(self) -> Path:
+        return Path(__file__).resolve().parents[3]
+
+    def test_format_label_normative_empirical_and_fallback(self):
+        from ..ir.compiler import _format_benchmark_label
+        norm = {"unit": "pct", "metric": "world_class"}
+        assert _format_benchmark_label(norm, 85.0, "universal") == "vs. world-class 85%"
+        nps = {"unit": "index", "metric": "median"}
+        assert _format_benchmark_label(nps, 45.0, "segment:Retail") == "vs. Retail peer 45"
+        assert _format_benchmark_label(nps, 44.0, "cross_industry_fallback") == \
+            "vs. cross-industry 44 (no sector match)"
+
+    def test_ops001_hero_compiles_a_benchmark_reference_and_caption(self):
+        repo_root = self._repo_root()
+        bracket = repo_root / "core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml"
+        if not bracket.exists():
+            pytest.skip("real repo layout not present")
+        compiler = BracketCompiler(repo_root / "core/kpi_catalog", repo_root / "core/action_codes")
+        spec = compiler.compile(bracket)
+        overview = next(p for p in spec.pages if p.role == PageRole.OVERVIEW)
+
+        card = overview.visual_by_id("KPI_Cards")
+        ref = card.config.get("benchmark_reference")
+        assert ref and ref["kpi_id"] == "ops.oee.pct"
+        assert ref["basis"] == "universal" and ref["label"] == "vs. world-class 85%"
+        # the primary comparison is preserved — the benchmark is additive
+        caption = overview.visual_by_id("Benchmark_Caption")
+        assert caption is not None and caption.visual_type == VisualType.TEXT_BOX
+        assert caption.config["text"] == "vs. world-class 85%"
+
+    def test_empirical_benchmark_resolves_to_deployment_industry(self):
+        repo_root = self._repo_root()
+        registry = repo_root / "core/kpi_catalog/benchmarks.yaml"
+        if not registry.exists():
+            pytest.skip("real repo layout not present")
+        # A retail deployment sees the peer segment; an unmatched one sees an honest fallback.
+        retail = BracketCompiler(repo_root / "core/kpi_catalog", repo_root / "core/action_codes",
+                                 deployment_industry="Omnichannel Retail & Consumer Goods")
+        assert retail._benchmark_reference("crm.nps.index")["label"] == "vs. Retail peer 45"
+        mining = BracketCompiler(repo_root / "core/kpi_catalog", repo_root / "core/action_codes",
+                                 deployment_industry="Mining")
+        assert "cross-industry" in mining._benchmark_reference("crm.nps.index")["label"]
+
+    def test_no_benchmark_kpi_returns_none(self):
+        repo_root = self._repo_root()
+        if not (repo_root / "core/kpi_catalog/benchmarks.yaml").exists():
+            pytest.skip("real repo layout not present")
+        compiler = BracketCompiler(repo_root / "core/kpi_catalog", repo_root / "core/action_codes")
+        assert compiler._benchmark_reference("does.not.exist") is None

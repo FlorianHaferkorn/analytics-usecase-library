@@ -149,10 +149,13 @@ def _build_visual_json(vspec: VisualSpec, tab_order: int = 3000) -> Dict[str, An
             "query": {"queryState": _build_query_state(vspec)},
         },
     }
-    if vspec.visual_type == VisualType.ACTION_PANEL:
+    if vspec.visual_type in (VisualType.ACTION_PANEL, VisualType.TEXT_BOX):
         visual["visual"]["visualType"] = "textbox"
+        paragraph: Dict[str, Any] = {"textRuns": [{"value": vspec.config.get("text", "")}]}
+        if vspec.config.get("align"):
+            paragraph["horizontalTextAlignment"] = vspec.config["align"]
         visual["visual"]["objects"] = {
-            "general": [{"properties": {"paragraphs": [{"textRuns": [{"value": vspec.config.get("text", "")}]}]}}]
+            "general": [{"properties": {"paragraphs": [paragraph]}}]
         }
     if vspec.visual_type == VisualType.SLICER:
         visual["visual"]["objects"] = {

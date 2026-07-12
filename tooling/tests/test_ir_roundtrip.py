@@ -256,6 +256,35 @@ class TestSpeakingReportName:
         assert _speaking_report_name("OPS-003", "") == "OPS-003"
 
 
+# ── benchmark reference-label caption tests ───────────────────────────────────
+
+class TestBenchmarkCaptionEmit:
+    """The benchmark reference-label renders via the corpus-verified textbox shape
+    (paragraphs/textRuns) — never an unverified card reference-line object."""
+
+    def _caption(self, config):
+        from tooling.generator_core.ir.specs import VisualSpec, Position, Binding
+        from products.fabric.powerbi.tooling.adapters.pbip import _build_visual_json
+        v = VisualSpec(
+            id="Benchmark_Caption", visual_type=VisualType.TEXT_BOX,
+            page_role=PageRole.OVERVIEW, position=Position(0.0167, 0.152, 0.9666, 0.030),
+            binding=Binding(), config=config,
+        )
+        return _build_visual_json(v)
+
+    def test_caption_emits_textbox_with_label_text(self):
+        j = self._caption({"text": "vs. Retail peer 45", "align": "right"})
+        assert j["visual"]["visualType"] == "textbox"
+        para = j["visual"]["objects"]["general"][0]["properties"]["paragraphs"][0]
+        assert para["textRuns"][0]["value"] == "vs. Retail peer 45"
+        assert para["horizontalTextAlignment"] == "right"
+
+    def test_caption_without_align_omits_alignment(self):
+        j = self._caption({"text": "vs. world-class 85%"})
+        para = j["visual"]["objects"]["general"][0]["properties"]["paragraphs"][0]
+        assert "horizontalTextAlignment" not in para
+
+
 # ── TMDL generation tests ─────────────────────────────────────────────────────
 
 class TestTMDLGeneration:
