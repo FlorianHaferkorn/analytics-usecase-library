@@ -54,23 +54,39 @@ def kpi_exists(kpi_id: str) -> bool:
     return (_KPIS_DIR / f"{kpi_id}.yaml").is_file()
 
 
+_MIN_SOURCES = 2  # industry benchmarks need corroboration — a single source is unreliable
+
+
+def _is_iso(d: str) -> bool:
+    return len(d) == 10 and d[4] == "-" and d[7] == "-"
+
+
 def validate_entry(entry: dict[str, Any], allowed_source_types: set[str]) -> list[str]:
     """Return a list of provenance/grounding violations for one benchmark entry.
 
+    Enforces the Golden Thread, per-source provenance, and ≥2 corroborating sources.
     Pure function — unit-tested in tooling/tests/test_benchmarks.py.
     """
     errs: list[str] = []
     kpi_id = entry.get("kpi_id", "")
     if not kpi_id or not kpi_exists(kpi_id):
         errs.append(f"kpi_id '{kpi_id}' does not resolve to a governed KPI (Golden Thread)")
-    st = entry.get("source_type", "")
-    if st not in allowed_source_types:
-        errs.append(f"source_type '{st}' not in benchmark_sources.yaml")
-    if not str(entry.get("source", "")).strip():
-        errs.append("source citation missing (no free assertions)")
-    as_of = str(entry.get("as_of", ""))
-    if not (len(as_of) == 10 and as_of[4] == "-" and as_of[7] == "-"):
-        errs.append(f"as_of '{as_of}' is not an ISO date (YYYY-MM-DD)")
+
+    sources = entry.get("sources")
+    sources = sources if isinstance(sources, list) else []
+    if len(sources) < _MIN_SOURCES:
+        errs.append(f"only {len(sources)} source(s) — need ≥{_MIN_SOURCES} corroborating references")
+    for i, s in enumerate(sources):
+        if not isinstance(s, dict):
+            errs.append(f"source[{i}] is not an object")
+            continue
+        if s.get("source_type") not in allowed_source_types:
+            errs.append(f"source[{i}] source_type '{s.get('source_type')}' not in benchmark_sources.yaml")
+        if len(str(s.get("citation", "")).strip()) < 12:
+            errs.append(f"source[{i}] citation missing/too short (no bare assertions)")
+        if not _is_iso(str(s.get("as_of", ""))):
+            errs.append(f"source[{i}] as_of '{s.get('as_of')}' is not an ISO date")
+
     unit = entry.get("unit", "")
     val = entry.get("value")
     lo, hi = _UNIT_RANGES.get(unit, (None, None))
@@ -79,6 +95,11 @@ def validate_entry(entry: dict[str, Any], allowed_source_types: set[str]) -> lis
             errs.append(f"value {val} below sane minimum {lo} for unit '{unit}'")
         if hi is not None and val > hi:
             errs.append(f"value {val} above sane maximum {hi} for unit '{unit}'")
+
+    rng = entry.get("range")
+    if isinstance(rng, dict):
+        if rng.get("low") is not None and rng.get("high") is not None and rng["low"] > rng["high"]:
+            errs.append(f"range low {rng['low']} > high {rng['high']}")
     return errs
 
 

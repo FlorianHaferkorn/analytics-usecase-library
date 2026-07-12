@@ -22,12 +22,18 @@ _SCHEMA = REPO / "tooling/generator/schemas/benchmark.schema.json"
 _ALLOWED = {"industry_standard", "market_report"}
 
 
+def _src(**over):
+    s = dict(citation="SQM Group 2024 — world-class FCR 80%+ (industry avg 70%).",
+             source_type="market_report", as_of="2026-07-11")
+    s.update(over)
+    return s
+
+
 def _entry(**over):
     base = dict(
         kpi_id="ops.oee.pct", scope="Manufacturing", metric="world_class",
         value=85.0, unit="pct", direction="higher_is_better",
-        source="Nakajima (1988), Introduction to TPM — world-class OEE.",
-        source_type="industry_standard", as_of="2026-07-11",
+        sources=[_src(), _src(source_type="industry_standard")],   # ≥2 corroborating
     )
     base.update(over)
     return base
@@ -42,24 +48,41 @@ def test_unknown_kpi_is_flagged():
     assert any("Golden Thread" in e for e in errs)
 
 
+def test_single_source_is_flagged():
+    errs = validate_entry(_entry(sources=[_src()]), _ALLOWED)
+    assert any("corroborating" in e for e in errs)
+
+
 def test_unknown_source_type_is_flagged():
-    errs = validate_entry(_entry(source_type="blog_post"), _ALLOWED)
+    errs = validate_entry(_entry(sources=[_src(), _src(source_type="blog_post")]), _ALLOWED)
     assert any("source_type" in e for e in errs)
 
 
-def test_missing_source_is_flagged():
-    errs = validate_entry(_entry(source="  "), _ALLOWED)
-    assert any("source citation missing" in e for e in errs)
+def test_missing_citation_is_flagged():
+    errs = validate_entry(_entry(sources=[_src(), _src(citation="  ")]), _ALLOWED)
+    assert any("citation" in e for e in errs)
 
 
 def test_bad_as_of_is_flagged():
-    errs = validate_entry(_entry(as_of="July 2026"), _ALLOWED)
+    errs = validate_entry(_entry(sources=[_src(), _src(as_of="July 2026")]), _ALLOWED)
     assert any("as_of" in e for e in errs)
+
+
+def test_range_low_above_high_is_flagged():
+    errs = validate_entry(_entry(range={"low": 90.0, "high": 10.0}), _ALLOWED)
+    assert any("range" in e for e in errs)
 
 
 def test_pct_out_of_range_is_flagged():
     errs = validate_entry(_entry(value=140.0, unit="pct"), _ALLOWED)
     assert any("above sane maximum" in e for e in errs)
+
+
+def test_committed_registry_is_corroborated():
+    """Every committed benchmark carries ≥2 sources."""
+    data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
+    for b in data["benchmarks"]:
+        assert len(b.get("sources", [])) >= 2, b["kpi_id"]
 
 
 def test_committed_registry_is_fully_grounded():
