@@ -60,10 +60,50 @@ def check_report(report_dir: Path) -> Optional[bool]:
     return classify_theme(report_dir)[0]
 
 
+def active_theme(report_dir: Path) -> Optional[str]:
+    """The report's ACTIVE custom theme name (report.json themeCollection.customTheme.name).
+
+    Distinct from classify_theme, which only asks whether *a* composed theme is registered;
+    a report can register several resources but applies exactly one. Filesystem read only.
+    """
+    for rj in (report_dir / "definition" / "report.json", report_dir / "report.json"):
+        if rj.is_file():
+            try:
+                data = json.loads(rj.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                return None
+            ct = (data.get("themeCollection", {}) or {}).get("customTheme", {}) or {}
+            name = ct.get("name")
+            return str(name) if name else None
+    return None
+
+
+def check_consistency(dist: Path = _DIST) -> tuple[dict[str, str], bool]:
+    """BC-BRAND-02: every report applies ONE and the same active custom theme, so the set
+    looks like one firm. Returns ({report: active_theme}, is_consistent). Pure-ish."""
+    reports = sorted(dist.glob("*.Report")) if dist.is_dir() else []
+    themes = {r.name: t for r in reports if (t := active_theme(r))}
+    return themes, len(set(themes.values())) <= 1
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="BC-BRAND-01 custom-theme validator")
-    parser.add_argument("--strict", action="store_true", help="Missing/default theme = exit 1")
+    parser = argparse.ArgumentParser(description="BC-BRAND-01/02 custom-theme validator")
+    parser.add_argument("--strict", action="store_true", help="Missing/default theme (or drift) = exit 1")
+    parser.add_argument("--consistency", action="store_true",
+                        help="BC-BRAND-02: all reports must share one active theme")
     args = parser.parse_args()
+
+    if args.consistency:
+        themes, ok = check_consistency()
+        distinct = sorted(set(themes.values()))
+        print(f"\nBC-BRAND-02: {len(themes)} reports, {len(distinct)} distinct active theme(s).")
+        if not ok:
+            from collections import Counter  # noqa: PLC0415
+            common = Counter(themes.values()).most_common(1)[0][0]
+            for rep, t in sorted(themes.items()):
+                if t != common:
+                    print(f"    ⚠ {rep}: active theme '{t}' ≠ set '{common}' — BC-BRAND-02 drift")
+        return 1 if (args.strict and not ok) else 0
 
     reports = sorted(_DIST.glob("*.Report")) if _DIST.is_dir() else []
     custom = missing = 0

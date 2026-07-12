@@ -8,7 +8,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from tooling.validation.check_custom_theme import classify_theme, check_report
+from tooling.validation.check_custom_theme import (
+    classify_theme, check_report, active_theme, check_consistency,
+)
 
 REPO = Path(__file__).resolve().parents[2]
 _DIST = REPO / "products/fabric/powerbi/dist"
@@ -53,3 +55,38 @@ def test_committed_dist_all_custom_themed():
     assert reports, "no dist reports found"
     missing = [r.name for r in reports if check_report(r) is False]
     assert missing == [], f"reports on renderer default: {missing}"
+
+
+# ── BC-BRAND-02: cross-report theme consistency ──────────────────────────────
+
+def _make_active(tmp_path: Path, name: str, theme_name: str) -> Path:
+    rep = tmp_path / f"{name}.Report"
+    (rep / "definition").mkdir(parents=True)
+    (rep / "definition" / "report.json").write_text(
+        json.dumps({"themeCollection": {"customTheme": {"name": theme_name}}}), encoding="utf-8")
+    return rep
+
+
+def test_active_theme_reads_report_json(tmp_path):
+    rep = _make_active(tmp_path, "UC-A", "Brand_Navy")
+    assert active_theme(rep) == "Brand_Navy"
+
+
+def test_consistency_passes_when_all_share_one_theme(tmp_path):
+    _make_active(tmp_path, "UC-A", "Brand_Navy")
+    _make_active(tmp_path, "UC-B", "Brand_Navy")
+    themes, ok = check_consistency(tmp_path)
+    assert ok is True and set(themes.values()) == {"Brand_Navy"}
+
+
+def test_consistency_flags_drift(tmp_path):
+    _make_active(tmp_path, "UC-A", "Brand_Navy")
+    _make_active(tmp_path, "UC-B", "Brand_Rose")   # a second firm-look → drift
+    _themes, ok = check_consistency(tmp_path)
+    assert ok is False
+
+
+def test_committed_dist_is_brand_consistent():
+    """BC-BRAND-02: the committed report set applies one active theme (looks like one firm)."""
+    _themes, ok = check_consistency(_DIST)
+    assert ok is True, f"active-theme drift across reports: {sorted(set(_themes.values()))}"
