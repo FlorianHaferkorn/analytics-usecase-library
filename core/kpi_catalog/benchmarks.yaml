@@ -274,3 +274,53 @@ benchmarks:
       Empirical for inv.dio.days (lower is better) — DIO is the reciprocal-in-days of turns;
       a grocer at 15d and a manufacturer at 75d are both healthy. Use the sector segment,
       never the 45-day cross-industry median.
+
+  - kpi_id: quality.fpy.pct
+    scope: "First Pass Yield — world-class manufacturing standard"
+    benchmark_class: normative
+    metric: world_class
+    value: 98.0
+    unit: pct
+    direction: higher_is_better
+    range: { low: 93.0, high: 99.5 }
+    sources:
+      - citation: >-
+          6sigma.us, "First Pass Yield (FPY) in Manufacturing — Lean Six Sigma" — FPY is the
+          quality-yield standard; world-class sustains ≥98%, <90% signals process instability.
+        source_type: industry_standard
+        tier: primary
+        as_of: '2026-07-12'
+      - citation: >-
+          Averroes.ai, "Yield in Manufacturing: Benchmarks & Strategies" (2024) — mature lines
+          run 93–96% first-pass yield, world-class operations sustain 98.5%+.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+    note: >-
+      Normative for quality.fpy.pct (OPS-003). Universal manufacturing bar: 98% world-class
+      FPY (units right first time, no rework/scrap). Unlike scrap, FPY also penalises rework.
+
+  - kpi_id: quality.scrap.pct
+    scope: "Scrap rate — world-class manufacturing standard"
+    benchmark_class: normative
+    metric: world_class
+    value: 1.0
+    unit: pct
+    direction: lower_is_better
+    range: { low: 0.5, high: 5.0 }
+    sources:
+      - citation: >-
+          symestic, "Scrap Rate: Formula, Benchmarks & the Honest Number" — world-class scrap
+          <1%; 2–5% is a typical industry range; a low scrap rate can still hide high rework.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          Fabrico, "OEE Quality: Reducing Scrap and Rework" — corroborates the sub-1% world-class
+          scrap bar and the scrap-vs-FPY distinction (scrap excludes reworked units).
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Normative for quality.scrap.pct (lower is better). World-class ≤1%; 2–5% typical. Pair with
+      FPY — a 0.5% scrap rate with 82% FPY hides a 17.5% rework gap (symestic's "honest number").
