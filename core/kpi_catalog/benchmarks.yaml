@@ -125,3 +125,120 @@ benchmarks:
     note: >-
       Empirical for crm.nps.index (COM-003) — an index (−100..100), not a percent. Use the
       sector segment: 44 cross-industry hides SaaS ~35 vs retail ~45 vs telecom ~10.
+
+  - kpi_id: inv.turnover
+    scope: "Inventory turns per year — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 8.5
+    unit: ratio
+    direction: higher_is_better
+    range: { low: 5.0, high: 18.0 }
+    segments:
+      - { industry: "Grocery retail", value: 13.0 }
+      - { industry: "Retail (general)", value: 11.0 }
+      - { industry: "Manufacturing", value: 5.3 }
+    sources:
+      - citation: >-
+          Netstock, "Inventory Turnover Benchmarks by Industry" (2024) — cross-sector
+          average ≈8.5 turns/yr; grocery 10–15, general retail ≈11, manufacturing ≈5.3.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          ReadyRatios industry benchmarking (aggregated U.S. SEC filings) — inventory
+          turnover by sector corroborates the retail-high vs manufacturing-low spread.
+        source_type: financial_filings
+        tier: large_sample
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for inv.turnover — turns compare only within a sector (grocery perishables
+      ~13 vs manufacturing ~5). Use the sector segment, not the 8.5 cross-industry average.
+
+  - kpi_id: wc.dso.days
+    scope: "Days Sales Outstanding — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 56.0
+    unit: days
+    direction: lower_is_better
+    range: { low: 11.0, high: 100.0 }
+    segments:
+      - { industry: "Retail / e-commerce", value: 11.0 }
+      - { industry: "Manufacturing", value: 28.0 }
+      - { industry: "B2B services", value: 52.0 }
+      - { industry: "Construction / engineering", value: 100.0 }
+    sources:
+      - citation: >-
+          The Hackett Group 2024 Working Capital Survey (via CFO.com) — cross-industry
+          DSO ≈56 days median; retail/staples paid fastest, capital-intensive slowest.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          Upflow / oAppsNet DSO benchmarks (2024) — corroborates sector spread: retail
+          ~11d (card settlement), manufacturing <30d, B2B services 45–60d, construction ~100d.
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for wc.dso.days (lower is better) — the 56-day median hides card-settled
+      retail (~11d) vs milestone-billed construction (~100d). Use the sector segment.
+
+  - kpi_id: plan.forecast.mape.pct
+    scope: "Demand-forecast MAPE — achievable accuracy by demand profile"
+    benchmark_class: empirical
+    metric: typical
+    value: 20.0
+    unit: pct
+    direction: lower_is_better
+    range: { low: 10.0, high: 60.0 }
+    segments:
+      - { industry: "FMCG / staples (stable demand)", value: 15.0 }
+      - { industry: "Industrial / B2B (project-driven)", value: 30.0 }
+      - { industry: "Apparel / fashion (seasonal)", value: 45.0 }
+    sources:
+      - citation: >-
+          RELEX Solutions, "Measuring forecast accuracy" — stable FMCG SKUs MAPE <15%,
+          seasonal/fashion 35–60%; accuracy is bounded by demand volatility, not effort.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          ToolsGroup, "Forecast Accuracy Benchmarks: What Good Really Means" — corroborates
+          10–20% MAPE for stable demand, far higher for intermittent/short-lifecycle items.
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for plan.forecast.mape.pct (lower is better) — a fashion SKU held to the
+      FMCG 15% bar fails by physics, not performance. Compare against the demand-profile segment.
+
+  - kpi_id: crm.retention.pct
+    scope: "Customer retention rate — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 75.0
+    unit: pct
+    direction: higher_is_better
+    range: { low: 30.0, high: 95.0 }
+    segments:
+      - { industry: "SaaS / B2B software", value: 90.0 }
+      - { industry: "Retail (general)", value: 65.0 }
+      - { industry: "DTC e-commerce", value: 31.0 }
+    sources:
+      - citation: >-
+          First Page Sage, "Customer Retention Rates by Industry" (2026) — SaaS/B2B 85–95%,
+          retail 60–70%, DTC e-commerce ~31%; cross-industry average ≈75%.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          CustomerGauge / Sprinklr retention benchmarks (2024) — corroborates the switching-cost
+          spread: contract-structured SaaS retains ~90%, low-lock-in DTC e-commerce ~30%.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for crm.retention.pct — the 75% average hides 90% SaaS vs 31% DTC e-commerce
+      (driven by switching costs, not effort). Use the sector segment.
