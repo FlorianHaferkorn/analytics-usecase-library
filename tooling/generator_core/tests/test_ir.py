@@ -430,3 +430,24 @@ class TestBenchmarkReferenceLabel:
             pytest.skip("real repo layout not present")
         compiler = BracketCompiler(repo_root / "core/kpi_catalog", repo_root / "core/action_codes")
         assert compiler._benchmark_reference("does.not.exist") is None
+
+    def test_cli_compile_threads_deployment_industry(self, monkeypatch, capsys):
+        """`aluca compile --deployment-industry ... --dry-run` surfaces the resolved
+        reference — proof the deployment parameter reaches the compiler through the CLI."""
+        import os
+        repo_root = self._repo_root()
+        bracket = repo_root / "core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml"
+        if not bracket.exists():
+            pytest.skip("real repo layout not present")
+        from ..__main__ import main
+        monkeypatch.chdir(repo_root)
+        monkeypatch.setattr("sys.argv", [
+            "aluca", "compile", "--bracket", str(bracket),
+            "--deployment-industry", "Omnichannel Retail", "--dry-run",
+        ])
+        rc = main()
+        assert rc == 0
+        out = json.loads(capsys.readouterr().out)
+        assert out["deployment_industry"] == "Omnichannel Retail"
+        # OPS-001's OEE benchmark is normative → universal (industry ignored, honestly)
+        assert out["benchmark_reference"]["label"] == "vs. world-class 85%"
