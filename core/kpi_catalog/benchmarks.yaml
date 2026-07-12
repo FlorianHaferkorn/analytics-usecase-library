@@ -242,3 +242,35 @@ benchmarks:
     note: >-
       Empirical for crm.retention.pct — the 75% average hides 90% SaaS vs 31% DTC e-commerce
       (driven by switching costs, not effort). Use the sector segment.
+
+  - kpi_id: inv.dio.days
+    scope: "Days Inventory Outstanding — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 45.0
+    unit: days
+    direction: lower_is_better
+    range: { low: 10.0, high: 180.0 }
+    segments:
+      # Distinct head-nouns so an org descriptor matches exactly one segment: an explicit
+      # grocer hits "grocery"; a general/omnichannel retailer hits "retail" (general).
+      - { industry: "Grocery & perishables", value: 15.0 }
+      - { industry: "Apparel & general retail", value: 40.0 }
+      - { industry: "Manufacturing", value: 75.0 }
+    sources:
+      - citation: >-
+          Netstock, "How to calculate and improve Days Inventory Outstanding" (2024) —
+          perishable retail 10–20d, general retail 30–60d, manufacturing 60–100+d (raw+WIP+FG).
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          klarmetrics, "Days Inventory Outstanding: Formula & Benchmarks" — corroborates
+          grocery 10–25d, apparel/electronics 30–60d, pharma manufacturing 120–180d.
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for inv.dio.days (lower is better) — DIO is the reciprocal-in-days of turns;
+      a grocer at 15d and a manufacturer at 75d are both healthy. Use the sector segment,
+      never the 45-day cross-industry median.

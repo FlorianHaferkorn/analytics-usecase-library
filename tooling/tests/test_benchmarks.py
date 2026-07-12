@@ -142,3 +142,25 @@ def test_ops001_hero_opts_into_benchmark_axis():
     assert card["kpi_id"] in _benchmarked_kpi_ids()
     # additive — the primary comparison is preserved
     assert card["comparison"] == "vs_target"
+
+
+def test_scm001_hero_opts_into_empirical_benchmark_axis():
+    """SCM-001 wires DIO's hero to the EMPIRICAL inventory benchmark — the first hero
+    whose peer number is sector-relative (proves the resolver produces real captions)."""
+    scm = yaml.safe_load((REPO / "core/usecases/core/SCM-001_Inventory_Performance/UseCase_Bracket.yaml").read_text())
+    card = scm["ux_layout_rules"]["page_1_summary"]["component_3s"]
+    assert card["benchmark"] is True and card["kpi_id"] == "inv.dio.days"
+    assert card["kpi_id"] in _benchmarked_kpi_ids()
+    assert card["comparison"] == "vs_target"   # additive
+
+
+def test_dio_benchmark_resolves_unambiguously_by_deployment_industry():
+    """The DIO segments carry distinct head-nouns, so a general retailer lands on general
+    retail (40d) and an explicit grocer on grocery (15d) — no 'retail' collision."""
+    from tooling.validation.check_benchmarks import resolve_benchmark
+    data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
+    dio = next(b for b in data["benchmarks"] if b["kpi_id"] == "inv.dio.days")
+    assert resolve_benchmark(dio, "Omnichannel Retail & Consumer Goods")[0] == 40.0
+    assert resolve_benchmark(dio, "Grocery retail chain")[0] == 15.0
+    assert resolve_benchmark(dio, "Discrete manufacturing")[0] == 75.0
+    assert resolve_benchmark(dio, "Aerospace")[1] == "cross_industry_fallback"

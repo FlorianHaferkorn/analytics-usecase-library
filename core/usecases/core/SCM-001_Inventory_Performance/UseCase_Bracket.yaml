@@ -53,6 +53,7 @@ ux_layout_rules:
       visual_type: kpi_card
       comparison: vs_target
       status_logic: lower_is_better
+      benchmark: true
     component_30s:
     - slot_id: Main_1
       kpi_id: inv.turnover
