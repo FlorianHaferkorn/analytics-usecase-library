@@ -52,8 +52,8 @@ def test_global_weights_sum_to_100():
 # Ratchets boutique quality at the aggregate level — a change that breaks a wired
 # rule, drops coverage, or fails a knock-out re-fires here. Raise the floors as
 # more rules are wired; never lower them.
-_MIN_SCORED_RULES = 7          # 6 structural + BC-NARR-03 via spec-heuristic judge
-_MIN_COVERAGE_PCT = 28.6
+_MIN_SCORED_RULES = 8          # 6 structural + BC-NARR-03 + BC-LAYOUT-03 via spec-heuristic judge
+_MIN_COVERAGE_PCT = 32.6
 
 
 def test_live_scorecard_does_not_regress():

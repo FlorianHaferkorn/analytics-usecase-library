@@ -22,9 +22,28 @@ def test_spec_heuristic_scores_narr_03():
     assert v.score == 1.0 and v.method == "spec_heuristic"
 
 
+def test_spec_heuristic_scores_layout_03_hero_insight():
+    """The hero-insight pattern is spec-decidable: every summary page leads with a
+    single-lead component_3s hero, so the heuristic scores (never abstains)."""
+    v = SpecHeuristicJudge().evaluate("BC-LAYOUT-03", JudgeContext())
+    assert v.score == 1.0 and v.method == "spec_heuristic"
+
+
+def test_layout_03_breaks_on_flat_hierarchy(tmp_path):
+    # a page with no component_3s hero → flat hierarchy → fail
+    (tmp_path / "core/usecases/x").mkdir(parents=True)
+    (tmp_path / "core/usecases/x/UseCase_Bracket.yaml").write_text(
+        "id: X\nux_layout_rules:\n  page_1_summary:\n    component_30s:\n"
+        "    - slot_id: Main_1\n      message: 'GM fell 12% vs plan'\n",
+        encoding="utf-8",
+    )
+    v = SpecHeuristicJudge().evaluate("BC-LAYOUT-03", JudgeContext(repo=tmp_path))
+    assert v.score == 0.0 and "flat" in v.rationale
+
+
 def test_render_only_rules_abstain_not_fabricate():
     j = SpecHeuristicJudge()
-    for rid in ("BC-COLOR-01", "BC-CHART-03", "BC-LAYOUT-03"):
+    for rid in ("BC-COLOR-01", "BC-CHART-03", "BC-CHART-06"):
         v = j.evaluate(rid, JudgeContext())
         assert v.score is None and v.method == "abstain", rid
 

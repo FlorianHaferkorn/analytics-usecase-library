@@ -105,8 +105,32 @@ def _bc_narr_03(ctx: JudgeContext) -> Verdict:
                    f"all {len(exhibits)} message-bearing exhibits carry a so-what chain")
 
 
+def _bc_layout_03(ctx: JudgeContext) -> Verdict:
+    """Hero-insight pattern: the 3-second zone leads with ONE dominant statement, not a
+    flat grid. Spec-decidable: the governed layout dictates the hierarchy — every summary
+    page must declare a single-lead `component_3s` hero (one kpi_id), distinct from the
+    supporting `component_30s` exhibits. No hero (or a heroless page) = flat hierarchy."""
+    pages = [(b.get("id", "?"), (b.get("ux_layout_rules", {}) or {}).get("page_1_summary", {}) or {})
+             for b in ctx.brackets()]
+    pages = [(bid, p) for bid, p in pages if p]
+    if not pages:
+        return Verdict("BC-LAYOUT-03", None, "abstain", "no summary pages to assess")
+    flat = []
+    for bid, p in pages:
+        hero = p.get("component_3s")
+        lead = hero.get("kpi_id") if isinstance(hero, dict) else None
+        if not lead:
+            flat.append(bid)
+    if flat:
+        return Verdict("BC-LAYOUT-03", 0.0, "spec_heuristic",
+                       f"{len(flat)} page(s) lead with no single dominant hero (flat): {flat[:5]}")
+    return Verdict("BC-LAYOUT-03", 1.0, "spec_heuristic",
+                   f"all {len(pages)} summary pages lead with a single-lead component_3s hero")
+
+
 _HEURISTICS: dict[str, Callable[[JudgeContext], Verdict]] = {
     "BC-NARR-03": _bc_narr_03,
+    "BC-LAYOUT-03": _bc_layout_03,
 }
 
 
