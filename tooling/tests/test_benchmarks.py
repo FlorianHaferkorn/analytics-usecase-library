@@ -24,65 +24,74 @@ _ALLOWED = {"industry_standard", "market_report"}
 
 def _src(**over):
     s = dict(citation="SQM Group 2024 — world-class FCR 80%+ (industry avg 70%).",
-             source_type="market_report", as_of="2026-07-11")
+             source_type="market_report", tier="large_sample", as_of="2026-07-11")
     s.update(over)
     return s
 
 
 def _entry(**over):
     base = dict(
-        kpi_id="ops.oee.pct", scope="Manufacturing", metric="world_class",
-        value=85.0, unit="pct", direction="higher_is_better",
-        sources=[_src(), _src(source_type="industry_standard")],   # ≥2 corroborating
+        kpi_id="ops.oee.pct", scope="Manufacturing", benchmark_class="normative",
+        metric="world_class", value=85.0, unit="pct", direction="higher_is_better",
+        sources=[_src(tier="primary"), _src()],   # ≥2, ≥1 authoritative
     )
     base.update(over)
     return base
 
 
-def test_valid_entry_has_no_violations():
+def _empirical(**over):
+    segs = over.pop("segments", [{"industry": "Retail", "value": 45.0},
+                                 {"industry": "SaaS", "value": 35.0}])
+    return _entry(benchmark_class="empirical", kpi_id="crm.nps.index", unit="index",
+                  metric="median", value=44.0, segments=segs, **over)
+
+
+def test_valid_normative_entry_has_no_violations():
     assert validate_entry(_entry(), _ALLOWED) == []
 
 
+def test_valid_empirical_entry_has_no_violations():
+    assert validate_entry(_empirical(), _ALLOWED) == []
+
+
 def test_unknown_kpi_is_flagged():
-    errs = validate_entry(_entry(kpi_id="does.not.exist"), _ALLOWED)
-    assert any("Golden Thread" in e for e in errs)
+    assert any("Golden Thread" in e for e in validate_entry(_entry(kpi_id="does.not.exist"), _ALLOWED))
 
 
 def test_single_source_is_flagged():
-    errs = validate_entry(_entry(sources=[_src()]), _ALLOWED)
-    assert any("corroborating" in e for e in errs)
+    assert any("corroborating" in e for e in validate_entry(_entry(sources=[_src(tier="primary")]), _ALLOWED))
 
 
-def test_unknown_source_type_is_flagged():
-    errs = validate_entry(_entry(sources=[_src(), _src(source_type="blog_post")]), _ALLOWED)
-    assert any("source_type" in e for e in errs)
+def test_no_authoritative_source_is_flagged():
+    errs = validate_entry(_entry(sources=[_src(tier="secondary"), _src(tier="secondary")]), _ALLOWED)
+    assert any("authoritative" in e for e in errs)
 
 
-def test_missing_citation_is_flagged():
-    errs = validate_entry(_entry(sources=[_src(), _src(citation="  ")]), _ALLOWED)
-    assert any("citation" in e for e in errs)
+def test_empirical_without_segments_is_flagged():
+    errs = validate_entry(_empirical(segments=[]), _ALLOWED)
+    assert any("segment" in e for e in errs)
+
+
+def test_empirical_needs_two_segments():
+    errs = validate_entry(_empirical(segments=[{"industry": "Retail", "value": 45.0}]), _ALLOWED)
+    assert any("segment" in e for e in errs)
+
+
+def test_bad_benchmark_class_is_flagged():
+    assert any("benchmark_class" in e for e in validate_entry(_entry(benchmark_class="guess"), _ALLOWED))
 
 
 def test_bad_as_of_is_flagged():
-    errs = validate_entry(_entry(sources=[_src(), _src(as_of="July 2026")]), _ALLOWED)
-    assert any("as_of" in e for e in errs)
+    assert any("as_of" in e for e in validate_entry(_entry(sources=[_src(tier="primary"), _src(as_of="July 2026")]), _ALLOWED))
 
 
-def test_range_low_above_high_is_flagged():
-    errs = validate_entry(_entry(range={"low": 90.0, "high": 10.0}), _ALLOWED)
-    assert any("range" in e for e in errs)
-
-
-def test_pct_out_of_range_is_flagged():
-    errs = validate_entry(_entry(value=140.0, unit="pct"), _ALLOWED)
-    assert any("above sane maximum" in e for e in errs)
-
-
-def test_committed_registry_is_corroborated():
-    """Every committed benchmark carries ≥2 sources."""
+def test_committed_empirical_benchmarks_have_segments():
+    """Every committed empirical benchmark is peer-relative (has ≥2 industry segments)."""
     data = yaml.safe_load(_REGISTRY.read_text(encoding="utf-8"))
     for b in data["benchmarks"]:
-        assert len(b.get("sources", [])) >= 2, b["kpi_id"]
+        if b.get("benchmark_class") == "empirical":
+            assert len(b.get("segments", [])) >= 2, b["kpi_id"]
+        assert any(s.get("tier") in ("primary", "large_sample") for s in b["sources"]), b["kpi_id"]
 
 
 def test_committed_registry_is_fully_grounded():

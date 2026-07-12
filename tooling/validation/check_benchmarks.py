@@ -72,20 +72,39 @@ def validate_entry(entry: dict[str, Any], allowed_source_types: set[str]) -> lis
     if not kpi_id or not kpi_exists(kpi_id):
         errs.append(f"kpi_id '{kpi_id}' does not resolve to a governed KPI (Golden Thread)")
 
+    bclass = entry.get("benchmark_class")
+    if bclass not in ("normative", "empirical"):
+        errs.append(f"benchmark_class '{bclass}' not in ('normative','empirical')")
+
     sources = entry.get("sources")
     sources = sources if isinstance(sources, list) else []
     if len(sources) < _MIN_SOURCES:
         errs.append(f"only {len(sources)} source(s) — need ≥{_MIN_SOURCES} corroborating references")
+    if not any(isinstance(s, dict) and s.get("tier") in ("primary", "large_sample") for s in sources):
+        errs.append("no authoritative source (needs ≥1 tier primary/large_sample, not only secondary)")
     for i, s in enumerate(sources):
         if not isinstance(s, dict):
             errs.append(f"source[{i}] is not an object")
             continue
         if s.get("source_type") not in allowed_source_types:
             errs.append(f"source[{i}] source_type '{s.get('source_type')}' not in benchmark_sources.yaml")
+        if s.get("tier") not in ("primary", "large_sample", "secondary"):
+            errs.append(f"source[{i}] tier '{s.get('tier')}' invalid")
         if len(str(s.get("citation", "")).strip()) < 12:
             errs.append(f"source[{i}] citation missing/too short (no bare assertions)")
         if not _is_iso(str(s.get("as_of", ""))):
             errs.append(f"source[{i}] as_of '{s.get('as_of')}' is not an ISO date")
+
+    # Empirical benchmarks must be peer-relative — a cross-industry average misleads.
+    segments = entry.get("segments") or []
+    if bclass == "empirical":
+        if len(segments) < 2:
+            errs.append("empirical benchmark needs ≥2 industry segments (cross-industry average alone misleads)")
+        for i, seg in enumerate(segments):
+            if not isinstance(seg, dict) or len(str(seg.get("industry", "")).strip()) < 2:
+                errs.append(f"segment[{i}] missing industry label")
+            if not isinstance(seg.get("value"), (int, float)) or isinstance(seg.get("value"), bool):
+                errs.append(f"segment[{i}] value is not numeric")
 
     unit = entry.get("unit", "")
     val = entry.get("value")

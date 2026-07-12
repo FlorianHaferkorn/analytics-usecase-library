@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Benchmark registry (Content-Grounding §6.3)",
-  "description": "Governed 'what good looks like' references — the third comparison axis. Each entry references an existing KPI and is CORROBORATED by ≥2 independent public sources (single-source industry figures are unreliable), with the observed range recorded.",
+  "description": "Governed 'what good looks like' references — the third comparison axis. A benchmark is either NORMATIVE (a defined standard that applies universally, e.g. world-class OEE) or EMPIRICAL (a peer distribution that only means anything against an industry — those MUST carry per-industry segments). Every entry references a real KPI, needs an authoritative source (not a headcount of blogs), and records the observed range.",
   "type": "object",
   "required": ["schema_version", "benchmarks"],
   "additionalProperties": false,
@@ -12,34 +12,52 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["kpi_id", "scope", "metric", "value", "unit", "direction", "sources"],
+        "required": ["kpi_id", "scope", "benchmark_class", "metric", "value", "unit", "direction", "sources"],
         "properties": {
           "kpi_id": { "type": "string", "minLength": 1, "description": "Must resolve to a governed KPI under core/kpi_catalog/kpis/ (Golden Thread)." },
-          "scope": { "type": "string", "minLength": 1, "description": "Population the benchmark describes (sector, geography, segment)." },
-          "metric": { "type": "string", "enum": ["world_class", "top_quartile", "median", "typical"], "description": "Which point of the reference distribution the value is." },
-          "value": { "type": "number", "description": "Consensus/headline value in the KPI's unit." },
-          "unit": { "type": "string", "enum": ["pct", "eur", "days", "count", "index", "ratio"], "description": "Unit class of value." },
+          "scope": { "type": "string", "minLength": 1 },
+          "benchmark_class": {
+            "type": "string",
+            "enum": ["normative", "empirical"],
+            "description": "normative = a defined standard (world-class OEE), universally applicable. empirical = a peer distribution (NPS, conversion) that requires per-industry `segments` to be decision-useful."
+          },
+          "metric": { "type": "string", "enum": ["world_class", "top_quartile", "median", "typical"] },
+          "value": { "type": "number", "description": "Normative: the standard. Empirical: the cross-industry central tendency — a labelled FALLBACK, use the matching segment when the industry is known." },
+          "unit": { "type": "string", "enum": ["pct", "eur", "days", "count", "index", "ratio"] },
           "direction": { "type": "string", "enum": ["higher_is_better", "lower_is_better"] },
           "range": {
             "type": "object",
             "additionalProperties": false,
-            "description": "Observed spread across sources — a benchmark is a distribution, not a point.",
             "required": ["low", "high"],
             "properties": { "low": { "type": "number" }, "high": { "type": "number" } }
           },
           "components": { "type": "object", "additionalProperties": { "type": "number" } },
-          "sources": {
+          "segments": {
             "type": "array",
-            "minItems": 2,
-            "description": "≥2 independent public sources corroborating the value (single-source figures are unreliable for industry benchmarks).",
+            "description": "Per-industry values — required for empirical benchmarks (a cross-industry average misleads a specific client).",
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["citation", "source_type", "as_of"],
+              "required": ["industry", "value"],
               "properties": {
-                "citation": { "type": "string", "minLength": 12, "description": "Publisher, year, and the figure reported — no bare assertions." },
-                "source_type": { "type": "string", "minLength": 1, "description": "A key in benchmark_sources.yaml source_types." },
-                "as_of": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "description": "ISO date the source was recorded/verified." },
+                "industry": { "type": "string", "minLength": 2 },
+                "value": { "type": "number" }
+              }
+            }
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 2,
+            "description": "≥2 sources, ≥1 of which is authoritative (tier primary or large_sample) — not a headcount of secondary blogs restating each other.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["citation", "source_type", "tier", "as_of"],
+              "properties": {
+                "citation": { "type": "string", "minLength": 12 },
+                "source_type": { "type": "string", "minLength": 1, "description": "A key in benchmark_sources.yaml." },
+                "tier": { "type": "string", "enum": ["primary", "large_sample", "secondary"], "description": "primary = originator/definitional; large_sample = big-N study; secondary = aggregator/commentary." },
+                "as_of": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
                 "url": { "type": "string" }
               }
             }
