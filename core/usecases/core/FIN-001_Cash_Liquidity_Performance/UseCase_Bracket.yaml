@@ -70,7 +70,7 @@ ux_layout_rules:
     - slot_id: Main_2
       kpi_id: fin.cash.ocf
       comparison: vs_plan
-      visual_type: bar_chart
+      visual_type: waterfall
       message: "Operating cash flow is running below Plan — the shortfall, not spending, is what drains the balance"
       so_what: "An OCF-versus-Plan gap points at collections and cash conversion, not cost control, as the fix."
     - slot_id: Main_3
