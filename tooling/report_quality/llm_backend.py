@@ -28,6 +28,7 @@ Turnkey wiring (one call), used by the runbook:
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -92,6 +93,18 @@ def dir_render_provider(evidence_dir: str | os.PathLike) -> Callable[[str], Opti
                 text = p.read_text(encoding="utf-8").strip()
                 if text:
                     return text
+        # Fallback: no per-rule / _report file, so use every rendered *.html in the dir
+        # as one suite-wide evidence blob. <script> is stripped (behaviour, not design
+        # signal); CSS is kept (colour matters).
+        htmls = sorted(base.glob("*.html"))
+        if htmls:
+            parts = []
+            for h in htmls:
+                body = re.sub(r"<script\b.*?</script>", "", h.read_text(encoding="utf-8"), flags=re.S)
+                parts.append(f"<!-- {h.name} -->\n{body.strip()}")
+            blob = "\n\n".join(parts).strip()
+            if blob:
+                return blob
         return None
 
     return render

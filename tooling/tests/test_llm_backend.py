@@ -37,6 +37,18 @@ def test_dir_render_provider_none_when_empty(tmp_path):
     assert dir_render_provider(tmp_path)("BC-COLOR-01") is None
 
 
+def test_dir_render_provider_falls_back_to_rendered_html(tmp_path):
+    # No per-rule / _report file, but rendered *.html present → suite-wide blob,
+    # <script> stripped, CSS kept.
+    (tmp_path / "COM-001.html").write_text(
+        "<style>.x{color:red}</style><body>sales</body><script>doStuff()</script>", encoding="utf-8")
+    (tmp_path / "FIN-001.html").write_text("<body>cash</body>", encoding="utf-8")
+    blob = dir_render_provider(tmp_path)("BC-COLOR-01")
+    assert "sales" in blob and "cash" in blob              # both reports included
+    assert "color:red" in blob                             # CSS kept (colour signal)
+    assert "doStuff" not in blob                           # <script> stripped
+
+
 def test_build_llm_judge_abstains_without_model(tmp_path, monkeypatch):
     monkeypatch.delenv("ANTHROPIC_MODEL", raising=False)
     (tmp_path / "_report.html").write_text("<render>", encoding="utf-8")
