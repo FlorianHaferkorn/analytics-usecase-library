@@ -1,44 +1,48 @@
-"""Tests for the BC-TYPE-01 (one font family) advisory reporter.
+"""Tests for the BC-TYPE-01 (governed font families) validator.
 
-'Segoe UI Light' is the Light weight of 'Segoe UI' (allowed — vary weight); 'DIN' is a
-genuinely different family. The reporter is advisory (never gates), and it surfaces the
-committed DIN-vs-Segoe-UI drift so the design call (govern vs unify) stays visible.
+The governed type system is `preferred` (Segoe UI, text) + `display` (DIN, highlight-value
+numerals) + fallbacks. 'Segoe UI Light' is the Light weight of 'Segoe UI' (allowed); DIN is
+governed as the display face; an ungoverned family fails the gate.
 """
 from __future__ import annotations
 
-from tooling.validation.check_font_family import base_family, theme_families, multi_family_themes
+from pathlib import Path
+
+from tooling.validation.check_font_family import (
+    base_family, theme_families, governed_families, ungoverned_in_theme, check_registry,
+)
+
+REPO = Path(__file__).resolve().parents[2]
 
 
-def test_weight_words_normalise_to_base_family():
+def test_weight_words_and_css_stack_normalise_to_base_family():
     assert base_family("Segoe UI Light") == "Segoe UI"
-    assert base_family("Segoe UI Semibold") == "Segoe UI"
-    assert base_family("Segoe UI") == "Segoe UI"
-
-
-def test_distinct_family_is_kept():
+    assert base_family("Inter, system-ui, -apple-system, sans-serif") == "Inter"
     assert base_family("DIN") == "DIN"
-    assert base_family("Inter Bold") == "Inter"
 
 
-def test_theme_with_one_family_is_clean(tmp_path):
+def test_din_is_a_governed_display_family():
+    gov = governed_families()
+    assert "Segoe UI" in gov and "DIN" in gov   # text + display faces are both governed
+
+
+def test_theme_with_governed_faces_is_clean(tmp_path):
     import json
     t = tmp_path / "clean.json"
     t.write_text(json.dumps({"textClasses": {
-        "title": {"fontFace": "Segoe UI"}, "callout": {"fontFace": "Segoe UI Light"}}}))
-    assert theme_families(t) == {"Segoe UI"}   # Light is a weight, not a family
+        "title": {"fontFace": "Segoe UI"}, "callout": {"fontFace": "DIN"},
+        "label": {"fontFace": "Segoe UI Light"}}}))
+    assert ungoverned_in_theme(t) == set()   # DIN + Segoe UI both governed
 
 
-def test_theme_mixing_families_is_flagged(tmp_path):
+def test_ungoverned_family_is_flagged(tmp_path):
     import json
-    t = tmp_path / "mixed.json"
+    t = tmp_path / "drift.json"
     t.write_text(json.dumps({"textClasses": {
-        "title": {"fontFace": "Segoe UI"}, "callout": {"fontFace": "DIN"}}}))
-    assert theme_families(t) == {"DIN", "Segoe UI"}
+        "title": {"fontFace": "Segoe UI"}, "callout": {"fontFace": "Comic Sans MS"}}}))
+    assert ungoverned_in_theme(t) == {"Comic Sans MS"}
 
 
-def test_committed_din_drift_is_surfaced_as_advisory():
-    """The known finding: the composed themes use DIN for callouts (ungoverned) — the
-    advisory must surface it (this guards the finding stays visible, not that it passes)."""
-    offenders = multi_family_themes()
-    assert offenders, "expected the committed DIN drift to be reported"
-    assert all("DIN" in fams for _rel, fams in offenders)
+def test_committed_dist_uses_only_governed_families():
+    """With DIN governed as the display face, every committed theme is compliant."""
+    assert check_registry() == [], f"ungoverned font families committed: {check_registry()}"

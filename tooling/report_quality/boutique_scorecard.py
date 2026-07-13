@@ -59,6 +59,7 @@ WIRED: dict[str, tuple[str, list[str]]] = {
     "BC-CHART-01": ("check_mixed_scale.py", []),
     "BC-CHART-02": ("check_deviation_display.py", ["--strict"]),
     "BC-CHART-04": ("check_declutter.py", ["--strict"]),
+    "BC-TYPE-01": ("check_font_family.py", ["--strict"]),
     "BC-NARR-04": ("check_kpi_context.py", ["--strict"]),
     "BC-CHART-10": ("check_evidence_sort.py", ["--strict"]),
     "BC-BRAND-01": ("check_custom_theme.py", ["--strict"]),
