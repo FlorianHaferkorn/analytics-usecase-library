@@ -183,6 +183,18 @@ class TestPBIPAdapterRender:
         result = PBIPAdapter().render(minimal_spec)
         assert f"{prefix}/definition/pages/Detail/page.json" in result.files
 
+    def test_measures_tmdl_is_write_only_if_missing(self):
+        """_Measures.tmdl is OWNED by the measure generator (measures_from_ir.py, real DAX)
+        + upgrade_measures.py enrichment; the report compile emits only KPI-name stubs.
+        So whenever it is emitted it MUST be in no_overwrite_paths — else re-compiling a
+        real dist clobbers the DAX/enrichment layer (the measure-layer regress,
+        KNOWN_ERRORS 2026-07-13)."""
+        spec = _spec_with_kpi_cards()   # has measures + semantic_model
+        result = PBIPAdapter().render(spec)
+        key = f"{spec.semantic_model}/definition/tables/_Measures.tmdl"
+        assert key in result.files                    # still seeded for a fresh report
+        assert key in result.no_overwrite_paths        # but never clobbers an existing layer
+
     def test_definition_pbir_valid_json(self, minimal_spec):
         prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
