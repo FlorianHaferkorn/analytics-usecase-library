@@ -178,10 +178,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Boutique-Craft rubric scorecard")
     parser.add_argument("--json", metavar="PATH", help="Write the scorecard as JSON")
     parser.add_argument("--strict", action="store_true", help="Exit 1 if a scored knock-out fails")
+    parser.add_argument("--render-evidence", metavar="DIR", help=(
+        "Directory of rendered evidence; if set (and ANTHROPIC_MODEL/_API_KEY are "
+        "present) the render-only judge rules are scored by the LLM backend. Without "
+        "credentials the composite still only scores the spec-heuristic rules."))
     args = parser.parse_args()
 
-    from tooling.report_quality.judge import SpecHeuristicJudge  # noqa: PLC0415
-    card = score(judge=SpecHeuristicJudge())
+    if args.render_evidence:
+        from tooling.report_quality.llm_backend import build_composite_judge  # noqa: PLC0415
+        judge = build_composite_judge(args.render_evidence)
+    else:
+        from tooling.report_quality.judge import SpecHeuristicJudge  # noqa: PLC0415
+        judge = SpecHeuristicJudge()
+    card = score(judge=judge)
     _print(card)
     if args.json:
         Path(args.json).write_text(json.dumps(card, indent=2), encoding="utf-8")
