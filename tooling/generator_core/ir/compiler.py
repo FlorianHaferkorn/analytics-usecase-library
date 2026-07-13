@@ -60,8 +60,10 @@ _OVERVIEW_LAYOUT: Dict[str, Dict[str, float]] = {
     # Benchmark reference caption: thin strip under the KPI band, right-aligned
     # (only emitted when a hero card opts into the benchmark axis). Height ≈32 px.
     "Benchmark_Caption": {"x": 0.0167, "y": 0.152, "w": 0.9666, "h": 0.030},
-    # Date slicer below KPI band; same horizontal span; height ≈70 px
-    "Slicer_Date": {"x": 0.0167, "y": 0.189,  "w": 0.9666, "h": 0.0648},
+    # Date slicer below KPI band; same horizontal span. Height ≈80 px — a dropdown
+    # slicer needs ≥76 px (header 28 + selector 32 + padding), else the official CLI
+    # flags PBIR_SLICER_HEIGHT_BELOW_FLOOR and the control clips on the service.
+    "Slicer_Date": {"x": 0.0167, "y": 0.189,  "w": 0.9666, "h": 0.074},
     # Three equal-width main chart columns, below slicer; height ≈750 px
     "Main_1":      {"x": 0.0167, "y": 0.268,  "w": 0.3111, "h": 0.694},
     "Main_2":      {"x": 0.3444, "y": 0.268,  "w": 0.3111, "h": 0.694},

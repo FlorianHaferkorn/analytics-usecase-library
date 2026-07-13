@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "Main_3",
+  "position": {
+    "x": 1291,
+    "y": 289,
+    "z": 10000,
+    "width": 597,
+    "height": 750,
+    "tabOrder": 3004
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Net Sales % vs Plan"
+                }
+              },
+              "queryRef": "_Measures.Net Sales % vs Plan",
+              "nativeQueryRef": "Net Sales % vs Plan"
+            }
+          ]
+        },
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Region"
+                }
+              },
+              "queryRef": "dim_org.Region",
+              "nativeQueryRef": "Region"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

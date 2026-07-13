@@ -232,7 +232,10 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
     resource_packages: list = []
     if theme_stem and theme_filename:
         theme_collection["customTheme"] = {
-            "name": theme_stem,
+            # customTheme.name must carry the .json extension and exactly match the
+            # RegisteredResources item name/path, else the Power BI service applies the
+            # theme incorrectly (PBIR_THEME_NAME_MISSING_JSON_EXT, official CLI).
+            "name": theme_filename,
             "reportVersionAtImport": {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"},
             "type": "RegisteredResources",
         }

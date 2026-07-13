@@ -159,10 +159,16 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
 
     if registered_package and custom_theme.get("name"):
         custom_logical_name = custom_theme["name"]
-        if custom_logical_name.endswith(".json"):
+        # PBIR CustomTheme convention (verified against the official pbir-cli 0.1.1 and
+        # mirrored in the Meridian dist): customTheme.name, the RegisteredResources item
+        # name + path, and the theme file's internal `name` are ALL the same .json
+        # filename. Unlike the SharedResources BaseTheme (bare id + path), a CustomTheme
+        # name without the extension is flagged PBIR_THEME_NAME_MISSING_JSON_EXT; a name
+        # that mismatches the referenced file is flagged PBIR_THEME_FILE_NAME_MISMATCH.
+        if not custom_logical_name.endswith(".json"):
             errors.append(
-                f"{report_dir.name}: themeCollection.customTheme.name must be the theme logical name "
-                f"(no .json extension), not '{custom_logical_name}'"
+                f"{report_dir.name}: themeCollection.customTheme.name must carry the .json "
+                f"extension and match the RegisteredResources item, not '{custom_logical_name}'"
             )
 
         custom_item = find_registered_custom_theme_item(registered_package, custom_logical_name)
@@ -184,21 +190,21 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
                         f"{expected_path.relative_to(report_dir)} - {exc}"
                     )
                 else:
-                    expected_name = custom_theme_collection_name(custom_logical_name)
+                    # All four references must equal the .json filename (== customTheme.name).
+                    expected_name = custom_logical_name
                     if theme_payload.get("name") != expected_name:
                         errors.append(
                             f"{report_dir.name}: custom theme internal name "
                             f"'{theme_payload.get('name')}' must match themeCollection.customTheme.name "
-                            f"'{expected_name}'"
+                            f"'{expected_name}' (PBIR_THEME_FILE_NAME_MISMATCH otherwise)"
                         )
                     item_name = custom_item.get("name", "")
                     if item_name != expected_name:
                         errors.append(
                             f"{report_dir.name}: resourcePackages CustomTheme item name "
                             f"'{item_name}' must equal themeCollection.customTheme.name "
-                            f"'{expected_name}' (no .json extension — mirrors the SharedResources/"
-                            f"BaseTheme item's own name/path split; the official pbir-cli validator "
-                            f"flags a mismatch here as THEME_FILE_NAME_MISMATCH)"
+                            f"'{expected_name}' (all four references share the same .json filename; "
+                            f"the official pbir-cli flags a mismatch as THEME_FILE_NAME_MISMATCH)"
                         )
 
     visual_paths = sorted(report_dir.glob("definition/pages/**/visual.json"))
