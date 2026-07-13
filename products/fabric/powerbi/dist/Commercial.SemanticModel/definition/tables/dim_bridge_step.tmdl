@@ -1,0 +1,29 @@
+/// Purpose: Disconnected bridge-step axis for the Plan→PVM→Actual variance waterfall (IBCS bridge, COM-001 Main_2). Ordered by StepOrder; no relationship to any fact — it only drives the SWITCH measure [Bridge Value]. Plan is the start anchor, Price/Volume/Mix are the deltas; the waterfall renders the Net Sales endpoint as its automatic total.
+table dim_bridge_step
+	lineageTag: b41d9e00-1111-4a10-9c01-000000000001
+
+	column Step
+		dataType: string
+		lineageTag: b41d9e00-1111-4a10-9c01-000000000002
+		summarizeBy: none
+		sourceColumn: Step
+		sortByColumn: StepOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column StepOrder
+		dataType: int64
+		isHidden
+		lineageTag: b41d9e00-1111-4a10-9c01-000000000003
+		summarizeBy: none
+		sourceColumn: StepOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_bridge_step = m
+		mode: import
+		source =
+				let
+					Source = #table(type table [Step = text, StepOrder = Int64.Type], {{"Plan", 1}, {"Price", 2}, {"Volume", 3}, {"Mix", 4}})
+				in
+					Source

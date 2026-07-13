@@ -9,6 +9,12 @@ table _Measures
 				in
 					Source
 
+	/// Purpose: Waterfall bridge value — the per-step amount for the Plan→PVM→Actual variance bridge (COM-001 Main_2), driven by dim_bridge_step[Step]. Plan is the start anchor; Price/Volume/Mix are the deltas; the waterfall renders Net Sales as its automatic total.
+	measure 'Bridge Value' = SWITCH ( SELECTEDVALUE ( dim_bridge_step[Step] ), "Plan", [Plan Sales Amount], "Price", [Price Effect Amount], "Volume", [Volume Effect Amount], "Mix", [Mix Effect Amount] )
+		formatString: #,0
+		displayFolder: 0_Summary
+		lineageTag: b41d9e00-1111-4a10-9c01-000000000004
+
 	/// Purpose: Dynamic KPI summary string for the Detail page narrative header.
 	measure 'Narrative Text' = VAR _s = [Net Sales Amount] VAR _g = [Gross Margin %] VAR _p = [Net Sales % vs Plan] VAR _pr = [Price Realization %] VAR _r = [Customer Retention %] VAR _d = SWITCH ( TRUE (), ABS ( [Price Effect Amount] ) >= ABS ( [Volume Effect Amount] ) && ABS ( [Price Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Price: " & FORMAT ( [Price Effect Amount], "+€#,0;-€#,0" ), ABS ( [Volume Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Volume: " & FORMAT ( [Volume Effect Amount], "+€#,0;-€#,0" ), "Mix: " & FORMAT ( [Mix Effect Amount], "+€#,0;-€#,0" ) ) RETURN "Sales: " & FORMAT ( _s, "€#,0" ) & "  |  vs Plan: " & FORMAT ( _p, "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "GM: " & FORMAT ( _g, "0.0%" ) & "  |  Price Realiz.: " & FORMAT ( _pr, "0.0%" ) & "  |  Retention: " & FORMAT ( _r, "0.0%" ) & UNICHAR ( 10 ) & "Top driver: " & _d
 		formatString: @
