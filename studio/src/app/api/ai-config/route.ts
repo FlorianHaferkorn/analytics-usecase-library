@@ -45,10 +45,10 @@ export async function POST(request: Request) {
     return apiValidationError(['op and layer (L1|L2) required']);
   }
 
-  if (op === 'approve') {
+  if (op === 'approve' || op === 'reopen') {
     const dbUser = findOrCreateUser(user.email, user.name);
     if (!checkAccess(PROJECT, dbUser.id, 'admin')) {
-      return apiError(ErrorCode.FORBIDDEN, 'Admin role required to approve config', 403);
+      return apiError(ErrorCode.FORBIDDEN, 'Admin role required to approve or reopen config', 403);
     }
   }
 
