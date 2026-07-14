@@ -4,7 +4,7 @@ model Model
 	discourageImplicitMeasures
 ref table _ActionReady_Logic
 ref table _Measures
-ref table dim_bridge_step
+ref table dim_effect
 ref table dim_customer
 ref table dim_date
 ref table dim_org

@@ -10,7 +10,7 @@
     "tabOrder": 3005
   },
   "visual": {
-    "visualType": "waterfallChart",
+    "visualType": "clusteredBarChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_bridge_step"
+                      "Entity": "dim_effect"
                     }
                   },
-                  "Property": "Step"
+                  "Property": "Effect"
                 }
               },
-              "queryRef": "dim_bridge_step.Step",
-              "nativeQueryRef": "Step"
+              "queryRef": "dim_effect.Effect",
+              "nativeQueryRef": "Effect"
             }
           ]
         },
@@ -42,11 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Bridge Value"
+                  "Property": "Effect Value"
                 }
               },
-              "queryRef": "_Measures.Bridge Value",
-              "nativeQueryRef": "Bridge Value"
+              "queryRef": "_Measures.Effect Value",
+              "nativeQueryRef": "Effect Value"
             }
           ]
         }

@@ -1,0 +1,29 @@
+/// Purpose: Disconnected effect axis for the PVM variance decomposition (COM-001 Main_2, deviation bar chart). Ordered by EffectOrder; no relationship to any fact — it only drives the SWITCH measure [Effect Value]. Robust native alternative to a waterfall: three delta bars (Price/Volume/Mix), no cumulative-total rendering to verify.
+table dim_effect
+	lineageTag: c52e8f11-2222-4b20-8d02-000000000001
+
+	column Effect
+		dataType: string
+		lineageTag: c52e8f11-2222-4b20-8d02-000000000002
+		summarizeBy: none
+		sourceColumn: Effect
+		sortByColumn: EffectOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column EffectOrder
+		dataType: int64
+		isHidden
+		lineageTag: c52e8f11-2222-4b20-8d02-000000000003
+		summarizeBy: none
+		sourceColumn: EffectOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_effect = m
+		mode: import
+		source =
+				let
+					Source = #table(type table [Effect = text, EffectOrder = Int64.Type], {{"Price", 1}, {"Volume", 2}, {"Mix", 3}})
+				in
+					Source
