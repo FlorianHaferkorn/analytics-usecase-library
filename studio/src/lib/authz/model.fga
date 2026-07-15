@@ -1,0 +1,49 @@
+# ActionReady Studio — OpenFGA Authorization Model (ADR-0016 Option A)
+#
+# Kanonische Quelle: docs/architecture/research/authn-authz-rebac-schema.md §2/§3.
+# Verifiziert 2026-07-15 gegen einen Referenz-Evaluator (9/9 Fälle,
+# docs/architecture/research/authz-fga-cases.json).
+#
+# Laden (nachdem der OpenFGA-Dienst läuft, s. studio/docker-compose.yml):
+#   fga model write --store-id <STORE> --file src/lib/authz/model.fga
+# oder via SDK: WriteAuthorizationModel(<parsed>).
+#
+# Kern: die "explizite Projekt-Zeile überschreibt die Org-Rolle, kein Merge"-
+# Semantik (ADR-0014 Festlegung 4) ist NICHT additiv — sie braucht den
+# `but not`-Differenz-Operator (admin_fallback / view_fallback).
+
+model
+  schema 1.1
+
+type user
+
+type organization
+  relations
+    define owner: [user]
+    define admin: [user] or owner
+    define member: [user] or admin
+
+type project
+  relations
+    define parent: [organization]
+
+    # Explizite project_members-Zeilen (Rolle direkt vergeben)
+    define admin_explicit: [user]
+    define editor_explicit: [user]
+    define viewer_explicit: [user]
+
+    # "Hat irgendeine explizite Zeile" — der Override-Schalter
+    define explicit_any: admin_explicit or editor_explicit or viewer_explicit
+
+    # Org-abgeleitete Fallback-Quellen (owner/admin -> admin-Level, member -> view-Level)
+    define org_admin_src: admin from parent
+    define org_view_src: member from parent
+
+    # Fallback gilt NUR ohne explizite Zeile (die nicht-additive Stelle)
+    define admin_fallback: org_admin_src but not explicit_any
+    define view_fallback: org_view_src but not explicit_any
+
+    # Effektive Rechte — die check()-Ziele des Adapters
+    define can_admin: admin_explicit or admin_fallback
+    define can_edit: editor_explicit or admin_explicit or admin_fallback
+    define can_view: viewer_explicit or editor_explicit or admin_explicit or view_fallback

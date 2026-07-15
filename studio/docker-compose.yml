@@ -1,0 +1,69 @@
+# ActionReady Studio — self-hosted AuthZ engine (ADR-0016 Option A, Backlog T3.1)
+#
+# Startet OpenFGA (self-hosted ReBAC, Apache-2.0) + Postgres. 100% self-hosted,
+# EU-deploybar — erfüllt die T1-Compliance-Auflage (kein externer Managed-Call).
+#
+# Start:   docker compose up -d
+# Model laden (einmalig, nachdem openfga healthy ist):
+#   STORE=$(fga store create --name actionready --api-url http://localhost:8080 | jq -r .store.id)
+#   fga model write --store-id "$STORE" --api-url http://localhost:8080 --file src/lib/authz/model.fga
+# Danach: AUTHZ_BACKEND=fga + FGA_API_URL/FGA_STORE_ID in .env setzen (Backlog T3.2).
+#
+# Pins: vor Produktiveinsatz gegen den aktuellen Release verifizieren/bumpen
+# (Repo-Pin-Doktrin — Drift melden, nicht blind bumpen).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: actionready-openfga-postgres
+    environment:
+      POSTGRES_USER: openfga
+      POSTGRES_PASSWORD: openfga
+      POSTGRES_DB: openfga
+    volumes:
+      - openfga-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openfga"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Nur lokal exponiert; in EU-Prod hinter dem Netzwerk halten.
+    ports:
+      - "5432:5432"
+
+  # Einmalige Schema-Migration; läuft und beendet sich.
+  openfga-migrate:
+    image: openfga/openfga:v1.8.0
+    container_name: actionready-openfga-migrate
+    command: migrate
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://openfga:openfga@postgres:5432/openfga?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  openfga:
+    image: openfga/openfga:v1.8.0
+    container_name: actionready-openfga
+    command: run
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://openfga:openfga@postgres:5432/openfga?sslmode=disable
+      # Playground nur für lokale Entwicklung; in Prod deaktivieren.
+      OPENFGA_PLAYGROUND_ENABLED: "true"
+    depends_on:
+      openfga-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/grpc_health_probe", "-addr=:8081"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "8080:8080"   # HTTP API (check/write)
+      - "8081:8081"   # gRPC
+      - "3000:3000"   # Playground (nur dev)
+
+volumes:
+  openfga-postgres:
