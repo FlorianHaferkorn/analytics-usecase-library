@@ -114,7 +114,7 @@ table _Measures
 	/// Formula: ( (fact_sales[Net Sales Amount]) / (fact_sales[Quantity]) - (fact_sales[Plan Sales Amount]) / (fact_sales[Plan Quantity]) ) * fact_sales[Quantity] )
 	/// Grain: invoice_line aggregated monthly · Unit: EUR
 	/// Owner: Commercial BI · Status: active · Actions: C-S1.1
-	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Price Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
+	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
