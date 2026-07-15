@@ -69,11 +69,14 @@ Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role*
 
 > **Konsequenz für T3/T4:** `checkAccess(P,U,minRole)` wird durch **drei computed relations** (`can_view/edit/admin`) ersetzt (kein Laufzeit-Ranking); Break-Glass-API-Härtung bleibt im API-Layer; Solo-Projekt (`org_id NULL`) = kein `parent`-Tupel → byte-identisch.
 
-### T3 — AuthZ-Engine self-host + Studio-Anbindung · depends-on: T2
+### T3 — AuthZ-Engine self-host + Studio-Anbindung · depends-on: T2 · **⏳ TEILWEISE — Modell verifiziert, Live-Wiring braucht lokale Toolchain**
 - **Z:** Der gewählte ReBAC-Dienst läuft lokal/self-hosted, `checkAccess` delegiert an ihn hinter einem Feature-Flag (ehrliche Degradation offline).
-- T3.1 Deployment (Docker/Compose) des Dienstes (OpenFGA **oder** Ory Keto je T0) · **DoD:** Dienst startet lokal, Health-Check grün · role: `codegen`
-- T3.2 `rbac-repo.ts::checkAccess` → Adapter auf `check()` der Engine, Feature-Flag `AUTHZ_BACKEND=local|fga` · **DoD:** bestehende require-role-/enforce-project-access-Tests grün mit beiden Backends · role: `codegen`
-- T3.3 verify: Parität lokal vs. FGA über die ADR-0014-Fallmatrix · **DoD:** identische Zugriffsentscheidungen · role: `verify`
+- **Sandbox-Grenze (ehrlich):** die Design-Session hat **kein** `studio/node_modules` und **kein** Docker → OpenFGA-Dienst, `@openfga/sdk`-Adapter und `vitest`/`build` sind hier **nicht lauffähig**. Kein unverifizierter TS-Code committet. **Modell-Logik ist unabhängig verifiziert** (Referenz-Evaluator, 9/9, s. Schema-Doc §5) und die Test-Vektoren liegen als [`authz-fga-cases.json`](authz-fga-cases.json).
+- T3.1 Deployment (Docker/Compose) OpenFGA + Model laden (`authn-authz-rebac-schema.md` §3) · **DoD:** Dienst startet lokal, Model geladen, Health grün · role: `codegen` · **braucht lokale Umgebung**
+- T3.2 `rbac-repo.ts::checkAccess` → Adapter auf `check(user, can_{view,edit,admin}, project)`, Feature-Flag `AUTHZ_BACKEND=local|fga` (Default `local` = heutiger Pfad, ehrliche Degradation) · **DoD:** `tests/lib/rbac-repo.test.ts` + `org-rbac.test.ts` grün mit **beiden** Backends · role: `codegen` · **braucht lokale Umgebung**
+- T3.3 verify: Parität `local` vs. `fga` über [`authz-fga-cases.json`](authz-fga-cases.json) · **DoD:** identische Zugriffsentscheidungen für alle 9 Vektoren · role: `verify` · **braucht lokale Umgebung**
+
+> **Umsetzungs-Kontrakt für die lokale Umgebung (turnkey):** (1) `npm i @openfga/sdk` in `studio/`; (2) `docker compose` mit `openfga/openfga` + Postgres, Model aus §3 via `fga model write` laden; (3) neuer `studio/src/lib/authz/fga-adapter.ts` mit `check()`-Mapping (`minRole`→relation: admin→`can_admin`, editor→`can_edit`, viewer→`can_view`); (4) `checkAccess` liest `AUTHZ_BACKEND` (Default `local`), delegiert bei `fga`; (5) `cases.json` in eine vitest-Suite laden, gegen beide Backends fahren. Break-Glass-API-Härtung (ADR-0014 O-4 a/b) bleibt im API-Layer, nicht im Adapter.
 
 ### T4 — Migration der bestehenden RBAC-Daten · depends-on: T3
 - **Z:** `project_members`/`org_members` sind als Relation-Tuples in der Engine, ohne Datenverlust, mit Dual-Write-Übergang.

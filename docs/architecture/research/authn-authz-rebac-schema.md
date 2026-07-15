@@ -135,6 +135,14 @@ Tupel-Notation: `P#parent@O` = Projekt P gehört zu Org O; `O#owner@U` = U ist O
 
 Jede Zeile ist ein späterer Test (`check()` gegen die Engine) — die DoD von T2.3.
 
+**Verifiziert (2026-07-15):** Diese Matrix wurde gegen einen eigenständigen Referenz-Evaluator
+des §2-Modells laufen gelassen — **9/9 Fälle bestehen** (inkl. Owner-Lockout Fall 1/5 und
+Break-Glass Fall 9). Die Vektoren sind engine-agnostisch als
+[`authz-fga-cases.json`](authz-fga-cases.json) abgelegt und dienen sowohl der späteren
+OpenFGA-`check()`-Suite (T3.2) als auch jedem Re-Rendering (Keto). Der Evaluator selbst ist
+ein Wegwerf-Verifikat (nicht committet, um kein drittes drift-fähiges Modell zu schaffen — SoT
+bleibt §2/§3 + die Vektoren).
+
 ## 6. Break-Glass (ADR-0014 O-4) — im ReBAC-Modell ohne Sonderlogik
 
 Das Lockout-Szenario (Fall 1) löst ADR-0014 über eine separate, auditierte Mutation

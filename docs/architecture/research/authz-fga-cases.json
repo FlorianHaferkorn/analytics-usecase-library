@@ -1,0 +1,52 @@
+{
+  "$comment": "Engine-agnostic ReBAC verification vectors for the T2 model (authn-authz-rebac-schema.md). Shared test data for the OpenFGA check() suite (T3.2) AND any reference evaluator. Each case: relation tuples + three check queries (can_view/can_edit/can_admin) with expected results. Verified 2026-07-15 against a standalone reference evaluator (9/9 pass).",
+  "model_ref": "authn-authz-rebac-schema.md#3-openfga-fassung-stack-a",
+  "objects": { "user": "user:U", "org": "organization:O", "project": "project:P" },
+  "cases": [
+    {
+      "name": "1-explicit-viewer-caps-org-owner-O4-lockout",
+      "tuples": ["project:P#parent@organization:O", "organization:O#owner@user:U", "project:P#viewer_explicit@user:U"],
+      "expect": { "can_view": true, "can_edit": false, "can_admin": false }
+    },
+    {
+      "name": "2-org-owner-no-explicit-admin",
+      "tuples": ["project:P#parent@organization:O", "organization:O#owner@user:U"],
+      "expect": { "can_view": true, "can_edit": true, "can_admin": true }
+    },
+    {
+      "name": "3-org-member-no-explicit-viewer",
+      "tuples": ["project:P#parent@organization:O", "organization:O#member@user:U"],
+      "expect": { "can_view": true, "can_edit": false, "can_admin": false }
+    },
+    {
+      "name": "4-solo-project-explicit-admin",
+      "tuples": ["project:P#admin_explicit@user:U"],
+      "expect": { "can_view": true, "can_edit": true, "can_admin": true }
+    },
+    {
+      "name": "5-explicit-editor-caps-org-owner",
+      "tuples": ["project:P#parent@organization:O", "organization:O#owner@user:U", "project:P#editor_explicit@user:U"],
+      "expect": { "can_view": true, "can_edit": true, "can_admin": false }
+    },
+    {
+      "name": "6-solo-project-nothing-no-access",
+      "tuples": [],
+      "expect": { "can_view": false, "can_edit": false, "can_admin": false }
+    },
+    {
+      "name": "7-org-admin-no-explicit-admin",
+      "tuples": ["project:P#parent@organization:O", "organization:O#admin@user:U"],
+      "expect": { "can_view": true, "can_edit": true, "can_admin": true }
+    },
+    {
+      "name": "8-project-has-org-but-user-not-member-no-access",
+      "tuples": ["project:P#parent@organization:O"],
+      "expect": { "can_view": false, "can_edit": false, "can_admin": false }
+    },
+    {
+      "name": "9-break-glass-owner-writes-explicit-admin-full",
+      "tuples": ["project:P#parent@organization:O", "organization:O#owner@user:U", "project:P#admin_explicit@user:U"],
+      "expect": { "can_view": true, "can_edit": true, "can_admin": true }
+    }
+  ]
+}
