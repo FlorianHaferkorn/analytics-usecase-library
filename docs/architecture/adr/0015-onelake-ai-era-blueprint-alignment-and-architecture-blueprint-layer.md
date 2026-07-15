@@ -94,6 +94,13 @@ architecture* whose fields **are** the five patterns. It reuses ALUCA's proven p
 (ADR-0005/0006: one canonical model → registry of target adapters → `render` dispatch)
 so it "docks, doesn't rebuild."
 
+> **Drafted contract:** the concrete IR — JSON Schema, architecture diagram, a worked
+> Fabric example (render/audit/ground), and the cross-stack mapping — is spec'd in
+> [`../research/architecture-blueprint-ir-spec.md`](../research/architecture-blueprint-ir-spec.md).
+> Per the 2026-07-15 decision it is **field-identical and mirrored** with the sibling
+> `Freelancing`/Meridian copy (ADR-0005 contract-mirror discipline): the schema is
+> authored once, mirrored byte-identical, and parity-checked — not forked into two IRs.
+
 ### 3.1 The Architecture Blueprint IR (new canonical, schema in `tooling/generator/schemas/`)
 
 ```
@@ -187,7 +194,7 @@ so it stays inside the Golden Thread (references governed definitions, never red
 |---|---|---|
 | R-1 | Ratify this ADR (Accepted) | Maintainer (Flo) |
 | R-2 | Land the standards deltas (§3.3) in the operating model | Drift-gate + review |
-| R-3 | `ArchitectureBlueprint` schema + deterministic derivation from ALUCA truth | Schema + parity tests |
+| R-3 | `ArchitectureBlueprint` schema (per drafted spec) + deterministic derivation from ALUCA truth; **field-identical mirror** with Meridian + parity check | Schema + parity tests |
 | R-4 | `targets/arch_fabric` renderer (reuse Meridian `blueprint1`) | Cross-target test |
 | R-5 | `blueprint_conformance` eval gate (5 patterns + grounding scorecard) | pytest |
 | R-6 | `ground` = `mcp_grounding.json` + per-domain retrieval-decision record | GADW Stage 5 seam |
