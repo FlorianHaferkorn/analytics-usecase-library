@@ -56,6 +56,13 @@ run_check "Fabric bindings validator (validate_bindings.py --strict)" \
   python3 products/fabric/powerbi/tooling/validate_bindings.py \
     --dist-dir products/fabric/powerbi/dist --strict
 
+# --- Showcase Delta-table consistency -----------------------------------
+# Catches renamed/orphaned parquet vs. _delta_log active-add mismatch that
+# makes fn_DeltaCurrentFiles return a columnless table (Desktop then crashes
+# in Table.get_Islands()). See scripts/check_showcase_delta.py.
+run_check "Showcase Delta-table consistency (active files present on disk)" \
+  python3 scripts/check_showcase_delta.py
+
 # --- Boutique rubric: BC-NARR-01 exhibit titles (K6) --------------------
 run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels)" \
   python3 tooling/validation/check_exhibit_message.py
