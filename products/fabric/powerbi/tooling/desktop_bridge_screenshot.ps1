@@ -59,7 +59,7 @@ Param(
 
 $ErrorActionPreference = "Stop"
 
-if (-not $IsWindows) {
+if ($IsWindows -eq $false) {
     Write-Error "The Power BI Desktop Bridge is Windows-only (local named-pipe IPC inside the Desktop process, no remote access). Run this script on a Windows workstation with Power BI Desktop installed, not in CI or a sandbox."
     exit 1
 }
