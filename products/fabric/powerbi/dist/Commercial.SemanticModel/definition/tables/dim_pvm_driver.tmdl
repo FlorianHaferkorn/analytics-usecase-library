@@ -26,7 +26,6 @@ table dim_pvm_driver
 		summarizeBy: none
 		sourceColumn: SortOrder
 		isHidden
-		isAvailableInMDX: false
 
 		annotation SummarizationSetBy = Automatic
 
