@@ -389,11 +389,67 @@ IR with non-MS renderers, honoring the K1–K13 gaps (e.g. K6 label persistence)
 
 ---
 
-## 5. Open items (before build)
+## 5. Derivation mapping (deterministic, no LLM)
 
-- **Derivation mapping** — the exact field-by-field derivation from existing truth
-  (KPI catalog / `UseCase_Bracket.yaml` / `data_architecture.json` / data contracts /
-  `maturity_assessment.json`) into this IR. Deterministic, no LLM.
-- **Parity check** — the mechanism that keeps the two mirrored copies byte-identical
-  (mirror the ALUCA `canonical_contract` / Meridian `_canonical_mirror` pattern).
-- **`schema_version` bump policy** — additive-only within 0.x; both repos bump together.
+The IR is **derived**, never hand-authored. The contract (§2) is shared; the *source of
+truth* differs per repo, so the mapping is one table keyed by IR field with a column per
+repo. Same field, same meaning — different upstream. Every rule is deterministic (same
+input → same output); anything genuinely underspecified is emitted as an explicit HITL
+gap, never guessed (consistent with the KPI-DSL `hitl` and `UNCOMPUTED` honesty rules).
+
+| IR field | ALUCA source of truth | Meridian source of truth | Derivation rule |
+|---|---|---|---|
+| `platform.stack` | Superversion target selection (default `fabric`) | Stack decision tree → `data_architecture.json` | Chosen target/stack; `fabric` default. |
+| `platform.blueprint_ref` | `null` (single-stack home) | Blueprint 1–4 from `00_index.md` decision tree | Meridian-only; ALUCA leaves null. |
+| `platform.ownership_boundaries` | Implicit (Fabric owns all) unless multi-target | `data_architecture.json` platform section | One owner per workload class; default all = chosen stack. |
+| `ingestion[].source` / `source_system` | `core/data_contracts/sources/*` | `data_architecture.json` `source_system` | One row per external source. |
+| `ingestion[].access_mode` | Heuristic: lake source → `shortcut`, DB → `mirror`; `copy` needs explicit reason | New per-source field on `data_architecture.json` | Default `shortcut`; `mirror` for Azure DB; `copy` requires rationale. |
+| `medallion.bronze` | `data_layers_standard.md` → default `enabled=false, outsourced=true` (silver-first) unless a project adds bronze | `data_architecture.json` `tables.bronze` presence | `immutable`/`append_only` fixed true; outsourced bronze stays *specified*, not unscoped. |
+| `medallion.silver.data_contract_ref` | `UseCase_Bracket.overrides.data_contract_ref` → `core/data_contracts/domains/<domain>.yaml` | `data_architecture.json` silver / `data_contract` | Reference only (Golden Thread: never redefine). |
+| `medallion.silver.quality_threshold` | Data-contract quality rules | `data_architecture.json` `quality_threshold` | Pass-through. |
+| `medallion.gold.data_products` | KPI catalog + `core/semantic_models/domains/*` → `dim_`/`fact_`/`agg_` | `data_architecture.json` `tables.gold` (`derive_dimensions`) | Name pattern `^(dim\|fact\|agg)_`; `kind`/`grain` from the star schema. |
+| `medallion.platinum.semantic_model_ref` | Generated `<Domain>.SemanticModel` (Superversion `tmdl`) | `derive_fabric` semantic model (Platinum) | Meridian-primary; ALUCA populates when a model is emitted. |
+| `mesh.domains[].name` | 5 core domains (Commercial/Finance/Operations/SupplyChain/Experience) | `data_architecture.json` domains | One entry per business domain. |
+| `mesh.domains[].workspaces` | Convention `ws-<domain>-<role>` from domain × layer | `provisioning/blueprint1` workspace layout | Deterministic naming; `role` from medallion layer. |
+| `mesh.domains[].publishing` | `endorsement` from `UseCase_Bracket.readiness`; `intended_audience` default `internal` | `data_product_scorecard` / `dataarch` publishing rules | Certified only when readiness/scorecard clears; else `promoted`/`none`. |
+| `sharing[]` | Opt-in; default empty | Opt-in; default empty | Only when an external product is declared (sanitized + labeled). |
+| `ai_grounding.grounding_surface` | Fixed `[gold, silver]` (`ai_readiness.md`) | Fixed `[gold, silver]` (M5 doctrine) | Constant by doctrine — bronze never allowed. |
+| `ai_grounding.retrieval` | Per-domain, default `builtin` (GADW Stage 5) | Per-domain (`meridian_copilot_readiness`) | `builtin` first; `mcp` only where live/action declared. |
+| `ai_grounding.emits` | `["mcp_grounding.json"]` | `["mcp_grounding.json"]` (M5 emits it today) | Constant; tool-free file. |
+| `ai_grounding.adaptive_gold` | Default off; source `wirkungs_loop` (ADR-0009 telemetry) | Default off; source telemetry | Off until a custom telemetry agent exists. |
+
+## 6. Parity check (keeping the two mirrors honest)
+
+The **§2 JSON Schema block is the single shared artifact**; the parity check guards it,
+mirroring the existing ALUCA `canonical_contract` / Meridian `_canonical_mirror` pattern
+(ADR-0005/0036 — a parity-gated standalone mirror):
+
+1. Extract the fenced ` ```json ` schema block from `architecture-blueprint-ir-spec.md`.
+2. Canonicalize (parse → re-serialize with sorted keys) and `sha256` it.
+3. The two repos' hashes **must match**; a mismatch fails each repo's check suite
+   (ALUCA alongside `check_index`; Meridian in `make check`).
+4. **Interim guard until built:** a manual `md5sum` of the two whole files (as run
+   2026-07-15 — one distinct hash). A schema change is one logical edit applied to both
+   copies in lockstep, in a paired commit.
+
+## 7. `schema_version` bump policy
+
+Pre-1.0 the IR carries `schema_version` `0.MINOR.PATCH`:
+
+- **Additive / safe** (new optional field, new enum value with a safe default) → **patch**
+  (`0.1.0 → 0.1.1`). Renderers ignore unknown-but-optional input tolerantly.
+- **Breaking** (rename/remove a field, tighten `required`, remove an enum value) →
+  **minor** (`0.1.x → 0.2.0`) with a migration note in both alignment docs.
+- **Both repos bump in the same commit-pair.** A version skew between the mirrors is
+  itself a parity failure (§6).
+- Rendered artifacts and audit scorecards **record the `schema_version` they were
+  produced against** (provenance), consistent with ALUCA attestation / Meridian
+  `pbi_gatekeeper --attest`.
+
+## 8. Still open (before code)
+
+- The **field-level tie-back** for a few Meridian fields that need a *new* attribute on
+  `data_architecture.json` (`ingestion[].access_mode`) — additive schema change, paired
+  with a `schema_version` patch.
+- Whether `render` provisioning stays plan-only (emitting a runbook) vs. live `fab`
+  provisioning — gated by tenant access, like the existing Premium-floor F1/F6 caveats.
