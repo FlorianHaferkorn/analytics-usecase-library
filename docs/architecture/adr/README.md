@@ -29,3 +29,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0012](0012-kpi-calculation-dsl-sql-synthesis.md) | Governed KPI Calculation DSL → Databricks SQL Synthesis | Accepted |
 | [0013](0013-kpi-calculation-dsl-remaining-11-use-cases.md) | KPI Calculation DSL: Remaining 11 Use Cases (Full-Catalog Closure) | Accepted |
 | [0014](0014-org-layer-over-local-first.md) | Org-Schicht über lokal-first (Discovery, I-9.1) | Proposed |
+| [0015](0015-onelake-ai-era-blueprint-alignment-and-architecture-blueprint-layer.md) | OneLake AI-Era Blueprint Alignment & a Stack-Agnostic Architecture-Blueprint Layer | Proposed |
