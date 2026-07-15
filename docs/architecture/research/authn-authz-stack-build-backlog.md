@@ -61,11 +61,13 @@ Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role*
 
 > **T1-Auflagen für die Bauphase** (aus dem Gate): (1) kein externer Social-IdP im Default (T5); (2) AVV mit EU-Host liegt vor; (3) OpenFGA hält nur pseudonyme IDs — Data-Minimization im ReBAC-Schema (T2) wahren.
 
-### T2 — ReBAC-Schema-Modellierung · depends-on: T1
-- **Z:** Das handgebaute `checkAccess` (ADR-0014) ist als deklaratives Relations-Schema abgebildet — Typen, Relationen, Auflösungsreihenfolge.
-- T2.1 Ist-Modell extrahieren: `project_members(project,user,role)` + `org_members(user,org,role)` + Auflösung „Projekt-Zeile > Org-Rolle > kein Zugriff, kein Merge" (ADR-0014 Festlegung 4) · **DoD:** Ist-Modell-Doku als Referenz · role: `mechanical`
-- T2.2 Relations-Schema entwerfen (Typen `user`/`org`/`project`; Relationen `member`/`admin`/`editor`/`viewer`; computed `can_view`/`can_edit`/`can_admin`); die ADR-0014-Auflösungsreihenfolge muss 1:1 abbildbar sein (inkl. „explizite Projekt-Zeile deckelt Org-Owner") · **DoD:** Schema-Datei + Check-Beispiele, die die ADR-0014-Fälle reproduzieren · role: `architect`
-- T2.3 verify: die Break-Glass-/Lockout-Fälle (ADR-0014 O-4) im Schema durchspielen · **DoD:** dokumentierte Testfälle, kein Merge-Leck · role: `verify`
+### T2 — ReBAC-Schema-Modellierung · depends-on: T1 · ✅ **ERLEDIGT (2026-07-15)**
+- **Z:** Das handgebaute `checkAccess` (ADR-0014) ist als deklaratives Relations-Schema abgebildet — Typen, Relationen, Auflösungsreihenfolge. → [`authn-authz-rebac-schema.md`](authn-authz-rebac-schema.md)
+- T2.1 ✅ Ist-Modell extrahiert (Rollen-Hierarchien, zweistufige Auflösung, `projectRoleFromOrgRole` ohne Editor-Pfad) · **DoD erfüllt:** §1 mit Code-Belegen · role: `mechanical`
+- T2.2 ✅ Relations-Schema entworfen (Typen user/organization/project; `can_view/edit/admin`); **Kern-Finding: die „explizite Zeile überschreibt Org, kein Merge"-Semantik ist nicht-additiv → braucht `but not`-Exklusion.** OpenFGA-DSL + Keto-Parität · **DoD erfüllt:** §2/§3/§4 + Matrix · role: `architect`
+- T2.3 ✅ Break-Glass/Lockout durchgespielt · **DoD erfüllt:** §5 Matrix (8 Fälle) + §6 Break-Glass = Tupel-Write, kein Merge-Leck · role: `verify`
+
+> **Konsequenz für T3/T4:** `checkAccess(P,U,minRole)` wird durch **drei computed relations** (`can_view/edit/admin`) ersetzt (kein Laufzeit-Ranking); Break-Glass-API-Härtung bleibt im API-Layer; Solo-Projekt (`org_id NULL`) = kein `parent`-Tupel → byte-identisch.
 
 ### T3 — AuthZ-Engine self-host + Studio-Anbindung · depends-on: T2
 - **Z:** Der gewählte ReBAC-Dienst läuft lokal/self-hosted, `checkAccess` delegiert an ihn hinter einem Feature-Flag (ehrliche Degradation offline).
