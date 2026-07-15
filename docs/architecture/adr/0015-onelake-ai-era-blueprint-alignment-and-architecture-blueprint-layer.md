@@ -181,10 +181,11 @@ so it stays inside the Golden Thread (references governed definitions, never red
   existing Premium-floor F1/F6 honesty caveats.
 
 **Honesty caveats**
-- The source blog itself returned HTTP 403 to automated fetch; its content is
+- The source blog itself returned HTTP 403 to automated fetch; its content was first
   reconstructed from the **verbatim CAF pages it consolidates** (Microsoft Learn MCP) +
-  corroborating search summaries. The five patterns and AI-era model are quoted from
-  those first-party pages, not the blog HTML.
+  corroborating search summaries. The maintainer subsequently supplied the **primary
+  whitepaper PDF**, which confirms the reconstruction verbatim (see §5.1). The whitepaper
+  is Microsoft's — it is **cited, not vendored** into the repo.
 
 ---
 
@@ -207,8 +208,39 @@ ADR-0005.
 
 ---
 
+## 5.1 Primary-source reconciliation (whitepaper, 2026-07-15)
+
+The maintainer later provided the **primary "OneLake Architectural Guidance
+Whitepaper"** (PDF). Reconciled against this ADR: the five patterns are **verbatim-
+confirmed** — *Pattern 1 Data Access Unification* ("unified data access with minimal
+replication… default-ingest → default-virtualize"), *Pattern 2 Medallion Architecture
+(operating model)* (bronze raw/immutable → silver cleansed/conformed → gold
+certified datasets **and semantic models**), *Pattern 3 Data Mesh on a shared governed
+platform*, *Pattern 4 Platform Simplification across AI & analytics*, *Pattern 5
+External Data Sharing*. No correction to the IR schema or derivation was required.
+
+The whitepaper adds framing now folded into our understanding (not the schema):
+
+- **Three-layer decision framework:** *Strategic Enterprise Initiatives* (why) →
+  *Proven Architectural Patterns* (how) → *Foundational Capabilities* (what OneLake
+  provides: C1 data virtualization & zero-ETL mirroring · C2 open interoperability
+  Delta/Iceberg · C3 centralized governance · C4 integrated analytics & AI · …).
+- **Three-stage AI journey:** *Unify the data estate → Curate semantic knowledge →
+  Empower AI agents* ("human-led, agent-operated"; agents synthesize, don't create).
+- **Named grounding layer:** **Fabric IQ** (ontology-based semantic layer over OneLake)
+  and **Foundry IQ** (RAG grounding for agents); agents run in Fabric (data agents),
+  the Microsoft ecosystem (M365 Copilot, Foundry), or external tools via **MCP** — which
+  is exactly our `ai_grounding.retrieval` builtin→MCP model. Our IR `platinum` /
+  grounding-surface maps to the Fabric IQ ontology curated from gold semantic models.
+
+Net: the primary source **strengthens** the plan; the reconstruction from the CAF pages
+(§1) was accurate.
+
 ## 6. Sources
 
+- **OneLake Architectural Guidance Whitepaper** (Microsoft; primary source, PDF provided
+  by maintainer 2026-07-15) — the three-layer framework, five proven patterns, and
+  foundational capabilities reconciled in §5.1.
 - Microsoft Fabric Updates Blog — *OneLake architectural guidance: A practical blueprint
   for the AI Era* (community.fabric.microsoft.com/t5/Fabric-Updates-Blog/…/ba-p/5282667).
 - Microsoft Learn / CAF — *Data processing standards for AI and analytics*;
