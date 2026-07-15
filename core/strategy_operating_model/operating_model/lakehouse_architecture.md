@@ -283,6 +283,21 @@ Lakehouse B (Semantic Model)
     └─ Shortcut → Lakehouse A/gold/* (consumption layer)
 ```
 
+### 6.3.1 Access Unification: Shortcut vs. Mirror (ADR-0015, pattern P1)
+
+Every external source is integrated by an explicit, recorded **access mode** — *virtualize,
+don't duplicate*. The choice is a governed field (`ingestion[].access_mode` in the
+Architecture Blueprint IR), not an ad-hoc pipeline decision:
+
+| Access mode | Use when | Effect |
+|---|---|---|
+| **Shortcut** (default) | Source is already a lake (ADLS Gen2, S3, GCS) or another OneLake item; virtual access meets performance needs | Zero-copy reference; no second physical copy |
+| **Mirror** | Azure/operational database needing reliable, isolated, low-latency analytics access | Managed replicated copy in OneLake |
+| **Copy** (exception) | Only when performance, isolation, or compliance genuinely require it | Physical copy — requires an explicit rationale |
+
+Default to **shortcut**; choose **mirror** for databases; **copy** must carry a written
+justification. This never overrides the no-layer-skip rule (`data_layers_standard.md` §2.1).
+
 ### 6.4. Lakehouse vs. Warehouse
 
 **Lakehouse (Recommended):**
@@ -299,6 +314,28 @@ Lakehouse B (Semantic Model)
 - Less portable
 
 For this framework, **Lakehouse** is the recommended choice.
+
+## 6.5 Data Mesh: Domains, Workspaces & Publishing (ADR-0015, pattern P3)
+
+The estate is organized as a **data mesh**: business domains own their data products across
+dedicated workspaces, and Gold products are **published** so they are discoverable and
+trustworthy — not just present.
+
+- **Domain → workspace topology.** Each business domain (Commercial, Finance, Operations,
+  SupplyChain, Experience) maps to one or more workspaces; the workspace is the
+  security/ownership/cost boundary. Convention: `ws-<domain>-<role>` where `role` follows the
+  medallion layer (`gold`, `reporting`, `mixed`).
+- **Publish Gold as data products.** Register Gold products in the OneLake Catalog (and
+  Purview where present) with:
+  - **Endorsement** — *Promoted* for domain-recommended, *Certified* for products that
+    passed a formal governance review (executive/regulatory Gold).
+  - **Metadata enrichment** — owner, description, tags (business domain / initiative).
+  - **Intended audience** — `internal` / `partner` / `public`.
+- **External sharing (P5) is separate.** Externally-shared products are sanitized (masked/
+  reduced), labeled, and live in their own workspaces — never the internal operational data.
+
+These fields are carried by the Architecture Blueprint IR (`mesh` / `sharing`) and scored by
+the `blueprint_conformance` audit.
 
 ## 7. Tool-Agnostic Design
 

@@ -63,6 +63,25 @@ Auditability is preserved.
 Known ambiguities, synonyms, and anti-patterns are documented.
 Guardrails reduce hallucination risk by constraining interpretation.
 
+### 3.6. Grounding Surface and Retrieval Strategy (ADR-0015)
+
+The OneLake AI-era blueprint makes the *grounding surface* an explicit standard:
+
+- **Agents ground on Gold and Silver data products — never Bronze.** Bronze is the raw
+  system of record; it is not a valid input for assisted analytics, copilots, or agents.
+  This is a fixed constraint (`ai_grounding.grounding_surface = {gold, silver}` in the
+  Architecture Blueprint IR).
+- **Retrieval is built-in first, MCP for live/action.** Prefer built-in retrieval
+  (governed catalog / data-agent grounding) as the default; use an MCP server only when an
+  agent must take an action or read real-time data. Record the choice **per domain**
+  (search vs. API/MCP, certified sources, whether auth is required).
+- **Emit tool-free grounding.** The grounding manifest (`mcp_grounding.json`) points agents
+  at the Gold/Silver products and travels as a plain file — no runtime dependency for the
+  consumer (extends the GADW Stage 5 "Prep-for-AI" seam).
+- **Adaptive Gold (forward-looking).** Frequently-requested Gold datasets may later be
+  materialized from usage telemetry via the Wirkungs-Loop (ADR-0009); off by default until
+  a custom telemetry agent exists.
+
 ## 4. Assisted Operation
 
 AI assists in operating the framework.

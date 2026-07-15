@@ -33,6 +33,25 @@
 
 **Procedure:** Start from Silver. Define or adopt Silver contracts; then build Gold and the semantic layer from that. Do not start from Gold-only.
 
+### 2.1 Bronze as System of Record (optional but specified) — ADR-0015
+
+Bronze/Staging stay **out of the default delivery scope** (§2), but when a project *does*
+include Bronze it is a **specified**, not an unscoped, layer. Per the OneLake AI-era
+blueprint (ADR-0015, pattern P2):
+
+- **Bronze is the immutable system of record.** Store data exactly as received;
+  **append-only**, no corrections or enrichment at this stage. Its purpose is auditability
+  and reprocessing, never query.
+- **Outsourced Bronze is still specified.** If a customer owns Bronze upstream, record that
+  as a *documented* choice (a `bronze.outsourced` flag in the Architecture Blueprint IR),
+  not an implicit gap.
+- **No layer-skipping.** Shortcuts/mirrors must not bypass the layer progression
+  (bronze → silver → gold). A consumption artifact never reads straight from a raw source
+  around Silver's contracts.
+
+This keeps the silver-first delivery posture (§2) while making Bronze a first-class,
+governed option rather than an undefined blank.
+
 ---
 
 ## 3. Flow
