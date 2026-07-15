@@ -1,6 +1,6 @@
 # ADR-0015 — OneLake AI-Era Blueprint Alignment & a Stack-Agnostic Architecture-Blueprint Layer
 
-- **Status:** Proposed
+- **Status:** Accepted (ratified by maintainer Flo, 2026-07-15)
 - **Date:** 2026-07-15
 - **Scope:** ALUCA (this repo) + sibling `Freelancing`/Meridian (parallel doc:
   `meridian/docs/research/reporting-platform-blueprints/2026-07-15_onelake-ai-era-blueprint-alignment.md`)
