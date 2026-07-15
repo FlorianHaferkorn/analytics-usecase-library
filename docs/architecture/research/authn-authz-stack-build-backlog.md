@@ -54,10 +54,12 @@ Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role*
 
 > **Konsequenz der A-Wahl für den Rest des Backlogs:** T3 baut **OpenFGA** (nicht Ory Keto); T5 fährt den **Auth.js-Pfad** (T5.1, nicht T5.1'). Das ReBAC-Schema (T2) bleibt trotzdem **engine-neutral** modelliert, damit ein späterer A→B-Wechsel offen bleibt (O-1).
 
-### T1 — Compliance-Gate: DSGVO/EU-Hosting des gewählten Stacks · depends-on: T0 · **BLOCKIERT Implementierung**
+### T1 — Compliance-Gate: DSGVO/EU-Hosting des gewählten Stacks · depends-on: T0 · ✅ **ERLEDIGT (2026-07-15)**
 - **Z:** Der gewählte Stack ist compliance-geprüft, bevor eine Zeile Code entsteht — das ist laut ADR-0016 der eigentliche Entscheider.
-- T1.1 Self-Hosting-Topologie + Data-Residency dokumentieren (kein externer Managed-Call im Auth-Pfad) · **DoD:** Eintrag unter `compliance/` (verlinkt aus `compliance/_INDEX.md`); explizite Aussage „100% self-hosted, EU-Infra" · role: `architect`
-- T1.2 AVV/DPA-Bedarf des OSS-Betriebs klären (OpenFGA/Ory als eigener Dienst = kein Dritter, aber Hosting-Provider ist einer) · **DoD:** Art.-30-/AVV-Zeile ergänzt oder „nicht nötig weil self-hosted" begründet · role: `architect`
+- T1.1 ✅ Self-Hosting-Topologie + Data-Residency dokumentiert · **DoD erfüllt:** [`../../../compliance/auth_stack_data_residency.md`](../../../compliance/auth_stack_data_residency.md) §3 (verlinkt aus `compliance/_INDEX.md`); „100% self-hosted, EU-Infra", einziger Vorbehalt = externer Social-IdP (im Default vermeiden) · role: `architect`
+- T1.2 ✅ AVV/DPA-Bedarf geklärt · **DoD erfüllt:** §4 — Auth-Software self-hosted ⇒ kein Vendor-AVV; **einziger AVV-pflichtiger Beteiligter = EU-Hosting-Provider** (ohnehin nötig, nicht auth-spezifisch); Art.-30-Entwurf in §5 · role: `architect`
+
+> **T1-Auflagen für die Bauphase** (aus dem Gate): (1) kein externer Social-IdP im Default (T5); (2) AVV mit EU-Host liegt vor; (3) OpenFGA hält nur pseudonyme IDs — Data-Minimization im ReBAC-Schema (T2) wahren.
 
 ### T2 — ReBAC-Schema-Modellierung · depends-on: T1
 - **Z:** Das handgebaute `checkAccess` (ADR-0014) ist als deklaratives Relations-Schema abgebildet — Typen, Relationen, Auflösungsreihenfolge.
