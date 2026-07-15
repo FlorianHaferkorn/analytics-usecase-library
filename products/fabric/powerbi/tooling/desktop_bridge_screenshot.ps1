@@ -17,14 +17,30 @@
 
   Wraps the official `powerbi-desktop` CLI (npm package
   @microsoft/powerbi-desktop-bridge-cli) per Microsoft's own documented
-  workflow (open -> status -> reload -> screenshot-all):
+  workflow (open -> status -> screenshot per page):
     https://learn.microsoft.com/power-bi/developer/agentic/power-bi-desktop-bridge-overview
     https://github.com/microsoft/skills-for-fabric/blob/main/skills/powerbi-report-authoring/SKILL.md
 
-  Every command this script runs is copied verbatim from those two official
-  sources -- nothing here is guessed. What IS unverified: this script itself
-  has never been executed (no Windows/Desktop available in the environment
-  that authored it). The first real run is the maintainer's job -- see
+  Deliberately does NOT use `reload` or `screenshot-all` (Microsoft's own
+  documented order), because both depend on the CLI's resolveReportDir(),
+  which only finds a SIBLING `<Name>.Report` folder next to a `.pbip` -- it
+  never checks whether the `.pbip`'s own parent directory IS the `.Report`
+  folder. This repo's documented PBIP layout (PBIP_REPORT_STRUCTURE.md)
+  nests `Report.pbip` INSIDE `<UseCase>.Report/`, so resolveReportDir always
+  returns null here and both commands fail with `REPORT_DIR_REQUIRED` --
+  confirmed against the shipped CLI source (dist/index.js), not a bug on our
+  side, and there is no flag to override it. The singular `screenshot
+  <page-id>` command never calls resolveReportDir (it targets a page id +
+  `--pid` directly), so this script reads page ids from the report's own
+  `definition/pages/pages.json` and screenshots each one individually.
+  Practical effect: `open` already loads the current on-disk state, so
+  skipping `reload` only matters if you edited PBIR locally after Desktop
+  was already running against this report -- close and reopen Desktop for
+  it in that case, since reload cannot be made to work with this layout.
+
+  Every command this script runs is copied verbatim from the official
+  sources above, or read directly from the shipped CLI source where the
+  docs don't cover it -- nothing here is guessed. See
   products/fabric/powerbi/docs/references/desktop-bridge-screenshot-workflow.md
   for the full writeup, prerequisites, and troubleshooting.
 
@@ -42,8 +58,8 @@
   interactively -- the exact status output shape is not verified from this
   session, so this script does not attempt to auto-parse it.
 .PARAMETER WaitSeconds
-  Passed to `powerbi-desktop reload --wait-seconds` and used as the initial
-  post-`open` load wait. Default 60.
+  Passed to each `powerbi-desktop screenshot --wait-seconds` call and used as
+  the initial post-`open` load wait. Default 60.
 .EXAMPLE
   # One-liner, from repo root, on the maintainer's Windows workstation:
   .\products\fabric\powerbi\tooling\desktop_bridge_screenshot.ps1 `
@@ -140,23 +156,41 @@ if ($ProcessId -le 0) {
     $ProcessId = [int](Read-Host "Enter the PID for '$reportName' from the status output above")
 }
 
-# ── 4. Reload (apply on-disk PBIR state) then screenshot every page ───────
-Write-Host ">> powerbi-desktop reload --pid $ProcessId --wait-seconds $WaitSeconds" -ForegroundColor Cyan
-& powerbi-desktop reload --pid $ProcessId --wait-seconds $WaitSeconds
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "reload failed (exit $LASTEXITCODE). See docs/references/desktop-bridge-screenshot-workflow.md#troubleshooting."
-    exit $LASTEXITCODE
+# ── 4. Resolve the report's own page ids from its local pages.json ────────
+# No reload step: see .DESCRIPTION for why reload/screenshot-all cannot work
+# with this repo's PBIP layout, and why skipping reload is safe for a
+# just-`open`-ed report.
+$reportDir = if ((Get-Item $PbipPath).PSIsContainer) { $PbipPath } else { Split-Path -Parent $PbipPath }
+$pagesJsonPath = Join-Path $reportDir "definition/pages/pages.json"
+if (-not (Test-Path $pagesJsonPath)) {
+    Write-Error "pages.json not found at $pagesJsonPath -- cannot enumerate pages to screenshot."
+    exit 1
+}
+$pageIds = @((Get-Content -Path $pagesJsonPath -Raw | ConvertFrom-Json).pageOrder)
+if (-not $pageIds -or $pageIds.Count -eq 0) {
+    Write-Error "No pages found in $pagesJsonPath (pageOrder empty)."
+    exit 1
+}
+Write-Host "Pages to screenshot: $($pageIds -join ', ')" -ForegroundColor DarkGray
+
+# ── 5. Screenshot each page individually ───────────────────────────────────
+$failures = 0
+foreach ($pageId in $pageIds) {
+    $outFile = Join-Path $OutputDir "$pageId.png"
+    Write-Host ">> powerbi-desktop screenshot $pageId --pid $ProcessId --output `"$outFile`" --wait-seconds $WaitSeconds" -ForegroundColor Cyan
+    & powerbi-desktop screenshot $pageId --pid $ProcessId --output "$outFile" --wait-seconds $WaitSeconds
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "  FAILED (exit $LASTEXITCODE) for page $pageId" -ForegroundColor Red
+        $failures++
+    }
 }
 
-Write-Host ">> powerbi-desktop screenshot-all --pid $ProcessId --output-dir `"$OutputDir`"" -ForegroundColor Cyan
-& powerbi-desktop screenshot-all --pid $ProcessId --output-dir "$OutputDir"
-$exitCode = $LASTEXITCODE
-
-if ($exitCode -eq 0) {
+if ($failures -eq 0) {
     Write-Host ""
     Write-Host "Screenshots written to: $OutputDir" -ForegroundColor Green
     Get-ChildItem -Path $OutputDir -Filter "*.png" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  $($_.Name)" }
+    exit 0
 } else {
-    Write-Host "screenshot-all failed (exit $exitCode). See docs/references/desktop-bridge-screenshot-workflow.md#troubleshooting." -ForegroundColor Red
+    Write-Host "$failures of $($pageIds.Count) page screenshot(s) failed. See docs/references/desktop-bridge-screenshot-workflow.md#troubleshooting." -ForegroundColor Red
+    exit 1
 }
-exit $exitCode
