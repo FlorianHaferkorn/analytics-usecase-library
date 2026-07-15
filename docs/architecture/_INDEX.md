@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-10
+last-reviewed: 2026-07-15
 shelf-life-days: 90
 ---
 # Architektur — Zentraler Anlaufpunkt (_INDEX)
@@ -37,6 +37,7 @@ shelf-life-days: 90
 | KPI-Formel-DSL → SQL-Synthese verstehen (Databricks Metric Views + OSI DATABRICKS-Dialekt, `sql_synth.py`) | `adr/0012-kpi-calculation-dsl-sql-synthesis.md` → `../../tooling/superversion/targets/sql_synth.py` | ADR-0010/0011 |
 | KPI-Formel-DSL: restliche 11 UCs verstehen (Full-Catalog-Closure, add/abs/avg_filtered/not_blank, alle 16 UCs) | `adr/0013-kpi-calculation-dsl-remaining-11-use-cases.md` → `../../tooling/superversion/targets/dax_synth.py` | ADR-0010/0011/0012 |
 | Org-Schicht über lokal-first verstehen (I-9.1, Discovery — Multi-Org/Multi-Projekt-RBAC-Modell) | `adr/0014-org-layer-over-local-first.md` → `../../studio/src/lib/db/rbac-repo.ts` | ADR-0007/0009 |
+| Manufacturing-Industry-Pack-Differenzierung verstehen (I-9.3, Discovery — ISO-22400-Granularität vs. ISA-88-Batch-Genealogie) | `adr/0015-manufacturing-industry-pack-differentiation-discovery.md` → `../../internal/project_mgmt/KNOWN_GAPS.md` §7 | ADR-0004 |
 | I-6.6 Modell-Routing/Token/ROI scopen (Research-Charter, LLM-/kundenagnostisch) | `studio-model-routing-research-charter.md` | ADRs (vor Synthese in ADR-0008) |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Premium-Floor-Abnahme (F0–F6) verstehen — was ist grün belegt, was offen (I-10.6) | `premium-acceptance-F0-F6.md` | ADRs |
@@ -66,6 +67,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `adr/0012-kpi-calculation-dsl-sql-synthesis.md` | ADR: sql_synth.py (Databricks-SQL-Pendant zu dax_synth.py) — 11 von 16 Ops synthetisieren echtes SQL (TRY_DIVIDE, MEASURE(), CASE WHEN-Filter); 4 Ops (sumx_over_key/avgx_over_key/pvm_volume_effect/pvm_price_effect) explizit HITL (kein flaches Metric-View-expr-SQL-Shape); verdrahtet in databricks.py (NULL-Placeholder + comment: HITL:) und osi.py (zusätzlicher DATABRICKS-Dialekt neben MDX) (Accepted) | I-10.0-Folgeauftrag / DSL→SQL |
 | `adr/0013-kpi-calculation-dsl-remaining-11-use-cases.md` | ADR: schließt die restlichen 11 UCs (COM-004, OPS-001/002/003, FIN-001, SCM-001/003, XD-001/002/003/004) — 4 neue Grammatik-Ergänzungen (add/abs/avg_filtered/not_blank-Filter); 9 eindeutige, individuell begründete `hitl`-KPIs bleiben über alle 16 UCs (4× Legacy-BLANK()-Placeholder, 2× Grammatik-Limit, 3× Neuland/unterspezifiziert); inkl. Lineage-/Business-Doku-Korrekturen und Paritätstest-Normalizer-Fix (Accepted) | I-10.0-Folgeauftrag / Full-Catalog-Closure |
 | `adr/0014-org-layer-over-local-first.md` | ADR: Org-Schicht über lokal-first (Discovery, I-9.1) — additive `organizations`/`org_members`-Tabellen, `projects.org_id` nullable (NULL=Solo-Default), RBAC-Auflösung Projekt-Zeile>Org-Rolle>kein Zugriff (kein Merge), Core bleibt strukturell unwissend (kein neuer Bridge-Parameter), 3 bestehende "Org"-Begriffe bewusst getrennt gehalten (Proposed) | I-9 / Team-Org-Schicht |
+| `adr/0015-manufacturing-industry-pack-differentiation-discovery.md` | ADR: Manufacturing Industry Pack `OPS-IND-M001` (Discovery, I-9.3) — zwei evidenzbasierte Kandidaten-Winkel (ISO-22400-Work-Unit/Production-Order-Granularität; ISA-88-Batch-Genealogie), beide Struktur-/Taxonomie-Gerüst statt fertiger KPIs; exakte KPI-Kataloge + Batch-vs-diskret-Abgrenzung durch persistenten Sandbox-Fetch-Ausfall blockiert (O-1/O-2), SEMI E10/APQC PCF unbelegt (O-3), kein Zielkunde (O-4), fehlender Action-Code `O-P2.1` blockiert Spine-Salvage unabhängig (O-5) (Proposed) | I-9.3 / Manufacturing-Pack |
 | `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `premium-acceptance-F0-F6.md` | I-10.6-Abnahmebericht: F0 (Rechenfähigkeit) grün für 5 MVP-UCs/offen für 9 KPIs über 11 UCs; F1 (Official-Validator) + F6-Teil2 (Live-DAX-Ausführung) ehrlich rot — beide brauchen eine echte Fabric-Tenant-Verbindung, die in dieser Sandbox fehlt; F2/F3/F4/F5/F6-Teil1 grün, live reproduziert mit Belegkommandos | Premium-Abnahme / I-10.6 |
