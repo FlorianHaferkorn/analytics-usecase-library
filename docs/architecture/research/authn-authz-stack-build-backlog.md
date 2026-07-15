@@ -47,10 +47,12 @@ einschleusen (ADR-0016 Festlegung 1), self-hostbar bleiben.
 
 Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role** je Subtask.
 
-### T0 — Stack-Entscheid ratifizieren (A vs. B) · depends-on: — · **BLOCKIERT ALLES**
+### T0 — Stack-Entscheid ratifizieren (A vs. B) · depends-on: — · ✅ **ERLEDIGT (2026-07-15)**
 - **Z:** ADR-0016 ist von *Proposed* auf *Accepted* mit **einer** gewählten Option gehoben, damit Bauarbeit autorisiert ist.
-- T0.1 Maintainer wählt Option **A** (next-auth+OpenFGA) **oder B** (Ory Kratos/Hydra/Keto) · **DoD:** ADR-0016-Status = Accepted + gewählte Option benannt; `adr/README.md` aktualisiert; `check_index.py --strict` grün · role: `architect` *(Maintainer-Entscheid — Flo; ein Agent setzt nie eigenmächtig Accepted)*
-- T0.2 Zitadel-Vorbehalt final einordnen (AGPL vs. Meridian-Auslieferung) · **DoD:** Notiz in ADR-0016, ob Zitadel endgültig raus oder Sonderfall · role: `architect`
+- T0.1 ✅ **Option A (next-auth+OpenFGA) gewählt** (Maintainer Flo, 2026-07-15); Option B (Ory) als reife-gebundene Re-Evaluation aufgeschoben (gekoppelt an T6/O-3). **DoD erfüllt:** ADR-0016-Status = Accepted, gewählte Option benannt, `adr/README.md` aktualisiert, `check_index.py --strict` grün · role: `architect`
+- T0.2 Zitadel-Vorbehalt final einordnen (AGPL vs. Meridian-Auslieferung) · **DoD:** Notiz in ADR-0016, ob Zitadel endgültig raus oder Sonderfall · role: `architect` *(offen — für die A-Umsetzung nicht blockierend)*
+
+> **Konsequenz der A-Wahl für den Rest des Backlogs:** T3 baut **OpenFGA** (nicht Ory Keto); T5 fährt den **Auth.js-Pfad** (T5.1, nicht T5.1'). Das ReBAC-Schema (T2) bleibt trotzdem **engine-neutral** modelliert, damit ein späterer A→B-Wechsel offen bleibt (O-1).
 
 ### T1 — Compliance-Gate: DSGVO/EU-Hosting des gewählten Stacks · depends-on: T0 · **BLOCKIERT Implementierung**
 - **Z:** Der gewählte Stack ist compliance-geprüft, bevor eine Zeile Code entsteht — das ist laut ADR-0016 der eigentliche Entscheider.

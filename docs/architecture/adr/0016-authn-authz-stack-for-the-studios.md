@@ -1,9 +1,13 @@
 # ADR 0016 — AuthN/AuthZ-Stack für die Studios (Descope-Prior-Art → EU-OSS-Optionen)
 
-- **Status:** Proposed. Wie bei ADR-0009/0014 gilt: ein ADR mit Governance-/Compliance-Tragweite
-  wird von einem Agenten nie eigenmächtig auf Accepted gesetzt — das braucht eine echte
-  Maintainer-Ratifikation. Dieses ADR trifft **keine** Stack-Wahl; es stellt zwei gleichwertige
-  Optionen mit dem entscheidenden Kriterium gegenüber, damit der Maintainer entscheidet.
+- **Status:** **Accepted (2026-07-15, Maintainer Flo) — Option A gewählt.** Der Rahmen (Managed-Cloud
+  ausgeschlossen, Kern = self-hosted Zanzibar-ReBAC) und die Stack-Wahl sind ratifiziert: **Option A
+  (next-auth + OpenFGA)** für die nahe Umsetzung; **Option B (Ory)** bewusst **aufgeschoben als
+  reife-gebundene Re-Evaluation** (später, bei höherer Produktreife / echtem Enterprise-SSO-Bedarf —
+  s. O-1/O-3). Die *Entscheidung* dieses ADR ist damit getroffen; die *Umsetzung* läuft über das
+  Build-Backlog (`../research/authn-authz-stack-build-backlog.md`, T0 erledigt → T1 ff. offen). Als
+  ADR mit Governance-/Compliance-Tragweite wurde der Status nicht agenten-eigenmächtig gesetzt,
+  sondern auf die direkte Maintainer-Entscheidung in dieser Session hin (wie ADR-0015).
 - **Date:** 2026-07-15
 - **Scope:** Nur die **Bewertung + der Entscheidungsrahmen** für den geteilten AuthN/AuthZ-Stack
   beider Studios (ActionReady Studio = ALUCA, Meridian Studio = Freelancing). **Kein Code, keine
@@ -66,7 +70,8 @@ mehr Häkchen hat.**
 
 ## Decision
 
-**Keine Stack-Wahl in diesem ADR.** Festgelegt wird nur der Rahmen:
+**Ratifiziert (2026-07-15, Maintainer Flo): Option A jetzt, Option B als reife-gebundene Folge.**
+Der Rahmen:
 
 1. **Descope (und jede Managed-US-CIAM-Cloud) ist als Laufzeit-Abhängigkeit für die Studios
    ausgeschlossen** — unvereinbar mit der EU-Hosting-/Self-Hosted-Doktrin (`compliance/_INDEX.md`).
@@ -77,7 +82,8 @@ mehr Häkchen hat.**
    Open Source, in eigener EU-Infra.
 3. **Beide Studios teilen sich denselben Stack.** Die Wahl gilt für ALUCA *und* den künftigen
    Meridian-SaaS-Pfad gemeinsam.
-4. **Zwei gleichwertige Optionen** (bewusst ohne Empfehlung — Maintainer-Entscheid):
+4. **Zwei Optionen — gewählt: A (2026-07-15).** Option A ist der near-term-Stack; Option B bleibt
+   als reife-gebundene Re-Evaluation dokumentiert (nicht verworfen, nur aufgeschoben):
 
 ### Option A — next-auth + OpenFGA (minimaler Bruch)
 
@@ -147,7 +153,10 @@ Nicht die Feature-Matrix, sondern in dieser Reihenfolge:
 
 ## Open decisions (an Maintainer-Ratifikation)
 
-- **O-1 Stack-Wahl A vs. B.** Der Kern-Entscheid dieses ADR — bewusst offen gelassen, Maintainer.
+- **O-1 Stack-Wahl A vs. B — ENTSCHIEDEN (2026-07-15, Flo): Option A** (next-auth + OpenFGA).
+  Option B (Ory) aufgeschoben als reife-gebundene Re-Evaluation, gekoppelt an O-3 (echter
+  Enterprise-SSO/SAML-Bedarf) und höhere Produktreife. Kein Verwurf — ein späterer A→B-Wechsel
+  bleibt offen, deshalb ist das ReBAC-Schema (Backlog T2) bewusst engine-neutral zu modellieren.
 - **O-2 Meridian-SaaS-Pfad.** Charter-Regel-5-Änderung („kein Backend/Login/SaaS jetzt") ist
   Voraussetzung, bevor Meridian den Stack überhaupt nutzt; als `D-XXX`-Stub in Meridian gespiegelt,
   nicht hier entschieden.
