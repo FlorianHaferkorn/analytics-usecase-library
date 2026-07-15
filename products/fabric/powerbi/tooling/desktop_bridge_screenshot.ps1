@@ -101,6 +101,28 @@ if (-not $cli) {
     }
 }
 
+# ── 1b. Point the bridge CLI at a Microsoft Store install, if present ─────
+# The CLI's own executable auto-discovery (dist/index.js, findDesktopExecutable)
+# only checks traditional MSI/EXE install roots (Program Files, WindowsApps\..
+# without a package-family suffix) -- it never checks the real Microsoft Store
+# package path pattern below, so Store installs fail with "Power BI Desktop
+# executable was not found" even though Desktop is installed and running. The
+# CLI honors $env:PBI_DESKTOP_PATH first, before its own auto-discovery
+# (confirmed by inspecting the shipped package source, not documented in the
+# public docs) -- so pre-populating it here fixes Store installs without
+# requiring the maintainer to find and set it by hand every run.
+if (-not $env:PBI_DESKTOP_PATH) {
+    $storeCandidate = Get-ChildItem -Path "$env:LOCALAPPDATA\Microsoft\WindowsApps" `
+        -Filter "Microsoft.MicrosoftPowerBIDesktop_*" -Directory -ErrorAction SilentlyContinue |
+        ForEach-Object { Join-Path $_.FullName "bin\PBIDesktop.exe" } |
+        Where-Object { Test-Path $_ } |
+        Select-Object -First 1
+    if ($storeCandidate) {
+        Write-Host "Detected Microsoft Store Power BI Desktop install: $storeCandidate" -ForegroundColor DarkGray
+        $env:PBI_DESKTOP_PATH = $storeCandidate
+    }
+}
+
 # ── 2. Open the report in Desktop ──────────────────────────────────────────
 Write-Host ">> powerbi-desktop open `"$PbipPath`"" -ForegroundColor Cyan
 & powerbi-desktop open "$PbipPath"

@@ -75,6 +75,7 @@ References below):
 | `hasUnsavedChanges: true` in status | Unsaved changes block reload | Save or discard the Desktop UI changes, rerun status, then retry. |
 | Timeout on reload/screenshot | Exceeded retry budget | Confirm `bridgeStatus: "connected"` via status; retry once; raise `-WaitSeconds`. |
 | `ReportDefinitionValidationFailed` | Desktop rejected the PBIR | Fix with `powerbi-report-author validate` (see `powerbi-report-author-cli.md`), then reload. |
+| `powerbi-desktop open` fails with "Power BI Desktop executable was not found" even though Desktop is installed and running | The CLI's own executable auto-discovery only checks traditional MSI/EXE install roots -- it never checks the Microsoft Store package path pattern (`...\WindowsApps\Microsoft.MicrosoftPowerBIDesktop_<version>_x64__8wekyb3d8bbwe\bin\PBIDesktop.exe`), so Store installs aren't found. Confirmed by inspecting the shipped `@microsoft/powerbi-desktop-bridge-cli` source directly (undocumented in the public docs); the CLI honors `$env:PBI_DESKTOP_PATH` first, before its own discovery. | The script now auto-detects a Store install and sets `$env:PBI_DESKTOP_PATH` before calling `open`. If your install lives somewhere else entirely, set `$env:PBI_DESKTOP_PATH` to the real `PBIDesktop.exe` path yourself before running the script. |
 
 ## Follow-ups (not in R4.1's scope)
 
