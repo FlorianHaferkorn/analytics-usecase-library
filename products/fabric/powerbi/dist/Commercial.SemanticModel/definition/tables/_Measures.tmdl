@@ -15,6 +15,12 @@ table _Measures
 		displayFolder: 0_Summary
 		lineageTag: c52e8f11-2222-4b20-8d02-000000000004
 
+	/// Purpose: Deviation colour for the COM-001 Main_2 effect bars — returns the theme colour NAME (not a hex) so bars stay theme-consistent: a positive effect (lifts sales) is "good", a negative effect is "bad". Bound as Field-value conditional formatting on the bar fill. Text data type is required for field-value colour.
+	measure 'Effect Colour' = IF ( [Effect Value] >= 0, "good", "bad" )
+		formatString: @
+		displayFolder: 0_Summary
+		lineageTag: c52e8f11-2222-4b20-8d02-000000000005
+
 	/// Purpose: Dynamic KPI summary string for the Detail page narrative header.
 	measure 'Narrative Text' = VAR _s = [Net Sales Amount] VAR _g = [Gross Margin %] VAR _p = [Net Sales % vs Plan] VAR _pr = [Price Realization %] VAR _r = [Customer Retention %] VAR _d = SWITCH ( TRUE (), ABS ( [Price Effect Amount] ) >= ABS ( [Volume Effect Amount] ) && ABS ( [Price Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Price: " & FORMAT ( [Price Effect Amount], "+€#,0;-€#,0" ), ABS ( [Volume Effect Amount] ) >= ABS ( [Mix Effect Amount] ), "Volume: " & FORMAT ( [Volume Effect Amount], "+€#,0;-€#,0" ), "Mix: " & FORMAT ( [Mix Effect Amount], "+€#,0;-€#,0" ) ) RETURN "Sales: " & FORMAT ( _s, "€#,0" ) & "  |  vs Plan: " & FORMAT ( _p, "+0.0%;-0.0%" ) & UNICHAR ( 10 ) & "GM: " & FORMAT ( _g, "0.0%" ) & "  |  Price Realiz.: " & FORMAT ( _pr, "0.0%" ) & "  |  Retention: " & FORMAT ( _r, "0.0%" ) & UNICHAR ( 10 ) & "Top driver: " & _d
 		formatString: @
