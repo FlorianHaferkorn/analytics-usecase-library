@@ -169,7 +169,6 @@
         "valueAxis": [
           {
             "showAxisTitle": false,
-            "start": 0,
             "gridlineShow": false,
             "fontSize": 12,
             "fontFace": "Segoe UI"
@@ -493,6 +492,11 @@
             "show": true,
             "showTitle": false
           }
+        ],
+        "valueAxis": [
+          {
+            "start": 0
+          }
         ]
       }
     },
@@ -501,6 +505,11 @@
         "lineStyles": [
           {
             "areaShow": true
+          }
+        ],
+        "valueAxis": [
+          {
+            "start": 0
           }
         ]
       }
