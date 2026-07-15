@@ -196,6 +196,64 @@ def assemble_inputs_from_repo(repo_root: Path | None = None) -> dict[str, Any]:
     return {"stack": "fabric", "silver_contract_ref": silver_ref, "domains": domains}
 
 
+def emit_grounding(blueprint: dict[str, Any]) -> dict[str, str]:
+    """`ground` verb (ADR-0015 / T6): emit a tool-free grounding manifest + a
+    per-domain retrieval-decision record. Agents ground on gold/silver **only**.
+
+    Returns ``{relative_path: content}``. Raises if the blueprint's grounding surface
+    contains anything other than gold/silver (bronze must never be a grounding source).
+    """
+    grounding = blueprint.get("ai_grounding", {})
+    surface = grounding.get("grounding_surface", [])
+    bad = [x for x in surface if x not in ("gold", "silver")]
+    if bad:
+        raise ValueError(f"grounding surface must be gold/silver only, got {bad} (never bronze)")
+
+    domains = sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
+    retrieval_by_domain = {r.get("domain"): r for r in grounding.get("retrieval", [])}
+
+    resources = [
+        {
+            "domain": d["name"],
+            "layer": "gold",
+            "data_products": sorted(d.get("data_products", [])),
+        }
+        for d in domains
+    ]
+    retrieval = [
+        {
+            "domain": d["name"],
+            "strategy": retrieval_by_domain.get(d["name"], {}).get("strategy", "builtin"),
+            "auth_required": retrieval_by_domain.get(d["name"], {}).get("auth_required", True),
+            "certified_sources": sorted(retrieval_by_domain.get(d["name"], {}).get("certified_sources", [])),
+        }
+        for d in domains
+    ]
+
+    manifest = {
+        "schema": "mcp-grounding/0.1",
+        "grounding_surface": list(surface),
+        "resources": resources,
+        "retrieval": retrieval,
+        "note": "Tool-free grounding manifest. Agents ground on gold/silver data "
+                "products only (ADR-0015 / ai_readiness §3.6); built-in retrieval "
+                "first, MCP only for live/action.",
+    }
+
+    lines = ["# Retrieval decisions (per domain)", "",
+             "| Domain | Strategy | Auth required | Certified sources |",
+             "|---|---|---|---|"]
+    for r in retrieval:
+        cs = ", ".join(r["certified_sources"]) or "—"
+        lines.append(f"| {r['domain']} | {r['strategy']} | {r['auth_required']} | {cs} |")
+    record = "\n".join(lines) + "\n"
+
+    return {
+        "mcp_grounding.json": json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        "retrieval_decisions.md": record,
+    }
+
+
 def validate_blueprint(blueprint: dict[str, Any]) -> None:
     """Validate against the IR JSON Schema. Soft-skip if jsonschema is unavailable."""
     try:
