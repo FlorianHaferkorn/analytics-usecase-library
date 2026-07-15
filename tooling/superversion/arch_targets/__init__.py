@@ -18,6 +18,8 @@ from tooling.superversion.arch_targets.base import (
     render,
 )
 from tooling.superversion.arch_targets import fabric as _fabric  # noqa: F401  (registers "fabric")
+from tooling.superversion.arch_targets import databricks as _databricks  # noqa: F401  (registers "databricks")
+from tooling.superversion.arch_targets import snowflake as _snowflake  # noqa: F401  (registers "snowflake")
 
 __all__ = [
     "ArchAdapter", "ArchContractError", "REGISTRY",
