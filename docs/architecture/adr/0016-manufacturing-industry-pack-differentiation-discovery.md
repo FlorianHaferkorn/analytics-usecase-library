@@ -1,4 +1,4 @@
-# ADR 0015 — Manufacturing Industry Pack (`OPS-IND-M001`): Differentiation-Angle Discovery
+# ADR 0016 — Manufacturing Industry Pack (`OPS-IND-M001`): Differentiation-Angle Discovery
 
 - **Status:** Proposed. Wie bei ADR-0009/0014: ein Discovery-ADR mit inhaltlicher Tragweite
   wird nie eigenmächtig auf Accepted gesetzt — das braucht Maintainer-Ratifikation, nachzutragen
