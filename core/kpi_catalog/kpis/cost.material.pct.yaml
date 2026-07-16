@@ -49,3 +49,11 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: IFRS
+  id: IAS 2
+  name: Material-cost ratio
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+  alignment: none
+  note: Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure. Material
+    cost is an IAS 2 inventory cost input.

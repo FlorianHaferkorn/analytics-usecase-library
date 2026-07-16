@@ -48,3 +48,11 @@ metadata_quality:
   last_review: 23.01.2026
 aliases:
 - fin.liquidity.operating_cash_flow
+standard_ref:
+- standard: IFRS
+  id: IAS 7
+  name: Cash flows from operating activities
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+  alignment: exact
+  note: Maps to the IAS 7 operating-activities cash-flow section. Aligns; IAS 7 permits the direct or
+    indirect method — pin which one is used so period-over-period comparisons are stable.

@@ -2628,6 +2628,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - fin.liquidity.cash_conversion_cycle_days
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time (proxy)
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Same CCC concept as SCOR AM.1.1 but computed from fixed-ratio Net Sales/COGS proxies (Experience-domain executive view where the receivables/inventory/payables facts are unavailable). Consolidate toward wc.ccc.days where those facts exist.
 
 - kpi_id: ops.downtime.pct
   kpi_key: Downtime %
@@ -3697,6 +3704,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — DSO component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days − DPO). Not an IFRS line item; the receivables base is IFRS 9 / IAS 1.
 
 - kpi_id: fin.liquidity.inventory.amount
   kpi_key: Inventory Amount
@@ -3736,6 +3750,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Inventories carrying amount
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: exact
+    note: Closing inventory measured at the lower of cost and net realisable value (IAS 2). Our note allows 'standard or average cost' — IAS 2 prohibits LIFO; confirm the cost formula is FIFO or weighted-average and standard cost approximates actual.
 
 - kpi_id: fin.liquidity.payables.amount
   deprecated: true
@@ -3774,6 +3795,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Trade and other payables
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: partial
+    note: Trade payables are an IAS 1 statement-of-financial-position line (a financial liability under IFRS 9). Aligns for trade payables; ensure non-trade accruals/provisions are excluded when this feeds DPO.
 
 - kpi_id: ops.planned.hours
   deprecated: true
@@ -3932,6 +3960,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — DPO component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1). Not an IFRS line item; the payables base is IAS 1 / IFRS 9.
 
 - kpi_id: wc.ccc.days
   synonyms:
@@ -3994,6 +4029,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: exact
+    note: CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain metric with no single IFRS equivalent. Duplicate concept of ops.working_capital.ccc.days (proxy variant) — consolidate toward this fact-based version.
 
 - kpi_id: fin.cash.balance
   synonyms:
@@ -4042,6 +4084,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 7
+    name: Cash and cash equivalents
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+    alignment: exact
+    note: Cash and cash equivalents is defined by IAS 7.6–9 (short-term, highly liquid, insignificant risk of value change, typically ≤3-month maturity). Ensure scope matches the IAS 7 definition, not a broader treasury balance.
 
 - kpi_id: fin.overdue_ar.pct
   synonyms:
@@ -4094,6 +4143,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 01.06.2026
+  standard_ref:
+  - standard: IFRS
+    id: IFRS 9
+    name: Trade receivables — credit-risk ageing
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-9-financial-instruments/
+    alignment: partial
+    note: Overdue-AR ageing underpins the IFRS 9 expected-credit-loss simplified (provision-matrix) approach, but the overdue-% itself is a credit-management KPI, not an IFRS-defined figure. Receivables base per IFRS 9 / IAS 1.
 
 - kpi_id: fin.cash.ocf
   synonyms:
@@ -4145,6 +4201,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - fin.liquidity.operating_cash_flow
+  standard_ref:
+  - standard: IFRS
+    id: IAS 7
+    name: Cash flows from operating activities
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+    alignment: exact
+    note: Maps to the IAS 7 operating-activities cash-flow section. Aligns; IAS 7 permits the direct or indirect method — pin which one is used so period-over-period comparisons are stable.
 
 - kpi_id: fin.cash.vs_plan.pct
   synonyms:
@@ -4200,6 +4263,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 7
+    name: Cash budget variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+    alignment: none
+    note: Internal budget-variance metric; no external standard defines it. Cash input traces to IAS 7 cash and cash equivalents.
 
 - kpi_id: cost.cogs.amount
   kpi_key: Cost of Goods Sold Amount
@@ -4240,6 +4310,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Inventories — cost of sales
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: exact
+    note: COGS is the IAS 2 carrying amount of inventories recognised as an expense when the related revenue is recognised (IAS 2.34), presented as 'cost of sales' under the IAS 1 function-of-expense method. Definition aligns.
 
 - kpi_id: margin.gm.pct
   kpi_key: Gross Margin %
@@ -4495,6 +4572,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: Gross margin ratio (APM)
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: partial
+    note: A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM. Inputs are IFRS-clean — label the ratio as an APM in external reporting.
 
 - kpi_id: sales.promo.cost.amount
   kpi_key: Promo Cost
@@ -4691,6 +4774,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: Promo gross-margin ratio
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: none
+    note: Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named measure. Treated as an internal analytic ratio.
 
 - kpi_id: cost.cogs_per_unit.amount
   kpi_key: COGS per Unit
@@ -4735,6 +4824,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Unit COGS (cost accounting)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Internal cost-accounting metric; the COGS input is IAS 2 cost of sales but per-unit COGS is not an IFRS-defined figure.
 
 - kpi_id: sales.promo.cannibalized_sales.amount
   kpi_key: Cannibalized Sales Amount
@@ -4876,6 +4972,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Material-cost ratio
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure. Material cost is an IAS 2 inventory cost input.
 
 - kpi_id: cost.opex.vs_plan.pct
   synonyms:
@@ -4926,6 +5029,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Operating-expense budget variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: none
+    note: Internal budget-variance management metric; no external financial-reporting standard defines it. Actual and plan inputs trace to IAS 1 operating expenses.
 
 - kpi_id: cost.unit.amount
   synonyms:
@@ -4987,6 +5097,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Unit cost (cost accounting)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Internal cost-accounting metric (total cost / units); no external financial-reporting standard. Cost inputs relate to IAS 2 inventory costing.
 
 - kpi_id: margin.gm.amount
   synonyms:
@@ -5046,6 +5163,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - hr.gm.amount
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Gross profit subtotal
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: partial
+    note: Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated line item. Aligns when Net Sales = IFRS 15 revenue and COGS = IAS 2 cost of sales. IFRS 18 (eff. 1 Jan 2027) formalises defined operating subtotals.
 
 - kpi_id: sales.promo.baseline_sales.amount
   kpi_key: Baseline Sales Amount
@@ -5187,6 +5311,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: Cost-of-sales ratio (APM)
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: partial
+    note: Inverse of the gross-margin ratio; same APM treatment. Inputs are IFRS (IAS 2 cost of sales / IFRS 15 revenue).
 
 - kpi_id: margin.gm.vs_plan.pct
   kpi_key: Gross Margin % vs Plan
@@ -5237,6 +5367,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Gross-margin budget variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: none
+    note: Internal budget-variance metric; no external standard. Inputs trace to IAS 1 gross profit / IFRS 15 revenue.
 
 - kpi_id: margin.ebitda.pct
   kpi_key: EBITDA Margin
@@ -5280,6 +5417,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 12.06.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: EBITDA margin — Alternative Performance Measure
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: none
+    note: 'EBITDA is NOT defined by IFRS. It is an Alternative Performance Measure: under the ESMA APM Guidelines it must be labelled as non-GAAP, reconciled to the most directly reconcilable IFRS line item, and shown with a comparative. Under IFRS 18 (eff. 1 Jan 2027) an EBITDA-type figure used in public communication is a Management-defined Performance Measure (MPM) requiring a dedicated reconciliation note to the nearest IFRS subtotal — IFRS 18''s closest defined analogue is OPDAI (''operating profit before depreciation, amortisation and impairments''). Do not present as an IFRS metric.'
 
 - kpi_id: cost.base_volume.amount
   deprecated: true
@@ -5322,6 +5465,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Cost-base baseline (variance analysis)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Internal variance-analysis baseline; no external standard. Underlying cost is IAS 2 inventory cost.
 
 - kpi_id: cost.opex.base.amount
   deprecated: true
@@ -5363,6 +5513,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Operating expenses
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: partial
+    note: Operating expenses map to IAS 1 expense presentation (by nature or by function). The 'base' scoping is an internal reporting choice, not an IFRS concept — align the expense population to the IAS 1 classification actually reported.
 
 - kpi_id: enterprise.value_at_risk.index
   kpi_key: Enterprise Value-at-Risk Index
