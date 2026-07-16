@@ -35,3 +35,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: RL.1.1
+  name: Perfect Order Fulfillment
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: partial
+  note: Formula is identical to OTIF (OTIF orders / total orders) → maps to SCOR Perfect Order (2-of-4).
+    Duplicate of supply.otif.pct / ops.otif.pct — consolidate to one governed OTIF.

@@ -46,3 +46,9 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 01.06.2026
+standard_ref:
+- standard: SCOR-DS
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Excess/obsolete inventory value is an inventory-health practice concern, not a named SCOR performance
+    metric (SCOR treats it under Asset Management practices).

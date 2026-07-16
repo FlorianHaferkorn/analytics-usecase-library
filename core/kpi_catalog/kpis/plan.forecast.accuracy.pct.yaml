@@ -73,3 +73,9 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  alignment: none
+  note: Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric.
+    Better external references are the IBF / APICS forecasting standards (MAPE, bias, tracking signal)
+    — a candidate standards domain of its own.

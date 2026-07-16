@@ -43,3 +43,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AG
+  name: Agility — Value at Risk
+  url: https://scor.ascm.org/performance/agility
+  alignment: partial
+  note: 'Loose link only: SCOR Agility (AG) measures adaptability and overall value-at-risk, not a supplier-risk
+    composite score. Conceptual neighbour, not the same metric.'

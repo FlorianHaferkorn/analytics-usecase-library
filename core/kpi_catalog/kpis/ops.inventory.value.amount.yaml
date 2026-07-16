@@ -36,3 +36,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Asset Management — inventory value input
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Inventory value is an input to SCOR Asset Management metrics (Cash-to-Cash inventory-days), not
+    itself a named SCOR performance metric.

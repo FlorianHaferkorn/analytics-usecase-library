@@ -1176,6 +1176,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — inventory-days component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Maps to the inventory-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days of Supply − DPO). Ours is COGS-based DIO. Duplicate of wc.dio.days — consolidate.
 
 - kpi_id: inv.stockout.pct
   synonyms:
@@ -1226,6 +1233,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.1.1
+    name: Perfect Order Fulfillment (availability)
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: No direct SCOR L1–L3 metric. Stockout rate is the inverse of item availability/fill, which SCOR captures inside Perfect Order (RL) rather than as a standalone metric.
 
 - kpi_id: inv.excess_inventory.amount
   kpi_key: Excess Inventory Value
@@ -1272,6 +1286,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 01.06.2026
+  standard_ref:
+  - standard: SCOR-DS
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Excess/obsolete inventory value is an inventory-health practice concern, not a named SCOR performance metric (SCOR treats it under Asset Management practices).
 
 - kpi_id: inv.obsolete.pct
   synonyms:
@@ -1394,6 +1413,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    alignment: none
+    note: Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric. Better external references are the IBF / APICS forecasting standards (MAPE, bias, tracking signal) — a candidate standards domain of its own.
 
 - kpi_id: plan.forecast.bias.pct
   kpi_key: Forecast Bias %
@@ -1448,6 +1471,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - sales.forecast.bias_pct
+  standard_ref:
+  - standard: SCOR-DS
+    alignment: none
+    note: As plan.forecast.accuracy.pct — no SCOR metric home; IBF/APICS forecasting standards are the right external reference.
 
 - kpi_id: plan.replan.count
   deprecated: true
@@ -1550,6 +1577,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.1.1
+    name: Perfect Order Fulfillment
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation Accuracy (RL.2.3) and Perfect Condition (RL.2.4). SCOR RL.1.1 is order-level and requires all four to pass. To claim SCOR Perfect Order, add the two missing components; otherwise label it OTIF, not Perfect Order.
 
 - kpi_id: supply.on_time.pct
   synonyms:
@@ -1599,6 +1633,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.2.2
+    name: Delivery Performance to Customer Commit Date
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: Reference date is unspecified in our definition; SCOR RL.2.2 measures against the customer COMMIT date, not the requested/scheduled date. Pin the reference date to the commit date to align.
 
 - kpi_id: supply.stockout_impact.pct
   kpi_key: Stockout Impact %
@@ -1645,6 +1686,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: Lost-demand share is a Plan/service-loss diagnostic, not a named SCOR metric.
 
 - kpi_id: supply.expedite.amount
   kpi_key: Expedite Cost Amount
@@ -1687,6 +1733,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: CO.1.1
+    name: Total Supply Chain Management Cost
+    url: https://scor.ascm.org/performance/cost
+    alignment: partial
+    note: Premium-freight / expedite is one cost component within SCOR CO.1.1 (Total SC Management Cost), not the whole metric.
 
 - kpi_id: supply.penalty.amount
   kpi_key: Penalty Amount
@@ -1728,6 +1781,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: CO.1.1
+    name: Total Supply Chain Management Cost
+    url: https://scor.ascm.org/performance/cost
+    alignment: partial
+    note: Service-failure penalties are a cost component within SCOR's Cost attribute (CO.1.1), not a named standalone SCOR metric.
 
 - kpi_id: plan.forecast.service_impact.pct
   kpi_key: Service Impact %
@@ -1913,6 +1973,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Asset Management — inventory value input
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Inventory value is an input to SCOR Asset Management metrics (Cash-to-Cash inventory-days), not itself a named SCOR performance metric.
 
 - kpi_id: ops.planned_output.units
   kpi_key: Planned Output Units
@@ -2369,6 +2436,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.1.1
+    name: Perfect Order Fulfillment
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: Formula is identical to OTIF (OTIF orders / total orders) → maps to SCOR Perfect Order (2-of-4). Duplicate of supply.otif.pct / ops.otif.pct — consolidate to one governed OTIF.
 
 - kpi_id: ops.availability.pct
   synonyms:
@@ -2466,6 +2540,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.1.1
+    name: Perfect Order Fulfillment
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: Same 2-of-4 gap as supply.otif.pct. Also a duplicate formula of supply.otif.pct and scm.service_level.pct — consolidation candidate.
 
 - kpi_id: ops.working_capital.ccc.days
   kpi_key: Cash Conversion Cycle (Days)
@@ -2833,6 +2914,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    alignment: none
+    note: As plan.forecast.accuracy.pct — no SCOR metric home; MAPE is defined by IBF/APICS forecasting standards, not SCOR.
 
 - kpi_id: supply.in_full.pct
   synonyms:
@@ -2882,6 +2967,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.2.1
+    name: Percentage of Orders Delivered In Full
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: 'Grain differs: ours is delivery-level (in-full deliveries / total deliveries); SCOR RL.2.1 is order-level (% of orders delivered in full). Move to order grain to align.'
 
 - kpi_id: enterprise.action_outcome_rate.pct
   kpi_key: Action Outcome Rate %
@@ -3778,6 +3870,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — inventory-days component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Duplicate of inv.dio.days; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family. Consolidate to one DIO.
 
 - kpi_id: wc.dpo.days
   synonyms:
@@ -5402,6 +5501,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AG
+    name: Agility — Value at Risk
+    url: https://scor.ascm.org/performance/agility
+    alignment: partial
+    note: 'Loose link only: SCOR Agility (AG) measures adaptability and overall value-at-risk, not a supplier-risk composite score. Conceptual neighbour, not the same metric.'
 
 - kpi_id: svc.sla.attainment.pct
   synonyms:

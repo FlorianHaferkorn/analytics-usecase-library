@@ -55,3 +55,13 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: RL.1.1
+  name: Perfect Order Fulfillment
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: partial
+  note: OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation
+    Accuracy (RL.2.3) and Perfect Condition (RL.2.4). SCOR RL.1.1 is order-level and requires all four
+    to pass. To claim SCOR Perfect Order, add the two missing components; otherwise label it OTIF, not
+    Perfect Order.

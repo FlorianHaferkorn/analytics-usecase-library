@@ -53,3 +53,11 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Cash-to-Cash Cycle Time — inventory-days component
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: partial
+  note: Duplicate of inv.dio.days; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family.
+    Consolidate to one DIO.

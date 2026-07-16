@@ -50,3 +50,8 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  alignment: none
+  note: As plan.forecast.accuracy.pct — no SCOR metric home; MAPE is defined by IBF/APICS forecasting
+    standards, not SCOR.

@@ -40,3 +40,11 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: RL.1.1
+  name: Perfect Order Fulfillment
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: partial
+  note: Same 2-of-4 gap as supply.otif.pct. Also a duplicate formula of supply.otif.pct and scm.service_level.pct
+    — consolidation candidate.

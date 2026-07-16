@@ -47,3 +47,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: RL.1.1
+  name: Perfect Order Fulfillment (availability)
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: none
+  note: No direct SCOR L1–L3 metric. Stockout rate is the inverse of item availability/fill, which SCOR
+    captures inside Perfect Order (RL) rather than as a standalone metric.
