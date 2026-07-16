@@ -30,7 +30,7 @@ resolved upstream in `from_aluca`, never reaches this module):
     abs              -- ABS ( value )
     sumx_over_key    -- SUMX ( VALUES ( t[key] ), CALCULATE ( value ) )
     avgx_over_key    -- AVERAGEX ( VALUES ( t[key] ), CALCULATE ( value ) )
-    pvm_volume_effect -- SUMX ( t, ( t[qty] - t[plan_qty] ) * DIVIDE ( t[plan_sales], t[plan_qty] ) )
+    pvm_volume_effect -- ( SUM ( t[qty] ) - SUM ( t[plan_qty] ) ) * DIVIDE ( SUM ( t[plan_sales] ), SUM ( t[plan_qty] ) )
     pvm_price_effect  -- SUMX ( t, ( DIVIDE ( t[net_price], t[qty] ) - DIVIDE ( t[plan_sales], t[plan_qty] ) ) * t[qty] )
     avg               -- AVERAGE ( t[col] )
     sumx_product      -- SUMX ( t, t[a] * t[b] )
@@ -216,9 +216,12 @@ def synthesize_dax(resolved: dict) -> str:
         )
         if not table or not qty or not plan_qty or not plan_sales:
             raise SynthesisError(f"pvm_volume_effect missing fields: {resolved!r}")
+        # 3-way PVM: pure volume = total-quantity delta valued at the BLENDED plan
+        # price (SUM(plan_sales)/SUM(plan_qty)). Using a per-row plan price would
+        # fold the product-mix shift into volume and collapse the Mix residual to 0.
         return (
-            f"SUMX ( {table}, ( {table}[{qty}] - {table}[{plan_qty}] ) * "
-            f"DIVIDE ( {table}[{plan_sales}], {table}[{plan_qty}] ) )"
+            f"( SUM ( {table}[{qty}] ) - SUM ( {table}[{plan_qty}] ) ) * "
+            f"DIVIDE ( SUM ( {table}[{plan_sales}] ), SUM ( {table}[{plan_qty}] ) )"
         )
 
     if op == "pvm_price_effect":

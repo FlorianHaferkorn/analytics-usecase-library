@@ -21,6 +21,7 @@ Usage:
 
 import yaml
 import random
+import hashlib
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -701,9 +702,16 @@ class GoldLayerGenerator:
                     net_sales = gross_sales - discount
                     cogs = net_sales * random.uniform(0.55, 0.70)  # 55-70% COGS ratio
                     
-                    # Plan values (for PVM analysis)
-                    plan_quantity = quantity * random.uniform(0.9, 1.1)
-                    plan_sales = plan_quantity * unit_price * random.uniform(0.95, 1.05)
+                    # Plan values (for PVM analysis). A per-product volume index
+                    # (deterministic, correlated with price tier) makes actual
+                    # quantities diverge from plan in a biased, dispersed way, so the
+                    # aggregate PVM bridge carries real Volume AND Mix effects (a
+                    # symmetric per-row noise would cancel out and leave Price only).
+                    _h = (int(hashlib.md5(str(int(product['ProductKey'])).encode()).hexdigest(), 16) % 1000) / 1000.0
+                    _tier = min(max((unit_price - 100) / 900.0, 0.0), 1.0)
+                    volume_index = 0.98 + 0.24 * (_h - 0.5) - 0.10 * (_tier - 0.5)
+                    plan_quantity = quantity / volume_index
+                    plan_sales = plan_quantity * unit_price  # plan priced at list; actual sits below via discounts
                     plan_cogs = plan_sales * 0.62
                     
                     transactions.append({

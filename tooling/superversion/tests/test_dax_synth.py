@@ -203,8 +203,8 @@ def test_pvm_volume_effect():
         "quantity_column": "Quantity", "plan_quantity_column": "Plan Quantity", "plan_sales_column": "Plan Sales Amount",
     }
     assert d.synthesize_dax(resolved) == (
-        "SUMX ( fact_sales, ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * "
-        "DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) )"
+        "( SUM ( fact_sales[Quantity] ) - SUM ( fact_sales[Plan Quantity] ) ) * "
+        "DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ), SUM ( fact_sales[Plan Quantity] ) )"
     )
 
 

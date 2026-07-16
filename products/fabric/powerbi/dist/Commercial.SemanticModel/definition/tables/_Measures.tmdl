@@ -16,7 +16,7 @@ table _Measures
 		lineageTag: c52e8f11-2222-4b20-8d02-000000000004
 
 	/// Purpose: Deviation colour for the COM-001 Main_2 effect bars — returns the theme colour NAME (not a hex) so bars stay theme-consistent: a positive effect (lifts sales) is "good", a negative effect is "bad". Bound as Field-value conditional formatting on the bar fill. Text data type is required for field-value colour.
-	measure 'Effect Colour' = IF ( [Effect Value] >= 0, "good", "bad" )
+	measure 'Effect Colour' = VAR v = [Effect Value] RETURN IF ( ISBLANK ( v ), "good", IF ( v < 0, "bad", "good" ) )
 		formatString: @
 		displayFolder: 0_Summary
 		lineageTag: c52e8f11-2222-4b20-8d02-000000000005
@@ -97,7 +97,7 @@ table _Measures
 	/// Formula: ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * (fact_sales[Plan Sales Amount]) / (PlanQty) )
 	/// Grain: invoice_line aggregated monthly · Unit: EUR
 	/// Owner: Commercial BI · Status: active
-	measure 'Volume Effect Amount' = SUMX ( fact_sales, ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) )
+	measure 'Volume Effect Amount' = ( SUM ( fact_sales[Quantity] ) - SUM ( fact_sales[Plan Quantity] ) ) * DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ), SUM ( fact_sales[Plan Quantity] ) )
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"

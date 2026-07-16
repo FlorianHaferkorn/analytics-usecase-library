@@ -299,7 +299,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_PVM
   category: Driver
   expression:
-    logical: Volume Effect Amount = ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * (fact_sales[Plan Sales Amount]) / (PlanQty) )
+    logical: Volume Effect Amount = ( SUM(fact_sales[Quantity]) - SUM(fact_sales[Plan Quantity]) ) * DIVIDE ( SUM(fact_sales[Plan Sales Amount]), SUM(fact_sales[Plan Quantity]) )
     aggregation_method: sum
   documentation:
     description: PVM driver quantifying the net sales impact from volume change.
