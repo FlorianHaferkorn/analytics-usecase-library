@@ -7,14 +7,20 @@ governance:
   steward_role: commercial_bi_pricing_analytics_lead
 orchestration:
   strategic_kpi_id: margin.gm.pct
+  # R2.3-Fund follow-up: order matters here -- _card_kpi_ids() takes the lead
+  # (component_3s.kpi_id) + first 3 unique influencing_kpi_ids for the KPI
+  # band. Reordered (same 7 KPIs, no membership change) to match R1.5's real,
+  # hand-patched dist/ card set (GM% | GM% vs Plan | Price Realization % | GM
+  # Amount) -- R1.5 changed which 3 KPIs the cards show but never updated this
+  # list's order, so the generator kept building the pre-R1.5 card set.
   influencing_kpi_ids:
+  - margin.gm.vs_plan.pct
+  - sales.price.realization_pct
   - margin.gm.amount
   - sales.price.list.amount
   - sales.price.net.amount
-  - sales.price.realization_pct
   - sales.pvm.mix_effect.amount
   - cost.cogs_per_unit.amount
-  - margin.gm.vs_plan.pct
   supporting_kpi_ids:
   - cost.cogs.amount
   - sales.promo.baseline_sales.amount
@@ -40,6 +46,11 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.1/R2.3 (Cut C2): intent layer opt-in. COM-002 is the reference pattern
+  # R2.4 migrates the other 16 brackets against (UMSETZUNGSPLAN_REPORT_EXZELLENZ.md).
+  # message/unit/sort_by/top_n/highlight_rule below reproduce, via the generator,
+  # what R1.1/R1.3/R1.4 previously hand-patched directly into dist/ PBIR.
+  intent_rules_version: 2
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T2_Tactical_Variance
@@ -56,20 +67,40 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.gm.amount
       visual_type: trend_line
-      message: "Gross Margin € is running below plan and the shortfall widened through the period"
+      # R2.3-Fund follow-up: generator's trend_line default is CalendarYearMonth
+      # (matches COM-001's own dist/); COM-002's real dist/ uses daily Date
+      # grain for this specific trend -- explicit override, not a global default
+      # change (COM-001 stays on the monthly default, unaffected).
+      category_field: dim_date.Date
+      message: Gross margin has been sliding below plan through the period
       so_what: "The erosion compounds month over month — a trend, not a one-off dip."
+      unit: amount
     - slot_id: Main_2
-      # T2_DriverBridge / variance_explanation: Plan GM → PVM drivers → Actual GM (IBCS bridge)
+      # T2_DriverBridge / variance_explanation: PVM drivers bridging Plan to Actual GM.
+      # R1.6 follow-up (was open since R2.3-Fund): waterfallChart's real
+      # capabilities only allow ONE measure in the Y role (Category carries the
+      # per-bar breakdown) -- confirmed against Microsoft's own Waterfall-chart
+      # docs (learn.microsoft.com/power-bi/visuals/power-bi-visualization-
+      # waterfall-charts): a native waterfall's bars come from Category values,
+      # not from stacking multiple Y measures. Fixed via a disconnected
+      # selector table (dim_pvm_driver, 3 rows: Price/Volume/Mix Effect) +
+      # 'PVM Bridge Value', a new SWITCH/SELECTEDVALUE measure that reads the
+      # active Driver bar and returns the matching existing effect measure --
+      # see Commercial.SemanticModel/definition/tables/dim_pvm_driver.tmdl and
+      # _Measures.tmdl. "PVM Bridge Value" has no governed kpi_id (same
+      # "direct measure name, no catalog ID exists yet" pattern as Main_1's
+      # Bracket precedent elsewhere) -- it's a presentation-layer helper, not
+      # a business KPI with causal links/action codes of its own.
+      # DAX runtime not verified against a live Power BI engine (none
+      # available in the authoring sandbox) -- structurally valid TMDL,
+      # reuses three already-verified measures; pending Desktop confirmation.
       visual_type: waterfall
-      message: "Price concessions and adverse mix, not volume, drive the Plan-to-Actual GM gap"
-      so_what: "The levers are commercial — price discipline and mix — not demand generation."
       comparison: vs_plan
-      kpi_ids:
-      - Plan GM Amount
-      - sales.pvm.price_effect.amount
-      - sales.pvm.volume_effect.amount
-      - sales.pvm.mix_effect.amount
-      - margin.gm.amount
+      category_field: dim_pvm_driver.Driver
+      kpi_id: PVM Bridge Value
+      message: Price concessions and adverse mix drive gross margin below plan, not volume
+      so_what: "The levers are commercial — price discipline and mix — not demand generation."
+      unit: amount
     - slot_id: Main_3
       # Ranking slot (Slot_Definitions.md §3): entities ranked by a SINGLE performance
       # measure — "Who are top/bottom performers? Where should attention focus?"
@@ -81,8 +112,9 @@ ux_layout_rules:
       # evidence columns (R1.3). PBIR: Main_3/visual.json (Golden Thread — must not drift).
       kpi_id: margin.gm.pct
       visual_type: bar_chart
-      message: "GM% sits below target in a handful of org units that drag the portfolio"
+      message: Gross margin sits below target in a few business units that drag the portfolio
       so_what: "Focused intervention in those units beats a broad, thinly-spread program."
+      unit: ratio
   page_2_execution:
     title: Commercial Execution
     page_type: T4_Prescriptive_Recommendation
@@ -109,17 +141,18 @@ ux_layout_rules:
       - sales.price.realization_pct
       - sales.pvm.mix_effect.amount
       - margin.gm.pct
-      # BC-CHART-10 (Craft-Core §5.4 / R1.3): worst-first + explicit Top-N as
-      # governed data, not a prose default. Sort key is the variance the
-      # decision_question hinges on (GM vs plan %), ascending = biggest shortfall
-      # first; Top-20 bounds the scan. PBIR emit (Detail_Matrix sortDefinition +
-      # Top-N filter) is the generator-side follow-up (Golden Thread — must not drift).
-      evidence_sort:
-        column: margin.gm.vs_plan.pct
-        direction: asc
-      evidence_top_n: 20
       action_panel: true
       payload_mode: full
+      # sort_by/top_n/highlight_rule (R2.1) reproduce, via the generator, what R1.3
+      # hand-patched directly into Detail_Matrix/visual.json: worst-first default sort,
+      # Top-20 row limit, data-bar emphasis on the variance signal.
+      sort_by:
+        measure: margin.gm.vs_plan.pct
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: margin.gm.vs_plan.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: medium

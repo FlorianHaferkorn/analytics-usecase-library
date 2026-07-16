@@ -45,7 +45,7 @@ except ImportError:  # pragma: no cover
 
 REPO = Path(__file__).resolve().parents[2]
 
-_VALID_DIRECTIONS = {"asc", "desc"}
+_VALID_DIRECTIONS = {"ascending", "descending"}
 
 
 def classify_evidence(c300: Optional[dict[str, Any]]) -> tuple[Optional[bool], str]:
@@ -61,23 +61,22 @@ def classify_evidence(c300: Optional[dict[str, Any]]) -> tuple[Optional[bool], s
     if not isinstance(c300, dict) or not c300:
         return None, ""
 
-    columns = c300.get("evidence_columns")
-    columns = columns if isinstance(columns, list) else []
-    srt = c300.get("evidence_sort")
-    top_n = c300.get("evidence_top_n")
+    # R2.1 canonical fields (loving-einstein merge 2026-07-16): the governed
+    # worst-first ordering is `sort_by {measure, direction}` + `top_n`. (Superseded
+    # my earlier `evidence_sort {column, direction}` + `evidence_top_n`.)
+    srt = c300.get("sort_by")
+    top_n = c300.get("top_n")
 
     if not isinstance(srt, dict):
-        return False, "no evidence_sort declared (worst-first ordering ungoverned)"
-    column = srt.get("column")
+        return False, "no sort_by declared (worst-first ordering ungoverned)"
+    measure = srt.get("measure")
     direction = srt.get("direction")
-    if not column:
-        return False, "evidence_sort.column missing"
-    if column not in columns:
-        return False, f"evidence_sort.column '{column}' is not one of evidence_columns"
+    if not measure:
+        return False, "sort_by.measure missing"
     if direction not in _VALID_DIRECTIONS:
-        return False, f"evidence_sort.direction '{direction}' not in {sorted(_VALID_DIRECTIONS)}"
+        return False, f"sort_by.direction '{direction}' not in {sorted(_VALID_DIRECTIONS)}"
     if not isinstance(top_n, int) or isinstance(top_n, bool) or top_n < 1:
-        return False, "evidence_top_n missing or not a positive integer"
+        return False, "top_n missing or not a positive integer"
     return True, ""
 
 

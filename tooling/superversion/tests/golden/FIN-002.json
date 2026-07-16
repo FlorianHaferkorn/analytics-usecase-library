@@ -278,7 +278,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "COGS % is expanding faster than pricing can recover it, compressing operating margin",
+            "title": "COGS percentage trend over time.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -298,7 +298,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Opex is running over Plan while material cost share rises and labor productivity gains lag behind",
+            "title": "Opex variance, material cost, and labor productivity — the three levers behind unit cost.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -343,9 +343,7 @@
               "Material Cost %",
               "OpEx vs Plan %",
               "Labor Productivity %",
-              "Production Volume Units",
-              "Quality Defect Rate %",
-              "Yield %"
+              "Quality Defect Rate %"
             ],
             "rows": [],
             "columns": [],

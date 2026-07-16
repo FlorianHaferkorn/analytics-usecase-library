@@ -37,7 +37,9 @@ foreach ($cmd in @("py -3", "python3", "python")) {
   try {
     $parts = $cmd -split " "
     $exe = $parts[0]
-    $exeArgs = @($parts[1..([Math]::Min(999, $parts.Count - 1))] | Where-Object { $null -ne $_ }) + @("--version")
+    $exeArgs = @()
+    if ($parts.Count -gt 1) { $exeArgs = @($parts[1..($parts.Count - 1)]) }
+    $exeArgs += "--version"
     $ver = (& $exe $exeArgs 2>&1) -join " "
     if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") {
       $pythonCommand = $cmd
@@ -55,7 +57,9 @@ function Invoke-Python3 {
   }
   $parts = $pythonCommand -split " "
   $exe = $parts[0]
-  $exeArgs = @($parts[1..([Math]::Min(999, $parts.Count - 1))] | Where-Object { $null -ne $_ }) + $Arguments
+  $exeArgs = @()
+  if ($parts.Count -gt 1) { $exeArgs = @($parts[1..($parts.Count - 1)]) }
+  $exeArgs += $Arguments
   & $exe $exeArgs
 }
 
@@ -177,6 +181,22 @@ try {
     Write-Host ""
     Write-Host ">> check_report_theme_compliance.py" -ForegroundColor Cyan
     Invoke-Python3 -Arguments @($checkThemeCompliance, "--dist-root", $distRootResolved)
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
+  $checkFabInspector = Join-Path $validationDir "check_fab_inspector.ps1"
+  if (Test-Path $checkFabInspector) {
+    Write-Host ""
+    Write-Host ">> check_fab_inspector.ps1 (PBI-Inspector V2 / fab-inspector BPA rules)" -ForegroundColor Cyan
+    & $checkFabInspector -DistRoot $distRootResolved
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
+  $checkReportScorecard = Join-Path $validationDir "check_report_scorecard.ps1"
+  if (Test-Path $checkReportScorecard) {
+    Write-Host ""
+    Write-Host ">> check_report_scorecard.ps1 (IBCS scorecard: weighted points + knock-outs, R3.3)" -ForegroundColor Cyan
+    & $checkReportScorecard -DistRoot $distRootResolved
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 

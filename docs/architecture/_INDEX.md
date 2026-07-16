@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-08
+last-reviewed: 2026-07-09
 shelf-life-days: 90
 ---
 # Architektur — Zentraler Anlaufpunkt (_INDEX)
@@ -11,7 +11,7 @@ shelf-life-days: 90
 
 | Feld | Wert |
 |---|---|
-| Stand | 2026-06-16 |
+| Stand | 2026-07-09 |
 | Rolle | L0-Navigation der Architektur-Ebene |
 | ADR-Liste | `adr/README.md` (chronologischer Index der Decision Records) |
 
@@ -25,6 +25,7 @@ shelf-life-days: 90
 | Aktivierung/Onboarding + Capability-Gating | `adr/0003-customer-activation-and-capability-gating.md` → `../agent/capability-manifest.md` | ADR-0001 |
 | Validierungs-Backends / Capability-Tiers verstehen | `adr/0001-pluggable-validation-backends-and-capability-tiers.md` → `r3-1-tooling-audit-and-theme-decision.md` | ADR-0002/0003, Migration |
 | Tooling-Überlappung (eigen vs. offizieller Oracle) + Theme-Namens-Konflikt #7 | `r3-1-tooling-audit-and-theme-decision.md` | ADR-0002/0003/0004 |
+| Inspector V2 / fab-inspector / eigene JSON-Logic-BPA-Regeln in CI verstehen | `r3-2-fab-inspector-integration.md` | ADR-0002/0003/0004 |
 | Industry-/Extension-Use-Cases anlegen (EXT/IND-Schema, Sektor-Register) | `adr/0004-industry-variant-use-case-tier-taxonomy.md` → `../../core/usecases/README.md` | ADR-0001/0002/0003 |
 | Superversion-Heimat / Meridian-Core einziehen (Vendoring, Pin, Contract-Mirror) | `adr/0005-superversion-home-and-meridian-vendoring.md` → `../../tooling/superversion/_INDEX.md` | ADR-0001/0002/0003 |
 | Superversion Stack-Targets emittieren (Adapter-Vertrag, Registry, render) | `adr/0006-superversion-target-adapter-contract.md` → `../../tooling/superversion/targets/base.py` | ADR-0001/0002/0003 |
@@ -36,6 +37,7 @@ shelf-life-days: 90
 | KPI-Formel-DSL-Grammatik-Erweiterung verstehen (13-KPI-Closure: mul/delta_chain/distinctcount/count_threshold/round/sumx_over_key/avgx_over_key/pvm_*, rekursiver calc_ref) | `adr/0011-kpi-calculation-dsl-grammar-extension.md` → `../../tooling/superversion/targets/dax_synth.py` | ADR-0010 |
 | KPI-Formel-DSL → SQL-Synthese verstehen (Databricks Metric Views + OSI DATABRICKS-Dialekt, `sql_synth.py`) | `adr/0012-kpi-calculation-dsl-sql-synthesis.md` → `../../tooling/superversion/targets/sql_synth.py` | ADR-0010/0011 |
 | KPI-Formel-DSL: restliche 11 UCs verstehen (Full-Catalog-Closure, add/abs/avg_filtered/not_blank, alle 16 UCs) | `adr/0013-kpi-calculation-dsl-remaining-11-use-cases.md` → `../../tooling/superversion/targets/dax_synth.py` | ADR-0010/0011/0012 |
+| Generator v2 verstehen (Insight-Scoring/Verification/Composition, R5.2 Discovery) | `adr/0014-generator-v2-insight-scoring-verification-composition.md` → `Storytelling_Principles.md` | ADR-0001-0007 |
 | I-6.6 Modell-Routing/Token/ROI scopen (Research-Charter, LLM-/kundenagnostisch) | `studio-model-routing-research-charter.md` | ADRs (vor Synthese in ADR-0008) |
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Premium-Floor-Abnahme (F0–F6) verstehen — was ist grün belegt, was offen (I-10.6) | `premium-acceptance-F0-F6.md` | ADRs |
@@ -64,11 +66,13 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `adr/0011-kpi-calculation-dsl-grammar-extension.md` | ADR: Grammatik-Erweiterung (mul/delta_chain/distinctcount/count_threshold/round/sumx_over_key/avgx_over_key/pvm_volume_effect/pvm_price_effect) + rekursiver `calc_ref` — schließt die letzten 13 `hitl`-KPIs der 5 MVP-UCs (0 verbleibende Gaps); inkl. Lineage-Korrekturen (dim_customer→fact_customer_events, fact_plan_sales→fact_sales, u.a.) (Accepted) | I-10.0-Folgeauftrag / 13-KPI-Closure |
 | `adr/0012-kpi-calculation-dsl-sql-synthesis.md` | ADR: sql_synth.py (Databricks-SQL-Pendant zu dax_synth.py) — 11 von 16 Ops synthetisieren echtes SQL (TRY_DIVIDE, MEASURE(), CASE WHEN-Filter); 4 Ops (sumx_over_key/avgx_over_key/pvm_volume_effect/pvm_price_effect) explizit HITL (kein flaches Metric-View-expr-SQL-Shape); verdrahtet in databricks.py (NULL-Placeholder + comment: HITL:) und osi.py (zusätzlicher DATABRICKS-Dialekt neben MDX) (Accepted) | I-10.0-Folgeauftrag / DSL→SQL |
 | `adr/0013-kpi-calculation-dsl-remaining-11-use-cases.md` | ADR: schließt die restlichen 11 UCs (COM-004, OPS-001/002/003, FIN-001, SCM-001/003, XD-001/002/003/004) — 4 neue Grammatik-Ergänzungen (add/abs/avg_filtered/not_blank-Filter); 9 eindeutige, individuell begründete `hitl`-KPIs bleiben über alle 16 UCs (4× Legacy-BLANK()-Placeholder, 2× Grammatik-Limit, 3× Neuland/unterspezifiziert); inkl. Lineage-/Business-Doku-Korrekturen und Paritätstest-Normalizer-Fix (Accepted) | I-10.0-Folgeauftrag / Full-Catalog-Closure |
+| `adr/0014-generator-v2-insight-scoring-verification-composition.md` | ADR (Proposed, R5.2 Discovery): zweistufige Generator-v2-Architektur — Stage 1 Insight-Scoring (depth/correctness/specificity/actionability über bereits governte KPI-DSL-Werte, keine LLM), Verifikations-Gate (UNCOMPUTED-Regel aus ADR-0009 wiederverwendet), Stage 2 Composition bleibt template-only (Guardrail #2 gewahrt). Deckt real bestätigte Lücke auf: `big_idea`/Header ist im v1-Generator nirgends verdrahtet. | Generator v2 / Insight-Scoring |
 | `migration-ingest-adapter.md` | Hub-and-Spoke N-zu-M-Migration (Sketch) | Migration entwerfen |
 | `prior-art-agentic-integration-and-migration.md` | Recherche + Quellen zu Agentic-Integration & Migration | Belege/Hintergrund |
 | `premium-acceptance-F0-F6.md` | I-10.6-Abnahmebericht: F0 (Rechenfähigkeit) grün für 5 MVP-UCs/offen für 9 KPIs über 11 UCs; F1 (Official-Validator) + F6-Teil2 (Live-DAX-Ausführung) ehrlich rot — beide brauchen eine echte Fabric-Tenant-Verbindung, die in dieser Sandbox fehlt; F2/F3/F4/F5/F6-Teil1 grün, live reproduziert mit Belegkommandos | Premium-Abnahme / I-10.6 |
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
 | `r3-1-tooling-audit-and-theme-decision.md` | R3.1: ADR-0001-Status-Korrektur (Tier-1-Oracle real gemerged aber unverdrahtet — jetzt verdrahtet), Theme-Namens-Konflikt #7 entschieden + gefixt, Überlappungs-Audit eigen vs. offizieller Oracle, Triage neuer repo-weiter Funde (Waterfall-Rolle, Theme-Properties, calloutValue, textbox) | Tooling-Audit / Theme-Konflikt / Oracle-Funde |
+| `r3-2-fab-inspector-integration.md` | R3.2: Tool-Wahl `fab-inspector` (PBI-Inspector V2, cross-platform, MIT) statt `pbir-cli`; 3 eigene JSON-Logic-Regeln (max Visuals/Seite, kein vertikales Scrollen, Theme-Farben) als `logType:error` CI-Gate, vorab gegen echten `dist/`-Baum verifiziert; CI-Wiring (`.tools/fab-inspector.lock`, `check_fab_inspector.ps1`, Artifact-Upload); dokumentierte Grenzen (Binary in Sandbox nicht ausführbar) | Inspector V2 / BPA-in-CI |
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
 | `studio-capability-inventory.md` | I-6.1 Studio-Inventur + Soll-Schnitt; legt Generate-Naht-Entscheidung (E-1) für I-6.2/6.3 offen | Studio-/I-6-Scoping |

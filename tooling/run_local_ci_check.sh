@@ -81,6 +81,7 @@ run_check "Boutique rubric BC-NARR-04 (hero KPI has context — advisory)" \
 # Knock-out rule, fully rolled out (2026-07-11): all 17 evidence tables declare a
 # governed worst-first sort + explicit Top-N. Hard gate (--strict) — 0 violations
 # enforced. Coverage regression-guarded in pytest (covered ≥ 17).
+# BC-CHART-10 re-layered onto R2.1 sort_by/top_n (loving-einstein merge 2026-07-16).
 run_check "Boutique rubric BC-CHART-10 (evidence table worst-first + Top-N)" \
   python3 tooling/validation/check_evidence_sort.py --strict
 

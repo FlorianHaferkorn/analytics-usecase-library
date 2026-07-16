@@ -184,7 +184,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "On-time delivery is declining and is the main driver behind the OTIF slide",
+            "title": "On-time delivery rate trend over time.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -204,14 +204,15 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Late-delivery penalties are concentrated in a short list of suppliers — a few relationships carry most of the exposure",
+            "title": "In-full rate and stockout impact — the two OTIF components beyond timeliness.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "Penalty Amount"
+              "In-Full %",
+              "Stockout Impact %"
             ],
             "rows": [],
             "columns": [],
@@ -242,14 +243,12 @@
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
+              "OTIF %",
               "On-Time %",
               "In-Full %",
               "Stockout Impact %",
               "Penalty Amount",
-              "Expedite Cost Amount",
-              "Order Lines Count",
-              "Shipments Count",
-              "OTIF %"
+              "Expedite Cost Amount"
             ],
             "rows": [],
             "columns": [],

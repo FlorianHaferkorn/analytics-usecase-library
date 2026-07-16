@@ -124,7 +124,7 @@ function Get-CoreUseCaseIds {
   if (-not (Test-Path $coreRoot)) { return @() }
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   Get-ChildItem -Path $coreRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
-    $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   } | ForEach-Object {
     $fm = Get-FrontMatterText -Path $_.FullName
     if (-not $fm) { return }
@@ -164,7 +164,7 @@ function Get-ActionCodesFromFactsheets {
   if (-not (Test-Path $coreRoot)) { return @() }
   $codes = [System.Collections.Generic.HashSet[string]]::new()
   Get-ChildItem -Path $coreRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
-    $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   } | ForEach-Object {
     $body = Get-BodyText -Path $_.FullName
     if (-not $body) { return }
@@ -181,7 +181,7 @@ function Get-KpiIdsFromActionCodes {
   if (-not $ActionCodes -or $ActionCodes.Count -eq 0) { return $ids }
   foreach ($code in $ActionCodes) {
     $matches = Get-ChildItem -Path $Root -Recurse -Filter "$code.yaml" -File -ErrorAction SilentlyContinue | Where-Object {
-      $_.FullName -notmatch '\\internal\\archive\\'
+      $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
     }
     if (-not $matches) { continue }
     $path = $matches[0].FullName
@@ -205,7 +205,7 @@ function Get-KpiIdsFromMeasureDictionaries {
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   if (-not (Test-Path $Root)) { return $ids }
   Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" -File | Where-Object {
-    $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   } | ForEach-Object {
     foreach ($line in Get-Content -Path $_.FullName) {
       if ($line -match '^\s*kpi_id_ref\s*:\s*"?([^"\s]+)"?') {
@@ -240,7 +240,7 @@ foreach ($id in (Get-KpiTokensFromText -Text (Get-Content -Raw -Path $inventoryP
 }
 
 Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
-  $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 } | ForEach-Object {
   $fm = Get-FrontMatterText -Path $_.FullName
   if (-not $fm) { return }

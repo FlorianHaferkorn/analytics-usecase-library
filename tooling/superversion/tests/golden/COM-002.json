@@ -21,6 +21,28 @@
             }
           },
           {
+            "name": "Gross Margin % vs Plan",
+            "expression": "",
+            "display_folder": "Finance",
+            "description": "(Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Gross Margin Amount\"}, \"op\": \"delta_pct\", \"subtrahend\": {\"kind\": \"expr\", \"minuend\": {\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}, \"op\": \"delta\", \"subtrahend\": {\"column\": \"Plan COGS Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}}"
+            }
+          },
+          {
+            "name": "Price Realization %",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Net Price Amount / List Price Amount.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"denominator\": {\"kind\": \"measure\", \"name\": \"List Price Amount\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Net Price Amount\"}, \"op\": \"ratio\"}"
+            }
+          },
+          {
             "name": "Gross Margin Amount",
             "expression": "",
             "display_folder": "Finance",
@@ -54,17 +76,6 @@
             }
           },
           {
-            "name": "Price Realization %",
-            "expression": "",
-            "display_folder": "Commercial",
-            "description": "Net Price Amount / List Price Amount.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"denominator\": {\"kind\": \"measure\", \"name\": \"List Price Amount\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Net Price Amount\"}, \"op\": \"ratio\"}"
-            }
-          },
-          {
             "name": "Mix Effect Amount",
             "expression": "",
             "display_folder": "Commercial",
@@ -84,17 +95,6 @@
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Quantity\", \"kind\": \"column\", \"table\": \"fact_sales\"}, \"numerator\": {\"kind\": \"measure\", \"name\": \"Cost of Goods Sold Amount\"}, \"op\": \"ratio\"}"
-            }
-          },
-          {
-            "name": "Gross Margin % vs Plan",
-            "expression": "",
-            "display_folder": "Finance",
-            "description": "(Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"minuend\": {\"kind\": \"measure\", \"name\": \"Gross Margin Amount\"}, \"op\": \"delta_pct\", \"subtrahend\": {\"kind\": \"expr\", \"minuend\": {\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}, \"op\": \"delta\", \"subtrahend\": {\"column\": \"Plan COGS Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}}"
             }
           },
           {
@@ -248,7 +248,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Gross Margin € is running below plan and the shortfall widened through the period",
+            "title": "Gross margin has been sliding below plan through the period",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -268,18 +268,14 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Price concessions and adverse mix, not volume, drive the Plan-to-Actual GM gap",
+            "title": "Price concessions and adverse mix drive gross margin below plan, not volume",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "Plan GM Amount",
-              "Price Effect Amount",
-              "Volume Effect Amount",
-              "Mix Effect Amount",
-              "Gross Margin Amount"
+              "PVM Bridge Value"
             ],
             "rows": [],
             "columns": [],
@@ -292,7 +288,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "GM% sits below target in a handful of org units that drag the portfolio",
+            "title": "Gross margin sits below target in a few business units that drag the portfolio",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,

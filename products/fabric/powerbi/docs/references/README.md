@@ -24,3 +24,10 @@ Quick index — open the relevant doc for the task at hand.
 | Doc | Use When |
 |---|---|
 | [`tmdl-tom-object-types.md`](tmdl-tom-object-types.md) | Programmatic model edits via PowerShell TOM — tables, columns, measures, relationships, hierarchies, RLS roles; refresh requirements per object type |
+
+## Validation & Visual QA
+
+| Doc | Use When |
+|---|---|
+| [`powerbi-report-author-cli.md`](powerbi-report-author-cli.md) | Tier 1 oracle (`powerbi-report-author validate`) — offline, no Desktop needed |
+| [`desktop-bridge-screenshot-workflow.md`](desktop-bridge-screenshot-workflow.md) | R4.1: maintainer-run Desktop Bridge screenshot capture for the visual close-loop (Windows + Desktop required, not runnable in CI/sandbox) |

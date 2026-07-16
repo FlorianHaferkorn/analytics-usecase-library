@@ -39,7 +39,7 @@ function Get-KpiRefsFromDocs {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   Get-ChildItem -Path $Root -Recurse -File | Where-Object {
-    $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '\\internal\\archive\\'
+    $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
       if ($_ -match '^\s*(kpi_id|kpi|metric_kpi_id)\s*:\s*"?([^"\s]+)"?') {

@@ -47,6 +47,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Operations Summary & Insights
     page_type: T3_Operational_Monitoring
@@ -60,25 +62,24 @@ ux_layout_rules:
       sparkline_field: OeePct_Daily
       comparison: vs_target
       status_logic: higher_is_better
-      # §6.3 third axis: annotate the hero with the governed world-class OEE
-      # benchmark (85%, benchmarks.yaml) IN ADDITION to vs_target — turns
-      # "OEE 76%" into "76% vs 82% target, 9pp below world-class 85%".
       benchmark: true
     component_30s:
     - slot_id: Main_1
       # OEE trend vs target — strategic KPI must be the primary trend (SQ-V04, mapping_gap fix)
       kpi_id: ops.oee.pct
       visual_type: line_chart
-      message: "OEE is running below target, with the gap widening over recent weeks"
-      so_what: "A widening OEE gap this close to target compounds into missed output if maintenance action doesn't land now."
       comparison: vs_target
+      message: OEE trend vs. target.
+      so_what: "A widening OEE gap this close to target compounds into missed output if maintenance action doesn't land now."
+      unit: ratio
     - slot_id: Main_2
       # Availability trend — dominant driver (Muchiri & Pintelon 2008 confirms primary driver)
       kpi_id: ops.availability.pct
       visual_type: line_chart
-      message: "Availability is the biggest drag on OEE, tracking below target for most of the period"
-      so_what: "Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks."
       comparison: vs_target
+      message: Equipment availability trend vs. target.
+      so_what: "Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks."
+      unit: rate
     - slot_id: Main_3
       # OEE component comparison — all three drivers at same % unit (SQ-V02 fix: no unit mixing)
       kpi_ids:
@@ -86,8 +87,9 @@ ux_layout_rules:
       - ops.performance.pct
       - ops.quality.pct
       visual_type: bar_chart_horizontal
-      message: "Availability lags performance and quality as the weakest of the three OEE components"
+      message: Availability, performance, and quality — the three OEE components.
       so_what: "Prioritising availability fixes addresses the largest single component of the OEE shortfall."
+      unit: rate
   page_2_execution:
     title: Operations Execution
     page_type: T3_Operational_Monitoring
@@ -97,35 +99,31 @@ ux_layout_rules:
     big_idea: "Line 3 and Line 7 account for 65% of unplanned downtime — maintenance backlog on these assets is the root cause."
     component_300s:
       evidence_grain: line_day
+      # R2.4: curated 21→8. plant/line/shift/loss_type/cause_code/maintenance_type
+      # have no backing dimension table in Operations.SemanticModel (only
+      # dim_asset exists -- "Asset or production line dimension" per its own
+      # TMDL description, so asset is the real row-identity here). Kept the
+      # KPIs most directly answering "which losses are biggest": unplanned
+      # downtime as the variance signal (matches decision_question verbatim),
+      # the three OEE components (Main_3), and scrap as the quality-loss proxy.
       evidence_columns:
-      - plant
-      - line
       - asset
-      - shift
       - product_category
-      - loss_type
-      - cause_code
-      - maintenance_type
       - ops.oee.pct
+      - ops.downtime.unplanned.pct
       - ops.availability.pct
       - ops.performance.pct
       - ops.quality.pct
-      - ops.throughput.units
-      - ops.downtime.pct
-      - ops.downtime.unplanned.pct
-      - ops.planned_output.units
-      - ops.mtbf.hours
-      - ops.mttr.hours
-      - ops.pm_compliance.pct
       - quality.scrap.pct
-      - quality.fpy.pct
-      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
-      evidence_sort:
-        column: ops.oee.pct
-        direction: asc
-      evidence_top_n: 20
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: ops.downtime.unplanned.pct
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: ops.downtime.unplanned.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: medium

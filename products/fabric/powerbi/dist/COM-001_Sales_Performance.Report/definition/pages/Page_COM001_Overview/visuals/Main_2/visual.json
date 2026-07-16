@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_effect"
+                      "Entity": "dim_pvm_driver"
                     }
                   },
-                  "Property": "Effect"
+                  "Property": "Driver"
                 }
               },
-              "queryRef": "dim_effect.Effect",
-              "nativeQueryRef": "Effect"
+              "queryRef": "dim_pvm_driver.Driver",
+              "nativeQueryRef": "Driver"
             }
           ]
         },
@@ -42,11 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Effect Value"
+                  "Property": "PVM Bridge Value"
                 }
               },
-              "queryRef": "_Measures.Effect Value",
-              "nativeQueryRef": "Effect Value"
+              "queryRef": "_Measures.PVM Bridge Value",
+              "nativeQueryRef": "PVM Bridge Value"
             }
           ]
         }

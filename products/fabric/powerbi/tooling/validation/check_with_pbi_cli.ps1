@@ -1,7 +1,17 @@
 <#
 .SYNOPSIS
-  Optional audit of a .Report folder using pbi-cli (MinaSaad1/pbi-cli-tool).
+  DEPRECATED (R3.4, 2026-07-09): Optional audit of a .Report folder using
+  pbi-cli (MinaSaad1/pbi-cli-tool).
 .DESCRIPTION
+  Superseded by fab-inspector (check_fab_inspector.ps1, wired into
+  run_fabric_checks.ps1 since R3.2): fab-inspector is open source,
+  cross-platform, actually CI-wired and verified, whereas this script was
+  never invoked by run_fabric_checks.ps1 or any CI workflow, required a
+  manual `pipx install pbi-cli-tool` + Power BI Desktop connection for full
+  functionality, and always skipped gracefully in every CI run to date. Not
+  deleted (still callable for ad-hoc manual comparison) -- see
+  internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md for the R3.4 decision.
+
   Runs a set of read-only pbi-cli commands against a generated .Report folder
   and compares findings with our own check_pbir_schema.ps1 validator.
 

@@ -3357,13 +3357,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Quantifies the pure price impact in the PVM bridge.
     depends_on_measures: []
     lineage:
-    - fact_sales.Net Price Amount
+    - fact_sales.Net Sales Amount
     - fact_sales.Plan Quantity
     - fact_sales.Plan Sales Amount
     - fact_sales.Quantity
     calculation:
       op: pvm_price_effect
-      net_price: Net Price Amount
+      net_price: Net Sales Amount
       quantity: Quantity
       plan_sales: Plan Sales Amount
       plan_quantity: Plan Quantity

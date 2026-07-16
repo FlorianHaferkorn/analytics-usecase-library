@@ -46,6 +46,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Commercial / CustomerValue Summary & Insights
     page_type: T1_Strategic_Overview
@@ -62,20 +64,28 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: crm.lifetime_revenue.amount
       visual_type: trend_line
-      message: "Lifetime revenue is flattening as mid-tier churn accelerates and erodes the customer base"
+      message: Customer lifetime revenue trend over time.
       so_what: "Retention investment in the mid-tier segment is what stops the erosion before it compounds into lost revenue."
+      unit: amount
     - slot_id: Main_2
+      # R2.4: was 3 KPIs of 3 different calc_types (rate/count/amount) on one
+      # axis -- a ONE_MESSAGE_PER_CHART violation (same mixed-scale bug class
+      # R1.4 fixed on COM-002 Main_3). crm.revenue_at_risk.amount already IS
+      # Main_3's own KPI (duplicate); crm.churned_customers.count moved to the
+      # Detail_Matrix as a supporting evidence column instead.
       kpi_id: crm.retention.pct
       visual_type: bar_chart
-      message: "Retention rate sits deepest below target in the mid-tier segments — that is where the churn originates"
+      message: Customer retention rate over time.
       so_what: "Ranking retention by segment pinpoints where to spend before churn compounds into lost CLV."
+      unit: rate
     - slot_id: Main_3
       # Revenue at Risk by segment — retention-prioritisation ranking (mapping_gap fix)
       kpi_id: crm.revenue_at_risk.amount
       visual_type: bar_chart_horizontal
-      message: "Revenue at risk is concentrated in a few customer segments, prioritising where retention spend should go"
-      so_what: "Focusing retention budget on the highest-risk segments protects more CLV per dollar spent."
       category_field: dim_customer.Segment
+      message: Revenue at risk is concentrated in a few customer segments
+      so_what: "Focusing retention budget on the highest-risk segments protects more CLV per dollar spent."
+      unit: amount
   page_2_execution:
     title: Commercial / CustomerValue Execution
     page_type: T4_Prescriptive_Recommendation
@@ -83,24 +93,27 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: customer_month
+      # R2.4: deduped repeated crm.clv.amount; dropped region (customer_segment
+      # is the finer, decision-relevant cross-cut for "protecting CLV"); kept
+      # crm.churned_customers.count here (moved off Main_2, see above).
       evidence_columns:
       - customer_segment
       - channel
-      - region
       - crm.clv.amount
       - crm.retention.pct
       - crm.churned_customers.count
       - crm.revenue_at_risk.amount
       - crm.nps.index
       - crm.complaint.count
-      - crm.clv.amount
-      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
-      evidence_sort:
-        column: crm.revenue_at_risk.amount
-        direction: desc
-      evidence_top_n: 20
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: crm.revenue_at_risk.amount
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: crm.revenue_at_risk.amount
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: high

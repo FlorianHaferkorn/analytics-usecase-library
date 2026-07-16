@@ -37,6 +37,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Operations Summary & Insights
     page_type: T1_Strategic_Overview
@@ -53,12 +55,20 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: ops.availability.pct
       visual_type: trend_line
-      message: "Asset availability is declining as maintenance backlog grows faster than it is resolved"
+      message: Asset availability trend over time.
       so_what: "At this trajectory, availability drops below the threshold needed to hold the production plan."
-    - kpi_id: ops.downtime.unplanned.pct
+      unit: rate
+    - slot_id: Main_2
+      # R2.4: was 3 KPIs of 2 different calc_types (amount vs. rate) on one
+      # axis -- a ONE_MESSAGE_PER_CHART violation. ops.mttr.hours moved to
+      # the Detail_Matrix (it's already the component_3s family's own KPI).
+      kpi_ids:
+      - ops.downtime.unplanned.pct
+      - ops.spare_parts.stockout.pct
       visual_type: bar_chart
-      message: "Unplanned downtime concentrates on a few critical assets — availability loss, not repair speed, is the constraint"
+      message: Unplanned downtime and spare-parts stockout — the two leading failure-risk signals.
       so_what: "Ranking downtime by asset targets maintenance effort where it protects the production plan most."
+      unit: rate
   page_2_execution:
     title: Operations Execution
     page_type: T3_Operational_Monitoring
@@ -66,24 +76,26 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: failure_event
+      # R2.4: dropped 'plant' (no backing dimension table in
+      # Operations.SemanticModel; dim_asset is the real row-identity here).
       evidence_columns:
-      - plant
       - asset
-      - asset_class
       - criticality
+      - ops.mtbf.hours
       - ops.mttr.hours
       - ops.downtime.unplanned.pct
       - ops.pm_compliance.pct
       - ops.spare_parts.stockout.pct
       - ops.failure.count
-      - ops.mtbf.hours
-      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
-      evidence_sort:
-        column: ops.downtime.unplanned.pct
-        direction: desc
-      evidence_top_n: 20
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: ops.downtime.unplanned.pct
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: ops.downtime.unplanned.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: high

@@ -179,6 +179,192 @@ class TestScaffoldGenerator:
         assert len(errors) == 0, f"COM-001 detail should pass validation: {errors}"
 
 
+class TestCOM002GoldenR23Fields:
+    """
+    R2.3/R2.4-Fund follow-up golden comparison: COM-002 is the migrated
+    intent_rules_version: 2 reference Bracket. All 8 of its generated
+    visuals now match the real, committed dist/ output byte-for-byte --
+    KPI_Cards, Main_1, Main_2, Main_3, Header (overview); Smart_Narrative,
+    Detail_Matrix, ActionPanel (detail). Closing this gap required porting
+    several previously hand-patched-only fixes back into the generator:
+    influencing_kpi_ids reorder (R1.5's real KPI card set), category_field
+    overrides + a waterfall category-field plumbing bug (Main_1/Main_2),
+    Main_2's kpi_ids reduced to the 3 PVM deltas dist/ actually renders,
+    clusteredBarChart's real "labels" object name instead of "dataLabels"
+    (R1.6), and Smart_Narrative/ActionPanel now bind to the governed
+    domain-level "Narrative Text (<SUFFIX>)"/"Active Actions Text (<SUFFIX>)"
+    DAX measures (cardVisual) instead of a synthesized textbox literal.
+    See UMSETZUNGSPLAN_REPORT_EXZELLENZ.md's R2.3-Fund follow-up ledger
+    entry for the full account. R1.6's Main_2 maxPerRole.Y=1 concern (a
+    waterfallChart real-schema violation: 3 measures in the Y role) is now
+    also fixed -- a disconnected dim_pvm_driver selector table + a single
+    'PVM Bridge Value' SWITCH/SELECTEDVALUE measure replace the 3-measure
+    Y projection with one measure, Category carrying the breakdown. DAX
+    runtime is NOT verified against a live Power BI engine (none available
+    here) -- structurally valid TMDL reusing three already-verified
+    measures, pending Desktop confirmation. Still open, unrelated: the
+    other 14 reports' own generator/dist sync (R5.1's job).
+    """
+
+    DIST_OVERVIEW = (
+        REPO_ROOT
+        / "products/fabric/powerbi/dist/COM-002_Margin_Price_Performance.Report"
+        / "definition/pages/Page_COM002_Overview/visuals"
+    )
+    DIST_DETAIL = (
+        REPO_ROOT
+        / "products/fabric/powerbi/dist/COM-002_Margin_Price_Performance.Report"
+        / "definition/pages/Page_COM002_Detail/visuals"
+    )
+
+    def _find_visual(self, generator, name):
+        return next(v for v in generator.page_structure["visuals"] if v.get("name") == name)
+
+    def test_header_matches_real_dist(self):
+        dist_header = json.loads((self.DIST_OVERVIEW / "Header" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        header = self._find_visual(generator, "Header")
+
+        assert header["position"] == dist_header["position"]
+        assert header["visual"] == dist_header["visual"]
+
+    def test_main_2_waterfall_has_exactly_one_y_measure(self):
+        """R1.6 follow-up: waterfallChart's real capabilities only allow one
+        measure in the Y role (confirmed against Microsoft's own Waterfall-
+        chart docs -- bars come from Category values, not multiple Y
+        measures). Regression guard against reintroducing the violation."""
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        main2 = self._find_visual(generator, "Main_2")
+
+        y_projections = main2["visual"]["query"]["queryState"]["Y"]["projections"]
+        assert len(y_projections) == 1, f"waterfallChart Y role must carry exactly 1 measure, got {len(y_projections)}"
+        assert y_projections[0]["nativeQueryRef"] == "PVM Bridge Value"
+
+        category_projections = main2["visual"]["query"]["queryState"]["Category"]["projections"]
+        assert category_projections[0]["queryRef"] == "dim_pvm_driver.Driver"
+
+    def test_main_3_sort_definition_matches_real_dist(self):
+        dist_main3 = json.loads((self.DIST_OVERVIEW / "Main_3" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        main3 = self._find_visual(generator, "Main_3")
+
+        generated_sort = main3["visual"]["query"]["sortDefinition"]
+        dist_sort = dist_main3["visual"]["query"]["sortDefinition"]
+        assert generated_sort == dist_sort
+
+    def test_detail_matrix_sort_definition_matches_real_dist(self):
+        dist_matrix = json.loads((self.DIST_DETAIL / "Detail_Matrix" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        matrix = self._find_visual(generator, "Detail_Matrix")
+
+        assert matrix["visual"]["query"]["sortDefinition"] == dist_matrix["visual"]["query"]["sortDefinition"]
+
+    def test_detail_matrix_databar_formatting_matches_real_dist(self):
+        dist_matrix = json.loads((self.DIST_DETAIL / "Detail_Matrix" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        matrix = self._find_visual(generator, "Detail_Matrix")
+
+        assert matrix["visual"]["objects"]["columnFormatting"] == dist_matrix["visual"]["objects"]["columnFormatting"]
+
+    def test_detail_matrix_topn_filter_matches_real_dist(self):
+        """The filter *name* is a cosmetic-only PBIR identifier; dist/ was
+        updated to the generator's new deterministic naming rule (R2.3),
+        see UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R2.3 ledger entry."""
+        dist_matrix = json.loads((self.DIST_DETAIL / "Detail_Matrix" / "visual.json").read_text(encoding="utf-8"))
+
+        generator = PageScaffoldGenerator("COM-002", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        matrix = self._find_visual(generator, "Detail_Matrix")
+
+        assert matrix["filterConfig"] == dist_matrix["filterConfig"]
+
+    def test_every_com002_visual_matches_real_dist_exactly(self):
+        """R2.3-Fund follow-up: full-visual byte-for-byte comparison, both
+        pages, every visual -- the complete generator/dist sync this class's
+        earlier field-scoped tests were building toward."""
+        mismatches = []
+        for page, dist_dir in (("overview", self.DIST_OVERVIEW), ("detail", self.DIST_DETAIL)):
+            generator = PageScaffoldGenerator("COM-002", page, repo_root=REPO_ROOT)
+            generator.load_config()
+            generator.generate()
+            for v in generator.page_structure["visuals"]:
+                name = v.get("name")
+                dist_file = dist_dir / name / "visual.json"
+                if not dist_file.exists():
+                    mismatches.append(f"{page}/{name}: no dist/ fixture")
+                    continue
+                dist_data = json.loads(dist_file.read_text(encoding="utf-8"))
+                if v.get("visual") != dist_data.get("visual"):
+                    mismatches.append(f"{page}/{name}")
+        assert not mismatches, f"Visuals diverging from real dist/: {mismatches}"
+
+
+class TestEvidenceColumnsUnresolvedTokenGuard:
+    """
+    R2.4 follow-up: config_loader.get_page_config('detail') must hard-fail on
+    an evidence_columns token shaped like a dimension reference (bare lowercase
+    snake_case word -- the shape of every real EVIDENCE_DIM_TOKENS key) that
+    resolves to neither a known dim token nor a governed KPI id, instead of
+    silently minting a bogus _Measures.<token> reference (the failure class
+    R2.3/R2.4 found and fixed case-by-case for "sku", "asset", "queue", ...).
+    """
+
+    def _write_bracket(self, tmp_path, use_case_id, evidence_columns):
+        uc_dir = tmp_path / "core" / "usecases" / "core" / f"{use_case_id}_Foo"
+        uc_dir.mkdir(parents=True)
+        cols = "\n".join(f"      - {c}" for c in evidence_columns)
+        (uc_dir / "UseCase_Bracket.yaml").write_text(
+            f"id: {use_case_id}\n"
+            "ux_layout_rules:\n"
+            "  page_2_execution:\n"
+            "    component_300s:\n"
+            "      evidence_columns:\n"
+            f"{cols}\n",
+            encoding="utf-8",
+        )
+        return ConfigLoader(tmp_path)
+
+    def test_unresolved_dim_like_token_raises(self, tmp_path):
+        loader = self._write_bracket(tmp_path, "TEST-001", ["totally_unknown_token"])
+        with pytest.raises(ValueError, match="unresolvable dimension token"):
+            loader.get_page_config("TEST-001", "detail")
+
+    def test_known_dim_token_does_not_raise(self, tmp_path):
+        loader = self._write_bracket(tmp_path, "TEST-002", ["region"])
+        cfg = loader.get_page_config("TEST-002", "detail")
+        assert cfg["detail_matrix_columns"] == [("dim_org", "Region")]
+
+    def test_raw_measure_name_escape_hatch_does_not_raise(self, tmp_path):
+        """Title-Case-with-spaces strings are the deliberate raw-measure-name
+        fallback (same pattern component_30s.kpi_ids already supports) --
+        never mistaken for an unresolved dimension token."""
+        loader = self._write_bracket(tmp_path, "TEST-003", ["Plan Sales Amount"])
+        cfg = loader.get_page_config("TEST-003", "detail")
+        assert cfg["detail_matrix_measures"] == ["Plan Sales Amount"]
+
+    def test_real_kpi_catalog_id_does_not_raise(self):
+        """A dotted KPI id never matches the dim-like-token shape even when
+        unresolved -- only genuinely bare-word tokens are guarded."""
+        loader = ConfigLoader(REPO_ROOT)
+        cfg = loader.get_page_config("COM-002", "detail")
+        assert any("Gross Margin" in m for m in cfg["detail_matrix_measures"])
+
+
 class TestConfigLoaderKpiMap:
     """Test KPI catalog loading and warning on failure."""
 

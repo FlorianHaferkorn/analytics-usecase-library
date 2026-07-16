@@ -150,11 +150,11 @@ ux_layout_rules:
         - days_to_outcome
         - impact_value
         - cost_to_execute
-      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N.
-      evidence_sort:
-        column: impact_value
-        direction: asc
-      evidence_top_n: 20
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N (R2.1 sort_by/top_n).
+      sort_by:
+        measure: impact_value
+        direction: ascending
+      top_n: 20
       action_panel: true
       payload_mode: full
 

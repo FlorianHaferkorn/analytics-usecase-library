@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_pvm_driver"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "Driver"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_pvm_driver.Driver",
+              "nativeQueryRef": "Driver"
             }
           ]
         },
@@ -42,67 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Plan Sales Amount"
+                  "Property": "PVM Bridge Value"
                 }
               },
-              "queryRef": "_Measures.Plan Sales Amount",
-              "nativeQueryRef": "Plan Sales Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Price Effect Amount"
-                }
-              },
-              "queryRef": "_Measures.Price Effect Amount",
-              "nativeQueryRef": "Price Effect Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Volume Effect Amount"
-                }
-              },
-              "queryRef": "_Measures.Volume Effect Amount",
-              "nativeQueryRef": "Volume Effect Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Mix Effect Amount"
-                }
-              },
-              "queryRef": "_Measures.Mix Effect Amount",
-              "nativeQueryRef": "Mix Effect Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Net Sales Amount"
-                }
-              },
-              "queryRef": "_Measures.Net Sales Amount",
-              "nativeQueryRef": "Net Sales Amount"
+              "queryRef": "_Measures.PVM Bridge Value",
+              "nativeQueryRef": "PVM Bridge Value"
             }
           ]
         }

@@ -292,6 +292,13 @@ For Detail (300s) pages, slicers may move to a left-side pane:
 - Optional `ActionCode` column for row-level prescription (T4, Phase 2)
 - Sort default: descending by delta (worst first)
 - Row limit: 50–100 (more on demand, never load all by default)
+- **Governed since R2.1 (Cut C2):** this is no longer prose-only guidance — the
+  Bracket schema's `ux_layout_rules.page_2_execution.component_300s.sort_by`/
+  `top_n`/`highlight_rule` fields make it a machine-checked declaration once
+  `intent_rules_version: 2` is set (see `docs/agent/skills/edit-usecase-bracket-safely.md`
+  §5, `tooling/generator/schemas/usecase_bracket.schema.json`). The 50–100 figure
+  above is a general ceiling, not a default — COM-002 uses 20 (R1.3); pick `top_n`
+  per report based on the evidence grain's actual cardinality.
 
 **Action Panel anatomy (T4 only):**
 ```

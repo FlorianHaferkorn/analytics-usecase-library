@@ -18,33 +18,34 @@ _BASELINE_COVERED = 17
 
 
 def test_valid_ordering():
+    # R2.1 canonical fields: sort_by {measure, direction} + top_n (ascending/descending).
     ok, _ = classify_evidence({
         "evidence_columns": ["sku", "margin.gm.vs_plan.pct"],
-        "evidence_sort": {"column": "margin.gm.vs_plan.pct", "direction": "asc"},
-        "evidence_top_n": 20,
+        "sort_by": {"measure": "margin.gm.vs_plan.pct", "direction": "ascending"},
+        "top_n": 20,
     })
     assert ok is True
 
 
 def test_missing_sort_is_invalid():
     ok, reason = classify_evidence({"evidence_columns": ["sku"]})
-    assert ok is False and "evidence_sort" in reason
+    assert ok is False and "sort_by" in reason
 
 
-def test_sort_column_must_be_in_evidence_columns():
+def test_missing_measure_is_invalid():
     ok, reason = classify_evidence({
         "evidence_columns": ["sku", "margin.gm.pct"],
-        "evidence_sort": {"column": "not.a.column", "direction": "asc"},
-        "evidence_top_n": 20,
+        "sort_by": {"direction": "ascending"},
+        "top_n": 20,
     })
-    assert ok is False and "not one of evidence_columns" in reason
+    assert ok is False and "measure" in reason
 
 
 def test_bad_direction_is_invalid():
     ok, reason = classify_evidence({
         "evidence_columns": ["sku", "margin.gm.pct"],
-        "evidence_sort": {"column": "margin.gm.pct", "direction": "sideways"},
-        "evidence_top_n": 20,
+        "sort_by": {"measure": "margin.gm.pct", "direction": "sideways"},
+        "top_n": 20,
     })
     assert ok is False and "direction" in reason
 
@@ -52,11 +53,11 @@ def test_bad_direction_is_invalid():
 def test_missing_or_bad_top_n_is_invalid():
     base = {
         "evidence_columns": ["sku", "margin.gm.pct"],
-        "evidence_sort": {"column": "margin.gm.pct", "direction": "desc"},
+        "sort_by": {"measure": "margin.gm.pct", "direction": "descending"},
     }
     assert classify_evidence(base)[0] is False                      # missing
-    assert classify_evidence({**base, "evidence_top_n": 0})[0] is False   # < 1
-    assert classify_evidence({**base, "evidence_top_n": True})[0] is False  # bool, not int
+    assert classify_evidence({**base, "top_n": 0})[0] is False   # < 1
+    assert classify_evidence({**base, "top_n": True})[0] is False  # bool, not int
 
 
 def test_no_evidence_table_is_not_applicable():

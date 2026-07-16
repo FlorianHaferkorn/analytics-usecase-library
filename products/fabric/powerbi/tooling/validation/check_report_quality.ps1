@@ -33,7 +33,9 @@ foreach ($cmd in @("py -3", "python3", "python")) {
     try {
         $parts = $cmd -split " "
         $exe = $parts[0]
-        $exeArgs = @($parts[1..([Math]::Min(999, $parts.Count - 1))] | Where-Object { $null -ne $_ }) + @("--version")
+        $exeArgs = @()
+        if ($parts.Count -gt 1) { $exeArgs = @($parts[1..($parts.Count - 1)]) }
+        $exeArgs += "--version"
         $ver = (& $exe $exeArgs 2>&1) -join " "
         if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") {
             $pythonCommand = $cmd
@@ -57,6 +59,8 @@ if ($Json) { $argsList += "--json" }
 Write-Host "Report quality validation: $DistRoot" -ForegroundColor Cyan
 $parts = $pythonCommand -split " "
 $exe = $parts[0]
-$exeArgs = @($parts[1..([Math]::Min(999, $parts.Count - 1))] | Where-Object { $null -ne $_ }) + $argsList
+$exeArgs = @()
+if ($parts.Count -gt 1) { $exeArgs = @($parts[1..($parts.Count - 1)]) }
+$exeArgs += $argsList
 & $exe $exeArgs
 exit $LASTEXITCODE
