@@ -30,7 +30,7 @@ expression fn_DeltaCurrentFiles =
 							if RelFolderClean = "" then [Name] else RelFolderClean & "/" & [Name]
 					),
 					FilteredActive = Table.SelectRows(WithRelPath, each List.Contains(ActivePaths, [RelPath])),
-					ActiveNoHelper = Table.RemoveColumns(FilteredActive, {{"RelPath"}})
+					ActiveNoHelper = Table.RemoveColumns(FilteredActive, {"RelPath"})
 				in
 					ActiveNoHelper
 	in
