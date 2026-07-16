@@ -7,7 +7,7 @@
 > (overlap, truncation, illegible text). Only a real Power BI Desktop render
 > can prove that.
 
-## Status: real Desktop runs in progress, DoD not yet met
+## Status: DoD met (2026-07-16)
 
 The Power BI Desktop Bridge is a local-only, named-pipe IPC server hosted
 inside the Desktop process — there is **no remote access**, so it cannot be
@@ -15,15 +15,20 @@ exercised from CI, this repo's agent sandbox, or any headless environment.
 R1.6 already confirmed this (see `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` ledger,
 R1.6 row). The script and this doc are built from Microsoft's own official
 documentation plus the shipped CLI source where the docs don't cover it —
-nothing here is guessed, but every claim about real Desktop behavior is only
-as good as the maintainer's actual runs. As of the latest real run
-(2026-07-15): the bridge CLI installs and connects correctly, opening
-COM-002 no longer hits the `PFE_TM_COLUMN_SORTED_BY_INVALID` TOM error
-(R1.6's `dim_pvm_driver.tmdl` fix confirmed working in real Desktop), and the
-script now uses a per-page `screenshot` workflow instead of `reload` +
-`screenshot-all` (see below for why). The DoD for R4.1 (*"vom Maintainer
-einmal erfolgreich ausgeführt — COM-002-Screenshot liegt vor"*) is not yet
-met — a screenshot has not yet been produced and attached.
+nothing here is guessed. As of the maintainer's real run on 2026-07-16, the
+full workflow succeeded end to end against COM-002: `open` → `status` →
+per-page `screenshot` for both `Page_COM002_Overview` and
+`Page_COM002_Detail`, both returning `"status": "ok"` with a real
+`outputPath`. This closes out two prior real-Desktop-only bugs found along
+the way: `PFE_TM_COLUMN_SORTED_BY_INVALID` (R1.6's `dim_pvm_driver.tmdl`
+`sortByColumn`) and a `Table.Group` bracket-nesting bug in
+`fn_DeltaCurrentFiles` that blocked refresh on 10 gold tables (both
+documented in `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`). The DoD
+for R4.1 (*"vom Maintainer einmal erfolgreich ausgeführt — COM-002-Screenshot
+liegt vor"*) is met. Visual content review of the screenshots themselves
+(overlap, truncation, legibility) is still open — the PNGs are gitignored
+and live only on the maintainer's machine; R4.2 (LLM-Judge) can consume them
+once shared.
 
 ## Prerequisites (one-time, on the maintainer's Windows workstation)
 
