@@ -49,3 +49,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: QR
+  name: Quality ratio
+  url: https://www.iso.org/standard/54497.html
+  alignment: exact
+  note: ISO 22400-2 Quality ratio QR = good quantity / produced quantity. Matches ours exactly.

@@ -49,3 +49,11 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Asset Management — obsolete-inventory health
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Obsolete-inventory share is an inventory-health practice concern under SCOR Asset Management,
+    not a named SCOR performance metric and not ISO 22400-2. Mirrors inv.excess_inventory.amount from
+    the SCM run.

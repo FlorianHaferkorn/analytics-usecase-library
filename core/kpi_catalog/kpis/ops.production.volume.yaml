@@ -37,3 +37,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Produced quantity (PQ element)
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput
+    rate; not a ratio KPI. Duplicate of ops.throughput.units.

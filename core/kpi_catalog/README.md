@@ -8,7 +8,8 @@
 > ESRS, ISO-30414…) with an explicit alignment + drift note — *reference, don't redefine*.
 > Per-domain audits live under [`standards/`](standards/): supply chain →
 > [SCM ↔ SCOR alignment & drift audit](standards/SCM_SCOR_alignment.md); finance →
-> [Finance ↔ IFRS/APM alignment & drift audit](standards/FIN_IFRS_alignment.md).
+> [Finance ↔ IFRS/APM alignment & drift audit](standards/FIN_IFRS_alignment.md); operations →
+> [Operations ↔ ISO 22400 alignment & drift audit](standards/OPS_ISO22400_alignment.md).
 
 ## Purpose
 

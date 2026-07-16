@@ -56,3 +56,12 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: E
+  name: Effectiveness
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time.
+    Ours ('actual output / theoretical max output') is the same concept; align to the ISO ideal-cycle-time
+    basis.

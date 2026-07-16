@@ -57,3 +57,12 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: OEE
+  name: Overall Equipment Effectiveness index
+  url: https://www.iso.org/standard/54497.html
+  alignment: exact
+  note: OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2.
+    Our A x P x Q matches. Pin the time-state model (Planned Busy Time basis) so components reconcile
+    to the standard.

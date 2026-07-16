@@ -471,6 +471,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: E
+    name: Effectiveness
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time. Ours ('actual output / theoretical max output') is the same concept; align to the ISO ideal-cycle-time basis.
 
 - kpi_id: ops.quality.pct
   synonyms:
@@ -523,6 +530,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: QR
+    name: Quality ratio
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 Quality ratio QR = good quantity / produced quantity. Matches ours exactly.
 
 - kpi_id: ops.labor.productivity.pct
   kpi_key: Labor Productivity %
@@ -569,6 +583,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: WE
+    name: Worker efficiency
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time. Ours (output or net sales / labour hours) is an output-based productivity ratio — same intent, different basis. Align the numerator/denominator to WE to claim the standard.
 
 - kpi_id: ops.mtbf.hours
   synonyms:
@@ -626,6 +647,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: MTBF
+    name: Mean operating time between failures
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 MTBF = operating time / number of failures. Matches ours.
 
 - kpi_id: ops.mttr.hours
   synonyms:
@@ -678,6 +706,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: MTTR
+    name: Mean time to restoration
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 defines MTTR as mean time to restoration = total repair time / number of failures. Matches ours (labelled 'time to repair').
 
 - kpi_id: ops.pm_compliance.pct
   kpi_key: PM Compliance %
@@ -736,6 +771,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (planned-maintenance compliance)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: 'PM compliance (completed vs planned PM orders) is a maintenance-management KPI; ISO 22400-2 covers corrective-maintenance ratio and reliability but not PM-schedule compliance. Related external reference: EN 15341 maintenance KPIs.'
 
 - kpi_id: ops.spare_parts.stockout.pct
   kpi_key: Spare Parts Stockout %
@@ -820,6 +861,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: TR
+    name: Throughput rate / Produced quantity
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Throughput rate TR is per-unit-of-time (produced quantity / time); ours is a produced-quantity sum (the PQ element). Divide by the period to obtain the ISO throughput rate. Duplicate of ops.production.volume.
 
 - kpi_id: quality.fpy.pct
   synonyms:
@@ -878,6 +926,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: FPY
+    name: First pass yield
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 First Pass Yield = units passing first time without rework or scrap / total units. Matches ours. Note it duplicates ops.quality.pct / ops.yield.pct when computed at a single stage — FPY is properly the product of stage yields.
 
 - kpi_id: quality.scrap.pct
   synonyms:
@@ -933,6 +988,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: SR
+    name: Scrap ratio
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 Scrap ratio SR = scrap quantity / produced quantity. Matches ours.
 
 - kpi_id: quality.rework.pct
   kpi_key: Rework Rate %
@@ -980,6 +1042,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: RR
+    name: Rework ratio
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 Rework ratio RR = reworked quantity / produced quantity. Matches ours.
 
 - kpi_id: quality.copq.amount
   kpi_key: Cost of Poor Quality
@@ -1022,6 +1091,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (cost of poor quality)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: 'Cost of Poor Quality is a cost concept (ASQ / Juran Cost-of-Quality framework: prevention–appraisal–failure), not an ISO 22400-2 operations KPI. Keep as a quality-cost metric referenced to the ASQ CoQ model.'
 
 - kpi_id: quality.complaint.pct
   kpi_key: Complaint Rate %
@@ -1071,6 +1146,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - crm.complaint.rate.pct
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (customer complaint rate)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations KPI. No ISO 22400-2 equivalent.
 
 - kpi_id: quality.defect_density
   kpi_key: Defect Density
@@ -1118,6 +1199,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (defects per 1,000 units)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric. ISO 22400-2 captures the same quality loss via scrap ratio (SR) / rework ratio (RR).
 
 - kpi_id: inv.dio.days
   synonyms:
@@ -1343,6 +1430,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Asset Management — obsolete-inventory health
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Obsolete-inventory share is an inventory-health practice concern under SCOR Asset Management, not a named SCOR performance metric and not ISO 22400-2. Mirrors inv.excess_inventory.amount from the SCM run.
 
 - kpi_id: plan.forecast.accuracy.pct
   synonyms:
@@ -1892,6 +1985,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: OEE
+    name: Overall Equipment Effectiveness index
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2. Our A x P x Q matches. Pin the time-state model (Planned Busy Time basis) so components reconcile to the standard.
 
 - kpi_id: ops.failure.count
   kpi_key: Failure Count
@@ -1934,6 +2034,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (number of failures element)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Raw failure count is an ISO 22400-2 element (input to MTBF/MTTR), not a headline KPI itself.
 
 - kpi_id: ops.inventory.value.amount
   kpi_key: Inventory Value Amount
@@ -2026,6 +2132,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Planned quantity element
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Planned output (standard rate x planned time) is the ISO 22400-2 planned-quantity element, an input to Effectiveness, not a KPI.
 
 - kpi_id: ops.pm.task.count
   kpi_key: Preventive Maintenance Task Count
@@ -2065,6 +2177,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (PM task count)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Raw PM-task count is an operational element, not an ISO 22400-2 KPI.
 
 - kpi_id: ops.production.volume
   kpi_key: Production Volume Units
@@ -2105,6 +2223,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Produced quantity (PQ element)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI. Duplicate of ops.throughput.units.
 
 - kpi_id: ops.quality.defect_rate.pct
   kpi_key: Quality Defect Rate %
@@ -2148,6 +2272,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: QR
+    name: Quality ratio (complement)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the standard into scrap ratio (SR) and rework ratio (RR). Report against QR to align.
 
 - kpi_id: ops.safety.incident.count
   kpi_key: Safety Incident Count
@@ -2187,6 +2318,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (safety incident count)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Safety-incident count belongs to occupational health & safety management (ISO 45001), not manufacturing-operations performance (ISO 22400-2).
 
 - kpi_id: ops.service_level.pct
   kpi_key: Operations Service Level %
@@ -2226,6 +2363,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.1.1
+    name: Perfect Order Fulfilment (service level)
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: Delivery service level (on-time or in-full / total) is a SCOR Reliability (RL) metric, not ISO 22400-2. Duplicate of ops.otif.pct / supply.otif.pct — consolidate to the governed OTIF.
 
 - kpi_id: ops.yield.pct
   synonyms:
@@ -2276,6 +2420,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: QR
+    name: Quality ratio / First pass yield
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: '''Good units / total produced'' duplicates ISO 22400-2 Quality ratio and overlaps First Pass Yield (FPY). Definitionally the same as ops.quality.pct / quality.fpy.pct — consolidation candidate.'
 
 - kpi_id: order.lines
   kpi_key: Order Lines Count
@@ -2498,6 +2649,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: A
+    name: Availability
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Availability = Actual Production Time / Planned Busy Time. Ours ('Available time / Planned time') is the same concept but the ISO time-state model (PBT, actual production time) must be pinned to align exactly.
 
 - kpi_id: ops.otif.pct
   kpi_key: OTIF %
@@ -2680,6 +2838,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Down time element (Availability loss)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Downtime ratio is an availability-loss element in the ISO 22400-2 time model (down time within Planned Busy Time), not a standalone named KPI; it feeds Availability (A).
 
 - kpi_id: ops.downtime.unplanned.pct
   synonyms:
@@ -2733,6 +2897,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Unplanned down time (Availability loss)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Unplanned downtime is the failure/breakdown share of the ISO 22400-2 down-time element; feeds Availability (A) and the Six Big Losses breakdown category.
 
 - kpi_id: ops.speed_loss.pct
   kpi_key: Speed Loss Rate %
@@ -2777,6 +2947,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.7
     last_review: 01.06.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: E
+    name: Effectiveness (speed) loss
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Speed loss = 1 − performance rate is the ISO 22400-2 Effectiveness (E) loss / reduced-speed category of the Six Big Losses; report against E to align.
 
 - kpi_id: ops.changeover.minutes
   kpi_key: Changeover Time (min)
@@ -2820,6 +2997,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.7
     last_review: 01.06.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Setup/changeover time element
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Changeover time maps to the ISO 22400-2 setup-time element (and Six Big Losses setup & adjustment category); it drives Availability loss but is a time element, not a ratio KPI.
 
 - kpi_id: inv.turnover
   synonyms:
@@ -2873,6 +3056,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - ops.inventory.turnover
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Asset Management — inventory turns
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Inventory turnover (COGS / average inventory) is the reciprocal of the inventory-days input to SCOR Cash-to-Cash Cycle Time (AM.1.1); a SCOR Asset-Management metric, not ISO 22400-2. Consistent with inv.dio.days / wc.dio.days.
 
 - kpi_id: plan.forecast.mape.pct
   synonyms:
@@ -3842,6 +4032,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Planned busy time (PBT element)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Planned production hours is the ISO 22400-2 Planned Busy Time element (denominator of Availability), an input rather than a KPI.
 
 - kpi_id: wc.dio.days
   synonyms:
@@ -6030,6 +6226,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: UE
+    name: Utilization efficiency (workforce)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Utilization (productive / paid time) parallels ISO 22400-2 Utilization efficiency UE, but this KPI is applied to a contact-centre workforce, not equipment. Concept aligns; population differs — see COPC CX Standard for the contact-centre definition.
 
 - kpi_id: res.occupancy.pct
   kpi_key: Occupancy %
@@ -6086,6 +6289,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (contact-centre occupancy)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Occupancy ((Talk+Wrap)/(Talk+Wrap+Idle)) is a contact-centre workforce metric governed by the COPC CX Standard / contact-centre WFM, not ISO 22400-2 manufacturing operations.
 
 - kpi_id: res.overtime.pct
   kpi_key: Overtime %
@@ -6132,6 +6341,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (contact-centre overtime)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Overtime share is a workforce-management metric (COPC CX Standard / WFM), not an ISO 22400-2 operations KPI.
 
 - kpi_id: res.shrinkage.pct
   kpi_key: Shrinkage %
@@ -6177,6 +6392,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (contact-centre shrinkage)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Shrinkage (non-productive / paid time) is a contact-centre WFM metric (COPC CX Standard), not ISO 22400-2.
 
 - kpi_id: svc.tickets.created.count
   kpi_key: Tickets Created Count

@@ -53,3 +53,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: (contact-centre occupancy)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Occupancy ((Talk+Wrap)/(Talk+Wrap+Idle)) is a contact-centre workforce metric governed by the
+    COPC CX Standard / contact-centre WFM, not ISO 22400-2 manufacturing operations.

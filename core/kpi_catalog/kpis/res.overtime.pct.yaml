@@ -43,3 +43,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: (contact-centre overtime)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Overtime share is a workforce-management metric (COPC CX Standard / WFM), not an ISO 22400-2 operations
+    KPI.

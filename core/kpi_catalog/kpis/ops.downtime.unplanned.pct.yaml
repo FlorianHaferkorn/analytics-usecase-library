@@ -50,3 +50,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Unplanned down time (Availability loss)
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Unplanned downtime is the failure/breakdown share of the ISO 22400-2 down-time element; feeds
+    Availability (A) and the Six Big Losses breakdown category.

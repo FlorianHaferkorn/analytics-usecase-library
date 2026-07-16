@@ -36,3 +36,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: RL.1.1
+  name: Perfect Order Fulfilment (service level)
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: partial
+  note: Delivery service level (on-time or in-full / total) is a SCOR Reliability (RL) metric, not ISO
+    22400-2. Duplicate of ops.otif.pct / supply.otif.pct — consolidate to the governed OTIF.

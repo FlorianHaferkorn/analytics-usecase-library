@@ -50,3 +50,12 @@ metadata_quality:
   last_review: 23.01.2026
 aliases:
 - ops.inventory.turnover
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Asset Management — inventory turns
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: partial
+  note: Inventory turnover (COGS / average inventory) is the reciprocal of the inventory-days input to
+    SCOR Cash-to-Cash Cycle Time (AM.1.1); a SCOR Asset-Management metric, not ISO 22400-2. Consistent
+    with inv.dio.days / wc.dio.days.

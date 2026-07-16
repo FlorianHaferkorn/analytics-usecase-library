@@ -45,3 +45,11 @@ governance:
 metadata_quality:
   completeness_score: 0.7
   last_review: 01.06.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: E
+  name: Effectiveness (speed) loss
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Speed loss = 1 − performance rate is the ISO 22400-2 Effectiveness (E) loss / reduced-speed category
+    of the Six Big Losses; report against E to align.

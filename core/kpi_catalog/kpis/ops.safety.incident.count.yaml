@@ -39,3 +39,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: (safety incident count)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Safety-incident count belongs to occupational health & safety management (ISO 45001), not manufacturing-operations
+    performance (ISO 22400-2).

@@ -46,3 +46,10 @@ metadata_quality:
   last_review: 23.01.2026
 aliases:
 - crm.complaint.rate.pct
+standard_ref:
+- standard: ISO 22400-2
+  name: (customer complaint rate)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations
+    KPI. No ISO 22400-2 equivalent.

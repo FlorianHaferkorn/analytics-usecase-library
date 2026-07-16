@@ -44,3 +44,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: (defects per 1,000 units)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric.
+    ISO 22400-2 captures the same quality loss via scrap ratio (SR) / rework ratio (RR).

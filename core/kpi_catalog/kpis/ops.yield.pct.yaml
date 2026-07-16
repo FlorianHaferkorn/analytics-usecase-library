@@ -47,3 +47,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: QR
+  name: Quality ratio / First pass yield
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: '''Good units / total produced'' duplicates ISO 22400-2 Quality ratio and overlaps First Pass
+    Yield (FPY). Definitionally the same as ops.quality.pct / quality.fpy.pct — consolidation candidate.'
