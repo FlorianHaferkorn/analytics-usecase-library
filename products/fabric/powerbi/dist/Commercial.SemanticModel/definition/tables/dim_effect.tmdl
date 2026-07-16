@@ -1,4 +1,4 @@
-/// Purpose: Disconnected effect axis for the PVM variance decomposition (COM-001 Main_2, deviation bar chart). Ordered by EffectOrder; no relationship to any fact — it only drives the SWITCH measure [Effect Value]. Robust native alternative to a waterfall: three delta bars (Price/Volume/Mix), no cumulative-total rendering to verify.
+/// Purpose: Disconnected effect axis for the PVM variance decomposition (COM-001 Main_2 waterfall bridge). Ordered by EffectOrder; no relationship to any fact — it only drives the SWITCH measure [Effect Value]. Three effect steps (Price/Volume/Mix) that the native waterfallChart cascades to a running total.
 table dim_effect
 	lineageTag: c52e8f11-2222-4b20-8d02-000000000001
 
