@@ -15,7 +15,10 @@ This doc is the pickup brief for those tasks. A ready-to-paste **prompt is at th
 ## Prerequisites (Windows dev box)
 
 - Power BI **Desktop** installed and able to open the PBIP files under `products/fabric/powerbi/dist/`.
-- Repo cloned; work on branch **`claude/report-quality-roadmap-m997dz`** (PR #390). Pull latest first.
+- Repo cloned; **check out the feature branch, not `main`** —
+  `git fetch origin && git checkout claude/report-quality-roadmap-m997dz && git pull` (PR #390). The
+  task's preconditions (canonical pointers, `check_standard_ref.py`, the SSOT dedup) live only on this
+  branch; `main` does not have them, and all work commits back to this branch.
 - Python env for the gates; **PowerShell** for `tooling/run_stage1_checks.ps1` and
   `tooling/quality/run_quality_gate.ps1` (Windows-only — the reason this runs here).
 - **Fab CLI**: run `fab config set mode command_line` once per session before any non-interactive
@@ -92,8 +95,13 @@ exactly. Summary so the CLI session has context:
 
 ```
 You are running in the Claude CLI in VS Code on a Windows dev box with Power BI Desktop, the Fabric
-CLI, and the MCP servers (Microsoft Learn, GitHub). Repo: analytics-usecase-library, branch
-claude/report-quality-roadmap-m997dz (PR #390). Pull latest first.
+CLI, and the MCP servers (Microsoft Learn, GitHub). Repo: analytics-usecase-library.
+
+FIRST, check out the feature branch — do NOT work on main. The task's preconditions (the
+canonical_kpi_id pointers, tooling/validation/check_standard_ref.py, the whole SSOT dedup) exist ONLY
+on this branch, and all work commits back to it:
+    git fetch origin && git checkout claude/report-quality-roadmap-m997dz && git pull
+(PR #390 tracks this branch.)
 
 Read these before touching anything: CLAUDE.md, AGENTS.md, and
 internal/project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md (the handoff brief) plus
