@@ -20,7 +20,6 @@ These KPIs have no active bracket or action code references. They will be remove
 | `ops.planned.hours` | Narrow ops metric; no use case or action code references |
 | `cost.base_volume.amount` | Internal calculation input; not a reportable KPI |
 | `cost.opex.base.amount` | Internal calculation input; not a reportable KPI |
-| `plan.replan.count` | Activity metric; too narrow for strategic reporting |
 | `enterprise.action_routed.count` | Replaced by `enterprise.action_outcome_rate.pct` as primary |
 
 ---

@@ -120,7 +120,6 @@ Industry-tier namespaces (`retail.*`, `customer.rfm.*`) introduced with the ADR-
 | plan.forecast.mape.pct | Forecast MAPE | SCM-003 |
 | plan.forecast.bias.pct | Forecast bias | SCM-003 |
 | plan.forecast.service_impact.pct | Forecast impact on service | SCM-003 |
-| plan.replan.count | Replan count | SCM-003 |
 
 ---
 

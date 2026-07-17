@@ -93,7 +93,7 @@ canonical_domain_model:
         the consequence metric that justifies forecast investment (SCOR Plan-to-Deliver link).
       benchmark_target: "Minimise; forecast-attributable service misses < 2% of demand"
       benchmark_source_id: SRC-008
-    - id: plan.replan.count
+    - id: plans.count
       name: Replan Count
       definition: "Number of forecast/plan version changes per SKU-cluster per period; a planning-stability / nervousness signal."
       unit: count
@@ -159,7 +159,7 @@ canonical_domain_model:
       condition: >
         Do NOT replan on a single-period demand shock that is within normal volatility. Replanning
         on noise increases nervousness without adding accuracy and can reduce FVA.
-      affected_kpis: [plan.replan.count, plan.forecast.accuracy.pct]
+      affected_kpis: [plans.count, plan.forecast.accuracy.pct]
 
   wrong_interpretations:
     - description: Averaging MAPE across SKUs hides bias and small-denominator distortion

@@ -296,14 +296,6 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "SCM-003"
 
-	/// Number of re-plans within period.
-	/// Formula: Total replan events logged in planning system.
-	/// Grain: month · Unit: count
-	/// Owner: Supply Chain Analytics · Status: active · Actions: S-F3.1, S-F3.4
-	measure 'Re-Plan Count' = DISTINCTCOUNT ( fact_forecast[Forecast Version] )
-		formatString: "#,0"
-		displayFolder: "SCM-003"
-
 	/// Count of plan records or plan versions.
 	/// Formula: Count of plan records or plan versions.
 	/// Grain: plan_version · Unit: count
@@ -418,7 +410,7 @@ table _Measures
 		annotation ActionReady_ActionCodeId = "S-F3.3"
 
 	/// ActionReady Logic: S-F3.4
-	measure 'Action_S-F3.4_Text' = IF ( [Re-Plan Count] > 10, "🔴 L3 — S-F3.4 — Re-Planning Discipline" & UNICHAR ( 10 ) & "Owner: s_and_op_lead | " & FORMAT ( [Re-Plan Count], "#,0" ) & UNICHAR ( 10 ) & "→ Identify re-plan root causes — Stabilise demand signals — Monitor weekly", IF ( [Re-Plan Count] > 6, "🟠 L2 — S-F3.4 — Re-Planning Discipline" & UNICHAR ( 10 ) & "Owner: s_and_op_lead | " & FORMAT ( [Re-Plan Count], "#,0" ) & UNICHAR ( 10 ) & "→ Identify re-plan root causes — Stabilise demand signals — Monitor weekly", IF ( [Re-Plan Count] > 3, "🟡 L1 — S-F3.4 — Re-Planning Discipline" & UNICHAR ( 10 ) & "Owner: s_and_op_lead | " & FORMAT ( [Re-Plan Count], "#,0" ) & UNICHAR ( 10 ) & "→ Identify re-plan root causes — Stabilise demand signals — Monitor weekly", BLANK () ) ) )
+	measure 'Action_S-F3.4_Text' = IF ( [Plans Count] > 10, "🔴 L3 — S-F3.4 — Re-Planning Discipline" & UNICHAR ( 10 ) & "Owner: s_and_op_lead | " & FORMAT ( [Plans Count], "#,0" ) & UNICHAR ( 10 ) & "→ Identify re-plan root causes — Stabilise demand signals — Monitor weekly", IF ( [Plans Count] > 6, "🟠 L2 — S-F3.4 — Re-Planning Discipline" & UNICHAR ( 10 ) & "Owner: s_and_op_lead | " & FORMAT ( [Plans Count], "#,0" ) & UNICHAR ( 10 ) & "→ Identify re-plan root causes — Stabilise demand signals — Monitor weekly", IF ( [Plans Count] > 3, "🟡 L1 — S-F3.4 — Re-Planning Discipline" & UNICHAR ( 10 ) & "Owner: s_and_op_lead | " & FORMAT ( [Plans Count], "#,0" ) & UNICHAR ( 10 ) & "→ Identify re-plan root causes — Stabilise demand signals — Monitor weekly", BLANK () ) ) )
 		formatString: @
 		isHidden
 		displayFolder: "9_ActionReady_Logic"

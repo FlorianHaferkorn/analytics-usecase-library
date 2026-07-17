@@ -10,7 +10,6 @@ order:
 - forecast_mape
 - bias
 - service_impact
-- re_plan_count
 - on_time
 - in_full
 - stockout_impact

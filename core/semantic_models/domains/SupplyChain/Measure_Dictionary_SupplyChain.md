@@ -339,34 +339,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     last_review: 2026-03-27
     review_due: 2027-03-31
 
-- measure_name: Re-Plan Count
-  is_kpi_measure: true
-  kpi_id_ref: plan.replan.count
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 03_Forecast
-  category: KPI
-  expression:
-    logical: Re-Plan Count = Total replan events logged in planning system.
-    aggregation_method: count
-  documentation:
-    description: Number of re-plans within period.
-    notes: 'Grain: month. Unit: count.
-
-      Lineage: planning system logs.
-
-      QA: Consistent definition of re-plan event.
-
-      '
-  dependencies:
-    columns:
-    - fact_planning[Replan Count]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v1.2
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
 - measure_name: On-Time %
   is_kpi_measure: true
   kpi_id_ref: supply.on_time.pct

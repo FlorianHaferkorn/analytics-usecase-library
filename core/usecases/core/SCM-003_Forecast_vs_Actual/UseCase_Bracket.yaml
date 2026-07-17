@@ -11,10 +11,9 @@ orchestration:
   - plan.forecast.mape.pct
   - plan.forecast.bias.pct
   - plan.forecast.service_impact.pct
-  - plan.replan.count
+  - plans.count
   supporting_kpi_ids:
   - order.lines
-  - plans.count
   - sales.units
   action_code_ids:
   - S-F3.1
@@ -26,8 +25,7 @@ primary_kpi_ids:
   - plan.forecast.mape.pct
 
 value_driver_model:
-  formula: plan.forecast.accuracy.pct = f(plan.forecast.mape.pct, plan.forecast.bias.pct, plan.forecast.service_impact.pct,
-    plan.replan.count)
+  formula: plan.forecast.accuracy.pct = f(plan.forecast.mape.pct, plan.forecast.bias.pct, plan.forecast.service_impact.pct)
   impact_direction: maximize
   primary_driver: plan.forecast.mape.pct
   impact_logic: Improving plan.forecast.mape.pct is the primary lever for maximizing plan.forecast.accuracy.pct.
@@ -86,7 +84,6 @@ ux_layout_rules:
       - plan.forecast.mape.pct
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct
-      - plan.replan.count
       action_panel: true
       payload_mode: full
       sort_by:

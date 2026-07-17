@@ -22,14 +22,14 @@ REPO = Path(__file__).resolve().parents[2]
 # Decremented as the KPI de-duplication physically removes twin KPIs (each twin
 # carried a standard_ref): 127 → 126 (svc.nps.index) → 125 (ops.inventory.value.amount)
 # → 124 (ops.otif.pct) → 122 (scm.service_level.pct + ops.service_level.pct)
-# → 121 (ops.production.volume) → 120 (ops.yield.pct).
-_BASELINE_COVERED = 120
+# → 121 (ops.production.volume) → 120 (ops.yield.pct)
+# → 119 (deprecated plan.replan.count removed; survivor plans.count).
+_BASELINE_COVERED = 119
 
 # Duplicate sets whose members share a count/distinctcount shape but are semantically
 # distinct metrics — surfaced by the sensor for human review, intentionally NOT merged.
 _KNOWN_COUNT_COLLISIONS = {
     frozenset({"order.lines", "shipments.count"}),
-    frozenset({"plan.replan.count", "plans.count"}),
 }
 
 

@@ -123,7 +123,6 @@ KPI_TO_LEGACY = {
     "inv.obsolete.pct": ("SupplyChain.SemanticModel", "Obsolete Inventory %"),
     "plan.forecast.accuracy.pct": ("SupplyChain.SemanticModel", "Forecast Accuracy %"),
     "plan.forecast.bias.pct": ("SupplyChain.SemanticModel", "Forecast Bias %"),
-    "plan.replan.count": ("SupplyChain.SemanticModel", "Re-Plan Count"),
     "plans.count": ("SupplyChain.SemanticModel", "Plans Count"),
     # sales.units: the governed calculation matches SupplyChain.SemanticModel's
     # 'Sales Units' = SUM(fact_sales[Sales Units]) exactly (same as the catalog's

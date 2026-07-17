@@ -20,7 +20,7 @@ orchestration:
   - plan.forecast.mape.pct
   - plan.forecast.bias.pct
   - plan.forecast.service_impact.pct
-  - plan.replan.count
+  - plans.count
   - sales.units
   - inv.excess_inventory.amount
   action_code_ids:

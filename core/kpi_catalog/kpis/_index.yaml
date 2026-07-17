@@ -27,7 +27,6 @@ order:
 - inv.obsolete.pct
 - plan.forecast.accuracy.pct
 - plan.forecast.bias.pct
-- plan.replan.count
 - supply.otif.pct
 - supply.on_time.pct
 - supply.stockout_impact.pct

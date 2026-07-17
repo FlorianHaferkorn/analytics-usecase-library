@@ -431,13 +431,6 @@ plan.forecast.service_impact.pct:
   format_string: 0.0%
   dax_name: Service Impact %
   display_folder: ''
-plan.replan.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: Re-Plan Count
-  display_folder: ''
 plans.count:
   dax_expression: '-- TBD: see Measure Dictionary
 

@@ -53,7 +53,6 @@ factsheet_type: business
 | plan.forecast.mape.pct | Influencing |
 | plan.forecast.bias.pct | Influencing |
 | plan.forecast.service_impact.pct | Influencing |
-| plan.replan.count | Influencing |
 | order.lines | Supporting |
 | plans.count | Supporting |
 | sales.units | Supporting |
@@ -72,7 +71,6 @@ The headline KPIs reference these external standards — *reference, don't redef
 - **Forecast MAPE %** (`plan.forecast.mape.pct`) → **SCOR-DS** (none): As plan.forecast.accuracy.pct.
 - **Forecast Bias %** (`plan.forecast.bias.pct`) → **SCOR-DS** (none): As plan.forecast.accuracy.pct.
 - **Service Impact %** (`plan.forecast.service_impact.pct`) → **SCOR-DS** (none): Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance metric.
-- **Re-Plan Count** (`plan.replan.count`) → **SCOR-DS** (none): Re-plan count is a Plan-stability / nervousness diagnostic (S&OP), not a named SCOR metric.
 
 ---
 
@@ -95,7 +93,7 @@ Structured summary of action codes (definitions remain in YAML).
 - MAPE %  
 - Bias %  
 - Service Impact %  
-- Re-Plan Count  
+- Plans Count  
 
 ### 5.2 30-Second Layer (Main Visuals)
 
@@ -104,7 +102,7 @@ Structured summary of action codes (definitions remain in YAML).
 | Accuracy vs Target by Category/Location | Column | dim_product[Category] | [Forecast Accuracy %] | Location/Channel | Current quarter | Core ranking |
 | Bias Distribution | Column | dim_product[Category] | [Bias %] | Location | Current quarter | Highlight over/under |
 | Service Impact Trend | Line | dim_date[Month] | [Service Impact %] | Channel | L12M | Service linkage |
-| Re-Plan Count by Month | Column | dim_date[Month] | [Re-Plan Count] | Region | L12M | Stability |
+| Plans Count by Month | Column | dim_date[Month] | [Plans Count] | Region | L12M | Stability |
 
 ### 5.3 Required Slicers (Mandatory)
 
