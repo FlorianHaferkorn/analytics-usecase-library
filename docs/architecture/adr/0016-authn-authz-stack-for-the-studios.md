@@ -118,6 +118,24 @@ Der Rahmen:
   Data-Residency-/Vendor-Frage zurück und ist damit durch Festlegung 1 ausgeschlossen (Kern-OSS
   darf jederzeit self-hosted bleiben).
 
+### Umsetzungs-Präzisierung innerhalb Option A (2026-07-15, Flo)
+
+Bei der Umsetzung kam heraus, dass ActionReady Studio eine **Single-Instance-SaaS**
+mit überschaubaren Autorisierungsdaten ist — der Betriebsnutzen von OpenFGA (Zanzibar
+bei Millionen Tupeln, verteilt) greift hier nicht, und ein Kunde (Nagarro) untersagt
+Docker Desktop. **Festlegung:** das in T2 verifizierte ReBAC-Modell wird **in-process in
+TypeScript** ausgewertet (`AUTHZ_BACKEND=rebac`, `studio/src/lib/authz/rebac-eval.ts` +
+`rebac-backend.ts`), **ohne** OpenFGA-Dienst — self-hosted per Konstruktion, nur Node
+nötig, kein Docker/Binary, keine Compliance-Grauzone.
+
+- **OpenFGA bleibt ein optionaler Scale-Swap** hinter derselben `AUTHZ_BACKEND`-Naht
+  (`local` = imperativer Ist-Pfad, `rebac` = in-process Modell, künftig optional `fga` =
+  Engine). Model-Datei (`model.fga`) + Test-Vektoren (`authz-fga-cases.json`) gelten für
+  beide — der Swap ist ein Backend-Austausch ohne Aufrufer-Änderung.
+- Die A-Wahl selbst (next-auth + self-hosted ReBAC) ist **unberührt** — nur die
+  Ausführungsform des ReBAC-Teils ist präzisiert. Ändert **nichts** an der DSGVO-/
+  Lizenz-Bewertung (self-hosted OSS, kein externer Call).
+
 ## Entscheidungskriterium (das den Ausschlag gibt)
 
 Nicht die Feature-Matrix, sondern in dieser Reihenfolge:

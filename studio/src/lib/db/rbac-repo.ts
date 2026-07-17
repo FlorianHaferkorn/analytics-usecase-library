@@ -9,6 +9,7 @@ import { getDb } from './sqlite';
 import type { ProjectMember, ProjectRole } from '@/lib/auth/rbac-types';
 import { roleAtLeast, projectRoleFromOrgRole } from '@/lib/auth/rbac-types';
 import { checkOrgAccess } from './org-repo';
+import { checkAccessReBAC } from '@/lib/authz/rebac-backend';
 
 /** Add a member to a project with a specific role. */
 export function addProjectMember(
@@ -68,6 +69,13 @@ export function checkAccess(
   userId: string,
   minRole: ProjectRole,
 ): ProjectMember | undefined {
+  // AUTHZ_BACKEND selects the resolver. Default 'local' = the imperative path below
+  // (unchanged). 'rebac' delegates to the in-process declarative model evaluator
+  // (ADR-0016 Option A, self-hosted, no engine). Both are behaviour-equivalent —
+  // pinned by tests/lib/rebac-eval.test.ts against authz-fga-cases.json.
+  if (process.env.AUTHZ_BACKEND === 'rebac') {
+    return checkAccessReBAC(projectId, userId, minRole);
+  }
   const member = getProjectMember(projectId, userId);
   if (member) {
     return roleAtLeast(member.role, minRole) ? member : undefined;

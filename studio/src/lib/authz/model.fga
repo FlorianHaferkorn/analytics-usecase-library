@@ -1,5 +1,9 @@
 # ActionReady Studio — OpenFGA Authorization Model (ADR-0016 Option A)
 #
+# HINWEIS: Der DEFAULT-Pfad ist der in-process Evaluator (src/lib/authz/rebac-eval.ts,
+# AUTHZ_BACKEND=rebac) — KEIN OpenFGA-Dienst nötig. Diese Datei ist der OPTIONALE
+# Scale-Swap: nur relevant, wenn ihr OpenFGA je als Engine einsetzt (Docker/Binary).
+#
 # Kanonische Quelle: docs/architecture/research/authn-authz-rebac-schema.md §2/§3.
 # Verifiziert 2026-07-15 gegen einen Referenz-Evaluator (9/9 Fälle,
 # docs/architecture/research/authz-fga-cases.json).

@@ -1,4 +1,9 @@
-# ActionReady Studio — self-hosted AuthZ engine (ADR-0016 Option A, Backlog T3.1)
+# ActionReady Studio — OPTIONALER OpenFGA-Scale-Swap (ADR-0016 Option A)
+#
+# HINWEIS: Der DEFAULT ist der in-process Evaluator (AUTHZ_BACKEND=rebac) — ohne
+# Docker/Engine. Diese Compose ist NUR nötig, wenn ihr OpenFGA als Dienst fahren
+# wollt (Scale). Docker kann compliance-seitig eingeschränkt sein (z. B. Docker
+# Desktop lizenzpflichtig) — nur in einer freigegebenen Umgebung nutzen.
 #
 # Startet OpenFGA (self-hosted ReBAC, Apache-2.0) + Postgres. 100% self-hosted,
 # EU-deploybar — erfüllt die T1-Compliance-Auflage (kein externer Managed-Call).
