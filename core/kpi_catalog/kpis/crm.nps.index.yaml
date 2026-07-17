@@ -66,3 +66,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Bain NPS (proprietary)
+  name: Net Promoter Score
+  alignment: none
+  note: NPS is a proprietary Bain & Company methodology, not an open standard. Duplicate of svc.nps.index
+    — consolidate to one governed NPS. ISO 10002 / general customer-satisfaction monitoring is the standards-based
+    alternative.

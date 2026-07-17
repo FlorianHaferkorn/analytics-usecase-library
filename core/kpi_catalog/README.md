@@ -11,7 +11,10 @@
 > [Finance ↔ IFRS/APM alignment & drift audit](standards/FIN_IFRS_alignment.md); operations →
 > [Operations ↔ ISO 22400 alignment & drift audit](standards/OPS_ISO22400_alignment.md); service →
 > [Service ↔ ITIL 4 / ISO/IEC 20000 alignment & drift audit](standards/SVC_ITIL_ISO20000_alignment.md);
-> commercial → [Commercial ↔ IFRS 15 / managerial-convention alignment & drift audit](standards/COM_Commercial_alignment.md).
+> commercial → [Commercial ↔ IFRS 15 / managerial-convention alignment & drift audit](standards/COM_Commercial_alignment.md);
+> customer → [Customer & Market alignment & drift audit](standards/CUST_Customer_alignment.md); people →
+> [People & Culture ↔ ISO 30414 alignment & drift audit](standards/HR_ISO30414_alignment.md); governance →
+> [Enterprise & Governance alignment & drift audit](standards/GOV_ActionGovernance_alignment.md).
 
 ## Purpose
 

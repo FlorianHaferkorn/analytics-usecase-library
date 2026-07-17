@@ -52,6 +52,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Customer Lifetime Value
+    alignment: none
+    note: CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard. The GM base ties to IFRS 15 / IAS 2; the forward-looking model is convention.
 
 - kpi_id: crm.revenue_at_risk.amount
   kpi_key: Revenue at Risk Amount
@@ -117,6 +122,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 20.04.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Revenue at risk (churn-weighted)
+    alignment: none
+    note: Revenue at risk (net sales x churn rate) is a composite CRM convention built on IFRS 15 revenue and the churn convention; no external standard defines it.
 
 - kpi_id: crm.complaint.count
   kpi_key: Complaint Count
@@ -157,6 +167,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 10002
+    name: Complaints handling — complaint volume
+    url: https://www.iso.org/standard/71580.html
+    alignment: partial
+    note: Complaint count feeds the ISO 10002:2018 complaints-handling process (the standard governs how complaints are captured/handled, not a specific count formula). Related to crm.nps / svc.* customer-experience measures.
 
 - kpi_id: crm.retention.pct
   kpi_key: Customer Retention %
@@ -215,6 +231,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.97
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Customer retention rate
+    alignment: none
+    note: Retention (end/start active customers) is a CRM-analytics convention. Note it is not the complement of churn unless the customer base and windows are defined consistently — pin both.
 
 - kpi_id: crm.nps.index
   synonyms:
@@ -284,6 +305,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Bain NPS (proprietary)
+    name: Net Promoter Score
+    alignment: none
+    note: NPS is a proprietary Bain & Company methodology, not an open standard. Duplicate of svc.nps.index — consolidate to one governed NPS. ISO 10002 / general customer-satisfaction monitoring is the standards-based alternative.
 
 - kpi_id: crm.churned_customers.count
   kpi_key: Churned Customers
@@ -327,6 +353,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Churned customer count
+    alignment: none
+    note: Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition must be pinned. No governing standard.
 
 - kpi_id: crm.lifetime_revenue.amount
   kpi_key: Customer Lifetime Revenue Amount
@@ -369,6 +400,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Customer lifetime revenue (accumulated)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: partial
+    note: The revenue base is IFRS 15 (net sales per customer accumulated from first purchase); the lifetime accumulation itself is a CRM-analytics convention, not an IFRS construct.
 
 - kpi_id: crm.active_customers.count
   kpi_key: Active Customers
@@ -412,6 +449,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Active customer count
+    alignment: none
+    note: Active-customer count (distinct customers with a qualifying transaction) is a CRM-analytics convention; the 'qualifying' window is a definitional choice to pin, not a standard.
 
 - kpi_id: ops.performance.pct
   synonyms:
@@ -819,6 +861,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Spare-parts (MRO) availability
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Spare-parts stockout is an MRO/maintenance availability diagnostic; SCOR captures availability inside Reliability/Asset-Management rather than as a standalone metric. Mirrors inv.stockout.pct.
 
 - kpi_id: ops.throughput.units
   kpi_key: Throughput Units
@@ -1612,6 +1660,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Plan stability (re-plan count)
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Re-plan count is a Plan-stability / nervousness diagnostic (S&OP), not a named SCOR metric; IBF/APICS plan-stability practice is the external reference.
 
 - kpi_id: supply.otif.pct
   synonyms:
@@ -1925,6 +1979,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Plan service-loss diagnostic
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance metric. Forecast-error references are the IBF/APICS forecasting standards; the service-loss link is SCOR Reliability.
 
 - kpi_id: ops.oee.pct
   synonyms:
@@ -2513,6 +2573,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Plan volume (element)
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Plan/version count is a Plan element, not a SCOR performance KPI.
 
 - kpi_id: shipments.count
   kpi_key: Shipments Count
@@ -2554,6 +2620,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Shipment volume (element)
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: Shipment count is a logistics volume element feeding delivery-reliability metrics (SCOR RL), not a standalone SCOR KPI.
 
 - kpi_id: scm.service_level.pct
   kpi_key: Supply Chain Service Level %
@@ -3226,6 +3298,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Action outcome rate
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: 'Action outcome rate (achieved / total action outcomes) is the ActionReady framework''s own action-governance construct — no external standard defines it. Conceptual backdrop: ISO 9001 continual improvement (Plan-Do-Check-Act) and Balanced Scorecard, but the metric is proprietary to the framework.'
 
 - kpi_id: enterprise.action_effectiveness_delta.amount
   kpi_key: Action Effectiveness Delta
@@ -3269,6 +3347,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 26.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Action effectiveness delta
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Average realised impact across achieved actions — the framework's own effectiveness measure. No external standard; PDCA/Balanced-Scorecard is the conceptual backdrop.
 
 - kpi_id: enterprise.action_routed.count
   deprecated: true
@@ -3308,6 +3392,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     metadata_quality: null
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Actions routed (element)
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Routed-action count is an operational element of the action-governance loop, not a named external KPI.
 
 - kpi_id: sales.price.list.amount
   kpi_key: List Price Amount
@@ -3861,6 +3951,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: (digital adoption — change management)
+    url: https://www.iso.org/standard/69338.html
+    alignment: none
+    note: Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management metric, not part of ISO 30414's human-capital areas. No governing HR standard; loosely relates to ISO 30414 workforce skills & capabilities.
 
 - kpi_id: people.attrition_risk.pct
   kpi_key: Attrition Risk %
@@ -3900,6 +3996,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — turnover / retention
+    url: https://www.iso.org/standard/69338.html
+    alignment: partial
+    note: ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition RISK here is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover base to ISO 30414 and treat the risk score as a forward-looking overlay.
 
 - kpi_id: wc.dso.days
   synonyms:
@@ -5908,6 +6010,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Enterprise value-at-risk (composite)
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score. No external standard defines the composite; its inputs are governed by the SCM and Operations runs. Document the weighting so the index is reproducible.
 
 - kpi_id: scm.supplier_risk.score
   synonyms:
@@ -6677,6 +6785,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 28.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Actions executed (element)
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Executed-action count is an operational element of the action-governance loop, not a named external KPI.
 
 - kpi_id: enterprise.avg_time_to_outcome.days
   kpi_key: Avg Time-to-Outcome Days
@@ -6715,6 +6829,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 28.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Average time to outcome
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Average days-to-outcome is the framework's own action-cycle-time metric; no external standard (PDCA cycle-time is the conceptual backdrop).
 
 - kpi_id: enterprise.action_roi.pct
   kpi_key: Action ROI %
@@ -6762,6 +6882,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 28.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Action ROI
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Action ROI (impact value / execution cost − 1) is the ActionReady framework's own governance metric; no external standard. ISO 9001 continual improvement / Balanced Scorecard is the conceptual backdrop.
 
 - kpi_id: retail.category.crosssell_rate.pct
   kpi_key: Category Cross-Sell Rate %

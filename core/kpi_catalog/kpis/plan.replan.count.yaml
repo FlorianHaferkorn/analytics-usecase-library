@@ -41,3 +41,10 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Plan stability (re-plan count)
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Re-plan count is a Plan-stability / nervousness diagnostic (S&OP), not a named SCOR metric; IBF/APICS
+    plan-stability practice is the external reference.

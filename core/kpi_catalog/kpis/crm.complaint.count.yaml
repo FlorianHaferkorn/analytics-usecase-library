@@ -38,3 +38,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 10002
+  name: Complaints handling — complaint volume
+  url: https://www.iso.org/standard/71580.html
+  alignment: partial
+  note: Complaint count feeds the ISO 10002:2018 complaints-handling process (the standard governs how
+    complaints are captured/handled, not a specific count formula). Related to crm.nps / svc.* customer-experience
+    measures.

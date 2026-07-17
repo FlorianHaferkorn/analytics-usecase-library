@@ -42,3 +42,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Marketing analytics — CRM (convention)
+  name: Churned customer count
+  alignment: none
+  note: Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition
+    must be pinned. No governing standard.

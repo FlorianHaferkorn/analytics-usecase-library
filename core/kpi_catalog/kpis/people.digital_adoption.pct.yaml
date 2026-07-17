@@ -40,3 +40,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 30414
+  name: (digital adoption — change management)
+  url: https://www.iso.org/standard/69338.html
+  alignment: none
+  note: Digital adoption (digital / total transactions for eligible processes) is a digital-transformation
+    / change-management metric, not part of ISO 30414's human-capital areas. No governing HR standard;
+    loosely relates to ISO 30414 workforce skills & capabilities.

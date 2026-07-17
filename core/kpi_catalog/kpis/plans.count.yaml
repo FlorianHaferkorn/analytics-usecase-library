@@ -37,3 +37,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Plan volume (element)
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Plan/version count is a Plan element, not a SCOR performance KPI.
