@@ -278,7 +278,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "COGS percentage trend over time.",
+            "title": "COGS is rising as a share of sales, eroding margin quarter over quarter",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
