@@ -171,11 +171,13 @@ class TestGolden20RoiPresets:
         missing = [kpi_id for kpi_id in ids if not (PRESETS_DIR / f"{kpi_id}.yaml").exists()]
         assert not missing, f"Missing ROI preset files for: {missing}"
 
-    def test_exactly_20_presets(self):
+    def test_exactly_18_presets(self):
+        # Golden spine reduced 20 → 18 by the KPI dedup (svc.nps.index, ops.otif.pct
+        # removed; canonicals already present).
         ids = load_golden_20_ids()
-        assert len(ids) == 20, f"Expected 20 golden KPI IDs, got {len(ids)}"
+        assert len(ids) == 18, f"Expected 18 golden KPI IDs, got {len(ids)}"
         found = [kpi_id for kpi_id in ids if (PRESETS_DIR / f"{kpi_id}.yaml").exists()]
-        assert len(found) == 20, f"Expected 20 preset files, found {len(found)}"
+        assert len(found) == 18, f"Expected 18 preset files, found {len(found)}"
 
     def test_preset_required_fields(self):
         ids = load_golden_20_ids()

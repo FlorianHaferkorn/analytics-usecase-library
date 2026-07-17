@@ -110,7 +110,6 @@ order:
 - svc.fcr.pct
 - svc.aht.minutes
 - svc.backlog.count
-- svc.nps.index
 - svc.escalation.pct
 - res.utilization.pct
 - res.occupancy.pct

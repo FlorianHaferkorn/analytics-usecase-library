@@ -1,4 +1,6 @@
-/** The canonical Golden-20 KPI IDs used across the Blueprint page and Excel export. */
+/** The canonical Golden-spine KPI IDs used across the Blueprint page and Excel export.
+ *  18 after the KPI dedup (removed svc.nps.index → crm.nps.index and
+ *  ops.otif.pct → supply.otif.pct; both canonicals were already in the spine). */
 export const GOLDEN_20_IDS = [
   'sales.net_sales.amount',
   'cost.cogs.amount',
@@ -6,7 +8,6 @@ export const GOLDEN_20_IDS = [
   'crm.retention.pct',
   'crm.nps.index',
   'crm.revenue_at_risk.amount',
-  'ops.otif.pct',
   'ops.performance.pct',
   'quality.fpy.pct',
   'quality.copq.amount',
@@ -17,7 +18,6 @@ export const GOLDEN_20_IDS = [
   'plan.forecast.bias.pct',
   'margin.gm.amount',
   'margin.gm.pct',
-  'svc.nps.index',
   'svc.fcr.pct',
   'svc.escalation.pct',
 ] as const;

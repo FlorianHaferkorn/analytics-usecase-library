@@ -757,13 +757,6 @@ svc.fcr.pct:
   format_string: 0.0%
   dax_name: FCR %
   display_folder: ''
-svc.nps.index:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: NPS Index
-  display_folder: ''
 svc.sla.attainment.pct:
   dax_expression: '-- TBD: see Measure Dictionary
 

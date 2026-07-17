@@ -58,7 +58,7 @@ escalations and backlog.
 | svc.escalation.pct | Influencing |
 | svc.tickets.created.count | Influencing |
 | svc.tickets.closed.count | Influencing |
-| svc.nps.index | Supporting |
+| crm.nps.index | Supporting |
 
 **Action Codes:** X-S1.1, X-S1.2, X-S1.3, X-S1.4
 
@@ -77,7 +77,7 @@ The headline KPIs reference these external standards — *reference, don't redef
 - **Escalation %** (`svc.escalation.pct`) → **ISO/IEC 20000-1 8.6.1** (partial): Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice.
 - **Tickets Created Count** (`svc.tickets.created.count`) → **ISO/IEC 20000-1 8.6.1** (none): Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI.
 - **Tickets Closed Count** (`svc.tickets.closed.count`) → **ISO/IEC 20000-1 8.6.1** (none): Raw closed-ticket count is a throughput element feeding backlog and closure-rate.
-- **NPS Index** (`svc.nps.index`) → **ISO/IEC 20000-1 9.1** (none): NPS is a proprietary Bain & Company methodology, not an open standard.
+- **NPS Index** (`crm.nps.index`) → **Bain NPS (proprietary)** (none): NPS is a proprietary Bain & Company methodology, not an open standard; the governed NPS is the Customer-domain `crm.nps.index` (consolidated from the former `svc.nps.index`).
 
 ---
 

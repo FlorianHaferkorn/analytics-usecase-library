@@ -293,16 +293,15 @@ def test_catalog_drift_strict_passes_on_real_repo():
     )
 
 
-def test_nps_measure_names_are_distinct():
-    """crm.nps.index and svc.nps.index must have different, non-empty measure_name."""
+def test_nps_measure_name_present():
+    """After the KPI dedup, crm.nps.index is the single governed NPS (svc.nps.index
+    was consolidated into it). Its measure_name must be non-empty."""
     catalog_path = _REPO_ROOT / "core" / "kpi_catalog" / "KPI_Catalog.md"
     catalog = parse_catalog(str(catalog_path))
     crm_name = catalog.get("crm.nps.index", "")
-    svc_name = catalog.get("svc.nps.index", "")
     assert crm_name, "crm.nps.index has empty measure_name"
-    assert svc_name, "svc.nps.index has empty measure_name"
-    assert crm_name != svc_name, (
-        f"crm.nps.index and svc.nps.index have identical measure_name: '{crm_name}'"
+    assert "svc.nps.index" not in catalog, (
+        "svc.nps.index should be removed from the catalog (consolidated into crm.nps.index)"
     )
 
 

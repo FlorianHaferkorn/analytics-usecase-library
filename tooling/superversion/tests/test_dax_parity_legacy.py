@@ -152,7 +152,6 @@ KPI_TO_LEGACY = {
     "svc.backlog.count": ("Experience.SemanticModel", "Backlog Count"),
     "svc.tickets.closed.count": ("Experience.SemanticModel", "Tickets Closed Count"),
     "svc.tickets.created.count": ("Experience.SemanticModel", "Tickets Created Count"),
-    "svc.nps.index": ("Experience.SemanticModel", "NPS Index"),
     "res.utilization.pct": ("Experience.SemanticModel", "Utilization %"),
     "res.occupancy.pct": ("Experience.SemanticModel", "Occupancy %"),
     "res.overtime.pct": ("Experience.SemanticModel", "Overtime %"),

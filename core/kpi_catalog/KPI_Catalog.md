@@ -252,8 +252,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Customer & Market
   use_case_ref:
   - COM-003
+  - XD-001
   action_code_ref:
   - C-C3.2
+  - X-S1.3
   calc_type: rate
   business:
     purpose: Measures customer advocacy and likelihood to recommend.
@@ -6305,83 +6307,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://www.iso.org/standard/70636.html
     alignment: partial
     note: Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request); a count element rather than a named ISO KPI.
-
-- kpi_id: svc.nps.index
-  synonyms:
-  - Net Promoter Score
-  - Service NPS
-  - Weiterempfehlungsrate
-  - NPS
-  example_question: Why did NPS dip for the Returns queue?
-  kpi_key: NPS Index
-  kpi_type: diagnostic
-  kpi_role: strategic
-  impact_dimension: Experience
-  domain_tag:
-  - Service & Experience
-  use_case_ref:
-  - XD-001
-  action_code_ref: []
-  calc_type: ratio
-  business:
-    purpose: Measures customer advocacy and experience quality.
-    definition: '%Promoters minus %Detractors from NPS survey.'
-    grain_scope: survey_event aggregated to month by Org/Channel.
-    unit_format: '''index'''
-    interpretation: Higher is better; explain shifts with FCR, AHT, escalation %.
-  technical:
-    measure_name: NPS Index (Service)
-    description: Measures customer advocacy and experience quality.
-    depends_on_measures: []
-    lineage:
-    - fact_nps.NPS Score
-    calculation:
-      op: round
-      digits: 0
-      value:
-        calc:
-          op: ratio
-          scale: 100
-          numerator:
-            calc:
-              op: delta
-              minuend:
-                calc:
-                  op: count_threshold
-                  column: NPS Score
-                  comparator: '>='
-                  value: 9
-              subtrahend:
-                calc:
-                  op: count_threshold
-                  column: NPS Score
-                  comparator: <=
-                  value: 6
-          denominator:
-            calc:
-              op: count
-              column: NPS Score
-  governance:
-    business_owner: Head of Service
-    data_owner: Service Analytics
-    steward: CX Analyst
-    review_cycle: monthly
-    validation_process: survey QA + automation
-    qa_rules:
-    - Score in [-100;100]; promoter/detractor thresholds documented
-    version: v1.0
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
-  standard_ref:
-  - standard: ISO/IEC 20000-1
-    id: '9.1'
-    name: Customer satisfaction (Net Promoter Score)
-    url: https://www.iso.org/standard/70636.html
-    alignment: none
-    note: NPS is a proprietary Bain & Company methodology, not an open standard. ISO/IEC 20000-1 requires customer-satisfaction monitoring (8.3.2 / performance evaluation 9.1) but does not prescribe NPS. Treat as a CX index; duplicate of crm.nps.index — consolidate to one governed NPS.
-  canonical_kpi_id: crm.nps.index
-  canonical_note: Definitionally identical to crm.nps.index (same %Promoters−%Detractors). crm.nps.index is the Customer-domain SSOT; prefer it. NPS is a proprietary Bain methodology — one governed NPS.
 
 - kpi_id: svc.escalation.pct
   synonyms:

@@ -14,7 +14,7 @@ orchestration:
   - svc.escalation.pct
   - svc.tickets.created.count
   - svc.tickets.closed.count
-  - svc.nps.index
+  - crm.nps.index
   supporting_kpi_ids: []
   action_code_ids:
   - X-S1.1

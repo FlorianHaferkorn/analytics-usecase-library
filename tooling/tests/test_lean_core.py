@@ -33,10 +33,13 @@ class TestGolden20:
     def test_file_exists(self):
         assert GOLDEN_20.exists(), "core/kpi_catalog/golden_20.yaml must exist"
 
-    def test_exactly_20_entries(self):
+    def test_exactly_18_entries(self):
+        # Golden spine reduced 20 → 18 by the KPI dedup: svc.nps.index and
+        # ops.otif.pct were removed (their canonicals crm.nps.index / supply.otif.pct
+        # were already in the spine).
         data = yaml.safe_load(GOLDEN_20.read_text(encoding="utf-8"))
         assert isinstance(data, dict)
-        assert len(data["kpi_ids"]) == 20, f"Expected 20 KPIs, got {len(data['kpi_ids'])}"
+        assert len(data["kpi_ids"]) == 18, f"Expected 18 KPIs, got {len(data['kpi_ids'])}"
 
     def test_all_ids_in_catalog(self):
         data = yaml.safe_load(GOLDEN_20.read_text(encoding="utf-8"))

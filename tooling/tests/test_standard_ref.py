@@ -19,7 +19,9 @@ from tooling.validation.check_standard_ref import (
 REPO = Path(__file__).resolve().parents[2]
 
 # Full-catalog coverage baseline: every real KPI carries standard_ref (100%).
-_BASELINE_COVERED = 127
+# Decremented as the KPI de-duplication physically removes twin KPIs (each twin
+# carried a standard_ref): 127 → 126 after svc.nps.index → crm.nps.index.
+_BASELINE_COVERED = 126
 
 # Duplicate sets whose members share a count/distinctcount shape but are semantically
 # distinct metrics — surfaced by the sensor for human review, intentionally NOT merged.

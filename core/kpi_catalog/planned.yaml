@@ -16,11 +16,6 @@
   eta_date: "2026-06-30"
   reason: "Operations model does not yet expose planned hours as a named measure"
 
-- kpi_id: svc.nps.index
-  owner: cx_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Service NPS measure 'NPS Index (Service)' not yet implemented separately from crm.nps.index ('NPS Index') in Experience model"
-
 - kpi_id: ops.speed_loss.pct
   owner: ops_analytics_lead
   eta_date: "2026-09-30"

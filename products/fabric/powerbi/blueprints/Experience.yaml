@@ -32,7 +32,7 @@ use_cases:
       - svc.fcr.pct
       - svc.aht.minutes
       - svc.backlog.count
-      - svc.nps.index
+      - crm.nps.index
       - svc.escalation.pct
       - svc.tickets.created.count
       - svc.tickets.closed.count
@@ -272,7 +272,7 @@ display_folders:
       - svc.fcr.pct
       - svc.aht.minutes
       - svc.backlog.count
-      - svc.nps.index
+      - crm.nps.index
       - svc.escalation.pct
       - svc.tickets.created.count
       - svc.tickets.closed.count
