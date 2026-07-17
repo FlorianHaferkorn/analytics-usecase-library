@@ -107,5 +107,5 @@ verbindlichen Auflagen für die Bauphase:
 - `⚠️ LEGAL`: finale Rechtsgrundlage Art. 6 (b vs. f) für die Nutzer-Verarbeitung festlegen.
 - `⚠️ LEGAL`: Art.-30-Zeile (§5) in `data_processing_record.md` übernehmen und AVV mit dem
   konkreten Host abschließen (`AVV_Template.md`).
-- **Bauphase (T5):** next-auth-Provider-Konfig auf E-Mail/Passwortlos festlegen (kein Social-IdP im Default).
+- **T5 (2026-07-15, Weg C umgesetzt):** Der Default-Pfad ist **verifiziert social-IdP-frei** — `auth/config.ts` verdrahtet GitHub nur bei gesetzten `GITHUB_ID/SECRET` (opt-in), der Demo-Credentials-Login ist dev-only. Policy als Code-Kommentar + `.env.example` festgehalten. **Ehrliche offene Lücke:** Produktion hat **noch keine eingebaute compliance-konforme Login-Methode** — heute wäre der einzige Prod-Login GitHub (Social-IdP, freizugeben) oder keiner. Die passwortlose **Magic-Link-Methode (T5-Ziel A)** ist der geplante Prod-Default und **aufgeschoben**, blockiert auf die Wahl eines **EU-E-Mail-Providers** (SMTP/Resend, DSGVO-konform). Ein Prod-Deploy ist erst nach A (oder einem freigegebenen IdP) zulässig.
 - **Bauphase (T4/Retention):** Nutzer-Löschung muss die OpenFGA-Relation-Tuples des Nutzers mitlöschen (kein verwaistes AuthZ-Datum).

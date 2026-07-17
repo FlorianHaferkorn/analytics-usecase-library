@@ -83,10 +83,12 @@ Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role*
 - T4.1 Backfill-Skript `SQLite-Zeilen → Relation-Tuples` · **DoD:** Roundtrip-Test (jede Zeile → Tuple → gleiche `check()`-Antwort) · role: `codegen`
 - T4.2 Dual-Write-/Umschalt-Strategie + Rollback · **DoD:** dokumentierter Cutover, Solo-Modus (org_id NULL) byte-identisch · role: `architect`
 
-### T5 — AuthN-Entscheidung umsetzen · depends-on: T0 (parallel zu T2–T4)
-- **Z:** Der Auth.js-Beta-Pin ist adressiert.
-- T5.1 **(Option A)** Auth.js-Beta → stable v5, sobald verfügbar; bis dahin Beta-Risiko dokumentiert (ADR-0016 O-4) · **DoD:** Pin stabil ODER Risiko-Zeile in ADR-0016; Login/Session-Flow grün · role: `codegen`
-- T5.1' **(Option B)** next-auth → Ory Kratos/Hydra migrieren · **DoD:** Kratos-Session ersetzt JWT-Callback; `session.ts`/`config.ts` umgestellt; Tests grün · role: `codegen`
+### T5 — AuthN · depends-on: T0 · **Weg C ✅ (2026-07-15), Magic-Link (A) aufgeschoben**
+- **Z:** Login ist compliance-konform by default; die produktive Methode ist entschieden/dokumentiert.
+- **Login-Methoden-Entscheid (Flo): Weg C** — jetzt compliant machen, echte Methode = **A (Magic-Link)** später. (B Ory-AuthN entfällt, da Stack-Option A gewählt.)
+- T5-C ✅ **umgesetzt (Doku/Policy, kein Verhaltens-Change):** `auth/config.ts` ist **verifiziert social-IdP-frei by default** (GitHub opt-in nur bei Creds; Demo-Login dev-only) — Policy als Code-Kommentar + `.env.example` + Compliance-Doc §7 festgehalten, inkl. der **ehrlichen Prod-Lücke** (heute nur GitHub oder kein Prod-Login). · role: `codegen`
+- T5-A ⏳ **aufgeschoben (Prod-Default):** passwortloser Magic-Link — **blockiert auf EU-E-Mail-Provider** (SMTP/Resend, DSGVO). Dann next-auth Email-Provider verdrahten. · **DoD:** Magic-Link-Login/Session grün, kein Social-IdP · role: `codegen`
+- T5-Beta: Auth.js-Beta-Pin (`^5.0.0-beta.30`) → stable v5 bumpen, sobald verfügbar (ADR-0016 O-4); bis dahin Risiko dokumentiert. · role: `codegen`
 
 ### T6 — Enterprise-SSO/SAML · depends-on: T5 · **optional/deferred (ADR-0016 O-3)**
 - **Z:** B2B-Mandanten können per SAML/OIDC anmelden — nur bauen, wenn realer Kundenbedarf.

@@ -20,6 +20,17 @@ export interface OrgMembership {
 const isProduction = process.env.NODE_ENV === 'production';
 const hasGitHubOAuth = Boolean(process.env.GITHUB_ID && process.env.GITHUB_SECRET);
 
+// ── AuthN provider policy (ADR-0016 Option A · T1-Compliance · T5=C) ─────────────
+// DEFAULT-PFAD HAT KEINEN EXTERNEN SOCIAL-IdP: GitHub wird NUR verdrahtet, wenn
+// GITHUB_ID+GITHUB_SECRET gesetzt sind (opt-in) → erfüllt die T1-Auflage „kein
+// Social-IdP im Default". Wird GitHub in Produktion aktiviert, MUSS es ein
+// organisatorisch freigegebener IdP sein (Login-Daten verlassen die EU-self-hosted-
+// Grenze — siehe compliance/auth_stack_data_residency.md §3).
+// Der Credentials-"Demo Login" ist DEV-ONLY (in Produktion aus).
+// OFFEN (T5-Ziel A, aufgeschoben): Produktion hat noch KEINE eingebaute
+// compliance-konforme Login-Methode — die passwortlose Magic-Link-Variante (EU-
+// E-Mail-Provider) ist der geplante Default. Bis dahin muss ein Prod-Deploy einen
+// freigegebenen IdP konfigurieren, sonst ist `providers` in Prod leer (kein Login).
 const providers = [
   ...(hasGitHubOAuth
     ? [
