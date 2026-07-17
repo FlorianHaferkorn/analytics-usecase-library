@@ -65,3 +65,12 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO/IEC 20000-1
+  id: '9.1'
+  name: Customer satisfaction (Net Promoter Score)
+  url: https://www.iso.org/standard/70636.html
+  alignment: none
+  note: NPS is a proprietary Bain & Company methodology, not an open standard. ISO/IEC 20000-1 requires
+    customer-satisfaction monitoring (8.3.2 / performance evaluation 9.1) but does not prescribe NPS.
+    Treat as a CX index; duplicate of crm.nps.index — consolidate to one governed NPS.

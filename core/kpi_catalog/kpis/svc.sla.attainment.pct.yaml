@@ -48,3 +48,13 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO/IEC 20000-1
+  id: 8.3.3
+  name: Service level management — SLA attainment
+  url: https://www.iso.org/standard/70636.html
+  alignment: partial
+  note: ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring
+    of performance against agreed service-level targets. SLA attainment % is the practice metric for that
+    clause — ISO mandates the SLA and its monitoring, not this specific formula. Pin the target set so
+    attainment is comparable.

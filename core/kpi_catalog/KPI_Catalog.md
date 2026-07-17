@@ -5912,6 +5912,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.3.3
+    name: Service level management — SLA attainment
+    url: https://www.iso.org/standard/70636.html
+    alignment: partial
+    note: ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets. SLA attainment % is the practice metric for that clause — ISO mandates the SLA and its monitoring, not this specific formula. Pin the target set so attainment is comparable.
 
 - kpi_id: svc.fcr.pct
   synonyms:
@@ -5959,6 +5966,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ITIL 4
+    name: Service desk — First Contact Resolution
+    url: https://www.axelos.com/certifications/itil-service-management
+    alignment: partial
+    note: First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management; pin the 'contact' grain (call vs case, single vs multi-channel) to compare externally.
 
 - kpi_id: svc.aht.minutes
   synonyms:
@@ -6010,6 +6023,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ITIL 4
+    name: Average Handling Time
+    url: https://www.axelos.com/certifications/itil-service-management
+    alignment: partial
+    note: AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined. Align the handle-time components (talk + hold + wrap) so the average is comparable across teams.
 
 - kpi_id: svc.backlog.count
   synonyms:
@@ -6062,6 +6081,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident & service-request management — open backlog
+    url: https://www.iso.org/standard/70636.html
+    alignment: partial
+    note: Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request); a count element rather than a named ISO KPI.
 
 - kpi_id: svc.nps.index
   synonyms:
@@ -6130,6 +6156,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: '9.1'
+    name: Customer satisfaction (Net Promoter Score)
+    url: https://www.iso.org/standard/70636.html
+    alignment: none
+    note: NPS is a proprietary Bain & Company methodology, not an open standard. ISO/IEC 20000-1 requires customer-satisfaction monitoring (8.3.2 / performance evaluation 9.1) but does not prescribe NPS. Treat as a CX index; duplicate of crm.nps.index — consolidate to one governed NPS.
 
 - kpi_id: svc.escalation.pct
   synonyms:
@@ -6178,6 +6211,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident escalation ratio
+    url: https://www.iso.org/standard/70636.html
+    alignment: partial
+    note: Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice; the % is a practice metric, not an ISO-defined formula.
 
 - kpi_id: res.utilization.pct
   kpi_key: Utilization %
@@ -6442,6 +6482,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident/request volume (element)
+    url: https://www.iso.org/standard/70636.html
+    alignment: none
+    note: Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI — it is an input to arrival-rate/backlog measures.
 
 - kpi_id: svc.tickets.closed.count
   kpi_key: Tickets Closed Count
@@ -6485,6 +6532,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident/request throughput (element)
+    url: https://www.iso.org/standard/70636.html
+    alignment: none
+    note: Raw closed-ticket count is a throughput element feeding backlog and closure-rate; not a named ISO/IEC 20000 KPI on its own.
 
 - kpi_id: enterprise.actions_executed.count
   kpi_key: Actions Executed Count
