@@ -69,12 +69,12 @@ Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role*
 
 > **Konsequenz für T3/T4:** `checkAccess(P,U,minRole)` wird durch **drei computed relations** (`can_view/edit/admin`) ersetzt (kein Laufzeit-Ranking); Break-Glass-API-Härtung bleibt im API-Layer; Solo-Projekt (`org_id NULL`) = kein `parent`-Tupel → byte-identisch.
 
-### T3 — AuthZ in-process (ADR-0016-Präzisierung) · depends-on: T2 · **Code geschrieben, lokal zu verifizieren**
+### T3 — AuthZ in-process (ADR-0016-Präzisierung) · depends-on: T2 · ✅ **ERLEDIGT (2026-07-15, lokal grün)**
 - **Z:** `checkAccess` löst über das deklarative ReBAC-Modell auf — self-hosted, **ohne Engine**, hinter `AUTHZ_BACKEND` (Default `local` unverändert).
 - **Pivot (2026-07-15, Flo):** OpenFGA-*Dienst* bringt bei Studio-Scale keinen Nutzen und ist beim Kunden (Nagarro) via Docker gesperrt → **in-process Evaluator** statt Engine. OpenFGA bleibt optionaler Scale-Swap (s. u.). ADR-0016 „Umsetzungs-Präzisierung".
 - T3a.1 ✅ **geschrieben:** `studio/src/lib/authz/rebac-eval.ts` (pure Modell-Auswertung, `but not`-Override) + `rebac-backend.ts` (Fakten aus SQLite, reuse `getOrgMember`) + Dispatch in `rbac-repo.ts::checkAccess` (`AUTHZ_BACKEND=rebac`; Default `local` unverändert). Logik **verifiziert** (Node-Spiegel 9/9). · role: `codegen`
 - T3a.2 ✅ **Test geschrieben:** `tests/lib/rebac-eval.test.ts` (9 Fälle, facts-level Pendant zu `authz-fga-cases.json`). · role: `verify`
-- **Offen (Flo, lokal, node-only — KEIN Docker):** `cd studio; npm ci; npm run build; npm test` → bestätigt Compile (0 TS-Fehler) + Tests grün. Dann ist **T3 ✅**. Optional die Bestandstests mit `AUTHZ_BACKEND=rebac` fahren (Parität `local` vs. `rebac`).
+- ✅ **Lokal verifiziert (Flo, 2026-07-15, node-only, KEIN Docker):** `npm run build` grün (TypeScript 17.1s, 68 Seiten) — der zuvor gemeldete Fehler war ein stale `.next`-Cache, kein Code. `npm test` **410/410** grün, unter `AUTHZ_BACKEND=rebac` ebenfalls 410/410 inkl. `rbac-repo.test.ts` → **Parität `local` ↔ `rebac` bewiesen.**
 
 > **Optionaler Scale-Swap (OpenFGA — nur falls je nötig, kein Muss):** die Artefakte [`../../../studio/docker-compose.yml`](../../../studio/docker-compose.yml) + [`../../../studio/src/lib/authz/model.fga`](../../../studio/src/lib/authz/model.fga) liegen bereit; ein künftiges `fga`-Backend implementiert dieselbe `checkAccess`-Signatur via Engine-`check()`, reuse [`authz-fga-cases.json`](authz-fga-cases.json). Erfordert Docker/Binary → nur in einer Umgebung, wo das compliance-seitig ok ist.
 
