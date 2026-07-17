@@ -44,3 +44,7 @@ standard_ref:
   alignment: partial
   note: Delivery service level (on-time or in-full / total) is a SCOR Reliability (RL) metric, not ISO
     22400-2. Duplicate of ops.otif.pct / supply.otif.pct — consolidate to the governed OTIF.
+canonical_kpi_id: supply.otif.pct
+canonical_note: Identical OTIF calc/lineage to supply.otif.pct. NOTE the definition text says 'On-Time
+  OR In-Full' but the calc uses the AND-combined OTIF Flag — a definition-vs-calc drift. supply.otif.pct
+  is canonical.

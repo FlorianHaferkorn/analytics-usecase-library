@@ -55,3 +55,7 @@ standard_ref:
   alignment: partial
   note: '''Good units / total produced'' duplicates ISO 22400-2 Quality ratio and overlaps First Pass
     Yield (FPY). Definitionally the same as ops.quality.pct / quality.fpy.pct — consolidation candidate.'
+canonical_kpi_id: ops.quality.pct
+canonical_note: Identical calc (good/total units) to ops.quality.pct (strategic, ISO 22400 Quality-ratio
+  exact). True FPY (multi-stage product of yields) is quality.fpy.pct — distinct. ops.quality.pct is canonical
+  for single-stage quality.

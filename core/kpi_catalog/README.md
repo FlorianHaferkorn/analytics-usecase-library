@@ -15,6 +15,15 @@
 > customer → [Customer & Market alignment & drift audit](standards/CUST_Customer_alignment.md); people →
 > [People & Culture ↔ ISO 30414 alignment & drift audit](standards/HR_ISO30414_alignment.md); governance →
 > [Enterprise & Governance alignment & drift audit](standards/GOV_ActionGovernance_alignment.md).
+>
+> **Integrity gate + duplicate sensor:** `tooling/validation/check_standard_ref.py` (`--strict` in
+> `run_local_ci_check.sh`, regression-guarded by `tooling/tests/test_standard_ref.py`) enforces that
+> every `standard_ref` is well-formed (alignment ∈ exact/partial/none, drift note present, `standard`
+> in the controlled vocabulary) and reports identical-calc **consolidation candidates**. Where the
+> mapping exposed definitionally identical KPIs, the non-canonical twin carries a `canonical_kpi_id`
+> pointer to the SSOT survivor (e.g. the OTIF / service-level family → `supply.otif.pct`,
+> NPS → `crm.nps.index`) — a non-breaking SSOT declaration; physically removing the twins and
+> rewiring their references is a maintainer-gated follow-up (needs the Windows Fabric quality gate).
 
 ## Purpose
 

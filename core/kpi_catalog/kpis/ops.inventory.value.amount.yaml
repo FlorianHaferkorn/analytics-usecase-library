@@ -44,3 +44,6 @@ standard_ref:
   alignment: none
   note: Inventory value is an input to SCOR Asset Management metrics (Cash-to-Cash inventory-days), not
     itself a named SCOR performance metric.
+canonical_kpi_id: fin.liquidity.inventory.amount
+canonical_note: Identical calc/lineage (fact_inventory.Average Inventory Amount) to fin.liquidity.inventory.amount,
+  which is the Finance-domain SSOT.

@@ -44,3 +44,6 @@ standard_ref:
   alignment: partial
   note: Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput
     rate; not a ratio KPI. Duplicate of ops.throughput.units.
+canonical_kpi_id: ops.throughput.units
+canonical_note: Identical calc (sum of produced units) to ops.throughput.units (strategic). Keep one produced-quantity
+  measure; ops.throughput.units is canonical.

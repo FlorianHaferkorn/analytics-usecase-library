@@ -2146,6 +2146,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://scor.ascm.org/performance/asset-management
     alignment: none
     note: Inventory value is an input to SCOR Asset Management metrics (Cash-to-Cash inventory-days), not itself a named SCOR performance metric.
+  canonical_kpi_id: fin.liquidity.inventory.amount
+  canonical_note: Identical calc/lineage (fact_inventory.Average Inventory Amount) to fin.liquidity.inventory.amount, which is the Finance-domain SSOT.
 
 - kpi_id: ops.planned_output.units
   kpi_key: Planned Output Units
@@ -2289,6 +2291,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://www.iso.org/standard/54497.html
     alignment: partial
     note: Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI. Duplicate of ops.throughput.units.
+  canonical_kpi_id: ops.throughput.units
+  canonical_note: Identical calc (sum of produced units) to ops.throughput.units (strategic). Keep one produced-quantity measure; ops.throughput.units is canonical.
 
 - kpi_id: ops.quality.defect_rate.pct
   kpi_key: Quality Defect Rate %
@@ -2430,6 +2434,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://scor.ascm.org/performance/reliability/RL.1.1
     alignment: partial
     note: Delivery service level (on-time or in-full / total) is a SCOR Reliability (RL) metric, not ISO 22400-2. Duplicate of ops.otif.pct / supply.otif.pct — consolidate to the governed OTIF.
+  canonical_kpi_id: supply.otif.pct
+  canonical_note: Identical OTIF calc/lineage to supply.otif.pct. NOTE the definition text says 'On-Time OR In-Full' but the calc uses the AND-combined OTIF Flag — a definition-vs-calc drift. supply.otif.pct is canonical.
 
 - kpi_id: ops.yield.pct
   synonyms:
@@ -2487,6 +2493,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://www.iso.org/standard/54497.html
     alignment: partial
     note: '''Good units / total produced'' duplicates ISO 22400-2 Quality ratio and overlaps First Pass Yield (FPY). Definitionally the same as ops.quality.pct / quality.fpy.pct — consolidation candidate.'
+  canonical_kpi_id: ops.quality.pct
+  canonical_note: Identical calc (good/total units) to ops.quality.pct (strategic, ISO 22400 Quality-ratio exact). True FPY (multi-stage product of yields) is quality.fpy.pct — distinct. ops.quality.pct is canonical for single-stage quality.
 
 - kpi_id: order.lines
   kpi_key: Order Lines Count
@@ -2671,6 +2679,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://scor.ascm.org/performance/reliability/RL.1.1
     alignment: partial
     note: Formula is identical to OTIF (OTIF orders / total orders) → maps to SCOR Perfect Order (2-of-4). Duplicate of supply.otif.pct / ops.otif.pct — consolidate to one governed OTIF.
+  canonical_kpi_id: supply.otif.pct
+  canonical_note: Identical OTIF calc/lineage to supply.otif.pct; 'service level' is the same metric. supply.otif.pct is canonical.
 
 - kpi_id: ops.availability.pct
   synonyms:
@@ -2782,6 +2792,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://scor.ascm.org/performance/reliability/RL.1.1
     alignment: partial
     note: Same 2-of-4 gap as supply.otif.pct. Also a duplicate formula of supply.otif.pct and scm.service_level.pct — consolidation candidate.
+  canonical_kpi_id: supply.otif.pct
+  canonical_note: Identical calc (rate over fact_fulfillment.OTIF Flag) to supply.otif.pct. supply.otif.pct (strategic, Supply-Chain SSOT) is canonical.
 
 - kpi_id: ops.working_capital.ccc.days
   kpi_key: Cash Conversion Cycle (Days)
@@ -6368,6 +6380,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://www.iso.org/standard/70636.html
     alignment: none
     note: NPS is a proprietary Bain & Company methodology, not an open standard. ISO/IEC 20000-1 requires customer-satisfaction monitoring (8.3.2 / performance evaluation 9.1) but does not prescribe NPS. Treat as a CX index; duplicate of crm.nps.index — consolidate to one governed NPS.
+  canonical_kpi_id: crm.nps.index
+  canonical_note: Definitionally identical to crm.nps.index (same %Promoters−%Detractors). crm.nps.index is the Customer-domain SSOT; prefer it. NPS is a proprietary Bain methodology — one governed NPS.
 
 - kpi_id: svc.escalation.pct
   synonyms:

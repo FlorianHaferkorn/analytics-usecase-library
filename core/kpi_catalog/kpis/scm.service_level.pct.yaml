@@ -43,3 +43,6 @@ standard_ref:
   alignment: partial
   note: Formula is identical to OTIF (OTIF orders / total orders) → maps to SCOR Perfect Order (2-of-4).
     Duplicate of supply.otif.pct / ops.otif.pct — consolidate to one governed OTIF.
+canonical_kpi_id: supply.otif.pct
+canonical_note: Identical OTIF calc/lineage to supply.otif.pct; 'service level' is the same metric. supply.otif.pct
+  is canonical.

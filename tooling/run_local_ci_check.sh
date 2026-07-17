@@ -77,6 +77,14 @@ run_check "Boutique rubric BC-CHART-01 (no mixed scale on one axis)" \
 run_check "Boutique rubric BC-NARR-04 (hero KPI has context — advisory)" \
   python3 tooling/validation/check_kpi_context.py
 
+# --- KPI ↔ external-standard alignment integrity (standards program) ----
+# Every governed KPI carries a standard_ref (SCOR/IFRS/ISO 22400/ISO 20000/IFRS 15…)
+# with alignment + drift note; audits under core/kpi_catalog/standards/. Hard gate on
+# structural integrity (well-formed entries, controlled standard vocabulary); the
+# duplicate/consolidation sensor is advisory + regression-guarded in pytest.
+run_check "KPI↔standard alignment integrity (standard_ref, --strict structural)" \
+  python3 tooling/validation/check_standard_ref.py --strict
+
 # --- Boutique rubric: BC-CHART-10 evidence sort (K6, blocking) ----------
 # Knock-out rule, fully rolled out (2026-07-11): all 17 evidence tables declare a
 # governed worst-first sort + explicit Top-N. Hard gate (--strict) — 0 violations

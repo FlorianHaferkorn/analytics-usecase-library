@@ -74,3 +74,6 @@ standard_ref:
   note: NPS is a proprietary Bain & Company methodology, not an open standard. ISO/IEC 20000-1 requires
     customer-satisfaction monitoring (8.3.2 / performance evaluation 9.1) but does not prescribe NPS.
     Treat as a CX index; duplicate of crm.nps.index — consolidate to one governed NPS.
+canonical_kpi_id: crm.nps.index
+canonical_note: Definitionally identical to crm.nps.index (same %Promoters−%Detractors). crm.nps.index
+  is the Customer-domain SSOT; prefer it. NPS is a proprietary Bain methodology — one governed NPS.
