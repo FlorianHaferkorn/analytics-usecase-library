@@ -6,10 +6,10 @@
 ## Coverage
 
 - Use cases: **16**  (evidence packs: 16/16, factsheets: 16/16)
-- KPIs in catalog: **126**  — reachable: **125**, roadmap (planned.yaml): 11, orphan: **0**
+- KPIs in catalog: **119**  — reachable: **118**, roadmap (planned.yaml): 11, orphan: **0**
 - Action codes: **53**  — reachable: **53**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **227**  — backing a catalog KPI: **116** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **223**  — backing a catalog KPI: **109** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 
@@ -23,20 +23,20 @@
 |----------|-----:|-------------:|:-------------:|---------------|
 | COM-001 | 10 | 3 | ✓ | commercial_sales.yaml |
 | COM-002 | 15 | 3 | ✓ | commercial_sales.yaml |
-| COM-003 | 21 | 2 | ✓ | commercial_sales.yaml |
+| COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
-| FIN-001 | 24 | 4 | ✓ | finance.yaml |
-| FIN-002 | 13 | 4 | ✓ | finance.yaml |
+| FIN-001 | 23 | 4 | ✓ | finance.yaml |
+| FIN-002 | 16 | 4 | ✓ | finance.yaml |
 | OPS-001 | 22 | 4 | ✓ | operations.yaml |
 | OPS-002 | 10 | 5 | ✓ | operations.yaml |
 | OPS-003 | 9 | 5 | ✓ | operations.yaml |
 | SCM-001 | 15 | 5 | ✓ | supply_chain.yaml |
 | SCM-002 | 8 | 5 | ✓ | supply_chain.yaml |
-| SCM-003 | 8 | 4 | ✓ | supply_chain.yaml |
+| SCM-003 | 7 | 4 | ✓ | supply_chain.yaml |
 | XD-001 | 8 | 4 | ✓ | experience.yaml |
 | XD-002 | 11 | 4 | ✓ | experience.yaml |
 | XD-003 | 27 | 1 | ✓ | executive.yaml |
-| XD-004 | 68 | 16 | ✓ | governance.yaml |
+| XD-004 | 67 | 16 | ✓ | governance.yaml |
 
 ## Orphans (not reachable from any use case; review)
 
