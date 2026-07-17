@@ -36,7 +36,6 @@ order:
 - preventive_maintenance_task_count
 - quality_defect_rate
 - safety_incident_count
-- yield
 - overall_equipment_effectiveness_oee
 - sales_units_ops
 - actions_executed_count_xd

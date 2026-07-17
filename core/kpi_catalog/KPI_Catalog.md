@@ -540,8 +540,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Operational Efficiency
   use_case_ref:
   - OPS-001
+  - FIN-002
+  - XD-004
   action_code_ref:
   - O-O1.3
+  - F-K2.2
   calc_type: rate
   business:
     purpose: Yield of conforming units relative to total units produced.
@@ -2301,65 +2304,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://www.iso.org/standard/54497.html
     alignment: none
     note: Safety-incident count belongs to occupational health & safety management (ISO 45001), not manufacturing-operations performance (ISO 22400-2).
-
-- kpi_id: ops.yield.pct
-  synonyms:
-  - Process Yield
-  - Throughput Yield
-  - Ausbeute
-  - Gutausbeute
-  - Ausbeutegrad
-  example_question: How has process yield trended since the line upgrade?
-  kpi_key: Yield %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - FIN-002
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Measures ratio of good output to total input.
-    definition: Good Units / Total Units Produced.
-    grain_scope: Line/shift; aggregated by period.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher yield indicates better process efficiency.
-  technical:
-    measure_name: Yield %
-    description: Measures ratio of good output to total input.
-    depends_on_measures: []
-    lineage:
-    - fact_ops.Good Units
-    - fact_ops.Output Units
-    calculation:
-      op: ratio
-      numerator:
-        column: Good Units
-      denominator:
-        column: Output Units
-  governance:
-    business_owner: Head of Manufacturing
-    data_owner: Manufacturing BI
-    steward: Process Engineer
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
-  standard_ref:
-  - standard: ISO 22400-2
-    id: QR
-    name: Quality ratio / First pass yield
-    url: https://www.iso.org/standard/54497.html
-    alignment: partial
-    note: '''Good units / total produced'' duplicates ISO 22400-2 Quality ratio and overlaps First Pass Yield (FPY). Definitionally the same as ops.quality.pct / quality.fpy.pct — consolidation candidate.'
-  canonical_kpi_id: ops.quality.pct
-  canonical_note: Identical calc (good/total units) to ops.quality.pct (strategic, ISO 22400 Quality-ratio exact). True FPY (multi-stage product of yields) is quality.fpy.pct — distinct. ops.quality.pct is canonical for single-stage quality.
 
 - kpi_id: order.lines
   kpi_key: Order Lines Count
@@ -5241,7 +5185,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - ops.labor.productivity.pct
     - ops.throughput.units
     - ops.quality.defect_rate.pct
-    - ops.yield.pct
+    - ops.quality.pct
     lineage:
     - fact_cost.COGS Amount
     - fact_output.Output Units

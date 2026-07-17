@@ -159,10 +159,10 @@
             }
           },
           {
-            "name": "Yield %",
+            "name": "Quality %",
             "expression": "",
             "display_folder": "Operations",
-            "description": "Good Units / Total Units Produced.",
+            "description": "Good units / Total units",
             "format_string": "0.0%",
             "is_hidden": false,
             "expressions": {

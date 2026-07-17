@@ -418,7 +418,7 @@ display_folders:
       - cost.opex.base.amount
       - ops.throughput.units
       - ops.quality.defect_rate.pct
-      - ops.yield.pct
+      - ops.quality.pct
       - sales.net_sales.amount
 
   - folder_name: "Supporting Measures"

@@ -382,13 +382,6 @@ ops.working_capital.ccc.days:
   format_string: '0'
   dax_name: Cash Conversion Cycle (Days)
   display_folder: ''
-ops.yield.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Yield %
-  display_folder: ''
 order.lines:
   dax_expression: '-- TBD: see Measure Dictionary
 

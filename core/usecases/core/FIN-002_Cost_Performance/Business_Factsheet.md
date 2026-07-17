@@ -56,7 +56,7 @@ factsheet_type: business
 | ops.labor.productivity.pct | Influencing |
 | ops.throughput.units | Influencing |
 | ops.quality.defect_rate.pct | Influencing |
-| ops.yield.pct | Influencing |
+| ops.quality.pct | Influencing |
 | sales.net_sales.amount | Supporting |
 | cost.base_volume.amount | Supporting |
 | cost.opex.base.amount | Supporting |
@@ -79,7 +79,7 @@ The headline KPIs reference these external standards — *reference, don't redef
 - **Labor Productivity %** (`ops.labor.productivity.pct`) → **ISO 22400-2 WE** (partial): ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time.
 - **Throughput Units** (`ops.throughput.units`) → **ISO 22400-2** (partial): Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI (governed throughput; consolidated from the former `ops.production.volume`).
 - **Quality Defect Rate %** (`ops.quality.defect_rate.pct`) → **ISO 22400-2 QR** (partial): Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the standard into scrap ratio (SR) and rework ratio (RR).
-- **Yield %** (`ops.yield.pct`) → **ISO 22400-2 QR** (partial): 'Good units / total produced' duplicates ISO 22400-2 Quality ratio and overlaps First Pass Yield (FPY).
+- **Quality %** (`ops.quality.pct`) → **ISO 22400-2 QR** (partial): 'Good units / total produced' is the ISO 22400-2 Quality ratio; overlaps First Pass Yield (FPY) (governed quality; consolidated from the former `ops.yield.pct`).
 
 ---
 

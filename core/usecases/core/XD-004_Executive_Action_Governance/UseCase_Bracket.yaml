@@ -32,7 +32,7 @@ orchestration:
     - ops.quality.defect_rate.pct
     - ops.spare_parts.stockout.pct
     - ops.working_capital.ccc.days
-    - ops.yield.pct
+    - ops.quality.pct
     - people.attrition_risk.pct
     - people.digital_adoption.pct
     - plan.forecast.mape.pct

@@ -14,7 +14,7 @@ orchestration:
   - ops.labor.productivity.pct
   - ops.throughput.units
   - ops.quality.defect_rate.pct
-  - ops.yield.pct
+  - ops.quality.pct
   supporting_kpi_ids:
   - sales.net_sales.amount
   - cost.base_volume.amount
@@ -35,7 +35,7 @@ primary_kpi_ids:
 
 value_driver_model:
   formula: cost.unit.amount = f(margin.cogs.pct, cost.opex.vs_plan.pct, cost.material.pct, ops.labor.productivity.pct, ops.throughput.units,
-    ops.quality.defect_rate.pct, ops.yield.pct)
+    ops.quality.defect_rate.pct, ops.quality.pct)
   impact_direction: minimize
   primary_driver: cost.material.pct
   impact_logic: Improving cost.material.pct is the primary lever for minimizing cost.unit.amount because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
@@ -83,7 +83,7 @@ ux_layout_rules:
       # R2.4: deduped repeated cost.unit.amount; dropped plant/line (no
       # backing dimension table in Finance.SemanticModel -- dim_asset is
       # Operations-only, not joined here); cut ops.throughput.units/
-      # ops.yield.pct (less central to the cost-recovery decision_question).
+      # ops.quality.pct (less central to the cost-recovery decision_question).
       evidence_columns:
       - entity
       - product_category

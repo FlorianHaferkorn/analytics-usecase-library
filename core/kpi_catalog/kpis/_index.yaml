@@ -40,7 +40,6 @@ order:
 - ops.pm.task.count
 - ops.quality.defect_rate.pct
 - ops.safety.incident.count
-- ops.yield.pct
 - order.lines
 - plans.count
 - shipments.count

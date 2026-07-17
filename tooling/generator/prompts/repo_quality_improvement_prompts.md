@@ -50,7 +50,7 @@ Bekannte betroffene KPIs (nicht abschliessend):
 inv.dio.days, inv.stockout.pct, inv.obsolete.pct, plan.forecast.accuracy.pct,
 plan.forecast.bias.pct, supply.otif.pct, supply.on_time.pct, ops.pm.task.count,
 ops.throughput.units, ops.quality.defect_rate.pct, ops.safety.incident.count,
-ops.yield.pct, svc.fcr.pct, svc.aht.minutes, crm.nps.index, svc.escalation.pct,
+ops.quality.pct, svc.fcr.pct, svc.aht.minutes, crm.nps.index, svc.escalation.pct,
 res.occupancy.pct, res.overtime.pct, people.digital_adoption.pct,
 enterprise.action_outcome_rate.pct, sales.units (ca. 40 Stueck insgesamt)
 

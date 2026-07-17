@@ -991,35 +991,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
 
       '
 
-- measure_name: Yield %
-  is_kpi_measure: true
-  kpi_id_ref: ops.yield.pct
-  semantic_model: Operations_SemanticModel
-  display_folder: 04_Quality
-  category: KPI
-  expression:
-    logical: Yield % = Good Units / Total Units Produced.
-    aggregation_method: ratio
-  documentation:
-    description: Good units divided by total output.
-    notes: 'Grain: line_day. Unit: %.
-
-      Lineage: fact_ops[Good Units], fact_ops[Output Units].
-
-      QA: Output Units > 0; align good vs total unit definitions.
-
-      '
-  dependencies:
-    columns:
-    - fact_ops[Good Units]
-    - fact_ops[Output Units]
-  governance:
-    owner: Operations Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
 - measure_name: Overall Equipment Effectiveness (OEE) %
   is_kpi_measure: true
   kpi_id_ref: ops.oee.pct

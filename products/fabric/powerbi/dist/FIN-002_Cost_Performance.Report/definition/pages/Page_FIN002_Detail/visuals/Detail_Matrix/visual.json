@@ -178,11 +178,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Yield %"
+                  "Property": "Quality % (FIN)"
                 }
               },
-              "queryRef": "_Measures.Yield %",
-              "nativeQueryRef": "Yield %"
+              "queryRef": "_Measures.Quality % (FIN)",
+              "nativeQueryRef": "Quality % (FIN)"
             }
           ]
         }

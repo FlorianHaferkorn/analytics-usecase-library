@@ -309,13 +309,17 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
-	/// Good units divided by total output.
+	/// Quality % - ops.quality.pct
+	/// Good units divided by total output (governed quality/yield, Finance view).
 	/// Formula: Good Units / Total Units Produced.
 	/// Grain: line_day · Unit: %
 	/// Owner: Operations Analytics · Status: active
 	/// Synonyms: Process Yield, Throughput Yield, Ausbeute, Gutausbeute, Ausbeutegrad
 	/// Example question: How has process yield trended since the line upgrade?
-	measure 'Yield %' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
+	/// NOTE: fact_ops (Good Units) is an Operations-model table; the Finance model
+	/// carries only fact_output[Output Units], so this proxy cannot be evaluated in
+	/// the Finance model until a Good-Units source is added — pre-existing data gap.
+	measure 'Quality % (FIN)' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 

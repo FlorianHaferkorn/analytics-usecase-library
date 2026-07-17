@@ -36,7 +36,7 @@ technical:
   - ops.labor.productivity.pct
   - ops.throughput.units
   - ops.quality.defect_rate.pct
-  - ops.yield.pct
+  - ops.quality.pct
   lineage:
   - fact_cost.COGS Amount
   - fact_output.Output Units

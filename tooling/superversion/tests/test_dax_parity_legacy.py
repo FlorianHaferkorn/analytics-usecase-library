@@ -50,7 +50,6 @@ KPI_TO_LEGACY = {
     "margin.cogs.pct": ("Finance.SemanticModel", "COGS % of Sales"),
     "cost.material.pct": ("Finance.SemanticModel", "Material Cost %"),
     "ops.quality.defect_rate.pct": ("Finance.SemanticModel", "Quality Defect Rate %"),
-    "ops.yield.pct": ("Finance.SemanticModel", "Yield %"),
     "quality.fpy.pct": ("Operations.SemanticModel", "First Pass Yield %"),
     "quality.scrap.pct": ("Operations.SemanticModel", "Scrap Rate %"),
     "quality.rework.pct": ("Operations.SemanticModel", "Rework Rate %"),

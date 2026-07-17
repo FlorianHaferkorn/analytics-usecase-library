@@ -15,8 +15,11 @@ domain_tag:
 - Operational Efficiency
 use_case_ref:
 - OPS-001
+- FIN-002
+- XD-004
 action_code_ref:
 - O-O1.3
+- F-K2.2
 calc_type: rate
 business:
   purpose: Yield of conforming units relative to total units produced.
