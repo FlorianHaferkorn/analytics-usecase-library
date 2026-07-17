@@ -19,7 +19,6 @@ orchestration:
   - sales.net_sales.amount
   - cost.cogs.amount
   # Additional KPIs from action code trigger chains (closure requirement)
-  - ops.otif.pct
   - quality.complaint.pct
   - quality.copq.amount
   - quality.defect_density

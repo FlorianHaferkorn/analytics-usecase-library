@@ -48,7 +48,6 @@ order:
 - shipments.count
 - scm.service_level.pct
 - ops.availability.pct
-- ops.otif.pct
 - ops.working_capital.ccc.days
 - ops.downtime.pct
 - ops.downtime.unplanned.pct

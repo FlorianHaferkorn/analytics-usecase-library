@@ -67,7 +67,7 @@ use_cases:
       - sales.net_sales.delta_pct.ly
       - crm.clv.amount
       - svc.sla.attainment.pct
-      - ops.otif.pct
+      - supply.otif.pct
       - ops.working_capital.ccc.days
       - people.digital_adoption.pct
       - people.attrition_risk.pct
@@ -295,14 +295,13 @@ display_folders:
       - sales.net_sales.delta_pct.ly
       - crm.clv.amount
       - svc.sla.attainment.pct
-      - ops.otif.pct
+      - supply.otif.pct
       - ops.working_capital.ccc.days
       - people.digital_adoption.pct
       - people.attrition_risk.pct
       - enterprise.action_routed.count
       - enterprise.action_outcome_rate.pct
       - enterprise.value_at_risk.index
-      - supply.otif.pct
       - sales.net_sales.amount
       - cost.cogs.amount
 
@@ -363,7 +362,7 @@ notes:
 
   cross_domain_note:
     - "XD-003 (Executive KPI Overview) references measures from Commercial (margin.gm.pct, crm.clv.amount),"
-    - "Operations (ops.otif.pct, ops.working_capital.ccc.days), and Supply Chain (supply.otif.pct)."
+    - "Operations (ops.working_capital.ccc.days) and Supply Chain (supply.otif.pct)."
     - "In a Fabric deployment, implement XD-003 as a Composite Model that references the other domain models,"
     - "or duplicate the critical cross-domain KPIs as shared measures in this model."
 

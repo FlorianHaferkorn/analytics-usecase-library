@@ -294,13 +294,6 @@ ops.oee.pct:
   format_string: 0.0%
   dax_name: OEE %
   display_folder: ''
-ops.otif.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Ops OTIF %
-  display_folder: ''
 ops.performance.pct:
   dax_expression: 'VAR ActualOutput = SUM ( fact_ops[Output Units] )
 

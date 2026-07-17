@@ -1687,6 +1687,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - SCM-001
   - SCM-002
   - SCM-003
+  - XD-003
   action_code_ref:
   - S-F3.3
   - S-I1.1
@@ -2697,57 +2698,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://www.iso.org/standard/54497.html
     alignment: partial
     note: ISO 22400-2 Availability = Actual Production Time / Planned Busy Time. Ours ('Available time / Planned time') is the same concept but the ISO time-state model (PBT, actual production time) must be pinned to align exactly.
-
-- kpi_id: ops.otif.pct
-  kpi_key: OTIF %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - XD-003
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Delivery reliability measured by orders delivered on-time and in-full.
-    definition: On-Time In-Full deliveries / Total Deliveries
-    grain_scope: Order/shipment level; aggregated weekly/monthly.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher OTIF indicates better delivery reliability; low values reflect service and execution issues.
-  technical:
-    measure_name: Ops OTIF %
-    description: Delivery reliability measured by orders delivered on-time and in-full.
-    depends_on_measures:
-    - supply.otif.pct
-    lineage:
-    - fact_fulfillment.OTIF Flag
-    calculation:
-      op: rate
-      column: OTIF Flag
-  governance:
-    business_owner: Head of Supply Chain / Finance
-    data_owner: Supply Chain BI
-    steward: Inventory Controller
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Inventory days reconcile to inventory and COGS within +/- 1 day
-    - 'Bounded: DSO/DIO/DPO derived days must be >= 0'
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 23.01.2026
-  standard_ref:
-  - standard: SCOR-DS
-    id: RL.1.1
-    name: Perfect Order Fulfillment
-    url: https://scor.ascm.org/performance/reliability/RL.1.1
-    alignment: partial
-    note: Same 2-of-4 gap as supply.otif.pct. Also a duplicate formula of supply.otif.pct and scm.service_level.pct — consolidation candidate.
-  canonical_kpi_id: supply.otif.pct
-  canonical_note: Identical calc (rate over fact_fulfillment.OTIF Flag) to supply.otif.pct. supply.otif.pct (strategic, Supply-Chain SSOT) is canonical.
 
 - kpi_id: ops.working_capital.ccc.days
   kpi_key: Cash Conversion Cycle (Days)
@@ -5908,7 +5858,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Aggregates downside risk across domains into a single index.
     depends_on_measures:
     - sales.net_sales.amount
-    - ops.otif.pct
     - supply.otif.pct
     - supply.in_full.pct
     lineage: []
@@ -5941,7 +5890,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
                                   minuend:
                                     literal: 1
                                   subtrahend:
-                                    kpi: ops.otif.pct
+                                    kpi: supply.otif.pct
                               - calc:
                                   op: delta
                                   minuend:

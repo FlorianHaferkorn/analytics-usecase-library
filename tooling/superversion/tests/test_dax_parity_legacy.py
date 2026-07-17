@@ -64,7 +64,6 @@ KPI_TO_LEGACY = {
     "supply.on_time.pct": ("SupplyChain.SemanticModel", "On-Time %"),
     "supply.in_full.pct": ("SupplyChain.SemanticModel", "In-Full %"),
     "supply.otif.pct": ("SupplyChain.SemanticModel", "OTIF %"),
-    "ops.otif.pct": ("Experience.SemanticModel", "Ops OTIF %"),
     "ops.service_level.pct": ("Finance.SemanticModel", "Operations Service Level %"),
     "order.lines": ("SupplyChain.SemanticModel", "Order Lines Count"),
     "shipments.count": ("SupplyChain.SemanticModel", "Shipments Count"),

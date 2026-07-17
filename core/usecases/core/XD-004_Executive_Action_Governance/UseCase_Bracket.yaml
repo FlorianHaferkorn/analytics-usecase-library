@@ -27,7 +27,6 @@ orchestration:
     - ops.failure.count
     - ops.labor.productivity.pct
     - ops.mttr.hours
-    - ops.otif.pct
     - ops.pm_compliance.pct
     - ops.production.volume
     - ops.quality.defect_rate.pct

@@ -126,7 +126,7 @@ canonical_domain_model:
         risk and downstream churn, raising the service-risk contribution.
       benchmark_target: "≥ 95% SLA attainment typical world-class target"
       benchmark_source_id: SRC-006
-    - id: ops.otif.pct
+    - id: supply.otif.pct
       name: OTIF %
       definition: "On-Time-In-Full delivery performance (orders delivered complete and on time)."
       unit: "%"
@@ -192,7 +192,7 @@ canonical_domain_model:
       definition: "Combined weighted SLA + OTIF downside contribution to the index."
       unit: index_points
       direction: minimize
-      diagnoses: ops.otif.pct
+      diagnoses: supply.otif.pct
       causal_mechanism: "Shows when service reliability and fulfilment failures are the dominant risk driver."
     - id: enterprise.var_contribution.working_capital
       name: Value-at-Risk Contribution — Working Capital
@@ -322,7 +322,7 @@ action_logic_seeds:
       review to Finance/Commercial leads.
     expected_outcome_kpi: enterprise.value_at_risk.index
     action_code_candidate: X-E3.2
-  - trigger_driver: ops.otif.pct
+  - trigger_driver: supply.otif.pct
     trigger_diagnostic: enterprise.var_contribution.service
     trigger_condition: "Index rising with service+fulfilment contribution material AND working-capital contribution also rising in same entities"
     guardrail: "Exclude entities whose service risk is already covered by an active domain OTIF action; avoid double-counting"

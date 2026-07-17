@@ -295,18 +295,6 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
-	/// Ops OTIF % - ops.otif.pct
-	/// Delivery reliability measured by orders delivered on-time and in-full.
-	measure 'Ops OTIF %' =
-			VAR OTIFFulfillments =
-				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
-			VAR TotalFulfillments =
-				COUNTROWS ( fact_fulfillment )
-			RETURN
-				DIVIDE ( OTIFFulfillments, TotalFulfillments )
-		formatString: "0.0%"
-		displayFolder: "XD-003"
-
 
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
 	/// Formula: AVERAGEX ( VALUES ( fact_customer_value[CustomerKey] ), CALCULATE ( SUM ( fact_customer_value[CLV Amount] ) ) )
@@ -370,7 +358,7 @@ table _Measures
 	/// Net Sales Amount weighted by average of OTIF failure rate and First Pass Yield failure rate.
 	measure 'Revenue at Risk Amount (XD)' =
 			VAR OTIFFailureRate =
-				1 - [Ops OTIF %]
+				1 - [OTIF % (XD)]
 			VAR FirstPassYieldFailureRate =
 				1 - [First Pass Yield % (XD)]
 			VAR CombinedRiskFactor =
