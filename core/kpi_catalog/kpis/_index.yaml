@@ -36,7 +36,6 @@ order:
 - plan.forecast.service_impact.pct
 - ops.oee.pct
 - ops.failure.count
-- ops.inventory.value.amount
 - ops.planned_output.units
 - ops.pm.task.count
 - ops.production.volume

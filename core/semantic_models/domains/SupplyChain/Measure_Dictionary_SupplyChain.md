@@ -893,34 +893,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     last_review: 2026-03-27
     review_due: 2027-03-31
 
-- measure_name: Inventory Value Amount
-  is_kpi_measure: true
-  kpi_id_ref: ops.inventory.value.amount
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 01_Inventory
-  category: KPI
-  expression:
-    logical: Inventory Value Amount = Sum of inventory value amount for the selected scope.
-    aggregation_method: sum
-  documentation:
-    description: Total inventory value in the selected scope.
-    notes: 'Grain: location_sku_day. Unit: EUR.
-
-      Lineage: fact_inventory[Inventory Value Amount].
-
-      QA: Valuation method consistent with finance policy.
-
-      '
-  dependencies:
-    columns:
-    - fact_inventory[Inventory Value Amount]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
 - measure_name: Supply Chain Service Level %
   is_kpi_measure: true
   kpi_id_ref: scm.service_level.pct

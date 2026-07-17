@@ -2103,54 +2103,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     alignment: none
     note: Raw failure count is an ISO 22400-2 element (input to MTBF/MTTR), not a headline KPI itself.
 
-- kpi_id: ops.inventory.value.amount
-  kpi_key: Inventory Value Amount
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Supply Chain
-  use_case_ref:
-  - OPS-002
-  action_code_ref: []
-  calc_type: amount
-  business:
-    purpose: Tracks inventory value for maintenance-relevant items.
-    definition: Sum of inventory value amount for the selected scope.
-    grain_scope: SKU/location; aggregated by period.
-    unit_format: EUR (2 decimals)
-    interpretation: Higher values indicate more capital tied in spare parts.
-  technical:
-    measure_name: Inventory Value Amount
-    description: Tracks inventory value for maintenance-relevant items.
-    depends_on_measures: []
-    lineage:
-    - fact_inventory.Average Inventory Amount
-    calculation:
-      op: sum
-      column: Average Inventory Amount
-  governance:
-    business_owner: Head of Supply Chain
-    data_owner: Supply Chain BI
-    steward: Inventory Planner
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
-  standard_ref:
-  - standard: SCOR-DS
-    id: AM.1.1
-    name: Asset Management — inventory value input
-    url: https://scor.ascm.org/performance/asset-management
-    alignment: none
-    note: Inventory value is an input to SCOR Asset Management metrics (Cash-to-Cash inventory-days), not itself a named SCOR performance metric.
-  canonical_kpi_id: fin.liquidity.inventory.amount
-  canonical_note: Identical calc/lineage (fact_inventory.Average Inventory Amount) to fin.liquidity.inventory.amount, which is the Finance-domain SSOT.
-
 - kpi_id: ops.planned_output.units
   kpi_key: Planned Output Units
   kpi_type: diagnostic
@@ -4089,7 +4041,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Finance
   use_case_ref:
   - FIN-001
-  action_code_ref: []
+  - OPS-002
+  action_code_ref:
+  - O-A2.5
   calc_type: amount
   business:
     purpose: Provide closing inventory value for working capital and liquidity metrics.

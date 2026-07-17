@@ -7,7 +7,9 @@ domain_tag:
 - Finance
 use_case_ref:
 - FIN-001
-action_code_ref: []
+- OPS-002
+action_code_ref:
+- O-A2.5
 calc_type: amount
 business:
   purpose: Provide closing inventory value for working capital and liquidity metrics.

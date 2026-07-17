@@ -156,7 +156,6 @@ These KPIs have no active bracket or action code references. They will be remove
 
 | kpi_id | Back-link |
 |---|---|
-| `ops.inventory.value.amount` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.planned_output.units` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.pm.task.count` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.quality.defect_rate.pct` | [KPI_Catalog.md](KPI_Catalog.md) |

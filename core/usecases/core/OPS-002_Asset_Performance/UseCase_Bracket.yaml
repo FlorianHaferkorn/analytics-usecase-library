@@ -15,7 +15,7 @@ orchestration:
   - ops.pm_compliance.pct
   - ops.failure.count
   supporting_kpi_ids:
-  - ops.inventory.value.amount
+  - fin.liquidity.inventory.amount
   - ops.pm.task.count
   - ops.safety.incident.count
   action_code_ids:

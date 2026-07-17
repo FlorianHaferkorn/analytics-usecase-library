@@ -59,7 +59,7 @@ factsheet_type: business
 | ops.spare_parts.stockout.pct | Influencing |
 | ops.pm_compliance.pct | Influencing |
 | ops.failure.count | Influencing |
-| ops.inventory.value.amount | Supporting |
+| fin.liquidity.inventory.amount | Supporting |
 | ops.pm.task.count | Supporting |
 | ops.safety.incident.count | Supporting |
 

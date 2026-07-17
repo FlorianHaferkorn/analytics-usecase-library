@@ -260,13 +260,6 @@ ops.failure.count:
   format_string: ''
   dax_name: Failure Count
   display_folder: ''
-ops.inventory.value.amount:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: Inventory Value Amount
-  display_folder: ''
 ops.labor.productivity.pct:
   dax_expression: 'VAR OutputUnits = SUM ( fact_output[Output Units] )
 

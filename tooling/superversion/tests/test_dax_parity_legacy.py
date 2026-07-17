@@ -107,7 +107,6 @@ KPI_TO_LEGACY = {
     "ops.mttr.hours": ("Operations.SemanticModel", "MTTR (hours)"),
     "ops.downtime.unplanned.pct": ("Operations.SemanticModel", "Unplanned Downtime %"),
     "ops.failure.count": ("Operations.SemanticModel", "Failure Count"),
-    "ops.inventory.value.amount": ("Operations.SemanticModel", "Inventory Value Amount"),
     "ops.pm.task.count": ("Operations.SemanticModel", "Preventive Maintenance Task Count"),
     "ops.spare_parts.stockout.pct": ("Operations.SemanticModel", "Spare Parts Stockout %"),
     "ops.pm_compliance.pct": ("Operations.SemanticModel", "PM Compliance %"),
