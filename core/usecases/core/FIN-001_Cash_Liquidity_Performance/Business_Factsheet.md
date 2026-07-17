@@ -60,7 +60,7 @@ cash conversion, and improved resilience.
 | wc.dio.days | Influencing |
 | wc.dpo.days | Influencing |
 | fin.liquidity.inventory.amount | Supporting |
-| scm.service_level.pct | Supporting |
+| supply.otif.pct | Supporting |
 | scm.supplier_risk.score | Supporting |
 
 **Action Codes:** F-C1.1, F-C1.2, S-I1.2, F-C1.4

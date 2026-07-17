@@ -15,7 +15,6 @@ orchestration:
   - wc.dio.days
   - wc.dpo.days
   supporting_kpi_ids:
-  - scm.service_level.pct
   - scm.supplier_risk.score
   - fin.liquidity.inventory.amount
   - inv.turnover
@@ -102,7 +101,7 @@ ux_layout_rules:
     component_300s:
       evidence_grain: entity_month
       # R2.4: curated 12→8. Cut fin.cash.ocf (now Main_2's own headline KPI),
-      # fin.liquidity.inventory.amount/scm.service_level.pct/scm.supplier_risk.score
+      # fin.liquidity.inventory.amount/supply.otif.pct/scm.supplier_risk.score
       # (cross-domain supporting KPIs, less central to the cash decision_question).
       evidence_columns:
       - entity

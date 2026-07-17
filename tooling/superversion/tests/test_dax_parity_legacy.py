@@ -64,7 +64,6 @@ KPI_TO_LEGACY = {
     "supply.on_time.pct": ("SupplyChain.SemanticModel", "On-Time %"),
     "supply.in_full.pct": ("SupplyChain.SemanticModel", "In-Full %"),
     "supply.otif.pct": ("SupplyChain.SemanticModel", "OTIF %"),
-    "ops.service_level.pct": ("Finance.SemanticModel", "Operations Service Level %"),
     "order.lines": ("SupplyChain.SemanticModel", "Order Lines Count"),
     "shipments.count": ("SupplyChain.SemanticModel", "Shipments Count"),
     "supply.stockout_impact.pct": ("SupplyChain.SemanticModel", "Stockout Impact %"),
@@ -117,7 +116,6 @@ KPI_TO_LEGACY = {
     "fin.cash.balance": ("Finance.SemanticModel", "Cash Balance"),
     "fin.cash.ocf": ("Finance.SemanticModel", "Operating Cash Flow"),
     "fin.cash.vs_plan.pct": ("Finance.SemanticModel", "Cash vs Plan %"),
-    "scm.service_level.pct": ("Finance.SemanticModel", "Supply Chain Service Level %"),
     "fin.liquidity.inventory.amount": ("Finance.SemanticModel", "Inventory Amount"),
     "fin.overdue_ar.pct": (None, None),  # new-territory, no legacy DAX ever generated
     # SupplyChain domain (SCM-001 Inventory / SCM-003 Forecast) — I-10.0 follow-up.

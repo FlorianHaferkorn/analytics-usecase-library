@@ -189,63 +189,6 @@
         "hierarchy_columns": []
       },
       {
-        "name": "fact_fulfillment",
-        "description": "",
-        "is_hidden": false,
-        "is_date_table": false,
-        "columns": [],
-        "measures": [
-          {
-            "name": "Ops OTIF %",
-            "expression": "",
-            "display_folder": "Operations",
-            "description": "On-Time In-Full deliveries / Total Deliveries",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          },
-          {
-            "name": "In-Full %",
-            "expression": "",
-            "display_folder": "Supply Chain",
-            "description": "In-Full Deliveries / Total Deliveries.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          },
-          {
-            "name": "On-Time %",
-            "expression": "",
-            "display_folder": "Supply Chain",
-            "description": "On-Time Deliveries / Total Deliveries.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          },
-          {
-            "name": "OTIF %",
-            "expression": "",
-            "display_folder": "Supply Chain",
-            "description": "OTIF Orders / Total Orders.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          }
-        ],
-        "has_partition": false,
-        "partition_type": "",
-        "m_expression": "",
-        "hierarchy_columns": []
-      },
-      {
         "name": "fact_quality_costs",
         "description": "",
         "is_hidden": false,
@@ -318,6 +261,52 @@
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Scrap Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
+            }
+          }
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
+      },
+      {
+        "name": "fact_fulfillment",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "In-Full %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "In-Full Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "On-Time %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "On-Time Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "OTIF %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "OTIF Orders / Total Orders.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
             }
           }
         ],

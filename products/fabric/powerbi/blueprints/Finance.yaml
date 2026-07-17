@@ -402,7 +402,7 @@ display_folders:
       - wc.dso.days
       - wc.dio.days
       - wc.dpo.days
-      - scm.service_level.pct
+      - supply.otif.pct
       - scm.supplier_risk.score
       - fin.liquidity.inventory.amount
 
@@ -418,7 +418,6 @@ display_folders:
       - cost.opex.base.amount
       - ops.production.volume
       - ops.quality.defect_rate.pct
-      - ops.service_level.pct
       - ops.yield.pct
       - sales.net_sales.amount
 

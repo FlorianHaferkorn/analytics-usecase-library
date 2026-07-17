@@ -33,7 +33,6 @@ order:
 - forecast_error_qty
 - under_forecast_lost_demand_qty
 - under_forecast_lost_demand_share
-- supply_chain_service_level
 - order_lines_count
 - plans_count
 - shipments_count

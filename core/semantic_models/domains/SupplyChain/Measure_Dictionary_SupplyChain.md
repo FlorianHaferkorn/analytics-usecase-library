@@ -893,34 +893,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     last_review: 2026-03-27
     review_due: 2027-03-31
 
-- measure_name: Supply Chain Service Level %
-  is_kpi_measure: true
-  kpi_id_ref: scm.service_level.pct
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 02_Service
-  category: KPI
-  expression:
-    logical: Supply Chain Service Level % = On-Time In-Full Orders / Total Orders.
-    aggregation_method: ratio
-  documentation:
-    description: On-time in-full rate for customer fulfillment.
-    notes: 'Grain: order_line_day. Unit: %.
-
-      Lineage: fact_fulfillment[OTIF Flag].
-
-      QA: OTIF definition aligned to customer policy.
-
-      '
-  dependencies:
-    columns:
-    - fact_fulfillment[OTIF Flag]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
 - measure_name: Order Lines Count
   is_kpi_measure: true
   kpi_id_ref: order.lines

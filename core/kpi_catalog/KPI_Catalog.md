@@ -1688,6 +1688,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - SCM-002
   - SCM-003
   - XD-003
+  - FIN-001
+  - FIN-002
   action_code_ref:
   - S-F3.3
   - S-I1.1
@@ -1695,6 +1697,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-R2.1
   - S-R2.2
   - S-R2.5
+  - F-K2.4
   calc_type: rate
   business:
     purpose: Measures share of orders delivered on time and in full.
@@ -2344,54 +2347,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     alignment: none
     note: Safety-incident count belongs to occupational health & safety management (ISO 45001), not manufacturing-operations performance (ISO 22400-2).
 
-- kpi_id: ops.service_level.pct
-  kpi_key: Operations Service Level %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - FIN-002
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Measures on-time or in-full performance for operational delivery.
-    definition: On-Time or In-Full Deliveries / Total Deliveries.
-    grain_scope: Site/product; aggregated by period.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher values indicate better service performance.
-  technical:
-    measure_name: Operations Service Level %
-    description: Measures on-time or in-full performance for operational delivery.
-    depends_on_measures: []
-    lineage:
-    - fact_fulfillment.OTIF Flag
-    calculation:
-      op: rate
-      column: OTIF Flag
-  governance:
-    business_owner: Head of Operations
-    data_owner: Operations BI
-    steward: Operations Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
-  standard_ref:
-  - standard: SCOR-DS
-    id: RL.1.1
-    name: Perfect Order Fulfilment (service level)
-    url: https://scor.ascm.org/performance/reliability/RL.1.1
-    alignment: partial
-    note: Delivery service level (on-time or in-full / total) is a SCOR Reliability (RL) metric, not ISO 22400-2. Duplicate of ops.otif.pct / supply.otif.pct — consolidate to the governed OTIF.
-  canonical_kpi_id: supply.otif.pct
-  canonical_note: Identical OTIF calc/lineage to supply.otif.pct. NOTE the definition text says 'On-Time OR In-Full' but the calc uses the AND-combined OTIF Flag — a definition-vs-calc drift. supply.otif.pct is canonical.
-
 - kpi_id: ops.yield.pct
   synonyms:
   - Process Yield
@@ -2589,53 +2544,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://scor.ascm.org/performance/reliability/RL.1.1
     alignment: none
     note: Shipment count is a logistics volume element feeding delivery-reliability metrics (SCOR RL), not a standalone SCOR KPI.
-
-- kpi_id: scm.service_level.pct
-  kpi_key: Supply Chain Service Level %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Supply Chain
-  use_case_ref:
-  - FIN-001
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Measures supply chain service level performance.
-    definition: On-Time In-Full Orders / Total Orders.
-    grain_scope: Customer/order; aggregated by period.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher values indicate better service reliability.
-  technical:
-    measure_name: Supply Chain Service Level %
-    description: Measures supply chain service level performance.
-    depends_on_measures: []
-    lineage:
-    - fact_fulfillment.OTIF Flag
-    calculation:
-      op: rate
-      column: OTIF Flag
-  governance:
-    business_owner: Head of Supply Chain
-    data_owner: Supply Chain BI
-    steward: Service Level Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
-  standard_ref:
-  - standard: SCOR-DS
-    id: RL.1.1
-    name: Perfect Order Fulfillment
-    url: https://scor.ascm.org/performance/reliability/RL.1.1
-    alignment: partial
-    note: Formula is identical to OTIF (OTIF orders / total orders) → maps to SCOR Perfect Order (2-of-4). Duplicate of supply.otif.pct / ops.otif.pct — consolidate to one governed OTIF.
-  canonical_kpi_id: supply.otif.pct
-  canonical_note: Identical OTIF calc/lineage to supply.otif.pct; 'service level' is the same metric. supply.otif.pct is canonical.
 
 - kpi_id: ops.availability.pct
   synonyms:

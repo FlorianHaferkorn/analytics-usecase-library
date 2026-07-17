@@ -21,8 +21,8 @@ REPO = Path(__file__).resolve().parents[2]
 # Full-catalog coverage baseline: every real KPI carries standard_ref (100%).
 # Decremented as the KPI de-duplication physically removes twin KPIs (each twin
 # carried a standard_ref): 127 → 126 (svc.nps.index) → 125 (ops.inventory.value.amount)
-# → 124 (ops.otif.pct).
-_BASELINE_COVERED = 124
+# → 124 (ops.otif.pct) → 122 (scm.service_level.pct + ops.service_level.pct).
+_BASELINE_COVERED = 122
 
 # Duplicate sets whose members share a count/distinctcount shape but are semantically
 # distinct metrics — surfaced by the sensor for human review, intentionally NOT merged.

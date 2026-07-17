@@ -25,6 +25,7 @@ order:
 - ebitda_margin
 - cogs_amount_ap
 - net_sales_amount_fin
+- otif_fin
 - actions_executed_count_xd
 - action_outcome_rate_xd
 - avg_time_to_outcome_days_xd

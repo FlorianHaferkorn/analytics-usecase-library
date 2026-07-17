@@ -60,7 +60,7 @@ factsheet_type: business
 | sales.net_sales.amount | Supporting |
 | cost.base_volume.amount | Supporting |
 | cost.opex.base.amount | Supporting |
-| ops.service_level.pct | Supporting |
+| supply.otif.pct | Supporting |
 
 **Action Codes:** F-K2.1, F-K2.2, F-K2.3, F-K2.4
 

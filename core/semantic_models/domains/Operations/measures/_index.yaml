@@ -37,7 +37,6 @@ order:
 - production_volume_units
 - quality_defect_rate
 - safety_incident_count
-- operations_service_level
 - yield
 - overall_equipment_effectiveness_oee
 - sales_units_ops

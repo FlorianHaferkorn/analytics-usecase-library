@@ -367,13 +367,6 @@ ops.safety.incident.count:
   format_string: ''
   dax_name: Safety Incident Count
   display_folder: ''
-ops.service_level.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Operations Service Level %
-  display_folder: ''
 ops.spare_parts.stockout.pct:
   dax_expression: 'VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ),
     fact_maintenance[Parts Stockout Flag] = TRUE () )
@@ -651,13 +644,6 @@ sales.units:
     BLANK()'
   format_string: ''
   dax_name: Sales Units
-  display_folder: ''
-scm.service_level.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Supply Chain Service Level %
   display_folder: ''
 scm.supplier_risk.score:
   dax_expression: '-- TBD: see Measure Dictionary

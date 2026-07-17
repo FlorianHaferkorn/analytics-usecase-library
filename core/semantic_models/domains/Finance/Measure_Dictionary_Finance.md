@@ -687,6 +687,27 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.0
     last_review: 28.04.2026
 
+- measure_name: OTIF % (FIN)
+  is_kpi_measure: true
+  kpi_id_ref: supply.otif.pct
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001
+  category: KPI
+  expression:
+    logical: OTIF % (FIN) = VAR OTIFFulfillments = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() ) VAR TotalFulfillments = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( OTIFFulfillments, TotalFulfillments )
+    aggregation_method: custom
+  documentation:
+    description: Measures share of orders delivered on time and in full — governed OTIF, Finance cross-domain view (consolidated from the former Supply Chain / Operations Service Level %).
+    notes: 'Grain: order_line_day. Unit: %. Lineage: fact_fulfillment[OTIF Flag].'
+  dependencies:
+    columns:
+    - fact_fulfillment[OTIF Flag]
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 2026-07-17
+
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: true
   kpi_id_ref: enterprise.actions_executed.count

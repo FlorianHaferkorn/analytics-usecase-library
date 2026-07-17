@@ -207,14 +207,60 @@
         "columns": [],
         "measures": [
           {
-            "name": "Operations Service Level %",
+            "name": "OTIF %",
             "expression": "",
-            "display_folder": "Operations",
-            "description": "On-Time or In-Full Deliveries / Total Deliveries.",
+            "display_folder": "Supply Chain",
+            "description": "OTIF Orders / Total Orders.",
             "format_string": "0.0%",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "On-Time %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "On-Time Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "In-Full %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "In-Full Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          }
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
+      },
+      {
+        "name": "fact_stockout",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Stockout Impact %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "Lost Demand Qty / Total Demand Qty.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"numerator\": {\"column\": \"Lost Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"op\": \"ratio\"}"
             }
           }
         ],

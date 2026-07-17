@@ -17,6 +17,8 @@ use_case_ref:
 - SCM-002
 - SCM-003
 - XD-003
+- FIN-001
+- FIN-002
 action_code_ref:
 - S-F3.3
 - S-I1.1
@@ -24,6 +26,7 @@ action_code_ref:
 - S-R2.1
 - S-R2.2
 - S-R2.5
+- F-K2.4
 calc_type: rate
 business:
   purpose: Measures share of orders delivered on time and in full.

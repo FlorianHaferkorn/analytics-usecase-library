@@ -19,7 +19,10 @@ orchestration:
   - sales.net_sales.amount
   - cost.base_volume.amount
   - cost.opex.base.amount
-  - ops.service_level.pct
+  - supply.otif.pct
+  - supply.on_time.pct
+  - supply.in_full.pct
+  - supply.stockout_impact.pct
   - margin.ebitda.pct
   action_code_ids:
   - F-K2.1
