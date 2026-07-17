@@ -292,11 +292,12 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "FIN-002"
 
-	/// Total produced units in the period.
+	/// Throughput Units - ops.throughput.units
+	/// Total produced units in the period (governed throughput, Finance view).
 	/// Formula: Sum of produced units for the period.
 	/// Grain: line_day · Unit: units
 	/// Owner: Operations Analytics · Status: active · Actions: F-K2.3
-	measure 'Production Volume Units' = SUM ( fact_ops[Output Units] )
+	measure 'Throughput Units (FIN)' = SUM ( fact_output[Output Units] )
 		formatString: "#,0"
 		displayFolder: "FIN-002"
 

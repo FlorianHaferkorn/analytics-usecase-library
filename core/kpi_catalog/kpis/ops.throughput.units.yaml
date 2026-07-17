@@ -8,9 +8,12 @@ domain_tag:
 - Operational Efficiency
 use_case_ref:
 - OPS-001
+- FIN-002
+- XD-004
 action_code_ref:
 - O-O1.2
 - O-O1.4
+- F-K2.3
 calc_type: count
 business:
   purpose: Measures total output volume in units.

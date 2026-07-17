@@ -76,7 +76,6 @@ These KPIs have no active bracket or action code references. They will be remove
 | `ops.working_capital.ccc.days` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.yield.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.safety.incident.count` | [KPI_Catalog.md](KPI_Catalog.md) |
-| `ops.production.volume` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `quality.scrap.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `quality.rework.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `quality.complaint.pct` | [KPI_Catalog.md](KPI_Catalog.md) |

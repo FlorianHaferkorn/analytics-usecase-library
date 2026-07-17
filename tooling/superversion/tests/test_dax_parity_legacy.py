@@ -41,7 +41,6 @@ KPI_TO_LEGACY = {
     "sales.promo.baseline_sales.amount": ("Commercial.SemanticModel", "Baseline Sales Amount"),
     "sales.promo.cost.amount": ("Commercial.SemanticModel", "Promo Cost"),
     "quality.copq.amount": ("Operations.SemanticModel", "Cost of Poor Quality"),
-    "ops.production.volume": ("Finance.SemanticModel", "Production Volume Units"),
     "margin.gm.amount": ("Commercial.SemanticModel", "Gross Margin Amount"),
     "sales.promo.incremental.amount": ("Commercial.SemanticModel", "Incremental Sales Amount"),
     "margin.gm.pct": ("Commercial.SemanticModel", "Gross Margin %"),

@@ -110,7 +110,7 @@ canonical_domain_model:
       benchmark_target: "≥100% of standard (earned hours ≥ actual hours); ISO 22400 productivity index"
       benchmark_source_id: SRC-003
 
-    - id: ops.production.volume
+    - id: ops.throughput.units
       name: Production Volume
       definition: "Good output units produced in the period. Determines fixed-cost absorption per unit."
       unit: count
@@ -229,7 +229,7 @@ canonical_domain_model:
         Reading an absorption swing as a real efficiency gain or loss misdirects action.
       affected_kpis:
         - cost.unit.amount
-        - ops.production.volume
+        - ops.throughput.units
 
     - description: Do not optimise unit cost in a way that raises COGS % or shifts cost to another stage
       condition: >

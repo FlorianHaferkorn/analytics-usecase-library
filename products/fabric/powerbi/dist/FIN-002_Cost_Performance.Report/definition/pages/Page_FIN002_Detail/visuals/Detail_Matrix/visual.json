@@ -150,11 +150,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Production Volume Units"
+                  "Property": "Throughput Units (FIN)"
                 }
               },
-              "queryRef": "_Measures.Production Volume Units",
-              "nativeQueryRef": "Production Volume Units"
+              "queryRef": "_Measures.Throughput Units (FIN)",
+              "nativeQueryRef": "Throughput Units (FIN)"
             },
             {
               "field": {

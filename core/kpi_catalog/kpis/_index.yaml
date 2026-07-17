@@ -38,7 +38,6 @@ order:
 - ops.failure.count
 - ops.planned_output.units
 - ops.pm.task.count
-- ops.production.volume
 - ops.quality.defect_rate.pct
 - ops.safety.incident.count
 - ops.yield.pct

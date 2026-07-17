@@ -416,7 +416,7 @@ display_folders:
       - ops.labor.productivity.pct
       - cost.base_volume.amount
       - cost.opex.base.amount
-      - ops.production.volume
+      - ops.throughput.units
       - ops.quality.defect_rate.pct
       - ops.yield.pct
       - sales.net_sales.amount

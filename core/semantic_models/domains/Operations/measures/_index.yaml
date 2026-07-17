@@ -34,7 +34,6 @@ order:
 - defect_count
 - planned_output_units
 - preventive_maintenance_task_count
-- production_volume_units
 - quality_defect_rate
 - safety_incident_count
 - yield

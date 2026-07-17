@@ -28,7 +28,7 @@ orchestration:
     - ops.labor.productivity.pct
     - ops.mttr.hours
     - ops.pm_compliance.pct
-    - ops.production.volume
+    - ops.throughput.units
     - ops.quality.defect_rate.pct
     - ops.spare_parts.stockout.pct
     - ops.working_capital.ccc.days

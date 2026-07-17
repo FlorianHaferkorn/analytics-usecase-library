@@ -54,7 +54,7 @@ factsheet_type: business
 | cost.opex.vs_plan.pct | Influencing |
 | cost.material.pct | Influencing |
 | ops.labor.productivity.pct | Influencing |
-| ops.production.volume | Influencing |
+| ops.throughput.units | Influencing |
 | ops.quality.defect_rate.pct | Influencing |
 | ops.yield.pct | Influencing |
 | sales.net_sales.amount | Supporting |
@@ -77,7 +77,7 @@ The headline KPIs reference these external standards — *reference, don't redef
 - **OpEx vs Plan %** (`cost.opex.vs_plan.pct`) → **IFRS IAS 1** (none): Internal budget-variance management metric; no external financial-reporting standard defines it.
 - **Material Cost %** (`cost.material.pct`) → **IFRS IAS 2** (none): Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure.
 - **Labor Productivity %** (`ops.labor.productivity.pct`) → **ISO 22400-2 WE** (partial): ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time.
-- **Production Volume Units** (`ops.production.volume`) → **ISO 22400-2** (partial): Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI.
+- **Throughput Units** (`ops.throughput.units`) → **ISO 22400-2** (partial): Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI (governed throughput; consolidated from the former `ops.production.volume`).
 - **Quality Defect Rate %** (`ops.quality.defect_rate.pct`) → **ISO 22400-2 QR** (partial): Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the standard into scrap ratio (SR) and rework ratio (RR).
 - **Yield %** (`ops.yield.pct`) → **ISO 22400-2 QR** (partial): 'Good units / total produced' duplicates ISO 22400-2 Quality ratio and overlaps First Pass Yield (FPY).
 

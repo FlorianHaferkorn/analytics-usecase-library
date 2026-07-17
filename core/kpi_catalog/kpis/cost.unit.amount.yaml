@@ -34,7 +34,7 @@ technical:
   - cost.opex.vs_plan.pct
   - cost.material.pct
   - ops.labor.productivity.pct
-  - ops.production.volume
+  - ops.throughput.units
   - ops.quality.defect_rate.pct
   - ops.yield.pct
   lineage:

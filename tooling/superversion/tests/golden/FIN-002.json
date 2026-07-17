@@ -137,10 +137,10 @@
         "columns": [],
         "measures": [
           {
-            "name": "Production Volume Units",
+            "name": "Throughput Units",
             "expression": "",
             "display_folder": "Operations",
-            "description": "Sum of produced units for the period.",
+            "description": "Sum of produced units in the period.",
             "format_string": "",
             "is_hidden": false,
             "expressions": {

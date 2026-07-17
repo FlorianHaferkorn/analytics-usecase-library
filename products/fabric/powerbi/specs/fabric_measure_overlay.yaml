@@ -337,13 +337,6 @@ ops.pm_compliance.pct:
   format_string: 0.0%
   dax_name: PM Compliance %
   display_folder: ''
-ops.production.volume:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: Production Volume Units
-  display_folder: ''
 ops.quality.defect_rate.pct:
   dax_expression: '-- TBD: see Measure Dictionary
 

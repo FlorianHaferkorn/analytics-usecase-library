@@ -708,6 +708,27 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.0
     last_review: 2026-07-17
 
+- measure_name: Throughput Units (FIN)
+  is_kpi_measure: true
+  kpi_id_ref: ops.throughput.units
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-002
+  category: KPI
+  expression:
+    logical: Throughput Units (FIN) = SUM ( fact_output[Output Units] )
+    aggregation_method: sum
+  documentation:
+    description: Total produced units in the period — governed throughput, Finance cross-domain view (consolidated from the former Production Volume Units).
+    notes: 'Grain: line_day. Unit: units. Lineage: fact_output[Output Units].'
+  dependencies:
+    columns:
+    - fact_output[Output Units]
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 2026-07-17
+
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: true
   kpi_id_ref: enterprise.actions_executed.count

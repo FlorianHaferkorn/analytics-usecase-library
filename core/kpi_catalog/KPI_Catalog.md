@@ -880,9 +880,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Operational Efficiency
   use_case_ref:
   - OPS-001
+  - FIN-002
+  - XD-004
   action_code_ref:
   - O-O1.2
   - O-O1.4
+  - F-K2.3
   calc_type: count
   business:
     purpose: Measures total output volume in units.
@@ -2203,54 +2206,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     url: https://www.iso.org/standard/54497.html
     alignment: none
     note: Raw PM-task count is an operational element, not an ISO 22400-2 KPI.
-
-- kpi_id: ops.production.volume
-  kpi_key: Production Volume Units
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - FIN-002
-  action_code_ref:
-  - F-K2.3
-  calc_type: count
-  business:
-    purpose: Measures total produced volume in units.
-    definition: Sum of produced units for the period.
-    grain_scope: Line/site; aggregated by period.
-    unit_format: units
-    interpretation: Higher values indicate higher output.
-  technical:
-    measure_name: Production Volume Units
-    description: Measures total produced volume in units.
-    depends_on_measures: []
-    lineage:
-    - fact_ops.Output Units
-    calculation:
-      op: sum
-      column: Output Units
-  governance:
-    business_owner: Head of Manufacturing
-    data_owner: Manufacturing BI
-    steward: Production Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
-  standard_ref:
-  - standard: ISO 22400-2
-    name: Produced quantity (PQ element)
-    url: https://www.iso.org/standard/54497.html
-    alignment: partial
-    note: Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI. Duplicate of ops.throughput.units.
-  canonical_kpi_id: ops.throughput.units
-  canonical_note: Identical calc (sum of produced units) to ops.throughput.units (strategic). Keep one produced-quantity measure; ops.throughput.units is canonical.
 
 - kpi_id: ops.quality.defect_rate.pct
   kpi_key: Quality Defect Rate %
@@ -5284,7 +5239,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - cost.opex.vs_plan.pct
     - cost.material.pct
     - ops.labor.productivity.pct
-    - ops.production.volume
+    - ops.throughput.units
     - ops.quality.defect_rate.pct
     - ops.yield.pct
     lineage:
