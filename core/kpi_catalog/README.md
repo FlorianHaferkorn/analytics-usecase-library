@@ -10,7 +10,8 @@
 > [SCM ↔ SCOR alignment & drift audit](standards/SCM_SCOR_alignment.md); finance →
 > [Finance ↔ IFRS/APM alignment & drift audit](standards/FIN_IFRS_alignment.md); operations →
 > [Operations ↔ ISO 22400 alignment & drift audit](standards/OPS_ISO22400_alignment.md); service →
-> [Service ↔ ITIL 4 / ISO/IEC 20000 alignment & drift audit](standards/SVC_ITIL_ISO20000_alignment.md).
+> [Service ↔ ITIL 4 / ISO/IEC 20000 alignment & drift audit](standards/SVC_ITIL_ISO20000_alignment.md);
+> commercial → [Commercial ↔ IFRS 15 / managerial-convention alignment & drift audit](standards/COM_Commercial_alignment.md).
 
 ## Purpose
 

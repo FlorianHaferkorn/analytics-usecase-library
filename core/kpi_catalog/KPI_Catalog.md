@@ -2468,6 +2468,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Order line count
+    alignment: none
+    note: Order-line count is an operational volume element, not a standard-defined KPI.
 
 - kpi_id: plans.count
   kpi_key: Plans Count
@@ -3343,6 +3348,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 2026-02-22
+  standard_ref:
+  - standard: IFRS 15
+    name: List/catalogue price
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected). No standard defines list price.
 
 - kpi_id: sales.price.net.amount
   kpi_key: Net Price Amount
@@ -3383,6 +3394,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 2026-02-22
+  standard_ref:
+  - standard: IFRS 15
+    name: Transaction price (net of discounts)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: partial
+    note: Net price is the IFRS 15 transaction price after trade discounts and variable consideration. Aligns conceptually; ensure discounts/rebates follow IFRS 15 variable-consideration measurement rather than ad-hoc netting.
 
 - kpi_id: sales.price.realization_pct
   kpi_key: Price Realization %
@@ -3432,6 +3449,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Price realization (net/list)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Price realization (net/list) is a management pricing metric, not IFRS-defined. The discount it captures is IFRS 15 variable consideration, but the ratio itself is a commercial-analytics convention.
 
 - kpi_id: sales.pvm.mix_effect.amount
   kpi_key: Mix Effect Amount
@@ -3484,6 +3507,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Management accounting (CIMA/IMA)
+    name: Sales mix variance (residual)
+    alignment: partial
+    note: Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition. Its magnitude depends on the volume-effect basis (see sales.pvm.volume_effect) — a convention choice, not a governed standard.
 
 - kpi_id: sales.net_sales.amount
   kpi_key: Net Sales Amount
@@ -3527,6 +3555,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Revenue from contracts with customers
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: partial
+    note: 'Net sales is a presentation of IFRS 15 revenue: net of VAT (correctly excluded — amounts collected on behalf of third parties are not revenue) and net of returns (IFRS 15 variable consideration — recognise a refund liability, not revenue). Aligns when returns/rebates are treated as IFRS 15 variable consideration.'
 
 - kpi_id: sales.net_sales.delta_pct.ly
   kpi_key: Delta% Net Sales
@@ -3574,6 +3608,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - Delta% Net Sales
+  standard_ref:
+  - standard: IFRS 15
+    name: Net sales YoY growth
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Year-over-year growth is a management trend metric; the underlying net-sales base is IFRS 15 revenue but the growth ratio is not standard-defined.
 
 - kpi_id: sales.net_sales.delta_pct.plan
   kpi_key: Net Sales % vs Plan
@@ -3621,6 +3661,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Net sales vs plan variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Net-sales-vs-plan is an internal budget-variance metric; the actual base is IFRS 15 revenue, the variance is convention.
 
 - kpi_id: sales.pvm.price_effect.amount
   kpi_key: Price Effect Amount
@@ -3669,6 +3715,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Management accounting (CIMA/IMA)
+    name: Sales price variance
+    alignment: partial
+    note: Price effect follows the managerial-accounting sales-price-variance convention (CIMA Official Terminology; IMA Statements on Management Accounting) — not a governed ISO/IFRS standard. Our formula (Δprice × actual quantity) is the standard convention; label it management-accounting variance analysis, not a financial-reporting standard.
 
 - kpi_id: sales.pvm.volume_effect.amount
   kpi_key: Volume Effect Amount
@@ -3713,6 +3764,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Management accounting (CIMA/IMA)
+    name: Sales volume variance
+    alignment: partial
+    note: 'Volume effect follows the sales-volume-variance convention. NOTE a real definitional variant: per-row (Δqty × plan unit price) collapses mix to zero, whereas the blended-plan-price basis makes mix material — pin which convention is used so price+volume+mix reconcile to total variance.'
 
 - kpi_id: sales.units
   kpi_key: Sales Units
@@ -3760,6 +3816,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Sales volume (units)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Sold units is a volume element underlying revenue; not an IFRS 15 figure itself (IFRS 15 measures the consideration, not the count).
 
 - kpi_id: people.digital_adoption.pct
   kpi_key: Digital Adoption Rate %
@@ -4816,6 +4878,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Trade-promotion spend
+    alignment: none
+    note: Promo cost / trade spend is a TPM concept, not an external-standard figure (though under IFRS 15 certain trade spend is a reduction of revenue rather than an expense — check classification).
 
 - kpi_id: sales.promo.incremental_gm.amount
   kpi_key: Incremental Gross Margin Amount
@@ -4876,6 +4943,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.9
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo incremental gross margin
+    alignment: none
+    note: Incremental promo GM is a TPM metric; the GM base ties to IFRS 15 revenue / IAS 2 COGS, but the incremental construct itself is convention, not a standard.
 
 - kpi_id: sales.promo.roi.pct
   kpi_key: Promo ROI %
@@ -4922,6 +4994,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.82
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo ROI
+    alignment: none
+    note: Promo ROI (incremental GM / promo cost) is a TPM convention; no governing standard.
 
 - kpi_id: margin.promo.gm.pct
   kpi_key: GM % During Promo
@@ -5069,6 +5146,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Cannibalized sales (proxy)
+    alignment: none
+    note: Cannibalized sales is a TPM concept, here a documented 15%-of-baseline proxy pending non-promo-segment actuals — a convention, not a standard.
 
 - kpi_id: sales.promo.cannibalization.pct
   kpi_key: Cannibalization %
@@ -5116,6 +5198,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo cannibalization
+    alignment: none
+    note: Cannibalization (cannibalized / uplift sales) is a TPM analytics concept, not standard-defined.
 
 - kpi_id: cost.material.pct
   synonyms:
@@ -5407,6 +5494,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo baseline sales
+    alignment: none
+    note: Baseline (non-promoted) sales is a trade-promotion-management analytics concept (uplift modelling), not defined by any external standard.
 
 - kpi_id: sales.promo.incremental.amount
   kpi_key: Incremental Sales Amount
@@ -5455,6 +5547,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo incremental/uplift sales
+    alignment: none
+    note: Incremental (promo − baseline) uplift is a TPM convention; no governing standard.
 
 - kpi_id: margin.cogs.pct
   synonyms:
@@ -6705,6 +6802,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Cross-sell rate
+    alignment: none
+    note: Cross-sell rate (multi-category transactions / total) is a retail/CRM analytics convention, not standard-defined.
 
 - kpi_id: retail.basket.items_per_transaction
   kpi_key: Items per Transaction
@@ -6744,6 +6846,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Units per transaction (UPT)
+    alignment: none
+    note: Items per transaction (UPT) is a retail-analytics convention; no governing standard.
 
 - kpi_id: retail.basket.value.average
   kpi_key: Average Basket Value
@@ -6784,6 +6891,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Average transaction value
+    alignment: none
+    note: Average basket value (net sales / transactions) is a standard retail KPI but a market convention, not a governed standard.
 
 - kpi_id: retail.promotion.attachment_rate.pct
   kpi_key: Promotion Attachment Rate %
@@ -6824,6 +6936,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Attachment rate
+    alignment: none
+    note: Promotion attachment rate is a retail merchandising-analytics convention; no external standard.
 
 - kpi_id: customer.rfm.frequency_score
   kpi_key: RFM Frequency Score
@@ -6863,4 +6980,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Marketing analytics — RFM (convention)
+    name: RFM frequency score
+    alignment: none
+    note: RFM (Recency-Frequency-Monetary) scoring is a long-standing direct-marketing segmentation model (Hughes/DMA lineage), a convention rather than a governed standard.
 ```

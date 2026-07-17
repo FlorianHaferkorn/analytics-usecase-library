@@ -41,3 +41,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Cannibalized sales (proxy)
+  alignment: none
+  note: Cannibalized sales is a TPM concept, here a documented 15%-of-baseline proxy pending non-promo-segment
+    actuals — a convention, not a standard.

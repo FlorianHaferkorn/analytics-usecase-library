@@ -41,3 +41,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Management accounting (CIMA/IMA)
+  name: Sales volume variance
+  alignment: partial
+  note: 'Volume effect follows the sales-volume-variance convention. NOTE a real definitional variant:
+    per-row (Δqty × plan unit price) collapses mix to zero, whereas the blended-plan-price basis makes
+    mix material — pin which convention is used so price+volume+mix reconcile to total variance.'

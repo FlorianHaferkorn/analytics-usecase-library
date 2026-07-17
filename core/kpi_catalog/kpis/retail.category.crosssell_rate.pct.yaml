@@ -37,3 +37,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 18.06.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Cross-sell rate
+  alignment: none
+  note: Cross-sell rate (multi-category transactions / total) is a retail/CRM analytics convention, not
+    standard-defined.

@@ -45,3 +45,8 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Promo incremental/uplift sales
+  alignment: none
+  note: Incremental (promo − baseline) uplift is a TPM convention; no governing standard.

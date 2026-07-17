@@ -44,3 +44,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: IFRS 15
+  name: Sales volume (units)
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: none
+  note: Sold units is a volume element underlying revenue; not an IFRS 15 figure itself (IFRS 15 measures
+    the consideration, not the count).

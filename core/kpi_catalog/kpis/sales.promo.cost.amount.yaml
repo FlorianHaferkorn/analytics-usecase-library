@@ -39,3 +39,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Trade-promotion spend
+  alignment: none
+  note: Promo cost / trade spend is a TPM concept, not an external-standard figure (though under IFRS
+    15 certain trade spend is a reduction of revenue rather than an expense — check classification).
