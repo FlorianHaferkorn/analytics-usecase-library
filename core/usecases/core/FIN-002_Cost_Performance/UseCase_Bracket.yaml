@@ -57,7 +57,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.cogs.pct
       visual_type: trend_line
-      message: COGS percentage trend over time.
+      message: COGS is rising as a share of sales, eroding margin quarter over quarter
       so_what: "At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response."
       unit: rate
     - slot_id: Main_2
@@ -71,6 +71,7 @@ ux_layout_rules:
       unit: rate
   page_2_execution:
     title: Finance / Operations Execution
+    decision_question: "Which cost lever — pricing, material, or productivity — should we pull first?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix

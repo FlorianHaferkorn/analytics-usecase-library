@@ -55,7 +55,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: res.occupancy.pct
       visual_type: trend_line
-      message: Resource occupancy trend over time.
+      message: Resource occupancy is running at sustained overload in a few teams
       so_what: "Sustained overload in those teams threatens the service-quality consistency the SLA depends on."
       unit: ratio
     - slot_id: Main_2
@@ -69,6 +69,7 @@ ux_layout_rules:
       unit: ratio
   page_2_execution:
     title: Workforce Balance & Execution
+    decision_question: "Where should we rebalance capacity to relieve overload without breaching SLA?"
     page_type: T3_Operational_Monitoring
     template_variant: T3_ProcessControl
     template_id: action_matrix

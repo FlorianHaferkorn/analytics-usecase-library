@@ -85,6 +85,13 @@ run_check "Boutique rubric BC-NARR-04 (hero KPI has context — advisory)" \
 run_check "KPI↔standard alignment integrity (standard_ref, --strict structural)" \
   python3 tooling/validation/check_standard_ref.py --strict
 
+# --- Use-case narrative & standards-grounding quality (base for reports) -
+# Use cases are the source the report/story generators read, so their quality caps the
+# deliverable's. Hard gate: every page states a decision_question, every 30s message is a
+# conclusion (not a chart label), every factsheet is standards-grounded on its strategic KPI.
+run_check "Use-case narrative & standards-grounding quality (--strict)" \
+  python3 tooling/validation/check_usecase_quality.py --strict
+
 # --- Boutique rubric: BC-CHART-10 evidence sort (K6, blocking) ----------
 # Knock-out rule, fully rolled out (2026-07-11): all 17 evidence tables declare a
 # governed worst-first sort + explicit Top-N. Hard gate (--strict) — 0 violations

@@ -68,7 +68,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: sales.net_sales.delta_pct.ly
       visual_type: line_chart
-      message: Net sales growth vs. last year, trended.
+      message: Net sales growth versus last year is softening quarter to quarter
       so_what: "A softening growth rate is the first sign the on-track story could reverse next quarter."
       unit: rate
     - slot_id: Main_2
@@ -80,7 +80,7 @@ ux_layout_rules:
       # (matches Main_1's 'rate' family).
       kpi_id: ops.otif.pct
       visual_type: bar_chart_horizontal
-      message: On-time-in-full delivery rate across the enterprise portfolio.
+      message: OTIF is uneven across the portfolio, flagging where delivery risk concentrates
       so_what: "A normalized index makes the strategic KPIs comparable, so attention goes to the biggest exposure."
       unit: rate
   page_2_execution:

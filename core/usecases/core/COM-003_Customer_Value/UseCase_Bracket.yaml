@@ -64,7 +64,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: crm.lifetime_revenue.amount
       visual_type: trend_line
-      message: Customer lifetime revenue trend over time.
+      message: Customer lifetime revenue is eroding, with the mid-tier segment driving the decline
       so_what: "Retention investment in the mid-tier segment is what stops the erosion before it compounds into lost revenue."
       unit: amount
     - slot_id: Main_2
@@ -75,7 +75,7 @@ ux_layout_rules:
       # Detail_Matrix as a supporting evidence column instead.
       kpi_id: crm.retention.pct
       visual_type: bar_chart
-      message: Customer retention rate over time.
+      message: Retention is slipping unevenly across segments, concentrating the CLV risk
       so_what: "Ranking retention by segment pinpoints where to spend before churn compounds into lost CLV."
       unit: rate
     - slot_id: Main_3
@@ -88,6 +88,7 @@ ux_layout_rules:
       unit: amount
   page_2_execution:
     title: Commercial / CustomerValue Execution
+    decision_question: "Which customer segments should retention investment protect first?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix

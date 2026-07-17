@@ -52,7 +52,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: supply.on_time.pct
       visual_type: trend_line
-      message: On-time delivery rate trend over time.
+      message: On-time delivery is the component dragging OTIF below target, not in-full
       so_what: "Because on-time performance is dragging OTIF down, carrier and lane-level fixes matter more than in-full stock buffers."
       unit: rate
     - slot_id: Main_2
@@ -68,6 +68,7 @@ ux_layout_rules:
       unit: rate
   page_2_execution:
     title: Supply Chain Execution
+    decision_question: "Which lanes and suppliers should the reliability push target first?"
     page_type: T3_Operational_Monitoring
     template_variant: T3_ExceptionQueue
     template_id: action_matrix

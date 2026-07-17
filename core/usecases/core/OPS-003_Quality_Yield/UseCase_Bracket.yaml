@@ -54,7 +54,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: quality.scrap.pct
       visual_type: trend_line
-      message: Scrap rate trend over time.
+      message: Rising scrap is concentrated on a couple of lines, not plant-wide
       so_what: "Containing the two lines driving the trend is faster than a plant-wide quality program."
       unit: rate
     - slot_id: Main_2
@@ -70,6 +70,7 @@ ux_layout_rules:
       unit: rate
   page_2_execution:
     title: Operations Execution
+    decision_question: "Which lines and defect modes should containment target first?"
     page_type: T3_Operational_Monitoring
     template_variant: T3_ProcessControl
     template_id: action_matrix

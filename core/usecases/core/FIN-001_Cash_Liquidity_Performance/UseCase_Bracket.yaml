@@ -67,7 +67,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: fin.cash.balance
       visual_type: trend_line
-      message: Cash balance trend over time.
+      message: Cash balance is drifting down toward its safety-margin threshold
       so_what: "Without working-capital intervention, this trend erodes the safety margin before quarter-end."
       unit: amount
     - slot_id: Main_2
@@ -78,7 +78,7 @@ ux_layout_rules:
       kpi_id: fin.cash.ocf
       comparison: vs_plan
       visual_type: waterfall
-      message: Operating cash flow over time.
+      message: Operating cash flow is trailing plan, driven by collections rather than cost
       so_what: "An OCF-versus-Plan gap points at collections and cash conversion, not cost control, as the fix."
       unit: amount
     - slot_id: Main_3
@@ -95,6 +95,7 @@ ux_layout_rules:
       unit: amount
   page_2_execution:
     title: Finance Execution
+    decision_question: "Which receivables and inventory levers will shorten the cash conversion cycle fastest?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix

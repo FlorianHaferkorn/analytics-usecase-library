@@ -67,6 +67,19 @@ deep dive (SCM-003); promo effects (COM-004).
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **OTIF %** (`supply.otif.pct`) → **SCOR-DS RL.1.1** (partial): OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation Accuracy (RL.2.3) and Perfect Condition (RL.2.4).
+- **On-Time %** (`supply.on_time.pct`) → **SCOR-DS RL.2.2** (partial): Reference date is unspecified in our definition; SCOR RL.2.2 measures against the customer COMMIT date, not the requested/scheduled date.
+- **In-Full %** (`supply.in_full.pct`) → **SCOR-DS RL.2.1** (partial): Grain differs: ours is delivery-level (in-full deliveries / total deliveries); SCOR RL.2.1 is order-level (% of orders delivered in full).
+- **Stockout Impact %** (`supply.stockout_impact.pct`) → **SCOR-DS** (none): Lost-demand share is a Plan/service-loss diagnostic, not a named SCOR metric.
+- **Penalty Amount** (`supply.penalty.amount`) → **SCOR-DS CO.1.1** (partial): Service-failure penalties are a cost component within SCOR's Cost attribute (CO.1.1), not a named standalone SCOR metric.
+- **Expedite Cost Amount** (`supply.expedite.amount`) → **SCOR-DS CO.1.1** (partial): Premium-freight / expedite is one cost component within SCOR CO.1.1 (Total SC Management Cost), not the whole metric.
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).

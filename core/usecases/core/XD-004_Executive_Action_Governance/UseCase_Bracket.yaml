@@ -120,7 +120,7 @@ ux_layout_rules:
     page_type: T1_Strategic_Overview
     template_variant: T1_Portfolio
     template_id: pulse
-    decision_question: \"Is the action governance cycle delivering verified business impact?"
+    decision_question: "Is the action governance cycle delivering verified business impact?"
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
       visual_type: kpi_card
@@ -137,6 +137,7 @@ ux_layout_rules:
         so_what: "Prioritising domains with the highest value at risk directs governance attention to where it matters most."
   page_2_execution:
     title: Executive Action Governance — Outcome Detail
+    decision_question: "Which action domains need governance intervention to convert into verified outcomes?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix

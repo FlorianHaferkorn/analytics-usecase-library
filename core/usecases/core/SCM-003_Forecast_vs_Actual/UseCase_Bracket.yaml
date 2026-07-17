@@ -52,7 +52,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: plan.forecast.mape.pct
       visual_type: trend_line
-      message: Forecast MAPE trend over time.
+      message: Forecast error is a systematic bias, not random noise
       so_what: "A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides."
       unit: rate
     - slot_id: Main_2
@@ -68,6 +68,7 @@ ux_layout_rules:
       unit: rate
   page_2_execution:
     title: Supply Chain / Planning Execution
+    decision_question: "Which SKU clusters need forecast-model recalibration versus manual override?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix

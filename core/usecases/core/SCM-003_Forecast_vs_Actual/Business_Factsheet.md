@@ -64,6 +64,18 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Forecast Accuracy %** (`plan.forecast.accuracy.pct`) → **SCOR-DS** (none): Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric.
+- **Forecast MAPE %** (`plan.forecast.mape.pct`) → **SCOR-DS** (none): As plan.forecast.accuracy.pct.
+- **Forecast Bias %** (`plan.forecast.bias.pct`) → **SCOR-DS** (none): As plan.forecast.accuracy.pct.
+- **Service Impact %** (`plan.forecast.service_impact.pct`) → **SCOR-DS** (none): Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance metric.
+- **Re-Plan Count** (`plan.replan.count`) → **SCOR-DS** (none): Re-plan count is a Plan-stability / nervousness diagnostic (S&OP), not a named SCOR metric.
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).

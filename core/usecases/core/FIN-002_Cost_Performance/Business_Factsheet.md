@@ -68,6 +68,21 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Unit Cost Amount** (`cost.unit.amount`) → **IFRS IAS 2** (none): Internal cost-accounting metric (total cost / units); no external financial-reporting standard.
+- **COGS % of Sales** (`margin.cogs.pct`) → **ESMA-APM** (partial): Inverse of the gross-margin ratio; same APM treatment.
+- **OpEx vs Plan %** (`cost.opex.vs_plan.pct`) → **IFRS IAS 1** (none): Internal budget-variance management metric; no external financial-reporting standard defines it.
+- **Material Cost %** (`cost.material.pct`) → **IFRS IAS 2** (none): Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure.
+- **Labor Productivity %** (`ops.labor.productivity.pct`) → **ISO 22400-2 WE** (partial): ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time.
+- **Production Volume Units** (`ops.production.volume`) → **ISO 22400-2** (partial): Produced-quantity sum is the ISO 22400-2 PQ element feeding Effectiveness, Quality ratio and Throughput rate; not a ratio KPI.
+- **Quality Defect Rate %** (`ops.quality.defect_rate.pct`) → **ISO 22400-2 QR** (partial): Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the standard into scrap ratio (SR) and rework ratio (RR).
+- **Yield %** (`ops.yield.pct`) → **ISO 22400-2 QR** (partial): 'Good units / total produced' duplicates ISO 22400-2 Quality ratio and overlaps First Pass Yield (FPY).
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).

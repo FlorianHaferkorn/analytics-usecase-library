@@ -52,7 +52,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: svc.backlog.count
       visual_type: trend_line
-      message: Case backlog trend over time.
+      message: Case backlog is building unchecked toward SLA breaches next cycle
       so_what: "An unchecked backlog trend converts into missed SLAs within the next reporting cycle."
       unit: count
     - slot_id: Main_2
@@ -63,6 +63,7 @@ ux_layout_rules:
       unit: ratio
   page_2_execution:
     title: Service Queue Recovery & Execution
+    decision_question: "Which case types and queues should recovery effort prioritise first?"
     page_type: T3_Operational_Monitoring
     template_variant: T3_ExceptionQueue
     template_id: action_matrix

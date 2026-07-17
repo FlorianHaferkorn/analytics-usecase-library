@@ -55,6 +55,16 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Action Outcome Rate %** (`enterprise.action_outcome_rate.pct`) → **Internal — ActionReady governance** (none): Action outcome rate (achieved / total action outcomes) is the ActionReady framework's own action-governance construct — no external standard defines it.
+- **Action Effectiveness Delta** (`enterprise.action_effectiveness_delta.amount`) → **Internal — ActionReady governance** (none): Average realised impact across achieved actions — the framework's own effectiveness measure.
+- **Enterprise Value-at-Risk Index** (`enterprise.value_at_risk.index`) → **Internal — ActionReady governance** (none): A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score.
+
+---
+
 ## 4. Action Codes (Summary)
 
 This use case subscribes to a single executive governance action that escalates delayed or ineffective action instances once lifecycle and outcome evidence is available.

@@ -66,6 +66,21 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Gross Margin %** (`margin.gm.pct`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
+- **Gross Margin % vs Plan** (`margin.gm.vs_plan.pct`) → **IFRS IAS 1** (none): Internal budget-variance metric; no external standard.
+- **Price Realization %** (`sales.price.realization_pct`) → **IFRS 15** (none): Price realization (net/list) is a management pricing metric, not IFRS-defined.
+- **Gross Margin Amount** (`margin.gm.amount`) → **IFRS IAS 1** (partial): Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated line item.
+- **List Price Amount** (`sales.price.list.amount`) → **IFRS 15** (none): List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected).
+- **Net Price Amount** (`sales.price.net.amount`) → **IFRS 15** (partial): Net price is the IFRS 15 transaction price after trade discounts and variable consideration.
+- **Mix Effect Amount** (`sales.pvm.mix_effect.amount`) → **Management accounting (CIMA/IMA)** (partial): Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition.
+- **COGS per Unit** (`cost.cogs_per_unit.amount`) → **IFRS IAS 2** (none): Internal cost-accounting metric.
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).

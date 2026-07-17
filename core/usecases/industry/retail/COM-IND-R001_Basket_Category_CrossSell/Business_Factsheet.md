@@ -61,6 +61,18 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Category Cross-Sell Rate %** (`retail.category.crosssell_rate.pct`) → **Retail analytics (convention)** (none): Cross-sell rate (multi-category transactions / total) is a retail/CRM analytics convention, not standard-defined.
+- **Items per Transaction** (`retail.basket.items_per_transaction`) → **Retail analytics (convention)** (none): Items per transaction (UPT) is a retail-analytics convention.
+- **Average Basket Value** (`retail.basket.value.average`) → **Retail analytics (convention)** (none): Average basket value (net sales / transactions) is a standard retail KPI but a market convention, not a governed standard.
+- **Promotion Attachment Rate %** (`retail.promotion.attachment_rate.pct`) → **Retail analytics (convention)** (none): Promotion attachment rate is a retail merchandising-analytics convention.
+- **RFM Frequency Score** (`customer.rfm.frequency_score`) → **Marketing analytics — RFM (convention)** (none): RFM (Recency-Frequency-Monetary) scoring is a long-standing direct-marketing segmentation model (Hughes/DMA lineage), a convention rather than a governed standard.
+
+---
+
 ## 4. Action Codes (Summary)
 
 **C-M3.1 — Category Cross-Sell & Basket Optimization**

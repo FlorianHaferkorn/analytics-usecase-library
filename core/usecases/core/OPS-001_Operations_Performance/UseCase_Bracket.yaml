@@ -69,7 +69,7 @@ ux_layout_rules:
       kpi_id: ops.oee.pct
       visual_type: line_chart
       comparison: vs_target
-      message: OEE trend vs. target.
+      message: OEE is running below target and the gap is widening week over week
       so_what: "A widening OEE gap this close to target compounds into missed output if maintenance action doesn't land now."
       unit: ratio
     - slot_id: Main_2
@@ -77,7 +77,7 @@ ux_layout_rules:
       kpi_id: ops.availability.pct
       visual_type: line_chart
       comparison: vs_target
-      message: Equipment availability trend vs. target.
+      message: Availability is the component pulling OEE below target, not performance or quality
       so_what: "Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks."
       unit: rate
     - slot_id: Main_3

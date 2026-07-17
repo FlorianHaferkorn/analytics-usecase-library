@@ -45,7 +45,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: retail.basket.value.average
       visual_type: trend_line
-      message: Average basket value trend over time.
+      message: Average basket value is flat, confirming the cross-sell stall is reaching revenue per visit
       so_what: "A flat basket value confirms the cross-sell stall is already showing up in revenue per visit."
       unit: amount
     - slot_id: Main_2
@@ -53,7 +53,7 @@ ux_layout_rules:
       - retail.category.crosssell_rate.pct
       - retail.promotion.attachment_rate.pct
       visual_type: bar_chart
-      message: Category cross-sell rate and promotion attachment rate.
+      message: Cross-sell and promotion attachment are falling short together, pointing at activation not assortment
       so_what: "Two related levers falling short together means the fix is activation, not assortment."
       unit: rate
     - slot_id: Main_3
@@ -65,6 +65,7 @@ ux_layout_rules:
       unit: ratio
   page_2_execution:
     title: Retail / Basket & Cross-Sell Execution
+    decision_question: "Which category pairs and stores should cross-sell activation target first?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix

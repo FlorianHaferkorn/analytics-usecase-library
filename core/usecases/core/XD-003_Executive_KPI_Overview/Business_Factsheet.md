@@ -69,6 +69,22 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Enterprise Value-at-Risk Index** (`enterprise.value_at_risk.index`) → **Internal — ActionReady governance** (none): A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score.
+- **Gross Margin %** (`margin.gm.pct`) → **ESMA-APM** (partial): A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM.
+- **Delta% Net Sales** (`sales.net_sales.delta_pct.ly`) → **IFRS 15** (none): Year-over-year growth is a management trend metric.
+- **CLV (Customer Lifetime Value)** (`crm.clv.amount`) → **Marketing analytics — CRM (convention)** (none): CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard.
+- **SLA Attainment %** (`svc.sla.attainment.pct`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
+- **OTIF %** (`ops.otif.pct`) → **SCOR-DS RL.1.1** (partial): Same 2-of-4 gap as supply.otif.pct.
+- **Cash Conversion Cycle (Days)** (`ops.working_capital.ccc.days`) → **SCOR-DS AM.1.1** (partial): Same CCC concept as SCOR AM.1.1 but computed from fixed-ratio Net Sales/COGS proxies (Experience-domain executive view where the receivables/inventory/payables facts are unavailable).
+- **Digital Adoption Rate %** (`people.digital_adoption.pct`) → **ISO 30414** (none): Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management metric, not part of ISO 30414's human-capital areas.
+- **Attrition Risk %** (`people.attrition_risk.pct`) → **ISO 30414** (partial): ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics.
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).
