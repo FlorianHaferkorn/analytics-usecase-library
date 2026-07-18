@@ -78,10 +78,9 @@ Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role*
 
 > **Optionaler Scale-Swap (OpenFGA — nur falls je nötig, kein Muss):** die Artefakte [`../../../studio/docker-compose.yml`](../../../studio/docker-compose.yml) + [`../../../studio/src/lib/authz/model.fga`](../../../studio/src/lib/authz/model.fga) liegen bereit; ein künftiges `fga`-Backend implementiert dieselbe `checkAccess`-Signatur via Engine-`check()`, reuse [`authz-fga-cases.json`](authz-fga-cases.json). Erfordert Docker/Binary → nur in einer Umgebung, wo das compliance-seitig ok ist.
 
-### T4 — Migration der bestehenden RBAC-Daten · depends-on: T3
-- **Z:** `project_members`/`org_members` sind als Relation-Tuples in der Engine, ohne Datenverlust, mit Dual-Write-Übergang.
-- T4.1 Backfill-Skript `SQLite-Zeilen → Relation-Tuples` · **DoD:** Roundtrip-Test (jede Zeile → Tuple → gleiche `check()`-Antwort) · role: `codegen`
-- T4.2 Dual-Write-/Umschalt-Strategie + Rollback · **DoD:** dokumentierter Cutover, Solo-Modus (org_id NULL) byte-identisch · role: `architect`
+### T4 — Migration der bestehenden RBAC-Daten · depends-on: T3 · **🅿️ HINFÄLLIG für den in-process-Pfad**
+- **Grund (T3-Pivot):** der in-process Evaluator liest `project_members`/`org_members` **direkt** aus SQLite — es gibt **keinen Tupel-Store**, in den migriert werden müsste. Damit entfällt T4 im gewählten Pfad vollständig.
+- **Nur relevant, falls** ihr je auf die OpenFGA-*Engine* swappt (Scale) — dann Backfill `SQLite-Zeilen → Relation-Tuples` + Roundtrip gegen `authz-fga-cases.json`. Bis dahin geparkt, kein offener Aufwand.
 
 ### T5 — AuthN · depends-on: T0 · **Weg C ✅ (2026-07-15), Magic-Link (A) aufgeschoben**
 - **Z:** Login ist compliance-konform by default; die produktive Methode ist entschieden/dokumentiert.
@@ -98,10 +97,10 @@ Legende: **Z** = Zielbild · **DoD** = der Check, der grün sein muss · **role*
 - **Z:** Entscheidung lokal-SQLite vs. gehosteter Shared-Server; falls gehostet, Isolationsprimitive (`tenant_id`/RLS).
 - T7.1 Topologie-Entscheidung dokumentieren (verweist auf ADR-0014 O-5) · **DoD:** Topologie in ADR-0016/0014 festgehalten; falls gehostet, `tenant_id`/RLS-Plan · role: `architect` *(Kundenkontext nötig → bewusst-offen bis dahin)*
 
-### T8 — Tests, Doku-Konsistenz, Ledger · depends-on: T3–T5
+### T8 — Tests, Doku-Konsistenz, Ledger · depends-on: T3–T5 · ✅ **ERLEDIGT (2026-07-15)**
 - **Z:** Auth ist test-abgesichert und die Register sind konsistent.
-- T8.1 AuthZ-Test-Suite (positive/negative/Break-Glass) · **DoD:** `pytest`/`vitest` grün · role: `codegen`
-- T8.2 ADR-0016-Status + Ledger A-14 nachziehen; `_INDEX.md` bei neuen Dateien registrieren · **DoD:** `check_index.py --strict` grün · role: `mechanical`
+- T8.1 ✅ AuthZ-Test-Suite: `studio/tests/lib/rebac-eval.test.ts` (9 Fälle inkl. Break-Glass) grün + Parität `local`↔`rebac` über die Bestandssuite (410/410 unter beiden Backends). · role: `codegen`
+- T8.2 ✅ ADR-0016-Status (Accepted + Präzisierung) + Ledger A-14 nachgezogen; alle neuen `.md` registriert; `check_index.py --strict` grün. · role: `mechanical`
 
 ---
 
