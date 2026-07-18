@@ -50,6 +50,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: plan.forecast.mape.pct
       visual_type: trend_line
+      question: "Is forecast error random noise or a systematic bias?"
       message: Forecast error is a systematic bias, not random noise
       so_what: "A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides."
       unit: rate
@@ -61,6 +62,7 @@ ux_layout_rules:
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct
       visual_type: bar_chart
+      question: "What are the forecast-quality signals, and where do they hurt service?"
       message: Forecast bias and downstream service impact — the two forecast-quality signals.
       so_what: "Ranking bias by SKU cluster isolates where a model recalibration removes most of the replanning load."
       unit: rate

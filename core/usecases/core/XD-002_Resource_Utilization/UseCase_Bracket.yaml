@@ -55,6 +55,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: res.occupancy.pct
       visual_type: trend_line
+      question: "Is resource utilization sustainable, or are teams overloaded?"
       message: Resource occupancy is running at sustained overload in a few teams
       so_what: "Sustained overload in those teams threatens the service-quality consistency the SLA depends on."
       unit: ratio
@@ -64,6 +65,7 @@ ux_layout_rules:
       - res.overtime.pct
       - res.shrinkage.pct
       visual_type: bar_chart
+      question: "What are utilization's quality trade-offs?"
       message: SLA attainment, overtime, and shrinkage — utilization's three quality trade-offs.
       so_what: "Overtime absorbing the gap today is not sustainable — it is the early signal of the capacity shortfall to come."
       unit: ratio

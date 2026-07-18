@@ -284,6 +284,11 @@
                     "maxLength": 200,
                     "description": "The implication of this exhibit's message — the next link in the signal→reason→implication→action chain (Boutique rubric BC-NARR-03). Optional."
                   },
+                  "question": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "description": "The storyline question this visual answers (the `message` is its answer). Makes 'each visual answers a question of the page's decision' first-class — the per-visual questions ladder up to the page's decision_question and the page-1→page-2 handoff, derived by tooling/storyline/derive_storyline.py and governed by tooling/validation/check_storyline.py. Optional."
+                  },
                   "action_code_id": {
                     "type": "string",
                     "description": "Governed action code this exhibit points to (Golden Thread — must exist in core/action_codes/ and be listed in orchestration.action_code_ids). Optional; closes the so-what→action link."

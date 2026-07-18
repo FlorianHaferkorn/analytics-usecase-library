@@ -57,6 +57,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: sales.promo.incremental.amount
       visual_type: trend_line
+      question: "Are promotions generating enough incremental lift to justify the spend?"
       message: Incremental promo lift is running too low to justify the spend behind it
       so_what: "If incremental lift stays this low, promo spend is subsidising sales that would have happened anyway."
       unit: amount
@@ -66,6 +67,7 @@ ux_layout_rules:
       # sales.promo.cannibalization.pct moved to the Detail_Matrix instead.
       kpi_id: margin.promo.gm.pct
       visual_type: bar_chart
+      question: "Why is promo ROI missing target?"
       message: Thin promo margins are being eroded by cannibalization, pulling ROI below target
       so_what: "High cannibalization eating into thin promo margin is why ROI is missing target — mechanics need redesign, not more spend."
       unit: ratio

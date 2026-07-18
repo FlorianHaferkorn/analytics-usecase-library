@@ -72,6 +72,7 @@ ux_layout_rules:
       # grain for this specific trend -- explicit override, not a global default
       # change (COM-001 stays on the monthly default, unaffected).
       category_field: dim_date.Date
+      question: "Is gross margin holding against plan?"
       message: Gross margin has been sliding below plan through the period
       so_what: "The erosion compounds month over month — a trend, not a one-off dip."
       unit: amount
@@ -98,6 +99,7 @@ ux_layout_rules:
       comparison: vs_plan
       category_field: dim_pvm_driver.Driver
       kpi_id: PVM Bridge Value
+      question: "What's pulling gross margin below plan — price, mix, or volume?"
       message: Price concessions and adverse mix drive gross margin below plan, not volume
       so_what: "The levers are commercial — price discipline and mix — not demand generation."
       unit: amount
@@ -112,6 +114,7 @@ ux_layout_rules:
       # evidence columns (R1.3). PBIR: Main_3/visual.json (Golden Thread — must not drift).
       kpi_id: margin.gm.pct
       visual_type: bar_chart
+      question: "Is the margin shortfall portfolio-wide or concentrated in a few units?"
       message: Gross margin sits below target in a few business units that drag the portfolio
       so_what: "Focused intervention in those units beats a broad, thinly-spread program."
       unit: ratio

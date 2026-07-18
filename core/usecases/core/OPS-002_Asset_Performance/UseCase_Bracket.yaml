@@ -55,6 +55,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: ops.availability.pct
       visual_type: trend_line
+      question: "Is asset availability sufficient to hold the production plan?"
       message: Asset availability is trending toward the threshold needed to hold the production plan
       so_what: "At this trajectory, availability drops below the threshold needed to hold the production plan."
       unit: rate
@@ -66,6 +67,7 @@ ux_layout_rules:
       - ops.downtime.unplanned.pct
       - ops.spare_parts.stockout.pct
       visual_type: bar_chart
+      question: "What are the leading failure-risk signals?"
       message: Unplanned downtime and spare-parts stockout — the two leading failure-risk signals.
       so_what: "Ranking downtime by asset targets maintenance effort where it protects the production plan most."
       unit: rate

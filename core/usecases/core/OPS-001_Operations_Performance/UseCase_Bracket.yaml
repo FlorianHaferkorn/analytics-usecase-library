@@ -69,6 +69,7 @@ ux_layout_rules:
       kpi_id: ops.oee.pct
       visual_type: line_chart
       comparison: vs_target
+      question: "Is OEE on target, and is the gap closing or widening?"
       message: OEE is running below target and the gap is widening week over week
       so_what: "A widening OEE gap this close to target compounds into missed output if maintenance action doesn't land now."
       unit: ratio
@@ -77,6 +78,7 @@ ux_layout_rules:
       kpi_id: ops.availability.pct
       visual_type: line_chart
       comparison: vs_target
+      question: "Which OEE component is the biggest loss — availability, performance, or quality?"
       message: Availability is the component pulling OEE below target, not performance or quality
       so_what: "Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks."
       unit: rate
@@ -87,6 +89,7 @@ ux_layout_rules:
       - ops.performance.pct
       - ops.quality.pct
       visual_type: bar_chart_horizontal
+      question: "How does the OEE gap break down across its three components?"
       message: Availability, performance, and quality — the three OEE components.
       so_what: "Prioritising availability fixes addresses the largest single component of the OEE shortfall."
       unit: rate

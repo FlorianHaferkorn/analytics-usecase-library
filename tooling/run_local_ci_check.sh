@@ -92,6 +92,13 @@ run_check "KPI↔standard alignment integrity (standard_ref, --strict structural
 run_check "Use-case narrative & standards-grounding quality (--strict)" \
   python3 tooling/validation/check_usecase_quality.py --strict
 
+# --- Use-case storyline structure (deriver base for reports/stories) -----
+# The storyline (derive_storyline.py) is what the report/story generators render. Hard gate:
+# every page has a decision spine, every 30s visual answers a stated `question`, page-1→page-2
+# handoff holds, and the generated docs/architecture/use_case_storylines.md stays in sync.
+run_check "Use-case storyline structure + storyboard in sync (--strict)" \
+  python3 tooling/validation/check_storyline.py --strict
+
 # --- Boutique rubric: BC-CHART-10 evidence sort (K6, blocking) ----------
 # Knock-out rule, fully rolled out (2026-07-11): all 17 evidence tables declare a
 # governed worst-first sort + explicit Top-N. Hard gate (--strict) — 0 violations

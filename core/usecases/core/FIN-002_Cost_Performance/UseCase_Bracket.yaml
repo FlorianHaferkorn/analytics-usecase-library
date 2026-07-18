@@ -60,6 +60,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: margin.cogs.pct
       visual_type: trend_line
+      question: "Is input cost being recovered, or is it eroding margin?"
       message: COGS is rising as a share of sales, eroding margin quarter over quarter
       so_what: "At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response."
       unit: rate
@@ -69,6 +70,7 @@ ux_layout_rules:
       - cost.material.pct
       - ops.labor.productivity.pct
       visual_type: bar_chart
+      question: "Which levers drive unit cost — opex, material, or productivity?"
       message: Opex variance, material cost, and labor productivity — the three levers behind unit cost.
       so_what: "Productivity gains aren't offsetting material inflation, so cost pressure keeps building on the P&L."
       unit: rate
