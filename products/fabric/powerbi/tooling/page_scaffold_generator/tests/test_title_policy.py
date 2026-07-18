@@ -7,6 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from page_scaffold_generator.title_policy import EXPECTED_PREFIX, resolve_header, title_context_safe
+from tooling.reporting.title_policy import title_contract
 
 Q = "Is the coverage gap a volume problem or a conversion problem?"
 M = "Win rate is dragging coverage below plan, not a shortage of open opportunities"
@@ -75,3 +76,28 @@ def test_static_verified_statement_leads_unguarded():
     # it may lead even if it names a locus (preserves existing IBCS-authored report titles).
     m = "Margin is concentrated in a few business units"
     assert resolve_header("Q?", m, value_verified=True) == (m, None)
+
+
+# --- uniform title contract (one logic, all tools) ------------------------------------------------
+
+DESC, Q, V = "Stage Conversion %, last 12 months", "Where does conversion leak?", "Conversion leaks at mid-stage"
+
+
+def test_contract_title_and_subtitle_are_uniform():
+    # title = WHAT is shown; subtitle = the question — identical regardless of tool/verdict slot
+    for kwargs in ({}, {"verdict_verified": True}, {"verdict_verified": True, "tool_live_compute": True}):
+        c = title_contract(DESC, Q, V, **kwargs)
+        assert c["title"] == DESC and c["subtitle"] == Q
+
+
+def test_contract_verdict_render_by_capability():
+    # not verified → the verdict is shown nowhere (never fabricated)
+    assert title_contract(DESC, Q, V)["verdict_render"] == "omit"
+    # verified, static tool (PBI) → KPI status/colour, not the title
+    assert title_contract(DESC, Q, V, verdict_verified=True)["verdict_render"] == "kpi_status"
+    # verified, live tool, but a Top-N/local claim → annotation, never the title
+    assert title_contract(DESC, Q, V, verdict_verified=True, tool_live_compute=True)["verdict_render"] == "annotation"
+    # verified, live tool, context-safe scalar → full IBCS: the verdict may lead as the title
+    scalar = "EBITDA margin is 1.8 pp below plan"
+    assert title_contract(DESC, Q, scalar, verdict_verified=True,
+                          tool_live_compute=True)["verdict_render"] == "statement_title"

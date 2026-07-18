@@ -52,6 +52,39 @@ def title_context_safe(text: Optional[str]) -> bool:
     return _LOCAL_FILTER_CLAIM.search(t) is None
 
 
+def title_contract(descriptor: Optional[str], question: Optional[str], verdict: Optional[str],
+                   *, verdict_verified: bool = False, tool_live_compute: bool = False,
+                   context_safe: Optional[bool] = None) -> dict:
+    """The ONE uniform title logic for EVERY viz tool. The logic is identical on Power BI, Databricks
+    AI/BI, React — only the *render slot* of the verdict differs, never the rule. Three roles:
+
+      • title    = ``descriptor`` — a true, data-independent statement of WHAT the visual shows
+                   ("Stage Conversion %, last 12 months"). Same on every tool; can never lie.
+      • subtitle = the governed ``question`` the visual answers — the interpretation aid.
+      • verdict  = the governed message / Einordnung — a SEPARATE element, rendered only where the tool
+                   can honestly support it, promoted toward an IBCS statement *as far as the tool allows*:
+                     'statement_title' — verified AND context-safe AND live/scalar → the verdict may
+                                          itself lead as the title (full IBCS);
+                     'annotation'      — verified + live tool, not title-safe → callout at the mark;
+                     'kpi_status'      — verified, static tool → KPI value + semantic colour;
+                     'omit'            — not verified → shown nowhere (never fabricated; the user reads).
+
+    Returns {title, subtitle, verdict, verdict_render}."""
+    safe = title_context_safe(verdict) if context_safe is None else context_safe
+    if not verdict or not verdict_verified:
+        render = "omit"
+    elif tool_live_compute and safe:
+        render = "statement_title"
+    elif tool_live_compute:
+        render = "annotation"
+    else:
+        render = "kpi_status"
+    return {"title": (descriptor or "").strip() or None,
+            "subtitle": (question or "").strip() or None,
+            "verdict": (verdict or "").strip() or None,
+            "verdict_render": render}
+
+
 def resolve_header(
     question: Optional[str],
     message: Optional[str],
