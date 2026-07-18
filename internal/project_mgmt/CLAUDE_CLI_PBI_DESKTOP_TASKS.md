@@ -63,10 +63,14 @@ This doc is the pickup brief for those tasks. A ready-to-paste **prompt is at th
 
 ---
 
-## Current task: physical KPI de-duplication (Desktop-gated)
+## ✅ DONE (merged in PR #390): physical KPI de-duplication
 
-**Full technical spec:** [`KPI_DEDUP_MIGRATION_RUNBOOK.md`](KPI_DEDUP_MIGRATION_RUNBOOK.md) — follow it
-exactly. Summary so the CLI session has context:
+This task is **complete** — executed via the CLI, Desktop-validated, and merged to `main` in PR #390
+(catalog 127→119). Kept below as the reference example of the workflow. The **active** tasks are #2/#3
+in the "Follow-up tasks" section further down; use the prompt at the very bottom of this file.
+
+**Full technical spec (historical):** [`KPI_DEDUP_MIGRATION_RUNBOOK.md`](KPI_DEDUP_MIGRATION_RUNBOOK.md).
+Summary of what was done:
 
 - The SSOT dedup is **already done** (each twin KPI has a `canonical_kpi_id` pointer;
   `tooling/validation/check_standard_ref.py` reports the duplicate sets). This task does the **physical**
@@ -128,4 +132,99 @@ model id in any pushed artifact; do not co-brand ALUCA with Meridian.
 
 Start by pulling latest, reading the four docs, and printing the twin→canonical plan with the exact
 files you'll touch for the first twin before editing.
+```
+
+---
+
+## Follow-up tasks after PR #390 merge (#2 data-gap, #2b $schema lint, #3 checker)
+
+PR #390 is merged to `main`. These are **new** work → branch fresh from `main`
+(`git fetch origin main && git checkout -B claude/report-quality-roadmap-m997dz origin/main`)
+and open a **new** PR. All three are Desktop/Fabric-gated (that's why they're here, not done on Linux).
+
+### #2 — Source quality data into the Finance model (decided: "source the data")
+FIN-002 (Cost Performance) shows `Quality % (FIN)` and `Quality Defect Rate %` as unit-cost drivers,
+but their Finance measures reference tables the Finance model lacks — **dangling refs, broken columns**:
+- `Quality % (FIN)` = `DIVIDE(SUM(fact_ops[Good Units]), SUM(fact_ops[Output Units]))` — `fact_ops` absent.
+- `Quality Defect Rate %` = `DIVIDE(SUM(fact_quality[Defect Count]), SUM(fact_ops[Output Units]))` —
+  `fact_quality` + `fact_ops` absent.
+- (`Throughput Units (FIN)` is already correct on `fact_output` — leave it.)
+
+Fix = give the Finance model the data (mirror how the Operations model sources it):
+1. **Contract** `core/data_contracts/domains/finance.yaml`, table `fact_output` (grain
+   plant_line_product_month): add `- {name: Good Units, type: decimal, agg: sum}` and
+   `- {name: Defect Count, type: decimal, agg: sum}`; add `quality_rules` (Good Units ≤ Output Units;
+   both ≥ 0; Defect Count ≥ 0).
+2. **Semantic model** `Finance.SemanticModel`: add the two columns to `fact_output.tmdl`
+   (mirror the existing `column 'Output Units'` block — `summarizeBy`, `sourceColumn`), and repoint the
+   two measures in `_Measures.tmdl` off `fact_ops`/`fact_quality` onto `fact_output`:
+   `Quality % (FIN)` → `DIVIDE(SUM(fact_output[Good Units]), SUM(fact_output[Output Units]))`;
+   `Quality Defect Rate %` → `DIVIDE(SUM(fact_output[Defect Count]), SUM(fact_output[Output Units]))`.
+   Drop the `/// NOTE: fact_ops … Finance model lacks it` comments.
+3. **Seed data** — the crux: regenerate the Finance gold-layer `fact_output` (parquet + `_delta_log`)
+   with the two new columns populated realistically (Good Units ≈ 0.96–0.99 × Output Units;
+   Defect Count ≈ 0.01–0.04 × Output Units). Use the synthetic generator, not a hand-edit; verify with
+   `scripts/check_showcase_delta.py`. Declaring the columns WITHOUT populating the parquet guarantees
+   the columnless/`get_Islands` crash (KNOWN_ERRORS) — do them together.
+4. **Generator** — update the Finance `fact_output` synthesizer so future regens emit the columns.
+5. **Regenerate + validate**: goldens for FIN-002, catalog/ontology; `run_local_ci_check.sh`;
+   **open Finance.SemanticModel + FIN-002 report in Desktop** and confirm both quality columns compute
+   (non-blank) and the model loads clean.
+
+### #2b — Pre-existing `$schema` PBIR lint (2 errors, identical on all 16 reports)
+Fabric/`fab-inspector`-gated (no runnable validator on Linux). Run the report `$schema` validator
+(`fab-inspector` / `powerbi-report-author validate`), read the 2 errors, fix at the source (likely a
+stale/incorrect `$schema` URL or a missing required property in each `report.json`/`definition.pbir`),
+and re-validate. 0-new from the dedup, so this is cleanup — batch the identical fix across all 16.
+
+### #3 — Report measure-resolution check (close the validator gap)
+`validate_bindings.py` checks projection structure only; nothing verifies a report's
+`nativeQueryRef` resolves to a `measure '<name>'` in the model named by `definition.pbir →
+datasetReference.byPath.path`. Build that check, BUT calibrate for PBIR `nativeQueryRef` being a
+**display alias** that can differ from the defined measure name (e.g. reports bind `OTIF %` while the
+Experience model defines `OTIF % (XD)`) — resolve via the actual measure entity reference in the
+projection, not the alias string. Confirm it's green on the current dist in Desktop before wiring
+`--strict` into `run_local_ci_check.sh`; run advisory first (BC-NARR→BC-CHART ratchet pattern).
+
+---
+
+## Prompt for the ACTIVE follow-up tasks (#2 + #3) — paste into the Claude CLI (VS Code, Windows)
+
+```
+You are running in the Claude CLI in VS Code on a Windows dev box with Power BI Desktop, the Fabric
+CLI, and the MCP servers (Microsoft Learn, GitHub). Repo: analytics-usecase-library.
+
+PR #390 (KPI standards program + use-case quality + KPI de-duplication) is already MERGED to main.
+These are NEW tasks — branch fresh from main and open a NEW PR:
+    git fetch origin main && git checkout -B claude/report-quality-roadmap-m997dz origin/main
+
+Read first: CLAUDE.md, AGENTS.md, and internal/project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md
+(the "Follow-up tasks after PR #390 merge" section has the exact per-surface steps for all three).
+
+Do these three, each Desktop/Fabric-gated, one at a time with a Power BI Desktop load-check before commit:
+
+#2 — Source quality data into the Finance model (decision already taken: "source the data", not remove).
+  FIN-002's Quality % (FIN) and Quality Defect Rate % reference fact_ops/fact_quality, which the Finance
+  model lacks → broken columns. Add Good Units + Defect Count to Finance fact_output (contract +
+  fact_output.tmdl + REGENERATE the gold-layer parquet/_delta_log via the synthetic generator, populated
+  realistically), repoint the two measures off fact_ops/fact_quality onto fact_output, regenerate goldens,
+  and confirm in Desktop that both quality columns compute non-blank and the model loads clean. Declaring
+  the columns without regenerating the seed data WILL cause the columnless/get_Islands crash — do them
+  together.
+
+#2b — Fix the pre-existing $schema PBIR lint (2 identical errors on all 16 reports) via fab-inspector /
+  powerbi-report-author validate; batch the same fix across all reports; re-validate.
+
+#3 — Build a report measure-resolution check (every report nativeQueryRef must resolve to a measure in
+  the model its definition.pbir points at), calibrated for nativeQueryRef being a display alias that can
+  differ from the defined name (resolve via the projection's real measure entity, not the alias). Run it
+  advisory first, confirm green on current dist in Desktop, then wire --strict into run_local_ci_check.sh.
+
+For each: run bash tooling/run_local_ci_check.sh plus the Windows tooling/run_stage1_checks.ps1 and
+tooling/quality/run_quality_gate.ps1; respect the non-bypassable TMDL/PBIR hooks (fix, never bypass);
+fab config set mode command_line before non-interactive fab; use the Microsoft Learn MCP for PBIR/TMDL/DAX
+detail. Commit footer: Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com> + your own Claude-Session
+line. No model id in pushed artifacts; no ALUCA/Meridian co-branding. Push to the branch and open a NEW
+draft PR (do NOT reuse #390 — it is merged). Start by branching from main, reading the docs, and printing
+your plan + exact files for #2 before editing.
 ```
