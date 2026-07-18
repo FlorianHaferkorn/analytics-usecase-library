@@ -13,9 +13,10 @@
 
 import { getDb } from '@/lib/db/sqlite';
 import { getOrgMember } from '@/lib/db/org-repo';
+import { getProject } from '@/lib/db/project-repo';
 import type { ProjectMember, ProjectRole } from '@/lib/auth/rbac-types';
 import { roleAtLeast } from '@/lib/auth/rbac-types';
-import { effectiveRole, type AuthzFacts } from './rebac-eval';
+import { effectiveRole } from './rebac-eval';
 
 /** Resolve access for (project, user) via the in-process ReBAC model.
  * Mirrors rbac-repo.ts::checkAccess's contract exactly. */
@@ -24,33 +25,25 @@ export function checkAccessReBAC(
   userId: string,
   minRole: ProjectRole,
 ): ProjectMember | undefined {
-  const db = getDb();
-
-  const project = db
-    .prepare('SELECT org_id FROM projects WHERE id = ?')
-    .get(projectId) as { org_id: string | null } | undefined;
-  const explicit = db
+  // Stage 1 — an explicit project_members row decides on its own (override, no merge);
+  // the org is irrelevant, so skip the org lookups entirely in that case. Raw SQL here
+  // (not getProjectMember) deliberately avoids an import cycle rbac-repo <-> rebac-backend.
+  const explicit = getDb()
     .prepare('SELECT role, created_at FROM project_members WHERE user_id = ? AND project_id = ?')
     .get(userId, projectId) as { role: ProjectRole; created_at: string } | undefined;
+  if (explicit) {
+    if (!roleAtLeast(explicit.role, minRole)) return undefined;
+    return { user_id: userId, project_id: projectId, role: explicit.role, created_at: explicit.created_at };
+  }
 
-  const orgId = project?.org_id ?? null;
+  // Stage 2 — no explicit row: org-derived fallback, only when the project belongs to
+  // an org the user is a member of. The model (rebac-eval) resolves the fallback level
+  // (owner/admin -> admin, member -> viewer, no editor path).
+  const orgId = getProject(projectId)?.org_id ?? null;
   const orgMember = orgId ? getOrgMember(orgId, userId) : undefined;
+  if (!orgMember) return undefined;
 
-  const facts: AuthzFacts = {
-    projectHasOrg: orgId !== null,
-    orgRole: orgMember?.org_role ?? null,
-    projectExplicit: explicit?.role ?? null,
-  };
-
-  const role = effectiveRole(facts);
+  const role = effectiveRole({ projectHasOrg: true, orgRole: orgMember.org_role, projectExplicit: null });
   if (role === null || !roleAtLeast(role, minRole)) return undefined;
-
-  // Same shape as the local path: a real row's created_at when explicit, else the
-  // org membership's (synthetic fallback, as resolveOrgFallbackAccess does).
-  return {
-    user_id: userId,
-    project_id: projectId,
-    role,
-    created_at: explicit?.created_at ?? orgMember?.created_at ?? '',
-  };
+  return { user_id: userId, project_id: projectId, role, created_at: orgMember.created_at };
 }

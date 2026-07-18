@@ -72,9 +72,15 @@ export function checkAccess(
   // AUTHZ_BACKEND selects the resolver. Default 'local' = the imperative path below
   // (unchanged). 'rebac' delegates to the in-process declarative model evaluator
   // (ADR-0016 Option A, self-hosted, no engine). Both are behaviour-equivalent —
-  // pinned by tests/lib/rebac-eval.test.ts against authz-fga-cases.json.
-  if (process.env.AUTHZ_BACKEND === 'rebac') {
+  // pinned by tests/lib/rebac-backend.test.ts against the ADR-0014 case matrix.
+  // Fail LOUD on any other value: a typo must not silently run a different authz
+  // backend than the operator configured.
+  const backend = process.env.AUTHZ_BACKEND ?? 'local';
+  if (backend === 'rebac') {
     return checkAccessReBAC(projectId, userId, minRole);
+  }
+  if (backend !== 'local') {
+    throw new Error(`Invalid AUTHZ_BACKEND '${backend}': expected 'local' or 'rebac'.`);
   }
   const member = getProjectMember(projectId, userId);
   if (member) {
