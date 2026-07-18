@@ -19,10 +19,12 @@ from typing import Optional, Tuple
 _ALLOWED = {
     "temporal": {"trend_line", "line", "line_chart", "area", "area_chart", "combo", "column_line",
                  "clustered_column", "column"},
+    # NB: pie / donut / gauge / treemap are FORBIDDEN (BC-CHART-08 / check_forbidden_charts) — never listed here,
+    # so the advisory can't suggest a banned visual as a valid fit.
     "ranking": {"bar_chart", "bar", "clustered_bar", "clustered_column", "column", "decomposition_tree",
-                "matrix", "table", "treemap", "stacked_bar", "hundred_percent_stacked_bar", "waterfall"},
+                "matrix", "table", "stacked_bar", "hundred_percent_stacked_bar", "waterfall"},
     "composition": {"stacked_bar", "hundred_percent_stacked_bar", "stacked_bar_100pct", "waterfall",
-                    "decomposition_tree", "treemap", "pie", "donut", "bar_chart", "clustered_column"},
+                    "decomposition_tree", "bar_chart", "clustered_column"},
     # a trend/variance line with a plan/target reference, or a bridge, both answer "vs plan"
     "comparison": {"column", "clustered_column", "bar_chart", "bullet", "kpi_card", "card",
                    "trend_line", "line", "line_chart", "area", "area_chart", "waterfall", "combo"},

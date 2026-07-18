@@ -69,3 +69,21 @@ def variance_measures(kpi_key: str, target: Optional[TargetRef], status_logic: O
         f'IF({good}, "{tokens["positive"]}", IF({near}, "{tokens["warning"]}", "{tokens["negative"]}"))',
         "status_color", None))
     return out
+
+
+def title_measure(kpi_key: str, target: Optional[TargetRef], status_logic: Optional[str],
+                  *, ref_label: str = "Plan", fmt: str = "0.0") -> Optional[MeasureDef]:
+    """A context-safe, model-defined STRING measure for an IBCS statement title (Power BI dynamic
+    title). Verified constraint (MS Learn + community): a dynamic title measure evaluates in the
+    page/report/slicer/cross-filter context but does NOT reliably receive the visual's own
+    visual-level / Top-N filters — so the title may only assert a WHOLE-SUBJECT SCALAR (the KPI value
+    and its variance vs target), never a Top-N/locally-filtered claim (which would silently miscompute).
+    Returns None when no target/direction (no verifiable statement possible)."""
+    gd = good_direction(status_logic)
+    if target is None or gd is None:
+        return None
+    m = f"[{kpi_key}]"
+    d = f"[{kpi_key} Δ vs Target]"          # scalar aggregate — computes in page/slicer context
+    dax = (f'FORMAT({m}, "{fmt}") & " · " & IF({d} >= 0, "▲ +", "▼ ") & '
+           f'FORMAT({d}, "{fmt}") & " vs {ref_label}"')
+    return MeasureDef(f"{kpi_key} Title", dax, "title", None)

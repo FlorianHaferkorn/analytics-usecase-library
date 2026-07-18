@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from page_scaffold_generator.status_measures import variance_measures
+from page_scaffold_generator.status_measures import title_measure, variance_measures
 
 
 def _by_role(defs):
@@ -46,6 +46,20 @@ def test_status_direction_lower_is_better_flips():
     assert "[Attrition %] <= [Attrition % Target]" in d["status"].dax
     # bad branch is the governed negative hex
     assert d["status_color"].dax.rstrip().endswith('"#A4262C"))')
+
+
+def test_title_measure_is_context_safe_string_measure():
+    td = title_measure("EBITDA Margin %", "[EBITDA Margin % Plan]", "higher_is_better", fmt="0.0%")
+    assert td is not None and td.role == "title"
+    # references only scalar aggregates ([KPI] and its Δ) — no axis/Top-N dependency
+    assert "[EBITDA Margin %]" in td.dax and "[EBITDA Margin % Δ vs Target]" in td.dax
+    assert td.dax.startswith("FORMAT(")           # returns a string
+    assert 'vs Plan"' in td.dax
+
+
+def test_title_measure_none_without_target_or_direction():
+    assert title_measure("X", None, "higher_is_better") is None
+    assert title_measure("X", "[X Plan]", None) is None
 
 
 def test_semantic_colors_are_governed_tokens():
