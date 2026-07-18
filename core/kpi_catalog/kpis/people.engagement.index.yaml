@@ -1,0 +1,43 @@
+kpi_id: people.engagement.index
+kpi_key: Engagement Index
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: governance
+domain_tag:
+- People & Culture
+use_case_ref:
+- HR-001
+action_code_ref: []
+calc_type: avg
+business:
+  purpose: Measures employee engagement / eNPS from periodic surveys.
+  definition: Mean engagement score (or eNPS) for the population in the period.
+  grain_scope: Org/segment; quarterly survey.
+  unit_format: '''index (0 decimal)'''
+  interpretation: Higher is better; the leading driver of attrition and productivity.
+technical:
+  measure_name: Engagement Index
+  description: Measures employee engagement / eNPS from periodic surveys.
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    reason: Requires fact_engagement_survey[Engagement Score, Respondents] by dim_org/dim_employee_segment/dim_date
+      — not yet in Aurora.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: ISO 30414
+  name: Human capital — organizational culture / engagement
+  alignment: partial
+  note: ISO 30414 reports engagement under organizational culture; the index here is a survey-mean variant.

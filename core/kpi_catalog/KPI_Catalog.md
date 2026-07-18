@@ -6714,4 +6714,838 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     name: RFM frequency score
     alignment: none
     note: RFM (Recency-Frequency-Monetary) scoring is a long-standing direct-marketing segmentation model (Hughes/DMA lineage), a convention rather than a governed standard.
+
+- kpi_id: people.attrition.pct
+  kpi_key: Attrition %
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: governance
+  domain_tag:
+  - People & Culture
+  use_case_ref:
+  - HR-001
+  - XD-003
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures realised voluntary employee turnover in the period.
+    definition: Voluntary Leavers / Average Headcount (annualised).
+    grain_scope: Org/segment; monthly, annualised.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Lower is better; sustained rises signal retention and engagement problems.
+  technical:
+    measure_name: Attrition %
+    description: Measures realised voluntary employee turnover in the period.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_workforce[Voluntary Leavers, Headcount FTE] by dim_org/dim_employee_segment/dim_date — not yet in Aurora data contract.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — turnover rate
+    alignment: exact
+    note: ISO 30414:2018 defines turnover/attrition rate; this is the realised voluntary-turnover base metric.
+
+- kpi_id: people.engagement.index
+  kpi_key: Engagement Index
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: governance
+  domain_tag:
+  - People & Culture
+  use_case_ref:
+  - HR-001
+  action_code_ref: []
+  calc_type: avg
+  business:
+    purpose: Measures employee engagement / eNPS from periodic surveys.
+    definition: Mean engagement score (or eNPS) for the population in the period.
+    grain_scope: Org/segment; quarterly survey.
+    unit_format: '''index (0 decimal)'''
+    interpretation: Higher is better; the leading driver of attrition and productivity.
+  technical:
+    measure_name: Engagement Index
+    description: Measures employee engagement / eNPS from periodic surveys.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_engagement_survey[Engagement Score, Respondents] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — organizational culture / engagement
+    alignment: partial
+    note: ISO 30414 reports engagement under organizational culture; the index here is a survey-mean variant.
+
+- kpi_id: people.timetofill.days
+  kpi_key: Time to Fill
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: governance
+  domain_tag:
+  - People & Culture
+  use_case_ref:
+  - HR-001
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Measures average calendar days to fill an open vacancy.
+    definition: Mean(Filled Date - Requisition Open Date) over positions filled in the period.
+    grain_scope: Org/role; monthly.
+    unit_format: '''days (0 decimal)'''
+    interpretation: Lower is better; long fill times amplify workload and attrition risk.
+  technical:
+    measure_name: Time to Fill
+    description: Measures average calendar days to fill an open vacancy.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_recruiting[Requisition Open Date, Filled Date] by dim_org/dim_role/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — recruitment (time to fill)
+    alignment: exact
+    note: ISO 30414 defines time-to-fill within recruitment metrics; definition matches.
+
+- kpi_id: people.absence.pct
+  kpi_key: Absence Rate %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: governance
+  domain_tag:
+  - People & Culture
+  use_case_ref:
+  - HR-001
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures unplanned absence as a share of scheduled working time.
+    definition: Absence Days / Scheduled Working Days.
+    grain_scope: Org/segment; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Lower is better; rising absence is an early strain and engagement signal.
+  technical:
+    measure_name: Absence Rate %
+    description: Measures unplanned absence as a share of scheduled working time.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_workforce[Absence Days, Scheduled Days] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — absenteeism
+    alignment: exact
+    note: ISO 30414 defines absenteeism rate; definition matches.
+
+- kpi_id: people.cost.per_fte.amount
+  kpi_key: Workforce Cost per FTE
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Cost
+  domain_tag:
+  - People & Culture
+  use_case_ref:
+  - HR-001
+  action_code_ref: []
+  calc_type: sum
+  business:
+    purpose: Measures total workforce cost per full-time-equivalent.
+    definition: Total Workforce Cost / Headcount FTE.
+    grain_scope: Org/segment; monthly.
+    unit_format: '''EUR (0 decimal)'''
+    interpretation: Watch alongside productivity; cost per FTE rising faster than output erodes efficiency.
+  technical:
+    measure_name: Workforce Cost per FTE
+    description: Measures total workforce cost per full-time-equivalent.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_workforce[Workforce Cost, Headcount FTE] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — workforce costs
+    alignment: partial
+    note: ISO 30414 reports total workforce cost; per-FTE normalisation is a managerial variant of the ISO cost base.
+
+- kpi_id: people.headcount.fte
+  kpi_key: Headcount FTE
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: governance
+  domain_tag:
+  - People & Culture
+  use_case_ref:
+  - HR-001
+  action_code_ref: []
+  calc_type: count
+  business:
+    purpose: Measures full-time-equivalent headcount for the population.
+    definition: Sum of FTE fractions across active employees in the period.
+    grain_scope: Org/segment; monthly snapshot.
+    unit_format: '''count'''
+    interpretation: Denominator base for attrition, cost and absence; watch for structural drift.
+  technical:
+    measure_name: Headcount FTE
+    description: Measures full-time-equivalent headcount for the population.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_workforce[Headcount FTE] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — workforce availability (FTE)
+    alignment: exact
+    note: ISO 30414 defines FTE headcount within workforce availability; definition matches.
+
+- kpi_id: sales.pipeline.coverage.ratio
+  kpi_key: Pipeline Coverage
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-005
+  - XD-003
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Measures open qualified pipeline against the remaining sales target.
+    definition: Open Qualified Pipeline Value / Remaining Period Target.
+    grain_scope: Rep/region/segment; weekly snapshot.
+    unit_format: '''0.0x'''
+    interpretation: Higher is better; a healthy funnel typically carries ≥3x coverage of the remaining gap.
+  technical:
+    measure_name: Pipeline Coverage
+    description: Measures open qualified pipeline against the remaining sales target.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pipeline[Opportunity Value, Stage] and dim_target[Remaining Target] by dim_salesrep/dim_region/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Sales pipeline management (convention)
+    name: Pipeline coverage ratio (3x rule)
+    alignment: none
+    note: No ISO/IFRS standard governs pipeline coverage; this is an established commercial-steering convention (typical ≥3x rule), not an external standard.
+
+- kpi_id: sales.win_rate.pct
+  kpi_key: Win Rate %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-005
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures share of decided opportunities won.
+    definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
+    grain_scope: Rep/segment/stage; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher is better; the primary conversion lever behind coverage and attainment.
+  technical:
+    measure_name: Win Rate %
+    description: Measures share of decided opportunities won.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pipeline[Won Flag, Lost Flag] by dim_salesrep/dim_sales_stage/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Sales pipeline management (convention)
+    name: Win rate / opportunity conversion
+    alignment: none
+    note: Win rate is a standard commercial-analytics convention; no external standards body defines it.
+
+- kpi_id: sales.conversion.pct
+  kpi_key: Stage Conversion %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-005
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures conversion between funnel stages (lead → opportunity → won).
+    definition: Records advancing to the next stage / Records entering the stage.
+    grain_scope: Stage/segment; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher is better; isolates where the funnel leaks.
+  technical:
+    measure_name: Stage Conversion %
+    description: Measures conversion between funnel stages (lead → opportunity → won).
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pipeline[Stage, Stage Entered Date] by dim_sales_stage/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Sales pipeline management (convention)
+    name: Funnel stage conversion
+    alignment: none
+    note: Funnel conversion is a commercial-analytics convention, not an external standard.
+
+- kpi_id: sales.sales_cycle.days
+  kpi_key: Sales Cycle Length
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-005
+  action_code_ref: []
+  calc_type: ratio
+  business:
+    purpose: Measures average calendar days from opportunity creation to close.
+    definition: Mean(Close Date - Create Date) over opportunities closed in the period.
+    grain_scope: Rep/segment; monthly.
+    unit_format: '''days (0 decimal)'''
+    interpretation: Lower is better; a lengthening cycle slows cash conversion and coverage.
+  technical:
+    measure_name: Sales Cycle Length
+    description: Measures average calendar days from opportunity creation to close.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pipeline[Create Date, Close Date] by dim_salesrep/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Sales pipeline management (convention)
+    name: Sales-cycle length
+    alignment: none
+    note: Sales-cycle length is a commercial-analytics convention, not an external standard.
+
+- kpi_id: sales.velocity.amount
+  kpi_key: Sales Velocity
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-005
+  action_code_ref: []
+  calc_type: sum
+  business:
+    purpose: Measures revenue generation rate through the pipeline.
+    definition: (Open Opportunities x Avg Deal Value x Win Rate) / Sales Cycle Length.
+    grain_scope: Rep/segment; monthly.
+    unit_format: '''EUR (0 decimal)'''
+    interpretation: Higher is better; a composite health signal for the funnel engine.
+  technical:
+    measure_name: Sales Velocity
+    description: Measures revenue generation rate through the pipeline.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pipeline[Opportunity count, Deal Value, Won/Lost, Create/Close Date] — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Sales pipeline management (convention)
+    name: Sales velocity formula
+    alignment: none
+    note: Sales velocity is a widely-used commercial convention (opps x value x win-rate / cycle); no external standard defines it.
+
+- kpi_id: sales.pipeline.value.amount
+  kpi_key: Open Pipeline Value
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  - Growth
+  use_case_ref:
+  - COM-005
+  action_code_ref: []
+  calc_type: sum
+  business:
+    purpose: Measures total value of open qualified opportunities.
+    definition: Sum of Opportunity Value for open qualified opportunities.
+    grain_scope: Rep/region/segment; weekly snapshot.
+    unit_format: '''EUR (0 decimal)'''
+    interpretation: Base for coverage; watch concentration in a few large deals.
+  technical:
+    measure_name: Open Pipeline Value
+    description: Measures total value of open qualified opportunities.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pipeline[Opportunity Value, Stage] by dim_salesrep/dim_region/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Sales pipeline management (convention)
+    name: Open pipeline value
+    alignment: none
+    note: Open pipeline value is a commercial-analytics convention, not an external standard.
+
+- kpi_id: margin.ebitda.amount
+  kpi_key: EBITDA
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag:
+  - Finance
+  use_case_ref:
+  - FIN-003
+  - XD-003
+  action_code_ref: []
+  calc_type: sum
+  business:
+    purpose: Measures earnings before interest, tax, depreciation and amortisation.
+    definition: Revenue - COGS - Operating Expenses (excl. D&A).
+    grain_scope: Entity/BU; monthly.
+    unit_format: '''EUR (0 decimal)'''
+    interpretation: Absolute earnings base for the EBITDA-margin and vs-plan bridge.
+  technical:
+    measure_name: EBITDA
+    description: Measures earnings before interest, tax, depreciation and amortisation.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pnl[Revenue, COGS, OpEx, D&A] by dim_org/dim_date — Plan variants needed for the bridge; not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: EBITDA (Alternative Performance Measure)
+    alignment: partial
+    note: EBITDA is not defined by IFRS; ESMA APM Guidelines govern its disclosure. Reconcile to the nearest IFRS line (operating profit) per ESMA.
+
+- kpi_id: margin.ebitda.delta_pct.plan
+  kpi_key: EBITDA Margin vs Plan
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Profitability
+  domain_tag:
+  - Finance
+  use_case_ref:
+  - FIN-003
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures the EBITDA-margin gap versus plan.
+    definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
+    grain_scope: Entity/BU; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: 'The steering signal: is earnings tracking plan, and driven by revenue, gross margin or opex?'
+  technical:
+    measure_name: EBITDA Margin vs Plan
+    description: Measures the EBITDA-margin gap versus plan.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_pnl actual + Plan variants (Revenue, COGS, OpEx) by dim_org/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: EBITDA vs plan (APM variance)
+    alignment: partial
+    note: EBITDA-vs-plan variance is an APM comparison; ESMA APM Guidelines require consistent, reconciled definition period-over-period.
+
+- kpi_id: procurement.savings.realized.pct
+  kpi_key: Realised Savings %
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Cost
+  domain_tag:
+  - Supply Chain
+  - Sourcing
+  use_case_ref:
+  - SCM-004
+  - FIN-002
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures procurement savings realised against the savings target.
+    definition: Realised Savings / Savings Target.
+    grain_scope: Category/supplier; monthly, YTD.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher is better; the CPO's headline for value delivery.
+  technical:
+    measure_name: Realised Savings %
+    description: Measures procurement savings realised against the savings target.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_procurement[Realised Savings] and dim_target[Savings Target] by dim_category/dim_supplier/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Procurement & spend analytics (convention)
+    name: Realised savings vs target
+    alignment: none
+    note: Savings realisation is a procurement-controlling convention; no external standards body defines the metric.
+
+- kpi_id: procurement.oncontract.pct
+  kpi_key: On-Contract Spend %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Cost
+  domain_tag:
+  - Supply Chain
+  - Sourcing
+  use_case_ref:
+  - SCM-004
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
+    definition: On-Contract Spend / Total Addressable Spend.
+    grain_scope: Category/supplier; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher is better; the primary lever for savings realisation and price control.
+  technical:
+    measure_name: On-Contract Spend %
+    description: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_procurement[Spend, On-Contract Flag] by dim_category/dim_supplier/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Procurement & spend analytics (convention)
+    name: On-contract / managed spend
+    alignment: none
+    note: Contract-compliance / maverick-buying share is a procurement convention, not an external standard.
+
+- kpi_id: procurement.ppv.pct
+  kpi_key: Purchase Price Variance %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Cost
+  domain_tag:
+  - Supply Chain
+  - Sourcing
+  use_case_ref:
+  - SCM-004
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures purchase price variance against baseline/standard price.
+    definition: (Actual Price - Baseline Price) / Baseline Price.
+    grain_scope: Category/material; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Lower is better; isolates inflation and negotiation slippage.
+  technical:
+    measure_name: Purchase Price Variance %
+    description: Measures purchase price variance against baseline/standard price.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_procurement[Actual Price, Baseline Price, Quantity] by dim_category/dim_material/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Procurement & spend analytics (convention)
+    name: Purchase price variance (PPV)
+    alignment: none
+    note: PPV is a standard cost-accounting/procurement convention; align the baseline definition to the internal standard-cost policy.
+
+- kpi_id: procurement.supplier.otd.pct
+  kpi_key: Supplier On-Time Delivery %
+  kpi_type: diagnostic
+  kpi_role: influencing
+  impact_dimension: Reliability
+  domain_tag:
+  - Supply Chain
+  - Sourcing
+  use_case_ref:
+  - SCM-004
+  - SCM-002
+  action_code_ref: []
+  calc_type: rate
+  business:
+    purpose: Measures inbound supplier on-time delivery (goods received on/before promise).
+    definition: On-Time Inbound Receipts / Total Inbound Receipts.
+    grain_scope: Supplier/category; monthly.
+    unit_format: '''% (1 decimal)'''
+    interpretation: Higher is better; inbound reliability that feeds downstream OTIF.
+  technical:
+    measure_name: Supplier On-Time Delivery %
+    description: Measures inbound supplier on-time delivery (goods received on/before promise).
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_procurement_receipts[Receipt Date, Promise Date] by dim_supplier/dim_category/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Source — supplier on-time delivery
+    alignment: partial
+    note: SCOR governs supplier delivery reliability under Source (sS); grain here is receipt-level inbound OTD, a partial mapping to SCOR's supplier reliability metrics.
+    id: RS.3.x
+
+- kpi_id: procurement.spend.managed.amount
+  kpi_key: Managed Spend
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Cost
+  domain_tag:
+  - Supply Chain
+  - Sourcing
+  use_case_ref:
+  - SCM-004
+  action_code_ref: []
+  calc_type: sum
+  business:
+    purpose: Measures total addressable spend under procurement management.
+    definition: Sum of addressable spend across categories in the period.
+    grain_scope: Category/supplier; monthly.
+    unit_format: '''EUR (0 decimal)'''
+    interpretation: Denominator base for on-contract %, PPV and savings; watch coverage of tail spend.
+  technical:
+    measure_name: Managed Spend
+    description: Measures total addressable spend under procurement management.
+    depends_on_measures: []
+    lineage: []
+    calculation:
+      op: hitl
+      reason: Requires fact_procurement[Spend, Addressable Flag] by dim_category/dim_supplier/dim_date — not yet in Aurora.
+  governance:
+    business_owner: TBD
+    data_owner: TBD
+    steward: TBD
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Denominator > 0 for reported slices
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 18.07.2026
+  standard_ref:
+  - standard: Procurement & spend analytics (convention)
+    name: Managed / addressable spend
+    alignment: none
+    note: Addressable-spend scoping is a procurement convention, not an external standard.
 ```

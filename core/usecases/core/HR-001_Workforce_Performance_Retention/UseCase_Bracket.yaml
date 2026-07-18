@@ -1,0 +1,121 @@
+schema_version: '2.0'
+id: HR-001
+title: Workforce Performance & Retention
+domain: People & Culture
+governance:
+  owner_role: hr_controlling_people_analytics
+  steward_role: people_analytics_bi_lead
+orchestration:
+  strategic_kpi_id: people.attrition.pct
+  influencing_kpi_ids:
+  - people.engagement.index
+  - people.timetofill.days
+  - people.absence.pct
+  - people.cost.per_fte.amount
+  supporting_kpi_ids:
+  - people.headcount.fte
+  - people.attrition_risk.pct
+  action_code_ids:
+  - X-R1.1
+primary_kpi_ids:
+- people.attrition.pct
+- people.engagement.index
+value_driver_model:
+  formula: people.attrition.pct = f(people.engagement.index, people.absence.pct, people.timetofill.days)
+  impact_direction: minimize
+  primary_driver: people.engagement.index
+  impact_logic: Raising people.engagement.index is the primary lever for lowering people.attrition.pct.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas:
+    width: 1920
+    height: 1080
+  intent_rules_version: 2
+  page_1_summary:
+    title: People & Culture Summary & Insights
+    page_type: T3_Operational_Monitoring
+    template_variant: T3_ProcessControl
+    template_id: pulse
+    decision_question: Is the workforce stable enough to deliver, or is attrition building where it hurts?
+    big_idea: Attrition is rising in the lowest-engagement segments — a retention problem concentrated
+      in a few teams, not a broad one.
+    component_3s:
+      kpi_id: people.attrition.pct
+      visual_type: kpi_card
+      comparison: vs_target
+      status_logic: lower_is_better
+    component_30s:
+    - slot_id: Main_1
+      kpi_id: people.engagement.index
+      visual_type: trend_line
+      question: Is falling engagement the driver behind rising attrition?
+      message: Attrition is concentrated in the lowest-engagement segments, not spread evenly across the
+        workforce
+      so_what: Because engagement is the lever, targeted engagement action in a few teams beats a company-wide
+        retention program.
+      unit: index
+    - slot_id: Main_2
+      kpi_ids:
+      - people.absence.pct
+      visual_type: bar_chart
+      question: Where is workforce strain compounding beyond exits?
+      message: Absence is climbing in the same teams losing people, compounding the strain where engagement
+        is weakest
+      so_what: Absence intervention in the hotspot teams relieves the load driving further exits.
+      unit: rate
+  page_2_execution:
+    title: People & Culture Execution
+    decision_question: Which teams and roles should the retention effort target first?
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: employee_segment
+      evidence_columns:
+      - segment
+      - role
+      - people.attrition.pct
+      - people.engagement.index
+      - people.absence.pct
+      - people.timetofill.days
+      - people.cost.per_fte.amount
+      - people.headcount.fte
+      action_panel: true
+      payload_mode: full
+      sort_by:
+        measure: people.attrition.pct
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: people.attrition.pct
+        type: data_bar
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.6
+  reach: division
+  priority_score: 20
+data_protection:
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: Detail grain limited to employee segment level; row-level security applied at SemanticModel
+    level.
+  access_restriction: 'supply_chain_controlling_lead and scm_bi_lead roles; row-level security enforced
+    by SupplyChain.SemanticModel (site filter per org role).
+
+    '
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: 'Active Actions Text (SCM) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md §13.
+
+    '
+readiness:
+  data_availability: not_available
+  org_capability: partial
+  stakeholder_alignment: aligned
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/people.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md

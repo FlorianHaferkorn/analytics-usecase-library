@@ -1,0 +1,121 @@
+schema_version: '2.0'
+id: SCM-004
+title: Procurement & Supplier Performance
+domain: Supply Chain
+governance:
+  owner_role: procurement_controlling_sourcing
+  steward_role: procurement_bi_lead
+orchestration:
+  strategic_kpi_id: procurement.savings.realized.pct
+  influencing_kpi_ids:
+  - procurement.oncontract.pct
+  - procurement.ppv.pct
+  - procurement.supplier.otd.pct
+  supporting_kpi_ids:
+  - procurement.spend.managed.amount
+  - scm.supplier_risk.score
+  action_code_ids:
+  - S-P1.1
+primary_kpi_ids:
+- procurement.savings.realized.pct
+- procurement.oncontract.pct
+value_driver_model:
+  formula: procurement.savings.realized.pct = f(procurement.oncontract.pct, procurement.ppv.pct, procurement.supplier.otd.pct)
+  impact_direction: maximize
+  primary_driver: procurement.oncontract.pct
+  impact_logic: Raising procurement.oncontract.pct is the primary lever for realising procurement.savings.realized.pct.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas:
+    width: 1920
+    height: 1080
+  intent_rules_version: 2
+  page_1_summary:
+    title: Supply Chain Summary & Insights
+    page_type: T3_Operational_Monitoring
+    template_variant: T3_ProcessControl
+    template_id: pulse
+    decision_question: Are procurement savings being realised, or is value leaking through off-contract
+      buying?
+    big_idea: Savings realisation is behind target and the leak is off-contract spend concentrated in
+      a few categories.
+    component_3s:
+      kpi_id: procurement.savings.realized.pct
+      visual_type: kpi_card
+      comparison: vs_target
+      status_logic: higher_is_better
+    component_30s:
+    - slot_id: Main_1
+      kpi_id: procurement.oncontract.pct
+      visual_type: trend_line
+      question: Is the savings shortfall a target problem or a compliance problem?
+      message: Off-contract buying in a few categories is where realised savings leak, not weak targets
+      so_what: Because on-contract share is the lever, tightening compliance in those categories recovers
+        savings fastest.
+      unit: rate
+    - slot_id: Main_2
+      kpi_ids:
+      - procurement.ppv.pct
+      - procurement.supplier.otd.pct
+      visual_type: bar_chart
+      question: Is price variance or supplier reliability eroding value beyond compliance?
+      message: Purchase-price variance is climbing in the same categories, compounding the off-contract
+        leak
+      so_what: Renegotiating the high-PPV categories first attacks both price and compliance in one move.
+      unit: rate
+  page_2_execution:
+    title: Supply Chain Execution
+    decision_question: Which categories and suppliers should the savings-recovery effort target first?
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: category_supplier
+      evidence_columns:
+      - category
+      - supplier
+      - procurement.savings.realized.pct
+      - procurement.oncontract.pct
+      - procurement.ppv.pct
+      - procurement.supplier.otd.pct
+      - procurement.spend.managed.amount
+      - scm.supplier_risk.score
+      action_panel: true
+      payload_mode: full
+      sort_by:
+        measure: procurement.savings.realized.pct
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: procurement.savings.realized.pct
+        type: data_bar
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.6
+  reach: division
+  priority_score: 20
+data_protection:
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: Detail grain limited to category supplier level; row-level security applied at SemanticModel
+    level.
+  access_restriction: 'supply_chain_controlling_lead and scm_bi_lead roles; row-level security enforced
+    by SupplyChain.SemanticModel (site filter per org role).
+
+    '
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: 'Active Actions Text (SCM) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md §13.
+
+    '
+readiness:
+  data_availability: not_available
+  org_capability: partial
+  stakeholder_alignment: aligned
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/supply_chain.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md

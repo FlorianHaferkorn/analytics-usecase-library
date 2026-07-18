@@ -1,0 +1,43 @@
+kpi_id: people.absence.pct
+kpi_key: Absence Rate %
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: governance
+domain_tag:
+- People & Culture
+use_case_ref:
+- HR-001
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures unplanned absence as a share of scheduled working time.
+  definition: Absence Days / Scheduled Working Days.
+  grain_scope: Org/segment; monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Lower is better; rising absence is an early strain and engagement signal.
+technical:
+  measure_name: Absence Rate %
+  description: Measures unplanned absence as a share of scheduled working time.
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    reason: Requires fact_workforce[Absence Days, Scheduled Days] by dim_org/dim_employee_segment/dim_date
+      — not yet in Aurora.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: ISO 30414
+  name: Human capital — absenteeism
+  alignment: exact
+  note: ISO 30414 defines absenteeism rate; definition matches.

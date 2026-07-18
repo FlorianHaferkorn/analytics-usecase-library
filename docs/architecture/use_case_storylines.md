@@ -109,6 +109,29 @@
 **Decision payoff (actions):** C-P4.1, C-M2.1, C-M2.2
 **Connects to use cases:** COM-001, COM-002
 
+## COM-005 — Sales Pipeline & Conversion
+
+**Causal thread:** `sales.win_rate.pct` → `sales.pipeline.coverage.ratio` (maximize). Raising sales.win_rate.pct is the primary lever for restoring sales.pipeline.coverage.ratio.
+
+### Page 1 Summary · T3_Operational_Monitoring
+**Spine question:** Is there enough qualified pipeline converting to hit the target?
+- **[3s verdict]** `sales.pipeline.coverage.ratio` vs_target (higher_is_better)
+- **[30s Q1]** Is the coverage gap a volume problem or a conversion problem?
+    - visual: `trend_line` · `sales.win_rate.pct`
+    - answer: Win rate is dragging coverage below plan, not a shortage of open opportunities
+    - so what → Because conversion is the lever, deal-qualification and win-rate coaching beat pure lead-volume pushes.
+- **[30s Q2]** Where in the funnel does conversion leak?
+    - visual: `bar_chart` · `None`
+    - answer: The funnel leaks at the mid-stage — deals stall in qualification rather than failing late
+    - so what → Targeting the stalling mid-stage gate lifts conversion faster than widening the top of funnel.
+
+↓ handoff →
+
+### Page 2 Execution · T4_Prescriptive_Recommendation
+**Spine question:** Which reps, segments and stages should the conversion push target first?
+- **[300s evidence]** grain `opportunity`, worst-first by `sales.pipeline.coverage.ratio` (ascending), Top-20 · action panel
+**Decision payoff (actions):** C-P1.1
+
 ## FIN-001 — Cash & Liquidity Performance
 
 **Causal thread:** `wc.dso.days` → `wc.ccc.days` (minimize). Reducing wc.dso.days is the primary lever for minimizing wc.ccc.days.
@@ -162,6 +185,53 @@
 **Decision payoff (actions):** F-K2.1, F-K2.2, F-K2.3, F-K2.4
 **Cross-domain pull:** Finance (7: `cost.unit.amount`, `margin.cogs.pct`, `cost.opex.vs_plan.pct` +4); Operations (4: `ops.labor.productivity.pct`, `ops.throughput.units`, `ops.quality.defect_rate.pct` +1); Supply Chain (4: `supply.otif.pct`, `supply.on_time.pct`, `supply.in_full.pct` +1); Commercial (1: `sales.net_sales.amount`)
 **Connects to use cases:** FIN-001, OPS-001, OPS-002
+
+## FIN-003 — Earnings Performance vs Plan
+
+**Causal thread:** `cost.opex.vs_plan.pct` → `margin.ebitda.pct` (maximize). Bringing cost.opex.vs_plan.pct back to plan is the primary lever for restoring margin.ebitda.pct.
+
+### Page 1 Summary · T3_Operational_Monitoring
+**Spine question:** Is EBITDA tracking plan, and if not, which lever is the cause?
+- **[3s verdict]** `margin.ebitda.pct` vs_plan (higher_is_better)
+- **[30s Q1]** Is the earnings gap a revenue, gross-margin or opex problem?
+    - visual: `trend_line` · `margin.ebitda.delta_pct.plan`
+    - answer: The EBITDA-margin gap versus plan is opex-led, while revenue and gross margin hold
+    - so what → Because opex is the driver, cost-base actions recover more earnings than chasing incremental revenue.
+- **[30s Q2]** Is the pressure structural in gross margin or in operating expense?
+    - visual: `bar_chart` · `None`
+    - answer: Gross margin holds on plan; operating expense above plan is where the earnings leak concentrates
+    - so what → Ranking opex overruns by cost centre focuses the recovery where the money actually leaks.
+
+↓ handoff →
+
+### Page 2 Execution · T4_Prescriptive_Recommendation
+**Spine question:** Which entities and cost centres should the earnings-recovery effort target first?
+- **[300s evidence]** grain `cost_center`, worst-first by `margin.ebitda.delta_pct.plan` (ascending), Top-20 · action panel
+**Decision payoff (actions):** F-E1.1
+**Cross-domain pull:** Commercial (1: `sales.net_sales.delta_pct.plan`)
+
+## HR-001 — Workforce Performance & Retention
+
+**Causal thread:** `people.engagement.index` → `people.attrition.pct` (minimize). Raising people.engagement.index is the primary lever for lowering people.attrition.pct.
+
+### Page 1 Summary · T3_Operational_Monitoring
+**Spine question:** Is the workforce stable enough to deliver, or is attrition building where it hurts?
+- **[3s verdict]** `people.attrition.pct` vs_target (lower_is_better)
+- **[30s Q1]** Is falling engagement the driver behind rising attrition?
+    - visual: `trend_line` · `people.engagement.index`
+    - answer: Attrition is concentrated in the lowest-engagement segments, not spread evenly across the workforce
+    - so what → Because engagement is the lever, targeted engagement action in a few teams beats a company-wide retention program.
+- **[30s Q2]** Where is workforce strain compounding beyond exits?
+    - visual: `bar_chart` · `None`
+    - answer: Absence is climbing in the same teams losing people, compounding the strain where engagement is weakest
+    - so what → Absence intervention in the hotspot teams relieves the load driving further exits.
+
+↓ handoff →
+
+### Page 2 Execution · T4_Prescriptive_Recommendation
+**Spine question:** Which teams and roles should the retention effort target first?
+- **[300s evidence]** grain `employee_segment`, worst-first by `people.attrition.pct` (descending), Top-20 · action panel
+**Decision payoff (actions):** X-R1.1
 
 ## OPS-001 — Operations Performance
 
@@ -319,6 +389,29 @@
 **Decision payoff (actions):** S-F3.1, S-F3.2, S-F3.3, S-F3.4
 **Cross-domain pull:** Supply Chain (5: `plan.forecast.accuracy.pct`, `plan.forecast.mape.pct`, `plan.forecast.bias.pct` +2); Commercial (2: `order.lines`, `sales.units`)
 **Connects to use cases:** SCM-001, SCM-002
+
+## SCM-004 — Procurement & Supplier Performance
+
+**Causal thread:** `procurement.oncontract.pct` → `procurement.savings.realized.pct` (maximize). Raising procurement.oncontract.pct is the primary lever for realising procurement.savings.realized.pct.
+
+### Page 1 Summary · T3_Operational_Monitoring
+**Spine question:** Are procurement savings being realised, or is value leaking through off-contract buying?
+- **[3s verdict]** `procurement.savings.realized.pct` vs_target (higher_is_better)
+- **[30s Q1]** Is the savings shortfall a target problem or a compliance problem?
+    - visual: `trend_line` · `procurement.oncontract.pct`
+    - answer: Off-contract buying in a few categories is where realised savings leak, not weak targets
+    - so what → Because on-contract share is the lever, tightening compliance in those categories recovers savings fastest.
+- **[30s Q2]** Is price variance or supplier reliability eroding value beyond compliance?
+    - visual: `bar_chart` · `None`
+    - answer: Purchase-price variance is climbing in the same categories, compounding the off-contract leak
+    - so what → Renegotiating the high-PPV categories first attacks both price and compliance in one move.
+
+↓ handoff →
+
+### Page 2 Execution · T4_Prescriptive_Recommendation
+**Spine question:** Which categories and suppliers should the savings-recovery effort target first?
+- **[300s evidence]** grain `category_supplier`, worst-first by `procurement.savings.realized.pct` (ascending), Top-20 · action panel
+**Decision payoff (actions):** S-P1.1
 
 ## XD-001 — Service Level Performance
 

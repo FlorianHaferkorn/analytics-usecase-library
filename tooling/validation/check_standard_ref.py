@@ -77,6 +77,8 @@ KNOWN_STANDARDS = {
     "Marketing analytics — CRM (convention)",
     "Bain NPS (proprietary)",
     "Internal — ActionReady governance",
+    "Sales pipeline management (convention)",
+    "Procurement & spend analytics (convention)",
 }
 
 # Machine-detectable contradiction: an "exact-match" claim in the note vs alignment=none.

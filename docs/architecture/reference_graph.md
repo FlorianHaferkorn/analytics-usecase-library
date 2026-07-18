@@ -5,9 +5,9 @@
 
 ## Coverage
 
-- Use cases: **16**  (evidence packs: 16/16, factsheets: 16/16)
-- KPIs in catalog: **119**  — reachable: **118**, roadmap (planned.yaml): 11, orphan: **0**
-- Action codes: **53**  — reachable: **53**, orphan: **0**
+- Use cases: **20**  (evidence packs: 16/20, factsheets: 20/20)
+- KPIs in catalog: **138**  — reachable: **137**, roadmap (planned.yaml): 30, orphan: **0**
+- Action codes: **57**  — reachable: **57**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
 - Semantic measures: **223**  — backing a catalog KPI: **109** (registry/drift gated by `test_measure_dictionary_files`)
 
@@ -25,14 +25,18 @@
 | COM-002 | 15 | 3 | ✓ | commercial_sales.yaml |
 | COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
+| COM-005 | 6 | 1 | — | growth.yaml |
 | FIN-001 | 23 | 4 | ✓ | finance.yaml |
 | FIN-002 | 16 | 4 | ✓ | finance.yaml |
+| FIN-003 | 7 | 1 | — | finance.yaml |
+| HR-001 | 7 | 1 | — | people.yaml |
 | OPS-001 | 22 | 4 | ✓ | operations.yaml |
 | OPS-002 | 10 | 5 | ✓ | operations.yaml |
 | OPS-003 | 9 | 5 | ✓ | operations.yaml |
 | SCM-001 | 15 | 5 | ✓ | supply_chain.yaml |
 | SCM-002 | 8 | 5 | ✓ | supply_chain.yaml |
 | SCM-003 | 7 | 4 | ✓ | supply_chain.yaml |
+| SCM-004 | 6 | 1 | — | supply_chain.yaml |
 | XD-001 | 8 | 4 | ✓ | experience.yaml |
 | XD-002 | 11 | 4 | ✓ | experience.yaml |
 | XD-003 | 27 | 1 | ✓ | executive.yaml |
@@ -59,9 +63,28 @@ _none_
 - `fin.liquidity.inventory.amount`
 - `fin.overdue_ar.pct`
 - `inv.excess_inventory.amount`
+- `margin.ebitda.amount`
+- `margin.ebitda.delta_pct.plan`
 - `ops.changeover.minutes`
 - `ops.speed_loss.pct`
+- `people.absence.pct`
+- `people.attrition.pct`
+- `people.cost.per_fte.amount`
+- `people.engagement.index`
+- `people.headcount.fte`
+- `people.timetofill.days`
+- `procurement.oncontract.pct`
+- `procurement.ppv.pct`
+- `procurement.savings.realized.pct`
+- `procurement.spend.managed.amount`
+- `procurement.supplier.otd.pct`
 - `retail.basket.items_per_transaction`
 - `retail.basket.value.average`
 - `retail.category.crosssell_rate.pct`
 - `retail.promotion.attachment_rate.pct`
+- `sales.conversion.pct`
+- `sales.pipeline.coverage.ratio`
+- `sales.pipeline.value.amount`
+- `sales.sales_cycle.days`
+- `sales.velocity.amount`
+- `sales.win_rate.pct`

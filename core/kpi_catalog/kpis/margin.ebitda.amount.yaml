@@ -1,0 +1,45 @@
+kpi_id: margin.ebitda.amount
+kpi_key: EBITDA
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Profitability
+domain_tag:
+- Finance
+use_case_ref:
+- FIN-003
+- XD-003
+action_code_ref: []
+calc_type: sum
+business:
+  purpose: Measures earnings before interest, tax, depreciation and amortisation.
+  definition: Revenue - COGS - Operating Expenses (excl. D&A).
+  grain_scope: Entity/BU; monthly.
+  unit_format: '''EUR (0 decimal)'''
+  interpretation: Absolute earnings base for the EBITDA-margin and vs-plan bridge.
+technical:
+  measure_name: EBITDA
+  description: Measures earnings before interest, tax, depreciation and amortisation.
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    reason: Requires fact_pnl[Revenue, COGS, OpEx, D&A] by dim_org/dim_date — Plan variants needed for
+      the bridge; not yet in Aurora.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: ESMA-APM
+  name: EBITDA (Alternative Performance Measure)
+  alignment: partial
+  note: EBITDA is not defined by IFRS; ESMA APM Guidelines govern its disclosure. Reconcile to the nearest
+    IFRS line (operating profit) per ESMA.

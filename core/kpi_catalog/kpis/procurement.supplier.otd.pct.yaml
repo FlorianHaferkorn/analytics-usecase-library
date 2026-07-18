@@ -1,0 +1,47 @@
+kpi_id: procurement.supplier.otd.pct
+kpi_key: Supplier On-Time Delivery %
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Reliability
+domain_tag:
+- Supply Chain
+- Sourcing
+use_case_ref:
+- SCM-004
+- SCM-002
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures inbound supplier on-time delivery (goods received on/before promise).
+  definition: On-Time Inbound Receipts / Total Inbound Receipts.
+  grain_scope: Supplier/category; monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher is better; inbound reliability that feeds downstream OTIF.
+technical:
+  measure_name: Supplier On-Time Delivery %
+  description: Measures inbound supplier on-time delivery (goods received on/before promise).
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    reason: Requires fact_procurement_receipts[Receipt Date, Promise Date] by dim_supplier/dim_category/dim_date
+      — not yet in Aurora.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Source — supplier on-time delivery
+  alignment: partial
+  note: SCOR governs supplier delivery reliability under Source (sS); grain here is receipt-level inbound
+    OTD, a partial mapping to SCOR's supplier reliability metrics.
+  id: RS.3.x

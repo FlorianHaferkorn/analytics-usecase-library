@@ -1,67 +1,153 @@
 # planned.yaml — KPI entries whose measure_name is not yet implemented in _Measures.tmdl
-#
-# These entries are recognised by check_catalog_tmdl_drift.py and emitted as
-# WARNINGS (not errors) so CI is not blocked while implementation is in progress.
-#
-# Schema: tooling/generator/schemas/planned_kpi.schema.json
-#
-# Fields:
-#   kpi_id     (required) — must match a kpi_id in core/kpi_catalog/KPI_Catalog.md
-#   owner      (required) — team / role responsible for implementation
-#   eta_date   (required) — target date in ISO 8601 format (YYYY-MM-DD)
-#   reason     (required) — one-line explanation of why not yet implemented
+# Recognised by check_catalog_tmdl_drift.py and emitted as WARNINGS (not errors).
+# Fields: kpi_id, owner, eta_date (YYYY-MM-DD), reason.
 
 - kpi_id: ops.planned.hours
   owner: ops_analytics_lead
-  eta_date: "2026-06-30"
-  reason: "Operations model does not yet expose planned hours as a named measure"
-
+  eta_date: '2026-06-30'
+  reason: Operations model does not yet expose planned hours as a named measure
 - kpi_id: ops.speed_loss.pct
   owner: ops_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Speed loss rate is a diagnostic OEE sub-KPI added in DEP; measure implementation in Operations model pending sprint planning"
-
+  eta_date: '2026-09-30'
+  reason: Speed loss rate is a diagnostic OEE sub-KPI added in DEP; measure implementation in Operations
+    model pending sprint planning
 - kpi_id: ops.changeover.minutes
   owner: ops_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Changeover time is a Six Big Losses diagnostic KPI added in DEP; measure implementation in Operations model pending sprint planning"
-
+  eta_date: '2026-09-30'
+  reason: Changeover time is a Six Big Losses diagnostic KPI added in DEP; measure implementation in Operations
+    model pending sprint planning
 - kpi_id: fin.overdue_ar.pct
   owner: fin_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Overdue AR % is a cash cycle diagnostic KPI added in FIN-001 DEP; measure implementation in Finance model pending sprint planning"
-
+  eta_date: '2026-09-30'
+  reason: Overdue AR % is a cash cycle diagnostic KPI added in FIN-001 DEP; measure implementation in
+    Finance model pending sprint planning
 - kpi_id: inv.excess_inventory.amount
   owner: scm_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Excess inventory amount is a working capital diagnostic KPI added in SCM-001 DEP; measure implementation in Supply Chain model pending sprint planning"
-
+  eta_date: '2026-09-30'
+  reason: Excess inventory amount is a working capital diagnostic KPI added in SCM-001 DEP; measure implementation
+    in Supply Chain model pending sprint planning
 - kpi_id: margin.ebitda.pct
   owner: fin_analytics_lead
-  eta_date: "2026-09-30"
-  reason: "Profitability KPI grounded in fact_finance (EBITDA Amount / Net Sales Amount); wired into the FIN-002 bracket — materialises on the next Finance model rebuild"
-
+  eta_date: '2026-09-30'
+  reason: Profitability KPI grounded in fact_finance (EBITDA Amount / Net Sales Amount); wired into the
+    FIN-002 bracket — materialises on the next Finance model rebuild
 - kpi_id: retail.category.crosssell_rate.pct
   owner: commercial_bi_lead
-  eta_date: "2026-09-30"
-  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
-
+  eta_date: '2026-09-30'
+  reason: Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the
+    Commercial TMDL model
 - kpi_id: retail.basket.items_per_transaction
   owner: commercial_bi_lead
-  eta_date: "2026-09-30"
-  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
-
+  eta_date: '2026-09-30'
+  reason: Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the
+    Commercial TMDL model
 - kpi_id: retail.basket.value.average
   owner: commercial_bi_lead
-  eta_date: "2026-09-30"
-  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
-
+  eta_date: '2026-09-30'
+  reason: Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the
+    Commercial TMDL model
 - kpi_id: retail.promotion.attachment_rate.pct
   owner: commercial_bi_lead
-  eta_date: "2026-09-30"
-  reason: "Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
-
+  eta_date: '2026-09-30'
+  reason: Retail basket KPI for COM-IND-R001 (industry-variant tier); measure not yet implemented in the
+    Commercial TMDL model
 - kpi_id: customer.rfm.frequency_score
   owner: commercial_bi_lead
-  eta_date: "2026-09-30"
-  reason: "RFM frequency score for COM-IND-R001 (industry-variant tier); measure not yet implemented in the Commercial TMDL model"
+  eta_date: '2026-09-30'
+  reason: RFM frequency score for COM-IND-R001 (industry-variant tier); measure not yet implemented in
+    the Commercial TMDL model
+- kpi_id: margin.ebitda.amount
+  owner: finance_bi_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: margin.ebitda.delta_pct.plan
+  owner: finance_bi_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: people.absence.pct
+  owner: people_analytics_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: people.attrition.pct
+  owner: people_analytics_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: people.cost.per_fte.amount
+  owner: people_analytics_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: people.engagement.index
+  owner: people_analytics_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: people.headcount.fte
+  owner: people_analytics_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: people.timetofill.days
+  owner: people_analytics_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: procurement.oncontract.pct
+  owner: procurement_bi_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: procurement.ppv.pct
+  owner: procurement_bi_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: procurement.savings.realized.pct
+  owner: procurement_bi_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: procurement.spend.managed.amount
+  owner: procurement_bi_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: procurement.supplier.otd.pct
+  owner: procurement_bi_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: sales.conversion.pct
+  owner: revenue_operations_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: sales.pipeline.coverage.ratio
+  owner: revenue_operations_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: sales.pipeline.value.amount
+  owner: revenue_operations_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: sales.sales_cycle.days
+  owner: revenue_operations_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: sales.velocity.amount
+  owner: revenue_operations_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).
+- kpi_id: sales.win_rate.pct
+  owner: revenue_operations_lead
+  eta_date: '2026-10-31'
+  reason: New gap-closing use case (HR-001/COM-005/FIN-003/SCM-004); backing Aurora data + semantic-model
+    measure not yet created (see AURORA_SYNTHETIC_DATA_GAPS.md).

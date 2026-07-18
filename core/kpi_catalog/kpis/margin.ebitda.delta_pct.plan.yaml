@@ -1,0 +1,45 @@
+kpi_id: margin.ebitda.delta_pct.plan
+kpi_key: EBITDA Margin vs Plan
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Profitability
+domain_tag:
+- Finance
+use_case_ref:
+- FIN-003
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures the EBITDA-margin gap versus plan.
+  definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
+  grain_scope: Entity/BU; monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: 'The steering signal: is earnings tracking plan, and driven by revenue, gross margin
+    or opex?'
+technical:
+  measure_name: EBITDA Margin vs Plan
+  description: Measures the EBITDA-margin gap versus plan.
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    reason: Requires fact_pnl actual + Plan variants (Revenue, COGS, OpEx) by dim_org/dim_date — not yet
+      in Aurora.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: ESMA-APM
+  name: EBITDA vs plan (APM variance)
+  alignment: partial
+  note: EBITDA-vs-plan variance is an APM comparison; ESMA APM Guidelines require consistent, reconciled
+    definition period-over-period.

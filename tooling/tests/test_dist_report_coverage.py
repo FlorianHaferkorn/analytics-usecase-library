@@ -35,6 +35,23 @@ def _all_bracket_dirs() -> list[Path]:
     return [p.parent for p in sorted(USECASES_ROOT.rglob("UseCase_Bracket.yaml"))]
 
 
+def _is_report_pending(bracket_dir: Path) -> bool:
+    """A use case is *report-pending* when its bracket explicitly declares that the backing
+    data is not yet available (``readiness.data_availability == 'not_available'``).
+
+    Such a use case is spec-complete and governed — KPIs, standards, storyline, action codes
+    all validate — but its report cannot be rendered until its Aurora data and semantic-model
+    measures exist (Desktop/Fabric-gated). It is therefore exempt from report-coverage until
+    then; the concrete data gap is tracked in
+    ``internal/project_mgmt/AURORA_SYNTHETIC_DATA_GAPS.md``. This is a narrow, bracket-declared
+    exemption — a UC whose data IS available still requires its report."""
+    try:
+        d = yaml.safe_load((bracket_dir / "UseCase_Bracket.yaml").read_text(encoding="utf-8")) or {}
+    except Exception:
+        return False
+    return (d.get("readiness") or {}).get("data_availability") == "not_available"
+
+
 def _expected_report_folder_name(bracket_dir: Path) -> str:
     """Return the expected dist .Report folder name for a bracket directory.
 
@@ -77,6 +94,8 @@ class TestDistCoverage:
         dist_names = {d.name for d in _dist_report_dirs()}
         missing = []
         for bd in bracket_dirs:
+            if _is_report_pending(bd):
+                continue  # spec-complete but data/report Desktop/Fabric-gated (see AURORA_SYNTHETIC_DATA_GAPS.md)
             expected = _expected_report_folder_name(bd)
             if expected not in dist_names:
                 missing.append(f"{bd.name} → expected dist/{expected}")

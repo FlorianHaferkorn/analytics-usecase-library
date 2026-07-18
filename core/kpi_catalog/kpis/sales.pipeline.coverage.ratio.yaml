@@ -1,0 +1,46 @@
+kpi_id: sales.pipeline.coverage.ratio
+kpi_key: Pipeline Coverage
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Growth
+domain_tag:
+- Commercial
+- Growth
+use_case_ref:
+- COM-005
+- XD-003
+action_code_ref: []
+calc_type: ratio
+business:
+  purpose: Measures open qualified pipeline against the remaining sales target.
+  definition: Open Qualified Pipeline Value / Remaining Period Target.
+  grain_scope: Rep/region/segment; weekly snapshot.
+  unit_format: '''0.0x'''
+  interpretation: Higher is better; a healthy funnel typically carries ≥3x coverage of the remaining gap.
+technical:
+  measure_name: Pipeline Coverage
+  description: Measures open qualified pipeline against the remaining sales target.
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    reason: Requires fact_pipeline[Opportunity Value, Stage] and dim_target[Remaining Target] by dim_salesrep/dim_region/dim_date
+      — not yet in Aurora.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: Sales pipeline management (convention)
+  name: Pipeline coverage ratio (3x rule)
+  alignment: none
+  note: No ISO/IFRS standard governs pipeline coverage; this is an established commercial-steering convention
+    (typical ≥3x rule), not an external standard.

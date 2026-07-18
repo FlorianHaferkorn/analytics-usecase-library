@@ -1,0 +1,44 @@
+kpi_id: people.attrition.pct
+kpi_key: Attrition %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: governance
+domain_tag:
+- People & Culture
+use_case_ref:
+- HR-001
+- XD-003
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures realised voluntary employee turnover in the period.
+  definition: Voluntary Leavers / Average Headcount (annualised).
+  grain_scope: Org/segment; monthly, annualised.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Lower is better; sustained rises signal retention and engagement problems.
+technical:
+  measure_name: Attrition %
+  description: Measures realised voluntary employee turnover in the period.
+  depends_on_measures: []
+  lineage: []
+  calculation:
+    op: hitl
+    reason: Requires fact_workforce[Voluntary Leavers, Headcount FTE] by dim_org/dim_employee_segment/dim_date
+      — not yet in Aurora data contract.
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: ISO 30414
+  name: Human capital — turnover rate
+  alignment: exact
+  note: ISO 30414:2018 defines turnover/attrition rate; this is the realised voluntary-turnover base metric.
