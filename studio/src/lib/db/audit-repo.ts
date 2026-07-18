@@ -18,9 +18,13 @@ export type AuditEntityType =
   | 'notification_rule'
   | 'plugin'
   | 'export'
-  | 'governance';
+  | 'governance'
+  | 'refinement'
+  | 'org'
+  | 'org_member'
+  | 'project_member';
 
-export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen';
+export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen' | 'add_member' | 'remove_member' | 'update_business_role' | 'break_glass_override' | 'break_glass_revert';
 
 export interface AuditEvent {
   id: string;

@@ -33,7 +33,7 @@ function findUserById(id: string): UserRecord | undefined {
 }
 
 /** Find a user by email. */
-function findUserByEmail(email: string): UserRecord | undefined {
+export function findUserByEmail(email: string): UserRecord | undefined {
   const db = getDb();
   return db.prepare('SELECT * FROM users WHERE email = ?').get(email) as UserRecord | undefined;
 }

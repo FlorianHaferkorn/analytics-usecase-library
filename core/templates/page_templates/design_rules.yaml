@@ -98,7 +98,7 @@ rules:
       Storytelling_Principles.md §2 "Where the Big Idea Lives" ("The Header
       states the Big Idea itself, verbatim from UseCase_Bracket.yaml").
       Known, currently-unenforced gap: as of R2.1,
-      docs/architecture/adr/0014-generator-v2-insight-scoring-verification-composition.md
+      docs/architecture/adr/0017-generator-v2-insight-scoring-verification-composition.md
       documents that no Header visual-builder exists anywhere in
       page_scaffold_generator today -- this rule is what R2.3 must satisfy
       once that code path is built, not a check that already passes.

@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { ExportResults, type ExportResultItem } from '@/components/delivery/export-results';
 import { GovernedPreviewSection } from '@/components/delivery/governed-preview';
+import { OperationalPlanPanel } from '@/components/delivery/operational-plan-panel';
 import { StudioInlineStat, StudioSelectionItem, StudioSelectionList } from '@/components/ui/studio-data';
 import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
 
@@ -261,53 +262,14 @@ export function DeliveryClient({ brackets }: Props) {
             )}
           </StudioPanel>
 
-          <StudioPanel title="Operational Plan" description="Validation checks, runbook steps and scope signals for the current delivery move." tone={readinessWarnings.length === 0 ? 'success' : 'warning'}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h4 style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink-2)' }}>Operational Plan</h4>
-              <span style={{ fontSize: '0.625rem', color: readinessWarnings.length === 0 ? 'var(--accent)' : 'var(--warning)' }}>
-                {readinessWarnings.length === 0 ? 'Ready for validation' : `${readinessWarnings.length} checks before export`}
-              </span>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
-                <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginBottom: '2px' }}>Scope</p>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--ink)' }}>{selectedBrackets.size}</p>
-                <p style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>use cases selected</p>
-              </div>
-              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
-                <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginBottom: '2px' }}>Domains</p>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--ink)' }}>{selectedDomains.length}</p>
-                <p style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>{selectedDomains.join(', ') || 'None'}</p>
-              </div>
-              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)' }}>
-                <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginBottom: '2px' }}>Target</p>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--ink)' }}>{adapter.status}</p>
-                <p style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>{adapter.name}</p>
-              </div>
-            </div>
-
-            {readinessWarnings.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {readinessWarnings.map((warning) => (
-                  <div key={warning} style={{ padding: '6px 8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'color-mix(in srgb, var(--warning) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--warning) 24%, transparent)', fontSize: '0.6875rem', color: 'var(--warning)' }}>
-                    {warning}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: '6px' }}>Runbook</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {runbookSteps.map((step) => (
-                  <div key={step} style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)', fontSize: '0.6875rem', color: 'var(--ink-2)', fontFamily: 'var(--font-mono)', overflowWrap: 'anywhere' }}>
-                    {step}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </StudioPanel>
+          <OperationalPlanPanel
+            selectedCount={selectedBrackets.size}
+            selectedDomains={selectedDomains}
+            adapterStatus={adapter.status}
+            adapterName={adapter.name}
+            readinessWarnings={readinessWarnings}
+            runbookSteps={runbookSteps}
+          />
         </div>
       </div>
 

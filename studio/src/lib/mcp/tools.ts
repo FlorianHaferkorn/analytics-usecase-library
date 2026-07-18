@@ -111,8 +111,8 @@ export async function createBracket(bracketId: string, yamlContent: string, proj
  * Submit a bracket draft for governance review.
  * The bracket must already exist in bracket_edits or as a Core YAML file.
  */
-export async function publishDraft(bracketId: string, actorEmail: string, justification = '') {
-  const lifecycle = submitForReview(bracketId, actorEmail, justification);
+export async function publishDraft(bracketId: string, actorEmail: string, justification = '', projectId = 'default') {
+  const lifecycle = submitForReview(bracketId, actorEmail, justification, projectId);
   return { bracketId, lifecycle };
 }
 

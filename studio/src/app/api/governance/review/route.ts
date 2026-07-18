@@ -33,22 +33,28 @@ async function resolveBracketYamlPath(bracketId: string): Promise<string> {
   return join(CORE_USECASES_DIR, match, 'UseCase_Bracket.yaml');
 }
 
-export async function GET(request: Request) {
-  const [, authErr] = await requireRole('viewer');
-  if (authErr) return authErr;
-
+export async function handleReviewGET(request: Request, overrideProjectId?: string) {
   const { searchParams } = new URL(request.url);
   const bracketId = searchParams.get('bracketId');
   const compareVersionId = searchParams.get('compareVersionId');
+  // Resolved before the role check so a caller can't pass a ?projectId that
+  // differs from the project they're actually authorized against — requireRole's
+  // checkAccess() must run against the SAME project the reads below use, not
+  // an implicit 'default'.
+  const projectId = overrideProjectId ?? searchParams.get('projectId') ?? 'default';
+
+  const [, authErr] = await requireRole('viewer', projectId);
+  if (authErr) return authErr;
+
   if (!bracketId) return apiValidationError(['bracketId required']);
 
   const currentYaml = compareVersionId ? await loadBracketYaml(bracketId) : null;
-  const compareVersion = compareVersionId ? getBracketVersionById(compareVersionId) : null;
+  const compareVersion = compareVersionId ? getBracketVersionById(compareVersionId, projectId) : null;
 
   return apiSuccess({
-    lifecycle: getLifecycle(bracketId),
-    comments: getBracketComments(bracketId),
-    versions: getBracketVersions(bracketId).map((version) => ({
+    lifecycle: getLifecycle(bracketId, projectId),
+    comments: getBracketComments(bracketId, projectId),
+    versions: getBracketVersions(bracketId, projectId).map((version) => ({
       id: version.id,
       bracket_id: version.bracket_id,
       label: version.label,
@@ -72,10 +78,11 @@ export async function GET(request: Request) {
   });
 }
 
-export async function POST(request: Request) {
-  const [user, authErr] = await requireRole('editor');
-  if (authErr) return authErr;
+export async function GET(request: Request) {
+  return handleReviewGET(request);
+}
 
+export async function handleReviewPOST(request: Request, overrideProjectId?: string) {
   const body = await request.json() as {
     bracketId?: string;
     action?: 'comment' | 'snapshot' | 'restore';
@@ -84,7 +91,13 @@ export async function POST(request: Request) {
     note?: string;
     actor?: string;
     versionId?: string;
+    projectId?: string;
   };
+  // Resolved before the role check — same reasoning as handleReviewGET above.
+  const projectId = overrideProjectId ?? body.projectId ?? 'default';
+
+  const [user, authErr] = await requireRole('editor', projectId);
+  if (authErr) return authErr;
 
   if (!body.bracketId || !body.action) {
     return apiValidationError(['bracketId and action required']);
@@ -97,12 +110,12 @@ export async function POST(request: Request) {
       if (!body.comment || body.comment.trim().length < 3) {
         return apiValidationError(['comment must be at least 3 characters']);
       }
-      const comment = addBracketComment(body.bracketId, actor, body.comment.trim());
+      const comment = addBracketComment(body.bracketId, actor, body.comment.trim(), projectId);
       logAuditEvent('governance', body.bracketId, 'update', {
         before: null,
         after: { comment: comment.comment },
         justification: 'Bracket review comment added',
-      }, 'default', actor);
+      }, projectId, actor);
       return apiSuccess({ comment });
     }
 
@@ -110,7 +123,7 @@ export async function POST(request: Request) {
       if (!body.versionId) {
         return apiValidationError(['versionId required for restore']);
       }
-      const version = getBracketVersionById(body.versionId);
+      const version = getBracketVersionById(body.versionId, projectId);
       if (!version || version.bracket_id !== body.bracketId) {
         return apiError(ErrorCode.NOT_FOUND, 'Version not found for bracket', 404);
       }
@@ -121,7 +134,7 @@ export async function POST(request: Request) {
         before: { yaml: beforeYaml },
         after: { yaml: version.yaml_content, restoredFrom: version.id },
         justification: body.note?.trim() || `Restored snapshot ${version.label}`,
-      }, 'default', actor);
+      }, projectId, actor);
       return apiSuccess({ restored: true, versionId: version.id, label: version.label });
     }
 
@@ -132,12 +145,13 @@ export async function POST(request: Request) {
       body.note?.trim() || '',
       yamlContent,
       actor,
+      projectId,
     );
     logAuditEvent('bracket', body.bracketId, 'update', {
       before: null,
       after: { versionId: version.id, label: version.label },
       justification: body.note?.trim() || 'Manual snapshot created',
-    }, 'default', actor);
+    }, projectId, actor);
     return apiSuccess({
       version: {
         id: version.id,
@@ -151,4 +165,8 @@ export async function POST(request: Request) {
   } catch (error) {
     return apiError(ErrorCode.INTERNAL_ERROR, error instanceof Error ? error.message : 'Review operation failed', 500);
   }
+}
+
+export async function POST(request: Request) {
+  return handleReviewPOST(request);
 }

@@ -99,9 +99,10 @@ export function createMcpServer(): McpServer {
       bracketId: z.string().describe('Bracket ID to submit for review'),
       actorEmail: z.string().describe('Email of the submitter'),
       justification: z.string().optional().describe('Justification for the submission'),
+      projectId: z.string().optional().describe('Project ID (default: "default")'),
     },
-    async ({ bracketId, actorEmail, justification }) => {
-      const result = await tools.publishDraft(bracketId, actorEmail, justification);
+    async ({ bracketId, actorEmail, justification, projectId }) => {
+      const result = await tools.publishDraft(bracketId, actorEmail, justification, projectId);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     }
   );

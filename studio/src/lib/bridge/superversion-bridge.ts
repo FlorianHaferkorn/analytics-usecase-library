@@ -205,6 +205,131 @@ export async function pingBridge(): Promise<BridgePing> {
   }
 }
 
+export interface AttributionRecord {
+  actionCodeId: string;
+  kpiId: string;
+  method: 'before_after' | 'diff_in_diff' | 'holdout';
+  status: 'computed' | 'uncomputed';
+  t0: number | null;
+  t1: number | null;
+  delta: number | null;
+  note: string;
+}
+
+export interface RefinementProposal {
+  actionCodeId: string;
+  kpiId: string;
+  trigger: 'no_effect' | 'material_effect';
+  relChange: number;
+  rationale: string;
+  status: 'pending_review';
+}
+
+/** Result of the "attribute" step (I-8.2/I-8.3, ADR-0009 §5, Studio-Approval-Verdrahtung). */
+export interface AttributeResult {
+  available: boolean;
+  ok: boolean;
+  useCase?: string;
+  actionCodeId?: string;
+  method?: string;
+  outcomeKpis: string[];
+  attribution: AttributionRecord[];
+  refinements: RefinementProposal[];
+  error?: string;
+}
+
+interface AttributePayload {
+  ok: boolean;
+  use_case?: string;
+  action_code_id?: string;
+  method?: string;
+  outcome_kpis?: string[];
+  attribution?: Array<{
+    action_code_id: string; kpi_id: string; method: string; status: string;
+    t0: number | null; t1: number | null; delta: number | null; note: string;
+  }>;
+  refinements?: Array<{
+    action_code_id: string; kpi_id: string; trigger: string; rel_change: number;
+    rationale: string; status: string;
+  }>;
+  error?: string;
+}
+
+function toAttributeResult(payload: AttributePayload): AttributeResult {
+  return {
+    available: true,
+    ok: payload.ok,
+    useCase: payload.use_case,
+    actionCodeId: payload.action_code_id,
+    method: payload.method,
+    outcomeKpis: payload.outcome_kpis ?? [],
+    attribution: (payload.attribution ?? []).map((r) => ({
+      actionCodeId: r.action_code_id,
+      kpiId: r.kpi_id,
+      method: r.method as AttributionRecord['method'],
+      status: r.status as AttributionRecord['status'],
+      t0: r.t0,
+      t1: r.t1,
+      delta: r.delta,
+      note: r.note,
+    })),
+    refinements: (payload.refinements ?? []).map((p) => ({
+      actionCodeId: p.action_code_id,
+      kpiId: p.kpi_id,
+      trigger: p.trigger as RefinementProposal['trigger'],
+      relChange: p.rel_change,
+      rationale: p.rationale,
+      status: 'pending_review',
+    })),
+    error: payload.error,
+  };
+}
+
+/**
+ * Attribute an action's KPI effect via the Python bridge: governed refcalc
+ * baseline (t0) + caller-supplied after-values (t1), plus derived, reviewable
+ * refinement proposals (I-8.2/I-8.3, ADR-0009 §5). Never auto-applies anything —
+ * proposals carry `status: 'pending_review'` for Studio's approval gate.
+ */
+export async function runAttribute(
+  useCase: string,
+  actionCodeId: string,
+  t1: Record<string, number>,
+  opts?: { method?: 'before_after' | 'diff_in_diff' | 'holdout'; controlT0?: Record<string, number>; controlT1?: Record<string, number> },
+): Promise<AttributeResult> {
+  const args = [
+    '-m', 'tooling.superversion.bridge', 'attribute', useCase, actionCodeId,
+    '--t1', JSON.stringify(t1),
+  ];
+  if (opts?.method) args.push('--method', opts.method);
+  if (opts?.controlT0) args.push('--control-t0', JSON.stringify(opts.controlT0));
+  if (opts?.controlT1) args.push('--control-t1', JSON.stringify(opts.controlT1));
+
+  try {
+    return toAttributeResult(JSON.parse(await spawnBridge(args)) as AttributePayload);
+  } catch (err) {
+    const e = err as ExecError;
+    if (e.stdout) {
+      try {
+        return toAttributeResult(JSON.parse(e.stdout) as AttributePayload);
+      } catch {
+        /* not our JSON — fall through to transport-unavailable */
+      }
+    }
+    return {
+      available: false,
+      ok: false,
+      outcomeKpis: [],
+      attribution: [],
+      refinements: [],
+      error:
+        e.code === 'ENOENT'
+          ? `Python bridge unavailable (${PYTHON} not found)`
+          : e.message || 'bridge error',
+    };
+  }
+}
+
 /**
  * Emit a target + Gate-Report for a bracket via the Python bridge (I-6.3).
  * `available: false` is a transport failure; `ok` otherwise mirrors the gate.

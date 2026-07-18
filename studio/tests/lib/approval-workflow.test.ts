@@ -33,13 +33,15 @@ function createTestDb(): Database.Database {
     );
 
     CREATE TABLE IF NOT EXISTS bracket_lifecycle (
-      bracket_id TEXT PRIMARY KEY,
+      bracket_id TEXT NOT NULL,
+      project_id TEXT NOT NULL DEFAULT 'default',
       status TEXT NOT NULL DEFAULT 'draft',
       submitted_by TEXT,
       approved_by TEXT,
       justification TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (bracket_id, project_id)
     );
   `);
   return d;
@@ -117,5 +119,40 @@ describe('approval-workflow', () => {
     submitForReview('UC001', 'user@co.com', 'Ready');
     const events = testDb.prepare('SELECT * FROM audit_events WHERE entity_type = ?').all('governance');
     expect(events.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('defaults to the "default" project when projectId is omitted (backward compatible)', () => {
+    const explicit = getLifecycle('UC001', 'default');
+    const implicit = getLifecycle('UC001');
+    expect(implicit).toEqual(explicit);
+  });
+
+  describe('multi-project isolation (composite PK fix)', () => {
+    it('two projects reusing the same bracket_id get independent lifecycle rows, not one shared row', () => {
+      testDb.exec("INSERT OR IGNORE INTO projects (id) VALUES ('proj-a')");
+      testDb.exec("INSERT OR IGNORE INTO projects (id) VALUES ('proj-b')");
+
+      submitForReview('COM-001', 'user-a@co.com', 'Ready in A', 'proj-a');
+      approve('COM-001', 'admin-a@co.com', 'Approved in A', 'proj-a');
+
+      // proj-b's COM-001 must still be a fresh draft — not the 'approved' row from proj-a.
+      const inB = getLifecycle('COM-001', 'proj-b');
+      expect(inB.status).toBe('draft');
+      expect(inB.approved_by).toBeNull();
+
+      const inA = getLifecycle('COM-001', 'proj-a');
+      expect(inA.status).toBe('approved');
+      expect(inA.approved_by).toBe('admin-a@co.com');
+    });
+
+    it('audit events for a transition carry the real project_id, not a hardcoded default', () => {
+      testDb.exec("INSERT OR IGNORE INTO projects (id) VALUES ('proj-a')");
+      submitForReview('COM-002', 'user-a@co.com', 'Ready', 'proj-a');
+      const events = testDb.prepare(
+        "SELECT * FROM audit_events WHERE entity_type = 'governance' AND entity_id = 'COM-002'",
+      ).all() as Array<{ project_id: string }>;
+      expect(events.length).toBeGreaterThanOrEqual(1);
+      expect(events[0].project_id).toBe('proj-a');
+    });
   });
 });

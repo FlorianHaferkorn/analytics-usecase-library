@@ -1,4 +1,4 @@
-# ADR 0014 — Generator v2: Insight-Scoring, Verification, Composition (Two-Stage)
+# ADR 0017 — Generator v2: Insight-Scoring, Verification, Composition (Two-Stage)
 
 - **Status:** Proposed
 - **Date:** 2026-07-09

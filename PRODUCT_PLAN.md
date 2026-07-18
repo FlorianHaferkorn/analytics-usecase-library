@@ -186,8 +186,12 @@ existing brackets (verify against `core/usecases/UseCase_Inventory.md`):
 - ⚠️ UNKLAR: a finance close / cash KPI set — confirm a bracket exists.
 
 Rationale: these are universal, already partly defined in `golden_20.yaml`, and prove the
-compiler on meaningful breadth before industry packs. Industry packs (manufacturing first
-— Meridian already has a sketch) come **after** the universal set is premium-grade.
+compiler on meaningful breadth before industry packs. Industry packs (manufacturing first)
+come **after** the universal set is premium-grade.
+[Korrektur 2026-07-10, I-9.3-Recherche: kein "Meridian-Skizze" für Manufacturing im Repo
+oder im gevendorten Meridian-Subtree auffindbar — der einzige vendorte Meridian-Code ist
+`core/pbi_engine` (Contract-Oberfläche, ADR-0005), keine Branchen-Inhalte. Details +
+Re-Scoping-Befund: `UMSETZUNGSPLAN_SUPERVERSION.md`, Zeile I-9.3.]
 
 **Customer-operable means (the bar for "ship"):** install/setup path, Studio runs the
 core, the customer can author a use case → approve → generate → validate → get a
