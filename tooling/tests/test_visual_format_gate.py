@@ -16,7 +16,7 @@ def _load(name, rel):
     return mod
 
 
-def test_gate_flags_vs_target_hero_without_benchmark():
+def test_vs_target_without_benchmark_is_plan_informational_not_a_gap():
     cvf = _load("check_visual_format", "tooling/validation/check_visual_format.py")
     pol = cvf._policy()
     units = {"x.no.bench.pct": "% (1 decimal)"}
@@ -25,7 +25,20 @@ def test_gate_flags_vs_target_hero_without_benchmark():
                          "status_logic": "higher_is_better"},
         "component_30s": []}}}
     problems = cvf.check_bracket(bracket, units, pol)
-    assert any("no benchmark" in p for p in problems)
+    # vs-target without an industry benchmark steers vs PLAN — informational, not a real gap
+    assert any("vs plan" in p and "informational" in p for p in problems)
+    assert not any("define an org target" in p for p in problems)
+
+
+def test_no_target_at_all_is_a_genuine_gap():
+    cvf = _load("check_visual_format", "tooling/validation/check_visual_format.py")
+    pol = cvf._policy()
+    units = {"x.no.target": "count"}
+    bracket = {"id": "TST", "ux_layout_rules": {"page_1_summary": {
+        "component_3s": {"kpi_id": "x.no.target", "comparison": "none",
+                         "status_logic": "higher_is_better"},
+        "component_30s": []}}}
+    assert any("define an org target" in p for p in cvf.check_bracket(bracket, units, pol))
 
 
 def test_gate_clean_hero_with_benchmark_and_status():

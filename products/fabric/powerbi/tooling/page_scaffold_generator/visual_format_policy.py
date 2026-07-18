@@ -58,6 +58,27 @@ def benchmark_target(kpi_id: str) -> Optional[dict[str, Any]]:
     return None
 
 
+def target_source(kpi_id: Optional[str], comparison: Optional[str]) -> dict:
+    """Where does this KPI's target come from — the honest resolution behind deviation/semantic colour.
+
+      • 'benchmark' — an external industry/normative benchmark exists in benchmarks.yaml (value known now).
+      • 'plan'      — no external benchmark, but the KPI steers vs an org/plan target (comparison
+                      vs_plan / vs_target): semantic colour computes against the plan-target MEASURE
+                      (e.g. [KPI Plan]) once it exists in the model — no external benchmark required.
+      • 'none'      — neither: a target must be defined (org target) before a verdict is possible.
+
+    This stops the false-gap that treats "no industry benchmark" as a defect: most KPIs (EBITDA margin,
+    savings realisation, an internal index) are legitimately steered vs plan, not vs an industry number.
+    """
+    b = benchmark_target(kpi_id) if kpi_id else None
+    if b and b.get("value") is not None:
+        return {"kind": "benchmark", "value": b.get("value"), "direction": b.get("direction")}
+    c = (comparison or "").lower()
+    if c in ("vs_plan", "vs_target", "vs_ly", "vs_prior"):
+        return {"kind": "plan", "measure": f"[{kpi_id} Plan]" if kpi_id else None}
+    return {"kind": "none"}
+
+
 def format_string(unit_format: Optional[str]) -> str:
     """Map a KPI unit_format to a Power BI custom format string."""
     u = (unit_format or "").lower()
@@ -162,7 +183,8 @@ def format_spec(kpi_id: Optional[str], visual_type: Optional[str], unit_format: 
         value_axis=value_axis(visual_type, unit_format),
         semantic={"good_direction": good_direction(status_logic, bench and bench.get("direction")),
                   "tokens": semantic_tokens(),
-                  "target": bench and bench.get("value")},
+                  "target": bench and bench.get("value"),
+                  "target_source": target_source(kpi_id, comparison)},
         deviation=deviation_spec(comparison, status_logic),
         tooltip=tooltip_measures(strategic, influencing),
     )

@@ -67,8 +67,13 @@ def check_bracket(bracket: dict[str, Any], units: dict[str, str], pol) -> list[s
         kid = hero["kpi_id"]
         if not (hero.get("status_logic") or "").strip():
             out.append(f"{ucid}: 3s hero `{kid}` has no status_logic — good/bad direction undefined")
-        if hero.get("comparison") in ("vs_target", "vs_plan") and pol.benchmark_target(kid) is None:
-            out.append(f"{ucid}: 3s hero `{kid}` is vs-target but has no benchmark → no deviation/semantic colour")
+        ts = pol.target_source(kid, hero.get("comparison"))
+        if ts["kind"] == "none":
+            out.append(f"{ucid}: 3s hero `{kid}` has no target (no benchmark, not vs-plan) → no verdict "
+                       f"possible; define an org target")
+        elif ts["kind"] == "plan":
+            out.append(f"{ucid}: 3s hero `{kid}` steers vs plan (no industry benchmark) → deviation/"
+                       f"semantic colour compute once the plan-target measure exists [informational]")
         if not units.get(kid):
             out.append(f"{ucid}: 3s hero `{kid}` has no unit_format → generic number format")
 
