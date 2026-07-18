@@ -36,3 +36,27 @@ def test_storyline_structure_clean():
 def test_storyboard_doc_in_sync():
     stale = render_out_of_sync()
     assert stale is None, stale
+
+
+def test_json_contract_validates_against_schema():
+    """The structured storyline (--json) is the generator/LLM contract — it must validate."""
+    import json
+    import importlib.util
+    try:
+        import jsonschema
+    except ImportError:
+        return  # optional dep; schema still shipped
+    spec = importlib.util.spec_from_file_location(
+        "derive_storyline", REPO / "tooling/storyline/derive_storyline.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    kpi_domains, kpi_keys, action_related = mod._kpi_domains(), mod._kpi_keys(), mod._action_related()
+    data = mod.storylines_json(mod.load_brackets(None), kpi_domains, kpi_keys, action_related)
+    schema = json.loads((REPO / "tooling/storyline/storyline.schema.json").read_text(encoding="utf-8"))
+    jsonschema.validate(data, schema)
+    # every use case present, every visual carries its question (the whole point)
+    assert len(data) >= 17
+    for s in data:
+        for p in s["pages"]:
+            for v in p["visuals"]:
+                assert v["question"], f"{s['use_case']} visual missing question"

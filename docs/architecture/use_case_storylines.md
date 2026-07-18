@@ -397,7 +397,7 @@
 
 ## XD-004 — Executive Action Governance
 
-**Headline KPI:** `enterprise.action_outcome_rate.pct` (maximize). Executive action effectiveness improves when Impactful 15 action codes are executed on time, owned clearly, and produce confirmed outcomes tracked against agreed KPI improvements in fact_action_outcome.
+**Headline KPI:** `enterprise.action_outcome_rate.pct`.
 
 ### Page 1 Summary · T1_Strategic_Overview
 **Spine question:** Is the action governance cycle delivering verified business impact?

@@ -117,68 +117,109 @@ def cross_domain_edges(bracket: dict[str, Any], kpi_domains: dict[str, list[str]
     return by_domain, related
 
 
-def storyboard(bracket: dict[str, Any], kpi_domains, kpi_keys, action_related) -> str:
-    ucid = bracket.get("id")
-    title = bracket.get("title")
+def build_storyline(bracket: dict[str, Any], kpi_domains, kpi_keys, action_related) -> dict[str, Any]:
+    """The structured storyline model — the deterministic contract the report generator and the
+    (future, bounded) LLM interpretation layer both consume. No numbers/KPIs invented; every field
+    traces to a governed bracket field."""
     orch = bracket.get("orchestration", {}) or {}
     vdm = bracket.get("value_driver_model", {}) or {}
     ux = bracket.get("ux_layout_rules", {}) or {}
     strategic = orch.get("strategic_kpi_id")
-
-    L: list[str] = [f"## {ucid} — {title}", ""]
-    # causal thread
     driver = vdm.get("primary_driver")
+    causal = None
     if driver and strategic and driver != strategic:
-        L.append(f"**Causal thread:** `{driver}` → `{strategic}` "
-                 f"({vdm.get('impact_direction', 'impact')}). "
-                 f"{(vdm.get('impact_logic') or '').strip()}")
-        L.append("")
-    elif strategic:
-        L.append(f"**Headline KPI:** `{strategic}` ({vdm.get('impact_direction', 'impact')}). "
-                 f"{(vdm.get('impact_logic') or '').strip()}")
-        L.append("")
+        causal = {"driver": driver, "target": strategic,
+                  "direction": vdm.get("impact_direction"),
+                  "logic": (vdm.get("impact_logic") or "").strip()}
 
-    for pk, arrow in (("page_1_summary", "↓ handoff"), ("page_2_execution", None)):
+    pages: list[dict[str, Any]] = []
+    for pk in ("page_1_summary", "page_2_execution"):
         p = ux.get(pk) or {}
         if not p:
             continue
-        ptype = p.get("page_type", "")
-        L.append(f"### {pk.replace('_', ' ').title()} · {ptype}")
-        L.append(f"**Spine question:** {p.get('decision_question', '—')}")
         c3 = p.get("component_3s") or {}
-        if c3:
-            L.append(f"- **[3s verdict]** `{c3.get('kpi_id')}` "
-                     f"{c3.get('comparison', '')} ({c3.get('status_logic', '')})")
-        for i, comp in enumerate(p.get("component_30s") or [], 1):
-            q = _derive_question(comp, kpi_keys)
-            L.append(f"- **[30s Q{i}]** {q}")
-            L.append(f"    - visual: `{comp.get('visual_type')}` · `{comp.get('kpi_id')}`")
-            L.append(f"    - answer: {comp.get('message', '—')}")
-            L.append(f"    - so what → {comp.get('so_what', '—')}")
+        visuals = [{
+            "seq": i,
+            "question": _derive_question(comp, kpi_keys),
+            "visual_type": comp.get("visual_type"),
+            "kpi_id": comp.get("kpi_id"),
+            "answer": comp.get("message"),
+            "so_what": comp.get("so_what"),
+            "unit": comp.get("unit"),
+        } for i, comp in enumerate(p.get("component_30s") or [], 1)]
         c300 = p.get("component_300s") or {}
+        evidence = None
         if c300:
             srt = c300.get("sort_by") or {}
-            L.append(f"- **[300s evidence]** grain `{c300.get('evidence_grain')}`, "
-                     f"worst-first by `{srt.get('measure')}` ({srt.get('direction')}), "
-                     f"Top-{c300.get('top_n')}"
-                     + (" · action panel" if c300.get("action_panel") else ""))
+            evidence = {"grain": c300.get("evidence_grain"), "sort_measure": srt.get("measure"),
+                        "sort_direction": srt.get("direction"), "top_n": c300.get("top_n"),
+                        "action_panel": bool(c300.get("action_panel"))}
+        pages.append({
+            "id": pk, "type": p.get("page_type", ""),
+            "decision_question": p.get("decision_question"),
+            "verdict": ({"kpi_id": c3.get("kpi_id"), "comparison": c3.get("comparison"),
+                         "status_logic": c3.get("status_logic")} if c3 else None),
+            "visuals": visuals, "evidence": evidence,
+        })
+
+    by_domain, related = cross_domain_edges(bracket, kpi_domains, action_related)
+    return {
+        "use_case": bracket.get("id"), "title": bracket.get("title"), "domain": bracket.get("domain"),
+        "strategic_kpi": strategic, "causal_thread": causal, "pages": pages,
+        "actions": orch.get("action_code_ids") or [],
+        "cross_domain": by_domain, "connects_to": sorted(related),
+    }
+
+
+def render_markdown(s: dict[str, Any]) -> str:
+    """Human-readable storyboard from the structured model."""
+    L: list[str] = [f"## {s['use_case']} — {s['title']}", ""]
+    c = s.get("causal_thread")
+    if c:
+        L.append(f"**Causal thread:** `{c['driver']}` → `{c['target']}` "
+                 f"({c.get('direction', 'impact')}). {c.get('logic', '')}")
+        L.append("")
+    elif s.get("strategic_kpi"):
+        L.append(f"**Headline KPI:** `{s['strategic_kpi']}`.")
+        L.append("")
+    for idx, p in enumerate(s["pages"]):
+        arrow = "↓ handoff" if idx == 0 and len(s["pages"]) == 2 else None
+        L.append(f"### {p['id'].replace('_', ' ').title()} · {p.get('type', '')}")
+        L.append(f"**Spine question:** {p.get('decision_question') or '—'}")
+        v = p.get("verdict")
+        if v:
+            L.append(f"- **[3s verdict]** `{v.get('kpi_id')}` "
+                     f"{v.get('comparison', '')} ({v.get('status_logic', '')})")
+        for vis in p["visuals"]:
+            L.append(f"- **[30s Q{vis['seq']}]** {vis['question']}")
+            L.append(f"    - visual: `{vis.get('visual_type')}` · `{vis.get('kpi_id')}`")
+            L.append(f"    - answer: {vis.get('answer') or '—'}")
+            L.append(f"    - so what → {vis.get('so_what') or '—'}")
+        ev = p.get("evidence")
+        if ev:
+            L.append(f"- **[300s evidence]** grain `{ev.get('grain')}`, "
+                     f"worst-first by `{ev.get('sort_measure')}` ({ev.get('sort_direction')}), "
+                     f"Top-{ev.get('top_n')}" + (" · action panel" if ev.get("action_panel") else ""))
         if arrow:
             L.append(f"\n{arrow} →\n")
-
-    if orch.get("action_code_ids"):
-        L.append(f"**Decision payoff (actions):** {', '.join(orch['action_code_ids'])}")
-    by_domain, related = cross_domain_edges(bracket, kpi_domains, action_related)
-    if by_domain:
+    if s.get("actions"):
+        L.append(f"**Decision payoff (actions):** {', '.join(s['actions'])}")
+    if s.get("cross_domain"):
         parts = []
-        for dom, kids in sorted(by_domain.items(), key=lambda kv: -len(kv[1])):
+        for dom, kids in sorted(s["cross_domain"].items(), key=lambda kv: -len(kv[1])):
             ex = ", ".join(f"`{k}`" for k in kids[:3])
             more = f" +{len(kids) - 3}" if len(kids) > 3 else ""
             parts.append(f"{dom} ({len(kids)}: {ex}{more})")
         L.append(f"**Cross-domain pull:** {'; '.join(parts)}")
-    if related:
-        L.append(f"**Connects to use cases:** {', '.join(sorted(related))}")
+    if s.get("connects_to"):
+        L.append(f"**Connects to use cases:** {', '.join(s['connects_to'])}")
     L.append("")
     return "\n".join(L)
+
+
+def storyboard(bracket: dict[str, Any], kpi_domains, kpi_keys, action_related) -> str:
+    """Markdown storyboard for one bracket (model → view)."""
+    return render_markdown(build_storyline(bracket, kpi_domains, kpi_keys, action_related))
 
 
 def load_brackets(uc_filter: Optional[str]) -> list[Path]:
@@ -188,14 +229,33 @@ def load_brackets(uc_filter: Optional[str]) -> list[Path]:
     return bs
 
 
+def storylines_json(brackets, kpi_domains, kpi_keys, action_related) -> list[dict[str, Any]]:
+    return [build_storyline(yaml.safe_load(b.read_text(encoding="utf-8")) or {},
+                            kpi_domains, kpi_keys, action_related) for b in brackets]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Derive the guided storyline from a use-case bracket")
     ap.add_argument("use_case_id", nargs="?", help="filter by ID substring")
-    ap.add_argument("--render", metavar="FILE", help="write the combined storyboard to FILE")
+    ap.add_argument("--render", metavar="FILE", help="write the combined Markdown storyboard to FILE")
+    ap.add_argument("--json", metavar="FILE", nargs="?", const="-",
+                    help="emit the structured storyline model as JSON (the generator/LLM contract); "
+                         "'-' or no value = stdout")
     args = ap.parse_args()
 
     kpi_domains, kpi_keys, action_related = _kpi_domains(), _kpi_keys(), _action_related()
     brackets = load_brackets(args.use_case_id)
+
+    if args.json is not None:
+        import json
+        data = storylines_json(brackets, kpi_domains, kpi_keys, action_related)
+        payload = json.dumps(data, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
+        if args.json in ("-", ""):
+            print(payload, end="")
+        else:
+            Path(args.json).write_text(payload, encoding="utf-8")
+            print(f"wrote {args.json} ({len(data)} storylines)")
+        return 0
 
     header = ("# Use-case storylines (derived)\n\n"
               "> Generated by `tooling/storyline/derive_storyline.py` from the governed brackets — "
