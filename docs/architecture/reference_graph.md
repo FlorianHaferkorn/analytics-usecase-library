@@ -56,7 +56,6 @@ _none_
 
 ## Reachable KPIs with no backing measure (review — not a gate)
 
-- `fin.liquidity.inventory.amount`
 - `fin.overdue_ar.pct`
 - `inv.excess_inventory.amount`
 - `ops.changeover.minutes`
@@ -65,3 +64,4 @@ _none_
 - `retail.basket.value.average`
 - `retail.category.crosssell_rate.pct`
 - `retail.promotion.attachment_rate.pct`
+- `sales.promo.incremental.amount`
