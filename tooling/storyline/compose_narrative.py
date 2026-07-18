@@ -12,6 +12,16 @@ stale silently — with a value derived from the top-scored *verified* finding e
 static `big_idea` in the bracket is kept as the **fallback** when no finding verifies (ADR-0009: never
 render an unverified claim; fall back to the human-curated floor).
 
+Reconciliation with the render enforcer (single source of truth — no parallel render path).
+`design_rules_enforcer.check_header_text_equals_big_idea` requires the rendered page-1 Header to equal
+`ux_layout_rules.page_1_summary.big_idea` **verbatim**. That bracket field stays the ONE rendered
+source; this module is its *generator/proposer*, never a second render path that would fight the
+verbatim check. The contract is therefore single-valued: the rendered header == the bracket `big_idea`,
+and that field is either produced by this composer (verified) or hand-authored (the D4 fallback floor).
+`--check` reports drift — where the governed static field no longer matches what the current verified
+evidence composes — so a maintainer can refresh the field deliberately (keeping the verbatim rule
+valid). It never auto-writes: adopting a proposal is a governed edit to the bracket, not a side effect.
+
 D3 — the closed set of template shapes, selected deterministically from the headline record's shape
 (the dimensions Stage 1 already scored — no new judgment layer):
   • driver_lever       — the headline sits on the causal thread and the use case has actions
@@ -129,10 +139,53 @@ def compose_all(uc_filter: Optional[str]) -> list[dict[str, Any]]:
     return out
 
 
+def check_drift(uc_filter: Optional[str]) -> list[dict[str, Any]]:
+    """Compare each composed Big Idea against the bracket's static `big_idea` (the rendered source).
+
+    Status per use case (advisory — the static field is legitimately hand-curated; compose only proposes):
+      • agree    — the composer verifies and its Big Idea already matches the governed static field
+      • drift    — the composer verifies but its Big Idea differs from the static field (field may be stale)
+      • fallback — the composer did not verify; the static field remains the floor (nothing to reconcile)
+      • missing  — no static big_idea set at all (the enforcer skips it; compose has nothing to compare)
+    """
+    ds = _load("tooling/storyline/derive_storyline.py", "derive_storyline")
+    out = []
+    for r in compose_all(uc_filter):
+        static = None
+        for b in ds.load_brackets(r["use_case"]):
+            static = _static_big_idea(yaml.safe_load(b.read_text(encoding="utf-8")) or {})
+        if not static:
+            status = "missing"
+        elif r["fallback_used"]:
+            status = "fallback"
+        elif r["big_idea"].strip() == static.strip():
+            status = "agree"
+        else:
+            status = "drift"
+        out.append({"use_case": r["use_case"], "status": status,
+                    "composed": r["big_idea"], "static": static})
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="ADR-0017 Stage-2: compose the Big Idea from the verified headline")
     ap.add_argument("use_case_id", nargs="?", help="filter by ID substring")
+    ap.add_argument("--check", action="store_true",
+                    help="report drift between the composed Big Idea and the governed static big_idea (never writes)")
     args = ap.parse_args()
+
+    if args.check:
+        rows = check_drift(args.use_case_id)
+        drift = [r for r in rows if r["status"] == "drift"]
+        for r in rows:
+            print(f"[{r['status']:>8}] {r['use_case']}")
+            if r["status"] == "drift":
+                print(f"           static  : {r['static']}")
+                print(f"           composed: {r['composed']}")
+        print(f"\ncompose_narrative --check: {len(rows)} use cases · {len(drift)} drift "
+              f"(static field trails the current verified evidence — refresh deliberately). Advisory; nothing written.")
+        return 0
+
     for r in compose_all(args.use_case_id):
         gate = "verified" if r["verified"] else ("fallback→static" if r["fallback_used"] else "unverified")
         print(f"## {r['use_case']}  [{r['shape']} · {gate}]")

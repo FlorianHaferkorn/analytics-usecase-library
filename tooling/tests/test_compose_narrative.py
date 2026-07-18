@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tooling.storyline.compose_narrative import compose, compose_all, select_shape
+from tooling.storyline.compose_narrative import check_drift, compose, compose_all, select_shape
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -27,6 +27,20 @@ def test_fallback_uses_static_big_idea():
     # no static → UNCOMPUTED marker, never a fabricated claim
     r2 = compose(story, ranked, {"k": "K"}, static_big_idea=None)
     assert "UNCOMPUTED" in r2["big_idea"] and not r2["verified"]
+
+
+def test_drift_check_reconciles_with_static_field_never_writes():
+    """#4 reconciliation: compose proposes; the bracket big_idea stays the single rendered source."""
+    rows = check_drift(None)
+    assert len(rows) >= 17
+    valid = {"agree", "drift", "fallback", "missing"}
+    for r in rows:
+        assert r["status"] in valid
+        # a 'drift' row must actually differ; 'agree' must actually match — the check must be real
+        if r["status"] == "drift":
+            assert r["composed"].strip() != (r["static"] or "").strip()
+        if r["status"] == "agree":
+            assert r["composed"].strip() == r["static"].strip()
 
 
 def test_every_use_case_composes_a_big_idea():

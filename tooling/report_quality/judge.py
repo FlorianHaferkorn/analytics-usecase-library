@@ -36,6 +36,13 @@ except ImportError:  # pragma: no cover
 REPO = Path(__file__).resolve().parents[2]
 _RUBRIC = REPO / "core/templates/page_templates/tokens/boutique_craft_rubric.yaml"
 
+import sys
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
+# Shared honesty contract (single source): deterministic default ships; LLM may slot in but must
+# ABSTAIN rather than fabricate; the gate stays deterministic. See tooling/quality/verification_seam.py.
+from tooling.quality.verification_seam import ABSTAIN  # noqa: E402
+
 
 @dataclass
 class Verdict:
@@ -95,7 +102,7 @@ def _bc_narr_03(ctx: JudgeContext) -> Verdict:
     message but no so_what has a broken chain."""
     exhibits = [e for e in ctx.exhibits() if str(e.get("message", "")).strip()]
     if not exhibits:
-        return Verdict("BC-NARR-03", None, "abstain", "no governed messages to assess")
+        return Verdict("BC-NARR-03", ABSTAIN, "abstain", "no governed messages to assess")
     broken = [f"{e['_bracket']}/{e.get('slot_id', '?')}"
               for e in exhibits if not str(e.get("so_what", "")).strip()]
     if broken:
@@ -114,7 +121,7 @@ def _bc_layout_03(ctx: JudgeContext) -> Verdict:
              for b in ctx.brackets()]
     pages = [(bid, p) for bid, p in pages if p]
     if not pages:
-        return Verdict("BC-LAYOUT-03", None, "abstain", "no summary pages to assess")
+        return Verdict("BC-LAYOUT-03", ABSTAIN, "abstain", "no summary pages to assess")
     flat = []
     for bid, p in pages:
         hero = p.get("component_3s")
@@ -141,7 +148,7 @@ class SpecHeuristicJudge:
     def evaluate(self, rule_id: str, ctx: JudgeContext) -> Verdict:
         fn = _HEURISTICS.get(rule_id)
         if fn is None:
-            return Verdict(rule_id, None, "abstain", "needs a rendered report + judge (LLM/human)")
+            return Verdict(rule_id, ABSTAIN, "abstain", "needs a rendered report + judge (LLM/human)")
         return fn(ctx)
 
 
@@ -201,7 +208,7 @@ def parse_verdict(rule_id: str, text: str) -> Verdict:
         elif s.upper().startswith("RATIONALE:"):
             rationale = s.split(":", 1)[1].strip()
     if score is None:
-        return Verdict(rule_id, None, "abstain", "LLM output unparseable — abstaining")
+        return Verdict(rule_id, ABSTAIN, "abstain", "LLM output unparseable — abstaining")
     return Verdict(rule_id, score, "llm", rationale or "(no rationale)")
 
 
@@ -218,10 +225,10 @@ class LLMJudge:
 
     def evaluate(self, rule_id: str, ctx: JudgeContext) -> Verdict:
         if self._complete is None or self._render is None:
-            return Verdict(rule_id, None, "abstain", "no model + render wired (runtime concern)")
+            return Verdict(rule_id, ABSTAIN, "abstain", "no model + render wired (runtime concern)")
         evidence = self._render(rule_id)
         if not evidence:
-            return Verdict(rule_id, None, "abstain", "no rendered evidence available")
+            return Verdict(rule_id, ABSTAIN, "abstain", "no rendered evidence available")
         prompt = build_judge_prompt(_rule_meta(rule_id, self._rubric), evidence)
         return parse_verdict(rule_id, self._complete(prompt))
 
@@ -234,7 +241,7 @@ class CompositeJudge:
         self._judges = judges
 
     def evaluate(self, rule_id: str, ctx: JudgeContext) -> Verdict:
-        last = Verdict(rule_id, None, "abstain", "no judge decided")
+        last = Verdict(rule_id, ABSTAIN, "abstain", "no judge decided")
         for j in self._judges:
             v = j.evaluate(rule_id, ctx)
             if v.score is not None:

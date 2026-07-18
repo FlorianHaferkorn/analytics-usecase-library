@@ -7,23 +7,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tooling.validation.check_usecase_quality import check_bracket, is_label_message
+from tooling.validation.check_usecase_quality import check_bracket
+from tooling.validation.check_exhibit_message import classify_message
 
 REPO = Path(__file__).resolve().parents[2]
 
 
-def test_label_heuristic():
-    # label-style (describe the visual) → rejected
-    assert is_label_message("Cash balance trend over time.")
-    assert is_label_message("OEE trend vs. target.")
-    assert is_label_message("Net sales growth vs. last year, trended.")
-    assert is_label_message("")
-    assert is_label_message(None)
-    # conclusions → accepted
-    assert not is_label_message("On-time delivery is the component dragging OTIF below target, not in-full")
-    assert not is_label_message("Cash balance is drifting down toward its safety-margin threshold")
-    # decomposition-orientation line (em dash) → allowed
-    assert not is_label_message("In-full rate and stockout impact — the two OTIF components beyond timeliness.")
+def test_message_rule_reuses_bc_narr_01_owner():
+    # BC-NARR-01 is owned by check_exhibit_message; check_usecase_quality must not re-implement it.
+    # Confirm the shared classifier is the one deciding label vs. conclusion.
+    assert classify_message("Revenue by region")[0] is False              # bare label → rejected
+    assert classify_message("On-time delivery is dragging OTIF below target")[0] is True  # conclusion
+    # and check_usecase_quality no longer ships a parallel heuristic
+    import tooling.validation.check_usecase_quality as m
+    assert not hasattr(m, "is_label_message"), "parallel label heuristic must be gone (reuse the owner)"
 
 
 def test_corpus_is_clean():

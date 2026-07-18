@@ -42,6 +42,8 @@ REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:                 # so `python tooling/storyline/score_insights.py` can import siblings
     sys.path.insert(0, str(REPO))
 
+from tooling.quality.verification_seam import ABSTAIN  # noqa: E402 — shared honesty contract (single source)
+
 # weights sum to 1.0; grounding kept modest as a score but decisive as a gate (see verified).
 _W = {"depth": 0.30, "specificity": 0.25, "actionability": 0.30, "grounding": 0.15}
 
@@ -77,8 +79,10 @@ class InsightScore:
 
 
 class Scorer(Protocol):
-    """Stage-1 scoring seam. A bounded, verified LLM scorer can implement this later; the
-    grounding dimension must stay deterministic regardless (it is the verification gate)."""
+    """Stage-1 scoring seam. Obeys the shared honesty contract in
+    `tooling/quality/verification_seam.py` (single source): a deterministic default ships; a bounded
+    LLM scorer MAY implement this later but must ABSTAIN rather than fabricate; and the grounding
+    dimension stays deterministic regardless (it is the verification gate — the LLM never moves it)."""
     def score(self, finding: dict[str, Any], context: dict[str, Any]) -> InsightScore: ...
 
 
@@ -184,8 +188,9 @@ def rank_storyline(storyline: dict[str, Any], exists: set[str], has_ref: set[str
         scored.sort(key=lambda e: (-e["score"], -int(bool(e["value_verified"]))))
         ranked_pages.append({"page": p.get("id"), "findings": scored})
     verified = [f for f in all_findings if f["verified"]]
-    # headline = top verified finding; ties broken toward the one with a real computed value
-    headline = max(verified, key=lambda f: (f["score"], int(bool(f["value_verified"])))) if verified else None
+    # headline = top verified finding; ties broken toward the one with a real computed value.
+    # No verified finding ⇒ ABSTAIN (never fabricate a headline) — the shared seam's honesty rule.
+    headline = max(verified, key=lambda f: (f["score"], int(bool(f["value_verified"])))) if verified else ABSTAIN
     return {"use_case": storyline.get("use_case"), "headline": headline, "pages": ranked_pages}
 
 
