@@ -44,3 +44,10 @@ metadata_quality:
   last_review: 23.01.2026
 aliases:
 - Delta% Net Sales
+standard_ref:
+- standard: IFRS 15
+  name: Net sales YoY growth
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: none
+  note: Year-over-year growth is a management trend metric; the underlying net-sales base is IFRS 15 revenue
+    but the growth ratio is not standard-defined.

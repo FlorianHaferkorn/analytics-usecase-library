@@ -20,7 +20,7 @@ orchestration:
   - plan.forecast.mape.pct
   - plan.forecast.bias.pct
   - plan.forecast.service_impact.pct
-  - plan.replan.count
+  - plans.count
   - sales.units
   - inv.excess_inventory.amount
   action_code_ids:
@@ -41,6 +41,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Supply Chain Summary & Insights
     page_type: T1_Strategic_Overview
@@ -51,43 +53,63 @@ ux_layout_rules:
     component_3s:
       kpi_id: inv.dio.days
       visual_type: kpi_card
+      comparison: vs_target
+      status_logic: lower_is_better
+      benchmark: true
     component_30s:
     - slot_id: Main_1
       kpi_id: inv.turnover
       visual_type: trend_line
+      message: Inventory turnover is falling, tying up working capital in slow-moving stock
+      so_what: "Falling turnover ties up working capital that could fund faster-moving SKUs."
+      unit: ratio
     - slot_id: Main_2
       kpi_ids:
       - inv.stockout.pct
       - supply.otif.pct
       - inv.obsolete.pct
       visual_type: bar_chart
+      message: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
+      so_what: "Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one."
+      unit: rate
     - slot_id: Main_3
       # Forecast Accuracy trend vs target — upstream driver of DIO and the excess/stockout trade-off (content_gap fix)
       kpi_id: plan.forecast.accuracy.pct
       visual_type: trend_line
       comparison: vs_target
+      message: Forecast accuracy below target is the root cause behind the stockout-and-obsolescence swing
+      so_what: "Fixing forecast accuracy addresses the root cause instead of firefighting stockouts and dead stock separately."
+      unit: rate
   page_2_execution:
     title: Supply Chain Execution
+    decision_question: "Which SKUs drive the excess or stockout risk, and what is the rebalancing action?"
     page_type: T3_Operational_Monitoring
     template_variant: T3_ExceptionQueue
     template_id: action_matrix
     component_300s:
       evidence_grain: location_sku_month
+      # R2.4: curated 12→8. 'location' has no backing dimension table in
+      # SupplyChain.SemanticModel (dim_org's Region/OrgName already cover
+      # site-level cross-cuts elsewhere) -- dropped in favor of product_category
+      # + ABC/XYZ classification, the decision_question's own analytical lens.
       evidence_columns:
-      - location
-      - channel
       - product_category
       - abc_class
       - xyz_class
       - inv.turnover
       - inv.stockout.pct
-      - supply.otif.pct
       - inv.obsolete.pct
-      - plan.forecast.accuracy.pct
-      - sales.units
       - inv.dio.days
+      - supply.otif.pct
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: inv.obsolete.pct
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: inv.obsolete.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: medium

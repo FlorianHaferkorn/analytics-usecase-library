@@ -49,3 +49,10 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: Management accounting (CIMA/IMA)
+  name: Sales mix variance (residual)
+  alignment: partial
+  note: Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition.
+    Its magnitude depends on the volume-effect basis (see sales.pvm.volume_effect) — a convention choice,
+    not a governed standard.

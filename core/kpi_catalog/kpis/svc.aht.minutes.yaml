@@ -48,3 +48,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ITIL 4
+  name: Average Handling Time
+  url: https://www.axelos.com/certifications/itil-service-management
+  alignment: partial
+  note: AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC
+    20000-defined. Align the handle-time components (talk + hold + wrap) so the average is comparable
+    across teams.

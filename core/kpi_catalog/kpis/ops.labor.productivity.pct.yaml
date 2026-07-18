@@ -43,3 +43,12 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: WE
+  name: Worker efficiency
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time.
+    Ours (output or net sales / labour hours) is an output-based productivity ratio — same intent, different
+    basis. Align the numerator/denominator to WE to claim the standard.

@@ -189,63 +189,6 @@
         "hierarchy_columns": []
       },
       {
-        "name": "fact_fulfillment",
-        "description": "",
-        "is_hidden": false,
-        "is_date_table": false,
-        "columns": [],
-        "measures": [
-          {
-            "name": "Ops OTIF %",
-            "expression": "",
-            "display_folder": "Operations",
-            "description": "On-Time In-Full deliveries / Total Deliveries",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          },
-          {
-            "name": "In-Full %",
-            "expression": "",
-            "display_folder": "Supply Chain",
-            "description": "In-Full Deliveries / Total Deliveries.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          },
-          {
-            "name": "On-Time %",
-            "expression": "",
-            "display_folder": "Supply Chain",
-            "description": "On-Time Deliveries / Total Deliveries.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          },
-          {
-            "name": "OTIF %",
-            "expression": "",
-            "display_folder": "Supply Chain",
-            "description": "OTIF Orders / Total Orders.",
-            "format_string": "0.0%",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
-            }
-          }
-        ],
-        "has_partition": false,
-        "partition_type": "",
-        "m_expression": "",
-        "hierarchy_columns": []
-      },
-      {
         "name": "fact_quality_costs",
         "description": "",
         "is_hidden": false,
@@ -318,6 +261,52 @@
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"denominator\": {\"column\": \"Total Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"numerator\": {\"column\": \"Scrap Units\", \"kind\": \"column\", \"table\": \"fact_quality\"}, \"op\": \"ratio\"}"
+            }
+          }
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
+      },
+      {
+        "name": "fact_fulfillment",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "In-Full %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "In-Full Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "On-Time %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "On-Time Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "OTIF %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "OTIF Orders / Total Orders.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
             }
           }
         ],
@@ -405,7 +394,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Main_1",
+            "title": "Customer lifetime revenue is eroding, with the mid-tier segment driving the decline",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -425,16 +414,14 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Main_2",
+            "title": "Retention is slipping unevenly across segments, concentrating the CLV risk",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "Customer Retention %",
-              "Churned Customers",
-              "Revenue at Risk Amount"
+              "Customer Retention %"
             ],
             "rows": [],
             "columns": [],
@@ -447,7 +434,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Main_3",
+            "title": "Revenue at risk is concentrated in a few customer segments",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,

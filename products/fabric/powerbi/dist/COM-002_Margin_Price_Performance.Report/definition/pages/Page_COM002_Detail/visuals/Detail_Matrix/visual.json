@@ -244,7 +244,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "TopN_GMvsPlan_Detail_Matrix",
+        "name": "TopN_GrossMarginvsPlan_Detail_Matrix",
         "field": {
           "Column": {
             "Expression": {

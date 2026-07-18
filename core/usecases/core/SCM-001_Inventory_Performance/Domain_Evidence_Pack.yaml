@@ -57,7 +57,7 @@ canonical_domain_model:
       benchmark_target: "< 2% (CSCMP world class); < 5% acceptable"
       benchmark_source_id: SRC-004
 
-    - id: ops.otif.pct
+    - id: supply.otif.pct
       name: OTIF % (Delivery Service Level)
       definition: "% of customer orders delivered On-Time and In-Full."
       unit: "%"
@@ -105,7 +105,7 @@ canonical_domain_model:
       condition: >
         DIO reduction actions must not push stockout rate above 3% or OTIF below 95%.
         Service level is a constraint, not a tradeoff objective.
-      affected_kpis: [inv.dio.days, inv.stockout.pct, ops.otif.pct]
+      affected_kpis: [inv.dio.days, inv.stockout.pct, supply.otif.pct]
 
     - description: Safety stock for critical/high-lead-time SKUs
       condition: >
@@ -268,7 +268,7 @@ action_logic_seeds:
     trigger_condition: "Stockout rate > 3% AND forecast bias is negative (under-forecast)"
     guardrail: "Exclude SKUs under product phase-out"
     action_description: Replenishment parameter review and safety stock recalibration.
-    expected_outcome_kpi: ops.otif.pct
+    expected_outcome_kpi: supply.otif.pct
     action_code_candidate: S-I1.2
 
 required_data_model:

@@ -16,7 +16,7 @@ expression fn_DeltaCurrentFiles =
 					ParsedValid = List.Select(ParsedAll, each _ <> null and Value.Is(_, type record) and (Record.HasFields(_, "add") or Record.HasFields(_, "remove"))),
 					ActionRows = List.Transform(ParsedValid, each if Record.HasFields(_, "add") then [Path = Record.Field(_, "add")[path], Action = "add"] else [Path = Record.Field(_, "remove")[path], Action = "remove"]),
 					ActionTable = Table.FromRecords(ActionRows, type table [Path = text, Action = text]),
-					Grouped = Table.Group(ActionTable, {{"Path"}}, {{{{"LastAction", each List.Last(_[Action]), type text}}}}),
+					Grouped = Table.Group(ActionTable, {"Path"}, {{"LastAction", each List.Last(_[Action]), type text}}),
 					ActivePaths = Table.SelectRows(Grouped, each [LastAction] = "add")[Path],
 					NormRootRaw = Text.Replace(TableFolderPath, "\", "/"),
 					NormRoot = if Text.EndsWith(NormRootRaw, "/") then NormRootRaw else NormRootRaw & "/",
@@ -30,7 +30,7 @@ expression fn_DeltaCurrentFiles =
 							if RelFolderClean = "" then [Name] else RelFolderClean & "/" & [Name]
 					),
 					FilteredActive = Table.SelectRows(WithRelPath, each List.Contains(ActivePaths, [RelPath])),
-					ActiveNoHelper = Table.RemoveColumns(FilteredActive, {{"RelPath"}})
+					ActiveNoHelper = Table.RemoveColumns(FilteredActive, {"RelPath"})
 				in
 					ActiveNoHelper
 	in

@@ -84,8 +84,9 @@ py -3 products/fabric/powerbi/tooling/validation/check_schema_versions.py --expl
 # VollstÃ¤ndige Fabric-PrÃ¼fung (inkl. neuer Schema-Version-Check)
 .\products\fabric\powerbi\tooling\run_fabric_checks.ps1
 
-# Optional: pbi-cli Zusatz-Audit (skip gracefully wenn nicht installiert)
-.\products\fabric\powerbi\tooling\validation\check_with_pbi_cli.ps1
+# fab-inspector BPA-Regeln (max Visuals/Seite, kein vertikales Scrollen, Theme-Farben)
+# laufen bereits automatisch als Teil von run_fabric_checks.ps1 oben -- kein separater
+# Aufruf noetig. check_with_pbi_cli.ps1 ist seit R3.4 deprecated (s. KNOWN_ERRORS_AND_FIXES.md).
 
 # Optional: Desktop-Validierung
 .\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 \
@@ -204,5 +205,6 @@ Dies ist die wichtigste Phase. Jeder neue Fehler **muss** in eine dauerhafte Pr�
 | **Manifest Updater** | `products/fabric/powerbi/tooling/update_schema_manifest.py` |
 | **Migration Audit** | `products/fabric/powerbi/tooling/migration/audit_report_versions.py` |
 | **Rename Cascade Audit** | `products/fabric/powerbi/tooling/migration/audit_rename_cascade.py` |
-| **pbi-cli Wrapper** | `products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1` |
+| **fab-inspector BPA Rules** (R3.2, ersetzt pbi-cli Wrapper) | `products/fabric/powerbi/tooling/validation/check_fab_inspector.ps1` |
+| **Report Scorecard** (R3.3) | `products/fabric/powerbi/tooling/validation/check_report_scorecard.ps1` |
 

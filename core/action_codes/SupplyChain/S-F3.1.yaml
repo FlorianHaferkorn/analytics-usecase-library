@@ -15,7 +15,7 @@ use_case_links:
 kpis:
   trigger_kpis:
   - plan.forecast.accuracy.pct
-  - plan.replan.count
+  - plans.count
   guardrail_kpis:
   - plan.forecast.service_impact.pct
   outcome_kpis:
@@ -150,7 +150,7 @@ data_requirements:
     - Forecast Accuracy %
     - Forecast Bias %
     - Forecast Service Impact %
-    - Re-Plan Count
+    - Plans Count
     - Sales Units
     tables:
     - fact_forecast

@@ -41,3 +41,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO/IEC 20000-1
+  id: 8.6.1
+  name: Incident/request volume (element)
+  url: https://www.iso.org/standard/70636.html
+  alignment: none
+  note: Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2),
+    not a named ISO KPI — it is an input to arrival-rate/backlog measures.

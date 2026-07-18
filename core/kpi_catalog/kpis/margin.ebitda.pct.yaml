@@ -41,3 +41,14 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 12.06.2026
+standard_ref:
+- standard: ESMA-APM
+  name: EBITDA margin — Alternative Performance Measure
+  url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+  alignment: none
+  note: 'EBITDA is NOT defined by IFRS. It is an Alternative Performance Measure: under the ESMA APM Guidelines
+    it must be labelled as non-GAAP, reconciled to the most directly reconcilable IFRS line item, and
+    shown with a comparative. Under IFRS 18 (eff. 1 Jan 2027) an EBITDA-type figure used in public communication
+    is a Management-defined Performance Measure (MPM) requiring a dedicated reconciliation note to the
+    nearest IFRS subtotal — IFRS 18''s closest defined analogue is OPDAI (''operating profit before depreciation,
+    amortisation and impairments''). Do not present as an IFRS metric.'

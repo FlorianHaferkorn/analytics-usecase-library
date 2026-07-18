@@ -58,3 +58,9 @@ governance:
 metadata_quality:
   completeness_score: 0.97
   last_review: 23.01.2026
+standard_ref:
+- standard: Marketing analytics — CRM (convention)
+  name: Customer retention rate
+  alignment: none
+  note: Retention (end/start active customers) is a CRM-analytics convention. Note it is not the complement
+    of churn unless the customer base and windows are defined consistently — pin both.

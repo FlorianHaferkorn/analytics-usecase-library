@@ -37,3 +37,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 18.06.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Average transaction value
+  alignment: none
+  note: Average basket value (net sales / transactions) is a standard retail KPI but a market convention,
+    not a governed standard.

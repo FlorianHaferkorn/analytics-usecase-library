@@ -107,7 +107,10 @@ def _registered(rel: Path, entries: set[str], basename_unique: bool) -> bool:
     eindeutigem Namen — ihr bloßer Dateiname als Register-Eintrag vorkommt. Ohne die
     Eindeutigkeits-Bedingung würde EIN Basename-Eintrag mehrere gleichnamige Dateien
     in verschiedenen Unterordnern gleichzeitig als 'gelistet' durchgehen lassen."""
-    if str(rel) in entries:
+    # as_posix() normalises the separator so a forward-slash register entry
+    # (e.g. `adr/0001-…md`) matches on Windows too, where str(rel) would yield
+    # backslashes. On POSIX as_posix() == str(rel), so CI behaviour is unchanged.
+    if rel.as_posix() in entries:
         return True
     return basename_unique and rel.name in entries
 

@@ -261,3 +261,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ESMA-APM
+  name: Gross margin ratio (APM)
+  url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+  alignment: partial
+  note: A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a
+    non-GAAP APM. Inputs are IFRS-clean — label the ratio as an APM in external reporting.

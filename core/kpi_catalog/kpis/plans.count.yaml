@@ -8,8 +8,12 @@ domain_tag:
 - Forecast Planning
 use_case_ref:
 - SCM-003
+- SCM-001
+- FIN-001
 action_code_ref:
 - S-F3.4
+- S-F3.1
+- S-F3.2
 calc_type: count
 business:
   purpose: Counts planning cycles or plan versions in the period.
@@ -37,3 +41,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Plan volume (element)
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Plan/version count is a Plan element, not a SCOR performance KPI.

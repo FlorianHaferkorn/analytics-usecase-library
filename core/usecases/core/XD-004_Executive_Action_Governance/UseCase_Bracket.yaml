@@ -27,13 +27,12 @@ orchestration:
     - ops.failure.count
     - ops.labor.productivity.pct
     - ops.mttr.hours
-    - ops.otif.pct
     - ops.pm_compliance.pct
-    - ops.production.volume
+    - ops.throughput.units
     - ops.quality.defect_rate.pct
     - ops.spare_parts.stockout.pct
     - ops.working_capital.ccc.days
-    - ops.yield.pct
+    - ops.quality.pct
     - people.attrition_risk.pct
     - people.digital_adoption.pct
     - plan.forecast.mape.pct
@@ -120,17 +119,24 @@ ux_layout_rules:
     page_type: T1_Strategic_Overview
     template_variant: T1_Portfolio
     template_id: pulse
-    decision_question: \"Is the action governance cycle delivering verified business impact?"
+    decision_question: "Is the action governance cycle delivering verified business impact?"
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
       visual_type: kpi_card
+      comparison: vs_target
+      status_logic: higher_is_better
     component_30s:
       - kpi_id: enterprise.action_outcome_rate.pct
         visual_type: trend_line
+        message: "Action outcome rate is the KPI that verifies whether the governance cycle is closing on real business impact"
+        so_what: "Tracking verified outcomes, not just actions closed, keeps the governance cycle honest about impact delivered."
       - kpi_id: enterprise.value_at_risk.index
         visual_type: bar_chart
+        message: "Value at risk is concentrated where action follow-through is weakest across domains"
+        so_what: "Prioritising domains with the highest value at risk directs governance attention to where it matters most."
   page_2_execution:
     title: Executive Action Governance — Outcome Detail
+    decision_question: "Which action domains need governance intervention to convert into verified outcomes?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix
@@ -144,6 +150,11 @@ ux_layout_rules:
         - days_to_outcome
         - impact_value
         - cost_to_execute
+      # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N (R2.1 sort_by/top_n).
+      sort_by:
+        measure: impact_value
+        direction: ascending
+      top_n: 20
       action_panel: true
       payload_mode: full
 

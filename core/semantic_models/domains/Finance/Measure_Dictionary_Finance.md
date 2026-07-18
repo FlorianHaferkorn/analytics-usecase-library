@@ -687,6 +687,70 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
     version: v1.0
     last_review: 28.04.2026
 
+- measure_name: OTIF % (FIN)
+  is_kpi_measure: true
+  kpi_id_ref: supply.otif.pct
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-001
+  category: KPI
+  expression:
+    logical: OTIF % (FIN) = VAR OTIFFulfillments = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() ) VAR TotalFulfillments = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( OTIFFulfillments, TotalFulfillments )
+    aggregation_method: custom
+  documentation:
+    description: Measures share of orders delivered on time and in full — governed OTIF, Finance cross-domain view (consolidated from the former Supply Chain / Operations Service Level %).
+    notes: 'Grain: order_line_day. Unit: %. Lineage: fact_fulfillment[OTIF Flag].'
+  dependencies:
+    columns:
+    - fact_fulfillment[OTIF Flag]
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 2026-07-17
+
+- measure_name: Throughput Units (FIN)
+  is_kpi_measure: true
+  kpi_id_ref: ops.throughput.units
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-002
+  category: KPI
+  expression:
+    logical: Throughput Units (FIN) = SUM ( fact_output[Output Units] )
+    aggregation_method: sum
+  documentation:
+    description: Total produced units in the period — governed throughput, Finance cross-domain view (consolidated from the former Production Volume Units).
+    notes: 'Grain: line_day. Unit: units. Lineage: fact_output[Output Units].'
+  dependencies:
+    columns:
+    - fact_output[Output Units]
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 2026-07-17
+
+- measure_name: Quality % (FIN)
+  is_kpi_measure: true
+  kpi_id_ref: ops.quality.pct
+  semantic_model: Finance_SemanticModel
+  display_folder: FIN-002
+  category: KPI
+  expression:
+    logical: Quality % (FIN) = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
+    aggregation_method: custom
+  documentation:
+    description: Good units divided by total output — governed quality/yield, Finance cross-domain view (consolidated from the former Yield %).
+    notes: 'Grain: line_day. Unit: %. Lineage: fact_ops[Good Units], fact_ops[Output Units]. Known pre-existing data gap — the Finance model carries fact_output[Output Units] but no Good-Units source, so this proxy cannot evaluate in the Finance model until Good Units is added.'
+  dependencies:
+    columns:
+    - fact_ops[Good Units]
+    - fact_ops[Output Units]
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 2026-07-17
+
 - measure_name: Actions Executed Count (XD)
   is_kpi_measure: true
   kpi_id_ref: enterprise.actions_executed.count

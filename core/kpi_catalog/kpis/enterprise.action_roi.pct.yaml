@@ -44,3 +44,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 28.04.2026
+standard_ref:
+- standard: Internal — ActionReady governance
+  name: Action ROI
+  url: https://www.iso.org/standard/62085.html
+  alignment: none
+  note: Action ROI (impact value / execution cost − 1) is the ActionReady framework's own governance metric;
+    no external standard. ISO 9001 continual improvement / Balanced Scorecard is the conceptual backdrop.

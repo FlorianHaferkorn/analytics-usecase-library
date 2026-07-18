@@ -1,0 +1,108 @@
+# design_rules.yaml -- formal, machine-checkable constraint file (R2.1, Cut C2)
+#
+# Implements Storytelling_Principles.md / Color_Semantics_Formatting.md as
+# enforceable rules instead of prose guidance (Draco principle: constraints,
+# not guidelines -- a generator that only *can* follow a rule eventually
+# won't). Every rule below is sourced from an existing, already-governed
+# doc or an already-verified real-world finding -- none are invented here.
+#
+# Consumed by R2.3 (Generator erzwingt Regeln): page_scaffold_generator reads
+# this file plus the (now R2.1-extended) UseCase_Bracket schema and refuses
+# to emit PBIR when a rule is violated, citing the rule id. Schema for this
+# file: tooling/generator/schemas/design_rules.schema.json.
+#
+# Each rule's `check` names one of a small, closed set of check types R2.3's
+# generator code dispatches on (not a generic expression language -- kept
+# deliberately narrow so every check type is something the generator can
+# actually implement and explain in a clear, rule-id-bearing error message).
+
+version: 1
+
+rules:
+  - id: ONE_MESSAGE_PER_CHART
+    severity: critical
+    check: single_unit_family_per_component
+    description: >
+      A component_30s entry must render measures of a single unit/scale
+      family on its shared axis -- max one unit per axis. When kpi_ids lists
+      more than one KPI, every referenced KPI's own calc_type
+      (core/kpi_catalog/) must match this entry's declared unit (R2.1);
+      mixing e.g. a percentage KPI with an amount KPI on one Y axis fails.
+    source: >
+      Storytelling_Principles.md line 128 ("Highlight the one key number per
+      visual... exactly one element per chart"); the real-world antipattern
+      this rule closes was found and measured by R3.1/R3.3 -- 13 of 17
+      reports mix scale families on the Main_3 ranking slot today
+      (tooling/report_quality/report_scorecard.py's ALUCA_MIXED_SCALE
+      knock-out is the equivalent post-hoc, PBIR-output-level check; this
+      rule is the earlier, author-time checkpoint on the Bracket itself).
+    parameters:
+      scope: component_30s
+      field: unit
+
+  - id: MAX_SEMANTIC_COLORS_PER_PAGE
+    severity: warning
+    check: max_count
+    description: >
+      At most 4 semantic colors (semantic.positive/negative/warning/neutral)
+      may be visible on any single page.
+    source: >
+      Storytelling_Principles.md §9 "Color Count Limit" ("Maximum 3-4 colors
+      visible on any single page"); Color_Semantics_Formatting.md line 57
+      ("Rule: Max 3-4 semantic colors visible on any single page").
+    parameters:
+      scope: page
+      target: semantic_color_tokens_used
+      max: 4
+
+  - id: MAX_EVIDENCE_COLUMNS
+    severity: critical
+    check: max_count
+    description: >
+      component_300s.evidence_columns must curate at most 8 columns, chosen
+      to answer the page's decision_question -- never a full-width table
+      dump of every available field.
+    source: >
+      UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.3 DoD ("Spaltenzahl <= 8"),
+      applied and verified against COM-002 (12 -> 7 curated columns).
+    parameters:
+      scope: component_300s
+      field: evidence_columns
+      max: 8
+
+  - id: MANDATORY_SORT_RENDERED
+    severity: critical
+    check: output_matches_declared_sort
+    description: >
+      The generated Detail_Matrix visual's query.sortDefinition must be
+      non-empty, have isDefaultSort=true, and match component_300s.sort_by
+      (R2.1) exactly. This is a generator-output invariant -- it catches the
+      generator silently dropping a declared sort, which R2.1's Bracket
+      schema alone cannot see (the schema can only require sort_by to be
+      declared, not that the generator actually rendered it).
+    source: >
+      Color_Semantics_Formatting.md "Default sort: worst deviation first
+      (descending absolute delta)"; COM-002 Detail_Matrix precedent (R1.3).
+    parameters:
+      scope: component_300s
+      generated_path: "visual/query/sortDefinition"
+
+  - id: BIG_IDEA_HEADER_ZONE
+    severity: critical
+    check: header_text_equals_big_idea
+    description: >
+      The Header (Zone 0, above the KPI band) textbox must render
+      page_1_summary.big_idea verbatim -- the conclusion, not the
+      decision_question.
+    source: >
+      Storytelling_Principles.md §2 "Where the Big Idea Lives" ("The Header
+      states the Big Idea itself, verbatim from UseCase_Bracket.yaml").
+      Known, currently-unenforced gap: as of R2.1,
+      docs/architecture/adr/0017-generator-v2-insight-scoring-verification-composition.md
+      documents that no Header visual-builder exists anywhere in
+      page_scaffold_generator today -- this rule is what R2.3 must satisfy
+      once that code path is built, not a check that already passes.
+    parameters:
+      scope: page_1_summary
+      field: big_idea
+      generated_path: "Header textbox visual text"

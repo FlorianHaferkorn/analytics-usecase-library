@@ -53,3 +53,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Internal — ActionReady governance
+  name: Action outcome rate
+  url: https://www.iso.org/standard/62085.html
+  alignment: none
+  note: 'Action outcome rate (achieved / total action outcomes) is the ActionReady framework''s own action-governance
+    construct — no external standard defines it. Conceptual backdrop: ISO 9001 continual improvement (Plan-Do-Check-Act)
+    and Balanced Scorecard, but the metric is proprietary to the framework.'

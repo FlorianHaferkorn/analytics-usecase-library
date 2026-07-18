@@ -36,3 +36,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 18.06.2026
+standard_ref:
+- standard: Marketing analytics — RFM (convention)
+  name: RFM frequency score
+  alignment: none
+  note: RFM (Recency-Frequency-Monetary) scoring is a long-standing direct-marketing segmentation model
+    (Hughes/DMA lineage), a convention rather than a governed standard.

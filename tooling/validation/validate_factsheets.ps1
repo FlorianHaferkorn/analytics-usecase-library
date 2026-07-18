@@ -221,7 +221,7 @@ function Require-TechnicalRefs {
 }
 
 Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
-  $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 } | ForEach-Object {
   $fm = Get-FrontMatter -Path $_.FullName
   if (-not ($fm -and $fm.Text)) { $errors += "Missing front-matter in $($_.FullName)"; return }

@@ -52,3 +52,11 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: IFRS
+  id: IAS 7
+  name: Cash budget variance
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+  alignment: none
+  note: Internal budget-variance metric; no external standard defines it. Cash input traces to IAS 7 cash
+    and cash equivalents.

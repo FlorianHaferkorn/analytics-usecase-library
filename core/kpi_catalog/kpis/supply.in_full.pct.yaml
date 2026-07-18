@@ -46,3 +46,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: RL.2.1
+  name: Percentage of Orders Delivered In Full
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: partial
+  note: 'Grain differs: ours is delivery-level (in-full deliveries / total deliveries); SCOR RL.2.1 is
+    order-level (% of orders delivered in full). Move to order grain to align.'

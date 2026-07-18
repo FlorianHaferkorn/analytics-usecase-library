@@ -61,7 +61,7 @@ if (-not (Test-Path $distResolved)) {
 }
 
 $tmdlFiles = Get-ChildItem -Path $distResolved -Recurse -Filter "*.tmdl" -File -ErrorAction SilentlyContinue | Where-Object {
-  $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 }
 if (-not $tmdlFiles -or $tmdlFiles.Count -eq 0) {
   Write-Host "No .tmdl files under $distResolved" -ForegroundColor Gray

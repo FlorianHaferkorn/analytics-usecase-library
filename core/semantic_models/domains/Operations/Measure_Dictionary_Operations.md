@@ -934,34 +934,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
     last_review: 2026-03-27
     review_due: 2027-03-31
 
-- measure_name: Production Volume Units
-  is_kpi_measure: true
-  kpi_id_ref: ops.production.volume
-  semantic_model: Operations_SemanticModel
-  display_folder: 01_Ops
-  category: KPI
-  expression:
-    logical: Production Volume Units = Sum of produced units for the period.
-    aggregation_method: sum
-  documentation:
-    description: Total produced units in the period.
-    notes: 'Grain: line_day. Unit: units.
-
-      Lineage: fact_ops[Output Units].
-
-      QA: Ensure output excludes scrap when required.
-
-      '
-  dependencies:
-    columns:
-    - fact_ops[Output Units]
-  governance:
-    owner: Operations Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
 - measure_name: Quality Defect Rate %
   is_kpi_measure: true
   kpi_id_ref: ops.quality.defect_rate.pct
@@ -1018,64 +990,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
       QA: Harmonize incident classification and severity.
 
       '
-
-- measure_name: Operations Service Level %
-  is_kpi_measure: true
-  kpi_id_ref: ops.service_level.pct
-  semantic_model: Operations_SemanticModel
-  display_folder: 02_Service
-  category: KPI
-  expression:
-    logical: Operations Service Level % = On-Time or In-Full Deliveries / Total Deliveries.
-    aggregation_method: ratio
-  documentation:
-    description: On-time delivery rate for operational fulfillment.
-    notes: 'Grain: shipment_day. Unit: %.
-
-      Lineage: fact_ops[On Time Deliveries], fact_ops[Total Deliveries].
-
-      QA: Align delivery definitions across sites.
-
-      '
-  dependencies:
-    columns:
-    - fact_ops[On Time Deliveries]
-    - fact_ops[Total Deliveries]
-  governance:
-    owner: Operations Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
-- measure_name: Yield %
-  is_kpi_measure: true
-  kpi_id_ref: ops.yield.pct
-  semantic_model: Operations_SemanticModel
-  display_folder: 04_Quality
-  category: KPI
-  expression:
-    logical: Yield % = Good Units / Total Units Produced.
-    aggregation_method: ratio
-  documentation:
-    description: Good units divided by total output.
-    notes: 'Grain: line_day. Unit: %.
-
-      Lineage: fact_ops[Good Units], fact_ops[Output Units].
-
-      QA: Output Units > 0; align good vs total unit definitions.
-
-      '
-  dependencies:
-    columns:
-    - fact_ops[Good Units]
-    - fact_ops[Output Units]
-  governance:
-    owner: Operations Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
 
 - measure_name: Overall Equipment Effectiveness (OEE) %
   is_kpi_measure: true

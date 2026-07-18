@@ -45,7 +45,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: ops.production.volume
+        metric_kpi_id: ops.throughput.units
         comparator: gte
         value: 100000
         unit: units

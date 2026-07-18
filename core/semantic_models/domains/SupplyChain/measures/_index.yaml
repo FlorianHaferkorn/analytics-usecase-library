@@ -10,7 +10,6 @@ order:
 - forecast_mape
 - bias
 - service_impact
-- re_plan_count
 - on_time
 - in_full
 - stockout_impact
@@ -33,8 +32,6 @@ order:
 - forecast_error_qty
 - under_forecast_lost_demand_qty
 - under_forecast_lost_demand_share
-- inventory_value_amount
-- supply_chain_service_level
 - order_lines_count
 - plans_count
 - shipments_count

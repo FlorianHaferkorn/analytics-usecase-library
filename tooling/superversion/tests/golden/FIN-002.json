@@ -137,10 +137,10 @@
         "columns": [],
         "measures": [
           {
-            "name": "Production Volume Units",
+            "name": "Throughput Units",
             "expression": "",
             "display_folder": "Operations",
-            "description": "Sum of produced units for the period.",
+            "description": "Sum of produced units in the period.",
             "format_string": "",
             "is_hidden": false,
             "expressions": {
@@ -159,10 +159,10 @@
             }
           },
           {
-            "name": "Yield %",
+            "name": "Quality %",
             "expression": "",
             "display_folder": "Operations",
-            "description": "Good Units / Total Units Produced.",
+            "description": "Good units / Total units",
             "format_string": "0.0%",
             "is_hidden": false,
             "expressions": {
@@ -207,14 +207,60 @@
         "columns": [],
         "measures": [
           {
-            "name": "Operations Service Level %",
+            "name": "OTIF %",
             "expression": "",
-            "display_folder": "Operations",
-            "description": "On-Time or In-Full Deliveries / Total Deliveries.",
+            "display_folder": "Supply Chain",
+            "description": "OTIF Orders / Total Orders.",
             "format_string": "0.0%",
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"column\": \"OTIF Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "On-Time %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "On-Time Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"On-Time Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          },
+          {
+            "name": "In-Full %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "In-Full Deliveries / Total Deliveries.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"column\": \"In-Full Flag\", \"op\": \"rate\", \"table\": \"fact_fulfillment\"}"
+            }
+          }
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
+      },
+      {
+        "name": "fact_stockout",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "Stockout Impact %",
+            "expression": "",
+            "display_folder": "Supply Chain",
+            "description": "Lost Demand Qty / Total Demand Qty.",
+            "format_string": "0.0%",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"denominator\": {\"column\": \"Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"numerator\": {\"column\": \"Lost Demand Units\", \"kind\": \"column\", \"table\": \"fact_stockout\"}, \"op\": \"ratio\"}"
             }
           }
         ],
@@ -278,7 +324,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Main_1",
+            "title": "COGS is rising as a share of sales, eroding margin quarter over quarter",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -298,7 +344,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "",
+            "title": "Opex variance, material cost, and labor productivity — the three levers behind unit cost.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -343,9 +389,7 @@
               "Material Cost %",
               "OpEx vs Plan %",
               "Labor Productivity %",
-              "Production Volume Units",
-              "Quality Defect Rate %",
-              "Yield %"
+              "Quality Defect Rate %"
             ],
             "rows": [],
             "columns": [],

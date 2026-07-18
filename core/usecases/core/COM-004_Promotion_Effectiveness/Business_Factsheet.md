@@ -65,6 +65,20 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Promo ROI %** (`sales.promo.roi.pct`) → **Trade Promotion Management (convention)** (none): Promo ROI (incremental GM / promo cost) is a TPM convention.
+- **Incremental Sales Amount** (`sales.promo.incremental.amount`) → **Trade Promotion Management (convention)** (none): Incremental (promo − baseline) uplift is a TPM convention.
+- **GM % During Promo** (`margin.promo.gm.pct`) → **ESMA-APM** (none): Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named measure.
+- **List Price Amount** (`sales.price.list.amount`) → **IFRS 15** (none): List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected).
+- **Net Price Amount** (`sales.price.net.amount`) → **IFRS 15** (partial): Net price is the IFRS 15 transaction price after trade discounts and variable consideration.
+- **Price Realization %** (`sales.price.realization_pct`) → **IFRS 15** (none): Price realization (net/list) is a management pricing metric, not IFRS-defined.
+- **Cannibalization %** (`sales.promo.cannibalization.pct`) → **Trade Promotion Management (convention)** (none): Cannibalization (cannibalized / uplift sales) is a TPM analytics concept, not standard-defined.
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).

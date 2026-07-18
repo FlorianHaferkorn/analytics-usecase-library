@@ -29,7 +29,7 @@ kpis:
   - sales.net_sales.delta_pct.ly
   - margin.gm.pct
   - svc.sla.attainment.pct
-  - ops.otif.pct
+  - supply.otif.pct
   - ops.working_capital.ccc.days
   - people.attrition_risk.pct
   - people.digital_adoption.pct

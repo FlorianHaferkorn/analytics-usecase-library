@@ -37,3 +37,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 27.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Planned busy time (PBT element)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Planned production hours is the ISO 22400-2 Planned Busy Time element (denominator of Availability),
+    an input rather than a KPI.

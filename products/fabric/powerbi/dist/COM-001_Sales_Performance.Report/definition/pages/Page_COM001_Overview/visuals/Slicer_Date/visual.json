@@ -5,7 +5,7 @@
     "x": 32,
     "y": 204,
     "z": 5000,
-    "height": 70,
+    "height": 80,
     "width": 608,
     "tabOrder": 3001
   },
@@ -23,11 +23,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "Year"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
+              "queryRef": "dim_date.Year",
+              "nativeQueryRef": "Year"
             }
           ]
         }

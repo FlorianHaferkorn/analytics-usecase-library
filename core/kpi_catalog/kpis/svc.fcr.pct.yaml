@@ -44,3 +44,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ITIL 4
+  name: Service desk — First Contact Resolution
+  url: https://www.axelos.com/certifications/itil-service-management
+  alignment: partial
+  note: First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric
+    (and COPC CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management;
+    pin the 'contact' grain (call vs case, single vs multi-channel) to compare externally.

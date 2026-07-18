@@ -1,0 +1,45 @@
+/// Purpose: Disconnected selector table for the Price/Volume/Mix bridge waterfall
+/// (Main_2, COM-002). No relationships to any fact table -- 'PVM Bridge Value' in
+/// _Measures reads the selected Driver via SELECTEDVALUE and SWITCHes to the
+/// matching existing effect measure. Exists because waterfallChart's real
+/// capabilities only allow one measure in the Y role (Category must carry the
+/// per-bar breakdown) -- see UMSETZUNGSPLAN_REPORT_EXZELLENZ.md's R2.3-Fund
+/// follow-up ledger entry for the full account, including the R1.6 finding this
+/// closes and what remains unverified (DAX runtime -- no Power BI engine in the
+/// authoring sandbox).
+table dim_pvm_driver
+	lineageTag: 3211f744-1fd1-4a79-932b-3e3d6570e352
+
+	column Driver
+		dataType: string
+		lineageTag: 666a3e63-4fd7-4904-a082-f2e2334bc466
+		summarizeBy: none
+		sortByColumn: SortOrder
+		sourceColumn: Driver
+
+		annotation SummarizationSetBy = Automatic
+
+	column SortOrder
+		dataType: int64
+		lineageTag: 231cab2b-d326-495e-a56c-713d2380fb67
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: SortOrder
+		isHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_pvm_driver = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table[Driver = text, SortOrder = Int64.Type],
+						{
+							{"Price Effect", 1},
+							{"Volume Effect", 2},
+							{"Mix Effect", 3}
+						}
+					)
+				in
+					Source

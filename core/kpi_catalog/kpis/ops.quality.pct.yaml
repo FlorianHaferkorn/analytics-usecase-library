@@ -15,8 +15,11 @@ domain_tag:
 - Operational Efficiency
 use_case_ref:
 - OPS-001
+- FIN-002
+- XD-004
 action_code_ref:
 - O-O1.3
+- F-K2.2
 calc_type: rate
 business:
   purpose: Yield of conforming units relative to total units produced.
@@ -49,3 +52,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: QR
+  name: Quality ratio
+  url: https://www.iso.org/standard/54497.html
+  alignment: exact
+  note: ISO 22400-2 Quality ratio QR = good quantity / produced quantity. Matches ours exactly.

@@ -15,7 +15,7 @@ kpis:
   trigger_kpis:
   - ops.spare_parts.stockout.pct
   guardrail_kpis:
-  - ops.inventory.value.amount
+  - fin.liquidity.inventory.amount
   outcome_kpis:
   - ops.spare_parts.stockout.pct
   - ops.mttr.hours

@@ -12,7 +12,7 @@ if (-not $MeasureDictRoot) { $MeasureDictRoot = Join-Path $repoRoot "core\semant
 if (-not $DistRoot) { $DistRoot = Join-Path $repoRoot "products\fabric\powerbi\dist" }
 
 $tmdlFiles = Get-ChildItem -Path $DistRoot -Recurse -Filter "*_Measures.tmdl" -ErrorAction SilentlyContinue | Where-Object {
-  $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 }
 if (-not $tmdlFiles -or $tmdlFiles.Count -eq 0) {
   Write-Host "No _Measures.tmdl files found under DistRoot. Skipping TMDL check."
@@ -23,7 +23,7 @@ function Get-MeasureNamesFromDict {
   param([string]$Root)
   $names = New-Object System.Collections.Generic.HashSet[string]
   Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" | Where-Object {
-    $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   } | ForEach-Object {
     $currentMeasureName = $null
     $currentKpiIdRef = $null

@@ -164,11 +164,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Supply Chain Service Level %"
+                  "Property": "OTIF % (FIN)"
                 }
               },
-              "queryRef": "_Measures.Supply Chain Service Level %",
-              "nativeQueryRef": "Supply Chain Service Level %"
+              "queryRef": "_Measures.OTIF % (FIN)",
+              "nativeQueryRef": "OTIF % (FIN)"
             },
             {
               "field": {

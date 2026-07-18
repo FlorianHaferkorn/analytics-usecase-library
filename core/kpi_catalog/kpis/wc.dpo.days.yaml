@@ -52,3 +52,11 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Cash-to-Cash Cycle Time — DPO component
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: partial
+  note: Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1).
+    Not an IFRS line item; the payables base is IAS 1 / IFRS 9.

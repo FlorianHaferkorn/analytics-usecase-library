@@ -172,7 +172,7 @@ function Test-MeasureCovered {
   )
   if (-not $Measure) { return $false }
   $files = Get-ChildItem -Path $CatalogRoot -Filter '*.md' -Recurse | Where-Object {
-    $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   }
   foreach ($file in $files) {
     if (Select-String -Path $file.FullName -Pattern ([regex]::Escape($Measure)) -SimpleMatch -Quiet -ErrorAction SilentlyContinue) {
@@ -188,7 +188,7 @@ $catalogIds = $catalog.ids
 $catalogNames = $catalog.names
 $factsheets = @(
   Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
-    $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   }
 ) | Sort-Object FullName -Unique
 if ($factsheets.Count -eq 0) { Write-Host "No Business_Factsheet.md files found." -ForegroundColor Yellow; exit 0 }

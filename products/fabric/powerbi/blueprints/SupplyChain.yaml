@@ -68,7 +68,6 @@ use_cases:
       - plan.forecast.mape.pct
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct
-      - plan.replan.count
       - order.lines
       - plans.count
       - sales.units
@@ -425,7 +424,6 @@ display_folders:
       - plan.forecast.mape.pct
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct
-      - plan.replan.count
       - plans.count
       - order.lines
       - sales.units

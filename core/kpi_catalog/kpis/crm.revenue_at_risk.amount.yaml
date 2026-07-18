@@ -63,3 +63,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 20.04.2026
+standard_ref:
+- standard: Marketing analytics — CRM (convention)
+  name: Revenue at risk (churn-weighted)
+  alignment: none
+  note: Revenue at risk (net sales x churn rate) is a composite CRM convention built on IFRS 15 revenue
+    and the churn convention; no external standard defines it.

@@ -1,0 +1,105 @@
+{
+  "rules": [
+    {
+      "id": "ALUCA_MAX_VISUALS_PER_PAGE",
+      "name": "Max visible visuals per page",
+      "description": "Fails if a page shows more than paramMaxVisualsPerPage non-decorative visuals (shape/slicer/actionButton/textbox excluded). Guards report readability and render performance.",
+      "disabled": false,
+      "logType": "error",
+      "part": "Pages",
+      "test": [
+        {
+          "<=": [
+            {
+              "count": [
+                {
+                  "filter": [
+                    { "part": "Visuals" },
+                    {
+                      "and": [
+                        { "!": [ { "var": "isHidden" } ] },
+                        {
+                          "!": [
+                            {
+                              "in": [
+                                { "var": "visual.visualType" },
+                                ["shape", "slicer", "actionButton", "textbox"]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            { "var": "paramMaxVisualsPerPage" }
+          ]
+        },
+        { "paramMaxVisualsPerPage": 20 },
+        true
+      ]
+    },
+    {
+      "id": "ALUCA_NO_VERTICAL_SCROLL",
+      "name": "Pages must not exceed the canonical page height",
+      "description": "Fails if a visible page's height exceeds 1080px, this repo's fixed 16:9 canvas (see report_quality.structural_validator.PageSize, which already enforces height == 1080 as a Tier 0 check). This rule is intentional defense-in-depth via an independent engine, not a new constraint -- it should always pass while pages are generated through the standard pipeline and only trips if a page was hand-edited to bypass it.",
+      "disabled": false,
+      "logType": "error",
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                { "part": "Pages" },
+                {
+                  "and": [
+                    { ">": [ { "var": "height" }, 1080 ] },
+                    { "!=": [ { "var": "visibility" }, "HiddenInViewMode" ] }
+                  ]
+                }
+              ]
+            },
+            { "var": "displayName" }
+          ]
+        },
+        {},
+        []
+      ]
+    },
+    {
+      "id": "ALUCA_THEME_VISUALS_NO_HARDCODED_HEX",
+      "name": "Visuals must use theme colours, not hardcoded hex",
+      "description": "Fails if a visual (excluding textbox, which legitimately carries rich-text hex spans) contains a hardcoded hex color literal instead of a theme-color reference. Complements check_report_theme_compliance.py's own hex scan (currently non-blocking warning) with a second, independently-implemented signal.",
+      "disabled": false,
+      "logType": "error",
+      "part": "Pages",
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                { "part": "Visuals" },
+                {
+                  "and": [
+                    { "!": [ { "in": [ { "var": "visual.visualType" }, ["textbox"] ] } ] },
+                    {
+                      "strcontains": [
+                        { "tostring": [ { "var": "" } ] },
+                        "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            { "var": "name" }
+          ]
+        },
+        {},
+        []
+      ]
+    }
+  ]
+}

@@ -43,3 +43,10 @@ governance:
 metadata_quality:
   completeness_score: 0.7
   last_review: 01.06.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Setup/changeover time element
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Changeover time maps to the ISO 22400-2 setup-time element (and Six Big Losses setup & adjustment
+    category); it drives Availability loss but is a time element, not a ratio KPI.

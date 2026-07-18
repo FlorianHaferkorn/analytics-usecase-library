@@ -30,6 +30,18 @@ Maintain bracket as the SSOT for use case orchestration; validate all references
 5. **UX layout rules**:
    - `page_1_summary`: component_3s (KPI cards), component_30s (diagnostic visuals)
    - `page_2_execution`: component_300s (evidence grain, action panel)
+   - **Intent layer (R2.1, Cut C2):** each `component_30s` entry can declare `message`
+     (1-sentence statement of what the visual shows, <=160 chars) and `unit` (scale
+     family -- `amount|rate|ratio|count|percentage|quantity|index`, matching the
+     referenced KPI's own `calc_type`). `component_300s` can declare `sort_by`
+     (`{measure, direction}`), `top_n` (row limit), and `highlight_rule`
+     (`{column, type: data_bar}`). These become **mandatory** once
+     `ux_layout_rules.intent_rules_version: 2` is set -- omit that key entirely for
+     brackets not yet migrated (legacy brackets are exempt; see
+     `tooling/generator/schemas/usecase_bracket.schema.json`'s `if/then` and
+     `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` R2.1/R2.4). Do not set
+     `intent_rules_version: 2` without populating all of these -- Stage 1 schema
+     validation will reject it.
    - To edit visual types per slot without YAML: use **UX Layout Editor** — `streamlit run tooling/ux_layout_editor/app.py` (see `tooling/ux_layout_editor/README.md`). Im Editor siehst du eine Live-Preview der gewählten Visual-Typen. Draft from orchestration: `py -3 tooling/ux_layout_editor/draft_ux_layout.py --use-case <ID> [--apply]`.
 6. **Run validation**:
    ```powershell

@@ -70,6 +70,7 @@ def cmd_compile(args: argparse.Namespace) -> int:
         kpi_catalog_root=args.kpi_catalog_root,
         action_codes_root=args.action_codes_root,
         target_adapter=AdapterTarget(args.adapter),
+        deployment_industry=args.deployment_industry,
     )
     spec = compiler.compile(args.bracket)
 
@@ -78,11 +79,16 @@ def cmd_compile(args: argparse.Namespace) -> int:
             print(f"WARN  {w}", file=sys.stderr)
 
     if args.dry_run:
+        overview = next((p for p in spec.pages if p.role.value == "overview"), None)
+        cards = overview.visual_by_id("KPI_Cards") if overview else None
+        bench = cards.config.get("benchmark_reference") if cards else None
         print(json.dumps({
             "use_case_id": spec.use_case_id,
             "domain": spec.domain,
             "pages": [p.id for p in spec.pages],
             "measures": len(spec.measures),
+            "deployment_industry": args.deployment_industry,
+            "benchmark_reference": bench,
             "compiler_warnings": [str(w) for w in compiler.warnings],
         }, indent=2))
         return 0
@@ -196,6 +202,10 @@ def main() -> int:
     p_comp.add_argument("--adapter",  choices=["pbip", "metabase", "grafana", "superset"],
                         default="pbip")
     p_comp.add_argument("--output",   type=str, help="Output directory (default: dist-root)")
+    p_comp.add_argument("--deployment-industry", type=str, default=None,
+                        help="Client industry/sector for this deployment — selects the peer "
+                             "segment for empirical benchmark reference-labels (e.g. "
+                             "'Omnichannel Retail'). Unset → honest cross-industry fallback.")
     p_comp.add_argument("--dry-run",  action="store_true", help="Print spec without writing files")
     p_comp.add_argument("--json",     action="store_true")
 

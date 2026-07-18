@@ -179,11 +179,12 @@ table _Measures
 		formatString: "0"
 		displayFolder: "FIN-001"
 
-	/// On-time in-full rate for customer fulfillment.
+	/// OTIF % - supply.otif.pct
+	/// On-time in-full rate for customer fulfillment (governed OTIF, Finance view).
 	/// Formula: On-Time In-Full Orders / Total Orders.
 	/// Grain: order_line_day · Unit: %
 	/// Owner: Supply Chain Analytics · Status: active
-	measure 'Supply Chain Service Level %' =
+	measure 'OTIF % (FIN)' =
 			VAR OTIFFulfillments =
 				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
 			VAR TotalFulfillments =
@@ -291,11 +292,12 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "FIN-002"
 
-	/// Total produced units in the period.
+	/// Throughput Units - ops.throughput.units
+	/// Total produced units in the period (governed throughput, Finance view).
 	/// Formula: Sum of produced units for the period.
 	/// Grain: line_day · Unit: units
 	/// Owner: Operations Analytics · Status: active · Actions: F-K2.3
-	measure 'Production Volume Units' = SUM ( fact_ops[Output Units] )
+	measure 'Throughput Units (FIN)' = SUM ( fact_output[Output Units] )
 		formatString: "#,0"
 		displayFolder: "FIN-002"
 
@@ -307,27 +309,17 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
-	/// On-time delivery rate for operational fulfillment.
-	/// Formula: On-Time or In-Full Deliveries / Total Deliveries.
-	/// Grain: shipment_day · Unit: %
-	/// Owner: Operations Analytics · Status: active
-	measure 'Operations Service Level %' =
-			VAR OTIFFulfillments =
-				CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
-			VAR TotalFulfillments =
-				COUNTROWS ( fact_fulfillment )
-			RETURN
-				DIVIDE ( OTIFFulfillments, TotalFulfillments )
-		formatString: "0.0%"
-		displayFolder: "FIN-002"
-
-	/// Good units divided by total output.
+	/// Quality % - ops.quality.pct
+	/// Good units divided by total output (governed quality/yield, Finance view).
 	/// Formula: Good Units / Total Units Produced.
 	/// Grain: line_day · Unit: %
 	/// Owner: Operations Analytics · Status: active
 	/// Synonyms: Process Yield, Throughput Yield, Ausbeute, Gutausbeute, Ausbeutegrad
 	/// Example question: How has process yield trended since the line upgrade?
-	measure 'Yield %' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
+	/// NOTE: fact_ops (Good Units) is an Operations-model table; the Finance model
+	/// carries only fact_output[Output Units], so this proxy cannot be evaluated in
+	/// the Finance model until a Good-Units source is added — pre-existing data gap.
+	measure 'Quality % (FIN)' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 

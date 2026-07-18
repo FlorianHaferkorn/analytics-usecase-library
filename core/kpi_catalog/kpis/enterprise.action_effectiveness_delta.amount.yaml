@@ -40,3 +40,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 26.04.2026
+standard_ref:
+- standard: Internal — ActionReady governance
+  name: Action effectiveness delta
+  url: https://www.iso.org/standard/62085.html
+  alignment: none
+  note: Average realised impact across achieved actions — the framework's own effectiveness measure. No
+    external standard; PDCA/Balanced-Scorecard is the conceptual backdrop.

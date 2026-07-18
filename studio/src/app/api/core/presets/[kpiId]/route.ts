@@ -157,14 +157,6 @@ const PRESETS: Record<string, Preset> = {
     time_horizon_months: 12,
     driver_notes: ['Price discipline', 'Productivity savings', 'Scrap reduction'],
   },
-  'svc.nps.index': {
-    kpi_id: 'svc.nps.index',
-    label: 'Service NPS',
-    baseline_range: { min: 15, likely: 25, max: 35, unit: 'index' },
-    target_range: { min: 40, likely: 50, max: 60, unit: 'index' },
-    time_horizon_months: 12,
-    driver_notes: ['First contact resolution', 'Response time', 'Agent enablement'],
-  },
   'svc.fcr.pct': {
     kpi_id: 'svc.fcr.pct',
     label: 'First Contact Resolution',

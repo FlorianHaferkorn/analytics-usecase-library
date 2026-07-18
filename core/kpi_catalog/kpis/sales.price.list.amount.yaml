@@ -37,3 +37,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 2026-02-22
+standard_ref:
+- standard: IFRS 15
+  name: List/catalogue price
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: none
+  note: List price is a pre-discount catalogue figure — an input to discount/realization analysis, not
+    an IFRS 15 figure (IFRS 15 measures the transaction price actually expected). No standard defines
+    list price.

@@ -36,3 +36,8 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 18.06.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Units per transaction (UPT)
+  alignment: none
+  note: Items per transaction (UPT) is a retail-analytics convention; no governing standard.

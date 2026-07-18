@@ -16,7 +16,7 @@ kpis:
   - plan.forecast.bias.pct
   - plan.forecast.mape.pct
   guardrail_kpis:
-  - plan.replan.count
+  - plans.count
   outcome_kpis:
   - plan.forecast.accuracy.pct
   - plan.forecast.bias.pct
@@ -148,7 +148,7 @@ data_requirements:
     - Forecast Accuracy %
     - Forecast Bias %
     - Forecast MAPE %
-    - Re-Plan Count
+    - Plans Count
     - Sales Units
     tables:
     - fact_forecast

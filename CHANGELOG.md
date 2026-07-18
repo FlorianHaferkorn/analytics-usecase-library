@@ -20,6 +20,17 @@ The `[1.0.0]` release marks the Lean Core v1.0 consolidation: a production-ready
 
 ### Changed
 
+- **KPI de-duplication (physical removal).** Executing the KPI_DEDUP_MIGRATION_RUNBOOK
+  one twin at a time — deleting each twin KPI, rewiring/deduping its references, and
+  removing/renaming the duplicate domain measures so each identical-calculation family
+  has a single governed KPI.
+  - `svc.nps.index` → `crm.nps.index` (governed NPS is the Customer-domain SSOT).
+    XD-001 and action code X-S1.3 now reference `crm.nps.index`. The Experience
+    `NPS Index` measure is retained and now materialises the canonical.
+  - Golden spine reduced 20 → 18: `svc.nps.index` and `ops.otif.pct` removed (their
+    canonicals `crm.nps.index` / `supply.otif.pct` were already in the spine, so the
+    twins were redundant padding). `golden_20.yaml` header + count assertions updated.
+
 ### Fixed
 
 ---

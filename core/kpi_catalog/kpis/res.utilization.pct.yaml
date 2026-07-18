@@ -45,3 +45,12 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: UE
+  name: Utilization efficiency (workforce)
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Utilization (productive / paid time) parallels ISO 22400-2 Utilization efficiency UE, but this
+    KPI is applied to a contact-centre workforce, not equipment. Concept aligns; population differs —
+    see COPC CX Standard for the contact-centre definition.

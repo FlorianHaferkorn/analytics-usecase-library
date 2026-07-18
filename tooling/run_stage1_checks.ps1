@@ -4,9 +4,18 @@ Param(
 
 $ErrorActionPreference = "Stop"
 
-# Ensure powershell-yaml is loaded for check_validate_data_contracts.ps1 (CI and local)
+# Ensure powershell-yaml is loaded for check_validate_data_contracts.ps1 (CI and local).
+# Soft-fail: environments without PSGallery access (e.g. sandboxed agents behind a
+# restrictive proxy) can still run every other Stage 1 check; only
+# check_validate_data_contracts.ps1 is skipped (not silently passed) below.
+$yamlAvailable = $true
 if (-not (Get-Command ConvertFrom-Yaml -ErrorAction SilentlyContinue)) {
-  Import-Module powershell-yaml -ErrorAction Stop
+  try {
+    Import-Module powershell-yaml -ErrorAction Stop
+  } catch {
+    $yamlAvailable = $false
+    Write-Warning "powershell-yaml unavailable ($($_.Exception.Message)) -- check_validate_data_contracts.ps1 will be SKIPPED, not passed. Install via: Install-Module powershell-yaml -Scope CurrentUser"
+  }
 }
 
 function Resolve-RepoPath {
@@ -66,6 +75,11 @@ $checkResults = @()
 $overallStatus = "pass"
 
 foreach ($check in $checks) {
+  if ($check.Path -eq "tooling/validation/check_validate_data_contracts.ps1" -and -not $yamlAvailable) {
+    Write-Host "SKIP $($check.Path) (powershell-yaml unavailable in this environment)" -ForegroundColor Yellow
+    $checkResults += @{ check = $check.Path; status = "skipped"; exit_code = $null }
+    continue
+  }
   $full = Join-Path -Path $rootPath -ChildPath $check.Path
   if (-not (Test-Path $full)) { throw "Missing check: $($check.Path)" }
   Write-Host "START $($check.Path)"
@@ -98,7 +112,9 @@ foreach ($cmd in @("py -3", "python3", "python")) {
   try {
     $parts = $cmd -split " "
     $exe   = $parts[0]
-    $xargs = @($parts[1..([Math]::Min(999,$parts.Count-1))] | Where-Object { $null -ne $_ }) + @("--version")
+    $xargs = @()
+    if ($parts.Count -gt 1) { $xargs = @($parts[1..($parts.Count - 1)]) }
+    $xargs += "--version"
     $ver   = (& $exe $xargs 2>&1) -join " "
     if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") { $pythonExe = $cmd; break }
   } catch { continue }
@@ -110,7 +126,9 @@ if ($pythonExe) {
     Write-Host "START $($pyCheck.Script)"
     $parts   = $pythonExe -split " "
     $exe     = $parts[0]
-    $xargs   = @($parts[1..([Math]::Min(999,$parts.Count-1))] | Where-Object { $null -ne $_ }) + @($script) + $pyCheck.Args
+    $xargs   = @()
+    if ($parts.Count -gt 1) { $xargs = @($parts[1..($parts.Count - 1)]) }
+    $xargs  += @($script) + $pyCheck.Args
     & $exe $xargs
     $exitCode = $LASTEXITCODE
     $status = if ($exitCode -eq 0) { "pass" } else { "fail" }

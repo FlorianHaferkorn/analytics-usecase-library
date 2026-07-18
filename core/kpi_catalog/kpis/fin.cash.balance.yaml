@@ -45,3 +45,12 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: IFRS
+  id: IAS 7
+  name: Cash and cash equivalents
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+  alignment: exact
+  note: Cash and cash equivalents is defined by IAS 7.6–9 (short-term, highly liquid, insignificant risk
+    of value change, typically ≤3-month maturity). Ensure scope matches the IAS 7 definition, not a broader
+    treasury balance.

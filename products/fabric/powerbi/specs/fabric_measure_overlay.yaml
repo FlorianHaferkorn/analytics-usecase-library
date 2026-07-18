@@ -260,13 +260,6 @@ ops.failure.count:
   format_string: ''
   dax_name: Failure Count
   display_folder: ''
-ops.inventory.value.amount:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: Inventory Value Amount
-  display_folder: ''
 ops.labor.productivity.pct:
   dax_expression: 'VAR OutputUnits = SUM ( fact_output[Output Units] )
 
@@ -300,13 +293,6 @@ ops.oee.pct:
   dax_expression: '[Availability %] * [Performance %] * [Quality %]'
   format_string: 0.0%
   dax_name: OEE %
-  display_folder: ''
-ops.otif.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Ops OTIF %
   display_folder: ''
 ops.performance.pct:
   dax_expression: 'VAR ActualOutput = SUM ( fact_ops[Output Units] )
@@ -351,13 +337,6 @@ ops.pm_compliance.pct:
   format_string: 0.0%
   dax_name: PM Compliance %
   display_folder: ''
-ops.production.volume:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: Production Volume Units
-  display_folder: ''
 ops.quality.defect_rate.pct:
   dax_expression: '-- TBD: see Measure Dictionary
 
@@ -381,13 +360,6 @@ ops.safety.incident.count:
   format_string: ''
   dax_name: Safety Incident Count
   display_folder: ''
-ops.service_level.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Operations Service Level %
-  display_folder: ''
 ops.spare_parts.stockout.pct:
   dax_expression: 'VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ),
     fact_maintenance[Parts Stockout Flag] = TRUE () )
@@ -409,13 +381,6 @@ ops.working_capital.ccc.days:
     BLANK()'
   format_string: '0'
   dax_name: Cash Conversion Cycle (Days)
-  display_folder: ''
-ops.yield.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Yield %
   display_folder: ''
 order.lines:
   dax_expression: '-- TBD: see Measure Dictionary
@@ -465,13 +430,6 @@ plan.forecast.service_impact.pct:
     BLANK()'
   format_string: 0.0%
   dax_name: Service Impact %
-  display_folder: ''
-plan.replan.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: Re-Plan Count
   display_folder: ''
 plans.count:
   dax_expression: '-- TBD: see Measure Dictionary
@@ -666,13 +624,6 @@ sales.units:
   format_string: ''
   dax_name: Sales Units
   display_folder: ''
-scm.service_level.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: 0.0%
-  dax_name: Supply Chain Service Level %
-  display_folder: ''
 scm.supplier_risk.score:
   dax_expression: '-- TBD: see Measure Dictionary
 
@@ -756,13 +707,6 @@ svc.fcr.pct:
     BLANK()'
   format_string: 0.0%
   dax_name: FCR %
-  display_folder: ''
-svc.nps.index:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
-  format_string: ''
-  dax_name: NPS Index
   display_folder: ''
 svc.sla.attainment.pct:
   dax_expression: '-- TBD: see Measure Dictionary

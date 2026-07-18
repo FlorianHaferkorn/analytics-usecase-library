@@ -51,3 +51,8 @@ metadata_quality:
   last_review: 23.01.2026
 aliases:
 - sales.forecast.bias_pct
+standard_ref:
+- standard: SCOR-DS
+  alignment: none
+  note: As plan.forecast.accuracy.pct — no SCOR metric home; IBF/APICS forecasting standards are the right
+    external reference.

@@ -72,7 +72,7 @@ canonical_domain_model:
       benchmark_target: "90–95% of cases within SLA target; <80% triggers SLA-breach risk and penalties (ITIL 4 / ISO/IEC 20000-1 practice)"
       benchmark_source_id: SRC-001
 
-    - id: svc.nps.index
+    - id: crm.nps.index
       name: Net Promoter Score (NPS)
       role: experience_outcome
       definition: >
@@ -239,7 +239,7 @@ canonical_domain_model:
       affected_kpis:
         - svc.sla.attainment.pct
         - svc.reopen.pct
-        - svc.nps.index
+        - crm.nps.index
     - description: Do not minimize AHT at the expense of FCR and CSAT/NPS
       condition: >
         Do not trigger AHT-reduction actions when FCR is at/below target or reopen/NPS is degrading.
@@ -248,7 +248,7 @@ canonical_domain_model:
       affected_kpis:
         - svc.aht.minutes
         - svc.fcr.pct
-        - svc.nps.index
+        - crm.nps.index
     - description: Exclude force-majeure and out-of-control SLA breaches
       condition: >
         Breaches caused by factors outside the service org's control (major external outage, supplier
@@ -392,7 +392,7 @@ action_logic_seeds:
     action_description: >
       Service quality review: analyse resolution satisfaction and escalation root cause by issue
       type; address first-line capability/knowledge gaps and routing defects that depress true FCR.
-    expected_outcome_kpi: svc.nps.index
+    expected_outcome_kpi: crm.nps.index
     action_code_candidate: X-S1.3
 
   - trigger_driver: svc.aht.minutes

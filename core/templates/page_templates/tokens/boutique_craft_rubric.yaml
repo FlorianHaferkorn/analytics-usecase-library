@@ -1,0 +1,267 @@
+# boutique_craft_rubric.yaml — Machine-readable Boutique-Craft rubric (tool-agnostic)
+#
+# Purpose:  Turns the Craft-Core (KONZEPT_REPORT_QUALITAET.md §5) into a versioned,
+#           checkable rubric. This is the K1 artifact: the "Boutique bar" as data.
+#           Renderer-agnostic — scored against the report INTENT/DESIGN-SPEC, not a
+#           specific output format (Power BI, Web, PDF).
+# Prose:    governance/Boutique_Craft_Rubric.md (authority + scoring model + reference)
+# Authority:Storytelling_Principles.md · governance/Layout_Grid_System.md ·
+#           governance/Color_Semantics_Formatting.md · IBCS/ISO 24896
+# Consumed by (planned, K6): tooling/report_quality/ (structural checks) +
+#           LLM-judge (judge checks). NOT yet wired — K1 defines, K6 enforces.
+# Shared IP: mirrored with Meridian (Freelancing: meridian/design/boutique-craft-rubric.yaml).
+#           Separate tools, shared craft knowledge — keep the two in sync deliberately.
+# Schema version: 1.0
+
+schema_version: "1.0"
+rubric_id: boutique_craft
+rubric_version: "1.0"
+
+# ── Scoring model ────────────────────────────────────────────────────────────
+# Each rule scored 0.0 (fail) / 0.5 (partial) / 1.0 (pass) at evaluation time.
+# dimension_score = weighted mean of its rule scores.
+# total_score_pct = Σ (dimension_score × dimension.weight).
+# A report PASSES iff: total_score_pct ≥ pass_score_pct  AND  knock_out violations = 0.
+# `check: structural` → machine-checkable from the intent/spec or PBIR (K6 automation).
+# `check: judge`      → semi-automatic LLM-judge over a render/screenshot + human decision.
+scoring:
+  pass_score_pct: 70
+  max_knock_outs: 0
+  levels: { fail: 0.0, partial: 0.5, pass: 1.0 }
+
+# ── Dimensions (weights sum to 100) ──────────────────────────────────────────
+dimensions:
+
+  - id: color
+    weight: 15
+    rules:
+      - id: BC-COLOR-01
+        statement: "One neutral ground + exactly one accent; context muted, focus highlighted."
+        severity: major
+        weight: 4
+        check: judge
+        machine_hint: "count of saturated (non-grey, non-semantic) hues on a page > 1"
+        source: "Craft-Core §5.1; Storytelling_Principles.md §9"
+      - id: BC-COLOR-02
+        statement: "Colour is only semantic (a judgment) or brand reference — never decorative or to distinguish equal-rank categories."
+        severity: knock_out
+        weight: 5
+        check: structural
+        machine_hint: "categorical series coloured by N distinct hues without semantic role"
+        source: "Craft-Core §5.1; Color_Semantics_Formatting.md"
+      - id: BC-COLOR-03
+        statement: "Red/green never alone — always paired with icon/weight; variance uses colourblind-safe blue/orange."
+        severity: major
+        weight: 3
+        check: structural
+        machine_hint: "semantic colour present without accompanying icon glyph / direction marker"
+        source: "Craft-Core §5.1; Storytelling_Principles.md §9 (8% red-green deficiency)"
+      - id: BC-COLOR-04
+        statement: "≤4 semantic colours visible on any single page."
+        severity: minor
+        weight: 3
+        check: structural
+        machine_hint: "distinct semantic-role colours per page > 4"
+        source: "Craft-Core §5.1; Storytelling_Principles.md §9"
+
+  - id: typography
+    weight: 12
+    rules:
+      - id: BC-TYPE-01
+        statement: "One font family across the report; vary only weight and size."
+        severity: major
+        weight: 4
+        check: structural
+        machine_hint: "distinct font families in theme/visuals > 1"
+        source: "Craft-Core §5.2; typography.yaml"
+      - id: BC-TYPE-02
+        statement: "Tabular (monospaced) numerals in every vertically-compared number column."
+        severity: major
+        weight: 4
+        check: structural
+        machine_hint: "matrix/table numeric column without tabular numeral setting"
+        source: "Craft-Core §5.2; typography.yaml (numerals: tabular)"
+      - id: BC-TYPE-03
+        statement: "Hero value ≥ 2× the size of secondary values on the same card."
+        severity: minor
+        weight: 2
+        check: structural
+        machine_hint: "kpi_value pt / secondary pt < 2"
+        source: "Craft-Core §5.2; typography.yaml scale"
+      - id: BC-TYPE-04
+        statement: "No ALL-CAPS for running text; every reader-facing size ≥ minimum."
+        severity: minor
+        weight: 2
+        check: structural
+        machine_hint: "text run in uppercase length > label threshold; size < min_pt"
+        source: "Craft-Core §5.2; Storytelling_Principles.md §10"
+
+  - id: layout
+    weight: 15
+    rules:
+      - id: BC-LAYOUT-01
+        statement: "Strict grid; all card edges and chart baselines aligned to the grid."
+        severity: major
+        weight: 4
+        check: structural
+        machine_hint: "visual bounds not on grid step / row baselines mismatched"
+        source: "Craft-Core §5.3; Layout_Grid_System.md"
+      - id: BC-LAYOUT-02
+        statement: "Grouping by whitespace (zone_gap > gutter > padding); no decorative boxes/borders."
+        severity: major
+        weight: 4
+        check: structural
+        machine_hint: "visual border/background fill present where whitespace suffices"
+        source: "Craft-Core §5.3; Layout_Grid_System.md; Storytelling_Principles.md §11"
+      - id: BC-LAYOUT-03
+        statement: "Hero-insight pattern: one dominant statement/number leads; hierarchy is not flat."
+        severity: major
+        weight: 4
+        check: judge
+        machine_hint: "no element ≥1.5× the visual weight of peers in the 3-second zone"
+        source: "Craft-Core §5.3; Storytelling_Principles.md §4"
+      - id: BC-LAYOUT-04
+        statement: "No metric overload — ≤7 KPIs/elements per zone."
+        severity: minor
+        weight: 3
+        check: structural
+        machine_hint: "elements in a zone > 7"
+        source: "Craft-Core §5.7; Storytelling_Principles.md §4"
+
+  - id: chart_craft
+    weight: 28
+    rules:
+      - id: BC-CHART-01
+        statement: "No mixed scale on one axis — one unit / one measure family per axis."
+        severity: knock_out
+        weight: 5
+        check: structural
+        machine_hint: "measures of ≥2 unit types bound to the same axis role"
+        source: "Craft-Core §5.4/§5.7; IBCS CHECK; R1.4 (mixed-scale bug)"
+      - id: BC-CHART-02
+        statement: "Show deviation as deviation — variance/bridge (IBCS), not two absolute bars for the reader to subtract."
+        severity: major
+        weight: 4
+        check: structural
+        machine_hint: "comparison vs plan/PY present but rendered as absolute pairs, no variance series"
+        source: "Craft-Core §5.4; IBCS SUCCESS; ibcs transform"
+      - id: BC-CHART-03
+        statement: "Direct labelling at line ends/points instead of a legend where feasible (≤5 series)."
+        severity: major
+        weight: 3
+        check: judge
+        machine_hint: "legend present with ≤5 series and no direct labels"
+        source: "Craft-Core §5.4; Storytelling_Principles.md §8"
+      - id: BC-CHART-04
+        statement: "Decluttered: no chart background fill, heavy gridlines, 3D, gradient or shadow."
+        severity: major
+        weight: 3
+        check: structural
+        machine_hint: "background fill / gridline opacity high / 3D or gradient object set"
+        source: "Craft-Core §5.4; Tufte data-ink; Storytelling_Principles.md §7"
+      - id: BC-CHART-05
+        statement: "Reference line/band for target, threshold or prior period wherever a comparison exists."
+        severity: major
+        weight: 3
+        check: structural
+        machine_hint: "comparison KPI on chart without a reference line/band object"
+        source: "Craft-Core §5.4; Storytelling_Principles.md §8"
+      - id: BC-CHART-06
+        statement: "Sparse data labels — endpoints, inflection points, or the one highlight only."
+        severity: minor
+        weight: 2
+        check: judge
+        machine_hint: "data labels enabled on all points of a dense series"
+        source: "Craft-Core §5.4; Storytelling_Principles.md §7"
+      - id: BC-CHART-07
+        statement: "Exactly one highlight per chart (pre-attentive focus)."
+        severity: major
+        weight: 3
+        check: judge
+        machine_hint: ">1 emphasised element (bold/colour) competing in one visual"
+        source: "Craft-Core §5.4; Ware 2013; Knaflic 2015"
+      - id: BC-CHART-08
+        statement: "Chart type fits the message (time→line, ranking→bar, part-whole→stacked, correlation→scatter)."
+        severity: major
+        weight: 3
+        check: structural
+        machine_hint: "visual_type vs component intent mismatch (e.g. pie >3 segments)"
+        source: "Craft-Core §5.4; IBCS EXPRESS; Cleveland-McGill 1984"
+      - id: BC-CHART-09
+        statement: "Zero-based axes for bars; area proportional to value; no undisclosed truncation."
+        severity: major
+        weight: 3
+        check: structural
+        machine_hint: "bar chart y-axis min ≠ 0"
+        source: "Craft-Core §5.4; IBCS CHECK; Tufte graphical integrity"
+      - id: BC-CHART-10
+        statement: "Evidence tables sorted by most-relevant/worst-first with an explicit Top-N."
+        severity: knock_out
+        weight: 3
+        check: structural
+        machine_hint: "detail matrix without sortDefinition or Top-N filter"
+        source: "Craft-Core §5.4; R1.3 (curated evidence)"
+
+  - id: narrative
+    weight: 20
+    rules:
+      - id: BC-NARR-01
+        statement: "Every exhibit title is a conclusion/statement, not a label ('GM fell 12% vs plan', not 'GM by month')."
+        severity: knock_out
+        weight: 5
+        check: judge
+        machine_hint: "title matches '<dimension> by <dimension>' pattern / contains no verb or number"
+        source: "Craft-Core §5.4/§5.5; IBCS SAY"
+      - id: BC-NARR-02
+        statement: "One message per exhibit — more than one → split into two exhibits."
+        severity: major
+        weight: 3
+        check: judge
+        machine_hint: "exhibit encodes ≥2 unrelated messages"
+        source: "Craft-Core §5.5; exhibit structure §6.1"
+      - id: BC-NARR-03
+        statement: "Visible so-what chain: signal → reason → implication → action."
+        severity: major
+        weight: 4
+        check: judge
+        machine_hint: "page has no so_what / action linkage in intent"
+        source: "Craft-Core §5.5; Concept §6.1"
+      - id: BC-NARR-04
+        statement: "Every prominent number carries context (vs prior / vs target / vs benchmark)."
+        severity: major
+        weight: 4
+        check: structural
+        machine_hint: "KPI value without a comparison field (delta/target/benchmark)"
+        source: "Craft-Core §5.5/§5.7; Concept §6.3 (benchmark layer)"
+      - id: BC-NARR-05
+        statement: "Annotations sit at the relevant point (inflection callouts, reference labels) — not in a footnote."
+        severity: minor
+        weight: 2
+        check: judge
+        machine_hint: "key finding not annotated on the visual"
+        source: "Craft-Core §5.5; Storytelling_Principles.md §8"
+      - id: BC-NARR-06
+        statement: "AI/generated narrative is grounded — every number traceable to a governed measure, provenance shown, filter-live."
+        severity: major
+        weight: 2
+        check: structural
+        machine_hint: "narrative text bound to non-governed source / static (filter-insensitive)"
+        source: "Craft-Core §6.2/§6.4; Storytelling_Principles.md §13"
+
+  - id: brand
+    weight: 10
+    rules:
+      - id: BC-BRAND-01
+        statement: "A composed custom theme — never the renderer default."
+        severity: knock_out
+        weight: 6
+        check: structural
+        machine_hint: "no custom theme registered / default palette in use"
+        source: "Craft-Core §5.6; Concept §7 (Maximize Power BI)"
+      - id: BC-BRAND-02
+        statement: "Consistent, recognisable identity across all reports (looks like one firm)."
+        severity: major
+        weight: 4
+        check: judge
+        machine_hint: "theme/type/colour drift across reports in the set"
+        source: "Craft-Core §5.6; Concept §2"

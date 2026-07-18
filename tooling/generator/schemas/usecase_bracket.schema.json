@@ -120,6 +120,11 @@
           "type": "string",
           "description": "Report pattern (e.g. 2-Page-Lead)."
         },
+        "intent_rules_version": {
+          "type": "integer",
+          "enum": [2],
+          "description": "R2.1 transition marker (UMSETZUNGSPLAN_REPORT_EXZELLENZ.md Cut C2). Omit entirely for legacy brackets not yet migrated -- they are exempt from the intent-layer required fields below (sort_by/top_n/highlight_rule on component_300s; message/unit on each component_30s entry). Set to 2 only once those fields are curated (R2.4 migrates all 16 pre-existing brackets to this pattern; COM-002 is the reference)."
+        },
         "report_canvas": {
           "type": "object",
           "description": "Optional canvas size for grid-based report (default 1920×1080). Enables proportional scaling when changed.",
@@ -197,6 +202,10 @@
                 "target_value": {
                   "type": "number",
                   "description": "Explicit target value (optional — used when target is a fixed threshold, not a measure)."
+                },
+                "benchmark": {
+                  "type": "boolean",
+                  "description": "BC-NARR-04 / §6.3: opt into the third comparison axis (vs. benchmark) — annotate the hero with its governed 'what good looks like' reference. ADDITIVE to `comparison` (vs plan/target), never a replacement. Requires a matching entry in core/kpi_catalog/benchmarks.yaml for this kpi_id (enforced by check_benchmarks.py)."
                 }
               }
             },
@@ -258,6 +267,26 @@
                     "type": "string",
                     "enum": ["higher_is_better", "lower_is_better"],
                     "description": "Signal direction for threshold colouring on this visual."
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160,
+                    "description": "One-sentence statement of what this visual shows (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Same 160-char ceiling as report_quality.content_validator's text-quality check -- keep it a single scannable sentence, not a paragraph."
+                  },
+                  "unit": {
+                    "type": "string",
+                    "enum": ["amount", "rate", "ratio", "count", "percentage", "quantity", "index"],
+                    "description": "Scale family this visual's measure(s) render in (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Reuses the governed calc_type vocabulary from core/kpi_catalog (see validate_kpi_catalog.ps1's $allowedCalc) rather than inventing a parallel one -- should match the referenced kpi_id's/kpi_ids' own calc_type. Exists to make one-message-per-chart / no-mixed-scale-axis a declared intent the generator (R2.3) and design_rules.yaml (R2.2) can check, not just an emergent property of measures picked."
+                  },
+                  "so_what": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "The implication of this exhibit's message — the next link in the signal→reason→implication→action chain (Boutique rubric BC-NARR-03). Optional."
+                  },
+                  "action_code_id": {
+                    "type": "string",
+                    "description": "Governed action code this exhibit points to (Golden Thread — must exist in core/action_codes/ and be listed in orchestration.action_code_ids). Optional; closes the so-what→action link."
                   }
                 },
                 "required": ["visual_type"]
@@ -328,7 +357,87 @@
                   "type": "string",
                   "enum": ["full", "summary", "minimal"],
                   "description": "How much action code detail to inject."
+                },
+                "sort_by": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["measure", "direction"],
+                  "description": "Default sort for the evidence table (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 Detail_Matrix sorts descending by GM% vs Plan (worst-first) -- see Design_Spec_3_30_300.md's Detail Matrix anatomy, 'Sort default: descending by delta (worst first)'.",
+                  "properties": {
+                    "measure": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "KPI ID or measure name to sort by. Should be one of evidence_measures/evidence_columns, or a governed KPI."
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": ["ascending", "descending"]
+                    }
+                  }
+                },
+                "top_n": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 500,
+                  "description": "Row limit for the evidence table (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 uses 20 (R1.3); Design_Spec_3_30_300.md's Detail Matrix anatomy suggests 50-100 as a general ceiling -- pick per-report based on evidence_grain cardinality, do not default blindly."
+                },
+                "highlight_rule": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["column"],
+                  "description": "Conditional-formatting emphasis on one evidence column (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 uses a native data bar on GM variance (R1.3) -- type is deliberately restricted to the one PBIR formatting object.dataBars pattern actually schema-verified so far (see UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.3 row); do not add other enum values without the same verification discipline.",
+                  "properties": {
+                    "column": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Column name from evidence_columns to apply the highlight to."
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["data_bar"],
+                      "description": "Formatting treatment. Only 'data_bar' is currently schema-verified (native objects.columnFormatting[].properties.dataBars); defaults to data_bar when omitted."
+                    }
+                  }
                 }
+              }
+            }
+          }
+        }
+      },
+      "if": {
+        "properties": { "intent_rules_version": { "const": 2 } },
+        "required": ["intent_rules_version"]
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "page_1_summary": {
+            "type": "object",
+            "properties": {
+              "component_30s": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "message": true,
+                    "unit": true
+                  },
+                  "required": ["message", "unit"]
+                }
+              }
+            }
+          },
+          "page_2_execution": {
+            "type": "object",
+            "properties": {
+              "component_300s": {
+                "type": "object",
+                "properties": {
+                  "sort_by": true,
+                  "top_n": true,
+                  "highlight_rule": true
+                },
+                "required": ["sort_by", "top_n", "highlight_rule"]
               }
             }
           }

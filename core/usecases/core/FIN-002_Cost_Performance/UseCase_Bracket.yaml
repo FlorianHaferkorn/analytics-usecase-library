@@ -12,14 +12,17 @@ orchestration:
   - cost.opex.vs_plan.pct
   - cost.material.pct
   - ops.labor.productivity.pct
-  - ops.production.volume
+  - ops.throughput.units
   - ops.quality.defect_rate.pct
-  - ops.yield.pct
+  - ops.quality.pct
   supporting_kpi_ids:
   - sales.net_sales.amount
   - cost.base_volume.amount
   - cost.opex.base.amount
-  - ops.service_level.pct
+  - supply.otif.pct
+  - supply.on_time.pct
+  - supply.in_full.pct
+  - supply.stockout_impact.pct
   - margin.ebitda.pct
   action_code_ids:
   - F-K2.1
@@ -31,14 +34,16 @@ primary_kpi_ids:
   - cost.material.pct
 
 value_driver_model:
-  formula: cost.unit.amount = f(margin.cogs.pct, cost.opex.vs_plan.pct, cost.material.pct, ops.labor.productivity.pct, ops.production.volume,
-    ops.quality.defect_rate.pct, ops.yield.pct)
+  formula: cost.unit.amount = f(margin.cogs.pct, cost.opex.vs_plan.pct, cost.material.pct, ops.labor.productivity.pct, ops.throughput.units,
+    ops.quality.defect_rate.pct, ops.quality.pct)
   impact_direction: minimize
   primary_driver: cost.material.pct
   impact_logic: Improving cost.material.pct is the primary lever for minimizing cost.unit.amount because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Finance / Operations Summary & Insights
     page_type: T1_Strategic_Overview
@@ -49,38 +54,54 @@ ux_layout_rules:
     component_3s:
       kpi_id: cost.unit.amount
       visual_type: kpi_card
+      comparison: vs_plan
+      status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: margin.cogs.pct
       visual_type: trend_line
-    - kpi_ids:
+      message: COGS is rising as a share of sales, eroding margin quarter over quarter
+      so_what: "At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response."
+      unit: rate
+    - slot_id: Main_2
+      kpi_ids:
       - cost.opex.vs_plan.pct
       - cost.material.pct
       - ops.labor.productivity.pct
       visual_type: bar_chart
+      message: Opex variance, material cost, and labor productivity — the three levers behind unit cost.
+      so_what: "Productivity gains aren't offsetting material inflation, so cost pressure keeps building on the P&L."
+      unit: rate
   page_2_execution:
     title: Finance / Operations Execution
+    decision_question: "Which cost lever — pricing, material, or productivity — should we pull first?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
       evidence_grain: plant_line_product_month
+      # R2.4: deduped repeated cost.unit.amount; dropped plant/line (no
+      # backing dimension table in Finance.SemanticModel -- dim_asset is
+      # Operations-only, not joined here); cut ops.throughput.units/
+      # ops.quality.pct (less central to the cost-recovery decision_question).
       evidence_columns:
       - entity
-      - plant
-      - line
       - product_category
       - cost.unit.amount
       - margin.cogs.pct
       - cost.material.pct
       - cost.opex.vs_plan.pct
       - ops.labor.productivity.pct
-      - ops.production.volume
       - ops.quality.defect_rate.pct
-      - ops.yield.pct
-      - cost.unit.amount
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: cost.opex.vs_plan.pct
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: cost.opex.vs_plan.pct
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: high

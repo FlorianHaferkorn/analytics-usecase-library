@@ -82,13 +82,19 @@ studio/test-results/.last-run.json
 
 # CI run logs (local only – not versioned)
 internal/metrics/runs/*.json
+internal/metrics/runs/**/*.json
 internal/metrics/generation_runs/*.json
+
+# Desktop Bridge screenshots (R4.1) — local proof-of-work, not versioned;
+# attach/paste into the PR or ledger entry instead of committing PNGs.
+internal/metrics/desktop_screenshots/
 
 # Backup files
 *.bak
 
 # External tool binaries (download via .tools/README.md; not committed)
 .tools/pbi-tools/
+.tools/fab-inspector/
 .tools/dotnet/
 .tools/*.zip
 drift_report.json

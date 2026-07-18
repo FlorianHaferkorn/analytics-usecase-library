@@ -252,7 +252,7 @@ CONFIGS = {
             "Action_S-F3.3_Text": _if3("Service Impact %", "gt", 0.08, 0.05, 0.02,
                 "S-F3.3", "Forecast-Driven Service Impact", "s_and_op_lead",
                 "0.0%", "Identify impacted SKUs", "Emergency stock deployment", "Review monthly"),
-            "Action_S-F3.4_Text": _if3("Re-Plan Count", "gt", 10, 6, 3,
+            "Action_S-F3.4_Text": _if3("Plans Count", "gt", 10, 6, 3,
                 "S-F3.4", "Re-Planning Discipline", "s_and_op_lead",
                 "#,0", "Identify re-plan root causes", "Stabilise demand signals", "Monitor weekly"),
             "Action_S-I1.1_Text": _if3("Days in Inventory", "gt", 70, 62, 55,

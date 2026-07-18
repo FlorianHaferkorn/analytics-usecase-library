@@ -184,7 +184,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "Main_1",
+            "title": "On-time delivery is the component dragging OTIF below target, not in-full",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -204,7 +204,7 @@
             "y": 0,
             "width": 0,
             "height": 0,
-            "title": "",
+            "title": "In-full rate and stockout impact — the two OTIF components beyond timeliness.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -212,8 +212,7 @@
             "visual_calculations": [],
             "bound_measures": [
               "In-Full %",
-              "Stockout Impact %",
-              "Penalty Amount"
+              "Stockout Impact %"
             ],
             "rows": [],
             "columns": [],
@@ -244,14 +243,12 @@
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
+              "OTIF %",
               "On-Time %",
               "In-Full %",
               "Stockout Impact %",
               "Penalty Amount",
-              "Expedite Cost Amount",
-              "Order Lines Count",
-              "Shipments Count",
-              "OTIF %"
+              "Expedite Cost Amount"
             ],
             "rows": [],
             "columns": [],

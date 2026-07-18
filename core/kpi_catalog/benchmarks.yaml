@@ -1,0 +1,326 @@
+# Benchmark registry — Content-Grounding §6.3 (KONZEPT_REPORT_QUALITAET.md).
+#
+# The THIRD comparison axis (next to vs-plan and vs-prior-year). Two kinds:
+#   • NORMATIVE  — a defined standard that applies universally (world-class OEE/OTIF).
+#   • EMPIRICAL  — a peer distribution that only means anything against an industry
+#                  (NPS, FCR, conversion). These MUST carry per-industry `segments`;
+#                  the top-level `value` is a labelled cross-industry FALLBACK.
+# Every entry references a real KPI (Golden Thread), needs an authoritative source
+# (tier primary/large_sample — not a headcount of secondary blogs), and records the
+# observed `range`. Enforced by tooling/validation/check_benchmarks.py.
+schema_version: '1.0'
+
+benchmarks:
+  - kpi_id: ops.oee.pct
+    scope: "Manufacturing (discrete & process) — world-class standard"
+    benchmark_class: normative
+    metric: world_class
+    value: 85.0
+    unit: pct
+    direction: higher_is_better
+    components: { availability: 90.0, performance: 95.0, quality: 99.0 }
+    sources:
+      - citation: >-
+          Nakajima, S. (1988), "Introduction to TPM", Productivity Press — world-class
+          OEE = 90% × 95% × 99% ≈ 85%; the origin of the standard.
+        source_type: industry_standard
+        tier: primary
+        as_of: '2026-07-11'
+      - citation: >-
+          Evocon, "World-Class OEE: Industry Benchmarks from 50+ countries" (2024) —
+          corroborates 85% world-class against aggregated real-plant data.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-11'
+    note: >-
+      Normative standard for ops.oee.pct (OPS-001). Universal to manufacturing; 90/90/90
+      yields only ~73%, so 85% is a demanding bar.
+
+  - kpi_id: svc.fcr.pct
+    scope: "Contact-center / customer service — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 74.0
+    unit: pct
+    direction: higher_is_better
+    range: { low: 41.0, high: 94.0 }
+    segments:
+      - { industry: "Retail", value: 78.0 }
+      - { industry: "Financial services", value: 74.0 }
+      - { industry: "Tech support / telco", value: 65.0 }
+    sources:
+      - citation: >-
+          MetricNet benchmarking database — FCR industry standard 74%, ranging 41–94% by
+          call complexity.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-11'
+      - citation: >-
+          SQM Group, Call Center FCR Benchmark 2024 — all-industry avg ~68–70%,
+          world-class aspiration 80%+ (~5% of centers); retail higher, tech-support lower.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-11'
+    note: >-
+      Empirical for svc.fcr.pct (XD-001) — use the sector segment, not the 74% average
+      (retail 78 vs tech-support 65 differ by call complexity). 80%+ is the world-class
+      aspiration.
+
+  - kpi_id: supply.otif.pct
+    scope: "Supply-chain delivery to retail / CPG customers"
+    benchmark_class: normative
+    metric: world_class
+    value: 95.0
+    unit: pct
+    direction: higher_is_better
+    range: { low: 85.0, high: 98.0 }
+    sources:
+      - citation: >-
+          Walmart Supplier OTIF program — 98% OTIF requirement with a 3% COGS penalty for
+          non-compliance (public supplier standard); the retail contractual bar.
+        source_type: industry_standard
+        tier: primary
+        as_of: '2026-07-11'
+      - citation: >-
+          Kaizen Institute / FourKites / MetricHQ OTIF references (2024) — >95%
+          world-class; 90–95% strong, 85–90% average, <85% systemic.
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-11'
+    note: >-
+      Normative for supply.otif.pct (SCM-002). 95% world-class; retail mandates ~98% —
+      the standard scales with customer power.
+
+  - kpi_id: crm.nps.index
+    scope: "Net Promoter Score — peer distribution by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 44.0
+    unit: index
+    direction: higher_is_better
+    range: { low: 0.0, high: 72.0 }
+    segments:
+      - { industry: "Retail", value: 45.0 }
+      - { industry: "SaaS / B2B software", value: 35.0 }
+      - { industry: "Financial services", value: 30.0 }
+      - { industry: "Telecom / utilities", value: 10.0 }
+    sources:
+      - citation: >-
+          SurveyMonkey NPS benchmarks (>150,000 organizations) — cross-industry median 44,
+          average 32, top quartile ≥72.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-11'
+      - citation: >-
+          Retently 2026 NPS Benchmark Report — by sector: SaaS/B2B ~30–40, retail ~40–50,
+          financial services ~20–40, telecom/utilities ~0–15; B2C avg 49, B2B avg 38.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-11'
+      - citation: >-
+          Bain & Company (NPS originators) — >30 good, >50 excellent, >70 world-class.
+        source_type: market_report
+        tier: primary
+        as_of: '2026-07-11'
+    note: >-
+      Empirical for crm.nps.index (COM-003) — an index (−100..100), not a percent. Use the
+      sector segment: 44 cross-industry hides SaaS ~35 vs retail ~45 vs telecom ~10.
+
+  - kpi_id: inv.turnover
+    scope: "Inventory turns per year — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 8.5
+    unit: ratio
+    direction: higher_is_better
+    range: { low: 5.0, high: 18.0 }
+    segments:
+      - { industry: "Grocery retail", value: 13.0 }
+      - { industry: "Retail (general)", value: 11.0 }
+      - { industry: "Manufacturing", value: 5.3 }
+    sources:
+      - citation: >-
+          Netstock, "Inventory Turnover Benchmarks by Industry" (2024) — cross-sector
+          average ≈8.5 turns/yr; grocery 10–15, general retail ≈11, manufacturing ≈5.3.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          ReadyRatios industry benchmarking (aggregated U.S. SEC filings) — inventory
+          turnover by sector corroborates the retail-high vs manufacturing-low spread.
+        source_type: financial_filings
+        tier: large_sample
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for inv.turnover — turns compare only within a sector (grocery perishables
+      ~13 vs manufacturing ~5). Use the sector segment, not the 8.5 cross-industry average.
+
+  - kpi_id: wc.dso.days
+    scope: "Days Sales Outstanding — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 56.0
+    unit: days
+    direction: lower_is_better
+    range: { low: 11.0, high: 100.0 }
+    segments:
+      - { industry: "Retail / e-commerce", value: 11.0 }
+      - { industry: "Manufacturing", value: 28.0 }
+      - { industry: "B2B services", value: 52.0 }
+      - { industry: "Construction / engineering", value: 100.0 }
+    sources:
+      - citation: >-
+          The Hackett Group 2024 Working Capital Survey (via CFO.com) — cross-industry
+          DSO ≈56 days median; retail/staples paid fastest, capital-intensive slowest.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          Upflow / oAppsNet DSO benchmarks (2024) — corroborates sector spread: retail
+          ~11d (card settlement), manufacturing <30d, B2B services 45–60d, construction ~100d.
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for wc.dso.days (lower is better) — the 56-day median hides card-settled
+      retail (~11d) vs milestone-billed construction (~100d). Use the sector segment.
+
+  - kpi_id: plan.forecast.mape.pct
+    scope: "Demand-forecast MAPE — achievable accuracy by demand profile"
+    benchmark_class: empirical
+    metric: typical
+    value: 20.0
+    unit: pct
+    direction: lower_is_better
+    range: { low: 10.0, high: 60.0 }
+    segments:
+      - { industry: "FMCG / staples (stable demand)", value: 15.0 }
+      - { industry: "Industrial / B2B (project-driven)", value: 30.0 }
+      - { industry: "Apparel / fashion (seasonal)", value: 45.0 }
+    sources:
+      - citation: >-
+          RELEX Solutions, "Measuring forecast accuracy" — stable FMCG SKUs MAPE <15%,
+          seasonal/fashion 35–60%; accuracy is bounded by demand volatility, not effort.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          ToolsGroup, "Forecast Accuracy Benchmarks: What Good Really Means" — corroborates
+          10–20% MAPE for stable demand, far higher for intermittent/short-lifecycle items.
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for plan.forecast.mape.pct (lower is better) — a fashion SKU held to the
+      FMCG 15% bar fails by physics, not performance. Compare against the demand-profile segment.
+
+  - kpi_id: crm.retention.pct
+    scope: "Customer retention rate — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 75.0
+    unit: pct
+    direction: higher_is_better
+    range: { low: 30.0, high: 95.0 }
+    segments:
+      - { industry: "SaaS / B2B software", value: 90.0 }
+      - { industry: "Retail (general)", value: 65.0 }
+      - { industry: "DTC e-commerce", value: 31.0 }
+    sources:
+      - citation: >-
+          First Page Sage, "Customer Retention Rates by Industry" (2026) — SaaS/B2B 85–95%,
+          retail 60–70%, DTC e-commerce ~31%; cross-industry average ≈75%.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          CustomerGauge / Sprinklr retention benchmarks (2024) — corroborates the switching-cost
+          spread: contract-structured SaaS retains ~90%, low-lock-in DTC e-commerce ~30%.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for crm.retention.pct — the 75% average hides 90% SaaS vs 31% DTC e-commerce
+      (driven by switching costs, not effort). Use the sector segment.
+
+  - kpi_id: inv.dio.days
+    scope: "Days Inventory Outstanding — peer performance by sector"
+    benchmark_class: empirical
+    metric: median
+    value: 45.0
+    unit: days
+    direction: lower_is_better
+    range: { low: 10.0, high: 180.0 }
+    segments:
+      # Distinct head-nouns so an org descriptor matches exactly one segment: an explicit
+      # grocer hits "grocery"; a general/omnichannel retailer hits "retail" (general).
+      - { industry: "Grocery & perishables", value: 15.0 }
+      - { industry: "Apparel & general retail", value: 40.0 }
+      - { industry: "Manufacturing", value: 75.0 }
+    sources:
+      - citation: >-
+          Netstock, "How to calculate and improve Days Inventory Outstanding" (2024) —
+          perishable retail 10–20d, general retail 30–60d, manufacturing 60–100+d (raw+WIP+FG).
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          klarmetrics, "Days Inventory Outstanding: Formula & Benchmarks" — corroborates
+          grocery 10–25d, apparel/electronics 30–60d, pharma manufacturing 120–180d.
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Empirical for inv.dio.days (lower is better) — DIO is the reciprocal-in-days of turns;
+      a grocer at 15d and a manufacturer at 75d are both healthy. Use the sector segment,
+      never the 45-day cross-industry median.
+
+  - kpi_id: quality.fpy.pct
+    scope: "First Pass Yield — world-class manufacturing standard"
+    benchmark_class: normative
+    metric: world_class
+    value: 98.0
+    unit: pct
+    direction: higher_is_better
+    range: { low: 93.0, high: 99.5 }
+    sources:
+      - citation: >-
+          6sigma.us, "First Pass Yield (FPY) in Manufacturing — Lean Six Sigma" — FPY is the
+          quality-yield standard; world-class sustains ≥98%, <90% signals process instability.
+        source_type: industry_standard
+        tier: primary
+        as_of: '2026-07-12'
+      - citation: >-
+          Averroes.ai, "Yield in Manufacturing: Benchmarks & Strategies" (2024) — mature lines
+          run 93–96% first-pass yield, world-class operations sustain 98.5%+.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+    note: >-
+      Normative for quality.fpy.pct (OPS-003). Universal manufacturing bar: 98% world-class
+      FPY (units right first time, no rework/scrap). Unlike scrap, FPY also penalises rework.
+
+  - kpi_id: quality.scrap.pct
+    scope: "Scrap rate — world-class manufacturing standard"
+    benchmark_class: normative
+    metric: world_class
+    value: 1.0
+    unit: pct
+    direction: lower_is_better
+    range: { low: 0.5, high: 5.0 }
+    sources:
+      - citation: >-
+          symestic, "Scrap Rate: Formula, Benchmarks & the Honest Number" — world-class scrap
+          <1%; 2–5% is a typical industry range; a low scrap rate can still hide high rework.
+        source_type: market_report
+        tier: large_sample
+        as_of: '2026-07-12'
+      - citation: >-
+          Fabrico, "OEE Quality: Reducing Scrap and Rework" — corroborates the sub-1% world-class
+          scrap bar and the scrap-vs-FPY distinction (scrap excludes reworked units).
+        source_type: market_report
+        tier: secondary
+        as_of: '2026-07-12'
+    note: >-
+      Normative for quality.scrap.pct (lower is better). World-class ≤1%; 2–5% typical. Pair with
+      FPY — a 0.5% scrap rate with 82% FPY hides a 17.5% rework gap (symestic's "honest number").

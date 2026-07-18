@@ -43,3 +43,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: Planned quantity element
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Planned output (standard rate x planned time) is the ISO 22400-2 planned-quantity element, an
+    input to Effectiveness, not a KPI.

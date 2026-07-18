@@ -46,3 +46,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: IFRS 15
+  name: Price realization (net/list)
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: none
+  note: Price realization (net/list) is a management pricing metric, not IFRS-defined. The discount it
+    captures is IFRS 15 variable consideration, but the ratio itself is a commercial-analytics convention.

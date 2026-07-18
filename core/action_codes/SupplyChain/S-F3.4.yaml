@@ -13,11 +13,11 @@ use_case_links:
   - SCM-002
 kpis:
   trigger_kpis:
-  - plan.replan.count
+  - plans.count
   guardrail_kpis:
   - supply.otif.pct
   outcome_kpis:
-  - plan.replan.count
+  - plans.count
   - plan.forecast.accuracy.pct
 scope:
   default_grain: sop_cycle_month
@@ -53,7 +53,7 @@ trigger:
     L1:
       severity: EarlyWarning
       condition:
-        metric_kpi_id: plan.replan.count
+        metric_kpi_id: plans.count
         comparator: gt
         threshold:
           basis: absolute
@@ -63,7 +63,7 @@ trigger:
     L2:
       severity: RequiredIntervention
       condition:
-        metric_kpi_id: plan.replan.count
+        metric_kpi_id: plans.count
         comparator: gt
         threshold:
           basis: absolute
@@ -73,7 +73,7 @@ trigger:
     L3:
       severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: plan.replan.count
+        metric_kpi_id: plans.count
         comparator: gt
         threshold:
           basis: absolute
@@ -89,7 +89,7 @@ impact_valuation:
   currency: EUR
   success_window:
     duration: P60D
-    metric_kpi_id: plan.replan.count
+    metric_kpi_id: plans.count
     success_criteria:
       kind: return_to_baseline
       baseline_window: P90D
@@ -104,7 +104,7 @@ impact_valuation:
 impact:
   category: Medium
   expected_range:
-    metric_kpi_id: plan.replan.count
+    metric_kpi_id: plans.count
     value_low: -20.0
     value_high: -50.0
     unit: '%'
@@ -143,7 +143,7 @@ data_requirements:
   - S&OP Cycle
   semantic_dependencies:
     measures:
-    - Re-Plan Count
+    - Plans Count
     - Forecast Accuracy %
     - OTIF %
     - Plans Count

@@ -58,11 +58,26 @@ escalations and backlog.
 | svc.escalation.pct | Influencing |
 | svc.tickets.created.count | Influencing |
 | svc.tickets.closed.count | Influencing |
-| svc.nps.index | Supporting |
+| crm.nps.index | Supporting |
 
 **Action Codes:** X-S1.1, X-S1.2, X-S1.3, X-S1.4
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
+
+---
+
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **SLA Attainment %** (`svc.sla.attainment.pct`) → **ISO/IEC 20000-1 8.3.3** (partial): ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets.
+- **Backlog Count** (`svc.backlog.count`) → **ISO/IEC 20000-1 8.6.1** (partial): Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request).
+- **First Contact Resolution %** (`svc.fcr.pct`) → **ITIL 4** (partial): First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC CX Standard), not formally defined by ISO/IEC 20000.
+- **Average Handling Time (minutes)** (`svc.aht.minutes`) → **ITIL 4** (partial): AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined.
+- **Escalation %** (`svc.escalation.pct`) → **ISO/IEC 20000-1 8.6.1** (partial): Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice.
+- **Tickets Created Count** (`svc.tickets.created.count`) → **ISO/IEC 20000-1 8.6.1** (none): Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI.
+- **Tickets Closed Count** (`svc.tickets.closed.count`) → **ISO/IEC 20000-1 8.6.1** (none): Raw closed-ticket count is a throughput element feeding backlog and closure-rate.
+- **NPS Index** (`crm.nps.index`) → **Bain NPS (proprietary)** (none): NPS is a proprietary Bain & Company methodology, not an open standard; the governed NPS is the Customer-domain `crm.nps.index` (consolidated from the former `svc.nps.index`).
 
 ---
 

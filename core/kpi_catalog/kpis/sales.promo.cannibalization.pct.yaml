@@ -44,3 +44,8 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Promo cannibalization
+  alignment: none
+  note: Cannibalization (cannibalized / uplift sales) is a TPM analytics concept, not standard-defined.

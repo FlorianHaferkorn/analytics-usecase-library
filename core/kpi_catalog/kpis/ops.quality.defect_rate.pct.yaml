@@ -40,3 +40,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: QR
+  name: Quality ratio (complement)
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed
+    by the standard into scrap ratio (SR) and rework ratio (RR). Report against QR to align.

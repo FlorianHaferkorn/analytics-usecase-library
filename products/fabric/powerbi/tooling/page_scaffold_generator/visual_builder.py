@@ -4,6 +4,7 @@ Visual Builder
 Builds Power BI visual placeholder structures.
 """
 
+import re
 import uuid
 from typing import Dict, Any, Optional, List
 from .layout_calculator import Position
@@ -123,6 +124,36 @@ class VisualBuilder:
             "queryState": {"Data": {"projections": projections}}
         }
 
+        return visual
+
+    def build_narrative_card(
+        self,
+        position: Position,
+        measure_ref: str,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Build a cardVisual bound to a single domain-level narrative/action DAX
+        measure (Smart_Narrative -> "Narrative Text (<SUFFIX>)", ActionPanel ->
+        "Active Actions Text (<SUFFIX>)") -- the measure reads the current page
+        filter context and computes its own text, so the visual has no
+        formatting objects of its own (verified against the real, committed
+        dist/Smart_Narrative and dist/ActionPanel visual.json for COM-002 --
+        R2.3-Fund follow-up, replacing the prior generator-synthesized textbox).
+
+        Args:
+            position: Position and size
+            measure_ref: DAX measure name (e.g. "Narrative Text (COM)")
+            name: Optional visual name
+
+        Returns:
+            Visual JSON structure
+        """
+        visual = self._build_base_visual("cardVisual", position, name=name)
+        visual["visual"].pop("drillFilterOtherVisuals", None)
+        visual["visual"]["query"] = {
+            "queryState": {"Data": {"projections": [self._measure_projection(measure_ref)]}}
+        }
         return visual
 
     def build_kpi_cards_multi(
@@ -301,15 +332,10 @@ class VisualBuilder:
                     }
                 }
             ],
-            "layout": [
-                {
-                    "properties": {
-                        "clusteredGapSize": {"expr": {"Literal": {"Value": "10L"}}},
-                        "clusteredGapOverlaps": {"expr": {"Literal": {"Value": "false"}}}
-                    }
-                }
-            ],
-            "dataLabels": [
+            # R1.6/R2.3-Fund: clusteredBarChart's real formatting object is
+            # "labels", not "dataLabels" (R1.6 schema-verified this on COM-002's
+            # Main_3; never ported back into the generator until now).
+            "labels": [
                 {
                     "properties": {
                         "show": {"expr": {"Literal": {"Value": "true"}}},
@@ -318,6 +344,18 @@ class VisualBuilder:
                 }
             ]
         }
+        # R1.4/R2.3-Fund: clusteredGapSize/clusteredGapOverlaps only mean
+        # something when multiple measures cluster per category; inert (and
+        # dropped, per R1.4's COM-002 Main_3 precedent) for a single measure.
+        if measures and len(measures) > 1:
+            visual["visual"]["objects"]["layout"] = [
+                {
+                    "properties": {
+                        "clusteredGapSize": {"expr": {"Literal": {"Value": "10L"}}},
+                        "clusteredGapOverlaps": {"expr": {"Literal": {"Value": "false"}}}
+                    }
+                }
+            ]
         return visual
 
     def build_clustered_column(
@@ -360,9 +398,7 @@ class VisualBuilder:
             ]
         }
         if title:
-            visual["visual"]["visualContainerObjects"] = {
-                "title": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{title}'"}}}, "show": {"expr": {"Literal": {"Value": "true"}}}}}]
-            }
+            self._apply_title(visual, title)
         return visual
 
     def build_stacked_bar(
@@ -442,6 +478,10 @@ class VisualBuilder:
         columns: Optional[list] = None,
         measures: Optional[List[str]] = None,
         name: Optional[str] = None,
+        sort_by: Optional[Dict[str, str]] = None,
+        top_n: Optional[int] = None,
+        top_n_field: Optional[tuple] = None,
+        highlight_rule: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Build Table visual placeholder.
@@ -451,6 +491,20 @@ class VisualBuilder:
             columns: Optional list of (entity, property) for dimension columns, e.g. [("dim_date", "Date")]
             measures: Optional list of DAX measure names for value columns, e.g. ["Net Sales Amount"]
             name: Optional visual name
+            sort_by: Optional {"measure": <DAX measure name>, "direction": "ascending"|"descending"}
+                (R2.1 component_300s.sort_by, resolved to a measure name). Emits
+                query.sortDefinition with isDefaultSort=true.
+            top_n: Optional row limit (R2.1 component_300s.top_n). Requires top_n_field.
+                Emits a filterConfig TopN filter ordered by sort_by's measure.
+            top_n_field: Optional (entity, property) tuple identifying the row-grain
+                dimension column the TopN filter targets (the most granular of
+                `columns` -- see MANDATORY_SORT_RENDERED / MAX_EVIDENCE_COLUMNS in
+                design_rules.yaml).
+            highlight_rule: Optional {"measure": <DAX measure name>, "type": "data_bar"}
+                (R2.1 component_300s.highlight_rule). "data_bar" is the only
+                schema-verified formatting pattern (R1.3 precedent) -- uses the
+                colorblind-safe blue/orange pair (ThemeDataColor 0/3) per
+                Color_Semantics_Formatting.md rather than semantic.positive/negative.
 
         Returns:
             Visual JSON structure
@@ -464,10 +518,28 @@ class VisualBuilder:
             for m in measures:
                 projections.append(self._measure_projection(m))
         # Table visual always uses "Values" role (column well); "Data" would land in filter
-        visual["visual"]["query"] = {"queryState": {"Values": {"projections": projections}}}
+        query: Dict[str, Any] = {"queryState": {"Values": {"projections": projections}}}
+
+        if sort_by and sort_by.get("measure"):
+            direction = "Descending" if str(sort_by.get("direction", "")).lower() == "descending" else "Ascending"
+            query["sortDefinition"] = {
+                "sort": [
+                    {
+                        "field": {
+                            "Measure": {
+                                "Expression": {"SourceRef": {"Entity": "_Measures"}},
+                                "Property": sort_by["measure"],
+                            }
+                        },
+                        "direction": direction,
+                    }
+                ],
+                "isDefaultSort": True,
+            }
+        visual["visual"]["query"] = query
 
         # Add table-specific objects
-        visual["visual"]["objects"] = {
+        objects: Dict[str, Any] = {
             "grid": [
                 {
                     "properties": {
@@ -503,7 +575,106 @@ class VisualBuilder:
                 }
             ]
         }
-        
+
+        if highlight_rule and highlight_rule.get("measure") and highlight_rule.get("type", "data_bar") == "data_bar":
+            objects["columnFormatting"] = [
+                {
+                    "properties": {
+                        "dataBars": {
+                            "positiveColor": {"solid": {"color": {"expr": {"ThemeDataColor": {"ColorId": 0, "Percent": 0}}}}},
+                            "negativeColor": {"solid": {"color": {"expr": {"ThemeDataColor": {"ColorId": 3, "Percent": 0}}}}},
+                            "axisColor": {"solid": {"color": {"expr": {"ThemeDataColor": {"ColorId": 0, "Percent": 0.7}}}}},
+                            "reverseDirection": {"expr": {"Literal": {"Value": "false"}}},
+                            "hideText": {"expr": {"Literal": {"Value": "false"}}},
+                            "totalMatchingOption": {"expr": {"Literal": {"Value": "1L"}}},
+                        }
+                    },
+                    "selector": {"metadata": f"_Measures.{highlight_rule['measure']}"},
+                }
+            ]
+
+        visual["visual"]["objects"] = objects
+
+        if top_n and top_n_field and sort_by and sort_by.get("measure"):
+            top_ent, top_prop = top_n_field
+            order_direction = 2 if str(sort_by.get("direction", "")).lower() == "descending" else 1
+            _topn_stem = re.sub(r"[^A-Za-z0-9]", "", sort_by["measure"])[:20]
+            visual["filterConfig"] = {
+                "filters": [
+                    {
+                        "name": f"TopN_{_topn_stem}_{name or 'Table'}",
+                        "field": {
+                            "Column": {
+                                "Expression": {"SourceRef": {"Entity": top_ent}},
+                                "Property": top_prop,
+                            }
+                        },
+                        "type": "TopN",
+                        "filter": {
+                            "Version": 2,
+                            "From": [
+                                {
+                                    "Name": "subquery",
+                                    "Expression": {
+                                        "Subquery": {
+                                            "Query": {
+                                                "Version": 2,
+                                                "From": [
+                                                    {"Name": "p", "Entity": top_ent, "Type": 0},
+                                                    {"Name": "m", "Entity": "_Measures", "Type": 0},
+                                                ],
+                                                "Select": [
+                                                    {
+                                                        "Column": {
+                                                            "Expression": {"SourceRef": {"Source": "p"}},
+                                                            "Property": top_prop,
+                                                        },
+                                                        "Name": "field",
+                                                    }
+                                                ],
+                                                "OrderBy": [
+                                                    {
+                                                        "Direction": order_direction,
+                                                        "Expression": {
+                                                            "Measure": {
+                                                                "Expression": {"SourceRef": {"Source": "m"}},
+                                                                "Property": sort_by["measure"],
+                                                            }
+                                                        },
+                                                    }
+                                                ],
+                                                "Top": top_n,
+                                            }
+                                        }
+                                    },
+                                    "Type": 2,
+                                },
+                                {"Name": "p", "Entity": top_ent, "Type": 0},
+                            ],
+                            "Where": [
+                                {
+                                    "Condition": {
+                                        "In": {
+                                            "Expressions": [
+                                                {
+                                                    "Column": {
+                                                        "Expression": {"SourceRef": {"Source": "p"}},
+                                                        "Property": top_prop,
+                                                    }
+                                                }
+                                            ],
+                                            "Table": {"SourceRef": {"Source": "subquery"}},
+                                        }
+                                    }
+                                }
+                            ],
+                        },
+                        "howCreated": "User",
+                        "isHiddenInViewMode": True,
+                    }
+                ]
+            }
+
         return visual
     
     def build_matrix(
@@ -746,7 +917,43 @@ class VisualBuilder:
 
         return method(position, name=name)
 
+    def _apply_title(self, visual: Dict[str, Any], title: Optional[str]) -> Dict[str, Any]:
+        """Set the visual header (PBIR visualContainerObjects.title).
+
+        Single quotes are escaped for the DAX string literal — titles now carry
+        free-text exhibit statements (BC-NARR-01) that may contain apostrophes.
+        """
+        if title and str(title).strip():
+            _lit = str(title).strip().replace("'", "''")
+            visual["visual"]["visualContainerObjects"] = {
+                "title": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{_lit}'"}}}, "show": {"expr": {"Literal": {"Value": "true"}}}}}]
+            }
+        return visual
+
     def build_by_ux_visual_type(
+        self,
+        ux_visual_type: str,
+        position: Position,
+        name: Optional[str] = None,
+        measures: Optional[List[str]] = None,
+        title: Optional[str] = None,
+        category_entity: Optional[str] = None,
+        category_property: Optional[str] = None,
+        statement_title: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build a visual and render ``statement_title`` — the governed exhibit
+        message (BC-NARR-01) — as its header for EVERY visual type (not only clustered
+        columns). ``title`` stays the label used for naming/tooltip; when a statement is
+        present it wins the header."""
+        visual = self._dispatch_ux_visual(
+            ux_visual_type, position, name=name, measures=measures, title=title,
+            category_entity=category_entity, category_property=category_property,
+        )
+        if statement_title:
+            self._apply_title(visual, statement_title)
+        return visual
+
+    def _dispatch_ux_visual(
         self,
         ux_visual_type: str,
         position: Position,
@@ -812,7 +1019,15 @@ class VisualBuilder:
                 category_property=category_property or "OrgName",
             )
         if normalized_type == "waterfall":
-            return self.build_waterfall(position, measures=measures, name=name)
+            # R2.3-Fund follow-up: category_entity/category_property were silently
+            # dropped here (never forwarded to build_waterfall), so a Bracket's
+            # category_field override on a waterfall component_30s entry had no
+            # effect -- always fell through to build_waterfall's own default.
+            return self.build_waterfall(
+                position, measures=measures, name=name,
+                category_entity=category_entity or "dim_date",
+                category_property=category_property or "Date",
+            )
         if normalized_type == "clustered_column":
             return self.build_clustered_column(position, measures=measures, name=name, title=title)
         if normalized_type in ("stacked_bar", "hundred_percent_stacked_bar"):

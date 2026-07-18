@@ -59,13 +59,27 @@ factsheet_type: business
 | ops.spare_parts.stockout.pct | Influencing |
 | ops.pm_compliance.pct | Influencing |
 | ops.failure.count | Influencing |
-| ops.inventory.value.amount | Supporting |
+| fin.liquidity.inventory.amount | Supporting |
 | ops.pm.task.count | Supporting |
 | ops.safety.incident.count | Supporting |
 
 **Action Codes:** O-A2.1, O-A2.2, O-A2.3, O-A2.4, O-A2.5
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
+
+---
+
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **MTBF (hours)** (`ops.mtbf.hours`) → **ISO 22400-2 MTBF** (exact): ISO 22400-2 MTBF = operating time / number of failures.
+- **Availability %** (`ops.availability.pct`) → **ISO 22400-2 A** (partial): ISO 22400-2 Availability = Actual Production Time / Planned Busy Time.
+- **MTTR (hours)** (`ops.mttr.hours`) → **ISO 22400-2 MTTR** (exact): ISO 22400-2 defines MTTR as mean time to restoration = total repair time / number of failures.
+- **Unplanned Downtime %** (`ops.downtime.unplanned.pct`) → **ISO 22400-2** (partial): Unplanned downtime is the failure/breakdown share of the ISO 22400-2 down-time element.
+- **Spare Parts Stockout %** (`ops.spare_parts.stockout.pct`) → **SCOR-DS** (none): Spare-parts stockout is an MRO/maintenance availability diagnostic; SCOR captures availability inside Reliability/Asset-Management rather than as a standalone metric.
+- **PM Compliance %** (`ops.pm_compliance.pct`) → **ISO 22400-2** (none): PM compliance (completed vs planned PM orders) is a maintenance-management KPI; ISO 22400-2 covers corrective-maintenance ratio and reliability but not PM-schedule compliance.
+- **Failure Count** (`ops.failure.count`) → **ISO 22400-2** (none): Raw failure count is an ISO 22400-2 element (input to MTBF/MTTR), not a headline KPI itself.
 
 ---
 

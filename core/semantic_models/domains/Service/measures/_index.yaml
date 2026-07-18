@@ -3,7 +3,6 @@ order:
 - fcr
 - aht_minutes
 - backlog_count
-- nps_index
 - escalation
 - utilization
 - occupancy

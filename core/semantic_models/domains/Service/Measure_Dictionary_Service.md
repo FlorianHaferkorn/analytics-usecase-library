@@ -124,33 +124,6 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: v1.2
     last_review: TBD
 
-- measure_name: NPS Index
-  is_kpi_measure: true
-  kpi_id_ref: svc.nps.index
-  semantic_model: Service_SemanticModel
-  display_folder: 04_Experience
-  category: KPI
-  expression:
-    logical: NPS Index = %Promoters minus %Detractors from NPS survey.
-    aggregation_method: average
-  documentation:
-    description: 'NPS score from surveys: %Promoters - %Detractors.'
-    notes: 'Grain: month. Unit: index.
-
-      Lineage: fact_nps[NPS Score].
-
-      QA: Score in [0;10]; promoter/detractor rules consistent.
-
-      '
-  dependencies:
-    columns:
-    - fact_nps[NPS Score]
-  governance:
-    owner: Service Analytics
-    status: active
-    version: v1.2
-    last_review: TBD
-
 - measure_name: Escalation %
   is_kpi_measure: true
   kpi_id_ref: svc.escalation.pct
@@ -703,15 +676,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_P&L
   category: KPI
   expression:
-    logical: Revenue at Risk Amount (XD) = [Net Sales Amount (XD)] * DIVIDE ( 1 - [Ops OTIF %] + 1 - [First Pass Yield % (XD)], 2 )
+    logical: Revenue at Risk Amount (XD) = [Net Sales Amount (XD)] * DIVIDE ( 1 - [OTIF % (XD)] + 1 - [First Pass Yield % (XD)], 2 )
     aggregation_method: custom
   documentation:
     description: Net Sales weighted by average of OTIF failure and First Pass Yield failure rates — Experience domain risk proxy.
-    notes: 'Grain: month. Unit: EUR. Lineage: [Net Sales Amount (XD)], [Ops OTIF %], [First Pass Yield % (XD)].'
+    notes: 'Grain: month. Unit: EUR. Lineage: [Net Sales Amount (XD)], [OTIF % (XD)], [First Pass Yield % (XD)].'
   dependencies:
     measures:
     - '[Net Sales Amount (XD)]'
-    - '[Ops OTIF %]'
+    - '[OTIF % (XD)]'
     - '[First Pass Yield % (XD)]'
   governance:
     owner: Service BI

@@ -39,3 +39,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  name: (number of failures element)
+  url: https://www.iso.org/standard/54497.html
+  alignment: none
+  note: Raw failure count is an ISO 22400-2 element (input to MTBF/MTTR), not a headline KPI itself.

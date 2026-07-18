@@ -136,20 +136,6 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Re-Plan Count"
-                }
-              },
-              "queryRef": "_Measures.Re-Plan Count",
-              "nativeQueryRef": "Re-Plan Count"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
                   "Property": "Order Lines Count"
                 }
               },

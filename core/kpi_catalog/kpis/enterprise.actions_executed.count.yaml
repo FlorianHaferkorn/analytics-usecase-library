@@ -38,3 +38,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 28.04.2026
+standard_ref:
+- standard: Internal — ActionReady governance
+  name: Actions executed (element)
+  url: https://www.iso.org/standard/62085.html
+  alignment: none
+  note: Executed-action count is an operational element of the action-governance loop, not a named external
+    KPI.

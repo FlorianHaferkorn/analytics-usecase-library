@@ -40,3 +40,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Marketing analytics — CRM (convention)
+  name: Active customer count
+  alignment: none
+  note: Active-customer count (distinct customers with a qualifying transaction) is a CRM-analytics convention;
+    the 'qualifying' window is a definitional choice to pin, not a standard.

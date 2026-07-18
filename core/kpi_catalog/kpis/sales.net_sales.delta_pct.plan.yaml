@@ -44,3 +44,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: IFRS 15
+  name: Net sales vs plan variance
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: none
+  note: Net-sales-vs-plan is an internal budget-variance metric; the actual base is IFRS 15 revenue, the
+    variance is convention.

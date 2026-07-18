@@ -85,3 +85,12 @@ metadata_quality:
   last_review: 23.01.2026
 aliases:
 - fin.liquidity.cash_conversion_cycle_days
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Cash-to-Cash Cycle Time (proxy)
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: partial
+  note: Same CCC concept as SCOR AM.1.1 but computed from fixed-ratio Net Sales/COGS proxies (Experience-domain
+    executive view where the receivables/inventory/payables facts are unavailable). Consolidate toward
+    wc.ccc.days where those facts exist.
