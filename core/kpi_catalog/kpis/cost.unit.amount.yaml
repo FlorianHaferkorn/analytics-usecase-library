@@ -34,9 +34,9 @@ technical:
   - cost.opex.vs_plan.pct
   - cost.material.pct
   - ops.labor.productivity.pct
-  - ops.production.volume
+  - ops.throughput.units
   - ops.quality.defect_rate.pct
-  - ops.yield.pct
+  - ops.quality.pct
   lineage:
   - fact_cost.COGS Amount
   - fact_output.Output Units
@@ -58,3 +58,11 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: IFRS
+  id: IAS 2
+  name: Unit cost (cost accounting)
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+  alignment: none
+  note: Internal cost-accounting metric (total cost / units); no external financial-reporting standard.
+    Cost inputs relate to IAS 2 inventory costing.

@@ -12,7 +12,7 @@ orchestration:
   - sales.net_sales.delta_pct.ly
   - crm.clv.amount
   - svc.sla.attainment.pct
-  - ops.otif.pct
+  - supply.otif.pct
   - ops.working_capital.ccc.days
   - people.digital_adoption.pct
   - people.attrition_risk.pct
@@ -43,13 +43,15 @@ primary_kpi_ids:
 
 value_driver_model:
   formula: enterprise.value_at_risk.index = f(margin.gm.pct, sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
-    ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct)
+    supply.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct)
   impact_direction: minimize
   primary_driver: margin.gm.pct
   impact_logic: Enterprise value at risk rises when profitability, service, working-capital, people, or action-effectiveness signals deteriorate.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Executive / Cross-Functional Summary & Insights
     page_type: T1_Strategic_Overview
@@ -60,16 +62,27 @@ ux_layout_rules:
     component_3s:
       kpi_id: enterprise.value_at_risk.index
       visual_type: kpi_card
+      comparison: vs_target
+      status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: sales.net_sales.delta_pct.ly
       visual_type: line_chart
-    - slot_id: Main_3
-      kpi_ids:
-      - crm.clv.amount
-      - svc.sla.attainment.pct
-      - ops.otif.pct
+      message: Net sales growth versus last year is softening quarter to quarter
+      so_what: "A softening growth rate is the first sign the on-track story could reverse next quarter."
+      unit: rate
+    - slot_id: Main_2
+      # R2.4: was slot_id Main_3 but positionally bound to Main_2 (component_30s
+      # binds by list position, not by its own slot_id label -- relabeled for
+      # clarity). Was also 3 KPIs of 3 different calc_types (amount/ratio/rate)
+      # on one axis -- a ONE_MESSAGE_PER_CHART violation. crm.clv.amount and
+      # svc.sla.attainment.pct moved to the Detail_Matrix; supply.otif.pct kept
+      # (matches Main_1's 'rate' family).
+      kpi_id: supply.otif.pct
       visual_type: bar_chart_horizontal
+      message: OTIF is uneven across the portfolio, flagging where delivery risk concentrates
+      so_what: "A normalized index makes the strategic KPIs comparable, so attention goes to the biggest exposure."
+      unit: rate
   page_2_execution:
     title: Executive / Cross-Functional Risk Prioritisation
     page_type: T4_Prescriptive_Recommendation
@@ -79,15 +92,26 @@ ux_layout_rules:
     big_idea: "Two business units are below threshold on both GM% and service level — escalation and resource reallocation required."
     component_300s:
       evidence_grain: entity_month
+      # R2.4: added crm.clv.amount and svc.sla.attainment.pct (moved off
+      # Main_2, see above) so both are still surfaced in the evidence table.
       evidence_columns:
       - entity
       - period
       - enterprise.value_at_risk.index
       - margin.gm.pct
       - sales.net_sales.delta_pct.ly
-      - ops.otif.pct
+      - supply.otif.pct
+      - crm.clv.amount
+      - svc.sla.attainment.pct
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: enterprise.value_at_risk.index
+        direction: descending
+      top_n: 20
+      highlight_rule:
+        column: enterprise.value_at_risk.index
+        type: data_bar
 prioritization:
   business_value: high
   implementation_effort: low

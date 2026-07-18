@@ -40,3 +40,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 27.01.2026
+standard_ref:
+- standard: ISO 30414
+  name: Human capital — turnover / retention
+  url: https://www.iso.org/standard/69338.html
+  alignment: partial
+  note: ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition
+    RISK here is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover
+    base to ISO 30414 and treat the risk score as a forward-looking overlay.

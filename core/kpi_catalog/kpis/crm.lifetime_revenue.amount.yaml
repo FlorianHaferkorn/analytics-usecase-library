@@ -39,3 +39,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 27.01.2026
+standard_ref:
+- standard: IFRS 15
+  name: Customer lifetime revenue (accumulated)
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: partial
+  note: The revenue base is IFRS 15 (net sales per customer accumulated from first purchase); the lifetime
+    accumulation itself is a CRM-analytics convention, not an IFRS construct.

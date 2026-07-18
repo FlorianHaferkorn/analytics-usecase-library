@@ -38,11 +38,14 @@ def find_registered_custom_theme_item(package: dict, logical_name: str) -> dict 
 
 
 def align_theme_name_to_registered_stem(payload: dict, registered_stem: str) -> bool:
-    """Set theme JSON ``name`` to match the RegisteredResources filename stem."""
-    stem = safe_theme_stem(registered_stem)
-    if payload.get("name") == stem:
+    """Set the theme JSON's internal ``name`` to the RegisteredResources filename
+    (WITH the .json extension). The official pbir-cli requires the theme file's
+    internal ``name`` to equal the report.json customTheme reference (name/path);
+    a bare stem here triggers PBIR_THEME_FILE_NAME_MISMATCH. Verified vs CLI 0.1.1."""
+    filename = registered_theme_filename(registered_stem)
+    if payload.get("name") == filename:
         return False
-    payload["name"] = stem
+    payload["name"] = filename
     return True
 
 

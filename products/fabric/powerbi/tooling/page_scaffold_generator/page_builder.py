@@ -43,6 +43,13 @@ class PageBuilder:
         smart_narrative_text: Optional[str] = None,
         component_30s: Optional[List[Dict[str, Any]]] = None,
         kpi_id_to_measure_name: Optional[Dict[str, str]] = None,
+        big_idea_text: Optional[str] = None,
+        detail_matrix_sort_by: Optional[Dict[str, str]] = None,
+        detail_matrix_top_n: Optional[int] = None,
+        detail_matrix_highlight_rule: Optional[Dict[str, str]] = None,
+        detail_matrix_topn_field: Optional[tuple] = None,
+        narrative_measure_name: Optional[str] = None,
+        active_actions_measure_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -83,6 +90,9 @@ class PageBuilder:
                 "measures": _measures,
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
+                # BC-NARR-01 (K2): the governed exhibit statement, rendered as the
+                # visual title when present (falls back to the measure label below).
+                "message": (_c_item.get("message") or "").strip() or None,
             }
 
         # Detect absolute-position mode (Figma-sourced layouts)
@@ -112,33 +122,44 @@ class PageBuilder:
 
             if slot_id == "ActionPanel":
                 if has_action_panel:
-                    text_value = (action_panel_content or "'Action Panel Placeholder'")
-                    vis = {
-                        "$schema": self.visual_builder.VISUAL_SCHEMA,
-                        "name": "ActionPanel",
-                        "position": {
-                            "x": position.x,
-                            "y": position.y,
-                            "z": 15000,
-                            "height": position.height,
-                            "width": position.width,
-                            "tabOrder": tab + i
-                        },
-                        "visual": {
-                            "visualType": "textbox",
-                            "objects": {
-                                "text": [
-                                    {
-                                        "properties": {
-                                            "text": {
-                                                "expr": {"Literal": {"Value": text_value}}
+                    if active_actions_measure_name:
+                        # R2.3-Fund follow-up: real dist/ binds ActionPanel to the
+                        # governed domain-level "Active Actions Text (<SUFFIX>)"
+                        # measure (auto-reads current filter context), not a
+                        # generator-synthesized literal action-code dump.
+                        vis = self.visual_builder.build_narrative_card(
+                            position, measure_ref=active_actions_measure_name, name="ActionPanel"
+                        )
+                        vis["position"]["z"] = 15000
+                    else:
+                        text_value = (action_panel_content or "'Action Panel Placeholder'")
+                        vis = {
+                            "$schema": self.visual_builder.VISUAL_SCHEMA,
+                            "name": "ActionPanel",
+                            "position": {
+                                "x": position.x,
+                                "y": position.y,
+                                "z": 15000,
+                                "height": position.height,
+                                "width": position.width,
+                                "tabOrder": tab + i
+                            },
+                            "visual": {
+                                "visualType": "textbox",
+                                "objects": {
+                                    "text": [
+                                        {
+                                            "properties": {
+                                                "text": {
+                                                    "expr": {"Literal": {"Value": text_value}}
+                                                }
                                             }
                                         }
-                                    }
-                                ]
+                                    ]
+                                }
                             }
                         }
-                    }
+                    vis["position"]["tabOrder"] = tab + i
                     visuals.append(vis)
                 continue
 
@@ -187,13 +208,35 @@ class PageBuilder:
                 _binding = _main_slot_binding[slot_id]
                 _ux_vt = _binding["visual_type"]
                 _measures = _binding["measures"]
-                _title = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
+                # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
+                _label = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
                 _cat_entity = _binding.get("category_entity")
                 _cat_prop = _binding.get("category_property")
                 vis = self.visual_builder.build_by_ux_visual_type(
-                    _ux_vt, position, name=slot_id, measures=_measures, title=_title,
+                    _ux_vt, position, name=slot_id, measures=_measures, title=_label,
+                    statement_title=_binding.get("message"),
                     category_entity=_cat_entity, category_property=_cat_prop,
                 )
+                # R2.3: Main_3 is canonically the Ranking slot (Design_Spec_3_30_300.md
+                # §5.3) -- a single-measure ranking visual is meaningless unsorted, so
+                # apply descending sort by its own measure automatically. This is a
+                # structural default (implied by the slot's canonical purpose), not a
+                # per-report Bracket declaration -- component_30s has no sort_by field.
+                if slot_id == "Main_3" and len(_measures) == 1:
+                    vis.setdefault("visual", {}).setdefault("query", {})["sortDefinition"] = {
+                        "sort": [
+                            {
+                                "field": {
+                                    "Measure": {
+                                        "Expression": {"SourceRef": {"Entity": "_Measures"}},
+                                        "Property": _measures[0],
+                                    }
+                                },
+                                "direction": "Descending",
+                            }
+                        ],
+                        "isDefaultSort": True,
+                    }
             elif slot_id in _MAIN_SLOTS_ORDER and card_measure_names:
                 # Unbound main slot — entity comparison bar (OrgName axis) for KPI card measures
                 # Gives a ranking view: "which business unit performs best on these KPIs?"
@@ -210,6 +253,15 @@ class PageBuilder:
                 measure_ref = (card_measure_names[0] if card_measure_names else None) or (card_kpi_ids[0] if card_kpi_ids else None)
                 title = (card_kpi_ids[0] if card_kpi_ids else measure_ref or slot_id).replace(".", " ").replace("_", " ").title() if (card_kpi_ids or card_measure_names) else None
                 vis = self.visual_builder.build_kpi_card(position, measure_ref=measure_ref, name=slot_id, title=title)
+            elif visual_type == "textbox" and narrative_measure_name:
+                # R2.3-Fund follow-up: real dist/ binds Smart_Narrative to the
+                # governed domain-level "Narrative Text (<SUFFIX>)" measure
+                # (auto-reads current filter context), not a generator-
+                # synthesized literal string.
+                vis = self.visual_builder.build_narrative_card(
+                    position, measure_ref=narrative_measure_name, name=slot_id
+                )
+                vis["position"]["tabOrder"] = tab + i
             elif visual_type == "textbox":
                 vis = self.visual_builder._build_base_visual("textbox", position, tab_order=tab + i, name=slot_id)
                 _sn_raw = smart_narrative_text or "Filtering active – review current selection."
@@ -217,7 +269,9 @@ class PageBuilder:
                 vis["visual"]["objects"] = {"text": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{_sn_escaped}'"}}}}}]}
             elif visual_type == "tableEx" and slot_id == "Detail_Matrix":
                 vis = self.visual_builder.build_table(
-                    position, columns=detail_dim_cols, measures=detail_measures, name=slot_id
+                    position, columns=detail_dim_cols, measures=detail_measures, name=slot_id,
+                    sort_by=detail_matrix_sort_by, top_n=detail_matrix_top_n,
+                    top_n_field=detail_matrix_topn_field, highlight_rule=detail_matrix_highlight_rule,
                 )
             elif visual_type == "tableEx":
                 vis = self.visual_builder.build_table(position, columns=[], measures=[], name=slot_id)
@@ -249,6 +303,29 @@ class PageBuilder:
                 vis = self.visual_builder._build_base_visual(visual_type, position, tab_order=tab + i, name=slot_id)
             vis["position"]["tabOrder"] = tab + i
             visuals.append(vis)
+
+        if big_idea_text:
+            # R2.3 / BIG_IDEA_HEADER_ZONE (design_rules.yaml): Header (Zone 0, above the
+            # KPI band) renders page_1_summary.big_idea verbatim. Fixed absolute
+            # position -- Zone 0 sits above the grid's slot area, not inside it.
+            # Position/tabOrder match the R1.1 precedent (COM-002 Header, hand-applied
+            # before this generator path existed).
+            _big_idea_escaped = big_idea_text.replace("'", "''")
+            visuals.append(
+                {
+                    "$schema": self.visual_builder.VISUAL_SCHEMA,
+                    "name": "Header",
+                    "position": {"x": 32, "y": 32, "z": 10000, "height": 56, "width": 1856, "tabOrder": 2999},
+                    "visual": {
+                        "visualType": "textbox",
+                        "objects": {
+                            "text": [
+                                {"properties": {"text": {"expr": {"Literal": {"Value": f"'{_big_idea_escaped}'"}}}}}
+                            ]
+                        },
+                    },
+                }
+            )
 
         return {"visuals": visuals, "slicers": slicers, "action_panel": None}
 
@@ -315,6 +392,13 @@ class PageBuilder:
         detail_matrix_columns: Optional[List[str]] = None,
         detail_matrix_measures: Optional[List[str]] = None,
         smart_narrative_text: Optional[str] = None,
+        big_idea_text: Optional[str] = None,
+        detail_matrix_sort_by: Optional[Dict[str, str]] = None,
+        detail_matrix_top_n: Optional[int] = None,
+        detail_matrix_highlight_rule: Optional[Dict[str, str]] = None,
+        detail_matrix_topn_field: Optional[tuple] = None,
+        narrative_measure_name: Optional[str] = None,
+        active_actions_measure_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -337,6 +421,17 @@ class PageBuilder:
             detail_matrix_columns: Optional list of (table,col) tuples for Detail_Matrix.
             detail_matrix_measures: Optional list of measure names for Detail_Matrix.
             smart_narrative_text: Optional context text for Smart_Narrative textbox on detail page.
+            big_idea_text: Optional page_1_summary.big_idea text (R2.1/R2.3) -- renders as the
+                Header (Zone 0) textbox, verbatim, when set. Grid path only.
+            detail_matrix_sort_by: Optional {"measure","direction"} for Detail_Matrix (R2.1/R2.3).
+            detail_matrix_top_n: Optional row limit for Detail_Matrix (R2.1/R2.3).
+            detail_matrix_highlight_rule: Optional {"measure","type"} for Detail_Matrix (R2.1/R2.3).
+            detail_matrix_topn_field: Optional (entity, property) tuple, the TopN filter's grain column.
+            narrative_measure_name: Optional governed "Narrative Text (<SUFFIX>)" DAX measure name;
+                when set, Smart_Narrative binds to it (cardVisual) instead of a synthesized textbox.
+            active_actions_measure_name: Optional governed "Active Actions Text (<SUFFIX>)" DAX
+                measure name; when set, ActionPanel binds to it (cardVisual) instead of a
+                synthesized textbox.
 
         Returns:
             Dictionary with 'visuals' and 'slicers' lists
@@ -357,6 +452,13 @@ class PageBuilder:
                 smart_narrative_text=smart_narrative_text,
                 component_30s=component_30s,
                 kpi_id_to_measure_name=kpi_id_to_measure_name,
+                big_idea_text=big_idea_text,
+                detail_matrix_sort_by=detail_matrix_sort_by,
+                detail_matrix_top_n=detail_matrix_top_n,
+                detail_matrix_highlight_rule=detail_matrix_highlight_rule,
+                detail_matrix_topn_field=detail_matrix_topn_field,
+                narrative_measure_name=narrative_measure_name,
+                active_actions_measure_name=active_actions_measure_name,
             )
 
         # Determine slicer placement (default: top)
@@ -447,9 +549,10 @@ class PageBuilder:
                 # Resolve to DAX measure names for visual binding (semantic model uses measure names, not KPI IDs)
                 kpi_to_measure = kpi_id_to_measure_name or {}
                 measures = [kpi_to_measure.get(k, k) for k in kpi_ids_clean]
-                # Display title from measures (for tooltip/header)
+                # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
                 display_title = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 title = display_title.replace(".", " ").replace("_", " ").title()
+                _stmt = (item.get("message") or "").strip() or None
                 # Visual name must be folder-safe (no commas, no chars invalid in paths) so Fabric loads the visual
                 raw_name = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 if "," in raw_name or ":" in raw_name or "\\" in raw_name or "/" in raw_name:
@@ -457,7 +560,7 @@ class PageBuilder:
                 else:
                     name = raw_name
                 visual = self.visual_builder.build_by_ux_visual_type(
-                    vt, pos, name=name, measures=measures, title=title
+                    vt, pos, name=name, measures=measures, title=title, statement_title=_stmt
                 )
                 visual["position"]["tabOrder"] = tab_order + 100 + i * 100
                 visuals.append(visual)

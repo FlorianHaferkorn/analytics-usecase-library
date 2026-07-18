@@ -64,6 +64,21 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **CLV (Customer Lifetime Value)** (`crm.clv.amount`) → **Marketing analytics — CRM (convention)** (none): CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard.
+- **Customer Lifetime Revenue Amount** (`crm.lifetime_revenue.amount`) → **IFRS 15** (partial): The revenue base is IFRS 15 (net sales per customer accumulated from first purchase).
+- **Customer Retention %** (`crm.retention.pct`) → **Marketing analytics — CRM (convention)** (none): Retention (end/start active customers) is a CRM-analytics convention.
+- **Churned Customers** (`crm.churned_customers.count`) → **Marketing analytics — CRM (convention)** (none): Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition must be pinned.
+- **Active Customers** (`crm.active_customers.count`) → **Marketing analytics — CRM (convention)** (none): Active-customer count (distinct customers with a qualifying transaction) is a CRM-analytics convention.
+- **Net Promoter Score (NPS)** (`crm.nps.index`) → **Bain NPS (proprietary)** (none): NPS is a proprietary Bain & Company methodology, not an open standard.
+- **Complaint Count** (`crm.complaint.count`) → **ISO 10002** (partial): Complaint count feeds the ISO 10002:2018 complaints-handling process (the standard governs how complaints are captured/handled, not a specific count formula).
+- **Revenue at Risk Amount** (`crm.revenue_at_risk.amount`) → **Marketing analytics — CRM (convention)** (none): Revenue at risk (net sales x churn rate) is a composite CRM convention built on IFRS 15 revenue and the churn convention.
+
+---
+
 ## 4. Action Codes (Summary)
 
 **C-C3.1 — Customer Retention Intervention**

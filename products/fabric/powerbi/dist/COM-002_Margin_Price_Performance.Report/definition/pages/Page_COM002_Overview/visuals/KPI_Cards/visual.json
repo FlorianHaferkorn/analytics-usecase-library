@@ -25,6 +25,19 @@
             }
           }
         }
+      ],
+      "calloutValue": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "query": {

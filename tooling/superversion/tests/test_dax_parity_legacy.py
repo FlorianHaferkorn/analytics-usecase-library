@@ -41,7 +41,6 @@ KPI_TO_LEGACY = {
     "sales.promo.baseline_sales.amount": ("Commercial.SemanticModel", "Baseline Sales Amount"),
     "sales.promo.cost.amount": ("Commercial.SemanticModel", "Promo Cost"),
     "quality.copq.amount": ("Operations.SemanticModel", "Cost of Poor Quality"),
-    "ops.production.volume": ("Finance.SemanticModel", "Production Volume Units"),
     "margin.gm.amount": ("Commercial.SemanticModel", "Gross Margin Amount"),
     "sales.promo.incremental.amount": ("Commercial.SemanticModel", "Incremental Sales Amount"),
     "margin.gm.pct": ("Commercial.SemanticModel", "Gross Margin %"),
@@ -51,7 +50,6 @@ KPI_TO_LEGACY = {
     "margin.cogs.pct": ("Finance.SemanticModel", "COGS % of Sales"),
     "cost.material.pct": ("Finance.SemanticModel", "Material Cost %"),
     "ops.quality.defect_rate.pct": ("Finance.SemanticModel", "Quality Defect Rate %"),
-    "ops.yield.pct": ("Finance.SemanticModel", "Yield %"),
     "quality.fpy.pct": ("Operations.SemanticModel", "First Pass Yield %"),
     "quality.scrap.pct": ("Operations.SemanticModel", "Scrap Rate %"),
     "quality.rework.pct": ("Operations.SemanticModel", "Rework Rate %"),
@@ -64,8 +62,6 @@ KPI_TO_LEGACY = {
     "supply.on_time.pct": ("SupplyChain.SemanticModel", "On-Time %"),
     "supply.in_full.pct": ("SupplyChain.SemanticModel", "In-Full %"),
     "supply.otif.pct": ("SupplyChain.SemanticModel", "OTIF %"),
-    "ops.otif.pct": ("Experience.SemanticModel", "Ops OTIF %"),
-    "ops.service_level.pct": ("Finance.SemanticModel", "Operations Service Level %"),
     "order.lines": ("SupplyChain.SemanticModel", "Order Lines Count"),
     "shipments.count": ("SupplyChain.SemanticModel", "Shipments Count"),
     "supply.stockout_impact.pct": ("SupplyChain.SemanticModel", "Stockout Impact %"),
@@ -107,7 +103,6 @@ KPI_TO_LEGACY = {
     "ops.mttr.hours": ("Operations.SemanticModel", "MTTR (hours)"),
     "ops.downtime.unplanned.pct": ("Operations.SemanticModel", "Unplanned Downtime %"),
     "ops.failure.count": ("Operations.SemanticModel", "Failure Count"),
-    "ops.inventory.value.amount": ("Operations.SemanticModel", "Inventory Value Amount"),
     "ops.pm.task.count": ("Operations.SemanticModel", "Preventive Maintenance Task Count"),
     "ops.spare_parts.stockout.pct": ("Operations.SemanticModel", "Spare Parts Stockout %"),
     "ops.pm_compliance.pct": ("Operations.SemanticModel", "PM Compliance %"),
@@ -119,7 +114,6 @@ KPI_TO_LEGACY = {
     "fin.cash.balance": ("Finance.SemanticModel", "Cash Balance"),
     "fin.cash.ocf": ("Finance.SemanticModel", "Operating Cash Flow"),
     "fin.cash.vs_plan.pct": ("Finance.SemanticModel", "Cash vs Plan %"),
-    "scm.service_level.pct": ("Finance.SemanticModel", "Supply Chain Service Level %"),
     "fin.liquidity.inventory.amount": ("Finance.SemanticModel", "Inventory Amount"),
     "fin.overdue_ar.pct": (None, None),  # new-territory, no legacy DAX ever generated
     # SupplyChain domain (SCM-001 Inventory / SCM-003 Forecast) — I-10.0 follow-up.
@@ -129,7 +123,6 @@ KPI_TO_LEGACY = {
     "inv.obsolete.pct": ("SupplyChain.SemanticModel", "Obsolete Inventory %"),
     "plan.forecast.accuracy.pct": ("SupplyChain.SemanticModel", "Forecast Accuracy %"),
     "plan.forecast.bias.pct": ("SupplyChain.SemanticModel", "Forecast Bias %"),
-    "plan.replan.count": ("SupplyChain.SemanticModel", "Re-Plan Count"),
     "plans.count": ("SupplyChain.SemanticModel", "Plans Count"),
     # sales.units: the governed calculation matches SupplyChain.SemanticModel's
     # 'Sales Units' = SUM(fact_sales[Sales Units]) exactly (same as the catalog's
@@ -152,7 +145,6 @@ KPI_TO_LEGACY = {
     "svc.backlog.count": ("Experience.SemanticModel", "Backlog Count"),
     "svc.tickets.closed.count": ("Experience.SemanticModel", "Tickets Closed Count"),
     "svc.tickets.created.count": ("Experience.SemanticModel", "Tickets Created Count"),
-    "svc.nps.index": ("Experience.SemanticModel", "NPS Index"),
     "res.utilization.pct": ("Experience.SemanticModel", "Utilization %"),
     "res.occupancy.pct": ("Experience.SemanticModel", "Occupancy %"),
     "res.overtime.pct": ("Experience.SemanticModel", "Overtime %"),

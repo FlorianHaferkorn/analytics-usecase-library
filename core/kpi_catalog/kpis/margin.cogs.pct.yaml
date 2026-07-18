@@ -49,3 +49,10 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: ESMA-APM
+  name: Cost-of-sales ratio (APM)
+  url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+  alignment: partial
+  note: Inverse of the gross-margin ratio; same APM treatment. Inputs are IFRS (IAS 2 cost of sales /
+    IFRS 15 revenue).

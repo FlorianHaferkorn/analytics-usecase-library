@@ -13,7 +13,14 @@ schema_version: "1.0"
 # See connectors/PowerBI_Connector.md for PBI-specific font compensation.
 
 font_family:
-  preferred: "Segoe UI"      # Fabric / Power BI
+  preferred: "Segoe UI"      # Fabric / Power BI — body, labels, titles, headers
+  # Governed DISPLAY font: highlight values only (kpi_card callout numbers). A distinct
+  # geometric face with tabular numerals makes the hero figure read as THE number. This
+  # is an intentional two-face system — primary for text, display for highlight values —
+  # NOT font drift (BC-TYPE-01 permits the governed display family alongside preferred).
+  display: "DIN"             # callout / highlight-value numerals
+  display_roles:
+    - callout                 # the textClass this face is allowed on
   alternatives:
     - Inter
     - Roboto

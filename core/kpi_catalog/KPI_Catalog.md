@@ -52,6 +52,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Customer Lifetime Value
+    alignment: none
+    note: CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model, not a governed standard. The GM base ties to IFRS 15 / IAS 2; the forward-looking model is convention.
 
 - kpi_id: crm.revenue_at_risk.amount
   kpi_key: Revenue at Risk Amount
@@ -117,6 +122,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 20.04.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Revenue at risk (churn-weighted)
+    alignment: none
+    note: Revenue at risk (net sales x churn rate) is a composite CRM convention built on IFRS 15 revenue and the churn convention; no external standard defines it.
 
 - kpi_id: crm.complaint.count
   kpi_key: Complaint Count
@@ -157,6 +167,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 10002
+    name: Complaints handling — complaint volume
+    url: https://www.iso.org/standard/71580.html
+    alignment: partial
+    note: Complaint count feeds the ISO 10002:2018 complaints-handling process (the standard governs how complaints are captured/handled, not a specific count formula). Related to crm.nps / svc.* customer-experience measures.
 
 - kpi_id: crm.retention.pct
   kpi_key: Customer Retention %
@@ -215,6 +231,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.97
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Customer retention rate
+    alignment: none
+    note: Retention (end/start active customers) is a CRM-analytics convention. Note it is not the complement of churn unless the customer base and windows are defined consistently — pin both.
 
 - kpi_id: crm.nps.index
   synonyms:
@@ -231,8 +252,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Customer & Market
   use_case_ref:
   - COM-003
+  - XD-001
   action_code_ref:
   - C-C3.2
+  - X-S1.3
   calc_type: rate
   business:
     purpose: Measures customer advocacy and likelihood to recommend.
@@ -284,6 +307,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Bain NPS (proprietary)
+    name: Net Promoter Score
+    alignment: none
+    note: NPS is a proprietary Bain & Company methodology, not an open standard. Duplicate of svc.nps.index — consolidate to one governed NPS. ISO 10002 / general customer-satisfaction monitoring is the standards-based alternative.
 
 - kpi_id: crm.churned_customers.count
   kpi_key: Churned Customers
@@ -327,6 +355,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Churned customer count
+    alignment: none
+    note: Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition must be pinned. No governing standard.
 
 - kpi_id: crm.lifetime_revenue.amount
   kpi_key: Customer Lifetime Revenue Amount
@@ -369,6 +402,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Customer lifetime revenue (accumulated)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: partial
+    note: The revenue base is IFRS 15 (net sales per customer accumulated from first purchase); the lifetime accumulation itself is a CRM-analytics convention, not an IFRS construct.
 
 - kpi_id: crm.active_customers.count
   kpi_key: Active Customers
@@ -412,6 +451,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Marketing analytics — CRM (convention)
+    name: Active customer count
+    alignment: none
+    note: Active-customer count (distinct customers with a qualifying transaction) is a CRM-analytics convention; the 'qualifying' window is a definitional choice to pin, not a standard.
 
 - kpi_id: ops.performance.pct
   synonyms:
@@ -471,6 +515,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: E
+    name: Effectiveness
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time. Ours ('actual output / theoretical max output') is the same concept; align to the ISO ideal-cycle-time basis.
 
 - kpi_id: ops.quality.pct
   synonyms:
@@ -489,8 +540,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Operational Efficiency
   use_case_ref:
   - OPS-001
+  - FIN-002
+  - XD-004
   action_code_ref:
   - O-O1.3
+  - F-K2.2
   calc_type: rate
   business:
     purpose: Yield of conforming units relative to total units produced.
@@ -523,6 +577,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: QR
+    name: Quality ratio
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 Quality ratio QR = good quantity / produced quantity. Matches ours exactly.
 
 - kpi_id: ops.labor.productivity.pct
   kpi_key: Labor Productivity %
@@ -569,6 +630,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: WE
+    name: Worker efficiency
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time. Ours (output or net sales / labour hours) is an output-based productivity ratio — same intent, different basis. Align the numerator/denominator to WE to claim the standard.
 
 - kpi_id: ops.mtbf.hours
   synonyms:
@@ -626,6 +694,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: MTBF
+    name: Mean operating time between failures
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 MTBF = operating time / number of failures. Matches ours.
 
 - kpi_id: ops.mttr.hours
   synonyms:
@@ -678,6 +753,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: MTTR
+    name: Mean time to restoration
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 defines MTTR as mean time to restoration = total repair time / number of failures. Matches ours (labelled 'time to repair').
 
 - kpi_id: ops.pm_compliance.pct
   kpi_key: PM Compliance %
@@ -736,6 +818,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (planned-maintenance compliance)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: 'PM compliance (completed vs planned PM orders) is a maintenance-management KPI; ISO 22400-2 covers corrective-maintenance ratio and reliability but not PM-schedule compliance. Related external reference: EN 15341 maintenance KPIs.'
 
 - kpi_id: ops.spare_parts.stockout.pct
   kpi_key: Spare Parts Stockout %
@@ -778,6 +866,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Spare-parts (MRO) availability
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Spare-parts stockout is an MRO/maintenance availability diagnostic; SCOR captures availability inside Reliability/Asset-Management rather than as a standalone metric. Mirrors inv.stockout.pct.
 
 - kpi_id: ops.throughput.units
   kpi_key: Throughput Units
@@ -789,9 +883,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Operational Efficiency
   use_case_ref:
   - OPS-001
+  - FIN-002
+  - XD-004
   action_code_ref:
   - O-O1.2
   - O-O1.4
+  - F-K2.3
   calc_type: count
   business:
     purpose: Measures total output volume in units.
@@ -820,6 +917,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: TR
+    name: Throughput rate / Produced quantity
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Throughput rate TR is per-unit-of-time (produced quantity / time); ours is a produced-quantity sum (the PQ element). Divide by the period to obtain the ISO throughput rate. Duplicate of ops.production.volume.
 
 - kpi_id: quality.fpy.pct
   synonyms:
@@ -878,6 +982,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: FPY
+    name: First pass yield
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 First Pass Yield = units passing first time without rework or scrap / total units. Matches ours. Note it duplicates ops.quality.pct / ops.yield.pct when computed at a single stage — FPY is properly the product of stage yields.
 
 - kpi_id: quality.scrap.pct
   synonyms:
@@ -933,6 +1044,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: SR
+    name: Scrap ratio
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 Scrap ratio SR = scrap quantity / produced quantity. Matches ours.
 
 - kpi_id: quality.rework.pct
   kpi_key: Rework Rate %
@@ -980,6 +1098,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: RR
+    name: Rework ratio
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: ISO 22400-2 Rework ratio RR = reworked quantity / produced quantity. Matches ours.
 
 - kpi_id: quality.copq.amount
   kpi_key: Cost of Poor Quality
@@ -1022,6 +1147,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (cost of poor quality)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: 'Cost of Poor Quality is a cost concept (ASQ / Juran Cost-of-Quality framework: prevention–appraisal–failure), not an ISO 22400-2 operations KPI. Keep as a quality-cost metric referenced to the ASQ CoQ model.'
 
 - kpi_id: quality.complaint.pct
   kpi_key: Complaint Rate %
@@ -1071,6 +1202,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - crm.complaint.rate.pct
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (customer complaint rate)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations KPI. No ISO 22400-2 equivalent.
 
 - kpi_id: quality.defect_density
   kpi_key: Defect Density
@@ -1118,6 +1255,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (defects per 1,000 units)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric. ISO 22400-2 captures the same quality loss via scrap ratio (SR) / rework ratio (RR).
 
 - kpi_id: inv.dio.days
   synonyms:
@@ -1176,6 +1319,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — inventory-days component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Maps to the inventory-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days of Supply − DPO). Ours is COGS-based DIO. Duplicate of wc.dio.days — consolidate.
 
 - kpi_id: inv.stockout.pct
   synonyms:
@@ -1226,6 +1376,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.1.1
+    name: Perfect Order Fulfillment (availability)
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: No direct SCOR L1–L3 metric. Stockout rate is the inverse of item availability/fill, which SCOR captures inside Perfect Order (RL) rather than as a standalone metric.
 
 - kpi_id: inv.excess_inventory.amount
   kpi_key: Excess Inventory Value
@@ -1272,6 +1429,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 01.06.2026
+  standard_ref:
+  - standard: SCOR-DS
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Excess/obsolete inventory value is an inventory-health practice concern, not a named SCOR performance metric (SCOR treats it under Asset Management practices).
 
 - kpi_id: inv.obsolete.pct
   synonyms:
@@ -1324,6 +1486,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Asset Management — obsolete-inventory health
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Obsolete-inventory share is an inventory-health practice concern under SCOR Asset Management, not a named SCOR performance metric and not ISO 22400-2. Mirrors inv.excess_inventory.amount from the SCM run.
 
 - kpi_id: plan.forecast.accuracy.pct
   synonyms:
@@ -1394,6 +1562,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    alignment: none
+    note: Forecast accuracy is a Plan-process ENABLER in SCOR, not a core RL/RS/AG/CO/AM performance metric. Better external references are the IBF / APICS forecasting standards (MAPE, bias, tracking signal) — a candidate standards domain of its own.
 
 - kpi_id: plan.forecast.bias.pct
   kpi_key: Forecast Bias %
@@ -1448,50 +1620,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - sales.forecast.bias_pct
-
-- kpi_id: plan.replan.count
-  deprecated: true
-  deprecation_reason: No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)
-  kpi_key: Re-Plan Count
-  kpi_type: diagnostic
-  kpi_role: strategic
-  impact_dimension: Efficiency
-  domain_tag:
-  - Supply Chain
-  - Operational Efficiency
-  use_case_ref:
-  - SCM-003
-  action_code_ref:
-  - S-F3.1
-  - S-F3.4
-  calc_type: count
-  business:
-    purpose: Counts number of replanning cycles in a period.
-    definition: Total replan events logged in planning system.
-    grain_scope: Planning cycle; aggregated monthly.
-    unit_format: count
-    interpretation: High values indicate planning instability or frequent disruptions.
-  technical:
-    measure_name: Re-Plan Count
-    description: Counts number of replanning cycles in a period.
-    depends_on_measures: []
-    lineage:
-    - fact_forecast.Forecast Version
-    calculation:
-      op: distinctcount
-      column: Forecast Version
-  governance:
-    business_owner: Supply Planning Lead
-    data_owner: Supply Chain BI
-    steward: Planner
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - Replan events counted once per cycle
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    alignment: none
+    note: As plan.forecast.accuracy.pct — no SCOR metric home; IBF/APICS forecasting standards are the right external reference.
 
 - kpi_id: supply.otif.pct
   synonyms:
@@ -1511,6 +1643,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - SCM-001
   - SCM-002
   - SCM-003
+  - XD-003
+  - FIN-001
+  - FIN-002
   action_code_ref:
   - S-F3.3
   - S-I1.1
@@ -1518,6 +1653,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - S-R2.1
   - S-R2.2
   - S-R2.5
+  - F-K2.4
   calc_type: rate
   business:
     purpose: Measures share of orders delivered on time and in full.
@@ -1550,6 +1686,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.1.1
+    name: Perfect Order Fulfillment
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation Accuracy (RL.2.3) and Perfect Condition (RL.2.4). SCOR RL.1.1 is order-level and requires all four to pass. To claim SCOR Perfect Order, add the two missing components; otherwise label it OTIF, not Perfect Order.
 
 - kpi_id: supply.on_time.pct
   synonyms:
@@ -1599,6 +1742,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.2.2
+    name: Delivery Performance to Customer Commit Date
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: Reference date is unspecified in our definition; SCOR RL.2.2 measures against the customer COMMIT date, not the requested/scheduled date. Pin the reference date to the commit date to align.
 
 - kpi_id: supply.stockout_impact.pct
   kpi_key: Stockout Impact %
@@ -1645,6 +1795,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: Lost-demand share is a Plan/service-loss diagnostic, not a named SCOR metric.
 
 - kpi_id: supply.expedite.amount
   kpi_key: Expedite Cost Amount
@@ -1687,6 +1842,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: CO.1.1
+    name: Total Supply Chain Management Cost
+    url: https://scor.ascm.org/performance/cost
+    alignment: partial
+    note: Premium-freight / expedite is one cost component within SCOR CO.1.1 (Total SC Management Cost), not the whole metric.
 
 - kpi_id: supply.penalty.amount
   kpi_key: Penalty Amount
@@ -1728,6 +1890,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: CO.1.1
+    name: Total Supply Chain Management Cost
+    url: https://scor.ascm.org/performance/cost
+    alignment: partial
+    note: Service-failure penalties are a cost component within SCOR's Cost attribute (CO.1.1), not a named standalone SCOR metric.
 
 - kpi_id: plan.forecast.service_impact.pct
   kpi_key: Service Impact %
@@ -1772,6 +1941,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Plan service-loss diagnostic
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance metric. Forecast-error references are the IBF/APICS forecasting standards; the service-loss link is SCOR Reliability.
 
 - kpi_id: ops.oee.pct
   synonyms:
@@ -1832,6 +2007,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: OEE
+    name: Overall Equipment Effectiveness index
+    url: https://www.iso.org/standard/54497.html
+    alignment: exact
+    note: OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2. Our A x P x Q matches. Pin the time-state model (Planned Busy Time basis) so components reconcile to the standard.
 
 - kpi_id: ops.failure.count
   kpi_key: Failure Count
@@ -1874,45 +2056,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: ops.inventory.value.amount
-  kpi_key: Inventory Value Amount
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Supply Chain
-  use_case_ref:
-  - OPS-002
-  action_code_ref: []
-  calc_type: amount
-  business:
-    purpose: Tracks inventory value for maintenance-relevant items.
-    definition: Sum of inventory value amount for the selected scope.
-    grain_scope: SKU/location; aggregated by period.
-    unit_format: EUR (2 decimals)
-    interpretation: Higher values indicate more capital tied in spare parts.
-  technical:
-    measure_name: Inventory Value Amount
-    description: Tracks inventory value for maintenance-relevant items.
-    depends_on_measures: []
-    lineage:
-    - fact_inventory.Average Inventory Amount
-    calculation:
-      op: sum
-      column: Average Inventory Amount
-  governance:
-    business_owner: Head of Supply Chain
-    data_owner: Supply Chain BI
-    steward: Inventory Planner
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (number of failures element)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Raw failure count is an ISO 22400-2 element (input to MTBF/MTTR), not a headline KPI itself.
 
 - kpi_id: ops.planned_output.units
   kpi_key: Planned Output Units
@@ -1959,6 +2108,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Planned quantity element
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Planned output (standard rate x planned time) is the ISO 22400-2 planned-quantity element, an input to Effectiveness, not a KPI.
 
 - kpi_id: ops.pm.task.count
   kpi_key: Preventive Maintenance Task Count
@@ -1998,46 +2153,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: ops.production.volume
-  kpi_key: Production Volume Units
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - FIN-002
-  action_code_ref:
-  - F-K2.3
-  calc_type: count
-  business:
-    purpose: Measures total produced volume in units.
-    definition: Sum of produced units for the period.
-    grain_scope: Line/site; aggregated by period.
-    unit_format: units
-    interpretation: Higher values indicate higher output.
-  technical:
-    measure_name: Production Volume Units
-    description: Measures total produced volume in units.
-    depends_on_measures: []
-    lineage:
-    - fact_ops.Output Units
-    calculation:
-      op: sum
-      column: Output Units
-  governance:
-    business_owner: Head of Manufacturing
-    data_owner: Manufacturing BI
-    steward: Production Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (PM task count)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Raw PM-task count is an operational element, not an ISO 22400-2 KPI.
 
 - kpi_id: ops.quality.defect_rate.pct
   kpi_key: Quality Defect Rate %
@@ -2081,6 +2202,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: QR
+    name: Quality ratio (complement)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the standard into scrap ratio (SR) and rework ratio (RR). Report against QR to align.
 
 - kpi_id: ops.safety.incident.count
   kpi_key: Safety Incident Count
@@ -2120,95 +2248,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: ops.service_level.pct
-  kpi_key: Operations Service Level %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - FIN-002
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Measures on-time or in-full performance for operational delivery.
-    definition: On-Time or In-Full Deliveries / Total Deliveries.
-    grain_scope: Site/product; aggregated by period.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher values indicate better service performance.
-  technical:
-    measure_name: Operations Service Level %
-    description: Measures on-time or in-full performance for operational delivery.
-    depends_on_measures: []
-    lineage:
-    - fact_fulfillment.OTIF Flag
-    calculation:
-      op: rate
-      column: OTIF Flag
-  governance:
-    business_owner: Head of Operations
-    data_owner: Operations BI
-    steward: Operations Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
-
-- kpi_id: ops.yield.pct
-  synonyms:
-  - Process Yield
-  - Throughput Yield
-  - Ausbeute
-  - Gutausbeute
-  - Ausbeutegrad
-  example_question: How has process yield trended since the line upgrade?
-  kpi_key: Yield %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - FIN-002
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Measures ratio of good output to total input.
-    definition: Good Units / Total Units Produced.
-    grain_scope: Line/shift; aggregated by period.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher yield indicates better process efficiency.
-  technical:
-    measure_name: Yield %
-    description: Measures ratio of good output to total input.
-    depends_on_measures: []
-    lineage:
-    - fact_ops.Good Units
-    - fact_ops.Output Units
-    calculation:
-      op: ratio
-      numerator:
-        column: Good Units
-      denominator:
-        column: Output Units
-  governance:
-    business_owner: Head of Manufacturing
-    data_owner: Manufacturing BI
-    steward: Process Engineer
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (safety incident count)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Safety-incident count belongs to occupational health & safety management (ISO 45001), not manufacturing-operations performance (ISO 22400-2).
 
 - kpi_id: order.lines
   kpi_key: Order Lines Count
@@ -2250,6 +2295,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Order line count
+    alignment: none
+    note: Order-line count is an operational volume element, not a standard-defined KPI.
 
 - kpi_id: plans.count
   kpi_key: Plans Count
@@ -2261,8 +2311,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Forecast Planning
   use_case_ref:
   - SCM-003
+  - SCM-001
+  - FIN-001
   action_code_ref:
   - S-F3.4
+  - S-F3.1
+  - S-F3.2
   calc_type: count
   business:
     purpose: Counts planning cycles or plan versions in the period.
@@ -2290,6 +2344,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Plan volume (element)
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: none
+    note: Plan/version count is a Plan element, not a SCOR performance KPI.
 
 - kpi_id: shipments.count
   kpi_key: Shipments Count
@@ -2331,44 +2391,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: scm.service_level.pct
-  kpi_key: Supply Chain Service Level %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Supply Chain
-  use_case_ref:
-  - FIN-001
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Measures supply chain service level performance.
-    definition: On-Time In-Full Orders / Total Orders.
-    grain_scope: Customer/order; aggregated by period.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher values indicate better service reliability.
-  technical:
-    measure_name: Supply Chain Service Level %
-    description: Measures supply chain service level performance.
-    depends_on_measures: []
-    lineage:
-    - fact_fulfillment.OTIF Flag
-    calculation:
-      op: rate
-      column: OTIF Flag
-  governance:
-    business_owner: Head of Supply Chain
-    data_owner: Supply Chain BI
-    steward: Service Level Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules: []
-    version: v0.1
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    name: Shipment volume (element)
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: none
+    note: Shipment count is a logistics volume element feeding delivery-reliability metrics (SCOR RL), not a standalone SCOR KPI.
 
 - kpi_id: ops.availability.pct
   synonyms:
@@ -2424,48 +2452,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: ops.otif.pct
-  kpi_key: OTIF %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operations
-  - Operational Efficiency
-  use_case_ref:
-  - XD-003
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Delivery reliability measured by orders delivered on-time and in-full.
-    definition: On-Time In-Full deliveries / Total Deliveries
-    grain_scope: Order/shipment level; aggregated weekly/monthly.
-    unit_format: '''% (1 decimal)'''
-    interpretation: Higher OTIF indicates better delivery reliability; low values reflect service and execution issues.
-  technical:
-    measure_name: Ops OTIF %
-    description: Delivery reliability measured by orders delivered on-time and in-full.
-    depends_on_measures:
-    - supply.otif.pct
-    lineage:
-    - fact_fulfillment.OTIF Flag
-    calculation:
-      op: rate
-      column: OTIF Flag
-  governance:
-    business_owner: Head of Supply Chain / Finance
-    data_owner: Supply Chain BI
-    steward: Inventory Controller
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Inventory days reconcile to inventory and COGS within +/- 1 day
-    - 'Bounded: DSO/DIO/DPO derived days must be >= 0'
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: A
+    name: Availability
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: ISO 22400-2 Availability = Actual Production Time / Planned Busy Time. Ours ('Available time / Planned time') is the same concept but the ISO time-state model (PBT, actual production time) must be pinned to align exactly.
 
 - kpi_id: ops.working_capital.ccc.days
   kpi_key: Cash Conversion Cycle (Days)
@@ -2547,6 +2540,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - fin.liquidity.cash_conversion_cycle_days
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time (proxy)
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Same CCC concept as SCOR AM.1.1 but computed from fixed-ratio Net Sales/COGS proxies (Experience-domain executive view where the receivables/inventory/payables facts are unavailable). Consolidate toward wc.ccc.days where those facts exist.
 
 - kpi_id: ops.downtime.pct
   kpi_key: Downtime %
@@ -2592,6 +2592,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Down time element (Availability loss)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Downtime ratio is an availability-loss element in the ISO 22400-2 time model (down time within Planned Busy Time), not a standalone named KPI; it feeds Availability (A).
 
 - kpi_id: ops.downtime.unplanned.pct
   synonyms:
@@ -2645,6 +2651,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Unplanned down time (Availability loss)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Unplanned downtime is the failure/breakdown share of the ISO 22400-2 down-time element; feeds Availability (A) and the Six Big Losses breakdown category.
 
 - kpi_id: ops.speed_loss.pct
   kpi_key: Speed Loss Rate %
@@ -2689,6 +2701,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.7
     last_review: 01.06.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: E
+    name: Effectiveness (speed) loss
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Speed loss = 1 − performance rate is the ISO 22400-2 Effectiveness (E) loss / reduced-speed category of the Six Big Losses; report against E to align.
 
 - kpi_id: ops.changeover.minutes
   kpi_key: Changeover Time (min)
@@ -2732,6 +2751,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.7
     last_review: 01.06.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Setup/changeover time element
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Changeover time maps to the ISO 22400-2 setup-time element (and Six Big Losses setup & adjustment category); it drives Availability loss but is a time element, not a ratio KPI.
 
 - kpi_id: inv.turnover
   synonyms:
@@ -2785,6 +2810,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - ops.inventory.turnover
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Asset Management — inventory turns
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Inventory turnover (COGS / average inventory) is the reciprocal of the inventory-days input to SCOR Cash-to-Cash Cycle Time (AM.1.1); a SCOR Asset-Management metric, not ISO 22400-2. Consistent with inv.dio.days / wc.dio.days.
 
 - kpi_id: plan.forecast.mape.pct
   synonyms:
@@ -2833,6 +2865,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    alignment: none
+    note: As plan.forecast.accuracy.pct — no SCOR metric home; MAPE is defined by IBF/APICS forecasting standards, not SCOR.
 
 - kpi_id: supply.in_full.pct
   synonyms:
@@ -2882,6 +2918,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: RL.2.1
+    name: Percentage of Orders Delivered In Full
+    url: https://scor.ascm.org/performance/reliability/RL.1.1
+    alignment: partial
+    note: 'Grain differs: ours is delivery-level (in-full deliveries / total deliveries); SCOR RL.2.1 is order-level (% of orders delivered in full). Move to order grain to align.'
 
 - kpi_id: enterprise.action_outcome_rate.pct
   kpi_key: Action Outcome Rate %
@@ -2932,6 +2975,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Action outcome rate
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: 'Action outcome rate (achieved / total action outcomes) is the ActionReady framework''s own action-governance construct — no external standard defines it. Conceptual backdrop: ISO 9001 continual improvement (Plan-Do-Check-Act) and Balanced Scorecard, but the metric is proprietary to the framework.'
 
 - kpi_id: enterprise.action_effectiveness_delta.amount
   kpi_key: Action Effectiveness Delta
@@ -2975,6 +3024,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 26.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Action effectiveness delta
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Average realised impact across achieved actions — the framework's own effectiveness measure. No external standard; PDCA/Balanced-Scorecard is the conceptual backdrop.
 
 - kpi_id: enterprise.action_routed.count
   deprecated: true
@@ -3014,6 +3069,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     metadata_quality: null
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Actions routed (element)
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Routed-action count is an operational element of the action-governance loop, not a named external KPI.
 
 - kpi_id: sales.price.list.amount
   kpi_key: List Price Amount
@@ -3054,6 +3115,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 2026-02-22
+  standard_ref:
+  - standard: IFRS 15
+    name: List/catalogue price
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15 figure (IFRS 15 measures the transaction price actually expected). No standard defines list price.
 
 - kpi_id: sales.price.net.amount
   kpi_key: Net Price Amount
@@ -3094,6 +3161,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 2026-02-22
+  standard_ref:
+  - standard: IFRS 15
+    name: Transaction price (net of discounts)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: partial
+    note: Net price is the IFRS 15 transaction price after trade discounts and variable consideration. Aligns conceptually; ensure discounts/rebates follow IFRS 15 variable-consideration measurement rather than ad-hoc netting.
 
 - kpi_id: sales.price.realization_pct
   kpi_key: Price Realization %
@@ -3143,6 +3216,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Price realization (net/list)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Price realization (net/list) is a management pricing metric, not IFRS-defined. The discount it captures is IFRS 15 variable consideration, but the ratio itself is a commercial-analytics convention.
 
 - kpi_id: sales.pvm.mix_effect.amount
   kpi_key: Mix Effect Amount
@@ -3195,6 +3274,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Management accounting (CIMA/IMA)
+    name: Sales mix variance (residual)
+    alignment: partial
+    note: Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition. Its magnitude depends on the volume-effect basis (see sales.pvm.volume_effect) — a convention choice, not a governed standard.
 
 - kpi_id: sales.net_sales.amount
   kpi_key: Net Sales Amount
@@ -3238,6 +3322,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Revenue from contracts with customers
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: partial
+    note: 'Net sales is a presentation of IFRS 15 revenue: net of VAT (correctly excluded — amounts collected on behalf of third parties are not revenue) and net of returns (IFRS 15 variable consideration — recognise a refund liability, not revenue). Aligns when returns/rebates are treated as IFRS 15 variable consideration.'
 
 - kpi_id: sales.net_sales.delta_pct.ly
   kpi_key: Delta% Net Sales
@@ -3285,6 +3375,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - Delta% Net Sales
+  standard_ref:
+  - standard: IFRS 15
+    name: Net sales YoY growth
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Year-over-year growth is a management trend metric; the underlying net-sales base is IFRS 15 revenue but the growth ratio is not standard-defined.
 
 - kpi_id: sales.net_sales.delta_pct.plan
   kpi_key: Net Sales % vs Plan
@@ -3332,6 +3428,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Net sales vs plan variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Net-sales-vs-plan is an internal budget-variance metric; the actual base is IFRS 15 revenue, the variance is convention.
 
 - kpi_id: sales.pvm.price_effect.amount
   kpi_key: Price Effect Amount
@@ -3357,13 +3459,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Quantifies the pure price impact in the PVM bridge.
     depends_on_measures: []
     lineage:
-    - fact_sales.Net Price Amount
+    - fact_sales.Net Sales Amount
     - fact_sales.Plan Quantity
     - fact_sales.Plan Sales Amount
     - fact_sales.Quantity
     calculation:
       op: pvm_price_effect
-      net_price: Net Price Amount
+      net_price: Net Sales Amount
       quantity: Quantity
       plan_sales: Plan Sales Amount
       plan_quantity: Plan Quantity
@@ -3380,6 +3482,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Management accounting (CIMA/IMA)
+    name: Sales price variance
+    alignment: partial
+    note: Price effect follows the managerial-accounting sales-price-variance convention (CIMA Official Terminology; IMA Statements on Management Accounting) — not a governed ISO/IFRS standard. Our formula (Δprice × actual quantity) is the standard convention; label it management-accounting variance analysis, not a financial-reporting standard.
 
 - kpi_id: sales.pvm.volume_effect.amount
   kpi_key: Volume Effect Amount
@@ -3424,6 +3531,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Management accounting (CIMA/IMA)
+    name: Sales volume variance
+    alignment: partial
+    note: 'Volume effect follows the sales-volume-variance convention. NOTE a real definitional variant: per-row (Δqty × plan unit price) collapses mix to zero, whereas the blended-plan-price basis makes mix material — pin which convention is used so price+volume+mix reconcile to total variance.'
 
 - kpi_id: sales.units
   kpi_key: Sales Units
@@ -3471,6 +3583,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Sales volume (units)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: Sold units is a volume element underlying revenue; not an IFRS 15 figure itself (IFRS 15 measures the consideration, not the count).
 
 - kpi_id: people.digital_adoption.pct
   kpi_key: Digital Adoption Rate %
@@ -3510,6 +3628,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: (digital adoption — change management)
+    url: https://www.iso.org/standard/69338.html
+    alignment: none
+    note: Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management metric, not part of ISO 30414's human-capital areas. No governing HR standard; loosely relates to ISO 30414 workforce skills & capabilities.
 
 - kpi_id: people.attrition_risk.pct
   kpi_key: Attrition Risk %
@@ -3549,6 +3673,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: ISO 30414
+    name: Human capital — turnover / retention
+    url: https://www.iso.org/standard/69338.html
+    alignment: partial
+    note: ISO 30414:2018 (human capital reporting) defines turnover and retention-rate metrics. Attrition RISK here is a predicted probability — a modelling variant of the ISO turnover family; align the realised-turnover base to ISO 30414 and treat the risk score as a forward-looking overlay.
 
 - kpi_id: wc.dso.days
   synonyms:
@@ -3605,6 +3735,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — DSO component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days − DPO). Not an IFRS line item; the receivables base is IFRS 9 / IAS 1.
 
 - kpi_id: fin.liquidity.inventory.amount
   kpi_key: Inventory Amount
@@ -3615,7 +3752,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Finance
   use_case_ref:
   - FIN-001
-  action_code_ref: []
+  - OPS-002
+  action_code_ref:
+  - O-A2.5
   calc_type: amount
   business:
     purpose: Provide closing inventory value for working capital and liquidity metrics.
@@ -3644,6 +3783,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Inventories carrying amount
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: exact
+    note: Closing inventory measured at the lower of cost and net realisable value (IAS 2). Our note allows 'standard or average cost' — IAS 2 prohibits LIFO; confirm the cost formula is FIFO or weighted-average and standard cost approximates actual.
 
 - kpi_id: fin.liquidity.payables.amount
   deprecated: true
@@ -3682,6 +3828,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Trade and other payables
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: partial
+    note: Trade payables are an IAS 1 statement-of-financial-position line (a financial liability under IFRS 9). Aligns for trade payables; ensure non-trade accruals/provisions are excluded when this feeds DPO.
 
 - kpi_id: ops.planned.hours
   deprecated: true
@@ -3722,6 +3875,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 27.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: Planned busy time (PBT element)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Planned production hours is the ISO 22400-2 Planned Busy Time element (denominator of Availability), an input rather than a KPI.
 
 - kpi_id: wc.dio.days
   synonyms:
@@ -3778,6 +3937,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — inventory-days component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Duplicate of inv.dio.days; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family. Consolidate to one DIO.
 
 - kpi_id: wc.dpo.days
   synonyms:
@@ -3833,6 +3999,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time — DPO component
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: partial
+    note: Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1). Not an IFRS line item; the payables base is IAS 1 / IFRS 9.
 
 - kpi_id: wc.ccc.days
   synonyms:
@@ -3895,6 +4068,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AM.1.1
+    name: Cash-to-Cash Cycle Time
+    url: https://scor.ascm.org/performance/asset-management
+    alignment: exact
+    note: CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain metric with no single IFRS equivalent. Duplicate concept of ops.working_capital.ccc.days (proxy variant) — consolidate toward this fact-based version.
 
 - kpi_id: fin.cash.balance
   synonyms:
@@ -3943,6 +4123,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 7
+    name: Cash and cash equivalents
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+    alignment: exact
+    note: Cash and cash equivalents is defined by IAS 7.6–9 (short-term, highly liquid, insignificant risk of value change, typically ≤3-month maturity). Ensure scope matches the IAS 7 definition, not a broader treasury balance.
 
 - kpi_id: fin.overdue_ar.pct
   synonyms:
@@ -3995,6 +4182,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 01.06.2026
+  standard_ref:
+  - standard: IFRS
+    id: IFRS 9
+    name: Trade receivables — credit-risk ageing
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-9-financial-instruments/
+    alignment: partial
+    note: Overdue-AR ageing underpins the IFRS 9 expected-credit-loss simplified (provision-matrix) approach, but the overdue-% itself is a credit-management KPI, not an IFRS-defined figure. Receivables base per IFRS 9 / IAS 1.
 
 - kpi_id: fin.cash.ocf
   synonyms:
@@ -4046,6 +4240,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - fin.liquidity.operating_cash_flow
+  standard_ref:
+  - standard: IFRS
+    id: IAS 7
+    name: Cash flows from operating activities
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+    alignment: exact
+    note: Maps to the IAS 7 operating-activities cash-flow section. Aligns; IAS 7 permits the direct or indirect method — pin which one is used so period-over-period comparisons are stable.
 
 - kpi_id: fin.cash.vs_plan.pct
   synonyms:
@@ -4101,6 +4302,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 7
+    name: Cash budget variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
+    alignment: none
+    note: Internal budget-variance metric; no external standard defines it. Cash input traces to IAS 7 cash and cash equivalents.
 
 - kpi_id: cost.cogs.amount
   kpi_key: Cost of Goods Sold Amount
@@ -4141,6 +4349,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Inventories — cost of sales
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: exact
+    note: COGS is the IAS 2 carrying amount of inventories recognised as an expense when the related revenue is recognised (IAS 2.34), presented as 'cost of sales' under the IAS 1 function-of-expense method. Definition aligns.
 
 - kpi_id: margin.gm.pct
   kpi_key: Gross Margin %
@@ -4396,6 +4611,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: Gross margin ratio (APM)
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: partial
+    note: A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP APM. Inputs are IFRS-clean — label the ratio as an APM in external reporting.
 
 - kpi_id: sales.promo.cost.amount
   kpi_key: Promo Cost
@@ -4438,6 +4659,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Trade-promotion spend
+    alignment: none
+    note: Promo cost / trade spend is a TPM concept, not an external-standard figure (though under IFRS 15 certain trade spend is a reduction of revenue rather than an expense — check classification).
 
 - kpi_id: sales.promo.incremental_gm.amount
   kpi_key: Incremental Gross Margin Amount
@@ -4498,6 +4724,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.9
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo incremental gross margin
+    alignment: none
+    note: Incremental promo GM is a TPM metric; the GM base ties to IFRS 15 revenue / IAS 2 COGS, but the incremental construct itself is convention, not a standard.
 
 - kpi_id: sales.promo.roi.pct
   kpi_key: Promo ROI %
@@ -4544,6 +4775,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.82
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo ROI
+    alignment: none
+    note: Promo ROI (incremental GM / promo cost) is a TPM convention; no governing standard.
 
 - kpi_id: margin.promo.gm.pct
   kpi_key: GM % During Promo
@@ -4592,6 +4828,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: Promo gross-margin ratio
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: none
+    note: Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named measure. Treated as an internal analytic ratio.
 
 - kpi_id: cost.cogs_per_unit.amount
   kpi_key: COGS per Unit
@@ -4636,6 +4878,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Unit COGS (cost accounting)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Internal cost-accounting metric; the COGS input is IAS 2 cost of sales but per-unit COGS is not an IFRS-defined figure.
 
 - kpi_id: sales.promo.cannibalized_sales.amount
   kpi_key: Cannibalized Sales Amount
@@ -4678,6 +4927,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Cannibalized sales (proxy)
+    alignment: none
+    note: Cannibalized sales is a TPM concept, here a documented 15%-of-baseline proxy pending non-promo-segment actuals — a convention, not a standard.
 
 - kpi_id: sales.promo.cannibalization.pct
   kpi_key: Cannibalization %
@@ -4725,6 +4979,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo cannibalization
+    alignment: none
+    note: Cannibalization (cannibalized / uplift sales) is a TPM analytics concept, not standard-defined.
 
 - kpi_id: cost.material.pct
   synonyms:
@@ -4777,6 +5036,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Material-cost ratio
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure. Material cost is an IAS 2 inventory cost input.
 
 - kpi_id: cost.opex.vs_plan.pct
   synonyms:
@@ -4827,6 +5093,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Operating-expense budget variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: none
+    note: Internal budget-variance management metric; no external financial-reporting standard defines it. Actual and plan inputs trace to IAS 1 operating expenses.
 
 - kpi_id: cost.unit.amount
   synonyms:
@@ -4864,9 +5137,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - cost.opex.vs_plan.pct
     - cost.material.pct
     - ops.labor.productivity.pct
-    - ops.production.volume
+    - ops.throughput.units
     - ops.quality.defect_rate.pct
-    - ops.yield.pct
+    - ops.quality.pct
     lineage:
     - fact_cost.COGS Amount
     - fact_output.Output Units
@@ -4888,6 +5161,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Unit cost (cost accounting)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Internal cost-accounting metric (total cost / units); no external financial-reporting standard. Cost inputs relate to IAS 2 inventory costing.
 
 - kpi_id: margin.gm.amount
   synonyms:
@@ -4947,6 +5227,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - hr.gm.amount
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Gross profit subtotal
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: partial
+    note: Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated line item. Aligns when Net Sales = IFRS 15 revenue and COGS = IAS 2 cost of sales. IFRS 18 (eff. 1 Jan 2027) formalises defined operating subtotals.
 
 - kpi_id: sales.promo.baseline_sales.amount
   kpi_key: Baseline Sales Amount
@@ -4988,6 +5275,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo baseline sales
+    alignment: none
+    note: Baseline (non-promoted) sales is a trade-promotion-management analytics concept (uplift modelling), not defined by any external standard.
 
 - kpi_id: sales.promo.incremental.amount
   kpi_key: Incremental Sales Amount
@@ -5036,6 +5328,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Trade Promotion Management (convention)
+    name: Promo incremental/uplift sales
+    alignment: none
+    note: Incremental (promo − baseline) uplift is a TPM convention; no governing standard.
 
 - kpi_id: margin.cogs.pct
   synonyms:
@@ -5088,6 +5385,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: Cost-of-sales ratio (APM)
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: partial
+    note: Inverse of the gross-margin ratio; same APM treatment. Inputs are IFRS (IAS 2 cost of sales / IFRS 15 revenue).
 
 - kpi_id: margin.gm.vs_plan.pct
   kpi_key: Gross Margin % vs Plan
@@ -5138,6 +5441,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 0.8
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Gross-margin budget variance
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: none
+    note: Internal budget-variance metric; no external standard. Inputs trace to IAS 1 gross profit / IFRS 15 revenue.
 
 - kpi_id: margin.ebitda.pct
   kpi_key: EBITDA Margin
@@ -5181,6 +5491,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 12.06.2026
+  standard_ref:
+  - standard: ESMA-APM
+    name: EBITDA margin — Alternative Performance Measure
+    url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+    alignment: none
+    note: 'EBITDA is NOT defined by IFRS. It is an Alternative Performance Measure: under the ESMA APM Guidelines it must be labelled as non-GAAP, reconciled to the most directly reconcilable IFRS line item, and shown with a comparative. Under IFRS 18 (eff. 1 Jan 2027) an EBITDA-type figure used in public communication is a Management-defined Performance Measure (MPM) requiring a dedicated reconciliation note to the nearest IFRS subtotal — IFRS 18''s closest defined analogue is OPDAI (''operating profit before depreciation, amortisation and impairments''). Do not present as an IFRS metric.'
 
 - kpi_id: cost.base_volume.amount
   deprecated: true
@@ -5223,6 +5539,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 2
+    name: Cost-base baseline (variance analysis)
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
+    alignment: none
+    note: Internal variance-analysis baseline; no external standard. Underlying cost is IAS 2 inventory cost.
 
 - kpi_id: cost.opex.base.amount
   deprecated: true
@@ -5264,6 +5587,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: IFRS
+    id: IAS 1
+    name: Operating expenses
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+    alignment: partial
+    note: Operating expenses map to IAS 1 expense presentation (by nature or by function). The 'base' scoping is an internal reporting choice, not an IFRS concept — align the expense population to the IAS 1 classification actually reported.
 
 - kpi_id: enterprise.value_at_risk.index
   kpi_key: Enterprise Value-at-Risk Index
@@ -5289,7 +5619,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Aggregates downside risk across domains into a single index.
     depends_on_measures:
     - sales.net_sales.amount
-    - ops.otif.pct
     - supply.otif.pct
     - supply.in_full.pct
     lineage: []
@@ -5322,7 +5651,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
                                   minuend:
                                     literal: 1
                                   subtrahend:
-                                    kpi: ops.otif.pct
+                                    kpi: supply.otif.pct
                               - calc:
                                   op: delta
                                   minuend:
@@ -5359,6 +5688,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Enterprise value-at-risk (composite)
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score. No external standard defines the composite; its inputs are governed by the SCM and Operations runs. Document the weighting so the index is reproducible.
 
 - kpi_id: scm.supplier_risk.score
   synonyms:
@@ -5402,6 +5737,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: SCOR-DS
+    id: AG
+    name: Agility — Value at Risk
+    url: https://scor.ascm.org/performance/agility
+    alignment: partial
+    note: 'Loose link only: SCOR Agility (AG) measures adaptability and overall value-at-risk, not a supplier-risk composite score. Conceptual neighbour, not the same metric.'
 
 - kpi_id: svc.sla.attainment.pct
   synonyms:
@@ -5453,6 +5795,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.3.3
+    name: Service level management — SLA attainment
+    url: https://www.iso.org/standard/70636.html
+    alignment: partial
+    note: ISO/IEC 20000-1:2018 clause 8.3.3 (Service level management) requires documented SLAs and monitoring of performance against agreed service-level targets. SLA attainment % is the practice metric for that clause — ISO mandates the SLA and its monitoring, not this specific formula. Pin the target set so attainment is comparable.
 
 - kpi_id: svc.fcr.pct
   synonyms:
@@ -5500,6 +5849,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ITIL 4
+    name: Service desk — First Contact Resolution
+    url: https://www.axelos.com/certifications/itil-service-management
+    alignment: partial
+    note: First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management; pin the 'contact' grain (call vs case, single vs multi-channel) to compare externally.
 
 - kpi_id: svc.aht.minutes
   synonyms:
@@ -5551,6 +5906,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ITIL 4
+    name: Average Handling Time
+    url: https://www.axelos.com/certifications/itil-service-management
+    alignment: partial
+    note: AHT is a contact-centre / ITIL service-desk practice metric (also COPC CX Standard); not ISO/IEC 20000-defined. Align the handle-time components (talk + hold + wrap) so the average is comparable across teams.
 
 - kpi_id: svc.backlog.count
   synonyms:
@@ -5603,74 +5964,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
-
-- kpi_id: svc.nps.index
-  synonyms:
-  - Net Promoter Score
-  - Service NPS
-  - Weiterempfehlungsrate
-  - NPS
-  example_question: Why did NPS dip for the Returns queue?
-  kpi_key: NPS Index
-  kpi_type: diagnostic
-  kpi_role: strategic
-  impact_dimension: Experience
-  domain_tag:
-  - Service & Experience
-  use_case_ref:
-  - XD-001
-  action_code_ref: []
-  calc_type: ratio
-  business:
-    purpose: Measures customer advocacy and experience quality.
-    definition: '%Promoters minus %Detractors from NPS survey.'
-    grain_scope: survey_event aggregated to month by Org/Channel.
-    unit_format: '''index'''
-    interpretation: Higher is better; explain shifts with FCR, AHT, escalation %.
-  technical:
-    measure_name: NPS Index (Service)
-    description: Measures customer advocacy and experience quality.
-    depends_on_measures: []
-    lineage:
-    - fact_nps.NPS Score
-    calculation:
-      op: round
-      digits: 0
-      value:
-        calc:
-          op: ratio
-          scale: 100
-          numerator:
-            calc:
-              op: delta
-              minuend:
-                calc:
-                  op: count_threshold
-                  column: NPS Score
-                  comparator: '>='
-                  value: 9
-              subtrahend:
-                calc:
-                  op: count_threshold
-                  column: NPS Score
-                  comparator: <=
-                  value: 6
-          denominator:
-            calc:
-              op: count
-              column: NPS Score
-  governance:
-    business_owner: Head of Service
-    data_owner: Service Analytics
-    steward: CX Analyst
-    review_cycle: monthly
-    validation_process: survey QA + automation
-    qa_rules:
-    - Score in [-100;100]; promoter/detractor thresholds documented
-    version: v1.0
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident & service-request management — open backlog
+    url: https://www.iso.org/standard/70636.html
+    alignment: partial
+    note: Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1 incident / 8.6.2 service request); a count element rather than a named ISO KPI.
 
 - kpi_id: svc.escalation.pct
   synonyms:
@@ -5719,6 +6019,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident escalation ratio
+    url: https://www.iso.org/standard/70636.html
+    alignment: partial
+    note: Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical) and ITIL practice; the % is a practice metric, not an ISO-defined formula.
 
 - kpi_id: res.utilization.pct
   kpi_key: Utilization %
@@ -5767,6 +6074,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    id: UE
+    name: Utilization efficiency (workforce)
+    url: https://www.iso.org/standard/54497.html
+    alignment: partial
+    note: Utilization (productive / paid time) parallels ISO 22400-2 Utilization efficiency UE, but this KPI is applied to a contact-centre workforce, not equipment. Concept aligns; population differs — see COPC CX Standard for the contact-centre definition.
 
 - kpi_id: res.occupancy.pct
   kpi_key: Occupancy %
@@ -5823,6 +6137,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (contact-centre occupancy)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Occupancy ((Talk+Wrap)/(Talk+Wrap+Idle)) is a contact-centre workforce metric governed by the COPC CX Standard / contact-centre WFM, not ISO 22400-2 manufacturing operations.
 
 - kpi_id: res.overtime.pct
   kpi_key: Overtime %
@@ -5869,6 +6189,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (contact-centre overtime)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Overtime share is a workforce-management metric (COPC CX Standard / WFM), not an ISO 22400-2 operations KPI.
 
 - kpi_id: res.shrinkage.pct
   kpi_key: Shrinkage %
@@ -5914,6 +6240,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO 22400-2
+    name: (contact-centre shrinkage)
+    url: https://www.iso.org/standard/54497.html
+    alignment: none
+    note: Shrinkage (non-productive / paid time) is a contact-centre WFM metric (COPC CX Standard), not ISO 22400-2.
 
 - kpi_id: svc.tickets.created.count
   kpi_key: Tickets Created Count
@@ -5958,6 +6290,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident/request volume (element)
+    url: https://www.iso.org/standard/70636.html
+    alignment: none
+    note: Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not a named ISO KPI — it is an input to arrival-rate/backlog measures.
 
 - kpi_id: svc.tickets.closed.count
   kpi_key: Tickets Closed Count
@@ -6001,6 +6340,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
+  standard_ref:
+  - standard: ISO/IEC 20000-1
+    id: 8.6.1
+    name: Incident/request throughput (element)
+    url: https://www.iso.org/standard/70636.html
+    alignment: none
+    note: Raw closed-ticket count is a throughput element feeding backlog and closure-rate; not a named ISO/IEC 20000 KPI on its own.
 
 - kpi_id: enterprise.actions_executed.count
   kpi_key: Actions Executed Count
@@ -6042,6 +6388,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 28.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Actions executed (element)
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Executed-action count is an operational element of the action-governance loop, not a named external KPI.
 
 - kpi_id: enterprise.avg_time_to_outcome.days
   kpi_key: Avg Time-to-Outcome Days
@@ -6080,6 +6432,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 28.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Average time to outcome
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Average days-to-outcome is the framework's own action-cycle-time metric; no external standard (PDCA cycle-time is the conceptual backdrop).
 
 - kpi_id: enterprise.action_roi.pct
   kpi_key: Action ROI %
@@ -6127,6 +6485,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 28.04.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Action ROI
+    url: https://www.iso.org/standard/62085.html
+    alignment: none
+    note: Action ROI (impact value / execution cost − 1) is the ActionReady framework's own governance metric; no external standard. ISO 9001 continual improvement / Balanced Scorecard is the conceptual backdrop.
 
 - kpi_id: retail.category.crosssell_rate.pct
   kpi_key: Category Cross-Sell Rate %
@@ -6167,6 +6531,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Cross-sell rate
+    alignment: none
+    note: Cross-sell rate (multi-category transactions / total) is a retail/CRM analytics convention, not standard-defined.
 
 - kpi_id: retail.basket.items_per_transaction
   kpi_key: Items per Transaction
@@ -6206,6 +6575,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Units per transaction (UPT)
+    alignment: none
+    note: Items per transaction (UPT) is a retail-analytics convention; no governing standard.
 
 - kpi_id: retail.basket.value.average
   kpi_key: Average Basket Value
@@ -6246,6 +6620,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Average transaction value
+    alignment: none
+    note: Average basket value (net sales / transactions) is a standard retail KPI but a market convention, not a governed standard.
 
 - kpi_id: retail.promotion.attachment_rate.pct
   kpi_key: Promotion Attachment Rate %
@@ -6286,6 +6665,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Retail analytics (convention)
+    name: Attachment rate
+    alignment: none
+    note: Promotion attachment rate is a retail merchandising-analytics convention; no external standard.
 
 - kpi_id: customer.rfm.frequency_score
   kpi_key: RFM Frequency Score
@@ -6325,4 +6709,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   metadata_quality:
     completeness_score: 1.0
     last_review: 18.06.2026
+  standard_ref:
+  - standard: Marketing analytics — RFM (convention)
+    name: RFM frequency score
+    alignment: none
+    note: RFM (Recency-Frequency-Monetary) scoring is a long-standing direct-marketing segmentation model (Hughes/DMA lineage), a convention rather than a governed standard.
 ```

@@ -213,14 +213,12 @@ def _ensure_resource_packages(data: Dict[str, Any], base_theme: str, custom_them
             "items": [],
         }
         packages.append(registered)
-    # `name` must be the theme's LOGICAL name (no .json), matching
-    # themeCollection.customTheme.name — exactly how the SharedResources/
-    # BaseTheme item above pairs `name: base_theme` (no extension) with
-    # `path: f"{base_theme}.json"` (with extension). Only `path` carries the
-    # extension. Getting this wrong (using the filename for both `name` and
-    # `path`) is what the official pbir-cli validator flags as
-    # THEME_FILE_NAME_MISMATCH — see check_report_theme_compliance.py.
-    custom_stem = Path(custom_theme_filename).stem
+    # For a CustomTheme (unlike the SharedResources BaseTheme, whose `name` is the
+    # bare theme id), the official pbir-cli requires `name` == `path` == the .json
+    # filename, and both must equal themeCollection.customTheme.name AND the theme
+    # file's internal `name`. A bare stem here triggers PBIR_THEME_NAME_MISSING_JSON_EXT;
+    # a stem that mismatches the referenced .json triggers PBIR_THEME_FILE_NAME_MISMATCH.
+    # Verified against the official CLI 0.1.1 over the dist.
     reg_items = registered.get("items") or []
     # Replace any existing entry for the SAME theme FILE, identified by `path`
     # (stable) rather than `name` (the very field a pre-fix report.json may
@@ -228,7 +226,7 @@ def _ensure_resource_packages(data: Dict[str, Any], base_theme: str, custom_them
     # duplicate CustomTheme item behind).
     reg_items = [it for it in reg_items if it.get("path") != custom_theme_filename]
     reg_items.append({
-        "name": custom_stem,
+        "name": custom_theme_filename,
         "path": custom_theme_filename,
         "type": "CustomTheme",
     })
@@ -287,7 +285,10 @@ def apply_theme(
         "type": "SharedResources",
     }
     tc["customTheme"] = {
-        "name": custom_stem,
+        # PBIR convention: customTheme.name carries the .json extension and matches the
+        # RegisteredResources item name + path + the theme file's internal `name`
+        # (all four identical). Bare-stem here triggers PBIR_THEME_NAME_MISSING_JSON_EXT.
+        "name": custom_filename,
         "reportVersionAtImport": REPORT_VERSION_AT_IMPORT,
         "type": "RegisteredResources",
     }

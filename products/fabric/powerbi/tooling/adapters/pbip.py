@@ -149,10 +149,13 @@ def _build_visual_json(vspec: VisualSpec, tab_order: int = 3000) -> Dict[str, An
             "query": {"queryState": _build_query_state(vspec)},
         },
     }
-    if vspec.visual_type == VisualType.ACTION_PANEL:
+    if vspec.visual_type in (VisualType.ACTION_PANEL, VisualType.TEXT_BOX):
         visual["visual"]["visualType"] = "textbox"
+        paragraph: Dict[str, Any] = {"textRuns": [{"value": vspec.config.get("text", "")}]}
+        if vspec.config.get("align"):
+            paragraph["horizontalTextAlignment"] = vspec.config["align"]
         visual["visual"]["objects"] = {
-            "general": [{"properties": {"paragraphs": [{"textRuns": [{"value": vspec.config.get("text", "")}]}]}}]
+            "general": [{"properties": {"paragraphs": [paragraph]}}]
         }
     if vspec.visual_type == VisualType.SLICER:
         visual["visual"]["objects"] = {
@@ -229,7 +232,10 @@ def _build_report_json(spec: DashboardSpec) -> Dict[str, Any]:
     resource_packages: list = []
     if theme_stem and theme_filename:
         theme_collection["customTheme"] = {
-            "name": theme_stem,
+            # customTheme.name must carry the .json extension and exactly match the
+            # RegisteredResources item name/path, else the Power BI service applies the
+            # theme incorrectly (PBIR_THEME_NAME_MISSING_JSON_EXT, official CLI).
+            "name": theme_filename,
             "reportVersionAtImport": {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"},
             "type": "RegisteredResources",
         }
@@ -524,9 +530,13 @@ class PBIPAdapter(GeneratorAdapter):
             no_overwrite.update({pbism_key, db_key, model_key})
 
             if spec.measures:
-                files[f"{spec.semantic_model}/definition/tables/_Measures.tmdl"] = (
-                    _build_tmdl_measures(spec.measures).encode("utf-8")
-                )
+                # _Measures.tmdl is OWNED by the measure generator (measures_from_ir.py,
+                # real DAX) + upgrade_measures.py (Narrative/Active-Actions enrichment).
+                # The report compile only knows KPI-name stubs, so — like model.tmdl above —
+                # write it only if missing; never clobber an existing measure layer.
+                measures_key = f"{spec.semantic_model}/definition/tables/_Measures.tmdl"
+                files[measures_key] = _build_tmdl_measures(spec.measures).encode("utf-8")
+                no_overwrite.add(measures_key)
 
         # Embed custom theme file into StaticResources/RegisteredResources/
         if spec.theme_path:

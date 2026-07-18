@@ -166,27 +166,6 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     description: COGS / Average Inventory
     notes: ''
 
-- measure_name: Ops OTIF %
-  is_kpi_measure: true
-  kpi_id_ref: ops.otif.pct
-  semantic_model: Efficiency_SemanticModel
-  category: KPI
-  expression:
-    logical: Ops OTIF % = On-Time In-Full deliveries / Total Deliveries
-    aggregation_method: ratio
-  documentation:
-    description: Operational OTIF share based on on-time and in-full deliveries.
-    notes: ''
-  governance:
-    owner: Supply Chain BI
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
-  dependencies:
-    measures:
-    - OTIF Deliveries Count
-    - Total Deliveries Count
-
 - measure_name: Cash Conversion Cycle (Days)
   is_kpi_measure: true
   kpi_id_ref: ops.working_capital.ccc.days

@@ -222,14 +222,6 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "OPS-002"
 
-	/// Total inventory value in the selected scope.
-	/// Formula: Sum of inventory value amount for the selected scope.
-	/// Grain: location_sku_day · Unit: EUR
-	/// Owner: Supply Chain Analytics · Status: active
-	measure 'Inventory Value Amount' = SUM ( fact_inventory[Average Inventory Amount] )
-		formatString: "#,0.00"
-		displayFolder: "OPS-002"
-
 	/// Count of preventive maintenance tasks.
 	/// Formula: Count of PM tasks in the period.
 	/// Grain: asset_day · Unit: count

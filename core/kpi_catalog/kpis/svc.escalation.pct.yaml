@@ -45,3 +45,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO/IEC 20000-1
+  id: 8.6.1
+  name: Incident escalation ratio
+  url: https://www.iso.org/standard/70636.html
+  alignment: partial
+  note: Escalation ratio relates to ISO/IEC 20000-1 incident-management escalation (8.6.1, functional/hierarchical)
+    and ITIL practice; the % is a practice metric, not an ISO-defined formula.

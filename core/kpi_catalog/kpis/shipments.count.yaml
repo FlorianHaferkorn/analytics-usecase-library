@@ -38,3 +38,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Shipment volume (element)
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: none
+  note: Shipment count is a logistics volume element feeding delivery-reliability metrics (SCOR RL), not
+    a standalone SCOR KPI.

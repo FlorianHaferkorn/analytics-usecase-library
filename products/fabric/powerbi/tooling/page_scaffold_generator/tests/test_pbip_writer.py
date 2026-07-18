@@ -334,10 +334,14 @@ class TestGoldenCOM001:
 
     def test_no_extra_files_in_dist(self):
         dist_files = set()
+        # Exclude StaticResources (generated) and .pbi/ (Power BI Desktop-local
+        # state such as localSettings.json — created when a report is opened in
+        # Desktop, gitignored, and absent on CI). Neither belongs in the golden.
         for ext in ("*.json", "*.pbir", "*.pbip"):
             for f in self.DIST_REPORT.rglob(ext):
                 rel = f.relative_to(self.DIST_REPORT)
-                if "StaticResources" not in str(rel):
+                parts = rel.parts
+                if "StaticResources" not in parts and ".pbi" not in parts:
                     dist_files.add(str(rel))
 
         fixture_files = set()

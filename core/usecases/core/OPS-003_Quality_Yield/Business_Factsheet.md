@@ -68,6 +68,19 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **First Pass Yield %** (`quality.fpy.pct`) → **ISO 22400-2 FPY** (exact): ISO 22400-2 First Pass Yield = units passing first time without rework or scrap / total units.
+- **Scrap Rate %** (`quality.scrap.pct`) → **ISO 22400-2 SR** (exact): ISO 22400-2 Scrap ratio SR = scrap quantity / produced quantity.
+- **Rework Rate %** (`quality.rework.pct`) → **ISO 22400-2 RR** (exact): ISO 22400-2 Rework ratio RR = reworked quantity / produced quantity.
+- **Cost of Poor Quality** (`quality.copq.amount`) → **ISO 22400-2** (none): Cost of Poor Quality is a cost concept (ASQ / Juran Cost-of-Quality framework: prevention–appraisal–failure), not an ISO 22400-2 operations KPI.
+- **Complaint Rate %** (`quality.complaint.pct`) → **ISO 22400-2** (none): Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations KPI.
+- **Defect Density** (`quality.defect_density`) → **ISO 22400-2** (none): Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric.
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).

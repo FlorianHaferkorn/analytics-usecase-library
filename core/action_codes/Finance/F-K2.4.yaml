@@ -15,7 +15,7 @@ kpis:
   trigger_kpis:
   - cost.opex.vs_plan.pct
   guardrail_kpis:
-  - ops.service_level.pct
+  - supply.otif.pct
   outcome_kpis:
   - cost.opex.vs_plan.pct
   - cost.unit.amount

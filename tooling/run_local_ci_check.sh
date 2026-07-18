@@ -56,6 +56,76 @@ run_check "Fabric bindings validator (validate_bindings.py --strict)" \
   python3 products/fabric/powerbi/tooling/validate_bindings.py \
     --dist-dir products/fabric/powerbi/dist --strict
 
+# --- Showcase Delta-table consistency -----------------------------------
+# Catches renamed/orphaned parquet vs. _delta_log active-add mismatch that
+# makes fn_DeltaCurrentFiles return a columnless table (Desktop then crashes
+# in Table.get_Islands()). See scripts/check_showcase_delta.py.
+run_check "Showcase Delta-table consistency (active files present on disk)" \
+  python3 scripts/check_showcase_delta.py
+
+# --- Boutique rubric: BC-NARR-01 exhibit titles (K6) --------------------
+run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels)" \
+  python3 tooling/validation/check_exhibit_message.py
+
+# --- Boutique rubric: BC-CHART-01 mixed-scale (K6) ----------------------
+run_check "Boutique rubric BC-CHART-01 (no mixed scale on one axis)" \
+  python3 tooling/validation/check_mixed_scale.py
+
+# --- Boutique rubric: BC-NARR-04 KPI context (K6, advisory) -------------
+# Advisory scorecard signal (2/17 hero cards carry governed context); clearing the
+# rest is a curated rollout (KONZEPT §12). Coverage regression-guarded in pytest.
+run_check "Boutique rubric BC-NARR-04 (hero KPI has context — advisory)" \
+  python3 tooling/validation/check_kpi_context.py
+
+# --- KPI ↔ external-standard alignment integrity (standards program) ----
+# Every governed KPI carries a standard_ref (SCOR/IFRS/ISO 22400/ISO 20000/IFRS 15…)
+# with alignment + drift note; audits under core/kpi_catalog/standards/. Hard gate on
+# structural integrity (well-formed entries, controlled standard vocabulary); the
+# duplicate/consolidation sensor is advisory + regression-guarded in pytest.
+run_check "KPI↔standard alignment integrity (standard_ref, --strict structural)" \
+  python3 tooling/validation/check_standard_ref.py --strict
+
+# --- Use-case narrative & standards-grounding quality (base for reports) -
+# Use cases are the source the report/story generators read, so their quality caps the
+# deliverable's. Hard gate: every page states a decision_question, every 30s message is a
+# conclusion (not a chart label), every factsheet is standards-grounded on its strategic KPI.
+run_check "Use-case narrative & standards-grounding quality (--strict)" \
+  python3 tooling/validation/check_usecase_quality.py --strict
+
+# --- Boutique rubric: BC-CHART-10 evidence sort (K6, blocking) ----------
+# Knock-out rule, fully rolled out (2026-07-11): all 17 evidence tables declare a
+# governed worst-first sort + explicit Top-N. Hard gate (--strict) — 0 violations
+# enforced. Coverage regression-guarded in pytest (covered ≥ 17).
+# BC-CHART-10 re-layered onto R2.1 sort_by/top_n (loving-einstein merge 2026-07-16).
+run_check "Boutique rubric BC-CHART-10 (evidence table worst-first + Top-N)" \
+  python3 tooling/validation/check_evidence_sort.py --strict
+
+# --- Content-Grounding §6.3: benchmark provenance (K4, blocking) ---------
+# Every benchmark ("what good looks like") must reference a real KPI (Golden Thread)
+# and cite a dated public source via a governed source_type — no fabricated industry
+# numbers. Registry is small + fully grounded, so run hard (--strict).
+run_check "Content-Grounding §6.3 (benchmarks grounded + provenance)" \
+  python3 tooling/validation/check_benchmarks.py --strict
+
+# --- Boutique rubric: BC-BRAND-01 custom theme (K6, blocking) -----------
+# Knock-out: every report must register a composed custom theme, never the renderer
+# default. All 17 dist reports pass, so run hard (--strict).
+run_check "Boutique rubric BC-BRAND-01 (composed custom theme, never default)" \
+  python3 tooling/validation/check_custom_theme.py --strict
+
+# --- Boutique rubric: BC-CHART-08 forbidden chart types (K6, blocking) --
+# Reuses the existing ForbiddenVisualTypes invariant: no pie/donut/gauge/treemap in
+# any dist report. All 17 clean, so run hard (--strict).
+run_check "Boutique rubric BC-CHART-08 (no forbidden chart types)" \
+  python3 tooling/validation/check_forbidden_charts.py --strict
+
+# --- Boutique-Craft Scorecard (K6 §9, advisory report) ------------------
+# Aggregates the wired structural rules into the rubric's weighted score + knock-out
+# status, and reports honest coverage (judge rules pending). Advisory — the artifact
+# is the value; --strict would block on a scored knock-out failure.
+run_check "Boutique-Craft Scorecard (K6 §9 — rubric rollup, advisory)" \
+  python3 tooling/report_quality/boutique_scorecard.py
+
 # --- PBI quality tools CLI ----------------------------------------------
 run_check "PBI quality-tools CLI (validate --summary)" \
   python3 -c "

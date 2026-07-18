@@ -38,3 +38,8 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Order line count
+  alignment: none
+  note: Order-line count is an operational volume element, not a standard-defined KPI.

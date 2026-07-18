@@ -57,3 +57,9 @@ governance:
 metadata_quality:
   completeness_score: 0.9
   last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Promo incremental gross margin
+  alignment: none
+  note: Incremental promo GM is a TPM metric; the GM base ties to IFRS 15 revenue / IAS 2 COGS, but the
+    incremental construct itself is convention, not a standard.

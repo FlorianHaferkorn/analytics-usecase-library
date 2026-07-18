@@ -20,7 +20,6 @@ These KPIs have no active bracket or action code references. They will be remove
 | `ops.planned.hours` | Narrow ops metric; no use case or action code references |
 | `cost.base_volume.amount` | Internal calculation input; not a reportable KPI |
 | `cost.opex.base.amount` | Internal calculation input; not a reportable KPI |
-| `plan.replan.count` | Activity metric; too narrow for strategic reporting |
 | `enterprise.action_routed.count` | Replaced by `enterprise.action_outcome_rate.pct` as primary |
 
 ---
@@ -74,10 +73,7 @@ These KPIs have no active bracket or action code references. They will be remove
 | `ops.downtime.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.downtime.unplanned.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.working_capital.ccc.days` | [KPI_Catalog.md](KPI_Catalog.md) |
-| `ops.service_level.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
-| `ops.yield.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.safety.incident.count` | [KPI_Catalog.md](KPI_Catalog.md) |
-| `ops.production.volume` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `quality.scrap.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `quality.rework.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `quality.complaint.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
@@ -96,7 +92,6 @@ These KPIs have no active bracket or action code references. They will be remove
 | `supply.penalty.amount` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `plan.forecast.service_impact.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `plan.forecast.mape.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
-| `scm.service_level.pct` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `scm.supplier_risk.score` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `order.lines` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `plans.count` | [KPI_Catalog.md](KPI_Catalog.md) |
@@ -156,7 +151,6 @@ These KPIs have no active bracket or action code references. They will be remove
 
 | kpi_id | Back-link |
 |---|---|
-| `ops.inventory.value.amount` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.planned_output.units` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.pm.task.count` | [KPI_Catalog.md](KPI_Catalog.md) |
 | `ops.quality.defect_rate.pct` | [KPI_Catalog.md](KPI_Catalog.md) |

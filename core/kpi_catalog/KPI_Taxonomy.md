@@ -39,7 +39,7 @@ This document provides a **readable, domain-oriented view** of the KPI Catalog. 
 | crm.churned_customers.count | Churned customers | COM-003 |
 | crm.revenue_at_risk.amount | Revenue at risk from churn | COM-003 |
 | crm.active_customers.count | Active customer count | COM-003 |
-| crm.nps.index | Net Promoter Score | COM-003 |
+| crm.nps.index | Net Promoter Score | COM-003, XD-001 |
 | crm.complaint.count | Complaint count | COM-003 |
 
 ---
@@ -120,7 +120,6 @@ Industry-tier namespaces (`retail.*`, `customer.rfm.*`) introduced with the ADR-
 | plan.forecast.mape.pct | Forecast MAPE | SCM-003 |
 | plan.forecast.bias.pct | Forecast bias | SCM-003 |
 | plan.forecast.service_impact.pct | Forecast impact on service | SCM-003 |
-| plan.replan.count | Replan count | SCM-003 |
 
 ---
 
@@ -132,7 +131,6 @@ Industry-tier namespaces (`retail.*`, `customer.rfm.*`) introduced with the ADR-
 | svc.fcr.pct | First contact resolution % | XD-001 |
 | svc.aht.minutes | Average handling time (min) | XD-001 |
 | svc.backlog.count | Backlog count | XD-001, XD-002 |
-| svc.nps.index | NPS (service context) | XD-001 |
 | svc.escalation.pct | Escalation % | XD-001 |
 | res.utilization.pct | Resource utilization % | XD-002 |
 | res.occupancy.pct | Occupancy % | XD-002 |

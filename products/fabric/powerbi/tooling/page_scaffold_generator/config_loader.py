@@ -76,6 +76,7 @@ class ConfigLoader:
         self.kpi_catalog_path = self.repo_root / "core" / "kpi_catalog" / "KPI_Catalog.md"
         self.action_codes_root = self.repo_root / "core" / "action_codes"
         self._kpi_id_to_measure_name: Optional[Dict[str, str]] = None
+        self._kpi_id_to_calc_type: Optional[Dict[str, str]] = None
 
     def load_kpi_id_to_measure_name_map(self) -> Dict[str, str]:
         """
@@ -116,6 +117,42 @@ class ConfigLoader:
             logger.warning("Failed to parse KPI catalog at %s: %s", self.kpi_catalog_path, exc)
         return result
 
+    def load_kpi_id_to_calc_type_map(self) -> Dict[str, str]:
+        """
+        Load KPI catalog and return mapping kpi_id -> calc_type (amount/rate/ratio/
+        count/percentage/quantity/index -- see validate_kpi_catalog.ps1's
+        $allowedCalc). Used by R2.2's ONE_MESSAGE_PER_CHART design rule to check that
+        a component_30s entry's declared `unit` (R2.1) matches every referenced KPI's
+        own governed calc_type. Same chunk-based parsing technique as
+        load_kpi_id_to_measure_name_map (the catalog's YAML block is not always valid
+        as a single document).
+        """
+        if self._kpi_id_to_calc_type is not None:
+            return self._kpi_id_to_calc_type
+        result: Dict[str, str] = {}
+        if not self.kpi_catalog_path.exists():
+            return result
+        try:
+            content = self.kpi_catalog_path.read_text(encoding="utf-8")
+            match = re.search(r"```yaml\s*\n(.*?)```", content, re.DOTALL)
+            if not match:
+                return result
+            block = match.group(1)
+            chunk_starts = list(re.finditer(r"(?m)^\s*-\s*kpi_id\s*:\s*([^\s#\r\n]+)", block))
+            for i, mo in enumerate(chunk_starts):
+                kpi_id = mo.group(1).strip()
+                start = mo.start()
+                end = chunk_starts[i + 1].start() if i + 1 < len(chunk_starts) else len(block)
+                chunk = block[start:end]
+                calc_type_m = re.search(r'(?m)^\s*calc_type\s*:\s*(?:"([^"]*)"|([^\r\n#]+))', chunk)
+                calc_type = (calc_type_m.group(1) or (calc_type_m.group(2) or "").strip()) if calc_type_m else None
+                if calc_type:
+                    result[kpi_id] = calc_type.strip().lower()
+            self._kpi_id_to_calc_type = result
+        except Exception as exc:
+            logger.warning("Failed to parse KPI catalog calc_type at %s: %s", self.kpi_catalog_path, exc)
+        return result
+
     def _resolve_use_case_dir(self, use_case_id: str) -> Optional[Path]:
         """Resolve core use case directory: core/usecases/core/<ID>_*/."""
         core = self.usecases_root / "core"
@@ -125,6 +162,32 @@ class ConfigLoader:
             if p.is_dir() and p.name.startswith(f"{use_case_id}_"):
                 return p
         return None
+
+    # R2.3-Fund follow-up: data_contract_ref -> domain semantic model suffix, verified
+    # against the real 'Narrative Text (<SUFFIX>)'/'Active Actions Text (<SUFFIX>)'
+    # measures in each *.SemanticModel/definition/tables/_Measures.tmdl (not
+    # invented) -- these are domain-level shared measures (one per
+    # *.SemanticModel, not per use case), cross-checked against the real,
+    # committed dist/ Smart_Narrative and ActionPanel visual.json bindings for
+    # COM-002 (COM), XD-003 (XD, data_contract=executive.yaml), and FIN-002 (FIN).
+    _DATA_CONTRACT_TO_DOMAIN_SUFFIX: Dict[str, str] = {
+        "commercial_sales.yaml": "COM",
+        "finance.yaml": "FIN",
+        "operations.yaml": "OPS",
+        "supply_chain.yaml": "SCM",
+        "experience.yaml": "XD",
+        "executive.yaml": "XD",
+    }
+
+    def _domain_measure_suffix(self, bracket: Dict[str, Any]) -> Optional[str]:
+        """Resolve the '(SUFFIX)' domain-measure-name suffix for this Bracket's
+        Smart_Narrative/ActionPanel binding, from overrides.data_contract_ref.
+        Returns None for an unmapped/missing data_contract_ref (e.g. XD-004's
+        governance.yaml -- not yet verified against a real semantic model;
+        callers fall back to the synthesized-text path rather than guess)."""
+        ref = (bracket.get("overrides") or {}).get("data_contract_ref") or ""
+        filename = ref.rsplit("/", 1)[-1]
+        return self._DATA_CONTRACT_TO_DOMAIN_SUFFIX.get(filename)
 
     def _format_smart_narrative(self, bracket: Dict[str, Any], use_case_id: str) -> str:
         """Build a one-line Smart Narrative context text for the 300s detail page."""
@@ -746,6 +809,11 @@ class ConfigLoader:
                 except FileNotFoundError:
                     pass
             report_canvas = ux.get("report_canvas") if isinstance(ux.get("report_canvas"), dict) else None
+            # R2.3: render big_idea verbatim in the Header (Zone 0) only once the bracket
+            # has opted into the R2.1 intent layer (intent_rules_version: 2) -- legacy
+            # brackets keep their current (Header-less) output unchanged.
+            intent_rules_version = ux.get("intent_rules_version")
+            big_idea_text = p1.get("big_idea") if intent_rules_version == 2 else None
             return {
                 "name": "overview",
                 "layer": [3, 30],
@@ -761,6 +829,8 @@ class ConfigLoader:
                 "card_kpi_ids": card_kpi_ids,
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
+                "intent_rules_version": intent_rules_version,
+                "big_idea_text": big_idea_text,
             }
 
         if page_name == "detail":
@@ -802,14 +872,50 @@ class ConfigLoader:
                 "category":          ("dim_product", "Category"),
                 "product_category":  ("dim_product", "Category"),
                 "subcategory":       ("dim_product", "Subcategory"),
+                "sku":               ("dim_product", "ProductCode"),
                 "brand":             ("dim_product", "Brand"),
                 "customer_segment":  ("dim_customer", "Segment"),
                 "segment":           ("dim_customer", "Segment"),
                 "country":           ("dim_org", "Country"),
                 "org":               ("dim_org", "OrgName"),
+                # R2.4 (Cut C2): additions verified against the real, existing dim
+                # tables in each domain's *.SemanticModel/definition/tables/ TMDL --
+                # not invented. Tokens with no real backing table anywhere in the
+                # semantic model (e.g. "plant", "line", "shift", "location",
+                # "agent_group") are intentionally NOT added here; brackets using
+                # them are curated onto a real token instead (see per-bracket
+                # ledger notes), not silently passed through to become a bogus
+                # _Measures.<token> reference (the same failure class as R2.3's
+                # "sku" bug, just for tokens this dict never covered).
+                "asset":             ("dim_asset", "AssetName"),        # Operations.SemanticModel
+                "asset_class":       ("dim_asset", "AssetClass"),
+                "criticality":       ("dim_asset", "Criticality"),
+                "queue":             ("dim_case_queue", "QueueName"),   # Experience.SemanticModel
+                "issue_type":        ("dim_issue_type", "IssueType"),
+                "severity":          ("dim_issue_type", "Severity"),
+                "promotion":         ("dim_promo", "PromoName"),        # Commercial.SemanticModel
+                "promo_type":        ("dim_promo", "Promo Type"),
+                "mechanic":          ("dim_promo", "Promo Mechanic"),
+                "lane":              ("dim_lane", "Mode"),              # SupplyChain.SemanticModel
+                "abc_class":         ("dim_product", "ABC_Class"),
+                "xyz_class":         ("dim_product", "XYZ_Class"),
             }
             resolved_dim_cols: list = []
             resolved_measures: list = []
+            # R2.4 follow-up: an evidence_columns token shaped like a dimension
+            # reference (bare lowercase snake_case word -- the exact shape of
+            # every real EVIDENCE_DIM_TOKENS key) that is neither a known dim
+            # token nor a known governed KPI id is almost certainly a typo'd or
+            # not-yet-modeled dimension (e.g. "plant", "agent_group") -- not a
+            # deliberate raw-measure-name escape hatch (those are always
+            # Title-Case-with-spaces DAX names, e.g. "Plan Sales Amount", and a
+            # dotted KPI id like "sales.net_sales.amount" never matches this
+            # shape either). Silently passing it through would mint a bogus
+            # _Measures.<token> reference -- the same failure class R2.3/R2.4
+            # found and fixed case-by-case ("sku", "asset", "queue", ...); this
+            # closes the class instead of the individual instances.
+            _DIM_LIKE_TOKEN = re.compile(r"^[a-z][a-z0-9_]*$")
+            unresolved_dim_like_tokens: list = []
             if isinstance(evidence_columns, list):
                 for col in evidence_columns:
                     if not isinstance(col, str):
@@ -817,10 +923,25 @@ class ConfigLoader:
                     token = col.strip().lower()
                     if token in EVIDENCE_DIM_TOKENS:
                         resolved_dim_cols.append(EVIDENCE_DIM_TOKENS[token])
+                    elif col in kpi_to_measure:
+                        resolved_measures.append(kpi_to_measure[col])
+                    elif _DIM_LIKE_TOKEN.match(token):
+                        unresolved_dim_like_tokens.append(col)
                     else:
-                        # Treat as KPI ID → resolve to DAX measure name
-                        measure_name = kpi_to_measure.get(col, col)
-                        resolved_measures.append(measure_name)
+                        # Genuine escape hatch: raw DAX measure name, used as-is
+                        # (same "no catalog ID exists yet" pattern component_30s
+                        # kpi_ids already supports).
+                        resolved_measures.append(col)
+            if unresolved_dim_like_tokens:
+                raise ValueError(
+                    f"{use_case_id}: component_300s.evidence_columns references "
+                    f"unresolvable dimension token(s) {unresolved_dim_like_tokens} -- "
+                    "not in EVIDENCE_DIM_TOKENS and not a governed KPI id in the "
+                    "catalog. Either add a verified (table, column) entry to "
+                    "config_loader.py's EVIDENCE_DIM_TOKENS (grounded against a "
+                    "real *.SemanticModel/definition/tables/dim_*.tmdl), or "
+                    "replace the token with a real dimension/KPI reference."
+                )
             # Explicit evidence_measures (if any) extend the resolved set
             if isinstance(evidence_measures_raw, list):
                 for m in evidence_measures_raw:
@@ -829,6 +950,42 @@ class ConfigLoader:
             detail_matrix_columns = resolved_dim_cols   # list of (table, col) tuples
             detail_matrix_measures = resolved_measures  # list of DAX measure name strings
             smart_narrative_text = self._format_smart_narrative(bracket, use_case_id)
+            # R2.3-Fund follow-up: real dist/ binds Smart_Narrative/ActionPanel to
+            # governed domain-level DAX measures (cardVisual + Data role), not a
+            # generator-synthesized literal string -- see _domain_measure_suffix's
+            # docstring. None when unresolvable; callers fall back to the
+            # synthesized text (smart_narrative_text / action_panel_content).
+            _domain_suffix = self._domain_measure_suffix(bracket)
+            narrative_measure_name = f"Narrative Text ({_domain_suffix})" if _domain_suffix else None
+            active_actions_measure_name = f"Active Actions Text ({_domain_suffix})" if _domain_suffix else None
+
+            # R2.3: sort_by/top_n/highlight_rule (R2.1 fields) -> generated Detail_Matrix
+            # sortDefinition/TopN filter/data-bar formatting, gated the same way as the
+            # Header (intent_rules_version: 2 only -- legacy brackets are unaffected).
+            intent_rules_version = ux.get("intent_rules_version")
+            detail_matrix_sort_by = None
+            detail_matrix_top_n = None
+            detail_matrix_highlight_rule = None
+            detail_matrix_topn_field = detail_matrix_columns[-1] if detail_matrix_columns else None
+            if intent_rules_version == 2:
+                raw_sort_by = c300.get("sort_by")
+                if isinstance(raw_sort_by, dict) and raw_sort_by.get("measure"):
+                    measure_ref = raw_sort_by["measure"]
+                    detail_matrix_sort_by = {
+                        "measure": kpi_to_measure.get(measure_ref, measure_ref),
+                        "direction": raw_sort_by.get("direction", "descending"),
+                    }
+                raw_top_n = c300.get("top_n")
+                if isinstance(raw_top_n, int):
+                    detail_matrix_top_n = raw_top_n
+                raw_highlight = c300.get("highlight_rule")
+                if isinstance(raw_highlight, dict) and raw_highlight.get("column"):
+                    column_ref = raw_highlight["column"]
+                    detail_matrix_highlight_rule = {
+                        "measure": kpi_to_measure.get(column_ref, column_ref),
+                        "type": raw_highlight.get("type", "data_bar"),
+                    }
+
             return {
                 "name": "detail",
                 "layer": [300],
@@ -844,6 +1001,13 @@ class ConfigLoader:
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
                 "smart_narrative_text": smart_narrative_text,
+                "narrative_measure_name": narrative_measure_name,
+                "active_actions_measure_name": active_actions_measure_name,
+                "intent_rules_version": intent_rules_version,
+                "detail_matrix_sort_by": detail_matrix_sort_by,
+                "detail_matrix_top_n": detail_matrix_top_n,
+                "detail_matrix_highlight_rule": detail_matrix_highlight_rule,
+                "detail_matrix_topn_field": detail_matrix_topn_field,
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")

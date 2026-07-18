@@ -183,6 +183,18 @@ class TestPBIPAdapterRender:
         result = PBIPAdapter().render(minimal_spec)
         assert f"{prefix}/definition/pages/Detail/page.json" in result.files
 
+    def test_measures_tmdl_is_write_only_if_missing(self):
+        """_Measures.tmdl is OWNED by the measure generator (measures_from_ir.py, real DAX)
+        + upgrade_measures.py enrichment; the report compile emits only KPI-name stubs.
+        So whenever it is emitted it MUST be in no_overwrite_paths — else re-compiling a
+        real dist clobbers the DAX/enrichment layer (the measure-layer regress,
+        KNOWN_ERRORS 2026-07-13)."""
+        spec = _spec_with_kpi_cards()   # has measures + semantic_model
+        result = PBIPAdapter().render(spec)
+        key = f"{spec.semantic_model}/definition/tables/_Measures.tmdl"
+        assert key in result.files                    # still seeded for a fresh report
+        assert key in result.no_overwrite_paths        # but never clobbers an existing layer
+
     def test_definition_pbir_valid_json(self, minimal_spec):
         prefix = _report_prefix(minimal_spec)
         result = PBIPAdapter().render(minimal_spec)
@@ -254,6 +266,35 @@ class TestSpeakingReportName:
 
     def test_empty_title_uses_id_only(self):
         assert _speaking_report_name("OPS-003", "") == "OPS-003"
+
+
+# ── benchmark reference-label caption tests ───────────────────────────────────
+
+class TestBenchmarkCaptionEmit:
+    """The benchmark reference-label renders via the corpus-verified textbox shape
+    (paragraphs/textRuns) — never an unverified card reference-line object."""
+
+    def _caption(self, config):
+        from tooling.generator_core.ir.specs import VisualSpec, Position, Binding
+        from products.fabric.powerbi.tooling.adapters.pbip import _build_visual_json
+        v = VisualSpec(
+            id="Benchmark_Caption", visual_type=VisualType.TEXT_BOX,
+            page_role=PageRole.OVERVIEW, position=Position(0.0167, 0.152, 0.9666, 0.030),
+            binding=Binding(), config=config,
+        )
+        return _build_visual_json(v)
+
+    def test_caption_emits_textbox_with_label_text(self):
+        j = self._caption({"text": "vs. Retail peer 45", "align": "right"})
+        assert j["visual"]["visualType"] == "textbox"
+        para = j["visual"]["objects"]["general"][0]["properties"]["paragraphs"][0]
+        assert para["textRuns"][0]["value"] == "vs. Retail peer 45"
+        assert para["horizontalTextAlignment"] == "right"
+
+    def test_caption_without_align_omits_alignment(self):
+        j = self._caption({"text": "vs. world-class 85%"})
+        para = j["visual"]["objects"]["general"][0]["properties"]["paragraphs"][0]
+        assert "horizontalTextAlignment" not in para
 
 
 # ── TMDL generation tests ─────────────────────────────────────────────────────

@@ -24,7 +24,6 @@ technical:
   description: Aggregates downside risk across domains into a single index.
   depends_on_measures:
   - sales.net_sales.amount
-  - ops.otif.pct
   - supply.otif.pct
   - supply.in_full.pct
   lineage: []
@@ -57,7 +56,7 @@ technical:
                                 minuend:
                                   literal: 1
                                 subtrahend:
-                                  kpi: ops.otif.pct
+                                  kpi: supply.otif.pct
                             - calc:
                                 op: delta
                                 minuend:
@@ -98,3 +97,12 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Internal — ActionReady governance
+  name: Enterprise value-at-risk (composite)
+  url: https://www.iso.org/standard/62085.html
+  alignment: none
+  note: A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and
+    ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score. No external standard defines
+    the composite; its inputs are governed by the SCM and Operations runs. Document the weighting so the
+    index is reproducible.

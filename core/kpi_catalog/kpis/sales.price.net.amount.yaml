@@ -37,3 +37,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 2026-02-22
+standard_ref:
+- standard: IFRS 15
+  name: Transaction price (net of discounts)
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: partial
+  note: Net price is the IFRS 15 transaction price after trade discounts and variable consideration. Aligns
+    conceptually; ensure discounts/rebates follow IFRS 15 variable-consideration measurement rather than
+    ad-hoc netting.

@@ -39,3 +39,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Spare-parts (MRO) availability
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: none
+  note: Spare-parts stockout is an MRO/maintenance availability diagnostic; SCOR captures availability
+    inside Reliability/Asset-Management rather than as a standalone metric. Mirrors inv.stockout.pct.

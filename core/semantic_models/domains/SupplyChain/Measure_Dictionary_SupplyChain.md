@@ -339,34 +339,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     last_review: 2026-03-27
     review_due: 2027-03-31
 
-- measure_name: Re-Plan Count
-  is_kpi_measure: true
-  kpi_id_ref: plan.replan.count
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 03_Forecast
-  category: KPI
-  expression:
-    logical: Re-Plan Count = Total replan events logged in planning system.
-    aggregation_method: count
-  documentation:
-    description: Number of re-plans within period.
-    notes: 'Grain: month. Unit: count.
-
-      Lineage: planning system logs.
-
-      QA: Consistent definition of re-plan event.
-
-      '
-  dependencies:
-    columns:
-    - fact_planning[Replan Count]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v1.2
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
 - measure_name: On-Time %
   is_kpi_measure: true
   kpi_id_ref: supply.on_time.pct
@@ -890,62 +862,6 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
     owner: Supply Chain Analytics
     status: active
     version: v1.2
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
-- measure_name: Inventory Value Amount
-  is_kpi_measure: true
-  kpi_id_ref: ops.inventory.value.amount
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 01_Inventory
-  category: KPI
-  expression:
-    logical: Inventory Value Amount = Sum of inventory value amount for the selected scope.
-    aggregation_method: sum
-  documentation:
-    description: Total inventory value in the selected scope.
-    notes: 'Grain: location_sku_day. Unit: EUR.
-
-      Lineage: fact_inventory[Inventory Value Amount].
-
-      QA: Valuation method consistent with finance policy.
-
-      '
-  dependencies:
-    columns:
-    - fact_inventory[Inventory Value Amount]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v0.1
-    last_review: 2026-03-27
-    review_due: 2027-03-31
-
-- measure_name: Supply Chain Service Level %
-  is_kpi_measure: true
-  kpi_id_ref: scm.service_level.pct
-  semantic_model: SupplyChain_SemanticModel
-  display_folder: 02_Service
-  category: KPI
-  expression:
-    logical: Supply Chain Service Level % = On-Time In-Full Orders / Total Orders.
-    aggregation_method: ratio
-  documentation:
-    description: On-time in-full rate for customer fulfillment.
-    notes: 'Grain: order_line_day. Unit: %.
-
-      Lineage: fact_fulfillment[OTIF Flag].
-
-      QA: OTIF definition aligned to customer policy.
-
-      '
-  dependencies:
-    columns:
-    - fact_fulfillment[OTIF Flag]
-  governance:
-    owner: Supply Chain Analytics
-    status: active
-    version: v0.1
     last_review: 2026-03-27
     review_due: 2027-03-31
 

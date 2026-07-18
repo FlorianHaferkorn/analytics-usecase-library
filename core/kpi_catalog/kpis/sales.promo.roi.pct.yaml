@@ -43,3 +43,8 @@ governance:
 metadata_quality:
   completeness_score: 0.82
   last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Promo ROI
+  alignment: none
+  note: Promo ROI (incremental GM / promo cost) is a TPM convention; no governing standard.

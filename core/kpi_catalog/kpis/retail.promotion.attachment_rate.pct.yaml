@@ -37,3 +37,8 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 18.06.2026
+standard_ref:
+- standard: Retail analytics (convention)
+  name: Attachment rate
+  alignment: none
+  note: Promotion attachment rate is a retail merchandising-analytics convention; no external standard.

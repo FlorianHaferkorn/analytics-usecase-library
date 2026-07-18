@@ -402,7 +402,7 @@ display_folders:
       - wc.dso.days
       - wc.dio.days
       - wc.dpo.days
-      - scm.service_level.pct
+      - supply.otif.pct
       - scm.supplier_risk.score
       - fin.liquidity.inventory.amount
 
@@ -416,10 +416,9 @@ display_folders:
       - ops.labor.productivity.pct
       - cost.base_volume.amount
       - cost.opex.base.amount
-      - ops.production.volume
+      - ops.throughput.units
       - ops.quality.defect_rate.pct
-      - ops.service_level.pct
-      - ops.yield.pct
+      - ops.quality.pct
       - sales.net_sales.amount
 
   - folder_name: "Supporting Measures"

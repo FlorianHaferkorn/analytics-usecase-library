@@ -36,3 +36,10 @@ governance:
   metadata_quality: null
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Internal — ActionReady governance
+  name: Actions routed (element)
+  url: https://www.iso.org/standard/62085.html
+  alignment: none
+  note: Routed-action count is an operational element of the action-governance loop, not a named external
+    KPI.

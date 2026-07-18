@@ -46,3 +46,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  name: Plan service-loss diagnostic
+  url: https://scor.ascm.org/performance/reliability/RL.1.1
+  alignment: none
+  note: Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance
+    metric. Forecast-error references are the IBF/APICS forecasting standards; the service-loss link is
+    SCOR Reliability.

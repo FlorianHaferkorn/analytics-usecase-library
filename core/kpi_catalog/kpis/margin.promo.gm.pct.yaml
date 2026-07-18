@@ -45,3 +45,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ESMA-APM
+  name: Promo gross-margin ratio
+  url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
+  alignment: none
+  note: Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named
+    measure. Treated as an internal analytic ratio.

@@ -20,7 +20,7 @@ kpis:
   outcome_kpis:
   - svc.fcr.pct
   - svc.escalation.pct
-  - svc.nps.index
+  - crm.nps.index
 scope:
   default_grain: queue_agent_week
   default_perspective:

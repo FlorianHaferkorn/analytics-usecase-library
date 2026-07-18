@@ -55,10 +55,15 @@ from .specs import (
 # 32px margin = 32/1920 ≈ 0.0167 horizontal, 32/1080 ≈ 0.0296 vertical.
 # KPI band: y=0.0296–0.174 (≈156 px tall), Main row: y=0.218 onward.
 _OVERVIEW_LAYOUT: Dict[str, Dict[str, float]] = {
-    # KPI card band: full width minus 32 px margins each side; height ≈156 px
-    "KPI_Cards":   {"x": 0.0167, "y": 0.0296, "w": 0.9666, "h": 0.1444},
-    # Date slicer below KPI band; same horizontal span; height ≈70 px
-    "Slicer_Date": {"x": 0.0167, "y": 0.189,  "w": 0.9666, "h": 0.0648},
+    # KPI card band: full width minus 32 px margins each side; height ≈130 px
+    "KPI_Cards":   {"x": 0.0167, "y": 0.0296, "w": 0.9666, "h": 0.120},
+    # Benchmark reference caption: thin strip under the KPI band, right-aligned
+    # (only emitted when a hero card opts into the benchmark axis). Height ≈32 px.
+    "Benchmark_Caption": {"x": 0.0167, "y": 0.152, "w": 0.9666, "h": 0.030},
+    # Date slicer below KPI band; same horizontal span. Height ≈80 px — a dropdown
+    # slicer needs ≥76 px (header 28 + selector 32 + padding), else the official CLI
+    # flags PBIR_SLICER_HEIGHT_BELOW_FLOOR and the control clips on the service.
+    "Slicer_Date": {"x": 0.0167, "y": 0.189,  "w": 0.9666, "h": 0.074},
     # Three equal-width main chart columns, below slicer; height ≈750 px
     "Main_1":      {"x": 0.0167, "y": 0.268,  "w": 0.3111, "h": 0.694},
     "Main_2":      {"x": 0.3444, "y": 0.268,  "w": 0.3111, "h": 0.694},
@@ -258,6 +263,28 @@ def _card_kpi_ids(bracket: Dict[str, Any]) -> List[str]:
     return out
 
 
+_UNIT_SYMBOL = {"pct": "%", "days": " days"}
+
+
+def _format_benchmark_label(entry: Dict[str, Any], value: Any, basis: str) -> str:
+    """Render the visible reference-label for a benchmark, honestly qualified.
+
+    normative → "vs. world-class 85%"; empirical + peer segment → "vs. Retail peer 45";
+    empirical fallback → "vs. cross-industry 44 (no sector match)". The label never
+    presents a cross-industry average as if it were a peer benchmark — that honesty
+    is the whole point of the normative/empirical split (K4).
+    """
+    sym = _UNIT_SYMBOL.get(entry.get("unit", ""), "")
+    vs = f"{value:g}{sym}" if isinstance(value, (int, float)) and not isinstance(value, bool) else f"{value}{sym}"
+    if basis == "universal":
+        metric = entry.get("metric", "")
+        label = "world-class" if metric == "world_class" else (metric or "benchmark")
+        return f"vs. {label} {vs}"
+    if isinstance(basis, str) and basis.startswith("segment:"):
+        return f"vs. {basis.split(':', 1)[1]} peer {vs}"
+    return f"vs. cross-industry {vs} (no sector match)"
+
+
 def _render_action_text(
     action_code_ids: List[str],
     action_codes_root: Path,
@@ -346,14 +373,55 @@ class BracketCompiler:
         kpi_catalog_root: Path,
         action_codes_root: Path,
         target_adapter: AdapterTarget = AdapterTarget.PBIP,
+        deployment_industry: Optional[str] = None,
+        benchmarks_path: Optional[Path] = None,
     ) -> None:
         self.kpi_catalog_root = Path(kpi_catalog_root).resolve()
         self.action_codes_root = Path(action_codes_root).resolve()
         self.target_adapter = target_adapter
+        # ALUCA is a library — the client's industry is a *deployment* parameter,
+        # supplied when the library is deployed, not committed. It selects the
+        # peer segment for empirical benchmarks (K4). None → cross-industry fallback.
+        self.deployment_industry = deployment_industry
+        self._benchmarks_path = (
+            Path(benchmarks_path) if benchmarks_path
+            else self.kpi_catalog_root / "benchmarks.yaml"
+        )
         self.warnings: List[CompilerWarning] = []
         # Lazy, cached resolvers parsed from the real markdown sources.
         self._kpi_names: Optional[Dict[str, str]] = None
         self._mdict_by_name: Optional[Dict[str, List[dict]]] = None
+        self._benchmarks: Optional[Dict[str, dict]] = None
+
+    def _benchmark_reference(self, kpi_id: str) -> Optional[Dict[str, Any]]:
+        """Resolve a hero KPI's benchmark to a visible, peer-relative reference-label.
+
+        Reuses the governed resolver from tooling.validation.check_benchmarks (no
+        second copy of the resolution logic — Golden Thread + Tool-Reuse). Returns
+        None when the KPI has no governed benchmark, so the caller stays quiet.
+        """
+        if self._benchmarks is None:
+            self._benchmarks = {}
+            if self._benchmarks_path.is_file():
+                data = yaml.safe_load(self._benchmarks_path.read_text(encoding="utf-8")) or {}
+                for e in data.get("benchmarks", []) or []:
+                    if e.get("kpi_id"):
+                        self._benchmarks[e["kpi_id"]] = e
+        entry = self._benchmarks.get(kpi_id)
+        if not entry:
+            return None
+        from tooling.validation.check_benchmarks import resolve_benchmark  # noqa: PLC0415
+        value, basis = resolve_benchmark(entry, self.deployment_industry or "")
+        if value is None:
+            return None
+        return {
+            "kpi_id": kpi_id,
+            "value": value,
+            "unit": entry.get("unit"),
+            "basis": basis,
+            "benchmark_class": entry.get("benchmark_class"),
+            "label": _format_benchmark_label(entry, value, basis),
+        }
 
     def _ensure_resolvers(self) -> None:
         if self._kpi_names is not None:
@@ -529,6 +597,22 @@ class BracketCompiler:
         kpi_measures = [
             _resolve_measure_ref(k, kpi_map) for k in _card_kpi_ids(bracket)
         ]
+        c3s = page1.get("component_3s") if isinstance(page1, dict) else {}
+        card_config: Dict[str, Any] = {}
+        bench_ref: Optional[Dict[str, Any]] = None
+        # Third comparison axis: a hero card opting into `benchmark: true` carries a
+        # visible, peer-relative reference-label ("vs. Retail peer 45"), resolved from
+        # the governed registry. The card itself keeps its primary comparison (vs_target).
+        if isinstance(c3s, dict) and c3s.get("benchmark") is True and c3s.get("kpi_id"):
+            bench_ref = self._benchmark_reference(str(c3s["kpi_id"]))
+            if bench_ref is None:
+                self.warnings.append(CompilerWarning(
+                    "MISSING_BENCHMARK",
+                    f"hero card opts into the benchmark axis but no governed benchmark "
+                    f"for '{c3s['kpi_id']}' — reference-label omitted",
+                ))
+            else:
+                card_config["benchmark_reference"] = bench_ref
         visuals.append(VisualSpec(
             id="KPI_Cards",
             visual_type=VisualType.KPI_CARD,
@@ -536,7 +620,21 @@ class BracketCompiler:
             position=_position(_OVERVIEW_LAYOUT, "KPI_Cards"),
             binding=Binding(measures=kpi_measures),
             title=None,
+            config=card_config,
+            kpi_id=bench_ref["kpi_id"] if bench_ref else None,
         ))
+        # Render the reference-label as its own caption textbox (the corpus-verified
+        # text shape) — a card reference-*line* would need an unverified PBIR object.
+        if bench_ref is not None:
+            visuals.append(VisualSpec(
+                id="Benchmark_Caption",
+                visual_type=VisualType.TEXT_BOX,
+                page_role=PageRole.OVERVIEW,
+                position=_position(_OVERVIEW_LAYOUT, "Benchmark_Caption"),
+                binding=Binding(),
+                config={"text": bench_ref["label"], "align": "right"},
+                kpi_id=bench_ref["kpi_id"],
+            ))
 
         # Date slicer
         visuals.append(VisualSpec(

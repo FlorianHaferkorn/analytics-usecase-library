@@ -60,12 +60,26 @@ cash conversion, and improved resilience.
 | wc.dio.days | Influencing |
 | wc.dpo.days | Influencing |
 | fin.liquidity.inventory.amount | Supporting |
-| scm.service_level.pct | Supporting |
+| supply.otif.pct | Supporting |
 | scm.supplier_risk.score | Supporting |
 
 **Action Codes:** F-C1.1, F-C1.2, S-I1.2, F-C1.4
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
+
+---
+
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **CCC Days** (`wc.ccc.days`) → **SCOR-DS AM.1.1** (exact): CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain metric with no single IFRS equivalent.
+- **Cash Balance** (`fin.cash.balance`) → **IFRS IAS 7** (exact): Cash and cash equivalents is defined by IAS 7.6–9 (short-term, highly liquid, insignificant risk of value change, typically ≤3-month maturity).
+- **Operating Cash Flow** (`fin.cash.ocf`) → **IFRS IAS 7** (exact): Maps to the IAS 7 operating-activities cash-flow section.
+- **Cash vs Plan %** (`fin.cash.vs_plan.pct`) → **IFRS IAS 7** (none): Internal budget-variance metric; no external standard defines it.
+- **DSO Days** (`wc.dso.days`) → **SCOR-DS AM.1.1** (partial): Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days − DPO).
+- **DIO Days** (`wc.dio.days`) → **SCOR-DS AM.1.1** (partial): Duplicate of inv.dio.days; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family.
+- **DPO Days** (`wc.dpo.days`) → **SCOR-DS AM.1.1** (partial): Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1).
 
 ---
 

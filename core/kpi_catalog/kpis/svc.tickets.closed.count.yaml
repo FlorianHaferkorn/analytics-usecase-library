@@ -40,3 +40,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO/IEC 20000-1
+  id: 8.6.1
+  name: Incident/request throughput (element)
+  url: https://www.iso.org/standard/70636.html
+  alignment: none
+  note: Raw closed-ticket count is a throughput element feeding backlog and closure-rate; not a named
+    ISO/IEC 20000 KPI on its own.

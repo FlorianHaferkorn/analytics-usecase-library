@@ -3,6 +3,28 @@
 > **Canonical definitions:** [KPI_Catalog.md](KPI_Catalog.md).  
 > This README is for navigation and overview only; it must not redefine KPI semantics.
 
+> **Standards alignment (industry-standard definitions, per domain):** KPIs carry an optional
+> `standard_ref` mapping their definition to an external standard/ontology (SCOR-DS, FIBO/IFRS,
+> ESRS, ISO-30414…) with an explicit alignment + drift note — *reference, don't redefine*.
+> Per-domain audits live under [`standards/`](standards/): supply chain →
+> [SCM ↔ SCOR alignment & drift audit](standards/SCM_SCOR_alignment.md); finance →
+> [Finance ↔ IFRS/APM alignment & drift audit](standards/FIN_IFRS_alignment.md); operations →
+> [Operations ↔ ISO 22400 alignment & drift audit](standards/OPS_ISO22400_alignment.md); service →
+> [Service ↔ ITIL 4 / ISO/IEC 20000 alignment & drift audit](standards/SVC_ITIL_ISO20000_alignment.md);
+> commercial → [Commercial ↔ IFRS 15 / managerial-convention alignment & drift audit](standards/COM_Commercial_alignment.md);
+> customer → [Customer & Market alignment & drift audit](standards/CUST_Customer_alignment.md); people →
+> [People & Culture ↔ ISO 30414 alignment & drift audit](standards/HR_ISO30414_alignment.md); governance →
+> [Enterprise & Governance alignment & drift audit](standards/GOV_ActionGovernance_alignment.md).
+>
+> **Integrity gate + duplicate sensor:** `tooling/validation/check_standard_ref.py` (`--strict` in
+> `run_local_ci_check.sh`, regression-guarded by `tooling/tests/test_standard_ref.py`) enforces that
+> every `standard_ref` is well-formed (alignment ∈ exact/partial/none, drift note present, `standard`
+> in the controlled vocabulary) and reports identical-calc **consolidation candidates**. Where the
+> mapping exposed definitionally identical KPIs, the non-canonical twin carries a `canonical_kpi_id`
+> pointer to the SSOT survivor (e.g. the OTIF / service-level family → `supply.otif.pct`,
+> NPS → `crm.nps.index`) — a non-breaking SSOT declaration; physically removing the twins and
+> rewiring their references is a maintainer-gated follow-up (needs the Windows Fabric quality gate).
+
 ## Purpose
 
 The **KPI Catalog** provides a governed, cross-domain inventory of all KPIs and measures used in the  

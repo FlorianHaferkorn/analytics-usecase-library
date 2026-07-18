@@ -23,7 +23,7 @@ function Get-KpiIdsFromMeasureDictionaries {
   $ids = New-Object System.Collections.Generic.List[string]
   $warnings = New-Object System.Collections.Generic.List[string]
   Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" | Where-Object {
-    $_.FullName -notmatch '\\archive\\' -and $_.Name -notmatch '_Archive\.md$' -and $_.FullName -notmatch '\\internal\\archive\\'
+    $_.FullName -notmatch '[\\/]archive[\\/]' -and $_.Name -notmatch '_Archive\.md$' -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
   } | ForEach-Object {
     $file = $_.FullName
     $measureName = $null

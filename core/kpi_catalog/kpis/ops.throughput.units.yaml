@@ -8,9 +8,12 @@ domain_tag:
 - Operational Efficiency
 use_case_ref:
 - OPS-001
+- FIN-002
+- XD-004
 action_code_ref:
 - O-O1.2
 - O-O1.4
+- F-K2.3
 calc_type: count
 business:
   purpose: Measures total output volume in units.
@@ -39,3 +42,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: TR
+  name: Throughput rate / Produced quantity
+  url: https://www.iso.org/standard/54497.html
+  alignment: partial
+  note: ISO 22400-2 Throughput rate TR is per-unit-of-time (produced quantity / time); ours is a produced-quantity
+    sum (the PQ element). Divide by the period to obtain the ISO throughput rate. Duplicate of ops.production.volume.

@@ -38,3 +38,9 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Trade Promotion Management (convention)
+  name: Promo baseline sales
+  alignment: none
+  note: Baseline (non-promoted) sales is a trade-promotion-management analytics concept (uplift modelling),
+    not defined by any external standard.

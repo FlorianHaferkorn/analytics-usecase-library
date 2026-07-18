@@ -43,3 +43,10 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: Marketing analytics — CRM (convention)
+  name: Customer Lifetime Value
+  alignment: none
+  note: CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics
+    model, not a governed standard. The GM base ties to IFRS 15 / IAS 2; the forward-looking model is
+    convention.

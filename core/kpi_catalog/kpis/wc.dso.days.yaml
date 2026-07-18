@@ -53,3 +53,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: AM.1.1
+  name: Cash-to-Cash Cycle Time — DSO component
+  url: https://scor.ascm.org/performance/asset-management
+  alignment: partial
+  note: Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 =
+    DSO + Inventory Days − DPO). Not an IFRS line item; the receivables base is IFRS 9 / IAS 1.

@@ -14,7 +14,7 @@ orchestration:
   - svc.escalation.pct
   - svc.tickets.created.count
   - svc.tickets.closed.count
-  - svc.nps.index
+  - crm.nps.index
   supporting_kpi_ids: []
   action_code_ids:
   - X-S1.1
@@ -34,6 +34,8 @@ value_driver_model:
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
+  # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
+  intent_rules_version: 2
   page_1_summary:
     title: Experience / Service Summary & Insights
     page_type: T3_Operational_Monitoring
@@ -44,17 +46,24 @@ ux_layout_rules:
     component_3s:
       kpi_id: svc.sla.attainment.pct
       visual_type: kpi_card
+      comparison: vs_target
+      status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: svc.backlog.count
       visual_type: trend_line
-    - kpi_ids:
-      - svc.fcr.pct
-      - svc.aht.minutes
-      - svc.escalation.pct
+      message: Case backlog is building unchecked toward SLA breaches next cycle
+      so_what: "An unchecked backlog trend converts into missed SLAs within the next reporting cycle."
+      unit: count
+    - slot_id: Main_2
+      kpi_id: svc.fcr.pct
       visual_type: bar_chart
+      message: First-contact resolution, handle time, and escalation — the three service-quality signals.
+      so_what: "Ranking FCR by case type shows where a capability fix cuts escalations and backlog at once."
+      unit: ratio
   page_2_execution:
     title: Service Queue Recovery & Execution
+    decision_question: "Which case types and queues should recovery effort prioritise first?"
     page_type: T3_Operational_Monitoring
     template_variant: T3_ExceptionQueue
     template_id: action_matrix
@@ -71,6 +80,13 @@ ux_layout_rules:
       - svc.escalation.pct
       action_panel: true
       payload_mode: full
+      sort_by:
+        measure: svc.sla.attainment.pct
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: svc.sla.attainment.pct
+        type: data_bar
 prioritization:
   business_value: medium
   implementation_effort: medium

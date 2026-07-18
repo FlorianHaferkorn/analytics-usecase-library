@@ -15,7 +15,7 @@ kpis:
   trigger_kpis:
   - cost.material.pct
   guardrail_kpis:
-  - ops.yield.pct
+  - ops.quality.pct
   outcome_kpis:
   - cost.material.pct
   - cost.unit.amount

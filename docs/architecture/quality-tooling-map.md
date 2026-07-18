@@ -23,7 +23,7 @@ flowchart LR
 |---|---|---|---|---|
 | `quality_gate` | [`tooling/quality/run_quality_gate.ps1`](tooling/quality/run_quality_gate.ps1) | `all` | `pwsh` | Canonical local + CI entry point. Runs Stage 1 + Fabric checks. -SelfHeal for local repair loop. -- summary: `-Summary` |
 | `stage1_gate` | [`tooling/run_stage1_checks.ps1`](tooling/run_stage1_checks.ps1) | `governance` | `pwsh` | Governance, docs, YAML, registry, markdownlint. |
-| `fabric_gate` | [`products/fabric/powerbi/tooling/run_fabric_checks.ps1`](products/fabric/powerbi/tooling/run_fabric_checks.ps1) | `report` | `pwsh` | TMDL, PBIR, pbir-cli --qa, P0 report quality, bindings. |
+| `fabric_gate` | [`products/fabric/powerbi/tooling/run_fabric_checks.ps1`](products/fabric/powerbi/tooling/run_fabric_checks.ps1) | `report` | `pwsh` | TMDL, PBIR, pbir-cli --qa, fab-inspector BPA rules, report scorecard, P0 report quality, bindings. |
 
 ## Validators
 
@@ -37,6 +37,7 @@ flowchart LR
 | `pbir.schema_versions` | [`products/fabric/powerbi/tooling/validation/check_schema_versions.py`](products/fabric/powerbi/tooling/validation/check_schema_versions.py) | `report` | `python` | Checks that all $schema URLs in dist/ match the pinned versions in schema_registry.py. |
 | `pbir.jsonschema` | [`products/fabric/powerbi/tooling/validation/validate_pbir_jsonschema.py`](products/fabric/powerbi/tooling/validation/validate_pbir_jsonschema.py) | `report` | `python` | Full JSON schema validation against Microsoft PBIR schemas (fetched/cached). |
 | `pbir.report_quality_ps1` | [`products/fabric/powerbi/tooling/validation/check_report_quality.ps1`](products/fabric/powerbi/tooling/validation/check_report_quality.ps1) | `report` | `pwsh` | PowerShell wrapper that invokes the Python report_quality CLI within Fabric checks. |
+| `pbir.report_scorecard` | [`products/fabric/powerbi/tooling/validation/check_report_scorecard.ps1`](products/fabric/powerbi/tooling/validation/check_report_scorecard.ps1) | `report` | `pwsh` | IBCS scorecard (R3.3): weighted points (100 - severity-weighted deductions) + Mixed-Scale/Unsorted-Evidence knock-outs, threshold 70%. Only -Enforce report(s) (default COM-002) fail the gate; others are scored/logged only pending R5.1 rollout. |
 | `pbir.report_pages` | [`products/fabric/powerbi/tooling/validation/check_pbip_report_pages.ps1`](products/fabric/powerbi/tooling/validation/check_pbip_report_pages.ps1) | `report` | `pwsh` | Checks that every report has the required Overview and Detail pages. |
 | `pbir.report_layout` | [`products/fabric/powerbi/tooling/validation/check_report_layout.ps1`](products/fabric/powerbi/tooling/validation/check_report_layout.ps1) | `report` | `pwsh` | Validates report visual layout against page template specs. |
 | `pbir.page_template` | [`products/fabric/powerbi/tooling/validation/check_page_template_compliance.py`](products/fabric/powerbi/tooling/validation/check_page_template_compliance.py) | `report` | `python` | Checks page template slot/visual-type compliance against UseCase_Bracket.yaml. |
@@ -48,7 +49,8 @@ flowchart LR
 | `tmdl.vs_measure_dict` | [`products/fabric/powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1`](products/fabric/powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1) | `model` | `pwsh` | Diffs TMDL measures against the Measure Dictionary XLSX for gaps. |
 | `tmdl.measures_vs_kpi` | [`products/fabric/powerbi/tooling/validation/check_measures_vs_kpi.ps1`](products/fabric/powerbi/tooling/validation/check_measures_vs_kpi.ps1) | `model` | `pwsh` | Checks that all TMDL measures align with KPI catalog definitions. |
 | `tmdl.dax_bpa` | [`products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1`](products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1) | `model` | `pwsh` | Runs DAX Best Practice Analyzer rules from tooling/linters/powerbi/bpa-rules-dax.json. |
-| `tmdl.with_pbi_cli` | [`products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1`](products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1) | `model` | `pwsh` | Runs pbir validate --qa against each .Report directory. |
+| `tmdl.with_pbi_cli` | [`products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1`](products/fabric/powerbi/tooling/validation/check_with_pbi_cli.ps1) | `model` | `pwsh` | DEPRECATED (R3.4, 2026-07-09) -- never wired into CI, always skipped gracefully; superseded by pbir.fab_inspector. Kept for ad-hoc manual use only. |
+| `pbir.fab_inspector` | [`products/fabric/powerbi/tooling/validation/check_fab_inspector.ps1`](products/fabric/powerbi/tooling/validation/check_fab_inspector.ps1) | `report` | `pwsh` | Runs fab-inspector (PBI-Inspector V2) against fab-inspector-rules.json; logType:error rules block the gate. See docs/architecture/r3-2-fab-inspector-integration.md. |
 | `gov.kpi_catalog` | [`tooling/check_kpi_catalog_gaps.py`](tooling/check_kpi_catalog_gaps.py) | `kpi` | `python` | Checks for gaps and inconsistencies in the KPI catalog. |
 | `gov.docs_links` | [`tooling/validation/check_docs_links.py`](tooling/validation/check_docs_links.py) | `governance` | `python` | Validates documentation links and detects deprecated path references. |
 | `gov.markdownlint` | [`tooling/validation/check_markdownlint.ps1`](tooling/validation/check_markdownlint.ps1) | `governance` | `pwsh` | Runs markdownlint-cli2 with rules MD010 (tabs), MD041 (first heading), MD047 (final newline). |
@@ -97,6 +99,8 @@ flowchart LR
 | `bpa.tmdl` | [`tooling/linters/powerbi/bpa-rules-tmdl.json`](tooling/linters/powerbi/bpa-rules-tmdl.json) | `model` | `json` | TMDL structural rules: summarizeBy:none, tabs, no := operator. |
 | `bpa.report` | [`tooling/linters/powerbi/bpa-rules-report.json`](tooling/linters/powerbi/bpa-rules-report.json) | `report` | `json` | Report-level rules: forbidden visuals, slot requirements. |
 | `bpa.semanticmodel` | [`tooling/linters/powerbi/bpa-rules-semanticmodel.json`](tooling/linters/powerbi/bpa-rules-semanticmodel.json) | `model` | `json` | Semantic model best practices: isAvailableInMDX, hidden columns, auto date tables. |
+| `bpa.fab_inspector` | [`products/fabric/powerbi/tooling/validation/fab-inspector-rules.json`](products/fabric/powerbi/tooling/validation/fab-inspector-rules.json) | `report` | `json` | JSON-Logic rules for the fab-inspector (PBI-Inspector V2) engine: max visuals/page, no vertical scroll, theme-colour hygiene. All logType:error. |
+| `bpa.design_rules` | [`core/templates/page_templates/design_rules.yaml`](core/templates/page_templates/design_rules.yaml) | `report` | `yaml` | R2.2 (Cut C2): formal constraints implementing Storytelling_Principles.md/Color_Semantics_Formatting.md -- one-message-per-chart, max semantic colors/page, max evidence columns, mandatory rendered sort, Big Idea header zone. Schema: tooling/generator/schemas/design_rules.schema.json. Consumed by R2.3 (generator enforcement, not yet built). |
 
 ## Reference Documentation
 

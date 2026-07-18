@@ -110,7 +110,7 @@ canonical_domain_model:
       benchmark_target: "≥100% of standard (earned hours ≥ actual hours); ISO 22400 productivity index"
       benchmark_source_id: SRC-003
 
-    - id: ops.production.volume
+    - id: ops.throughput.units
       name: Production Volume
       definition: "Good output units produced in the period. Determines fixed-cost absorption per unit."
       unit: count
@@ -136,7 +136,7 @@ canonical_domain_model:
       benchmark_target: "Cost of poor quality 15–20% of sales typical; world-class <5% (ASQ)"
       benchmark_source_id: SRC-007
 
-    - id: ops.yield.pct
+    - id: ops.quality.pct
       name: Yield %
       definition: "Good (saleable) units / total units started × 100. First-pass yield of conversion."
       unit: "%"
@@ -205,7 +205,7 @@ canonical_domain_model:
       definition: "Material + labor + overhead consumed by scrapped and reworked units, expressed in EUR and as % of COGS."
       unit: EUR
       direction: minimize
-      diagnoses: ops.yield.pct
+      diagnoses: ops.quality.pct
       causal_mechanism: >
         Quantifies how much of the unit-cost gap is scrap/rework-driven rather than price or overhead.
         Confirms that the real lever is quality/yield improvement, not headline cost cutting.
@@ -220,7 +220,7 @@ canonical_domain_model:
       affected_kpis:
         - cost.unit.amount
         - ops.quality.defect_rate.pct
-        - ops.yield.pct
+        - ops.quality.pct
 
     - description: Do not declare unit-cost improvement that is only a volume/absorption artifact
       condition: >
@@ -229,7 +229,7 @@ canonical_domain_model:
         Reading an absorption swing as a real efficiency gain or loss misdirects action.
       affected_kpis:
         - cost.unit.amount
-        - ops.production.volume
+        - ops.throughput.units
 
     - description: Do not optimise unit cost in a way that raises COGS % or shifts cost to another stage
       condition: >
@@ -454,7 +454,7 @@ action_logic_seeds:
     expected_outcome_kpi: cost.unit.amount
     action_code_candidate: F-K2.3
 
-  - trigger_driver: ops.yield.pct
+  - trigger_driver: ops.quality.pct
     trigger_diagnostic: cost.copq.scrap_rework.amount
     trigger_condition: "Yield % below target AND defect rate rising AND scrap/rework cost > 10% of COGS for the line"
     guardrail: "Quality/yield action must increase, not reduce, prevention and appraisal spend (cost of poor quality guardrail)"

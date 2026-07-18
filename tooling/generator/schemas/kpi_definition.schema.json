@@ -48,6 +48,45 @@
     "governance": { "type": "object", "additionalProperties": true },
     "metadata_quality": { "type": "object", "additionalProperties": true },
 
+    "standard_ref": {
+      "description": "Alignment of this KPI's definition to an external industry standard/ontology — reference, don't redefine (Golden Thread). Domain-agnostic: SCOR-DS for supply chain, FIBO/IFRS for finance, ESRS/GRI for ESG, ISO-30414 for HR, etc. A KPI may map to more than one standard. The value of the mapping is credibility (industry-aligned definitions) plus a definition-drift audit (see `alignment`).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["standard", "alignment"],
+        "properties": {
+          "standard": {
+            "type": "string",
+            "description": "Standard/ontology short code, e.g. SCOR-DS, FIBO, IFRS, ESRS, GRI, ISO-30414.",
+            "minLength": 2
+          },
+          "id": {
+            "type": "string",
+            "description": "The standard's own identifier for the concept, e.g. SCOR metric ID 'RL.1.1', an ESRS datapoint, or a FIBO class IRI. Omit when alignment is 'none' (no equivalent in this standard).",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "The standard's human-readable name for the concept, e.g. 'Perfect Order Fulfillment'."
+          },
+          "url": {
+            "type": "string",
+            "description": "Link to the authoritative definition, where public."
+          },
+          "alignment": {
+            "type": "string",
+            "description": "How our definition relates to the standard's. exact = same definition/formula/grain; partial = same concept but a definitional difference exists (documented in `note`); none = no equivalent in this standard (pointer to a better-fitting standard belongs in `note`).",
+            "enum": ["exact", "partial", "none"]
+          },
+          "note": {
+            "type": "string",
+            "description": "Drift note: the specific definitional difference vs the standard, or the better-fitting standard when alignment is none. This is the audit payload."
+          }
+        }
+      }
+    },
+
     "causal_links": {
       "description": "Causal relationships that quantify how influencing KPIs affect this KPI (typically strategic KPI).",
       "type": "object",

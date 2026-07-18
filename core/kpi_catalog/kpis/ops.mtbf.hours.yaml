@@ -54,3 +54,10 @@ governance:
 metadata_quality:
   completeness_score: 0.8
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO 22400-2
+  id: MTBF
+  name: Mean operating time between failures
+  url: https://www.iso.org/standard/54497.html
+  alignment: exact
+  note: ISO 22400-2 MTBF = operating time / number of failures. Matches ours.

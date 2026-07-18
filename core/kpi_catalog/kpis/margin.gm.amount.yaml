@@ -56,3 +56,12 @@ metadata_quality:
   last_review: 23.01.2026
 aliases:
 - hr.gm.amount
+standard_ref:
+- standard: IFRS
+  id: IAS 1
+  name: Gross profit subtotal
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
+  alignment: partial
+  note: Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated
+    line item. Aligns when Net Sales = IFRS 15 revenue and COGS = IAS 2 cost of sales. IFRS 18 (eff. 1
+    Jan 2027) formalises defined operating subtotals.

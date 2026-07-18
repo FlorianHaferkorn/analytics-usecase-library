@@ -65,6 +65,18 @@ factsheet_type: business
 
 ---
 
+### 3.1 Standards basis
+
+The headline KPIs reference these external standards — *reference, don't redefine* (full alignment & drift audit under `core/kpi_catalog/standards/`):
+
+- **Overall Equipment Effectiveness (OEE) %** (`ops.oee.pct`) → **ISO 22400-2 OEE** (exact): OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2.
+- **Availability %** (`ops.availability.pct`) → **ISO 22400-2 A** (partial): ISO 22400-2 Availability = Actual Production Time / Planned Busy Time.
+- **Performance %** (`ops.performance.pct`) → **ISO 22400-2 E** (partial): ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time.
+- **Quality %** (`ops.quality.pct`) → **ISO 22400-2 QR** (exact): ISO 22400-2 Quality ratio QR = good quantity / produced quantity.
+- **Throughput Units** (`ops.throughput.units`) → **ISO 22400-2 TR** (partial): ISO 22400-2 Throughput rate TR is per-unit-of-time (produced quantity / time); ours is a produced-quantity sum (the PQ element).
+
+---
+
 ## 4. Action Codes (Summary)
 
 Structured summary of action codes (definitions remain in YAML).

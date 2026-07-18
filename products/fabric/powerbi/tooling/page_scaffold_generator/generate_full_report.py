@@ -144,6 +144,7 @@ def _ir_generate(
     repo_root: Path,
     dataset_ref: str,
     theme_path: Optional[Path] = None,
+    deployment_industry: Optional[str] = None,
 ) -> int:
     """IR-first path: bracket → DashboardSpec → PBIPAdapter.render() → PBIP files."""
     _ensure_repo_root_on_path(repo_root)
@@ -157,6 +158,7 @@ def _ir_generate(
     compiler = BracketCompiler(
         kpi_catalog_root=kpi_catalog,
         action_codes_root=action_codes,
+        deployment_industry=deployment_industry,
     )
     spec = compiler.compile(bracket_path)
 
@@ -265,6 +267,13 @@ def main() -> int:
         help="Opt in to the DEPRECATED prototype renderer (I-3.3 rollback path). "
              "Without this flag (or ALUCA_ALLOW_PROTOTYPE_RENDERER=1) the command refuses to run.",
     )
+    parser.add_argument(
+        "--deployment-industry",
+        type=str,
+        default=None,
+        help="Client industry/sector for this deployment — selects the peer segment for "
+             "empirical benchmark reference-labels. Unset → honest cross-industry fallback.",
+    )
     args = parser.parse_args()
 
     # I-3.3: prototype is deprecated; refuse to run unless explicitly opted in.
@@ -326,7 +335,8 @@ def main() -> int:
         theme_path = _resolve_theme_path(bracket_path, repo_root, getattr(args, "theme", None))
         if theme_path:
             print(f"theme: {theme_path.name}", file=sys.stderr)
-        return _ir_generate(bracket_path, output_path, repo_root, dataset_ref, theme_path=theme_path)
+        return _ir_generate(bracket_path, output_path, repo_root, dataset_ref, theme_path=theme_path,
+                            deployment_industry=args.deployment_industry)
 
     # ── Scaffold mode (legacy) ───────────────────────────────────────────────
     # Delta mode: report exists and not --force-full

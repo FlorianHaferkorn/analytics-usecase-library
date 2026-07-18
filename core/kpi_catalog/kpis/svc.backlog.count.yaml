@@ -49,3 +49,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: ISO/IEC 20000-1
+  id: 8.6.1
+  name: Incident & service-request management — open backlog
+  url: https://www.iso.org/standard/70636.html
+  alignment: partial
+  note: Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes
+    (8.6.1 incident / 8.6.2 service request); a count element rather than a named ISO KPI.

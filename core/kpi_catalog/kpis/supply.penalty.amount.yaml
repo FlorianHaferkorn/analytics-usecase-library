@@ -38,3 +38,11 @@ governance:
 metadata_quality:
   completeness_score: 1.0
   last_review: 23.01.2026
+standard_ref:
+- standard: SCOR-DS
+  id: CO.1.1
+  name: Total Supply Chain Management Cost
+  url: https://scor.ascm.org/performance/cost
+  alignment: partial
+  note: Service-failure penalties are a cost component within SCOR's Cost attribute (CO.1.1), not a named
+    standalone SCOR metric.

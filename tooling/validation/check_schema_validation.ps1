@@ -45,12 +45,13 @@ $bracketSchema = Join-Path -Path $aiSchemaDir -ChildPath "usecase_bracket.schema
 $orgRolesSchema = Join-Path -Path $aiSchemaDir -ChildPath "org_roles.schema.json"
 $triggerMapTemplateSchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_template.schema.json"
 $triggerMapDeploySchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_deploy.schema.json"
+$designRulesSchema = Join-Path -Path $aiSchemaDir -ChildPath "design_rules.schema.json"
 
 $actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\' -and $_.Name -ne 'impactful_15.yaml' -and $_.Name -notlike '*_business_case.yaml'
+  $_.FullName -notmatch '[\\/]decision_spines[\\/]' -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]' -and $_.Name -ne 'impactful_15.yaml' -and $_.Name -notlike '*_business_case.yaml'
 }
 $businessCaseFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*_business_case.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '[\\/]decision_spines[\\/]' -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
 }
 $businessCaseSchema = Join-Path -Path $aiSchemaDir -ChildPath "business_case.schema.json"
 $bracketFiles = Get-ChildItem -Path (Join-Path $rootPath "core\usecases\core") -Recurse -Filter "UseCase_Bracket.yaml" -ErrorAction SilentlyContinue
@@ -67,6 +68,7 @@ $deployRoot = Join-Path -Path $rootPath -ChildPath "deployments"
 if (Test-Path $deployRoot) {
   $triggerMapDeployFiles += Get-ChildItem -Path $deployRoot -Recurse -Filter "*trigger_map*.yaml"
 }
+$designRulesFile = Join-Path -Path $rootPath -ChildPath "core\templates\page_templates\design_rules.yaml"
 
 $hadIssues = $false
 
@@ -94,6 +96,9 @@ if (Test-Path $orgRolesFile) {
 }
 Invoke-Validation -Schema $triggerMapTemplateSchema -Targets ($triggerMapTemplateFiles | Select-Object -ExpandProperty FullName)
 Invoke-Validation -Schema $triggerMapDeploySchema -Targets ($triggerMapDeployFiles | Select-Object -ExpandProperty FullName)
+if (Test-Path $designRulesFile) {
+  Invoke-Validation -Schema $designRulesSchema -Targets @($designRulesFile)
+}
 
 if ($hadIssues) {
   exit 1

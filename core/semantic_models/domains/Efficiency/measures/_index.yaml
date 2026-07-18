@@ -7,7 +7,6 @@ order:
 - performance
 - quality
 - inventory_turnover
-- ops_otif
 - cash_conversion_cycle_days
 - forecast_error_qty
 - under_forecast_lost_demand_qty

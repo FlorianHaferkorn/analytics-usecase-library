@@ -11,7 +11,11 @@ if ($Root -and (Test-Path $Root)) {
   $rootPath = (Get-Location).Path
 }
 
-$cli = Join-Path $rootPath "tooling\validation\node_modules\.bin\markdownlint-cli2.cmd"
+$cliBase = Join-Path $rootPath "tooling\validation\node_modules\.bin\markdownlint-cli2"
+# $IsWindows is undefined (not $false) on Windows PowerShell 5.1 -- "-ne $false"
+# treats that as Windows too, instead of always falling into the else branch
+# (same detection bug class as desktop_bridge_screenshot.ps1's $IsWindows check).
+$cli = if ($IsWindows -ne $false) { "$cliBase.cmd" } else { $cliBase }
 if (-not (Test-Path $cli)) {
   Write-Host "markdownlint-cli2 not found. Run: npm ci --prefix tooling/validation" -ForegroundColor Red
   exit 1

@@ -1,8 +1,12 @@
-# Golden 20 — Lean Core KPI spine (v1.0)
+# Golden 18 — Lean Core KPI spine (v1.1)
 #
-# These 20 KPIs are the authoritative strategic layer of the framework.
-# Every Aurora report must reference at least one Golden 20 KPI.
+# These 18 KPIs are the authoritative strategic layer of the framework.
+# Every Aurora report must reference at least one Golden-spine KPI.
 # Supporting and narrow KPIs are in core/kpi_catalog/extended_playbook.md.
+#
+# v1.1 (KPI dedup): removed svc.nps.index (→ crm.nps.index) and ops.otif.pct
+#   (→ supply.otif.pct); both canonicals were already in the spine, so the two
+#   twins were redundant. Count reduced 20 → 18.
 #
 # Selection criteria (audit §2A, 2026-04-20):
 #   - kpi_role: strategic in catalog
@@ -34,9 +38,6 @@ kpi_ids:
     rationale: Revenue at risk from delivery/quality failures; bridges ops and CRM.
 
   # ── Operations / Quality ──────────────────────────────────────
-  - id: ops.otif.pct
-    rationale: OTIF %; canonical delivery reliability KPI across ops and XD reports.
-
   - id: ops.performance.pct
     rationale: Overall Equipment Effectiveness (OEE); core manufacturing efficiency.
 
@@ -70,9 +71,6 @@ kpi_ids:
     rationale: Gross Margin %; bridges revenue and cost for executive reporting.
 
   # ── Service / Experience ──────────────────────────────────────
-  - id: svc.nps.index
-    rationale: Service NPS Index; separate from CRM NPS to isolate post-sale experience.
-
   - id: svc.fcr.pct
     rationale: First Contact Resolution; primary service efficiency and quality KPI.
 

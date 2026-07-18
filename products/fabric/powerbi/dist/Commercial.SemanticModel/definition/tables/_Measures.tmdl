@@ -82,10 +82,10 @@ table _Measures
 		annotation ActionReady_TrustScore = "1"
 
 	/// PVM driver quantifying the net sales impact from volume change.
-	/// Formula: ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * (fact_sales[Plan Sales Amount]) / (PlanQty) )
+	/// Formula: ( SUM(fact_sales[Quantity]) - SUM(fact_sales[Plan Quantity]) ) * DIVIDE ( SUM(fact_sales[Plan Sales Amount]), SUM(fact_sales[Plan Quantity]) )  — blended plan price (3-way PVM; Mix = residual)
 	/// Grain: invoice_line aggregated monthly · Unit: EUR
 	/// Owner: Commercial BI · Status: active
-	measure 'Volume Effect Amount' = SUMX ( fact_sales, ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) )
+	measure 'Volume Effect Amount' = ( SUM ( fact_sales[Quantity] ) - SUM ( fact_sales[Plan Quantity] ) ) * DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ), SUM ( fact_sales[Plan Quantity] ) )
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
@@ -102,7 +102,7 @@ table _Measures
 	/// Formula: ( (fact_sales[Net Sales Amount]) / (fact_sales[Quantity]) - (fact_sales[Plan Sales Amount]) / (fact_sales[Plan Quantity]) ) * fact_sales[Quantity] )
 	/// Grain: invoice_line aggregated monthly · Unit: EUR
 	/// Owner: Commercial BI · Status: active · Actions: C-S1.1
-	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Price Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
+	measure 'Price Effect Amount' = SUMX ( fact_sales, ( DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] ) - DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) ) * fact_sales[Quantity] )
 		formatString: "#,0"
 		displayFolder: "COM-001"
 		annotation ActionReady_TrustScore = "1"
@@ -126,6 +126,23 @@ table _Measures
 	measure 'Mix Effect Amount' = [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
 		formatString: "#,0"
 		displayFolder: "COM-001"
+		annotation ActionReady_TrustScore = "1"
+
+	/// Disconnected-table selector for the Main_2 PVM bridge waterfall (COM-002):
+	/// reads the current dim_pvm_driver[Driver] category bar and returns that
+	/// driver's existing effect measure -- lets a single Y-role measure serve
+	/// a 3-bar breakdown, since waterfallChart's real capabilities only allow
+	/// one measure in Y (Category carries the per-bar breakdown instead).
+	/// Formula: SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Price Effect", [Price Effect Amount], "Volume Effect", [Volume Effect Amount], "Mix Effect", [Mix Effect Amount] )
+	/// Grain: dim_pvm_driver[Driver] (3 rows, disconnected) · Unit: EUR
+	/// Owner: Commercial BI Pricing Analytics · Status: active
+	/// DAX runtime not verified against a live Power BI engine (authoring
+	/// sandbox has none) -- structurally reuses three already-verified
+	/// measures via a standard SWITCH+SELECTEDVALUE pattern; pending Desktop
+	/// confirmation (R1.6 follow-up).
+	measure 'PVM Bridge Value' = SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Price Effect", [Price Effect Amount], "Volume Effect", [Volume Effect Amount], "Mix Effect", [Mix Effect Amount], BLANK () )
+		formatString: "#,0"
+		displayFolder: "COM-002"
 		annotation ActionReady_TrustScore = "1"
 
 	/// Sum of list price amount before discounts.
