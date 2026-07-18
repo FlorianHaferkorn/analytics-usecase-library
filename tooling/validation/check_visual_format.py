@@ -36,13 +36,12 @@ REPO = Path(__file__).resolve().parents[2]
 
 
 def _policy():
-    spec = importlib.util.spec_from_file_location(
-        "visual_format_policy",
-        REPO / "products/fabric/powerbi/tooling/page_scaffold_generator/visual_format_policy.py")
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["visual_format_policy"] = mod   # @dataclass needs the module resolvable during exec
-    spec.loader.exec_module(mod)
-    return mod
+    # base → base import (tool-neutral policy lives in tooling/reporting; the base never depends on
+    # the PBI product folder).
+    if str(REPO) not in sys.path:
+        sys.path.insert(0, str(REPO))
+    from tooling.reporting import format_policy
+    return format_policy
 
 
 def _kpi_units() -> dict[str, str]:
