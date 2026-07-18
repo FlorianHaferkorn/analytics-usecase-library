@@ -10,6 +10,7 @@ from .layout_calculator import LayoutCalculator, Position
 from .grid_calculator import GridCalculator, GridPosition
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
+from .title_policy import resolve_header
 from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE_SCHEMA
 
 
@@ -18,11 +19,18 @@ class PageBuilder:
 
     PAGE_SCHEMA = _PAGE_SCHEMA
     
-    def __init__(self):
-        """Initialize page builder."""
+    def __init__(self, assert_statement_titles: bool = True):
+        """Initialize page builder.
+
+        ``assert_statement_titles`` (title_policy): when True (default, data-backed reports) the
+        governed exhibit **message** leads as the visual header (IBCS statement title, authored knowing
+        the data). Set False for a report generated **without known data** — then the always-true
+        **question** leads and the message renders as a framed *expected-finding* subtitle, so a static
+        title can never contradict the chart (see title_policy.py)."""
         self.layout_calculator = LayoutCalculator()
         self.visual_builder = VisualBuilder()
         self.slicer_builder = SlicerBuilder()
+        self.assert_statement_titles = assert_statement_titles
     
     def generate_page_id(self) -> str:
         """Generate unique page ID (20 hex characters)."""
@@ -90,9 +98,10 @@ class PageBuilder:
                 "measures": _measures,
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
-                # BC-NARR-01 (K2): the governed exhibit statement, rendered as the
-                # visual title when present (falls back to the measure label below).
+                # BC-NARR-01 (K2): the governed exhibit statement + the question it answers.
+                # title_policy decides which becomes the static header (question by default).
                 "message": (_c_item.get("message") or "").strip() or None,
+                "question": (_c_item.get("question") or "").strip() or None,
             }
 
         # Detect absolute-position mode (Figma-sourced layouts)
@@ -212,9 +221,13 @@ class PageBuilder:
                 _label = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
                 _cat_entity = _binding.get("category_entity")
                 _cat_prop = _binding.get("category_property")
+                # title_policy: question leads the static header; message = framed expected-finding
+                # subtitle (unless value-verified/dynamic — wired via value_verified when available).
+                _hdr, _sub = resolve_header(_binding.get("question"), _binding.get("message"),
+                                            value_verified=self.assert_statement_titles)
                 vis = self.visual_builder.build_by_ux_visual_type(
                     _ux_vt, position, name=slot_id, measures=_measures, title=_label,
-                    statement_title=_binding.get("message"),
+                    statement_title=_hdr, subtitle=_sub,
                     category_entity=_cat_entity, category_property=_cat_prop,
                 )
                 # R2.3: Main_3 is canonically the Ranking slot (Design_Spec_3_30_300.md
@@ -552,7 +565,8 @@ class PageBuilder:
                 # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
                 display_title = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 title = display_title.replace(".", " ").replace("_", " ").title()
-                _stmt = (item.get("message") or "").strip() or None
+                _hdr2, _sub2 = resolve_header(item.get("question"), item.get("message"),
+                                              value_verified=self.assert_statement_titles)
                 # Visual name must be folder-safe (no commas, no chars invalid in paths) so Fabric loads the visual
                 raw_name = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 if "," in raw_name or ":" in raw_name or "\\" in raw_name or "/" in raw_name:
@@ -560,7 +574,8 @@ class PageBuilder:
                 else:
                     name = raw_name
                 visual = self.visual_builder.build_by_ux_visual_type(
-                    vt, pos, name=name, measures=measures, title=title, statement_title=_stmt
+                    vt, pos, name=name, measures=measures, title=title,
+                    statement_title=_hdr2, subtitle=_sub2
                 )
                 visual["position"]["tabOrder"] = tab_order + 100 + i * 100
                 visuals.append(visual)

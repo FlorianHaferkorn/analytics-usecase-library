@@ -47,6 +47,35 @@ def _deriver():
     return mod
 
 
+def _chart_fit_mod():
+    spec = importlib.util.spec_from_file_location(
+        "chart_question_fit", REPO / "tooling/storyline/chart_question_fit.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def chart_fit_advisories(bracket: dict[str, Any]) -> list[str]:
+    """ADVISORY (never a hard failure): a static BI visual can only *generically* fit its question.
+    Surface where the chosen visual type is an unusual match for the question intent, so the designer
+    knows the user must read the chart themselves — not a defect, an awareness note (see the PBI-vs-
+    dynamic distinction in ADR-0017 / RENDER_GATED_RUNBOOK)."""
+    fit = _chart_fit_mod()
+    ucid = bracket.get("id", "?")
+    ux = bracket.get("ux_layout_rules", {}) or {}
+    out: list[str] = []
+    for pk in ("page_1_summary", "page_2_execution"):
+        page = ux.get(pk) or {}
+        if not isinstance(page, dict):
+            continue
+        for i, c in enumerate(page.get("component_30s") or [], 1):
+            if (c.get("question") or "").strip():
+                ok, reason = fit.fits(c.get("question"), c.get("visual_type"))
+                if not ok:
+                    out.append(f"{ucid}/{pk} 30s#{i}: {reason}")
+    return out
+
+
 def check_bracket(bracket: dict[str, Any]) -> list[str]:
     """Structural storyline checks for one bracket."""
     ucid = bracket.get("id", "?")
@@ -96,17 +125,25 @@ def main() -> int:
     args = ap.parse_args()
 
     total = 0
+    advisories: list[str] = []
     for b in sorted(REPO.glob("core/usecases/**/UseCase_Bracket.yaml")):
-        for p in check_bracket(yaml.safe_load(b.read_text(encoding="utf-8")) or {}):
+        bracket = yaml.safe_load(b.read_text(encoding="utf-8")) or {}
+        for p in check_bracket(bracket):
             print(f"  ⚠ {p}")
             total += 1
+        advisories += chart_fit_advisories(bracket)
     sync = render_out_of_sync()
     if sync:
         print(f"  ⚠ {sync}")
         total += 1
 
     n = len(list(REPO.glob("core/usecases/**/UseCase_Bracket.yaml")))
-    print(f"\ncheck_storyline: {n} use cases · {total} violation(s).")
+    if advisories:
+        print(f"\nchart-fit advisories ({len(advisories)}) — static BI can only generically fit the "
+              f"question; the user reads the chart. Not failures:")
+        for a in advisories:
+            print(f"  ℹ {a}")
+    print(f"\ncheck_storyline: {n} use cases · {total} violation(s) · {len(advisories)} chart-fit advisory(ies).")
     if args.strict and total:
         return 1
     return 0

@@ -940,17 +940,31 @@ class VisualBuilder:
         category_entity: Optional[str] = None,
         category_property: Optional[str] = None,
         statement_title: Optional[str] = None,
+        subtitle: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Build a visual and render ``statement_title`` — the governed exhibit
-        message (BC-NARR-01) — as its header for EVERY visual type (not only clustered
-        columns). ``title`` stays the label used for naming/tooltip; when a statement is
-        present it wins the header."""
+        """Build a visual and render its header. Per ``title_policy`` the header is the governed
+        **question** for a static report (always true), or the governed **message** when a value/
+        dynamic-narrative guarantee backs it. ``subtitle`` carries the framed *expected finding*
+        (the message as a hypothesis to verify) in the static case. ``title`` stays the label used
+        for naming/tooltip."""
         visual = self._dispatch_ux_visual(
             ux_visual_type, position, name=name, measures=measures, title=title,
             category_entity=category_entity, category_property=category_property,
         )
         if statement_title:
             self._apply_title(visual, statement_title)
+        if subtitle:
+            self._apply_subtitle(visual, subtitle)
+        return visual
+
+    def _apply_subtitle(self, visual: Dict[str, Any], subtitle: Optional[str]) -> Dict[str, Any]:
+        """Set the visual sub-header (PBIR visualContainerObjects.subTitle) — the framed
+        expected-finding, visually subordinate to the question header."""
+        if subtitle and str(subtitle).strip():
+            _lit = str(subtitle).strip().replace("'", "''")
+            vco = visual["visual"].setdefault("visualContainerObjects", {})
+            vco["subTitle"] = [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{_lit}'"}}},
+                                                "show": {"expr": {"Literal": {"Value": "true"}}}}}]
         return visual
 
     def _dispatch_ux_visual(
