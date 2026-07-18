@@ -1,7 +1,10 @@
 # ADR 0017 — Generator v2: Insight-Scoring, Verification, Composition (Two-Stage)
 
-- **Status:** Proposed
-- **Date:** 2026-07-09
+- **Status:** Proposed — the five open decisions are **resolved (proposed 2026-07-18)** below,
+  pending maintainer ratification to flip to Accepted. Stage 1 is now **prototyped**
+  (`tooling/storyline/score_insights.py`), so the resolutions are grounded in working output, not
+  speculation.
+- **Date:** 2026-07-09 (decisions drafted 2026-07-18)
 - **Scope:** How report narrative content (Header `big_idea`, Smart_Narrative, KPI-card
   emphasis) gets derived and rendered — architecture only, not an implementation plan
 - **Supersedes:** —
@@ -205,6 +208,65 @@ existing static template rather than rendering an unverified claim.
 5. Sequencing against C2 (R2.1–R2.4): this ADR assumes a Header visual-builder code
    path that must be built there first; confirm ordering before scheduling
    implementation work against this ADR.
+
+## Resolved decisions (proposed 2026-07-18 — pending maintainer ratification)
+
+Grounded in a **working Stage-1 prototype built since this ADR was written**: the storyline
+contract `tooling/storyline/derive_storyline.py --json` (structured findings per use case) and the
+deterministic scorer `tooling/storyline/score_insights.py` (ranks findings, picks the verified
+headline). The four dimensions in the prototype map to this ADR's names as: **depth** = depth,
+**specificity** = specificity, **actionability** = actionability, **correctness** = the prototype's
+`grounding` (KPI resolves in the catalog + is audit-grade via `standard_ref`), which is *also* the
+verification gate. Every field is derived from governed Bracket/KPI data — no LLM, nothing invented.
+
+**D1 — Scoring weights.** *Resolve:* ship the prototype's v0 weights as a **governed config**, not a
+hardcoded constant — depth 0.30 / specificity 0.25 / actionability 0.30 / correctness 0.15. The low
+correctness weight is deliberate: correctness is decisive as a **hard gate** (grounding == 0 ⇒
+finding is ineligible to lead, ADR-0009), so it need not dominate the tiebreak score. The
+calibration spike (tuning against real multi-report snapshots) stays open but **no longer blocks
+build** — v0 defaults ship and produce sensible headlines today (FIN-001 leads on the OCF
+"driven by collections not cost" finding; COM-002 on "concentrated in a few BUs").
+
+**D2 — Generation-time vs. snapshot.** *Resolve:* **snapshot, not a live connection.** Split Stage 1:
+(a) *narrative-structure scoring* (depth/specificity/actionability/correctness over the storyline
+contract) is **offline, generation-time, needs no live data** — already built; (b) *data-magnitude
+scoring* (which finding carries the biggest actual delta this period) reads a **pre-computed snapshot
+via ADR-0009's Wirkungs-Loop `refcalc`**, never a live semantic-model/Fabric connection at build time.
+This keeps the generator offline and deterministic (its current property) and adds no Fabric
+dependency to the build.
+
+**D3 — Template-selection taxonomy.** *Resolve:* a **small closed set of 3 shapes + static fallback**,
+selected **deterministically from the insight record's shape** (which the scorer already computes):
+`driver→lever` (finding on the causal thread + a linked action code) → "X is under pressure because
+of Y; Z is the priority lever"; `concentration` (high specificity / named locus) → "X is concentrated
+in <locus>; focus there"; `trajectory-vs-plan` (level/trend, no clear driver) → "X is on/off track vs
+plan"; else the static fallback (D4). No new judgment layer — the taxonomy keys off the four
+dimensions already scored.
+
+**D4 — `big_idea` migration/fallback.** *Resolve:* **keep the 16 static `big_idea` fields as the
+explicit verified-failure fallback — do not deprecate.** Stage 2 fills the selected template from the
+verified top insight; if no candidate verifies, it renders the static `big_idea` (the human-curated
+safety net). This makes the ADR's own "falls back to the existing static template" rule concrete and
+keeps a hand-authored floor under every report.
+
+**D5 — Sequencing vs. C2 (Header visual-builder).** *Resolve:* **decouple.** Stage 1
+(selection + scoring + verification) is independent of *where* the output renders and **ships now**
+(built). Stage 2 rendering into the **existing** `component_30s` `message`/`so_what` fields needs no
+Header visual-builder and can follow immediately. The Header visual-builder (C2 / R2.1–R2.4) is
+required **only** for the `big_idea` *Header* placement specifically → it stays a later, separate
+target. Stage 1 does **not** block on C2.
+
+**Scope note on LLM (important).** This ADR is deliberately **LLM-free end to end** (guardrail #2):
+Stage 1 deterministic selection, Stage 2 template fill. The prototype's `Scorer` protocol is the seam
+where a **bounded, verified LLM scorer could slot in later** — but introducing an LLM into generation
+exceeds this ADR's ratified scope and must be its **own future ADR** (semantic re-scoring of
+depth/specificity/actionability only, with `correctness`/grounding staying deterministic as the gate).
+ADR-0017 stays deterministic; the LLM is a separate decision, not an amendment here.
+
+**What is built vs. still to build after ratification.** Built (2026-07-18): the storyline contract,
+the deterministic Stage-1 scorer with all four dimensions + the verification gate, and tests. To build
+after ratification: D2(b) snapshot wiring for data-magnitude, the D3 three template shapes, and Stage 2
+rendering the verified record into the `component_30s`/`big_idea` fields.
 
 ## References
 
