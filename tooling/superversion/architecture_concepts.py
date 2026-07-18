@@ -70,6 +70,21 @@ class MedallionConcept:
         }
 
 
+class DataVaultConcept:
+    """Data Vault 2.0: a **raw vault** as materialised, insert-only bronze; business vault in silver.
+
+    Cross-repo mirror of Meridian's DataVaultConcept — a genuinely distinct paradigm from silver-first
+    medallion, schema-valid (the raw vault *is* an ``enabled`` + ``immutable`` + ``append_only`` bronze).
+    """
+    id = "data-vault"
+
+    def derive_layers(self, domains_in: list[dict], inputs: dict, hitl: list[str]) -> dict[str, Any]:
+        layers = MedallionConcept().derive_layers(domains_in, inputs, hitl)
+        layers["bronze"] = {"enabled": True, "outsourced": False, "immutable": True, "append_only": True}
+        hitl.append("data-vault: silver business-vault modeling (hubs/links/satellites) required per domain")
+        return layers
+
+
 _REGISTRY: dict[str, ArchitectureConcept] = {}
 
 
@@ -94,3 +109,4 @@ def available_concepts() -> list[str]:
 
 
 register(MedallionConcept())  # the best-practice default; first registered strategy
+register(DataVaultConcept())  # mirrored from Meridian (contract surface) — keeps the two repos in sync
