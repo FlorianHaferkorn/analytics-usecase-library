@@ -263,10 +263,17 @@ exceeds this ADR's ratified scope and must be its **own future ADR** (semantic r
 depth/specificity/actionability only, with `correctness`/grounding staying deterministic as the gate).
 ADR-0017 stays deterministic; the LLM is a separate decision, not an amendment here.
 
-**What is built vs. still to build after ratification.** Built (2026-07-18): the storyline contract,
-the deterministic Stage-1 scorer with all four dimensions + the verification gate, and tests. To build
-after ratification: D2(b) snapshot wiring for data-magnitude, the D3 three template shapes, and Stage 2
-rendering the verified record into the `component_30s`/`big_idea` fields.
+**What is built vs. still to build after ratification.** Built (2026-07-18): the storyline contract;
+the deterministic Stage-1 scorer with all four dimensions + the verification gate; the D3 template
+shapes and Stage-2 `compose_narrative` (verified headline → shape → recomputed Big Idea, D4 static
+fallback when nothing verifies); and tests for all of it. **D2(b) shipped as value-verification, not
+magnitude ranking** (`tooling/storyline/snapshot_signal.py`): a thin reuse-first adapter over ADR-0009's
+`wirkung.snapshot_via_refcalc` that tags a finding `value_verified` when a real computed snapshot value
+exists for its KPI (gate item #2 made concrete), and breaks headline ties toward it — purely additive,
+never downgrading the use cases without reference data. It lights up today for SCM-002 (`supply.on_time.pct`)
+and stays honestly UNCOMPUTED where the KPI is a delta-vs-Plan (COM-001) because **Plan/target is not yet
+materialized** (I-3.4 WARN). The cross-finding *biggest-actual-delta* magnitude signal therefore stays
+**deferred until Plan is materialized — never faked**; it is the one remaining piece of D2(b).
 
 ## References
 

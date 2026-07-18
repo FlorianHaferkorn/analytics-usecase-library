@@ -104,7 +104,8 @@ def compose(storyline: dict[str, Any], ranked: dict[str, Any], kpi_keys: dict[st
     return {"use_case": storyline["use_case"], "shape": shape, "big_idea": big,
             "verified": True, "fallback_used": False,
             "source": {"seq": headline["seq"], "kpi_id": headline["kpi_id"],
-                       "score": headline["score"]}}
+                       "score": headline["score"],
+                       "value_verified": headline.get("value_verified")}}
 
 
 def _static_big_idea(bracket: dict[str, Any]) -> Optional[str]:
@@ -115,13 +116,15 @@ def _static_big_idea(bracket: dict[str, Any]) -> Optional[str]:
 def compose_all(uc_filter: Optional[str]) -> list[dict[str, Any]]:
     ds = _load("tooling/storyline/derive_storyline.py", "derive_storyline")
     si = _load("tooling/storyline/score_insights.py", "score_insights")
+    ss = _load("tooling/storyline/snapshot_signal.py", "snapshot_signal")
     kpi_domains, kpi_keys, action_related = ds._kpi_domains(), ds._kpi_keys(), ds._action_related()
     exists, has_ref = si._grounding_maps()
     out = []
     for b in ds.load_brackets(uc_filter):
         bracket = yaml.safe_load(b.read_text(encoding="utf-8")) or {}
         s = ds.build_storyline(bracket, kpi_domains, kpi_keys, action_related)
-        ranked = si.rank_storyline(s, exists, has_ref)
+        vv = ss.value_verified_map(s.get("use_case"))
+        ranked = si.rank_storyline(s, exists, has_ref, value_verified=vv)
         out.append(compose(s, ranked, kpi_keys, _static_big_idea(bracket)))
     return out
 

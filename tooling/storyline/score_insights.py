@@ -39,6 +39,8 @@ except ImportError:  # pragma: no cover
     sys.exit(1)
 
 REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:                 # so `python tooling/storyline/score_insights.py` can import siblings
+    sys.path.insert(0, str(REPO))
 
 # weights sum to 1.0; grounding kept modest as a score but decisive as a gate (see verified).
 _W = {"depth": 0.30, "specificity": 0.25, "actionability": 0.30, "grounding": 0.15}
@@ -145,9 +147,20 @@ def _grounding_maps() -> tuple[set[str], set[str]]:
 
 
 def rank_storyline(storyline: dict[str, Any], exists: set[str], has_ref: set[str],
-                   scorer: Optional[Scorer] = None) -> dict[str, Any]:
-    """Score + rank every finding; pick the headline (top verified finding overall)."""
+                   scorer: Optional[Scorer] = None,
+                   value_verified: Optional[dict[str, bool]] = None) -> dict[str, Any]:
+    """Score + rank every finding; pick the headline (top verified finding overall).
+
+    `value_verified` (ADR-0017 D2) is an OPTIONAL per-KPI map from the refcalc snapshot
+    (`snapshot_signal.value_verified_map`). It is purely ADDITIVE: it never changes a
+    finding's score or its catalog-grounding `verified` gate, so the 15 use cases without
+    I-4.1 reference data keep their verified headline unchanged. Where a real computed value
+    exists it only (a) tags the finding `value_verified: True` and (b) breaks ties in favour
+    of the finding whose value is actually computed — the strongest possible evidence.
+    A `None` map means UNCOMPUTED for the whole use case (never fabricated to False).
+    """
     scorer = scorer or DeterministicScorer()
+    vv = value_verified or {}
     ctx_base = {"causal_thread": storyline.get("causal_thread"),
                 "has_actions": bool(storyline.get("actions")),
                 "kpi_exists": exists, "kpi_has_ref": has_ref}
@@ -158,17 +171,21 @@ def rank_storyline(storyline: dict[str, Any], exists: set[str], has_ref: set[str
         scored = []
         for v in p.get("visuals", []):
             s = scorer.score(v, ctx)
-            entry = {"seq": v.get("seq"), "kpi_id": v.get("kpi_id"), "question": v.get("question"),
+            kid = v.get("kpi_id")
+            entry = {"seq": v.get("seq"), "kpi_id": kid, "question": v.get("question"),
                      "answer": v.get("answer"),
                      "score": s.total, "verified": s.verified,
+                     # None when the use case has no reference data (UNCOMPUTED); else the real bit
+                     "value_verified": (vv.get(kid, False) if value_verified is not None else None),
                      "dims": {"depth": s.depth, "specificity": s.specificity,
                               "actionability": s.actionability, "grounding": s.grounding}}
             scored.append(entry)
             all_findings.append({**entry, "page": p.get("id")})
-        scored.sort(key=lambda e: (-e["score"]))
+        scored.sort(key=lambda e: (-e["score"], -int(bool(e["value_verified"]))))
         ranked_pages.append({"page": p.get("id"), "findings": scored})
     verified = [f for f in all_findings if f["verified"]]
-    headline = max(verified, key=lambda f: f["score"]) if verified else None
+    # headline = top verified finding; ties broken toward the one with a real computed value
+    headline = max(verified, key=lambda f: (f["score"], int(bool(f["value_verified"])))) if verified else None
     return {"use_case": storyline.get("use_case"), "headline": headline, "pages": ranked_pages}
 
 
@@ -176,7 +193,8 @@ def _fmt(r: dict[str, Any]) -> str:
     L = [f"## {r['use_case']}"]
     h = r.get("headline")
     if h:
-        L.append(f"**Headline** ({h['score']}): [{h['page']}] {h['question']} — {h['answer']}")
+        vv = " ⊕value-verified" if h.get("value_verified") else ""
+        L.append(f"**Headline** ({h['score']}{vv}): [{h['page']}] {h['question']} — {h['answer']}")
     else:
         L.append("**Headline**: — (no verified finding)")
     for pg in r["pages"]:
@@ -201,11 +219,16 @@ def main() -> int:
     spec.loader.exec_module(ds)
     kpi_domains, kpi_keys, action_related = ds._kpi_domains(), ds._kpi_keys(), ds._action_related()
     exists, has_ref = _grounding_maps()
+    try:
+        from tooling.storyline import snapshot_signal
+    except Exception:
+        snapshot_signal = None
 
     for b in ds.load_brackets(args.use_case_id):
-        s = ds.build_storyline(yaml.safe_load(b.read_text(encoding="utf-8")) or {},
-                               kpi_domains, kpi_keys, action_related)
-        print(_fmt(rank_storyline(s, exists, has_ref)))
+        bracket = yaml.safe_load(b.read_text(encoding="utf-8")) or {}
+        s = ds.build_storyline(bracket, kpi_domains, kpi_keys, action_related)
+        vv = snapshot_signal.value_verified_map(s.get("use_case")) if snapshot_signal else None
+        print(_fmt(rank_storyline(s, exists, has_ref, value_verified=vv)))
         print()
     return 0
 
