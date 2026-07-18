@@ -1,10 +1,10 @@
 # ADR 0017 — Generator v2: Insight-Scoring, Verification, Composition (Two-Stage)
 
-- **Status:** Proposed — the five open decisions are **resolved (proposed 2026-07-18)** below,
-  pending maintainer ratification to flip to Accepted. Stage 1 is now **prototyped**
-  (`tooling/storyline/score_insights.py`), so the resolutions are grounded in working output, not
-  speculation.
-- **Date:** 2026-07-09 (decisions drafted 2026-07-18)
+- **Status:** **Accepted (2026-07-18, Maintainer Flo)** — the five open decisions are resolved
+  below (ratified), and Stage 1 is **prototyped** (`tooling/storyline/score_insights.py`), so the
+  resolutions are grounded in working output. The deferred implementation (D2 snapshot wiring, D3
+  template shapes, Stage-2 rendering into the narrative fields) is now unblocked.
+- **Date:** 2026-07-09 (decisions drafted + ratified 2026-07-18)
 - **Scope:** How report narrative content (Header `big_idea`, Smart_Narrative, KPI-card
   emphasis) gets derived and rendered — architecture only, not an implementation plan
 - **Supersedes:** —
@@ -209,7 +209,7 @@ existing static template rather than rendering an unverified claim.
    path that must be built there first; confirm ordering before scheduling
    implementation work against this ADR.
 
-## Resolved decisions (proposed 2026-07-18 — pending maintainer ratification)
+## Resolved decisions (ratified 2026-07-18, Maintainer Flo)
 
 Grounded in a **working Stage-1 prototype built since this ADR was written**: the storyline
 contract `tooling/storyline/derive_storyline.py --json` (structured findings per use case) and the

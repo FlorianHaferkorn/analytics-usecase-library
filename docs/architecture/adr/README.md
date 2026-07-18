@@ -31,4 +31,4 @@ revisit a decision by adding a new ADR that supersedes the old one.
 | [0014](0014-org-layer-over-local-first.md) | Org-Schicht über lokal-first (Discovery, I-9.1) | Proposed |
 | [0015](0015-onelake-ai-era-blueprint-alignment-and-architecture-blueprint-layer.md) | OneLake AI-Era Blueprint Alignment & a Stack-Agnostic Architecture-Blueprint Layer | Accepted (2026-07-15) |
 | [0016](0016-manufacturing-industry-pack-differentiation-discovery.md) | Manufacturing Industry Pack (`OPS-IND-M001`): Differentiation-Angle Discovery | Proposed |
-| [0017](0017-generator-v2-insight-scoring-verification-composition.md) | Generator v2: Insight-Scoring, Verification, Composition (Two-Stage) | Proposed |
+| [0017](0017-generator-v2-insight-scoring-verification-composition.md) | Generator v2: Insight-Scoring, Verification, Composition (Two-Stage) | Accepted (2026-07-18) |
