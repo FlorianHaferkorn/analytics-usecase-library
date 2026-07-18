@@ -941,12 +941,14 @@ class VisualBuilder:
         category_property: Optional[str] = None,
         statement_title: Optional[str] = None,
         subtitle: Optional[str] = None,
+        format_spec: Optional[Any] = None,
     ) -> Dict[str, Any]:
         """Build a visual and render its header. Per ``title_policy`` the header is the governed
         **question** for a static report (always true), or the governed **message** when a value/
         dynamic-narrative guarantee backs it. ``subtitle`` carries the framed *expected finding*
         (the message as a hypothesis to verify) in the static case. ``title`` stays the label used
-        for naming/tooltip."""
+        for naming/tooltip. ``format_spec`` (visual_format_policy.FormatSpec), when supplied, applies
+        the governed value-axis (opt-in; default None keeps emission byte-identical)."""
         visual = self._dispatch_ux_visual(
             ux_visual_type, position, name=name, measures=measures, title=title,
             category_entity=category_entity, category_property=category_property,
@@ -955,6 +957,19 @@ class VisualBuilder:
             self._apply_title(visual, statement_title)
         if subtitle:
             self._apply_subtitle(visual, subtitle)
+        if format_spec is not None:
+            self._apply_value_axis(visual, format_spec)
+        return visual
+
+    def _apply_value_axis(self, visual: Dict[str, Any], format_spec: Any) -> Dict[str, Any]:
+        """Apply the governed value axis (IBCS zero baseline) to a cartesian visual. A non-zero base
+        exaggerates deltas, so bar/column families are pinned to 0 — see visual_format_policy. Only
+        touches charts that already carry a categoryAxis (skips cards/tables)."""
+        va = getattr(format_spec, "value_axis", None) or {}
+        objs = visual.get("visual", {}).get("objects")
+        if not va.get("zero_based") or not isinstance(objs, dict) or "categoryAxis" not in objs:
+            return visual
+        objs.setdefault("valueAxis", [{"properties": {"start": {"expr": {"Literal": {"Value": "0D"}}}}}])
         return visual
 
     def _apply_subtitle(self, visual: Dict[str, Any], subtitle: Optional[str]) -> Dict[str, Any]:
