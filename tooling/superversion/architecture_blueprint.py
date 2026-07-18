@@ -88,36 +88,11 @@ def derive_blueprint(inputs: dict[str, Any]) -> dict[str, Any]:
             ingestion.append(entry)
     ingestion.sort(key=lambda e: e["source"])
 
-    # --- P2 medallion (global; gold = union of all domains' products) --------------
-    gold_products: list[dict[str, Any]] = []
-    for dom in domains_in:
-        prods = dom.get("gold_products")
-        if not prods:
-            hitl.append(f"gold.data_products underspecified for domain '{dom.get('name')}'")
-            continue
-        for p in prods:
-            gp: dict[str, Any] = {"name": p["name"], "kind": p["kind"]}
-            if p.get("grain"):
-                gp["grain"] = p["grain"]
-            gold_products.append(gp)
-    gold_products.sort(key=lambda p: p["name"])
-
-    silver_ref = inputs.get("silver_contract_ref")
-    if not silver_ref:
-        silver_ref = "HITL: silver data_contract_ref not supplied"
-        hitl.append("medallion.silver.data_contract_ref not supplied")
-
-    medallion: dict[str, Any] = {
-        "bronze": {  # silver-first default: bronze outsourced but specified (data_layers §2.1)
-            "enabled": False,
-            "outsourced": True,
-            "immutable": True,
-            "append_only": True,
-        },
-        "silver": {"data_contract_ref": silver_ref},
-        "gold": {"data_products": gold_products},
-        "no_layer_skip": True,
-    }
+    # --- P2 architecture concept (medallion default; ADR-0051 pluggable strategy) ----
+    # The concept projects governed inputs onto the IR's storage-layer section. Medallion is the
+    # best-practice default; the default output is byte-identical to the pre-strategy deriver.
+    from tooling.superversion.architecture_concepts import get_concept
+    medallion = get_concept(inputs.get("architecture_concept")).derive_layers(domains_in, inputs, hitl)
 
     # --- P3 mesh (domain → workspaces + publishing) --------------------------------
     domains_out: list[dict[str, Any]] = []
