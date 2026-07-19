@@ -27,9 +27,16 @@ KPIs compute and their reports render. It also records a pre-existing gap in **C
 > resolve (0 orphans/nulls), formatting/types/ranges clean (EBITDA = EBIT + D&A holds), every KPI
 > lineage column exists. The new tables/dims/columns are now declared in the governed domain data
 > contracts (`core/data_contracts/domains/{people,commercial_sales,finance,supply_chain}.yaml`) so
-> the ontology reflects reality — contract validator green, H8 AI-readiness green. Note: the People
-> stub facts (`fact_hr`/`fact_it`/`fact_survey`) have no physical backing and are superseded by
-> `fact_workforce`/`fact_engagement_survey`/`fact_recruiting`; retiring the stub is a follow-up.
+> the ontology reflects reality — contract validator green, H8 AI-readiness green.
+>
+> **People stub facts — keep, do not retire.** `fact_hr`/`fact_it`/`fact_survey` have no physical
+> Aurora table, but they are **not** dead: they still back two other governed KPIs whose data is
+> genuinely absent — `people.digital_adoption.pct` (`fact_it[Digital Users]`, `fact_hr[Headcount]`)
+> and `people.attrition_risk.pct` (`fact_hr[Attrition Risk %]`), plus a `BLANK()` placeholder in the
+> Experience model. `fact_workforce`/`fact_engagement_survey`/`fact_recruiting` supersede only the
+> **retention/headcount/absence/cost** slice, not Digital Users or the attrition-risk score. Closing
+> those two would be a *new* data gap (a `fact_it`-style adoption fact + an attrition-risk model
+> output) — out of scope here, tracked as future work.
 
 **Method.** Each KPI's required source is recorded in its catalog entry
 (`technical.calculation.reason`) and mirrored here as concrete table/column specs. Aurora gold
