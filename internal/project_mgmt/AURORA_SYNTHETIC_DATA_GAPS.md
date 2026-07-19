@@ -1,10 +1,27 @@
 # Aurora Synthetic Data Gaps — tables & columns to generate
 
 **Purpose.** The four gap-closing use cases (HR-001, COM-005, FIN-003, SCM-004) are
-spec-complete and validated (KPIs, standards, storyline, action codes all green), but their
-KPIs are `hitl`/`planned` because the backing **Aurora synthetic data does not exist yet**.
-This doc is the single, precise source for what to generate — *realistic but synthetic* — so
-those KPIs compute and their reports render. It also records a pre-existing gap in **COM-001**.
+spec-complete and validated (KPIs, standards, storyline, action codes all green). This doc is
+the single, precise source for the backing Aurora data — *realistic but synthetic* — so those
+KPIs compute and their reports render. It also records a pre-existing gap in **COM-001**.
+
+> **STATUS — data generated ✅ (2026-07-19).** All 13 checklist artefacts below are now written
+> to `showcases/aurora_group/data/gold/` by
+> [`generate_gapfill_gold.py`](../../showcases/aurora_group/data/gold/generate_gapfill_gold.py),
+> realistic and consistent with the existing gold (same OrgKeys, DateKey convention, growth
+> model, seeded RandomState; existing `fact_finance`/`fact_procurement` columns byte-identical,
+> new columns appended). Storyline realism verified in-data: FIN-003 EBITDA margin 12.2 % actual
+> vs 13.6 % plan (−1.4 pp, opex-led); SCM-004 realised savings 58 % of target · on-contract 80 % ·
+> supplier OTD 92 %; HR-001 voluntary attrition 13.3 % p.a. with Sales/Retail/Logistics hotspots ·
+> absence 3.5 % · time-to-fill 44 d; COM-005 win rate 28.8 % · coverage 2.1–3.4× per country.
+>
+> The **tool-agnostic KPI measures** are wired too: 17 of the 19 KPIs now carry real neutral-DSL
+> `calculation` blocks (incl. the plan/target maths — EBITDA-margin-vs-plan as a Δ of ratios,
+> pipeline coverage as open-qualified ÷ remaining target, PPV as actual-vs-baseline price,
+> annualised attrition, supplier-OTD rate). The 2 composites (`sales.conversion.pct` per-stage,
+> `sales.velocity.amount`) stay `hitl` with lineage pointing at the real columns — they need a
+> multi-input DAX assembly beyond the single-op DSL. **Still CLI-gated** (below): the TMDL/DAX
+> named measures and the four `.Report` folders — see `CLAUDE_CLI_PBI_DESKTOP_TASKS.md`.
 
 **Method.** Each KPI's required source is recorded in its catalog entry
 (`technical.calculation.reason`) and mirrored here as concrete table/column specs. Aurora gold
@@ -22,7 +39,7 @@ dimension** that the semantic model defines (`dim_pvm_driver`, added this sessio
 **no backing table in Aurora gold**. The measures resolve at model level, but there is nothing to
 populate the driver axis from data.
 
-- 🟦 **`dim_pvm_driver`** — MISSING in `gold/dims`. Columns: `PVMDriverKey`, `Driver`
+- 🟦 **`dim_pvm_driver`** — now written to `gold/dimensions`. Columns: `PVMDriverKey`, `Driver`
   (`Price` | `Volume` | `Mix`), `Sort Order`, `Sign Convention`. A static 3-row bridge; it lets the
   waterfall decompose `Net Sales Δ vs Plan` into the three governed effects
   (`sales.pvm.price_effect` / `volume_effect` / `mix_effect`).
@@ -136,7 +153,13 @@ categories; PPV climbing in those same categories (the governed cross-signal); s
 | 12 | `fact_procurement_receipts` | 🟥 fact | SCM-004 |
 | 13 | `dim_category`, `dim_supplier` | 🟦 dim | SCM-004 |
 
-**After generation** (Desktop/Fabric-gated, per `CLAUDE_CLI_PBI_DESKTOP_TASKS.md`): add the DAX
-measures to each domain `SemanticModel`, remove the 19 `planned.yaml` entries as each lands,
-generate the four `.Report` folders (they then drop out of the report-pending exemption in
-`test_dist_report_coverage.py`), and the KPIs move from UNCOMPUTED to computed/value-verified.
+All 13 are **written** (status banner above). Regenerate anytime with
+`python3 showcases/aurora_group/data/gold/generate_gapfill_gold.py` (deterministic).
+
+**Still to do — CLI/Desktop-gated** (per `CLAUDE_CLI_PBI_DESKTOP_TASKS.md`, and because the base
+stays viz-tool-agnostic): add the DAX named measures to each domain `SemanticModel` (the neutral
+`calculation` blocks in the catalog are the source — synthesise via `tooling/superversion`),
+remove the 19 `planned.yaml` entries as each measure lands, generate the four `.Report` folders
+(they then drop out of the report-pending exemption in `test_dist_report_coverage.py`), and flip
+each UC's `readiness.data_availability` off `not_available`. Only then do the KPIs move from
+UNCOMPUTED to computed/value-verified in a live model.

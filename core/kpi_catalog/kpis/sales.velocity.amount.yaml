@@ -20,11 +20,14 @@ technical:
   measure_name: Sales Velocity
   description: Measures revenue generation rate through the pipeline.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_pipeline.Opportunity Value Amount
+  - fact_pipeline.Won Count
+  - fact_pipeline.Decided Count
+  - fact_pipeline.Cycle Days
   calculation:
     op: hitl
-    reason: Requires fact_pipeline[Opportunity count, Deal Value, Won/Lost, Create/Close Date] — not yet
-      in Aurora.
+    reason: "Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL)."
 governance:
   business_owner: TBD
   data_owner: TBD

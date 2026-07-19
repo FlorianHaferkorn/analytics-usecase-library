@@ -20,11 +20,11 @@ technical:
   measure_name: Managed Spend
   description: Measures total addressable spend under procurement management.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_procurement.Addressable Amount
   calculation:
-    op: hitl
-    reason: Requires fact_procurement[Spend, Addressable Flag] by dim_category/dim_supplier/dim_date —
-      not yet in Aurora.
+    op: sum
+    column: Addressable Amount
 governance:
   business_owner: TBD
   data_owner: TBD

@@ -19,11 +19,11 @@ technical:
   measure_name: Headcount FTE
   description: Measures full-time-equivalent headcount for the population.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_workforce.Headcount FTE
   calculation:
-    op: hitl
-    reason: Requires fact_workforce[Headcount FTE] by dim_org/dim_employee_segment/dim_date — not yet
-      in Aurora.
+    op: sum
+    column: Headcount FTE
 governance:
   business_owner: TBD
   data_owner: TBD

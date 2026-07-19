@@ -19,11 +19,11 @@ technical:
   measure_name: Engagement Index
   description: Measures employee engagement / eNPS from periodic surveys.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_engagement_survey.Engagement Score
   calculation:
-    op: hitl
-    reason: Requires fact_engagement_survey[Engagement Score, Respondents] by dim_org/dim_employee_segment/dim_date
-      — not yet in Aurora.
+    op: avg
+    column: Engagement Score
 governance:
   business_owner: TBD
   data_owner: TBD

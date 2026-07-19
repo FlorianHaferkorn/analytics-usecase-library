@@ -19,11 +19,15 @@ technical:
   measure_name: Absence Rate %
   description: Measures unplanned absence as a share of scheduled working time.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_workforce.Absence Days
+  - fact_workforce.Scheduled Working Days
   calculation:
-    op: hitl
-    reason: Requires fact_workforce[Absence Days, Scheduled Days] by dim_org/dim_employee_segment/dim_date
-      — not yet in Aurora.
+    op: ratio
+    numerator:
+      column: Absence Days
+    denominator:
+      column: Scheduled Working Days
 governance:
   business_owner: TBD
   data_owner: TBD

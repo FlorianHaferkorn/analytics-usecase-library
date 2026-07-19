@@ -20,11 +20,11 @@ technical:
   measure_name: EBITDA
   description: Measures earnings before interest, tax, depreciation and amortisation.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_finance.EBITDA Amount
   calculation:
-    op: hitl
-    reason: Requires fact_pnl[Revenue, COGS, OpEx, D&A] by dim_org/dim_date — Plan variants needed for
-      the bridge; not yet in Aurora.
+    op: sum
+    column: EBITDA Amount
 governance:
   business_owner: TBD
   data_owner: TBD

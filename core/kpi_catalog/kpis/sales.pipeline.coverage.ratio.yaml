@@ -21,11 +21,15 @@ technical:
   measure_name: Pipeline Coverage
   description: Measures open qualified pipeline against the remaining sales target.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_pipeline.Open Qualified Value Amount
+  - fact_sales_target.Remaining Target Amount
   calculation:
-    op: hitl
-    reason: Requires fact_pipeline[Opportunity Value, Stage] and dim_target[Remaining Target] by dim_salesrep/dim_region/dim_date
-      — not yet in Aurora.
+    op: ratio
+    numerator:
+      column: Open Qualified Value Amount
+    denominator:
+      column: Remaining Target Amount
 governance:
   business_owner: TBD
   data_owner: TBD

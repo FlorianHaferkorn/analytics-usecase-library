@@ -20,11 +20,11 @@ technical:
   measure_name: Open Pipeline Value
   description: Measures total value of open qualified opportunities.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_pipeline.Open Qualified Value Amount
   calculation:
-    op: hitl
-    reason: Requires fact_pipeline[Opportunity Value, Stage] by dim_salesrep/dim_region/dim_date — not
-      yet in Aurora.
+    op: sum
+    column: Open Qualified Value Amount
 governance:
   business_owner: TBD
   data_owner: TBD

@@ -21,11 +21,11 @@ technical:
   measure_name: Supplier On-Time Delivery %
   description: Measures inbound supplier on-time delivery (goods received on/before promise).
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_procurement_receipts.On-Time Flag
   calculation:
-    op: hitl
-    reason: Requires fact_procurement_receipts[Receipt Date, Promise Date] by dim_supplier/dim_category/dim_date
-      — not yet in Aurora.
+    op: rate
+    column: On-Time Flag
 governance:
   business_owner: TBD
   data_owner: TBD

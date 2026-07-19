@@ -20,11 +20,27 @@ technical:
   measure_name: EBITDA Margin vs Plan
   description: Measures the EBITDA-margin gap versus plan.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_finance.EBITDA Amount
+  - fact_finance.Net Sales Amount
+  - fact_finance.Plan EBITDA Amount
+  - fact_finance.Plan Net Sales Amount
   calculation:
-    op: hitl
-    reason: Requires fact_pnl actual + Plan variants (Revenue, COGS, OpEx) by dim_org/dim_date — not yet
-      in Aurora.
+    op: delta
+    minuend:
+      calc:
+        op: ratio
+        numerator:
+          column: EBITDA Amount
+        denominator:
+          column: Net Sales Amount
+    subtrahend:
+      calc:
+        op: ratio
+        numerator:
+          column: Plan EBITDA Amount
+        denominator:
+          column: Plan Net Sales Amount
 governance:
   business_owner: TBD
   data_owner: TBD

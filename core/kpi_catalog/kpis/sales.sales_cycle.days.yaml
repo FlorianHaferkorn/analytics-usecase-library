@@ -20,10 +20,11 @@ technical:
   measure_name: Sales Cycle Length
   description: Measures average calendar days from opportunity creation to close.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_pipeline.Cycle Days
   calculation:
-    op: hitl
-    reason: Requires fact_pipeline[Create Date, Close Date] by dim_salesrep/dim_date — not yet in Aurora.
+    op: avg
+    column: Cycle Days
 governance:
   business_owner: TBD
   data_owner: TBD

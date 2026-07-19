@@ -6737,10 +6737,16 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Attrition %
     description: Measures realised voluntary employee turnover in the period.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_workforce.Voluntary Leavers
+    - fact_workforce.Headcount FTE
     calculation:
-      op: hitl
-      reason: Requires fact_workforce[Voluntary Leavers, Headcount FTE] by dim_org/dim_employee_segment/dim_date — not yet in Aurora data contract.
+      op: ratio
+      numerator:
+        column: Voluntary Leavers
+      denominator:
+        column: Headcount FTE
+      scale: 12
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -6780,10 +6786,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Engagement Index
     description: Measures employee engagement / eNPS from periodic surveys.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_engagement_survey.Engagement Score
     calculation:
-      op: hitl
-      reason: Requires fact_engagement_survey[Engagement Score, Respondents] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+      op: avg
+      column: Engagement Score
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -6823,10 +6830,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Time to Fill
     description: Measures average calendar days to fill an open vacancy.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_recruiting.Days to Fill
     calculation:
-      op: hitl
-      reason: Requires fact_recruiting[Requisition Open Date, Filled Date] by dim_org/dim_role/dim_date — not yet in Aurora.
+      op: avg
+      column: Days to Fill
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -6866,10 +6874,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Absence Rate %
     description: Measures unplanned absence as a share of scheduled working time.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_workforce.Absence Days
+    - fact_workforce.Scheduled Working Days
     calculation:
-      op: hitl
-      reason: Requires fact_workforce[Absence Days, Scheduled Days] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+      op: ratio
+      numerator:
+        column: Absence Days
+      denominator:
+        column: Scheduled Working Days
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -6909,10 +6922,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Workforce Cost per FTE
     description: Measures total workforce cost per full-time-equivalent.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_workforce.Workforce Cost Amount
+    - fact_workforce.Headcount FTE
     calculation:
-      op: hitl
-      reason: Requires fact_workforce[Workforce Cost, Headcount FTE] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+      op: ratio
+      numerator:
+        column: Workforce Cost Amount
+      denominator:
+        column: Headcount FTE
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -6952,10 +6970,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Headcount FTE
     description: Measures full-time-equivalent headcount for the population.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_workforce.Headcount FTE
     calculation:
-      op: hitl
-      reason: Requires fact_workforce[Headcount FTE] by dim_org/dim_employee_segment/dim_date — not yet in Aurora.
+      op: sum
+      column: Headcount FTE
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -6997,10 +7016,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Pipeline Coverage
     description: Measures open qualified pipeline against the remaining sales target.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_pipeline.Open Qualified Value Amount
+    - fact_sales_target.Remaining Target Amount
     calculation:
-      op: hitl
-      reason: Requires fact_pipeline[Opportunity Value, Stage] and dim_target[Remaining Target] by dim_salesrep/dim_region/dim_date — not yet in Aurora.
+      op: ratio
+      numerator:
+        column: Open Qualified Value Amount
+      denominator:
+        column: Remaining Target Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7041,10 +7065,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Win Rate %
     description: Measures share of decided opportunities won.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_pipeline.Won Count
+    - fact_pipeline.Decided Count
     calculation:
-      op: hitl
-      reason: Requires fact_pipeline[Won Flag, Lost Flag] by dim_salesrep/dim_sales_stage/dim_date — not yet in Aurora.
+      op: ratio
+      numerator:
+        column: Won Count
+      denominator:
+        column: Decided Count
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7085,10 +7114,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Stage Conversion %
     description: Measures conversion between funnel stages (lead → opportunity → won).
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_pipeline.StageKey
+    - fact_pipeline.Qualified Flag
+    - fact_pipeline.Opportunity Value Amount
     calculation:
       op: hitl
-      reason: Requires fact_pipeline[Stage, Stage Entered Date] by dim_sales_stage/dim_date — not yet in Aurora.
+      reason: fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL by CLI.
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7129,10 +7161,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Sales Cycle Length
     description: Measures average calendar days from opportunity creation to close.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_pipeline.Cycle Days
     calculation:
-      op: hitl
-      reason: Requires fact_pipeline[Create Date, Close Date] by dim_salesrep/dim_date — not yet in Aurora.
+      op: avg
+      column: Cycle Days
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7173,10 +7206,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Sales Velocity
     description: Measures revenue generation rate through the pipeline.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_pipeline.Opportunity Value Amount
+    - fact_pipeline.Won Count
+    - fact_pipeline.Decided Count
+    - fact_pipeline.Cycle Days
     calculation:
       op: hitl
-      reason: Requires fact_pipeline[Opportunity count, Deal Value, Won/Lost, Create/Close Date] — not yet in Aurora.
+      reason: 'Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL).'
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7217,10 +7254,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Open Pipeline Value
     description: Measures total value of open qualified opportunities.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_pipeline.Open Qualified Value Amount
     calculation:
-      op: hitl
-      reason: Requires fact_pipeline[Opportunity Value, Stage] by dim_salesrep/dim_region/dim_date — not yet in Aurora.
+      op: sum
+      column: Open Qualified Value Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7261,10 +7299,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: EBITDA
     description: Measures earnings before interest, tax, depreciation and amortisation.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_finance.EBITDA Amount
     calculation:
-      op: hitl
-      reason: Requires fact_pnl[Revenue, COGS, OpEx, D&A] by dim_org/dim_date — Plan variants needed for the bridge; not yet in Aurora.
+      op: sum
+      column: EBITDA Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7304,10 +7343,27 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: EBITDA Margin vs Plan
     description: Measures the EBITDA-margin gap versus plan.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_finance.EBITDA Amount
+    - fact_finance.Net Sales Amount
+    - fact_finance.Plan EBITDA Amount
+    - fact_finance.Plan Net Sales Amount
     calculation:
-      op: hitl
-      reason: Requires fact_pnl actual + Plan variants (Revenue, COGS, OpEx) by dim_org/dim_date — not yet in Aurora.
+      op: delta
+      minuend:
+        calc:
+          op: ratio
+          numerator:
+            column: EBITDA Amount
+          denominator:
+            column: Net Sales Amount
+      subtrahend:
+        calc:
+          op: ratio
+          numerator:
+            column: Plan EBITDA Amount
+          denominator:
+            column: Plan Net Sales Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7349,10 +7405,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Realised Savings %
     description: Measures procurement savings realised against the savings target.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_procurement.Savings Amount
+    - fact_procurement.Savings Target Amount
     calculation:
-      op: hitl
-      reason: Requires fact_procurement[Realised Savings] and dim_target[Savings Target] by dim_category/dim_supplier/dim_date — not yet in Aurora.
+      op: ratio
+      numerator:
+        column: Savings Amount
+      denominator:
+        column: Savings Target Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7393,10 +7454,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: On-Contract Spend %
     description: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_procurement.On-Contract Amount
+    - fact_procurement.Addressable Amount
     calculation:
-      op: hitl
-      reason: Requires fact_procurement[Spend, On-Contract Flag] by dim_category/dim_supplier/dim_date — not yet in Aurora.
+      op: ratio
+      numerator:
+        column: On-Contract Amount
+      denominator:
+        column: Addressable Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7437,10 +7503,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Purchase Price Variance %
     description: Measures purchase price variance against baseline/standard price.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_procurement.Actual Price Amount
+    - fact_procurement.Baseline Price Amount
     calculation:
-      op: hitl
-      reason: Requires fact_procurement[Actual Price, Baseline Price, Quantity] by dim_category/dim_material/dim_date — not yet in Aurora.
+      op: delta_pct
+      minuend:
+        column: Actual Price Amount
+      subtrahend:
+        column: Baseline Price Amount
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7482,10 +7553,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Supplier On-Time Delivery %
     description: Measures inbound supplier on-time delivery (goods received on/before promise).
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_procurement_receipts.On-Time Flag
     calculation:
-      op: hitl
-      reason: Requires fact_procurement_receipts[Receipt Date, Promise Date] by dim_supplier/dim_category/dim_date — not yet in Aurora.
+      op: rate
+      column: On-Time Flag
   governance:
     business_owner: TBD
     data_owner: TBD
@@ -7527,10 +7599,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Managed Spend
     description: Measures total addressable spend under procurement management.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_procurement.Addressable Amount
     calculation:
-      op: hitl
-      reason: Requires fact_procurement[Spend, Addressable Flag] by dim_category/dim_supplier/dim_date — not yet in Aurora.
+      op: sum
+      column: Addressable Amount
   governance:
     business_owner: TBD
     data_owner: TBD

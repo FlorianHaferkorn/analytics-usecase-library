@@ -20,11 +20,13 @@ technical:
   measure_name: Stage Conversion %
   description: Measures conversion between funnel stages (lead → opportunity → won).
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_pipeline.StageKey
+  - fact_pipeline.Qualified Flag
+  - fact_pipeline.Opportunity Value Amount
   calculation:
     op: hitl
-    reason: Requires fact_pipeline[Stage, Stage Entered Date] by dim_sales_stage/dim_date — not yet in
-      Aurora.
+    reason: "fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL by CLI."
 governance:
   business_owner: TBD
   data_owner: TBD

@@ -20,11 +20,15 @@ technical:
   measure_name: Win Rate %
   description: Measures share of decided opportunities won.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_pipeline.Won Count
+  - fact_pipeline.Decided Count
   calculation:
-    op: hitl
-    reason: Requires fact_pipeline[Won Flag, Lost Flag] by dim_salesrep/dim_sales_stage/dim_date — not
-      yet in Aurora.
+    op: ratio
+    numerator:
+      column: Won Count
+    denominator:
+      column: Decided Count
 governance:
   business_owner: TBD
   data_owner: TBD

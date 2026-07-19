@@ -20,11 +20,15 @@ technical:
   measure_name: Purchase Price Variance %
   description: Measures purchase price variance against baseline/standard price.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_procurement.Actual Price Amount
+  - fact_procurement.Baseline Price Amount
   calculation:
-    op: hitl
-    reason: Requires fact_procurement[Actual Price, Baseline Price, Quantity] by dim_category/dim_material/dim_date
-      — not yet in Aurora.
+    op: delta_pct
+    minuend:
+      column: Actual Price Amount
+    subtrahend:
+      column: Baseline Price Amount
 governance:
   business_owner: TBD
   data_owner: TBD

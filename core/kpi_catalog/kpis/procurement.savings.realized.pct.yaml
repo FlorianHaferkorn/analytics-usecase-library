@@ -21,11 +21,15 @@ technical:
   measure_name: Realised Savings %
   description: Measures procurement savings realised against the savings target.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_procurement.Savings Amount
+  - fact_procurement.Savings Target Amount
   calculation:
-    op: hitl
-    reason: Requires fact_procurement[Realised Savings] and dim_target[Savings Target] by dim_category/dim_supplier/dim_date
-      — not yet in Aurora.
+    op: ratio
+    numerator:
+      column: Savings Amount
+    denominator:
+      column: Savings Target Amount
 governance:
   business_owner: TBD
   data_owner: TBD

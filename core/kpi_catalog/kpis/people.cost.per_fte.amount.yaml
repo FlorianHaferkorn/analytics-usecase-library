@@ -19,11 +19,15 @@ technical:
   measure_name: Workforce Cost per FTE
   description: Measures total workforce cost per full-time-equivalent.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_workforce.Workforce Cost Amount
+  - fact_workforce.Headcount FTE
   calculation:
-    op: hitl
-    reason: Requires fact_workforce[Workforce Cost, Headcount FTE] by dim_org/dim_employee_segment/dim_date
-      — not yet in Aurora.
+    op: ratio
+    numerator:
+      column: Workforce Cost Amount
+    denominator:
+      column: Headcount FTE
 governance:
   business_owner: TBD
   data_owner: TBD

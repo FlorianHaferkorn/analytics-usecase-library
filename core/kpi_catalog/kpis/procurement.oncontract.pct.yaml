@@ -20,11 +20,15 @@ technical:
   measure_name: On-Contract Spend %
   description: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_procurement.On-Contract Amount
+  - fact_procurement.Addressable Amount
   calculation:
-    op: hitl
-    reason: Requires fact_procurement[Spend, On-Contract Flag] by dim_category/dim_supplier/dim_date —
-      not yet in Aurora.
+    op: ratio
+    numerator:
+      column: On-Contract Amount
+    denominator:
+      column: Addressable Amount
 governance:
   business_owner: TBD
   data_owner: TBD

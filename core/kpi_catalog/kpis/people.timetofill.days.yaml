@@ -19,11 +19,11 @@ technical:
   measure_name: Time to Fill
   description: Measures average calendar days to fill an open vacancy.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_recruiting.Days to Fill
   calculation:
-    op: hitl
-    reason: Requires fact_recruiting[Requisition Open Date, Filled Date] by dim_org/dim_role/dim_date
-      — not yet in Aurora.
+    op: avg
+    column: Days to Fill
 governance:
   business_owner: TBD
   data_owner: TBD
