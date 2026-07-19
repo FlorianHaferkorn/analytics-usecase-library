@@ -176,33 +176,28 @@ fact:
       - {name: Sales Units, type: decimal, agg: sum}
 
   - name: fact_procurement
-    description: "Procurement spend facts. Two shapes coexist: the logical purchase-order-line columns
-      (bound by the SupplyChain SemanticModel TMDL) and the Aurora gold dc_vendor_month realisation
-      (monthly spend per DC × vendor) that backs SCM-004."
-    purpose: "Procurement spend, savings realisation, contract compliance, price variance."
-    grain: purchase_order_line | dc_vendor_month
+    description: "Procurement spend at purchase-order-line grain (one row per PO line) so purchase price
+      variance is auditable per line: PPV Amount = (Actual − Standard) unit price × Quantity."
+    purpose: "Procurement spend, savings realisation, contract compliance, and per-line price variance (SCM-004)."
+    grain: purchase_order_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
-      - {name: Purchase Amount, type: currency, agg: sum}
-      - {name: Contracted Amount, type: currency, agg: sum, nullable: true}
-      - {name: Actual Unit Price, type: currency, agg: sum, nullable: true}
-      - {name: Contract Unit Price, type: currency, agg: sum, nullable: true}
-      - {name: Purchase Quantity, type: decimal, agg: sum}
-      # --- Aurora gold (dc_vendor_month) columns for SCM-004 ---
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one, description: "Distribution centre that raised the purchase order line."}
       - {name: VendorKey, type: int, ref: dim_vendor, cardinality: many-to-one}
       - {name: CategoryKey, type: int, ref: dim_category, cardinality: many-to-one}
-      - {name: Procurement Amount, type: currency, agg: sum, description: "dc_vendor_month spend; ≈ Purchase Amount."}
-      - {name: Savings Amount, type: currency, agg: sum, description: "Realised savings; numerator of realised-savings %."}
+      - {name: Quantity, type: decimal, agg: sum}
+      - {name: Standard Unit Price Amount, type: currency, agg: avg, description: "PPV baseline unit price."}
+      - {name: Actual Unit Price Amount, type: currency, agg: avg, description: "Price actually paid per unit on the line; the PPV actual leg."}
+      - {name: Baseline Spend Amount, type: currency, agg: sum, description: "Quantity × Standard price; PPV % denominator."}
+      - {name: Actual Spend Amount, type: currency, agg: sum, description: "Quantity × Actual price."}
+      - {name: PPV Amount, type: currency, agg: sum, description: "(Actual − Standard) × Quantity; PPV % numerator."}
+      - {name: On-Contract Amount, type: currency, agg: sum, description: "On-contract spend; on-contract % numerator."}
+      - {name: Addressable Amount, type: currency, agg: sum, description: "Addressable/managed spend; on-contract & managed-spend base."}
+      - {name: Savings Amount, type: currency, agg: sum, description: "Realised savings; realised-savings % numerator."}
+      - {name: Savings Target Amount, type: currency, agg: sum, description: "Realised-savings % denominator."}
+      - {name: Procurement Amount, type: currency, agg: sum, description: "Line spend (= Actual Spend); continuity alias."}
       - {name: Vendor Count, type: int, agg: sum, nullable: true}
       - {name: PO Count, type: int, agg: sum, nullable: true}
-      - {name: Savings Target Amount, type: currency, agg: sum, description: "Denominator of realised-savings %."}
-      - {name: On-Contract Amount, type: currency, agg: sum, description: "On-contract spend; ≈ Contracted Amount."}
-      - {name: Addressable Amount, type: currency, agg: sum, description: "Addressable/managed spend; on-contract denominator."}
-      - {name: Baseline Price Amount, type: currency, agg: sum, description: "≈ Contract Unit Price; PPV baseline."}
-      - {name: Actual Price Amount, type: currency, agg: sum, description: "≈ Actual Unit Price; PPV actual."}
-      - {name: Quantity, type: decimal, agg: sum, description: "Purchased quantity for the spend line; the PPV price-times-quantity base (≈ Purchase Quantity)."}
 
   - name: fact_procurement_receipts
     description: "Inbound receipt facts (one row per receipt) with promise vs receipt date and on-time flag."
@@ -210,6 +205,7 @@ fact:
     grain: receipt
     columns:
       - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one, description: "Distribution centre that received the inbound delivery."}
       - {name: VendorKey, type: int, ref: dim_vendor, cardinality: many-to-one}
       - {name: CategoryKey, type: int, ref: dim_category, cardinality: many-to-one}
       - {name: Promise Date, type: int}
@@ -281,8 +277,8 @@ quality_rules:
     - "fact_fulfillment.ProductKey → dim_product (nullable)"
     - "fact_forecast.OrgKey → dim_org (nullable; absent = company-wide forecast)"
     - "fact_forecast.ForecastabilityKey → dim_forecastability (nullable; absent = unsegmented SKU)"
-    - "fact_procurement.VendorKey → dim_vendor; CategoryKey → dim_category (Aurora gold shape)"
-    - "fact_procurement_receipts.VendorKey → dim_vendor; CategoryKey → dim_category (required)"
+    - "fact_procurement.OrgKey → dim_org; VendorKey → dim_vendor; CategoryKey → dim_category (required)"
+    - "fact_procurement_receipts.OrgKey → dim_org; VendorKey → dim_vendor; CategoryKey → dim_category (required)"
 
 settings:
   timezone: Europe/Berlin

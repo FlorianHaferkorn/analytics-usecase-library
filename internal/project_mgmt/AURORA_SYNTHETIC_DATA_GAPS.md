@@ -165,9 +165,9 @@ categories; PPV climbing in those same categories (the governed cross-signal); s
 | 6 | `fact_pipeline` | 🟥 fact | COM-005 |
 | 7 | `fact_sales_target` (or extend `fact_sales_budget`) | 🟥/🟧 | COM-005 |
 | 8 | `dim_sales_stage`, `dim_salesrep` | 🟦 dim | COM-005 |
-| 9 | `fact_finance` + `D&A`, plan cols, `CostCenterKey` | 🟧 cols | FIN-003 |
-| 10 | `dim_cost_center` | 🟦 dim | FIN-003 |
-| 11 | `fact_procurement` + target/contract/price/`CategoryKey` | 🟧 cols | SCM-004 |
+| 9 | `fact_finance` + `D&A`, plan cols · `fact_opex_costcenter` (org×cc×month) | 🟧/🟥 | FIN-003 |
+| 10 | `dim_cost_center` (conformed 6 buckets) | 🟦 dim | FIN-003 |
+| 11 | `fact_procurement` (purchase-order-line grain; auditable PPV) | 🟥 fact | SCM-004 |
 | 12 | `fact_procurement_receipts` | 🟥 fact | SCM-004 |
 | 13 | `dim_category`, `dim_vendor` | 🟦 dim | SCM-004 |
 
@@ -206,20 +206,28 @@ Two realism tensions to state to a client rather than paper over:
   the synthetic data makes them look readily available. Frame them as "assumes a category-management
   system," not "simple ERP export."
 
-## Known modelling caveats (deliberate simplifications, documented not hidden)
+## Modelling quality — production-clean (no showcase simplifications)
 
-1. **`fact_workforce` is multi-grain on a parent-child hierarchy** — rows at `Country`, `Region` and
-   `Group` levels of `dim_org` (a real ParentOrgKey tree). A defensible "reporting-unit snapshot",
-   but additive measures (`Headcount FTE`) need level-awareness; a cleaner design snapshots at one
-   (leaf) grain and rolls up. *Production-clean follow-up if wanted.*
-2. **`fact_finance.CostCenterKey` is degenerate** — exactly 1 cost centre per `OrgKey`, so it is
-   fully derivable from `OrgKey`. Harmless, but strictly it belongs as a `dim_org` attribute / a
-   role-playing lookup rather than a fact column.
-3. **`procurement.ppv.pct` is approximate** — `fact_procurement` is `dc_vendor_month`, so
-   `Actual/Baseline Price` is a **blended monthly** price and PPV = `Σactual − Σbaseline` over blends.
-   True PPV is per-PO-line `(actual_unit − standard_unit) × qty`; rebuilding to PO-line grain would
-   ~50× the row count. Flagged as directional, not auditable.
-4. **`dim_vendor` vs `dim_supplier` are not conformed** — procurement vendors (`VendorKey`, 40) and
-   the finance/risk supplier master (`SupplierKey`, 4) are different populations & key spaces. Named
-   distinctly to remove the false-conformance collision; a true single supplier/vendor master is a
-   future conformance task.
+All four earlier caveats were resolved (2026-07-19); the data is modelled to production grade.
+
+1. **`fact_workforce` is a full ragged-hierarchy people snapshot** — rows now exist at **every**
+   org level (Store, DC, Country, Region, Group), each carrying that node's **own** direct staff
+   (function-appropriate segments: frontline at stores, logistics at DCs, sales/corporate/IT at
+   HQ levels). Every employee lives at exactly one home node, counted once, rolling up cleanly
+   through `dim_org`'s ParentOrgKey tree — full store-level drill, no double-count. (137k rows.)
+2. **`fact_finance` cost-centre is a real finer grain** — the degenerate `CostCenterKey` (1:1 with
+   `OrgKey`) is **removed**; OpEx now splits across a conformed 6-bucket `dim_cost_center` in
+   **`fact_opex_costcenter`** (org × cost-centre × month), reconciling exactly to `fact_finance`
+   entity OpEx / Plan OpEx (max Δ 0.01, rounding only). The overrun genuinely concentrates in a few
+   cost centres (Marketing, IT) — the FIN-003 "where" drill.
+3. **`procurement.ppv.pct` is auditable per line** — `fact_procurement` is now **purchase-order-line**
+   grain (46.8k lines). `PPV Amount = (Actual − Standard) unit price × Quantity` holds exactly per
+   line; the KPI is the spend-weighted `Σ PPV / Σ Baseline Spend`. Leaking categories +3.5 % vs
+   non-leaking 0.0 %. (Owned here; the former `dc_vendor_month` block in `generate_supply_chain_gold.py`
+   was removed.)
+4. **Vendor vs supplier are named honestly** — the procurement vendor master is `dim_vendor`
+   (`VendorKey`, 40); the finance/risk supplier master stays `dim_supplier` (`SupplierKey`) — genuinely
+   different populations. The false-conformance name collision is gone. (A single cross-domain
+   supplier/vendor master would additionally re-key the FINANCE facts `fact_supplier_risk` /
+   `fact_accounts_payable` and their live TMDL — a Finance-domain change outside these four use cases,
+   noted for that team rather than forced here.)

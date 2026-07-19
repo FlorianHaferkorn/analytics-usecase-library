@@ -7504,14 +7504,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measures purchase price variance against baseline/standard price.
     depends_on_measures: []
     lineage:
-    - fact_procurement.Actual Price Amount
-    - fact_procurement.Baseline Price Amount
+    - fact_procurement.PPV Amount
+    - fact_procurement.Baseline Spend Amount
     calculation:
-      op: delta_pct
-      minuend:
-        column: Actual Price Amount
-      subtrahend:
-        column: Baseline Price Amount
+      op: ratio
+      numerator:
+        column: PPV Amount
+      denominator:
+        column: Baseline Spend Amount
   governance:
     business_owner: TBD
     data_owner: TBD

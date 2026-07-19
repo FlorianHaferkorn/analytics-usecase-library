@@ -327,70 +327,8 @@ for date_obj in month_end_dates:
 fmt = write_fact_delta(fact_forecast_dir, pd.DataFrame(rows_forecast), partition_by=["Fiscal Year"])
 print(f"Written fact_forecast ({len(rows_forecast):,} records) [{fmt}]")
 
-# fact_procurement (dc_vendor_month) – monthly procurement spend per DC × vendor
-# Scope: all 18 DCs, 40 vendors, 60 months (2020-2024)
-fact_proc_dir = facts / "fact_procurement"
-fact_proc_dir.mkdir(parents=True, exist_ok=True)
-rows_proc = []
-
-# Vendor pool: 40 vendors (VendorKey 1–40)
-VENDOR_POOL = list(range(1, 41))
-
-# Each DC has a primary vendor set (6–10 vendors, deterministic per OrgKey)
-try:
-    for p in (dims / "dim_org").rglob("*.parquet"):
-        _org_df = pd.read_parquet(p)
-        dc_org_keys = _org_df[_org_df["OrgType"] == "DC"]["OrgKey"].astype(int).tolist()
-        break
-except Exception:
-    dc_org_keys = [ok for ok in org_keys if ok % 3 == 0][:18]
-
-# Annual procurement growth mirrors revenue growth (6 % CAGR)
-_PROC_GROWTH = {2020: 1.00, 2021: 1.04, 2022: 1.08, 2023: 1.14, 2024: 1.20}
-# Base monthly procurement per DC (EUR) – higher than store because DC aggregates
-_BASE_MONTHLY_PROC = 1_200_000.0
-
-print(f"Generating fact_procurement for {len(month_end_dates)} months × {len(dc_org_keys)} DCs × up to 10 vendors/DC ...")
-
-for ok in dc_org_keys:
-    # Deterministic vendor assignment for this DC
-    rng_v = np.random.RandomState(RANDOM_SEED + ok * 13)
-    n_vendors = int(rng_v.randint(6, 11))
-    dc_vendors = rng_v.choice(VENDOR_POOL, size=n_vendors, replace=False).tolist()
-
-    # Vendor share weights (Pareto: top vendor ~35% of spend)
-    raw_wts = np.exp(-rng_v.uniform(0, 0.4) * np.arange(n_vendors))
-    vendor_wts = raw_wts / raw_wts.sum()
-
-    for date_obj in month_end_dates:
-        date_key    = int(date_obj.strftime("%Y%m%d"))
-        year        = date_obj.year
-        growth      = _PROC_GROWTH.get(year, 1.0)
-        seasonality = apply_monthly_seasonality(date_obj, base_factor=1.0, seed=RANDOM_SEED)
-
-        total_proc = _BASE_MONTHLY_PROC * growth * seasonality
-
-        for vk, wt in zip(dc_vendors, vendor_wts):
-            rng_row = np.random.RandomState(RANDOM_SEED + ok * 10000 + vk * 100 + (date_key % 1000))
-            noise       = float(rng_row.uniform(0.88, 1.12))
-            proc_amount = round(total_proc * float(wt) * noise, 2)
-            # Savings: 2–8 % of spend through negotiation / early payment
-            savings_pct  = float(rng_row.uniform(0.02, 0.08))
-            savings_amt  = round(proc_amount * savings_pct, 2)
-            po_count     = int(rng_row.randint(3, 16))
-
-            rows_proc.append({
-                "DateKey":            date_key,
-                "OrgKey":             int(ok),
-                "VendorKey":          int(vk),
-                "Procurement Amount": proc_amount,
-                "Savings Amount":     savings_amt,
-                "Vendor Count":       1,   # row is already at vendor grain
-                "PO Count":           po_count,
-            })
-
-df_proc = pd.DataFrame(rows_proc)
-fmt = write_fact_delta(fact_proc_dir, df_proc, partition_by=["Fiscal Year"])
-print(f"Written fact_procurement ({len(rows_proc):,} records) [{fmt}]")
+# fact_procurement — OWNED BY generate_gapfill_gold.py (SCM-004).
+# It is now generated at purchase_order_line grain there (auditable PPV), superseding the
+# former dc_vendor_month block that lived here. Do not re-add a monthly fact_procurement here.
 
 print("\n[OK] Supply Chain gold data generation complete!")
