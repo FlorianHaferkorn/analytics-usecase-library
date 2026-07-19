@@ -22,6 +22,14 @@ KPIs compute and their reports render. It also records a pre-existing gap in **C
 > `sales.velocity.amount`) stay `hitl` with lineage pointing at the real columns — they need a
 > multi-input DAX assembly beyond the single-op DSL. **Still CLI-gated** (below): the TMDL/DAX
 > named measures and the four `.Report` folders — see `CLAUDE_CLI_PBI_DESKTOP_TASKS.md`.
+>
+> **Ontology registered ✅ (2026-07-19).** Verified end-to-end: all 26 fact→dim FK relationships
+> resolve (0 orphans/nulls), formatting/types/ranges clean (EBITDA = EBIT + D&A holds), every KPI
+> lineage column exists. The new tables/dims/columns are now declared in the governed domain data
+> contracts (`core/data_contracts/domains/{people,commercial_sales,finance,supply_chain}.yaml`) so
+> the ontology reflects reality — contract validator green, H8 AI-readiness green. Note: the People
+> stub facts (`fact_hr`/`fact_it`/`fact_survey`) have no physical backing and are superseded by
+> `fact_workforce`/`fact_engagement_survey`/`fact_recruiting`; retiring the stub is a follow-up.
 
 **Method.** Each KPI's required source is recorded in its catalog entry
 (`technical.calculation.reason`) and mirrored here as concrete table/column specs. Aurora gold

@@ -72,6 +72,26 @@ dimension:
       - {name: XYZ_Class, type: text, allowed_values: [X, Y, Z], synonyms: [XYZ Class, XYZ Classification, XYZ-Analyse, RSU-Analyse]}
       - {name: Demand_CoV_Band, type: text, allowed_values: [Low, Medium, High], synonyms: [Demand CoV Band, Coefficient of Variation Band, Variabilitätsklasse, Streuungsband]}
 
+  # SCM-004 procurement/supplier (SCOR Source + convention).
+  - name: dim_category
+    description: "Procurement spend category (direct merchandise vs indirect) for spend/contract analysis."
+    purpose: "Category-level on-contract, savings, and price-variance analysis in SCM-004."
+    scd_type: 1
+    columns:
+      - {name: CategoryKey, type: int, role: key}
+      - {name: Category, type: text}
+      - {name: Category Group, type: text, allowed_values: [Direct, Indirect]}
+
+  - name: dim_supplier
+    description: "Supplier/vendor (region, tier) keyed by VendorKey for the Aurora procurement gold."
+    purpose: "Supplier-level spend, OTD, and risk analysis in SCM-004."
+    scd_type: 1
+    columns:
+      - {name: VendorKey, type: int, role: key}
+      - {name: Supplier, type: text}
+      - {name: Region, type: text}
+      - {name: Tier, type: text, allowed_values: [A, B, C]}
+
 fact:
   - name: fact_inventory
     description: "Daily inventory snapshot (on-hand/average/obsolete) at location-SKU-day grain for precise DIO."
@@ -152,9 +172,11 @@ fact:
       - {name: Sales Units, type: decimal, agg: sum}
 
   - name: fact_procurement
-    description: "Purchase order line facts (amount, quantity, contracted vs actual)."
-    purpose: "Procurement spend and compliance."
-    grain: purchase_order_line
+    description: "Procurement spend facts. Two shapes coexist: the logical purchase-order-line columns
+      (bound by the SupplyChain SemanticModel TMDL) and the Aurora gold dc_vendor_month realisation
+      (monthly spend per DC × vendor) that backs SCM-004."
+    purpose: "Procurement spend, savings realisation, contract compliance, price variance."
+    grain: purchase_order_line | dc_vendor_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -164,6 +186,31 @@ fact:
       - {name: Actual Unit Price, type: currency, agg: sum, nullable: true}
       - {name: Contract Unit Price, type: currency, agg: sum, nullable: true}
       - {name: Purchase Quantity, type: decimal, agg: sum}
+      # --- Aurora gold (dc_vendor_month) columns for SCM-004 ---
+      - {name: VendorKey, type: int, ref: dim_supplier, cardinality: many-to-one}
+      - {name: CategoryKey, type: int, ref: dim_category, cardinality: many-to-one}
+      - {name: Procurement Amount, type: currency, agg: sum, description: "dc_vendor_month spend; ≈ Purchase Amount."}
+      - {name: Savings Amount, type: currency, agg: sum, description: "Realised savings; numerator of realised-savings %."}
+      - {name: Vendor Count, type: int, agg: sum, nullable: true}
+      - {name: PO Count, type: int, agg: sum, nullable: true}
+      - {name: Savings Target Amount, type: currency, agg: sum, description: "Denominator of realised-savings %."}
+      - {name: On-Contract Amount, type: currency, agg: sum, description: "On-contract spend; ≈ Contracted Amount."}
+      - {name: Addressable Amount, type: currency, agg: sum, description: "Addressable/managed spend; on-contract denominator."}
+      - {name: Baseline Price Amount, type: currency, agg: sum, description: "≈ Contract Unit Price; PPV baseline."}
+      - {name: Actual Price Amount, type: currency, agg: sum, description: "≈ Actual Unit Price; PPV actual."}
+      - {name: Quantity, type: decimal, agg: sum, description: "Purchased quantity for the spend line; the PPV price-times-quantity base (≈ Purchase Quantity)."}
+
+  - name: fact_procurement_receipts
+    description: "Inbound receipt facts (one row per receipt) with promise vs receipt date and on-time flag."
+    purpose: "Supplier on-time-delivery (OTD) measurement for SCM-004."
+    grain: receipt
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: VendorKey, type: int, ref: dim_supplier, cardinality: many-to-one}
+      - {name: CategoryKey, type: int, ref: dim_category, cardinality: many-to-one}
+      - {name: Promise Date, type: int}
+      - {name: Receipt Date, type: int}
+      - {name: On-Time Flag, type: bool}
 
   - name: fact_replenishment
     description: "Replenishment events at location-SKU-day."
@@ -230,6 +277,8 @@ quality_rules:
     - "fact_fulfillment.ProductKey → dim_product (nullable)"
     - "fact_forecast.OrgKey → dim_org (nullable; absent = company-wide forecast)"
     - "fact_forecast.ForecastabilityKey → dim_forecastability (nullable; absent = unsegmented SKU)"
+    - "fact_procurement.VendorKey → dim_supplier; CategoryKey → dim_category (Aurora gold shape)"
+    - "fact_procurement_receipts.VendorKey → dim_supplier; CategoryKey → dim_category (required)"
 
 settings:
   timezone: Europe/Berlin

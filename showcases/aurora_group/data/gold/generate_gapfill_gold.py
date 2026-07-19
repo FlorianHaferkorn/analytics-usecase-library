@@ -299,7 +299,7 @@ def build_dim_salesrep(org_df: pd.DataFrame) -> pd.DataFrame:
     for i in range(1, 41):
         region = regions[i % len(regions)]
         rows.append({
-            "SalesRepKey": i, "Rep": f"Rep {i:02d}",
+            "SalesRepKey": i, "Rep Name": f"Rep {i:02d}",
             "Team": f"{region} Sales", "Region": region,
         })
     df = pd.DataFrame(rows)

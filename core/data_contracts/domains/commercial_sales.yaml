@@ -66,6 +66,39 @@ dimension:
       - {name: Start Date, type: date, nullable: true}
       - {name: End Date, type: date, nullable: true}
 
+  # COM-005 pipeline & conversion (convention). Aurora gold: fact_pipeline + fact_sales_target.
+  - name: dim_sales_stage
+    description: "Opportunity funnel stage (Lead → Qualified → Proposal → Negotiation → Closed Won/Lost)."
+    purpose: "Stage conversion, win/loss, and funnel-leak analysis for the sales pipeline."
+    scd_type: 1
+    columns:
+      - {name: StageKey, type: int, role: key}
+      - {name: Stage, type: text, allowed_values: [Lead, Qualified, Proposal, Negotiation, "Closed Won", "Closed Lost"]}
+      - {name: Stage Order, type: int}
+      - {name: Is Won, type: bool}
+      - {name: Is Lost, type: bool}
+
+  - name: dim_salesrep
+    description: "Sales representative (rep, team, region) for pipeline ownership."
+    purpose: "Rep- and team-level pipeline coverage, win-rate, and velocity analysis."
+    scd_type: 1
+    columns:
+      - {name: SalesRepKey, type: int, role: key}
+      - {name: Rep Name, type: text}
+      - {name: Team, type: text, allowed_values: ["DACH Sales", "Benelux Sales", "Nordics Sales", "SouthernEurope Sales", "CEE Sales"]}
+      - {name: Region, type: text, allowed_values: [DACH, Benelux, Nordics, SouthernEurope, CEE]}
+
+  # COM-001 price/volume/mix bridge for the Net-Sales-vs-Plan waterfall.
+  - name: dim_pvm_driver
+    description: "Price/Volume/Mix driver bridge (3 rows) for the PVM waterfall."
+    purpose: "Decomposes Net Sales Δ vs Plan into governed Price/Volume/Mix effects."
+    scd_type: 1
+    columns:
+      - {name: PVMDriverKey, type: int, role: key}
+      - {name: Driver, type: text, allowed_values: [Price, Volume, Mix]}
+      - {name: Sort Order, type: int}
+      - {name: Sign Convention, type: text, allowed_values: ["As-is"]}
+
 fact:
   - name: fact_sales
     description: "Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year."
@@ -173,6 +206,37 @@ fact:
     qa:
       - "NPS Score in [0;10]; Promoter/Detractor flags mutually exclusive."
 
+  # --- COM-005 pipeline facts (Aurora gold) ---
+  - name: fact_pipeline
+    description: "Sales opportunity (one row per opportunity) with funnel stage reached, value, and close outcome."
+    purpose: "Pipeline value/coverage, win-rate, sales-cycle, conversion, and velocity."
+    grain: opportunity
+    columns:
+      - {name: OpportunityID, type: int, role: key}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: SalesRepKey, type: int, ref: dim_salesrep, cardinality: many-to-one}
+      - {name: StageKey, type: int, ref: dim_sales_stage, cardinality: many-to-one}
+      - {name: Create Date, type: int}
+      - {name: Close Date, type: int, description: "0 when still open."}
+      - {name: Opportunity Value Amount, type: currency, agg: sum}
+      - {name: Open Qualified Value Amount, type: currency, agg: sum, description: "Value if open & qualified, else 0."}
+      - {name: Won Flag, type: bool}
+      - {name: Lost Flag, type: bool}
+      - {name: Qualified Flag, type: bool}
+      - {name: Won Count, type: int, agg: sum}
+      - {name: Decided Count, type: int, agg: sum, description: "1 if won or lost (closed), else 0."}
+      - {name: Cycle Days, type: decimal, agg: avg, nullable: true, description: "Close-Create for closed opps; blank while open."}
+
+  - name: fact_sales_target
+    description: "Remaining sales target per org and month (coverage denominator)."
+    purpose: "Denominator of pipeline coverage (open qualified pipeline / remaining target)."
+    grain: month_org
+    columns:
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: Remaining Target Amount, type: currency, agg: sum}
+
 quality_rules:
   freshness_sla: daily        # fact_sales refreshed within 24 h of business close; fact_customer_events monthly
   key_nullability:
@@ -196,6 +260,8 @@ quality_rules:
     - "fact_promo.ProductKey → dim_product (required)"
     - "fact_promo.DateKey → dim_date (required)"
     - "fact_promo.OrgKey → dim_org (nullable; absent = promo not org-scoped)"
+    - "fact_pipeline.OrgKey → dim_org; SalesRepKey → dim_salesrep; StageKey → dim_sales_stage (required)"
+    - "fact_sales_target.OrgKey → dim_org (required)"
 
 settings:
   timezone: Europe/Berlin
