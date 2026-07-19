@@ -505,7 +505,9 @@ def build_dim_category() -> pd.DataFrame:
     return df
 
 
-def build_dim_supplier(proc: pd.DataFrame, org_df: pd.DataFrame) -> dict[int, int]:
+def build_dim_vendor(proc: pd.DataFrame, org_df: pd.DataFrame) -> dict[int, int]:
+    # Procurement vendor master (keyed VendorKey), distinct from the finance/risk
+    # supplier master (dim_supplier / SupplierKey) — different population & key space.
     regions = sorted(org_df["Region"].dropna().unique().tolist())
     vendor_keys = sorted(proc["VendorKey"].dropna().astype(int).unique().tolist())
     rows, vendor_cat = [], {}
@@ -514,9 +516,9 @@ def build_dim_supplier(proc: pd.DataFrame, org_df: pd.DataFrame) -> dict[int, in
         cat = int(r.choice([c[0] for c in _CATEGORIES]))
         vendor_cat[vk] = cat
         tier = str(r.choice(["A", "B", "C"], p=[0.3, 0.45, 0.25]))
-        rows.append({"VendorKey": vk, "Supplier": f"Supplier {vk:02d}",
+        rows.append({"VendorKey": vk, "Vendor": f"Vendor {vk:02d}",
                      "Region": regions[vk % len(regions)], "Tier": tier})
-    _write_dim("dim_supplier", pd.DataFrame(rows))
+    _write_dim("dim_vendor", pd.DataFrame(rows))
     return vendor_cat
 
 
@@ -621,7 +623,7 @@ def main() -> None:
     print("\n[5] SCM-004")
     build_dim_category()
     proc = _load_fact("fact_procurement")
-    vendor_cat = build_dim_supplier(proc, org_df)
+    vendor_cat = build_dim_vendor(proc, org_df)
     extend_fact_procurement(proc, vendor_cat)
     build_fact_procurement_receipts(proc, vendor_cat)
 

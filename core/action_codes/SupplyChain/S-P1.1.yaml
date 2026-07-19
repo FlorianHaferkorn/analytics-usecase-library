@@ -148,7 +148,7 @@ data_requirements:
     tables:
     - fact_procurement
     - fact_procurement_receipts
-    - dim_supplier
+    - dim_vendor
     - dim_category
 automation:
   detection:

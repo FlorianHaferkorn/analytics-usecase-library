@@ -82,13 +82,17 @@ dimension:
       - {name: Category, type: text}
       - {name: Category Group, type: text, allowed_values: [Direct, Indirect]}
 
-  - name: dim_supplier
-    description: "Supplier/vendor (region, tier) keyed by VendorKey for the Aurora procurement gold."
-    purpose: "Supplier-level spend, OTD, and risk analysis in SCM-004."
+  # Procurement vendor master, keyed VendorKey. Deliberately named dim_vendor (not
+  # dim_supplier) to avoid a false-conformance collision with the finance/risk supplier
+  # master (finance.yaml dim_supplier / SupplierKey) — different population & key space.
+  # A future true conformance would unify them into one supplier/vendor master.
+  - name: dim_vendor
+    description: "Procurement vendor (region, tier) keyed by VendorKey for the Aurora procurement gold."
+    purpose: "Vendor-level spend, OTD, and price-variance analysis in SCM-004."
     scd_type: 1
     columns:
       - {name: VendorKey, type: int, role: key}
-      - {name: Supplier, type: text}
+      - {name: Vendor, type: text}
       - {name: Region, type: text}
       - {name: Tier, type: text, allowed_values: [A, B, C]}
 
@@ -187,7 +191,7 @@ fact:
       - {name: Contract Unit Price, type: currency, agg: sum, nullable: true}
       - {name: Purchase Quantity, type: decimal, agg: sum}
       # --- Aurora gold (dc_vendor_month) columns for SCM-004 ---
-      - {name: VendorKey, type: int, ref: dim_supplier, cardinality: many-to-one}
+      - {name: VendorKey, type: int, ref: dim_vendor, cardinality: many-to-one}
       - {name: CategoryKey, type: int, ref: dim_category, cardinality: many-to-one}
       - {name: Procurement Amount, type: currency, agg: sum, description: "dc_vendor_month spend; ≈ Purchase Amount."}
       - {name: Savings Amount, type: currency, agg: sum, description: "Realised savings; numerator of realised-savings %."}
@@ -206,7 +210,7 @@ fact:
     grain: receipt
     columns:
       - {name: DateKey, type: int, ref: dim_date}
-      - {name: VendorKey, type: int, ref: dim_supplier, cardinality: many-to-one}
+      - {name: VendorKey, type: int, ref: dim_vendor, cardinality: many-to-one}
       - {name: CategoryKey, type: int, ref: dim_category, cardinality: many-to-one}
       - {name: Promise Date, type: int}
       - {name: Receipt Date, type: int}
@@ -277,8 +281,8 @@ quality_rules:
     - "fact_fulfillment.ProductKey → dim_product (nullable)"
     - "fact_forecast.OrgKey → dim_org (nullable; absent = company-wide forecast)"
     - "fact_forecast.ForecastabilityKey → dim_forecastability (nullable; absent = unsegmented SKU)"
-    - "fact_procurement.VendorKey → dim_supplier; CategoryKey → dim_category (Aurora gold shape)"
-    - "fact_procurement_receipts.VendorKey → dim_supplier; CategoryKey → dim_category (required)"
+    - "fact_procurement.VendorKey → dim_vendor; CategoryKey → dim_category (Aurora gold shape)"
+    - "fact_procurement_receipts.VendorKey → dim_vendor; CategoryKey → dim_category (required)"
 
 settings:
   timezone: Europe/Berlin

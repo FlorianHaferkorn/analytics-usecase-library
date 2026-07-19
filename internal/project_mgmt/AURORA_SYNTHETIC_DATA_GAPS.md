@@ -142,7 +142,10 @@ lacks target, contract-compliance, price-variance and inbound-delivery detail.
   `VendorKey`, `CategoryKey`, `Promise Date`, `Receipt Date`, `On-Time Flag`.
   → feeds `procurement.supplier.otd.pct`.
 - 🟦 **`dim_category`** (`CategoryKey`, `Category`, `Category Group`) and
-  🟦 **`dim_supplier`** (from existing `VendorKey`: `Supplier`, `Region`, `Tier`).
+  🟦 **`dim_vendor`** (from existing `VendorKey`: `Vendor`, `Region`, `Tier`).
+  Named `dim_vendor` (not `dim_supplier`) on purpose: the finance/risk supplier master
+  (`dim_supplier` / `SupplierKey`, 4 rows in `fact_supplier_risk`) is a **different**
+  population and key space — see the conformance note below.
   Reused: `scm.supplier_risk.score` ← existing `fact_supplier_risk`.
 
 **Realism:** realised savings 40–80 % of target; on-contract spend ~70–85 % with 2–3 leaking
@@ -166,7 +169,7 @@ categories; PPV climbing in those same categories (the governed cross-signal); s
 | 10 | `dim_cost_center` | 🟦 dim | FIN-003 |
 | 11 | `fact_procurement` + target/contract/price/`CategoryKey` | 🟧 cols | SCM-004 |
 | 12 | `fact_procurement_receipts` | 🟥 fact | SCM-004 |
-| 13 | `dim_category`, `dim_supplier` | 🟦 dim | SCM-004 |
+| 13 | `dim_category`, `dim_vendor` | 🟦 dim | SCM-004 |
 
 All 13 are **written** (status banner above). Regenerate anytime with
 `python3 showcases/aurora_group/data/gold/generate_gapfill_gold.py` (deterministic).
@@ -178,3 +181,45 @@ remove the 19 `planned.yaml` entries as each measure lands, generate the four `.
 (they then drop out of the report-pending exemption in `test_dist_report_coverage.py`), and flip
 each UC's `readiness.data_availability` off `not_available`. Only then do the KPIs move from
 UNCOMPUTED to computed/value-verified in a live model.
+
+---
+
+## Data sourcing reality — how "fetchable" is each fact, really?
+
+The gold tables read as easy because they are the **post-ETL gold layer**: already conformed,
+keyed, and pre-aggregated. Raw source fetch is messier and varies a lot by domain. This matters
+when scoping a real client: don't imply a metric is a simple export when it needs a system the
+client may not have.
+
+| Fact | Real-world fetch | Typical source system |
+|---|---|---|
+| `fact_finance` (+plan), `fact_sales_target` | **Easy** | GL/ERP + FP&A budget — every finance function has this |
+| `fact_pipeline` | **Easy — *if B2B*** | CRM opportunity object (Salesforce/HubSpot/Dynamics) |
+| `fact_workforce`, `fact_recruiting`, `fact_engagement_survey` | **Moderate** | HRIS + ATS + survey tool; needs PII governance |
+| `fact_procurement_receipts` (OTD) | **Moderate** | ERP goods-receipt vs promise date (SAP MM) |
+| `fact_procurement` savings / on-contract / PPV | **Hard** | Needs mature spend analytics: spend taxonomy, contract register, standard prices — the fields companies most struggle to source |
+
+Two realism tensions to state to a client rather than paper over:
+- **Aurora is a retail group (495 stores)** yet COM-005 models a **B2B sales pipeline** — realistic
+  only for a wholesale / key-account arm, not pure B2C retail.
+- **Procurement savings / on-contract / PPV** are exactly the fields real companies *lack* cleanly;
+  the synthetic data makes them look readily available. Frame them as "assumes a category-management
+  system," not "simple ERP export."
+
+## Known modelling caveats (deliberate simplifications, documented not hidden)
+
+1. **`fact_workforce` is multi-grain on a parent-child hierarchy** — rows at `Country`, `Region` and
+   `Group` levels of `dim_org` (a real ParentOrgKey tree). A defensible "reporting-unit snapshot",
+   but additive measures (`Headcount FTE`) need level-awareness; a cleaner design snapshots at one
+   (leaf) grain and rolls up. *Production-clean follow-up if wanted.*
+2. **`fact_finance.CostCenterKey` is degenerate** — exactly 1 cost centre per `OrgKey`, so it is
+   fully derivable from `OrgKey`. Harmless, but strictly it belongs as a `dim_org` attribute / a
+   role-playing lookup rather than a fact column.
+3. **`procurement.ppv.pct` is approximate** — `fact_procurement` is `dc_vendor_month`, so
+   `Actual/Baseline Price` is a **blended monthly** price and PPV = `Σactual − Σbaseline` over blends.
+   True PPV is per-PO-line `(actual_unit − standard_unit) × qty`; rebuilding to PO-line grain would
+   ~50× the row count. Flagged as directional, not auditable.
+4. **`dim_vendor` vs `dim_supplier` are not conformed** — procurement vendors (`VendorKey`, 40) and
+   the finance/risk supplier master (`SupplierKey`, 4) are different populations & key spaces. Named
+   distinctly to remove the false-conformance collision; a true single supplier/vendor master is a
+   future conformance task.
