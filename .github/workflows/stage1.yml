@@ -17,6 +17,13 @@ on:
     branches: [main]
   push:
     branches: [main]
+  # Manual trigger — lets you run the FULL workflow on any branch from the Actions
+  # tab ("Run workflow") without merging to main or marking a draft PR ready. Under
+  # workflow_dispatch the event is not `pull_request`, so the draft-skip `if:` below
+  # evaluates true and the Windows job runs too — i.e. this tests the complete matrix
+  # on the branch. (A normal branch push does NOT trigger this workflow — only
+  # pull_request→main, push→main, or this manual dispatch do.)
+  workflow_dispatch: {}
 
 # Cancel a superseded run when a newer commit lands on the same ref (PR or branch).
 # Without this, every push to an active PR started a *fresh* full matrix while the

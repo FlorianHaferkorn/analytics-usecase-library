@@ -33,6 +33,8 @@ on:
       - "core/kpi_catalog/**"
       - "scripts/check_index.py"
       - ".github/workflows/superversion.yml"
+  # manual trigger for on-demand branch testing (no merge / ready needed)
+  workflow_dispatch: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
