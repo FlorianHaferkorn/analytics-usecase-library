@@ -10,6 +10,8 @@ not a home-grown format. This module bridges the two directions the Baukasten ne
   * **import** ``from_odcs(contracts)`` — reconstructs the deriver ``inputs`` domains fragment, so an
     existing contract set re-derives an identical ``medallion``/``mesh`` IR (bottom-up seed).
   * **SQL import** ``import_sql_table(ddl)`` — a single ``CREATE TABLE`` → an ODCS schema object.
+  * **catalog bridge** ``odcs_to_catalog(contracts)`` — an ODCS contract set → the ``governed_catalog``
+    shape the emitters consume (the governed contract drives column projection; Meridian-side consumer).
 
 Honest scope: ODCS carries the **gold contract** (data products + their schema), not the bronze
 ingestion sources — so the round-trip is exact for ``medallion.gold`` + ``mesh.domains[].data_products``,
@@ -163,6 +165,26 @@ def from_odcs(contracts: list[dict[str, Any]]) -> dict[str, Any]:
     if silver_ref:
         inputs["silver_contract_ref"] = silver_ref
     return inputs
+
+
+def odcs_to_catalog(contracts: list[dict[str, Any]] | dict[str, Any]) -> dict[str, Any]:
+    """Bridge an ODCS contract set → the ``governed_catalog`` shape the Meridian emitters consume.
+
+    Cross-repo mirror of Meridian's ``odcs_to_catalog`` (contract surface). Returns
+    ``{"tables": [{"name", "columns"}]}`` — one entry per schema object that declares ``properties``
+    (columns); objects without columns are skipped (nothing to project, honest). Deterministic (sorted).
+    """
+    if isinstance(contracts, dict):
+        contracts = [contracts]
+    tables: list[dict[str, Any]] = []
+    for c in contracts:
+        for obj in c.get("schema", []) or []:
+            cols = sorted({p["name"] for p in (obj.get("properties") or []) if p.get("name")})
+            if not cols:
+                continue
+            tables.append({"name": obj.get("physicalName") or obj.get("name"), "columns": cols})
+    tables.sort(key=lambda t: t.get("name") or "")
+    return {"tables": tables}
 
 
 def import_sql_table(ddl: str) -> dict[str, Any]:

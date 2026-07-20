@@ -34,7 +34,7 @@ if str(REPO_ROOT) not in sys.path:
 
 _MER_REL = "core/dataarch_engine/blueprint"
 _ALU_REL = "tooling/superversion"
-_ODCS_PUBLIC = ("to_odcs", "emit_odcs", "from_odcs", "import_sql_table", "validate_odcs")
+_ODCS_PUBLIC = ("to_odcs", "emit_odcs", "from_odcs", "import_sql_table", "odcs_to_catalog", "validate_odcs")
 
 
 def _meridian_root() -> Path | None:

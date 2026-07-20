@@ -16,6 +16,7 @@ from tooling.superversion.odcs import (
     emit_odcs,
     from_odcs,
     import_sql_table,
+    odcs_to_catalog,
     to_odcs,
     validate_odcs,
 )
@@ -109,3 +110,13 @@ def test_import_sql_table_maps_types_and_keys():
 def test_import_sql_without_create_table_raises():
     with pytest.raises(ValueError, match="no CREATE TABLE"):
         import_sql_table("SELECT 1")
+
+
+def test_odcs_to_catalog_bridges_contract_to_catalog_shape():
+    # mirror of Meridian: an ODCS schema object with properties → {tables:[{name,columns}]}, sorted
+    ddl = "CREATE TABLE fact_sales (sales_id INT PRIMARY KEY, customer_sk INT NOT NULL, amount DECIMAL(9,2))"
+    cat = odcs_to_catalog({"schema": [import_sql_table(ddl)]})
+    assert cat == {"tables": [{"name": "fact_sales", "columns": ["amount", "customer_sk", "sales_id"]}]}
+    # to_odcs objects have no properties (IR has no columns) → skipped, honest
+    bp = derive_blueprint(_INPUTS)["blueprint"]
+    assert odcs_to_catalog(to_odcs(bp)) == {"tables": []}
