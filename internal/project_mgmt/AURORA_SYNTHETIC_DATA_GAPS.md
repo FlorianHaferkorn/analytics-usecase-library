@@ -209,6 +209,10 @@ Two realism tensions to state to a client rather than paper over:
 ## Modelling quality — production-clean (no showcase simplifications)
 
 All four earlier caveats were resolved (2026-07-19); the data is modelled to production grade.
+**Now machine-enforced:** `tooling/validation/check_data_model.py` (Kimball hygiene gate — missing
+grain, dangling ref, non-conformed dimension, referential integrity, degenerate keys) runs green
+(0 hard · 0 advisory) and is wired into `tooling/run_local_ci_check.sh`, so these defect classes
+can't silently reappear in a future use case.
 
 1. **`fact_workforce` is a full ragged-hierarchy people snapshot** — rows now exist at **every**
    org level (Store, DC, Country, Region, Group), each carrying that node's **own** direct staff

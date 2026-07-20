@@ -553,20 +553,35 @@ _VENDOR_POOL = list(range(1, 41))
 _BASE_MONTHLY_PROC = 1_200_000.0   # base monthly spend per DC (matches supply-chain scale)
 
 
-def build_dim_vendor(org_df: pd.DataFrame) -> dict[int, int]:
+def _vendor_category_set(vk: int) -> list[int]:
+    """A vendor supplies 1-3 categories (realistic; category is a per-LINE attribute, not a
+    vendor attribute — so CategoryKey on the fact is not degenerate against VendorKey)."""
+    r = _rng(vk, 21)
+    allcats = [c[0] for c in _CATEGORIES]
+    primary = int(r.choice(allcats))
+    n_extra = int(r.choice([0, 1, 2], p=[0.35, 0.40, 0.25]))
+    extras = [int(x) for x in r.choice([c for c in allcats if c != primary],
+                                       size=min(n_extra, len(allcats) - 1), replace=False)]
+    return [primary] + extras
+
+
+def _pick_category(vcats: list[int], r) -> int:
+    # primary carries ~70 % of the vendor's lines
+    return int(vcats[0]) if (len(vcats) == 1 or r.random() < 0.70) else int(r.choice(vcats[1:]))
+
+
+def build_dim_vendor(org_df: pd.DataFrame) -> dict[int, list[int]]:
     # Procurement vendor master (keyed VendorKey), distinct from the finance/risk
     # supplier master (dim_supplier / SupplierKey) — different population & key space.
     regions = sorted(org_df["Region"].dropna().unique().tolist())
-    rows, vendor_cat = [], {}
+    rows, vendor_cats = [], {}
     for vk in _VENDOR_POOL:
-        r = _rng(vk, 21)
-        cat = int(r.choice([c[0] for c in _CATEGORIES]))
-        vendor_cat[vk] = cat
-        tier = str(r.choice(["A", "B", "C"], p=[0.3, 0.45, 0.25]))
+        vendor_cats[vk] = _vendor_category_set(vk)
+        tier = str(_rng(vk, 22).choice(["A", "B", "C"], p=[0.3, 0.45, 0.25]))
         rows.append({"VendorKey": vk, "Vendor": f"Vendor {vk:02d}",
                      "Region": regions[vk % len(regions)], "Tier": tier})
     _write_dim("dim_vendor", pd.DataFrame(rows))
-    return vendor_cat
+    return vendor_cats
 
 
 def _dc_vendor_assignment(ok: int) -> tuple[list[int], np.ndarray]:
@@ -577,7 +592,7 @@ def _dc_vendor_assignment(ok: int) -> tuple[list[int], np.ndarray]:
     return dc_vendors, raw / raw.sum()
 
 
-def build_fact_procurement(org_df: pd.DataFrame, vendor_cat: dict[int, int]) -> None:
+def build_fact_procurement(org_df: pd.DataFrame, vendor_cats: dict[int, list[int]]) -> None:
     """PO-line grain (one row per purchase-order line) so PPV is auditable per line —
     PPV Amount = (Actual − Standard) unit price × Quantity, and the spend-weighted PPV %
     = ΣPPV / ΣBaseline Spend. Self-contained: does not depend on the monthly fact."""
@@ -593,17 +608,17 @@ def build_fact_procurement(org_df: pd.DataFrame, vendor_cat: dict[int, int]) -> 
             total_proc = _BASE_MONTHLY_PROC * growth * seasonality
             yr_idx = float(year - 2020)
             for vk, wt in zip(dc_vendors, vendor_wts):
-                cat = vendor_cat[vk]
-                is_leaking = cat in _LEAKING_CATEGORIES
+                vcats = vendor_cats[vk]
                 std_price = float(_rng(vk, 40).uniform(40.0, 160.0))    # vendor standard unit price
                 rr = _rng(ok, vk, dk % 900)
                 vend_spend = total_proc * float(wt) * float(rr.uniform(0.88, 1.12))
                 n_lines = int(rr.randint(3, 9))
                 line_wts = rr.uniform(0.5, 1.5, n_lines); line_wts /= line_wts.sum()
-                # per-vendor contract & savings posture (stable within the month)
-                on_contract_p = float(rr.uniform(0.55, 0.66) if is_leaking else rr.uniform(0.72, 0.85))
                 realisation = float(rr.uniform(0.40, 0.80))
                 for li in range(n_lines):
+                    cat = _pick_category(vcats, rr)                 # category is a per-LINE attribute
+                    is_leaking = cat in _LEAKING_CATEGORIES
+                    on_contract_p = float(rr.uniform(0.55, 0.66) if is_leaking else rr.uniform(0.72, 0.85))
                     line_spend = vend_spend * float(line_wts[li])
                     # PPV: leaking categories climb over the years; others small ±
                     ppv_pct = ((0.010 + 0.012 * yr_idx) if is_leaking else float(rr.uniform(-0.015, 0.015))) \
@@ -641,7 +656,7 @@ def build_fact_procurement(org_df: pd.DataFrame, vendor_cat: dict[int, int]) -> 
           f"| realised savings {real:.0f}% of target · on-contract {onc:.0f}% · spend-weighted PPV {ppv:+.1f}%")
 
 
-def build_fact_procurement_receipts(org_df: pd.DataFrame, vendor_cat: dict[int, int]) -> None:
+def build_fact_procurement_receipts(org_df: pd.DataFrame, vendor_cats: dict[int, list[int]]) -> None:
     print("Generating fact_procurement_receipts …")
     # one receipt row per inbound delivery at DC × vendor × month, OTD ~88-96 %, leaking worse
     dc_orgs = org_df[org_df["OrgType"] == "DC"]["OrgKey"].astype(int).tolist()
@@ -649,12 +664,13 @@ def build_fact_procurement_receipts(org_df: pd.DataFrame, vendor_cat: dict[int, 
     for ok in dc_orgs:
         dc_vendors, _ = _dc_vendor_assignment(ok)
         for vk in dc_vendors:
-            cat = vendor_cat.get(vk, 1)
-            otd_base = 0.90 if cat in _LEAKING_CATEGORIES else 0.94
+            vcats = vendor_cats[vk]
             for date_obj in _month_ends():
                 dk = int(date_obj.strftime("%Y%m%d"))
                 r = _rng(ok, vk, dk % 953)
                 for _ in range(max(1, int(r.randint(2, 6)))):
+                    cat = _pick_category(vcats, r)                 # per-receipt category
+                    otd_base = 0.90 if cat in _LEAKING_CATEGORIES else 0.94
                     promise = pd.Timestamp(str(dk))
                     on_time = r.random() < float(np.clip(otd_base + r.uniform(-0.03, 0.03), 0.80, 0.99))
                     receipt = promise + timedelta(days=0 if on_time else int(r.randint(1, 8)))
