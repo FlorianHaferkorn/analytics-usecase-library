@@ -34,6 +34,10 @@ on:
       - "scripts/check_index.py"
       - ".github/workflows/superversion.yml"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   superversion:
     name: superversion (adapter tests + drift-gate)

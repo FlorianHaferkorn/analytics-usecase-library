@@ -20,6 +20,10 @@ on:
       - "studio/**"
       - ".github/workflows/studio.yml"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   typecheck-and-unit:
     name: Studio (typecheck + vitest)

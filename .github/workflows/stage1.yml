@@ -18,6 +18,13 @@ on:
   push:
     branches: [main]
 
+# Cancel a superseded run when a newer commit lands on the same ref (PR or branch).
+# Without this, every push to an active PR started a *fresh* full matrix while the
+# previous run kept burning minutes — the single biggest Actions-usage drain.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python-checks:
     name: Python checks
@@ -57,17 +64,11 @@ jobs:
         run: python tooling/health_scorecard.py
 
   fabric-bindings:
-    name: Fabric bindings (${{ matrix.domain }})
+    # One job, all domains. validate_bindings.py with no --domain validates every
+    # dist report in a single call (same as run_local_ci_check.sh), so the former
+    # 5-way domain matrix was 5 runner+checkout+setup cycles for one fast script.
+    name: Fabric bindings (all domains)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        domain:
-          - Commercial
-          - Experience
-          - Finance
-          - Operations
-          - SupplyChain
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -77,16 +78,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Validate report bindings (${{ matrix.domain }})
+      - name: Validate report bindings (all domains)
         run: |
           python3 products/fabric/powerbi/tooling/validate_bindings.py \
             --dist-dir products/fabric/powerbi/dist \
-            --domain ${{ matrix.domain }} \
             --strict
 
   stage1:
     name: Stage 1 checks
     runs-on: windows-latest
+    # windows-latest is billed at 2× the ubuntu minute rate and this job is the
+    # heaviest (Node + Python×2 + PSGallery + fab-inspector + full quality gate),
+    # so it is the biggest single cost. Skip it while a PR is a draft — full CI
+    # (incl. this job) runs the moment the PR is marked ready for review, and it
+    # always runs on push to main. Local `run_quality_gate.ps1` covers drafts.
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
