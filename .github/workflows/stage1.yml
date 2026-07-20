@@ -27,7 +27,11 @@ concurrency:
 
 jobs:
   python-checks:
-    name: Python checks
+    # Python gate + report-binding validation in ONE ubuntu job. Folding the former
+    # separate fabric-bindings job in here saves a whole checkout+setup cycle (and one
+    # concurrent runner) per run — validate_bindings is a fast script, not worth its own
+    # runner. Wall-clock is a few seconds longer; runner-minutes are lower.
+    name: Python checks + report bindings
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -63,22 +67,9 @@ jobs:
       - name: Health scorecard
         run: python tooling/health_scorecard.py
 
-  fabric-bindings:
-    # One job, all domains. validate_bindings.py with no --domain validates every
-    # dist report in a single call (same as run_local_ci_check.sh), so the former
-    # 5-way domain matrix was 5 runner+checkout+setup cycles for one fast script.
-    name: Fabric bindings (all domains)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
       - name: Validate report bindings (all domains)
+        # validate_bindings.py with no --domain validates every dist report in one
+        # call (same as run_local_ci_check.sh) — replaces the former 5-way domain matrix.
         run: |
           python3 products/fabric/powerbi/tooling/validate_bindings.py \
             --dist-dir products/fabric/powerbi/dist \
@@ -101,11 +92,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          # cache the npm downloads for `npm ci` below (cache-miss just re-downloads)
+          cache: "npm"
+          cache-dependency-path: tooling/validation/package-lock.json
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          # cache the pip wheel dir keyed on the requirements this job installs
+          cache: "pip"
+          cache-dependency-path: |
+            tooling/validation/requirements-data-contracts.txt
+            products/fabric/powerbi/tooling/requirements-fabric-checks.txt
+            tooling/tests/requirements.txt
 
       - name: Install schema validation dependencies
         run: npm ci
