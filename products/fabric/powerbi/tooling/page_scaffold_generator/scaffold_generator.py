@@ -139,6 +139,9 @@ class PageScaffoldGenerator:
         detail_matrix_topn_field = self.page_config.get('detail_matrix_topn_field') if self.page_name == 'detail' else None
         narrative_measure_name = self.page_config.get('narrative_measure_name') if self.page_name == 'detail' else None
         active_actions_measure_name = self.page_config.get('active_actions_measure_name') if self.page_name == 'detail' else None
+        # Semantic-delta KPI band (Gap A): overview + per-bracket opt-in (semantic_delta_cards).
+        # Default False keeps every other report's single KPI band unchanged (COM-002 opts in).
+        semantic_delta_cards = self.page_name == 'overview' and bool(self.page_config.get('semantic_delta_cards', False))
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
@@ -164,8 +167,9 @@ class PageScaffoldGenerator:
             detail_matrix_topn_field=detail_matrix_topn_field,
             narrative_measure_name=narrative_measure_name,
             active_actions_measure_name=active_actions_measure_name,
+            semantic_delta_cards=semantic_delta_cards,
         )
-        
+
         self.page_structure = {
             "metadata": page_metadata,
             "visuals": page_structure["visuals"],

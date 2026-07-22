@@ -820,6 +820,10 @@ class ConfigLoader:
             # headers with the message as a framed "Expected finding —" subtitle, so a static
             # generated title can never contradict the data on refresh (see title_policy.py).
             assert_statement_titles = bool(ux.get("title_statements_verified", True))
+            # Gap A opt-in: split the vs-plan variance into its own sign-coloured KPI card.
+            # Default False so only opted-in reports (COM-002 reference) change; the rest keep
+            # their single KPI band until deliberately migrated.
+            semantic_delta_cards = bool(ux.get("semantic_delta_cards", False))
             return {
                 "name": "overview",
                 "layer": [3, 30],
@@ -838,6 +842,7 @@ class ConfigLoader:
                 "intent_rules_version": intent_rules_version,
                 "big_idea_text": big_idea_text,
                 "assert_statement_titles": assert_statement_titles,
+                "semantic_delta_cards": semantic_delta_cards,
             }
 
         if page_name == "detail":

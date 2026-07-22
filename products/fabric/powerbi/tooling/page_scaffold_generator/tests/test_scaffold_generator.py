@@ -330,6 +330,40 @@ class TestCOM002GoldenR23Fields:
         assert loader.get_page_config("COM-002", "overview")["assert_statement_titles"] is False
         assert loader.get_page_config("COM-001", "overview")["assert_statement_titles"] is True
 
+    def test_com002_kpi_band_splits_variance_into_coloured_delta_card(self):
+        """Gap A: the vs-plan variance can't be per-metric coloured inside a multi-value card
+        (callouts format uniformly — card.md), so intent-v2 reports split it into its own
+        single-value KPI_Delta card coloured by sign via a diverging FillRule. Level KPIs stay
+        in KPI_Cards."""
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        names = [v.get("name") for v in generator.page_structure["visuals"]]
+        assert "KPI_Delta" in names, "intent-v2 KPI band should split out a KPI_Delta card"
+
+        delta = self._find_visual(generator, "KPI_Delta")
+        projections = delta["visual"]["query"]["queryState"]["Data"]["projections"]
+        assert len(projections) == 1 and projections[0]["nativeQueryRef"] == "Gross Margin % vs Plan"
+        # sign-driven colour: diverging FillRule keyed on the variance measure
+        fill = delta["visual"]["objects"]["value"][0]["properties"]["fontColor"]["solid"]["color"]["expr"]
+        assert "FillRule" in fill, "delta callout must be conditionally coloured"
+        assert fill["FillRule"]["Input"]["Measure"]["Property"] == "Gross Margin % vs Plan"
+
+        # the variance measure is removed from the multi-value level card
+        cards = self._find_visual(generator, "KPI_Cards")
+        level_measures = [p["nativeQueryRef"] for p in cards["visual"]["query"]["queryState"]["Data"]["projections"]]
+        assert "Gross Margin % vs Plan" not in level_measures
+        assert "Gross Margin %" in level_measures
+
+    def test_non_intent_v2_report_keeps_single_kpi_band(self):
+        """The split is gated on intent_rules_version 2 — a legacy report keeps one KPI_Cards card
+        and no KPI_Delta, so other reports are unaffected until they opt in."""
+        generator = PageScaffoldGenerator("COM-001", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        names = [v.get("name") for v in generator.page_structure["visuals"]]
+        assert "KPI_Delta" not in names
+
     def test_every_com002_visual_matches_real_dist_exactly(self):
         """R2.3-Fund follow-up: full-visual byte-for-byte comparison, both
         pages, every visual -- the complete generator/dist sync this class's

@@ -58,6 +58,7 @@ class PageBuilder:
         detail_matrix_topn_field: Optional[tuple] = None,
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
+        semantic_delta_cards: bool = False,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -259,9 +260,37 @@ class PageBuilder:
                     category_entity="dim_org", category_property="OrgName"
                 )
             elif slot_id == "KPI_Cards" and visual_type == "cardVisual":
-                vis = self.visual_builder.build_kpi_cards_multi(
-                    position, card_measure_names or [], name=slot_id, title=None
-                )
+                # Semantic-delta band (intent v2): a variance/vs-plan KPI can't be colour-coded
+                # inside the multi-value card (callouts format uniformly — card.md), so split it
+                # out as its own single-value card coloured by sign. The level KPIs stay in the
+                # multi-value card. Detected by governed kpi_id (…vs_plan… / …delta_pct…).
+                _var_idx = None
+                if semantic_delta_cards and card_kpi_ids:
+                    for _j, _kid in enumerate(card_kpi_ids):
+                        if isinstance(_kid, str) and (".vs_plan." in _kid or ".delta_pct." in _kid):
+                            _var_idx = _j
+                            break
+                if _var_idx is not None and _var_idx < len(card_measure_names):
+                    _delta_measure = card_measure_names[_var_idx]
+                    _level_measures = [m for _k, m in enumerate(card_measure_names) if _k != _var_idx]
+                    _gap, _delta_w = 16, 452
+                    _levels_w = max(1, position.width - _delta_w - _gap)
+                    _levels_pos = Position(x=position.x, y=position.y, width=_levels_w, height=position.height)
+                    _delta_pos = Position(x=position.x + _levels_w + _gap, y=position.y,
+                                          width=_delta_w, height=position.height)
+                    _levels = self.visual_builder.build_kpi_cards_multi(
+                        _levels_pos, _level_measures, name="KPI_Cards", title=None
+                    )
+                    _levels["position"]["tabOrder"] = tab + i
+                    visuals.append(_levels)
+                    vis = self.visual_builder.build_kpi_delta_card(
+                        _delta_pos, _delta_measure, name="KPI_Delta", label=_delta_measure,
+                        higher_is_better=True,
+                    )
+                else:
+                    vis = self.visual_builder.build_kpi_cards_multi(
+                        position, card_measure_names or [], name=slot_id, title=None
+                    )
             elif visual_type == "cardVisual":
                 measure_ref = (card_measure_names[0] if card_measure_names else None) or (card_kpi_ids[0] if card_kpi_ids else None)
                 title = (card_kpi_ids[0] if card_kpi_ids else measure_ref or slot_id).replace(".", " ").replace("_", " ").title() if (card_kpi_ids or card_measure_names) else None
@@ -412,6 +441,7 @@ class PageBuilder:
         detail_matrix_topn_field: Optional[tuple] = None,
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
+        semantic_delta_cards: bool = False,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -472,6 +502,7 @@ class PageBuilder:
                 detail_matrix_topn_field=detail_matrix_topn_field,
                 narrative_measure_name=narrative_measure_name,
                 active_actions_measure_name=active_actions_measure_name,
+                semantic_delta_cards=semantic_delta_cards,
             )
 
         # Determine slicer placement (default: top)

@@ -59,6 +59,11 @@ ux_layout_rules:
   # "Expected finding —" subtitle (tooling/reporting/title_policy.py). The other reports
   # keep statement titles until R2.4 migrates them deliberately.
   title_statements_verified: false
+  # Gap A opt-in (COM-002 reference): split the vs-plan variance out of the KPI band into its
+  # own single-value card, coloured by sign (red below plan / green at-or-above) via a diverging
+  # FillRule. A multi-value card can't colour one callout differently, so the delta needs its own
+  # card. Default off; the other reports keep their single band until migrated.
+  semantic_delta_cards: true
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T2_Tactical_Variance

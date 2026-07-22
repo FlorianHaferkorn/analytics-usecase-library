@@ -207,6 +207,50 @@ class VisualBuilder:
         }
         return visual
     
+    def build_kpi_delta_card(
+        self,
+        position: Position,
+        measure_ref: str,
+        name: str = "KPI_Delta",
+        label: Optional[str] = None,
+        higher_is_better: bool = True,
+        font_size: str = "32D",
+    ) -> Dict[str, Any]:
+        """Single-value ``cardVisual`` whose callout is semantically coloured by the sign of a
+        variance/delta measure (the "is it below plan?" signal). Per card.md a multi-value card
+        formats every callout uniformly, so a per-metric colour requires the delta to be its own
+        single-value card. Colour uses a diverging ``FillRule`` (linearGradient3) pinned at 0 —
+        the verified inline encoding (conditional-formatting.md Type 1; validated against
+        powerbi-report-author). ``higher_is_better`` red for below-plan / green for at-or-above;
+        flipped for lower-is-better KPIs. ALUCA semantic tokens: red #A4262C, green #107C10,
+        neutral #605E5C."""
+        visual = self._build_base_visual("cardVisual", position, name=name)
+        lo, hi = ("#A4262C", "#107C10") if higher_is_better else ("#107C10", "#A4262C")
+        fill = {"solid": {"color": {"expr": {"FillRule": {
+            "Input": {"Measure": {"Expression": {"SourceRef": {"Entity": "_Measures"}}, "Property": measure_ref}},
+            "FillRule": {"linearGradient3": {
+                "min": {"color": {"Literal": {"Value": f"'{lo}'"}}, "value": {"Literal": {"Value": "-0.02D"}}},
+                "mid": {"color": {"Literal": {"Value": "'#605E5C'"}}, "value": {"Literal": {"Value": "0D"}}},
+                "max": {"color": {"Literal": {"Value": f"'{hi}'"}}, "value": {"Literal": {"Value": "0.02D"}}},
+                "nullColoringStrategy": {"strategy": {"Literal": {"Value": "'asZero'"}}},
+            }}}}}}}
+        objects = {
+            "layout": [{"properties": {"columnCount": {"expr": {"Literal": {"Value": "1L"}}}}}],
+            "value": [{"properties": {
+                "fontSize": {"expr": {"Literal": {"Value": font_size}}},
+                "fontColor": fill,
+            }, "selector": {"id": "default"}}],
+        }
+        if label:
+            _lit = str(label).strip().replace("'", "''")
+            objects["label"] = [{"properties": {
+                "show": {"expr": {"Literal": {"Value": "true"}}},
+                "text": {"expr": {"Literal": {"Value": f"'{_lit}'"}}},
+            }, "selector": {"id": "default"}}]
+        visual["visual"]["objects"] = objects
+        visual["visual"]["query"] = {"queryState": {"Data": {"projections": [self._measure_projection(measure_ref)]}}}
+        return visual
+
     def build_line_chart(
         self,
         position: Position,
