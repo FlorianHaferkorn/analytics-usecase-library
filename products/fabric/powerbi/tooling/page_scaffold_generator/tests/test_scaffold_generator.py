@@ -293,6 +293,43 @@ class TestCOM002GoldenR23Fields:
 
         assert matrix["filterConfig"] == dist_matrix["filterConfig"]
 
+    def _header(self, visual):
+        vco = visual["visual"].get("visualContainerObjects", {})
+        def _lit(kind):
+            try:
+                raw = vco[kind][0]["properties"]["text"]["expr"]["Literal"]["Value"]
+                # DAX string literal: outer single quotes, inner apostrophes doubled.
+                return raw.strip("'").replace("''", "'")
+            except (KeyError, IndexError, TypeError):
+                return None
+        return _lit("title"), _lit("subTitle")
+
+    def test_com002_titles_are_honest_question_first(self):
+        """title_policy opt-in (ux_layout_rules.title_statements_verified: false): COM-002 is a
+        STATIC generated report, so each 30s visual leads with the always-true QUESTION and frames
+        the message as an 'Expected finding —' subtitle — a static title can never contradict the
+        data on refresh (title_policy.py). Guards the per-bracket honest-title override."""
+        generator = PageScaffoldGenerator("COM-002", "overview", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+        expected_q = {
+            "Main_1": "Is gross margin holding against plan?",
+            "Main_2": "What's pulling gross margin below plan — price, mix, or volume?",
+            "Main_3": "Is the margin shortfall portfolio-wide or concentrated in a few units?",
+        }
+        for slot, question in expected_q.items():
+            title, subtitle = self._header(self._find_visual(generator, slot))
+            assert title == question, f"{slot} title should lead with the question, got {title!r}"
+            assert subtitle and subtitle.startswith("Expected finding —"), (
+                f"{slot} should frame the message as an expected-finding subtitle, got {subtitle!r}")
+
+    def test_title_statements_verified_flag_defaults_true(self):
+        """The opt-in is per-bracket; absent the flag, a report keeps its statement titles
+        (assert_statement_titles True) so the other reports are unaffected until R2.4 migrates them."""
+        loader = ConfigLoader(REPO_ROOT)
+        assert loader.get_page_config("COM-002", "overview")["assert_statement_titles"] is False
+        assert loader.get_page_config("COM-001", "overview")["assert_statement_titles"] is True
+
     def test_every_com002_visual_matches_real_dist_exactly(self):
         """R2.3-Fund follow-up: full-visual byte-for-byte comparison, both
         pages, every visual -- the complete generator/dist sync this class's

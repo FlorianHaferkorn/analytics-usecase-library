@@ -70,6 +70,12 @@ class PageScaffoldGenerator:
         if self.config is None:
             self.load_config()
 
+        # title_policy per-bracket opt-in: when the bracket declares its exhibit statements are
+        # not value-verified (title_statements_verified: false), the PageBuilder renders honest,
+        # question-first headers instead of asserting the message as a static title. Default True
+        # preserves every other report's current output (see title_policy.py / config_loader).
+        self.page_builder.assert_statement_titles = self.page_config.get("assert_statement_titles", True)
+
         # Speaking page ID (human-readable; no Power BI default hex IDs)
         # e.g. Page_COM001_Overview, Page_COM001_Detail
         uc_normalized = self.use_case_id.replace("-", "")

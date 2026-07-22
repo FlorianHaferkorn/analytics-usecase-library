@@ -70,7 +70,9 @@ ux_layout_rules:
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
-      evidence_grain: employee_segment
+      # Governed fact grain (fact_workforce, people.yaml) — org × segment × month;
+      # 'employee_segment' was an ungoverned token for the same concept.
+      evidence_grain: month_org_segment
       evidence_columns:
       - segment
       - role

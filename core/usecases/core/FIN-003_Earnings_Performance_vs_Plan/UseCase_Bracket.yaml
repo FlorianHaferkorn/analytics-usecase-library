@@ -15,6 +15,10 @@ orchestration:
   supporting_kpi_ids:
   - margin.ebitda.amount
   - fin.cash.ocf
+  # Required for report creation (referenced by the value-driver / evidence) but
+  # previously unlisted — added so the orchestration completeness gate resolves.
+  - cost.cogs.amount
+  - sales.net_sales.amount
   action_code_ids:
   - F-E1.1
 primary_kpi_ids:
@@ -68,7 +72,9 @@ ux_layout_rules:
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
-      evidence_grain: cost_center
+      # Governed fact grain (fact_opex_costcenter, finance.yaml) — cost-centre level;
+      # 'cost_center' was an ungoverned token for the same concept.
+      evidence_grain: entity_costcentre_month
       evidence_columns:
       - entity
       - cost_center

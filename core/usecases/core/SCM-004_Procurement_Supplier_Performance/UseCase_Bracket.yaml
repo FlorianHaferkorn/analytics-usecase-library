@@ -70,7 +70,10 @@ ux_layout_rules:
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
-      evidence_grain: category_supplier
+      # Governed fact grain (fact_procurement, supply_chain.yaml) — the PO-line fact that
+      # carries supplier + product-category, rolled up to the category × supplier view.
+      # 'category_supplier' was an ungoverned summary token with no backing fact.
+      evidence_grain: purchase_order_line
       evidence_columns:
       - category
       - supplier

@@ -51,6 +51,14 @@ ux_layout_rules:
   # message/unit/sort_by/top_n/highlight_rule below reproduce, via the generator,
   # what R1.1/R1.3/R1.4 previously hand-patched directly into dist/ PBIR.
   intent_rules_version: 2
+  # title_policy opt-in (COM-002 = reference pattern). This is a STATIC generated report:
+  # at generation time the period's data is unknown, so a hard-coded statement title
+  # (e.g. "Gross margin has been sliding below plan") could contradict the chart on the
+  # next refresh. Declaring the exhibit statements NOT value-verified makes the generator
+  # render the always-true QUESTION as the header and the message as a framed
+  # "Expected finding —" subtitle (tooling/reporting/title_policy.py). The other reports
+  # keep statement titles until R2.4 migrates them deliberately.
+  title_statements_verified: false
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T2_Tactical_Variance

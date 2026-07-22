@@ -814,6 +814,12 @@ class ConfigLoader:
             # brackets keep their current (Header-less) output unchanged.
             intent_rules_version = ux.get("intent_rules_version")
             big_idea_text = p1.get("big_idea") if intent_rules_version == 2 else None
+            # title_policy per-bracket opt-in. Default True preserves every existing report's
+            # statement-title output. A bracket that declares its exhibit statements are NOT
+            # value-verified (title_statements_verified: false) renders honest, question-first
+            # headers with the message as a framed "Expected finding —" subtitle, so a static
+            # generated title can never contradict the data on refresh (see title_policy.py).
+            assert_statement_titles = bool(ux.get("title_statements_verified", True))
             return {
                 "name": "overview",
                 "layer": [3, 30],
@@ -831,6 +837,7 @@ class ConfigLoader:
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "intent_rules_version": intent_rules_version,
                 "big_idea_text": big_idea_text,
+                "assert_statement_titles": assert_statement_titles,
             }
 
         if page_name == "detail":
@@ -1008,6 +1015,7 @@ class ConfigLoader:
                 "detail_matrix_top_n": detail_matrix_top_n,
                 "detail_matrix_highlight_rule": detail_matrix_highlight_rule,
                 "detail_matrix_topn_field": detail_matrix_topn_field,
+                "assert_statement_titles": bool(ux.get("title_statements_verified", True)),
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")
