@@ -170,7 +170,14 @@ def check_header_text_equals_big_idea(
     big_idea: Optional[str],
     generated_visuals: List[Dict[str, Any]],
 ) -> List[str]:
-    """BIG_IDEA_HEADER_ZONE: the Header textbox must render big_idea verbatim."""
+    """BIG_IDEA_HEADER_ZONE: the Header textbox must render big_idea verbatim.
+
+    `page_1_summary.big_idea` is the single rendered source of truth for this text. It is either
+    hand-authored (the D4 fallback floor) or produced by the ADR-0017 Stage-2 generator
+    `tooling/storyline/compose_narrative.py` — which proposes an updated Big Idea from the top verified
+    finding and reports drift via `--check`, but never bypasses this field. So this verbatim rule stays
+    authoritative for the render; the composer feeds the field, it does not compete with this check.
+    """
 
     if not big_idea:
         return []

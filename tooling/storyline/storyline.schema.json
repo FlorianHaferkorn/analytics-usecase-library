@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Use-case storyline (derived)",
+  "description": "Structured, deterministic storyline model emitted by tooling/storyline/derive_storyline.py --json. The contract the report/story generator and the (future, bounded) LLM interpretation layer consume. Every field traces to a governed UseCase_Bracket.yaml field — no invented numbers or KPIs.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["use_case", "title", "pages", "actions", "cross_domain", "connects_to"],
+    "properties": {
+      "use_case": {"type": "string"},
+      "title": {"type": ["string", "null"]},
+      "domain": {"type": ["string", "null"]},
+      "strategic_kpi": {"type": ["string", "null"]},
+      "causal_thread": {
+        "type": ["object", "null"],
+        "additionalProperties": false,
+        "required": ["driver", "target"],
+        "properties": {
+          "driver": {"type": "string"},
+          "target": {"type": "string"},
+          "direction": {"type": ["string", "null"]},
+          "logic": {"type": "string"}
+        }
+      },
+      "pages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "decision_question", "visuals"],
+          "properties": {
+            "id": {"type": "string"},
+            "type": {"type": "string"},
+            "decision_question": {"type": ["string", "null"]},
+            "verdict": {
+              "type": ["object", "null"],
+              "additionalProperties": false,
+              "properties": {
+                "kpi_id": {"type": ["string", "null"]},
+                "comparison": {"type": ["string", "null"]},
+                "status_logic": {"type": ["string", "null"]}
+              }
+            },
+            "visuals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["seq", "question"],
+                "properties": {
+                  "seq": {"type": "integer"},
+                  "question": {"type": "string"},
+                  "visual_type": {"type": ["string", "null"]},
+                  "kpi_id": {"type": ["string", "null"]},
+                  "answer": {"type": ["string", "null"]},
+                  "so_what": {"type": ["string", "null"]},
+                  "unit": {"type": ["string", "null"]}
+                }
+              }
+            },
+            "evidence": {
+              "type": ["object", "null"],
+              "additionalProperties": false,
+              "properties": {
+                "grain": {"type": ["string", "null"]},
+                "sort_measure": {"type": ["string", "null"]},
+                "sort_direction": {"type": ["string", "null"]},
+                "top_n": {"type": ["integer", "null"]},
+                "action_panel": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      },
+      "actions": {"type": "array", "items": {"type": "string"}},
+      "cross_domain": {
+        "type": "object",
+        "additionalProperties": {"type": "array", "items": {"type": "string"}}
+      },
+      "connects_to": {"type": "array", "items": {"type": "string"}}
+    }
+  }
+}

@@ -54,6 +54,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: quality.scrap.pct
       visual_type: trend_line
+      question: "Is quality loss plant-wide or concentrated on a few lines?"
       message: Rising scrap is concentrated on a couple of lines, not plant-wide
       so_what: "Containing the two lines driving the trend is faster than a plant-wide quality program."
       unit: rate
@@ -65,6 +66,7 @@ ux_layout_rules:
       - quality.rework.pct
       - quality.complaint.pct
       visual_type: bar_chart
+      question: "What are the downstream quality-cost signals?"
       message: Rework and complaint rates — the two downstream quality-cost signals.
       so_what: "Ranking COPQ by line prioritises containment where the financial impact is largest."
       unit: rate

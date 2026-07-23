@@ -51,6 +51,19 @@ ux_layout_rules:
   # message/unit/sort_by/top_n/highlight_rule below reproduce, via the generator,
   # what R1.1/R1.3/R1.4 previously hand-patched directly into dist/ PBIR.
   intent_rules_version: 2
+  # title_policy opt-in (COM-002 = reference pattern). This is a STATIC generated report:
+  # at generation time the period's data is unknown, so a hard-coded statement title
+  # (e.g. "Gross margin has been sliding below plan") could contradict the chart on the
+  # next refresh. Declaring the exhibit statements NOT value-verified makes the generator
+  # render the always-true QUESTION as the header and the message as a framed
+  # "Expected finding —" subtitle (tooling/reporting/title_policy.py). The other reports
+  # keep statement titles until R2.4 migrates them deliberately.
+  title_statements_verified: false
+  # Gap A opt-in (COM-002 reference): split the vs-plan variance out of the KPI band into its
+  # own single-value card, coloured by sign (red below plan / green at-or-above) via a diverging
+  # FillRule. A multi-value card can't colour one callout differently, so the delta needs its own
+  # card. Default off; the other reports keep their single band until migrated.
+  semantic_delta_cards: true
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T2_Tactical_Variance
@@ -72,6 +85,7 @@ ux_layout_rules:
       # grain for this specific trend -- explicit override, not a global default
       # change (COM-001 stays on the monthly default, unaffected).
       category_field: dim_date.Date
+      question: "Is gross margin holding against plan?"
       message: Gross margin has been sliding below plan through the period
       so_what: "The erosion compounds month over month — a trend, not a one-off dip."
       unit: amount
@@ -98,6 +112,7 @@ ux_layout_rules:
       comparison: vs_plan
       category_field: dim_pvm_driver.Driver
       kpi_id: PVM Bridge Value
+      question: "What's pulling gross margin below plan — price, mix, or volume?"
       message: Price concessions and adverse mix drive gross margin below plan, not volume
       so_what: "The levers are commercial — price discipline and mix — not demand generation."
       unit: amount
@@ -112,6 +127,7 @@ ux_layout_rules:
       # evidence columns (R1.3). PBIR: Main_3/visual.json (Golden Thread — must not drift).
       kpi_id: margin.gm.pct
       visual_type: bar_chart
+      question: "Is the margin shortfall portfolio-wide or concentrated in a few units?"
       message: Gross margin sits below target in a few business units that drag the portfolio
       so_what: "Focused intervention in those units beats a broad, thinly-spread program."
       unit: ratio

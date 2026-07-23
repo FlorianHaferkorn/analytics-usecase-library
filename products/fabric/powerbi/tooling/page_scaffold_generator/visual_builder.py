@@ -207,6 +207,50 @@ class VisualBuilder:
         }
         return visual
     
+    def build_kpi_delta_card(
+        self,
+        position: Position,
+        measure_ref: str,
+        name: str = "KPI_Delta",
+        label: Optional[str] = None,
+        higher_is_better: bool = True,
+        font_size: str = "32D",
+    ) -> Dict[str, Any]:
+        """Single-value ``cardVisual`` whose callout is semantically coloured by the sign of a
+        variance/delta measure (the "is it below plan?" signal). Per card.md a multi-value card
+        formats every callout uniformly, so a per-metric colour requires the delta to be its own
+        single-value card. Colour uses a diverging ``FillRule`` (linearGradient3) pinned at 0 —
+        the verified inline encoding (conditional-formatting.md Type 1; validated against
+        powerbi-report-author). ``higher_is_better`` red for below-plan / green for at-or-above;
+        flipped for lower-is-better KPIs. ALUCA semantic tokens: red #A4262C, green #107C10,
+        neutral #605E5C."""
+        visual = self._build_base_visual("cardVisual", position, name=name)
+        lo, hi = ("#A4262C", "#107C10") if higher_is_better else ("#107C10", "#A4262C")
+        fill = {"solid": {"color": {"expr": {"FillRule": {
+            "Input": {"Measure": {"Expression": {"SourceRef": {"Entity": "_Measures"}}, "Property": measure_ref}},
+            "FillRule": {"linearGradient3": {
+                "min": {"color": {"Literal": {"Value": f"'{lo}'"}}, "value": {"Literal": {"Value": "-0.02D"}}},
+                "mid": {"color": {"Literal": {"Value": "'#605E5C'"}}, "value": {"Literal": {"Value": "0D"}}},
+                "max": {"color": {"Literal": {"Value": f"'{hi}'"}}, "value": {"Literal": {"Value": "0.02D"}}},
+                "nullColoringStrategy": {"strategy": {"Literal": {"Value": "'asZero'"}}},
+            }}}}}}}
+        objects = {
+            "layout": [{"properties": {"columnCount": {"expr": {"Literal": {"Value": "1L"}}}}}],
+            "value": [{"properties": {
+                "fontSize": {"expr": {"Literal": {"Value": font_size}}},
+                "fontColor": fill,
+            }, "selector": {"id": "default"}}],
+        }
+        if label:
+            _lit = str(label).strip().replace("'", "''")
+            objects["label"] = [{"properties": {
+                "show": {"expr": {"Literal": {"Value": "true"}}},
+                "text": {"expr": {"Literal": {"Value": f"'{_lit}'"}}},
+            }, "selector": {"id": "default"}}]
+        visual["visual"]["objects"] = objects
+        visual["visual"]["query"] = {"queryState": {"Data": {"projections": [self._measure_projection(measure_ref)]}}}
+        return visual
+
     def build_line_chart(
         self,
         position: Position,
@@ -940,17 +984,46 @@ class VisualBuilder:
         category_entity: Optional[str] = None,
         category_property: Optional[str] = None,
         statement_title: Optional[str] = None,
+        subtitle: Optional[str] = None,
+        format_spec: Optional[Any] = None,
     ) -> Dict[str, Any]:
-        """Build a visual and render ``statement_title`` — the governed exhibit
-        message (BC-NARR-01) — as its header for EVERY visual type (not only clustered
-        columns). ``title`` stays the label used for naming/tooltip; when a statement is
-        present it wins the header."""
+        """Build a visual and render its header. Per ``title_policy`` the header is the governed
+        **question** for a static report (always true), or the governed **message** when a value/
+        dynamic-narrative guarantee backs it. ``subtitle`` carries the framed *expected finding*
+        (the message as a hypothesis to verify) in the static case. ``title`` stays the label used
+        for naming/tooltip. ``format_spec`` (visual_format_policy.FormatSpec), when supplied, applies
+        the governed value-axis (opt-in; default None keeps emission byte-identical)."""
         visual = self._dispatch_ux_visual(
             ux_visual_type, position, name=name, measures=measures, title=title,
             category_entity=category_entity, category_property=category_property,
         )
         if statement_title:
             self._apply_title(visual, statement_title)
+        if subtitle:
+            self._apply_subtitle(visual, subtitle)
+        if format_spec is not None:
+            self._apply_value_axis(visual, format_spec)
+        return visual
+
+    def _apply_value_axis(self, visual: Dict[str, Any], format_spec: Any) -> Dict[str, Any]:
+        """Apply the governed value axis (IBCS zero baseline) to a cartesian visual. A non-zero base
+        exaggerates deltas, so bar/column families are pinned to 0 — see visual_format_policy. Only
+        touches charts that already carry a categoryAxis (skips cards/tables)."""
+        va = getattr(format_spec, "value_axis", None) or {}
+        objs = visual.get("visual", {}).get("objects")
+        if not va.get("zero_based") or not isinstance(objs, dict) or "categoryAxis" not in objs:
+            return visual
+        objs.setdefault("valueAxis", [{"properties": {"start": {"expr": {"Literal": {"Value": "0D"}}}}}])
+        return visual
+
+    def _apply_subtitle(self, visual: Dict[str, Any], subtitle: Optional[str]) -> Dict[str, Any]:
+        """Set the visual sub-header (PBIR visualContainerObjects.subTitle) — the framed
+        expected-finding, visually subordinate to the question header."""
+        if subtitle and str(subtitle).strip():
+            _lit = str(subtitle).strip().replace("'", "''")
+            vco = visual["visual"].setdefault("visualContainerObjects", {})
+            vco["subTitle"] = [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{_lit}'"}}},
+                                                "show": {"expr": {"Literal": {"Value": "true"}}}}}]
         return visual
 
     def _dispatch_ux_visual(

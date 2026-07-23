@@ -22,6 +22,25 @@ dimension:
       - {name: Region, type: text, nullable: true}
       - {name: Country, type: text, nullable: true}
 
+  # HR-001 workforce/retention (ISO 30414). Realised in Aurora gold as fact_workforce
+  # (segment grain) + fact_engagement_survey + fact_recruiting; supersedes the fact_hr/
+  # fact_survey stubs above, which have no physical backing.
+  - name: dim_employee_segment
+    scd_type: 1
+    columns:
+      - {name: EmployeeSegmentKey, type: int, role: key}
+      - {name: Segment, type: text}
+      - {name: Function, type: text}
+      - {name: Tenure Band, type: text}
+
+  - name: dim_role
+    scd_type: 1
+    columns:
+      - {name: RoleKey, type: int, role: key}
+      - {name: Role, type: text}
+      - {name: Job Family, type: text}
+      - {name: Level, type: text}
+
 fact:
   - name: fact_hr
     grain: month_org
@@ -51,6 +70,42 @@ fact:
       - {name: Total Responses, type: int, agg: sum}
       - {name: Training Hours, type: decimal, agg: sum}
 
+  # --- HR-001 physical facts (Aurora gold) ---
+  - name: fact_workforce
+    grain: month_org_segment
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: EmployeeSegmentKey, type: int, ref: dim_employee_segment}
+      - {name: Headcount FTE, type: decimal, agg: sum}
+      - {name: Voluntary Leavers, type: decimal, agg: sum}
+      - {name: Involuntary Leavers, type: decimal, agg: sum}
+      - {name: Hires, type: decimal, agg: sum}
+      - {name: Absence Days, type: decimal, agg: sum}
+      - {name: Scheduled Working Days, type: decimal, agg: sum}
+      - {name: Workforce Cost Amount, type: currency, agg: sum}
+
+  - name: fact_engagement_survey
+    grain: quarter_org_segment
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: EmployeeSegmentKey, type: int, ref: dim_employee_segment}
+      - {name: Engagement Score, type: decimal, agg: avg}
+      - {name: Respondents, type: int, agg: sum}
+      - {name: Invited, type: int, agg: sum}
+
+  - name: fact_recruiting
+    grain: filled_requisition
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: RoleKey, type: int, ref: dim_role}
+      - {name: Requisition Open Date, type: int}
+      - {name: Filled Date, type: int}
+      - {name: Positions Filled, type: int, agg: sum}
+      - {name: Days to Fill, type: int, agg: avg}
+
 quality_rules:
   freshness_sla:
     fact_hr: monthly          # payroll-aligned; available within 5 business days of month close
@@ -67,9 +122,17 @@ quality_rules:
     - "fact_hr.FTE: >= 0"
     - "fact_survey.Engaged Responses: <= Total Responses"
     - "fact_hr.Personnel Cost: >= 0"
+    - "fact_workforce.Headcount FTE: > 0"
+    - "fact_workforce.Absence Days: >= 0; <= Scheduled Working Days"
+    - "fact_engagement_survey.Respondents: <= Invited"
+    - "fact_engagement_survey.Engagement Score: 0..100"
+    - "fact_recruiting.Days to Fill: > 0"
   referential_integrity:
     - "fact_hr.OrgKey → dim_org (required)"
     - "fact_survey.OrgKey → dim_org (nullable; absent = company-wide survey)"
+    - "fact_workforce.OrgKey → dim_org; EmployeeSegmentKey → dim_employee_segment (both required)"
+    - "fact_engagement_survey.OrgKey → dim_org; EmployeeSegmentKey → dim_employee_segment"
+    - "fact_recruiting.OrgKey → dim_org; RoleKey → dim_role"
 
 settings:
   timezone: Europe/Berlin

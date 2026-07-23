@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { parseYaml, toYaml } from '@/lib/core/yaml-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import { loadAllBrackets } from '@/lib/core/bracket-loader';
+import { invalidateForgeBootstrapCache } from '@/lib/core/forge-bootstrap';
 import { apiCreated, apiError, apiSuccess, apiValidationError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
 import { logAuditEvent } from '@/lib/db/audit-repo';
@@ -157,6 +158,8 @@ export async function POST(request: Request) {
     after: { title: bracketTitle, path: `core/usecases/core/${dirName}` },
     justification: 'Created from Steering draft scaffold',
   }, 'default', user.email);
+
+  invalidateForgeBootstrapCache();
 
   return apiCreated({
     created: true,

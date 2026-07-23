@@ -70,6 +70,12 @@ class PageScaffoldGenerator:
         if self.config is None:
             self.load_config()
 
+        # title_policy per-bracket opt-in: when the bracket declares its exhibit statements are
+        # not value-verified (title_statements_verified: false), the PageBuilder renders honest,
+        # question-first headers instead of asserting the message as a static title. Default True
+        # preserves every other report's current output (see title_policy.py / config_loader).
+        self.page_builder.assert_statement_titles = self.page_config.get("assert_statement_titles", True)
+
         # Speaking page ID (human-readable; no Power BI default hex IDs)
         # e.g. Page_COM001_Overview, Page_COM001_Detail
         uc_normalized = self.use_case_id.replace("-", "")
@@ -133,6 +139,9 @@ class PageScaffoldGenerator:
         detail_matrix_topn_field = self.page_config.get('detail_matrix_topn_field') if self.page_name == 'detail' else None
         narrative_measure_name = self.page_config.get('narrative_measure_name') if self.page_name == 'detail' else None
         active_actions_measure_name = self.page_config.get('active_actions_measure_name') if self.page_name == 'detail' else None
+        # Semantic-delta KPI band (Gap A): overview + per-bracket opt-in (semantic_delta_cards).
+        # Default False keeps every other report's single KPI band unchanged (COM-002 opts in).
+        semantic_delta_cards = self.page_name == 'overview' and bool(self.page_config.get('semantic_delta_cards', False))
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
@@ -158,8 +167,9 @@ class PageScaffoldGenerator:
             detail_matrix_topn_field=detail_matrix_topn_field,
             narrative_measure_name=narrative_measure_name,
             active_actions_measure_name=active_actions_measure_name,
+            semantic_delta_cards=semantic_delta_cards,
         )
-        
+
         self.page_structure = {
             "metadata": page_metadata,
             "visuals": page_structure["visuals"],

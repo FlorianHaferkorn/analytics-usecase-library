@@ -1,0 +1,119 @@
+schema_version: '2.0'
+id: COM-005
+title: Sales Pipeline & Conversion
+domain: Commercial
+governance:
+  owner_role: commercial_controlling_revenue_operations
+  steward_role: revenue_operations_bi_lead
+orchestration:
+  strategic_kpi_id: sales.pipeline.coverage.ratio
+  influencing_kpi_ids:
+  - sales.win_rate.pct
+  - sales.conversion.pct
+  - sales.sales_cycle.days
+  - sales.velocity.amount
+  supporting_kpi_ids:
+  - sales.pipeline.value.amount
+  action_code_ids:
+  - C-P1.1
+primary_kpi_ids:
+- sales.pipeline.coverage.ratio
+- sales.win_rate.pct
+value_driver_model:
+  formula: sales.pipeline.coverage.ratio = f(sales.win_rate.pct, sales.conversion.pct, sales.sales_cycle.days)
+  impact_direction: maximize
+  primary_driver: sales.win_rate.pct
+  impact_logic: Raising sales.win_rate.pct is the primary lever for restoring sales.pipeline.coverage.ratio.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas:
+    width: 1920
+    height: 1080
+  intent_rules_version: 2
+  page_1_summary:
+    title: Commercial Summary & Insights
+    page_type: T3_Operational_Monitoring
+    template_variant: T3_ProcessControl
+    template_id: pulse
+    decision_question: Is there enough qualified pipeline converting to hit the target?
+    big_idea: Pipeline coverage is below the safe threshold and the gap is a win-rate problem, not a shortage
+      of opportunities.
+    component_3s:
+      kpi_id: sales.pipeline.coverage.ratio
+      visual_type: kpi_card
+      comparison: vs_target
+      status_logic: higher_is_better
+    component_30s:
+    - slot_id: Main_1
+      kpi_id: sales.win_rate.pct
+      visual_type: trend_line
+      question: Is the coverage gap a volume problem or a conversion problem?
+      message: Win rate is dragging coverage below plan, not a shortage of open opportunities
+      so_what: Because conversion is the lever, deal-qualification and win-rate coaching beat pure lead-volume
+        pushes.
+      unit: rate
+    - slot_id: Main_2
+      kpi_ids:
+      - sales.conversion.pct
+      visual_type: bar_chart
+      question: Where in the funnel does conversion leak?
+      message: The funnel leaks at the mid-stage — deals stall in qualification rather than failing late
+      so_what: Targeting the stalling mid-stage gate lifts conversion faster than widening the top of
+        funnel.
+      unit: rate
+  page_2_execution:
+    title: Commercial Execution
+    decision_question: Which reps, segments and stages should the conversion push target first?
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: opportunity
+      evidence_columns:
+      - rep
+      - segment
+      - sales.pipeline.coverage.ratio
+      - sales.win_rate.pct
+      - sales.conversion.pct
+      - sales.sales_cycle.days
+      - sales.velocity.amount
+      - sales.pipeline.value.amount
+      action_panel: true
+      payload_mode: full
+      sort_by:
+        measure: sales.pipeline.coverage.ratio
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: sales.pipeline.coverage.ratio
+        type: data_bar
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.6
+  reach: division
+  priority_score: 20
+data_protection:
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: Detail grain limited to opportunity level; row-level security applied at SemanticModel
+    level.
+  access_restriction: 'supply_chain_controlling_lead and scm_bi_lead roles; row-level security enforced
+    by SupplyChain.SemanticModel (site filter per org role).
+
+    '
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: 'Active Actions Text (SCM) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md §13.
+
+    '
+readiness:
+  data_availability: not_available
+  org_capability: partial
+  stakeholder_alignment: aligned
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/growth.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md

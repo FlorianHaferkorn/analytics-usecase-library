@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { ExportResults, type ExportResultItem } from '@/components/delivery/export-results';
 import { GovernedPreviewSection } from '@/components/delivery/governed-preview';
 import { OperationalPlanPanel } from '@/components/delivery/operational-plan-panel';
 import { StudioInlineStat, StudioSelectionItem, StudioSelectionList } from '@/components/ui/studio-data';
-import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
+import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioWorkflowFooter } from '@/components/ui/studio-page';
+import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
+import { filterByDomain } from '@/lib/studio/domain-filter';
 
 interface BracketSummary {
   id: string;
@@ -53,10 +55,13 @@ const ADAPTERS = [
 ] as const;
 
 export function DeliveryClient({ brackets }: Props) {
-  const [selectedAdapter, setSelectedAdapter] = useState<string>('fabric');
-  const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(
-    new Set(brackets.map((b) => b.id))
+  const { domainFilter } = useDomainFilter();
+  const visibleBrackets = useMemo(
+    () => filterByDomain(brackets, domainFilter, (b) => b.domain),
+    [brackets, domainFilter],
   );
+  const [selectedAdapter, setSelectedAdapter] = useState<string>('fabric');
+  const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(() => new Set());
   const [isExporting, setIsExporting] = useState(false);
   const [exportResults, setExportResults] = useState<ExportResultItem[] | null>(null);
 
@@ -70,14 +75,14 @@ export function DeliveryClient({ brackets }: Props) {
   };
 
   const toggleAllBrackets = useCallback(() => {
-    setSelectedBrackets((prev) => (prev.size === brackets.length ? new Set() : new Set(brackets.map((b) => b.id))));
-  }, [brackets]);
+    setSelectedBrackets((prev) => (prev.size === visibleBrackets.length ? new Set() : new Set(visibleBrackets.map((b) => b.id))));
+  }, [visibleBrackets]);
 
   const adapter = ADAPTERS.find((a) => a.id === selectedAdapter)!;
-  const selectedBracketItems = brackets.filter((bracket) => selectedBrackets.has(bracket.id));
+  const selectedBracketItems = visibleBrackets.filter((bracket) => selectedBrackets.has(bracket.id));
   let totalKpis = 0;
   let totalActions = 0;
-  for (const b of brackets) {
+  for (const b of visibleBrackets) {
     if (selectedBrackets.has(b.id)) {
       totalKpis += b.kpiCount;
       totalActions += b.actionCount;
@@ -132,10 +137,10 @@ export function DeliveryClient({ brackets }: Props) {
   }, [selectedBrackets, adapter.endpoint]);
 
   return (
-    <StudioPage fill style={{ gap: '32px' }}>
+    <StudioPage fill>
       <StudioPageHeader
-        eyebrow="Studio / Delivery"
-        title="Delivery"
+        eyebrow="Forge / Generate"
+        title="Generate"
         description="Package approved use cases for target stacks, validate export readiness, and keep the operational runbook attached to every delivery move."
         badge={adapter.name}
         // I-10.3 (ADR-0007 rule 3): every export adapter here is a TS preview,
@@ -151,40 +156,44 @@ export function DeliveryClient({ brackets }: Props) {
         <StudioMetric label="Readiness" value={readinessWarnings.length === 0 ? 'ready' : `${readinessWarnings.length} checks`} meta={adapter.status === 'preview' ? 'preview adapter selected' : 'validation status'} tone={readinessWarnings.length === 0 ? 'success' : 'warning'} />
       </StudioMetricBar>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', height: 'calc(100vh - 56px - 48px - 176px)' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)', flex: 1, minHeight: 0 }}>
+      <div className="studio-generate-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
         {/* Left: Adapter Selection */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
           <StudioPanel title="Target Platform" description="Choose the export adapter that should receive the selected use cases.">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {ADAPTERS.map((a) => (
-                <StudioButton
-                  key={a.id}
-                  onClick={() => setSelectedAdapter(a.id)}
-                  variant="ghost"
-                  style={{
-                    padding: '16px',
-                    backgroundColor: selectedAdapter === a.id ? 'var(--bg-2)' : 'var(--panel)',
-                    border: `1px solid ${selectedAdapter === a.id ? 'var(--accent)' : 'var(--line)'}`,
-                    textAlign: 'left',
-                    display: 'block',
-                    width: '100%',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', gap: '8px' }}>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>{a.name}</span>
-                    <span style={{
-                      fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600,
-                      // I-10.3 (ADR-0007 rule 3): every adapter here is preview-only.
-                      backgroundColor: 'var(--warning)',
-                      color: 'var(--bg)',
-                    }}>
-                      {a.status}
-                    </span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-3)' }}>{a.description}</p>
-                </StudioButton>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
+              {ADAPTERS.map((a) => {
+                const selected = selectedAdapter === a.id;
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => setSelectedAdapter(a.id)}
+                    style={{
+                      padding: '14px 16px',
+                      backgroundColor: selected ? 'var(--bg-2)' : 'var(--panel)',
+                      border: `1px solid ${selected ? 'var(--accent)' : 'var(--line)'}`,
+                      borderRadius: 'var(--radius-md)',
+                      textAlign: 'left',
+                      display: 'block',
+                      width: '100%',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: a.description ? 6 : 0 }}>
+                      <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)', lineHeight: 1.35 }}>{a.name}</span>
+                      <span style={{
+                        fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600, flexShrink: 0,
+                        backgroundColor: 'var(--warning)',
+                        color: 'var(--bg)',
+                      }}>
+                        {a.status}
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-3)', lineHeight: 1.5 }}>{a.description}</p>
+                  </button>
+                );
+              })}
             </div>
           </StudioPanel>
 
@@ -201,7 +210,7 @@ export function DeliveryClient({ brackets }: Props) {
         </div>
 
         {/* Right: Export trigger (sticky at top) + Scope Selection */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
           {/* T2.5: Export trigger moved above scope list so button is always visible */}
           <StudioPanel
             title="Export Trigger"
@@ -232,17 +241,17 @@ export function DeliveryClient({ brackets }: Props) {
                 variant="ghost"
                 tone="info"
               >
-                {selectedBrackets.size === brackets.length ? 'Deselect all' : 'Select all'}
+                {selectedBrackets.size === visibleBrackets.length ? 'Deselect all' : 'Select all'}
               </StudioButton>
             }
           >
-            {brackets.length === 0 ? (
+            {visibleBrackets.length === 0 ? (
               <StudioEmptyState title="No use cases available" description="Add or approve use cases before preparing a delivery export." />
             ) : (
               <>
               <div style={{ maxHeight: '280px', overflowY: 'auto', overflowX: 'hidden' }}>
                 <StudioSelectionList>
-                  {brackets.map((bracket) => (
+                  {visibleBrackets.map((bracket) => (
                     <StudioSelectionItem
                       key={bracket.id}
                       selected={selectedBrackets.has(bracket.id)}
@@ -256,7 +265,7 @@ export function DeliveryClient({ brackets }: Props) {
                 </StudioSelectionList>
               </div>
               <StudioInlineStat>
-                {selectedBrackets.size} of {brackets.length} use cases selected for export.
+                {selectedBrackets.size} of {visibleBrackets.length} use cases selected for export.
               </StudioInlineStat>
               </>
             )}
@@ -282,6 +291,7 @@ export function DeliveryClient({ brackets }: Props) {
       {exportResults && (
         <ExportResults results={exportResults} adapterName={selectedAdapter} />
       )}
+      <StudioWorkflowFooter label="Continue to Brand & Templates" href="/templates" />
       </div>
     </StudioPage>
   );

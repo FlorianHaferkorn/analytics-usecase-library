@@ -63,6 +63,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: crm.lifetime_revenue.amount
       visual_type: trend_line
+      question: "Is customer lifetime value growing or eroding, and where?"
       message: Customer lifetime revenue is eroding, with the mid-tier segment driving the decline
       so_what: "Retention investment in the mid-tier segment is what stops the erosion before it compounds into lost revenue."
       unit: amount
@@ -74,6 +75,7 @@ ux_layout_rules:
       # Detail_Matrix as a supporting evidence column instead.
       kpi_id: crm.retention.pct
       visual_type: bar_chart
+      question: "Is retention holding evenly across segments?"
       message: Retention is slipping unevenly across segments, concentrating the CLV risk
       so_what: "Ranking retention by segment pinpoints where to spend before churn compounds into lost CLV."
       unit: rate
@@ -82,6 +84,7 @@ ux_layout_rules:
       kpi_id: crm.revenue_at_risk.amount
       visual_type: bar_chart_horizontal
       category_field: dim_customer.Segment
+      question: "Where is revenue-at-risk concentrated?"
       message: Revenue at risk is concentrated in a few customer segments
       so_what: "Focusing retention budget on the highest-risk segments protects more CLV per dollar spent."
       unit: amount

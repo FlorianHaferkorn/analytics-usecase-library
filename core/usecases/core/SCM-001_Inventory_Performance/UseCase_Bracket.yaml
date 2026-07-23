@@ -60,6 +60,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: inv.turnover
       visual_type: trend_line
+      question: "Is inventory turning efficiently, or tying up working capital?"
       message: Inventory turnover is falling, tying up working capital in slow-moving stock
       so_what: "Falling turnover ties up working capital that could fund faster-moving SKUs."
       unit: ratio
@@ -69,6 +70,7 @@ ux_layout_rules:
       - supply.otif.pct
       - inv.obsolete.pct
       visual_type: bar_chart
+      question: "What are the inventory-health signals telling us?"
       message: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
       so_what: "Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one."
       unit: rate
@@ -77,6 +79,7 @@ ux_layout_rules:
       kpi_id: plan.forecast.accuracy.pct
       visual_type: trend_line
       comparison: vs_target
+      question: "Is poor forecasting the root cause behind the inventory swings?"
       message: Forecast accuracy below target is the root cause behind the stockout-and-obsolescence swing
       so_what: "Fixing forecast accuracy addresses the root cause instead of firefighting stockouts and dead stock separately."
       unit: rate

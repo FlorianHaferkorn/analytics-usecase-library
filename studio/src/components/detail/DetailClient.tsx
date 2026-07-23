@@ -2,9 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { CatalogKpi } from '@/lib/core/catalog-loader';
+import type { CatalogKpi } from '@/lib/core/catalog-types';
 import { Pill } from './Pill';
 import { DetailHistoryTab } from './DetailHistoryTab';
+import { StudioPage, StudioPageHeader } from '@/components/ui/studio-page';
 
 interface Comment {
   who: string;
@@ -70,6 +71,19 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
   }
 
   return (
+    <StudioPage>
+      <StudioPageHeader
+        eyebrow="Registry / KPI Detail"
+        title={name}
+        description={desc}
+        badge={ref}
+        tone="info"
+        actions={
+          <Link href="/library" style={{ fontSize: 13, color: 'var(--accent)', textDecoration: 'none' }}>
+            ← Library
+          </Link>
+        }
+      />
     <div className="flex h-full overflow-hidden">
       {/* Main */}
       <div className="flex-1 overflow-auto">
@@ -329,5 +343,6 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
         </div>
       </aside>
     </div>
+    </StudioPage>
   );
 }

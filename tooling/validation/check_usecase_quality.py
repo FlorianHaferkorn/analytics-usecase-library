@@ -10,12 +10,11 @@ rubric leaves to prose:
    carry a non-empty `decision_question` — a 3-30-300 page exists to answer a decision, not to show
    charts (BC-NARR: decision-first).
 
-2. **Every 30-second message is a conclusion, not a chart label.** A `component_30s.message` must
-   assert a finding ("On-time delivery is dragging OTIF below target"), not describe the visual
-   ("On-time delivery rate trend over time"). Label-style messages — ending in "over time",
-   "trended", "vs. target", or a bare "… trend" — are rejected. The decomposition-orientation
-   pattern ("A, B and C — the three components") is allowed (it carries an em dash and pairs with a
-   so_what). This operationalises BC-NARR-01 (the message IS the conclusion).
+2. **Every 30-second message is a conclusion, not a chart label** (BC-NARR-01). This rule is *owned*
+   by `check_exhibit_message.py` (the declared BC-NARR-01 validator); we do not re-implement it — we
+   **reuse its `classify_message`** so there is a single heuristic for the rule. A message the owner
+   classifies as a bare label is reported here too, keeping this a complete use-case-quality gate
+   without a second silo.
 
 3. **Every use case is standards-grounded.** Its `Business_Factsheet.md` must carry a
    "### 3.1 Standards basis" section (generated from the KPIs' `standard_ref`) and that section must
@@ -31,7 +30,6 @@ Exit codes: 0 advisory (default) or --strict clean; 1 --strict with ≥1 violati
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -43,23 +41,13 @@ except ImportError:  # pragma: no cover
     sys.exit(1)
 
 REPO = Path(__file__).resolve().parents[2]
+if str(REPO) not in sys.path:                 # so `python tooling/validation/check_usecase_quality.py` can import the owner
+    sys.path.insert(0, str(REPO))
+
+# BC-NARR-01 lives in one place — reuse the owner's classifier, never a parallel heuristic.
+from tooling.validation.check_exhibit_message import classify_message  # noqa: E402
+
 UC_GLOB = "core/usecases/**/UseCase_Bracket.yaml"
-
-# Label-style tail patterns: a message that merely names the visual. Checked on the message with a
-# trailing period stripped, lower-cased. The em-dash decomposition-orientation line is exempt.
-_LABEL_TAILS = ("over time", "trended", "vs. target", "vs target", "trend", "trend vs. target")
-
-
-def is_label_message(message: str | None) -> bool:
-    """True when the message describes the chart instead of stating a conclusion."""
-    if not message or not message.strip():
-        return True
-    s = message.strip().rstrip(".").lower()
-    if " — " in message or " – " in message:   # decomposition-orientation line: allowed
-        return False
-    if "trend over time" in s:
-        return True
-    return any(s.endswith(t) for t in _LABEL_TAILS)
 
 
 def _pages(bracket: dict[str, Any]) -> list[tuple[str, dict]]:
@@ -77,7 +65,8 @@ def check_bracket(path: Path) -> list[str]:
         if not (page.get("decision_question") or "").strip():
             problems.append(f"{ucid}/{pk}: missing decision_question")
         for c in (page.get("component_30s") or []):
-            if is_label_message(c.get("message")):
+            status, _ = classify_message(c.get("message"))   # BC-NARR-01 owner's classifier
+            if status is False:                               # reads as a bare label
                 problems.append(
                     f"{ucid}/{pk}: label-style message (needs a conclusion): "
                     f"{c.get('message')!r}")

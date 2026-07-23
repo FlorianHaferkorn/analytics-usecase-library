@@ -65,6 +65,19 @@ dimension:
       - {name: Cost Type, type: text, allowed_values: [Fixed, Variable], synonyms: [Cost Behavior, Fixkostenart, Kostenverhalten]}
       - {name: Activity, type: text, nullable: true, synonyms: [Cost Driver, Activity Pool, Aktivität, Kostentreiber]}
 
+  # FIN-003: cost-centre (org-responsibility) axis for EBITDA-vs-plan overrun attribution.
+  # Distinct from dim_cost_category (cost-element/behaviour); this is the accountable unit.
+  - name: dim_cost_center
+    description: "Conformed functional cost centre (Store Operations, Merchandising, Marketing, Supply
+      Chain & Logistics, IT & Digital, General & Admin) for OpEx variance attribution."
+    purpose: "Locates which cost centres carry the opex/EBITDA overrun in FIN-003."
+    scd_type: 1
+    columns:
+      - {name: CostCenterKey, type: int, role: key}
+      - {name: Cost Center, type: text}
+      - {name: Business Unit, type: text}
+      - {name: Account Group, type: text}
+
 fact:
   - name: fact_cash_position
     description: "Daily cash balance and plan cash per entity."
@@ -138,6 +151,26 @@ fact:
       - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
       - {name: OpEx Amount, type: currency, agg: sum, nullable: true}
       - {name: Plan OpEx Amount, type: currency, agg: sum, nullable: true}
+      # FIN-003 earnings-vs-plan (IFRS/ESMA-APM): EBITDA add-back + plan side + cost-centre axis
+      - {name: EBIT Amount, type: currency, agg: sum, nullable: true}
+      - {name: Net Income Amount, type: currency, agg: sum, nullable: true}
+      - {name: D&A Amount, type: currency, agg: sum, nullable: true, description: "Depreciation & amortisation; EBITDA = EBIT + D&A."}
+      - {name: Plan Net Sales Amount, type: currency, agg: sum, nullable: true}
+      - {name: Plan COGS Amount, type: currency, agg: sum, nullable: true}
+      - {name: Plan EBITDA Amount, type: currency, agg: sum, nullable: true}
+
+  # FIN-003 OpEx split by conformed cost centre (sums back to fact_finance entity OpEx /
+  # Plan OpEx). The overrun concentrates in a few cost centres — the "where" of the story.
+  - name: fact_opex_costcenter
+    description: "OpEx and Plan OpEx at org × cost-centre × month; reconciles to fact_finance entity OpEx."
+    purpose: "Cost-centre attribution of the OpEx / EBITDA-vs-plan overrun (FIN-003)."
+    grain: entity_costcentre_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: CostCenterKey, type: int, ref: dim_cost_center, cardinality: many-to-one}
+      - {name: OpEx Amount, type: currency, agg: sum}
+      - {name: Plan OpEx Amount, type: currency, agg: sum}
 
   - name: fact_cost
     description: "Cost breakdown (COGS, material, overhead) per plant-line-product-month."
@@ -204,6 +237,7 @@ quality_rules:
     - "fact_accounts_payable.SupplierKey → dim_supplier (nullable)"
     - "fact_cost.ProductKey → dim_product (required)"
     - "fact_cost.CostCategoryKey → dim_cost_category (nullable; absent = uncategorized cost)"
+    - "fact_opex_costcenter.OrgKey → dim_org; CostCenterKey → dim_cost_center (required)"
 
 settings:
   timezone: Europe/Berlin

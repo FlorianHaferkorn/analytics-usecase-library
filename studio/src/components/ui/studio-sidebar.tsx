@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FORGE_NAV, REGISTRY_NAV, getNavMode, type NavItem } from '@/lib/navigation';
+import { usePathname } from 'next/navigation';
+import { FORGE_NAV, FORGE_TOOLS_NAV, REGISTRY_NAV, getNavMode, type NavItem } from '@/lib/navigation';
+import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
 import { PhIcon, type PhIconName } from './ph-icon';
 import { KbdShortcut } from './kbd-shortcut';
 
@@ -26,15 +27,23 @@ interface SidebarProps {
 
 export function StudioSidebar({ domains = [] }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const mode = getNavMode(pathname);
+  const { domainFilter, toggleDomainFilter, isPending } = useDomainFilter();
   const [collapsed, setCollapsed] = useState(false);
-  const activeDomain = searchParams.get('domain');
+  const [sidebarReady, setSidebarReady] = useState(false);
 
   useEffect(() => {
+    setSidebarReady(true);
     const stored = localStorage.getItem('sidebar-collapsed');
     if (stored === 'true') setCollapsed(true);
+
+    const mq = window.matchMedia('(max-width: 960px)');
+    const apply = () => {
+      if (mq.matches) setCollapsed(true);
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
   }, []);
 
   const toggle = () => {
@@ -43,22 +52,11 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
     localStorage.setItem('sidebar-collapsed', String(next));
   };
 
-  const onDomainClick = (name: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (activeDomain === name) {
-      params.delete('domain');
-    } else {
-      params.set('domain', name);
-    }
-    const qs = params.toString();
-    router.push(`${pathname}${qs ? `?${qs}` : ''}`);
-  };
-
-  const w = collapsed ? 68 : 248;
+  const w = sidebarReady && collapsed ? 68 : 248;
   const navItems = mode === 'forge' ? FORGE_NAV : REGISTRY_NAV;
 
   return (
-    <aside style={{
+    <aside className="studio-sidebar" style={{
       width: w, flexShrink: 0, height: '100%',
       background: 'var(--bg)',
       borderRight: '1px solid var(--line)',
@@ -84,7 +82,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
         {!collapsed && (
           <div style={{ lineHeight: 1.1, minWidth: 0 }}>
             <div style={{ fontWeight: 600, fontSize: 13.5, letterSpacing: '-0.01em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-              Action<span style={{ color: 'var(--accent)' }}>Ready</span>
+              ALUCA
             </div>
             <div style={{ fontSize: 11, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>Studio</div>
           </div>
@@ -187,17 +185,61 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
         })}
       </nav>
 
+      {/* Tools — Library, Canvas, Templates (Forge context only) */}
+      {!collapsed && mode === 'forge' && (
+        <div style={{ padding: '8px 8px 4px' }}>
+          <div style={navLabelStyle}>Tools</div>
+        </div>
+      )}
+      {mode === 'forge' && (
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 1, padding: '0 8px 8px', flexShrink: 0 }}>
+          {FORGE_TOOLS_NAV.map((item: NavItem) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                title={collapsed ? item.label : undefined}
+                style={{
+                  display: 'flex', alignItems: 'center',
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  gap: 10,
+                  height: 32, padding: collapsed ? 0 : '0 10px',
+                  paddingLeft: !collapsed && isActive ? 7 : !collapsed ? 10 : 0,
+                  borderRadius: 7,
+                  borderLeft: !collapsed && isActive ? '3px solid var(--accent)' : '3px solid transparent',
+                  textDecoration: 'none',
+                  fontSize: 13,
+                  fontWeight: isActive ? 500 : 400,
+                  color: isActive ? 'var(--ink)' : 'var(--ink-3)',
+                  background: isActive ? 'var(--hover)' : 'transparent',
+                  transition: 'all var(--duration-fast)',
+                }}
+              >
+                <PhIcon name={item.sidebarIcon as PhIconName} size={16} />
+                {!collapsed && item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+
       {/* Domains section — clickable filter (?domain=<name>) when expanded */}
       {!collapsed && domains.length > 0 && (
         <div style={{ padding: '12px 8px 4px' }}>
-          <div style={navLabelStyle}>Domains</div>
+          <div style={navLabelStyle}>Domain filter</div>
+          <p style={{ margin: '4px 10px 8px', fontSize: 10.5, lineHeight: 1.4, color: 'var(--ink-4)' }}>
+            Narrows Forge views instantly — no page reload.
+          </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {domains.map((d) => {
-              const isActive = activeDomain === d.name;
+              const isActive = domainFilter === d.name;
               return (
                 <button
                   key={d.name}
-                  onClick={() => onDomainClick(d.name)}
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => toggleDomainFilter(d.name)}
                   style={{
                     height: 28, padding: '0 10px',
                     display: 'flex', alignItems: 'center', gap: 10,
@@ -205,7 +247,8 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
                     color: isActive ? 'var(--ink)' : 'var(--ink-2)',
                     fontSize: 12.5,
                     background: isActive ? 'var(--hover)' : 'transparent',
-                    border: 'none', cursor: 'pointer', textAlign: 'left',
+                    border: 'none', cursor: isPending ? 'wait' : 'pointer', textAlign: 'left',
+                    opacity: isPending && !isActive ? 0.7 : 1,
                     transition: 'background var(--duration-fast)',
                   }}
                   onMouseEnter={(e) => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
@@ -249,7 +292,7 @@ export function StudioSidebar({ domains = [] }: SidebarProps) {
               <div style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 Alex Haferkorn
               </div>
-              <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>Acme · Pro</div>
+              <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>Aurora Group · Pro</div>
             </div>
             <button
               onClick={toggle}

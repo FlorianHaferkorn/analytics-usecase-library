@@ -531,3 +531,55 @@ roles:
   domain: S&OP / Supply Chain Planning
   aliases:
   - S&OP / Supply Chain Planning BI Lead
+# Roles referenced by the COM-005 / FIN-003 / HR-001 / SCM-004 use cases and their
+# action codes (C-P1.1, F-E1.1, X-R1.1, S-P1.1) but never registered here — batch
+# registration so the ontology gate resolves them (they were dangling refs).
+- id: commercial_controlling_revenue_operations
+  title: Commercial Controlling & Revenue Operations
+  domain: Commercial
+  aliases:
+  - Commercial Controlling & Revenue Operations
+  - Revenue Operations Controlling
+- id: revenue_operations_bi_lead
+  title: Revenue Operations BI Lead
+  domain: Commercial
+  aliases:
+  - Revenue Operations BI Lead
+- id: finance_controlling_fpa
+  title: Finance Controlling & FP&A
+  domain: Finance
+  aliases:
+  - Finance Controlling & FP&A
+  - FP&A Controlling
+- id: head_of_fpa
+  title: Head of FP&A
+  domain: Finance
+  aliases:
+  - Head of FP&A
+  - Head of Financial Planning & Analysis
+- id: hr_controlling_people_analytics
+  title: HR Controlling & People Analytics
+  domain: People & Culture
+  aliases:
+  - HR Controlling & People Analytics
+- id: people_analytics_bi_lead
+  title: People Analytics BI Lead
+  domain: People & Culture
+  aliases:
+  - People Analytics BI Lead
+- id: head_of_hr
+  title: Head of HR
+  domain: People & Culture
+  aliases:
+  - Head of HR
+  - CHRO / Head of HR
+- id: procurement_controlling_sourcing
+  title: Procurement Controlling & Sourcing
+  domain: Supply Chain
+  aliases:
+  - Procurement Controlling & Sourcing
+- id: procurement_bi_lead
+  title: Procurement BI Lead
+  domain: Supply Chain
+  aliases:
+  - Procurement BI Lead

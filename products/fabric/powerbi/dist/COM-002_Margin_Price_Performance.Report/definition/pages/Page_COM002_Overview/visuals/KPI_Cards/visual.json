@@ -3,10 +3,10 @@
   "name": "KPI_Cards",
   "position": {
     "x": 32,
-    "y": 104,
+    "y": 32,
     "z": 10000,
     "height": 156,
-    "width": 1856,
+    "width": 1388,
     "tabOrder": 3000
   },
   "visual": {
@@ -19,7 +19,7 @@
             "columnCount": {
               "expr": {
                 "Literal": {
-                  "Value": "4L"
+                  "Value": "3L"
                 }
               }
             }
@@ -57,20 +57,6 @@
               },
               "queryRef": "_Measures.Gross Margin %",
               "nativeQueryRef": "Gross Margin %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Gross Margin % vs Plan"
-                }
-              },
-              "queryRef": "_Measures.Gross Margin % vs Plan",
-              "nativeQueryRef": "Gross Margin % vs Plan"
             },
             {
               "field": {

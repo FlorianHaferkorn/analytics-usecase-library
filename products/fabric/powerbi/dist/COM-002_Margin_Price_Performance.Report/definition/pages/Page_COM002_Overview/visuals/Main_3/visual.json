@@ -112,7 +112,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Gross margin sits below target in a few business units that drag the portfolio'"
+                  "Value": "'Is the margin shortfall portfolio-wide or concentrated in a few units?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Gross margin sits below target in a few business units that drag the portfolio'"
                 }
               }
             },

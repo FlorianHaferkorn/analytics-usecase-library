@@ -1,0 +1,48 @@
+kpi_id: procurement.oncontract.pct
+kpi_key: On-Contract Spend %
+kpi_type: diagnostic
+kpi_role: influencing
+impact_dimension: Cost
+domain_tag:
+- Supply Chain
+- Sourcing
+use_case_ref:
+- SCM-004
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
+  definition: On-Contract Spend / Total Addressable Spend.
+  grain_scope: Category/supplier; monthly.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher is better; the primary lever for savings realisation and price control.
+technical:
+  measure_name: On-Contract Spend %
+  description: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
+  depends_on_measures: []
+  lineage:
+  - fact_procurement.On-Contract Amount
+  - fact_procurement.Addressable Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: On-Contract Amount
+    denominator:
+      column: Addressable Amount
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: Procurement & spend analytics (convention)
+  name: On-contract / managed spend
+  alignment: none
+  note: Contract-compliance / maverick-buying share is a procurement convention, not an external standard.

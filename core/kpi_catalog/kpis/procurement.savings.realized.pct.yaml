@@ -1,0 +1,50 @@
+kpi_id: procurement.savings.realized.pct
+kpi_key: Realised Savings %
+kpi_type: diagnostic
+kpi_role: strategic
+impact_dimension: Cost
+domain_tag:
+- Supply Chain
+- Sourcing
+use_case_ref:
+- SCM-004
+- FIN-002
+action_code_ref: []
+calc_type: rate
+business:
+  purpose: Measures procurement savings realised against the savings target.
+  definition: Realised Savings / Savings Target.
+  grain_scope: Category/supplier; monthly, YTD.
+  unit_format: '''% (1 decimal)'''
+  interpretation: Higher is better; the CPO's headline for value delivery.
+technical:
+  measure_name: Realised Savings %
+  description: Measures procurement savings realised against the savings target.
+  depends_on_measures: []
+  lineage:
+  - fact_procurement.Savings Amount
+  - fact_procurement.Savings Target Amount
+  calculation:
+    op: ratio
+    numerator:
+      column: Savings Amount
+    denominator:
+      column: Savings Target Amount
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: Procurement & spend analytics (convention)
+  name: Realised savings vs target
+  alignment: none
+  note: Savings realisation is a procurement-controlling convention; no external standards body defines
+    the metric.

@@ -1,0 +1,44 @@
+kpi_id: sales.pipeline.value.amount
+kpi_key: Open Pipeline Value
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Growth
+domain_tag:
+- Commercial
+- Growth
+use_case_ref:
+- COM-005
+action_code_ref: []
+calc_type: sum
+business:
+  purpose: Measures total value of open qualified opportunities.
+  definition: Sum of Opportunity Value for open qualified opportunities.
+  grain_scope: Rep/region/segment; weekly snapshot.
+  unit_format: '''EUR (0 decimal)'''
+  interpretation: Base for coverage; watch concentration in a few large deals.
+technical:
+  measure_name: Open Pipeline Value
+  description: Measures total value of open qualified opportunities.
+  depends_on_measures: []
+  lineage:
+  - fact_pipeline.Open Qualified Value Amount
+  calculation:
+    op: sum
+    column: Open Qualified Value Amount
+governance:
+  business_owner: TBD
+  data_owner: TBD
+  steward: TBD
+  review_cycle: quarterly
+  validation_process: manual review
+  qa_rules:
+  - Denominator > 0 for reported slices
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 18.07.2026
+standard_ref:
+- standard: Sales pipeline management (convention)
+  name: Open pipeline value
+  alignment: none
+  note: Open pipeline value is a commercial-analytics convention, not an external standard.

@@ -1,135 +1,94 @@
 'use client';
 
-import { useState, useEffect, Suspense, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { Sidebar } from './Sidebar';
-import { Topbar } from './Topbar';
-import { CommandPalette } from './CommandPalette';
+import { Suspense, useEffect, useState } from 'react';
+import { StudioSidebar, type DomainStat } from '@/components/ui/studio-sidebar';
+import { StudioHeader } from '@/components/ui/studio-header';
+import { GlobalOverlays } from '@/components/ui/global-overlays';
 import { Settings } from './Settings';
-import { Wizard } from '@/components/ui/wizard';
-import { useWizardSave } from '@/hooks/use-wizard-save';
-import { ChatPanel } from '@/components/ui/global-overlays';
+import { AuroraBootstrap } from '@/components/providers/aurora-bootstrap';
+import { BrandBootstrap } from '@/components/providers/brand-bootstrap';
+import { DomainFilterProvider } from '@/components/providers/domain-filter-provider';
 import type { ShellPaletteItem } from '@/lib/studio/build-palette-items';
-
-interface EntityContext {
-  entityType: 'kpi' | 'bracket' | 'use_case' | 'general';
-  entityId?: string;
-}
+import type { AuroraBootstrapData } from '@/lib/aurora/bootstrap-data';
+import type { ThemeConfig } from '@/lib/store/project-store';
 
 export interface StudioAppShellProps {
   children: React.ReactNode;
   paletteItems?: ShellPaletteItem[];
+  domains?: DomainStat[];
+  auroraBootstrap?: AuroraBootstrapData;
+  brandBootstrap?: Partial<ThemeConfig> | null;
 }
 
-export function StudioAppShell({ children, paletteItems = [] }: StudioAppShellProps) {
-  const router = useRouter();
-  const [commandOpen, setCommandOpen] = useState(false);
+export function StudioAppShell({
+  children,
+  paletteItems = [],
+  domains = [],
+  auroraBootstrap,
+  brandBootstrap,
+}: StudioAppShellProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [chatContext, setChatContext] = useState<EntityContext | null>(null);
-  const { saveDraft, saving: wizardSaving, error: wizardSaveError, clearError: clearWizardError } = useWizardSave();
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setCommandOpen(true);
-      }
-      if (
-        e.key === 'n' &&
-        !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement)
-      ) {
-        e.preventDefault();
-        setWizardOpen(true);
-      }
-      if (e.key === 'Escape') {
-        setCommandOpen(false);
-        setSettingsOpen(false);
-        setWizardOpen(false);
-        setChatContext(null);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    const onTweaks = () => setSettingsOpen(true);
+    window.addEventListener('studio:open-tweaks', onTweaks);
+    return () => window.removeEventListener('studio:open-tweaks', onTweaks);
   }, []);
 
   useEffect(() => {
-    const onChat = (e: Event) => {
-      const detail = (e as CustomEvent<{ entityContext?: EntityContext }>).detail;
-      const ctx = detail?.entityContext ?? { entityType: 'general' as const };
-      setChatContext(ctx);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSettingsOpen(false);
     };
-    window.addEventListener('studio:open-chat', onChat);
-    return () => window.removeEventListener('studio:open-chat', onChat);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
-
-  const entityCommands = useMemo(
-    () =>
-      paletteItems.map((item) => ({
-        id: `entity-${item.kind}-${item.id}`,
-        label: item.label,
-        category: item.sub,
-        action: () => router.push(item.href),
-      })),
-    [paletteItems, router],
-  );
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background">
-      <Suspense fallback={<aside className="w-[248px] border-r border-border" />}>
-        <Sidebar
-          onNew={() => setWizardOpen(true)}
-          onCommand={() => setCommandOpen(true)}
-        />
+    <DomainFilterProvider>
+    <div
+      style={{
+        display: 'flex',
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        background: 'var(--bg)',
+      }}
+    >
+      <Suspense
+        fallback={
+          <aside
+            style={{
+              width: 248,
+              flexShrink: 0,
+              borderRight: '1px solid var(--line)',
+              background: 'var(--bg)',
+            }}
+          />
+        }
+      >
+        <StudioSidebar domains={domains} />
       </Suspense>
 
-      <div className="flex flex-col flex-1 min-w-0">
-        <Topbar
-          onSettings={() => setSettingsOpen(true)}
-          onAskStudio={() =>
-            setChatContext({ entityType: 'general' })
-          }
-        />
-
-        <main className="flex-1 overflow-auto bg-background p-6">
-          <div className="w-full max-w-7xl mx-auto">{children}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+        <StudioHeader />
+        <main
+          className="studio-main"
+          style={{
+            flex: 1,
+            overflow: 'auto',
+            padding: 'var(--pad)',
+            background: 'var(--bg)',
+          }}
+        >
+          {children}
         </main>
       </div>
 
-      <CommandPalette
-        isOpen={commandOpen}
-        onClose={() => setCommandOpen(false)}
-        onNew={() => {
-          setCommandOpen(false);
-          setWizardOpen(true);
-        }}
-        extraCommands={entityCommands}
-      />
-
+      <GlobalOverlays paletteItems={paletteItems} />
+      {auroraBootstrap && <AuroraBootstrap data={auroraBootstrap} />}
+      {brandBootstrap && <BrandBootstrap theme={brandBootstrap} />}
       <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
-
-      <Wizard
-        open={wizardOpen}
-        onClose={() => {
-          setWizardOpen(false);
-          clearWizardError();
-        }}
-        saving={wizardSaving}
-        saveError={wizardSaveError}
-        onSave={async (kind, draft) => {
-          const ok = await saveDraft(kind, draft);
-          if (ok) setWizardOpen(false);
-        }}
-      />
-
-      {chatContext && (
-        <ChatPanel
-          entityContext={chatContext}
-          onClose={() => setChatContext(null)}
-        />
-      )}
     </div>
+    </DomainFilterProvider>
   );
 }

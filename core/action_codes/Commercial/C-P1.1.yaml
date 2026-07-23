@@ -1,0 +1,193 @@
+schema_version: '2.0'
+id: C-P1.1
+name: Pipeline Conversion Orchestration
+owner_domain: Commercial / Revenue Operations Leadership
+impact_dimension: Conversion Governance
+status: active
+owner_role: head_of_sales
+steward_role: revenue_operations_bi_lead
+use_case_links:
+  core_use_cases:
+  - COM-005
+  related_use_cases: []
+kpis:
+  trigger_kpis:
+  - sales.pipeline.coverage.ratio
+  - sales.win_rate.pct
+  guardrail_kpis:
+  - sales.sales_cycle.days
+  outcome_kpis:
+  - sales.pipeline.coverage.ratio
+scope:
+  default_grain: segment_week
+  default_perspective:
+  - Segment
+  - Rep
+  supported_slices:
+  - Region
+  - Stage
+  exclusions:
+  - Units under active transformation initiatives
+  - One-off exceptional events with executive override
+  - Low-volume segments below the minimum-observation guardrail
+trigger:
+  type: Deviation
+  evaluation:
+    grain: segment_week
+    window:
+      kind: rolling
+      length: 5
+      unit: days
+    persistence:
+      required: true
+      min_consecutive_periods: 3
+    minimum_data:
+      min_observations: 3
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: sales.pipeline.value.amount
+        comparator: gte
+        value: 50
+        unit: count
+  levels:
+    L1:
+      severity: EarlyWarning
+      condition:
+        metric_kpi_id: sales.pipeline.coverage.ratio
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 3.0
+          unit: x
+        filters: []
+    L2:
+      severity: RequiredIntervention
+      condition:
+        metric_kpi_id: sales.pipeline.coverage.ratio
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 2.5
+          unit: x
+        filters: []
+    L3:
+      severity: PrescriptiveExecution
+      condition:
+        metric_kpi_id: sales.pipeline.coverage.ratio
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 2.0
+          unit: x
+        filters: []
+  gating_rules:
+  - Trigger only if backlog growth or escalations confirm structural issue
+  - Do not trigger if SLA miss is caused by one-off incidents
+  - Exclude queues with active execution Action Codes in progress
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: sales.pipeline.coverage.ratio
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: RealizedEUR = Avoided_Loss + Recovered_Value
+  required_measures: &id001
+  - Pipeline Coverage
+  - Win Rate %
+  - Stage Conversion %
+  - Sales Cycle Length
+  attribution:
+    method: before_after
+impact:
+  category: High
+  expected_range:
+    metric_kpi_id: sales.pipeline.coverage.ratio
+    value_low: 2.0
+    value_high: 8.0
+    unit: x
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+  - Focused activation of the dominant service lever
+  - Avoidance of conflicting service actions
+  confidence:
+    level: High
+    rationale:
+    - Service failures are concentrated by queue
+    - Central coordination improves execution quality
+operational_execution:
+  stakeholders:
+  - Sales Management
+  - Revenue Operations
+  - Sales Enablement
+  prerequisites:
+  - Reliable SLA, backlog, and escalation measurement
+  - Clear ownership of execution Action Codes
+  steps:
+  - DETECT sustained SLA deterioration for this queue
+  - DIAGNOSE the dominant service constraint for this queue
+  - ACTIVATE the corresponding execution Action Code for this queue
+  - REVIEW SLA recovery for this queue daily
+  effort:
+    level: Low
+    typical_duration_days: 14
+  risks_and_tradeoffs:
+  - Delayed execution if diagnosis is incorrect
+  - Underreaction to multi-driver service issues
+data_requirements:
+  required_entities:
+  - Segment
+  - Rep
+  semantic_dependencies:
+    measures: *id001
+    tables:
+    - fact_pipeline
+    - dim_salesrep
+    - dim_sales_stage
+    - dim_org
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: daily
+    output: Queues with sustained SLA deterioration
+  suggested_actions:
+    enabled: true
+    outputs:
+    - Recommended service lever activation
+  copilot_prompts: []
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: fact_action_execution
+    minimum_fields:
+    - ActionCode
+    - Queue
+    - Region
+    - TriggerLevel
+    - ActivatedLever
+    - ExecutedDate
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: fact_action_outcome
+    minimum_fields:
+    - ActionCode
+    - Pre_SLA_Pct
+    - Post_SLA_Pct_14d
+governance:
+  approvals_required:
+  - VP Customer Operations
+  rollback_plan:
+  - Suspend orchestration if quality KPIs deteriorate
+  documentation_links:
+  - core/usecases/core/COM-005_Sales_Pipeline_Conversion/Business_Factsheet.md
+quality_rules:
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

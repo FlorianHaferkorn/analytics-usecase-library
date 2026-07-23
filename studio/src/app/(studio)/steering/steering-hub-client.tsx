@@ -1,15 +1,20 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useProjectStore } from '@/lib/store/project-store';
-import { GoldenThreadFlow, type GoldenThreadData } from '@/components/flow/golden-thread-flow';
+import type { GoldenThreadData } from '@/components/flow/golden-thread-flow';
 import { parseYaml, toYaml } from '@/lib/core/yaml-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import { ExportReportButton } from '@/components/steering/export-report-button';
 import { ExportExcelButton } from '@/components/steering/export-excel-button';
 import { StudioFormField, StudioInput, StudioSelect } from '@/components/ui/studio-data';
 import { StudioButton, StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
+
+const GoldenThreadFlow = dynamic(
+  () => import('@/components/flow/golden-thread-flow').then((m) => m.GoldenThreadFlow),
+  { ssr: false, loading: () => <div style={{ padding: 'var(--pad)', color: 'var(--ink-4)' }}>Loading flow…</div> },
+);
 
 const YamlEditor = dynamic(
   () => import('@/components/editor/yaml-editor').then((m) => m.YamlEditor),
@@ -34,6 +39,9 @@ interface Props {
   kpiNames?: Record<string, string>;
   initialSelectedBracket?: string | null;
   draftBracketId?: string | null;
+  pageEyebrow?: string;
+  onSelectedBracketChange?: (id: string | null) => void;
+  embedded?: boolean;
 }
 
 type ViewMode = 'flow' | 'split' | 'editor';
@@ -58,7 +66,7 @@ function extractBracketData(parsed: Record<string, unknown>): Partial<BracketDat
   return result;
 }
 
-export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: initialBrackets, actionDetails, bracketYamls: initialYamls, kpiNames = {}, initialSelectedBracket = null, draftBracketId = null }: Props) {
+export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: initialBrackets, actionDetails, bracketYamls: initialYamls, kpiNames = {}, initialSelectedBracket = null, draftBracketId = null, pageEyebrow = 'Forge / Blueprint', onSelectedBracketChange, embedded = false }: Props) {
   const storeAnchor = useProjectStore((s) => s.strategyAnchor);
   const strategyAnchor = storeAnchor || initialAnchor;
 
@@ -73,6 +81,48 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
   const [createTargetTitle, setCreateTargetTitle] = useState(() => (initialSelectedBracket ? initialBrackets.find((bracket) => bracket.id === initialSelectedBracket)?.title ?? '' : ''));
   const [createError, setCreateError] = useState<string | null>(null);
   const [creatingBracket, setCreatingBracket] = useState(false);
+  const [yamlLoading, setYamlLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedBracket || bracketYamls[selectedBracket]) return;
+
+    let cancelled = false;
+    setYamlLoading(true);
+    void (async () => {
+      try {
+        const res = await fetch(`/api/core/brackets/${encodeURIComponent(selectedBracket)}`);
+        if (!res.ok || cancelled) return;
+        const json = (await res.json()) as { data?: { yaml?: string } };
+        const yaml = json.data?.yaml;
+        if (yaml && !cancelled) {
+          setBracketYamls((prev) => ({ ...prev, [selectedBracket]: yaml }));
+        }
+      } catch {
+        /* lazy load best-effort */
+      } finally {
+        if (!cancelled) setYamlLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedBracket, bracketYamls]);
+
+  useEffect(() => {
+    onSelectedBracketChange?.(selectedBracket);
+  }, [selectedBracket, onSelectedBracketChange]);
+
+  useEffect(() => {
+    setBrackets(initialBrackets);
+  }, [initialBrackets]);
+
+  useEffect(() => {
+    if (selectedBracket && !initialBrackets.some((b) => b.id === selectedBracket)) {
+      setSelectedBracket(null);
+      setSyncStatus('synced');
+    }
+  }, [initialBrackets, selectedBracket]);
 
   const handleSave = useCallback(async () => {
     if (!selectedBracket || syncStatus !== 'dirty') return;
@@ -220,22 +270,36 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
       : { color: 'var(--danger)', label: 'Parse Error' };
 
   return (
-    <StudioPage fill>
-      <StudioPageHeader
-        eyebrow="Studio / Decision Design"
-        title="Steering"
-        description="Navigate the golden thread, refine bracket YAML, and turn draft scaffolds into governed use cases without leaving the same working surface."
-        badge={selectedBracket ?? `All ${brackets.length}`}
-        tone="success"
-        actions={<><ExportReportButton /><ExportExcelButton /></>}
-      />
+    <StudioPage fill={!embedded} style={embedded ? { flex: 1, minHeight: 0, height: '100%', gap: 'var(--gap)' } : undefined}>
+      {!embedded && (
+        <StudioPageHeader
+          eyebrow={pageEyebrow}
+          title="Steering"
+          description="Navigate the golden thread, refine bracket YAML, and turn draft scaffolds into governed use cases without leaving the same working surface."
+          badge={selectedBracket ?? `All ${brackets.length}`}
+          tone="success"
+          actions={<><ExportReportButton /><ExportExcelButton /></>}
+        />
+      )}
 
-      <StudioMetricBar>
-        <StudioMetric label="Use Cases" value={brackets.length} meta="loaded into steering graph" tone="info" />
-        <StudioMetric label="Drivers" value={totalDrivers} meta="in linked brackets" />
-        <StudioMetric label="Action gaps" value={actionGapCount} meta={actionGapCount > 0 ? 'resolve in Registry →' : 'all drivers covered'} tone={actionGapCount > 0 ? 'warning' : 'success'} />
-        <StudioMetric label="Sync" value={selectedBracket ? syncIndicator.label : 'overview'} meta={selectedBracket ? 'current bracket state' : 'aggregate mode'} tone={syncStatus === 'error' ? 'warning' : syncStatus === 'dirty' ? 'warning' : 'success'} />
-      </StudioMetricBar>
+      {!embedded ? (
+        <StudioMetricBar>
+          <StudioMetric label="Use Cases" value={brackets.length} meta="loaded into steering graph" tone="info" />
+          <StudioMetric label="Drivers" value={totalDrivers} meta="in linked brackets" />
+          <StudioMetric label="Action gaps" value={actionGapCount} meta={actionGapCount > 0 ? 'resolve in Registry →' : 'all drivers covered'} tone={actionGapCount > 0 ? 'warning' : 'success'} />
+          <StudioMetric label="Sync" value={selectedBracket ? syncIndicator.label : 'overview'} meta={selectedBracket ? 'current bracket state' : 'aggregate mode'} tone={syncStatus === 'error' ? 'warning' : syncStatus === 'dirty' ? 'warning' : 'success'} />
+        </StudioMetricBar>
+      ) : (
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.6875rem', color: 'var(--ink-3)', flexShrink: 0 }}>
+          <span><strong style={{ color: 'var(--ink)' }}>{brackets.length}</strong> use cases</span>
+          <span><strong style={{ color: 'var(--ink)' }}>{totalDrivers}</strong> drivers</span>
+          <span><strong style={{ color: actionGapCount > 0 ? 'var(--warning)' : 'var(--accent)' }}>{actionGapCount}</strong> action gaps</span>
+          <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 8 }}>
+            <ExportReportButton />
+            <ExportExcelButton />
+          </span>
+        </div>
+      )}
 
       <StudioToolbar>
         <StudioField label="Bracket focus">
@@ -293,10 +357,19 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
         ) : null}
       </StudioToolbar>
 
-      <div style={{ flex: 1, display: 'flex', gap: '16px', minHeight: 0 }}>
+      <div style={{ flex: 1, display: 'flex', gap: 'var(--gap)', minHeight: 0, overflow: 'hidden' }}>
         {showFlow && (
-          <StudioPanel title="Golden Thread Flow" description="Explore strategy anchors, drivers, and action-code coverage visually." tone="success" style={{ flex: 1, overflow: 'hidden' }}>
-            <GoldenThreadFlow data={flowData} onBracketSelect={handleBracketSelectFromFlow} />
+          <StudioPanel
+            title="Golden Thread Flow"
+            description={embedded ? undefined : 'Explore strategy anchors, drivers, and action-code coverage visually.'}
+            tone="success"
+            compactHeader
+            bare
+            style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}
+          >
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+              <GoldenThreadFlow data={flowData} onBracketSelect={handleBracketSelectFromFlow} />
+            </div>
           </StudioPanel>
         )}
         {showEditor && (

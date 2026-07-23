@@ -63,6 +63,13 @@ run_check "Fabric bindings validator (validate_bindings.py --strict)" \
 run_check "Showcase Delta-table consistency (active files present on disk)" \
   python3 scripts/check_showcase_delta.py
 
+# --- Data-model best practices (Kimball hygiene, blocking) ---------------
+# Contract + gold: no missing grain, no dangling ref, no non-conformed dimension,
+# referential integrity holds. Catches the modelling-defect classes (multi-grain,
+# degenerate key, non-conformed dim) that structural contract validation misses.
+run_check "Data-model best-practice gate (check_data_model.py)" \
+  python3 tooling/validation/check_data_model.py
+
 # --- Boutique rubric: BC-NARR-01 exhibit titles (K6) --------------------
 run_check "Boutique rubric BC-NARR-01 (exhibit titles are statements, not labels)" \
   python3 tooling/validation/check_exhibit_message.py
@@ -91,6 +98,13 @@ run_check "KPI↔standard alignment integrity (standard_ref, --strict structural
 # conclusion (not a chart label), every factsheet is standards-grounded on its strategic KPI.
 run_check "Use-case narrative & standards-grounding quality (--strict)" \
   python3 tooling/validation/check_usecase_quality.py --strict
+
+# --- Use-case storyline structure (deriver base for reports/stories) -----
+# The storyline (derive_storyline.py) is what the report/story generators render. Hard gate:
+# every page has a decision spine, every 30s visual answers a stated `question`, page-1→page-2
+# handoff holds, and the generated docs/architecture/use_case_storylines.md stays in sync.
+run_check "Use-case storyline structure + storyboard in sync (--strict)" \
+  python3 tooling/validation/check_storyline.py --strict
 
 # --- Boutique rubric: BC-CHART-10 evidence sort (K6, blocking) ----------
 # Knock-out rule, fully rolled out (2026-07-11): all 17 evidence tables declare a

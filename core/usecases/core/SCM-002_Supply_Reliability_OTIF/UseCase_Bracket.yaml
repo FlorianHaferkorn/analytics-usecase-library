@@ -52,6 +52,7 @@ ux_layout_rules:
     - slot_id: Main_1
       kpi_id: supply.on_time.pct
       visual_type: trend_line
+      question: "Which OTIF component is dragging reliability — on-time or in-full?"
       message: On-time delivery is the component dragging OTIF below target, not in-full
       so_what: "Because on-time performance is dragging OTIF down, carrier and lane-level fixes matter more than in-full stock buffers."
       unit: rate
@@ -63,6 +64,7 @@ ux_layout_rules:
       - supply.in_full.pct
       - supply.stockout_impact.pct
       visual_type: bar_chart
+      question: "What's behind the OTIF shortfall beyond timeliness?"
       message: In-full rate and stockout impact — the two OTIF components beyond timeliness.
       so_what: "Ranking penalty cost by supplier focuses the reliability push where the money actually leaks."
       unit: rate

@@ -10,6 +10,7 @@ from .layout_calculator import LayoutCalculator, Position
 from .grid_calculator import GridCalculator, GridPosition
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
+from .title_policy import resolve_header
 from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE_SCHEMA
 
 
@@ -18,11 +19,18 @@ class PageBuilder:
 
     PAGE_SCHEMA = _PAGE_SCHEMA
     
-    def __init__(self):
-        """Initialize page builder."""
+    def __init__(self, assert_statement_titles: bool = True):
+        """Initialize page builder.
+
+        ``assert_statement_titles`` (title_policy): when True (default, data-backed reports) the
+        governed exhibit **message** leads as the visual header (IBCS statement title, authored knowing
+        the data). Set False for a report generated **without known data** — then the always-true
+        **question** leads and the message renders as a framed *expected-finding* subtitle, so a static
+        title can never contradict the chart (see title_policy.py)."""
         self.layout_calculator = LayoutCalculator()
         self.visual_builder = VisualBuilder()
         self.slicer_builder = SlicerBuilder()
+        self.assert_statement_titles = assert_statement_titles
     
     def generate_page_id(self) -> str:
         """Generate unique page ID (20 hex characters)."""
@@ -50,6 +58,7 @@ class PageBuilder:
         detail_matrix_topn_field: Optional[tuple] = None,
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
+        semantic_delta_cards: bool = False,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -90,9 +99,10 @@ class PageBuilder:
                 "measures": _measures,
                 "category_entity": _cat_entity,
                 "category_property": _cat_prop,
-                # BC-NARR-01 (K2): the governed exhibit statement, rendered as the
-                # visual title when present (falls back to the measure label below).
+                # BC-NARR-01 (K2): the governed exhibit statement + the question it answers.
+                # title_policy decides which becomes the static header (question by default).
                 "message": (_c_item.get("message") or "").strip() or None,
+                "question": (_c_item.get("question") or "").strip() or None,
             }
 
         # Detect absolute-position mode (Figma-sourced layouts)
@@ -212,9 +222,13 @@ class PageBuilder:
                 _label = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
                 _cat_entity = _binding.get("category_entity")
                 _cat_prop = _binding.get("category_property")
+                # title_policy: question leads the static header; message = framed expected-finding
+                # subtitle (unless value-verified/dynamic — wired via value_verified when available).
+                _hdr, _sub = resolve_header(_binding.get("question"), _binding.get("message"),
+                                            value_verified=self.assert_statement_titles)
                 vis = self.visual_builder.build_by_ux_visual_type(
                     _ux_vt, position, name=slot_id, measures=_measures, title=_label,
-                    statement_title=_binding.get("message"),
+                    statement_title=_hdr, subtitle=_sub,
                     category_entity=_cat_entity, category_property=_cat_prop,
                 )
                 # R2.3: Main_3 is canonically the Ranking slot (Design_Spec_3_30_300.md
@@ -246,9 +260,37 @@ class PageBuilder:
                     category_entity="dim_org", category_property="OrgName"
                 )
             elif slot_id == "KPI_Cards" and visual_type == "cardVisual":
-                vis = self.visual_builder.build_kpi_cards_multi(
-                    position, card_measure_names or [], name=slot_id, title=None
-                )
+                # Semantic-delta band (intent v2): a variance/vs-plan KPI can't be colour-coded
+                # inside the multi-value card (callouts format uniformly — card.md), so split it
+                # out as its own single-value card coloured by sign. The level KPIs stay in the
+                # multi-value card. Detected by governed kpi_id (…vs_plan… / …delta_pct…).
+                _var_idx = None
+                if semantic_delta_cards and card_kpi_ids:
+                    for _j, _kid in enumerate(card_kpi_ids):
+                        if isinstance(_kid, str) and (".vs_plan." in _kid or ".delta_pct." in _kid):
+                            _var_idx = _j
+                            break
+                if _var_idx is not None and _var_idx < len(card_measure_names):
+                    _delta_measure = card_measure_names[_var_idx]
+                    _level_measures = [m for _k, m in enumerate(card_measure_names) if _k != _var_idx]
+                    _gap, _delta_w = 16, 452
+                    _levels_w = max(1, position.width - _delta_w - _gap)
+                    _levels_pos = Position(x=position.x, y=position.y, width=_levels_w, height=position.height)
+                    _delta_pos = Position(x=position.x + _levels_w + _gap, y=position.y,
+                                          width=_delta_w, height=position.height)
+                    _levels = self.visual_builder.build_kpi_cards_multi(
+                        _levels_pos, _level_measures, name="KPI_Cards", title=None
+                    )
+                    _levels["position"]["tabOrder"] = tab + i
+                    visuals.append(_levels)
+                    vis = self.visual_builder.build_kpi_delta_card(
+                        _delta_pos, _delta_measure, name="KPI_Delta", label=_delta_measure,
+                        higher_is_better=True,
+                    )
+                else:
+                    vis = self.visual_builder.build_kpi_cards_multi(
+                        position, card_measure_names or [], name=slot_id, title=None
+                    )
             elif visual_type == "cardVisual":
                 measure_ref = (card_measure_names[0] if card_measure_names else None) or (card_kpi_ids[0] if card_kpi_ids else None)
                 title = (card_kpi_ids[0] if card_kpi_ids else measure_ref or slot_id).replace(".", " ").replace("_", " ").title() if (card_kpi_ids or card_measure_names) else None
@@ -399,6 +441,7 @@ class PageBuilder:
         detail_matrix_topn_field: Optional[tuple] = None,
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
+        semantic_delta_cards: bool = False,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -459,6 +502,7 @@ class PageBuilder:
                 detail_matrix_topn_field=detail_matrix_topn_field,
                 narrative_measure_name=narrative_measure_name,
                 active_actions_measure_name=active_actions_measure_name,
+                semantic_delta_cards=semantic_delta_cards,
             )
 
         # Determine slicer placement (default: top)
@@ -552,7 +596,8 @@ class PageBuilder:
                 # Label for naming/tooltip; the governed statement (message) renders as the header (BC-NARR-01).
                 display_title = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 title = display_title.replace(".", " ").replace("_", " ").title()
-                _stmt = (item.get("message") or "").strip() or None
+                _hdr2, _sub2 = resolve_header(item.get("question"), item.get("message"),
+                                              value_verified=self.assert_statement_titles)
                 # Visual name must be folder-safe (no commas, no chars invalid in paths) so Fabric loads the visual
                 raw_name = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
                 if "," in raw_name or ":" in raw_name or "\\" in raw_name or "/" in raw_name:
@@ -560,7 +605,8 @@ class PageBuilder:
                 else:
                     name = raw_name
                 visual = self.visual_builder.build_by_ux_visual_type(
-                    vt, pos, name=name, measures=measures, title=title, statement_title=_stmt
+                    vt, pos, name=name, measures=measures, title=title,
+                    statement_title=_hdr2, subtitle=_sub2
                 )
                 visual["position"]["tabOrder"] = tab_order + 100 + i * 100
                 visuals.append(visual)

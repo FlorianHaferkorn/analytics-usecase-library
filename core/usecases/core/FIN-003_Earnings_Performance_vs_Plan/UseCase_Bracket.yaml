@@ -1,0 +1,124 @@
+schema_version: '2.0'
+id: FIN-003
+title: Earnings Performance vs Plan
+domain: Finance
+governance:
+  owner_role: finance_controlling_fpa
+  steward_role: finance_bi_lead
+orchestration:
+  strategic_kpi_id: margin.ebitda.pct
+  influencing_kpi_ids:
+  - margin.ebitda.delta_pct.plan
+  - sales.net_sales.delta_pct.plan
+  - margin.gm.pct
+  - cost.opex.vs_plan.pct
+  supporting_kpi_ids:
+  - margin.ebitda.amount
+  - fin.cash.ocf
+  # Required for report creation (referenced by the value-driver / evidence) but
+  # previously unlisted — added so the orchestration completeness gate resolves.
+  - cost.cogs.amount
+  - sales.net_sales.amount
+  action_code_ids:
+  - F-E1.1
+primary_kpi_ids:
+- margin.ebitda.pct
+- cost.opex.vs_plan.pct
+value_driver_model:
+  formula: margin.ebitda.pct = f(sales.net_sales.delta_pct.plan, margin.gm.pct, cost.opex.vs_plan.pct)
+  impact_direction: maximize
+  primary_driver: cost.opex.vs_plan.pct
+  impact_logic: Bringing cost.opex.vs_plan.pct back to plan is the primary lever for restoring margin.ebitda.pct.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas:
+    width: 1920
+    height: 1080
+  intent_rules_version: 2
+  page_1_summary:
+    title: Finance Summary & Insights
+    page_type: T3_Operational_Monitoring
+    template_variant: T3_ProcessControl
+    template_id: pulse
+    decision_question: Is EBITDA tracking plan, and if not, which lever is the cause?
+    big_idea: EBITDA margin is trailing plan and the gap is opex-led, while revenue and gross margin hold.
+    component_3s:
+      kpi_id: margin.ebitda.pct
+      visual_type: kpi_card
+      comparison: vs_plan
+      status_logic: higher_is_better
+    component_30s:
+    - slot_id: Main_1
+      kpi_id: margin.ebitda.delta_pct.plan
+      visual_type: trend_line
+      question: Is the earnings gap a revenue, gross-margin or opex problem?
+      message: The EBITDA-margin gap versus plan is opex-led, while revenue and gross margin hold
+      so_what: Because opex is the driver, cost-base actions recover more earnings than chasing incremental
+        revenue.
+      unit: rate
+    - slot_id: Main_2
+      kpi_ids:
+      - margin.gm.pct
+      - cost.opex.vs_plan.pct
+      visual_type: bar_chart
+      question: Is the pressure structural in gross margin or in operating expense?
+      message: Gross margin holds on plan; operating expense above plan is where the earnings leak concentrates
+      so_what: Ranking opex overruns by cost centre focuses the recovery where the money actually leaks.
+      unit: rate
+  page_2_execution:
+    title: Finance Execution
+    decision_question: Which entities and cost centres should the earnings-recovery effort target first?
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
+    template_id: action_matrix
+    component_300s:
+      # Governed fact grain (fact_opex_costcenter, finance.yaml) — cost-centre level;
+      # 'cost_center' was an ungoverned token for the same concept.
+      evidence_grain: entity_costcentre_month
+      evidence_columns:
+      - entity
+      - cost_center
+      - margin.ebitda.pct
+      - margin.ebitda.delta_pct.plan
+      - margin.gm.pct
+      - cost.opex.vs_plan.pct
+      - margin.ebitda.amount
+      action_panel: true
+      payload_mode: full
+      sort_by:
+        measure: margin.ebitda.delta_pct.plan
+        direction: ascending
+      top_n: 20
+      highlight_rule:
+        column: margin.ebitda.delta_pct.plan
+        type: data_bar
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.6
+  reach: division
+  priority_score: 20
+data_protection:
+  personal_data: false
+  legal_basis: not_applicable
+  data_minimisation: Detail grain limited to cost center level; row-level security applied at SemanticModel
+    level.
+  access_restriction: 'supply_chain_controlling_lead and scm_bi_lead roles; row-level security enforced
+    by SupplyChain.SemanticModel (site filter per org role).
+
+    '
+  dpia_required: false
+  ai_generated_output: true
+  ai_grounding_measure: 'Active Actions Text (SCM) — DAX measure that reads current filter context and
+    concatenates only triggered action texts. See Storytelling_Principles.md §13.
+
+    '
+readiness:
+  data_availability: not_available
+  org_capability: partial
+  stakeholder_alignment: aligned
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/finance.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md

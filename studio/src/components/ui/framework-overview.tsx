@@ -41,7 +41,7 @@ function DonutChart({ pct = 82 }: { pct: number }) {
 /* ── Types ── */
 
 interface DomainEntry { name: string; count: number }
-interface TopKpi { id: string; name: string; ref: string; unit: string; domain: string; completeness: number }
+interface TopKpi { id: string; name: string; ref: string; unit: string; domain: string; completeness: number; auroraValue?: string; auroraLabel?: string }
 
 export interface ActivityItem {
   role_title: string;       // e.g. "Sales BI Lead"
@@ -151,9 +151,9 @@ function CompositionCard({ stats, domains }: { stats: FrameworkOverviewProps['st
       <div style={cardHead}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.01em' }}>Framework composition</div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>How your KPI set is distributed across domains</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>Use cases by domain — matches the sidebar filter</div>
         </div>
-        <Link href="/library?tab=kpis" style={{ ...ghostSmall, textDecoration: 'none' }}>View all →</Link>
+        <Link href="/library?tab=usecases" style={{ ...ghostSmall, textDecoration: 'none' }}>View all →</Link>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 32, padding: 'var(--pad)', alignItems: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
@@ -304,8 +304,12 @@ function KeyMetricsRow({ topKpis }: { topKpis: TopKpi[] }) {
             <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{kpi.name}</span>
           </div>
           <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>{kpi.ref}</span>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, color: 'var(--ink)', lineHeight: 1 }}>{kpi.completeness}%</span>
-          <span style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{kpi.domain || '—'} · metadata complete</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, color: 'var(--ink)', lineHeight: 1 }}>
+            {kpi.auroraValue ?? `${kpi.completeness}%`}
+          </span>
+          <span style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
+            {kpi.auroraValue ? (kpi.auroraLabel ?? 'Aurora showcase') : `${kpi.domain || '—'} · metadata complete`}
+          </span>
         </Link>
       ))}
       </div>
@@ -341,7 +345,7 @@ export function FrameworkOverview({
             FRAMEWORK · v1.0.0 · main
           </div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ink)', marginTop: 10 }}>
-            ActionReady Studio
+            ALUCA Studio
           </div>
           <h1 style={{
             fontFamily: 'var(--font-display)',
@@ -372,11 +376,11 @@ export function FrameworkOverview({
             </svg>
             Open Library
           </Link>
-          <Link href="/delivery" style={{ ...primaryBtn, textDecoration: 'none' }}>
+          <Link href="/generate" style={{ ...primaryBtn, textDecoration: 'none' }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M8 2v3M8 11v3M2 8h3M11 8h3M4 4l2 2M10 10l2 2M12 4l-2 2M4 12l2-2" />
             </svg>
-            Open Delivery
+            Open Generate
           </Link>
         </div>
       </section>

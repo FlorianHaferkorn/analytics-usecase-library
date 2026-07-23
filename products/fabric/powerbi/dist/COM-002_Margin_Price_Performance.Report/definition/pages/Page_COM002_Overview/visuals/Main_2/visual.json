@@ -74,7 +74,27 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Price concessions and adverse mix drive gross margin below plan, not volume'"
+                  "Value": "'What''s pulling gross margin below plan — price, mix, or volume?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Price concessions and adverse mix drive gross margin below plan, not volume'"
                 }
               }
             },
