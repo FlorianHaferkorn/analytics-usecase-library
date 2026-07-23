@@ -14,10 +14,12 @@ from tooling.superversion.architecture_blueprint import derive_blueprint
 from tooling.superversion.odcs import (
     ODCS_API_VERSION,
     emit_odcs,
+    emit_odcs_ingestion,
     from_odcs,
     import_sql_table,
     odcs_to_catalog,
     to_odcs,
+    to_odcs_ingestion,
     validate_odcs,
 )
 
@@ -110,6 +112,21 @@ def test_import_sql_table_maps_types_and_keys():
 def test_import_sql_without_create_table_raises():
     with pytest.raises(ValueError, match="no CREATE TABLE"):
         import_sql_table("SELECT 1")
+
+
+def test_odcs_ingestion_handover_boundary_contract():
+    # mirror of Meridian Stage 0b: one ODCS boundary contract per ingestion source, carrying connector/layer
+    inp = {"stack": "fabric", "silver_contract_ref": "contracts/silver.odcs.yaml",
+           "domains": [{"name": "Sales", "gold_products": [{"name": "fact_sales", "kind": "fact"}],
+                        "sources": [{"source": "s4hana_sd", "source_system": "SAP S/4HANA SD",
+                                     "access_mode": "mirror", "handover_layer": "conformed",
+                                     "connector": "mirroring", "rationale": "CDC"}]}]}
+    bp = derive_blueprint(inp)["blueprint"]
+    contracts = to_odcs_ingestion(bp)
+    assert len(contracts) == 1 and validate_odcs(contracts[0]) == []
+    cps = {p["property"]: p["value"] for p in contracts[0]["customProperties"]}
+    assert cps["connector"] == "mirroring" and cps["handover_layer"] == "conformed"
+    assert "contracts/odcs/handover/s4hana-sd.handover.odcs.yaml" in emit_odcs_ingestion(bp)
 
 
 def test_odcs_to_catalog_bridges_contract_to_catalog_shape():

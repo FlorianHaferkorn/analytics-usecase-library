@@ -125,6 +125,89 @@ def emit_odcs(blueprint: dict[str, Any]) -> dict[str, str]:
     return out
 
 
+# --------------------------------------------------------------------------- handover boundary (ingestion/silver)
+# Cross-repo mirror of Meridian's Stage-0b ODCS-beyond-gold: govern the inbound SAP→Fabric interface —
+# one boundary contract per ingestion source, carrying handover_layer + connector + access_mode.
+_CONNECTOR_SERVER_TYPE = {
+    "odbc-live": "odbc", "odbc-copy": "odbc", "hana": "sap", "odata": "api",
+    "premium-outbound-shortcut": "azure", "mirroring": "sap", "sap-cdc": "sap",
+    "open-mirroring": "custom", "bdc-connect": "sap",
+}
+
+
+def _handover_schema_object(entry: dict[str, Any]) -> dict[str, Any]:
+    custom = [{"property": "handover_layer", "value": entry.get("handover_layer") or "unspecified"},
+              {"property": "access_mode", "value": entry.get("access_mode", "")}]
+    if entry.get("connector"):
+        custom.append({"property": "connector", "value": entry["connector"]})
+    return {
+        "name": _slug(entry["source"]).replace("-", "_"),
+        "physicalName": entry["source"],
+        "logicalType": "object",
+        "physicalType": "table",
+        "description": "Inbound dataset crossing the SAP→Fabric handover boundary; inbound columns are "
+                       "governed by the silver data contract (referenced, not invented here).",
+        "customProperties": custom,
+    }
+
+
+def to_odcs_ingestion(blueprint: dict[str, Any]) -> list[dict[str, Any]]:
+    """Export the ingestion/handover boundary as ODCS ``DataContract``s — one per ingestion source
+    (mirror of Meridian; governs the inbound SAP→Fabric interface beyond the gold ``to_odcs`` scope)."""
+    stack = blueprint.get("platform", {}).get("stack", "fabric")
+    contract_ref = blueprint.get("medallion", {}).get("silver", {}).get("data_contract_ref")
+    contracts: list[dict[str, Any]] = []
+    for e in sorted(blueprint.get("ingestion", []), key=lambda e: e.get("source", "")):
+        connector = e.get("connector")
+        server: dict[str, Any] = {
+            "server": "sap-source",
+            "type": _CONNECTOR_SERVER_TYPE.get(connector, "custom"),
+            "description": f"handover via {connector or 'unspecified connector'} at the "
+                           f"{e.get('handover_layer') or 'unspecified'} layer",
+        }
+        if e.get("source_system"):
+            server["host"] = e["source_system"]
+        custom = [{"property": "layer", "value": "ingestion/handover-boundary"},
+                  {"property": "handover_layer", "value": e.get("handover_layer") or "unspecified"}]
+        if connector:
+            custom.append({"property": "connector", "value": connector})
+        if contract_ref:
+            custom.append({"property": "silver_contract_ref", "value": contract_ref})
+        contracts.append({
+            "apiVersion": ODCS_API_VERSION,
+            "kind": ODCS_KIND,
+            "id": f"{_slug(stack)}-handover-{_slug(e['source'])}",
+            "name": e["source"],
+            "version": "1.0.0",
+            "status": "active",
+            "dataProduct": e["source"],
+            "description": {"purpose": f"SAP→Fabric handover boundary contract for source '{e['source']}'."},
+            "servers": [server],
+            "schema": [_handover_schema_object(e)],
+            "customProperties": custom,
+        })
+    return contracts
+
+
+def emit_odcs_ingestion(blueprint: dict[str, Any]) -> dict[str, str]:
+    """Return the handover-boundary ODCS contracts as ``path → content`` (one file per source + index)."""
+    contracts = to_odcs_ingestion(blueprint)
+    out: dict[str, str] = {}
+    index = ["# ODCS handover-boundary contracts (generated — Fahrplan Stage 0b)", "",
+             "Open Data Contract Standard v3.0.0 · one contract per **ingestion source** — governs the "
+             "inbound SAP→Fabric interface (raw/conformed/silver), beyond the gold `to_odcs` scope.", "",
+             "| Source | Handover layer | Connector | Contract |", "|---|---|---|---|"]
+    for c in contracts:
+        rel = f"contracts/odcs/handover/{_slug(c['name'])}.handover.odcs.yaml"
+        out[rel] = _yaml(c)
+        layer = _custom(c, "handover_layer") or "—"
+        connector = _custom(c, "connector") or "—"
+        index.append(f"| `{c['name']}` | {layer} | {connector} | `{rel}` |")
+    index.append("")
+    out["contracts/odcs/handover/_HANDOVER_CONTRACTS.md"] = "\n".join(index) + "\n"
+    return out
+
+
 # --------------------------------------------------------------------------- import (ODCS → IR)
 def _custom(contract_or_object: dict[str, Any], key: str) -> Any:
     for cp in contract_or_object.get("customProperties", []) or []:
