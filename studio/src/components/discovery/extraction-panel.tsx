@@ -291,9 +291,10 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
 
   return (
     <StudioPanel
-      title="Extracted Elements"
-      description="Review discovered anchors, KPIs and action codes before drafting them into governed artifacts."
-      style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}
+      title="Extracted elements"
+      description="Review discovered anchors, KPIs, and action codes before drafting them into governed artifacts."
+      bare
+      style={{ height: '100%', minHeight: 0 }}
     >
       <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--line)' }}>
         {reviewSummary && (
@@ -519,10 +520,10 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
             </StudioButton>
           </div>
           {draftResult && (
-            <div style={{ padding: '8px', backgroundColor: 'color-mix(in srgb, var(--accent) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--accent)' }}>
-              <p style={{ fontWeight: 600 }}>Branch erstellt ✓</p>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.5625rem', marginTop: '2px', wordBreak: 'break-all' }}>{draftResult.branch}</p>
-              <p style={{ color: 'var(--ink-3)', marginTop: '2px' }}>{draftResult.total} Elemente → {draftResult.file}</p>
+            <div style={{ padding: '10px 12px', backgroundColor: 'color-mix(in srgb, var(--accent) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: 12, color: 'var(--accent)' }}>
+              <p style={{ fontWeight: 600, margin: 0 }}>Draft branch created</p>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, marginTop: 4, wordBreak: 'break-all' }}>{draftResult.branch}</p>
+              <p style={{ color: 'var(--ink-3)', marginTop: 4 }}>{draftResult.total} elements → {draftResult.file}</p>
               {draftResult.scaffold && (
                 <>
                   <p style={{ color: 'var(--ink-3)', marginTop: '2px' }}>
@@ -531,7 +532,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                   {draftResult.scaffoldYaml && (
                     <StudioButton
                       onClick={() => {
-                        router.push(`/steering?draftId=${encodeURIComponent(draftResult.scaffold!.id)}&draftYaml=${encodeURIComponent(draftResult.scaffoldYaml!)}`);
+                        router.push(`/blueprint?draftId=${encodeURIComponent(draftResult.scaffold!.id)}&draftYaml=${encodeURIComponent(draftResult.scaffoldYaml!)}`);
                       }}
                       tone="success"
                       variant="ghost"
@@ -541,7 +542,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                         fontSize: '0.6875rem',
                       }}
                     >
-                      Open scaffold in Steering
+                      Open scaffold in Blueprint
                     </StudioButton>
                   )}
                 </>

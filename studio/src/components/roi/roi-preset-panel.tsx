@@ -29,7 +29,7 @@ interface Props {
 
 /**
  * RoiPresetPanel — Displays a min/likely/max range panel and driver notes
- * for a Golden-20 KPI preset. Fetches from /api/core/presets/[kpiId].
+ * for a Golden-20 KPI preset. Fetches from /api/core/presets?kpiId=….
  */
 export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Props) {
   const [preset, setPreset] = useState<RoiPreset | null>(null);
@@ -40,7 +40,7 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/core/presets/${encodeURIComponent(id)}`);
+      const res = await fetch(`/api/core/presets?kpiId=${encodeURIComponent(id)}`);
       if (!res.ok) {
         setPreset(null);
         setError(res.status === 404 ? 'No preset available for this KPI.' : 'Failed to load preset.');
@@ -118,8 +118,22 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
 
       {/* Error */}
       {!loading && error && (
-        <div style={{ padding: 'var(--gap)', color: 'var(--warning)', fontSize: '0.8125rem' }}>
-          {error}
+        <div style={{ padding: 'var(--gap)', color: 'var(--warning)', fontSize: '0.8125rem', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <span>{error}</span>
+          {kpiId && (
+            <a href={`/catalog/${encodeURIComponent(kpiId)}`} style={{ color: 'var(--accent)', fontSize: '0.75rem' }}>
+              View KPI in Catalog →
+            </a>
+          )}
+        </div>
+      )}
+
+      {!loading && !error && !preset && kpiId && (
+        <div style={{ padding: 'var(--gap)', color: 'var(--ink-3)', fontSize: '0.8125rem', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <span>No ROI preset file for this KPI — check the Catalog for governed definitions.</span>
+          <a href={`/catalog/${encodeURIComponent(kpiId)}`} style={{ color: 'var(--accent)', fontSize: '0.75rem' }}>
+            View KPI in Catalog →
+          </a>
         </div>
       )}
 

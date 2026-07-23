@@ -11,7 +11,7 @@ import { ContrastBadge } from '@/components/brand/contrast-badge';
 import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
 import { StudioFormField, StudioSelect } from '@/components/ui/studio-data';
-import { StudioButton, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
+import { StudioButton, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar, StudioWorkflowFooter } from '@/components/ui/studio-page';
 
 const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
   'Aurora Monochromatic': {
@@ -53,6 +53,7 @@ const RIGHT_TABS: Array<{ value: RightTab; label: string }> = [
 
 export function BrandLabClient() {
   const theme = useProjectStore((s) => s.theme);
+  const auroraLinked = useProjectStore((s) => s.auroraLinked);
   const projectId = useProjectStore((s) => s.projectId);
   const storeSetTheme = useProjectStore((s) => s.setTheme);
   const [activeTab, setActiveTab] = useState<RightTab>('3s');
@@ -113,10 +114,10 @@ export function BrandLabClient() {
   return (
     <StudioPage fill>
       <StudioPageHeader
-        eyebrow="Studio / Design"
+        eyebrow="Forge / Brand"
         title="Brand Lab"
-        description="Tune theme tokens, preview the 3-30-300 experience, and export a coherent visual language without page-specific styling drift."
-        badge={theme.fontFamily}
+        description="Tune theme tokens on top of the Aurora brand_spec seed, preview the 3-30-300 experience, and export a coherent visual language."
+        badge={auroraLinked ? 'Aurora Showcase' : theme.fontFamily}
         tone="warning"
         actions={
           <>
@@ -380,6 +381,8 @@ export function BrandLabClient() {
         )}
       </div>
       </div>
+
+      <StudioWorkflowFooter label="Continue to Templates" href="/templates" />
     </StudioPage>
   );
 }

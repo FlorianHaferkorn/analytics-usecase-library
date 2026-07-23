@@ -1,13 +1,11 @@
-import { NextResponse } from 'next/server';
-
-interface RangeValue {
+export interface RangeValue {
   min: number;
   likely: number;
   max: number;
   unit: string;
 }
 
-interface Preset {
+export interface RoiPreset {
   kpi_id: string;
   label: string;
   baseline_range: RangeValue;
@@ -16,11 +14,8 @@ interface Preset {
   driver_notes: string[];
 }
 
-/**
- * PRESETS — Golden 20 KPI presets for ROI analysis.
- * All amounts in EUR, percentages as 0-100, days as numbers.
- */
-const PRESETS: Record<string, Preset> = {
+/** Golden 20 KPI presets for ROI analysis. Amounts in EUR; percentages 0–100. */
+export const ROI_PRESETS: Record<string, RoiPreset> = {
   'sales.net_sales.amount': {
     kpi_id: 'sales.net_sales.amount',
     label: 'Net Sales',
@@ -175,26 +170,6 @@ const PRESETS: Record<string, Preset> = {
   },
 };
 
-/**
- * GET /api/core/presets/[kpiId]
- *
- * Returns a preset for a given KPI ID (Golden 20).
- * Response: { preset: Preset }
- * On 404: { error: { code: 'NOT_FOUND', message: '...' } }
- */
-export async function GET(_request: Request, { params }: { params: Promise<{ kpiId: string }> }) {
-  const { kpiId } = await params;
-  const key = decodeURIComponent(kpiId);
-
-  const preset = PRESETS[key];
-
-  if (!preset) {
-    return NextResponse.json(
-      { error: { code: 'NOT_FOUND', message: `No preset found for KPI: ${key}` } },
-      { status: 404 },
-    );
-  }
-
-  // Return the preset directly at the top level (not wrapped in 'data')
-  return NextResponse.json({ preset }, { status: 200 });
+export function getRoiPreset(kpiId: string): RoiPreset | undefined {
+  return ROI_PRESETS[kpiId];
 }

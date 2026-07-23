@@ -1,4 +1,4 @@
-# ActionReady Studio
+# ALUCA Studio
 
 Next.js app that serves as the **Interaction Layer** for the Analytics Strategy-to-Action Framework. Visual editor over the tool-agnostic artifacts in `core/`.
 

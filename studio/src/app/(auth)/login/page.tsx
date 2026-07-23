@@ -60,7 +60,7 @@ function LoginForm() {
               background: 'linear-gradient(135deg, var(--accent), var(--warning))',
             }} />
             <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ink)' }}>
-              ActionReady Studio
+              ALUCA Studio
             </span>
           </div>
           <p style={{ fontSize: '0.8125rem', color: 'var(--ink-3)' }}>

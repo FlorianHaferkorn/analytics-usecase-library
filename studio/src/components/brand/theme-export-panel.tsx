@@ -66,7 +66,7 @@ export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'actionready-theme.zip';
+      a.download = 'aluca-theme.zip';
       a.click();
       URL.revokeObjectURL(url);
     } finally {

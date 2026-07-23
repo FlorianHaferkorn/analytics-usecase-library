@@ -4,10 +4,10 @@ async function loginAndOpenDelivery(page: import('@playwright/test').Page) {
   await page.goto('/login');
   await page.getByPlaceholder('demo@aurora-group.eu').fill('demo@aurora-group.eu');
   await page.getByText('Sign in with Demo').click();
-  await page.waitForTimeout(2000);
+  await page.waitForURL((url: URL) => !url.pathname.includes('/login'), { timeout: 15_000 });
 
-  await page.goto('/delivery');
-  await page.waitForTimeout(1000);
+  await page.goto('/generate');
+  await expect(page.getByRole('heading', { name: 'Generate', level: 1 })).toBeVisible({ timeout: 15_000 });
 }
 
 test.describe('Delivery Engine', () => {
@@ -31,12 +31,9 @@ test.describe('Delivery Engine', () => {
   test('Governed Preview calls the real Python core once exactly one use case is selected', async ({ page }) => {
     await loginAndOpenDelivery(page);
 
-    // All use cases are selected by default — the governed preview (which is
-    // bracket-scoped, one bridge call per use case) asks to narrow the scope.
+    // Default selection is empty — pick one bracket for the single-bracket bridge.
     await expect(page.getByText(/Select exactly one use case/)).toBeVisible();
 
-    // Narrow the scope to exactly one use case.
-    await page.getByRole('button', { name: /Deselect all/ }).click();
     await page.getByRole('button', { name: /COM-001/ }).click();
 
     // The bridge-backed preview (I-10.3: /api/precore, /api/generate,

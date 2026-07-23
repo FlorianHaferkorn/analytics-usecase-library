@@ -189,7 +189,7 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 ---
 
-## Studio (Next.js / TypeScript) — ActionReady Studio
+## Studio (Next.js / TypeScript) — ALUCA Studio
 
 | Symptom / message | Cause | Fix |
 |------------------|--------|-----|
@@ -202,6 +202,7 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 | SSE stream from `/api/ai/chat` returns chunks with `0:` prefix | Vercel AI SDK `toTextStreamResponse()` uses data-stream protocol not raw text | Consumer must strip the `0:"..."` envelope: split on `\n`, filter lines starting with `0:`, parse inner JSON string. Or use `toTextStreamResponse()` directly and read plain text chunks. |
 | `AiAssistDrawer` suggestions never parse (stays in loading state) | LLM returned suggestions not starting with `1.` / `2.` / `3.` format | Prompt explicitly instructs numbered list. If model deviates, fall back to splitting on `\n\n` and treating each paragraph as a suggestion. |
 | `loadFactsheet()` returns `null` for all brackets | `CORE_USECASES_DIR` resolved incorrectly (CWD mismatch) | In Route Handlers, `process.cwd()` is the project root. Path must be `join(process.cwd(), '..', 'core', 'usecases', 'core')` when Next.js app is in `studio/` subdirectory. Verify with `console.log(process.cwd())` in a GET handler. |
+| ROI Preset panel shows "No preset available for this KPI." for dotted ids like `margin.gm.pct`; Playwright `/api/core/presets/margin/gm/pct` returns Next 404 | Next.js dynamic segments split on `.` in the URL path; catch-all `[...kpiId]` did not register reliably for `/api/core/presets/*` in dev. | Serve presets via query param: `GET /api/core/presets?kpiId=margin.gm.pct` (`studio/src/app/api/core/presets/route.ts` + `studio/src/lib/core/roi-presets.ts`). Client fetch: `` `/api/core/presets?kpiId=${encodeURIComponent(id)}` ``. **Test:** `studio/e2e/forge-walkthrough.spec.ts`. |
 | `color-mix(in srgb, #hex ...)` doesn't respond to dark-mode toggle | Hardcoded hex inside `color-mix()` bypasses the CSS token system | Replace hex argument with `var(--bg)` or equivalent token: `color-mix(in srgb, var(--bg) 92%, var(--accent) 8%)`. |
 | `/catalog` leitet auf falschen Tab oder 404 (`tab=metrics` veraltet) | Route erwartet `tab=kpis`; Legacy-Alias `metrics` fehlte oder Redirect-Ziel falsch. | Catalog-Redirect auf `?tab=kpis` setzen; optional `metrics` → `kpis` alias in Tab-Parser. |
 | Cascading Reconcile löscht KPI-Listen im Factsheet oder schneidet am falschen `##`-Heading ab (Windows) | (1) Replace-Semantik fehlte für leere KPI-Listen. (2) Regex `(?=\n## |\Z)`: `\Z` in JS-Lookahead auf Windows/Node problematisch. | In `studio/src/lib/cascading-reconcile.ts`: KPI-Listen **ersetzen** statt mergen wenn Bracket leer; Lookahead `(?=\n## |$)` mit `$` und `m`-Flag. **Test:** `studio/tests/lib/cascading-reconcile.test.ts` (Vitest: `--pool=vmThreads --maxWorkers=1` auf Windows). |

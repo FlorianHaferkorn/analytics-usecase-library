@@ -1,4 +1,4 @@
-ï»¿# Measure Template
+# Measure Template
 
 ## Purpose
 
@@ -69,8 +69,8 @@ At which level the measure is meaningful
 
 ## Formatting & UX
 
-- Format String: `<e.g. "â‚¬ #,0.00" | "0.0 %">`
-- Display Folder: `<01_Revenue | 02_Margin | â€¦>`
+- Format String: `<e.g. "€ #,0.00" | "0.0 %">`
+- Display Folder: `<01_Revenue | 02_Margin | …>`
 - Visible to End Users: `Yes / No`
 
 ---
@@ -79,7 +79,7 @@ At which level the measure is meaningful
 
 **Expected Range**
 
-- `<min> â€“ <max>` or `Not applicable`
+- `<min> – <max>` or `Not applicable`
 
 **QA Rules**
 
@@ -90,7 +90,7 @@ At which level the measure is meaningful
 
 ## Lineage
 
-- Source System(s): `<ERP, CRM, â€¦>`
+- Source System(s): `<ERP, CRM, …>`
 - Data Contract Reference: `<fact_xxx, dim_xxx>`
 
 ---

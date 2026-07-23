@@ -35,7 +35,7 @@ FENCE_CLOSE = "```"
 
 GENERATED_NOTE = (
     "> **Generated view.** The source of truth is the per-KPI files under "
-    "[`kpis/`](kpis/). Edit those (or use ActionReady Studio); regenerate this "
+    "[`kpis/`](kpis/). Edit those (or use ALUCA Studio); regenerate this "
     "file with `python tooling/codegen/kpi_catalog_files.py render`.\n"
 )
 

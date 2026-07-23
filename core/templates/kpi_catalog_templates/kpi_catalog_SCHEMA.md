@@ -1,4 +1,4 @@
-﻿# KPI & Measure Schema
+# KPI & Measure Schema
 
 Purpose: Single source of truth for the structure of
 
@@ -50,7 +50,7 @@ Section `business` (required):
 - `business.grain_scope` (required, string)  
   Aggregation grain and scope, e.g. `Invoice line aggregated by Month, Org, Product`.
 - `business.unit_format` (required, string)  
-  Unit and format, e.g. `� (0�2 decimals)`, `% (1 decimal)`, `pcs`.
+  Unit and format, e.g. `? (0?2 decimals)`, `% (1 decimal)`, `pcs`.
 - `business.interpretation` (required, string)  
   How to interpret the KPI (good/bad range, typical values, caveats).
 
@@ -67,7 +67,7 @@ Section `technical` (required):
 
 > **Removed fields:** `dax_expression`, `formatString`, and `dax_name` were removed
 > (2026-03-29). Tool-specific measure details (DAX, format strings) live in product
-> overlays — see `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`.
+> overlays � see `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`.
 Section `governance` (required):
 - `governance.business_owner` (required, string)  
   Business owner role/person.
@@ -148,7 +148,7 @@ Optional:
     validation_process: "Reconcile with P&L gross margin during month-end close."
     qa_rules:
       - "Value must be between -100 % and 100 %."
-      - "Reconcile with official P&L within �0.5 pp at company level."
+      - "Reconcile with official P&L within ?0.5 pp at company level."
     version: "v1.0"
   metadata_quality:
     completeness_score: 0.95

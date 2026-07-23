@@ -1,6 +1,6 @@
-ï»¿# T1 â€“ Strategic Overview
+# T1 – Strategic Overview
 
-> **Design basis:** Munzner (2014, *Visualization Analysis & Design*) nested model â€” domain task (executive strategy review) â†’ data abstraction (KPI vs. target, trend, variance) â†’ visual encoding (position-based kpi_card + line_chart). Shneiderman (1996): this page implements the *overview* tier of the overview-first mantra.
+> **Design basis:** Munzner (2014, *Visualization Analysis & Design*) nested model — domain task (executive strategy review) ? data abstraction (KPI vs. target, trend, variance) ? visual encoding (position-based kpi_card + line_chart). Shneiderman (1996): this page implements the *overview* tier of the overview-first mantra.
 
 ## Purpose
 
@@ -8,7 +8,7 @@ The Strategic Overview page provides **executive-level clarity** on whether the 
 
 It is designed for **top management, board members, and senior leaders** who need a fast, reliable answer to one question:
 
-> **Are we strategically on track â€“ and where do we need to intervene at a portfolio or resource level?**
+> **Are we strategically on track – and where do we need to intervene at a portfolio or resource level?**
 
 This page is **not** used for root-cause analysis, operational control, or task execution.
 
@@ -24,7 +24,7 @@ If this question cannot be answered within **30 seconds**, the page is not done.
 
 ## When to Use This Page Type
 
-Use **T1 â€“ Strategic Overview** when:
+Use **T1 – Strategic Overview** when:
 
 - the audience is executive or senior management
 - decisions are **directional, not operational**
@@ -43,29 +43,29 @@ Typical usage rhythm:
 
 Do **not** use T1 if:
 
-- detailed explanations are required â†’ use **T2**
-- operational thresholds must be monitored â†’ use **T3**
-- concrete actions must be recommended â†’ use **T4**
+- detailed explanations are required ? use **T2**
+- operational thresholds must be monitored ? use **T3**
+- concrete actions must be recommended ? use **T4**
 
-T1 must never turn into a â€œcompressed operational dashboardâ€.
+T1 must never turn into a “compressed operational dashboard”.
 
 ---
 
-## Analytical Scope (3â€“30â€“300 Rule)
+## Analytical Scope (3–30–300 Rule)
 
-### 3 Seconds â€“ Strategic Status
+### 3 Seconds – Strategic Status
 
-- 4â€“6 core KPIs only
+- 4–6 core KPIs only
 - Clear target context (on / off track)
 - Immediate visual signal of strategic health
 
-### 30 Seconds â€“ Strategic Context
+### 30 Seconds – Strategic Context
 
 - High-level trend over time
 - Strategic comparison (portfolio, region, domain)
 - No drill-down logic required
 
-### 300 Seconds â€“ Explicitly Out of Scope
+### 300 Seconds – Explicitly Out of Scope
 
 - No detailed tables
 - No transactional data
@@ -121,11 +121,11 @@ T1 pages do **not** contain a full Action Panel.
 
 They may contain **Strategic Action Signals** only:
 
-- Maximum of 1â€“2 short callouts
+- Maximum of 1–2 short callouts
 - High-level, non-operational wording
 - Examples:
-  - â€œReview pricing strategy in Region Xâ€
-  - â€œReassess capacity allocation for Product Group Yâ€
+  - “Review pricing strategy in Region X”
+  - “Reassess capacity allocation for Product Group Y”
 
 No ownership assignment, task tracking, or execution logic.
 
@@ -134,9 +134,9 @@ No ownership assignment, task tracking, or execution logic.
 ## User Experience Rules
 
 - One screen, no scrolling where possible
-- No more than 2â€“3 slicers (time, organization)
+- No more than 2–3 slicers (time, organization)
 - Consistent layout across all strategic pages
-- Clear hierarchy: headline â†’ KPI â†’ context
+- Clear hierarchy: headline ? KPI ? context
 
 ---
 
@@ -157,29 +157,29 @@ A T1 page is complete when:
 
 One sentence that every T1 page must communicate to the reader:
 
-> â€œ[Domain] is [on/off] track â€” [primary KPI] is [Î” vs target], and [momentum direction].â€
+> “[Domain] is [on/off] track — [primary KPI] is [? vs target], and [momentum direction].”
 
-Example: *â€Commercial performance is off track â€” Net Sales is -8% vs Plan YTD, with declining momentum over the last three months.â€*
+Example: *”Commercial performance is off track — Net Sales is -8% vs Plan YTD, with declining momentum over the last three months.”*
 
 If this sentence cannot be constructed from the page content, the page is not ready.
 
 ### Story Structure
 
-**Act 1 â€” Establish (3 seconds, KPI Band)**
+**Act 1 — Establish (3 seconds, KPI Band)**
 The KPI band is the opening statement. It answers the Big Idea question immediately.
 - The hero KPI (strategic outcome) anchors the top-left position.
-- Green/red signal immediately frames the narrative: â€œWe are winningâ€ or â€œWe have a problem.â€
+- Green/red signal immediately frames the narrative: “We are winning” or “We have a problem.”
 - The reader must not need to go to Act 2 to understand Act 1.
 
-**Act 2 â€” Contextualize (30 seconds, Driver Zone)**
-The driver visuals answer â€œHow did we get here?â€ â€” not â€œWhyâ€, which belongs to T2.
-- `Main_1` (Trend): *â€This is the trajectory â€” are we improving or deteriorating?â€*
-- `Main_2` (Variance or portfolio comparison): *â€This is where we stand across the portfolio.â€*
-- T1 does NOT answer â€œWhat caused it?â€ â€” that escalates to T2.
+**Act 2 — Contextualize (30 seconds, Driver Zone)**
+The driver visuals answer “How did we get here?” — not “Why”, which belongs to T2.
+- `Main_1` (Trend): *”This is the trajectory — are we improving or deteriorating?”*
+- `Main_2` (Variance or portfolio comparison): *”This is where we stand across the portfolio.”*
+- T1 does NOT answer “What caused it?” — that escalates to T2.
 
-**Act 3 â€” Strategic Signal (optional, bottom or callout)**
-At most 1â€“2 brief strategic callouts: high-level flags for leadership attention.
-- *â€Region X requires strategic reviewâ€* â€” direction only, no operational detail.
+**Act 3 — Strategic Signal (optional, bottom or callout)**
+At most 1–2 brief strategic callouts: high-level flags for leadership attention.
+- *”Region X requires strategic review”* — direction only, no operational detail.
 - No action steps. No owner assignment. No data tables.
 
 ### Visual Title Narrative
@@ -188,16 +188,16 @@ The three visual titles on a T1 page should tell a strategic story together when
 
 | Slot | Narrative Role | Example Title |
 |---|---|---|
-| `Main_1` (Trend) | â€œThe journeyâ€ | â€œHow has [primary KPI] developed over the last 12 months?â€ |
-| `Main_2` (Portfolio/Variance) | â€œThe portfolio positionâ€ | â€œWhich strategic units are on and off track?â€ |
-| `Main_3` (optional, Mix/Ranking) | â€œThe compositionâ€ | â€œHow is [KPI] distributed across the portfolio?â€ |
+| `Main_1` (Trend) | “The journey” | “How has [primary KPI] developed over the last 12 months?” |
+| `Main_2` (Portfolio/Variance) | “The portfolio position” | “Which strategic units are on and off track?” |
+| `Main_3` (optional, Mix/Ranking) | “The composition” | “How is [KPI] distributed across the portfolio?” |
 
 ### What Makes This Page Fail the Narrative
 
 | Failure | Cause | Fix |
 |---|---|---|
 | Big Idea not visible in 3 seconds | Hero KPI buried or no status signal | Move primary KPI to top-left; add semantic color |
-| Page explains â€œwhyâ€ | T2 content leaked in | Remove driver decomposition; keep trend only |
+| Page explains “why” | T2 content leaked in | Remove driver decomposition; keep trend only |
 | Too many KPIs dilute the signal | More than 6 KPIs in Zone 1 | Reduce to 4 strategic KPIs; move others to T2 |
 | Charts tell disconnected stories | No common thread between visuals | Align all visuals to one strategic dimension |
 
@@ -205,7 +205,7 @@ The three visual titles on a T1 page should tell a strategic story together when
 
 ## Key Principle
 >
-> **T1 answers â€œAre we on track?â€ â€“ nothing else.**
+> **T1 answers “Are we on track?” – nothing else.**
 
 If the page tries to explain *why* or *what to do*, it is no longer strategic.
 

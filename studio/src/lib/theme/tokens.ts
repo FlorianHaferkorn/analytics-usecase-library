@@ -1,15 +1,15 @@
 /**
- * Design System Tokens - ActionReady Studio
+ * Design System Tokens - ALUCA Studio
  *
  * Mirrors CSS custom properties for use in JS/TS (Framer Motion, computed styles).
- * Accent uses oklch parametric model — default violet h=290, matching BI Framework template.
+ * Accent uses oklch parametric model — default Aurora cyan h=215, matching tokens.css.
  */
 
 export const colors = {
-  /** Accent — oklch parametric violet (default). Override via data-accent or CSS var. */
-  accent: 'oklch(0.72 0.13 290)',
-  accentSoft: 'oklch(0.72 0.13 290 / 0.16)',
-  accentInk: 'oklch(0.12 0.02 290)',
+  /** Accent — Aurora Group brand primary #2ECDE7 */
+  accent: 'oklch(0.78 0.10 215)',
+  accentSoft: 'oklch(0.78 0.10 215 / 0.16)',
+  accentInk: 'oklch(0.18 0.04 215)',
 
   /** Legacy brand aliases — kept for backward-compat */
   mint: {

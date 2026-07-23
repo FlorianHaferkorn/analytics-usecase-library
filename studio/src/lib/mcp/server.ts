@@ -12,7 +12,7 @@ import * as tools from './tools';
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
-    name: 'actionready-studio',
+    name: 'aluca-studio',
     version: '0.1.0',
   });
 

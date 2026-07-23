@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       return new Response(Buffer.from(zip), {
         headers: {
           'Content-Type': 'application/zip',
-          'Content-Disposition': 'attachment; filename="actionready-theme.zip"',
+          'Content-Disposition': 'attachment; filename="aluca-theme.zip"',
         },
       });
     }

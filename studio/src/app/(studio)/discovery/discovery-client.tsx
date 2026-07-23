@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { SourcePanel, type SourceEntry } from '@/components/discovery/source-panel';
 import { DiscoveryChat } from '@/components/discovery/discovery-chat';
 import { ExtractionPanel } from '@/components/discovery/extraction-panel';
-import { StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader } from '@/components/ui/studio-page';
+import { StudioButton, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioWorkflowFooter, StudioWorkspaceGrid } from '@/components/ui/studio-page';
+import { DISCOVERY_DEMO_EXTRACTION, DISCOVERY_DEMO_SCAFFOLD } from '@/lib/studio/discovery-demo';
 
 export function DiscoveryClient() {
+  const router = useRouter();
   const [sources, setSources] = useState<SourceEntry[]>([]);
   const [lastResponse, setLastResponse] = useState('');
 
@@ -22,40 +25,67 @@ export function DiscoveryClient() {
     setLastResponse(content);
   }, []);
 
-  const handleToolResult = useCallback((_toolName: string, _result: unknown) => {
-    // Tool results are displayed inline via ToolResultCard in chat.
-  }, []);
-
   const context = sources.map((s) => `--- Source: ${s.name} ---\n${s.content}`).join('\n\n');
   const extracted = lastResponse.trim().length > 0;
+  const tokenEstimate = context.length > 0 ? Math.max(1, Math.round(context.length / 4)) : 0;
 
   return (
     <StudioPage fill>
       <StudioPageHeader
-        eyebrow="Studio / Intake"
-        title="Discovery"
-        description="Collect raw material, interrogate it with AI assistance, and turn findings into a structured bracket draft without losing source traceability."
+        eyebrow="Forge / Discover"
+        title="Discover"
+        description="Collect raw material, interrogate it with AI assistance, and turn findings into a structured bracket draft — with full source traceability."
         badge={`${sources.length} source${sources.length !== 1 ? 's' : ''}`}
         tone="info"
+        actions={
+          <>
+            <StudioButton variant="ghost" onClick={() => setLastResponse(DISCOVERY_DEMO_EXTRACTION)} style={{ fontSize: 12 }}>
+              Load showcase extraction
+            </StudioButton>
+            <StudioButton
+              variant="secondary"
+              tone="info"
+              onClick={() => {
+                router.push(
+                  `/blueprint?draftId=${encodeURIComponent(DISCOVERY_DEMO_SCAFFOLD.draftId)}&draftYaml=${encodeURIComponent(DISCOVERY_DEMO_SCAFFOLD.draftYaml)}`,
+                );
+              }}
+              style={{ fontSize: 12 }}
+            >
+              Open showcase in Blueprint
+            </StudioButton>
+          </>
+        }
       />
 
       <StudioMetricBar>
-        <StudioMetric label="Sources" value={sources.length} meta="documents and notes in scope" tone="info" />
-        <StudioMetric label="Context size" value={context.length > 0 ? 'ready' : 'empty'} meta={context.length > 0 ? 'chat can ground on sources' : 'add source material first'} tone={context.length > 0 ? 'success' : 'warning'} />
-        <StudioMetric label="Extraction" value={extracted ? 'drafted' : 'waiting'} meta={extracted ? 'candidate YAML available' : 'run extraction from chat'} tone={extracted ? 'success' : 'warning'} />
+        <StudioMetric
+          label="Sources"
+          value={sources.length}
+          meta="documents and notes in scope"
+          tone="info"
+        />
+        <StudioMetric
+          label="Context"
+          value={context.length > 0 ? `${tokenEstimate} tok` : 'empty'}
+          meta={context.length > 0 ? 'chat can ground on uploaded material' : 'add source material first'}
+          tone={context.length > 0 ? 'success' : 'warning'}
+        />
+        <StudioMetric
+          label="Extraction"
+          value={extracted ? 'drafted' : 'waiting'}
+          meta={extracted ? 'candidate YAML available for review' : 'run extraction from chat'}
+          tone={extracted ? 'success' : 'warning'}
+        />
       </StudioMetricBar>
 
-      <div style={{ display: 'flex', gap: '16px', flex: 1, minHeight: 0 }}>
-        <div style={{ flex: '0 0 280px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-          <SourcePanel sources={sources} onAddSource={addSource} onRemoveSource={removeSource} />
-        </div>
-        <div style={{ flex: '1 1 0', minWidth: '360px', display: 'flex', flexDirection: 'column' }}>
-          <DiscoveryChat context={context} onExtract={handleExtract} onToolResult={handleToolResult} />
-        </div>
-        <div style={{ flex: '0 0 320px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-          <ExtractionPanel lastResponse={lastResponse} sourceNames={sources.map((s) => s.name)} />
-        </div>
-      </div>
+      <StudioWorkspaceGrid variant="three-col">
+        <SourcePanel sources={sources} onAddSource={addSource} onRemoveSource={removeSource} />
+        <DiscoveryChat context={context} onExtract={handleExtract} />
+        <ExtractionPanel lastResponse={lastResponse} sourceNames={sources.map((s) => s.name)} />
+      </StudioWorkspaceGrid>
+
+      <StudioWorkflowFooter label="Open Blueprint to refine the Golden Thread" href="/blueprint" />
     </StudioPage>
   );
 }

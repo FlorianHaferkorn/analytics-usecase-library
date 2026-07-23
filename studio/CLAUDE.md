@@ -1,8 +1,8 @@
-# Claude Code Instructions — ActionReady Studio
+# Claude Code Instructions — ALUCA Studio
 
 ## Project Overview
 
-ActionReady Studio is a Next.js SaaS application that serves as the Interaction Layer for the ActionReady Analytics Platform. It provides a visual interface for building, managing, and exporting analytics steering frameworks.
+ALUCA Studio is a Next.js SaaS application that serves as the Interaction Layer for the ALUCA Analytics Platform. It provides a visual interface for building, managing, and exporting analytics steering frameworks.
 
 ## Architecture
 

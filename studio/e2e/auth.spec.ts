@@ -8,7 +8,7 @@ test.describe('Auth flow', () => {
 
   test('login page renders correctly', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.getByText('ActionReady Studio')).toBeVisible();
+    await expect(page.getByText('ALUCA Studio')).toBeVisible();
     await expect(page.getByPlaceholder('demo@aurora-group.eu')).toBeVisible();
     await expect(page.getByText('Continue with GitHub')).toBeVisible();
     await expect(page.getByText('Sign in with Demo')).toBeVisible();

@@ -95,7 +95,7 @@ describe('generateJsonConfig', () => {
   it('produces valid JSON that round-trips', () => {
     const json = generateJsonConfig(MOCK_THEME);
     const parsed = JSON.parse(json);
-    expect(parsed.name).toBe('ActionReady Theme');
+    expect(parsed.name).toBe('ALUCA Theme');
     expect(parsed.version).toBe('1.0.0');
   });
 

@@ -1,0 +1,30 @@
+/// Disconnected bridge-step dimension for the CCC decomposition waterfall (DSO + DIO − DPO → CCC).
+/// Not related to any fact; drives category order of the 'CCC Bridge Value' measure on Main_3.
+table _CCC_Bridge
+
+	column Step
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Step
+		sortByColumn: Sort
+
+	column Sort
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: Sort
+
+	partition _CCC_Bridge = m
+		mode: import
+		source =
+			let
+				Source = #table(
+				type table [Step = Text.Type, Sort = Int64.Type],
+				{
+				{"DSO", 1},
+				{"DIO", 2},
+				{"DPO", 3}
+				}
+				)
+			in
+				Source

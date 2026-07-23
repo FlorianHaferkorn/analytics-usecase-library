@@ -1,7 +1,7 @@
-ï»¿# Page Templates
+# Page Templates
 
 This directory defines the **standardized page types** used across ALUCA (Analytics Library of Use Cases).
-Page templates are not visual themes or report layouts â€“ they are **decision templates**.
+Page templates are not visual themes or report layouts – they are **decision templates**.
 
 Each page type exists to answer **one specific decision question**.
 Using the wrong page type leads to confusion, not better insights.
@@ -14,32 +14,32 @@ Each page type answers exactly one decision question.
 
 | Page Type | Decision Question | Typical Audience |
 |---------|-------------------|------------------|
-| **T1 â€“ Strategic Overview** | Are we on track against our strategic targets? | Executives, Board |
-| **T2 â€“ Tactical Variance** | Why are we off target and which levers explain it? | Management, Domain Leads |
-| **T3 â€“ Operational Monitoring** | Where is execution currently breaking and who must react now? | Operations, Process Owners |
-| **T4 â€“ Prescriptive Recommendation** | What is the best next action and with what expected impact? | Decision Owners |
+| **T1 – Strategic Overview** | Are we on track against our strategic targets? | Executives, Board |
+| **T2 – Tactical Variance** | Why are we off target and which levers explain it? | Management, Domain Leads |
+| **T3 – Operational Monitoring** | Where is execution currently breaking and who must react now? | Operations, Process Owners |
+| **T4 – Prescriptive Recommendation** | What is the best next action and with what expected impact? | Decision Owners |
 
 **Rule of thumb**
 
-- If you want **alignment** â†’ T1  
-- If you want **explanation** â†’ T2  
-- If you want **control** â†’ T3  
-- If you want a **decision** â†’ T4  
+- If you want **alignment** ? T1  
+- If you want **explanation** ? T2  
+- If you want **control** ? T3  
+- If you want a **decision** ? T4  
 
 ---
 
-## Page Types and the 3â€“30â€“300 Rule
+## Page Types and the 3–30–300 Rule
 
-The **3â€“30â€“300 rule** describes *possible depth of understanding*, not mandatory content per page.
+The **3–30–300 rule** describes *possible depth of understanding*, not mandatory content per page.
 
 Each page type has a **primary decision layer**. Other layers are optional and only allowed if they support the decision.
 
 | Page Type | Primary Layer(s) | Notes |
 |---------|------------------|------|
-| **T1 â€“ Strategic Overview** | 3s, 30s | Orientation and alignment. No deep validation. |
-| **T2 â€“ Tactical Variance** | 30s | Explanation and causal understanding. |
-| **T3 â€“ Operational Monitoring** | 30s, 300s | Control and execution validation. |
-| **T4 â€“ Prescriptive Recommendation** | 3s, 30s | Clear recommendation with supporting evidence. |
+| **T1 – Strategic Overview** | 3s, 30s | Orientation and alignment. No deep validation. |
+| **T2 – Tactical Variance** | 30s | Explanation and causal understanding. |
+| **T3 – Operational Monitoring** | 30s, 300s | Control and execution validation. |
+| **T4 – Prescriptive Recommendation** | 3s, 30s | Clear recommendation with supporting evidence. |
 
 **Important**
 
@@ -85,7 +85,7 @@ They intentionally limit freedom to **increase clarity and trust**.
 All page templates follow these rules:
 
 - One primary decision question per page
-- Strict separation between T1â€“T4 responsibilities
+- Strict separation between T1–T4 responsibilities
 - Slot usage governed via `governance/Slot_Definitions.md`
 - Visuals restricted via `governance/Visual_Whitelist.md`
 - Completion criteria defined via `governance/Page_DoD.md`

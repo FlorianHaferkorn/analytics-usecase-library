@@ -337,13 +337,19 @@ export function GlobalOverlays({ paletteItems = [] }: GlobalOverlaysProps) {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ entityContext?: EntityContext }>).detail;
-      const ctx = detail?.entityContext;
-      if (ctx && ctx.entityType !== 'general') {
-        setChatEntityContext(ctx);
-      }
+      const ctx = detail?.entityContext ?? { entityType: 'general' as const };
+      setChatEntityContext(ctx);
     };
     window.addEventListener('studio:open-chat', handler);
     return () => window.removeEventListener('studio:open-chat', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      setChatEntityContext({ entityType: 'general' });
+    };
+    window.addEventListener('studio:open-ai-assist', handler);
+    return () => window.removeEventListener('studio:open-ai-assist', handler);
   }, []);
 
   const handleSaveDraft = useCallback(

@@ -1,15 +1,15 @@
-ï»¿# TMDL Allowed Subset (Team Standard)
+# TMDL Allowed Subset (Team Standard)
 
 Purpose: Bind our project to a **minimal, consistent subset** of the official TMDL model. This removes ambiguity for authors and MCPs and enables linting/PR checks.
 
 Scope: Applies to all semantic models in this repo (PBIP layout). Desktop is preview/canvas-only; authoring happens in TMDL.
 
 > **TMDL-Textsyntax** (Calculation Groups, Direct Lake Entity Partitions, Security Roles, database.tmdl/model.tmdl Pflichtinhalt):
-> â†’ `products/fabric/powerbi/docs/references/tmdl-advanced-features.md`
+> ? `products/fabric/powerbi/docs/references/tmdl-advanced-features.md`
 
-> **Canonical base templates** (database.tmdl, model.tmdl, definition.pbism â€” single source of truth for compatibilityLevel + format settings):
-> â†’ `core/strategy_operating_model/operating_model/reference/tmdl_base_templates/`
-> â†’ Generate via: `.\products\fabric\powerbi\orchestrator\table_ops.ps1 -Operation WriteModelFiles -DefinitionPath <path>`
+> **Canonical base templates** (database.tmdl, model.tmdl, definition.pbism — single source of truth for compatibilityLevel + format settings):
+> ? `core/strategy_operating_model/operating_model/reference/tmdl_base_templates/`
+> ? Generate via: `.\products\fabric\powerbi\orchestrator\table_ops.ps1 -Operation WriteModelFiles -DefinitionPath <path>`
 
 ---
 
@@ -196,7 +196,7 @@ partition Sales = entity
   expressionSource: DL_Lakehouse
 ```
 
-> VollstÃ¤ndiges Direct Lake Pattern inkl. Named Expression: `tmdl-advanced-features.md Â§4`
+> Vollständiges Direct Lake Pattern inkl. Named Expression: `tmdl-advanced-features.md §4`
 
 ---
 
@@ -301,8 +301,8 @@ role 'RLS_Sales_Region'
   filterExpression: 'Sales'[RegionCode] = USERNAME()
 ```
 
-> Role Membership (User â†’ Rolle) **nie in TMDL** â€” immer via Power BI REST API.
-> VollstÃ¤ndige Syntax inkl. OLS: `tmdl-advanced-features.md Â§7`
+> Role Membership (User ? Rolle) **nie in TMDL** — immer via Power BI REST API.
+> Vollständige Syntax inkl. OLS: `tmdl-advanced-features.md §7`
 
 ---
 
@@ -410,23 +410,23 @@ governed by Microsoft's official specification; the *restrictions and policies* 
 descriptions, naming/format conventions, allowed `dataType` whitelist) are this repo's own
 narrowing. Grounded in:
 
-- **Tabular Model Definition Language (TMDL) â€” overview & spec** (object declaration, the `:`
+- **Tabular Model Definition Language (TMDL) — overview & spec** (object declaration, the `:`
   property delimiter vs. `=` expression delimiter, whitespace/tab indentation rules, casing,
-  folder structure â€” the basis for Â§3â€“Â§7 and the style rules) â€” Microsoft Learn:
+  folder structure — the basis for §3–§7 and the style rules) — Microsoft Learn:
   <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview>
-- **TMDL Reference â€” Objects overview** (1:1 mapping of every TMDL property to its TOM property â€”
+- **TMDL Reference — Objects overview** (1:1 mapping of every TMDL property to its TOM property —
   the basis for the `dataType`, `formatString`, `summarizeBy`, `sortByColumn`, `isHidden`
-  properties in Â§5â€“Â§6) â€” Microsoft Learn:
+  properties in §5–§6) — Microsoft Learn:
   <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-reference-tabular-object>
-- **Tabular Object Model (TOM)** (the model â†’ table â†’ column/measure/relationship object
-  hierarchy that this subset constrains) â€” Microsoft Learn:
+- **Tabular Object Model (TOM)** (the model ? table ? column/measure/relationship object
+  hierarchy that this subset constrains) — Microsoft Learn:
   <https://learn.microsoft.com/en-us/analysis-services/tom/introduction-to-the-tabular-object-model-tom-in-analysis-services-amo>
 - **Work with TMDL view in Power BI Desktop** (the preview/canvas + code-first authoring model
-  underlying the "Desktop is preview/canvas-only; authoring happens in TMDL" scope note) â€”
+  underlying the "Desktop is preview/canvas-only; authoring happens in TMDL" scope note) —
   Microsoft Learn: <https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-tmdl-view>
 - **Power BI Desktop project (PBIP) semantic model folder** (the `definition/` TMDL folder layout
-  â€” `model.tmdl`, `tables/`, `relationships.tmdl`, `database.tmdl` â€” assumed by this repo's PBIP
-  structure) â€” Microsoft Learn:
+  — `model.tmdl`, `tables/`, `relationships.tmdl`, `database.tmdl` — assumed by this repo's PBIP
+  structure) — Microsoft Learn:
   <https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset>
 
 > The links above are the **authoritative spec**. Where this document is stricter than TMDL

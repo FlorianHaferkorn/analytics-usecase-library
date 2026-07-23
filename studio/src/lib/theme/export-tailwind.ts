@@ -17,7 +17,7 @@ export function generateTailwindConfig(theme: ThemeConfig): string {
     : theme.fontFamily;
 
   const lines = [
-    '// ActionReady Theme — Auto-generated Tailwind config',
+    '// ALUCA Theme — Auto-generated Tailwind config',
     '// Do not edit manually. Re-export from Brand Lab to update.',
     '',
     'import type { Config } from "tailwindcss";',

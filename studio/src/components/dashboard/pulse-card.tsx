@@ -29,9 +29,11 @@ export function PulseCard({ kpi, theme }: Props) {
       style={{
         padding: 'var(--pad)',
         backgroundColor: theme?.surface ?? 'var(--panel)',
-        border: `1px solid ${borderColor}`,
-        borderRadius: radius,
+        borderTop: `1px solid ${borderColor}`,
+        borderRight: `1px solid ${borderColor}`,
+        borderBottom: `1px solid ${borderColor}`,
         borderLeft: `4px solid ${statusColor}`,
+        borderRadius: radius,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>

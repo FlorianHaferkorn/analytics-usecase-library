@@ -57,6 +57,11 @@ export interface ProjectState {
   // Theme
   theme: ThemeConfig;
 
+  // Aurora showcase (gold snapshot — not production SSOT)
+  auroraLinked: boolean;
+  auroraKpiCount: number;
+  auroraSource: string | null;
+
   // Drift detection
   driftReport: DriftReport | null;
   driftLoading: boolean;
@@ -68,6 +73,8 @@ export interface ProjectState {
   selectedBracketId: string | null;
   activePanel: 'flow' | 'editor' | 'chat';
   isDirty: boolean;
+  /** Global Forge domain filter (instant client-side; synced to ?domain= via replaceState). */
+  domainFilter: string | null;
 
   // Wizard draft
   pendingWizardDraft: WizardDraft | null;
@@ -82,12 +89,14 @@ export interface ProjectState {
   setKpis: (kpis: CatalogKpi[]) => void;
   setActions: (actions: ActionDetail[]) => void;
   setTheme: (theme: Partial<ThemeConfig>) => void;
+  setAuroraBootstrap: (data: { linked: boolean; kpiCount: number; source: string | null }) => void;
   setDriftReport: (report: DriftReport | null) => void;
   setDriftLoading: (loading: boolean) => void;
   addNotification: (n: ActiveNotification) => void;
   dismissNotification: (id: string) => void;
   selectBracket: (id: string | null) => void;
   setActivePanel: (panel: 'flow' | 'editor' | 'chat') => void;
+  setDomainFilter: (domain: string | null) => void;
   updateBracket: (id: string, update: Partial<UseCaseBracketV20Lean>) => void;
   markClean: () => void;
 }
@@ -107,14 +116,14 @@ export interface WizardDraft {
 }
 
 export const DEFAULT_THEME: ThemeConfig = {
-  primary: '#00D4AA',
-  secondary: '#FFB800',
-  accent: '#3B82F6',
-  background: '#1E293B',
-  surface: '#0F172A',
-  text: '#F1F5F9',
-  fontFamily: 'Inter',
-  borderRadius: 8,
+  primary: '#2ECDE7',
+  secondary: '#44B396',
+  accent: '#2ECDE7',
+  background: '#00396B',
+  surface: '#004E7A',
+  text: '#F5FBFC',
+  fontFamily: 'Segoe UI',
+  borderRadius: 4,
 };
 
 export const useProjectStore = create<ProjectState>((set) => ({
@@ -129,6 +138,10 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   theme: DEFAULT_THEME,
 
+  auroraLinked: false,
+  auroraKpiCount: 0,
+  auroraSource: null,
+
   driftReport: null,
   driftLoading: false,
 
@@ -137,6 +150,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
   selectedBracketId: null,
   activePanel: 'flow',
   isDirty: false,
+  domainFilter: null,
 
   pendingWizardDraft: null,
 
@@ -153,6 +167,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
       isDirty: true,
     })),
 
+  setAuroraBootstrap: ({ linked, kpiCount, source }) =>
+    set({ auroraLinked: linked, auroraKpiCount: kpiCount, auroraSource: source }),
+
   setDriftReport: (report) => set({ driftReport: report }),
   setDriftLoading: (loading) => set({ driftLoading: loading }),
 
@@ -167,6 +184,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   selectBracket: (id) => set({ selectedBracketId: id }),
   setActivePanel: (panel) => set({ activePanel: panel }),
+  setDomainFilter: (domainFilter) => set({ domainFilter }),
 
   updateBracket: (id, update) =>
     set((state) => ({

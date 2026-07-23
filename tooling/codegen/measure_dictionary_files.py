@@ -34,7 +34,7 @@ FENCE_CLOSE = "```"
 
 GENERATED_NOTE = (
     "> **Generated view.** The source of truth is the per-measure files under "
-    "[`measures/`](measures/). Edit those (or use ActionReady Studio); regenerate "
+    "[`measures/`](measures/). Edit those (or use ALUCA Studio); regenerate "
     "this file with `python tooling/codegen/measure_dictionary_files.py render`.\n"
 )
 

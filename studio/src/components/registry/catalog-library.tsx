@@ -638,7 +638,7 @@ export function CatalogLibrary({
               lineHeight: 1.2,
             }}
           >
-            Library
+            Catalog
           </h1>
           <p
             style={{
@@ -648,7 +648,7 @@ export function CatalogLibrary({
               lineHeight: 1.5,
             }}
           >
-            The single source of truth for every KPI, bracket, and action code.
+            Governed SSOT for KPIs, brackets, and action codes — Registry mode.
           </p>
         </div>
         <button

@@ -30,7 +30,7 @@ export interface ExportedThemeJson {
 
 export function generateJsonConfig(theme: ThemeConfig): string {
   const exported: ExportedThemeJson = {
-    name: 'ActionReady Theme',
+    name: 'ALUCA Theme',
     version: '1.0.0',
     colors: {
       primary: theme.primary,

@@ -106,6 +106,13 @@ ux_layout_rules:
       # R2.4: curated 12→8. Cut fin.cash.ocf (now Main_2's own headline KPI),
       # fin.liquidity.inventory.amount/supply.otif.pct/scm.supplier_risk.score
       # (cross-domain supporting KPIs, less central to the cash decision_question).
+      # R2.5 (2026-07-22): partial reversal for demo completeness. The three
+      # cross-domain supporting columns are restored now that their facts are
+      # wired into Finance.SemanticModel (fact_fulfillment, fact_supplier_risk
+      # registered + related; Supplier Risk Score de-stubbed). Supplier risk is
+      # surfaced entity-side via the AP-exposure-weighted measure
+      # 'Supplier Risk Score (Entity)' (a global constant would be misleading on
+      # an entity grain). fin.cash.ocf stays cut (Main_2's own headline KPI).
       evidence_columns:
       - entity
       - region
@@ -115,6 +122,9 @@ ux_layout_rules:
       - wc.dio.days
       - wc.dpo.days
       - wc.ccc.days
+      - fin.liquidity.inventory.amount
+      - supply.otif.pct
+      - scm.supplier_risk.score   # entity grain → 'Supplier Risk Score (Entity)'
       action_panel: true
       payload_mode: full
       sort_by:

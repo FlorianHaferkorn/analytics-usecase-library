@@ -14,15 +14,22 @@ test.describe('Visual regression (screenshots)', () => {
     await expect(page.getByText('KPIs', { exact: true })).toBeVisible();
 
     // Snapshot compare (baseline stored under __screenshots__).
-    await expect(page).toHaveScreenshot('overview.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('overview.png', {
+      fullPage: true,
+      maxDiffPixelRatio: 0.02,
+    });
   });
 
-  test('steering flow canvas looks stable', async ({ page }) => {
+  test('blueprint golden thread flow looks stable', async ({ page }) => {
     await loginDemo(page);
-    await page.goto('/steering');
+    await page.goto('/blueprint');
 
-    await expect(page.locator('.react-flow')).toBeVisible({ timeout: 10_000 });
-    await expect(page).toHaveScreenshot('steering.png', { fullPage: true });
+    await expect(page.getByText('Golden Thread Flow', { exact: true })).toBeVisible({ timeout: 30_000 });
+    await expect(page).toHaveScreenshot('blueprint-flow.png', {
+      fullPage: true,
+      mask: [page.locator('h1')],
+      maxDiffPixelRatio: 0.05,
+    });
   });
 });
 

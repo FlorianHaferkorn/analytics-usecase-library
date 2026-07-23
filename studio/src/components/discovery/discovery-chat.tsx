@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ToolResultCard } from './tool-result-card';
 import { StudioInput } from '@/components/ui/studio-data';
-import { StudioButton, StudioEmptyState } from '@/components/ui/studio-page';
+import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -17,9 +17,15 @@ interface Props {
   onToolResult?: (toolName: string, result: unknown) => void;
 }
 
+const QUICK_PROMPTS = [
+  'Extract strategy anchors from the uploaded material',
+  'Which KPIs are implied by this strategy document?',
+  'Suggest action codes linked to the identified KPIs',
+  'Draft a UseCase_Bracket.yaml skeleton from these findings',
+];
+
 /** Parse Vercel AI SDK data stream events. */
 function parseStreamEvent(line: string): { type: string; data: unknown } | null {
-  // Format: "type:json_data"
   const colon = line.indexOf(':');
   if (colon < 0) return null;
   const type = line.slice(0, colon);
@@ -37,11 +43,11 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
-  }, [messages]);
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  }, [messages, isLoading]);
 
-  const sendMessage = async () => {
-    const trimmed = input.trim();
+  const sendMessage = async (text?: string) => {
+    const trimmed = (text ?? input).trim();
     if (!trimmed || isLoading) return;
 
     const userMessage: ChatMessage = { role: 'user', content: trimmed };
@@ -84,7 +90,6 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
           const event = parseStreamEvent(line);
           if (!event) continue;
 
-          // Type 0 = text delta
           if (event.type === '0' && typeof event.data === 'string') {
             assistantContent += event.data;
             setMessages((prev) => {
@@ -93,7 +98,6 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
               return copy;
             });
           }
-          // Type 9 = tool result (Vercel AI SDK data stream format)
           if (event.type === '9' && typeof event.data === 'object' && event.data !== null) {
             const d = event.data as Record<string, unknown>;
             if (d.toolName && d.result !== undefined) {
@@ -106,7 +110,6 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
               });
             }
           }
-          // Type a = tool call (tool invocation start)
           if (event.type === 'a' && typeof event.data === 'object' && event.data !== null) {
             const d = event.data as Record<string, unknown>;
             if (d.result !== undefined && d.toolName) {
@@ -134,69 +137,94 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      void sendMessage();
     }
   };
 
   return (
-    <div
-      style={{
-        flex: 1,
-        backgroundColor: 'var(--panel)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--line)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <StudioPanel
+      title="Discovery Chat"
+      description="Ask about strategy anchors, KPIs, and action codes. Responses stream here and feed the extraction panel."
+      bare
+      action={isLoading ? (
+        <span style={{ fontSize: 11, color: 'var(--accent)', animation: 'pulse 1.5s infinite' }}>
+          thinking…
+        </span>
+      ) : undefined}
+      style={{ height: '100%', minHeight: 0 }}
     >
-      <div style={{ padding: '16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>
-          Discovery Chat
-        </h3>
-        {isLoading && (
-          <span style={{ fontSize: '0.6875rem', color: 'var(--accent)', animation: 'pulse 1.5s infinite' }}>
-            thinking...
-          </span>
-        )}
-      </div>
-
-      <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          minHeight: 0,
+        }}
+      >
         {messages.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ maxWidth: '400px', width: '100%' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 12px' }}>
+            <div style={{ width: '100%', maxWidth: 520 }}>
               <StudioEmptyState
-                title="Start a Discovery Session"
+                title="Start a discovery session"
                 description={
                   <>
                     <span>Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.</span>
-                    {context ? <span style={{ display: 'block', marginTop: '8px', color: 'var(--accent)' }}>{Math.round(context.length / 4)} tokens of context loaded</span> : null}
+                    {context ? (
+                      <span style={{ display: 'block', marginTop: 8, color: 'var(--accent)' }}>
+                        {Math.round(context.length / 4)} tokens of context loaded
+                      </span>
+                    ) : null}
                   </>
                 }
               />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16, justifyContent: 'center' }}>
+                {QUICK_PROMPTS.map((prompt) => (
+                  <StudioButton
+                    key={prompt}
+                    variant="secondary"
+                    onClick={() => void sendMessage(prompt)}
+                    disabled={isLoading}
+                    style={{ height: 'auto', padding: '8px 12px', fontSize: 11.5, lineHeight: 1.4, textAlign: 'left' }}
+                  >
+                    {prompt}
+                  </StudioButton>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
           messages.map((msg, i) => (
-            <div key={i}>
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                gap: 6,
+              }}
+            >
               <div
                 style={{
-                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '80%',
-                  padding: 'var(--pad)',
-                  backgroundColor: msg.role === 'user' ? 'var(--bg-2)' : 'var(--bg)',
+                  maxWidth: '85%',
+                  padding: '12px 14px',
+                  backgroundColor: msg.role === 'user' ? 'var(--bg-2)' : 'var(--panel-2)',
                   borderRadius: 'var(--radius-md)',
-                  border: `1px solid var(--line)`,
+                  border: '1px solid var(--line)',
                 }}
               >
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: '4px', fontWeight: 600 }}>
-                  {msg.role === 'user' ? 'You' : 'AI'}
+                <p style={{ fontSize: 10, color: 'var(--ink-4)', marginBottom: 4, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  {msg.role === 'user' ? 'You' : 'Studio AI'}
                 </p>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
-                  {msg.content}
+                <div style={{ fontSize: 13, color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                  {msg.content || (isLoading && i === messages.length - 1 ? '…' : '')}
                 </div>
               </div>
               {msg.toolResults?.map((tr, j) => (
-                <div key={j} style={{ marginTop: '4px', maxWidth: '90%' }}>
+                <div key={j} style={{ maxWidth: '92%' }}>
                   <ToolResultCard toolName={tr.toolName} result={tr.result} />
                 </div>
               ))}
@@ -205,35 +233,28 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
         )}
       </div>
 
-      <div style={{ padding: 'var(--pad)', borderTop: '1px solid var(--line)' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+      <div style={{ padding: '12px 16px 16px', borderTop: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', gap: 8 }}>
           <StudioInput
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about strategy, KPIs, or actions..."
+            placeholder={context ? 'Ask about strategy, KPIs, or actions…' : 'Add sources first, then ask about strategy…'}
             disabled={isLoading}
-            style={{
-              flex: 1,
-              padding: '8px var(--pad)',
-              fontSize: '0.875rem',
-            }}
+            style={{ flex: 1, padding: '10px 12px', fontSize: 13 }}
           />
           <StudioButton
-            onClick={sendMessage}
+            onClick={() => void sendMessage()}
             disabled={isLoading || !input.trim()}
             tone="success"
             variant="primary"
-            style={{
-              padding: '8px 16px',
-              fontSize: '0.875rem',
-            }}
+            style={{ padding: '0 16px', fontSize: 13 }}
           >
             Send
           </StudioButton>
         </div>
       </div>
-    </div>
+    </StudioPanel>
   );
 }

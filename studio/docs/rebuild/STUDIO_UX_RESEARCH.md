@@ -10,7 +10,7 @@
 
 ## 1. Studio positioning (one sentence)
 
-ActionReady Studio is a **Golden-Thread authoring portal**: governed KPIs, action codes, use cases (Factsheet prose + Bracket YAML), lineage, and export — not a consumption BI tool and not a generic data catalog.
+ALUCA Studio is a **Golden-Thread authoring portal**: governed KPIs, action codes, use cases (Factsheet prose + Bracket YAML), lineage, and export — not a consumption BI tool and not a generic data catalog.
 
 No single vendor ships this combination. The target IA is a **deliberate composite** (see §3).
 
@@ -203,7 +203,7 @@ Sources: [Data catalog glossary](https://thedatagovernor.com/what-is-a-data-cata
 | ID | Question | Options | Blocks |
 |----|----------|---------|--------|
 | **PD-1** | Overview content | A) Keep admin `FrameworkOverview` B) Mockup dashboard (sparklines, use-case panels) | Epic 4 / Epic 5 in REBUILD_PLAN |
-| **PD-2** | Sidebar brand | “ActionReady Studio” vs “Studio / Analytics Framework” (mockup) | Cosmetic; Epic 1 |
+| **PD-2** | Sidebar brand | “ALUCA Studio” vs “Studio / Analytics Framework” (mockup) | Cosmetic; Epic 1 |
 | **PD-3** | Comments on KPI Detail | Real audit thread vs defer | Epic 2.3 / Phase 3 |
 | **PD-4** | Ask Studio | Wire chat overlay vs hide until Epic 3 | Epic 1.2 |
 

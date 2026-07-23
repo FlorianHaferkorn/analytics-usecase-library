@@ -27,11 +27,24 @@
   /* ========== Semantic Colors (both themes) ========== */
   --positive: oklch(0.60 0.15 150);
   --positive-soft: oklch(0.92 0.06 150 / 0.5);
+  --positive-fg: oklch(0.60 0.15 150);
   --negative: oklch(0.55 0.18 25);
   --negative-soft: oklch(0.93 0.07 25 / 0.5);
+  --negative-fg: oklch(0.55 0.18 25);
   --warn: oklch(0.70 0.15 75);
   --warn-soft: oklch(0.94 0.06 75 / 0.6);
   --neutral: oklch(0.62 0.02 260);
+
+  /* Semantic aliases used across Studio components */
+  --success: var(--positive);
+  --warning: var(--warn);
+  --danger: var(--negative);
+  --info: oklch(0.62 0.12 250);
+
+  /* Navigation / brand shorthand aliases */
+  --mint: var(--accent);
+  --gold: var(--data-8);
+  --slate-400: var(--ink-4);
 
   /* ========== Accent — Aurora Group brand primary #2ECDE7 (cyan) ==========
      Sourced from showcases/aurora_group/brand/brand_spec.yaml. Quiet, brand-aligned. */
@@ -63,7 +76,36 @@
   /* Non-density defaults (used when no [data-density] attr is set) */
   --pad: 24px;
   --gap: 24px;
-  --h-row: 44px;
+
+  /* Shell geometry (must match StudioHeader 56px + StudioSidebar 248px) */
+  --shell-header: 56px;
+  --shell-sidebar: 248px;
+  --shell-sidebar-collapsed: 68px;
+  --h-row: var(--shell-header);
+
+  /* 8px spacing scale (--sp-1 = 4px half-step, --sp-2 = 8px base) */
+  --sp-1: 4px;
+  --sp-1-5: 6px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 28px;
+  --sp-8: 32px;
+
+  /* Legacy slate aliases → ink scale (ProjectSwitcher + delivery panels) */
+  --slate-100: var(--ink);
+  --slate-400: var(--ink-4);
+  --slate-500: var(--ink-3);
+  --slate-600: var(--ink-3);
+  --slate-700: var(--bg-2);
+  --slate-800: var(--line);
+
+  /* Motion aliases (legacy inline components use --duration-*) */
+  --duration-fast: var(--motion-fast);
+  --duration-normal: var(--motion-normal);
+  --duration-slow: var(--motion-slow);
 
   /* ========== Radius, Motion, Z-Index ========== */
   --radius-sm: 4px;
@@ -97,21 +139,18 @@
    components (StudioSidebar, StudioHeader). Both kept in sync. */
 [data-density="airy"] {
   --row: var(--row-height-airy);
-  --h-row: var(--row-height-airy);
   --pad: 28px;
   --gap: 28px;
 }
 
 [data-density="balanced"] {
   --row: var(--row-height-balanced);
-  --h-row: var(--row-height-balanced);
   --pad: 20px;
   --gap: 18px;
 }
 
 [data-density="dense"] {
   --row: var(--row-height-dense);
-  --h-row: var(--row-height-dense);
   --pad: 16px;
   --gap: 14px;
 }
@@ -213,8 +252,8 @@
   --shadow-md: 0 4px 16px oklch(0 0 0 / 0.4);
   --shadow-lg: 0 24px 48px -16px oklch(0 0 0 / 0.6);
 
-  /* Accent (source: "Studio Design System.html") */
-  --accent:      oklch(0.72 0.13 250);
-  --accent-soft: oklch(0.72 0.13 250 / 0.16);
-  --accent-ink:  oklch(0.12 0.02 250);
+  /* Accent — Aurora brand cyan (consistent across themes) */
+  --accent:      oklch(0.78 0.10 215);
+  --accent-soft: oklch(0.78 0.10 215 / 0.16);
+  --accent-ink:  oklch(0.12 0.04 215);
 }

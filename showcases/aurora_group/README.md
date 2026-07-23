@@ -42,6 +42,6 @@ Can someone take a framework use case, use Aurora’s data (and a tool’s seman
 - Start with `company/Aurora_Group_Profile.md` and `company/Aurora_Operating_Model.md`.
 - Generate gold data from repo root (see `data/scripts/README.md`). Point the Fabric semantic model/dataset to this path (or deployed equivalent).
 - Align use cases with canonical factsheets in `core/usecases/core/`.
-- Feed real KPI numbers into ActionReady Studio: run `python showcases/aurora_group/data/build_kpi_snapshot.py`. It aggregates the gold facts (DuckDB over the partitioned parquet) into `studio/data/aurora_kpi_snapshot.json`, keyed by `kpi_id`. Studio's report builder hydrates KPI cards, trends, and waterfalls from this snapshot, so exports show governed Aurora values instead of stub zeros. Regenerate after the gold data changes.
+- Feed real KPI numbers into ALUCA Studio: run `python showcases/aurora_group/data/build_kpi_snapshot.py`. It aggregates the gold facts (DuckDB over the partitioned parquet) into `studio/data/aurora_kpi_snapshot.json`, keyed by `kpi_id`. Studio's report builder hydrates KPI cards, trends, and waterfalls from this snapshot, so exports show governed Aurora values instead of stub zeros. Regenerate after the gold data changes.
 
 Relations: WHY → `company/`; HOW → `core/strategy_operating_model/`; WITH WHAT → Action Codes, KPI catalog; PATTERNS → `core/templates/page_templates/`.

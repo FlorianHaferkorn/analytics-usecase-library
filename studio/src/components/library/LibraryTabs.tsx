@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useShallowQueryParam } from '@/lib/hooks/use-domain-filter';
 
 interface Tab {
   id: string;
@@ -14,24 +14,22 @@ interface LibraryTabsProps {
 }
 
 export function LibraryTabs({ tabs, activeTab }: LibraryTabsProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { setParam } = useShallowQueryParam('tab');
 
   const handleTabClick = (tabId: string) => {
-    const current = new URLSearchParams(searchParams);
-    current.set('tab', tabId);
-    router.push(`?${current.toString()}`);
+    setParam(tabId);
   };
 
   return (
-    <div className="flex gap-0.5 border-b border-border mb-4">
+    <div className="flex gap-0.5 border-b border-border mb-4 overflow-x-auto">
       {tabs.map((tab) => {
         const active = activeTab === tab.id;
         return (
           <button
             key={tab.id}
+            type="button"
             onClick={() => handleTabClick(tab.id)}
-            className={`px-3.5 py-2.5 text-[13px] transition-colors flex items-center gap-2 relative ${
+            className={`px-3.5 py-2.5 text-[13px] transition-colors flex items-center gap-2 relative shrink-0 ${
               active
                 ? 'font-medium text-foreground'
                 : 'font-normal text-foreground-muted hover:text-foreground'

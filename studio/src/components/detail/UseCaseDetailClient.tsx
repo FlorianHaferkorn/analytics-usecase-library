@@ -11,6 +11,7 @@ import { CascadingDiffPanel, type CascadingProposal } from './CascadingDiffPanel
 import { DetailHistoryTab } from './DetailHistoryTab';
 import { MarkdownEditor } from '@/components/editor/markdown-editor';
 import { detailPath } from '@/lib/studio/entity-ia';
+import { StudioButton, StudioPage, StudioPageHeader } from '@/components/ui/studio-page';
 
 const YamlEditor = dynamic(
   () => import('@/components/editor/yaml-editor').then((m) => m.YamlEditor),
@@ -166,42 +167,25 @@ function UseCaseDetailInner({
   ];
 
   return (
+    <StudioPage>
+      <StudioPageHeader
+        eyebrow="Registry / Use Case Detail"
+        title={bracket.title}
+        description={`Strategic KPI: ${bracket.orchestration.strategic_kpi_id} · ${bracket.orchestration.action_code_ids.length} actions`}
+        badge={bracket.id}
+        tone="info"
+        actions={
+          <>
+            <Link href="/library?tab=usecases" style={{ fontSize: 13, color: 'var(--accent)', textDecoration: 'none', marginRight: 8 }}>
+              ← Library
+            </Link>
+            <StudioButton variant={compareMode ? 'primary' : 'secondary'} onClick={toggleCompare} style={{ padding: '6px 12px', fontSize: 13 }}>
+              {compareMode ? 'Exit compare' : 'Compare view'}
+            </StudioButton>
+          </>
+        }
+      />
     <div className="flex flex-col min-h-0">
-      <Link
-        href="/library?tab=usecases"
-        className="inline-flex items-center gap-1.5 text-[13px] text-foreground-subtle hover:text-foreground mb-4"
-      >
-        ← Back to library
-      </Link>
-
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap mb-2">
-            <span className="font-mono text-[11px] text-foreground-subtle">{bracket.id}</span>
-            <Pill tone="neutral">{bracket.domain}</Pill>
-            <Pill tone="neutral">{owner}</Pill>
-          </div>
-          <h1 className="text-[28px] font-medium tracking-[-0.02em] text-foreground">
-            {bracket.title}
-          </h1>
-          <p className="text-[13px] text-foreground-muted mt-1">
-            Strategic KPI: {bracket.orchestration.strategic_kpi_id} ·{' '}
-            {bracket.orchestration.action_code_ids.length} actions
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={toggleCompare}
-          className={`px-3 py-1.5 rounded-lg text-[13px] border transition-colors ${
-            compareMode
-              ? 'bg-foreground text-background border-foreground'
-              : 'border-border text-foreground-muted hover:bg-hover'
-          }`}
-        >
-          {compareMode ? 'Exit compare' : 'Compare view'}
-        </button>
-      </div>
 
       {!compareMode && (
         <div className="flex gap-0.5 border-b border-border mb-4">
@@ -384,6 +368,7 @@ function UseCaseDetailInner({
         </>
       )}
     </div>
+    </StudioPage>
   );
 }
 

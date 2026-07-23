@@ -1,6 +1,6 @@
-ï»¿# T2 â€“ Tactical Variance & Drivers
+# T2 – Tactical Variance & Drivers
 
-> **Design basis:** Munzner (2014) nested model â€” domain task (explain gap vs. target) â†’ data abstraction (delta, driver decomposition) â†’ visual encoding (waterfall for variance bridge). Few (2004, *Information Dashboard Design*): variance analysis requires showing both the overall gap and its component drivers simultaneously.
+> **Design basis:** Munzner (2014) nested model — domain task (explain gap vs. target) ? data abstraction (delta, driver decomposition) ? visual encoding (waterfall for variance bridge). Few (2004, *Information Dashboard Design*): variance analysis requires showing both the overall gap and its component drivers simultaneously.
 
 ## Purpose
 
@@ -25,7 +25,7 @@ If this question cannot be answered within **30 seconds**, the page is not done.
 
 ## When to Use This Page Type
 
-Use **T2 â€“ Tactical Variance** when:
+Use **T2 – Tactical Variance** when:
 
 - targets, plans, or benchmarks exist
 - deviations must be explained, not just observed
@@ -44,29 +44,29 @@ Typical usage rhythm:
 
 Do **not** use T2 if:
 
-- the goal is purely strategic alignment â†’ use **T1**
-- the goal is operational monitoring or alerting â†’ use **T3**
-- concrete actions must be prescribed â†’ use **T4**
+- the goal is purely strategic alignment ? use **T1**
+- the goal is operational monitoring or alerting ? use **T3**
+- concrete actions must be prescribed ? use **T4**
 
 T2 must never turn into an operational dashboard or an action list.
 
 ---
 
-## Analytical Scope (3â€“30â€“300 Rule)
+## Analytical Scope (3–30–300 Rule)
 
-### 3 Seconds â€“ Variance Signal
+### 3 Seconds – Variance Signal
 
 - Clear KPI vs. target signal
 - Direction and magnitude of deviation
 - Immediate visibility of problem or outperformance
 
-### 30 Seconds â€“ Driver Explanation
+### 30 Seconds – Driver Explanation
 
 - Variance bridge or decomposition
 - Key drivers ranked by impact
 - Comparison across relevant segments
 
-### 300 Seconds â€“ Limited Detail
+### 300 Seconds – Limited Detail
 
 - Selected drill-downs for validation
 - No transactional-level exploration
@@ -128,8 +128,8 @@ T2 pages may include **Tactical Action Signals** only:
 
 Examples:
 
-- â€œPricing effect is the dominant driver â€“ validate assumptionsâ€
-- â€œVolume decline driven by Segment B â€“ initiate focused reviewâ€
+- “Pricing effect is the dominant driver – validate assumptions”
+- “Volume decline driven by Segment B – initiate focused review”
 
 T2 does **not** replace prescriptive decision-making.
 
@@ -137,9 +137,9 @@ T2 does **not** replace prescriptive decision-making.
 
 ## User Experience Rules
 
-- Clear left-to-right or top-down logic: signal â†’ explanation â†’ contributors
+- Clear left-to-right or top-down logic: signal ? explanation ? contributors
 - Limited interactivity (no analytical playground)
-- Maximum of 2â€“3 slicers (time, organization, one domain dimension)
+- Maximum of 2–3 slicers (time, organization, one domain dimension)
 - Stable layout to support recurring reviews
 
 ---
@@ -161,58 +161,58 @@ A T2 page is complete when:
 
 One sentence that every T2 page must communicate:
 
-> â€œThe [Î”] gap vs [reference] is driven by [top factor] ([magnitude]) â€” intervention in [area] is required.â€
+> “The [?] gap vs [reference] is driven by [top factor] ([magnitude]) — intervention in [area] is required.”
 
-Example: *â€The -â‚¬4.2M revenue gap vs Plan YTD is driven primarily by DACH volume decline (-â‚¬3.1M) and an adverse mix effect â€” intervention in DACH promotional strategy is required.â€*
+Example: *”The -€4.2M revenue gap vs Plan YTD is driven primarily by DACH volume decline (-€3.1M) and an adverse mix effect — intervention in DACH promotional strategy is required.”*
 
 ### Story Structure
 
-**Act 1 â€” Signal the Deviation (3 seconds, KPI Band)**
-The KPI delta is the first word of the T2 story. It tells the reader: â€œWe have a gap. Here is the magnitude.â€
-- The primary KPI shows the deviation clearly â€” absolute + percentage, colored signal.
+**Act 1 — Signal the Deviation (3 seconds, KPI Band)**
+The KPI delta is the first word of the T2 story. It tells the reader: “We have a gap. Here is the magnitude.”
+- The primary KPI shows the deviation clearly — absolute + percentage, colored signal.
 - Supporting KPIs show whether the gap is isolated or systemic.
 - The reader must not need to look at the driver charts to understand that a problem exists.
 
-**Act 2 â€” Explain the Gap (30 seconds, Driver Zone)**
-The three driver visuals together answer â€œWhy?â€. Each adds one layer to the explanation:
-- `Main_1` (Trend): *â€This is the journey â€” when did the deviation begin, and is it accelerating?â€*
+**Act 2 — Explain the Gap (30 seconds, Driver Zone)**
+The three driver visuals together answer “Why?”. Each adds one layer to the explanation:
+- `Main_1` (Trend): *”This is the journey — when did the deviation begin, and is it accelerating?”*
   The trend answers whether this is a new problem or an ongoing one. Inflection points are annotated.
-- `Main_2` (Variance Bridge / Waterfall): *â€This is the breakdown â€” which factors explain the gap?â€*
+- `Main_2` (Variance Bridge / Waterfall): *”This is the breakdown — which factors explain the gap?”*
   The waterfall is the structural heart of T2. It reconciles the KPI delta into named drivers.
   Each bar = one driver (Price, Volume, Mix, FX). The bars must sum to the total deviation.
-- `Main_3` (Ranking / Driver Ranking): *â€These are the actors â€” which entities drive each factor?â€*
+- `Main_3` (Ranking / Driver Ranking): *”These are the actors — which entities drive each factor?”*
   Sorted by magnitude of deviation. Worst-performing entity first. Immediately actionable.
 
-**Act 3 â€” Limited Validation (300 seconds, Detail Page)**
+**Act 3 — Limited Validation (300 seconds, Detail Page)**
 The detail page validates the drivers at entity level. It does not introduce new drivers or explanations.
 
 ### Visual Title Narrative
 
-The three driver visual titles must tell a coherent â€œWhy?â€ story:
+The three driver visual titles must tell a coherent “Why?” story:
 
 | Slot | Narrative Role | Example Title |
 |---|---|---|
-| `Main_1` (Trend) | â€œWhen did the problem start?â€ | â€œHow has Net Sales trended vs Plan over the last 12 months?â€ |
-| `Main_2` (Variance) | â€œWhat caused the gap?â€ | â€œWhich factors explain the -â‚¬4.2M revenue gap vs Plan?â€ |
-| `Main_3` (Ranking) | â€œWho/where is the gap?â€ | â€œWhich regions drive the largest deviation from Plan?â€ |
+| `Main_1` (Trend) | “When did the problem start?” | “How has Net Sales trended vs Plan over the last 12 months?” |
+| `Main_2` (Variance) | “What caused the gap?” | “Which factors explain the -€4.2M revenue gap vs Plan?” |
+| `Main_3` (Ranking) | “Who/where is the gap?” | “Which regions drive the largest deviation from Plan?” |
 
-Together they form: *â€The gap started in [period], was caused by [factors], and is concentrated in [entities].â€*
+Together they form: *”The gap started in [period], was caused by [factors], and is concentrated in [entities].”*
 
 ### Waterfall Chart Contract
 
 The variance bridge is the most important visual on a T2 page. It must:
 - Start with the reference value (Plan or Prior Year) on the left
 - End with the actual value on the right
-- Sum of all driver bars = (Actual âˆ’ Reference)
+- Sum of all driver bars = (Actual - Reference)
 - Each bar is labeled with absolute value and % of total gap
 - Positive contributions (green), negative contributions (red), net bars (neutral)
-- Maximum 7â€“8 bars; group smaller drivers into â€œOtherâ€
+- Maximum 7–8 bars; group smaller drivers into “Other”
 
 ### What Makes This Page Fail the Narrative
 
 | Failure | Cause | Fix |
 |---|---|---|
-| Variance bridge doesn't reconcile | KPI delta â‰  sum of waterfall bars | Fix data model; validate driver logic |
+| Variance bridge doesn't reconcile | KPI delta ? sum of waterfall bars | Fix data model; validate driver logic |
 | Three charts tell disconnected stories | Different time periods, different KPIs | Align all three to same KPI, same period |
 | Trend inflection not annotated | Cause of deviation is not explained | Add reference line or text callout at the key date |
 | Ranking sorted alphabetically | Hardest-to-scan ordering | Sort by absolute deviation magnitude, descending |
@@ -221,7 +221,7 @@ The variance bridge is the most important visual on a T2 page. It must:
 
 ## Key Principle
 >
-> **T2 answers â€œWhy are we off target?â€ â€“ not â€œWho failed?â€ and not â€œWhat should we do?â€**
+> **T2 answers “Why are we off target?” – not “Who failed?” and not “What should we do?”**
 
 If the page drifts into operational blame or prescriptive actions, it is no longer tactical.
 

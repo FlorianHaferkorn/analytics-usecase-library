@@ -28,7 +28,7 @@ export function generateCssCustomProperties(theme: ThemeConfig): string {
     : `${theme.fontFamily}, sans-serif`;
 
   const lines = [
-    '/* ActionReady Theme — Auto-generated CSS Custom Properties */',
+    '/* ALUCA Theme — Auto-generated CSS Custom Properties */',
     '/* Do not edit manually. Re-export from Brand Lab to update. */',
     '',
     ':root {',

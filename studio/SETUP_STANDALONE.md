@@ -1,4 +1,4 @@
-# ActionReady Studio — Standalone-Setup (lokal-first, BYO-Key) · I-6.5
+# ALUCA Studio — Standalone-Setup (lokal-first, BYO-Key) · I-6.5
 
 Fresh-Install-Durchlauf: das Cockpit läuft **lokal-first** auf der eigenen Maschine,
 mit **eigenem LLM-Key** (BYO-Key). Keine Cloud-Abhängigkeit nötig.

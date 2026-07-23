@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { AiField } from '@/components/ai/ai-field';
+import { StudioButton } from '@/components/ui/studio-page';
 
 type ElementKind = 'kpi' | 'bracket' | 'action' | 'source';
 
@@ -154,11 +155,11 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
               </div>
             ))}
           </div>
-          <button onClick={onClose} aria-label="Close" style={{ width: 28, height: 28, display: 'grid', placeItems: 'center', borderRadius: 6, color: 'var(--ink-3)', border: 'none', background: 'transparent', cursor: 'pointer' }}>
+          <StudioButton onClick={onClose} variant="ghost" aria-label="Close" style={{ width: 28, height: 28, padding: 0 }}>
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="m4 4 8 8M12 4l-8 8" />
             </svg>
-          </button>
+          </StudioButton>
         </div>
 
         {/* Body */}
@@ -324,42 +325,39 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
 
         {/* Footer */}
         <div style={{ padding: '14px 20px', borderTop: '1px solid var(--line-2)', display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-          <button
+          <StudioButton
             onClick={() => step === 0 ? onClose() : setStep(step - 1)}
-            style={{ height: 32, padding: '0 14px', borderRadius: 7, border: '1px solid var(--line)', background: 'var(--panel)', color: 'var(--ink-2)', fontSize: '0.8125rem', cursor: 'pointer' }}
+            variant="secondary"
+            style={{ height: 32, padding: '0 14px', fontSize: '0.8125rem' }}
           >
             {step === 0 ? 'Cancel' : 'Back'}
-          </button>
+          </StudioButton>
           {step === 0 && (
-            <button onClick={() => setStep(1)} style={primaryBtn}>Continue →</button>
+            <StudioButton onClick={() => setStep(1)} variant="primary" style={{ height: 32, padding: '0 16px', fontSize: '0.8125rem' }}>
+              Continue →
+            </StudioButton>
           )}
           {step === 1 && (
-            <button onClick={() => void generateDraft()} disabled={generating || isLoadingDraft} style={{ ...primaryBtn, opacity: (generating || isLoadingDraft) ? 0.7 : 1 }}>
+            <StudioButton onClick={() => void generateDraft()} disabled={generating || isLoadingDraft} variant="primary" tone="info" style={{ height: 32, padding: '0 16px', fontSize: '0.8125rem', opacity: (generating || isLoadingDraft) ? 0.7 : 1 }}>
               ✦ {isLoadingDraft ? 'Analyzing…' : generating ? 'Drafting…' : 'Generate draft'}
-            </button>
+            </StudioButton>
           )}
           {saveError && step === 2 && (
             <div style={{ marginRight: 'auto', fontSize: '0.75rem', color: 'var(--warning)' }}>{saveError}</div>
           )}
           {step === 2 && draft && (
-            <button
+            <StudioButton
               onClick={() => void onSave?.(kind, draft)}
               disabled={saving}
-              style={{ ...primaryBtn, opacity: saving ? 0.7 : 1 }}
+              variant="primary"
+              tone="success"
+              style={{ height: 32, padding: '0 16px', fontSize: '0.8125rem', opacity: saving ? 0.7 : 1 }}
             >
               {saving ? 'Saving…' : '✓ Save to framework'}
-            </button>
+            </StudioButton>
           )}
         </div>
       </div>
     </div>
   );
 }
-
-const primaryBtn: React.CSSProperties = {
-  height: 32, padding: '0 16px', borderRadius: 7,
-  background: 'var(--ink)', color: 'var(--bg)',
-  fontSize: '0.8125rem', fontWeight: 500,
-  border: 'none', cursor: 'pointer',
-  display: 'inline-flex', alignItems: 'center', gap: 6,
-};

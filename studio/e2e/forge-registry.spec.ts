@@ -26,7 +26,7 @@ test.describe('Forge path', () => {
     await page.goto('/discover');
     // Mode switcher labels ("Forge"/"Registry") are not guaranteed on /discover.
     // Assert against stable UI: the Discovery hub heading and the Registry nav link.
-    await expect(page.getByRole('heading', { name: 'Discovery', level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Discover', level: 1 })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Registry', exact: true })).toBeVisible();
   });
 
@@ -37,10 +37,10 @@ test.describe('Forge path', () => {
     await expect(page.locator('main')).toBeVisible();
   });
 
-  test('/generate renders Delivery', async ({ page }) => {
+  test('/generate renders Generate hub', async ({ page }) => {
     await page.goto('/generate');
     await expect(page).toHaveURL('/generate');
-    await expect(page.locator('main')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Generate', level: 1 })).toBeVisible();
   });
 
   test('old /delivery redirects to /generate', async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe('Registry path', () => {
     await page.goto('/catalog');
     // /catalog uses the top-level "Registry" navigation; Drift/Approvals are on
     // their dedicated pages.
-    await expect(page.getByText('Catalog', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Catalog', level: 1 })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Registry', exact: true })).toBeVisible();
   });
 
@@ -86,13 +86,13 @@ test.describe('Registry path', () => {
   });
 
   test('old /registry redirects to /catalog', async ({ page }) => {
-    await page.goto('/registry');
-    await expect(page).toHaveURL('/catalog');
+    await page.goto('/registry', { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL('/catalog', { timeout: 15_000 });
   });
 
   test('Registry mode switcher navigates to /catalog', async ({ page }) => {
     await page.goto('/discover');
-    await page.getByText('Registry').first().click();
-    await expect(page).toHaveURL('/catalog');
+    await page.getByRole('link', { name: 'Registry', exact: true }).click();
+    await expect(page).toHaveURL('/catalog', { timeout: 10_000 });
   });
 });

@@ -10,7 +10,7 @@
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "waterfallChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "_CCC_Bridge"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "Step"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "_CCC_Bridge.Step",
+              "nativeQueryRef": "Step"
             }
           ]
         },
@@ -42,53 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "CCC Days"
+                  "Property": "CCC Bridge Value"
                 }
               },
-              "queryRef": "_Measures.CCC Days",
-              "nativeQueryRef": "CCC Days"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Cash Balance"
-                }
-              },
-              "queryRef": "_Measures.Cash Balance",
-              "nativeQueryRef": "Cash Balance"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Operating Cash Flow"
-                }
-              },
-              "queryRef": "_Measures.Operating Cash Flow",
-              "nativeQueryRef": "Operating Cash Flow"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Cash vs Plan %"
-                }
-              },
-              "queryRef": "_Measures.Cash vs Plan %",
-              "nativeQueryRef": "Cash vs Plan %"
+              "queryRef": "_Measures.CCC Bridge Value",
+              "nativeQueryRef": "CCC Bridge Value"
             }
           ]
         }
@@ -108,40 +66,13 @@
           }
         }
       ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
+      "labels": [
         {
           "properties": {
             "show": {
               "expr": {
                 "Literal": {
                   "Value": "true"
-                }
-              }
-            },
-            "labelPosition": {
-              "expr": {
-                "Literal": {
-                  "Value": "'OutsideEnd'"
                 }
               }
             }

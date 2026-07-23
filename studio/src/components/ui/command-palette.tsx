@@ -35,10 +35,12 @@ const KIND_ICON: Record<string, string> = {
 /** Canonical routes (see studio/next.config.ts redirects for legacy paths). */
 const NAV_ACTIONS: PaletteItem[] = [
   { kind: 'page', id: 'overview', label: 'Open Overview', href: '/overview' },
-  { kind: 'page', id: 'canvas', label: 'Open Canvas', href: '/canvas' },
+  { kind: 'page', id: 'discover', label: 'Open Discover', href: '/discover' },
+  { kind: 'page', id: 'blueprint', label: 'Open Blueprint', href: '/blueprint' },
+  { kind: 'page', id: 'generate', label: 'Open Generate', href: '/generate' },
   { kind: 'page', id: 'library', label: 'Open Library', href: '/library' },
-  { kind: 'page', id: 'delivery', label: 'Open Delivery', href: '/delivery' },
-  { kind: 'page', id: 'registry', label: 'Open Registry Health', href: '/registry/health' },
+  { kind: 'page', id: 'canvas', label: 'Open Canvas', href: '/canvas' },
+  { kind: 'page', id: 'catalog', label: 'Open Catalog (Registry)', href: '/catalog' },
   { kind: 'page', id: 'templates', label: 'Open Report Templates', href: '/templates' },
 ];
 

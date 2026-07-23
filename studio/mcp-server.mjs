@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * ActionReady Studio MCP Server — Entry Point
+ * ALUCA Studio MCP Server — Entry Point
  *
  * Usage:
  *   npx tsx mcp-server.mjs
@@ -10,7 +10,7 @@
  * Add to your MCP client config:
  *   {
  *     "mcpServers": {
- *       "actionready": {
+ *       "aluca-studio": {
  *         "command": "npx",
  *         "args": ["tsx", "studio/mcp-server.mjs"],
  *         "cwd": "/path/to/analytics-usecase-library"

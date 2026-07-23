@@ -9,6 +9,7 @@ import { loadContract } from '@/lib/core/contract-loader';
 import { loadFactsheet, loadFactsheetMarkdown } from '@/lib/core/factsheet-loader';
 import { DetailClient } from '@/components/detail/DetailClient';
 import { UseCaseDetailClient } from '@/components/detail/UseCaseDetailClient';
+import { DetailEntityStub } from '@/components/detail/DetailEntityStub';
 
 interface DetailPageProps {
   params: Promise<{ type: string; id: string }>;
@@ -77,11 +78,14 @@ export default async function DetailPage({ params }: DetailPageProps) {
     const action = await loadActionCode(id);
     if (!action) notFound();
     return (
-      <div className="space-y-2">
-        <h1 className="text-2xl font-medium text-foreground">{action.name}</h1>
-        <p className="text-foreground-muted text-sm font-mono">{action.id}</p>
-        <p className="text-foreground-muted text-sm">Full action playbook editor — Epic 3+.</p>
-      </div>
+      <DetailEntityStub
+        eyebrow="Registry / Action Code"
+        title={action.name}
+        subtitle={action.id}
+        description="Full action playbook editor — Epic 3+. Open related KPIs from the Catalog in the meantime."
+        backHref="/library?tab=actions"
+        backLabel="Back to library"
+      />
     );
   }
 
@@ -89,11 +93,14 @@ export default async function DetailPage({ params }: DetailPageProps) {
     const contract = await loadContract(id);
     if (!contract) notFound();
     return (
-      <div className="space-y-2">
-        <h1 className="text-2xl font-medium text-foreground">{contract.domain}</h1>
-        <p className="text-foreground-muted text-sm">Owner: {contract.owner}</p>
-        <p className="text-foreground-muted text-sm">Contract YAML editor — Epic 3+.</p>
-      </div>
+      <DetailEntityStub
+        eyebrow="Registry / Data Contract"
+        title={contract.domain}
+        subtitle={contract.domain}
+        description={`Owner: ${contract.owner}. Contract YAML editor — Epic 3+.`}
+        backHref="/library?tab=sources"
+        backLabel="Back to library"
+      />
     );
   }
 

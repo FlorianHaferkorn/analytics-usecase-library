@@ -2,7 +2,7 @@
   "id": "example-calculator",
   "name": "Example Calculator",
   "version": "1.0.0",
-  "author": "ActionReady Team",
+  "author": "ALUCA Team",
   "type": "tool",
   "description": "Demonstrates the plugin SDK with a custom KPI percentage calculator",
   "entrypoint": "index.ts",
