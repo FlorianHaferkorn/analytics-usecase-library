@@ -1,8 +1,11 @@
+import { cache } from 'react';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadAllBrackets } from '@/lib/core/bracket-loader';
 import { loadKpiCatalog } from '@/lib/core/catalog-loader';
 import { GOLDEN_20_IDS, GOLDEN_20_IDS_SET } from '@/lib/core/golden20';
+import { getAuroraKpiValue } from '@/lib/aurora/kpi-snapshot';
 import { getAuditEvents, type AuditEvent } from '@/lib/db/audit-repo';
+import { domainRoot } from '@/lib/studio/domain-filter';
 import { runDriftScan, type DriftIssue } from '@/lib/validation/drift-scanner';
 import type { ActivityItem } from '@/components/ui/framework-overview';
 
@@ -63,7 +66,7 @@ export interface OverviewBundle {
     orphanActions: number;
   };
   domains: Array<{ name: string; count: number }>;
-  topKpis: Array<{ id: string; name: string; ref: string; unit: string; domain: string; completeness: number }>;
+  topKpis: Array<{ id: string; name: string; ref: string; unit: string; domain: string; completeness: number; auroraValue?: string; auroraLabel?: string }>;
   activity: ActivityItem[];
   auditSparkline: number[];
   drift: {
@@ -73,7 +76,7 @@ export interface OverviewBundle {
   };
 }
 
-export async function buildOverviewBundle(): Promise<OverviewBundle> {
+export const buildOverviewBundle = cache(async function buildOverviewBundle(): Promise<OverviewBundle> {
   const [kpis, brackets, actions, driftReport, auditEvents] = await Promise.all([
     loadKpiCatalog().catch(() => []),
     loadAllBrackets().catch(() => []),
@@ -96,12 +99,13 @@ export async function buildOverviewBundle(): Promise<OverviewBundle> {
   const orphanActions = actions.filter((a) => !referencedActions.has(a.id)).length;
 
   const domainMap = new Map<string, number>();
-  for (const k of kpis) {
-    const d = k.domain_tag?.[0] ?? 'other';
-    domainMap.set(d, (domainMap.get(d) ?? 0) + 1);
+  for (const bracket of brackets) {
+    const label = domainRoot(bracket.domain);
+    if (!label) continue;
+    domainMap.set(label, (domainMap.get(label) ?? 0) + 1);
   }
-  const domains = Array.from(domainMap)
-    .sort((a, b) => b[1] - a[1])
+  const domains = [...domainMap.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, 8)
     .map(([name, count]) => ({ name, count }));
 
@@ -116,14 +120,22 @@ export async function buildOverviewBundle(): Promise<OverviewBundle> {
   const topKpis = kpis
     .filter((k) => GOLDEN_20_IDS_SET.has(k.kpi_id))
     .slice(0, 4)
-    .map((k) => ({
-      id: k.kpi_id,
-      name: k.kpi_key,
-      ref: k.kpi_id,
-      unit: k.business?.unit_format ?? '',
-      domain: k.domain_tag?.[0] ?? '',
-      completeness: Math.round((k.metadata_quality?.completeness_score ?? 0) * 100),
-    }));
+    .map((k) => {
+      const aurora = getAuroraKpiValue(k.kpi_id);
+      const auroraValue = aurora
+        ? `${aurora.value.toLocaleString('de-DE', { maximumFractionDigits: 1 })} ${aurora.unit}`.trim()
+        : undefined;
+      return {
+        id: k.kpi_id,
+        name: k.kpi_key,
+        ref: k.kpi_id,
+        unit: k.business?.unit_format ?? '',
+        domain: k.domain_tag?.[0] ?? '',
+        completeness: Math.round((k.metadata_quality?.completeness_score ?? 0) * 100),
+        auroraValue,
+        auroraLabel: aurora ? 'Aurora showcase' : undefined,
+      };
+    });
 
   const activity = auditToActivity(auditEvents);
   const auditSparkline = auditDailyCounts(auditEvents);
@@ -160,4 +172,4 @@ export async function buildOverviewBundle(): Promise<OverviewBundle> {
       topIssues,
     },
   };
-}
+});

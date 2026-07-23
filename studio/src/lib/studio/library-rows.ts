@@ -3,6 +3,7 @@ import type { ActionCodeDefinitionV20AIMirror } from '@/lib/schemas';
 import type { DataContract } from '@/lib/schemas';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import { detailPath } from '@/lib/studio/entity-ia';
+import { matchesDomainFilter } from '@/lib/studio/domain-filter';
 
 export interface LibraryRow {
   id: string;
@@ -77,7 +78,7 @@ export function useCaseRows(brackets: UseCaseBracketV20Lean[]): LibraryRow[] {
 export function filterLibraryRows(rows: LibraryRow[], query: string, domain?: string | null): LibraryRow[] {
   const q = query.trim().toLowerCase();
   return rows.filter((r) => {
-    if (domain && r.domain && r.domain !== domain) return false;
+    if (domain && !matchesDomainFilter(r.domain, domain)) return false;
     if (!q) return true;
     return (
       r.id.toLowerCase().includes(q) ||

@@ -1,8 +1,10 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { CatalogKpi } from '@/lib/core/catalog-loader';
+import { useRouter } from 'next/navigation';
+import type { CatalogKpi } from '@/lib/core/catalog-types';
 import { useMemo } from 'react';
+import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
+import { matchesDomainTags } from '@/lib/studio/domain-filter';
 
 interface MetricsTableProps {
   metrics: CatalogKpi[];
@@ -11,8 +13,7 @@ interface MetricsTableProps {
 
 export function MetricsTable({ metrics, searchQuery }: MetricsTableProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const activeDomain = searchParams.get('domain');
+  const { domainFilter } = useDomainFilter();
 
   const filtered = useMemo(() => {
     return metrics.filter((m) => {
@@ -28,16 +29,13 @@ export function MetricsTable({ metrics, searchQuery }: MetricsTableProps) {
       }
 
       // Domain filter
-      if (
-        activeDomain &&
-        (!m.domain_tag || !m.domain_tag.includes(activeDomain))
-      ) {
+      if (domainFilter && !matchesDomainTags(m.domain_tag, domainFilter)) {
         return false;
       }
 
       return true;
     });
-  }, [metrics, searchQuery, activeDomain]);
+  }, [metrics, searchQuery, domainFilter]);
 
   const handleRowClick = (kpiId: string) => {
     router.push(`/detail/kpi/${kpiId}`);
@@ -113,7 +111,7 @@ export function MetricsTable({ metrics, searchQuery }: MetricsTableProps) {
               </td>
               <td className="px-6 py-3.5 text-foreground-muted">
                 {metric.metadata_quality?.last_review
-                  ? new Date(metric.metadata_quality.last_review).toLocaleDateString()
+                  ? new Date(metric.metadata_quality.last_review).toLocaleDateString('en-CA')
                   : '—'}
               </td>
             </tr>

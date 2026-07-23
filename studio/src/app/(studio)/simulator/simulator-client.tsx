@@ -6,9 +6,12 @@ import { runScenario } from '@/lib/simulation/scenario-engine';
 import { ScenarioPanel } from '@/components/simulator/scenario-panel';
 import { ImpactChart } from '@/components/simulator/impact-chart';
 import { StudioSelect } from '@/components/ui/studio-data';
-import { StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioToolbar } from '@/components/ui/studio-page';
+import { StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioToolbar, StudioWorkflowFooter } from '@/components/ui/studio-page';
 import { SpineContextCard } from '@/components/compose/spine-context-card';
 import { AiField } from '@/components/ai/ai-field';
+import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
+import { filterByDomain } from '@/lib/studio/domain-filter';
+import type { AuroraKpiValue } from '@/lib/aurora/kpi-snapshot';
 import type { DecisionSpine } from '@/lib/schemas/decision-spine';
 
 interface BracketSummary {
@@ -26,33 +29,34 @@ interface BracketSummary {
 interface Props {
   brackets: BracketSummary[];
   spines: DecisionSpine[];
+  auroraKpis?: Record<string, AuroraKpiValue> | null;
+  auroraLinked?: boolean;
 }
 
-/** Generate synthetic base values for KPI IDs based on naming conventions. */
-function generateBaseValue(kpiId: string): number {
-  if (kpiId.includes('.pct')) return 40 + Math.random() * 40;
-  if (kpiId.includes('.days')) return 20 + Math.random() * 30;
-  if (kpiId.includes('.amount')) return 1000 + Math.random() * 5000;
-  if (kpiId.includes('.count')) return 50 + Math.random() * 200;
-  if (kpiId.includes('.hours')) return 100 + Math.random() * 500;
-  if (kpiId.includes('.units')) return 500 + Math.random() * 2000;
-  if (kpiId.includes('.index')) return 50 + Math.random() * 50;
-  if (kpiId.includes('.minutes')) return 5 + Math.random() * 20;
-  return 100 + Math.random() * 100;
+/** Seeded baseline — Aurora snapshot first, then KPI-id heuristics. */
+function seedBaseValue(kpiId: string, auroraKpis?: Record<string, AuroraKpiValue> | null): number {
+  const aurora = auroraKpis?.[kpiId];
+  if (aurora) return aurora.value;
+
+  const seed = kpiId.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const pseudo = ((seed * 9301 + 49297) % 233280) / 233280;
+  if (kpiId.includes('.pct')) return 30 + pseudo * 50;
+  if (kpiId.includes('.days')) return 20 + pseudo * 30;
+  if (kpiId.includes('.amount')) return 1000 + pseudo * 5000;
+  return 50 + pseudo * 100;
 }
+
+import { formatKpiValue } from '@/lib/format/kpi-value';
 
 function getUnit(kpiId: string): string {
   if (kpiId.includes('.pct')) return '%';
   if (kpiId.includes('.days')) return 'd';
-  if (kpiId.includes('.amount')) return '€K';
+  if (kpiId.includes('.amount')) return '€';
   if (kpiId.includes('.hours')) return 'h';
   if (kpiId.includes('.minutes')) return 'min';
   if (kpiId.includes('.units') || kpiId.includes('.count')) return '';
   return '';
 }
-
-// Suppress unused lint warning — generateBaseValue is kept for reference
-void generateBaseValue;
 
 /** Dispatch studio:open-chat event with a pre-filled context message. */
 function openChatWithContext(message: string) {
@@ -63,12 +67,23 @@ function openChatWithContext(message: string) {
   }
 }
 
-export function SimulatorClient({ brackets, spines }: Props) {
-  const [selectedId, setSelectedId] = useState(brackets[0]?.id ?? '');
+export function SimulatorClient({ brackets, spines, auroraKpis = null, auroraLinked = false }: Props) {
+  const { domainFilter } = useDomainFilter();
+  const visibleBrackets = useMemo(
+    () => filterByDomain(brackets, domainFilter, (b) => b.domain),
+    [brackets, domainFilter],
+  );
+  const [selectedId, setSelectedId] = useState(visibleBrackets[0]?.id ?? '');
   const [overrides, setOverrides] = useState<Map<string, number>>(new Map());
   const [impactLogic, setImpactLogic] = useState('');
 
-  const bracket = brackets.find((b) => b.id === selectedId);
+  useEffect(() => {
+    if (!visibleBrackets.some((b) => b.id === selectedId)) {
+      setSelectedId(visibleBrackets[0]?.id ?? '');
+    }
+  }, [visibleBrackets, selectedId]);
+
+  const bracket = visibleBrackets.find((b) => b.id === selectedId);
 
   // Reset impactLogic when selected bracket changes
   useEffect(() => {
@@ -85,16 +100,10 @@ export function SimulatorClient({ brackets, spines }: Props) {
       ? [parsed.target, ...parsed.terms.map((t) => t.kpiId)]
       : [parsed.target, ...parsed.drivers];
     for (const id of allIds) {
-      // Seed pseudo-random from KPI ID for consistency
-      const seed = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-      const pseudo = ((seed * 9301 + 49297) % 233280) / 233280;
-      if (id.includes('.pct')) map.set(id, 30 + pseudo * 50);
-      else if (id.includes('.days')) map.set(id, 20 + pseudo * 30);
-      else if (id.includes('.amount')) map.set(id, 1000 + pseudo * 5000);
-      else map.set(id, 50 + pseudo * 100);
+      map.set(id, seedBaseValue(id, auroraKpis));
     }
     return map;
-  }, [parsed]);
+  }, [parsed, auroraKpis]);
 
   const result = useMemo(() => {
     if (!parsed || !bracket) return null;
@@ -147,15 +156,15 @@ export function SimulatorClient({ brackets, spines }: Props) {
   return (
     <StudioPage>
       <StudioPageHeader
-        eyebrow="Studio / What-if"
-        title="Simulator"
-        description="Run controlled what-if scenarios against bracket formulas to understand driver sensitivity before real data pipelines are wired in."
-        badge={selectedId || 'No selection'}
-        tone="warning"
+        eyebrow="Forge / Compose"
+        title="What-if Simulator"
+        description="Run controlled what-if scenarios against bracket formulas. Baselines prefer Aurora Showcase snapshot values when linked."
+        badge={auroraLinked ? 'Aurora Showcase' : selectedId || 'No selection'}
+        tone={auroraLinked ? 'info' : 'warning'}
       />
 
       <StudioMetricBar>
-        <StudioMetric label="Brackets" value={brackets.length} meta="available for simulation" tone="info" />
+        <StudioMetric label="Brackets" value={visibleBrackets.length} meta="available for simulation" tone="info" />
         <StudioMetric label="Drivers" value={drivers.length} meta="for current scenario" />
         <StudioMetric label="Overrides" value={overriddenDrivers} meta={overriddenDrivers > 0 ? 'manual deviations active' : 'using seeded baseline'} tone={overriddenDrivers > 0 ? 'warning' : 'success'} />
         <StudioMetric label="Target" value={bracket?.strategicKpiId ?? 'n/a'} meta={bracket ? bracket.impactDirection : 'select a bracket'} tone="success" />
@@ -167,18 +176,22 @@ export function SimulatorClient({ brackets, spines }: Props) {
       )}
 
       {/* Illustrative data banner */}
-      <StudioPanel tone="warning" title="Illustrative Simulation" description="This view operates on synthetic seeded values, not live production data.">
+      <StudioPanel tone={auroraLinked ? 'info' : 'warning'} title={auroraLinked ? 'Aurora Showcase Simulation' : 'Illustrative Simulation'} description={auroraLinked ? 'Driver baselines come from the Aurora gold KPI snapshot — showcase data, not production SSOT.' : 'This view operates on synthetic seeded values, not live production data.'}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>No live data</span>
+          <span style={{ fontSize: '0.5625rem', color: 'var(--ink-4)' }}>{auroraLinked ? 'Aurora Showcase linked' : 'No live data'}</span>
         </div>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: '4px' }}>
-          This simulation runs a <strong style={{ color: 'var(--ink)' }}>sensitivity analysis</strong>: how does the strategic KPI change when driver KPIs vary? Baseline values are synthesised from KPI-ID conventions
-          (e.&nbsp;g. <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.pct</code> → 30&ndash;80&thinsp;%,&nbsp;
-          <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.days</code> → 20&ndash;50).
-        </p>
-        <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>
-          For production scenarios: connect a real data pipeline and store baseline values in the use-case bracket.
-        </p>
+        {!auroraLinked && (
+          <>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: '4px' }}>
+              This simulation runs a <strong style={{ color: 'var(--ink)' }}>sensitivity analysis</strong>: how does the strategic KPI change when driver KPIs vary? Baseline values are synthesised from KPI-ID conventions
+              (e.&nbsp;g. <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.pct</code> → 30&ndash;80&thinsp;%,&nbsp;
+              <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.days</code> → 20&ndash;50).
+            </p>
+            <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>
+              For production scenarios: connect a real data pipeline and store baseline values in the use-case bracket.
+            </p>
+          </>
+        )}
       </StudioPanel>
 
       {/* Header */}
@@ -192,7 +205,7 @@ export function SimulatorClient({ brackets, spines }: Props) {
               minWidth: '280px',
             }}
           >
-            {brackets.map((b) => (
+            {visibleBrackets.map((b) => (
               <option key={b.id} value={b.id}>{b.id} — {b.title}</option>
             ))}
           </StudioSelect>
@@ -229,8 +242,7 @@ export function SimulatorClient({ brackets, spines }: Props) {
           <div>
             <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>Strategic KPI</p>
             <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--ink)' }}>
-              {result.adjustedValue.toFixed(1)}
-              <span style={{ fontSize: '0.875rem', color: 'var(--ink-3)' }}> {getUnit(result.target)}</span>
+              {formatKpiValue(result.adjustedValue, result.target)}
             </p>
           </div>
           <div>
@@ -304,6 +316,8 @@ export function SimulatorClient({ brackets, spines }: Props) {
           </code>
         </StudioPanel>
       )}
+
+      <StudioWorkflowFooter label="Continue to Generate" href="/generate" />
     </StudioPage>
   );
 }

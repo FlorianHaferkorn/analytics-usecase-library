@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { CustomCanvas } from '@/components/canvas/custom-canvas';
 import { GoldenThreadFlow, type GoldenThreadData } from '@/components/flow/golden-thread-flow';
 import type { LineageGraph } from '@/lib/core/lineage-builder';
+import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
+import { matchesDomainFilter } from '@/lib/studio/domain-filter';
 import {
   detailHrefForCanvasNode,
   lineageGraphToCanvas,
@@ -24,14 +26,14 @@ export function CanvasView({ lineage, goldenThread }: CanvasViewProps) {
   const [mode, setMode] = useState<CanvasMode>(
     searchParams.get('view') === 'golden-thread' ? 'golden-thread' : 'lineage',
   );
-  const [domainFilter, setDomainFilter] = useState<string | null>(searchParams.get('domain'));
+  const { domainFilter, setDomainFilter } = useDomainFilter();
   const [goldenOnly, setGoldenOnly] = useState(searchParams.get('golden') === '1');
 
   const filteredLineage = useMemo(() => {
     let nodes = lineage.nodes;
     let edges = lineage.edges;
     if (domainFilter) {
-      const ids = new Set(nodes.filter((n) => n.domain === domainFilter).map((n) => n.id));
+      const ids = new Set(nodes.filter((n) => matchesDomainFilter(n.domain, domainFilter)).map((n) => n.id));
       nodes = nodes.filter((n) => ids.has(n.id));
       edges = edges.filter((e) => ids.has(e.source) && ids.has(e.target));
     }

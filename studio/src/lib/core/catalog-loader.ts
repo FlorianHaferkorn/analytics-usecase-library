@@ -5,9 +5,14 @@
  * and returns typed KPI definition objects. Server-side only (fs access).
  */
 
+import 'server-only';
+
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse, stringify } from 'yaml';
+import type { CatalogKpi } from './catalog-types';
+
+export type { CatalogKpi } from './catalog-types';
 
 const KPI_CATALOG_PATH = join(
   process.cwd(),
@@ -16,47 +21,6 @@ const KPI_CATALOG_PATH = join(
   'kpi_catalog',
   'KPI_Catalog.md'
 );
-
-/** Minimal KPI shape extracted from the catalog's embedded YAML. */
-export interface CatalogKpi {
-  kpi_id: string;
-  kpi_key: string;
-  kpi_type: string;
-  kpi_role: string;
-  impact_dimension: string;
-  domain_tag: string[];
-  use_case_ref: string[];
-  action_code_ref: string[];
-  calc_type: string;
-  business: {
-    purpose: string;
-    definition: string;
-    grain_scope: string;
-    unit_format: string;
-    interpretation: string;
-  };
-  technical: {
-    dax_name: string;
-    formatString: string;
-    description: string;
-    dax_expression: string;
-    depends_on_measures: string[];
-    lineage: string[];
-  };
-  governance: {
-    business_owner: string;
-    data_owner: string;
-    steward: string;
-    review_cycle: string;
-    validation_process: string;
-    qa_rules: string[];
-    version: string;
-  };
-  metadata_quality: {
-    completeness_score: number;
-    last_review: string;
-  };
-}
 
 /**
  * Extract the YAML block from the KPI Catalog markdown.

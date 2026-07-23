@@ -54,10 +54,10 @@ export const FORGE_NAV: readonly NavItem[] = [
     color: 'var(--gold)',
   },
   {
-    href: '/brand',
-    label: 'Brand & UX Lab',
-    description: 'Define themes, layouts, and preview 3-30-300 report pages',
-    icon: 'U',
+    href: '/templates',
+    label: 'Brand & Templates',
+    description: 'Themes, T1–T4 page layouts, and export previews',
+    icon: 'T',
     sidebarIcon: 'paint-brush',
     color: 'var(--gold)',
   },
@@ -68,6 +68,26 @@ export const FORGE_NAV: readonly NavItem[] = [
     icon: 'P',
     sidebarIcon: 'puzzle-piece',
     color: 'var(--slate-400)',
+  },
+] as const;
+
+/** Tools — browse and graph surfaces (Forge context). */
+export const FORGE_TOOLS_NAV: readonly NavItem[] = [
+  {
+    href: '/library',
+    label: 'Library',
+    description: 'Browse metrics, dimensions, sources, actions, and use cases',
+    icon: 'L',
+    sidebarIcon: 'clipboard-text',
+    color: 'var(--ink-3)',
+  },
+  {
+    href: '/canvas',
+    label: 'Canvas',
+    description: 'Lineage and Golden Thread exploration graph',
+    icon: 'C',
+    sidebarIcon: 'tree-structure',
+    color: 'var(--ink-3)',
   },
 ] as const;
 
@@ -124,7 +144,7 @@ export const REGISTRY_NAV: readonly NavItem[] = [
 ] as const;
 
 /** Combined list used by legacy code — new code should prefer FORGE_NAV / REGISTRY_NAV. */
-export const NAV_ITEMS: readonly NavItem[] = [...FORGE_NAV, ...REGISTRY_NAV] as const;
+export const NAV_ITEMS: readonly NavItem[] = [...FORGE_NAV, ...FORGE_TOOLS_NAV, ...REGISTRY_NAV] as const;
 
 /** Detect navigation mode from current pathname. */
 export function getNavMode(pathname: string): NavMode {

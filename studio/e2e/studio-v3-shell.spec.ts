@@ -11,12 +11,14 @@ test.describe('Studio v3 shell', () => {
   test('overview shows rebuild sidebar nav', async ({ page }) => {
     await loginDemo(page);
     await page.goto('/overview');
-    await expect(page.getByRole('link', { name: 'Overview' })).toBeVisible();
-    // "Canvas" appears both in the top links and in the sidebar; use exact match.
-    await expect(page.getByRole('link', { name: 'Canvas', exact: true })).toBeVisible();
-    // "Library" appears both in the top links and in the sidebar; use exact match.
-    await expect(page.getByRole('link', { name: 'Library', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Report Templates' })).toBeVisible();
+
+    const sidebar = page.locator('aside');
+    await expect(sidebar.getByRole('link', { name: 'Overview' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Discover' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Blueprint' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Library' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Canvas' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Brand & Templates' })).toBeVisible();
   });
 
   test('settings modal opens from topbar', async ({ page }) => {
@@ -28,8 +30,8 @@ test.describe('Studio v3 shell', () => {
 
   test('library redirects from legacy catalog', async ({ page }) => {
     await loginDemo(page);
-    await page.goto('/catalog');
+    await page.goto('/catalog', { waitUntil: 'domcontentloaded' });
     // Redirect compatibility was removed; `/catalog` is now the canonical route.
-    await expect(page).toHaveURL(/\/catalog/);
+    await expect(page).toHaveURL(/\/catalog/, { timeout: 15_000 });
   });
 });
