@@ -1,5 +1,5 @@
 ---
-last-reviewed: 2026-07-10
+last-reviewed: 2026-07-18
 shelf-life-days: 90
 ---
 # Superversion — Bereichs-Index (_INDEX)
@@ -24,6 +24,10 @@ shelf-life-days: 90
 | Den Ziel-Vertrag verstehen (Felder, Parität) | `canonical_contract.py` (Seam) → `_canonical_mirror.py` (Standalone-Mirror) | Adapter-Logik |
 | Meridian-Einzug / Vendoring verstehen (ADR-0005) | `canonical_contract.py` → `_meridian_vendor.py` → `vendor/meridian/PIN.json` | Mirror-Felder |
 | Pin-Drift prüfen (meldet, bumpt nie) | Repo-Root: `scripts/check_superversion_pins.py` (+ `tests/test_pin_sensor.py`) | Adapter-Logik |
+| Contract-Mirror-Drift ggü. Meridian prüfen (ADR-0051 / I-20 Tier-3 #8) | Repo-Root: `scripts/check_dataarch_mirror.py` (vergleicht architecture_concepts/governance_concepts/odcs gegen Meridians Originale, wenn `$MERIDIAN_ROOT`/`../Freelancing` erreichbar; meldet Drift, bumpt nie; Soft-Skip offline) (+ `../tests/test_dataarch_mirror_sensor.py`) | Adapter-Logik |
+| Architektur-Konzept-Strategie wählen/registrieren (ADR-0051 / I-20.1) | `architecture_concepts.py` (`ArchitectureConcept`-Protocol + `MedallionConcept`-Default + Registry `get_concept`/`available_concepts`; der Deriver ruft `get_concept(inputs['architecture_concept']).derive_layers(...)`, Default byte-identisch) → `../tests/test_architecture_concepts.py` | Emitter |
+| Data-Gov-Konzept-Strategie wählen/mischen (ADR-0051 / I-20.2) | `governance_concepts.py` (`GovernanceConcept`-Registry: odcs-contract-first Default · purview-data-product · glossary-first · dq-first; `resolve_governance(inputs)` mischt eine Liste, Mixed-Standards-⚠) → `../tests/test_governance_concepts.py` | Emitter |
+| IR↔ODCS-Contract mappen (Official-First, ADR-0051 / I-20.3) | `odcs.py` (`to_odcs`/`emit_odcs`/`from_odcs`/`import_sql_table`/`validate_odcs`; ODCS v3.0.0, ein Contract je Domain, Gold-Round-Trip byte-stabil) → `../tests/test_odcs.py` | Emitter |
 | Stack-Target emittieren / neuen Adapter registrieren (ADR-0006) | `targets/base.py` (`emit(canonical)→{Pfad:Inhalt}`, Registry, `render`) → `tests/test_targets.py` | Source-Adapter |
 | TMDL-Semantic-Model emittieren (I-3.2) | `targets/tmdl.py` (Dialekt→DAX hier; TMDL-Hardrules) → `tests/test_tmdl_target.py` | restliche Targets |
 | KPI-Formel→DAX synthetisieren, HITL-Gaps zählen (I-10.0, Rechenfähigkeit) | `../generator/schemas/kpi_definition.schema.json` (Feld `calculation` im `$defs`-Block, governte DSL im Katalog) → `from_aluca.py` `_resolve_calculation` (löst auf, füllt `expressions['dsl']`, NIE DAX) → `targets/dax_synth.py` (`synthesize_dax`, reine DSL→DAX-Synthese) → `targets/tmdl.py` `hitl_gaps()` (zählt jede `BLANK()`-Lücke, nie still) → `tests/test_calculation_coverage.py` (BLANK()-Quote=0-Assertion) + `tests/test_dax_synth.py` + `tests/test_dax_parity_legacy.py` (Paritätstest ggü. Legacy-Output unter `../../products/fabric/powerbi/dist/`) | restliche Targets |
@@ -57,7 +61,10 @@ shelf-life-days: 90
 | `_INDEX.md` | dieser Bereichs-Index | Erstkontakt |
 
 *(Code-Dateien `from_aluca.py`, `canonical_contract.py` (Seam), `_canonical_mirror.py`
-(Standalone-Mirror), `_meridian_vendor.py` (Vendor-Loader), `__init__.py`,
+(Standalone-Mirror), `_meridian_vendor.py` (Vendor-Loader), `architecture_concepts.py`
++ `governance_concepts.py` + `odcs.py` (Meridian-Contract-Surface-Mirror, ADR-0051 / I-20.1–.3;
++ `../tests/test_architecture_concepts.py`, `../tests/test_governance_concepts.py`, `../tests/test_odcs.py`),
+`__init__.py`,
 `tests/test_from_aluca.py`, `targets/base.py` + `targets/tmdl.py` + `targets/pbir.py` + `targets/osi.py` +
 `targets/databricks.py` (+ `targets/schemas/osi-schema.json` (offizielles OSI-Schema,
 vendored), `targets/schemas/databricks_metricview.schema.json` (docs-abgeleitet),
