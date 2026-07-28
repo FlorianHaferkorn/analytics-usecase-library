@@ -1,0 +1,691 @@
+"""decision_proposals — for every open point, a pre-thought proposal instead of a bare TODO.
+
+The Baukasten is honest about what it cannot derive (RLS predicates, sensitive columns, retention
+periods, …). Naming a gap is necessary but not sufficient: the workshop should be a **confirm/adjust**
+exercise, not a derive-from-scratch one. So for each open decision this module derives a *concrete
+proposal* from what we DO know — the governed catalog's columns, the declared relationships, the domain
+structure — plus the rationale, the alternatives and who decides.
+
+Convention (Tool-Reuse): follows ``handover_recommend`` — a pure ``propose_*`` function returning a
+recommendation record, plus a ``*_markdown`` renderer producing the auditable deliverable (the WHY, not
+just the WHAT). Existing recommenders are **called**, not re-implemented: capacity sizing comes from
+``capacity_recommend``, the tenant-setting list from ``admin_settings``.
+
+Honesty rule (unchanged): a proposal is never presented as a fact. Every record carries a
+``confidence`` and is rendered as "Vorschlag — zu bestätigen". Where the evidence is too thin to
+propose anything, the record says so instead of inventing one.
+
+Deterministic; emits only, never executes.
+"""
+from __future__ import annotations
+
+import json
+import re
+from typing import Any
+
+# --- column-name evidence (lowercase substring → weight). Higher weight = stronger candidate. -------
+# Org-scoping columns: the natural axis for row-level security in a corporate model.
+_SCOPE_HINTS = {
+    "company_code": 10, "bukrs": 10, "gesellschaft": 10, "legal_entity": 10,
+    "business_unit": 9, "division": 9, "bereich": 9, "segment": 8,
+    "region": 8, "country": 8, "land": 7, "zone": 7,
+    "department": 7, "abteilung": 7, "cost_center": 7, "kostenstelle": 7,
+    "plant": 6, "werk": 6, "site": 6, "standort": 6, "branch": 6,
+    "org": 5, "mandant": 5, "tenant": 5, "project": 4, "projekt": 4,
+}
+# Columns that usually must not be shown to everyone.
+_SENSITIVE_HINTS = {
+    # personal data (DSGVO)
+    "email": "personenbezogen", "e_mail": "personenbezogen", "mail": "personenbezogen",
+    "phone": "personenbezogen", "telefon": "personenbezogen", "mobile": "personenbezogen",
+    "address": "personenbezogen", "adresse": "personenbezogen", "street": "personenbezogen",
+    "birth": "personenbezogen", "geburt": "personenbezogen", "iban": "personenbezogen",
+    "ssn": "personenbezogen", "sozialversicherung": "personenbezogen",
+    "employee_name": "personenbezogen", "mitarbeiter": "personenbezogen",
+    "user_principal": "personenbezogen", "upn": "personenbezogen",
+    "salary": "personenbezogen", "gehalt": "personenbezogen", "lohn": "personenbezogen",
+    # commercially sensitive
+    "margin": "wirtschaftlich sensibel", "marge": "wirtschaftlich sensibel",
+    "cost_price": "wirtschaftlich sensibel", "ek_preis": "wirtschaftlich sensibel",
+    "einkaufspreis": "wirtschaftlich sensibel", "deckungsbeitrag": "wirtschaftlich sensibel",
+    "profit": "wirtschaftlich sensibel", "discount": "wirtschaftlich sensibel",
+    "rabatt": "wirtschaftlich sensibel", "kondition": "wirtschaftlich sensibel",
+}
+# Change-tracking columns: the natural watermark for an incremental load.
+_WATERMARK_HINTS = {
+    "changed_on": 10, "last_modified": 10, "modified_at": 10, "updated_at": 10, "geaendert_am": 10,
+    "aedat": 9, "laeda": 9, "erdat": 7,                     # SAP change/create dates
+    "load_ts": 8, "loaded_at": 8, "ingested_at": 8, "_ts": 6,
+    "modified": 6, "updated": 6, "changed": 6,
+}
+
+
+# Where a candidate column SITS decides how much its name is worth. A `country` on dim_supplier is a
+# subject attribute (the supplier's home country), not an axis that governs who may see which rows —
+# keying RLS on it sends the workshop down a wrong path. Placement therefore weights the name score.
+_ORG_DIMS = ("division", "department", "company", "organisation", "organization", "org_",
+             "region", "zone", "plant", "werk", "site", "standort", "branch", "cost_center",
+             "kostenstelle", "legal_entity", "business_unit", "bereich", "gesellschaft")
+_ENTITY_DIMS = ("supplier", "vendor", "lieferant", "customer", "kunde", "material", "product",
+                "produkt", "artikel", "article", "item", "machine", "maschine", "asset",
+                "equipment", "partner", "account", "contract", "vertrag")
+_PLACEMENT_WEIGHT = {"fact": 1.0, "org_dim": 1.0, "other_dim": 0.7, "entity_dim": 0.25}
+
+_NONWORD_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _cols(gc: dict) -> list[tuple[str, str]]:
+    """All ``(table, column)`` pairs in the governed catalog."""
+    return [(t["name"], c) for t in gc.get("tables", []) for c in (t.get("columns") or [])]
+
+
+def _placement(gc: dict, table: str) -> str:
+    """Classify where a column sits: on a fact, on an org dimension, on an entity dimension, else other."""
+    t = next((x for x in gc.get("tables", []) if x.get("name") == table), None)
+    if t is None:
+        return "other_dim"
+    if t.get("kind") == "fact" or t.get("measure_columns"):
+        return "fact"
+    n = (table or "").lower()
+    if any(h in n for h in _ORG_DIMS):
+        return "org_dim"
+    if any(h in n for h in _ENTITY_DIMS):
+        return "entity_dim"
+    return "other_dim"
+
+
+def _domain_catalog(gc: dict, domain: dict) -> dict:
+    """The slice of the governed catalog owned by one domain — a customer has many use cases, and
+    RLS/CLS/incremental are decided per domain, not once for the whole tenant.
+
+    Domains are not islands: a join that LEAVES the domain (its fact referencing a dimension another
+    domain owns) is kept, because the consuming domain must know about it — dropping it would hide a
+    real dependency from that domain's silver contract."""
+    products = set(domain.get("data_products") or [])
+    if not products:
+        return gc
+    tables = [t for t in gc.get("tables", []) if t.get("name") in products]
+    names = {t["name"] for t in tables}
+    return {
+        "tables": tables,
+        "measures": [m for m in gc.get("measures", [])
+                     if any(str(l).split(".", 1)[0] in names for l in (m.get("lineage") or []))],
+        # the owning (from) side decides: outgoing cross-domain joins stay visible to the consumer
+        "relationships": [r for r in gc.get("relationships", []) if r.get("from_table") in names],
+    }
+
+
+# --- cross-domain: data is shared, consumed and authorised ACROSS domains ---------------------------
+
+def _owner_index(bp: dict) -> dict[str, str]:
+    """table → the domain that owns it (first domain listing it as a data product)."""
+    owner: dict[str, str] = {}
+    for d in sorted(bp.get("mesh", {}).get("domains", []), key=lambda x: x.get("name", "")):
+        for p in d.get("data_products") or []:
+            owner.setdefault(p, d.get("name", ""))
+    return owner
+
+
+def _cross_domain_facts(bp: dict, gc: dict) -> dict:
+    """What actually crosses a domain boundary: shared objects, joins and measures."""
+    owner = _owner_index(bp)
+    xd_rels, consumers = [], {}
+    for r in sorted((gc.get("relationships") or []),
+                    key=lambda r: (str(r.get("from_table")), str(r.get("to_table")))):
+        fo, to = owner.get(r.get("from_table")), owner.get(r.get("to_table"))
+        if fo and to and fo != to:
+            xd_rels.append(r)
+            consumers.setdefault(r["to_table"], set()).add(fo)
+    xd_measures = []
+    for m in gc.get("measures", []):
+        owners = {owner.get(str(l).split(".", 1)[0]) for l in (m.get("lineage") or [])}
+        owners.discard(None)
+        if len(owners) > 1:
+            xd_measures.append((m.get("measure_name"), sorted(owners)))
+    return {"owner": owner, "xd_rels": xd_rels,
+            "shared": {t: sorted(v) for t, v in sorted(consumers.items())},
+            "xd_measures": xd_measures}
+
+
+def propose_cross_domain(bp: dict, gc: dict) -> list[dict]:
+    """Decisions that only exist BETWEEN domains — ownership of shared objects, how consumers reach
+    them, and the authorisation traps that appear when one user holds roles in several domains."""
+    f = _cross_domain_facts(bp, gc)
+    shared, xd_rels, xd_ms = f["shared"], f["xd_rels"], f["xd_measures"]
+    if not shared and not xd_ms:
+        return [_rec("XD-NONE", "Domänenübergreifende Nutzung",
+                     "Werden Daten über Domänengrenzen geteilt?", None,
+                     "keine domänenübergreifenden Beziehungen oder Kennzahlen im Katalog gefunden",
+                     "keine", ["Sobald eine Domäne eine fremde Dimension mitnutzt, hier erneut prüfen"],
+                     "Data Governance Board",
+                     "Nichts — solange die Domänen tatsächlich unabhängig bleiben")]
+
+    lines = "; ".join(f"`{t}` (Eigentümer **{f['owner'].get(t, '?')}**, genutzt von {', '.join(c)})"
+                      for t, c in shared.items())
+    out = [
+        _rec("XD-OWNER", "Eigentum an geteilten Objekten",
+             "Wem gehört eine Dimension, die mehrere Domänen nutzen?",
+             (f"Genau **ein** besitzende Domäne je Objekt, alle anderen lesen nur — {lines}. "
+              "Vorschlag: Der Eigentümer pflegt Schema und Schlüssel und ist der einzige Schreiber; "
+              "Konsumenten bekommen **Read** (keine Kopie, kein Fork). Änderungen am Schlüssel oder am "
+              "Korn sind Breaking Changes und laufen über den Vertrag, nicht über Zuruf. Genau **eine** "
+              "Zertifizierung für das Objekt — nicht je Domäne eine eigene Variante."),
+             f"{len(shared)} Objekt(e) domänenübergreifend genutzt",
+             "hoch",
+             ["Kopie je Domäne (schnell, führt aber zu divergierenden Stammdaten)",
+              "Gemeinsame 'Shared'-Domäne, die alle konformierten Dimensionen besitzt"],
+             "Data Governance Board (Eigentum) + die betroffenen Data Owner",
+             "Zwei Domänen pflegen dieselbe Dimension unterschiedlich — Zahlen weichen ab, "
+             "ohne dass jemand den Fehler findet", status="vorbelegt"),
+        _rec("XD-ACCESS", "Zugriffsweg auf geteilte Objekte",
+             "Wie erreicht eine Domäne die Daten einer anderen?",
+             ("**Shortcut statt Kopie** (Zero-Copy): der Konsument verlinkt das Objekt aus dem "
+              "Eigentümer-Workspace, statt es zu duplizieren — eine Wahrheit, kein Sync-Job, keine "
+              "Drift. Berechtigung bleibt beim Eigentümer. Konkret betroffen: "
+              + ", ".join(f"`{t}`" for t in shared) + ". "
+              "Kopie nur, wenn der Konsument die Daten fachlich verändern muss — dann ist es aber ein "
+              "**eigenes** Produkt mit eigenem Namen, keine zweite Version derselben Dimension."),
+             f"{len(xd_rels)} domänenübergreifende Beziehung(en)",
+             "hoch",
+             ["Kopie per Pipeline (Drift-Risiko, doppelte Kosten)",
+              "Zugriff über den SQL-Endpunkt statt Shortcut (nur SQL-Konsumenten)"],
+             "Plattform-Verantwortliche:r + Eigentümer-Domäne",
+             "Jede Domäne baut ihre eigene Kopie — Kosten und Abweichungen steigen still", status="vorbelegt"),
+        _rec("XD-AUTH", "Berechtigung über Domänengrenzen",
+             "Was sieht jemand, der in mehreren Domänen berechtigt ist?",
+             ("**Zwei Fallen, beide bauartbedingt:** (1) OneLake-Rollen kombinieren per **Vereinigung** "
+              "(least-restrictive). Wer in Vertrieb und Finanzen Rollen hat, sieht die *Summe* — eine "
+              "Einschränkung in der einen Domäne wird durch die andere aufgehoben. (2) Liegt für "
+              "dieselbe Tabelle **RLS in Rolle A und CLS in Rolle B**, schlägt die Abfrage fehl. "
+              "Vorschlag: Für jedes geteilte Objekt genau **eine** Rolle definieren, die RLS und CLS "
+              "gemeinsam trägt, und sie beim **Eigentümer** führen — nicht je Konsument nachbauen. "
+              "Vor Rollout mit einer Testidentität prüfen, die absichtlich in mehreren Domänen liegt."),
+             "OneLake-Rollenlogik (Vereinigung) + die Single-Role-Bedingung für RLS+CLS",
+             "hoch",
+             ["Getrennte Workspaces je Domäne ohne geteilte Objekte (einfachste, aber teuerste Trennung)",
+              "Berechtigung nur im Semantic Model statt in OneLake (gilt dann nicht für andere Engines)"],
+             "Security + Data Governance Board",
+             "Nutzer sehen mehr als vorgesehen, oder Abfragen brechen unerklärlich ab", status="vorbelegt"),
+    ]
+    if xd_rels:
+        out.append(_rec(
+            "XD-JOIN", "Verträge an der Domänengrenze",
+            "Wer garantiert die Schlüssel, über die Domänen verbunden sind?",
+            ("Jede kreuzende Beziehung ist eine **Schnittstelle** und braucht einen Vertrag: "
+             + "; ".join(f"`{r['from_table']}.{r['from_column']}` → `{r['to_table']}` "
+                         f"({f['owner'].get(r['from_table'])} → {f['owner'].get(r['to_table'])})"
+                         for r in xd_rels)
+             + ". Vorschlag: Schlüsselstabilität und Korn im ODCS-Vertrag der **besitzenden** Domäne "
+               "festschreiben, Konsumenten als Abonnenten eintragen und Schemaänderungen über das "
+               "Contract-Gate laufen lassen — dann bricht ein Umbau in Domäne A den Report in "
+               "Domäne B nicht unbemerkt."),
+            f"{len(xd_rels)} Beziehung(en) kreuzen die Domänengrenze",
+            "hoch",
+            ["Informelle Absprache ohne Vertrag (bricht beim ersten Umbau)",
+             "Konsument dupliziert die Dimension und entkoppelt sich bewusst"],
+            "Data Owner beider Domänen",
+            "Ein Schemawechsel in der besitzenden Domäne bricht still die Reports der anderen"))
+    if xd_ms:
+        out.append(_rec(
+            "XD-MEASURE", "Domänenübergreifende Kennzahlen",
+            "Wem gehört eine Kennzahl, die Fakten mehrerer Domänen verbindet?",
+            ("Betroffen: " + "; ".join(f"**{n}** ({' + '.join(o)})" for n, o in xd_ms)
+             + ". Vorschlag: Solche Kennzahlen gehören **nicht** in eines der beteiligten Fach-Modelle, "
+               "sondern in ein übergreifendes Modell mit eigenem Eigentümer — sonst definieren zwei "
+               "Domänen dieselbe Zahl unterschiedlich. Definition einmalig im KPI-Katalog festhalten, "
+               "beide Quell-Domänen als Abhängigkeit eintragen."),
+            f"{len(xd_ms)} Kennzahl(en) mit Lineage über mehrere Domänen",
+            "hoch",
+            ["Kennzahl in beiden Domänen doppelt pflegen (garantierte Abweichung)",
+             "Kennzahl nur im Report berechnen (nicht governt, nicht wiederverwendbar)"],
+            "Data Governance Board + beide Data Owner",
+            "Dieselbe Kennzahl bekommt je Domäne einen anderen Wert"))
+    return out
+
+
+def _rank(col: str, hints: dict) -> int:
+    c = col.lower()
+    return max((w for h, w in hints.items() if h in c), default=0)
+
+
+def _facts(gc: dict) -> list[dict]:
+    return [t for t in gc.get("tables", []) if t.get("kind") == "fact" or t.get("measure_columns")]
+
+
+def _domain_names(bp: dict) -> list[str]:
+    return sorted(d.get("name", "") for d in bp.get("mesh", {}).get("domains", []))
+
+
+def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str,
+         confidence: str, alternatives: list[str], decider: str, if_undecided: str,
+         status: str = "offen") -> dict:
+    """``status`` is the lever that shrinks the workshop:
+
+    * ``vorbelegt`` — a defensible house default is **already applied**; the customer only has to
+      object. Used where a standard exists that is safe by construction (least privilege) or where the
+      platform dictates the answer anyway (tenant settings, capacity ladder).
+    * ``offen`` — genuinely needs a customer answer: their policy, their legal position, their
+      identifiers. No default can stand in for it without inventing facts.
+    """
+    return {"id": id_, "topic": topic, "gap": gap, "proposal": proposal,
+            "derived_from": derived_from, "confidence": confidence, "status": status,
+            "alternatives": alternatives, "decider": decider, "if_undecided": if_undecided}
+
+
+def propose_workspace_roles(bp: dict) -> dict:
+    """Workspace RBAC as an APPLIED least-privilege default, not a question.
+
+    Grounded (MS Learn 2026-07: *Roles in workspaces*, *Give users access to workspaces*, *Best
+    practices for OneLake security*, *Security considerations for Fabric workloads*). The decisive
+    detail most implementations get wrong: **RLS is only enforced for the Viewer role** — Admin,
+    Member and Contributor implicitly hold Write and therefore bypass every row filter. So a consumer
+    placed in Member "so they can see everything" silently defeats the entire security model."""
+    doms = _domain_names(bp)
+    return _rec(
+        "SEC-ROLES", "Workspace-Rollen und Entra-Gruppen",
+        "Wer bekommt welche Rolle im Workspace?",
+        ("**Vorbelegt nach Least Privilege** — bitte nur widersprechen, wenn es fachlich nicht passt:\n"
+         "- **Konsumenten → Viewer.** Nicht bequemlichkeitshalber Member: RLS wird **nur für Viewer "
+         "erzwungen**; Admin/Member/Contributor halten implizit Write und umgehen jeden Zeilenfilter.\n"
+         "- **Entwickler/Betrieb → Contributor**, und nur solange sie aktiv an der Lösung arbeiten.\n"
+         "- **Admin/Member → so wenige wie möglich** (Rechteverwaltung, Sharing, OneLake-Rollen).\n"
+         "- **Immer Entra-Sicherheitsgruppen, nie Einzelpersonen** — je Domäne und Rolle eine Gruppe"
+         + (f", z. B. `sg-fabric-{_NONWORD_RE.sub('-', doms[0].lower()).strip('-')}-viewer`" if doms else "")
+         + ". Überlappende Gruppen: die **höchste** Rolle gewinnt — deshalb Konsumenten nie zusätzlich "
+           "in eine Contributor-Gruppe legen.\n"
+         "- **Braucht jemand nur EIN Artefakt**, kein Workspace-Rolle vergeben, sondern das Item "
+         "**teilen** (Item-Permission) — sonst sieht er den ganzen Workspace.\n"
+         "- **Dienste/Automation → Service Principal** bzw. Workspace-Identity, keine persönlichen "
+         "Konten und keine eingebetteten Zugangsdaten.\n"
+         "- **DefaultReader-Rolle in OneLake entfernen**, sobald eigene Rollen existieren — sonst "
+         "behalten die Nutzer trotz feiner Rollen vollen Lesezugriff.\n"
+         "**Offen bleibt nur:** die konkreten Entra-Gruppen-IDs (`<VERIFY>` in `governance.sh`)."),
+        "MS-Learn-Rollenmodell + Least-Privilege-Leitlinie; die Rollenmatrix selbst ist plattformseitig fix",
+        "hoch",
+        ["Rollen direkt an Personen vergeben (schnell, bricht bei jedem Wechsel)",
+         "Alle Konsumenten in Member (bequem — hebelt RLS vollständig aus)",
+         "Zugriff ausschließlich über App-Verteilung statt Workspace-Rollen"],
+        "Security / Entra-Team (Gruppen) — Rollenzuschnitt ist vorbelegt",
+        "Ohne Gruppen-Bindung greift keine Berechtigung; werden Konsumenten in Member gelegt, "
+        "ist RLS/CLS wirkungslos",
+        status="vorbelegt")
+
+
+# --- individual proposals ---------------------------------------------------------------------------
+
+def propose_rls(gc: dict) -> dict:
+    """The row-filter predicate. Derived from the best org-scoping column in the model."""
+    scored = []
+    for t, c in _cols(gc):
+        w = _rank(c, _SCOPE_HINTS)
+        if w:
+            place = _placement(gc, t)
+            scored.append((w * _PLACEMENT_WEIGHT[place], w, place, t, c))
+    cands = sorted(scored, key=lambda x: (-x[0], x[3], x[4]))
+    best = (cands[0][3], cands[0][4]) if cands else None
+    if not best:
+        return _rec("SEC-RLS", "RLS-Prädikat (Zeilen-Sichtbarkeit)",
+                    "Welche Zeilen darf welche Nutzergruppe sehen?", None,
+                    "keine Org-Spalte (Bereich/Gesellschaft/Region/…) im Modell gefunden",
+                    "keine", ["Sichtbarkeit über Workspace-Trennung statt RLS",
+                              "eine Scoping-Spalte im Gold-Modell ergänzen"],
+                    "Data Owner + Security",
+                    "RLS bleibt fail-closed (`where 1=0`) — die Rolle sieht KEINE Zeilen")
+    tbl, col = best
+    score, raw, place = cands[0][0], cands[0][1], cands[0][2]
+    others = sorted({c for _s, _w, _p, _t, c in cands if c != col})[:3]
+    # A hit that only sits on an entity dimension is most likely a subject attribute, not a security
+    # axis — say so and cap the confidence instead of selling a wrong axis as reliable.
+    weak = place == "entity_dim"
+    caveat = ("  **Achtung:** Der Treffer sitzt auf der Entitäts-Dimension "
+              f"`{tbl}` — dort ist `{col}` vermutlich ein Sachattribut (Eigenschaft des Objekts) und "
+              "KEINE Organisationsachse. Vor Übernahme fachlich prüfen; ggf. fehlt dem Modell eine "
+              "echte Scoping-Spalte." if weak else "")
+    return _rec(
+        "SEC-RLS", "RLS-Prädikat (Zeilen-Sichtbarkeit)",
+        "Welche Zeilen darf welche Nutzergruppe sehen?",
+        f"Scoping über `{col}`: Mapping-Tabelle `sec_user_scope(user_upn, {col})` anlegen und "
+        f"filtern mit\n"
+        f"`select * from {tbl} where {col} in "
+        f"(select {col} from sec_user_scope where user_upn = USER_NAME())`\n"
+        f"— dynamisch, ohne Rolle pro Bereich. DAX-Äquivalent im Semantic Model: "
+        f"`[{col}] IN CALCULATETABLE(VALUES(sec_user_scope[{col}]), "
+        f"sec_user_scope[user_upn] = USERPRINCIPALNAME())`." + caveat,
+        f"Spalte `{tbl}.{col}` als Org-Scoping-Achse erkannt (Platzierung: {place}, Namens-Gewicht {raw})"
+        + (f"; Alternativen im Modell: {', '.join(others)}" if others else ""),
+        "niedrig" if weak else ("hoch" if score >= 8 else "mittel"),
+        [f"statische Rolle je Ausprägung von `{col}` (einfacher, aber Rollen-Wildwuchs)",
+         "kein RLS — Trennung rein über getrennte Workspaces/Modelle"] +
+        ([f"Scoping über `{o}` statt `{col}`" for o in others[:1]] if others else []),
+        "Data Owner der Domäne (fachlich) + Security (technisch)",
+        "RLS bleibt fail-closed (`where 1=0`) — die Rolle sieht KEINE Zeilen")
+
+
+def propose_cls(gc: dict) -> dict:
+    """Sensitive columns to hide. Derived from column-name patterns (personal / commercial)."""
+    hits: dict[str, list[str]] = {}
+    for t, c in _cols(gc):
+        for h, why in _SENSITIVE_HINTS.items():
+            if h in c.lower():
+                hits.setdefault(why, []).append(f"{t}.{c}")
+                break
+    if not hits:
+        return _rec("SEC-CLS", "Sensible Spalten (CLS/OLS)",
+                    "Welche Spalten dürfen nicht alle sehen?", None,
+                    "keine Spaltennamen mit typischen Sensibilitäts-Mustern gefunden",
+                    "keine", ["Klassifikation im Fachbereich erheben (Spalten-Review)"],
+                    "Data Owner + Datenschutzbeauftragte:r",
+                    "kein CLS — alle Spalten sind für jede berechtigte Rolle sichtbar")
+    flat = sorted({c for v in hits.values() for c in v})
+    detail = "; ".join(f"**{why}**: {', '.join(sorted(set(cols)))}" for why, cols in sorted(hits.items()))
+    return _rec(
+        "SEC-CLS", "Sensible Spalten (CLS/OLS)",
+        "Welche Spalten dürfen nicht alle sehen?",
+        f"Diese {len(flat)} Spalte(n) als sensibel deklarieren und über `--sensitivity` ausblenden: "
+        f"{detail}. OneLake-CLS zeigt dann nur das Komplement; im Semantic Model werden sie per "
+        f"`metadataPermission: none` verborgen.",
+        "Spaltennamen-Muster im governten Katalog (personenbezogen / wirtschaftlich sensibel)",
+        "mittel",
+        ["Spalten im Gold-Modell gar nicht materialisieren (stärkster Schutz)",
+         "Sichtbar lassen und nur über Sensitivity-Label kennzeichnen (schwächster Schutz)"],
+        "Datenschutzbeauftragte:r (personenbezogen) + Data Owner (wirtschaftlich)",
+        "kein CLS — auch sensible Spalten sind für jede berechtigte Rolle sichtbar")
+
+
+def propose_incremental(gc: dict) -> dict:
+    """Match key + watermark for the MERGE upsert."""
+    facts = _facts(gc)
+    if not facts:
+        return _rec("DATA-INC", "Inkrementelles Laden (Match-Key + Watermark)",
+                    "Woran erkennt der MERGE geänderte Zeilen?", None,
+                    "keine Fakten-Tabelle im Katalog", "keine",
+                    ["Vollast beibehalten, solange die Datenmenge klein ist"],
+                    "Data Engineering + Quellsystem-Owner",
+                    "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast")
+    f = sorted(facts, key=lambda t: t["name"])[0]
+    cols = f.get("columns") or []
+    keys = [c for c in cols if c.lower().endswith("_key")]
+    wm = sorted(((_rank(c, _WATERMARK_HINTS), c) for c in cols), key=lambda x: (-x[0], x[1]))
+    wm_col = next((c for w, c in wm if w > 0), None)
+    have_wm = wm_col is not None
+    return _rec(
+        "DATA-INC", "Inkrementelles Laden (Match-Key + Watermark)",
+        "Woran erkennt der MERGE geänderte Zeilen?",
+        (f"**Match-Key** `{f['name']}`: {' + '.join(keys) if keys else '<fachlicher Geschäftsschlüssel>'}"
+         f" (das Korn der Tabelle).\n"
+         f"**Watermark**: " +
+         (f"`{wm_col}` — nur Zeilen mit `{wm_col} > (select max({wm_col}) from gold_{f['name']})` laden."
+          if have_wm else
+          "keine Änderungsspalte im Modell. Vorschlag: im Silver eine technische Ladespalte "
+          "`_loaded_at` ergänzen (Ingest-Zeitstempel) und darauf filtern — oder, wenn die Quelle es "
+          "hergibt, CDC/Mirroring nutzen statt Watermark-Logik.")),
+        f"Fakten-Tabelle `{f['name']}`: Schlüsselspalten {keys or '—'}"
+        + (f", Änderungsspalte `{wm_col}` erkannt" if have_wm else ", keine Änderungsspalte erkannt"),
+        "hoch" if (keys and have_wm) else "mittel" if keys else "niedrig",
+        ["Vollast beibehalten (einfachste Variante, teuer ab realer Datenmenge)",
+         "CDC/Mirroring an der Quelle statt Watermark im Transform",
+         "Partition-Overwrite je Periode statt zeilenweisem MERGE"],
+        "Data Engineering + Quellsystem-Owner",
+        "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast (CU-Kosten + Laufzeit)",
+        # Schlüssel UND Änderungsspalte im Modell → die Strategie steht, nur bestätigen.
+        # Fehlt eine von beiden, ist es eine echte Frage an das Quellsystem.
+        status="vorbelegt" if (keys and have_wm) else "offen")
+
+
+def propose_silver_contract(gc: dict) -> dict:
+    """The silver data contract — partly derivable: the join keys ARE declared as relationships."""
+    rels = gc.get("relationships") or []
+    if not rels:
+        return _rec("DATA-CONTRACT", "Silver-Datenvertrag", "Wie wird konformiert und verknüpft?",
+                    None, "keine Beziehungen im Katalog deklariert", "keine",
+                    ["Vertrag im Fachworkshop erheben"], "Data Owner + Data Engineering",
+                    "Die Transform-Skelette bleiben `SELECT *` mit TODO-Markern")
+    joins = "; ".join(f"`{r['from_table']}.{r['from_column']}` → `{r['to_table']}.{r['to_column']}`"
+                      for r in rels[:6])
+    more = f" (+{len(rels) - 6} weitere)" if len(rels) > 6 else ""
+    return _rec(
+        "DATA-CONTRACT", "Silver-Datenvertrag", "Wie wird konformiert und verknüpft?",
+        f"Die **Join-Schlüssel stehen bereits fest** — aus den deklarierten Beziehungen: {joins}{more}. "
+        f"Offen bleiben nur: Typisierung, Dedup-Regel je Geschäftsschlüssel, Null-/Qualitätsregeln und "
+        f"Umgang mit spät eintreffenden Zeilen. Vorschlag: den Vertrag als ODCS-Datei aus genau diesen "
+        f"Beziehungen vorbefüllen (`--emit-odcs`) und im Workshop nur die vier offenen Punkte klären.",
+        f"{len(rels)} deklarierte Beziehung(en) im governten Katalog",
+        "hoch",
+        ["Vertrag komplett im Fachworkshop von Null erheben (langsamer)",
+         "Ohne formalen Vertrag starten und im Betrieb nachziehen (Risiko: stille Qualitätsfehler)"],
+        "Data Owner (fachlich) + Data Engineering (technisch)",
+        "Die Transform-Skelette bleiben `SELECT *` mit TODO-Markern",
+        # the joins ARE fixed by the declared relationships — only four points genuinely remain
+        status="vorbelegt")
+
+
+def propose_retention(bp: dict, gc: dict) -> dict:
+    """Retention periods — a legally-framed default proposal, explicitly to be confirmed."""
+    personal = sorted({f"{t}.{c}" for t, c in _cols(gc)
+                       for h, why in _SENSITIVE_HINTS.items()
+                       if h in c.lower() and why == "personenbezogen"})
+    return _rec(
+        "GOV-RET", "Aufbewahrungsfristen + Personenbezug",
+        "Wie lange bleiben die Daten liegen, und was ist personenbezogen?",
+        ("**Zweigeteilter Vorschlag** (rechtlich zu bestätigen, kein Rechtsrat): "
+         "(a) *Nicht personenbezogene* Auswertungsdaten mit Beleg-/Handelsbezug — Aufbewahrung an den "
+         "handels-/steuerrechtlichen Fristen des Kunden ausrichten (in DE typisch 10 Jahre) und danach "
+         "per `DELETE` + `VACUUM` physisch entfernen. "
+         "(b) *Personenbezogene* Spalten — **zweckgebunden** und deutlich kürzer, plus Löschkonzept. "
+         + (f"Kandidaten aus dem Modell: {', '.join(personal)}. "
+            if personal else "Im Modell wurden keine offensichtlich personenbezogenen Spalten erkannt. ")
+         + "Praktikabelster Weg: personenbezogene Spalten gar nicht erst ins Gold materialisieren oder "
+           "pseudonymisieren — dann entfällt die kurze Frist für das Auswertungsmodell."),
+        "Spaltennamen-Muster + die Struktur des Aufbewahrungs-Configs",
+        "mittel",
+        ["Einheitliche Frist für alles (einfach, aber datenschutzrechtlich schwach)",
+         "Pseudonymisierung im Silver statt kurzer Frist im Gold",
+         "Fristen aus dem bestehenden Löschkonzept des Kunden übernehmen"],
+        "Datenschutzbeauftragte:r + Legal (verbindlich), Data Owner (fachlich)",
+        "`retention_policy.json` bleibt mit `<VERIFY>` stehen — es wird nichts gelöscht")
+
+
+def propose_alerts(bp: dict) -> dict:
+    """Alert recipients — a role-mailbox structure rather than personal addresses."""
+    doms = _domain_names(bp)
+    return _rec(
+        "OPS-ALERT", "Alarm-Empfänger", "Wer wird bei Fehlern und Drosselung benachrichtigt?",
+        ("**Rollen-Postfächer statt Personen** (überlebt Personalwechsel): "
+         "`fabric-platform-oncall@<kunde>` für Job-/Pipeline-Fehler und Capacity-Drosselung"
+         + (f"; je Domäne zusätzlich ein fachlicher Verteiler, z. B. "
+            + ", ".join(f"`{re.sub(r'[^a-z0-9]+', '-', d.lower()).strip('-')}-data@<kunde>`"
+                        for d in doms[:3]) + "."
+            if doms else ".")
+         + " Eskalation zweistufig: Erst-Alarm an die Plattform-Rolle, bei ausbleibender Quittierung "
+           "an den Data Owner. Kanal: E-Mail **und** Teams, damit ein Ausfall nicht am Kanal hängt."),
+        f"{len(doms)} Domäne(n) im Blueprint",
+        "hoch",
+        ["Einzelpersonen direkt eintragen (schnell, aber bricht bei Wechsel)",
+         "Nur ein zentraler Verteiler ohne Domänen-Split (weniger Rauschen, unschärfere Zuordnung)"],
+        "Betriebsverantwortliche:r + Data Owner",
+        "Empfänger bleiben `<VERIFY>` — Alarme werden konfiguriert, aber niemand bekommt sie",
+        status="vorbelegt")
+
+
+def propose_endorsement(bp: dict, gc: dict) -> dict:
+    """Which domain gets Certified vs Promoted — portal-only, but the decision can be pre-thought."""
+    doms = _domain_names(bp)
+    lead = doms[0] if doms else "die führende Domäne"
+    return _rec(
+        "GOV-END", "Endorsement (Promoted / Certified)",
+        "Welches Modell ist die verbindliche Quelle?",
+        (f"**Certified** nur für das Modell, das wirklich die verbindliche Quelle ist — Vorschlag: "
+         f"„{lead}" + ("“" if doms else "") + "“, weil es die governten Kennzahlen trägt. "
+         "Alle übrigen Domänen starten als **Promoted**. Certified erst *nach* dem ersten sauberen "
+         "Betriebszyklus setzen (Qualitätsgates grün, Owner benannt), sonst zertifiziert man einen "
+         "ungetesteten Stand. Voraussetzung: eine admin-autorisierte Sicherheitsgruppe im Tenant-Setting."),
+        f"{len(doms)} Domäne(n); Endorsement-Wunsch aus dem Blueprint",
+        "mittel",
+        ["Alles nur Promoted lassen (kein Zertifizierungsprozess nötig)",
+         "Certified sofort mit Go-Live (schneller, aber ohne Betriebsnachweis)"],
+        "Data Governance Board / Fabric-Admin (setzt es im Portal)",
+        "Kein Endorsement — Nutzer erkennen nicht, welches Modell verbindlich ist",
+        status="vorbelegt")
+
+
+def propose_capacity(bp: dict) -> dict:
+    """Capacity sizing — reuses the existing recommender rather than re-deriving."""
+    try:
+        from core.dataarch_engine.blueprint.capacity_recommend import recommend_capacity
+        rec = recommend_capacity({}) or {}
+        sku = rec.get("recommended_sku") or "F4"
+    except Exception:                                    # recommender optional/soft
+        sku = "F4"
+    return _rec(
+        "PLAT-CAP", "Capacity-Größe (F-SKU)", "Welche Kapazität wird beschafft?",
+        (f"Mit **{sku}** starten und messen statt vorab hochzurechnen — Fabric erlaubt Skalieren im "
+         "laufenden Betrieb, und Microsoft veröffentlicht keine Nutzer→SKU-Formel. Peak-CU über die "
+         "Capacity-Metrics-App beobachten und bei Bedarf hochziehen. **Separat davon** die Frage der "
+         "Report-Zielgruppe: sollen Nutzer *ohne* Power-BI-Pro-Lizenz konsumieren, ist **F64** nötig — "
+         "das ist eine Zielgruppen-/Kostenentscheidung, keine Performance-Frage, und lässt sich kurz "
+         "vor dem Rollout nachziehen."),
+        "capacity_recommend (Constraint-Floor) + die Lizenz-Logik für Free-Consumer",
+        "hoch",
+        ["Direkt F64 kaufen (teurer, aber Free-Consumer und Headroom sofort abgedeckt)",
+         "F2 als absolutes Minimum (bei mehr als sporadischer Nutzung zu knapp)"],
+        "Einkauf + Plattform-Verantwortliche:r",
+        "Kein Deployment möglich — Capacity ist Voraussetzung für alles Weitere",
+        status="vorbelegt")
+
+
+def propose_tenant_settings(bp: dict) -> dict:
+    """Tenant settings — reuses admin_settings rather than listing them again here."""
+    try:
+        from core.dataarch_engine.blueprint import admin_settings as _adm
+        req = _adm.required_settings(["base", "cicd_git", "xmla_rw"])
+        n = len(req)
+    except Exception:
+        n = 0
+    return _rec(
+        "PLAT-TENANT", "Tenant-Einstellungen",
+        "Welche Schalter müssen im Fabric-Admin gesetzt sein?",
+        (f"Die benötigten Schalter stehen bereits fest{f' ({n} Stück)' if n else ''} und sind in "
+         "`readiness/` als Prüfliste emittiert — u. a. XMLA-Read/Write, Git-Integration und die "
+         "Service-Principal-Freigabe für die Admin-APIs. Vorschlag: **vor** dem Kickoff durch den "
+         "Fabric-Admin setzen lassen (Aufwand ~0,5 PT) und mit dem Readiness-Check verifizieren — "
+         "dann blockiert am Umsetzungstag kein Schalter."),
+        "admin_settings.required_settings über die genutzten Capabilities",
+        "hoch",
+        ["Schalter erst bei Bedarf setzen (bremst mitten in der Umsetzung)",
+         "Delegation an Domänen-Admins statt zentraler Freigabe"],
+        "Fabric-Admin (Tenant) — vorbereitet durch uns",
+        "Deployment schlägt mitten im Lauf fehl (fehlende XMLA-/Git-/SPN-Rechte)",
+        status="vorbelegt")
+
+
+def propose_ground_truth(gc: dict) -> dict:
+    """Evaluation ground truth for the Data Agent — derivable as question skeletons."""
+    ms = [m["measure_name"] for m in gc.get("measures", []) if m.get("measure_name")][:4]
+    if not ms:
+        return _rec("AI-EVAL", "Ground-Truth für die Agent-Bewertung",
+                    "Woran misst man, ob der Data Agent richtig antwortet?", None,
+                    "keine governten Kennzahlen im Katalog", "keine",
+                    ["Fragen mit dem Fachbereich sammeln"], "Data Owner + Fachbereich",
+                    "Der Agent wird ohne Qualitätsnachweis produktiv gesetzt")
+    dims = [t["name"] for t in gc.get("tables", []) if t.get("kind") == "dimension"][:3]
+    ex = f"„Wie hoch ist {ms[0]}" + (f" je {dims[0]}?“" if dims else "?“")
+    return _rec(
+        "AI-EVAL", "Ground-Truth für die Agent-Bewertung",
+        "Woran misst man, ob der Data Agent richtig antwortet?",
+        (f"Fragen-Gerüst aus den governten Kennzahlen × Dimensionen vorbefüllen — z. B. {ex} "
+         f"(Kennzahlen: {', '.join(ms)}). Die **Fragen** generieren wir, die **erwarteten Antworten** "
+         f"muss der Fachbereich einmalig bestätigen; danach läuft die Bewertung automatisch. "
+         f"Vorschlag: 15–25 Fragen, die die häufigsten Report-Fragen abdecken — das reicht für einen "
+         f"belastbaren Qualitätswert."),
+        f"{len(gc.get('measures', []))} governte Kennzahl(en) im Katalog",
+        "mittel",
+        ["Ohne Bewertung live gehen (kein Qualitätsnachweis)",
+         "Nur stichprobenhaft manuell prüfen (nicht reproduzierbar)"],
+        "Fachbereich (Antworten) + Data Owner (Freigabe)",
+        "Der Agent wird ohne Qualitätsnachweis produktiv gesetzt")
+
+
+# --- aggregation + rendering ------------------------------------------------------------------------
+
+def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
+    """Every open decision with its pre-thought proposal, deterministic order.
+
+    A customer has many use cases, and the model-driven decisions (RLS axis, sensitive columns,
+    incremental strategy, silver contract, agent ground truth) are genuinely decided **per domain** —
+    Sales may scope by region while Finance scopes by company code. So with more than one domain those
+    fan out to one record per domain (``SEC-RLS·<domain>``), each derived from that domain's slice of
+    the catalog. The platform decisions (capacity, tenant settings, alerts, endorsement, retention)
+    stay tenant-wide, because that is what they actually are."""
+    gc = governed_catalog or {}
+    domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
+    per_domain = [propose_rls, propose_cls, propose_incremental, propose_silver_contract,
+                  propose_ground_truth]
+    out: list[dict] = []
+    if len(domains) > 1 and gc.get("tables"):
+        for d in domains:
+            dgc = _domain_catalog(gc, d)
+            if not dgc.get("tables"):
+                continue
+            slug = _NONWORD_RE.sub("-", (d.get("name") or "").lower()).strip("-")
+            for fn in per_domain:
+                r = fn(dgc)
+                r["id"] = f"{r['id']}·{slug}"
+                r["topic"] = f"{r['topic']} — {d.get('name')}"
+                out.append(r)
+    else:
+        out.extend(fn(gc) for fn in per_domain)
+    if len(domains) > 1 and gc.get("tables"):
+        out.extend(propose_cross_domain(bp, gc))   # domains are not islands
+    out.extend([propose_workspace_roles(bp), propose_retention(bp, gc), propose_alerts(bp),
+                propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp)])
+    return out
+
+
+def decisions_markdown(proposals: list[dict]) -> str:
+    """The workshop decision template: every open point with a proposal ready to confirm or adjust."""
+    withp = [p for p in proposals if p.get("proposal")]
+    pre = [p for p in proposals if p.get("status") == "vorbelegt"]
+    open_ = [p for p in proposals if p.get("status") != "vorbelegt"]
+    lines = [
+        "# Entscheidungsvorlage — vorbelegt und wirklich offen", "",
+        f"**{len(proposals)} Entscheidungen**, davon **{len(pre)} bereits vorbelegt** (Hausstandard bzw. "
+        f"Least Privilege — nur bei Widerspruch anfassen) und **{len(open_)} wirklich offen**. "
+        f"{len(withp)} tragen einen konkreten Vorschlag. Jeder Vorschlag ist aus dem abgeleitet, was das "
+        "governte Modell hergibt — er ist **zu bestätigen oder anzupassen**, nie eine gesetzte Tatsache. "
+        "Ziel: der Workshop bestätigt, statt herzuleiten.", "",
+        f"## Vorbelegt — nur bei Widerspruch anfassen ({len(pre)})", "",
+        "| ID | Thema | Konfidenz | Entscheider |", "|---|---|---|---|",
+    ]
+    for p in pre:
+        lines.append(f"| `{p['id']}` | {p['topic']} | {p['confidence']} | {p['decider']} |")
+    lines += ["", f"## Wirklich offen — hier brauchen wir eine Antwort ({len(open_)})", "",
+              "| ID | Thema | Vorschlag vorhanden | Konfidenz | Entscheider |", "|---|---|---|---|---|"]
+    for p in open_:
+        lines.append(f"| `{p['id']}` | {p['topic']} | {'ja' if p.get('proposal') else '**nein**'} "
+                     f"| {p['confidence']} | {p['decider']} |")
+    lines.append("")
+    for p in proposals:
+        lines += [f"## {p['id']} — {p['topic']}", "",
+                  f"**Offene Frage:** {p['gap']}", ""]
+        if p.get("proposal"):
+            lines += [f"**Vorschlag (zu bestätigen):** {p['proposal']}", "",
+                      f"*Hergeleitet aus:* {p['derived_from']}  ·  *Konfidenz:* **{p['confidence']}**", ""]
+        else:
+            lines += ["**Kein Vorschlag ableitbar.** " + p["derived_from"] +
+                      " — hier muss der Workshop wirklich von vorn erheben.", ""]
+        if p.get("alternatives"):
+            lines += ["**Alternativen:**", ""] + [f"- {a}" for a in p["alternatives"]] + [""]
+        lines += [f"**Entscheider:** {p['decider']}", "",
+                  f"**Wenn nicht entschieden:** {p['if_undecided']}", ""]
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def emit_decisions(bp: dict, governed_catalog: dict | None = None) -> dict[str, str]:
+    """Return the decision-template artifact set (path → content)."""
+    proposals = propose_all(bp, governed_catalog)
+    return {
+        "decisions/ENTSCHEIDUNGSVORLAGE.md": decisions_markdown(proposals),
+        "decisions/proposals.json": json.dumps(
+            {"schema": "meridian/decision-proposals/v1", "proposals": proposals},
+            indent=2, ensure_ascii=False) + "\n",
+    }

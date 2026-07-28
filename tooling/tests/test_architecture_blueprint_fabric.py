@@ -40,18 +40,44 @@ def _bp():
     return derive_blueprint(_FIXTURE)["blueprint"]
 
 
+_TOPOLOGY = {
+    "fabric/PROVISIONING_PLAN.md",
+    "fabric/workspaces.json",
+    "fabric/ingestion_plan.json",
+    "fabric/medallion.json",
+    "fabric/semantic_binding.json",
+}
+
+
 def test_emits_expected_artifacts():
     out = arch_targets.render("fabric", _bp())
-    assert set(out) == {
-        "fabric/PROVISIONING_PLAN.md",
-        "fabric/workspaces.json",
-        "fabric/ingestion_plan.json",
-        "fabric/medallion.json",
-        "fabric/semantic_binding.json",
-    }
+    assert _TOPOLOGY <= set(out)
     ws = json.loads(out["fabric/workspaces.json"])
     names = {w["name"] for d in ws for w in d["workspaces"]}
     assert "ws-commercial-gold" in names and "ws-commercial-reporting" in names
+
+
+def test_mirrored_meridian_layer_is_emitted_alongside_the_topology():
+    """The topology layer alone was never the whole Fabric scaffold — governance,
+    monitoring, lifecycle, connectivity and operability come from the mirrored Meridian
+    emitters (SHARED_SUBSTANCE.md class A) instead of a second implementation here."""
+    from tooling.superversion._dataarch_vendor import available
+
+    out = arch_targets.render("fabric", _bp())
+    if not available():
+        # A broken/absent mirror must degrade loudly, not silently.
+        assert "**Not emitted**" in out["fabric/PROVISIONING_PLAN.md"]
+        assert set(out) == _TOPOLOGY
+        return
+
+    extra = set(out) - _TOPOLOGY
+    assert extra, "mirror is available but contributed nothing"
+    for prefix in ("fabric/governance/", "fabric/monitoring/", "fabric/lifecycle/",
+                   "fabric/connectivity/"):
+        assert any(p.startswith(prefix) for p in extra), f"no artifact under {prefix}"
+    # And the runbook must name what it emitted, so the plan stays self-describing.
+    plan = out["fabric/PROVISIONING_PLAN.md"]
+    assert "mirrored Meridian emitters" in plan
 
 
 def test_ingestion_access_modes():

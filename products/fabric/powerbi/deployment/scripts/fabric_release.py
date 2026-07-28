@@ -12,8 +12,11 @@ Usage:
 import os
 import sys
 import io
+import json
 import time
+import shutil
 import argparse
+import tempfile
 from pathlib import Path
 
 # Fix encoding for Windows console
@@ -88,6 +91,54 @@ def get_workspace_id(workspace_name: str) -> str:
     if workspace:
         return workspace.get("id", "")
     return ""
+
+
+def items_for_domain(repository_directory: str, domain: str) -> list:
+    """Names of the PBIP item folders belonging to `domain`, sorted.
+
+    The link is read from each report's ``definition.pbir``
+    (``datasetReference.byPath.path`` → ``../<Domain>.SemanticModel``) plus the domain's
+    own ``<Domain>.SemanticModel`` folder. Deriving it from the *binding* rather than from
+    a ``COM-``/``FIN-`` name prefix keeps this working when reports are renamed and needs
+    no prefix table to maintain.
+
+    Returns [] when the domain has no items here — the caller must treat that as an error,
+    not as "nothing to do".
+    """
+    root = Path(repository_directory)
+    if not root.is_dir():
+        return []
+
+    model_folder = f"{domain}.SemanticModel"
+    kept = set()
+
+    if (root / model_folder).is_dir():
+        kept.add(model_folder)
+
+    for pbir in root.glob("*.Report/definition.pbir"):
+        try:
+            ref = json.loads(pbir.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        by_path = (ref.get("datasetReference") or {}).get("byPath") or {}
+        target = str(by_path.get("path", "")).replace("\\", "/").rstrip("/")
+        if target.rsplit("/", 1)[-1] == model_folder:
+            kept.add(pbir.parent.name)
+
+    return sorted(kept)
+
+
+def stage_domain_subset(repository_directory: str, domain: str, kept: list) -> str:
+    """Copy `kept` item folders into a temp dir and return it.
+
+    fabric-cicd publishes whatever lives under ``repository_directory``; there is no
+    per-item allowlist. Staging a subset is therefore the only way to scope a publish to
+    one domain without touching the source tree.
+    """
+    staging = Path(tempfile.mkdtemp(prefix=f"fabric_release_{domain}_"))
+    for name in kept:
+        shutil.copytree(Path(repository_directory) / name, staging / name)
+    return str(staging)
 
 
 def release_to_workspace(
@@ -240,12 +291,55 @@ Examples:
         help="Create snapshot before release; on failure, snapshot is saved for manual rollback or Git redeploy"
     )
 
+    # The three flags below exist because orchestrator/deploy.ps1 passes them. They used
+    # to be silently unknown here, so every real (non-dry-run) deploy died with argparse
+    # exit 2 before a single item was published.
+    parser.add_argument(
+        "--workspace_id",
+        required=False,
+        default=None,
+        help="Target workspace ID; skips the per-layer name lookup (deploy.ps1 has already "
+             "resolved or created the workspace). Only valid with a single --layers entry."
+    )
+
+    parser.add_argument(
+        "--domain_filter",
+        required=False,
+        default=None,
+        help="Publish only the items of one domain (e.g. Commercial). Resolved from each "
+             "report's definition.pbir dataset reference, not from a name prefix. Implies "
+             "--no-unpublish, because orphan cleanup would delete the other domains."
+    )
+
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="Resolve and report what would be published without calling Fabric"
+    )
+
     args = parser.parse_args()
-    
+
+    # deploy.ps1 exports SP credentials as AZURE_* (what azure-identity expects); accept
+    # both spellings so the two sides cannot drift apart again.
+    args.tenant_id = args.tenant_id or os.environ.get('AZURE_TENANT_ID')
+    args.client_id = args.client_id or os.environ.get('AZURE_CLIENT_ID')
+    args.client_secret = args.client_secret or os.environ.get('AZURE_CLIENT_SECRET')
+
+    # A dry run with a known workspace ID needs no Fabric call at all — it only resolves
+    # directories — so it must stay runnable without credentials (that is what makes it
+    # usable as a CI check).
+    offline_dry_run = args.dry_run and bool(args.workspace_id)
+
     # Validate required arguments
-    if not args.tenant_id or not args.client_id or not args.client_secret:
+    if not offline_dry_run and (not args.tenant_id or not args.client_id or not args.client_secret):
         misc.print_error("Error: tenant_id, client_id, and client_secret are required")
-        misc.print_info("Set them as arguments or environment variables (TENANT_ID, CLIENT_ID, CLIENT_SECRET)")
+        misc.print_info("Set them as arguments or environment variables "
+                        "(TENANT_ID/CLIENT_ID/CLIENT_SECRET or AZURE_TENANT_ID/AZURE_CLIENT_ID/AZURE_CLIENT_SECRET)")
+        sys.exit(1)
+
+    if args.workspace_id and len([l for l in args.layers.split(",") if l.strip()]) > 1:
+        misc.print_error("--workspace_id targets one workspace but --layers names several; "
+                         "pass a single layer or drop --workspace_id")
         sys.exit(1)
 
     # Optional: run framework validation (Stage 1 + Fabric checks) before release
@@ -261,26 +355,30 @@ Examples:
             sys.exit(1)
         misc.print_success(msg)
 
-    # Authenticate with Fabric CLI (for workspace lookup)
-    misc.print_header("Authenticating with Fabric")
-    fabcli.run_command("config set encryption_fallback_enabled true")
-    auth_result = fabcli.run_command(
-        f"auth login -u {args.client_id} -p {args.client_secret} --tenant {args.tenant_id}"
-    )
-    
-    if "error" in auth_result.lower() or "failed" in auth_result.lower():
-        misc.print_error(f"Authentication failed: {auth_result}")
-        sys.exit(1)
-    
-    misc.print_success("Authentication successful")
-    
-    # Create token credential for fabric-cicd
-    token_credential = ClientSecretCredential(
-        tenant_id=args.tenant_id,
-        client_id=args.client_id,
-        client_secret=args.client_secret
-    )
-    
+    token_credential = None
+    if offline_dry_run:
+        misc.print_info("Offline dry run (--dry_run with --workspace_id): skipping Fabric auth")
+    else:
+        # Authenticate with Fabric CLI (for workspace lookup)
+        misc.print_header("Authenticating with Fabric")
+        fabcli.run_command("config set encryption_fallback_enabled true")
+        auth_result = fabcli.run_command(
+            f"auth login -u {args.client_id} -p {args.client_secret} --tenant {args.tenant_id}"
+        )
+
+        if "error" in auth_result.lower() or "failed" in auth_result.lower():
+            misc.print_error(f"Authentication failed: {auth_result}")
+            sys.exit(1)
+
+        misc.print_success("Authentication successful")
+
+        # Create token credential for fabric-cicd
+        token_credential = ClientSecretCredential(
+            tenant_id=args.tenant_id,
+            client_id=args.client_id,
+            client_secret=args.client_secret
+        )
+
     # Load environment configuration
     env_definition = load_environment_config(args.environment)
     if not env_definition:
@@ -329,12 +427,16 @@ Examples:
             environment_name
         )
         
-        workspace_id = get_workspace_id(workspace_name)
+        # An explicit --workspace_id wins: the caller already resolved/created it.
+        if args.workspace_id:
+            workspace_id = args.workspace_id
+        else:
+            workspace_id = get_workspace_id(workspace_name)
         if not workspace_id:
             misc.print_error(f"Workspace '{workspace_name}' not found")
             fail_count += 1
             continue
-        
+
         # Get Git directory for this layer
         git_directory = layer_def.get("git_directoryName", f"solution/{layer_name.lower()}")
         repository_directory = os.path.join(args.repo_path, git_directory.replace("solution/", ""))
@@ -349,6 +451,43 @@ Examples:
                 misc.print_warning(f"Parameter validation for {layer_name}: {errs[0]}")
                 # Don't fail release; just warn
 
+        # Scope the publish to one domain, if asked
+        unpublish_orphans = args.unpublish_items
+        staged_dir = None
+        if args.domain_filter:
+            kept = items_for_domain(repository_directory, args.domain_filter)
+            if not kept:
+                misc.print_error(
+                    f"--domain_filter '{args.domain_filter}': no items found under "
+                    f"{repository_directory} (expected '{args.domain_filter}.SemanticModel' "
+                    f"and/or reports bound to it)"
+                )
+                fail_count += 1
+                continue
+            staged_dir = stage_domain_subset(repository_directory, args.domain_filter, kept)
+            repository_directory = staged_dir
+            # Orphan cleanup compares the workspace against the *staged* subset, so with a
+            # filter it would unpublish every other domain. Never allowed to combine.
+            if unpublish_orphans:
+                misc.print_warning(
+                    f"--domain_filter set: orphan unpublish disabled (it would delete the "
+                    f"items of every other domain in '{workspace_name}')"
+                )
+                unpublish_orphans = False
+            misc.print_info(f"  {misc.BULLET} {args.domain_filter}: {len(kept)} item(s) — "
+                            f"{', '.join(kept)}")
+
+        if args.dry_run:
+            misc.print_info(
+                f"  [DRY-RUN] would publish {item_type_list} from {repository_directory} "
+                f"to '{workspace_name}' ({workspace_id}); "
+                f"unpublish_orphans={unpublish_orphans}"
+            )
+            if staged_dir:
+                shutil.rmtree(staged_dir, ignore_errors=True)
+            success_count += 1
+            continue
+
         # Release to workspace
         success = release_to_workspace(
             workspace_name=workspace_name,
@@ -357,14 +496,17 @@ Examples:
             item_types=item_type_list,
             environment=args.environment,
             token_credential=token_credential,
-            unpublish_orphans=args.unpublish_items
+            unpublish_orphans=unpublish_orphans
         )
-        
+
+        if staged_dir:
+            shutil.rmtree(staged_dir, ignore_errors=True)
+
         if success:
             success_count += 1
         else:
             fail_count += 1
-    
+
     # Summary
     misc.print_header("Release Summary")
     misc.print_info(f"Successfully deployed to {success_count} workspace(s)")

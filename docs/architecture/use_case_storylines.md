@@ -206,9 +206,9 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which entities and cost centres should the earnings-recovery effort target first?
-- **[300s evidence]** grain `cost_center`, worst-first by `margin.ebitda.delta_pct.plan` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `entity_costcentre_month`, worst-first by `margin.ebitda.delta_pct.plan` (ascending), Top-20 · action panel
 **Decision payoff (actions):** F-E1.1
-**Cross-domain pull:** Commercial (1: `sales.net_sales.delta_pct.plan`)
+**Cross-domain pull:** Commercial (3: `sales.net_sales.delta_pct.plan`, `cost.cogs.amount`, `sales.net_sales.amount`)
 
 ## HR-001 — Workforce Performance & Retention
 
@@ -230,7 +230,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which teams and roles should the retention effort target first?
-- **[300s evidence]** grain `employee_segment`, worst-first by `people.attrition.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `month_org_segment`, worst-first by `people.attrition.pct` (descending), Top-20 · action panel
 **Decision payoff (actions):** X-R1.1
 
 ## OPS-001 — Operations Performance
@@ -410,7 +410,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which categories and suppliers should the savings-recovery effort target first?
-- **[300s evidence]** grain `category_supplier`, worst-first by `procurement.savings.realized.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `purchase_order_line`, worst-first by `procurement.savings.realized.pct` (ascending), Top-20 · action panel
 **Decision payoff (actions):** S-P1.1
 
 ## XD-001 — Service Level Performance

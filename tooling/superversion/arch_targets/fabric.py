@@ -6,7 +6,19 @@ blueprint — lakehouse/workspace/domain topology, the shortcut·mirror ingestio
 (P1), the medallion layout (P2), and the Direct-Lake semantic binding. It does NOT
 call `fab`/REST; live provisioning stays tenant-gated (IR spec §"Still open").
 
-Contract: ``emit(blueprint) -> {relative_path: content}`` — pure & deterministic.
+On top of that topology layer, the **mirrored Meridian emitters** contribute the
+officially-grounded detail this module deliberately does not reimplement (SHARED_SUBSTANCE.md
+class A — home is Meridian, ALUCA mirrors byte-identically): OneLake Security roles,
+workspace-failure KQL + throttling alerts, Delta OPTIMIZE/VACUUM + BCDR, Managed Private
+Endpoints, and operational readiness. Building a second version of those here would be
+exactly the duplicate silo the doctrine exists to prevent.
+
+Soft-skip: if the vendored subtree is absent or fails its sha256 PIN, only the topology
+layer is emitted and a note records what is missing — a broken mirror must never silently
+degrade into half-correct governance artifacts.
+
+Contract: ``emit(blueprint) -> {relative_path: content}`` — deterministic for a given
+blueprint and mirror state.
 """
 from __future__ import annotations
 
@@ -23,6 +35,35 @@ _ACCESS_ACTION = {
 
 def _json(obj) -> str:
     return json.dumps(obj, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+# Mirrored emitter → the prefix its artifacts land under. Order is fixed so the emitted
+# set is deterministic.
+_MIRRORED = ("emit_governance", "emit_monitoring", "emit_lifecycle",
+             "emit_connectivity", "emit_operability")
+
+
+def _mirrored_artifacts(blueprint: dict) -> tuple[dict[str, str], str]:
+    """Artifacts from the mirrored Meridian emitters, plus a one-line status.
+
+    Returns ``({}, reason)`` when the mirror is unavailable — the caller then emits the
+    topology layer alone and surfaces `reason` in the runbook.
+    """
+    try:
+        from tooling.superversion._dataarch_vendor import VendorUnavailable, load_emitters
+    except ImportError as exc:  # pragma: no cover - loader is part of the repo
+        return {}, f"vendor loader unavailable ({exc})"
+
+    try:
+        api = load_emitters()
+    except VendorUnavailable as exc:
+        return {}, str(exc)
+
+    out: dict[str, str] = {}
+    for name in _MIRRORED:
+        for path, content in api[name](blueprint).items():
+            out[f"fabric/{path}"] = content
+    return out, ""
 
 
 def emit(blueprint: dict) -> dict[str, str]:
@@ -97,15 +138,35 @@ def emit(blueprint: dict) -> dict[str, str]:
     lines.append("- Direct Lake semantic model per domain, bound to gold.")
     lines.append(f"- Grounding surface: {', '.join(grounding.get('grounding_surface', []))} "
                  "(never bronze); grounding manifest emitted separately (`ground`).")
+    lines.append("")
+
+    mirrored, skip_reason = _mirrored_artifacts(blueprint)
+
+    lines.append("## 5. Governance, monitoring, lifecycle, connectivity, operability")
+    if mirrored:
+        lines.append(f"Emitted by the mirrored Meridian emitters ({len(mirrored)} artifact(s)) — "
+                     "OneLake Security roles, failure/throttling alerts, Delta maintenance + "
+                     "BCDR, Managed Private Endpoints, operational readiness. See "
+                     "`SHARED_SUBSTANCE.md` for why these are not reimplemented here.")
+        for path in sorted(mirrored):
+            lines.append(f"- `{path}`")
+    else:
+        lines.append("**Not emitted** — the mirrored Meridian emitters are unavailable: "
+                     f"{skip_reason}")
+        lines.append("Re-mirror with `python scripts/check_dataarch_mirror.py --write`. "
+                     "Half-correct governance artifacts are worse than none, so nothing is "
+                     "substituted here.")
     runbook = "\n".join(lines) + "\n"
 
-    return {
+    out = {
         "fabric/PROVISIONING_PLAN.md": runbook,
         "fabric/workspaces.json": _json(workspaces_plan),
         "fabric/ingestion_plan.json": _json(ingestion_plan),
         "fabric/medallion.json": _json(medallion),
         "fabric/semantic_binding.json": _json(semantic_binding),
     }
+    out.update(mirrored)
+    return out
 
 
 register(ArchAdapter(id="fabric", label="Microsoft Fabric (OneLake)", emit=emit))

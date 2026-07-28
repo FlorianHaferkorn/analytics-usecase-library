@@ -14,6 +14,7 @@ import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
 import type { DriftReport } from '@/lib/validation/drift-scanner';
 import type { ActiveNotification } from '@/lib/notifications/rule-types';
+import type { AuroraBootstrapData } from '@/lib/aurora/bootstrap-data';
 
 /** Serializable action detail for the flow. */
 export interface ActionDetail {
@@ -57,12 +58,18 @@ export interface ProjectState {
   // Theme
   theme: ThemeConfig;
 
+  // Aurora showcase snapshot, bootstrapped server-side (see lib/aurora/bootstrap-data)
+  aurora: AuroraBootstrapData;
+
   // Drift detection
   driftReport: DriftReport | null;
   driftLoading: boolean;
 
   // Notifications
   notifications: ActiveNotification[];
+
+  // Cross-surface domain filter (owned here so sidebar, URL and every page agree)
+  domainFilter: string | null;
 
   // UI state
   selectedBracketId: string | null;
@@ -82,6 +89,8 @@ export interface ProjectState {
   setKpis: (kpis: CatalogKpi[]) => void;
   setActions: (actions: ActionDetail[]) => void;
   setTheme: (theme: Partial<ThemeConfig>) => void;
+  setAurora: (aurora: AuroraBootstrapData) => void;
+  setDomainFilter: (name: string | null) => void;
   setDriftReport: (report: DriftReport | null) => void;
   setDriftLoading: (loading: boolean) => void;
   addNotification: (n: ActiveNotification) => void;
@@ -129,6 +138,11 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   theme: DEFAULT_THEME,
 
+  // Unlinked until the shell bootstraps a snapshot — surfaces fall back to their stubs.
+  aurora: { kpis: {}, linked: false, generatedAt: null, source: null },
+
+  domainFilter: null,
+
   driftReport: null,
   driftLoading: false,
 
@@ -152,6 +166,12 @@ export const useProjectStore = create<ProjectState>((set) => ({
       theme: { ...state.theme, ...partial },
       isDirty: true,
     })),
+
+  // Server-bootstrapped, not user-authored — deliberately does not set isDirty.
+  setAurora: (aurora) => set({ aurora }),
+
+  // A view filter, not project content — likewise never marks the project dirty.
+  setDomainFilter: (name) => set({ domainFilter: name }),
 
   setDriftReport: (report) => set({ driftReport: report }),
   setDriftLoading: (loading) => set({ driftLoading: loading }),

@@ -25,6 +25,10 @@ export default defineConfig({
         __dirname,
         'src/lib/secrets/_stubs/aws-sm-stub.js',
       ),
+      // `server-only` is a build-time marker with no runtime behaviour and is not an
+      // installed package; without this alias every server loader's test file aborts on
+      // import before running a single assertion.
+      'server-only': path.resolve(__dirname, 'src/lib/_stubs/server-only-stub.js'),
     },
   },
 });

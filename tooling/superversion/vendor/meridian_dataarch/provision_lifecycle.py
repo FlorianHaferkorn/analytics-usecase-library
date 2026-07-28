@@ -1,0 +1,155 @@
+"""provision_lifecycle — emit data retention, table lifecycle and BCDR from a blueprint.
+
+Closes the retention/BCDR gap: the platform stored data but nothing governed how long it lives, how
+it's maintained, or how it survives a region outage. Grounded in MS Learn (2026-07): *VACUUM Delta
+tables*, *Delta time travel*, *Data retention in Fabric Warehouse*, *Disaster recovery for OneLake*,
+*Reliability in Microsoft Fabric*.
+
+- **Table lifecycle** → per gold Delta table: scheduled `OPTIMIZE` + `VACUUM` (default **168 h / 7-day**
+  retention — never below without understanding time-travel/recovery), a real deployable maintenance
+  script. `VACUUM` doesn't touch `_delta_log`; `DRY RUN` first.
+- **Retention policy** → a per-domain retention config (retention days + personal-data classification +
+  deletion mechanism). *Which* tables hold personal data is DSGVO policy → from the caller's map or a
+  VERIFY placeholder, never invented; the config is the bridge from the compliance repo to the platform.
+- **BCDR** → a runbook: the DR capacity setting (OneLake geo-replication, 30-day toggle limit, async →
+  RPO > 0), the ZRS/LRS baseline, soft-delete (7-day recovery), the **non-OneLake gap** (KQL DBs
+  replicate separately), and the failover read/write behaviour. DR is an admin/portal toggle → runbook.
+
+Honest by construction: maintenance SQL is deployable; the DR toggle + personal-data classification are
+policy/admin → runbook + config placeholders, never a faked API. Emits only; never executes.
+"""
+from __future__ import annotations
+
+import json
+import re
+
+_NONWORD_RE = re.compile(r"[^a-z0-9]+")
+
+_VACUUM_DEFAULT_HOURS = 168   # MS default 7-day retention; the documented floor for safe time travel
+
+
+def _ident(name: str) -> str:
+    return _NONWORD_RE.sub("_", (name or "").lower()).strip("_")
+
+
+def _domains(bp: dict) -> list[dict]:
+    return sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
+
+
+def _gold_tbl(product: str, schemas: bool) -> str:
+    from core.dataarch_engine.blueprint.naming import layer_ref
+    return layer_ref("gold", _ident(product), schemas)
+
+
+def _table_maintenance(bp: dict, schemas: bool) -> str:
+    """Scheduled OPTIMIZE + VACUUM per gold Delta table (Spark SQL). Grounded: VACUUM after OPTIMIZE,
+    7-day default retention, DRY RUN first, don't go below 7 days."""
+    lines = [
+        "-- Table maintenance — run on a schedule (e.g. weekly) in a notebook / Spark job over the gold Delta tables.",
+        "-- Grounded (MS Learn): run VACUUM after OPTIMIZE; default retention 168 h (7 days); do NOT go below 7",
+        "-- days unless you understand the impact on time travel + recovery; VACUUM does not remove _delta_log.",
+        "-- Verify first with:  VACUUM <table> RETAIN 168 HOURS DRY RUN",
+        "",
+    ]
+    for d in _domains(bp):
+        for product in sorted(d.get("data_products", [])):
+            t = _gold_tbl(product, schemas)
+            lines += [f"OPTIMIZE {t};",
+                      f"VACUUM {t} RETAIN {_VACUUM_DEFAULT_HOURS} HOURS;   -- 7-day floor; raise per time-travel/audit needs",
+                      ""]
+    return "\n".join(lines) + "\n"
+
+
+def _retention_policy(bp: dict, retention: dict) -> str:
+    """Per-domain retention config: bridges the DSGVO/compliance retention policy to the platform.
+    retention_days + personal-data flag come from the caller's map (compliance repo) or stay VERIFY —
+    which tables hold personal data is policy, never guessed here."""
+    domains = []
+    for d in _domains(bp):
+        key = _ident(d["name"])
+        dcfg = (retention or {}).get(key) or (retention or {}).get("default") or {}
+        domains.append({
+            "domain": d["name"],
+            "tables": sorted(d.get("data_products", [])),
+            "retention_days": dcfg.get("retention_days", "<VERIFY: retention days per data-retention policy>"),
+            "contains_personal_data": dcfg.get("contains_personal_data",
+                                               "<VERIFY: DSGVO classification per table>"),
+            "deletion_mechanism": ("DELETE by predicate (e.g. WHERE <date> < add_months(current_date, -N)) "
+                                   "then VACUUM to physically remove; time-travel window still applies until VACUUM."),
+        })
+    payload = {
+        "_note": ("Retention is DSGVO/compliance policy, not derivable from the IR. Fill retention_days + "
+                  "contains_personal_data from the data-retention register; this config is the bridge from the "
+                  "compliance repo into the platform. Warehouse retention (if used) defaults to 30 days, set at "
+                  "warehouse level (not per-table)."),
+        "domains": domains,
+    }
+    return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+
+
+def _bcdr_runbook(bp: dict, capacity: str) -> str:
+    return "".join(line + "\n" for line in [
+        "# BCDR runbook — business continuity & disaster recovery (grounded MS Learn 2026-07)",
+        "",
+        f"Capacity: **{capacity}**  ·  Workspaces: **{len(_domains(bp))} domain(s)**",
+        "",
+        "## Baseline (always on)",
+        "- OneLake is **ZRS** where available (12 nines; survives a datacenter/zone loss), else **LRS** (11 nines;",
+        "  survives rack/drive loss only). Resilient to hardware failure — **not** a region outage by itself.",
+        "- **Soft delete**: deleted OneLake files are recoverable for **7 days** before permanent removal.",
+        "- **BCDR for Power BI is always supported**, independent of the DR switch below.",
+        "",
+        "## Phase 1 — Prepare (do before go-live)",
+        "1. Enable the **disaster-recovery capacity setting** on the capacity → OneLake data geo-replicates to the",
+        "   Azure paired region. Watch **OneLake Geo-replication** status per workspace in capacity settings.",
+        "   - Toggle is rate-limited: once changed, you must wait **30 days** before changing it again.",
+        "   - Billed as **BCDR Storage + Operations** (visible as line items in the Capacity Metrics app).",
+        "   - No paired region / unsupported region → replication unavailable; plan an app-level copy.",
+        "2. **Back up data stored OUTSIDE OneLake** to another region — notably **KQL databases / querysets**",
+        "   (Real-Time Intelligence) replicate **separately** and are NOT covered by the OneLake DR switch.",
+        "3. Set retention (`retention_policy.json` + `table_maintenance.sql`) to match your **RPO** — async",
+        "   replication means data not yet copied at disaster time is lost (RPO > 0).",
+        "",
+        "## Phase 2 — Failover (during a region disaster)",
+        "- Failover is Microsoft-initiated; typically **< 1 hour**. During/after failover:",
+        "  - **Reads continue** (browse workspaces/items, view reports); **writes are paused**.",
+        "  - **Lakehouse/Warehouse** items can't be opened, but files are reachable via the **OneLake global",
+        "    endpoint / APIs**.",
+        "  - **Notebook** code is **not** saved after the disaster — keep notebooks in **Git integration**.",
+        "  - After failover the new primary is **local-redundant only** until the primary region returns.",
+        "",
+        "## Recovery objectives (fill per SLA)",
+        "- **RPO** (max acceptable data loss): `<VERIFY per SLA>` — bounded below by async replication lag.",
+        "- **RTO** (max acceptable downtime): `<VERIFY per SLA>` — Fabric failover typically < 1 h + your app steps.",
+    ])
+
+
+def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_NAME>",
+                   schemas: bool = False, retention: dict | None = None) -> dict[str, str]:
+    """Return the retention/lifecycle/BCDR artifact set (path → content). Maintenance SQL is emitted for
+    Spark stacks (fabric/databricks); the plan, retention config and BCDR runbook are always emitted."""
+    retention = retention or {}
+    doc = [
+        "# Data lifecycle: retention, maintenance & BCDR (generated — grounded MS Learn 2026-07)", "",
+        f"Stack: **{stack}**  ·  Capacity: **{capacity}**  ·  Domains: **{len(_domains(bp))}**", "",
+        "| Concern | Artifact | Mechanism | Status |", "|---|---|---|---|",
+        "| Table maintenance (compaction + cleanup) | `table_maintenance.sql` | `OPTIMIZE` + `VACUUM` (7-day "
+        "retention floor) | deployable |",
+        "| Data retention / DSGVO | `retention_policy.json` | per-domain retention days + deletion + personal-data "
+        "class | config (policy-owned) |",
+        "| Point-in-time / audit | Delta **time travel** (`delta.logRetentionDuration`) | built-in; full CTAS "
+        "copy for long-term | GA |",
+        "| Accidental deletion | OneLake **soft delete** (7-day recovery) | built-in | GA |",
+        "| Region outage | `BCDR_RUNBOOK.md` | DR capacity setting (geo-replication) + failover runbook | admin toggle |",
+        "",
+        "> Retention days + personal-data classification are **DSGVO policy** (from the compliance register), not",
+        "> derivable from the IR — `retention_policy.json` is the bridge, filled from the data-retention record.",
+    ]
+    out: dict[str, str] = {
+        "lifecycle/_LIFECYCLE.md": "\n".join(doc) + "\n",
+        "lifecycle/retention_policy.json": _retention_policy(bp, retention),
+        "lifecycle/BCDR_RUNBOOK.md": _bcdr_runbook(bp, capacity),
+    }
+    if stack in ("fabric", "databricks"):
+        out["lifecycle/table_maintenance.sql"] = _table_maintenance(bp, schemas)
+    return out

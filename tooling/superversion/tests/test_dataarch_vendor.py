@@ -1,0 +1,210 @@
+"""Der Meridian→ALUCA-Spiegel der offiziell belegten Emitter (SHARED_SUBSTANCE.md §2.1).
+
+Zwei Dinge werden geprüft, und beide sind nötig:
+
+1. **Der Spiegel läuft wirklich.** Ein Vendor-Ordner, der nur importierbar ist, hätte die
+   Lücke nicht geschlossen. Deshalb werden die Emitter hier tatsächlich aufgerufen und ihre
+   Ausgabe gegen die offiziellen Verträge geprüft (OneLake-``PermissionScope``-Form,
+   Monitoring-KQL, ``VACUUM RETAIN``, Managed-Private-Endpoint-Payload).
+2. **ALUCAs ``core`` bleibt unberührt.** Die gespiegelten Module importieren einander als
+   ``core.dataarch_engine.blueprint.…``; ALUCA benutzt ``core`` selbst als Namespace-Paket.
+   Die Import-Brücke darf ``core.brand`` niemals verschatten.
+"""
+from __future__ import annotations
+
+import json
+import shutil
+from pathlib import Path
+
+import pytest
+
+from tooling.superversion import _dataarch_vendor as vendor
+
+VENDOR = vendor.VENDOR_DIR
+
+
+# -- Integrität des committeten Spiegels ------------------------------------------
+
+
+def test_pin_covers_every_vendored_module():
+    pin = vendor.read_pin()
+    on_disk = {p.name for p in VENDOR.glob("*.py")}
+    assert {e["path"] for e in pin["files"]} == on_disk
+    assert pin["source_repo"] == "Freelancing"
+
+
+def test_committed_mirror_matches_its_pin():
+    assert vendor.integrity_findings(VENDOR, vendor.read_pin()) == []
+    assert vendor.available() is True
+
+
+def test_local_edit_is_refused(tmp_path: Path):
+    staged = tmp_path / "m"
+    shutil.copytree(VENDOR, staged)
+    (staged / "naming.py").write_text("# hand-edited\n", encoding="utf-8")
+    findings = vendor.integrity_findings(staged, vendor.read_pin())
+    assert any("lokal editiert" in f for f in findings)
+
+
+def test_missing_file_is_refused(tmp_path: Path):
+    staged = tmp_path / "m"
+    shutil.copytree(VENDOR, staged)
+    (staged / "capacity_recommend.py").unlink()
+    findings = vendor.integrity_findings(staged, vendor.read_pin())
+    assert any("fehlt im Spiegel" in f for f in findings)
+
+
+def test_verify_raises_on_divergence(monkeypatch, tmp_path: Path):
+    staged = tmp_path / "m"
+    shutil.copytree(VENDOR, staged)
+    (staged / "naming.py").write_text("# hand-edited\n", encoding="utf-8")
+    monkeypatch.setattr(vendor, "VENDOR_DIR", staged)
+    monkeypatch.setattr(vendor, "PIN_PATH", VENDOR / "PIN.json")
+    with pytest.raises(vendor.VendorUnavailable, match="PIN"):
+        vendor.verify()
+
+
+# -- die Import-Brücke -------------------------------------------------------------
+
+
+def test_every_promised_function_loads():
+    api = vendor.load_emitters()
+    expected = {fn for fns in vendor.PUBLIC_API.values() for fn in fns}
+    assert set(api) == expected
+    assert all(callable(v) for v in api.values())
+
+
+def test_aluca_core_namespace_survives_the_bridge():
+    """Der Finder darf ausschließlich core.dataarch_engine[.blueprint] beantworten."""
+    vendor.load_emitters()
+    import core.brand  # noqa: F401 — genau das würde ein synthetisches `core` zerstören
+    import core  # noqa: F401
+    assert Path(core.__path__[0]).name == "core"
+
+
+def test_bridge_is_installed_only_once():
+    vendor.load_emitters()
+    vendor.load_emitters()
+    import sys
+    finders = [f for f in sys.meta_path if isinstance(f, vendor._VendorFinder)]
+    assert len(finders) == 1
+
+
+def test_finder_ignores_unrelated_names():
+    vendor.load_emitters()
+    import sys
+    finder = next(f for f in sys.meta_path if isinstance(f, vendor._VendorFinder))
+    for name in ("core", "core.brand", "tooling", "json", "core.dataarch_engineX"):
+        assert finder.find_spec(name) is None, f"finder must not claim {name}"
+
+
+# -- die Emitter laufen wirklich ---------------------------------------------------
+
+
+_BP = {
+    "schema_version": "0.1.0",
+    "platform": {"stack": "fabric", "ownership_boundaries": []},
+    "ingestion": [
+        {"source": "erp_orders", "domain": "Sales", "access_mode": "shortcut",
+         "rationale": "virtualize", "sensitivity": "confidential"},
+        # A private source, so the Managed-Private-Endpoint path is actually exercised.
+        {"source": "crm_accounts", "domain": "Sales", "access_mode": "mirror",
+         "source_system": "SQL Server on-prem", "rationale": "CDC mirror",
+         "sensitivity": "confidential"},
+    ],
+    "medallion": {
+        "bronze": {"enabled": True, "immutable": True, "append_only": True},
+        "silver": {"data_contract_ref": "contracts/sales.yaml"},
+        "gold": {"data_products": [
+            {"name": "fact_orders", "kind": "fact", "grain": "order line"},
+            {"name": "dim_customer", "kind": "dimension"},
+        ]},
+        "no_layer_skip": True,
+    },
+    "mesh": {"domains": [{
+        "name": "Sales",
+        "workspaces": [{"name": "Sales_Gold", "role": "gold"}],
+        "publishing": {"endorsement": "certified", "intended_audience": "internal"},
+    }]},
+    "ai_grounding": {"grounding_surface": ["gold"],
+                     "retrieval": [{"domain": "Sales", "strategy": "builtin"}]},
+}
+
+
+@pytest.fixture(scope="module")
+def api():
+    return vendor.load_emitters()
+
+
+def _strip_comment_header(text: str) -> str:
+    """The emitted payload carries a `//` rationale header above the body.
+
+    That is deliberate: the reasoning must travel with the artifact, but the REST body has
+    to stay schema-clean (an unknown field would be rejected). Stripping it here also pins
+    that separation — if the comment ever leaked into the body, this would fail.
+    """
+    lines = text.splitlines()
+    body = [l for i, l in enumerate(lines) if not (l.lstrip().startswith("//"))]
+    return "\n".join(body)
+
+
+def test_governance_emits_official_onelake_shape(api):
+    out = api["emit_governance"](_BP)
+    raw = out["governance/onelake_data_access_roles.json"]
+    roles = json.loads(_strip_comment_header(raw))
+    assert roles["value"], "no roles emitted"
+    for role in roles["value"]:
+        # kind must be Policy, and every DecisionRule permission carries exactly the two
+        # documented PermissionScope entries (Path + Action) — the shape the API rejects
+        # when it is wrong.
+        assert role["decisionRules"]
+        for rule in role["decisionRules"]:
+            scopes = rule["permission"]
+            assert len(scopes) == 2
+            assert {s["attributeName"] for s in scopes} == {"Path", "Action"}
+
+
+def test_monitoring_emits_failure_kql(api):
+    out = api["emit_monitoring"](_BP)
+    blob = "\n".join(out.values())
+    assert "ItemJobEventLogs" in blob
+    assert "Failed" in blob
+
+
+def test_lifecycle_emits_delta_maintenance(api):
+    out = api["emit_lifecycle"](_BP)
+    blob = "\n".join(out.values())
+    assert "OPTIMIZE" in blob
+    assert "VACUUM" in blob and "RETAIN" in blob
+
+
+def test_connectivity_emits_managed_private_endpoint_fields(api):
+    out = api["emit_connectivity"](_BP)
+    blob = "\n".join(out.values())
+    assert "targetPrivateLinkResourceId" in blob
+    assert "targetSubresourceType" in blob
+
+
+def test_operability_reports_metadata_completeness(api):
+    findings = api["check_metadata_completeness"](_BP)
+    assert isinstance(findings, (list, tuple, dict))
+
+
+def test_decision_proposals_reach_their_lazy_dependencies(api):
+    """`propose_all` lazily imports capacity_recommend and admin_settings by their Meridian
+    dotted names — the case the bridge exists for."""
+    proposals = api["propose_all"](_BP)
+    ids = {p["id"] for p in proposals}
+    # PLAT-CAP comes from capacity_recommend, PLAT-TENANT from admin_settings — both are
+    # reached through a lazy `core.dataarch_engine.blueprint.…` import at call time, which
+    # is exactly the case the import bridge exists for.
+    assert {"PLAT-CAP", "PLAT-TENANT"} <= ids, f"lazy deps unreachable; got {sorted(ids)}"
+    cap = next(p for p in proposals if p["id"] == "PLAT-CAP")
+    # A real recommendation, not an empty placeholder.
+    assert cap.get("vorschlag") or cap.get("proposal")
+
+
+def test_decisions_markdown_renders(api):
+    md = api["decisions_markdown"](api["propose_all"](_BP))
+    assert md.strip()
+    assert "|" in md, "expected a table"

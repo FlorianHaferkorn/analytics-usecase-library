@@ -28,7 +28,7 @@
 | COM-005 | 6 | 1 | — | growth.yaml |
 | FIN-001 | 23 | 4 | ✓ | finance.yaml |
 | FIN-002 | 16 | 4 | ✓ | finance.yaml |
-| FIN-003 | 7 | 1 | — | finance.yaml |
+| FIN-003 | 9 | 1 | — | finance.yaml |
 | HR-001 | 7 | 1 | — | people.yaml |
 | OPS-001 | 22 | 4 | ✓ | operations.yaml |
 | OPS-002 | 10 | 5 | ✓ | operations.yaml |
