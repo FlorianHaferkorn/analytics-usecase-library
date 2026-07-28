@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
+import Link from 'next/link';
 
 type Tone = 'default' | 'info' | 'success' | 'warning';
 
@@ -28,16 +29,19 @@ export function StudioPage({ children, fill = false, style }: { children: ReactN
 // ── Page header ──────────────────────────────────────────────────────────────
 
 export function StudioPageHeader({
-  eyebrow, title, description, badge, actions, tone = 'default',
+  eyebrow, title, description, badge, actions, tone = 'default', compact = false,
 }: {
   eyebrow?: string; title: string; description: string;
   badge?: string; actions?: ReactNode; tone?: Tone;
+  /** Tighter header for pages that lead with content rather than with the title. */
+  compact?: boolean;
 }) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
       gap: '16px', flexWrap: 'wrap',
-      paddingBottom: 'var(--gap)', borderBottom: '1px solid var(--line)',
+      paddingBottom: compact ? 'calc(var(--gap) / 2)' : 'var(--gap)',
+      borderBottom: '1px solid var(--line)',
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 800 }}>
         {eyebrow && (
@@ -46,7 +50,7 @@ export function StudioPageHeader({
           </span>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
+          <h1 style={{ margin: 0, fontSize: compact ? 20 : 28, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
             {title}
           </h1>
           {badge && (
@@ -114,9 +118,14 @@ export function StudioMetric({
 
 export function StudioPanel({
   title, description, action, children, tone = 'default', style,
+  compactHeader = false, bare = false,
 }: {
   title?: string; description?: string; action?: ReactNode;
   children: ReactNode; tone?: Tone; style?: CSSProperties;
+  /** Slimmer header row — for panels that mostly hold a canvas, not prose. */
+  compactHeader?: boolean;
+  /** Drop the body padding so a full-bleed child (graph, table, editor) can fill it. */
+  bare?: boolean;
 }) {
   const hasHeader = !!(title || description || action);
   void tone;
@@ -130,7 +139,8 @@ export function StudioPanel({
     }}>
       {hasHeader && (
         <div style={{
-          padding: '18px var(--pad)', borderBottom: '1px solid var(--line-2)',
+          padding: compactHeader ? '10px var(--pad)' : '18px var(--pad)',
+          borderBottom: '1px solid var(--line-2)',
           display: 'flex', alignItems: 'flex-start',
           justifyContent: 'space-between', gap: '16px', flexShrink: 0,
         }}>
@@ -141,7 +151,12 @@ export function StudioPanel({
           {action && <div style={{ flexShrink: 0 }}>{action}</div>}
         </div>
       )}
-      <div style={{ padding: 'var(--pad)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)', flex: 1, minHeight: 0 }}>
+      <div style={{
+        padding: bare ? 0 : 'var(--pad)',
+        display: 'flex', flexDirection: 'column',
+        gap: bare ? 0 : 'var(--gap)',
+        flex: 1, minHeight: 0,
+      }}>
         {children}
       </div>
     </section>
@@ -174,6 +189,47 @@ export function StudioToolbar({ children, style }: { children: ReactNode; style?
       ...style,
     }}>
       {children}
+    </div>
+  );
+}
+
+// ── Workflow footer ───────────────────────────────────────────────────────────
+
+/**
+ * Closing "next step" link of a workflow page.
+ *
+ * The Studio modules form an ordered path (compose → simulate → generate → deliver →
+ * templates); this makes the next hop explicit at the bottom of each page so the sidebar
+ * is not the only way forward.
+ */
+export function StudioWorkflowFooter({
+  label, href, description,
+}: {
+  label: string; href: string; description?: string;
+}) {
+  return (
+    <div style={{
+      marginTop: 'var(--gap)', paddingTop: 'var(--gap)',
+      borderTop: '1px solid var(--line)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      gap: '16px', flexWrap: 'wrap',
+    }}>
+      {description
+        ? <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: 'var(--ink-3)', maxWidth: '64ch' }}>{description}</p>
+        : <span />}
+      <Link
+        href={href}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '8px 16px', borderRadius: 'var(--radius)',
+          border: '1px solid var(--line)', background: 'var(--bg-2)',
+          color: 'var(--ink)', fontSize: 13, fontWeight: 500, textDecoration: 'none',
+          flexShrink: 0,
+        }}
+      >
+        {label}
+        <span aria-hidden="true">→</span>
+      </Link>
     </div>
   );
 }
