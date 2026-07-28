@@ -24,7 +24,8 @@ shelf-life-days: 90
 | Den Ziel-Vertrag verstehen (Felder, Parität) | `canonical_contract.py` (Seam) → `_canonical_mirror.py` (Standalone-Mirror) | Adapter-Logik |
 | Meridian-Einzug / Vendoring verstehen (ADR-0005) | `canonical_contract.py` → `_meridian_vendor.py` → `vendor/meridian/PIN.json` | Mirror-Felder |
 | Pin-Drift prüfen (meldet, bumpt nie) | Repo-Root: `scripts/check_superversion_pins.py` (+ `tests/test_pin_sensor.py`) | Adapter-Logik |
-| Contract-Mirror-Drift ggü. Meridian prüfen (ADR-0051 / I-20 Tier-3 #8) | Repo-Root: `scripts/check_dataarch_mirror.py` (vergleicht architecture_concepts/governance_concepts/odcs gegen Meridians Originale, wenn `$MERIDIAN_ROOT`/`../Freelancing` erreichbar; meldet Drift, bumpt nie; Soft-Skip offline) (+ `../tests/test_dataarch_mirror_sensor.py`) | Adapter-Logik |
+| Mirror-Drift ggü. Meridian prüfen (ADR-0051 / I-20 Tier-3 #8 · SHARED_SUBSTANCE.md) | Repo-Root: `scripts/check_dataarch_mirror.py` — zwei Hälften: (a) **Vertragsfläche** der handgespiegelten Registries (architecture_concepts/governance_concepts/odcs) gegen Meridians Originale; (b) **Datei-sha256** des byte-identisch gespiegelten Emitter-Teilbaums (`vendor/meridian_dataarch`), gegen das lokale PIN (läuft immer, lokale Editierung = Exit 1) und gegen Meridian (advisory, `--strict` hart, `--write` spiegelt neu). Soft-Skip ohne `$MERIDIAN_ROOT`/`../Freelancing`; meldet Drift, spiegelt nie von selbst. (+ `../tests/test_dataarch_mirror_sensor.py`, `tests/test_dataarch_vendor.py`) | Adapter-Logik |
+| Gespiegelte Meridian-Emitter benutzen (SHARED_SUBSTANCE.md Klasse A) | `_dataarch_vendor.py` (`load_emitters()` — prüft PIN, hängt eine auf `core.dataarch_engine[.blueprint]` begrenzte `sys.meta_path`-Brücke ein, damit ALUCAs eigenes `core` unberührt bleibt) → `vendor/meridian_dataarch/_MIRROR.md` (Modulliste + Re-Mirror-Ablauf); konsumiert von `arch_targets/fabric.py` | Mirror-Felder |
 | Architektur-Konzept-Strategie wählen/registrieren (ADR-0051 / I-20.1) | `architecture_concepts.py` (`ArchitectureConcept`-Protocol + `MedallionConcept`-Default + Registry `get_concept`/`available_concepts`; der Deriver ruft `get_concept(inputs['architecture_concept']).derive_layers(...)`, Default byte-identisch) → `../tests/test_architecture_concepts.py` | Emitter |
 | Data-Gov-Konzept-Strategie wählen/mischen (ADR-0051 / I-20.2) | `governance_concepts.py` (`GovernanceConcept`-Registry: odcs-contract-first Default · purview-data-product · glossary-first · dq-first; `resolve_governance(inputs)` mischt eine Liste, Mixed-Standards-⚠) → `../tests/test_governance_concepts.py` | Emitter |
 | IR↔ODCS-Contract mappen (Official-First, ADR-0051 / I-20.3) | `odcs.py` (`to_odcs`/`emit_odcs`/`from_odcs`/`import_sql_table`/`validate_odcs`; ODCS v3.0.0, ein Contract je Domain, Gold-Round-Trip byte-stabil) → `../tests/test_odcs.py` | Emitter |
@@ -59,6 +60,7 @@ shelf-life-days: 90
 | Doc | Zweck | Lies-wenn |
 |---|---|---|
 | `_INDEX.md` | dieser Bereichs-Index | Erstkontakt |
+| `vendor/meridian_dataarch/_MIRROR.md` | Der byte-identisch gespiegelte Meridian-Emitter-Teilbaum: welche neun Module, warum sie geteilt sind (SHARED_SUBSTANCE.md Klasse A), wie die `core.dataarch_engine`-Import-Brücke ALUCAs eigenes `core` unberührt lässt, und der Re-Mirror-Ablauf | bevor du dort etwas änderst (nämlich: nicht — in Meridian ändern und neu spiegeln) |
 
 *(Code-Dateien `from_aluca.py`, `canonical_contract.py` (Seam), `_canonical_mirror.py`
 (Standalone-Mirror), `_meridian_vendor.py` (Vendor-Loader), `architecture_concepts.py`

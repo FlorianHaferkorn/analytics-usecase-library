@@ -47,6 +47,13 @@ run_check() {
 run_check "Drift gate (check_index.py --strict)" \
   python3 scripts/check_index.py --strict
 
+# --- Meridian mirror ----------------------------------------------------
+# Not --strict: the vendored subtree's local integrity is checked unconditionally (a hand
+# edit exits 1 either way), while the cross-repo diff is advisory and soft-skips without a
+# Meridian checkout — this script must stay runnable on its own.
+run_check "Meridian mirror (check_dataarch_mirror.py)" \
+  python3 scripts/check_dataarch_mirror.py
+
 # --- Python test suite --------------------------------------------------
 run_check "Pytest suite (tooling/superversion, tooling/tests, products)" \
   python3 -m pytest tooling/superversion tooling/tests products -q

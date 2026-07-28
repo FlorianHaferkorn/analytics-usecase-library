@@ -22,9 +22,12 @@ imports a sibling), never via ``import core`` — ALUCA owns its own ``core`` pa
 """
 from __future__ import annotations
 
+import hashlib
 import importlib.util
+import json
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -36,6 +39,12 @@ _MER_REL = "core/dataarch_engine/blueprint"
 _ALU_REL = "tooling/superversion"
 _ODCS_PUBLIC = ("to_odcs", "emit_odcs", "to_odcs_ingestion", "emit_odcs_ingestion",
                 "from_odcs", "import_sql_table", "odcs_to_catalog", "validate_odcs")
+
+# Zweite, stärkere Hälfte des Sensors (SHARED_SUBSTANCE.md Klasse A): die offiziell
+# belegten Emitter werden nicht per Hand nachgezogen, sondern **byte-identisch**
+# gespiegelt. Dafür genügt kein Vertragsflächen-Vergleich — hier wird Datei-sha256
+# gediffed, gegen Meridian *und* gegen das lokale PIN.
+_VENDOR_REL = "tooling/superversion/vendor/meridian_dataarch"
 
 
 def _meridian_root() -> Path | None:
@@ -86,14 +95,99 @@ def _diff(meridian: dict, aluca: dict) -> list[str]:
             for k in _CONTRACT_KEYS if meridian.get(k) != aluca.get(k)]
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def vendor_pin() -> dict | None:
+    """The vendored subtree's PIN manifest, or None when nothing is vendored yet."""
+    pin = REPO_ROOT / _VENDOR_REL / "PIN.json"
+    return json.loads(pin.read_text(encoding="utf-8")) if pin.is_file() else None
+
+
+def vendor_integrity(pin: dict) -> list[str]:
+    """Local edits inside the byte-identical mirror. Pure; runs without Meridian."""
+    root = REPO_ROOT / _VENDOR_REL
+    out: list[str] = []
+    for entry in pin.get("files", []):
+        f = root / entry["path"]
+        if not f.is_file():
+            out.append(f"  {entry['path']}: missing from the mirror")
+            continue
+        got = _sha256(f)
+        if got != entry["sha256"]:
+            out.append(f"  {entry['path']}: edited locally "
+                       f"(sha256 {got[:12]}… != pinned {entry['sha256'][:12]}…)")
+    return out
+
+
+def vendor_upstream_drift(pin: dict, meridian_blueprint: Path) -> list[str]:
+    """Meridian-side changes the mirror has not picked up yet. Pure."""
+    out: list[str] = []
+    for entry in pin.get("files", []):
+        src = meridian_blueprint / entry["path"]
+        if not src.is_file():
+            out.append(f"  {entry['path']}: removed in Meridian, still mirrored here")
+            continue
+        if _sha256(src) != entry["sha256"]:
+            out.append(f"  {entry['path']}: Meridian moved on — re-mirror (--write)")
+    return out
+
+
+def write_vendor(meridian_blueprint: Path, pin: dict) -> dict:
+    """Re-copy the mirrored files and rewrite PIN.json. Deliberately manual, never in CI."""
+    root = REPO_ROOT / _VENDOR_REL
+    root.mkdir(parents=True, exist_ok=True)
+    names = [e["path"] for e in pin.get("files", [])]
+    for name in names:
+        shutil.copyfile(meridian_blueprint / name, root / name)
+    fresh = {
+        "source_repo": pin.get("source_repo", "Freelancing"),
+        "source_path": pin.get("source_path", _MER_REL),
+        "doctrine": pin.get("doctrine",
+                            "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors."),
+        "files": [{"path": n, "sha256": _sha256(root / n)} for n in names],
+    }
+    (root / "PIN.json").write_text(json.dumps(fresh, indent=2, ensure_ascii=False) + "\n",
+                                   encoding="utf-8")
+    return fresh
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     strict = "--strict" in argv
+    write = "--write" in argv
+
+    pin = vendor_pin()
+
+    # The vendored subtree's integrity does not need Meridian — check it first, always.
+    # A local edit is not drift, it is a doctrine breach: the mirror is changed in
+    # Meridian and re-mirrored, never patched here.
+    if pin is not None:
+        local = vendor_integrity(pin)
+        if local:
+            print("[check-dataarch-mirror] vendored emitters edited locally — change them in "
+                  "Meridian and re-mirror instead:")
+            for line in local:
+                print(line)
+            return 1
 
     mer = _meridian_root()
     if mer is None:
+        if pin is not None:
+            print(f"[check-dataarch-mirror] vendored emitters OK ({len(pin['files'])} file(s), "
+                  f"local integrity)")
         print("[check-dataarch-mirror] Meridian checkout not reachable "
               "($MERIDIAN_ROOT or ../Freelancing) — SKIP (dev-only cross-repo diff)")
+        return 0
+
+    if write:
+        if pin is None:
+            print(f"[check-dataarch-mirror] --write needs an existing "
+                  f"{_VENDOR_REL}/PIN.json listing what to mirror")
+            return 1
+        fresh = write_vendor(mer / _MER_REL, pin)
+        print(f"[check-dataarch-mirror] re-mirrored {len(fresh['files'])} file(s) from {mer}")
         return 0
 
     meridian = _extract(mer / _MER_REL / "concepts.py",
@@ -104,12 +198,16 @@ def main(argv: list[str] | None = None) -> int:
                      REPO_ROOT / _ALU_REL / "odcs.py", "alu")
 
     drift = _diff(meridian, aluca)
+    if pin is not None:
+        drift += vendor_upstream_drift(pin, mer / _MER_REL)
 
     if not drift:
-        print(f"[check-dataarch-mirror] OK — mirror in sync with Meridian ({mer})")
+        vendored = len(pin["files"]) if pin else 0
+        print(f"[check-dataarch-mirror] OK — mirror in sync with Meridian ({mer}); "
+              f"contract surface + {vendored} vendored file(s)")
         return 0
 
-    print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — re-mirror the contract surface:")
+    print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — re-mirror:")
     for line in drift:
         print(line)
     if strict:
