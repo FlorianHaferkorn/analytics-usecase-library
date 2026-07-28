@@ -46,10 +46,24 @@ git_provider:
 # Governance settings
 governance:
   sensitivity_labels:
-    dev: "General"  # Label name or ID
+    # purview_policy (default) — a Purview default/mandatory label policy applies the
+    #   label; the orchestrator only reports the requirement. No API call.
+    #   There is NO workspace-level label API and no Fabric-API label endpoint.
+    # admin_api — really call POST {powerbi}/admin/informationprotection/setLabels.
+    #   Requires: label GUIDs below (not names), a Fabric-admin identity with
+    #   Tenant.ReadWrite.All, and awareness of the 25 req/h + 2000 artifacts/req caps.
+    #   Note: this Power BI admin *write* API is not covered by the service-principal
+    #   tenant settings, so an SP-only identity will get 401 — expect a delegated
+    #   (user) token here.
+    # off — labelling out of scope for this deployment.
+    mode: "purview_policy"
+    dev: "General"        # display name in purview_policy mode, label GUID in admin_api mode
     test: "General"
     prod: "Confidential"
   endorsement:
+    # Recorded as a manual step only: Promoted/Certified/Master data have no documented
+    # write REST API. 'Certified' additionally needs the tenant certification setting
+    # plus membership in an authorized security group.
     anl_layer: "Promoted"  # Endorsement for Analytics layer items
     semantic_models: true
 

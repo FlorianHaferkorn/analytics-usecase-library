@@ -14,6 +14,7 @@ Usage:
 """
 
 import os
+import re
 import time
 import json
 import logging
@@ -207,32 +208,43 @@ class AuthProvider:
             )
         
         self.app: Optional[ConfidentialClientApplication] = None
-        self._token: Optional[str] = None
-        self._token_expires_at: float = 0
-    
-    def get_token(self, force_refresh: bool = False) -> str:
-        """Get access token, refreshing if necessary."""
-        if not force_refresh and self._token and time.time() < self._token_expires_at:
-            return self._token
-        
+        # Tokens are cached per audience: api.fabric.microsoft.com and api.powerbi.com
+        # are different resources, so one token does not serve both.
+        self._tokens: Dict[str, Tuple[str, float]] = {}
+
+    def get_token(self, force_refresh: bool = False, scopes: Optional[List[str]] = None) -> str:
+        """Get access token for an audience, refreshing if necessary.
+
+        `scopes` defaults to the Fabric audience (`fabric.scopes`). Pass the Power BI
+        audience (`https://analysis.windows.net/powerbi/api/.default`) explicitly for
+        `api.powerbi.com` endpoints — a Fabric token is not valid there.
+        """
+        scopes = list(scopes) if scopes else list(self.scopes)
+        cache_key = " ".join(sorted(scopes))
+
+        if not force_refresh:
+            cached = self._tokens.get(cache_key)
+            if cached and time.time() < cached[1]:
+                return cached[0]
+
         if not self.app:
             self.app = ConfidentialClientApplication(
                 client_id=self.client_id,
                 client_credential=self.client_secret,
                 authority=self.authority
             )
-        
-        result = self.app.acquire_token_for_client(scopes=self.scopes)
-        
+
+        result = self.app.acquire_token_for_client(scopes=scopes)
+
         if "access_token" not in result:
             error_desc = result.get("error_description", "Unknown error")
-            raise AuthenticationError(f"Failed to acquire token: {error_desc}")
-        
-        self._token = result["access_token"]
-        # Set expiration with 5 minute buffer
-        self._token_expires_at = time.time() + result.get("expires_in", 3600) - 300
-        
-        return self._token
+            raise AuthenticationError(f"Failed to acquire token for {cache_key}: {error_desc}")
+
+        # Cache with a 5 minute buffer before real expiry
+        token = result["access_token"]
+        self._tokens[cache_key] = (token, time.time() + result.get("expires_in", 3600) - 300)
+
+        return token
 
 
 # ============================================================================
@@ -258,9 +270,9 @@ class FabricApiClient:
         self.backoff_multiplier = retry_config.get('backoff_multiplier', 2.0)
         self.transient_codes = set(retry_config.get('transient_status_codes', [429, 500, 502, 503, 504]))
     
-    def _get_headers(self) -> Dict[str, str]:
-        """Get request headers with auth token."""
-        token = self.auth.get_token()
+    def _get_headers(self, scopes: Optional[List[str]] = None) -> Dict[str, str]:
+        """Get request headers with an auth token for the target audience."""
+        token = self.auth.get_token(scopes=scopes)
         return {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
@@ -287,14 +299,19 @@ class FabricApiClient:
         method: str,
         endpoint: str,
         json_data: Optional[Dict[str, Any]] = None,
-        params: Optional[Dict[str, Any]] = None
+        params: Optional[Dict[str, Any]] = None,
+        base: Optional[str] = None,
+        scopes: Optional[List[str]] = None
     ) -> Tuple[int, Optional[Dict[str, Any]]]:
         """
         Make HTTP request with retry logic.
         Returns (status_code, response_body).
+
+        `base`/`scopes` override the default Fabric audience for endpoints that live on
+        a different API surface (e.g. the Power BI admin API on api.powerbi.com).
         """
-        url = f"{self.api_base}/{endpoint.lstrip('/')}"
-        
+        url = f"{(base or self.api_base).rstrip('/')}/{endpoint.lstrip('/')}"
+
         if self.dry_run:
             console.print(f"[cyan][DRY-RUN][/cyan] {method} {url}")
             if json_data:
@@ -305,7 +322,7 @@ class FabricApiClient:
         
         for attempt in range(self.max_retries + 1):
             try:
-                headers = self._get_headers()
+                headers = self._get_headers(scopes=scopes)
                 response = requests.request(
                     method=method,
                     url=url,
@@ -359,9 +376,15 @@ class FabricApiClient:
         _, body = self._make_request("GET", endpoint, params=params)
         return body
     
-    def post(self, endpoint: str, json_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """POST request."""
-        _, body = self._make_request("POST", endpoint, json_data=json_data)
+    def post(
+        self,
+        endpoint: str,
+        json_data: Dict[str, Any],
+        base: Optional[str] = None,
+        scopes: Optional[List[str]] = None
+    ) -> Optional[Dict[str, Any]]:
+        """POST request. `base`/`scopes` target a non-Fabric API surface."""
+        _, body = self._make_request("POST", endpoint, json_data=json_data, base=base, scopes=scopes)
         return body
     
     def patch(self, endpoint: str, json_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -473,43 +496,217 @@ class WorkspaceManager:
 # Governance Manager
 # ============================================================================
 
+# The Power BI admin API is a different API surface AND a different token audience than
+# api.fabric.microsoft.com. Sensitivity labelling lives here, not under /v1/workspaces.
+_PBI_API_BASE = "https://api.powerbi.com/v1.0/myorg"
+_PBI_SCOPES = ["https://analysis.windows.net/powerbi/api/.default"]
+
+# The only artifact buckets informationprotection/setLabels accepts. Anything else
+# (lakehouses, notebooks, pipelines, warehouses) has no label-write API at all.
+_LABELABLE_TYPES = ("dashboards", "reports", "datasets", "dataflows")
+
+_GUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+                      r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+
 class GovernanceManager:
-    """Manages governance (sensitivity labels, endorsement)."""
-    
+    """Governance: sensitivity labels and endorsement.
+
+    Both are deliberately conservative, because the official surface is narrower than it
+    looks and the previous implementation invented endpoints that do not exist:
+
+    * **Sensitivity labels** — there is no workspace-level label API and no Fabric-API
+      label endpoint. The only documented write path is the *Power BI admin* API
+      ``POST {pbi}/admin/informationprotection/setLabels``, which takes a label **GUID**
+      (not a name) and artifact IDs bucketed by type, is capped at 25 requests/hour and
+      2000 artifacts/request, requires ``Tenant.ReadWrite.All`` plus Fabric-admin rights,
+      and returns HTTP 200 even when individual artifacts failed (per-artifact ``status``).
+      It is also **not** among the admin APIs that support service-principal auth — the
+      tenant setting covers Power BI *read-only* admin APIs and *Fabric* update admin
+      APIs, so this orchestrator's SP identity will get 401 here.
+      Therefore the default mode is ``purview_policy``: the label is declared as a
+      Purview default/mandatory label policy and applied by the platform, and the
+      orchestrator emits the precondition instead of pretending to have applied it.
+
+    * **Endorsement** — Promoted/Certified/Master data have **no** documented write REST
+      API; ``GET`` item exposes the state read-only. So this emits an explicit manual
+      step. It never POSTs a guessed endpoint.
+
+    Modes (``governance.sensitivity_labels.mode``):
+      ``purview_policy`` (default) — declare the requirement, apply nothing via API.
+      ``admin_api``                — really call setLabels; needs a Fabric-admin identity
+                                     and label GUIDs. Fails closed on missing preconditions.
+      ``off``                      — labelling is out of scope for this deployment.
+    """
+
+    MODE_PURVIEW = "purview_policy"
+    MODE_ADMIN_API = "admin_api"
+    MODE_OFF = "off"
+
     def __init__(self, api: FabricApiClient, config: ConfigLoader):
         self.api = api
         self.config = config
-    
-    def apply_sensitivity_label(self, workspace_id: str, environment: str) -> bool:
-        """Apply sensitivity label to workspace based on environment."""
-        label_name = self.config.get(f'governance.sensitivity_labels.{environment}')
-        if not label_name:
+        # Every requirement the orchestrator could not enforce itself, so the caller can
+        # print/persist it instead of it being lost in a log line.
+        self.manual_steps: List[str] = []
+
+    # -- helpers ------------------------------------------------------------------
+
+    def _mode(self) -> str:
+        mode = str(self.config.get('governance.sensitivity_labels.mode', self.MODE_PURVIEW)).strip()
+        if mode not in (self.MODE_PURVIEW, self.MODE_ADMIN_API, self.MODE_OFF):
+            raise ConfigurationError(
+                f"governance.sensitivity_labels.mode='{mode}' is not one of "
+                f"{self.MODE_PURVIEW}|{self.MODE_ADMIN_API}|{self.MODE_OFF}"
+            )
+        return mode
+
+    def _configured_label(self, environment: str) -> Optional[str]:
+        return self.config.get(f'governance.sensitivity_labels.{environment}')
+
+    def _record(self, step: str) -> None:
+        self.manual_steps.append(step)
+        console.print(f"[yellow]MANUAL[/yellow] {step}")
+
+    # -- sensitivity labels -------------------------------------------------------
+
+    def declare_workspace_labeling(self, workspace_id: str, environment: str) -> bool:
+        """Declare the label requirement for a freshly created workspace.
+
+        Deliberately performs **no** API call: labels attach to items, not workspaces, and
+        a workspace that was just created has no items yet. Returns True when the
+        requirement is either satisfied by policy or not applicable.
+        """
+        mode = self._mode()
+        if mode == self.MODE_OFF:
+            return True
+
+        label = self._configured_label(environment)
+        if not label:
             logging.info(f"No sensitivity label configured for environment: {environment}")
             return True
-        
-        console.print(f"[yellow]Applying sensitivity label:[/yellow] {label_name}")
-        
-        # Note: Actual endpoint may vary based on Purview integration
-        # This is a placeholder for the governance API pattern
-        payload = {
-            "labelName": label_name
+
+        if mode == self.MODE_PURVIEW:
+            self._record(
+                f"Purview: ensure a default (or mandatory) label policy assigns '{label}' to "
+                f"items in workspace {workspace_id} (env={environment}). Fabric applies it; "
+                f"there is no workspace-level label API to call."
+            )
+            return True
+
+        # admin_api mode: nothing to label yet, but say so rather than reporting success.
+        self._record(
+            f"Sensitivity label '{label}' (env={environment}) will be applied to the items of "
+            f"workspace {workspace_id} after deployment via apply_sensitivity_labels() — "
+            f"a new workspace has no labelable items yet."
+        )
+        return True
+
+    def apply_sensitivity_labels(
+        self,
+        artifacts_by_type: Dict[str, List[str]],
+        environment: str,
+        delegated_user_email: Optional[str] = None
+    ) -> bool:
+        """Apply the environment's sensitivity label to concrete items.
+
+        `artifacts_by_type` maps a bucket from `_LABELABLE_TYPES` to item IDs. Returns True
+        only when every artifact came back ``Succeeded`` — a 200 alone does not mean success.
+        """
+        mode = self._mode()
+        if mode == self.MODE_OFF:
+            return True
+
+        label = self._configured_label(environment)
+        if not label:
+            logging.info(f"No sensitivity label configured for environment: {environment}")
+            return True
+
+        if mode == self.MODE_PURVIEW:
+            self._record(
+                f"Labelling for env={environment} is delegated to the Purview label policy "
+                f"('{label}'); no setLabels call issued by design."
+            )
+            return True
+
+        # -- admin_api mode: check every precondition before touching the API ------
+        if not _GUID_RE.match(str(label)):
+            raise ConfigurationError(
+                f"governance.sensitivity_labels.{environment}='{label}' must be the label's "
+                f"GUID in admin_api mode — setLabels takes 'labelId', not a display name. "
+                f"Read the GUID from the Purview label, or use mode={self.MODE_PURVIEW}."
+            )
+
+        unknown = sorted(set(artifacts_by_type) - set(_LABELABLE_TYPES))
+        if unknown:
+            raise ConfigurationError(
+                f"setLabels has no bucket for {unknown}; supported: {list(_LABELABLE_TYPES)}. "
+                f"Fabric item types outside these four have no label-write API — label them "
+                f"via a Purview policy instead."
+            )
+
+        artifacts = {t: [{"id": i} for i in ids]
+                     for t, ids in artifacts_by_type.items() if ids}
+        if not artifacts:
+            return True
+
+        total = sum(len(v) for v in artifacts.values())
+        if total > 2000:
+            raise ConfigurationError(
+                f"setLabels accepts at most 2000 artifacts per request; got {total}. "
+                f"Batch the call (and mind the 25 requests/hour cap)."
+            )
+
+        payload: Dict[str, Any] = {
+            "artifacts": artifacts,
+            "labelId": label,
+            # 'Standard' = set by an automated process (this orchestrator).
+            "assignmentMethod": "Standard",
         }
-        
-        # Fabric governance API (endpoint may need adjustment based on tenant config)
-        response = self.api.post(f"workspaces/{workspace_id}/governanceLabels", payload)
-        return response is not None
-    
+        if delegated_user_email:
+            payload["delegatedUser"] = {"emailAddress": delegated_user_email}
+
+        console.print(f"[yellow]Applying sensitivity label[/yellow] {label} to {total} item(s)")
+
+        response = self.api.post(
+            "admin/informationprotection/setLabels",
+            payload,
+            base=_PBI_API_BASE,
+            scopes=_PBI_SCOPES,
+        )
+        if response is None:
+            return False
+        if response.get("dry_run"):
+            return True
+
+        # 200 OK still carries per-artifact failures — evaluate them, don't assume.
+        failures = [
+            f"{bucket}/{entry.get('id')}={entry.get('status')}"
+            for bucket in _LABELABLE_TYPES
+            for entry in (response.get(bucket) or [])
+            if entry.get("status") != "Succeeded"
+        ]
+        if failures:
+            console.print(f"[red]setLabels reported {len(failures)} failure(s):[/red] "
+                          + ", ".join(failures[:10]))
+            return False
+        return True
+
+    # -- endorsement --------------------------------------------------------------
+
     def set_endorsement(self, item_id: str, item_type: str, endorsement: str) -> bool:
-        """Set endorsement for item (Promoted, Certified)."""
-        console.print(f"[yellow]Setting endorsement:[/yellow] {endorsement}")
-        
-        payload = {
-            "endorsement": endorsement
-        }
-        
-        # Item endorsement API
-        response = self.api.patch(f"items/{item_id}/endorsement", payload)
-        return response is not None
+        """Record the required endorsement as a manual step.
+
+        Promoted/Certified/Master data have no documented write REST API — only the item
+        settings UI. Returns False so callers cannot mistake this for an applied change.
+        """
+        self._record(
+            f"Endorsement '{endorsement}' for {item_type} {item_id}: set it in the item's "
+            f"settings → Endorsement. No write REST API exists; 'Certified' additionally "
+            f"requires the tenant certification setting plus membership in an authorized "
+            f"security group."
+        )
+        return False
 
 
 # ============================================================================
@@ -1563,8 +1760,8 @@ class DomainOrchestrator:
                     "config": ws_config
                 }
                 
-                # Apply governance
-                self.governance_mgr.apply_sensitivity_label(ws_id, ws_config.environment.value)
+                # Declare the label requirement (no API call — see GovernanceManager)
+                self.governance_mgr.declare_workspace_labeling(ws_id, ws_config.environment.value)
                 
                 # Connect to Git
                 git_config = self.config.get('git_provider', {})

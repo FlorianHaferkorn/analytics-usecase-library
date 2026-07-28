@@ -99,4 +99,5 @@ und steuern diesen Bereich — hier als Pointer registriert, damit der Bezug nic
 - UMSETZUNGSPLAN_SUPERVERSION.md — der I-1..I-9-Bauplan (Single Source of Truth für Status, Ledger §6).
 - PRODUCT_PLAN.md — Produkt-Zielbild, Phasen, Premium-Floors F1–F6.
 - SYNERGY_ALUCA_MERIDIAN.md — Vergleich + Zielarchitektur + Code-Tiefenanalyse.
+- SHARED_SUBSTANCE.md — die Grenze: welche Substanz beide Repos teilen (Klasse A, offiziell belegbar), welche eigene IP bleibt (Klasse B), welche bewusst verschieden ist (Klasse C). Byte-identisch in beiden Repos; regelt Richtung + Mechanismus jeder Spiegelung.
 - SUPERVERSION_ZIELBILD_REVIEW.md — unabhängiges Zielbild-Review (Fable, 2026-07-02): Critical A1 (Produkt rechnet nicht/`BLANK()`), A2 zweites Doppelsilo, A3 Markt-Entkopplung, A4 F6-Oracle-Selbstvergleich + Cut-Plan S-1..S-5. Speist I-10.0 + F0-Floor.
