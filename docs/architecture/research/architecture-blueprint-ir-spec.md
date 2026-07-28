@@ -97,6 +97,8 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
         "properties": {
           "source": { "type": "string" },
           "source_system": { "type": "string" },
+          "domain": { "type": "string",
+            "description": "Owning domain (its name). Carried explicitly so emitters read the owner instead of re-deriving it from a '<domain-slug>_' name prefix — that heuristic silently dropped every source not following the convention (no transform, no copy activity, no warning)." },
           "access_mode": { "enum": ["shortcut", "mirror", "copy"] },
           "rationale": { "type": "string",
             "description": "Why this mode. copy requires perf/isolation/compliance justification." },
