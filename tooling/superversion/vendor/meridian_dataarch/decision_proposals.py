@@ -485,6 +485,104 @@ def propose_retention(bp: dict, gc: dict) -> dict:
         "`retention_policy.json` bleibt mit `<VERIFY>` stehen — es wird nichts gelöscht")
 
 
+def propose_lakehouse_topology(bp: dict) -> dict:
+    """Ein Lakehouse je Schicht — oder eine Domäne mit den Schichten als Schemas?
+
+    Die Frage ist von `PLAT-LHSCHEMA` verschieden und wurde bisher stillschweigend beantwortet: der
+    Baukasten legt ein Lakehouse je Domäne an und benutzt die Schemas als Schichten. MS Learn
+    empfiehlt in *Understand medallion lakehouse architecture* ausdrücklich das andere: „Keep each
+    layer separated in its own lakehouse or warehouse" und sogar „create each lakehouse in its own,
+    separate workspace". Eine Abweichung von einer dokumentierten Empfehlung ist vertretbar — sie
+    unbenannt zu lassen ist es nicht.
+    """
+    domains = _domain_names(bp)
+    n = len(domains)
+    return _rec(
+        "PLAT-LHTOPO", "Lakehouse-Topologie (Schicht vs. Domäne)",
+        "Bekommt jede Medaillon-Schicht ihr eigenes Lakehouse (ggf. eigenen Workspace), oder trägt "
+        "ein Lakehouse je Domäne alle Schichten als Schemas?",
+        ("**Vorbelegt: ein Lakehouse je Domäne, Schichten als Schemas** — mit der ausdrücklichen "
+         "Notiz, dass MS Learn das Gegenteil empfiehlt (*„Keep each layer separated in its own "
+         "lakehouse or warehouse“*, *„create each lakehouse in its own, separate workspace“*).\n\n"
+         "Warum hier trotzdem so vorbelegt: der Schnitt, der bei diesem Kunden Governance trägt, "
+         f"ist die **Domäne** ({n} Stück: {', '.join(domains) if domains else '—'}), nicht die "
+         "Schicht. Eigentum, Endorsement und Berechtigung hängen an der Domäne; ein zusätzlicher "
+         "Schicht-Schnitt auf Workspace-Ebene würde jede Domäne über drei Workspaces verteilen und "
+         "das Eigentum zersplittern. Dazu kommt die harte Kopplung: **Materialized Lake Views setzen "
+         "ein schema-aktiviertes Lakehouse voraus**, und MS' eigenes MLV-Tutorial fährt genau diese "
+         "Form — ein `SalesLakehouse` mit bronze/silver/gold als Schemas.\n\n"
+         "**Wann die andere Variante gewinnt** (dann umstellen, und zwar *vor* der Anlage):\n"
+         "- die Schicht ist der Governance-Schnitt — Rohdaten-Zugriff soll organisatorisch anders "
+         "verantwortet sein als das kuratierte Gold (regulierte Branchen, getrennte Betriebsteams);\n"
+         "- Bronze wächst so, dass es eigene Kapazitäts-/Kostenzuordnung braucht;\n"
+         "- Gold soll als **Warehouse** statt Lakehouse laufen (MS' Muster 2) — dann ist die Trennung "
+         "ohnehin erzwungen, weil es zwei Item-Typen sind;\n"
+         "- mehrere Domänen sollen aus **einem** gemeinsamen Bronze lesen, statt je Domäne zu landen."),
+        "MS Learn (Medallion-Architektur: Layer-Trennung + Workspace-Empfehlung; MLV-Tutorial: "
+        "Schichten als Schemas in einem Lakehouse) vs. dem Domänen-Schnitt in `mesh.domains`",
+        "mittel",
+        ["Ein Lakehouse je Schicht im selben Workspace (Kompromiss: Layer-Trennung ohne "
+         "Workspace-Zersplitterung)",
+         "Ein Workspace je Schicht (MS-Empfehlung; stärkste Trennung, teuerste Domänen-Zuordnung)",
+         "Bronze+Silver als Lakehouse, Gold als Warehouse (MS-Muster 2) — wenn T-SQL-Serving "
+         "gefordert ist"],
+        "Data Platform Lead (verbindlich), Domain Owner (Eigentumsschnitt)",
+        "Es bleibt bei einem Lakehouse je Domäne mit Schicht-Schemas — änderbar nur vor der Anlage, "
+        "danach kostet es eine Datenbewegung",
+        status="vorbelegt")
+
+
+def propose_transform_engine(bp: dict) -> dict:
+    """Materialized Lake Views oder gebaute Transform-Pipelines?
+
+    Beide Emissionswege existieren im Baukasten (`--emit-mlv`, `--emit-transforms`) und waren bisher
+    zwei gleichwertige Flags ohne Kriterium. Die Grenze ist aber nicht Geschmack, sondern eine
+    dokumentierte Fähigkeitslücke.
+    """
+    products = sorted({p for d in bp.get("mesh", {}).get("domains", []) or []
+                       for p in d.get("data_products", []) or []})
+    incremental = bool((bp.get("medallion", {}).get("silver", {}) or {}).get("incremental"))
+    return _rec(
+        "PLAT-TRANSFORM", "Transformations-Engine (MLV vs. Pipeline)",
+        "Werden die Schicht-Übergänge als Materialized Lake Views deklariert oder als gebaute "
+        "Pipelines/Notebooks orchestriert?",
+        ("**Vorbelegt: MLV als Standard, Pipeline dort, wo MLV es nachweislich nicht kann.** MLVs "
+         "nehmen einem die Orchestrierung ab: Abhängigkeitsreihenfolge, Refresh-Entscheidung "
+         "(inkrementell/voll/keine), Lineage und Datenqualitätsregeln kommen mit. Was man selbst "
+         "baut, muss man selbst betreiben.\n\n"
+         "**Die harte Grenze ist dokumentiert, nicht Geschmack:** eine MLV kennt **kein DML** — kein "
+         "`INSERT`, `UPDATE`, `DELETE`. Ihre Daten entstehen ausschließlich aus dem `SELECT` der "
+         "Definition. Alles, was ein *Zusammenführen mit dem Bestand* braucht, fällt damit raus:\n"
+         "- **`MERGE`/Upsert, CDC, SCD-2** — der klassische Delta-Load gegen eine bestehende Tabelle;\n"
+         "- **Nachträgliche Korrekturen** einzelner Zeilen (Storno, DSGVO-Löschung im Ziel);\n"
+         "- Logik, die **UDFs** braucht, **Time Travel** (`VERSION AS OF`) liest oder über temporäre "
+         "Views geht — alle drei sind in der MLV-Definition ausgeschlossen;\n"
+         "- Schritte, die **Session-Spark-Properties** setzen: die greifen im geplanten Refresh nicht.\n\n"
+         + (f"**Für diesen Blueprint relevant:** die Silver-Schicht ist auf inkrementelle Beladung "
+            "gestellt. Inkrementell im Sinne von *Upsert gegen den Bestand* ist genau der Fall, den "
+            "eine MLV nicht abbildet — dieser Hop gehört in eine Pipeline, die Gold-Aggregate darüber "
+            "können MLVs bleiben.\n\n" if incremental else "")
+         + "**Voraussetzungen** (sonst ist die Frage entschieden): schema-aktiviertes Lakehouse und "
+           "Fabric Runtime 1.3. Schemanamen dürfen nicht durchgängig groß geschrieben sein.\n\n"
+           "**Ein Vorteil, der leicht übersehen wird:** Direct Lake on OneLake kann über einer "
+           "*nicht* materialisierten SQL-View gar keine Tabelle bilden — über einer MLV schon, weil "
+           "dabei echte Delta-Tabellen entstehen. Wer Gold über Views definieren will und Direct Lake "
+           "fahren will, hat mit MLV den einzigen Weg, der ohne Import-Modus auskommt."
+         + (f"\n\nBetroffene Gold-Produkte: {', '.join(f'`{p}`' for p in products)}."
+            if products else "")),
+        "MS Learn (MLV-Grammatik + *Current limitations*: kein DML/UDF/Time-Travel/Temp-Views; "
+        "Direct-Lake-Grenzen zu nicht-materialisierten Views) + `medallion.silver.incremental`",
+        "hoch" if incremental else "mittel",
+        ["Durchgängig Pipelines/Notebooks — wenn das Team Spark-Betrieb ohnehin fährt und volle "
+         "Kontrolle über Retry/Backfill will",
+         "Durchgängig MLV — nur wenn wirklich kein Hop ein Upsert braucht (reines Append/Replace)",
+         "Gemischt je Hop: Ingress+Silver als Pipeline (Upsert), Gold-Aggregate als MLV"],
+        "Data Engineering Lead (verbindlich), Data Platform Lead (Betriebsmodell)",
+        "Beide Emissionen bleiben nebeneinander stehen (`--emit-mlv`, `--emit-transforms`) — der "
+        "Betrieb entscheidet dann ungeplant, welche der beiden tatsächlich läuft",
+        status="vorbelegt")
+
+
 def propose_lakehouse_schemas(bp: dict) -> dict:
     """Schema-enabled lakehouse — the one layout choice that cannot be undone later."""
     external = bool(bp.get("sharing"))
@@ -674,7 +772,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
         out.extend(propose_cross_domain(bp, gc))   # domains are not islands
     out.extend([propose_workspace_roles(bp), propose_retention(bp, gc), propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
-                propose_lakehouse_schemas(bp)])
+                propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
+                propose_transform_engine(bp)])
     return out
 
 

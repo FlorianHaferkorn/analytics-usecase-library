@@ -39,16 +39,16 @@ from typing import Any
 # MS-published guardrails (grounding 2026-07-24); F2048+ share the F1024 model ceilings, omitted here
 # because a workload needing >F1024 warrants a measured, account-team-assisted sizing anyway.
 _SKUS: list[dict[str, Any]] = [
-    {"sku": "F2",    "cu": 2,    "dl_mem_gb": 3,   "disk_gb": 10,   "rows_m": 300,   "dq_conn": 5,   "pbi_equiv": None},
-    {"sku": "F4",    "cu": 4,    "dl_mem_gb": 3,   "disk_gb": 10,   "rows_m": 300,   "dq_conn": 5,   "pbi_equiv": None},
-    {"sku": "F8",    "cu": 8,    "dl_mem_gb": 3,   "disk_gb": 10,   "rows_m": 300,   "dq_conn": 10,  "pbi_equiv": "EM1/A1"},
-    {"sku": "F16",   "cu": 16,   "dl_mem_gb": 5,   "disk_gb": 20,   "rows_m": 300,   "dq_conn": 10,  "pbi_equiv": "EM2/A2"},
-    {"sku": "F32",   "cu": 32,   "dl_mem_gb": 10,  "disk_gb": 40,   "rows_m": 300,   "dq_conn": 10,  "pbi_equiv": "EM3/A3"},
-    {"sku": "F64",   "cu": 64,   "dl_mem_gb": 25,  "disk_gb": None, "rows_m": 1500,  "dq_conn": 50,  "pbi_equiv": "P1"},
-    {"sku": "F128",  "cu": 128,  "dl_mem_gb": 50,  "disk_gb": None, "rows_m": 3000,  "dq_conn": 75,  "pbi_equiv": "P2"},
-    {"sku": "F256",  "cu": 256,  "dl_mem_gb": 100, "disk_gb": None, "rows_m": 6000,  "dq_conn": 100, "pbi_equiv": "P3"},
-    {"sku": "F512",  "cu": 512,  "dl_mem_gb": 200, "disk_gb": None, "rows_m": 12000, "dq_conn": 200, "pbi_equiv": "P4"},
-    {"sku": "F1024", "cu": 1024, "dl_mem_gb": 400, "disk_gb": None, "rows_m": 24000, "dq_conn": 200, "pbi_equiv": "P5"},
+    {"sku": "F2",    "cu": 2,    "dl_mem_gb": 3,   "disk_gb": 10,   "rows_m": 300, "dl_files": 1000, "dl_row_groups": 1000,   "dq_conn": 5,   "pbi_equiv": None},
+    {"sku": "F4",    "cu": 4,    "dl_mem_gb": 3,   "disk_gb": 10,   "rows_m": 300, "dl_files": 1000, "dl_row_groups": 1000,   "dq_conn": 5,   "pbi_equiv": None},
+    {"sku": "F8",    "cu": 8,    "dl_mem_gb": 3,   "disk_gb": 10,   "rows_m": 300, "dl_files": 1000, "dl_row_groups": 1000,   "dq_conn": 10,  "pbi_equiv": "EM1/A1"},
+    {"sku": "F16",   "cu": 16,   "dl_mem_gb": 5,   "disk_gb": 20,   "rows_m": 300, "dl_files": 1000, "dl_row_groups": 1000,   "dq_conn": 10,  "pbi_equiv": "EM2/A2"},
+    {"sku": "F32",   "cu": 32,   "dl_mem_gb": 10,  "disk_gb": 40,   "rows_m": 300, "dl_files": 1000, "dl_row_groups": 1000,   "dq_conn": 10,  "pbi_equiv": "EM3/A3"},
+    {"sku": "F64",   "cu": 64,   "dl_mem_gb": 25,  "disk_gb": None, "rows_m": 1500, "dl_files": 5000, "dl_row_groups": 5000,  "dq_conn": 50,  "pbi_equiv": "P1"},
+    {"sku": "F128",  "cu": 128,  "dl_mem_gb": 50,  "disk_gb": None, "rows_m": 3000, "dl_files": 5000, "dl_row_groups": 5000,  "dq_conn": 75,  "pbi_equiv": "P2"},
+    {"sku": "F256",  "cu": 256,  "dl_mem_gb": 100, "disk_gb": None, "rows_m": 6000, "dl_files": 5000, "dl_row_groups": 5000,  "dq_conn": 100, "pbi_equiv": "P3"},
+    {"sku": "F512",  "cu": 512,  "dl_mem_gb": 200, "disk_gb": None, "rows_m": 12000, "dl_files": 10000, "dl_row_groups": 10000, "dq_conn": 200, "pbi_equiv": "P4"},
+    {"sku": "F1024", "cu": 1024, "dl_mem_gb": 400, "disk_gb": None, "rows_m": 24000, "dl_files": 10000, "dl_row_groups": 10000, "dq_conn": 200, "pbi_equiv": "P5"},
 ]
 _FREE_VIEWER_MIN = "F64"        # F64+ lets Fabric (Free) viewers consume Power BI content
 _FEATURE_MIN = "F2"            # Direct Lake / Copilot / Data Agents: paid F2+

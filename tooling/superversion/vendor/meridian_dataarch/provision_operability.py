@@ -57,7 +57,13 @@ def check_metadata_completeness(gc: dict) -> dict:
             findings.append({"object": n, "kind": "table", "issue": "Name folgt keiner Layer-Konvention",
                              "why": "fact_/dim_/agg_ macht die Rolle im Stern sofort erkennbar — "
                                     "auch für die AI-Feldauswahl"})
-        for c in sorted(t.get("columns", []) or []):
+        # Der Katalogvertrag führt Spalten als Namen; ein Produzent, der stattdessen Objekte
+        # liefert, ließ `sorted()` vorher mit einem TypeError sterben und riss die ganze
+        # Operability-Emission mit. Ein unerwarteter Spaltentyp darf höchstens ungeprüft
+        # bleiben — er darf nicht den Lauf beenden.
+        _names = [str(c.get("name") or "") if isinstance(c, dict) else str(c)
+                  for c in (t.get("columns", []) or [])]
+        for c in sorted(n for n in _names if n):
             if len(c) <= 2 or re.fullmatch(r"[a-z]?\d+", c.lower()):
                 findings.append({"object": f"{n}.{c}", "kind": "column",
                                  "issue": "kryptischer Spaltenname",

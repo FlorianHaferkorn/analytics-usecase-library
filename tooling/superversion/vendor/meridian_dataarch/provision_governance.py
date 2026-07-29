@@ -74,6 +74,53 @@ def _rls_tmdl(domain: str, gold_products: list[str], audience: str, sensitivity:
     return "\n".join(lines) + "\n"
 
 
+def model_roles(bp: dict, sensitivity: dict | None = None) -> list:
+    """Die RLS/OLS-Rollen **für das ausgelieferte Semantikmodell** — je Domäne eine.
+
+    Dieselbe Ableitung wie ``_rls_tmdl`` (Rollenname, Tabellen, sensible Spalten), aber als
+    ``Role``-Objekte für den TMDL-Serializer, damit das Modell die Rollen wirklich trägt. Vorher
+    entschied die Pipeline eine RLS-Achse und emittierte ein Rollen-Gerüst *daneben* — das Modell
+    selbst ging ohne Rollen raus, was der Regelkatalog zu Recht als ``SEC001`` meldete.
+
+    **Der Filter ist ``FALSE()``, nicht ``true``** — und das ist der Unterschied, auf den es
+    ankommt. Der DAX-Zeilenfilter ist Domänen-Policy und steht nicht im IR. Ein Platzhalter, der
+    ``true`` filtert, gibt jedem Mitglied dieser Rolle **alle** Zeilen und ist von funktionierender
+    Sicherheit nicht zu unterscheiden. ``FALSE()`` schlägt sichtbar fehl: wer die Rolle zuweist,
+    ohne die Policy zu füllen, sieht nichts und merkt es sofort. Solange niemand Mitglied ist,
+    ändert die Rolle ohnehin nichts — sie kostet also nichts und schließt die Lücke.
+
+    Das separat emittierte Gerüst (``_rls_tmdl``) behält bewusst ``true``: es wird von Hand
+    deployt, von jemandem, der das ``TODO(contract)`` daneben liest.
+    """
+    from core.pbi_engine.parsers.tmdl_parser import Role, RoleColumnPermission, RoleTablePermission
+
+    sensitivity = sensitivity or {}
+    roles = []
+    for domain in _domains(bp):
+        products = sorted(domain.get("data_products", []) or [])
+        if not products:
+            continue
+        table_perms = [
+            RoleTablePermission(
+                table=gp,
+                # TODO(contract) im Ausdruck selbst: er wandert mit der Rolle mit, auch wenn
+                # jemand nur die Rollendefinition ansieht.
+                filter_expression="FALSE() /* TODO(contract): DAX-Zeilenfilter der Domäne "
+                                  f"'{domain.get('name')}' — bis dahin bewusst restriktiv */",
+            )
+            for gp in products
+        ]
+        col_perms = [
+            RoleColumnPermission(table=gp, column=col, metadata_permission="none")
+            for gp in products for col in sorted(sensitivity.get(gp, []) or [])
+        ]
+        roles.append(Role(name=f"rls_{_ident(domain.get('name', ''))}",
+                          model_permission="read",
+                          table_permissions=table_perms,
+                          column_permissions=col_perms))
+    return roles
+
+
 def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: dict | None = None) -> str:
     """Idempotent REST/`fab api` templates for workspace roles + domains (GA).
 
