@@ -485,6 +485,42 @@ def propose_retention(bp: dict, gc: dict) -> dict:
         "`retention_policy.json` bleibt mit `<VERIFY>` stehen — es wird nichts gelöscht")
 
 
+def propose_lakehouse_schemas(bp: dict) -> dict:
+    """Schema-enabled lakehouse — the one layout choice that cannot be undone later."""
+    external = bool(bp.get("sharing"))
+    return _rec(
+        "PLAT-LHSCHEMA", "Lakehouse mit Schemas",
+        "Liegen die Tabellen in echten Medaillon-Schemas (`gold.fact_x`) oder flach unter `dbo` "
+        "(`gold_fact_x`)?",
+        ("**Vorbelegt: schema-aktiviert** (`gold.` / `silver.` / `bronze.`). Der Grund ist nicht "
+         "Ästhetik, sondern Unumkehrbarkeit: Fabric hat **kein Werkzeug**, ein Lakehouse ohne "
+         "Schemas nachträglich auf Schemas umzustellen, ohne Daten zu bewegen. Die Entscheidung "
+         "fällt bei der Anlage — hinterher kostet sie eine Migration. Von zwei Optionen, die sonst "
+         "ähnlich gut sind, ist die zu wählen, die man später noch ändern kann; hier ist das die "
+         "schema-aktivierte, weil `dbo` sich per Schema-Shortcut nachbilden lässt, umgekehrt aber "
+         "nicht.\n\n"
+         "Fachlich kommt hinzu: die Schicht steht dann im Namensraum statt im Präfix, "
+         "Berechtigungen lassen sich je Schema vergeben, und die Domänentrennung bleibt dort, wo "
+         "sie hingehört — auf Workspace-Ebene. Ein zweiter Domänen-Schnitt im Schema würde sie "
+         "doppeln.\n\n"
+         "**Zwei dokumentierte Grenzen**, die dagegen sprechen können: ein schema-aktiviertes "
+         "Lakehouse lässt sich **nicht** per Workspace-Sharing direkt teilen (Workaround: "
+         "Shortcuts), und externe ADLS-Tabellen werden nicht direkt unterstützt (ebenfalls "
+         "Shortcuts)."
+         + (" **Achtung — dieser Blueprint hat eine `sharing`-Sektion**, also ist die erste Grenze "
+            "hier real und gehört geprüft." if external else "")),
+        "Fabric-Doku zu Lakehouse-Schemas (Limitationen + fehlendes Migrationswerkzeug)",
+        "hoch",
+        ["Flach unter `dbo` bleiben (`--no-lakehouse-schemas`) — nur mit Grund, etwa wenn das "
+         "Lakehouse per Workspace-Sharing geteilt werden muss",
+         "Schemas aktivieren, geteilte Zugriffe über Shortcuts lösen"],
+        "Data Platform Lead (verbindlich), Data Owner (Sharing-Bedarf)",
+        "Umstellung nach der Anlage bedeutet Daten bewegen — deshalb vor der ersten Provisionierung "
+        "entscheiden",
+        status="vorbelegt",
+    )
+
+
 def propose_alerts(bp: dict) -> dict:
     """Alert recipients — a role-mailbox structure rather than personal addresses."""
     doms = _domain_names(bp)
@@ -637,7 +673,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
     if len(domains) > 1 and gc.get("tables"):
         out.extend(propose_cross_domain(bp, gc))   # domains are not islands
     out.extend([propose_workspace_roles(bp), propose_retention(bp, gc), propose_alerts(bp),
-                propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp)])
+                propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
+                propose_lakehouse_schemas(bp)])
     return out
 
 

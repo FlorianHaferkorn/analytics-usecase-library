@@ -120,3 +120,48 @@ def test_render_writes_files(tmp_path):
 
 def test_fabric_is_registered():
     assert "fabric" in arch_targets.available()
+
+
+# -- source introspection (mirrored, two-phase) --------------------------------------
+
+
+_ROWS = ("TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,DATA_TYPE,IS_NULLABLE\n"
+         "dbo,Orders,OrderId,int,NO\n"
+         "dbo,Orders,ChangedOn,datetime2,YES\n")
+
+
+def test_phase_one_ships_without_being_asked():
+    """The introspection question costs nothing and is the step that gets forgotten, so
+    it is emitted on every render — not behind a flag."""
+    out = arch_targets.render("fabric", _bp())
+    assert "fabric/source_schema/queries/crm_orders.sql" in out
+    assert "INFORMATION_SCHEMA.COLUMNS" in out["fabric/source_schema/queries/crm_orders.sql"]
+
+
+def test_unanswered_sources_are_named_in_the_runbook():
+    plan = arch_targets.render("fabric", _bp())["fabric/PROVISIONING_PLAN.md"]
+    assert "not answered yet" in plan
+    assert "--source-schema-results" in plan
+
+
+def test_answered_source_becomes_a_grounded_schema():
+    out = arch_targets.render("fabric", _bp(), source_schema_results={"crm_orders": _ROWS})
+    schema = json.loads(out["fabric/source_schema/schemas/crm_orders.json"])
+    assert schema["source"] == "crm_orders"
+    assert {c["name"] for c in schema["schema"][0]["properties"]} == {"OrderId", "ChangedOn"}
+    # answered → the runbook stops asking for it
+    assert "not answered yet" not in out["fabric/PROVISIONING_PLAN.md"]
+
+
+def test_a_file_source_gets_a_note_not_a_sql_statement():
+    """ADLS has no catalogue to query; emitting a SELECT against it would be theatre."""
+    out = arch_targets.render("fabric", _bp())
+    assert "fabric/source_schema/queries/web_events.md" in out
+    assert "fabric/source_schema/queries/web_events.sql" not in out
+
+
+def test_unsupported_option_names_itself():
+    import pytest
+
+    with pytest.raises(arch_targets.ArchContractError, match="nonsense"):
+        arch_targets.render("fabric", _bp(), nonsense=1)

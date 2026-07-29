@@ -2,9 +2,10 @@
 
 Meridian *kompiliert* die Architektur; die offiziell belegten Emitter (OneLake-Security-
 Rollen, Monitoring-KQL, Delta-Lifecycle, Managed Private Endpoints, Betriebsbereitschaft,
-SKU-Guardrails, Tenant-Settings, Entscheidungs-Vorbelegungen) sind reine Kodierung
-offizieller Verträge und gehören damit in beide Repos — Heimat Meridian, ALUCA spiegelt
-byte-identisch unter ``vendor/meridian_dataarch``.
+SKU-Guardrails, Tenant-Settings, Entscheidungs-Vorbelegungen, Quell-Introspektion über
+``INFORMATION_SCHEMA``/OpenAPI) sind reine Kodierung offizieller Verträge und gehören damit
+in beide Repos — Heimat Meridian, ALUCA spiegelt byte-identisch unter
+``vendor/meridian_dataarch``.
 
 **Das Importproblem und seine Lösung.** Die gespiegelten Module importieren einander
 absolut als ``core.dataarch_engine.blueprint.…`` (Meridian-Idiom, 123× im Quell-Repo — hier
@@ -42,6 +43,16 @@ PIN_PATH = VENDOR_DIR / "PIN.json"
 _PKG_PARENT = "core.dataarch_engine"
 _PKG = "core.dataarch_engine.blueprint"
 
+# **Alias statt zweiter Kopie.** ``source_schema`` importiert ``odcs`` lazy (erst im
+# Aufruf von ``from_information_schema``) — beim Spiegeln ist das im Modulkopf unsichtbar
+# und fällt erst zur Laufzeit auf. ALUCA hat aber bereits einen eigenen ODCS-Writer
+# (``tooling/superversion/odcs.py``, handgespiegelte Vertragsfläche, vom Sensor geprüft).
+# Ein zweiter, vendorter würde ALUCA zwei ODCS-Writer geben — genau das Doppel-Silo, das
+# die Doktrin verbietet. Der Spiegel bekommt deshalb den vorhandenen unter Meridians
+# Namen untergeschoben; der Sensor vergleicht dafür auch die SQL→logisch-Typtabelle,
+# von der dieser Alias abhängt.
+_ALIASED_MODULES = {f"{_PKG}.odcs": "tooling.superversion.odcs"}
+
 # Die öffentliche Fläche, die ALUCA aus dem Spiegel nutzt: Modul → Funktionen.
 PUBLIC_API: dict[str, tuple[str, ...]] = {
     "provision_governance": ("emit_governance",),
@@ -49,6 +60,7 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     "provision_lifecycle": ("emit_lifecycle",),
     "provision_connectivity": ("emit_connectivity",),
     "provision_operability": ("emit_operability", "check_metadata_completeness"),
+    "provision_source_schema": ("emit_source_schema",),
     "capacity_recommend": ("recommend_capacity",),
     "admin_settings": ("required_settings",),
     "decision_proposals": ("propose_all", "emit_decisions", "decisions_markdown"),
@@ -125,6 +137,24 @@ def _install_finder() -> None:
         # Vorne einhängen, damit `core.dataarch_engine` nicht am echten `core`-Pfad
         # scheitert; alles andere fällt durch (find_spec → None).
         sys.meta_path.insert(0, _VendorFinder())
+    _install_aliases()
+
+
+def _install_aliases() -> None:
+    """ALUCA-eigene Module unter ihrem Meridian-Namen bereitstellen.
+
+    Nur für Namen, die der Spiegel **nicht** vendort — hier verdeckt nichts etwas: ohne
+    Alias liefe der Import ins Leere (der Vendor-Ordner hat keine ``odcs.py``).
+    """
+    for alias, target in _ALIASED_MODULES.items():
+        if alias in sys.modules:
+            continue
+        try:
+            sys.modules[alias] = importlib.import_module(target)
+        except ImportError as exc:  # pragma: no cover - target ist Teil des Repos
+            raise VendorUnavailable(
+                f"Spiegel braucht {alias} → {target}, das nicht importierbar ist: {exc}"
+            ) from exc
 
 
 def load_module(name: str) -> ModuleType:

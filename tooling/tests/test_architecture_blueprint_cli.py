@@ -60,3 +60,64 @@ def test_run_is_deterministic(tmp_path):
     b = run(_INPUTS, tmp_path / "b", "fabric")
     assert a["conformance"] == b["conformance"]
     assert (tmp_path / "a" / "blueprint.json").read_text() == (tmp_path / "b" / "blueprint.json").read_text()
+
+
+# -- feeding answered source introspections back in ---------------------------------
+
+
+_ROWS = ("TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,DATA_TYPE,IS_NULLABLE\n"
+         "dbo,Orders,OrderId,int,NO\n"
+         "dbo,Orders,ChangedOn,datetime2,YES\n")
+
+
+def test_results_directory_is_read_and_grounds_the_schema(tmp_path):
+    results = tmp_path / "results"
+    results.mkdir()
+    (results / "crm.csv").write_text(_ROWS, encoding="utf-8")
+
+    summary = run(_INPUTS, tmp_path / "out", "fabric", results)
+    assert summary["source_schemas_answered"] == ["crm"]
+    schema = json.loads((tmp_path / "out" / "render" / "fabric" / "source_schema"
+                         / "schemas" / "crm.json").read_text(encoding="utf-8"))
+    assert schema["source"] == "crm"
+
+
+def test_without_results_the_question_is_still_emitted(tmp_path):
+    summary = run(_INPUTS, tmp_path / "out", "fabric")
+    assert summary["source_schemas_answered"] == []
+    assert (tmp_path / "out" / "render" / "fabric" / "source_schema"
+            / "queries" / "crm.sql").is_file()
+
+
+def test_non_result_files_are_ignored(tmp_path):
+    """The emitted questions (.sql/.md) live next to the answers in a real workflow;
+    feeding a query back in as if it were a result would produce a bogus schema."""
+    from tooling.superversion.architecture_blueprint_cli import read_source_schema_results
+
+    results = tmp_path / "r"
+    results.mkdir()
+    (results / "crm.csv").write_text(_ROWS, encoding="utf-8")
+    (results / "crm.sql").write_text("SELECT 1", encoding="utf-8")
+    (results / "_SOURCE_SCHEMA.md").write_text("# readme", encoding="utf-8")
+    assert set(read_source_schema_results(results)) == {"crm"}
+
+
+def test_missing_results_directory_is_an_error_not_a_silent_skip(tmp_path):
+    """A typo'd path must not look like "no sources answered yet"."""
+    import pytest
+
+    from tooling.superversion.architecture_blueprint_cli import read_source_schema_results
+
+    with pytest.raises(FileNotFoundError, match="source-schema-results"):
+        read_source_schema_results(tmp_path / "nope")
+
+
+def test_main_accepts_the_flag(tmp_path):
+    results = tmp_path / "results"
+    results.mkdir()
+    (results / "crm.csv").write_text(_ROWS, encoding="utf-8")
+    inp = tmp_path / "inputs.json"
+    inp.write_text(json.dumps(_INPUTS), encoding="utf-8")
+    rc = main(["--inputs", str(inp), "--dest", str(tmp_path / "out"),
+               "--source-schema-results", str(results)])
+    assert rc == 0
