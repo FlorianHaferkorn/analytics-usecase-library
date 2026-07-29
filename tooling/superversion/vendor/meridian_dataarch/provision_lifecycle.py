@@ -41,22 +41,95 @@ def _gold_tbl(product: str, schemas: bool) -> str:
     return layer_ref("gold", _ident(product), schemas)
 
 
+def _silver_tbl(domain: str, schemas: bool) -> str:
+    from core.dataarch_engine.blueprint.naming import layer_ref
+    return layer_ref("silver", _ident(domain), schemas)
+
+
+def _bronze_tbl(source: str, schemas: bool) -> str:
+    from core.dataarch_engine.blueprint.naming import layer_ref
+    return layer_ref("bronze", _ident(source), schemas)
+
+
 def _table_maintenance(bp: dict, schemas: bool) -> str:
-    """Scheduled OPTIMIZE + VACUUM per gold Delta table (Spark SQL). Grounded: VACUUM after OPTIMIZE,
-    7-day default retention, DRY RUN first, don't go below 7 days."""
+    """Per-layer maintenance (Spark SQL). Grounded in MS Learn *Cross-workload table maintenance*.
+
+    The layers are deliberately **not** treated alike — that was the earlier gap. Plain ``OPTIMIZE``
+    does not apply V-Order, and **V-Order is disabled by default in new Fabric workspaces**. Since
+    this Baukasten emits Direct Lake semantic models over exactly these gold tables, leaving that
+    default in place costs a documented 40–60 % on cold-cache queries — invisibly, because nothing
+    fails. Bronze gets the opposite treatment: V-Order there is 15–33 % write overhead for a layer
+    that is documented as *not* to be served to Direct Lake or the SQL endpoint at all.
+
+    Table properties over session configs, per the same guidance: a session setting applies to one
+    Spark session, so a second writer silently produces a different layout.
+    """
     lines = [
-        "-- Table maintenance — run on a schedule (e.g. weekly) in a notebook / Spark job over the gold Delta tables.",
-        "-- Grounded (MS Learn): run VACUUM after OPTIMIZE; default retention 168 h (7 days); do NOT go below 7",
-        "-- days unless you understand the impact on time travel + recovery; VACUUM does not remove _delta_log.",
-        "-- Verify first with:  VACUUM <table> RETAIN 168 HOURS DRY RUN",
+        "-- Table maintenance — run on a schedule (e.g. weekly) in a notebook / Spark job.",
+        "-- Grounded (MS Learn, Cross-workload table maintenance + Delta/V-Order):",
+        "--   * VACUUM after OPTIMIZE; default retention 168 h (7 days); do NOT go below 7 days unless",
+        "--     you understand the impact on time travel + recovery; VACUUM does not remove _delta_log.",
+        "--     Verify first with:  VACUUM <table> RETAIN 168 HOURS DRY RUN",
+        "--   * Layers are optimized differently — see the per-layer sections below.",
+        "--   * Properties are set on the TABLE, not the session: a session config applies to one Spark",
+        "--     session only, so another writer would silently produce a different layout.",
         "",
+        "-- ============================================================================",
+        "-- BRONZE — ingestion speed over read performance.",
+        "--   V-Order: NO (15–33 % write overhead; bronze is not served to Direct Lake or SQL endpoint).",
+        "--   Auto-compaction: on, to keep small files in check. Partitioning: discouraged for new builds.",
+        "-- ============================================================================",
+    ]
+    for entry in sorted(bp.get("ingestion", []), key=lambda e: str(e.get("source", ""))):
+        source = str(entry.get("source") or "")
+        if not source:
+            continue
+        t = _bronze_tbl(source, schemas)
+        lines += [
+            f"ALTER TABLE {t} SET TBLPROPERTIES ("
+            "'delta.autoOptimize.autoCompact' = 'true', "
+            "'delta.autoOptimize.optimizeWrite' = 'true');",
+        ]
+    lines += [
+        "",
+        "-- ============================================================================",
+        "-- SILVER — balance write and read.",
+        "--   V-Order: optional — enable only where the SQL endpoint or Power BI reads silver directly.",
+        "--   Liquid Clustering: recommended; needs the real filter columns → decided per table, not here.",
+        "-- ============================================================================",
+    ]
+    for d in _domains(bp):
+        t = _silver_tbl(d.get("name", ""), schemas)
+        lines += [
+            f"ALTER TABLE {t} SET TBLPROPERTIES ("
+            "'delta.autoOptimize.autoCompact' = 'true', "
+            "'delta.autoOptimize.optimizeWrite' = 'true');",
+            f"OPTIMIZE {t};",
+            f"-- TODO(decide): CLUSTER BY (<filter columns>) on {t} — Liquid Clustering needs the columns",
+            "--   your queries actually filter on. Guessing them would reorganize the table for a access",
+            "--   pattern nobody has; it is a workshop question, not a derivation.",
+        ]
+    lines += [
+        "",
+        "-- ============================================================================",
+        "-- GOLD — read performance for end users. This is what Direct Lake reads.",
+        "--   V-Order: REQUIRED for Direct Lake (40–60 % on cold-cache queries) — and OFF by default in",
+        "--     new workspaces, so it must be set explicitly. Plain OPTIMIZE does not apply it.",
+        "--   Target: 400 MB – 1 GB files, 8M+ rows per row group for Direct Lake.",
+        "-- ============================================================================",
     ]
     for d in _domains(bp):
         for product in sorted(d.get("data_products", [])):
             t = _gold_tbl(product, schemas)
-            lines += [f"OPTIMIZE {t};",
-                      f"VACUUM {t} RETAIN {_VACUUM_DEFAULT_HOURS} HOURS;   -- 7-day floor; raise per time-travel/audit needs",
-                      ""]
+            lines += [
+                f"ALTER TABLE {t} SET TBLPROPERTIES ("
+                "'delta.parquet.vorder.enabled' = 'true', "
+                "'delta.autoOptimize.optimizeWrite' = 'true', "
+                "'delta.autoOptimize.autoCompact' = 'true');",
+                f"OPTIMIZE {t} VORDER;",
+                f"VACUUM {t} RETAIN {_VACUUM_DEFAULT_HOURS} HOURS;   -- 7-day floor; raise per time-travel/audit needs",
+                "",
+            ]
     return "\n".join(lines) + "\n"
 
 

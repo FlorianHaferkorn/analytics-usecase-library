@@ -9,6 +9,7 @@ emit input is an `ArchitectureBlueprint` dict (validated by
 """
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Protocol, runtime_checkable
@@ -67,13 +68,25 @@ def _validate_emit(out: dict) -> dict[str, str]:
     return out
 
 
-def render(stack_id: str, blueprint: dict, dest: Path | None = None) -> dict[str, str]:
+def render(stack_id: str, blueprint: dict, dest: Path | None = None,
+           **emit_kwargs) -> dict[str, str]:
     """Emit the scaffolding for a stack. If ``dest`` is given, also write the files.
 
     Returns the ``{relative_path: content}`` map (pure output), so callers can test
     without touching disk.
+
+    ``emit_kwargs`` carries optional, target-specific input a blueprint cannot hold —
+    today only answered source introspection (`source_schema_results`), which is customer
+    output, not architecture. A target that does not accept an option is a caller error
+    and says so by name; silently dropping it would look like the option had been honoured.
     """
-    out = _validate_emit(get(stack_id).emit(blueprint))
+    adapter = get(stack_id)
+    unsupported = [k for k in emit_kwargs
+                   if k not in inspect.signature(adapter.emit).parameters]
+    if unsupported:
+        raise ArchContractError(
+            f"arch-target {stack_id!r} does not accept: {', '.join(sorted(unsupported))}")
+    out = _validate_emit(adapter.emit(blueprint, **emit_kwargs))
     if dest is not None:
         dest = Path(dest)
         for rel, content in out.items():

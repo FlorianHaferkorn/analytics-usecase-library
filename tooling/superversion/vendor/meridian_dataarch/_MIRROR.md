@@ -22,10 +22,19 @@ spiegelt.
 | `provision_operability.py` | Metadaten-Vollständigkeit als Funktionsbedingung, Betriebs-Runbook |
 | `capacity_recommend.py` | SKU-Guardrails inkl. Direct Lake |
 | `admin_settings.py` | Tenant-Settings-Vorbedingungen |
-| `decision_proposals.py` | Vorbelegte Entscheidungen (RLS/CLS/Retention/Endorsement/…) |
+| `decision_proposals.py` | Vorbelegte Entscheidungen (RLS/CLS/Retention/Endorsement/Lakehouse-Schemas/…) |
 | `naming.py` | Namenskonvention (Abhängigkeit von `provision_lifecycle`) |
-| `PIN.json` | sha256-Manifest über die neun Module |
+| `source_schema.py` | `INFORMATION_SCHEMA`-Introspektion (ANSI + Dialekt-Abweichungen), OpenAPI-Lesung |
+| `provision_source_schema.py` | Zwei-Phasen-Emission: erst die Frage an die Quelle, dann deren Antwort als Vertrag |
+| `PIN.json` | sha256-Manifest über die elf Module — **abgeleitet**, nicht die Entscheidung |
 | `_MIRROR.md` | diese Datei — ALUCA-eigen, **nicht** Teil des Spiegels |
+
+**Was** gespiegelt wird, entscheidet `MIRRORED_FILES` in
+[`scripts/check_dataarch_mirror.py`](../../../../scripts/check_dataarch_mirror.py); das PIN
+trägt nur die Hashes dazu. Die Reihenfolge ist wichtig: stünde die Liste im PIN, ließe sich
+kein Modul aufnehmen — das verlangte eine PIN-Änderung von Hand, und genau die fängt das
+Integritäts-Gate (zu Recht) als Doktrin-Bruch ab. `--write` läuft deshalb **vor** dem Gate:
+es ist die Operation, die Integrität wiederherstellt.
 
 ## Wie ALUCA sie benutzt
 

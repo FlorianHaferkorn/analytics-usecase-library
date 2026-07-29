@@ -43,7 +43,9 @@ _MIRRORED = ("emit_governance", "emit_monitoring", "emit_lifecycle",
              "emit_connectivity", "emit_operability")
 
 
-def _mirrored_artifacts(blueprint: dict) -> tuple[dict[str, str], str]:
+def _mirrored_artifacts(blueprint: dict,
+                        source_schema_results: dict[str, str] | None = None,
+                        ) -> tuple[dict[str, str], str]:
     """Artifacts from the mirrored Meridian emitters, plus a one-line status.
 
     Returns ``({}, reason)`` when the mirror is unavailable — the caller then emits the
@@ -63,10 +65,18 @@ def _mirrored_artifacts(blueprint: dict) -> tuple[dict[str, str], str]:
     for name in _MIRRORED:
         for path, content in api[name](blueprint).items():
             out[f"fabric/{path}"] = content
+
+    # Source introspection is two-phase: the question always, the answer only once the
+    # customer has run it. Phase 1 costs nothing and is the thing that gets forgotten, so
+    # it is emitted unconditionally; `source_schema_results` upgrades the same call to
+    # phase 2 without a second code path.
+    for path, content in api["emit_source_schema"](blueprint, source_schema_results).items():
+        out[f"fabric/{path}"] = content
     return out, ""
 
 
-def emit(blueprint: dict) -> dict[str, str]:
+def emit(blueprint: dict,
+         source_schema_results: dict[str, str] | None = None) -> dict[str, str]:
     platform = blueprint.get("platform", {})
     medallion = blueprint.get("medallion", {})
     mesh = blueprint.get("mesh", {})
@@ -140,14 +150,21 @@ def emit(blueprint: dict) -> dict[str, str]:
                  "(never bronze); grounding manifest emitted separately (`ground`).")
     lines.append("")
 
-    mirrored, skip_reason = _mirrored_artifacts(blueprint)
+    mirrored, skip_reason = _mirrored_artifacts(blueprint, source_schema_results)
 
-    lines.append("## 5. Governance, monitoring, lifecycle, connectivity, operability")
+    lines.append("## 5. Governance, monitoring, lifecycle, connectivity, operability, "
+                 "source introspection")
     if mirrored:
         lines.append(f"Emitted by the mirrored Meridian emitters ({len(mirrored)} artifact(s)) — "
                      "OneLake Security roles, failure/throttling alerts, Delta maintenance + "
-                     "BCDR, Managed Private Endpoints, operational readiness. See "
-                     "`SHARED_SUBSTANCE.md` for why these are not reimplemented here.")
+                     "BCDR, Managed Private Endpoints, operational readiness, and the source "
+                     "introspection statements. See `SHARED_SUBSTANCE.md` for why these are "
+                     "not reimplemented here.")
+        if not source_schema_results:
+            lines.append("Source schemas are **not answered yet**: `fabric/source_schema/queries/` "
+                         "holds the statements to run against each source; feed the results back "
+                         "with `--source-schema-results` to ground the contracts. Until then the "
+                         "sources stay visibly unknown rather than getting a plausible default.")
         for path in sorted(mirrored):
             lines.append(f"- `{path}`")
     else:

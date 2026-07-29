@@ -208,3 +208,51 @@ def test_decisions_markdown_renders(api):
     md = api["decisions_markdown"](api["propose_all"](_BP))
     assert md.strip()
     assert "|" in md, "expected a table"
+
+
+# -- Quell-Introspektion: die Frage immer, die Antwort erst wenn sie da ist ----------
+
+
+_ROWS = ("TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME,DATA_TYPE,IS_NULLABLE\n"
+         "dbo,Orders,OrderId,int,NO\n"
+         "dbo,Orders,ChangedOn,datetime2,YES\n")
+
+
+def test_phase_one_emits_a_runnable_statement(api):
+    out = api["emit_source_schema"](_BP)
+    sql = out["source_schema/queries/erp_orders.sql"]
+    assert "INFORMATION_SCHEMA.COLUMNS" in sql
+    assert "SELECT" in sql
+    # Ohne Antwort bleibt die Quelle sichtbar unbekannt statt still plausibel gefüllt.
+    assert not any(p.startswith("source_schema/schemas/") for p in out)
+    assert "not yet answered" in out["source_schema/_SOURCE_SCHEMA.md"]
+
+
+def test_phase_two_needs_the_odcs_alias(api):
+    """``source_schema`` importiert ``odcs`` **lazy** — der Fehler fällt erst hier auf,
+    nicht beim Import des Spiegels. Ohne die Alias-Brücke wäre Phase 2 tot."""
+    out = api["emit_source_schema"](_BP, {"erp_orders": _ROWS})
+    schema = json.loads(out["source_schema/schemas/erp_orders.json"])
+    columns = {c["name"]: c["logicalType"] for c in schema["schema"][0]["properties"]}
+    # Die logischen Typen kommen aus ALUCAs eigenem ODCS-Writer, nicht aus einer zweiten Kopie.
+    assert columns == {"OrderId": "integer", "ChangedOn": "date"}
+
+
+def test_the_alias_points_at_alucas_own_odcs():
+    """Kein zweiter ODCS-Writer im Repo: der Spiegel bekommt den vorhandenen untergeschoben."""
+    import sys
+
+    vendor.load_emitters()
+    aliased = sys.modules["core.dataarch_engine.blueprint.odcs"]
+    from tooling.superversion import odcs as aluca_odcs
+    assert aliased is aluca_odcs
+    assert not (VENDOR / "odcs.py").exists(), "der Alias würde eine vendorte Datei verdecken"
+
+
+def test_key_and_watermark_stay_candidates(api):
+    """INFORMATION_SCHEMA kennt keine Schlüssel — das darf nicht als Tatsache auftauchen."""
+    out = api["emit_source_schema"](_BP, {"erp_orders": _ROWS})
+    proposals = json.loads(out["source_schema/proposals.json"])
+    orders = proposals["sources"]["erp_orders"]["Orders"]
+    assert orders["key_candidates"] == ["OrderId"]
+    assert orders["watermark_candidates"] == ["ChangedOn"]

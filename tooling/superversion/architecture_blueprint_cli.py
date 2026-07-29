@@ -29,7 +29,28 @@ from tooling.superversion.eval.blueprint_conformance import conformance
 from tooling.superversion import arch_targets
 
 
-def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric") -> dict[str, Any]:
+_RESULT_SUFFIXES = (".csv", ".json", ".tsv")
+
+
+def read_source_schema_results(directory: Path | None) -> dict[str, str]:
+    """Answered source introspections, keyed by the file stem (= the source's slug).
+
+    Reading files is I/O, so it stays on this side; interpreting them is the mirrored
+    emitter's job. Anything that is not a result payload (a README, the emitted
+    `.sql`/`.md` questions) is ignored rather than fed in as a broken answer.
+    """
+    if directory is None:
+        return {}
+    directory = Path(directory)
+    if not directory.is_dir():
+        raise FileNotFoundError(f"--source-schema-results: no such directory: {directory}")
+    return {p.stem: p.read_text(encoding="utf-8")
+            for p in sorted(directory.iterdir())
+            if p.is_file() and p.suffix.lower() in _RESULT_SUFFIXES}
+
+
+def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
+        source_schema_results: Path | None = None) -> dict[str, Any]:
     """Run the full workflow and write artifacts under ``dest``. Returns a summary."""
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
@@ -40,7 +61,9 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric") -> dict[str, 
 
     score = conformance(bp)
     grounding = emit_grounding(bp)
-    rendered = arch_targets.render(stack, bp, dest=dest / "render")
+    results = read_source_schema_results(source_schema_results)
+    rendered = arch_targets.render(stack, bp, dest=dest / "render",
+                                   source_schema_results=results)
 
     (dest / "blueprint.json").write_text(
         json.dumps(bp, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -52,6 +75,7 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric") -> dict[str, 
 
     return {
         "stack": stack,
+        "source_schemas_answered": sorted(results),
         "hitl": derived["hitl"],
         "conformance": score.scorecard,
         "conformance_ok": score.ok,
@@ -66,12 +90,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dest", type=Path, required=True, help="output directory")
     parser.add_argument("--stack", default="fabric", choices=sorted(arch_targets.available()),
                         help="render target stack")
+    parser.add_argument("--source-schema-results", type=Path, default=None,
+                        help="directory of answered source introspections "
+                             "(<source>.csv/.json), as produced by render/fabric/source_schema/")
     args = parser.parse_args(argv)
 
     inputs = json.loads(Path(args.inputs).read_text(encoding="utf-8"))
-    summary = run(inputs, args.dest, args.stack)
+    summary = run(inputs, args.dest, args.stack, args.source_schema_results)
 
     print(f"stack: {summary['stack']}")
+    answered = summary["source_schemas_answered"]
+    print(f"source schemas answered: {', '.join(answered) if answered else '(none yet)'}")
     print("conformance:")
     for pattern, verdict in summary["conformance"].items():
         print(f"  {pattern}: {verdict}")
