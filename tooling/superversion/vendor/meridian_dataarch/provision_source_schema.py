@@ -52,6 +52,16 @@ def source_kind(entry: dict[str, Any]) -> str:
 def dialect_for(entry: dict[str, Any]) -> str:
     """Best-known dialect for a source; ``ansi`` when the system string says nothing."""
     system = str(entry.get("source_system") or "").lower()
+    connector = str(entry.get("connector") or "").lower()
+
+    # SAP first: `s/4hana` also contains no other vendor's marker, but "hana" must be seen
+    # before the ANSI fallback. HANA has no INFORMATION_SCHEMA, so falling through to `ansi`
+    # would hand the customer a statement that simply errors on their system — the one
+    # outcome this module exists to avoid. Datasphere shares HANA Cloud's SQL surface.
+    if ("hana" in system or "datasphere" in system
+            or connector in ("hana", "datasphere") or "hana" in connector):
+        return "hana"
+
     for name in ("sqlserver", "postgres", "mysql", "snowflake", "databricks", "oracle"):
         if name in system.replace(" ", ""):
             return name

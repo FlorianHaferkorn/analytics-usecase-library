@@ -46,6 +46,8 @@ SUPPORTED_DIALECTS: dict[str, str] = {
     "databricks": "Unity Catalog exposes system.information_schema; run per catalog.",
     "fabric-sql": "Fabric SQL analytics endpoint over a Lakehouse/Warehouse.",
     "oracle": "No INFORMATION_SCHEMA — uses ALL_TAB_COLUMNS (emitted accordingly).",
+    "hana": "No INFORMATION_SCHEMA — uses SYS.TABLE_COLUMNS (emitted accordingly). "
+            "Covers SAP HANA, S/4HANA and SAP Datasphere (HANA Cloud SQL surface).",
 }
 
 # System schemas that are never customer data. Filtered in the emitted statement so the
@@ -63,6 +65,13 @@ _POSITION = "ORDINAL_POSITION"
 _MAXLEN = "CHARACTER_MAXIMUM_LENGTH"
 _PRECISION = "NUMERIC_PRECISION"
 _SCALE = "NUMERIC_SCALE"
+
+
+# HANA's string/binary type names, as the predicate that decides what its single LENGTH
+# column means. Kept as one expression so the two CASEs below cannot drift apart.
+_HANA_IS_TEXTUAL = ("DATA_TYPE_NAME LIKE '%CHAR%' OR DATA_TYPE_NAME LIKE '%TEXT%' "
+                    "OR DATA_TYPE_NAME LIKE '%BINARY%' OR DATA_TYPE_NAME LIKE '%LOB%' "
+                    "OR DATA_TYPE_NAME = 'ALPHANUM'")
 
 
 def _quote_list(values: tuple[str, ...] | list[str]) -> str:
@@ -99,6 +108,39 @@ def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None) -
             "FROM ALL_TAB_COLUMNS\n"
             "WHERE OWNER NOT IN ('SYS', 'SYSTEM')"
             f"{owner_filter}\n"
+            "ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION;\n"
+        )
+
+    if dialect == "hana":
+        # SAP HANA has no INFORMATION_SCHEMA; SYS.TABLE_COLUMNS is the documented catalogue.
+        # Aliased to the ANSI names so `from_information_schema` stays one reader — and so a
+        # customer who exports the result cannot tell that the question was dialect-specific.
+        # SAP's system schemas are excluded: they are the database's own metadata, never
+        # customer data, and they would swamp the result set.
+        schema_filter = (f"\n  AND SCHEMA_NAME IN ({_quote_list(schemas)})" if schemas else "")
+        return (
+            "-- Source introspection (SAP HANA / S/4HANA / Datasphere).\n"
+            "-- HANA has no INFORMATION_SCHEMA — SYS.TABLE_COLUMNS is the catalogue.\n"
+            "-- Reads catalogue metadata only, no table data.\n"
+            "SELECT SCHEMA_NAME     AS TABLE_SCHEMA,\n"
+            "       TABLE_NAME      AS TABLE_NAME,\n"
+            "       COLUMN_NAME     AS COLUMN_NAME,\n"
+            "       DATA_TYPE_NAME  AS DATA_TYPE,\n"
+            "       IS_NULLABLE     AS IS_NULLABLE,\n"
+            "       POSITION        AS ORDINAL_POSITION,\n"
+            # HANA keeps one LENGTH column for both meanings: character length for string
+            # types, precision for numeric ones. Mapping it to both ANSI columns would lose
+            # the scale — the reader prefers the character length, so DECIMAL(10,2) would
+            # arrive as DECIMAL(10). Splitting it here keeps the declared type intact.
+            f"       CASE WHEN {_HANA_IS_TEXTUAL} THEN LENGTH END\n"
+            "                       AS CHARACTER_MAXIMUM_LENGTH,\n"
+            f"       CASE WHEN {_HANA_IS_TEXTUAL} THEN NULL ELSE LENGTH END\n"
+            "                       AS NUMERIC_PRECISION,\n"
+            "       SCALE           AS NUMERIC_SCALE\n"
+            "FROM SYS.TABLE_COLUMNS\n"
+            "WHERE SCHEMA_NAME NOT LIKE '\\_SYS%' ESCAPE '\\'\n"
+            "  AND SCHEMA_NAME NOT IN ('SYS', 'SYSTEM')"
+            f"{schema_filter}\n"
             "ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION;\n"
         )
 
