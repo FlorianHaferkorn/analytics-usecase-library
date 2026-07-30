@@ -158,6 +158,34 @@ KPI_TO_LEGACY = {
     # Chosen over the superseded 'Action Outcome Rate % (XD Log)' duplicate — see
     # this KPI's own governance.qa_rules for why.
     "enterprise.action_outcome_rate.pct": ("Experience.SemanticModel", "Action Outcome Rate % (XD)"),
+    # Die 4 Use Cases aus `143a984c` (Portfolio-Luecken + Procurement): HR-001,
+    # SCM-004, COM-005, FIN-003. Sie haben **keinen** Legacy-Gegenpart — mechanisch
+    # geprueft: kein `_Measures.tmdl` unter dist/ fuehrt einen dieser Measure-Namen,
+    # und es gibt gar kein HR-/Procurement-Semantikmodell. Die beiden namensaehnlichen
+    # Treffer sind andere Kennzahlen: `Attrition Risk %` (XD-003) ist ein
+    # BLANK()-Platzhalter fuer ein noch fehlendes Praediktionsmodell, nicht die
+    # realisierte Fluktuation ueber `fact_workforce`; `Supplier Risk Score` ist ein
+    # Risiko-Score, keine Liefertreue. Parity ist hier also vakuum — es gibt nichts,
+    # wovon abgewichen werden koennte. Was **nicht** vakuum ist: die Synthese muss
+    # aufloesen, und genau das prueft
+    # `test_no_legacy_counterpart_kpis_are_still_resolvable` fuer jeden dieser 17.
+    "margin.ebitda.amount": (None, None),
+    "margin.ebitda.delta_pct.plan": (None, None),
+    "people.absence.pct": (None, None),
+    "people.attrition.pct": (None, None),
+    "people.cost.per_fte.amount": (None, None),
+    "people.engagement.index": (None, None),
+    "people.headcount.fte": (None, None),
+    "people.timetofill.days": (None, None),
+    "procurement.oncontract.pct": (None, None),
+    "procurement.ppv.pct": (None, None),
+    "procurement.savings.realized.pct": (None, None),
+    "procurement.spend.managed.amount": (None, None),
+    "procurement.supplier.otd.pct": (None, None),
+    "sales.pipeline.coverage.ratio": (None, None),
+    "sales.pipeline.value.amount": (None, None),
+    "sales.sales_cycle.days": (None, None),
+    "sales.win_rate.pct": (None, None),
 }
 
 # Documented, deliberate divergences (Review Befund A2 methodology: ledger, not
