@@ -237,6 +237,28 @@
                   },
                   "grain": {
                     "type": "string"
+                  },
+                  "observation": {
+                    "type": "object",
+                    "description": "Declares that this product's grain is ONE OBSERVATION PER TIMESTAMP per entity — the shape a Fabric IQ TimeSeries binding needs. Absent = batch/transaction grain (the default): a TimeSeries binding there would mis-declare the semantics, because a transaction row is not a repeated observation of the same identity.",
+                    "required": [
+                      "timestamp_column"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "timestamp_column": {
+                        "type": "string",
+                        "description": "The time axis. Must be a column of this product."
+                      },
+                      "source": {
+                        "enum": [
+                          "lakehouse",
+                          "eventhouse"
+                        ],
+                        "default": "lakehouse",
+                        "description": "TimeSeries does NOT require an eventhouse — MS documents it with sourceType LakehouseTable. Declare eventhouse only for genuine telemetry; its clusterUri/databaseName stay tenant-specific VERIFY."
+                      }
+                    }
                   }
                 }
               }
