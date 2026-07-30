@@ -5,15 +5,15 @@
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "447a590d1029d7627423d6a0bb1831f5c0a33f4c6c16407fca09717f05f3bc08"
+      "sha256": "a12444917529fe58e621ffb3a5529510f5fcafa0fd7ddb8d0fd810b321e9509f"
     },
     {
       "path": "capacity_recommend.py",
-      "sha256": "361dc6cb15b559e0accdb055108edc197572ab3f97a68e336407c99b6b16b422"
+      "sha256": "b9041820e42dd2c2a299a726985b695e5fecf34d1e52fa40d20834ad2f3b16b5"
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "77960936b9741431a7621adcab8a059ac30778695a71cb4cf6121ccc005a6c2d"
+      "sha256": "f5feb14329f005e7eb0a835f90165a85d9c7ba27cdbb018892be1efe55f8c5d6"
     },
     {
       "path": "naming.py",
@@ -25,7 +25,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "9cb63775cce8e063e58ce6473897380be3d0ceaca753a9a5c4269c7b7b98b314"
+      "sha256": "a9d4de61a025dd22f3fc1c1fe8b0bafb2929fd46df3782ae7c5ac8e91a74f3b5"
     },
     {
       "path": "provision_lifecycle.py",

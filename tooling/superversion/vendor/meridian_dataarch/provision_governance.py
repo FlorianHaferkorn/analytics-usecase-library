@@ -473,4 +473,156 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         out["governance/sensitivity_labels.sh"] = _sensitivity_script(bp, governance)
         out["governance/onelake_data_access_roles.json"] = _onelake_security_roles(
             bp, lakehouse, sensitivity, governed_catalog)
+    # P5 gehoert hierher und nicht hinter ein eigenes Flag: es IST Governance, und es erscheint genau
+    # dann, wenn die IR einen Share deklariert. Ein eigenes `--emit-sharing` waere ein Schalter, den man
+    # vergessen kann — bei einer Bedingung, die das Sicherheitsmodell aufhebt, ist das der falsche
+    # Freiheitsgrad.
+    out.update(emit_sharing(bp, stack=stack))
     return out
+
+# --------------------------------------------------------------------------- P5 external sharing
+_SHARE_GROUNDED = "2026-07-30"   # MS Learn: fabric/governance/external-data-sharing-{overview,enable,create}
+
+
+def _share_inventory_py() -> str:
+    """Das Anlegen eines Shares ist **portal-only** (kein Create-REST-API dokumentiert) — also emittiert
+    dieser Baukasten kein Anlege-Skript, sondern das, was es offiziell gibt: die **Admin-API zum
+    Auflisten**. Nach der Portal-Aktion belegt sie, WAS existiert, an WEN, mit welchem Status und welcher
+    Ablauffrist. Genau das braucht ein Audit, und genau das kann man nicht am Portal behaupten."""
+    return (
+        '"""inventory_shares.py — belegt die tatsaechlich existierenden External Data Shares (generiert).\n\n'
+        "Das Anlegen laeuft im Portal (kein Create-API dokumentiert). Dieses Skript ist die\n"
+        "Gegenprobe danach: Admin-API `List External Data Shares` ueber sempy. Laeuft unter einer\n"
+        "Fabric-Admin-Identitaet; liest nur.\n\n"
+        "Spalten laut Doku: External Data Share Id, Paths, Creator*, Recipient UPN,\n"
+        'Recipient Tenant Id, Status, Expiration Time UTC, Workspace Id, Item Id, Invitation URL."""\n'
+        "import sys\n\n\n"
+        "def main() -> int:\n"
+        "    try:\n"
+        "        from sempy.fabric.admin import list_external_data_shares\n"
+        "    except ImportError as e:\n"
+        "        print(f'inventory: sempy nicht verfuegbar ({e}) — in einem Fabric-Notebook ausfuehren '\n"
+        "              'oder semantic-link installieren.', file=sys.stderr)\n"
+        "        return 3\n"
+        "    df = list_external_data_shares()\n"
+        "    if df is None or len(df) == 0:\n"
+        "        print('inventory: KEIN External Data Share im Tenant. Wenn die Lieferung einen '\n"
+        "              'deklariert, ist er noch nicht angelegt oder noch nicht akzeptiert.')\n"
+        "        return 1\n"
+        "    print(df.to_string(index=False))\n"
+        "    # Ein Share ohne akzeptierten Empfaenger liefert nichts — und die Einladung verfaellt.\n"
+        "    pending = df[df['Status'].astype(str).str.lower() != 'active'] if 'Status' in df else None\n"
+        "    if pending is not None and len(pending):\n"
+        "        print(f'\\ninventory: {len(pending)} Share(s) nicht aktiv — Einladungen verfallen nach '\n"
+        "              '90 Tagen.')\n"
+        "    return 0\n\n\n"
+        'if __name__ == "__main__":\n'
+        "    sys.exit(main())\n"
+    )
+
+
+def _sharing_md(bp: dict) -> str:
+    """Die Lieferbedingungen fuer P5 — nicht ein Feature-Kapitel, sondern die Einschraenkungen, unter
+    denen die Lieferung ueberhaupt gilt.
+
+    Der Kern: **die Governance des Anbieter-Tenants ueberschreitet die Tenant-Grenze nicht.** Damit ist
+    genau der Teil unserer Sicherheitsaussage aufgehoben, den wir sonst emittieren (RLS, Labels, DLP).
+    Was uebrig bleibt, ist die **Sanitisierung** — und die steht in der IR. Deshalb ist sie hier die
+    einzige tragende Kontrolle, nicht eine von mehreren."""
+    shares = bp.get("sharing") or []
+    shortcut_sources = sorted({i.get("source", "?") for i in (bp.get("ingestion") or [])
+                               if i.get("access_mode") == "shortcut"})
+    lines = [
+        "# P5 External Data Sharing — Lieferbedingungen (generiert)", "",
+        f"Gegroundet {_SHARE_GROUNDED} gegen `fabric/governance/external-data-sharing-*`. Dieses "
+        "Dokument ist **keine** Feature-Beschreibung: es nennt die Bedingungen, unter denen die "
+        "Lieferung gilt. Wer P5 einschaltet, hebt einen Teil des Sicherheitsmodells auf, das der Rest "
+        "dieser Lieferung aufbaut.", "",
+        "## Was tatsaechlich passiert", "",
+        "Der Share kopiert nichts. Im Ziel-Tenant entsteht ein **OneLake-Shortcut** zurueck auf unsere "
+        "Daten — Lesezugriff, **live**: jede Aenderung an der Quelle ist dort sofort sichtbar. Es gibt "
+        "kein Zeitfenster, in dem ein Fehler noch nicht drueben ist.", "",
+        "## Die Bedingung, die alles andere relativiert", "",
+        "MS woertlich: *governance controls from the provider tenant don't flow across tenant "
+        "boundaries*. Konkret sind **nicht** durchgesetzt, sobald Daten die Organisationsgrenze "
+        "verlassen:", "",
+        "| Kontrolle, die wir sonst emittieren | Ueber die Tenant-Grenze |",
+        "|---|---|",
+        "| Semantikmodell-RLS | **greift nicht** |",
+        "| Purview Information Protection (Sensitivity Labels) | **greift nicht** |",
+        "| Purview DLP | **greift nicht** |", "",
+        "Stattdessen gelten die Richtlinien des **Verbraucher-Tenants** — die wir nicht kennen und nicht "
+        "setzen. Drei Folgen, alle dokumentiert:", "",
+        "1. Der Share gewaehrt Lesezugriff fuer **jeden Nutzer** im Heimat-Tenant des Eingeladenen — "
+        "nicht nur fuer die eingeladene Person.",
+        "2. Wir koennen **nicht steuern**, wer im Ziel-Tenant Zugriff hat. Der Verbraucher darf ihn "
+        "weitergeben, **auch an Gastnutzer ausserhalb seiner eigenen Organisation**.",
+        "3. Beim Zugriff im Ziel-Tenant koennen die Daten **geografische Grenzen ueberschreiten**. Fuer "
+        "eine DSGVO-Lieferung ist das aussagepflichtig — es ist dieselbe Regionsachse, die schon Direct "
+        "Lake, Iceberg-Shortcuts, den OneLake-Endpunkt und die AI-Dienste bindet, hier aber ausserhalb "
+        "unseres Einflussbereichs.", "",
+        "**Deshalb ist die Sanitisierung nicht eine Kontrolle unter mehreren, sondern die einzige, die "
+        "die Grenze ueberlebt.** Was vor dem Share entfernt oder maskiert wurde, ist drueben nicht da; "
+        "alles andere ist Vertrauenssache. Ein Label ersetzt sie nicht.", "",
+    ]
+    if shares:
+        lines += ["## Diese Lieferung deklariert", "",
+                  "| Externes Produkt | Quelle (Gold) | Label | Workspace | Sanitisierung |",
+                  "|---|---|---|---|---|"]
+        for s in shares:
+            san = s.get("sanitization") or []
+            san_txt = "; ".join(str(x) for x in san) if san else "**KEINE — siehe unten**"
+            lines.append(f"| `{s.get('external_product', '?')}` | `{s.get('source_gold_ref', '?')}` "
+                         f"| {s.get('label', '?')} | `{s.get('workspace', '?')}` | {san_txt} |")
+        unsan = [s.get("external_product", "?") for s in shares if not (s.get("sanitization") or [])]
+        if unsan:
+            lines += ["", "> **Ohne Sanitisierung geteilt:** " + ", ".join(f"`{u}`" for u in unsan)
+                      + ". Da Labels und DLP die Grenze nicht ueberschreiten, ist bei diesen Produkten "
+                      "**keine** technische Kontrolle wirksam. Das Conformance-Gate meldet es als "
+                      "`unsanitized_external`; hier steht, warum es mehr als ein Schoenheitsfehler ist."]
+        lines.append("")
+    if shortcut_sources:
+        lines += ["## Falle, die unsere eigene Ingestions-Doktrin trifft", "",
+                  "Dokumentiert: **Shortcuts innerhalb eines geteilten Ordners loesen im Ziel-Tenant "
+                  "nicht auf.** Diese Lieferung bindet folgende Quellen per Shortcut ein: "
+                  + ", ".join(f"`{s}`" for s in shortcut_sources)
+                  + ". Wird eine Ebene geteilt, die selbst auf Shortcuts steht, kommt beim Partner "
+                  "**nichts** an — ohne Fehlermeldung bei uns. Nur materialisierte Tabellen teilen "
+                  "(unser Gold ist materialisiert; Bronze/Silver mit `access_mode: shortcut` sind es "
+                  "nicht).", ""]
+    lines += [
+        "## Wer was tun muss — und was wir NICHT tun koennen", "",
+        "| Schritt | Wo | Wer |",
+        "|---|---|---|",
+        "| Tenant-Einstellung *External data sharing* einschalten + Berechtigte festlegen | unser Tenant "
+        "| unser Fabric-Admin |",
+        "| Tenant-Einstellung *Users can accept external data shares* einschalten | **Partner-Tenant** "
+        "| Admin des Partners — **wir haben dort keinen Zugriff** |",
+        "| Share anlegen (Item-Kontextmenue → *External data share*) | unser Tenant | Nutzer mit Read + "
+        "Reshare |",
+        "| Einladung annehmen (nur in ein **Lakehouse**) | Partner-Tenant | Partner |", "",
+        "Das Anlegen ist **portal-only** — es gibt kein dokumentiertes Create-REST-API. Deshalb "
+        "emittiert dieser Baukasten hier kein Anlege-Skript (das waere erfunden), sondern "
+        "`inventory_shares.py`: die dokumentierte **Admin-API zum Auflisten** als Gegenprobe danach. "
+        "Sie belegt Empfaenger, Status und Ablauffrist — Dinge, die man am Portal behaupten, aber nicht "
+        "beweisen kann.", "",
+        "Zwei Fristen: die Einladung verfaellt nach **90 Tagen**; ein Widerruf ist jederzeit moeglich, "
+        "hat aber laut MS *serious implications* fuer den Verbraucher — er verliert live Daten, auf "
+        "denen dort womoeglich Berichte stehen. Widerruf ist eine Absprache, kein Klick.", "",
+        "## Vor der Zusage zu klaeren", "",
+        "- Welche Richtlinien gelten im Ziel-Tenant? (Unsere gelten dort nicht.)",
+        "- Ist der Weiterverteilung an Dritte, einschliesslich Gastnutzer, zugestimmt?",
+        "- Ist die geografische Verarbeitung im Ziel-Tenant DSGVO-seitig abgedeckt?",
+        "- Ist die Sanitisierungsliste je Produkt fachlich abgenommen — als **die** Kontrolle, nicht als "
+        "eine von mehreren?", "",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def emit_sharing(bp: dict, stack: str = "fabric") -> dict[str, str]:
+    """P5-Lieferbedingungen + Share-Inventar. Leer, wenn die IR keinen Share deklariert — dann ist P5
+    nicht anwendbar und ein Dokument darueber waere Rauschen."""
+    if stack != "fabric" or not (bp.get("sharing") or []):
+        return {}
+    return {"sharing/_SHARING.md": _sharing_md(bp),
+            "sharing/inventory_shares.py": _share_inventory_py()}

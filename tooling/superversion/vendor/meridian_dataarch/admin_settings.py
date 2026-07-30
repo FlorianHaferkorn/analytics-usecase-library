@@ -18,11 +18,12 @@ round-trips through the generic preview API) are marked ``"unverified"`` rather 
 Tool-Reuse: this is the single source of truth for the tenant-settings knowledge that
 ``provision_apply._tenant_setup_md`` renders (that checklist now reads from this catalog — no second silo).
 
-Reachability note: ``profile_from_blueprint`` currently derives only ``base``/``governance``/``sharing`` —
-the blueprint IR has no field that expresses Copilot / Data Agents yet, so the ``copilot``/``data_agents``
-capabilities are reachable by passing them **explicitly** to ``required_settings``/``settability_summary``
-but are NOT auto-added to the rendered checklist. Wire them into ``profile_from_blueprint`` once the IR
-expresses them (mirroring ``capacity_recommend``'s ``copilot``/``data_agents`` flags).
+Reachability (aufgeloest 30.07.2026): ``profile_from_blueprint`` leitet jetzt auch ``copilot``/
+``data_agents``/``ontology`` ab — die IR drueckt sie ueber ``ai_grounding.data_agent`` bzw.
+``ai_grounding.ontology`` aus. Die frueher hier notierte Lucke ("the blueprint IR has no field that
+expresses Copilot / Data Agents yet") ist damit zu; ein Umweg ueber explizit uebergebene Capabilities
+ist nicht mehr noetig, bleibt aber moeglich (die CLI nutzt ihn als Rueckfall, wenn jemand die
+Emit-Flags ohne IR-Deklaration fahrt).
 
 Grounding date: 2026-07-24. Sources are per-setting ``source`` URLs (learn.microsoft.com), verified then.
 Cross-cutting: Update Tenant Setting API is generic over an opaque ``settingName`` but PREVIEW —
@@ -53,6 +54,7 @@ CAPABILITIES: dict[str, str] = {
     "onelake_external": "External-engine / Iceberg access to OneLake",
     "copilot": "Copilot in Fabric / Power BI",
     "data_agents": "Fabric Data Agents (preview)",
+    "ontology": "Fabric IQ Ontology item (preview)",
     "sharing": "Cross-tenant external data sharing (OneLake shares)",
     "governance": "Sensitivity labels + endorsement/certification",
 }
@@ -159,12 +161,31 @@ CATALOG: list[dict[str, Any]] = [
         "source": _L + "fabric/data-science/data-agent-tenant-settings",
     },
     {
+        # Korrektur 2026-07-30: dieser EINE Eintrag deckte zwei **verschieden benannte** Schalter
+        # ("on in BOTH provider and consumer tenant"). Im Verbraucher-Tenant heißt die Einstellung aber
+        # nicht "External data sharing", sondern **"Users can accept external data shares"** — wer im
+        # Portal nach dem hier genannten Namen sucht, findet dort den falschen (oder keinen) Schalter.
+        # Ein Readiness-Gate, das einen Admin auf einen nicht existierenden Namen schickt, ist genau so
+        # unbrauchbar wie eines, das die Einstellung ganz vergisst. Jetzt zwei Einträge, je Seite einer.
         "id": 11, "name": "External data sharing",
         "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["sharing"],
-        "default": "off (both tenants)", "target": "on in BOTH provider and consumer tenant",
-        "who": "Fabric tenant admin (in each tenant separately)", "automatable": True,
-        "how": "Update Tenant Setting REST (preview) / sempy — or portal, per tenant",
-        "why": "P5 cross-tenant OneLake external sharing", "required": "if sharing",
+        "default": "off", "target": "on in the PROVIDING tenant + specify who may create shares",
+        "who": "Fabric tenant admin (providing tenant)", "automatable": True,
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": "P5: without it nobody in our tenant can create the share at all",
+        "required": "if sharing",
+        "source": _L + "fabric/governance/external-data-sharing-enable",
+    },
+    {
+        "id": 19, "name": "Users can accept external data shares",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["sharing"],
+        "default": "off", "target": "on in the CONSUMING tenant + specify who may accept",
+        "who": "Fabric tenant admin (consuming tenant — a DIFFERENT organisation)",
+        "automatable": False,
+        "how": "Portal in the partner's tenant. We have no access there; this is a partner "
+               "prerequisite to be agreed, not a step we can run",
+        "why": "P5: the invitation cannot be accepted without it, and the invite expires after 90 days",
+        "required": "if sharing",
         "source": _L + "fabric/governance/external-data-sharing-enable",
     },
     {
@@ -212,6 +233,41 @@ CATALOG: list[dict[str, Any]] = [
         "why": "endorsement/certification + mesh publishing are domain-scoped (--emit-governance)",
         "required": "if governance", "source": _L + "fabric/governance/domains",
     },
+    {
+        # The catalog carried the cross-geo *processing* switch (id 9) but not the *storing* one, while
+        # both are documented as data-agent-relevant — and we emit a Data Agent. Gate incomplete, found
+        # 2026-07-30 in the ontology tutorial's prerequisite list.
+        #
+        # Why it is its own entry and not a footnote on id 9: this switch is about RETENTION, not routing.
+        # Conversational experiences (Copilot in Notebooks, Data Agents) keep conversation history across
+        # sessions; MS: it lives in the same region and Azure OpenAI resources that process the requests,
+        # a user can clear it at any time, and if nobody clears it, it is kept for **28 days**. That is a
+        # DPIA-relevant fact about *stored* content, which no answer about *processing* covers.
+        "id": 17, "name": ("Data sent to Azure OpenAI can be stored outside your capacity's geographic "
+                           "region, compliance boundary, or national cloud instance"),   # exact portal Title
+        "section": "Copilot and Azure OpenAI Service", "scope": "tenant", "capabilities": ["data_agents"],
+        "default": "off",
+        "target": "on ONLY if the capacity region has no in-region Azure OpenAI (same condition as id 9)",
+        "who": "Fabric tenant admin", "automatable": True,
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("Data Agents store conversation history across sessions — 28-day retention if the user "
+                "never clears the chat. An EU-Data-Boundary capacity needs NEITHER this nor id 9: MS's "
+                "region table maps EUDB capacity to EUDB processing. (The ontology tutorial lists both as "
+                "flat prerequisites; the region-conditional table is the precise source, so the target "
+                "here stays conditional rather than 'always on'.)"),
+        "required": "if Data Agents cross-geo",
+        "source": _L + "fabric/iq/ontology/tutorial-0-introduction",
+    },
+    {
+        "id": 18, "name": "Enable Ontology item (preview)",
+        "section": "Users can create and use new item types", "scope": "tenant", "capabilities": ["ontology"],
+        "default": "off", "target": "on",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal (preview item switch)",
+        "why": "the Ontology item we emit cannot be created at all without it",
+        "required": "if ontology",
+        "source": _L + "fabric/iq/ontology/overview-tenant-settings",
+    },
 ]
 
 _BY_ID = {s["id"]: s for s in CATALOG}
@@ -246,10 +302,24 @@ def settability_summary(capabilities: Iterable[str]) -> dict[str, Any]:
 
 def profile_from_blueprint(bp: dict) -> set[str]:
     """Derive the capability profile from a blueprint IR (agnostic): governance when any domain publishes,
-    sharing when the blueprint declares external sharing. ``base`` is always present."""
+    sharing when the blueprint declares external sharing, and the AI capabilities when
+    ``ai_grounding`` declares a Data Agent / an Ontology. ``base`` is always present.
+
+    Der letzte Teil ist neu (30.07.2026) und schliesst einen Umweg: bis dahin hingen Data Agent und
+    Ontologie nur an CLI-Flags, also musste ein ``extra_capabilities`` von der Kommandozeile durch
+    ``emit_platform`` bis hierher gereicht werden, damit das Gate ueberhaupt die richtigen
+    Tenant-Schalter prueft. Jetzt steht es in der IR, wo es hingehoert, und diese Ableitung ist wieder
+    rein blueprint-basiert. Der ``extra_capabilities``-Weg bleibt als **Rueckfall** bestehen: eine
+    Lieferung, die die Flags ohne IR-Deklaration nutzt, soll weiterhin korrekt gegated werden.
+    """
     caps = {"base"}
     if any(d.get("publishing") for d in bp.get("mesh", {}).get("domains", []) or []):
         caps.add("governance")
     if bp.get("sharing"):
         caps.add("sharing")
+    ai = bp.get("ai_grounding") or {}
+    if (ai.get("data_agent") or {}).get("enabled"):
+        caps |= {"data_agents", "copilot"}      # Data Agents reiten auf den Copilot-Schaltern
+    if (ai.get("ontology") or {}).get("enabled"):
+        caps.add("ontology")
     return caps

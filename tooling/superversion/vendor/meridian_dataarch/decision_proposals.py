@@ -258,7 +258,7 @@ def _domain_names(bp: dict) -> list[str]:
 
 def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str,
          confidence: str, alternatives: list[str], decider: str, if_undecided: str,
-         status: str = "offen") -> dict:
+         status: str = "offen", markers: tuple[str, ...] = ()) -> dict:
     """``status`` is the lever that shrinks the workshop:
 
     * ``vorbelegt`` — a defensible house default is **already applied**; the customer only has to
@@ -269,7 +269,11 @@ def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str
     """
     return {"id": id_, "topic": topic, "gap": gap, "proposal": proposal,
             "derived_from": derived_from, "confidence": confidence, "status": status,
-            "alternatives": alternatives, "decider": decider, "if_undecided": if_undecided}
+            "alternatives": alternatives, "decider": decider, "if_undecided": if_undecided,
+            # `markers`: die `TODO(...)`-Marken im Lieferumfang, die GENAU diese Entscheidung
+            # auflöst. Damit wird aus einer thematischen Zuordnung eine prüfbare — DoD-Kriterium
+            # PE-05 kann so mechanisch statt per Urteil prüfen, dass kein Platzhalter stumm ist.
+            "markers": list(markers)}
 
 
 def propose_workspace_roles(bp: dict) -> dict:
@@ -401,7 +405,8 @@ def propose_incremental(gc: dict) -> dict:
                     "keine Fakten-Tabelle im Katalog", "keine",
                     ["Vollast beibehalten, solange die Datenmenge klein ist"],
                     "Data Engineering + Quellsystem-Owner",
-                    "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast")
+                    "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast",
+                    markers=("contract",))
     f = sorted(facts, key=lambda t: t["name"])[0]
     cols = f.get("columns") or []
     keys = [c for c in cols if c.lower().endswith("_key")]
@@ -429,7 +434,8 @@ def propose_incremental(gc: dict) -> dict:
         "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast (CU-Kosten + Laufzeit)",
         # Schlüssel UND Änderungsspalte im Modell → die Strategie steht, nur bestätigen.
         # Fehlt eine von beiden, ist es eine echte Frage an das Quellsystem.
-        status="vorbelegt" if (keys and have_wm) else "offen")
+        status="vorbelegt" if (keys and have_wm) else "offen",
+        markers=("contract",))
 
 
 def propose_silver_contract(gc: dict) -> dict:
@@ -439,7 +445,8 @@ def propose_silver_contract(gc: dict) -> dict:
         return _rec("DATA-CONTRACT", "Silver-Datenvertrag", "Wie wird konformiert und verknüpft?",
                     None, "keine Beziehungen im Katalog deklariert", "keine",
                     ["Vertrag im Fachworkshop erheben"], "Data Owner + Data Engineering",
-                    "Die Transform-Skelette bleiben `SELECT *` mit TODO-Markern")
+                    "Die Transform-Skelette bleiben `SELECT *` mit TODO-Markern",
+                    markers=("contract:",))
     joins = "; ".join(f"`{r['from_table']}.{r['from_column']}` → `{r['to_table']}.{r['to_column']}`"
                       for r in rels[:6])
     more = f" (+{len(rels) - 6} weitere)" if len(rels) > 6 else ""
@@ -456,7 +463,7 @@ def propose_silver_contract(gc: dict) -> dict:
         "Data Owner (fachlich) + Data Engineering (technisch)",
         "Die Transform-Skelette bleiben `SELECT *` mit TODO-Markern",
         # the joins ARE fixed by the declared relationships — only four points genuinely remain
-        status="vorbelegt")
+        status="vorbelegt", markers=("contract:",))
 
 
 def propose_retention(bp: dict, gc: dict) -> dict:
@@ -741,6 +748,40 @@ def propose_ground_truth(gc: dict) -> dict:
 
 # --- aggregation + rendering ------------------------------------------------------------------------
 
+def propose_clustering_columns(bp: dict, gc: dict) -> dict | None:
+    """Liquid-Clustering-**Spalten** je großer Tabelle — offen, weil nur der Kunde sie kennt.
+
+    Wichtige Trennung, die eine Recherche gegen `learn.microsoft.com/fabric/fundamentals/
+    table-maintenance-optimization` (30.07.2026) erzwungen hat: die **Technik** ist dort
+    dokumentierte Empfehlung (Silber „Yes", Gold „Required for optimal file skipping") und gehört
+    damit ausgesagt, nicht gefragt. Die **Spalten** sind das Gegenteil — sie folgen aus den
+    Filterprädikaten der echten Abfragen, und die kennt nur der Fachbereich. Sie zu raten würde die
+    Tabelle für ein Zugriffsmuster reorganisieren, das niemand hat.
+
+    Nur auf Stacks mit Delta-Wartung sinnvoll; auf Snowflake übernimmt Automatic Clustering.
+    """
+    stack = str((bp.get("platform") or {}).get("stack") or "fabric")
+    if stack not in ("fabric", "databricks"):
+        return None
+    tables = sorted({str(t.get("name")) for t in (gc.get("tables") or []) if t.get("name")})
+    if not tables:
+        return None
+    return _rec(
+        "DATA-CLUSTER", "Liquid-Clustering-Spalten",
+        ("Nach welchen Spalten filtern die echten Abfragen? Danach richtet sich das Clustering "
+         f"({len(tables)} Tabelle(n) betroffen)."),
+        None,
+        ("die Technik ist belegt (MS Learn: Silber empfohlen, Gold erforderlich), die Spalten stehen "
+         "in keiner ableitbaren Quelle — sie folgen aus dem Abfrageverhalten"),
+        "keine",
+        ["ohne Clustering starten und nach ersten echten Abfragen nachziehen",
+         "bei partitionierten Tabellen stattdessen Z-Order (Liquid Clustering greift dort nicht)"],
+        "Data Owner (Abfrageverhalten) + Data Engineering",
+        ("Die Tabellen bleiben ohne Clustering — zulässig, aber Direct-Lake- und SQL-Abfragen lesen "
+         "mehr Dateien als nötig."),
+        markers=("decide",),
+    )
+
 def propose_platform_tier(bp: dict) -> dict | None:
     """Editions-/Plan-Stufe des Zielstacks — die Achse, an der auf Nicht-Fabric fast alles hängt.
 
@@ -812,6 +853,9 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
     if _tier:
         out.append(_tier)
+    _cluster = propose_clustering_columns(bp, gc)
+    if _cluster:
+        out.append(_cluster)
     return out
 
 
@@ -849,6 +893,11 @@ def decisions_markdown(proposals: list[dict]) -> str:
                       " — hier muss der Workshop wirklich von vorn erheben.", ""]
         if p.get("alternatives"):
             lines += ["**Alternativen:**", ""] + [f"- {a}" for a in p["alternatives"]] + [""]
+        if p.get("markers"):
+            # Sichtbar machen, WELCHE Platzhalter diese Entscheidung auflöst. Vorher war die
+            # Zuordnung nur thematisch — jetzt steht sie da und ist prüfbar (DoD PE-05).
+            lines += ["**Löst diese Platzhalter auf:** " +
+                      " · ".join(f"`TODO({m})`" for m in p["markers"]), ""]
         lines += [f"**Entscheider:** {p['decider']}", "",
                   f"**Wenn nicht entschieden:** {p['if_undecided']}", ""]
     return "\n".join(lines).rstrip() + "\n"
