@@ -21,7 +21,7 @@
     },
     {
       "path": "provision_connectivity.py",
-      "sha256": "857bac22e3e1481d36961c24b4af275ad8d10814b1caaaeafb48e3d540bb6558"
+      "sha256": "56f66d42503becdaae04b74f409e5c96d615cf04b0d042e81976408f5e592dcf"
     },
     {
       "path": "provision_governance.py",

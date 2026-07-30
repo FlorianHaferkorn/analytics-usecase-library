@@ -149,7 +149,8 @@ def _plan(bp: dict, specs: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<workspace>") -> dict[str, str]:
+def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<workspace>",
+                      lakehouse: str = "analytics_gold") -> dict[str, str]:
     """Return the secure-connectivity artifact set (path → content). The plan is always emitted; the MPE
     specs + create script are Fabric-specific and only when private sources exist."""
     specs = _mpe_specs(bp)
@@ -164,4 +165,122 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
             "// Resource ids + FQDNs are tenant-specific VERIFY placeholders; approve in Azure after create.\n"
             + json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
         out["connectivity/create_mpe.sh"] = _create_script(specs, workspace)
+    # Die Snowflake-Bruecke erscheint, wenn die Lieferung Snowflake als Quelle ODER als Ziel kennt.
+    # Sie gehoert in die Konnektivitaet und nicht in einen eigenen Emitter, weil ihre harten
+    # Bedingungen Netz- und Regionsbedingungen sind — genau das Thema dieser Familie. Und sie
+    # KOLLIDIERT mit dem Rest dieser Datei: Snowflake erreicht OneLake nur ueber das oeffentliche
+    # Netz, waehrend `managed_private_endpoints.json` daneben private Pfade aufbaut.
+    if stack == "fabric" and _mentions_snowflake(bp):
+        gold = sorted({p.get("name") for p in
+                       (((bp.get("medallion") or {}).get("gold") or {}).get("data_products") or [])
+                       if p.get("name")})
+        out["connectivity/snowflake_onelake_bridge.sql"] = _snowflake_bridge_sql(lakehouse, gold)
     return out
+
+
+def _mentions_snowflake(bp: dict) -> bool:
+    """Snowflake irgendwo in der Lieferung — als Quellsystem oder als Zielstack."""
+    if str((bp.get("platform") or {}).get("stack", "")).lower() == "snowflake":
+        return True
+    return any("snowflake" in str(i.get("source_system", "")).lower()
+               for i in (bp.get("ingestion") or []))
+
+# --------------------------------------------------------------------------- Snowflake <-> OneLake
+_SF_GROUNDED = "2026-07-30"   # MS Learn: fabric/onelake/onelake-iceberg-snowflake
+
+
+def _snowflake_bridge_sql(lakehouse: str, gold_tables: list[str]) -> str:
+    """Snowflake-seitiges DDL fuer die OneLake-Bruecke — beide Richtungen, gegroundet.
+
+    Warum ueberhaupt: die haeufigste Kundenlage neben Fabric ist ein bestehender Snowflake-Bestand.
+    „Iceberg fehlt" war als Luecke zu grob formuliert — der Weg ist vollstaendig dokumentiert und
+    besteht aus zwei Snowflake-Objekten (`EXTERNAL VOLUME` + `CATALOG INTEGRATION`), nicht aus einem
+    Fabric-Projekt.
+
+    Was hier NICHT erfunden wird: Pfade, Tenant-ID und Metadaten-Dateinamen sind tenant-spezifisch und
+    bleiben VERIFY. Der Consent-Schritt (`DESC EXTERNAL VOLUME` -> `AZURE_CONSENT_URL`) ist
+    interaktiv und laesst sich nicht skripten; er steht als Schritt da, nicht als Befehl.
+    """
+    c = "--"
+    lines = [
+        f"{c} Snowflake <-> OneLake (generiert, gegroundet {_SF_GROUNDED}:",
+        f"{c}   learn.microsoft.com/fabric/onelake/onelake-iceberg-snowflake)",
+        f"{c}",
+        f"{c} DREI BEDINGUNGEN, die vor dem ersten Statement stimmen muessen — alle dokumentiert:",
+        f"{c}  1. REGION: die Fabric-Kapazitaet muss in derselben Azure-Region liegen wie das",
+        f"{c}     Snowflake-Konto. Unterschiedliche Regionen => andere Kapazitaet noetig, kein Workaround.",
+        f"{c}  2. NETZ: Snowflake erreicht OneLake ueber das OEFFENTLICHE Netz. Workspaces hinter",
+        f"{c}     Private Link oder anderen Netzbeschraenkungen werden NICHT unterstuetzt — das",
+        f"{c}     kollidiert mit unserem Konnektivitaets-Runbook, wenn dort Private Link gefordert ist.",
+        f"{c}  3. TENANT-SCHALTER: Dienstprinzipale muessen Fabric-APIs UND OneLake-APIs aufrufen",
+        f"{c}     duerfen (zwei getrennte Einstellungen).",
+        f"{c}",
+        f"{c} Schema-Hinweis: Snowflake verlangt `azure://` statt `https://` in STORAGE_BASE_URL.",
+        "",
+        f"{c} === Richtung 1: Snowflake SCHREIBT Iceberg nach OneLake =====================",
+        "CREATE OR REPLACE EXTERNAL VOLUME onelake_write_exvol",
+        "STORAGE_LOCATIONS =",
+        "(",
+        "    (",
+        "        NAME = 'onelake_write_exvol'",
+        "        STORAGE_PROVIDER = 'AZURE'",
+        f"        STORAGE_BASE_URL = 'azure://<VERIFY: HTTPS-Pfad des Files-Ordners von "
+        f"{lakehouse}, https:// -> azure://>/Files/icebergtables'",
+        "        AZURE_TENANT_ID = '<VERIFY: Fabric-Tenant-ID>'",
+        "    )",
+        ");",
+        "",
+        f"{c} Consent — INTERAKTIV, nicht skriptbar: liefert AZURE_CONSENT_URL +",
+        f"{c} AZURE_MULTI_TENANT_APP_NAME. Die URL im Browser oeffnen, zustimmen, danach der App in",
+        f"{c} Fabric ueber 'Manage access' die Rolle **Contributor** im Workspace geben.",
+        "DESC EXTERNAL VOLUME onelake_write_exvol;",
+        "",
+        f"{c} Beispiel-Tabelle (ersetzen durch die echten Spalten):",
+        "CREATE OR REPLACE ICEBERG TABLE MYDATABASE.PUBLIC.<TABLE> (",
+        "    <spalte> <typ>",
+        ")",
+        "EXTERNAL_VOLUME = 'onelake_write_exvol'",
+        "CATALOG = 'SNOWFLAKE'",
+        "BASE_LOCATION = '<TABLE>/';",
+        "",
+        f"{c} Danach in Fabric im Tables-Bereich desselben Lakehouse einen Shortcut auf die",
+        f"{c} Iceberg-Tabelle anlegen — sie erscheint dann fuer alle Fabric-Workloads als Delta.",
+        "",
+        f"{c} === Richtung 2: Snowflake LIEST unser Gold (Delta, als Iceberg virtualisiert) =====",
+        "CREATE OR REPLACE EXTERNAL VOLUME onelake_read_exvol",
+        "STORAGE_LOCATIONS =",
+        "(",
+        "    (",
+        "        NAME = 'onelake_read_exvol'",
+        "        STORAGE_PROVIDER = 'AZURE'",
+        f"        STORAGE_BASE_URL = 'azure://<VERIFY: Pfad des Datenelements, z. B. "
+        f"onelake.dfs.fabric.microsoft.com/<workspace-guid>/<item-guid>>/Tables/'",
+        "        AZURE_TENANT_ID = '<VERIFY: Fabric-Tenant-ID>'",
+        "    )",
+        ")",
+        f"ALLOW_WRITES = false;   {c} lesend — das Gold gehoert der Fabric-Seite",
+        "",
+        "DESC EXTERNAL VOLUME onelake_read_exvol;",
+        "",
+        f"{c} Einmal je Konto: Snowflake braucht das, um bestehende Iceberg-Tabellen zu referenzieren.",
+        "CREATE CATALOG INTEGRATION onelake_catalog_integration",
+        "CATALOG_SOURCE = OBJECT_STORE",
+        "TABLE_FORMAT = ICEBERG",
+        "ENABLED = TRUE;",
+        "",
+    ]
+    for tbl in gold_tables:
+        lines += [
+            f"CREATE OR REPLACE ICEBERG TABLE MYDATABASE.PUBLIC.{tbl.upper()}",
+            "EXTERNAL_VOLUME = 'onelake_read_exvol'",
+            "CATALOG = onelake_catalog_integration",
+            f"METADATA_FILE_PATH = '<VERIFY: dbo/{tbl}/metadata/<n>.metadata.json — die JEWEILS "
+            f"NEUESTE Metadatendatei>';",
+            "",
+        ]
+    lines += [
+        f"{c} Die Metadaten-Datei ist ein Zeitpunkt, keine Sicht: nach jeder Aenderung an der",
+        f"{c} Delta-Tabelle zeigt ein neuer *.metadata.json den aktuellen Stand. Wer den Pfad einmal",
+        f"{c} fest verdrahtet, liest still einen alten Stand weiter — das ist die Falle dieser Richtung.",
+    ]
+    return "\n".join(lines) + "\n"
