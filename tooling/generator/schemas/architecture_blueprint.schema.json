@@ -105,9 +105,11 @@
           "access_mode": {
             "enum": [
               "shortcut",
+              "shortcut_transform",
               "mirror",
               "copy"
-            ]
+            ],
+            "description": "How the source is made available. `shortcut_transform` = a OneLake shortcut with file transformations (CSV/Parquet/JSON/Excel -> Delta, polled ~2 min): it replaces an ingestion pipeline, but its TARGET TABLE IS READ-OPTIMIZED and supports neither MERGE nor DELETE — so a layer landed this way cannot be the target of an upsert."
           },
           "rationale": {
             "type": "string",
