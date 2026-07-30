@@ -94,6 +94,28 @@ Two pages (repo 3-30-300), whitelist visuals only. Governed page-type → archet
 | BC-BRAND-01 | One composed theme (A.2); never the renderer default. |
 | BC-COLOR-02 | Colour semantic only; one highlight per page; scenarios by pattern, not colour. |
 
+### A.8 Composition principles & authoring process
+
+The tokens (A.2), title contract (A.4), and knock-outs (A.7) govern the **hard, machine-checkable** layer. This section names the **compositional** layer above them — the human-design intent that lifts the *layout*, not just the correctness. Each principle is **enforced by** a governed artefact; the point is to build reports *against a named intent*, not only against tokens. (Provenance: reconciled from B. Dohmen's "smart practices" methodology, the BIBB grid system, and the Draft BI layout guide against ALUCA's own governance.)
+
+| Principle | Intent | Enforced by |
+|---|---|---|
+| **Hierarchy & scan path** | Primary KPI first (top-left / hero); size + colour + position agree; the eye reaches the thesis in ~5 s (Z-pattern). | T1/T2 archetype (A.5); hero value ≥ 2× body (A.2) |
+| **One focal point per page** | Exactly one hero — a colour/dark hero card or a single highlighted mark — anchors the page; everything else recedes. This is the single most visible trait of the reference dashboards. | BC-COLOR-02 (one highlight/page); `kpi_card` dark-hero variant (A.6) |
+| **Whitespace as grouping** | Tight spacing binds a group; air separates groups (spatial zones); no visual touches the canvas edge. | Master Grid 12×12, 32 px margin / 16 px gutter (`apply_page_layout.py`) |
+| **Less is more** | Every decoration is cognitive load. Crowded page → cut a visual, never shrink the whitespace. | BC-COLOR-02 (no decorative colour); BC-BRAND-01 (composed theme) |
+| **Cross-page consistency** | Card heights, chart widths, and slicer/filter positions match across both pages. | component signatures (A.6); grid |
+| **Contrast floor** | Semantic colours + data series ≥ WCAG 2.2 AA (4.5:1 text / 3:1 non-text); colour is never the sole encoding — pair with icon/pattern. | `color_semantics.yaml` (AA-validated hexes); IBCS scenario patterns (A.2) |
+
+**Authoring process** — B. Dohmen's four steps, mapped to ALUCA's governed inputs (the *how*, complementing the design *system*):
+
+1. **Requirements** — the bracket's `decision_question` + `big_idea` (who reads it; which decision in 30 s).
+2. **Structure** — page grammar & archetype (A.5) + the semantic model + the generated storyline ladder (`use_case_storylines.md`).
+3. **Build visuals** — component signatures (A.6) against the whitelist; honest titles (A.4); the five knock-outs (A.7).
+4. **Place** — the Master Grid, applying hierarchy, the single focal point, and whitespace zones (above).
+
+**QA before "done"** (not visible in JSON): reload in Power BI Desktop → screenshot each page → review hierarchy, spacing, alignment, readability, and the focal point → one improvement pass → run the accessibility check. Structural validation (`powerbi-report-author validate` / Stage-1 / boutique scorecard) *precedes* the visual review and does not replace it.
+
 ---
 
 ## Part B — the 21 reports (design cards)
