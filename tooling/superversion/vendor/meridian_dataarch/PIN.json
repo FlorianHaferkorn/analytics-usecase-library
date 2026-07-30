@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "0eb770c5f8d2eef5c71915bf2776129d523f4ecf142a40a053f12c4728809260"
+      "sha256": "77960936b9741431a7621adcab8a059ac30778695a71cb4cf6121ccc005a6c2d"
     },
     {
       "path": "naming.py",
@@ -21,7 +21,7 @@
     },
     {
       "path": "provision_connectivity.py",
-      "sha256": "ac94e953359d886ac8b3cc80bed359f6ac99539cb509c430579dd81cadf153bd"
+      "sha256": "857bac22e3e1481d36961c24b4af275ad8d10814b1caaaeafb48e3d540bb6558"
     },
     {
       "path": "provision_governance.py",
@@ -29,15 +29,15 @@
     },
     {
       "path": "provision_lifecycle.py",
-      "sha256": "7662186a387d9cfe1b4a4d951e6733e259960fe3e8ae6f8e73484974ecc554db"
+      "sha256": "d0629bb0ee03fb09896eb990a16c74e87354c384f0c9a91c1ad7b18ad59832e3"
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "3084c5439447c9683e388f8f8c93ad9a47e4c982dfd32d3e94415ef1fbeb8446"
+      "sha256": "a5cd87b3814dff8faf26da229b23453377d28e9af17ffca7ea0baa94e70c85cb"
     },
     {
       "path": "provision_operability.py",
-      "sha256": "a2217a5bbb765f62a46a9365acead74193ffc0e9c7fd9807e4c5ea67ff6c9690"
+      "sha256": "0c24d33e5bade32ce76b37c25d701808ba5e2bd6367b85047b194fd32dc85080"
     },
     {
       "path": "provision_source_schema.py",
@@ -46,6 +46,10 @@
     {
       "path": "source_schema.py",
       "sha256": "05b699bc150b7cbd6a608dcbc033b8f7e79525f359f61fba50a8e6b702a9c6ec"
+    },
+    {
+      "path": "stack_capabilities.py",
+      "sha256": "ee13f91549c8ef1932e0b0d4a4f4d5574eb47579dcd21f3d784fd3a2ea14a796"
     }
   ]
 }

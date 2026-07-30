@@ -741,6 +741,41 @@ def propose_ground_truth(gc: dict) -> dict:
 
 # --- aggregation + rendering ------------------------------------------------------------------------
 
+def propose_platform_tier(bp: dict) -> dict | None:
+    """Editions-/Plan-Stufe des Zielstacks — die Achse, an der auf Nicht-Fabric fast alles hängt.
+
+    Bewusst **kein** Vorschlag und **nicht** vorbelegt: eine Stufe ist eine Tatsache über die
+    Kundenumgebung (und ein Vertragsgegenstand), die sich aus keinem Modell ableiten lässt. Der
+    Hausstandard-Trick, mit dem andere Punkte vorbelegt werden, wäre hier eine Behauptung.
+
+    Auf Fabric entfällt der Punkt: dort ist die Kapazität die Achse (siehe ``PLAT-CAP``).
+    """
+    from core.dataarch_engine.blueprint.stack_capabilities import tiers_for
+
+    platform = bp.get("platform") or {}
+    stack = str(platform.get("stack") or "fabric")
+    valid = tiers_for(stack)
+    if not valid:
+        return None
+    assigned = str(platform.get("tier") or "").strip().lower()
+    if assigned:
+        return None                     # beantwortet — nichts mehr zu entscheiden
+    return _rec(
+        "PLAT-TIER", f"Editions-/Plan-Stufe ({stack})",
+        gap=(f"Die Stufe ist unbekannt. Sie entscheidet, welche Mechanismen überhaupt verfügbar "
+             f"sind — auf Snowflake hängen Replication/Failover und Private Connectivity an Business "
+             f"Critical, Time Travel über 1 Tag an Enterprise, Zeilen-/Spalten-Sicherheit an "
+             f"Enterprise; auf Databricks hängt Predictive Optimization am Premium-Plan. Solange die "
+             f"Stufe fehlt, machen die Fähigkeits-Hinweise der Lieferung keine Zusage."),
+        proposal=None,
+        derived_from="platform.stack (die Stufe selbst steht in keiner ableitbaren Quelle)",
+        confidence="keine",
+        alternatives=[f"`{v}`" for v in valid],
+        decider="Plattform-Verantwortliche:r + Einkauf (Vertragsgegenstand)",
+        if_undecided=("Die Lieferung bleibt bei benannten Mechanismen ohne Zusage; RPO/RTO, privater "
+                      "Netzpfad und Wartungsmodell sind dann nicht zusagbar."),
+    )
+
 def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
     """Every open decision with its pre-thought proposal, deterministic order.
 
@@ -774,6 +809,9 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
                 propose_transform_engine(bp)])
+    _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
+    if _tier:
+        out.append(_tier)
     return out
 
 

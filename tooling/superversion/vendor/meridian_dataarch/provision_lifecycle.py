@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import re
+from core.dataarch_engine.blueprint.stack_capabilities import gap_doc_for
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
@@ -223,6 +224,16 @@ def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_N
         "lifecycle/retention_policy.json": _retention_policy(bp, retention),
         "lifecycle/BCDR_RUNBOOK.md": _bcdr_runbook(bp, capacity),
     }
+    # Auf fremden Stacks ist der Fabric-Text nicht bloß unpassend, sondern falsch: Snowflake kennt
+    # Table Maintenance nicht als Kundenaufgabe, und auf Databricks erledigt Predictive Optimization
+    # sie selbst. Statt dessen der belegte Mechanismus des Zielstacks + Stufen-Bedingung + offene
+    # Entscheidung (SL-2607-3 Befund 2, Recherche 2026-07-30).
+    for _key, _cap, _title in (("lifecycle/_LIFECYCLE.md", "lifecycle_maintenance",
+                                "Aufbewahrung & Wartung"),
+                               ("lifecycle/BCDR_RUNBOOK.md", "bcdr", "BCDR")):
+        _note = gap_doc_for(bp, _cap, _title)
+        if _note:
+            out[_key] = _note
     if stack in ("fabric", "databricks"):
         out["lifecycle/table_maintenance.sql"] = _table_maintenance(bp, schemas)
     return out

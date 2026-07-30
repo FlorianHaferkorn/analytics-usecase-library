@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import re
+from core.dataarch_engine.blueprint.stack_capabilities import gap_doc_for
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
@@ -189,7 +190,10 @@ def emit_operability(bp: dict, governed_catalog: dict | None = None) -> dict[str
     res = check_metadata_completeness(gc)
     return {
         "operability/METADATEN_VOLLSTAENDIGKEIT.md": _metadata_report(gc),
-        "operability/BETRIEBSBEREITSCHAFT.md": _operations_runbook(gc),
+        "operability/BETRIEBSBEREITSCHAFT.md": (
+            # Job-Scheduler-Grenzen, Direct-Lake-Besonderheiten und Purview sind Fabric-Betriebsrecht
+            # und auf fremden Stacks gegenstandslos — dort der belegte Mechanismus des Ziels.
+            gap_doc_for(bp, "operability", "Betriebsbereitschaft") or _operations_runbook(gc)),
         "operability/metadata_findings.json": json.dumps(
             {"schema": "meridian/metadata-completeness/v1", **res}, indent=2, ensure_ascii=False) + "\n",
     }

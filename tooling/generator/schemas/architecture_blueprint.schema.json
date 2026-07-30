@@ -17,6 +17,11 @@
         "stack": { "enum": ["fabric", "databricks", "snowflake", "eu_sovereign", "air_gap"] },
         "blueprint_ref": { "type": "integer", "minimum": 1, "maximum": 4,
           "description": "Meridian reporting-platform-blueprint 1–4 (00_index.md); null for ALUCA." },
+        "capacity_sku": { "type": "string",
+          "description": "Assigned Fabric capacity SKU (e.g. F64). Absent = not assigned; consumers must then state a recommended FLOOR instead of assuming one (Direct-Lake guardrails)." },
+        "tier": {
+          "enum": ["standard", "enterprise", "business_critical", "vps", "premium"],
+          "description": "Edition/plan tier of the target platform — the axis capacity_sku does NOT cover on non-Fabric stacks. Snowflake: standard | enterprise | business_critical | vps (docs.snowflake.com/en/user-guide/intro-editions). Databricks: standard (EOL on AWS 2025-10-01, auto-upgraded to premium) | premium | enterprise; Azure premium corresponds to AWS/GCP enterprise. Absent = unknown, and consumers must NOT assume a tier: replication/failover, PrivateLink, extended Time Travel and predictive optimization each require a specific tier, so an assumed tier produces runbooks the customer cannot execute." },
         "ownership_boundaries": {
           "type": "array",
           "items": {

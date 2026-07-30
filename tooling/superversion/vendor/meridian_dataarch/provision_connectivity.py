@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import re
+from core.dataarch_engine.blueprint.stack_capabilities import gap_doc_for
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
@@ -153,6 +154,9 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
     specs + create script are Fabric-specific and only when private sources exist."""
     specs = _mpe_specs(bp)
     out: dict[str, str] = {"connectivity/_CONNECTIVITY.md": _plan(bp, specs)}
+    _note = gap_doc_for(bp, "connectivity", "Sichere Konnektivität")
+    if _note:                       # fremder Stack: PrivateLink/NCC statt Managed Private Endpoint
+        out["connectivity/_CONNECTIVITY.md"] = _note
     if stack == "fabric" and specs:
         payload = {"value": [{k: v for k, v in s.items() if not k.startswith("_")} for s in specs]}
         out["connectivity/managed_private_endpoints.json"] = (
