@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/reportExtension/1.0.0/schema.json",
+  "name": "extension",
+  "entities": [
+    {
+      "name": "_Measures",
+      "measures": [
+        {
+          "name": "GM Hero Card SVG",
+          "dataType": "Text",
+          "dataCategory": "ImageUrl",
+          "expression": "VAR _Val   = [Gross Margin %]\nVAR _Delta = [Gross Margin % vs Plan]\nVAR _Neg   = _Delta < 0\nVAR _Sem   = IF ( _Neg, \"#A4262C\", \"#107C10\" )\nVAR _Tint  = IF ( _Neg, \"#FDE7E7\", \"#E6F5E6\" )\nVAR _ValLbl   = FORMAT ( _Val, \"0.0%\" )\nVAR _DeltaLbl = FORMAT ( ABS ( _Delta ) * 100, \"0.0\" ) & \" pp vs Plan\"\nVAR _Arrow =\n    IF ( _Neg,\n        \"<path d='M36 118 l4 5 l4 -5 z' fill='\" & _Sem & \"'/>\",\n        \"<path d='M36 123 l4 -5 l4 5 z' fill='\" & _Sem & \"'/>\" )\nVAR _Months =\n    CALCULATETABLE (\n        VALUES ( 'dim_date'[CalendarYearMonth] ),\n        DATESINPERIOD ( 'dim_date'[Date], MAX ( 'dim_date'[Date] ), -8, MONTH )\n    )\nVAR _N = COUNTROWS ( _Months )\nVAR _Series =\n    ADDCOLUMNS (\n        _Months,\n        \"@v\", [Gross Margin %],\n        \"@i\", RANKX ( _Months, 'dim_date'[CalendarYearMonth],, ASC, DENSE )\n    )\nVAR _YMin = MINX ( _Series, [@v] )\nVAR _YMax = MAXX ( _Series, [@v] )\nVAR _YRange = MAX ( _YMax - _YMin, 0.0001 )\nVAR _Pts =\n    CONCATENATEX (\n        _Series,\n        ROUND ( 196 + 126 * DIVIDE ( [@i] - 1, MAX ( _N - 1, 1 ) ), 1 ) & \",\"\n          & ROUND ( 92 - 52 * DIVIDE ( [@v] - _YMin, _YRange ), 1 ),\n        \" \",\n        [@i], ASC\n    )\nVAR _EndV  = MAXX ( FILTER ( _Series, [@i] = _N ), [@v] )\nVAR _EndPy = ROUND ( 92 - 52 * DIVIDE ( _EndV - _YMin, _YRange ), 1 )\nVAR _EndPx = ROUND ( 196 + 126 * DIVIDE ( _N - 1, MAX ( _N - 1, 1 ) ), 1 )\nVAR _SVG =\n    \"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 150'>\"\n      & \"<rect x='0' y='0' width='340' height='150' rx='14' fill='#FFFFFF'/>\"\n      & \"<text x='22' y='34' font-family='Segoe UI' font-size='13' letter-spacing='1.2' font-weight='600' fill='#586472'>GROSS MARGIN %</text>\"\n      & \"<text x='21' y='92' font-family='Segoe UI' font-size='46' fill='#18202A'>\" & _ValLbl & \"</text>\"\n      & \"<rect x='22' y='106' width='118' height='27' rx='13.5' fill='\" & _Tint & \"'/>\"\n      & _Arrow\n      & \"<text x='48' y='123.5' font-family='Segoe UI' font-size='14' font-weight='600' fill='\" & _Sem & \"'>\" & _DeltaLbl & \"</text>\"\n      & \"<polyline points='\" & _Pts & \"' fill='none' stroke='\" & _Sem & \"' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/>\"\n      & \"<circle cx='\" & _EndPx & \"' cy='\" & _EndPy & \"' r='4.2' fill='\" & _Sem & \"'/>\"\n      & \"</svg>\"\nRETURN _SVG",
+          "displayFolder": "SVG Charts"
+        }
+      ]
+    }
+  ]
+}
