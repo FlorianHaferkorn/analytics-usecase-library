@@ -175,7 +175,20 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
                        (((bp.get("medallion") or {}).get("gold") or {}).get("data_products") or [])
                        if p.get("name")})
         out["connectivity/snowflake_onelake_bridge.sql"] = _snowflake_bridge_sql(lakehouse, gold)
+    # Databricks-Zugriff auf OneLake gehoert auf DIESEN Pfad (Fabric ist das Ziel, OneLake der
+    # Speicher) — nicht in die Fremdstack-Notiz, wo Databricks selbst die Zielplattform waere und
+    # OneLake gar nicht vorkommt.
+    if stack == "fabric" and _mentions_databricks(bp):
+        out["connectivity/databricks_onelake_access.py"] = _databricks_onelake_notebook(lakehouse)
     return out
+
+
+def _mentions_databricks(bp: dict) -> bool:
+    """Databricks irgendwo in der Lieferung — als Quellsystem oder als Zielstack."""
+    if str((bp.get("platform") or {}).get("stack", "")).lower() == "databricks":
+        return True
+    return any("databricks" in str(i.get("source_system", "")).lower()
+               for i in (bp.get("ingestion") or []))
 
 
 def _mentions_snowflake(bp: dict) -> bool:
@@ -284,3 +297,115 @@ def _snowflake_bridge_sql(lakehouse: str, gold_tables: list[str]) -> str:
         f"{c} fest verdrahtet, liest still einen alten Stand weiter — das ist die Falle dieser Richtung.",
     ]
     return "\n".join(lines) + "\n"
+
+
+# ------------------------------------------------------------------------- Databricks <-> OneLake
+_DBX_GROUNDED = "2026-07-30"   # MS Learn: fabric/onelake/onelake-azure-databricks
+
+
+def _databricks_onelake_notebook(lakehouse: str) -> str:
+    """Databricks-seitiges Notebook-Geruest fuer den OneLake-Zugriff — beide Compute-Typen.
+
+    Warum das hier steht und nicht in der Fremdstack-Notiz: dort ist Databricks die ZIELplattform,
+    OneLake kommt gar nicht vor. Hier ist Fabric das Ziel und Databricks der Bestand, der darauf
+    zugreift — das ist eine Fabric-Konnektivitaetsfrage.
+
+    Der teure Fehler, den dieses Artefakt verhindert: das Cluster-Rezept (`fs.azure.*`) auf
+    Serverless zu uebertragen. Serverless erlaubt nur eine Teilmenge der Spark-Properties und
+    quittiert den Rest mit `CONFIG_NOT_AVAILABLE` — dokumentiert, und nicht Azure-spezifisch
+    (AWS und GCP verhalten sich identisch). Der dokumentierte Weg dort ist MSAL-Token +
+    `deltalake` mit `use_fabric_endpoint`.
+
+    Was NICHT erfunden wird: Workspace-/Lakehouse-Ids, Scope- und Key-Namen bleiben VERIFY.
+    """
+    c = "#"
+    return "\n".join([
+        f'"""Databricks -> OneLake (generiert, gegroundet {_DBX_GROUNDED}:',
+        "learn.microsoft.com/fabric/onelake/onelake-azure-databricks)",
+        "",
+        "VORBEDINGUNGEN (dokumentiert, alle vier noetig):",
+        "  1. Fabric-Workspace + Lakehouse vorhanden.",
+        "  2. Databricks-Workspace im **Premium**-Tarif.",
+        "  3. Dienstprinzipal mit mindestens der Workspace-Rolle **Contributor** in Fabric.",
+        "  4. Databricks Secrets oder Azure Key Vault fuer die Zugangsdaten — nie im Notebook.",
+        "",
+        "WELCHER ZWEIG GILT: der Compute-Typ entscheidet, nicht die Vorliebe.",
+        '  Standard-/Job-Cluster -> Spark-ABFS-Treiber mit `fs.azure.*`-OAuth-Konfiguration.',
+        "  Serverless            -> `fs.azure.*` ist NICHT setzbar (CONFIG_NOT_AVAILABLE),",
+        "                           stattdessen MSAL-Token + `deltalake`.",
+        '"""',
+        "",
+        f"{c} --- Pfadformat (beide Zweige) ------------------------------------------------",
+        f"{c} abfss://<workspace>@onelake.dfs.fabric.microsoft.com/<lakehouse>.lakehouse/Files/<pfad>",
+        f"{c} abfss://<workspace>@onelake.dfs.fabric.microsoft.com/<lakehouse>.lakehouse/Tables/<pfad>",
+        f"{c} Ids oder Namen sind beide erlaubt; bei Namen keine Sonderzeichen/Leerzeichen.",
+        "",
+        'WORKSPACE = "<VERIFY: Fabric-Workspace-Name oder -Id>"',
+        f'LAKEHOUSE = "{lakehouse}"',
+        'SCOPE     = "<VERIFY: Databricks-Secret-Scope>"',
+        "",
+        "",
+        f"{c} === Zweig A: Standard- oder Job-Cluster ======================================",
+        "def configure_standard_cluster(spark, dbutils):",
+        '    tenant_id = dbutils.secrets.get(scope=SCOPE, key="<VERIFY: tenant-id-key>")',
+        '    client_id = dbutils.secrets.get(scope=SCOPE, key="<VERIFY: client-id-key>")',
+        '    client_secret = dbutils.secrets.get(scope=SCOPE, key="<VERIFY: client-secret-key>")',
+        '    spark.conf.set("fs.azure.account.auth.type", "OAuth")',
+        '    spark.conf.set("fs.azure.account.oauth.provider.type",',
+        '                   "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider")',
+        '    spark.conf.set("fs.azure.account.oauth2.client.id", client_id)',
+        '    spark.conf.set("fs.azure.account.oauth2.client.secret", client_secret)',
+        '    spark.conf.set("fs.azure.account.oauth2.client.endpoint",',
+        '                   f"https://login.microsoftonline.com/{tenant_id}/oauth2/token")',
+        "",
+        "",
+        f"{c} === Zweig B: Serverless =====================================================",
+        f"{c} Hier NICHT Zweig A kopieren: jedes `fs.azure.*` scheitert mit CONFIG_NOT_AVAILABLE.",
+        "def onelake_token(dbutils):",
+        "    from msal import ConfidentialClientApplication",
+        "",
+        '    tenant_id = dbutils.secrets.get(scope=SCOPE, key="<VERIFY: tenant-id-key>")',
+        '    client_id = dbutils.secrets.get(scope=SCOPE, key="<VERIFY: client-id-key>")',
+        '    client_secret = dbutils.secrets.get(scope=SCOPE, key="<VERIFY: client-secret-key>")',
+        "    app = ConfidentialClientApplication(",
+        '        client_id, authority=f"https://login.microsoftonline.com/{tenant_id}",',
+        "        client_credential=client_secret)",
+        '    result = app.acquire_token_for_client(',
+        '        scopes=["https://onelake.fabric.microsoft.com/.default"])',
+        '    if "access_token" not in result:',
+        '        raise RuntimeError(f"Token fehlgeschlagen: {result.get(\'error_description\', result)}")',
+        '    return result["access_token"]',
+        "",
+        "",
+        "def read_table_serverless(dbutils, table):",
+        "    from deltalake import DeltaTable",
+        "",
+        '    uri = (f"abfss://{WORKSPACE}@onelake.dfs.fabric.microsoft.com/"',
+        '           f"{LAKEHOUSE}.lakehouse/Tables/{table}")',
+        "    dt = DeltaTable(uri, storage_options={",
+        '        "bearer_token": onelake_token(dbutils), "use_fabric_endpoint": "true"})',
+        "    return dt.to_pandas()",
+        "",
+        "",
+        "def write_table_serverless(dbutils, df, table):",
+        "    from deltalake import write_deltalake",
+        "",
+        '    uri = (f"abfss://{WORKSPACE}@onelake.dfs.fabric.microsoft.com/"',
+        '           f"{LAKEHOUSE}.lakehouse/Tables/{table}")',
+        '    write_deltalake(uri, df, mode="overwrite", storage_options={',
+        '        "bearer_token": onelake_token(dbutils), "use_fabric_endpoint": "true"})',
+        "",
+        "",
+        f"{c} === Entwurfsregeln (dokumentiert) ===========================================",
+        f"{c} 1. EIN Schreiber pro Tabellenpfad. Mehrere Engines oder Runtime-Staende auf denselben",
+        f"{c}    Pfad erzeugen Konflikte — das ist die Regel, die spaeter niemand mehr zurueckbaut.",
+        f"{c} 2. Zugangsdaten ausschliesslich ueber Secret-Management.",
+        f"{c} 3. Wenn nur GELESEN wird: OneLake-Shortcut statt physischer Kopie.",
+        f"{c} 4. Soll der oeffentliche Netzzugang zu OneLake gesperrt werden, ist der Weg NICHT",
+        f"{c}    'entweder offen oder gar nicht': die Ressourcen-Id des Databricks-Access-Connectors",
+        f"{c}    in die **Resource Instance Rules** des Workspace aufnehmen (Workspace settings ->",
+        f"{c}    Inbound networking -> auf ausgewaehlte Netze und freigegebene Ressourcen",
+        f"{c}    beschraenken, volle ARM-Ressourcen-Id angeben). OneLake prueft dann je Anfrage die",
+        f"{c}    verwaltete Identitaet.",
+        "",
+    ]) + "\n"

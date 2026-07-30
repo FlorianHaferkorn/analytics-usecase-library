@@ -80,6 +80,12 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         "-- BRONZE — ingestion speed over read performance.",
         "--   V-Order: NO (15–33 % write overhead; bronze is not served to Direct Lake or SQL endpoint).",
         "--   Auto-compaction: on, to keep small files in check. Partitioning: discouraged for new builds.",
+        "--   Deletion Vectors: ON for bronze + silver — MS recommends them wherever MERGE patterns occur",
+        "--     (a delete is recorded as a vector instead of rewriting whole files).",
+        "--   PREIS, den man kennen muss: die von Fabric gepinnten `deltalake`-Versionen (delta-rs, also",
+        "--     Python-Notebooks und der Spark-freie Loader) koennen Tabellen mit Deletion Vectors NICHT",
+        "--     schreiben. Wer diesen Pfad nutzt, laesst die Eigenschaft weg oder wechselt auf PySpark.",
+        "--     Lesend ist DuckDB `delta_scan` der dokumentierte Ausweg.",
         "-- ============================================================================",
     ]
     for entry in sorted(bp.get("ingestion", []), key=lambda e: str(e.get("source", ""))):
@@ -90,7 +96,13 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         lines += [
             f"ALTER TABLE {t} SET TBLPROPERTIES ("
             "'delta.autoOptimize.autoCompact' = 'true', "
-            "'delta.autoOptimize.optimizeWrite' = 'true');",
+            "'delta.autoOptimize.optimizeWrite' = 'true', "
+            # Deletion Vectors: MS empfiehlt sie fuer Tabellen mit Merge-Mustern — statt betroffene
+            # Dateien komplett neu zu schreiben, wird die Loeschung als Vektor vermerkt. Bronze ist
+            # append-only, aber Korrekturlaeufe und Spaet-Anlieferungen erzeugen genau dieses Muster.
+            # Preis: delta-rs (Python-Notebooks) kann solche Tabellen nicht schreiben — siehe
+            # Interoperabilitaets-Matrix; wer den Spark-freien Loader nutzt, muss das wissen.
+            "'delta.enableDeletionVectors' = 'true');",
         ]
     lines += [
         "",
@@ -105,7 +117,9 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         lines += [
             f"ALTER TABLE {t} SET TBLPROPERTIES ("
             "'delta.autoOptimize.autoCompact' = 'true', "
-            "'delta.autoOptimize.optimizeWrite' = 'true');",
+            "'delta.autoOptimize.optimizeWrite' = 'true', "
+            # Silver traegt haeufige Updates — genau der Fall, fuer den MS Deletion Vectors nennt.
+            "'delta.enableDeletionVectors' = 'true');",
             f"OPTIMIZE {t};",
             f"-- TODO(decide): CLUSTER BY (<filter columns>) on {t} — Liquid Clustering needs the columns",
             "--   your queries actually filter on. Guessing them would reorganize the table for a access",
