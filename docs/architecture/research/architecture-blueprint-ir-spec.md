@@ -281,6 +281,24 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
             "enabled": { "type": "boolean" },
             "source": { "enum": ["fabric_telemetry", "powerbi_telemetry", "wirkungs_loop"] }
           }
+        },
+        "data_agent": {
+          "type": "object",
+          "description": "Fabric Data Agent as an architectural fact — it pulls tenant switches (Copilot + cross-geo), capacity and residency consequences behind it, so it belongs in the IR rather than in a render flag.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "name": { "type": "string" }
+          }
+        },
+        "ontology": {
+          "type": "object",
+          "description": "Fabric IQ Ontology as an architectural fact — the layer that unifies meaning across sources and grounds agents; needs its own tenant switch.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "name": { "type": "string" }
+          }
         }
       }
     }
