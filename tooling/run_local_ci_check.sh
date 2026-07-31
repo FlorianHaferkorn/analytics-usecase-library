@@ -43,6 +43,15 @@ run_check() {
   fi
 }
 
+# --- Workflow-Validitaet ------------------------------------------------
+# ZUERST, und zwar aus einem gemessenen Grund: eine ungueltige Workflow-Datei erzeugt bei
+# GitHub NULL Jobs und meldet `conclusion=failure` — exakt wie ein Runner-Ausfall. Solange
+# ein Usage-Limit-Fenster offen ist, gilt jeder rote Lauf als erklaert, und ein echter Defekt
+# versteckt sich dahinter. Am 31.07.2026 war genau das der Fall (source-updates.yml, 30 rote
+# Laeufe seit dem 29.07.). Diese Frage beantwortet man lokal in Sekunden.
+run_check "Workflow-Dateien (check_workflows.py)" \
+  python3 scripts/check_workflows.py
+
 # --- Drift gate -------------------------------------------------------
 run_check "Drift gate (check_index.py --strict)" \
   python3 scripts/check_index.py --strict

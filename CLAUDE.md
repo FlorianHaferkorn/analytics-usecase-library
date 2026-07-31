@@ -110,6 +110,21 @@ Historie:
 - Zweite Ausprägung (aktuell): erneut erschöpft, voraussichtlich **bis Anfang
   August 2026**.
 
+**Aber: „rot" hat mehr als eine Ursache, und sie sehen von aussen gleich aus.** Am
+31.07.2026 war `.github/workflows/source-updates.yml` **kein gültiges YAML** (ein
+`python -c "…"` im `run: |`-Block auf Spaltenposition 0 beendete den Blockskalar). Alle 30
+Läufe seit dem 29.07. waren rot — und gingen im Limit-Fenster unter, weil jeder rote Lauf
+als erklärt galt. Der Unterschied ist messbar und in Sekunden zu prüfen:
+
+| Ursache | Jobs des Laufs | Erkennung |
+|---|---|---|
+| Usage-Limit | vorhanden, `runner_id: 0`, ~2 s | `list_workflow_jobs` → Jobs da, kein Runner |
+| Ungültige Workflow-Datei | **`total_count: 0`** | `python3 scripts/check_workflows.py` (lokal) |
+
+Deshalb: **vor** dem Abhaken eines roten Laufs einmal `python3 scripts/check_workflows.py`
+laufen lassen (steckt in `tooling/run_local_ci_check.sh` als erster Schritt). Ein Fenster,
+in dem alles erklärt ist, ist das beste Versteck für einen echten Defekt.
+
 Daher — für die Dauer jedes solchen Fensters: diese roten CI-Läufe **nicht
 untersuchen und nicht re-triggern**; stattdessen **lokal** validieren. Für die
 konsolidierte lokale Prüfung: `bash tooling/run_local_ci_check.sh` (führt
