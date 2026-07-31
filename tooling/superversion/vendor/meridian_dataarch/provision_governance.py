@@ -236,8 +236,22 @@ def _rls_proposal_comment(catalog: dict | None) -> str:
             "//   Volle Begründung + Alternativen: decisions/ENTSCHEIDUNGSVORLAGE.md (SEC-RLS)\n")
 
 
+def emit_onelake_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None,
+                       catalog: dict | None = None) -> dict[str, str]:
+    """Der PUT-Rumpf **und** seine Erklärung — zwei Dateien, weil das eine abgeschickt und das
+    andere gelesen wird. Vorher war beides eine Datei, und die war dadurch kein gültiges JSON.
+
+    Die CLS-Offenpunkte entstehen beim Bauen des Rumpfs; deshalb entstehen beide hier zusammen
+    statt in zwei Läufen, die auseinanderdriften können.
+    """
+    payload, cls_todo = _onelake_security_roles(bp, lakehouse, sensitivity, catalog,
+                                                _with_todo=True)
+    return {"governance/onelake_data_access_roles.json": payload,
+            "governance/_ONELAKE_SECURITY.md": _onelake_roles_doc(cls_todo, catalog)}
+
+
 def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None,
-                            catalog: dict | None = None) -> str:
+                            catalog: dict | None = None, _with_todo: bool = False):
     """OneLake Security roles — the **primary, engine-unified** RLS/CLS/OLS layer: defined once
     on the lakehouse, enforced across Spark, notebooks, the lakehouse, the SQL analytics endpoint
     and Direct-Lake-on-OneLake semantic models (MS Learn 2026-07, OneLake security).
@@ -307,20 +321,52 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
                  "tenantId": "<TENANT_GUID>"}]},
         })
     payload = {"value": sorted(roles, key=lambda r: r["name"])}
-    header = (
-        "// OneLake Security roles — the PRIMARY RLS/CLS/OLS layer (define once, enforced across\n"
-        "// ALL Fabric engines incl. Direct-Lake-on-OneLake). API: PUT /v1/workspaces/{ws}/items/\n"
-        "// {lakehouseId}/dataAccessRoles  — status PREVIEW (OneLake.ReadWrite.All; dryRun=true + ETag).\n"
-        "// RLS: constraints.rows[].value is FAIL-CLOSED (1=0 = deny-all) — replace with the domain\n"
-        "// row predicate (T-SQL), e.g. \"select * from fact where [division] = USER_NAME()\".\n"
-        "// CLS: constraints.columns Permits the VISIBLE columns (unlisted → null). Declared sensitive\n"
-        "//   columns (--sensitivity) are hidden by Permitting the complement — computed from the governed\n"
-        "//   catalog's full column list. No sensitivity declared → no CLS (nothing guessed).\n"
-        "// Constraint: one role must hold BOTH the RLS and the CLS for a table — RLS in role A +\n"
-        "// CLS in role B for the same user fails the query. Privileged workspace roles bypass RLS/CLS.\n"
-        + ("".join(f"// CLS-TODO: {t}\n" for t in cls_todo) if cls_todo else "")
-        + _rls_proposal_comment(catalog))
-    return header + json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+    # **Reines JSON, keine Kommentarzeilen.** Diese Datei ist der Rumpf eines PUT auf
+    # `/dataAccessRoles`. Bis 31.07.2026 stand ein `//`-Kommentarblock davor — damit war sie kein
+    # gültiges JSON: `json.load` scheiterte, und abgeschickt hätte der Dienst sie abgelehnt. Der
+    # Kommentar war inhaltlich wertvoll und ist deshalb nicht gelöscht, sondern nach
+    # `governance/_ONELAKE_SECURITY.md` gewandert (siehe `_onelake_roles_doc`).
+    body = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+    return (body, cls_todo) if _with_todo else body
+
+
+def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None) -> str:
+    """Die Erklärung zu ``onelake_data_access_roles.json`` — als Dokument, nicht als Kommentar
+    in einem JSON-Rumpf, der abgeschickt werden soll."""
+    lines = [
+        "# OneLake Security roles (generiert)",
+        "",
+        "Rumpf für `PUT /v1/workspaces/{ws}/items/{lakehouseId}/dataAccessRoles` —",
+        "`onelake_data_access_roles.json` daneben. **Status PREVIEW**",
+        "(`OneLake.ReadWrite.All`; erst mit `dryRun=true` + ETag fahren).",
+        "",
+        "Das ist die **primäre** RLS/CLS/OLS-Schicht: einmal definiert, von allen Fabric-Engines",
+        "durchgesetzt — auch von Direct Lake on OneLake.",
+        "",
+        "## Was im Rumpf steht und was du ändern musst",
+        "",
+        "- **RLS** — `constraints.rows[].value` ist **fail-closed** (`1=0`, verweigert alles).",
+        "  Ersetze es durch das Zeilenprädikat der Domäne (T-SQL), z. B.",
+        "  `select * from fact where [division] = USER_NAME()`. Ein Platzhalter, der alles",
+        "  durchlässt, wäre von funktionierender Sicherheit nicht zu unterscheiden.",
+        "- **CLS** — `constraints.columns` erlaubt die **sichtbaren** Spalten (nicht gelistete",
+        "  sind null). Deklarierte sensible Spalten (`--sensitivity`) werden versteckt, indem das",
+        "  Komplement erlaubt wird — berechnet aus der vollen Spaltenliste des governten Katalogs.",
+        "  Ohne Deklaration kein CLS: hier wird nichts geraten.",
+        "",
+        "## Die Falle",
+        "",
+        "**Eine Rolle muss RLS und CLS derselben Tabelle zusammen halten.** RLS in Rolle A und CLS",
+        "in Rolle B für denselben Benutzer lässt die Abfrage fehlschlagen. Und: privilegierte",
+        "Workspace-Rollen umgehen RLS/CLS vollständig — siehe `_WORKSPACE_STRATEGIE.md`.",
+        "",
+    ]
+    if cls_todo:
+        lines += ["## Offene CLS-Punkte", ""] + [f"- {t}" for t in cls_todo] + [""]
+    vorschlag = _rls_proposal_comment(catalog).replace("// ", "").replace("//", "").strip()
+    if vorschlag:
+        lines += ["## RLS-Vorschlag", "", vorschlag, ""]
+    return "\n".join(lines) + "\n"
 
 
 def _access_layer_decision(bp: dict) -> str:
@@ -498,8 +544,7 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
     if stack == "fabric":
         out["governance/governance.sh"] = _governance_script(bp, workspace, governance, dom_owner)
         out["governance/sensitivity_labels.sh"] = _sensitivity_script(bp, governance)
-        out["governance/onelake_data_access_roles.json"] = _onelake_security_roles(
-            bp, lakehouse, sensitivity, governed_catalog)
+        out.update(emit_onelake_roles(bp, lakehouse, sensitivity, governed_catalog))
     # P5 gehoert hierher und nicht hinter ein eigenes Flag: es IST Governance, und es erscheint genau
     # dann, wenn die IR einen Share deklariert. Ein eigenes `--emit-sharing` waere ein Schalter, den man
     # vergessen kann — bei einer Bedingung, die das Sicherheitsmodell aufhebt, ist das der falsche
