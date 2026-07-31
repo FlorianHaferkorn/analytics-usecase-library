@@ -1,0 +1,111 @@
+# Visual Library entry — line  (schema: _schema.yaml)
+id: line
+name: Trend line
+purpose: [time_comparison]
+zone: [analysis]
+best_form_for: time_comparison
+alternatives: [area_stacked, small_multiples, indexed_line, slope]
+
+encoding:
+  x: temporal
+  y: quantitative
+  magnitude: position               # rank 1-2 on a common scale
+  reference: target_line            # dashed plan/target reference
+  endpoint: emphasized              # the verdict at the mark
+
+anti_patterns:
+  - bars_for_time
+  - autoscale_without_reference     # graphical integrity (Tufte)
+  - dual_axis_no_reason
+  - legend_when_direct_label_works
+
+params:
+  category: {role: axis, type: date, required: true}
+  measure:  {role: value, required: true}
+  target:   {role: reference, optional: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_line: ink                     # #0F2430 hero line
+  col_ref:  color_semantics.neutral # #94A0AC target reference
+  col_end:  color_semantics.negative# endpoint (semantic by sign at gen time)
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Gross Margin %"
+  target_measure: "Plan Gross Margin %"
+  category_entity: "dim_date"
+  category_prop: "Date"
+  field: "gm"
+  field_date: "month"
+  target_val: "44.1"
+  col_line: "#0F2430"
+  col_ref: "#94A0AC"
+  col_end: "#A4262C"
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "lineChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } },
+        "objects": {
+          "y1AxisReferenceLine": [ { "properties": {
+            "show": { "expr": { "Literal": { "Value": "true" } } },
+            "value": { "expr": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{target_measure}}" } } },
+            "lineColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_ref}}'" } } } } },
+            "style": { "expr": { "Literal": { "Value": "'dashed'" } } }
+          }, "selector": { "id": "1" } } ],
+          "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ]
+        }
+      }
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( '{{category_entity}}'[{{category_prop}}] ), DATESINPERIOD ( '{{category_entity}}'[{{category_prop}}], MAX ( '{{category_entity}}'[{{category_prop}}] ), -12, MONTH ) ), "@v", [{{measure}}] )
+      VAR _min = MINX ( _S, [@v] )
+      VAR _max = MAXX ( _S, [@v] )
+      VAR _xmin = MINX ( _S, '{{category_entity}}'[{{category_prop}}] )
+      VAR _xmax = MAXX ( _S, '{{category_entity}}'[{{category_prop}}] )
+      VAR _pts = CONCATENATEX ( _S, INT ( 100 * DIVIDE ( '{{category_entity}}'[{{category_prop}}] - _xmin, _xmax - _xmin ) ) & "," & INT ( 30 - 30 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", '{{category_entity}}'[{{category_prop}}] )
+      RETURN
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30'>"
+            & "<polyline fill='none' stroke='{{col_line}}' stroke-width='2' points='" & _pts & "'/>"
+            & "</svg>"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
+        "layer": [
+          { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2.5 },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [5, 4] },
+            "encoding": { "y": { "datum": {{target_val}} } } },
+          { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "{{field_date}}", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+            "mark": { "type": "point", "filled": true, "size": 60, "color": "{{col_end}}" },
+            "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } }
+        ]
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <LineChart data={data} width={640} height={220}>
+        <XAxis dataKey="{{field_date}}" />
+        <YAxis domain={['auto', 'auto']} />
+        <ReferenceLine y={{{target_val}}} stroke="{{col_ref}}" strokeDasharray="5 4" />
+        <Line type="monotone" dataKey="{{field}}" stroke="{{col_line}}" strokeWidth={2.5} dot={false} />
+      </LineChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Pure {{param}} fill; golden-frozen. Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point."
