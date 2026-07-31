@@ -186,6 +186,32 @@ Per visual: the analytical **question** it answers, the **best-perceived form** 
 
 **Encoding rule (governed).** Magnitude → **length/position** (perceptual rank 1–3), never the colour of a number (rank 9–10). Direction → colour **and** sign/arrow, never colour alone. **Size is the only highlight attribute** (`cookbook.md`). Every element serves one purpose or it is cut.
 
+### D.0 Which visual, when — the chooser (unified with the layout)
+The **question comes first** (Munzner: *why* before *how*), then the idiom with the most accurate encoding, then its **home in the 3-30-300 page**.
+
+| Analytical question | Idiom (best form) | Why (source) | Instead of |
+|---|---|---|---|
+| Value + verdict (one KPI) | KPI card — deviation bar / bullet | precise value = number; gap = length | gauge · tinted pill |
+| Development over time | line (+ target reference) | curve reads as trajectory | bars · pie |
+| Composition over time | stacked area | total *and* share | stacked bars |
+| Compare categories / rank | sorted H-bars / lollipop | length compared directly (rank 1–3) | pie · radar |
+| Deviation from target | deviation bar / bullet | position & length > colour of a number | coloured number · gauge |
+| Contribution to a change | waterfall / bridge (PVM) | steps + running total | two pies |
+| Part-to-whole (≤ 4) | donut / 100%-stack | readable only at ≤ 4 | pie > 4 |
+| Correlation of two variables | scatter | two continuous variables | line (implies time) |
+| Flow between stages | sankey *(situational)* | the flow structure is the question | bars (if it's comparison) |
+| Which dimension drives it | decomposition tree *(Detail)* | interactive drill (Shneiderman) | a static exhibit |
+| Distribution of a variable | histogram / box | spread, median, outliers | bars |
+| Evidence detail | matrix — worst-first Top-N | row-level evidence + action | a long bar list |
+| **Never** (governed deny) | — | — | pie > 4 · 3D · gauge · radar · dual Y-axis without a reason · colour as decoration · Power BI smart-narrative |
+
+**Placement — one idiom per 3-30-300 zone (this is where the catalog meets the layout rules):**
+- **3s · Pulse (KPI band):** KPI cards (deviation / bullet / dark hero) — headline value + verdict; **one focal point** (BC-COLOR-02); the biggest question sits top-left (hierarchy).
+- **30s · Analysis:** trend (vs plan) → waterfall/bridge (why) → ranking (where) → stacked area / scatter — each adds **one distinct sentence** (no duplicated trajectories).
+- **300s · Detail:** matrix (worst-first Top-N, deviation cells, action column), decomposition tree (drill), sankey (flow) — the Pulse's drill-through target.
+
+**Unified rule:** question → idiom → placement (zone) → composition (hierarchy · one focal point · whitespace · honest titles · worst-first, §A.8). An idiom is only ever as good as its fit to the question **and** its home in the page.
+
 ### D.1 `kpi_card` — a metric, its verdict, its trajectory
 - **Question:** how are we doing on X vs plan/target, and where is it heading?
 - **Structure:** label · hero value (a number — best for a precise single value) · deviation · **chart full-width below**.
@@ -205,8 +231,14 @@ Per visual: the analytical **question** it answers, the **best-perceived form** 
 - **Avoid:** unsorted bars; pie/donut for comparison; a broken/non-zero baseline on an absolute bar (misleads length); colour to separate equal categories.
 - **Tools:** native `clusteredBarChart` (horizontal) sort Δ ascending + Top-N + data labels + one `dataPoint.fill` highlight (metadata selector) · SVG-DAX per-row bar in a `matrix` (`<desc>` sort trick) · Vega-Lite `mark:bar`, `y sort:"-x"`, `x` = Δ zero-centred + `color` by sign · Web Recharts `BarChart layout="vertical"` + `ReferenceLine x=0` + `Cell`.
 
+### D.4 `waterfall` / bridge — what moved a total
+- **Question:** what moved the number from A to B — which drivers, in which direction?
+- **Best form (variants):** **PVM bridge** (Plan → Price → Volume → Mix → Actual — sequential deltas, connectors between running totals, solid start/end anchors) · **value build-up** (Revenue − COGS = GM, honest 0-baseline) · **variance-driver bridge** (contributions to the plan gap from a zero=plan line, sorted worst-first — bridge + BC-CHART-10) · **IBCS bridge** (PL outlined / AC solid — scenario by pattern). Red down, green up.
+- **Avoid:** a bridge without connectors (the running total is lost); colour beyond semantic +/−; too many steps (group small drivers into „Other"); a hidden/unlabelled zoomed axis — always label every total and step (the zoom is IBCS-accepted because the deltas are the message).
+- **Tools:** native `waterfallChart` (Category = driver, one Y measure — COM-002 uses a disconnected `dim_pvm_driver` + a `SWITCH` „PVM Bridge Value") · SVG-DAX cumulative `OFFSET` → floating `<rect>`s + connector `<line>`s (`waterfall-measure.dax`) · Vega-Lite `window` running-sum → `bar` with `y/y2` + `rule` connectors · Web Recharts stacked-bar with a transparent base + `Cell`, or D3 with a manual cumulative.
+
 ### Whitelist note
 `sankey` and `decomposition_tree` are **situational extensions** to [`Visual_Whitelist.md`](../../../../../core/templates/page_templates/governance/Visual_Whitelist.md), governed with caveats: Sankey → few sorted nodes, only when the *flow structure* is the question (width compares worse than bars); decomposition tree → exploratory drill on **Detail** pages, one measure, sorted branches (an analysis tool, not a static exhibit). `smart_narrative` is **out for Power BI** (templated / unreliable) and kept **other-tools only**.
 
 ### Roadmap — one visual per increment
-`kpi_card` ✅ · `trend_line` ✅ · `bar_chart`/ranking ✅ · **`waterfall` / PVM** (next) · `stacked_area` (composition over time) · evidence `matrix` · `sankey` · `decomposition_tree` · `scatter` · `donut`/100%-stack (≤ 4) · histogram/box · `slicer`. Each increment updates this section **and** the Artifact together (both synchron).
+`kpi_card` ✅ · `trend_line` ✅ · `bar_chart`/ranking ✅ · `waterfall`/bridge ✅ · **evidence `matrix`** (next) · `stacked_area` (composition over time) · `sankey` · `decomposition_tree` · `scatter` · `donut`/100%-stack (≤ 4) · histogram/box · `slicer`. Each increment updates this section **and** the Artifact together (both synchron). The chooser (D.0) is the grounded „which visual, when" guide, unified with the §A.8 layout rules.
