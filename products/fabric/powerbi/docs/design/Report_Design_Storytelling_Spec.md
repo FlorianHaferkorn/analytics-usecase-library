@@ -199,5 +199,14 @@ Per visual: the analytical **question** it answers, the **best-perceived form** 
 - **Avoid:** bars/pie for a time series; an auto-scaled sparkline with no reference (graphical integrity — Tufte); a dual Y-axis without a stated semantic reason.
 - **Tools:** native `lineChart` + analytics-pane `y1AxisReferenceLine` (target measure) + last-point data label · SVG-DAX `CONCATENATEX` → `<polyline>` + plan `<line>` + endpoint `<circle>` · Vega-Lite `layer[ line, rule@plan, point(last), text ]` (`x:temporal`, `y:quantitative` honest domain) · Web Recharts `LineChart` + `ReferenceLine y=plan` + last `Label`, or D3 `d3.line()` + annotation.
 
+### D.3 `bar_chart` / ranking — compare categories, worst-first
+- **Question:** which units/SKUs lead or lag against target — where should attention focus?
+- **Best form:** sorted **horizontal** bars (lengths compared directly, rank 1–3). To rank a *rate* against a benchmark honestly, each bar is the **deviation from target** (zero = target) — a 0-based absolute bar would be nearly full and hide the differences. Worst-first, Top-N, semantic colour (`charts.md` „Vergleich Kategorien / Rangfolge Top-N"; BC-CHART-10).
+- **Avoid:** unsorted bars; pie/donut for comparison; a broken/non-zero baseline on an absolute bar (misleads length); colour to separate equal categories.
+- **Tools:** native `clusteredBarChart` (horizontal) sort Δ ascending + Top-N + data labels + one `dataPoint.fill` highlight (metadata selector) · SVG-DAX per-row bar in a `matrix` (`<desc>` sort trick) · Vega-Lite `mark:bar`, `y sort:"-x"`, `x` = Δ zero-centred + `color` by sign · Web Recharts `BarChart layout="vertical"` + `ReferenceLine x=0` + `Cell`.
+
+### Whitelist note
+`sankey` and `decomposition_tree` are **situational extensions** to [`Visual_Whitelist.md`](../../../../../core/templates/page_templates/governance/Visual_Whitelist.md), governed with caveats: Sankey → few sorted nodes, only when the *flow structure* is the question (width compares worse than bars); decomposition tree → exploratory drill on **Detail** pages, one measure, sorted branches (an analysis tool, not a static exhibit). `smart_narrative` is **out for Power BI** (templated / unreliable) and kept **other-tools only**.
+
 ### Roadmap — one visual per increment
-`kpi_card` ✅ · `trend_line` ✅ · **`bar_chart` / ranking** (next — sorted worst-first Top-N, one highlight) · `waterfall` / PVM bridge · evidence `matrix` · `smart_narrative` · `slicer`. Each increment updates this section **and** the Artifact together (both synchron).
+`kpi_card` ✅ · `trend_line` ✅ · `bar_chart`/ranking ✅ · **`waterfall` / PVM** (next) · `stacked_area` (composition over time) · evidence `matrix` · `sankey` · `decomposition_tree` · `scatter` · `donut`/100%-stack (≤ 4) · histogram/box · `slicer`. Each increment updates this section **and** the Artifact together (both synchron).
