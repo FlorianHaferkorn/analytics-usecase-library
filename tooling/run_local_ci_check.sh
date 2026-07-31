@@ -165,6 +165,54 @@ from pbi_quality_tools.cli import main
 raise SystemExit(main(['validate', '--summary']))
 "
 
+# --- Superversion-Gates (die vier, die der CI-Job NACH dem pytest faehrt) -----
+# Der pytest-Lauf oben deckt `tooling/superversion/` ab — der CI-Job faehrt danach aber noch
+# vier eigenstaendige Gates. Sie fehlten hier, also war „lokal gruen" fuer diesen Job
+# unvollstaendig. Gemessen am 31.07.2026 beim Handdurchlauf der CI-Jobs.
+run_check "Superversion pins (check_superversion_pins.py)" \
+  python3 scripts/check_superversion_pins.py
+
+run_check "Superversion Golden Thread" \
+  python3 -m tooling.superversion.golden_thread
+
+run_check "Superversion value gate (COM-001)" \
+  python3 -m tooling.superversion.eval.value_gate COM-001
+
+run_check "Superversion comp gate" \
+  python3 -m tooling.superversion.eval.comp_gate
+
+# --- Linux-Generierung (pwsh) — der Job, der hier bisher komplett fehlte -------
+# `linux-generation.yml` baut die Ontologie-Registry, das IR und generiert daraus die
+# TMDL-Measures ueber PowerShell. Ohne pwsh im PATH wird sauber uebersprungen (mit Grund),
+# statt so zu tun, als sei der Job geprueft. Mit pwsh laufen dieselben vier Assertions wie
+# im CI — inklusive der wichtigsten: die Generierung darf `dist/` nicht anfassen.
+if command -v pwsh >/dev/null 2>&1; then
+  run_check "Ontologie-Registry (registry_builder.py)" \
+    python3 tooling/ontology/registry_builder.py
+
+  run_check "IR-Build mit Measure-Overlay (build_ir.py)" \
+    python3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog \
+      --fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml \
+      --out ir_v1.json
+
+  run_check "TMDL-Measure-Generierung auf Linux (pwsh) + Assertions" \
+    bash -c '
+      set -e
+      rm -rf scratch_gen && mkdir -p scratch_gen
+      pwsh -c "./tooling/generator/generate_tmdl_measures.ps1 -IRPath ir_v1.json \
+        -UseCase COM-001,COM-002,COM-003,COM-004 -TargetTablesDir scratch_gen -OverwriteExisting"
+      test -s scratch_gen/_Measures.tmdl
+      grep -q "measure '"'"'Gross Margin %'"'"' = DIVIDE" scratch_gen/_Measures.tmdl
+      grep -q "measure '"'"'Net Sales Amount'"'"' = SUM" scratch_gen/_Measures.tmdl
+      git diff --quiet -- products/fabric/powerbi/dist
+      rm -rf scratch_gen ir_v1.json'
+else
+  echo ""
+  echo "==> Linux-Generierung uebersprungen — pwsh nicht im PATH."
+  echo "    Installation: https://learn.microsoft.com/powershell/scripting/install/install-ubuntu"
+  echo "    (der CI-Job laeuft auf ubuntu-latest mit vorinstalliertem pwsh)"
+fi
+
 # --- Health scorecard -----------------------------------------------------
 run_check "Health scorecard (H1-H9)" \
   python3 tooling/health_scorecard.py
