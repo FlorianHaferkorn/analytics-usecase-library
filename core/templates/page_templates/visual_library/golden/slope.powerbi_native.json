@@ -1,0 +1,8 @@
+{
+  "visualType": "lineChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_period" } }, "Property": "Period" } }, "queryRef": "dim_period.Period" } ] },
+    "Series": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_org" } }, "Property": "OrgName" } }, "queryRef": "dim_org.OrgName" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" } ] }
+  } }
+}

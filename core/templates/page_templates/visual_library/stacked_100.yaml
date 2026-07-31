@@ -1,0 +1,89 @@
+# Visual Library entry — stacked_100  (schema: _schema.yaml)
+id: stacked_100
+name: 100% stacked bar
+purpose: [part_to_whole]
+zone: [analysis]
+best_form_for: null                 # part-to-whole across categories (donut is best for a single whole)
+alternatives: [donut, area_stacked]
+
+encoding:
+  y: normalized_100                 # share sums to 100% per category
+  color: series_content_reference
+  guard: few_series
+
+anti_patterns:
+  - too_many_series
+  - stacked_absolute_when_share_is_the_point
+  - inconsistent_series_colours
+
+params:
+  category: {role: axis, type: category, required: true}
+  measure:  {role: value, required: true}
+  series:   {role: series, type: category, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_1: brand.primary              # #0078D4
+  col_2: brand.teal                 # #008575
+  col_3: brand.coral                # #EF6950
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Net Sales Amount"
+  series_entity: "dim_product"
+  series_prop: "Category"
+  category_entity: "dim_org"
+  category_prop: "Region"
+  field: "sales"
+  field_cat: "region"
+  field_series: "category"
+  col_1: "#0078D4"
+  col_2: "#008575"
+  col_3: "#EF6950"
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "hundredPercentStackedColumnChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Series": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{series_entity}}" } }, "Property": "{{series_prop}}" } }, "queryRef": "{{series_entity}}.{{series_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "multi-series normalised stacking is not a single-cell micro-chart"
+    use: "powerbi_native (hundredPercentStackedColumnChart) or Deneb"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "bar" },
+        "encoding": {
+          "x": { "field": "{{field_cat}}", "type": "nominal", "axis": { "title": null } },
+          "y": { "field": "{{field}}", "type": "quantitative", "stack": "normalize", "axis": { "title": null, "format": "%" } },
+          "color": { "field": "{{field_series}}", "type": "nominal", "scale": { "range": ["{{col_1}}", "{{col_2}}", "{{col_3}}"] }, "legend": { "title": null } }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <BarChart data={data} width={480} height={300} stackOffset="expand">
+        <XAxis dataKey="{{field_cat}}" />
+        <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
+        <Bar dataKey="series1" stackId="a" fill="{{col_1}}" />
+        <Bar dataKey="series2" stackId="a" fill="{{col_2}}" />
+        <Bar dataKey="series3" stackId="a" fill="{{col_3}}" />
+      </BarChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Share sums to 100% (Vega stack:normalize; Recharts stackOffset='expand'). SVG-DAX n/a (multi-series)."

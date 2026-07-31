@@ -1,0 +1,8 @@
+{
+  "visualType": "hundredPercentStackedColumnChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_org" } }, "Property": "Region" } }, "queryRef": "dim_org.Region" } ] },
+    "Series": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_product" } }, "Property": "Category" } }, "queryRef": "dim_product.Category" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Net Sales Amount" } }, "queryRef": "_Measures.Net Sales Amount" } ] }
+  } }
+}
