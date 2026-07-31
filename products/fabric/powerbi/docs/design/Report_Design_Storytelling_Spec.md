@@ -177,3 +177,27 @@ Each report's **thesis** (governed `big_idea`), its **archetype/variant**, and t
 - **Evidence discipline** (BC-CHART-10) and **scale discipline** (BC-CHART-01) on every page.
 - **Grounding** (K4): hero KPIs carry a benchmark reference-label once `benchmark_catalog` lands, so the thesis reads expert, not templated.
 - **Handoff:** this design layer → `powerbi-report-authoring` for page/visual/theme mechanics and PBIR emission → validate (Stage-1 + boutique scorecard + `check_storyline` / `check_visual_format`) → Desktop check.
+
+---
+
+## Part D — the visual idiom catalog
+
+Per visual: the analytical **question** it answers, the **best-perceived form** for it (Cleveland-McGill / IBCS, governed by [`pbi-design/references/charts.md`](../../../../../.claude/skills/pbi-design/references/charts.md)), the **anti-patterns** to avoid, and the realisation across four tool tracks — **Power BI native · SVG-DAX · Deneb/Vega-Lite · Web (D3/Recharts/ECharts)**. A rendered companion grows alongside as a private Artifact. Renderer-agnostic (`contract_version: 2`): the *form* is governed; the *tool* is a realisation.
+
+**Encoding rule (governed).** Magnitude → **length/position** (perceptual rank 1–3), never the colour of a number (rank 9–10). Direction → colour **and** sign/arrow, never colour alone. **Size is the only highlight attribute** (`cookbook.md`). Every element serves one purpose or it is cut.
+
+### D.1 `kpi_card` — a metric, its verdict, its trajectory
+- **Question:** how are we doing on X vs plan/target, and where is it heading?
+- **Structure:** label · hero value (a number — best for a precise single value) · deviation · **chart full-width below**.
+- **Best form, by sub-question:** deviation bar (Δ vs plan, zero line) · bullet graph (vs target + ranges — Few, the governed gauge replacement) · trend + target reference (trajectory) · variance sparkline (gap over time — a *different sentence* than the level-trend) · IBCS overlapped AC/PL bars (true scale, scenario by pattern) · dark hero (the one focal point per page).
+- **Avoid:** the tinted delta pill (magnitude on colour + decorative fill); gauge/speedometer.
+- **Tools:** native `cardVisual` value + a companion slim `clusteredBarChart` for Δ (native can't colour one callout by sign) · SVG-DAX one `ImageUrl` measure (`<rect>` bar from the plan line, width = normalised Δ, fill by `SIGN`) · Vega-Lite `mark:bar` + `rule@0` + layered `text` · Web Recharts `BarChart` + `ReferenceLine x=0`.
+
+### D.2 `trend_line` — development over time, against plan
+- **Question:** how is X developing, and is the gap to plan closing or widening?
+- **Best form:** a line (the eye reads the curve as trajectory — `charts.md` „Entwicklung über Zeit → Liniendiagramm"); honest **labelled** axis; plan as a **dashed reference line**; one **emphasized endpoint** carrying the verdict; direct end-label, no legend.
+- **Avoid:** bars/pie for a time series; an auto-scaled sparkline with no reference (graphical integrity — Tufte); a dual Y-axis without a stated semantic reason.
+- **Tools:** native `lineChart` + analytics-pane `y1AxisReferenceLine` (target measure) + last-point data label · SVG-DAX `CONCATENATEX` → `<polyline>` + plan `<line>` + endpoint `<circle>` · Vega-Lite `layer[ line, rule@plan, point(last), text ]` (`x:temporal`, `y:quantitative` honest domain) · Web Recharts `LineChart` + `ReferenceLine y=plan` + last `Label`, or D3 `d3.line()` + annotation.
+
+### Roadmap — one visual per increment
+`kpi_card` ✅ · `trend_line` ✅ · **`bar_chart` / ranking** (next — sorted worst-first Top-N, one highlight) · `waterfall` / PVM bridge · evidence `matrix` · `smart_narrative` · `slicer`. Each increment updates this section **and** the Artifact together (both synchron).
