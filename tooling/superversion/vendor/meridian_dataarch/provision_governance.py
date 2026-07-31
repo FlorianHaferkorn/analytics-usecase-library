@@ -135,10 +135,15 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
         "# ArchitectureBlueprint → Fabric governance (ADR-0015). Generated; review before running.",
         "# Grounded in the GA governance REST surface (research 2026-07-15 §3):",
         "#   POST /v1/workspaces/{id}/roleAssignments        — workspace RBAC (GET→diff→POST/DELETE)",
-        "#   POST /v1/admin/domains  + .../assignWorkspacesByIds  — OneLake data-mesh domains",
+        "#   POST /v1/admin/domains?preview=false  + .../assignWorkspacesByIds  — data-mesh domains",
         "# Reached via `fab api <endpoint> -X POST -i <body.json>` (confirm flags: fab api -h).",
-        "# Auth: a service principal is fine for roleAssignments; DOMAINS need a Fabric-admin USER",
-        "# context (SP not supported) — see research §3.",
+        "# Auth: a service principal works for BOTH roleAssignments and domains. Verified against",
+        "#   learn.microsoft.com/rest/api/fabric/admin/domains/create-domain on 2026-07-31: the",
+        "#   supported-identities table lists service principals as supported. The caller must be a",
+        "#   Fabric ADMINISTRATOR (scope Tenant.ReadWrite.All), max 25 requests/minute. An earlier",
+        "#   note here said 'SP not supported' — that was true when researched, is not true now.",
+        "# `preview=false` is a REQUIRED query parameter on every /v1/admin/domains call: the release",
+        "#   version is reached only that way (the preview version was deprecated 2026-03-31).",
         "",
         "# 1. Domains (data mesh) — one Fabric domain per blueprint domain; assign its workspace(s).",
     ]
@@ -146,10 +151,11 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
         dn = d["name"]
         wss = ", ".join(w["name"] for w in d.get("workspaces", [])) or workspace
         lines.append(f"# {dn}  (workspaces: {wss})")
-        lines.append(f'#   fab api "admin/domains" -X POST -i - <<JSON   # VERIFY: capture domain id')
+        lines.append(f'#   fab api "admin/domains?preview=false" -X POST -i - <<JSON   # capture the returned id')
         lines.append(f'#   {{"displayName":"{dn}"}}')
         lines.append("#   JSON")
-        lines.append(f'#   fab api "admin/domains/<{_dirslug(dn)}-id>/assignWorkspacesByIds" -X POST -i - <<JSON')
+        lines.append(f'#   fab api "admin/domains/<{_dirslug(dn)}-id>/assignWorkspacesByIds?preview=false" '
+                     f'-X POST -i - <<JSON')
         # Die Workspaces DIESER Domäne, am Namen qualifiziert. Vorher stand hier ein generisches
         # `<workspace-id>` je Domäne — bei vier Workspaces im Mesh sagte es nicht, welcher.
         _ids = [f'"<{w["name"]}-workspace-id>"' for w in d.get("workspaces", [])] or ['"<workspace-id>"']
