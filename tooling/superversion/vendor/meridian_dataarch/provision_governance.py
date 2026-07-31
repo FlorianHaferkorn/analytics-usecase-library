@@ -150,7 +150,10 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
         lines.append(f'#   {{"displayName":"{dn}"}}')
         lines.append("#   JSON")
         lines.append(f'#   fab api "admin/domains/<{_dirslug(dn)}-id>/assignWorkspacesByIds" -X POST -i - <<JSON')
-        lines.append(f'#   {{"workspacesIds":["<workspace-id>"]}}')
+        # Die Workspaces DIESER Domäne, am Namen qualifiziert. Vorher stand hier ein generisches
+        # `<workspace-id>` je Domäne — bei vier Workspaces im Mesh sagte es nicht, welcher.
+        _ids = [f'"<{w["name"]}-workspace-id>"' for w in d.get("workspaces", [])] or ['"<workspace-id>"']
+        lines.append(f'#   {{"workspacesIds":[{",".join(_ids)}]}}')
         lines.append("#   JSON")
     lines.append("")
     if dom_owner:
@@ -161,7 +164,7 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
             if owner:
                 for w in d.get("workspaces", []):
                     lines.append(f'#   {w["name"]}: Admin for owner "{owner}"')
-                    lines.append(f'#   fab api "workspaces/<{w["name"]}-id>/roleAssignments" -X POST -i - <<JSON')
+                    lines.append(f'#   fab api "workspaces/<{w["name"]}-workspace-id>/roleAssignments" -X POST -i - <<JSON')
                     lines.append(f'#   {{"principal":{{"id":"<{_dirslug(owner)}-principal-id>","type":"Group"}},"role":"Admin"}}')
                     lines.append("#   JSON")
         lines.append("")
@@ -176,7 +179,7 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
                 for p in principals:
                     body = json.dumps({"principal": {"id": p.get("id", "<id>"), "type": p.get("type", "Group")},
                                        "role": p.get("role", "Viewer")}, ensure_ascii=False)
-                    lines.append(f'#   fab api "workspaces/<{w["name"]}-id>/roleAssignments" -X POST -i - <<JSON')
+                    lines.append(f'#   fab api "workspaces/<{w["name"]}-workspace-id>/roleAssignments" -X POST -i - <<JSON')
                     lines.append(f"#   {body}")
                     lines.append("#   JSON")
             else:
