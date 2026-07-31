@@ -16,17 +16,53 @@ Solange das Limit-Fenster offen ist, ist jeder rote Lauf „erklärt" — und ei
 versteckt sich dahinter. Dieser Prüfer nimmt die Frage von der CI weg: er beantwortet lokal
 und in Sekunden, ob eine Workflow-Datei überhaupt laufen KANN.
 
-Prüft je Datei: parst als YAML · hat `jobs` · jeder Job hat `runs-on` und `steps`.
-Exit 1 bei jedem Befund. Kein Netz, keine Abhängigkeit ausser PyYAML.
+Zwei Stufen, Official-First:
+
+  1. **`actionlint`**, wenn im PATH — der etablierte Actions-Linter (rhysd/actionlint). Er
+     kennt die Actions-Grammatik, nicht nur YAML, und ist damit die genauere Aussage. Am
+     31.07.2026 an beiden Ständen geprüft: alte Datei ``:57:0: could not parse as YAML``,
+     reparierte Datei sauber — derselbe Befund wie PyYAML, mit Zeilennummer.
+  2. **Eigenprüfung** sonst (PyYAML + Struktur): parst als YAML · hat ``jobs`` · jeder Job
+     hat ``runs-on`` und ``steps``. Kein Soft-Skip — die Frage ist zu wichtig, um sie
+     unbeantwortet zu lassen, nur weil ein Werkzeug fehlt.
+
+Exit 1 bei jedem Befund. Kein Netz nötig; ohne actionlint ausser PyYAML keine Abhängigkeit.
 """
 from __future__ import annotations
 
 import pathlib
+import shutil
+import subprocess
 import sys
 
 import yaml
 
 WORKFLOW_DIR = pathlib.Path(".github/workflows")
+
+
+def _actionlint(root: pathlib.Path) -> list[str] | None:
+    """Befunde von ``actionlint``, oder ``None`` wenn es nicht installiert ist.
+
+    ``-shellcheck=`` / ``-pyflakes=`` schalten die beiden optionalen Unterprüfer ab: sie
+    melden Stilfragen in eingebetteten Skripten und würden diesen Wächter von seiner Frage
+    ablenken — kann dieser Workflow überhaupt laufen?
+    """
+    exe = shutil.which("actionlint")
+    if not exe:
+        return None
+    r = subprocess.run([exe, "-shellcheck=", "-pyflakes=", "-oneline"],
+                       cwd=root, capture_output=True, text=True)
+    # rc 0 = sauber, rc 1 = Befunde. Alles andere heisst: das Werkzeug hat NICHT geprüft
+    # (z. B. rc 3 „no project was found" ausserhalb eines Git-Repos). Dann ``None``
+    # zurückgeben statt einer leeren Befundliste — sonst meldet der Aufrufer „[actionlint]"
+    # für eine Prüfung, die gar nicht stattgefunden hat. Genau diese stille Verwechslung von
+    # „nichts gefunden" mit „nicht geschaut" ist der Fehler, gegen den dieses Skript existiert.
+    if r.returncode not in (0, 1):
+        grund = (r.stderr or r.stdout).strip().splitlines()
+        print(f"[check-workflows] actionlint nicht nutzbar (rc={r.returncode}"
+              + (f": {grund[0]}" if grund else "") + ") — Eigenprüfung übernimmt.")
+        return None
+    return [l for l in r.stdout.splitlines() if l.strip()]
 
 
 def findings(root: pathlib.Path) -> list[str]:
@@ -66,14 +102,21 @@ def findings(root: pathlib.Path) -> list[str]:
 
 def main(argv: list[str]) -> int:
     root = pathlib.Path(argv[0]) if argv else pathlib.Path(".")
-    befunde = findings(root)
     n = len(list((root / WORKFLOW_DIR).glob("*.y*ml"))) if (root / WORKFLOW_DIR).is_dir() else 0
+
+    al = _actionlint(root)
+    quelle = "actionlint" if al is not None else "Eigenprüfung (actionlint nicht installiert)"
+    # Die Eigenprüfung läuft IMMER mit: actionlint prüft die Grammatik, sie prüft zusätzlich,
+    # dass überhaupt ein Job deklariert ist — ein Workflow ohne Jobs ist grammatisch korrekt
+    # und trotzdem wirkungslos.
+    befunde = (al or []) + findings(root)
+
     if befunde:
-        print(f"[check-workflows] {len(befunde)} Befund(e) in {n} Workflow-Datei(en):")
+        print(f"[check-workflows] {len(befunde)} Befund(e) in {n} Workflow-Datei(en) [{quelle}]:")
         for b in befunde:
             print(f"  ✗ {b}")
         return 1
-    print(f"[check-workflows] OK — {n} Workflow-Datei(en) parsen und deklarieren Jobs.")
+    print(f"[check-workflows] OK — {n} Workflow-Datei(en) parsen und deklarieren Jobs [{quelle}].")
     return 0
 
 
