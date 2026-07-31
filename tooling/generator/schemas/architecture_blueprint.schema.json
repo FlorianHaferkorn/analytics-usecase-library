@@ -388,6 +388,10 @@
                     ]
                   }
                 }
+              },
+              "data_contract_ref": {
+                "type": "string",
+                "description": "The silver data contract of THIS domain. Without it the emitters fall back to the single global `medallion.silver.data_contract_ref` — with several source packs in one run that made every generated SQL file cite the FIRST pack's contract, so the finance tables pointed at the order-to-cash contract. A wrong reference in a delivered artifact is worse than none: it sends someone confidently to the wrong place."
               }
             }
           }
