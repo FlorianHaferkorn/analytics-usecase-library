@@ -168,7 +168,7 @@ def propose_cross_domain(bp: dict, gc: dict) -> list[dict]:
              (f"Genau **ein** besitzende Domäne je Objekt, alle anderen lesen nur — {lines}. "
               "Vorschlag: Der Eigentümer pflegt Schema und Schlüssel und ist der einzige Schreiber; "
               "Konsumenten bekommen **Read** (keine Kopie, kein Fork). Änderungen am Schlüssel oder am "
-              "Korn sind Breaking Changes und laufen über den Vertrag, nicht über Zuruf. Genau **eine** "
+              "Grain sind Breaking Changes und laufen über den Vertrag, nicht über Zuruf. Genau **eine** "
               "Zertifizierung für das Objekt — nicht je Domäne eine eigene Variante."),
              f"{len(shared)} Objekt(e) domänenübergreifend genutzt",
              "hoch",
@@ -215,7 +215,7 @@ def propose_cross_domain(bp: dict, gc: dict) -> list[dict]:
              + "; ".join(f"`{r['from_table']}.{r['from_column']}` → `{r['to_table']}` "
                          f"({f['owner'].get(r['from_table'])} → {f['owner'].get(r['to_table'])})"
                          for r in xd_rels)
-             + ". Vorschlag: Schlüsselstabilität und Korn im ODCS-Vertrag der **besitzenden** Domäne "
+             + ". Vorschlag: Schlüsselstabilität und Grain im ODCS-Vertrag der **besitzenden** Domäne "
                "festschreiben, Konsumenten als Abonnenten eintragen und Schemaänderungen über das "
                "Contract-Gate laufen lassen — dann bricht ein Umbau in Domäne A den Report in "
                "Domäne B nicht unbemerkt."),
@@ -417,7 +417,7 @@ def propose_incremental(gc: dict) -> dict:
         "DATA-INC", "Inkrementelles Laden (Match-Key + Watermark)",
         "Woran erkennt der MERGE geänderte Zeilen?",
         (f"**Match-Key** `{f['name']}`: {' + '.join(keys) if keys else '<fachlicher Geschäftsschlüssel>'}"
-         f" (das Korn der Tabelle).\n"
+         f" (das Grain der Tabelle).\n"
          f"**Watermark**: " +
          (f"`{wm_col}` — nur Zeilen mit `{wm_col} > (select max({wm_col}) from gold_{f['name']})` laden."
           if have_wm else

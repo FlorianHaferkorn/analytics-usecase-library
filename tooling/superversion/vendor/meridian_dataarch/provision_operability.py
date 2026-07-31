@@ -51,8 +51,8 @@ def check_metadata_completeness(gc: dict) -> dict:
     for t in tables:
         n = t.get("name", "")
         if not (t.get("grain") or "").strip():
-            findings.append({"object": n, "kind": "table", "issue": "keine Korn-/Beschreibungsangabe",
-                             "why": "Korn ist die Grundlage jeder Aggregation und speist die "
+            findings.append({"object": n, "kind": "table", "issue": "keine Grain-/Beschreibungsangabe",
+                             "why": "Das Grain ist die Grundlage jeder Aggregation und speist die "
                                     "Tabellenbeschreibung, die Copilot und Data Agent auswerten"})
         if not re.match(r"^(fact|dim|agg|bridge)_", n.lower()):
             findings.append({"object": n, "kind": "table", "issue": "Name folgt keiner Layer-Konvention",
@@ -106,11 +106,11 @@ def _metadata_report(gc: dict) -> str:
         for x in f:
             lines.append(f"| `{x['object']}` | {x['kind']} | {x['issue']} | {x['why']} |")
     else:
-        lines.append("Keine Befunde — Benennung und Korn sind auf dieser Ebene vollständig.")
+        lines.append("Keine Befunde — Benennung und Grain sind auf dieser Ebene vollständig.")
     lines += [
         "", "## Arbeitsteilung der Prüfungen (kein zweites Silo)", "",
         "| Ebene | Prüft | Wo |", "|---|---|---|",
-        "| Governter Katalog (hier) | Korn, Layer-Konvention, sprechende Namen, Lineage | dieser Bericht |",
+        "| Governter Katalog (hier) | Grain, Layer-Konvention, sprechende Namen, Lineage | dieser Bericht |",
         "| Semantic Model (TMDL) | Beschreibungen an Tabellen/Measures, Display Folder, Namensregeln | "
         "`pbi_engine`-Regelkatalog (SM006 · SM007 · SM003 · NC001–NC004) über den PBI-Audit |",
         "", "Beide laufen im selben Gate — der Katalog-Check greift *vor* der Modellerzeugung, "
