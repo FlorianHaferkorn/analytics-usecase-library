@@ -1,0 +1,89 @@
+# Visual Library entry — area_stacked  (schema: _schema.yaml)
+id: area_stacked
+name: Stacked area
+purpose: [time_comparison]
+zone: [analysis]
+best_form_for: null                 # composition-over-time variant; `line` is the level best form
+alternatives: [line, small_multiples, indexed_line]
+
+encoding:
+  x: temporal
+  y: quantitative_stacked           # total AND share over time
+  color: series_content_reference   # governed palette, consistent per series
+
+anti_patterns:
+  - stacked_bars_for_composition_over_time
+  - too_many_series                 # > ~5 becomes unreadable
+  - inconsistent_series_colours
+
+params:
+  category: {role: axis, type: date, required: true}
+  measure:  {role: value, required: true}
+  series:   {role: series, type: category, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_1: brand.primary              # #0078D4
+  col_2: brand.teal                 # #008575
+  col_3: brand.coral                # #EF6950
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Net Sales Amount"
+  series_entity: "dim_product"
+  series_prop: "Category"
+  category_entity: "dim_date"
+  category_prop: "Date"
+  field: "sales"
+  field_date: "month"
+  field_series: "category"
+  col_1: "#0078D4"
+  col_2: "#008575"
+  col_3: "#EF6950"
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "stackedAreaChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Series": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{series_entity}}" } }, "Property": "{{series_prop}}" } }, "queryRef": "{{series_entity}}.{{series_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "multi-series stacked area is not a single-cell micro-chart (a single-series area sparkline is — see `line`)"
+    use: "powerbi_native (stackedAreaChart) or Deneb"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "area" },
+        "encoding": {
+          "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } },
+          "y": { "field": "{{field}}", "type": "quantitative", "stack": "zero", "axis": { "title": null } },
+          "color": { "field": "{{field_series}}", "type": "nominal", "scale": { "range": ["{{col_1}}", "{{col_2}}", "{{col_3}}"] }, "legend": { "title": null } }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <AreaChart data={data} width={640} height={260}>
+        <XAxis dataKey="{{field_date}}" />
+        <YAxis />
+        <Area type="monotone" dataKey="series1" stackId="1" stroke="{{col_1}}" fill="{{col_1}}" />
+        <Area type="monotone" dataKey="series2" stackId="1" stroke="{{col_2}}" fill="{{col_2}}" />
+        <Area type="monotone" dataKey="series3" stackId="1" stroke="{{col_3}}" fill="{{col_3}}" />
+      </AreaChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Series colours from the governed brand palette (content reference, not decoration). Recharts needs wide-format series1..n."

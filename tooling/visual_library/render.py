@@ -63,6 +63,15 @@ def render(idiom: str, tool: str) -> "tuple[str, str]":
 
 
 def tools(idiom: str) -> "list[str]":
+    """Tool tracks that have a runnable template (applicable). Not every idiom exists
+    in every tool — e.g. SVG-DAX is for cell micro-charts, not full waterfalls; a tool
+    that does not fit is marked ``applicable: false`` (with a reason) and skipped here."""
+    real = load_entry(idiom)["realizations"]
+    return [t for t, r in real.items() if r.get("applicable", True) and "template" in r]
+
+
+def addressed(idiom: str) -> "list[str]":
+    """Every tool the entry addresses — runnable OR an explicit applicable:false."""
     return list(load_entry(idiom)["realizations"].keys())
 
 

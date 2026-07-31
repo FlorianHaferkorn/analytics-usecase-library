@@ -41,3 +41,11 @@ tools:
 # {{name}} is replaced literally by str(canonical_params[name]). No logic in
 # templates — determinism requires pure substitution. Colours are hex from the
 # governed tokens; never invented.
+#
+# --- applicability ---
+# Every idiom must ADDRESS all four tools, but not every idiom EXISTS in every tool
+# (SVG-DAX is for cell micro-charts, not full waterfalls/scatter; Vega-Lite/Recharts
+# are not table tools; there is no native bullet base visual). A tool that does not
+# fit is written as:  <tool>: { applicable: false, reason: "...", use: "<other tool>" }
+# instead of {ext, template}. render.tools() skips these; the golden test only freezes
+# the runnable ones; the schema test requires every non-applicable to carry reason+use.

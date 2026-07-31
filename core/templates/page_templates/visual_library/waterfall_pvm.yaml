@@ -1,0 +1,99 @@
+# Visual Library entry — waterfall_pvm  (schema: _schema.yaml)
+id: waterfall_pvm
+name: Waterfall bridge (PVM)
+purpose: [contribution_to_change]
+zone: [analysis]
+best_form_for: contribution_to_change
+alternatives: [waterfall_buildup, waterfall_variance, waterfall_ibcs]
+
+encoding:
+  steps: sequential                 # Plan -> Price -> Volume -> Mix -> Actual
+  running_total: connectors
+  color: semantic_up_down           # green up / red down
+  anchors: solid_totals
+
+anti_patterns:
+  - bridge_without_connectors
+  - color_beyond_semantic
+  - too_many_steps                  # group small drivers into "Other"
+  - unlabelled_zoomed_axis
+
+params:
+  category: {role: step, type: category, required: true, note: "driver dim with a governed step order"}
+  measure:  {role: value, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_inc:   color_semantics.positive   # #107C10
+  col_dec:   color_semantics.negative   # #A4262C
+  col_total: ink                        # #0F2430 anchors
+
+canonical_params:
+  entity: "_Measures"
+  measure: "PVM Bridge Value"
+  category_entity: "dim_pvm_driver"
+  category_prop: "Driver"
+  field: "driver"
+  field_val: "value"
+  col_inc: "#107C10"
+  col_dec: "#A4262C"
+  col_total: "#0F2430"
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "waterfallChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } },
+        "objects": { "sentimentColors": [ { "properties": {
+          "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_inc}}'" } } } } },
+          "decreaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_dec}}'" } } } } },
+          "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_total}}'" } } } } }
+        } } ] }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a full multi-step bridge with a running total is not a single-cell micro-chart"
+    use: "powerbi_native (waterfallChart) or the PowerofBI.IBCS waterfall UDF (daxlib.org)"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "transform": [
+          { "window": [ { "op": "sum", "field": "{{field_val}}", "as": "cum" } ], "frame": [null, 0] },
+          { "calculate": "datum.cum - datum['{{field_val}}']", "as": "prev" }
+        ],
+        "mark": { "type": "bar" },
+        "encoding": {
+          "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null } },
+          "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
+          "y2": { "field": "cum" },
+          "color": { "condition": { "test": "datum['{{field_val}}'] < 0", "value": "{{col_dec}}" }, "value": "{{col_inc}}" }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <BarChart data={waterfallData} width={640} height={300}>
+        <XAxis dataKey="{{field}}" />
+        <YAxis />
+        <Bar dataKey="base" stackId="a" fill="transparent" />
+        <Bar dataKey="delta" stackId="a">
+          {waterfallData.map((e, i) => (
+            <Cell key={i} fill={e.delta < 0 ? "{{col_dec}}" : "{{col_inc}}"} />
+          ))}
+        </Bar>
+      </BarChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Vega uses a window running-sum (prev/cum) as the honest bridge; Recharts needs a precomputed {base, delta} per step. SVG-DAX n/a (full chart)."

@@ -37,9 +37,15 @@ def test_index_implemented_entries_exist_and_have_required_keys():
         assert entry["id"] == idiom
         for key in schema["required_keys"]:
             assert key in entry, f"{idiom} missing {key}"
-        # every governed tool track is realised
+        # every governed tool track is ADDRESSED: either a runnable template,
+        # or an explicit applicable:false with a reason + a recommended fallback.
         for tool in schema["tools"]:
-            assert tool in entry["realizations"], f"{idiom} missing tool {tool}"
+            r = entry["realizations"].get(tool)
+            assert r is not None, f"{idiom} does not address tool {tool}"
+            if r.get("applicable", True):
+                assert "template" in r and "ext" in r, f"{idiom}.{tool} applicable but no template/ext"
+            else:
+                assert r.get("reason") and r.get("use"), f"{idiom}.{tool} n/a needs reason + use"
 
 
 def test_every_realization_matches_its_golden_byte_for_byte():
