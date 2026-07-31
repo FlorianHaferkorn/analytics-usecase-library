@@ -1,0 +1,87 @@
+# Visual Library entry — matrix_evidence  (schema: _schema.yaml)
+id: matrix_evidence
+name: Evidence matrix
+purpose: [evidence_detail]
+zone: [detail]
+best_form_for: evidence_detail
+alternatives: []
+
+encoding:
+  order: worst_first                # sorted ascending on the deviation column
+  cells: data_bar_deviation         # in-cell bars encode the gap (length)
+  columns: curated_topn             # <=8 curated columns + action column
+
+anti_patterns:
+  - unsorted_rows
+  - long_bar_list_instead_of_table
+  - too_many_columns
+
+params:
+  category:    {role: row, type: category, required: true}
+  value:       {role: value, required: true}
+  deviation:   {role: value, required: true, note: "the vs-plan measure, sorted + data-barred"}
+  entity:      {role: table, default: _Measures}
+  top_n:       {role: limit, default: 20}
+
+tokens:
+  col_above: ink                     # #0F2430
+  col_below: color_semantics.negative# #A4262C
+
+canonical_params:
+  entity: "_Measures"
+  category_entity: "dim_product"
+  category_prop: "Category"
+  value_measure: "Gross Margin Amount"
+  dev_measure: "Gross Margin % vs Plan"
+  field_cat: "category"
+  field_value: "gm_amount"
+  field_dev: "gm_vs_plan"
+  col_above: "#0F2430"
+  col_below: "#A4262C"
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "tableEx",
+        "query": { "queryState": {
+          "Values": { "projections": [
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" },
+            { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{value_measure}}" } }, "queryRef": "{{entity}}.{{value_measure}}" },
+            { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "queryRef": "{{entity}}.{{dev_measure}}" }
+          ] },
+          "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true }
+        } },
+        "objects": { "columnFormatting": [ { "properties": { "dataBars": {
+          "positiveColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_above}}'" } } } } },
+          "negativeColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_below}}'" } } } } }
+        } }, "selector": { "metadata": "{{entity}}.{{dev_measure}}" } } ] }
+      }
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _v = [{{dev_measure}}]
+      VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( '{{category_entity}}'[{{category_prop}}] ), ABS ( [{{dev_measure}}] ) ), REMOVEFILTERS ( '{{category_entity}}'[{{category_prop}}] ) )
+      VAR _w = DIVIDE ( ABS ( _v ), _max ) * 100
+      VAR _col = IF ( _v < 0, "{{col_below}}", "{{col_above}}" )
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<rect x='0' y='2' width='" & _w & "' height='10' fill='" & _col & "'/>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    applicable: false
+    reason: "Vega-Lite is not a table tool"
+    use: "powerbi_native (tableEx) with an SVG-DAX data-bar column"
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts has no table primitive"
+    use: "an HTML <table> with CSS data-bar cells (div width = normalised deviation)"
+
+determinism:
+  golden_dir: golden
+  notes: "Worst-first via ascending sort on the deviation column; SVG-DAX supplies the in-cell data bar. A matrix is a table -> Vega/Recharts n/a."

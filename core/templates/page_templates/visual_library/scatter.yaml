@@ -1,0 +1,81 @@
+# Visual Library entry — scatter  (schema: _schema.yaml)
+id: scatter
+name: Scatter plot
+purpose: [correlation]
+zone: [analysis]
+best_form_for: correlation
+alternatives: []
+
+encoding:
+  x: quantitative
+  y: quantitative
+  mark: point
+  detail: category                  # one point per entity
+
+anti_patterns:
+  - line_for_correlation            # a line implies time/order
+  - overplotting_without_opacity
+  - dual_axis_no_reason
+
+params:
+  measure_x: {role: x, required: true}
+  measure_y: {role: y, required: true}
+  category:  {role: detail, type: category, required: true}
+  entity:    {role: table, default: _Measures}
+
+tokens:
+  col_point: brand.primary          # #0078D4
+
+canonical_params:
+  entity: "_Measures"
+  measure_x: "Price Realization %"
+  measure_y: "Gross Margin %"
+  category_entity: "dim_product"
+  category_prop: "ProductCode"
+  field_x: "price_real"
+  field_y: "gm"
+  col_point: "#0078D4"
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "scatterChart",
+        "query": { "queryState": {
+          "X": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure_x}}" } }, "queryRef": "{{entity}}.{{measure_x}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure_y}}" } }, "queryRef": "{{entity}}.{{measure_y}}" } ] },
+          "Details": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] }
+        } }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a two-axis scatter is a full chart, not a single-cell micro-chart"
+    use: "powerbi_native (scatterChart) or Deneb"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "point", "filled": true, "color": "{{col_point}}", "opacity": 0.7 },
+        "encoding": {
+          "x": { "field": "{{field_x}}", "type": "quantitative", "axis": { "title": null } },
+          "y": { "field": "{{field_y}}", "type": "quantitative", "axis": { "title": null } }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <ScatterChart width={480} height={360}>
+        <XAxis type="number" dataKey="{{field_x}}" />
+        <YAxis type="number" dataKey="{{field_y}}" />
+        <Scatter data={data} fill="{{col_point}}" fillOpacity={0.7} />
+      </ScatterChart>
+
+determinism:
+  golden_dir: golden
+  notes: "One point per entity; opacity guards overplotting. SVG-DAX n/a (full chart)."

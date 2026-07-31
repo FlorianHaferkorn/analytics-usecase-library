@@ -1,0 +1,83 @@
+# Visual Library entry — donut  (schema: _schema.yaml)
+id: donut
+name: Donut
+purpose: [part_to_whole]
+zone: [analysis]
+best_form_for: part_to_whole
+alternatives: [stacked_100]
+
+encoding:
+  theta: quantitative               # angle = share
+  color: category_content_reference
+  guard: max_4_segments             # <= 4 parts; else use a sorted bar
+
+anti_patterns:
+  - pie_or_donut_gt_4               # governed deny above 4 segments
+  - many_thin_slivers
+  - 3d_or_exploded
+
+params:
+  category: {role: category, type: category, required: true, max: 4}
+  value:    {role: value, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_1: brand.primary              # #0078D4
+  col_2: brand.teal                 # #008575
+  col_3: brand.coral                # #EF6950
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Net Sales Amount"
+  category_entity: "dim_product"
+  category_prop: "Category"
+  field_cat: "category"
+  field_val: "sales"
+  col_1: "#0078D4"
+  col_2: "#008575"
+  col_3: "#EF6950"
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "donutChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "arc-path geometry in DAX is impractical"
+    use: "the DaxLib.SVG donut UDF (daxlib.org), or powerbi_native (donutChart) / Deneb"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "arc", "innerRadius": 50 },
+        "encoding": {
+          "theta": { "field": "{{field_val}}", "type": "quantitative" },
+          "color": { "field": "{{field_cat}}", "type": "nominal", "scale": { "range": ["{{col_1}}", "{{col_2}}", "{{col_3}}"] }, "legend": { "title": null } }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <PieChart width={280} height={280}>
+        <Pie data={data} dataKey="{{field_val}}" nameKey="{{field_cat}}" innerRadius={60} outerRadius={100}>
+          {data.map((e, i) => (
+            <Cell key={i} fill={["{{col_1}}", "{{col_2}}", "{{col_3}}"][i % 3]} />
+          ))}
+        </Pie>
+      </PieChart>
+
+determinism:
+  golden_dir: golden
+  notes: "<= 4 segments (governed); series colours from the brand palette. SVG-DAX n/a (arc paths)."
