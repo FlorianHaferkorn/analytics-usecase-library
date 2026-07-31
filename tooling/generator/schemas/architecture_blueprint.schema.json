@@ -145,6 +145,10 @@
               "confidential",
               "restricted"
             ]
+          },
+          "access_mode_assumed": {
+            "type": "boolean",
+            "description": "True when the access mode could NOT be derived from the source type and fell back to `copy` (a pipeline can read anything, so it is never impossible — but it is not always the cheapest choice). A declaration instead of a prose marker: the conformance gate used to detect the fallback by sniffing whether the rationale began with the word 'default', which broke the moment the rationale was reworded."
           }
         }
       }
