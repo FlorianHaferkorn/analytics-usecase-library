@@ -1,0 +1,80 @@
+# Visual Library — purpose index (the machine-readable chooser)
+# Analytical question (Munzner: why before how)  ->  candidate idioms, best first.
+# An AI/generator resolves a request by purpose, takes `best` (or picks from
+# `candidates` if constraints apply), then reads <idiom>.yaml for the code per tool.
+# Governed by pbi-design/references/charts.md; unified with §A.8 layout (zone).
+
+schema_version: 1
+
+purposes:
+  time_comparison:                 # "Entwicklung / Zeitvergleich"
+    question: "How is X developing over time — and against plan?"
+    zone: analysis
+    best: line
+    candidates: [line, area_stacked, small_multiples, indexed_line, slope]
+
+  deviation_from_target:
+    question: "Are we above/below plan or target — by how much?"
+    zone: [pulse, analysis]
+    best: deviation_bar
+    candidates: [deviation_bar, bullet, ibcs_overlapped]
+
+  compare_categories:
+    question: "Which categories lead or lag — where should attention focus?"
+    zone: analysis
+    best: bar_ranking
+    candidates: [bar_ranking, lollipop, bar_absolute]
+
+  contribution_to_change:
+    question: "What moved the number from A to B — which drivers?"
+    zone: analysis
+    best: waterfall_pvm
+    candidates: [waterfall_pvm, waterfall_buildup, waterfall_variance, waterfall_ibcs]
+
+  part_to_whole:
+    question: "What is the share of the whole (<= 4 parts)?"
+    zone: analysis
+    best: donut
+    candidates: [donut, stacked_100]
+
+  correlation:
+    question: "How do two continuous variables relate?"
+    zone: analysis
+    best: scatter
+    candidates: [scatter]
+
+  flow_between_stages:
+    question: "How does quantity flow between stages — where does it leak?"
+    zone: detail
+    best: sankey                   # situational; Visual_Whitelist extension
+    candidates: [sankey]
+
+  driver_breakdown:
+    question: "Which dimension drives the number? (interactive)"
+    zone: detail
+    best: decomposition_tree       # situational; Detail only
+    candidates: [decomposition_tree]
+
+  distribution:
+    question: "What is the spread / median / outliers of a variable?"
+    zone: analysis
+    best: histogram
+    candidates: [histogram, boxplot]
+
+  evidence_detail:
+    question: "Which rows are worst — and what is the next action?"
+    zone: detail
+    best: matrix_evidence
+    candidates: [matrix_evidence]
+
+  value_verdict:
+    question: "What is the headline value and its verdict?"
+    zone: pulse
+    best: kpi_card
+    candidates: [kpi_card]
+
+# governed deny-list (never emit)
+deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative]
+
+# realised so far (rest scaffolded per increment)
+implemented: [deviation_bar]
