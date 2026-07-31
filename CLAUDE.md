@@ -107,8 +107,17 @@ Historie:
 - Erste Ausprägung: bis 1. Juli 2026 — hat sich am 1. Juli von selbst gelöst
   (verifiziert durch durchgehend grüne CI-Läufe mit echten `runner_id`s bis
   einschließlich PR #386).
-- Zweite Ausprägung (aktuell): erneut erschöpft, voraussichtlich **bis Anfang
-  August 2026**.
+- Zweite Ausprägung (aktuell): erneut erschöpft. **Der Mechanismus ist belegt, nicht
+  vermutet** (github/docs, `billing/concepts/product-billing/github-actions.md`,
+  geprüft 31.07.2026): das Repo ist **privat**, damit sind Actions-Minuten
+  kontingentiert — *„If your account does not have a valid payment method on file,
+  usage is blocked once you use up your quota."* Und: *„At the start of each month,
+  the minutes used by the account are reset to zero."*
+
+  Daraus folgt datiert statt geraten: das Kontingent setzt am **1. August 2026**
+  zurück. Wer nicht warten will, hat genau einen Hebel — eine gültige
+  Zahlungsmethode bzw. ein Spending-Limit im GitHub-Billing. Beides liegt beim
+  Kontoinhaber; im Code gibt es nichts zu beheben.
 
 **Aber: „rot" hat mehr als eine Ursache, und sie sehen von aussen gleich aus.** Am
 31.07.2026 war `.github/workflows/source-updates.yml` **kein gültiges YAML** (ein
