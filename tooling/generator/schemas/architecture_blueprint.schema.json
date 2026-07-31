@@ -541,6 +541,80 @@
           }
         }
       }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownership_model",
+        "workspace_strategy",
+        "rationale",
+        "source",
+        "derived_from_governance"
+      ],
+      "description": "The governance determination result, machine-readable — and the thing it steers: the workspace layout and the permission strategy. Until 31.07.2026 the workshop recommendation reached the build-seed concepts but never the IR, so a data-mesh customer and an enterprise-BI customer got the identical workspace cut.",
+      "properties": {
+        "profile": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Operating model from the governance workshop (dama / datamesh / dgi)."
+        },
+        "ist_state": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Maturity state from the workshop (greenfield / foundation / decision_rights / federated)."
+        },
+        "ownership_model": {
+          "enum": [
+            "enterprise_bi",
+            "managed_self_service",
+            "business_led_self_service"
+          ],
+          "description": "Microsoft's own content-ownership taxonomy (Fabric adoption roadmap)."
+        },
+        "workspace_strategy": {
+          "enum": [
+            "per_domain",
+            "central_prep_domain_consumption",
+            "single"
+          ],
+          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint."
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this cut — with its grounding."
+        },
+        "source": {
+          "type": "string",
+          "description": "Where the decision came from (workshop profile, or 'no governance result')."
+        },
+        "derived_from_governance": {
+          "type": "boolean",
+          "description": "False means the cut is the old convention, not a derivation. Stated rather than silently defaulted."
+        },
+        "ist_override": {
+          "type": "string",
+          "description": "Set when the maturity state changed the cut."
+        },
+        "grounding": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The Microsoft documentation the mapping rests on."
+        },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Build-seed concepts from governance_bridge (odcs-contract-first, …)."
+        }
+      }
     }
   }
 }
