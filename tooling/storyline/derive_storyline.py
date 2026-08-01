@@ -50,7 +50,7 @@ UC_GLOB = "core/usecases/**/UseCase_Bracket.yaml"
 
 def _kpi_domains() -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
-    for f in (REPO / "core/kpi_catalog/kpis").glob("*.yaml"):
+    for f in sorted((REPO / "core/kpi_catalog/kpis").glob("*.yaml")):
         if f.stem == "_index":
             continue
         d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
@@ -60,7 +60,7 @@ def _kpi_domains() -> dict[str, list[str]]:
 
 def _kpi_keys() -> dict[str, str]:
     out: dict[str, str] = {}
-    for f in (REPO / "core/kpi_catalog/kpis").glob("*.yaml"):
+    for f in sorted((REPO / "core/kpi_catalog/kpis").glob("*.yaml")):
         if f.stem == "_index":
             continue
         d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
@@ -69,10 +69,28 @@ def _kpi_keys() -> dict[str, str]:
 
 
 def _action_related() -> dict[str, list[str]]:
-    """action_code_id -> related use-case ids (from use_case_links)."""
+    """action_code_id -> related use-case ids (from use_case_links).
+
+    Two guards, one curative and one preventive (both from a CI failure on 01.08.2026):
+
+    The FIX is skipping ``*_business_case.yaml``. Such a file carries the SAME ``id`` as its
+    action code but has no ``use_case_links``, so reading it as an action code replaced the
+    real links with an empty list — all 22 governed action codes with a business case were
+    affected. ``tooling/superversion/bridge.py`` already applies exactly this guard.
+
+    ``sorted()`` is PREVENTIVE, not curative: once the business cases are skipped, no two files
+    share an ``id`` any more, so nothing depends on order today. It stays because the failure
+    mode was never the collision itself — it was that ``rglob`` let the checkout pick the
+    winner, which is why this was green here and ``use_case_storylines.md is stale`` on the
+    runner. A generator that reads a directory must not let the directory decide the result.
+    """
     out: dict[str, list[str]] = {}
-    for f in (REPO / "core/action_codes").rglob("*.yaml"):
+    for f in sorted((REPO / "core/action_codes").rglob("*.yaml")):
+        if f.name.endswith("_business_case.yaml"):
+            continue
         d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        if not isinstance(d, dict):
+            continue
         links = (d.get("use_case_links") or {})
         rel = list(links.get("core_use_cases", []) or []) + list(links.get("related_use_cases", []) or [])
         if d.get("id"):

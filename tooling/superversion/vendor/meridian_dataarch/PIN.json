@@ -5,15 +5,15 @@
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "447a590d1029d7627423d6a0bb1831f5c0a33f4c6c16407fca09717f05f3bc08"
+      "sha256": "a12444917529fe58e621ffb3a5529510f5fcafa0fd7ddb8d0fd810b321e9509f"
     },
     {
       "path": "capacity_recommend.py",
-      "sha256": "361dc6cb15b559e0accdb055108edc197572ab3f97a68e336407c99b6b16b422"
+      "sha256": "b9041820e42dd2c2a299a726985b695e5fecf34d1e52fa40d20834ad2f3b16b5"
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "0eb770c5f8d2eef5c71915bf2776129d523f4ecf142a40a053f12c4728809260"
+      "sha256": "9c54ac269d110cd480ee1bae7e96a312885be5f5761fd32b3e33ec03f2bde969"
     },
     {
       "path": "naming.py",
@@ -21,23 +21,23 @@
     },
     {
       "path": "provision_connectivity.py",
-      "sha256": "ac94e953359d886ac8b3cc80bed359f6ac99539cb509c430579dd81cadf153bd"
+      "sha256": "86f9164407b9d7dd433d245643d684eea14e5ffe3325ca9eacd8d0598a273eb3"
     },
     {
       "path": "provision_governance.py",
-      "sha256": "9cb63775cce8e063e58ce6473897380be3d0ceaca753a9a5c4269c7b7b98b314"
+      "sha256": "8aeaed3db15ef8f797a9b8a5dc276ae1122b902fcc9c200d0fb50344a43e2f3b"
     },
     {
       "path": "provision_lifecycle.py",
-      "sha256": "7662186a387d9cfe1b4a4d951e6733e259960fe3e8ae6f8e73484974ecc554db"
+      "sha256": "955734f2d53c6495e9d60d3da19935fa0bd6ceba8d0f08f808c1cdd18b78ecca"
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "3084c5439447c9683e388f8f8c93ad9a47e4c982dfd32d3e94415ef1fbeb8446"
+      "sha256": "a5cd87b3814dff8faf26da229b23453377d28e9af17ffca7ea0baa94e70c85cb"
     },
     {
       "path": "provision_operability.py",
-      "sha256": "a2217a5bbb765f62a46a9365acead74193ffc0e9c7fd9807e4c5ea67ff6c9690"
+      "sha256": "ab0d1a0a40ecb0c9fea1c2631453eebfe692820bef907c5ede99e85c6512fcf6"
     },
     {
       "path": "provision_source_schema.py",
@@ -46,6 +46,10 @@
     {
       "path": "source_schema.py",
       "sha256": "05b699bc150b7cbd6a608dcbc033b8f7e79525f359f61fba50a8e6b702a9c6ec"
+    },
+    {
+      "path": "stack_capabilities.py",
+      "sha256": "ee13f91549c8ef1932e0b0d4a4f4d5574eb47579dcd21f3d784fd3a2ea14a796"
     }
   ]
 }

@@ -71,11 +71,24 @@ def build():
     # --- semantic measures: only the structured measure.kpi_id_ref -> KPI edge ---
     # (registry + view drift are enforced separately by test_measure_dictionary_files;
     #  fuzzy measure->measure prose deps are deliberately NOT modelled — they'd make the gate flaky)
-    for p in (REPO / "core/semantic_models").rglob("measures/*.yaml"):
+    # Schluessel ist der Pfad, NICHT der Dateiname. `p.stem` war nicht eindeutig: 31 Dateinamen
+    # kommen in mehreren Domaenen vor, und der spaeter gelesene ueberschrieb den frueheren. Folgen,
+    # beide am 01.08.2026 gemessen:
+    #   * 28 von 251 Measures fielen still aus dem Graphen (er meldete 223 statt 251);
+    #   * WELCHE ueberlebten, entschied die rglob-Reihenfolge — also das Dateisystem. Auf dem
+    #     CI-Runner gewann `Liquidity/inventory_amount.yaml` (`kpi_id_ref` gesetzt), hier
+    #     `Finance/inventory_amount.yaml` (`kpi_id_ref: ''`). Dieselbe Datenlage, zwei Ergebnisse:
+    #     die CI meldete 110 gedeckte KPIs, lokal waren es 109 — und der Sync-Test schlug genau
+    #     deshalb nur in der CI fehl. Ein Generator, dessen Ausgabe vom Dateisystem abhaengt, ist
+    #     kein Gate, sondern ein Muenzwurf.
+    # `sorted` sichert zusaetzlich eine stabile Reihenfolge; der Schluessel selbst wird nur
+    # gezaehlt, nie ausgegeben.
+    for p in sorted((REPO / "core/semantic_models").rglob("measures/*.yaml")):
         d = _load(p)
         if not isinstance(d, dict) or "measure_name" not in d:
             continue
-        g["measures"][p.stem] = {"kpi_id_ref": (d.get("kpi_id_ref") or "").strip()}
+        schluessel = p.relative_to(REPO / "core/semantic_models").with_suffix("").as_posix()
+        g["measures"][schluessel] = {"kpi_id_ref": (d.get("kpi_id_ref") or "").strip()}
 
     # --- action codes (exclude decision_spines/ and *_business_case.yaml) ---
     for p in AC_DIR.rglob("*.yaml"):

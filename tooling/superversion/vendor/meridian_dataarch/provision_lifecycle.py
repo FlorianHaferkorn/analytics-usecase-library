@@ -22,6 +22,8 @@ from __future__ import annotations
 
 import json
 import re
+from typing import Any
+from core.dataarch_engine.blueprint.stack_capabilities import gap_doc_for
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
@@ -78,6 +80,12 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         "-- BRONZE — ingestion speed over read performance.",
         "--   V-Order: NO (15–33 % write overhead; bronze is not served to Direct Lake or SQL endpoint).",
         "--   Auto-compaction: on, to keep small files in check. Partitioning: discouraged for new builds.",
+        "--   Deletion Vectors: ON for bronze + silver — MS recommends them wherever MERGE patterns occur",
+        "--     (a delete is recorded as a vector instead of rewriting whole files).",
+        "--   PREIS, den man kennen muss: die von Fabric gepinnten `deltalake`-Versionen (delta-rs, also",
+        "--     Python-Notebooks und der Spark-freie Loader) koennen Tabellen mit Deletion Vectors NICHT",
+        "--     schreiben. Wer diesen Pfad nutzt, laesst die Eigenschaft weg oder wechselt auf PySpark.",
+        "--     Lesend ist DuckDB `delta_scan` der dokumentierte Ausweg.",
         "-- ============================================================================",
     ]
     for entry in sorted(bp.get("ingestion", []), key=lambda e: str(e.get("source", ""))):
@@ -88,7 +96,13 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         lines += [
             f"ALTER TABLE {t} SET TBLPROPERTIES ("
             "'delta.autoOptimize.autoCompact' = 'true', "
-            "'delta.autoOptimize.optimizeWrite' = 'true');",
+            "'delta.autoOptimize.optimizeWrite' = 'true', "
+            # Deletion Vectors: MS empfiehlt sie fuer Tabellen mit Merge-Mustern — statt betroffene
+            # Dateien komplett neu zu schreiben, wird die Loeschung als Vektor vermerkt. Bronze ist
+            # append-only, aber Korrekturlaeufe und Spaet-Anlieferungen erzeugen genau dieses Muster.
+            # Preis: delta-rs (Python-Notebooks) kann solche Tabellen nicht schreiben — siehe
+            # Interoperabilitaets-Matrix; wer den Spark-freien Loader nutzt, muss das wissen.
+            "'delta.enableDeletionVectors' = 'true');",
         ]
     lines += [
         "",
@@ -103,7 +117,9 @@ def _table_maintenance(bp: dict, schemas: bool) -> str:
         lines += [
             f"ALTER TABLE {t} SET TBLPROPERTIES ("
             "'delta.autoOptimize.autoCompact' = 'true', "
-            "'delta.autoOptimize.optimizeWrite' = 'true');",
+            "'delta.autoOptimize.optimizeWrite' = 'true', "
+            # Silver traegt haeufige Updates — genau der Fall, fuer den MS Deletion Vectors nennt.
+            "'delta.enableDeletionVectors' = 'true');",
             f"OPTIMIZE {t};",
             f"-- TODO(decide): CLUSTER BY (<filter columns>) on {t} — Liquid Clustering needs the columns",
             "--   your queries actually filter on. Guessing them would reorganize the table for a access",
@@ -198,7 +214,8 @@ def _bcdr_runbook(bp: dict, capacity: str) -> str:
 
 
 def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_NAME>",
-                   schemas: bool = False, retention: dict | None = None) -> dict[str, str]:
+                   schemas: bool = False, retention: dict | None = None,
+                   lakehouse: str = "analytics_gold") -> dict[str, str]:
     """Return the retention/lifecycle/BCDR artifact set (path → content). Maintenance SQL is emitted for
     Spark stacks (fabric/databricks); the plan, retention config and BCDR runbook are always emitted."""
     retention = retention or {}
@@ -210,6 +227,8 @@ def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_N
         "retention floor) | deployable |",
         "| Data retention / DSGVO | `retention_policy.json` | per-domain retention days + deletion + personal-data "
         "class | config (policy-owned) |",
+        "| Storage-Kosten (Tiering) | `onelake_lifecycle_policy.json` | OneLake-Lifecycle-Regeln "
+        "(TierToCool / TierToCold) | deployfaehig, Schwellen zu entscheiden |",
         "| Point-in-time / audit | Delta **time travel** (`delta.logRetentionDuration`) | built-in; full CTAS "
         "copy for long-term | GA |",
         "| Accidental deletion | OneLake **soft delete** (7-day recovery) | built-in | GA |",
@@ -217,12 +236,116 @@ def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_N
         "",
         "> Retention days + personal-data classification are **DSGVO policy** (from the compliance register), not",
         "> derivable from the IR — `retention_policy.json` is the bridge, filled from the data-retention record.",
+        "",
+        "**Retention und Tiering sind zwei Fragen, deshalb zwei Dateien.** Retention beantwortet, wann "
+        "Daten **weg muessen** (Loeschpflicht, DSGVO) — Tiering, wann sie **billiger liegen duerfen** "
+        "(Zugriffsmuster, Kosten). Wer beides zusammenlegt, verwechselt frueher oder spaeter eine "
+        "Aufbewahrungsfrist mit einer Kostenoptimierung, und das faellt erst auf, wenn geloescht wurde, "
+        "was aufzubewahren war.",
+        "",
+        "Die Tiering-Regeln folgen der Medaillon-Ordnung: **Bronze** wird nach Aenderungsalter kuehler "
+        "(Landezone, nach dem Laden selten angefasst), **Silver** nach Zugriffsalter — mit "
+        "`enableAutoTierToHotFromCool`, damit ein spaetes Reprocessing nicht bestraft wird. **Gold ist "
+        "bewusst nicht enthalten**: es ist die Schicht, aus der Direct Lake Spalten nachlaedt, und "
+        "kaeltere Tiers tauschen Kosten gegen Zugriffslatenz. (Architektur-Begruendung — die MS-Doku "
+        "nennt keine Direct-Lake-Unvertraeglichkeit.)",
+        "",
+        "Die Tagesschwellen sind die **dokumentierten Mindest-Haltefristen** (Cool 30, Cold 90). Sie "
+        "stehen dort nicht, weil sie fuer jeden Kunden richtig waeren, sondern weil alles darunter "
+        "Fruehbewegungs-Gebuehren ausloest — sie sind die einzige Zahl, die ohne Kundenwissen zu "
+        "verantworten ist. Grenzen: eine Policy je Workspace, bis zu **10 Regeln**, bis zu **10 "
+        "Praefixe** je Regel; neue Regeln greifen nach bis zu 24 Stunden.",
     ]
     out: dict[str, str] = {
         "lifecycle/_LIFECYCLE.md": "\n".join(doc) + "\n",
         "lifecycle/retention_policy.json": _retention_policy(bp, retention),
+        # Tiering ist eine Kostenfrage, Retention eine Rechtsfrage — zwei Dateien, damit sie nicht
+        # verwechselt werden. Nur auf Fabric: die Policy ist eine OneLake-Eigenschaft.
+        **({"lifecycle/onelake_lifecycle_policy.json":
+            _lifecycle_tiering(bp, lakehouse, schemas)} if stack == "fabric" else {}),
         "lifecycle/BCDR_RUNBOOK.md": _bcdr_runbook(bp, capacity),
     }
+    # Auf fremden Stacks ist der Fabric-Text nicht bloß unpassend, sondern falsch: Snowflake kennt
+    # Table Maintenance nicht als Kundenaufgabe, und auf Databricks erledigt Predictive Optimization
+    # sie selbst. Statt dessen der belegte Mechanismus des Zielstacks + Stufen-Bedingung + offene
+    # Entscheidung (SL-2607-3 Befund 2, Recherche 2026-07-30).
+    for _key, _cap, _title in (("lifecycle/_LIFECYCLE.md", "lifecycle_maintenance",
+                                "Aufbewahrung & Wartung"),
+                               ("lifecycle/BCDR_RUNBOOK.md", "bcdr", "BCDR")):
+        _note = gap_doc_for(bp, _cap, _title)
+        if _note:
+            out[_key] = _note
     if stack in ("fabric", "databricks"):
         out["lifecycle/table_maintenance.sql"] = _table_maintenance(bp, schemas)
     return out
+
+# --------------------------------------------------------------------------- OneLake storage tiers
+# Gegroundet 2026-07-30: fabric/onelake/onelake-lifecycle-management (+ REST
+# core/onelake-lifecycle-policy). Bewusst GETRENNT von `retention_policy.json`: Retention beantwortet
+# "wann muessen Daten WEG" (DSGVO, Loeschpflicht), Tiering beantwortet "wann duerfen Daten BILLIGER
+# liegen" (Kosten, Zugriffsmuster). Wer beides in eine Datei legt, verwechselt frueher oder spaeter
+# eine Aufbewahrungsfrist mit einer Kostenoptimierung — und das faellt erst auf, wenn geloescht wurde,
+# was noch aufbewahrt werden musste.
+TIER_MIN_DAYS = {"cool": 30, "cold": 90}   # dokumentierte Mindest-Haltefristen; darunter Fruehbewegungs-Gebuehren
+MAX_LIFECYCLE_RULES = 10                    # dokumentiert: eine Policy je Workspace, bis zu 10 Regeln
+
+
+def _lifecycle_tiering(bp: dict, lakehouse: str, schemas: bool) -> str:
+    """Die OneLake-Lifecycle-Policy als deployfaehiges JSON (Import-Policy-API oder Portal).
+
+    **Abgeleitet wird die Struktur, deklariert bleiben die Zahlen.** Der Zuschnitt folgt der
+    Medaillon-Ordnung, die die IR schon kennt: Bronze ist Landezone (nach dem Laden selten
+    angefasst), Silver die gepflegte Mitte, Gold die bediente Schicht. Die Tagesschwellen sind die
+    **dokumentierten Mindest-Haltefristen** (Cool 30, Cold 90) — nicht weil sie fuer jeden Kunden
+    richtig waeren, sondern weil alles darunter Fruehbewegungs-Gebuehren ausloest; sie sind also die
+    einzige Zahl, die man ohne Kundenwissen verantworten kann, und stehen als Entscheidung da.
+
+    **Gold wird NICHT getiert.** Das ist die eine Stelle, an der diese Datei mit dem Rest der
+    Lieferung interagiert: Gold ist die Schicht, aus der Direct Lake Spalten nachlaedt. Kaeltere
+    Tiers handeln Kosten gegen Zugriffslatenz — auf der bedienten Schicht ist das der falsche Tausch.
+    (Das ist eine Architektur-Begruendung, keine MS-Aussage: die Doku nennt keine
+    Direct-Lake-Unvertraeglichkeit.)
+    """
+    rules: list[dict[str, Any]] = []
+    bronze_prefixes = sorted({f"{lakehouse}.Lakehouse/Tables/{_bronze_tbl(i.get('source', ''), schemas)}"
+                              for i in (bp.get("ingestion") or []) if i.get("source")})
+    silver_prefixes = sorted({f"{lakehouse}.Lakehouse/Tables/{_silver_tbl(d['name'], schemas)}"
+                              for d in _domains(bp)})
+    if bronze_prefixes:
+        rules.append({
+            "name": "bronze-cool-then-cold", "enabled": True, "type": "Lifecycle",
+            "definition": {
+                "filters": {"blobTypes": ["blockblob"], "prefixMatch": bronze_prefixes[:10]},
+                "actions": {"baseBlob": {
+                    "tierToCool": {"daysAfterModificationGreaterThan": TIER_MIN_DAYS["cool"]},
+                    "tierToCold": {"daysAfterModificationGreaterThan": TIER_MIN_DAYS["cold"]},
+                }},
+            },
+        })
+    if silver_prefixes:
+        rules.append({
+            "name": "silver-cool-on-idle", "enabled": True, "type": "Lifecycle",
+            "definition": {
+                "filters": {"blobTypes": ["blockblob"], "prefixMatch": silver_prefixes[:10]},
+                "actions": {"baseBlob": {
+                    "tierToCool": {"daysAfterLastAccessTimeGreaterThan": TIER_MIN_DAYS["cool"]},
+                    # Zugriff holt die Datei zurueck — sonst bestraft man ein spaetes Reprocessing.
+                    "enableAutoTierToHotFromCool": {"daysAfterLastAccessTimeGreaterThan":
+                                                    TIER_MIN_DAYS["cool"]},
+                }},
+            },
+        })
+    payload = {
+        "_note": ("OneLake-Lifecycle-Policy (Storage-Tiers) — NICHT die DSGVO-Retention, die liegt in "
+                  "retention_policy.json. Struktur abgeleitet aus der Medaillon-Ordnung der IR, "
+                  "Tagesschwellen sind die dokumentierten MINDEST-Haltefristen (Cool 30 / Cold 90); "
+                  "darunter fallen Fruehbewegungs-Gebuehren an. Vor dem Einsatz gegen das echte "
+                  "Zugriffsmuster entscheiden."),
+        "_verify": ("Praefixe muessen auf die realen Item-Namen zeigen (`<Item>.Lakehouse/...`); "
+                    "`daysAfterLastAccessTimeGreaterThan` schaltet Access-Time-Tracking im Workspace "
+                    "automatisch ein. Gold ist bewusst NICHT enthalten."),
+        "_limits": {"rules_in_this_policy": len(rules), "max_rules_per_workspace": MAX_LIFECYCLE_RULES,
+                    "max_prefixes_per_rule": 10},
+        "rules": rules,
+    }
+    return json.dumps(payload, indent=2, ensure_ascii=False) + "\n"

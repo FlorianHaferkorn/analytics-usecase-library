@@ -3,102 +3,269 @@
   "$id": "https://fhc/meridian/architecture-blueprint.schema.json",
   "title": "ArchitectureBlueprint",
   "type": "object",
-  "required": ["schema_version", "platform", "medallion", "mesh", "ai_grounding"],
+  "required": [
+    "schema_version",
+    "platform",
+    "medallion",
+    "mesh",
+    "ai_grounding"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema_version": { "type": "string", "const": "0.1.0" },
-
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0"
+    },
     "platform": {
       "type": "object",
       "description": "P4 Platform Simplification — one platform owns each workload class.",
-      "required": ["stack", "ownership_boundaries"],
+      "required": [
+        "stack",
+        "ownership_boundaries"
+      ],
       "additionalProperties": false,
       "properties": {
-        "stack": { "enum": ["fabric", "databricks", "snowflake", "eu_sovereign", "air_gap"] },
-        "blueprint_ref": { "type": "integer", "minimum": 1, "maximum": 4,
-          "description": "Meridian reporting-platform-blueprint 1–4 (00_index.md); null for ALUCA." },
+        "stack": {
+          "enum": [
+            "fabric",
+            "databricks",
+            "snowflake",
+            "eu_sovereign",
+            "air_gap"
+          ]
+        },
+        "blueprint_ref": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4,
+          "description": "Meridian reporting-platform-blueprint 1–4 (00_index.md); null for ALUCA."
+        },
+        "capacity_sku": {
+          "type": "string",
+          "description": "Assigned Fabric capacity SKU (e.g. F64). Absent = not assigned; consumers must then state a recommended FLOOR instead of assuming one (Direct-Lake guardrails)."
+        },
+        "tier": {
+          "enum": [
+            "standard",
+            "enterprise",
+            "business_critical",
+            "vps",
+            "premium"
+          ],
+          "description": "Edition/plan tier of the target platform — the axis capacity_sku does NOT cover on non-Fabric stacks. Snowflake: standard | enterprise | business_critical | vps (docs.snowflake.com/en/user-guide/intro-editions). Databricks: standard (EOL on AWS 2025-10-01, auto-upgraded to premium) | premium | enterprise; Azure premium corresponds to AWS/GCP enterprise. Absent = unknown, and consumers must NOT assume a tier: replication/failover, PrivateLink, extended Time Travel and predictive optimization each require a specific tier, so an assumed tier produces runbooks the customer cannot execute."
+        },
         "ownership_boundaries": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["workload_class", "owner_platform"],
+            "required": [
+              "workload_class",
+              "owner_platform"
+            ],
             "additionalProperties": false,
             "properties": {
-              "workload_class": { "enum": ["ingestion", "transformation", "serving", "ml"] },
-              "owner_platform": { "type": "string" }
+              "workload_class": {
+                "enum": [
+                  "ingestion",
+                  "transformation",
+                  "serving",
+                  "ml"
+                ]
+              },
+              "owner_platform": {
+                "type": "string"
+              }
             }
           }
         }
       }
     },
-
     "ingestion": {
       "type": "array",
       "description": "P1 Data Access Unification — virtualize, don't duplicate.",
       "items": {
         "type": "object",
-        "required": ["source", "access_mode", "rationale"],
+        "required": [
+          "source",
+          "access_mode",
+          "rationale"
+        ],
         "additionalProperties": false,
         "properties": {
-          "source": { "type": "string" },
-          "source_system": { "type": "string" },
-          "domain": { "type": "string",
-            "description": "Owning domain (its name). Carried explicitly so emitters read the owner instead of re-deriving it from a '<domain-slug>_' name prefix — that heuristic silently dropped every source not following the convention (no transform, no copy activity, no warning)." },
-          "access_mode": { "enum": ["shortcut", "mirror", "copy"] },
-          "rationale": { "type": "string",
-            "description": "Why this mode. copy requires perf/isolation/compliance justification." },
-          "handover_layer": { "enum": ["raw", "conformed", "semantic", "semantic-zerocopy"],
-            "description": "SAP-to-Fabric handover layer: from which layer the source hands off (raw source tables / conformed data product / semantic model / bidirectional zero-copy)." },
-          "connector": { "enum": ["odbc-live", "odbc-copy", "hana", "odata", "premium-outbound-shortcut", "mirroring", "sap-cdc", "open-mirroring", "bdc-connect"],
-            "description": "Physical handover connector; must be compatible with handover_layer and access_mode (sap_handover_gate)." },
-          "sensitivity": { "enum": ["public", "internal", "confidential", "restricted"] }
+          "source": {
+            "type": "string"
+          },
+          "source_system": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Owning domain (its name). Carried explicitly so emitters read the owner instead of re-deriving it from a '<domain-slug>_' name prefix — that heuristic silently dropped every source not following the convention (no transform, no copy activity, no warning)."
+          },
+          "access_mode": {
+            "enum": [
+              "shortcut",
+              "shortcut_transform",
+              "mirror",
+              "copy"
+            ],
+            "description": "How the source is made available. `shortcut_transform` = a OneLake shortcut with file transformations (CSV/Parquet/JSON/Excel -> Delta, polled ~2 min): it replaces an ingestion pipeline, but its TARGET TABLE IS READ-OPTIMIZED and supports neither MERGE nor DELETE — so a layer landed this way cannot be the target of an upsert."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why this mode. copy requires perf/isolation/compliance justification."
+          },
+          "handover_layer": {
+            "enum": [
+              "raw",
+              "conformed",
+              "semantic",
+              "semantic-zerocopy"
+            ],
+            "description": "SAP-to-Fabric handover layer: from which layer the source hands off (raw source tables / conformed data product / semantic model / bidirectional zero-copy)."
+          },
+          "connector": {
+            "enum": [
+              "odbc-live",
+              "odbc-copy",
+              "hana",
+              "odata",
+              "premium-outbound-shortcut",
+              "mirroring",
+              "sap-cdc",
+              "open-mirroring",
+              "bdc-connect"
+            ],
+            "description": "Physical handover connector; must be compatible with handover_layer and access_mode (sap_handover_gate)."
+          },
+          "sensitivity": {
+            "enum": [
+              "public",
+              "internal",
+              "confidential",
+              "restricted"
+            ]
+          },
+          "access_mode_assumed": {
+            "type": "boolean",
+            "description": "True when the access mode could NOT be derived from the source type and fell back to `copy` (a pipeline can read anything, so it is never impossible — but it is not always the cheapest choice). A declaration instead of a prose marker: the conformance gate used to detect the fallback by sniffing whether the rationale began with the word 'default', which broke the moment the rationale was reworded."
+          }
         }
       }
     },
-
     "medallion": {
       "type": "object",
       "description": "P2 Medallion — bronze is an immutable system of record; no layer-skipping.",
-      "required": ["bronze", "silver", "gold", "no_layer_skip"],
+      "required": [
+        "bronze",
+        "silver",
+        "gold",
+        "no_layer_skip"
+      ],
       "additionalProperties": false,
       "properties": {
         "bronze": {
           "type": "object",
-          "required": ["enabled", "immutable", "append_only"],
+          "required": [
+            "enabled",
+            "immutable",
+            "append_only"
+          ],
           "additionalProperties": false,
           "properties": {
-            "enabled": { "type": "boolean" },
-            "outsourced": { "type": "boolean",
-              "description": "true = a project/customer owns bronze upstream; still specified, not unscoped." },
-            "immutable": { "const": true },
-            "append_only": { "const": true },
-            "format": { "enum": ["source", "parquet", "delta"], "default": "source" }
+            "enabled": {
+              "type": "boolean"
+            },
+            "outsourced": {
+              "type": "boolean",
+              "description": "true = a project/customer owns bronze upstream; still specified, not unscoped."
+            },
+            "immutable": {
+              "const": true
+            },
+            "append_only": {
+              "const": true
+            },
+            "format": {
+              "enum": [
+                "source",
+                "parquet",
+                "delta"
+              ],
+              "default": "source"
+            }
           }
         },
         "silver": {
           "type": "object",
-          "required": ["data_contract_ref"],
+          "required": [
+            "data_contract_ref"
+          ],
           "additionalProperties": false,
           "properties": {
-            "data_contract_ref": { "type": "string" },
-            "quality_threshold": { "type": "number", "minimum": 0, "maximum": 1 }
+            "data_contract_ref": {
+              "type": "string"
+            },
+            "quality_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
           }
         },
         "gold": {
           "type": "object",
-          "required": ["data_products"],
+          "required": [
+            "data_products"
+          ],
           "additionalProperties": false,
           "properties": {
             "data_products": {
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["name", "kind"],
+                "required": [
+                  "name",
+                  "kind"
+                ],
                 "additionalProperties": false,
                 "properties": {
-                  "name": { "type": "string", "pattern": "^(dim|fact|agg)_[a-z0-9_]+$" },
-                  "kind": { "enum": ["dimension", "fact", "aggregate"] },
-                  "grain": { "type": "string" }
+                  "name": {
+                    "type": "string",
+                    "pattern": "^(dim|fact|agg)_[a-z0-9_]+$"
+                  },
+                  "kind": {
+                    "enum": [
+                      "dimension",
+                      "fact",
+                      "aggregate"
+                    ]
+                  },
+                  "grain": {
+                    "type": "string"
+                  },
+                  "observation": {
+                    "type": "object",
+                    "description": "Declares that this product's grain is ONE OBSERVATION PER TIMESTAMP per entity — the shape a Fabric IQ TimeSeries binding needs. Absent = batch/transaction grain (the default): a TimeSeries binding there would mis-declare the semantics, because a transaction row is not a repeated observation of the same identity.",
+                    "required": [
+                      "timestamp_column"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "timestamp_column": {
+                        "type": "string",
+                        "description": "The time axis. Must be a column of this product."
+                      },
+                      "source": {
+                        "enum": [
+                          "lakehouse",
+                          "eventhouse"
+                        ],
+                        "default": "lakehouse",
+                        "description": "TimeSeries does NOT require an eventhouse — MS documents it with sourceType LakehouseTable. Declare eventhouse only for genuine telemetry; its clusterUri/databaseName stay tenant-specific VERIFY."
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -108,119 +275,344 @@
           "type": "object",
           "description": "Meridian-only: the semantic-model/ontology layer above gold.",
           "additionalProperties": false,
-          "properties": { "semantic_model_ref": { "type": "string" } }
+          "properties": {
+            "semantic_model_ref": {
+              "type": "string"
+            }
+          }
         },
-        "no_layer_skip": { "const": true,
-          "description": "Shortcuts must not bypass bronze→silver→gold." }
+        "no_layer_skip": {
+          "const": true,
+          "description": "Shortcuts must not bypass bronze→silver→gold."
+        }
       }
     },
-
     "mesh": {
       "type": "object",
       "description": "P3 Data Mesh + Governance — domain→workspace topology + data-product publishing.",
-      "required": ["domains"],
+      "required": [
+        "domains"
+      ],
       "additionalProperties": false,
       "properties": {
         "domains": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["name", "workspaces", "publishing"],
+            "required": [
+              "name",
+              "workspaces",
+              "publishing"
+            ],
             "additionalProperties": false,
             "properties": {
-              "name": { "type": "string" },
+              "name": {
+                "type": "string"
+              },
               "workspaces": {
                 "type": "array",
                 "items": {
                   "type": "object",
-                  "required": ["name", "role"],
+                  "required": [
+                    "name",
+                    "role"
+                  ],
                   "additionalProperties": false,
                   "properties": {
-                    "name": { "type": "string" },
-                    "role": { "enum": ["bronze", "silver", "gold", "reporting", "mixed"] }
+                    "name": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "enum": [
+                        "bronze",
+                        "silver",
+                        "gold",
+                        "reporting",
+                        "mixed"
+                      ]
+                    }
                   }
                 }
               },
-              "data_products": { "type": "array", "items": { "type": "string" } },
+              "data_products": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "publishing": {
                 "type": "object",
-                "required": ["endorsement", "intended_audience"],
+                "required": [
+                  "endorsement",
+                  "intended_audience"
+                ],
                 "additionalProperties": false,
                 "properties": {
-                  "catalog": { "type": "boolean", "description": "Registered in OneLake Catalog." },
-                  "purview_data_product": { "type": "boolean" },
-                  "endorsement": { "enum": ["none", "promoted", "certified"] },
+                  "catalog": {
+                    "type": "boolean",
+                    "description": "Registered in OneLake Catalog."
+                  },
+                  "purview_data_product": {
+                    "type": "boolean"
+                  },
+                  "endorsement": {
+                    "enum": [
+                      "none",
+                      "promoted",
+                      "certified"
+                    ]
+                  },
                   "metadata": {
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
-                      "owner": { "type": "string" },
-                      "description": { "type": "string" },
-                      "tags": { "type": "array", "items": { "type": "string" } }
+                      "owner": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
                     }
                   },
-                  "intended_audience": { "enum": ["internal", "partner", "public"] }
+                  "intended_audience": {
+                    "enum": [
+                      "internal",
+                      "partner",
+                      "public"
+                    ]
+                  }
                 }
+              },
+              "data_contract_ref": {
+                "type": "string",
+                "description": "The silver data contract of THIS domain. Without it the emitters fall back to the single global `medallion.silver.data_contract_ref` — with several source packs in one run that made every generated SQL file cite the FIRST pack's contract, so the finance tables pointed at the order-to-cash contract. A wrong reference in a delivered artifact is worse than none: it sends someone confidently to the wrong place."
               }
             }
           }
         }
       }
     },
-
     "sharing": {
       "type": "array",
       "description": "P5 External Data Sharing — sanitized, labeled, separate workspace.",
       "items": {
         "type": "object",
-        "required": ["external_product", "source_gold_ref", "label", "workspace"],
+        "required": [
+          "external_product",
+          "source_gold_ref",
+          "label",
+          "workspace"
+        ],
         "additionalProperties": false,
         "properties": {
-          "external_product": { "type": "string" },
-          "source_gold_ref": { "type": "string" },
-          "sanitization": { "type": "array", "items": { "type": "string" },
-            "description": "Masked/removed/reduced fields." },
-          "label": { "enum": ["public", "external_use"] },
-          "workspace": { "type": "string" }
+          "external_product": {
+            "type": "string"
+          },
+          "source_gold_ref": {
+            "type": "string"
+          },
+          "sanitization": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Masked/removed/reduced fields."
+          },
+          "label": {
+            "enum": [
+              "public",
+              "external_use"
+            ]
+          },
+          "workspace": {
+            "type": "string"
+          }
         }
       }
     },
-
     "ai_grounding": {
       "type": "object",
       "description": "AI-era — agents ground on gold/silver, never bronze; retrieval-first then MCP.",
-      "required": ["grounding_surface", "retrieval"],
+      "required": [
+        "grounding_surface",
+        "retrieval"
+      ],
       "additionalProperties": false,
       "properties": {
         "grounding_surface": {
           "type": "array",
-          "items": { "enum": ["gold", "silver"] },
+          "items": {
+            "enum": [
+              "gold",
+              "silver"
+            ]
+          },
           "description": "Bronze is intentionally not allowed here."
         },
         "retrieval": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["domain", "strategy"],
+            "required": [
+              "domain",
+              "strategy"
+            ],
             "additionalProperties": false,
             "properties": {
-              "domain": { "type": "string" },
-              "strategy": { "enum": ["builtin", "mcp", "both"],
-                "description": "builtin (Fabric IQ/Foundry IQ/indexer) first; mcp only for live/action." },
-              "certified_sources": { "type": "array", "items": { "type": "string" } },
-              "auth_required": { "type": "boolean" }
+              "domain": {
+                "type": "string"
+              },
+              "strategy": {
+                "enum": [
+                  "builtin",
+                  "mcp",
+                  "both"
+                ],
+                "description": "builtin (Fabric IQ/Foundry IQ/indexer) first; mcp only for live/action."
+              },
+              "certified_sources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "auth_required": {
+                "type": "boolean"
+              }
             }
           }
         },
-        "emits": { "type": "array", "items": { "type": "string" }, "default": ["mcp_grounding.json"] },
+        "emits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "mcp_grounding.json"
+          ]
+        },
         "adaptive_gold": {
           "type": "object",
           "description": "Forward-looking: AI materializes hot gold datasets from telemetry (ALUCA ADR-0009 Wirkungs-Loop seed).",
           "additionalProperties": false,
           "properties": {
-            "enabled": { "type": "boolean" },
-            "source": { "enum": ["fabric_telemetry", "powerbi_telemetry", "wirkungs_loop"] }
+            "enabled": {
+              "type": "boolean"
+            },
+            "source": {
+              "enum": [
+                "fabric_telemetry",
+                "powerbi_telemetry",
+                "wirkungs_loop"
+              ]
+            }
           }
+        },
+        "data_agent": {
+          "type": "object",
+          "description": "Fabric Data Agent as an architectural fact — it pulls tenant switches (Copilot + cross-geo), capacity and residency consequences behind it, so it belongs in the IR rather than in a render flag.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "ontology": {
+          "type": "object",
+          "description": "Fabric IQ Ontology as an architectural fact — the layer that unifies meaning across sources and grounds agents; needs its own tenant switch.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ownership_model",
+        "workspace_strategy",
+        "rationale",
+        "source",
+        "derived_from_governance"
+      ],
+      "description": "The governance determination result, machine-readable — and the thing it steers: the workspace layout and the permission strategy. Until 31.07.2026 the workshop recommendation reached the build-seed concepts but never the IR, so a data-mesh customer and an enterprise-BI customer got the identical workspace cut.",
+      "properties": {
+        "profile": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Operating model from the governance workshop (dama / datamesh / dgi)."
+        },
+        "ist_state": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Maturity state from the workshop (greenfield / foundation / decision_rights / federated)."
+        },
+        "ownership_model": {
+          "enum": [
+            "enterprise_bi",
+            "managed_self_service",
+            "business_led_self_service"
+          ],
+          "description": "Microsoft's own content-ownership taxonomy (Fabric adoption roadmap)."
+        },
+        "workspace_strategy": {
+          "enum": [
+            "per_domain",
+            "central_prep_domain_consumption",
+            "single"
+          ],
+          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint."
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this cut — with its grounding."
+        },
+        "source": {
+          "type": "string",
+          "description": "Where the decision came from (workshop profile, or 'no governance result')."
+        },
+        "derived_from_governance": {
+          "type": "boolean",
+          "description": "False means the cut is the old convention, not a derivation. Stated rather than silently defaulted."
+        },
+        "ist_override": {
+          "type": "string",
+          "description": "Set when the maturity state changed the cut."
+        },
+        "grounding": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The Microsoft documentation the mapping rests on."
+        },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Build-seed concepts from governance_bridge (odcs-contract-first, …)."
         }
       }
     }

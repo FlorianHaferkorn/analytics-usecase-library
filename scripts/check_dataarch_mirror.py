@@ -63,6 +63,11 @@ MIRRORED_FILES = (
     "provision_operability.py",
     "provision_source_schema.py",
     "source_schema.py",
+    # Fähigkeits-Wissen je Stack (SL-2607-3 Befund 2): welcher offizielle Mechanismus, welche
+    # Editions-/Plan-Stufe, welche offene Entscheidung. Klasse-A-Substanz — belegt aus der
+    # Herstellerdokumentation, also geteilt statt zweimal gepflegt. Bewusst abhängigkeitsarm
+    # gehalten (nur typing), damit das Spiegeln nichts mitschleppt.
+    "stack_capabilities.py",
 )
 
 

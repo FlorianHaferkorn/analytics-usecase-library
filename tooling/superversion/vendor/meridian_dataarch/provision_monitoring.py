@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 import re
+from core.dataarch_engine.blueprint.stack_capabilities import gap_doc_for
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
@@ -129,6 +130,9 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
     ]
     out: dict[str, str] = {"monitoring/_MONITORING.md": "\n".join(doc) + "\n",
                            "monitoring/pipeline_failure_notifications.md": _pipeline_failure_runbook(bp, alerts)}
+    _note = gap_doc_for(bp, "monitoring", "Monitoring & Alerting")
+    if _note:                       # fremder Stack: eigene Mechanismen, nicht die Fabric-Antwort
+        out["monitoring/_MONITORING.md"] = _note
     if stack == "fabric":
         out["monitoring/workspace_job_failures.kql"] = _workspace_failures_kql()
         out["monitoring/capacity_throttling_alert.json"] = _capacity_throttling_rule(capacity, alerts)

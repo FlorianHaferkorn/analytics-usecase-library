@@ -56,14 +56,50 @@ GROUNDING_DATE = "2026-07-24"
 
 _INDEX = {s["sku"]: i for i, s in enumerate(_SKUS)}
 
+# SKUs ABOVE the recommendation ladder. Two different questions were being answered by one list:
+# "which SKU do we *recommend*?" (stops at F1024 on purpose — see above) and "which SKU can we
+# *recognise* when the customer already runs one?". Those sets aren't the same, and collapsing them
+# made a real, documented SKU look unknown: an assigned F2048 yielded rank None → capacity readiness
+# UNKNOWN, and ``sku_budget`` returned {} → the Direct Lake guardrail runbook was emitted EMPTY for
+# exactly the largest customers. So: recognition continues past the ladder, recommendation does not.
+# MS publishes identical Direct Lake ceilings for F2048/F4096/F8192 as for F1024 — nothing is guessed
+# here. ``dq_conn``/``pbi_equiv`` are deliberately absent (no P-SKU exists above P5 and the DQ limit
+# isn't published for these) and no consumer of this table needs them.
+_ABOVE_LADDER: list[dict[str, Any]] = [
+    {"sku": "F2048", "cu": 2048, "dl_mem_gb": 400, "disk_gb": None, "rows_m": 24000,
+     "dl_files": 10000, "dl_row_groups": 10000},
+    {"sku": "F4096", "cu": 4096, "dl_mem_gb": 400, "disk_gb": None, "rows_m": 24000,
+     "dl_files": 10000, "dl_row_groups": 10000},
+    {"sku": "F8192", "cu": 8192, "dl_mem_gb": 400, "disk_gb": None, "rows_m": 24000,
+     "dl_files": 10000, "dl_row_groups": 10000},
+]
+
 # Case-insensitive rank lookup incl. the ladder's own P/EM/A equivalents (a real tenant may report a legacy
-# P-SKU or a lowercased F-SKU) — derived from _SKUS' pbi_equiv so it stays in sync.
+# P-SKU or a lowercased F-SKU) — derived from _SKUS' pbi_equiv so it stays in sync. The above-ladder SKUs
+# get ranks beyond the ladder; since _floor_by only ever indexes into _SKUS, a recommended floor can never
+# land there — the extra ranks widen what we can *compare against*, not what we propose.
 _RANK_ALIAS: dict[str, int] = {}
 for _i, _s in enumerate(_SKUS):
     _RANK_ALIAS[_s["sku"].upper()] = _i
     if _s["pbi_equiv"]:
         for _tok in _s["pbi_equiv"].split("/"):
             _RANK_ALIAS[_tok.strip().upper()] = _i
+for _j, _s in enumerate(_ABOVE_LADDER):
+    _RANK_ALIAS[_s["sku"].upper()] = len(_SKUS) + _j
+
+
+def sku_ceilings(sku: str) -> dict[str, Any] | None:
+    """The published per-SKU ceilings for ``sku`` — ladder **or** above it — or None if unrecognised.
+
+    The single home for "what are this SKU's hard limits", so callers (``direct_lake_guardrails``,
+    readiness) never have to know that the recommendation ladder ends earlier than the SKU list does.
+    Resolves through ``sku_rank``, so a tenant that reports a legacy ``P3`` gets F256's ceilings instead
+    of nothing — the alias table already knew the mapping; only this lookup didn't use it.
+    """
+    rank = sku_rank(sku)
+    if rank is None:
+        return None
+    return (*_SKUS, *_ABOVE_LADDER)[rank]
 
 
 def _floor_by(predicate) -> int | None:
