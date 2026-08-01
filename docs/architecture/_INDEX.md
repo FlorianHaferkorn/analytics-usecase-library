@@ -47,6 +47,7 @@ shelf-life-days: 90
 | Migration zwischen BI-Tools entwerfen | `migration-ingest-adapter.md` → `prior-art-agentic-integration-and-migration.md` | ADRs |
 | Premium-Floor-Abnahme (F0–F6) verstehen — was ist grün belegt, was offen (I-10.6) | `premium-acceptance-F0-F6.md` | ADRs |
 | Welches Tooling deckt welche Aufgabe ab | `quality-tooling-map.md` | Rest |
+| Entscheiden, ob der PBIR-CLI-Pin auf 0.1.4 steigen kann (Triage echter Defekt vs. zusätzliche Strenge) | `pbir_cli_014_triage.md` | Rest |
 | Repo-Referenzgraph / Abhängigkeiten | `reference_graph.md` | Rest |
 | Storyline je Use Case verstehen/generieren (Decision-Spine → Frage-je-Visual → Handoff → Evidence/Action) | `use_case_storylines.md` (generiert via `../../tooling/storyline/derive_storyline.py`) | Rest |
 | Skill-Docs retire-vs-keep entscheiden (ADR-0002) | `skills-retire-vs-keep.md` | Rest |
@@ -84,6 +85,7 @@ Faustregel: **ein L0 → (ein Detail)-Pfad genügt** für die meisten Aufgaben.
 | `quality-tooling-map.md` | Welches Tooling welche Qualitäts-/Validierungsaufgabe abdeckt | Tooling-Übersicht |
 | `r3-1-tooling-audit-and-theme-decision.md` | R3.1: ADR-0001-Status-Korrektur (Tier-1-Oracle real gemerged aber unverdrahtet — jetzt verdrahtet), Theme-Namens-Konflikt #7 entschieden + gefixt, Überlappungs-Audit eigen vs. offizieller Oracle, Triage neuer repo-weiter Funde (Waterfall-Rolle, Theme-Properties, calloutValue, textbox) | Tooling-Audit / Theme-Konflikt / Oracle-Funde |
 | `r3-2-fab-inspector-integration.md` | R3.2: Tool-Wahl `fab-inspector` (PBI-Inspector V2, cross-platform, MIT) statt `pbir-cli`; 3 eigene JSON-Logic-Regeln (max Visuals/Seite, kein vertikales Scrollen, Theme-Farben) als `logType:error` CI-Gate, vorab gegen echten `dist/`-Baum verifiziert; CI-Wiring (`.tools/fab-inspector.lock`, `check_fab_inspector.ps1`, Artifact-Upload); dokumentierte Grenzen (Binary in Sandbox nicht ausführbar) | Inspector V2 / BPA-in-CI |
+| `pbir_cli_014_triage.md` | D-157-Re-Validierung der PBIR-CLI 0.1.4: 694 Vorkommen = 46 verschiedene Befunde, getrennt in echte Defekte (Schreibfehler, gegen Microsofts eigenes Schema belegt), echte Defekte mit anderem Fixpfad (`.platform`, waterfallChart-Y) und zusätzliche Strenge (`visualStyles.*.*`-Auflösung). Urteil: Pin bleibt 0.1.1 | Pin-Anhebung / CLI-Drift |
 | `reference_graph.md` | Repo-Referenzgraph / Abhängigkeiten | Abhängigkeiten |
 | `use_case_storylines.md` | Generierte Storyboards je Use Case (deterministisch aus Brackets — jede Visual beantwortet eine Frage, Fragen laddern zur Page-Decision, Page-1→Page-2-Handoff, Causal-Thread + Cross-Domain-Kanten). Quelle: `../../tooling/storyline/derive_storyline.py`; Gate: `../../tooling/validation/check_storyline.py` | Storyline / Report-Generierung |
 | `skills-retire-vs-keep.md` | Skill-Docs: KEEP (Governance) vs. THIN (Mechanik → Upstream) (ADR-0002) | Skill-Scope entscheiden |
