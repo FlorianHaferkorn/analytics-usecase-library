@@ -73,6 +73,23 @@ class AllowedVisual:
     pbip_type: str
     is_default: bool = False
     condition: Optional[str] = None
+    # --- Mehrzielfaehigkeit (L3) ------------------------------------------------
+    # Bis 01.08.2026 gab es nur `pbip_type` — ein Feld, ein Tool. Damit liess sich
+    # das Zielbild "mindestens dasselbe Niveau oder besser" nicht ausdruecken: es
+    # gab keinen Ort, an dem eine zweite Darstellung fuer dasselbe Informations-
+    # blatt haette stehen koennen.
+    #
+    # `targets` bildet Konnektor -> tool-native Darstellung ab. `pbip_type` bleibt
+    # als Alias auf targets["powerbi"] erhalten, damit die drei bestehenden
+    # Konsumenten unveraendert laufen; Eintraege ohne `targets` im YAML werden beim
+    # Laden automatisch nach {"powerbi": pbip_type} uebersetzt.
+    targets: dict[str, str] = field(default_factory=dict)
+    # Eine EXTENSION ist eine Darstellung, die es nur in einem Konnektor gibt und
+    # die dort besser ist (z. B. ein Sankey fuer `structural_mix` in Vega/HTML).
+    # Sie muss nennen, welche Boden-Darstellung desselben Blocks sie ersetzt —
+    # sonst waere sie im Zweit-Tool ein stiller Qualitaetsverlust statt eines
+    # Gewinns. Das Gate (L4) macht eine Extension ohne `replaces` rot.
+    replaces: Optional[str] = None
     # `render_mode` ersetzt das frühere `custom_visual_name`. Zulaessig sind
     # "native" (Standard-Visual) und "svg_measure" (DAX-erzeugtes SVG in einer
     # Tabellen-/Matrix-Zelle, Spalte als Image URL). Ein Feld fuer den Namen eines
@@ -101,7 +118,21 @@ class InformationBlock:
     forbidden_visuals: list[ForbiddenVisual]
 
     def allowed_pbip_types(self) -> set[str]:
-        return {v.pbip_type for v in self.allowed_visuals if v.pbip_type}
+        """Rueckwaertskompatibler Alias — identisch zu `allowed_types("powerbi")`."""
+        return self.allowed_types("powerbi")
+
+    def allowed_types(self, connector: str = "powerbi") -> set[str]:
+        """Zugelassene tool-native Darstellungen dieses Blocks fuer EINEN Konnektor."""
+        return {t for v in self.allowed_visuals
+                if (t := v.targets.get(connector))}
+
+    def covers(self, connector: str) -> bool:
+        """Hat dieser Block im gegebenen Konnektor ueberhaupt eine Darstellung?
+
+        Das ist die Boden-Frage des Zielbilds: fehlt sie, kann die Storyline dort
+        nicht ohne Verlust dargestellt werden.
+        """
+        return bool(self.allowed_types(connector))
 
     def forbidden_pbip_types(self) -> set[str]:
         return {v.pbip_type for v in self.forbidden_visuals if v.pbip_type}
@@ -142,6 +173,9 @@ class VisualLibrary:
                     is_default=bool(v.get("is_default", False)),
                     condition=v.get("condition"),
                     render_mode=v.get("render_mode", "native"),
+                    targets=dict(v.get("targets") or (
+                        {"powerbi": v["pbip_type"]} if v.get("pbip_type") else {})),
+                    replaces=v.get("replaces"),
                     small_multiples=bool(v.get("small_multiples", False)),
                     source=v.get("source", ""),
                 )
@@ -161,6 +195,36 @@ class VisualLibrary:
                 forbidden_visuals=forbidden,
             )
         return cls(registry_version=raw.get("registry_version", ""), blocks=blocks)
+
+    def connectors(self) -> set[str]:
+        """Alle Konnektoren, fuer die irgendein Block eine Darstellung deklariert."""
+        return {c for b in self.blocks.values()
+                for v in b.allowed_visuals for c in v.targets}
+
+    def floor_gaps(self, connector: str) -> list[str]:
+        """Bloecke ohne Darstellung im gegebenen Konnektor — der Boden des Zielbilds.
+
+        Leere Liste = jede analytische Absicht ist in diesem Tool darstellbar. Alles
+        andere heisst: eine Storyline, die einen dieser Bloecke benutzt, verliert im
+        Zweit-Tool an Aussage — und zwar still, solange es niemand prueft.
+        """
+        return sorted(bid for bid, b in self.blocks.items() if not b.covers(connector))
+
+    def extensions_without_fallback(self) -> list[str]:
+        """Extensions, die nicht sagen, welche Boden-Darstellung sie ersetzen.
+
+        Eine Extension ist zulaessig (die Decke ist frei), aber sie muss ihren
+        Fallback nennen — sonst ist nicht entscheidbar, was ein Tool ohne sie tut.
+        """
+        out = []
+        for bid, b in self.blocks.items():
+            floor = {v.visual_id for v in b.allowed_visuals
+                     if v.targets.get("powerbi") and not v.replaces}
+            for v in b.allowed_visuals:
+                nur_extern = v.targets and "powerbi" not in v.targets
+                if nur_extern and (not v.replaces or v.replaces not in floor):
+                    out.append(f"{bid}/{v.visual_id}")
+        return sorted(out)
 
     def block(self, block_id: str) -> InformationBlock:
         if block_id not in self.blocks:

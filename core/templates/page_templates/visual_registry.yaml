@@ -53,6 +53,7 @@ information_blocks:
     allowed_visuals:
       - visual_id: kpi_card_with_delta
         pbip_type: cardVisual
+        targets: {powerbi: cardVisual, evidence: "evidence:stat"}
         is_default: true
         condition: null
         source: "S7 — Few (2004): KPI card maximizes data-ink for status display"
@@ -132,11 +133,13 @@ information_blocks:
     allowed_visuals:
       - visual_id: line_chart
         pbip_type: lineChart
+        targets: {powerbi: lineChart, evidence: "evidence:line"}
         is_default: true
         condition: null
         source: "S2 — Cleveland & McGill: position on common scale is highest accuracy encoding"
       - visual_id: column_chart
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:column"}
         is_default: false
         condition: "periodicity_emphasis = true"
         source: "S2 — length encoding; acceptable when comparing discrete periods"
@@ -222,16 +225,19 @@ information_blocks:
     allowed_visuals:
       - visual_id: waterfall_chart
         pbip_type: waterfallChart
+        targets: {powerbi: waterfallChart, evidence: "evidence:waterfall"}
         is_default: true
         condition: null
         source: "S9 — IBCS: waterfall is canonical variance bridge; S2 — length encoding"
       - visual_id: variance_bar
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         is_default: false
         condition: "waterfall_not_feasible = true"
         source: "S2 — length encoding; acceptable deviation chart with baseline"
       - visual_id: contribution_table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: false
         condition: "layer = 300s"
         source: "Detail layer only; provides driver list with absolute and relative contribution"
@@ -245,6 +251,7 @@ information_blocks:
         reason: "Cannot reconcile start/end values as categorical driver bridge"
       - visual_id: line_chart
         pbip_type: lineChart
+        targets: {powerbi: lineChart, evidence: "evidence:line"}
         reason: "Temporal encoding; does not represent categorical driver contributions"
 
     quality_rules:
@@ -306,6 +313,7 @@ information_blocks:
     allowed_visuals:
       - visual_id: horizontal_bar_chart
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         orientation: horizontal
         is_default: true
         condition: null
@@ -317,6 +325,7 @@ information_blocks:
         source: "S2 — position encoding; shows positive/negative deviation from baseline"
       - visual_id: column_chart
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:column"}
         orientation: vertical
         is_default: false
         condition: "page_type = T3 AND entity_count <= 8"
@@ -386,6 +395,7 @@ information_blocks:
     allowed_visuals:
       - visual_id: exception_table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: true
         condition: null
         source: "S1 — Shneiderman: filter tier; entity-level resolution required; S7 — Few: F-pattern anchored by entity column"
@@ -524,11 +534,13 @@ information_blocks:
     allowed_visuals:
       - visual_id: action_panel_card
         pbip_type: textbox
+        targets: {powerbi: textbox, evidence: "evidence:text"}
         is_default: true
         condition: null
         source: "S3 — Munzner: domain task is decide-and-act; text structure serves decision, not exploration"
       - visual_id: recommendation_table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: false
         condition: "variant = T4_OptionComparison"
         source: "S2 — position encoding; table allows structured comparison of multiple options"
@@ -598,11 +610,13 @@ information_blocks:
     allowed_visuals:
       - visual_id: table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: true
         condition: null
         source: "S1 — Shneiderman: details-on-demand tier; table maximizes information density per pixel"
       - visual_id: matrix
         pbip_type: pivotTable
+        targets: {powerbi: pivotTable, evidence: "evidence:table"}
         is_default: false
         condition: "cross_tab_adds_decision_value = true"
         source: "S1 — cross-tab structure serves drill-down; acceptable when dimensions require cross-reference"
@@ -658,6 +672,7 @@ information_blocks:
         source: "S1 — zoom tier; acceptable when causal hierarchy is explicit"
       - visual_id: horizontal_bar_categorical
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         orientation: horizontal
         is_default: false
         condition: "root_cause_is_categorical = true"

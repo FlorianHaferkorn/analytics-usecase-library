@@ -139,3 +139,54 @@ def test_committed_registry_declares_no_third_party_visual():
             assert v.pbip_type != "custom", f"{block.block_id}/{v.visual_id}"
             assert v.render_mode in ("native", "svg_measure"), \
                 f"{block.block_id}/{v.visual_id}: unbekannter render_mode '{v.render_mode}'"
+
+
+def test_primary_connector_floor_is_complete():
+    """Power BI ist Pflichtziel — jede analytische Absicht muss dort darstellbar sein.
+
+    Das ist der Boden des Zielbilds fuer den Konnektor, der beim Kunden laeuft. Faellt
+    hier ein Block heraus, kann eine Storyline im Hauptwerkzeug nicht ohne Verlust
+    dargestellt werden — und zwar still, solange es niemand prueft.
+    """
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    gaps = VisualLibrary.load().floor_gaps("powerbi")
+    assert gaps == [], f"Bloecke ohne Power-BI-Darstellung: {gaps}"
+
+
+def test_known_second_connector_gap_is_exactly_recorded():
+    """Der Zweit-Konnektor hat GENAU eine bekannte Luecke — sie ist benannt, nicht geraten.
+
+    `structural_mix` (100%-gestapelte Balken) hat in `translator_evidence.md` keine
+    dokumentierte Entsprechung. Sie zu erfinden waere schlimmer als sie zu zeigen:
+    eine geratene Zuordnung faellt erst beim Kunden auf.
+
+    Wird die Luecke geschlossen, wird dieser Test rot — das ist Absicht. Dann gehoert
+    die Erwartung angepasst und der Fortschritt ist sichtbar, statt in einer
+    weichen Zusicherung zu verschwinden.
+    """
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    assert VisualLibrary.load().floor_gaps("evidence") == ["structural_mix"]
+
+
+def test_extensions_declare_their_fallback():
+    """Die Decke ist frei — aber eine Extension muss ihren Boden nennen."""
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    offen = VisualLibrary.load().extensions_without_fallback()
+    assert offen == [], f"Extension ohne aufloesbares `replaces`: {offen}"
+
+
+def test_pbip_type_alias_stays_backward_compatible():
+    """`allowed_pbip_types()` muss identisch zu `allowed_types('powerbi')` bleiben.
+
+    Drei Konsumenten haengen daran (visual_library-CLI, generator_core/ir/specs.py,
+    test_template_manifest_alignment). Der Umbau auf `targets` darf sie nicht
+    beruehren.
+    """
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    for block in VisualLibrary.load().blocks.values():
+        assert block.allowed_pbip_types() == block.allowed_types("powerbi")
+        assert block.allowed_pbip_types()
