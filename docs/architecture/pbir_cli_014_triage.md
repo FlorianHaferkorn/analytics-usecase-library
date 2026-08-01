@@ -36,7 +36,26 @@ Den Prüfer zu fragen, ob er recht hat, ist zirkulär. Zwei unabhängige Referen
 Für Objekte, die unter `*` fehlen, wurde zusätzlich geprüft, ob sie auf einem
 konkreten Visualtyp existieren (`barChart`, `lineChart`, `tableEx`, `pivotTable`).
 
-## A — Echte Defekte: falsch geschriebener Name (≈15)
+## A — Echte Defekte: falsch geschriebener Name (≈15) — **ERLEDIGT**
+
+> **Umgesetzt am 01.08.2026.** 35 Theme-Dateien, 525 Einzeländerungen, ausschließlich
+> innerhalb von `visualStyles`. Gemessen: **694 → 439 Fehler**; die Diagnose
+> `PBIR_THEME_VISUAL_PROP_ENUM_INVALID` ist vollständig verschwunden. Testsuite
+> 1343 passed. Was übrig bleibt, ist Gruppe B und C — die Zahl fällt hier nicht
+> weiter, ohne dass eine Entscheidung fällt.
+>
+> Zwei Fälle waren **keine** Umbenennungen und wurden nicht dazu gebogen:
+> `backgroundShow: false` ist ein Bool ohne Gegenstück (`title.background` ist ein
+> Fill) — entfernt, `false` war ohnehin der Default. `dropShadow.Options: "Custom"`
+> ist unter keiner Schreibweise ein Property und ein Zwilling von `position` —
+> entfernt; `position` steht jetzt auf `"Outer"`, wie es das Repo in seinem eigenen
+> `shadowCustom` bereits tut.
+>
+> **Nicht angefasst:** `textClasses.*.fontFace` (4×). Das ist die Alt-Theme-Vokabel
+> und dort korrekt — Microsofts eigene Basis-Themes (`CY25SU10`,
+> `Base_Theme_Template_V1`) schreiben es genauso. Nur unter `visualStyles` ist
+> `fontFace` falsch. Ein globales Suchen-und-Ersetzen hätte diese vier mitgerissen.
+
 
 Von Microsofts Schema bzw. dem Katalog belegt. Der Fix ist eine Umbenennung.
 
