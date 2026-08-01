@@ -241,3 +241,33 @@ def emit_source_schema(bp: dict[str, Any],
 
     out["source_schema/_SOURCE_SCHEMA.md"] = _readme(bp, planned, answered)
     return out
+
+
+def tables_by_source(bp: dict[str, Any],
+                     results: dict[str, str] | None) -> dict[str, list[dict[str, Any]]]:
+    """Introspektions-Rohpayloads -> ODCS-Tabellenobjekte je Quelle.
+
+    Eine Stelle statt zwei: der Ingress-DQ-Emitter und der Copy-job-Emitter brauchen
+    dieselbe Umwandlung, und zwei Kopien haetten frueher oder later verschieden entschieden,
+    welche Quelle als REST gilt. Unlesbare Payloads werden uebersprungen — sie sind
+    bereits von ``emit_source_schema`` als solche ausgewiesen.
+    """
+    import json as _json
+
+    from core.dataarch_engine.blueprint.source_schema import (
+        from_information_schema, from_openapi, parse_rows)
+
+    out: dict[str, list[dict[str, Any]]] = {}
+    for entry in bp.get("ingestion", []) or []:
+        name = str(entry.get("source") or "")
+        payload = (results or {}).get(name)
+        if not payload:
+            continue
+        try:
+            if source_kind(entry) == "rest":
+                out[name] = from_openapi(_json.loads(payload))
+            else:
+                out[name] = from_information_schema(parse_rows(payload))
+        except (ValueError, _json.JSONDecodeError):
+            continue
+    return out
