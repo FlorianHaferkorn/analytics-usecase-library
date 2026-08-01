@@ -13,6 +13,11 @@
 > **getrennte Tools mit eigener Marke** — nie als ein Werkzeug vermarktet. Der
 > Cross-Learning-Abgleich steht in §10.
 >
+> **Schicht darunter.** [`KONZEPT_LAYOUT_SYSTEM.md`](KONZEPT_LAYOUT_SYSTEM.md) konkretisiert
+> §3 (Intent+Design-Spec, **K2**) und §7/**K5** zur baubaren Ebene: Absicht als Atom,
+> Layout-Systeme als Plugin (IBCS zuerst), DTCG-Tokens, Konnektor-Vertrag mit Boden/Decke
+> — mit Tasks L0–L11, DoDs und Modell-Zuordnung.
+>
 > **Status:** Draft · Stand 2026-07-10 · Scope dieser Session: Konzept + Fahrplan
 > (keine Generator-Änderungen — Umsetzung nach Freigabe des Konzepts).
 

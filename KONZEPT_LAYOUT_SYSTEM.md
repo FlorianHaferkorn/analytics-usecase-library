@@ -1,0 +1,335 @@
+# Konzept — Layout-System (tool-übergreifend, Layout-Systeme als Plugin)
+
+**Stand:** 2026-08-01 · **Status:** Entwurf zur Abnahme · **Verhältnis zu bestehenden Dokumenten:**
+Dieses Konzept **erweitert** [`KONZEPT_REPORT_QUALITAET.md`](KONZEPT_REPORT_QUALITAET.md) §3
+(Intent+Design-Spec-Schicht, Cut **K2**) und §7/K5 (zweiter Renderer) um die konkrete,
+baubare Schicht darunter. Es ersetzt nichts. Die Modell-Zuordnung folgt
+[`UMSETZUNGSPLAN_REPORT_EXZELLENZ.md`](UMSETZUNGSPLAN_REPORT_EXZELLENZ.md) §3.
+
+---
+
+## 1. Zielbild
+
+> Ein Use Case wird **einmal** in analytischer Absicht beschrieben und in **jedem**
+> Ziel-Werkzeug so dargestellt, wie es dort am besten geht — mindestens auf dem
+> garantierten Niveau, gern darüber.
+
+Vier Eigenschaften, an denen das Zielbild scheitern oder gelingen kann:
+
+| Eigenschaft | Prüfbare Bedeutung |
+|---|---|
+| **Tool-agnostisch** | Die Storyline nennt die *Absicht* („Fluss zwischen Stufen"), nicht das Visual („Sankey"). |
+| **Garantiert** | Jede benutzte Absicht hat in **jedem** registrierten Konnektor eine Darstellung. Kein stiller Qualitätsverlust im Zweit-Tool. |
+| **Steigerbar** | Ein Konnektor **darf** eine bessere Darstellung anbieten (Sankey in Vega/React), muss aber deklarieren, welche Boden-Darstellung sie ersetzt. |
+| **Deterministisch** | Gleiche Eingabe → gleiches Artefakt. Kein Zufall, keine Modell-Kreativität im Erzeugungspfad. |
+
+**Was ausdrücklich nicht Zielbild ist:** ein einheitliches Aussehen über alle Tools.
+Gleichmacherei würde die Decke auf das schwächste Tool senken — das Gegenteil des Ziels.
+
+---
+
+## 2. Ausgangslage — gemessen, nicht erinnert (01.08.2026)
+
+Die folgenden Befunde begründen den Zuschnitt. Alle sind in dieser Form nachgemessen.
+
+| Befund | Beleg |
+|---|---|
+| **Drei Vokabulare, zwei Autoritäten, keines erzwungen** | `visual_whitelist.md` (9 Typen) nennt sich verbindlich, wird von keinem Checker gelesen. `Abstract_Visual_Types.md` (34) ist `authority:` in `visual_slot_mapping.yaml`, erzwungen nur in `visual_validator.py` — im **deprecated** Generator, und dort nur als Verbotsliste. Dazu `_VISUAL_TYPE_MAP` (10) im IR-Compiler. |
+| **Die Brackets folgen der Whitelist, nicht der Registry** | 20 Brackets benutzen 6 Typen; `trend_line` (18×) und `bar_chart` (16×) stehen nur in der Whitelist. Gut die Hälfte aller 66 Deklarationen ist für einen registry-basierten Übersetzer nicht auflösbar. |
+| **Konnektor-Abdeckung ist asymmetrisch** | Gegen die 34-Typen-Registry: Power BI 24/34, Evidence/OSS 8/34. 16 Typen existieren nur PBI-seitig, darunter der komplette Slicer-Satz, `matrix`, `scatter_plot`. |
+| **Kein sanktionierter Report-Emitter mit vollem Layout** | `superversion.targets.pbir` erzeugt für FIN-002 4 Visuals; der Bestand hat 11. Beide Modi des `page_scaffold_generator` sind deprecated. (Offener Punkt **C4** im Meridian-Backlog.) |
+| **Das Canonical Model trägt Layout — der Quell-Adapter füllt es nicht** | `Visual` hat `x/y/width/height/slicer_field`; `from_aluca._page_from_layout()` setzt nichts davon. Die Positionstabellen existieren bereits in `generator_core/ir/compiler.py` (`_OVERVIEW_LAYOUT`, `_DETAIL_LAYOUT`). |
+
+**Schlussfolgerung:** Es fehlt kein Renderer und keine Regel-Idee. Es fehlt (a) **eine**
+Autorität für das Vokabular, (b) die **Absicht** als tool-agnostisches Atom und (c) ein
+**Gate**, das Boden und Decke prüft.
+
+---
+
+## 3. Architektur — vier Schichten, klare Zuständigkeit
+
+```
+UseCase_Bracket.yaml            ── WAS entschieden werden soll (Golden Thread)
+        │
+        ▼
+[1] INTENT-KATALOG              ── analytische Absicht als Atom
+        │                          "Abweichung gegen Plan", "Fluss zwischen Stufen"
+        ▼
+[2] LAYOUT-SYSTEM (Plugin)      ── Notation + Regelwerk: IBCS zuerst, weitere möglich
+        │                          entscheidet Encoding, Semantik, Dichte, Titel
+        ▼
+[3] DESIGN-TOKENS (DTCG)        ── Farbe, Typo, Raster, Abstände als JSON
+        │
+        ▼
+[4] KONNEKTOR je Ziel-Tool      ── Boden garantiert, Decke frei
+        ├── Power BI / PBIR
+        ├── Vega-Lite            (statisch/print, notationstreu)
+        ├── HTML/React (Evidence.dev, visx)
+        └── DOCX/PDF
+```
+
+### 3.1 Warum die Absicht das Atom ist — und nicht der Visualtyp
+
+Ein Sankey ist **kein besserer Balken**. Er beantwortet dieselbe Frage anders. Solange
+der Visualtyp deklariert wird, lässt sich „mindestens dasselbe Niveau **oder besser**"
+nicht ausdrücken: `bar_chart` in Power BI und `sankey` in Vega sind zwei Deklarationen,
+zwischen denen keine Ordnung besteht.
+
+Mit der Absicht als Atom entsteht die Ordnung: *Absicht* → {Boden-Darstellung je Tool,
+optionale bessere Darstellung}. Das ist zugleich die IBCS-Logik — **EXPRESS** („choose
+proper visualization") ist bei IBCS eine Regel *über* der Darstellung, nicht die
+Darstellung selbst.
+
+Die Registry hat dafür bereits eine Spalte: `Semantic Purpose`. Heute Prosa, morgen
+Schlüssel. **Kein neues Konzept — ein vorhandenes Feld befördern.**
+
+### 3.2 Warum Design Tokens und nicht eigene Formate
+
+Das Problem „ein visuelles Vokabular, viele Ziel-Technologien" ist außerhalb BI gelöst.
+Die **Design Tokens Community Group (W3C)** hat im Oktober 2025 ihre erste stabile
+Spezifikation veröffentlicht (`v2025.10`): JSON-Format, plattformübergreifende
+Übersetzung, First-Class-Support in Style Dictionary 4.
+
+Official-First (D-156) gilt hier genauso wie bei Microsoft-Tooling: **kein Eigenbau, wo
+ein Standard existiert.** Die vorhandenen `tokens/*.yaml` (color_semantics, typography,
+layout_grid) werden auf DTCG-Form gebracht, nicht ersetzt.
+
+### 3.3 Zuständigkeit je Tool — und die Begründung
+
+| Tool | Zuständig für | Warum genau dieses | Decke (belegt) |
+|---|---|---|---|
+| **Power BI / PBIR** | governte Enterprise-Reports, Self-Service, Row-Level-Security, Fabric-Integration | einziges Ziel mit Tenant-Governance + Direct Lake; der Kunde arbeitet darin weiter | **native Visuals**. IBCS-Konformität ist nativ *nicht* erreichbar — die einzige IBCS-zertifizierte Power-BI-Lösung ist **Zebra BI** (Custom Visual, rezertifiziert Dez. 2024). Custom Visual = Lizenz + Org-Freigabe. |
+| **Vega-Lite** | notationstreue, statische Exhibits: Angebote, Anhänge, PDF, Print | deklaratives JSON auf Basis von Wilkinsons *Grammar of Graphics* (UW IDL: Heer, Satyanarayan, Moritz, Wongsuphasawat); portabel, versionierbar, in Python via Altair ansprechbar | statisch; volle Notationskontrolle, daher **das Ziel mit der höchsten IBCS-Treue** |
+| **HTML/React** (Evidence.dev, visx) | interaktive Boutique-Politur, alles was PBI nativ nicht kann — Sankey, Small Multiples, Annotationen | keine Visual-Decke; eigener Renderer bereits als Ziel geführt (K5) | praktisch unbegrenzt; Preis = eigener Betrieb |
+| **DOCX/PDF** | Deliverables (Meridian `core/docx_branding`) | vorhanden, gepflegt, tool-frei beim Kunden | statisch |
+
+**Kernaussage für die Aufteilung:** Power BI ist nicht das beste Darstellungs-Tool — es
+ist das beste **Governance- und Betriebs-Tool**. Deshalb bleibt es Pflichtziel, und
+deshalb braucht es die anderen Ziele daneben, statt sie zu ersetzen.
+
+---
+
+## 4. Layout-Systeme als Plugin — IBCS als erstes, nicht als einziges
+
+Ein **Layout-System** ist ein benanntes, versioniertes Regelwerk, das aus einer Absicht
+eine Notation macht. IBCS ist das erste, weil es das am besten belegte ist:
+
+* **IBCS 1.2** (2022), 98 Regeln in sieben Gruppen — **SUCCESS**: *Say · Unify · Condense ·
+  Check · Express · Simplify · Structure* — über drei Säulen (konzeptionell, perzeptuell,
+  semantisch).
+* Lizenz **CC BY-SA 4.0** — auf dieser Basis darf gebaut und weitergegeben werden. Das ist
+  keine Nebensache: ein Layout-System, das nicht weitergegeben werden darf, taugt nicht als
+  Kundenprodukt.
+* Seit Juli 2024 Grundlage des ISO-Projekts **ISO/AWI 24896** „Standard notation for
+  business reports". Wer heute IBCS baut, baut auf dem Kandidaten für den ISO-Standard.
+
+**Warum trotzdem „Plugin" und nicht „IBCS fest verdrahtet":** IBCS ist eine
+Notations-*Konvention* mit klarer Herkunft (Management-Reporting, Hichert). Für Kunden mit
+eigenem Corporate-Design, für explorative Analytik oder für Storytelling-lastige
+Deliverables gelten andere Regeln. Das System muss ein zweites Layout-System aufnehmen
+können, ohne dass die Schichten 1, 3 und 4 angefasst werden. Genau das ist der Test für
+den Schnitt — s. Task **L7**.
+
+---
+
+## 5. Tasks mit DoD und Modell-Zuordnung
+
+**Modell-Zuordnung** folgt dem Komplexitäts-Prinzip aus `UMSETZUNGSPLAN_REPORT_EXZELLENZ.md` §3
+und ergänzt es um zwei Dimensionen: **Haiku** für mechanische Massenarbeit und die Spalte
+**Umgebung**, weil manche Tasks Werkzeug brauchen, das nur in VS Code verfügbar ist
+(Power-BI-/Fabric-Skills, Desktop, `fab`).
+
+| Umgebung | Bedeutung |
+|---|---|
+| **CC-Web** | headless Linux; hier verfügbar: `powerbi-report-author` 0.1.1, `pwsh`, `node`, MS-Learn-Docs-MCP |
+| **VS Code** | zusätzlich Power-BI-/Fabric-Skills, Desktop, `fab`, Tenant-Zugriff |
+
+---
+
+### L0 · Vokabular-Autorität entscheiden **(Vorbedingung für alles)**
+
+Eine der beiden Listen wird Single Source of Truth, die andere zeigt darauf.
+Empfehlung: **`Abstract_Visual_Types.md`**, weil sie echte Unterscheidungen trifft
+(`line_chart` vs. `area_chart` vs. `sparkline`; `bar_chart_horizontal` vs. `_column`),
+die `trend_line`/`bar_chart` einebnen — und weil sie bereits `Semantic Purpose` führt,
+das Schicht 1 braucht.
+
+* **DoD:** Entscheidung in `docs/architecture/` als ADR; die unterlegene Liste enthält
+  oben einen Pointer und keine eigenen Typdefinitionen mehr; `check_index.py --strict` grün.
+* **Modell:** Opus · **Umgebung:** CC-Web · **Entscheider:** Flo
+
+### L1 · Intent-Katalog aus `Semantic Purpose` ableiten
+
+`Semantic Purpose` von Prosa zu Schlüssel befördern: je Absicht eine ID, eine Definition,
+die Frage, die sie beantwortet, und die IBCS-Regelbezüge.
+
+* **DoD:** `core/templates/page_templates/intent_catalog.yaml` mit ≥ 8 Absichten, jede mit
+  `id`, `question`, `definition`, `ibcs_rules[]`; jeder der 34 Registry-Typen ist **genau
+  einer** Absicht zugeordnet; Test schlägt fehl, wenn ein Typ keine oder mehrere hat.
+* **Modell:** Opus (Kuration ist Bedeutungsarbeit) · **Umgebung:** CC-Web
+
+### L2 · Bracket-Vokabular normalisieren
+
+`trend_line` → `line_chart`, `bar_chart` → `bar_chart_horizontal`/`_column`. Der **Slot**
+entscheidet (`Main_3` = Ranking → horizontal), nicht der Name.
+
+* **DoD:** 0 Bracket-Deklarationen außerhalb der SoT-Liste; Migration in **einem** Commit
+  mit Mapping-Tabelle im Commit-Text; `tooling/tests/` + `products/` grün; Golden-Thread-Gate grün.
+* **Modell:** Sonnet (mechanisch nach L0/L1-Muster) · **Umgebung:** CC-Web
+
+### L3 · Konnektor-Vertrag: Boden und Decke deklarierbar machen
+
+Je Konnektor eine maschinenlesbare Datei: welche Absicht → welche tool-native Darstellung,
+und welche Extension ersetzt welche Boden-Darstellung.
+
+* **DoD:** `connectors/<tool>.yaml` für Power BI und Evidence; Schema erzwingt, dass jede
+  Extension ein `replaces:` auf eine Boden-Darstellung trägt; Prosa-Konnektor-Docs zeigen
+  auf die YAML statt eigene Tabellen zu führen.
+* **Modell:** Opus (Vertragsdesign) · **Umgebung:** CC-Web
+
+### L4 · Konnektor-Gate
+
+Erzwingt das Zielbild: jede in einer Storyline benutzte Absicht hat in **jedem**
+registrierten Konnektor eine Darstellung; Extensions sind erlaubt und müssen ihren
+Fallback nennen.
+
+* **DoD:** `tooling/validation/check_connector_floor.py`, in Stage 1 verdrahtet; rot bei
+  fehlender Absicht in einem Konnektor; rot bei Extension ohne `replaces`; Unit-Tests für
+  beide Rot-Fälle **und** für den Grün-Fall; Befund nennt Tool + Absicht + Use Case.
+* **Modell:** Sonnet · **Umgebung:** CC-Web
+
+### L5 · Design-Tokens auf DTCG-Form
+
+`tokens/color_semantics.yaml`, `typography.yaml`, `layout_grid.yaml` in DTCG-JSON
+(`v2025.10`) überführen; Ableitung nach Power-BI-Theme-JSON und CSS-Variablen.
+
+* **DoD:** `tokens/dtcg/*.tokens.json` valide gegen die DTCG-Spec; ein Generator erzeugt
+  daraus PBI-Theme + CSS; Round-Trip-Test (Token → Theme → Token) verlustfrei für Farbe
+  und Typo; Alt-YAMLs zeigen auf die Tokens.
+* **Modell:** Sonnet · **Umgebung:** CC-Web
+
+### L6 · Layout-System „IBCS" als Plugin implementieren
+
+Regelwerk als Daten: welche Absicht wird nach IBCS wie notiert (Szenario-Schraffuren,
+Abweichungsdarstellung, Skalenkonsistenz, Statement-Titel).
+
+* **DoD:** `layout_systems/ibcs/rules.yaml` mit Bezug auf die SUCCESS-Gruppe je Regel;
+  mindestens die im Repo bereits erzwungenen Regeln sind abgebildet (`title_policy`,
+  `check_deviation_display`, `check_forbidden_charts`) und zeigen künftig **auf** diese
+  Datei statt eigene Konstanten zu führen; COM-002 rendert unverändert (Regressionstest).
+* **Modell:** Opus · **Umgebung:** CC-Web
+
+### L7 · Zweites Layout-System als Schnitt-Test
+
+Ein minimales zweites System (z. B. „Corporate-Neutral": gleiche Absichten, andere
+Notation/Palette) — **nur** um zu beweisen, dass der Schnitt trägt.
+
+* **DoD:** Umschalten des Layout-Systems ändert Notation und Tokens, **nicht** Intent-Katalog,
+  Konnektoren oder Gate; Diff zeigt Änderungen ausschließlich unter `layout_systems/`;
+  beide Systeme rendern COM-002 fehlerfrei.
+* **Modell:** Sonnet · **Umgebung:** CC-Web
+
+### L8 · Layout in `from_aluca` binden (schließt C4)
+
+Positionstabelle und Chrome-Slots aus `generator_core/ir/compiler.py` in den Quell-Adapter
+ziehen — als **Leser** des governten Systems, nicht als kopierte Tabelle.
+
+* **DoD:** `from_aluca` erzeugt für FIN-002 den vollen Slot-Satz mit Positionen aus
+  `layout_grid`; `superversion.targets.pbir` rendert daraus einen Report, der
+  `powerbi-report-author validate` mit **0 Errors** besteht; Änderung an `layout_grid.yaml`
+  wirkt ohne Codeänderung; C4 im Meridian-Backlog abgehakt.
+* **Modell:** Opus (PBIR-Komposition) · **Umgebung:** CC-Web (Validierung offiziell möglich)
+
+### L9 · Vega-Lite-Konnektor (höchste IBCS-Treue)
+
+* **DoD:** je Absicht eine Vega-Lite-Spec; COM-002 als statisches Exhibit-Set gerendert;
+  Specs validieren gegen das Vega-Lite-Schema; visueller Abgleich gegen die IBCS-Regeln
+  aus L6 dokumentiert.
+* **Modell:** Opus (Encoding-Entscheidungen) · **Umgebung:** CC-Web
+
+### L10 · Power-BI-Decke ausreizen
+
+Was native Visuals hergeben, wird geholt; wo IBCS nativ endet, wird die Grenze **benannt**
+statt kaschiert. Zebra BI als Option bewerten (Lizenz, Org-Freigabe, Export-Verhalten).
+
+* **DoD:** Entscheidungsnotiz „native vs. Zebra BI" mit Kosten/Governance-Folgen; die
+  nativ nicht erreichbaren IBCS-Regeln sind je Regel benannt; kein Report behauptet
+  IBCS-Konformität, die er nicht hat.
+* **Modell:** Opus · **Umgebung:** **VS Code** (Desktop-Augenschein, Custom-Visual-Test)
+
+### L11 · Fidelity-Scorecard je Ziel
+
+Ergänzt die Boutique-Scorecard (K6/§9) um die Frage: *wie nah kommt dieses Ziel an die Spec?*
+
+* **DoD:** Score je (Use Case × Ziel-Tool) mit Begründung je Abzug; in `make check` als
+  advisory, im Release-Gate hart; Trend über Zeit ablesbar.
+* **Modell:** Sonnet · **Umgebung:** CC-Web
+
+---
+
+## 6. Reihenfolge und Abhängigkeiten
+
+```
+L0 ──▶ L1 ──▶ L2
+        │
+        ├──▶ L3 ──▶ L4            (Garantie: Boden/Decke)
+        ├──▶ L5 ──▶ L6 ──▶ L7     (Notation: IBCS + Plugin-Beweis)
+        └──▶ L8 ──▶ L9 / L10 ──▶ L11
+```
+
+**L0 blockiert alles.** Ohne eine Autorität für das Vokabular baut jede weitere Schicht
+auf zwei widersprüchlichen Listen auf.
+
+---
+
+## 7. Nicht-Ziele (GOI-Pflicht: was bewusst nicht gemacht wird)
+
+* **Keine Vereinheitlichung des Aussehens** über Tools — das senkt die Decke aufs
+  schwächste Tool.
+* **Kein eigenes Token-Format** — DTCG existiert und ist stabil.
+* **Keine eigene Notations-Erfindung** — IBCS ist belegt, lizenzkompatibel und
+  ISO-Kandidat.
+* **Kein LLM im Erzeugungspfad.** Modelle kuratieren und entscheiden (L0/L1/L6), sie
+  rendern nicht. Determinismus ist Zielbild-Eigenschaft, nicht Nebenbedingung.
+* **Kein Zebra-BI-Kauf vor L10** — erst die Grenze messen, dann über Lizenzen reden.
+
+---
+
+## 8. Quellen (geprüft 01.08.2026)
+
+* IBCS — Standards, SUCCESS-Formel, Version 1.2, CC BY-SA: <https://www.ibcs.com/> ·
+  <https://www.ibcs.com/resource/ibcs-standards-book/> ·
+  <https://en.wikipedia.org/wiki/International_Business_Communication_Standards>
+* Zebra BI als IBCS-zertifizierte Power-BI-Lösung (Rezertifizierung Dez. 2024):
+  <https://www.ibcs.com/software/zebra-bi-for-power-bi/> ·
+  <https://zebrabi.com/zbi_blog/zebra-bi-for-power-bi-ibcs-certified/>
+* Design Tokens Community Group (W3C), erste stabile Fassung `v2025.10`:
+  <https://www.designtokens.org/> ·
+  <https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/> ·
+  <https://styledictionary.com/info/dtcg/>
+* Vega-Lite — Grammar of Interactive Graphics (UW IDL): <https://vega.github.io/vega-lite/> ·
+  <https://dl.acm.org/doi/10.1109/TVCG.2016.2599030> ·
+  <https://en.wikipedia.org/wiki/Vega_and_Vega-Lite_visualisation_grammars>
+
+**Nicht belegt und deshalb nicht als Grundlage verwendet:** ISO/AWI 24896 ist ein
+*laufendes* Projekt (Start Juli 2024) — ein veröffentlichter ISO-Standard ist es nicht.
+Die Aussage im Konzept lautet deshalb „Kandidat", nicht „Standard".
+
+---
+
+## 9. Ledger — Status (hier abhaken)
+
+| Task | Status | Datum | Notiz |
+|---|---|---|---|
+| L0 Vokabular-Autorität | ⬜ offen | | Entscheidung Flo; Backlog **B4** |
+| L1 Intent-Katalog | ⬜ offen | | |
+| L2 Bracket-Normalisierung | ⬜ offen | | |
+| L3 Konnektor-Vertrag | ⬜ offen | | |
+| L4 Konnektor-Gate | ⬜ offen | | |
+| L5 DTCG-Tokens | ⬜ offen | | |
+| L6 Layout-System IBCS | ⬜ offen | | |
+| L7 Zweites System (Schnitt-Test) | ⬜ offen | | |
+| L8 Layout in `from_aluca` | ⬜ offen | | schließt Meridian-**C4** |
+| L9 Vega-Lite-Konnektor | ⬜ offen | | |
+| L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
+| L11 Fidelity-Scorecard | ⬜ offen | | erweitert K6 |
