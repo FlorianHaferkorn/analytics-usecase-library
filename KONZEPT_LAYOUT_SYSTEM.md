@@ -40,9 +40,28 @@ Die folgenden Befunde begründen den Zuschnitt. Alle sind in dieser Form nachgem
 | **Kein sanktionierter Report-Emitter mit vollem Layout** | `superversion.targets.pbir` erzeugt für FIN-002 4 Visuals; der Bestand hat 11. Beide Modi des `page_scaffold_generator` sind deprecated. (Offener Punkt **C4** im Meridian-Backlog.) |
 | **Das Canonical Model trägt Layout — der Quell-Adapter füllt es nicht** | `Visual` hat `x/y/width/height/slicer_field`; `from_aluca._page_from_layout()` setzt nichts davon. Die Positionstabellen existieren bereits in `generator_core/ir/compiler.py` (`_OVERVIEW_LAYOUT`, `_DETAIL_LAYOUT`). |
 
-**Schlussfolgerung:** Es fehlt kein Renderer und keine Regel-Idee. Es fehlt (a) **eine**
-Autorität für das Vokabular, (b) die **Absicht** als tool-agnostisches Atom und (c) ein
-**Gate**, das Boden und Decke prüft.
+### 2.1 Was bereits existiert — und im ersten Entwurf unterschlagen war
+
+Der erste Entwurf schlug einen neuen Intent-Katalog, neue Konnektor-Dateien und ein neues
+Gate vor. **Drei davon gibt es schon.** Nachgemessen:
+
+| Bestehend | Was es ist |
+|---|---|
+| `visual_registry.yaml` (672 Z.) — `information_blocks` | **Der Intent-Katalog.** 9 Blöcke: `status_signal`, `time_trend`, `variance_explanation`, `entity_ranking`, `exception_list`, `structural_mix`, `prescriptive_action`, `detail_matrix`, `root_cause_context` — je mit `purpose`, Slot-Kompatibilität, erlaubten **und verbotenen** Visuals samt Begründung. |
+| Regel im Registry-Kopf | *„Visual substitution is ONLY valid within the same information block."* — **das ist der Boden/Decke-Mechanismus**, bereits formuliert. |
+| `tooling/superversion/layer_tools/visual_library.py` | **Die Visual-Library.** Löst Slot → Block auf, kennt erlaubt/verboten/Default je Block mit perzeptueller Evidenz, läuft standalone. |
+| `test_visual_library.py::test_pbir_mapping_is_library_sanctioned` | **Die Bindung Emitter ↔ Library** existiert bereits — für Power BI. |
+| `design_rules.yaml`, `tokens/boutique_craft_rubric.yaml` (30 Regeln/6 Dim.), `governance/*` | Regelwerk-Substanz, teils IBCS-nah |
+
+**Die eigentliche Lücke ist damit viel kleiner und viel schärfer:** `AllowedVisual` trägt
+das Feld **`pbip_type`** — ein Feld, ein Tool. Ebenso `allowed_pbip_types()` /
+`forbidden_pbip_types()`. Die Architektur ist richtig und lebt; sie ist nur
+**einzieltauglich**.
+
+**Schlussfolgerung (korrigiert):** Es fehlt kein Intent-Katalog, keine Library und kein
+Substitutionsprinzip. Es fehlt (a) **eine** Autorität für das *Typ*-Vokabular, (b) die
+**Mehrzielfähigkeit** der vorhandenen Library (`pbip_type` → Mapping je Konnektor) und
+(c) die Ausweitung der **bereits existierenden** Emitter-Bindung auf alle Konnektoren.
 
 ---
 
@@ -127,6 +146,13 @@ Kundenprodukt-Anspruch passen (POC-vs-Endprodukt, §3.3 Charter):
   Scope-Grenze es verlangt (kein Kunde muss etwas installieren),
 * **Export/Print/Mobile** verhalten sich wie bei Standard-Visuals.
 
+**Offener Widerspruch, gefunden 01.08.2026:** `visual_registry.yaml` deklariert bereits ein
+Fremd-Visual — `custom_visual_name: "Enlighten Bullet Chart"` (Block `status_signal`). Das
+`AllowedVisual`-Dataclass führt `custom_visual_name` als reguläres Feld. Die Festlegung oben
+verlangt also eine Bereinigung: entweder der Eintrag entfällt zugunsten einer nativen
+Lösung, oder die Festlegung bekommt eine benannte Ausnahme. **Nicht still entscheiden** —
+aufgenommen als Teil von **L3**.
+
 **Zu verifizieren, nicht anzunehmen (Task L10):** Der native SVG-Weg in Power BI läuft
 über DAX-erzeugte SVG-Data-URIs in einer Tabelle/Matrix (Spalte als *Image URL*
 kategorisiert). Ich halte das für den etablierten Weg, habe es in dieser Umgebung aber
@@ -184,15 +210,17 @@ das Schicht 1 braucht.
   oben einen Pointer und keine eigenen Typdefinitionen mehr; `check_index.py --strict` grün.
 * **Modell:** Opus · **Umgebung:** CC-Web · **Entscheider:** Flo
 
-### L1 · Intent-Katalog aus `Semantic Purpose` ableiten
+### L1 · Bestehende `information_blocks` als Intent-Layer bestätigen und schließen
 
-`Semantic Purpose` von Prosa zu Schlüssel befördern: je Absicht eine ID, eine Definition,
-die Frage, die sie beantwortet, und die IBCS-Regelbezüge.
+**Kein neuer Katalog.** Die 9 Blöcke in `visual_registry.yaml` *sind* der Intent-Layer.
+Zu tun ist nur, was fehlt: jeden der 34 Registry-Typen genau einem Block zuordnen und die
+IBCS-Regelbezüge ergänzen.
 
-* **DoD:** `core/templates/page_templates/intent_catalog.yaml` mit ≥ 8 Absichten, jede mit
-  `id`, `question`, `definition`, `ibcs_rules[]`; jeder der 34 Registry-Typen ist **genau
-  einer** Absicht zugeordnet; Test schlägt fehl, wenn ein Typ keine oder mehrere hat.
-* **Modell:** Opus (Kuration ist Bedeutungsarbeit) · **Umgebung:** CC-Web
+* **DoD:** jeder Typ aus der SoT-Liste (L0) ist **genau einem** `block_id` zugeordnet;
+  Test in `test_visual_library.py` schlägt fehl bei keiner oder mehrfacher Zuordnung;
+  je Block `ibcs_rules[]` gefüllt; **kein** `intent_catalog.yaml` — die Datei wäre eine
+  Parallelwelt zur Registry.
+* **Modell:** Opus (Zuordnung ist Bedeutungsarbeit) · **Umgebung:** CC-Web
 
 ### L2 · Bracket-Vokabular normalisieren
 
@@ -203,26 +231,31 @@ entscheidet (`Main_3` = Ranking → horizontal), nicht der Name.
   mit Mapping-Tabelle im Commit-Text; `tooling/tests/` + `products/` grün; Golden-Thread-Gate grün.
 * **Modell:** Sonnet (mechanisch nach L0/L1-Muster) · **Umgebung:** CC-Web
 
-### L3 · Konnektor-Vertrag: Boden und Decke deklarierbar machen
+### L3 · `AllowedVisual` mehrzielfähig machen — der eigentliche Kern
 
-Je Konnektor eine maschinenlesbare Datei: welche Absicht → welche tool-native Darstellung,
-und welche Extension ersetzt welche Boden-Darstellung.
+**Keine neuen Konnektor-Dateien.** Die Registry trägt heute `pbip_type` (ein Feld, ein
+Tool). Sie bekommt stattdessen ein Mapping je Konnektor; `visual_library.py` folgt.
+Rückwärtskompatibel: `pbip_type` bleibt als Alias auf den Power-BI-Eintrag lesbar, bis
+alle Konsumenten umgestellt sind.
 
-* **DoD:** `connectors/<tool>.yaml` für Power BI und Evidence; Schema erzwingt, dass jede
-  Extension ein `replaces:` auf eine Boden-Darstellung trägt; Prosa-Konnektor-Docs zeigen
-  auf die YAML statt eigene Tabellen zu führen.
-* **Modell:** Opus (Vertragsdesign) · **Umgebung:** CC-Web
+* **DoD:** `allowed_visuals[].targets.{powerbi,evidence,vega}` statt `pbip_type`;
+  `allowed_pbip_types()` bleibt und delegiert; **Extensions** tragen `replaces:` auf eine
+  Boden-Darstellung desselben Blocks; die drei Konsumenten (`visual_library.py`,
+  `generator_core/ir/specs.py`, `test_template_manifest_alignment.py`) laufen unverändert
+  grün; der `Enlighten Bullet Chart`-Eintrag ist entschieden (entfernt oder als benannte
+  Ausnahme dokumentiert, §3.4).
+* **Modell:** Opus (Kontrakt-Erweiterung an lebender Schnittstelle) · **Umgebung:** CC-Web
 
-### L4 · Konnektor-Gate
+### L4 · Vorhandene Emitter-Bindung auf alle Konnektoren ausweiten
 
-Erzwingt das Zielbild: jede in einer Storyline benutzte Absicht hat in **jedem**
-registrierten Konnektor eine Darstellung; Extensions sind erlaubt und müssen ihren
-Fallback nennen.
+**Kein neuer Checker.** `test_pbir_mapping_is_library_sanctioned` prüft bereits, dass der
+emittierte Visualtyp für seinen Informationsblock zugelassen ist — für Power BI. Dasselbe
+Prinzip wird über die `targets` aus L3 parametrisiert.
 
-* **DoD:** `tooling/validation/check_connector_floor.py`, in Stage 1 verdrahtet; rot bei
-  fehlender Absicht in einem Konnektor; rot bei Extension ohne `replaces`; Unit-Tests für
-  beide Rot-Fälle **und** für den Grün-Fall; Befund nennt Tool + Absicht + Use Case.
-* **Modell:** Sonnet · **Umgebung:** CC-Web
+* **DoD:** der Test läuft parametrisiert über alle registrierten Konnektoren; rot, wenn ein
+  Block in einem Konnektor keine Darstellung hat; rot bei Extension ohne `replaces`; der
+  Befund nennt Konnektor + Block + Use Case; in Stage 1 verdrahtet.
+* **Modell:** Sonnet (Muster steht, Ausweitung ist mechanisch) · **Umgebung:** CC-Web
 
 ### L5 · Design-Tokens auf DTCG-Form
 
@@ -239,10 +272,14 @@ Fallback nennen.
 Regelwerk als Daten: welche Absicht wird nach IBCS wie notiert (Szenario-Schraffuren,
 Abweichungsdarstellung, Skalenkonsistenz, Statement-Titel).
 
-* **DoD:** `layout_systems/ibcs/rules.yaml` mit Bezug auf die SUCCESS-Gruppe je Regel;
-  mindestens die im Repo bereits erzwungenen Regeln sind abgebildet (`title_policy`,
-  `check_deviation_display`, `check_forbidden_charts`) und zeigen künftig **auf** diese
-  Datei statt eigene Konstanten zu führen; COM-002 rendert unverändert (Regressionstest).
+* **Vorher prüfen (Pflicht):** `design_rules.yaml` (108 Z.) und
+  `tokens/boutique_craft_rubric.yaml` (30 Regeln/6 Dimensionen) enthalten bereits
+  Regelsubstanz. Was dort steht, wird **erweitert/umgehängt**, nicht neu geschrieben; ein
+  neues `rules.yaml` entsteht nur für das, was in beiden fehlt.
+* **DoD:** je Regel ein Bezug auf ihre SUCCESS-Gruppe; die bereits erzwungenen Regeln
+  (`title_policy`, `check_deviation_display`, `check_forbidden_charts`) zeigen **auf** die
+  Daten statt eigene Konstanten zu führen; Abgrenzungstabelle „bestand schon / neu"
+  im Commit; COM-002 rendert unverändert (Regressionstest).
 * **Modell:** Opus · **Umgebung:** CC-Web
 
 ### L7 · Zweites Layout-System als Schnitt-Test
@@ -291,8 +328,10 @@ Performance bei vielen Zeilen. Fremd-Visuals sind kein Prüfgegenstand (§3.4).
 
 Ergänzt die Boutique-Scorecard (K6/§9) um die Frage: *wie nah kommt dieses Ziel an die Spec?*
 
-* **DoD:** Score je (Use Case × Ziel-Tool) mit Begründung je Abzug; in `make check` als
-  advisory, im Release-Gate hart; Trend über Zeit ablesbar.
+* **Vorher prüfen (Pflicht):** `tooling/report_quality/report_scorecard.py` existiert und
+  bewertet bereits. L11 **erweitert** ihn um die Dimension Ziel-Tool — kein zweiter Scorer.
+* **DoD:** Score je (Use Case × Ziel-Tool) mit Begründung je Abzug, im vorhandenen Scorer;
+  in `make check` advisory, im Release-Gate hart; Trend über Zeit ablesbar.
 * **Modell:** Sonnet · **Umgebung:** CC-Web
 
 ---
@@ -313,6 +352,12 @@ auf zwei widersprüchlichen Listen auf.
 ---
 
 ## 7. Nicht-Ziele (GOI-Pflicht: was bewusst nicht gemacht wird)
+
+* **Keine Parallelwelt.** Jeder Task nennt oben, was er *erweitert*. Wo der erste Entwurf
+  Neubau vorschlug (Intent-Katalog, Konnektor-Dateien, Gate), existierte das Bestehende
+  bereits — die Tasks L1/L3/L4/L6/L11 sind deshalb als Erweiterung formuliert und tragen
+  eine Vorher-prüfen-Pflicht. **Regel für die Umsetzung:** bevor eine neue Datei entsteht,
+  ist zu belegen, dass keine bestehende sie aufnehmen kann.
 
 * **Keine Vereinheitlichung des Aussehens** über Tools — das senkt die Decke aufs
   schwächste Tool.
