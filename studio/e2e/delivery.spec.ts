@@ -31,12 +31,14 @@ test.describe('Delivery Engine', () => {
   test('Governed Preview calls the real Python core once exactly one use case is selected', async ({ page }) => {
     await loginAndOpenDelivery(page);
 
-    // All use cases are selected by default — the governed preview (which is
-    // bracket-scoped, one bridge call per use case) asks to narrow the scope.
+    // Nothing is selected by default ("0 of 20 use cases selected for export"), so
+    // the governed preview — bracket-scoped, one bridge call per use case — asks to
+    // narrow the scope. The default used to be all-selected, which is why this test
+    // began with a 'Deselect all' click; that control no longer exists (the page now
+    // offers 'Select all'), so the click hung until the test timed out.
     await expect(page.getByText(/Select exactly one use case/)).toBeVisible();
 
     // Narrow the scope to exactly one use case.
-    await page.getByRole('button', { name: /Deselect all/ }).click();
     await page.getByRole('button', { name: /COM-001/ }).click();
 
     // The bridge-backed preview (I-10.3: /api/precore, /api/generate,

@@ -63,7 +63,10 @@ test.describe('Registry path', () => {
     await page.goto('/catalog');
     // /catalog uses the top-level "Registry" navigation; Drift/Approvals are on
     // their dedicated pages.
-    await expect(page.getByText('Catalog', { exact: true })).toBeVisible();
+    // 'Catalog' appears twice on this page — the sidebar link and the breadcrumb in
+    // the banner — so a bare getByText is a strict-mode violation, not a missing
+    // element. Assert the nav link by role, which is what this test is about.
+    await expect(page.getByRole('link', { name: 'Catalog', exact: true })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Registry', exact: true })).toBeVisible();
   });
 
