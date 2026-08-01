@@ -124,3 +124,40 @@ Der Weg zu 0.1.4 ist nicht „694 Fehler beheben", sondern:
 
 Bis dahin: Pin bleibt 0.1.1, und die Installation in `superversion.yml` ist daran
 gebunden (vorher ungepinnt — genau daraus entstand der Ausfall).
+
+## Nachtrag 01.08.2026 — Gruppe B abgearbeitet, soweit sie ableitbar war
+
+**Erledigt:**
+
+* `.platform` für alle 17 Reports ergänzt (Form aus `targets/pbir.py`, Null-`logicalId`).
+* Evidenz-Sortierung gesetzt: `knockout-unsorted-evidence` **16 → 2**. Keine
+  Design-Entscheidung nötig — alle 21 Brackets deklarieren `component_300s.sort_by`
+  bereits governt; die `dist/`-Reports waren nur nie danach neu erzeugt.
+
+**Nicht erledigt, und zwar aus einem inhaltlichen Grund — `knockout-mixed-scale` (10).**
+
+`Main_3` trägt in den betroffenen Reports die ganze KPI-Bande (4 Measures, gemischte
+Skalenfamilien) statt eines Measures. COM-002 — der migrierte Referenz-Report
+(`intent_rules_version: 2`) — trägt dort **genau eines**, passend zu seinem
+deklarierten `component_30s[2]`, und besteht den Check. Der Unterschied ist also
+nicht Zufall, sondern der Migrationsstand.
+
+Gemessen, wie weit sich das ableiten lässt:
+
+| | Anzahl | ableitbar? |
+|---|---:|---|
+| Bracket deklariert `component_30s[2]` | 2 | nur formal — das deklarierte Measure ist im Visual gar nicht vorhanden, ein Fix wäre Hinzufügen + Entfernen, kein Korrigieren |
+| Bracket deklariert nichts für `Main_3` | 12 | **nein** |
+
+Für zwölf Use Cases gibt es **keine governte Vorgabe**, welche Measures auf diese
+Achse gehören. Sie zu wählen hieße, Report-Inhalt zu erfinden — genau das, was der
+Golden Thread untersagt. Das ist die R2.4-Kuratierung je Use Case, die das Repo
+bereits als Aufgabe führt; COM-002 ist die Vorlage.
+
+**Konsequenz:** `knockout-mixed-scale` bleibt rot, bis die zwölf Brackets ihr
+`component_30s` für `Main_3` deklariert haben. Das ist Fachentscheidung pro Use Case,
+keine Generator-Arbeit.
+
+Ebenfalls offen, aus demselben Grund benannt statt geraten: `OPS-001` sortiert laut
+Bracket nach einem Measure, das seine Evidenztabelle nicht projiziert; `XD-004`
+deklariert `sort_by.measure: impact_value`, was keine KPI-ID ist.
