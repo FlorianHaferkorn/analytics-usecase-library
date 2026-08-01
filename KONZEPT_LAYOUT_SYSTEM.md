@@ -98,7 +98,7 @@ layout_grid) werden auf DTCG-Form gebracht, nicht ersetzt.
 
 | Tool | Zuständig für | Warum genau dieses | Decke (belegt) |
 |---|---|---|---|
-| **Power BI / PBIR** | governte Enterprise-Reports, Self-Service, Row-Level-Security, Fabric-Integration | einziges Ziel mit Tenant-Governance + Direct Lake; der Kunde arbeitet darin weiter | **native Visuals**. IBCS-Konformität ist nativ *nicht* erreichbar — die einzige IBCS-zertifizierte Power-BI-Lösung ist **Zebra BI** (Custom Visual, rezertifiziert Dez. 2024). Custom Visual = Lizenz + Org-Freigabe. |
+| **Power BI / PBIR** | governte Enterprise-Reports, Self-Service, Row-Level-Security, Fabric-Integration | einziges Ziel mit Tenant-Governance + Direct Lake; der Kunde arbeitet darin weiter | **native Visuals** — IBCS wird damit *nachgebaut*, nicht zugekauft (s. §3.4). Wo native Visuals an eine Notationsgrenze stoßen, ist **SVG** der Ausweg, nicht ein Fremd-Visual. |
 | **Vega-Lite** | notationstreue, statische Exhibits: Angebote, Anhänge, PDF, Print | deklaratives JSON auf Basis von Wilkinsons *Grammar of Graphics* (UW IDL: Heer, Satyanarayan, Moritz, Wongsuphasawat); portabel, versionierbar, in Python via Altair ansprechbar | statisch; volle Notationskontrolle, daher **das Ziel mit der höchsten IBCS-Treue** |
 | **HTML/React** (Evidence.dev, visx) | interaktive Boutique-Politur, alles was PBI nativ nicht kann — Sankey, Small Multiples, Annotationen | keine Visual-Decke; eigener Renderer bereits als Ziel geführt (K5) | praktisch unbegrenzt; Preis = eigener Betrieb |
 | **DOCX/PDF** | Deliverables (Meridian `core/docx_branding`) | vorhanden, gepflegt, tool-frei beim Kunden | statisch |
@@ -106,6 +106,32 @@ layout_grid) werden auf DTCG-Form gebracht, nicht ersetzt.
 **Kernaussage für die Aufteilung:** Power BI ist nicht das beste Darstellungs-Tool — es
 ist das beste **Governance- und Betriebs-Tool**. Deshalb bleibt es Pflichtziel, und
 deshalb braucht es die anderen Ziele daneben, statt sie zu ersetzen.
+
+### 3.4 Keine Fremd-Visuals — Festlegung und was daraus folgt
+
+**IBCS wird in Power BI mit nativen Visuals nachgebaut.** Fremd-Visuals (Zebra BI und
+andere) sind ausgeschlossen. Stößt eine Notation an die native Grenze, ist die
+Eskalation **SVG**, und erst danach ein anderes Ziel-Tool.
+
+*Korrektur der ersten Entwurfsfassung:* Dort stand, IBCS sei nativ „nicht erreichbar",
+abgeleitet daraus, dass Zebra BI IBCS-zertifiziert ist. Der Schluss war unzulässig — eine
+Zertifizierung belegt, dass *dieses* Produkt geprüft wurde, nicht dass andere Wege
+ausscheiden. Der Beleg bleibt im Quellenverzeichnis, seine Aussage ist enger gefasst.
+
+Die Festlegung ist nicht nur Geschmack, sie hat harte Vorteile, die zum
+Kundenprodukt-Anspruch passen (POC-vs-Endprodukt, §3.3 Charter):
+
+* **keine Lizenzkosten** und keine Lizenzprüfung beim Kunden,
+* **keine Org-Freigabe** für Custom Visuals im Tenant — häufig ein Blocker in regulierten Umgebungen,
+* **keine Fremdabhängigkeit** im Deliverable: das PBIP bleibt tool-frei, exakt wie die
+  Scope-Grenze es verlangt (kein Kunde muss etwas installieren),
+* **Export/Print/Mobile** verhalten sich wie bei Standard-Visuals.
+
+**Zu verifizieren, nicht anzunehmen (Task L10):** Der native SVG-Weg in Power BI läuft
+über DAX-erzeugte SVG-Data-URIs in einer Tabelle/Matrix (Spalte als *Image URL*
+kategorisiert). Ich halte das für den etablierten Weg, habe es in dieser Umgebung aber
+**nicht gemessen** — Desktop fehlt hier. L10 prüft es und hält Grenzen fest, statt sie
+zu behaupten.
 
 ---
 
@@ -247,15 +273,19 @@ ziehen — als **Leser** des governten Systems, nicht als kopierte Tabelle.
   aus L6 dokumentiert.
 * **Modell:** Opus (Encoding-Entscheidungen) · **Umgebung:** CC-Web
 
-### L10 · Power-BI-Decke ausreizen
+### L10 · Power-BI-Decke ausreizen — nativ, mit SVG als Eskalation
 
-Was native Visuals hergeben, wird geholt; wo IBCS nativ endet, wird die Grenze **benannt**
-statt kaschiert. Zebra BI als Option bewerten (Lizenz, Org-Freigabe, Export-Verhalten).
+Je IBCS-Regel aus L6 messen, wie weit **native** Visuals tragen. Wo sie enden, den
+SVG-Weg prüfen (DAX-erzeugte SVG-Data-URI, Spalte als *Image URL*) und dessen Grenzen
+festhalten: Interaktivität, Tooltips, Barrierefreiheit, Export/Print/Mobile,
+Performance bei vielen Zeilen. Fremd-Visuals sind kein Prüfgegenstand (§3.4).
 
-* **DoD:** Entscheidungsnotiz „native vs. Zebra BI" mit Kosten/Governance-Folgen; die
-  nativ nicht erreichbaren IBCS-Regeln sind je Regel benannt; kein Report behauptet
-  IBCS-Konformität, die er nicht hat.
-* **Modell:** Opus · **Umgebung:** **VS Code** (Desktop-Augenschein, Custom-Visual-Test)
+* **DoD:** Tabelle *IBCS-Regel × {nativ · SVG · gar nicht}* mit Beleg je Zeile; für jede
+  SVG-Lösung eine notierte Nebenwirkung (mindestens Interaktivität und Export geprüft);
+  kein Report behauptet IBCS-Konformität, die er nicht hat; Befunde fließen als Decke
+  in L11.
+* **Modell:** Opus · **Umgebung:** **VS Code** (Desktop-Augenschein; SVG-Verhalten im
+  Service und beim Export ist headless nicht prüfbar)
 
 ### L11 · Fidelity-Scorecard je Ziel
 
@@ -291,7 +321,9 @@ auf zwei widersprüchlichen Listen auf.
   ISO-Kandidat.
 * **Kein LLM im Erzeugungspfad.** Modelle kuratieren und entscheiden (L0/L1/L6), sie
   rendern nicht. Determinismus ist Zielbild-Eigenschaft, nicht Nebenbedingung.
-* **Kein Zebra-BI-Kauf vor L10** — erst die Grenze messen, dann über Lizenzen reden.
+* **Keine Fremd-Visuals**, in keinem Ziel (§3.4). Eskalation bei Notationsgrenzen:
+  nativ → SVG → anderes Ziel-Tool. Das hält das Deliverable tool-frei und den Tenant
+  freigabefrei.
 
 ---
 
@@ -303,6 +335,9 @@ auf zwei widersprüchlichen Listen auf.
 * Zebra BI als IBCS-zertifizierte Power-BI-Lösung (Rezertifizierung Dez. 2024):
   <https://www.ibcs.com/software/zebra-bi-for-power-bi/> ·
   <https://zebrabi.com/zbi_blog/zebra-bi-for-power-bi-ibcs-certified/>
+  — **belegt ausschließlich**, dass dieses Produkt geprüft wurde. **Kein** Beleg dafür,
+  dass native Visuals IBCS nicht erfüllen können; der erste Entwurf hatte genau diesen
+  Fehlschluss gezogen (s. §3.4).
 * Design Tokens Community Group (W3C), erste stabile Fassung `v2025.10`:
   <https://www.designtokens.org/> ·
   <https://www.w3.org/community/design-tokens/2025/10/28/design-tokens-specification-reaches-first-stable-version/> ·
