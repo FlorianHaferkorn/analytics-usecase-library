@@ -1,6 +1,6 @@
 {
   "default": false,
-  "MD010": true,
+  "MD010": { "ignore_code_languages": ["tmdl"] },
   "MD041": { "front_matter_title": "" },
   "MD047": true
 }

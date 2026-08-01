@@ -109,8 +109,8 @@ data_protection:
 
     '
 readiness:
-  data_availability: not_available
-  org_capability: partial
+  data_availability: missing
+  org_capability: developing
   stakeholder_alignment: aligned
   overall_readiness: amber
 overrides:

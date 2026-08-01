@@ -213,6 +213,37 @@ else
   echo "    (der CI-Job laeuft auf ubuntu-latest mit vorinstalliertem pwsh)"
 fi
 
+# --- Stage 1 (pwsh) — bisher als „Windows-only" gefuehrt ----------------------
+# Das war eine Annahme, kein Befund. Am 01.08.2026 gemessen: `pwsh` 7.4.6 faehrt
+# `tooling/run_stage1_checks.ps1` unter Linux komplett durch (20 Checks, rc=0), Pfade
+# inklusive. Damit ist der einzige CI-Job geschlossen, der hier nie lief — und genau in ihm
+# steckten die fuenf Schema-Verstoesse, die im PR-Lauf rot wurden.
+#
+# Zwei Vorbedingungen, beide gemessen und beide still, wenn man sie uebersieht:
+#   * `check_schema_validation.ps1` ist ein NODE-Validator. Ohne `npm ci` in
+#     tooling/validation macht er einen Soft-Skip mit rc=0 — er meldet Erfolg, ohne geprueft
+#     zu haben. Deshalb wird hier vorher geprueft, ob er ueberhaupt pruefen KANN.
+#   * `check_validate_data_contracts.ps1` braucht das Modul `powershell-yaml`; fehlt es, sagt
+#     das Skript selbst „SKIPPED, not passed". Sein Python-Delegat deckt dieselbe Logik ab und
+#     laeuft deshalb unten separat.
+if command -v pwsh >/dev/null 2>&1; then
+  if [ ! -x tooling/validation/node_modules/.bin/markdownlint-cli2 ]; then
+    echo ""
+    echo "==> HINWEIS: tooling/validation/node_modules fehlt — der Schema- und der"
+    echo "    Markdownlint-Check machen dann einen Soft-Skip MIT rc=0 (melden also Erfolg,"
+    echo "    ohne zu pruefen). Einmalig schliessen mit: npm ci --prefix tooling/validation"
+  fi
+  run_check "Stage 1 komplett (run_stage1_checks.ps1 unter pwsh)" \
+    pwsh -NoProfile -File tooling/run_stage1_checks.ps1
+
+  run_check "Data contracts (Python-Delegat von check_validate_data_contracts.ps1)" \
+    python3 tooling/validation/check_validate_data_contracts.py --root .
+else
+  echo ""
+  echo "==> Stage 1 uebersprungen — pwsh nicht im PATH (NICHT geprueft, nicht bestanden)."
+  echo "    Installation: https://learn.microsoft.com/powershell/scripting/install/install-ubuntu"
+fi
+
 # --- Health scorecard -----------------------------------------------------
 run_check "Health scorecard (H1-H9)" \
   python3 tooling/health_scorecard.py
@@ -243,9 +274,13 @@ if [ "${FAIL}" -gt 0 ]; then
   done
 fi
 echo ""
-echo "NOT covered by this script (Windows-only, verify manually or on Windows):"
-echo "  - tooling/run_stage1_checks.ps1"
-echo "  - tooling/quality/run_quality_gate.ps1"
+echo "NOT covered by this script — pruefen, nicht annehmen:"
+echo "  - tooling/quality/run_quality_gate.ps1 (Fabric-Validierung; braucht Fabric-Zugang)"
+echo "  - Studio-Visual-Regression (Baselines auf Windows aufgenommen, -win32-Dateinamen)"
+echo "  - Playwright e2e schlaegt fehl, wenn der Chromium-Build des Containers vom Pin des"
+echo "    Projekts abweicht ('Executable doesn't exist at .../chromium_headless_shell-<n>')."
+echo "    Das ist eine Umgebungs-, keine Code-Aussage — nicht als roten Test verbuchen."
+echo "  - tooling/run_stage1_checks.ps1 laeuft oben MIT, sofern pwsh im PATH ist."
 echo "========================================"
 
 if [ "${FAIL}" -gt 0 ]; then

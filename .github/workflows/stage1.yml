@@ -37,11 +37,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # pyarrow: `tooling/validation/check_data_model.py` importiert es ungeschuetzt.
-          # Fehlte es hier, scheiterte `test_shipped_model_has_no_hard_findings` mit
-          # ModuleNotFoundError — ein Gate, das in der CI nie gruen werden KONNTE
-          # (gemessen 01.08.2026, Lauf 30683999827).
-          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow
+          # pyarrow UND pandas: `tooling/validation/check_data_model.py` importiert beide
+          # ungeschuetzt (pyarrow beim Parquet-Scan, pandas in `_read_small`). Fehlt eines,
+          # scheitert `test_shipped_model_has_no_hard_findings` mit ModuleNotFoundError — ein
+          # Gate, das in der CI nie gruen werden KONNTE. Beide Male gemessen statt vermutet:
+          # pyarrow in Lauf 30683999827, pandas im Folgelauf 30684535523 (01.08.2026). Die
+          # zweite Luecke lag hinter der ersten: erst nachdem pyarrow da war, kam der Import
+          # ueberhaupt bis zur naechsten Zeile.
+          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas
 
       - name: Run tests
         run: python -m pytest --tb=short -q

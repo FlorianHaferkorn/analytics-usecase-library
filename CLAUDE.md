@@ -144,10 +144,29 @@ verschiedene Gründe, jeder eine eigene Fehlerklasse:
 | `reference_graph.md is stale` (110 vs 109) | der Generator schlüsselte Measures nach **Dateinamen**; 31 Namen kollidieren über Domänen, wer gewinnt entschied die Dateisystem-Reihenfolge. 28 Measures fielen still heraus |
 | `PBIR_PLATFORM_MISSING` | die CI installiert die PBIR-CLI **ungepinnt** und bekam 0.1.4 statt des Repo-Pins 0.1.1 — die neuere Fassung prüft `.platform`, unser Emitter schrieb keine |
 
+Der Folgelauf zeigte zwei weitere — und beide waren **Wiederholungen derselben zwei Klassen**,
+nur eine Schicht tiefer:
+
+| Symptom | Ursache |
+|---|---|
+| `ModuleNotFoundError: pandas` | dieselbe Lücke wie bei `pyarrow`, dahinter versteckt: erst als pyarrow da war, kam der Import überhaupt bis zur nächsten Zeile |
+| `use_case_storylines.md is stale` | dieselbe Klasse wie `reference_graph`: `_action_related()` las `*_business_case.yaml` als Action-Code. Beide tragen dieselbe `id`, nur einer hat `use_case_links` — wer gewinnt, entschied `rglob`. 22 Action-Codes betroffen, ihre `Connects to`-Kanten wurden still gelöscht |
+
 Die gemeinsame Lehre: ein Test ist nur so aussagekräftig wie die Gleichheit der beiden
 Umgebungen. Wo die CI weniger installiert, prüft sie etwas anderes; wo sie ungepinnt
 installiert, prüft sie etwas Unvorhersehbares; und wo ein Generator vom Dateisystem abhängt,
-prüft er ein Münzwurfergebnis. Alle drei sind behoben — die Klasse bleibt.
+prüft er ein Münzwurfergebnis. Alle fünf sind behoben — die Klasse bleibt. Und: eine gefundene
+Ausprägung ist kein Beweis, dass die Klasse erledigt ist — beide kamen im nächsten Lauf wieder.
+
+Gegen die Umgebungs-Ungleichheit hilft nur Gleichheit, nicht Sorgfalt. Deshalb wird die
+CI-`pip`-Liste **in einem frischen venv** nachgestellt und die CI-Kommandozeile darin gefahren,
+statt sich auf die lokal ohnehin installierten Pakete zu verlassen:
+
+```bash
+python3 -m venv /tmp/civenv
+/tmp/civenv/bin/pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas
+/tmp/civenv/bin/python -m pytest --tb=short -q      # exakt der CI-Aufruf
+```
 
 Daher — für die Dauer jedes solchen Fensters: diese roten CI-Läufe **nicht
 untersuchen und nicht re-triggern**; stattdessen **lokal** validieren. Für die
@@ -155,9 +174,33 @@ konsolidierte lokale Prüfung: `bash tooling/run_local_ci_check.sh` (führt
 Drift-Gate, Python-Testsuite, Fabric-Bindings-Validator, PBI-Quality-Tools,
 Health-Scorecard sowie die Studio-Checks — tsc/vitest/Playwright — in einem
 Durchlauf aus und meldet alle Ergebnisse statt beim ersten Fehler
-abzubrechen). Bekannte Lücke: die Windows-only Stage-1-/Fabric-Quality-Gate-
-PowerShell-Skripte (`run_stage1_checks.ps1`, `run_quality_gate.ps1`) laufen
-darin **nicht** — dafür ist während des Fensters entweder eine
-Windows-Umgebung nötig oder manuelle Prüfung durch den/die Maintainer:in vor
-dem Merge. Über das weitere Vorgehen (z. B. Merge) entscheidet der/die
-Maintainer:in.
+abzubrechen). Über das weitere Vorgehen (z. B. Merge) entscheidet der/die Maintainer:in.
+
+**Die Stage-1-PowerShell-Suite ist nicht Windows-gebunden — das war eine Annahme, kein Befund.**
+Am 01.08.2026 gemessen: `pwsh` 7.4.6 unter Linux fährt `tooling/run_stage1_checks.ps1` komplett
+durch (20 Checks, rc=0), Pfade inklusive. Damit ist der zuvor hier dokumentierte „Windows-only"-
+Blindfleck geschlossen:
+
+```bash
+pwsh -NoProfile -File tooling/run_stage1_checks.ps1     # setzt pwsh im PATH voraus
+```
+
+Zwei Randbedingungen, gemessen statt vermutet:
+- `check_schema_validation.ps1` ist ein **Node**-Validator und macht ohne Deps einen
+  Soft-Skip mit rc=0 — also einmal `npm ci` in `tooling/validation/`, sonst prüft er nichts
+  und meldet trotzdem Erfolg.
+- `check_validate_data_contracts.ps1` wird ohne das Modul `powershell-yaml` **übersprungen**
+  (das Skript sagt das selbst: „SKIPPED, not passed"). Ist die PowerShell Gallery nicht
+  erreichbar, deckt sein Python-Delegat dieselbe Logik ab:
+  `python3 tooling/validation/check_validate_data_contracts.py --root .`
+
+Dabei fiel eine dritte Sache auf, und die ist keine Randbedingung, sondern ein Regelkonflikt:
+`check_markdownlint.ps1` fährt `markdownlint-cli2 --fix`, und MD010 („no hard tabs") ersetzt
+Tabs **auch in Code-Blöcken** — ein Tab pro Leerzeichen. Genau in den ```tmdl-Blöcken, deren
+Hardrule Tabs *verlangt*. Der Check hat damit still die Doku umgeschrieben, die er schützen
+sollte: `tmdl_best_practices.md` und `pbir-rename-cascade.md` lehrten bereits Leerzeichen,
+`AI_Description_Standard.md` wurde beim ersten Lauf mit installierten npm-Deps erwischt. Der
+Konflikt ist an der Wurzel gelöst — `MD010: { "ignore_code_languages": ["tmdl"] }` in beiden
+markdownlint-Konfigurationen, MD010 bleibt also für Fließtext scharf — und die Tabs sind in
+allen drei Dokumenten wiederhergestellt. Lehre für neue Auto-Fixer: ein Formatierer, der
+schreiben darf, muss die Hardrules kennen, sonst gewinnt der Formatierer.

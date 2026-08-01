@@ -28,6 +28,7 @@
 **Spine question:** Which entities explain the revenue and margin gap vs Plan?
 - **[300s evidence]** grain `invoice_line`, worst-first by `sales.net_sales.delta_pct.plan` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-M2.1, C-S1.1, C-S1.2
+**Connects to use cases:** COM-002, COM-004
 
 ## COM-002 — Margin & Price Performance
 
@@ -159,7 +160,7 @@
 - **[300s evidence]** grain `entity_month`, worst-first by `fin.cash.vs_plan.pct` (ascending), Top-20 · action panel
 **Decision payoff (actions):** F-C1.1, F-C1.2, S-I1.2, F-C1.4
 **Cross-domain pull:** Supply Chain (13: `scm.supplier_risk.score`, `inv.turnover`, `inv.stockout.pct` +10)
-**Connects to use cases:** SCM-001, SCM-002
+**Connects to use cases:** COM-003, SCM-001, SCM-002, SCM-003
 
 ## FIN-002 — Cost Performance
 
@@ -260,7 +261,7 @@
 - **[300s evidence]** grain `line_day`, worst-first by `ops.downtime.unplanned.pct` (descending), Top-20 · action panel
 **Decision payoff (actions):** O-O1.1, O-O1.2, O-O1.3, O-O1.4
 **Cross-domain pull:** Customer & Market (1: `crm.complaint.count`)
-**Connects to use cases:** FIN-002
+**Connects to use cases:** FIN-002, OPS-003
 
 ## OPS-002 — Asset Performance
 
