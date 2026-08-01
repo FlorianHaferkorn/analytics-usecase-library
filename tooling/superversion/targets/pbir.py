@@ -38,6 +38,12 @@ _SCHEMA = {
     "pages": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
     "page": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
     "visual": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+    # Die Item-Metadatendatei jedes Fabric-Items im Git-Format. Sie fehlte — und fiel erst auf,
+    # als die CI die CLI ungepinnt installierte und 0.1.4 statt des Repo-Pins 0.1.1 bekam:
+    # `PBIR_PLATFORM_MISSING`, gemessen 01.08.2026 (Lauf 30683999822). 0.1.1 prueft es nicht,
+    # Fabric braucht es trotzdem — der neuere Pruefer hatte recht, nicht der aeltere.
+    "platform": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/"
+                "platformProperties/2.0.0/schema.json",
 }
 
 # Placeholder entity for HITL/unresolved field references. validate(--no-schema)
@@ -191,6 +197,14 @@ def _build(canonical: CanonicalModel) -> tuple[dict[str, str], list[str]]:
     gaps: list[str] = []
     out: dict[str, str] = {}
 
+    # `.platform` zuerst: ohne sie ist der Ordner kein Fabric-Item, sondern ein Haufen JSON.
+    # `logicalId` bleibt die Nullkennung — sie wird beim Import vergeben; eine erfundene GUID
+    # waere schlimmer als keine, weil sie beim naechsten Import kollidieren kann.
+    out[f"{base}/.platform"] = _dumps({
+        "$schema": _SCHEMA["platform"],
+        "metadata": {"type": "Report", "displayName": report.name},
+        "config": {"version": "2.0", "logicalId": "00000000-0000-0000-0000-000000000000"},
+    })
     out[f"{base}/definition.pbir"] = _dumps({
         "$schema": _SCHEMA["defprops"],
         "version": "4.0",

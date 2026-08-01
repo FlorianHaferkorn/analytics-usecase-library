@@ -134,6 +134,21 @@ Deshalb: **vor** dem Abhaken eines roten Laufs einmal `python3 scripts/check_wor
 laufen lassen (steckt in `tooling/run_local_ci_check.sh` als erster Schritt). Ein Fenster,
 in dem alles erklärt ist, ist das beste Versteck für einen echten Defekt.
 
+**Und: „lokal grün" ist nicht dasselbe wie „CI grün".** Am 01.08.2026, im ersten Lauf mit
+echten Runnern nach dem Reset, waren drei Tests rot, die lokal alle grün liefen. Drei
+verschiedene Gründe, jeder eine eigene Fehlerklasse:
+
+| Symptom | Ursache |
+|---|---|
+| `ModuleNotFoundError: pyarrow` | die CI-`pip install`-Liste kannte die Abhängigkeit nicht — das Gate **konnte** dort nie grün werden |
+| `reference_graph.md is stale` (110 vs 109) | der Generator schlüsselte Measures nach **Dateinamen**; 31 Namen kollidieren über Domänen, wer gewinnt entschied die Dateisystem-Reihenfolge. 28 Measures fielen still heraus |
+| `PBIR_PLATFORM_MISSING` | die CI installiert die PBIR-CLI **ungepinnt** und bekam 0.1.4 statt des Repo-Pins 0.1.1 — die neuere Fassung prüft `.platform`, unser Emitter schrieb keine |
+
+Die gemeinsame Lehre: ein Test ist nur so aussagekräftig wie die Gleichheit der beiden
+Umgebungen. Wo die CI weniger installiert, prüft sie etwas anderes; wo sie ungepinnt
+installiert, prüft sie etwas Unvorhersehbares; und wo ein Generator vom Dateisystem abhängt,
+prüft er ein Münzwurfergebnis. Alle drei sind behoben — die Klasse bleibt.
+
 Daher — für die Dauer jedes solchen Fensters: diese roten CI-Läufe **nicht
 untersuchen und nicht re-triggern**; stattdessen **lokal** validieren. Für die
 konsolidierte lokale Prüfung: `bash tooling/run_local_ci_check.sh` (führt

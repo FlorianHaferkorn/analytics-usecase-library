@@ -37,7 +37,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml jsonschema pytest typer rich referencing python-docx
+          # pyarrow: `tooling/validation/check_data_model.py` importiert es ungeschuetzt.
+          # Fehlte es hier, scheiterte `test_shipped_model_has_no_hard_findings` mit
+          # ModuleNotFoundError — ein Gate, das in der CI nie gruen werden KONNTE
+          # (gemessen 01.08.2026, Lauf 30683999827).
+          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow
 
       - name: Run tests
         run: python -m pytest --tb=short -q
