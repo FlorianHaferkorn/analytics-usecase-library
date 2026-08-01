@@ -456,3 +456,104 @@ class TestAdapterDiff:
         )
         changes = PBIPAdapter().diff(spec_a, minimal_spec)
         assert any("Gone KPI" in c for c in changes)
+
+
+def test_compiler_never_invents_a_main_slot():
+    """B1: ein nicht deklarierter Main-Slot bleibt leer — er wird nicht gefuellt.
+
+    Der Prototyp-Generator (`page_scaffold_generator/page_builder.py`, deprecated)
+    hatte fuer einen ungebundenen Main-Slot einen Fallback: die ersten vier
+    KPI-Card-Measures auf eine Balkenachse, Titel hartkodiert "KPI by Entity". Vier
+    Measures aus verschiedenen Skalenfamilien auf einer Achse — das ist die Wurzel
+    des Scorecard-Knock-outs `mixed-scale` UND von `PBIR_ROLE_MAX_EXCEEDED`.
+
+    Die 0.1.4-Triage schloss daraus, zwoelf Use Cases muessten ein `component_30s[2]`
+    nachdeklarieren ("Fachentscheidung pro Use Case"). Gemessen am 01.08.2026 ist das
+    falsch: der AKTUELLE Compiler erzeugt `Main_{i}` nur fuer deklarierte Komponenten
+    und erfindet nichts. Die betroffenen `dist/`-Reports sind Altbestand aus dem
+    Prototyp-Pfad — dieselbe Klasse wie `PBIR_PLATFORM_MISSING` und
+    `knockout-unsorted-evidence`: nie neu erzeugt.
+
+    Dieser Test haelt beide Richtungen fest, damit weder ein Fallback zurueckkehrt
+    noch eine echte Deklaration verloren geht.
+    """
+    from pathlib import Path
+
+    from tooling.generator_core.ir.compiler import BracketCompiler
+
+    root = Path(__file__).resolve().parents[2]
+    compiler = BracketCompiler(
+        kpi_catalog_root=root / "core/kpi_catalog",
+        action_codes_root=root / "core/action_codes",
+    )
+
+    def _main_slots(bracket: Path) -> list[str]:
+        spec = compiler.compile(bracket)
+        return [v.id for page in spec.pages for v in page.visuals if v.id.startswith("Main_")]
+
+    def _declared(bracket: Path) -> int:
+        import yaml
+        data = yaml.safe_load(bracket.read_text(encoding="utf-8")) or {}
+        page1 = (data.get("ux_layout_rules") or {}).get("page_1_summary") or {}
+        comps = page1.get("component_30s") or []
+        return len(comps) if isinstance(comps, list) else 1
+
+    checked = 0
+    for bracket in sorted((root / "core/usecases").rglob("UseCase_Bracket.yaml")):
+        declared = min(_declared(bracket), 3)
+        slots = _main_slots(bracket)
+        assert len(slots) == declared, (
+            f"{bracket.parent.name}: {declared} component_30s deklariert, aber "
+            f"{len(slots)} Main-Slots emittiert ({slots}) — der Generator erfindet "
+            f"oder verliert Inhalt")
+        checked += 1
+    assert checked >= 10, f"nur {checked} Brackets geprueft — Fixture-Pfad stimmt nicht"
+
+
+def test_governed_evidence_sort_survives_compilation():
+    """B2/B3: die Evidenz-Sortierung des Brackets muss im IR ankommen.
+
+    Der Compiler las `sort_by` nur aus `evidence_grain`. Deklariert wird es aber bei
+    ALLEN Brackets unter `component_300s.sort_by` und bei keinem unter
+    `evidence_grain.sort_by` — die governte Sortierung fiel also ausnahmslos heraus.
+    Sichtbar war das als `knockout-unsorted-evidence`; kaschiert hat es, dass 14
+    dist-Reports ihre `sortDefinition` von Hand nachgetragen bekamen.
+
+    Die Triage hatte daraus zwei Einzelfaelle gemacht (OPS-001, XD-004) und beide als
+    Fachentscheidung gefuehrt. Tatsaechlich sind beide Brackets stimmig: OPS-001
+    sortiert nach einer Spalte, die in `evidence_columns` steht, und XD-004s
+    `impact_value` ist keine KPI-ID, sondern eine Spalte seiner Action-Code-
+    Evidenztabelle. Zu entscheiden war nichts — zu reparieren der Compiler.
+    """
+    from pathlib import Path
+
+    import yaml
+
+    from tooling.generator_core.ir.compiler import BracketCompiler
+
+    root = Path(__file__).resolve().parents[2]
+    compiler = BracketCompiler(
+        kpi_catalog_root=root / "core/kpi_catalog",
+        action_codes_root=root / "core/action_codes",
+    )
+
+    missing = []
+    checked = 0
+    for bracket in sorted((root / "core/usecases").rglob("UseCase_Bracket.yaml")):
+        data = yaml.safe_load(bracket.read_text(encoding="utf-8")) or {}
+        page2 = (data.get("ux_layout_rules") or {}).get("page_2_execution") or {}
+        comp = page2.get("component_300s") or {}
+        if isinstance(comp, list):
+            comp = comp[0] if comp else {}
+        declared = comp.get("sort_by") if isinstance(comp, dict) else None
+        if not declared:
+            continue
+        checked += 1
+        spec = compiler.compile(bracket)
+        compiled = [v.binding.sort_by for page in spec.pages
+                    for v in page.visuals if v.id == "Detail_Matrix"]
+        if not compiled or compiled[0] != declared:
+            missing.append(f"{bracket.parent.name}: deklariert {declared}, kompiliert {compiled}")
+
+    assert checked >= 10, f"nur {checked} Brackets mit sort_by gefunden — Pfad stimmt nicht"
+    assert not missing, "Evidenz-Sortierung geht beim Kompilieren verloren:\n" + "\n".join(missing)
