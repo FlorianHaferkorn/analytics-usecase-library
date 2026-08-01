@@ -161,3 +161,47 @@ keine Generator-Arbeit.
 Ebenfalls offen, aus demselben Grund benannt statt geraten: `OPS-001` sortiert laut
 Bracket nach einem Measure, das seine Evidenztabelle nicht projiziert; `XD-004`
 deklariert `sort_by.measure: impact_value`, was keine KPI-ID ist.
+
+---
+
+## KORREKTUR (01.08.2026) — die drei Absätze oben sind widerlegt
+
+Die Analyse hat die **`dist/`-Reports** beschrieben und daraus auf die **Brackets**
+geschlossen. Das war der Fehlschluss. Gemessen am Generator statt am Artefakt:
+
+**`knockout-mixed-scale` ist keine Fachentscheidung.** Der aktuelle IR-Compiler
+(`tooling/generator_core/ir/compiler.py`) erzeugt `Main_{i}` ausschließlich für
+deklarierte `component_30s` und erfindet nichts:
+
+| Use Case | deklariert | kompilierte Main-Slots |
+|---|---:|---|
+| FIN-002 | 2 | `Main_1`, `Main_2` |
+| COM-002 | 3 | `Main_1`, `Main_2`, `Main_3` |
+
+Die Vier-Measure-Bande stammt aus dem **deprecated** Prototyp
+(`page_scaffold_generator/page_builder.py`), der für einen ungebundenen Main-Slot die
+ersten vier KPI-Card-Measures auf eine Balkenachse legte, Titel hartkodiert
+„KPI by Entity". *Das* war der Golden-Thread-Verstoß — im Generator, nicht in den
+Brackets. Damit ist es dieselbe Klasse wie `PBIR_PLATFORM_MISSING` und
+`knockout-unsorted-evidence`: **die Reports wurden nie neu erzeugt.** Der Fallback ist
+entfernt, ein Test (`test_compiler_never_invents_a_main_slot`) hält beide Richtungen
+fest.
+
+**`OPS-001` und `XD-004` sind stimmig — der Compiler war es nicht.** Beide Brackets
+sortieren nach einer Spalte, die in ihren eigenen `evidence_columns` steht; `XD-004`s
+`impact_value` ist keine KPI-ID, weil seine Evidenztabelle aus **Action-Codes**
+besteht (`action_code_id`, `severity_level`, `outcome_status`, …), nicht aus KPIs.
+
+Der eigentliche Defekt ist größer als die zwei Fälle: der Compiler las `sort_by` nur
+aus `evidence_grain`. Deklariert wird es bei **allen 20 Brackets** unter
+`component_300s.sort_by` und bei **keinem** unter `evidence_grain.sort_by` — die
+governte Sortierung fiel also bei jedem Use Case heraus. Dass es nach nur zwei
+Einzelfällen aussah, lag daran, dass 14 `dist/`-Reports ihre `sortDefinition` von Hand
+nachgetragen bekamen; die Handarbeit hat den Generator-Defekt kaschiert. Nach dem Fix
+verlieren 0 von 20 ihre Sortierung (`test_governed_evidence_sort_survives_compilation`).
+
+**Lehre für diese Triage-Gattung:** ein Befund am generierten Artefakt sagt nichts
+darüber, ob Quelle oder Generator schuld ist. Beide Male zeigte die Messung am
+Generator das Gegenteil dessen, was das Artefakt nahelegte — und beide Male hätte die
+ursprüngliche Konsequenz Arbeit an der falschen Stelle ausgelöst (zwölf Kurationen
+statt einer Zeile).

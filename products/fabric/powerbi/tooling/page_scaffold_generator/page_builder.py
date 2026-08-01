@@ -4,6 +4,7 @@ Page Builder
 Builds Power BI page structures. Supports legacy row-based layout and grid-based layout (Master Grid 12×12).
 """
 
+import logging
 import uuid
 from typing import Dict, Any, List, Optional
 from .layout_calculator import LayoutCalculator, Position
@@ -12,6 +13,8 @@ from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
 from .title_policy import resolve_header
 from products.fabric.powerbi.tooling.schema_registry import PAGE_SCHEMA as _PAGE_SCHEMA
+
+logger = logging.getLogger(__name__)
 
 
 class PageBuilder:
@@ -251,14 +254,29 @@ class PageBuilder:
                         ],
                         "isDefaultSort": True,
                     }
-            elif slot_id in _MAIN_SLOTS_ORDER and card_measure_names:
-                # Unbound main slot — entity comparison bar (OrgName axis) for KPI card measures
-                # Gives a ranking view: "which business unit performs best on these KPIs?"
-                _fb_measures = list(card_measure_names[:4])
-                vis = self.visual_builder.build_horizontal_bar(
-                    position, measures=_fb_measures, name=slot_id, title="KPI by Entity",
-                    category_entity="dim_org", category_property="OrgName"
+            elif slot_id in _MAIN_SLOTS_ORDER:
+                # Ungebundener Main-Slot -> KEIN Visual. Bis 01.08.2026 stand hier ein
+                # Fallback, der die ersten vier KPI-Card-Measures auf eine Balkenachse
+                # legte ("KPI by Entity"). Das war erfundener Report-Inhalt: kein Bracket
+                # deklariert ihn, der Titel war hartkodiert, und die vier Measures
+                # stammten aus verschiedenen Skalenfamilien (%, Tage, Waehrung).
+                #
+                # Zwei Pruefer meldeten dieselbe Wurzel: der Scorecard-Knock-out
+                # `mixed-scale` auf Main_3 und `PBIR_ROLE_MAX_EXCEEDED` (Rolle Y mit
+                # 2-5 Projektionen, max 1). Die Triage hatte daraus geschlossen, zwoelf
+                # Use Cases muessten ein `component_30s[2]` nachdeklarieren — das war die
+                # falsche Richtung. Der Golden Thread sagt: das Bracket ist die Autoritaet.
+                # Deklariert es zwei Exponate, hat die Uebersicht zwei Exponate.
+                #
+                # Folge: bei zwei deklarierten Komponenten bleibt die Main_3-Flaeche im
+                # Raster leer. Das ist die ehrliche Darstellung eines nicht kuratierten
+                # Slots — sichtbar statt mit Fuellmaterial kaschiert.
+                logger.info(
+                    "Slot %s ohne governte Bindung (component_30s deklariert %d Eintrag/Eintraege) "
+                    "— kein Visual emittiert; Inhalt waere nicht governt.",
+                    slot_id, len(_c30s),
                 )
+                continue
             elif slot_id == "KPI_Cards" and visual_type == "cardVisual":
                 # Semantic-delta band (intent v2): a variance/vs-plan KPI can't be colour-coded
                 # inside the multi-value card (callouts format uniformly — card.md), so split it
