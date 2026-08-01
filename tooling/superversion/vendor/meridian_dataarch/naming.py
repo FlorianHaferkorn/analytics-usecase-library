@@ -59,6 +59,9 @@ class NamingConvention:
     def notebook(self, base: str) -> str:
         return self._item("notebook", base)
 
+    def copy_job(self, base: str) -> str:
+        return self._item("copy_job", base)
+
     def semantic_model(self, base: str) -> str:
         return self._item("semantic_model", base)
 
