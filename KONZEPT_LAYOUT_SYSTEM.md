@@ -416,7 +416,7 @@ Die Aussage im Konzept lautet deshalb „Kandidat", nicht „Standard".
 | L1 Intent-Katalog | ⬜ offen | | |
 | L2 Bracket-Normalisierung | ⬜ offen | | |
 | L3 Konnektor-Vertrag | 🟢 **erledigt** | 2026-08-01 | `targets` + `replaces` in `AllowedVisual`; `pbip_type` bleibt Alias. Evidence-Boden von 0/9 auf 8/9 aus dokumentierten Mappings. Bekannte Lücke: `structural_mix`. |
-| L4 Konnektor-Gate | 🟡 teilw. | 2026-08-01 | `floor_gaps()` / `extensions_without_fallback()` als API + 4 Tests. Offen: Parametrisierung über alle Konnektoren im Emitter-Test, Stage-1-Verdrahtung. |
+| L4 Konnektor-Gate | 🟢 **erledigt** | 2026-08-01 | `check-floor` in der **bestehenden** Visual-Library-CLI (kein neuer Checker), in Stage 1 verdrahtet und dort sichtbar grün. Rot-Pfade getestet. **Bewusst offen:** die Parametrisierung des Emitter-Tests über mehrere Konnektoren braucht einen zweiten Emitter — heute gibt es nur `targets.pbir`. Kommt mit L9. |
 | L5 DTCG-Tokens | ⬜ offen | | |
 | L6 Layout-System IBCS | ⬜ offen | | |
 | L7 Zweites System (Schnitt-Test) | ⬜ offen | | |

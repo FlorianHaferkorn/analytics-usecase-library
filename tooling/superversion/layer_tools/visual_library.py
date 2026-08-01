@@ -268,6 +268,15 @@ def main(argv: Optional[list[str]] = None) -> int:
     d.add_argument("block_id")
     s = sub.add_parser("resolve", help="resolve a slot → block(s) + default visual")
     s.add_argument("slot")
+    f = sub.add_parser(
+        "check-floor",
+        help="Boden/Decke pruefen: hat jede Absicht in jedem Konnektor eine Darstellung?")
+    f.add_argument("--required", action="append", default=None, metavar="KONNEKTOR",
+                   help="Konnektor, dessen Boden VOLLSTAENDIG sein muss (mehrfach "
+                        "angebbar). Standard: powerbi — das Pflichtziel.")
+    f.add_argument("--strict", action="store_true",
+                   help="jede Boden-Luecke in JEDEM deklarierten Konnektor ist ein Fehler, "
+                        "nicht nur in den --required")
     args = parser.parse_args(argv)
 
     lib = VisualLibrary.load()
@@ -278,6 +287,41 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"  default: {b.default_visual().pbip_type}")
         print(f"  allowed: {sorted(b.allowed_pbip_types())}")
         print(f"  forbidden: {sorted(b.forbidden_pbip_types())}")
+    elif args.cmd == "check-floor":
+        # Zielbild-Gate: eine Storyline soll in JEDEM Ziel-Werkzeug ohne
+        # Aussageverlust darstellbar sein. `required` ist der harte Boden
+        # (Pflichtziel), die uebrigen Konnektoren werden berichtet — so wird eine
+        # Luecke sichtbar, ohne den Ausbau eines Zweit-Ziels zu blockieren.
+        required = set(args.required or ["powerbi"])
+        declared = lib.connectors()
+        rc = 0
+        for connector in sorted(declared | required):
+            gaps = lib.floor_gaps(connector)
+            hart = connector in required or args.strict
+            if not gaps:
+                print(f"  [OK  ] {connector:10} {len(lib.blocks)}/{len(lib.blocks)} Bloecke abgedeckt")
+                continue
+            marke = "FAIL" if hart else "warn"
+            print(f"  [{marke}] {connector:10} "
+                  f"{len(lib.blocks) - len(gaps)}/{len(lib.blocks)} — ohne Darstellung: "
+                  f"{', '.join(gaps)}")
+            if hart:
+                rc = 1
+        offen = lib.extensions_without_fallback()
+        if offen:
+            print(f"  [FAIL] Extension ohne aufloesbares `replaces`: {', '.join(offen)}")
+            rc = 1
+        nicht_deklariert = required - declared
+        if nicht_deklariert:
+            # Ein Pflichtziel, das nirgends vorkommt, ist keine leere Menge, sondern
+            # ein Konfigurationsfehler — sonst meldet das Gate Erfolg fuer ein Tool,
+            # ueber das es gar nichts weiss.
+            print(f"  [FAIL] als Pflicht verlangt, aber in keinem Block deklariert: "
+                  f"{', '.join(sorted(nicht_deklariert))}")
+            rc = 1
+        print(f"[visual-library] check-floor {'FAIL' if rc else 'OK'} "
+              f"(Pflicht: {', '.join(sorted(required))})")
+        return rc
     elif args.cmd == "resolve":
         found = lib.blocks_for_slot(args.slot)
         if not found:

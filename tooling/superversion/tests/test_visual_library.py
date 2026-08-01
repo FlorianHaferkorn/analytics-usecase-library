@@ -190,3 +190,33 @@ def test_pbip_type_alias_stays_backward_compatible():
     for block in VisualLibrary.load().blocks.values():
         assert block.allowed_pbip_types() == block.allowed_types("powerbi")
         assert block.allowed_pbip_types()
+
+
+def test_check_floor_cli_fails_on_a_required_connector_gap(capsys):
+    """Das Gate muss rot werden koennen — sonst ist sein Gruen wertlos.
+
+    Stage 1 faehrt `visual_library.py check-floor`. Ein Gate, das nie faellt, ist
+    von einem fehlenden Gate nicht zu unterscheiden; genau deshalb pruefen die
+    folgenden drei Faelle den ROT-Pfad und nicht nur den Gruen-Pfad.
+    """
+    from tooling.superversion.layer_tools import visual_library as vlib
+
+    # 1) `evidence` als Pflichtziel verlangt -> die bekannte structural_mix-Luecke blockt
+    assert vlib.main(["check-floor", "--required", "evidence"]) == 1
+    assert "structural_mix" in capsys.readouterr().out
+
+    # 2) --strict macht JEDE Luecke hart, auch ohne --required
+    assert vlib.main(["check-floor", "--strict"]) == 1
+
+    # 3) Ein Pflichtziel, das nirgends deklariert ist, ist ein Konfigurationsfehler —
+    #    kein "0 Luecken, alles gut". Sonst meldete das Gate Erfolg fuer ein Tool,
+    #    ueber das es nichts weiss.
+    assert vlib.main(["check-floor", "--required", "gibtesnicht"]) == 1
+    assert "gibtesnicht" in capsys.readouterr().out
+
+
+def test_check_floor_cli_is_green_for_the_mandatory_target():
+    """Power BI ist Pflichtziel und vollstaendig — der Standardaufruf ist gruen."""
+    from tooling.superversion.layer_tools import visual_library as vlib
+
+    assert vlib.main(["check-floor"]) == 0

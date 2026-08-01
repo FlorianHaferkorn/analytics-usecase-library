@@ -63,7 +63,12 @@ $pythonChecks = @(
   @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/validation/check_docs_links.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/generator/validation/check_action_outcome_reconciliation.py"; Args = @("--strict") },
-  @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) }
+  @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) },
+  # Layout-System-Boden (L4): jede analytische Absicht muss im Pflichtziel Power BI
+  # eine Darstellung haben; Zweit-Konnektoren werden berichtet, blocken aber nicht,
+  # solange sie im Aufbau sind. Kein eigener Checker — die Visual-Library hat eine
+  # CLI, und die wird erweitert statt dupliziert.
+  @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("check-floor") }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
