@@ -70,7 +70,13 @@ jobs:
           node-version: "20"
 
       - name: Install official PBIR validator (powerbi-report-author)
-        run: npm install -g @microsoft/powerbi-report-authoring-cli
+        # GEPINNT, und zwar auf denselben Stand wie der Repo-Pin in Meridian
+        # (`scripts/check_pbir.py` PINNED_VERSION, `research/upstream_pins.yaml`).
+        # Ungepinnt war das hier die Ursache eines echten CI-Ausfalls: am 01.08.2026 lieferte
+        # npm 0.1.4 statt 0.1.1, die neuere Fassung prueft `.platform`, und der Lauf wurde rot
+        # auf einem Commit, der daran nichts geaendert hatte. Ein Pin, der nur an einer Stelle
+        # gilt, ist kein Pin.
+        run: npm install -g @microsoft/powerbi-report-authoring-cli@0.1.1
 
       - name: E2E smoke (Bracket → TMDL+PBIR → validate, COM-001)
         run: python -m tooling.superversion.e2e_smoke --require-cli
