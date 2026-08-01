@@ -57,11 +57,17 @@ information_blocks:
         condition: null
         source: "S7 — Few (2004): KPI card maximizes data-ink for status display"
       - visual_id: bullet_graph
-        pbip_type: custom
-        custom_visual_name: "Enlighten Bullet Chart"
+        pbip_type: tableEx
+        render_mode: svg_measure
         is_default: false
         condition: "space_constrained = true AND kpi_count >= 4"
         source: "S8 — Few (2005): bullet graph specification; space-efficient alternative to gauge"
+        # Kein Fremd-Visual (Doktrin): der Bullet Graph entsteht als DAX-erzeugtes
+        # SVG in einer tableEx-Zelle (Spalte als Image URL kategorisiert), nicht
+        # ueber "Enlighten Bullet Chart". Der SVG-Weg selbst ist NOCH NICHT im
+        # Service/Desktop gemessen -> Task L10 (Interaktivitaet, Export,
+        # Barrierefreiheit, Performance).
+        verify: "L10 — SVG-Measure-Weg in Desktop + Service pruefen"
 
     forbidden_visuals:
       - visual_id: gauge
@@ -384,10 +390,14 @@ information_blocks:
         condition: null
         source: "S1 — Shneiderman: filter tier; entity-level resolution required; S7 — Few: F-pattern anchored by entity column"
       - visual_id: alert_list_card
-        pbip_type: custom
+        pbip_type: tableEx
+        render_mode: svg_measure
         is_default: false
         condition: "severity_grouping_primary = true"
         source: "Acceptable when severity grouping is the primary structural need"
+        # Kein Fremd-Visual (Doktrin): Severity-Gruppierung wird ueber ein
+        # SVG-Measure je Zeile ausgedrueckt, nicht ueber ein Marketplace-Visual.
+        verify: "L10 — SVG-Measure-Weg in Desktop + Service pruefen"
 
     forbidden_visuals:
       - visual_id: waterfall

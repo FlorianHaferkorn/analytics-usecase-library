@@ -48,6 +48,21 @@ class VisualLibraryError(ValueError):
     """The registry is missing a requested block/slot, or a catalog entry is absent."""
 
 
+class ThirdPartyVisualError(VisualLibraryError):
+    """Ein Fremd-Visual wurde deklariert — Doktrin-Verstoss, nicht verhandelbar.
+
+    ALUCA baut IBCS mit NATIVEN Visuals nach. Marketplace-/Custom-Visuals sind
+    ausgeschlossen: sie kosten Lizenz, brauchen eine Org-Freigabe im Tenant, machen
+    das Deliverable tool-abhaengig (Scope-Grenze: der Kunde installiert nichts) und
+    aendern Export-/Print-/Mobile-Verhalten. Stoesst eine Notation an die native
+    Grenze, ist die Eskalation `render_mode: svg_measure`, danach ein anderes
+    Ziel-Tool — nie ein Fremd-Visual.
+
+    Erzwungen beim LADEN, nicht erst im Test: so kann keine Pipeline mit einem
+    Fremd-Visual weiterlaufen, auch nicht die, die den Test nicht faehrt.
+    """
+
+
 class CatalogGap(VisualLibraryError):
     """A requested block/slot has no usable visual — needs a registry catalog entry."""
 
@@ -58,7 +73,12 @@ class AllowedVisual:
     pbip_type: str
     is_default: bool = False
     condition: Optional[str] = None
-    custom_visual_name: Optional[str] = None
+    # `render_mode` ersetzt das frühere `custom_visual_name`. Zulaessig sind
+    # "native" (Standard-Visual) und "svg_measure" (DAX-erzeugtes SVG in einer
+    # Tabellen-/Matrix-Zelle, Spalte als Image URL). Ein Feld fuer den Namen eines
+    # Fremd-Visuals gibt es bewusst nicht mehr — was nicht ausdrueckbar ist, kann
+    # nicht versehentlich zurueckkehren.
+    render_mode: str = "native"
     small_multiples: bool = False
     source: str = ""
 
@@ -107,13 +127,21 @@ class VisualLibrary:
         raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         blocks: dict[str, InformationBlock] = {}
         for b in raw.get("information_blocks") or []:
+            for v in (b.get("allowed_visuals") or []):
+                if v.get("custom_visual_name") or v.get("pbip_type") == "custom":
+                    raise ThirdPartyVisualError(
+                        f"block '{b.get('block_id')}' → visual "
+                        f"'{v.get('visual_id')}': Fremd-Visual deklariert "
+                        f"({v.get('custom_visual_name') or 'pbip_type: custom'}). "
+                        f"ALUCA nutzt keine Fremd-Visuals — nativ, sonst "
+                        f"`render_mode: svg_measure`, sonst anderes Ziel-Tool.")
             allowed = [
                 AllowedVisual(
                     visual_id=v.get("visual_id", ""),
                     pbip_type=v.get("pbip_type", ""),
                     is_default=bool(v.get("is_default", False)),
                     condition=v.get("condition"),
-                    custom_visual_name=v.get("custom_visual_name"),
+                    render_mode=v.get("render_mode", "native"),
                     small_multiples=bool(v.get("small_multiples", False)),
                     source=v.get("source", ""),
                 )

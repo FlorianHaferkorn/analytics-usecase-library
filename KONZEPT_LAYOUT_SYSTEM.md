@@ -146,12 +146,23 @@ Kundenprodukt-Anspruch passen (POC-vs-Endprodukt, §3.3 Charter):
   Scope-Grenze es verlangt (kein Kunde muss etwas installieren),
 * **Export/Print/Mobile** verhalten sich wie bei Standard-Visuals.
 
-**Offener Widerspruch, gefunden 01.08.2026:** `visual_registry.yaml` deklariert bereits ein
-Fremd-Visual — `custom_visual_name: "Enlighten Bullet Chart"` (Block `status_signal`). Das
-`AllowedVisual`-Dataclass führt `custom_visual_name` als reguläres Feld. Die Festlegung oben
-verlangt also eine Bereinigung: entweder der Eintrag entfällt zugunsten einer nativen
-Lösung, oder die Festlegung bekommt eine benannte Ausnahme. **Nicht still entscheiden** —
-aufgenommen als Teil von **L3**.
+**Erledigt 01.08.2026 — Regel erzwungen, Bullet Graph auf SVG.** Die Registry führte
+**zwei** Fremd-Visual-Einträge (`bullet_graph` → „Enlighten Bullet Chart" in
+`status_signal`, `alert_list_card` in `exception_list`), und das `AllowedVisual`-Dataclass
+hatte mit `custom_visual_name` ein reguläres Feld dafür — der Verstoß war also nicht nur
+möglich, sondern vorgesehen.
+
+Umgesetzt:
+* Beide Einträge → `pbip_type: tableEx` + **`render_mode: svg_measure`**, mit
+  `verify:`-Marker auf L10 (der SVG-Weg selbst ist hier nicht messbar).
+* `custom_visual_name` ist **aus dem Dataclass entfernt** und durch `render_mode`
+  (`native` | `svg_measure`) ersetzt — was nicht ausdrückbar ist, kann nicht
+  versehentlich zurückkehren.
+* Neue `ThirdPartyVisualError`, geworfen **beim Laden** der Registry, nicht erst im Test:
+  so kann keine Pipeline mit einem Fremd-Visual weiterlaufen, auch nicht die, die den Test
+  nicht fährt.
+* Zwei Tests: einer prüft den Wächter (mutationsgeprüft — bei deaktiviertem Wächter rot),
+  einer die eingecheckte Registry.
 
 **Zu verifizieren, nicht anzunehmen (Task L10):** Der native SVG-Weg in Power BI läuft
 über DAX-erzeugte SVG-Data-URIs in einer Tabelle/Matrix (Spalte als *Image URL*

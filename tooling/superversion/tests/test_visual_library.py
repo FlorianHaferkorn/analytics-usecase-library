@@ -7,6 +7,9 @@ surfaces as a CatalogGap / non-zero resolve.
 """
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
+
 import pytest
 
 from tooling.superversion.layer_tools import visual_library as vl
@@ -81,3 +84,58 @@ def test_sanctions_helper():
     assert lib.sanctions("card", "cardVisual")
     assert not lib.sanctions("card", "pieChart")
     assert lib.sanctions("slicer", "anything")  # no block → exempt
+
+
+def test_third_party_visual_is_rejected_at_load():
+    """Doktrin: keine Fremd-Visuals. Erzwungen beim LADEN, nicht nur im Review.
+
+    Bis 01.08.2026 fuehrte `visual_registry.yaml` zwei Eintraege mit
+    `pbip_type: custom` — einer davon namentlich `"Enlighten Bullet Chart"`. Das
+    Dataclass hatte dafuer ein reguläres Feld `custom_visual_name`, also war der
+    Verstoss nicht nur moeglich, sondern vorgesehen.
+
+    Fremd-Visuals kosten Lizenz, brauchen eine Org-Freigabe im Tenant, machen das
+    Deliverable tool-abhaengig (Scope-Grenze: der Kunde installiert nichts) und
+    aendern Export-/Print-/Mobile-Verhalten. Die Eskalation ist stattdessen
+    `render_mode: svg_measure`, danach ein anderes Ziel-Tool.
+
+    Dieser Test prueft den Waechter, nicht die Registry — eine gruene Registry
+    beweist nicht, dass der Waechter feuert.
+    """
+    import textwrap
+
+    import pytest
+
+    from tooling.superversion.layer_tools.visual_library import (
+        ThirdPartyVisualError, VisualLibrary)
+
+    for verstoss in ('        custom_visual_name: "Some Marketplace Visual"\n', ""):
+        yaml_text = textwrap.dedent("""\
+            registry_version: "1.0.0"
+            information_blocks:
+              - block_id: probe
+                purpose: "p"
+                primary_layer: "3s"
+                slot_compatibility: ["KPI_Cards"]
+                page_types: ["T1"]
+                allowed_visuals:
+                  - visual_id: something
+                    pbip_type: custom
+            """) + verstoss
+        path = Path(tempfile.mkdtemp()) / "visual_registry.yaml"
+        path.write_text(yaml_text, encoding="utf-8")
+        with pytest.raises(ThirdPartyVisualError) as exc:
+            VisualLibrary.load(path)
+        assert "probe" in str(exc.value) and "something" in str(exc.value)
+
+
+def test_committed_registry_declares_no_third_party_visual():
+    """Die eingecheckte Registry selbst ist frei von Fremd-Visuals."""
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    lib = VisualLibrary.load()
+    for block in lib.blocks.values():
+        for v in block.allowed_visuals:
+            assert v.pbip_type != "custom", f"{block.block_id}/{v.visual_id}"
+            assert v.render_mode in ("native", "svg_measure"), \
+                f"{block.block_id}/{v.visual_id}: unbekannter render_mode '{v.render_mode}'"
