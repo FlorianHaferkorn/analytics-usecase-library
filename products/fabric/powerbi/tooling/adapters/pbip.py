@@ -6,7 +6,7 @@ knowledge (PBIP schema URLs, visualType strings, canvas dimensions, TMDL
 format). The generator_core framework only knows the abstract GeneratorAdapter
 interface — this is the concrete PBI implementation.
 
-Canvas size: 1920 × 1080 (standard HD widescreen, matches all bracket definitions)
+Canvas size: aus dem governten Raster (layout_grid.yaml, Profil `production`)
 """
 
 from __future__ import annotations
@@ -42,9 +42,17 @@ from products.fabric.powerbi.tooling.schema_registry import (
     DEFINITION_PBIR_VERSION as _DEFINITION_PBIR_VERSION,
 )
 
-# Power BI canvas dimensions in pixels — must match bracket report_canvas (1920 × 1080)
-_CANVAS_W = 1920
-_CANVAS_H = 1080
+# Power BI canvas dimensions — gelesen aus dem governten Raster, nicht hartkodiert.
+# Der frueher hier stehende Kommentar „must match bracket report_canvas" war eine
+# Bitte an den Leser; jetzt ist es eine Ableitung (Konsolidierung 02.08.2026).
+def _canvas() -> tuple[int, int]:
+    from tooling.superversion.layer_tools.layout_grid import load
+
+    p = load("production")
+    return p.width, p.height
+
+
+_CANVAS_W, _CANVAS_H = _canvas()
 
 # IR VisualType → Power BI PBIP visualType strings
 _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {

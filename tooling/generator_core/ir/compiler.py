@@ -311,54 +311,30 @@ def _resolve_evidence_columns(
     return dim_cols, measures
 
 
-_GRID_YAML = Path(__file__).resolve().parents[3] / "core/templates/page_templates/tokens/layout_grid.yaml"
-
-
+# Raster und Aufloesung leben in EINEM Leser: `layer_tools/layout_grid.py`.
+# Vorher rechnete diese Datei selbst — und war damit die vierte Stelle im Repo mit
+# einer eigenen Meinung ueber Leinwand und Formel. Genau daraus kamen L13 und L8.
+# Die beiden Namen bleiben als duenne Weiterleitung erhalten, weil Tests und
+# `from_aluca` sie importieren; die Logik steht nur noch an einer Stelle.
 def _grid_params() -> Dict[str, Any]:
-    """Raster und Abstaende aus der governten YAML — keine Kopie im Code.
+    """Rasterparameter der Produktionsleinwand (Weiterleitung, s. layer_tools)."""
+    from tooling.superversion.layer_tools.layout_grid import load
 
-    Die Werte hier zu duplizieren waere die naechste Drift-Quelle: `layout_grid.yaml`
-    ist die Autorenquelle, und `design_tokens.py` emittiert sie bereits nach DTCG.
-    """
-    grid = _load_yaml(_GRID_YAML)
-    sp = grid.get("spacing") or {}
-    g = grid.get("grid") or {}
-    canvas = (grid.get("canvas") or {}).get("production") or {}
-    return {
-        "cols": int(g.get("cols", 12)),
-        "rows": int(g.get("rows", 12)),
-        "gutter": float(sp.get("gutter", 16)),
-        "outer": float(sp.get("outer_margin", 32)),
-        "width": int(canvas.get("width", 1920)),
-        "height": int(canvas.get("height", 1080)),
-    }
+    p = load("production")
+    return {"cols": p.cols, "rows": p.rows, "gutter": p.gutter,
+            "outer": p.outer, "width": p.width, "height": p.height}
 
 
 def lu_to_pixels(col: float, row: float, cs: float, rs: float,
                  canvas_w: int, canvas_h: int, grid: Optional[Dict[str, Any]] = None
                  ) -> Dict[str, float]:
-    """Logical Units → Pixel fuer EINE Leinwand. Die einzige Aufloesungsstelle.
+    """Logical Units → Pixel (Weiterleitung auf den einen Resolver)."""
+    from tooling.superversion.layer_tools.layout_grid import GridParams, to_pixels
 
-    Spiegelt `preview/src/grid/slot-pos.ts` Zeile fuer Zeile:
-        left   = outer + col * (lu_w + gutter)
-        top    = outer + row * (lu_h + gutter)
-        width  = cs  * lu_w + (cs - 1) * gutter
-        height = rs  * lu_h + (rs - 1) * gutter
-
-    Entscheidend ist, dass `gutter` und `outer` HIER eingehen und nicht ausserhalb
-    stehen bleiben: genau deren Absolutheit neben skalierenden Bruechen war der
-    Defekt. Weil die LU aus derselben Leinwand berechnet wird, ergibt derselbe Slot
-    auf 1280 und auf 1920 dieselbe Spalte.
-    """
-    p = grid or _grid_params()
-    lu_w = (canvas_w - 2 * p["outer"] - (p["cols"] - 1) * p["gutter"]) / p["cols"]
-    lu_h = (canvas_h - 2 * p["outer"] - (p["rows"] - 1) * p["gutter"]) / p["rows"]
-    return {
-        "x": p["outer"] + col * (lu_w + p["gutter"]),
-        "y": p["outer"] + row * (lu_h + p["gutter"]),
-        "width": cs * lu_w + (cs - 1) * p["gutter"],
-        "height": rs * lu_h + (rs - 1) * p["gutter"],
-    }
+    g = grid or _grid_params()
+    return to_pixels(col, row, cs, rs, GridParams(
+        cols=g["cols"], rows=g["rows"], gutter=g["gutter"],
+        outer=g["outer"], width=canvas_w, height=canvas_h))
 
 
 def _position(layout: Dict[str, Tuple[float, float, float, float]], slot: str) -> Position:

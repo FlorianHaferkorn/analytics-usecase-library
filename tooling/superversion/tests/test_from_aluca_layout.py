@@ -79,7 +79,10 @@ def test_grid_change_takes_effect_without_code_change(tmp_path, monkeypatch):
     Tabelle im Adapter kopiert (statt gelesen), passierte hier nichts — und der Test
     faende genau das.
     """
-    from tooling.generator_core.ir import compiler
+    # Gepatcht wird der EINE Leser (`layer_tools/layout_grid.py`) — nicht mehr der
+    # Compiler. Dass dieser Test beim Konsolidieren rot wurde, ist der Beleg, dass es
+    # vorher zwei Stellen gab und jetzt eine gibt.
+    from tooling.superversion.layer_tools import layout_grid
 
     original = yaml.safe_load(_GRID.read_text(encoding="utf-8"))
     vorher = from_bracket_file(_FIN002, _KPIS)
@@ -89,7 +92,7 @@ def test_grid_change_takes_effect_without_code_change(tmp_path, monkeypatch):
     geaendert["spacing"] = {**original["spacing"], "outer_margin": 64}
     kopie = tmp_path / "layout_grid.yaml"
     kopie.write_text(yaml.safe_dump(geaendert), encoding="utf-8")
-    monkeypatch.setattr(compiler, "_GRID_YAML", kopie)
+    monkeypatch.setattr(layout_grid, "GRID_YAML", kopie)
 
     nachher = from_bracket_file(_FIN002, _KPIS)
     x_nachher = min(v.x for v in _visuals(nachher))

@@ -9,8 +9,17 @@ from typing import Protocol, runtime_checkable
 from .models import Severity, Violation
 from .pbir import ParsedPage, ParsedReport, page_pointer, parse_report, visual_pointer, write_json
 
-DEFAULT_PAGE_WIDTH = 1920
-DEFAULT_PAGE_HEIGHT = 1080
+# Leinwand aus dem EINEN governten Raster (Konsolidierung 02.08.2026). Vorher standen
+# hier eigene Literale — eine von sieben Stellen im Repo mit eigener Meinung, und zwei
+# davon widersprachen sich (1280 vs 1920). Genau daraus kamen die Fehler in L13 und L8.
+def _canvas() -> tuple[int, int]:
+    from tooling.superversion.layer_tools.layout_grid import load
+
+    p = load("production")
+    return p.width, p.height
+
+
+DEFAULT_PAGE_WIDTH, DEFAULT_PAGE_HEIGHT = _canvas()
 
 
 @runtime_checkable

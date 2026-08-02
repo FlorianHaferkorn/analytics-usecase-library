@@ -981,6 +981,62 @@ Regel-Migration stützen. Zu klären in L14.
 
 ---
 
+## 11. Konsolidierung — „wie viele Stellen muss man anfassen?" (02.08.2026)
+
+Das Zielbild verlangt, dass ein komplexes Thema **einfach zu erstellen** ist. Einfachheit
+ist hier keine Stilfrage, sondern eine Zahl: *wie viele Stellen berührt eine Änderung?*
+Gemessen, bevor konsolidiert wurde:
+
+| Szenario | Stellen |
+|---|---:|
+| ein neuer **Visualtyp** | **11** |
+| Dateien, die **Slot-Namen** kennen | **19** |
+| eigene Meinungen zur **Leinwandgröße** | **38** |
+
+Die letzte Zahl ist die teuerste — und sie war zunächst *unterschätzt*: mein erster
+`grep` meldete sieben, weil er auf `head -10` abgeschnitten war. Aus genau dieser
+Dublette sind an einem Tag **zwei** Fehler entstanden (L13, L8), und beide hatten
+dieselbe Signatur: jede Seite hatte recht über sich und unrecht über die andere.
+
+### Was konsolidiert wurde
+
+**Ein Leser, eine Formel:** `tooling/superversion/layer_tools/layout_grid.py` — neben
+`visual_library.py` und `design_tokens.py`, also im etablierten Muster „Layer-Tool liest
+governte YAML", nicht in einem neuen Silo. Er liefert `GridParams` und `to_pixels()`.
+Angeschlossen: der IR-Compiler (leitet nur noch weiter), `from_aluca`,
+`structural_validator`, der PBIP-Adapter, `grid_calculator` (führte eine **vollständige**
+zweite Kopie des Rasters als Defaults) und `page_builder` (reichte `outer_margin=32,
+gutter=16` explizit durch — der häufigste Weg, auf dem eine Dublette zurückkommt).
+
+**Kein stiller Default mehr:** `config_loader.load_layout_grid()` gab bei Fehler ein
+leeres Dict zurück, „caller uses defaults". Der neue Leser bricht ab. Dieselbe
+Verdeckungsmechanik wie die drei `TREND_LINE`-Fallbacks — sie sieht aus wie Robustheit
+und ist Blindheit.
+
+### Was bewusst NICHT konsolidiert wurde
+
+* **`_canonical_mirror.py`** spiegelt Meridians Vertrag absichtlich verbatim (ADR-0005,
+  durch einen Parity-Test geschützt). Seine 1280 ist keine Dublette, sondern der Spiegel.
+  Sie zu „vereinheitlichen" hätte den Vertrag gebrochen.
+* **`page_scaffold_generator/`** hält **36 der 38** Literale — und ist deprecated (§2).
+  Dort zu räumen wäre Arbeit an Code, der wegsoll, mit Risiko und ohne Ertrag. Die
+  Schuld ist im Wächter **benannt statt versteckt**; fällt der Prototyp, fällt die
+  Ausnahme mit ihm.
+
+### Der Wächter — Einfachheit wird prüfbar
+
+`tooling/tests/test_konsolidierung.py` zählt die Stellen und wird rot, wenn sie wachsen.
+Das ist der Punkt: Konsolidieren allein hält nicht, Dubletten wachsen nach. Stand nach
+der Räumung: **0** Leinwand-Literale im lebenden Code, **1** LU→px-Resolver, **0**
+kopierte Rasterwerte. Die Obergrenze steht bewusst auf **0** statt auf einem Puffer —
+eine Grenze mit Luft schützt nichts, weil die erste neue Dublette hineinpasst.
+
+Zwei Funde beim Bauen des Wächters, beide meine: `load()` band `GRID_YAML` als
+Default-Argument und war damit **nicht ersetzbar** — gefunden vom
+Wirksamkeits-Test aus L8. Und meine erste Zählung war, wie oben, selbst zu niedrig.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
