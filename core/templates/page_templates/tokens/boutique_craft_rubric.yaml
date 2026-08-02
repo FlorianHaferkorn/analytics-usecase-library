@@ -144,7 +144,7 @@ dimensions:
         weight: 4
         check: structural
         machine_hint: "comparison vs plan/PY present but rendered as absolute pairs, no variance series"
-        source: "Craft-Core §5.4; IBCS SUCCESS; ibcs transform"
+        source: "Craft-Core §5.4; IBCS EXPRESS (Abweichung als Abweichung zeigen); ibcs transform"
       - id: BC-CHART-03
         statement: "Direct labelling at line ends/points instead of a legend where feasible (≤5 series)."
         severity: major

@@ -78,6 +78,24 @@ class Regel:
         return None
 
 
+# Manche Herkunftsangaben nennen nur den Regelcode („S9 — IBCS U4") ohne die Gruppe.
+# Die Zuordnung steht aber im Repo selbst — anderswo heisst dieselbe Regel
+# „S9 — IBCS UNIFY U4". Statt aus dem Anfangsbuchstaben zu raten (S ist SAY, SIMPLIFY
+# ODER STRUCTURE; C ist CONDENSE ODER CHECK) wird die Tabelle aus den ausgezeichneten
+# Vorkommen GELERNT. Kein Code ohne Beleg im Repo bekommt eine Gruppe.
+_CODE_ZU_GRUPPE: dict[str, str] = {}
+
+
+def _lerne_codes(quellen: list[str]) -> None:
+    """Baue code→Gruppe aus den Stellen, die BEIDES nennen."""
+    _CODE_ZU_GRUPPE.clear()
+    for text in quellen:
+        for gruppe, code in re.findall(
+                r"\b(SAY|UNIFY|CONDENSE|CHECK|EXPRESS|SIMPLIFY|STRUCTURE)\s+([A-Z]\d+)\b",
+                text, re.IGNORECASE):
+            _CODE_ZU_GRUPPE.setdefault(code.upper(), gruppe.upper())
+
+
 def _klassifiziere(rule_id: str, datei: str, source: str) -> Regel:
     ist_ibcs = "ibcs" in source.lower()
     gruppe = code = None
@@ -88,12 +106,26 @@ def _klassifiziere(rule_id: str, datei: str, source: str) -> Regel:
         if treffer := _IBCS_CODE.search(ab_ibcs):
             gruppe = treffer.group(1).upper()
             code = treffer.group(2)
+        elif nur_code := re.search(r"\b([A-Z]\d+)\b", ab_ibcs):
+            # Gruppe fehlt, Code da → NUR uebernehmen, wenn er in der gelernten Tabelle
+            # steht. Die Herkunftsfelder mischen Nummerierungen: „S9 — IBCS; S11 — Tufte"
+            # enthaelt hinter „IBCS" das repo-eigene Quellenkuerzel S11, das kein
+            # IBCS-Regelcode ist. Ein unbelegter Code wird deshalb verworfen statt
+            # gemeldet — sonst erfindet die Sicht Abdeckung, die es nicht gibt.
+            if (kandidat := nur_code.group(1)) in _CODE_ZU_GRUPPE:
+                code = kandidat
+                gruppe = _CODE_ZU_GRUPPE[kandidat]
     return Regel(rule_id, datei, source.strip(), ist_ibcs, gruppe, code)
 
 
 def sammle() -> list[Regel]:
     """Alle Regeln mit Herkunft aus den drei vorhandenen Speichern."""
     regeln: list[Regel] = []
+    # Erst die code→Gruppe-Tabelle aus allen Quelltexten lernen, dann klassifizieren —
+    # sonst haengt das Ergebnis von der Lesereihenfolge ab.
+    _lerne_codes([(_TPL / n).read_text(encoding="utf-8") for n in
+                  ("visual_registry.yaml", "design_rules.yaml",
+                   "tokens/boutique_craft_rubric.yaml")])
 
     registry = yaml.safe_load((_TPL / "visual_registry.yaml").read_text(encoding="utf-8")) or {}
     for block in registry.get("information_blocks") or []:

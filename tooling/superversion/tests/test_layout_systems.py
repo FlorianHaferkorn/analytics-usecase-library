@@ -50,3 +50,59 @@ def test_cli_is_advisory_by_default_and_hard_with_strict():
     """Die Luecken sind bekannt; sie blocken erst, wenn man es verlangt."""
     assert ls.main([]) == 0
     assert ls.main(["--strict"]) == 1
+
+
+def test_every_ibcs_rule_carries_a_success_group():
+    """Eine IBCS-Regel ohne Gruppe faellt aus der Abdeckungsrechnung.
+
+    Am 01.08.2026 geschlossen: 7 von 15 hatten keine. Der Test haelt den Zustand,
+    damit eine neue Regel nicht wieder ungezaehlt hereinkommt.
+    """
+    ohne = [r.rule_id for r in ls.sammle() if r.ibcs and not r.success_gruppe]
+    assert ohne == [], f"IBCS-Regeln ohne SUCCESS-Gruppe: {ohne}"
+
+
+def test_bare_code_resolves_only_from_repo_evidence():
+    """„IBCS U4" ohne Gruppe wird aufgeloest — aber nur aus im Repo Belegtem.
+
+    Aus dem Anfangsbuchstaben zu raten waere unzulaessig: S ist SAY, SIMPLIFY ODER
+    STRUCTURE; C ist CONDENSE ODER CHECK. Die Tabelle wird deshalb aus Stellen
+    gelernt, die BEIDES nennen.
+    """
+    ls._lerne_codes(["S9 — IBCS UNIFY U4"])
+    aufgeloest = ls._klassifiziere("a", "f.yaml", "S9 — IBCS U4")
+    assert aufgeloest.success_gruppe == "UNIFY" and aufgeloest.ibcs_code == "U4"
+
+    unbelegt = ls._klassifiziere("b", "f.yaml", "S9 — IBCS Z9")
+    assert unbelegt.success_gruppe is None and unbelegt.ibcs_code is None
+
+
+def test_repo_source_numbering_is_not_mistaken_for_an_ibcs_code():
+    """Der Falschtreffer, den der erste Fix erzeugt hat.
+
+    „S9 — IBCS; S11 — Tufte" enthaelt hinter „IBCS" das repo-eigene Quellenkuerzel
+    S11. Ohne Beleg in der gelernten Tabelle darf es kein IBCS-Regelcode werden —
+    sonst meldet die Sicht Abdeckung, die es nicht gibt.
+    """
+    ls._lerne_codes(["S9 — IBCS UNIFY U4", "S9 — IBCS EXPRESS E3"])
+    r = ls._klassifiziere("c", "f.yaml", "S9 — IBCS; S11 — Tufte")
+    assert r.ibcs
+    assert r.ibcs_code is None, f"S11 faelschlich als IBCS-Code uebernommen: {r.ibcs_code}"
+
+
+def test_empty_groups_are_a_content_gap_not_a_tagging_gap():
+    """CONDENSE/SIMPLIFY/STRUCTURE sind leer — und das bleibt so, bis echte
+    IBCS-Regeln dazukommen.
+
+    Es GIBT Regeln mit aehnlichem Ziel (Miller zur Arbeitsgedaechtnisgrenze,
+    Few zur Sortierung, Layout_Grid_System zur Gliederung). Sie als IBCS
+    auszuzeichnen waere eine Faelschung der Herkunft: sie wuerden dann als beim
+    Systemwechsel austauschbar gelten, obwohl eine perzeptuelle Regel unabhaengig
+    von jeder Notation gilt. Der Test haelt diese Grenze fest.
+    """
+    deckung = ls.abdeckung(ls.sammle())
+    for gruppe in ("CONDENSE", "SIMPLIFY", "STRUCTURE"):
+        assert deckung[gruppe] == [], (
+            f"{gruppe} ist belegt — falls durch echte IBCS-Regeln: Test anpassen, "
+            f"das ist Fortschritt. Falls durch Umetikettierung von Miller/Few/"
+            f"Craft-Core: rueckgaengig machen, das faelscht die Herkunft.")

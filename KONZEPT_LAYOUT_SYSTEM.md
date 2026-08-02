@@ -362,6 +362,26 @@ auf zwei widersprüchlichen Listen auf.
 
 ---
 
+### 5.1 L6 — warum drei SUCCESS-Gruppen leer BLEIBEN
+
+Nach dem Schließen der Auszeichnungs-Lücke sind `CONDENSE`, `SIMPLIFY` und
+`STRUCTURE` weiterhin mit 0 Regeln belegt. Das ist ein **Inhalts**-Befund, kein
+Auszeichnungsfehler — und er wird nicht wegdefiniert.
+
+Es gibt Regeln mit ähnlichem Ziel: `entity_ranking/max_entities_30s` (Miller,
+Arbeitsgedächtnisgrenze) zielt auf Informationsdichte, `BC-LAYOUT-01/02`
+(`Layout_Grid_System.md`) auf Gliederung, `entity_ranking/sort_by_deviation_not_alpha`
+(Few) auf Ordnung. Sie als IBCS auszuzeichnen wäre **eine Fälschung der Herkunft**:
+sie würden dann als „beim Wechsel des Layout-Systems austauschbar" gelten, obwohl
+eine perzeptuelle Regel unabhängig von jeder Notation gilt. Genau diese Unterscheidung
+ist der Zweck der Sicht.
+
+Die Lücke schließt sich, wenn echte IBCS-Regeln aus diesen Gruppen aufgenommen werden
+— Fachkuration gegen den Standardtext, nicht Umetikettierung. `test_empty_groups_are_a_content_gap_not_a_tagging_gap`
+hält die Grenze fest und benennt beide Fälle im Fehlertext.
+
+---
+
 ## 7. Nicht-Ziele (GOI-Pflicht: was bewusst nicht gemacht wird)
 
 * **Keine Parallelwelt.** Jeder Task nennt oben, was er *erweitert*. Wo der erste Entwurf
@@ -418,7 +438,7 @@ Die Aussage im Konzept lautet deshalb „Kandidat", nicht „Standard".
 | L3 Konnektor-Vertrag | 🟢 **erledigt** | 2026-08-01 | `targets` + `replaces` in `AllowedVisual`; `pbip_type` bleibt Alias. Evidence-Boden von 0/9 auf 8/9 aus dokumentierten Mappings. Bekannte Lücke: `structural_mix`. |
 | L4 Konnektor-Gate | 🟢 **erledigt** | 2026-08-01 | `check-floor` in der **bestehenden** Visual-Library-CLI (kein neuer Checker), in Stage 1 verdrahtet und dort sichtbar grün. Rot-Pfade getestet. **Bewusst offen:** die Parametrisierung des Emitter-Tests über mehrere Konnektoren braucht einen zweiten Emitter — heute gibt es nur `targets.pbir`. Kommt mit L9. |
 | L5 DTCG-Tokens | 🟢 **erledigt** | 2026-08-01 | `design_tokens.py` **erzeugt** DTCG aus den YAMLs (37 Tokens, 10 Gruppen) — die YAMLs bleiben Autorenquelle, weil **8** Konsumenten sie lesen. Drift-Check in Stage 1. Ableitung nach PBI-Theme/CSS steht noch aus. |
-| L6 Layout-System IBCS | 🟡 teilw. | 2026-08-01 | **Kein neuer Regelspeicher** — `layout_systems.py` ist eine Herkunftssicht über die 3 vorhandenen. Basis gemessen: 69 Regeln, davon 15 IBCS / 21 Fremdstandard / 33 Hausregel; SUCCESS-Abdeckung 4/7, unbelegt: CONDENSE, SIMPLIFY, STRUCTURE. Offen: die Lücken schließen. |
+| L6 Layout-System IBCS | 🟡 teilw. | 2026-08-01 | **Kein neuer Regelspeicher** — Herkunftssicht über die 3 vorhandenen. 69 Regeln: 15 IBCS / 21 Fremdstandard / 33 Hausregel. **Auszeichnungs-Lücke geschlossen:** alle 15 IBCS-Regeln tragen jetzt eine SUCCESS-Gruppe (SAY 1, UNIFY 7, CHECK 3, EXPRESS 4). **Inhalts-Lücke bleibt bewusst offen:** CONDENSE/SIMPLIFY/STRUCTURE unbelegt — s. u. |
 | L7 Zweites System (Schnitt-Test) | ⬜ offen | | |
 | L8 Layout in `from_aluca` | ⬜ offen | | schließt Meridian-**C4** |
 | L9 Vega-Lite-Konnektor | ⬜ offen | | |

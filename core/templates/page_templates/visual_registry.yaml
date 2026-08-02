@@ -92,7 +92,7 @@ information_blocks:
         severity: error
       - rule_id: favorable_positive_convention
         description: "Favorable delta = positive convention (value exceeds reference); never reversed"
-        source: "S9 — IBCS scenario notation"
+        source: "S9 — IBCS UNIFY (semantische Notation: Szenario-Konvention)"
         severity: error
       - rule_id: min_font_size
         description: "Value field minimum 16pt at 1280x720, 24pt at 1920x1080"
@@ -169,7 +169,7 @@ information_blocks:
     quality_rules:
       - rule_id: time_axis_labeled
         description: "Time axis must show explicit period markers (year, quarter, or month labels)"
-        source: "S9 — IBCS; S11 — Tufte"
+        source: "S9 — IBCS UNIFY (einheitliche Achsen-Notation); S11 — Tufte"
         severity: error
       - rule_id: reference_line_labeled
         description: "If reference line is shown, it must be labeled with scenario abbreviation (PL, PY, FC)"
@@ -262,12 +262,12 @@ information_blocks:
         applies_when: "visual = waterfall_chart"
       - rule_id: waterfall_end_labeled
         description: "End bar must show actual value and be labeled"
-        source: "S9 — IBCS"
+        source: "S9 — IBCS UNIFY (Beschriftung wie waterfall_start_labeled, U4)"
         severity: error
         applies_when: "visual = waterfall_chart"
       - rule_id: waterfall_reconciliation
         description: "Sum of driver bars must equal actual - reference; generator must validate"
-        source: "S9 — IBCS; logical consistency"
+        source: "S9 — IBCS CHECK (visuelle Integritaet: Start + Deltas = Ende); logical consistency"
         severity: error
         applies_when: "visual = waterfall_chart"
       - rule_id: waterfall_max_bars
@@ -282,7 +282,7 @@ information_blocks:
         applies_when: "visual = waterfall_chart"
       - rule_id: favorable_unfavorable_colors
         description: "Favorable contributions use accent color; unfavorable use warning color — not raw red/green"
-        source: "S14 — WCAG colorblind safety; S9 — IBCS"
+        source: "S14 — WCAG colorblind safety; S9 — IBCS UNIFY (semantische Farbnotation)"
         severity: error
 
   # ─────────────────────────────────────────────────────────────────────────
