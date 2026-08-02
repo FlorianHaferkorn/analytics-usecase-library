@@ -1117,13 +1117,46 @@ und „nicht ermittelbar" ist eine zulässige Antwort, Raten nicht.
 | A5 | Was fordern **CONDENSE, SIMPLIFY, STRUCTURE** konkret — mit Regel-IDs? | 2.0, die drei Kapitel | Unsere drei leeren Gruppen. Der eigentliche Inhaltsauftrag von L6. |
 | A6 | Ändert 2.0 die **Szenario-Notation** (AC/PL/FC/PY: Füllart, Deckkraft)? | 2.0, Notationskapitel | `color_semantics.yaml → ibcs_scenario` und `report_design/ibcs.py::_SCENARIO_FILL` hängen daran. |
 
-**B · ISO 24896 — nur was wir wirklich brauchen**
+**B · ISO 24896 — 🟢 beantwortet am 02.08.2026: der Kauf ist verzichtbar**
 
-| # | Frage | Wo nachsehen | Warum |
-|---|---|---|---|
-| B1 | Deckt ISO 24896 wirklich nur **UNIFY und CHECK** ab? | `iso.org/standard/88366.html` (Scope-Abschnitt ist frei einsehbar) | Wenn ja, betrifft der ISO-Teil genau die zwei Gruppen, die bei uns schon belegt sind — dann ist der Kauf **verzichtbar** und IBCS 2.0 (frei) reicht. **Diese Frage entscheidet über Kosten.** |
-| B2 | Brauchen wir das ISO-Dokument überhaupt, oder genügt IBCS 2.0? | Ergebnis aus B1 | Erst kaufen, wenn B1 einen echten Mehrwert zeigt. |
-| B3 | Falls gekauft: welche **Nutzungsbedingungen** (Einzelplatz, Weitergabe, Zitat)? | ISO-Lizenzbedingungen beim Kauf | Bestimmt, ob überhaupt jemand außer der lesenden Person etwas davon hat. |
+| # | Frage | Antwort |
+|---|---|---|
+| B1 | Deckt ISO 24896 wirklich nur **UNIFY und CHECK** ab? | **Ja, bestätigt** — zwei unabhängige Quellen nennen *„mainly the UNIFY and CHECK parts of IBCS' SUCCESS formula"*. |
+| B2 | Brauchen wir das ISO-Dokument, oder genügt IBCS 2.0? | **IBCS 2.0 genügt.** Begründung s. u. |
+| B3 | Nutzungsbedingungen bei Kauf | entfällt, solange B2 gilt |
+
+**Warum der Kauf verzichtbar ist — und das ist mehr als eine Kostenfrage.**
+ISO 24896 **ist** der **Notation-Teil von IBCS 2.0** (nicht bloß „darauf basierend"):
+IBCS 2.0 wurde in die Teile **Notation** und **Composition** umgegliedert, und der
+Notation-Teil ist vollständig auf ISO 24896 ausgerichtet. IBCS 2.0 steht unter
+**CC BY-SA 4.0** und ist kostenlos (§8.2). Damit liegt derselbe Inhalt in einer frei
+verfügbaren Fassung vor.
+
+Dazu kommt die Bauvorschrift aus §8.2: wir **kopieren ohnehin nie** aus dem Normtext,
+sondern speichern Regel-ID + Fundstelle + eigene Formulierung. Ein gekauftes Dokument
+kaufte also nur eine präzisere `groups`-Angabe in einer Dataclass — und die ist als
+Annahme mit Quelle markierbar. **Empfehlung: nicht kaufen.**
+
+**Der eigentliche Fund war ein anderer — und er ist größer als die Frage.**
+**IBCS 2.0 gliedert sich nicht mehr nach SUCCESS**, sondern in **Notation** und
+**Composition**; die bisherige Einteilung in konzeptionelle/perzeptuelle/semantische
+Regeln entfällt. Für L6/L7 heißt das: beim Wechsel auf 2.0 ändert sich nicht nur der
+*Inhalt* der Gruppen, sondern die **Form des Gruppenvokabulars**. Genau dafür wurde der
+`LayoutSystem`-Deskriptor gebaut — ein fest verdrahtetes `SUCCESS` hätte diesen Wechsel
+nicht ausdrücken können. Die Plugin-Arbeit aus L6/L7 war damit nicht vorsorglich,
+sondern notwendig.
+
+**Ungeprüft und deshalb benannt:** die Suche zitiert *„Titles should specify reporting
+entities, measures, and time periods **without evaluative content**"*. Das steht in
+möglichem Widerspruch zu unserer **BC-NARR-01** (frage-/aussagegeführte Titel, K2/K3).
+Ob es ein echter Konflikt ist oder zwei verschiedene Titelarten (Chart-Titel vs.
+Seiten-Botschaft), ist **nicht** entschieden — das gehört an den IBCS-2.0-Text, nicht in
+eine Ableitung aus einem Suchauszug.
+
+**Belegstand:** `iso.org` **und** der frei angebotene ISO-Auszug
+(`cdn.standards.iteh.ai`) sind beide durch die Egress-Policy gesperrt — geprüft, nicht
+angenommen (`connect_rejected`, Gateway-403, `selective: false`). Der Normtext wurde
+**nicht** gelesen; alle Aussagen oben sind Such-Ebene, aber mehrfach konvergent.
 
 **C · Lizenz — bestätigen, nicht neu klären** (Antwort steht in §8.2)
 
@@ -1198,7 +1231,7 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 
 | Task | Status | Datum | Notiz |
 |---|---|---|---|
-| **L14 IBCS-Version klären** | ⬜ **offen — zuerst, vorbereitet** | | **neu 02.08.** ISO 24896 seit 11.06.2026 veröffentlicht, IBCS bei **2.0**. Vorbedingung für L12 **und** L6. **Lizenzfrage beantwortet (§8.2):** 2.0 bleibt CC BY-SA 4.0, wir brauchen für die Implementierung **keine** Lizenz — nur die Bauvorschrift „Regel-ID + eigene Formulierung, kein Regeltext". ISO-Dokument nur kaufen, wenn Frage **B1** einen Mehrwert zeigt. Offen bleibt das **Delta 1.2 → 2.0**. Prüfliste mit 12 Fragen steht in **§10.5** — **VS Code**, Quellen hier gesperrt. |
+| **L14 IBCS-Version klären** | 🟡 teilw. | 2026-08-02 | **B1/B2 beantwortet: ISO-Kauf verzichtbar.** ISO 24896 *ist* der Notation-Teil von IBCS 2.0, und 2.0 ist frei (CC BY-SA). Grösserer Fund: **IBCS 2.0 gliedert nicht mehr nach SUCCESS**, sondern in **Notation + Composition** — beim Wechsel ändert sich die *Form* des Gruppenvokabulars, nicht nur der Inhalt. Das validiert die L6/L7-Plugin-Arbeit. **Offen:** Delta 1.2→2.0 im Detail, und ein möglicher Konflikt ISO-Titelregel („without evaluative content") ↔ **BC-NARR-01**. Beides braucht den 2.0-Text → **VS Code** (`iso.org` und der freie ISO-Auszug sind hier verifiziert gesperrt). |
 | L0 Vokabular-Autorität | 🟢 **erledigt** | 2026-08-02 | **`visual_registry.yaml`** (ADR-0018). Die Konzept-Empfehlung `Abstract_Visual_Types.md` hat der Messung nicht standgehalten: 24 der 34 Typen unbenutzt, nur 7 der 25 gelebten IDs dort vorhanden — 18 Renames an erzwungenem Code für nichts. Beide `.md` sind Zeiger + eingeklappte Historie, `visual_slot_mapping.yaml` zeigt auf die Registry. Schließt Meridian-**B4**. |
 | L1 Intent-Katalog | 🟡 teilw. | 2026-08-01/02 | **Vokabular-Lücke geschlossen (§10.6):** von den drei extern gefundenen Absichten ist **eine** aufgenommen — `distribution_spread`, dreifach im eigenen Korpus belegt (FIN-001 AR-Aging, XD-001 Case-Age, SCM-003 „averaging hides bias"). **Spatial** und **freie Correlation** begründet verworfen: null Geo-Fragen in 20 Brackets (alle `map`-Treffer waren `MAPE`), Korrelation erscheint immer als Treiberfrage und ist von `root_cause_context` gedeckt. Damit ist L0 nicht mehr vorbelastet. Restumfang von L1 (Bestätigung/Schließung der übrigen Blöcke) bleibt offen. |
 | L2 Bracket-Normalisierung | 🟢 **erledigt** | 2026-08-02 | **DoD erfüllt: 0 Deklarationen außerhalb der SoT-Liste.** 66 Deklarationen in 21 Dateien umbenannt, drei Autoren-Schemas kanonisiert. Die DoD-Annahme „mechanisch“ war falsch — zuerst musste das Netz gebaut werden (Resolver in der vorhandenen `visual_library.py`, Gate mit 9 Tests, stiller `TREND_LINE`-Fallback durch harten Abbruch ersetzt), dann die sechs Literalvergleiche auf kanonisierte Werte umgestellt. **Vier Funde:** `bar_chart_horizontal` fehlte in `_VISUAL_TYPE_MAP` (4 Deklarationen kompilierten still als Trendlinie); 8 nicht sanktionierte Typen aus den Schemas entfernt; `stacked_bar` war schema-erlaubt und registry-**verboten**; `visual_builder.py` hatte einen **dritten** stillen Fallback hinter einer `alias_map` — den fand kein grep, sondern ein Test. **Zwei eigene Fehlalarme korrigiert:** `check_forbidden_charts` liest PBIR, `superset.py` ist enum-verschlüsselt — beide waren nie betroffen. Snapshot-Diff: ausschließlich `visual_type`, 17 rein / 17 raus. |

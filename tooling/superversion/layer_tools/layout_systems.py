@@ -121,6 +121,16 @@ ISO_24896 = LayoutSystem(
     # System zum brauchbaren Schnitt-Test: es zeigt, welche unserer Regeln bei einem
     # Wechsel heimatlos wuerden.
     #
+    # NACHGEPRUEFT am 02.08.2026 (L14/B1), zweite unabhaengige Suche: die Zuordnung
+    # „mainly the UNIFY and CHECK parts of IBCS' SUCCESS formula" ist bestaetigt.
+    #
+    # Wichtiger als die Bestaetigung ist, was dabei auffiel: **IBCS 2.0 gliedert sich
+    # nicht mehr nach SUCCESS**, sondern in die Teile **Notation** und **Composition** —
+    # und ISO 24896 IST der Notation-Teil. Fuer dieses Modul heisst das: beim Wechsel auf
+    # 2.0 aendert sich nicht nur der Inhalt, sondern die FORM des Gruppenvokabulars.
+    # Genau dafuer wurde der Deskriptor gebaut; ein fest verdrahtetes SUCCESS haette den
+    # Wechsel gar nicht ausdruecken koennen.
+    #
     # BELEGSTAND, ausdruecklich: die Scope-Aussage stammt aus Suchauszuegen
     # (iso.org/standard/88366.html, ibcs.com/iso-24896/), NICHT aus dem gelesenen
     # Normtext — `iso.org` ist in dieser Umgebung gesperrt und der Text
@@ -129,8 +139,10 @@ ISO_24896 = LayoutSystem(
     groups=("UNIFY", "CHECK"),
     marker="iso 24896",
     derives_from="ibcs",
-    note="Veroeffentlicht 11.06.2026. Deckt laut Suchbeleg im Kern UNIFY und CHECK ab "
-         "— Scope NICHT am Normtext geprueft (iso.org gesperrt, Text kostenpflichtig).",
+    note="Veroeffentlicht 11.06.2026. ISO 24896 IST der Notation-Teil von IBCS 2.0 "
+         "(zwei unabhaengige Belege, 02.08.2026); die Zuordnung auf UNIFY+CHECK bezieht "
+         "sich auf die SUCCESS-Gliederung von 1.2. Normtext nicht gelesen (iso.org und "
+         "der freie ISO-Auszug sind beide durch die Egress-Policy gesperrt).",
 )
 
 SYSTEMS: dict[str, LayoutSystem] = {s.key: s for s in (IBCS, ISO_24896)}
