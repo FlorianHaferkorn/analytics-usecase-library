@@ -621,27 +621,46 @@ gegen die Lesbarkeitsuntergrenze prüfbar, die `typography.yaml` zusichert.
   Referenzimplementierung**; L13 zieht die Python-Seite darauf nach und erfindet keine
   zweite Formel. `validateSlot()` (Überlauf, 12×12) und `slotsOverlap()` sind dort
   ebenfalls schon vorhanden.
-* **DoD:**
-  1. `_OVERVIEW_LAYOUT` und `_DETAIL_LAYOUT` führen LU-Angaben (`col/row/cs/rs`) statt
-     Leinwandbrüche; die Pixel-Auflösung liegt in **einer** Funktion, die die Formel aus
-     `slot-pos.ts` spiegelt — durch einen Test gegen deren Werte belegt, nicht durch
-     Nachlesen.
-  2. `canvas_profiles` trägt die Geometrie-Auflösung (Leinwand + `gutter`/`outer_margin` je
-     Profil), sodass ein Profilwechsel Spalten **erhält**. Beleg: derselbe Slot ergibt auf
-     1280 und 1920 dieselbe Spalte und dieselbe Spanne — als Test, nicht als Zusicherung.
-  3. Ein Check meldet **rot**, wenn eine Autorenquelle wieder Pixel oder Leinwandbrüche
-     führt. Er wird in die **bestehende** Stage-1-Kette gehängt, nicht als neuer Runner.
-  4. Derselbe Check erzwingt INVARIANT A7 dort, wo sie gilt: jeder **Abstand** in
-     `layout_grid.yaml` (`gutter`, `outer_margin`, `internal_padding`, `zone_gap`) liegt
-     auf der 8er-Skala. **Abgeleitete** LU-Maße sind davon ausdrücklich ausgenommen —
-     mit der Begründung im Code, nicht nur hier, sonst „repariert" der nächste Durchgang
-     die 86,67 zurück.
-  5. Die beiden Befunde oben sind behoben und der Beweis steht als Testfall im Repo —
-     `Main_1` ergibt **4,00**, nicht 3,93.
-* **Fallstrick, benannt:** das ist eine **verhaltensändernde** Umstellung. Die erzeugten
-  `dist`-Reports verschieben sich um wenige Pixel. Ein Drift-Test, der die alten Werte
-  einfriert, würde die Korrektur als Fehler melden — die Referenzwerte werden in **einem**
-  Schritt mitgezogen, mit der Verschiebung als Begründung im Commit.
+**🟢 Umgesetzt am 02.08.2026.**
+
+* `_OVERVIEW_LAYOUT` / `_DETAIL_LAYOUT` sind durch `_OVERVIEW_LU` / `_DETAIL_LU`
+  ersetzt — `(col, row, colSpan, rowSpan)` statt Leinwandbrüchen. Die Auflösung liegt
+  in **einer** Funktion, `lu_to_pixels()`, mit Gutter und Außenrand *innerhalb* der
+  Rechnung. `_grid_params()` liest `layout_grid.yaml` statt die Werte zu kopieren.
+* **Beide Befunde behoben, mit Zahlen statt Zusicherung:** derselbe Slot ergibt auf
+  1280×720 **und** 1920×1080 dieselbe Spalte und Spanne; `Main_1/2/3` liegen bei
+  Spalte 0/4/8 mit Spanne **4,00** — vorher 3,93.
+
+**Waagerecht ganzzahlig, senkrecht bewusst fraktional.** Das ist kein halber Job,
+sondern der Befund: horizontal snappt das Raster sauber (Overview 3 × 4 LU, Detail
+2 + 8 + 2 = 12, Abweichung heute nur 0,03–0,07 LU). Vertikal nicht — ein Zwang auf
+12 Zeilen ließe `Benchmark_Caption` und `Slicer_Date` auf **dieselbe Zeile 2** fallen
+und verschöbe Slots um bis zu 40 px. Vor allem: der Datums-Slicer hat eine
+**dokumentierte Mindesthöhe** von 76 px, darunter meldet die offizielle CLI
+`PBIR_SLICER_HEIGHT_BELOW_FLOOR`. Ein Raster, das eine Plattform-Zusicherung bricht,
+gewinnt nicht — und `slot-pos.ts` erlaubt fraktionale Zeilen ausdrücklich.
+
+**8 Tests**, darunter drei, die mehr sichern als die Reparatur:
+`test_formula_mirrors_slot_pos_ts` hält die Python-Auflösung und den CSS-`calc()`-Vertrag
+zusammen (zwei Implementierungen derselben Formel sind sonst die nächste Drift-Quelle);
+`test_no_canvas_fractions_return_to_the_authoring_source` verhindert den Rückfall — der
+nächste Slot, der „schnell mal" als `0.0167` dazukommt, sieht auf der Autorenleinwand
+richtig aus und bringt beide Befunde zurück; `test_spacing_obeys_the_8px_doctrine`
+erzwingt INVARIANT A7 dort, wo sie gilt, und nimmt die abgeleitete LU ausdrücklich aus.
+
+**Zwei Dinge, die der Wächter beim ersten Lauf gefunden hat** — beide meine: neun
+Aufrufstellen zeigten noch auf die alten Namen; und der Bruch-Wächter schlug auf
+*meinem eigenen Kommentar* an, der den Fehler dokumentiert. Er prüft jetzt nur
+Code-Zeilen: die Erklärung eines Fehlers ist nicht der Fehler.
+
+**Reichweite, ehrlich abgegrenzt.** Die Umstellung trifft den **IR-Compiler-Pfad**
+(65 Tests in `generator_core/` grün). Sie trifft **nicht** die eingecheckten
+`dist`-Reports: `from_aluca` nennt `BracketCompiler` nur im Docstring und erzeugt sein
+Modell ohne Positionen (`"width": 0` in den Golden Snapshots) — deshalb hat sich dort
+nichts bewegt. Die Angleichung der `dist`-Artefakte hängt weiter an **C4**, der offenen
+Architekturentscheidung. Der zuvor hier notierte „verhaltensändernd → Referenzwerte
+mitziehen"-Fallstrick ist damit **gegenstandslos** — gemessen, nicht angenommen.
+
 * **Modell:** Opus (die Umstellung ist geometrisch, nicht mechanisch) · **Umgebung:** CC-Web
   (die Auflösung ist rechenbar; der Augenschein in Desktop gehört zu L10)
 
@@ -1045,4 +1064,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
 | L11 Fidelity-Scorecard | 🟢 **erledigt** | 2026-08-02 | Treue je Ziel im **vorhandenen** Scorer, kein zweiter. Vier Stufen aus vorhandenen Feldern; erster Lauf: powerbi 100 % · evidence 88 % · vegalite 10 %, jeder Abzug mit Grund. Advisory verdrahtet, harter Boden per `--fidelity-floor` bereit — bewusst noch nicht gesetzt, solange L9 offen ist. Deckt die deterministische Stufe des in ADR-0048 §4 offenen Gate-Analogons. 7 Tests, ohne eingefrorene Prozentwerte außer dem vertraglichen powerbi-100 %. |
 | **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. **02.08. ergänzt:** OSS-Vorarbeiten aus ADR-0048 §2.3 zuerst prüfen (`ruqzuq/standard-charts`, Deneb-Galerien); gemessene Lücke = IBCS-Chart-*Typen* (Wasserfall/Nadel/Skalenband), nicht die Notation; **Deneb-Entscheid** dokumentiert, nicht getroffen (Fremd-Visual, §3.4); Quelle `actionablereporting.com` **403 → offen**. CC-BY-SA-Pflicht beachten. |
-| **L13 Ein Koordinatensystem** | ⬜ **offen — vorziehen** | | **neu 02.08.** Geometrie in LU statt Leinwandbrüchen, Auflösung erst im Konnektor. Gemessen: `_OVERVIEW_LAYOUT` ist gegen **1920×1080** geschrieben, `layout_grid.yaml` rechnet gegen **1280×720** → erster Slot bei Spalte −0,10; und selbst bei 1920 ergibt `Main_1` **3,93** statt 4, weil `gutter`/`outer_margin` absolut bleiben. Erweitert `canvas_profiles` (Meridian) — die skalieren heute Schrift, keine Geometrie. Referenz: `slot-pos.ts`. Verhaltensändernd → `dist`-Referenzwerte mitziehen. **Entschieden 02.08. (Flo):** 8px-Doktrin (INVARIANT A7) gilt für **Abstände**, nicht für die abgeleitete LU — Weg (b) „8er-reine LU erzwingen" ist **verworfen**. Beleg: auf keiner der beiden Leinwände macht ein Außenrand beide Achsen 8er-rein; bei 1920×1080 ist die Vertikale mit 12 Zeilen gar nicht lösbar. |
+| **L13 Ein Koordinatensystem** | 🟢 **erledigt** | 2026-08-02 | Geometrie in Logical Units, Auflösung nur in `lu_to_pixels()` — Gutter und Außenrand innerhalb der Rechnung. Beide Befunde behoben: gleiche Spalte auf 1280 **und** 1920, `Main_1` bei Spanne **4,00** statt 3,93. Waagerecht ganzzahlig, senkrecht fraktional — weil ein 12-Zeilen-Zwang zwei Slots kollidieren ließe und die dokumentierte 76-px-Mindesthöhe des Slicers bräche. 8 Tests inkl. Rückfall-Wächter und Formel-Abgleich gegen `slot-pos.ts`. Reichweite: IR-Compiler-Pfad; die `dist`-Reports sind **nicht** betroffen (`from_aluca` erzeugt keine Positionen) — deren Angleichung bleibt an C4. |
