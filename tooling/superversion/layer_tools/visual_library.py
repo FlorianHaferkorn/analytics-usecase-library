@@ -21,7 +21,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, Optional
 
 import yaml
 
@@ -42,6 +42,67 @@ ALUCA_VISUAL_BLOCK: dict[str, str] = {
     "table": "detail_matrix",
     "matrix": "detail_matrix",
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Alt-Vokabular → Registry-ID (ADR-0018).
+#
+# Die Registry ist seit dem 02.08.2026 die alleinige Autoritaet. Bis die Brackets
+# darauf normalisiert sind (Task L2), leben im Repo weiterhin Alt-Token. Sie sind
+# nicht falsch — sie folgen der abgeloesten Autoritaet — aber sie brauchen genau
+# EINE Stelle, die sagt, was sie heute bedeuten. Das ist diese.
+#
+# Warum das hier steht und nicht in einer neuen Datei: `ALUCA_VISUAL_BLOCK` oben
+# loest denselben Namensraum bereits nach Bloecken auf. Ein zweiter Speicher fuer
+# dieselbe Frage waere genau die Parallelwelt, die ADR-0018 gerade beendet hat.
+LEGACY_TO_REGISTRY: dict[str, str] = {
+    "kpi_card": "kpi_card_with_delta",
+    "card": "kpi_card_with_delta",
+    "trend_line": "line_chart",
+    "bar_chart": "horizontal_bar_chart",
+    "bar_chart_horizontal": "horizontal_bar_chart",
+    "bar_chart_column": "column_chart",
+    "horizontal_bar": "horizontal_bar_chart",
+    "waterfall": "waterfall_chart",
+    "scatter": "scatter_plot",
+    "stacked_bar_100pct": "stacked_bar_100",
+    "hundred_percent_stacked_bar": "stacked_bar_100",
+}
+
+# Token, die BEWUSST keine Registry-Entsprechung haben: Seitenmoebel, keine
+# Informationsblock-Visuals. Die Registry beschreibt Absichten — ein Slicer
+# beantwortet keine Frage, er filtert sie. Diese Liste ist der Unterschied
+# zwischen „fehlt" und „gehoert nicht dazu"; ohne sie wuerde jede Pruefung
+# Seitenmoebel als Luecke melden und dadurch unbrauchbar.
+CHROME_TOKENS: frozenset[str] = frozenset({
+    "slicer", "text_box", "smart_narrative", "text_narrative", "action_panel",
+})
+
+
+def canonical_visual_id(token: str) -> Optional[str]:
+    """Alt-Token oder Registry-ID → Registry-ID. `None`, wenn unbekannt.
+
+    Chrome-Token liefern ebenfalls `None` — sie sind mit `CHROME_TOKENS` zu pruefen,
+    nicht hierueber. Die Trennung ist Absicht: „kenne ich nicht" und „ist kein
+    Informationsblock" duerfen nicht denselben Rueckgabewert bekommen und dann
+    gleich behandelt werden.
+    """
+    if not token:
+        return None
+    if token in LEGACY_TO_REGISTRY:
+        return LEGACY_TO_REGISTRY[token]
+    return token if token in VisualLibrary.load().all_visual_ids() else None
+
+
+def unresolved_tokens(tokens: "Iterable[str]") -> list[str]:
+    """Die Token, die weder auf die Registry zeigen noch als Chrome deklariert sind.
+
+    Der Rueckgabewert ist die Liste, die ein Gate rot machen soll. Leer = jedes
+    Vokabular im Repo laesst sich auf die eine Autoritaet aufloesen.
+    """
+    return sorted({
+        t for t in tokens
+        if t and t not in CHROME_TOKENS and canonical_visual_id(t) is None
+    })
 
 
 class VisualLibraryError(ValueError):
@@ -225,6 +286,14 @@ class VisualLibrary:
                 if nur_extern and (not v.replaces or v.replaces not in floor):
                     out.append(f"{bid}/{v.visual_id}")
         return sorted(out)
+
+    def all_visual_ids(self) -> set[str]:
+        """Jede `visual_id`, die irgendein Block erlaubt — die Autoritaet aus ADR-0018.
+
+        Verbotene Visuals sind bewusst NICHT enthalten: sie sind benannt, um
+        abgelehnt zu werden, nicht um deklarierbar zu sein.
+        """
+        return {v.visual_id for b in self.blocks.values() for v in b.allowed_visuals}
 
     def block(self, block_id: str) -> InformationBlock:
         if block_id not in self.blocks:

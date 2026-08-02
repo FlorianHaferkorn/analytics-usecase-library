@@ -36,7 +36,10 @@
     },
     "governance": {
       "type": "object",
-      "required": ["owner_role", "steward_role"],
+      "required": [
+        "owner_role",
+        "steward_role"
+      ],
       "additionalProperties": false,
       "properties": {
         "owner_role": {
@@ -51,14 +54,22 @@
         },
         "status": {
           "type": "string",
-          "enum": ["draft", "active", "deprecated"],
+          "enum": [
+            "draft",
+            "active",
+            "deprecated"
+          ],
           "description": "Lifecycle gate (ADR-0004). Absent or 'active' = final: full Golden Thread enforcement (referential integrity, governed evidence grain, org roles are ERRORs). 'draft' = in elaboration: those reference checks are advisory (WARN) so an unfinished use case can be parked without breaking the build, while it is still scanned and inventoried. 'deprecated' = retired. Structural/schema validity is enforced in every state."
         }
       }
     },
     "orchestration": {
       "type": "object",
-      "required": ["strategic_kpi_id", "influencing_kpi_ids", "action_code_ids"],
+      "required": [
+        "strategic_kpi_id",
+        "influencing_kpi_ids",
+        "action_code_ids"
+      ],
       "additionalProperties": false,
       "properties": {
         "strategic_kpi_id": {
@@ -68,24 +79,36 @@
         },
         "influencing_kpi_ids": {
           "type": "array",
-          "items": { "type": "string", "minLength": 3 },
+          "items": {
+            "type": "string",
+            "minLength": 3
+          },
           "description": "Diagnostic lever KPI IDs from KPI catalog."
         },
         "action_code_ids": {
           "type": "array",
-          "items": { "type": "string", "minLength": 3 },
+          "items": {
+            "type": "string",
+            "minLength": 3
+          },
           "description": "Subscribed action code IDs from core/action_codes."
         },
         "supporting_kpi_ids": {
           "type": "array",
-          "items": { "type": "string", "minLength": 3 },
+          "items": {
+            "type": "string",
+            "minLength": 3
+          },
           "description": "KPI IDs required to calculate strategic/influencing/action KPIs (report BoM). Registry validates bracket completeness via depends_on closure."
         }
       }
     },
     "value_driver_model": {
       "type": "object",
-      "required": ["formula", "impact_direction"],
+      "required": [
+        "formula",
+        "impact_direction"
+      ],
       "additionalProperties": false,
       "properties": {
         "formula": {
@@ -94,7 +117,10 @@
         },
         "impact_direction": {
           "type": "string",
-          "enum": ["maximize", "minimize"],
+          "enum": [
+            "maximize",
+            "minimize"
+          ],
           "description": "Whether the strategic KPI should be maximized or minimized."
         },
         "primary_driver": {
@@ -113,7 +139,11 @@
     },
     "ux_layout_rules": {
       "type": "object",
-      "required": ["report_structure", "page_1_summary", "page_2_execution"],
+      "required": [
+        "report_structure",
+        "page_1_summary",
+        "page_2_execution"
+      ],
       "additionalProperties": false,
       "properties": {
         "report_structure": {
@@ -122,7 +152,9 @@
         },
         "intent_rules_version": {
           "type": "integer",
-          "enum": [2],
+          "enum": [
+            2
+          ],
           "description": "R2.1 transition marker (UMSETZUNGSPLAN_REPORT_EXZELLENZ.md Cut C2). Omit entirely for legacy brackets not yet migrated -- they are exempt from the intent-layer required fields below (sort_by/top_n/highlight_rule on component_300s; message/unit on each component_30s entry). Set to 2 only once those fields are curated (R2.4 migrates all 16 pre-existing brackets to this pattern; COM-002 is the reference)."
         },
         "title_statements_verified": {
@@ -137,17 +169,31 @@
           "type": "object",
           "description": "Optional canvas size for grid-based report (default 1920×1080). Enables proportional scaling when changed.",
           "properties": {
-            "width": { "type": "integer", "minimum": 1280, "description": "Page width in pixels (Full HD: 1920)." },
-            "height": { "type": "integer", "minimum": 720, "description": "Page height in pixels (Full HD: 1080)." }
+            "width": {
+              "type": "integer",
+              "minimum": 1280,
+              "description": "Page width in pixels (Full HD: 1920)."
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 720,
+              "description": "Page height in pixels (Full HD: 1080)."
+            }
           },
           "additionalProperties": false
         },
         "page_1_summary": {
           "type": "object",
-          "required": ["title", "component_3s", "component_30s"],
+          "required": [
+            "title",
+            "component_3s",
+            "component_30s"
+          ],
           "additionalProperties": false,
           "properties": {
-            "title": { "type": "string" },
+            "title": {
+              "type": "string"
+            },
             "decision_question": {
               "type": "string",
               "maxLength": 120,
@@ -160,22 +206,41 @@
             },
             "page_type": {
               "type": "string",
-              "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
+              "enum": [
+                "T1_Strategic_Overview",
+                "T2_Tactical_Variance",
+                "T3_Operational_Monitoring",
+                "T4_Prescriptive_Recommendation"
+              ],
               "description": "Page type classification from core/templates/page_templates/page_types/."
             },
             "template_variant": {
               "type": "string",
               "enum": [
-                "T1_Portfolio", "T1_Trend",
-                "T2_DriverBridge", "T2_Comparative", "T2_Funnel",
-                "T3_ExceptionQueue", "T3_ProcessControl", "T3_IncidentMonitor",
-                "T4_ActionDecision", "T4_OptionComparison", "T4_Sensitivity"
+                "T1_Portfolio",
+                "T1_Trend",
+                "T2_DriverBridge",
+                "T2_Comparative",
+                "T2_Funnel",
+                "T3_ExceptionQueue",
+                "T3_ProcessControl",
+                "T3_IncidentMonitor",
+                "T4_ActionDecision",
+                "T4_OptionComparison",
+                "T4_Sensitivity"
               ],
               "description": "Template variant from core/templates/page_templates/template_manifest.yaml. Determines slot structure and visual contract. Decision tree: see studio/docs/rebuild/PAGE_TYPE_TAXONOMY.md §4."
             },
             "template_id": {
               "type": "string",
-              "enum": ["pulse", "pulse_asymmetric", "executive_kpi", "investigator", "investigator_focus", "action_matrix"],
+              "enum": [
+                "pulse",
+                "pulse_asymmetric",
+                "executive_kpi",
+                "investigator",
+                "investigator_focus",
+                "action_matrix"
+              ],
               "description": "Grid page template. Auto-resolved from template_variant if not specified. See template_manifest.yaml for variant→template mapping."
             },
             "annotation_waiver": {
@@ -184,14 +249,22 @@
             },
             "component_3s": {
               "type": "object",
-              "required": ["kpi_id", "visual_type"],
+              "required": [
+                "kpi_id",
+                "visual_type"
+              ],
               "additionalProperties": false,
               "properties": {
-                "kpi_id": { "type": "string", "description": "North Star KPI ID." },
+                "kpi_id": {
+                  "type": "string",
+                  "description": "North Star KPI ID."
+                },
                 "visual_type": {
                   "type": "string",
                   "description": "Abstract visual type from Abstract_Visual_Types.md. Connectors translate to tool-native component.",
-                  "enum": ["kpi_card", "kpi_card_hero", "kpi_card_compact"]
+                  "enum": [
+                    "kpi_card"
+                  ]
                 },
                 "sparkline_field": {
                   "type": "string",
@@ -199,12 +272,21 @@
                 },
                 "comparison": {
                   "type": "string",
-                  "enum": ["vs_plan", "vs_py", "vs_prior_month", "vs_prior_refresh", "vs_target"],
+                  "enum": [
+                    "vs_plan",
+                    "vs_py",
+                    "vs_prior_month",
+                    "vs_prior_refresh",
+                    "vs_target"
+                  ],
                   "description": "Reference period for the delta calculation."
                 },
                 "status_logic": {
                   "type": "string",
-                  "enum": ["higher_is_better", "lower_is_better"],
+                  "enum": [
+                    "higher_is_better",
+                    "lower_is_better"
+                  ],
                   "description": "Signal direction: determines whether a positive delta is green or red."
                 },
                 "target_value": {
@@ -223,10 +305,15 @@
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {
-                  "kpi_id": { "type": "string", "description": "Single KPI ID." },
+                  "kpi_id": {
+                    "type": "string",
+                    "description": "Single KPI ID."
+                  },
                   "kpi_ids": {
                     "type": "array",
-                    "items": { "type": "string" },
+                    "items": {
+                      "type": "string"
+                    },
                     "description": "Multiple KPI IDs for composite visuals."
                   },
                   "visual_type": {
@@ -242,24 +329,21 @@
                       "waterfall",
                       "scatter_plot",
                       "decomposition_tree",
-                      "funnel_chart",
                       "recommendation_table",
-                      "table_with_databars",
                       "kpi_card",
-                      "kpi_card_hero",
-                      "kpi_card_compact",
-                      "status_tile",
                       "text_narrative",
                       "trend_line",
                       "bar_chart",
-                      "hundred_percent_stacked_bar",
-                      "stacked_bar",
-                      "funnel"
+                      "hundred_percent_stacked_bar"
                     ]
                   },
                   "slot_id": {
                     "type": "string",
-                    "enum": ["Main_1", "Main_2", "Main_3"],
+                    "enum": [
+                      "Main_1",
+                      "Main_2",
+                      "Main_3"
+                    ],
                     "description": "Explicit slot assignment for Overview (when set, overrides heuristic)."
                   },
                   "category_field": {
@@ -268,12 +352,21 @@
                   },
                   "comparison": {
                     "type": "string",
-                    "enum": ["vs_plan", "vs_py", "vs_prior_month", "vs_prior_refresh", "vs_target"],
+                    "enum": [
+                      "vs_plan",
+                      "vs_py",
+                      "vs_prior_month",
+                      "vs_prior_refresh",
+                      "vs_target"
+                    ],
                     "description": "Reference period for the delta calculation on this visual."
                   },
                   "status_logic": {
                     "type": "string",
-                    "enum": ["higher_is_better", "lower_is_better"],
+                    "enum": [
+                      "higher_is_better",
+                      "lower_is_better"
+                    ],
                     "description": "Signal direction for threshold colouring on this visual."
                   },
                   "message": {
@@ -284,7 +377,15 @@
                   },
                   "unit": {
                     "type": "string",
-                    "enum": ["amount", "rate", "ratio", "count", "percentage", "quantity", "index"],
+                    "enum": [
+                      "amount",
+                      "rate",
+                      "ratio",
+                      "count",
+                      "percentage",
+                      "quantity",
+                      "index"
+                    ],
                     "description": "Scale family this visual's measure(s) render in (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Reuses the governed calc_type vocabulary from core/kpi_catalog (see validate_kpi_catalog.ps1's $allowedCalc) rather than inventing a parallel one -- should match the referenced kpi_id's/kpi_ids' own calc_type. Exists to make one-message-per-chart / no-mixed-scale-axis a declared intent the generator (R2.3) and design_rules.yaml (R2.2) can check, not just an emergent property of measures picked."
                   },
                   "so_what": {
@@ -302,7 +403,9 @@
                     "description": "Governed action code this exhibit points to (Golden Thread — must exist in core/action_codes/ and be listed in orchestration.action_code_ids). Optional; closes the so-what→action link."
                   }
                 },
-                "required": ["visual_type"]
+                "required": [
+                  "visual_type"
+                ]
               },
               "description": "Diagnostic visuals for the 30-second layer."
             }
@@ -310,10 +413,15 @@
         },
         "page_2_execution": {
           "type": "object",
-          "required": ["title", "component_300s"],
+          "required": [
+            "title",
+            "component_300s"
+          ],
           "additionalProperties": false,
           "properties": {
-            "title": { "type": "string" },
+            "title": {
+              "type": "string"
+            },
             "decision_question": {
               "type": "string",
               "maxLength": 120,
@@ -326,55 +434,92 @@
             },
             "page_type": {
               "type": "string",
-              "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
+              "enum": [
+                "T1_Strategic_Overview",
+                "T2_Tactical_Variance",
+                "T3_Operational_Monitoring",
+                "T4_Prescriptive_Recommendation"
+              ],
               "description": "Page type classification from core/templates/page_templates/page_types/."
             },
             "template_variant": {
               "type": "string",
               "enum": [
-                "T1_Portfolio", "T1_Trend",
-                "T2_DriverBridge", "T2_Comparative", "T2_Funnel",
-                "T3_ExceptionQueue", "T3_ProcessControl", "T3_IncidentMonitor",
-                "T4_ActionDecision", "T4_OptionComparison", "T4_Sensitivity"
+                "T1_Portfolio",
+                "T1_Trend",
+                "T2_DriverBridge",
+                "T2_Comparative",
+                "T2_Funnel",
+                "T3_ExceptionQueue",
+                "T3_ProcessControl",
+                "T3_IncidentMonitor",
+                "T4_ActionDecision",
+                "T4_OptionComparison",
+                "T4_Sensitivity"
               ],
               "description": "Template variant from template_manifest.yaml. For detail pages, T4_ActionDecision is standard when action_panel = true."
             },
             "template_id": {
               "type": "string",
-              "enum": ["investigator", "investigator_focus", "action_matrix"],
+              "enum": [
+                "investigator",
+                "investigator_focus",
+                "action_matrix"
+              ],
               "description": "Grid page template for Detail (300s): investigator = left slicer + focus + support; action_matrix = narrative + matrix."
             },
             "component_300s": {
               "type": "object",
-              "required": ["evidence_grain", "evidence_columns", "action_panel", "payload_mode"],
+              "required": [
+                "evidence_grain",
+                "evidence_columns",
+                "action_panel",
+                "payload_mode"
+              ],
               "additionalProperties": false,
               "properties": {
                 "evidence_grain": {
                   "type": "string",
                   "minLength": 1,
-                  "not": { "const": "transaction_line" },
+                  "not": {
+                    "const": "transaction_line"
+                  },
                   "description": "Grain of the evidence table — must match a governed fact-table grain from core/data_contracts/domains/*.yaml. Placeholder 'transaction_line' is forbidden; refer to internal/evidence_grain_audit_results.md for correct values."
                 },
                 "evidence_columns": {
                   "type": "array",
-                  "items": { "type": "string" },
+                  "items": {
+                    "type": "string"
+                  },
                   "description": "Columns for the evidence table."
                 },
                 "evidence_measures": {
                   "type": "array",
-                  "items": { "type": "string" },
+                  "items": {
+                    "type": "string"
+                  },
                   "description": "KPI IDs or measure names for Detail_Matrix value columns (optional)."
                 },
-                "action_panel": { "type": "boolean", "description": "Whether to show the action panel." },
+                "action_panel": {
+                  "type": "boolean",
+                  "description": "Whether to show the action panel."
+                },
                 "payload_mode": {
                   "type": "string",
-                  "enum": ["full", "summary", "minimal"],
+                  "enum": [
+                    "full",
+                    "summary",
+                    "minimal"
+                  ],
                   "description": "How much action code detail to inject."
                 },
                 "sort_by": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["measure", "direction"],
+                  "required": [
+                    "measure",
+                    "direction"
+                  ],
                   "description": "Default sort for the evidence table (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 Detail_Matrix sorts descending by GM% vs Plan (worst-first) -- see Design_Spec_3_30_300.md's Detail Matrix anatomy, 'Sort default: descending by delta (worst first)'.",
                   "properties": {
                     "measure": {
@@ -384,7 +529,10 @@
                     },
                     "direction": {
                       "type": "string",
-                      "enum": ["ascending", "descending"]
+                      "enum": [
+                        "ascending",
+                        "descending"
+                      ]
                     }
                   }
                 },
@@ -397,7 +545,9 @@
                 "highlight_rule": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["column"],
+                  "required": [
+                    "column"
+                  ],
                   "description": "Conditional-formatting emphasis on one evidence column (R2.1, Cut C2). Required when ux_layout_rules.intent_rules_version = 2. Precedent: COM-002 uses a native data bar on GM variance (R1.3) -- type is deliberately restricted to the one PBIR formatting object.dataBars pattern actually schema-verified so far (see UMSETZUNGSPLAN_REPORT_EXZELLENZ.md R1.3 row); do not add other enum values without the same verification discipline.",
                   "properties": {
                     "column": {
@@ -407,7 +557,9 @@
                     },
                     "type": {
                       "type": "string",
-                      "enum": ["data_bar"],
+                      "enum": [
+                        "data_bar"
+                      ],
                       "description": "Formatting treatment. Only 'data_bar' is currently schema-verified (native objects.columnFormatting[].properties.dataBars); defaults to data_bar when omitted."
                     }
                   }
@@ -418,8 +570,14 @@
         }
       },
       "if": {
-        "properties": { "intent_rules_version": { "const": 2 } },
-        "required": ["intent_rules_version"]
+        "properties": {
+          "intent_rules_version": {
+            "const": 2
+          }
+        },
+        "required": [
+          "intent_rules_version"
+        ]
       },
       "then": {
         "type": "object",
@@ -435,7 +593,10 @@
                     "message": true,
                     "unit": true
                   },
-                  "required": ["message", "unit"]
+                  "required": [
+                    "message",
+                    "unit"
+                  ]
                 }
               }
             }
@@ -450,7 +611,11 @@
                   "top_n": true,
                   "highlight_rule": true
                 },
-                "required": ["sort_by", "top_n", "highlight_rule"]
+                "required": [
+                  "sort_by",
+                  "top_n",
+                  "highlight_rule"
+                ]
               }
             }
           }
@@ -459,7 +624,9 @@
     },
     "documentation": {
       "type": "object",
-      "required": ["business_factsheet"],
+      "required": [
+        "business_factsheet"
+      ],
       "additionalProperties": false,
       "properties": {
         "business_factsheet": {
@@ -474,7 +641,10 @@
     },
     "primary_kpi_ids": {
       "type": "array",
-      "items": { "type": "string", "minLength": 3 },
+      "items": {
+        "type": "string",
+        "minLength": 3
+      },
       "description": "KPI IDs surfaced as KPI Cards in the IR compiler output (primary visual layer)."
     },
     "ux_bindings": {
@@ -503,12 +673,20 @@
       "properties": {
         "business_value": {
           "type": "string",
-          "enum": ["high", "medium", "low"],
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
           "description": "Expected business impact if this use case is implemented successfully."
         },
         "implementation_effort": {
           "type": "string",
-          "enum": ["high", "medium", "low"],
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
           "description": "Estimated effort to implement (data, tooling, change management)."
         },
         "confidence": {
@@ -519,11 +697,18 @@
         },
         "reach": {
           "type": "string",
-          "enum": ["organization", "division", "team"],
+          "enum": [
+            "organization",
+            "division",
+            "team"
+          ],
           "description": "Scope of users/stakeholders who benefit from this use case."
         },
         "priority_score": {
-          "type": ["integer", "null"],
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 1,
           "maximum": 100,
           "description": "Composite priority score (1-100). Can be auto-calculated or manually set."
@@ -549,22 +734,38 @@
       "properties": {
         "data_availability": {
           "type": "string",
-          "enum": ["available", "partial", "missing"],
+          "enum": [
+            "available",
+            "partial",
+            "missing"
+          ],
           "description": "Are the required data sources accessible and of sufficient quality?"
         },
         "org_capability": {
           "type": "string",
-          "enum": ["ready", "developing", "not_ready"],
+          "enum": [
+            "ready",
+            "developing",
+            "not_ready"
+          ],
           "description": "Does the organization have the skills and processes to use this use case?"
         },
         "stakeholder_alignment": {
           "type": "string",
-          "enum": ["aligned", "partial", "not_aligned"],
+          "enum": [
+            "aligned",
+            "partial",
+            "not_aligned"
+          ],
           "description": "Are business owners and stakeholders committed to acting on insights?"
         },
         "overall_readiness": {
           "type": "string",
-          "enum": ["green", "amber", "red"],
+          "enum": [
+            "green",
+            "amber",
+            "red"
+          ],
           "description": "Summary readiness signal. Green = ready to implement, Amber = gaps to close, Red = not ready."
         }
       }
@@ -572,7 +773,10 @@
     "data_protection": {
       "type": "object",
       "description": "DSGVO Art. 25 Privacy by Design and by Default — required when any personal data or individually attributable operational data is processed or displayed. See core/templates/page_templates/governance/Data_Protection_Governance.md",
-      "required": ["personal_data", "legal_basis"],
+      "required": [
+        "personal_data",
+        "legal_basis"
+      ],
       "additionalProperties": false,
       "properties": {
         "personal_data": {
@@ -638,7 +842,11 @@
       "description": "Explicit cross-use-case dependency edges. Each entry documents a formal dependency between this UC and another.",
       "items": {
         "type": "object",
-        "required": ["use_case_id", "link_type", "reason"],
+        "required": [
+          "use_case_id",
+          "link_type",
+          "reason"
+        ],
         "additionalProperties": false,
         "properties": {
           "use_case_id": {
@@ -647,7 +855,17 @@
           },
           "link_type": {
             "type": "string",
-            "enum": ["guardrail_source", "churn_signal", "cost_context", "capacity_dependency", "data_dependency", "escalation_path", "feeds_into", "depends_on", "peer_context"],
+            "enum": [
+              "guardrail_source",
+              "churn_signal",
+              "cost_context",
+              "capacity_dependency",
+              "data_dependency",
+              "escalation_path",
+              "feeds_into",
+              "depends_on",
+              "peer_context"
+            ],
             "description": "The semantic type of the cross-UC relationship."
           },
           "reason": {
@@ -667,11 +885,30 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "model": {"type": "string", "description": "RLS model type (e.g. entity_hierarchy, flat_role)."},
-            "enforcement_layer": {"type": "string", "enum": ["semantic_model", "report", "both"]},
-            "role_table": {"type": "string", "description": "Dimension table that drives the RLS filter."},
-            "access_column": {"type": "string", "description": "Column in role_table used for row-level filtering."},
-            "test_requirement": {"type": "string", "description": "When and how RLS must be audited."}
+            "model": {
+              "type": "string",
+              "description": "RLS model type (e.g. entity_hierarchy, flat_role)."
+            },
+            "enforcement_layer": {
+              "type": "string",
+              "enum": [
+                "semantic_model",
+                "report",
+                "both"
+              ]
+            },
+            "role_table": {
+              "type": "string",
+              "description": "Dimension table that drives the RLS filter."
+            },
+            "access_column": {
+              "type": "string",
+              "description": "Column in role_table used for row-level filtering."
+            },
+            "test_requirement": {
+              "type": "string",
+              "description": "When and how RLS must be audited."
+            }
           }
         }
       }

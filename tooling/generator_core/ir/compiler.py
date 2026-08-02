@@ -90,7 +90,49 @@ _VISUAL_TYPE_MAP: Dict[str, VisualType] = {
     "slicer":         VisualType.SLICER,
     "smart_narrative": VisualType.SMART_NARRATIVE,
     "action_panel":   VisualType.ACTION_PANEL,
+    # Alt-Token, die hier FEHLTEN und deshalb bis zum 02.08.2026 still auf den
+    # TREND_LINE-Fallback liefen. `bar_chart_horizontal` ist der teure Fall: vier
+    # Bracket-Deklarationen (OPS/SCM/COM, Main_2 + Main_3) sagen „horizontaler Balken"
+    # und wurden als Trendlinie kompiliert. `line_chart` traf es ebenso, blieb aber
+    # folgenlos, weil das Ziel zufaellig dasselbe Visual ist. Genau diese Asymmetrie
+    # ist der Grund, warum ein stiller Default schlimmer ist als ein Abbruch: er ist
+    # manchmal harmlos, und deshalb faellt er nie auf.
+    "bar_chart_horizontal": VisualType.HORIZONTAL_BAR,
+    "bar_chart_column":     VisualType.COLUMN_CHART,
+    "line_chart":     VisualType.LINE_CHART,
+    # Registry-Vokabular (ADR-0018) — dieselben Visuals unter ihrem SoT-Namen. Bis die
+    # Brackets normalisiert sind (L2-Rest), muessen BEIDE Schreibweisen ankommen.
+    "kpi_card_with_delta":  VisualType.KPI_CARD,
+    "horizontal_bar_chart": VisualType.HORIZONTAL_BAR,
+    "column_chart":         VisualType.COLUMN_CHART,
+    "waterfall_chart":      VisualType.WATERFALL,
+    "scatter_plot":         VisualType.SCATTER,
 }
+
+
+class UnknownVisualTypeError(ValueError):
+    """Ein `visual_type`, den weder Bracket- noch Registry-Vokabular kennt."""
+
+
+def _resolve_visual_type(vt_str: str, slot_id: str) -> VisualType:
+    """Bracket-Token → `VisualType`. Unbekanntes bricht ab, statt still zu raten.
+
+    Vorher stand hier `_VISUAL_TYPE_MAP.get(vt_str, VisualType.TREND_LINE)`. Der
+    Default war kein Sicherheitsnetz, sondern ein Verdeckungsmechanismus: ein Tippfehler
+    oder ein per Schema erlaubter, aber ungemappter Typ (`funnel_chart`, `status_tile`)
+    wurde klammheimlich zur Trendlinie. Der Generator lief durch, der Report war falsch,
+    und nichts wurde rot — die Fehlerklasse, die dieses Repo wiederholt getroffen hat.
+
+    Ein unbekannter Typ ist ein Autorenfehler und gehoert laut gemeldet.
+    """
+    if vt_str in _VISUAL_TYPE_MAP:
+        return _VISUAL_TYPE_MAP[vt_str]
+    raise UnknownVisualTypeError(
+        f"unbekannter visual_type '{vt_str}' in Slot {slot_id}. "
+        f"Autoritaet ist core/templates/page_templates/visual_registry.yaml (ADR-0018); "
+        f"Alt-Token werden in tooling/superversion/layer_tools/visual_library.py "
+        f"(LEGACY_TO_REGISTRY) uebersetzt. Bekannt: {sorted(_VISUAL_TYPE_MAP)}"
+    )
 
 # Map bracket page_type / template_variant → PageType enum.
 # Both short forms ("T2") and full forms ("T2_Tactical_Variance", "T2_DriverBridge") are
@@ -651,7 +693,7 @@ class BracketCompiler:
             for i, comp in enumerate(comp_30s[:3], 1):
                 slot_id = f"Main_{i}"
                 vt_str = comp.get("visual_type", "trend_line") if isinstance(comp, dict) else "trend_line"
-                vt = _VISUAL_TYPE_MAP.get(vt_str, VisualType.TREND_LINE)
+                vt = _resolve_visual_type(vt_str, slot_id)
                 measure_refs = [
                     _resolve_measure_ref(k, kpi_map) for k in _component_measure_refs(comp)
                 ]
