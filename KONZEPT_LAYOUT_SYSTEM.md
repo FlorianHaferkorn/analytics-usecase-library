@@ -287,7 +287,7 @@ IBCS-Regelbezüge ergänzen.
 
 ### L2 · Bracket-Vokabular normalisieren
 
-**🟡 Teilweise erledigt am 02.08.2026 — und die DoD-Annahme war falsch.**
+**🟢 Erledigt am 02.08.2026 — die DoD-Annahme war falsch, das Ziel wurde trotzdem erreicht.**
 
 Der Task war als *„mechanisch nach L0/L1-Muster, Modell Sonnet"* geplant: 66 Deklarationen
 umbenennen. **Gemessen ist er das nicht.** Das Alt-Vokabular steckt hartkodiert in
@@ -317,12 +317,31 @@ Prüfungen abgeschaltet, ohne dass etwas rot wird.
 | **Autoren-Schemas erlaubten 8 nicht sanktionierte Typen** | `funnel`, `funnel_chart`, `stacked_bar`, `detail_table`, `kpi_card_hero`, `kpi_card_compact`, `status_tile`, `table_with_databars` — **0 davon in Gebrauch**, alle deklarierbar, alle wären in den Fallback gelaufen. Entfernt. |
 | **`stacked_bar` war schema-erlaubt und registry-*verboten*** | `structural_mix` untersagt es begründet („Shows totals, not shares"). Ein Autoren-Schema, das erlaubt, was die Governance untersagt, ist keine Governance. Jetzt als eigener Test. |
 
-* **Bewusst offen (der eigentliche Rename):** die 66 Deklarationen tragen weiter
-  Alt-Token. Sie sind **auflösbar** (das Gate beweist es: 0 unauflösbare Token), damit ist
-  der Schaden neutralisiert — aber die Doppel-Schreibweise bleibt.
-  **Vorbedingung, benannt statt vertagt:** Verletzungspfad-Tests für
-  `check_reference_lines` und `check_forbidden_charts`. Danach ist der Rename mechanisch
-  und geschützt.
+**Der Rename ist danach durchgeführt — und die Vorbedingung stellte sich anders dar als
+notiert.** `check_forbidden_charts` liest **PBIR** (`pieChart`, `donutChart`, `gauge`,
+`treemap`), nicht Bracket-Token: er war nie betroffen. Das war meine Fehlzuordnung, nicht
+ein Risiko. Gemessen blieben **sechs** Dateien mit Literalvergleich auf Bracket-Ebene —
+davon ein weiterer Fehlalarm (`superset.py` ist nach `VisualType`-Enum verschlüsselt, sein
+`"waterfall"` ist ein *Superset*-Chartname).
+
+Statt Tests über die Bruchstelle zu legen, ist die Bruchstelle beseitigt: die Mengen
+prüfen jetzt den **kanonisierten** Wert, nicht die Schreibweise des Tages. Ein Rename kann
+sie damit nicht mehr ins Leere laufen lassen.
+
+Rename: **66 Deklarationen in 21 Dateien** — `kpi_card`→`kpi_card_with_delta` (21×),
+`trend_line`→`line_chart` (19×), `bar_chart`→`horizontal_bar_chart` (17×),
+`bar_chart_horizontal`→`horizontal_bar_chart` (5×), `waterfall`→`waterfall_chart` (4×).
+Die drei Autoren-Schemas führen jetzt kanonisches Vokabular.
+
+**Vierter Fund beim Rename** — und der einzige, den kein grep, sondern erst ein Test fand:
+`visual_builder.py` hatte einen **dritten** stillen Fallback (*„Unknown ux_visual_type
+'waterfall_chart'; defaulting to lineChart"*). Er lag hinter einer `alias_map`, die mein
+Literal-grep nicht sichtbar machte. Behoben in derselben `alias_map`.
+
+**Beweis der Bedeutungsneutralität:** die Golden Snapshots und
+`use_case_storylines.md` änderten sich in **ausschließlich** `visual_type`-Zeilen —
+17 rein, 17 raus, keine Position, kein Measure, keine Kante. Bewusst neu erzeugt über die
+jeweilige CLI, nicht von Hand.
 * **Nebenwirkung, die zu C4 gehört:** die vier `bar_chart_horizontal`-Deklarationen
   kompilieren ab jetzt anders als bisher. Die eingecheckten `dist`-Reports stammen nicht
   aus einem sanktionierten Generator (Meridian-**C4**) — ihre Angleichung hängt an
@@ -980,7 +999,7 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **L14 IBCS-Version klären** | ⬜ **offen — zuerst, vorbereitet** | | **neu 02.08.** ISO 24896 seit 11.06.2026 veröffentlicht, IBCS bei **2.0**. Vorbedingung für L12 **und** L6. **Lizenzfrage beantwortet (§8.2):** 2.0 bleibt CC BY-SA 4.0, wir brauchen für die Implementierung **keine** Lizenz — nur die Bauvorschrift „Regel-ID + eigene Formulierung, kein Regeltext". ISO-Dokument nur kaufen, wenn Frage **B1** einen Mehrwert zeigt. Offen bleibt das **Delta 1.2 → 2.0**. Prüfliste mit 12 Fragen steht in **§10.5** — **VS Code**, Quellen hier gesperrt. |
 | L0 Vokabular-Autorität | 🟢 **erledigt** | 2026-08-02 | **`visual_registry.yaml`** (ADR-0018). Die Konzept-Empfehlung `Abstract_Visual_Types.md` hat der Messung nicht standgehalten: 24 der 34 Typen unbenutzt, nur 7 der 25 gelebten IDs dort vorhanden — 18 Renames an erzwungenem Code für nichts. Beide `.md` sind Zeiger + eingeklappte Historie, `visual_slot_mapping.yaml` zeigt auf die Registry. Schließt Meridian-**B4**. |
 | L1 Intent-Katalog | 🟡 teilw. | 2026-08-01/02 | **Vokabular-Lücke geschlossen (§10.6):** von den drei extern gefundenen Absichten ist **eine** aufgenommen — `distribution_spread`, dreifach im eigenen Korpus belegt (FIN-001 AR-Aging, XD-001 Case-Age, SCM-003 „averaging hides bias"). **Spatial** und **freie Correlation** begründet verworfen: null Geo-Fragen in 20 Brackets (alle `map`-Treffer waren `MAPE`), Korrelation erscheint immer als Treiberfrage und ist von `root_cause_context` gedeckt. Damit ist L0 nicht mehr vorbelastet. Restumfang von L1 (Bestätigung/Schließung der übrigen Blöcke) bleibt offen. |
-| L2 Bracket-Normalisierung | 🟡 teilw. | 2026-08-02 | **DoD-Annahme widerlegt:** nicht mechanisch — Alt-Vokabular steckt in 12 Dateien, 2 Validatoren haben null Verletzungs-Tests. Gebaut wurde das Netz: Resolver in der vorhandenen `visual_library.py`, Gate über alle Vokabularquellen (9 Tests), stiller `TREND_LINE`-Fallback durch harten Abbruch ersetzt. **Sofort 3 Funde:** `bar_chart_horizontal` fehlte in `_VISUAL_TYPE_MAP` → 4 Deklarationen wurden still als Trendlinie kompiliert; 8 nicht sanktionierte Typen aus den Autoren-Schemas entfernt (0 in Gebrauch); `stacked_bar` war schema-erlaubt und registry-**verboten**. **Offen:** der Rename selbst — Vorbedingung sind Verletzungs-Tests für `check_reference_lines` + `check_forbidden_charts`. |
+| L2 Bracket-Normalisierung | 🟢 **erledigt** | 2026-08-02 | **DoD erfüllt: 0 Deklarationen außerhalb der SoT-Liste.** 66 Deklarationen in 21 Dateien umbenannt, drei Autoren-Schemas kanonisiert. Die DoD-Annahme „mechanisch“ war falsch — zuerst musste das Netz gebaut werden (Resolver in der vorhandenen `visual_library.py`, Gate mit 9 Tests, stiller `TREND_LINE`-Fallback durch harten Abbruch ersetzt), dann die sechs Literalvergleiche auf kanonisierte Werte umgestellt. **Vier Funde:** `bar_chart_horizontal` fehlte in `_VISUAL_TYPE_MAP` (4 Deklarationen kompilierten still als Trendlinie); 8 nicht sanktionierte Typen aus den Schemas entfernt; `stacked_bar` war schema-erlaubt und registry-**verboten**; `visual_builder.py` hatte einen **dritten** stillen Fallback hinter einer `alias_map` — den fand kein grep, sondern ein Test. **Zwei eigene Fehlalarme korrigiert:** `check_forbidden_charts` liest PBIR, `superset.py` ist enum-verschlüsselt — beide waren nie betroffen. Snapshot-Diff: ausschließlich `visual_type`, 17 rein / 17 raus. |
 | L3 Konnektor-Vertrag | 🟢 **erledigt** | 2026-08-01 | `targets` + `replaces` in `AllowedVisual`; `pbip_type` bleibt Alias. Evidence-Boden von 0/9 auf 8/9 aus dokumentierten Mappings. Bekannte Lücke: `structural_mix`. |
 | L4 Konnektor-Gate | 🟢 **erledigt** | 2026-08-01 | `check-floor` in der **bestehenden** Visual-Library-CLI (kein neuer Checker), in Stage 1 verdrahtet und dort sichtbar grün. Rot-Pfade getestet. **Bewusst offen:** die Parametrisierung des Emitter-Tests über mehrere Konnektoren braucht einen zweiten Emitter — heute gibt es nur `targets.pbir`. Kommt mit L9. |
 | L5 DTCG-Tokens | 🟢 **erledigt** | 2026-08-01 | `design_tokens.py` **erzeugt** DTCG aus den YAMLs (37 Tokens, 10 Gruppen) — die YAMLs bleiben Autorenquelle, weil **8** Konsumenten sie lesen. Drift-Check in Stage 1. Ableitung nach PBI-Theme/CSS steht noch aus. |

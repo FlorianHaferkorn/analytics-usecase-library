@@ -58,4 +58,4 @@ def test_fin001_ocf_gap_is_a_waterfall():
         (REPO / "core/usecases/core/FIN-001_Cash_Liquidity_Performance/UseCase_Bracket.yaml").read_text())
     main2 = next(e for e in fin["ux_layout_rules"]["page_1_summary"]["component_30s"]
                  if e["slot_id"] == "Main_2")
-    assert main2["comparison"] == "vs_plan" and main2["visual_type"] == "waterfall"
+    assert main2["comparison"] == "vs_plan" and main2["visual_type"] == "waterfall_chart"

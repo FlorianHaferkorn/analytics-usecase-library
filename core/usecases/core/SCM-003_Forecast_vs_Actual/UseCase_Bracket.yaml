@@ -43,13 +43,13 @@ ux_layout_rules:
     big_idea: "Forecast error is above threshold — systematic bias in the mid-range SKU cluster is driving overstock in two regions and requires model recalibration."
     component_3s:
       kpi_id: plan.forecast.accuracy.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: plan.forecast.mape.pct
-      visual_type: trend_line
+      visual_type: line_chart
       question: "Is forecast error random noise or a systematic bias?"
       message: Forecast error is a systematic bias, not random noise
       so_what: "A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides."
@@ -61,7 +61,7 @@ ux_layout_rules:
       kpi_ids:
       - plan.forecast.bias.pct
       - plan.forecast.service_impact.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: "What are the forecast-quality signals, and where do they hurt service?"
       message: Forecast bias and downstream service impact — the two forecast-quality signals.
       so_what: "Ranking bias by SKU cluster isolates where a model recalibration removes most of the replanning load."

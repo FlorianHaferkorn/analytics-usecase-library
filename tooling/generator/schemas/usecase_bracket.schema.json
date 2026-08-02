@@ -263,7 +263,7 @@
                   "type": "string",
                   "description": "Abstract visual type from Abstract_Visual_Types.md. Connectors translate to tool-native component.",
                   "enum": [
-                    "kpi_card"
+                    "kpi_card_with_delta"
                   ]
                 },
                 "sparkline_field": {
@@ -320,21 +320,18 @@
                     "type": "string",
                     "description": "Abstract visual type from Abstract_Visual_Types.md. Connectors translate to tool-native component.",
                     "enum": [
-                      "line_chart",
                       "area_chart",
-                      "small_multiples",
-                      "bar_chart_horizontal",
-                      "bar_chart_column",
-                      "stacked_bar_100pct",
-                      "waterfall",
-                      "scatter_plot",
+                      "column_chart",
                       "decomposition_tree",
+                      "horizontal_bar_chart",
+                      "kpi_card_with_delta",
+                      "line_chart",
                       "recommendation_table",
-                      "kpi_card",
+                      "scatter_plot",
+                      "small_multiples",
+                      "stacked_bar_100",
                       "text_narrative",
-                      "trend_line",
-                      "bar_chart",
-                      "hundred_percent_stacked_bar"
+                      "waterfall_chart"
                     ]
                   },
                   "slot_id": {

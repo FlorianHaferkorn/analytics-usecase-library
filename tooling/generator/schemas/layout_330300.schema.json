@@ -68,10 +68,10 @@
           "visual_type": {
             "type": "string",
             "enum": [
-              "trend_line",
-              "bar_chart",
-              "waterfall",
-              "scatter"
+              "horizontal_bar_chart",
+              "line_chart",
+              "scatter_plot",
+              "waterfall_chart"
             ]
           },
           "x_axis": {
@@ -118,8 +118,8 @@
           "visual_type": {
             "type": "string",
             "enum": [
-              "table",
-              "matrix"
+              "matrix",
+              "table"
             ]
           },
           "columns": {

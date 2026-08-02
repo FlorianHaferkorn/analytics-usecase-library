@@ -49,6 +49,16 @@ VISUAL_TYPE_MAP: Dict[str, List[str]] = {
     "scatter":               ["scatterChart"],
     "matrix":                ["pivotTable"],
     "table":                 ["tableEx"],
+    # Registry-Schreibweisen (ADR-0018). Ergaenzt statt ersetzt, weil die Brackets
+    # beide Formen tragen koennen, solange L2 nicht abgeschlossen ist. Ein Mapping,
+    # das nur eine Schreibweise kennt, faellt beim Umbenennen still auf "kein
+    # Treffer" zurueck — und eine Compliance-Pruefung ohne Treffer sieht aus wie
+    # eine bestandene.
+    "kpi_card_with_delta":   ["cardVisual", "kpiVisual", "card"],
+    "horizontal_bar_chart":  ["barChart", "clusteredBarChart"],
+    "column_chart":          ["clusteredColumnChart", "columnChart"],
+    "waterfall_chart":       ["waterfallChart"],
+    "scatter_plot":          ["scatterChart"],
 }
 
 PAGE_TYPE_LABELS: Dict[str, str] = {

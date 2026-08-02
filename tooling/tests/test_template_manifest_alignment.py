@@ -179,7 +179,7 @@ class TestBracketVariantAlignment:
 class TestBracketSlotManifestAlignment:
     """When template_variant is set, Main_2 visual_type must match manifest information_block."""
 
-    _VARIANCE_VISUAL_TYPES = {"waterfall"}
+    _VARIANCE_VISUAL_TYPES = {"waterfall", "waterfall_chart", "variance_bar"}
     _RANKING_VISUAL_TYPES = {"bar_chart", "bar_chart_horizontal", "bar_chart_column", "bar_chart_vertical"}
     _TREND_VISUAL_TYPES = {"line_chart", "trend_line", "area_chart"}
 

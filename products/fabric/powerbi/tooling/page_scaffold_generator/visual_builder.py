@@ -1056,6 +1056,15 @@ class VisualBuilder:
             "clustered_column": "clustered_column",
             "pvm_column": "clustered_column",
             "pvm": "clustered_column",
+            # Registry-Vokabular (ADR-0018). Ohne diese Zeilen fiel jede umbenannte
+            # Deklaration durch alle Zweige in den `logger.warning`-Default und wurde
+            # zur Trendlinie — dritter Fund derselben Fehlerklasse an diesem Tag, und
+            # der einzige, den ein Test gefangen hat statt eines Menschen.
+            "kpi_card_with_delta": "kpi_card",
+            "horizontal_bar_chart": "bar_chart_horizontal",
+            "column_chart": "bar_chart_column",
+            "waterfall_chart": "waterfall",
+            "scatter_plot": "scatter",
         }
         normalized_type = alias_map.get(normalized_type, normalized_type)
         measures = measures or []

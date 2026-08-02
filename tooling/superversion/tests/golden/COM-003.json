@@ -369,7 +369,7 @@
         "visuals": [
           {
             "visual_id": "page_1_summary_3s_1",
-            "visual_type": "kpi_card",
+            "visual_type": "kpi_card_with_delta",
             "x": 0,
             "y": 0,
             "width": 0,
@@ -389,7 +389,7 @@
           },
           {
             "visual_id": "page_1_summary_30s_2",
-            "visual_type": "trend_line",
+            "visual_type": "line_chart",
             "x": 0,
             "y": 0,
             "width": 0,
@@ -409,7 +409,7 @@
           },
           {
             "visual_id": "page_1_summary_30s_3",
-            "visual_type": "bar_chart",
+            "visual_type": "horizontal_bar_chart",
             "x": 0,
             "y": 0,
             "width": 0,
@@ -429,7 +429,7 @@
           },
           {
             "visual_id": "page_1_summary_30s_4",
-            "visual_type": "bar_chart_horizontal",
+            "visual_type": "horizontal_bar_chart",
             "x": 0,
             "y": 0,
             "width": 0,

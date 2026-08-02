@@ -40,13 +40,13 @@ ux_layout_rules:
       of opportunities.
     component_3s:
       kpi_id: sales.pipeline.coverage.ratio
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: sales.win_rate.pct
-      visual_type: trend_line
+      visual_type: line_chart
       question: Is the coverage gap a volume problem or a conversion problem?
       message: Win rate is dragging coverage below plan, not a shortage of open opportunities
       so_what: Because conversion is the lever, deal-qualification and win-rate coaching beat pure lead-volume
@@ -55,7 +55,7 @@ ux_layout_rules:
     - slot_id: Main_2
       kpi_ids:
       - sales.conversion.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: Where in the funnel does conversion leak?
       message: The funnel leaks at the mid-stage — deals stall in qualification rather than failing late
       so_what: Targeting the stalling mid-stage gate lifts conversion faster than widening the top of

@@ -45,20 +45,20 @@ ux_layout_rules:
     big_idea: "Service backlog is growing — first-contact resolution rate is declining and case escalation volume is rising, signalling a capacity or capability gap."
     component_3s:
       kpi_id: svc.sla.attainment.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: svc.backlog.count
-      visual_type: trend_line
+      visual_type: line_chart
       question: "Is the service org keeping pace, or is backlog building toward SLA breaches?"
       message: Case backlog is building unchecked toward SLA breaches next cycle
       so_what: "An unchecked backlog trend converts into missed SLAs within the next reporting cycle."
       unit: count
     - slot_id: Main_2
       kpi_id: svc.fcr.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: "Which service-quality signals explain the backlog?"
       message: First-contact resolution, handle time, and escalation — the three service-quality signals.
       so_what: "Ranking FCR by case type shows where a capability fix cuts escalations and backlog at once."

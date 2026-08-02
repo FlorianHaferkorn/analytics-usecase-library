@@ -52,7 +52,7 @@ ux_layout_rules:
       # Generator uses strategic + first 3 influencing for the 4-card band:
       # Net Sales Amount | Net Sales % vs Plan | Delta% Net Sales | Gross Margin %
       kpi_id: sales.net_sales.amount
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       sparkline_field: NetSales_Monthly
       comparison: vs_plan
       status_logic: higher_is_better
@@ -71,7 +71,7 @@ ux_layout_rules:
       unit: amount
     - slot_id: Main_2
       # T2_DriverBridge / variance_explanation: Plan → PVM drivers → Actual (IBCS bridge)
-      visual_type: waterfall
+      visual_type: waterfall_chart
       question: "What's driving the gap between Plan and Actual — price, volume, or mix?"
       message: "Price and mix effects, not volume, explain the swing between Plan and Actual Net Sales"
       so_what: "The gap is a commercial mix problem, not a demand shortfall — fix pricing and channel mix, not volume push."
@@ -85,7 +85,7 @@ ux_layout_rules:
       unit: amount
     - slot_id: Main_3
       # Q1: Where are deviations largest? — % vs Plan by Region (sorted ascending = worst first)
-      visual_type: bar_chart_horizontal
+      visual_type: horizontal_bar_chart
       question: "Is the Plan gap broad-based or concentrated in a few regions?"
       message: "Net Sales gaps versus Plan are concentrated in a handful of regions, not spread evenly"
       so_what: "Targeted regional action closes more of the gap than a blanket sales push."

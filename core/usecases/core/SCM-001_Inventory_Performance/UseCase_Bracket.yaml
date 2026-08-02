@@ -52,14 +52,14 @@ ux_layout_rules:
     big_idea: "Inventory turnover is deteriorating — dead stock in three SKU clusters is tying up working capital and masking the true demand signal for replenishment planning."
     component_3s:
       kpi_id: inv.dio.days
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: lower_is_better
       benchmark: true
     component_30s:
     - slot_id: Main_1
       kpi_id: inv.turnover
-      visual_type: trend_line
+      visual_type: line_chart
       question: "Is inventory turning efficiently, or tying up working capital?"
       message: Inventory turnover is falling, tying up working capital in slow-moving stock
       so_what: "Falling turnover ties up working capital that could fund faster-moving SKUs."
@@ -69,7 +69,7 @@ ux_layout_rules:
       - inv.stockout.pct
       - supply.otif.pct
       - inv.obsolete.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: "What are the inventory-health signals telling us?"
       message: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
       so_what: "Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one."
@@ -77,7 +77,7 @@ ux_layout_rules:
     - slot_id: Main_3
       # Forecast Accuracy trend vs target — upstream driver of DIO and the excess/stockout trade-off (content_gap fix)
       kpi_id: plan.forecast.accuracy.pct
-      visual_type: trend_line
+      visual_type: line_chart
       comparison: vs_target
       question: "Is poor forecasting the root cause behind the inventory swings?"
       message: Forecast accuracy below target is the root cause behind the stockout-and-obsolescence swing

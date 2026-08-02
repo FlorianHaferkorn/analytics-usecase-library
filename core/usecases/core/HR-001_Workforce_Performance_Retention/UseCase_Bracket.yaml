@@ -41,13 +41,13 @@ ux_layout_rules:
       in a few teams, not a broad one.
     component_3s:
       kpi_id: people.attrition.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: people.engagement.index
-      visual_type: trend_line
+      visual_type: line_chart
       question: Is falling engagement the driver behind rising attrition?
       message: Attrition is concentrated in the lowest-engagement segments, not spread evenly across the
         workforce
@@ -57,7 +57,7 @@ ux_layout_rules:
     - slot_id: Main_2
       kpi_ids:
       - people.absence.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: Where is workforce strain compounding beyond exits?
       message: Absence is climbing in the same teams losing people, compounding the strain where engagement
         is weakest

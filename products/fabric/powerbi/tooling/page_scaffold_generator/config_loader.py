@@ -734,6 +734,14 @@ class ConfigLoader:
                 if not isinstance(item, dict):
                     continue
                 vt = (item.get("visual_type") or "").strip().lower()
+                # Registry-Schreibweisen (ADR-0018) auf die hier verwendeten Alt-Token
+                # zurueckfuehren. Ohne diese Zeile faellt jede umbenannte Deklaration
+                # durch alle elif-Zweige und setzt STILL keinen einzigen Slot-Bedarf.
+                vt = {"kpi_card_with_delta": "kpi_card",
+                      "horizontal_bar_chart": "bar_chart_horizontal",
+                      "column_chart": "bar_chart_column",
+                      "waterfall_chart": "waterfall",
+                      "scatter_plot": "scatter"}.get(vt, vt)
                 if vt == "trend_line":
                     slots["needs_trend"] = True
                 elif vt == "line_chart":
