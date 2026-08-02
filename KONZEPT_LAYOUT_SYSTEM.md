@@ -239,15 +239,39 @@ und ergänzt es um zwei Dimensionen: **Haiku** für mechanische Massenarbeit und
 
 ### L0 · Vokabular-Autorität entscheiden **(Vorbedingung für alles)**
 
-Eine der beiden Listen wird Single Source of Truth, die andere zeigt darauf.
-Empfehlung: **`Abstract_Visual_Types.md`**, weil sie echte Unterscheidungen trifft
-(`line_chart` vs. `area_chart` vs. `sparkline`; `bar_chart_horizontal` vs. `_column`),
-die `trend_line`/`bar_chart` einebnen — und weil sie bereits `Semantic Purpose` führt,
-das Schicht 1 braucht.
+**🟢 Entschieden am 02.08.2026 (Flo): `visual_registry.yaml`.**
+Festgehalten in [ADR-0018](docs/architecture/adr/0018-visual-vocabulary-single-authority.md).
 
-* **DoD:** Entscheidung in `docs/architecture/` als ADR; die unterlegene Liste enthält
-  oben einen Pointer und keine eigenen Typdefinitionen mehr; `check_index.py --strict` grün.
-* **Modell:** Opus · **Umgebung:** CC-Web · **Entscheider:** Flo
+Der ursprüngliche Entwurf empfahl hier `Abstract_Visual_Types.md` — *„weil sie echte
+Unterscheidungen trifft … und bereits `Semantic Purpose` führt"*. **Die Empfehlung hat der
+Messung nicht standgehalten**, und das ist der eigentliche Ertrag dieses Tasks:
+
+| Quelle | Umfang | Erzwungen? |
+|---|---:|---|
+| `visual_whitelist.md` | 9 | nein — nennt sich verbindlich, kein Checker liest sie |
+| `Abstract_Visual_Types.md` | 34 | nur im **deprecated** Prototyp; **24 der 34 von keinem Block verwendet** |
+| `visual_registry.yaml` | 25 IDs / 10 Blöcke | **ja** — `visual_library.py`, `check-floor` in Stage 1, Emitter-Test |
+
+Von den 25 gelebten Registry-IDs standen **7** in `Abstract_Visual_Types`; **18 existieren
+nur in der Registry**. Sie zur Autorität zu erklären hätte 18 Renames an lebendem,
+erzwungenem Code gekostet — damit sie zu einem Dokument passen, dessen 24 von 34 Einträgen
+niemand benutzt. Und das Argument `Semantic Purpose` ist überholt: `information_blocks.purpose`
+leistet dasselbe besser, mit erlaubten *und* verbotenen Visuals samt Begründung.
+
+Dazu ein Beleg aus dem Betrieb desselben Tages: der neue Block `distribution_spread` ging
+ohne `evidence`-Ziel ein und machte **zwei CI-Jobs rot**. Die Registry ist die einzige der
+drei Listen, deren Verletzung den Build anhält — die anderen beiden haben geschwiegen.
+
+* **Erledigt:** ADR-0018 geschrieben; `Abstract_Visual_Types.md` und `visual_whitelist.md`
+  tragen oben einen Zeiger, ihre Typdefinitionen sind als Historie eingeklappt und
+  ausdrücklich als nicht mehr geltend gekennzeichnet; `visual_slot_mapping.yaml` nennt die
+  Registry als `authority:`; `check_index.py --strict` grün.
+* **Bewusst nicht migriert:** die 24 unbenutzten Typen. Wer einen braucht, nimmt ihn als
+  Block-Eintrag mit `source` und `targets` auf — mit Begründungspflicht.
+* **Bleibt offen (L2):** die 20 Brackets deklarieren weiter Whitelist-Vokabular
+  (`kpi_card` 20×, `trend_line` 18×, `bar_chart` 16×, `waterfall`/`line_chart`/
+  `bar_chart_horizontal` je 4×). Sie sind nicht falsch — sie folgen der abgelösten
+  Autorität. Die Entscheidung legt nur das **Ziel** der Normalisierung fest.
 
 ### L1 · Bestehende `information_blocks` als Intent-Layer bestätigen und schließen
 
@@ -919,7 +943,7 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | Task | Status | Datum | Notiz |
 |---|---|---|---|
 | **L14 IBCS-Version klären** | ⬜ **offen — zuerst, vorbereitet** | | **neu 02.08.** ISO 24896 seit 11.06.2026 veröffentlicht, IBCS bei **2.0**. Vorbedingung für L12 **und** L6. **Lizenzfrage beantwortet (§8.2):** 2.0 bleibt CC BY-SA 4.0, wir brauchen für die Implementierung **keine** Lizenz — nur die Bauvorschrift „Regel-ID + eigene Formulierung, kein Regeltext". ISO-Dokument nur kaufen, wenn Frage **B1** einen Mehrwert zeigt. Offen bleibt das **Delta 1.2 → 2.0**. Prüfliste mit 12 Fragen steht in **§10.5** — **VS Code**, Quellen hier gesperrt. |
-| L0 Vokabular-Autorität | ⬜ offen | | Entscheidung Flo; Backlog **B4** |
+| L0 Vokabular-Autorität | 🟢 **erledigt** | 2026-08-02 | **`visual_registry.yaml`** (ADR-0018). Die Konzept-Empfehlung `Abstract_Visual_Types.md` hat der Messung nicht standgehalten: 24 der 34 Typen unbenutzt, nur 7 der 25 gelebten IDs dort vorhanden — 18 Renames an erzwungenem Code für nichts. Beide `.md` sind Zeiger + eingeklappte Historie, `visual_slot_mapping.yaml` zeigt auf die Registry. Schließt Meridian-**B4**. |
 | L1 Intent-Katalog | 🟡 teilw. | 2026-08-01/02 | **Vokabular-Lücke geschlossen (§10.6):** von den drei extern gefundenen Absichten ist **eine** aufgenommen — `distribution_spread`, dreifach im eigenen Korpus belegt (FIN-001 AR-Aging, XD-001 Case-Age, SCM-003 „averaging hides bias"). **Spatial** und **freie Correlation** begründet verworfen: null Geo-Fragen in 20 Brackets (alle `map`-Treffer waren `MAPE`), Korrelation erscheint immer als Treiberfrage und ist von `root_cause_context` gedeckt. Damit ist L0 nicht mehr vorbelastet. Restumfang von L1 (Bestätigung/Schließung der übrigen Blöcke) bleibt offen. |
 | L2 Bracket-Normalisierung | ⬜ offen | | |
 | L3 Konnektor-Vertrag | 🟢 **erledigt** | 2026-08-01 | `targets` + `replaces` in `AllowedVisual`; `pbip_type` bleibt Alias. Evidence-Boden von 0/9 auf 8/9 aus dokumentierten Mappings. Bekannte Lücke: `structural_mix`. |
