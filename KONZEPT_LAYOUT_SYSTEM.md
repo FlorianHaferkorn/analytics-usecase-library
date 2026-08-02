@@ -465,14 +465,52 @@ nur auf Inhalt.
 
 ### L8 · Layout in `from_aluca` binden (schließt C4)
 
-Positionstabelle und Chrome-Slots aus `generator_core/ir/compiler.py` in den Quell-Adapter
-ziehen — als **Leser** des governten Systems, nicht als kopierte Tabelle.
+**🟢 Erledigt am 02.08.2026 — mit einem Befund, den erst der offizielle Validator zeigte.**
 
-* **DoD:** `from_aluca` erzeugt für FIN-002 den vollen Slot-Satz mit Positionen aus
-  `layout_grid`; `superversion.targets.pbir` rendert daraus einen Report, der
-  `powerbi-report-author validate` mit **0 Errors** besteht; Änderung an `layout_grid.yaml`
-  wirkt ohne Codeänderung; C4 im Meridian-Backlog abgehakt.
-* **Modell:** Opus (PBIR-Komposition) · **Umgebung:** CC-Web (Validierung offiziell möglich)
+**Die Ausgangslage war schlimmer als „Tabelle kopieren".** `from_aluca` erzeugte Visuals
+**ganz ohne Geometrie**: jedes `Visual` ging mit `x=y=width=height=0` heraus. Sichtbar
+war das seit jeher in den Golden Snapshots (`"width": 0`) — nur fragte kein Test danach.
+Aufgefallen ist es erst bei **L13**: die Umstellung auf Logical Units bewegte **keinen**
+Snapshot, und diese Stille war der Hinweis, nicht die Bestätigung.
+
+**Gebunden als Leser, nicht als Kopie.** Die Slots kommen aus `_OVERVIEW_LU`/`_DETAIL_LU`,
+die Rasterparameter aus `layout_grid.yaml`, aufgelöst durch dieselbe `lu_to_pixels()`.
+Zuordnung wie im IR-Compiler: `component_3s` → `KPI_Cards`, `component_30s[i]` →
+`Main_1/2/3`, `component_300s` → `Detail_Matrix`. Eine **vierte** 30s-Komponente bekommt
+**keine** Geometrie statt einer erfundenen vierten Spalte — sichtbar leer schlägt still
+danebengesetzt.
+
+**Der Fund: die Seite deklarierte eine andere Leinwand als ihre Visuals.**
+`powerbi-report-author validate` (offiziell, Pin 0.1.1) meldete
+`PBIR_LAYOUT_OUT_OF_BOUNDS_WIDTH` — *„x:32 + w:1856 = 1888 > **1280**"*. `ReportPage`
+defaultet auf die **design_base**, die Geometrie löst gegen **production** auf. Das ist
+exakt derselbe Widerspruch, den L13 eine Schicht tiefer behoben hat: zwei Stellen
+behaupteten verschiedene Leinwände, und beide hatten recht über sich. Die Seite liest
+ihre Maße jetzt aus derselben YAML — sonst wäre es die dritte Stelle mit einer eigenen
+Meinung über die Leinwandgröße.
+
+**Validierung, gemessen statt zugesichert:**
+
+| | vorher | nachher |
+|---|---:|---:|
+| `errorCount` | 0 | **0** ✅ |
+| `warningCount` | 10 | **5** |
+| davon Layout-Verstöße | 5 | **0** |
+
+Die fünf verbleibenden sind ausnahmslos `PBIR_SCHEMA_UNREACHABLE` — die Egress-Policy
+blockiert Microsofts Schema-URLs (§8). Das ist eine Umgebungsgrenze, kein Defekt des
+Artefakts, und wird als solche ausgewiesen statt als „grün" verbucht.
+
+**6 Tests**, darunter der, der die eigentliche DoD-Zusicherung prüft:
+`test_grid_change_takes_effect_without_code_change` ändert den Außenrand zur Laufzeit
+und verlangt, dass die Geometrie folgt. Wäre die Tabelle kopiert statt gelesen, passierte
+nichts — und der Test fände genau das.
+
+* **Zu C4:** L8 zeigt, dass ein sanktionierter Pfad Reports **mit** Layout erzeugen kann,
+  und dass sie die offizielle Validierung fehlerfrei bestehen. Ob die eingecheckten
+  `dist/`-Artefakte darauf umgestellt werden, bleibt die Architekturentscheidung aus C4 —
+  L8 liefert die Grundlage dafür, nicht den Beschluss.
+* **Modell:** Opus · **Umgebung:** CC-Web
 
 ### L9 · Vega-Lite-Ziel **anbinden** — nicht neu bauen
 
@@ -1113,7 +1151,7 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | L5 DTCG-Tokens | 🟢 **erledigt** | 2026-08-01 | `design_tokens.py` **erzeugt** DTCG aus den YAMLs (37 Tokens, 10 Gruppen) — die YAMLs bleiben Autorenquelle, weil **8** Konsumenten sie lesen. Drift-Check in Stage 1. Ableitung nach PBI-Theme/CSS steht noch aus. |
 | L6 Layout-System IBCS | 🟡 teilw. | 2026-08-02 | **Plugin-Fähigkeit erledigt:** `SUCCESS` war eine Konstante — jetzt `LayoutSystem`-Deskriptor, Sammeln/Klassifizieren/Abdeckung systemneutral, `--system` wählt. 72 Regeln: 16 IBCS / 24 Fremdstandard / 38 Hausregel. **Inhalts-Lücke bleibt blockiert:** CONDENSE/SIMPLIFY/STRUCTURE brauchen Kuration gegen den Standardtext (§5.1 verbietet Umetikettierung), `ibcs.com` ist gesperrt, und die Fassungsfrage hängt an **L14**. |
 | L7 Zweites System (Schnitt-Test) | 🟢 **erledigt** | 2026-08-02 | **ISO 24896:2026** als zweites System — kein erfundenes Beispiel, seit 11.06.2026 veröffentlicht, Scope UNIFY+CHECK (Belegstand: Such-Auszug, im Code vermerkt, Prüfung in L14/B1). **Schnitt gemessen: 16 → 10, sechs Regeln würden heimatlos** (SAY 1 + EXPRESS 5); Hausregeln und Fremdstandards bleiben. Zwei Funde aus dem Test selbst: erster Lauf 0/72 (Modell konnte „dieselbe Regel, zwei Systeme" nicht ausdrücken → `derives_from`), danach UNIFY 6 statt 7 (Code-only-Quelle still verloren). 8 Tests, ohne eingefrorene Zahlen. |
-| L8 Layout in `from_aluca` | ⬜ offen | | schließt Meridian-**C4** |
+| L8 Layout in `from_aluca` | 🟢 **erledigt** | 2026-08-02 | **Befund war grösser als der Task:** der Adapter erzeugte Visuals ganz ohne Geometrie (`"width": 0` in den Goldens, seit jeher, ungeprüft). Jetzt als **Leser** des governten Rasters gebunden. Der offizielle Validator fand die zweite Hälfte: die Seite deklarierte **1280×720**, die Geometrie löste gegen **1920×1080** auf — derselbe Widerspruch wie in L13, eine Schicht weiter außen. `powerbi-report-author validate`: **0 Errors**, Warnungen 10 → 5, **Layout-Verstöße 5 → 0**; die verbleibenden 5 sind `PBIR_SCHEMA_UNREACHABLE` (Egress-Policy, kein Artefakt-Defekt). 6 Tests inkl. Laufzeit-Nachweis, dass eine YAML-Änderung ohne Codeänderung wirkt. **C4** bekommt damit die Grundlage — der Beschluss bleibt offen. |
 | L9 Vega-Lite-Ziel anbinden | ⬜ offen | | **Umfang korrigiert 02.08.** — Konnektor existiert in Meridian (ADR-0048 Ph. 1, `vegalite.py` + `ibcs.py`). Aufgabe ist die Naht `targets.vegalite`, nicht der Neubau. |
 | L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
 | L11 Fidelity-Scorecard | 🟢 **erledigt** | 2026-08-02 | Treue je Ziel im **vorhandenen** Scorer, kein zweiter. Vier Stufen aus vorhandenen Feldern; erster Lauf: powerbi 100 % · evidence 88 % · vegalite 10 %, jeder Abzug mit Grund. Advisory verdrahtet, harter Boden per `--fidelity-floor` bereit — bewusst noch nicht gesetzt, solange L9 offen ist. Deckt die deterministische Stufe des in ADR-0048 §4 offenen Gate-Analogons. 7 Tests, ohne eingefrorene Prozentwerte außer dem vertraglichen powerbi-100 %. |

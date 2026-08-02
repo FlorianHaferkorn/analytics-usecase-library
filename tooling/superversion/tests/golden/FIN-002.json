@@ -300,10 +300,10 @@
           {
             "visual_id": "page_1_summary_3s_1",
             "visual_type": "kpi_card_with_delta",
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
+            "x": 32.0,
+            "y": 32.0,
+            "width": 1856.0,
+            "height": 129.34,
             "title": "",
             "has_title": true,
             "binds_measures": true,
@@ -320,10 +320,10 @@
           {
             "visual_id": "page_1_summary_30s_2",
             "visual_type": "line_chart",
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
+            "x": 32.0,
+            "y": 289.14000000000004,
+            "width": 608.0,
+            "height": 749.4,
             "title": "COGS is rising as a share of sales, eroding margin quarter over quarter",
             "has_title": true,
             "binds_measures": true,
@@ -340,10 +340,10 @@
           {
             "visual_id": "page_1_summary_30s_3",
             "visual_type": "horizontal_bar_chart",
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
+            "x": 656.0,
+            "y": 289.14000000000004,
+            "width": 608.0,
+            "height": 749.4,
             "title": "Opex variance, material cost, and labor productivity — the three levers behind unit cost.",
             "has_title": true,
             "binds_measures": true,
@@ -360,8 +360,8 @@
             "slicer_field": ""
           }
         ],
-        "width": 1280,
-        "height": 720,
+        "width": 1920,
+        "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
         "is_hidden": false
@@ -373,10 +373,10 @@
           {
             "visual_id": "page_2_execution_300s_1",
             "visual_type": "card",
-            "x": 0,
-            "y": 0,
-            "width": 0,
-            "height": 0,
+            "x": 344.0,
+            "y": 148.10000000000002,
+            "width": 1232.0,
+            "height": 899.9,
             "title": "",
             "has_title": true,
             "binds_measures": true,
@@ -396,8 +396,8 @@
             "slicer_field": ""
           }
         ],
-        "width": 1280,
-        "height": 720,
+        "width": 1920,
+        "height": 1080,
         "page_type": "Default",
         "has_mobile_layout": false,
         "is_hidden": false

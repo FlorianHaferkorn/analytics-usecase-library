@@ -471,13 +471,61 @@ def _collect_visual_kpi_ids(component: dict, catalog: KpiCatalog) -> list[str]:
     return deduped
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Layout-Bindung (Task L8)
+#
+# Bis zum 02.08.2026 erzeugte dieser Adapter Visuals OHNE Geometrie — jedes `Visual`
+# ging mit x=y=width=height=0 heraus. Sichtbar war das in den eingecheckten Golden
+# Snapshots (`"width": 0`), aber es fiel nicht auf, weil kein Test danach fragte.
+# Der Vertrag (`_canonical_mirror.Visual`) fuehrt die vier Felder seit jeher.
+#
+# Gebunden wird als **Leser** des governten Systems, nicht als kopierte Tabelle:
+# die Slot-Definitionen leben in Logical Units in `generator_core/ir/compiler.py`
+# (Task L13), die Rasterparameter in `core/templates/page_templates/tokens/layout_grid.yaml`.
+# Eine Aenderung dort wirkt hier ohne Codeaenderung — das ist die eigentliche
+# Zusicherung von L8, nicht die Zahlen selbst.
+#
+# Warum PIXEL und nicht Brueche: PBIR positioniert in Pixeln. Die Aufloesung passiert
+# genau einmal, in `lu_to_pixels()`, gegen die Produktionsleinwand aus derselben YAML.
+_SLOT_FUER_KOMPONENTE = {
+    "3s": "KPI_Cards",
+    "300s": "Detail_Matrix",
+}
+# Die 30s-Komponenten fuellen der Reihe nach die drei Hauptspalten — dieselbe
+# Zuordnung, die der IR-Compiler vornimmt (`Main_{i}`), damit beide Pfade dieselbe
+# Seite beschreiben und nicht zwei Wahrheiten ueber dasselbe Layout entstehen.
+_MAIN_SLOTS = ("Main_1", "Main_2", "Main_3")
+
+
+def _slot_geometrie(slot_name: str) -> dict[str, float]:
+    """Slot-Name → Pixel-Rechteck aus dem governten Raster. Leer, wenn unbekannt."""
+    from tooling.generator_core.ir.compiler import (  # lokal: haelt den Import-Graph flach
+        _DETAIL_LU,
+        _OVERVIEW_LU,
+        _grid_params,
+        lu_to_pixels,
+    )
+
+    lu = _OVERVIEW_LU.get(slot_name) or _DETAIL_LU.get(slot_name)
+    if lu is None:
+        return {}
+    p = _grid_params()
+    return lu_to_pixels(*lu, canvas_w=p["width"], canvas_h=p["height"], grid=p)
+
+
 def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportPage:
     visuals: list[Visual] = []
     idx = 0
 
-    def add(component: dict, slot: str):
+    def add(component: dict, slot: str, slot_name: str = ""):
         nonlocal idx
         idx += 1
+        # Der Bracket darf seinen Slot selbst benennen (`slot_id`); sonst entscheidet
+        # die Komponentenart. Geraten wird nichts: ein unbekannter Slot bekommt keine
+        # Geometrie statt einer plausiblen — eine erfundene Position sieht richtig aus
+        # und ist es nicht.
+        name = slot_name or component.get("slot_id") or _SLOT_FUER_KOMPONENTE.get(slot, "")
+        geo = _slot_geometrie(name) if name else {}
         kpi_ids = _collect_visual_kpi_ids(component, catalog)
         # bound_measures: aufgelöste measure_names (Katalog) bzw. direkter Name
         bound = []
@@ -487,6 +535,8 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
         visuals.append(
             Visual(
                 visual_id=f"{page_key}_{slot}_{idx}",
+                x=geo.get("x", 0), y=geo.get("y", 0),
+                width=geo.get("width", 0), height=geo.get("height", 0),
                 visual_type=component.get("visual_type", "card"),
                 # BC-NARR-01 (K2/K3): the governed exhibit statement wins the title when
                 # present; else fall back to the slot label / decision question.
@@ -500,20 +550,38 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
     c3 = page.get("component_3s")
     if isinstance(c3, dict):
         add(c3, "3s")
-    # component_30s — list of slots
-    for slot in page.get("component_30s", []) or []:
+    # component_30s — die drei Hauptspalten, in Reihenfolge. Ueberzaehlige
+    # Komponenten bekommen KEINE Geometrie (statt einer vierten Spalte, die es im
+    # Raster nicht gibt) — sichtbar leer ist besser als still danebengesetzt.
+    for i, slot in enumerate(page.get("component_30s", []) or []):
         if isinstance(slot, dict):
-            add(slot, "30s")
+            add(slot, "30s", _MAIN_SLOTS[i] if i < len(_MAIN_SLOTS) else "")
     # component_300s — detail (may carry visuals or evidence grid)
     c300 = page.get("component_300s")
     if isinstance(c300, dict):
         add(c300, "300s")
 
+    # Die Seite deklariert DIESELBE Leinwand, gegen die ihre Visuals aufgeloest sind.
+    #
+    # Vorher nicht: `ReportPage` defaultet auf 1280x720 (design_base), die Geometrie
+    # loest gegen `canvas.production` (1920x1080) auf. Der offizielle Validator hat den
+    # Widerspruch am 02.08.2026 benannt — `PBIR_LAYOUT_OUT_OF_BOUNDS_WIDTH`:
+    # „x:32 + w:1856 = 1888 > 1280". Das ist derselbe Fehler, den L13 eine Schicht
+    # tiefer behoben hat: zwei Stellen behaupteten verschiedene Leinwaende, und beide
+    # hatten recht ueber sich.
+    #
+    # Gelesen statt hartkodiert — sonst waere es die dritte Stelle mit einer eigenen
+    # Meinung ueber die Leinwandgroesse.
+    from tooling.generator_core.ir.compiler import _grid_params
+
+    raster = _grid_params()
     return ReportPage(
         name=page_key,
         display_name=page.get("title", page_key),
         page_type="Default",
         visuals=visuals,
+        width=raster["width"],
+        height=raster["height"],
     )
 
 
