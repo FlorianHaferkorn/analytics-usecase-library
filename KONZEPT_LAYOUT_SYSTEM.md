@@ -401,13 +401,67 @@ Abweichungsdarstellung, Skalenkonsistenz, Statement-Titel).
 
 ### L7 · Zweites Layout-System als Schnitt-Test
 
-Ein minimales zweites System (z. B. „Corporate-Neutral": gleiche Absichten, andere
-Notation/Palette) — **nur** um zu beweisen, dass der Schnitt trägt.
+**🟢 Erledigt am 02.08.2026 — zusammen mit dem Rest von L6.**
 
-* **DoD:** Umschalten des Layout-Systems ändert Notation und Tokens, **nicht** Intent-Katalog,
-  Konnektoren oder Gate; Diff zeigt Änderungen ausschließlich unter `layout_systems/`;
-  beide Systeme rendern COM-002 fehlerfrei.
-* **Modell:** Sonnet · **Umgebung:** CC-Web
+**Was an L6 wirklich fehlte.** Nicht die Inhalts-Lücke (s. u.), sondern die
+Plugin-Fähigkeit selbst: `SUCCESS` war eine **Konstante**. Das Konzept nannte IBCS
+ein Plugin, der Code kannte genau eines — ein Mechanismus mit einer Instanz ist keiner.
+Ein `LayoutSystem`-Deskriptor (Name, Gruppen, Marker, Beleg) trägt das jetzt; Sammeln,
+Klassifizieren und Abdeckung sind systemneutral. `--system` wählt aus.
+
+**Das zweite System: ISO 24896:2026.** Kein erfundenes Beispiel — der Standard ist
+seit dem 11.06.2026 veröffentlicht (§8.1) und deckt laut Beleglage **im Kern UNIFY
+und CHECK** ab, also eine echte Teilmenge der sieben SUCCESS-Gruppen. Genau diese
+engere Fassung macht ihn zum brauchbaren Schnitt.
+**Belegstand ausdrücklich im Code vermerkt:** die Scope-Angabe stammt aus
+Such-Auszügen, **nicht** aus dem Normtext (`iso.org` gesperrt, Text kostenpflichtig).
+Bestätigt oder korrigiert wird sie in **L14, Frage B1**.
+
+**Das Ergebnis des Schnitts, gemessen:**
+
+| | IBCS 1.2 | ISO 24896 |
+|---|---:|---:|
+| system-abgeleitete Regeln | **16** | **10** |
+| davon UNIFY / CHECK | 7 / 3 | 7 / 3 |
+| **heimatlos beim Wechsel** | — | **6** (SAY 1 + EXPRESS 5) |
+
+Das ist die Zahl, die ein Plugin-Zielbild überhaupt erst beantwortbar macht: *was
+kostet ein Systemwechsel?* Sechs Regeln bräuchten eine neue Heimat — die
+Hausregeln (38) und Fremdstandards (24) bleiben unberührt, und genau das ist der
+Zweck der Herkunftsunterscheidung.
+
+**Zwei Funde beim Bauen, beide aus dem Schnitt-Test selbst:**
+
+1. **Erster Lauf: 0 von 72.** Kein `source`-Feld im Repo enthält „ISO 24896" — unsere
+   Herkunft ist durchgehend in IBCS-Vokabular geschrieben. Das war kein Datenfehler,
+   sondern eine **Lücke im Modell**: eine Regel „IBCS UNIFY U4" *ist* inhaltlich auch
+   ISO-Stoff. Ein Herkunftsmodell mit genau einem Ursprung je Regel kann „dieselbe
+   Regel, zwei Systeme" nicht ausdrücken — und meldet dann eine Migrationslücke, die
+   es nicht gibt. Behoben mit `derives_from`.
+2. **Danach: UNIFY 6 statt 7.** Eine Regel trägt nur den Code („S9 — IBCS U4"), nicht
+   die Gruppe; meine Vererbung suchte ausschließlich Gruppennamen und ließ sie still
+   fallen. Die Differenz sah nach einer echten Migrationslücke aus, war aber ein
+   Erkennungsfehler — genau die Sorte Zahl, der man sonst glaubt. Ein Test hält die
+   Grenze jetzt fest.
+
+**8 Tests**, keiner friert die Zahlen ein: sie steigen, sobald L6s Inhalts-Lücke
+schließt. Gesichert wird die **Eigenschaft** — der Schnitt ist echt (nicht leer,
+nicht total), Hausregeln überleben ihn, und jedes System muss seinen Belegstand
+mitführen.
+
+### L6 · Inhalts-Lücke — bleibt offen, und zwar blockiert
+
+`CONDENSE`, `SIMPLIFY`, `STRUCTURE` sind weiterhin unbelegt. **In dieser Umgebung
+nicht schließbar**, und das Umgehen wäre schlimmer als das Offenlassen:
+
+* §5.1 verlangt Fachkuration **gegen den Standardtext** — Umetikettierung
+  vorhandener perzeptueller Regeln wäre eine Fälschung der Herkunft.
+* `ibcs.com` ist durch die Egress-Policy gesperrt (§8); es liegen nur Such-Auszüge vor.
+* Und die Fassungsfrage ist offen: gegen **1.2 oder 2.0** kuratieren, entscheidet
+  **L14** — eine Kuration gegen die abgelöste Fassung wäre bei Fertigstellung veraltet.
+
+**Vorbedingung: L14, dann Erhebung in VS Code.** Der Mechanismus steht und wartet
+nur auf Inhalt.
 
 ### L8 · Layout in `from_aluca` binden (schließt C4)
 
@@ -1057,8 +1111,8 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | L3 Konnektor-Vertrag | 🟢 **erledigt** | 2026-08-01 | `targets` + `replaces` in `AllowedVisual`; `pbip_type` bleibt Alias. Evidence-Boden von 0/9 auf 8/9 aus dokumentierten Mappings. Bekannte Lücke: `structural_mix`. |
 | L4 Konnektor-Gate | 🟢 **erledigt** | 2026-08-01 | `check-floor` in der **bestehenden** Visual-Library-CLI (kein neuer Checker), in Stage 1 verdrahtet und dort sichtbar grün. Rot-Pfade getestet. **Bewusst offen:** die Parametrisierung des Emitter-Tests über mehrere Konnektoren braucht einen zweiten Emitter — heute gibt es nur `targets.pbir`. Kommt mit L9. |
 | L5 DTCG-Tokens | 🟢 **erledigt** | 2026-08-01 | `design_tokens.py` **erzeugt** DTCG aus den YAMLs (37 Tokens, 10 Gruppen) — die YAMLs bleiben Autorenquelle, weil **8** Konsumenten sie lesen. Drift-Check in Stage 1. Ableitung nach PBI-Theme/CSS steht noch aus. |
-| L6 Layout-System IBCS | 🟡 teilw. | 2026-08-01 | **Kein neuer Regelspeicher** — Herkunftssicht über die 3 vorhandenen. 69 Regeln: 15 IBCS / 21 Fremdstandard / 33 Hausregel. **Auszeichnungs-Lücke geschlossen:** alle 15 IBCS-Regeln tragen jetzt eine SUCCESS-Gruppe (SAY 1, UNIFY 7, CHECK 3, EXPRESS 4). **Inhalts-Lücke bleibt bewusst offen:** CONDENSE/SIMPLIFY/STRUCTURE unbelegt — s. u. |
-| L7 Zweites System (Schnitt-Test) | ⬜ offen | | |
+| L6 Layout-System IBCS | 🟡 teilw. | 2026-08-02 | **Plugin-Fähigkeit erledigt:** `SUCCESS` war eine Konstante — jetzt `LayoutSystem`-Deskriptor, Sammeln/Klassifizieren/Abdeckung systemneutral, `--system` wählt. 72 Regeln: 16 IBCS / 24 Fremdstandard / 38 Hausregel. **Inhalts-Lücke bleibt blockiert:** CONDENSE/SIMPLIFY/STRUCTURE brauchen Kuration gegen den Standardtext (§5.1 verbietet Umetikettierung), `ibcs.com` ist gesperrt, und die Fassungsfrage hängt an **L14**. |
+| L7 Zweites System (Schnitt-Test) | 🟢 **erledigt** | 2026-08-02 | **ISO 24896:2026** als zweites System — kein erfundenes Beispiel, seit 11.06.2026 veröffentlicht, Scope UNIFY+CHECK (Belegstand: Such-Auszug, im Code vermerkt, Prüfung in L14/B1). **Schnitt gemessen: 16 → 10, sechs Regeln würden heimatlos** (SAY 1 + EXPRESS 5); Hausregeln und Fremdstandards bleiben. Zwei Funde aus dem Test selbst: erster Lauf 0/72 (Modell konnte „dieselbe Regel, zwei Systeme" nicht ausdrücken → `derives_from`), danach UNIFY 6 statt 7 (Code-only-Quelle still verloren). 8 Tests, ohne eingefrorene Zahlen. |
 | L8 Layout in `from_aluca` | ⬜ offen | | schließt Meridian-**C4** |
 | L9 Vega-Lite-Ziel anbinden | ⬜ offen | | **Umfang korrigiert 02.08.** — Konnektor existiert in Meridian (ADR-0048 Ph. 1, `vegalite.py` + `ibcs.py`). Aufgabe ist die Naht `targets.vegalite`, nicht der Neubau. |
 | L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
