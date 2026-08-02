@@ -10,13 +10,33 @@ from .models import Severity, Violation
 from .pbir import ParsedPage, ParsedReport, page_pointer, parse_report, visual_pointer, write_json
 
 # Leinwand aus dem EINEN governten Raster (Konsolidierung 02.08.2026). Vorher standen
-# hier eigene Literale — eine von sieben Stellen im Repo mit eigener Meinung, und zwei
-# davon widersprachen sich (1280 vs 1920). Genau daraus kamen die Fehler in L13 und L8.
+# hier eigene Literale — eine von 38 Stellen im Repo mit eigener Meinung, und zwei davon
+# widersprachen sich (1280 vs 1920). Genau daraus kamen die Fehler in L13 und L8.
+#
+# Gelesen wird die YAML DIREKT, nicht ueber `tooling.superversion.layer_tools`. Der erste
+# Versuch tat genau das — und brach `report_quality` fuer jeden Aufrufer, der mit
+# `tooling/` im Pfad importiert (die CLI, und damit die Health-Scorecard). H7 fiel auf
+# 0.0 %, weil ihr Import-Guard „validator unavailable" meldet statt zu crashen. Der Guard
+# hat sauber funktioniert; mein Import war der Fehler.
+#
+# Das ist KEINE zweite Meinung: der Pfad zeigt auf dieselbe Datei, und
+# `test_konsolidierung.py` haelt fest, dass es hier keine Zahlen-Literale gibt. Ein
+# Paket, das standalone importierbar sein muss, darf nicht ueber Paketgrenzen greifen —
+# diese Eigenschaft war vorher da und wird nicht fuer Eleganz aufgegeben.
 def _canvas() -> tuple[int, int]:
-    from tooling.superversion.layer_tools.layout_grid import load
+    import yaml
 
-    p = load("production")
-    return p.width, p.height
+    yml = (Path(__file__).resolve().parents[2]
+           / "core/templates/page_templates/tokens/layout_grid.yaml")
+    prod = ((yaml.safe_load(yml.read_text(encoding="utf-8")) or {})
+            .get("canvas", {}).get("production", {}))
+    if not prod.get("width") or not prod.get("height"):
+        raise ValueError(
+            f"{yml} fuehrt kein vollstaendiges Canvas-Profil 'production'. "
+            "Eine geratene Leinwand erzeugt Positionen, die plausibel aussehen "
+            "und falsch sind."
+        )
+    return int(prod["width"]), int(prod["height"])
 
 
 DEFAULT_PAGE_WIDTH, DEFAULT_PAGE_HEIGHT = _canvas()

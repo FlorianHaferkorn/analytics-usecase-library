@@ -154,9 +154,9 @@ class Regel:
     rule_id: str
     quelle_datei: str
     herkunft: str          # der rohe `source`-Text
-    ibcs: bool               # Name historisch: „gehoert dem geprueften System"
-    success_gruppe: Optional[str]
-    ibcs_code: Optional[str]
+    vom_system: bool         # gehoert dem geprueften Layout-System
+    gruppe: Optional[str]
+    code: Optional[str]
 
     @property
     def fremdstandard(self) -> Optional[str]:
@@ -248,8 +248,8 @@ def abdeckung(regeln: list[Regel], system: LayoutSystem = IBCS) -> dict[str, lis
     """Gruppe → Regel-IDs, die sie belegen. Leere Gruppen bleiben leer."""
     out: dict[str, list[str]] = {g: [] for g in system.groups}
     for r in regeln:
-        if r.ibcs and r.success_gruppe in out:
-            out[r.success_gruppe].append(r.rule_id)
+        if r.vom_system and r.gruppe in out:
+            out[r.gruppe].append(r.rule_id)
     return out
 
 
@@ -269,9 +269,9 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     system = SYSTEMS[args.system]
     regeln = sammle(system)
-    ibcs = [r for r in regeln if r.ibcs]
-    fremd = [r for r in regeln if not r.ibcs and r.fremdstandard]
-    haus = [r for r in regeln if not r.ibcs and not r.fremdstandard]
+    ibcs = [r for r in regeln if r.vom_system]
+    fremd = [r for r in regeln if not r.vom_system and r.fremdstandard]
+    haus = [r for r in regeln if not r.vom_system and not r.fremdstandard]
 
     print(f"[layout-systems] System: {system.label}")
     if system.note:
@@ -290,12 +290,12 @@ def main(argv: Optional[list[str]] = None) -> int:
         else:
             print(f"    {gruppe:10}  0 — nicht belegt")
             leer.append(gruppe)
-    codes = sorted({r.ibcs_code for r in ibcs if r.ibcs_code})
+    codes = sorted({r.code for r in ibcs if r.code})
     print(f"\n  konkrete IBCS-Regelcodes: {', '.join(codes) if codes else 'keine'}")
     # Eine IBCS-Regel ohne SUCCESS-Gruppe ist nicht falsch, aber sie faellt aus der
     # Abdeckungsrechnung heraus — man sieht ihr nicht an, welchen Teil des Standards
     # sie belegt. Das ist die billigste offene Verbesserung und deshalb benannt.
-    ohne_gruppe = sorted(r.rule_id for r in ibcs if not r.success_gruppe)
+    ohne_gruppe = sorted(r.rule_id for r in ibcs if not r.gruppe)
     if ohne_gruppe:
         print(f"  IBCS-Regeln ohne SUCCESS-Gruppe: {len(ohne_gruppe)} "
               f"({', '.join(ohne_gruppe[:4])}{' …' if len(ohne_gruppe) > 4 else ''}) "

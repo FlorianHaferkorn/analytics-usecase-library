@@ -486,7 +486,7 @@ def _collect_visual_kpi_ids(component: dict, catalog: KpiCatalog) -> list[str]:
 # Zusicherung von L8, nicht die Zahlen selbst.
 #
 # Warum PIXEL und nicht Brueche: PBIR positioniert in Pixeln. Die Aufloesung passiert
-# genau einmal, in `lu_to_pixels()`, gegen die Produktionsleinwand aus derselben YAML.
+# genau einmal, in `layout_grid.to_pixels()`, gegen die Produktionsleinwand.
 _SLOT_FUER_KOMPONENTE = {
     "3s": "KPI_Cards",
     "300s": "Detail_Matrix",
@@ -499,18 +499,13 @@ _MAIN_SLOTS = ("Main_1", "Main_2", "Main_3")
 
 def _slot_geometrie(slot_name: str) -> dict[str, float]:
     """Slot-Name → Pixel-Rechteck aus dem governten Raster. Leer, wenn unbekannt."""
-    from tooling.generator_core.ir.compiler import (  # lokal: haelt den Import-Graph flach
-        _DETAIL_LU,
-        _OVERVIEW_LU,
-        _grid_params,
-        lu_to_pixels,
-    )
+    from tooling.generator_core.ir.compiler import _DETAIL_LU, _OVERVIEW_LU
+    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
 
     lu = _OVERVIEW_LU.get(slot_name) or _DETAIL_LU.get(slot_name)
     if lu is None:
         return {}
-    p = _grid_params()
-    return lu_to_pixels(*lu, canvas_w=p["width"], canvas_h=p["height"], grid=p)
+    return to_pixels(*lu, params=load("production"))
 
 
 def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportPage:
@@ -572,16 +567,16 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
     #
     # Gelesen statt hartkodiert — sonst waere es die dritte Stelle mit einer eigenen
     # Meinung ueber die Leinwandgroesse.
-    from tooling.generator_core.ir.compiler import _grid_params
+    from tooling.superversion.layer_tools.layout_grid import load
 
-    raster = _grid_params()
+    raster = load("production")
     return ReportPage(
         name=page_key,
         display_name=page.get("title", page_key),
         page_type="Default",
         visuals=visuals,
-        width=raster["width"],
-        height=raster["height"],
+        width=raster.width,
+        height=raster.height,
     )
 
 

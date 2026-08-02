@@ -311,30 +311,10 @@ def _resolve_evidence_columns(
     return dim_cols, measures
 
 
-# Raster und Aufloesung leben in EINEM Leser: `layer_tools/layout_grid.py`.
-# Vorher rechnete diese Datei selbst — und war damit die vierte Stelle im Repo mit
-# einer eigenen Meinung ueber Leinwand und Formel. Genau daraus kamen L13 und L8.
-# Die beiden Namen bleiben als duenne Weiterleitung erhalten, weil Tests und
-# `from_aluca` sie importieren; die Logik steht nur noch an einer Stelle.
-def _grid_params() -> Dict[str, Any]:
-    """Rasterparameter der Produktionsleinwand (Weiterleitung, s. layer_tools)."""
-    from tooling.superversion.layer_tools.layout_grid import load
-
-    p = load("production")
-    return {"cols": p.cols, "rows": p.rows, "gutter": p.gutter,
-            "outer": p.outer, "width": p.width, "height": p.height}
-
-
-def lu_to_pixels(col: float, row: float, cs: float, rs: float,
-                 canvas_w: int, canvas_h: int, grid: Optional[Dict[str, Any]] = None
-                 ) -> Dict[str, float]:
-    """Logical Units → Pixel (Weiterleitung auf den einen Resolver)."""
-    from tooling.superversion.layer_tools.layout_grid import GridParams, to_pixels
-
-    g = grid or _grid_params()
-    return to_pixels(col, row, cs, rs, GridParams(
-        cols=g["cols"], rows=g["rows"], gutter=g["gutter"],
-        outer=g["outer"], width=canvas_w, height=canvas_h))
+# Raster und Aufloesung leben ausschliesslich in `layer_tools/layout_grid.py`.
+# Hier standen kurzzeitig zwei Weiterleitungen (`_grid_params`, `lu_to_pixels`) — bequem
+# fuer die Umstellung, aber genau das, was konsolidiert werden sollte: zwei Namen fuer
+# eine Sache. Sie sind entfernt; Aufrufer importieren den Leser direkt.
 
 
 def _position(layout: Dict[str, Tuple[float, float, float, float]], slot: str) -> Position:
@@ -346,14 +326,16 @@ def _position(layout: Dict[str, Tuple[float, float, float, float]], slot: str) -
     statt von Hand geschrieben. Damit gibt es nur noch eine Autorenquelle, und die
     Gutter gehen in die Rechnung ein.
     """
+    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
+
     lu = layout.get(slot, (0.0, 0.0, 1.0, 1.0))
-    p = _grid_params()
-    px = lu_to_pixels(*lu, canvas_w=p["width"], canvas_h=p["height"], grid=p)
+    g = load("production")
+    px = to_pixels(*lu, params=g)
     return Position(
-        x=px["x"] / p["width"],
-        y=px["y"] / p["height"],
-        width=px["width"] / p["width"],
-        height=px["height"] / p["height"],
+        x=px["x"] / g.width,
+        y=px["y"] / g.height,
+        width=px["width"] / g.width,
+        height=px["height"] / g.height,
     )
 
 

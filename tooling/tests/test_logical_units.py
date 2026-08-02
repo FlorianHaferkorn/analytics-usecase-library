@@ -11,12 +11,21 @@ from pathlib import Path
 import pytest
 import yaml
 
-from tooling.generator_core.ir.compiler import (
-    _DETAIL_LU,
-    _OVERVIEW_LU,
-    _grid_params,
-    lu_to_pixels,
-)
+from tooling.generator_core.ir.compiler import _DETAIL_LU, _OVERVIEW_LU
+from tooling.superversion.layer_tools.layout_grid import GridParams, load, to_pixels
+
+
+def _grid_params() -> dict:
+    g = load("production")
+    return {"cols": g.cols, "rows": g.rows, "gutter": g.gutter,
+            "outer": g.outer, "width": g.width, "height": g.height}
+
+
+def lu_to_pixels(col, row, cs, rs, canvas_w, canvas_h, grid):
+    """Testhelfer: LU→px fuer eine ABWEICHENDE Leinwand (der Kern des Befunds)."""
+    return to_pixels(col, row, cs, rs, GridParams(
+        cols=grid["cols"], rows=grid["rows"], gutter=grid["gutter"],
+        outer=grid["outer"], width=canvas_w, height=canvas_h))
 
 _ROOT = Path(__file__).resolve().parents[2]
 _GRID = _ROOT / "core/templates/page_templates/tokens/layout_grid.yaml"

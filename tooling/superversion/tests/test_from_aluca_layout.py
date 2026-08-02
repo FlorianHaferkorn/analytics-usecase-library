@@ -118,15 +118,10 @@ def test_surplus_components_get_no_invented_slot():
 
 def test_geometry_matches_the_governed_slot_exactly(modell):
     """Die Werte stammen aus dem Raster, nicht aus einer zweiten Rechnung im Adapter."""
-    from tooling.generator_core.ir.compiler import (
-        _OVERVIEW_LU,
-        _grid_params,
-        lu_to_pixels,
-    )
+    from tooling.generator_core.ir.compiler import _OVERVIEW_LU
+    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
 
-    p = _grid_params()
-    erwartet = lu_to_pixels(*_OVERVIEW_LU["Main_1"], canvas_w=p["width"],
-                            canvas_h=p["height"], grid=p)
+    erwartet = to_pixels(*_OVERVIEW_LU["Main_1"], params=load("production"))
     main1 = next(v for v in _visuals(modell) if v.visual_id.endswith("_30s_2"))
     assert main1.x == pytest.approx(erwartet["x"])
     assert main1.width == pytest.approx(erwartet["width"])
