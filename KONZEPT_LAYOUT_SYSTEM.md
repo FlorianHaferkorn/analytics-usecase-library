@@ -63,6 +63,34 @@ Substitutionsprinzip. Es fehlt (a) **eine** Autorität für das *Typ*-Vokabular,
 **Mehrzielfähigkeit** der vorhandenen Library (`pbip_type` → Mapping je Konnektor) und
 (c) die Ausweitung der **bereits existierenden** Emitter-Bindung auf alle Konnektoren.
 
+### 2.2 Was im **Nachbarrepo** existiert — die zweite unterschlagene Hälfte (02.08.2026)
+
+§2.1 hat innerhalb von ALUCA gesucht. Das war zu eng. Der Zwilling `Freelancing/`
+(Meridian) hat einen Teil dieses Konzepts **bereits entschieden und geliefert** — in
+**ADR-0048** („Viz-Target-Adapter: Vega-Lite + Evidence/DuckDB-WASM + IBCS-Notations-Profil",
+Status *Accepted & vollständig umgesetzt, 2026-06-24*, Phasen 1–3):
+
+| Bestehend in `Freelancing/` | Was es ist | Folge für dieses Konzept |
+|---|---|---|
+| `core/report_design/ibcs.py` | **IBCS als Querschnitts-Profil**: reine Transform-Funktion `apply_ibcs(spec)` über eine Vega-Lite-Spec — *ein* Profil × *N* Adapter, bewusst **nicht** je Adapter dupliziert. Setzt Szenario-Notation AC/PL/FC/PY, Monochrom-Disziplin, Chart-Junk-Entfernung, Varianz-Semantik. `PROFILES = ("default", "ibcs")`. | **L6/L12 haben eine lebende Referenz-Implementierung.** Die Notations-Semantik muss nicht erfunden werden. |
+| `core/pbi_engine/target/vegalite.py` | Der **Vega-Lite-Konnektor**. `to_specs()`, `emit()`, `emit_ibcs()`; 14 Visualtyp→Mark-Zuordnungen (`bar·line·area·arc·point·text`), expliziter `_SKIP` für Slicer/Tabelle/Matrix. | **L9 ist zu großen Teilen gebaut** — als *Bindungs*-Aufgabe, nicht als Neubau. |
+| `core/pbi_engine/target/` + `evidence_report` | Selbst-hostbarer Report-Container (Evidence + DuckDB-WASM). „Statisch" heißt dort ausdrücklich **kein Server**, *nicht* keine Interaktivität. | Antwort auf die Interaktivitäts-Hälfte des Trilemmas (§3.4) — client-seitig, ohne Fremd-Visual. |
+| `meridian/design/brand-tokens.schema.yaml` → `canvas_profiles` | **Der Ort für die Skalierungspolitik.** `powerbi_design_base` 1280×720 · `powerbi_production` 1920×1080 mit `font_size_delta_pt: +2` (begründet: FitToPage skaliert 0,71× herunter) · `web_fluid` mit Breakpoints. Konsumiert von `meridian/design/derivations/pbi_theme.py::_font_delta_for_profile`. | **L13 erweitert das** — es legt kein zweites Profil-Konzept an. |
+| ADR-0048 §4, „Negativ / offen" | *„Viz-Adapter brauchen ein eigenes **Gate-Analogon** zu S1–S3 (Spec-Validität, Render-Smoke, IBCS-Konformität) — bewusst Folge-Arbeit."* | Das ist **L11**, dort bereits als offen benannt. L11 erbt damit einen Auftrag, statt einen zu erfinden. |
+
+**Was das korrigiert.** Der Entwurf führte L9 („Vega-Lite-Konnektor") als Neubau und
+L12 als reine Erhebung. Beides war ein Stück Parallelwelt: der Konnektor existiert, das
+IBCS-Profil existiert, und die Architekturentscheidung *ein Profil × N Adapter* ist
+getroffen und begründet. Die ALUCA-Aufgabe ist damit schmaler und ehrlicher benannt:
+**die Absichts-Schicht dieses Repos an die vorhandene Meridian-Adapterkette binden** und
+die Notations-Abdeckung dort **füllen**, wo sie messbar dünn ist.
+
+**Und wo sie dünn ist, ist gemessen:** `_MARK` in `vegalite.py` kennt sechs Vega-Marks.
+Die IBCS-eigenen Darstellungsformen — Wasserfall, Abweichungs-Nadel, Skalenband,
+Struktur-/Nadel-Kombination — sind darin **nicht** enthalten. `apply_ibcs` färbt und
+entrümpelt eine Spec korrekt; es erzeugt keine IBCS-Chart-*Typen*. Genau diese Lücke ist
+der Inhalt von L12.
+
 ---
 
 ## 3. Architektur — vier Schichten, klare Zuständigkeit
@@ -314,12 +342,27 @@ ziehen — als **Leser** des governten Systems, nicht als kopierte Tabelle.
   wirkt ohne Codeänderung; C4 im Meridian-Backlog abgehakt.
 * **Modell:** Opus (PBIR-Komposition) · **Umgebung:** CC-Web (Validierung offiziell möglich)
 
-### L9 · Vega-Lite-Konnektor (höchste IBCS-Treue)
+### L9 · Vega-Lite-Ziel **anbinden** — nicht neu bauen
 
-* **DoD:** je Absicht eine Vega-Lite-Spec; COM-002 als statisches Exhibit-Set gerendert;
-  Specs validieren gegen das Vega-Lite-Schema; visueller Abgleich gegen die IBCS-Regeln
-  aus L6 dokumentiert.
-* **Modell:** Opus (Encoding-Entscheidungen) · **Umgebung:** CC-Web
+**Korrigiert am 02.08.2026 (§2.2).** Der Konnektor existiert: `core/pbi_engine/target/vegalite.py`
+in `Freelancing/` (ADR-0048 Phase 1, geliefert 2026-06-24), inklusive `emit_ibcs()` und dem
+Querschnitts-Profil `core/report_design/ibcs.py`. Ein zweiter Vega-Emitter in ALUCA wäre
+exakt die Parallelwelt, die dieses Konzept vermeiden soll.
+
+Die verbleibende Aufgabe ist die **Naht**: ALUCA besitzt die Absicht (`information_blocks`,
+`targets`), Meridian besitzt den Emitter. Heute kennt `targets` nur `pbir`.
+
+* **Vorher prüfen (Pflicht):** `core/pbi_engine/target/vegalite.py::_MARK` und `_SKIP` lesen —
+  welche `information_block`-Absichten dort schon ein Mark haben und welche nicht. Erst
+  danach entscheiden, ob eine Absicht eine *neue* Spec braucht oder nur eine Zuordnung.
+* **DoD:** `targets.vegalite` in `visual_registry.yaml` für jeden Block, den `_MARK` trägt,
+  mit Beleg; `check-floor --required vegalite` läuft und ist ehrlich (grün nur, wo eine
+  Zuordnung wirklich existiert — Lücken bleiben rot statt gefüllt); der Emitter-Test aus L4
+  ist über **beide** Konnektoren parametrisiert (das war dort als „kommt mit L9" notiert);
+  COM-002 als Exhibit-Set gerendert; Specs gegen das Vega-Lite-Schema validiert.
+* **Nicht im Scope:** neue Mark-Typen in Meridian. Fehlt ein Mark (Wasserfall, Nadel), ist
+  das ein **L12**-Befund und wird dort mit Notationsvorschrift belegt, bevor jemand ihn baut.
+* **Modell:** Opus (Encoding-Entscheidungen) · **Umgebung:** CC-Web (repo-übergreifend)
 
 ### L10 · Power-BI-Decke ausreizen — nativ, mit SVG als Eskalation
 
@@ -354,6 +397,36 @@ Umfang:
 3. **Nachbauen recherchieren** — je Ziel: **Power BI nativ** (und wo nötig SVG, §3.4),
    **Vega-Lite**, **HTML/React**. Pro Typ und Ziel: geht es, wie, und was kostet es.
 
+**Vorarbeit, die schon existiert — zuerst lesen, dann suchen.** ADR-0048 §2.3 (Freelancing)
+benennt zwei OSS-Vorarbeiten ausdrücklich als „Referenz/Reuse prüfen statt blind neu":
+**`ruqzuq/standard-charts`** und die **Deneb-Spec-Galerien**. Dazu kommt die gemessene
+Ausgangslage aus §2.2: `apply_ibcs` liefert die *Notation* (Füllung, Farbe, Entrümpelung),
+`_MARK` liefert **sechs** Vega-Marks — die IBCS-eigenen Chart-*Typen* (Wasserfall,
+Abweichungs-Nadel, Skalenband) fehlen. Der Katalog beginnt also nicht bei null, und er
+endet nicht bei „ist schon da".
+
+**Entscheidungspunkt Deneb — offen, gehört zu Flo.** Deneb rendert Vega/Vega-Lite *innerhalb*
+von Power BI und ist in der Praxis der meistgenannte Weg zu IBCS-naher Notation dort. Deneb
+ist aber ein **Custom Visual** und fällt damit unter die Festlegung aus §3.4. Die Folge ist
+eine echte Verzweigung, keine Geschmacksfrage:
+
+| Weg | identisches Aussehen | native Interaktivität | Regel §3.4 |
+|---|---|---|---|
+| native PBI-Visuals | ✗ | ✓ | ✓ |
+| Deneb (Vega in PBI) | ✓ | teilweise | **✗ Fremd-Visual** |
+| SVG-Measure | ✓ | ✗ | ✓ |
+
+Der Katalog **erhebt und dokumentiert** den Deneb-Weg als belegte Marktpraxis, **wählt ihn
+aber nicht**. Solange §3.4 gilt, ist die Eskalationsleiter: nativ → SVG → anderes Zielwerkzeug.
+Eine Aufweichung wäre eine Zielbild-Änderung und braucht eine explizite Entscheidung —
+dieses Konzept trifft sie nicht.
+
+* **Quellenlage, offen und benannt:** `actionablereporting.com` (der inhaltlich beste Fund
+  zur nativen IBCS-Nachbildung in Power BI) liefert auf Abruf **HTTP 403** und war deshalb
+  **nicht im Volltext lesbar** — es liegen nur Suchauszüge vor. Dieser Punkt gilt als
+  **offen**, nicht als erledigt: entweder über einen anderen Zugang beschaffen oder als
+  ungeprüft kennzeichnen. Ein Auszug ist kein Beleg.
+
 * **DoD:** je IBCS-Visualtyp eine Zeile mit {Notationsvorschrift, Quelle/Abschnitt,
   `block_id`, Nachbau je Ziel ∈ {nativ · SVG · Extension · nicht möglich}}; die
   `targets`-Einträge aus L3 sind daraus ergänzt, wo belegt; jeder „nicht möglich"-Eintrag
@@ -365,6 +438,77 @@ Umfang:
   als reines Eigen-IP führen.
 * **Modell:** Opus (Notation ist Bedeutungsarbeit) · **Umgebung:** Erhebung + Vega/HTML
   **CC-Web**; die Power-BI-Nachbau-Verifikation **VS Code** (Desktop-Augenschein, s. L10)
+
+### L13 · Ein Koordinatensystem — Geometrie in Logical Units, Auflösung erst im Konnektor
+
+Das Zielbild verlangt, dieselbe Seite proportional auf verschiedene Leinwandgrößen zu
+bringen. Heute tut sie das nicht — und das ist gemessen, nicht vermutet.
+
+**Befund 1 — zwei Basisleinwände, stillschweigend gemischt.** `layout_grid.yaml` rechnet
+seine Logical Units gegen die **design_base 1280×720** (`computed.lu_w: 86.67`).
+`_OVERVIEW_LAYOUT` in `tooling/generator_core/ir/compiler.py` führt Brüche der Leinwandbreite.
+Setzt man beide zusammen, zeigt sich, gegen welche Leinwand die Brüche wirklich geschrieben
+wurden — der linke Rand verrät es:
+
+| Leinwand | `lu_w` | `Main_1` x | Spalte | `Main_1` colSpan |
+|---|---|---|---|---|
+| 1280×720 (design_base) | 86,67 | 21,4 px | **−0,10** | 12,21 / 4,03 |
+| 1920×1080 (production) | 140,00 | **32,1 px** | **0,00** | 12,00 / **3,93** |
+
+`0,0167 × 1920 = 32,1 px` — das ist exakt `outer_margin: 32`. Die Brüche sind gegen
+**1920×1080** geschrieben, die LU-Rechnung gegen **1280×720**. Auf der Leinwand, für die
+`layout_grid.yaml` rechnet, liegt der erste Slot bei Spalte **−0,10**, also außerhalb des
+Rasters, und das KPI-Band ist mit 12,21 LU breiter als das Raster hat.
+
+**Befund 2 — auch die richtige Leinwand geht nicht auf.** Selbst bei 1920 landet `Main_1`
+auf **3,93** statt 4 Spalten. Ursache ist kein Rundungsfehler, sondern eine Inkonsistenz im
+Modell: die Brüche skalieren mit der Leinwand, `gutter: 16` und `outer_margin: 32` sind
+**absolute Pixel** und skalieren nicht mit. Eine Größe, die zur Hälfte mitskaliert, ist auf
+keiner Leinwand außer der Autorenleinwand korrekt.
+
+**Die Festlegung.** Geometrie wird in **Logical Units** ausgedrückt — Position *und* Spanne,
+und **inklusive** Gutter, Außenrand und Innenabstand. Pixel entstehen **ausschließlich** im
+Konnektor, aus der Leinwand seines Zielprofils. Ein Bruch der Leinwandbreite kommt in keiner
+Autorenquelle mehr vor. Damit ist proportionales Skalieren keine Nachrechnung, sondern eine
+Eigenschaft des Modells: dieselbe Slot-Angabe ergibt auf 1280 und auf 1920 dieselbe Spalte.
+
+**Der Ort dafür existiert bereits — es wird keiner angelegt.** `canvas_profiles` in
+`meridian/design/brand-tokens.schema.yaml` (Freelancing) führt `powerbi_design_base`,
+`powerbi_production` und `web_fluid` und trägt bereits eine begründete Skalierungsregel:
+`font_size_delta_pt: +2` für Produktion, weil PBI FitToPage 0,71× herunterskaliert.
+Konsumiert wird sie von `pbi_theme.py::_font_delta_for_profile`. **Gemessen ist damit auch
+die Lücke:** die Profile skalieren heute **Schrift**, aber **keine Geometrie**. L13 schließt
+genau diese Hälfte — im vorhandenen Profil-Mechanismus, nicht daneben.
+
+Für Schriftgrade gilt derselbe Grundsatz und dieselbe Quelle: die dokumentierten additiven
+Stufen aus `typography.yaml` bzw. der `font_size_delta_pt` des Profils — **kein** freier
+Skalierungsfaktor. Ein Schriftgrad, der aus einer Multiplikation entsteht, ist nicht mehr
+gegen die Lesbarkeitsuntergrenze prüfbar, die `typography.yaml` zusichert.
+
+* **Vorher prüfen (Pflicht):** `preview/src/grid/slot-pos.ts` löst genau diesen Vertrag
+  bereits korrekt auf — `left = outer + col*(lu-w + gutter)`, als CSS-`calc()` über
+  Custom Properties, sodass ein Leinwandwechsel ohne Neuberechnung reflowt. **Das ist die
+  Referenzimplementierung**; L13 zieht die Python-Seite darauf nach und erfindet keine
+  zweite Formel. `validateSlot()` (Überlauf, 12×12) und `slotsOverlap()` sind dort
+  ebenfalls schon vorhanden.
+* **DoD:**
+  1. `_OVERVIEW_LAYOUT` und `_DETAIL_LAYOUT` führen LU-Angaben (`col/row/cs/rs`) statt
+     Leinwandbrüche; die Pixel-Auflösung liegt in **einer** Funktion, die die Formel aus
+     `slot-pos.ts` spiegelt — durch einen Test gegen deren Werte belegt, nicht durch
+     Nachlesen.
+  2. `canvas_profiles` trägt die Geometrie-Auflösung (Leinwand + `gutter`/`outer_margin` je
+     Profil), sodass ein Profilwechsel Spalten **erhält**. Beleg: derselbe Slot ergibt auf
+     1280 und 1920 dieselbe Spalte und dieselbe Spanne — als Test, nicht als Zusicherung.
+  3. Ein Check meldet **rot**, wenn eine Autorenquelle wieder Pixel oder Leinwandbrüche
+     führt. Er wird in die **bestehende** Stage-1-Kette gehängt, nicht als neuer Runner.
+  4. Die beiden Befunde oben sind behoben und der Beweis steht als Testfall im Repo —
+     `Main_1` ergibt **4,00**, nicht 3,93.
+* **Fallstrick, benannt:** das ist eine **verhaltensändernde** Umstellung. Die erzeugten
+  `dist`-Reports verschieben sich um wenige Pixel. Ein Drift-Test, der die alten Werte
+  einfriert, würde die Korrektur als Fehler melden — die Referenzwerte werden in **einem**
+  Schritt mitgezogen, mit der Verschiebung als Begründung im Commit.
+* **Modell:** Opus (die Umstellung ist geometrisch, nicht mechanisch) · **Umgebung:** CC-Web
+  (die Auflösung ist rechenbar; der Augenschein in Desktop gehört zu L10)
 
 ### L11 · Fidelity-Scorecard je Ziel
 
@@ -392,10 +536,21 @@ L12 ──┬──▶ L6   (füllt CONDENSE/SIMPLIFY/STRUCTURE mit echten IBCS-
       └──▶ L10  (was nativ geht, was SVG braucht)
       ▲
       └─ startet SOFORT — keine Vorbedingung
+
+L13 ──┬──▶ L8   (Layout in `from_aluca` — braucht ein tragfähiges Koordinatensystem)
+      ├──▶ L9   (dieselbe Geometrie muss im zweiten Ziel ankommen)
+      └──▶ L10  (SVG-Größen sind sonst gegen die falsche Leinwand gerechnet)
+      ▲
+      └─ startet SOFORT — keine Vorbedingung
 ```
 
 **L0 blockiert alles.** Ohne eine Autorität für das Vokabular baut jede weitere Schicht
 auf zwei widersprüchlichen Listen auf.
+
+**L12 und L13 hängen an nichts** und sind die beiden einzigen Tasks, die *vor* der
+L0-Entscheidung echten Boden schaffen: L12 die Notation, L13 die Geometrie. Beide
+groundet dieselbe Beobachtung — was übersetzt werden soll, muss zuerst eindeutig
+ausgedrückt sein.
 
 ---
 
@@ -459,9 +614,25 @@ hält die Grenze fest und benennt beide Fälle im Fehlertext.
   <https://dl.acm.org/doi/10.1109/TVCG.2016.2599030> ·
   <https://en.wikipedia.org/wiki/Vega_and_Vega-Lite_visualisation_grammars>
 
-**Nicht belegt und deshalb nicht als Grundlage verwendet:** ISO/AWI 24896 ist ein
-*laufendes* Projekt (Start Juli 2024) — ein veröffentlichter ISO-Standard ist es nicht.
-Die Aussage im Konzept lautet deshalb „Kandidat", nicht „Standard".
+**Repo-interne Belege (02.08.2026, im Nachbarrepo `Freelancing/` gemessen — §2.2):**
+
+* `docs/adr/0048-viz-target-adapters-vega-evidence-ibcs.md` — Accepted & umgesetzt
+  2026-06-24; Phasen 1–3; §2.2 IBCS als Querschnitts-Profil, §2.3 Lizenz-Leitplanken +
+  OSS-Vorarbeiten, §4 offenes Gate-Analogon
+* `core/report_design/ibcs.py` · `core/pbi_engine/target/vegalite.py`
+* `meridian/design/brand-tokens.schema.yaml` → `canvas_profiles` ·
+  `meridian/design/derivations/pbi_theme.py::_font_delta_for_profile`
+* `core/templates/page_templates/preview/src/grid/slot-pos.ts` (ALUCA) — die bereits
+  korrekte LU→CSS-Auflösung
+
+**Nicht belegt und deshalb nicht als Grundlage verwendet:**
+
+* **ISO/AWI 24896** ist ein *laufendes* Projekt (Start Juli 2024) — ein veröffentlichter
+  ISO-Standard ist es nicht. Die Aussage im Konzept lautet deshalb „Kandidat", nicht
+  „Standard".
+* **`actionablereporting.com`** (native IBCS-Nachbildung in Power BI) — Abruf liefert
+  **HTTP 403**, nur Suchauszüge verfügbar. Wird in L12 als **offen** geführt; ein Auszug
+  zählt hier nicht als Beleg.
 
 ---
 
@@ -478,7 +649,8 @@ Die Aussage im Konzept lautet deshalb „Kandidat", nicht „Standard".
 | L6 Layout-System IBCS | 🟡 teilw. | 2026-08-01 | **Kein neuer Regelspeicher** — Herkunftssicht über die 3 vorhandenen. 69 Regeln: 15 IBCS / 21 Fremdstandard / 33 Hausregel. **Auszeichnungs-Lücke geschlossen:** alle 15 IBCS-Regeln tragen jetzt eine SUCCESS-Gruppe (SAY 1, UNIFY 7, CHECK 3, EXPRESS 4). **Inhalts-Lücke bleibt bewusst offen:** CONDENSE/SIMPLIFY/STRUCTURE unbelegt — s. u. |
 | L7 Zweites System (Schnitt-Test) | ⬜ offen | | |
 | L8 Layout in `from_aluca` | ⬜ offen | | schließt Meridian-**C4** |
-| L9 Vega-Lite-Konnektor | ⬜ offen | | |
+| L9 Vega-Lite-Ziel anbinden | ⬜ offen | | **Umfang korrigiert 02.08.** — Konnektor existiert in Meridian (ADR-0048 Ph. 1, `vegalite.py` + `ibcs.py`). Aufgabe ist die Naht `targets.vegalite`, nicht der Neubau. |
 | L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
-| L11 Fidelity-Scorecard | ⬜ offen | | erweitert K6 |
-| **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. CC-BY-SA-Pflicht beachten. |
+| L11 Fidelity-Scorecard | ⬜ offen | | erweitert K6; erbt das in ADR-0048 §4 offen benannte Gate-Analogon (Spec-Validität, Render-Smoke, IBCS-Konformität) |
+| **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. **02.08. ergänzt:** OSS-Vorarbeiten aus ADR-0048 §2.3 zuerst prüfen (`ruqzuq/standard-charts`, Deneb-Galerien); gemessene Lücke = IBCS-Chart-*Typen* (Wasserfall/Nadel/Skalenband), nicht die Notation; **Deneb-Entscheid** dokumentiert, nicht getroffen (Fremd-Visual, §3.4); Quelle `actionablereporting.com` **403 → offen**. CC-BY-SA-Pflicht beachten. |
+| **L13 Ein Koordinatensystem** | ⬜ **offen — vorziehen** | | **neu 02.08.** Geometrie in LU statt Leinwandbrüchen, Auflösung erst im Konnektor. Gemessen: `_OVERVIEW_LAYOUT` ist gegen **1920×1080** geschrieben, `layout_grid.yaml` rechnet gegen **1280×720** → erster Slot bei Spalte −0,10; und selbst bei 1920 ergibt `Main_1` **3,93** statt 4, weil `gutter`/`outer_margin` absolut bleiben. Erweitert `canvas_profiles` (Meridian) — die skalieren heute Schrift, keine Geometrie. Referenz: `slot-pos.ts`. Verhaltensändernd → `dist`-Referenzwerte mitziehen. |
