@@ -1152,6 +1152,81 @@ falsch, aber enger als sie klang.
 
 ---
 
+## 13. Drei Geometrie-Quellen — und `template_variant` war wirkungslos (02.08.2026)
+
+Schritt 2 sollte „nur die fehlenden Möbel anschließen, die Geometrie liegt schon im
+Raster". Diese Prämisse war falsch. Gemessen gab es **drei** Quellen für dieselbe Seite:
+
+| Quelle | Format | gelesen von |
+|---|---|---|
+| `_OVERVIEW_LU`/`_DETAIL_LU` (Python) | LU, gebrochen | **der lebende Pfad** |
+| `grid_templates/*.json` — 3 Dateien | `grid: [col,row,cs,rs]` | nur `page_scaffold_generator` (deprecated) |
+| `grid_templates/*.json` — 3 Dateien | `position: {x,y,w,h}` px | dito |
+
+Die README des Template-Verzeichnisses erklärt LU-`grid` für verbindlich — **drei der
+sechs Dateien halten sich nicht daran**.
+
+### Der schwerwiegende Teil
+
+Die Compiler-Tabelle war faktisch eine Kopie von `pulse` (Abweichung ≤ 9 px) und wurde
+auf **alle** Varianten angewendet. `executive_kpi` gibt `Main_2` 328 px Höhe, die
+Tabelle 749 px (Δ 421); `pulse_asymmetric` ist asymmetrisch (992/432), die Tabelle
+rendert drei gleiche Spalten. Anders gesagt: `template_variant` wurde deklariert, gegen
+das Manifest validiert (40/40 lösen auf) — und von der Geometrie **ignoriert**. Genau
+deshalb hatten `Focus_Area` und `Support_1` „keine Geometrie": in `pulse` kommen sie
+nicht vor.
+
+Und der Test, der die Geometrie bewachte, verglich gegen `_OVERVIEW_LU` — die Kopie
+gegen die Kopie. Er konnte den Befund nicht finden, weil er auf derselben Seite stand.
+
+### Entscheidung (Flo) und Umsetzung
+
+**`grid_templates/*.json` sind die Autorität.** Umgesetzt:
+
+* `executive_kpi.json` von `position` auf LU-`grid` umgestellt — Restfehler ≤ 4 px über
+  vier Zahlen, also echtes Einrasten. `investigator_focus` und `pulse_asymmetric`
+  **bleiben unangetastet**: ihre LU-Passung wäre mit 36–157 px nicht verlustfrei, und
+  `pulse_asymmetric` lässt zudem 416 px Leinwand ungenutzt. Sie sind über keine
+  deklarierte Variante primär erreichbar. Ein Layout zu ändern und es Normalisierung zu
+  nennen, wäre dieselbe stille Verschiebung, gegen die dieses Konzept geschrieben ist.
+* `page_templates.py` löst **nach Ebene** auf, nicht blind über `grid_template`: die
+  Templates sind ebenen-spezifisch (Übersicht vs. Detail), das Manifest sagt das nicht.
+  Ohne diese Unterscheidung bekäme T4_ActionDecision seine Übersichts-Slots aus einem
+  Detail-Raster.
+* `from_aluca` emittiert die **Pflicht-Möbel** der Variante — Slicer, ActionPanel,
+  Detail-Filterleiste. Die trägt kein Bracket; der Autor kann sie gar nicht deklarieren.
+  Sie binden keine Measures (Chrome, wie `CHROME_TOKENS`), und das
+  `visual_type_hint` der Templates ist bewusst **nicht** die Quelle: es führt
+  PBIR-Typnamen und würde die Vokabular-Autorität aus ADR-0018 umgehen.
+
+**Ergebnis: Seiten mit fehlenden Pflicht-Slots 39 → 3.** Übrig bleibt `Focus_Area` (3×) —
+eine echte Lücke im Manifest, keine im Code.
+
+### Zwei Dinge, die dabei ehrlich bleiben mussten
+
+**Der Rückfall wird gemeldet.** Für fünf Varianten deklariert das Manifest **kein**
+Detail-Raster. Dort greift das benannte Default-Raster — sonst verlören diese Seiten
+Geometrie, die sie heute haben. Drei Seiten sind deshalb vollständig, ohne dass es so
+deklariert wäre; `slot_luecken` führt dafür `raster_default`, und die e2e-Stufe sagt es.
+Ohne diese Angabe läse sich ein Rückfall wie ein Befund.
+
+**Die 76-px-Slicer-Zusicherung war zu stark formuliert.** Gegen den CLI-Code gemessen
+(nicht aus der Erinnerung): `PBIR_SLICER_HEIGHT_BELOW_FLOOR` existiert, und die Rechnung
+stimmt — `header 28 + selector 32 + padding` = 76. **Aber sie gilt nur für Dropdown-Slicer
+mit sichtbarem Header.** Die Raster-Templates geben `Slicer_Date` 70 px; der offizielle
+Validator meldet an der emittierten Kette dennoch 0 Errors. Das ist ein **latentes**
+Risiko, kein Defekt — und der Wächter dafür ist die CLI in der e2e-Stufe, nicht eine Zahl
+in einem Kommentar. Der frühere Text machte daraus einen unbedingten Boden.
+
+### Offen
+
+Die Compiler-Tabelle `_OVERVIEW_LU`/`_DETAIL_LU` besteht weiter — der IR-Compiler
+positioniert an zehn Stellen ohne Variantenwissen. Sie ist jetzt **benannt** als das, was
+sie ist (`pulse`/`action_matrix` als Default-Raster), aber noch nicht abgeleitet. Das ist
+die nächste Konsolidierung, mit eigener Sprengweite: sie ändert auch den Compiler-Pfad.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1363,3 +1438,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **L13 Ein Koordinatensystem** | 🟢 **erledigt** | 2026-08-02 | Geometrie in Logical Units, Auflösung nur in `lu_to_pixels()` — Gutter und Außenrand innerhalb der Rechnung. Beide Befunde behoben: gleiche Spalte auf 1280 **und** 1920, `Main_1` bei Spanne **4,00** statt 3,93. Waagerecht ganzzahlig, senkrecht fraktional — weil ein 12-Zeilen-Zwang zwei Slots kollidieren ließe und die dokumentierte 76-px-Mindesthöhe des Slicers bräche. 8 Tests inkl. Rückfall-Wächter und Formel-Abgleich gegen `slot-pos.ts`. Reichweite: IR-Compiler-Pfad; die `dist`-Reports sind **nicht** betroffen (`from_aluca` erzeugt keine Positionen) — deren Angleichung bleibt an C4. |
 | **K Konsolidierung (§11)** | 🟡 teilw. | 2026-08-02 | **Leinwand 38 → 0** im lebenden Code (ein Leser `layout_grid.py`), **neuer Visualtyp 11 → 4** (Autoren-Schemas und `VISUAL_TYPE_MAP` werden jetzt aus der Registry **erzeugt**, nicht gepflegt; Drift-Check in Stage 1). Beleg für die Notwendigkeit: die Schemas erlaubten **8** registry-fremde Typen, darunter das ausdrücklich verbotene `stacked_bar`. Zwei eigene Fehler von den Tests gefangen — Generator wandte die Feldregeln verkehrt herum an (`component_3s` bekam 25 statt 2 Typen) und `update()` **verengte** die PBIR-Aliasse statt zu vereinigen. Grenzen in `test_konsolidierung.py` (0 Literale, 4 Stellen). **Offen: Slot-Namen (19 Dateien).** |
 | **N1 Wächter feuerfähig (§12)** | 🟢 **erledigt** | 2026-08-02 | `RequiredSlots` konnte aus **drei** unabhängigen Gründen nicht anschlagen (in keiner Produktiv-Spec; Namens-Schnüffeln matchte `page_1_summary`/`page_2_execution` nicht; `visual_id` war ein Zähler, keine Slot-ID). Die Autorität existierte längst — `template_manifest.yaml`, 40/40 Seiten lösen auf. Angeschlossen statt erfunden: Leser `layer_tools/page_templates.py`, `visual_id` **ist** der Slot-Name (kollisionssicher), `RequiredSlots` verliert beide hartkodierten Mengen **und** das Schnüffeln, e2e-Stage `page_slots` (advisory). **Erstes Feuern: 39/40 Seiten** ohne mindestens einen Pflicht-Slot — `Slicer_Date` 19×, `ActionPanel` 13×, `Slicer_Pane` 7×, `Focus_Area` 3×. Nebenbei: zwei Vokabulare im Manifest getrennt gehalten; §11-Zahl „38 → 0" auf **Code** präzisiert und die zweite YAML-Rasterkopie erzwungen-gleich gemacht. 2031 Tests grün, H7 bleibt 100 %. |
+| **N2 Pflicht-Möbel + Geometrie-Autorität (§13)** | 🟢 **erledigt** | 2026-08-02 | Prämisse war falsch: **drei** Geometrie-Quellen, und die Compiler-Tabelle war faktisch `pulse` für **alle** Varianten — `template_variant` war deklariert, validiert und geometrisch **wirkungslos** (`executive_kpi` Main_2: 328 px im Template, 749 px in der Tabelle). Entscheidung Flo: `grid_templates/*.json` sind Autorität. `executive_kpi` auf LU umgestellt (≤4 px), die zwei nicht erreichbaren Pixel-Templates bewusst **nicht** (36–157 px wären keine Normalisierung). Auflösung **nach Ebene**, Pflicht-Möbel emittiert. **Seiten mit Lücke 39 → 3** (Rest `Focus_Area`, Manifest-Lücke). Default-Rückfall wird gemeldet statt verschwiegen; 76-px-Slicer-Zusicherung als **bedingt** präzisiert (gegen CLI-Code gemessen). 2031 Tests grün, 20/20 Reports 0 Errors beim offiziellen Validator, H7 100 %. **Offen:** Compiler-Tabelle noch nicht abgeleitet. |

@@ -35,6 +35,7 @@ zugaenglich und ausdruecklich als *andere* Achse benannt.
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -169,3 +170,128 @@ def fehlende_pflichtslots(variant_id: str, vorhandene: "list[str] | set[str]",
                           pfad: Optional[str] = None) -> list[str]:
     """Welche Pflicht-Slots der Variante fehlen in `vorhandene`? Sortiert, ggf. leer."""
     return sorted(set(load(variant_id, pfad).pflicht(ebene)) - set(vorhandene))
+
+
+# --------------------------------------------------------------------------- #
+# Slot-Geometrie: grid_templates/*.json ist die Autoritaet (Entscheidung Flo,   #
+# 02.08.2026)                                                                   #
+# --------------------------------------------------------------------------- #
+#
+# Bis hierher lag die Geometrie in `generator_core/ir/compiler._OVERVIEW_LU` /
+# `_DETAIL_LU` — einer hartkodierten Tabelle. Gemessen am 02.08.2026 war sie faktisch
+# eine Kopie von `pulse` (Abweichung <=9 px) und wurde auf **alle** Varianten
+# angewendet. Jede Nicht-`pulse`-Variante wich massiv ab: `executive_kpi` gibt `Main_2`
+# 328 px Hoehe, die Tabelle 749 px. `template_variant` wurde also deklariert, gegen das
+# Manifest validiert (40/40) — und von der Geometrie ignoriert.
+#
+# Die Templates sind **ebenen-spezifisch**, das Manifest sagt das nicht:
+#   * Uebersicht (3s/30s): KPI_Cards, Slicer_Date, Main_1..3
+#   * Detail (300s):       Slicer_Pane, Detail_Matrix, ActionPanel, Focus_Area, Support_*
+# Ein Variant bindet aber nur EIN `grid_template` (+ optional `alternate`). Deshalb wird
+# nach Ebene ausgewaehlt statt blind `grid_template` genommen — sonst bekaeme
+# T4_ActionDecision (gt=action_matrix, ein Detail-Raster) seine Uebersichts-Slots aus
+# einem Raster, das sie gar nicht kennt.
+
+#: Welche Slot-IDs eine Ebene ausmachen — daraus wird die Ebene eines Templates
+#: abgeleitet, statt sie ein zweites Mal zu pflegen.
+_DETAIL_MARKER = frozenset({"Slicer_Pane", "Detail_Matrix", "ActionPanel",
+                            "Focus_Area", "Support_1", "Support_2", "Slicer_Entity",
+                            "Smart_Narrative"})
+
+_GRID_DIR = _REPO_ROOT / "core" / "templates" / "page_templates" / "grid_templates"
+
+
+@dataclass(frozen=True)
+class GridTemplate:
+    template_id: str
+    slots: dict           # slot_id -> (col, row, col_span, row_span)
+    hints: dict           # slot_id -> visual_type_hint
+    ebene: str            # "overview_slots" | "detail_slots"
+
+
+@lru_cache(maxsize=None)
+def grid_template(template_id: str) -> GridTemplate:
+    """Ein Raster-Template mit seinen Slot-Koordinaten in Logical Units.
+
+    Nur das von der eigenen README als verbindlich erklaerte Format wird gelesen:
+    `grid: [col, row, col_span, row_span]`. Drei der sechs Dateien fuehrten stattdessen
+    `position` in Pixeln — ein Widerspruch zur eigenen README. `executive_kpi` (primaer
+    erreichbar) wurde umgestellt; `investigator_focus` und `pulse_asymmetric` sind ueber
+    keine deklarierte Variante primaer erreichbar und bleiben unangetastet, weil ihre
+    LU-Passung **nicht verlustfrei** waere (Restfehler 36-157 px, `pulse_asymmetric`
+    laesst zudem 416 px Leinwand ungenutzt). Sie stillschweigend einzurasten hiesse, ein
+    Layout zu aendern und es Normalisierung zu nennen.
+    """
+    p = _GRID_DIR / f"{template_id}.json"
+    if not p.is_file():
+        raise PageTemplateError(f"Raster-Template '{template_id}' fehlt ({p}).")
+    doc = json.loads(p.read_text(encoding="utf-8"))
+    slots, hints = {}, {}
+    for s in doc.get("slots") or []:
+        if "grid" not in s:
+            raise PageTemplateError(
+                f"{p.name}: Slot '{s.get('slot_id')}' fuehrt kein `grid` (LU). "
+                "Die README des Verzeichnisses erklaert LU-`grid` fuer verbindlich; "
+                "`position` in Pixeln ist hier nicht lesbar, weil die Umrechnung nicht "
+                "verlustfrei ist und ein stilles Einrasten das Layout aendern wuerde."
+            )
+        col, row, cs, rs = s["grid"]
+        slots[s["slot_id"]] = (col, row, cs, rs)
+        hints[s["slot_id"]] = s.get("visual_type_hint")
+    ebene = "detail_slots" if (set(slots) & _DETAIL_MARKER) else "overview_slots"
+    return GridTemplate(template_id=doc.get("template_id", template_id),
+                        slots=slots, hints=hints, ebene=ebene)
+
+
+def raster_fuer(variant_id: str, ebene: str,
+                pfad: Optional[str] = None) -> Optional[GridTemplate]:
+    """Das Raster-Template dieser Variante fuer diese Ebene — oder `None`.
+
+    `None` heisst „das Manifest deklariert dafuer keines", nicht „egal". Gemessen:
+    fuer T1_Portfolio, T1_Trend, T2_DriverBridge, T2_Comparative und T3_ProcessControl
+    ist **kein** Detail-Raster deklariert; weder `grid_template` noch
+    `alternate_grid_template` ist eines. Das ist eine echte Luecke im Manifest und wird
+    hier benannt statt geraten — eine erfundene Position sieht richtig aus und ist es
+    nicht (dieselbe Regel wie bei `_slot_geometrie`).
+    """
+    doc = _manifest(pfad)
+    for fam in doc["page_families"]:
+        for v in fam.get("variants") or []:
+            if v.get("variant_id") != variant_id:
+                continue
+            for key in ("grid_template", "alternate_grid_template"):
+                tid = v.get(key)
+                if not tid:
+                    continue
+                try:
+                    gt = grid_template(tid)
+                except PageTemplateError:
+                    continue
+                if gt.ebene == ebene:
+                    return gt
+            return None
+    raise PageTemplateError(f"Variante '{variant_id}' steht nicht im Manifest.")
+
+
+def slot_lu(variant_id: str, ebene: str, slot_id: str,
+            pfad: Optional[str] = None) -> Optional[tuple]:
+    """Slot → `(col, row, col_span, row_span)` der Variante auf dieser Ebene, sonst `None`.
+
+    `None` heisst „nicht deklariert" — nicht „(0,0,1,1)". Ein geratenes Rechteck sieht
+    im Report richtig aus und ist es nicht; das war der Grund, warum die Abweichung
+    zwischen Compiler-Tabelle und Raster-Templates ein Jahr lang niemandem auffiel.
+    """
+    gt = raster_fuer(variant_id, ebene, pfad)
+    return gt.slots.get(slot_id) if gt else None
+
+
+def default_raster(ebene: str) -> GridTemplate:
+    """Das Raster fuer Aufrufer **ohne** Variante (z. B. der IR-Compiler).
+
+    Benannt statt implizit: der Compiler positioniert an 10 Stellen ohne zu wissen,
+    welche Variante die Seite hat. Bis 02.08.2026 hatte er dafuer eine eigene Tabelle,
+    die faktisch `pulse` war (Abweichung <=9 px) — nur eben eine zweite Wahrheit. Jetzt
+    ist es dasselbe `pulse`, aber **gelesen**, und die Annahme steht hier statt in einer
+    Tabelle, die aussieht wie eine Entscheidung.
+    """
+    return grid_template({"overview_slots": "pulse", "detail_slots": "action_matrix"}[ebene])

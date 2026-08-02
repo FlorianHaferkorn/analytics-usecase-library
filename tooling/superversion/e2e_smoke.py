@@ -121,13 +121,25 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
 
     ungeprueft = [r["page"] for r in rows if r["missing"] is None]
     fehlend = {r["page"]: r["missing"] for r in rows if r["missing"]}
+    # Seiten, deren Geometrie aus dem Default-Raster kam, weil das Manifest der Variante
+    # keines fuer diese Ebene zuweist. Sie sind vollstaendig — aber nicht, weil es so
+    # deklariert ist. Das gehoert in die Meldung, sonst liest sich ein Rueckfall wie ein
+    # Befund.
+    geraten = [r["page"] for r in rows if r.get("raster_default")]
     if not rows:
         return StageResult("page_slots", "SKIP", "bracket declares no pages")
     if fehlend or ungeprueft:
         teile = [f"{p}: {', '.join(m)}" for p, m in sorted(fehlend.items())]
         if ungeprueft:
             teile.append(f"no template_variant on {', '.join(sorted(ungeprueft))}")
+        if geraten:
+            teile.append(f"default grid template on {', '.join(sorted(geraten))}")
         return StageResult("page_slots", "WARN", "; ".join(teile))
+    if geraten:
+        return StageResult("page_slots", "WARN",
+                           f"{len(rows)} page(s) complete, but {', '.join(sorted(geraten))} "
+                           "used the DEFAULT grid template — the manifest declares none "
+                           "for that variant/level")
     return StageResult("page_slots", "PASS",
                        f"{len(rows)} page(s), all mandatory slots present")
 

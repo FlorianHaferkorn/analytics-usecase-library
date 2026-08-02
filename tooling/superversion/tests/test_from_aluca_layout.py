@@ -122,14 +122,25 @@ def test_surplus_components_get_no_invented_slot():
 
 
 def test_geometry_matches_the_governed_slot_exactly(modell):
-    """Die Werte stammen aus dem Raster, nicht aus einer zweiten Rechnung im Adapter."""
-    from tooling.generator_core.ir.compiler import _OVERVIEW_LU
-    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
+    """Die Werte stammen aus dem Raster-Template DIESER Variante, nicht aus einer Tabelle.
 
-    erwartet = to_pixels(*_OVERVIEW_LU["Main_1"], params=load("production"))
-    # Ueber den Slot-Namen statt ueber das Zaehlschema: seit die `visual_id` der
-    # Slot-Name IST, prueft der Test die Identitaet des Slots und nicht mehr die
-    # Reihenfolge, in der er zufaellig erzeugt wurde.
+    Bis 02.08.2026 verglich dieser Test gegen `_OVERVIEW_LU` — die Compiler-Tabelle.
+    Die war faktisch `pulse` fuer alle Varianten; FIN-002 deklariert aber eine Variante
+    mit `executive_kpi`, wo `Main_1` **8** LU breit ist statt 4. Der Test hat also die
+    Kopie gegen die Kopie geprueft und deshalb nie gemerkt, dass `template_variant`
+    wirkungslos war.
+    """
+    import yaml as _yaml
+
+    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
+    from tooling.superversion.layer_tools.page_templates import slot_lu
+
+    variant = ((_yaml.safe_load(pathlib.Path(_FIN002).read_text(encoding="utf-8")) or {})
+               .get("ux_layout_rules", {}).get("page_1_summary", {}).get("template_variant"))
+    assert variant, "FIN-002 deklariert keine Variante — der Test prueft sonst nichts"
+    lu = slot_lu(variant, "overview_slots", "Main_1")
+    assert lu, f"{variant} kennt keinen Main_1 — Manifest/Template pruefen"
+    erwartet = to_pixels(*lu, params=load("production"))
     main1 = next(v for v in _visuals(modell) if v.visual_id == "Main_1")
     assert main1.x == pytest.approx(erwartet["x"])
     assert main1.width == pytest.approx(erwartet["width"])

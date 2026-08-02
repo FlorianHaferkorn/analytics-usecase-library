@@ -150,21 +150,44 @@ def test_com002_measure_count(com002):
     assert total >= 12, f"expected >=12 measures from COM-002, got {total}"
 
 
+
+# Seitenmoebel (Slicer, Narrative, ActionPanel) kommen aus dem Manifest, nicht aus dem
+# Bracket — dieselbe Trennung wie `CHROME_TOKENS` in der Visual-Library: die Registry
+# beschreibt Absichten, und ein Slicer beantwortet keine Frage.
+def _moebel(page):
+    from tooling.superversion.layer_tools.visual_library import CHROME_TOKENS
+    return [v for v in page.visuals if v.visual_type in CHROME_TOKENS]
+
+
+def _inhalt(page):
+    from tooling.superversion.layer_tools.visual_library import CHROME_TOKENS
+    return [v for v in page.visuals if v.visual_type not in CHROME_TOKENS]
+
 def test_com002_report_pages(com002):
     pages = com002.report.pages
     assert len(pages) == 2, "expected 2 pages (summary + execution)"
     by_key = {p.name: p for p in pages}
-    # page_1: 3s lead card + 3×30s slots; page_2: single 300s detail.
-    assert len(by_key["page_1_summary"].visuals) == 4
-    assert len(by_key["page_2_execution"].visuals) == 1
+    # page_1: 3s lead card + 30s slots; page_2: 300s detail.
+    #
+    # Gezaehlt werden die **Inhalts**-Visuals. Seit 02.08.2026 ergaenzt der Adapter
+    # zusaetzlich die Pflicht-Moebel der Seitenvariante (Slicer, ActionPanel) aus dem
+    # Manifest — die traegt kein Bracket, und sie an dieser Zahl mitzuzaehlen wuerde
+    # den Test bei jeder Manifest-Aenderung rot machen, ohne dass am Adapter etwas
+    # falsch waere.
+    assert len(_inhalt(by_key["page_1_summary"])) == 4
+    assert len(_inhalt(by_key["page_2_execution"])) == 1
+    # Und die Moebel sind wirklich Moebel: keins bindet eine Measure.
+    for p in pages:
+        for v in _moebel(p):
+            assert not v.binds_measures, f"{v.visual_id} ist Chrome und bindet Measures"
 
 
 def test_com002_measure_binding_visuals(com002):
     page1 = next(p for p in com002.report.pages if p.name == "page_1_summary")
     # All four summary visuals bind measures (lead card + driver slots).
-    assert all(v.binds_measures for v in page1.visuals), (
-        f"summary visuals must bind measures: "
-        f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
+    assert all(v.binds_measures for v in _inhalt(page1)), (
+        f"summary content visuals must bind measures: "
+        f"{[(v.visual_id, v.binds_measures) for v in _inhalt(page1)]}"
     )
     lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "Gross Margin %" in lead.bound_measures, (
@@ -226,15 +249,15 @@ def test_com003_report_pages(com003):
     pages = com003.report.pages
     assert len(pages) == 2, "expected 2 pages (summary + execution)"
     by_key = {p.name: p for p in pages}
-    assert len(by_key["page_1_summary"].visuals) == 4
-    assert len(by_key["page_2_execution"].visuals) == 1
+    assert len(_inhalt(by_key["page_1_summary"])) == 4
+    assert len(_inhalt(by_key["page_2_execution"])) == 1
 
 
 def test_com003_measure_binding_visuals(com003):
     page1 = next(p for p in com003.report.pages if p.name == "page_1_summary")
-    assert all(v.binds_measures for v in page1.visuals), (
-        f"summary visuals must bind measures: "
-        f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
+    assert all(v.binds_measures for v in _inhalt(page1)), (
+        f"summary content visuals must bind measures: "
+        f"{[(v.visual_id, v.binds_measures) for v in _inhalt(page1)]}"
     )
     lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "CLV" in lead.bound_measures, (
@@ -286,14 +309,14 @@ def test_fin002_report_pages(fin002):
     assert len(pages) == 2, "expected 2 pages (summary + execution)"
     by_key = {p.name: p for p in pages}
     assert by_key["page_1_summary"].visuals, "summary page has no visuals"
-    assert len(by_key["page_2_execution"].visuals) == 1
+    assert len(_inhalt(by_key["page_2_execution"])) == 1
 
 
 def test_fin002_measure_binding_visuals(fin002):
     page1 = next(p for p in fin002.report.pages if p.name == "page_1_summary")
-    assert all(v.binds_measures for v in page1.visuals), (
-        f"summary visuals must bind measures: "
-        f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
+    assert all(v.binds_measures for v in _inhalt(page1)), (
+        f"summary content visuals must bind measures: "
+        f"{[(v.visual_id, v.binds_measures) for v in _inhalt(page1)]}"
     )
     lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "Unit Cost Amount" in lead.bound_measures, (
@@ -350,14 +373,14 @@ def test_scm002_report_pages(scm002):
     assert len(pages) == 2, "expected 2 pages (summary + execution)"
     by_key = {p.name: p for p in pages}
     assert by_key["page_1_summary"].visuals, "summary page has no visuals"
-    assert len(by_key["page_2_execution"].visuals) == 1
+    assert len(_inhalt(by_key["page_2_execution"])) == 1
 
 
 def test_scm002_measure_binding_visuals(scm002):
     page1 = next(p for p in scm002.report.pages if p.name == "page_1_summary")
-    assert all(v.binds_measures for v in page1.visuals), (
-        f"summary visuals must bind measures: "
-        f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
+    assert all(v.binds_measures for v in _inhalt(page1)), (
+        f"summary content visuals must bind measures: "
+        f"{[(v.visual_id, v.binds_measures) for v in _inhalt(page1)]}"
     )
     lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "OTIF %" in lead.bound_measures, (
@@ -422,7 +445,7 @@ def test_evidence_grid_graceful_when_no_kpi_columns():
         },
     }
     rp = _page_from_layout("page_2_execution", page, catalog)
-    assert len(rp.visuals) == 1
+    assert len(_inhalt(rp)) == 1
     assert rp.visuals[0].binds_measures is False
     assert rp.visuals[0].bound_measures == []
 

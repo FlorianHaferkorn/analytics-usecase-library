@@ -137,13 +137,32 @@ def test_no_canvas_fractions_return_to_the_authoring_source():
 
 
 def test_slicer_keeps_its_documented_pixel_floor():
-    """Der Datums-Slicer bleibt ueber 76 px — die Plattform-Zusicherung schlaegt das Raster.
+    """Der Datums-Slicer der Compiler-Tabelle bleibt ueber 76 px.
 
-    Ein Dropdown-Slicer braucht Header 28 + Selektor 32 + Padding; darunter meldet die
-    offizielle CLI `PBIR_SLICER_HEIGHT_BELOW_FLOOR` und das Control schneidet im Service
-    ab. Genau deshalb ist die Vertikale fraktional geblieben statt auf 12 Zeilen gezwungen
-    zu werden — ein Raster, das eine dokumentierte Zusicherung bricht, gewinnt nicht.
+    Praezisiert am 02.08.2026, gegen den CLI-Code gemessen statt aus der Erinnerung:
+    `PBIR_SLICER_HEIGHT_BELOW_FLOOR` existiert wirklich, und die Arithmetik stimmt —
+    `minH = (header 28 wenn sichtbar) + selector 32 + padTop + padBottom` = 76 bei
+    Default-Padding. **Aber sie ist bedingt:** die Regel greift nur fuer *Dropdown*-
+    Slicer, und der Header-Anteil faellt weg, wenn der Header aus ist. Der frueher hier
+    stehende Text machte daraus einen unbedingten Boden — das war eine Verschaerfung,
+    die die Quelle nicht hergibt.
+
+    Folge fuer das governte Raster: `pulse` und `executive_kpi` geben `Slicer_Date`
+    **eine** Zeile = 70 px, also unter 76. Heute ist das kein Defekt — der offizielle
+    Validator meldet an der emittierten Kette 0 Errors, weil unser Slicer kein Dropdown
+    mit Header ist. Es ist ein **latentes** Risiko: wird er einer, bricht die Zusicherung.
+    Der Waechter dafuer ist die offizielle CLI in der e2e-Stufe, nicht diese Zahl hier.
     """
     p = _grid_params()
     px = lu_to_pixels(*_OVERVIEW_LU["Slicer_Date"], canvas_w=1920, canvas_h=1080, grid=p)
     assert px["height"] >= 76, f"Slicer-Hoehe {px['height']:.1f} px unter dem 76-px-Boden"
+
+    # Der Unterschied zum governten Raster wird festgehalten, nicht weggerundet: solange
+    # er besteht, fuehren Compiler-Tabelle und grid_templates verschiedene Hoehen.
+    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
+    from tooling.superversion.layer_tools.page_templates import grid_template
+
+    tpl = to_pixels(*grid_template("pulse").slots["Slicer_Date"], params=load("production"))
+    assert tpl["height"] < 76, (
+        "Das Raster-Template haelt den 76-px-Boden inzwischen ein — dann ist dieser "
+        "Hinweis erledigt und die Compiler-Tabelle kann ohne Vorbehalt abgeleitet werden.")

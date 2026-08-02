@@ -496,13 +496,48 @@ _SLOT_FUER_KOMPONENTE = {
 # Seite beschreiben und nicht zwei Wahrheiten ueber dasselbe Layout entstehen.
 _MAIN_SLOTS = ("Main_1", "Main_2", "Main_3")
 
+#: Welches Visual ein Pflicht-Moebel ist. Die Werte sind `CHROME_TOKENS` aus der
+#: Visual-Library — Seitenmoebel, ausdruecklich KEINE Registry-Visuals: die Registry
+#: beschreibt Absichten, und ein Slicer beantwortet keine Frage. Das `visual_type_hint`
+#: der Raster-Templates ist bewusst NICHT die Quelle: es fuehrt PBIR-Typnamen
+#: (`tableEx`, `cardVisual`) und wuerde die Vokabular-Autoritaet aus ADR-0018 umgehen.
+_MOEBEL_VISUAL = {
+    "Slicer_Date": "slicer",
+    "Slicer_Pane": "slicer",
+    "Slicer_Entity": "slicer",
+    "Slicer_Region": "slicer",
+    "Slicer_Product": "slicer",
+    "Smart_Narrative": "smart_narrative",
+    "ActionPanel": "action_panel",
+}
 
-def _slot_geometrie(slot_name: str) -> dict[str, float]:
-    """Slot-Name → Pixel-Rechteck aus dem governten Raster. Leer, wenn unbekannt."""
-    from tooling.generator_core.ir.compiler import _DETAIL_LU, _OVERVIEW_LU
+#: Das Feld, auf das ein Slicer filtert. Leer heisst „vom Modell zu binden" — der
+#: Bracket kennt hier keine Spalte, und eine erfundene waere ein dangling reference.
+_SLICER_FELD = {"Slicer_Date": "Date[Date]"}
+
+
+def _slot_geometrie(slot_name: str, variant: str = "", ebene: str = "") -> dict[str, float]:
+    """Slot-Name → Pixel-Rechteck aus dem Raster-Template **dieser Variante**.
+
+    Leer, wenn der Slot dort nicht deklariert ist — geraten wird nichts.
+
+    Bis 02.08.2026 las diese Funktion `_OVERVIEW_LU`/`_DETAIL_LU` aus dem IR-Compiler.
+    Gemessen war das faktisch `pulse` fuer **alle** Varianten: `executive_kpi` gibt
+    `Main_2` 328 px Hoehe, die Tabelle 749 px (Δ 421). `template_variant` wurde also
+    deklariert, gegen das Manifest validiert — und von der Geometrie ignoriert.
+    Autoritaet sind jetzt die `grid_templates/*.json` (Entscheidung Flo, 02.08.2026).
+
+    Ohne Variante bleibt das benannte Default-Raster — dieselbe Annahme wie vorher,
+    aber sichtbar statt in einer Tabelle versteckt.
+    """
     from tooling.superversion.layer_tools.layout_grid import load, to_pixels
+    from tooling.superversion.layer_tools.page_templates import default_raster, slot_lu
 
-    lu = _OVERVIEW_LU.get(slot_name) or _DETAIL_LU.get(slot_name)
+    lu = None
+    if variant and ebene:
+        lu = slot_lu(variant, ebene, slot_name)
+    if lu is None and ebene:
+        lu = default_raster(ebene).slots.get(slot_name)
     if lu is None:
         return {}
     return to_pixels(*lu, params=load("production"))
@@ -512,6 +547,8 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
     visuals: list[Visual] = []
     idx = 0
     vergeben: set[str] = set()
+    variant = page.get("template_variant") or ""
+    ebene = _EBENE_JE_SEITE.get(page_key, "")
 
     def add(component: dict, slot: str, slot_name: str = ""):
         nonlocal idx
@@ -521,7 +558,7 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
         # Geometrie statt einer plausiblen — eine erfundene Position sieht richtig aus
         # und ist es nicht.
         name = slot_name or component.get("slot_id") or _SLOT_FUER_KOMPONENTE.get(slot, "")
-        geo = _slot_geometrie(name) if name else {}
+        geo = _slot_geometrie(name, variant, ebene) if name else {}
         kpi_ids = _collect_visual_kpi_ids(component, catalog)
         # bound_measures: aufgelöste measure_names (Katalog) bzw. direkter Name
         bound = []
@@ -572,6 +609,45 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
     c300 = page.get("component_300s")
     if isinstance(c300, dict):
         add(c300, "300s")
+
+    # --- Pflicht-Moebel des Manifests (Schritt 2, 02.08.2026) ------------------
+    #
+    # Der Bracket deklariert nur drei Informationsbloecke (3s/30s/300s). Slicer,
+    # Aktionspanel und Detail-Filterleiste sind **Template**-Sache, kein Autoreninhalt —
+    # der Autor kann sie gar nicht deklarieren. Genau deshalb fehlten sie: gemessen am
+    # 02.08.2026 wiesen 39 von 40 Seiten mindestens einen Pflicht-Slot nicht aus.
+    #
+    # Sie werden aus dem Manifest ergaenzt, nicht erfunden: Pflicht laut Variante UND
+    # Geometrie im gebundenen Raster-Template. Fehlt die Geometrie (fuer fuenf Varianten
+    # deklariert das Manifest kein Detail-Raster), wird **nichts** gesetzt — ein Visual
+    # ohne Position waere schlimmer als sein Fehlen, weil `page_slots` es als erledigt
+    # zaehlte und der Report es bei (0,0) stapelte.
+    #
+    # Sie binden keine Measures: ein Slicer beantwortet keine Frage (dieselbe Trennung
+    # wie `CHROME_TOKENS` in der Visual-Library). Der Golden-Thread-Gate prueft
+    # Measure-Anker und bleibt davon unberuehrt.
+    if variant and ebene:
+        from tooling.superversion.layer_tools.page_templates import load as _variante
+
+        try:
+            pflicht = _variante(variant).pflicht(ebene)
+        except Exception:      # unbekannte Variante: das meldet `slot_luecken`, nicht hier
+            pflicht = []
+        for slot_id in pflicht:
+            if slot_id in vergeben:
+                continue
+            geo = _slot_geometrie(slot_id, variant, ebene)
+            if not geo:
+                continue
+            vergeben.add(slot_id)
+            visuals.append(Visual(
+                visual_id=slot_id,
+                x=geo["x"], y=geo["y"], width=geo["width"], height=geo["height"],
+                visual_type=_MOEBEL_VISUAL.get(slot_id, "text_box"),
+                title="", has_title=False,
+                bound_measures=[], binds_measures=False,
+                slicer_field=_SLICER_FELD.get(slot_id, ""),
+            ))
 
     # Die Seite deklariert DIESELBE Leinwand, gegen die ihre Visuals aufgeloest sind.
     #
@@ -689,10 +765,19 @@ def slot_luecken(bracket_path: str | Path, kpis_dir: str | Path) -> list[dict]:
                         "missing": None, "emitted": []})
             continue
         emittiert = [v.visual_id for v in _page_from_layout(pk, seite, catalog).visuals]
+        # Woher kam die Geometrie? Das Manifest deklariert fuer fuenf Varianten **kein**
+        # Detail-Raster; dort greift das benannte Default-Raster. Ohne diese Angabe
+        # laese sich eine vollstaendige Seite nicht von einer unterscheiden, die nur
+        # durch einen Rueckfall vollstaendig aussieht — dieselbe Verwechslung wie
+        # „nicht geprueft" gegen „nichts gefunden".
+        from tooling.superversion.layer_tools.page_templates import raster_fuer
+        eigenes = raster_fuer(variant, ebene)
         out.append({
             "use_case": uc, "page": pk, "variant": variant,
             "missing": fehlende_pflichtslots(variant, emittiert, ebene=ebene),
             "emitted": emittiert,
+            "raster": eigenes.template_id if eigenes else None,
+            "raster_default": eigenes is None,
         })
     return out
 
