@@ -69,6 +69,10 @@ $pythonChecks = @(
   # solange sie im Aufbau sind. Kein eigener Checker — die Visual-Library hat eine
   # CLI, und die wird erweitert statt dupliziert.
   @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("check-floor") },
+  # Autoren-Schemas (Konsolidierung 02.08.2026): sie werden aus der Registry ERZEUGT.
+  # Ohne diesen Drift-Check waeren sie still veraltet — und ein veraltetes Autoren-Schema
+  # erlaubt, was die Governance untersagt (genau so kam `stacked_bar` hinein).
+  @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("sync-schemas") },
   # Design-Tokens (L5): die DTCG-Fassung ist ERZEUGT — dieser Check faellt, sobald sie
   # von den YAML-Quellen abweicht. Ohne ihn waere das Interchange-Format still veraltet.
   @{ Script = "tooling/superversion/layer_tools/design_tokens.py"; Args = @() },

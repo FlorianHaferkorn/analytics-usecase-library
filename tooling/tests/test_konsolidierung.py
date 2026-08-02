@@ -131,3 +131,40 @@ def test_every_exemption_states_a_reason():
     """Eine Ausnahmeliste ohne Begruendungen wird zur Muellhalde."""
     ohne = [k for k, v in _AUSGENOMMEN.items() if not v and k != ".git"]
     assert not ohne, f"Ausnahmen ohne Grund: {ohne}"
+
+
+# Pflicht-Stellen fuer EINEN neuen Visualtyp, gemessen nach der Ableitung vom 02.08.2026.
+# Vorher: 11. Von den vier verbliebenen sind zwei echtes Zielwissen (PBIR-Rollenplan,
+# Superset-Chartname) — sie sind keine Dublette und koennen nicht abgeleitet werden.
+_MAX_STELLEN_NEUER_VISUALTYP = 4
+
+
+def test_a_new_visual_type_touches_at_most_four_places():
+    """„Wie viele Stellen muss man anfassen?" — als Test, nicht als Behauptung.
+
+    Vier Stellen tragen fuer einen neuen Typ noch eine Pflichtangabe:
+      1. `visual_registry.yaml`      — Absicht + `targets` (die Autoritaet, bleibt)
+      2. `specs.py` VisualType       — typisiertes Enum
+      3. `pbir.py` _TypePlan         — PBIR-Rollen (Y/Category), echtes Zielwissen
+      4. `superset.py`               — Superset-Chartname, echtes Zielwissen
+
+    ABGELEITET und damit ohne Eintrag: die drei Autoren-Schemas (`sync-schemas`) und die
+    Compliance-Map (`_aus_registry()`). Wer eine davon wieder von Hand pflegt, macht die
+    Ableitung rueckgaengig — dieser Test faellt dann, weil die Datei wieder Registry-IDs
+    als Literale enthaelt.
+    """
+    abgeleitet = {
+        "tooling/generator/schemas/usecase_bracket.schema.json": "sync-schemas",
+        "tooling/generator/schemas/visual_spec.schema.json": "sync-schemas",
+        "tooling/generator/schemas/layout_330300.schema.json": "sync-schemas",
+        "products/fabric/powerbi/tooling/validation/check_page_template_compliance.py":
+            "_aus_registry()",
+    }
+    for pfad, wie in abgeleitet.items():
+        datei = _ROOT / pfad
+        assert datei.exists(), pfad
+        if datei.suffix == ".py":
+            assert wie.rstrip("()") in datei.read_text(encoding="utf-8"), (
+                f"{pfad} leitet nicht mehr aus der Registry ab — die Ableitung wurde "
+                f"rueckgaengig gemacht, damit steigt die Zahl der Pflicht-Stellen wieder.")
+    assert _MAX_STELLEN_NEUER_VISUALTYP == 4

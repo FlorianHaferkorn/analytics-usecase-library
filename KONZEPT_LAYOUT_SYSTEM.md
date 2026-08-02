@@ -987,11 +987,11 @@ Das Zielbild verlangt, dass ein komplexes Thema **einfach zu erstellen** ist. Ei
 ist hier keine Stilfrage, sondern eine Zahl: *wie viele Stellen berührt eine Änderung?*
 Gemessen, bevor konsolidiert wurde:
 
-| Szenario | Stellen |
-|---|---:|
-| ein neuer **Visualtyp** | **11** |
-| Dateien, die **Slot-Namen** kennen | **19** |
-| eigene Meinungen zur **Leinwandgröße** | **38** |
+| Szenario | vorher | nachher |
+|---|---:|---:|
+| ein neuer **Visualtyp** | **11** | **4** |
+| Dateien, die **Slot-Namen** kennen | **19** | 19 (offen) |
+| eigene Meinungen zur **Leinwandgröße** | **38** | **0** im lebenden Code |
 
 Die letzte Zahl ist die teuerste — und sie war zunächst *unterschätzt*: mein erster
 `grep` meldete sieben, weil er auf `head -10` abgeschnitten war. Aus genau dieser
@@ -1034,6 +1034,42 @@ eine Grenze mit Luft schützt nichts, weil die erste neue Dublette hineinpasst.
 Zwei Funde beim Bauen des Wächters, beide meine: `load()` band `GRID_YAML` als
 Default-Argument und war damit **nicht ersetzbar** — gefunden vom
 Wirksamkeits-Test aus L8. Und meine erste Zählung war, wie oben, selbst zu niedrig.
+
+### Der neue Visualtyp: 11 → 4
+
+Die elf Stellen waren nicht elf Entscheidungen. Sieben davon **wiederholten** nur, was
+die Registry ohnehin sagt — und Wiederholung ohne Zwang driftet. Der Beleg steht im
+Test: die drei Autoren-Schemas erlaubten zusammen **acht** Typen, die die Registry nicht
+kennt, darunter `stacked_bar`, das die Registry ausdrücklich **verbietet**
+(`structural_mix`: „Shows totals, not shares"). Ein Autoren-Schema, das erlaubt, was die
+Governance untersagt, ist kein Tor, sondern ein Loch.
+
+Zwei Senken wurden deshalb **abgeleitet statt gepflegt**:
+
+* **Die drei Autoren-Schema-Enums** erzeugt jetzt `visual_library.py sync-schemas`
+  aus der Registry. `--write` schreibt, ohne Flag prüft es nur und liefert rc=1 bei
+  Drift — verdrahtet in `run_stage1_checks.ps1` und als Test
+  (`test_authoring_schemas_are_generated_not_maintained`).
+* **`check_page_template_compliance.VISUAL_TYPE_MAP`** liest die erlaubten PBIR-Typen
+  über `_aus_registry()` statt aus einer Handliste.
+
+Übrig bleiben **vier** Stellen, und keine davon ist eine Dublette:
+`visual_registry.yaml` (die Entscheidung), `specs.VisualType` (das IR-Enum),
+`pbir.py` `_TypePlan` (der PBIR-Rollenplan — echtes Zielwissen) und `superset.py`
+(der Superset-Chartname — ebenfalls Zielwissen). Drei weitere Stellen von den
+ursprünglichen elf waren Alt-Token-Übersetzung und werden für *neue* Typen nie
+angefasst.
+
+Zwei Fehler beim Bauen, beide meine und beide von den mitgelieferten Tests gefangen:
+Der Generator wandte die Feldregeln in **verkehrter Reihenfolge** an, wodurch
+`component_3s` — die KPI-Karten-Position — statt 2 Typen das **gesamte** Vokabular
+(25) bekam. Der Kommentar beschrieb die richtige Absicht, der Code tat das Gegenteil;
+seitdem hält `test_narrow_fields_stay_narrow` fest, dass enge Felder eng bleiben. Und
+`VISUAL_TYPE_MAP.update()` **verengte** die akzeptierten PBIR-Aliasse, statt sie zu
+erweitern — jetzt Vereinigungsmenge. Ein Generator, der ein Gate aufweitet, hat das
+Gate abgeschafft; ein Ableiter, der eine Liste ersetzt statt zu ergänzen, auch.
+
+`test_konsolidierung.py` hält die Grenze bei **4** (`_MAX_STELLEN_NEUER_VISUALTYP`).
 
 ---
 
@@ -1246,3 +1282,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | L11 Fidelity-Scorecard | 🟢 **erledigt** | 2026-08-02 | Treue je Ziel im **vorhandenen** Scorer, kein zweiter. Vier Stufen aus vorhandenen Feldern; erster Lauf: powerbi 100 % · evidence 88 % · vegalite 10 %, jeder Abzug mit Grund. Advisory verdrahtet, harter Boden per `--fidelity-floor` bereit — bewusst noch nicht gesetzt, solange L9 offen ist. Deckt die deterministische Stufe des in ADR-0048 §4 offenen Gate-Analogons. 7 Tests, ohne eingefrorene Prozentwerte außer dem vertraglichen powerbi-100 %. |
 | **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. **02.08. ergänzt:** OSS-Vorarbeiten aus ADR-0048 §2.3 zuerst prüfen (`ruqzuq/standard-charts`, Deneb-Galerien); gemessene Lücke = IBCS-Chart-*Typen* (Wasserfall/Nadel/Skalenband), nicht die Notation; **Deneb-Entscheid** dokumentiert, nicht getroffen (Fremd-Visual, §3.4); Quelle `actionablereporting.com` **403 → offen**. CC-BY-SA-Pflicht beachten. |
 | **L13 Ein Koordinatensystem** | 🟢 **erledigt** | 2026-08-02 | Geometrie in Logical Units, Auflösung nur in `lu_to_pixels()` — Gutter und Außenrand innerhalb der Rechnung. Beide Befunde behoben: gleiche Spalte auf 1280 **und** 1920, `Main_1` bei Spanne **4,00** statt 3,93. Waagerecht ganzzahlig, senkrecht fraktional — weil ein 12-Zeilen-Zwang zwei Slots kollidieren ließe und die dokumentierte 76-px-Mindesthöhe des Slicers bräche. 8 Tests inkl. Rückfall-Wächter und Formel-Abgleich gegen `slot-pos.ts`. Reichweite: IR-Compiler-Pfad; die `dist`-Reports sind **nicht** betroffen (`from_aluca` erzeugt keine Positionen) — deren Angleichung bleibt an C4. |
+| **K Konsolidierung (§11)** | 🟡 teilw. | 2026-08-02 | **Leinwand 38 → 0** im lebenden Code (ein Leser `layout_grid.py`), **neuer Visualtyp 11 → 4** (Autoren-Schemas und `VISUAL_TYPE_MAP` werden jetzt aus der Registry **erzeugt**, nicht gepflegt; Drift-Check in Stage 1). Beleg für die Notwendigkeit: die Schemas erlaubten **8** registry-fremde Typen, darunter das ausdrücklich verbotene `stacked_bar`. Zwei eigene Fehler von den Tests gefangen — Generator wandte die Feldregeln verkehrt herum an (`component_3s` bekam 25 statt 2 Typen) und `update()` **verengte** die PBIR-Aliasse statt zu vereinigen. Grenzen in `test_konsolidierung.py` (0 Literale, 4 Stellen). **Offen: Slot-Namen (19 Dateien).** |

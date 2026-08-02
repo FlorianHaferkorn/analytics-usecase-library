@@ -19,6 +19,7 @@ Pure data access (Invariant I2): reads the committed YAML, no engine.
 from __future__ import annotations
 
 import argparse
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Optional
@@ -326,6 +327,99 @@ class VisualLibrary:
 # Standalone CLI                                                              #
 # --------------------------------------------------------------------------- #
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Autoren-Schemas aus der Registry ERZEUGEN statt pflegen
+#
+# Gemessen am 02.08.2026: ein neuer Visualtyp musste an **11** Stellen eingetragen
+# werden. Drei davon sind Schema-Enums — und die tragen keine eigene Information: sie
+# wiederholen, was die Registry ohnehin sagt. Genau diese Sorte Kopie ist an diesem Tag
+# schon einmal teuer geworden: die Schemas erlaubten acht Typen, die die Registry nicht
+# kennt, darunter `stacked_bar`, das sie ausdruecklich VERBIETET.
+#
+# Erzeugt statt gepflegt heisst: ein neuer Typ ist ein Registry-Eintrag, und das Schema
+# folgt. Dieselbe Mechanik wie beim DTCG-Emitter (`design_tokens.py`) — deterministisch,
+# per Drift-Check gegen die eingecheckte Fassung geprueft.
+_SCHEMA_DIR = _REPO_ROOT / "tooling" / "generator" / "schemas"
+
+# Welches Schema welchen Ausschnitt fuehrt. Nicht jedes Schema darf alles:
+#   * `component_3s` ist die KPI-Karten-Position — dort gehoert nur, was `status_signal`
+#     erlaubt. Ein Wasserfall in der 3-Sekunden-Karte waere kein Tippfehler, sondern ein
+#     Kategorienfehler.
+#   * `visual_spec` beschreibt AUCH Seitenmoebel (Slicer, Textfeld) — deshalb kommen die
+#     Chrome-Token dort dazu.
+_SCHEMA_SCOPE: dict[str, dict[str, str]] = {
+    "usecase_bracket.schema.json": {"*": "alle", "component_3s": "status_signal"},
+    # `diagnostics_300s` ist die Detailschicht — dort gehoert, was `detail_matrix`
+    # erlaubt, nicht das gesamte Vokabular. Ein Generator, der ein enges Feld
+    # aufweitet, ist kein Gate mehr, sondern eine Genehmigung.
+    "layout_330300.schema.json": {"*": "alle", "diagnostics_300s": "detail_matrix"},
+    "visual_spec.schema.json": {"*": "alle+chrome"},
+}
+
+
+def _erlaubte_fuer(scope: str, lib: "VisualLibrary") -> list[str]:
+    if scope == "alle":
+        return sorted(lib.all_visual_ids())
+    if scope == "alle+chrome":
+        return sorted(lib.all_visual_ids() | set(CHROME_TOKENS))
+    return sorted(v.visual_id for v in lib.block(scope).allowed_visuals)
+
+
+def schema_enums(lib: Optional["VisualLibrary"] = None) -> dict[str, dict[str, list[str]]]:
+    """Die Soll-Enums je Schema, abgeleitet aus der Registry. Deterministisch."""
+    lib = lib or VisualLibrary.load()
+    out: dict[str, dict[str, list[str]]] = {}
+    for datei, felder in _SCHEMA_SCOPE.items():
+        out[datei] = {feld: _erlaubte_fuer(scope, lib) for feld, scope in felder.items()}
+    return out
+
+
+def _setze_enums(doc: object, erlaubt: list[str], nur_pfad: Optional[str] = None,
+                 pfad: str = "") -> int:
+    """Setze jedes `visual_type.enum` im Dokument. Gibt die Anzahl der Treffer zurueck."""
+    n = 0
+    if isinstance(doc, dict):
+        vt = doc.get("visual_type")
+        if isinstance(vt, dict) and isinstance(vt.get("enum"), list):
+            if nur_pfad is None or nur_pfad in pfad:
+                vt["enum"] = list(erlaubt)
+                n += 1
+        for k, v in doc.items():
+            n += _setze_enums(v, erlaubt, nur_pfad, f"{pfad}/{k}")
+    elif isinstance(doc, list):
+        for v in doc:
+            n += _setze_enums(v, erlaubt, nur_pfad, pfad)
+    return n
+
+
+def sync_schemas(schreiben: bool = False) -> tuple[int, list[str]]:
+    """Autoren-Schemas gegen die Registry abgleichen. (#geaendert, Meldungen)."""
+    lib = VisualLibrary.load()
+    soll = schema_enums(lib)
+    geaendert, meldungen = 0, []
+    for datei, felder in soll.items():
+        pfad = _SCHEMA_DIR / datei
+        if not pfad.exists():
+            meldungen.append(f"FEHLT: {datei}")
+            continue
+        alt_text = pfad.read_text(encoding="utf-8")
+        doc = json.loads(alt_text)
+        # Erst das breite `*`, DANN die engeren Felder — sonst weitet der Generator
+        # genau die Felder auf, die er einschraenken soll. Beim ersten Lauf war die
+        # Reihenfolge verkehrt: `component_3s` bekam 25 Typen statt der zwei aus
+        # `status_signal`. Ein Kommentar, der die Absicht richtig beschreibt, ersetzt
+        # keine Pruefung — deshalb steht sie jetzt als Test daneben.
+        for feld, erlaubt in sorted(felder.items(), key=lambda kv: kv[0] != "*"):
+            _setze_enums(doc, erlaubt, None if feld == "*" else feld)
+        neu_text = json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
+        if neu_text != alt_text:
+            geaendert += 1
+            meldungen.append(f"{'geschrieben' if schreiben else 'VERALTET'}: {datei}")
+            if schreiben:
+                pfad.write_text(neu_text, encoding="utf-8")
+    return geaendert, meldungen
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m tooling.superversion.layer_tools.visual_library",
@@ -346,7 +440,26 @@ def main(argv: Optional[list[str]] = None) -> int:
     f.add_argument("--strict", action="store_true",
                    help="jede Boden-Luecke in JEDEM deklarierten Konnektor ist ein Fehler, "
                         "nicht nur in den --required")
+    sc = sub.add_parser(
+        "sync-schemas",
+        help="Autoren-Schemas aus der Registry erzeugen (statt sie zu pflegen).")
+    sc.add_argument("--write", action="store_true",
+                    help="schreiben; ohne die Option nur pruefen (Drift-Check)")
     args = parser.parse_args(argv)
+
+    if args.cmd == "sync-schemas":
+        geaendert, meldungen = sync_schemas(schreiben=args.write)
+        for m in meldungen:
+            print(f"  {m}")
+        if args.write:
+            print(f"[visual-library] sync-schemas: {geaendert} Schema(s) geschrieben")
+            return 0
+        if geaendert:
+            print(f"[visual-library] FAIL — {geaendert} Schema(s) weichen von der Registry ab. "
+                  f"Erzeugen mit: sync-schemas --write")
+            return 1
+        print("[visual-library] OK — Autoren-Schemas deckungsgleich mit der Registry.")
+        return 0
 
     lib = VisualLibrary.load()
     if args.cmd == "describe":

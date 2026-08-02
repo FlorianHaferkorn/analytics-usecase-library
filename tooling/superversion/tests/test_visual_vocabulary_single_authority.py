@@ -37,6 +37,7 @@ import yaml
 from tooling.generator_core.ir.specs import VisualType
 from tooling.superversion.layer_tools.visual_library import (
     CHROME_TOKENS,
+    sync_schemas,
     LEGACY_TO_REGISTRY,
     VisualLibrary,
     canonical_visual_id,
@@ -173,3 +174,62 @@ def test_canonical_resolves_legacy_and_passes_through_registry_ids():
     assert canonical_visual_id("line_chart") == "line_chart"      # schon kanonisch
     assert canonical_visual_id("slicer") is None                  # Chrome, kein Visual
     assert canonical_visual_id("gibt_es_nicht") is None
+
+
+def test_authoring_schemas_are_generated_not_maintained():
+    """Die drei Autoren-Schemas werden ERZEUGT, nicht gepflegt (Konsolidierung 02.08.2026).
+
+    Vorher musste ein neuer Visualtyp an **11** Stellen eingetragen werden; drei davon
+    waren diese Schema-Enums, und die tragen keine eigene Information — sie wiederholen
+    die Registry. Genau daraus entstand der Zustand, dass die Schemas acht Typen
+    erlaubten, die die Registry nicht kennt, darunter das ausdruecklich VERBOTENE
+    `stacked_bar`.
+
+    Wird dieser Test rot, ist die Registry geaendert und das Schema nicht nachgezogen:
+        python tooling/superversion/layer_tools/visual_library.py sync-schemas --write
+    """
+    geaendert, meldungen = sync_schemas(schreiben=False)
+    assert geaendert == 0, (
+        "Autoren-Schemas weichen von der Registry ab: " + "; ".join(meldungen))
+
+
+def test_narrow_fields_stay_narrow():
+    """Ein Generator, der ein enges Feld aufweitet, ist kein Gate mehr.
+
+    `component_3s` ist die KPI-Karten-Position — dort gehoert nur, was `status_signal`
+    erlaubt; `diagnostics_300s` nur, was `detail_matrix` erlaubt. Beim ersten Lauf des
+    Generators bekamen beide das GESAMTE Vokabular (25 statt 2), weil die
+    Anwendungsreihenfolge verkehrt war. Der Kommentar beschrieb die Absicht richtig und
+    der Code tat das Gegenteil — deshalb steht die Pruefung jetzt hier.
+    """
+    import json
+
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    lib = VisualLibrary.load()
+    eng = {
+        ("usecase_bracket.schema.json", "component_3s"): "status_signal",
+        ("layout_330300.schema.json", "diagnostics_300s"): "detail_matrix",
+    }
+    for (datei, feld), block_id in eng.items():
+        erwartet = sorted(v.visual_id for v in lib.block(block_id).allowed_visuals)
+        doc = json.loads((_SCHEMAS / datei).read_text(encoding="utf-8"))
+        gefunden = []
+
+        def suche(o, pfad=""):
+            if isinstance(o, dict):
+                vt = o.get("visual_type")
+                if isinstance(vt, dict) and "enum" in vt and feld in pfad:
+                    gefunden.append(sorted(vt["enum"]))
+                for k, v in o.items():
+                    suche(v, f"{pfad}/{k}")
+            elif isinstance(o, list):
+                for v in o:
+                    suche(v, pfad)
+
+        suche(doc)
+        assert gefunden, f"{datei}: Feld {feld} nicht gefunden"
+        for liste in gefunden:
+            assert liste == erwartet, (
+                f"{datei}/{feld} erlaubt {len(liste)} Typen, {block_id} sanktioniert "
+                f"{len(erwartet)}: {sorted(set(liste) - set(erwartet))}")
