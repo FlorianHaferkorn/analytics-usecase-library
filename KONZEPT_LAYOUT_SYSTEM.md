@@ -647,14 +647,49 @@ gegen die Lesbarkeitsuntergrenze prüfbar, die `typography.yaml` zusichert.
 
 ### L11 · Fidelity-Scorecard je Ziel
 
+**🟢 Erledigt am 02.08.2026.**
+
 Ergänzt die Boutique-Scorecard (K6/§9) um die Frage: *wie nah kommt dieses Ziel an die Spec?*
 
-* **Vorher prüfen (Pflicht):** `tooling/report_quality/report_scorecard.py` existiert und
-  bewertet bereits. L11 **erweitert** ihn um die Dimension Ziel-Tool — kein zweiter Scorer.
-* **DoD:** Score je (Use Case × Ziel-Tool) mit Begründung je Abzug, im vorhandenen Scorer;
-  in `make check` advisory, im Release-Gate hart; Trend über Zeit ablesbar.
-* **Modell:** Sonnet · **Umgebung:** CC-Web
+**Der Befund, der das Vorgehen bestimmt hat.** `report_scorecard.py` bewertet
+**gerenderte PBIR-Artefakte**. Für die übrigen Ziele gibt es heute **kein Artefakt** —
+der Vega-Konnektor ist L9 und noch nicht angebunden. Ein Punktwert über ein Artefakt,
+das nicht existiert, wäre geraten. Bewertet wird deshalb, was **ohne Rendering**
+prüfbar ist: kann das Ziel die Absicht darstellen, und mit welchem Zugeständnis. Das
+ist zugleich die billigste deterministische Stufe des in **ADR-0048 §4** offen
+benannten Gate-Analogons — Spec-Konformität statt Pixelvergleich.
 
+Vier Stufen, alle aus **vorhandenen** Feldern abgeleitet (`targets`, `render_mode`,
+`is_default`) — nichts erfunden:
+
+| Stufe | Wert | Bedeutung |
+|---|---:|---|
+| `native_default` | 1,00 | die sanktionierte Erstwahl des Blocks wird nativ abgebildet |
+| `native_substitute` | 0,75 | nativ, aber nur über eine Ersatzdarstellung |
+| `escalation` | 0,50 | nur über `render_mode ≠ native` (SVG) — Interaktivität/Export nicht garantiert |
+| `none` | 0,00 | keine Darstellung = Bodenlücke |
+
+Damit übersetzt die Skala **§3.4 in eine Zahl**: die Leiter nativ → SVG → anderes Ziel
+ist eine Rangfolge, keine Gleichwertigkeit.
+
+**Erster Lauf, gemessen:** `powerbi` 100 % · `evidence` 88 % · `vegalite` 10 %. Jeder
+Abzug nennt Block, Stufe, Weg und Grund.
+
+* **Kein zweiter Scorer** (DoD): die Dimension lebt in `report_scorecard.py`, der Trend
+  in derselben Ergebnis-JSON, die der Report-Score schon schreibt.
+* **Advisory in der Prüfkette, hart im Release-Gate:** `--fidelity` ist in
+  `check_report_scorecard.ps1` verdrahtet, **ohne** `--fidelity-floor`. Ein harter Boden
+  wäre heute ein Dauer-Rot, solange L9 offen ist — und ein Gate, das immer rot ist, wird
+  abgeschaltet statt beachtet. Das Release-Gate setzt den Boden per Flag, ohne dass
+  dafür etwas Neues gebaut werden muss. Alle drei Modi sind am Exit-Code verifiziert
+  (Boden 50 → rc=1, advisory → rc=0, Boden 5 → rc=0).
+* **7 Tests** — bewusst **kein** eingefrorener Prozentwert außer für `powerbi`: dort ist
+  100 % vertraglich (`check-floor --required powerbi`), überall sonst wäre eine
+  festgeschriebene Zahl eine Zusicherung über den Ausbaustand, und L9-Fortschritt würde
+  als Fehler gemeldet. Ein Test prüft zusätzlich, dass Treue-Sicht und `floor_gaps()`
+  nicht auseinanderlaufen — zwei Wahrheiten über dieselbe Abdeckung wären genau das,
+  was ADR-0018 eine Ebene höher beendet hat.
+* **Modell:** Opus · **Umgebung:** CC-Web
 ---
 
 ## 6. Reihenfolge und Abhängigkeiten
@@ -1008,6 +1043,6 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | L8 Layout in `from_aluca` | ⬜ offen | | schließt Meridian-**C4** |
 | L9 Vega-Lite-Ziel anbinden | ⬜ offen | | **Umfang korrigiert 02.08.** — Konnektor existiert in Meridian (ADR-0048 Ph. 1, `vegalite.py` + `ibcs.py`). Aufgabe ist die Naht `targets.vegalite`, nicht der Neubau. |
 | L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
-| L11 Fidelity-Scorecard | ⬜ offen | | erweitert K6; erbt das in ADR-0048 §4 offen benannte Gate-Analogon (Spec-Validität, Render-Smoke, IBCS-Konformität) |
+| L11 Fidelity-Scorecard | 🟢 **erledigt** | 2026-08-02 | Treue je Ziel im **vorhandenen** Scorer, kein zweiter. Vier Stufen aus vorhandenen Feldern; erster Lauf: powerbi 100 % · evidence 88 % · vegalite 10 %, jeder Abzug mit Grund. Advisory verdrahtet, harter Boden per `--fidelity-floor` bereit — bewusst noch nicht gesetzt, solange L9 offen ist. Deckt die deterministische Stufe des in ADR-0048 §4 offenen Gate-Analogons. 7 Tests, ohne eingefrorene Prozentwerte außer dem vertraglichen powerbi-100 %. |
 | **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. **02.08. ergänzt:** OSS-Vorarbeiten aus ADR-0048 §2.3 zuerst prüfen (`ruqzuq/standard-charts`, Deneb-Galerien); gemessene Lücke = IBCS-Chart-*Typen* (Wasserfall/Nadel/Skalenband), nicht die Notation; **Deneb-Entscheid** dokumentiert, nicht getroffen (Fremd-Visual, §3.4); Quelle `actionablereporting.com` **403 → offen**. CC-BY-SA-Pflicht beachten. |
 | **L13 Ein Koordinatensystem** | ⬜ **offen — vorziehen** | | **neu 02.08.** Geometrie in LU statt Leinwandbrüchen, Auflösung erst im Konnektor. Gemessen: `_OVERVIEW_LAYOUT` ist gegen **1920×1080** geschrieben, `layout_grid.yaml` rechnet gegen **1280×720** → erster Slot bei Spalte −0,10; und selbst bei 1920 ergibt `Main_1` **3,93** statt 4, weil `gutter`/`outer_margin` absolut bleiben. Erweitert `canvas_profiles` (Meridian) — die skalieren heute Schrift, keine Geometrie. Referenz: `slot-pos.ts`. Verhaltensändernd → `dist`-Referenzwerte mitziehen. **Entschieden 02.08. (Flo):** 8px-Doktrin (INVARIANT A7) gilt für **Abstände**, nicht für die abgeleitete LU — Weg (b) „8er-reine LU erzwingen" ist **verworfen**. Beleg: auf keiner der beiden Leinwände macht ein Außenrand beide Achsen 8er-rein; bei 1920×1080 ist die Vertikale mit 12 Zeilen gar nicht lösbar. |

@@ -68,10 +68,16 @@ if (-not $pythonCommand) {
     throw "Python 3 not found. Use py -3, python3, or python and ensure one resolves to Python 3."
 }
 
+# --fidelity (L11): Treue je Ziel-Werkzeug mitbewerten. Bewusst OHNE --fidelity-floor,
+# also ADVISORY. Ein harter Boden waere heute ein Dauer-Rot, solange der Vega-Konnektor
+# nicht angebunden ist (Task L9) — und ein Gate, das immer rot ist, wird abgeschaltet
+# statt beachtet. Der Boden kommt mit L9; das Release-Gate setzt ihn dann per
+# --fidelity-floor, ohne dass hier etwas Neues gebaut werden muss.
 $argsList = @(
     "-m", "report_quality.report_scorecard",
     "--dist-root", $DistRoot,
     "--write-results", $WriteResults,
+    "--fidelity",
     "--enforce"
 ) + $Enforce
 

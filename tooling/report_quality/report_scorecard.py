@@ -42,6 +42,107 @@ EVIDENCE_VISUAL_TYPES = {"tableEx", "matrix", "pivotTable"}
 # gate the build yet -- 17/17 is R5.1's job (generator rollout), not R3.3's.
 DEFAULT_ENFORCED_REPORTS = ["COM-002"]
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Treue-Dimension je Ziel-Werkzeug (Task L11)
+#
+# Warum HIER und nicht als zweiter Scorer: der DoD verlangt es ausdruecklich, und
+# die Alternative waere ein zweites Bewertungssystem fuer dieselbe Frage „wie gut ist
+# dieser Report".
+#
+# Warum die Treue NICHT wie der Rest gemessen wird — der wichtigste Satz dieses
+# Abschnitts: alles oberhalb bewertet **gerenderte PBIR-Artefakte**. Fuer die uebrigen
+# Ziele gibt es heute kein Artefakt (der Vega-Konnektor ist L9, noch nicht angebunden).
+# Ein Punktwert ueber ein Artefakt, das es nicht gibt, waere geraten. Bewertet wird
+# deshalb, was ohne Rendering pruefbar ist: **kann das Ziel die Absicht ueberhaupt
+# darstellen, und mit welchem Zugestaendnis**. Das ist die billigste deterministische
+# Stufe des in ADR-0048 §4 offen benannten Gate-Analogons — Spec-Konformitaet, nicht
+# Pixelvergleich.
+#
+# Die Stufen sind aus vorhandenen Feldern abgeleitet (`targets`, `render_mode`,
+# `is_default`), nicht neu erfunden.
+FIDELITY_TIERS: dict[str, float] = {
+    "native_default": 1.00,     # Ziel bildet die SANKTIONIERTE Erstwahl nativ ab
+    "native_substitute": 0.75,  # nativ, aber nur ueber eine Ersatzdarstellung des Blocks
+    "escalation": 0.50,         # nur ueber render_mode != native (z. B. SVG) — mit Nebenwirkungen
+    "none": 0.00,               # keine Darstellung: Bodenluecke
+}
+
+_TIER_REASON: dict[str, str] = {
+    "native_default": "Erstwahl des Blocks wird nativ abgebildet",
+    "native_substitute": "nur eine Ersatzdarstellung des Blocks ist nativ verfuegbar — "
+                         "die Absicht wird bedient, aber nicht mit der sanktionierten Erstwahl",
+    "escalation": "nur ueber Eskalation (render_mode != native, z. B. SVG-Measure) — "
+                  "Interaktivitaet/Export sind dabei nicht garantiert (s. L10)",
+    "none": "keine Darstellung — der Konnektor kann diese Absicht heute nicht zeigen",
+}
+
+
+@dataclass
+class BlockFidelity:
+    """Treue eines Ziels fuer EINE Absicht, mit Begruendung (DoD: je Abzug ein Grund)."""
+    block_id: str
+    tier: str
+    reason: str
+    via: str | None = None      # die Darstellung, ueber die es geht
+
+    @property
+    def value(self) -> float:
+        return FIDELITY_TIERS[self.tier]
+
+
+@dataclass
+class TargetFidelity:
+    target: str
+    score: int
+    blocks: list[BlockFidelity] = field(default_factory=list)
+
+    @property
+    def deductions(self) -> list[BlockFidelity]:
+        """Nur die Bloecke, die Punkte gekostet haben — das ist der Berichtsteil."""
+        return [b for b in self.blocks if b.tier != "native_default"]
+
+
+def _classify_block(block, target: str) -> BlockFidelity:
+    """Ordne EINE Absicht fuer EIN Ziel in eine Treue-Stufe ein. Rein, ohne Dateizugriff."""
+    default = None
+    try:
+        default = block.default_visual()
+    except Exception:  # pragma: no cover - Block ohne Default ist ein Registry-Defekt
+        default = None
+
+    if default is not None and default.targets.get(target) and default.render_mode == "native":
+        return BlockFidelity(block.block_id, "native_default",
+                             _TIER_REASON["native_default"], default.visual_id)
+
+    nativ = [v for v in block.allowed_visuals
+             if v.targets.get(target) and v.render_mode == "native"]
+    if nativ:
+        return BlockFidelity(block.block_id, "native_substitute",
+                             _TIER_REASON["native_substitute"], nativ[0].visual_id)
+
+    eskalation = [v for v in block.allowed_visuals if v.targets.get(target)]
+    if eskalation:
+        v = eskalation[0]
+        return BlockFidelity(block.block_id, "escalation",
+                             f"{_TIER_REASON['escalation']} [{v.render_mode}]", v.visual_id)
+
+    return BlockFidelity(block.block_id, "none", _TIER_REASON["none"], None)
+
+
+def fidelity_by_target(library=None) -> list[TargetFidelity]:
+    """Treue je Ziel-Werkzeug ueber alle Absichten. Sortiert, deterministisch."""
+    if library is None:
+        from tooling.superversion.layer_tools.visual_library import VisualLibrary
+        library = VisualLibrary.load()
+
+    out: list[TargetFidelity] = []
+    for target in sorted(library.connectors()):
+        blocks = [_classify_block(b, target) for _, b in sorted(library.blocks.items())]
+        score = round(100 * sum(b.value for b in blocks) / len(blocks)) if blocks else 0
+        out.append(TargetFidelity(target=target, score=score, blocks=blocks))
+    return out
+
+
 _MEASURE_BLOCK_RE = re.compile(r"measure\s+'([^']+)'\s*=[^\r\n]*\r?\n(?P<body>(?:[ \t]+\S.*\r?\n?)*)")
 _FORMAT_STRING_RE = re.compile(r'formatString:\s*"([^"]*)"')
 
@@ -223,6 +324,13 @@ def main(argv: list[str] | None = None) -> int:
         "Other reports are scored/printed but do not fail the build (pending R5.1 rollout).",
     )
     parser.add_argument("--write-results", metavar="PATH", help="Write JSON results to this path.")
+    parser.add_argument("--fidelity", action="store_true",
+                        help="Treue je Ziel-Werkzeug mitbewerten (L11): kann jedes Ziel jede "
+                             "Absicht darstellen, und mit welchem Zugestaendnis.")
+    parser.add_argument("--fidelity-floor", type=int, default=None, metavar="PCT",
+                        help="Mit --fidelity: Treue unter diesem Wert laesst das Gate scheitern. "
+                             "Ohne die Option ist die Treue ADVISORY — der Konnektor-Ausbau (L9) "
+                             "laeuft noch, ein harter Boden waere heute nur ein Dauer-Rot.")
     args = parser.parse_args(argv)
 
     dist_root = Path(args.dist_root)
@@ -239,7 +347,14 @@ def main(argv: list[str] | None = None) -> int:
     results = [compute_scorecard(report_dir, measure_formats) for report_dir in report_dirs]
 
     if args.json:
-        print(json.dumps([_result_to_dict(r) for r in results], indent=2, ensure_ascii=False))
+        _payload: dict | list = [_result_to_dict(r) for r in results]
+        if args.fidelity:
+            _payload = {"reports": _payload, "fidelity": [
+                {"target": tf.target, "score": tf.score,
+                 "deductions": [{"block": b.block_id, "tier": b.tier, "via": b.via,
+                                 "reason": b.reason} for b in tf.deductions]}
+                for tf in fidelity_by_target()]}
+        print(json.dumps(_payload, indent=2, ensure_ascii=False))
     else:
         for result in results:
             status = "PASS" if result.passed else "FAIL"
@@ -247,11 +362,34 @@ def main(argv: list[str] | None = None) -> int:
             for k in result.knockouts:
                 print(f"    KNOCKOUT {k}")
 
+    fidelity = fidelity_by_target() if args.fidelity else []
+    if fidelity and not args.json:
+        print("\nTreue je Ziel-Werkzeug (L11 — Spec-Konformitaet, kein Rendering):")
+        for tf in fidelity:
+            marke = "OK  " if args.fidelity_floor is None or tf.score >= args.fidelity_floor else "FAIL"
+            print(f"  [{marke}] {tf.target:10} {tf.score:3}%")
+            for b in tf.deductions:
+                via = f" (via {b.via})" if b.via else ""
+                print(f"           - {b.block_id}: {b.tier}{via} — {b.reason}")
+
     if args.write_results:
         results_path = Path(args.write_results)
         results_path.parent.mkdir(parents=True, exist_ok=True)
+        nutzlast: dict | list = [_result_to_dict(r) for r in results]
+        if fidelity:
+            # Trend ueber Zeit (DoD): dieselbe Datei, die der Report-Score schon schreibt —
+            # ein zweiter Metrik-Pfad waere ein zweiter Ort fuer dieselbe Frage.
+            nutzlast = {
+                "reports": nutzlast,
+                "fidelity": [
+                    {"target": tf.target, "score": tf.score,
+                     "deductions": [{"block": b.block_id, "tier": b.tier,
+                                     "via": b.via, "reason": b.reason} for b in tf.deductions]}
+                    for tf in fidelity
+                ],
+            }
         results_path.write_text(
-            json.dumps([_result_to_dict(r) for r in results], indent=2, ensure_ascii=False), encoding="utf-8"
+            json.dumps(nutzlast, indent=2, ensure_ascii=False), encoding="utf-8"
         )
 
     enforced_fail = False
@@ -260,6 +398,14 @@ def main(argv: list[str] | None = None) -> int:
             enforced_fail = True
             if not args.json:
                 print(f"GATE-FAIL {result.report_name} is enforced and did not pass.")
+
+    if args.fidelity_floor is not None:
+        unter_boden = [tf for tf in fidelity if tf.score < args.fidelity_floor]
+        if unter_boden:
+            enforced_fail = True
+            if not args.json:
+                for tf in unter_boden:
+                    print(f"GATE-FAIL Treue {tf.target}: {tf.score}% < {args.fidelity_floor}%")
 
     return 1 if enforced_fail else 0
 
