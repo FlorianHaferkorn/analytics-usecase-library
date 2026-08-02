@@ -542,6 +542,7 @@ information_blocks:
         targets:
           powerbi: columnChart
           vegalite: bar
+          evidence: "evidence:column"
         source: "S2 — Laengenkodierung auf gemeinsamer Skala; Baender behalten ihre Ordnung auf der x-Achse"
       - visual_id: banded_bar_chart
         pbip_type: barChart
@@ -550,6 +551,7 @@ information_blocks:
         targets:
           powerbi: barChart
           vegalite: bar
+          evidence: "evidence:bar"
         source: "S2 — gleiche Kodierung, horizontale Achse nur wegen Beschriftungslaenge"
 
     forbidden_visuals:
