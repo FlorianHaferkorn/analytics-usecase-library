@@ -493,6 +493,91 @@ information_blocks:
         severity: warning
 
   # ─────────────────────────────────────────────────────────────────────────
+  # Block 6b: distribution_spread
+  # Purpose: Show how values are SPREAD across a population — not the average,
+  #          and not the share of a whole.
+  #
+  # Warum dieser Block existiert (gemessen 02.08.2026, nicht angenommen):
+  # Der externe Abgleich gegen das FT Visual Vocabulary zeigte "Distribution" als
+  # eigene Absicht, die uns fehlte. Der Nachweis im EIGENEN Korpus (20 Brackets) ist
+  # unabhaengig davon dreifach:
+  #   * FIN-001  — "Overdue AR aging buckets (0-30d, 31-60d, 61-90d, >90d) required
+  #                 for DSO diagnostic depth"
+  #   * XD-001   — "Distribution of open-case age (share of cases open > SLA target,
+  #                 > 2x target)"
+  #   * SCM-003  — "Averaging MAPE across SKUs hides bias and small-denominator
+  #                 distortion" — genau das Argument fuer Streuung statt Mittelwert
+  #
+  # Abgrenzung, weil die Nachbarbloecke nahe liegen:
+  #   * structural_mix  fragt "woraus besteht das Ganze" (Anteil, Summe = 100%)
+  #   * entity_ranking  fragt "welche Einheit ist die schlechteste" (Rang)
+  #   * distribution_spread fragt "wie breit streut es, und gibt es einen Schwanz"
+  # Die Darstellung kann in allen drei Faellen ein Balken sein — die ABSICHT ist es
+  # nicht, und nur die Absicht steuert, ob jemand den Schwanz ueberhaupt zeigt.
+  # ─────────────────────────────────────────────────────────────────────────
+  - block_id: distribution_spread
+    purpose: "Show how values are spread across a population — reveal the tail, not the average"
+    primary_layer: "30s"
+    slot_compatibility: ["Main_2", "Main_3", "Mix"]
+    page_types: ["T2", "T3"]
+
+    required_inputs:
+      - field: bucket_dimension
+        type: categorical_ordered
+        mandatory: true
+        description: "Geordnete Baender (Alter, Betrag, Dauer). Reihenfolge ist Bedeutung, nicht Sortierung."
+      - field: count_or_value_per_bucket
+        type: numeric_series
+        mandatory: true
+      - field: threshold_marker
+        type: numeric
+        mandatory: false
+        description: "Grenze, ab der ein Bucket als Ausnahme gilt (z. B. SLA-Ziel, >90d)"
+
+    allowed_visuals:
+      - visual_id: banded_column_chart
+        pbip_type: columnChart
+        is_default: true
+        condition: null
+        targets:
+          powerbi: columnChart
+          vegalite: bar
+        source: "S2 — Laengenkodierung auf gemeinsamer Skala; Baender behalten ihre Ordnung auf der x-Achse"
+      - visual_id: banded_bar_chart
+        pbip_type: barChart
+        is_default: false
+        condition: "bucket_labels_are_long = true"
+        targets:
+          powerbi: barChart
+          vegalite: bar
+        source: "S2 — gleiche Kodierung, horizontale Achse nur wegen Beschriftungslaenge"
+
+    forbidden_visuals:
+      - visual_id: pie
+        pbip_type: pieChart
+        reason: "Winkelkodierung Rang 5 (S2 — Cleveland & McGill); zerstoert ausserdem die Ordnung der Baender"
+      - visual_id: sorted_by_value
+        pbip_type: columnChart
+        reason: "Nach Wert sortierte Baender sind keine Verteilung mehr — die Ordnung der Baender IST die Aussage"
+      - visual_id: single_average_card
+        pbip_type: cardVisual
+        reason: "Ein Mittelwert ist die Antwort, die dieser Block gerade vermeiden soll (Beleg: SCM-003, averaging hides bias)"
+
+    quality_rules:
+      - rule_id: bucket_order_preserved
+        description: "Baender erscheinen in ihrer fachlichen Reihenfolge, nie nach Wert sortiert"
+        source: "S11 — Tufte: die Ordnung der Achse traegt Bedeutung und darf nicht umsortiert werden"
+        severity: error
+      - rule_id: threshold_visible
+        description: "Ist ein threshold_marker definiert, muss er als Referenzlinie oder Farbwechsel sichtbar sein"
+        source: "S9 — IBCS EXPRESS: Vergleichsgroessen gehoeren in dieselbe Darstellung wie der Wert"
+        severity: warning
+      - rule_id: max_buckets
+        description: "Maximal 7 Baender, danach zusammenfassen"
+        source: "S5 — Miller: 7±2 Arbeitsgedaechtnis"
+        severity: warning
+
+  # ─────────────────────────────────────────────────────────────────────────
   # Block 7: prescriptive_action
   # Purpose: Present a concrete recommended action with owner, trigger, steps, impact
   # ─────────────────────────────────────────────────────────────────────────

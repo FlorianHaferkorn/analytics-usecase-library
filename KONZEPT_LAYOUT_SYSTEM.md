@@ -857,10 +857,55 @@ und „nicht ermittelbar" ist eine zulässige Antwort, Raten nicht.
 **wogegen** L12 erhebt und **unter welchen Bedingungen**. Die Trennung ist Absicht: sonst
 beginnt die Erhebung, bevor die Fassung feststeht — genau der Fehler, den §8.1 gerade
 aufgedeckt hat.
-* **L1 erweitert** um die drei fehlenden Absichten (Distribution, Spatial, freie
-  Correlation) — als *Prüfauftrag*, nicht als gesetzte Blöcke: für ein
-  Management-Reporting-Produkt kann „bewusst nicht abgedeckt" die richtige Antwort sein.
-  Entschieden werden muss es aber, **bevor L0 das Vokabular einfriert**.
+
+### 10.6 Die drei fehlenden Absichten — entschieden am 02.08.2026
+
+Der externe Abgleich (§10.1) nannte drei Absichten, die das FT Visual Vocabulary führt und
+wir nicht: **Distribution, Spatial, freie Correlation**. Ein externer Katalog ist aber kein
+Bedarfsnachweis — er ist ein *Chart-Auswahl*-Werkzeug, unsere Registry eine
+*Report-Slot*-Taxonomie. Maßgeblich ist deshalb der eigene Korpus: **20 Brackets, 139
+KPIs**, gemessen statt geschätzt.
+
+**Ergebnis: eine von drei.**
+
+| Absicht | Befund im eigenen Korpus | Entscheidung |
+|---|---|---|
+| **Distribution** | Dreifach unabhängig belegt: **FIN-001** *„Overdue AR aging buckets (0-30d, 31-60d, 61-90d, >90d) required for DSO diagnostic depth"* · **XD-001** *„Distribution of open-case age (share of cases open > SLA target, > 2× target)"* · **SCM-003** *„Averaging MAPE across SKUs hides bias and small-denominator distortion"* | ✅ **Aufgenommen** als Block `distribution_spread` |
+| **Spatial** | **Kein einziger Fund.** Geo-Dimensionen sind reichlich da (`region` 174×, `plant` 142×, `location` 89×, `country` 34×) — aber ausschließlich als *Vergleichsdimension*, die `entity_ranking` bereits bedient. Die Suche nach echten Geo-Fragen (Route, Korridor, Nachbarschaft, Einzugsgebiet) ergab **null Treffer**; alle vermeintlichen `map`-Treffer waren `MAPE` (Mean Absolute Percentage Error) und „map to". | ❌ **Verworfen** |
+| **freie Correlation** | 6× `scatter`, 13× `driver of`, 1× „vs. price" — der Zusammenhang zwischen zwei Kennzahlen erscheint im Korpus **immer** als Treiberfrage, nie als freie Exploration. `root_cause_context` deckt das bereits ab (`scatter_plot`, `condition: needs_root_cause = true`). | ❌ **Verworfen** |
+
+**Warum die beiden Absagen keine Bequemlichkeit sind.** §3.1 sagt: das Atom ist die
+**Absicht**, und ein Block existiert, um eine Entscheidung zu ermöglichen — nicht, um einen
+Katalog zu vervollständigen. Eine Karte trägt nur dann etwas bei, wenn **Geographie selbst**
+Bedeutung hat (Nachbarschaft, Entfernung, Route). Wo „Region" nur ein Etikett für einen
+Vergleich ist, ist der sortierte Balken die **bessere** Antwort — Positionskodierung auf
+gemeinsamer Skala schlägt Flächen- und Farbkodierung (S2, Cleveland & McGill). Und freie
+Korrelation ist eine **Analyse**-Absicht; unser Produkt ist Reporting. Beide Absagen sind
+umkehrbar, sobald ein Bracket eine echte Geo- oder Explorationsfrage stellt — der Befund
+ist datiert und die Messung wiederholbar.
+
+**Abgrenzung des neuen Blocks**, weil die Nachbarn nahe liegen:
+
+| Block | Frage |
+|---|---|
+| `structural_mix` | „Woraus besteht das Ganze?" — Anteil, Summe = 100 % |
+| `entity_ranking` | „Welche Einheit ist die schlechteste?" — Rang |
+| **`distribution_spread`** | **„Wie breit streut es, und gibt es einen Schwanz?"** |
+
+Die *Darstellung* kann in allen drei Fällen ein Balken sein — die **Absicht** ist es nicht.
+Und nur die Absicht steuert, ob jemand den Schwanz überhaupt zeigt. Deshalb verbietet der
+Block ausdrücklich das Sortieren nach Wert (`bucket_order_preserved`, Schweregrad **error**:
+sortierte Bänder sind keine Verteilung mehr) und die Einzel-Mittelwertkarte — mit SCM-003
+als Beleg, nicht als Meinung.
+
+**Nebenbefund, der nicht versteckt wird.** Mit dem `targets.vegalite`-Eintrag des neuen
+Blocks meldet `check-floor` jetzt einen zweiten Konnektor: **`vegalite` 1/10**. Das ist
+keine Verschlechterung, sondern das erste Mal, dass die Lücke **sichtbar** ist, die L9
+schließen muss. `powerbi` bleibt 10/10 und ist der einzige Pflicht-Konnektor — der Check
+bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
+* **L1 — die drei Absichten sind entschieden (02.08.2026), s. §10.6.** Eine aufgenommen,
+  zwei begründet verworfen. Damit ist L0 nicht mehr durch eine offene Vokabularfrage
+  vorbelastet.
 * **L5 Nacharbeit** — `ibcsScenario` spec-konform unterbringen; Style Dictionary als
   Build-Schicht prüfen statt nur DTCG zu emittieren.
 * **L10 Nebenwirkung** — `cardVisual` ist von „Show Visuals as Tables" ausgenommen;
@@ -875,7 +920,7 @@ aufgedeckt hat.
 |---|---|---|---|
 | **L14 IBCS-Version klären** | ⬜ **offen — zuerst, vorbereitet** | | **neu 02.08.** ISO 24896 seit 11.06.2026 veröffentlicht, IBCS bei **2.0**. Vorbedingung für L12 **und** L6. **Lizenzfrage beantwortet (§8.2):** 2.0 bleibt CC BY-SA 4.0, wir brauchen für die Implementierung **keine** Lizenz — nur die Bauvorschrift „Regel-ID + eigene Formulierung, kein Regeltext". ISO-Dokument nur kaufen, wenn Frage **B1** einen Mehrwert zeigt. Offen bleibt das **Delta 1.2 → 2.0**. Prüfliste mit 12 Fragen steht in **§10.5** — **VS Code**, Quellen hier gesperrt. |
 | L0 Vokabular-Autorität | ⬜ offen | | Entscheidung Flo; Backlog **B4** |
-| L1 Intent-Katalog | ⬜ offen | | **02.08. erweitert:** drei fehlende Absichten prüfen — Distribution, Spatial, freie Correlation (Beleg: FT Visual Vocabulary). Entscheiden **vor** L0. |
+| L1 Intent-Katalog | 🟡 teilw. | 2026-08-01/02 | **Vokabular-Lücke geschlossen (§10.6):** von den drei extern gefundenen Absichten ist **eine** aufgenommen — `distribution_spread`, dreifach im eigenen Korpus belegt (FIN-001 AR-Aging, XD-001 Case-Age, SCM-003 „averaging hides bias"). **Spatial** und **freie Correlation** begründet verworfen: null Geo-Fragen in 20 Brackets (alle `map`-Treffer waren `MAPE`), Korrelation erscheint immer als Treiberfrage und ist von `root_cause_context` gedeckt. Damit ist L0 nicht mehr vorbelastet. Restumfang von L1 (Bestätigung/Schließung der übrigen Blöcke) bleibt offen. |
 | L2 Bracket-Normalisierung | ⬜ offen | | |
 | L3 Konnektor-Vertrag | 🟢 **erledigt** | 2026-08-01 | `targets` + `replaces` in `AllowedVisual`; `pbip_type` bleibt Alias. Evidence-Boden von 0/9 auf 8/9 aus dokumentierten Mappings. Bekannte Lücke: `structural_mix`. |
 | L4 Konnektor-Gate | 🟢 **erledigt** | 2026-08-01 | `check-floor` in der **bestehenden** Visual-Library-CLI (kein neuer Checker), in Stage 1 verdrahtet und dort sichtbar grün. Rot-Pfade getestet. **Bewusst offen:** die Parametrisierung des Emitter-Tests über mehrere Konnektoren braucht einen zweiten Emitter — heute gibt es nur `targets.pbir`. Kommt mit L9. |
