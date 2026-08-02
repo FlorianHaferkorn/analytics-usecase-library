@@ -421,11 +421,14 @@ aber nicht**. Solange §3.4 gilt, ist die Eskalationsleiter: nativ → SVG → a
 Eine Aufweichung wäre eine Zielbild-Änderung und braucht eine explizite Entscheidung —
 dieses Konzept trifft sie nicht.
 
-* **Erst die Version klären (Vorbedingung, s. §8.1).** IBCS ist bei **2.0**, ausgerichtet
-  auf **ISO 24896:2026**. Ein Katalog gegen 1.2 wäre bei Erhebung schon veraltet. Vor der
-  ersten Katalogzeile steht deshalb: welche Fassung ist maßgeblich, was ändert sich
-  gegenüber 1.2, und **unter welcher Lizenz steht 2.0** (für 1.2 ist CC BY-SA belegt, für
-  2.0 nicht).
+* **Erst die Version klären (Vorbedingung: L14, s. §8.1/§10.5).** IBCS ist bei **2.0**,
+  ausgerichtet auf **ISO 24896:2026**. Ein Katalog gegen 1.2 wäre bei Erhebung schon
+  veraltet.
+* **Bauvorschrift statt Lizenzbeschaffung (§8.2, verbindlich).** Der Katalog speichert
+  **Regel-ID + Fundstelle + eigene Formulierung** — **nie** IBCS-Regeltext, **nie** ihre
+  Abbildungen. So ist er kein abgeleitetes Werk, Share-Alike greift nicht, und er bleibt
+  für Kunden-Deliverables frei verwendbar. Wer stattdessen transkribiert, macht jedes
+  Deliverable, das den Katalog enthält, zu CC-BY-SA-Material.
 * **Quellenlage, offen und benannt:** `actionablereporting.com`, `ibcs.com` und die meisten
   Fachquellen sind **in dieser Umgebung** nicht abrufbar — Ursache ist die Egress-Policy,
   nicht die Zielseite (§8). Dieser Task gehört damit in die **VS-Code-Umgebung**, in der
@@ -710,13 +713,47 @@ veröffentlichter Standard. **Das ist überholt.** Gemessen statt erinnert:
 und die SUCCESS-Auszeichnung in L6 gegen eine überholte Terminologie geprüft. Die
 Versionsfrage ist damit **Vorbedingung von L12**, nicht Nacharbeit.
 
-Zwei Dinge sind dabei ausdrücklich **noch nicht geprüft** und dürfen nicht mitgeraten
-werden: (a) was sich zwischen 1.2 und 2.0 inhaltlich ändert — die Suche nennt nur
-„Terminologie", das ist keine Delta-Liste; (b) unter welcher Lizenz 2.0 steht. Für 1.2 ist
-CC BY-SA belegt; **ob 2.0 dieselbe Lizenz trägt, ist offen** — und da ISO-Standards
-regulär kostenpflichtig sind, ist das eine Frage mit Folgen für die Weitergabe
-abgeleiteter Kataloge. Beides ist in dieser Umgebung nicht zu klären (`ibcs.com` und
-`iso.org` sind gesperrt).
+### 8.2 Lizenz — welche wir brauchen, und warum vermutlich keine
+
+Die Frage „welche Lizenz brauchen wir?" hat eine erfreuliche Antwort, wenn man die drei
+Ebenen trennt, die hier gern zusammenfallen.
+
+**Nachgeschlagen am 02.08.2026:** IBCS **2.0 steht weiterhin unter CC BY-SA 4.0**. Die
+IBCS Association ist ein *not-for-profit* und veröffentlicht die Standards kostenlos unter
+dieser Lizenz; 2.0 wurde am **11.06.2026** freigegeben — am selben Tag, an dem ISO 24896
+erschien. Die Sorge aus dem ersten Entwurf, 2.0 könnte hinter die ISO-Bezahlschranke
+wandern, ist damit **entkräftet**.
+<https://www.ibcs.com/ibcs-version-2-0/> · <https://www.ibcs.com/creative-commons-faq/>
+(*Such-Ebene* — `ibcs.com` selbst ist hier gesperrt, s. §8; mehrere konvergente Treffer
+inkl. einer eigenen „Creative Commons FAQ"-Seite. In VS Code am Primärtext bestätigen.)
+
+| Ebene | Was es ist | Brauchen wir eine Lizenz? |
+|---|---|---|
+| **Die Notationsregeln als Idee** — „Ist = gefüllt, Plan = Kontur, Forecast = schraffiert" | Ein Verfahren, kein Sprachwerk. Urheberrecht schützt den **Text** eines Standards, nicht die darin beschriebene Methode. | **Nein.** Unser `apply_ibcs()` implementiert Ideen, keinen Text. Deshalb steht in ADR-0048 §2.3 zu Recht „IBCS-Notation frei implementieren". |
+| **Der IBCS-Standardtext und seine Abbildungen** | Sprachwerk unter **CC BY-SA 4.0** | **Nur wenn wir ihn übernehmen.** Dann ist unser Dokument ein abgeleitetes Werk und **erbt Share-Alike** — es muss selbst unter CC BY-SA stehen und weitergegeben werden dürfen. |
+| **ISO 24896:2026** | ISO-Dokument, regulär **kostenpflichtig**, *nicht* CC | **Zum Lesen ja, eine gekaufte Einzellizenz** — ohne Weitergaberecht. Kein Copy-Paste ins Repo, in kein Deliverable. Das ist die **neue** Einschränkung, die es unter 1.2 nicht gab. |
+| **Die Marke „IBCS®" / „IBCS Certified"** | Kennzeichenrecht, unabhängig vom Urheberrecht | Nie ein Zertifizierungs-Claim ohne Zertifizierung. Ausweisung bleibt **„IBCS-Notation (uncertified)"** (ADR-0048 §2.3). |
+
+**Daraus folgt eine Bauvorschrift, keine Lizenzbeschaffung.** Der Katalog aus L12 wird so
+gebaut, dass er **gar kein abgeleitetes Werk ist**: gespeichert werden **Regel-ID +
+Fundstelle + unsere eigene Formulierung** — nie ihr Regeltext, nie ihre Abbildungen.
+Dann greift Share-Alike nicht, nichts ist ansteckend, und der Katalog bleibt für
+Kunden-Deliverables frei verwendbar. Ein Zitat mit Quellenangabe bleibt selbstverständlich
+zulässig; die Grenze ist der **systematische Nachbau** des Standardtexts.
+
+Umgekehrt gesagt — und das ist der teure Fehler, den diese Vorschrift verhindert: ein
+Katalog, der IBCS-Regeltext transkribiert, macht **jedes Deliverable, das ihn enthält**,
+zu CC-BY-SA-Material. Der Kunde dürfte es weitergeben. Das ist keine Kleinigkeit für ein
+Beratungsprodukt.
+
+**Kein Rechtsrat.** Die Grenze zwischen „eigene Formulierung" und „abgeleitetes Werk" ist
+genau die Stelle, an der ADR-0048 §2.3 ohnehin einen **Rechts-Check vor client-facing
+Verwendung** verlangt. Die Bauvorschrift oben hält uns mit Absicht weit von dieser Grenze
+weg, statt sie auszureizen.
+
+**Was offen bleibt:** das inhaltliche **Delta 1.2 → 2.0**. Die Suche nennt nur
+„Terminologie-Angleichung an ISO" — das ist keine Delta-Liste, und darauf lässt sich keine
+Regel-Migration stützen. Zu klären in L14.
 
 ---
 
@@ -776,10 +813,50 @@ Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag,
 ### 10.4 Neu aufgenommen
 
 * **L14 · IBCS-Version klären (2.0 / ISO 24896)** — Vorbedingung für L12 und L6.
-  **DoD:** maßgebliche Fassung festgelegt; Delta 1.2 → 2.0 benannt oder als ungeprüft
-  markiert; **Lizenz von 2.0 geklärt** und die Folge für abgeleitete Kataloge notiert;
-  §8/§4 dieses Konzepts nachgezogen. **Umgebung: VS Code** (`ibcs.com`/`iso.org` sind hier
-  gesperrt). **Modell:** Opus (Lizenzfrage ist Bedeutungsarbeit).
+  Vorbereitet in **§10.5**; die Lizenzfrage ist in **§8.2** bereits beantwortet.
+  **DoD:** die zwölf Fragen aus §10.5 sind beantwortet **oder** ausdrücklich als ungeprüft
+  markiert; maßgebliche Fassung festgelegt; Delta 1.2 → 2.0 als Liste oder als „nicht
+  ermittelbar" notiert; §4/§8 dieses Konzepts nachgezogen; die Bauvorschrift aus §8.2 steht
+  als harte Bedingung im L12-DoD. **Umgebung: VS Code** (`ibcs.com`/`iso.org` sind hier
+  gesperrt). **Modell:** Opus (Lizenz- und Notationsfragen sind Bedeutungsarbeit).
+
+### 10.5 L14 — vorbereitete Prüfliste für die VS-Code-Umgebung
+
+Von hier aus ist alles getan, was ohne Zugriff auf `ibcs.com` und `iso.org` geht. Was
+bleibt, ist Abarbeiten. Jede Zeile ist so formuliert, dass die Antwort **belegbar** ist —
+und „nicht ermittelbar" ist eine zulässige Antwort, Raten nicht.
+
+**A · Fassung und Delta** (blockiert L12 und L6)
+
+| # | Frage | Wo nachsehen | Warum es uns trifft |
+|---|---|---|---|
+| A1 | Ist **2.0** die maßgebliche Fassung, oder wird 1.2 weiter gepflegt? | `ibcs.com/ibcs-version-2-0/`, `ibcs.com/ibcs-standards-1-2/` | Bestimmt, wogegen L12 erhebt. |
+| A2 | Gibt es eine **Änderungsliste** 1.2 → 2.0 (Changelog, Vorwort, Migrationshinweis)? | Standardtext 2.0, Vorwort/Anhang | Ohne sie ist jede Regel-Migration geraten. |
+| A3 | Sind die **SUCCESS-Gruppen** in 2.0 unverändert (SAY·UNIFY·CONDENSE·CHECK·EXPRESS·SIMPLIFY·STRUCTURE)? | 2.0, Gliederung | `layout_systems.py` prüft genau gegen diese sieben. Ändert sich die Gliederung, ändert sich unsere Abdeckungsrechnung. |
+| A4 | Haben sich **Regelcodes** geändert (unsere belegten: `U4`, `E3`)? | 2.0, Regelverzeichnis | Diese Codes stehen als `source` in `visual_registry.yaml`. Stille Umnummerierung würde unsere Herkunftssicht falsch machen. |
+| A5 | Was fordern **CONDENSE, SIMPLIFY, STRUCTURE** konkret — mit Regel-IDs? | 2.0, die drei Kapitel | Unsere drei leeren Gruppen. Der eigentliche Inhaltsauftrag von L6. |
+| A6 | Ändert 2.0 die **Szenario-Notation** (AC/PL/FC/PY: Füllart, Deckkraft)? | 2.0, Notationskapitel | `color_semantics.yaml → ibcs_scenario` und `report_design/ibcs.py::_SCENARIO_FILL` hängen daran. |
+
+**B · ISO 24896 — nur was wir wirklich brauchen**
+
+| # | Frage | Wo nachsehen | Warum |
+|---|---|---|---|
+| B1 | Deckt ISO 24896 wirklich nur **UNIFY und CHECK** ab? | `iso.org/standard/88366.html` (Scope-Abschnitt ist frei einsehbar) | Wenn ja, betrifft der ISO-Teil genau die zwei Gruppen, die bei uns schon belegt sind — dann ist der Kauf **verzichtbar** und IBCS 2.0 (frei) reicht. **Diese Frage entscheidet über Kosten.** |
+| B2 | Brauchen wir das ISO-Dokument überhaupt, oder genügt IBCS 2.0? | Ergebnis aus B1 | Erst kaufen, wenn B1 einen echten Mehrwert zeigt. |
+| B3 | Falls gekauft: welche **Nutzungsbedingungen** (Einzelplatz, Weitergabe, Zitat)? | ISO-Lizenzbedingungen beim Kauf | Bestimmt, ob überhaupt jemand außer der lesenden Person etwas davon hat. |
+
+**C · Lizenz — bestätigen, nicht neu klären** (Antwort steht in §8.2)
+
+| # | Frage | Wo nachsehen | Status |
+|---|---|---|---|
+| C1 | Steht 2.0 unter **CC BY-SA 4.0**? | `ibcs.com/creative-commons-faq/`, `ibcs.com/terms-of-use/` | Auf Such-Ebene **bestätigt** — am Primärtext gegenlesen. |
+| C2 | Verlangt die Namensnennung eine **bestimmte Form** (Wortlaut, Logo, Link)? | Creative-Commons-FAQ + Terms of Use | Bestimmt, wie unsere `source`-Felder und Deliverable-Fußnoten aussehen müssen. |
+| C3 | Gibt es **Markenauflagen** zur Nennung von „IBCS®" in Produktkommunikation? | Terms of Use | Wir schreiben „IBCS-Notation (uncertified)" — prüfen, ob das ihren Auflagen genügt. |
+
+**Nicht Teil von L14 — bewusst:** der Visualkatalog selbst. Das ist L12. L14 klärt nur,
+**wogegen** L12 erhebt und **unter welchen Bedingungen**. Die Trennung ist Absicht: sonst
+beginnt die Erhebung, bevor die Fassung feststeht — genau der Fehler, den §8.1 gerade
+aufgedeckt hat.
 * **L1 erweitert** um die drei fehlenden Absichten (Distribution, Spatial, freie
   Correlation) — als *Prüfauftrag*, nicht als gesetzte Blöcke: für ein
   Management-Reporting-Produkt kann „bewusst nicht abgedeckt" die richtige Antwort sein.
@@ -796,7 +873,7 @@ Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag,
 
 | Task | Status | Datum | Notiz |
 |---|---|---|---|
-| **L14 IBCS-Version klären** | ⬜ **offen — zuerst** | | **neu 02.08.** ISO 24896 ist seit 11.06.2026 veröffentlicht, IBCS ist bei **2.0**. Vorbedingung für L12 **und** L6. Lizenz von 2.0 ungeklärt. **VS Code** (Quellen hier gesperrt). |
+| **L14 IBCS-Version klären** | ⬜ **offen — zuerst, vorbereitet** | | **neu 02.08.** ISO 24896 seit 11.06.2026 veröffentlicht, IBCS bei **2.0**. Vorbedingung für L12 **und** L6. **Lizenzfrage beantwortet (§8.2):** 2.0 bleibt CC BY-SA 4.0, wir brauchen für die Implementierung **keine** Lizenz — nur die Bauvorschrift „Regel-ID + eigene Formulierung, kein Regeltext". ISO-Dokument nur kaufen, wenn Frage **B1** einen Mehrwert zeigt. Offen bleibt das **Delta 1.2 → 2.0**. Prüfliste mit 12 Fragen steht in **§10.5** — **VS Code**, Quellen hier gesperrt. |
 | L0 Vokabular-Autorität | ⬜ offen | | Entscheidung Flo; Backlog **B4** |
 | L1 Intent-Katalog | ⬜ offen | | **02.08. erweitert:** drei fehlende Absichten prüfen — Distribution, Spatial, freie Correlation (Beleg: FT Visual Vocabulary). Entscheiden **vor** L0. |
 | L2 Bracket-Normalisierung | ⬜ offen | | |
