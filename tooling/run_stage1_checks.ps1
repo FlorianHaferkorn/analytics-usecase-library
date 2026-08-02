@@ -71,7 +71,11 @@ $pythonChecks = @(
   @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("check-floor") },
   # Design-Tokens (L5): die DTCG-Fassung ist ERZEUGT — dieser Check faellt, sobald sie
   # von den YAML-Quellen abweicht. Ohne ihn waere das Interchange-Format still veraltet.
-  @{ Script = "tooling/superversion/layer_tools/design_tokens.py"; Args = @() }
+  @{ Script = "tooling/superversion/layer_tools/design_tokens.py"; Args = @() },
+  # Herkunftssicht (L6): welche Regeln sind IBCS-abgeleitet, welche Hausregel, und
+  # welche SUCCESS-Gruppen sind unbelegt. Advisory — die Luecken sind bekannt und
+  # sollen sichtbar sein, ohne den Lauf zu blocken (--strict macht sie hart).
+  @{ Script = "tooling/superversion/layer_tools/layout_systems.py"; Args = @() }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
