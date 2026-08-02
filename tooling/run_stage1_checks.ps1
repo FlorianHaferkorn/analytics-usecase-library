@@ -68,7 +68,10 @@ $pythonChecks = @(
   # eine Darstellung haben; Zweit-Konnektoren werden berichtet, blocken aber nicht,
   # solange sie im Aufbau sind. Kein eigener Checker — die Visual-Library hat eine
   # CLI, und die wird erweitert statt dupliziert.
-  @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("check-floor") }
+  @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("check-floor") },
+  # Design-Tokens (L5): die DTCG-Fassung ist ERZEUGT — dieser Check faellt, sobald sie
+  # von den YAML-Quellen abweicht. Ohne ihn waere das Interchange-Format still veraltet.
+  @{ Script = "tooling/superversion/layer_tools/design_tokens.py"; Args = @() }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
