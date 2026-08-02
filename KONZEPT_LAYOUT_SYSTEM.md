@@ -421,11 +421,16 @@ aber nicht**. Solange §3.4 gilt, ist die Eskalationsleiter: nativ → SVG → a
 Eine Aufweichung wäre eine Zielbild-Änderung und braucht eine explizite Entscheidung —
 dieses Konzept trifft sie nicht.
 
-* **Quellenlage, offen und benannt:** `actionablereporting.com` (der inhaltlich beste Fund
-  zur nativen IBCS-Nachbildung in Power BI) liefert auf Abruf **HTTP 403** und war deshalb
-  **nicht im Volltext lesbar** — es liegen nur Suchauszüge vor. Dieser Punkt gilt als
-  **offen**, nicht als erledigt: entweder über einen anderen Zugang beschaffen oder als
-  ungeprüft kennzeichnen. Ein Auszug ist kein Beleg.
+* **Erst die Version klären (Vorbedingung, s. §8.1).** IBCS ist bei **2.0**, ausgerichtet
+  auf **ISO 24896:2026**. Ein Katalog gegen 1.2 wäre bei Erhebung schon veraltet. Vor der
+  ersten Katalogzeile steht deshalb: welche Fassung ist maßgeblich, was ändert sich
+  gegenüber 1.2, und **unter welcher Lizenz steht 2.0** (für 1.2 ist CC BY-SA belegt, für
+  2.0 nicht).
+* **Quellenlage, offen und benannt:** `actionablereporting.com`, `ibcs.com` und die meisten
+  Fachquellen sind **in dieser Umgebung** nicht abrufbar — Ursache ist die Egress-Policy,
+  nicht die Zielseite (§8). Dieser Task gehört damit in die **VS-Code-Umgebung**, in der
+  ohnehin der Power-BI-Augenschein aus L10 stattfindet. Ein Suchauszug ist kein Beleg;
+  hier ist das keine Sorgfaltsfrage, sondern eine Umgebungsgrenze.
 
 * **DoD:** je IBCS-Visualtyp eine Zeile mit {Notationsvorschrift, Quelle/Abschnitt,
   `block_id`, Nachbau je Ziel ∈ {nativ · SVG · Extension · nicht möglich}}; die
@@ -676,12 +681,114 @@ hält die Grenze fest und benennt beide Fälle im Fehlertext.
 
 **Nicht belegt und deshalb nicht als Grundlage verwendet:**
 
-* **ISO/AWI 24896** ist ein *laufendes* Projekt (Start Juli 2024) — ein veröffentlichter
-  ISO-Standard ist es nicht. Die Aussage im Konzept lautet deshalb „Kandidat", nicht
-  „Standard".
-* **`actionablereporting.com`** (native IBCS-Nachbildung in Power BI) — Abruf liefert
-  **HTTP 403**, nur Suchauszüge verfügbar. Wird in L12 als **offen** geführt; ein Auszug
-  zählt hier nicht als Beleg.
+* **`actionablereporting.com`** und die meisten Fachquellen — Abruf liefert **HTTP 403**.
+  **Ursache korrigiert am 02.08.2026:** das ist *nicht* die Zielseite, sondern die
+  **Egress-Policy dieser Umgebung**. Nachgewiesen über `$HTTPS_PROXY/__agentproxy/status`:
+  `connect_rejected — gateway answered 403 to CONNECT (policy denial)` für
+  `www.ibcs.com`, `www.designtokens.org`, `styledictionary.com`, `www.iso.org` und weitere.
+  Erreichbar sind im Wesentlichen `github.com` und `learn.microsoft.com`.
+  **Folge:** Recherche in dieser Umgebung liefert für die meisten Quellen nur
+  Such-Auszüge, keinen Volltext. Für L12 heißt das: der Katalog ist hier **nicht**
+  abschließend erhebbar und gehört in die VS-Code-Umgebung, die ohnehin für L10 vorgesehen
+  ist. Das ist eine Umgebungsgrenze, kein Quellenmangel.
+
+### 8.1 Korrektur: ISO 24896 ist veröffentlicht — und IBCS ist bei 2.0
+
+Bis zum 02.08.2026 stand hier, ISO/AWI 24896 sei ein *laufendes Projekt* und kein
+veröffentlichter Standard. **Das ist überholt.** Gemessen statt erinnert:
+
+* **ISO 24896:2026 „Notation for business reporting"** ist am **11.06.2026** veröffentlicht
+  worden, nach einstimmiger Annahme durch die beteiligten ISO-P-Member.
+  <https://www.iso.org/standard/88366.html> · <https://www.ibcs.com/iso-24896/>
+* Der Standard beruht auf den IBCS-Vorschlägen, **im Kern auf UNIFY und CHECK** der
+  SUCCESS-Formel — nicht auf allen sieben Gruppen.
+* **IBCS Standards 2.0** ist erschienen und **auf ISO 24896 ausgerichtet**, mit
+  angepasster Terminologie aus der ISO-Redaktion. <https://www.ibcs.com/ibcs-version-2-0/>
+
+**Was daraus folgt, und es ist nicht kosmetisch.** Dieses Konzept ist durchgängig gegen
+**IBCS 1.2** geschrieben. L12 hätte einen Katalog gegen eine **abgelöste Fassung** erhoben
+und die SUCCESS-Auszeichnung in L6 gegen eine überholte Terminologie geprüft. Die
+Versionsfrage ist damit **Vorbedingung von L12**, nicht Nacharbeit.
+
+Zwei Dinge sind dabei ausdrücklich **noch nicht geprüft** und dürfen nicht mitgeraten
+werden: (a) was sich zwischen 1.2 und 2.0 inhaltlich ändert — die Suche nennt nur
+„Terminologie", das ist keine Delta-Liste; (b) unter welcher Lizenz 2.0 steht. Für 1.2 ist
+CC BY-SA belegt; **ob 2.0 dieselbe Lizenz trägt, ist offen** — und da ISO-Standards
+regulär kostenpflichtig sind, ist das eine Frage mit Folgen für die Weitergabe
+abgeleiteter Kataloge. Beides ist in dieser Umgebung nicht zu klären (`ibcs.com` und
+`iso.org` sind gesperrt).
+
+---
+
+## 10. Abgleich mit externen Quellen (02.08.2026)
+
+Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
+*widerlegen*, nicht zu bestätigen. Zwei Vorbemerkungen zur Belastbarkeit:
+
+1. **Die Umgebung begrenzt die Tiefe, nicht die Sorgfalt.** Volltext war fast nur aus
+   `github.com` und `learn.microsoft.com` zu bekommen (§8). Alles andere sind
+   Such-Auszüge. Wo unten „**belegt**" steht, wurde die Primärquelle gelesen; wo
+   „*Auszug*" steht, nicht.
+2. **Agentenbefunde sind nachgeprüft, nicht übernommen.** Zwei stellten sich beim
+   Nachmessen anders dar als berichtet (unten markiert).
+
+### 10.1 Was uns widerlegt oder korrigiert
+
+| Befund | Beleg | Folge |
+|---|---|---|
+| **ISO 24896 ist veröffentlicht (11.06.2026), IBCS ist bei 2.0** | **belegt** (iso.org-Katalogeintrag + ibcs.com, über Suche bestätigt) | §8.1 neu. **Vorbedingung für L12** — der Katalog wäre gegen eine abgelöste Fassung erhoben worden. Lizenz von 2.0 offen. |
+| **DTCG 2025.10 deckt Modes/Themes NICHT ab** — das liegt im separaten `resolver/`-Modul, das sich selbst als *„preview draft … should not be directly referred to or implemented at this time"* bezeichnet | **belegt** (Spec-Quelldateien im Repo `design-tokens/community-group`) | §3.2 überzeichnete die Reife. **L7** (zweites Layout-System) kann sich nicht auf einen fertigen DTCG-Mechanismus stützen. |
+| **DTCG hat benutzerdefinierte Composite-Typen bewusst geschlossen** (PR #86: *„replace the mechanism for user-defined composite types with a set of pre-defined composite types"*); `strokeStyle` deckt nur Linienmuster, **keine Flächenfüllung** | **belegt** (Spec-Repo) | Unser `ibcsScenario` liegt außerhalb des vorgesehenen Erweiterungspfads — und `$extensions` ist laut Spec für **optionale** Metadaten gedacht, während unsere Szenario-Notation renderkritisch ist. **L5-Nacharbeit.** |
+| **Unsere `information_blocks` haben drei echte Lücken**: *Distribution* (Histogramm/Boxplot), *Spatial* (Choropleth/Flow Map), *freie Correlation* (Scatter ohne Root-Cause-Rahmen) | **belegt** (FT Visual Vocabulary, Volltext aus GitHub) | **Vor L0** aufnehmen — sonst friert die Vokabular-Entscheidung eine bekannte Lücke ein. |
+| **Deneb verliert mehr Interaktivität als unsere L12-Tabelle sagt**: Cross-Filter **oder** Slicing, nicht beides; Slicing nicht auf der Roadmap; Data-Point-Limit (Default 50) | *Auszug* + GitHub-Issue | Unsere §3.4-Ablehnung ist damit **besser** begründet als bisher formuliert — die Zeile „teilweise interaktiv" war zu freundlich. |
+| **Vega-Lite ist EIN Renderer, nicht viele.** Wer Vega-Lite „einbettet" (Deneb, Kibana, Observable), bettet denselben Renderer ein — niemand übersetzt in die native Chart-Engine des Wirts | *Auszug*, mehrfach konvergent | §3.3 muss das trennen: unser `targets`-Modell ist echte Übersetzung und hat **kein** etabliertes Vorbild. Das ist Marktlücke *und* Risiko. |
+| **Grammatiken haben „Cliffs"** — GoFish (MIT/IEEE VIS) benennt, dass gängige Grammar-of-Graphics-Implementierungen an Mosaics, Waffles, Ribbons scheitern | *Auszug* | Für **L9/L12**: Wasserfall/Nadel/Skalenband könnten in Vega-Lite an einer Ausdrucksgrenze scheitern, nicht nur an einem fehlenden `_MARK`-Eintrag. |
+| **`cardVisual` ist von „Show Visuals as Tables" ausgenommen** — *„doesn't apply to the following visuals: slicers, cards, smart narrative, …"* | **belegt** (Microsoft Learn, Volltext) | Betrifft `status_signal → kpi_card_with_delta` — unser **nativer Default**, nicht den SVG-Weg. **Korrektur am Agentenbefund:** der Bericht ordnete das unserem SVG-Pfad zu; nachgemessen ist `bullet_graph` ein `tableEx`. Der Befund ist real, trifft aber die falsche Zeile. Gehört in **L10** als geprüfte Nebenwirkung. |
+| **Der Faktor „FitToPage 0,71×" ist falsch etikettiert** | **belegt** (eigene Nachmessung) | `brand-tokens.schema.yaml:121` erklärt ihn korrekt als *ein Anzeigefall*: 1920×1080 auf einem 1366×768-Schirm — und `1366/1920 = 0,7115`. Zeile 205 macht daraus eine **Eigenschaft von FitToPage**. Das ist er nicht: auf einem breiteren Schirm ist der Faktor > 1. **Korrektur am Agentenbefund:** der Bericht hielt die Zahl für gänzlich unbelegt — sie ist belegt, nur als Beispiel, nicht als Konstante. Kommentar in Meridian nachschärfen (**E1**). |
+
+### 10.2 Was standhält — und warum das mehr wert ist als Zustimmung
+
+* **Weg (a) bei L13 ist der Industriestandard, nur explizit gemacht.** Material 3, Carbon,
+  Bootstrap und Ant Design halten Abstände als feste 8er-Tokens und lassen Spaltenbreiten
+  **relativ** (`%`, `fr`). Niemand benennt „Raster ≠ Abstands-Skala" als Entscheidung,
+  **weil die Frage in CSS nie gestellt werden muss** — der `fr`-Resolver des Browsers löst
+  sie zur Laufzeit. PBIR hat keinen solchen Resolver; unser Konnektor-Schritt übernimmt
+  genau dessen Rolle. (*Auszug*)
+* **`slot-pos.ts` hat einen externen Zwilling:** Grafana/`react-grid-layout` hält Position
+  und Größe in Grid-Units und löst mit dokumentierter Formel in Pixel auf. Das Muster ist
+  etabliert, nicht ausgedacht. (*Auszug*)
+* **LU entspricht strukturell Androids `dp`, unser Schrift-Delta dessen `sp`** — die
+  Trennung Layout-Einheit / Schrift-Einheit ist bei uns bereits da, nur unbenannt.
+* **Kein gefundenes System modelliert „Absicht" als mehrzielfähiges Artefakt** mit
+  Boden/Decke. Semantic-Layer-Werkzeuge (Cube, dbt, Malloy) geben die Darstellung
+  ausdrücklich ab. Das ist ein Negativbefund — schwächer als ein Beleg, aber konsistent
+  über drei unabhängige Recherchen.
+
+### 10.3 Wo andere weiter sind — konkrete Übernahmekandidaten
+
+| Vorbild | Was es kann | Für uns |
+|---|---|---|
+| **Style Dictionary 4** (Transforms / Formats / Platforms) | Ein neues Ziel = Config-Eintrag + Formatter, kein neues Skript | **L5** hat „Ableitung nach PBI-Theme/CSS" offen — genau das, wofür dieses Muster existiert. Official-First (D-156) zu Ende gedacht heißt: dahinter hängen, nicht nachbauen. |
+| **Superset 6.0** | Zieht Tokens bis auf die **Chart-Ebene** eines BI-Tools durch (`echartsOptionsOverridesByChartType`, inkl. kategorialer Paletten) | Der einzige gefundene Präzedenzfall „Design Tokens bis ins Chart" in einem BI-Tool. Vorlage für die PBI-Theme-Ableitung. (*Auszug*) |
+| **Draco / Draco2** (UW IDL) | Visualisierungs-Designregeln als **Constraints** (ASP/Clingo), maschinell prüfbar, Gewichte aus Wahrnehmungsexperimenten | Blaupause für das in ADR-0048 §4 offene **Gate-Analogon** (= **L11**): IBCS-Regeln als Prädikate gegen die *Spec* prüfen — deterministisch, ohne Rendering, ohne LLM. |
+| **Tokens Studio `permutateThemes`** | Mehrere Achsen gleichzeitig (Marke × Modus × Dichte) | **L7**: „Layout-System × Canvas-Profil" ist dieselbe Mehrdimensionalität, bei uns noch nicht gedacht. (*Auszug*) |
+
+### 10.4 Neu aufgenommen
+
+* **L14 · IBCS-Version klären (2.0 / ISO 24896)** — Vorbedingung für L12 und L6.
+  **DoD:** maßgebliche Fassung festgelegt; Delta 1.2 → 2.0 benannt oder als ungeprüft
+  markiert; **Lizenz von 2.0 geklärt** und die Folge für abgeleitete Kataloge notiert;
+  §8/§4 dieses Konzepts nachgezogen. **Umgebung: VS Code** (`ibcs.com`/`iso.org` sind hier
+  gesperrt). **Modell:** Opus (Lizenzfrage ist Bedeutungsarbeit).
+* **L1 erweitert** um die drei fehlenden Absichten (Distribution, Spatial, freie
+  Correlation) — als *Prüfauftrag*, nicht als gesetzte Blöcke: für ein
+  Management-Reporting-Produkt kann „bewusst nicht abgedeckt" die richtige Antwort sein.
+  Entschieden werden muss es aber, **bevor L0 das Vokabular einfriert**.
+* **L5 Nacharbeit** — `ibcsScenario` spec-konform unterbringen; Style Dictionary als
+  Build-Schicht prüfen statt nur DTCG zu emittieren.
+* **L10 Nebenwirkung** — `cardVisual` ist von „Show Visuals as Tables" ausgenommen;
+  gehört in die Tabelle der geprüften Nebenwirkungen.
+* **L9 Risiko** — Ausdrucksgrenzen der Grammatik („Cliffs") vor dem ersten Mark prüfen.
 
 ---
 
@@ -689,8 +796,9 @@ hält die Grenze fest und benennt beide Fälle im Fehlertext.
 
 | Task | Status | Datum | Notiz |
 |---|---|---|---|
+| **L14 IBCS-Version klären** | ⬜ **offen — zuerst** | | **neu 02.08.** ISO 24896 ist seit 11.06.2026 veröffentlicht, IBCS ist bei **2.0**. Vorbedingung für L12 **und** L6. Lizenz von 2.0 ungeklärt. **VS Code** (Quellen hier gesperrt). |
 | L0 Vokabular-Autorität | ⬜ offen | | Entscheidung Flo; Backlog **B4** |
-| L1 Intent-Katalog | ⬜ offen | | |
+| L1 Intent-Katalog | ⬜ offen | | **02.08. erweitert:** drei fehlende Absichten prüfen — Distribution, Spatial, freie Correlation (Beleg: FT Visual Vocabulary). Entscheiden **vor** L0. |
 | L2 Bracket-Normalisierung | ⬜ offen | | |
 | L3 Konnektor-Vertrag | 🟢 **erledigt** | 2026-08-01 | `targets` + `replaces` in `AllowedVisual`; `pbip_type` bleibt Alias. Evidence-Boden von 0/9 auf 8/9 aus dokumentierten Mappings. Bekannte Lücke: `structural_mix`. |
 | L4 Konnektor-Gate | 🟢 **erledigt** | 2026-08-01 | `check-floor` in der **bestehenden** Visual-Library-CLI (kein neuer Checker), in Stage 1 verdrahtet und dort sichtbar grün. Rot-Pfade getestet. **Bewusst offen:** die Parametrisierung des Emitter-Tests über mehrere Konnektoren braucht einen zweiten Emitter — heute gibt es nur `targets.pbir`. Kommt mit L9. |
