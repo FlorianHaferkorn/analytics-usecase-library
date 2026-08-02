@@ -466,6 +466,50 @@ Modell: die Brüche skalieren mit der Leinwand, `gutter: 16` und `outer_margin: 
 **absolute Pixel** und skalieren nicht mit. Eine Größe, die zur Hälfte mitskaliert, ist auf
 keiner Leinwand außer der Autorenleinwand korrekt.
 
+**Befund 3 — die 8px-Doktrin regiert die Abstände, nicht die Spaltenbreite.** Die
+verbindliche Skala ist **INVARIANT A7** in `meridian/design/brand-tokens.schema.yaml`
+(`base_unit: 8`, Stufen `xs 4 · sm 8 · md 16 · lg 24 · xl 32 · 2xl 48 · 3xl 64`,
+ausdrücklich: *„No magic number spacing anywhere in the design"*). Die vier Abstände in
+`layout_grid.yaml` halten sie ein — 8 · 16 · 32 · 40, alle Vielfache von 8.
+
+Die **Logical Unit** hält sie nicht ein, und das ist kein Versäumnis, sondern eine
+Eigenschaft der Konstruktion: sie ist ein **Restwert**, kein gewählter Wert.
+
+```
+lu_w = (1280 − 2·32 − 11·16) / 12 = 1040/12 = 86,67 px   ← nicht einmal ganzzahlig
+lu_h = ( 720 − 2·32 − 11·16) / 12 =  480/12 = 40,00 px   ← 5×8, aber zufällig
+```
+
+Auf der Produktionsleinwand fällt auch der Zufall weg: `lu_w = 140` (17,5×8),
+`lu_h = 70` (8,75×8).
+
+**Geprüft, ob sich das durch Parameterwahl heilen ließe** — für welchen Außenrand aus der
+8er-Skala wird die LU exakt 8er-rein (Gutter 16, 12×12):
+
+| Leinwand | horizontal | vertikal |
+|---|---|---|
+| 1280×720 | `outer 24` → `lu_w = 88` (11×8) | `outer 32` → `lu_h = 40` |
+| 1920×1080 | `outer 8` → `lu_w = 144` | **keine Lösung** |
+
+Auf **keiner** der beiden Leinwände macht ein Außenrand *beide* Achsen 8er-rein — die
+Achsen verlangen verschiedene Ränder. Bei 1920×1080 ist die Vertikale mit 12 Zeilen
+überhaupt nicht lösbar (erst bei 9 Zeilen: `outer 8` → 104).
+
+**Entscheidung (Flo, 02.08.2026): Weg (a).** Die 8px-Doktrin gilt weiterhin für **Abstände**
+— dort ist sie erzwingbar und wird eingehalten. Sie gilt **nicht** für die Spaltenbreite;
+die LU bleibt ein Restwert und darf krumm sein, **weil sie niemand sieht**: Position und
+Spanne werden in LU geschrieben, Pixel entstehen nur im Konnektor.
+
+Der Gegenweg (b) — 8er-reine LU erzwingen — ist **verworfen**. Er hätte eines von dreien
+gekostet: die 12 Zeilen, die feste Leinwand oder den einheitlichen 16er-Gutter. Und er
+hätte den Widerspruch nur verschoben: 12×12 auf 16:9 ist arithmetisch nicht 8er-rein zu
+bekommen, jeder dafür verbogene Wert wäre die nächste Sonderregel. Ein Raster, das für
+jede Leinwand eine eigene Ausnahme braucht, ist kein Raster.
+
+Daraus folgt eine prüfbare Grenze, die L13 mitliefert: **Abstände** müssen auf der
+8er-Skala liegen (das ist erzwingbar und wird geprüft), **abgeleitete LU-Maße** nicht (das
+wäre nicht erfüllbar und würde nur zu geduldeten Ausnahmen führen).
+
 **Die Festlegung.** Geometrie wird in **Logical Units** ausgedrückt — Position *und* Spanne,
 und **inklusive** Gutter, Außenrand und Innenabstand. Pixel entstehen **ausschließlich** im
 Konnektor, aus der Leinwand seines Zielprofils. Ein Bruch der Leinwandbreite kommt in keiner
@@ -501,7 +545,12 @@ gegen die Lesbarkeitsuntergrenze prüfbar, die `typography.yaml` zusichert.
      1280 und 1920 dieselbe Spalte und dieselbe Spanne — als Test, nicht als Zusicherung.
   3. Ein Check meldet **rot**, wenn eine Autorenquelle wieder Pixel oder Leinwandbrüche
      führt. Er wird in die **bestehende** Stage-1-Kette gehängt, nicht als neuer Runner.
-  4. Die beiden Befunde oben sind behoben und der Beweis steht als Testfall im Repo —
+  4. Derselbe Check erzwingt INVARIANT A7 dort, wo sie gilt: jeder **Abstand** in
+     `layout_grid.yaml` (`gutter`, `outer_margin`, `internal_padding`, `zone_gap`) liegt
+     auf der 8er-Skala. **Abgeleitete** LU-Maße sind davon ausdrücklich ausgenommen —
+     mit der Begründung im Code, nicht nur hier, sonst „repariert" der nächste Durchgang
+     die 86,67 zurück.
+  5. Die beiden Befunde oben sind behoben und der Beweis steht als Testfall im Repo —
      `Main_1` ergibt **4,00**, nicht 3,93.
 * **Fallstrick, benannt:** das ist eine **verhaltensändernde** Umstellung. Die erzeugten
   `dist`-Reports verschieben sich um wenige Pixel. Ein Drift-Test, der die alten Werte
@@ -653,4 +702,4 @@ hält die Grenze fest und benennt beide Fälle im Fehlertext.
 | L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
 | L11 Fidelity-Scorecard | ⬜ offen | | erweitert K6; erbt das in ADR-0048 §4 offen benannte Gate-Analogon (Spec-Validität, Render-Smoke, IBCS-Konformität) |
 | **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. **02.08. ergänzt:** OSS-Vorarbeiten aus ADR-0048 §2.3 zuerst prüfen (`ruqzuq/standard-charts`, Deneb-Galerien); gemessene Lücke = IBCS-Chart-*Typen* (Wasserfall/Nadel/Skalenband), nicht die Notation; **Deneb-Entscheid** dokumentiert, nicht getroffen (Fremd-Visual, §3.4); Quelle `actionablereporting.com` **403 → offen**. CC-BY-SA-Pflicht beachten. |
-| **L13 Ein Koordinatensystem** | ⬜ **offen — vorziehen** | | **neu 02.08.** Geometrie in LU statt Leinwandbrüchen, Auflösung erst im Konnektor. Gemessen: `_OVERVIEW_LAYOUT` ist gegen **1920×1080** geschrieben, `layout_grid.yaml` rechnet gegen **1280×720** → erster Slot bei Spalte −0,10; und selbst bei 1920 ergibt `Main_1` **3,93** statt 4, weil `gutter`/`outer_margin` absolut bleiben. Erweitert `canvas_profiles` (Meridian) — die skalieren heute Schrift, keine Geometrie. Referenz: `slot-pos.ts`. Verhaltensändernd → `dist`-Referenzwerte mitziehen. |
+| **L13 Ein Koordinatensystem** | ⬜ **offen — vorziehen** | | **neu 02.08.** Geometrie in LU statt Leinwandbrüchen, Auflösung erst im Konnektor. Gemessen: `_OVERVIEW_LAYOUT` ist gegen **1920×1080** geschrieben, `layout_grid.yaml` rechnet gegen **1280×720** → erster Slot bei Spalte −0,10; und selbst bei 1920 ergibt `Main_1` **3,93** statt 4, weil `gutter`/`outer_margin` absolut bleiben. Erweitert `canvas_profiles` (Meridian) — die skalieren heute Schrift, keine Geometrie. Referenz: `slot-pos.ts`. Verhaltensändernd → `dist`-Referenzwerte mitziehen. **Entschieden 02.08. (Flo):** 8px-Doktrin (INVARIANT A7) gilt für **Abstände**, nicht für die abgeleitete LU — Weg (b) „8er-reine LU erzwingen" ist **verworfen**. Beleg: auf keiner der beiden Leinwände macht ein Außenrand beide Achsen 8er-rein; bei 1920×1080 ist die Vertikale mit 12 Zeilen gar nicht lösbar. |
