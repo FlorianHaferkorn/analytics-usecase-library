@@ -298,7 +298,7 @@
         "display_name": "Finance / Operations Summary & Insights",
         "visuals": [
           {
-            "visual_id": "page_1_summary_3s_1",
+            "visual_id": "KPI_Cards",
             "visual_type": "kpi_card_with_delta",
             "x": 32.0,
             "y": 32.0,
@@ -318,7 +318,7 @@
             "slicer_field": ""
           },
           {
-            "visual_id": "page_1_summary_30s_2",
+            "visual_id": "Main_1",
             "visual_type": "line_chart",
             "x": 32.0,
             "y": 289.14000000000004,
@@ -338,7 +338,7 @@
             "slicer_field": ""
           },
           {
-            "visual_id": "page_1_summary_30s_3",
+            "visual_id": "Main_2",
             "visual_type": "horizontal_bar_chart",
             "x": 656.0,
             "y": 289.14000000000004,
@@ -371,7 +371,7 @@
         "display_name": "Finance / Operations Execution",
         "visuals": [
           {
-            "visual_id": "page_2_execution_300s_1",
+            "visual_id": "Detail_Matrix",
             "visual_type": "card",
             "x": 344.0,
             "y": 148.10000000000002,

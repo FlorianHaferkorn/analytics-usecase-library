@@ -1073,6 +1073,85 @@ Gate abgeschafft; ein Ableiter, der eine Liste ersetzt statt zu ergänzen, auch.
 
 ---
 
+## 12. Der Wächter, der nicht feuern konnte (02.08.2026)
+
+Nach der Konsolidierung lief die E2E-Kette für **20/20 Brackets** grün, der offizielle
+`powerbi-report-author validate` meldete **0 Errors**. Ein Blick *in* den Output zeigte
+etwas anderes.
+
+### Befund
+
+| | `dist` (Legacy-Generator) | `from_aluca` (kanonische Kette) |
+|---|---:|---:|
+| Reports / Brackets | 17 | 20 |
+| Visuals gesamt | 188 | **86** |
+| Schnitt je Report | 11,1 | **4,3** |
+| Slot-Namen | ja | **nein** — `page_1_summary_3s_1` |
+
+Es gibt einen Wachhund dafür: `report_quality.structural_validator.RequiredSlots`. Er
+konnte aus **drei voneinander unabhängigen Gründen** nicht anschlagen, und jeder
+einzelne hätte gereicht:
+
+1. Er stand in `default_spec()`, aber **kein Produktivaufrufer** benutzte diese Spec —
+   die vier realen Checker bringen je eine eigene mit.
+2. Er entschied per `"overview" in label`, welche Pflichtmenge gilt. Die Seiten der
+   kanonischen Kette heißen `page_1_summary` und `page_2_execution` — er hätte still
+   `[]` zurückgegeben, also Entwarnung.
+3. Er verglich Slot-Namen gegen `page_1_summary_3s_1`. Die Mengen konnten sich nie
+   schneiden.
+
+Dieselbe Klasse wie die vier stillen Fallbacks: **eine Prüfung, die nicht feuern kann,
+ist eine Behauptung.**
+
+### Die Autorität existierte längst
+
+`template_manifest.yaml` führt je Familie (T1–T4) und Variante `overview_slots` und
+`detail_slots`, jeder Eintrag mit `slot_id`, `information_block` und `mandatory`. Alle
+**40** Seitendeklarationen der 20 Brackets lösen dort auf. `RequiredSlots` hielt daneben
+zwei eigene Mengen — und sie widersprachen dem Manifest: dort steht `KPI_Cards` für T3
+und T4 ausdrücklich auf `mandatory: false`.
+
+Es wurde also nichts erfunden, sondern angeschlossen:
+
+* **`layer_tools/page_templates.py`** — der Leser, im etablierten Muster „ein Layer-Tool
+  liest eine governte YAML" (der vierte neben `visual_library`, `design_tokens`,
+  `layout_grid`).
+* **`visual_id` IST der Slot-Name.** Er wurde in `from_aluca` bereits für die Geometrie
+  berechnet und danach weggeworfen. Kollisionen fallen auf das indizierte Schema
+  zurück — gleiche `visual_id` hieße in PBIR gleiches Verzeichnis, ein Visual
+  überschriebe still das andere.
+* **`RequiredSlots` verliert seine Mengen und sein Namens-Schnüffeln.** Variante und
+  Ebene werden übergeben; wer sie nicht kennt, bekommt einen Fehler statt eines stillen
+  Bestehens. Aus `default_spec()` ist es entfernt — was Zusatzwissen braucht, gehört
+  nicht in eine Default-Spec.
+* **e2e-Stage `page_slots`**, advisory (`WARN`), plus ein `WARN`-Status, den der
+  Schlusssatz mitzählt: „full chain green" bei einer warnenden Stufe erzieht Leser dazu,
+  die Stufenzeilen zu überspringen — genau so blieb die Lücke unsichtbar.
+
+### Was der Wächter beim ersten Feuern fand
+
+**39 von 40 Seiten** fehlt mindestens ein Pflicht-Slot: `Slicer_Date` (19×),
+`ActionPanel` (13×), `Slicer_Pane` (7×), `Focus_Area` (3×).
+
+### Zwei Funde nebenbei
+
+**Zwei Vokabulare im selben Manifest.** `variants[].*_slots[].slot_id` führt echte
+Slot-IDs (15, alle gegen `grid_template_slots` auflösend). `page_families[].mandatory_slots`
+führt überwiegend Slot-*Arten* (`Exceptions`, `Funnel`, `Prescriptive`, `Root_Cause`,
+`Variance`). Der Leser benutzt **nur** die Variantenebene; sie zu mischen hieße
+Schreibweisen vergleichen statt Dinge — derselbe Fehlalarm wie in L2 mit `waterfall`.
+Ein Test hält fest, dass keine Art je in eine Pflichtliste gerät.
+
+**Korrektur an §11.** Dort steht „Leinwand 38 → 0". Das galt für **Code**. Beim Lesen des
+Manifests zeigte sich eine **zweite governte YAML** mit denselben Rasterwerten
+(`design_canvas`, `production_canvas`, `grid`). Sie stimmen mit `layout_grid.yaml`
+überein — das war bis hierher Glück, nicht Zwang. Die Dublette wird nicht aufgelöst (das
+Manifest ist ein Autorendokument, sein Rasterblock dort dokumentarisch nützlich), aber
+seit `test_manifest_grid_matches_layout_grid_yaml` **erzwungen**. Die Zahl „0" war nicht
+falsch, aber enger als sie klang.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1283,3 +1362,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. **02.08. ergänzt:** OSS-Vorarbeiten aus ADR-0048 §2.3 zuerst prüfen (`ruqzuq/standard-charts`, Deneb-Galerien); gemessene Lücke = IBCS-Chart-*Typen* (Wasserfall/Nadel/Skalenband), nicht die Notation; **Deneb-Entscheid** dokumentiert, nicht getroffen (Fremd-Visual, §3.4); Quelle `actionablereporting.com` **403 → offen**. CC-BY-SA-Pflicht beachten. |
 | **L13 Ein Koordinatensystem** | 🟢 **erledigt** | 2026-08-02 | Geometrie in Logical Units, Auflösung nur in `lu_to_pixels()` — Gutter und Außenrand innerhalb der Rechnung. Beide Befunde behoben: gleiche Spalte auf 1280 **und** 1920, `Main_1` bei Spanne **4,00** statt 3,93. Waagerecht ganzzahlig, senkrecht fraktional — weil ein 12-Zeilen-Zwang zwei Slots kollidieren ließe und die dokumentierte 76-px-Mindesthöhe des Slicers bräche. 8 Tests inkl. Rückfall-Wächter und Formel-Abgleich gegen `slot-pos.ts`. Reichweite: IR-Compiler-Pfad; die `dist`-Reports sind **nicht** betroffen (`from_aluca` erzeugt keine Positionen) — deren Angleichung bleibt an C4. |
 | **K Konsolidierung (§11)** | 🟡 teilw. | 2026-08-02 | **Leinwand 38 → 0** im lebenden Code (ein Leser `layout_grid.py`), **neuer Visualtyp 11 → 4** (Autoren-Schemas und `VISUAL_TYPE_MAP` werden jetzt aus der Registry **erzeugt**, nicht gepflegt; Drift-Check in Stage 1). Beleg für die Notwendigkeit: die Schemas erlaubten **8** registry-fremde Typen, darunter das ausdrücklich verbotene `stacked_bar`. Zwei eigene Fehler von den Tests gefangen — Generator wandte die Feldregeln verkehrt herum an (`component_3s` bekam 25 statt 2 Typen) und `update()` **verengte** die PBIR-Aliasse statt zu vereinigen. Grenzen in `test_konsolidierung.py` (0 Literale, 4 Stellen). **Offen: Slot-Namen (19 Dateien).** |
+| **N1 Wächter feuerfähig (§12)** | 🟢 **erledigt** | 2026-08-02 | `RequiredSlots` konnte aus **drei** unabhängigen Gründen nicht anschlagen (in keiner Produktiv-Spec; Namens-Schnüffeln matchte `page_1_summary`/`page_2_execution` nicht; `visual_id` war ein Zähler, keine Slot-ID). Die Autorität existierte längst — `template_manifest.yaml`, 40/40 Seiten lösen auf. Angeschlossen statt erfunden: Leser `layer_tools/page_templates.py`, `visual_id` **ist** der Slot-Name (kollisionssicher), `RequiredSlots` verliert beide hartkodierten Mengen **und** das Schnüffeln, e2e-Stage `page_slots` (advisory). **Erstes Feuern: 39/40 Seiten** ohne mindestens einen Pflicht-Slot — `Slicer_Date` 19×, `ActionPanel` 13×, `Slicer_Pane` 7×, `Focus_Area` 3×. Nebenbei: zwei Vokabulare im Manifest getrennt gehalten; §11-Zahl „38 → 0" auf **Code** präzisiert und die zweite YAML-Rasterkopie erzwungen-gleich gemacht. 2031 Tests grün, H7 bleibt 100 %. |

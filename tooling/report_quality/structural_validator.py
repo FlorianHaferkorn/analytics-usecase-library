@@ -112,23 +112,43 @@ class PageSize:
 
 @dataclass
 class RequiredSlots:
-    overview_slots: set[str] = field(default_factory=lambda: {"KPI_Cards", "Main_1", "Main_2", "Slicer_Date"})
-    detail_slots: set[str] = field(default_factory=lambda: {"Detail_Matrix", "Smart_Narrative", "ActionPanel"})
+    """Pflicht-Slots einer Seite — aus `template_manifest.yaml`, nicht von hier.
+
+    Zwei Aenderungen am 02.08.2026, beide gegen eine gemessene Blindheit:
+
+    1. **Keine eigenen Mengen mehr.** Vorher standen hier zwei hartkodierte Listen,
+       und sie widersprachen der Autoritaet: das Manifest fuehrt `KPI_Cards` fuer T3
+       und T4 auf `mandatory: false`, dieser Wachhund verlangte es unbedingt. Das war
+       die fuenfte Stelle mit einer eigenen Meinung ueber governtes Wissen.
+    2. **Kein Namens-Schnueffeln mehr.** Vorher entschied `"overview" in label`,
+       welche Menge gilt. Die Seiten der kanonischen Kette heissen `page_1_summary`
+       und `page_2_execution` — keins von beiden matchte, der Wachhund gab still `[]`
+       zurueck. Variante und Ebene werden jetzt **uebergeben**; wer sie nicht kennt,
+       bekommt einen Fehler statt eines stillen Bestehens.
+
+    Fuer die kanonische Kette prueft `from_aluca.slot_luecken()` dasselbe eine Schicht
+    frueher, wo Variante und Modell ohnehin vorliegen — und deckt damit jeden Emitter
+    ab, nicht nur PBIR.
+    """
+
+    variant: str = ""
+    ebene: str = "overview_slots"
     severity: Severity = "critical"
     name: str = "page:required-slots"
 
     def check(self, report: ParsedReport, page: ParsedPage) -> list[Violation]:
-        expected: set[str] = set()
-        label = f"{page.name} {page.display_name}".lower()
-        if "overview" in label:
-            expected = self.overview_slots
-        elif "detail" in label:
-            expected = self.detail_slots
-        if not expected:
-            return []
-        missing = sorted(expected - set(page.visuals))
+        from tooling.superversion.layer_tools.page_templates import fehlende_pflichtslots
+
+        if not self.variant:
+            raise ValueError(
+                "RequiredSlots braucht eine `variant` aus template_manifest.yaml. "
+                "Ohne sie gibt es keine Pflichtliste — und eine leere Pflichtliste "
+                "sieht aus wie 'alles erfuellt'."
+            )
+        missing = fehlende_pflichtslots(self.variant, set(page.visuals), ebene=self.ebene)
         if not missing:
             return []
+        expected = sorted(set(page.visuals) | set(missing))
         return [
             Violation(
                 self.name,
@@ -206,7 +226,14 @@ class VisualWithinPage:
 
 
 def default_spec() -> ReportSpec:
-    return ReportSpec(invariants=[PageSize(), RequiredSlots(), ForbiddenVisualTypes(), VisualWithinPage()])
+    """Die Invarianten, die **ohne Zusatzwissen** entscheidbar sind.
+
+    `RequiredSlots` steht bewusst NICHT hier: es braucht die Seitenvariante, und die
+    kennt eine Default-Spec nicht. Frueher stand es drin — mit zwei geratenen Mengen,
+    die dem Manifest widersprachen. Ein Wachhund, den man ohne sein Wissen bauen kann,
+    prueft nicht die Sache, sondern die Vermutung.
+    """
+    return ReportSpec(invariants=[PageSize(), ForbiddenVisualTypes(), VisualWithinPage()])
 
 
 def check_report(report_dir: Path, spec: ReportSpec | None = None) -> list[Violation]:

@@ -511,6 +511,7 @@ def _slot_geometrie(slot_name: str) -> dict[str, float]:
 def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportPage:
     visuals: list[Visual] = []
     idx = 0
+    vergeben: set[str] = set()
 
     def add(component: dict, slot: str, slot_name: str = ""):
         nonlocal idx
@@ -527,9 +528,25 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
         for kid in kpi_ids:
             kpi = catalog.get(kid)
             bound.append((kpi.get("technical", {}).get("measure_name") if kpi else None) or kid)
+        # Die `visual_id` IST der Slot-Name, wo einer bekannt ist.
+        #
+        # Vorher: `page_1_summary_3s_1`. Der Slot-Name wurde oben berechnet, fuer die
+        # Geometrie benutzt und dann weggeworfen — womit nachgelagert niemand mehr
+        # pruefen konnte, ob eine Seite ihre Pflicht-Slots hat. `RequiredSlots`
+        # vergleicht Slot-Namen; gegen `page_1_summary_3s_1` konnte die Menge sich nie
+        # schneiden, der Wachhund lief also leer (einer von drei Gruenden, gemessen
+        # 02.08.2026).
+        #
+        # Kollisionen sind hier KEIN Schoenheitsfehler: die `visual_id` wird in
+        # `pbir.py` zum Verzeichnisnamen (`.../visuals/<visual_id>/visual.json`).
+        # Zwei gleiche Namen = ein Visual ueberschreibt das andere, still. Deshalb
+        # faellt ein bereits vergebener Name auf das indizierte Schema zurueck,
+        # statt zu ueberschreiben.
+        vid = name if name and name not in vergeben else f"{page_key}_{slot}_{idx}"
+        vergeben.add(vid)
         visuals.append(
             Visual(
-                visual_id=f"{page_key}_{slot}_{idx}",
+                visual_id=vid,
                 x=geo.get("x", 0), y=geo.get("y", 0),
                 width=geo.get("width", 0), height=geo.get("height", 0),
                 visual_type=component.get("visual_type", "card"),
@@ -628,6 +645,56 @@ def from_bracket(bracket: dict, catalog: KpiCatalog) -> CanonicalModel:
     report = ReportModel(name=semantic.name, pages=pages)
 
     return CanonicalModel(semantic=semantic, report=report)
+
+
+#: Welche Manifest-Ebene eine Bracket-Seite bedient. `from_aluca` kennt genau zwei
+#: Seiten; das Manifest fuehrt seine Slots getrennt nach `overview_slots` und
+#: `detail_slots`. Ohne diese Zuordnung pruefte man Detailmoebel gegen die
+#: Uebersichtsseite und bekaeme Fehlalarme statt Befunde.
+_EBENE_JE_SEITE = {
+    "page_1_summary": "overview_slots",
+    "page_2_execution": "detail_slots",
+}
+
+
+def slot_luecken(bracket_path: str | Path, kpis_dir: str | Path) -> list[dict]:
+    """Welche **Pflicht**-Slots des governten Manifests emittiert der Adapter nicht?
+
+    Gibt je Seite einen Eintrag zurueck (`use_case`, `page`, `variant`, `missing`,
+    `emitted`). Leere `missing`-Listen bleiben enthalten, damit ein Aufrufer
+    „geprueft und vollstaendig" von „gar nicht geprueft" unterscheiden kann — der
+    Unterschied, an dem `RequiredSlots` gescheitert ist.
+
+    Die Wahrheit ueber Pflicht-Slots steht **ausschliesslich** im Manifest
+    (`layer_tools/page_templates.py`); hier wird nichts nachdefiniert.
+    """
+    from tooling.superversion.layer_tools.page_templates import fehlende_pflichtslots
+
+    bracket = yaml.safe_load(Path(bracket_path).read_text(encoding="utf-8")) or {}
+    catalog = KpiCatalog(Path(kpis_dir))
+    layout = bracket.get("ux_layout_rules", {}) or {}
+    uc = bracket.get("use_case_id") or bracket.get("id") or Path(bracket_path).parent.name
+
+    out: list[dict] = []
+    for pk, ebene in _EBENE_JE_SEITE.items():
+        seite = layout.get(pk)
+        if not isinstance(seite, dict):
+            continue
+        variant = seite.get("template_variant")
+        if not variant:
+            # Kein Raten: ohne deklarierte Variante gibt es keine Pflichtliste. Das
+            # als „nichts fehlt" zu melden waere die Luege, gegen die dieses Modul
+            # gebaut ist.
+            out.append({"use_case": uc, "page": pk, "variant": None,
+                        "missing": None, "emitted": []})
+            continue
+        emittiert = [v.visual_id for v in _page_from_layout(pk, seite, catalog).visuals]
+        out.append({
+            "use_case": uc, "page": pk, "variant": variant,
+            "missing": fehlende_pflichtslots(variant, emittiert, ebene=ebene),
+            "emitted": emittiert,
+        })
+    return out
 
 
 def _roles_from_governance(gov: dict) -> list[Role]:

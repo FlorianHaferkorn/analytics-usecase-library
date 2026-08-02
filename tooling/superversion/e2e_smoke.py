@@ -77,7 +77,12 @@ def resolve_bash() -> Optional[str]:
 
 
 class StageResult:
-    """Outcome of one pipeline stage: PASS / FAIL / SKIP + a one-line detail."""
+    """Outcome of one pipeline stage: PASS / WARN / FAIL / SKIP + a one-line detail.
+
+    WARN is visible but does not block (`failed` matches FAIL only) — the same
+    advisory-first step L11 took for the fidelity floor: report the gap honestly
+    before turning it into a hard gate, so the gate lands on a repo that can pass it.
+    """
 
     def __init__(self, name: str, status: str, detail: str = ""):
         self.name, self.status, self.detail = name, status, detail
@@ -89,6 +94,42 @@ class StageResult:
     def __str__(self) -> str:
         tail = f" — {self.detail}" if self.detail else ""
         return f"[e2e] {self.name}: {self.status}{tail}"
+
+
+def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
+    """Does the emitted page carry the mandatory slots its variant governs?
+
+    Measured on 2026-08-02, the first time this could be asked at all: **39 of 40
+    pages** across the 20 brackets miss at least one mandatory slot — `Slicer_Date`
+    (19×), `ActionPanel` (13×), `Slicer_Pane` (7×), `Focus_Area` (3×).
+
+    Nothing had reported this, for three independent reasons, each sufficient on its
+    own: `RequiredSlots` was in no production spec; its page-label sniffing matched
+    neither `page_1_summary` nor `page_2_execution`; and the visual ids were counters
+    (`page_1_summary_3s_1`), so a slot-name comparison could never intersect. Three
+    layers of blindness over one gap.
+
+    WARN, not FAIL, until the emission closes the gap — a gate that is red on arrival
+    gets switched off rather than satisfied.
+    """
+    from tooling.superversion.from_aluca import slot_luecken
+
+    try:
+        rows = slot_luecken(bracket, kpis)
+    except Exception as exc:  # noqa: BLE001 — a broken check must be loud, not absent
+        return StageResult("page_slots", "FAIL", f"{type(exc).__name__}: {exc}")
+
+    ungeprueft = [r["page"] for r in rows if r["missing"] is None]
+    fehlend = {r["page"]: r["missing"] for r in rows if r["missing"]}
+    if not rows:
+        return StageResult("page_slots", "SKIP", "bracket declares no pages")
+    if fehlend or ungeprueft:
+        teile = [f"{p}: {', '.join(m)}" for p, m in sorted(fehlend.items())]
+        if ungeprueft:
+            teile.append(f"no template_variant on {', '.join(sorted(ungeprueft))}")
+        return StageResult("page_slots", "WARN", "; ".join(teile))
+    return StageResult("page_slots", "PASS",
+                       f"{len(rows)} page(s), all mandatory slots present")
 
 
 def _stage_tmdl(model: CanonicalModel, dest: Path) -> StageResult:
@@ -165,7 +206,9 @@ def run(bracket: Path, *, kpis: Path = _KPIS, require_cli: bool = False,
     dest = Path(keep) if keep else Path(tempfile.mkdtemp(prefix="e2e_smoke_"))
     dest.mkdir(parents=True, exist_ok=True)
 
-    # Stage 3 — TMDL emit + hard-rule gate.
+    # Stage 3 — Pflicht-Slots je Seitenvariante (template_manifest.yaml).
+    results.append(_stage_slots(bracket, kpis))
+    # Stage 4 — TMDL emit + hard-rule gate.
     results.append(_stage_tmdl(model, dest))
     # Stage 4 — PBIR emit + official validator gate.
     results.append(_stage_pbir(model, dest, require_cli=require_cli))
@@ -196,6 +239,14 @@ def main(argv: Optional[list[str]] = None) -> int:
     if any(r.failed for r in results):
         print("[e2e] FAILED — at least one stage is red.")
         return 1
+    # „green" only when nothing is warning either. A summary that says green while a
+    # stage says WARN teaches readers to skip the stage lines — which is how the slot
+    # gap survived unseen in the first place.
+    warns = [r for r in results if r.status == "WARN"]
+    if warns:
+        print(f"[e2e] OK with {len(warns)} advisory warning(s) — "
+              f"{', '.join(r.name for r in warns)}. No stage is red.")
+        return 0
     print("[e2e] OK — full chain green.")
     return 0
 

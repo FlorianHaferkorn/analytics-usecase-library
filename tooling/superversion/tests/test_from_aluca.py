@@ -166,7 +166,7 @@ def test_com002_measure_binding_visuals(com002):
         f"summary visuals must bind measures: "
         f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
     )
-    lead = next(v for v in page1.visuals if v.visual_id.endswith("3s_1"))
+    lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "Gross Margin %" in lead.bound_measures, (
         f"lead card should bind the strategic measure, got {lead.bound_measures}"
     )
@@ -236,7 +236,7 @@ def test_com003_measure_binding_visuals(com003):
         f"summary visuals must bind measures: "
         f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
     )
-    lead = next(v for v in page1.visuals if v.visual_id.endswith("3s_1"))
+    lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "CLV" in lead.bound_measures, (
         f"lead card should bind the strategic measure, got {lead.bound_measures}"
     )
@@ -295,7 +295,7 @@ def test_fin002_measure_binding_visuals(fin002):
         f"summary visuals must bind measures: "
         f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
     )
-    lead = next(v for v in page1.visuals if v.visual_id.endswith("3s_1"))
+    lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "Unit Cost Amount" in lead.bound_measures, (
         f"lead card should bind the strategic measure, got {lead.bound_measures}"
     )
@@ -359,7 +359,7 @@ def test_scm002_measure_binding_visuals(scm002):
         f"summary visuals must bind measures: "
         f"{[(v.visual_id, v.binds_measures) for v in page1.visuals]}"
     )
-    lead = next(v for v in page1.visuals if v.visual_id.endswith("3s_1"))
+    lead = next(v for v in page1.visuals if v.visual_id == "KPI_Cards")
     assert "OTIF %" in lead.bound_measures, (
         f"lead card should bind the strategic measure, got {lead.bound_measures}"
     )

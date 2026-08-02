@@ -20,13 +20,18 @@ def _by_name(results):
 def test_run_com001_no_stage_fails():
     results = e2e_smoke.run(COM001)
     stages = _by_name(results)
-    # All four stages are present and none failed (pbir may SKIP without the CLI).
-    assert set(stages) == {"source", "golden_thread", "tmdl", "pbir"}
+    # All five stages are present and none failed (pbir may SKIP without the CLI).
+    assert set(stages) == {"source", "golden_thread", "page_slots", "tmdl", "pbir"}
     assert not any(r.failed for r in results), [str(r) for r in results]
     assert stages["source"].status == "PASS"
     assert stages["golden_thread"].status == "PASS"
     assert stages["tmdl"].status == "PASS"
     assert stages["pbir"].status in {"PASS", "SKIP"}
+    # page_slots is advisory today: the emission does not yet carry every mandatory
+    # slot (39 of 40 pages, measured 2026-08-02). PASS is allowed so this assertion
+    # does not have to be touched when the gap closes — WARN must never become FAIL
+    # silently, though, so FAIL is excluded here rather than tolerated.
+    assert stages["page_slots"].status in {"PASS", "WARN"}
 
 
 def test_main_exits_zero_on_default_uc(capsys):
