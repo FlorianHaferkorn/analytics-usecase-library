@@ -335,6 +335,37 @@ Performance bei vielen Zeilen. Fremd-Visuals sind kein Prüfgegenstand (§3.4).
 * **Modell:** Opus · **Umgebung:** **VS Code** (Desktop-Augenschein; SVG-Verhalten im
   Service und beim Export ist headless nicht prüfbar)
 
+### L12 · IBCS-Visualkatalog von der offiziellen Quelle + Nachbau je Tool
+
+**Vorziehen empfohlen.** Dieser Task hängt an keiner offenen Entscheidung und groundet
+gleich drei andere: die Inhalts-Lücke aus L6 (CONDENSE/SIMPLIFY/STRUCTURE), den
+Vega-Konnektor (L9) und die Power-BI-Decke (L10).
+
+IBCS gibt seine Notation **visuell vor** — Szenario-Schraffuren, Abweichungsdarstellung,
+Wasserfall-Konventionen, Skalenbänder. Das macht diesen Katalog zum billigsten von allen:
+er muss nicht erfunden, sondern abgeschrieben und je Zielwerkzeug übersetzt werden.
+
+Umfang:
+1. **Erheben** — alle Visualtypen von der offiziellen Quelle (`ibcs.com`, Standard 1.2),
+   mit ihrer Notationsvorschrift (Füllart, Achsen, Beschriftung, Vorzeichenkonvention).
+2. **Zuordnen** — jeder Typ an einen bestehenden `information_block` der
+   `visual_registry.yaml`. Wo keiner passt, ist das ein Befund, kein Anlass für einen
+   neuen Block ohne Prüfung.
+3. **Nachbauen recherchieren** — je Ziel: **Power BI nativ** (und wo nötig SVG, §3.4),
+   **Vega-Lite**, **HTML/React**. Pro Typ und Ziel: geht es, wie, und was kostet es.
+
+* **DoD:** je IBCS-Visualtyp eine Zeile mit {Notationsvorschrift, Quelle/Abschnitt,
+  `block_id`, Nachbau je Ziel ∈ {nativ · SVG · Extension · nicht möglich}}; die
+  `targets`-Einträge aus L3 sind daraus ergänzt, wo belegt; jeder „nicht möglich"-Eintrag
+  nennt den Grund; **keine Zuordnung ohne Beleg** — ein Typ ohne gesicherte
+  Notationsvorschrift bleibt leer statt geraten.
+* **Lizenz beachten:** IBCS steht unter **CC BY-SA 4.0**. Ein daraus abgeleiteter Katalog
+  erbt die Share-Alike-Pflicht. Vor der Aufnahme in ein Kunden-Deliverable klären, welcher
+  Teil abgeleitetes Werk ist und welcher eigene Übersetzungsleistung — **nicht** stillschweigend
+  als reines Eigen-IP führen.
+* **Modell:** Opus (Notation ist Bedeutungsarbeit) · **Umgebung:** Erhebung + Vega/HTML
+  **CC-Web**; die Power-BI-Nachbau-Verifikation **VS Code** (Desktop-Augenschein, s. L10)
+
 ### L11 · Fidelity-Scorecard je Ziel
 
 Ergänzt die Boutique-Scorecard (K6/§9) um die Frage: *wie nah kommt dieses Ziel an die Spec?*
@@ -355,6 +386,12 @@ L0 ──▶ L1 ──▶ L2
         ├──▶ L3 ──▶ L4            (Garantie: Boden/Decke)
         ├──▶ L5 ──▶ L6 ──▶ L7     (Notation: IBCS + Plugin-Beweis)
         └──▶ L8 ──▶ L9 / L10 ──▶ L11
+
+L12 ──┬──▶ L6   (füllt CONDENSE/SIMPLIFY/STRUCTURE mit echten IBCS-Regeln)
+      ├──▶ L9   (Notationsvorschrift je Vega-Spec)
+      └──▶ L10  (was nativ geht, was SVG braucht)
+      ▲
+      └─ startet SOFORT — keine Vorbedingung
 ```
 
 **L0 blockiert alles.** Ohne eine Autorität für das Vokabular baut jede weitere Schicht
@@ -444,3 +481,4 @@ Die Aussage im Konzept lautet deshalb „Kandidat", nicht „Standard".
 | L9 Vega-Lite-Konnektor | ⬜ offen | | |
 | L10 Power-BI-Decke | ⬜ offen | | **VS Code** |
 | L11 Fidelity-Scorecard | ⬜ offen | | erweitert K6 |
+| **L12 IBCS-Visualkatalog** | ⬜ **offen — vorziehen** | | Offizielle Quelle + Nachbau je Tool. Groundet L6-Inhaltslücke, L9 und L10 zugleich; hängt an keiner Entscheidung. CC-BY-SA-Pflicht beachten. |
