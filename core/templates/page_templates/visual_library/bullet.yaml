@@ -39,6 +39,15 @@ canonical_params:
   col_band2: "#D6DCE2"
   col_band3: "#C6CED5"
 
+preview_svg: |
+  <svg viewBox="0 0 340 84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bullet">
+    <rect width="340" height="84" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="26" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">SLA ATTAINMENT % vs 95%</text>
+    <rect x="24" y="42" width="234" height="18" fill="#E7EAEE"/><rect x="258" y="42" width="35" height="18" fill="#D6DCE2"/><rect x="293" y="42" width="23" height="18" fill="#C6CED5"/>
+    <rect x="24" y="47" width="266" height="8" fill="#0F2430"/>
+    <line x1="301" y1="38" x2="301" y2="64" stroke="#A4262C" stroke-width="2.5"/>
+  </svg>
+
 realizations:
   powerbi_native:
     applicable: false

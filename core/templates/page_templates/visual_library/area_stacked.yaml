@@ -41,6 +41,16 @@ canonical_params:
   col_2: "#008575"
   col_3: "#EF6950"
 
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stacked area">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="26" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">NET SALES — BY CATEGORY</text>
+    <polygon points="24,130 88,124 152,126 216,120 316,118 316,130" fill="#0078D4"/>
+    <polygon points="24,130 88,124 152,126 216,120 316,118 316,96 216,92 152,100 88,96 24,104" fill="#008575"/>
+    <polygon points="24,104 88,96 152,100 216,92 316,96 316,66 216,60 152,72 88,64 24,72" fill="#EF6950"/>
+    <rect x="24" y="140" width="10" height="6" fill="#0078D4"/><rect x="120" y="140" width="10" height="6" fill="#008575"/><rect x="216" y="140" width="10" height="6" fill="#EF6950"/>
+  </svg>
+
 realizations:
   powerbi_native:
     ext: json

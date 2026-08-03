@@ -39,6 +39,19 @@ canonical_params:
   col_dec: "#A4262C"
   col_total: "#0F2430"
 
+preview_svg: |
+  <svg viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PVM bridge">
+    <rect width="340" height="160" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">GM BRIDGE — PLAN to ACTUAL</text>
+    <rect x="26" y="60" width="44" height="76" fill="#0F2430"/>
+    <rect x="86" y="60" width="44" height="38" fill="#A4262C"/>
+    <rect x="146" y="74" width="44" height="24" fill="#107C10"/>
+    <rect x="206" y="74" width="44" height="16" fill="#A4262C"/>
+    <rect x="266" y="90" width="44" height="46" fill="#0F2430"/>
+    <line x1="70" y1="60" x2="86" y2="60" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="130" y1="98" x2="146" y2="98" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="190" y1="74" x2="206" y2="74" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="250" y1="90" x2="266" y2="90" stroke="#94A0AC" stroke-dasharray="3 2"/>
+    <text x="48" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Plan</text><text x="108" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Price</text><text x="168" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Vol</text><text x="228" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Mix</text><text x="288" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Actual</text>
+  </svg>
+
 realizations:
   powerbi_native:
     ext: json

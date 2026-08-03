@@ -41,6 +41,17 @@ canonical_params:
   col_2: "#008575"
   col_3: "#EF6950"
 
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="100% stacked">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="26" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">SALES MIX — BY REGION</text>
+    <rect x="40" y="40" width="46" height="50" fill="#0078D4"/><rect x="40" y="90" width="46" height="26" fill="#008575"/><rect x="40" y="116" width="46" height="14" fill="#EF6950"/>
+    <rect x="110" y="40" width="46" height="40" fill="#0078D4"/><rect x="110" y="80" width="46" height="34" fill="#008575"/><rect x="110" y="114" width="46" height="16" fill="#EF6950"/>
+    <rect x="180" y="40" width="46" height="58" fill="#0078D4"/><rect x="180" y="98" width="46" height="20" fill="#008575"/><rect x="180" y="118" width="46" height="12" fill="#EF6950"/>
+    <rect x="250" y="40" width="46" height="34" fill="#0078D4"/><rect x="250" y="74" width="46" height="30" fill="#008575"/><rect x="250" y="104" width="46" height="26" fill="#EF6950"/>
+    <text x="63" y="142" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">DACH</text><text x="133" y="142" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">BeNe</text><text x="203" y="142" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Nord</text><text x="273" y="142" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">CEE</text>
+  </svg>
+
 realizations:
   powerbi_native:
     ext: json

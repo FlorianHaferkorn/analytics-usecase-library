@@ -37,6 +37,20 @@ canonical_params:
   col_2: "#008575"
   col_3: "#EF6950"
 
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Donut">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="26" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">NET SALES SHARE</text>
+    <g transform="rotate(-90 96 92)">
+      <circle cx="96" cy="92" r="40" fill="none" stroke="#0078D4" stroke-width="22" stroke-dasharray="126 251"/>
+      <circle cx="96" cy="92" r="40" fill="none" stroke="#008575" stroke-width="22" stroke-dasharray="75 251" stroke-dashoffset="-126"/>
+      <circle cx="96" cy="92" r="40" fill="none" stroke="#EF6950" stroke-width="22" stroke-dasharray="50 251" stroke-dashoffset="-201"/>
+    </g>
+    <rect x="176" y="66" width="10" height="10" fill="#0078D4"/><text x="194" y="75" font-family="Segoe UI,sans-serif" font-size="11" fill="#586472">Fashion 50%</text>
+    <rect x="176" y="88" width="10" height="10" fill="#008575"/><text x="194" y="97" font-family="Segoe UI,sans-serif" font-size="11" fill="#586472">Home 30%</text>
+    <rect x="176" y="110" width="10" height="10" fill="#EF6950"/><text x="194" y="119" font-family="Segoe UI,sans-serif" font-size="11" fill="#586472">Electro 20%</text>
+  </svg>
+
 realizations:
   powerbi_native:
     ext: json

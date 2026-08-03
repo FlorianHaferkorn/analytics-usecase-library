@@ -35,6 +35,16 @@ canonical_params:
   col_line: "#0078D4"
   col_base: "#94A0AC"
 
+preview_svg: |
+  <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Indexed line">
+    <rect width="340" height="140" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="26" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">NET SALES — INDEXED (base 100)</text>
+    <line x1="30" y1="86" x2="320" y2="86" stroke="#94A0AC" stroke-width="1.2" stroke-dasharray="2 2"/>
+    <text x="30" y="80" font-family="Segoe UI,sans-serif" font-size="10" fill="#94A0AC">100</text>
+    <polyline points="30,86 70,80 110,82 150,72 190,66 230,58 270,50 310,42" fill="none" stroke="#0078D4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="310" cy="42" r="4" fill="#0078D4"/>
+  </svg>
+
 realizations:
   powerbi_native:
     ext: json
