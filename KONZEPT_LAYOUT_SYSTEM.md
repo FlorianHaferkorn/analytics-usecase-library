@@ -1386,6 +1386,69 @@ vorbei — `check-meridian` verbietet Zusatzfelder zu Recht.
 
 ---
 
+## 15. Wie hart darf ein Slot-Gate sein? (03.08.2026)
+
+Seit N3 lässt `page_slots` einen fehlenden Pflicht-Slot rot werden. Dagegen steht ein
+Satz aus Microsofts eigenem `powerbi-report-design`-Skill, wörtlich:
+
+> „Treat archetype zones as **advisory, not mandatory**. A variant is a layout starting
+> point, not a required component checklist."
+
+Das ist kein Nebensatz — es ist die Ablehnung genau der Konstruktion, die wir gebaut
+haben. Die naheliegende Auflösung war eine **Staffelung nach Art des Slots**: „Chrome"
+(Slicer, ActionPanel) hart, Inhalt (KPI-Karten, Hauptvisuals) weich. Begründung wäre
+gewesen, dass 93 % der real gefundenen 39 Lücken Chrome betrafen.
+
+**Diese Staffelung ist eine Eigenerfindung, und die Recherche hat sie widerlegt.**
+Kein geprüftes System staffelt Pflicht nach Elementtyp: Grafana Foundation SDK
+validiert strukturell, nicht kuratorisch; LookML kennt genau einen Mindestzwang
+(`elements` nicht leer); Superset und Evidence.dev sind rein kompositional. Auch die
+Slot-Spezifikationen (Web Components, Vue, React) kennen keinen Fehlerzustand
+„Pflicht-Slot fehlt" — nur Fallback-Content.
+
+Was **belegt** etabliert ist, ist die Trennung selbst: die Regel sagt *was* geprüft
+wird, ein separater Parameter *wie hart*. ESLint `off/warn/error`, HashiCorp Sentinel
+`advisory/soft-mandatory/hard-mandatory`, OPA Gatekeeper `dryrun/warn/deny`,
+Kubernetes Pod Security `enforce/audit/warn`. Entscheidend ist deren **Achse**: nie der
+Objekttyp, sondern die Kritikalität der Regel oder ihre Rollout-Reife. HashiCorp
+wörtlich: *„use hard-mandatory for security non-negotiables and soft-mandatory for
+standards that occasionally need exceptions."* PSS fährt die drei Modi parallel und
+empfiehlt ausdrücklich: erst audit, Verletzungsdaten sammeln, dann selektiv schärfen.
+
+Daraus die Umsetzung — und sie ist kleiner als die verworfene Idee:
+
+1. **`severity: error|warning` je Pflicht-Slot im Manifest**, Default `error`. Kein
+   stilles Aufweichen des Bestands: 42/42 Seiten sind vollständig, für diese Slots
+   *gibt* es die Datenlage.
+2. **Der harte Gate braucht Datenlage.** Die vier Varianten mit `status: unused` haben
+   null Emissionen und damit null Verletzungsdaten. Ihre 11 Pflicht-Slots stehen jetzt
+   auf `warning` — ein Gate ohne Befund zu schärfen ist der PSS-Weg rückwärts.
+3. **Maschinell erzwungen, beidseitig.** `test_hard_gate_only_where_data_backs_it`
+   fällt, wenn eine unbenutzte Variante hart wird — *und*, wenn eine benutzte Variante
+   ihre Pflicht-Slots aufweicht. Eine Einbahnstraße, die nur das Verschärfen bremst,
+   ließe das stille Aufweichen durch: die Richtung, in der ein Gate unbemerkt aufhört
+   zu prüfen. Beide Richtungen sind durch Mutation nachgewiesen.
+
+`mandatory: false` und `severity: warning` sind damit **zwei** Fragen, nicht eine
+abgestufte. Die erste ist Microsofts Punkt („der Slot muss seinen Platz verdienen"),
+die zweite ist unsere: wie hart eine bereits zugesagte Pflicht einzufordern ist. Die
+Sichtbarkeit ändert sich nicht — ein weicher Slot wird gemeldet, nur nicht rot. Ein
+Slot, den niemand meldet, wäre wieder der stille Fallback.
+
+Nicht geprüft: Tableau-Templates, JasperReports-Bänder, Observable Framework,
+Metabase-Serialization, Figma-Pflichtkomponenten.
+
+### Offen
+
+* Der dritte Weg aus der K8s-Welt — **mutating statt validating**: ein fehlendes Möbel
+  automatisch einsetzen statt zu blocken. Der Adapter emittiert Pflicht-Möbel bereits
+  (N2); ob ein *Inhalts*-Slot je automatisch gefüllt werden darf, ist eine
+  Inhaltsentscheidung und hier bewusst nicht getroffen.
+* Der Aufstiegspfad `warning → error` für die vier unbenutzten Varianten hängt an ihrer
+  Verwendung — also am selben offenen Punkt „belegen oder löschen".
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1600,3 +1663,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **N2 Pflicht-Möbel + Geometrie-Autorität (§13)** | 🟢 **erledigt** | 2026-08-02 | Prämisse war falsch: **drei** Geometrie-Quellen, und die Compiler-Tabelle war faktisch `pulse` für **alle** Varianten — `template_variant` war deklariert, validiert und geometrisch **wirkungslos** (`executive_kpi` Main_2: 328 px im Template, 749 px in der Tabelle). Entscheidung Flo: `grid_templates/*.json` sind Autorität. `executive_kpi` auf LU umgestellt (≤4 px), die zwei nicht erreichbaren Pixel-Templates bewusst **nicht** (36–157 px wären keine Normalisierung). Auflösung **nach Ebene**, Pflicht-Möbel emittiert. **Seiten mit Lücke 39 → 3** (Rest `Focus_Area`, Manifest-Lücke). Default-Rückfall wird gemeldet statt verschwiegen; 76-px-Slicer-Zusicherung als **bedingt** präzisiert (gegen CLI-Code gemessen). 2031 Tests grün, 20/20 Reports 0 Errors beim offiziellen Validator, H7 100 %. **Offen:** Compiler-Tabelle noch nicht abgeleitet. |
 | **N3 Slot-Gate hart (§13 Nachtrag)** | 🟢 **erledigt** | 2026-08-02 | Die fünf Varianten ohne Detail-Raster versorgt — **kein Kandidatenwahl, ein Abgleich**: ihre `detail_slots` sind exakt die vier Slots von `investigator.json`. Bindung ausdrücklich über neues `detail_grid_template` (statt `alternate` zu überladen — das meint dieselbe Ebene). **40/40 Seiten vollständig, 0 Default-Rückfälle.** `page_slots` jetzt hart: fehlender Pflicht-Slot = FAIL (Emissionsdefekt), Manifest-Lücken bleiben WARN — den Adapter dafür haften zu lassen verschöbe die Schuld. Zwei Tests: einer beweist, dass der Gate rot werden **kann**. 2033 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |
 | **N4 `information_block` angeschlossen (§14)** | 🟢 **erledigt** | 2026-08-02 | Der in `PAGE_TYPE_TAXONOMY.md` benannte **Engine-Gap** ist geschlossen: die einzige Achse, auf der sich die 11 Varianten unterscheiden, hatte **0 Konsumenten**. Jetzt Slot → Block → Registry: stilles `card` **20 → 3**, 17 Detailmatrizen sind `table` statt `card`, Wirksamkeitstest (gleicher Slot, zwei Varianten, verschiedene Visuals). **Bringt 12 Konflikte ans Licht, 7 davon derselbe Fall** (`exception_list` vs. Balken) — gemeldet, nicht überschrieben; erste empirische Rückmeldung an die Taxonomie. Grounding gemessen: ALUCA **15 benannte Quellen**, Meridian TPL-001…006 **0**. 2039 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |
+| **N5 Slot-Härte deklariert (§15)** | 🟢 **erledigt** | 2026-08-03 | Die eigene Idee „Chrome hart, Inhalt weich" ist an der Recherche gescheitert: **kein** geprüftes System (Grafana Foundation SDK, LookML, Superset, Evidence.dev, Web-Components-Slots) staffelt Pflicht nach Elementtyp, und Microsofts eigener Skill lehnt jede Pflicht-Checkliste ab. Belegt etabliert ist nur die **Trennung** Regel ↔ Härte (ESLint, Sentinel, OPA, K8s PSS) — mit der Achse **Datenlage/Rollout-Reife**, nie Objekttyp. Umgesetzt: `severity: error\|warning` je Pflicht-Slot im Manifest (Default `error`, kein stilles Aufweichen); die 11 Pflicht-Slots der vier `status: unused`-Varianten auf `warning`, weil sie null Emissionen und damit null Verletzungsdaten haben. Wächter **beidseitig** — fällt beim Verschärfen ohne Datenlage *und* beim Aufweichen einer benutzten Variante; beide Richtungen per Mutation nachgewiesen. Stand unverändert: 42/42 Seiten, 0 harte und 0 weiche Lücken. |

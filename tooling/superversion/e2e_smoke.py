@@ -118,6 +118,12 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
     emission defects: a bracket without `template_variant`, and a page whose variant
     declares no grid template for its level. Failing on those would make the adapter
     answer for the manifest.
+
+    Since 2026-08-03 the hardness itself is **declared** rather than assumed: a slot may
+    carry `severity: warning` in the manifest, and then a gap warns instead of failing.
+    The axis is the rule's data situation, following Kubernetes PSS and Sentinel — never
+    the kind of slot. This stage therefore reads two lists and decides nothing: `missing`
+    (error) fails, `missing_advisory` (warning) warns.
     """
     from tooling.superversion.from_aluca import slot_luecken
 
@@ -133,6 +139,10 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
     # deklariert ist. Das gehoert in die Meldung, sonst liest sich ein Rueckfall wie ein
     # Befund.
     geraten = [r["page"] for r in rows if r.get("raster_default")]
+    # Pflicht-Slots, die das Manifest ausdruecklich auf `severity: warning` stellt.
+    # Getrennt gefuehrt, weil ihre Haerte eine governte Aussage ist und keine
+    # Eigenschaft dieses Codes — s. Modulkopf von `layer_tools/page_templates.py`.
+    weich = {r["page"]: r["missing_advisory"] for r in rows if r.get("missing_advisory")}
     if not rows:
         return StageResult("page_slots", "SKIP", "bracket declares no pages")
     # HARD: a mandatory slot the manifest demands and the adapter does not emit is an
@@ -149,8 +159,10 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
     # are wrong; the variant's slot assignment may be. Deciding that in code would
     # settle an open question by side effect.
     konflikte = [k for r in rows for k in (r.get("block_conflicts") or [])]
-    if ungeprueft or geraten or konflikte:
+    if ungeprueft or geraten or konflikte or weich:
         teile = []
+        for p, m in sorted(weich.items()):
+            teile.append(f"{p}: {', '.join(m)} missing (severity: warning)")
         if ungeprueft:
             teile.append(f"no template_variant on {', '.join(sorted(ungeprueft))}")
         if geraten:

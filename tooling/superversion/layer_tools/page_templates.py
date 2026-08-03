@@ -27,6 +27,31 @@ Stueck, und **alle** loesen gegen `grid_template_slots` auf.
 `Variance`) *keine* Slot-IDs, sondern Slot-*Arten*; nur `KPI_Cards` und
 `Detail_Matrix` sind beides.
 
+Severity — die Haerte ist deklariert, nicht hartkodiert (03.08.2026)
+-------------------------------------------------------------------
+Jeder Pflicht-Slot darf `severity: error|warning` fuehren; Default `error`, damit der
+bestehende, durch Daten gedeckte Stand (40/40 Seiten vollstaendig) nicht still
+aufweicht. Das folgt dem etablierten Muster „Regel definiert *was*, ein separater
+Parameter *wie hart*": ESLint `off/warn/error`, HashiCorp Sentinel
+`advisory/soft-mandatory/hard-mandatory`, OPA Gatekeeper `dryrun/warn/deny`,
+Kubernetes Pod Security `enforce/audit/warn`.
+
+Entscheidend ist die **Achse**. In allen diesen Systemen staffelt die Haerte nach
+Rollout-Reife bzw. Datenlage der Regel — nie nach Art des betroffenen Objekts. Eine
+zwischenzeitlich erwogene Staffelung „Chrome hart, Inhalt weich" war eine
+Eigenerfindung und ist verworfen; sie liess sich in keinem geprueften System belegen
+(Grafana Foundation SDK, LookML, Superset, Evidence.dev). Microsofts eigener
+`powerbi-report-design`-Skill geht sogar weiter: *„Treat archetype zones as advisory,
+not mandatory. A variant is a layout starting point, not a required component
+checklist."* — genau das kodiert bereits `mandatory: false`; `severity` ist die
+orthogonale Frage, wie hart eine *als Pflicht deklarierte* Zusage einzufordern ist.
+
+Daraus die Regel, die `test_template_manifest_alignment` maschinell erzwingt: ein
+Pflicht-Slot steht nur dann auf `error`, wenn seine Variante tatsaechlich benutzt wird.
+Varianten mit `status: unused` haben null Emissionen und damit null Verletzungsdaten —
+ein hartes Gate ohne Datenlage ist die Umkehrung des PSS-Wegs (erst audit, dann
+enforce, wenn die Daten es tragen).
+
 Dieses Modul liest deshalb **ausschliesslich die Variantenebene**. Die beiden Listen
 zu mischen hiesse Schreibweisen zu vergleichen statt Dinge — genau der Fehlalarm, der
 in L2 entstanden ist, als `waterfall` als global verboten gemeldet wurde, obwohl es
@@ -60,12 +85,19 @@ class PageTemplateError(ValueError):
     """
 
 
+#: Erlaubte Haerte eines Pflicht-Slots. Die Achse ist **Datenlage der Regel**, nicht
+#: die Art des Slots — s. Modulkopf-Abschnitt „Severity".
+SEVERITIES = ("error", "warning")
+DEFAULT_SEVERITY = "error"
+
+
 @dataclass(frozen=True)
 class SlotSpec:
     slot_id: str
     information_block: Optional[str]
     mandatory: bool
     ebene: str
+    severity: str = DEFAULT_SEVERITY
 
 
 @dataclass(frozen=True)
@@ -74,11 +106,15 @@ class VariantSpec:
     family_id: str
     grid_template: str
     slots: tuple[SlotSpec, ...]
+    status: str = ""
 
-    def pflicht(self, ebene: Optional[str] = None) -> list[str]:
-        """Slot-IDs mit `mandatory: true`, optional auf eine Ebene eingeschraenkt."""
+    def pflicht(self, ebene: Optional[str] = None,
+                severity: Optional[str] = None) -> list[str]:
+        """Slot-IDs mit `mandatory: true`, optional auf Ebene/Haerte eingeschraenkt."""
         return [s.slot_id for s in self.slots
-                if s.mandatory and (ebene is None or s.ebene == ebene)]
+                if s.mandatory
+                and (ebene is None or s.ebene == ebene)
+                and (severity is None or s.severity == severity)]
 
     def erlaubt(self, ebene: Optional[str] = None) -> list[str]:
         """Alle im Manifest vorgesehenen Slot-IDs (Pflicht wie Kuer)."""
@@ -107,17 +143,25 @@ def load(variant_id: str, pfad: Optional[str] = None) -> VariantSpec:
             slots: list[SlotSpec] = []
             for ebene in EBENEN:
                 for s in v.get(ebene) or []:
+                    sev = s.get("severity", DEFAULT_SEVERITY)
+                    if sev not in SEVERITIES:
+                        raise PageTemplateError(
+                            f"{variant_id}/{s['slot_id']}: severity '{sev}' ist keine "
+                            f"der erlaubten {SEVERITIES}. Ein unbekannter Wert waere "
+                            f"sonst still zu 'kein Fehler' geworden.")
                     slots.append(SlotSpec(
                         slot_id=s["slot_id"],
                         information_block=s.get("information_block"),
                         mandatory=bool(s.get("mandatory")),
                         ebene=ebene,
+                        severity=sev,
                     ))
             return VariantSpec(
                 variant_id=variant_id,
                 family_id=fam.get("family_id", ""),
                 grid_template=v.get("grid_template", ""),
                 slots=tuple(slots),
+                status=v.get("status", "") or "",
             )
     bekannt = ", ".join(sorted(alle_varianten(pfad)))
     raise PageTemplateError(
@@ -167,9 +211,16 @@ def manifest_grid(pfad: Optional[str] = None) -> dict[str, int]:
 
 def fehlende_pflichtslots(variant_id: str, vorhandene: "list[str] | set[str]",
                           ebene: Optional[str] = None,
-                          pfad: Optional[str] = None) -> list[str]:
-    """Welche Pflicht-Slots der Variante fehlen in `vorhandene`? Sortiert, ggf. leer."""
-    return sorted(set(load(variant_id, pfad).pflicht(ebene)) - set(vorhandene))
+                          pfad: Optional[str] = None,
+                          severity: Optional[str] = None) -> list[str]:
+    """Welche Pflicht-Slots der Variante fehlen in `vorhandene`? Sortiert, ggf. leer.
+
+    Ohne `severity` ueber **alle** Haerten — wer nur die harten will, fragt danach.
+    Der Default bleibt bewusst „alles", damit ein Aufrufer, der die Achse nicht kennt,
+    zu viel meldet statt zu wenig.
+    """
+    return sorted(
+        set(load(variant_id, pfad).pflicht(ebene, severity)) - set(vorhandene))
 
 
 # --------------------------------------------------------------------------- #

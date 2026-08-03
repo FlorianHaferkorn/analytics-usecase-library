@@ -11,6 +11,26 @@
 # Every UseCase_Bracket.yaml ux_layout_rules.template_variant must resolve to an
 # entry in this manifest. The template compiler validates this at build time.
 #
+# Slot-Haerte: `mandatory` und `severity` sind ZWEI Fragen
+# --------------------------------------------------------
+#   mandatory: false  → der Slot muss seinen Platz erst verdienen. Genau das meint
+#                       Microsofts powerbi-report-design-Skill mit „Treat archetype
+#                       zones as advisory, not mandatory."
+#   mandatory: true   → die Variante sagt den Slot zu. `severity` sagt, wie hart das
+#                       Gate diese Zusage einfordert:
+#                         error   (Default) → e2e_smoke FAIL
+#                         warning           → e2e_smoke WARN, blockt nicht
+#
+# Die Achse ist die **Datenlage der Regel**, nie die Art des Slots — so wie Kubernetes
+# Pod Security (enforce/audit/warn), HashiCorp Sentinel (advisory/soft-/hard-mandatory)
+# und ESLint (off/warn/error) es halten. Daraus die Regel, die
+# tooling/tests/test_template_manifest_alignment.py maschinell erzwingt:
+#
+#   Ein Pflicht-Slot steht nur auf `error`, wenn seine Variante benutzt wird.
+#   `status: unused` heisst null Emissionen, also null Verletzungsdaten — und ein
+#   hartes Gate ohne Datenlage ist der PSS-Weg rueckwaerts. Neue Slots starten
+#   deshalb auf `warning` und steigen auf `error`, sobald echte Laeufe es tragen.
+#
 # Schema: tooling/generator/schemas/template_manifest.schema.json (pending)
 
 manifest_version: "1.0.0"
@@ -315,9 +335,11 @@ page_families:
           - slot_id: KPI_Cards
             information_block: status_signal
             mandatory: true
+            severity: warning
           - slot_id: Slicer_Date
             information_block: null
             mandatory: true
+            severity: warning
           - slot_id: Main_1
             information_block: time_trend
             mandatory: false
@@ -332,9 +354,11 @@ page_families:
           - slot_id: Slicer_Pane
             information_block: null
             mandatory: true
+            severity: warning
           - slot_id: Focus_Area
             information_block: detail_matrix
             mandatory: true
+            severity: warning
           - slot_id: Support_1
             information_block: entity_ranking
             mandatory: false
@@ -477,12 +501,14 @@ page_families:
           - slot_id: KPI_Cards
             information_block: status_signal
             mandatory: true
+            severity: warning
           - slot_id: Slicer_Date
             information_block: null
             mandatory: false
           - slot_id: Main_1
             information_block: exception_list
             mandatory: true
+            severity: warning
           - slot_id: Main_2
             information_block: time_trend
             mandatory: false
@@ -493,9 +519,11 @@ page_families:
           - slot_id: Slicer_Pane
             information_block: null
             mandatory: true
+            severity: warning
           - slot_id: Focus_Area
             information_block: detail_matrix
             mandatory: true
+            severity: warning
             filter_rule: "critical_only"
           - slot_id: Support_1
             information_block: entity_ranking
@@ -596,6 +624,7 @@ page_families:
           - slot_id: Focus_Area
             information_block: prescriptive_action
             mandatory: true
+            severity: warning
             note: "Recommendation table comparing options"
           - slot_id: Support_1
             information_block: detail_matrix
@@ -635,9 +664,11 @@ page_families:
           - slot_id: Focus_Area
             information_block: prescriptive_action
             mandatory: true
+            severity: warning
           - slot_id: Support_1
             information_block: detail_matrix
             mandatory: true
+            severity: warning
             note: "Sensitivity scenarios; entity affected by assumption changes"
           - slot_id: Support_2
             information_block: null

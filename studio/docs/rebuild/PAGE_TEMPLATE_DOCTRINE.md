@@ -183,6 +183,33 @@ All pages must meet WCAG 2.1 AA at minimum:
 
 Power BI Fabric specifics: use the built-in Accessibility Checker; set alt text on all visuals; ensure tab order matches the reading direction.
 
+### 3.8 Verbindlichkeit ist deklariert, nicht abgeleitet [S16]
+
+S16 sagt wörtlich: *„Treat archetype zones as advisory, not mandatory. A variant is a
+layout starting point, not a required component checklist."* Das steht in offenem
+Widerspruch zu einem Gate, das einen fehlenden Slot rot werden lässt — und der
+Widerspruch wird hier aufgelöst, nicht überlesen.
+
+Es sind **zwei** Fragen, nicht eine abgestufte:
+
+1. **Muss der Slot existieren?** Das ist S16s Punkt: jede Zone muss ihren Platz
+   verdienen, indem sie eine eigene analytische Frage beantwortet. Im Manifest ist das
+   `mandatory: true|false`.
+2. **Wie hart wird eine bereits zugesagte Pflicht eingefordert?** Das ist eine Frage an
+   das Gate, nicht an das Design. Im Manifest ist das `severity: error|warning`.
+
+Für (2) gilt: die Härte richtet sich nach der **Datenlage der Regel**, nie nach der Art
+des Slots. Das folgt der Praxis von ESLint (`off/warn/error`), HashiCorp Sentinel
+(`advisory/soft-mandatory/hard-mandatory`), OPA Gatekeeper (`dryrun/warn/deny`) und
+Kubernetes Pod Security (`enforce/audit/warn`) — alle vier trennen Regel von Härte, und
+in keinem ist die Achse der Objekttyp. Eine zwischenzeitlich erwogene Staffelung
+„Chrome hart, Inhalt weich" ist als Eigenerfindung verworfen; sie liess sich in keinem
+geprüften System belegen (Grafana Foundation SDK, LookML, Superset, Evidence.dev).
+
+Praktische Regel: ein Pflicht-Slot startet auf `warning` und steigt auf `error`, sobald
+echte Läufe das tragen. Herleitung und Messstand in
+[`KONZEPT_LAYOUT_SYSTEM.md` §15](../../../KONZEPT_LAYOUT_SYSTEM.md).
+
 ---
 
 ## 4. Design Canvas and Grid

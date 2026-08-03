@@ -145,11 +145,30 @@ class RequiredSlots:
                 "Ohne sie gibt es keine Pflichtliste — und eine leere Pflichtliste "
                 "sieht aus wie 'alles erfuellt'."
             )
-        missing = fehlende_pflichtslots(self.variant, set(page.visuals), ebene=self.ebene)
-        if not missing:
+        # Die Haerte steht im Manifest, nicht hier: `severity: warning` auf einem Slot
+        # senkt den Befund auf `warning`, statt ihn wegzulassen. Ein Slot, den niemand
+        # meldet, ist die stille Variante — genau der Fehler, gegen den dieser Wachhund
+        # am 02.08. umgebaut wurde.
+        missing = fehlende_pflichtslots(self.variant, set(page.visuals), ebene=self.ebene,
+                                        severity="error")
+        weich = fehlende_pflichtslots(self.variant, set(page.visuals), ebene=self.ebene,
+                                      severity="warning")
+        if not missing and not weich:
             return []
-        expected = sorted(set(page.visuals) | set(missing))
-        return [
+        expected = sorted(set(page.visuals) | set(missing) | set(weich))
+        out = [
+            Violation(
+                self.name,
+                "warning",
+                page_pointer(report.report_dir, page),
+                f"Missing required visual slots (severity: warning): {weich}",
+                expected=sorted(expected),
+                actual=sorted(page.visuals),
+            )
+        ] if weich else []
+        if not missing:
+            return out
+        return out + [
             Violation(
                 self.name,
                 self.severity,

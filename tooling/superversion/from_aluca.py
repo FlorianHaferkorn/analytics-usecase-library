@@ -833,7 +833,7 @@ def slot_luecken(bracket_path: str | Path, kpis_dir: str | Path) -> list[dict]:
             # als „nichts fehlt" zu melden waere die Luege, gegen die dieses Modul
             # gebaut ist.
             out.append({"use_case": uc, "page": pk, "variant": None,
-                        "missing": None, "emitted": []})
+                        "missing": None, "missing_advisory": None, "emitted": []})
             continue
         gebaut = _page_from_layout(pk, seite, catalog)
         emittiert = [v.visual_id for v in gebaut.visuals]
@@ -846,7 +846,14 @@ def slot_luecken(bracket_path: str | Path, kpis_dir: str | Path) -> list[dict]:
         eigenes = raster_fuer(variant, ebene)
         out.append({
             "use_case": uc, "page": pk, "variant": variant,
-            "missing": fehlende_pflichtslots(variant, emittiert, ebene=ebene),
+            # Zwei Listen statt einer: `missing` fuehrt nur die Slots, deren Manifest
+            # sie auf `severity: error` stellt — dort ist das Gate hart. `warning`
+            # laeuft daneben und blockt nicht. Die Trennung steht im Manifest, nicht
+            # hier; dieser Adapter entscheidet keine Haerte.
+            "missing": fehlende_pflichtslots(variant, emittiert, ebene=ebene,
+                                             severity="error"),
+            "missing_advisory": fehlende_pflichtslots(variant, emittiert, ebene=ebene,
+                                                      severity="warning"),
             "emitted": emittiert,
             "raster": eigenes.template_id if eigenes else None,
             "raster_default": eigenes is None,

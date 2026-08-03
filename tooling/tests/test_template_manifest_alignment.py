@@ -446,3 +446,37 @@ class TestVariantsEarnTheirName:
             v = variants[vid]
             assert v.get("status") == "unused", f"{vid}: kein status-Vermerk"
             assert v.get("status_note"), f"{vid}: Vermerk ohne Begruendung"
+
+    def test_hard_gate_only_where_data_backs_it(self):
+        """Ein Pflicht-Slot steht nur auf `severity: error`, wenn die Variante benutzt wird.
+
+        Die Achse der Haerte ist die Datenlage der Regel, nicht die Art des Slots —
+        Kubernetes PSS (enforce/audit/warn), Sentinel (advisory/soft-/hard-mandatory),
+        ESLint (off/warn/error) halten es alle so. Eine Variante mit `status: unused`
+        hat null Emissionen und damit null Verletzungsdaten; sie auf hart zu stellen
+        hiesse, ein Gate ohne Befund zu schaerfen.
+
+        Der Test ist beidseitig: er faellt auch, wenn eine BENUTZTE Variante ihre
+        Pflicht-Slots auf `warning` senkt. Sonst waere die Regel eine Einbahnstrasse,
+        die nur das Verschaerfen bremst und das stille Aufweichen durchlaesst — genau
+        die Richtung, in der ein Gate unbemerkt aufhoert zu pruefen.
+        """
+        from tooling.superversion.layer_tools.page_templates import (
+            alle_varianten, load)
+
+        falsch_hart, falsch_weich = [], []
+        for vid in sorted(alle_varianten()):
+            spec = load(vid)
+            unbenutzt = spec.status == "unused"
+            for s in spec.slots:
+                if not s.mandatory:
+                    continue
+                if unbenutzt and s.severity == "error":
+                    falsch_hart.append(f"{vid}/{s.slot_id}")
+                if not unbenutzt and s.severity != "error":
+                    falsch_weich.append(f"{vid}/{s.slot_id} ({s.severity})")
+        assert not falsch_hart, (
+            "hartes Gate ohne Datenlage (Variante ist `status: unused`): "
+            + ", ".join(falsch_hart))
+        assert not falsch_weich, (
+            "benutzte Variante weicht ihre Pflicht-Slots auf: " + ", ".join(falsch_weich))
