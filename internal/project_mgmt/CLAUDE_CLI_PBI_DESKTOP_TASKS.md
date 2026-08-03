@@ -253,6 +253,69 @@ ein advisory-Checker, der immer 0 zurückgibt, darf nicht als Prüfer eingetrage
 Zwei Kandidaten (`check_tabular_numerals.py`, `check_reference_lines.py`) sind genau
 deshalb **nicht** verdrahtet, obwohl sie fertig aussehen.
 
+### Nachtrag 03.08.2026 — die beiden Kandidaten sind *nicht* derselbe Fall
+
+Beide tragen denselben Satz („await a governed emit — Windows/Fabric **or
+powerbi-report-author**"). Am offiziellen Katalog gemessen (CLI 0.1.1, headless unter
+Linux) trennen sie sich sofort:
+
+| Regel | Befund am Katalog | Folge |
+|---|---|---|
+| **BC-TYPE-02** (Tabular Numerals, Gew. 4) | `formatting search tableEx "numeral\|figure\|tabular"` → **leer**. Der einzige Hebel ist `values.fontFamily` / `total.fontFamily` | Die CLI kann die Form **nicht** liefern, weil die Eigenschaft in Power BI nicht existiert. Kein Emit-Rückstand, sondern eine **Schriftentscheidung** |
+| **BC-CHART-05** (Referenzlinie, Gew. 3) | `y1AxisReferenceLine` **existiert**, voller Satz: `show · value · displayName · lineColor · style · shadeShow · dataLabel*` | Die im Docstring genannte Entsperrbedingung ist **erfüllt** — die Form ist verifiziert |
+
+**BC-TYPE-02 ist damit keine Desktop-Aufgabe mehr, sondern eine Doktrinfrage.**
+`tokens/typography.yaml` entscheidet bereits: `numerals: tabular` ist gefordert,
+`display: "DIN"` ist als Zweitschrift ausdrücklich erlaubt (BC-TYPE-01 deckt das) — aber
+`display_roles: [callout]` beschränkt DIN auf die Hero-Zahl. Tabellen-Wertspalten sind
+nicht abgedeckt. Zu entscheiden ist genau eine Zeile: gehört die Display-Schrift auch in
+`values`/`total` von Tabelle und Matrix?
+
+**BC-CHART-05 hat eine zweite Grenze, die der Katalog sichtbar macht:** `value` ist
+`numeric`, es gibt **keine** Measure-Bindung. Der Wert muss also aus einer governten
+Quelle als Zahl kommen — das ist `core/kpi_catalog/benchmarks.yaml`. Dort sind nur die
+**normativen** Einträge als Ziellinie zulässig (`ops.oee.pct` 85,0 mit Komponenten
+`availability 90,0 · performance 95,0 · quality 99,0`; `supply.otif.pct` 95,0;
+`quality.fpy.pct` 98,0; `quality.scrap.pct` 1,0). Die **empirischen** sind Peer-Mediane —
+die Datei sagt das selbst — und als „Ziel" gezeichnet wären sie irreführend.
+
+### Nebenbefund, der wichtiger ist als beide: Spezifikation und Artefakt driften
+
+`check_reference_lines.py` liest den `visual_type` aus dem **Bracket**. Alle drei
+gemeldeten Exponate stehen dort als `line_chart`. Tatsächlich im dist:
+
+| Exponat | Bracket sagt | Artefakt ist |
+|---|---|---|
+| OPS-001/Main_1 | `line_chart` | `lineChart` ✓ |
+| OPS-001/Main_2 | `line_chart` | **`waterfallChart`** |
+| SCM-001/Main_3 | `line_chart` | **`clusteredBarChart`** |
+
+Zwei von drei driften. Und der Ausschluss, der das auffangen sollte, greift nicht:
+`canonical_visual_id("waterfallChart")` → `None`, ebenso `"clustered_bar_chart"`. Das
+`_INTRINSIC_DEVIATION`-Set trifft deshalb **still** nie — exakt die Fehlerklasse, vor der
+der Docstring desselben Prüfers warnt („hoert beim Umbenennen STILL auf zu greifen").
+Wer BC-CHART-05 verdrahtet, muss den Typ am **Artefakt** auflösen, nicht am Bracket, sonst
+emittiert er eine Ziellinie in einen Wasserfall. Die Abbildung dafür existiert bereits
+(`VISUAL_TYPE_MAP` in `products/fabric/powerbi/tooling/validation/check_page_template_compliance.py`)
+und ist invers zu verwenden — keine zweite bauen.
+
+### Der Struktur-Score war kein Rubrik-Problem, sondern eine Datei
+
+Gemessen per umkehrbarem Versuch (Theme getauscht, wieder zurückgesetzt):
+
+| Stand | Struktur-Score | rote Regeln |
+|---|---|---|
+| Ist bei Sitzungsbeginn | 71,7 % | 5 |
+| nur Rasterfix (Commit `5bf00dc1`) | 77,5 % | 4 — **alle Theme** |
+| Rasterfix + einheitliches Theme | **100,0 %** | 0 |
+
+Alle fünf gingen auf **FIN-001** zurück: vier über sein Theme, eine über sein Layout. Die
+Layout-Hälfte ist erledigt. Die Theme-Hälfte ist eine Doktrinentscheidung
+(Monochromatic bleibt Hausstandard / Categorical wird es / zwei Themes bewusst) und keine
+Testfrage — `BC-BRAND-02` und `BC-COLOR-02` hängen daran. **Die Abdeckung (69,4) hat sich
+dabei nie bewegt**: sie zählt, wie viele Regeln verdrahtet sind, nicht wie viele bestehen.
+Die beiden Zahlen werden leicht verwechselt.
+
 ## Was diese Umgebung kann und was nicht (gemessen)
 
 | | |
