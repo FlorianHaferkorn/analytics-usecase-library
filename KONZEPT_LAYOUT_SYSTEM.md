@@ -1344,15 +1344,45 @@ entscheiden. Deshalb: gemeldet, nicht ersetzt.
 **Das ist die erste echte empirische Rückmeldung, die die Taxonomie je bekommen hat** —
 möglich geworden, weil sie überhaupt angeschlossen ist.
 
+### Aufgelöst (02.08.2026)
+
+**Konflikte 12 → 5.** Die 7er-Gruppe war ein Reihenfolge-Fehler der Variante, kein
+Autorenfehler: `T3_ProcessControl` führte `Main_1=time_trend, Main_2=exception_list,
+Main_3=entity_ranking`, aber **alle sieben** Use Cases deklarieren nur *zwei*
+30s-Komponenten — `Main_3` bleibt leer — und ihre zweite vergleicht durchweg wenige
+benannte Größen („die zwei OTIF-Komponenten", „die drei Service-Kennzahlen"). Das ist
+`entity_ranking`. Main_2 und Main_3 sind getauscht; der Pflicht-Slot trägt jetzt, was
+die Fälle zeigen.
+
+Die verbleibenden 5 sind **nicht** dieselbe Klasse und je einzeln zu entscheiden:
+COM-003 (ambivalent: Ranking oder Komposition), SCM-001 („root cause" passt zu keinem
+T1_Portfolio-Slot), FIN-001 ×2 (zwei Wasserfälle — **keine** Variante hat zwei
+`variance_explanation`-Slots), OPS-001 (Trend auf dem Exception-Slot; keine Variante
+passt sauber). Sie stehen als Befund, nicht als Rückstand.
+
+**Vier unbenutzte Varianten markiert**, nicht gelöscht — das Manifest ist governt und
+eine Variante kann Roadmap sein. Sie tragen `status: unused` mit Begründung. Gemessen:
+sie decken **keinen** Block ab, den lebende Varianten nicht schon abdecken, und alle
+vier hängen an den zwei Rastern, die §13 als defekt bzw. verlustbehaftet ausweist.
+
+Dabei eine **Korrektur an mir selbst**: ich hatte `T4_OptionComparison` und
+`T4_Sensitivity` als „spezifikationsgleich" bezeichnet. Sie unterscheiden sich in
+**genau einem Boolean** (`Support_1.mandatory`). Der erste Wächter nahm die Flags in die
+Signatur auf und fand deshalb *keine* Dublette — er hätte die Behauptung still
+entkräftet, die ihn ausgelöst hat. Er prüft jetzt die **Struktur** (Slot → Block) und
+führt das Paar als benannte Ausnahme, damit eine *neue* Dublette auffällt.
+
+**Meridians sechs Templates sind belegt.** `_sources` je Template mit Katalog und
+Zuordnung; keine Zahl geändert, nur die Herkunft benannt (`max_kpi_tiles 5`/`max_nav_items
+7` → Miller 1956, Z-/F-Pattern → Few 2004, 3s/30s/300s → SQLBI, Referenzlinie → IBCS,
+Accessibility → WCAG 2.1 AA). Das Feld ist im Master-Schema deklariert statt am Gate
+vorbei — `check-meridian` verbietet Zusatzfelder zu Recht.
+
 ### Offen
 
-* Die 12 Konflikte auflösen: Bracket anpassen oder Slot-Zuweisung der Variante korrigieren.
-* **4 von 11 Varianten sind unbenutzt** (`T2_Funnel`, `T3_IncidentMonitor`,
-  `T4_OptionComparison`, `T4_Sensitivity`) — löschen oder belegen. Eine Variante ohne
-  Nutzung ist eine Behauptung.
-* Die Meridian-Templates sind **nicht** auf demselben Niveau belegt. Ihr `content_type`
-  wirkt zwar, aber die sechs Templates führen keine Quelle. Kandidat: die 15 Quellen aus
-  ALUCA gelten fachlich genauso für sie.
+* Die 5 verbleibenden Block-Konflikte — je eine Inhaltsentscheidung.
+* Ob eine Variante zwei `variance_explanation`-Slots führen darf (FIN-001).
+* Die vier unbenutzten Varianten endgültig: belegen oder löschen.
 
 ---
 

@@ -394,3 +394,55 @@ class TestPageTemplateReader:
         for vid in alle_varianten():
             eingemischt = set(load(vid).pflicht()) & (arten - echte_slot_ids)
             assert not eingemischt, f"{vid} mischt Slot-Arten in die Pflichtliste: {eingemischt}"
+
+
+class TestVariantsEarnTheirName:
+    """Eine Variante muss sich von jeder anderen unterscheiden — sonst ist sie keine.
+
+    Geprueft wird die **Struktur** — welcher Slot traegt welchen Informationsblock —,
+    nicht die Pflicht-Flags. Genau daran haengt der Befund: `T4_OptionComparison` und
+    `T4_Sensitivity` sind strukturell identisch und unterscheiden sich in **genau einem
+    Boolean** (`Support_1.mandatory`, false vs true). Zwei Namen, die eine Unterscheidung
+    versprechen, die praktisch keine ist.
+
+    (Erste Fassung dieses Tests nahm die Flags mit in die Signatur und fand deshalb
+    **keine** Dublette — womit er die Behauptung, die ihn ausgeloest hat, still
+    entkraeftet haette. Ein Waechter, der die falsche Groesse misst, bestaetigt.)
+    """
+
+    def _signatur(self, v):
+        from tooling.superversion.layer_tools.page_templates import load
+        s = load(v)
+        return tuple((eb, tuple((x.slot_id, x.information_block)
+                                for x in s.slots if x.ebene == eb))
+                     for eb in ("overview_slots", "detail_slots"))
+
+    def test_no_two_variants_share_a_signature(self):
+        from tooling.superversion.layer_tools.page_templates import alle_varianten
+
+        gruppen = {}
+        for v in sorted(alle_varianten()):
+            gruppen.setdefault(self._signatur(v), []).append(v)
+        doppelt = {tuple(vs) for vs in gruppen.values() if len(vs) > 1}
+        # Bekannte, im Manifest als `status: unused` benannte Dublette. Sie steht hier
+        # als EXPLIZITE Ausnahme, damit eine NEUE Dublette auffaellt statt in ihr
+        # unterzugehen — und damit das Aufloesen sichtbar wird: verschwindet sie,
+        # wird dieser Test rot und die Ausnahme gehoert entfernt.
+        bekannt = {("T4_OptionComparison", "T4_Sensitivity")}
+        assert doppelt == bekannt, (
+            f"Signatur-Dubletten veraendert: {sorted(doppelt)} (erwartet {sorted(bekannt)})")
+
+    def test_unused_variants_are_declared_as_such(self):
+        """Unbenutzte Varianten tragen `status: unused` mit Begruendung.
+
+        Nicht geloescht — das Manifest ist governt und eine Variante kann Roadmap sein.
+        Aber eine Variante ohne Nutzung und ohne Vermerk ist eine Behauptung.
+        """
+        manifest = _load_manifest()
+        variants = {v["variant_id"]: v for f in manifest["page_families"]
+                    for v in f.get("variants") or []}
+        for vid in ("T2_Funnel", "T3_IncidentMonitor",
+                    "T4_OptionComparison", "T4_Sensitivity"):
+            v = variants[vid]
+            assert v.get("status") == "unused", f"{vid}: kein status-Vermerk"
+            assert v.get("status_note"), f"{vid}: Vermerk ohne Begruendung"

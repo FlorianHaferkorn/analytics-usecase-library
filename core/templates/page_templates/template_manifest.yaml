@@ -304,6 +304,9 @@ page_families:
             mandatory: false
 
       - variant_id: T2_Funnel
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); bindet pulse_asymmetric, das 416 px Leinwand ungenutzt laesst
         name: "Funnel Loss"
         description: "Sequential process loss; where in the funnel value/volume is lost"
         grid_template: pulse_asymmetric
@@ -432,11 +435,19 @@ page_families:
           - slot_id: Main_1
             information_block: time_trend
             mandatory: true
+          # Getauscht 02.08.2026 gegen 7 uebereinstimmende Befunde. Die Reihenfolge
+          # war time_trend -> exception_list -> entity_ranking; ALLE sieben Use Cases
+          # mit dieser Variante deklarieren nur ZWEI 30s-Komponenten, lassen Main_3
+          # also leer, und ihre zweite Komponente vergleicht durchweg wenige benannte
+          # Groessen ("die zwei OTIF-Komponenten", "die drei Service-Kennzahlen") —
+          # das ist entity_ranking, nicht eine Ausnahmeliste mit Schweregrad und Owner.
+          # Der Pflicht-Slot Main_2 traegt jetzt, was die Faelle tatsaechlich zeigen;
+          # exception_list rutscht auf den optionalen Main_3.
           - slot_id: Main_2
-            information_block: exception_list
+            information_block: entity_ranking
             mandatory: true
           - slot_id: Main_3
-            information_block: entity_ranking
+            information_block: exception_list
             mandatory: false
         detail_slots:
           - slot_id: Slicer_Pane
@@ -455,6 +466,9 @@ page_families:
             mandatory: false
 
       - variant_id: T3_IncidentMonitor
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); bindet pulse_asymmetric (s. T2_Funnel)
         name: "Incident Monitor"
         description: "Real-time or near-real-time exception tracking; short refresh cycle"
         grid_template: pulse_asymmetric
@@ -551,6 +565,9 @@ page_families:
             mandatory: true
 
       - variant_id: T4_OptionComparison
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); unterscheidet sich von T4_Sensitivity in GENAU EINEM Flag (Support_1.mandatory false vs true) — Slots und Bloecke sind auf beiden Ebenen identisch
         name: "Option Comparison"
         description: "Two or three options explicitly compared; ranked by impact/effort/risk"
         grid_template: investigator_focus
@@ -588,6 +605,9 @@ page_families:
             mandatory: false
 
       - variant_id: T4_Sensitivity
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); unterscheidet sich von T4_OptionComparison nur in Support_1.mandatory (true vs false)
         name: "Sensitivity Check"
         description: "Recommendation with scenario validation; impact under key assumptions"
         grid_template: investigator_focus
