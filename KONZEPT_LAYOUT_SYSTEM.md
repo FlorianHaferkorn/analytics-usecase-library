@@ -1791,6 +1791,69 @@ Grundlinie zusammen: laufen sie auseinander, wird das rot statt still angepasst.
 
 ---
 
+## 21. Die 25 Validator-Fehler sind zwei Klassen — und der naheliegende Fix war falsch (03.08.2026)
+
+Die dist-Reports bestehen den offiziellen Validator nicht. Beim genauen Hinsehen zerfällt
+der Befund in drei Teile, und nur einer davon ist das, was ich erwartet hatte.
+
+**Teil 1 — die Theme-Fehler sind teils ein Werkzeugfehler.** Die naheliegende Reaktion
+war, die 25 unbekannten Theme-Eigenschaften zu löschen. Gemessen: `padding.left` gilt für
+`advancedSlicerVisual` als unbekannt, obwohl **derselbe Katalog** `padding` als shared VCO
+mit genau diesen vier Eigenschaften führt. Die CLI ist Public Preview (Pin 0.1.1) und ihr
+Katalog hat Lücken. Pauschales Löschen hätte gültige Formatierung entfernt. Beide Klassen
+stehen jetzt getrennt in `tooling/quality/known_errors.yaml`, mit Belegen je Fall — damit
+der Desktop-Termin (L10) eine Prüfung wird und keine Neuerhebung.
+
+**Teil 2 — eine Theme-Divergenz, die keine Prüfung sehen konnte.** 16 Reports setzen
+`valueAxis.start = 0` global auf `*`/`*`, COM-001 nur für `areaChart` und `lineChart`.
+BC-CHART-09 verlangt die Nullbasis für **Balken** — COM-001 war damit der einzige Report
+ohne diese Zusage. `check_zero_based_axes.py` liest `visual.json` und konnte es nicht
+sehen; die Zusage steht im Theme. COM-001 ist angeglichen, alle 17 Themes sind jetzt
+inhaltlich identisch, und ein Test hält sie so.
+
+**Teil 3 — ein echter Artefaktdefekt, und mein erster Fix dafür war falsch.**
+`PBIR_ROLE_MAX_EXCEEDED` in **11 von 17** Reports: ein `waterfallChart` bindet 2–5
+Measures an Rolle Y, der offizielle Katalog erlaubt **eine**. Der neue
+Superversion-Emitter kappt korrekt (`_PLANS["waterfall"].primary_max == 1`), der
+Alt-Generator, aus dem die dist-Reports stammen, nicht. Zwei Emitter, einer richtig — und
+ausgeliefert wurde der andere.
+
+Ich habe daraufhin auf die erste Measure gekappt. Dann habe ich mir angesehen, was
+wegfällt:
+
+| Seite | behalten | entfernt |
+|---|---|---|
+| OPS-001 | `OEE %` | `Availability %`, `Performance %`, `Quality %` |
+| COM-001LY | `Plan Sales Amount` | `Price Effect`, `Volume Effect`, `Mix Effect`, `Net Sales` |
+
+**OEE *ist* Availability × Performance × Quality.** COM-001LY ist eine Brücke
+Plan → Preis → Menge → Mix → Ist. Die Kappung erzeugt eine Datei, die der Validator
+akzeptiert und die die Zerlegung nicht mehr zeigt — ein gültiges Artefakt mit falscher
+Aussage. Zurückgenommen.
+
+Der Formfehler liegt eine Ebene höher: eine Varianzbrücke gehört bei `waterfallChart`
+nicht als N Measures an Y, sondern als **eine** Measure plus eine **Category**, die die
+Schritte aufzählt. Das umzustellen ist eine Modellierungsentscheidung am Bracket, keine
+des Emitters. Deshalb: der Alt-Generator kappt ab jetzt **und meldet laut**, damit
+künftige Läufe gültig sind und der Verlust nicht still passiert — die ausgelieferten
+Artefakte bleiben unangetastet, bis die Entscheidung getroffen ist.
+
+**Und eine Ratsche statt eines Gates.** Weil ein Teil der Zahl ein Werkzeugfehler ist,
+wäre ein hartes Gate entweder unfair oder eine Einladung zum Löschen. Stattdessen: der
+schlechteste gemessene Stand (26) ist die Obergrenze, sie darf nur sinken. Der zweite
+Test zieht sie nach, sobald sie überholt ist — eine Ratsche, die nicht nachzieht, ist
+eine Bremse, die man vergessen hat.
+
+### Offen — jetzt mit Entscheidungsbedarf statt Unklarheit
+
+* **Varianzbrücke: eine Measure + Category-Schritte?** Betrifft 11 Reports und ist die
+  Voraussetzung dafür, dass `PBIR_ROLE_MAX_EXCEEDED` verschwindet, ohne Aussage zu
+  verlieren.
+* **Theme-Eigenschaften in Desktop prüfen** (L10) — die Triage liegt bereit.
+* `Brand_Rose__Monochromatic__…json` und `brand.data_colors` (§19/§20) unverändert offen.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -2011,3 +2074,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **L12 Phase 1c — erster verdienter Punkt (§18)** | 🟢 **erledigt** | 2026-08-03 | **54,4 → 58,4/100.** `BC-LAYOUT-01` verdrahtet — prüfbar erst durch L13 (Geometrie in Logical Units, eine Auflösungsstelle); Prüfer bildet L13s Entscheidung ab: waagerecht ganzzahlig, senkrecht frei. **Erster Lauf fand einen echten Defekt:** 7 von 188 Visuals neben dem Raster, alle in EINEM Report, alle mit `Spanne 3.929` — exakt der von L13 benannte Prä-Wert; der Report ist eine *Variante* ohne Generatorpfad, korrigiert wurde nur die Waagerechte (jede Abweichung <0,09 LU von einer ganzen Zahl, `y`/`height` unangetastet). **Wichtigerer Fund beim Versuch, BC-LAYOUT-02 zu bauen:** `BC-CHART-04` ist verdrahtet und **grün**, liest aber nur die `visual.json` — das Custom-Theme setzt in `visualStyles["*"]["*"]` für JEDES Visual `border`/`background`/`dropShadow` auf show=true, **0 von 188** überschreiben. Der Prüfer meldet Sauberkeit, weil er eine Ebene prüft, auf der niemand etwas setzt — dieselbe Klasse wie §12, nur heimtückischer: dort konnte er nicht feuern, hier feuert er ins Leere. **Nicht per Schwellenwert entschieden** — 90 % transparent, 1 px, Spread 0,1: Kartensystem-Elevation oder dekorative Tiefe? Das ist Flos Entscheidung, nicht die eines `if`. Blinder Fleck steht als Kommentar an der Regel, BC-LAYOUT-02 trägt `pending_decision`. Nebenbefund: die **dist**-Reports bestehen den offiziellen Validator (Pin 0.1.1) **nicht** — 25–26 Errors repo-weit, während frisch emittierte sauber sind; Ursache im mitgelieferten Theme, nicht im Emitter. |
 | **L12 Phase 1d — zwei Regeln verdient, zwei abgelehnt (§19)** | 🟢 **erledigt** | 2026-08-03 | **58,4 → 65,4/100.** Von vier `not_implemented`-Regeln sind zwei gebaut (BC-COLOR-02, BC-TYPE-04), zwei am Artefakt **nicht entscheidbar**: BC-COLOR-03 hätte leer bestanden (keine semantische Farbe in 188 Visuals, kein Richtungszeichen in 221 Measures → neue Kategorie `vacuous_no_subject`), BC-NARR-06 hat nichts zu prüfen (die 16 `smartNarrativeVisual` tragen null Konfiguration → `render_verification`). **Schwellen abgeleitet statt erfunden:** BC-COLOR-02 nimmt den kleinsten Farbtonabstand der semantischen Tokens des Themes selbst (25,0°) als Maßstab — die kategoriale Palette spannt 1,4°; BC-TYPE-04 den Größenboden aus `typography.yaml`. **Eigener Fehlalarm korrigiert:** der erste Entwurf prüfte jede registrierte Theme-Ressource und meldete 16 Verstöße — alle aus `Brand_Rose__Monochromatic__…json`, die **nicht aktiv** ist, 300+ Farben über den ganzen Farbkreis führt und ihren eigenen Namen widerlegt; der Prüfer liest jetzt `report.json`. Die Datei selbst bleibt offener Punkt. Nebenbei: die Knock-out-Menge im Scorecard-Test war ein Literal, das dem Fortschritt hinterherlief — jetzt abgeleitet. |
 | **L12 Phase 1e — Weg A: Kartensystem-Grundlinie (§20)** | 🟢 **erledigt** | 2026-08-03 | **65,4 → 69,4/100.** Die Doktrinfrage aus §18 ist entschieden (Flo, Weg A): das Kartensystem ist legitim, die Regeln meinen „keine Dekoration **über** das Kartensystem hinaus". Ausschlag: die Entscheidung war längst getroffen — `surface.card` steht seit jeher in den Tokens, BC-LAYOUT-03 und BC-BRAND-01 setzen Karten voraus. Damit „gemeint" zu „geprüft" wird, steht die Grundlinie jetzt als **Obergrenze** in `color_semantics.yaml` → `container_baseline`, mit den Werten des beschlossenen Themes und **ohne Toleranzaufschlag** (jeder Aufschlag wäre eine ungetroffene Entscheidung). **BC-LAYOUT-02 verdrahtet** (`check_container_surface.py`, drei Ebenen: Weißraum-Ordnung — die erste Regelhälfte, die bisher niemand las —, Theme, Visual). **Blinder Fleck von BC-CHART-04 geschlossen:** er liest jetzt auch das aktive Theme gegen dieselbe Grundlinie; sein Grün ist verdient statt zufällig, ein Verlauf im Theme macht ihn rot (per Mutation belegt). Sieben Feuer-Richtungen nachgewiesen, sanktionierter Stand bleibt still, ein Test hält Theme und Grundlinie zusammen. **Nebenbefund:** `brand.data_colors` in den Tokens ist ein Regenbogen und widerspräche BC-COLOR-02 — hat aber keinen Code-Konsumenten; nicht angefasst. |
+| **L12 Phase 1f — Validator-Befunde triagiert (§21)** | 🟢 **erledigt** | 2026-08-03 | Die 25 Validator-Fehler der dist-Reports zerfallen in **drei** Teile. (1) Theme-Fehler sind teils **Werkzeugfehler**: `padding.left` gilt für `advancedSlicerVisual` als unbekannt, obwohl derselbe Katalog `padding` mit genau diesen vier Eigenschaften führt — die Preview-CLI 0.1.1 hat Lücken, pauschales Löschen hätte gültige Formatierung entfernt. Beide Klassen getrennt in `known_errors.yaml`. (2) **Theme-Divergenz**, die kein Prüfer sehen konnte: 16 Reports setzen `valueAxis.start=0` global, COM-001 nur für area/line — BC-CHART-09 verlangt Nullbasis für **Balken**, COM-001 war der einzige ohne diese Zusage; angeglichen, 17 Themes jetzt identisch, Test hält sie so. (3) **Echter Defekt in 11 von 17**: `waterfallChart` bindet 2–5 Measures an Y, erlaubt ist 1 — der neue Emitter kappt, der Alt-Generator nicht. **Mein erster Fix war falsch:** die Kappung auf die erste Measure entfernt in OPS-001 `Availability/Performance/Quality` (OEE **ist** deren Produkt) und in COM-001LY die ganze Preis-Menge-Mix-Brücke — eine gültige Datei mit falscher Aussage. Zurückgenommen. Der Formfehler liegt höher: eine Brücke gehört als EINE Measure + Category-Schritte; das ist eine Modellierungsentscheidung am Bracket. Alt-Generator kappt jetzt **und meldet laut**, Artefakte unangetastet. **Ratsche statt Gate** (schlechtester Stand 26, darf nur sinken; zweiter Test zieht sie nach). |
