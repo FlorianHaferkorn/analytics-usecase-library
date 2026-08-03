@@ -1,0 +1,10 @@
+VAR _v = [Gross Margin %]
+VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( 'dim_org'[OrgName] ), [Gross Margin %] ), REMOVEFILTERS ( 'dim_org'[OrgName] ) )
+VAR _x = DIVIDE ( _v, _max ) * 92 + 4
+VAR _col = IF ( _v < 44.1 / 100, "#A4262C", "#0F2430" )
+RETURN
+    IF ( HASONEVALUE ( 'dim_org'[OrgName] ),
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+          & "<line x1='4' y1='7' x2='" & _x & "' y2='7' stroke='#D6DCE2' stroke-width='2'/>"
+          & "<circle cx='" & _x & "' cy='7' r='4' fill='" & _col & "'/>"
+          & "</svg>" )

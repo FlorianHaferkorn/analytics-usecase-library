@@ -281,3 +281,21 @@ Each report's **thesis** (governed `big_idea`), its **archetype/variant**, and t
 - **Avoid:** too_many_series, stacked_absolute_when_share_is_the_point, inconsistent_series_colours
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (multi-series normalised stacking is not a single-cell micro-chart → powerbi_native (hundredPercentStackedColumnChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/stacked_100.yaml` (+ `golden/stacked_100.*`)
+
+#### `lollipop` — Lollipop
+- **Purpose:** compare_categories · **zone:** analysis
+- **Avoid:** lollipop_for_many_dense_categories, hidden_zoomed_axis
+- **Tools:** Power BI · native n/a (Power BI has no native lollipop base visual → SVG-DAX (a lollipop cell in a matrix) or Deneb) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/lollipop.yaml` (+ `golden/lollipop.*`)
+
+#### `histogram` — Histogram
+- **Purpose:** distribution · **zone:** analysis · **best form for:** `distribution`
+- **Avoid:** bars_with_gaps_imply_categories, too_few_or_too_many_bins
+- **Tools:** Power BI · native n/a (Power BI has no auto-bin mark → create a bin group on the field, then a columnChart of the count (or use Deneb)) · Power BI · SVG-DAX n/a (a full distribution is not a single-cell micro-chart → deneb_vegalite, or the DaxLib.SVG histogram helper) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/histogram.yaml` (+ `golden/histogram.*`)
+
+#### `boxplot` — Box plot
+- **Purpose:** distribution · **zone:** analysis
+- **Avoid:** boxplot_without_labelled_quartiles_in_a_brief, too_many_groups
+- **Tools:** Power BI · native n/a (Power BI has no native box-plot base visual → deneb_vegalite (boxplot mark), or a box-plot custom visual) · Power BI · SVG-DAX n/a (requires five quartile measures + an axis; not a simple substitution template → the DaxLib.SVG boxplot helper (daxlib.org) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (Recharts has no box-plot primitive → a custom SVG/D3 box-plot, or a charting lib with box-plot support (ECharts, Plotly))
+- **Code:** `visual_library/boxplot.yaml` (+ `golden/boxplot.*`)
