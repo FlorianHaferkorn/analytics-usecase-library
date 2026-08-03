@@ -117,3 +117,21 @@
 - **Avoid:** boxplot_without_labelled_quartiles_in_a_brief, too_many_groups
 - **Tools:** Power BI · native n/a (Power BI has no native box-plot base visual → deneb_vegalite (boxplot mark), or a box-plot custom visual) · Power BI · SVG-DAX n/a (requires five quartile measures + an axis; not a simple substitution template → the DaxLib.SVG boxplot helper (daxlib.org) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (Recharts has no box-plot primitive → a custom SVG/D3 box-plot, or a charting lib with box-plot support (ECharts, Plotly))
 - **Code:** `visual_library/boxplot.yaml` (+ `golden/boxplot.*`)
+
+#### `small_multiples` — Small multiples
+- **Purpose:** time_comparison · **zone:** analysis
+- **Avoid:** independent_y_scales_per_panel, too_many_panels
+- **Tools:** Power BI · native n/a (small multiples is a field-well option, not a distinct visual JSON idiom → a lineChart with the field placed in the Small multiples well (shared Y scale)) · Power BI · SVG-DAX n/a (a grid of panels is not a single-cell micro-chart → deneb_vegalite (facet) or the native Small multiples well) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (no single small-multiples component → map the series to a CSS grid of <LineChart> with a shared YAxis domain)
+- **Code:** `visual_library/small_multiples.yaml` (+ `golden/small_multiples.*`)
+
+#### `sankey` — Sankey
+- **Purpose:** flow_between_stages · **zone:** detail · **best form for:** `flow_between_stages`
+- **Avoid:** sankey_for_precise_comparison, spaghetti_too_many_crossings
+- **Tools:** Power BI · native n/a (Power BI has no native Sankey base visual → the Microsoft/PowerViz Sankey custom visual (AppSource)) · Power BI · SVG-DAX n/a (curved multi-node flows are impractical as a cell SVG measure → the Sankey custom visual, or Deneb (full Vega)) · Deneb / Vega-Lite n/a (Vega-Lite has no sankey mark → a full Vega spec in Deneb (sankey via linkpath transform), or the native custom visual) · Web · Recharts ✓
+- **Code:** `visual_library/sankey.yaml` (+ `golden/sankey.*`)
+
+#### `decomposition_tree` — Decomposition tree
+- **Purpose:** driver_breakdown · **zone:** detail · **best form for:** `driver_breakdown`
+- **Avoid:** used_as_a_static_exhibit, too_many_explain_by_dims
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (an interactive AI drill tree is not a cell micro-chart → powerbi_native (decompositionTreeVisual)) · Deneb / Vega-Lite n/a (an interactive drill tree is not a declarative Vega idiom → powerbi_native (decompositionTreeVisual)) · Web · Recharts n/a (Recharts has no decomposition-tree component → a custom D3 tree with sorted bars per level)
+- **Code:** `visual_library/decomposition_tree.yaml` (+ `golden/decomposition_tree.*`)

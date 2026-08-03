@@ -1,0 +1,78 @@
+# Visual Library entry — decomposition_tree  (schema: _schema.yaml)
+id: decomposition_tree
+name: Decomposition tree
+purpose: [driver_breakdown]
+zone: [detail]
+best_form_for: driver_breakdown
+alternatives: []
+
+encoding:
+  root: measure                     # the number being explained
+  branches: sorted_by_measure       # each level is a sorted bar
+  interaction: drill                # exploratory (Shneiderman) — an analysis tool, not a static exhibit
+
+anti_patterns:
+  - used_as_a_static_exhibit        # it is an interactive drill; keep it on Detail pages
+  - too_many_explain_by_dims
+
+params:
+  measure:    {role: analysis, required: true}
+  explain_by: {role: dimensions, required: true, note: "one or more dims to drill by"}
+  entity:     {role: table, default: _Measures}
+
+tokens:
+  col_bar: brand.primary            # #0078D4
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Gross Margin % vs Plan"
+  explain_entity: "dim_org"
+  explain_prop: "OrgName"
+  explain_entity2: "dim_product"
+  explain_prop2: "Category"
+  col_bar: "#0078D4"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Decomposition tree">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">GM Δ vs PLAN — EXPLAIN BY</text>
+    <rect x="20" y="60" width="60" height="30" rx="4" fill="#0F2430"/><text x="50" y="79" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10" fill="#FFFFFF">-1.8pp</text>
+    <line x1="80" y1="75" x2="150" y2="48" stroke="#C6CED5"/><line x1="80" y1="75" x2="150" y2="102" stroke="#C6CED5"/>
+    <rect x="150" y="38" width="70" height="22" rx="4" fill="#DCEAF6"/><text x="158" y="53" font-family="Segoe UI,sans-serif" font-size="10" fill="#18202A">Nord -5.8</text>
+    <rect x="150" y="92" width="70" height="22" rx="4" fill="#EEF3F9"/><text x="158" y="107" font-family="Segoe UI,sans-serif" font-size="10" fill="#18202A">West -1.7</text>
+    <line x1="220" y1="49" x2="270" y2="49" stroke="#C6CED5"/><rect x="270" y="38" width="60" height="22" rx="4" fill="#DCEAF6"/><text x="278" y="53" font-family="Segoe UI,sans-serif" font-size="10" fill="#18202A">Fashion</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "decompositionTreeVisual",
+        "query": { "queryState": {
+          "Analysis": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
+          "Explain By": { "projections": [
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{explain_entity}}" } }, "Property": "{{explain_prop}}" } }, "queryRef": "{{explain_entity}}.{{explain_prop}}" },
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{explain_entity2}}" } }, "Property": "{{explain_prop2}}" } }, "queryRef": "{{explain_entity2}}.{{explain_prop2}}" }
+          ] }
+        } }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "an interactive AI drill tree is not a cell micro-chart"
+    use: "powerbi_native (decompositionTreeVisual)"
+
+  deneb_vegalite:
+    applicable: false
+    reason: "an interactive drill tree is not a declarative Vega idiom"
+    use: "powerbi_native (decompositionTreeVisual)"
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts has no decomposition-tree component"
+    use: "a custom D3 tree with sorted bars per level"
+
+determinism:
+  golden_dir: golden
+  notes: "Native decompositionTreeVisual is the right tool (Analysis measure + Explain By dims). Detail-page drill, not a static exhibit."
