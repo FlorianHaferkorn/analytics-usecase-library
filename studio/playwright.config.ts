@@ -1,4 +1,31 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { defineConfig } from '@playwright/test';
+
+/**
+ * Chromium-Pfad fuer Umgebungen, die einen **vorinstallierten** Browser mitbringen,
+ * dessen Build-Nummer nicht zum Playwright-Pin passt.
+ *
+ * Gemessen am 03.08.2026: Playwright 1.59.1 verlangt Build 1217, das Remote-Image
+ * liefert 1194 unter `PLAYWRIGHT_BROWSERS_PATH` plus einen stabilen `chromium`-Symlink.
+ * Ohne diesen Zweig scheitern **alle 28** Specs mit `Executable doesn't exist` — und
+ * zwar bevor eine einzige Assertion laeuft. Genau das hat die frueher notierte Diagnose
+ * „die Specs fallen an Assertions" erzeugt: das Bild sah nach Anwendungsdefekten aus,
+ * war aber eine fehlende Binaerdatei. Mit dem Pfad bestehen alle 28.
+ *
+ * Reihenfolge: ein explizit gesetzter Pfad gewinnt immer. Sonst wird der Symlink nur
+ * dann genommen, wenn er wirklich existiert. Die CI (`npx playwright install`) legt
+ * ihn nicht an und laedt ihren passenden Build selbst — dieser Zweig feuert dort also
+ * nicht, und `undefined` laesst Playwright wie bisher selbst aufloesen.
+ */
+function chromiumExecutable(): string | undefined {
+  const explicit = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE;
+  if (explicit) return explicit;
+  const browsersPath = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  if (!browsersPath) return undefined;
+  const symlink = join(browsersPath, 'chromium');
+  return existsSync(symlink) ? symlink : undefined;
+}
 
 export default defineConfig({
   testDir: './e2e',
@@ -12,6 +39,7 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
+    launchOptions: { executablePath: chromiumExecutable() },
   },
 
   projects: [
@@ -23,6 +51,11 @@ export default defineConfig({
     url: 'http://localhost:3000',
     // Keep tests deterministic: tenant isolation depends on a clean SQLite DB.
     reuseExistingServer: false,
-    timeout: 30000,
+    // 30_000 war zu knapp: der Turbopack-Kaltstart braucht auf langsamem Dateisystem
+    // laenger (das Remote-Image meldet es selbst: "Slow filesystem detected"). Der
+    // Timeout lief ab, bevor der Server antwortete — jeder Lauf endete mit
+    // "Timed out waiting 30000ms", ohne dass ein Test lief. Ein Timeout ist eine
+    // Obergrenze, keine Wartezeit: ein schneller Start wird davon nicht langsamer.
+    timeout: 180_000,
   },
 });
