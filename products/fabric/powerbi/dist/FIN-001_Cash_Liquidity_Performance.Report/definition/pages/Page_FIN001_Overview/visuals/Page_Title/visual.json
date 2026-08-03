@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "Page_Title",
+  "position": {
+    "x": 32,
+    "y": 34,
+    "z": 11000,
+    "height": 60,
+    "width": 720,
+    "tabOrder": 2999
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Working capital on track — cash conversion within the 45-day target",
+                    "textStyle": {
+                      "fontSize": "18pt",
+                      "fontWeight": "bold",
+                      "color": "#101828"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

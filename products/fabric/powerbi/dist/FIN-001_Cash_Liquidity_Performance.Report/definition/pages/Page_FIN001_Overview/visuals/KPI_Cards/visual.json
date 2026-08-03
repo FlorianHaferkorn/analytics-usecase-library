@@ -3,9 +3,9 @@
   "name": "KPI_Cards",
   "position": {
     "x": 32,
-    "y": 32,
+    "y": 124,
     "z": 10000,
-    "height": 156,
+    "height": 140,
     "width": 1856,
     "tabOrder": 3000
   },
@@ -23,6 +23,29 @@
                 }
               }
             }
+          }
+        }
+      ],
+      "value": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
           }
         }
       ]

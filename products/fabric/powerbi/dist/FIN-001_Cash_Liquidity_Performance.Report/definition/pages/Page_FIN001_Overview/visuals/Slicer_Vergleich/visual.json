@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "Slicer_Date",
+  "name": "Slicer_Vergleich",
   "position": {
-    "x": 1440,
+    "x": 792,
     "y": 32,
     "z": 5000,
     "height": 80,
-    "width": 448,
-    "tabOrder": 3001
+    "width": 600,
+    "tabOrder": 3006
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "Vergleich"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "Vergleich"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
+              "queryRef": "Vergleich.Vergleich",
+              "nativeQueryRef": "Vergleich"
             }
           ]
         }

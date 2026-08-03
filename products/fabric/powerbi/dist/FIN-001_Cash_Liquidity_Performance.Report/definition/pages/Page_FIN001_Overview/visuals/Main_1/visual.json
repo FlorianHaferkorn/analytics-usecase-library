@@ -3,9 +3,9 @@
   "name": "Main_1",
   "position": {
     "x": 32,
-    "y": 290,
+    "y": 272,
     "z": 10000,
-    "height": 758,
+    "height": 776,
     "width": 608,
     "tabOrder": 3002
   },
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
