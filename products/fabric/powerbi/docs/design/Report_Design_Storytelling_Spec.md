@@ -182,63 +182,102 @@ Each report's **thesis** (governed `big_idea`), its **archetype/variant**, and t
 
 ## Part D — the visual idiom catalog
 
-Per visual: the analytical **question** it answers, the **best-perceived form** for it (Cleveland-McGill / IBCS, governed by [`pbi-design/references/charts.md`](../../../../../.claude/skills/pbi-design/references/charts.md)), the **anti-patterns** to avoid, and the realisation across four tool tracks — **Power BI native · SVG-DAX · Deneb/Vega-Lite · Web (D3/Recharts/ECharts)**. A rendered companion grows alongside as a private Artifact. Renderer-agnostic (`contract_version: 2`): the *form* is governed; the *tool* is a realisation.
+> **Generated** from `core/templates/page_templates/visual_library/` — do not hand-edit; run `tooling/visual_library/render_docs.py`. The library is the single source of truth; the runnable code per tool lives in `<idiom>.yaml` and is byte-for-byte frozen in `golden/`.
 
-**Encoding rule (governed).** Magnitude → **length/position** (perceptual rank 1–3), never the colour of a number (rank 9–10). Direction → colour **and** sign/arrow, never colour alone. **Size is the only highlight attribute** (`cookbook.md`). Every element serves one purpose or it is cut.
+**Encoding rule (governed).** Magnitude → length/position (rank 1–3), never the colour of a number (rank 9–10); direction → colour **and** sign; size is the only highlight (`cookbook.md`).
 
-### D.0 Which visual, when — the chooser (unified with the layout)
-The **question comes first** (Munzner: *why* before *how*), then the idiom with the most accurate encoding, then its **home in the 3-30-300 page**.
+### D.0 Which visual, when — the chooser
 
-| Analytical question | Idiom (best form) | Why (source) | Instead of |
-|---|---|---|---|
-| Value + verdict (one KPI) | KPI card — deviation bar / bullet | precise value = number; gap = length | gauge · tinted pill |
-| Development over time | line (+ target reference) | curve reads as trajectory | bars · pie |
-| Composition over time | stacked area | total *and* share | stacked bars |
-| Compare categories / rank | sorted H-bars / lollipop | length compared directly (rank 1–3) | pie · radar |
-| Deviation from target | deviation bar / bullet | position & length > colour of a number | coloured number · gauge |
-| Contribution to a change | waterfall / bridge (PVM) | steps + running total | two pies |
-| Part-to-whole (≤ 4) | donut / 100%-stack | readable only at ≤ 4 | pie > 4 |
-| Correlation of two variables | scatter | two continuous variables | line (implies time) |
-| Flow between stages | sankey *(situational)* | the flow structure is the question | bars (if it's comparison) |
-| Which dimension drives it | decomposition tree *(Detail)* | interactive drill (Shneiderman) | a static exhibit |
-| Distribution of a variable | histogram / box | spread, median, outliers | bars |
-| Evidence detail | matrix — worst-first Top-N | row-level evidence + action | a long bar list |
-| **Never** (governed deny) | — | — | pie > 4 · 3D · gauge · radar · dual Y-axis without a reason · colour as decoration · Power BI smart-narrative |
+| Purpose | Question | Best idiom | Zone | Candidates |
+|---|---|---|---|---|
+| **time_comparison** | How is X developing over time — and against plan? | `line` | analysis | `line` · `area_stacked` · `small_multiples` · `indexed_line` · `slope` |
+| **deviation_from_target** | Are we above/below plan or target — by how much? | `deviation_bar` | pulse / analysis | `deviation_bar` · `bullet` · `ibcs_overlapped` |
+| **compare_categories** | Which categories lead or lag — where should attention focus? | `bar_ranking` | analysis | `bar_ranking` · `lollipop` · `bar_absolute` |
+| **contribution_to_change** | What moved the number from A to B — which drivers? | `waterfall_pvm` | analysis | `waterfall_pvm` · `waterfall_buildup` · `waterfall_variance` · `waterfall_ibcs` |
+| **part_to_whole** | What is the share of the whole (<= 4 parts)? | `donut` | analysis | `donut` · `stacked_100` |
+| **correlation** | How do two continuous variables relate? | `scatter` | analysis | `scatter` |
+| **flow_between_stages** | How does quantity flow between stages — where does it leak? | `sankey` | detail | `sankey` |
+| **driver_breakdown** | Which dimension drives the number? (interactive) | `decomposition_tree` | detail | `decomposition_tree` |
+| **distribution** | What is the spread / median / outliers of a variable? | `histogram` | analysis | `histogram` · `boxplot` |
+| **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` |
+| **value_verdict** | What is the headline value and its verdict? | `kpi_card` | pulse | `kpi_card` |
 
-**Placement — one idiom per 3-30-300 zone (this is where the catalog meets the layout rules):**
-- **3s · Pulse (KPI band):** KPI cards (deviation / bullet / dark hero) — headline value + verdict; **one focal point** (BC-COLOR-02); the biggest question sits top-left (hierarchy).
-- **30s · Analysis:** trend (vs plan) → waterfall/bridge (why) → ranking (where) → stacked area / scatter — each adds **one distinct sentence** (no duplicated trajectories).
-- **300s · Detail:** matrix (worst-first Top-N, deviation cells, action column), decomposition tree (drill), sankey (flow) — the Pulse's drill-through target.
+**Deny (never emit):** `pie_gt_4` · `three_d` · `gauge` · `radar` · `dual_axis_no_reason` · `color_as_decoration` · `powerbi_smart_narrative`.
 
-**Unified rule:** question → idiom → placement (zone) → composition (hierarchy · one focal point · whitespace · honest titles · worst-first, §A.8). An idiom is only ever as good as its fit to the question **and** its home in the page.
+**Situational / out:** `sankey` and `decomposition_tree` are situational [`Visual_Whitelist.md`](../../../../../core/templates/page_templates/governance/Visual_Whitelist.md) extensions (flow-structure only / Detail drill, one measure); `powerbi_smart_narrative` is out for Power BI (templated / unreliable) and kept other-tools only.
 
-### D.1 `kpi_card` — a metric, its verdict, its trajectory
-- **Question:** how are we doing on X vs plan/target, and where is it heading?
-- **Structure:** label · hero value (a number — best for a precise single value) · deviation · **chart full-width below**.
-- **Best form, by sub-question:** deviation bar (Δ vs plan, zero line) · bullet graph (vs target + ranges — Few, the governed gauge replacement) · trend + target reference (trajectory) · variance sparkline (gap over time — a *different sentence* than the level-trend) · IBCS overlapped AC/PL bars (true scale, scenario by pattern) · dark hero (the one focal point per page).
-- **Avoid:** the tinted delta pill (magnitude on colour + decorative fill); gauge/speedometer.
-- **Tools:** native `cardVisual` value + a companion slim `clusteredBarChart` for Δ (native can't colour one callout by sign) · SVG-DAX one `ImageUrl` measure (`<rect>` bar from the plan line, width = normalised Δ, fill by `SIGN`) · Vega-Lite `mark:bar` + `rule@0` + layered `text` · Web Recharts `BarChart` + `ReferenceLine x=0`.
+**Placement (unified with §A.8 layout).** 3s Pulse → `kpi_card` (deviation / bullet / hero); 30s Analysis → `line` → `waterfall_pvm` → `bar_ranking` → `area_stacked` / `scatter`; 300s Detail → `matrix_evidence` · `decomposition_tree` · `sankey`. Rule: question → idiom → zone → composition.
 
-### D.2 `trend_line` — development over time, against plan
-- **Question:** how is X developing, and is the gap to plan closing or widening?
-- **Best form:** a line (the eye reads the curve as trajectory — `charts.md` „Entwicklung über Zeit → Liniendiagramm"); honest **labelled** axis; plan as a **dashed reference line**; one **emphasized endpoint** carrying the verdict; direct end-label, no legend.
-- **Avoid:** bars/pie for a time series; an auto-scaled sparkline with no reference (graphical integrity — Tufte); a dual Y-axis without a stated semantic reason.
-- **Tools:** native `lineChart` + analytics-pane `y1AxisReferenceLine` (target measure) + last-point data label · SVG-DAX `CONCATENATEX` → `<polyline>` + plan `<line>` + endpoint `<circle>` · Vega-Lite `layer[ line, rule@plan, point(last), text ]` (`x:temporal`, `y:quantitative` honest domain) · Web Recharts `LineChart` + `ReferenceLine y=plan` + last `Label`, or D3 `d3.line()` + annotation.
+### Idioms
 
-### D.3 `bar_chart` / ranking — compare categories, worst-first
-- **Question:** which units/SKUs lead or lag against target — where should attention focus?
-- **Best form:** sorted **horizontal** bars (lengths compared directly, rank 1–3). To rank a *rate* against a benchmark honestly, each bar is the **deviation from target** (zero = target) — a 0-based absolute bar would be nearly full and hide the differences. Worst-first, Top-N, semantic colour (`charts.md` „Vergleich Kategorien / Rangfolge Top-N"; BC-CHART-10).
-- **Avoid:** unsorted bars; pie/donut for comparison; a broken/non-zero baseline on an absolute bar (misleads length); colour to separate equal categories.
-- **Tools:** native `clusteredBarChart` (horizontal) sort Δ ascending + Top-N + data labels + one `dataPoint.fill` highlight (metadata selector) · SVG-DAX per-row bar in a `matrix` (`<desc>` sort trick) · Vega-Lite `mark:bar`, `y sort:"-x"`, `x` = Δ zero-centred + `color` by sign · Web Recharts `BarChart layout="vertical"` + `ReferenceLine x=0` + `Cell`.
+#### `deviation_bar` — Deviation bar
+- **Purpose:** deviation_from_target, compare_categories · **zone:** pulse / analysis · **best form for:** `deviation_from_target`
+- **Avoid:** color_of_number_for_magnitude, decorative_tint, gauge
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/deviation_bar.yaml` (+ `golden/deviation_bar.*`)
 
-### D.4 `waterfall` / bridge — what moved a total
-- **Question:** what moved the number from A to B — which drivers, in which direction?
-- **Best form (variants):** **PVM bridge** (Plan → Price → Volume → Mix → Actual — sequential deltas, connectors between running totals, solid start/end anchors) · **value build-up** (Revenue − COGS = GM, honest 0-baseline) · **variance-driver bridge** (contributions to the plan gap from a zero=plan line, sorted worst-first — bridge + BC-CHART-10) · **IBCS bridge** (PL outlined / AC solid — scenario by pattern). Red down, green up.
-- **Avoid:** a bridge without connectors (the running total is lost); colour beyond semantic +/−; too many steps (group small drivers into „Other"); a hidden/unlabelled zoomed axis — always label every total and step (the zoom is IBCS-accepted because the deltas are the message).
-- **Tools:** native `waterfallChart` (Category = driver, one Y measure — COM-002 uses a disconnected `dim_pvm_driver` + a `SWITCH` „PVM Bridge Value") · SVG-DAX cumulative `OFFSET` → floating `<rect>`s + connector `<line>`s (`waterfall-measure.dax`) · Vega-Lite `window` running-sum → `bar` with `y/y2` + `rule` connectors · Web Recharts stacked-bar with a transparent base + `Cell`, or D3 with a manual cumulative.
+#### `line` — Trend line
+- **Purpose:** time_comparison · **zone:** analysis · **best form for:** `time_comparison`
+- **Avoid:** bars_for_time, autoscale_without_reference, dual_axis_no_reason, legend_when_direct_label_works
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/line.yaml` (+ `golden/line.*`)
 
-### Whitelist note
-`sankey` and `decomposition_tree` are **situational extensions** to [`Visual_Whitelist.md`](../../../../../core/templates/page_templates/governance/Visual_Whitelist.md), governed with caveats: Sankey → few sorted nodes, only when the *flow structure* is the question (width compares worse than bars); decomposition tree → exploratory drill on **Detail** pages, one measure, sorted branches (an analysis tool, not a static exhibit). `smart_narrative` is **out for Power BI** (templated / unreliable) and kept **other-tools only**.
+#### `bar_ranking` — Bar ranking
+- **Purpose:** compare_categories · **zone:** analysis · **best form for:** `compare_categories`
+- **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/bar_ranking.yaml` (+ `golden/bar_ranking.*`)
 
-### Roadmap — one visual per increment
-`kpi_card` ✅ · `trend_line` ✅ · `bar_chart`/ranking ✅ · `waterfall`/bridge ✅ · **evidence `matrix`** (next) · `stacked_area` (composition over time) · `sankey` · `decomposition_tree` · `scatter` · `donut`/100%-stack (≤ 4) · histogram/box · `slicer`. Each increment updates this section **and** the Artifact together (both synchron). The chooser (D.0) is the grounded „which visual, when" guide, unified with the §A.8 layout rules.
+#### `waterfall_pvm` — Waterfall bridge (PVM)
+- **Purpose:** contribution_to_change · **zone:** analysis · **best form for:** `contribution_to_change`
+- **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, unlabelled_zoomed_axis
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a full multi-step bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS waterfall UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/waterfall_pvm.yaml` (+ `golden/waterfall_pvm.*`)
+
+#### `area_stacked` — Stacked area
+- **Purpose:** time_comparison · **zone:** analysis
+- **Avoid:** stacked_bars_for_composition_over_time, too_many_series, inconsistent_series_colours
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (multi-series stacked area is not a single-cell micro-chart (a single-series area sparkline is — see `line`) → powerbi_native (stackedAreaChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/area_stacked.yaml` (+ `golden/area_stacked.*`)
+
+#### `indexed_line` — Indexed line
+- **Purpose:** time_comparison · **zone:** analysis
+- **Avoid:** mixing_indexed_and_absolute_axes, hidden_base_period, autoscale_without_base_line
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/indexed_line.yaml` (+ `golden/indexed_line.*`)
+
+#### `matrix_evidence` — Evidence matrix
+- **Purpose:** evidence_detail · **zone:** detail · **best form for:** `evidence_detail`
+- **Avoid:** unsorted_rows, long_bar_list_instead_of_table, too_many_columns
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (Vega-Lite is not a table tool → powerbi_native (tableEx) with an SVG-DAX data-bar column) · Web · Recharts n/a (Recharts has no table primitive → an HTML <table> with CSS data-bar cells (div width = normalised deviation))
+- **Code:** `visual_library/matrix_evidence.yaml` (+ `golden/matrix_evidence.*`)
+
+#### `scatter` — Scatter plot
+- **Purpose:** correlation · **zone:** analysis · **best form for:** `correlation`
+- **Avoid:** line_for_correlation, overplotting_without_opacity, dual_axis_no_reason
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a two-axis scatter is a full chart, not a single-cell micro-chart → powerbi_native (scatterChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/scatter.yaml` (+ `golden/scatter.*`)
+
+#### `donut` — Donut
+- **Purpose:** part_to_whole · **zone:** analysis · **best form for:** `part_to_whole`
+- **Avoid:** pie_or_donut_gt_4, many_thin_slivers, 3d_or_exploded
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (arc-path geometry in DAX is impractical → the DaxLib.SVG donut UDF (daxlib.org), or powerbi_native (donutChart) / Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/donut.yaml` (+ `golden/donut.*`)
+
+#### `bullet` — Bullet graph
+- **Purpose:** deviation_from_target · **zone:** pulse / analysis
+- **Avoid:** gauge_instead, colour_bands_instead_of_greys
+- **Tools:** Power BI · native n/a (Power BI has no native bullet base visual → deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/bullet.yaml` (+ `golden/bullet.*`)
+
+#### `slope` — Slope chart
+- **Purpose:** time_comparison · **zone:** analysis
+- **Avoid:** many_periods_use_line, crossing_spaghetti_too_many_series
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/slope.yaml` (+ `golden/slope.*`)
+
+#### `stacked_100` — 100% stacked bar
+- **Purpose:** part_to_whole · **zone:** analysis
+- **Avoid:** too_many_series, stacked_absolute_when_share_is_the_point, inconsistent_series_colours
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (multi-series normalised stacking is not a single-cell micro-chart → powerbi_native (hundredPercentStackedColumnChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/stacked_100.yaml` (+ `golden/stacked_100.*`)

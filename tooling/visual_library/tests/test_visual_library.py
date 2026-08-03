@@ -70,3 +70,14 @@ def test_no_unfilled_placeholders_and_json_is_valid():
             assert "{{" not in out and "}}" not in out, f"{idiom}.{tool} has an unfilled placeholder"
             if ext == "json":
                 json.loads(out)  # raises on invalid JSON
+
+
+def test_docs_render_matches_golden_and_idempotent():
+    """The generated Part D + HTML are pure functions of the library (SoT closes the loop)."""
+    import render_docs  # noqa: E402  (tooling/visual_library already on sys.path)
+    md = render_docs.render_part_d()
+    assert md == render_docs.render_part_d(), "Part D render is not idempotent"
+    golden = REPO_ROOT / "tooling" / "visual_library" / "tests" / "golden_docs" / "Part_D.md"
+    assert golden.exists(), "freeze it: render_docs.py md > tests/golden_docs/Part_D.md"
+    assert md == golden.read_text(encoding="utf-8"), "Part D drifted from the library — regenerate the docs"
+    assert render_docs.render_artifact_html() == render_docs.render_artifact_html(), "HTML render not idempotent"
