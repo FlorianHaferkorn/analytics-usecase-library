@@ -39,15 +39,47 @@ Every rule in this document carries one of four status labels:
 | S4 | Sweller (1988), Cognitive Load Theory, *Cognitive Science* 12(3) | Limits on visual count, extraneous load reduction | evidence-backed |
 | S5 | Miller (1956), "The Magical Number Seven", *Psychological Review* | Working memory chunks: basis for field limits | evidence-backed |
 | S6 | Hick (1952) / Hyman (1953), choice reaction time law | Slicer count limits | evidence-backed |
-| S7 | Few (2004), *Information Dashboard Design*, O'Reilly | Dashboard hierarchy, attention management | evidence-backed |
+| S7 | Few (**2006**), *Information Dashboard Design*, O'Reilly | Dashboard hierarchy, attention management | evidence-backed |
 | S8 | Few (2005), *Bullet Graph Design Specification*, Perceptual Edge | Bullet graph rules | evidence-backed |
 | S9 | IBCS — International Business Communication Standards (2021 edition) | Scenario notation, variance semantics, SUCCESS rules | evidence-backed |
-| S10 | SQLBI (2022), "The 3-30-300 Rule" | Layer structure, zone order | evidence-backed |
+| S10 | SQLBI / Buhler (2024), "The 3-30-300 Rule" | Layer structure, zone order | **heuristic** — see note |
 | S11 | Tufte (1983), *The Visual Display of Quantitative Information* | Data-ink ratio, small multiples, axes | evidence-backed |
 | S12 | Microsoft Power BI design guidance (2025) | Production layout, accessibility, performance | evidence-backed |
 | S13 | Meridian Report Layout reference HTML | Depth-layer chrome, card system, navigation | meridian-inspired |
 | S14 | WCAG 2.1 AA (W3C, 2018) | Accessibility: color contrast, focus, labels | evidence-backed |
 | S15 | Bertin (1983), *Semiology of Graphics* | Retinal variables: position, size, shape, color, orientation, texture | evidence-backed |
+
+### Korrekturen an dieser Tafel (02.08.2026, Recherche gegen den eigenen Stand)
+
+Drei Befunde aus einer Recherche mit dem ausdrücklichen Auftrag, diese Tafel zu
+**widerlegen**:
+
+1. **S7 war falsch datiert.** *Information Dashboard Design* erschien **2006** bei
+   O'Reilly, nicht 2004. Der 2004er Beitrag ist „Dashboard Confusion" (Intelligent
+   Enterprise) — ein anderer Text. Verifiziert über Open Library, ACM DL, InfoVis-Wiki.
+2. **S10 ist keine „evidence-backed" Quelle, sondern eine Heuristik.** Die 3-30-300-Regel
+   ist eine ausdrückliche **Paraphrase** von Shneidermans Visual-Information-Seeking-Mantra
+   (S1). Für die konkreten Schwellen 3 / 30 / 300 Sekunden ließ sich **keine** Studie
+   finden, die sie misst oder validiert. Die Regel bleibt nützlich — als Merkhilfe mit
+   echter Ahnenreihe, nicht als gemessene Zeitschwelle. Sie als belegt zu führen war eine
+   Überhöhung.
+3. **Die IBCS-Zuschreibung „M–A–K–T" ist nicht verifizierbar.** `PAGE_TYPE_TAXONOMY.md`
+   begründet die vier Familien u. a. mit *„IBCS uses 4: M–Message, A–Analysis, K–KPI,
+   T–Table"*. Diese Kategorisierung war weder auf ibcs.com noch in Sekundärquellen
+   auffindbar (ibcs.com liefert aus dieser Umgebung 403 — „nicht auffindbar" ist also
+   nicht „falsch", aber es ist auch kein Beleg).
+
+**Die Schlussfolgerung überlebt trotzdem — und zwar besser belegt als vorher.** Die
+Obergrenze von 4–5 Archetypen stützt sich jetzt auf drei unabhängige, prüfbare Quellen
+statt auf eine unauffindbare: Few (2006) 3 Typen, Eckerson (*Performance Dashboards*,
+Wiley, 2. Aufl. 2010) 3 Top-Level-Typen, und **Microsofts eigener `powerbi-report-design`-
+Skill (2026) mit 5 Archetypen** (S16).
+
+| ID | Source | Domain | Status |
+|---|---|---|---|
+| S16 | `microsoft/skills-for-fabric`, Skill `powerbi-report-design` (2026) | 5 Report-Archetypen, 12-Spalten-Raster, **Zonen als „advisory, not mandatory"** | evidence-backed (offizielles MS-Artefakt) |
+| S17 | Eckerson, *Performance Dashboards*, Wiley, 2. Aufl. (2010) | 3 Top-Level-Dashboard-Typen | evidence-backed |
+| S18 | Wang et al. (2019), *DataShot*, IEEE VIS | korpusgetriebene Templates (245 Infografiken), In-Lab-Studie | evidence-backed |
 
 ---
 
