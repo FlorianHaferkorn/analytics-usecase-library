@@ -134,7 +134,8 @@ enterprise.value_at_risk.index:
   dax_name: Enterprise Value-at-Risk Index
   display_folder: ''
 fin.cash.balance:
-  dax_expression: SUM ( fact_cash_position[Cash Balance Amount] )
+  dax_expression: LASTNONBLANKVALUE ( dim_date[Date], SUM ( fact_cash_position[Cash
+    Balance Amount] ) )
   format_string: ''
   dax_name: Cash Balance
   display_folder: ''
@@ -735,29 +736,53 @@ wc.ccc.days:
   dax_name: CCC Days
   display_folder: ''
 wc.dio.days:
-  dax_expression: 'VAR Inventory = SUM ( fact_inventory[Inventory Amount] )
+  dax_expression: 'VAR AvgInventoryBalance =
 
-    VAR COGS = SUM ( fact_inventory[COGS Amount] )
+    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_inventory[Average
+    Inventory Amount] ) ) )
 
-    RETURN DIVIDE ( Inventory * 365, COGS )'
+    VAR AnnualCOGS =
+
+    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[COGS
+    Amount] ) ) ) * 12
+
+    RETURN
+
+    DIVIDE ( AvgInventoryBalance * 365, AnnualCOGS )'
   format_string: '0'
   dax_name: DIO Days
   display_folder: ''
 wc.dpo.days:
-  dax_expression: 'VAR AP = SUM ( fact_accounts_payable[AP Amount] )
+  dax_expression: 'VAR AvgPayablesBalance =
 
-    VAR COGS = SUM ( fact_accounts_payable[COGS Amount] )
+    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[AP
+    Amount] ) ) )
 
-    RETURN DIVIDE ( AP * 365, COGS )'
+    VAR AnnualCOGS =
+
+    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[COGS
+    Amount] ) ) ) * 12
+
+    RETURN
+
+    DIVIDE ( AvgPayablesBalance * 365, AnnualCOGS )'
   format_string: '0'
   dax_name: DPO Days
   display_folder: ''
 wc.dso.days:
-  dax_expression: 'VAR AR = SUM ( fact_accounts_receivable[AR Amount] )
+  dax_expression: 'VAR AvgReceivablesBalance =
 
-    VAR NetSales = SUM ( fact_accounts_receivable[Revenue Amount] )
+    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_receivable[AR
+    Amount] ) ) )
 
-    RETURN DIVIDE ( AR * 365, NetSales )'
+    VAR AnnualRevenue =
+
+    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_receivable[Revenue
+    Amount] ) ) ) * 12
+
+    RETURN
+
+    DIVIDE ( AvgReceivablesBalance * 365, AnnualRevenue )'
   format_string: '0'
   dax_name: DSO Days
   display_folder: ''
