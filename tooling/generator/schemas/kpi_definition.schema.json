@@ -364,6 +364,16 @@
           }
         },
         {
+          "description": "LASTNONBLANKVALUE ( key_column, value ) — semi-additive reducer: over time the LAST non-blank value, over every other dimension additive. For balances (cash, inventory, headcount), where SUMming across periods yields a wrong number rather than an imprecise one.",
+          "additionalProperties": false,
+          "required": ["op", "key_column", "value"],
+          "properties": {
+            "op": { "const": "last_nonblank_over_key" },
+            "key_column": { "type": "string", "minLength": 1 },
+            "value": { "$ref": "#/$defs/calc_ref" }
+          }
+        },
+        {
           "description": "PVM volume-effect leaf: SUMX over this KPI's own lineage table of (quantity - plan_quantity) * DIVIDE(plan_sales, plan_quantity), all row-context columns (no aggregation wrapper).",
           "additionalProperties": false,
           "required": ["op", "quantity", "plan_quantity", "plan_sales"],

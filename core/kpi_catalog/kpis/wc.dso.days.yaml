@@ -29,6 +29,7 @@ technical:
   description: Measures days sales outstanding for receivables.
   depends_on_measures: []
   lineage:
+  - dim_date.CalendarYearMonth
   - fact_accounts_receivable.AR Amount
   - fact_accounts_receivable.Revenue Amount
   calculation:
@@ -37,10 +38,22 @@ technical:
       calc:
         op: mul
         terms:
-        - column: AR Amount
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: AR Amount
         - literal: 365
     denominator:
-      column: Revenue Amount
+      calc:
+        op: mul
+        terms:
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: Revenue Amount
+        - literal: 12
 governance:
   business_owner: Head of Treasury
   data_owner: Finance BI
@@ -59,5 +72,5 @@ standard_ref:
   name: Cash-to-Cash Cycle Time — DSO component
   url: https://scor.ascm.org/performance/asset-management
   alignment: partial
-  note: Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 =
-    DSO + Inventory Days − DPO). Not an IFRS line item; the receivables base is IFRS 9 / IAS 1.
+  note: Days Sales Outstanding is the receivables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory
+    Days − DPO). Not an IFRS line item; the receivables base is IFRS 9 / IAS 1.

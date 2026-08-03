@@ -319,7 +319,7 @@ def _resolve_calc_node(
                 raise KeyError("value")
             return {"op": "abs", "value": value}, None
 
-        if op in ("sumx_over_key", "avgx_over_key"):
+        if op in ("sumx_over_key", "avgx_over_key", "last_nonblank_over_key"):
             key_column = calc["key_column"]
             table = own_cols.get(key_column)
             value = ref("value")

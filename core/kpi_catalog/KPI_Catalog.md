@@ -3711,6 +3711,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measures days sales outstanding for receivables.
     depends_on_measures: []
     lineage:
+    - dim_date.CalendarYearMonth
     - fact_accounts_receivable.AR Amount
     - fact_accounts_receivable.Revenue Amount
     calculation:
@@ -3719,10 +3720,22 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
         calc:
           op: mul
           terms:
-          - column: AR Amount
+          - calc:
+              op: avgx_over_key
+              key_column: CalendarYearMonth
+              value:
+                column: AR Amount
           - literal: 365
       denominator:
-        column: Revenue Amount
+        calc:
+          op: mul
+          terms:
+          - calc:
+              op: avgx_over_key
+              key_column: CalendarYearMonth
+              value:
+                column: Revenue Amount
+          - literal: 12
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -3913,18 +3926,31 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measures days inventory outstanding.
     depends_on_measures: []
     lineage:
-    - fact_inventory.Inventory Amount
-    - fact_inventory.COGS Amount
+    - dim_date.CalendarYearMonth
+    - fact_inventory.Average Inventory Amount
+    - fact_accounts_payable.COGS Amount
     calculation:
       op: ratio
       numerator:
         calc:
           op: mul
           terms:
-          - column: Inventory Amount
+          - calc:
+              op: avgx_over_key
+              key_column: CalendarYearMonth
+              value:
+                column: Average Inventory Amount
           - literal: 365
       denominator:
-        column: COGS Amount
+        calc:
+          op: mul
+          terms:
+          - calc:
+              op: avgx_over_key
+              key_column: CalendarYearMonth
+              value:
+                column: COGS Amount
+          - literal: 12
   governance:
     business_owner: Head of Treasury / Supply Chain Finance
     data_owner: Finance BI
@@ -3975,6 +4001,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measures days payables outstanding.
     depends_on_measures: []
     lineage:
+    - dim_date.CalendarYearMonth
     - fact_accounts_payable.AP Amount
     - fact_accounts_payable.COGS Amount
     calculation:
@@ -3983,10 +4010,22 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
         calc:
           op: mul
           terms:
-          - column: AP Amount
+          - calc:
+              op: avgx_over_key
+              key_column: CalendarYearMonth
+              value:
+                column: AP Amount
           - literal: 365
       denominator:
-        column: COGS Amount
+        calc:
+          op: mul
+          terms:
+          - calc:
+              op: avgx_over_key
+              key_column: CalendarYearMonth
+              value:
+                column: COGS Amount
+          - literal: 12
   governance:
     business_owner: Head of Treasury / Procurement Controlling
     data_owner: Finance BI
@@ -4040,10 +4079,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - wc.dio.days
     - wc.dpo.days
     lineage:
+    - dim_date.CalendarYearMonth
     - fact_accounts_receivable.AR Amount
     - fact_accounts_receivable.Revenue Amount
-    - fact_inventory.Inventory Amount
-    - fact_inventory.COGS Amount
+    - fact_inventory.Average Inventory Amount
     - fact_accounts_payable.AP Amount
     - fact_accounts_payable.COGS Amount
     calculation:
@@ -4107,10 +4146,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Tracks cash and cash equivalents at period end.
     depends_on_measures: []
     lineage:
+    - dim_date.Date
     - fact_cash_position.Cash Balance Amount
     calculation:
-      op: sum
-      column: Cash Balance Amount
+      op: last_nonblank_over_key
+      key_column: Date
+      value:
+        column: Cash Balance Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI

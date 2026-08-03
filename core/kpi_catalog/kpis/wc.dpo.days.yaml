@@ -28,6 +28,7 @@ technical:
   description: Measures days payables outstanding.
   depends_on_measures: []
   lineage:
+  - dim_date.CalendarYearMonth
   - fact_accounts_payable.AP Amount
   - fact_accounts_payable.COGS Amount
   calculation:
@@ -36,10 +37,22 @@ technical:
       calc:
         op: mul
         terms:
-        - column: AP Amount
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: AP Amount
         - literal: 365
     denominator:
-      column: COGS Amount
+      calc:
+        op: mul
+        terms:
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: COGS Amount
+        - literal: 12
 governance:
   business_owner: Head of Treasury / Procurement Controlling
   data_owner: Finance BI
@@ -58,5 +71,5 @@ standard_ref:
   name: Cash-to-Cash Cycle Time — DPO component
   url: https://scor.ascm.org/performance/asset-management
   alignment: partial
-  note: Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1).
-    Not an IFRS line item; the payables base is IAS 1 / IFRS 9.
+  note: Days Payables Outstanding is the payables-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1). Not an IFRS
+    line item; the payables base is IAS 1 / IFRS 9.

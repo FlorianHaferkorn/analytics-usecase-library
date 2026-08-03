@@ -31,10 +31,10 @@ technical:
   - wc.dio.days
   - wc.dpo.days
   lineage:
+  - dim_date.CalendarYearMonth
   - fact_accounts_receivable.AR Amount
   - fact_accounts_receivable.Revenue Amount
-  - fact_inventory.Inventory Amount
-  - fact_inventory.COGS Amount
+  - fact_inventory.Average Inventory Amount
   - fact_accounts_payable.AP Amount
   - fact_accounts_payable.COGS Amount
   calculation:
@@ -66,5 +66,5 @@ standard_ref:
   url: https://scor.ascm.org/performance/asset-management
   alignment: exact
   note: CCC (DSO + DIO − DPO) is definitionally SCOR AM.1.1 Cash-to-Cash Cycle Time — a cross-domain finance↔supply-chain
-    metric with no single IFRS equivalent. Duplicate concept of ops.working_capital.ccc.days (proxy variant)
-    — consolidate toward this fact-based version.
+    metric with no single IFRS equivalent. Duplicate concept of ops.working_capital.ccc.days (proxy variant) — consolidate
+    toward this fact-based version.
