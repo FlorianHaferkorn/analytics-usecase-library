@@ -26,7 +26,16 @@ table dim_supplier
 				Source = #table(
 				type table [SupplierKey = Int64.Type, SupplierCode = Text.Type,
 				SupplierName = Text.Type, Region = Text.Type],
-				{}
+				{
+				{1, "SUP-001", "Nordwind Components AG", "DACH"},
+				{2, "SUP-002", "Helvetia Precision GmbH", "DACH"},
+				{3, "SUP-003", "Benelux Logistics BV", "Benelux"},
+				{4, "SUP-004", "Iberia Packaging SL", "SouthernEurope"},
+				{5, "SUP-005", "Baltic Raw Materials OU", "NorthernEurope"},
+				{6, "SUP-006", "Alpine Metalworks GmbH", "DACH"},
+				{7, "SUP-007", "Rhone Chemicals SA", "WesternEurope"},
+				{8, "SUP-008", "Vistula Textiles Sp z o o", "EasternEurope"}
+				}
 				)
 			in
 				Source
