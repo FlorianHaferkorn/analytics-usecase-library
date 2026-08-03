@@ -88,26 +88,31 @@ from .specs import (
 #     `slot-pos.ts` erlaubt fraktionale Zeilen ausdruecklich ("may be fractional").
 #
 # Format je Slot: (col, row, colSpan, rowSpan) in Logical Units.
-_OVERVIEW_LU: Dict[str, Tuple[float, float, float, float]] = {
-    "KPI_Cards":         (0, 0.00, 12, 1.69),
-    # Duenner Streifen unter dem KPI-Band, nur bei Benchmark-Achse einer Hero-Karte.
-    "Benchmark_Caption": (0, 1.54, 12, 0.56),
-    # Datums-Slicer: rowSpan 1.12 LU = 78 px auf 1080 — knapp ueber dem 76-px-Boden.
-    "Slicer_Date":       (0, 2.00, 12, 1.12),
-    # Drei gleich breite Hauptspalten. Waagerecht exakt 4 LU — das ist die Korrektur.
-    "Main_1":            (0, 2.99, 4, 8.90),
-    "Main_2":            (4, 2.99, 4, 8.90),
-    "Main_3":            (8, 2.99, 4, 8.90),
-}
+#
+# GELESEN, nicht hartkodiert (02.08.2026). Bis dahin standen diese Zahlen hier als
+# Python-Tabelle — die dritte von drei Geometrie-Quellen und die einzige, die der
+# lebende Pfad benutzte (§13).
+#
+# Aufgeloest wurde die Dublette durch **Promotion**, nicht durch Gleichsetzung: das
+# Layout hier ist NICHT `pulse`/`action_matrix`. Gemessen unterscheidet es sich in drei
+# Punkten, und keiner davon ist eine Rundung — ein breiter Datums-Slicer (12 LU) statt
+# dreier schmaler (4+4+4 mit Region/Product), volle Seitenschienen (12 LU) statt
+# geteilter (6+6 mit Slicer_Entity), und ein `ActionPanel` ueber die ganze Hoehe statt
+# buendig zur Matrix. Dazu `Benchmark_Caption`, das in keinem anderen Raster vorkommt.
+#
+# Es einfach auf `pulse` zu ziehen haette den Datums-Slicer auf ein Drittel geschrumpft
+# und zwei Drittel der Zeile leer gelassen — eine Regression, die wie Konsolidierung
+# aussieht. Stattdessen sind die beiden Layouts jetzt governte Raster-Templates
+# (`pulse_wide`, `action_rail`) und werden von dort gelesen. Gleiche Zahlen, eine
+# Autoritaet; ein Test haelt die Positionen byte-identisch fest.
+def _lu_aus_template(template_id: str) -> Dict[str, Tuple[float, float, float, float]]:
+    from tooling.superversion.layer_tools.page_templates import grid_template
 
-# Detailseite: Slicer-Bereich links, Narrativ + Matrix mittig, Aktionspanel rechts.
-# Waagerecht geht das exakt auf: 2 + 8 + 2 = 12 LU.
-_DETAIL_LU: Dict[str, Tuple[float, float, float, float]] = {
-    "Slicer_Pane":     (0, 0.00, 2, 12.00),
-    "Smart_Narrative": (2, 0.00, 8, 1.35),
-    "Detail_Matrix":   (2, 1.35, 8, 10.65),
-    "ActionPanel":     (10, 0.00, 2, 12.00),
-}
+    return {slot: tuple(lu) for slot, lu in grid_template(template_id).slots.items()}
+
+
+_OVERVIEW_LU: Dict[str, Tuple[float, float, float, float]] = _lu_aus_template("pulse_wide")
+_DETAIL_LU: Dict[str, Tuple[float, float, float, float]] = _lu_aus_template("action_rail")
 
 # Map bracket visual_type → VisualType enum
 _VISUAL_TYPE_MAP: Dict[str, VisualType] = {

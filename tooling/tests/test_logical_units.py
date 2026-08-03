@@ -166,3 +166,55 @@ def test_slicer_keeps_its_documented_pixel_floor():
     assert tpl["height"] < 76, (
         "Das Raster-Template haelt den 76-px-Boden inzwischen ein — dann ist dieser "
         "Hinweis erledigt und die Compiler-Tabelle kann ohne Vorbehalt abgeleitet werden.")
+
+
+def test_compiler_tables_are_read_not_hardcoded():
+    """Die Compiler-Tabellen kommen aus governten Raster-Templates (02.08.2026).
+
+    Sie waren die dritte von drei Geometrie-Quellen und die einzige, die der lebende
+    Pfad benutzte. Aufgeloest durch **Promotion**, nicht durch Gleichsetzung: das
+    Layout ist nachweislich NICHT `pulse`/`action_matrix` — breiter Datums-Slicer statt
+    dreier schmaler, volle Seitenschienen statt geteilter, plus `Benchmark_Caption`.
+    Es auf `pulse` zu ziehen haette den Slicer auf ein Drittel geschrumpft; das haette
+    wie Konsolidierung ausgesehen und waere eine Regression gewesen.
+
+    Der Test prueft beides: dass gelesen wird (Quelltext ohne Zahlen-Tabelle) und dass
+    die Zahlen sich dabei NICHT geaendert haben.
+    """
+    import inspect
+
+    from tooling.generator_core.ir import compiler
+    from tooling.superversion.layer_tools.page_templates import grid_template
+
+    assert compiler._OVERVIEW_LU == {s: tuple(lu) for s, lu
+                                     in grid_template("pulse_wide").slots.items()}
+    assert compiler._DETAIL_LU == {s: tuple(lu) for s, lu
+                                   in grid_template("action_rail").slots.items()}
+
+    # Und die Tabelle ist wirklich weg — nicht danebengestellt. Gesucht wird die alte
+    # Literalform (`"Slot": (0, 1.54, ...)`) ausserhalb von Kommentaren.
+    quelle = inspect.getsource(compiler)
+    code = "\n".join(z for z in quelle.splitlines() if not z.lstrip().startswith("#"))
+    assert '"Benchmark_Caption": (' not in code, (
+        "Die hartkodierte LU-Tabelle ist zurueck — dann gibt es wieder zwei Wahrheiten.")
+
+
+def test_promoted_templates_are_registered_like_every_other():
+    """`pulse_wide`/`action_rail` sind vollwertige Raster, keine Sonderfaelle.
+
+    Ein promoviertes Layout, das die Registrierung ueberspringt, ist dieselbe
+    Ausnahme wie vorher — nur mit Dateiendung.
+    """
+    import yaml
+
+    from tooling.superversion.layer_tools.page_templates import grid_template
+
+    manifest = yaml.safe_load(
+        (_ROOT / "core/templates/page_templates/template_manifest.yaml").read_text(encoding="utf-8"))
+    declared = manifest.get("grid_template_slots") or {}
+    for tid in ("pulse_wide", "action_rail"):
+        gt = grid_template(tid)
+        assert gt.slots, f"{tid} ohne Slots"
+        assert tid in declared, f"{tid} fehlt in grid_template_slots"
+        fehlend = sorted(set(gt.slots) - set(declared[tid]))
+        assert not fehlend, f"{tid}: Slots nicht deklariert: {fehlend}"

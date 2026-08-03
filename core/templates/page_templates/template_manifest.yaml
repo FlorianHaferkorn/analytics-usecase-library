@@ -30,6 +30,18 @@ grid:
 
 # Grid template slot catalog — every slot_id in grid_templates/*.json must resolve here.
 grid_template_slots:
+  pulse_wide:
+    - KPI_Cards
+    - Benchmark_Caption
+    - Slicer_Date
+    - Main_1
+    - Main_2
+    - Main_3
+  action_rail:
+    - Slicer_Pane
+    - Smart_Narrative
+    - Detail_Matrix
+    - ActionPanel
   pulse:
     - KPI_Cards
     - Slicer_Date

@@ -1252,12 +1252,35 @@ Der Weg dahin war bewusst dreistufig: erst feuerfähig (39/40 rot), dann Möbel 
 dann Raster-Bindung (3→0), dann hart. Ein Gate, das rot ankommt, wird abgeschaltet statt
 erfüllt.
 
-### Offen
+### Die dritte Quelle: aufgelöst durch Promotion, nicht durch Gleichsetzung
 
-Die Compiler-Tabelle `_OVERVIEW_LU`/`_DETAIL_LU` besteht weiter — der IR-Compiler
-positioniert an zehn Stellen ohne Variantenwissen. Sie ist jetzt **benannt** als das, was
-sie ist (`pulse`/`action_matrix` als Default-Raster), aber noch nicht abgeleitet. Das ist
-die nächste Konsolidierung, mit eigener Sprengweite: sie ändert auch den Compiler-Pfad.
+Die Compiler-Tabelle war die letzte der drei Geometrie-Quellen — und die naheliegende
+Lösung wäre gewesen, sie aus `pulse`/`action_matrix` abzuleiten. Gemessen wäre das eine
+**Regression** gewesen, keine Konsolidierung. Die Unterschiede sind keine Rundungen:
+
+| Slot | Compiler | `pulse`/`action_matrix` | Δ |
+|---|---|---|---:|
+| `Slicer_Date` | 12 LU breit | 4 LU (daneben Region + Product) | 1248 px |
+| `Slicer_Pane` | volle Höhe (12) | 6 (darunter `Slicer_Entity`) | 516 px |
+| `ActionPanel` | volle Höhe ab Zeile 0 | bündig zur Matrix ab Zeile 1 | 86 px |
+| `Benchmark_Caption` | vorhanden | existiert in **keinem** Raster | — |
+
+Ein Ableiten hätte den Datums-Slicer auf ein Drittel geschrumpft und zwei Drittel der
+Zeile leer gelassen. Das hätte wie Aufräumen ausgesehen und wäre Schaden gewesen — die
+gleiche Falle wie beim Tooltip-Versuch in Meridian am selben Tag.
+
+Stattdessen sind die beiden Layouts **promoviert**: `grid_templates/pulse_wide.json` und
+`action_rail.json`, registriert in `grid_template_slots` wie jedes andere Raster. Der
+Compiler liest sie jetzt, statt sie zu führen. **Die Zahlen sind byte-identisch** — ein
+Test prüft beides: dass gelesen wird *und* dass sich dabei nichts verschoben hat.
+
+Der Unterschied zur Gleichsetzung ist der Punkt: zwei verschiedene Layouts als eines
+auszugeben löst keine Dublette, es versteckt eine Entscheidung. Zwei benannte Raster
+lösen sie — die Wahl ist jetzt sichtbar und prüfbar, statt in einer Python-Tabelle zu
+stecken.
+
+**Damit ist §13 geschlossen: drei Geometrie-Quellen → eine Autorität** (die
+`grid_templates/`), sechs Templates → acht, alle governt, alle drift-geprüft.
 
 ---
 
