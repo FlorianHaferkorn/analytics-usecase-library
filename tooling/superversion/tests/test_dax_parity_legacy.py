@@ -388,3 +388,164 @@ def test_parity_case_count_covers_all_non_hitl_core_kpis():
     }
     missing = computed_kpi_ids - set(KPI_TO_LEGACY)
     assert not missing, f"KPIs with a calculation but no parity-test entry: {sorted(missing)}"
+
+
+# ---------------------------------------------------------------------------
+# Zweite DAX-Quelle: das Fabric-Measure-Overlay
+#
+# `fabric_measure_overlay.yaml` traegt handgeschriebene `dax_expression`-Strings
+# und speist damit den pwsh-Generator (generate_tmdl_measures.ps1 ueber
+# tooling/ir/build_ir.py). Der Katalog speist ueber `technical.calculation` die
+# Synthese. Zwei Quellen fuer dieselbe Wahrheit -- und bis 03.08.2026 ohne
+# Vergleich dazwischen.
+#
+# Das ist nicht theoretisch. Als das FIN-001-Modell fachlich richtiggestellt wurde
+# (WC-KPIs ueber Monate gemittelt, Cash Balance semi-additiv), zog der Katalog nach,
+# das Overlay nicht. Der pwsh-Generator erzeugte weiter `SUM` statt
+# `LASTNONBLANKVALUE` und las fuer DIO Days zwei falsche Spalten. Kein Test schlug
+# an: der Parity-Test oben prueft Synthese gegen dist-TMDL, das Overlay kommt dort
+# in keinem Vergleich vor. Wer den Generator laufen liess, machte die fachliche
+# Korrektur still rueckgaengig.
+#
+# Verglichen werden SPALTENMENGEN, nicht Text. Beide Seiten duerfen dieselbe
+# Rechnung verschieden schreiben -- `CCC Days` steht im dist als VAR-Kette und im
+# Overlay als `[DSO] + [DIO] - [DPO]`, das ist kein Defekt. Was sie nicht duerfen,
+# ist aus verschiedenen Spalten oder Tabellen lesen. Genau das war der Fehler.
+#
+# Bewusst NICHT entschieden: ob das Overlay ueberhaupt eigene DAX tragen soll oder
+# nur Anzeigenamen. Solange es beides gibt, muessen sie uebereinstimmen.
+# ---------------------------------------------------------------------------
+
+OVERLAY = REPO / "products/fabric/powerbi/specs/fabric_measure_overlay.yaml"
+
+# Platzhalter statt Formel -- das Overlay ist hier noch nicht gefuellt. Kein
+# Widerspruch zum Katalog, sondern ein Rueckstand; getrennt gezaehlt statt still
+# uebersprungen (s. `test_overlay_gap_ratchet`).
+_OVERLAY_STUB_RE = re.compile(r"BLANK\s*\(\s*\)")
+
+
+def _is_stub(expr: str) -> bool:
+    return bool(_OVERLAY_STUB_RE.search(expr)) and "TBD" in expr
+
+
+# Stand 03.08.2026: 13 Eintraege, bei denen Overlay und Katalog dieselbe Kennzahl
+# aus VERSCHIEDENEN Quellen rechnen. Das ist keine Formatfrage und nicht nebenbei
+# zu entscheiden -- welche Faktentabelle fuer CLV, Beschwerden oder Promo-Effekte
+# massgeblich ist, ist eine Modellierungsentscheidung (dieselbe Klasse wie
+# `dim_material` auf der Fabric-Seite).
+#
+# Der Eintrag hier legt NICHT fest, welche Seite recht hat. Er haelt fest, was am
+# 03.08.2026 bereits auseinanderlief, damit ab jetzt jede NEUE Abweichung rot wird.
+# Wer einen Fall entscheidet, loescht seine Zeile -- die Ratsche unten sorgt dafuer,
+# dass die Liste nur schrumpfen kann.
+OVERLAY_KNOWN_DIVERGENCES: dict[str, str] = {
+    "crm.active_customers.count":
+        "andere Faktentabelle — Overlay fact_sales vs. Katalog fact_customer_events",
+    "crm.churned_customers.count":
+        "andere Faktentabelle — Overlay dim_date/fact_sales vs. Katalog fact_customer_events",
+    "crm.clv.amount":
+        "andere Faktentabelle — Overlay fact_sales vs. Katalog fact_customer_value",
+    "crm.complaint.count":
+        "andere Faktentabelle — Overlay fact_experience vs. Katalog fact_complaints",
+    "crm.lifetime_revenue.amount":
+        "gleiche Tabelle, andere Spalten — Overlay ohne CustomerKey-Iteration",
+    "crm.nps.index":
+        "gleiche Tabelle, andere Spalten — Overlay Is Promoter/Is Detractor vs. Katalog NPS Score",
+    "crm.retention.pct":
+        "andere Faktentabelle — Overlay dim_date/fact_sales vs. Katalog fact_customer_events",
+    "crm.revenue_at_risk.amount":
+        "andere Faktentabelle — Overlay fact_sales vs. Katalog fact_customer_events + fact_sales",
+    "margin.promo.gm.pct":
+        "andere Faktentabelle — Overlay fact_sales vs. Katalog fact_promo + fact_sales",
+    "sales.promo.cannibalization.pct":
+        "gleiche Tabellen, andere Spalten — Overlay zieht Baseline Non-Promo zusaetzlich",
+    "sales.promo.cannibalized_sales.amount":
+        "andere Faktentabelle — Overlay fact_promo + fact_sales vs. Katalog nur fact_promo",
+    "sales.promo.incremental_gm.amount":
+        "gleiche Tabellen, andere Spalten — Overlay ueber Promo Flag statt fact_promo-Baseline",
+    "sales.promo.roi.pct":
+        "gleiche Tabellen, andere Spalten — Overlay ueber Promo Flag statt fact_promo-Baseline",
+}
+
+
+def _overlay() -> dict[str, dict]:
+    return yaml.safe_load(OVERLAY.read_text(encoding="utf-8")) or {}
+
+
+def _overlay_leaf_columns(kpi_id: str, overlay: dict[str, dict]) -> set[tuple[str, str]] | None:
+    """Terminal (table, column) pairs der Overlay-DAX fuer `kpi_id`.
+
+    Gleiche Aufloesung wie auf der Katalogseite: VARs inlinen, `[Measure]`-Refs
+    gegen die uebrigen Overlay-Ausdruecke aufloesen, dann Spalten extrahieren.
+    None, wenn der Eintrag keine `dax_expression` traegt.
+    """
+    entry = overlay.get(kpi_id) or {}
+    expr = entry.get("dax_expression")
+    if not expr:
+        return None
+    by_measure_name = {
+        e["dax_name"]: e["dax_expression"]
+        for e in overlay.values()
+        if isinstance(e, dict) and e.get("dax_expression") and e.get("dax_name")
+    }
+    return _extract_column_refs(_resolve_bracket_refs(_inline_vars(expr), by_measure_name))
+
+
+_OVERLAY_CASES = sorted(
+    kid for kid, e in (_overlay() or {}).items()
+    if isinstance(e, dict) and e.get("dax_expression")
+)
+
+
+@pytest.mark.parametrize("kpi_id", _OVERLAY_CASES)
+def test_overlay_dax_matches_catalog_calculation(kpi_id):
+    """Overlay-DAX und Katalog-Synthese lesen dieselben Spalten."""
+    overlay = _overlay()
+    expr = overlay[kpi_id]["dax_expression"]
+    if _is_stub(expr):
+        pytest.skip(f"{kpi_id}: Overlay traegt einen TBD/BLANK-Platzhalter (s. Ratsche)")
+    if kpi_id in OVERLAY_KNOWN_DIVERGENCES:
+        pytest.skip(f"dokumentierte Abweichung: {OVERLAY_KNOWN_DIVERGENCES[kpi_id]}")
+
+    catalog = _catalog()
+    synthesized = _synthesized_leaf_columns(kpi_id, catalog)
+    if synthesized is None:
+        pytest.skip(f"{kpi_id}: keine aufloesbare Katalog-Berechnung — Overlay ist alleinige Quelle")
+
+    overlay_cols = _overlay_leaf_columns(kpi_id, overlay)
+    assert overlay_cols == synthesized, (
+        f"{kpi_id}: Overlay-DAX und Katalog-Berechnung lesen verschiedene Spalten.\n"
+        f"  Overlay (-> pwsh-Generator) = {sorted(overlay_cols)}\n"
+        f"  Katalog (-> dax_synth)      = {sorted(synthesized)}\n"
+        f"  Overlay: {OVERLAY.relative_to(REPO)}\n"
+        f"  Katalog: core/kpi_catalog/kpis/{kpi_id}.yaml\n"
+        f"Entweder das Overlay nachziehen, oder -- wenn die Quellen bewusst "
+        f"verschieden sind -- mit Begruendung in OVERLAY_KNOWN_DIVERGENCES eintragen."
+    )
+
+
+# Stand 03.08.2026, gemessen: 43 Platzhalter im ganzen Overlay (36 davon haben
+# eine aufloesbare Katalogseite, koennten also sofort gefuellt werden).
+# Beide Zahlen duerfen nur SINKEN: ein Platzhalter, der
+# gefuellt wird, und eine Abweichung, die entschieden wird, kommen nicht zurueck.
+# Ohne die Ratsche waere ein `skip` die bequemste Art, eine Luecke unsichtbar zu
+# machen -- uebersprungene Tests liest niemand, eine steigende Zahl schon.
+_OVERLAY_STUBS_BASELINE = 43
+_OVERLAY_DIVERGENCES_BASELINE = 13
+
+
+def test_overlay_gap_ratchet():
+    overlay = _overlay()
+    stubs = sum(1 for e in overlay.values()
+                if isinstance(e, dict) and e.get("dax_expression") and _is_stub(e["dax_expression"]))
+    assert stubs <= _OVERLAY_STUBS_BASELINE, (
+        f"Overlay-Platzhalter gestiegen: {stubs} > {_OVERLAY_STUBS_BASELINE}. "
+        f"Neue TBD/BLANK-Eintraege statt echter Formeln."
+    )
+    assert len(OVERLAY_KNOWN_DIVERGENCES) <= _OVERLAY_DIVERGENCES_BASELINE, (
+        f"Dokumentierte Overlay-Abweichungen gestiegen: {len(OVERLAY_KNOWN_DIVERGENCES)} "
+        f"> {_OVERLAY_DIVERGENCES_BASELINE}. Eine neue Abweichung gehoert entschieden, "
+        f"nicht eingetragen."
+    )
+    for kpi_id in OVERLAY_KNOWN_DIVERGENCES:
+        assert kpi_id in overlay, f"{kpi_id} steht in OVERLAY_KNOWN_DIVERGENCES, aber nicht im Overlay"
