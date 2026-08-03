@@ -4,22 +4,71 @@
   "title": "VisualSpec",
   "description": "Tool-agnostic intermediate representation of a single visual slot. Adapters translate this to platform-specific output (PBIP JSON, Metabase card, Grafana panel, …).",
   "type": "object",
-  "required": ["id", "visual_type", "page_role", "position"],
+  "required": [
+    "id",
+    "visual_type",
+    "page_role",
+    "position"
+  ],
   "additionalProperties": false,
   "properties": {
     "id": {
       "type": "string",
       "description": "Slot identifier matching UseCase_Bracket slot names",
-      "examples": ["KPI_Cards", "Main_1", "Main_2", "Main_3", "Detail_Matrix", "ActionPanel", "Smart_Narrative", "Slicer_Date", "Slicer_Pane"]
+      "examples": [
+        "KPI_Cards",
+        "Main_1",
+        "Main_2",
+        "Main_3",
+        "Detail_Matrix",
+        "ActionPanel",
+        "Smart_Narrative",
+        "Slicer_Date",
+        "Slicer_Pane"
+      ]
     },
     "visual_type": {
       "type": "string",
-      "enum": ["kpi_card", "trend_line", "bar_chart", "waterfall", "scatter", "matrix", "table", "slicer", "smart_narrative", "action_panel", "text_box", "small_multiples"],
+      "enum": [
+        "action_panel",
+        "action_panel_card",
+        "alert_list_card",
+        "area_chart",
+        "banded_bar_chart",
+        "banded_column_chart",
+        "bullet_graph",
+        "column_chart",
+        "contribution_table",
+        "decomposition_tree",
+        "dot_plot",
+        "exception_table",
+        "horizontal_bar_categorical",
+        "horizontal_bar_chart",
+        "impact_effort_scatter",
+        "kpi_card_with_delta",
+        "line_chart",
+        "matrix",
+        "recommendation_table",
+        "scatter_plot",
+        "slicer",
+        "small_multiples",
+        "smart_narrative",
+        "stacked_bar_100",
+        "stacked_column_100",
+        "table",
+        "text_box",
+        "text_narrative",
+        "variance_bar",
+        "waterfall_chart"
+      ],
       "description": "Tool-agnostic visual type from UseCase_Bracket vocabulary"
     },
     "page_role": {
       "type": "string",
-      "enum": ["overview", "detail"],
+      "enum": [
+        "overview",
+        "detail"
+      ],
       "description": "Which page layer this visual belongs to"
     },
     "position": {
@@ -29,15 +78,24 @@
       "$ref": "#/definitions/Binding"
     },
     "title": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Optional display title for the visual"
     },
     "kpi_id": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Source KPI ID from the KPI catalog"
     },
     "action_code_id": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "Source action code ID if visual is action-related"
     },
     "config": {
@@ -50,19 +108,44 @@
       "description": "Explicit annotations on the primary visual (DoD #11). At least one required on Main_1 unless annotation_waiver is set. Authority: Knaflic, Storytelling with Data (2015), p. 173.",
       "items": {
         "type": "object",
-        "required": ["label"],
+        "required": [
+          "label"
+        ],
         "additionalProperties": false,
         "properties": {
-          "label":       { "type": "string", "description": "Annotation text displayed on the visual" },
-          "anchor":      { "type": "string", "description": "Data point anchor: 'inflection', 'endpoint', 'max_deviation', 'threshold_crossing', or a specific date/value string" },
-          "x":           { "type": ["number", "null"], "description": "Canvas x position (0.0–1.0 fraction) when manually placed" },
-          "y":           { "type": ["number", "null"], "description": "Canvas y position (0.0–1.0 fraction) when manually placed" }
+          "label": {
+            "type": "string",
+            "description": "Annotation text displayed on the visual"
+          },
+          "anchor": {
+            "type": "string",
+            "description": "Data point anchor: 'inflection', 'endpoint', 'max_deviation', 'threshold_crossing', or a specific date/value string"
+          },
+          "x": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Canvas x position (0.0–1.0 fraction) when manually placed"
+          },
+          "y": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Canvas y position (0.0–1.0 fraction) when manually placed"
+          }
         }
       }
     },
     "ibcs_scenario": {
       "type": "string",
-      "enum": ["ac", "pl", "fc", "py"],
+      "enum": [
+        "ac",
+        "pl",
+        "fc",
+        "py"
+      ],
       "description": "IBCS scenario encoding for this visual series. Drives fill/shape rendering: ac=solid, pl=outlined, fc=hatched, py=50%-tint. Authority: IBCS Institute, Solid/Outlined/Hatched (2020)."
     }
   },
@@ -70,13 +153,34 @@
     "Position": {
       "type": "object",
       "description": "Canvas-fraction position. All values are 0.0–1.0 ratios of canvas dimensions.",
-      "required": ["x", "y", "width", "height"],
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
       "additionalProperties": false,
       "properties": {
-        "x":      {"type": "number", "minimum": 0.0, "maximum": 1.0},
-        "y":      {"type": "number", "minimum": 0.0, "maximum": 1.0},
-        "width":  {"type": "number", "minimum": 0.0, "maximum": 1.0},
-        "height": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+        "x": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "height": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
       }
     },
     "Binding": {
@@ -85,42 +189,71 @@
       "additionalProperties": false,
       "properties": {
         "measure": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Primary measure name"
         },
         "measures": {
           "type": "array",
-          "items": {"type": "string"},
+          "items": {
+            "type": "string"
+          },
           "description": "Multiple measures (KPI cards, matrix)"
         },
         "category": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Category axis column. Format: 'table.column' or just 'column'",
-          "examples": ["dim_date.Date", "dim_org.OrgName", "dim_product.ProductName"]
+          "examples": [
+            "dim_date.Date",
+            "dim_org.OrgName",
+            "dim_product.ProductName"
+          ]
         },
         "series": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Series/legend column"
         },
         "columns": {
           "type": "array",
-          "items": {"type": "string"},
+          "items": {
+            "type": "string"
+          },
           "description": "Table columns for matrix/table visuals"
         },
         "filter_table": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Slicer target table"
         },
         "filter_column": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Slicer target column"
         },
         "sort_by": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Default sort column or measure name"
         },
         "top_n": {
-          "type": ["integer", "null"],
+          "type": [
+            "integer",
+            "null"
+          ],
           "description": "Top-N filter if applicable"
         }
       }

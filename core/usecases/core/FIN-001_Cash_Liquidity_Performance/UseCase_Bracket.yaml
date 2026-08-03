@@ -59,13 +59,13 @@ ux_layout_rules:
     big_idea: "Cash conversion is deteriorating — DSO extension and payables compression are squeezing liquidity headroom and require urgent working capital intervention."
     component_3s:
       kpi_id: wc.ccc.days
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: fin.cash.balance
-      visual_type: trend_line
+      visual_type: line_chart
       question: "Is the cash balance on a safe trajectory?"
       message: Cash balance is drifting down toward its safety-margin threshold
       so_what: "Without working-capital intervention, this trend erodes the safety margin before quarter-end."
@@ -77,14 +77,14 @@ ux_layout_rules:
       # (its own worst-first variance signal there).
       kpi_id: fin.cash.ocf
       comparison: vs_plan
-      visual_type: waterfall
+      visual_type: waterfall_chart
       question: "Is operating cash flow meeting plan, and what's driving the gap?"
       message: Operating cash flow is trailing plan, driven by collections rather than cost
       so_what: "An OCF-versus-Plan gap points at collections and cash conversion, not cost control, as the fix."
       unit: amount
     - slot_id: Main_3
       # CCC bridge: DSO + DIO − DPO → CCC decomposition (mapping_gap fix; IBCS bridge)
-      visual_type: waterfall
+      visual_type: waterfall_chart
       comparison: vs_target
       kpi_ids:
       - wc.dso.days

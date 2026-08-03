@@ -1,10 +1,24 @@
-# Abstract Visual Type Vocabulary
+# Abstract Visual Type Vocabulary — **abgelöst (02.08.2026)**
 
-> **Authority:** This document defines the tool-agnostic vocabulary for all visual types used in the 3-30-300 framework. Connectors translate these abstract types to tool-native components.
+> **Diese Datei ist NICHT mehr normativ.**
+> Autorität für das Visualtyp-Vokabular ist
+> [`visual_registry.yaml`](visual_registry.yaml) — die `information_blocks` mit ihren
+> `allowed_visuals` / `forbidden_visuals` / `targets`.
+> Entscheidung und Begründung: [ADR-0018](../../../docs/architecture/adr/0018-visual-vocabulary-single-authority.md).
 >
-> **Used by:** `Connector_Spec.md` · `governance/Visual_Whitelist.md` · `tokens/visual_slot_mapping.yaml`
+> **Warum:** von den 34 Typen unten wurden **24 von keinem Block verwendet**; von den 25
+> gelebten Registry-IDs standen nur **7** hier. Eine Liste, die kein Checker prüft, ist
+> keine Autorität.
+>
+> **Wozu die Datei bleibt:** als historischer Beleg für die Herkunft der Typnamen und der
+> Slot-/Template-Zuordnung. Wer einen der Typen unten braucht, nimmt ihn als Eintrag eines
+> `information_block` auf — mit `source` und `targets`, wie ADR-0018 §2.3 verlangt.
+> **Nichts hier unten darf als geltendes Vokabular gelesen werden.**
 
 ---
+
+<details>
+<summary>Historischer Stand (Fassung vom 01.08.2026, nicht mehr gültig)</summary>
 
 ## 1. Purpose
 
@@ -190,3 +204,5 @@ When choosing an abstract visual type for a slot, apply in this order:
    - T1 (executive): `kpi_card`, `line_chart`, `bar_chart_horizontal` only
    - T4 (decision owner): `scatter_plot` for impact-effort is acceptable
    - T3 (operational): focus on `status_tile` and `bar_chart_horizontal` for fast scanning
+
+</details>

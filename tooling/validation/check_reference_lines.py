@@ -33,7 +33,23 @@ REPO = Path(__file__).resolve().parents[2]
 _USECASES = REPO / "core/usecases"
 
 # Deviation is intrinsic to these — the bars ARE the gap, no reference line needed.
-_INTRINSIC_DEVIATION = {"waterfall", "variance_bar", "stacked_bar"}
+# Schreibweisen-Robustheit (ADR-0018 / Task L2): Brackets tragen teils Alt-Token
+# (`waterfall`), teils Registry-Namen (`waterfall_chart`). Ein Literalvergleich
+# gegen nur eine Schreibweise hoert beim Umbenennen STILL auf zu greifen — die
+# Pruefung meldet dann nichts mehr und sieht dabei aus wie eine bestandene.
+# Deshalb wird der eingehende Wert zuerst kanonisiert.
+try:
+    from tooling.superversion.layer_tools.visual_library import canonical_visual_id as _kanon
+except Exception:  # pragma: no cover - Standalone-Lauf ohne Repo-Root im Pfad
+    def _kanon(t):  # type: ignore[misc]
+        return t
+
+
+def _vt(token):
+    """Bracket-Token -> kanonische Registry-ID (oder unveraendert, wenn unbekannt)."""
+    return _kanon(token) or token
+
+_INTRINSIC_DEVIATION = {"waterfall_chart", "variance_bar"}
 
 
 def comparisons_needing_reference() -> list[tuple[str, str, str]]:
@@ -47,7 +63,7 @@ def comparisons_needing_reference() -> list[tuple[str, str, str]]:
         for ex in page.get("component_30s") or []:
             if not isinstance(ex, dict):
                 continue
-            if ex.get("comparison") and ex.get("visual_type") not in _INTRINSIC_DEVIATION:
+            if ex.get("comparison") and _vt(ex.get("visual_type")) not in _INTRINSIC_DEVIATION:
                 out.append((bid, ex.get("slot_id", "?"), ex["comparison"]))
     return out
 

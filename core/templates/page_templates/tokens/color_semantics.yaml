@@ -54,6 +54,41 @@ surface:
   card:    "#FFFFFF"   # visual / card background
   row_alt: "#F9F9F9"   # alternating table row
 
+
+# Sanktionierte Grundlinie des Kartensystems (Entscheidung Flo, 03.08.2026 — Weg A)
+# ---------------------------------------------------------------------------------
+# Zwei Regeln der Craft-Rubrik lesen sich woertlich gegen jedes Kartensystem:
+#   BC-LAYOUT-02  "Gruppierung durch Weissraum … keine dekorativen Boxen/Rahmen"
+#   BC-CHART-04   "entruempelt: kein Hintergrund, … keine Schatten"
+# Beide sind gegen Zierrat geschrieben. Zwei andere Regeln SETZEN das Kartensystem
+# aber voraus (BC-LAYOUT-03 Hero-Karte, BC-BRAND-01 komponiertes Theme), und
+# `surface.card` steht seit jeher hier. Entschieden ist deshalb: das Kartensystem ist
+# legitim, und die Regeln meinen "keine Dekoration UEBER das Kartensystem hinaus".
+#
+# Damit dieser Satz pruefbar wird statt bloss gemeint, steht die Grundlinie hier —
+# und zwar als OBERGRENZE, nicht als Sollwert. Die Werte sind die des heute
+# beschlossenen Themes (Aurora Monochromatic Light); sanktioniert ist genau diese
+# Erhebung, alles Staerkere ist Dekoration. Kein Toleranzaufschlag, weil jeder
+# Aufschlag eine Entscheidung waere, die niemand getroffen hat.
+container_baseline:
+  background:
+    allowed: true
+    from_tokens: [page, card, row_alt]   # nur Flaechen aus `surface`
+  border:
+    allowed: true
+    width_max_px: 0.5
+    radius_max_px: 8
+    from_tokens: [page, card, row_alt, default]
+  drop_shadow:
+    allowed: true
+    transparency_min_pct: 90     # niedriger = kraeftiger Schatten = Dekoration
+    distance_max_px: 1
+    blur_max_px: 8
+    spread_max: 0.1
+  padding:
+    max_px: 10
+  # Ausdruecklich NIE: Zierrat in jeder Lesart, unabhaengig vom Kartensystem.
+  never: [gradient, bevel, glow, glass, image]
 text:
   primary:   "#201F1E"  # titles, values, labels
   secondary: "#605E5C"  # axis labels, footnotes (muted)

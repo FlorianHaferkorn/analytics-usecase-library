@@ -11,6 +11,26 @@
 # Every UseCase_Bracket.yaml ux_layout_rules.template_variant must resolve to an
 # entry in this manifest. The template compiler validates this at build time.
 #
+# Slot-Haerte: `mandatory` und `severity` sind ZWEI Fragen
+# --------------------------------------------------------
+#   mandatory: false  → der Slot muss seinen Platz erst verdienen. Genau das meint
+#                       Microsofts powerbi-report-design-Skill mit „Treat archetype
+#                       zones as advisory, not mandatory."
+#   mandatory: true   → die Variante sagt den Slot zu. `severity` sagt, wie hart das
+#                       Gate diese Zusage einfordert:
+#                         error   (Default) → e2e_smoke FAIL
+#                         warning           → e2e_smoke WARN, blockt nicht
+#
+# Die Achse ist die **Datenlage der Regel**, nie die Art des Slots — so wie Kubernetes
+# Pod Security (enforce/audit/warn), HashiCorp Sentinel (advisory/soft-/hard-mandatory)
+# und ESLint (off/warn/error) es halten. Daraus die Regel, die
+# tooling/tests/test_template_manifest_alignment.py maschinell erzwingt:
+#
+#   Ein Pflicht-Slot steht nur auf `error`, wenn seine Variante benutzt wird.
+#   `status: unused` heisst null Emissionen, also null Verletzungsdaten — und ein
+#   hartes Gate ohne Datenlage ist der PSS-Weg rueckwaerts. Neue Slots starten
+#   deshalb auf `warning` und steigen auf `error`, sobald echte Laeufe es tragen.
+#
 # Schema: tooling/generator/schemas/template_manifest.schema.json (pending)
 
 manifest_version: "1.0.0"
@@ -30,6 +50,18 @@ grid:
 
 # Grid template slot catalog — every slot_id in grid_templates/*.json must resolve here.
 grid_template_slots:
+  pulse_wide:
+    - KPI_Cards
+    - Benchmark_Caption
+    - Slicer_Date
+    - Main_1
+    - Main_2
+    - Main_3
+  action_rail:
+    - Slicer_Pane
+    - Smart_Narrative
+    - Detail_Matrix
+    - ActionPanel
   pulse:
     - KPI_Cards
     - Slicer_Date
@@ -93,6 +125,12 @@ page_families:
         name: "Executive KPI Portfolio"
         description: "4–6 strategic KPIs, portfolio breadth view, no drill-down"
         grid_template: executive_kpi
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: pulse
         overview_slots:
           - slot_id: KPI_Cards
@@ -134,6 +172,12 @@ page_families:
         name: "Strategic Trend Monitor"
         description: "One primary KPI; emphasis on trajectory and momentum"
         grid_template: pulse
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: null
         overview_slots:
           - slot_id: KPI_Cards
@@ -195,6 +239,12 @@ page_families:
         name: "Driver Bridge"
         description: "Waterfall-centric; decomposes a single KPI gap into named drivers"
         grid_template: executive_kpi
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: pulse_asymmetric
         overview_slots:
           - slot_id: KPI_Cards
@@ -230,6 +280,12 @@ page_families:
         name: "Comparative Variance"
         description: "Side-by-side entity comparison; which segment/region drives the gap"
         grid_template: pulse
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: null
         overview_slots:
           - slot_id: KPI_Cards
@@ -268,6 +324,9 @@ page_families:
             mandatory: false
 
       - variant_id: T2_Funnel
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); bindet pulse_asymmetric, das 416 px Leinwand ungenutzt laesst
         name: "Funnel Loss"
         description: "Sequential process loss; where in the funnel value/volume is lost"
         grid_template: pulse_asymmetric
@@ -276,9 +335,11 @@ page_families:
           - slot_id: KPI_Cards
             information_block: status_signal
             mandatory: true
+            severity: warning
           - slot_id: Slicer_Date
             information_block: null
             mandatory: true
+            severity: warning
           - slot_id: Main_1
             information_block: time_trend
             mandatory: false
@@ -293,9 +354,11 @@ page_families:
           - slot_id: Slicer_Pane
             information_block: null
             mandatory: true
+            severity: warning
           - slot_id: Focus_Area
             information_block: detail_matrix
             mandatory: true
+            severity: warning
           - slot_id: Support_1
             information_block: entity_ranking
             mandatory: false
@@ -373,6 +436,12 @@ page_families:
         name: "Process Control"
         description: "SLA / OTD / quality metrics with trend; control chart concept"
         grid_template: pulse
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: null
         overview_slots:
           - slot_id: KPI_Cards
@@ -390,11 +459,19 @@ page_families:
           - slot_id: Main_1
             information_block: time_trend
             mandatory: true
+          # Getauscht 02.08.2026 gegen 7 uebereinstimmende Befunde. Die Reihenfolge
+          # war time_trend -> exception_list -> entity_ranking; ALLE sieben Use Cases
+          # mit dieser Variante deklarieren nur ZWEI 30s-Komponenten, lassen Main_3
+          # also leer, und ihre zweite Komponente vergleicht durchweg wenige benannte
+          # Groessen ("die zwei OTIF-Komponenten", "die drei Service-Kennzahlen") —
+          # das ist entity_ranking, nicht eine Ausnahmeliste mit Schweregrad und Owner.
+          # Der Pflicht-Slot Main_2 traegt jetzt, was die Faelle tatsaechlich zeigen;
+          # exception_list rutscht auf den optionalen Main_3.
           - slot_id: Main_2
-            information_block: exception_list
+            information_block: entity_ranking
             mandatory: true
           - slot_id: Main_3
-            information_block: entity_ranking
+            information_block: exception_list
             mandatory: false
         detail_slots:
           - slot_id: Slicer_Pane
@@ -413,6 +490,9 @@ page_families:
             mandatory: false
 
       - variant_id: T3_IncidentMonitor
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); bindet pulse_asymmetric (s. T2_Funnel)
         name: "Incident Monitor"
         description: "Real-time or near-real-time exception tracking; short refresh cycle"
         grid_template: pulse_asymmetric
@@ -421,12 +501,14 @@ page_families:
           - slot_id: KPI_Cards
             information_block: status_signal
             mandatory: true
+            severity: warning
           - slot_id: Slicer_Date
             information_block: null
             mandatory: false
           - slot_id: Main_1
             information_block: exception_list
             mandatory: true
+            severity: warning
           - slot_id: Main_2
             information_block: time_trend
             mandatory: false
@@ -437,9 +519,11 @@ page_families:
           - slot_id: Slicer_Pane
             information_block: null
             mandatory: true
+            severity: warning
           - slot_id: Focus_Area
             information_block: detail_matrix
             mandatory: true
+            severity: warning
             filter_rule: "critical_only"
           - slot_id: Support_1
             information_block: entity_ranking
@@ -509,6 +593,9 @@ page_families:
             mandatory: true
 
       - variant_id: T4_OptionComparison
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); unterscheidet sich von T4_Sensitivity in GENAU EINEM Flag (Support_1.mandatory false vs true) — Slots und Bloecke sind auf beiden Ebenen identisch
         name: "Option Comparison"
         description: "Two or three options explicitly compared; ranked by impact/effort/risk"
         grid_template: investigator_focus
@@ -537,6 +624,7 @@ page_families:
           - slot_id: Focus_Area
             information_block: prescriptive_action
             mandatory: true
+            severity: warning
             note: "Recommendation table comparing options"
           - slot_id: Support_1
             information_block: detail_matrix
@@ -546,6 +634,9 @@ page_families:
             mandatory: false
 
       - variant_id: T4_Sensitivity
+        status: unused
+        status_note: >-
+          unbenutzt (0 Deklarationen, 02.08.2026); unterscheidet sich von T4_OptionComparison nur in Support_1.mandatory (true vs false)
         name: "Sensitivity Check"
         description: "Recommendation with scenario validation; impact under key assumptions"
         grid_template: investigator_focus
@@ -573,9 +664,11 @@ page_families:
           - slot_id: Focus_Area
             information_block: prescriptive_action
             mandatory: true
+            severity: warning
           - slot_id: Support_1
             information_block: detail_matrix
             mandatory: true
+            severity: warning
             note: "Sensitivity scenarios; entity affected by assumption changes"
           - slot_id: Support_2
             information_block: null

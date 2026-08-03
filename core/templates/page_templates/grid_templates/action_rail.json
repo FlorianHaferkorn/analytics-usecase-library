@@ -1,0 +1,51 @@
+{
+  "template_id": "action_rail",
+  "description": "Detail (300s) mit VOLLHOHEN Seitenschienen (Slicer links, ActionPanel rechts).",
+  "_provenance": "Aus tooling/generator_core/ir/compiler.py promoviert (02.08.2026). Das Layout ist NICHT pulse/action_matrix: ein breiter Datums-Slicer statt drei schmaler, volle Seitenschienen statt geteilter, plus Benchmark_Caption. Es war eine hartkodierte Python-Tabelle — jetzt governt wie jedes andere Raster. Zeilenspannen sind bewusst fraktional: ein Zwang auf ganze Zeilen liesse Benchmark_Caption und Slicer_Date kollidieren und braeche die dokumentierte 76-px-Mindesthoehe des Dropdown-Slicers.",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "slots": [
+    {
+      "slot_id": "Slicer_Pane",
+      "grid": [
+        0,
+        0.0,
+        2,
+        12.0
+      ],
+      "visual_type_hint": "slicer"
+    },
+    {
+      "slot_id": "Smart_Narrative",
+      "grid": [
+        2,
+        0.0,
+        8,
+        1.35
+      ],
+      "visual_type_hint": "textbox"
+    },
+    {
+      "slot_id": "Detail_Matrix",
+      "grid": [
+        2,
+        1.35,
+        8,
+        10.65
+      ],
+      "visual_type_hint": "tableEx"
+    },
+    {
+      "slot_id": "ActionPanel",
+      "grid": [
+        10,
+        0.0,
+        2,
+        12.0
+      ],
+      "visual_type_hint": "textbox"
+    }
+  ]
+}

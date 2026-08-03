@@ -5,7 +5,7 @@ without shelling out to the real gates.
 """
 from __future__ import annotations
 
-from tooling.report_quality.boutique_scorecard import WIRED, load_rubric, score
+from tooling.report_quality.boutique_scorecard import load_rubric, score, wired
 
 
 def _all_pass(*_a, **_k):
@@ -19,6 +19,7 @@ def _all_fail(*_a, **_k):
 def test_only_wired_rules_are_scored():
     card = score(run_validator=_all_pass)
     scored = {r["id"] for r in card["rules"] if r["score"] is not None}
+    WIRED = wired()
     assert scored == set(WIRED)
     assert card["scored_rules"] == len(WIRED)
     assert card["total_rules"] == sum(len(d["rules"]) for d in load_rubric()["dimensions"])
@@ -31,10 +32,20 @@ def test_all_pass_gives_full_subset_score():
 
 
 def test_failing_knockout_is_surfaced():
+    """Jeder verdrahtete Knock-out taucht bei Fehlschlag auf — Menge ABGELEITET.
+
+    Die Menge stand hier als Literal und musste bei jeder neuen Verdrahtung
+    nachgezogen werden (03.08.2026: BC-COLOR-02 kam dazu). Ein Literal, das dem
+    Fortschritt hinterherlaeuft, meldet irgendwann Fortschritt als Fehler. Es wird
+    deshalb aus derselben Autoritaet gelesen wie die Verdrahtung selbst.
+    """
     card = score(run_validator=_all_fail)
     assert card["structural_score_pct"] == 0.0
-    # the scored knock-outs (BC-NARR-01/CHART-01/CHART-10/BRAND-01)
-    assert set(card["knockouts_failed"]) == {"BC-CHART-01", "BC-CHART-10", "BC-NARR-01", "BC-BRAND-01"}
+    verdrahtet = set(wired())
+    erwartet = {r["id"] for dim in load_rubric()["dimensions"] for r in dim["rules"]
+                if r["severity"] == "knock_out" and r["id"] in verdrahtet}
+    assert erwartet, "kein verdrahteter Knock-out — Test hat seinen Gegenstand verloren"
+    assert set(card["knockouts_failed"]) == erwartet
 
 
 def test_coverage_is_partial_and_not_certifiable():

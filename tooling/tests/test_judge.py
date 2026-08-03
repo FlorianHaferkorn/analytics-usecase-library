@@ -11,10 +11,20 @@ from tooling.report_quality.judge import (
 
 
 def test_judge_rules_are_the_check_judge_ones():
+    """Judge-Menge = `judge` **und** `both`.
+
+    `both` kam am 03.08.2026 dazu, fuer zwei Regeln, die als `judge` deklariert waren,
+    deren Urteil die Scorecard aber still verwarf, weil ein Validator verdrahtet war.
+    Waere `both` hier nicht aufgenommen worden, haette die Aufwertung genau das
+    bewirkt, was sie beheben soll: ein Urteil, das niemand einholt.
+    """
+    from tooling.report_quality.judge import JUDGE_KINDS
+
     rules = judge_rules(load_rubric())
     ids = {r["id"] for r in rules}
     assert "BC-NARR-03" in ids and "BC-COLOR-01" in ids
-    assert all(r["check"] == "judge" for r in rules)
+    assert {"BC-NARR-01", "BC-BRAND-02"} <= ids, "die `both`-Regeln fehlen in der Judge-Menge"
+    assert all(r["check"] in JUDGE_KINDS for r in rules)
 
 
 def test_spec_heuristic_scores_narr_03():

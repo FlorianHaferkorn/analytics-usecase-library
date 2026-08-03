@@ -58,7 +58,7 @@ ux_layout_rules:
     big_idea: "OEE is below target — unplanned availability losses account for 70% of the gap and require immediate maintenance action."
     component_3s:
       kpi_id: ops.oee.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       sparkline_field: OeePct_Daily
       comparison: vs_target
       status_logic: higher_is_better
@@ -88,7 +88,7 @@ ux_layout_rules:
       - ops.availability.pct
       - ops.performance.pct
       - ops.quality.pct
-      visual_type: bar_chart_horizontal
+      visual_type: horizontal_bar_chart
       question: "How does the OEE gap break down across its three components?"
       message: Availability, performance, and quality — the three OEE components.
       so_what: "Prioritising availability fixes addresses the largest single component of the OEE shortfall."

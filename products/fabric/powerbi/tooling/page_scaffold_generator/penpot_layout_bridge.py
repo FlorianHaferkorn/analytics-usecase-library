@@ -48,7 +48,7 @@ Schema of returned layout dict:
     "template_id": "penpot_<frame_name>",
     "description": "Penpot layout: <frame_name>",
     "position_mode": "absolute",          # NEW field — tells PageBuilder to skip GridCalculator
-    "canvas": {"width": 1920, "height": 1080},
+    "canvas": {"width": _governtes_raster().width, "height": _governtes_raster().height},
     "slots": [
       {
         "slot_id": "Main_1",              # must match visual slot naming conventions
@@ -88,6 +88,13 @@ import json
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 from pathlib import Path
+
+
+def _governtes_raster():
+    """Defaults aus dem EINEN governten Raster (Konsolidierung 02.08.2026)."""
+    from tooling.superversion.layer_tools.layout_grid import load
+
+    return load("production")
 
 logger = logging.getLogger(__name__)
 
@@ -203,8 +210,8 @@ class PenpotLayoutBridge:
 
         Args:
             path: File path to exported Penpot JSON
-            canvas_width: Expected canvas width (default 1920 for PBI standard)
-            canvas_height: Expected canvas height (default 1080 for PBI standard)
+            canvas_width: Leinwandbreite; None = governtes Raster (layout_grid.yaml)
+            canvas_height: Leinwandhoehe; None = governtes Raster (layout_grid.yaml)
 
         Returns:
             Layout dict with position_mode="absolute", or None if unavailable.
@@ -236,8 +243,8 @@ class PenpotLayoutBridge:
         Args:
             url: Penpot API URL (e.g., https://penpot.app/api/rpc/command/file/get?file-id=<id>)
             token: Optional authentication token for private files
-            canvas_width: Expected canvas width (default 1920 for PBI standard)
-            canvas_height: Expected canvas height (default 1080 for PBI standard)
+            canvas_width: Leinwandbreite; None = governtes Raster (layout_grid.yaml)
+            canvas_height: Leinwandhoehe; None = governtes Raster (layout_grid.yaml)
 
         Returns:
             Layout dict with position_mode="absolute", or None if unavailable.

@@ -14,7 +14,9 @@
 # Archived pre-abstract version: _archive/Visual_to_Slot_Mapping_pre_abstract.yaml
 
 ---
-authority: core/templates/page_templates/Abstract_Visual_Types.md
+# Autoritaet umgestellt am 02.08.2026 (ADR-0018): das Visualtyp-Vokabular lebt in der
+# Registry, nicht mehr in Abstract_Visual_Types.md. Jene Datei ist ein Zeiger + Historie.
+authority: core/templates/page_templates/visual_registry.yaml
 governed_by: core/templates/page_templates/Connector_Spec.md
 schema_version: "2.0"
 

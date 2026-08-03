@@ -41,13 +41,13 @@ ux_layout_rules:
       a few categories.
     component_3s:
       kpi_id: procurement.savings.realized.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: procurement.oncontract.pct
-      visual_type: trend_line
+      visual_type: line_chart
       question: Is the savings shortfall a target problem or a compliance problem?
       message: Off-contract buying in a few categories is where realised savings leak, not weak targets
       so_what: Because on-contract share is the lever, tightening compliance in those categories recovers
@@ -57,7 +57,7 @@ ux_layout_rules:
       kpi_ids:
       - procurement.ppv.pct
       - procurement.supplier.otd.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: Is price variance or supplier reliability eroding value beyond compliance?
       message: Purchase-price variance is climbing in the same categories, compounding the off-contract
         leak

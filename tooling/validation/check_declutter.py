@@ -74,9 +74,44 @@ def chartjunk(visual: dict) -> list[str]:
     return found
 
 
+def theme_chartjunk(report_dir: Path) -> list[str]:
+    """Chartjunk, das im THEME fuer Chart-Typen gesetzt ist. Der geschlossene blinde Fleck.
+
+    Gemessen am 03.08.2026 war dieser Pruefer gruen und hat nichts geprueft: er las
+    ausschliesslich `visual.json`, waehrend das aktive Theme in `visualStyles["*"]["*"]`
+    fuer JEDES Visual Hintergrund, Rahmen und Schatten setzt — und **0 von 188** Visuals
+    das ueberschreiben. Ein gruener Haken, der an der falschen Stelle sucht, behauptet
+    Deckung; das ist schlimmer als ein fehlender.
+
+    Was hier NICHT passiert: das Kartensystem verbieten. Entscheidung Flo vom 03.08.2026
+    (Weg A) — Hintergrund, Rahmen und die dokumentierte Erhebung sind sanktioniert und
+    stehen als Obergrenze in `tokens/color_semantics.yaml` → `container_baseline`.
+    Dieser Pruefer meldet nur, was DARUEBER hinausgeht, plus die Objekte, die in jeder
+    Lesart Zierrat sind (Verlauf, Fase, Glow).
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from check_container_surface import grundlinie, pruefe_container   # eine Grundlinie
+    from check_palette_monochrome import aktives_theme                 # eine Theme-Quelle
+
+    tj = aktives_theme(report_dir)
+    if tj is None:
+        return ["kein aufloesbares customTheme — Chart-Chrome nicht pruefbar"]
+    theme = json.loads(tj.read_text(encoding="utf-8"))
+    styles = theme.get("visualStyles") or {}
+    basis = grundlinie()
+    befunde: list[str] = []
+    # `*` gilt fuer alle Typen, danach die namentlich gefuehrten Chart-Familien.
+    for typ in ("*", *sorted(set(styles) & _CHART_TYPES)):
+        for stil, objekte in (styles.get(typ) or {}).items():
+            befunde += pruefe_container(objekte, basis, f"Theme {typ}/{stil}")
+    return befunde
+
+
 def check_report(report_dir: Path) -> list[tuple[str, list[str]]]:
     """Return [(visual_rel_path, [junk objects]), ...] for one .Report directory."""
     out: list[tuple[str, list[str]]] = []
+    if theme_befunde := theme_chartjunk(report_dir):
+        out.append(("<active theme>", theme_befunde))
     for vj in sorted(report_dir.glob("definition/pages/*/visuals/*/visual.json")):
         try:
             data = json.loads(vj.read_text(encoding="utf-8"))
