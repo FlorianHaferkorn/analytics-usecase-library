@@ -72,6 +72,48 @@ def test_no_unfilled_placeholders_and_json_is_valid():
                 json.loads(out)  # raises on invalid JSON
 
 
+def test_declared_profiles_are_registered_and_addressed():
+    """Every notation profile an idiom opts into must exist in _notation_profiles.yaml,
+    and any per-tool override must be a runnable template OR an applicable:false+reason."""
+    reg = yaml.safe_load((LIB / "_notation_profiles.yaml").read_text(encoding="utf-8"))["profiles"]
+    for idiom in _implemented():
+        entry = render.load_entry(idiom)
+        for pid, pdef in (entry.get("profiles") or {}).items():
+            assert pid in reg, f"{idiom} declares unregistered profile '{pid}'"
+            for tool, r in (pdef.get("realizations") or {}).items():
+                if r.get("applicable", True):
+                    assert "template" in r and "ext" in r, f"{idiom}@{pid}.{tool} applicable but no template/ext"
+                else:
+                    assert r.get("reason") and r.get("use"), f"{idiom}@{pid}.{tool} n/a needs reason + use"
+
+
+def test_non_default_profiles_render_match_golden_and_are_valid():
+    """The determinism guarantee extends to every idiom x tool x profile: byte-for-byte
+    against a frozen golden, idempotent, fully filled, and valid JSON where applicable."""
+    dp = render.default_profile()
+    for idiom in _implemented():
+        for profile in render.profiles(idiom):
+            if profile == dp:
+                continue  # baseline is covered by the tests above
+            for tool in render.tools(idiom, profile):
+                out, ext = render.render(idiom, tool, profile)
+                assert "{{" not in out and "}}" not in out, f"{idiom}@{profile}.{tool} unfilled placeholder"
+                gp = render.golden_path(idiom, tool, ext, profile)
+                assert gp.exists(), f"missing golden {gp.name} (run: render.py write {idiom})"
+                assert out == gp.read_text(encoding="utf-8"), f"{idiom}@{profile}.{tool} drifted from its golden"
+                assert render.render(idiom, tool, profile)[0] == out, f"{idiom}@{profile}.{tool} not idempotent"
+                if ext == "json":
+                    json.loads(out)
+
+
+def test_house_default_profile_output_is_the_base_realization():
+    """house_default must be byte-identical to the plain 2-arg render (no accidental drift
+    from introducing the axis) — the baseline goldens keep their unsuffixed filenames."""
+    for idiom in _implemented():
+        for tool in render.tools(idiom):
+            assert render.render(idiom, tool)[0] == render.render(idiom, tool, render.default_profile())[0]
+
+
 def test_docs_render_matches_golden_and_idempotent():
     """The generated Part D + HTML are pure functions of the library (SoT closes the loop)."""
     import render_docs  # noqa: E402  (tooling/visual_library already on sys.path)

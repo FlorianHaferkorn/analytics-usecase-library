@@ -27,6 +27,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 LIB = REPO_ROOT / "core" / "templates" / "page_templates" / "visual_library"
+NOTATION = LIB / "_notation_profiles.yaml"
 
 _PLACEHOLDER = re.compile(r"\{\{(\w+)\}\}")
 
@@ -42,6 +43,46 @@ def load_entry(idiom: str) -> dict:
     return data
 
 
+def _registry() -> dict:
+    """The notation-profile registry (the second axis). See _notation_profiles.yaml."""
+    return yaml.safe_load(NOTATION.read_text(encoding="utf-8"))
+
+
+def default_profile() -> str:
+    return _registry().get("default", "house_default")
+
+
+def profiles(idiom: str) -> "list[str]":
+    """Notation profiles this idiom supports: the default always first, then any it
+    opts into via its `profiles:` block. house_default is the `realizations` baseline."""
+    entry = load_entry(idiom)
+    dp = default_profile()
+    declared = list((entry.get("profiles") or {}).keys())
+    return [dp] + [p for p in declared if p != dp]
+
+
+def _effective_params(entry: dict, profile: str) -> dict:
+    """canonical_params overlaid with the profile's param_overrides (default = none)."""
+    params = dict(entry["canonical_params"])
+    if profile != default_profile():
+        prof = (entry.get("profiles") or {}).get(profile)
+        if prof is None:
+            raise KeyError(f"{entry['id']} does not declare notation profile '{profile}'")
+        params.update(prof.get("param_overrides") or {})
+    return params
+
+
+def _realization(entry: dict, tool: str, profile: str) -> "dict | None":
+    """The realization for tool under profile: a profile override if present, else the
+    house_default base template (so a pure param overlay restyles every base tool)."""
+    if profile != default_profile():
+        prof = (entry.get("profiles") or {}).get(profile) or {}
+        override = (prof.get("realizations") or {}).get(tool)
+        if override is not None:
+            return override
+    return entry["realizations"].get(tool)
+
+
 def fill(template: str, params: dict) -> str:
     """Substitute every {{name}} with str(params[name]). Fails loudly on a gap."""
     def _sub(m: "re.Match[str]") -> str:
@@ -52,22 +93,35 @@ def fill(template: str, params: dict) -> str:
     return _PLACEHOLDER.sub(_sub, template)
 
 
-def render(idiom: str, tool: str) -> "tuple[str, str]":
-    """Return (rendered_output, ext) for one idiom x tool, filled from canonical_params."""
+def render(idiom: str, tool: str, profile: "str | None" = None) -> "tuple[str, str]":
+    """Return (rendered_output, ext) for one idiom x tool x notation profile, filled
+    from canonical_params (plus the profile's param_overrides). profile defaults to
+    house_default, so render(idiom, tool) is unchanged from before the profile axis."""
     entry = load_entry(idiom)
-    real = entry["realizations"]
-    if tool not in real:
+    profile = profile or default_profile()
+    real = _realization(entry, tool, profile)
+    if real is None:
         raise KeyError(f"{idiom} has no realization for tool '{tool}'")
-    out = fill(real[tool]["template"], entry["canonical_params"])
-    return out, real[tool]["ext"]
+    if not real.get("applicable", True):
+        raise KeyError(f"{idiom}.{tool} is not applicable under profile '{profile}'")
+    out = fill(real["template"], _effective_params(entry, profile))
+    return out, real["ext"]
 
 
-def tools(idiom: str) -> "list[str]":
-    """Tool tracks that have a runnable template (applicable). Not every idiom exists
-    in every tool — e.g. SVG-DAX is for cell micro-charts, not full waterfalls; a tool
-    that does not fit is marked ``applicable: false`` (with a reason) and skipped here."""
-    real = load_entry(idiom)["realizations"]
-    return [t for t, r in real.items() if r.get("applicable", True) and "template" in r]
+def tools(idiom: str, profile: "str | None" = None) -> "list[str]":
+    """Tool tracks with a runnable template under a profile. Not every idiom exists in
+    every tool — e.g. SVG-DAX is for cell micro-charts, not full waterfalls; a tool that
+    does not fit is marked ``applicable: false`` (with a reason) and skipped here. A
+    non-default profile may mark a base-runnable tool n/a (its IBCS form needs a
+    structural override that does not exist yet)."""
+    entry = load_entry(idiom)
+    profile = profile or default_profile()
+    out = []
+    for t in entry["realizations"]:
+        real = _realization(entry, t, profile)
+        if real and real.get("applicable", True) and "template" in real:
+            out.append(t)
+    return out
 
 
 def addressed(idiom: str) -> "list[str]":
@@ -75,19 +129,24 @@ def addressed(idiom: str) -> "list[str]":
     return list(load_entry(idiom)["realizations"].keys())
 
 
-def golden_path(idiom: str, tool: str, ext: str) -> Path:
-    return LIB / "golden" / f"{idiom}.{tool}.{ext}"
+def golden_path(idiom: str, tool: str, ext: str, profile: "str | None" = None) -> Path:
+    """house_default keeps `<id>.<tool>.<ext>` (no churn); other profiles get a suffix."""
+    profile = profile or default_profile()
+    if profile == default_profile():
+        return LIB / "golden" / f"{idiom}.{tool}.{ext}"
+    return LIB / "golden" / f"{idiom}.{tool}.{profile}.{ext}"
 
 
 def write_goldens(idiom: str) -> "list[Path]":
-    """Freeze the rendered output of every tool into golden/. Deterministic."""
+    """Freeze the rendered output of every tool x profile into golden/. Deterministic."""
     (LIB / "golden").mkdir(parents=True, exist_ok=True)
     written = []
-    for tool in tools(idiom):
-        out, ext = render(idiom, tool)
-        p = golden_path(idiom, tool, ext)
-        p.write_text(out, encoding="utf-8", newline="\n")
-        written.append(p)
+    for profile in profiles(idiom):
+        for tool in tools(idiom, profile):
+            out, ext = render(idiom, tool, profile)
+            p = golden_path(idiom, tool, ext, profile)
+            p.write_text(out, encoding="utf-8", newline="\n")
+            written.append(p)
     return written
 
 
@@ -97,7 +156,8 @@ def main() -> int:
             print("wrote", p.relative_to(REPO_ROOT).as_posix())
         return 0
     if len(sys.argv) >= 4 and sys.argv[1] == "show":
-        out, _ = render(sys.argv[2], sys.argv[3])
+        prof = sys.argv[4] if len(sys.argv) >= 5 else None
+        out, _ = render(sys.argv[2], sys.argv[3], prof)
         print(out)
         return 0
     print(__doc__)

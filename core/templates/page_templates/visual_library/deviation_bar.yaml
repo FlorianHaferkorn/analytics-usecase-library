@@ -4,7 +4,7 @@ name: Deviation bar
 purpose: [deviation_from_target, compare_categories]
 zone: [pulse, analysis]
 best_form_for: deviation_from_target
-alternatives: [bullet, ibcs_overlapped]
+alternatives: [bullet]   # the IBCS reading (retired id `ibcs_overlapped`) is now `deviation_bar` under profile: ibcs
 
 encoding:
   magnitude: length_position        # Cleveland-McGill rank 1-3
@@ -113,6 +113,24 @@ realizations:
         </Bar>
       </BarChart>
 
+# --- notation profile: IBCS (second axis; see _notation_profiles.yaml) ---
+# The IBCS reading of a variance bar makes the plan/target reference PROMINENT (ink),
+# not the muted house neutral — Hichert: the reference must read as the anchor. This
+# is a pure token overlay, so the SVG-DAX / Vega-Lite / Recharts base templates render
+# it directly. The native bar has no stroked reference to re-emphasise; its IBCS form
+# is the fully overlapped AC-on-PY ± column, a structural override deferred to the next
+# slice — so it is marked n/a here (use the PowerofBI.IBCS UDF meanwhile).
+profiles:
+  ibcs:
+    note: "IBCS: prominent ink reference (plan/target) instead of the muted house zero line; sign + length carry good/bad."
+    param_overrides:
+      col_zero: "#201F1E"          # text.primary ink — the prominent IBCS reference
+    realizations:
+      powerbi_native:
+        applicable: false
+        reason: "native clusteredBar has no stroked reference line to emphasise; the IBCS form is the overlapped AC-on-PY ± column (structural), not a token swap."
+        use: "PowerofBI.IBCS overlapped-bar UDF (daxlib.org), or deviation_bar@ibcs in deneb_vegalite"
+
 determinism:
   golden_dir: golden
-  notes: "render.py fills {{params}} from canonical_params; golden/*.* is frozen; the test asserts byte-for-byte + validity. Same input -> same output."
+  notes: "render.py fills {{params}} from canonical_params (+ profile param_overrides); golden/*.* is frozen; the test asserts byte-for-byte + validity. Same input+profile -> same output."

@@ -9,9 +9,9 @@
 | Purpose | Question | Best idiom | Zone | Candidates |
 |---|---|---|---|---|
 | **time_comparison** | How is X developing over time — and against plan? | `line` | analysis | `line` · `area_stacked` · `small_multiples` · `indexed_line` · `slope` |
-| **deviation_from_target** | Are we above/below plan or target — by how much? | `deviation_bar` | pulse / analysis | `deviation_bar` · `bullet` · `ibcs_overlapped` |
+| **deviation_from_target** | Are we above/below plan or target — by how much? | `deviation_bar` | pulse / analysis | `deviation_bar` · `bullet` · `deviation_bar@ibcs` |
 | **compare_categories** | Which categories lead or lag — where should attention focus? | `bar_ranking` | analysis | `bar_ranking` · `lollipop` · `bar_absolute` |
-| **contribution_to_change** | What moved the number from A to B — which drivers? | `waterfall_pvm` | analysis | `waterfall_pvm` · `waterfall_buildup` · `waterfall_variance` · `waterfall_ibcs` |
+| **contribution_to_change** | What moved the number from A to B — which drivers? | `waterfall_pvm` | analysis | `waterfall_pvm` · `waterfall_buildup` · `waterfall_variance` · `waterfall_pvm@ibcs` |
 | **part_to_whole** | What is the share of the whole (<= 4 parts)? | `donut` | analysis | `donut` · `stacked_100` |
 | **correlation** | How do two continuous variables relate? | `scatter` | analysis | `scatter` |
 | **flow_between_stages** | How does quantity flow between stages — where does it leak? | `sankey` | detail | `sankey` |

@@ -37,6 +37,27 @@ tools:
   - deneb_vegalite     # Vega-Lite spec (Deneb-embedded == standalone)
   - web_recharts       # React/Recharts (also the D3 fallback note)
 
+# --- notation profiles (the second axis) — OPTIONAL per idiom ---
+# An idiom answers a QUESTION (purpose); a notation profile is the CONVENTION it is
+# drawn in (see _notation_profiles.yaml). `house_default` is the governed baseline
+# and is ALWAYS the `realizations` block above — no idiom restates it. An idiom may
+# OPT IN to another profile (e.g. `ibcs`) by adding an OPTIONAL top-level key:
+#
+#   profiles:
+#     ibcs:
+#       note: "why this idiom's IBCS reading differs"
+#       param_overrides: { col_zero: "#201F1E" }        # merged over canonical_params
+#       realizations:                                    # OPTIONAL per-tool override
+#         powerbi_native: { applicable: false, reason: "...", use: "..." }
+#         deneb_vegalite: { ext: json, template: "..." } # a structural override
+#
+# Resolution (render.py): for a non-default profile, params = canonical_params +
+# param_overrides; a tool uses its profile `realizations` override if present, else
+# falls back to the base template (pure token/param overlay). Every declared profile
+# id MUST exist in _notation_profiles.yaml. Goldens for a non-default profile are
+# named `<id>.<tool>.<profile>.<ext>`; house_default keeps `<id>.<tool>.<ext>`.
+# `profiles` is NOT a required key — an idiom with none exists only in house_default.
+
 # --- placeholder syntax ---
 # {{name}} is replaced literally by str(canonical_params[name]). No logic in
 # templates — determinism requires pure substitution. Colours are hex from the

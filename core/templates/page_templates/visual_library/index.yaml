@@ -17,7 +17,7 @@ purposes:
     question: "Are we above/below plan or target — by how much?"
     zone: [pulse, analysis]
     best: deviation_bar
-    candidates: [deviation_bar, bullet, ibcs_overlapped]
+    candidates: [deviation_bar, bullet, "deviation_bar@ibcs"]   # @ibcs = the IBCS notation profile of the same idiom
 
   compare_categories:
     question: "Which categories lead or lag — where should attention focus?"
@@ -29,7 +29,7 @@ purposes:
     question: "What moved the number from A to B — which drivers?"
     zone: analysis
     best: waterfall_pvm
-    candidates: [waterfall_pvm, waterfall_buildup, waterfall_variance, waterfall_ibcs]
+    candidates: [waterfall_pvm, waterfall_buildup, waterfall_variance, "waterfall_pvm@ibcs"]   # @ibcs pending (structural override); buildup/variance are distinct idioms
 
   part_to_whole:
     question: "What is the share of the whole (<= 4 parts)?"
@@ -72,6 +72,16 @@ purposes:
     zone: pulse
     best: kpi_card
     candidates: [kpi_card]
+
+# --- notation profiles (the second axis; see _notation_profiles.yaml) ---
+# An idiom answers a purpose; a profile is the convention it is drawn in. "idiom@profile"
+# in a candidate list means the same idiom under a non-default profile — NOT a new idiom.
+# So "IBCS bar" is bar_ranking@ibcs, not a duplicate id. house_default is the baseline.
+notation_profiles:
+  registry: _notation_profiles.yaml
+  available: [house_default, ibcs]
+  implemented_ibcs: [deviation_bar]        # idioms that currently carry an `ibcs` profile
+  pending_ibcs: [waterfall_pvm, bar_ranking, line, bullet]   # next slices (some need structural overrides)
 
 # governed deny-list (never emit)
 deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative]
