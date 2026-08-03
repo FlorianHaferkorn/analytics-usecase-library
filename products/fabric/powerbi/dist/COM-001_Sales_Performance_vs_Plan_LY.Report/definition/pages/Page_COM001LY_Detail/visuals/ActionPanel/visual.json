@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "ActionPanel",
   "position": {
-    "x": 1579,
+    "x": 1592,
     "y": 32,
     "z": 10000,
-    "width": 309,
+    "width": 296,
     "height": 1016,
     "tabOrder": 3003
   },

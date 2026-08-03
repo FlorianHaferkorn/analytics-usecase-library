@@ -1609,6 +1609,77 @@ Verdrahtung dessen, was ohnehin bestanden hätte.
 
 ---
 
+## 18. Der erste Punkt, der verdient wurde — und ein grüner Haken an der falschen Stelle (03.08.2026)
+
+§17 hat gemessen, wo unser System unter dem Niveau eines Standards steht. Dies ist der
+erste Schritt nach oben: **54,4 → 58,4 von 100**.
+
+**BC-LAYOUT-01 („Strict grid") ist verdrahtet.** Prüfbar wurde die Regel erst durch L13 —
+seit die Geometrie in Logical Units liegt und `layout_grid.to_pixels()` die einzige
+Auflösungsstelle ist, gibt es eine Sollposition, gegen die sich eine Istposition rechnen
+lässt. Der Prüfer bildet L13s Entscheidung ab: **waagerecht ganzzahlig, senkrecht frei**
+(ein 12-Zeilen-Zwang ließe zwei Slots kollidieren und bräche die 76-px-Mindesthöhe des
+Slicers).
+
+Der erste Lauf hat einen echten Defekt gefunden: **7 von 188 Visuals** lagen neben dem
+Raster, alle in **einem** Report — `COM-001_..._vs_Plan_LY` — und alle mit `Spanne 3.929`
+statt 4,00. Das ist exakt die Zahl, die L13 als Defekt benannt und korrigiert hat: der
+Report wurde vor L13 erzeugt und nie neu gebaut. Er ist eine benannte *Variante* des
+COM-001-Brackets, also gibt es keinen Generatorpfad, über den er sich neu bauen ließe.
+Korrigiert wurde deshalb nur die Waagerechte — jede der sieben Abweichungen lag unter
+0,09 LU von einer ganzen Zahl, die gemeinte Spalte war nicht strittig; `y`/`height`
+blieben unangetastet, weil der Report ein eigenes Layout hat (ihm fehlen drei Slicer).
+
+**Und der Konsolidierungs-Wächter hat mich beim ersten Entwurf erwischt.** Der Prüfer
+rechnete die Umkehrung `col = (x − outer) / (lu_w + gutter)` selbst — damit gäbe es
+wieder **zwei** Stellen, die dieselbe Rasterformel kennen, und der Einwand ist nicht
+formal: ändert sich `to_pixels`, driftet eine handgeschriebene Umkehrung still mit, und
+der Prüfer bestätigt dann ein Raster, das es nicht mehr gibt. Behoben nicht durch
+Umformulieren, sondern durch Wegfall des Grundes: der Sollraum wird mit `to_pixels`
+**aufgezählt** (12×12 Kandidaten) statt invertiert. Die einzige Auflösungsstelle bleibt
+die einzige.
+
+### Der wichtigere Fund: BC-CHART-04 ist grün und sucht an der falschen Stelle
+
+Beim Versuch, **BC-LAYOUT-02** („keine dekorativen Rahmen/Hintergründe") zu bauen, kam
+heraus, dass die Frage schon anderswo beantwortet ist — falsch:
+
+| | |
+|---|---|
+| Regel BC-CHART-04 | „no chart background fill, **drop shadow**, gradient or 3D" |
+| Prüfer | `check_declutter.py --strict`, **verdrahtet und grün** |
+| Was er liest | ausschließlich `visual.json` → `visualContainerObjects` |
+| Was das Theme setzt | `visualStyles["*"]["*"]`: `border` show=true · `background` show=true · `dropShadow` show=true |
+| Überschreibungen | **0 von 188 Visuals** |
+
+Jedes Chart in jedem Report trägt also Rahmen, Hintergrund und Schatten, und der Prüfer
+meldet Sauberkeit — weil er eine Ebene prüft, auf der niemand etwas setzt. **Ein grüner
+Haken, der an der falschen Stelle sucht, ist schlechter als ein fehlender: er behauptet
+Deckung.** Das ist dieselbe Klasse wie der Slot-Wachhund aus §12, nur eine Stufe
+heimtückischer — dort konnte der Prüfer nicht feuern, hier feuert er ins Leere.
+
+**Nicht per Schwellenwert entschieden.** Die naheliegende Reaktion wäre, den Prüfer aufs
+Theme auszuweiten. Das hätte eine Inhaltsentscheidung im Code getroffen: der Schatten ist
+90 % transparent, 1 px versetzt, Spread 0,1 — ist das die *Elevation des Kartensystems*
+(auf das BC-LAYOUT-03 und BC-BRAND-01 ausdrücklich bauen) oder *dekorative Tiefe*? Beide
+Lesarten sind vertretbar, und eine Schwelle im Prüfer hätte die Frage stillschweigend
+beantwortet. Der blinde Fleck steht deshalb als Kommentar an der Regel selbst, und
+BC-LAYOUT-02 trägt `validator_blocked: pending_decision` mit genau dieser Frage.
+
+### Offen
+
+* **Entscheidung Flo:** Kartensystem-Elevation oder dekorative Tiefe? Davon hängen
+  BC-LAYOUT-02 *und* die Reichweite von BC-CHART-04 ab.
+* **Die dist-Reports bestehen den offiziellen Validator nicht** — gemessen mit dem
+  Repo-Pin 0.1.1: 25–26 Errors pro Report, repo-weit identisch (18× `THEME_VISUAL_PROP_UNKNOWN`,
+  6–7× `FORMATTING_OBJECT_UNKNOWN`). Frisch emittierte Reports sind sauber (e2e-Stage
+  `pbir`: 0 Errors) — der Unterschied liegt im mitgelieferten Theme, nicht im Emitter.
+  Eigener Befund, unabhängig von dieser Arbeit; nicht angefasst.
+* Die verbleibenden **5 `not_implemented`**-Regeln (BC-COLOR-02/03, BC-TYPE-04, BC-NARR-06
+  und BC-COLOR-04, letztere wird vom Generator geprüft).
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1826,3 +1897,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **N5 Slot-Härte deklariert (§15)** | 🟢 **erledigt** | 2026-08-03 | Die eigene Idee „Chrome hart, Inhalt weich" ist an der Recherche gescheitert: **kein** geprüftes System (Grafana Foundation SDK, LookML, Superset, Evidence.dev, Web-Components-Slots) staffelt Pflicht nach Elementtyp, und Microsofts eigener Skill lehnt jede Pflicht-Checkliste ab. Belegt etabliert ist nur die **Trennung** Regel ↔ Härte (ESLint, Sentinel, OPA, K8s PSS) — mit der Achse **Datenlage/Rollout-Reife**, nie Objekttyp. Umgesetzt: `severity: error\|warning` je Pflicht-Slot im Manifest (Default `error`, kein stilles Aufweichen); die 11 Pflicht-Slots der vier `status: unused`-Varianten auf `warning`, weil sie null Emissionen und damit null Verletzungsdaten haben. Wächter **beidseitig** — fällt beim Verschärfen ohne Datenlage *und* beim Aufweichen einer benutzten Variante; beide Richtungen per Mutation nachgewiesen. Stand unverändert: 42/42 Seiten, 0 harte und 0 weiche Lücken. |
 | **L12 Phase 1 — Paritaet der Systeme (§16)** | 🟢 **erledigt** | 2026-08-03 | Der Zuschnitt war einseitig, und die Messung fiel deutlicher aus als der Einwand: IBCS traegt **1 von 26** Registry-Visuals (S9) und 16 von 72 Regeln, das Hausystem 33 Regeln — und war trotzdem keine Systeminstanz, sondern die Restmenge des IBCS-Berichts. Die uebrigen 23 Visuals sind Fremdstandard, **Cleveland & McGill allein 15**: unsere Visualschicht ist perzeptuell begruendet, nicht notationsgebunden. Gebaut ohne neuen Speicher: `HAUS` als registriertes `LayoutSystem` (Zugehoerigkeit negativ definiert — eine Hausregel traegt keine Fremdherkunft), Gruppen **gelesen** aus den 6 Rubrik-Dimensionen (der Aufhaenger lag im Code: `sammle()` las die Dimension und warf sie weg), Bericht systemneutral (er nannte die Restmenge fest „Hausregel" — beim Hausystem waeren 12 IBCS-Regeln als hauseigen ausgewiesen worden, dieselbe Klasse wie die `SUCCESS`-Konstante aus L6), Visualseite je System, und ein Waechter, der von **jedem** System eine Abdeckung verlangt (per Fake-System nachgewiesen). **Eigener Fehler beim Gegenlesen gefunden:** erst 15 von 26 Visuals als hauseigen gemeldet — die Registry schreibt Kuerzel (`S2 — length encoding`), die Klassifikation suchte Autorennamen; Kuerzel werden jetzt gegen die Quellenmatrix aufgeloest, 15 → **2**. Dieselbe Blindheit steckte seit L6 in „33 Hausregeln" und fiel nur auf, weil das Etikett zur Systemeigenschaft wurde. **Phase 2 (IBCS-Erhebung) bleibt blockiert:** `ibcs.com` hier nicht erreichbar (Verbindung 000), Fassungsfrage an L14. |
 | **L12 Phase 1b — qualitatives Niveau (§17)** | 🟢 **erledigt** | 2026-08-03 | §16 hatte die falsche Frage beantwortet: **Symmetrie ist keine Güte**. Gemessen an der Craft-Rubrik (30 Regeln): 11 ehrlich geprüft · 2 als `judge` deklariert, aber von einem Validator entschieden · 2 mit Checker, **der nicht scheitern kann** · 7 ohne Checker · 8 ehrlich unbewertet. Dazu **zwei Dubletten mit widersprechender Severity** (`BC-COLOR-04`≡`MAX_SEMANTIC_COLORS_PER_PAGE`, `BC-CHART-01`≡`ONE_MESSAGE_PER_CHART` — letztere von zwei unabhängigen Checkern durchgesetzt). **Beinahe-Fehler, der die schärfste Regel hervorbrachte:** ich wollte `check_tabular_numerals`/`check_reference_lines` verdrahten (Abdeckung 15→17) — beide beenden **immer** mit 0 („Advisory only — never gates"); das hätte zwei Regeln addiert, die per Konstruktion bestehen. Gebaut ohne neuen Speicher: Validator-Bindung **in** der Rubrik statt in einer Python-Tabelle (die deklarierte 20 structural, die Tabelle kannte 13 — Differenz unsichtbar), `check: both` für die zwei Widersprüche mit konservativem Minimum (`judge_rules()` musste mitziehen, sonst hätte die Aufwertung das Urteil erst recht verworfen), jede Lücke mit Grund (`not_implemented` 6 · `render_verification` 2 · `enforced_by_generator` 1), Dubletten per `implements` verwiesen. **5 Integritätstests, alle per Mutation als feuerfähig nachgewiesen** — darunter „ein verdrahteter Validator muss scheitern können". Abdeckung bleibt **54,4/100**: keine Zahl geschönt, sie ist jetzt belastbar. |
+| **L12 Phase 1c — erster verdienter Punkt (§18)** | 🟢 **erledigt** | 2026-08-03 | **54,4 → 58,4/100.** `BC-LAYOUT-01` verdrahtet — prüfbar erst durch L13 (Geometrie in Logical Units, eine Auflösungsstelle); Prüfer bildet L13s Entscheidung ab: waagerecht ganzzahlig, senkrecht frei. **Erster Lauf fand einen echten Defekt:** 7 von 188 Visuals neben dem Raster, alle in EINEM Report, alle mit `Spanne 3.929` — exakt der von L13 benannte Prä-Wert; der Report ist eine *Variante* ohne Generatorpfad, korrigiert wurde nur die Waagerechte (jede Abweichung <0,09 LU von einer ganzen Zahl, `y`/`height` unangetastet). **Wichtigerer Fund beim Versuch, BC-LAYOUT-02 zu bauen:** `BC-CHART-04` ist verdrahtet und **grün**, liest aber nur die `visual.json` — das Custom-Theme setzt in `visualStyles["*"]["*"]` für JEDES Visual `border`/`background`/`dropShadow` auf show=true, **0 von 188** überschreiben. Der Prüfer meldet Sauberkeit, weil er eine Ebene prüft, auf der niemand etwas setzt — dieselbe Klasse wie §12, nur heimtückischer: dort konnte er nicht feuern, hier feuert er ins Leere. **Nicht per Schwellenwert entschieden** — 90 % transparent, 1 px, Spread 0,1: Kartensystem-Elevation oder dekorative Tiefe? Das ist Flos Entscheidung, nicht die eines `if`. Blinder Fleck steht als Kommentar an der Regel, BC-LAYOUT-02 trägt `pending_decision`. Nebenbefund: die **dist**-Reports bestehen den offiziellen Validator (Pin 0.1.1) **nicht** — 25–26 Errors repo-weit, während frisch emittierte sauber sind; Ursache im mitgelieferten Theme, nicht im Emitter. |

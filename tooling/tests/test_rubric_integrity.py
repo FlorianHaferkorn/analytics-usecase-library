@@ -107,7 +107,7 @@ def test_open_gaps_are_counted_not_creeping():
     rs = _rules()
     ohne_validator = [r["id"] for r in rs
                       if r.get("check") in ("structural", "both") and not r.get("validator")]
-    assert len(ohne_validator) == 9, (
-        f"{len(ohne_validator)} structural-Regeln ohne Validator (erwartet 9): "
+    assert len(ohne_validator) == 8, (
+        f"{len(ohne_validator)} structural-Regeln ohne Validator (erwartet 8): "
         f"{sorted(ohne_validator)}. Weniger = Fortschritt, Zahl anpassen. Mehr = eine "
         f"neue Regel behauptet Pruefbarkeit, ohne sie zu liefern.")

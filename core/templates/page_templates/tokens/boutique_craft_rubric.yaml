@@ -133,10 +133,15 @@ dimensions:
         severity: major
         weight: 4
         check: structural
-        validator: null
-        validator_blocked: not_implemented
-        # kein Checker im Repo; Geometrie liegt seit L13 in
-        # Logical Units vor — damit waere es pruefbar
+        validator:
+          script: check_grid_alignment.py
+          args: ["--strict"]
+        # Verdrahtet 03.08.2026. Pruefbar wurde die Regel erst durch L13: seit die
+        # Geometrie in Logical Units liegt und `layout_grid.to_pixels()` die einzige
+        # Aufloesungsstelle ist, gibt es eine Sollposition. Waagerecht ganzzahlig,
+        # senkrecht frei — L13 hat die Zeilenachse bewusst fraktional gelassen.
+        # Erster Lauf: 7 von 188 Visuals daneben, alle in EINEM Report, alle mit
+        # Prae-L13-Werten (Spanne 3.929 statt 4.00).
         machine_hint: "visual bounds not on grid step / row baselines mismatched"
         source: "Craft-Core §5.3; Layout_Grid_System.md"
       - id: BC-LAYOUT-02
@@ -145,8 +150,18 @@ dimensions:
         weight: 4
         check: structural
         validator: null
-        validator_blocked: not_implemented
-        # kein Checker im Repo (gemessen 03.08.2026)
+        validator_blocked: pending_decision
+        # NICHT implementierbar ohne eine Inhaltsentscheidung — gemessen 03.08.2026:
+        # das Custom-Theme setzt in visualStyles["*"]["*"] fuer JEDES Visual
+        #   border:     show=true, width 0.5, radius 8, #FFFFFF
+        #   background: show=true, #FFFFFF, transparency 0
+        #   dropShadow: show=true, transparency 90, distance 1, spread 0.1
+        # und kein einziges der 188 Visuals ueberschreibt das. Diese Regel verbietet
+        # "decorative boxes/borders" — das Kartensystem des Hauses BAUT aber genau
+        # darauf (BC-LAYOUT-03 Hero-Karte, BC-BRAND-01 komponiertes Theme).
+        # Die offene Frage ist nicht technisch: ist eine 90 % transparente 1-px-Erhebung
+        # die Elevation des Kartensystems oder dekorative Tiefe? Ein Pruefer, der das
+        # per Schwellenwert entscheidet, traefe die Entscheidung im Code.
         machine_hint: "visual border/background fill present where whitespace suffices"
         source: "Craft-Core §5.3; Layout_Grid_System.md; Storytelling_Principles.md §11"
       - id: BC-LAYOUT-03
@@ -207,6 +222,14 @@ dimensions:
         validator:
           script: check_declutter.py
           args: ["--strict"]
+        # BLINDER FLECK, gemessen 03.08.2026 — der Pruefer ist gruen, sieht aber nur
+        # die visual.json. Das Custom-Theme setzt in visualStyles["*"]["*"] fuer JEDES
+        # Visual dropShadow/background/border auf show=true, und keines der 188 Visuals
+        # ueberschreibt das. Diese Regel verbietet "background fill, drop shadow";
+        # geprueft wird eine Ebene, auf der niemand etwas setzt. Ein gruener Haken, der
+        # an der falschen Stelle sucht, ist schlechter als ein fehlender — er behauptet
+        # Deckung. Die Erweiterung auf die Theme-Ebene haengt an derselben Entscheidung
+        # wie BC-LAYOUT-02: Kartensystem-Elevation oder dekorative Tiefe?
       - id: BC-CHART-05
         statement: "Reference line/band for target, threshold or prior period wherever a comparison exists."
         severity: major

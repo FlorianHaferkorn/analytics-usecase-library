@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Smart_Narrative",
   "position": {
-    "x": 320,
+    "x": 344,
     "y": 32,
     "z": 10000,
-    "width": 1227,
+    "width": 1232,
     "height": 100,
     "tabOrder": 3001
   },
