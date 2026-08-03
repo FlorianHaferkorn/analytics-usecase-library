@@ -543,10 +543,74 @@ def _slot_geometrie(slot_name: str, variant: str = "", ebene: str = "") -> dict[
     return to_pixels(*lu, params=load("production"))
 
 
+def _visual_fuer_slot(component: dict, slot_name: str, variant: str,
+                      ebene: str) -> tuple[str, Optional[dict]]:
+    """Welches Visual gehoert in diesen Slot — und widerspricht das Bracket der Variante?
+
+    Das ist die Naht, die bis 02.08.2026 fehlte. `template_manifest.yaml` weist jedem
+    Slot einer Variante einen `information_block` zu — `Main_2` ist bei
+    T2_DriverBridge `variance_explanation`, bei T3_ProcessControl `exception_list`.
+    Das ist die **einzige** Achse, auf der sich die 11 Varianten wirklich unterscheiden
+    (6 bzw. 7 distinkte Signaturen bei 2x2 Rastern). Gemessen wurde sie von **niemandem**
+    gelesen: 0 Treffer in diesem Modul und im IR-Compiler.
+
+    Genau das hat `PAGE_TYPE_TAXONOMY.md` schon benannt — „the renderer was not
+    distinguishing them… an engine gap, not a taxonomy gap". Behoben wurde es nie.
+
+    Drei Faelle, und keiner ueberstimmt still:
+
+    * **Bracket schweigt** → `default_visual` des Blocks. Vorher stand hier ein
+      hartes `"card"`, unabhaengig vom Slot — 20 der 66 Deklarationen liefen darauf.
+      Eine KPI-Karte an der Stelle einer Ausnahmeliste ist kein Default, sondern ein
+      stiller Fallback.
+    * **Bracket waehlt aus der erlaubten Menge** → die Wahl gilt. Governance grenzt
+      ein, sie entmuendigt nicht.
+    * **Bracket waehlt ausserhalb** → die Wahl gilt **trotzdem**, aber der Konflikt
+      wird gemeldet. 12 der 66 Deklarationen sind das heute, 7 davon derselbe Fall
+      (`exception_list` vs. Balkendiagramm). Bei sieben gleichlautenden Widerspruechen
+      ist keineswegs ausgemacht, dass die Brackets falsch liegen — es kann die
+      Slot-Zuweisung der Variante sein. Das automatisch zu ueberschreiben hiesse, eine
+      offene Frage per Codezeile zu entscheiden.
+    """
+    from tooling.superversion.layer_tools.page_templates import load as _variante
+    from tooling.superversion.layer_tools.visual_library import (
+        VisualLibrary, canonical_visual_id,
+    )
+
+    deklariert = component.get("visual_type") or ""
+    block = None
+    if variant and ebene and slot_name:
+        try:
+            block = next((s.information_block for s in _variante(variant).slots
+                          if s.slot_id == slot_name and s.ebene == ebene), None)
+        except Exception:      # unbekannte Variante meldet `slot_luecken`, nicht hier
+            block = None
+    if not block:
+        return (deklariert or "card"), None
+
+    lib = VisualLibrary.load()
+    spec = lib.block(block)
+    erlaubt = {v.visual_id for v in spec.allowed_visuals}
+    # `default_visual()` ist eine METHODE, kein Attribut — ein `getattr` darauf liefert
+    # das gebundene Objekt und ist wahrheitswertig. Genau daran ist der erste Lauf
+    # gescheitert: der Visualtyp war ein `<bound method …>`.
+    dv = spec.default_visual()
+    default = dv.visual_id if dv else ""
+
+    if not deklariert:
+        return (default or "card"), None
+    kanon = canonical_visual_id(deklariert) or deklariert
+    if kanon in erlaubt:
+        return deklariert, None
+    return deklariert, {"slot": slot_name, "block": block, "declared": kanon,
+                        "allowed": sorted(erlaubt)}
+
+
 def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportPage:
     visuals: list[Visual] = []
     idx = 0
     vergeben: set[str] = set()
+    block_konflikte: list[dict] = []
     variant = page.get("template_variant") or ""
     ebene = _EBENE_JE_SEITE.get(page_key, "")
 
@@ -559,6 +623,9 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
         # und ist es nicht.
         name = slot_name or component.get("slot_id") or _SLOT_FUER_KOMPONENTE.get(slot, "")
         geo = _slot_geometrie(name, variant, ebene) if name else {}
+        vtyp, konflikt = _visual_fuer_slot(component, name, variant, ebene)
+        if konflikt:
+            block_konflikte.append(konflikt)
         kpi_ids = _collect_visual_kpi_ids(component, catalog)
         # bound_measures: aufgelöste measure_names (Katalog) bzw. direkter Name
         bound = []
@@ -586,7 +653,7 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
                 visual_id=vid,
                 x=geo.get("x", 0), y=geo.get("y", 0),
                 width=geo.get("width", 0), height=geo.get("height", 0),
-                visual_type=component.get("visual_type", "card"),
+                visual_type=vtyp,
                 # BC-NARR-01 (K2/K3): the governed exhibit statement wins the title when
                 # present; else fall back to the slot label / decision question.
                 title=component.get("message") or component.get("slot_id", "") or component.get("decision_question", ""),
@@ -663,7 +730,7 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
     from tooling.superversion.layer_tools.layout_grid import load
 
     raster = load("production")
-    return ReportPage(
+    seite = ReportPage(
         name=page_key,
         display_name=page.get("title", page_key),
         page_type="Default",
@@ -671,6 +738,10 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
         width=raster.width,
         height=raster.height,
     )
+    # Block-Konflikte reisen am Ergebnis mit, statt ueber eine zweite Berechnung —
+    # sonst waeren Emission und Meldung zwei Wahrheiten ueber denselben Lauf.
+    seite._block_konflikte = block_konflikte      # type: ignore[attr-defined]
+    return seite
 
 
 # --------------------------------------------------------------------------- #
@@ -764,7 +835,8 @@ def slot_luecken(bracket_path: str | Path, kpis_dir: str | Path) -> list[dict]:
             out.append({"use_case": uc, "page": pk, "variant": None,
                         "missing": None, "emitted": []})
             continue
-        emittiert = [v.visual_id for v in _page_from_layout(pk, seite, catalog).visuals]
+        gebaut = _page_from_layout(pk, seite, catalog)
+        emittiert = [v.visual_id for v in gebaut.visuals]
         # Woher kam die Geometrie? Das Manifest deklariert fuer fuenf Varianten **kein**
         # Detail-Raster; dort greift das benannte Default-Raster. Ohne diese Angabe
         # laese sich eine vollstaendige Seite nicht von einer unterscheiden, die nur
@@ -778,6 +850,10 @@ def slot_luecken(bracket_path: str | Path, kpis_dir: str | Path) -> list[dict]:
             "emitted": emittiert,
             "raster": eigenes.template_id if eigenes else None,
             "raster_default": eigenes is None,
+            # Bracket-Visual widerspricht dem `information_block` des Slots. Gemeldet,
+            # nicht ueberschrieben: bei sieben gleichlautenden Widerspruechen ist offen,
+            # ob das Bracket oder die Slot-Zuweisung der Variante irrt.
+            "block_conflicts": getattr(gebaut, "_block_konflikte", []),
         })
     return out
 

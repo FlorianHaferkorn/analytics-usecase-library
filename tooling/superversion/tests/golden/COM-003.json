@@ -478,7 +478,7 @@
         "visuals": [
           {
             "visual_id": "Detail_Matrix",
-            "visual_type": "card",
+            "visual_type": "table",
             "x": 344.0,
             "y": 118.0,
             "width": 1232.0,

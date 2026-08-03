@@ -142,13 +142,23 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
             f"{p}: {', '.join(m)}" for p, m in sorted(fehlend.items())))
     # ADVISORY: these two are gaps in the *manifest*, not in the emission. Failing on
     # them would make the adapter answer for governance it does not own.
-    if ungeprueft or geraten:
+    # ADVISORY: the bracket picked a visual outside its slot's governed information
+    # block. Reported, never overridden — measured 2026-08-02 across all 20 brackets,
+    # 12 of 66 declarations conflict and **7 are the same case** (`exception_list` vs a
+    # bar chart). At seven identical disagreements it is not settled that the brackets
+    # are wrong; the variant's slot assignment may be. Deciding that in code would
+    # settle an open question by side effect.
+    konflikte = [k for r in rows for k in (r.get("block_conflicts") or [])]
+    if ungeprueft or geraten or konflikte:
         teile = []
         if ungeprueft:
             teile.append(f"no template_variant on {', '.join(sorted(ungeprueft))}")
         if geraten:
             teile.append(f"default grid template on {', '.join(sorted(geraten))} "
                          "(manifest declares none for that variant/level)")
+        for k in konflikte:
+            teile.append(f"{k['slot']} is '{k['block']}' but bracket declares "
+                         f"'{k['declared']}' (allowed: {', '.join(k['allowed'])})")
         return StageResult("page_slots", "WARN", "; ".join(teile))
     return StageResult("page_slots", "PASS",
                        f"{len(rows)} page(s), all mandatory slots present")

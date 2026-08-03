@@ -217,3 +217,65 @@ def test_visual_ids_are_unique_per_page():
     for p in from_bracket_file(_FIN002, _KPIS).report.pages:
         ids = [v.visual_id for v in p.visuals]
         assert len(ids) == len(set(ids)), f"{p.name}: doppelte visual_id in {ids}"
+
+
+# --------------------------------------------------------------------------- #
+# information_block: die Naht, die die 11 Varianten wirksam macht (02.08.2026)  #
+# --------------------------------------------------------------------------- #
+
+def test_slot_block_decides_the_visual_when_the_bracket_is_silent():
+    """Schweigt das Bracket, entscheidet der `information_block` des Slots.
+
+    Vorher stand dort ein hartes `"card"` — unabhaengig davon, ob der Slot eine
+    Detailmatrix, eine Ausnahmeliste oder ein Trend war. 20 der 66 Deklarationen
+    liefen darauf. Das war kein Default, sondern ein stiller Fallback.
+    """
+    from tooling.superversion.from_aluca import _visual_fuer_slot
+
+    typ, konflikt = _visual_fuer_slot({}, "Detail_Matrix", "T4_ActionDecision", "detail_slots")
+    assert typ == "table", f"Detail-Matrix ohne Bracket-Wahl sollte die Block-Vorgabe sein: {typ}"
+    assert konflikt is None
+    # Und ohne aufloesbaren Block bleibt es beim alten Verhalten — kein Raten.
+    assert _visual_fuer_slot({}, "Gibt_Es_Nicht", "T4_ActionDecision", "detail_slots")[0] == "card"
+
+
+def test_bracket_choice_inside_the_block_is_respected():
+    """Governance grenzt ein, sie entmuendigt nicht."""
+    from tooling.superversion.from_aluca import _visual_fuer_slot
+
+    typ, konflikt = _visual_fuer_slot(
+        {"visual_type": "column_chart"}, "Main_1", "T1_Portfolio", "overview_slots")
+    assert typ == "column_chart" and konflikt is None
+
+
+def test_bracket_choice_outside_the_block_is_reported_not_overridden():
+    """Ein Widerspruch wird gemeldet — und die Wahl bleibt trotzdem stehen.
+
+    Automatisch zu ueberschreiben hiesse zu entscheiden, dass das Bracket irrt. Bei
+    den gemessenen 12 Konflikten sind **7 derselbe Fall**; das ist eher ein Hinweis auf
+    die Slot-Zuweisung der Variante als auf zwoelf Autorenfehler.
+    """
+    from tooling.superversion.from_aluca import _visual_fuer_slot
+
+    typ, konflikt = _visual_fuer_slot(
+        {"visual_type": "waterfall_chart"}, "Main_1", "T1_Portfolio", "overview_slots")
+    assert typ == "waterfall_chart", "die Wahl darf nicht still ersetzt werden"
+    assert konflikt and konflikt["block"] == "time_trend"
+    assert "waterfall_chart" not in konflikt["allowed"]
+
+
+def test_the_variant_actually_changes_what_is_shown():
+    """Der Wirksamkeitsnachweis: zwei Varianten, gleicher Slot, anderes Visual.
+
+    Das ist der Punkt der ganzen Uebung. `PAGE_TYPE_TAXONOMY.md` hielt fest, dass sich
+    T2–T4 „aehnlich anfuehlten" und nannte als Ursache einen **Engine-Gap**, keinen
+    Taxonomie-Gap: der Renderer unterschied die Seitentypen nicht. Gemessen am
+    02.08.2026 war das noch immer so — `information_block` hatte **0** Konsumenten.
+    Schlaegt dieser Test um, ist die Naht wieder ab und die 11 Varianten sind erneut
+    Metadaten ohne Wirkung.
+    """
+    from tooling.superversion.from_aluca import _visual_fuer_slot
+
+    a = _visual_fuer_slot({}, "Main_2", "T2_DriverBridge", "overview_slots")[0]
+    b = _visual_fuer_slot({}, "Main_2", "T3_ProcessControl", "overview_slots")[0]
+    assert a != b, f"Main_2 liefert fuer beide Varianten '{a}' — die Variante wirkt nicht"

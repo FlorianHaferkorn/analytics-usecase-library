@@ -1284,6 +1284,78 @@ stecken.
 
 ---
 
+## 14. Der Engine-Gap: `information_block` angeschlossen (02.08.2026)
+
+Auf die Frage, ob die Seiten-Templates „wirklich sinnvoll und belegt" sind, gibt es eine
+gemessene Antwort — und sie fällt für die beiden Systeme **entgegengesetzt** aus.
+
+| | Belege | wirkt? |
+|---|---|---|
+| **ALUCA T1–T4** (11 Varianten) | `PAGE_TEMPLATE_DOCTRINE.md`: **15 benannte Quellen**, als „evidence-backed" markiert — Shneiderman 1996, Cleveland & McGill 1984, Munzner 2014, Sweller 1988, Miller 1956, Hick 1952/Hyman 1953, Few 2004/2005, Tufte 1983, Bertin 1983, IBCS SUCCESS, MS-Guidance, SQLBI 3-30-300 | **nein** |
+| **Meridian TPL-001…006** | **0 Zitate** in allen sechs Templates; `user-research.md` (ihre erklärte Grundlage) 0; `interaction-patterns.md` 1 | **ja** |
+
+Die vier Familien sind zusätzlich durch Konvergenz gedeckt: *„no established BI reporting
+framework uses more than 4–5 top-level archetypes (IBCS uses 4: M–A–K–T; Few (2004) uses
+3: status, trending, detail)"*. Das ist ein Argument, kein Geschmack.
+
+### Der Befund
+
+`PAGE_TYPE_TAXONOMY.md` hält seit jeher fest:
+
+> *„The user's perception that T2–T4 felt similar was correct… The cause: the Studio
+> gallery was rendering each template with a generic `DashboardLayout` using the same
+> visual components regardless of page type. This is an **engine gap**, not a taxonomy
+> gap."*
+
+Gemessen am 02.08.2026 galt das noch immer, eine Schicht tiefer: `information_block` —
+die **einzige** Achse, auf der sich die 11 Varianten wirklich unterscheiden (6 bzw. 7
+distinkte Slot/Block-Signaturen bei nur 2×2 Rastern) — hatte **0 Konsumenten** in
+`from_aluca` und im IR-Compiler. Die Taxonomie war also besser als ihre Umsetzung: gut
+belegt, sauber differenziert, und nicht angeschlossen.
+
+### Die Naht
+
+Der Slot bestimmt den Block, der Block bestimmt über `visual_registry.yaml` die erlaubte
+Menge und den Default. Drei Fälle, keiner überstimmt still:
+
+* **Bracket schweigt** → `default_visual` des Blocks. Vorher stand dort ein hartes
+  `"card"`, unabhängig vom Slot — 20 der 66 Deklarationen liefen darauf. Eine KPI-Karte
+  an der Stelle einer Detailmatrix ist kein Default, sondern ein stiller Fallback.
+* **Bracket wählt innerhalb** → die Wahl gilt. Governance grenzt ein, entmündigt nicht.
+* **Bracket wählt außerhalb** → die Wahl gilt **trotzdem**, der Konflikt wird gemeldet.
+
+Wirkung: stilles `card` **20 → 3**, und 17 Detailmatrizen sind jetzt `table` statt `card`.
+Ein Test belegt die Wirksamkeit direkt — derselbe Slot `Main_2` liefert für
+`T2_DriverBridge` und `T3_ProcessControl` **verschiedene** Visuals. Genau das war zuvor
+nicht der Fall.
+
+### Was die Naht ans Licht bringt
+
+**12 der 66 Bracket-Deklarationen widersprechen dem Block ihres Slots** — und **7 davon
+sind derselbe Fall**: der Slot ist `exception_list`, das Bracket will ein
+Balkendiagramm.
+
+Bei sieben gleichlautenden Widersprüchen ist keineswegs ausgemacht, dass die Brackets
+irren. Es kann die Slot-Zuweisung der Variante sein — `T3_ProcessControl` setzt
+`exception_list` auf `Main_2`, und sieben Use Cases wollen dort unabhängig voneinander
+etwas anderes. Das automatisch zu überschreiben hieße, eine offene Frage per Codezeile zu
+entscheiden. Deshalb: gemeldet, nicht ersetzt.
+
+**Das ist die erste echte empirische Rückmeldung, die die Taxonomie je bekommen hat** —
+möglich geworden, weil sie überhaupt angeschlossen ist.
+
+### Offen
+
+* Die 12 Konflikte auflösen: Bracket anpassen oder Slot-Zuweisung der Variante korrigieren.
+* **4 von 11 Varianten sind unbenutzt** (`T2_Funnel`, `T3_IncidentMonitor`,
+  `T4_OptionComparison`, `T4_Sensitivity`) — löschen oder belegen. Eine Variante ohne
+  Nutzung ist eine Behauptung.
+* Die Meridian-Templates sind **nicht** auf demselben Niveau belegt. Ihr `content_type`
+  wirkt zwar, aber die sechs Templates führen keine Quelle. Kandidat: die 15 Quellen aus
+  ALUCA gelten fachlich genauso für sie.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1497,3 +1569,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **N1 Wächter feuerfähig (§12)** | 🟢 **erledigt** | 2026-08-02 | `RequiredSlots` konnte aus **drei** unabhängigen Gründen nicht anschlagen (in keiner Produktiv-Spec; Namens-Schnüffeln matchte `page_1_summary`/`page_2_execution` nicht; `visual_id` war ein Zähler, keine Slot-ID). Die Autorität existierte längst — `template_manifest.yaml`, 40/40 Seiten lösen auf. Angeschlossen statt erfunden: Leser `layer_tools/page_templates.py`, `visual_id` **ist** der Slot-Name (kollisionssicher), `RequiredSlots` verliert beide hartkodierten Mengen **und** das Schnüffeln, e2e-Stage `page_slots` (advisory). **Erstes Feuern: 39/40 Seiten** ohne mindestens einen Pflicht-Slot — `Slicer_Date` 19×, `ActionPanel` 13×, `Slicer_Pane` 7×, `Focus_Area` 3×. Nebenbei: zwei Vokabulare im Manifest getrennt gehalten; §11-Zahl „38 → 0" auf **Code** präzisiert und die zweite YAML-Rasterkopie erzwungen-gleich gemacht. 2031 Tests grün, H7 bleibt 100 %. |
 | **N2 Pflicht-Möbel + Geometrie-Autorität (§13)** | 🟢 **erledigt** | 2026-08-02 | Prämisse war falsch: **drei** Geometrie-Quellen, und die Compiler-Tabelle war faktisch `pulse` für **alle** Varianten — `template_variant` war deklariert, validiert und geometrisch **wirkungslos** (`executive_kpi` Main_2: 328 px im Template, 749 px in der Tabelle). Entscheidung Flo: `grid_templates/*.json` sind Autorität. `executive_kpi` auf LU umgestellt (≤4 px), die zwei nicht erreichbaren Pixel-Templates bewusst **nicht** (36–157 px wären keine Normalisierung). Auflösung **nach Ebene**, Pflicht-Möbel emittiert. **Seiten mit Lücke 39 → 3** (Rest `Focus_Area`, Manifest-Lücke). Default-Rückfall wird gemeldet statt verschwiegen; 76-px-Slicer-Zusicherung als **bedingt** präzisiert (gegen CLI-Code gemessen). 2031 Tests grün, 20/20 Reports 0 Errors beim offiziellen Validator, H7 100 %. **Offen:** Compiler-Tabelle noch nicht abgeleitet. |
 | **N3 Slot-Gate hart (§13 Nachtrag)** | 🟢 **erledigt** | 2026-08-02 | Die fünf Varianten ohne Detail-Raster versorgt — **kein Kandidatenwahl, ein Abgleich**: ihre `detail_slots` sind exakt die vier Slots von `investigator.json`. Bindung ausdrücklich über neues `detail_grid_template` (statt `alternate` zu überladen — das meint dieselbe Ebene). **40/40 Seiten vollständig, 0 Default-Rückfälle.** `page_slots` jetzt hart: fehlender Pflicht-Slot = FAIL (Emissionsdefekt), Manifest-Lücken bleiben WARN — den Adapter dafür haften zu lassen verschöbe die Schuld. Zwei Tests: einer beweist, dass der Gate rot werden **kann**. 2033 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |
+| **N4 `information_block` angeschlossen (§14)** | 🟢 **erledigt** | 2026-08-02 | Der in `PAGE_TYPE_TAXONOMY.md` benannte **Engine-Gap** ist geschlossen: die einzige Achse, auf der sich die 11 Varianten unterscheiden, hatte **0 Konsumenten**. Jetzt Slot → Block → Registry: stilles `card` **20 → 3**, 17 Detailmatrizen sind `table` statt `card`, Wirksamkeitstest (gleicher Slot, zwei Varianten, verschiedene Visuals). **Bringt 12 Konflikte ans Licht, 7 davon derselbe Fall** (`exception_list` vs. Balken) — gemeldet, nicht überschrieben; erste empirische Rückmeldung an die Taxonomie. Grounding gemessen: ALUCA **15 benannte Quellen**, Meridian TPL-001…006 **0**. 2039 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |
