@@ -47,6 +47,9 @@ dimensions:
         severity: knock_out
         weight: 5
         check: structural
+        validator: null
+        validator_blocked: not_implemented
+        # kein Checker im Repo (gemessen 03.08.2026)
         machine_hint: "categorical series coloured by N distinct hues without semantic role"
         source: "Craft-Core §5.1; Color_Semantics_Formatting.md"
       - id: BC-COLOR-03
@@ -54,6 +57,9 @@ dimensions:
         severity: major
         weight: 3
         check: structural
+        validator: null
+        validator_blocked: not_implemented
+        # kein Checker im Repo (gemessen 03.08.2026)
         machine_hint: "semantic colour present without accompanying icon glyph / direction marker"
         source: "Craft-Core §5.1; Storytelling_Principles.md §9 (8% red-green deficiency)"
       - id: BC-COLOR-04
@@ -61,6 +67,13 @@ dimensions:
         severity: minor
         weight: 3
         check: structural
+        validator: null
+        validator_blocked: enforced_by_generator
+        # design_rules.yaml/MAX_SEMANTIC_COLORS_PER_PAGE ist WORTGLEICH dieselbe Zusage aus
+        # derselben Quelle (Storytelling_Principles §9) und wird von
+        # design_rules_enforcer.check_max_count durchgesetzt — allerdings nur bei
+        # intent_rules_version == 2. Die Regel ist also geprueft, nur nicht durch den
+        # Mechanismus dieser Scorecard. Severity-Konflikt aufgeloest: die Rubrik ist SoT.
         machine_hint: "distinct semantic-role colours per page > 4"
         source: "Craft-Core §5.1; Storytelling_Principles.md §9"
 
@@ -74,11 +87,21 @@ dimensions:
         check: structural
         machine_hint: "distinct font families in theme/visuals > 1"
         source: "Craft-Core §5.2; typography.yaml"
+        validator:
+          script: check_font_family.py
+          args: ["--strict"]
       - id: BC-TYPE-02
         statement: "Tabular (monospaced) numerals in every vertically-compared number column."
         severity: major
         weight: 4
         check: structural
+        validator: null
+        validator_blocked: render_verification
+        # BEWUSST nicht verdrahtet: check_tabular_numerals.py existiert, ist aber
+        # advisory und beendet IMMER mit 0 ('Advisory only — never gates').
+        # Verdrahtet ergaebe das eine Regel, die per Konstruktion besteht —
+        # ein Haken ohne Pruefung. Erst verdrahten, wenn der Checker
+        # scheitern kann (Render-Verifikation, s. L10).
         machine_hint: "matrix/table numeric column without tabular numeral setting"
         source: "Craft-Core §5.2; typography.yaml (numerals: tabular)"
       - id: BC-TYPE-03
@@ -88,11 +111,17 @@ dimensions:
         check: structural
         machine_hint: "kpi_value pt / secondary pt < 2"
         source: "Craft-Core §5.2; typography.yaml scale"
+        validator:
+          script: check_type_scale.py
+          args: ["--strict"]
       - id: BC-TYPE-04
         statement: "No ALL-CAPS for running text; every reader-facing size ≥ minimum."
         severity: minor
         weight: 2
         check: structural
+        validator: null
+        validator_blocked: not_implemented
+        # kein Checker im Repo (gemessen 03.08.2026)
         machine_hint: "text run in uppercase length > label threshold; size < min_pt"
         source: "Craft-Core §5.2; Storytelling_Principles.md §10"
 
@@ -104,6 +133,10 @@ dimensions:
         severity: major
         weight: 4
         check: structural
+        validator: null
+        validator_blocked: not_implemented
+        # kein Checker im Repo; Geometrie liegt seit L13 in
+        # Logical Units vor — damit waere es pruefbar
         machine_hint: "visual bounds not on grid step / row baselines mismatched"
         source: "Craft-Core §5.3; Layout_Grid_System.md"
       - id: BC-LAYOUT-02
@@ -111,6 +144,9 @@ dimensions:
         severity: major
         weight: 4
         check: structural
+        validator: null
+        validator_blocked: not_implemented
+        # kein Checker im Repo (gemessen 03.08.2026)
         machine_hint: "visual border/background fill present where whitespace suffices"
         source: "Craft-Core §5.3; Layout_Grid_System.md; Storytelling_Principles.md §11"
       - id: BC-LAYOUT-03
@@ -128,6 +164,9 @@ dimensions:
         machine_hint: "elements in a zone > 7"
         source: "Craft-Core §5.7; Storytelling_Principles.md §4"
 
+        validator:
+          script: check_zone_density.py
+          args: ["--strict"]
   - id: chart_craft
     weight: 28
     rules:
@@ -138,6 +177,9 @@ dimensions:
         check: structural
         machine_hint: "measures of ≥2 unit types bound to the same axis role"
         source: "Craft-Core §5.4/§5.7; IBCS CHECK; R1.4 (mixed-scale bug)"
+        validator:
+          script: check_mixed_scale.py
+          args: []
       - id: BC-CHART-02
         statement: "Show deviation as deviation — variance/bridge (IBCS), not two absolute bars for the reader to subtract."
         severity: major
@@ -145,6 +187,9 @@ dimensions:
         check: structural
         machine_hint: "comparison vs plan/PY present but rendered as absolute pairs, no variance series"
         source: "Craft-Core §5.4; IBCS EXPRESS (Abweichung als Abweichung zeigen); ibcs transform"
+        validator:
+          script: check_deviation_display.py
+          args: ["--strict"]
       - id: BC-CHART-03
         statement: "Direct labelling at line ends/points instead of a legend where feasible (≤5 series)."
         severity: major
@@ -159,11 +204,21 @@ dimensions:
         check: structural
         machine_hint: "background fill / gridline opacity high / 3D or gradient object set"
         source: "Craft-Core §5.4; Tufte data-ink; Storytelling_Principles.md §7"
+        validator:
+          script: check_declutter.py
+          args: ["--strict"]
       - id: BC-CHART-05
         statement: "Reference line/band for target, threshold or prior period wherever a comparison exists."
         severity: major
         weight: 3
         check: structural
+        validator: null
+        validator_blocked: render_verification
+        # BEWUSST nicht verdrahtet: check_reference_lines.py existiert, ist aber
+        # advisory und beendet IMMER mit 0 ('Advisory only — never gates').
+        # Verdrahtet ergaebe das eine Regel, die per Konstruktion besteht —
+        # ein Haken ohne Pruefung. Erst verdrahten, wenn der Checker
+        # scheitern kann (Render-Verifikation, s. L10).
         machine_hint: "comparison KPI on chart without a reference line/band object"
         source: "Craft-Core §5.4; Storytelling_Principles.md §8"
       - id: BC-CHART-06
@@ -187,6 +242,9 @@ dimensions:
         check: structural
         machine_hint: "visual_type vs component intent mismatch (e.g. pie >3 segments)"
         source: "Craft-Core §5.4; IBCS EXPRESS; Cleveland-McGill 1984"
+        validator:
+          script: check_forbidden_charts.py
+          args: ["--strict"]
       - id: BC-CHART-09
         statement: "Zero-based axes for bars; area proportional to value; no undisclosed truncation."
         severity: major
@@ -194,6 +252,9 @@ dimensions:
         check: structural
         machine_hint: "bar chart y-axis min ≠ 0"
         source: "Craft-Core §5.4; IBCS CHECK; Tufte graphical integrity"
+        validator:
+          script: check_zero_based_axes.py
+          args: ["--strict"]
       - id: BC-CHART-10
         statement: "Evidence tables sorted by most-relevant/worst-first with an explicit Top-N."
         severity: knock_out
@@ -202,6 +263,9 @@ dimensions:
         machine_hint: "detail matrix without sortDefinition or Top-N filter"
         source: "Craft-Core §5.4; R1.3 (curated evidence)"
 
+        validator:
+          script: check_evidence_sort.py
+          args: ["--strict"]
   - id: narrative
     weight: 20
     rules:
@@ -209,9 +273,17 @@ dimensions:
         statement: "Every exhibit title is a conclusion/statement, not a label ('GM fell 12% vs plan', not 'GM by month')."
         severity: knock_out
         weight: 5
-        check: judge
+        check: both
+        # `both`, nicht `judge` (03.08.2026): der verdrahtete Validator
+        # entscheidet die strukturelle Haelfte und nennt sich in seinem
+        # eigenen Kopf so ('structural seed'). Stand `judge` hier allein,
+        # verwarf die Scorecard das Judge-Urteil still — die Deklaration
+        # war tot, und niemand konnte das sehen.
         machine_hint: "title matches '<dimension> by <dimension>' pattern / contains no verb or number"
         source: "Craft-Core §5.4/§5.5; IBCS SAY"
+        validator:
+          script: check_exhibit_message.py
+          args: []
       - id: BC-NARR-02
         statement: "One message per exhibit — more than one → split into two exhibits."
         severity: major
@@ -233,6 +305,9 @@ dimensions:
         check: structural
         machine_hint: "KPI value without a comparison field (delta/target/benchmark)"
         source: "Craft-Core §5.5/§5.7; Concept §6.3 (benchmark layer)"
+        validator:
+          script: check_kpi_context.py
+          args: ["--strict"]
       - id: BC-NARR-05
         statement: "Annotations sit at the relevant point (inflection callouts, reference labels) — not in a footnote."
         severity: minor
@@ -245,6 +320,9 @@ dimensions:
         severity: major
         weight: 2
         check: structural
+        validator: null
+        validator_blocked: not_implemented
+        # kein Checker im Repo (gemessen 03.08.2026)
         machine_hint: "narrative text bound to non-governed source / static (filter-insensitive)"
         source: "Craft-Core §6.2/§6.4; Storytelling_Principles.md §13"
 
@@ -258,10 +336,21 @@ dimensions:
         check: structural
         machine_hint: "no custom theme registered / default palette in use"
         source: "Craft-Core §5.6; Concept §7 (Maximize Power BI)"
+        validator:
+          script: check_custom_theme.py
+          args: ["--strict"]
       - id: BC-BRAND-02
         statement: "Consistent, recognisable identity across all reports (looks like one firm)."
         severity: major
         weight: 4
-        check: judge
+        check: both
+        # `both`, nicht `judge` (03.08.2026): der verdrahtete Validator
+        # entscheidet die strukturelle Haelfte und nennt sich in seinem
+        # eigenen Kopf so ('structural seed'). Stand `judge` hier allein,
+        # verwarf die Scorecard das Judge-Urteil still — die Deklaration
+        # war tot, und niemand konnte das sehen.
         machine_hint: "theme/type/colour drift across reports in the set"
         source: "Craft-Core §5.6; Concept §2"
+        validator:
+          script: check_custom_theme.py
+          args: ["--consistency", "--strict"]

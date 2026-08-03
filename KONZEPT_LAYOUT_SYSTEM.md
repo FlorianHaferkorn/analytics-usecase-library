@@ -1538,6 +1538,77 @@ wenn man es zur Systemeigenschaft macht.
 
 ---
 
+## 17. Qualitatives Niveau statt struktureller Symmetrie (03.08.2026)
+
+§16 hat die falsche Frage beantwortet. Der Einwand war nicht, dass IBCS und unser System
+gleich *aussehen* sollen — sondern dass unseres **qualitativ auf dem Niveau eines
+anerkannten Systems** sein soll. §16 hat Symmetrie hergestellt (gleicher Deskriptor,
+gleicher Bericht, gleiche Gate-Zeile). Das war nötig, um überhaupt messen zu können, aber
+es ist keine Güte.
+
+Was einen Standard von einer Sammlung guter Ratschläge unterscheidet, ist nachprüfbar.
+Gemessen an unserer Craft-Rubrik (30 Regeln, 6 Dimensionen):
+
+| Zustand | n | Bewertung |
+|---|---|---|
+| `structural` + Validator, der scheitern **kann** | 11 | ehrlich geprüft |
+| `judge` deklariert, aber ein Validator entscheidet | 2 | **Widerspruch** |
+| `structural`, Checker existiert, **kann nicht scheitern** | 2 | zu Recht ungezählt — nirgends vermerkt |
+| `structural`, kein Checker | 7 | Anspruch ohne Einlösung |
+| `judge`, kein Validator | 8 | ehrlich unbewertet |
+
+Dazu zwei **Dubletten mit widersprechender Severity**: `BC-COLOR-04` (minor) ≡
+`MAX_SEMANTIC_COLORS_PER_PAGE` (warning), wortgleich aus derselben Quelle; und
+`BC-CHART-01` (knock_out) ≡ `ONE_MESSAGE_PER_CHART` (critical) — letztere von **zwei
+unabhängigen Checkern** durchgesetzt. Die design_rules-ID führt zusätzlich in die Irre:
+sie heißt „one message", prüft aber Einheitenfamilien; „eine Botschaft pro Exhibit" ist
+BC-NARR-02, eine andere Regel.
+
+**Der Beinahe-Fehler, der die schärfste Regel hervorgebracht hat.** Zwei Regeln
+(`BC-TYPE-02`, `BC-CHART-05`) haben Checker, die ihre Regel-ID im Kopf tragen und nach
+fertiger Arbeit aussehen. Ich wollte sie verdrahten — die Abdeckung wäre von 15 auf 17
+Regeln gestiegen. Gemessen: beide beenden **immer** mit 0 („Advisory only — never
+gates"). Verdrahtet hätten sie zwei Regeln hinzugefügt, die per Konstruktion bestehen.
+Das ist die Fehlerklasse dieses ganzen Konzepts — ein Haken ohne Prüfung — und sie ist
+jetzt maschinell verboten.
+
+**Was gebaut wurde** (kein neuer Speicher):
+
+1. **Die Validator-Bindung steht in der Rubrik**, nicht in einer Python-Tabelle. Vorher
+   deklarierte die Rubrik 20 Regeln als `structural`, die Tabelle im Scorecard kannte 13
+   — die Differenz war nirgends sichtbar und sah aus wie ein Inhaltsproblem. Dieselbe
+   Klasse wie die Rasterkopie (§13) und die zwei Pflichtslot-Mengen (§12).
+2. **`check: both`** für die zwei Widersprüche. Der Validator entscheidet die
+   strukturelle Hälfte, ein Judge die semantische; die Scorecard nimmt konservativ das
+   Minimum. Vorher gewann der Validator immer und das Judge-Urteil wurde still verworfen
+   — die `judge`-Deklaration war tot. `judge_rules()` musste mitziehen, sonst hätte die
+   Aufwertung genau das bewirkt, was sie behebt.
+3. **Jede offene Lücke trägt ihren Grund**: `not_implemented` (6), `render_verification`
+   (2), `enforced_by_generator` (1 — `BC-COLOR-04` *wird* geprüft, nur vom Generator und
+   nur bei `intent_rules_version == 2`).
+4. **Die Dubletten verweisen statt zu wiederholen** (`implements: BC-…`); die Rubrik ist
+   SoT für Aussage und Severity, die Durchsetzung bleibt, wo sie ist.
+5. **Fünf Integritätstests**, alle durch Mutation als feuerfähig nachgewiesen: eine
+   Regel behauptet Prüfbarkeit ohne Grund · `judge` mit Validator · ein Validator, den
+   es nicht gibt · **ein advisory-Validator, der nicht scheitern kann** · die Zahl der
+   offenen Lücken wächst still.
+
+Die Abdeckung bleibt bei **54,4/100** — und das ist der Punkt. Keine Zahl wurde
+geschönt; sie ist jetzt belastbar statt bloß plausibel. Der Weg nach oben führt über die
+6 nicht implementierten Checker und die Render-Verifikation aus L10, nicht über
+Verdrahtung dessen, was ohnehin bestanden hätte.
+
+### Offen
+
+* Die **6 `not_implemented`**-Regeln. `BC-LAYOUT-01` (Rasterbindung) ist der billigste:
+  die Geometrie liegt seit L13 in Logical Units vor, damit ist sie prüfbar.
+* **`ONE_MESSAGE_PER_CHART` umbenennen** — der Name benennt eine andere Regel. Bruch für
+  die Aufrufer, deshalb ein eigener Punkt.
+* Ob `BC-COLOR-04`s Durchsetzung aus dem Generator in einen eigenständigen Validator
+  gehört, damit sie unabhängig von `intent_rules_version` gilt.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1754,3 +1825,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **N4 `information_block` angeschlossen (§14)** | 🟢 **erledigt** | 2026-08-02 | Der in `PAGE_TYPE_TAXONOMY.md` benannte **Engine-Gap** ist geschlossen: die einzige Achse, auf der sich die 11 Varianten unterscheiden, hatte **0 Konsumenten**. Jetzt Slot → Block → Registry: stilles `card` **20 → 3**, 17 Detailmatrizen sind `table` statt `card`, Wirksamkeitstest (gleicher Slot, zwei Varianten, verschiedene Visuals). **Bringt 12 Konflikte ans Licht, 7 davon derselbe Fall** (`exception_list` vs. Balken) — gemeldet, nicht überschrieben; erste empirische Rückmeldung an die Taxonomie. Grounding gemessen: ALUCA **15 benannte Quellen**, Meridian TPL-001…006 **0**. 2039 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |
 | **N5 Slot-Härte deklariert (§15)** | 🟢 **erledigt** | 2026-08-03 | Die eigene Idee „Chrome hart, Inhalt weich" ist an der Recherche gescheitert: **kein** geprüftes System (Grafana Foundation SDK, LookML, Superset, Evidence.dev, Web-Components-Slots) staffelt Pflicht nach Elementtyp, und Microsofts eigener Skill lehnt jede Pflicht-Checkliste ab. Belegt etabliert ist nur die **Trennung** Regel ↔ Härte (ESLint, Sentinel, OPA, K8s PSS) — mit der Achse **Datenlage/Rollout-Reife**, nie Objekttyp. Umgesetzt: `severity: error\|warning` je Pflicht-Slot im Manifest (Default `error`, kein stilles Aufweichen); die 11 Pflicht-Slots der vier `status: unused`-Varianten auf `warning`, weil sie null Emissionen und damit null Verletzungsdaten haben. Wächter **beidseitig** — fällt beim Verschärfen ohne Datenlage *und* beim Aufweichen einer benutzten Variante; beide Richtungen per Mutation nachgewiesen. Stand unverändert: 42/42 Seiten, 0 harte und 0 weiche Lücken. |
 | **L12 Phase 1 — Paritaet der Systeme (§16)** | 🟢 **erledigt** | 2026-08-03 | Der Zuschnitt war einseitig, und die Messung fiel deutlicher aus als der Einwand: IBCS traegt **1 von 26** Registry-Visuals (S9) und 16 von 72 Regeln, das Hausystem 33 Regeln — und war trotzdem keine Systeminstanz, sondern die Restmenge des IBCS-Berichts. Die uebrigen 23 Visuals sind Fremdstandard, **Cleveland & McGill allein 15**: unsere Visualschicht ist perzeptuell begruendet, nicht notationsgebunden. Gebaut ohne neuen Speicher: `HAUS` als registriertes `LayoutSystem` (Zugehoerigkeit negativ definiert — eine Hausregel traegt keine Fremdherkunft), Gruppen **gelesen** aus den 6 Rubrik-Dimensionen (der Aufhaenger lag im Code: `sammle()` las die Dimension und warf sie weg), Bericht systemneutral (er nannte die Restmenge fest „Hausregel" — beim Hausystem waeren 12 IBCS-Regeln als hauseigen ausgewiesen worden, dieselbe Klasse wie die `SUCCESS`-Konstante aus L6), Visualseite je System, und ein Waechter, der von **jedem** System eine Abdeckung verlangt (per Fake-System nachgewiesen). **Eigener Fehler beim Gegenlesen gefunden:** erst 15 von 26 Visuals als hauseigen gemeldet — die Registry schreibt Kuerzel (`S2 — length encoding`), die Klassifikation suchte Autorennamen; Kuerzel werden jetzt gegen die Quellenmatrix aufgeloest, 15 → **2**. Dieselbe Blindheit steckte seit L6 in „33 Hausregeln" und fiel nur auf, weil das Etikett zur Systemeigenschaft wurde. **Phase 2 (IBCS-Erhebung) bleibt blockiert:** `ibcs.com` hier nicht erreichbar (Verbindung 000), Fassungsfrage an L14. |
+| **L12 Phase 1b — qualitatives Niveau (§17)** | 🟢 **erledigt** | 2026-08-03 | §16 hatte die falsche Frage beantwortet: **Symmetrie ist keine Güte**. Gemessen an der Craft-Rubrik (30 Regeln): 11 ehrlich geprüft · 2 als `judge` deklariert, aber von einem Validator entschieden · 2 mit Checker, **der nicht scheitern kann** · 7 ohne Checker · 8 ehrlich unbewertet. Dazu **zwei Dubletten mit widersprechender Severity** (`BC-COLOR-04`≡`MAX_SEMANTIC_COLORS_PER_PAGE`, `BC-CHART-01`≡`ONE_MESSAGE_PER_CHART` — letztere von zwei unabhängigen Checkern durchgesetzt). **Beinahe-Fehler, der die schärfste Regel hervorbrachte:** ich wollte `check_tabular_numerals`/`check_reference_lines` verdrahten (Abdeckung 15→17) — beide beenden **immer** mit 0 („Advisory only — never gates"); das hätte zwei Regeln addiert, die per Konstruktion bestehen. Gebaut ohne neuen Speicher: Validator-Bindung **in** der Rubrik statt in einer Python-Tabelle (die deklarierte 20 structural, die Tabelle kannte 13 — Differenz unsichtbar), `check: both` für die zwei Widersprüche mit konservativem Minimum (`judge_rules()` musste mitziehen, sonst hätte die Aufwertung das Urteil erst recht verworfen), jede Lücke mit Grund (`not_implemented` 6 · `render_verification` 2 · `enforced_by_generator` 1), Dubletten per `implements` verwiesen. **5 Integritätstests, alle per Mutation als feuerfähig nachgewiesen** — darunter „ein verdrahteter Validator muss scheitern können". Abdeckung bleibt **54,4/100**: keine Zahl geschönt, sie ist jetzt belastbar. |

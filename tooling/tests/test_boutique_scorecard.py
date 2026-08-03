@@ -5,7 +5,7 @@ without shelling out to the real gates.
 """
 from __future__ import annotations
 
-from tooling.report_quality.boutique_scorecard import WIRED, load_rubric, score
+from tooling.report_quality.boutique_scorecard import load_rubric, score, wired
 
 
 def _all_pass(*_a, **_k):
@@ -19,6 +19,7 @@ def _all_fail(*_a, **_k):
 def test_only_wired_rules_are_scored():
     card = score(run_validator=_all_pass)
     scored = {r["id"] for r in card["rules"] if r["score"] is not None}
+    WIRED = wired()
     assert scored == set(WIRED)
     assert card["scored_rules"] == len(WIRED)
     assert card["total_rules"] == sum(len(d["rules"]) for d in load_rubric()["dimensions"])

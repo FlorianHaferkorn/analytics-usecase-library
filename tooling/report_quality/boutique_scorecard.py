@@ -53,22 +53,36 @@ if str(REPO) not in sys.path:          # allow `python tooling/report_quality/bo
 _RUBRIC = REPO / "core/templates/page_templates/tokens/boutique_craft_rubric.yaml"
 _VALID = REPO / "tooling/validation"
 
-# rule_id → (script, extra args). Exit 0 from the validator == rule passes.
-WIRED: dict[str, tuple[str, list[str]]] = {
-    "BC-NARR-01": ("check_exhibit_message.py", []),
-    "BC-CHART-01": ("check_mixed_scale.py", []),
-    "BC-CHART-02": ("check_deviation_display.py", ["--strict"]),
-    "BC-CHART-04": ("check_declutter.py", ["--strict"]),
-    "BC-TYPE-01": ("check_font_family.py", ["--strict"]),
-    "BC-TYPE-03": ("check_type_scale.py", ["--strict"]),
-    "BC-LAYOUT-04": ("check_zone_density.py", ["--strict"]),
-    "BC-NARR-04": ("check_kpi_context.py", ["--strict"]),
-    "BC-CHART-10": ("check_evidence_sort.py", ["--strict"]),
-    "BC-BRAND-01": ("check_custom_theme.py", ["--strict"]),
-    "BC-BRAND-02": ("check_custom_theme.py", ["--consistency", "--strict"]),
-    "BC-CHART-08": ("check_forbidden_charts.py", ["--strict"]),
-    "BC-CHART-09": ("check_zero_based_axes.py", ["--strict"]),
-}
+def wired(rubric: Optional[dict[str, Any]] = None) -> dict[str, tuple[str, list[str]]]:
+    """rule_id → (script, extra args), **gelesen aus der Rubrik**. Exit 0 == bestanden.
+
+    Bis zum 03.08.2026 stand diese Tabelle hier als Literal — und damit die Bindung
+    „welcher Checker entscheidet diese Regel" an einem anderen Ort als die Regel selbst.
+    Gemessen an dem Tag: die Rubrik deklarierte 20 Regeln als `check: structural`, die
+    Tabelle kannte 13. Die Differenz war nirgends sichtbar; sie sah aus wie ein
+    Inhaltsproblem („die Rubrik ist eben noch nicht fertig") und war eine Drift zwischen
+    zwei Listen. Dieselbe Klasse wie die Rasterkopie im Compiler (§13) und die zwei
+    Pflichtslot-Mengen in `RequiredSlots` (§12): zwei Stellen mit einer Meinung ueber
+    dieselbe Sache.
+
+    Jetzt traegt jede Regel ihre Bindung selbst (`validator: {script, args}`), und diese
+    Funktion liest sie. Eine neue Verdrahtung ist damit eine Zeile in der Rubrik, keine
+    zweite Pflege — und eine Regel, die `structural` behauptet, ohne einen Validator zu
+    nennen, ist maschinell auffindbar statt bloss unauffaellig.
+    """
+    rubric = rubric or load_rubric()
+    out: dict[str, tuple[str, list[str]]] = {}
+    for dim in rubric.get("dimensions") or []:
+        for r in dim.get("rules") or []:
+            v = r.get("validator")
+            if not v:
+                continue
+            if not v.get("script"):
+                raise ValueError(f"{r['id']}: `validator` ohne `script` — eine leere "
+                                 f"Bindung saehe aus wie 'nicht verdrahtet' und waere "
+                                 f"doch eine Zusage.")
+            out[str(r["id"])] = (str(v["script"]), list(v.get("args") or []))
+    return out
 
 
 def _run_validator(script: str, args: list[str]) -> bool:
@@ -96,6 +110,7 @@ def score(run_validator=_run_validator, rubric: Optional[dict] = None,
     """
     rubric = rubric or load_rubric()
     pass_pct = rubric["scoring"]["pass_score_pct"]
+    WIRED = wired(rubric)
 
     verdicts = {}
     if judge is not None:
@@ -118,10 +133,20 @@ def score(run_validator=_run_validator, rubric: Optional[dict] = None,
                      "score": None, "method": None}
             if rid in WIRED:
                 passed = run_validator(*WIRED[rid])
-                entry["score"] = 1.0 if passed else 0.0
-                entry["status"] = "pass" if passed else "fail"
-                entry["method"] = "structural"
-                achieved += entry["score"] * gweight
+                punkt = 1.0 if passed else 0.0
+                methode = "structural"
+                # `check: both` — der Validator deckt die strukturelle Haelfte, ein Judge
+                # die semantische. Konservativ das Minimum: eine Regel gilt nicht als
+                # erfuellt, weil eine ihrer beiden Haelften geprueft wurde. Vorher gewann
+                # der Validator immer und das Judge-Urteil wurde still verworfen.
+                if r.get("check") == "both" and (v := verdicts.get(rid)) and v.score is not None:
+                    punkt = min(punkt, v.score)
+                    methode = f"structural+{v.method}"
+                entry["score"] = punkt
+                entry["status"] = ("pass" if punkt >= 1.0
+                                   else "partial" if punkt > 0 else "fail")
+                entry["method"] = methode
+                achieved += punkt * gweight
                 scored_possible += gweight
             elif rid in verdicts and verdicts[rid].score is not None:
                 v = verdicts[rid]
