@@ -43,9 +43,25 @@ run_check() {
   fi
 }
 
+# --- Workflow-Validitaet ------------------------------------------------
+# ZUERST, und zwar aus einem gemessenen Grund: eine ungueltige Workflow-Datei erzeugt bei
+# GitHub NULL Jobs und meldet `conclusion=failure` — exakt wie ein Runner-Ausfall. Solange
+# ein Usage-Limit-Fenster offen ist, gilt jeder rote Lauf als erklaert, und ein echter Defekt
+# versteckt sich dahinter. Am 31.07.2026 war genau das der Fall (source-updates.yml, 30 rote
+# Laeufe seit dem 29.07.). Diese Frage beantwortet man lokal in Sekunden.
+run_check "Workflow-Dateien (check_workflows.py)" \
+  python3 scripts/check_workflows.py
+
 # --- Drift gate -------------------------------------------------------
 run_check "Drift gate (check_index.py --strict)" \
   python3 scripts/check_index.py --strict
+
+# --- Meridian mirror ----------------------------------------------------
+# Not --strict: the vendored subtree's local integrity is checked unconditionally (a hand
+# edit exits 1 either way), while the cross-repo diff is advisory and soft-skips without a
+# Meridian checkout — this script must stay runnable on its own.
+run_check "Meridian mirror (check_dataarch_mirror.py)" \
+  python3 scripts/check_dataarch_mirror.py
 
 # --- Python test suite --------------------------------------------------
 run_check "Pytest suite (tooling/superversion, tooling/tests, products)" \
@@ -149,6 +165,85 @@ from pbi_quality_tools.cli import main
 raise SystemExit(main(['validate', '--summary']))
 "
 
+# --- Superversion-Gates (die vier, die der CI-Job NACH dem pytest faehrt) -----
+# Der pytest-Lauf oben deckt `tooling/superversion/` ab — der CI-Job faehrt danach aber noch
+# vier eigenstaendige Gates. Sie fehlten hier, also war „lokal gruen" fuer diesen Job
+# unvollstaendig. Gemessen am 31.07.2026 beim Handdurchlauf der CI-Jobs.
+run_check "Superversion pins (check_superversion_pins.py)" \
+  python3 scripts/check_superversion_pins.py
+
+run_check "Superversion Golden Thread" \
+  python3 -m tooling.superversion.golden_thread
+
+run_check "Superversion value gate (COM-001)" \
+  python3 -m tooling.superversion.eval.value_gate COM-001
+
+run_check "Superversion comp gate" \
+  python3 -m tooling.superversion.eval.comp_gate
+
+# --- Linux-Generierung (pwsh) — der Job, der hier bisher komplett fehlte -------
+# `linux-generation.yml` baut die Ontologie-Registry, das IR und generiert daraus die
+# TMDL-Measures ueber PowerShell. Ohne pwsh im PATH wird sauber uebersprungen (mit Grund),
+# statt so zu tun, als sei der Job geprueft. Mit pwsh laufen dieselben vier Assertions wie
+# im CI — inklusive der wichtigsten: die Generierung darf `dist/` nicht anfassen.
+if command -v pwsh >/dev/null 2>&1; then
+  run_check "Ontologie-Registry (registry_builder.py)" \
+    python3 tooling/ontology/registry_builder.py
+
+  run_check "IR-Build mit Measure-Overlay (build_ir.py)" \
+    python3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog \
+      --fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml \
+      --out ir_v1.json
+
+  run_check "TMDL-Measure-Generierung auf Linux (pwsh) + Assertions" \
+    bash -c '
+      set -e
+      rm -rf scratch_gen && mkdir -p scratch_gen
+      pwsh -c "./tooling/generator/generate_tmdl_measures.ps1 -IRPath ir_v1.json \
+        -UseCase COM-001,COM-002,COM-003,COM-004 -TargetTablesDir scratch_gen -OverwriteExisting"
+      test -s scratch_gen/_Measures.tmdl
+      grep -q "measure '"'"'Gross Margin %'"'"' = DIVIDE" scratch_gen/_Measures.tmdl
+      grep -q "measure '"'"'Net Sales Amount'"'"' = SUM" scratch_gen/_Measures.tmdl
+      git diff --quiet -- products/fabric/powerbi/dist
+      rm -rf scratch_gen ir_v1.json'
+else
+  echo ""
+  echo "==> Linux-Generierung uebersprungen — pwsh nicht im PATH."
+  echo "    Installation: https://learn.microsoft.com/powershell/scripting/install/install-ubuntu"
+  echo "    (der CI-Job laeuft auf ubuntu-latest mit vorinstalliertem pwsh)"
+fi
+
+# --- Stage 1 (pwsh) — bisher als „Windows-only" gefuehrt ----------------------
+# Das war eine Annahme, kein Befund. Am 01.08.2026 gemessen: `pwsh` 7.4.6 faehrt
+# `tooling/run_stage1_checks.ps1` unter Linux komplett durch (20 Checks, rc=0), Pfade
+# inklusive. Damit ist der einzige CI-Job geschlossen, der hier nie lief — und genau in ihm
+# steckten die fuenf Schema-Verstoesse, die im PR-Lauf rot wurden.
+#
+# Zwei Vorbedingungen, beide gemessen und beide still, wenn man sie uebersieht:
+#   * `check_schema_validation.ps1` ist ein NODE-Validator. Ohne `npm ci` in
+#     tooling/validation macht er einen Soft-Skip mit rc=0 — er meldet Erfolg, ohne geprueft
+#     zu haben. Deshalb wird hier vorher geprueft, ob er ueberhaupt pruefen KANN.
+#   * `check_validate_data_contracts.ps1` braucht das Modul `powershell-yaml`; fehlt es, sagt
+#     das Skript selbst „SKIPPED, not passed". Sein Python-Delegat deckt dieselbe Logik ab und
+#     laeuft deshalb unten separat.
+if command -v pwsh >/dev/null 2>&1; then
+  if [ ! -x tooling/validation/node_modules/.bin/markdownlint-cli2 ]; then
+    echo ""
+    echo "==> HINWEIS: tooling/validation/node_modules fehlt — der Schema- und der"
+    echo "    Markdownlint-Check machen dann einen Soft-Skip MIT rc=0 (melden also Erfolg,"
+    echo "    ohne zu pruefen). Einmalig schliessen mit: npm ci --prefix tooling/validation"
+  fi
+  run_check "Stage 1 komplett (run_stage1_checks.ps1 unter pwsh)" \
+    pwsh -NoProfile -File tooling/run_stage1_checks.ps1
+
+  run_check "Data contracts (Python-Delegat von check_validate_data_contracts.ps1)" \
+    python3 tooling/validation/check_validate_data_contracts.py --root .
+else
+  echo ""
+  echo "==> Stage 1 uebersprungen — pwsh nicht im PATH (NICHT geprueft, nicht bestanden)."
+  echo "    Installation: https://learn.microsoft.com/powershell/scripting/install/install-ubuntu"
+fi
+
 # --- Health scorecard -----------------------------------------------------
 run_check "Health scorecard (H1-H9)" \
   python3 tooling/health_scorecard.py
@@ -179,9 +274,13 @@ if [ "${FAIL}" -gt 0 ]; then
   done
 fi
 echo ""
-echo "NOT covered by this script (Windows-only, verify manually or on Windows):"
-echo "  - tooling/run_stage1_checks.ps1"
-echo "  - tooling/quality/run_quality_gate.ps1"
+echo "NOT covered by this script — pruefen, nicht annehmen:"
+echo "  - tooling/quality/run_quality_gate.ps1 (Fabric-Validierung; braucht Fabric-Zugang)"
+echo "  - Studio-Visual-Regression (Baselines auf Windows aufgenommen, -win32-Dateinamen)"
+echo "  - Playwright e2e schlaegt fehl, wenn der Chromium-Build des Containers vom Pin des"
+echo "    Projekts abweicht ('Executable doesn't exist at .../chromium_headless_shell-<n>')."
+echo "    Das ist eine Umgebungs-, keine Code-Aussage — nicht als roten Test verbuchen."
+echo "  - tooling/run_stage1_checks.ps1 laeuft oben MIT, sofern pwsh im PATH ist."
 echo "========================================"
 
 if [ "${FAIL}" -gt 0 ]; then

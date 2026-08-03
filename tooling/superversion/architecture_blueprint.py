@@ -83,6 +83,10 @@ def derive_blueprint(inputs: dict[str, Any]) -> dict[str, Any]:
             }
             if src.get("source_system"):
                 entry["source_system"] = src["source_system"]
+            if src.get("handover_layer"):          # SAP→Fabric handover layer (I-20 Stage 1, mirrored field)
+                entry["handover_layer"] = src["handover_layer"]
+            if src.get("connector"):               # physical handover connector (mirrored field)
+                entry["connector"] = src["connector"]
             if src.get("sensitivity"):
                 entry["sensitivity"] = src["sensitivity"]
             ingestion.append(entry)

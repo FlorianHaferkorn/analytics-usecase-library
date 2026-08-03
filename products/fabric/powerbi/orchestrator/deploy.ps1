@@ -240,8 +240,10 @@ function Invoke-FabricRelease {
     Write-Host "  fabric_release.py (domain=$(if ($Domain) { $Domain } else { 'all' }), env=$Environment)..." -ForegroundColor Gray
 
     if ($DryRun) {
+        # Run it for real in dry-run mode: fabric_release.py resolves the workspace and the
+        # domain's item set and reports them without publishing. Echoing the command line
+        # alone used to hide argument mismatches until the first live deploy.
         Write-Host "  [DRY-RUN] python $($pyArgs -join ' ')" -ForegroundColor Cyan
-        return $true
     }
 
     try {

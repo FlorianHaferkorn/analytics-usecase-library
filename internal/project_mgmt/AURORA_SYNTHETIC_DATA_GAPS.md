@@ -179,7 +179,7 @@ stays viz-tool-agnostic): add the DAX named measures to each domain `SemanticMod
 `calculation` blocks in the catalog are the source — synthesise via `tooling/superversion`),
 remove the 19 `planned.yaml` entries as each measure lands, generate the four `.Report` folders
 (they then drop out of the report-pending exemption in `test_dist_report_coverage.py`), and flip
-each UC's `readiness.data_availability` off `not_available`. Only then do the KPIs move from
+each UC's `readiness.data_availability` off `missing`. Only then do the KPIs move from
 UNCOMPUTED to computed/value-verified in a live model.
 
 ---

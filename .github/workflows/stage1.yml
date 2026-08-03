@@ -17,10 +17,28 @@ on:
     branches: [main]
   push:
     branches: [main]
+  # Manual trigger — lets you run the FULL workflow on any branch from the Actions
+  # tab ("Run workflow") without merging to main or marking a draft PR ready. Under
+  # workflow_dispatch the event is not `pull_request`, so the draft-skip `if:` below
+  # evaluates true and the Windows job runs too — i.e. this tests the complete matrix
+  # on the branch. (A normal branch push does NOT trigger this workflow — only
+  # pull_request→main, push→main, or this manual dispatch do.)
+  workflow_dispatch: {}
+
+# Cancel a superseded run when a newer commit lands on the same ref (PR or branch).
+# Without this, every push to an active PR started a *fresh* full matrix while the
+# previous run kept burning minutes — the single biggest Actions-usage drain.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   python-checks:
-    name: Python checks
+    # Python gate + report-binding validation in ONE ubuntu job. Folding the former
+    # separate fabric-bindings job in here saves a whole checkout+setup cycle (and one
+    # concurrent runner) per run — validate_bindings is a fast script, not worth its own
+    # runner. Wall-clock is a few seconds longer; runner-minutes are lower.
+    name: Python checks + report bindings
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -37,7 +55,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml jsonschema pytest typer rich referencing python-docx
+          # pyarrow UND pandas: `tooling/validation/check_data_model.py` importiert beide
+          # ungeschuetzt (pyarrow beim Parquet-Scan, pandas in `_read_small`). Fehlt eines,
+          # scheitert `test_shipped_model_has_no_hard_findings` mit ModuleNotFoundError — ein
+          # Gate, das in der CI nie gruen werden KONNTE. Beide Male gemessen statt vermutet:
+          # pyarrow in Lauf 30683999827, pandas im Folgelauf 30684535523 (01.08.2026). Die
+          # zweite Luecke lag hinter der ersten: erst nachdem pyarrow da war, kam der Import
+          # ueberhaupt bis zur naechsten Zeile.
+          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas
 
       - name: Run tests
         run: python -m pytest --tb=short -q
@@ -49,37 +74,23 @@ jobs:
       - name: Health scorecard
         run: python tooling/health_scorecard.py
 
-  fabric-bindings:
-    name: Fabric bindings (${{ matrix.domain }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        domain:
-          - Commercial
-          - Experience
-          - Finance
-          - Operations
-          - SupplyChain
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Validate report bindings (${{ matrix.domain }})
+      - name: Validate report bindings (all domains)
+        # validate_bindings.py with no --domain validates every dist report in one
+        # call (same as run_local_ci_check.sh) — replaces the former 5-way domain matrix.
         run: |
           python3 products/fabric/powerbi/tooling/validate_bindings.py \
             --dist-dir products/fabric/powerbi/dist \
-            --domain ${{ matrix.domain }} \
             --strict
 
   stage1:
     name: Stage 1 checks
     runs-on: windows-latest
+    # windows-latest is billed at 2× the ubuntu minute rate and this job is the
+    # heaviest (Node + Python×2 + PSGallery + fab-inspector + full quality gate),
+    # so it is the biggest single cost. Skip it while a PR is a draft — full CI
+    # (incl. this job) runs the moment the PR is marked ready for review, and it
+    # always runs on push to main. Local `run_quality_gate.ps1` covers drafts.
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,11 +99,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          # cache the npm downloads for `npm ci` below (cache-miss just re-downloads)
+          cache: "npm"
+          cache-dependency-path: tooling/validation/package-lock.json
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          # cache the pip wheel dir keyed on the requirements this job installs
+          cache: "pip"
+          cache-dependency-path: |
+            tooling/validation/requirements-data-contracts.txt
+            products/fabric/powerbi/tooling/requirements-fabric-checks.txt
+            tooling/tests/requirements.txt
 
       - name: Install schema validation dependencies
         run: npm ci

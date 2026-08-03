@@ -28,6 +28,7 @@
 **Spine question:** Which entities explain the revenue and margin gap vs Plan?
 - **[300s evidence]** grain `invoice_line`, worst-first by `sales.net_sales.delta_pct.plan` (ascending), Top-20 · action panel
 **Decision payoff (actions):** C-M2.1, C-S1.1, C-S1.2
+**Connects to use cases:** COM-002, COM-004
 
 ## COM-002 — Margin & Price Performance
 
@@ -159,7 +160,7 @@
 - **[300s evidence]** grain `entity_month`, worst-first by `fin.cash.vs_plan.pct` (ascending), Top-20 · action panel
 **Decision payoff (actions):** F-C1.1, F-C1.2, S-I1.2, F-C1.4
 **Cross-domain pull:** Supply Chain (13: `scm.supplier_risk.score`, `inv.turnover`, `inv.stockout.pct` +10)
-**Connects to use cases:** SCM-001, SCM-002
+**Connects to use cases:** COM-003, SCM-001, SCM-002, SCM-003
 
 ## FIN-002 — Cost Performance
 
@@ -206,9 +207,9 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which entities and cost centres should the earnings-recovery effort target first?
-- **[300s evidence]** grain `cost_center`, worst-first by `margin.ebitda.delta_pct.plan` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `entity_costcentre_month`, worst-first by `margin.ebitda.delta_pct.plan` (ascending), Top-20 · action panel
 **Decision payoff (actions):** F-E1.1
-**Cross-domain pull:** Commercial (1: `sales.net_sales.delta_pct.plan`)
+**Cross-domain pull:** Commercial (3: `sales.net_sales.delta_pct.plan`, `cost.cogs.amount`, `sales.net_sales.amount`)
 
 ## HR-001 — Workforce Performance & Retention
 
@@ -230,7 +231,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which teams and roles should the retention effort target first?
-- **[300s evidence]** grain `employee_segment`, worst-first by `people.attrition.pct` (descending), Top-20 · action panel
+- **[300s evidence]** grain `month_org_segment`, worst-first by `people.attrition.pct` (descending), Top-20 · action panel
 **Decision payoff (actions):** X-R1.1
 
 ## OPS-001 — Operations Performance
@@ -260,7 +261,7 @@
 - **[300s evidence]** grain `line_day`, worst-first by `ops.downtime.unplanned.pct` (descending), Top-20 · action panel
 **Decision payoff (actions):** O-O1.1, O-O1.2, O-O1.3, O-O1.4
 **Cross-domain pull:** Customer & Market (1: `crm.complaint.count`)
-**Connects to use cases:** FIN-002
+**Connects to use cases:** FIN-002, OPS-003
 
 ## OPS-002 — Asset Performance
 
@@ -410,7 +411,7 @@
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which categories and suppliers should the savings-recovery effort target first?
-- **[300s evidence]** grain `category_supplier`, worst-first by `procurement.savings.realized.pct` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `purchase_order_line`, worst-first by `procurement.savings.realized.pct` (ascending), Top-20 · action panel
 **Decision payoff (actions):** S-P1.1
 
 ## XD-001 — Service Level Performance

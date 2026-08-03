@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
+import Link from 'next/link';
 
 type Tone = 'default' | 'info' | 'success' | 'warning';
 
@@ -17,8 +18,7 @@ export function StudioPage({ children, fill = false, style }: { children: ReactN
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', gap: 'var(--gap)',
-      height: fill ? 'calc(100dvh - var(--shell-header) - var(--pad) * 2)' : undefined,
-      minHeight: fill ? 0 : undefined,
+      height: fill ? 'calc(100vh - var(--h-row) - var(--pad) * 2)' : undefined,
       ...style,
     }}>
       {children}
@@ -32,23 +32,25 @@ export function StudioPageHeader({
   eyebrow, title, description, badge, actions, tone = 'default', compact = false,
 }: {
   eyebrow?: string; title: string; description: string;
-  badge?: string; actions?: ReactNode; tone?: Tone; compact?: boolean;
+  badge?: string; actions?: ReactNode; tone?: Tone;
+  /** Tighter header for pages that lead with content rather than with the title. */
+  compact?: boolean;
 }) {
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-      gap: compact ? '12px' : '16px', flexWrap: 'wrap',
-      paddingBottom: compact ? '12px' : 'var(--gap)',
-      borderBottom: compact ? 'none' : '1px solid var(--line)',
+      gap: '16px', flexWrap: 'wrap',
+      paddingBottom: compact ? 'calc(var(--gap) / 2)' : 'var(--gap)',
+      borderBottom: '1px solid var(--line)',
     }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 4 : 6, maxWidth: 800 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 800 }}>
         {eyebrow && (
           <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', fontWeight: 600 }}>
             {eyebrow}
           </span>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
+          <h1 style={{ margin: 0, fontSize: compact ? 20 : 28, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
             {title}
           </h1>
           {badge && (
@@ -75,7 +77,7 @@ export function StudioPageHeader({
 
 export function StudioMetricBar({ children }: { children: ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--gap)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
       {children}
     </div>
   );
@@ -115,10 +117,15 @@ export function StudioMetric({
 // ── Panel ─────────────────────────────────────────────────────────────────────
 
 export function StudioPanel({
-  title, description, action, children, tone = 'default', style, bare = false, compactHeader = false,
+  title, description, action, children, tone = 'default', style,
+  compactHeader = false, bare = false,
 }: {
   title?: string; description?: string; action?: ReactNode;
-  children: ReactNode; tone?: Tone; style?: CSSProperties; bare?: boolean; compactHeader?: boolean;
+  children: ReactNode; tone?: Tone; style?: CSSProperties;
+  /** Slimmer header row — for panels that mostly hold a canvas, not prose. */
+  compactHeader?: boolean;
+  /** Drop the body padding so a full-bleed child (graph, table, editor) can fill it. */
+  bare?: boolean;
 }) {
   const hasHeader = !!(title || description || action);
   void tone;
@@ -134,23 +141,21 @@ export function StudioPanel({
         <div style={{
           padding: compactHeader ? '10px var(--pad)' : '18px var(--pad)',
           borderBottom: '1px solid var(--line-2)',
-          display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', gap: '12px', flexShrink: 0,
+          display: 'flex', alignItems: 'flex-start',
+          justifyContent: 'space-between', gap: '16px', flexShrink: 0,
         }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: compactHeader ? 2 : 4, maxWidth: '72ch', minWidth: 0 }}>
-            {title && <h3 style={{ margin: 0, fontSize: compactHeader ? 13 : 14, fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>{title}</h3>}
-            {description && !compactHeader && <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-3)', marginTop: 2 }}>{description}</p>}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxWidth: '72ch' }}>
+            {title && <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>{title}</h3>}
+            {description && <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-3)', marginTop: 2 }}>{description}</p>}
           </div>
           {action && <div style={{ flexShrink: 0 }}>{action}</div>}
         </div>
       )}
       <div style={{
         padding: bare ? 0 : 'var(--pad)',
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'flex', flexDirection: 'column',
         gap: bare ? 0 : 'var(--gap)',
-        flex: 1,
-        minHeight: 0,
+        flex: 1, minHeight: 0,
       }}>
         {children}
       </div>
@@ -188,10 +193,51 @@ export function StudioToolbar({ children, style }: { children: ReactNode; style?
   );
 }
 
+// ── Workflow footer ───────────────────────────────────────────────────────────
+
+/**
+ * Closing "next step" link of a workflow page.
+ *
+ * The Studio modules form an ordered path (compose → simulate → generate → deliver →
+ * templates); this makes the next hop explicit at the bottom of each page so the sidebar
+ * is not the only way forward.
+ */
+export function StudioWorkflowFooter({
+  label, href, description,
+}: {
+  label: string; href: string; description?: string;
+}) {
+  return (
+    <div style={{
+      marginTop: 'var(--gap)', paddingTop: 'var(--gap)',
+      borderTop: '1px solid var(--line)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      gap: '16px', flexWrap: 'wrap',
+    }}>
+      {description
+        ? <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: 'var(--ink-3)', maxWidth: '64ch' }}>{description}</p>
+        : <span />}
+      <Link
+        href={href}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '8px 16px', borderRadius: 'var(--radius)',
+          border: '1px solid var(--line)', background: 'var(--bg-2)',
+          color: 'var(--ink)', fontSize: 13, fontWeight: 500, textDecoration: 'none',
+          flexShrink: 0,
+        }}
+      >
+        {label}
+        <span aria-hidden="true">→</span>
+      </Link>
+    </div>
+  );
+}
+
 // ── Button ────────────────────────────────────────────────────────────────────
 
 export function StudioButton({
-  children, onClick, variant = 'secondary', tone = 'default', disabled = false, style,
+  children, onClick, variant = 'secondary', disabled = false, style,
 }: {
   children: ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -200,36 +246,12 @@ export function StudioButton({
   disabled?: boolean;
   style?: CSSProperties;
 }) {
-  const toneAccent = toneColor(tone);
   const appearances: Record<string, CSSProperties> = {
     primary:   { background: 'var(--ink)',    color: 'var(--bg)',         border: '1px solid var(--ink)',    fontWeight: 500 },
     accent:    { background: 'var(--accent)', color: 'var(--accent-ink)', border: '1px solid var(--accent)', fontWeight: 500 },
     secondary: { background: 'var(--panel)',  color: 'var(--ink-2)',      border: '1px solid var(--line)',   fontWeight: 500 },
     ghost:     { background: 'transparent',   color: 'var(--ink-3)',      border: '1px solid transparent' },
   };
-
-  const toneOverrides: Partial<Record<string, CSSProperties>> = tone !== 'default' ? {
-    primary: {
-      background: toneAccent,
-      color: tone === 'success' ? 'var(--accent-ink)' : '#fff',
-      border: `1px solid ${toneAccent}`,
-    },
-    accent: {
-      background: toneAccent,
-      color: tone === 'warning' ? 'var(--bg)' : '#fff',
-      border: `1px solid ${toneAccent}`,
-    },
-    secondary: {
-      color: toneAccent,
-      border: `1px solid color-mix(in srgb, ${toneAccent} 35%, var(--line))`,
-      background: `color-mix(in srgb, ${toneAccent} 8%, var(--panel))`,
-    },
-    ghost: {
-      color: toneAccent,
-    },
-  } : {};
-
-  const resolved = { ...appearances[variant], ...(toneOverrides[variant] ?? {}) };
 
   return (
     <button
@@ -242,7 +264,7 @@ export function StudioButton({
         opacity: disabled ? 0.5 : 1, fontSize: 12.5,
         display: 'inline-flex', alignItems: 'center', gap: 6,
         transition: 'opacity var(--duration-fast)',
-        ...resolved,
+        ...appearances[variant],
         ...style,
       }}
     >
@@ -297,70 +319,6 @@ export function StudioField({ label, children }: { label: string; children: Reac
         {label}
       </label>
       {children}
-    </div>
-  );
-}
-
-// ── Workspace grid (Forge 3-column layouts) ───────────────────────────────────
-
-type WorkspaceVariant = 'three-col' | 'two-col' | 'sidebar-main';
-
-const WORKSPACE_GRID_CLASS: Record<WorkspaceVariant, string> = {
-  'three-col': 'studio-workspace-grid studio-workspace-grid--three',
-  'two-col': 'studio-workspace-grid studio-workspace-grid--two',
-  'sidebar-main': 'studio-workspace-grid studio-workspace-grid--sidebar-main',
-};
-
-/** Responsive workspace grid — stacks on narrow viewports (see globals.css). */
-export function StudioWorkspaceGrid({
-  children,
-  variant = 'three-col',
-  style,
-}: {
-  children: ReactNode;
-  variant?: WorkspaceVariant;
-  style?: CSSProperties;
-}) {
-  return (
-    <div
-      className={WORKSPACE_GRID_CLASS[variant]}
-      style={{ flex: 1, minHeight: 0, ...style }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/** End-of-step navigation strip for Forge workflow continuity. */
-export function StudioWorkflowFooter({
-  label,
-  href,
-  onClick,
-}: {
-  label: string;
-  href?: string;
-  onClick?: () => void;
-}) {
-  const content = (
-    <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--accent)' }}>{label} →</span>
-  );
-  return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        paddingTop: 'var(--sp-3)',
-        borderTop: '1px solid var(--line-2)',
-        marginTop: 'var(--sp-2)',
-      }}
-    >
-      {href ? (
-        <a href={href} style={{ textDecoration: 'none' }}>{content}</a>
-      ) : (
-        <button type="button" onClick={onClick} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          {content}
-        </button>
-      )}
     </div>
   );
 }

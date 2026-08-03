@@ -13,6 +13,13 @@ rich>=13.7.0
 # — aggregates gold parquet into studio/data/aurora_kpi_snapshot.json for Studio
 duckdb>=1.0.0
 
+# Data-model best-practice gate (tooling/validation/check_data_model.py, wired into
+# run_local_ci_check.sh) — reads the gold parquet to check referential integrity.
+# Undeclared until now: a fresh environment failed the gate with ModuleNotFoundError,
+# which reads like a data defect but is a missing dependency.
+pyarrow>=14.0.0
+pandas>=2.0.0
+
 # Golden Thread Discovery Studio & UX Layout Editor (optional — Streamlit apps)
 # streamlit>=1.28.0
 # python-dotenv>=1.0.0

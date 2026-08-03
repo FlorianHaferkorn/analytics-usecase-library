@@ -1,41 +1,51 @@
-/** Locale-aware display for simulator / compose driver values. */
+/**
+ * Formatting a KPI value together with the unit implied by its `kpi_id`.
+ *
+ * The unit lives in the id suffix by convention (`…​.pct`, `…​.days`, `…​.amount`, …),
+ * so a value and its id are enough — no catalog lookup, which keeps this usable from
+ * client components that only received ids as props.
+ */
 
-function deNum(value: number, fractionDigits: number): string {
-  return value.toLocaleString('de-DE', {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  });
+/** Suffix → unit. Order matters only in that every key is checked as a substring. */
+const UNIT_BY_SUFFIX: ReadonlyArray<readonly [string, string]> = [
+  ['.pct', '%'],
+  ['.days', 'd'],
+  ['.hours', 'h'],
+  ['.minutes', 'min'],
+  ['.amount', '€'],
+  ['.units', ''],
+  ['.count', ''],
+];
+
+/** The unit implied by a `kpi_id`, or '' when the id carries no unit suffix. */
+export function kpiUnit(kpiId: string): string {
+  const match = UNIT_BY_SUFFIX.find(([suffix]) => kpiId.includes(suffix));
+  return match ? match[1] : '';
 }
 
-function isPercentKpi(kpiId: string): boolean {
-  return kpiId.includes('.pct') || kpiId.includes('_pct');
+/** Decimals that read naturally for the unit — currency and counts stay whole. */
+function precisionFor(unit: string): number {
+  if (unit === '€') return 0;
+  if (unit === '') return 0;
+  return 1;
 }
 
-export function formatKpiDelta(delta: number, kpiId: string): string {
-  const sign = delta >= 0 ? '+' : '−';
-  const abs = Math.abs(delta);
-  if (isPercentKpi(kpiId)) return `${sign}${deNum(abs, 1)} pp`;
-  if (kpiId.includes('.amount')) return `${sign}${formatKpiAmount(abs).replace(/^€/, '€')}`;
-  if (kpiId.includes('.days')) return `${sign}${deNum(abs, 1)} d`;
-  if (kpiId.includes('.hours')) return `${sign}${deNum(abs, 1)} h`;
-  if (kpiId.includes('.minutes')) return `${sign}${deNum(abs, 0)} min`;
-  return `${sign}${deNum(abs, 1)}`;
-}
-
-export function formatKpiAmount(value: number): string {
-  const abs = Math.abs(value);
-  if (abs >= 1_000_000) return `€${deNum(value / 1_000_000, 1)}M`;
-  if (abs >= 1_000) return `€${deNum(value / 1_000, 1)}K`;
-  return `€${deNum(value, 0)}`;
-}
-
-/** Primary readout for a driver slider or impact row. */
+/**
+ * Format `value` for display next to the KPI identified by `kpiId`.
+ *
+ * `%` binds directly to the number (`42.3%`); every other unit is separated by a
+ * non-breaking space so it never wraps away from its value.
+ */
 export function formatKpiValue(value: number, kpiId: string): string {
-  if (isPercentKpi(kpiId)) return `${deNum(value, 1)} %`;
-  if (kpiId.includes('.amount')) return formatKpiAmount(value);
-  if (kpiId.includes('.days')) return `${deNum(value, 1)} d`;
-  if (kpiId.includes('.hours')) return `${deNum(value, 1)} h`;
-  if (kpiId.includes('.minutes')) return `${deNum(value, 0)} min`;
-  if (kpiId.includes('.units') || kpiId.includes('.count')) return deNum(value, 0);
-  return deNum(value, 1);
+  if (!Number.isFinite(value)) return '—';
+
+  const unit = kpiUnit(kpiId);
+  const formatted = value.toLocaleString('de-DE', {
+    minimumFractionDigits: precisionFor(unit),
+    maximumFractionDigits: precisionFor(unit),
+  });
+
+  if (!unit) return formatted;
+  if (unit === '%') return `${formatted}%`;
+  return `${formatted} ${unit}`;
 }

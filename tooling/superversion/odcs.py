@@ -10,6 +10,8 @@ not a home-grown format. This module bridges the two directions the Baukasten ne
   * **import** ``from_odcs(contracts)`` — reconstructs the deriver ``inputs`` domains fragment, so an
     existing contract set re-derives an identical ``medallion``/``mesh`` IR (bottom-up seed).
   * **SQL import** ``import_sql_table(ddl)`` — a single ``CREATE TABLE`` → an ODCS schema object.
+  * **catalog bridge** ``odcs_to_catalog(contracts)`` — an ODCS contract set → the ``governed_catalog``
+    shape the emitters consume (the governed contract drives column projection; Meridian-side consumer).
 
 Honest scope: ODCS carries the **gold contract** (data products + their schema), not the bronze
 ingestion sources — so the round-trip is exact for ``medallion.gold`` + ``mesh.domains[].data_products``,
@@ -123,6 +125,89 @@ def emit_odcs(blueprint: dict[str, Any]) -> dict[str, str]:
     return out
 
 
+# --------------------------------------------------------------------------- handover boundary (ingestion/silver)
+# Cross-repo mirror of Meridian's Stage-0b ODCS-beyond-gold: govern the inbound SAP→Fabric interface —
+# one boundary contract per ingestion source, carrying handover_layer + connector + access_mode.
+_CONNECTOR_SERVER_TYPE = {
+    "odbc-live": "odbc", "odbc-copy": "odbc", "hana": "sap", "odata": "api",
+    "premium-outbound-shortcut": "azure", "mirroring": "sap", "sap-cdc": "sap",
+    "open-mirroring": "custom", "bdc-connect": "sap",
+}
+
+
+def _handover_schema_object(entry: dict[str, Any]) -> dict[str, Any]:
+    custom = [{"property": "handover_layer", "value": entry.get("handover_layer") or "unspecified"},
+              {"property": "access_mode", "value": entry.get("access_mode", "")}]
+    if entry.get("connector"):
+        custom.append({"property": "connector", "value": entry["connector"]})
+    return {
+        "name": _slug(entry["source"]).replace("-", "_"),
+        "physicalName": entry["source"],
+        "logicalType": "object",
+        "physicalType": "table",
+        "description": "Inbound dataset crossing the SAP→Fabric handover boundary; inbound columns are "
+                       "governed by the silver data contract (referenced, not invented here).",
+        "customProperties": custom,
+    }
+
+
+def to_odcs_ingestion(blueprint: dict[str, Any]) -> list[dict[str, Any]]:
+    """Export the ingestion/handover boundary as ODCS ``DataContract``s — one per ingestion source
+    (mirror of Meridian; governs the inbound SAP→Fabric interface beyond the gold ``to_odcs`` scope)."""
+    stack = blueprint.get("platform", {}).get("stack", "fabric")
+    contract_ref = blueprint.get("medallion", {}).get("silver", {}).get("data_contract_ref")
+    contracts: list[dict[str, Any]] = []
+    for e in sorted(blueprint.get("ingestion", []), key=lambda e: e.get("source", "")):
+        connector = e.get("connector")
+        server: dict[str, Any] = {
+            "server": "sap-source",
+            "type": _CONNECTOR_SERVER_TYPE.get(connector, "custom"),
+            "description": f"handover via {connector or 'unspecified connector'} at the "
+                           f"{e.get('handover_layer') or 'unspecified'} layer",
+        }
+        if e.get("source_system"):
+            server["host"] = e["source_system"]
+        custom = [{"property": "layer", "value": "ingestion/handover-boundary"},
+                  {"property": "handover_layer", "value": e.get("handover_layer") or "unspecified"}]
+        if connector:
+            custom.append({"property": "connector", "value": connector})
+        if contract_ref:
+            custom.append({"property": "silver_contract_ref", "value": contract_ref})
+        contracts.append({
+            "apiVersion": ODCS_API_VERSION,
+            "kind": ODCS_KIND,
+            "id": f"{_slug(stack)}-handover-{_slug(e['source'])}",
+            "name": e["source"],
+            "version": "1.0.0",
+            "status": "active",
+            "dataProduct": e["source"],
+            "description": {"purpose": f"SAP→Fabric handover boundary contract for source '{e['source']}'."},
+            "servers": [server],
+            "schema": [_handover_schema_object(e)],
+            "customProperties": custom,
+        })
+    return contracts
+
+
+def emit_odcs_ingestion(blueprint: dict[str, Any]) -> dict[str, str]:
+    """Return the handover-boundary ODCS contracts as ``path → content`` (one file per source + index)."""
+    contracts = to_odcs_ingestion(blueprint)
+    out: dict[str, str] = {}
+    index = ["# ODCS handover-boundary contracts (generated — Fahrplan Stage 0b)", "",
+             "Open Data Contract Standard v3.0.0 · one contract per **ingestion source** — governs the "
+             "inbound SAP→Fabric interface (raw/conformed/silver), beyond the gold `to_odcs` scope.", "",
+             "| Source | Handover layer | Connector | Contract |", "|---|---|---|---|"]
+    for c in contracts:
+        rel = f"contracts/odcs/handover/{_slug(c['name'])}.handover.odcs.yaml"
+        out[rel] = _yaml(c)
+        layer = _custom(c, "handover_layer") or "—"
+        connector = _custom(c, "connector") or "—"
+        index.append(f"| `{c['name']}` | {layer} | {connector} | `{rel}` |")
+    index.append("")
+    out["contracts/odcs/handover/_HANDOVER_CONTRACTS.md"] = "\n".join(index) + "\n"
+    return out
+
+
 # --------------------------------------------------------------------------- import (ODCS → IR)
 def _custom(contract_or_object: dict[str, Any], key: str) -> Any:
     for cp in contract_or_object.get("customProperties", []) or []:
@@ -163,6 +248,26 @@ def from_odcs(contracts: list[dict[str, Any]]) -> dict[str, Any]:
     if silver_ref:
         inputs["silver_contract_ref"] = silver_ref
     return inputs
+
+
+def odcs_to_catalog(contracts: list[dict[str, Any]] | dict[str, Any]) -> dict[str, Any]:
+    """Bridge an ODCS contract set → the ``governed_catalog`` shape the Meridian emitters consume.
+
+    Cross-repo mirror of Meridian's ``odcs_to_catalog`` (contract surface). Returns
+    ``{"tables": [{"name", "columns"}]}`` — one entry per schema object that declares ``properties``
+    (columns); objects without columns are skipped (nothing to project, honest). Deterministic (sorted).
+    """
+    if isinstance(contracts, dict):
+        contracts = [contracts]
+    tables: list[dict[str, Any]] = []
+    for c in contracts:
+        for obj in c.get("schema", []) or []:
+            cols = sorted({p["name"] for p in (obj.get("properties") or []) if p.get("name")})
+            if not cols:
+                continue
+            tables.append({"name": obj.get("physicalName") or obj.get("name"), "columns": cols})
+    tables.sort(key=lambda t: t.get("name") or "")
+    return {"tables": tables}
 
 
 def import_sql_table(ddl: str) -> dict[str, Any]:

@@ -77,8 +77,11 @@ studio/data/*.db-shm
 studio/data/*.db-journal
 
 # - Playwright local report/test run metadata
-studio/playwright-report/index.html
-studio/test-results/.last-run.json
+# Playwright-Artefakte: der ganze Baum, nicht nur zwei Dateien. Beide waren zusaetzlich
+# *getrackt* — dann greift .gitignore nicht, und jeder lokale e2e-Lauf machte den Baum
+# schmutzig (gemessen 01.08.2026). Untracked + Verzeichnis-Ignore statt Datei-Ignore.
+studio/playwright-report/
+studio/test-results/
 
 # CI run logs (local only – not versioned)
 internal/metrics/runs/*.json

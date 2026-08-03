@@ -1,0 +1,55 @@
+{
+  "source_repo": "Freelancing",
+  "source_path": "core/dataarch_engine/blueprint",
+  "doctrine": "SHARED_SUBSTANCE.md class A — home is Meridian, ALUCA mirrors byte-identically.",
+  "files": [
+    {
+      "path": "admin_settings.py",
+      "sha256": "a12444917529fe58e621ffb3a5529510f5fcafa0fd7ddb8d0fd810b321e9509f"
+    },
+    {
+      "path": "capacity_recommend.py",
+      "sha256": "b9041820e42dd2c2a299a726985b695e5fecf34d1e52fa40d20834ad2f3b16b5"
+    },
+    {
+      "path": "decision_proposals.py",
+      "sha256": "9c54ac269d110cd480ee1bae7e96a312885be5f5761fd32b3e33ec03f2bde969"
+    },
+    {
+      "path": "naming.py",
+      "sha256": "2be4df29b97b90e2078261f4789d6520f32f8a31e77f6fd8380d66800dd90773"
+    },
+    {
+      "path": "provision_connectivity.py",
+      "sha256": "86f9164407b9d7dd433d245643d684eea14e5ffe3325ca9eacd8d0598a273eb3"
+    },
+    {
+      "path": "provision_governance.py",
+      "sha256": "8aeaed3db15ef8f797a9b8a5dc276ae1122b902fcc9c200d0fb50344a43e2f3b"
+    },
+    {
+      "path": "provision_lifecycle.py",
+      "sha256": "955734f2d53c6495e9d60d3da19935fa0bd6ceba8d0f08f808c1cdd18b78ecca"
+    },
+    {
+      "path": "provision_monitoring.py",
+      "sha256": "a5cd87b3814dff8faf26da229b23453377d28e9af17ffca7ea0baa94e70c85cb"
+    },
+    {
+      "path": "provision_operability.py",
+      "sha256": "ab0d1a0a40ecb0c9fea1c2631453eebfe692820bef907c5ede99e85c6512fcf6"
+    },
+    {
+      "path": "provision_source_schema.py",
+      "sha256": "89bbbfc726171bb0419a60e50da481d63349d24bdc20d43e4c0034370df0aa09"
+    },
+    {
+      "path": "source_schema.py",
+      "sha256": "05b699bc150b7cbd6a608dcbc033b8f7e79525f359f61fba50a8e6b702a9c6ec"
+    },
+    {
+      "path": "stack_capabilities.py",
+      "sha256": "ee13f91549c8ef1932e0b0d4a4f4d5574eb47579dcd21f3d784fd3a2ea14a796"
+    }
+  ]
+}

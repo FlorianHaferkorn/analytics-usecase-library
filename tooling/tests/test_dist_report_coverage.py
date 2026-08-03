@@ -37,19 +37,24 @@ def _all_bracket_dirs() -> list[Path]:
 
 def _is_report_pending(bracket_dir: Path) -> bool:
     """A use case is *report-pending* when its bracket explicitly declares that the backing
-    data is not yet available (``readiness.data_availability == 'not_available'``).
+    data is not yet available (``readiness.data_availability == 'missing'``).
 
     Such a use case is spec-complete and governed — KPIs, standards, storyline, action codes
     all validate — but its report cannot be rendered until its Aurora data and semantic-model
     measures exist (Desktop/Fabric-gated). It is therefore exempt from report-coverage until
     then; the concrete data gap is tracked in
     ``internal/project_mgmt/AURORA_SYNTHETIC_DATA_GAPS.md``. This is a narrow, bracket-declared
-    exemption — a UC whose data IS available still requires its report."""
+    exemption — a UC whose data IS available still requires its report.
+
+    ``missing`` is the governed vocabulary of ``tooling/generator/schemas/usecase_bracket.schema.json``
+    (``available`` | ``partial`` | ``missing``). Four brackets carried an ungoverned
+    ``not_available`` here until 01.08.2026; schema validation rejected them, and this exemption
+    silently keyed on the invalid value. Read the enum from the schema, never invent a synonym."""
     try:
         d = yaml.safe_load((bracket_dir / "UseCase_Bracket.yaml").read_text(encoding="utf-8")) or {}
     except Exception:
         return False
-    return (d.get("readiness") or {}).get("data_availability") == "not_available"
+    return (d.get("readiness") or {}).get("data_availability") == "missing"
 
 
 def _expected_report_folder_name(bracket_dir: Path) -> str:

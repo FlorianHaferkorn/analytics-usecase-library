@@ -732,6 +732,17 @@ class BracketCompiler:
             if isinstance(comp_300s, dict) and comp_300s.get("evidence_grain")
             else {}
         )
+        # Die governte Evidenz-Sortierung steht bei ALLEN 20 Brackets unter
+        # `component_300s.sort_by` — bei keinem unter `evidence_grain.sort_by`. Der
+        # Compiler las bis 01.08.2026 nur letzteres und liess die Sortierung damit
+        # ausnahmslos fallen. Sichtbar wurde das als `knockout-unsorted-evidence`;
+        # kaschiert hat es, dass 14 dist-Reports die sortDefinition von Hand
+        # nachgetragen bekamen — der Generator erzeugte sie nie.
+        # Reihenfolge: eine explizite `evidence_grain.sort_by` gewinnt, sonst das
+        # Bracket. Damit bleibt der bisher gemeinte Weg gueltig, ohne den tatsaechlich
+        # benutzten zu ignorieren.
+        if isinstance(comp_300s, dict) and comp_300s.get("sort_by") and not eg.get("sort_by"):
+            eg = {**eg, "sort_by": comp_300s["sort_by"]}
         _detail_measures = [
             _resolve_measure_ref(k, kpi_map) for k in _card_kpi_ids(bracket)
         ]

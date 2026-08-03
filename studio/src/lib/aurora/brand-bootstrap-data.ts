@@ -1,40 +1,79 @@
+/**
+ * Server-side bootstrap of the governed brand into the Studio theme.
+ *
+ * `core/brand/` is the SSOT for brand identity (BrandSpec.schema.yaml); the Studio theme
+ * is a *projection* of it, never a second definition. This module maps a BrandSpec onto
+ * the store's `ThemeConfig` so the running app renders in the governed brand instead of
+ * the hardcoded default.
+ *
+ * Server-only (`node:fs`). Returns `null` when no spec is present, so the store keeps
+ * `DEFAULT_THEME` rather than being blanked by a half-filled object.
+ */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseYaml } from '@/lib/core/yaml-loader';
 import type { ThemeConfig } from '@/lib/store/project-store';
 
-interface BrandSpecYaml {
+/** Override the brand in use without code changes (path relative to the repo root). */
+const BRAND_SPEC_PATH =
+  process.env.STUDIO_BRAND_SPEC ?? join('core', 'brand', 'samples', 'generic_brand.yaml');
+
+/** Only the BrandSpec fields the Studio theme projects — not the whole schema. */
+interface BrandSpec {
   color?: {
     primary?: string;
     secondary?: string;
+    semantic?: { positive?: { color?: string } };
     neutral_scale?: Record<string, string>;
   };
-  typography?: {
-    font_family?: { primary?: string };
-  };
-  border?: {
-    radius?: { md?: number };
-  };
+  typography?: { font_family?: { primary?: string } };
+  border?: { radius?: Record<string, number> };
+  shadow?: Record<string, string>;
 }
 
-/** Server-side theme seed from Aurora brand_spec.yaml (showcase — not user override). */
+let cached: Partial<ThemeConfig> | null | undefined;
+
+function specPath(): string {
+  // Studio runs with cwd=studio/; the brand lives one level up in the repo.
+  return join(process.cwd(), '..', BRAND_SPEC_PATH);
+}
+
+function project(spec: BrandSpec): Partial<ThemeConfig> {
+  const neutral = spec.color?.neutral_scale ?? {};
+  const theme: Partial<ThemeConfig> = {};
+
+  // Only assign what the spec actually carries — an undefined value would otherwise
+  // overwrite a good default via the store's shallow merge.
+  if (spec.color?.primary) theme.primary = spec.color.primary;
+  if (spec.color?.secondary) theme.secondary = spec.color.secondary;
+  // `--accent` marks the positive/improvement state across the shell, so it projects
+  // from the semantic positive colour, not from a second brand hue.
+  if (spec.color?.semantic?.positive?.color) theme.accent = spec.color.semantic.positive.color;
+  if (neutral['50']) theme.background = neutral['50'];
+  if (neutral['100']) theme.surface = neutral['100'];
+  if (neutral['900']) theme.text = neutral['900'];
+  if (spec.typography?.font_family?.primary) theme.fontFamily = spec.typography.font_family.primary;
+  if (typeof spec.border?.radius?.md === 'number') theme.borderRadius = spec.border.radius.md;
+  if (spec.shadow?.low) theme.shadow = spec.shadow.low;
+
+  return theme;
+}
+
+/**
+ * The governed brand projected onto `ThemeConfig`, or `null` when unavailable.
+ *
+ * A missing or malformed spec is not an error state for the app — the Studio still runs
+ * on its default theme — so this never throws.
+ */
 export function getBrandBootstrapTheme(): Partial<ThemeConfig> | null {
-  const specPath = join(process.cwd(), '..', 'showcases', 'aurora_group', 'brand', 'brand_spec.yaml');
+  if (cached !== undefined) return cached;
+
   try {
-    const raw = readFileSync(specPath, 'utf-8');
-    const spec = parseYaml<BrandSpecYaml>(raw);
-    const primaryFont = spec.typography?.font_family?.primary?.split(',')[0]?.trim();
-    return {
-      primary: spec.color?.primary ?? '#2ECDE7',
-      secondary: spec.color?.secondary ?? '#44B396',
-      accent: spec.color?.primary ?? '#2ECDE7',
-      background: spec.color?.neutral_scale?.['900'] ?? '#00396B',
-      surface: spec.color?.neutral_scale?.['700'] ?? '#004E7A',
-      text: '#F5FBFC',
-      fontFamily: primaryFont ?? 'Segoe UI',
-      borderRadius: spec.border?.radius?.md ?? 4,
-    };
+    const spec = parseYaml<BrandSpec>(readFileSync(specPath(), 'utf-8'));
+    const theme = project(spec);
+    cached = Object.keys(theme).length > 0 ? theme : null;
   } catch {
-    return null;
+    cached = null;
   }
+  return cached;
 }
