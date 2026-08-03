@@ -1218,6 +1218,40 @@ Validator meldet an der emittierten Kette dennoch 0 Errors. Das ist ein **latent
 Risiko, kein Defekt — und der Wächter dafür ist die CLI in der e2e-Stufe, nicht eine Zahl
 in einem Kommentar. Der frühere Text machte daraus einen unbedingten Boden.
 
+### Nachtrag: Lücke geschlossen, Gate hart (02.08.2026)
+
+Die fünf Varianten ohne Detail-Raster (T1_Portfolio, T1_Trend, T2_Comparative,
+T2_DriverBridge, T3_ProcessControl) sind versorgt — und die Antwort war **nicht** eine
+Wahl, sondern ein Abgleich: alle fünf deklarieren als `detail_slots` genau
+`Slicer_Pane`, `Focus_Area`, `Support_1`, `Support_2`, und `grid_templates/investigator.json`
+enthält **exakt** diese vier Slots. `investigator` war nie „der Kandidat"; es war das
+Template, nur ohne Bindung.
+
+Die Bindung ist jetzt **ausdrücklich**: neues Feld `detail_grid_template` je Variante.
+`alternate_grid_template` dafür zu benutzen wäre Überladung — es bezeichnet eine
+Alternative auf *derselben* Ebene, nicht die andere Ebene. Der Leser bevorzugt die
+ebenen-explizite Bindung und fällt erst danach auf `grid_template`/`alternate` zurück.
+
+**Ergebnis: 40 von 40 Seiten vollständig, 0 Default-Rückfälle.**
+
+Damit ist `page_slots` **hart**:
+
+| Fall | Stufe | Begründung |
+|---|---|---|
+| Pflicht-Slot fehlt in der Emission | **FAIL** | Emissionsdefekt — der Adapter kann ihn beheben |
+| Bracket ohne `template_variant` | WARN | Governance-Lücke im Bracket |
+| Variante ohne Raster für ihre Ebene | WARN | Governance-Lücke im Manifest |
+
+Die Trennung ist der Punkt: den Adapter für eine Manifest-Lücke rot zu machen, verschöbe
+die Schuld an die Stelle, die sie nicht beheben kann. Zwei Tests halten beides fest —
+einer beweist, dass ein fehlender Pflicht-Slot den Gate **rot** macht (ein Gate, das nur
+grün ist, weil es nichts prüft, wäre genau die Fehlerklasse, gegen die es gebaut wurde),
+der andere, dass Manifest-Lücken advisory bleiben.
+
+Der Weg dahin war bewusst dreistufig: erst feuerfähig (39/40 rot), dann Möbel (39→3),
+dann Raster-Bindung (3→0), dann hart. Ein Gate, das rot ankommt, wird abgeschaltet statt
+erfüllt.
+
 ### Offen
 
 Die Compiler-Tabelle `_OVERVIEW_LU`/`_DETAIL_LU` besteht weiter — der IR-Compiler
@@ -1439,3 +1473,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **K Konsolidierung (§11)** | 🟡 teilw. | 2026-08-02 | **Leinwand 38 → 0** im lebenden Code (ein Leser `layout_grid.py`), **neuer Visualtyp 11 → 4** (Autoren-Schemas und `VISUAL_TYPE_MAP` werden jetzt aus der Registry **erzeugt**, nicht gepflegt; Drift-Check in Stage 1). Beleg für die Notwendigkeit: die Schemas erlaubten **8** registry-fremde Typen, darunter das ausdrücklich verbotene `stacked_bar`. Zwei eigene Fehler von den Tests gefangen — Generator wandte die Feldregeln verkehrt herum an (`component_3s` bekam 25 statt 2 Typen) und `update()` **verengte** die PBIR-Aliasse statt zu vereinigen. Grenzen in `test_konsolidierung.py` (0 Literale, 4 Stellen). **Offen: Slot-Namen (19 Dateien).** |
 | **N1 Wächter feuerfähig (§12)** | 🟢 **erledigt** | 2026-08-02 | `RequiredSlots` konnte aus **drei** unabhängigen Gründen nicht anschlagen (in keiner Produktiv-Spec; Namens-Schnüffeln matchte `page_1_summary`/`page_2_execution` nicht; `visual_id` war ein Zähler, keine Slot-ID). Die Autorität existierte längst — `template_manifest.yaml`, 40/40 Seiten lösen auf. Angeschlossen statt erfunden: Leser `layer_tools/page_templates.py`, `visual_id` **ist** der Slot-Name (kollisionssicher), `RequiredSlots` verliert beide hartkodierten Mengen **und** das Schnüffeln, e2e-Stage `page_slots` (advisory). **Erstes Feuern: 39/40 Seiten** ohne mindestens einen Pflicht-Slot — `Slicer_Date` 19×, `ActionPanel` 13×, `Slicer_Pane` 7×, `Focus_Area` 3×. Nebenbei: zwei Vokabulare im Manifest getrennt gehalten; §11-Zahl „38 → 0" auf **Code** präzisiert und die zweite YAML-Rasterkopie erzwungen-gleich gemacht. 2031 Tests grün, H7 bleibt 100 %. |
 | **N2 Pflicht-Möbel + Geometrie-Autorität (§13)** | 🟢 **erledigt** | 2026-08-02 | Prämisse war falsch: **drei** Geometrie-Quellen, und die Compiler-Tabelle war faktisch `pulse` für **alle** Varianten — `template_variant` war deklariert, validiert und geometrisch **wirkungslos** (`executive_kpi` Main_2: 328 px im Template, 749 px in der Tabelle). Entscheidung Flo: `grid_templates/*.json` sind Autorität. `executive_kpi` auf LU umgestellt (≤4 px), die zwei nicht erreichbaren Pixel-Templates bewusst **nicht** (36–157 px wären keine Normalisierung). Auflösung **nach Ebene**, Pflicht-Möbel emittiert. **Seiten mit Lücke 39 → 3** (Rest `Focus_Area`, Manifest-Lücke). Default-Rückfall wird gemeldet statt verschwiegen; 76-px-Slicer-Zusicherung als **bedingt** präzisiert (gegen CLI-Code gemessen). 2031 Tests grün, 20/20 Reports 0 Errors beim offiziellen Validator, H7 100 %. **Offen:** Compiler-Tabelle noch nicht abgeleitet. |
+| **N3 Slot-Gate hart (§13 Nachtrag)** | 🟢 **erledigt** | 2026-08-02 | Die fünf Varianten ohne Detail-Raster versorgt — **kein Kandidatenwahl, ein Abgleich**: ihre `detail_slots` sind exakt die vier Slots von `investigator.json`. Bindung ausdrücklich über neues `detail_grid_template` (statt `alternate` zu überladen — das meint dieselbe Ebene). **40/40 Seiten vollständig, 0 Default-Rückfälle.** `page_slots` jetzt hart: fehlender Pflicht-Slot = FAIL (Emissionsdefekt), Manifest-Lücken bleiben WARN — den Adapter dafür haften zu lassen verschöbe die Schuld. Zwei Tests: einer beweist, dass der Gate rot werden **kann**. 2033 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |

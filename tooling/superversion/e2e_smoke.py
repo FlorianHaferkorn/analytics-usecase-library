@@ -109,8 +109,15 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
     (`page_1_summary_3s_1`), so a slot-name comparison could never intersect. Three
     layers of blindness over one gap.
 
-    WARN, not FAIL, until the emission closes the gap — a gate that is red on arrival
-    gets switched off rather than satisfied.
+    Since 2026-08-02 this is a **hard** stage: all 40 pages carry every mandatory slot
+    and every one resolves its own grid template (no default fallback). The advisory
+    period existed so the gate would land on a repo that can pass it — that condition
+    is met, so WARN would now only teach readers to ignore the line.
+
+    Still WARN, never FAIL, for the two cases that are *governance* gaps rather than
+    emission defects: a bracket without `template_variant`, and a page whose variant
+    declares no grid template for its level. Failing on those would make the adapter
+    answer for the manifest.
     """
     from tooling.superversion.from_aluca import slot_luecken
 
@@ -128,18 +135,21 @@ def _stage_slots(bracket: Path, kpis: Path) -> StageResult:
     geraten = [r["page"] for r in rows if r.get("raster_default")]
     if not rows:
         return StageResult("page_slots", "SKIP", "bracket declares no pages")
-    if fehlend or ungeprueft:
-        teile = [f"{p}: {', '.join(m)}" for p, m in sorted(fehlend.items())]
+    # HARD: a mandatory slot the manifest demands and the adapter does not emit is an
+    # emission defect. Every one of the 40 pages passes this as of 2026-08-02.
+    if fehlend:
+        return StageResult("page_slots", "FAIL", "; ".join(
+            f"{p}: {', '.join(m)}" for p, m in sorted(fehlend.items())))
+    # ADVISORY: these two are gaps in the *manifest*, not in the emission. Failing on
+    # them would make the adapter answer for governance it does not own.
+    if ungeprueft or geraten:
+        teile = []
         if ungeprueft:
             teile.append(f"no template_variant on {', '.join(sorted(ungeprueft))}")
         if geraten:
-            teile.append(f"default grid template on {', '.join(sorted(geraten))}")
+            teile.append(f"default grid template on {', '.join(sorted(geraten))} "
+                         "(manifest declares none for that variant/level)")
         return StageResult("page_slots", "WARN", "; ".join(teile))
-    if geraten:
-        return StageResult("page_slots", "WARN",
-                           f"{len(rows)} page(s) complete, but {', '.join(sorted(geraten))} "
-                           "used the DEFAULT grid template — the manifest declares none "
-                           "for that variant/level")
     return StageResult("page_slots", "PASS",
                        f"{len(rows)} page(s), all mandatory slots present")
 

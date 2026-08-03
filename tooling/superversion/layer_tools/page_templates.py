@@ -259,7 +259,13 @@ def raster_fuer(variant_id: str, ebene: str,
         for v in fam.get("variants") or []:
             if v.get("variant_id") != variant_id:
                 continue
-            for key in ("grid_template", "alternate_grid_template"):
+            # Eine ausdrueckliche Bindung je Ebene gewinnt. Sie wurde am 02.08.2026
+            # eingefuehrt, weil fuenf Varianten gar kein Detail-Raster deklarierten und
+            # die Geometrie deshalb aus einem Default-Rueckfall kam. `alternate` dafuer
+            # zu benutzen waere Ueberladung: es bezeichnet eine Alternative auf
+            # DERSELBEN Ebene, nicht die andere Ebene.
+            for key in (f"{ebene.replace('_slots', '')}_grid_template",
+                        "grid_template", "alternate_grid_template"):
                 tid = v.get(key)
                 if not tid:
                     continue

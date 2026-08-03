@@ -93,6 +93,12 @@ page_families:
         name: "Executive KPI Portfolio"
         description: "4–6 strategic KPIs, portfolio breadth view, no drill-down"
         grid_template: executive_kpi
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: pulse
         overview_slots:
           - slot_id: KPI_Cards
@@ -134,6 +140,12 @@ page_families:
         name: "Strategic Trend Monitor"
         description: "One primary KPI; emphasis on trajectory and momentum"
         grid_template: pulse
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: null
         overview_slots:
           - slot_id: KPI_Cards
@@ -195,6 +207,12 @@ page_families:
         name: "Driver Bridge"
         description: "Waterfall-centric; decomposes a single KPI gap into named drivers"
         grid_template: executive_kpi
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: pulse_asymmetric
         overview_slots:
           - slot_id: KPI_Cards
@@ -230,6 +248,12 @@ page_families:
         name: "Comparative Variance"
         description: "Side-by-side entity comparison; which segment/region drives the gap"
         grid_template: pulse
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: null
         overview_slots:
           - slot_id: KPI_Cards
@@ -373,6 +397,12 @@ page_families:
         name: "Process Control"
         description: "SLA / OTD / quality metrics with trend; control chart concept"
         grid_template: pulse
+        # Detail-Ebene explizit: die vier detail_slots dieser Variante
+        # (Slicer_Pane, Focus_Area, Support_1, Support_2) SIND exakt die Slots von
+        # grid_templates/investigator.json. Bis 02.08.2026 war das nirgends
+        # deklariert — weder grid_template noch alternate_grid_template ist ein
+        # Detail-Raster —, weshalb die Geometrie aus einem Default-Rueckfall kam.
+        detail_grid_template: investigator
         alternate_grid_template: null
         overview_slots:
           - slot_id: KPI_Cards
