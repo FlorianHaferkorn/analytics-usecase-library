@@ -217,3 +217,129 @@ def test_empty_groups_are_a_content_gap_not_a_tagging_gap():
             f"{gruppe} ist belegt — falls durch echte IBCS-Regeln: Test anpassen, "
             f"das ist Fortschritt. Falls durch Umetikettierung von Miller/Few/"
             f"Craft-Core: rueckgaengig machen, das faelscht die Herkunft.")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paritaet: das eigene System ist eine Systeminstanz, keine Restmenge (L12, 03.08.2026)
+#
+# Der Anlass war eine Messung, nicht ein Gefuehl: IBCS stellt EINE der 26
+# Registry-Visualdefinitionen (S9) und 16 der 72 Regeln; das Hausystem stellt 25
+# bzw. 33. Trotzdem hatte nur IBCS eine Gliederung, eine Abdeckung, einen Bericht.
+# Ein Katalog fuer IBCS zu bauen, waehrend das eigene System eine Zahl bleibt, haette
+# die Schieflage vertieft statt sie zu schliessen.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def test_house_system_is_registered_like_any_other():
+    """Das eigene System steht in SYSTEMS und hat Gruppen wie IBCS."""
+    assert "haus" in ls.SYSTEMS, "Hausystem nicht registriert — es waere wieder Restmenge"
+    haus = ls.SYSTEMS["haus"]
+    assert haus.groups, "Hausystem ohne Gruppen — keine Abdeckung berechenbar"
+    assert haus.residual and haus.gruppe_aus_struktur
+
+
+def test_house_groups_are_read_not_maintained():
+    """Die Gruppen sind die Dimensionen der Rubrik — gelesen, nicht hier gepflegt.
+
+    Eine zweite Liste waere die Manifest-Dublette in klein. Kommt eine Dimension
+    dazu, muss sie ohne Codeaenderung im Bericht erscheinen.
+    """
+    import yaml
+    doc = yaml.safe_load((ls._TPL / "tokens" / "boutique_craft_rubric.yaml").read_text(
+        encoding="utf-8"))
+    aus_datei = tuple(str(d["id"]).upper() for d in doc["dimensions"])
+    assert ls.SYSTEMS["haus"].groups == aus_datei
+
+
+def test_every_system_can_report_its_own_coverage():
+    """Paritaet, maschinell: JEDES registrierte System liefert eine Abdeckung.
+
+    Das ist der eigentliche Waechter. Ein neues System, das ohne Gruppen
+    hereinkommt, faellt hier auf — statt still als „0 belegt" durchzulaufen und
+    wie ein Inhaltsproblem auszusehen.
+    """
+    for key, system in ls.SYSTEMS.items():
+        deckung = ls.abdeckung(ls.sammle(system), system)
+        assert set(deckung) == set(system.groups), f"{key}: Abdeckung deckt nicht seine Gruppen"
+        assert any(deckung.values()), f"{key}: keine einzige Gruppe belegt"
+
+
+def test_residual_bucket_is_not_mislabelled_as_house():
+    """Prueft man das Hausystem, ist die Restmenge NICHT hauseigen.
+
+    Vor dem 03.08.2026 stand das Etikett fest im Bericht. Beim Hausystem waeren
+    damit 12 IBCS-Regeln als „ALUCA-eigen" ausgewiesen worden — dieselbe Klasse
+    wie die SUCCESS-Konstante aus L6: Sammler neutral, Bericht nicht.
+    """
+    regeln = ls.sammle(ls.SYSTEMS["haus"])
+    rest = [r for r in regeln if not r.vom_system and not r.fremdstandard]
+    assert rest, "keine Restmenge — Test hat seinen Gegenstand verloren"
+    for r in rest:
+        assert ls.IBCS.owns(r.herkunft) or ls.ISO_24896.owns(r.herkunft), (
+            f"{r.rule_id} gehoert weder Hausystem noch einem Fremdsystem — "
+            f"die Restmenge waere dann doch hauseigen: {r.herkunft[:60]}")
+
+
+def test_house_rules_outside_the_rubric_stay_visible():
+    """Hausregeln ohne Dimension werden gemeldet, nicht in eine passende geraten.
+
+    Neun Regeln (design_rules.yaml, visual_registry.yaml) stehen ausserhalb der
+    Rubrik. Sie einer Dimension zuzuordnen waere geraten; sie wegzulassen waere
+    der stille Fallback. Also: gezaehlt und benannt.
+    """
+    regeln = ls.sammle(ls.SYSTEMS["haus"])
+    eigen = [r for r in regeln if r.vom_system]
+    ohne = [r for r in eigen if not r.gruppe]
+    assert ohne, "keine ungruppierte Hausregel — Befund verschwunden, Test pruefen"
+    for r in ohne:
+        assert r.quelle_datei != "boutique_craft_rubric.yaml", (
+            f"{r.rule_id} steht IN der Rubrik und muesste eine Dimension haben")
+
+
+def test_source_shorthands_resolve_against_the_doctrine_matrix():
+    """`S2 — length encoding` ist Cleveland & McGill, nicht hauseigen.
+
+    Gefunden am 03.08.2026 beim Gegenlesen der eigenen Zahl: die Registry schreibt
+    ihre Herkunft als Kuerzel, die Klassifikation suchte nach Autorennamen. Fremde
+    Quellen, die sich hinter ihrem Kuerzel versteckten, landeten still im
+    Hausystem — auf der Visualseite 15 statt 2. Die Zahl „33 Hausregeln" trug
+    dieselbe Blindheit seit L6; sie faellt erst auf, wenn das eigene System eine
+    Abdeckung ausweisen muss.
+    """
+    matrix = ls.quellenmatrix()
+    # Die Matrix ist eine Markdown-Tabelle. Aendert jemand ihr Format, loesen Kuerzel
+    # still nicht mehr auf — und jede Fremdquelle wandert zurueck ins Hausystem, ohne
+    # dass etwas rot wird. Deshalb Stichproben UND eine Untergrenze statt nur „nicht leer".
+    assert len(matrix) >= 15, (
+        f"nur {len(matrix)} Kuerzel aufgeloest — Tabellenformat der Doktrin geaendert? "
+        f"Teilweise Aufloesung sieht aus wie ein Befund und ist ein Parserfehler.")
+    for kuerzel, erwartet in (("S2", "Cleveland"), ("S9", "IBCS"), ("S14", "WCAG")):
+        assert kuerzel in matrix and erwartet in matrix[kuerzel], (
+            f"{kuerzel} loest nicht auf {erwartet} auf: {matrix.get(kuerzel)!r}")
+    assert not ls._gehoert_niemand_anderem("S2 — length encoding; acceptable")
+    # S13 ist die Meridian-Referenz: eigenes Material, benannte Ausnahme.
+    assert ls._gehoert_niemand_anderem("S13 — Meridian card system")
+    # Ohne Kuerzel und ohne Fremdnamen bleibt es hauseigen.
+    assert ls._gehoert_niemand_anderem("Craft-Core §5.1; Storytelling_Principles.md §9")
+
+
+def test_visual_layer_is_measured_per_system_too():
+    """Die Visualseite wird je System ausgewiesen — sonst misst „Reife" nur Regeln.
+
+    Und genau dort liegt die Schieflage nicht: IBCS stellt 1 von 26
+    Visualdefinitionen, das Hausystem 2, der Rest sind Fremdstandards. Ein
+    IBCS-Visualkatalog haette das System ausgebaut, das ein Sechsundzwanzigstel
+    stellt.
+    """
+    gesamt = None
+    for key, system in ls.SYSTEMS.items():
+        vis = ls.visuelle_abdeckung(system)
+        assert vis, f"{key}: keine Visualsicht"
+        gesamt = len(vis) if gesamt is None else gesamt
+        assert len(vis) == gesamt, "Visualzahl haengt vom System ab — sie darf nicht"
+    ibcs_vis = [v for v in ls.visuelle_abdeckung(ls.IBCS) if v.vom_system]
+    haus_vis = [v for v in ls.visuelle_abdeckung(ls.SYSTEMS["haus"]) if v.vom_system]
+    assert len(ibcs_vis) < len(ls.visuelle_abdeckung(ls.IBCS)) / 2, (
+        "IBCS traegt ploetzlich die Mehrheit der Visuals — Herkunftsdaten pruefen")
+    # Kein System darf ALLE Visuals fuer sich beanspruchen: die Registry ist
+    # ueberwiegend perzeptuell begruendet, nicht notationsgebunden.
+    assert len(haus_vis) < gesamt and len(ibcs_vis) < gesamt

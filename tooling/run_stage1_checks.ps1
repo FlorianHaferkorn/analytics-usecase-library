@@ -79,7 +79,12 @@ $pythonChecks = @(
   # Herkunftssicht (L6): welche Regeln sind IBCS-abgeleitet, welche Hausregel, und
   # welche SUCCESS-Gruppen sind unbelegt. Advisory — die Luecken sind bekannt und
   # sollen sichtbar sein, ohne den Lauf zu blocken (--strict macht sie hart).
-  @{ Script = "tooling/superversion/layer_tools/layout_systems.py"; Args = @() }
+  @{ Script = "tooling/superversion/layer_tools/layout_systems.py"; Args = @() },
+  # Dasselbe fuer das EIGENE System (L12 Ph. 1, 03.08.2026). Ohne diese Zeile endet die
+  # Paritaet am Bericht: das Gate haette weiter nur IBCS geprueft, waehrend das System
+  # mit 33 der 72 Regeln ungeprueft bliebe. Beide Systeme, derselbe Check, dieselbe
+  # Haerte.
+  @{ Script = "tooling/superversion/layer_tools/layout_systems.py"; Args = @("--system", "haus") }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"

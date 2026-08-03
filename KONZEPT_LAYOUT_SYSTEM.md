@@ -548,9 +548,27 @@ Performance bei vielen Zeilen. Fremd-Visuals sind kein Prüfgegenstand (§3.4).
 * **Modell:** Opus · **Umgebung:** **VS Code** (Desktop-Augenschein; SVG-Verhalten im
   Service und beim Export ist headless nicht prüfbar)
 
-### L12 · IBCS-Visualkatalog von der offiziellen Quelle + Nachbau je Tool
+### L12 · Visualkatalog — system-plural, nicht IBCS-zentriert
 
-**Vorziehen empfohlen.** Dieser Task hängt an keiner offenen Entscheidung und groundet
+> **Zuschnitt korrigiert am 03.08.2026 (Einwand Flo: „IBCS ist ein Visualisierungssystem
+> unter mehreren. Wir haben ohne IBCS ja ein eigenes. Beides muss dieselbe Reife
+> haben.").** Der ursprüngliche Zuschnitt unten steht als Historie; er ist **nicht**
+> falsch, aber er war einseitig. Die Messung, die den Einwand stützt, steht in §16.
+>
+> Kurz: IBCS trägt **1 von 26** Visualdefinitionen der Registry (S9) und 16 von 72
+> Regeln. Das Hausystem trägt 33 Regeln — und war trotzdem keine Systeminstanz,
+> sondern die Restmenge des IBCS-Berichts. Ein Katalog nur für IBCS hätte das System
+> ausgebaut, das ein Sechsundzwanzigstel stellt.
+>
+> **Phase 1 (erledigt, s. §16):** Parität herstellen — das Hausystem ist ein
+> registriertes `LayoutSystem` mit eigenen Gruppen und eigenem Abdeckungsbericht; die
+> Visualseite wird je System gemessen; ein Wächter erzwingt, dass *jedes* registrierte
+> System eine Abdeckung liefert.
+> **Phase 2 (blockiert):** die IBCS-Erhebung unten — `ibcs.com` ist in dieser Umgebung
+> nicht erreichbar (gemessen 03.08.2026: Verbindung 000, nicht einmal 403), und die
+> Fassungsfrage hängt weiter an L14.
+
+**Historischer Zuschnitt (Phase 2).** Dieser Task hängt an keiner offenen Entscheidung und groundet
 gleich drei andere: die Inhalts-Lücke aus L6 (CONDENSE/SIMPLIFY/STRUCTURE), den
 Vega-Konnektor (L9) und die Power-BI-Decke (L10).
 
@@ -1449,6 +1467,77 @@ Metabase-Serialization, Figma-Pflichtkomponenten.
 
 ---
 
+## 16. Zwei Systeme, eine Reife — L12 Phase 1 (03.08.2026)
+
+L12 stand als *IBCS*-Visualkatalog im Plan. Der Einwand dagegen war: IBCS ist **ein**
+System unter mehreren, wir haben auch ohne IBCS eines, und beide müssen dieselbe Reife
+haben. Vor dem Bauen gemessen — und die Messung fällt deutlicher aus als der Einwand:
+
+| | IBCS | ISO 24896 | **Hausystem** |
+|---|---|---|---|
+| registriertes `LayoutSystem` | ✓ | ✓ | **✗ Restmenge** |
+| Gruppen | 7 (SUCCESS) | 2 | **keine** |
+| Abdeckungsbericht | ✓ | ✓ | **nicht möglich** |
+| Regeln | 16 | 10 (Schnitt) | **33** |
+| Visualdefinitionen | **1** von 26 (S9) | – | 2 von 26 |
+
+Die restlichen 23 Visuals stammen aus Fremdstandards — **Cleveland & McGill allein 15**.
+Unsere Visualschicht ist also gar keine Notationsschicht, sondern eine perzeptuelle. Ein
+Katalog nur für IBCS hätte das System vertieft, das ein Sechsundzwanzigstel stellt,
+während das mit 33 Regeln eine Zahl im Bericht blieb.
+
+**Was gebaut wurde.** Kein neuer Speicher — die Autoritäten bleiben `visual_registry.yaml`
+und `boutique_craft_rubric.yaml`:
+
+1. **Das Hausystem ist eine Systeminstanz** (`HAUS` in `layout_systems.SYSTEMS`). Seine
+   Zugehörigkeit ist bewusst **negativ** definiert — eine Hausregel trägt keine
+   Fremdherkunft, weil wir sie selbst aufgestellt haben. Das war schon immer die
+   Rechenvorschrift; neu ist, dass sie eine Systemeigenschaft ist statt eine Restzeile.
+2. **Seine Gruppen werden gelesen, nicht gepflegt** — die sechs Dimensionen der
+   Craft-Rubrik (`color`, `typography`, `layout`, `chart_craft`, `narrative`, `brand`).
+   Der Aufhänger lag im Code: `sammle()` las die Dimension jeder Regel bereits und warf
+   sie weg. Eine zweite Liste wäre die Manifest-Dublette in klein.
+3. **Der Bericht ist systemneutral geworden.** Er nannte die Restmenge fest
+   „Hausregel (ALUCA-eigen)" — beim Hausystem wären damit 12 IBCS-Regeln als hauseigen
+   ausgewiesen worden. Dieselbe Klasse wie die `SUCCESS`-Konstante aus L6: der Sammler
+   war neutral, der Bericht nicht.
+4. **Die Visualseite wird je System gemessen** (`visuelle_abdeckung`), samt der
+   Katalog-Frage „welches Zielwerkzeug kann das überhaupt bauen".
+5. **Stage 1 fährt beide Systeme.** Ohne diese Zeile endete die Parität am Bericht:
+   das Gate prüfte weiter nur IBCS, während das System mit 33 der 72 Regeln ungeprüft
+   blieb. Gemessen: 21 Checks, rc=0 (`pwsh` unter Linux).
+6. **Ein Wächter erzwingt die Parität**: jedes registrierte System muss eine Abdeckung
+   liefern. Ein neues System ohne Gruppen fällt auf, statt still als „0 belegt"
+   durchzulaufen und wie ein Inhaltsproblem auszusehen. Nachgewiesen durch ein
+   eingeschmuggeltes Fake-System.
+
+**Ein Fehler, beim Gegenlesen der eigenen Zahl gefunden.** Der erste Lauf meldete
+15 von 26 Visuals als hauseigen. Falsch: die Registry schreibt ihre Herkunft als
+**Kürzel** (`S2 — length encoding`), die Klassifikation suchte nach Autorennamen. Jede
+fremde Quelle, die sich hinter ihrem Kürzel versteckte, landete still im Hausystem. Die
+Kürzel werden jetzt gegen die Quellenmatrix der Doktrin aufgelöst (S13 = Meridian ist die
+benannte eigene Ausnahme), und die Zahl fiel von 15 auf **2**.
+
+Wichtiger als die Korrektur ist ihr Alter: dieselbe Blindheit steckte seit L6 in der Zahl
+„33 Hausregeln" — dort nur unauffällig, weil niemand von der Restmenge eine Abdeckung
+verlangte. Ein Etikett, das nie ausgewertet wird, muss nicht stimmen. Es fällt erst auf,
+wenn man es zur Systemeigenschaft macht.
+
+### Offen
+
+* **Phase 2 bleibt blockiert** — `ibcs.com` ist hier nicht erreichbar (03.08.2026:
+  Verbindung 000), und die Fassungsfrage 1.2 ↔ 2.0 hängt an L14. Gehört in die
+  VS-Code-Umgebung, wo ohnehin der Augenschein aus L10 stattfindet.
+* **9 Hausregeln ohne Dimension** (aus `design_rules.yaml` und `visual_registry.yaml`).
+  Sie werden gezählt und benannt, nicht in eine passende Dimension geraten — die
+  Zuordnung ist eine Inhaltsentscheidung.
+* **6 Visuals ohne Zielzuordnung** über alle Systeme (`area_chart`, `dot_plot`,
+  `scatter_plot`, `decomposition_tree`, `alert_list_card`, `stacked_*`). Die Registry
+  erlaubt sie, kein Konnektor weiß, wie er sie baut. Das ist der eigentliche
+  Katalog-Befund — und er ist system**un**abhängig.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1664,3 +1753,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **N3 Slot-Gate hart (§13 Nachtrag)** | 🟢 **erledigt** | 2026-08-02 | Die fünf Varianten ohne Detail-Raster versorgt — **kein Kandidatenwahl, ein Abgleich**: ihre `detail_slots` sind exakt die vier Slots von `investigator.json`. Bindung ausdrücklich über neues `detail_grid_template` (statt `alternate` zu überladen — das meint dieselbe Ebene). **40/40 Seiten vollständig, 0 Default-Rückfälle.** `page_slots` jetzt hart: fehlender Pflicht-Slot = FAIL (Emissionsdefekt), Manifest-Lücken bleiben WARN — den Adapter dafür haften zu lassen verschöbe die Schuld. Zwei Tests: einer beweist, dass der Gate rot werden **kann**. 2033 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |
 | **N4 `information_block` angeschlossen (§14)** | 🟢 **erledigt** | 2026-08-02 | Der in `PAGE_TYPE_TAXONOMY.md` benannte **Engine-Gap** ist geschlossen: die einzige Achse, auf der sich die 11 Varianten unterscheiden, hatte **0 Konsumenten**. Jetzt Slot → Block → Registry: stilles `card` **20 → 3**, 17 Detailmatrizen sind `table` statt `card`, Wirksamkeitstest (gleicher Slot, zwei Varianten, verschiedene Visuals). **Bringt 12 Konflikte ans Licht, 7 davon derselbe Fall** (`exception_list` vs. Balken) — gemeldet, nicht überschrieben; erste empirische Rückmeldung an die Taxonomie. Grounding gemessen: ALUCA **15 benannte Quellen**, Meridian TPL-001…006 **0**. 2039 Tests grün, 20/20 Reports 0 Errors, H7 100 %. |
 | **N5 Slot-Härte deklariert (§15)** | 🟢 **erledigt** | 2026-08-03 | Die eigene Idee „Chrome hart, Inhalt weich" ist an der Recherche gescheitert: **kein** geprüftes System (Grafana Foundation SDK, LookML, Superset, Evidence.dev, Web-Components-Slots) staffelt Pflicht nach Elementtyp, und Microsofts eigener Skill lehnt jede Pflicht-Checkliste ab. Belegt etabliert ist nur die **Trennung** Regel ↔ Härte (ESLint, Sentinel, OPA, K8s PSS) — mit der Achse **Datenlage/Rollout-Reife**, nie Objekttyp. Umgesetzt: `severity: error\|warning` je Pflicht-Slot im Manifest (Default `error`, kein stilles Aufweichen); die 11 Pflicht-Slots der vier `status: unused`-Varianten auf `warning`, weil sie null Emissionen und damit null Verletzungsdaten haben. Wächter **beidseitig** — fällt beim Verschärfen ohne Datenlage *und* beim Aufweichen einer benutzten Variante; beide Richtungen per Mutation nachgewiesen. Stand unverändert: 42/42 Seiten, 0 harte und 0 weiche Lücken. |
+| **L12 Phase 1 — Paritaet der Systeme (§16)** | 🟢 **erledigt** | 2026-08-03 | Der Zuschnitt war einseitig, und die Messung fiel deutlicher aus als der Einwand: IBCS traegt **1 von 26** Registry-Visuals (S9) und 16 von 72 Regeln, das Hausystem 33 Regeln — und war trotzdem keine Systeminstanz, sondern die Restmenge des IBCS-Berichts. Die uebrigen 23 Visuals sind Fremdstandard, **Cleveland & McGill allein 15**: unsere Visualschicht ist perzeptuell begruendet, nicht notationsgebunden. Gebaut ohne neuen Speicher: `HAUS` als registriertes `LayoutSystem` (Zugehoerigkeit negativ definiert — eine Hausregel traegt keine Fremdherkunft), Gruppen **gelesen** aus den 6 Rubrik-Dimensionen (der Aufhaenger lag im Code: `sammle()` las die Dimension und warf sie weg), Bericht systemneutral (er nannte die Restmenge fest „Hausregel" — beim Hausystem waeren 12 IBCS-Regeln als hauseigen ausgewiesen worden, dieselbe Klasse wie die `SUCCESS`-Konstante aus L6), Visualseite je System, und ein Waechter, der von **jedem** System eine Abdeckung verlangt (per Fake-System nachgewiesen). **Eigener Fehler beim Gegenlesen gefunden:** erst 15 von 26 Visuals als hauseigen gemeldet — die Registry schreibt Kuerzel (`S2 — length encoding`), die Klassifikation suchte Autorennamen; Kuerzel werden jetzt gegen die Quellenmatrix aufgeloest, 15 → **2**. Dieselbe Blindheit steckte seit L6 in „33 Hausregeln" und fiel nur auf, weil das Etikett zur Systemeigenschaft wurde. **Phase 2 (IBCS-Erhebung) bleibt blockiert:** `ibcs.com` hier nicht erreichbar (Verbindung 000), Fassungsfrage an L14. |
