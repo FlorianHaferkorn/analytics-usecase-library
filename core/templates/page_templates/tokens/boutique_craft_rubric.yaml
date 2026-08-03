@@ -163,19 +163,14 @@ dimensions:
         severity: major
         weight: 4
         check: structural
-        validator: null
-        validator_blocked: pending_decision
-        # NICHT implementierbar ohne eine Inhaltsentscheidung — gemessen 03.08.2026:
-        # das Custom-Theme setzt in visualStyles["*"]["*"] fuer JEDES Visual
-        #   border:     show=true, width 0.5, radius 8, #FFFFFF
-        #   background: show=true, #FFFFFF, transparency 0
-        #   dropShadow: show=true, transparency 90, distance 1, spread 0.1
-        # und kein einziges der 188 Visuals ueberschreibt das. Diese Regel verbietet
-        # "decorative boxes/borders" — das Kartensystem des Hauses BAUT aber genau
-        # darauf (BC-LAYOUT-03 Hero-Karte, BC-BRAND-01 komponiertes Theme).
-        # Die offene Frage ist nicht technisch: ist eine 90 % transparente 1-px-Erhebung
-        # die Elevation des Kartensystems oder dekorative Tiefe? Ein Pruefer, der das
-        # per Schwellenwert entscheidet, traefe die Entscheidung im Code.
+        validator:
+          script: check_container_surface.py
+          args: ["--strict"]
+        # Entscheidung Flo 03.08.2026 (Weg A): das Kartensystem ist legitim, die Regel
+        # meint "keine Dekoration UEBER das Kartensystem hinaus". Die sanktionierte
+        # Obergrenze steht in tokens/color_semantics.yaml -> container_baseline, dort wo
+        # `surface.card` ohnehin seit jeher steht. Der Pruefer misst drei Ebenen:
+        # Weissraum-Ordnung (zone_gap > gutter > padding), Theme, Visual.
         machine_hint: "visual border/background fill present where whitespace suffices"
         source: "Craft-Core §5.3; Layout_Grid_System.md; Storytelling_Principles.md §11"
       - id: BC-LAYOUT-03

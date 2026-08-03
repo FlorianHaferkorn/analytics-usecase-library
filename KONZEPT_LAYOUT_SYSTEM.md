@@ -1735,6 +1735,62 @@ geworden — sie wird jetzt aus derselben Autorität gelesen wie die Verdrahtung
 
 ---
 
+## 20. Weg A: das Kartensystem als sanktionierte Grundlinie (03.08.2026)
+
+Die offene Frage aus §18 ist entschieden: **das Kartensystem ist legitim**, und die zwei
+Regeln, die sich wörtlich dagegen lesen, meinen „keine Dekoration *über* das
+Kartensystem hinaus". Der Ausschlag war, dass die Entscheidung längst getroffen war —
+`surface.card` steht seit jeher in `color_semantics.yaml`, und BC-LAYOUT-03 wie
+BC-BRAND-01 setzen Karten voraus.
+
+**Aber „gemeint" ist nicht „geprüft".** Damit der Satz trägt, steht die Grundlinie jetzt
+maschinenlesbar dort, wo `surface.card` ohnehin liegt — als **Obergrenze**, nicht als
+Sollwert:
+
+```yaml
+container_baseline:
+  background: {allowed: true, from_tokens: [page, card, row_alt]}
+  border:     {allowed: true, width_max_px: 0.5, radius_max_px: 8}
+  drop_shadow:{allowed: true, transparency_min_pct: 90, distance_max_px: 1,
+               blur_max_px: 8, spread_max: 0.1}
+  padding:    {max_px: 10}
+  never:      [gradient, bevel, glow, glass, image]
+```
+
+Die Werte sind **die des beschlossenen Themes**, ohne Toleranzaufschlag — jeder
+Aufschlag wäre eine Entscheidung gewesen, die niemand getroffen hat. Sanktioniert ist
+genau diese Erhebung; alles Kräftigere ist Dekoration.
+
+**Zwei Prüfer messen jetzt dagegen:**
+
+* **BC-LAYOUT-02 ist verdrahtet** (`check_container_surface.py`) und prüft drei Ebenen:
+  die Weißraum-Ordnung aus `layout_grid.yaml` (zone_gap > gutter > padding — die erste
+  Hälfte der Regel, die bisher niemand las), das Theme, und jedes einzelne Visual.
+* **Der blinde Fleck von BC-CHART-04 ist zu.** Der Prüfer las ausschließlich
+  `visual.json` und war grün, während das Theme für jedes der 188 Visuals Hintergrund,
+  Rahmen und Schatten setzte. Er liest jetzt zusätzlich das aktive Theme gegen dieselbe
+  Grundlinie. **Sein Grün ist damit verdient statt zufällig** — und ein Verlauf oder ein
+  kräftigerer Schatten im Theme macht ihn rot, nachgewiesen durch Mutation.
+
+Beide Prüfer sind in sieben Richtungen als feuerfähig belegt (kräftigerer Schatten,
+weiterer Versatz, dickerer Rahmen, Verlauf, Glow, größeres Padding, gekippte
+Weißraum-Ordnung) — und der sanktionierte Stand bleibt still. Ein Test hält Theme und
+Grundlinie zusammen: laufen sie auseinander, wird das rot statt still angepasst.
+
+**65,4 → 69,4 von 100.**
+
+### Offen
+
+* **`brand.data_colors` in `color_semantics.yaml` ist ein Regenbogen** (8 Farben über den
+  ganzen Kreis) und widerspricht damit BC-COLOR-02 — das emittierte Theme ist
+  monochrom. Der Token hat heute **keinen Code-Konsumenten**; würde je ein Theme daraus
+  erzeugt, wäre es sofort ein Verstoß. Nicht angefasst: welche Markenpalette gilt, ist
+  eine Inhaltsentscheidung.
+* `Brand_Rose__Monochromatic__…json` (§19) — unverändert offen.
+* Die 25–26 Validator-Errors der dist-Reports (§18) — unverändert offen.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1954,3 +2010,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **L12 Phase 1b — qualitatives Niveau (§17)** | 🟢 **erledigt** | 2026-08-03 | §16 hatte die falsche Frage beantwortet: **Symmetrie ist keine Güte**. Gemessen an der Craft-Rubrik (30 Regeln): 11 ehrlich geprüft · 2 als `judge` deklariert, aber von einem Validator entschieden · 2 mit Checker, **der nicht scheitern kann** · 7 ohne Checker · 8 ehrlich unbewertet. Dazu **zwei Dubletten mit widersprechender Severity** (`BC-COLOR-04`≡`MAX_SEMANTIC_COLORS_PER_PAGE`, `BC-CHART-01`≡`ONE_MESSAGE_PER_CHART` — letztere von zwei unabhängigen Checkern durchgesetzt). **Beinahe-Fehler, der die schärfste Regel hervorbrachte:** ich wollte `check_tabular_numerals`/`check_reference_lines` verdrahten (Abdeckung 15→17) — beide beenden **immer** mit 0 („Advisory only — never gates"); das hätte zwei Regeln addiert, die per Konstruktion bestehen. Gebaut ohne neuen Speicher: Validator-Bindung **in** der Rubrik statt in einer Python-Tabelle (die deklarierte 20 structural, die Tabelle kannte 13 — Differenz unsichtbar), `check: both` für die zwei Widersprüche mit konservativem Minimum (`judge_rules()` musste mitziehen, sonst hätte die Aufwertung das Urteil erst recht verworfen), jede Lücke mit Grund (`not_implemented` 6 · `render_verification` 2 · `enforced_by_generator` 1), Dubletten per `implements` verwiesen. **5 Integritätstests, alle per Mutation als feuerfähig nachgewiesen** — darunter „ein verdrahteter Validator muss scheitern können". Abdeckung bleibt **54,4/100**: keine Zahl geschönt, sie ist jetzt belastbar. |
 | **L12 Phase 1c — erster verdienter Punkt (§18)** | 🟢 **erledigt** | 2026-08-03 | **54,4 → 58,4/100.** `BC-LAYOUT-01` verdrahtet — prüfbar erst durch L13 (Geometrie in Logical Units, eine Auflösungsstelle); Prüfer bildet L13s Entscheidung ab: waagerecht ganzzahlig, senkrecht frei. **Erster Lauf fand einen echten Defekt:** 7 von 188 Visuals neben dem Raster, alle in EINEM Report, alle mit `Spanne 3.929` — exakt der von L13 benannte Prä-Wert; der Report ist eine *Variante* ohne Generatorpfad, korrigiert wurde nur die Waagerechte (jede Abweichung <0,09 LU von einer ganzen Zahl, `y`/`height` unangetastet). **Wichtigerer Fund beim Versuch, BC-LAYOUT-02 zu bauen:** `BC-CHART-04` ist verdrahtet und **grün**, liest aber nur die `visual.json` — das Custom-Theme setzt in `visualStyles["*"]["*"]` für JEDES Visual `border`/`background`/`dropShadow` auf show=true, **0 von 188** überschreiben. Der Prüfer meldet Sauberkeit, weil er eine Ebene prüft, auf der niemand etwas setzt — dieselbe Klasse wie §12, nur heimtückischer: dort konnte er nicht feuern, hier feuert er ins Leere. **Nicht per Schwellenwert entschieden** — 90 % transparent, 1 px, Spread 0,1: Kartensystem-Elevation oder dekorative Tiefe? Das ist Flos Entscheidung, nicht die eines `if`. Blinder Fleck steht als Kommentar an der Regel, BC-LAYOUT-02 trägt `pending_decision`. Nebenbefund: die **dist**-Reports bestehen den offiziellen Validator (Pin 0.1.1) **nicht** — 25–26 Errors repo-weit, während frisch emittierte sauber sind; Ursache im mitgelieferten Theme, nicht im Emitter. |
 | **L12 Phase 1d — zwei Regeln verdient, zwei abgelehnt (§19)** | 🟢 **erledigt** | 2026-08-03 | **58,4 → 65,4/100.** Von vier `not_implemented`-Regeln sind zwei gebaut (BC-COLOR-02, BC-TYPE-04), zwei am Artefakt **nicht entscheidbar**: BC-COLOR-03 hätte leer bestanden (keine semantische Farbe in 188 Visuals, kein Richtungszeichen in 221 Measures → neue Kategorie `vacuous_no_subject`), BC-NARR-06 hat nichts zu prüfen (die 16 `smartNarrativeVisual` tragen null Konfiguration → `render_verification`). **Schwellen abgeleitet statt erfunden:** BC-COLOR-02 nimmt den kleinsten Farbtonabstand der semantischen Tokens des Themes selbst (25,0°) als Maßstab — die kategoriale Palette spannt 1,4°; BC-TYPE-04 den Größenboden aus `typography.yaml`. **Eigener Fehlalarm korrigiert:** der erste Entwurf prüfte jede registrierte Theme-Ressource und meldete 16 Verstöße — alle aus `Brand_Rose__Monochromatic__…json`, die **nicht aktiv** ist, 300+ Farben über den ganzen Farbkreis führt und ihren eigenen Namen widerlegt; der Prüfer liest jetzt `report.json`. Die Datei selbst bleibt offener Punkt. Nebenbei: die Knock-out-Menge im Scorecard-Test war ein Literal, das dem Fortschritt hinterherlief — jetzt abgeleitet. |
+| **L12 Phase 1e — Weg A: Kartensystem-Grundlinie (§20)** | 🟢 **erledigt** | 2026-08-03 | **65,4 → 69,4/100.** Die Doktrinfrage aus §18 ist entschieden (Flo, Weg A): das Kartensystem ist legitim, die Regeln meinen „keine Dekoration **über** das Kartensystem hinaus". Ausschlag: die Entscheidung war längst getroffen — `surface.card` steht seit jeher in den Tokens, BC-LAYOUT-03 und BC-BRAND-01 setzen Karten voraus. Damit „gemeint" zu „geprüft" wird, steht die Grundlinie jetzt als **Obergrenze** in `color_semantics.yaml` → `container_baseline`, mit den Werten des beschlossenen Themes und **ohne Toleranzaufschlag** (jeder Aufschlag wäre eine ungetroffene Entscheidung). **BC-LAYOUT-02 verdrahtet** (`check_container_surface.py`, drei Ebenen: Weißraum-Ordnung — die erste Regelhälfte, die bisher niemand las —, Theme, Visual). **Blinder Fleck von BC-CHART-04 geschlossen:** er liest jetzt auch das aktive Theme gegen dieselbe Grundlinie; sein Grün ist verdient statt zufällig, ein Verlauf im Theme macht ihn rot (per Mutation belegt). Sieben Feuer-Richtungen nachgewiesen, sanktionierter Stand bleibt still, ein Test hält Theme und Grundlinie zusammen. **Nebenbefund:** `brand.data_colors` in den Tokens ist ein Regenbogen und widerspräche BC-COLOR-02 — hat aber keinen Code-Konsumenten; nicht angefasst. |
