@@ -32,10 +32,20 @@ def test_all_pass_gives_full_subset_score():
 
 
 def test_failing_knockout_is_surfaced():
+    """Jeder verdrahtete Knock-out taucht bei Fehlschlag auf — Menge ABGELEITET.
+
+    Die Menge stand hier als Literal und musste bei jeder neuen Verdrahtung
+    nachgezogen werden (03.08.2026: BC-COLOR-02 kam dazu). Ein Literal, das dem
+    Fortschritt hinterherlaeuft, meldet irgendwann Fortschritt als Fehler. Es wird
+    deshalb aus derselben Autoritaet gelesen wie die Verdrahtung selbst.
+    """
     card = score(run_validator=_all_fail)
     assert card["structural_score_pct"] == 0.0
-    # the scored knock-outs (BC-NARR-01/CHART-01/CHART-10/BRAND-01)
-    assert set(card["knockouts_failed"]) == {"BC-CHART-01", "BC-CHART-10", "BC-NARR-01", "BC-BRAND-01"}
+    verdrahtet = set(wired())
+    erwartet = {r["id"] for dim in load_rubric()["dimensions"] for r in dim["rules"]
+                if r["severity"] == "knock_out" and r["id"] in verdrahtet}
+    assert erwartet, "kein verdrahteter Knock-out — Test hat seinen Gegenstand verloren"
+    assert set(card["knockouts_failed"]) == erwartet
 
 
 def test_coverage_is_partial_and_not_certifiable():

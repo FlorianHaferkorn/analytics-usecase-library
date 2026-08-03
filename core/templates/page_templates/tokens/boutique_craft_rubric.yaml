@@ -47,9 +47,13 @@ dimensions:
         severity: knock_out
         weight: 5
         check: structural
-        validator: null
-        validator_blocked: not_implemented
-        # kein Checker im Repo (gemessen 03.08.2026)
+        validator:
+          script: check_palette_monochrome.py
+          args: ["--strict"]
+        # Verdrahtet 03.08.2026. Die Schwelle ist ABGELEITET: der kleinste
+        # Farbtonabstand der semantischen Tokens des Themes selbst (gemessen 25.0°)
+        # ist der kleinste Unterschied, den es als bedeutungstragend behandelt. Die
+        # kategoriale Palette spannt 1.4° — monochrom, wie der Themename sagt.
         machine_hint: "categorical series coloured by N distinct hues without semantic role"
         source: "Craft-Core §5.1; Color_Semantics_Formatting.md"
       - id: BC-COLOR-03
@@ -58,8 +62,14 @@ dimensions:
         weight: 3
         check: structural
         validator: null
-        validator_blocked: not_implemented
-        # kein Checker im Repo (gemessen 03.08.2026)
+        validator_blocked: vacuous_no_subject
+        # NICHT verdrahtet, weil ein Pruefer heute LEER bestuende — gemessen 03.08.2026:
+        # keines der 188 Visuals setzt eine semantische Farbe, und keine der 221 Measures
+        # erzeugt ein Richtungszeichen (kein ▲/▼/↑/↓, keine *Color-/*Icon-Measure). Die
+        # Regel lautet "rot/gruen nie allein"; wo gar kein Rot/Gruen ist, ist die Aussage
+        # trivial wahr. Ein solcher Haken behauptet Deckung, die er nicht hat — dieselbe
+        # Klasse wie die advisory-Checker bei BC-TYPE-02/BC-CHART-05. Verdrahtbar, sobald
+        # bedingte Formatierung tatsaechlich emittiert wird.
         machine_hint: "semantic colour present without accompanying icon glyph / direction marker"
         source: "Craft-Core §5.1; Storytelling_Principles.md §9 (8% red-green deficiency)"
       - id: BC-COLOR-04
@@ -119,9 +129,13 @@ dimensions:
         severity: minor
         weight: 2
         check: structural
-        validator: null
-        validator_blocked: not_implemented
-        # kein Checker im Repo (gemessen 03.08.2026)
+        validator:
+          script: check_text_legibility.py
+          args: ["--strict"]
+        # Verdrahtet 03.08.2026. Beide Haelften gegen governte Quellen statt gegen
+        # erfundene Zahlen: der Groessenboden ist die kleinste `size_min_pt` aus
+        # tokens/typography.yaml (8 pt), die Versalien-Grenze trennt Fliesstext von
+        # Markern wie "YTD VS PLAN".
         machine_hint: "text run in uppercase length > label threshold; size < min_pt"
         source: "Craft-Core §5.2; Storytelling_Principles.md §10"
 
@@ -344,8 +358,12 @@ dimensions:
         weight: 2
         check: structural
         validator: null
-        validator_blocked: not_implemented
-        # kein Checker im Repo (gemessen 03.08.2026)
+        validator_blocked: render_verification
+        # NICHT verdrahtet: gemessen 03.08.2026 tragen alle 16 `smartNarrativeVisual`
+        # NULL Konfiguration — nur {"visualType": "smartNarrativeVisual"}. Der Text
+        # entsteht erst beim Rendern aus dem Seitenkontext; im Artefakt gibt es keine
+        # Zahl, deren Herkunft sich pruefen liesse. Gehoert damit zur Render-Verifikation
+        # (L10), nicht zu "kein Checker gebaut".
         machine_hint: "narrative text bound to non-governed source / static (filter-insensitive)"
         source: "Craft-Core §6.2/§6.4; Storytelling_Principles.md §13"
 

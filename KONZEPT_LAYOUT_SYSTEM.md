@@ -1680,6 +1680,61 @@ BC-LAYOUT-02 trägt `validator_blocked: pending_decision` mit genau dieser Frage
 
 ---
 
+## 19. Zwei weitere Regeln verdient, zwei ehrlich abgelehnt (03.08.2026)
+
+**58,4 → 65,4 von 100.** Vier Regeln standen als „kein Checker gebaut" da. Gemessen sind
+es zwei — die anderen beiden lassen sich am Artefakt **nicht** entscheiden, und das ist
+ein Befund, kein Versäumnis.
+
+| Regel | Lage im Artefakt | Ergebnis |
+|---|---|---|
+| BC-COLOR-02 | `dataColors` spannen **1,4°** Farbton, semantische Tokens ≥25° | **verdrahtet** |
+| BC-TYPE-04 | `typography.yaml` liefert governte `size_min_pt`; 97 Texte/Klassen im Bestand | **verdrahtet** |
+| BC-COLOR-03 | **keine** semantische Farbe in 188 Visuals, **kein** Richtungszeichen in 221 Measures | `vacuous_no_subject` |
+| BC-NARR-06 | die 16 `smartNarrativeVisual` tragen **null** Konfiguration | `render_verification` |
+
+**Die Schwelle wurde abgeleitet, nicht erfunden.** Bei BC-COLOR-02 wäre die naheliegende
+Lösung eine Gradzahl gewesen — und die hätte die Regel im Code entschieden. Stattdessen
+liefert das Theme seinen eigenen Maßstab: der kleinste Farbtonabstand seiner semantischen
+Tokens (bad 13,5° · neutral 38,5° · good 147,9° → **25,0°**) ist der kleinste Unterschied,
+den es selbst als bedeutungstragend behandelt. Erreicht die kategoriale Palette diesen
+Abstand, unterscheidet sie nach dem eigenen Maßstab des Themes durch Farbton. Die
+gemessene Spanne von 1,4° liegt achtzehnfach darunter. Dasselbe bei BC-TYPE-04: der
+Größenboden ist die kleinste `size_min_pt` aus `typography.yaml`, keine Zahl im Prüfer.
+
+**Ein Fehlalarm meines eigenen Prüfers, und ein echter Befund dahinter.** Der erste
+Entwurf prüfte *jede* registrierte Theme-Ressource und meldete 16 Verstöße. Alle
+stammten aus `Brand_Rose__Monochromatic__…json` — einer Datei, die in jedem der 16
+Reports liegt, **nicht das aktive Theme** ist (aktiv ist Aurora), über **300 Farben**
+über den ganzen Farbkreis führt und dabei „Monochromatic" im Namen trägt. Ein Gate, das
+eine nicht angewandte Datei rot macht, meldet etwas, das im Report nicht zu sehen ist;
+der Prüfer liest jetzt `report.json` und urteilt nur über das aktive Theme. Dass diese
+Datei existiert, ihren eigenen Namen widerlegt und ungenutzt mitgeliefert wird, bleibt
+ein **eigener offener Punkt** — nicht angefasst, weil das Löschen einer registrierten
+Ressource Folgen hat, die ich nicht gemessen habe.
+
+**`vacuous_no_subject` ist eine neue, notwendige Kategorie.** BC-COLOR-03 („rot/grün nie
+allein") ließe sich mechanisch bauen — und der Prüfer bestünde, weil im ganzen Korpus
+kein Rot/Grün semantisch gesetzt wird. Ein Haken, dessen Voraussetzung nie eintritt,
+behauptet Deckung wie ein echter. Das ist dieselbe Klasse wie die advisory-Checker bei
+BC-TYPE-02/BC-CHART-05, nur eine Ebene früher: dort *kann* der Prüfer nicht scheitern,
+hier *findet* er nichts vor. Verdrahtbar, sobald bedingte Formatierung emittiert wird.
+
+Nebenbei fiel ein Literal, das dem Fortschritt hinterherlief: die Knock-out-Menge in
+`test_boutique_scorecard` stand fest verdrahtet und wäre bei jeder neuen Regel rot
+geworden — sie wird jetzt aus derselben Autorität gelesen wie die Verdrahtung.
+
+### Offen
+
+* **`Brand_Rose__Monochromatic__…json`** — ungenutzt, widerlegt den eigenen Namen, liegt
+  in allen 16 Reports.
+* BC-COLOR-03 wartet auf emittierte bedingte Formatierung, BC-NARR-06 auf die
+  Render-Verifikation (L10).
+* Die Theme-Frage aus §18 (Kartensystem-Elevation vs. dekorative Tiefe) ist unverändert
+  offen und blockiert BC-LAYOUT-02.
+
+---
+
 ## 10. Abgleich mit externen Quellen (02.08.2026)
 
 Vier parallele Recherchen gegen das Konzept — mit dem ausdrücklichen Auftrag, es zu
@@ -1898,3 +1953,4 @@ bleibt grün, sagt aber ab sofort die Wahrheit über den zweiten.
 | **L12 Phase 1 — Paritaet der Systeme (§16)** | 🟢 **erledigt** | 2026-08-03 | Der Zuschnitt war einseitig, und die Messung fiel deutlicher aus als der Einwand: IBCS traegt **1 von 26** Registry-Visuals (S9) und 16 von 72 Regeln, das Hausystem 33 Regeln — und war trotzdem keine Systeminstanz, sondern die Restmenge des IBCS-Berichts. Die uebrigen 23 Visuals sind Fremdstandard, **Cleveland & McGill allein 15**: unsere Visualschicht ist perzeptuell begruendet, nicht notationsgebunden. Gebaut ohne neuen Speicher: `HAUS` als registriertes `LayoutSystem` (Zugehoerigkeit negativ definiert — eine Hausregel traegt keine Fremdherkunft), Gruppen **gelesen** aus den 6 Rubrik-Dimensionen (der Aufhaenger lag im Code: `sammle()` las die Dimension und warf sie weg), Bericht systemneutral (er nannte die Restmenge fest „Hausregel" — beim Hausystem waeren 12 IBCS-Regeln als hauseigen ausgewiesen worden, dieselbe Klasse wie die `SUCCESS`-Konstante aus L6), Visualseite je System, und ein Waechter, der von **jedem** System eine Abdeckung verlangt (per Fake-System nachgewiesen). **Eigener Fehler beim Gegenlesen gefunden:** erst 15 von 26 Visuals als hauseigen gemeldet — die Registry schreibt Kuerzel (`S2 — length encoding`), die Klassifikation suchte Autorennamen; Kuerzel werden jetzt gegen die Quellenmatrix aufgeloest, 15 → **2**. Dieselbe Blindheit steckte seit L6 in „33 Hausregeln" und fiel nur auf, weil das Etikett zur Systemeigenschaft wurde. **Phase 2 (IBCS-Erhebung) bleibt blockiert:** `ibcs.com` hier nicht erreichbar (Verbindung 000), Fassungsfrage an L14. |
 | **L12 Phase 1b — qualitatives Niveau (§17)** | 🟢 **erledigt** | 2026-08-03 | §16 hatte die falsche Frage beantwortet: **Symmetrie ist keine Güte**. Gemessen an der Craft-Rubrik (30 Regeln): 11 ehrlich geprüft · 2 als `judge` deklariert, aber von einem Validator entschieden · 2 mit Checker, **der nicht scheitern kann** · 7 ohne Checker · 8 ehrlich unbewertet. Dazu **zwei Dubletten mit widersprechender Severity** (`BC-COLOR-04`≡`MAX_SEMANTIC_COLORS_PER_PAGE`, `BC-CHART-01`≡`ONE_MESSAGE_PER_CHART` — letztere von zwei unabhängigen Checkern durchgesetzt). **Beinahe-Fehler, der die schärfste Regel hervorbrachte:** ich wollte `check_tabular_numerals`/`check_reference_lines` verdrahten (Abdeckung 15→17) — beide beenden **immer** mit 0 („Advisory only — never gates"); das hätte zwei Regeln addiert, die per Konstruktion bestehen. Gebaut ohne neuen Speicher: Validator-Bindung **in** der Rubrik statt in einer Python-Tabelle (die deklarierte 20 structural, die Tabelle kannte 13 — Differenz unsichtbar), `check: both` für die zwei Widersprüche mit konservativem Minimum (`judge_rules()` musste mitziehen, sonst hätte die Aufwertung das Urteil erst recht verworfen), jede Lücke mit Grund (`not_implemented` 6 · `render_verification` 2 · `enforced_by_generator` 1), Dubletten per `implements` verwiesen. **5 Integritätstests, alle per Mutation als feuerfähig nachgewiesen** — darunter „ein verdrahteter Validator muss scheitern können". Abdeckung bleibt **54,4/100**: keine Zahl geschönt, sie ist jetzt belastbar. |
 | **L12 Phase 1c — erster verdienter Punkt (§18)** | 🟢 **erledigt** | 2026-08-03 | **54,4 → 58,4/100.** `BC-LAYOUT-01` verdrahtet — prüfbar erst durch L13 (Geometrie in Logical Units, eine Auflösungsstelle); Prüfer bildet L13s Entscheidung ab: waagerecht ganzzahlig, senkrecht frei. **Erster Lauf fand einen echten Defekt:** 7 von 188 Visuals neben dem Raster, alle in EINEM Report, alle mit `Spanne 3.929` — exakt der von L13 benannte Prä-Wert; der Report ist eine *Variante* ohne Generatorpfad, korrigiert wurde nur die Waagerechte (jede Abweichung <0,09 LU von einer ganzen Zahl, `y`/`height` unangetastet). **Wichtigerer Fund beim Versuch, BC-LAYOUT-02 zu bauen:** `BC-CHART-04` ist verdrahtet und **grün**, liest aber nur die `visual.json` — das Custom-Theme setzt in `visualStyles["*"]["*"]` für JEDES Visual `border`/`background`/`dropShadow` auf show=true, **0 von 188** überschreiben. Der Prüfer meldet Sauberkeit, weil er eine Ebene prüft, auf der niemand etwas setzt — dieselbe Klasse wie §12, nur heimtückischer: dort konnte er nicht feuern, hier feuert er ins Leere. **Nicht per Schwellenwert entschieden** — 90 % transparent, 1 px, Spread 0,1: Kartensystem-Elevation oder dekorative Tiefe? Das ist Flos Entscheidung, nicht die eines `if`. Blinder Fleck steht als Kommentar an der Regel, BC-LAYOUT-02 trägt `pending_decision`. Nebenbefund: die **dist**-Reports bestehen den offiziellen Validator (Pin 0.1.1) **nicht** — 25–26 Errors repo-weit, während frisch emittierte sauber sind; Ursache im mitgelieferten Theme, nicht im Emitter. |
+| **L12 Phase 1d — zwei Regeln verdient, zwei abgelehnt (§19)** | 🟢 **erledigt** | 2026-08-03 | **58,4 → 65,4/100.** Von vier `not_implemented`-Regeln sind zwei gebaut (BC-COLOR-02, BC-TYPE-04), zwei am Artefakt **nicht entscheidbar**: BC-COLOR-03 hätte leer bestanden (keine semantische Farbe in 188 Visuals, kein Richtungszeichen in 221 Measures → neue Kategorie `vacuous_no_subject`), BC-NARR-06 hat nichts zu prüfen (die 16 `smartNarrativeVisual` tragen null Konfiguration → `render_verification`). **Schwellen abgeleitet statt erfunden:** BC-COLOR-02 nimmt den kleinsten Farbtonabstand der semantischen Tokens des Themes selbst (25,0°) als Maßstab — die kategoriale Palette spannt 1,4°; BC-TYPE-04 den Größenboden aus `typography.yaml`. **Eigener Fehlalarm korrigiert:** der erste Entwurf prüfte jede registrierte Theme-Ressource und meldete 16 Verstöße — alle aus `Brand_Rose__Monochromatic__…json`, die **nicht aktiv** ist, 300+ Farben über den ganzen Farbkreis führt und ihren eigenen Namen widerlegt; der Prüfer liest jetzt `report.json`. Die Datei selbst bleibt offener Punkt. Nebenbei: die Knock-out-Menge im Scorecard-Test war ein Literal, das dem Fortschritt hinterherlief — jetzt abgeleitet. |
