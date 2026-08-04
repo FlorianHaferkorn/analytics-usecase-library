@@ -1,121 +1,64 @@
 cost.base_volume.amount:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Cost Base Volume Amount
   display_folder: ''
 cost.cogs.amount:
-  dax_expression: SUM ( fact_sales[Cost of Goods Sold Amount] )
   format_string: ''
   dax_name: Cost of Goods Sold Amount
   display_folder: ''
 cost.cogs_per_unit.amount:
-  dax_expression: DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity]
-    ) )
   format_string: ''
   dax_name: COGS per Unit
   display_folder: ''
 cost.material.pct:
-  dax_expression: 'VAR MaterialCost = SUM ( fact_finance[Material Cost Amount] )
-
-    VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
-
-    RETURN DIVIDE ( MaterialCost, NetSales )'
   format_string: 0.0%
   dax_name: Material Cost %
   display_folder: ''
 cost.opex.base.amount:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Opex Base Amount
   display_folder: ''
 cost.opex.vs_plan.pct:
-  dax_expression: 'VAR Actual = SUM ( fact_finance[OpEx Amount] )
-
-    VAR Plan = SUM ( fact_finance[Plan OpEx Amount] )
-
-    RETURN DIVIDE ( Actual - Plan, Plan )'
   format_string: 0.0%
   dax_name: OpEx vs Plan %
   display_folder: ''
 cost.unit.amount:
-  dax_expression: 'VAR TotalCost = SUM ( fact_cost[COGS Amount] )
-
-    VAR OutputUnits = SUM ( fact_output[Output Units] )
-
-    RETURN DIVIDE ( TotalCost, OutputUnits )'
   format_string: ''
   dax_name: Unit Cost Amount
   display_folder: ''
 crm.active_customers.count:
-  dax_expression: DISTINCTCOUNT ( fact_sales[CustomerKey] )
   format_string: ''
   dax_name: Active Customers
   display_folder: ''
 crm.churned_customers.count:
-  dax_expression: "VAR PreviousMonthCustomers =\n    CALCULATETABLE (\n        VALUES\
-    \ ( fact_sales[CustomerKey] ),\n        DATEADD ( dim_date[Date], -1, MONTH )\n\
-    \    )\nVAR CurrentMonthCustomers =\n    VALUES ( fact_sales[CustomerKey] )\n\
-    RETURN\n    COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers\
-    \ ) )"
   format_string: ''
   dax_name: Churned Customers
   display_folder: ''
 crm.clv.amount:
-  dax_expression: "AVERAGEX (\n    VALUES ( fact_sales[CustomerKey] ),\n    CALCULATE\
-    \ (\n        SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods\
-    \ Sold Amount] )\n    ) * 3\n)"
   format_string: ''
   dax_name: CLV
   display_folder: ''
 crm.complaint.count:
-  dax_expression: COUNTROWS ( fact_experience )
   format_string: ''
   dax_name: Complaint Count
   display_folder: ''
 crm.lifetime_revenue.amount:
-  dax_expression: "CALCULATE (\n    SUM ( fact_sales[Net Sales Amount] ),\n    ALLSELECTED\
-    \ ( dim_date )\n)"
   format_string: ''
   dax_name: Customer Lifetime Revenue Amount
   display_folder: ''
 crm.nps.index:
-  dax_expression: 'VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is
-    Promoter] = TRUE () )
-
-    VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Detractor] =
-    TRUE () )
-
-    VAR Total = COUNTROWS ( fact_nps )
-
-    RETURN DIVIDE ( Promoters - Detractors, Total ) * 100'
   format_string: ''
   dax_name: NPS Score
   display_folder: ''
 crm.retention.pct:
-  dax_expression: "VAR CurrentPeriodCustomers =\n    CALCULATE (\n        DISTINCTCOUNT\
-    \ ( fact_sales[CustomerKey] ),\n        FILTER ( ALLSELECTED ( dim_date ), dim_date[Date]\
-    \ = MAX ( dim_date[Date] ) )\n    )\nVAR PreviousPeriodCustomers =\n    CALCULATE\
-    \ (\n        DISTINCTCOUNT ( fact_sales[CustomerKey] ),\n        DATEADD ( dim_date[Date],\
-    \ -1, MONTH )\n    )\nRETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers\
-    \ )"
   format_string: 0.0%
   dax_name: Customer Retention %
   display_folder: ''
 crm.revenue_at_risk.amount:
-  dax_expression: 'VAR ChurnRiskPct = 0.15
-
-    RETURN [CLV] * ChurnRiskPct'
   format_string: ''
   dax_name: Revenue at Risk Amount
   display_folder: ''
 enterprise.action_outcome_rate.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Action Outcome Rate %
   display_folder: ''
@@ -127,34 +70,22 @@ enterprise.action_routed.count:
   dax_name: Actions Routed Count
   display_folder: ''
 enterprise.value_at_risk.index:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: '0'
   dax_name: Enterprise Value-at-Risk Index
   display_folder: ''
 fin.cash.balance:
-  dax_expression: LASTNONBLANKVALUE ( dim_date[Date], SUM ( fact_cash_position[Cash
-    Balance Amount] ) )
   format_string: ''
   dax_name: Cash Balance
   display_folder: ''
 fin.cash.ocf:
-  dax_expression: SUM ( fact_cash_flow[Operating Cash Flow Amount] )
   format_string: ''
   dax_name: Operating Cash Flow
   display_folder: ''
 fin.cash.vs_plan.pct:
-  dax_expression: 'VAR Actual = SUM ( fact_cash_position[Cash Balance Amount] )
-
-    VAR Plan = SUM ( fact_cash_position[Plan Cash Amount] )
-
-    RETURN DIVIDE ( Actual - Plan, Plan )'
   format_string: 0.0%
   dax_name: Cash vs Plan %
   display_folder: ''
 fin.liquidity.inventory.amount:
-  dax_expression: null
   format_string: ''
   dax_name: Inventory Amount
   display_folder: ''
@@ -164,147 +95,74 @@ fin.liquidity.payables.amount:
   dax_name: Payables Amount
   display_folder: ''
 inv.dio.days:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: '0'
   dax_name: Days in Inventory
   display_folder: ''
 inv.obsolete.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Obsolete Inventory %
   display_folder: ''
 inv.stockout.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Stockout Rate %
   display_folder: ''
 inv.turnover:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Inventory Turnover
   display_folder: ''
 margin.cogs.pct:
-  dax_expression: 'VAR COGS = SUM ( fact_finance[COGS Amount] )
-
-    VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
-
-    RETURN DIVIDE ( COGS, NetSales )'
   format_string: 0.0%
   dax_name: COGS % of Sales
   display_folder: ''
 margin.gm.amount:
-  dax_expression: '[Net Sales Amount] - [Cost of Goods Sold Amount]'
   format_string: ''
   dax_name: Gross Margin Amount
   display_folder: ''
 margin.gm.pct:
-  dax_expression: DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net
-    Sales Amount] )
   format_string: 0.0%
   dax_name: Gross Margin %
   display_folder: ''
 margin.gm.vs_plan.pct:
-  dax_expression: "VAR GMAct =\n    DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold\
-    \ Amount], [Net Sales Amount] )\nVAR GMPlan =\n    DIVIDE ( SUM ( fact_sales[Plan\
-    \ Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] ),\n             SUM (\
-    \ fact_sales[Plan Sales Amount] ) )\nRETURN\n    DIVIDE ( GMAct - GMPlan, GMPlan\
-    \ )"
   format_string: 0.0%
   dax_name: Gross Margin % vs Plan
   display_folder: ''
 margin.promo.gm.pct:
-  dax_expression: "CALCULATE (\n    DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold\
-    \ Amount], [Net Sales Amount] ),\n    fact_sales[Promo Flag] = \"Yes\"\n)"
   format_string: 0.0%
   dax_name: GM % During Promo
   display_folder: ''
 ops.availability.pct:
-  dax_expression: 'VAR RunTime = SUM ( fact_ops[Run Time Minutes] )
-
-    VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
-
-    RETURN DIVIDE ( RunTime, PlannedTime )'
   format_string: 0.0%
   dax_name: Availability %
   display_folder: ''
 ops.downtime.pct:
-  dax_expression: 'VAR Downtime = SUM ( fact_ops[Downtime Minutes] )
-
-    VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
-
-    RETURN DIVIDE ( Downtime, PlannedTime )'
   format_string: 0.0%
   dax_name: Downtime %
   display_folder: ''
 ops.downtime.unplanned.pct:
-  dax_expression: 'VAR UnplannedDowntime = SUMX ( fact_ops_failures, fact_ops_failures[Downtime
-    Minutes] )
-
-    VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
-
-    RETURN DIVIDE ( UnplannedDowntime, PlannedTime )'
   format_string: 0.0%
   dax_name: Unplanned Downtime %
   display_folder: ''
 ops.failure.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Failure Count
   display_folder: ''
 ops.labor.productivity.pct:
-  dax_expression: 'VAR OutputUnits = SUM ( fact_output[Output Units] )
-
-    VAR LaborHours = SUM ( fact_labor[Labor Hours] )
-
-    VAR BaselineRate = 100.0
-
-    RETURN DIVIDE ( DIVIDE ( OutputUnits, LaborHours ) * 100, BaselineRate )'
   format_string: 0.0%
   dax_name: Labor Productivity %
   display_folder: ''
 ops.mtbf.hours:
-  dax_expression: 'VAR FailureCount = COUNTROWS ( fact_ops_failures )
-
-    VAR OperatingTime = SUMX ( fact_ops, fact_ops[Run Time Minutes] / 60 )
-
-    RETURN DIVIDE ( OperatingTime, FailureCount )'
   format_string: '0'
   dax_name: MTBF (hours)
   display_folder: ''
 ops.mttr.hours:
-  dax_expression: 'VAR FailureCount = COUNTROWS ( fact_ops_failures )
-
-    VAR TotalRepairTime = SUM ( fact_ops_failures[Repair Duration Hours] )
-
-    RETURN DIVIDE ( TotalRepairTime, FailureCount )'
   format_string: '0'
   dax_name: MTTR (hours)
   display_folder: ''
 ops.oee.pct:
-  dax_expression: '[Availability %] * [Performance %] * [Quality %]'
   format_string: 0.0%
   dax_name: OEE %
   display_folder: ''
 ops.performance.pct:
-  dax_expression: 'VAR ActualOutput = SUM ( fact_ops[Output Units] )
-
-    VAR RunTime = SUM ( fact_ops[Run Time Minutes] )
-
-    VAR StandardRate = AVERAGE ( fact_ops[Standard Rate Units Per Minute] )
-
-    VAR TheoreticalOutput = RunTime * StandardRate
-
-    RETURN DIVIDE ( ActualOutput, TheoreticalOutput )'
   format_string: 0.0%
   dax_name: Performance %
   display_folder: ''
@@ -314,43 +172,22 @@ ops.planned.hours:
   dax_name: Planned Hours
   display_folder: ''
 ops.planned_output.units:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Planned Output Units
   display_folder: ''
 ops.pm.task.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Preventive Maintenance Task Count
   display_folder: ''
 ops.pm_compliance.pct:
-  dax_expression: 'VAR CompletedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order
-    Type] = "PM", fact_maintenance[Order Status] = "Completed" )
-
-    VAR PlannedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order
-    Type] = "PM" )
-
-    RETURN DIVIDE ( CompletedPM, PlannedPM )'
   format_string: 0.0%
   dax_name: PM Compliance %
   display_folder: ''
 ops.quality.defect_rate.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Quality Defect Rate %
   display_folder: ''
 ops.quality.pct:
-  dax_expression: 'VAR GoodUnits = SUM ( fact_ops[Good Units] )
-
-    VAR TotalUnits = SUM ( fact_ops[Output Units] )
-
-    RETURN DIVIDE ( GoodUnits, TotalUnits )'
   format_string: 0.0%
   dax_name: Quality %
   display_folder: ''
@@ -362,31 +199,18 @@ ops.safety.incident.count:
   dax_name: Safety Incident Count
   display_folder: ''
 ops.spare_parts.stockout.pct:
-  dax_expression: 'VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ),
-    fact_maintenance[Parts Stockout Flag] = TRUE () )
-
-    VAR TotalRequests = COUNTROWS ( fact_maintenance )
-
-    RETURN DIVIDE ( StockoutCount, TotalRequests )'
   format_string: 0.0%
   dax_name: Spare Parts Stockout %
   display_folder: ''
 ops.throughput.units:
-  dax_expression: SUM ( fact_ops[Output Units] )
   format_string: ''
   dax_name: Throughput Units
   display_folder: ''
 ops.working_capital.ccc.days:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: '0'
   dax_name: Cash Conversion Cycle (Days)
   display_folder: ''
 order.lines:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Order Lines Count
   display_folder: ''
@@ -405,16 +229,10 @@ people.digital_adoption.pct:
   dax_name: Digital Adoption Rate %
   display_folder: ''
 plan.forecast.accuracy.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Forecast Accuracy %
   display_folder: ''
 plan.forecast.bias.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Forecast Bias %
   display_folder: ''
@@ -433,195 +251,114 @@ plan.forecast.service_impact.pct:
   dax_name: Service Impact %
   display_folder: ''
 plans.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Plans Count
   display_folder: ''
 quality.complaint.pct:
-  dax_expression: 'VAR Complaints = SUM ( fact_complaints[Complaint Count] )
-
-    VAR ShippedUnits = SUM ( fact_shipments[Shipped Units] )
-
-    RETURN DIVIDE ( Complaints, ShippedUnits )'
   format_string: 0.0%
   dax_name: Complaint Rate %
   display_folder: ''
 quality.copq.amount:
-  dax_expression: SUM ( fact_quality_costs[COPQ Amount] )
   format_string: ''
   dax_name: Cost of Poor Quality
   display_folder: ''
 quality.defect_density:
-  dax_expression: 'VAR DefectCount = SUM ( fact_quality[Defect Count] )
-
-    VAR TotalUnits = SUM ( fact_quality[Total Units] )
-
-    RETURN DIVIDE ( DefectCount, TotalUnits ) * 1000'
   format_string: ''
   dax_name: Defect Density
   display_folder: ''
 quality.fpy.pct:
-  dax_expression: 'VAR GoodUnits = SUM ( fact_quality[Good Units] )
-
-    VAR TotalUnits = SUM ( fact_quality[Total Units] )
-
-    RETURN DIVIDE ( GoodUnits, TotalUnits )'
   format_string: 0.0%
   dax_name: First Pass Yield %
   display_folder: ''
 quality.rework.pct:
-  dax_expression: 'VAR ReworkUnits = SUM ( fact_quality[Rework Units] )
-
-    VAR TotalUnits = SUM ( fact_quality[Total Units] )
-
-    RETURN DIVIDE ( ReworkUnits, TotalUnits )'
   format_string: 0.0%
   dax_name: Rework Rate %
   display_folder: ''
 quality.scrap.pct:
-  dax_expression: 'VAR ScrapUnits = SUM ( fact_quality[Scrap Units] )
-
-    VAR TotalUnits = SUM ( fact_quality[Total Units] )
-
-    RETURN DIVIDE ( ScrapUnits, TotalUnits )'
   format_string: 0.0%
   dax_name: Scrap Rate %
   display_folder: ''
 res.occupancy.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Occupancy %
   display_folder: ''
 res.overtime.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Overtime %
   display_folder: ''
 res.shrinkage.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Shrinkage %
   display_folder: ''
 res.utilization.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Utilization %
   display_folder: ''
 sales.net_sales.amount:
-  dax_expression: SUM ( fact_sales[Net Sales Amount] )
   format_string: ''
   dax_name: Net Sales Amount
   display_folder: ''
 sales.net_sales.delta_pct.ly:
-  dax_expression: 'VAR Actual = [Net Sales Amount]
-
-    VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
-
-    RETURN DIVIDE ( Actual - LY, LY )'
   format_string: 0.0%
   dax_name: Delta% Net Sales
   display_folder: ''
 sales.net_sales.delta_pct.plan:
-  dax_expression: 'VAR Actual = [Net Sales Amount]
-
-    VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
-
-    RETURN DIVIDE ( Actual - Plan, Plan )'
   format_string: 0.0%
   dax_name: Net Sales % vs Plan
   display_folder: ''
 sales.price.list.amount:
-  dax_expression: SUM ( fact_sales[List Price Amount] )
   format_string: ''
   dax_name: List Price Amount
   display_folder: ''
 sales.price.net.amount:
-  dax_expression: SUM ( fact_sales[Net Price Amount] )
   format_string: ''
   dax_name: Net Price Amount
   display_folder: ''
 sales.price.realization_pct:
-  dax_expression: DIVIDE ( [Net Price Amount], [List Price Amount] )
   format_string: 0.0%
   dax_name: Price Realization %
   display_folder: ''
 sales.promo.baseline_sales.amount:
-  dax_expression: SUM ( fact_promo[Baseline Sales Amount] )
   format_string: ''
   dax_name: Baseline Sales Amount
   display_folder: ''
 sales.promo.cannibalization.pct:
-  dax_expression: DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount]
-    )
   format_string: 0.0%
   dax_name: Cannibalization %
   display_folder: ''
 sales.promo.cannibalized_sales.amount:
-  dax_expression: 'VAR ActualNonPromoSales = CALCULATE ( SUM ( fact_sales[Net Sales
-    Amount] ), fact_sales[Promo Flag] = FALSE () )
-
-    VAR BaselineNonPromoSales = SUM ( fact_promo[Baseline Non-Promo Sales Amount]
-    )
-
-    RETURN MAX ( 0, BaselineNonPromoSales - ActualNonPromoSales )'
   format_string: ''
   dax_name: Cannibalized Sales Amount
   display_folder: ''
 sales.promo.cost.amount:
-  dax_expression: SUM ( fact_promo[Promo Cost] )
   format_string: ''
   dax_name: Promo Cost
   display_folder: ''
 sales.promo.incremental.amount:
-  dax_expression: '[Net Sales Amount] - [Baseline Sales Amount]'
   format_string: ''
   dax_name: Incremental Sales Amount
   display_folder: ''
 sales.promo.incremental_gm.amount:
-  dax_expression: '[Incremental Sales Amount] * 0.35'
   format_string: ''
   dax_name: Incremental Gross Margin Amount
   display_folder: ''
 sales.promo.roi.pct:
-  dax_expression: DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
   format_string: 0.0%
   dax_name: Promo ROI %
   display_folder: ''
 sales.pvm.mix_effect.amount:
-  dax_expression: "[Net Sales Amount]\n    - SUM ( fact_sales[Plan Sales Amount] )\n\
-    \    - [Price Effect Amount]\n    - [Volume Effect Amount]"
   format_string: ''
   dax_name: Mix Effect Amount
   display_folder: ''
 sales.pvm.price_effect.amount:
-  dax_expression: "SUMX (\n    fact_sales,\n    VAR ActualPrice = DIVIDE ( fact_sales[Net\
-    \ Sales Amount], fact_sales[Quantity] )\n    VAR PlanPrice   = DIVIDE ( fact_sales[Plan\
-    \ Sales Amount], fact_sales[Plan Quantity] )\n    RETURN ( ActualPrice - PlanPrice\
-    \ ) * fact_sales[Quantity]\n)"
   format_string: ''
   dax_name: Price Effect Amount
   display_folder: ''
 sales.pvm.volume_effect.amount:
-  dax_expression: "SUMX (\n    fact_sales,\n    VAR ActualQty = fact_sales[Quantity]\n\
-    \    VAR PlanQty   = fact_sales[Plan Quantity]\n    VAR PlanPrice = DIVIDE ( fact_sales[Plan\
-    \ Sales Amount], PlanQty )\n    RETURN ( ActualQty - PlanQty ) * PlanPrice\n)"
   format_string: ''
   dax_name: Volume Effect Amount
   display_folder: ''
 sales.units:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Sales Units
   display_folder: ''
@@ -633,156 +370,74 @@ scm.supplier_risk.score:
   dax_name: Supplier Risk Score
   display_folder: ''
 shipments.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Shipments Count
   display_folder: ''
 supply.expedite.amount:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Expedite Cost Amount
   display_folder: ''
 supply.in_full.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: In-Full %
   display_folder: ''
 supply.on_time.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: On-Time %
   display_folder: ''
 supply.otif.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: OTIF %
   display_folder: ''
 supply.penalty.amount:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Penalty Amount
   display_folder: ''
 supply.stockout_impact.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Stockout Impact %
   display_folder: ''
 svc.aht.minutes:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: AHT Minutes
   display_folder: ''
 svc.backlog.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Backlog Count
   display_folder: ''
 svc.escalation.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: Escalation %
   display_folder: ''
 svc.fcr.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: FCR %
   display_folder: ''
 svc.sla.attainment.pct:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: 0.0%
   dax_name: SLA Attainment %
   display_folder: ''
 svc.tickets.closed.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Tickets Closed Count
   display_folder: ''
 svc.tickets.created.count:
-  dax_expression: '-- TBD: see Measure Dictionary
-
-    BLANK()'
   format_string: ''
   dax_name: Tickets Created Count
   display_folder: ''
 wc.ccc.days:
-  dax_expression: '[DSO Days] + [DIO Days] - [DPO Days]'
   format_string: '0'
   dax_name: CCC Days
   display_folder: ''
 wc.dio.days:
-  dax_expression: 'VAR AvgInventoryBalance =
-
-    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_inventory[Average
-    Inventory Amount] ) ) )
-
-    VAR AnnualCOGS =
-
-    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[COGS
-    Amount] ) ) ) * 12
-
-    RETURN
-
-    DIVIDE ( AvgInventoryBalance * 365, AnnualCOGS )'
   format_string: '0'
   dax_name: DIO Days
   display_folder: ''
 wc.dpo.days:
-  dax_expression: 'VAR AvgPayablesBalance =
-
-    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[AP
-    Amount] ) ) )
-
-    VAR AnnualCOGS =
-
-    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[COGS
-    Amount] ) ) ) * 12
-
-    RETURN
-
-    DIVIDE ( AvgPayablesBalance * 365, AnnualCOGS )'
   format_string: '0'
   dax_name: DPO Days
   display_folder: ''
 wc.dso.days:
-  dax_expression: 'VAR AvgReceivablesBalance =
-
-    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_receivable[AR
-    Amount] ) ) )
-
-    VAR AnnualRevenue =
-
-    AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_receivable[Revenue
-    Amount] ) ) ) * 12
-
-    RETURN
-
-    DIVIDE ( AvgReceivablesBalance * 365, AnnualRevenue )'
   format_string: '0'
   dax_name: DSO Days
   display_folder: ''
