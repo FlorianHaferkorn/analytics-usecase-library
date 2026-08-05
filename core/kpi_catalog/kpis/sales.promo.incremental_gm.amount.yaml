@@ -16,7 +16,7 @@ business:
   purpose: Incremental gross margin from promotions for ROI numerator.
   definition: Incremental sales minus incremental COGS; proxy here as share of incremental sales.
   grain_scope: Promo / period.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Input to Promo ROI %.
 technical:
   measure_name: Incremental Gross Margin Amount
@@ -61,5 +61,5 @@ standard_ref:
 - standard: Trade Promotion Management (convention)
   name: Promo incremental gross margin
   alignment: none
-  note: Incremental promo GM is a TPM metric; the GM base ties to IFRS 15 revenue / IAS 2 COGS, but the
-    incremental construct itself is convention, not a standard.
+  note: Incremental promo GM is a TPM metric; the GM base ties to IFRS 15 revenue / IAS 2 COGS, but the incremental
+    construct itself is convention, not a standard.

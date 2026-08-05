@@ -21,7 +21,7 @@ business:
   purpose: Measures days payables outstanding.
   definition: Payables / (COGS / 365).
   grain_scope: Company/segment; monthly close.
-  unit_format: days
+  unit_format: days_0
   interpretation: Higher values improve cash but may impact supplier terms.
 technical:
   measure_name: DPO Days

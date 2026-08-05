@@ -25,7 +25,7 @@ business:
   purpose: Absolute gross margin in currency.
   definition: Net Sales Amount - COGS Amount
   grain_scope: Aggregated from invoice_line to reporting period.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Explains profitability magnitude before OpEx.
 technical:
   measure_name: Gross Margin Amount
@@ -62,6 +62,6 @@ standard_ref:
   name: Gross profit subtotal
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
   alignment: partial
-  note: Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated
-    line item. Aligns when Net Sales = IFRS 15 revenue and COGS = IAS 2 cost of sales. IFRS 18 (eff. 1
-    Jan 2027) formalises defined operating subtotals.
+  note: Gross profit (Revenue − Cost of sales) is an illustrative IAS 1 by-function subtotal, not a mandated line
+    item. Aligns when Net Sales = IFRS 15 revenue and COGS = IAS 2 cost of sales. IFRS 18 (eff. 1 Jan 2027) formalises
+    defined operating subtotals.

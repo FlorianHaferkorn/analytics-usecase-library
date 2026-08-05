@@ -15,7 +15,7 @@ business:
   purpose: Measures lost demand share due to stockouts.
   definition: Lost Demand Qty / Total Demand Qty.
   grain_scope: SKU/location/day; aggregated weekly or monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; ties inventory and service performance.
 technical:
   measure_name: Stockout Impact %

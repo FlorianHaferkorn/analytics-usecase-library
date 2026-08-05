@@ -21,7 +21,7 @@ business:
   purpose: Measures cash conversion cycle length.
   definition: DSO + DIO - DPO.
   grain_scope: Company/segment; monthly close.
-  unit_format: days
+  unit_format: days_0
   interpretation: Lower values indicate faster cash recovery.
 technical:
   measure_name: CCC Days

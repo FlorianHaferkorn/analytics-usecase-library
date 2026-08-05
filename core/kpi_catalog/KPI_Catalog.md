@@ -26,7 +26,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
     definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
     grain_scope: Customer level; calculated on cohort or segment basis.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
   technical:
     measure_name: CLV
@@ -76,7 +76,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Quantify revenue exposure proportional to the customer attrition rate.
     definition: Net Sales Amount × (Churned Customers / Active Customers).
     grain_scope: Customer/segment; monthly.
-    unit_format: EUR (0 decimals)
+    unit_format: eur_0
     interpretation: Higher values indicate more revenue at risk from customer churn; prioritize retention actions on high-value at-risk segments.
   technical:
     measure_name: Revenue at Risk Amount
@@ -144,7 +144,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Provide the absolute number of logged complaints.
     definition: Count of complaint records in the complaint/service system.
     grain_scope: Complaint / ticket; aggregated to org / channel / product / period.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher values indicate more issues; interpret with Complaint Rate % to normalize by volume.
   technical:
     measure_name: Complaint Count
@@ -190,7 +190,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
     definition: (Active Customers at end of period) / (Active Customers at start of period).
     grain_scope: Customer / segment / org; monthly or quarterly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher retention indicates better loyalty and relationship quality; interpret jointly with churn and CLV.
   technical:
     measure_name: Customer Retention %
@@ -261,7 +261,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures customer advocacy and likelihood to recommend.
     definition: (%Promoters - %Detractors) from survey responses in the period.
     grain_scope: Survey response aggregated by period, segment, or region.
-    unit_format: Index (-100 to 100)
+    unit_format: index_signed_0
     interpretation: '''>0 is positive, >50 strong advocacy; track trend and segment gaps.'''
   technical:
     measure_name: NPS Index
@@ -328,7 +328,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
     definition: Distinct customers with no qualifying transactions in the current period but active in the look-back window.
     grain_scope: Customer/segment; monthly or quarterly.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate deteriorating retention; validate against cohort definitions.
   technical:
     measure_name: Churned Customers
@@ -376,7 +376,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Sum of realized revenue across the customer lifecycle.
     definition: Sum of net sales amount from first purchase to date for the customer.
     grain_scope: Customer/segment; monthly or quarterly.
-    unit_format: EUR (0 decimals)
+    unit_format: eur_0
     interpretation: Base for concentration and CLV inputs.
   technical:
     measure_name: Customer Lifetime Revenue Amount
@@ -424,7 +424,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Number of unique active customers in the reporting period.
     definition: Distinct customers with at least one qualifying transaction in the period.
     grain_scope: Customer/segment; monthly or quarterly.
-    unit_format: count
+    unit_format: count_0
     interpretation: Base for retention, churn and at-risk share calculations.
   technical:
     measure_name: Active Customers
@@ -481,7 +481,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Throughput speed versus theoretical maximum.
     definition: Actual output / Theoretical maximum output
     grain_scope: Machine/line level; per shift or day, aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher performance indicates faster throughput; values above 100 % require validation of standard rates.
   technical:
     measure_name: Performance %
@@ -550,7 +550,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Yield of conforming units relative to total units produced.
     definition: Good units / Total units
     grain_scope: Machine/line level; per shift or day, aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher quality means fewer defects; low values indicate scrap/rework issues.
   technical:
     measure_name: Quality %
@@ -602,7 +602,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Shows output efficiency relative to labor input.
     definition: Output Units or Net Sales divided by Labor Hours (normalized to % baseline).
     grain_scope: Line/site; reported weekly or monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher values indicate better labor efficiency; validate against mix effects.
   technical:
     measure_name: Labor Productivity %
@@ -662,7 +662,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures average operating time between failures.
     definition: Operating Time Hours / Number of Failures.
     grain_scope: Asset/line; aggregated monthly.
-    unit_format: hours
+    unit_format: hours_0
     interpretation: Higher is better; declining MTBF indicates reliability issues.
   technical:
     measure_name: MTBF (hours)
@@ -726,7 +726,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures average repair time after failures.
     definition: Total Repair Time Hours / Number of Failures.
     grain_scope: Asset/line; aggregated monthly.
-    unit_format: hours
+    unit_format: hours_0
     interpretation: Lower is better; high MTTR indicates slow recovery or parts issues.
   technical:
     measure_name: MTTR (hours)
@@ -778,7 +778,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Tracks adherence to preventive maintenance plan.
     definition: Completed PM Orders / Planned PM Orders.
     grain_scope: Site/asset; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; low compliance increases breakdown risk.
   technical:
     measure_name: PM Compliance %
@@ -842,7 +842,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures stockout frequency for critical spare parts.
     definition: Stockout Events / Total Parts Requests.
     grain_scope: Site/part; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; stockouts drive downtime and MTTR.
   technical:
     measure_name: Spare Parts Stockout %
@@ -894,7 +894,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures total output volume in units.
     definition: Sum of produced units in the period.
     grain_scope: Line/day; aggregated to site and month.
-    unit_format: units
+    unit_format: units_0
     interpretation: Higher values indicate higher output; analyze against capacity and demand.
   technical:
     measure_name: Throughput Units
@@ -949,7 +949,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of units produced without rework or scrap.
     definition: Good Units / Total Units.
     grain_scope: Line/day; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; low FPY indicates process instability.
   technical:
     measure_name: First Pass Yield %
@@ -1016,7 +1016,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of units scrapped in production.
     definition: Scrap Units / Total Units.
     grain_scope: Line/day; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; rising scrap increases cost and reduces yield.
   technical:
     measure_name: Scrap Rate %
@@ -1070,7 +1070,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of units requiring rework.
     definition: Reworked Units / Total Units.
     grain_scope: Line/day; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; high rework impacts throughput and cost.
   technical:
     measure_name: Rework Rate %
@@ -1124,7 +1124,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Captures financial impact of scrap, rework, and warranty/complaints.
     definition: Sum of cost impacts for quality failures in period.
     grain_scope: Site/month; aggregated to business unit.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Lower is better; high COPQ indicates process and supplier issues.
   technical:
     measure_name: Cost of Poor Quality
@@ -1171,7 +1171,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures customer complaints relative to shipped units.
     definition: Complaint Count / Units Shipped.
     grain_scope: Product/month; aggregated to business unit.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; spikes indicate quality or service issues.
   technical:
     measure_name: Complaint Rate %
@@ -1226,7 +1226,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures defect count per 1,000 units produced.
     definition: (Defect Count / Total Units) * 1,000.
     grain_scope: Line/day; aggregated monthly.
-    unit_format: defects per 1k units
+    unit_format: defects_per_1k_0
     interpretation: Lower is better; indicates process stability.
   technical:
     measure_name: Defect Density
@@ -1288,7 +1288,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures inventory holding period in days.
     definition: Average Inventory / (COGS / 365).
     grain_scope: SKU/location; aggregated monthly.
-    unit_format: days
+    unit_format: days_0
     interpretation: Higher values indicate slower movement and more cash tied up.
   technical:
     measure_name: Days in Inventory
@@ -1352,7 +1352,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures how often inventory is unavailable when demanded.
     definition: Stockout Events / Total Demand Events.
     grain_scope: SKU/location; aggregated weekly or monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; high stockout rate impacts service and revenue.
   technical:
     measure_name: Stockout Rate %
@@ -1403,7 +1403,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures the value of inventory exceeding forward demand cover.
     definition: Inventory value exceeding X months of forward demand (typically > 6 months of projected consumption). Primary working capital lock-up driver when DIO is high.
     grain_scope: SKU/location; aggregated to product category and plant monthly.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Lower is better; excess inventory ties up working capital and increases obsolescence risk. Reduction directly improves DIO and cash conversion.
   technical:
     measure_name: Excess Inventory Amount
@@ -1458,7 +1458,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of inventory considered obsolete.
     definition: Obsolete Inventory Value / Total Inventory Value.
     grain_scope: SKU/location; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; high obsolescence indicates slow movement or aging.
   technical:
     measure_name: Obsolete Inventory %
@@ -1520,7 +1520,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures how close forecasted demand is to actual demand.
     definition: 1 - |Forecast - Actual| / Actual.
     grain_scope: SKU/week; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; low accuracy drives inventory and service issues.
   technical:
     measure_name: Forecast Accuracy %
@@ -1585,7 +1585,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures systematic over- or under-forecasting.
     definition: (Forecast - Actual) / Actual.
     grain_scope: SKU/week; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Values near 0 are best; positive bias indicates over-forecasting.
   technical:
     measure_name: Forecast Bias %
@@ -1659,7 +1659,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of orders delivered on time and in full.
     definition: OTIF Orders / Total Orders.
     grain_scope: Order/day; aggregated weekly or monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; key service level indicator.
   technical:
     measure_name: OTIF %
@@ -1718,7 +1718,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of deliveries arriving on time.
     definition: On-Time Deliveries / Total Deliveries.
     grain_scope: Delivery/day; aggregated weekly or monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; analyze by carrier and lane.
   technical:
     measure_name: On-Time %
@@ -1767,7 +1767,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures lost demand share due to stockouts.
     definition: Lost Demand Qty / Total Demand Qty.
     grain_scope: SKU/location/day; aggregated weekly or monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; ties inventory and service performance.
   technical:
     measure_name: Stockout Impact %
@@ -1819,7 +1819,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Captures additional cost for expedited shipments.
     definition: Sum of expedite fees and premium freight charges.
     grain_scope: Shipment/month.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Lower is better; high values indicate planning or supply issues.
   technical:
     measure_name: Expedite Cost Amount
@@ -1867,7 +1867,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Captures penalties for service level breaches.
     definition: Sum of penalty charges incurred in the period.
     grain_scope: Order/month.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Lower is better; high penalties signal delivery or quality issues.
   technical:
     measure_name: Penalty Amount
@@ -1914,7 +1914,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).
     definition: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
     grain_scope: Calculated at location_sku_day or sku_week; reported at sku_month aggregated by Date, Org, Product.
-    unit_format: '%'
+    unit_format: percent_1
     interpretation: Lower values are better; high impact indicates forecast under-coverage driving service loss.
   technical:
     measure_name: Service Impact %
@@ -1974,7 +1974,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures manufacturing performance combining availability, performance, and quality.
     definition: Availability % * Performance % * Quality %
     grain_scope: Production line; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher OEE indicates better utilization; capped at 100 %.
   technical:
     measure_name: OEE %
@@ -2034,7 +2034,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts equipment or process failures in the period.
     definition: Count of recorded failure events.
     grain_scope: Asset or line; aggregated by period.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate lower reliability.
   technical:
     measure_name: Failure Count
@@ -2084,7 +2084,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Captures planned production output volume.
     definition: Sum over line/day of (Standard Rate Units Per Minute * Planned Time Minutes).
     grain_scope: Line/site; aggregated by period.
-    unit_format: units
+    unit_format: units_0
     interpretation: Baseline for comparing actual throughput.
   technical:
     measure_name: Planned Output Units
@@ -2132,7 +2132,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts preventive maintenance tasks executed or scheduled.
     definition: Count of PM tasks in the period.
     grain_scope: Asset; aggregated by period.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate more planned maintenance activity.
   technical:
     measure_name: Preventive Maintenance Task Count
@@ -2176,7 +2176,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of defective units in production.
     definition: Defective Units / Total Produced Units.
     grain_scope: Line/shift; aggregated by period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower values indicate better quality.
   technical:
     measure_name: Quality Defect Rate %
@@ -2226,7 +2226,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts safety incidents recorded in the period.
     definition: Count of recorded safety incidents.
     grain_scope: Site; aggregated by period.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate higher safety risk.
   technical:
     measure_name: Safety Incident Count
@@ -2274,7 +2274,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts order lines processed in the period.
     definition: Count of order line items.
     grain_scope: Order line; aggregated by period and channel.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate higher order volume.
   technical:
     measure_name: Order Lines Count
@@ -2322,7 +2322,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts planning cycles or plan versions in the period.
     definition: Count of plan records or plan versions.
     grain_scope: Plan; aggregated by period.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate more planning activity.
   technical:
     measure_name: Plans Count
@@ -2370,7 +2370,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts shipments executed in the period.
     definition: Count of shipment records.
     grain_scope: Shipment; aggregated by period and carrier.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate higher fulfillment activity.
   technical:
     measure_name: Shipments Count
@@ -2425,7 +2425,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Uptime share relative to planned production time.
     definition: Available time / Planned time
     grain_scope: Machine/line level; per shift or day, aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher availability indicates less downtime; low values typically reflect maintenance or scheduling issues.
   technical:
     measure_name: Availability %
@@ -2476,7 +2476,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Combines receivables, inventory, and payables days to show cash efficiency.
     definition: DSO + DIO - DPO, where DSO/DIO/DPO are proxy days computed from Net Sales/COGS Amount (Net Sales * 12% * 365 / Net Sales; COGS * 15% * 365 / COGS; COGS * 8% * 365 / COGS) — a fixed-ratio proxy used in Experience-domain executive reporting where the real receivables/inventory/payables fact tables (used by Finance's wc.ccc.days) are not available.
     grain_scope: Company / region level.
-    unit_format: days
+    unit_format: days_0
     interpretation: Lower CCC means faster cash conversion and lower working capital.
   technical:
     measure_name: Cash Conversion Cycle (Days)
@@ -2564,7 +2564,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of planned production time lost to downtime.
     definition: Downtime Minutes / Planned Time Minutes.
     grain_scope: Line/day aggregated to plant and period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; analyze downtime drivers and loss categories.
   technical:
     measure_name: Downtime %
@@ -2623,7 +2623,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures unplanned downtime share of planned time.
     definition: Unplanned Downtime Minutes / Planned Time Minutes.
     grain_scope: Line/day aggregated to plant and period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; track reliability and maintenance effectiveness.
   technical:
     measure_name: Unplanned Downtime %
@@ -2675,7 +2675,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Isolates chronic speed reduction from intermittent minor stops.
     definition: Speed Loss = (1 - Performance Rate) adjusted to exclude minor stop events. Corresponds to Six Big Losses Category 4 (Reduced Speed).
     grain_scope: Line/shift aggregated to plant and period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; speed losses are often misclassified as acceptable safety margin versus ISO ideal cycle time.
   technical:
     measure_name: Speed Loss Rate %
@@ -2726,7 +2726,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures time lost to product or format changeovers.
     definition: Average minutes from last good piece of previous run to first good piece of next run, including mechanical setup, parameter adjustment, and trial run waste. Directly drives Six Big Losses Category 2 (Setup & Adjustment).
     grain_scope: Changeover event level; aggregated by line and period.
-    unit_format: minutes (1 decimal)
+    unit_format: minutes_1
     interpretation: Lower is better; SMED methodology targets < 10 minutes for high-mix lines.
   technical:
     measure_name: Changeover Time Minutes
@@ -2781,7 +2781,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures how often inventory is sold and replaced.
     definition: COGS / Average Inventory.
     grain_scope: SKU/location; aggregated monthly.
-    unit_format: turns
+    unit_format: eur_0
     interpretation: Higher turnover indicates better inventory velocity; too high may risk stockouts.
   technical:
     measure_name: Inventory Turnover
@@ -2841,7 +2841,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures mean absolute percentage error in forecast.
     definition: Mean(|Forecast - Actual| / Actual).
     grain_scope: SKU/week; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; high MAPE indicates unstable demand or poor model fit.
   technical:
     measure_name: Forecast MAPE %
@@ -2894,7 +2894,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of deliveries with complete quantities.
     definition: In-Full Deliveries / Total Deliveries.
     grain_scope: Delivery/day; aggregated weekly or monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; low values indicate allocation or stock issues.
   technical:
     measure_name: In-Full %
@@ -2942,7 +2942,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of actions that achieved the intended outcome.
     definition: Rows in fact_action_outcome with outcome_status = "achieved" divided by all rows in fact_action_outcome.
     grain_scope: Action instance; aggregated by period and domain.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher values indicate better execution effectiveness.
   technical:
     measure_name: Action Outcome Rate %
@@ -2998,7 +2998,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Average EUR impact per achieved action execution — realized KPI delta per code.
     definition: Average impact_value across achieved rows in fact_action_outcome.
     grain_scope: Action instance; aggregated by period and domain.
-    unit_format: EUR (#,0)
+    unit_format: eur_0
     interpretation: Higher values indicate stronger KPI improvement per action code execution.
   technical:
     measure_name: Action Effectiveness Delta
@@ -3050,7 +3050,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts action codes routed for execution.
     definition: Count of routed action instances in the period.
     grain_scope: Action instance; aggregated by period and domain.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate more routed actions.
   technical:
     measure_name: Actions Routed Count
@@ -3093,7 +3093,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Total list price (before discounts) for price realization and discount analysis.
     definition: Sum of list price amount at invoice line grain.
     grain_scope: Invoice line aggregated to reporting period.
-    unit_format: currency
+    unit_format: eur_0
     interpretation: Base for Price Realization %; required input for sales.price.realization_pct.
   technical:
     measure_name: List Price Amount
@@ -3139,7 +3139,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Total net price (after discounts) for price realization and discount analysis.
     definition: Sum of net price amount at invoice line grain.
     grain_scope: Invoice line aggregated to reporting period.
-    unit_format: currency
+    unit_format: eur_0
     interpretation: Numerator for Price Realization %; required input for sales.price.realization_pct.
   technical:
     measure_name: Net Price Amount
@@ -3186,7 +3186,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Shows how much of list price is realized after discounts.
     definition: Net Price Amount / List Price Amount.
     grain_scope: Invoice line aggregated to reporting period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Values below 100% indicate discounting; values above 100% indicate uplift vs list price.
   technical:
     measure_name: Price Realization %
@@ -3242,7 +3242,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Captures the residual effect from changes in product, channel, or region mix.
     definition: Total variance - Price Effect - Volume Effect.
     grain_scope: Aggregated to reporting period / segment.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Explains whether composition shifts drive positive or negative outcomes.
   technical:
     measure_name: Mix Effect Amount
@@ -3300,7 +3300,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Total invoiced revenue net of discounts and returns.
     definition: Sum of all invoice line amounts net of VAT and returns.
     grain_scope: Invoice line.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Represents total top-line sales.
   technical:
     measure_name: Net Sales Amount
@@ -3345,7 +3345,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Relative variance of Net Sales vs Last Year.
     definition: (Net Sales - LY) / LY
     grain_scope: Aggregated to reporting period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Shows growth rate vs prior year.
   technical:
     measure_name: Delta% Net Sales
@@ -3401,7 +3401,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Relative variance of Net Sales vs Plan.
     definition: (Net Sales Amount - Plan Sales Amount) / Plan Sales Amount
     grain_scope: Aggregated to reporting period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Positive values indicate outperformance vs plan; negative values indicate shortfall.
   technical:
     measure_name: Net Sales % vs Plan
@@ -3452,7 +3452,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Quantifies the pure price impact in the PVM bridge.
     definition: (Actual Price - Plan Price) x Actual Quantity.
     grain_scope: Aggregated to reporting period / segment.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Positive values indicate price gains; negative values represent price pressure.
   technical:
     measure_name: Price Effect Amount
@@ -3503,7 +3503,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures the variance caused purely by quantity changes at plan price.
     definition: (Actual Quantity - Plan Quantity) x Plan Price.
     grain_scope: Aggregated to reporting period / segment.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Positive values indicate higher volume than plan; negative values indicate volume shortfalls.
   technical:
     measure_name: Volume Effect Amount
@@ -3561,7 +3561,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures sold units volume in the period.
     definition: Sum of sold units across transactions.
     grain_scope: Transaction line; aggregated by period and segment.
-    unit_format: units
+    unit_format: units_0
     interpretation: Higher values indicate higher volume sold.
   technical:
     measure_name: Sales Units
@@ -3606,7 +3606,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
     definition: Digital Transactions Count / Total Transactions Count for eligible processes.
     grain_scope: Process area / org; aggregated monthly or quarterly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher values indicate greater adoption of digital processes; low values show manual work and automation potential.
   technical:
     measure_name: Digital Adoption Rate %
@@ -3650,7 +3650,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Monitor risk of employee attrition across key roles and segments.
     definition: Probability of attrition for the selected population in the period.
     grain_scope: Org/role/segment; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher values signal retention risk and require targeted actions.
   technical:
     measure_name: Attrition Risk %
@@ -3704,7 +3704,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures days sales outstanding for receivables.
     definition: Receivables / (Net Sales / 365).
     grain_scope: Company/segment; monthly close.
-    unit_format: days
+    unit_format: days_0
     interpretation: Lower is better; rising DSO indicates collection issues.
   technical:
     measure_name: DSO Days
@@ -3773,7 +3773,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Provide closing inventory value for working capital and liquidity metrics.
     definition: Inventory value at period end at reporting valuation (e.g., standard or average cost).
     grain_scope: Company/segment; monthly or quarterly closing.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Higher values increase working capital needs; validate against seasonality and service targets.
   technical:
     measure_name: Inventory Amount
@@ -3821,7 +3821,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Track accounts payable balances used in DPO and working capital analysis.
     definition: Accounts payable balance at period end.
     grain_scope: Company/segment; monthly or quarterly closing.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Higher balances increase working capital funding but can signal payment delays; compare to terms.
   technical:
     measure_name: Payables Amount
@@ -3866,7 +3866,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Scheduled production time allocated for machines/lines.
     definition: Sum of planned production hours
     grain_scope: Machine/line level; per shift/day, aggregated monthly.
-    unit_format: hours
+    unit_format: hours_0
     interpretation: Capacity baseline for utilization and downtime; compare with actual runtime and downtime.
   technical:
     measure_name: Planned Hours
@@ -3919,7 +3919,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures days inventory outstanding.
     definition: Inventory / (COGS / 365).
     grain_scope: Company/segment; monthly close.
-    unit_format: days
+    unit_format: days_0
     interpretation: Lower is better; high DIO increases cash tied up in stock.
   technical:
     measure_name: DIO Days
@@ -3994,7 +3994,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures days payables outstanding.
     definition: Payables / (COGS / 365).
     grain_scope: Company/segment; monthly close.
-    unit_format: days
+    unit_format: days_0
     interpretation: Higher values improve cash but may impact supplier terms.
   technical:
     measure_name: DPO Days
@@ -4069,7 +4069,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures cash conversion cycle length.
     definition: DSO + DIO - DPO.
     grain_scope: Company/segment; monthly close.
-    unit_format: days
+    unit_format: days_0
     interpretation: Lower values indicate faster cash recovery.
   technical:
     measure_name: CCC Days
@@ -4139,7 +4139,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Tracks cash and cash equivalents at period end.
     definition: Cash and cash equivalents balance.
     grain_scope: Company/segment; monthly close.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Higher balance improves liquidity buffer; consider seasonality and debt strategy.
   technical:
     measure_name: Cash Balance
@@ -4196,7 +4196,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures the proportion of accounts receivable past due date.
     definition: Overdue AR (past due date) / Total AR × 100. Customer-level overdue analysis enables targeted collection.
     grain_scope: Customer/entity level; aggregated monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher overdue AR directly increases DSO. Values > 15 % signal systemic collection issues.
   technical:
     measure_name: Overdue AR %
@@ -4257,7 +4257,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures cash generated by operating activities.
     definition: Net cash flows from operations for the period.
     grain_scope: Company/segment; monthly close.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Positive values improve liquidity; negative values require investigation.
   technical:
     measure_name: Operating Cash Flow
@@ -4312,7 +4312,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures deviation of cash balance versus plan.
     definition: (Cash Balance - Cash Plan) / Cash Plan.
     grain_scope: Company/segment; monthly close.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Positive values indicate higher cash than planned.
   technical:
     measure_name: Cash vs Plan %
@@ -4368,7 +4368,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Total cost of goods sold for invoiced revenue; base for margin and PVM.
     definition: Sum of invoice line COGS amounts.
     grain_scope: Invoice line.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Input to Gross Margin % and PVM; must align with P&L COGS.
   technical:
     measure_name: Cost of Goods Sold Amount
@@ -4623,7 +4623,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
     definition: (Net Sales Amount - COGS Amount) / Net Sales Amount
     grain_scope: Invoice line aggregated to reporting period, org, customer or product segments.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Values above 0 % indicate positive gross profit; trend over time shows structural profitability changes. Used for both operational management reporting and P&L reconciliation.
   technical:
     measure_name: Gross Margin %
@@ -4678,7 +4678,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Total promotion cost for ROI and spend analysis.
     definition: Sum of promo cost from promo systems.
     grain_scope: Promo / period.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Input to Promo ROI %.
   technical:
     measure_name: Promo Cost
@@ -4725,7 +4725,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Incremental gross margin from promotions for ROI numerator.
     definition: Incremental sales minus incremental COGS; proxy here as share of incremental sales.
     grain_scope: Promo / period.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Input to Promo ROI %.
   technical:
     measure_name: Incremental Gross Margin Amount
@@ -4788,7 +4788,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures profitability of promotions relative to spend.
     definition: Incremental GM Amount / Promo Cost Amount
     grain_scope: Promo campaign / product / period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Values > 0 indicate promotions adding value.
   technical:
     measure_name: Promo ROI %
@@ -4840,7 +4840,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Gross margin rate during promo periods.
     definition: Incremental Gross Margin Amount / Incremental Sales Amount
     grain_scope: Promo period/product
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Profitability of promotions.
   technical:
     measure_name: GM % During Promo
@@ -4893,7 +4893,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Shows unit cost level relative to sold volume.
     definition: COGS Amount / Units Sold.
     grain_scope: Product / period.
-    unit_format: EUR per unit
+    unit_format: eur_per_unit_0
     interpretation: Lower is better; rising unit cost erodes margin.
   technical:
     measure_name: COGS per Unit
@@ -4943,7 +4943,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Sales lost on non-promoted items versus baseline (cannibalization in value).
     definition: 'Proxy: 15% of Baseline Sales Amount, pending real non-promo-segment actuals (target formula: MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales) once that segmentation is available).'
     grain_scope: Promo campaign / product / period.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Numerator for Cannibalization %; higher means more cannibalization.
   technical:
     measure_name: Cannibalized Sales Amount
@@ -4990,7 +4990,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of promo uplift offset by decline in non-promoted sales.
     definition: Cannibalized Sales / Promo Uplift Sales.
     grain_scope: Promo campaign / product / period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; high cannibalization reduces net gain.
   technical:
     measure_name: Cannibalization %
@@ -5050,7 +5050,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Shows material cost share of net sales.
     definition: Material Cost Amount / Net Sales Amount.
     grain_scope: Company/segment; monthly close.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; increases indicate supplier or price pressure.
   technical:
     measure_name: Material Cost %
@@ -5108,7 +5108,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures OpEx variance versus plan.
     definition: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
     grain_scope: Company/segment; monthly close.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Positive values indicate overspend; negative values indicate savings.
   technical:
     measure_name: OpEx vs Plan %
@@ -5169,7 +5169,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures total cost per unit produced or sold.
     definition: Total Cost Amount / Units Produced or Sold.
     grain_scope: Product / period.
-    unit_format: EUR per unit
+    unit_format: eur_per_unit_0
     interpretation: Lower is better; used to track cost efficiency.
   technical:
     measure_name: Unit Cost Amount
@@ -5238,7 +5238,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Absolute gross margin in currency.
     definition: Net Sales Amount - COGS Amount
     grain_scope: Aggregated from invoice_line to reporting period.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Explains profitability magnitude before OpEx.
   technical:
     measure_name: Gross Margin Amount
@@ -5295,7 +5295,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Baseline sales for incremental calculation.
     definition: Sum of baseline sales from promo system.
     grain_scope: Promo period/product
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Reference level for incremental lift.
   technical:
     measure_name: Baseline Sales Amount
@@ -5341,7 +5341,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Additional sales due to promotion.
     definition: Promo Sales Amount - Baseline Sales Amount
     grain_scope: Promo period/product
-    unit_format: EUR (2 decimals)
+    unit_format: eur_0
     interpretation: Input to promo ROI.
   technical:
     measure_name: Incremental Sales Amount
@@ -5399,7 +5399,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Shows cost share relative to net sales.
     definition: COGS Amount / Net Sales Amount.
     grain_scope: Invoice line aggregated to period.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; complements gross margin %.
   technical:
     measure_name: COGS % of Sales
@@ -5450,7 +5450,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures gross margin rate variance versus plan.
     definition: (Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.
     grain_scope: Company/segment; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Positive values indicate better-than-plan margin.
   technical:
     measure_name: Gross Margin % vs Plan
@@ -5505,7 +5505,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: EBITDA profitability relative to net sales for P&L reporting.
     definition: EBITDA Amount / Net Sales Amount
     grain_scope: Entity-month; finance reporting.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher values indicate stronger operating profitability before interest, tax, depreciation and amortisation.
   technical:
     measure_name: EBITDA Margin
@@ -5559,7 +5559,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Baseline cost volume used for variance analysis.
     definition: Baseline amount of cost volume for the selected period.
     grain_scope: Cost center or product; aggregated by period.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Provides a stable base for cost variance comparisons.
   technical:
     measure_name: Cost Base Volume Amount
@@ -5607,7 +5607,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Baseline operating expense amount for variance tracking.
     definition: Baseline operating expense amount for the selected period.
     grain_scope: Cost center; aggregated by period.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: Used to compare actual Opex against the base.
   technical:
     measure_name: Opex Base Amount
@@ -5654,7 +5654,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Aggregates downside risk across domains into a single index.
     definition: 'Average of three risk shares, scaled to 0-100: (1) Revenue-at-Risk Share = (Net Sales * average(1-OTIF failure, 1-First-Pass-Yield failure)) / Net Sales, (2) Delivery Risk = 1 - OTIF %, (3) Quality Risk = 1 - In-Full %.'
     grain_scope: Entity or business unit; aggregated by period.
-    unit_format: index
+    unit_format: index_0
     interpretation: Higher index indicates higher enterprise risk exposure.
   technical:
     measure_name: Enterprise Value-at-Risk Index
@@ -5758,7 +5758,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Rates suppliers based on risk indicators.
     definition: Composite risk score derived from supplier risk factors.
     grain_scope: Supplier; aggregated by period.
-    unit_format: score
+    unit_format: score_1
     interpretation: Higher scores indicate higher supplier risk.
   technical:
     measure_name: Supplier Risk Score
@@ -5814,7 +5814,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures how many cases meet the committed SLA.
     definition: Cases with SLA Met Flag = 1 divided by total cases in period.
     grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; interpret jointly with backlog and escalation %.
   technical:
     measure_name: SLA Attainment %
@@ -5868,7 +5868,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Shows the share of cases solved on first contact.
     definition: Cases with FCR Flag = 1 divided by total cases.
     grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; keep in balance with AHT and escalation %.
   technical:
     measure_name: FCR %
@@ -5920,7 +5920,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures average time to handle a contact.
     definition: Total handle time divided by number of cases/contacts.
     grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
-    unit_format: '''minutes (1 decimal)'''
+    unit_format: eur_0
     interpretation: Lower is better, but balance with FCR and NPS.
   technical:
     measure_name: AHT Minutes
@@ -5980,7 +5980,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Quantifies unresolved work in queue.
     definition: Count of open cases at period end.
     grain_scope: queue_day; aggregated to month by Org/Channel/Queue.
-    unit_format: '''count'''
+    unit_format: count_0
     interpretation: Lower is better; assess with SLA attainment and staffing KPIs.
   technical:
     measure_name: Backlog Count
@@ -6038,7 +6038,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures frequency of escalated cases.
     definition: Escalated cases divided by total cases.
     grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; balance with FCR and SLA.
   technical:
     measure_name: Escalation %
@@ -6089,7 +6089,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures productive time versus paid time for agents.
     definition: Productive time divided by paid time.
     grain_scope: agent_day or queue_day; aggregated to week/month.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Typical healthy band 75?85%; balance with SLA/NPS.
   technical:
     measure_name: Utilization %
@@ -6142,7 +6142,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures active vs idle share of time.
     definition: (Talk + Wrap) / (Talk + Wrap + Idle).
     grain_scope: agent_day or queue_day; aggregated to week/month.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Balanced occupancy supports SLA and quality.
   technical:
     measure_name: Occupancy %
@@ -6204,7 +6204,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Shows overtime share of total hours.
     definition: Overtime hours divided by total hours.
     grain_scope: agent_day; aggregated to week/month.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; monitor sustainability and cost.
   technical:
     measure_name: Overtime %
@@ -6255,7 +6255,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures non-productive share of paid time.
     definition: Non-productive time divided by paid time.
     grain_scope: agent_day; aggregated to week/month.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; compare vs plan.
   technical:
     measure_name: Shrinkage %
@@ -6311,7 +6311,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts customer service tickets created in the period.
     definition: Count of newly created service tickets.
     grain_scope: Ticket; aggregated by period and channel.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate higher inbound demand.
   technical:
     measure_name: Tickets Created Count
@@ -6357,7 +6357,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts customer service tickets closed in the period.
     definition: Count of cases with Open Case Flag = FALSE (closed).
     grain_scope: Ticket; aggregated by period and channel.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate higher resolution throughput.
   technical:
     measure_name: Tickets Closed Count
@@ -6405,7 +6405,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Counts ActionReady actions with a recorded outcome to track governance execution velocity.
     definition: Count of rows in fact_action_outcome where outcome_status is not blank.
     grain_scope: Action execution; aggregated monthly by domain.
-    unit_format: count
+    unit_format: count_0
     interpretation: Higher counts indicate active use of ActionReady recommendations.
   technical:
     measure_name: Actions Executed Count
@@ -6452,7 +6452,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures how quickly ActionReady recommendations convert to confirmed outcomes.
     definition: Average of days_to_outcome across all executed action rows.
     grain_scope: Action execution; aggregated monthly by domain.
-    unit_format: days (1 decimal)
+    unit_format: days_1
     interpretation: Lower values indicate faster action-to-outcome cycles.
   technical:
     measure_name: Avg Time-to-Outcome Days
@@ -6496,7 +6496,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures the financial return on ActionReady recommendation investments.
     definition: Total impact value of executed actions / total execution cost - 1.
     grain_scope: Action execution; aggregated monthly by domain.
-    unit_format: '% (1 decimal)'
+    unit_format: percent_1
     interpretation: Values above 0% indicate net-positive actions; negative values flag ineffective interventions.
   technical:
     measure_name: Action ROI %
@@ -6551,7 +6551,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Share of transactions that contain items from two or more distinct product categories.
     definition: Transactions with >=2 distinct categories divided by total transactions in scope.
     grain_scope: Transaction aggregated by Month, Store, Channel, Category pair.
-    unit_format: '% (1 decimal)'
+    unit_format: percent_1
     interpretation: Higher values indicate stronger basket breadth and cross-sell capture; declining values signal weakening category affinity activation.
   technical:
     measure_name: Category Cross-Sell Rate %
@@ -6595,7 +6595,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Average number of distinct line items per completed transaction.
     definition: Total line items divided by total transactions in scope.
     grain_scope: Transaction aggregated by Month, Store, Channel.
-    unit_format: items (1 decimal)
+    unit_format: ratio_1
     interpretation: A core basket-size driver; rising values indicate broader baskets and successful attachment, falling values indicate basket erosion.
   technical:
     measure_name: Items per Transaction
@@ -6640,7 +6640,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Average net sales value of a completed transaction.
     definition: Net sales amount divided by total transactions in scope.
     grain_scope: Transaction aggregated by Month, Store, Channel.
-    unit_format: EUR (2 decimals)
+    unit_format: eur_2
     interpretation: The headline basket-economics guardrail; cross-sell actions must grow breadth without eroding average basket value.
   technical:
     measure_name: Average Basket Value
@@ -6685,7 +6685,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Share of promoted-item transactions that also contain at least one attached full-margin item from an affinity category.
     definition: Promoted transactions with an attached affinity-category item divided by all promoted transactions in scope.
     grain_scope: Transaction aggregated by Month, Store, Channel, Promotion.
-    unit_format: '% (1 decimal)'
+    unit_format: percent_1
     interpretation: Measures whether promotion mechanics pull margin-accretive attachment rather than standalone deal-seeking; the primary lever for cross-sell rate.
   technical:
     measure_name: Promotion Attachment Rate %
@@ -6729,7 +6729,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Quintile score (1-5) of customer purchase frequency within the RFM model, averaged across the active base.
     definition: Mean of per-customer frequency quintile scores (1=least frequent, 5=most frequent) over the active customer base in scope.
     grain_scope: Customer aggregated to Segment by Month.
-    unit_format: score (1-5, 1 decimal)
+    unit_format: score_1
     interpretation: Higher frequency cohorts respond more strongly to cross-sell prompts; used to target attachment offers where repeat-visit behaviour already exists.
   technical:
     measure_name: RFM Frequency Score
@@ -6773,7 +6773,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures realised voluntary employee turnover in the period.
     definition: Voluntary Leavers / Average Headcount (annualised).
     grain_scope: Org/segment; monthly, annualised.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; sustained rises signal retention and engagement problems.
   technical:
     measure_name: Attrition %
@@ -6822,7 +6822,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures employee engagement / eNPS from periodic surveys.
     definition: Mean engagement score (or eNPS) for the population in the period.
     grain_scope: Org/segment; quarterly survey.
-    unit_format: '''index (0 decimal)'''
+    unit_format: index_0
     interpretation: Higher is better; the leading driver of attrition and productivity.
   technical:
     measure_name: Engagement Index
@@ -6866,7 +6866,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures average calendar days to fill an open vacancy.
     definition: Mean(Filled Date - Requisition Open Date) over positions filled in the period.
     grain_scope: Org/role; monthly.
-    unit_format: '''days (0 decimal)'''
+    unit_format: days_0
     interpretation: Lower is better; long fill times amplify workload and attrition risk.
   technical:
     measure_name: Time to Fill
@@ -6910,7 +6910,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures unplanned absence as a share of scheduled working time.
     definition: Absence Days / Scheduled Working Days.
     grain_scope: Org/segment; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; rising absence is an early strain and engagement signal.
   technical:
     measure_name: Absence Rate %
@@ -6958,7 +6958,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures total workforce cost per full-time-equivalent.
     definition: Total Workforce Cost / Headcount FTE.
     grain_scope: Org/segment; monthly.
-    unit_format: '''EUR (0 decimal)'''
+    unit_format: eur_0
     interpretation: Watch alongside productivity; cost per FTE rising faster than output erodes efficiency.
   technical:
     measure_name: Workforce Cost per FTE
@@ -7006,7 +7006,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures full-time-equivalent headcount for the population.
     definition: Sum of FTE fractions across active employees in the period.
     grain_scope: Org/segment; monthly snapshot.
-    unit_format: '''count'''
+    unit_format: count_0
     interpretation: Denominator base for attrition, cost and absence; watch for structural drift.
   technical:
     measure_name: Headcount FTE
@@ -7052,7 +7052,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures open qualified pipeline against the remaining sales target.
     definition: Open Qualified Pipeline Value / Remaining Period Target.
     grain_scope: Rep/region/segment; weekly snapshot.
-    unit_format: '''0.0x'''
+    unit_format: ratio_1
     interpretation: Higher is better; a healthy funnel typically carries ≥3x coverage of the remaining gap.
   technical:
     measure_name: Pipeline Coverage
@@ -7101,7 +7101,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of decided opportunities won.
     definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
     grain_scope: Rep/segment/stage; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; the primary conversion lever behind coverage and attainment.
   technical:
     measure_name: Win Rate %
@@ -7150,7 +7150,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures conversion between funnel stages (lead → opportunity → won).
     definition: Records advancing to the next stage / Records entering the stage.
     grain_scope: Stage/segment; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; isolates where the funnel leaks.
   technical:
     measure_name: Stage Conversion %
@@ -7197,7 +7197,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures average calendar days from opportunity creation to close.
     definition: Mean(Close Date - Create Date) over opportunities closed in the period.
     grain_scope: Rep/segment; monthly.
-    unit_format: '''days (0 decimal)'''
+    unit_format: days_0
     interpretation: Lower is better; a lengthening cycle slows cash conversion and coverage.
   technical:
     measure_name: Sales Cycle Length
@@ -7242,7 +7242,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures revenue generation rate through the pipeline.
     definition: (Open Opportunities x Avg Deal Value x Win Rate) / Sales Cycle Length.
     grain_scope: Rep/segment; monthly.
-    unit_format: '''EUR (0 decimal)'''
+    unit_format: eur_0
     interpretation: Higher is better; a composite health signal for the funnel engine.
   technical:
     measure_name: Sales Velocity
@@ -7290,7 +7290,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures total value of open qualified opportunities.
     definition: Sum of Opportunity Value for open qualified opportunities.
     grain_scope: Rep/region/segment; weekly snapshot.
-    unit_format: '''EUR (0 decimal)'''
+    unit_format: eur_0
     interpretation: Base for coverage; watch concentration in a few large deals.
   technical:
     measure_name: Open Pipeline Value
@@ -7335,7 +7335,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures earnings before interest, tax, depreciation and amortisation.
     definition: Revenue - COGS - Operating Expenses (excl. D&A).
     grain_scope: Entity/BU; monthly.
-    unit_format: '''EUR (0 decimal)'''
+    unit_format: eur_0
     interpretation: Absolute earnings base for the EBITDA-margin and vs-plan bridge.
   technical:
     measure_name: EBITDA
@@ -7379,7 +7379,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures the EBITDA-margin gap versus plan.
     definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
     grain_scope: Entity/BU; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: 'The steering signal: is earnings tracking plan, and driven by revenue, gross margin or opex?'
   technical:
     measure_name: EBITDA Margin vs Plan
@@ -7441,7 +7441,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures procurement savings realised against the savings target.
     definition: Realised Savings / Savings Target.
     grain_scope: Category/supplier; monthly, YTD.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; the CPO's headline for value delivery.
   technical:
     measure_name: Realised Savings %
@@ -7490,7 +7490,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
     definition: On-Contract Spend / Total Addressable Spend.
     grain_scope: Category/supplier; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; the primary lever for savings realisation and price control.
   technical:
     measure_name: On-Contract Spend %
@@ -7539,7 +7539,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures purchase price variance against baseline/standard price.
     definition: (Actual Price - Baseline Price) / Baseline Price.
     grain_scope: Category/material; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Lower is better; isolates inflation and negotiation slippage.
   technical:
     measure_name: Purchase Price Variance %
@@ -7589,7 +7589,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures inbound supplier on-time delivery (goods received on/before promise).
     definition: On-Time Inbound Receipts / Total Inbound Receipts.
     grain_scope: Supplier/category; monthly.
-    unit_format: '''% (1 decimal)'''
+    unit_format: percent_1
     interpretation: Higher is better; inbound reliability that feeds downstream OTIF.
   technical:
     measure_name: Supplier On-Time Delivery %
@@ -7635,7 +7635,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     purpose: Measures total addressable spend under procurement management.
     definition: Sum of addressable spend across categories in the period.
     grain_scope: Category/supplier; monthly.
-    unit_format: '''EUR (0 decimal)'''
+    unit_format: eur_0
     interpretation: Denominator base for on-contract %, PPV and savings; watch coverage of tail spend.
   technical:
     measure_name: Managed Spend

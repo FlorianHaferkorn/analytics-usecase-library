@@ -79,8 +79,61 @@ def target_source(kpi_id: Optional[str], comparison: Optional[str]) -> dict:
     return {"kind": "none"}
 
 
+# Kanonische Einheiten-Tokens -> Formatstring je Profil (04.08.2026).
+#
+# `business.unit_format` im KPI-Katalog ist seit dem 04.08.2026 auf ein geschlossenes
+# Vokabular normiert. Davor war es Freitext (28 verschiedene Werte fuer 18 Einheiten,
+# `count` neben `'count'`), und DREI Stellen im Repo haben daraus per Substring-Suche
+# ein Format geraten: hier, `from_aluca._fmt_from_unit` und `build_ir`. Substring-Raten
+# auf Freitext ist genau die Klasse, die still falsch liegt statt zu scheitern -- ein
+# unbekannter Wert faellt durch alle Zweige und bekommt kommentarlos den Default.
+#
+# Drei Profile, weil dieselbe Einheit an drei Stellen verschieden gerendert wird:
+#   model   -- formatString der Measure im Semantikmodell (so steht es im dist)
+#   visual  -- Achsen-/Label-Format im Report (traegt Symbol und Einheit)
+#   sv      -- Superversion-Emitter (eigene Waehrungsschreibweise mit Negativteil)
+# Die Werte sind aus dem Bestand uebernommen, nicht neu erfunden: `model` ist fuer
+# alle 108 KPIs mit Vorbild im handgebauten dist identisch zu dem, was dort steht;
+# `visual` und `sv` reproduzieren, was die beiden Substring-Matcher vorher lieferten.
+_UNIT_FORMATS: dict[str, dict[str, str]] = {
+    #  Token              model        visual            sv
+    "percent_1":       {"model": "0.0%",   "visual": "0.0%",        "sv": "0.0%"},
+    "percent_0":       {"model": "0%",     "visual": "0%",          "sv": "0.0%"},
+    "eur_0":           {"model": "#,0",    "visual": '"€"#,0',      "sv": r"\€#,0.00;-\€#,0.00"},
+    "eur_2":           {"model": "#,0.00", "visual": '"€"#,0.00',   "sv": r"\€#,0.00;-\€#,0.00"},
+    "eur_per_unit_0":  {"model": "#,0",    "visual": '"€"#,0.00',   "sv": r"\€#,0.00;-\€#,0.00"},
+    "count_0":         {"model": "#,0",    "visual": "#,0",         "sv": ""},
+    "units_0":         {"model": "#,0",    "visual": "#,0",         "sv": ""},
+    "days_0":          {"model": "0",      "visual": '#,0 "d"',     "sv": ""},
+    "days_1":          {"model": "#,0.0",  "visual": '#,0 "d"',     "sv": ""},
+    "hours_0":         {"model": "0",      "visual": '#,0 "h"',     "sv": ""},
+    "minutes_1":       {"model": "#,0.0",  "visual": "#,0.0",       "sv": ""},
+    "index_0":         {"model": "0",      "visual": "#,0",         "sv": ""},
+    "index_signed_0":  {"model": "#,0",    "visual": "#,0",         "sv": ""},
+    "score_1":         {"model": "0.0",    "visual": "#,0.0",       "sv": ""},
+    "ratio_1":         {"model": "0.0",    "visual": "#,0.0",       "sv": ""},
+    "ratio_2":         {"model": "0.00",   "visual": "#,0.0",       "sv": ""},
+    "turns_1":         {"model": "0.0",    "visual": "#,0.0",       "sv": ""},
+    "per_1k_0":        {"model": "#,0",    "visual": "#,0",         "sv": ""},
+    "defects_per_1k_0":{"model": "#,0",    "visual": "#,0",         "sv": ""},
+}
+
+
+def unit_format_string(unit_format: Optional[str], profile: str = "visual") -> Optional[str]:
+    """Kanonisches Token -> Formatstring fuer `profile`, oder None bei unbekanntem Token.
+
+    `None` ist Absicht: der Aufrufer soll den Altpfad waehlen oder scheitern koennen,
+    statt einen Default zu bekommen, der wie ein Treffer aussieht.
+    """
+    entry = _UNIT_FORMATS.get((unit_format or "").strip())
+    return None if entry is None else entry.get(profile)
+
+
 def format_string(unit_format: Optional[str]) -> str:
-    """Map a KPI unit_format to a Power BI custom format string."""
+    """Map a KPI unit_format to a Power BI custom format string (Profil `visual`)."""
+    canonical = unit_format_string(unit_format, "visual")
+    if canonical is not None:
+        return canonical
     u = (unit_format or "").lower()
     if "%" in u or "pct" in u or u in ("rate",):
         return "0%" if "0 decimal" in u else "0.0%"

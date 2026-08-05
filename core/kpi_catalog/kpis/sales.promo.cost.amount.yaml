@@ -16,7 +16,7 @@ business:
   purpose: Total promotion cost for ROI and spend analysis.
   definition: Sum of promo cost from promo systems.
   grain_scope: Promo / period.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Input to Promo ROI %.
 technical:
   measure_name: Promo Cost
@@ -43,5 +43,5 @@ standard_ref:
 - standard: Trade Promotion Management (convention)
   name: Trade-promotion spend
   alignment: none
-  note: Promo cost / trade spend is a TPM concept, not an external-standard figure (though under IFRS
-    15 certain trade spend is a reduction of revenue rather than an expense — check classification).
+  note: Promo cost / trade spend is a TPM concept, not an external-standard figure (though under IFRS 15 certain
+    trade spend is a reduction of revenue rather than an expense — check classification).

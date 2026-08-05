@@ -13,7 +13,7 @@ business:
   purpose: Measures total workforce cost per full-time-equivalent.
   definition: Total Workforce Cost / Headcount FTE.
   grain_scope: Org/segment; monthly.
-  unit_format: '''EUR (0 decimal)'''
+  unit_format: eur_0
   interpretation: Watch alongside productivity; cost per FTE rising faster than output erodes efficiency.
 technical:
   measure_name: Workforce Cost per FTE
@@ -44,5 +44,4 @@ standard_ref:
 - standard: ISO 30414
   name: Human capital — workforce costs
   alignment: partial
-  note: ISO 30414 reports total workforce cost; per-FTE normalisation is a managerial variant of the ISO
-    cost base.
+  note: ISO 30414 reports total workforce cost; per-FTE normalisation is a managerial variant of the ISO cost base.

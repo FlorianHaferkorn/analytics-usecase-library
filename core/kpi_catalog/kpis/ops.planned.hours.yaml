@@ -15,7 +15,7 @@ business:
   purpose: Scheduled production time allocated for machines/lines.
   definition: Sum of planned production hours
   grain_scope: Machine/line level; per shift/day, aggregated monthly.
-  unit_format: hours
+  unit_format: hours_0
   interpretation: Capacity baseline for utilization and downtime; compare with actual runtime and downtime.
 technical:
   measure_name: Planned Hours
@@ -42,5 +42,5 @@ standard_ref:
   name: Planned busy time (PBT element)
   url: https://www.iso.org/standard/54497.html
   alignment: none
-  note: Planned production hours is the ISO 22400-2 Planned Busy Time element (denominator of Availability),
-    an input rather than a KPI.
+  note: Planned production hours is the ISO 22400-2 Planned Busy Time element (denominator of Availability), an
+    input rather than a KPI.

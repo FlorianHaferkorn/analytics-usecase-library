@@ -15,7 +15,7 @@ business:
   purpose: Provide closing inventory value for working capital and liquidity metrics.
   definition: Inventory value at period end at reporting valuation (e.g., standard or average cost).
   grain_scope: Company/segment; monthly or quarterly closing.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_2
   interpretation: Higher values increase working capital needs; validate against seasonality and service targets.
 technical:
   measure_name: Inventory Amount
@@ -44,6 +44,6 @@ standard_ref:
   name: Inventories carrying amount
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
   alignment: exact
-  note: Closing inventory measured at the lower of cost and net realisable value (IAS 2). Our note allows
-    'standard or average cost' — IAS 2 prohibits LIFO; confirm the cost formula is FIFO or weighted-average
-    and standard cost approximates actual.
+  note: Closing inventory measured at the lower of cost and net realisable value (IAS 2). Our note allows 'standard
+    or average cost' — IAS 2 prohibits LIFO; confirm the cost formula is FIFO or weighted-average and standard cost
+    approximates actual.

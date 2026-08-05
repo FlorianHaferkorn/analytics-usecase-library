@@ -22,7 +22,7 @@ business:
   purpose: Measures share of deliveries arriving on time.
   definition: On-Time Deliveries / Total Deliveries.
   grain_scope: Delivery/day; aggregated weekly or monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; analyze by carrier and lane.
 technical:
   measure_name: On-Time %
@@ -52,5 +52,5 @@ standard_ref:
   name: Delivery Performance to Customer Commit Date
   url: https://scor.ascm.org/performance/reliability/RL.1.1
   alignment: partial
-  note: Reference date is unspecified in our definition; SCOR RL.2.2 measures against the customer COMMIT
-    date, not the requested/scheduled date. Pin the reference date to the commit date to align.
+  note: Reference date is unspecified in our definition; SCOR RL.2.2 measures against the customer COMMIT date,
+    not the requested/scheduled date. Pin the reference date to the commit date to align.

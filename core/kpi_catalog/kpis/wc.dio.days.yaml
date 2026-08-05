@@ -22,7 +22,7 @@ business:
   purpose: Measures days inventory outstanding.
   definition: Inventory / (COGS / 365).
   grain_scope: Company/segment; monthly close.
-  unit_format: days
+  unit_format: days_0
   interpretation: Lower is better; high DIO increases cash tied up in stock.
 technical:
   measure_name: DIO Days

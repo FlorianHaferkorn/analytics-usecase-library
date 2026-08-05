@@ -13,7 +13,7 @@ business:
   purpose: Sum of realized revenue across the customer lifecycle.
   definition: Sum of net sales amount from first purchase to date for the customer.
   grain_scope: Customer/segment; monthly or quarterly.
-  unit_format: EUR (0 decimals)
+  unit_format: eur_0
   interpretation: Base for concentration and CLV inputs.
 technical:
   measure_name: Customer Lifetime Revenue Amount
@@ -44,5 +44,5 @@ standard_ref:
   name: Customer lifetime revenue (accumulated)
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: partial
-  note: The revenue base is IFRS 15 (net sales per customer accumulated from first purchase); the lifetime
-    accumulation itself is a CRM-analytics convention, not an IFRS construct.
+  note: The revenue base is IFRS 15 (net sales per customer accumulated from first purchase); the lifetime accumulation
+    itself is a CRM-analytics convention, not an IFRS construct.

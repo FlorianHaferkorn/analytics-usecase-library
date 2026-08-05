@@ -12,13 +12,12 @@ action_code_ref: []
 calc_type: amount
 business:
   purpose: Combines receivables, inventory, and payables days to show cash efficiency.
-  definition: DSO + DIO - DPO, where DSO/DIO/DPO are proxy days computed from Net
-    Sales/COGS Amount (Net Sales * 12% * 365 / Net Sales; COGS * 15% * 365 / COGS;
-    COGS * 8% * 365 / COGS) — a fixed-ratio proxy used in Experience-domain executive
-    reporting where the real receivables/inventory/payables fact tables (used by
-    Finance's wc.ccc.days) are not available.
+  definition: DSO + DIO - DPO, where DSO/DIO/DPO are proxy days computed from Net Sales/COGS Amount (Net Sales *
+    12% * 365 / Net Sales; COGS * 15% * 365 / COGS; COGS * 8% * 365 / COGS) — a fixed-ratio proxy used in Experience-domain
+    executive reporting where the real receivables/inventory/payables fact tables (used by Finance's wc.ccc.days)
+    are not available.
   grain_scope: Company / region level.
-  unit_format: days
+  unit_format: days_0
   interpretation: Lower CCC means faster cash conversion and lower working capital.
 technical:
   measure_name: Cash Conversion Cycle (Days)
@@ -75,10 +74,8 @@ governance:
   validation_process: manual review
   qa_rules:
   - Input metrics reconciled before aggregation
-  - This is a fixed-ratio proxy (12%/15%/8% of Net Sales/COGS), distinct from Finance's
-    wc.ccc.days (real fact_accounts_receivable/fact_inventory/fact_accounts_payable-based
-    calculation) — both are legitimate legacy formulas for their respective reporting
-    contexts, not a bug.
+  - This is a fixed-ratio proxy (12%/15%/8% of Net Sales/COGS), distinct from Finance's wc.ccc.days (real fact_accounts_receivable/fact_inventory/fact_accounts_payable-based
+    calculation) — both are legitimate legacy formulas for their respective reporting contexts, not a bug.
   version: v1.1
 metadata_quality:
   completeness_score: 0.8
@@ -92,5 +89,5 @@ standard_ref:
   url: https://scor.ascm.org/performance/asset-management
   alignment: partial
   note: Same CCC concept as SCOR AM.1.1 but computed from fixed-ratio Net Sales/COGS proxies (Experience-domain
-    executive view where the receivables/inventory/payables facts are unavailable). Consolidate toward
-    wc.ccc.days where those facts exist.
+    executive view where the receivables/inventory/payables facts are unavailable). Consolidate toward wc.ccc.days
+    where those facts exist.

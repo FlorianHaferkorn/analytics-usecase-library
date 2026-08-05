@@ -221,6 +221,65 @@ def synthesize_catalog_dax(kpi_root: Path) -> tuple[Dict[str, str], Dict[str, st
     return out, unresolved
 
 
+# Der Formatstring kommt aus der EINEN Tabelle in tooling/reporting/format_policy
+# (Profil `model`: so, wie die Measure im Semantikmodell formatiert ist). Vorher
+# stand hier eine zweite -- und zwei weitere anderswo; alle drei rieten per
+# Substring aus Freitext. Der Katalog traegt nur die Einheit, das Rendern
+# entscheidet das Target.
+
+def catalog_presentation(kpi_root: Path) -> Dict[str, Dict[str, str]]:
+    """`kpis/*.yaml` -> {kpi_id: {format_string, dax_name, display_folder}}.
+
+    Alle drei aus dem Katalog abgeleitet, keines dort doppelt gepflegt:
+      format_string  <- business.unit_format ueber UNIT_FORMAT_STRINGS
+      dax_name       <- technical.measure_name
+      display_folder <- use_case_ref (der Use Case, fuer den generiert wird;
+                        bei Mehrfachzuordnung filtert der Generator)
+    """
+    kpis_dir = kpi_root / "kpis"
+    if not kpis_dir.is_dir() or yaml is None:
+        return {}
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    from tooling.reporting.format_policy import unit_format_string
+    out: Dict[str, Dict[str, str]] = {}
+    for f in sorted(kpis_dir.glob("*.yaml")):
+        if f.stem == "_index":
+            continue
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        unit = (d.get("business") or {}).get("unit_format")
+        refs = d.get("use_case_ref") or []
+        if isinstance(refs, str):
+            refs = [refs]
+        out[f.stem] = {
+            "format_string": unit_format_string(str(unit), "model") or "",
+            "dax_name": (d.get("technical") or {}).get("measure_name") or "",
+            "display_folder": refs[0] if len(refs) == 1 else "",
+            "use_case_refs": refs,
+        }
+    return out
+
+
+def _apply_catalog_presentation(
+    measure_spec: Dict[str, Dict[str, Any]], presentation: Dict[str, Dict[str, str]]
+) -> int:
+    n = 0
+    for kpi_id, pres in presentation.items():
+        spec = measure_spec.get(kpi_id)
+        if not spec:
+            continue
+        if pres.get("format_string"):
+            spec["format_string"] = pres["format_string"]
+        if pres.get("dax_name"):
+            spec["dax_name"] = pres["dax_name"]
+        if pres.get("display_folder"):
+            spec["display_folder"] = pres["display_folder"]
+        spec["use_case_refs"] = pres.get("use_case_refs") or []
+        n += 1
+    return n
+
+
 def _apply_catalog_dax(
     measure_spec: Dict[str, Dict[str, Any]], synthesized: Dict[str, str]
 ) -> int:
@@ -448,6 +507,11 @@ def main(argv: list[str] | None = None) -> int:
         applied = _apply_catalog_dax(measure_spec, synthesized)
         print(f"catalog DAX: {applied} measure(s) synthesized from technical.calculation"
               f" ({len(unresolved)} without a resolvable calculation — hand-written expression stands)")
+
+        presentation = catalog_presentation(kpi_root)
+        pres_applied = _apply_catalog_presentation(measure_spec, presentation)
+        print(f"catalog presentation: {pres_applied} measure(s) — format_string from unit_format,"
+              f" dax_name from measure_name, display_folder from use_case_ref")
 
         if args.fabric_overlay:
             overlay_path = Path(args.fabric_overlay)

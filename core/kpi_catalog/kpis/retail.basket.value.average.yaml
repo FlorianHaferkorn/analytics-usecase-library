@@ -15,8 +15,9 @@ business:
   purpose: Average net sales value of a completed transaction.
   definition: Net sales amount divided by total transactions in scope.
   grain_scope: Transaction aggregated by Month, Store, Channel.
-  unit_format: EUR (2 decimals)
-  interpretation: The headline basket-economics guardrail; cross-sell actions must grow breadth without eroding average basket value.
+  unit_format: eur_2
+  interpretation: The headline basket-economics guardrail; cross-sell actions must grow breadth without eroding
+    average basket value.
 technical:
   measure_name: Average Basket Value
   description: Average net sales value per completed transaction.
@@ -41,5 +42,5 @@ standard_ref:
 - standard: Retail analytics (convention)
   name: Average transaction value
   alignment: none
-  note: Average basket value (net sales / transactions) is a standard retail KPI but a market convention,
-    not a governed standard.
+  note: Average basket value (net sales / transactions) is a standard retail KPI but a market convention, not a
+    governed standard.

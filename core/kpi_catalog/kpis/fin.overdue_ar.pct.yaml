@@ -21,7 +21,7 @@ business:
   purpose: Measures the proportion of accounts receivable past due date.
   definition: Overdue AR (past due date) / Total AR × 100. Customer-level overdue analysis enables targeted collection.
   grain_scope: Customer/entity level; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher overdue AR directly increases DSO. Values > 15 % signal systemic collection issues.
 technical:
   measure_name: Overdue AR %
@@ -55,6 +55,6 @@ standard_ref:
   name: Trade receivables — credit-risk ageing
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-9-financial-instruments/
   alignment: partial
-  note: Overdue-AR ageing underpins the IFRS 9 expected-credit-loss simplified (provision-matrix) approach,
-    but the overdue-% itself is a credit-management KPI, not an IFRS-defined figure. Receivables base
-    per IFRS 9 / IAS 1.
+  note: Overdue-AR ageing underpins the IFRS 9 expected-credit-loss simplified (provision-matrix) approach, but
+    the overdue-% itself is a credit-management KPI, not an IFRS-defined figure. Receivables base per IFRS 9 / IAS
+    1.

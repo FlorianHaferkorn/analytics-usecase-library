@@ -21,7 +21,7 @@ business:
   purpose: Measures mean absolute percentage error in forecast.
   definition: Mean(|Forecast - Actual| / Actual).
   grain_scope: SKU/week; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; high MAPE indicates unstable demand or poor model fit.
 technical:
   measure_name: Forecast MAPE %
@@ -31,12 +31,10 @@ technical:
   - fact_forecast.Forecast Units
   calculation:
     op: hitl
-    reason: 'Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is
-      AVERAGEX ( VALUES ( fact_forecast[ProductKey] ), ABS ( DIVIDE ( per-key Forecast
-      Units - per-key Sales Units, per-key Sales Units ) ) ) — a per-key iterator
-      combining two independent CALCULATE(SUM(...)) lookups inside an ABS/DIVIDE per
-      row, beyond sumx_over_key/avgx_over_key (which only wrap ONE value, not a
-      composite ratio of two context-filtered sums) and beyond the current grammar.'
+    reason: Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is AVERAGEX ( VALUES ( fact_forecast[ProductKey]
+      ), ABS ( DIVIDE ( per-key Forecast Units - per-key Sales Units, per-key Sales Units ) ) ) — a per-key iterator
+      combining two independent CALCULATE(SUM(...)) lookups inside an ABS/DIVIDE per row, beyond sumx_over_key/avgx_over_key
+      (which only wrap ONE value, not a composite ratio of two context-filtered sums) and beyond the current grammar.
 governance:
   business_owner: Supply Planning Lead
   data_owner: Supply Chain BI
@@ -53,5 +51,5 @@ metadata_quality:
 standard_ref:
 - standard: SCOR-DS
   alignment: none
-  note: As plan.forecast.accuracy.pct — no SCOR metric home; MAPE is defined by IBF/APICS forecasting
-    standards, not SCOR.
+  note: As plan.forecast.accuracy.pct — no SCOR metric home; MAPE is defined by IBF/APICS forecasting standards,
+    not SCOR.

@@ -13,9 +13,10 @@ action_code_ref:
 calc_type: duration
 business:
   purpose: Measures time lost to product or format changeovers.
-  definition: Average minutes from last good piece of previous run to first good piece of next run, including mechanical setup, parameter adjustment, and trial run waste. Directly drives Six Big Losses Category 2 (Setup & Adjustment).
+  definition: Average minutes from last good piece of previous run to first good piece of next run, including mechanical
+    setup, parameter adjustment, and trial run waste. Directly drives Six Big Losses Category 2 (Setup & Adjustment).
   grain_scope: Changeover event level; aggregated by line and period.
-  unit_format: minutes (1 decimal)
+  unit_format: minutes_1
   interpretation: Lower is better; SMED methodology targets < 10 minutes for high-mix lines.
 technical:
   measure_name: Changeover Time Minutes
@@ -26,10 +27,9 @@ technical:
   - fact_ops_changeover.End Timestamp
   calculation:
     op: hitl
-    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in
-      products/fabric/powerbi/dist/Operations.SemanticModel). Average duration between
-      two timestamp columns (AVERAGEX with a DATEDIFF-style row expression) is beyond
-      the current sum/ratio/delta/count-shaped grammar.
+    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel).
+      Average duration between two timestamp columns (AVERAGEX with a DATEDIFF-style row expression) is beyond the
+      current sum/ratio/delta/count-shaped grammar.
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI
@@ -48,5 +48,5 @@ standard_ref:
   name: Setup/changeover time element
   url: https://www.iso.org/standard/54497.html
   alignment: partial
-  note: Changeover time maps to the ISO 22400-2 setup-time element (and Six Big Losses setup & adjustment
-    category); it drives Availability loss but is a time element, not a ratio KPI.
+  note: Changeover time maps to the ISO 22400-2 setup-time element (and Six Big Losses setup & adjustment category);
+    it drives Availability loss but is a time element, not a ratio KPI.

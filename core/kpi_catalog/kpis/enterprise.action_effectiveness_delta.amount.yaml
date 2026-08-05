@@ -14,7 +14,7 @@ business:
   purpose: Average EUR impact per achieved action execution — realized KPI delta per code.
   definition: Average impact_value across achieved rows in fact_action_outcome.
   grain_scope: Action instance; aggregated by period and domain.
-  unit_format: EUR (#,0)
+  unit_format: eur_0
   interpretation: Higher values indicate stronger KPI improvement per action code execution.
 technical:
   measure_name: Action Effectiveness Delta
@@ -45,5 +45,5 @@ standard_ref:
   name: Action effectiveness delta
   url: https://www.iso.org/standard/62085.html
   alignment: none
-  note: Average realised impact across achieved actions — the framework's own effectiveness measure. No
-    external standard; PDCA/Balanced-Scorecard is the conceptual backdrop.
+  note: Average realised impact across achieved actions — the framework's own effectiveness measure. No external
+    standard; PDCA/Balanced-Scorecard is the conceptual backdrop.

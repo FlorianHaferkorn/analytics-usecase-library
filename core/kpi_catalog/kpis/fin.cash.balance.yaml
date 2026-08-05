@@ -22,7 +22,7 @@ business:
   purpose: Tracks cash and cash equivalents at period end.
   definition: Cash and cash equivalents balance.
   grain_scope: Company/segment; monthly close.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Higher balance improves liquidity buffer; consider seasonality and debt strategy.
 technical:
   measure_name: Cash Balance

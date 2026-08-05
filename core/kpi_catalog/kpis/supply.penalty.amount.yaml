@@ -15,7 +15,7 @@ business:
   purpose: Captures penalties for service level breaches.
   definition: Sum of penalty charges incurred in the period.
   grain_scope: Order/month.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_2
   interpretation: Lower is better; high penalties signal delivery or quality issues.
 technical:
   measure_name: Penalty Amount
@@ -44,5 +44,5 @@ standard_ref:
   name: Total Supply Chain Management Cost
   url: https://scor.ascm.org/performance/cost
   alignment: partial
-  note: Service-failure penalties are a cost component within SCOR's Cost attribute (CO.1.1), not a named
-    standalone SCOR metric.
+  note: Service-failure penalties are a cost component within SCOR's Cost attribute (CO.1.1), not a named standalone
+    SCOR metric.

@@ -22,7 +22,7 @@ business:
   purpose: Measures frequency of escalated cases.
   definition: Escalated cases divided by total cases.
   grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; balance with FCR and SLA.
 technical:
   measure_name: Escalation %

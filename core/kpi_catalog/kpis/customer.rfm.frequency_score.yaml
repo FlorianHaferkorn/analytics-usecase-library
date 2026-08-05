@@ -11,11 +11,14 @@ use_case_ref:
 action_code_ref: []
 calc_type: ratio
 business:
-  purpose: Quintile score (1-5) of customer purchase frequency within the RFM model, averaged across the active base.
-  definition: Mean of per-customer frequency quintile scores (1=least frequent, 5=most frequent) over the active customer base in scope.
+  purpose: Quintile score (1-5) of customer purchase frequency within the RFM model, averaged across the active
+    base.
+  definition: Mean of per-customer frequency quintile scores (1=least frequent, 5=most frequent) over the active
+    customer base in scope.
   grain_scope: Customer aggregated to Segment by Month.
-  unit_format: "score (1-5, 1 decimal)"
-  interpretation: Higher frequency cohorts respond more strongly to cross-sell prompts; used to target attachment offers where repeat-visit behaviour already exists.
+  unit_format: score_1
+  interpretation: Higher frequency cohorts respond more strongly to cross-sell prompts; used to target attachment
+    offers where repeat-visit behaviour already exists.
 technical:
   measure_name: RFM Frequency Score
   description: Average customer purchase-frequency quintile score from the RFM model.
@@ -40,5 +43,5 @@ standard_ref:
 - standard: Marketing analytics — RFM (convention)
   name: RFM frequency score
   alignment: none
-  note: RFM (Recency-Frequency-Monetary) scoring is a long-standing direct-marketing segmentation model
-    (Hughes/DMA lineage), a convention rather than a governed standard.
+  note: RFM (Recency-Frequency-Monetary) scoring is a long-standing direct-marketing segmentation model (Hughes/DMA
+    lineage), a convention rather than a governed standard.

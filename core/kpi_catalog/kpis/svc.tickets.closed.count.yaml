@@ -15,7 +15,7 @@ business:
   purpose: Counts customer service tickets closed in the period.
   definition: Count of cases with Open Case Flag = FALSE (closed).
   grain_scope: Ticket; aggregated by period and channel.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate higher resolution throughput.
 technical:
   measure_name: Tickets Closed Count
@@ -46,5 +46,5 @@ standard_ref:
   name: Incident/request throughput (element)
   url: https://www.iso.org/standard/70636.html
   alignment: none
-  note: Raw closed-ticket count is a throughput element feeding backlog and closure-rate; not a named
-    ISO/IEC 20000 KPI on its own.
+  note: Raw closed-ticket count is a throughput element feeding backlog and closure-rate; not a named ISO/IEC 20000
+    KPI on its own.

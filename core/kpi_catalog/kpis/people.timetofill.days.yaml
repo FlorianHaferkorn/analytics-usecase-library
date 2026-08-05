@@ -13,7 +13,7 @@ business:
   purpose: Measures average calendar days to fill an open vacancy.
   definition: Mean(Filled Date - Requisition Open Date) over positions filled in the period.
   grain_scope: Org/role; monthly.
-  unit_format: '''days (0 decimal)'''
+  unit_format: days_0
   interpretation: Lower is better; long fill times amplify workload and attrition risk.
 technical:
   measure_name: Time to Fill

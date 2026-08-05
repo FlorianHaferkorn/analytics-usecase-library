@@ -21,7 +21,7 @@ business:
   purpose: Measures how often inventory is sold and replaced.
   definition: COGS / Average Inventory.
   grain_scope: SKU/location; aggregated monthly.
-  unit_format: turns
+  unit_format: eur_0
   interpretation: Higher turnover indicates better inventory velocity; too high may risk stockouts.
 technical:
   measure_name: Inventory Turnover
@@ -56,6 +56,5 @@ standard_ref:
   name: Asset Management — inventory turns
   url: https://scor.ascm.org/performance/asset-management
   alignment: partial
-  note: Inventory turnover (COGS / average inventory) is the reciprocal of the inventory-days input to
-    SCOR Cash-to-Cash Cycle Time (AM.1.1); a SCOR Asset-Management metric, not ISO 22400-2. Consistent
-    with inv.dio.days / wc.dio.days.
+  note: Inventory turnover (COGS / average inventory) is the reciprocal of the inventory-days input to SCOR Cash-to-Cash
+    Cycle Time (AM.1.1); a SCOR Asset-Management metric, not ISO 22400-2. Consistent with inv.dio.days / wc.dio.days.

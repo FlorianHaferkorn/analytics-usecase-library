@@ -14,7 +14,7 @@ business:
   purpose: Counts safety incidents recorded in the period.
   definition: Count of recorded safety incidents.
   grain_scope: Site; aggregated by period.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate higher safety risk.
 technical:
   measure_name: Safety Incident Count
@@ -25,9 +25,9 @@ technical:
   calculation:
     op: hitl
     reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Operations.SemanticModel''s
-      own DAX is a documented placeholder (VAR _pending = "Requires fact_safety_incidents
-      table (not yet in data contract)" RETURN BLANK()) — the source table does not exist
-      yet in the data contract, upstream of any DSL grammar question.'
+      own DAX is a documented placeholder (VAR _pending = "Requires fact_safety_incidents table (not yet in data
+      contract)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream of any DSL
+      grammar question.'
 governance:
   business_owner: EHS Manager
   data_owner: EHS BI

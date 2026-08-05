@@ -16,7 +16,7 @@ business:
   purpose: Measures active vs idle share of time.
   definition: (Talk + Wrap) / (Talk + Wrap + Idle).
   grain_scope: agent_day or queue_day; aggregated to week/month.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Balanced occupancy supports SLA and quality.
 technical:
   measure_name: Occupancy %
@@ -58,5 +58,5 @@ standard_ref:
   name: (contact-centre occupancy)
   url: https://www.iso.org/standard/54497.html
   alignment: none
-  note: Occupancy ((Talk+Wrap)/(Talk+Wrap+Idle)) is a contact-centre workforce metric governed by the
-    COPC CX Standard / contact-centre WFM, not ISO 22400-2 manufacturing operations.
+  note: Occupancy ((Talk+Wrap)/(Talk+Wrap+Idle)) is a contact-centre workforce metric governed by the COPC CX Standard
+    / contact-centre WFM, not ISO 22400-2 manufacturing operations.

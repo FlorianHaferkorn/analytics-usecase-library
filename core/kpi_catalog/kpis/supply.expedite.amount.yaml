@@ -16,7 +16,7 @@ business:
   purpose: Captures additional cost for expedited shipments.
   definition: Sum of expedite fees and premium freight charges.
   grain_scope: Shipment/month.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_2
   interpretation: Lower is better; high values indicate planning or supply issues.
 technical:
   measure_name: Expedite Cost Amount
@@ -45,5 +45,5 @@ standard_ref:
   name: Total Supply Chain Management Cost
   url: https://scor.ascm.org/performance/cost
   alignment: partial
-  note: Premium-freight / expedite is one cost component within SCOR CO.1.1 (Total SC Management Cost),
-    not the whole metric.
+  note: Premium-freight / expedite is one cost component within SCOR CO.1.1 (Total SC Management Cost), not the
+    whole metric.

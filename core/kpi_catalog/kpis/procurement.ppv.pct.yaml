@@ -14,7 +14,7 @@ business:
   purpose: Measures purchase price variance against baseline/standard price.
   definition: (Actual Price - Baseline Price) / Baseline Price.
   grain_scope: Category/material; monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; isolates inflation and negotiation slippage.
 technical:
   measure_name: Purchase Price Variance %
@@ -45,5 +45,5 @@ standard_ref:
 - standard: Procurement & spend analytics (convention)
   name: Purchase price variance (PPV)
   alignment: none
-  note: PPV is a standard cost-accounting/procurement convention; align the baseline definition to the
-    internal standard-cost policy.
+  note: PPV is a standard cost-accounting/procurement convention; align the baseline definition to the internal
+    standard-cost policy.

@@ -413,6 +413,18 @@ def _resolve_calculation(kpi: dict, catalog: "KpiCatalog") -> tuple[Optional[dic
 
 
 def _fmt_from_unit(unit: str) -> str:
+    """Einheit -> Superversion-Formatstring.
+
+    Kanonische Tokens (`business.unit_format` seit 04.08.2026) kommen aus der einen
+    Tabelle in `tooling/reporting/format_policy`. Der Substring-Zweig darunter bleibt
+    als Ruecklauf fuer Altbestand und Fremdkataloge -- er raet, deshalb hat er den
+    zweiten Platz, nicht den ersten.
+    """
+    from tooling.reporting.format_policy import unit_format_string
+
+    canonical = unit_format_string(unit, "sv")
+    if canonical is not None:
+        return canonical
     u = (unit or "").lower()
     if "eur" in u or "€" in u:
         return r"\€#,0.00;-\€#,0.00"

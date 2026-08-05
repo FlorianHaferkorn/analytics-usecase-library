@@ -47,8 +47,7 @@ causal_links:
       kind: abs_to_abs
       coefficient: -2.0e-06
       direction: negative
-      interpretation: Higher cost of goods sold reduces gross margin % when revenue does not increase
-        proportionally.
+      interpretation: Higher cost of goods sold reduces gross margin % when revenue does not increase proportionally.
     applicability:
       grain: month
       segments:
@@ -63,8 +62,8 @@ causal_links:
       kind: pct_to_pct
       coefficient: 0.3
       direction: positive
-      interpretation: Closing the net sales gap versus plan is associated with higher gross margin % through
-        better fixed-cost absorption and mix.
+      interpretation: Closing the net sales gap versus plan is associated with higher gross margin % through better
+        fixed-cost absorption and mix.
     applicability:
       grain: month
       segments:
@@ -78,8 +77,8 @@ causal_links:
       kind: pct_to_pct
       coefficient: 0.25
       direction: positive
-      interpretation: Improving net sales growth versus prior year tends to improve gross margin % through
-        scale and operating leverage.
+      interpretation: Improving net sales growth versus prior year tends to improve gross margin % through scale
+        and operating leverage.
     applicability:
       grain: month
       segments:
@@ -124,8 +123,8 @@ causal_links:
       kind: abs_to_abs
       coefficient: 2.0e-06
       direction: positive
-      interpretation: Favorable product or customer mix improves gross margin % by shifting revenue toward
-        higher-margin combinations.
+      interpretation: Favorable product or customer mix improves gross margin % by shifting revenue toward higher-margin
+        combinations.
     applicability:
       grain: month
       segments:
@@ -154,8 +153,8 @@ causal_links:
       kind: abs_to_abs
       coefficient: 2.0e-06
       direction: positive
-      interpretation: Higher gross margin amount is associated with higher gross margin % when revenue
-        mix remains comparable.
+      interpretation: Higher gross margin amount is associated with higher gross margin % when revenue mix remains
+        comparable.
     applicability:
       grain: month
       segments:
@@ -170,8 +169,7 @@ causal_links:
       kind: abs_to_abs
       coefficient: 1.0e-06
       direction: positive
-      interpretation: Higher list price levels support gross margin % provided realization discipline
-        is maintained.
+      interpretation: Higher list price levels support gross margin % provided realization discipline is maintained.
     applicability:
       grain: month
       segments:
@@ -216,8 +214,8 @@ causal_links:
       kind: pp_to_pp
       coefficient: 0.9
       direction: positive
-      interpretation: Improving gross margin performance versus plan is strongly aligned with higher actual
-        gross margin %.
+      interpretation: Improving gross margin performance versus plan is strongly aligned with higher actual gross
+        margin %.
     applicability:
       grain: month
       segments:
@@ -230,7 +228,7 @@ business:
   purpose: Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
   definition: (Net Sales Amount - COGS Amount) / Net Sales Amount
   grain_scope: Invoice line aggregated to reporting period, org, customer or product segments.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Values above 0 % indicate positive gross profit; trend over time shows structural profitability
     changes. Used for both operational management reporting and P&L reconciliation.
 technical:
@@ -266,5 +264,5 @@ standard_ref:
   name: Gross margin ratio (APM)
   url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
   alignment: partial
-  note: A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a
-    non-GAAP APM. Inputs are IFRS-clean — label the ratio as an APM in external reporting.
+  note: A ratio of two IFRS figures (IFRS 15 revenue, IAS 2 cost of sales); the percentage itself is a non-GAAP
+    APM. Inputs are IFRS-clean — label the ratio as an APM in external reporting.

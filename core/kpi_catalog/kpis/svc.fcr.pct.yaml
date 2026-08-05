@@ -21,7 +21,7 @@ business:
   purpose: Shows the share of cases solved on first contact.
   definition: Cases with FCR Flag = 1 divided by total cases.
   grain_scope: queue_day or month; aggregated by Org/Channel/Queue.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; keep in balance with AHT and escalation %.
 technical:
   measure_name: FCR %
@@ -49,6 +49,6 @@ standard_ref:
   name: Service desk — First Contact Resolution
   url: https://www.axelos.com/certifications/itil-service-management
   alignment: partial
-  note: First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric
-    (and COPC CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management;
-    pin the 'contact' grain (call vs case, single vs multi-channel) to compare externally.
+  note: First Contact Resolution is a de-facto ITIL 4 service-desk / incident-management practice metric (and COPC
+    CX Standard), not formally defined by ISO/IEC 20000. Widely standard in service management; pin the 'contact'
+    grain (call vs case, single vs multi-channel) to compare externally.

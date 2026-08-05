@@ -24,7 +24,7 @@ business:
   purpose: Measures manufacturing performance combining availability, performance, and quality.
   definition: Availability % * Performance % * Quality %
   grain_scope: Production line; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher OEE indicates better utilization; capped at 100 %.
 technical:
   measure_name: OEE %
@@ -63,6 +63,5 @@ standard_ref:
   name: Overall Equipment Effectiveness index
   url: https://www.iso.org/standard/54497.html
   alignment: exact
-  note: OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2.
-    Our A x P x Q matches. Pin the time-state model (Planned Busy Time basis) so components reconcile
-    to the standard.
+  note: OEE = Availability x Effectiveness (Performance) x Quality ratio is defined verbatim by ISO 22400-2. Our
+    A x P x Q matches. Pin the time-state model (Planned Busy Time basis) so components reconcile to the standard.

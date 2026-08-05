@@ -448,11 +448,13 @@ def test_overlay_carries_no_second_dax_source():
     )
 
 
-# Stand 04.08.2026: 9 handgeschriebene Formeln, alle ohne Katalog-Gegenstueck.
+# Stand 04.08.2026: 7 handgeschriebene Formeln, alle ohne Katalog-Gegenstueck.
+# (Die Datei trug vorher 105 Eintraege mit vier Feldern; drei Felder kommen jetzt
+# aus dem Katalog, weil sie dort schon standen oder ableitbar waren.)
 # Darf nur SINKEN — jede neue Grammatik-Operation loest welche ab, keine kommt
 # zurueck. Ein `skip` waere sonst die bequemste Art, die Zweitquelle wieder
 # einzufuehren.
-_OVERLAY_HANDWRITTEN_BASELINE = 9
+_OVERLAY_HANDWRITTEN_BASELINE = 7
 
 
 def test_overlay_handwritten_ratchet():

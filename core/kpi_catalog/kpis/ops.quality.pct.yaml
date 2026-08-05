@@ -25,7 +25,7 @@ business:
   purpose: Yield of conforming units relative to total units produced.
   definition: Good units / Total units
   grain_scope: Machine/line level; per shift or day, aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher quality means fewer defects; low values indicate scrap/rework issues.
 technical:
   measure_name: Quality %

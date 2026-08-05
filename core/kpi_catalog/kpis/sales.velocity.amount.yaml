@@ -14,7 +14,7 @@ business:
   purpose: Measures revenue generation rate through the pipeline.
   definition: (Open Opportunities x Avg Deal Value x Win Rate) / Sales Cycle Length.
   grain_scope: Rep/segment; monthly.
-  unit_format: '''EUR (0 decimal)'''
+  unit_format: eur_0
   interpretation: Higher is better; a composite health signal for the funnel engine.
 technical:
   measure_name: Sales Velocity
@@ -27,7 +27,8 @@ technical:
   - fact_pipeline.Cycle Days
   calculation:
     op: hitl
-    reason: "Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL)."
+    reason: 'Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now
+      in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL).'
 governance:
   business_owner: TBD
   data_owner: TBD
@@ -44,5 +45,5 @@ standard_ref:
 - standard: Sales pipeline management (convention)
   name: Sales velocity formula
   alignment: none
-  note: Sales velocity is a widely-used commercial convention (opps x value x win-rate / cycle); no external
-    standard defines it.
+  note: Sales velocity is a widely-used commercial convention (opps x value x win-rate / cycle); no external standard
+    defines it.

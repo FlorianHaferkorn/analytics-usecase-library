@@ -20,7 +20,7 @@ business:
   purpose: Measures deviation of cash balance versus plan.
   definition: (Cash Balance - Cash Plan) / Cash Plan.
   grain_scope: Company/segment; monthly close.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Positive values indicate higher cash than planned.
 technical:
   measure_name: Cash vs Plan %
@@ -58,5 +58,5 @@ standard_ref:
   name: Cash budget variance
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-7-statement-of-cash-flows/
   alignment: none
-  note: Internal budget-variance metric; no external standard defines it. Cash input traces to IAS 7 cash
-    and cash equivalents.
+  note: Internal budget-variance metric; no external standard defines it. Cash input traces to IAS 7 cash and cash
+    equivalents.
