@@ -1,13 +1,14 @@
 """Tests for BC-TYPE-03 (type hierarchy), BC-LAYOUT-04 (zone density) + BC-TYPE-02 advisory.
 
 BC-TYPE-03: the hero kpi_value must be ≥2× each secondary role. BC-LAYOUT-04: ≤7 elements
-per summary zone. BC-TYPE-02 is advisory (tabular numerals render-gated).
+pro Summary-Zone. BC-TYPE-02 ist seit 05.08.2026 ein echtes Gate (Schriftwahl statt
+Render-Verifikation).
 """
 from __future__ import annotations
 
 from tooling.validation.check_type_scale import hierarchy_violations, check_scale
 from tooling.validation.check_zone_density import summary_zone_count, check_registry
-from tooling.validation.check_tabular_numerals import tables_awaiting_tabular
+from tooling.validation.check_tabular_numerals import violations as tabular_violations
 
 
 # ── BC-TYPE-03 ───────────────────────────────────────────────────────────────
@@ -47,10 +48,16 @@ def test_committed_brackets_are_within_zone_budget():
     assert check_registry() == [], f"overloaded zones: {check_registry()}"
 
 
-# ── BC-TYPE-02 advisory ──────────────────────────────────────────────────────
+# ── BC-TYPE-02 ───────────────────────────────────────────────────────────────
 
-def test_tabular_numeral_advisory_lists_tables_but_never_gates():
-    # advisory only — it reports tables awaiting the render-gated emit, and the list is
-    # a plain report (the committed tables don't declare tabular numerals yet)
-    tables = tables_awaiting_tabular()
-    assert isinstance(tables, list)   # never raises / never gates
+def test_no_numeric_surface_uses_proportional_figures():
+    """Zahlen, die nicht untereinander stehen, kann man senkrecht nicht vergleichen.
+
+    Bis 05.08.2026 war das ein advisory-Reporter mit der Begruendung, Power BI biete
+    keinen Umschalter fuer Tabellenziffern. Das stimmt — nur folgt daraus das
+    Gegenteil: wenn die Eigenschaft fehlt, IST die Schriftwahl die Regel, und die
+    steht im Theme. Gemessen (Selawik-UFOs, von Microsoft als metrisch kompatibel zu
+    Segoe UI gefuehrt): Regular und Bold tabular, LIGHT proportional.
+    """
+    v = tabular_violations()
+    assert v == [], "Zahlenflaeche mit proportionalen Ziffern:\n" + "\n".join(f"    {x}" for x in v)

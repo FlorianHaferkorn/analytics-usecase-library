@@ -28,6 +28,35 @@ font_family:
   rule: sans_serif_only
   numerals: tabular           # monospaced numerals required for vertical number comparison
 
+# Welche Schnitte Tabellenziffern HABEN — gemessen, nicht angenommen (05.08.2026).
+#
+# BC-TYPE-02 verlangt Tabellenziffern in jeder senkrecht verglichenen Zahlenspalte.
+# Power BI hat dafuer KEINE Eigenschaft (`formatting search tableEx "numeral|figure|
+# tabular"` ist leer) — der einzige Hebel ist die Schriftwahl. Damit haengt die Regel
+# an einer Tatsache ueber die Schrift, und die stand bisher nirgends.
+#
+# Methode: Microsoft dokumentiert `Selawik` als "metrically compatible with Segoe UI"
+# (learn.microsoft.com/windows/apps/design/signature-experiences/typography) und stellt
+# es quelloffen bereit (github.com/microsoft/selawik). Metrisch kompatibel heisst
+# gleiche Vorbreiten. Aus den UFO-Quellen die `<advance width>` der Glyphen zero..nine
+# gelesen — sind alle zehn gleich, sind die Ziffern tabular (Definition laut
+# learn.microsoft.com/typography/develop/character-design-standards/figures).
+#
+# Der Light-Schnitt ist der Grund, warum das kein Formalismus ist: er hat VIER
+# verschiedene Ziffernbreiten. Eine Zahlenflaeche in Segoe UI Light verletzt BC-TYPE-02,
+# und man sieht es einer Theme-Datei nicht an.
+tabular_numeral_fonts:
+  - family: "Segoe UI"
+    weights_verified: [regular, bold]
+    evidence: "Selawik-Regular.ufo / Selawik-Bold.ufo — zero..nine je 1 eindeutige Vorbreite (1104 bzw. 1178)"
+  - family: "DIN"
+    weights_verified: []
+    evidence: "unbelegt — die Tokens behaupten es seit jeher, eine Quelle steht nicht dabei. Nur fuer callout im Einsatz, dort einzeilig, also unkritisch."
+proportional_numeral_fonts:
+  - family: "Segoe UI Light"
+    evidence: "Selawik-Light.ufo — zero..nine mit 4 verschiedenen Vorbreiten (730/1022/1055/1087)"
+    verdict: "auf Zahlenflaechen VERBOTEN; im aktuellen Theme nur auf subTitle/legend/subheader/categoryLabels/cardVisual-label, also Text"
+
 scale:
   page_title:
     size_min_pt: 16

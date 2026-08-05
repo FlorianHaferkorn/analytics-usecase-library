@@ -107,7 +107,10 @@ def test_open_gaps_are_counted_not_creeping():
     rs = _rules()
     ohne_validator = [r["id"] for r in rs
                       if r.get("check") in ("structural", "both") and not r.get("validator")]
-    assert len(ohne_validator) == 5, (
-        f"{len(ohne_validator)} structural-Regeln ohne Validator (erwartet 5): "
+    # 5 -> 4 am 05.08.2026: BC-TYPE-02 verdrahtet. Die alte Begruendung ("braucht
+    # Render-Verifikation") war ein Fehlschluss — Power BI hat keine Eigenschaft fuer
+    # Tabellenziffern, also IST die Schriftwahl die Regel, und die steht im Theme.
+    assert len(ohne_validator) == 4, (
+        f"{len(ohne_validator)} structural-Regeln ohne Validator (erwartet 4): "
         f"{sorted(ohne_validator)}. Weniger = Fortschritt, Zahl anpassen. Mehr = eine "
         f"neue Regel behauptet Pruefbarkeit, ohne sie zu liefern.")
