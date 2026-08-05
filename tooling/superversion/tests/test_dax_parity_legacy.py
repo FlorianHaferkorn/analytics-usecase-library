@@ -41,6 +41,13 @@ KPI_TO_LEGACY = {
     "enterprise.action_routed.count": ("Experience.SemanticModel", "Actions Routed Count"),
     "scm.supplier_risk.score": ("Finance.SemanticModel", "Supplier Risk Score"),
     "fin.liquidity.payables.amount": ("Finance.SemanticModel", "Payables Amount"),
+    # 05.08.2026 aus `op: hitl` geloest, ohne neue Operation: das Muster "Iterator ueber
+    # VALUES + mehrere CALCULATE" kommt im Korpus 4x vor (DSO/DIO/DPO/MAPE) und die
+    # Grammatik trug es laengst — `value` von avgx_over_key ist ein calc_ref und darf
+    # verschachteln. ABS steht im Zaehler statt um den Bruch: fuer nicht-negative Mengen
+    # rechnerisch identisch, aber BLANK kommt so direkt aus DIVIDE (Doku: leerer Nenner
+    # -> BLANK) und AVERAGEX ueberspringt die Zeile — genau was der Legacy-IF-Guard tat.
+    "plan.forecast.mape.pct": ("SupplyChain.SemanticModel", "Forecast MAPE %"),
     "cost.cogs.amount": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
     "sales.price.list.amount": ("Commercial.SemanticModel", "List Price Amount"),
     "sales.price.net.amount": ("Commercial.SemanticModel", "Net Price Amount"),
@@ -258,6 +265,14 @@ def _inline_vars(body: str) -> str:
     if "RETURN" not in body:
         return body
     var_part, _, return_part = body.partition("RETURN")
+    # Alles VOR dem ersten VAR gehoert zum Ausdruck, nicht zu den Bindungen. Stehen die
+    # VARs INNERHALB eines Iterators — `AVERAGEX ( VALUES ( t[key] ), VAR x = ... RETURN
+    # ... )` — dann steckt dort das Tabellenargument. Es wegzuwerfen loescht `t[key]` aus
+    # der Spaltenmenge und laesst die Legacy-Seite aermer aussehen, als sie ist; der
+    # Parity-Test meldet dann eine Abweichung, die es nicht gibt (gefunden 05.08.2026 an
+    # `Forecast MAPE %`). Bei VARs auf oberster Ebene ist das Praefix leer — unveraendert.
+    prefix, _, var_part = var_part.partition("VAR ")
+    var_part = ("VAR " + var_part) if var_part else ""
     resolved: dict[str, str] = {}
     for name, expr in _VAR_RE.findall(var_part):
         e = expr.strip()
@@ -267,7 +282,7 @@ def _inline_vars(body: str) -> str:
     result = return_part.strip()
     for name in sorted(resolved, key=len, reverse=True):
         result = re.sub(rf"\b{re.escape(name)}\b", f"({resolved[name]})", result)
-    return result
+    return (prefix + result) if prefix.strip() else result
 
 
 def _resolve_bracket_refs(text: str, measures: dict[str, str], depth: int = 4) -> str:

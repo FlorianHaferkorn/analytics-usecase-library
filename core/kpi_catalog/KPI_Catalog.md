@@ -2848,10 +2848,27 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Measures mean absolute percentage error in forecast.
     depends_on_measures: []
     lineage:
+    - fact_forecast.ProductKey
     - fact_forecast.Forecast Units
+    - fact_sales.Sales Units
     calculation:
-      op: hitl
-      reason: Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is AVERAGEX ( VALUES ( fact_forecast[ProductKey] ), ABS ( DIVIDE ( per-key Forecast Units - per-key Sales Units, per-key Sales Units ) ) ) — a per-key iterator combining two independent CALCULATE(SUM(...)) lookups inside an ABS/DIVIDE per row, beyond sumx_over_key/avgx_over_key (which only wrap ONE value, not a composite ratio of two context-filtered sums) and beyond the current grammar.
+      op: avgx_over_key
+      key_column: ProductKey
+      value:
+        calc:
+          op: ratio
+          numerator:
+            calc:
+              op: abs
+              value:
+                calc:
+                  op: delta
+                  minuend:
+                    column: Forecast Units
+                  subtrahend:
+                    column: Sales Units
+          denominator:
+            column: Sales Units
   governance:
     business_owner: Supply Planning Lead
     data_owner: Supply Chain BI
