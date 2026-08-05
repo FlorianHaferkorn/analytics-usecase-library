@@ -83,6 +83,132 @@ table _Measures
 		formatString: "0"
 		displayFolder: "FIN-001"
 
+	/// Letzter Datenmonat als Monatsindex (Jahr*12+Monat) mit Cash-Daten — Anker aller (Now)-Measures.
+	/// Macht die Headline-KPIs slicer-unabhaengig: Cards zeigen immer den aktuellen Stand.
+	measure '_NowIdx' =
+			CALCULATE (
+				MAXX (
+					FILTER ( ALL ( dim_date ), NOT ISBLANK ( CALCULATE ( SUM ( fact_cash_position[Cash Balance Amount] ) ) ) ),
+					dim_date[Year] * 12 + dim_date[MonthNumber]
+				),
+				REMOVEFILTERS ( dim_date )
+			)
+		formatString: "0"
+		displayFolder: "FIN-001 (Now)"
+		isHidden
+
+	/// DSO im letzten Datenmonat (slicer-unabhaengig).
+	measure 'DSO Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [DSO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// DIO im letzten Datenmonat (slicer-unabhaengig).
+	measure 'DIO Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [DIO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// DPO im letzten Datenmonat (slicer-unabhaengig).
+	measure 'DPO Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [DPO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC im letzten Datenmonat (slicer-unabhaengig). Headline-KPI der Overview-Cards.
+	measure 'CCC Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash Balance im letzten Datenmonat (bereits semi-additiv; hier explizit gepinnt).
+	measure 'Cash Balance (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Operating Cash Flow im letzten Datenmonat (Monatswert statt Lifetime-Summe).
+	measure 'Operating Cash Flow (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash vs Plan % im letzten Datenmonat (slicer-unabhaengig).
+	measure 'Cash vs Plan % (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [Cash vs Plan %], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0%"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC-Bridge-Wert im letzten Datenmonat (Bridge-Total = Headline-CCC, konsistent).
+	measure 'CCC Bridge Value (Now)' =
+			SWITCH (
+				SELECTEDVALUE ( _CCC_Bridge[Step] ),
+				"DSO", [DSO Days (Now)],
+				"DIO", [DIO Days (Now)],
+				"DPO", -[DPO Days (Now)],
+				[CCC Days (Now)]
+			)
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC-Gesundheit (numerisch fuer Karten-Ampel): 45 - CCC(Now). >0 = unter Ziel = gut.
+	measure 'CCC Health' = 45 - [CCC Days (Now)]
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash-Gesundheit (numerisch): Cash vs Plan % im letzten Datenmonat. >0 = ueber Plan = gut.
+	measure 'Cash Health' = [Cash vs Plan % (Now)]
+		formatString: "0.0%"
+		displayFolder: "FIN-001 (Now)"
+
+	/// OCF-Gesundheit (numerisch): OCF(Now) - OCF-Plan(Now). >0 = ueber Plan = gut.
+	measure 'OCF Health' =
+			VAR _n = [_NowIdx]
+			VAR _ocf = [Operating Cash Flow (Now)]
+			VAR _plan = CALCULATE ( [OCF Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+			RETURN _ocf - _plan
+		formatString: "#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt. Niedriger = besser.
+	measure 'CCC Delta (Now)' =
+			VAR _n = [_NowIdx]
+			VAR _now = [CCC Days (Now)]
+			VAR _pm = CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) )
+			RETURN
+				SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 0, BLANK ( ), 2, _now - 45, _now - _pm )
+		formatString: "+0.0;-0.0;0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash Balance Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt. Hoeher = besser.
+	measure 'Cash Balance Delta (Now)' =
+			VAR _n = [_NowIdx]
+			VAR _now = [Cash Balance (Now)]
+			VAR _pm = CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) )
+			VAR _plan = CALCULATE ( [Cash Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+			RETURN
+				SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, _now - _pm, _now - _plan )
+		formatString: "+#,0;-#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Operating Cash Flow Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt.
+	measure 'Operating Cash Flow Delta (Now)' =
+			VAR _n = [_NowIdx]
+			VAR _now = [Operating Cash Flow (Now)]
+			VAR _pm = CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) )
+			VAR _plan = CALCULATE ( [OCF Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+			RETURN
+				SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, _now - _pm, _now - _plan )
+		formatString: "+#,0;-#,0"
+		displayFolder: "FIN-001 (Now)"
+
 	/// Working capital cycle time.
 	/// Formula: [DSO Days] + [DIO Days] - [DPO Days]
 	/// Grain: month · Unit: days

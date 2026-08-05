@@ -19,11 +19,22 @@
               {
                 "textRuns": [
                   {
-                    "value": "Working capital on track — cash conversion within the 45-day target",
+                    "value": "Working capital on track",
                     "textStyle": {
-                      "fontSize": "18pt",
+                      "fontSize": "17pt",
                       "fontWeight": "bold",
                       "color": "#101828"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Cash conversion cycle within the 45-day target",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#475467"
                     }
                   }
                 ]

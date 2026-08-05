@@ -62,10 +62,10 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "CCC Days"
+                  "Property": "CCC Days (Now)"
                 }
               },
-              "queryRef": "_Measures.CCC Days",
+              "queryRef": "_Measures.CCC Days (Now)",
               "nativeQueryRef": "CCC Days"
             },
             {
@@ -76,10 +76,10 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Cash Balance"
+                  "Property": "Cash Balance (Now)"
                 }
               },
-              "queryRef": "_Measures.Cash Balance",
+              "queryRef": "_Measures.Cash Balance (Now)",
               "nativeQueryRef": "Cash Balance"
             },
             {
@@ -90,10 +90,10 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Operating Cash Flow"
+                  "Property": "Operating Cash Flow (Now)"
                 }
               },
-              "queryRef": "_Measures.Operating Cash Flow",
+              "queryRef": "_Measures.Operating Cash Flow (Now)",
               "nativeQueryRef": "Operating Cash Flow"
             },
             {
@@ -104,10 +104,10 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Cash vs Plan %"
+                  "Property": "Cash vs Plan % (Now)"
                 }
               },
-              "queryRef": "_Measures.Cash vs Plan %",
+              "queryRef": "_Measures.Cash vs Plan % (Now)",
               "nativeQueryRef": "Cash vs Plan %"
             }
           ]

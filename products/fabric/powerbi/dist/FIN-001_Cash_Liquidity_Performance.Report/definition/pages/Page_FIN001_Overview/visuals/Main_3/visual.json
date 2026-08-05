@@ -42,10 +42,10 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "CCC Bridge Value"
+                  "Property": "CCC Bridge Value (Now)"
                 }
               },
-              "queryRef": "_Measures.CCC Bridge Value",
+              "queryRef": "_Measures.CCC Bridge Value (Now)",
               "nativeQueryRef": "CCC Bridge Value"
             }
           ]
@@ -73,6 +73,35 @@
               "expr": {
                 "Literal": {
                   "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Cash Conversion Cycle — aktueller Monat'"
+                }
+              }
+            },
+            "titleWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }
