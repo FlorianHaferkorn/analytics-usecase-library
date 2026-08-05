@@ -29,7 +29,7 @@ technical:
   description: Measures days inventory outstanding.
   depends_on_measures: []
   lineage:
-  - fact_inventory.Inventory Amount
+  - fact_inventory.Average Inventory Amount
   - fact_inventory.COGS Amount
   calculation:
     op: ratio
@@ -37,7 +37,7 @@ technical:
       calc:
         op: mul
         terms:
-        - column: Inventory Amount
+        - column: Average Inventory Amount
         - literal: 365
     denominator:
       column: COGS Amount

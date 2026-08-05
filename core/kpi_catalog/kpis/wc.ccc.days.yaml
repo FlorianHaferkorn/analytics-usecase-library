@@ -33,7 +33,7 @@ technical:
   lineage:
   - fact_accounts_receivable.AR Amount
   - fact_accounts_receivable.Revenue Amount
-  - fact_inventory.Inventory Amount
+  - fact_inventory.Average Inventory Amount
   - fact_inventory.COGS Amount
   - fact_accounts_payable.AP Amount
   - fact_accounts_payable.COGS Amount

@@ -144,14 +144,14 @@ table _Measures
 		displayFolder: "FIN-001"
 
 	/// Inventory efficiency: Inventory / (COGS/365).
-	/// Formula: SUM(fact_inventory[Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
+	/// Formula: SUM(fact_inventory[Average Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
 	/// Grain: month · Unit: days
 	/// Owner: Finance Analytics · Status: active · Actions: S-I1.2
 	/// Synonyms: Days Inventory Outstanding, Days Sales of Inventory, Inventory Days, Lagerreichweite, Bestandsreichweite
 	/// Example question: Which product categories are driving up DIO this quarter?
 	measure 'DIO Days' =
 			VAR InventoryAmount =
-				SUM ( fact_inventory[Inventory Amount] )
+				SUM ( fact_inventory[Average Inventory Amount] )
 			VAR CostOfGoodsSoldAmount =
 				SUM ( fact_inventory[COGS Amount] )
 			VAR AnnualizedInventory =
@@ -205,7 +205,7 @@ table _Measures
 		displayFolder: "FIN-001"
 
 	/// Inventory balance used in DIO calculations.
-	/// Formula: SUM(fact_inventory[Inventory Amount])
+	/// Formula: SUM(fact_inventory[Average Inventory Amount])
 	/// Owner: Finance Analytics · Status: active
 	measure 'Inventory Amount' = SUM ( fact_inventory[Average Inventory Amount] )
 		formatString: "#,0.00"
@@ -329,7 +329,7 @@ table _Measures
 	/// Accounts payable balance at period end
 	/// Formula: SUM(fact_ap[AP Amount]) at latest DateKey in filter context
 	/// Owner: Finance BI · Status: active
-	measure 'Payables Amount' = SUM ( fact_accounts_payable[Payables Amount] )
+	measure 'Payables Amount' = SUM ( fact_accounts_payable[AP Amount] )
 		formatString: #,0.00
 		displayFolder: FIN-001
 		lineageTag: 58cf11a3-6134-4d19-91ec-5e86f803a386
