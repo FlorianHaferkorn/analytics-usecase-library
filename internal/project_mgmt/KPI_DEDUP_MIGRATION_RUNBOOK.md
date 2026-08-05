@@ -47,7 +47,9 @@ rather than assuming a fresh `OTIF %`.
    row if the canonical is already listed.
 5. `core/usecases/**/Domain_Evidence_Pack.yaml` — replace.
 6. `core/semantic_models/domains/*/measures/<twin>.yaml` — delete the twin measure-def.
-7. `products/fabric/powerbi/specs/fabric_measure_overlay.yaml` — remove the twin key.
+7. ~~`fabric_measure_overlay.yaml` — remove the twin key.~~ **Entfaellt seit 05.08.2026:**
+   die Datei ist geloescht; der KPI-Katalog ist die einzige Quelle, ein Zwilling dort
+   verschwindet mit dem Katalogeintrag.
 8. `products/fabric/powerbi/blueprints/*.yaml` — replace twin→canonical.
 9. `core/action_codes/**`, docs (`extended_playbook.md`, `UseCase_Inventory.md`,
    `Measure_Dictionary_*.md`, `tooling/generator/prompts/*`) — replace.

@@ -3058,6 +3058,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_action_log
+    calculation:
+      op: count
   governance:
     business_owner: Executive Office
     data_owner: PMO Analytics
@@ -3828,7 +3830,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Accounts payable balance at period end
     depends_on_measures: []
     lineage:
-    - fact_accounts_payable.AP Amount
+    - fact_accounts_payable.Payables Amount
+    calculation:
+      op: sum
+      column: Payables Amount
   governance:
     business_owner: Head of Treasury / Procurement Controlling
     data_owner: Finance BI
@@ -3874,6 +3879,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_ops.Planned Time Minutes
+    calculation:
+      op: hitl
+      reason: Umrechnung fact_ops[Planned Time Minutes] / 60; die Grammatik hat keine Einheitenumrechnung, und es gibt kein Legacy-Vorbild im dist.
   governance:
     business_owner: Head of Supply Chain Planning
     data_owner: Supply Chain BI
@@ -5764,10 +5772,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: Supplier Risk Score
     description: Rates suppliers based on risk indicators.
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_supplier_risk.Risk Score
     calculation:
-      op: hitl
-      reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Finance.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires fact_supplier_risk table (not yet in data contract)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream of any DSL grammar question.'
+      op: avg
+      column: Risk Score
   governance:
     business_owner: Head of Procurement
     data_owner: Supply Chain BI
@@ -6560,6 +6569,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.Transaction Key
     - fact_sales.Category Key
+    calculation:
+      op: hitl
+      reason: Anteil Transaktionen mit mehr als einer Kategorie — braucht eine Bedingung ueber eine Gruppierung, kein Legacy-Vorbild im dist.
   governance:
     business_owner: Head of Category Management
     data_owner: Commercial BI Engineering
@@ -6604,6 +6616,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.Line Item Key
     - fact_sales.Transaction Key
+    calculation:
+      op: hitl
+      reason: Positionen je Transaktion = DISTINCTCOUNT(Line Item Key) / DISTINCTCOUNT(Transaction Key); distinct-count fehlt der Grammatik, kein Legacy-Vorbild im dist.
   governance:
     business_owner: Head of Category Management
     data_owner: Commercial BI Engineering
@@ -6649,6 +6664,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.Net Sales Amount
     - fact_sales.Transaction Key
+    calculation:
+      op: hitl
+      reason: Umsatz je Transaktion = SUM(Net Sales Amount) / DISTINCTCOUNT(Transaction Key); distinct-count fehlt der Grammatik, kein Legacy-Vorbild im dist.
   governance:
     business_owner: Head of Category Management
     data_owner: Commercial BI Engineering
@@ -6694,6 +6712,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.Promotion Key
     - fact_sales.Category Key
+    calculation:
+      op: hitl
+      reason: Anteil Transaktionen mit Promotion-Bezug je Kategorie — braucht eine Bedingung ueber eine Gruppierung, kein Legacy-Vorbild im dist.
   governance:
     business_owner: Head of Trade Marketing
     data_owner: Commercial BI Engineering
@@ -6738,6 +6759,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_sales.Customer Key
     - fact_sales.Transaction Key
+    calculation:
+      op: hitl
+      reason: RFM-Frequenz braucht eine Zaehlung DISTINCT Transaktionen je Kunde und daraus ein Quantil-Scoring — beides jenseits der heutigen Grammatik, und kein Legacy-Vorbild im dist.
   governance:
     business_owner: Head of Customer Insight
     data_owner: Commercial BI Engineering

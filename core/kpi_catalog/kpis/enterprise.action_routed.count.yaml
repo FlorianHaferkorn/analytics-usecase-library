@@ -25,6 +25,8 @@ technical:
   depends_on_measures: []
   lineage:
   - fact_action_log
+  calculation:
+    op: count
 governance:
   business_owner: Executive Office
   data_owner: PMO Analytics

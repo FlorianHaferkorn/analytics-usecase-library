@@ -26,6 +26,10 @@ technical:
   lineage:
   - fact_sales.Customer Key
   - fact_sales.Transaction Key
+  calculation:
+    op: hitl
+    reason: RFM-Frequenz braucht eine Zaehlung DISTINCT Transaktionen je Kunde und daraus ein Quantil-Scoring —
+      beides jenseits der heutigen Grammatik, und kein Legacy-Vorbild im dist.
 governance:
   business_owner: Head of Customer Insight
   data_owner: Commercial BI Engineering

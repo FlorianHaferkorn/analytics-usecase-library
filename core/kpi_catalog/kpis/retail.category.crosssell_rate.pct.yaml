@@ -25,6 +25,10 @@ technical:
   lineage:
   - fact_sales.Transaction Key
   - fact_sales.Category Key
+  calculation:
+    op: hitl
+    reason: Anteil Transaktionen mit mehr als einer Kategorie — braucht eine Bedingung ueber eine Gruppierung, kein
+      Legacy-Vorbild im dist.
 governance:
   business_owner: Head of Category Management
   data_owner: Commercial BI Engineering

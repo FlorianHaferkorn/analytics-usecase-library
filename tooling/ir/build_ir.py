@@ -221,6 +221,20 @@ def synthesize_catalog_dax(kpi_root: Path) -> tuple[Dict[str, str], Dict[str, st
     return out, unresolved
 
 
+def hitl_placeholder(reason: str) -> str:
+    """Dokumentierter Platzhalter fuer eine Measure, die (noch) keine Formel hat.
+
+    Form wie im handgebauten Modell: `VAR _pending = "<Grund>" RETURN BLANK()`. Der
+    Grund steht im Katalog und wandert damit bis in die Measure -- wer sie in Desktop
+    oeffnet, liest, WAS fehlt, statt eines Verweises auf ein Dokument. Vorher stand
+    hier `-- TBD: see Measure Dictionary`, was den Leser wegschickt, statt zu antworten.
+    """
+    clean = " ".join(str(reason or "no documented reason").split()).replace('"', "'")
+    if len(clean) > 260:
+        clean = clean[:257] + "..."
+    return f'VAR _pending = "{clean}" RETURN BLANK()'
+
+
 # Der Formatstring kommt aus der EINEN Tabelle in tooling/reporting/format_policy
 # (Profil `model`: so, wie die Measure im Semantikmodell formatiert ist). Vorher
 # stand hier eine zweite -- und zwei weitere anderswo; alle drei rieten per
@@ -507,6 +521,13 @@ def main(argv: list[str] | None = None) -> int:
         applied = _apply_catalog_dax(measure_spec, synthesized)
         print(f"catalog DAX: {applied} measure(s) synthesized from technical.calculation"
               f" ({len(unresolved)} without a resolvable calculation — hand-written expression stands)")
+
+        for kpi_id, reason in unresolved.items():
+            spec = measure_spec.get(kpi_id)
+            if spec is not None and not spec.get("dax_expression"):
+                spec["dax_expression"] = hitl_placeholder(reason)
+        print(f"catalog HITL: {len(unresolved)} measure(s) emit a documented placeholder"
+              f" (reason carried from the catalog into the measure)")
 
         presentation = catalog_presentation(kpi_root)
         pres_applied = _apply_catalog_presentation(measure_spec, presentation)

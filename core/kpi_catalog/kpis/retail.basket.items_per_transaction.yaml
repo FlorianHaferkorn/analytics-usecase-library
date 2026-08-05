@@ -24,6 +24,10 @@ technical:
   lineage:
   - fact_sales.Line Item Key
   - fact_sales.Transaction Key
+  calculation:
+    op: hitl
+    reason: Positionen je Transaktion = DISTINCTCOUNT(Line Item Key) / DISTINCTCOUNT(Transaction Key); distinct-count
+      fehlt der Grammatik, kein Legacy-Vorbild im dist.
 governance:
   business_owner: Head of Category Management
   data_owner: Commercial BI Engineering

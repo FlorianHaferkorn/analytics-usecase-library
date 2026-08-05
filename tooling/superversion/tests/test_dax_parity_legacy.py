@@ -35,6 +35,12 @@ DIST = REPO / "products/fabric/powerbi/dist"
 # kpi_id -> (legacy dist file, legacy measure name)
 KPI_TO_LEGACY = {
     "sales.net_sales.amount": ("Commercial.SemanticModel", "Net Sales Amount"),
+    # Am 05.08.2026 aus `op: hitl` geloest: der Katalog behauptete, die Quelltabelle
+    # fehle im Data Contract — das handgebaute Modell liest sie aber. Die Grammatik
+    # konnte beide Faelle laengst (count / avg / sum), es fehlte nur die Berechnung.
+    "enterprise.action_routed.count": ("Experience.SemanticModel", "Actions Routed Count"),
+    "scm.supplier_risk.score": ("Finance.SemanticModel", "Supplier Risk Score"),
+    "fin.liquidity.payables.amount": ("Finance.SemanticModel", "Payables Amount"),
     "cost.cogs.amount": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
     "sales.price.list.amount": ("Commercial.SemanticModel", "List Price Amount"),
     "sales.price.net.amount": ("Commercial.SemanticModel", "Net Price Amount"),
@@ -391,81 +397,74 @@ def test_parity_case_count_covers_all_non_hitl_core_kpis():
 
 
 # ---------------------------------------------------------------------------
-# Das Overlay darf keine zweite DAX-Quelle mehr sein
+# Es gibt keine zweite DAX-Quelle mehr
 #
-# Bis 03.08.2026 trug `fabric_measure_overlay.yaml` handgeschriebene
-# `dax_expression`-Strings und speiste damit den pwsh-Generator, waehrend der
-# Katalog ueber `technical.calculation` die Synthese speiste. Zwei Quellen fuer
-# dieselbe Wahrheit. Als das FIN-001-Modell fachlich richtiggestellt wurde, zog
-# der Katalog nach und das Overlay nicht -- der Generator erzeugte weiter `SUM`
-# statt `LASTNONBLANKVALUE`. Kein Test schlug an.
+# Bis 03.08.2026 trug `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`
+# fuer 105 KPIs je eine handgeschriebene `dax_expression` und speiste damit den
+# pwsh-Generator, waehrend der Katalog ueber `technical.calculation` die Synthese
+# speiste. Zwei Quellen fuer dieselbe Wahrheit. Als das FIN-001-Modell fachlich
+# richtiggestellt wurde, zog der Katalog nach und das Overlay nicht -- der
+# Generator erzeugte weiter `SUM` statt `LASTNONBLANKVALUE`, und kein Test schlug an.
 #
-# Aufgeloest am 04.08.2026: `build_ir.py` synthetisiert die Formel aus dem
-# Katalog (`synthesize_catalog_dax`); das Overlay behaelt nur noch Darstellung.
-# Die Entscheidung war belegt, nicht gesetzt -- fuer 11 der 13 damals
-# dokumentierten Abweichungen stimmt das HANDGEBAUTE Commercial-Modell mit dem
-# Katalog ueberein, nicht mit dem Overlay (die zwei uebrigen stehen dort gar
-# nicht). Das Overlay war also nicht die andere Meinung, sondern der alte Stand.
+# Die Datei ist am 05.08.2026 geloescht. Ihre vier Felder brauchten sie nicht:
+# dax_name stand als technical.measure_name im Katalog, display_folder war 105 mal
+# leer und folgt dem Use Case, format_string ist aus business.unit_format ableitbar
+# (fuer alle 108 KPIs mit Vorbild im dist exakt reproduziert), und die DAX kommt aus
+# der Grammatik. Die letzten sieben Eintraege waren keine Formeln, sondern
+# `-- TBD: see Measure Dictionary` + BLANK() -- Platzhalter, die weniger sagten als
+# der `op: hitl`-Grund im Katalog, der sie ersetzt hat.
 #
-# Was bleibt, ist die Gegenrichtung: eine handgeschriebene Formel ist nur dort
-# legitim, wo die Grammatik nichts hergibt (`op: hitl`, keine `calculation`).
-# Taucht sie irgendwo sonst wieder auf, ist die Zweitquelle zurueck -- und mit
-# ihr die Klasse, die den FIN-001-Fehler moeglich gemacht hat.
+# Dieser Test haelt den Zustand: taucht die Datei wieder auf oder traegt eine andere
+# Spezifikation eine `dax_expression`, ist die Zweitquelle zurueck.
 # ---------------------------------------------------------------------------
 
-OVERLAY = REPO / "products/fabric/powerbi/specs/fabric_measure_overlay.yaml"
+SPECS_DIR = REPO / "products/fabric/powerbi/specs"
+RETIRED_OVERLAY = SPECS_DIR / "fabric_measure_overlay.yaml"
 
 
-def _overlay() -> dict[str, dict]:
-    return yaml.safe_load(OVERLAY.read_text(encoding="utf-8")) or {}
+def test_measure_overlay_stays_retired():
+    assert not RETIRED_OVERLAY.exists(), (
+        f"{RETIRED_OVERLAY.relative_to(REPO)} ist wieder da. Die Datei war eine zweite "
+        "Quelle fuer Rechenvorschriften; ihre Felder kommen seit 05.08.2026 aus dem "
+        "Katalog. Wenn eine Formel wirklich handgeschrieben sein muss, gehoert sie als "
+        "`op: hitl` mit Begruendung in den KPI-Katalog, nicht in eine Parallelspezifikation."
+    )
 
 
-def _catalog_synthesizable() -> set[str]:
-    """KPI-IDs, fuer die der Katalog eine Formel erzeugen kann."""
+def test_no_spec_file_carries_dax_expressions():
+    """Keine Datei unter specs/ traegt DAX. Sonst ist die Zweitquelle nur umgezogen."""
+    offenders = []
+    for f in sorted(SPECS_DIR.glob("*.y*ml")) if SPECS_DIR.is_dir() else []:
+        data = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        if not isinstance(data, dict):
+            continue
+        hits = [k for k, v in data.items() if isinstance(v, dict) and v.get("dax_expression")]
+        if hits:
+            offenders.append(f"{f.relative_to(REPO)}: {len(hits)} Eintrag/Eintraege, u. a. {hits[:3]}")
+    assert not offenders, "DAX in einer Spezifikationsdatei gefunden:\n" + "\n".join(f"    {o}" for o in offenders)
+
+
+def test_every_kpi_resolves_or_declares_why():
+    """Jeder KPI hat entweder eine aufloesbare calculation oder ein begruendetes hitl.
+
+    Eine FEHLENDE `calculation` ist der schlechteste Zustand: sie sieht aus wie ein
+    Versehen und liest sich wie eine Absicht. Am 05.08.2026 hatten sechs KPIs gar
+    keine -- sie sind jetzt als `op: hitl` mit Grund deklariert.
+    """
     import sys as _sys
     if str(REPO) not in _sys.path:
         _sys.path.insert(0, str(REPO))
     from tooling.ir.build_ir import synthesize_catalog_dax
-    synthesized, _unresolved = synthesize_catalog_dax(REPO / "core/kpi_catalog")
-    return set(synthesized)
 
-
-def test_overlay_carries_no_second_dax_source():
-    """Eine handgeschriebene `dax_expression` nur dort, wo der Katalog nichts kann."""
-    synthesizable = _catalog_synthesizable()
-    offenders = sorted(
-        kid for kid, e in _overlay().items()
-        if isinstance(e, dict) and e.get("dax_expression") and kid in synthesizable
+    synthesized, unresolved = synthesize_catalog_dax(REPO / "core/kpi_catalog")
+    catalog = _catalog()
+    undeclared = []
+    for kpi_id in unresolved:
+        calc = ((catalog.get(kpi_id) or {}).get("technical") or {}).get("calculation") or {}
+        if calc.get("op") != "hitl" or not str(calc.get("reason") or "").strip():
+            undeclared.append(kpi_id)
+    assert not undeclared, (
+        "Diese KPIs haben weder eine aufloesbare calculation noch ein begruendetes "
+        "`op: hitl` — die Luecke ist da, aber nirgends erklaert:\n"
+        + "\n".join(f"    {k}" for k in sorted(undeclared))
     )
-    assert not offenders, (
-        "Diese Overlay-Eintraege tragen wieder eine eigene DAX-Formel, obwohl der Katalog "
-        "sie synthetisieren kann — damit gibt es zwei Quellen fuer dieselbe Rechnung:\n"
-        + "\n".join(f"    {k}" for k in offenders)
-        + f"\n\n  Overlay: {OVERLAY.relative_to(REPO)}"
-        "\n  Entweder das Feld entfernen (der Katalog fuehrt), oder — wenn die Grammatik den "
-        "Fall wirklich nicht ausdruecken kann — die calculation auf `op: hitl` mit Begruendung "
-        "setzen, dann ist die Handschrift legitim."
-    )
-
-
-# Stand 04.08.2026: 7 handgeschriebene Formeln, alle ohne Katalog-Gegenstueck.
-# (Die Datei trug vorher 105 Eintraege mit vier Feldern; drei Felder kommen jetzt
-# aus dem Katalog, weil sie dort schon standen oder ableitbar waren.)
-# Darf nur SINKEN — jede neue Grammatik-Operation loest welche ab, keine kommt
-# zurueck. Ein `skip` waere sonst die bequemste Art, die Zweitquelle wieder
-# einzufuehren.
-_OVERLAY_HANDWRITTEN_BASELINE = 7
-
-
-def test_overlay_handwritten_ratchet():
-    ov = _overlay()
-    handwritten = sorted(
-        kid for kid, e in ov.items() if isinstance(e, dict) and e.get("dax_expression")
-    )
-    assert len(handwritten) <= _OVERLAY_HANDWRITTEN_BASELINE, (
-        f"Handgeschriebene Overlay-Formeln gestiegen: {len(handwritten)} > "
-        f"{_OVERLAY_HANDWRITTEN_BASELINE}.\n" + "\n".join(f"    {k}" for k in handwritten)
-    )
-    synthesizable = _catalog_synthesizable()
-    for kid in handwritten:
-        assert kid not in synthesizable, f"{kid}: Handschrift, obwohl der Katalog synthetisieren kann"

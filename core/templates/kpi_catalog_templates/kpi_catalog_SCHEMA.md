@@ -67,7 +67,9 @@ Section `technical` (required):
 
 > **Removed fields:** `dax_expression`, `formatString`, and `dax_name` were removed
 > (2026-03-29). Tool-specific measure details (DAX, format strings) live in product
-> overlays — see `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`.
+> Targets. DAX entsteht aus `technical.calculation` (`tooling/superversion/targets/dax_synth`),
+> SQL aus derselben Grammatik (`sql_synth`). Das fruehere Fabric-Overlay ist am 05.08.2026
+> entfallen; eine zweite Quelle fuer Rechenvorschriften gibt es nicht mehr.
 Section `governance` (required):
 - `governance.business_owner` (required, string)  
   Business owner role/person.

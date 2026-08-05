@@ -27,6 +27,10 @@ technical:
   lineage:
   - fact_sales.Promotion Key
   - fact_sales.Category Key
+  calculation:
+    op: hitl
+    reason: Anteil Transaktionen mit Promotion-Bezug je Kategorie — braucht eine Bedingung ueber eine Gruppierung,
+      kein Legacy-Vorbild im dist.
 governance:
   business_owner: Head of Trade Marketing
   data_owner: Commercial BI Engineering
