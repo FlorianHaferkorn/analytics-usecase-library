@@ -316,17 +316,24 @@ def generate_fact_output(org_df: pd.DataFrame, product_keys: list[int]) -> None:
         for _, dc_row in dc_orgs.iterrows():
             org_key = int(dc_row["OrgKey"])
             rng     = _rng_for(org_key, salt=date_key % 400)
+            # Quality draws use a SEPARATE stream so they do not perturb `rng`'s
+            # noise sequence — Output Units / Revenue stay byte-identical to prior runs.
+            qrng    = _rng_for(org_key, salt=(date_key % 400) + 400)
 
             for pk in dc_products:
                 noise    = float(rng.uniform(0.80, 1.20))
                 units    = max(0, int(_BASE_DAILY_UNITS_DC * growth * seasonality * noise))
                 revenue  = round(units * avg_prices[pk], 2)
+                good     = int(units * float(qrng.uniform(0.96, 0.99)))   # yield 96–99% (Good Units <= Output Units)
+                defects  = int(units * float(qrng.uniform(0.01, 0.04)))   # defect rate 1–4% of output
 
                 rows.append({
                     "DateKey":        date_key,
                     "OrgKey":         org_key,
                     "ProductKey":     int(pk),
                     "Output Units":   float(units),
+                    "Good Units":     float(good),
+                    "Defect Count":   float(defects),
                     "Revenue Amount": revenue,
                 })
 
