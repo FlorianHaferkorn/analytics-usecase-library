@@ -26,6 +26,7 @@ technical:
   - fact_pipeline.Opportunity Value Amount
   calculation:
     op: hitl
+    blocked_by: authoring
     reason: fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next
       stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL
       by CLI.

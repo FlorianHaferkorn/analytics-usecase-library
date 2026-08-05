@@ -30,6 +30,7 @@ technical:
   - fact_ops.Minor Stop Count
   calculation:
     op: hitl
+    blocked_by: authoring
     reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel).
       "(1 - Performance Rate) adjusted to exclude minor stop events" is a residual/decomposition formula whose exact
       minor-stop adjustment isn't specified precisely enough to derive without guessing, and is beyond the current

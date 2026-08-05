@@ -28,8 +28,9 @@ technical:
   - fact_sales.Transaction Key
   calculation:
     op: hitl
-    reason: RFM-Frequenz braucht eine Zaehlung DISTINCT Transaktionen je Kunde und daraus ein Quantil-Scoring —
-      beides jenseits der heutigen Grammatik, und kein Legacy-Vorbild im dist.
+    blocked_by: authoring
+    reason: Quantil-Scoring (Transaktionszahl je Kunde -> Rangklasse 1-5). Kein Legacy-Vorbild im dist, also ist
+      die Zielformel nicht festgelegt; ob die Grammatik sie traegt, ist erst nach der Ausformulierung entscheidbar.
 governance:
   business_owner: Head of Customer Insight
   data_owner: Commercial BI Engineering

@@ -31,6 +31,7 @@ technical:
   - fact_demand_forecast.Monthly Demand Forecast
   calculation:
     op: hitl
+    blocked_by: authoring
     reason: New-territory KPI — no legacy DAX counterpart to verify against (not in any products/fabric/powerbi/dist/*.SemanticModel).
       A months-of-forward-demand coverage threshold comparison per SKU is beyond the current grammar, and no threshold
       value is specified precisely enough to derive without guessing.

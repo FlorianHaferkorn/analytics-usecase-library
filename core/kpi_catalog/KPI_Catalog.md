@@ -1415,6 +1415,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_demand_forecast.Monthly Demand Forecast
     calculation:
       op: hitl
+      blocked_by: authoring
       reason: New-territory KPI — no legacy DAX counterpart to verify against (not in any products/fabric/powerbi/dist/*.SemanticModel). A months-of-forward-demand coverage threshold comparison per SKU is beyond the current grammar, and no threshold value is specified precisely enough to derive without guessing.
   governance:
     business_owner: Head of Supply Chain
@@ -1926,7 +1927,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_stockout.Lost Demand Units
     calculation:
       op: hitl
+      blocked_by: grammar
       reason: Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is [Stockout Impact %] * DIVIDE ( SUMX ( fact_stockout, IF ( context-filtered Forecast Units < row-level Demand Units, row-level Lost Demand Units, 0 ) ), SUM ( Lost Demand Units ) ) — a per-row conditional SUMX comparing a row-level column to a context-filtered aggregate (CALCULATE(SUM(...)) evaluated per row), beyond the current sum/ratio/mul/sumx_product-shaped grammar.
+      pattern: sumx_row_vs_context_aggregate
+      occurrences_in_corpus: 1
   governance:
     business_owner: Head of Supply Chain Planning
     data_owner: Supply Chain BI
@@ -2236,6 +2240,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_safety.Incident Count
     calculation:
       op: hitl
+      blocked_by: data_contract
       reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Operations.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires fact_safety_incidents table (not yet in data contract)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream of any DSL grammar question.'
   governance:
     business_owner: EHS Manager
@@ -2688,6 +2693,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_ops.Minor Stop Count
     calculation:
       op: hitl
+      blocked_by: authoring
       reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel). "(1 - Performance Rate) adjusted to exclude minor stop events" is a residual/decomposition formula whose exact minor-stop adjustment isn't specified precisely enough to derive without guessing, and is beyond the current grammar regardless.
   governance:
     business_owner: Head of Operations
@@ -2737,6 +2743,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_ops_changeover.End Timestamp
     calculation:
       op: hitl
+      blocked_by: authoring
       reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel). Average duration between two timestamp columns (AVERAGEX with a DATEDIFF-style row expression) is beyond the current sum/ratio/delta/count-shaped grammar.
   governance:
     business_owner: Head of Operations
@@ -3634,6 +3641,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage: []
     calculation:
       op: hitl
+      blocked_by: data_contract
       reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires fact_it Digital Users and fact_hr Total Headcount (not yet in data contracts)" RETURN BLANK()) — the source tables/columns do not exist yet in the data contract, upstream of any DSL grammar question.'
   governance:
     business_owner: Head of Digital Transformation
@@ -3678,6 +3686,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage: []
     calculation:
       op: hitl
+      blocked_by: data_contract
       reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s own DAX is a documented placeholder (VAR _pending = "Requires predictive attrition model output table (not yet in data contracts)" RETURN BLANK()) — the source table does not exist yet in the data contract, upstream of any DSL grammar question.'
   governance:
     business_owner: Head of HR
@@ -3897,8 +3906,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     lineage:
     - fact_ops.Planned Time Minutes
     calculation:
-      op: hitl
-      reason: Umrechnung fact_ops[Planned Time Minutes] / 60; die Grammatik hat keine Einheitenumrechnung, und es gibt kein Legacy-Vorbild im dist.
+      op: ratio
+      numerator:
+        column: Planned Time Minutes
+      denominator:
+        literal: 60
   governance:
     business_owner: Head of Supply Chain Planning
     data_owner: Supply Chain BI
@@ -6588,7 +6600,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Category Key
     calculation:
       op: hitl
-      reason: Anteil Transaktionen mit mehr als einer Kategorie — braucht eine Bedingung ueber eine Gruppierung, kein Legacy-Vorbild im dist.
+      blocked_by: authoring
+      reason: Anteil Transaktionen mit mehr als einer Kategorie. Kein Legacy-Vorbild im dist — die Zielformel (Zaehlbasis, Grain, Behandlung von Einzelposten) ist fachlich nicht festgelegt.
   governance:
     business_owner: Head of Category Management
     data_owner: Commercial BI Engineering
@@ -6634,8 +6647,15 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Line Item Key
     - fact_sales.Transaction Key
     calculation:
-      op: hitl
-      reason: Positionen je Transaktion = DISTINCTCOUNT(Line Item Key) / DISTINCTCOUNT(Transaction Key); distinct-count fehlt der Grammatik, kein Legacy-Vorbild im dist.
+      op: ratio
+      numerator:
+        calc:
+          op: distinctcount
+          column: Line Item Key
+      denominator:
+        calc:
+          op: distinctcount
+          column: Transaction Key
   governance:
     business_owner: Head of Category Management
     data_owner: Commercial BI Engineering
@@ -6682,8 +6702,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Net Sales Amount
     - fact_sales.Transaction Key
     calculation:
-      op: hitl
-      reason: Umsatz je Transaktion = SUM(Net Sales Amount) / DISTINCTCOUNT(Transaction Key); distinct-count fehlt der Grammatik, kein Legacy-Vorbild im dist.
+      op: ratio
+      numerator:
+        column: Net Sales Amount
+      denominator:
+        calc:
+          op: distinctcount
+          column: Transaction Key
   governance:
     business_owner: Head of Category Management
     data_owner: Commercial BI Engineering
@@ -6731,7 +6756,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Category Key
     calculation:
       op: hitl
-      reason: Anteil Transaktionen mit Promotion-Bezug je Kategorie — braucht eine Bedingung ueber eine Gruppierung, kein Legacy-Vorbild im dist.
+      blocked_by: authoring
+      reason: Anteil Transaktionen mit Promotion-Bezug je Kategorie. Kein Legacy-Vorbild im dist — dieselbe offene Frage wie bei crosssell_rate.
   governance:
     business_owner: Head of Trade Marketing
     data_owner: Commercial BI Engineering
@@ -6778,7 +6804,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_sales.Transaction Key
     calculation:
       op: hitl
-      reason: RFM-Frequenz braucht eine Zaehlung DISTINCT Transaktionen je Kunde und daraus ein Quantil-Scoring — beides jenseits der heutigen Grammatik, und kein Legacy-Vorbild im dist.
+      blocked_by: authoring
+      reason: Quantil-Scoring (Transaktionszahl je Kunde -> Rangklasse 1-5). Kein Legacy-Vorbild im dist, also ist die Zielformel nicht festgelegt; ob die Grammatik sie traegt, ist erst nach der Ausformulierung entscheidbar.
   governance:
     business_owner: Head of Customer Insight
     data_owner: Commercial BI Engineering
@@ -7203,6 +7230,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_pipeline.Opportunity Value Amount
     calculation:
       op: hitl
+      blocked_by: authoring
       reason: fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL by CLI.
   governance:
     business_owner: TBD
@@ -7296,6 +7324,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - fact_pipeline.Cycle Days
     calculation:
       op: hitl
+      blocked_by: authoring
       reason: 'Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL).'
   governance:
     business_owner: TBD

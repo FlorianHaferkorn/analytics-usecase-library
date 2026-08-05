@@ -27,8 +27,9 @@ technical:
   - fact_sales.Category Key
   calculation:
     op: hitl
-    reason: Anteil Transaktionen mit mehr als einer Kategorie — braucht eine Bedingung ueber eine Gruppierung, kein
-      Legacy-Vorbild im dist.
+    blocked_by: authoring
+    reason: Anteil Transaktionen mit mehr als einer Kategorie. Kein Legacy-Vorbild im dist — die Zielformel (Zaehlbasis,
+      Grain, Behandlung von Einzelposten) ist fachlich nicht festgelegt.
 governance:
   business_owner: Head of Category Management
   data_owner: Commercial BI Engineering

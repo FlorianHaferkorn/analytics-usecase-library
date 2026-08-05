@@ -27,6 +27,7 @@ technical:
   - fact_pipeline.Cycle Days
   calculation:
     op: hitl
+    blocked_by: authoring
     reason: 'Composite: open-opportunity count x avg deal value x win rate / sales-cycle length; all inputs now
       in fact_pipeline — assembled as a DAX measure in TMDL by CLI (beyond the neutral single-op DSL).'
 governance:

@@ -48,6 +48,12 @@ KPI_TO_LEGACY = {
     # rechnerisch identisch, aber BLANK kommt so direkt aus DIVIDE (Doku: leerer Nenner
     # -> BLANK) und AVERAGEX ueberspringt die Zeile — genau was der Legacy-IF-Guard tat.
     "plan.forecast.mape.pct": ("SupplyChain.SemanticModel", "Forecast MAPE %"),
+    # 05.08.2026 ausformuliert, ohne Legacy-Gegenstueck: distinctcount und die Division
+    # durch ein Literal konnte die Grammatik laengst — die frueheren hitl-Begruendungen
+    # ("distinctcount fehlt", "keine Einheitenumrechnung") waren schlicht falsch.
+    "retail.basket.items_per_transaction": (None, "Items per Transaction"),
+    "retail.basket.value.average": (None, "Average Basket Value"),
+    "ops.planned.hours": (None, "Planned Hours"),
     "cost.cogs.amount": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
     "sales.price.list.amount": ("Commercial.SemanticModel", "List Price Amount"),
     "sales.price.net.amount": ("Commercial.SemanticModel", "Net Price Amount"),
@@ -482,4 +488,80 @@ def test_every_kpi_resolves_or_declares_why():
         "Diese KPIs haben weder eine aufloesbare calculation noch ein begruendetes "
         "`op: hitl` — die Luecke ist da, aber nirgends erklaert:\n"
         + "\n".join(f"    {k}" for k in sorted(undeclared))
+    )
+
+
+# ---------------------------------------------------------------------------
+# Offene Faelle sind maschinenlesbar, nicht nur beschrieben
+#
+# `op: hitl` trug bis 05.08.2026 nur `reason` als Fliesstext. Fuer einen Menschen
+# lesbar, fuer Code und Agent nicht: Datenluecke, Grammatikluecke und "Formel noch
+# nicht festgelegt" sahen identisch aus, und wer wissen wollte, wie viele wovon,
+# musste zwoelf Absaetze lesen. Seit `blocked_by` ist die Klasse ein Feld.
+#
+# Der eigentliche Gewinn ist der Zaehler. Ob eine Grammatik-Operation gebaut wird,
+# war bisher eine Diskussion; jetzt ist es eine Messung: `occurrences_in_corpus`
+# haelt fest, wie oft das Muster im dist-Korpus vorkommt. Bei 1 lohnt die Operation
+# nicht (sie kostet mehr, als sie traegt). Ab 2 ist sie faellig — und das sagt der
+# Test unten, nicht ein Gespraech.
+#
+# Beleg fuer die Schwelle: am 05.08.2026 wurde `Forecast MAPE %` OHNE neue Operation
+# ausgedrueckt, weil sein Muster (Iterator ueber VALUES + mehrere CALCULATE) 4x
+# vorkam und die Grammatik es laengst trug. `Service Impact %` blieb offen, weil
+# sein Muster genau 1x vorkommt.
+# ---------------------------------------------------------------------------
+
+_HITL_CLASSES = {"data_contract", "grammar", "authoring", "decision"}
+
+
+def _hitl_entries() -> dict[str, dict]:
+    out = {}
+    for kpi_id, kpi in _catalog().items():
+        calc = ((kpi.get("technical") or {}).get("calculation") or {})
+        if calc.get("op") == "hitl":
+            out[kpi_id] = calc
+    return out
+
+
+def test_hitl_entries_are_machine_readable():
+    """Jeder offene Fall sagt einer Maschine, WAS ihn blockiert."""
+    bad = []
+    for kpi_id, calc in sorted(_hitl_entries().items()):
+        blocked = calc.get("blocked_by")
+        if blocked not in _HITL_CLASSES:
+            bad.append(f"{kpi_id}: blocked_by={blocked!r} (erlaubt: {sorted(_HITL_CLASSES)})")
+        elif blocked == "grammar" and not calc.get("pattern"):
+            bad.append(f"{kpi_id}: blocked_by=grammar ohne `pattern` — ohne Musternamen "
+                       "sind gleichartige Faelle nicht zaehlbar")
+    assert not bad, "hitl-Eintraege ohne maschinenlesbare Klasse:\n" + "\n".join(f"    {b}" for b in bad)
+
+
+def test_recurring_grammar_gap_forces_an_operation():
+    """Ab dem ZWEITEN Vorkommen eines Musters wird die Operation faellig.
+
+    Zwei Wege dorthin, beide zaehlen: derselbe `pattern` bei mehreren KPIs, oder ein
+    einzelner KPI, dessen gemessenes `occurrences_in_corpus` >= 2 ist. Ein Muster,
+    das sich wiederholt, ist kein Einzelfall mehr — und ein Einzelfall ist das
+    einzige Argument dafuer, die Operation NICHT zu bauen.
+    """
+    import collections
+    by_pattern = collections.Counter()
+    measured = {}
+    for kpi_id, calc in _hitl_entries().items():
+        if calc.get("blocked_by") != "grammar":
+            continue
+        pat = calc["pattern"]
+        by_pattern[pat] += 1
+        occ = calc.get("occurrences_in_corpus")
+        if isinstance(occ, int):
+            measured[pat] = max(measured.get(pat, 0), occ)
+
+    due = sorted({p for p, n in by_pattern.items() if n >= 2} | {p for p, n in measured.items() if n >= 2})
+    assert not due, (
+        "Diese DAX-Muster kommen mehrfach vor und sind damit keine Einzelfaelle mehr — "
+        "die Grammatik-Operation ist faellig:\n"
+        + "\n".join(f"    {p}  (KPIs: {by_pattern[p]}, im Korpus gemessen: {measured.get(p, '—')})"
+                    for p in due)
+        + "\n\n  Entweder die Operation bauen (dax_synth + from_aluca + sql_synth + Schema), "
+        "oder — wenn die Faelle doch verschieden sind — die `pattern`-Namen trennen."
     )

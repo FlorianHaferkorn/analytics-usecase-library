@@ -25,9 +25,15 @@ technical:
   - fact_sales.Line Item Key
   - fact_sales.Transaction Key
   calculation:
-    op: hitl
-    reason: Positionen je Transaktion = DISTINCTCOUNT(Line Item Key) / DISTINCTCOUNT(Transaction Key); distinct-count
-      fehlt der Grammatik, kein Legacy-Vorbild im dist.
+    op: ratio
+    numerator:
+      calc:
+        op: distinctcount
+        column: Line Item Key
+    denominator:
+      calc:
+        op: distinctcount
+        column: Transaction Key
 governance:
   business_owner: Head of Category Management
   data_owner: Commercial BI Engineering

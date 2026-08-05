@@ -26,6 +26,7 @@ technical:
   lineage: []
   calculation:
     op: hitl
+    blocked_by: data_contract
     reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s
       own DAX is a documented placeholder (VAR _pending = "Requires fact_it Digital Users and fact_hr Total Headcount
       (not yet in data contracts)" RETURN BLANK()) — the source tables/columns do not exist yet in the data contract,

@@ -29,8 +29,9 @@ technical:
   - fact_sales.Category Key
   calculation:
     op: hitl
-    reason: Anteil Transaktionen mit Promotion-Bezug je Kategorie — braucht eine Bedingung ueber eine Gruppierung,
-      kein Legacy-Vorbild im dist.
+    blocked_by: authoring
+    reason: Anteil Transaktionen mit Promotion-Bezug je Kategorie. Kein Legacy-Vorbild im dist — dieselbe offene
+      Frage wie bei crosssell_rate.
 governance:
   business_owner: Head of Trade Marketing
   data_owner: Commercial BI Engineering

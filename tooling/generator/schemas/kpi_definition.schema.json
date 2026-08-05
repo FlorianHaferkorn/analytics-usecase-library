@@ -18,43 +18,75 @@
       "type": "string",
       "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
     },
-    "kpi_key": { "type": "string", "minLength": 1 },
-    "kpi_type": { "type": "string", "minLength": 1 },
-    "kpi_role": { "type": "string" },
-    "impact_dimension": { "type": "string", "minLength": 1 },
+    "kpi_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kpi_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kpi_role": {
+      "type": "string"
+    },
+    "impact_dimension": {
+      "type": "string",
+      "minLength": 1
+    },
     "domain_tag": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "minItems": 1
     },
     "use_case_ref": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "action_code_ref": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
-    "calc_type": { "type": "string", "minLength": 1 },
-
-    "business": { "type": "object", "additionalProperties": true },
+    "calc_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "business": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "technical": {
       "type": "object",
       "additionalProperties": true,
       "properties": {
-        "calculation": { "$ref": "#/$defs/calculation" }
+        "calculation": {
+          "$ref": "#/$defs/calculation"
+        }
       }
     },
-    "governance": { "type": "object", "additionalProperties": true },
-    "metadata_quality": { "type": "object", "additionalProperties": true },
-
+    "governance": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "metadata_quality": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "standard_ref": {
       "description": "Alignment of this KPI's definition to an external industry standard/ontology — reference, don't redefine (Golden Thread). Domain-agnostic: SCOR-DS for supply chain, FIBO/IFRS for finance, ESRS/GRI for ESG, ISO-30414 for HR, etc. A KPI may map to more than one standard. The value of the mapping is credibility (industry-aligned definitions) plus a definition-drift audit (see `alignment`).",
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["standard", "alignment"],
+        "required": [
+          "standard",
+          "alignment"
+        ],
         "properties": {
           "standard": {
             "type": "string",
@@ -77,7 +109,11 @@
           "alignment": {
             "type": "string",
             "description": "How our definition relates to the standard's. exact = same definition/formula/grain; partial = same concept but a definitional difference exists (documented in `note`); none = no equivalent in this standard (pointer to a better-fitting standard belongs in `note`).",
-            "enum": ["exact", "partial", "none"]
+            "enum": [
+              "exact",
+              "partial",
+              "none"
+            ]
           },
           "note": {
             "type": "string",
@@ -86,16 +122,24 @@
         }
       }
     },
-
     "causal_links": {
       "description": "Causal relationships that quantify how influencing KPIs affect this KPI (typically strategic KPI).",
       "type": "object",
       "additionalProperties": false,
-      "required": ["model_type", "as_of", "links"],
+      "required": [
+        "model_type",
+        "as_of",
+        "links"
+      ],
       "properties": {
         "model_type": {
           "type": "string",
-          "enum": ["local_linear_beta", "elasticity", "piecewise_linear", "lookup"]
+          "enum": [
+            "local_linear_beta",
+            "elasticity",
+            "piecewise_linear",
+            "lookup"
+          ]
         },
         "as_of": {
           "type": "string",
@@ -104,7 +148,9 @@
         "links": {
           "type": "array",
           "minItems": 1,
-          "items": { "$ref": "#/$defs/causal_link" }
+          "items": {
+            "$ref": "#/$defs/causal_link"
+          }
         }
       }
     }
@@ -116,24 +162,50 @@
       "oneOf": [
         {
           "additionalProperties": false,
-          "required": ["kpi"],
-          "properties": { "kpi": { "type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$" } }
+          "required": [
+            "kpi"
+          ],
+          "properties": {
+            "kpi": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$"
+            }
+          }
         },
         {
           "additionalProperties": false,
-          "required": ["column"],
-          "properties": { "column": { "type": "string", "minLength": 1 } }
+          "required": [
+            "column"
+          ],
+          "properties": {
+            "column": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         },
         {
           "additionalProperties": false,
-          "required": ["calc"],
-          "properties": { "calc": { "$ref": "#/$defs/calculation" } }
+          "required": [
+            "calc"
+          ],
+          "properties": {
+            "calc": {
+              "$ref": "#/$defs/calculation"
+            }
+          }
         },
         {
           "description": "A bare numeric constant (e.g. a fixed proxy factor observed in legacy DAX, such as `[Baseline Sales Amount] * 0.15`) — never a business-logic guess, only used when the legacy formula itself hardcodes the constant.",
           "additionalProperties": false,
-          "required": ["literal"],
-          "properties": { "literal": { "type": "number" } }
+          "required": [
+            "literal"
+          ],
+          "properties": {
+            "literal": {
+              "type": "number"
+            }
+          }
         }
       ]
     },
@@ -146,18 +218,41 @@
         "oneOf": [
           {
             "additionalProperties": false,
-            "required": ["column", "equals"],
+            "required": [
+              "column",
+              "equals"
+            ],
             "properties": {
-              "column": { "type": "string", "minLength": 1 },
-              "equals": { "oneOf": [{ "type": "boolean" }, { "type": "string" }] }
+              "column": {
+                "type": "string",
+                "minLength": 1
+              },
+              "equals": {
+                "oneOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
             }
           },
           {
             "additionalProperties": false,
-            "required": ["column", "not_blank"],
+            "required": [
+              "column",
+              "not_blank"
+            ],
             "properties": {
-              "column": { "type": "string", "minLength": 1 },
-              "not_blank": { "const": true }
+              "column": {
+                "type": "string",
+                "minLength": 1
+              },
+              "not_blank": {
+                "const": true
+              }
             }
           }
         ]
@@ -170,144 +265,293 @@
         {
           "description": "sum(column) — a leaf aggregate over one of this KPI's own lineage columns.",
           "additionalProperties": false,
-          "required": ["op", "column"],
+          "required": [
+            "op",
+            "column"
+          ],
           "properties": {
-            "op": { "const": "sum" },
-            "column": { "type": "string", "minLength": 1 }
+            "op": {
+              "const": "sum"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         {
           "description": "sum(numerator) / sum(denominator), optionally scaled (e.g. defects per 1,000 units).",
           "additionalProperties": false,
-          "required": ["op", "numerator", "denominator"],
+          "required": [
+            "op",
+            "numerator",
+            "denominator"
+          ],
           "properties": {
-            "op": { "const": "ratio" },
-            "numerator": { "$ref": "#/$defs/calc_ref" },
-            "denominator": { "$ref": "#/$defs/calc_ref" },
-            "scale": { "type": "number" }
+            "op": {
+              "const": "ratio"
+            },
+            "numerator": {
+              "$ref": "#/$defs/calc_ref"
+            },
+            "denominator": {
+              "$ref": "#/$defs/calc_ref"
+            },
+            "scale": {
+              "type": "number"
+            }
           }
         },
         {
           "description": "minuend - subtrahend (e.g. Gross Margin Amount = Net Sales Amount - COGS Amount).",
           "additionalProperties": false,
-          "required": ["op", "minuend", "subtrahend"],
+          "required": [
+            "op",
+            "minuend",
+            "subtrahend"
+          ],
           "properties": {
-            "op": { "const": "delta" },
-            "minuend": { "$ref": "#/$defs/calc_ref" },
-            "subtrahend": { "$ref": "#/$defs/calc_ref" }
+            "op": {
+              "const": "delta"
+            },
+            "minuend": {
+              "$ref": "#/$defs/calc_ref"
+            },
+            "subtrahend": {
+              "$ref": "#/$defs/calc_ref"
+            }
           }
         },
         {
           "description": "(minuend - subtrahend) / ABS(subtrahend) — variance-vs-baseline percentage (e.g. Net Sales % vs Plan).",
           "additionalProperties": false,
-          "required": ["op", "minuend", "subtrahend"],
+          "required": [
+            "op",
+            "minuend",
+            "subtrahend"
+          ],
           "properties": {
-            "op": { "const": "delta_pct" },
-            "minuend": { "$ref": "#/$defs/calc_ref" },
-            "subtrahend": { "$ref": "#/$defs/calc_ref" }
+            "op": {
+              "const": "delta_pct"
+            },
+            "minuend": {
+              "$ref": "#/$defs/calc_ref"
+            },
+            "subtrahend": {
+              "$ref": "#/$defs/calc_ref"
+            }
           }
         },
         {
           "description": "Share of rows where a boolean flag column (from this KPI's own lineage) is TRUE, over all rows of that table (e.g. OTIF %, On-Time %).",
           "additionalProperties": false,
-          "required": ["op", "column"],
+          "required": [
+            "op",
+            "column"
+          ],
           "properties": {
-            "op": { "const": "rate" },
-            "column": { "type": "string", "minLength": 1 }
+            "op": {
+              "const": "rate"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         {
           "description": "Row count of this KPI's own lineage table. Without `column`: bare-table lineage entry (e.g. Order Lines Count). With `column`: table is instead derived from that column in this KPI's own lineage (for use as a nested sub-expression, e.g. NPS TotalResponses = COUNTROWS(fact_nps) derived from the NPS Score column).",
           "additionalProperties": false,
-          "required": ["op"],
+          "required": [
+            "op"
+          ],
           "properties": {
-            "op": { "const": "count" },
-            "column": { "type": "string", "minLength": 1 }
+            "op": {
+              "const": "count"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         {
           "description": "AVERAGE(column) — a leaf aggregate over one of this KPI's own lineage columns (e.g. the Standard Rate Units Per Minute factor in Performance %'s theoretical-output denominator).",
           "additionalProperties": false,
-          "required": ["op", "column"],
+          "required": [
+            "op",
+            "column"
+          ],
           "properties": {
-            "op": { "const": "avg" },
-            "column": { "type": "string", "minLength": 1 }
+            "op": {
+              "const": "avg"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         {
           "description": "SUMX ( table, table[factor_a] * table[factor_b] ) — row-context product of two columns from this KPI's own lineage table, summed (e.g. Planned Output Units = SUMX(fact_ops, Standard Rate * Planned Time)). Both columns must resolve to the SAME table.",
           "additionalProperties": false,
-          "required": ["op", "factor_a", "factor_b"],
+          "required": [
+            "op",
+            "factor_a",
+            "factor_b"
+          ],
           "properties": {
-            "op": { "const": "sumx_product" },
-            "factor_a": { "type": "string", "minLength": 1 },
-            "factor_b": { "type": "string", "minLength": 1 }
+            "op": {
+              "const": "sumx_product"
+            },
+            "factor_a": {
+              "type": "string",
+              "minLength": 1
+            },
+            "factor_b": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         {
           "description": "CALCULATE ( COUNTROWS ( table ), filter_1, filter_2, ... ) — row count of this KPI's own lineage table under 1+ filters against boolean OR string column values, or a not-blank check (e.g. PM Compliance %'s Order Type = \"PM\" AND Order Status = \"Completed\"; Actions Executed Count's NOT ISBLANK(outcome_status)). Generalizes `rate`/`distinctcount`'s boolean-only filters to string equality and not-blank, needed when the legacy DAX filters on a categorical column or a has-a-value check rather than a flag.",
           "additionalProperties": false,
-          "required": ["op", "column", "filters"],
+          "required": [
+            "op",
+            "column",
+            "filters"
+          ],
           "properties": {
-            "op": { "const": "count_filtered" },
-            "column": { "type": "string", "minLength": 1 },
-            "filters": { "$ref": "#/$defs/calc_filters" }
+            "op": {
+              "const": "count_filtered"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            },
+            "filters": {
+              "$ref": "#/$defs/calc_filters"
+            }
           }
         },
         {
           "description": "CALCULATE ( AVERAGEX ( table, table[column] ), filter_1, filter_2, ... ) — row average of this KPI's own lineage column, restricted to rows matching 1+ filters (e.g. Action Effectiveness Delta = AVERAGEX(FILTER(fact_action_outcome, outcome_status=\"achieved\"), impact_value)). Same filter shape as `count_filtered`; needed when the legacy DAX averages a subset of rows rather than the whole table.",
           "additionalProperties": false,
-          "required": ["op", "column", "filters"],
+          "required": [
+            "op",
+            "column",
+            "filters"
+          ],
           "properties": {
-            "op": { "const": "avg_filtered" },
-            "column": { "type": "string", "minLength": 1 },
-            "filters": { "$ref": "#/$defs/calc_filters" }
+            "op": {
+              "const": "avg_filtered"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            },
+            "filters": {
+              "$ref": "#/$defs/calc_filters"
+            }
           }
         },
         {
           "description": "n-ary product of terms (e.g. Incremental Sales Amount * GM% for Incremental Gross Margin Amount).",
           "additionalProperties": false,
-          "required": ["op", "terms"],
+          "required": [
+            "op",
+            "terms"
+          ],
           "properties": {
-            "op": { "const": "mul" },
-            "terms": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/calc_ref" } }
+            "op": {
+              "const": "mul"
+            },
+            "terms": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/calc_ref"
+              }
+            }
           }
         },
         {
           "description": "n-ary sum of terms (e.g. CCC Days = DSO Days + DIO Days - DPO Days, expressed as add(DSO, DIO) then delta(that, DPO)).",
           "additionalProperties": false,
-          "required": ["op", "terms"],
+          "required": [
+            "op",
+            "terms"
+          ],
           "properties": {
-            "op": { "const": "add" },
-            "terms": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/calc_ref" } }
+            "op": {
+              "const": "add"
+            },
+            "terms": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/calc_ref"
+              }
+            }
           }
         },
         {
           "description": "minuend minus a chain of 1+ subtrahends, left to right (e.g. Mix Effect Amount = Net Sales - Plan Sales - Price Effect - Volume Effect).",
           "additionalProperties": false,
-          "required": ["op", "minuend", "subtrahends"],
+          "required": [
+            "op",
+            "minuend",
+            "subtrahends"
+          ],
           "properties": {
-            "op": { "const": "delta_chain" },
-            "minuend": { "$ref": "#/$defs/calc_ref" },
-            "subtrahends": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/calc_ref" } }
+            "op": {
+              "const": "delta_chain"
+            },
+            "minuend": {
+              "$ref": "#/$defs/calc_ref"
+            },
+            "subtrahends": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/calc_ref"
+              }
+            }
           }
         },
         {
           "description": "DISTINCTCOUNT of a key column (from this KPI's own lineage), optionally under CALCULATE with 1+ boolean flag-column filters (e.g. Churned/Active Customers).",
           "additionalProperties": false,
-          "required": ["op", "column"],
+          "required": [
+            "op",
+            "column"
+          ],
           "properties": {
-            "op": { "const": "distinctcount" },
-            "column": { "type": "string", "minLength": 1 },
+            "op": {
+              "const": "distinctcount"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            },
             "filters": {
               "type": "array",
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["column", "equals"],
+                "required": [
+                  "column",
+                  "equals"
+                ],
                 "properties": {
-                  "column": { "type": "string", "minLength": 1 },
-                  "equals": { "type": "boolean" }
+                  "column": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "equals": {
+                    "type": "boolean"
+                  }
                 }
               }
             }
@@ -316,93 +560,230 @@
         {
           "description": "Row count of this KPI's own lineage table filtered by a numeric threshold on a column (e.g. NPS Promoters/Detractors banding).",
           "additionalProperties": false,
-          "required": ["op", "column", "comparator", "value"],
+          "required": [
+            "op",
+            "column",
+            "comparator",
+            "value"
+          ],
           "properties": {
-            "op": { "const": "count_threshold" },
-            "column": { "type": "string", "minLength": 1 },
-            "comparator": { "type": "string", "enum": [">=", "<=", ">", "<", "="] },
-            "value": { "type": "number" }
+            "op": {
+              "const": "count_threshold"
+            },
+            "column": {
+              "type": "string",
+              "minLength": 1
+            },
+            "comparator": {
+              "type": "string",
+              "enum": [
+                ">=",
+                "<=",
+                ">",
+                "<",
+                "="
+              ]
+            },
+            "value": {
+              "type": "number"
+            }
           }
         },
         {
           "description": "ROUND ( value, digits ) wrapper (e.g. NPS index rounded to whole numbers).",
           "additionalProperties": false,
-          "required": ["op", "value", "digits"],
+          "required": [
+            "op",
+            "value",
+            "digits"
+          ],
           "properties": {
-            "op": { "const": "round" },
-            "value": { "$ref": "#/$defs/calc_ref" },
-            "digits": { "type": "integer", "minimum": 0 }
+            "op": {
+              "const": "round"
+            },
+            "value": {
+              "$ref": "#/$defs/calc_ref"
+            },
+            "digits": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         },
         {
           "description": "ABS ( value ) wrapper (e.g. Forecast Accuracy % = 1 - ABS(forecast error ratio)).",
           "additionalProperties": false,
-          "required": ["op", "value"],
+          "required": [
+            "op",
+            "value"
+          ],
           "properties": {
-            "op": { "const": "abs" },
-            "value": { "$ref": "#/$defs/calc_ref" }
+            "op": {
+              "const": "abs"
+            },
+            "value": {
+              "$ref": "#/$defs/calc_ref"
+            }
           }
         },
         {
           "description": "SUMX ( VALUES ( key_column ), CALCULATE ( value ) ) — per-key cumulative aggregation (e.g. Customer Lifetime Revenue).",
           "additionalProperties": false,
-          "required": ["op", "key_column", "value"],
+          "required": [
+            "op",
+            "key_column",
+            "value"
+          ],
           "properties": {
-            "op": { "const": "sumx_over_key" },
-            "key_column": { "type": "string", "minLength": 1 },
-            "value": { "$ref": "#/$defs/calc_ref" }
+            "op": {
+              "const": "sumx_over_key"
+            },
+            "key_column": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "$ref": "#/$defs/calc_ref"
+            }
           }
         },
         {
           "description": "AVERAGEX ( VALUES ( key_column ), CALCULATE ( value ) ) — per-key average aggregation (e.g. CLV).",
           "additionalProperties": false,
-          "required": ["op", "key_column", "value"],
+          "required": [
+            "op",
+            "key_column",
+            "value"
+          ],
           "properties": {
-            "op": { "const": "avgx_over_key" },
-            "key_column": { "type": "string", "minLength": 1 },
-            "value": { "$ref": "#/$defs/calc_ref" }
+            "op": {
+              "const": "avgx_over_key"
+            },
+            "key_column": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "$ref": "#/$defs/calc_ref"
+            }
           }
         },
         {
           "description": "LASTNONBLANKVALUE ( key_column, value ) — semi-additive reducer: over time the LAST non-blank value, over every other dimension additive. For balances (cash, inventory, headcount), where SUMming across periods yields a wrong number rather than an imprecise one.",
           "additionalProperties": false,
-          "required": ["op", "key_column", "value"],
+          "required": [
+            "op",
+            "key_column",
+            "value"
+          ],
           "properties": {
-            "op": { "const": "last_nonblank_over_key" },
-            "key_column": { "type": "string", "minLength": 1 },
-            "value": { "$ref": "#/$defs/calc_ref" }
+            "op": {
+              "const": "last_nonblank_over_key"
+            },
+            "key_column": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "$ref": "#/$defs/calc_ref"
+            }
           }
         },
         {
           "description": "PVM volume-effect leaf: SUMX over this KPI's own lineage table of (quantity - plan_quantity) * DIVIDE(plan_sales, plan_quantity), all row-context columns (no aggregation wrapper).",
           "additionalProperties": false,
-          "required": ["op", "quantity", "plan_quantity", "plan_sales"],
+          "required": [
+            "op",
+            "quantity",
+            "plan_quantity",
+            "plan_sales"
+          ],
           "properties": {
-            "op": { "const": "pvm_volume_effect" },
-            "quantity": { "type": "string", "minLength": 1 },
-            "plan_quantity": { "type": "string", "minLength": 1 },
-            "plan_sales": { "type": "string", "minLength": 1 }
+            "op": {
+              "const": "pvm_volume_effect"
+            },
+            "quantity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plan_quantity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plan_sales": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         {
           "description": "PVM price-effect leaf: SUMX over this KPI's own lineage table of (DIVIDE(net_price, quantity) - DIVIDE(plan_sales, plan_quantity)) * quantity, all row-context columns (no aggregation wrapper).",
           "additionalProperties": false,
-          "required": ["op", "net_price", "quantity", "plan_sales", "plan_quantity"],
+          "required": [
+            "op",
+            "net_price",
+            "quantity",
+            "plan_sales",
+            "plan_quantity"
+          ],
           "properties": {
-            "op": { "const": "pvm_price_effect" },
-            "net_price": { "type": "string", "minLength": 1 },
-            "quantity": { "type": "string", "minLength": 1 },
-            "plan_sales": { "type": "string", "minLength": 1 },
-            "plan_quantity": { "type": "string", "minLength": 1 }
+            "op": {
+              "const": "pvm_price_effect"
+            },
+            "net_price": {
+              "type": "string",
+              "minLength": 1
+            },
+            "quantity": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plan_sales": {
+              "type": "string",
+              "minLength": 1
+            },
+            "plan_quantity": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         {
-          "description": "Explicit human-in-the-loop marker: this KPI's real formula is outside the governed grammar. Renders as a documented BLANK() placeholder (never silent) and is counted by targets/tmdl.py::hitl_gaps().",
+          "description": "Explicit human-in-the-loop marker: this KPI's real formula is outside the governed grammar, or its source/decision is missing. Renders as a documented BLANK() placeholder (never silent). MASCHINENLESBAR ab 05.08.2026: `blocked_by` sagt einer Maschine, WAS fehlt — vorher stand das nur in Prosa, und Datenluecke, Grammatikluecke und 'noch nicht formuliert' sahen identisch aus. Grammatik-Faelle tragen zusaetzlich `pattern` und `occurrences_in_corpus`; ab dem ZWEITEN Vorkommen desselben Musters wird die Operation faellig, und ein Test sagt das von selbst, statt es zu diskutieren.",
           "additionalProperties": false,
-          "required": ["op", "reason"],
+          "required": [
+            "op",
+            "reason",
+            "blocked_by"
+          ],
           "properties": {
-            "op": { "const": "hitl" },
-            "reason": { "type": "string", "minLength": 10 }
+            "op": {
+              "const": "hitl"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 10
+            },
+            "blocked_by": {
+              "type": "string",
+              "enum": [
+                "data_contract",
+                "grammar",
+                "authoring",
+                "decision"
+              ],
+              "description": "data_contract — Quelltabelle/-spalte existiert nicht; upstream zu loesen. grammar — das Muster ist im DSL nicht ausdrueckbar; braucht eine Operation. authoring — ausdrueckbar, aber die Formel ist fachlich noch nicht festgelegt. decision — haengt an einer offenen fachlichen Entscheidung."
+            },
+            "pattern": {
+              "type": "string",
+              "minLength": 3,
+              "description": "Nur bei blocked_by=grammar: stabiler Name des DAX-Musters, damit gleiche Faelle zaehlbar werden."
+            },
+            "occurrences_in_corpus": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Nur bei blocked_by=grammar: gemessene Vorkommen des Musters im dist-Korpus. 1 = Einzelfall (Operation lohnt nicht), >=2 = Operation faellig."
+            }
           }
         }
       ]
@@ -410,7 +791,11 @@
     "causal_link": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["influencing_kpi_id", "effect", "formula"],
+      "required": [
+        "influencing_kpi_id",
+        "effect",
+        "formula"
+      ],
       "properties": {
         "influencing_kpi_id": {
           "type": "string",
@@ -419,30 +804,64 @@
         "effect": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["kind", "coefficient", "direction", "interpretation"],
+          "required": [
+            "kind",
+            "coefficient",
+            "direction",
+            "interpretation"
+          ],
           "properties": {
             "kind": {
               "type": "string",
-              "enum": ["pp_to_pp", "pct_to_pct", "abs_to_abs", "elasticity"]
+              "enum": [
+                "pp_to_pp",
+                "pct_to_pct",
+                "abs_to_abs",
+                "elasticity"
+              ]
             },
-            "coefficient": { "type": "number" },
-            "direction": { "type": "string", "enum": ["positive", "negative"] },
-            "interpretation": { "type": "string", "minLength": 5 }
+            "coefficient": {
+              "type": "number"
+            },
+            "direction": {
+              "type": "string",
+              "enum": [
+                "positive",
+                "negative"
+              ]
+            },
+            "interpretation": {
+              "type": "string",
+              "minLength": 5
+            }
           }
         },
         "applicability": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["grain"],
+          "required": [
+            "grain"
+          ],
           "properties": {
-            "grain": { "type": "string" },
-            "segments": { "type": "array", "items": { "type": "string" } },
+            "grain": {
+              "type": "string"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
             "valid_range": {
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "from_min": { "type": "number" },
-                "from_max": { "type": "number" }
+                "from_min": {
+                  "type": "number"
+                },
+                "from_max": {
+                  "type": "number"
+                }
               }
             }
           }
@@ -450,7 +869,9 @@
         "formula": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["standardized"],
+          "required": [
+            "standardized"
+          ],
           "properties": {
             "standardized": {
               "type": "string",
@@ -467,13 +888,23 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "source": { "type": "string" },
-            "confidence": { "type": "string", "enum": ["Low", "Medium", "High"] },
-            "notes": { "type": "string" }
+            "source": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "Low",
+                "Medium",
+                "High"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            }
           }
         }
       }
     }
   }
 }
-

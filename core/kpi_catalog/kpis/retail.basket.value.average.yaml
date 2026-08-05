@@ -26,9 +26,13 @@ technical:
   - fact_sales.Net Sales Amount
   - fact_sales.Transaction Key
   calculation:
-    op: hitl
-    reason: Umsatz je Transaktion = SUM(Net Sales Amount) / DISTINCTCOUNT(Transaction Key); distinct-count fehlt
-      der Grammatik, kein Legacy-Vorbild im dist.
+    op: ratio
+    numerator:
+      column: Net Sales Amount
+    denominator:
+      calc:
+        op: distinctcount
+        column: Transaction Key
 governance:
   business_owner: Head of Category Management
   data_owner: Commercial BI Engineering
