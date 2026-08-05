@@ -36,6 +36,7 @@ table dim_pvm_driver
 					Source = #table(
 						type table[Driver = text, SortOrder = Int64.Type],
 						{
+							{"Plan Sales", 0},
 							{"Price Effect", 1},
 							{"Volume Effect", 2},
 							{"Mix Effect", 3}

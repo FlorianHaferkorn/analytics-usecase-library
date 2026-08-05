@@ -36,7 +36,14 @@ _CLI = "powerbi-report-author"
 #: `PBIR_ROLE_MAX_EXCEEDED` auf `waterfallChart`. Die Ratsche steht auf dem
 #: SCHLECHTESTEN gemessenen Wert — sie soll Rueckschritt fangen, nicht den Bestand
 #: verwalten. Sinkt der schlechteste, gehoert die Zahl gesenkt.
-BASELINE_ERRORS = 26
+#:
+#: 26 -> 25 am 05.08.2026: alle elf ROLE_MAX-Verstoesse sind weg. Acht Reports
+#: trugen einen waterfallChart, obwohl ihr Bracket `horizontal_bar_chart` vorschreibt
+#: (Drift, kein Entwurf); zwei weitere dasselbe mit `line_chart` bzw.
+#: `horizontal_bar_chart`; der eine ECHTE Bruecke (COM-001LY) nutzt jetzt das
+#: Muster, das COM-002 seit jeher vormacht — dim_pvm_driver als Kategorie, eine
+#: Measure auf Y. Was bleibt, sind die Theme-Eigenschaften (Uebergabepunkt A).
+BASELINE_ERRORS = 25
 
 
 def _validate(report: Path) -> dict:
