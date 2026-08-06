@@ -210,7 +210,17 @@ KPI_TO_LEGACY = {
 # Documented, deliberate divergences (Review Befund A2 methodology: ledger, not
 # silently reconciled). Each maps kpi_id -> human-readable reason the raw
 # column-set differs from the legacy generator's.
-KNOWN_DIVERGENCES: dict[str, str] = {}
+KNOWN_DIVERGENCES: dict[str, str] = {
+    # Finance sources this quality KPI from its own fact_output[Defect Count]/[Output
+    # Units] (FIN-002 quality data-gap fix; the Finance model has no fact_ops/fact_quality),
+    # while the canonical catalog lineage is the Operations grain. Same semantic columns,
+    # different physical fact per semantic model - a deliberate per-model divergence like
+    # the documented sales.units case. Only Finance carries this measure.
+    "ops.quality.defect_rate.pct": (
+        "Finance sources quality from its own fact_output (data-gap fix); canonical is the "
+        "Operations grain fact_ops/fact_quality - a deliberate per-semantic-model divergence."
+    ),
+}
 
 _MEASURE_BLOCK_RE = re.compile(
     r"measure '([^']+)' =\s*(.*?)(?=\n\t(?:///|measure |column )|\Z)", re.S
