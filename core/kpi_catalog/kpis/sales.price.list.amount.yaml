@@ -15,7 +15,7 @@ business:
   purpose: Total list price (before discounts) for price realization and discount analysis.
   definition: Sum of list price amount at invoice line grain.
   grain_scope: Invoice line aggregated to reporting period.
-  unit_format: currency
+  unit_format: eur_0
   interpretation: Base for Price Realization %; required input for sales.price.realization_pct.
 technical:
   measure_name: List Price Amount
@@ -42,6 +42,5 @@ standard_ref:
   name: List/catalogue price
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: none
-  note: List price is a pre-discount catalogue figure — an input to discount/realization analysis, not
-    an IFRS 15 figure (IFRS 15 measures the transaction price actually expected). No standard defines
-    list price.
+  note: List price is a pre-discount catalogue figure — an input to discount/realization analysis, not an IFRS 15
+    figure (IFRS 15 measures the transaction price actually expected). No standard defines list price.

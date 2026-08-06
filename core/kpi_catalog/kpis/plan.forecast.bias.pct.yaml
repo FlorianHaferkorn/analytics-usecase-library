@@ -16,7 +16,7 @@ business:
   purpose: Measures systematic over- or under-forecasting.
   definition: (Forecast - Actual) / Actual.
   grain_scope: SKU/week; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Values near 0 are best; positive bias indicates over-forecasting.
 technical:
   measure_name: Forecast Bias %
@@ -54,5 +54,5 @@ aliases:
 standard_ref:
 - standard: SCOR-DS
   alignment: none
-  note: As plan.forecast.accuracy.pct — no SCOR metric home; IBF/APICS forecasting standards are the right
-    external reference.
+  note: As plan.forecast.accuracy.pct — no SCOR metric home; IBF/APICS forecasting standards are the right external
+    reference.

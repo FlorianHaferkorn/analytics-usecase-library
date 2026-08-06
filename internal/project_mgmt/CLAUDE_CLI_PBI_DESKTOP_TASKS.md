@@ -253,6 +253,69 @@ ein advisory-Checker, der immer 0 zurückgibt, darf nicht als Prüfer eingetrage
 Zwei Kandidaten (`check_tabular_numerals.py`, `check_reference_lines.py`) sind genau
 deshalb **nicht** verdrahtet, obwohl sie fertig aussehen.
 
+### Nachtrag 03.08.2026 — die beiden Kandidaten sind *nicht* derselbe Fall
+
+Beide tragen denselben Satz („await a governed emit — Windows/Fabric **or
+powerbi-report-author**"). Am offiziellen Katalog gemessen (CLI 0.1.1, headless unter
+Linux) trennen sie sich sofort:
+
+| Regel | Befund am Katalog | Folge |
+|---|---|---|
+| **BC-TYPE-02** (Tabular Numerals, Gew. 4) | `formatting search tableEx "numeral\|figure\|tabular"` → **leer**. Der einzige Hebel ist `values.fontFamily` / `total.fontFamily` | Die CLI kann die Form **nicht** liefern, weil die Eigenschaft in Power BI nicht existiert. Kein Emit-Rückstand, sondern eine **Schriftentscheidung** |
+| **BC-CHART-05** (Referenzlinie, Gew. 3) | `y1AxisReferenceLine` **existiert**, voller Satz: `show · value · displayName · lineColor · style · shadeShow · dataLabel*` | Die im Docstring genannte Entsperrbedingung ist **erfüllt** — die Form ist verifiziert |
+
+**BC-TYPE-02 ist damit keine Desktop-Aufgabe mehr, sondern eine Doktrinfrage.**
+`tokens/typography.yaml` entscheidet bereits: `numerals: tabular` ist gefordert,
+`display: "DIN"` ist als Zweitschrift ausdrücklich erlaubt (BC-TYPE-01 deckt das) — aber
+`display_roles: [callout]` beschränkt DIN auf die Hero-Zahl. Tabellen-Wertspalten sind
+nicht abgedeckt. Zu entscheiden ist genau eine Zeile: gehört die Display-Schrift auch in
+`values`/`total` von Tabelle und Matrix?
+
+**BC-CHART-05 hat eine zweite Grenze, die der Katalog sichtbar macht:** `value` ist
+`numeric`, es gibt **keine** Measure-Bindung. Der Wert muss also aus einer governten
+Quelle als Zahl kommen — das ist `core/kpi_catalog/benchmarks.yaml`. Dort sind nur die
+**normativen** Einträge als Ziellinie zulässig (`ops.oee.pct` 85,0 mit Komponenten
+`availability 90,0 · performance 95,0 · quality 99,0`; `supply.otif.pct` 95,0;
+`quality.fpy.pct` 98,0; `quality.scrap.pct` 1,0). Die **empirischen** sind Peer-Mediane —
+die Datei sagt das selbst — und als „Ziel" gezeichnet wären sie irreführend.
+
+### Nebenbefund, der wichtiger ist als beide: Spezifikation und Artefakt driften
+
+`check_reference_lines.py` liest den `visual_type` aus dem **Bracket**. Alle drei
+gemeldeten Exponate stehen dort als `line_chart`. Tatsächlich im dist:
+
+| Exponat | Bracket sagt | Artefakt ist |
+|---|---|---|
+| OPS-001/Main_1 | `line_chart` | `lineChart` ✓ |
+| OPS-001/Main_2 | `line_chart` | **`waterfallChart`** |
+| SCM-001/Main_3 | `line_chart` | **`clusteredBarChart`** |
+
+Zwei von drei driften. Und der Ausschluss, der das auffangen sollte, greift nicht:
+`canonical_visual_id("waterfallChart")` → `None`, ebenso `"clustered_bar_chart"`. Das
+`_INTRINSIC_DEVIATION`-Set trifft deshalb **still** nie — exakt die Fehlerklasse, vor der
+der Docstring desselben Prüfers warnt („hoert beim Umbenennen STILL auf zu greifen").
+Wer BC-CHART-05 verdrahtet, muss den Typ am **Artefakt** auflösen, nicht am Bracket, sonst
+emittiert er eine Ziellinie in einen Wasserfall. Die Abbildung dafür existiert bereits
+(`VISUAL_TYPE_MAP` in `products/fabric/powerbi/tooling/validation/check_page_template_compliance.py`)
+und ist invers zu verwenden — keine zweite bauen.
+
+### Der Struktur-Score war kein Rubrik-Problem, sondern eine Datei
+
+Gemessen per umkehrbarem Versuch (Theme getauscht, wieder zurückgesetzt):
+
+| Stand | Struktur-Score | rote Regeln |
+|---|---|---|
+| Ist bei Sitzungsbeginn | 71,7 % | 5 |
+| nur Rasterfix (Commit `5bf00dc1`) | 77,5 % | 4 — **alle Theme** |
+| Rasterfix + einheitliches Theme | **100,0 %** | 0 |
+
+Alle fünf gingen auf **FIN-001** zurück: vier über sein Theme, eine über sein Layout. Die
+Layout-Hälfte ist erledigt. Die Theme-Hälfte ist eine Doktrinentscheidung
+(Monochromatic bleibt Hausstandard / Categorical wird es / zwei Themes bewusst) und keine
+Testfrage — `BC-BRAND-02` und `BC-COLOR-02` hängen daran. **Die Abdeckung (69,4) hat sich
+dabei nie bewegt**: sie zählt, wie viele Regeln verdrahtet sind, nicht wie viele bestehen.
+Die beiden Zahlen werden leicht verwechselt.
+
 ## Was diese Umgebung kann und was nicht (gemessen)
 
 | | |
@@ -417,4 +480,141 @@ Harte Randbedingungen:
 Vor Commit: pwsh tooling/run_stage1_checks.ps1, python -m pytest tooling/ products/ -q,
 python3 scripts/check_index.py --strict. Ergebnisse im Konzept-Ledger
 (KONZEPT_LAYOUT_SYSTEM.md §9) abhaken.
+```
+
+---
+
+# Nachtrag 05.08.2026 — was seit dem 03.08. erledigt ist, und was übrig bleibt
+
+> **Gleicher Branch:** `claude/fabric-architecture-ai-standardization-uf4g7f`.
+> Dieser Nachtrag ändert den Stand der Punkte **A–E** oben. Wer die Desktop-Sitzung
+> aufnimmt, liest **zuerst diesen Abschnitt** — drei der fünf Punkte sind zu.
+
+## Punkt B — erledigt (Linux, kein Desktop nötig)
+
+`PBIR_ROLE_MAX_EXCEEDED` ist **0 über alle 18 Reports** (vorher 11). Die
+Modellierungsentscheidung aus B war nur in **einem** Fall nötig:
+
+| | Anzahl | Was es war |
+|---|---|---|
+| Drift | 10 | Das Bracket sagte `waterfall`, fachlich war es ein Ranking bzw. eine Zeitreihe. Umgestellt auf `clusteredBarChart` (9) bzw. `lineChart` (1) |
+| echte Brücke | 1 | COM-001LY. Umgebaut nach dem Katalogmodell: **eine** Measure an `Y`, `dim_pvm_driver[Driver]` an `Category`, Endbalken über `valueAxis.totalsEnabled` |
+
+Die Falle aus B ist bestätigt und umgangen: `Net Sales Amount` als fünfte Kategoriezeile
+hätte die Brücke **verdoppelt** — jeder Balken ist ein kumulativer Delta-Schritt, der
+Endbalken kommt aus `totalsEnabled`, nicht aus einer Zeile. Ergänzt wurde nur die
+Startstufe `Plan Sales` in `dim_pvm_driver.tmdl` + der `PVM Bridge Value`-SWITCH.
+
+**Nicht mehr offen.** Die Warnung in `visual_builder.build_waterfall` bleibt als Netz.
+
+## BC-TYPE-02 — erledigt, und zwar durch Messung statt Entscheidung
+
+Der 03.08.-Eintrag stellte es als Doktrinfrage („gehört DIN auch in `values`/`total`?").
+Die Frage war falsch gestellt. Gemessen:
+
+Microsoft dokumentiert **Selawik** als metrisch kompatibel mit Segoe UI und stellt es
+quelloffen bereit. Aus den UFO-Quellen die `<advance width>` von zero..nine gelesen:
+
+| Schnitt | Ziffernbreiten | Folge |
+|---|---|---|
+| Segoe UI Regular | 1 (1104) | tabular ✓ |
+| Segoe UI Bold | 1 (1178) | tabular ✓ |
+| **Segoe UI Light** | **4** (730/1022/1055/1087) | **proportional — auf Zahlenflächen verboten** |
+
+Die Regel war also längst erfüllt: das Theme setzt Light nur auf Textrollen
+(subTitle/legend/subheader/categoryLabels/cardVisual-label), nie auf Zahlen. DIN bleibt
+auf `callout` beschränkt — kein Bedarf, es auf `values`/`total` auszudehnen.
+
+Der Befund steht als Evidenz in `core/templates/page_templates/tokens/typography.yaml`
+(`tabular_numeral_fonts` / `proportional_numeral_fonts`). `check_tabular_numerals.py` ist
+von advisory zu einem echten Gate umgeschrieben (löst Schriften auf `NUMERIC_SURFACES`
+gegen die deklarierten Listen auf, `--strict` → rc=1) und in
+`boutique_craft_rubric.yaml` verdrahtet. Abdeckung **69,4 → 73,4**,
+`test_rubric_integrity.py`-Ratchet 5 → 4.
+
+## Punkt E — entschieden
+
+**Monochromatic bleibt Hausstandard.** Damit ist auch die Theme-Hälfte des Struktur-Scores
+zu: **100,0 % Struktur-Score, 0 rote Regeln**.
+
+## Was in derselben Sitzung sonst noch geschlossen wurde (Kontext, nicht Desktop)
+
+- **Das Measure-Overlay ist weg.** `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`
+  und sein Validator sind gelöscht. Der Katalog ist jetzt alleinige Quelle für Formel
+  (`technical.calculation` → `dax_synth`), DAX-Name (`technical.measure_name`),
+  `formatString` (`business.unit_format` → `format_policy`, Profil `model`) und
+  DisplayFolder (`use_case_ref`). 126 Measures synthetisiert, 12 mit dokumentiertem
+  Platzhalter (`blocked_by` ist Pflichtfeld: data_contract/grammar/authoring/decision).
+  Drei Gates verhindern die Rückkehr, u. a. `test_measure_overlay_stays_retired` und
+  `test_recurring_grammar_gap_forces_an_operation` (ab 2 Vorkommen desselben Musters rot).
+- **`unit_format` normiert** von 28 Freitextwerten auf 19 Tokens. Für alle 108 KPIs mit
+  dist-Gegenstück reproduziert die Ableitung den bestehenden `formatString` exakt — 0
+  Änderungen. **Eine** Formattabelle in `tooling/reporting/format_policy.py` mit drei
+  Profilen (`model`/`visual`/`sv`); die beiden alten Substring-Matcher rufen sie auf.
+- **Konforme Dimensionen** (Freelancing): `dim_material` wird **einmal** unter
+  `transforms/_conformed/` gebaut, nicht je Domäne. Zwei Tests halten das fest.
+
+## Übrig bleibt genau ein Desktop-Punkt: **A**
+
+Punkt **A** (Theme-Eigenschaften, 24–25 Errors je Report) ist unverändert offen und
+unverändert beschrieben — Vortriage in `tooling/quality/known_errors.yaml`, Klassen
+`pbir_theme_prop_unknown_catalog_gap` vs. `pbir_theme_prop_likely_defect`. **C** und **D**
+bleiben offen wie beschrieben; beide sind kein Blocker.
+
+`BASELINE_ERRORS` in `tooling/tests/test_dist_validator_ratchet.py` steht auf **25**
+(von 26 gesenkt). Jede in Desktop bestätigte Entfernung senkt sie weiter.
+
+## Eine Randbedingung, die vor dem Merge zählt
+
+**Seit drei Tagen hat kein CI-Job einen echten Runner gesehen** — Signatur `runner_id: 0`,
+~2 s, Logs 404. Alles oben ist damit **lokal** verifiziert: 2099 Python-Tests grün,
+`check_index.py --strict` ohne Hard-Findings, Freelancing `make check` +
+`check_generators.py` A–F grün.
+
+Diese Sitzung hat zweimal vorgeführt, dass das nicht dasselbe ist wie CI-grün: fünf Fehler
+in zwei Läufen, alle nur auf echten Runnern sichtbar, zwei davon Wiederholungen derselben
+Klasse. Die Umgebungs-Ungleichheit ist über das frische venv abgedeckt (CLAUDE.md
+§„lokal grün"), die Generator-Klasse (Dateisystem-Reihenfolge entscheidet das Ergebnis)
+ist es nicht. **Vor dem Merge einen echten Lauf abwarten.**
+
+## Prompt — in die Claude CLI (VS Code, Windows) einfügen
+
+```
+Lies zuerst CLAUDE.md und AGENTS.md, dann in
+internal/project_mgmt/CLAUDE_CLI_PBI_DESKTOP_TASKS.md den Abschnitt
+"Nachtrag 05.08.2026" und danach "A — Theme-Eigenschaften triagieren".
+Branch: claude/fabric-architecture-ai-standardization-uf4g7f
+(git fetch origin && git checkout claude/fabric-architecture-ai-standardization-uf4g7f && git pull).
+
+Punkt B und BC-TYPE-02 sind erledigt, E ist entschieden (Monochromatic bleibt) — nicht
+erneut anfassen. Offen und deine Aufgabe: A.
+
+Arbeite A ab: die 24-25 Validator-Errors je Report stammen ausnahmslos aus
+Aurora_Group__Monochromatic__Light___2ECDE7.json. Die Vortriage steht maschinenlesbar in
+tooling/quality/known_errors.yaml, in zwei Klassen. BESTAETIGE jede Zeile in Power BI
+Desktop (Theme laden, Eigenschaft im Format-Bereich suchen: greift sie sichtbar ->
+Katalog-Luecke der Public-Preview-CLI, Eintrag BEHALTEN; greift sie nicht -> entfernen).
+Uebernimm die Vortriage nicht ungeprueft — genau davor warnt der Abschnitt.
+
+Harte Randbedingungen:
+- Ein verdrahteter Validator MUSS scheitern koennen (test_rubric_integrity.py erzwingt das).
+- Alle Themes muessen inhaltlich identisch bleiben (test_theme_consistency.py).
+- Nach jeder bestaetigten Entfernung BASELINE_ERRORS in test_dist_validator_ratchet.py
+  senken (steht auf 25).
+- PostToolUse-Hooks sind nicht umgehbar: blockt einer, Verstoss fixen und neu versuchen.
+- fab config set mode command_line vor jedem nicht-interaktiven fab-Aufruf.
+- Microsoft-Learn-MCP fuer PBIR/TMDL/Theme-Details nutzen statt raten.
+
+Vor Commit: pwsh -NoProfile -File tooling/run_stage1_checks.ps1,
+python -m pytest tooling/ products/ -q, python3 scripts/check_index.py --strict,
+bash tooling/run_local_ci_check.sh. Ergebnisse im Ledger abhaken
+(KONZEPT_LAYOUT_SYSTEM.md §9 + dieser Datei).
+
+Zur CI: seit dem 03.08. laufen alle Jobs mit runner_id 0 (Usage-Limit, ~2s, Logs 404) —
+das ist keine Code-Ursache. Vor dem Abhaken eines roten Laufs einmal
+python3 scripts/check_workflows.py laufen lassen; ein echter Runner mit echter Laufzeit
+ist dagegen ein echter Defekt.
+
+Beginne damit, den Branch zu ziehen, die genannten Abschnitte zu lesen und die 25 Zeilen
+aus known_errors.yaml als Pruefliste auszugeben, bevor du die erste in Desktop oeffnest.
 ```

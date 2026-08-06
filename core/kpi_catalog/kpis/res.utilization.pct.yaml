@@ -18,7 +18,7 @@ business:
   purpose: Measures productive time versus paid time for agents.
   definition: Productive time divided by paid time.
   grain_scope: agent_day or queue_day; aggregated to week/month.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Typical healthy band 75?85%; balance with SLA/NPS.
 technical:
   measure_name: Utilization %
@@ -51,6 +51,6 @@ standard_ref:
   name: Utilization efficiency (workforce)
   url: https://www.iso.org/standard/54497.html
   alignment: partial
-  note: Utilization (productive / paid time) parallels ISO 22400-2 Utilization efficiency UE, but this
-    KPI is applied to a contact-centre workforce, not equipment. Concept aligns; population differs —
-    see COPC CX Standard for the contact-centre definition.
+  note: Utilization (productive / paid time) parallels ISO 22400-2 Utilization efficiency UE, but this KPI is applied
+    to a contact-centre workforce, not equipment. Concept aligns; population differs — see COPC CX Standard for
+    the contact-centre definition.

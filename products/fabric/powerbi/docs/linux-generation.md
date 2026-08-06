@@ -40,7 +40,6 @@ The **IR pipeline produces correct output on Linux** — verified end to end:
 
 ```bash
 python tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog \
-  --fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml \
   --out ir_v1.json
 pwsh ./tooling/generator/generate_tmdl_measures.ps1 -IRPath ir_v1.json \
   -UseCase COM-001,COM-002,COM-003,COM-004 \

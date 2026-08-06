@@ -14,7 +14,7 @@ business:
   purpose: Measures share of spend routed through negotiated contracts (inverse of maverick buying).
   definition: On-Contract Spend / Total Addressable Spend.
   grain_scope: Category/supplier; monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; the primary lever for savings realisation and price control.
 technical:
   measure_name: On-Contract Spend %

@@ -14,7 +14,7 @@ business:
   purpose: Measures total value of open qualified opportunities.
   definition: Sum of Opportunity Value for open qualified opportunities.
   grain_scope: Rep/region/segment; weekly snapshot.
-  unit_format: '''EUR (0 decimal)'''
+  unit_format: eur_0
   interpretation: Base for coverage; watch concentration in a few large deals.
 technical:
   measure_name: Open Pipeline Value

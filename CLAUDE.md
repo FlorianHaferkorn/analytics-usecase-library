@@ -119,6 +119,19 @@ Historie:
   Zahlungsmethode bzw. ein Spending-Limit im GitHub-Billing. Beides liegt beim
   Kontoinhaber; im Code gibt es nichts zu beheben.
 
+  **Nachtrag 03.08.2026 — der Reset ist eine Atempause, keine Lösung.** Er kam wie
+  vorhergesagt, und am 03.08. liefen um **14:14/14:15 UTC** echte Läufe (201 s bzw.
+  257 s, reale Runner, reale Assertions — die 13 Testfehler daraus sind echt). Ab
+  **14:25 UTC desselben Tages** trägt jeder Job wieder `runner_id: 0`. Das
+  Monatskontingent war binnen eines halben Tages aufgebraucht. Die Vorhersage „am
+  1. August wird es grün" war für einen halben Tag richtig — als Planungsgrundlage
+  taugt sie nicht.
+
+  Der eigentliche Ertrag dieses Tages ist deshalb die **Unterscheidung**, nicht die
+  Ursache: an einem Vormittag gab es beide Sorten Rot auf demselben Branch. Genau
+  dafür steht die Tabelle unten — sie ist keine Formalie, sondern der einzige
+  Unterschied zwischen „erklärt" und „verstanden".
+
 **Aber: „rot" hat mehr als eine Ursache, und sie sehen von aussen gleich aus.** Am
 31.07.2026 war `.github/workflows/source-updates.yml` **kein gültiges YAML** (ein
 `python -c "…"` im `run: |`-Block auf Spaltenposition 0 beendete den Blockskalar). Alle 30

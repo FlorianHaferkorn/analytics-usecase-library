@@ -23,7 +23,7 @@ business:
   purpose: Quantifies unresolved work in queue.
   definition: Count of open cases at period end.
   grain_scope: queue_day; aggregated to month by Org/Channel/Queue.
-  unit_format: '''count'''
+  unit_format: count_0
   interpretation: Lower is better; assess with SLA attainment and staffing KPIs.
 technical:
   measure_name: Backlog Count
@@ -55,5 +55,5 @@ standard_ref:
   name: Incident & service-request management — open backlog
   url: https://www.iso.org/standard/70636.html
   alignment: partial
-  note: Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes
-    (8.6.1 incident / 8.6.2 service request); a count element rather than a named ISO KPI.
+  note: Open-case backlog is an operational measure of the ISO/IEC 20000-1 resolution & fulfilment processes (8.6.1
+    incident / 8.6.2 service request); a count element rather than a named ISO KPI.

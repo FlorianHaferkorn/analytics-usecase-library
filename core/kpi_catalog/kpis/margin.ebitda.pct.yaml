@@ -12,9 +12,9 @@ business:
   purpose: EBITDA profitability relative to net sales for P&L reporting.
   definition: EBITDA Amount / Net Sales Amount
   grain_scope: Entity-month; finance reporting.
-  unit_format: '''% (1 decimal)'''
-  interpretation: Higher values indicate stronger operating profitability before interest, tax, depreciation
-    and amortisation.
+  unit_format: percent_1
+  interpretation: Higher values indicate stronger operating profitability before interest, tax, depreciation and
+    amortisation.
 technical:
   measure_name: EBITDA Margin
   description: EBITDA divided by net sales.
@@ -47,8 +47,8 @@ standard_ref:
   url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
   alignment: none
   note: 'EBITDA is NOT defined by IFRS. It is an Alternative Performance Measure: under the ESMA APM Guidelines
-    it must be labelled as non-GAAP, reconciled to the most directly reconcilable IFRS line item, and
-    shown with a comparative. Under IFRS 18 (eff. 1 Jan 2027) an EBITDA-type figure used in public communication
-    is a Management-defined Performance Measure (MPM) requiring a dedicated reconciliation note to the
-    nearest IFRS subtotal — IFRS 18''s closest defined analogue is OPDAI (''operating profit before depreciation,
-    amortisation and impairments''). Do not present as an IFRS metric.'
+    it must be labelled as non-GAAP, reconciled to the most directly reconcilable IFRS line item, and shown with
+    a comparative. Under IFRS 18 (eff. 1 Jan 2027) an EBITDA-type figure used in public communication is a Management-defined
+    Performance Measure (MPM) requiring a dedicated reconciliation note to the nearest IFRS subtotal — IFRS 18''s
+    closest defined analogue is OPDAI (''operating profit before depreciation, amortisation and impairments'').
+    Do not present as an IFRS metric.'

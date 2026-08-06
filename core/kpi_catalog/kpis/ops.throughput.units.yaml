@@ -19,7 +19,7 @@ business:
   purpose: Measures total output volume in units.
   definition: Sum of produced units in the period.
   grain_scope: Line/day; aggregated to site and month.
-  unit_format: units
+  unit_format: units_0
   interpretation: Higher values indicate higher output; analyze against capacity and demand.
 technical:
   measure_name: Throughput Units

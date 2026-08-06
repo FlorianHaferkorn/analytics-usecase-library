@@ -105,14 +105,23 @@ dimensions:
         severity: major
         weight: 4
         check: structural
-        validator: null
-        validator_blocked: render_verification
-        # BEWUSST nicht verdrahtet: check_tabular_numerals.py existiert, ist aber
-        # advisory und beendet IMMER mit 0 ('Advisory only — never gates').
-        # Verdrahtet ergaebe das eine Regel, die per Konstruktion besteht —
-        # ein Haken ohne Pruefung. Erst verdrahten, wenn der Checker
-        # scheitern kann (Render-Verifikation, s. L10).
-        machine_hint: "matrix/table numeric column without tabular numeral setting"
+        validator:
+          script: check_tabular_numerals.py
+          args: ["--strict"]
+        # Verdrahtet 05.08.2026. Die alte Begruendung ("braucht Render-Verifikation")
+        # war ein Fehlschluss: Power BI hat KEINE Eigenschaft fuer Tabellenziffern —
+        # der einzige Hebel ist die Schriftwahl, und die steht im Theme. Pruefbar war
+        # die Regel also immer; es fehlte die Tatsache, WELCHE Schnitte Tabellenziffern
+        # haben. Die ist jetzt gemessen (typography.yaml -> tabular_numeral_fonts:
+        # Ziffern-Vorbreiten aus den quelloffenen Selawik-UFOs, das Microsoft als
+        # "metrically compatible with Segoe UI" fuehrt).
+        #
+        # Der Checker kann scheitern, und das ist belegt: Segoe UI LIGHT hat vier
+        # verschiedene Ziffernbreiten. Setzt man ihn im Theme auf die Werteachse,
+        # wird der Check rot (Mutationsprobe 05.08.2026, rc=1); zurueckgesetzt gruen.
+        # Geprueft werden nur Zahlenflaechen (values/total/valueAxis/labels/callout) —
+        # Ueberschriften und Legenden tragen keine Spalte.
+        machine_hint: "numeric surface using a font with proportional figures"
         source: "Craft-Core §5.2; typography.yaml (numerals: tabular)"
       - id: BC-TYPE-03
         statement: "Hero value ≥ 2× the size of secondary values on the same card."

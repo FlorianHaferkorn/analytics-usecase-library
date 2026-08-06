@@ -14,7 +14,7 @@ business:
   purpose: Total cost of goods sold for invoiced revenue; base for margin and PVM.
   definition: Sum of invoice line COGS amounts.
   grain_scope: Invoice line.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Input to Gross Margin % and PVM; must align with P&L COGS.
 technical:
   measure_name: Cost of Goods Sold Amount
@@ -43,6 +43,5 @@ standard_ref:
   name: Inventories — cost of sales
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
   alignment: exact
-  note: COGS is the IAS 2 carrying amount of inventories recognised as an expense when the related revenue
-    is recognised (IAS 2.34), presented as 'cost of sales' under the IAS 1 function-of-expense method.
-    Definition aligns.
+  note: COGS is the IAS 2 carrying amount of inventories recognised as an expense when the related revenue is recognised
+    (IAS 2.34), presented as 'cost of sales' under the IAS 1 function-of-expense method. Definition aligns.

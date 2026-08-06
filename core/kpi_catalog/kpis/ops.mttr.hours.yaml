@@ -22,7 +22,7 @@ business:
   purpose: Measures average repair time after failures.
   definition: Total Repair Time Hours / Number of Failures.
   grain_scope: Asset/line; aggregated monthly.
-  unit_format: hours
+  unit_format: hours_0
   interpretation: Lower is better; high MTTR indicates slow recovery or parts issues.
 technical:
   measure_name: MTTR (hours)
@@ -55,5 +55,5 @@ standard_ref:
   name: Mean time to restoration
   url: https://www.iso.org/standard/54497.html
   alignment: exact
-  note: ISO 22400-2 defines MTTR as mean time to restoration = total repair time / number of failures.
-    Matches ours (labelled 'time to repair').
+  note: ISO 22400-2 defines MTTR as mean time to restoration = total repair time / number of failures. Matches ours
+    (labelled 'time to repair').

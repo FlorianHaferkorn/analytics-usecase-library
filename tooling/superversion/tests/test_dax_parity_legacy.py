@@ -35,6 +35,25 @@ DIST = REPO / "products/fabric/powerbi/dist"
 # kpi_id -> (legacy dist file, legacy measure name)
 KPI_TO_LEGACY = {
     "sales.net_sales.amount": ("Commercial.SemanticModel", "Net Sales Amount"),
+    # Am 05.08.2026 aus `op: hitl` geloest: der Katalog behauptete, die Quelltabelle
+    # fehle im Data Contract — das handgebaute Modell liest sie aber. Die Grammatik
+    # konnte beide Faelle laengst (count / avg / sum), es fehlte nur die Berechnung.
+    "enterprise.action_routed.count": ("Experience.SemanticModel", "Actions Routed Count"),
+    "scm.supplier_risk.score": ("Finance.SemanticModel", "Supplier Risk Score"),
+    "fin.liquidity.payables.amount": ("Finance.SemanticModel", "Payables Amount"),
+    # 05.08.2026 aus `op: hitl` geloest, ohne neue Operation: das Muster "Iterator ueber
+    # VALUES + mehrere CALCULATE" kommt im Korpus 4x vor (DSO/DIO/DPO/MAPE) und die
+    # Grammatik trug es laengst — `value` von avgx_over_key ist ein calc_ref und darf
+    # verschachteln. ABS steht im Zaehler statt um den Bruch: fuer nicht-negative Mengen
+    # rechnerisch identisch, aber BLANK kommt so direkt aus DIVIDE (Doku: leerer Nenner
+    # -> BLANK) und AVERAGEX ueberspringt die Zeile — genau was der Legacy-IF-Guard tat.
+    "plan.forecast.mape.pct": ("SupplyChain.SemanticModel", "Forecast MAPE %"),
+    # 05.08.2026 ausformuliert, ohne Legacy-Gegenstueck: distinctcount und die Division
+    # durch ein Literal konnte die Grammatik laengst — die frueheren hitl-Begruendungen
+    # ("distinctcount fehlt", "keine Einheitenumrechnung") waren schlicht falsch.
+    "retail.basket.items_per_transaction": (None, "Items per Transaction"),
+    "retail.basket.value.average": (None, "Average Basket Value"),
+    "ops.planned.hours": (None, "Planned Hours"),
     "cost.cogs.amount": ("Commercial.SemanticModel", "Cost of Goods Sold Amount"),
     "sales.price.list.amount": ("Commercial.SemanticModel", "List Price Amount"),
     "sales.price.net.amount": ("Commercial.SemanticModel", "Net Price Amount"),
@@ -252,6 +271,14 @@ def _inline_vars(body: str) -> str:
     if "RETURN" not in body:
         return body
     var_part, _, return_part = body.partition("RETURN")
+    # Alles VOR dem ersten VAR gehoert zum Ausdruck, nicht zu den Bindungen. Stehen die
+    # VARs INNERHALB eines Iterators — `AVERAGEX ( VALUES ( t[key] ), VAR x = ... RETURN
+    # ... )` — dann steckt dort das Tabellenargument. Es wegzuwerfen loescht `t[key]` aus
+    # der Spaltenmenge und laesst die Legacy-Seite aermer aussehen, als sie ist; der
+    # Parity-Test meldet dann eine Abweichung, die es nicht gibt (gefunden 05.08.2026 an
+    # `Forecast MAPE %`). Bei VARs auf oberster Ebene ist das Praefix leer — unveraendert.
+    prefix, _, var_part = var_part.partition("VAR ")
+    var_part = ("VAR " + var_part) if var_part else ""
     resolved: dict[str, str] = {}
     for name, expr in _VAR_RE.findall(var_part):
         e = expr.strip()
@@ -261,7 +288,7 @@ def _inline_vars(body: str) -> str:
     result = return_part.strip()
     for name in sorted(resolved, key=len, reverse=True):
         result = re.sub(rf"\b{re.escape(name)}\b", f"({resolved[name]})", result)
-    return result
+    return (prefix + result) if prefix.strip() else result
 
 
 def _resolve_bracket_refs(text: str, measures: dict[str, str], depth: int = 4) -> str:
@@ -388,3 +415,153 @@ def test_parity_case_count_covers_all_non_hitl_core_kpis():
     }
     missing = computed_kpi_ids - set(KPI_TO_LEGACY)
     assert not missing, f"KPIs with a calculation but no parity-test entry: {sorted(missing)}"
+
+
+# ---------------------------------------------------------------------------
+# Es gibt keine zweite DAX-Quelle mehr
+#
+# Bis 03.08.2026 trug `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`
+# fuer 105 KPIs je eine handgeschriebene `dax_expression` und speiste damit den
+# pwsh-Generator, waehrend der Katalog ueber `technical.calculation` die Synthese
+# speiste. Zwei Quellen fuer dieselbe Wahrheit. Als das FIN-001-Modell fachlich
+# richtiggestellt wurde, zog der Katalog nach und das Overlay nicht -- der
+# Generator erzeugte weiter `SUM` statt `LASTNONBLANKVALUE`, und kein Test schlug an.
+#
+# Die Datei ist am 05.08.2026 geloescht. Ihre vier Felder brauchten sie nicht:
+# dax_name stand als technical.measure_name im Katalog, display_folder war 105 mal
+# leer und folgt dem Use Case, format_string ist aus business.unit_format ableitbar
+# (fuer alle 108 KPIs mit Vorbild im dist exakt reproduziert), und die DAX kommt aus
+# der Grammatik. Die letzten sieben Eintraege waren keine Formeln, sondern
+# `-- TBD: see Measure Dictionary` + BLANK() -- Platzhalter, die weniger sagten als
+# der `op: hitl`-Grund im Katalog, der sie ersetzt hat.
+#
+# Dieser Test haelt den Zustand: taucht die Datei wieder auf oder traegt eine andere
+# Spezifikation eine `dax_expression`, ist die Zweitquelle zurueck.
+# ---------------------------------------------------------------------------
+
+SPECS_DIR = REPO / "products/fabric/powerbi/specs"
+RETIRED_OVERLAY = SPECS_DIR / "fabric_measure_overlay.yaml"
+
+
+def test_measure_overlay_stays_retired():
+    assert not RETIRED_OVERLAY.exists(), (
+        f"{RETIRED_OVERLAY.relative_to(REPO)} ist wieder da. Die Datei war eine zweite "
+        "Quelle fuer Rechenvorschriften; ihre Felder kommen seit 05.08.2026 aus dem "
+        "Katalog. Wenn eine Formel wirklich handgeschrieben sein muss, gehoert sie als "
+        "`op: hitl` mit Begruendung in den KPI-Katalog, nicht in eine Parallelspezifikation."
+    )
+
+
+def test_no_spec_file_carries_dax_expressions():
+    """Keine Datei unter specs/ traegt DAX. Sonst ist die Zweitquelle nur umgezogen."""
+    offenders = []
+    for f in sorted(SPECS_DIR.glob("*.y*ml")) if SPECS_DIR.is_dir() else []:
+        data = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        if not isinstance(data, dict):
+            continue
+        hits = [k for k, v in data.items() if isinstance(v, dict) and v.get("dax_expression")]
+        if hits:
+            offenders.append(f"{f.relative_to(REPO)}: {len(hits)} Eintrag/Eintraege, u. a. {hits[:3]}")
+    assert not offenders, "DAX in einer Spezifikationsdatei gefunden:\n" + "\n".join(f"    {o}" for o in offenders)
+
+
+def test_every_kpi_resolves_or_declares_why():
+    """Jeder KPI hat entweder eine aufloesbare calculation oder ein begruendetes hitl.
+
+    Eine FEHLENDE `calculation` ist der schlechteste Zustand: sie sieht aus wie ein
+    Versehen und liest sich wie eine Absicht. Am 05.08.2026 hatten sechs KPIs gar
+    keine -- sie sind jetzt als `op: hitl` mit Grund deklariert.
+    """
+    import sys as _sys
+    if str(REPO) not in _sys.path:
+        _sys.path.insert(0, str(REPO))
+    from tooling.ir.build_ir import synthesize_catalog_dax
+
+    synthesized, unresolved = synthesize_catalog_dax(REPO / "core/kpi_catalog")
+    catalog = _catalog()
+    undeclared = []
+    for kpi_id in unresolved:
+        calc = ((catalog.get(kpi_id) or {}).get("technical") or {}).get("calculation") or {}
+        if calc.get("op") != "hitl" or not str(calc.get("reason") or "").strip():
+            undeclared.append(kpi_id)
+    assert not undeclared, (
+        "Diese KPIs haben weder eine aufloesbare calculation noch ein begruendetes "
+        "`op: hitl` — die Luecke ist da, aber nirgends erklaert:\n"
+        + "\n".join(f"    {k}" for k in sorted(undeclared))
+    )
+
+
+# ---------------------------------------------------------------------------
+# Offene Faelle sind maschinenlesbar, nicht nur beschrieben
+#
+# `op: hitl` trug bis 05.08.2026 nur `reason` als Fliesstext. Fuer einen Menschen
+# lesbar, fuer Code und Agent nicht: Datenluecke, Grammatikluecke und "Formel noch
+# nicht festgelegt" sahen identisch aus, und wer wissen wollte, wie viele wovon,
+# musste zwoelf Absaetze lesen. Seit `blocked_by` ist die Klasse ein Feld.
+#
+# Der eigentliche Gewinn ist der Zaehler. Ob eine Grammatik-Operation gebaut wird,
+# war bisher eine Diskussion; jetzt ist es eine Messung: `occurrences_in_corpus`
+# haelt fest, wie oft das Muster im dist-Korpus vorkommt. Bei 1 lohnt die Operation
+# nicht (sie kostet mehr, als sie traegt). Ab 2 ist sie faellig — und das sagt der
+# Test unten, nicht ein Gespraech.
+#
+# Beleg fuer die Schwelle: am 05.08.2026 wurde `Forecast MAPE %` OHNE neue Operation
+# ausgedrueckt, weil sein Muster (Iterator ueber VALUES + mehrere CALCULATE) 4x
+# vorkam und die Grammatik es laengst trug. `Service Impact %` blieb offen, weil
+# sein Muster genau 1x vorkommt.
+# ---------------------------------------------------------------------------
+
+_HITL_CLASSES = {"data_contract", "grammar", "authoring", "decision"}
+
+
+def _hitl_entries() -> dict[str, dict]:
+    out = {}
+    for kpi_id, kpi in _catalog().items():
+        calc = ((kpi.get("technical") or {}).get("calculation") or {})
+        if calc.get("op") == "hitl":
+            out[kpi_id] = calc
+    return out
+
+
+def test_hitl_entries_are_machine_readable():
+    """Jeder offene Fall sagt einer Maschine, WAS ihn blockiert."""
+    bad = []
+    for kpi_id, calc in sorted(_hitl_entries().items()):
+        blocked = calc.get("blocked_by")
+        if blocked not in _HITL_CLASSES:
+            bad.append(f"{kpi_id}: blocked_by={blocked!r} (erlaubt: {sorted(_HITL_CLASSES)})")
+        elif blocked == "grammar" and not calc.get("pattern"):
+            bad.append(f"{kpi_id}: blocked_by=grammar ohne `pattern` — ohne Musternamen "
+                       "sind gleichartige Faelle nicht zaehlbar")
+    assert not bad, "hitl-Eintraege ohne maschinenlesbare Klasse:\n" + "\n".join(f"    {b}" for b in bad)
+
+
+def test_recurring_grammar_gap_forces_an_operation():
+    """Ab dem ZWEITEN Vorkommen eines Musters wird die Operation faellig.
+
+    Zwei Wege dorthin, beide zaehlen: derselbe `pattern` bei mehreren KPIs, oder ein
+    einzelner KPI, dessen gemessenes `occurrences_in_corpus` >= 2 ist. Ein Muster,
+    das sich wiederholt, ist kein Einzelfall mehr — und ein Einzelfall ist das
+    einzige Argument dafuer, die Operation NICHT zu bauen.
+    """
+    import collections
+    by_pattern = collections.Counter()
+    measured = {}
+    for kpi_id, calc in _hitl_entries().items():
+        if calc.get("blocked_by") != "grammar":
+            continue
+        pat = calc["pattern"]
+        by_pattern[pat] += 1
+        occ = calc.get("occurrences_in_corpus")
+        if isinstance(occ, int):
+            measured[pat] = max(measured.get(pat, 0), occ)
+
+    due = sorted({p for p, n in by_pattern.items() if n >= 2} | {p for p, n in measured.items() if n >= 2})
+    assert not due, (
+        "Diese DAX-Muster kommen mehrfach vor und sind damit keine Einzelfaelle mehr — "
+        "die Grammatik-Operation ist faellig:\n"
+        + "\n".join(f"    {p}  (KPIs: {by_pattern[p]}, im Korpus gemessen: {measured.get(p, '—')})"
+                    for p in due)
+        + "\n\n  Entweder die Operation bauen (dax_synth + from_aluca + sql_synth + Schema), "
+        "oder — wenn die Faelle doch verschieden sind — die `pattern`-Namen trennen."
+    )

@@ -13,7 +13,7 @@ business:
   purpose: Measures full-time-equivalent headcount for the population.
   definition: Sum of FTE fractions across active employees in the period.
   grain_scope: Org/segment; monthly snapshot.
-  unit_format: '''count'''
+  unit_format: count_0
   interpretation: Denominator base for attrition, cost and absence; watch for structural drift.
 technical:
   measure_name: Headcount FTE

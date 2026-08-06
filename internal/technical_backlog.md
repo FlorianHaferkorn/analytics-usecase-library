@@ -37,6 +37,11 @@ These scripts are functional but referenced by no workflow, runner, hook, README
 Open work for Operations and Finance domain models is tracked in **[products/fabric/powerbi/blueprints/README.md](../products/fabric/powerbi/blueprints/README.md) § Next Steps**: complete relationships/measures/display folders, populate Measure_Dictionary per domain. The in-file comments in `Operations.yaml` and `Finance.yaml` point to that section.
 
 > **Note (2026-03-29):** DAX expressions have been removed from the KPI Catalog (core is tool-agnostic). DAX now lives exclusively in the Fabric overlay: `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`.
+>
+> **Nachtrag (2026-08-05):** Das Overlay ist entfallen. Der Katalog traegt die Rechenvorschrift
+> wieder — aber als werkzeugneutrale Grammatik (`technical.calculation`), nicht als DAX. Damit
+> gilt beides: der Kern bleibt tool-agnostisch, und es gibt nur eine Quelle. Die Trennung lag
+> nie zwischen Katalog und Overlay, sondern zwischen Bedeutung und Syntax.
 
 ---
 

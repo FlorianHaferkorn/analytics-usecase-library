@@ -319,7 +319,7 @@ def _resolve_calc_node(
                 raise KeyError("value")
             return {"op": "abs", "value": value}, None
 
-        if op in ("sumx_over_key", "avgx_over_key"):
+        if op in ("sumx_over_key", "avgx_over_key", "last_nonblank_over_key"):
             key_column = calc["key_column"]
             table = own_cols.get(key_column)
             value = ref("value")
@@ -413,6 +413,18 @@ def _resolve_calculation(kpi: dict, catalog: "KpiCatalog") -> tuple[Optional[dic
 
 
 def _fmt_from_unit(unit: str) -> str:
+    """Einheit -> Superversion-Formatstring.
+
+    Kanonische Tokens (`business.unit_format` seit 04.08.2026) kommen aus der einen
+    Tabelle in `tooling/reporting/format_policy`. Der Substring-Zweig darunter bleibt
+    als Ruecklauf fuer Altbestand und Fremdkataloge -- er raet, deshalb hat er den
+    zweiten Platz, nicht den ersten.
+    """
+    from tooling.reporting.format_policy import unit_format_string
+
+    canonical = unit_format_string(unit, "sv")
+    if canonical is not None:
+        return canonical
     u = (unit or "").lower()
     if "eur" in u or "€" in u:
         return r"\€#,0.00;-\€#,0.00"

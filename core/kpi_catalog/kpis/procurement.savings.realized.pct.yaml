@@ -15,7 +15,7 @@ business:
   purpose: Measures procurement savings realised against the savings target.
   definition: Realised Savings / Savings Target.
   grain_scope: Category/supplier; monthly, YTD.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; the CPO's headline for value delivery.
 technical:
   measure_name: Realised Savings %
@@ -46,5 +46,4 @@ standard_ref:
 - standard: Procurement & spend analytics (convention)
   name: Realised savings vs target
   alignment: none
-  note: Savings realisation is a procurement-controlling convention; no external standards body defines
-    the metric.
+  note: Savings realisation is a procurement-controlling convention; no external standards body defines the metric.

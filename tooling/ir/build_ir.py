@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
@@ -181,6 +182,130 @@ def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
     return measure_spec
 
 
+def synthesize_catalog_dax(kpi_root: Path) -> tuple[Dict[str, str], Dict[str, str]]:
+    """`kpis/*.yaml` -> {kpi_id: DAX}, synthetisiert aus `technical.calculation`.
+
+    Der Katalog ist die Wahrheit; DAX ist nur EIN Ziel der werkzeugneutralen
+    Grammatik (das zweite ist `sql_synth`). Deshalb wird die Formel hier erzeugt
+    statt als Zeichenkette uebernommen -- eine handgepflegte Zweitquelle kann
+    stillschweigend von der Bedeutung abdriften, eine synthetisierte nicht.
+
+    Zweiter Rueckgabewert: {kpi_id: Grund} fuer alles, was die Grammatik NICHT
+    ausdruecken kann (`op: hitl`, keine `calculation`). Dort -- und nur dort --
+    bleibt eine handgeschriebene `dax_expression` die legitime Quelle.
+    """
+    kpis_dir = kpi_root / "kpis"
+    if not kpis_dir.is_dir():
+        return {}, {}
+    if yaml is None:
+        raise SystemExit("PyYAML required to synthesize DAX from the KPI catalog.")
+
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    from tooling.superversion.from_aluca import KpiCatalog, _resolve_calculation
+    from tooling.superversion.targets import dax_synth
+
+    catalog = KpiCatalog(kpis_dir)
+    out: Dict[str, str] = {}
+    unresolved: Dict[str, str] = {}
+    for f in sorted(kpis_dir.glob("*.yaml")):
+        if f.stem == "_index":
+            continue
+        kpi = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        resolved, hitl_reason = _resolve_calculation(kpi, catalog)
+        if resolved is None:
+            unresolved[f.stem] = hitl_reason or "keine aufloesbare technical.calculation"
+            continue
+        out[f.stem] = dax_synth.synthesize_dax(resolved)
+    return out, unresolved
+
+
+def hitl_placeholder(reason: str) -> str:
+    """Dokumentierter Platzhalter fuer eine Measure, die (noch) keine Formel hat.
+
+    Form wie im handgebauten Modell: `VAR _pending = "<Grund>" RETURN BLANK()`. Der
+    Grund steht im Katalog und wandert damit bis in die Measure -- wer sie in Desktop
+    oeffnet, liest, WAS fehlt, statt eines Verweises auf ein Dokument. Vorher stand
+    hier `-- TBD: see Measure Dictionary`, was den Leser wegschickt, statt zu antworten.
+    """
+    clean = " ".join(str(reason or "no documented reason").split()).replace('"', "'")
+    if len(clean) > 260:
+        clean = clean[:257] + "..."
+    return f'VAR _pending = "{clean}" RETURN BLANK()'
+
+
+# Der Formatstring kommt aus der EINEN Tabelle in tooling/reporting/format_policy
+# (Profil `model`: so, wie die Measure im Semantikmodell formatiert ist). Vorher
+# stand hier eine zweite -- und zwei weitere anderswo; alle drei rieten per
+# Substring aus Freitext. Der Katalog traegt nur die Einheit, das Rendern
+# entscheidet das Target.
+
+def catalog_presentation(kpi_root: Path) -> Dict[str, Dict[str, str]]:
+    """`kpis/*.yaml` -> {kpi_id: {format_string, dax_name, display_folder}}.
+
+    Alle drei aus dem Katalog abgeleitet, keines dort doppelt gepflegt:
+      format_string  <- business.unit_format ueber UNIT_FORMAT_STRINGS
+      dax_name       <- technical.measure_name
+      display_folder <- use_case_ref (der Use Case, fuer den generiert wird;
+                        bei Mehrfachzuordnung filtert der Generator)
+    """
+    kpis_dir = kpi_root / "kpis"
+    if not kpis_dir.is_dir() or yaml is None:
+        return {}
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    from tooling.reporting.format_policy import unit_format_string
+    out: Dict[str, Dict[str, str]] = {}
+    for f in sorted(kpis_dir.glob("*.yaml")):
+        if f.stem == "_index":
+            continue
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        unit = (d.get("business") or {}).get("unit_format")
+        refs = d.get("use_case_ref") or []
+        if isinstance(refs, str):
+            refs = [refs]
+        out[f.stem] = {
+            "format_string": unit_format_string(str(unit), "model") or "",
+            "dax_name": (d.get("technical") or {}).get("measure_name") or "",
+            "display_folder": refs[0] if len(refs) == 1 else "",
+            "use_case_refs": refs,
+        }
+    return out
+
+
+def _apply_catalog_presentation(
+    measure_spec: Dict[str, Dict[str, Any]], presentation: Dict[str, Dict[str, str]]
+) -> int:
+    n = 0
+    for kpi_id, pres in presentation.items():
+        spec = measure_spec.get(kpi_id)
+        if not spec:
+            continue
+        if pres.get("format_string"):
+            spec["format_string"] = pres["format_string"]
+        if pres.get("dax_name"):
+            spec["dax_name"] = pres["dax_name"]
+        if pres.get("display_folder"):
+            spec["display_folder"] = pres["display_folder"]
+        spec["use_case_refs"] = pres.get("use_case_refs") or []
+        n += 1
+    return n
+
+
+def _apply_catalog_dax(
+    measure_spec: Dict[str, Dict[str, Any]], synthesized: Dict[str, str]
+) -> int:
+    """Synthetisierte DAX in measure_spec schreiben. Gibt die Trefferzahl zurueck."""
+    n = 0
+    for kpi_id, dax in synthesized.items():
+        if kpi_id in measure_spec:
+            measure_spec[kpi_id]["dax_expression"] = dax
+            n += 1
+    return n
+
+
 def _load_fabric_overlay(path: Path) -> Dict[str, Dict[str, Any]]:
     """Load Fabric measure overlay YAML: kpi_id -> { dax_expression, format_string, dax_name, display_folder }."""
     if not path.exists():
@@ -202,12 +327,24 @@ def _load_fabric_overlay(path: Path) -> Dict[str, Dict[str, Any]]:
 
 
 def _merge_fabric_overlay(
-    measure_spec: Dict[str, Dict[str, Any]], overlay: Dict[str, Dict[str, Any]]
+    measure_spec: Dict[str, Dict[str, Any]],
+    overlay: Dict[str, Dict[str, Any]],
+    catalog_dax_ids: "set[str] | None" = None,
 ) -> None:
-    """Merge Fabric overlay into measure_spec in place. Overlay overwrites dax_expression, format_string, dax_name, display_folder."""
+    """Merge Fabric overlay into measure_spec in place.
+
+    `format_string`/`dax_name`/`display_folder` sind Darstellung -- das Overlay
+    ueberschreibt sie weiterhin. `dax_expression` NICHT: wo der Katalog eine
+    Formel synthetisieren konnte (`catalog_dax_ids`), gewinnt der Katalog. Das
+    Overlay bleibt die Quelle nur dort, wo die Grammatik nichts hergibt (hitl).
+    Ohne diese Regel gaebe es zwei Quellen fuer dieselbe Wahrheit, und die
+    handgepflegte gewaenne -- am 03.08.2026 hat genau das eine fachliche
+    Korrektur an FIN-001 still zurueckgedreht.
+    """
+    catalog_dax_ids = catalog_dax_ids or set()
     for kpi_id, fab in overlay.items():
         if kpi_id in measure_spec:
-            if fab.get("dax_expression") is not None:
+            if fab.get("dax_expression") is not None and kpi_id not in catalog_dax_ids:
                 measure_spec[kpi_id]["dax_expression"] = fab["dax_expression"]
             if fab.get("format_string") != "":
                 measure_spec[kpi_id]["format_string"] = fab["format_string"]
@@ -380,11 +517,29 @@ def main(argv: list[str] | None = None) -> int:
         measure_spec = _scan_kpi_catalog(kpi_root)
         print(f"measure_spec: {len(measure_spec)} KPIs from {kpi_root.as_posix()}")
 
+        synthesized, unresolved = synthesize_catalog_dax(kpi_root)
+        applied = _apply_catalog_dax(measure_spec, synthesized)
+        print(f"catalog DAX: {applied} measure(s) synthesized from technical.calculation"
+              f" ({len(unresolved)} without a resolvable calculation — hand-written expression stands)")
+
+        for kpi_id, reason in unresolved.items():
+            spec = measure_spec.get(kpi_id)
+            if spec is not None and not spec.get("dax_expression"):
+                spec["dax_expression"] = hitl_placeholder(reason)
+        print(f"catalog HITL: {len(unresolved)} measure(s) emit a documented placeholder"
+              f" (reason carried from the catalog into the measure)")
+
+        presentation = catalog_presentation(kpi_root)
+        pres_applied = _apply_catalog_presentation(measure_spec, presentation)
+        print(f"catalog presentation: {pres_applied} measure(s) — format_string from unit_format,"
+              f" dax_name from measure_name, display_folder from use_case_ref")
+
         if args.fabric_overlay:
             overlay_path = Path(args.fabric_overlay)
             overlay = _load_fabric_overlay(overlay_path)
-            _merge_fabric_overlay(measure_spec, overlay)
-            print(f"merged fabric overlay: {overlay_path.as_posix()} ({len(overlay)} entries)")
+            _merge_fabric_overlay(measure_spec, overlay, catalog_dax_ids=set(synthesized))
+            print(f"merged fabric overlay: {overlay_path.as_posix()} ({len(overlay)} entries;"
+                  f" dax_expression only where the catalog has none)")
 
         if args.write_fabric_overlay:
             out_overlay = Path(args.write_fabric_overlay)

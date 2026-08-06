@@ -15,10 +15,12 @@ action_code_ref:
 calc_type: amount
 business:
   purpose: Measures the value of inventory exceeding forward demand cover.
-  definition: Inventory value exceeding X months of forward demand (typically > 6 months of projected consumption). Primary working capital lock-up driver when DIO is high.
+  definition: Inventory value exceeding X months of forward demand (typically > 6 months of projected consumption).
+    Primary working capital lock-up driver when DIO is high.
   grain_scope: SKU/location; aggregated to product category and plant monthly.
-  unit_format: EUR (2 decimals)
-  interpretation: Lower is better; excess inventory ties up working capital and increases obsolescence risk. Reduction directly improves DIO and cash conversion.
+  unit_format: eur_2
+  interpretation: Lower is better; excess inventory ties up working capital and increases obsolescence risk. Reduction
+    directly improves DIO and cash conversion.
 technical:
   measure_name: Excess Inventory Amount
   description: Inventory value beyond coverage threshold.
@@ -29,10 +31,10 @@ technical:
   - fact_demand_forecast.Monthly Demand Forecast
   calculation:
     op: hitl
-    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in
-      any products/fabric/powerbi/dist/*.SemanticModel). A months-of-forward-demand
-      coverage threshold comparison per SKU is beyond the current grammar, and no
-      threshold value is specified precisely enough to derive without guessing.
+    blocked_by: authoring
+    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in any products/fabric/powerbi/dist/*.SemanticModel).
+      A months-of-forward-demand coverage threshold comparison per SKU is beyond the current grammar, and no threshold
+      value is specified precisely enough to derive without guessing.
 governance:
   business_owner: Head of Supply Chain
   data_owner: Supply Chain BI
@@ -50,5 +52,5 @@ standard_ref:
 - standard: SCOR-DS
   url: https://scor.ascm.org/performance/asset-management
   alignment: none
-  note: Excess/obsolete inventory value is an inventory-health practice concern, not a named SCOR performance
-    metric (SCOR treats it under Asset Management practices).
+  note: Excess/obsolete inventory value is an inventory-health practice concern, not a named SCOR performance metric
+    (SCOR treats it under Asset Management practices).

@@ -14,7 +14,7 @@ business:
   purpose: Measures profitability of promotions relative to spend.
   definition: Incremental GM Amount / Promo Cost Amount
   grain_scope: Promo campaign / product / period.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Values > 0 indicate promotions adding value.
 technical:
   measure_name: Promo ROI %

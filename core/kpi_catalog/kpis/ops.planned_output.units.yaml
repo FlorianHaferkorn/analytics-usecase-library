@@ -19,7 +19,7 @@ business:
   purpose: Captures planned production output volume.
   definition: Sum over line/day of (Standard Rate Units Per Minute * Planned Time Minutes).
   grain_scope: Line/site; aggregated by period.
-  unit_format: units
+  unit_format: units_0
   interpretation: Baseline for comparing actual throughput.
 technical:
   measure_name: Planned Output Units
@@ -48,5 +48,5 @@ standard_ref:
   name: Planned quantity element
   url: https://www.iso.org/standard/54497.html
   alignment: none
-  note: Planned output (standard rate x planned time) is the ISO 22400-2 planned-quantity element, an
-    input to Effectiveness, not a KPI.
+  note: Planned output (standard rate x planned time) is the ISO 22400-2 planned-quantity element, an input to Effectiveness,
+    not a KPI.

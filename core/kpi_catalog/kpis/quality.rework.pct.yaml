@@ -16,7 +16,7 @@ business:
   purpose: Measures share of units requiring rework.
   definition: Reworked Units / Total Units.
   grain_scope: Line/day; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; high rework impacts throughput and cost.
 technical:
   measure_name: Rework Rate %

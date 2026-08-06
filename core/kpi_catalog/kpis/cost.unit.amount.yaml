@@ -24,7 +24,7 @@ business:
   purpose: Measures total cost per unit produced or sold.
   definition: Total Cost Amount / Units Produced or Sold.
   grain_scope: Product / period.
-  unit_format: EUR per unit
+  unit_format: eur_per_unit_0
   interpretation: Lower is better; used to track cost efficiency.
 technical:
   measure_name: Unit Cost Amount
@@ -64,5 +64,5 @@ standard_ref:
   name: Unit cost (cost accounting)
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
   alignment: none
-  note: Internal cost-accounting metric (total cost / units); no external financial-reporting standard.
-    Cost inputs relate to IAS 2 inventory costing.
+  note: Internal cost-accounting metric (total cost / units); no external financial-reporting standard. Cost inputs
+    relate to IAS 2 inventory costing.

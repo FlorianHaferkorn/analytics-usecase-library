@@ -15,7 +15,7 @@ business:
   purpose: Measures stockout frequency for critical spare parts.
   definition: Stockout Events / Total Parts Requests.
   grain_scope: Site/part; monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; stockouts drive downtime and MTTR.
 technical:
   measure_name: Spare Parts Stockout %
@@ -44,5 +44,5 @@ standard_ref:
   name: Spare-parts (MRO) availability
   url: https://scor.ascm.org/performance/asset-management
   alignment: none
-  note: Spare-parts stockout is an MRO/maintenance availability diagnostic; SCOR captures availability
-    inside Reliability/Asset-Management rather than as a standalone metric. Mirrors inv.stockout.pct.
+  note: Spare-parts stockout is an MRO/maintenance availability diagnostic; SCOR captures availability inside Reliability/Asset-Management
+    rather than as a standalone metric. Mirrors inv.stockout.pct.

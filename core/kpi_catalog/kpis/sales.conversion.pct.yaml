@@ -14,7 +14,7 @@ business:
   purpose: Measures conversion between funnel stages (lead → opportunity → won).
   definition: Records advancing to the next stage / Records entering the stage.
   grain_scope: Stage/segment; monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; isolates where the funnel leaks.
 technical:
   measure_name: Stage Conversion %
@@ -26,7 +26,10 @@ technical:
   - fact_pipeline.Opportunity Value Amount
   calculation:
     op: hitl
-    reason: "fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL by CLI."
+    blocked_by: authoring
+    reason: fact_pipeline (opportunity grain) now in Aurora; true per-stage conversion (records advancing to next
+      stage / entering the stage) needs a stage-transition fact or a DAX stage-cohort measure — synthesised in TMDL
+      by CLI.
 governance:
   business_owner: TBD
   data_owner: TBD

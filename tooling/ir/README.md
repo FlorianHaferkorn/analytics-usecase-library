@@ -33,10 +33,8 @@ py -3 tooling/ir/build_ir.py
 py -3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog
 
 # With Fabric measure overlay (tool-agnostic core; DAX in products/fabric/powerbi/specs)
-py -3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog --fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml
-
+py -3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog
 # One-time: write current catalog DAX fields to overlay YAML
-py -3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog --write-fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml
 ```
 
 Output (ignored by git): `tooling/ir/out/ir_v1.json`

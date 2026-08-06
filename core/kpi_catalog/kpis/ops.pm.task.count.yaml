@@ -15,7 +15,7 @@ business:
   purpose: Counts preventive maintenance tasks executed or scheduled.
   definition: Count of PM tasks in the period.
   grain_scope: Asset; aggregated by period.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate more planned maintenance activity.
 technical:
   measure_name: Preventive Maintenance Task Count

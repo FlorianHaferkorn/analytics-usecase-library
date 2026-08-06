@@ -15,7 +15,7 @@ business:
   purpose: Measures customer complaints relative to shipped units.
   definition: Complaint Count / Units Shipped.
   grain_scope: Product/month; aggregated to business unit.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; spikes indicate quality or service issues.
 technical:
   measure_name: Complaint Rate %
@@ -51,5 +51,5 @@ standard_ref:
   name: (customer complaint rate)
   url: https://www.iso.org/standard/54497.html
   alignment: none
-  note: Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations
-    KPI. No ISO 22400-2 equivalent.
+  note: Customer-complaint rate is a complaints-handling metric (ISO 10002), not a manufacturing-operations KPI.
+    No ISO 22400-2 equivalent.

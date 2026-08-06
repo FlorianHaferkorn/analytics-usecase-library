@@ -13,7 +13,7 @@ business:
   purpose: Number of unique active customers in the reporting period.
   definition: Distinct customers with at least one qualifying transaction in the period.
   grain_scope: Customer/segment; monthly or quarterly.
-  unit_format: count
+  unit_format: count_0
   interpretation: Base for retention, churn and at-risk share calculations.
 technical:
   measure_name: Active Customers

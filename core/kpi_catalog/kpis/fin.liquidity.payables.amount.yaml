@@ -15,14 +15,17 @@ business:
   purpose: Track accounts payable balances used in DPO and working capital analysis.
   definition: Accounts payable balance at period end.
   grain_scope: Company/segment; monthly or quarterly closing.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_2
   interpretation: Higher balances increase working capital funding but can signal payment delays; compare to terms.
 technical:
   measure_name: Payables Amount
   description: Accounts payable balance at period end
   depends_on_measures: []
   lineage:
-  - fact_accounts_payable.AP Amount
+  - fact_accounts_payable.Payables Amount
+  calculation:
+    op: sum
+    column: Payables Amount
 governance:
   business_owner: Head of Treasury / Procurement Controlling
   data_owner: Finance BI
@@ -41,6 +44,5 @@ standard_ref:
   name: Trade and other payables
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-1-presentation-of-financial-statements/
   alignment: partial
-  note: Trade payables are an IAS 1 statement-of-financial-position line (a financial liability under
-    IFRS 9). Aligns for trade payables; ensure non-trade accruals/provisions are excluded when this feeds
-    DPO.
+  note: Trade payables are an IAS 1 statement-of-financial-position line (a financial liability under IFRS 9). Aligns
+    for trade payables; ensure non-trade accruals/provisions are excluded when this feeds DPO.

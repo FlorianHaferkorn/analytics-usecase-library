@@ -15,13 +15,11 @@ business:
   purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
   definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
   grain_scope: Customer level; calculated on cohort or segment basis.
-  unit_format: EUR (2 decimals)
-  interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn
-    risk.
+  unit_format: eur_2
+  interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
 technical:
   measure_name: CLV
-  description: Estimate long-term value of a customer to prioritize retention, acquisition, and service
-    investments.
+  description: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
   depends_on_measures: []
   lineage:
   - fact_customer_value.CustomerKey
@@ -47,6 +45,5 @@ standard_ref:
 - standard: Marketing analytics — CRM (convention)
   name: Customer Lifetime Value
   alignment: none
-  note: CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics
-    model, not a governed standard. The GM base ties to IFRS 15 / IAS 2; the forward-looking model is
-    convention.
+  note: CLV (discounted expected future gross margin per customer) is a well-established marketing-analytics model,
+    not a governed standard. The GM base ties to IFRS 15 / IAS 2; the forward-looking model is convention.

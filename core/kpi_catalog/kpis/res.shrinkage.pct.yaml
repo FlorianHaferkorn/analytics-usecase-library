@@ -15,7 +15,7 @@ business:
   purpose: Measures non-productive share of paid time.
   definition: Non-productive time divided by paid time.
   grain_scope: agent_day; aggregated to week/month.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; compare vs plan.
 technical:
   measure_name: Shrinkage %
@@ -47,5 +47,4 @@ standard_ref:
   name: (contact-centre shrinkage)
   url: https://www.iso.org/standard/54497.html
   alignment: none
-  note: Shrinkage (non-productive / paid time) is a contact-centre WFM metric (COPC CX Standard), not
-    ISO 22400-2.
+  note: Shrinkage (non-productive / paid time) is a contact-centre WFM metric (COPC CX Standard), not ISO 22400-2.
