@@ -299,7 +299,9 @@ def generate_fact_output(org_df: pd.DataFrame, product_keys: list[int]) -> None:
     fact_dates = pd.date_range(FACTS_START, FACTS_END, freq="D")
     rows: list[dict] = []
 
-    dc_orgs = org_df[org_df["OrgType"] == "DC"]
+    # Guard against duplicate DC rows in dim_org (each OrgKey must appear once, else every
+    # (date, org, product) fact row is emitted twice). Dedup by the grain key.
+    dc_orgs = org_df[org_df["OrgType"] == "DC"].drop_duplicates(subset=["OrgKey"])
     dc_products = product_keys[:_PRODUCTS_PER_DC]
 
     # Pre-compute avg price per product (deterministic)
@@ -316,17 +318,23 @@ def generate_fact_output(org_df: pd.DataFrame, product_keys: list[int]) -> None:
         for _, dc_row in dc_orgs.iterrows():
             org_key = int(dc_row["OrgKey"])
             rng     = _rng_for(org_key, salt=date_key % 400)
+            # Quality draws use a SEPARATE stream so Output Units stays byte-identical.
+            qrng    = _rng_for(org_key, salt=(date_key % 400) + 400)
 
             for pk in dc_products:
                 noise    = float(rng.uniform(0.80, 1.20))
                 units    = max(0, int(_BASE_DAILY_UNITS_DC * growth * seasonality * noise))
                 revenue  = round(units * avg_prices[pk], 2)
+                good     = int(units * float(qrng.uniform(0.96, 0.99)))
+                defects  = int(units * float(qrng.uniform(0.01, 0.04)))
 
                 rows.append({
                     "DateKey":        date_key,
                     "OrgKey":         org_key,
                     "ProductKey":     int(pk),
                     "Output Units":   float(units),
+                    "Good Units":     float(good),
+                    "Defect Count":   float(defects),
                     "Revenue Amount": revenue,
                 })
 
