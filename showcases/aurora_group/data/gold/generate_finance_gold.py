@@ -340,10 +340,13 @@ def generate_fact_output(org_df: pd.DataFrame, product_keys: list[int]) -> None:
 # ---------------------------------------------------------------------------
 
 def _resolve_keys() -> tuple[pd.DataFrame, list[int]]:
+    # Dedup on the primary key: a dim Delta table can leave tombstoned parquet on
+    # disk after an overwrite; a naive rglob concat would read them and double every
+    # row (-> every DC-grained fact doubles on regen). Mirrors generate_dims._load_dim.
     org_df = pd.concat(
         [pd.read_parquet(p) for p in sorted((DIMS / "dim_org").rglob("*.parquet"))],
         ignore_index=True,
-    )
+    ).drop_duplicates(subset=["OrgKey"]).reset_index(drop=True)
     product_keys = [1, 2]
     try:
         for p in sorted((DIMS / "dim_product").rglob("*.parquet")):
