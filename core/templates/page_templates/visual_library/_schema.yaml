@@ -1,0 +1,72 @@
+# Visual Library — entry schema (Single Source of Truth)
+# ------------------------------------------------------------------
+# Every idiom file (<id>.yaml) MUST have exactly these keys, in this order.
+# The library is machine-first: the generator and AI agents read it directly;
+# the human Artifact + spec Part D are RENDERED from it (never hand-diverged).
+#
+# Determinism contract: each realization is a pure template of {{params}}.
+# Placeholders are filled ONLY from canonical_params (frozen sample) or, at
+# generation time, from the semantic model measure names + governed tokens.
+# `tooling/visual_library/render.py` fills them; golden/ freezes the output;
+# test_visual_library.py asserts byte-for-byte equality — so the same request
+# yields the same result every time (the byte-for-byte principle from the
+# scaffold generator, extended to every idiom x tool).
+
+schema_version: 1
+
+# --- required keys per idiom entry (identical structure for every visual) ---
+required_keys:
+  - id                 # stable snake_case id (== filename)
+  - name               # human name
+  - purpose            # list of analytical-question ids it answers (see index.yaml)
+  - zone               # 3-30-300 placement: subset of [pulse, analysis, detail]
+  - best_form_for      # the purpose id for which THIS is the governed best form (or null)
+  - alternatives       # other idiom ids serving the same purpose(s)
+  - encoding           # governed rationale: {magnitude, direction, reference, ...}
+  - anti_patterns      # list of anti-pattern ids (why NOT / instead-of)
+  - params             # the data/encoding inputs (role, type, default, required)
+  - tokens             # token bindings (values resolved from color_semantics/typography)
+  - canonical_params   # frozen sample values that fill the templates for the golden test
+  - realizations       # {tool: {ext, template}} — concrete, runnable code per tool
+  - determinism        # {golden_dir, notes}
+
+# --- the four governed tool tracks (every entry provides all four) ---
+tools:
+  - powerbi_native     # visual.json (PBIR) — the native visual where it is the best form
+  - powerbi_svg_dax    # reportExtensions.json ImageUrl measure (SVG via DAX)
+  - deneb_vegalite     # Vega-Lite spec (Deneb-embedded == standalone)
+  - web_recharts       # React/Recharts (also the D3 fallback note)
+
+# --- notation profiles (the second axis) — OPTIONAL per idiom ---
+# An idiom answers a QUESTION (purpose); a notation profile is the CONVENTION it is
+# drawn in (see _notation_profiles.yaml). `house_default` is the governed baseline
+# and is ALWAYS the `realizations` block above — no idiom restates it. An idiom may
+# OPT IN to another profile (e.g. `ibcs`) by adding an OPTIONAL top-level key:
+#
+#   profiles:
+#     ibcs:
+#       note: "why this idiom's IBCS reading differs"
+#       param_overrides: { col_zero: "#201F1E" }        # merged over canonical_params
+#       realizations:                                    # OPTIONAL per-tool override
+#         powerbi_native: { applicable: false, reason: "...", use: "..." }
+#         deneb_vegalite: { ext: json, template: "..." } # a structural override
+#
+# Resolution (render.py): for a non-default profile, params = canonical_params +
+# param_overrides; a tool uses its profile `realizations` override if present, else
+# falls back to the base template (pure token/param overlay). Every declared profile
+# id MUST exist in _notation_profiles.yaml. Goldens for a non-default profile are
+# named `<id>.<tool>.<profile>.<ext>`; house_default keeps `<id>.<tool>.<ext>`.
+# `profiles` is NOT a required key — an idiom with none exists only in house_default.
+
+# --- placeholder syntax ---
+# {{name}} is replaced literally by str(canonical_params[name]). No logic in
+# templates — determinism requires pure substitution. Colours are hex from the
+# governed tokens; never invented.
+#
+# --- applicability ---
+# Every idiom must ADDRESS all four tools, but not every idiom EXISTS in every tool
+# (SVG-DAX is for cell micro-charts, not full waterfalls/scatter; Vega-Lite/Recharts
+# are not table tools; there is no native bullet base visual). A tool that does not
+# fit is written as:  <tool>: { applicable: false, reason: "...", use: "<other tool>" }
+# instead of {ext, template}. render.tools() skips these; the golden test only freezes
+# the runnable ones; the schema test requires every non-applicable to carry reason+use.

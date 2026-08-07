@@ -1,0 +1,11 @@
+{
+  "visualType": "waterfallChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_revenue_part" } }, "Property": "Part" } }, "queryRef": "dim_revenue_part.Part" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Revenue Buildup Value" } }, "queryRef": "_Measures.Revenue Buildup Value" } ] }
+  } },
+  "objects": { "sentimentColors": [ { "properties": {
+    "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0078D4'" } } } } },
+    "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0F2430'" } } } } }
+  } } ] }
+}

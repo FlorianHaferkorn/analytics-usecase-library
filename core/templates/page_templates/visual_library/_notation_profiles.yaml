@@ -1,0 +1,63 @@
+# Visual Library — notation profiles (the SECOND axis)
+# ------------------------------------------------------------------
+# An idiom answers an analytical QUESTION (purpose). A notation profile is the
+# CONVENTION SYSTEM it is drawn in. The same idiom rendered in two profiles is
+# still the same chart — only the notation grammar (reference emphasis, scenario
+# encoding, variance form, scaling) changes.
+#
+#   render(idiom, tool)                      -> house_default (the governed baseline)
+#   render(idiom, tool, profile="ibcs")      -> the IBCS reading of the same idiom
+#
+# This is why "IBCS bar" is NOT a separate idiom (a duplicate of `bar_ranking`):
+# it is `bar_ranking` under the `ibcs` profile. One idiom x N profiles, not N idioms.
+#
+# Determinism is preserved: a profile overlays param values and/or supplies a
+# per-tool template override. render.py resolves it by pure substitution; the
+# golden test freezes each (idiom x tool x profile) — same request, same bytes.
+#
+# An idiom OPTS IN to a non-default profile by declaring a `profiles:` block
+# (see _schema.yaml). If it declares none, it exists only in house_default.
+
+schema_version: 1
+default: house_default
+
+profiles:
+
+  house_default:
+    name: "ALUCA House Standard"
+    is_default: true
+    description: >
+      The governed ALUCA notation: honest statement titles (descriptor · question ·
+      verdict), semantic colour only, deviation by length and sign (never a tinted
+      pill), worst-first evidence, one-accent discipline, grey as the recede tool.
+    source:
+      - "products/fabric/powerbi/docs/design/Report_Design_Storytelling_Spec.md §A.8 (composition)"
+      - "core/templates/page_templates/governance/Color_Semantics_Formatting.md"
+      - "core/templates/page_templates/tokens/color_semantics.yaml (semantic.*)"
+    rules:
+      titles:          "descriptor title · question subtitle · verdict by capability"
+      variance:        "length + sign + semantic colour (positive #107C10 / negative #A4262C); never colour alone"
+      reference_axis:  "muted neutral zero/plan line (recedes behind the data)"
+      emphasis:        "size and position only; grey to recede; a single accent per page"
+
+  ibcs:
+    name: "IBCS — International Business Communication Standards"
+    is_default: false
+    description: >
+      Hichert SUCCESS notation. Scenarios are distinguished by FILL PATTERN, not a
+      second colour (AC solid · PL outlined · FC hatched · PY solid @50%). The
+      plan/target reference is prominent (ink), not muted. Variances are integrated
+      ± bars/columns with sign, and comparable charts share one value-per-pixel scale.
+    source:
+      - "HICHERT, Rolf; FAISST, Jürgen — Solid, Outlined, Hatched (IBCS Institute, 2020)"
+      - "core/templates/page_templates/tokens/color_semantics.yaml: ibcs_scenario (governed)"
+      - "daxlib.org PowerofBI.IBCS — runnable UDF realisations (bar, column, waterfall, small multiples)"
+    rules:
+      scenario_fill:   "AC solid · PL outlined · FC hatched · PY solid@50% — colour shared, pattern distinguishes; never a 2nd colour for scenarios"
+      reference_axis:  "prominent ink reference line (plan/target), not muted"
+      variance:        "integrated ± bars/columns with sign; good/bad by semantic colour where defined"
+      scaling:         "same value-per-pixel across comparable charts on a page (uniform scaling)"
+    # governed hex a profile overlay may pull from (kept in sync with color_semantics.yaml)
+    tokens:
+      reference_ink:  "#201F1E"    # text.primary — the prominent IBCS reference
+      py_tint_alpha:  0.5          # PY = AC colour at 50%

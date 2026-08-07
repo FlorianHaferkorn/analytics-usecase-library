@@ -1,0 +1,98 @@
+# Visual Library entry — matrix_evidence  (schema: _schema.yaml)
+id: matrix_evidence
+name: Evidence matrix
+purpose: [evidence_detail]
+zone: [detail]
+best_form_for: evidence_detail
+alternatives: []
+
+encoding:
+  order: worst_first                # sorted ascending on the deviation column
+  cells: data_bar_deviation         # in-cell bars encode the gap (length)
+  columns: curated_topn             # <=8 curated columns + action column
+
+anti_patterns:
+  - unsorted_rows
+  - long_bar_list_instead_of_table
+  - too_many_columns
+
+params:
+  category:    {role: row, type: category, required: true}
+  value:       {role: value, required: true}
+  deviation:   {role: value, required: true, note: "the vs-plan measure, sorted + data-barred"}
+  entity:      {role: table, default: _Measures}
+  top_n:       {role: limit, default: 20}
+
+tokens:
+  col_above: ink                     # #0F2430
+  col_below: color_semantics.negative# #A4262C
+
+canonical_params:
+  entity: "_Measures"
+  category_entity: "dim_product"
+  category_prop: "Category"
+  value_measure: "Gross Margin Amount"
+  dev_measure: "Gross Margin % vs Plan"
+  field_cat: "category"
+  field_value: "gm_amount"
+  field_dev: "gm_vs_plan"
+  col_above: "#0F2430"
+  col_below: "#A4262C"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Evidence matrix">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">CATEGORY</text><text x="150" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">GM EUR</text><text x="240" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">D vs PLAN</text>
+    <line x1="16" y1="32" x2="324" y2="32" stroke="#E1E7EE"/>
+    <text x="20" y="52" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Fashion</text><text x="150" y="52" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">2.4M</text><rect x="240" y="44" width="70" height="10" fill="#A4262C"/>
+    <text x="20" y="76" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Home</text><text x="150" y="76" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">1.9M</text><rect x="240" y="68" width="48" height="10" fill="#A4262C"/>
+    <text x="20" y="100" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Electro</text><text x="150" y="100" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">1.2M</text><rect x="240" y="92" width="26" height="10" fill="#A4262C"/>
+    <text x="20" y="124" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Sport</text><text x="150" y="124" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">0.8M</text><rect x="240" y="116" width="34" height="10" fill="#107C10"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "tableEx",
+        "query": { "queryState": {
+          "Values": { "projections": [
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" },
+            { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{value_measure}}" } }, "queryRef": "{{entity}}.{{value_measure}}" },
+            { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "queryRef": "{{entity}}.{{dev_measure}}" }
+          ] },
+          "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true }
+        } },
+        "objects": { "columnFormatting": [ { "properties": { "dataBars": {
+          "positiveColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_above}}'" } } } } },
+          "negativeColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_below}}'" } } } } }
+        } }, "selector": { "metadata": "{{entity}}.{{dev_measure}}" } } ] }
+      }
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _v = [{{dev_measure}}]
+      VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( '{{category_entity}}'[{{category_prop}}] ), ABS ( [{{dev_measure}}] ) ), REMOVEFILTERS ( '{{category_entity}}'[{{category_prop}}] ) )
+      VAR _w = DIVIDE ( ABS ( _v ), _max ) * 100
+      VAR _col = IF ( _v < 0, "{{col_below}}", "{{col_above}}" )
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<rect x='0' y='2' width='" & _w & "' height='10' fill='" & _col & "'/>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    applicable: false
+    reason: "Vega-Lite is not a table tool"
+    use: "powerbi_native (tableEx) with an SVG-DAX data-bar column"
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts has no table primitive"
+    use: "an HTML <table> with CSS data-bar cells (div width = normalised deviation)"
+
+determinism:
+  golden_dir: golden
+  notes: "Worst-first via ascending sort on the deviation column; SVG-DAX supplies the in-cell data bar. A matrix is a table -> Vega/Recharts n/a."
