@@ -80,8 +80,8 @@ purposes:
 notation_profiles:
   registry: _notation_profiles.yaml
   available: [house_default, ibcs]
-  implemented_ibcs: [deviation_bar]        # idioms that currently carry an `ibcs` profile
-  pending_ibcs: [waterfall_pvm, bar_ranking, line, bullet]   # next slices (some need structural overrides)
+  implemented_ibcs: [deviation_bar, bar_ranking, line]   # idioms that carry an `ibcs` profile
+  pending_ibcs: [waterfall_pvm, bullet]   # next slices
 
 # governed deny-list (never emit)
 deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative]

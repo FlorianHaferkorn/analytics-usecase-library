@@ -1,0 +1,9 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "encoding": { "y": { "field": "unit", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
+  "layer": [
+    { "mark": { "type": "bar", "color": "#C8CED5", "size": 18 }, "encoding": { "x": { "field": "gm_py", "type": "quantitative", "axis": { "title": null } } } },
+    { "mark": { "type": "bar", "color": "#0F2430", "size": 9 }, "encoding": { "x": { "field": "gm", "type": "quantitative" } } }
+  ]
+}

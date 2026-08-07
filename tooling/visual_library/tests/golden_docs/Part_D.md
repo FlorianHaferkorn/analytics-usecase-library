@@ -39,12 +39,14 @@
 - **Purpose:** time_comparison · **zone:** analysis · **best form for:** `time_comparison`
 - **Avoid:** bars_for_time, autoscale_without_reference, dual_axis_no_reason, legend_when_direct_label_works
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/line.yaml` (+ `golden/line.*`)
 
 #### `bar_ranking` — Bar ranking
 - **Purpose:** compare_categories · **zone:** analysis · **best form for:** `compare_categories`
 - **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bar_ranking.yaml` (+ `golden/bar_ranking.*`)
 
 #### `waterfall_pvm` — Waterfall bridge (PVM)

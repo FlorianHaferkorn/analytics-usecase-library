@@ -117,6 +117,57 @@ realizations:
         <Line type="monotone" dataKey="{{field}}" stroke="{{col_line}}" strokeWidth={2.5} dot={false} />
       </LineChart>
 
+# --- notation profile: IBCS (structural override — plan plotted as a scenario line) ---
+# House shows plan as a flat dashed reference rule. IBCS plots PL (plan) as a real
+# scenario LINE over time with the actuals (AC) solid on top (color_semantics.ibcs_scenario).
+# STRUCTURAL — native gets a second Y measure; Vega/Recharts get a second line series.
+profiles:
+  ibcs:
+    note: "IBCS scenario lines: AC solid over PL (plan) as a lighter dashed line over time, instead of a flat target rule."
+    param_overrides:
+      plan_field: "gm_plan"
+      col_pl: "#94A0AC"
+    realizations:
+      powerbi_native:
+        ext: json
+        template: |
+          {
+            "visualType": "lineChart",
+            "query": { "queryState": {
+              "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+              "Y": { "projections": [
+                { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" },
+                { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{target_measure}}" } }, "queryRef": "{{entity}}.{{target_measure}}" }
+              ] }
+            } },
+            "objects": { "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "false" } } } } } ] }
+          }
+      powerbi_svg_dax:
+        applicable: false
+        reason: "two scenario lines (AC + PL) in a single table cell are too cramped to read"
+        use: "powerbi_native (two Y measures) or deneb_vegalite"
+      deneb_vegalite:
+        ext: json
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": { "name": "dataset" },
+            "encoding": { "x": { "field": "{{field_date}}", "type": "temporal", "axis": { "title": null } } },
+            "layer": [
+              { "mark": { "type": "line", "color": "{{col_pl}}", "strokeWidth": 1.5, "strokeDash": [4, 3] }, "encoding": { "y": { "field": "{{plan_field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+              { "mark": { "type": "line", "color": "{{col_line}}", "strokeWidth": 2.5 }, "encoding": { "y": { "field": "{{field}}", "type": "quantitative" } } }
+            ]
+          }
+      web_recharts:
+        ext: jsx
+        template: |
+          <LineChart data={data} width={640} height={220}>
+            <XAxis dataKey="{{field_date}}" />
+            <YAxis domain={['auto', 'auto']} />
+            <Line type="monotone" dataKey="{{plan_field}}" stroke="{{col_pl}}" strokeWidth={1.5} strokeDasharray="4 3" dot={false} />
+            <Line type="monotone" dataKey="{{field}}" stroke="{{col_line}}" strokeWidth={2.5} dot={false} />
+          </LineChart>
+
 determinism:
   golden_dir: golden
-  notes: "Pure {{param}} fill; golden-frozen. Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point."
+  notes: "Pure {{param}} fill; golden-frozen. Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point. IBCS profile plots plan as a scenario line (native = 2nd Y measure)."

@@ -114,6 +114,49 @@ realizations:
         </Bar>
       </BarChart>
 
+# --- notation profile: IBCS (structural override — the overlapped comparison bar) ---
+# House ranks AC against a target LINE. IBCS reads AC against PY at a glance by
+# overlaying a narrow solid AC bar on a wider lighter PY reference bar (scenario
+# discipline from color_semantics.ibcs_scenario: AC solid, PY tint). STRUCTURAL —
+# adds a PY series and replaces the templates (vs the token overlay of deviation_bar@ibcs).
+profiles:
+  ibcs:
+    note: "IBCS overlapped bar: solid AC over a lighter, wider PY reference; reads AC-vs-PY directly instead of AC-vs-target-line."
+    param_overrides:
+      py_field: "gm_py"
+      col_ac: "#0F2430"
+      col_py: "#C8CED5"
+    realizations:
+      powerbi_native:
+        applicable: false
+        reason: "native clusteredBar cannot overlay a narrower AC bar on a wider PY reference bar"
+        use: "PowerofBI.IBCS overlapped-bar UDF (daxlib.org) or Inforiver"
+      powerbi_svg_dax:
+        applicable: false
+        reason: "overlapped AC/PY bars across all categories is a full chart, not a single-cell micro-chart"
+        use: "deneb_vegalite, or PowerofBI.IBCS"
+      deneb_vegalite:
+        ext: json
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": { "name": "dataset" },
+            "encoding": { "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
+            "layer": [
+              { "mark": { "type": "bar", "color": "{{col_py}}", "size": 18 }, "encoding": { "x": { "field": "{{py_field}}", "type": "quantitative", "axis": { "title": null } } } },
+              { "mark": { "type": "bar", "color": "{{col_ac}}", "size": 9 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative" } } }
+            ]
+          }
+      web_recharts:
+        ext: jsx
+        template: |
+          <BarChart layout="vertical" data={[...data].sort((a, b) => b.{{field}} - a.{{field}})} width={640} height={320}>
+            <XAxis type="number" />
+            <YAxis type="category" dataKey="{{field_cat}}" width={90} />
+            <Bar dataKey="{{py_field}}" fill="{{col_py}}" barSize={16} />
+            <Bar dataKey="{{field}}" fill="{{col_ac}}" barSize={9} />
+          </BarChart>
+
 determinism:
   golden_dir: golden
-  notes: "Worst-first via ascending sort; semantic colour below target. Same {{param}} fill; golden-frozen."
+  notes: "Worst-first via ascending sort; semantic colour below target. IBCS profile overlays solid AC on a lighter PY (Vega true-overlaps via layer+size; Recharts groups AC/PY). Same {{param}} fill; golden-frozen."
