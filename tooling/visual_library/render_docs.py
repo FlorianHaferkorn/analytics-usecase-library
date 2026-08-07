@@ -44,11 +44,18 @@ def _implemented() -> "list[str]":
     return _index()["implemented"]
 
 
-def _golden_code(idiom: str, tool: str) -> "tuple[str, str]":
-    """The frozen output for a runnable idiom x tool (from golden/)."""
+def _golden_code(idiom: str, tool: str, profile: "str | None" = None) -> "tuple[str, str]":
+    """The frozen output for a runnable idiom x tool x profile (from golden/)."""
     entry = render.load_entry(idiom)
-    ext = entry["realizations"][tool]["ext"]
-    return render.golden_path(idiom, tool, ext).read_text(encoding="utf-8"), ext
+    real = render._realization(entry, tool, profile or render.default_profile())
+    ext = real["ext"]
+    return render.golden_path(idiom, tool, ext, profile).read_text(encoding="utf-8"), ext
+
+
+def _nondefault_profiles(idiom: str) -> "list[str]":
+    """Notation profiles an idiom opts into beyond house_default (e.g. `ibcs`)."""
+    dp = render.default_profile()
+    return [p for p in render.profiles(idiom) if p != dp]
 
 
 # ---------------------------------------------------------------- markdown (Part D)
@@ -103,6 +110,11 @@ def render_part_d() -> str:
             else:
                 tool_bits.append(f"{TOOL_LABEL[tool]} n/a ({r['reason']} → {r['use']})")
         out.append("- **Tools:** " + " · ".join(tool_bits))
+        nd = _nondefault_profiles(iid)
+        if nd:
+            out.append(f"- **Notation profiles:** `{render.default_profile()}` · "
+                       + " · ".join(f"`{p}`" for p in nd)
+                       + " — the same idiom in another convention (see `_notation_profiles.yaml`)")
         out.append(f"- **Code:** `visual_library/{iid}.yaml` (+ `golden/{iid}.*`)")
         out.append("")
     return "\n".join(out).rstrip() + "\n"
@@ -154,6 +166,13 @@ def _html_idiom(iid: str) -> str:
         code, ext = _golden_code(iid, tool)
         parts.append(f'<details><summary>{_esc(TOOL_LABEL[tool])} · {ext}</summary>'
                      f'<pre>{_esc(code)}</pre></details>')
+    for profile in _nondefault_profiles(iid):
+        parts.append(f'<p class="meta" style="margin-top:12px"><b>Notation profile · {_esc(profile)}</b> — '
+                     f'the same idiom in the {_esc(profile)} convention (see <code>_notation_profiles.yaml</code>)</p>')
+        for tool in render.tools(iid, profile):
+            code, ext = _golden_code(iid, tool, profile)
+            parts.append(f'<details><summary>{_esc(TOOL_LABEL[tool])} · {_esc(profile)} · {ext}</summary>'
+                         f'<pre>{_esc(code)}</pre></details>')
     for tool in SCHEMA["tools"]:
         r = e["realizations"][tool]
         if not (r.get("applicable", True) and "template" in r):

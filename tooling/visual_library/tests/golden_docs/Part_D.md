@@ -32,6 +32,7 @@
 - **Purpose:** deviation_from_target, compare_categories · **zone:** pulse / analysis · **best form for:** `deviation_from_target`
 - **Avoid:** color_of_number_for_magnitude, decorative_tint, gauge
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/deviation_bar.yaml` (+ `golden/deviation_bar.*`)
 
 #### `line` — Trend line
