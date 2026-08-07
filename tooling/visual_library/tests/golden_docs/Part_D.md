@@ -136,3 +136,21 @@
 - **Avoid:** used_as_a_static_exhibit, too_many_explain_by_dims
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (an interactive AI drill tree is not a cell micro-chart → powerbi_native (decompositionTreeVisual)) · Deneb / Vega-Lite n/a (an interactive drill tree is not a declarative Vega idiom → powerbi_native (decompositionTreeVisual)) · Web · Recharts n/a (Recharts has no decomposition-tree component → a custom D3 tree with sorted bars per level)
 - **Code:** `visual_library/decomposition_tree.yaml` (+ `golden/decomposition_tree.*`)
+
+#### `bar_absolute` — Bar (absolute magnitude)
+- **Purpose:** compare_categories · **zone:** analysis
+- **Avoid:** broken_baseline_on_absolute_bar, color_to_separate_equal_categories, pie_for_comparison, unsorted_bars
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/bar_absolute.yaml` (+ `golden/bar_absolute.*`)
+
+#### `waterfall_buildup` — Waterfall (buildup to total)
+- **Purpose:** contribution_to_change · **zone:** analysis
+- **Avoid:** bridge_without_connectors, mixing_increase_and_decrease, too_many_steps, color_beyond_single_series
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a multi-step buildup with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS build-up UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/waterfall_buildup.yaml` (+ `golden/waterfall_buildup.*`)
+
+#### `waterfall_variance` — Waterfall (variance bridge)
+- **Purpose:** contribution_to_change · **zone:** analysis
+- **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, hiding_the_two_anchor_totals
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a two-anchor variance bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS variance-bridge UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/waterfall_variance.yaml` (+ `golden/waterfall_variance.*`)

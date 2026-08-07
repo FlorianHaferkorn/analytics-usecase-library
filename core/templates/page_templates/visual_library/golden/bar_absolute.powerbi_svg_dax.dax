@@ -1,0 +1,8 @@
+VAR _v = [Net Sales Amount]
+VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( 'dim_org'[OrgName] ), [Net Sales Amount] ), REMOVEFILTERS ( 'dim_org'[OrgName] ) )
+VAR _w = DIVIDE ( _v, _max ) * 100
+RETURN
+    IF ( HASONEVALUE ( 'dim_org'[OrgName] ),
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+          & "<rect x='0' y='2' width='" & _w & "' height='10' fill='#0F2430'/>"
+          & "</svg>" )

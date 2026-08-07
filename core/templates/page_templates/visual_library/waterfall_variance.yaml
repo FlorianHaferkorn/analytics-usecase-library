@@ -1,0 +1,113 @@
+# Visual Library entry — waterfall_variance  (schema: _schema.yaml)
+id: waterfall_variance
+name: Waterfall (variance bridge)
+purpose: [contribution_to_change]
+zone: [analysis]
+best_form_for: null                 # `waterfall_pvm` is the governed best form; this is the generic signed-variance bridge
+alternatives: [waterfall_pvm, waterfall_buildup, deviation_bar]
+
+encoding:
+  steps: signed_variances           # arbitrary driver variances (not the P/V/M decomposition)
+  direction: up_down                # favourable / unfavourable contributions
+  running_total: connectors
+  color: semantic_up_down           # green favourable / red unfavourable
+  anchors: start_and_end            # bridges a reference total (PY/Plan) to Actual
+
+anti_patterns:
+  - bridge_without_connectors
+  - color_beyond_semantic
+  - too_many_steps                  # group small variances into "Other"
+  - hiding_the_two_anchor_totals    # the point is to bridge two totals — always show both
+
+params:
+  category: {role: step, type: category, required: true, note: "PY/Plan anchor, driver variances, Actual anchor — governed order"}
+  measure:  {role: value, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_inc:   color_semantics.positive   # #107C10 favourable variance
+  col_dec:   color_semantics.negative   # #A4262C unfavourable variance
+  col_total: ink                        # #0F2430 the two anchor totals
+
+canonical_params:
+  entity: "_Measures"
+  measure: "EBITDA Variance Bridge"
+  category_entity: "dim_variance_driver"
+  category_prop: "Driver"
+  field: "driver"
+  field_val: "value"
+  col_inc: "#107C10"
+  col_dec: "#A4262C"
+  col_total: "#0F2430"
+
+preview_svg: |
+  <svg viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Variance bridge waterfall">
+    <rect width="340" height="160" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">EBITDA — PY to ACTUAL (variance bridge)</text>
+    <rect x="26" y="70" width="44" height="66" fill="#0F2430"/>
+    <rect x="86" y="52" width="44" height="18" fill="#107C10"/>
+    <rect x="146" y="70" width="44" height="22" fill="#A4262C"/>
+    <rect x="206" y="62" width="44" height="8" fill="#107C10"/>
+    <rect x="266" y="62" width="44" height="74" fill="#0F2430"/>
+    <line x1="70" y1="70" x2="86" y2="70" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="130" y1="52" x2="146" y2="52" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="190" y1="92" x2="206" y2="92" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="250" y1="62" x2="266" y2="62" stroke="#94A0AC" stroke-dasharray="3 2"/>
+    <text x="48" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">PY</text><text x="108" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Price</text><text x="168" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Cost</text><text x="228" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Mix</text><text x="288" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Actual</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "waterfallChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } },
+        "objects": { "sentimentColors": [ { "properties": {
+          "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_inc}}'" } } } } },
+          "decreaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_dec}}'" } } } } },
+          "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_total}}'" } } } } }
+        } } ] }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a two-anchor variance bridge with a running total is not a single-cell micro-chart"
+    use: "powerbi_native (waterfallChart) or the PowerofBI.IBCS variance-bridge UDF (daxlib.org)"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "transform": [
+          { "window": [ { "op": "sum", "field": "{{field_val}}", "as": "cum" } ], "frame": [null, 0] },
+          { "calculate": "datum.cum - datum['{{field_val}}']", "as": "prev" }
+        ],
+        "mark": { "type": "bar" },
+        "encoding": {
+          "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null } },
+          "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
+          "y2": { "field": "cum" },
+          "color": { "condition": { "test": "datum['{{field_val}}'] < 0", "value": "{{col_dec}}" }, "value": "{{col_inc}}" }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <BarChart data={varianceData} width={640} height={300}>
+        <XAxis dataKey="{{field}}" />
+        <YAxis />
+        <Bar dataKey="base" stackId="a" fill="transparent" />
+        <Bar dataKey="delta" stackId="a">
+          {varianceData.map((e, i) => (
+            <Cell key={i} fill={e.delta < 0 ? "{{col_dec}}" : "{{col_inc}}"} />
+          ))}
+        </Bar>
+      </BarChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Generic signed-variance bridge (vs waterfall_pvm's specific Price/Volume/Mix). Window running-sum; semantic up/down deltas; both anchor totals in ink. SVG-DAX n/a (full chart)."
