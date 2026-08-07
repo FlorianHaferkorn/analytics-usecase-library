@@ -53,6 +53,7 @@
 - **Purpose:** contribution_to_change · **zone:** analysis · **best form for:** `contribution_to_change`
 - **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, unlabelled_zoomed_axis
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a full multi-step bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS waterfall UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/waterfall_pvm.yaml` (+ `golden/waterfall_pvm.*`)
 
 #### `area_stacked` — Stacked area
@@ -89,6 +90,7 @@
 - **Purpose:** deviation_from_target · **zone:** pulse / analysis
 - **Avoid:** gauge_instead, colour_bands_instead_of_greys
 - **Tools:** Power BI · native n/a (Power BI has no native bullet base visual → deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bullet.yaml` (+ `golden/bullet.*`)
 
 #### `slope` — Slope chart

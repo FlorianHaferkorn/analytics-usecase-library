@@ -107,6 +107,62 @@ realizations:
         </Bar>
       </BarChart>
 
+# --- notation profile: IBCS (structural override — SUCCESS labeling discipline) ---
+# The house bridge relies on the axis. IBCS labels every column with its value
+# (SUCCESS: EXPRESS/CHECK — show the numbers). Structural: adds a label layer/object.
+profiles:
+  ibcs:
+    note: "IBCS bridge: every column carries its value label (IBCS always shows the numbers), vs the house bridge that relies on the axis."
+    realizations:
+      powerbi_native:
+        ext: json
+        template: |
+          {
+            "visualType": "waterfallChart",
+            "query": { "queryState": {
+              "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+              "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+            } },
+            "objects": {
+              "sentimentColors": [ { "properties": {
+                "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_inc}}'" } } } } },
+                "decreaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_dec}}'" } } } } },
+                "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_total}}'" } } } } }
+              } } ],
+              "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]
+            }
+          }
+      deneb_vegalite:
+        ext: json
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": { "name": "dataset" },
+            "transform": [
+              { "window": [ { "op": "sum", "field": "{{field_val}}", "as": "cum" } ], "frame": [null, 0] },
+              { "calculate": "datum.cum - datum['{{field_val}}']", "as": "prev" }
+            ],
+            "encoding": { "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null } } },
+            "layer": [
+              { "mark": { "type": "bar" }, "encoding": { "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } }, "y2": { "field": "cum" }, "color": { "condition": { "test": "datum['{{field_val}}'] < 0", "value": "{{col_dec}}" }, "value": "{{col_inc}}" } } },
+              { "mark": { "type": "text", "dy": -6, "fontWeight": "bold", "color": "{{col_total}}" }, "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "{{field_val}}", "type": "quantitative", "format": ".0f" } } }
+            ]
+          }
+      web_recharts:
+        ext: jsx
+        template: |
+          <BarChart data={waterfallData} width={640} height={300}>
+            <XAxis dataKey="{{field}}" />
+            <YAxis />
+            <Bar dataKey="base" stackId="a" fill="transparent" />
+            <Bar dataKey="delta" stackId="a">
+              {waterfallData.map((e, i) => (
+                <Cell key={i} fill={e.delta < 0 ? "{{col_dec}}" : "{{col_inc}}"} />
+              ))}
+              <LabelList dataKey="delta" position="top" />
+            </Bar>
+          </BarChart>
+
 determinism:
   golden_dir: golden
   notes: "Vega uses a window running-sum (prev/cum) as the honest bridge; Recharts needs a precomputed {base, delta} per step. SVG-DAX n/a (full chart)."

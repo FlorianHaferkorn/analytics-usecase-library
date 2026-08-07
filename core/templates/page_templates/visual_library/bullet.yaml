@@ -92,6 +92,35 @@ realizations:
         <ReferenceLine x={{{target_val}}} stroke="{{col_target}}" strokeWidth={2} />
       </ComposedChart>
 
+# --- notation profile: IBCS (structural override — drop the qualitative bands) ---
+# Few's bullet uses grey qualitative bands; IBCS treats them as chart-junk and shows a
+# clean AC bar against a neutral PL reference tick (reference is dark, never alarm-red).
+profiles:
+  ibcs:
+    note: "IBCS bullet: AC bar + neutral PL reference tick, no qualitative bands (IBCS drops the ranges as chart-junk)."
+    param_overrides:
+      col_target: "#605E5C"
+    realizations:
+      powerbi_svg_dax:
+        ext: dax
+        template: |
+          VAR _a = [{{measure}}] * 100
+          VAR _t = [{{target_measure}}] * 100
+          RETURN
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<rect x='0' y='4' width='" & _a & "' height='6' fill='{{col_actual}}'/>"
+                & "<line x1='" & _t & "' y1='1' x2='" & _t & "' y2='13' stroke='{{col_target}}' stroke-width='2'/>"
+                & "</svg>"
+      web_recharts:
+        ext: jsx
+        template: |
+          <ComposedChart layout="vertical" data={[row]} width={340} height={40}>
+            <XAxis type="number" domain={[0, 100]} hide />
+            <YAxis type="category" hide />
+            <Bar dataKey="{{field}}" barSize={8} fill="{{col_actual}}" />
+            <ReferenceLine x={{{target_val}}} stroke="{{col_target}}" strokeWidth={2} />
+          </ComposedChart>
+
 determinism:
   golden_dir: golden
   notes: "Few bullet: actual bar (length), target tick (position), qualitative grey bands. No native base visual -> SVG-DAX/Deneb/Recharts."

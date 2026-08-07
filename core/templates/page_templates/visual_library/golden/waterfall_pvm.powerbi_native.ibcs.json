@@ -1,0 +1,15 @@
+{
+  "visualType": "waterfallChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_pvm_driver" } }, "Property": "Driver" } }, "queryRef": "dim_pvm_driver.Driver" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "PVM Bridge Value" } }, "queryRef": "_Measures.PVM Bridge Value" } ] }
+  } },
+  "objects": {
+    "sentimentColors": [ { "properties": {
+      "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#107C10'" } } } } },
+      "decreaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#A4262C'" } } } } },
+      "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0F2430'" } } } } }
+    } } ],
+    "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]
+  }
+}
