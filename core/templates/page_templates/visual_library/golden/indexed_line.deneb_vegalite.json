@@ -1,0 +1,11 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "layer": [
+    { "mark": { "type": "line", "color": "#0078D4", "strokeWidth": 2.5 },
+      "encoding": {
+        "x": { "field": "month", "type": "temporal", "axis": { "title": null } },
+        "y": { "field": "idx", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+    { "mark": { "type": "rule", "color": "#94A0AC", "strokeDash": [2, 2] }, "encoding": { "y": { "datum": 100 } } }
+  ]
+}

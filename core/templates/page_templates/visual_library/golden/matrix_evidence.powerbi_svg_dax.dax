@@ -1,0 +1,9 @@
+VAR _v = [Gross Margin % vs Plan]
+VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( 'dim_product'[Category] ), ABS ( [Gross Margin % vs Plan] ) ), REMOVEFILTERS ( 'dim_product'[Category] ) )
+VAR _w = DIVIDE ( ABS ( _v ), _max ) * 100
+VAR _col = IF ( _v < 0, "#A4262C", "#0F2430" )
+RETURN
+    IF ( HASONEVALUE ( 'dim_product'[Category] ),
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+          & "<rect x='0' y='2' width='" & _w & "' height='10' fill='" & _col & "'/>"
+          & "</svg>" )

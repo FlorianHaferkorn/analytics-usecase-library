@@ -1,0 +1,9 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "mark": { "type": "bar", "color": "#0F2430" },
+  "encoding": {
+    "y": { "field": "unit", "type": "nominal", "sort": "-x", "axis": { "title": null } },
+    "x": { "field": "net_sales", "type": "quantitative", "axis": { "title": null }, "scale": { "zero": true } }
+  }
+}

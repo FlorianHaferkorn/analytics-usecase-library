@@ -1,0 +1,7 @@
+{
+  "visualType": "donutChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_product" } }, "Property": "Category" } }, "queryRef": "dim_product.Category" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Net Sales Amount" } }, "queryRef": "_Measures.Net Sales Amount" } ] }
+  } }
+}

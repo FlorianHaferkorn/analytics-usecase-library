@@ -1,0 +1,126 @@
+# Visual Library entry — bullet  (schema: _schema.yaml)
+id: bullet
+name: Bullet graph
+purpose: [deviation_from_target]
+zone: [pulse, analysis]
+best_form_for: null                 # alternative to deviation_bar when qualitative ranges matter
+alternatives: [deviation_bar, ibcs_overlapped]
+
+encoding:
+  actual: length_bar
+  target: position_tick
+  ranges: qualitative_bands         # good / ok / poor greys
+
+anti_patterns:
+  - gauge_instead                   # bullet is the governed gauge replacement (Few)
+  - colour_bands_instead_of_greys
+
+params:
+  measure:        {role: value, required: true}
+  target:         {role: reference, required: true}
+  ranges:         {role: bands, optional: true}
+  entity:         {role: table, default: _Measures}
+
+tokens:
+  col_actual: ink                    # #0F2430
+  col_target: color_semantics.negative # #A4262C tick
+
+canonical_params:
+  entity: "_Measures"
+  measure: "SLA Attainment %"
+  target_measure: "SLA Target %"
+  field: "sla"
+  target_val: "95"
+  band_ok: "80"
+  band_good: "92"
+  col_actual: "#0F2430"
+  col_target: "#A4262C"
+  col_band1: "#E7EAEE"
+  col_band2: "#D6DCE2"
+  col_band3: "#C6CED5"
+
+preview_svg: |
+  <svg viewBox="0 0 340 84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bullet">
+    <rect width="340" height="84" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="26" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">SLA ATTAINMENT % vs 95%</text>
+    <rect x="24" y="42" width="234" height="18" fill="#E7EAEE"/><rect x="258" y="42" width="35" height="18" fill="#D6DCE2"/><rect x="293" y="42" width="23" height="18" fill="#C6CED5"/>
+    <rect x="24" y="47" width="266" height="8" fill="#0F2430"/>
+    <line x1="301" y1="38" x2="301" y2="64" stroke="#A4262C" stroke-width="2.5"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "Power BI has no native bullet base visual"
+    use: "deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _a = [{{measure}}] * 100
+      VAR _t = [{{target_measure}}] * 100
+      RETURN
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+            & "<rect x='0' y='0' width='{{band_ok}}' height='14' fill='{{col_band1}}'/>"
+            & "<rect x='{{band_ok}}' y='0' width='" & ( {{band_good}} - {{band_ok}} ) & "' height='14' fill='{{col_band2}}'/>"
+            & "<rect x='{{band_good}}' y='0' width='" & ( 100 - {{band_good}} ) & "' height='14' fill='{{col_band3}}'/>"
+            & "<rect x='0' y='4' width='" & _a & "' height='6' fill='{{col_actual}}'/>"
+            & "<line x1='" & _t & "' y1='1' x2='" & _t & "' y2='13' stroke='{{col_target}}' stroke-width='2'/>"
+            & "</svg>"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "layer": [
+          { "mark": { "type": "bar", "color": "{{col_actual}}", "height": 8 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } } } },
+          { "mark": { "type": "tick", "color": "{{col_target}}", "thickness": 2, "size": 20 }, "encoding": { "x": { "datum": {{target_val}} } } }
+        ]
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <ComposedChart layout="vertical" data={[row]} width={340} height={40}>
+        <XAxis type="number" domain={[0, 100]} hide />
+        <YAxis type="category" hide />
+        <ReferenceArea x1={0} x2={{{band_ok}}} fill="{{col_band1}}" />
+        <ReferenceArea x1={{{band_ok}}} x2={{{band_good}}} fill="{{col_band2}}" />
+        <Bar dataKey="{{field}}" barSize={8} fill="{{col_actual}}" />
+        <ReferenceLine x={{{target_val}}} stroke="{{col_target}}" strokeWidth={2} />
+      </ComposedChart>
+
+# --- notation profile: IBCS (structural override — drop the qualitative bands) ---
+# Few's bullet uses grey qualitative bands; IBCS treats them as chart-junk and shows a
+# clean AC bar against a neutral PL reference tick (reference is dark, never alarm-red).
+profiles:
+  ibcs:
+    note: "IBCS bullet: AC bar + neutral PL reference tick, no qualitative bands (IBCS drops the ranges as chart-junk)."
+    param_overrides:
+      col_target: "#605E5C"
+    realizations:
+      powerbi_svg_dax:
+        ext: dax
+        template: |
+          VAR _a = [{{measure}}] * 100
+          VAR _t = [{{target_measure}}] * 100
+          RETURN
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<rect x='0' y='4' width='" & _a & "' height='6' fill='{{col_actual}}'/>"
+                & "<line x1='" & _t & "' y1='1' x2='" & _t & "' y2='13' stroke='{{col_target}}' stroke-width='2'/>"
+                & "</svg>"
+      web_recharts:
+        ext: jsx
+        template: |
+          <ComposedChart layout="vertical" data={[row]} width={340} height={40}>
+            <XAxis type="number" domain={[0, 100]} hide />
+            <YAxis type="category" hide />
+            <Bar dataKey="{{field}}" barSize={8} fill="{{col_actual}}" />
+            <ReferenceLine x={{{target_val}}} stroke="{{col_target}}" strokeWidth={2} />
+          </ComposedChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Few bullet: actual bar (length), target tick (position), qualitative grey bands. No native base visual -> SVG-DAX/Deneb/Recharts."

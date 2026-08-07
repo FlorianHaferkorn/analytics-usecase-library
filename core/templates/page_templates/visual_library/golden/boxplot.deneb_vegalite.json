@@ -1,0 +1,9 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "mark": { "type": "boxplot", "extent": 1.5, "color": "#0078D4" },
+  "encoding": {
+    "y": { "field": "category", "type": "nominal", "axis": { "title": null } },
+    "x": { "field": "margin", "type": "quantitative", "axis": { "title": null } }
+  }
+}

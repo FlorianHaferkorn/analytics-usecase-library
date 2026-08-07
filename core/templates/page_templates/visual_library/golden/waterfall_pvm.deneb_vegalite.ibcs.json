@@ -1,0 +1,13 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "transform": [
+    { "window": [ { "op": "sum", "field": "value", "as": "cum" } ], "frame": [null, 0] },
+    { "calculate": "datum.cum - datum['value']", "as": "prev" }
+  ],
+  "encoding": { "x": { "field": "driver", "type": "ordinal", "sort": null, "axis": { "title": null } } },
+  "layer": [
+    { "mark": { "type": "bar" }, "encoding": { "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } }, "y2": { "field": "cum" }, "color": { "condition": { "test": "datum['value'] < 0", "value": "#A4262C" }, "value": "#107C10" } } },
+    { "mark": { "type": "text", "dy": -6, "fontWeight": "bold", "color": "#0F2430" }, "encoding": { "y": { "field": "cum", "type": "quantitative" }, "text": { "field": "value", "type": "quantitative", "format": ".0f" } } }
+  ]
+}
