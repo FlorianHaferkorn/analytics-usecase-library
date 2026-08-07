@@ -18,6 +18,7 @@ shelf-life-days: 90
 | `edit-usecase-bracket-safely.md` | `UseCase_Bracket.yaml` (SSOT) sicher editieren |
 | `assess-change-impact.md` | Blast-Radius vor Rename/Delete/Deprecate prüfen |
 | `generate-and-validate-pbi-report.md` | Iterativer, fehlerfreier PBI-Report-Workflow |
+| `recommend-fabric-capacity.md` | Kapazität empfehlen: SKU-Floor, Reserved/PAYG, Region, Zuschnitt |
 | `fabric-powerbi-validation.md` | Fabric/PBI-Output validieren (TMDL/DAX/Measures) |
 | `fix-pbi-report-errors.md` | PBI-Report-/Modell-Fehler diagnostizieren + fixen |
 | `generate-oss-dashboard.md` | Evidence.dev-Pages aus IR/Bracket generieren |

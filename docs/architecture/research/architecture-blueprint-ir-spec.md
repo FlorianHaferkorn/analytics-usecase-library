@@ -97,7 +97,43 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
         },
         "capacity_sku": {
           "type": "string",
-          "description": "Assigned Fabric capacity SKU (e.g. F64). Absent = not assigned; consumers must then state a recommended FLOOR instead of assuming one (Direct-Lake guardrails)."
+          "description": "Assigned Fabric capacity SKU (e.g. F64). Absent = not assigned; consumers must then state a recommended FLOOR instead of assuming one (Direct-Lake guardrails). The floor is computed by tooling/superversion/capacity.py from platform.sizing."
+        },
+        "sizing": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Inputs for the capacity floor and procurement recommendation (tooling/superversion/capacity.py). Every field is optional and every absent field is reported as an unknown rather than defaulted: a floor derived from half the inputs looks as authoritative as a complete one. Sizing and procurement are separate axes — sizing asks which SKU is technically sufficient, procurement asks how to buy it.",
+          "properties": {
+            "largest_model_gb": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Size of the biggest semantic model in GB. Drives the memory-per-model floor. F2 through F8 all cap at 3 GB; the first jump is F16 (5 GB), so moving F4 to F8 buys no model-size headroom at all."
+            },
+            "largest_table_rows_millions": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Rows in the biggest fact table, in millions. Drives the Direct-Lake guardrail floor. Exceeding it does not fail the model, it falls back to DirectQuery — which is why it belongs in the plan rather than in an incident."
+            },
+            "viewers": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "People consuming reports. Below F64 every viewer needs a Power BI Pro licence, which makes F64 a licensing threshold rather than a performance one. The break-even viewer count is computed from current prices, not assumed."
+            },
+            "operating_hours_per_week": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 168,
+              "description": "Hours per week the capacity must be available. The only input deciding reservation vs pay-as-you-go, because a capacity is billed by provisioned size and an idle capacity costs the same as a busy one. Break-even is 100 h/week (59.5 % runtime)."
+            },
+            "chargeback_per_use_case": {
+              "type": "boolean",
+              "description": "Whether capacity cost is charged back per use case or business unit. Decides one capacity or several: the Azure invoice breaks down per capacity resource only, and Fabric workspaces are not ARM resources and cannot carry tags."
+            },
+            "region": {
+              "type": "string",
+              "description": "Target Azure region for the capacity, e.g. westeurope. Determines where compute and OneLake data reside; changing it later requires a new capacity and workspace reassignment. European base rates differ by up to 13.6 %, the reservation discount does not."
+            }
+          }
         },
         "tier": {
           "enum": [

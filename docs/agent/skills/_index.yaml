@@ -64,6 +64,11 @@ skills:
     version: "1.0.0"
     description: "Validate OSS stack artifacts (Evidence pages, adapter manifest, theme tokens, SQL style)"
 
+  recommend-fabric-capacity:
+    name: recommend-fabric-capacity
+    version: "1.0.0"
+    description: "Recommend a Fabric capacity: SKU floor, reserved vs pay-as-you-go, region, and split. Use when sizing a capacity, answering reservation or pricing questions, filling platform.capacity_sku, or when a customer asks which F-SKU or region to buy."
+
   stage1-pre-commit:
     name: stage1-pre-commit
     version: "1.0.0"
