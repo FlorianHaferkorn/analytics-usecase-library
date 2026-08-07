@@ -3856,10 +3856,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: Accounts payable balance at period end
     depends_on_measures: []
     lineage:
-    - fact_accounts_payable.Payables Amount
+    - fact_accounts_payable.AP Amount
     calculation:
       op: sum
-      column: Payables Amount
+      column: AP Amount
   governance:
     business_owner: Head of Treasury / Procurement Controlling
     data_owner: Finance BI

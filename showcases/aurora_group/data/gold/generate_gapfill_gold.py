@@ -62,14 +62,22 @@ def _load_dim(name: str) -> pd.DataFrame:
     files = sorted((DIMS / name).rglob("*.parquet"))
     if not files:
         raise FileNotFoundError(f"{DIMS / name} has no parquet files")
-    return pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    # Drop stale delta-overwrite copies: tombstoned parquet still on disk would
+    # otherwise double every row and, via org_df.iterrows(), double-count facts.
+    pk = next((c for c in ("OrgKey", "ProductKey", "RoleKey", "EmployeeSegmentKey",
+                           "AccountKey", "CustomerKey") if c in df.columns), None)
+    return (df.drop_duplicates(subset=[pk]) if pk else df.drop_duplicates()).reset_index(drop=True)
 
 
 def _load_fact(name: str) -> pd.DataFrame:
     files = sorted((FACTS / name).rglob("*.parquet"))
     if not files:
         raise FileNotFoundError(f"{FACTS / name} has no parquet files")
-    return pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    # A fact grain is unique, so exact-duplicate rows only arise from tombstoned
+    # parquet left by a delta overwrite -> drop them to avoid double-counting.
+    return df.drop_duplicates().reset_index(drop=True)
 
 
 def _rng(*ints: int) -> np.random.RandomState:

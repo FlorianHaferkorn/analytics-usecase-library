@@ -288,19 +288,40 @@ class TestRequiredVisuals:
             )
 
     @pytest.mark.parametrize("report_name", _report_ids())
-    def test_detail_has_smart_narrative(self, report_name):
-        report_dir = DIST_ROOT / report_name
-        detail_pages = [
-            p for p in (report_dir / "definition/pages").iterdir()
-            if p.is_dir() and "Detail" in p.name
-        ]
-        assert detail_pages, f"{report_name}: no Detail page directory found"
+    def test_no_denylisted_smart_narrative(self, report_name):
+        """Das native `smartNarrativeVisual` ist deny-gelistet und darf nirgends stehen.
 
-        for page in detail_pages:
-            visual_ids = [v.parent.name for v in page.rglob("visual.json")]
-            assert "Smart_Narrative" in visual_ids, (
-                f"{report_name}/{page.name}: Smart_Narrative visual missing"
-            )
+        Bis 06.08.2026 prüfte hier `test_detail_has_smart_narrative` das **Gegenteil**:
+        jede Detail-Seite musste einen Ordner namens `Smart_Narrative` haben. Als der
+        Governance-Sweep (#425) das deny-gelistete Visual aus 14 Reports entfernte, wurden
+        15 Tests rot — eine Regel verlangte, was die andere verbietet.
+
+        Der tiefere Fehler war die **Frage**, nicht die Richtung: der alte Test las den
+        *Ordnernamen*. Gemessen am 06.08.2026 trägt derselbe Name `Smart_Narrative` im
+        Baum drei verschiedene Visual-Typen — `textbox` (der erlaubte Kontexttext des
+        Scaffold-Generators), `cardVisual` (COM-002, FIN-001) und früher das verbotene
+        `smartNarrativeVisual`. Ein Ordnername ist eine Ablagekonvention, keine Aussage
+        über den Inhalt; wer ihn prüft, kann Erlaubtes von Verbotenem nicht unterscheiden.
+
+        Deshalb prüft dieser Test den **Visual-Typ**, und er prüft die Abwesenheit des
+        Verbotenen statt die Anwesenheit von irgendetwas. Ob eine Detail-Seite überhaupt
+        ein Erzähl-Element tragen *muss*, ist eine UX-Entscheidung und steht offen (#425
+        nennt sie ausdrücklich so) — eine solche Pflicht hier einzuführen wäre eine neue
+        Regel, die niemand beschlossen hat.
+        """
+        report_dir = DIST_ROOT / report_name
+        offenders = []
+        for visual_file in (report_dir / "definition/pages").rglob("visual.json"):
+            try:
+                spec = json.loads(visual_file.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                continue                      # Struktur prüft ein anderer Test
+            if (spec.get("visual") or {}).get("visualType") == "smartNarrativeVisual":
+                offenders.append(str(visual_file.relative_to(report_dir)))
+        assert not offenders, (
+            f"{report_name}: deny-gelistetes smartNarrativeVisual in "
+            + ", ".join(sorted(offenders))
+        )
 
 
 # ── 8. Every report has exactly Overview + Detail ─────────────────────────────

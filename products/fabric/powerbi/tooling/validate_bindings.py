@@ -27,7 +27,9 @@ UNBOUND_ALLOWED_TYPES = {"textbox", "image", "shape", "actionButton"}
 
 # Required slot IDs per page type
 REQUIRED_OVERVIEW_SLOTS = {"KPI_Cards", "Main_1", "Main_2", "Slicer_Date"}
-REQUIRED_DETAIL_SLOTS = {"Detail_Matrix", "Smart_Narrative", "ActionPanel"}
+# Smart_Narrative intentionally NOT required: it is deny-listed in the design system
+# (powerbi_smart_narrative) and triggers DataViewMappingError_ConditionRangeTooLarge.
+REQUIRED_DETAIL_SLOTS = {"Detail_Matrix", "ActionPanel"}
 
 
 def count_projections(query_state: dict) -> int:

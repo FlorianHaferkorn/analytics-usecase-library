@@ -535,7 +535,7 @@ table _Measures
 	/// Formula: Defective Units / Total Produced Units.
 	/// Grain: line_day · Unit: %
 	/// Owner: Operations Analytics · Status: active
-	measure 'Quality Defect Rate %' = VAR Defects = SUM ( fact_quality[Defect Count] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( Defects, TotalUnits )
+	measure 'Quality Defect Rate %' = VAR Defects = SUM ( fact_output[Defect Count] ) VAR TotalUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( Defects, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -549,7 +549,7 @@ table _Measures
 	/// NOTE: fact_ops (Good Units) is an Operations-model table; the Finance model
 	/// carries only fact_output[Output Units], so this proxy cannot be evaluated in
 	/// the Finance model until a Good-Units source is added — pre-existing data gap.
-	measure 'Quality % (FIN)' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
+	measure 'Quality % (FIN)' = VAR GoodUnits = SUM ( fact_output[Good Units] ) VAR TotalUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -562,7 +562,7 @@ table _Measures
 	/// Accounts payable balance at period end
 	/// Formula: SUM(fact_ap[AP Amount]) at latest DateKey in filter context
 	/// Owner: Finance BI · Status: active
-	measure 'Payables Amount' = SUM ( fact_accounts_payable[Payables Amount] )
+	measure 'Payables Amount' = SUM ( fact_accounts_payable[AP Amount] )
 		formatString: #,0.00
 		displayFolder: FIN-001
 		lineageTag: 58cf11a3-6134-4d19-91ec-5e86f803a386
