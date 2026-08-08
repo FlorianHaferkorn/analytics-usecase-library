@@ -15,6 +15,41 @@ Honesty rule (unchanged): a proposal is never presented as a fact. Every record 
 ``confidence`` and is rendered as "Vorschlag — zu bestätigen". Where the evidence is too thin to
 propose anything, the record says so instead of inventing one.
 
+Ohne governten Katalog schweigen fuenf Vorschlaege — das ist Absicht, kein Loch
+------------------------------------------------------------------------------
+Gemessen 08.08.2026, weil genau diese Beobachtung wie ein Defekt aussah und keiner ist:
+
+===================  ==================  ==================
+Punkt                ohne Katalog        mit Katalog
+===================  ==================  ==================
+SEC-RLS              kein Vorschlag      Vorschlag
+SEC-CLS              kein Vorschlag      Vorschlag
+DATA-INC             kein Vorschlag      Vorschlag
+DATA-CONTRACT        kein Vorschlag      Vorschlag (vorbelegt)
+AI-EVAL              kein Vorschlag      Vorschlag
+-------------------  ------------------  ------------------
+**Summe**            9 von 14            14 von 15
+===================  ==================  ==================
+
+Diese fuenf sind **modellgetrieben**: sie lesen Spalten, Beziehungen und Kennzahlen. Ein leerer
+Katalog liefert nichts zu lesen, also gibt es nichts ehrlich vorzuschlagen — ein RLS-Praedikat
+ohne Kenntnis der Organisationsstruktur waere geraten. Der Satz „kein Vorschlag" ist hier die
+richtige Ausgabe und nicht die fehlende.
+
+Woran es konkret haengt (jeweils die Bedingung, die den Vorschlag ausloest):
+
+* ``SEC-RLS`` / ``SEC-CLS`` — Spaltennamen im Katalog (Org-Spalte bzw. personenbezogene Spalte)
+* ``DATA-INC`` — eine Tabelle mit ``kind: "fact"`` **oder** ``measure_columns``. Ohne die
+  Kennzeichnung greift ``_facts()`` nicht, und der Punkt schweigt trotz vorhandener
+  Aenderungsspalte. Das hat beim Nachmessen zuerst wie ein Defekt ausgesehen.
+* ``DATA-CONTRACT`` — ``relationships`` im Katalog (die Join-Schluessel sind der Vertrag)
+* ``AI-EVAL`` — ``measures`` im Katalog (die Kennzahlen sind das Fragen-Geruest)
+
+Praktische Folge fuer die Lieferung: ein Kunde **mit** governtem Modell bekommt zu jeder
+Entscheidung einen Vorschlag, ein Kunde **ohne** bekommt fuenf ehrliche Luecken. Genau das
+trennt die Intake-Frage ``has_governed_usecases`` (top-down vs. bottom-up), und deshalb ist sie
+die erste im Fragebogen.
+
 Deterministic; emits only, never executes.
 """
 from __future__ import annotations
