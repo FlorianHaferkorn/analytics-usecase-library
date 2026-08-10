@@ -168,6 +168,11 @@ profiles:
             <Line type="monotone" dataKey="{{field}}" stroke="{{col_line}}" strokeWidth={2.5} dot={false} />
           </LineChart>
 
+  print_safe:
+    note: "CVAA / print-safe: the colour-blind-safe blue/orange variance pair replaces red/green so direction survives colour-vision-deficiency and greyscale print (always pair with an icon or sign)."
+    param_overrides:
+      col_end: "#F7630C"
+
 determinism:
   golden_dir: golden
   notes: "Pure {{param}} fill; golden-frozen. Native uses the verified y1AxisReferenceLine; Vega layers line+rule+last-point. IBCS profile plots plan as a scenario line (native = 2nd Y measure)."

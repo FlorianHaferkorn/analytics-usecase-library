@@ -1,0 +1,13 @@
+{
+  "visualType": "clusteredBarChart",
+  "query": { "queryState": { "Y": { "projections": [
+    { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } }, "queryRef": "_Measures.Gross Margin % vs Plan", "nativeQueryRef": "Gross Margin % vs Plan" }
+  ] } } },
+  "objects": {
+    "valueAxis": [ { "properties": { "start": { "expr": { "Literal": { "Value": "0D" } } } } } ],
+    "dataPoint": [ { "properties": { "fill": { "solid": { "color": { "expr": { "FillRule": {
+      "Input": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } },
+      "FillRule": { "linearGradient2": { "min": { "color": { "Literal": { "Value": "'#F7630C'" } } }, "max": { "color": { "Literal": { "Value": "'#0078D4'" } } } } }
+    } } } } } }, "selector": { "metadata": "_Measures.Gross Margin % vs Plan" } } ]
+  }
+}

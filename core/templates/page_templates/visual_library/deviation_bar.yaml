@@ -131,6 +131,12 @@ profiles:
         reason: "native clusteredBar has no stroked reference line to emphasise; the IBCS form is the overlapped AC-on-PY ± column (structural), not a token swap."
         use: "PowerofBI.IBCS overlapped-bar UDF (daxlib.org), or deviation_bar@ibcs in deneb_vegalite"
 
+  print_safe:
+    note: "CVAA / print-safe: the colour-blind-safe blue/orange variance pair replaces red/green so direction survives colour-vision-deficiency and greyscale print (always pair with an icon or sign)."
+    param_overrides:
+      col_pos: "#0078D4"
+      col_neg: "#F7630C"
+
 determinism:
   golden_dir: golden
   notes: "render.py fills {{params}} from canonical_params (+ profile param_overrides); golden/*.* is frozen; the test asserts byte-for-byte + validity. Same input+profile -> same output."

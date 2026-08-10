@@ -1,0 +1,10 @@
+VAR _a = [SLA Attainment %] * 100
+VAR _t = [SLA Target %] * 100
+RETURN
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+      & "<rect x='0' y='0' width='80' height='14' fill='#E7EAEE'/>"
+      & "<rect x='80' y='0' width='" & ( 92 - 80 ) & "' height='14' fill='#D6DCE2'/>"
+      & "<rect x='92' y='0' width='" & ( 100 - 92 ) & "' height='14' fill='#C6CED5'/>"
+      & "<rect x='0' y='4' width='" & _a & "' height='6' fill='#0F2430'/>"
+      & "<line x1='" & _t & "' y1='1' x2='" & _t & "' y2='13' stroke='#F7630C' stroke-width='2'/>"
+      & "</svg>"

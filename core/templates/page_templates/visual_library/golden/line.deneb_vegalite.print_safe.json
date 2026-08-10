@@ -1,0 +1,14 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "encoding": { "x": { "field": "month", "type": "temporal", "axis": { "title": null } } },
+  "layer": [
+    { "mark": { "type": "line", "color": "#0F2430", "strokeWidth": 2.5 },
+      "encoding": { "y": { "field": "gm", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } } } },
+    { "mark": { "type": "rule", "color": "#94A0AC", "strokeDash": [5, 4] },
+      "encoding": { "y": { "datum": 44.1 } } },
+    { "transform": [ { "window": [ { "op": "row_number", "as": "_r" } ], "sort": [ { "field": "month", "order": "descending" } ] }, { "filter": "datum._r == 1" } ],
+      "mark": { "type": "point", "filled": true, "size": 60, "color": "#F7630C" },
+      "encoding": { "y": { "field": "gm", "type": "quantitative" } } }
+  ]
+}
