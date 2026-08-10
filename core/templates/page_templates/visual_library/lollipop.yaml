@@ -76,7 +76,7 @@ realizations:
         "data": { "name": "dataset" },
         "encoding": { "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
         "layer": [
-          { "mark": { "type": "rule", "color": "{{col_stem}}", "size": 2 }, "encoding": { "x": { "datum": 0 }, "x2": { "field": "{{field}}" } } },
+          { "mark": { "type": "rule", "color": "{{col_stem}}", "size": 2 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative" }, "x2": { "datum": 0 } } },
           { "mark": { "type": "circle", "size": 90 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } }, "color": { "condition": { "test": "datum['{{field}}'] < {{target_val}}", "value": "{{col_below}}" }, "value": "{{col_dot}}" } } }
         ]
       }

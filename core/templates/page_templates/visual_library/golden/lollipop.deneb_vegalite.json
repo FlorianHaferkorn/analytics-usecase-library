@@ -3,7 +3,7 @@
   "data": { "name": "dataset" },
   "encoding": { "y": { "field": "unit", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
   "layer": [
-    { "mark": { "type": "rule", "color": "#D6DCE2", "size": 2 }, "encoding": { "x": { "datum": 0 }, "x2": { "field": "gm" } } },
+    { "mark": { "type": "rule", "color": "#D6DCE2", "size": 2 }, "encoding": { "x": { "field": "gm", "type": "quantitative" }, "x2": { "datum": 0 } } },
     { "mark": { "type": "circle", "size": 90 }, "encoding": { "x": { "field": "gm", "type": "quantitative", "axis": { "title": null } }, "color": { "condition": { "test": "datum['gm'] < 44.1", "value": "#A4262C" }, "value": "#0F2430" } } }
   ]
 }
