@@ -29,6 +29,8 @@ import render_acceptance  # noqa: E402  (reads the frozen matrix — no vl-conve
 LIB = render.LIB
 REPO_ROOT = render.REPO_ROOT
 SCHEMA = yaml.safe_load((LIB / "_schema.yaml").read_text(encoding="utf-8"))
+COLOR = yaml.safe_load((LIB.parent / "tokens" / "color_semantics.yaml").read_text(encoding="utf-8"))
+PROFILES = yaml.safe_load((LIB / "_notation_profiles.yaml").read_text(encoding="utf-8"))
 TOOL_LABEL = {
     "powerbi_native": "Power BI · native",
     "powerbi_svg_dax": "Power BI · SVG-DAX",
@@ -305,6 +307,17 @@ button{font-family:inherit}
 .avoid b{color:var(--warn);font-weight:600;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;margin-right:7px}
 .na{font-size:12.5px;color:var(--ink3);margin:14px 0 0;line-height:1.55}.na b{color:var(--ink2)}
 
+/* modal — encoding spec + alternatives + how-to (the "why" & "how") */
+.dblock{margin:18px 0 0}
+.dlabel{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);font-weight:640;margin:0 0 8px}
+.espec{display:flex;flex-wrap:wrap;gap:7px}
+.enc{display:inline-flex;align-items:center;gap:7px;font-size:12px;background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:6px 10px}
+.enc b{font-family:var(--mono);font-size:10.5px;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.enc span{color:var(--ink);font-weight:500}
+.alts{display:flex;flex-wrap:wrap;gap:6px}
+.altlink{font:inherit;font-family:var(--mono);font-size:11.5px;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:8px;padding:5px 10px;cursor:pointer;transition:.14s}
+.altlink:hover{border-color:var(--accent)}
+
 .code{margin:18px 0 0;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;background:var(--surface2)}
 .tabbar{display:flex;gap:2px;padding:7px 7px 0;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
 .tabbar::-webkit-scrollbar{display:none}
@@ -324,6 +337,32 @@ pre code{color:inherit}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+
+/* foundations */
+.founds{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);padding:20px 22px;box-shadow:var(--sh1)}
+.fcard h3{margin:0;font-size:15px;font-weight:680;letter-spacing:-.01em}
+.fcard .lead{font-size:13px;color:var(--ink2);margin:8px 0 0;line-height:1.5}
+.rules{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:9px}
+.rules li{font-size:12.5px;color:var(--ink2);line-height:1.45}
+.rules b{display:block;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);font-weight:640;margin-bottom:2px}
+.src{font-size:11.5px;color:var(--ink3);margin:14px 0 0;line-height:1.5}
+.deny{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.deny span{font-family:var(--mono);font-size:11px;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:4px 9px;text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--warn) 55%,transparent)}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0}
+.sw{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.sw .chip{width:52px;height:34px;border-radius:9px;border:1px solid var(--line);box-shadow:var(--sh1)}
+.sw .nm{font-size:10.5px;color:var(--ink2);line-height:1.2}
+.sw .hx{font-family:var(--mono);font-size:9.5px;color:var(--ink3)}
+.scen{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 0}
+.scen figure{margin:0;display:flex;flex-direction:column;gap:6px;align-items:center;font-size:10.5px;color:var(--ink2)}
+.scen .box{width:44px;height:26px;border-radius:6px;border:1.5px solid var(--accent)}
+.scen .solid{background:var(--accent)}
+.scen .outlined{background:transparent}
+.scen .hatched{background:repeating-linear-gradient(45deg,var(--accent) 0 3px,transparent 3px 6px)}
+.scen .py{background:var(--accent);opacity:.5}
+.scen em{font-style:normal;font-family:var(--mono);color:var(--ink3);font-size:9.5px}
+
 @media(max-width:640px){.nav-links{display:none}.d-head{flex-direction:column}.d-viz{width:100%;flex-basis:auto}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 """
@@ -357,13 +396,21 @@ _JS = """
   $$(".qpill").forEach(function(p){p.addEventListener("click",function(){state.pick=(p.getAttribute("data-cands")||"").split(",").filter(Boolean);if(pickbar){pickbar.classList.add("show");var b=$("#pickq");if(b)b.textContent=p.getAttribute("data-q")}apply();var t=document.getElementById("gallery");if(t)t.scrollIntoView({behavior:"smooth"})})});
   var clr=$("#pickclear");if(clr)clr.addEventListener("click",function(){state.pick=null;if(pickbar)pickbar.classList.remove("show");apply()});
 
-  // modal open/close
-  var modal=$("#modal"),mbody=$("#modal-body"),lastFocus=null;
-  function openModal(id){var d=document.getElementById(id);if(!d)return;mbody.innerHTML=d.innerHTML;modal.classList.add("show");document.body.style.overflow="hidden";lastFocus=document.activeElement;var cl=$(".modal-close",modal);if(cl)cl.focus()}
-  function closeModal(){modal.classList.remove("show");mbody.innerHTML="";document.body.style.overflow="";if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+  // modal open/close (+ shareable #idiom= deep link)
+  var modal=$("#modal"),mbody=$("#modal-body"),lastFocus=null,hashLock=false;
+  function openModal(id,fromHash){var d=document.getElementById(id);if(!d)return;mbody.innerHTML=d.innerHTML;modal.classList.add("show");document.body.style.overflow="hidden";lastFocus=document.activeElement;var cl=$(".modal-close",modal);if(cl)cl.focus();if(!fromHash){hashLock=true;try{location.hash="idiom="+id.replace(/^d-/,"")}catch(e){}hashLock=false}}
+  function closeModal(){if(!modal.classList.contains("show"))return;modal.classList.remove("show");mbody.innerHTML="";document.body.style.overflow="";if(location.hash.indexOf("idiom=")>=0){hashLock=true;try{history.replaceState(null,"",location.pathname+location.search)}catch(e){location.hash=""}hashLock=false}if(lastFocus&&lastFocus.focus)lastFocus.focus()}
   tiles.forEach(function(t){t.addEventListener("click",function(){openModal(t.getAttribute("data-detail"))})});
   if(modal){modal.addEventListener("click",function(e){if(e.target.classList.contains("backdrop")||e.target.closest(".modal-close"))closeModal()});}
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&modal.classList.contains("show"))closeModal()});
+  // alternatives inside the modal jump to that idiom
+  document.addEventListener("click",function(e){var a=e.target.closest(".altlink");if(!a)return;openModal(a.getAttribute("data-detail"))});
+  function fromHash(){var m=(location.hash||"").match(/idiom=([\\w-]+)/);if(m){openModal("d-"+m[1],true)}else if(modal.classList.contains("show")){closeModal()}}
+  window.addEventListener("hashchange",function(){if(!hashLock)fromHash()});
+  if((location.hash||"").indexOf("idiom=")>=0)fromHash();
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){closeModal();return}
+    if(e.key==="/"&&!/^(INPUT|TEXTAREA)$/.test((e.target.tagName||""))){e.preventDefault();var q=$("#q");if(q)q.focus()}
+  });
 
   // tabs (delegated — works inside modal)
   document.addEventListener("click",function(e){var tab=e.target.closest(".tab");if(!tab)return;var bar=tab.parentNode,code=bar.parentNode;$$(".tab",bar).forEach(function(t){t.setAttribute("aria-selected","false")});tab.setAttribute("aria-selected","true");$$(".panel",code).forEach(function(pn){pn.hidden=pn.getAttribute("data-panel")!==tab.getAttribute("data-panel")})});
@@ -469,6 +516,21 @@ def _detail(iid: str, matrix: dict) -> str:
     if e.get("anti_patterns"):
         p.append(f'<p class="avoid"><b>Avoid</b>{_esc(", ".join(e["anti_patterns"]))}</p>')
 
+    # the "why": governed encoding rationale (magnitude → position, colour only for meaning, …)
+    enc = e.get("encoding") or {}
+    if enc:
+        rows = "".join(
+            f'<span class="enc"><b>{_esc(k)}</b><span>{_esc((", ".join(v) if isinstance(v, list) else str(v)).replace("_", " "))}</span></span>'
+            for k, v in enc.items())
+        p.append('<div class="dblock"><p class="dlabel">Encoding — the governed why</p>'
+                 f'<div class="espec">{rows}</div></div>')
+    # alternatives serving the same question → jump to that idiom
+    alts = [a for a in (e.get("alternatives") or []) if a in set(_implemented())]
+    if alts:
+        chips = "".join(f'<button class="altlink" type="button" data-detail="d-{_esc(a)}">{_esc(a)}</button>' for a in alts)
+        p.append('<div class="dblock"><p class="dlabel">Alternatives for the same question</p>'
+                 f'<div class="alts">{chips}</div></div>')
+
     variants = [(t, None) for t in applicable]
     for profile in _nondefault_profiles(iid):
         variants += [(t, profile) for t in render.tools(iid, profile)]
@@ -492,6 +554,51 @@ def _detail(iid: str, matrix: dict) -> str:
         p.append('<p class="na">' + "<br>".join(bits) + '</p>')
     p.append('</div>')
     return "".join(p)
+
+
+def _swatch(name: str, hexv: str) -> str:
+    return (f'<div class="sw"><span class="chip" style="background:{_esc(hexv)}"></span>'
+            f'<span class="nm">{_esc(name)}</span><span class="hx">{_esc(hexv)}</span></div>')
+
+
+def _foundations_html() -> str:
+    """The governance & design foundation: the encoding rule, the deny-list, the notation
+    profiles (house vs IBCS, the second axis), and the semantic / scenario colour tokens —
+    all read from the SoT so they never diverge from what the idioms actually use."""
+    deny = _index().get("deny", [])
+    prin = (
+        '<div class="fcard"><h3>Encoding discipline</h3>'
+        '<p class="lead">Magnitude → length or position (perceptual rank 1–3), never the colour of a number. '
+        'Direction → colour <b>and</b> sign. Colour is reserved for meaning; grey is the recede tool; one accent per page.</p>'
+        '<p class="dlabel" style="margin:16px 0 0">Never emit</p>'
+        '<div class="deny">' + "".join(f'<span>{_esc(d)}</span>' for d in deny) + '</div>'
+        '<p class="src">Grounded in Cleveland &amp; McGill (1984) · Few (2012) · Munzner (2014) · Tufte (1983).</p></div>'
+    )
+    profs = []
+    for pid, pr in PROFILES.get("profiles", {}).items():
+        items = "".join(f'<li><b>{_esc(k.replace("_", " "))}</b>{_esc(v)}</li>' for k, v in (pr.get("rules") or {}).items())
+        src = pr.get("source") or []
+        profs.append(
+            f'<div class="fcard"><h3>{_esc(pr.get("name", pid))}</h3>'
+            f'<p class="lead">{_esc(" ".join(str(pr.get("description", "")).split()))}</p>'
+            f'<ul class="rules">{items}</ul>'
+            + (f'<p class="src">{_esc(src[0])}</p>' if src else "") + '</div>'
+        )
+    sem = COLOR.get("semantic", {})
+    sw = "".join(_swatch(k, v) for k, v in sem.items())
+    dat = "".join(_swatch(f"data {i}", c) for i, c in enumerate((COLOR.get("brand") or {}).get("data_colors", [])[:6]))
+    scen = ('<div class="scen">'
+            '<figure><span class="box solid"></span>AC<em>solid</em></figure>'
+            '<figure><span class="box outlined"></span>PL<em>outlined</em></figure>'
+            '<figure><span class="box hatched"></span>FC<em>hatched</em></figure>'
+            '<figure><span class="box py"></span>PY<em>solid 50%</em></figure></div>')
+    palette = (
+        '<div class="fcard"><h3>Palette &amp; scenario tokens</h3>'
+        '<p class="dlabel">Semantic — reserved, never the brand colour</p><div class="swatches">' + sw + '</div>'
+        '<p class="dlabel" style="margin:16px 0 0">Series — brand data colours</p><div class="swatches">' + dat + '</div>'
+        '<p class="dlabel" style="margin:16px 0 0">IBCS scenario — pattern distinguishes, colour is shared</p>' + scen + '</div>'
+    )
+    return f'<div class="founds">{prin}{"".join(profs)}{palette}</div>'
 
 
 def render_artifact_html() -> str:
@@ -530,7 +637,8 @@ def render_artifact_html() -> str:
         f'<title>ALUCA · Visual Library</title>\n<style>{_CSS}</style>\n'
         f'<header class="nav"><div class="nav-in">'
         f'<a class="brand" href="#top"><span class="mk">{_BRAND_MK}</span>ALUCA <span class="sub">Visual Library</span></a>'
-        f'<nav class="nav-links"><a href="#chooser">Chooser</a><a href="#gallery">Gallery</a></nav>'
+        f'<nav class="nav-links"><a href="#chooser">Chooser</a><a href="#gallery">Gallery</a>'
+        f'<a href="#foundations">Foundations</a></nav>'
         f'<div class="nav-tools"><label class="search">{_ICON_SEARCH}'
         f'<input id="q" type="search" placeholder="Search idioms…" aria-label="Search idioms" autocomplete="off"></label>'
         f'<button class="iconbtn" id="theme" type="button" aria-label="Toggle theme" title="Theme">{_ICON_THEME}</button>'
@@ -567,6 +675,11 @@ def render_artifact_html() -> str:
         f'<button id="pickclear" type="button">Clear</button></div>'
         f'<div class="gallery" id="grid">{tiles}</div>'
         f'<p class="empty" id="empty">No idiom matches those filters.</p></section>\n'
+
+        f'<section class="section" id="foundations"><div class="section-head"><div>'
+        f'<span class="k">Foundations</span><h2>The rules behind the picture</h2>'
+        f'<p>Why these visuals, the notation profiles they can be drawn in, and the governed colour tokens.</p>'
+        f'</div></div>{_foundations_html()}</section>\n'
         f'</main>\n'
 
         f'<div class="details-store" hidden>{details}</div>\n'
