@@ -64,7 +64,8 @@ realizations:
       {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "data": { "name": "dataset" },
-        "facet": { "field": "{{field_series}}", "type": "nominal", "columns": 3 },
+        "facet": { "field": "{{field_series}}", "type": "nominal" },
+        "columns": 3,
         "spec": {
           "mark": { "type": "line", "color": "{{col_line}}" },
           "encoding": {
