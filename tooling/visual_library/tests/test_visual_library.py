@@ -6,6 +6,8 @@ Guarantees the target: the same request yields the same result every time.
 - valid + fully filled: JSON tools parse; no unfilled {{...}} placeholders remain.
 - schema: every idiom carries the required keys; index `implemented` files exist.
 - render-valid: every Deneb/Vega-Lite golden COMPILES as Vega-Lite (not just parses).
+- structural: native fragments carry visualType + projections; SVG-DAX emits a balanced
+  <svg> data URI; Recharts JSX has a known, closed chart root (full render stays runtime-gated).
 """
 from __future__ import annotations
 
@@ -143,3 +145,44 @@ def test_deneb_goldens_compile_as_valid_vega_lite():
             raise AssertionError(
                 f"{gp.name} is not a valid Vega-Lite spec: {str(e).splitlines()[0]}"
             ) from None
+
+
+def test_native_goldens_have_pbir_structure():
+    """Structural contract for Power BI native fragments (a full Desktop load stays
+    Desktop-gated): each carries a non-empty visualType and a query.queryState with
+    at least one projection."""
+    for gp in sorted((LIB / "golden").glob("*.powerbi_native*.json")):
+        d = json.loads(gp.read_text(encoding="utf-8"))
+        assert d.get("visualType"), f"{gp.name}: missing visualType"
+        qs = d.get("query", {}).get("queryState", {})
+        proj = sum(len(b.get("projections", [])) for b in qs.values() if isinstance(b, dict))
+        assert proj >= 1, f"{gp.name}: query.queryState has no projections"
+
+
+def test_svg_dax_goldens_emit_wellformed_svg():
+    """SVG-DAX measures must build a data-URI SVG with a balanced <svg>..</svg> and
+    even-quoted DAX strings (DAX-engine evaluation stays Desktop-gated)."""
+    for gp in sorted((LIB / "golden").glob("*.powerbi_svg_dax*.dax")):
+        t = gp.read_text(encoding="utf-8")
+        assert "data:image/svg+xml" in t, f"{gp.name}: no SVG data URI"
+        assert t.count("<svg") == t.count("</svg>") >= 1, f"{gp.name}: unbalanced <svg>..</svg>"
+        assert t.count('"') % 2 == 0, f"{gp.name}: odd number of DAX double-quotes (unterminated string)"
+
+
+_RECHARTS_ROOTS = {"AreaChart", "BarChart", "ComposedChart", "LineChart",
+                   "PieChart", "Sankey", "ScatterChart"}
+
+
+def test_recharts_goldens_are_structurally_closed():
+    """Recharts JSX goldens: a known chart root, properly closed, with balanced braces
+    and parens (a full React render stays runtime-gated)."""
+    for gp in sorted((LIB / "golden").glob("*.web_recharts*.jsx")):
+        t = gp.read_text(encoding="utf-8").strip()
+        m = re.match(r"<([A-Za-z]+)", t)
+        assert m, f"{gp.name}: does not start with a JSX element"
+        root = m.group(1)
+        assert root in _RECHARTS_ROOTS, f"{gp.name}: unknown Recharts root <{root}> (extend _RECHARTS_ROOTS if intended)"
+        closed = f"</{root}>" in t or t.endswith("/>")  # container or self-closing (e.g. <Sankey .../>)
+        assert closed, f"{gp.name}: root <{root}> is not closed"
+        assert t.count("{") == t.count("}"), f"{gp.name}: unbalanced braces"
+        assert t.count("(") == t.count(")"), f"{gp.name}: unbalanced parens"
