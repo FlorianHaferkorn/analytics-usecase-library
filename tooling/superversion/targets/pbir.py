@@ -75,6 +75,14 @@ class _TypePlan:
 # ALUCA visual_type → official PBIR plan. Roles/kinds/maxima taken verbatim from
 # `powerbi-report-author catalog describe <type>` (deterministic constants here;
 # no CLI call at emit time, so emit() stays pure — Invariant I2).
+#
+# The `visual_type` of each CHART plan is now governed by the evidence-based idiom
+# library (core/templates/page_templates/visual_library/): it must equal the
+# powerbi_native visualType of the corresponding governed idiom AND be in the registry's
+# allowed set — both enforced by tooling/superversion/tests/test_visual_library.py (see
+# layer_tools/visual_idioms.py for the visual_type → idiom bridge). Kept as literal
+# constants — not read from the library at runtime — so emit() keeps I2 purity; the tests
+# keep them from drifting.
 _PLANS: dict[str, _TypePlan] = {
     "card": _TypePlan("cardVisual", "Data", "Measure", None, ()),
     "kpi_card": _TypePlan("cardVisual", "Data", "Measure", None, ()),

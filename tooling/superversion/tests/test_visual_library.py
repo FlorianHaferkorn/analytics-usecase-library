@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import pytest
 
+from tooling.superversion.layer_tools import visual_idioms as vi
 from tooling.superversion.layer_tools import visual_library as vl
 from tooling.superversion.targets import pbir
 
@@ -81,3 +82,43 @@ def test_sanctions_helper():
     assert lib.sanctions("card", "cardVisual")
     assert not lib.sanctions("card", "pieChart")
     assert lib.sanctions("slicer", "anything")  # no block → exempt
+
+
+# --- Integrated with the idiom library (the tighter, point-wise authority) --- #
+
+def test_pbir_plans_match_governed_idiom_native_type():
+    """The registry test above proves the emitted type is in the ALLOWED set. This is
+    stronger: for every chart visual_type, the exact PBIR visualType in _PLANS must equal
+    the powerbi_native visualType of the governed idiom — so the generator and the idiom
+    library can never drift apart (the reconciliation the two 'visual libraries' needed)."""
+    for aluca_type, idiom in vi.ALUCA_VISUAL_IDIOM.items():
+        assert aluca_type in pbir._PLANS, f"idiom bridge maps {aluca_type} but _PLANS has no such type"
+        assert pbir._PLANS[aluca_type].visual_type == vi.native_visual_type(idiom), (
+            f"pbir emits {pbir._PLANS[aluca_type].visual_type} for {aluca_type}, but the governed "
+            f"idiom '{idiom}' produces {vi.native_visual_type(idiom)}"
+        )
+
+
+def test_every_plan_is_idiom_governed_or_exempt():
+    """No chart type may silently escape idiom governance: every _PLANS key is either bridged
+    to a governed idiom or explicitly exempt (chrome/container)."""
+    for aluca_type in pbir._PLANS:
+        assert aluca_type in vi.ALUCA_VISUAL_IDIOM or aluca_type in vi.EXEMPT, (
+            f"_PLANS type '{aluca_type}' is neither idiom-governed nor listed EXEMPT in visual_idioms"
+        )
+
+
+def test_idiom_bridge_agrees_with_registry():
+    """The two authorities are consistent: the idiom-governed visualType is also in the
+    registry's allowed set for that visual_type's block."""
+    lib = vl.VisualLibrary.load()
+    for aluca_type, idiom in vi.ALUCA_VISUAL_IDIOM.items():
+        block_id = lib.block_for_aluca_visual(aluca_type)
+        if block_id is None:
+            continue
+        assert vi.native_visual_type(idiom) in lib.block(block_id).allowed_pbip_types()
+
+
+def test_native_visual_type_rejects_non_native_idiom():
+    with pytest.raises(vi.IdiomBridgeError):
+        vi.native_visual_type("lollipop")  # lollipop has no powerbi_native realization
