@@ -61,3 +61,24 @@ profiles:
     tokens:
       reference_ink:  "#201F1E"    # text.primary — the prominent IBCS reference
       py_tint_alpha:  0.5          # PY = AC colour at 50%
+
+  print_safe:
+    name: "Print-safe (CVAA)"
+    is_default: false
+    description: >
+      The colour-blind-safe reading of an idiom: the governed blue/orange variance
+      pair replaces red/green so DIRECTION survives colour-vision-deficiency and
+      greyscale print. Colour is never the only channel — always paired with an icon
+      or sign. Ink and grey are unchanged; only the semantic red/green swap. A pure
+      token overlay over the house idiom (no structural template change).
+    source:
+      - "core/templates/page_templates/tokens/color_semantics.yaml: colorblind_safe (blue #0078D4 / orange #F7630C)"
+      - "WCAG 2.2 · CVAA — colour is never the only signal (pair with icon/sign)"
+    rules:
+      variance:        "blue = favourable · orange = unfavourable (colour-blind-safe pair); never red/green"
+      redundancy:      "always pair colour with an icon or sign — colour is never the only channel"
+      neutral:         "ink and grey unchanged; only the semantic red/green swap to blue/orange"
+    # governed hex the overlay pulls from (in sync with color_semantics.yaml: colorblind_safe)
+    tokens:
+      pos_cvaa:  "#0078D4"    # colorblind_safe.positive (brand blue)
+      neg_cvaa:  "#F7630C"    # colorblind_safe.negative (orange)

@@ -121,6 +121,11 @@ profiles:
             <ReferenceLine x={{{target_val}}} stroke="{{col_target}}" strokeWidth={2} />
           </ComposedChart>
 
+  print_safe:
+    note: "CVAA / print-safe: the colour-blind-safe blue/orange variance pair replaces red/green so direction survives colour-vision-deficiency and greyscale print (always pair with an icon or sign)."
+    param_overrides:
+      col_target: "#F7630C"
+
 determinism:
   golden_dir: golden
   notes: "Few bullet: actual bar (length), target tick (position), qualitative grey bands. No native base visual -> SVG-DAX/Deneb/Recharts."

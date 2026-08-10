@@ -157,6 +157,11 @@ profiles:
             <Bar dataKey="{{field}}" fill="{{col_ac}}" barSize={9} />
           </BarChart>
 
+  print_safe:
+    note: "CVAA / print-safe: the colour-blind-safe blue/orange variance pair replaces red/green so direction survives colour-vision-deficiency and greyscale print (always pair with an icon or sign)."
+    param_overrides:
+      col_below: "#F7630C"
+
 determinism:
   golden_dir: golden
   notes: "Worst-first via ascending sort; semantic colour below target. IBCS profile overlays solid AC on a lighter PY (Vega true-overlaps via layer+size; Recharts groups AC/PY). Same {{param}} fill; golden-frozen."

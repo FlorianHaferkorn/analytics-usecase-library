@@ -62,28 +62,28 @@
 - **Purpose:** deviation_from_target, compare_categories · **zone:** pulse / analysis · **best form for:** `deviation_from_target`
 - **Avoid:** color_of_number_for_magnitude, decorative_tint, gauge
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
-- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
+- **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/deviation_bar.yaml` (+ `golden/deviation_bar.*`)
 
 #### `line` — Trend line
 - **Purpose:** time_comparison · **zone:** analysis · **best form for:** `time_comparison`
 - **Avoid:** bars_for_time, autoscale_without_reference, dual_axis_no_reason, legend_when_direct_label_works
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
-- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
+- **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/line.yaml` (+ `golden/line.*`)
 
 #### `bar_ranking` — Bar ranking
 - **Purpose:** compare_categories · **zone:** analysis · **best form for:** `compare_categories`
 - **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
-- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
+- **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bar_ranking.yaml` (+ `golden/bar_ranking.*`)
 
 #### `waterfall_pvm` — Waterfall bridge (PVM)
 - **Purpose:** contribution_to_change · **zone:** analysis · **best form for:** `contribution_to_change`
 - **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, unlabelled_zoomed_axis
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a full multi-step bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS waterfall UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
-- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
+- **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/waterfall_pvm.yaml` (+ `golden/waterfall_pvm.*`)
 
 #### `area_stacked` — Stacked area
@@ -120,7 +120,7 @@
 - **Purpose:** deviation_from_target · **zone:** pulse / analysis
 - **Avoid:** gauge_instead, colour_bands_instead_of_greys
 - **Tools:** Power BI · native n/a (Power BI has no native bullet base visual → deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
-- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
+- **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bullet.yaml` (+ `golden/bullet.*`)
 
 #### `slope` — Slope chart

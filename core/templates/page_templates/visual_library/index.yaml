@@ -79,9 +79,10 @@ purposes:
 # So "IBCS bar" is bar_ranking@ibcs, not a duplicate id. house_default is the baseline.
 notation_profiles:
   registry: _notation_profiles.yaml
-  available: [house_default, ibcs]
+  available: [house_default, ibcs, print_safe]
   implemented_ibcs: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet]   # idioms that carry an `ibcs` profile
   pending_ibcs: []   # all current-idiom IBCS profiles realized
+  implemented_print_safe: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet]   # idioms that carry a CVAA/print-safe overlay
 
 # governed deny-list (never emit)
 deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative]
