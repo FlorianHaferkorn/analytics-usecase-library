@@ -6,6 +6,8 @@ Guarantees the target: the same request yields the same result every time.
 - valid + fully filled: JSON tools parse; no unfilled {{...}} placeholders remain.
 - schema: every idiom carries the required keys; index `implemented` files exist.
 - render-valid: every Deneb/Vega-Lite golden COMPILES as Vega-Lite (not just parses).
+- render-real: every Deneb golden RASTERIZES to a non-trivial PNG via vl-convert (a true render,
+  not a compile — caught the lollipop x/x2 bug). Skips where vl-convert is absent.
 - structural: native fragments carry visualType + projections; SVG-DAX emits a balanced
   <svg> data URI; Recharts JSX has a known, closed chart root (full render stays runtime-gated).
 """
@@ -186,3 +188,39 @@ def test_recharts_goldens_are_structurally_closed():
         assert closed, f"{gp.name}: root <{root}> is not closed"
         assert t.count("{") == t.count("}"), f"{gp.name}: unbalanced braces"
         assert t.count("(") == t.count(")"), f"{gp.name}: unbalanced parens"
+
+
+def test_deneb_goldens_rasterize_to_png():
+    """The strongest Deneb gate: every golden must actually RASTERIZE to a non-trivial PNG via
+    vl-convert — a real render, not just a schema-valid compile. This is what caught the lollipop
+    x/x2 bug that `to_dict(validate=True)` passed. Skips where vl-convert isn't installed."""
+    pytest.importorskip("vl_convert")
+    sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library" / "acceptance"))
+    import render_acceptance  # noqa: E402
+
+    dp = render.default_profile()
+    rendered = 0
+    for idiom in _implemented():
+        for profile in render.profiles(idiom):
+            if "deneb_vegalite" not in render.tools(idiom, profile):
+                continue
+            png = render_acceptance.render_deneb_png(idiom, None if profile == dp else profile)
+            tag = idiom if profile == dp else f"{idiom}@{profile}"
+            assert png[:8] == b"\x89PNG\r\n\x1a\n", f"{tag}: not a PNG"
+            assert len(png) > 1000, f"{tag}: PNG is trivially empty ({len(png)} bytes) — spec drew nothing"
+            rendered += 1
+    assert rendered >= 20, f"expected the full Deneb set to render, got {rendered}"
+
+
+def test_acceptance_materialize_writes_one_artifact_per_tool(tmp_path):
+    """The acceptance generator must produce a runnable artifact for every tool track."""
+    pytest.importorskip("vl_convert")
+    sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library" / "acceptance"))
+    import render_acceptance  # noqa: E402
+
+    manifest = render_acceptance.materialize(tmp_path)
+    for tool in ("deneb_vegalite", "powerbi_native", "powerbi_svg_dax", "web_recharts"):
+        assert tool in manifest["artifacts"], f"materialize skipped {tool}"
+    assert manifest["artifacts"]["deneb_vegalite"]["rendered_png"] >= 20
+    assert (tmp_path / manifest["artifacts"]["powerbi_native"]["file"]).exists()
+    assert (tmp_path / manifest["artifacts"]["web_recharts"]["file"]).exists()
