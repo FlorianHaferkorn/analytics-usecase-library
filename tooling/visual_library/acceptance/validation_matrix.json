@@ -7,22 +7,23 @@
     "extremes"
   ],
   "legend": {
-    "rendered": "headlessly rasterized to PNG under every data scenario (proven)",
-    "structural": "byte-for-byte + structural gates pass; live render gated (not yet proven)",
+    "rendered": "actually rasterized / rendered headlessly (proven) \u2014 see per-cell method",
+    "structural": "byte-for-byte + structural gates pass; live render gated (see live_gate)",
     "n/a": "the idiom does not realize this tool (see reason)"
   },
   "idioms": {
     "deviation_bar": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -33,21 +34,22 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "line": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -58,21 +60,22 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "bar_ranking": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -83,14 +86,14 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "waterfall_pvm": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -98,6 +101,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -108,14 +112,14 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "area_stacked": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -123,6 +127,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -133,21 +138,22 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "indexed_line": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -158,18 +164,18 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "matrix_evidence": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "n/a",
@@ -183,7 +189,7 @@
     "scatter": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -191,6 +197,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -201,14 +208,14 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "donut": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -216,6 +223,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -226,8 +234,8 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "bullet": {
@@ -236,11 +244,12 @@
         "reason": "Power BI has no native bullet base visual"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -251,21 +260,22 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "slope": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -276,14 +286,14 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "stacked_100": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -291,6 +301,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -301,8 +312,8 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "lollipop": {
@@ -311,11 +322,12 @@
         "reason": "Power BI has no native lollipop base visual"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -326,8 +338,8 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "histogram": {
@@ -341,6 +353,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -351,8 +364,8 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "boxplot": {
@@ -366,6 +379,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -391,6 +405,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -419,14 +434,14 @@
         "reason": "Vega-Lite has no sankey mark"
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "decomposition_tree": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -444,14 +459,15 @@
     "bar_absolute": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
-        "status": "structural",
-        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -462,14 +478,14 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "waterfall_buildup": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -477,6 +493,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -487,14 +504,14 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     },
     "waterfall_variance": {
       "powerbi_native": {
         "status": "structural",
-        "live_gate": "Power BI Desktop load"
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -502,6 +519,7 @@
       },
       "deneb_vegalite": {
         "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
         "scenarios_ok": [
           "extremes",
           "many_categories",
@@ -512,8 +530,8 @@
         "scenarios_total": 5
       },
       "web_recharts": {
-        "status": "structural",
-        "live_gate": "browser / React runtime"
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
     }
   }

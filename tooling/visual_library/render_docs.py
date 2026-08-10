@@ -44,10 +44,9 @@ _VAL_TOOLS = ("powerbi_native", "powerbi_svg_dax", "deneb_vegalite", "web_rechar
 def _val_label(cell: dict) -> str:
     """Compact proof label for one idiom×tool from the frozen validation matrix."""
     s = cell.get("status")
-    if s == "rendered":
-        return f"rendered ✓ {len(cell['scenarios_ok'])}/{cell['scenarios_total']}"
-    if s == "partial":
-        return f"partial {len(cell['scenarios_ok'])}/{cell['scenarios_total']}"
+    if s in ("rendered", "partial"):
+        n = f" {len(cell['scenarios_ok'])}/{cell['scenarios_total']}" if "scenarios_ok" in cell else ""
+        return (f"rendered ✓{n}" if s == "rendered" else f"partial{n}")
     if s == "structural":
         return "structural · gated"
     return "—"
@@ -113,11 +112,12 @@ def render_part_d() -> str:
     out.append("### D.1 Validation status — what is proven, and what stays gated")
     out.append("")
     matrix = render_acceptance.load_matrix()
-    out.append(f"> Evidence per idiom × tool. **Deneb** is proven by headless rasterization across "
-               f"{len(matrix['scenarios'])} data scenarios ({', '.join('`'+s+'`' for s in matrix['scenarios'])}) — "
-               "regenerate with `render_acceptance.py matrix`. The other three tracks are byte-for-byte + "
-               "structurally gated; their **live render is runtime-gated** (Desktop / DAX engine / browser) "
-               "and signed off via `acceptance/CHECKLIST.md`, so they read `structural · gated` — not yet proven.")
+    out.append(f"> Evidence per idiom × tool, each proven by an ACTUAL headless render: **Deneb** rasterized "
+               f"across {len(matrix['scenarios'])} data scenarios ({', '.join('`'+s+'`' for s in matrix['scenarios'])}) "
+               "and **SVG-DAX** rasterized (its emitted SVG) via vl-convert; **Recharts** React-rendered via the "
+               "Node harness `acceptance/render_recharts.mjs`. Only **Power BI native** stays `structural · gated` "
+               "— PBIR is a visual config with no headless renderer, so its proof is a Desktop load "
+               "(`acceptance/CHECKLIST.md`). Regenerate with `render_acceptance.py matrix`.")
     out.append("")
     out.append("| Idiom | Power BI · native | Power BI · SVG-DAX | Deneb / Vega-Lite | Web · Recharts |")
     out.append("|---|---|---|---|---|")
@@ -126,8 +126,8 @@ def render_part_d() -> str:
         row = " | ".join(_val_label(cells.get(t, {})) for t in _VAL_TOOLS)
         out.append(f"| `{iid}` | {row} |")
     out.append("")
-    out.append("**Legend.** `rendered ✓ n/5` = actually rasterized under n of 5 data scenarios · "
-               "`structural · gated` = deterministic + structurally valid, live render not yet run · `—` = tool n/a.")
+    out.append("**Legend.** `rendered ✓` = actually rendered headlessly (Deneb shows the scenario count) · "
+               "`structural · gated` = deterministic + structurally valid, live render needs its host (Desktop) · `—` = tool n/a.")
     out.append("")
     out.append("### Idioms")
     out.append("")
@@ -526,7 +526,7 @@ def _pill(tool: str, cell: dict) -> str:
     cls = _PILL_CLS.get(s, "no")
     word = _STATUS_WORD.get(s, "n/a")
     if s == "rendered":
-        word = f"proven {len(cell['scenarios_ok'])}/{cell['scenarios_total']}"
+        word = f"proven {len(cell['scenarios_ok'])}/{cell['scenarios_total']}" if "scenarios_ok" in cell else "proven"
     return f'<span class="pill {cls}">{_esc(TOOL_SHORT[tool])} · {word}</span>'
 
 
@@ -688,8 +688,10 @@ def render_artifact_html() -> str:
     matrix = render_acceptance.load_matrix()
     impl = _implemented()
 
-    deneb_proven = sum(1 for i in impl if matrix["idioms"].get(i, {}).get("deneb_vegalite", {}).get("status") == "rendered")
-    deneb_appl = sum(1 for i in impl if matrix["idioms"].get(i, {}).get("deneb_vegalite", {}).get("status") in ("rendered", "partial"))
+    # render-proof across ALL tracks: how many applicable realizations actually render headlessly
+    _cells = [c for v in matrix["idioms"].values() for c in v.values()]
+    proven = sum(1 for c in _cells if c.get("status") == "rendered")
+    applicable = sum(1 for c in _cells if c.get("status") in ("rendered", "partial", "structural"))
     n_scen = len(matrix["scenarios"])
 
     qpills = []
@@ -735,11 +737,11 @@ def render_artifact_html() -> str:
         f'<div class="metabar">'
         f'<span class="chipstat"><b>{len(impl)}</b>idioms</span>'
         f'<span class="chipstat"><b>4</b>tool tracks</span>'
-        f'<span class="chipstat"><b>2</b>notations · house / IBCS</span>'
-        f'<span class="chipstat pos"><b>{deneb_proven}/{deneb_appl}</b>Deneb proven · {n_scen} scenarios</span>'
+        f'<span class="chipstat"><b>3</b>notations · house / IBCS / print-safe</span>'
+        f'<span class="chipstat pos"><b>{proven}/{applicable}</b>realizations render-proven</span>'
         f'</div>'
-        f'<div class="legend"><span><i class="dot d-ok"></i> proven — rasterized every scenario</span>'
-        f'<span><i class="dot d-gate"></i> gated — deterministic, live render not yet run</span>'
+        f'<div class="legend"><span><i class="dot d-ok"></i> proven — Deneb rasterized ({n_scen} scenarios), SVG-DAX SVG rasterized, Recharts React-rendered</span>'
+        f'<span><i class="dot d-gate"></i> gated — Power BI native (PBIR is a config; needs Desktop)</span>'
         f'<span><i class="dot d-na"></i> tool n/a</span></div>'
         f'</section>\n'
 

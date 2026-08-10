@@ -212,6 +212,29 @@ def test_deneb_goldens_rasterize_to_png():
     assert rendered >= 20, f"expected the full Deneb set to render, got {rendered}"
 
 
+def test_svg_dax_goldens_rasterize_to_png():
+    """The svg_dax ARTEFACT is the SVG string the measure emits; every svg_dax golden must
+    rasterize that SVG (representative values) to a real PNG via vl-convert. The DAX-computed
+    values stay engine-gated (dax_udf/validate/acceptance.dax); this proves the emitted SVG
+    renders. Skips where vl-convert isn't installed."""
+    pytest.importorskip("vl_convert")
+    sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library" / "acceptance"))
+    import render_acceptance  # noqa: E402
+
+    dp = render.default_profile()
+    rendered = 0
+    for idiom in _implemented():
+        for profile in render.profiles(idiom):
+            if "powerbi_svg_dax" not in render.tools(idiom, profile):
+                continue
+            png = render_acceptance.render_svg_dax_png(idiom, None if profile == dp else profile)
+            tag = idiom if profile == dp else f"{idiom}@{profile}"
+            assert png[:8] == b"\x89PNG\r\n\x1a\n", f"{tag}: emitted SVG did not rasterize"
+            assert len(png) > 200, f"{tag}: PNG trivially empty ({len(png)} bytes)"
+            rendered += 1
+    assert rendered >= 9, f"expected every svg_dax golden to rasterize, got {rendered}"
+
+
 def test_acceptance_materialize_writes_one_artifact_per_tool(tmp_path):
     """The acceptance generator must produce a runnable artifact for every tool track."""
     pytest.importorskip("vl_convert")
