@@ -5,6 +5,7 @@ Guarantees the target: the same request yields the same result every time.
 - idempotent: rendering twice returns identical bytes.
 - valid + fully filled: JSON tools parse; no unfilled {{...}} placeholders remain.
 - schema: every idiom carries the required keys; index `implemented` files exist.
+- render-valid: every Deneb/Vega-Lite golden COMPILES as Vega-Lite (not just parses).
 """
 from __future__ import annotations
 
@@ -14,6 +15,7 @@ import sys
 from pathlib import Path
 
 import yaml
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library"))
@@ -123,3 +125,21 @@ def test_docs_render_matches_golden_and_idempotent():
     assert golden.exists(), "freeze it: render_docs.py md > tests/golden_docs/Part_D.md"
     assert md == golden.read_text(encoding="utf-8"), "Part D drifted from the library — regenerate the docs"
     assert render_docs.render_artifact_html() == render_docs.render_artifact_html(), "HTML render not idempotent"
+
+
+def test_deneb_goldens_compile_as_valid_vega_lite():
+    """Render-validation, not just determinism: every Deneb/Vega-Lite golden must
+    COMPILE as a valid Vega-Lite spec (catches structurally-wrong specs that still
+    parse as JSON and pass the byte-for-byte test). Skips cleanly where altair is
+    not installed (e.g. a minimal CI image)."""
+    alt = pytest.importorskip("altair")
+    specs = sorted((LIB / "golden").glob("*.deneb_vegalite*.json"))
+    assert specs, "no deneb_vegalite goldens found"
+    for gp in specs:
+        spec = json.loads(gp.read_text(encoding="utf-8"))
+        try:
+            alt.Chart.from_dict(spec, validate=True).to_dict(validate=True)
+        except Exception as e:  # noqa: BLE001 - surface which spec + first error line
+            raise AssertionError(
+                f"{gp.name} is not a valid Vega-Lite spec: {str(e).splitlines()[0]}"
+            ) from None

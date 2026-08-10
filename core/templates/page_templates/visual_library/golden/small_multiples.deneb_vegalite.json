@@ -1,7 +1,8 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "data": { "name": "dataset" },
-  "facet": { "field": "unit", "type": "nominal", "columns": 3 },
+  "facet": { "field": "unit", "type": "nominal" },
+  "columns": 3,
   "spec": {
     "mark": { "type": "line", "color": "#0F2430" },
     "encoding": {
