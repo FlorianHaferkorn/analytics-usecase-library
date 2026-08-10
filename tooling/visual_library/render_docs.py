@@ -317,6 +317,17 @@ button{font-family:inherit}
 .alts{display:flex;flex-wrap:wrap;gap:6px}
 .altlink{font:inherit;font-family:var(--mono);font-size:11.5px;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:8px;padding:5px 10px;cursor:pointer;transition:.14s}
 .altlink:hover{border-color:var(--accent)}
+.fam{display:flex;flex-direction:column;gap:6px}
+.famrow{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.famrow .fl{font:inherit;font-family:var(--mono);font-size:11.5px;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:8px;padding:4px 9px;cursor:pointer;transition:.14s;flex:0 0 auto}
+.famrow .fl:hover{border-color:var(--accent)}
+.famrow .fu{color:var(--ink2)}
+.ship{margin:18px 0 0;border:1px solid var(--line);border-radius:var(--r2);padding:14px 16px;background:var(--surface2)}
+.ship .row{display:flex;gap:11px;padding:8px 0;border-top:1px solid var(--line2)}
+.ship .row:first-of-type{border-top:none}
+.ship .tt{flex:0 0 84px;font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;padding-top:1px}
+.ship ol{margin:0;padding:0 0 0 16px;display:flex;flex-direction:column;gap:4px}
+.ship li{font-size:12px;color:var(--ink2);line-height:1.45}
 
 .code{margin:18px 0 0;border:1px solid var(--line);border-radius:var(--r2);overflow:hidden;background:var(--surface2)}
 .tabbar{display:flex;gap:2px;padding:7px 7px 0;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
@@ -436,6 +447,58 @@ _STATUS_WORD = {"rendered": "proven", "partial": "partial", "structural": "gated
 _DOT_CLS = {"rendered": "d-ok", "partial": "d-warn", "structural": "d-gate"}
 _PILL_CLS = {"rendered": "rendered", "partial": "partial", "structural": "gate"}
 
+# How to ship each tool track (generic, accurate wiring steps shown in the modal).
+_RECIPES = {
+    "powerbi_native": [
+        "Drop the fragment into a PBIR page (…/pages/&lt;p&gt;/visuals/&lt;id&gt;/visual.json) or add it with the pbir CLI.",
+        "Bind its projections to your measures / dimension — the [HITL] placeholders mark the required roles.",
+    ],
+    "powerbi_svg_dax": [
+        "Add as an extension measure in reportExtensions.json — dataType Text, dataCategory ImageUrl.",
+        "Bind in a table/matrix (set the column's image height/width) or a new cardVisual (callout.imageFX).",
+        "Or install the AlucaViz UDF package and call the function instead of pasting the measure.",
+    ],
+    "deneb_vegalite": [
+        "Add a Deneb visual, paste the spec, and map its dataset to your fields.",
+        "It is a standalone Vega-Lite v5 spec — it also runs anywhere Vega-Lite does.",
+    ],
+    "web_recharts": [
+        "Drop the JSX into a React app with recharts installed.",
+        "Pass your rows as data and keep the dataKeys, or remap them to your columns.",
+    ],
+}
+
+# Chart families — the same visual TYPE across different questions. Answers
+# "which form of this chart fits my question" (e.g. a bar for ranking vs for magnitude).
+_FAMILY = {
+    "bar_ranking": "bar", "bar_absolute": "bar", "deviation_bar": "bar",
+    "line": "line", "indexed_line": "line", "slope": "line", "area_stacked": "line", "small_multiples": "line",
+    "waterfall_pvm": "waterfall", "waterfall_buildup": "waterfall", "waterfall_variance": "waterfall",
+    "donut": "part", "stacked_100": "part",
+    "histogram": "dist", "boxplot": "dist",
+    "scatter": "point", "lollipop": "point",
+    "bullet": "target", "matrix_evidence": "table",
+    "sankey": "flow", "decomposition_tree": "flow",
+}
+_FAMILY_LABEL = {"bar": "Bar / column", "line": "Line / area", "waterfall": "Waterfall",
+                 "part": "Part-to-whole", "dist": "Distribution", "point": "Point",
+                 "target": "Target vs actual", "table": "Table", "flow": "Flow / structure"}
+# short "use" per purpose id — how each family member is distinguished
+_USE = {
+    "time_comparison": "over time", "deviation_from_target": "vs target",
+    "compare_categories": "rank categories", "contribution_to_change": "what drove the change",
+    "part_to_whole": "share of the whole", "correlation": "two variables relate",
+    "flow_between_stages": "flow between stages", "driver_breakdown": "which dimension drives",
+    "distribution": "spread / outliers", "evidence_detail": "worst rows + action",
+    "value_verdict": "headline value",
+}
+
+
+def _use_of(iid: str) -> str:
+    e = render.load_entry(iid)
+    purposes = e.get("purpose") or []
+    return _USE.get(purposes[0], purposes[0].replace("_", " ")) if purposes else ""
+
 _ICON_SEARCH = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
                 'stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>')
 _ICON_THEME = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
@@ -531,6 +594,16 @@ def _detail(iid: str, matrix: dict) -> str:
         p.append('<div class="dblock"><p class="dlabel">Alternatives for the same question</p>'
                  f'<div class="alts">{chips}</div></div>')
 
+    # same chart family — the other forms of this visual TYPE, and which question each fits
+    fam = _FAMILY.get(iid)
+    sibs = [s for s in _implemented() if _FAMILY.get(s) == fam and s != iid] if fam else []
+    if sibs:
+        rows = "".join(
+            f'<div class="famrow"><button class="fl" type="button" data-detail="d-{_esc(s)}">{_esc(s)}</button>'
+            f'<span class="fu">{_esc(_use_of(s))}</span></div>' for s in sibs)
+        p.append(f'<div class="dblock"><p class="dlabel">Same family ({_esc(_FAMILY_LABEL.get(fam, fam))}) — which form fits the question</p>'
+                 f'<div class="fam">{rows}</div></div>')
+
     variants = [(t, None) for t in applicable]
     for profile in _nondefault_profiles(iid):
         variants += [(t, profile) for t in render.tools(iid, profile)]
@@ -547,6 +620,15 @@ def _detail(iid: str, matrix: dict) -> str:
                           f'<pre><code>{_esc(code)}</code></pre></div>')
         p.append('<div class="code"><div class="tabbar" role="tablist">' + "".join(tabs) + '</div>'
                  + "".join(panels) + '</div>')
+
+    # how to ship — the wiring steps per applicable tool
+    if applicable:
+        rows = "".join(
+            f'<div class="row"><span class="tt">{_esc(TOOL_SHORT[t])}</span>'
+            f'<ol>' + "".join(f'<li>{step}</li>' for step in _RECIPES[t]) + '</ol></div>'
+            for t in SCHEMA["tools"] if t in applicable)
+        p.append('<div class="dblock"><p class="dlabel">How to ship it</p>'
+                 f'<div class="ship">{rows}</div></div>')
 
     na = [t for t in SCHEMA["tools"] if not (e["realizations"][t].get("applicable", True) and "template" in e["realizations"][t])]
     if na:
