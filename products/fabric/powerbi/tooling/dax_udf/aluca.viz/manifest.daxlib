@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/daxlib/daxlib/refs/heads/main/schemas/manifest/1.0.0/manifest.1.0.0.schema.json",
+  "id": "AlucaViz",
+  "version": "0.1.0",
+  "authors": "ALUCA",
+  "description": "Governed SVG micro-chart DAX UDFs from the ALUCA Visual Library - deviation bar and bullet, with house and IBCS notation selectable by parameters.",
+  "releaseNotes": "Initial release: AlucaViz.DeviationBar and AlucaViz.Bullet, generated from the governed visual_library svg_dax idioms.",
+  "repositoryUrl": "https://github.com/FlorianHaferkorn/analytics-usecase-library",
+  "tags": "DAX,UDF,SVG,IBCS,KPI,ALUCA",
+  "readme": "/README.md"
+}
