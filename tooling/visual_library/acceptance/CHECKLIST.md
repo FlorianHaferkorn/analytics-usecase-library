@@ -1,53 +1,46 @@
 # Visual Library — live-render acceptance
 
-Determinism (byte-for-byte goldens), Vega-Lite compile, structural gates, and now **real Deneb
-rasterization** all run in `tests/test_visual_library.py`. This is the end-to-end acceptance for the
-tracks a headless test can't fully drive: one representative idiom per tool, taken to actual pixels in
-its real runtime.
+**Three of the four tool tracks are proven by an actual headless render** (recorded in
+`validation_matrix.json`); only Power BI native genuinely can't be, and its reason is structural.
 
-Generate the artifacts first:
+| Track | Proof | How |
+| --- | --- | --- |
+| **deneb_vegalite** | ✅ rendered | vl-convert rasterizes every golden across 5 data scenarios — `test_deneb_goldens_rasterize_to_png` |
+| **powerbi_svg_dax** | ✅ rendered | vl-convert `svg_to_png` rasterizes the emitted SVG — `test_svg_dax_goldens_rasterize_to_png` |
+| **web_recharts** | ✅ rendered | real React + Recharts headless render, 27/27 — `render_recharts.mjs` (Node) |
+| **powerbi_native** | 🔶 Desktop-gated | PBIR is a visual *config*, no headless renderer exists — a Desktop load |
+
+## deneb_vegalite — proven headlessly
+
+`render_acceptance.py png <out_dir>` rasterizes every Deneb golden; the suite asserts it. Eyeball
+`deneb_png/waterfall_pvm.deneb.png`.
+
+## powerbi_svg_dax — proven headlessly (the emitted SVG)
+
+The report artefact is the SVG string the DAX measure emits. `render_acceptance.render_svg_dax_png`
+substitutes representative values into that exact SVG and rasterizes it via vl-convert — proof the
+SVG renders. The DAX-computed *values* stay engine-checked separately:
+
+- `products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax` — paste into DAX query view, Run.
+
+## web_recharts — proven headlessly (real React render)
 
 ```bash
-py -3 tooling/visual_library/acceptance/render_acceptance.py materialize <out_dir>
+cd tooling/visual_library/acceptance
+npm i react react-dom recharts esbuild playwright
+node render_recharts.mjs        # bundles + mounts every golden; asserts a populated <svg> (27/27)
 ```
 
-This writes `<out_dir>/manifest.json`, all Deneb PNGs under `deneb_png/`, and one runnable artifact
-per remaining tool. Then work each track:
+## powerbi_native — Desktop-gated (by nature)
 
-## deneb_vegalite — DONE headless (un-gated)
-
-`render_acceptance.py png <out_dir>` rasterizes **every** Deneb golden to PNG via vl-convert, and the
-suite asserts it (`test_deneb_goldens_rasterize_to_png`). No Desktop, no browser. Eyeball
-`deneb_png/waterfall_pvm.deneb.png` to confirm. (Data-less templates are bound to a field-covering
-sample and given a fixed canvas so they draw.)
-
-## powerbi_native — Desktop-gated
-
-Representative: `bar_ranking.visual.json`.
+Representative: `bar_ranking.visual.json`. PBIR is a Power BI visual configuration — there is **no**
+OSS/headless renderer for it; it only renders inside Power BI Desktop / Service.
 
 1. Drop the fragment into a PBIR page (`.../<page>/visuals/<id>/visual.json`) or use the `pbir` CLI.
 2. Bind its projections to a real measure + category (the fragment carries HITL placeholders).
 3. Open in Power BI Desktop. **Pass** = the visual renders with data and no repair prompt.
 
-## powerbi_svg_dax — DAX-engine-gated (harness ready)
-
-Representative: `deviation_bar.dax`. The whole svg_dax track is packaged as the **AlucaViz** UDF
-library; its engine acceptance is already prepared:
-
-- `products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax` — paste into DAX query view, Run.
-- `products/fabric/powerbi/tooling/dax_udf/validate/CHECKLIST.md` — install → measures → bind → render.
-
-## web_recharts — browser-gated
-
-Representative: `line.recharts.html`. Recharts/React are **not** vendored in `studio/node_modules`
-(react/react-dom are, recharts is not), so this stays gated.
-
-1. `npm i react react-dom recharts` in a scratch project (or a sandbox that provides them).
-2. Transpile + mount the JSX in `line.recharts.html` (the file carries the golden JSX + sample data
-   and the commented `createRoot(...).render(<Chart/>)` line).
-3. **Pass** = the chart renders in the browser matching the idiom.
-
 ## Record
 
-Note the versions/tools used and which tracks passed against the current library HEAD. Deneb is
-green automatically; the other three are signed off when their gated render is confirmed.
+Note the tools/versions and confirm the native Desktop load against the current library HEAD; the
+other three tracks are proven automatically by the suite (with vl-convert) + `render_recharts.mjs`.

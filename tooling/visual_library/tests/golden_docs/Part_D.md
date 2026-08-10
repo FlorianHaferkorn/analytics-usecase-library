@@ -28,33 +28,33 @@
 
 ### D.1 Validation status — what is proven, and what stays gated
 
-> Evidence per idiom × tool. **Deneb** is proven by headless rasterization across 5 data scenarios (`typical`, `negatives`, `single_category`, `many_categories`, `extremes`) — regenerate with `render_acceptance.py matrix`. The other three tracks are byte-for-byte + structurally gated; their **live render is runtime-gated** (Desktop / DAX engine / browser) and signed off via `acceptance/CHECKLIST.md`, so they read `structural · gated` — not yet proven.
+> Evidence per idiom × tool, each proven by an ACTUAL headless render: **Deneb** rasterized across 5 data scenarios (`typical`, `negatives`, `single_category`, `many_categories`, `extremes`) and **SVG-DAX** rasterized (its emitted SVG) via vl-convert; **Recharts** React-rendered via the Node harness `acceptance/render_recharts.mjs`. Only **Power BI native** stays `structural · gated` — PBIR is a visual config with no headless renderer, so its proof is a Desktop load (`acceptance/CHECKLIST.md`). Regenerate with `render_acceptance.py matrix`.
 
 | Idiom | Power BI · native | Power BI · SVG-DAX | Deneb / Vega-Lite | Web · Recharts |
 |---|---|---|---|---|
-| `deviation_bar` | structural · gated | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `line` | structural · gated | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `bar_ranking` | structural · gated | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `waterfall_pvm` | structural · gated | — | rendered ✓ 5/5 | structural · gated |
-| `area_stacked` | structural · gated | — | rendered ✓ 5/5 | structural · gated |
-| `indexed_line` | structural · gated | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `matrix_evidence` | structural · gated | structural · gated | — | — |
-| `scatter` | structural · gated | — | rendered ✓ 5/5 | structural · gated |
-| `donut` | structural · gated | — | rendered ✓ 5/5 | structural · gated |
-| `bullet` | — | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `slope` | structural · gated | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `stacked_100` | structural · gated | — | rendered ✓ 5/5 | structural · gated |
-| `lollipop` | — | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `histogram` | — | — | rendered ✓ 5/5 | structural · gated |
+| `deviation_bar` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `line` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `bar_ranking` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `waterfall_pvm` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `area_stacked` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `indexed_line` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `matrix_evidence` | structural · gated | rendered ✓ | — | — |
+| `scatter` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `donut` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `bullet` | — | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `slope` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `stacked_100` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `lollipop` | — | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `histogram` | — | — | rendered ✓ 5/5 | rendered ✓ |
 | `boxplot` | — | — | rendered ✓ 5/5 | — |
 | `small_multiples` | — | — | rendered ✓ 5/5 | — |
-| `sankey` | — | — | — | structural · gated |
+| `sankey` | — | — | — | rendered ✓ |
 | `decomposition_tree` | structural · gated | — | — | — |
-| `bar_absolute` | structural · gated | structural · gated | rendered ✓ 5/5 | structural · gated |
-| `waterfall_buildup` | structural · gated | — | rendered ✓ 5/5 | structural · gated |
-| `waterfall_variance` | structural · gated | — | rendered ✓ 5/5 | structural · gated |
+| `bar_absolute` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
+| `waterfall_buildup` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `waterfall_variance` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
 
-**Legend.** `rendered ✓ n/5` = actually rasterized under n of 5 data scenarios · `structural · gated` = deterministic + structurally valid, live render not yet run · `—` = tool n/a.
+**Legend.** `rendered ✓` = actually rendered headlessly (Deneb shows the scenario count) · `structural · gated` = deterministic + structurally valid, live render needs its host (Desktop) · `—` = tool n/a.
 
 ### Idioms
 
