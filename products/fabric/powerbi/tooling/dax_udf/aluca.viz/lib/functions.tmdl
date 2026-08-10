@@ -29,7 +29,7 @@ function 'AlucaViz.DeviationBar' =
 					& "</svg>" )
 
 	annotation DAXLIB_PackageId = AlucaViz
-	annotation DAXLIB_PackageVersion = 0.1.0
+	annotation DAXLIB_PackageVersion = 0.2.0
 
 /// Bullet graph - actual bar vs a target tick. House shows Few grey bands; IBCS drops them
 /// (showBands = 0) with a neutral tick. Governed ALUCA idiom `bullet`.
@@ -67,4 +67,92 @@ function 'AlucaViz.Bullet' =
 				& "</svg>"
 
 	annotation DAXLIB_PackageId = AlucaViz
-	annotation DAXLIB_PackageVersion = 0.1.0
+	annotation DAXLIB_PackageVersion = 0.2.0
+/// Horizontal ranking bar - length = value / max(value) across the visible scope, semantic colour vs a threshold.
+/// Governed ALUCA idiom `bar_ranking`. Bind in a table/matrix keyed by the scope column (imageHeight/Width on the grid).
+/// @param {numeric expr} value - the ranked measure, e.g. [Gross Margin %]
+/// @param {columnref expr} scope - the category column the ranking is over, e.g. 'dim_org'[OrgName]
+/// @param {double} [threshold] - values below this get colBad (0..1 fraction). Default 0 (never bad)
+/// @param {string} [colBar] - hex for at/above threshold. Default "#0F2430"
+/// @param {string} [colBad] - hex for below threshold. Default "#A4262C"
+/// @returns {string} SVG data URI, blank on subtotal/total rows
+function 'AlucaViz.BarRanking' =
+	(
+		value: NUMERIC EXPR,
+		scope: COLUMNREF EXPR,
+		threshold: DOUBLE = 0,
+		colBar: STRING = "#0F2430",
+		colBad: STRING = "#A4262C"
+	) =>
+		VAR _v = value
+		VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( scope ), value ), REMOVEFILTERS ( scope ) )
+		VAR _w = DIVIDE ( _v, _max ) * 100
+		VAR _col = IF ( _v < threshold, colBad, colBar )
+		RETURN
+			IF ( HASONEVALUE ( scope ),
+				"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+					& "<rect x='0' y='2' width='" & _w & "' height='10' fill='" & _col & "'/>"
+					& "</svg>" )
+
+	annotation DAXLIB_PackageId = AlucaViz
+	annotation DAXLIB_PackageVersion = 0.2.0
+
+/// Lollipop - stem + dot at value / max(value) across the visible scope; lighter ink weight than a full bar.
+/// Governed ALUCA idiom `lollipop`. Bind in a table/matrix keyed by the scope column.
+/// @param {numeric expr} value - the plotted measure, e.g. [Gross Margin %]
+/// @param {columnref expr} scope - the category column, e.g. 'dim_org'[OrgName]
+/// @param {double} [threshold] - values below this get colBad (0..1 fraction). Default 0 (never bad)
+/// @param {string} [colDot] - hex for the dot at/above threshold. Default "#0F2430"
+/// @param {string} [colBad] - hex for below threshold. Default "#A4262C"
+/// @param {string} [colStem] - hex for the stem. Default "#D6DCE2"
+/// @returns {string} SVG data URI, blank on subtotal/total rows
+function 'AlucaViz.Lollipop' =
+	(
+		value: NUMERIC EXPR,
+		scope: COLUMNREF EXPR,
+		threshold: DOUBLE = 0,
+		colDot: STRING = "#0F2430",
+		colBad: STRING = "#A4262C",
+		colStem: STRING = "#D6DCE2"
+	) =>
+		VAR _v = value
+		VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( scope ), value ), REMOVEFILTERS ( scope ) )
+		VAR _x = DIVIDE ( _v, _max ) * 92 + 4
+		VAR _col = IF ( _v < threshold, colBad, colDot )
+		RETURN
+			IF ( HASONEVALUE ( scope ),
+				"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+					& "<line x1='4' y1='7' x2='" & _x & "' y2='7' stroke='" & colStem & "' stroke-width='2'/>"
+					& "<circle cx='" & _x & "' cy='7' r='4' fill='" & _col & "'/>"
+					& "</svg>" )
+
+	annotation DAXLIB_PackageId = AlucaViz
+	annotation DAXLIB_PackageVersion = 0.2.0
+
+/// Sparkline - compact trend polyline of a measure over the last N months, autoscaled to its own min/max.
+/// Governed ALUCA idiom `line` (svg_dax realization). Use in a single card/cell; no per-row guard needed.
+/// @param {numeric expr} value - the trended measure, e.g. [Gross Margin %]
+/// @param {columnref expr} dateCol - the date column to walk, e.g. 'dim_date'[Date]
+/// @param {int64} [months] - trailing window length in months. Default 12
+/// @param {string} [colLine] - hex for the line. Default "#0F2430"
+/// @returns {string} SVG data URI
+function 'AlucaViz.Sparkline' =
+	(
+		value: NUMERIC EXPR,
+		dateCol: COLUMNREF EXPR,
+		months: INT64 = 12,
+		colLine: STRING = "#0F2430"
+	) =>
+		VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( dateCol ), DATESINPERIOD ( dateCol, MAX ( dateCol ), - months, MONTH ) ), "@v", value )
+		VAR _min = MINX ( _S, [@v] )
+		VAR _max = MAXX ( _S, [@v] )
+		VAR _xmin = MINX ( _S, dateCol )
+		VAR _xmax = MAXX ( _S, dateCol )
+		VAR _pts = CONCATENATEX ( _S, INT ( 100 * DIVIDE ( dateCol - _xmin, _xmax - _xmin ) ) & "," & INT ( 30 - 30 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", dateCol )
+		RETURN
+			"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30'>"
+				& "<polyline fill='none' stroke='" & colLine & "' stroke-width='2' points='" & _pts & "'/>"
+				& "</svg>"
+
+	annotation DAXLIB_PackageId = AlucaViz
+	annotation DAXLIB_PackageVersion = 0.2.0

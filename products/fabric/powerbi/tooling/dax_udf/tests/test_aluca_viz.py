@@ -13,7 +13,19 @@ PKG = Path(__file__).resolve().parents[1] / "aluca.viz"
 MANIFEST = PKG / "manifest.daxlib"
 FUNCTIONS = PKG / "lib" / "functions.tmdl"
 
-DECLARED = {"AlucaViz.DeviationBar", "AlucaViz.Bullet"}
+DECLARED = {
+    "AlucaViz.DeviationBar",
+    "AlucaViz.Bullet",
+    "AlucaViz.BarRanking",
+    "AlucaViz.Lollipop",
+    "AlucaViz.Sparkline",
+}
+
+# The context-heavy idioms must take their scope column as a reference parameter — the DAX UDF
+# contract requires reference types to be `expr` (learn.microsoft.com/dax/best-practices/
+# dax-user-defined-functions#parameters). If one silently drops to a value param it would be
+# evaluated eagerly and ALLSELECTED/HASONEVALUE(scope) would break at runtime.
+COLUMNREF_SCOPED = {"AlucaViz.BarRanking", "AlucaViz.Lollipop", "AlucaViz.Sparkline"}
 
 
 def test_manifest_is_valid_json_with_required_keys():
@@ -49,3 +61,21 @@ def test_udf_bodies_are_balanced():
     t = FUNCTIONS.read_text(encoding="utf-8")
     assert t.count("<svg") == t.count("</svg>") == len(DECLARED)
     assert t.count('"') % 2 == 0, "odd number of double quotes — a DAX string is unterminated"
+
+
+def _body(name: str, t: str) -> str:
+    """The parameter/body text of one function up to the next function or EOF."""
+    start = t.index(f"function '{name}' =")
+    nxt = t.find("\nfunction '", start + 1)
+    return t[start: nxt if nxt != -1 else len(t)]
+
+
+def test_context_heavy_udfs_take_a_columnref_scope():
+    """bar_ranking/lollipop/line reference a scope/date column, so that parameter must be a lazy
+    reference (COLUMNREF EXPR) — not an eager value type — or ALLSELECTED/HASONEVALUE break."""
+    t = FUNCTIONS.read_text(encoding="utf-8")
+    for name in COLUMNREF_SCOPED:
+        body = _body(name, t)
+        assert "COLUMNREF EXPR" in body, f"{name} must declare its scope column as COLUMNREF EXPR"
+        # a plain measure input stays a lazy NUMERIC EXPR (re-evaluated inside the iterator)
+        assert "NUMERIC EXPR" in body, f"{name} must keep its measure input as NUMERIC EXPR"
