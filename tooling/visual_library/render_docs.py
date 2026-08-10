@@ -22,7 +22,9 @@ from pathlib import Path
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent / "acceptance"))
 import render  # noqa: E402
+import render_acceptance  # noqa: E402  (reads the frozen matrix — no vl-convert needed)
 
 LIB = render.LIB
 REPO_ROOT = render.REPO_ROOT
@@ -34,6 +36,19 @@ TOOL_LABEL = {
     "web_recharts": "Web · Recharts",
 }
 EXT_LANG = {"json": "json", "dax": "dax", "jsx": "jsx"}
+_VAL_TOOLS = ("powerbi_native", "powerbi_svg_dax", "deneb_vegalite", "web_recharts")
+
+
+def _val_label(cell: dict) -> str:
+    """Compact proof label for one idiom×tool from the frozen validation matrix."""
+    s = cell.get("status")
+    if s == "rendered":
+        return f"rendered ✓ {len(cell['scenarios_ok'])}/{cell['scenarios_total']}"
+    if s == "partial":
+        return f"partial {len(cell['scenarios_ok'])}/{cell['scenarios_total']}"
+    if s == "structural":
+        return "structural · gated"
+    return "—"
 
 
 def _index() -> dict:
@@ -93,6 +108,25 @@ def render_part_d() -> str:
                "300s Detail → `matrix_evidence` · `decomposition_tree` · `sankey`. "
                "Rule: question → idiom → zone → composition.")
     out.append("")
+    out.append("### D.1 Validation status — what is proven, and what stays gated")
+    out.append("")
+    matrix = render_acceptance.load_matrix()
+    out.append(f"> Evidence per idiom × tool. **Deneb** is proven by headless rasterization across "
+               f"{len(matrix['scenarios'])} data scenarios ({', '.join('`'+s+'`' for s in matrix['scenarios'])}) — "
+               "regenerate with `render_acceptance.py matrix`. The other three tracks are byte-for-byte + "
+               "structurally gated; their **live render is runtime-gated** (Desktop / DAX engine / browser) "
+               "and signed off via `acceptance/CHECKLIST.md`, so they read `structural · gated` — not yet proven.")
+    out.append("")
+    out.append("| Idiom | Power BI · native | Power BI · SVG-DAX | Deneb / Vega-Lite | Web · Recharts |")
+    out.append("|---|---|---|---|---|")
+    for iid in _implemented():
+        cells = matrix["idioms"].get(iid, {})
+        row = " | ".join(_val_label(cells.get(t, {})) for t in _VAL_TOOLS)
+        out.append(f"| `{iid}` | {row} |")
+    out.append("")
+    out.append("**Legend.** `rendered ✓ n/5` = actually rasterized under n of 5 data scenarios · "
+               "`structural · gated` = deterministic + structurally valid, live render not yet run · `—` = tool n/a.")
+    out.append("")
     out.append("### Idioms")
     out.append("")
     for iid in _implemented():
@@ -144,6 +178,10 @@ td b{color:var(--ink)}tr:last-child td{border-bottom:none}
 details{border-top:1px solid var(--line);padding-top:10px;margin-top:8px}summary{cursor:pointer;font-family:var(--mono);font-size:11.5px;color:var(--accent)}
 pre{overflow-x:auto;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:11.5px;line-height:1.55;color:var(--ink);margin:8px 0 0}
 code{font-family:var(--mono)}.foot{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink2);font-size:12.5px}
+.st{font-family:var(--mono);font-size:11px;white-space:nowrap}
+.st.rendered{color:var(--pos);font-weight:600}.st.partial{color:#B7791F;font-weight:600}
+.st.gate{color:var(--accent)}.st.no{color:var(--ink2);opacity:.55}
+.note{font-size:13px;color:var(--ink2);margin:0 0 14px;max-width:70ch}.note b{color:var(--ink)}
 """
 
 
@@ -194,6 +232,26 @@ def render_artifact_html() -> str:
         cands = " · ".join(f"<code>{_esc(c)}</code>" for c in p["candidates"])
         rows.append(f"<tr><td><b>{_esc(pid)}</b></td><td>{_esc(p['question'])}</td>"
                     f"<td><code>{_esc(p['best'])}</code></td><td>{_esc(zone)}</td><td>{cands}</td></tr>")
+    # Validation status table (from the frozen matrix)
+    matrix = render_acceptance.load_matrix()
+    _cls = {"rendered": "rendered", "partial": "partial", "structural": "gate"}
+    val_rows = []
+    for iid in _implemented():
+        cells = matrix["idioms"].get(iid, {})
+        tds = []
+        for t in _VAL_TOOLS:
+            c = cells.get(t, {})
+            cls = _cls.get(c.get("status"), "no")
+            tds.append(f'<td><span class="st {cls}">{_esc(_val_label(c))}</span></td>')
+        val_rows.append(f"<tr><td><code>{_esc(iid)}</code></td>{''.join(tds)}</tr>")
+    scen = ", ".join(f"<code>{_esc(s)}</code>" for s in matrix["scenarios"])
+    val_note = (
+        f'<p class="note"><b>Deneb</b> is proven by headless rasterization across '
+        f'{len(matrix["scenarios"])} data scenarios ({scen}). The other three tracks are byte-for-byte + '
+        f'structurally validated, but their <b>live render is runtime-gated</b> (Power BI Desktop / DAX engine / '
+        f'browser) and signed off via <code>acceptance/CHECKLIST.md</code> — so they read '
+        f'<span class="st gate">structural · gated</span>, not yet proven.</p>')
+
     idioms_html = "".join(_html_idiom(i) for i in _implemented())
     return (
         f'<title>ALUCA · Visual Library (generated)</title>\n<style>{_CSS}</style>\n'
@@ -206,6 +264,10 @@ def render_artifact_html() -> str:
         f'<h2>The chooser — which visual, when</h2>\n'
         f'<table><thead><tr><th>Purpose</th><th>Question</th><th>Best</th><th>Zone</th><th>Candidates</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table>\n'
+        f'<h2>Validation status — proven vs. gated</h2>\n{val_note}'
+        f'<table><thead><tr><th>Idiom</th><th>PBI · native</th><th>PBI · SVG-DAX</th>'
+        f'<th>Deneb / Vega-Lite</th><th>Web · Recharts</th></tr></thead>'
+        f'<tbody>{"".join(val_rows)}</tbody></table>\n'
         f'<h2>Idioms ({len(_implemented())})</h2>\n{idioms_html}\n'
         f'<p class="foot">Deny: {" · ".join("<code>"+_esc(d)+"</code>" for d in idx["deny"])}. '
         f'Generated by <code>render_docs.py</code>; governed by <code>pbi-design/references/charts.md</code> + '

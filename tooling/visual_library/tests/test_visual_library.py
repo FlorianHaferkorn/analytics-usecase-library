@@ -224,3 +224,37 @@ def test_acceptance_materialize_writes_one_artifact_per_tool(tmp_path):
     assert manifest["artifacts"]["deneb_vegalite"]["rendered_png"] >= 20
     assert (tmp_path / manifest["artifacts"]["powerbi_native"]["file"]).exists()
     assert (tmp_path / manifest["artifacts"]["web_recharts"]["file"]).exists()
+
+
+def test_deneb_renders_across_all_scenarios():
+    """'Proven in variable scenarios': every Deneb realization must rasterize under EVERY data
+    scenario (positive, negatives, single/many categories, extremes), not just one sample."""
+    pytest.importorskip("vl_convert")
+    sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library" / "acceptance"))
+    import render_acceptance  # noqa: E402
+
+    dp = render.default_profile()
+    checked = 0
+    for idiom in _implemented():
+        for profile in render.profiles(idiom):
+            if "deneb_vegalite" not in render.tools(idiom, profile):
+                continue
+            results = render_acceptance.render_deneb_scenarios(idiom, None if profile == dp else profile)
+            assert set(results) == set(render_acceptance.SCENARIOS), f"{idiom}@{profile}: scenario set mismatch"
+            failed = [s for s, ok in results.items() if not ok]
+            tag = idiom if profile == dp else f"{idiom}@{profile}"
+            assert not failed, f"{tag}: did not render under scenarios {failed}"
+            checked += 1
+    assert checked >= 20, f"expected the full Deneb set across scenarios, got {checked}"
+
+
+def test_frozen_validation_matrix_is_current():
+    """The committed validation_matrix.json (read by the doc generator) must match a fresh
+    re-derivation — so the artifact's 'proven vs gated' claims can never quietly go stale."""
+    pytest.importorskip("vl_convert")
+    sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library" / "acceptance"))
+    import render_acceptance  # noqa: E402
+
+    assert render_acceptance.compute_validation_matrix() == render_acceptance.load_matrix(), (
+        "validation_matrix.json is stale — re-freeze with `render_acceptance.py matrix`"
+    )

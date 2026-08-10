@@ -1,0 +1,520 @@
+{
+  "scenarios": [
+    "typical",
+    "negatives",
+    "single_category",
+    "many_categories",
+    "extremes"
+  ],
+  "legend": {
+    "rendered": "headlessly rasterized to PNG under every data scenario (proven)",
+    "structural": "byte-for-byte + structural gates pass; live render gated (not yet proven)",
+    "n/a": "the idiom does not realize this tool (see reason)"
+  },
+  "idioms": {
+    "deviation_bar": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "line": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "bar_ranking": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "waterfall_pvm": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a full multi-step bridge with a running total is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "area_stacked": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "multi-series stacked area is not a single-cell micro-chart (a single-series area sparkline is \u2014 see `line`)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "indexed_line": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "matrix_evidence": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "Vega-Lite is not a table tool"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no table primitive"
+      }
+    },
+    "scatter": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a two-axis scatter is a full chart, not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "donut": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "arc-path geometry in DAX is impractical"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "bullet": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native bullet base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "slope": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "stacked_100": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "multi-series normalised stacking is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "lollipop": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native lollipop base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "histogram": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no auto-bin mark"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a full distribution is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "boxplot": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native box-plot base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "requires five quartile measures + an axis; not a simple substitution template"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no box-plot primitive"
+      }
+    },
+    "small_multiples": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "small multiples is a field-well option, not a distinct visual JSON idiom"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a grid of panels is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "no single small-multiples component"
+      }
+    },
+    "sankey": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native Sankey base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "curved multi-node flows are impractical as a cell SVG measure"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "Vega-Lite has no sankey mark"
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "decomposition_tree": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "an interactive AI drill tree is not a cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "an interactive drill tree is not a declarative Vega idiom"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no decomposition-tree component"
+      }
+    },
+    "bar_absolute": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "structural",
+        "live_gate": "DAX engine (harness: products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "waterfall_buildup": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a multi-step buildup with a running total is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    },
+    "waterfall_variance": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop load"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a two-anchor variance bridge with a running total is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "structural",
+        "live_gate": "browser / React runtime"
+      }
+    }
+  }
+}
