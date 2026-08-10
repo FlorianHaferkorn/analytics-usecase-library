@@ -1,0 +1,70 @@
+/// Deviation bar - signed variance as bar length from a zero=target line, semantic colour by sign.
+/// Governed ALUCA idiom `deviation_bar`. House vs IBCS differ only by params (IBCS: colZero = "#201F1E").
+/// @param {numeric expr} delta - variance measure (Delta vs plan/target), e.g. a fraction like -0.018
+/// @param {string} [colPos] - hex for favourable (>=0). Default "#107C10"
+/// @param {string} [colNeg] - hex for unfavourable (<0). Default "#A4262C"
+/// @param {double} [fullScale] - the absolute delta that fills half the track. Default 0.05
+/// @param {string} [colTrack] - hex for the track. Default "#EFF2F5"
+/// @param {string} [colZero] - hex for the zero/target line (IBCS: "#201F1E"). Default "#586472"
+/// @returns {string} SVG data URI
+function 'AlucaViz.DeviationBar' =
+	(
+		delta: NUMERIC EXPR,
+		colPos: STRING = "#107C10",
+		colNeg: STRING = "#A4262C",
+		fullScale: DOUBLE = 0.05,
+		colTrack: STRING = "#EFF2F5",
+		colZero: STRING = "#586472"
+	) =>
+		VAR _dlt = delta
+		VAR _col = IF ( _dlt < 0, colNeg, colPos )
+		VAR _len = MIN ( ABS ( _dlt ) / fullScale * 146, 146 )
+		VAR _x = IF ( _dlt < 0, 170 - _len, 170 )
+		RETURN
+			IF ( NOT ISBLANK ( _dlt ),
+				"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 60'>"
+					& "<rect x='24' y='24' width='292' height='12' rx='6' fill='" & colTrack & "'/>"
+					& "<rect x='" & _x & "' y='24' width='" & _len & "' height='12' rx='3' fill='" & _col & "'/>"
+					& "<line x1='170' y1='19' x2='170' y2='41' stroke='" & colZero & "' stroke-width='1.5'/>"
+					& "</svg>" )
+
+	annotation DAXLIB_PackageId = AlucaViz
+	annotation DAXLIB_PackageVersion = 0.1.0
+
+/// Bullet graph - actual bar vs a target tick. House shows Few grey bands; IBCS drops them
+/// (showBands = 0) with a neutral tick. Governed ALUCA idiom `bullet`.
+/// @param {numeric expr} actual - the actual measure (0..1 fraction)
+/// @param {numeric expr} target - the target measure (0..1 fraction)
+/// @param {int64} [showBands] - 1 = Few grey bands (house), 0 = clean (IBCS). Default 1
+/// @param {double} [bandOk] - upper bound of the poor band (0..100). Default 80
+/// @param {double} [bandGood] - upper bound of the ok band (0..100). Default 92
+/// @param {string} [colActual] - hex actual bar. Default "#0F2430"
+/// @param {string} [colTarget] - hex target tick (IBCS: neutral "#605E5C"). Default "#A4262C"
+/// @returns {string} SVG data URI
+function 'AlucaViz.Bullet' =
+	(
+		actual: NUMERIC EXPR,
+		target: NUMERIC EXPR,
+		showBands: INT64 = 1,
+		bandOk: DOUBLE = 80,
+		bandGood: DOUBLE = 92,
+		colActual: STRING = "#0F2430",
+		colTarget: STRING = "#A4262C"
+	) =>
+		VAR _a = actual * 100
+		VAR _t = target * 100
+		VAR _bands =
+			IF ( showBands = 1,
+				"<rect x='0' y='0' width='" & bandOk & "' height='14' fill='#E7EAEE'/>"
+					& "<rect x='" & bandOk & "' y='0' width='" & ( bandGood - bandOk ) & "' height='14' fill='#D6DCE2'/>"
+					& "<rect x='" & bandGood & "' y='0' width='" & ( 100 - bandGood ) & "' height='14' fill='#C6CED5'/>",
+				"" )
+		RETURN
+			"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+				& _bands
+				& "<rect x='0' y='4' width='" & _a & "' height='6' fill='" & colActual & "'/>"
+				& "<line x1='" & _t & "' y1='1' x2='" & _t & "' y2='13' stroke='" & colTarget & "' stroke-width='2'/>"
+				& "</svg>"
+
+	annotation DAXLIB_PackageId = AlucaViz
+	annotation DAXLIB_PackageVersion = 0.1.0
