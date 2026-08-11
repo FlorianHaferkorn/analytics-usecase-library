@@ -1,0 +1,15 @@
+VAR _val = FORMAT ( [Orders Count], "#,0" )
+VAR _dlt = [Orders % vs LM]
+VAR _col = IF ( _dlt < 0, "#A4262C", "#107C10" )
+VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "+0.0%;-0.0%" )
+VAR _S = ADDCOLUMNS ( VALUES ( 'dim_date'[Month] ), "@v", [Orders Count] )
+VAR _n = COUNTROWS ( _S )
+VAR _max = MAXX ( _S, [@v] )
+VAR _bw = DIVIDE ( 214, _n ) - 3
+VAR _bars = CONCATENATEX ( _S, "<rect x='" & INT ( 12 + ( RANKX ( _S, [@v],, ASC, DENSE ) - 1 ) * DIVIDE ( 214, _n ) ) & "' y='" & INT ( 82 - 26 * DIVIDE ( [@v], _max ) ) & "' width='" & INT ( _bw ) & "' height='" & INT ( 26 * DIVIDE ( [@v], _max ) ) & "' fill='#C8CED5'/>", "", 'dim_date'[Month] )
+RETURN
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 90'>"
+      & "<text x='12' y='34' font-family='Segoe UI,sans-serif' font-size='26' font-weight='700' fill='#0F2430'>" & _val & "</text>"
+      & "<text x='12' y='52' font-family='Segoe UI,sans-serif' font-size='12' font-weight='600' fill='" & _col & "'>" & _dtxt & "</text>"
+      & _bars
+      & "</svg>"

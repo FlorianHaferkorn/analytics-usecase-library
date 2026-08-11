@@ -1,0 +1,94 @@
+# Visual Library entry — kpi_card_spark  (schema: _schema.yaml)
+id: kpi_card_spark
+name: KPI card · value + spark + delta
+purpose: [value_verdict]
+zone: [pulse]
+min_size: {w: 220, h: 90}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+best_form_for: value_verdict
+alternatives: [kpi_card_bullet, kpi_card_sparkbar, deviation_bar]
+
+encoding:
+  value: headline_number            # the number, largest element (rank 1)
+  trend: sparkline_line             # trailing context, low ink
+  direction: [color, sign]          # delta vs plan — colour AND arrow/sign
+
+anti_patterns:
+  - number_without_context          # a value with no trend/target is not a verdict
+  - color_of_number_for_magnitude
+  - decorative_sparkline_no_axis_meaning
+
+params:
+  measure:       {role: value, required: true}
+  delta_measure: {role: variance, required: true}
+  date:          {role: axis, type: temporal, required: true}
+  entity:        {role: table, default: _Measures}
+
+tokens:
+  col_ink:   text.primary            # #0F2430 value
+  col_pos:   color_semantics.positive# #107C10
+  col_neg:   color_semantics.negative# #A4262C
+  col_spark: color_semantics.neutral # #94A0AC trailing line
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Net Sales Amount"
+  delta_measure: "Net Sales % vs Plan"
+  date_entity: "dim_date"
+  date_prop: "Date"
+  field: "net_sales"
+  field_date: "month"
+  value_format: "#,0,,.0\"M\""
+  delta_format: "+0.0%;-0.0%"
+  col_ink: "#0F2430"
+  col_pos: "#107C10"
+  col_neg: "#A4262C"
+  col_spark: "#94A0AC"
+
+preview_svg: |
+  <svg viewBox="0 0 240 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KPI card with sparkline">
+    <rect width="240" height="90" rx="12" fill="#FFFFFF"/>
+    <text x="14" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">NET SALES</text>
+    <text x="14" y="52" font-family="Segoe UI,sans-serif" font-size="26" font-weight="700" fill="#0F2430">€12.4M</text>
+    <text x="120" y="52" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#107C10">▲ +3.2%</text>
+    <polyline fill="none" stroke="#94A0AC" stroke-width="2" points="14,80 46,72 78,76 110,64 142,68 174,58 206,62 226,50"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "the modern cardVisual shows a value + reference-label delta, but has no embedded sparkline — the value+spark+delta composite is a single SVG"
+    use: "powerbi_svg_dax (cardVisual callout.imageFX); a native cardVisual can do value + delta reference label only"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _val = FORMAT ( [{{measure}}], "{{value_format}}" )
+      VAR _dlt = [{{delta_measure}}]
+      VAR _col = IF ( _dlt < 0, "{{col_neg}}", "{{col_pos}}" )
+      VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "{{delta_format}}" )
+      VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( '{{date_entity}}'[{{date_prop}}] ), DATESINPERIOD ( '{{date_entity}}'[{{date_prop}}], MAX ( '{{date_entity}}'[{{date_prop}}] ), -12, MONTH ) ), "@v", [{{measure}}] )
+      VAR _min = MINX ( _S, [@v] )
+      VAR _max = MAXX ( _S, [@v] )
+      VAR _xmin = MINX ( _S, '{{date_entity}}'[{{date_prop}}] )
+      VAR _xmax = MAXX ( _S, '{{date_entity}}'[{{date_prop}}] )
+      VAR _pts = CONCATENATEX ( _S, INT ( 12 + 214 * DIVIDE ( '{{date_entity}}'[{{date_prop}}] - _xmin, _xmax - _xmin ) ) & "," & INT ( 84 - 26 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", '{{date_entity}}'[{{date_prop}}] )
+      RETURN
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 90'>"
+            & "<text x='12' y='34' font-family='Segoe UI,sans-serif' font-size='26' font-weight='700' fill='{{col_ink}}'>" & _val & "</text>"
+            & "<text x='12' y='52' font-family='Segoe UI,sans-serif' font-size='12' font-weight='600' fill='" & _col & "'>" & _dtxt & "</text>"
+            & "<polyline fill='none' stroke='{{col_spark}}' stroke-width='2' points='" & _pts & "'/>"
+            & "</svg>"
+
+  deneb_vegalite:
+    applicable: false
+    reason: "a KPI card composite (headline value + trailing spark + delta chip) is a card LAYOUT, not one Vega-Lite view; Deneb draws the spark, the value/delta are card chrome"
+    use: "powerbi_svg_dax for the whole card; or `line` in Deneb for just the spark inside a card"
+
+  web_recharts:
+    applicable: false
+    reason: "a KPI card is HTML (the value + delta) with a chart inside — a React component, not a single Recharts chart"
+    use: "compose in React: value/delta as HTML + a small Recharts `line` sparkline"
+
+determinism:
+  golden_dir: golden
+  notes: "Composite KPI tile: headline value (rank 1) + trailing sparkline (context) + signed, coloured delta vs plan. One SVG via cardVisual imageFX; the other tracks address partial forms."

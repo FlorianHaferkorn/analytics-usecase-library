@@ -18,7 +18,7 @@
 | **driver_breakdown** | Which dimension drives the number? (interactive) | `decomposition_tree` | detail | `decomposition_tree` |
 | **distribution** | What is the spread / median / outliers of a variable? | `histogram` | analysis | `histogram` · `boxplot` |
 | **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` |
-| **value_verdict** | What is the headline value and its verdict? | `kpi_card` | pulse | `kpi_card` |
+| **value_verdict** | What is the headline value and its verdict? | `kpi_card_spark` | pulse | `kpi_card_spark` · `kpi_card_bullet` · `kpi_card_sparkbar` |
 
 **Deny (never emit):** `pie_gt_4` · `three_d` · `gauge` · `radar` · `dual_axis_no_reason` · `color_as_decoration` · `powerbi_smart_narrative`.
 
@@ -53,6 +53,9 @@
 | `bar_absolute` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
 | `waterfall_buildup` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
 | `waterfall_variance` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `kpi_card_spark` | — | rendered ✓ | — | — |
+| `kpi_card_bullet` | — | rendered ✓ | — | — |
+| `kpi_card_sparkbar` | — | rendered ✓ | — | — |
 
 **Legend.** `rendered ✓` = actually rendered headlessly (Deneb shows the scenario count) · `structural · gated` = deterministic + structurally valid, live render needs its host (Desktop) · `—` = tool n/a.
 
@@ -188,3 +191,21 @@
 - **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, hiding_the_two_anchor_totals
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a two-anchor variance bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS variance-bridge UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/waterfall_variance.yaml` (+ `golden/waterfall_variance.*`)
+
+#### `kpi_card_spark` — KPI card · value + spark + delta
+- **Purpose:** value_verdict · **zone:** pulse · **best form for:** `value_verdict` · **min size:** 220×90px
+- **Avoid:** number_without_context, color_of_number_for_magnitude, decorative_sparkline_no_axis_meaning
+- **Tools:** Power BI · native n/a (the modern cardVisual shows a value + reference-label delta, but has no embedded sparkline — the value+spark+delta composite is a single SVG → powerbi_svg_dax (cardVisual callout.imageFX); a native cardVisual can do value + delta reference label only) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a KPI card composite (headline value + trailing spark + delta chip) is a card LAYOUT, not one Vega-Lite view; Deneb draws the spark, the value/delta are card chrome → powerbi_svg_dax for the whole card; or `line` in Deneb for just the spark inside a card) · Web · Recharts n/a (a KPI card is HTML (the value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a small Recharts `line` sparkline)
+- **Code:** `visual_library/kpi_card_spark.yaml` (+ `golden/kpi_card_spark.*`)
+
+#### `kpi_card_bullet` — KPI card · value + bullet
+- **Purpose:** value_verdict · **zone:** pulse · **min size:** 220×90px
+- **Avoid:** gauge_instead, number_without_context, color_of_number_for_magnitude
+- **Tools:** Power BI · native n/a (no native bullet, and the cardVisual has no embedded bullet track — the value+bullet+delta composite is a single SVG → powerbi_svg_dax (cardVisual callout.imageFX)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (the value + delta chip are card chrome; Deneb draws the bullet only, not the headline layout → powerbi_svg_dax for the whole card; or `bullet` in Deneb for just the attainment track) · Web · Recharts n/a (a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a Recharts `bullet`)
+- **Code:** `visual_library/kpi_card_bullet.yaml` (+ `golden/kpi_card_bullet.*`)
+
+#### `kpi_card_sparkbar` — KPI card · value + column trend
+- **Purpose:** value_verdict · **zone:** pulse · **min size:** 220×90px
+- **Avoid:** number_without_context, color_of_number_for_magnitude, line_when_periods_are_discrete
+- **Tools:** Power BI · native n/a (the cardVisual has no embedded column-trend track — the value+trend+delta composite is a single SVG → powerbi_svg_dax (cardVisual callout.imageFX)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (the value + delta chip are card chrome; Deneb draws the column trend only, not the headline layout → powerbi_svg_dax for the whole card; or `column_time` in Deneb for just the trend) · Web · Recharts n/a (a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a small Recharts `column_time` bar trend)
+- **Code:** `visual_library/kpi_card_sparkbar.yaml` (+ `golden/kpi_card_sparkbar.*`)

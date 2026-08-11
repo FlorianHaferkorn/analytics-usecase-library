@@ -533,6 +533,60 @@
         "status": "rendered",
         "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
       }
+    },
+    "kpi_card_spark": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "the modern cardVisual shows a value + reference-label delta, but has no embedded sparkline \u2014 the value+spark+delta composite is a single SVG"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a KPI card composite (headline value + trailing spark + delta chip) is a card LAYOUT, not one Vega-Lite view; Deneb draws the spark, the value/delta are card chrome"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "a KPI card is HTML (the value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
+      }
+    },
+    "kpi_card_bullet": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "no native bullet, and the cardVisual has no embedded bullet track \u2014 the value+bullet+delta composite is a single SVG"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "the value + delta chip are card chrome; Deneb draws the bullet only, not the headline layout"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "a KPI card is HTML (value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
+      }
+    },
+    "kpi_card_sparkbar": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "the cardVisual has no embedded column-trend track \u2014 the value+trend+delta composite is a single SVG"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "the value + delta chip are card chrome; Deneb draws the column trend only, not the headline layout"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "a KPI card is HTML (value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
+      }
     }
   }
 }

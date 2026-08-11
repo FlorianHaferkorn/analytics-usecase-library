@@ -1,0 +1,16 @@
+VAR _val = FORMAT ( [Net Sales Amount], "#,0,,.0"M"" )
+VAR _dlt = [Net Sales % vs Plan]
+VAR _col = IF ( _dlt < 0, "#A4262C", "#107C10" )
+VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "+0.0%;-0.0%" )
+VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( 'dim_date'[Date] ), DATESINPERIOD ( 'dim_date'[Date], MAX ( 'dim_date'[Date] ), -12, MONTH ) ), "@v", [Net Sales Amount] )
+VAR _min = MINX ( _S, [@v] )
+VAR _max = MAXX ( _S, [@v] )
+VAR _xmin = MINX ( _S, 'dim_date'[Date] )
+VAR _xmax = MAXX ( _S, 'dim_date'[Date] )
+VAR _pts = CONCATENATEX ( _S, INT ( 12 + 214 * DIVIDE ( 'dim_date'[Date] - _xmin, _xmax - _xmin ) ) & "," & INT ( 84 - 26 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", 'dim_date'[Date] )
+RETURN
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 90'>"
+      & "<text x='12' y='34' font-family='Segoe UI,sans-serif' font-size='26' font-weight='700' fill='#0F2430'>" & _val & "</text>"
+      & "<text x='12' y='52' font-family='Segoe UI,sans-serif' font-size='12' font-weight='600' fill='" & _col & "'>" & _dtxt & "</text>"
+      & "<polyline fill='none' stroke='#94A0AC' stroke-width='2' points='" & _pts & "'/>"
+      & "</svg>"

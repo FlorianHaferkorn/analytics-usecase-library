@@ -1,0 +1,14 @@
+VAR _val = FORMAT ( [SLA Attainment %], "0.0%" )
+VAR _a = [SLA Attainment %] * 212
+VAR _t = [SLA Target %] * 212
+VAR _dlt = [SLA % vs Target]
+VAR _col = IF ( _dlt < 0, "#A4262C", "#107C10" )
+VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "+0.0 "pp";-0.0 "pp"" )
+RETURN
+    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 90'>"
+      & "<text x='12' y='34' font-family='Segoe UI,sans-serif' font-size='26' font-weight='700' fill='#0F2430'>" & _val & "</text>"
+      & "<text x='12' y='52' font-family='Segoe UI,sans-serif' font-size='12' font-weight='600' fill='" & _col & "'>" & _dtxt & "</text>"
+      & "<rect x='12' y='68' width='212' height='10' rx='5' fill='#EFF2F5'/>"
+      & "<rect x='12' y='68' width='" & _a & "' height='10' rx='5' fill='#0F2430'/>"
+      & "<line x1='" & ( 12 + _t ) & "' y1='64' x2='" & ( 12 + _t ) & "' y2='82' stroke='#A4262C' stroke-width='2.5'/>"
+      & "</svg>"

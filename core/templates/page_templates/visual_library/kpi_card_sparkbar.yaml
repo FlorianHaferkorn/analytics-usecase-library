@@ -1,0 +1,97 @@
+# Visual Library entry — kpi_card_sparkbar  (schema: _schema.yaml)
+id: kpi_card_sparkbar
+name: KPI card · value + column trend
+purpose: [value_verdict]
+zone: [pulse]
+min_size: {w: 220, h: 90}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+best_form_for: null
+alternatives: [kpi_card_spark, kpi_card_bullet, column_time]
+
+encoding:
+  value: headline_number            # the number (rank 1)
+  trend: column_sparkline           # discrete periods as small columns (a bar trend)
+  direction: [color, sign]          # delta vs prior/plan — colour AND sign
+
+anti_patterns:
+  - number_without_context
+  - color_of_number_for_magnitude
+  - line_when_periods_are_discrete  # discrete periods -> columns, not a smoothed line
+
+params:
+  measure:       {role: value, required: true}
+  delta_measure: {role: variance, required: true}
+  period:        {role: axis, type: category, required: true}
+  entity:        {role: table, default: _Measures}
+
+tokens:
+  col_ink:  text.primary             # #0F2430 value
+  col_pos:  color_semantics.positive # #107C10
+  col_neg:  color_semantics.negative # #A4262C
+  col_bar:  surface.row_alt_ink      # #C8CED5 trend columns (recede)
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Orders Count"
+  delta_measure: "Orders % vs LM"
+  period_entity: "dim_date"
+  period_prop: "Month"
+  field: "count"
+  field_period: "period"
+  value_format: "#,0"
+  delta_format: "+0.0%;-0.0%"
+  col_ink: "#0F2430"
+  col_pos: "#107C10"
+  col_neg: "#A4262C"
+  col_bar: "#C8CED5"
+
+preview_svg: |
+  <svg viewBox="0 0 240 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KPI card with column trend">
+    <rect width="240" height="90" rx="12" fill="#FFFFFF"/>
+    <text x="14" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">ORDERS</text>
+    <text x="14" y="52" font-family="Segoe UI,sans-serif" font-size="26" font-weight="700" fill="#0F2430">4,812</text>
+    <text x="120" y="52" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#107C10">▲ +5.1%</text>
+    <g fill="#C8CED5">
+      <rect x="14" y="72" width="10" height="8"/><rect x="30" y="66" width="10" height="14"/><rect x="46" y="70" width="10" height="10"/>
+      <rect x="62" y="60" width="10" height="20"/><rect x="78" y="64" width="10" height="16"/><rect x="94" y="56" width="10" height="24"/>
+      <rect x="110" y="62" width="10" height="18"/><rect x="126" y="52" width="10" height="28"/>
+    </g>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "the cardVisual has no embedded column-trend track — the value+trend+delta composite is a single SVG"
+    use: "powerbi_svg_dax (cardVisual callout.imageFX)"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _val = FORMAT ( [{{measure}}], "{{value_format}}" )
+      VAR _dlt = [{{delta_measure}}]
+      VAR _col = IF ( _dlt < 0, "{{col_neg}}", "{{col_pos}}" )
+      VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "{{delta_format}}" )
+      VAR _S = ADDCOLUMNS ( VALUES ( '{{period_entity}}'[{{period_prop}}] ), "@v", [{{measure}}] )
+      VAR _n = COUNTROWS ( _S )
+      VAR _max = MAXX ( _S, [@v] )
+      VAR _bw = DIVIDE ( 214, _n ) - 3
+      VAR _bars = CONCATENATEX ( _S, "<rect x='" & INT ( 12 + ( RANKX ( _S, [@v],, ASC, DENSE ) - 1 ) * DIVIDE ( 214, _n ) ) & "' y='" & INT ( 82 - 26 * DIVIDE ( [@v], _max ) ) & "' width='" & INT ( _bw ) & "' height='" & INT ( 26 * DIVIDE ( [@v], _max ) ) & "' fill='{{col_bar}}'/>", "", '{{period_entity}}'[{{period_prop}}] )
+      RETURN
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 90'>"
+            & "<text x='12' y='34' font-family='Segoe UI,sans-serif' font-size='26' font-weight='700' fill='{{col_ink}}'>" & _val & "</text>"
+            & "<text x='12' y='52' font-family='Segoe UI,sans-serif' font-size='12' font-weight='600' fill='" & _col & "'>" & _dtxt & "</text>"
+            & _bars
+            & "</svg>"
+
+  deneb_vegalite:
+    applicable: false
+    reason: "the value + delta chip are card chrome; Deneb draws the column trend only, not the headline layout"
+    use: "powerbi_svg_dax for the whole card; or `column_time` in Deneb for just the trend"
+
+  web_recharts:
+    applicable: false
+    reason: "a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart"
+    use: "compose in React: value/delta as HTML + a small Recharts `column_time` bar trend"
+
+determinism:
+  golden_dir: golden
+  notes: "Composite KPI tile: headline value + a column sparkline (discrete-period bar trend) + signed, coloured delta. One SVG via cardVisual imageFX."

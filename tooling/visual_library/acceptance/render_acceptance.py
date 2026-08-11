@@ -147,6 +147,12 @@ MATRIX_PATH = Path(__file__).resolve().parent / "validation_matrix.json"
 _SVG_DAX_VALS = {
     "_w": "62", "_col": "#0F2430", "_x": "60", "_a": "88", "_t": "95", "_len": "80",
     "_pts": "0,20 25,10 50,15 75,5 100,8", "_y1": "20", "_y2": "8",
+    # composite KPI cards
+    "_val": "12.4M", "_dtxt": "▲ +3.2%",
+    "_bars": ("<rect x='12' y='60' width='14' height='20' fill='#C8CED5'/>"
+              "<rect x='30' y='66' width='14' height='14' fill='#C8CED5'/>"
+              "<rect x='48' y='56' width='14' height='24' fill='#C8CED5'/>"
+              "<rect x='66' y='62' width='14' height='18' fill='#C8CED5'/>"),
 }
 # Recharts renders in a React runtime (not Python). Its proof is the committed Node harness
 # acceptance/render_recharts.mjs — a real React + Recharts headless render of every golden
@@ -173,8 +179,12 @@ def _svg_from_dax(dax_text: str) -> str:
             out.append(piece[1:-1])
         elif piece in _SVG_DAX_VALS:
             out.append(_SVG_DAX_VALS[piece])
-        elif piece.startswith("(") and piece.endswith(")") and re.fullmatch(r"[0-9\s+\-*/().]+", piece[1:-1]):
-            out.append(str(int(eval(piece[1:-1], {"__builtins__": {}}, {}))))  # noqa: S307 — digits only
+        elif piece.startswith("(") and piece.endswith(")"):
+            expr = piece[1:-1]
+            for var, val in _SVG_DAX_VALS.items():  # substitute numeric vars inside the arithmetic
+                if val.lstrip("-").isdigit():
+                    expr = re.sub(rf"(?<![\w]){re.escape(var)}(?![\w])", val, expr)
+            out.append(str(int(eval(expr, {"__builtins__": {}}, {}))) if re.fullmatch(r"[0-9\s+\-*/().]+", expr) else "0")  # noqa: S307
         else:
             out.append(_SVG_DAX_VALS.get(piece, "0"))
     s = "".join(out)
