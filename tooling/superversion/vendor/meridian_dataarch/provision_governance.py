@@ -12,7 +12,8 @@ construction — never claims automation that Microsoft does not offer):
 - RLS/OLS  → **TMDL role blocks** (deliverable-grade; deploys via Update-Definition/XMLA).
 - Workspace roles / Domains / Sensitivity labels → idempotent REST/`fab api` templates
   (GA) with GET→diff→apply intent; tenant GUIDs/principals are VERIFY placeholders.
-- OneLake data access roles → a declarative dataAccessRoles PUT payload, **Preview-gated**.
+- OneLake data access roles → a declarative dataAccessRoles PUT payload, **GA since May 2026**
+  (`learn.microsoft.com/fabric/fundamentals/whats-new`; was labelled Preview here until 11.08.2026).
 - Endorsement (Promoted/Certified) → an audit + **manual runbook**, because Fabric exposes
   **no supported write API** for endorsement (set is portal-only).
 
@@ -257,7 +258,9 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
     and Direct-Lake-on-OneLake semantic models (MS Learn 2026-07, OneLake security).
 
     Grounded in the REST reference *OneLake Data Access Security — Create Or Update Data Access
-    Roles* (Preview): ``PUT /v1/workspaces/{ws}/items/{itemId}/dataAccessRoles``. Honest by
+    Roles*: ``PUT /v1/workspaces/{ws}/items/{itemId}/dataAccessRoles``. OneLake security and
+    OneLake data access roles are **GA since May 2026** (MS Learn what's-new, retrieved
+    10.08.2026); the Preview label that stood here was stale. Honest by
     construction — only the IR-derivable parts are filled, the policy parts are workshop-owned:
 
     - **Table access (OLS)** ← the domain's gold products. Each rule carries the two mandatory
@@ -337,7 +340,7 @@ def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None) -> str:
         "# OneLake Security roles (generiert)",
         "",
         "Rumpf für `PUT /v1/workspaces/{ws}/items/{lakehouseId}/dataAccessRoles` —",
-        "`onelake_data_access_roles.json` daneben. **Status PREVIEW**",
+        "`onelake_data_access_roles.json` daneben. **Status GA (seit Mai 2026)**",
         "(`OneLake.ReadWrite.All`; erst mit `dryRun=true` + ETag fahren).",
         "",
         "Das ist die **primäre** RLS/CLS/OLS-Schicht: einmal definiert, von allen Fabric-Engines",
@@ -497,7 +500,7 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
            f"Data-gov source: **{'governance.json' if gd else 'IR only'}**", "",
            "IR-derived governance, at the fidelity Fabric actually supports (research 2026-07-15 §3):",
            "", "| Capability | Artifact | Status |", "|---|---|---|",
-           "| **RLS/CLS/OLS — primary (all engines)** | `onelake_data_access_roles.json` (OneLake Security) | **Preview** |",
+           "| **RLS/CLS/OLS — primary (all engines)** | `onelake_data_access_roles.json` (OneLake Security) | **GA (Mai 2026)** |",
            "| **Kollision mit der Ontologie** | siehe Kasten unten | **entscheiden** |",
            "| Access-layer decision | `ACCESS_LAYER_DECISION.md` (where to enforce + why) | doc |",
            "| RLS/OLS — model-only alternative | `roles/<domain>.tmdl` (TMDL role blocks; fixed-identity case) | GA |",
