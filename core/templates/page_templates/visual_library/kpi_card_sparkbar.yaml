@@ -3,7 +3,7 @@ id: kpi_card_sparkbar
 name: KPI card · value + column trend
 purpose: [value_verdict]
 zone: [pulse]
-min_size: {w: 220, h: 90}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+min_size: {cols: 3, rows: 3}   # grid units — canvas-relative legibility floor (≈292×152px @1280, 438×228px @1920; px derived from layout_grid.yaml)
 best_form_for: null
 alternatives: [kpi_card_spark, kpi_card_bullet, column_time]
 

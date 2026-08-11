@@ -20,7 +20,7 @@ required_keys:
   - name               # human name
   - purpose            # list of analytical-question ids it answers (see index.yaml)
   - zone               # 3-30-300 placement: subset of [pulse, analysis, detail]
-  - min_size           # {w, h} px — the legibility floor; below this, labels/marks are unreadable (governance)
+  - min_size           # {cols, rows} grid units — the canvas-relative legibility floor (px derived from tokens/layout_grid.yaml); below this, labels/marks are unreadable
   - best_form_for      # the purpose id for which THIS is the governed best form (or null)
   - alternatives       # other idiom ids serving the same purpose(s)
   - encoding           # governed rationale: {magnitude, direction, reference, ...}

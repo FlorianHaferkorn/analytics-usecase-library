@@ -117,6 +117,18 @@ def render_deneb_png(idiom: str, profile: str | None = None) -> bytes:
     return vlc.vegalite_to_png(spec, scale=1)
 
 
+def render_deneb_png_sized(idiom: str, w: int, h: int, profile: str | None = None) -> bytes:
+    """Rasterize a Deneb golden at an EXPLICIT pixel size — used to prove an idiom still renders
+    at its declared min grid-size (the measured legibility floor)."""
+    import vl_convert as vlc  # noqa: PLC0415
+
+    out, _ext = render.render(idiom, "deneb_vegalite", profile)
+    spec = json.loads(out)
+    spec["data"] = {"values": _field_covering_sample()}
+    spec["width"], spec["height"] = int(w), int(h)
+    return vlc.vegalite_to_png(spec, scale=1)
+
+
 def render_deneb_scenarios(idiom: str, profile: str | None = None) -> dict[str, bool]:
     """Render one Deneb realization under every SCENARIO. Returns {scenario: rendered?} where
     'rendered' means a non-trivial (>1 KB) PNG — proof the spec draws when the data varies."""

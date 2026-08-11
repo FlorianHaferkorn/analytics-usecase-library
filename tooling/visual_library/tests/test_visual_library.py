@@ -283,11 +283,38 @@ def test_frozen_validation_matrix_is_current():
     )
 
 
-def test_every_idiom_declares_a_legible_min_size():
-    """Governance: every idiom must declare min_size {w,h} in px — the legibility floor below
-    which its labels/marks become unreadable (feeds the artifact + can clamp the generator)."""
+def test_every_idiom_declares_a_grid_min_size():
+    """Governance: every idiom declares min_size as {cols, rows} grid units — the canvas-relative
+    legibility floor (px derived from tokens/layout_grid.yaml, so it scales 1280↔1920). Never
+    below 2×2, and it must resolve to a positive pixel box on both canvases."""
     for iid in _implemented():
         ms = render.load_entry(iid).get("min_size")
         assert isinstance(ms, dict), f"{iid}: no min_size"
-        assert isinstance(ms.get("w"), int) and isinstance(ms.get("h"), int), f"{iid}: min_size w/h must be ints"
-        assert ms["w"] >= 100 and ms["h"] >= 40, f"{iid}: min_size {ms} below a sane legibility floor"
+        assert isinstance(ms.get("cols"), int) and isinstance(ms.get("rows"), int), f"{iid}: min_size needs int cols/rows"
+        assert ms["cols"] >= 2 and ms["rows"] >= 2, f"{iid}: min_size {ms} below a sane 2×2 floor"
+        for canvas in ("design_base", "production"):
+            w, h = render.grid_px(ms["cols"], ms["rows"], canvas)
+            assert w > 0 and h > 0, f"{iid}: min_size does not resolve to px on {canvas}"
+
+
+def test_idioms_rasterize_at_their_min_size():
+    """MEASURED, not asserted: every Deneb-capable idiom must actually rasterize to a non-trivial
+    PNG at its declared min grid-size (design-base px) — proof the floor is a size the visual can
+    still render at, not a number someone typed. Skips without vl-convert."""
+    pytest.importorskip("vl_convert")
+    sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library" / "acceptance"))
+    import render_acceptance  # noqa: E402
+
+    dp = render.default_profile()
+    checked = 0
+    for iid in _implemented():
+        ms = render.load_entry(iid).get("min_size")
+        w, h = render.grid_px(ms["cols"], ms["rows"])  # design-base px floor
+        for profile in render.profiles(iid):
+            if "deneb_vegalite" not in render.tools(iid, profile):
+                continue
+            png = render_acceptance.render_deneb_png_sized(iid, w, h, None if profile == dp else profile)
+            tag = iid if profile == dp else f"{iid}@{profile}"
+            assert png[:8] == b"\x89PNG\r\n\x1a\n" and len(png) > 800, f"{tag}: does not render at min {w}×{h}px"
+            checked += 1
+    assert checked >= 18, f"expected the Deneb set to render at min size, got {checked}"

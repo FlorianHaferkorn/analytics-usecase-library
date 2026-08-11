@@ -28,8 +28,44 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 LIB = REPO_ROOT / "core" / "templates" / "page_templates" / "visual_library"
 NOTATION = LIB / "_notation_profiles.yaml"
+_LAYOUT_GRID = yaml.safe_load(
+    (LIB.parent / "tokens" / "layout_grid.yaml").read_text(encoding="utf-8"))
 
 _PLACEHOLDER = re.compile(r"\{\{(\w+)\}\}")
+
+
+def grid_px(cols: int, rows: int, canvas: str = "design_base") -> "tuple[int, int]":
+    """Resolve a {cols, rows} grid size to pixels on a canvas, from tokens/layout_grid.yaml.
+    The logical unit (lu_w/lu_h) is computed for the design-base canvas; other canvases scale
+    proportionally, so a grid size is inherently canvas-relative (the point of grid units)."""
+    g = _LAYOUT_GRID
+    base = g["canvas"]["design_base"]
+    lu_w, lu_h = g["computed"]["lu_w"], g["computed"]["lu_h"]
+    gutter = g["spacing"]["gutter"]
+    w = cols * lu_w + (cols - 1) * gutter
+    h = rows * lu_h + (rows - 1) * gutter
+    if canvas != "design_base":
+        c = g["canvas"][canvas]
+        w *= c["width"] / base["width"]
+        h *= c["height"] / base["height"]
+    return round(w), round(h)
+
+
+def min_grid_cols(width_px: float) -> int:
+    """Smallest colSpan whose slot width (design base) covers width_px."""
+    lu_w, gutter = _LAYOUT_GRID["computed"]["lu_w"], _LAYOUT_GRID["spacing"]["gutter"]
+    c = 1
+    while c * lu_w + (c - 1) * gutter < width_px:
+        c += 1
+    return c
+
+
+def min_grid_rows(height_px: float) -> int:
+    lu_h, gutter = _LAYOUT_GRID["computed"]["lu_h"], _LAYOUT_GRID["spacing"]["gutter"]
+    r = 1
+    while r * lu_h + (r - 1) * gutter < height_px:
+        r += 1
+    return r
 
 
 def load_entry(idiom: str) -> dict:

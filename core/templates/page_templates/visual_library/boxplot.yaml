@@ -3,7 +3,7 @@ id: boxplot
 name: Box plot
 purpose: [distribution]
 zone: [analysis]
-min_size: {w: 280, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+min_size: {cols: 3, rows: 4}   # grid units — canvas-relative legibility floor (≈292×208px @1280, 438×312px @1920; px derived from layout_grid.yaml)
 best_form_for: null                 # distribution across groups (histogram for one variable)
 alternatives: [histogram]
 

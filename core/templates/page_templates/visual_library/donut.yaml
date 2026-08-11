@@ -3,7 +3,7 @@ id: donut
 name: Donut
 purpose: [part_to_whole]
 zone: [analysis]
-min_size: {w: 300, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
 best_form_for: part_to_whole
 alternatives: [stacked_100]
 
