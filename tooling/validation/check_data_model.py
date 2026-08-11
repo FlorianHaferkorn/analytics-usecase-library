@@ -45,6 +45,12 @@ except ImportError:  # pragma: no cover
     sys.exit(1)
 
 REPO = Path(__file__).resolve().parents[2]
+
+# Tool-Reuse: den Delta-Log-Replay gibt es schon, er wird nicht nachgebaut. `scripts/` ist
+# kein Paket, deshalb ueber den Pfad geladen statt importiert.
+sys.path.insert(0, str(REPO / "scripts"))
+from check_showcase_delta import _active_paths  # noqa: E402
+
 CONTRACTS = REPO / "core" / "data_contracts" / "domains"
 GOLD = REPO / "showcases" / "aurora_group" / "data" / "gold"
 
@@ -140,7 +146,27 @@ def _gold_dir(name: str) -> Optional[Path]:
 
 
 def _files(path: Path) -> list[Path]:
-    return sorted(path.rglob("*.parquet"))
+    """Die parquet-Dateien, die Delta tatsaechlich ausliefert — nicht alles, was herumliegt.
+
+    Vorher stand hier ein blankes ``rglob``. Das las auch die Dateien, die der ``_delta_log``
+    laengst per ``remove`` verabschiedet hat, also Daten, die keine Abfrage je zu sehen bekommt.
+    Der Fehler ging in beide Richtungen: gemessen am 11.08.2026 trug ``dim_product`` an der
+    Merge-Basis drei solche Leichen mit den ProductKeys 4997–5000, und genau die haben die
+    ORPHAN-FK-Pruefung **gruen** gehalten — die Fakten fuehren dieselben Schluessel in 238 ebenso
+    verwaisten Dateien. Nach dem Vacuum aus #424 fiel die Maske auf der Dimensionsseite weg, und
+    dasselbe Datenpaar meldete drei harte Befunde. Weder das Gruen davor noch das Rot danach
+    beschrieb die aktiven Daten: dort ist der hoechste ProductKey auf beiden Seiten 4996.
+
+    Log gegen Platte ist nicht Aufgabe dieses Gates — das prueft ``scripts/check_showcase_delta.py``
+    und sagt in seiner eigenen Ausgabe, dass die fachliche FK-Pruefung hier liegt. Deshalb
+    Tool-Reuse statt zweitem Leser: dessen ``_active_paths`` wird aufgerufen, nicht nachgebaut.
+    Ohne ``_delta_log`` (reines parquet-Verzeichnis) bleibt es beim rglob.
+    """
+    log = path / "_delta_log"
+    if not log.is_dir():
+        return sorted(path.rglob("*.parquet"))
+    aktiv = [path / rel for rel in _active_paths(str(log))]
+    return sorted(p for p in aktiv if p.exists())
 
 
 def _num_rows(path: Path) -> int:
