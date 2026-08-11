@@ -3,7 +3,7 @@ id: slope
 name: Slope chart
 purpose: [time_comparison]
 zone: [analysis]
-min_size: {w: 240, h: 220}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+min_size: {cols: 3, rows: 5}   # grid units — canvas-relative legibility floor (≈292×264px @1280, 438×396px @1920; px derived from layout_grid.yaml)
 best_form_for: null                 # two-period comparison variant of `line`
 alternatives: [line, small_multiples, bar_ranking]
 

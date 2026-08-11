@@ -136,9 +136,14 @@ def render_part_d() -> str:
         zone = " / ".join(e["zone"]) if isinstance(e["zone"], list) else str(e["zone"])
         out.append(f"#### `{iid}` — {e['name']}")
         ms = e.get("min_size") or {}
+        minstr = ""
+        if ms.get("cols"):
+            bw, bh = render.grid_px(ms["cols"], ms["rows"])
+            pw, ph = render.grid_px(ms["cols"], ms["rows"], "production")
+            minstr = f" · **min size:** {ms['cols']}×{ms['rows']} grid ({bw}×{bh}px @1280, {pw}×{ph}px @1920)"
         out.append(f"- **Purpose:** {', '.join(e['purpose'])} · **zone:** {zone}"
                    + (f" · **best form for:** `{e['best_form_for']}`" if e.get("best_form_for") else "")
-                   + (f" · **min size:** {ms['w']}×{ms['h']}px" if ms.get("w") else ""))
+                   + minstr)
         out.append(f"- **Avoid:** {', '.join(e['anti_patterns'])}")
         tool_bits = []
         for tool in SCHEMA["tools"]:
@@ -298,6 +303,7 @@ button{font-family:inherit}
 .detail h3{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;display:flex;flex-wrap:wrap;align-items:baseline;gap:9px}
 .detail h3 code{font-size:13px;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:7px;font-weight:600}
 .d-sub{font-size:13.5px;color:var(--ink3);margin:8px 0 0;line-height:1.45}
+.d-sub .minpx{font-family:var(--mono);font-size:11px;color:var(--ink3);opacity:.8}
 .status{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0}
 .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid transparent}
 .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
@@ -574,7 +580,12 @@ def _detail(iid: str, matrix: dict) -> str:
     p.append('<div>')
     p.append(f'<h3>{_esc(e["name"])} <code>{_esc(iid)}</code></h3>')
     ms = e.get("min_size") or {}
-    minsz = f' · min <b>{ms["w"]}×{ms["h"]}px</b>' if ms.get("w") else ""
+    minsz = ""
+    if ms.get("cols"):
+        bw, bh = render.grid_px(ms["cols"], ms["rows"])
+        pw, ph = render.grid_px(ms["cols"], ms["rows"], "production")
+        minsz = (f' · min <b>{ms["cols"]}×{ms["rows"]} grid</b> '
+                 f'<span class="minpx">{bw}×{bh}px @1280 · {pw}×{ph}px @1920</span>')
     p.append(f'<p class="d-sub">{_esc(", ".join(e["purpose"]))} · {_esc(" / ".join(zones))}{best}{minsz}</p>')
     if applicable:
         p.append('<div class="status">' + "".join(_pill(t, cells.get(t, {})) for t in SCHEMA["tools"]

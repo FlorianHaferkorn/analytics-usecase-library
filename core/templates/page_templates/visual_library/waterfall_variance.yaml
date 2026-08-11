@@ -3,7 +3,7 @@ id: waterfall_variance
 name: Waterfall (variance bridge)
 purpose: [contribution_to_change]
 zone: [analysis]
-min_size: {w: 360, h: 220}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+min_size: {cols: 4, rows: 5}   # grid units — canvas-relative legibility floor (≈395×264px @1280, 592×396px @1920; px derived from layout_grid.yaml)
 best_form_for: null                 # `waterfall_pvm` is the governed best form; this is the generic signed-variance bridge
 alternatives: [waterfall_pvm, waterfall_buildup, deviation_bar]
 

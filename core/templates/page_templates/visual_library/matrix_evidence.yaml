@@ -3,7 +3,7 @@ id: matrix_evidence
 name: Evidence matrix
 purpose: [evidence_detail]
 zone: [detail]
-min_size: {w: 480, h: 280}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
+min_size: {cols: 5, rows: 6}   # grid units — canvas-relative legibility floor (≈497×320px @1280, 746×480px @1920; px derived from layout_grid.yaml)
 best_form_for: evidence_detail
 alternatives: []
 
