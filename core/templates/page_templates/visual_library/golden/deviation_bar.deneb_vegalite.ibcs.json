@@ -1,0 +1,11 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "layer": [
+    { "mark": { "type": "bar", "height": 12, "cornerRadius": 3 },
+      "encoding": {
+        "x": { "field": "gm_vs_plan", "type": "quantitative", "axis": { "title": null }, "scale": { "domainMid": 0 } },
+        "color": { "condition": { "test": "datum['gm_vs_plan'] < 0", "value": "#A4262C" }, "value": "#107C10" } } },
+    { "mark": { "type": "rule", "color": "#201F1E" }, "encoding": { "x": { "datum": 0 } } }
+  ]
+}

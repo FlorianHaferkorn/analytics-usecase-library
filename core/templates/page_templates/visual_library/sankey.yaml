@@ -1,0 +1,75 @@
+# Visual Library entry — sankey  (schema: _schema.yaml)
+id: sankey
+name: Sankey
+purpose: [flow_between_stages]
+zone: [detail]
+min_size: {cols: 5, rows: 6}   # grid units — canvas-relative legibility floor (≈497×320px @1280, 746×480px @1920; px derived from layout_grid.yaml)
+best_form_for: flow_between_stages
+alternatives: []
+
+encoding:
+  flow_width: quantity              # link width = quantity (weaker than bars for compare)
+  nodes: stages
+  guard: few_sorted_nodes           # only when the flow structure is the question
+
+anti_patterns:
+  - sankey_for_precise_comparison   # use bars for that
+  - spaghetti_too_many_crossings
+
+params:
+  nodes: {role: stages, required: true}
+  links: {role: flow, required: true, note: "source, target, value"}
+
+tokens:
+  col_node: color_semantics.neutral # #586472
+  col_link: brand.primary           # #0078D4
+
+canonical_params:
+  field_source: "source"
+  field_target: "target"
+  field_value: "value"
+  col_node: "#586472"
+  col_link: "#0078D4"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sankey">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">PIPELINE FLOW — STAGE to STAGE</text>
+    <path d="M56,48 C150,48 190,60 300,60 L300,96 C190,96 150,120 56,120 Z" fill="#0078D4" fill-opacity="0.35"/>
+    <path d="M56,48 C150,48 190,42 300,42 L300,54 C190,54 150,44 56,44 Z" fill="#0078D4" fill-opacity="0.6"/>
+    <rect x="48" y="40" width="10" height="84" fill="#586472"/>
+    <rect x="300" y="40" width="10" height="60" fill="#586472"/>
+    <text x="44" y="136" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Leads</text><text x="300" y="136" text-anchor="end" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Won</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "Power BI has no native Sankey base visual"
+    use: "the Microsoft/PowerViz Sankey custom visual (AppSource)"
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "curved multi-node flows are impractical as a cell SVG measure"
+    use: "the Sankey custom visual, or Deneb (full Vega)"
+
+  deneb_vegalite:
+    applicable: false
+    reason: "Vega-Lite has no sankey mark"
+    use: "a full Vega spec in Deneb (sankey via linkpath transform), or the native custom visual"
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <Sankey
+        data={sankeyData}
+        width={600}
+        height={400}
+        nodePadding={24}
+        link={ { stroke: "{{col_link}}", strokeOpacity: 0.4 } }
+        node={ { stroke: "{{col_node}}", strokeWidth: 1 } }
+      />
+
+determinism:
+  golden_dir: golden
+  notes: "Recharts has a first-class <Sankey>; Power BI/Deneb delegate (custom visual / full Vega). Situational — flow structure only."

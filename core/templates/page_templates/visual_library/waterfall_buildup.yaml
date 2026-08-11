@@ -1,0 +1,105 @@
+# Visual Library entry — waterfall_buildup  (schema: _schema.yaml)
+id: waterfall_buildup
+name: Waterfall (buildup to total)
+purpose: [contribution_to_change]
+zone: [analysis]
+min_size: {cols: 4, rows: 5}   # grid units — canvas-relative legibility floor (≈395×264px @1280, 592×396px @1920; px derived from layout_grid.yaml)
+best_form_for: null                 # `waterfall_pvm` is the governed best form; this is the additive-buildup variant
+alternatives: [waterfall_pvm, waterfall_variance, stacked_100]
+
+encoding:
+  steps: additive                   # components accumulate from zero to one total
+  direction: single                 # all contributions same sign (no +/- bridge)
+  running_total: connectors
+  anchors: total_only               # the only anchor is the final Total column
+
+anti_patterns:
+  - bridge_without_connectors
+  - mixing_increase_and_decrease    # signed drivers -> use waterfall_pvm / waterfall_variance
+  - too_many_steps                  # group small parts into "Other"
+  - color_beyond_single_series      # a same-sign buildup needs one colour, not a rainbow
+
+params:
+  category: {role: step, type: category, required: true, note: "component parts in a governed order, Total last"}
+  measure:  {role: value, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_step:  color_semantics.brand   # #0078D4 component contributions (single series)
+  col_total: ink                     # #0F2430 the Total anchor
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Revenue Buildup Value"
+  category_entity: "dim_revenue_part"
+  category_prop: "Part"
+  field: "part"
+  field_val: "value"
+  col_step: "#0078D4"
+  col_total: "#0F2430"
+
+preview_svg: |
+  <svg viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Buildup waterfall">
+    <rect width="340" height="160" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">REVENUE BUILDUP — PARTS to TOTAL</text>
+    <rect x="26" y="112" width="44" height="24" fill="#0078D4"/>
+    <rect x="86" y="90" width="44" height="22" fill="#0078D4"/>
+    <rect x="146" y="72" width="44" height="18" fill="#0078D4"/>
+    <rect x="206" y="58" width="44" height="14" fill="#0078D4"/>
+    <rect x="266" y="58" width="44" height="78" fill="#0F2430"/>
+    <line x1="70" y1="112" x2="86" y2="112" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="130" y1="90" x2="146" y2="90" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="190" y1="72" x2="206" y2="72" stroke="#94A0AC" stroke-dasharray="3 2"/><line x1="250" y1="58" x2="266" y2="58" stroke="#94A0AC" stroke-dasharray="3 2"/>
+    <text x="48" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Base</text><text x="108" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">EMEA</text><text x="168" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">AMER</text><text x="228" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">APAC</text><text x="288" y="150" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Total</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "waterfallChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } },
+        "objects": { "sentimentColors": [ { "properties": {
+          "increaseFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_step}}'" } } } } },
+          "totalFill": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_total}}'" } } } } }
+        } } ] }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a multi-step buildup with a running total is not a single-cell micro-chart"
+    use: "powerbi_native (waterfallChart) or the PowerofBI.IBCS build-up UDF (daxlib.org)"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "transform": [
+          { "window": [ { "op": "sum", "field": "{{field_val}}", "as": "cum" } ], "frame": [null, 0] },
+          { "calculate": "datum.cum - datum['{{field_val}}']", "as": "prev" }
+        ],
+        "mark": { "type": "bar", "color": "{{col_step}}" },
+        "encoding": {
+          "x": { "field": "{{field}}", "type": "ordinal", "sort": null, "axis": { "title": null } },
+          "y": { "field": "prev", "type": "quantitative", "axis": { "title": null } },
+          "y2": { "field": "cum" }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <BarChart data={buildupData} width={640} height={300}>
+        <XAxis dataKey="{{field}}" />
+        <YAxis />
+        <Bar dataKey="base" stackId="a" fill="transparent" />
+        <Bar dataKey="delta" stackId="a" fill="{{col_step}}" />
+      </BarChart>
+
+determinism:
+  golden_dir: golden
+  notes: "All-positive buildup: window running-sum (prev/cum) from zero; single series colour, Total as the only anchor. SVG-DAX n/a (full chart)."

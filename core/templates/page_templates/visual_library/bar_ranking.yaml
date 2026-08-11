@@ -1,0 +1,168 @@
+# Visual Library entry — bar_ranking  (schema: _schema.yaml)
+id: bar_ranking
+name: Bar ranking
+purpose: [compare_categories]
+zone: [analysis]
+min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
+best_form_for: compare_categories
+alternatives: [lollipop, bar_absolute, deviation_bar]
+
+encoding:
+  magnitude: length                 # rank 3 — direct length comparison
+  order: worst_first                # sorted; BC-CHART-10 Top-N
+  reference: target_line
+  color: semantic_below_target
+
+anti_patterns:
+  - unsorted_bars
+  - pie_for_comparison
+  - broken_baseline_on_absolute_bar
+  - color_to_separate_equal_categories
+
+params:
+  category: {role: axis, type: category, required: true}
+  measure:  {role: value, required: true}
+  target:   {role: reference, optional: true}
+  entity:   {role: table, default: _Measures}
+  top_n:    {role: limit, default: 20}
+
+tokens:
+  col_above: ink                     # #0F2430 at/above target
+  col_below: color_semantics.negative# #A4262C below target
+  col_ref:   color_semantics.neutral # #94A0AC target reference
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Gross Margin %"
+  category_entity: "dim_org"
+  category_prop: "OrgName"
+  field: "gm"
+  field_cat: "unit"
+  target_val: "44.1"
+  col_above: "#0F2430"
+  col_below: "#A4262C"
+  col_ref: "#94A0AC"
+
+preview_svg: |
+  <svg viewBox="0 0 340 168" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar ranking">
+    <rect width="340" height="168" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">GM vs TARGET — WORST FIRST</text>
+    <line x1="200" y1="38" x2="200" y2="160" stroke="#586472" stroke-width="1.3"/>
+    <text x="16" y="56" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Nord</text><rect x="96" y="47" width="104" height="12" rx="2" fill="#A4262C"/>
+    <text x="16" y="80" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Ost</text><rect x="119" y="71" width="81" height="12" rx="2" fill="#A4262C"/>
+    <text x="16" y="104" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Sued</text><rect x="148" y="95" width="52" height="12" rx="2" fill="#A4262C"/>
+    <text x="16" y="128" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">West</text><rect x="169" y="119" width="31" height="12" rx="2" fill="#A4262C"/>
+    <text x="16" y="152" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Nordics</text><rect x="200" y="143" width="38" height="12" rx="2" fill="#107C10"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "clusteredBarChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
+          "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true }
+        } },
+        "objects": {
+          "valueAxis": [ { "properties": { "start": { "expr": { "Literal": { "Value": "0D" } } } } } ],
+          "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]
+        }
+      }
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _v = [{{measure}}]
+      VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( '{{category_entity}}'[{{category_prop}}] ), [{{measure}}] ), REMOVEFILTERS ( '{{category_entity}}'[{{category_prop}}] ) )
+      VAR _w = DIVIDE ( _v, _max ) * 100
+      VAR _col = IF ( _v < {{target_val}} / 100, "{{col_below}}", "{{col_above}}" )
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<rect x='0' y='2' width='" & _w & "' height='10' fill='" & _col & "'/>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "layer": [
+          { "mark": { "type": "bar" },
+            "encoding": {
+              "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "x", "axis": { "title": null } },
+              "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } },
+              "color": { "condition": { "test": "datum['{{field}}'] < {{target_val}}", "value": "{{col_below}}" }, "value": "{{col_above}}" } } },
+          { "mark": { "type": "rule", "color": "{{col_ref}}", "strokeDash": [4, 3] }, "encoding": { "x": { "datum": {{target_val}} } } }
+        ]
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <BarChart layout="vertical" data={[...data].sort((a, b) => a.{{field}} - b.{{field}})} width={640} height={320}>
+        <XAxis type="number" />
+        <YAxis type="category" dataKey="{{field_cat}}" width={90} />
+        <ReferenceLine x={{{target_val}}} stroke="{{col_ref}}" strokeDasharray="4 3" />
+        <Bar dataKey="{{field}}">
+          {data.map((e, i) => (
+            <Cell key={i} fill={e.{{field}} < {{target_val}} ? "{{col_below}}" : "{{col_above}}"} />
+          ))}
+        </Bar>
+      </BarChart>
+
+# --- notation profile: IBCS (structural override — the overlapped comparison bar) ---
+# House ranks AC against a target LINE. IBCS reads AC against PY at a glance by
+# overlaying a narrow solid AC bar on a wider lighter PY reference bar (scenario
+# discipline from color_semantics.ibcs_scenario: AC solid, PY tint). STRUCTURAL —
+# adds a PY series and replaces the templates (vs the token overlay of deviation_bar@ibcs).
+profiles:
+  ibcs:
+    note: "IBCS overlapped bar: solid AC over a lighter, wider PY reference; reads AC-vs-PY directly instead of AC-vs-target-line."
+    param_overrides:
+      py_field: "gm_py"
+      col_ac: "#0F2430"
+      col_py: "#C8CED5"
+    realizations:
+      powerbi_native:
+        applicable: false
+        reason: "native clusteredBar cannot overlay a narrower AC bar on a wider PY reference bar"
+        use: "PowerofBI.IBCS overlapped-bar UDF (daxlib.org) or Inforiver"
+      powerbi_svg_dax:
+        applicable: false
+        reason: "overlapped AC/PY bars across all categories is a full chart, not a single-cell micro-chart"
+        use: "deneb_vegalite, or PowerofBI.IBCS"
+      deneb_vegalite:
+        ext: json
+        template: |
+          {
+            "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+            "data": { "name": "dataset" },
+            "encoding": { "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
+            "layer": [
+              { "mark": { "type": "bar", "color": "{{col_py}}", "size": 18 }, "encoding": { "x": { "field": "{{py_field}}", "type": "quantitative", "axis": { "title": null } } } },
+              { "mark": { "type": "bar", "color": "{{col_ac}}", "size": 9 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative" } } }
+            ]
+          }
+      web_recharts:
+        ext: jsx
+        template: |
+          <BarChart layout="vertical" data={[...data].sort((a, b) => b.{{field}} - a.{{field}})} width={640} height={320}>
+            <XAxis type="number" />
+            <YAxis type="category" dataKey="{{field_cat}}" width={90} />
+            <Bar dataKey="{{py_field}}" fill="{{col_py}}" barSize={16} />
+            <Bar dataKey="{{field}}" fill="{{col_ac}}" barSize={9} />
+          </BarChart>
+
+  print_safe:
+    note: "CVAA / print-safe: the colour-blind-safe blue/orange variance pair replaces red/green so direction survives colour-vision-deficiency and greyscale print (always pair with an icon or sign)."
+    param_overrides:
+      col_below: "#F7630C"
+
+determinism:
+  golden_dir: golden
+  notes: "Worst-first via ascending sort; semantic colour below target. IBCS profile overlays solid AC on a lighter PY (Vega true-overlaps via layer+size; Recharts groups AC/PY). Same {{param}} fill; golden-frozen."

@@ -1,0 +1,97 @@
+# Visual Library entry — lollipop  (schema: _schema.yaml)
+id: lollipop
+name: Lollipop
+purpose: [compare_categories]
+zone: [analysis]
+min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
+best_form_for: null                 # low-ink alternative to bar_ranking (sparse categories)
+alternatives: [bar_ranking, bar_absolute]
+
+encoding:
+  magnitude: position               # dot on a common scale (rank 1-2)
+  stem: reference_to_zero
+  color: semantic_below_target
+
+anti_patterns:
+  - lollipop_for_many_dense_categories
+  - hidden_zoomed_axis
+
+params:
+  category: {role: axis, type: category, required: true}
+  measure:  {role: value, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_dot:   ink                     # #0F2430
+  col_below: color_semantics.negative# #A4262C
+  col_stem:  surface.row_alt         # #D6DCE2
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Gross Margin %"
+  category_entity: "dim_org"
+  category_prop: "OrgName"
+  field: "gm"
+  field_cat: "unit"
+  target_val: "44.1"
+  col_dot: "#0F2430"
+  col_below: "#A4262C"
+  col_stem: "#D6DCE2"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lollipop">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">GM % BY UNIT</text>
+    <line x1="272" y1="36" x2="272" y2="140" stroke="#94A0AC" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <text x="16" y="52" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Nordics</text><line x1="90" y1="48" x2="316" y2="48" stroke="#D6DCE2" stroke-width="2"/><circle cx="316" cy="48" r="4.5" fill="#0F2430"/>
+    <text x="16" y="76" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">CEE</text><line x1="90" y1="72" x2="296" y2="72" stroke="#D6DCE2" stroke-width="2"/><circle cx="296" cy="72" r="4.5" fill="#0F2430"/>
+    <text x="16" y="100" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">West</text><line x1="90" y1="96" x2="235" y2="96" stroke="#EAD6D6" stroke-width="2"/><circle cx="235" cy="96" r="4.5" fill="#A4262C"/>
+    <text x="16" y="124" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Nord</text><line x1="90" y1="120" x2="150" y2="120" stroke="#EAD6D6" stroke-width="2"/><circle cx="150" cy="120" r="4.5" fill="#A4262C"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "Power BI has no native lollipop base visual"
+    use: "SVG-DAX (a lollipop cell in a matrix) or Deneb"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _v = [{{measure}}]
+      VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( '{{category_entity}}'[{{category_prop}}] ), [{{measure}}] ), REMOVEFILTERS ( '{{category_entity}}'[{{category_prop}}] ) )
+      VAR _x = DIVIDE ( _v, _max ) * 92 + 4
+      VAR _col = IF ( _v < {{target_val}} / 100, "{{col_below}}", "{{col_dot}}" )
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<line x1='4' y1='7' x2='" & _x & "' y2='7' stroke='{{col_stem}}' stroke-width='2'/>"
+                & "<circle cx='" & _x & "' cy='7' r='4' fill='" & _col & "'/>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "encoding": { "y": { "field": "{{field_cat}}", "type": "nominal", "sort": "-x", "axis": { "title": null } } },
+        "layer": [
+          { "mark": { "type": "rule", "color": "{{col_stem}}", "size": 2 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative" }, "x2": { "datum": 0 } } },
+          { "mark": { "type": "circle", "size": 90 }, "encoding": { "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } }, "color": { "condition": { "test": "datum['{{field}}'] < {{target_val}}", "value": "{{col_below}}" }, "value": "{{col_dot}}" } } }
+        ]
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <ComposedChart layout="vertical" data={[...data].sort((a, b) => a.{{field}} - b.{{field}})} width={480} height={300}>
+        <XAxis type="number" />
+        <YAxis type="category" dataKey="{{field_cat}}" width={80} />
+        <Bar dataKey="{{field}}" barSize={2} fill="{{col_stem}}" />
+        <Scatter dataKey="{{field}}" fill="{{col_dot}}" />
+      </ComposedChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Dot = position on a common (zoomed) scale; stem to zero; far less ink than bars. No native lollipop."

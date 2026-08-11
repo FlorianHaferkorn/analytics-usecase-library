@@ -1,0 +1,8 @@
+{
+  "visualType": "scatterChart",
+  "query": { "queryState": {
+    "X": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Price Realization %" } }, "queryRef": "_Measures.Price Realization %" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" } ] },
+    "Details": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_product" } }, "Property": "ProductCode" } }, "queryRef": "dim_product.ProductCode" } ] }
+  } }
+}

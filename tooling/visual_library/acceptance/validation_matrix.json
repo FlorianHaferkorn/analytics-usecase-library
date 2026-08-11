@@ -1,0 +1,592 @@
+{
+  "scenarios": [
+    "typical",
+    "negatives",
+    "single_category",
+    "many_categories",
+    "extremes"
+  ],
+  "legend": {
+    "rendered": "actually rasterized / rendered headlessly (proven) \u2014 see per-cell method",
+    "structural": "byte-for-byte + structural gates pass; live render gated (see live_gate)",
+    "n/a": "the idiom does not realize this tool (see reason)"
+  },
+  "idioms": {
+    "deviation_bar": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "line": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "bar_ranking": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "waterfall_pvm": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a full multi-step bridge with a running total is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "area_stacked": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "multi-series stacked area is not a single-cell micro-chart (a single-series area sparkline is \u2014 see `line`)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "indexed_line": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "matrix_evidence": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "Vega-Lite is not a table tool"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no table primitive"
+      }
+    },
+    "scatter": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a two-axis scatter is a full chart, not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "donut": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "arc-path geometry in DAX is impractical"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "bullet": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native bullet base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "slope": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "stacked_100": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "multi-series normalised stacking is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "lollipop": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native lollipop base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "histogram": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no auto-bin mark"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a full distribution is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "boxplot": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native box-plot base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "requires five quartile measures + an axis; not a simple substitution template"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no box-plot primitive"
+      }
+    },
+    "small_multiples": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "small multiples is a field-well option, not a distinct visual JSON idiom"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a grid of panels is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "no single small-multiples component"
+      }
+    },
+    "sankey": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native Sankey base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "curved multi-node flows are impractical as a cell SVG measure"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "Vega-Lite has no sankey mark"
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "decomposition_tree": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "an interactive AI drill tree is not a cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "an interactive drill tree is not a declarative Vega idiom"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no decomposition-tree component"
+      }
+    },
+    "bar_absolute": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "waterfall_buildup": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a multi-step buildup with a running total is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "waterfall_variance": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a two-anchor variance bridge with a running total is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+      }
+    },
+    "kpi_card_spark": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "the modern cardVisual shows a value + reference-label delta, but has no embedded sparkline \u2014 the value+spark+delta composite is a single SVG"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a KPI card composite (headline value + trailing spark + delta chip) is a card LAYOUT, not one Vega-Lite view; Deneb draws the spark, the value/delta are card chrome"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "a KPI card is HTML (the value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
+      }
+    },
+    "kpi_card_bullet": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "no native bullet, and the cardVisual has no embedded bullet track \u2014 the value+bullet+delta composite is a single SVG"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "the value + delta chip are card chrome; Deneb draws the bullet only, not the headline layout"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "a KPI card is HTML (value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
+      }
+    },
+    "kpi_card_sparkbar": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "the cardVisual has no embedded column-trend track \u2014 the value+trend+delta composite is a single SVG"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "the value + delta chip are card chrome; Deneb draws the column trend only, not the headline layout"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "a KPI card is HTML (value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
+      }
+    }
+  }
+}

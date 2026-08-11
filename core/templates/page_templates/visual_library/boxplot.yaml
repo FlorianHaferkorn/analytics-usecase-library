@@ -1,0 +1,82 @@
+# Visual Library entry — boxplot  (schema: _schema.yaml)
+id: boxplot
+name: Box plot
+purpose: [distribution]
+zone: [analysis]
+min_size: {cols: 3, rows: 4}   # grid units — canvas-relative legibility floor (≈292×208px @1280, 438×312px @1920; px derived from layout_grid.yaml)
+best_form_for: null                 # distribution across groups (histogram for one variable)
+alternatives: [histogram]
+
+encoding:
+  box: q1_to_q3
+  median: line
+  whiskers: extent_1_5_iqr
+  by: category                      # one box per group
+
+anti_patterns:
+  - boxplot_without_labelled_quartiles_in_a_brief
+  - too_many_groups
+
+params:
+  measure:  {role: value, type: quantitative, required: true}
+  category: {role: group, type: category, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_box: brand.primary            # #0078D4
+  col_med: ink                      # #0F2430
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Unit Margin"
+  category_entity: "dim_product"
+  category_prop: "Category"
+  field: "margin"
+  field_cat: "category"
+  col_box: "#0078D4"
+  col_med: "#0F2430"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Box plot">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">UNIT MARGIN — BY CATEGORY</text>
+    <g stroke="#0078D4" stroke-width="1.5" fill="none">
+      <line x1="80" y1="52" x2="80" y2="118"/><rect x="66" y="70" width="28" height="34" fill="#DCEAF6"/><line x1="66" y1="88" x2="94" y2="88" stroke="#0F2430" stroke-width="2"/>
+      <line x1="170" y1="44" x2="170" y2="110"/><rect x="156" y="60" width="28" height="30" fill="#DCEAF6"/><line x1="156" y1="72" x2="184" y2="72" stroke="#0F2430" stroke-width="2"/>
+      <line x1="260" y1="60" x2="260" y2="126"/><rect x="246" y="80" width="28" height="30" fill="#DCEAF6"/><line x1="246" y1="98" x2="274" y2="98" stroke="#0F2430" stroke-width="2"/>
+    </g>
+    <text x="80" y="140" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Fashion</text><text x="170" y="140" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Home</text><text x="260" y="140" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">Electro</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "Power BI has no native box-plot base visual"
+    use: "deneb_vegalite (boxplot mark), or a box-plot custom visual"
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "requires five quartile measures + an axis; not a simple substitution template"
+    use: "the DaxLib.SVG boxplot helper (daxlib.org) or Deneb"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "boxplot", "extent": 1.5, "color": "{{col_box}}" },
+        "encoding": {
+          "y": { "field": "{{field_cat}}", "type": "nominal", "axis": { "title": null } },
+          "x": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } }
+        }
+      }
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts has no box-plot primitive"
+    use: "a custom SVG/D3 box-plot, or a charting lib with box-plot support (ECharts, Plotly)"
+
+determinism:
+  golden_dir: golden
+  notes: "Vega-Lite has a first-class boxplot mark (extent 1.5 IQR). The other tracks delegate."

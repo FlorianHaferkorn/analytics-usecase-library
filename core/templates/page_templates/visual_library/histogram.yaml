@@ -1,0 +1,76 @@
+# Visual Library entry — histogram  (schema: _schema.yaml)
+id: histogram
+name: Histogram
+purpose: [distribution]
+zone: [analysis]
+min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
+best_form_for: distribution
+alternatives: [boxplot]
+
+encoding:
+  x: binned_quantitative
+  y: count
+  mark: bar_no_gap
+
+anti_patterns:
+  - bars_with_gaps_imply_categories
+  - too_few_or_too_many_bins
+
+params:
+  measure: {role: value, type: quantitative, required: true, note: "the raw values to bin"}
+  entity:  {role: table, default: _Measures}
+
+tokens:
+  col_bar: brand.primary            # #0078D4
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Order Value"
+  field: "value"
+  field_bin: "bin"
+  col_bar: "#0078D4"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Histogram">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="18" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">ORDER VALUE — DISTRIBUTION</text>
+    <line x1="24" y1="130" x2="320" y2="130" stroke="#E1E7EE"/>
+    <rect x="26" y="118" width="30" height="12" fill="#0078D4"/><rect x="58" y="98" width="30" height="32" fill="#0078D4"/><rect x="90" y="72" width="30" height="58" fill="#0078D4"/><rect x="122" y="54" width="30" height="76" fill="#0078D4"/><rect x="154" y="66" width="30" height="64" fill="#0078D4"/><rect x="186" y="86" width="30" height="44" fill="#0078D4"/><rect x="218" y="104" width="30" height="26" fill="#0078D4"/><rect x="250" y="116" width="30" height="14" fill="#0078D4"/><rect x="282" y="124" width="30" height="6" fill="#0078D4"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "Power BI has no auto-bin mark"
+    use: "create a bin group on the field, then a columnChart of the count (or use Deneb)"
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a full distribution is not a single-cell micro-chart"
+    use: "deneb_vegalite, or the DaxLib.SVG histogram helper"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "bar", "color": "{{col_bar}}" },
+        "encoding": {
+          "x": { "field": "{{field}}", "type": "quantitative", "bin": { "maxbins": 20 }, "axis": { "title": null } },
+          "y": { "aggregate": "count", "axis": { "title": null } }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <BarChart data={bins} width={480} height={280} barCategoryGap={0}>
+        <XAxis dataKey="{{field_bin}}" />
+        <YAxis />
+        <Bar dataKey="count" fill="{{col_bar}}" />
+      </BarChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Vega-Lite bins natively (bin:true); Recharts needs precomputed bins (no gaps). Native has no auto-bin."

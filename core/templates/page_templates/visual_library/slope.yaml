@@ -1,0 +1,107 @@
+# Visual Library entry — slope  (schema: _schema.yaml)
+id: slope
+name: Slope chart
+purpose: [time_comparison]
+zone: [analysis]
+min_size: {cols: 3, rows: 5}   # grid units — canvas-relative legibility floor (≈292×264px @1280, 438×396px @1920; px derived from layout_grid.yaml)
+best_form_for: null                 # two-period comparison variant of `line`
+alternatives: [line, small_multiples, bar_ranking]
+
+encoding:
+  x: two_periods                    # e.g. PY -> CY, or Start -> End
+  y: quantitative
+  mark: line_per_entity             # the slope = the change
+  color: semantic_by_direction
+
+anti_patterns:
+  - many_periods_use_line
+  - crossing_spaghetti_too_many_series
+
+params:
+  category: {role: axis, type: category, required: true, note: "exactly two periods"}
+  measure:  {role: value, required: true}
+  series:   {role: series, type: category, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_line: color_semantics.neutral # #94A0AC (per-series recolour at gen time)
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Gross Margin %"
+  category_entity: "dim_period"
+  category_prop: "Period"
+  series_entity: "dim_org"
+  series_prop: "OrgName"
+  field: "gm"
+  field_period: "period"
+  field_series: "unit"
+  col_line: "#94A0AC"
+
+preview_svg: |
+  <svg viewBox="0 0 340 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Slope">
+    <rect width="340" height="140" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#586472">GM % — PY to CY</text>
+    <line x1="70" y1="40" x2="70" y2="124" stroke="#E1E7EE"/><line x1="270" y1="40" x2="270" y2="124" stroke="#E1E7EE"/>
+    <line x1="70" y1="60" x2="270" y2="96" stroke="#A4262C" stroke-width="2"/><circle cx="70" cy="60" r="3.5" fill="#A4262C"/><circle cx="270" cy="96" r="3.5" fill="#A4262C"/>
+    <line x1="70" y1="88" x2="270" y2="70" stroke="#107C10" stroke-width="2"/><circle cx="70" cy="88" r="3.5" fill="#107C10"/><circle cx="270" cy="70" r="3.5" fill="#107C10"/>
+    <text x="70" y="136" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">PY</text><text x="270" y="136" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="9" fill="#94A0AC">CY</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "lineChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Series": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{series_entity}}" } }, "Property": "{{series_prop}}" } }, "queryRef": "{{series_entity}}.{{series_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } }
+      }
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _S = ADDCOLUMNS ( VALUES ( '{{category_entity}}'[{{category_prop}}] ), "@v", [{{measure}}] )
+      VAR _min = MINX ( _S, [@v] )
+      VAR _max = MAXX ( _S, [@v] )
+      VAR _first = MINX ( _S, '{{category_entity}}'[{{category_prop}}] )
+      VAR _last  = MAXX ( _S, '{{category_entity}}'[{{category_prop}}] )
+      VAR _y1 = INT ( 30 - 30 * DIVIDE ( MINX ( FILTER ( _S, '{{category_entity}}'[{{category_prop}}] = _first ), [@v] ) - _min, _max - _min ) )
+      VAR _y2 = INT ( 30 - 30 * DIVIDE ( MINX ( FILTER ( _S, '{{category_entity}}'[{{category_prop}}] = _last ), [@v] ) - _min, _max - _min ) )
+      RETURN
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30'>"
+            & "<line x1='6' y1='" & _y1 & "' x2='94' y2='" & _y2 & "' stroke='{{col_line}}' stroke-width='2'/>"
+            & "<circle cx='6' cy='" & _y1 & "' r='3' fill='{{col_line}}'/><circle cx='94' cy='" & _y2 & "' r='3' fill='{{col_line}}'/>"
+            & "</svg>"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "line", "point": true },
+        "encoding": {
+          "x": { "field": "{{field_period}}", "type": "ordinal", "axis": { "title": null } },
+          "y": { "field": "{{field}}", "type": "quantitative", "scale": { "zero": false }, "axis": { "title": null } },
+          "color": { "field": "{{field_series}}", "type": "nominal", "legend": null }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <LineChart data={data} width={360} height={260}>
+        <XAxis dataKey="{{field_period}}" />
+        <YAxis domain={['auto', 'auto']} />
+        {series.map((s, i) => (
+          <Line key={i} type="linear" dataKey={s} stroke="{{col_line}}" dot />
+        ))}
+      </LineChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Exactly two periods; the slope is the change. All four tools (SVG-DAX draws a 2-point slope in a cell)."
