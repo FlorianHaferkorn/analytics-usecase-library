@@ -1,12 +1,15 @@
 """
 test_showcase_delta_scope.py — die Erfolgsmeldung muss ihre Grenze nennen.
 
-Gemessener Anlass (06.08.2026): der Vacuum-Lauf in PR #424 entfernte eine parquet-Datei
-mit echten Dimensionszeilen und schrieb den Delta-Log konsistent nach. `dim_product`
-endet seither bei `ProductKey` 4996, drei Faktentabellen referenzieren 4997-4999.
-`check_showcase_delta.py` meldete danach **„OK - 46 tables consistent"**, und genau so
-wurde es gelesen: als Entwarnung fuer die Daten. Es war eine richtige Messung auf die
-falsche Frage; gefunden hat den Defekt `check_data_model.py` (ORPHAN-FK).
+Gemessener Anlass (06.08.2026): `dim_product` endete bei `ProductKey` 4996, drei
+Faktentabellen referenzierten 4997-4999. `check_showcase_delta.py` meldete
+**„OK - 46 tables consistent"**, und genau so wurde es gelesen: als Entwarnung fuer die
+Daten. Es war eine richtige Messung auf die falsche Frage; gefunden hat den Defekt
+`check_data_model.py` (ORPHAN-FK). Der Vacuum-Lauf aus PR #424 galt zunaechst als
+Ursache — nachgemessen am 11.08.2026 hat er nur physisch entfernt, was der Log seit dem
+05.02.2026 per `remove` verabschiedet hatte; geschrumpft ist die Dimension damals, durch
+eine Ganzzahldivision im Generator. Das aendert nichts an der Lehre unten: eine
+Erfolgsmeldung, die ihre Grenze nicht nennt, wird als Gesamt-Entwarnung gelesen.
 
 Der Fix war nicht, eine zweite FK-Pruefung zu bauen — die gibt es (Tool-Reuse) —,
 sondern die Erfolgsmeldung ehrlich zu machen. Gelesen wird die Zeile, nicht der

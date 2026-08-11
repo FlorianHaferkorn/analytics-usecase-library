@@ -155,7 +155,9 @@ def _files(path: Path) -> list[Path]:
     ORPHAN-FK-Pruefung **gruen** gehalten — die Fakten fuehren dieselben Schluessel in 238 ebenso
     verwaisten Dateien. Nach dem Vacuum aus #424 fiel die Maske auf der Dimensionsseite weg, und
     dasselbe Datenpaar meldete drei harte Befunde. Weder das Gruen davor noch das Rot danach
-    beschrieb die aktiven Daten: dort ist der hoechste ProductKey auf beiden Seiten 4996.
+    beschrieb die aktiven Daten: dort endete der hoechste ProductKey auf beiden Seiten bei 4996.
+    (Die Lucke selbst ist inzwischen an der Wurzel geschlossen — der Generator verlor vier
+    Produkte an eine Ganzzahldivision; ``dim_product`` traegt wieder 5000 Schluessel.)
 
     Log gegen Platte ist nicht Aufgabe dieses Gates — das prueft ``scripts/check_showcase_delta.py``
     und sagt in seiner eigenen Ausgabe, dass die fachliche FK-Pruefung hier liegt. Deshalb

@@ -193,8 +193,14 @@ def generate_dim_product(cfg: dict, dim_def: dict) -> DataFrame:
         gm_lo, gm_hi = cat_cfg["gross_margin_range"]
         subcategories = [f"{category} Basic", f"{category} Premium"]
 
-        for subcat in subcategories:
-            for _ in range(count // len(subcategories)):
+        # Dieselbe Ganzzahldivision hat in generate_gold_layer_contract_v2.py vier Produkte
+        # verschluckt und ProductKey 4999 zur Waise gemacht. Hier geht sie heute auf (zwei
+        # Subkategorien, gerade Stueckzahlen) — der Rest wird trotzdem verteilt, damit die
+        # Falle nicht auf die naechste ungerade Konfiguration wartet.
+        je_subcat, rest = divmod(count, len(subcategories))
+
+        for sub_idx, subcat in enumerate(subcategories):
+            for _ in range(je_subcat + (rest if sub_idx == len(subcategories) - 1 else 0)):
                 if category == "Consumer Electronics":
                     list_price = random.uniform(max_price * 0.3, max_price)
                 elif category == "Home & Living":
