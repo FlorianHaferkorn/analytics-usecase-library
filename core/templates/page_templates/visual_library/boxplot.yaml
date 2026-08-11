@@ -3,6 +3,7 @@ id: boxplot
 name: Box plot
 purpose: [distribution]
 zone: [analysis]
+min_size: {w: 280, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # distribution across groups (histogram for one variable)
 alternatives: [histogram]
 

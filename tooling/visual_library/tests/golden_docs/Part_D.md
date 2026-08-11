@@ -59,132 +59,132 @@
 ### Idioms
 
 #### `deviation_bar` — Deviation bar
-- **Purpose:** deviation_from_target, compare_categories · **zone:** pulse / analysis · **best form for:** `deviation_from_target`
+- **Purpose:** deviation_from_target, compare_categories · **zone:** pulse / analysis · **best form for:** `deviation_from_target` · **min size:** 240×56px
 - **Avoid:** color_of_number_for_magnitude, decorative_tint, gauge
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/deviation_bar.yaml` (+ `golden/deviation_bar.*`)
 
 #### `line` — Trend line
-- **Purpose:** time_comparison · **zone:** analysis · **best form for:** `time_comparison`
+- **Purpose:** time_comparison · **zone:** analysis · **best form for:** `time_comparison` · **min size:** 320×180px
 - **Avoid:** bars_for_time, autoscale_without_reference, dual_axis_no_reason, legend_when_direct_label_works
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/line.yaml` (+ `golden/line.*`)
 
 #### `bar_ranking` — Bar ranking
-- **Purpose:** compare_categories · **zone:** analysis · **best form for:** `compare_categories`
+- **Purpose:** compare_categories · **zone:** analysis · **best form for:** `compare_categories` · **min size:** 320×200px
 - **Avoid:** unsorted_bars, pie_for_comparison, broken_baseline_on_absolute_bar, color_to_separate_equal_categories
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bar_ranking.yaml` (+ `golden/bar_ranking.*`)
 
 #### `waterfall_pvm` — Waterfall bridge (PVM)
-- **Purpose:** contribution_to_change · **zone:** analysis · **best form for:** `contribution_to_change`
+- **Purpose:** contribution_to_change · **zone:** analysis · **best form for:** `contribution_to_change` · **min size:** 360×220px
 - **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, unlabelled_zoomed_axis
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a full multi-step bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS waterfall UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/waterfall_pvm.yaml` (+ `golden/waterfall_pvm.*`)
 
 #### `area_stacked` — Stacked area
-- **Purpose:** time_comparison · **zone:** analysis
+- **Purpose:** time_comparison · **zone:** analysis · **min size:** 320×200px
 - **Avoid:** stacked_bars_for_composition_over_time, too_many_series, inconsistent_series_colours
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (multi-series stacked area is not a single-cell micro-chart (a single-series area sparkline is — see `line`) → powerbi_native (stackedAreaChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/area_stacked.yaml` (+ `golden/area_stacked.*`)
 
 #### `indexed_line` — Indexed line
-- **Purpose:** time_comparison · **zone:** analysis
+- **Purpose:** time_comparison · **zone:** analysis · **min size:** 320×180px
 - **Avoid:** mixing_indexed_and_absolute_axes, hidden_base_period, autoscale_without_base_line
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/indexed_line.yaml` (+ `golden/indexed_line.*`)
 
 #### `matrix_evidence` — Evidence matrix
-- **Purpose:** evidence_detail · **zone:** detail · **best form for:** `evidence_detail`
+- **Purpose:** evidence_detail · **zone:** detail · **best form for:** `evidence_detail` · **min size:** 480×280px
 - **Avoid:** unsorted_rows, long_bar_list_instead_of_table, too_many_columns
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (Vega-Lite is not a table tool → powerbi_native (tableEx) with an SVG-DAX data-bar column) · Web · Recharts n/a (Recharts has no table primitive → an HTML <table> with CSS data-bar cells (div width = normalised deviation))
 - **Code:** `visual_library/matrix_evidence.yaml` (+ `golden/matrix_evidence.*`)
 
 #### `scatter` — Scatter plot
-- **Purpose:** correlation · **zone:** analysis · **best form for:** `correlation`
+- **Purpose:** correlation · **zone:** analysis · **best form for:** `correlation` · **min size:** 280×260px
 - **Avoid:** line_for_correlation, overplotting_without_opacity, dual_axis_no_reason
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a two-axis scatter is a full chart, not a single-cell micro-chart → powerbi_native (scatterChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/scatter.yaml` (+ `golden/scatter.*`)
 
 #### `donut` — Donut
-- **Purpose:** part_to_whole · **zone:** analysis · **best form for:** `part_to_whole`
+- **Purpose:** part_to_whole · **zone:** analysis · **best form for:** `part_to_whole` · **min size:** 300×200px
 - **Avoid:** pie_or_donut_gt_4, many_thin_slivers, 3d_or_exploded
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (arc-path geometry in DAX is impractical → the DaxLib.SVG donut UDF (daxlib.org), or powerbi_native (donutChart) / Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/donut.yaml` (+ `golden/donut.*`)
 
 #### `bullet` — Bullet graph
-- **Purpose:** deviation_from_target · **zone:** pulse / analysis
+- **Purpose:** deviation_from_target · **zone:** pulse / analysis · **min size:** 240×56px
 - **Avoid:** gauge_instead, colour_bands_instead_of_greys
 - **Tools:** Power BI · native n/a (Power BI has no native bullet base visual → deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Notation profiles:** `house_default` · `ibcs` · `print_safe` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/bullet.yaml` (+ `golden/bullet.*`)
 
 #### `slope` — Slope chart
-- **Purpose:** time_comparison · **zone:** analysis
+- **Purpose:** time_comparison · **zone:** analysis · **min size:** 240×220px
 - **Avoid:** many_periods_use_line, crossing_spaghetti_too_many_series
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/slope.yaml` (+ `golden/slope.*`)
 
 #### `stacked_100` — 100% stacked bar
-- **Purpose:** part_to_whole · **zone:** analysis
+- **Purpose:** part_to_whole · **zone:** analysis · **min size:** 320×200px
 - **Avoid:** too_many_series, stacked_absolute_when_share_is_the_point, inconsistent_series_colours
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (multi-series normalised stacking is not a single-cell micro-chart → powerbi_native (hundredPercentStackedColumnChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/stacked_100.yaml` (+ `golden/stacked_100.*`)
 
 #### `lollipop` — Lollipop
-- **Purpose:** compare_categories · **zone:** analysis
+- **Purpose:** compare_categories · **zone:** analysis · **min size:** 300×200px
 - **Avoid:** lollipop_for_many_dense_categories, hidden_zoomed_axis
 - **Tools:** Power BI · native n/a (Power BI has no native lollipop base visual → SVG-DAX (a lollipop cell in a matrix) or Deneb) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/lollipop.yaml` (+ `golden/lollipop.*`)
 
 #### `histogram` — Histogram
-- **Purpose:** distribution · **zone:** analysis · **best form for:** `distribution`
+- **Purpose:** distribution · **zone:** analysis · **best form for:** `distribution` · **min size:** 300×200px
 - **Avoid:** bars_with_gaps_imply_categories, too_few_or_too_many_bins
 - **Tools:** Power BI · native n/a (Power BI has no auto-bin mark → create a bin group on the field, then a columnChart of the count (or use Deneb)) · Power BI · SVG-DAX n/a (a full distribution is not a single-cell micro-chart → deneb_vegalite, or the DaxLib.SVG histogram helper) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/histogram.yaml` (+ `golden/histogram.*`)
 
 #### `boxplot` — Box plot
-- **Purpose:** distribution · **zone:** analysis
+- **Purpose:** distribution · **zone:** analysis · **min size:** 280×200px
 - **Avoid:** boxplot_without_labelled_quartiles_in_a_brief, too_many_groups
 - **Tools:** Power BI · native n/a (Power BI has no native box-plot base visual → deneb_vegalite (boxplot mark), or a box-plot custom visual) · Power BI · SVG-DAX n/a (requires five quartile measures + an axis; not a simple substitution template → the DaxLib.SVG boxplot helper (daxlib.org) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (Recharts has no box-plot primitive → a custom SVG/D3 box-plot, or a charting lib with box-plot support (ECharts, Plotly))
 - **Code:** `visual_library/boxplot.yaml` (+ `golden/boxplot.*`)
 
 #### `small_multiples` — Small multiples
-- **Purpose:** time_comparison · **zone:** analysis
+- **Purpose:** time_comparison · **zone:** analysis · **min size:** 480×280px
 - **Avoid:** independent_y_scales_per_panel, too_many_panels
 - **Tools:** Power BI · native n/a (small multiples is a field-well option, not a distinct visual JSON idiom → a lineChart with the field placed in the Small multiples well (shared Y scale)) · Power BI · SVG-DAX n/a (a grid of panels is not a single-cell micro-chart → deneb_vegalite (facet) or the native Small multiples well) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (no single small-multiples component → map the series to a CSS grid of <LineChart> with a shared YAxis domain)
 - **Code:** `visual_library/small_multiples.yaml` (+ `golden/small_multiples.*`)
 
 #### `sankey` — Sankey
-- **Purpose:** flow_between_stages · **zone:** detail · **best form for:** `flow_between_stages`
+- **Purpose:** flow_between_stages · **zone:** detail · **best form for:** `flow_between_stages` · **min size:** 480×320px
 - **Avoid:** sankey_for_precise_comparison, spaghetti_too_many_crossings
 - **Tools:** Power BI · native n/a (Power BI has no native Sankey base visual → the Microsoft/PowerViz Sankey custom visual (AppSource)) · Power BI · SVG-DAX n/a (curved multi-node flows are impractical as a cell SVG measure → the Sankey custom visual, or Deneb (full Vega)) · Deneb / Vega-Lite n/a (Vega-Lite has no sankey mark → a full Vega spec in Deneb (sankey via linkpath transform), or the native custom visual) · Web · Recharts ✓
 - **Code:** `visual_library/sankey.yaml` (+ `golden/sankey.*`)
 
 #### `decomposition_tree` — Decomposition tree
-- **Purpose:** driver_breakdown · **zone:** detail · **best form for:** `driver_breakdown`
+- **Purpose:** driver_breakdown · **zone:** detail · **best form for:** `driver_breakdown` · **min size:** 560×360px
 - **Avoid:** used_as_a_static_exhibit, too_many_explain_by_dims
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (an interactive AI drill tree is not a cell micro-chart → powerbi_native (decompositionTreeVisual)) · Deneb / Vega-Lite n/a (an interactive drill tree is not a declarative Vega idiom → powerbi_native (decompositionTreeVisual)) · Web · Recharts n/a (Recharts has no decomposition-tree component → a custom D3 tree with sorted bars per level)
 - **Code:** `visual_library/decomposition_tree.yaml` (+ `golden/decomposition_tree.*`)
 
 #### `bar_absolute` — Bar (absolute magnitude)
-- **Purpose:** compare_categories · **zone:** analysis
+- **Purpose:** compare_categories · **zone:** analysis · **min size:** 320×200px
 - **Avoid:** broken_baseline_on_absolute_bar, color_to_separate_equal_categories, pie_for_comparison, unsorted_bars
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/bar_absolute.yaml` (+ `golden/bar_absolute.*`)
 
 #### `waterfall_buildup` — Waterfall (buildup to total)
-- **Purpose:** contribution_to_change · **zone:** analysis
+- **Purpose:** contribution_to_change · **zone:** analysis · **min size:** 360×220px
 - **Avoid:** bridge_without_connectors, mixing_increase_and_decrease, too_many_steps, color_beyond_single_series
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a multi-step buildup with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS build-up UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/waterfall_buildup.yaml` (+ `golden/waterfall_buildup.*`)
 
 #### `waterfall_variance` — Waterfall (variance bridge)
-- **Purpose:** contribution_to_change · **zone:** analysis
+- **Purpose:** contribution_to_change · **zone:** analysis · **min size:** 360×220px
 - **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, hiding_the_two_anchor_totals
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a two-anchor variance bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS variance-bridge UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
 - **Code:** `visual_library/waterfall_variance.yaml` (+ `golden/waterfall_variance.*`)

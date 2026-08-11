@@ -135,8 +135,10 @@ def render_part_d() -> str:
         e = render.load_entry(iid)
         zone = " / ".join(e["zone"]) if isinstance(e["zone"], list) else str(e["zone"])
         out.append(f"#### `{iid}` — {e['name']}")
+        ms = e.get("min_size") or {}
         out.append(f"- **Purpose:** {', '.join(e['purpose'])} · **zone:** {zone}"
-                   + (f" · **best form for:** `{e['best_form_for']}`" if e.get("best_form_for") else ""))
+                   + (f" · **best form for:** `{e['best_form_for']}`" if e.get("best_form_for") else "")
+                   + (f" · **min size:** {ms['w']}×{ms['h']}px" if ms.get("w") else ""))
         out.append(f"- **Avoid:** {', '.join(e['anti_patterns'])}")
         tool_bits = []
         for tool in SCHEMA["tools"]:
@@ -571,7 +573,9 @@ def _detail(iid: str, matrix: dict) -> str:
     p.append(f'<div class="d-viz">{e["preview_svg"]}</div>' if e.get("preview_svg") else '<div class="d-viz"></div>')
     p.append('<div>')
     p.append(f'<h3>{_esc(e["name"])} <code>{_esc(iid)}</code></h3>')
-    p.append(f'<p class="d-sub">{_esc(", ".join(e["purpose"]))} · {_esc(" / ".join(zones))}{best}</p>')
+    ms = e.get("min_size") or {}
+    minsz = f' · min <b>{ms["w"]}×{ms["h"]}px</b>' if ms.get("w") else ""
+    p.append(f'<p class="d-sub">{_esc(", ".join(e["purpose"]))} · {_esc(" / ".join(zones))}{best}{minsz}</p>')
     if applicable:
         p.append('<div class="status">' + "".join(_pill(t, cells.get(t, {})) for t in SCHEMA["tools"]
                                                     if t in applicable) + '</div>')

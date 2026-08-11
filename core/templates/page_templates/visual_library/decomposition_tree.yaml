@@ -3,6 +3,7 @@ id: decomposition_tree
 name: Decomposition tree
 purpose: [driver_breakdown]
 zone: [detail]
+min_size: {w: 560, h: 360}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: driver_breakdown
 alternatives: []
 

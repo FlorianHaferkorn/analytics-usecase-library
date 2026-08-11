@@ -3,6 +3,7 @@ id: bullet
 name: Bullet graph
 purpose: [deviation_from_target]
 zone: [pulse, analysis]
+min_size: {w: 240, h: 56}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # alternative to deviation_bar when qualitative ranges matter
 alternatives: [deviation_bar, ibcs_overlapped]
 

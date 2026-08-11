@@ -3,6 +3,7 @@ id: bar_ranking
 name: Bar ranking
 purpose: [compare_categories]
 zone: [analysis]
+min_size: {w: 320, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: compare_categories
 alternatives: [lollipop, bar_absolute, deviation_bar]
 

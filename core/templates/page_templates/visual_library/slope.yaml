@@ -3,6 +3,7 @@ id: slope
 name: Slope chart
 purpose: [time_comparison]
 zone: [analysis]
+min_size: {w: 240, h: 220}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # two-period comparison variant of `line`
 alternatives: [line, small_multiples, bar_ranking]
 

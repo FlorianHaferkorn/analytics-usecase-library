@@ -3,6 +3,7 @@ id: bar_absolute
 name: Bar (absolute magnitude)
 purpose: [compare_categories]
 zone: [analysis]
+min_size: {w: 320, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # `bar_ranking` is the governed best form; this is the no-reference variant
 alternatives: [bar_ranking, lollipop]
 

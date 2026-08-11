@@ -3,6 +3,7 @@ id: sankey
 name: Sankey
 purpose: [flow_between_stages]
 zone: [detail]
+min_size: {w: 480, h: 320}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: flow_between_stages
 alternatives: []
 

@@ -3,6 +3,7 @@ id: scatter
 name: Scatter plot
 purpose: [correlation]
 zone: [analysis]
+min_size: {w: 280, h: 260}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: correlation
 alternatives: []
 

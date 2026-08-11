@@ -3,6 +3,7 @@ id: stacked_100
 name: 100% stacked bar
 purpose: [part_to_whole]
 zone: [analysis]
+min_size: {w: 320, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # part-to-whole across categories (donut is best for a single whole)
 alternatives: [donut, area_stacked]
 

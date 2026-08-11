@@ -3,6 +3,7 @@ id: lollipop
 name: Lollipop
 purpose: [compare_categories]
 zone: [analysis]
+min_size: {w: 300, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # low-ink alternative to bar_ranking (sparse categories)
 alternatives: [bar_ranking, bar_absolute]
 

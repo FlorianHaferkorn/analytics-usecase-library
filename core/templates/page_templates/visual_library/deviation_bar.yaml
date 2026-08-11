@@ -3,6 +3,7 @@ id: deviation_bar
 name: Deviation bar
 purpose: [deviation_from_target, compare_categories]
 zone: [pulse, analysis]
+min_size: {w: 240, h: 56}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: deviation_from_target
 alternatives: [bullet]   # the IBCS reading (retired id `ibcs_overlapped`) is now `deviation_bar` under profile: ibcs
 
