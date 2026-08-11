@@ -26,6 +26,14 @@ import re
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
+# Dokumentierte Grenzen der OneLake-Sicherheit (MS Learn, `fabric/onelake/security/*`, gelesen
+# 11.08.2026). Sie stehen hier als Konstanten, weil ein Schnitt je Wert genau an ihnen zerbricht:
+# eine Domaene mit 300 Niederlassungen laesst sich so nicht abbilden, und das muss VOR dem Bauen
+# auffallen, nicht beim PUT.
+ONELAKE_MAX_ROLES_PER_ITEM = 250
+ONELAKE_MAX_MEMBERS_PER_ROLE = 500
+ONELAKE_MAX_PREDICATE_CHARS = 1000
+
 
 def _dirslug(name: str) -> str:
     return _NONWORD_RE.sub("-", (name or "").lower()).strip("-")
@@ -248,7 +256,105 @@ def emit_onelake_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None
     payload, cls_todo = _onelake_security_roles(bp, lakehouse, sensitivity, catalog,
                                                 _with_todo=True)
     return {"governance/onelake_data_access_roles.json": payload,
-            "governance/_ONELAKE_SECURITY.md": _onelake_roles_doc(cls_todo, catalog)}
+            "governance/_ONELAKE_SECURITY.md": _onelake_roles_doc(cls_todo, catalog, bp)}
+
+
+def _cls_columns(tables: list[str], sensitivity: dict, cols_by_table: dict) -> tuple[list, list]:
+    """CLS-Einschraenkungen für eine Tabellenmenge — und die Punkte, die ohne Katalog offen bleiben.
+
+    OneLake-CLS **erlaubt die sichtbaren** Spalten (nicht gelistete sind null). Um eine sensible
+    Spalte zu verstecken, wird also das Komplement erlaubt — und das braucht die volle Spaltenliste.
+    Ohne governten Katalog wird hier nichts geraten, sondern ein Offenpunkt notiert.
+    """
+    cols: list[dict] = []
+    todo: list[str] = []
+    for t in tables:
+        scols = sorted(sensitivity.get(t, []) or [])
+        if not scols:
+            continue
+        full = cols_by_table.get(t)
+        if full:
+            visible = [c for c in full if c not in set(scols)]
+            cols.append({"tablePath": f"/Tables/{t}", "columnNames": visible,
+                         "columnEffect": "Permit", "columnAction": ["Read"]})
+        else:
+            todo.append(f"{t}: hide {', '.join(scols)} (needs the full column list — supply the "
+                        f"governed catalog to auto-compute the Permit-complement)")
+    return cols, todo
+
+
+def _sql_literal(value: str) -> str:
+    """T-SQL-Zeichenkette mit verdoppeltem Apostroph. Ein Wert wie ``O'Brien`` bricht das
+    Praedikat sonst syntaktisch — und ein kaputtes Praedikat ist in OneLake deny-all, also ein
+    Ausfall, der wie funktionierende Sicherheit aussieht."""
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) -> tuple[list, list]:
+    """Je Wert des Schnitts **eine** OneLake-Rolle — die einzige Bauform, die OneLake hergibt.
+
+    Der Grund steht nicht in unserer Konvention, sondern im Dienst: das Praedikat einer OneLake-
+    Rolle ist statisches T-SQL. Es gibt kein Gegenstueck zu ``USERPRINCIPALNAME()``, also laesst
+    sich der Aufrufer nicht lesen und ein einziger Ausdruck kann den Schnitt nicht abbilden. Was
+    bleibt, ist Materialisierung: eine Rolle je Wert, eine Entra-Gruppe je Wert.
+
+    Zwei Dinge werden dabei mitgeliefert, weil sie sonst erst beim PUT auffallen: RLS und CLS
+    derselben Tabelle liegen in **einer** Rolle (getrennt fuehrt die Abfrage zum Fehler), und die
+    dokumentierten Grenzen werden geprueft statt vorausgesetzt.
+    """
+    rs = domain.get("row_security") or {}
+    spalte = rs.get("column")
+    werte = list(rs.get("values") or [])
+    tabellen = sorted(rs.get("protected_products") or domain.get("data_products") or [])
+    muster = rs.get("group_pattern")
+    dident = _ident(domain.get("name", ""))
+    ungeschuetzt = sorted(set(domain.get("data_products") or []) - set(tabellen))
+
+    todo: list[str] = []
+    if len(werte) > ONELAKE_MAX_ROLES_PER_ITEM:
+        todo.append(f"{domain.get('name')}: {len(werte)} Werte im Schnitt `{spalte}` ergeben "
+                    f"{len(werte)} Rollen — ueber der dokumentierten Grenze von "
+                    f"{ONELAKE_MAX_ROLES_PER_ITEM} je Item. Der Schnitt muss vergroebert werden "
+                    f"(Gruppierung der Werte) oder auf mehrere Items verteilt.")
+    if ungeschuetzt:
+        todo.append(f"{domain.get('name')}: nicht vom Schnitt erfasst und damit fuer jede Rolle "
+                    f"unsichtbar: {', '.join(ungeschuetzt)}. Wer sie sehen soll, braucht eine "
+                    f"zweite Rolle ohne Zeilenbedingung — oder sie gehoeren in protected_products.")
+
+    rollen = []
+    for wert in werte:
+        rows = [{"tablePath": f"/Tables/{t}",
+                 "value": f"select * from {t} where [{spalte}] = {_sql_literal(wert)}"}
+                for t in tabellen]
+        zu_lang = [r["tablePath"] for r in rows if len(r["value"]) > ONELAKE_MAX_PREDICATE_CHARS]
+        if zu_lang:
+            todo.append(f"{domain.get('name')}/{wert}: Praedikat laenger als "
+                        f"{ONELAKE_MAX_PREDICATE_CHARS} Zeichen fuer {', '.join(zu_lang)}.")
+        constraints: dict = {"rows": rows} if rows else {}
+        cols, cls_todo = _cls_columns(tabellen, sensitivity, cols_by_table)
+        todo += cls_todo
+        if cols:
+            constraints["columns"] = cols
+        gruppe = (muster or "").replace("{value}", str(wert)) if muster else ""
+        rule = {
+            "effect": "Permit",
+            "permission": [
+                {"attributeName": "Path", "attributeValueIncludedIn": [f"/Tables/{t}" for t in tabellen]},
+                {"attributeName": "Action", "attributeValueIncludedIn": ["Read"]},
+            ],
+        }
+        if constraints:
+            rule["constraints"] = constraints
+        rollen.append({
+            "name": f"read_{dident}_{_ident(str(wert))}",
+            "kind": "Policy",
+            "decisionRules": [rule],
+            "members": {"microsoftEntraMembers": [{
+                "objectId": f"<VERIFY: Entra group objectId of {gruppe or f'the group for {wert}'}>",
+                "objectType": "Group",
+                "tenantId": "<TENANT_GUID>"}]},
+        })
+    return rollen, todo
 
 
 def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None,
@@ -280,6 +386,14 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
     for d in _domains(bp):
         dident = _ident(d["name"])
         tables = sorted(d.get("data_products", []))
+        if d.get("row_security"):
+            # Der Schnitt ist erklaert — dann ist eine Rolle je Wert die einzige Bauform, die
+            # OneLake-Sicherheit hergibt (statisches Praedikat, kein Aufrufer). Sie ersetzt die
+            # deny-all-Rolle dieser Domaene; beides nebeneinander waere widerspruechlich.
+            wert_rollen, wert_todo = _row_security_roles(d, sensitivity, cols_by_table)
+            roles += wert_rollen
+            cls_todo += wert_todo
+            continue
         rule: dict = {
             "effect": "Permit",
             "permission": [
@@ -298,19 +412,8 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
         # CLS: OneLake CLS *permits visible* columns (unlisted → null), so to HIDE the sensitive
         # ones we Permit the complement. This needs the full column list (governed catalog); without
         # it we can't compute the complement → record a TODO rather than guess.
-        cols = []
-        for t in tables:
-            scols = sorted(sensitivity.get(t, []) or [])
-            if not scols:
-                continue
-            full = cols_by_table.get(t)
-            if full:
-                visible = [c for c in full if c not in set(scols)]
-                cols.append({"tablePath": f"/Tables/{t}", "columnNames": visible,
-                             "columnEffect": "Permit", "columnAction": ["Read"]})
-            else:
-                cls_todo.append(f"{t}: hide {', '.join(scols)} (needs the full column list — supply the "
-                                f"governed catalog to auto-compute the Permit-complement)")
+        cols, todo = _cls_columns(tables, sensitivity, cols_by_table)
+        cls_todo += todo
         if cols:
             constraints["columns"] = cols
         if constraints:
@@ -333,7 +436,41 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
     return (body, cls_todo) if _with_todo else body
 
 
-def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None) -> str:
+def _row_security_doc(bp: dict) -> list[str]:
+    """Der erklaerte Zeilenschnitt — was gebaut wurde und was daran Handarbeit bleibt."""
+    schnitte = [(d.get("name"), d["row_security"]) for d in _domains(bp) if d.get("row_security")]
+    if not schnitte:
+        return []
+    lines = [
+        "## Zeilenschnitt: eine Rolle je Wert", "",
+        "Fuer diese Domaenen ist der Schnitt erklaert, deshalb steht im Rumpf **kein** `1=0`,",
+        "sondern je Wert eine eigene Rolle mit fertigem Praedikat. Das ist keine Stilfrage: das",
+        "Praedikat einer OneLake-Rolle ist statisches T-SQL ohne Zugriff auf den Aufrufer — es gibt",
+        "kein Gegenstueck zu `USERPRINCIPALNAME()`. Ein Ausdruck kann den Schnitt also nicht",
+        "abbilden; er muss materialisiert werden.", "",
+        "| Domaene | Spalte | Rollen | Geschuetzte Tabellen | Entra-Gruppe je Wert |",
+        "|---|---|---|---|---|",
+    ]
+    for name, rs in schnitte:
+        lines.append(f"| {name} | `{rs.get('column')}` | {len(rs.get('values') or [])} | "
+                     f"{len(rs.get('protected_products') or [])} | "
+                     f"`{rs.get('group_pattern') or '— (Muster nicht gesetzt)'}` |")
+    lines += [
+        "", "**Was daran Handarbeit bleibt.** Die Gruppen werden benannt, nicht angelegt — jede",
+        "`objectId` im Rumpf ist ein `<VERIFY: …>`-Platzhalter, weil das Anlegen von Entra-Gruppen",
+        "ein Tenant-Vorgang mit eigenem Verantwortlichen ist. Und die Schnittspalte muss",
+        "**physisch in jeder geschuetzten Tabelle** stehen: OneLake-Sicherheit kennt keine",
+        "tabellenuebergreifende Zeilensicherheit, ein Praedikat auf einer Dimension erreicht ihre",
+        "Fakten nicht. Wer die Spalte in der Transformation wegoptimiert, hebt den Schnitt auf,",
+        "ohne dass hier etwas rot wird.", "",
+        f"Grenzen, gegen die dieser Rumpf geprueft ist: {ONELAKE_MAX_ROLES_PER_ITEM} Rollen je Item, "
+        f"{ONELAKE_MAX_MEMBERS_PER_ROLE} Mitglieder je Rolle, {ONELAKE_MAX_PREDICATE_CHARS} Zeichen "
+        "je Praedikat.", "",
+    ]
+    return lines
+
+
+def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None, bp: dict | None = None) -> str:
     """Die Erklärung zu ``onelake_data_access_roles.json`` — als Dokument, nicht als Kommentar
     in einem JSON-Rumpf, der abgeschickt werden soll."""
     lines = [
@@ -364,8 +501,12 @@ def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None) -> str:
         "Workspace-Rollen umgehen RLS/CLS vollständig — siehe `_WORKSPACE_STRATEGIE.md`.",
         "",
     ]
+    lines += _row_security_doc(bp or {})
     if cls_todo:
-        lines += ["## Offene CLS-Punkte", ""] + [f"- {t}" for t in cls_todo] + [""]
+        # Nicht mehr nur CLS: seit dem Zeilenschnitt landen hier auch gerissene OneLake-Grenzen
+        # und Produkte, die kein Schnitt erfasst. Eine Liste, weil beides dasselbe ist — etwas,
+        # das vor dem PUT entschieden werden muss.
+        lines += ["## Offene Punkte vor dem PUT", ""] + [f"- {t}" for t in dict.fromkeys(cls_todo)] + [""]
     vorschlag = _rls_proposal_comment(catalog).replace("// ", "").replace("//", "").strip()
     if vorschlag:
         lines += ["## RLS-Vorschlag", "", vorschlag, ""]

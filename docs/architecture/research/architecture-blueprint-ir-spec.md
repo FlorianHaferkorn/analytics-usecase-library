@@ -421,6 +421,14 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                         "reporting",
                         "mixed"
                       ]
+                    },
+                    "stage": {
+                      "enum": [
+                        "dev",
+                        "test",
+                        "prod"
+                      ],
+                      "description": "The lifecycle stage this workspace belongs to, set when governance.stages materialises more than one. A Fabric deployment pipeline moves content BETWEEN workspaces, so a stage is a workspace of its own — not a flag on a shared one."
                     }
                   }
                 }
@@ -429,6 +437,39 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                 "type": "array",
                 "items": {
                   "type": "string"
+                }
+              },
+              "row_security": {
+                "type": "object",
+                "description": "The row-security cut of this domain: the column that separates who sees what. Declared here because it is an architecture fact — it decides which columns must survive into every protected gold table — and because OneLake security cannot derive it: its predicates are static T-SQL with no caller identity to read, so the cut has to be materialised one role per value.",
+                "required": [
+                  "column",
+                  "values"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "column": {
+                    "type": "string",
+                    "description": "The cut column. It must exist PHYSICALLY in every protected table: OneLake security has no multi-table RLS and no relationship traversal, so a predicate on a dimension does not reach its facts."
+                  },
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "One role and one Entra group per value. Fabric's documented limits bound this: 250 data-access roles per item, 500 members per role, predicate at most 1000 characters."
+                  },
+                  "protected_products": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The gold products the cut applies to. Absent or empty means every data_product of the domain."
+                  },
+                  "group_pattern": {
+                    "type": "string",
+                    "description": "Naming pattern for the Entra group per value, with {value} as placeholder (e.g. 'sg-analytics-region-{value}'). The group is NAMED, never created — creating groups is a tenant act with an owner outside this delivery."
+                  }
                 }
               },
               "publishing": {
@@ -671,9 +712,44 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
           "enum": [
             "per_domain",
             "central_prep_domain_consumption",
-            "single"
+            "single",
+            "per_layer"
           ],
-          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint."
+          "description": "How mesh.domains[].workspaces are cut. Read by derive_blueprint. 'per_layer' gives each medallion layer its own workspace, which is Microsoft's own recommendation for the medallion deployment model ('we recommend that you create each lakehouse in its own, separate workspace') and the only cut that makes the raw layer invisible to business users through workspace membership alone."
+        },
+        "workspace_prefix": {
+          "type": "string",
+          "description": "Prefix for derived workspace names; 'ws-' when unset. Customers arrive with a house convention, and until 11.08.2026 the prefix was hardcoded — so every generated name had to be renamed by hand afterwards, at which point it no longer matched the apply plan that referenced it."
+        },
+        "workspace_layers": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "bronze",
+              "silver",
+              "gold",
+              "reporting"
+            ]
+          },
+          "description": "Which layers get their own workspace under workspace_strategy 'per_layer'; all four when unset. Shortening the list is how a delivery whose raw layer disappears — sources replaced by logic inside Fabric — stays expressible without touching this schema."
+        },
+        "workspace_layer_names": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Overrides the name segment a layer contributes to its workspace name (e.g. reporting -> 'report'). The role stays canonical so every downstream emitter keeps working; only the name changes. Without this, reproducing a customer's existing convention meant renaming after generation — and a renamed workspace no longer matches the apply plan that was meant to create it."
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "dev",
+              "test",
+              "prod"
+            ]
+          },
+          "description": "Lifecycle stages materialised as separate workspaces. Absent means one unstaged set. Named here rather than at the emit boundary because a deployment pipeline moves content between workspaces: the stage decides how many workspaces exist, which is an architecture fact, not a rendering option."
         },
         "rationale": {
           "type": "string",
