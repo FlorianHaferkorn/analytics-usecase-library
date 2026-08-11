@@ -3,6 +3,7 @@ id: indexed_line
 name: Indexed line
 purpose: [time_comparison]
 zone: [analysis]
+min_size: {w: 320, h: 180}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # variant of `line` for relative growth vs a base = 100
 alternatives: [line, small_multiples, slope]
 

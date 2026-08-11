@@ -3,6 +3,7 @@ id: donut
 name: Donut
 purpose: [part_to_whole]
 zone: [analysis]
+min_size: {w: 300, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: part_to_whole
 alternatives: [stacked_100]
 

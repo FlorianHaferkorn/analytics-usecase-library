@@ -3,6 +3,7 @@ id: waterfall_variance
 name: Waterfall (variance bridge)
 purpose: [contribution_to_change]
 zone: [analysis]
+min_size: {w: 360, h: 220}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # `waterfall_pvm` is the governed best form; this is the generic signed-variance bridge
 alternatives: [waterfall_pvm, waterfall_buildup, deviation_bar]
 

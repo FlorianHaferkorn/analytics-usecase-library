@@ -281,3 +281,13 @@ def test_frozen_validation_matrix_is_current():
     assert render_acceptance.compute_validation_matrix() == render_acceptance.load_matrix(), (
         "validation_matrix.json is stale — re-freeze with `render_acceptance.py matrix`"
     )
+
+
+def test_every_idiom_declares_a_legible_min_size():
+    """Governance: every idiom must declare min_size {w,h} in px — the legibility floor below
+    which its labels/marks become unreadable (feeds the artifact + can clamp the generator)."""
+    for iid in _implemented():
+        ms = render.load_entry(iid).get("min_size")
+        assert isinstance(ms, dict), f"{iid}: no min_size"
+        assert isinstance(ms.get("w"), int) and isinstance(ms.get("h"), int), f"{iid}: min_size w/h must be ints"
+        assert ms["w"] >= 100 and ms["h"] >= 40, f"{iid}: min_size {ms} below a sane legibility floor"

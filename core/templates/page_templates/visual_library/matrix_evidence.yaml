@@ -3,6 +3,7 @@ id: matrix_evidence
 name: Evidence matrix
 purpose: [evidence_detail]
 zone: [detail]
+min_size: {w: 480, h: 280}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: evidence_detail
 alternatives: []
 

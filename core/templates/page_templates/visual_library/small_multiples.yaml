@@ -3,6 +3,7 @@ id: small_multiples
 name: Small multiples
 purpose: [time_comparison]
 zone: [analysis]
+min_size: {w: 480, h: 280}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # many series over time without spaghetti — one panel each
 alternatives: [line, slope, area_stacked]
 

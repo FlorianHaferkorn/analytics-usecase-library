@@ -3,6 +3,7 @@ id: histogram
 name: Histogram
 purpose: [distribution]
 zone: [analysis]
+min_size: {w: 300, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: distribution
 alternatives: [boxplot]
 

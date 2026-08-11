@@ -3,6 +3,7 @@ id: area_stacked
 name: Stacked area
 purpose: [time_comparison]
 zone: [analysis]
+min_size: {w: 320, h: 200}   # minimum legible render size (px) — below this, labels/marks fall under the legibility floor
 best_form_for: null                 # composition-over-time variant; `line` is the level best form
 alternatives: [line, small_multiples, indexed_line]
 
