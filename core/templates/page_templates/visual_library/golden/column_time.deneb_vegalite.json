@@ -1,0 +1,9 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "mark": { "type": "bar", "color": "#0078D4" },
+  "encoding": {
+    "x": { "field": "month", "type": "ordinal", "axis": { "title": null, "labelAngle": 0 } },
+    "y": { "field": "count", "type": "quantitative", "axis": { "title": null } }
+  }
+}

@@ -169,7 +169,7 @@ _SVG_DAX_VALS = {
 # Recharts renders in a React runtime (not Python). Its proof is the committed Node harness
 # acceptance/render_recharts.mjs — a real React + Recharts headless render of every golden
 # (27/27 produce a populated <svg>). Recorded here as verified out-of-pytest.
-_RECHARTS_METHOD = "react-harness (acceptance/render_recharts.mjs) — 27/27 goldens render a populated <svg>"
+_RECHARTS_METHOD = "react-harness (acceptance/render_recharts.mjs) — 29/29 goldens render a populated <svg>"
 # PBIR is a Power BI visual CONFIG, not a rendering format: there is no headless renderer for it.
 # Its live proof is a Power BI Desktop load (acceptance/CHECKLIST.md).
 _NATIVE_GATE = "Power BI Desktop — PBIR is a visual config, no headless renderer exists"

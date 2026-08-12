@@ -8,16 +8,16 @@
 
 | Purpose | Question | Best idiom | Zone | Candidates |
 |---|---|---|---|---|
-| **time_comparison** | How is X developing over time — and against plan? | `line` | analysis | `line` · `area_stacked` · `small_multiples` · `indexed_line` · `slope` |
+| **time_comparison** | How is X developing over time — and against plan? | `line` | analysis | `line` · `column_time` · `area_stacked` · `small_multiples` · `indexed_line` · `slope` |
 | **deviation_from_target** | Are we above/below plan or target — by how much? | `deviation_bar` | pulse / analysis | `deviation_bar` · `bullet` · `deviation_bar@ibcs` |
-| **compare_categories** | Which categories lead or lag — where should attention focus? | `bar_ranking` | analysis | `bar_ranking` · `lollipop` · `bar_absolute` |
+| **compare_categories** | Which categories lead or lag — where should attention focus? | `bar_ranking` | analysis | `bar_ranking` · `lollipop` · `bar_absolute` · `dumbbell` |
 | **contribution_to_change** | What moved the number from A to B — which drivers? | `waterfall_pvm` | analysis | `waterfall_pvm` · `waterfall_buildup` · `waterfall_variance` · `waterfall_pvm@ibcs` |
-| **part_to_whole** | What is the share of the whole (<= 4 parts)? | `donut` | analysis | `donut` · `stacked_100` |
+| **part_to_whole** | What is the share of the whole (<= 4 parts)? | `donut` | analysis | `donut` · `stacked_100` · `bar_stacked` |
 | **correlation** | How do two continuous variables relate? | `scatter` | analysis | `scatter` |
 | **flow_between_stages** | How does quantity flow between stages — where does it leak? | `sankey` | detail | `sankey` |
 | **driver_breakdown** | Which dimension drives the number? (interactive) | `decomposition_tree` | detail | `decomposition_tree` |
 | **distribution** | What is the spread / median / outliers of a variable? | `histogram` | analysis | `histogram` · `boxplot` |
-| **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` · `matrix_sparkline` · `matrix_bullet` · `matrix_delta_pill` |
+| **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` · `matrix_sparkline` · `matrix_bullet` · `matrix_delta_pill` · `column_time` · `dumbbell` · `bar_stacked` |
 | **value_verdict** | What is the headline value and its verdict? | `kpi_card_spark` | pulse | `kpi_card_spark` · `kpi_card_bullet` · `kpi_card_sparkbar` |
 
 **Deny (never emit):** `pie_gt_4` · `three_d` · `gauge` · `radar` · `dual_axis_no_reason` · `color_as_decoration` · `powerbi_smart_narrative`.
@@ -59,6 +59,9 @@
 | `matrix_sparkline` | — | rendered ✓ | — | — |
 | `matrix_bullet` | — | rendered ✓ | — | — |
 | `matrix_delta_pill` | — | rendered ✓ | — | — |
+| `column_time` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
+| `dumbbell` | — | rendered ✓ | rendered ✓ 5/5 | — |
+| `bar_stacked` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
 
 **Legend.** `rendered ✓` = actually rendered headlessly (Deneb shows the scenario count) · `structural · gated` = deterministic + structurally valid, live render needs its host (Desktop) · `—` = tool n/a.
 
@@ -230,3 +233,21 @@
 - **Avoid:** pill_without_the_number, tint_not_from_severity_tints, color_as_decoration
 - **Tools:** Power BI · native n/a (an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx). Native conditional 'icon + font colour' is a partial form → matrix_evidence (tableEx) + this SVG-DAX column; or native conditional font colour + KPI icon) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell pill inside a table is not a Vega-Lite view → SVG-DAX column; or a Deneb text mark with a conditional fill for a standalone board) · Web · Recharts n/a (Recharts is a charting library, not for text/pill table cells → an HTML <table> cell: a span with severity-tint background + the signed value)
 - **Code:** `visual_library/matrix_delta_pill.yaml` (+ `golden/matrix_delta_pill.*`)
+
+#### `column_time` — Column chart over time
+- **Purpose:** time_comparison · **zone:** analysis · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
+- **Avoid:** line_for_few_discrete_periods, column_for_many_continuous_points
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a full column-over-time chart is not a single-cell micro-chart → kpi_card_sparkbar for the in-card column trend; powerbi_native / Deneb for the full chart) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/column_time.yaml` (+ `golden/column_time.*`)
+
+#### `dumbbell` — Dumbbell (before / after)
+- **Purpose:** compare_categories · **zone:** analysis · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
+- **Avoid:** dumbbell_for_one_value, too_many_categories
+- **Tools:** Power BI · native n/a (Power BI has no native dumbbell base visual → SVG-DAX (a dumbbell cell in a matrix) or Deneb (layered rule + two points)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite ✓ · Web · Recharts n/a (a dumbbell needs a custom connector shape between two series — not a stock Recharts primitive → SVG-DAX cell, Deneb, or a Recharts ScatterChart with a custom <Line> segment layer)
+- **Code:** `visual_library/dumbbell.yaml` (+ `golden/dumbbell.*`)
+
+#### `bar_stacked` — Stacked bar (absolute)
+- **Purpose:** part_to_whole · **zone:** analysis · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
+- **Avoid:** too_many_series, stack_when_comparing_parts, normalize_when_totals_matter
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (multi-series absolute stacking is not a single-cell micro-chart → powerbi_native (stackedColumnChart) or Deneb) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Code:** `visual_library/bar_stacked.yaml` (+ `golden/bar_stacked.*`)
