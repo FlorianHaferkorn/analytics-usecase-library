@@ -1,0 +1,80 @@
+# Visual Library entry — matrix_sparkline  (schema: _schema.yaml)
+id: matrix_sparkline
+name: Matrix column · sparkline
+purpose: [evidence_detail]
+zone: [detail]
+min_size: {cols: 5, rows: 4}   # grid units — the HOST tableEx/matrix floor (the cell chart is per-row); px derived from layout_grid.yaml
+best_form_for: null
+alternatives: [line, matrix_evidence]
+
+encoding:
+  trend: sparkline_line             # a per-row micro trend over time, in the cell
+  scope: per_row_category           # one tiny line per matrix row (its own min/max)
+
+anti_patterns:
+  - axis_labels_in_a_sparkline      # a cell sparkline is context, not a labelled chart
+  - line_when_periods_are_discrete
+
+params:
+  measure:   {role: value, required: true}
+  category:  {role: row, type: category, required: true}
+  date:      {role: axis, type: temporal, required: true}
+  entity:    {role: table, default: _Measures}
+
+tokens:
+  col_line: ink                      # #0F2430 trend
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Gross Margin %"
+  category_entity: "dim_product"
+  category_prop: "Category"
+  date_entity: "dim_date"
+  date_prop: "Date"
+  field: "gm"
+  col_line: "#0F2430"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matrix sparkline column">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">CATEGORY</text><text x="220" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">12-MONTH TREND</text>
+    <line x1="16" y1="32" x2="324" y2="32" stroke="#E1E7EE"/>
+    <text x="20" y="54" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Fashion</text><polyline fill="none" stroke="#0F2430" stroke-width="1.5" points="220,54 240,50 260,52 280,44 300,48 320,40"/>
+    <text x="20" y="86" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Home</text><polyline fill="none" stroke="#0F2430" stroke-width="1.5" points="220,82 240,86 260,80 280,84 300,78 320,82"/>
+    <text x="20" y="118" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Electro</text><polyline fill="none" stroke="#0F2430" stroke-width="1.5" points="220,120 240,112 260,116 280,108 300,110 320,104"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "this is an in-cell column MEASURE (ImageUrl), not a standalone visual — the table that hosts it is matrix_evidence (tableEx)"
+    use: "matrix_evidence (tableEx) + this SVG-DAX column, image height ~24px"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( '{{date_entity}}'[{{date_prop}}] ), DATESINPERIOD ( '{{date_entity}}'[{{date_prop}}], MAX ( '{{date_entity}}'[{{date_prop}}] ), -12, MONTH ) ), "@v", [{{measure}}] )
+      VAR _min = MINX ( _S, [@v] )
+      VAR _max = MAXX ( _S, [@v] )
+      VAR _xmin = MINX ( _S, '{{date_entity}}'[{{date_prop}}] )
+      VAR _xmax = MAXX ( _S, '{{date_entity}}'[{{date_prop}}] )
+      VAR _pts = CONCATENATEX ( _S, INT ( 100 * DIVIDE ( '{{date_entity}}'[{{date_prop}}] - _xmin, _xmax - _xmin ) ) & "," & INT ( 24 - 22 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", '{{date_entity}}'[{{date_prop}}] )
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 26'>"
+                & "<polyline fill='none' stroke='{{col_line}}' stroke-width='1.5' points='" & _pts & "'/>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    applicable: false
+    reason: "a per-row cell chart inside a table is not a Vega-Lite view"
+    use: "the whole trend as a standalone chart is `line` in Deneb; the cell column is SVG-DAX"
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts has no table cell primitive"
+    use: "an HTML <table> with a small Recharts `line` per row"
+
+determinism:
+  golden_dir: golden
+  notes: "Per-row micro-trend for a tableEx column (ImageUrl). Each cell autoscales to its own row; no axis labels (context, not a chart)."

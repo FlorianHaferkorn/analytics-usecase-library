@@ -587,6 +587,60 @@
         "status": "n/a",
         "reason": "a KPI card is HTML (value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
       }
+    },
+    "matrix_sparkline": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "this is an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the table that hosts it is matrix_evidence (tableEx)"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a per-row cell chart inside a table is not a Vega-Lite view"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no table cell primitive"
+      }
+    },
+    "matrix_bullet": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the host table is matrix_evidence (tableEx)"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a per-row cell chart inside a table is not a Vega-Lite view"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no table cell primitive"
+      }
+    },
+    "matrix_delta_pill": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the host table is matrix_evidence (tableEx). Native conditional 'icon + font colour' is a partial form"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a per-row cell pill inside a table is not a Vega-Lite view"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts is a charting library, not for text/pill table cells"
+      }
     }
   }
 }
