@@ -1,0 +1,10 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "mark": { "type": "bar" },
+  "encoding": {
+    "x": { "field": "region", "type": "nominal", "axis": { "title": null } },
+    "y": { "field": "sales", "type": "quantitative", "stack": "zero", "axis": { "title": null } },
+    "color": { "field": "part", "type": "nominal", "scale": { "range": ["#0078D4", "#008575", "#EF6950"] }, "legend": { "title": null } }
+  }
+}

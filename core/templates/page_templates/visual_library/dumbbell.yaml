@@ -1,0 +1,93 @@
+# Visual Library entry — dumbbell  (schema: _schema.yaml)
+id: dumbbell
+name: Dumbbell (before / after)
+purpose: [compare_categories]
+zone: [analysis]
+min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml
+best_form_for: null
+alternatives: [bar_ranking, lollipop, deviation_bar]
+
+encoding:
+  two_points: position_start_end    # two positions per row (e.g. PY vs AC)
+  gap: connecting_rule              # the line length = the change (the story)
+  color: start_vs_end               # start recedes (grey), end is the ink dot
+
+anti_patterns:
+  - dumbbell_for_one_value          # one value -> lollipop/bar; dumbbell needs two
+  - too_many_categories             # crowded rows -> small_multiples
+
+params:
+  category: {role: axis, type: category, required: true}
+  start:    {role: value, required: true, note: "prior / baseline (e.g. PY)"}
+  end:      {role: value, required: true, note: "current (e.g. AC)"}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_stem:  surface.row_alt_ink     # #C8CED5 connector
+  col_start: color_semantics.neutral # #94A0AC baseline dot
+  col_end:   ink                     # #0F2430 current dot
+
+canonical_params:
+  entity: "_Measures"
+  start_measure: "Gross Margin % PY"
+  end_measure: "Gross Margin %"
+  category_entity: "dim_org"
+  category_prop: "OrgName"
+  field_cat: "unit"
+  field_start: "gm_py"
+  field_end: "gm"
+  col_stem: "#C8CED5"
+  col_start: "#94A0AC"
+  col_end: "#0F2430"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dumbbell before after">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">GM % — PY vs AC</text>
+    <text x="20" y="52" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Nordics</text><line x1="150" y1="48" x2="290" y2="48" stroke="#C8CED5" stroke-width="3"/><circle cx="150" cy="48" r="5" fill="#94A0AC"/><circle cx="290" cy="48" r="5" fill="#0F2430"/>
+    <text x="20" y="84" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">CEE</text><line x1="180" y1="80" x2="250" y2="80" stroke="#C8CED5" stroke-width="3"/><circle cx="180" cy="80" r="5" fill="#94A0AC"/><circle cx="250" cy="80" r="5" fill="#0F2430"/>
+    <text x="20" y="116" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">West</text><line x1="210" y1="112" x2="140" y2="112" stroke="#C8CED5" stroke-width="3"/><circle cx="210" cy="112" r="5" fill="#94A0AC"/><circle cx="140" cy="112" r="5" fill="#0F2430"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "Power BI has no native dumbbell base visual"
+    use: "SVG-DAX (a dumbbell cell in a matrix) or Deneb (layered rule + two points)"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _max = CALCULATE ( MAXX ( ALLSELECTED ( '{{category_entity}}'[{{category_prop}}] ), [{{end_measure}}] ), REMOVEFILTERS ( '{{category_entity}}'[{{category_prop}}] ) )
+      VAR _x = DIVIDE ( [{{start_measure}}], _max ) * 92 + 4
+      VAR _a = DIVIDE ( [{{end_measure}}], _max ) * 92 + 4
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<line x1='" & _x & "' y1='7' x2='" & _a & "' y2='7' stroke='{{col_stem}}' stroke-width='3'/>"
+                & "<circle cx='" & _x & "' cy='7' r='4' fill='{{col_start}}'/>"
+                & "<circle cx='" & _a & "' cy='7' r='4' fill='{{col_end}}'/>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "encoding": { "y": { "field": "{{field_cat}}", "type": "nominal", "axis": { "title": null } } },
+        "layer": [
+          { "mark": { "type": "rule", "color": "{{col_stem}}", "size": 3 }, "encoding": { "x": { "field": "{{field_start}}", "type": "quantitative", "axis": { "title": null } }, "x2": { "field": "{{field_end}}" } } },
+          { "mark": { "type": "circle", "size": 90, "color": "{{col_start}}" }, "encoding": { "x": { "field": "{{field_start}}", "type": "quantitative" } } },
+          { "mark": { "type": "circle", "size": 90, "color": "{{col_end}}" }, "encoding": { "x": { "field": "{{field_end}}", "type": "quantitative" } } }
+        ]
+      }
+
+  web_recharts:
+    applicable: false
+    reason: "a dumbbell needs a custom connector shape between two series — not a stock Recharts primitive"
+    use: "SVG-DAX cell, Deneb, or a Recharts ScatterChart with a custom <Line> segment layer"
+
+determinism:
+  golden_dir: golden
+  notes: "Two points per row (start recedes grey, end is ink) joined by a rule whose length IS the change. No native dumbbell; the change-as-length reading beats two separate bars."
