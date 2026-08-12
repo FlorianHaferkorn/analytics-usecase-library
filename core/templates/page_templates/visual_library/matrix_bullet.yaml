@@ -1,0 +1,78 @@
+# Visual Library entry — matrix_bullet  (schema: _schema.yaml)
+id: matrix_bullet
+name: Matrix column · bullet
+purpose: [evidence_detail]
+zone: [detail]
+min_size: {cols: 5, rows: 4}   # grid units — the HOST tableEx/matrix floor (the cell chart is per-row); px derived from layout_grid.yaml
+best_form_for: null
+alternatives: [bullet, matrix_evidence]
+
+encoding:
+  attainment: bullet_bar_vs_tick    # per-row actual bar vs target tick
+  scope: per_row_category           # one bullet per matrix row
+
+anti_patterns:
+  - colour_bands_in_a_cell          # qualitative bands are chart-junk at cell scale
+  - gauge_instead
+
+params:
+  measure:  {role: value, required: true}
+  target:   {role: reference, required: true}
+  category: {role: row, type: category, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_actual: ink                    # #0F2430 bar
+  col_target: color_semantics.negative # #A4262C tick
+
+canonical_params:
+  entity: "_Measures"
+  measure: "SLA Attainment %"
+  target_measure: "SLA Target %"
+  category_entity: "dim_org"
+  category_prop: "OrgName"
+  field: "sla"
+  col_actual: "#0F2430"
+  col_target: "#A4262C"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matrix bullet column">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">UNIT</text><text x="180" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">SLA vs TARGET</text>
+    <line x1="16" y1="32" x2="324" y2="32" stroke="#E1E7EE"/>
+    <text x="20" y="54" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Nordics</text><rect x="180" y="47" width="132" height="6" fill="#0F2430"/><line x1="300" y1="44" x2="300" y2="58" stroke="#A4262C" stroke-width="2"/>
+    <text x="20" y="86" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">CEE</text><rect x="180" y="79" width="108" height="6" fill="#0F2430"/><line x1="300" y1="76" x2="300" y2="90" stroke="#A4262C" stroke-width="2"/>
+    <text x="20" y="118" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">West</text><rect x="180" y="111" width="150" height="6" fill="#0F2430"/><line x1="300" y1="108" x2="300" y2="122" stroke="#A4262C" stroke-width="2"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx)"
+    use: "matrix_evidence (tableEx) + this SVG-DAX column, image height ~20px"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _a = [{{measure}}] * 100
+      VAR _t = [{{target_measure}}] * 100
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 14' preserveAspectRatio='none'>"
+                & "<rect x='0' y='4' width='" & _a & "' height='6' fill='{{col_actual}}'/>"
+                & "<line x1='" & _t & "' y1='1' x2='" & _t & "' y2='13' stroke='{{col_target}}' stroke-width='2'/>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    applicable: false
+    reason: "a per-row cell chart inside a table is not a Vega-Lite view"
+    use: "the standalone attainment chart is `bullet` in Deneb; the cell column is SVG-DAX"
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts has no table cell primitive"
+    use: "an HTML <table> with a small Recharts `bullet` per row"
+
+determinism:
+  golden_dir: golden
+  notes: "Per-row actual-vs-target bullet for a tableEx column (ImageUrl). No qualitative bands at cell scale."

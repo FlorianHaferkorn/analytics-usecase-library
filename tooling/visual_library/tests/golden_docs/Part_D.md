@@ -17,7 +17,7 @@
 | **flow_between_stages** | How does quantity flow between stages — where does it leak? | `sankey` | detail | `sankey` |
 | **driver_breakdown** | Which dimension drives the number? (interactive) | `decomposition_tree` | detail | `decomposition_tree` |
 | **distribution** | What is the spread / median / outliers of a variable? | `histogram` | analysis | `histogram` · `boxplot` |
-| **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` |
+| **evidence_detail** | Which rows are worst — and what is the next action? | `matrix_evidence` | detail | `matrix_evidence` · `matrix_sparkline` · `matrix_bullet` · `matrix_delta_pill` |
 | **value_verdict** | What is the headline value and its verdict? | `kpi_card_spark` | pulse | `kpi_card_spark` · `kpi_card_bullet` · `kpi_card_sparkbar` |
 
 **Deny (never emit):** `pie_gt_4` · `three_d` · `gauge` · `radar` · `dual_axis_no_reason` · `color_as_decoration` · `powerbi_smart_narrative`.
@@ -56,6 +56,9 @@
 | `kpi_card_spark` | — | rendered ✓ | — | — |
 | `kpi_card_bullet` | — | rendered ✓ | — | — |
 | `kpi_card_sparkbar` | — | rendered ✓ | — | — |
+| `matrix_sparkline` | — | rendered ✓ | — | — |
+| `matrix_bullet` | — | rendered ✓ | — | — |
+| `matrix_delta_pill` | — | rendered ✓ | — | — |
 
 **Legend.** `rendered ✓` = actually rendered headlessly (Deneb shows the scenario count) · `structural · gated` = deterministic + structurally valid, live render needs its host (Desktop) · `—` = tool n/a.
 
@@ -209,3 +212,21 @@
 - **Avoid:** number_without_context, color_of_number_for_magnitude, line_when_periods_are_discrete
 - **Tools:** Power BI · native n/a (the cardVisual has no embedded column-trend track — the value+trend+delta composite is a single SVG → powerbi_svg_dax (cardVisual callout.imageFX)) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (the value + delta chip are card chrome; Deneb draws the column trend only, not the headline layout → powerbi_svg_dax for the whole card; or `column_time` in Deneb for just the trend) · Web · Recharts n/a (a KPI card is HTML (value + delta) with a chart inside — a React component, not a single Recharts chart → compose in React: value/delta as HTML + a small Recharts `column_time` bar trend)
 - **Code:** `visual_library/kpi_card_sparkbar.yaml` (+ `golden/kpi_card_sparkbar.*`)
+
+#### `matrix_sparkline` — Matrix column · sparkline
+- **Purpose:** evidence_detail · **zone:** detail · **min size:** 5×4 grid (497×208px @1280, 746×312px @1920)
+- **Avoid:** axis_labels_in_a_sparkline, line_when_periods_are_discrete
+- **Tools:** Power BI · native n/a (this is an in-cell column MEASURE (ImageUrl), not a standalone visual — the table that hosts it is matrix_evidence (tableEx) → matrix_evidence (tableEx) + this SVG-DAX column, image height ~24px) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the whole trend as a standalone chart is `line` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `line` per row)
+- **Code:** `visual_library/matrix_sparkline.yaml` (+ `golden/matrix_sparkline.*`)
+
+#### `matrix_bullet` — Matrix column · bullet
+- **Purpose:** evidence_detail · **zone:** detail · **min size:** 5×4 grid (497×208px @1280, 746×312px @1920)
+- **Avoid:** colour_bands_in_a_cell, gauge_instead
+- **Tools:** Power BI · native n/a (an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx) → matrix_evidence (tableEx) + this SVG-DAX column, image height ~20px) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the standalone attainment chart is `bullet` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `bullet` per row)
+- **Code:** `visual_library/matrix_bullet.yaml` (+ `golden/matrix_bullet.*`)
+
+#### `matrix_delta_pill` — Matrix column · delta pill
+- **Purpose:** evidence_detail · **zone:** detail · **min size:** 5×4 grid (497×208px @1280, 746×312px @1920)
+- **Avoid:** pill_without_the_number, tint_not_from_severity_tints, color_as_decoration
+- **Tools:** Power BI · native n/a (an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx). Native conditional 'icon + font colour' is a partial form → matrix_evidence (tableEx) + this SVG-DAX column; or native conditional font colour + KPI icon) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell pill inside a table is not a Vega-Lite view → SVG-DAX column; or a Deneb text mark with a conditional fill for a standalone board) · Web · Recharts n/a (Recharts is a charting library, not for text/pill table cells → an HTML <table> cell: a span with severity-tint background + the signed value)
+- **Code:** `visual_library/matrix_delta_pill.yaml` (+ `golden/matrix_delta_pill.*`)

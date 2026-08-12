@@ -1,0 +1,11 @@
+VAR _S = ADDCOLUMNS ( CALCULATETABLE ( VALUES ( 'dim_date'[Date] ), DATESINPERIOD ( 'dim_date'[Date], MAX ( 'dim_date'[Date] ), -12, MONTH ) ), "@v", [Gross Margin %] )
+VAR _min = MINX ( _S, [@v] )
+VAR _max = MAXX ( _S, [@v] )
+VAR _xmin = MINX ( _S, 'dim_date'[Date] )
+VAR _xmax = MAXX ( _S, 'dim_date'[Date] )
+VAR _pts = CONCATENATEX ( _S, INT ( 100 * DIVIDE ( 'dim_date'[Date] - _xmin, _xmax - _xmin ) ) & "," & INT ( 24 - 22 * DIVIDE ( [@v] - _min, _max - _min ) ), " ", 'dim_date'[Date] )
+RETURN
+    IF ( HASONEVALUE ( 'dim_product'[Category] ),
+        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 26'>"
+          & "<polyline fill='none' stroke='#0F2430' stroke-width='1.5' points='" & _pts & "'/>"
+          & "</svg>" )

@@ -159,8 +159,8 @@ MATRIX_PATH = Path(__file__).resolve().parent / "validation_matrix.json"
 _SVG_DAX_VALS = {
     "_w": "62", "_col": "#0F2430", "_x": "60", "_a": "88", "_t": "95", "_len": "80",
     "_pts": "0,20 25,10 50,15 75,5 100,8", "_y1": "20", "_y2": "8",
-    # composite KPI cards
-    "_val": "12.4M", "_dtxt": "▲ +3.2%",
+    # composite KPI cards + matrix cells
+    "_val": "12.4M", "_dtxt": "▲ +3.2%", "_tint": "#E6F5E6",
     "_bars": ("<rect x='12' y='60' width='14' height='20' fill='#C8CED5'/>"
               "<rect x='30' y='66' width='14' height='14' fill='#C8CED5'/>"
               "<rect x='48' y='56' width='14' height='24' fill='#C8CED5'/>"

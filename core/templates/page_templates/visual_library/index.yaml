@@ -65,7 +65,7 @@ purposes:
     question: "Which rows are worst — and what is the next action?"
     zone: detail
     best: matrix_evidence
-    candidates: [matrix_evidence]
+    candidates: [matrix_evidence, matrix_sparkline, matrix_bullet, matrix_delta_pill]   # tableEx + governed in-cell column types
 
   value_verdict:
     question: "What is the headline value and its verdict?"
@@ -88,4 +88,4 @@ notation_profiles:
 deny: [pie_gt_4, three_d, gauge, radar, dual_axis_no_reason, color_as_decoration, powerbi_smart_narrative]
 
 # realised so far (rest scaffolded per increment)
-implemented: [deviation_bar, line, bar_ranking, waterfall_pvm, area_stacked, indexed_line, matrix_evidence, scatter, donut, bullet, slope, stacked_100, lollipop, histogram, boxplot, small_multiples, sankey, decomposition_tree, bar_absolute, waterfall_buildup, waterfall_variance, kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar]
+implemented: [deviation_bar, line, bar_ranking, waterfall_pvm, area_stacked, indexed_line, matrix_evidence, scatter, donut, bullet, slope, stacked_100, lollipop, histogram, boxplot, small_multiples, sankey, decomposition_tree, bar_absolute, waterfall_buildup, waterfall_variance, kpi_card_spark, kpi_card_bullet, kpi_card_sparkbar, matrix_sparkline, matrix_bullet, matrix_delta_pill]
