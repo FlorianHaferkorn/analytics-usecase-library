@@ -61,9 +61,15 @@ def _deneb_field_names() -> list[str]:
     return sorted(fields)
 
 
+# A "baseline" numeric field (prior / plan / start / previous) must NOT coincide with its current
+# counterpart, or two-point idioms (dumbbell start↔end) collapse to a single point in the render.
+_BASELINE_HINT = ("_py", "_prev", "prior", "plan", "start", "base", "target")
+
+
 def _rows(n: int, nums: list[float]) -> list[dict]:
     """n rows carrying every Deneb field; categorical/date fields get distinct labels, numeric
-    fields cycle through ``nums`` — enough to draw, not to be meaningful."""
+    fields cycle through ``nums`` — enough to draw, not to be meaningful. Baseline fields
+    (_py/_plan/start/…) are scaled to ~0.78× so start≠end for two-point idioms (dumbbell)."""
     labels = "ABCDEFGH"
     fields = _deneb_field_names()
     out = []
@@ -76,7 +82,8 @@ def _rows(n: int, nums: list[float]) -> list[dict]:
             elif any(h in fl for h in _CAT_HINT):
                 row[fn] = labels[i % len(labels)]
             else:
-                row[fn] = nums[i % len(nums)]
+                v = nums[i % len(nums)]
+                row[fn] = round(v * 0.78, 2) if any(h in fl for h in _BASELINE_HINT) else v
         out.append(row)
     return out
 
