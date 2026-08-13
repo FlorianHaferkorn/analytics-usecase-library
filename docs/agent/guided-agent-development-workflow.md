@@ -113,13 +113,17 @@ off for downstream Copilot / data-agent consumption.
 
 ## Fallback matrix (deployability)
 
-| Environment | Stages 1–3 mechanics | Stage 4 oracle | Gates |
-|---|---|---|---|
-| Microsoft-first, Node permitted | `skills-for-fabric` skills + MCP | MS validate / Desktop | unchanged |
-| Locked-down / air-gapped / no Node | ALUCA `generator_core` / `page_scaffold_generator` | Tier-0 floor only | unchanged |
+| Environment | Stages 1–3 mechanics | Stage 4 oracle | Gates | Visual governance |
+|---|---|---|---|---|
+| Microsoft-first, Node permitted | `skills-for-fabric` skills + MCP | MS validate / Desktop | unchanged | full — idiom library via the superversion emitter (`visual_idioms.py` → `pbir.py`) |
+| Locked-down / air-gapped / no Node | ALUCA `generator_core` / `page_scaffold_generator` | Tier-0 floor only | unchanged | **partial** — deny-list warning only; the idiom-library point-authority (governed native visualType, notation profiles, min_size) is **not** applied (`page_scaffold_generator._dispatch_ux_visual`) |
 
-The right-hand column never changes. That is the whole point: **swapping the
-execution layer does not change what "done" means.**
+The right-hand *gate* column never changes — swapping the execution layer does not change what
+"done" means. But **visual governance is not identical across paths**: only the Microsoft-first /
+superversion path is governed by the idiom library's point-authority. The air-gapped
+`page_scaffold_generator` maps visual types independently and only warns on deny-listed visuals; it
+does not enforce the governed native visualType, notation profiles, or `min_size`. For governed
+chart choice in either environment, resolve via `tooling/visual_library/resolve.py`.
 
 ## Gate command (bundled Tier-0)
 
