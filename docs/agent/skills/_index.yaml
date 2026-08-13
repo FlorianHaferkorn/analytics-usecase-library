@@ -68,3 +68,8 @@ skills:
     name: stage1-pre-commit
     version: "1.0.0"
     description: "Run Stage 1 CI checks before committing. Use when the user is about to commit, asks to run checks, validation, or mentions Stage 1, pre-commit gate, or CI checks."
+
+  visual-library:
+    name: visual-library
+    version: "1.0.0"
+    description: "Resolve an analytical question to a governed Power BI chart idiom (evidence-based choice, notation profile, minimum grid size) and audit existing report visuals against the ALUCA deny-list. Use when choosing a chart type, reviewing or upgrading an existing report's visuals, or generating report pages from a use case bracket."

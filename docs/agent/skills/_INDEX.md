@@ -25,5 +25,6 @@ shelf-life-days: 90
 | `fix-oss-dashboard-errors.md` | Evidence.dev-/OSS-Fehler fixen |
 | `stage1-pre-commit.md` | Stage-1-Checks vor Commit ausführen |
 | `fix-stage1-failure.md` | Stage-1-CI-Fehler diagnostizieren + fixen |
+| `visual-library.md` | Governed Chart-Wahl (Purpose→Idiom, Notation, Min-Größe) + Audit bestehender Visuals gegen die Deny-Liste |
 
 <!-- check_index.py erzwingt: jede *.md in skills/ ist hier gelistet. _index.yaml = Metadaten (kein .md → nicht gate-pflichtig). -->
