@@ -1,0 +1,201 @@
+"""resolve.py — the Visual Library resolver: purpose → idiom selection, and audit of an existing
+Power BI visual against the governed catalog.
+
+These are deterministic table lookups over the SoT (index.yaml + <idiom>.yaml + golden/) — executed,
+not reasoned. Zero ALUCA-core dependency (only render.py + the committed YAML), so the same code
+serves BOTH workflows:
+  A) the ALUCA generator, as a Python import;
+  B) standalone review of a customer report, as a portable skill bundle (no ALUCA semantic model).
+
+CLI:
+  resolve.py purpose <purpose_id> [--profile ibcs|print_safe] [--json]
+  resolve.py audit <visual.json> [--json]     # governed / denied / ungoverned + sanctioned replacement
+  resolve.py idiom <idiom_id> [--json]
+  resolve.py list [--json]                     # every analytical purpose → best idiom
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import render  # noqa: E402 — zero-dependency renderer (grid math, load_entry, tools, profiles)
+
+LIB = render.LIB
+
+
+def _index() -> dict:
+    return yaml.safe_load((LIB / "index.yaml").read_text(encoding="utf-8"))
+
+
+def _implemented() -> list[str]:
+    return _index().get("implemented", [])
+
+
+def _base_idiom(cand: str) -> str:
+    """A chooser candidate like 'deviation_bar@ibcs' -> base idiom id + the profile it implies."""
+    return cand.split("@", 1)[0]
+
+
+def native_visual_type(idiom: str) -> "str | None":
+    """The PBIR visualType an idiom's frozen powerbi_native golden emits, or None if n/a."""
+    gp = LIB / "golden" / f"{idiom}.powerbi_native.json"
+    if not gp.exists():
+        return None
+    return json.loads(gp.read_text(encoding="utf-8")).get("visualType")
+
+
+def native_type_index() -> dict[str, list[str]]:
+    """Reverse map: PBIR visualType -> [governed idiom ids that emit it]."""
+    out: dict[str, list[str]] = {}
+    for iid in _implemented():
+        vt = native_visual_type(iid)
+        if vt:
+            out.setdefault(vt, []).append(iid)
+    return out
+
+
+# PBIR visualTypes that violate the governed deny-list, with the sanctioned replacement idiom.
+# Grounded in index.yaml `deny` + color_semantics / pbi-design chart governance.
+DENY_VISUALTYPES: dict[str, dict] = {
+    "gaugeVisual":  {"deny": "gauge", "use": "bullet (Few's governed gauge replacement) or kpi_card_bullet"},
+    "pieChart":     {"deny": "pie_gt_4", "use": "donut (<=4 parts) or bar_ranking / stacked_100"},
+    "pieChartVisual": {"deny": "pie_gt_4", "use": "donut (<=4 parts) or bar_ranking"},
+    "ribbonChart":  {"deny": "color_as_decoration", "use": "line / column_time (rank-over-time reads cleaner)"},
+    "funnel":       {"deny": "color_as_decoration", "use": "bar_ranking (worst-first) or sankey for true flow"},
+}
+
+
+def _min_size(entry: dict) -> dict:
+    ms = entry.get("min_size") or {}
+    if not ms.get("cols"):
+        return {}
+    bw, bh = render.grid_px(ms["cols"], ms["rows"])
+    pw, ph = render.grid_px(ms["cols"], ms["rows"], "production")
+    return {"cols": ms["cols"], "rows": ms["rows"],
+            "px_design_base": [bw, bh], "px_production": [pw, ph]}
+
+
+def _idiom_card(iid: str, profile: "str | None" = None) -> dict:
+    e = render.load_entry(iid)
+    return {
+        "id": iid,
+        "name": e.get("name"),
+        "purpose": e.get("purpose"),
+        "zone": e.get("zone"),
+        "native_visual_type": native_visual_type(iid),
+        "tools": render.tools(iid, profile),
+        "profiles": render.profiles(iid),
+        "min_size": _min_size(e),
+    }
+
+
+def resolve_purpose(purpose_id: str, profile: "str | None" = None) -> dict:
+    idx = _index()
+    purposes = idx.get("purposes", {})
+    if purpose_id not in purposes:
+        raise KeyError(f"unknown purpose '{purpose_id}'. Known: {sorted(purposes)}")
+    p = purposes[purpose_id]
+    cand_ids = list(dict.fromkeys(_base_idiom(c) for c in p.get("candidates", [])))
+    if profile and profile not in idx.get("notation_profiles", {}).get("available", []):
+        raise KeyError(f"unknown profile '{profile}'")
+    return {
+        "purpose": purpose_id,
+        "question": p.get("question"),
+        "zone": p.get("zone"),
+        "profile": profile or render.default_profile(),
+        "best": _idiom_card(_base_idiom(p["best"]), profile),
+        "candidates": [_idiom_card(c, profile) for c in cand_ids],
+        "deny": idx.get("deny", []),
+    }
+
+
+def _extract_visual_type(doc: dict) -> "str | None":
+    """PBIR visual.json nests visualType under `visual`; the library goldens keep it top-level."""
+    if isinstance(doc.get("visual"), dict) and doc["visual"].get("visualType"):
+        return doc["visual"]["visualType"]
+    return doc.get("visualType")
+
+
+def audit_visual(path: str) -> dict:
+    doc = json.loads(Path(path).read_text(encoding="utf-8"))
+    vt = _extract_visual_type(doc)
+    if not vt:
+        return {"file": path, "verdict": "unknown", "detail": "no visualType found in the JSON"}
+    if vt in DENY_VISUALTYPES:
+        d = DENY_VISUALTYPES[vt]
+        return {"file": path, "visual_type": vt, "verdict": "denied",
+                "deny_rule": d["deny"], "use_instead": d["use"]}
+    governed = native_type_index().get(vt, [])
+    if governed:
+        return {"file": path, "visual_type": vt, "verdict": "governed", "idioms": governed}
+    return {"file": path, "visual_type": vt, "verdict": "ungoverned",
+            "detail": "not a governed idiom's native type and not on the deny-list; "
+                      "resolve by question via `resolve.py purpose <id>`"}
+
+
+# --------------------------------------------------------------------------- #
+# CLI
+# --------------------------------------------------------------------------- #
+
+def _print_purpose(r: dict) -> None:
+    print(f"Q: {r['question']}   (purpose={r['purpose']}, zone={r['zone']}, profile={r['profile']})")
+
+    def line(c: str, card: dict) -> str:
+        ms = card["min_size"]
+        sz = (f"min {ms['cols']}x{ms['rows']} grid ({ms['px_design_base'][0]}x{ms['px_design_base'][1]}px "
+              f"@1280)" if ms else "min n/a")
+        return f"  {c} {card['id']:18s} native={card['native_visual_type'] or '-':22s} {sz}  tools={','.join(card['tools']) or '-'}"
+    print(line("BEST ->", r["best"]))
+    for card in r["candidates"]:
+        if card["id"] != r["best"]["id"]:
+            print(line("       ", card))
+    print(f"  deny (never emit): {', '.join(r['deny'])}")
+
+
+def main(argv: list[str]) -> int:
+    if not argv:
+        print(__doc__)
+        return 2
+    cmd = argv[0]
+    as_json = "--json" in argv
+    prof = None
+    if "--profile" in argv:
+        prof = argv[argv.index("--profile") + 1]
+    rest = [a for i, a in enumerate(argv) if not a.startswith("--")
+            and not (i > 0 and argv[i - 1] == "--profile")]
+
+    if cmd == "purpose" and len(rest) >= 2:
+        r = resolve_purpose(rest[1], prof)
+        print(json.dumps(r, indent=2, ensure_ascii=False) if as_json else "", end="")
+        if not as_json:
+            _print_purpose(r)
+        return 0
+    if cmd == "audit" and len(rest) >= 2:
+        r = audit_visual(rest[1])
+        print(json.dumps(r, indent=2, ensure_ascii=False) if as_json
+              else f"{r['verdict'].upper()} — {r.get('visual_type', '?')}: "
+                   f"{r.get('use_instead') or r.get('idioms') or r.get('detail')}")
+        return 0 if r["verdict"] in ("governed",) else 1
+    if cmd == "idiom" and len(rest) >= 2:
+        print(json.dumps(_idiom_card(rest[1], prof), indent=2, ensure_ascii=False))
+        return 0
+    if cmd == "list":
+        idx = _index()
+        rows = [{"purpose": k, "question": v.get("question"), "best": _base_idiom(v["best"])}
+                for k, v in idx.get("purposes", {}).items()]
+        if as_json:
+            print(json.dumps(rows, indent=2, ensure_ascii=False))
+        else:
+            for r in rows:
+                print(f"  {r['purpose']:22s} -> {r['best']:18s} {r['question']}")
+        return 0
+    print(__doc__)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
