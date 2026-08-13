@@ -93,6 +93,12 @@ _PLANS: dict[str, _TypePlan] = {
     # registry rather than emit clusteredColumnChart (which it never sanctions).
     "bar_chart": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
     "bar_chart_horizontal": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
+    # clusteredColumnChart shares clusteredBarChart's role schema exactly (Y/Measure + Category —
+    # orientation only), so column_time (columns over time) is safe to wire without a fresh catalog
+    # lookup. Stacked/area/donut/scatter/decomposition need their own roles first (see
+    # visual_idioms.PLANS_UNREACHABLE) and are deliberately not added blind.
+    "column_chart": _TypePlan("clusteredColumnChart", "Y", "Measure", None, ("Category",)),
+    "column_time": _TypePlan("clusteredColumnChart", "Y", "Measure", None, ("Category",)),
     "waterfall": _TypePlan("waterfallChart", "Y", "Measure", 1, ("Category",)),
     "slicer": _TypePlan("slicer", "Values", "Column", 1, ()),
     "table": _TypePlan("tableEx", "Values", "Measure", None, ()),
