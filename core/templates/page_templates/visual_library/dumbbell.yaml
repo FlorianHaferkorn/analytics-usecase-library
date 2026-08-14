@@ -1,6 +1,8 @@
 # Visual Library entry — dumbbell  (schema: _schema.yaml)
 id: dumbbell
 name: Dumbbell (before / after)
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml

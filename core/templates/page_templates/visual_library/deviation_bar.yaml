@@ -1,6 +1,8 @@
 # Visual Library entry — deviation_bar  (schema: _schema.yaml)
 id: deviation_bar
 name: Deviation bar
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [deviation_from_target, compare_categories]
 zone: [pulse, analysis]
 min_size: {cols: 3, rows: 2}   # grid units — canvas-relative legibility floor (≈292×96px @1280, 438×144px @1920; px derived from layout_grid.yaml)

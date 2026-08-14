@@ -1,0 +1,8 @@
+{
+  "visualType": "clusteredColumnChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "Month" } }, "queryRef": "dim_date.Month" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Orders Count" } }, "queryRef": "_Measures.Orders Count" } ] }
+  } },
+  "objects": { "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ] }
+}

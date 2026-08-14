@@ -1,6 +1,8 @@
 # Visual Library entry — column_time  (schema: _schema.yaml)
 id: column_time
 name: Column chart over time
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml
@@ -87,3 +89,20 @@ realizations:
 determinism:
   golden_dir: golden
   notes: "Discrete periods over time as columns (the 'bar for time series' case) — distinct from `line` (continuous trend) and `bar_ranking` (compare categories)."
+
+profiles:
+  ibcs:
+    note: 'IBCS columns: single dark AC scenario fill (not a brand hue) with every column labelled; PY/PL would overlay as outlined/tinted where present.'
+    param_overrides:
+      col_bar: '#0F2430'
+      col_label: '#201F1E'
+    realizations:
+      powerbi_native:
+        ext: json
+        template: "{\n  \"visualType\": \"clusteredColumnChart\",\n  \"query\": { \"queryState\": {\n    \"Category\": { \"projections\": [ { \"field\": { \"Column\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{category_entity}}\" } }, \"Property\": \"{{category_prop}}\" } }, \"queryRef\": \"{{category_entity}}.{{category_prop}}\" } ] },\n    \"Y\": { \"projections\": [ { \"field\": { \"Measure\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{entity}}\" } }, \"Property\": \"{{measure}}\" } }, \"queryRef\": \"{{entity}}.{{measure}}\" } ] }\n  } },\n  \"objects\": { \"labels\": [ { \"properties\": { \"show\": { \"expr\": { \"Literal\": { \"Value\": \"true\" } } } } } ] }\n}\n"
+      deneb_vegalite:
+        ext: json
+        template: "{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"data\": { \"name\": \"dataset\" },\n  \"encoding\": { \"x\": { \"field\": \"{{field_date}}\", \"type\": \"ordinal\", \"axis\": { \"title\": null, \"labelAngle\": 0 } } },\n  \"layer\": [\n    { \"mark\": { \"type\": \"bar\", \"color\": \"{{col_bar}}\" }, \"encoding\": { \"y\": { \"field\": \"{{field}}\", \"type\": \"quantitative\", \"axis\": { \"title\": null } } } },\n    { \"mark\": { \"type\": \"text\", \"dy\": -6, \"fontWeight\": \"bold\", \"color\": \"{{col_label}}\" }, \"encoding\": { \"y\": { \"field\": \"{{field}}\", \"type\": \"quantitative\" }, \"text\": { \"field\": \"{{field}}\", \"type\": \"quantitative\", \"format\": \".0f\" } } }\n  ]\n}\n"
+      web_recharts:
+        ext: jsx
+        template: "<BarChart data={data} width={480} height={280}>\n  <XAxis dataKey=\"{{field_date}}\" />\n  <YAxis />\n  <Bar dataKey=\"{{field}}\" fill=\"{{col_bar}}\">\n    <LabelList dataKey=\"{{field}}\" position=\"top\" />\n  </Bar>\n</BarChart>\n"

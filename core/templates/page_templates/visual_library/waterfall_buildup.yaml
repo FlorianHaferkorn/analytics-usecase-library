@@ -1,6 +1,8 @@
 # Visual Library entry — waterfall_buildup  (schema: _schema.yaml)
 id: waterfall_buildup
 name: Waterfall (buildup to total)
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [contribution_to_change]
 zone: [analysis]
 min_size: {cols: 4, rows: 5}   # grid units — canvas-relative legibility floor (≈395×264px @1280, 592×396px @1920; px derived from layout_grid.yaml)
@@ -106,3 +108,17 @@ realizations:
 determinism:
   golden_dir: golden
   notes: "All-positive buildup: window running-sum (prev/cum) from zero; single series colour, Total as the only anchor. SVG-DAX n/a (full chart)."
+
+profiles:
+  ibcs:
+    note: 'IBCS build-up: cumulative steps in one scenario colour, closing total in ink, every column labelled with its value.'
+    realizations:
+      powerbi_native:
+        ext: json
+        template: "{\n  \"visualType\": \"waterfallChart\",\n  \"query\": { \"queryState\": {\n    \"Category\": { \"projections\": [ { \"field\": { \"Column\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{category_entity}}\" } }, \"Property\": \"{{category_prop}}\" } }, \"queryRef\": \"{{category_entity}}.{{category_prop}}\" } ] },\n    \"Y\": { \"projections\": [ { \"field\": { \"Measure\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{entity}}\" } }, \"Property\": \"{{measure}}\" } }, \"queryRef\": \"{{entity}}.{{measure}}\" } ] }\n  } },\n  \"objects\": {\n    \"sentimentColors\": [ { \"properties\": {\n      \"increaseFill\": { \"solid\": { \"color\": { \"expr\": { \"Literal\": { \"Value\": \"'{{col_step}}'\" } } } } },\n      \"totalFill\": { \"solid\": { \"color\": { \"expr\": { \"Literal\": { \"Value\": \"'{{col_total}}'\" } } } } }\n    } } ],\n    \"labels\": [ { \"properties\": { \"show\": { \"expr\": { \"Literal\": { \"Value\": \"true\" } } } } } ]\n  }\n}\n"
+      deneb_vegalite:
+        ext: json
+        template: "{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"data\": { \"name\": \"dataset\" },\n  \"transform\": [\n    { \"window\": [ { \"op\": \"sum\", \"field\": \"{{field_val}}\", \"as\": \"cum\" } ], \"frame\": [null, 0] },\n    { \"calculate\": \"datum.cum - datum['{{field_val}}']\", \"as\": \"prev\" }\n  ],\n  \"encoding\": { \"x\": { \"field\": \"{{field}}\", \"type\": \"ordinal\", \"sort\": null, \"axis\": { \"title\": null } } },\n  \"layer\": [\n    { \"mark\": { \"type\": \"bar\", \"color\": \"{{col_step}}\" }, \"encoding\": { \"y\": { \"field\": \"prev\", \"type\": \"quantitative\", \"axis\": { \"title\": null } }, \"y2\": { \"field\": \"cum\" } } },\n    { \"mark\": { \"type\": \"text\", \"dy\": -6, \"fontWeight\": \"bold\", \"color\": \"{{col_total}}\" }, \"encoding\": { \"y\": { \"field\": \"cum\", \"type\": \"quantitative\" }, \"text\": { \"field\": \"{{field_val}}\", \"type\": \"quantitative\", \"format\": \".0f\" } } }\n  ]\n}\n"
+      web_recharts:
+        ext: jsx
+        template: "<BarChart data={buildupData} width={640} height={300}>\n  <XAxis dataKey=\"{{field}}\" />\n  <YAxis />\n  <Bar dataKey=\"base\" stackId=\"a\" fill=\"transparent\" />\n  <Bar dataKey=\"delta\" stackId=\"a\" fill=\"{{col_step}}\">\n    <LabelList dataKey=\"delta\" position=\"top\" />\n  </Bar>\n</BarChart>\n"

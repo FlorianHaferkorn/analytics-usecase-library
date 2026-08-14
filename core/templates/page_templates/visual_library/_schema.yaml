@@ -31,6 +31,19 @@ required_keys:
   - realizations       # {tool: {ext, template}} — concrete, runnable code per tool
   - determinism        # {golden_dir, notes}
 
+# --- lifecycle metadata (version + status) — REQUIRED per idiom ---
+# Every idiom carries a semantic `version` (major.minor.patch) and a `status`, so a change to an
+# idiom's realizations/encoding is a deliberate, trackable event and a consumer can tell whether a
+# previously generated report used an idiom that has since been revised or retired.
+#   version: "1.0.0"      # bump: patch = golden re-freeze / fix; minor = additive param/profile;
+#                         #        major = encoding change that alters the reading
+#   status:  active       # one of:
+#     active        — governed and recommended
+#     experimental  — usable but not yet stable (encoding may change)
+#     deprecated    — kept for provenance; DO NOT emit for new work — requires `superseded_by: <id>`
+#   superseded_by: <idiom_id>   # OPTIONAL; REQUIRED when status == deprecated (the replacement idiom)
+# Enforced by tooling/visual_library/tests/test_versioning.py.
+
 # --- the four governed tool tracks (every entry provides all four) ---
 tools:
   - powerbi_native     # visual.json (PBIR) — the native visual where it is the best form

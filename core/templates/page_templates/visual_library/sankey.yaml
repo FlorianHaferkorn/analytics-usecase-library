@@ -1,6 +1,8 @@
 # Visual Library entry — sankey  (schema: _schema.yaml)
 id: sankey
 name: Sankey
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [flow_between_stages]
 zone: [detail]
 min_size: {cols: 5, rows: 6}   # grid units — canvas-relative legibility floor (≈497×320px @1280, 746×480px @1920; px derived from layout_grid.yaml)
