@@ -356,6 +356,30 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                         "description": "TimeSeries does NOT require an eventhouse — MS documents it with sourceType LakehouseTable. Declare eventhouse only for genuine telemetry; its clusterUri/databaseName stay tenant-specific VERIFY."
                       }
                     }
+                  },
+                  "generated": {
+                    "type": "object",
+                    "description": "Ein Produkt, das KEINE Quelle hat, weil es keine haben kann -- eine Datumsdimension entsteht aus einem Bereich, nicht aus einer Tabelle. Ausdrueckliche Angabe statt Namensraterei: an `dim_datum` vs. `dim_date` vs. `d_kalender` laesst sich das nicht festmachen.",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "calendar"
+                        ],
+                        "description": "Art des Generators. `calendar` = ein Satz je Kalendertag."
+                      },
+                      "from": {
+                        "type": "string",
+                        "description": "ISO-Datum, erster Tag (Vorgabe 2020-01-01)."
+                      },
+                      "to": {
+                        "type": "string",
+                        "description": "ISO-Datum, letzter Tag (Vorgabe 2035-12-31)."
+                      }
+                    }
                   }
                 }
               }
@@ -441,11 +465,7 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
               },
               "row_security": {
                 "type": "object",
-                "description": "The row-security cut of this domain: the column that separates who sees what. Declared here because it is an architecture fact — it decides which columns must survive into every protected gold table — and because OneLake security cannot derive it: its predicates are static T-SQL with no caller identity to read, so the cut has to be materialised one role per value.",
-                "required": [
-                  "column",
-                  "values"
-                ],
+                "description": "The row-security cut of this domain: what separates who sees what. Declared here because it is an architecture fact — it decides which columns must survive into every protected gold table — and because OneLake security cannot derive it: its predicates are static T-SQL with no caller identity to read. Exactly one of two forms: a FLAT cut (column + values), one role per value; or a HIERARCHICAL cut (levels + grants), where every protected row carries its ancestors on each level so that one grant covers every descendant. Measured against a real 7-level org hierarchy: a single grant naming ONE node returned the rows of 59 descendant nodes (177 of 540), none of which appears in the predicate.",
                 "additionalProperties": false,
                 "properties": {
                   "column": {
@@ -464,13 +484,117 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                     "items": {
                       "type": "string"
                     },
-                    "description": "The gold products the cut applies to. Absent or empty means every data_product of the domain."
+                    "description": "The gold products the cut applies to. Absent or empty means every data_product of the domain. For a hierarchical cut these products must carry EVERY level column — that is a build obligation on silver-to-gold, not a modelling accident, and it must be checked: an RLS rule pointing at a missing column yields zero rows, which is indistinguishable from \"this person may see nothing\"."
                   },
                   "group_pattern": {
                     "type": "string",
-                    "description": "Naming pattern for the Entra group per value, with {value} as placeholder (e.g. 'sg-analytics-region-{value}'). The group is NAMED, never created — creating groups is a tenant act with an owner outside this delivery."
+                    "description": "Naming pattern for the Entra group. Placeholders: {value} for a flat cut, {level} and {node} for a hierarchical one. The group is NAMED, never created — creating groups is a tenant act with an owner outside this delivery. Membership belongs on the GROUP, never on a person: measured, a person added to a group keeps the old access until a token carrying the new group claim is issued."
+                  },
+                  "levels": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "The hierarchy levels, coarsest first. Each names an ancestor column that must exist PHYSICALLY on every protected table — the ancestor value denormalised onto the row. That denormalisation is what makes \"everything below node X\" a static equality: OneLake RLS has no JOIN, no subquery, no caller identity and a 1000-character limit, so an enumerated descendant list fails on all four counts. The columns are a CONTRACT: a rule naming a column that does not exist shows NO rows rather than an error.",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "column"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Level name, referenced by grants[].level."
+                        },
+                        "column": {
+                          "type": "string",
+                          "description": "The ancestor column on the protected tables."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "string",
+                            "int"
+                          ],
+                          "default": "string",
+                          "description": "Defaults to string, and that default is deliberate. Measured on real data: the finest level carried leading zeros (0150, 0908, 0000). Typing it as an integer turns 0150 into 150 and breaks the join silently — no error, just missing rows. Only declare int when every value is provably numeric."
+                        }
+                      }
+                    }
+                  },
+                  "grants": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "One OneLake role and one Entra group per grant — per RESPONSIBILITY CUT, not per node of the hierarchy. A hierarchy with 180 nodes needs as many grants as there are distinct scopes people are assigned to. Fabric bounds this: 250 data-access roles per item, 500 members per role.",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "level",
+                        "node"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "level": {
+                          "type": "string",
+                          "description": "Which level the node sits on. REQUIRED, and not derivable. Measured on real data: the code 19 is \"Europe I\" at branch level AND \"Austria\" at sub-branch level. A grant without a level is ambiguous and would silently cut the wrong subtree."
+                        },
+                        "node": {
+                          "type": [
+                            "string",
+                            "number"
+                          ],
+                          "description": "The node value, compared with = against the level column."
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Human-readable name of the scope, for the role description and the run sheet."
+                        }
+                      }
+                    }
                   }
-                }
+                },
+                "oneOf": [
+                  {
+                    "required": [
+                      "column",
+                      "values"
+                    ],
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "levels"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "grants"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "required": [
+                      "levels",
+                      "grants"
+                    ],
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "column"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "values"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
               },
               "publishing": {
                 "type": "object",
