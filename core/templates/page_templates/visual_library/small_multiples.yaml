@@ -1,6 +1,8 @@
 # Visual Library entry — small_multiples  (schema: _schema.yaml)
 id: small_multiples
 name: Small multiples
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 5, rows: 6}   # grid units — canvas-relative legibility floor (≈497×320px @1280, 746×480px @1920; px derived from layout_grid.yaml)

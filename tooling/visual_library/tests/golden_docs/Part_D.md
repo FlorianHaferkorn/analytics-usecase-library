@@ -190,12 +190,14 @@
 - **Purpose:** contribution_to_change · **zone:** analysis · **min size:** 4×5 grid (395×264px @1280, 592×396px @1920)
 - **Avoid:** bridge_without_connectors, mixing_increase_and_decrease, too_many_steps, color_beyond_single_series
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a multi-step buildup with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS build-up UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/waterfall_buildup.yaml` (+ `golden/waterfall_buildup.*`)
 
 #### `waterfall_variance` — Waterfall (variance bridge)
 - **Purpose:** contribution_to_change · **zone:** analysis · **min size:** 4×5 grid (395×264px @1280, 592×396px @1920)
 - **Avoid:** bridge_without_connectors, color_beyond_semantic, too_many_steps, hiding_the_two_anchor_totals
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a two-anchor variance bridge with a running total is not a single-cell micro-chart → powerbi_native (waterfallChart) or the PowerofBI.IBCS variance-bridge UDF (daxlib.org)) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/waterfall_variance.yaml` (+ `golden/waterfall_variance.*`)
 
 #### `kpi_card_spark` — KPI card · value + spark + delta
@@ -238,6 +240,7 @@
 - **Purpose:** time_comparison · **zone:** analysis · **min size:** 4×4 grid (395×208px @1280, 592×312px @1920)
 - **Avoid:** line_for_few_discrete_periods, column_for_many_continuous_points
 - **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a full column-over-time chart is not a single-cell micro-chart → kpi_card_sparkbar for the in-card column trend; powerbi_native / Deneb for the full chart) · Deneb / Vega-Lite ✓ · Web · Recharts ✓
+- **Notation profiles:** `house_default` · `ibcs` — the same idiom in another convention (see `_notation_profiles.yaml`)
 - **Code:** `visual_library/column_time.yaml` (+ `golden/column_time.*`)
 
 #### `dumbbell` — Dumbbell (before / after)

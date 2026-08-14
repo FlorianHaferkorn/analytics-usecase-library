@@ -1,6 +1,8 @@
 # Visual Library entry — stacked_100  (schema: _schema.yaml)
 id: stacked_100
 name: 100% stacked bar
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [part_to_whole]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)

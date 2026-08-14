@@ -1,6 +1,8 @@
 # Visual Library entry — matrix_sparkline  (schema: _schema.yaml)
 id: matrix_sparkline
 name: Matrix column · sparkline
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [evidence_detail]
 zone: [detail]
 min_size: {cols: 5, rows: 4}   # grid units — the HOST tableEx/matrix floor (the cell chart is per-row); px derived from layout_grid.yaml

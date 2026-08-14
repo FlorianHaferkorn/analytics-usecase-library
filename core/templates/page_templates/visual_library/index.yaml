@@ -80,8 +80,8 @@ purposes:
 notation_profiles:
   registry: _notation_profiles.yaml
   available: [house_default, ibcs, print_safe]
-  implemented_ibcs: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet]   # idioms that carry an `ibcs` profile
-  pending_ibcs: []   # all current-idiom IBCS profiles realized
+  implemented_ibcs: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet, waterfall_variance, waterfall_buildup, column_time]   # idioms that carry an `ibcs` profile
+  pending_ibcs: []   # IBCS applied where the notation genuinely maps (comparison/bridge/scenario idioms); distribution idioms (histogram/boxplot) intentionally have no IBCS reading
   implemented_print_safe: [deviation_bar, bar_ranking, line, waterfall_pvm, bullet]   # idioms that carry a CVAA/print-safe overlay
 
 # governed deny-list (never emit)

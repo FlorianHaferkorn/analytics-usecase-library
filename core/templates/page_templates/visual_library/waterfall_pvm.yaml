@@ -1,6 +1,8 @@
 # Visual Library entry — waterfall_pvm  (schema: _schema.yaml)
 id: waterfall_pvm
 name: Waterfall bridge (PVM)
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [contribution_to_change]
 zone: [analysis]
 min_size: {cols: 4, rows: 5}   # grid units — canvas-relative legibility floor (≈395×264px @1280, 592×396px @1920; px derived from layout_grid.yaml)

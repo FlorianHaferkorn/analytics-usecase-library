@@ -1,6 +1,8 @@
 # Visual Library entry — bar_stacked  (schema: _schema.yaml)
 id: bar_stacked
 name: Stacked bar (absolute)
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [part_to_whole]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml

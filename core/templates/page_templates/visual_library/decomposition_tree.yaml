@@ -1,6 +1,8 @@
 # Visual Library entry — decomposition_tree  (schema: _schema.yaml)
 id: decomposition_tree
 name: Decomposition tree
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [driver_breakdown]
 zone: [detail]
 min_size: {cols: 6, rows: 7}   # grid units — canvas-relative legibility floor (≈600×376px @1280, 900×564px @1920; px derived from layout_grid.yaml)

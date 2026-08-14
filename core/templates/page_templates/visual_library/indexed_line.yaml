@@ -1,6 +1,8 @@
 # Visual Library entry — indexed_line  (schema: _schema.yaml)
 id: indexed_line
 name: Indexed line
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
