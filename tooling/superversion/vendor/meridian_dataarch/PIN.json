@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "c945b06810c44ea2173741959f67bc496cb4cff40a21b55bae2340f62bcd6dab"
+      "sha256": "9e5b5da9ea90216c1741659c106871c312041deefb7be9a78d332cee0fc24fcc"
     },
     {
       "path": "naming.py",
@@ -25,7 +25,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "0576326e460417df7b8d39b995ddd33a6503264455d2d98ab8942a8f2ce3f076"
+      "sha256": "ed97575005a8d40ca2cd6bd57a8174c0f159f9a26bbb24a4fcef42896562ee1f"
     },
     {
       "path": "provision_lifecycle.py",

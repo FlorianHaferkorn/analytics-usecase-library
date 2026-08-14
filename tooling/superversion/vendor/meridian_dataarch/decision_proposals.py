@@ -369,7 +369,8 @@ def propose_rls(gc: dict) -> dict:
                     "keine", ["Sichtbarkeit über Workspace-Trennung statt RLS",
                               "eine Scoping-Spalte im Gold-Modell ergänzen"],
                     "Data Owner + Security",
-                    "RLS bleibt fail-closed (`where 1=0`) — die Rolle sieht KEINE Zeilen")
+                    "Ohne erklaerten Schnitt entsteht KEINE Zeilenbedingung — die Rolle sieht ALLE Zeilen "
+        "der freigegebenen Tabellen. Das traegt nur, solange die Entra-Gruppe leer ist")
     tbl, col = best
     score, raw, place = cands[0][0], cands[0][1], cands[0][2]
     others = sorted({c for _s, _w, _p, _t, c in cands if c != col})[:3]
@@ -397,7 +398,8 @@ def propose_rls(gc: dict) -> dict:
          "kein RLS — Trennung rein über getrennte Workspaces/Modelle"] +
         ([f"Scoping über `{o}` statt `{col}`" for o in others[:1]] if others else []),
         "Data Owner der Domäne (fachlich) + Security (technisch)",
-        "RLS bleibt fail-closed (`where 1=0`) — die Rolle sieht KEINE Zeilen")
+        "Ohne erklaerten Schnitt entsteht KEINE Zeilenbedingung — die Rolle sieht ALLE Zeilen "
+        "der freigegebenen Tabellen. Das traegt nur, solange die Entra-Gruppe leer ist")
 
 
 def propose_cls(gc: dict) -> dict:

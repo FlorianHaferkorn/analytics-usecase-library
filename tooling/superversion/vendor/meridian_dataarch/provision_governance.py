@@ -259,6 +259,99 @@ def emit_onelake_roles(bp: dict, lakehouse: str, sensitivity: dict | None = None
             "governance/_ONELAKE_SECURITY.md": _onelake_roles_doc(cls_todo, catalog, bp)}
 
 
+def _ist_platzhalter(member: dict) -> bool:
+    """Ein Mitglied, das noch niemand eingetragen hat. Das Muster stammt aus dem Emitter selbst
+    (``<VERIFY: …>`` / ``<TENANT_GUID>``); wer es ersetzt, hat eine echte Gruppe benannt."""
+    return any(str(member.get(k, "")).lstrip().startswith("<")
+               for k in ("objectId", "tenantId"))
+
+
+def check_onelake_role_guardrails(payload: dict | str) -> dict:
+    """Die eine Stelle, an der der Zeilenschnitt still verschwinden kann — als Pruefpunkt.
+
+    Entschieden 14.08.2026 (Flo): ohne erklaerten Schnitt entsteht **keine** Zeilenbedingung, die
+    Tabellen der Domaene bleiben lesbar. Das traegt, solange die Rolle keine echten Mitglieder hat
+    und die Domaene keine Daten — beim Emittieren ist beides der Fall. Gefaehrlich ist nicht der
+    Zustand, sondern der **Uebergang**: traegt jemand spaeter die Entra-Gruppe ein, ohne dass der
+    Schnitt geschrieben wurde, sieht jedes Mitglied dieser Gruppe alle Zeilen — und nichts wird rot.
+
+    Genau diesen Uebergang meldet diese Pruefung: eine Rolle mit **echten Mitgliedern** und
+    **lesbaren Tabellen**, aber **ohne** ``constraints.rows``. Die Vorgabe bleibt unveraendert; die
+    Sicherung sitzt hier, nicht dort.
+
+    Zusaetzlich geprueft, weil B12 daran haengt: kein Praedikat darf gegen die OneLake-Grammatik
+    verstossen (``{Spalte} {Operator} {Wert}``, MS Learn *Row-level security syntax reference*).
+    Ein einziger ungueltiger Eintrag laesst den ``PUT`` scheitern und reisst die Anlage **aller**
+    Rollen des Items mit — gemessen 14.08.2026, HOCHTIEF Lauf 2.
+
+    Gibt ``{findings: [...], counts: {...}}`` zurueck — dieselbe Form wie
+    ``check_metadata_completeness``, damit die Leitplanken-Pruefung sie ohne Sonderfall einsammelt.
+    """
+    if isinstance(payload, str):
+        payload = json.loads(payload)
+    rollen = payload.get("value", []) if isinstance(payload, dict) else list(payload)
+    findings: list[dict] = []
+    ohne_schnitt = 0
+
+    for rolle in rollen:
+        name = rolle.get("name", "<ohne Namen>")
+        mitglieder = (rolle.get("members") or {}).get("microsoftEntraMembers") or []
+        echte = [m for m in mitglieder if not _ist_platzhalter(m)]
+        for regel in rolle.get("decisionRules") or []:
+            pfade = [p for scope in regel.get("permission") or []
+                     if scope.get("attributeName") == "Path"
+                     for p in scope.get("attributeValueIncludedIn") or []]
+            zeilen = (regel.get("constraints") or {}).get("rows") or []
+            geschnitten = {r.get("tablePath") for r in zeilen}
+
+            for r in zeilen:
+                wert = str(r.get("value") or "")
+                # Nur der Teil hinter WHERE zaehlt, und dort muss links vom Operator ein
+                # **Spaltenname** stehen — ein Bezeichner, der mit Buchstabe oder Unterstrich
+                # beginnt. Genau daran scheitert `1=0`: `1` ist kein Spaltenname, und ohne
+                # diese Unterscheidung geht der Befund durch, der B12 ausgeloest hat.
+                _, _, rumpf = wert.lower().partition(" where ")
+                if not re.search(r"(\[[a-z_]\w*\]|\b[a-z_]\w*\b)\s*"
+                                 r"(=|<>|!=|<=|>=|<|>|\bin\b|\blike\b)", rumpf):
+                    findings.append({
+                        "object": f"{name} → {r.get('tablePath')}", "kind": "predicate",
+                        "issue": "Praedikat erfuellt die OneLake-Grammatik nicht",
+                        "why": "OneLake verlangt {Spalte} {Operator} {Wert}. Ein ungueltiger "
+                               "Eintrag laesst den PUT scheitern und reisst die Anlage ALLER "
+                               "Rollen des Items mit — der DefaultReader bleibt dann stehen"})
+                if len(wert) > ONELAKE_MAX_PREDICATE_CHARS:
+                    findings.append({
+                        "object": f"{name} → {r.get('tablePath')}", "kind": "predicate",
+                        "issue": f"Praedikat laenger als {ONELAKE_MAX_PREDICATE_CHARS} Zeichen",
+                        "why": "die Dienstgrenze; darueber wird die Regel abgelehnt"})
+
+            offen = sorted(p for p in pfade if p not in geschnitten and "/fact_" in p.lower())
+            if offen and not zeilen:
+                ohne_schnitt += 1
+            if offen and echte:
+                findings.append({
+                    "object": name, "kind": "role",
+                    "issue": f"echte Mitglieder ({len(echte)}) auf ungeschnittenen Faktentabellen: "
+                             + ", ".join(offen),
+                    "why": "die Gruppe ist eingetragen, der Zeilenschnitt aber nicht geschrieben — "
+                           "jedes Mitglied sieht alle Zeilen. Entweder den Schnitt im Bauplan "
+                           "erklaeren (row_security) oder die Tabelle aus der Rolle nehmen"})
+
+        if len(mitglieder) > ONELAKE_MAX_MEMBERS_PER_ROLE:
+            findings.append({"object": name, "kind": "role",
+                             "issue": f"mehr als {ONELAKE_MAX_MEMBERS_PER_ROLE} Mitglieder",
+                             "why": "Dienstgrenze je Rolle"})
+
+    if len(rollen) > ONELAKE_MAX_ROLES_PER_ITEM:
+        findings.append({"object": "<Item>", "kind": "item",
+                         "issue": f"mehr als {ONELAKE_MAX_ROLES_PER_ITEM} Rollen",
+                         "why": "Dienstgrenze je Item"})
+
+    return {"findings": findings,
+            "counts": {"roles": len(rollen), "ohne_schnitt": ohne_schnitt,
+                       "findings": len(findings)}}
+
+
 def _cls_columns(tables: list[str], sensitivity: dict, cols_by_table: dict) -> tuple[list, list]:
     """CLS-Einschraenkungen für eine Tabellenmenge — und die Punkte, die ohne Katalog offen bleiben.
 
@@ -371,9 +464,15 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
 
     - **Table access (OLS)** ← the domain's gold products. Each rule carries the two mandatory
       ``PermissionScope`` objects the API requires: ``Path`` (``/Tables/<t>``) + ``Action`` (Read).
-    - **RLS** (``constraints.rows[].value``, a T-SQL predicate) → scaffolded **fail-closed** on
-      each fact (``where 1=0`` = deny-all) so an un-authored rule never leaks rows; the real
-      predicate is domain policy (not in the IR) → workshop replaces ``1=0``.
+    - **RLS** (``constraints.rows[].value``, a T-SQL predicate) → only where the blueprint
+      *declares* a cut (``row_security``). Where it does not, **no row condition is emitted**
+      and the gap is carried into ``_ONELAKE_SECURITY.md`` instead of into the payload.
+      Measured 14.08.2026, HOCHTIEF run 2 (B12): the former ``where 1=0`` scaffold violates the
+      OneLake RLS grammar (``{column} {operator} {static value}``, MS Learn *Row-level security
+      syntax reference*) → ``BadRequest: InvalidRLSPredicate``. Because the ``PUT`` replaces the
+      **entire** role set, that single invalid predicate aborted the creation of *all* roles on
+      the item and left ``DefaultReader``/``ReadAll`` standing. A deny-all meant to protect
+      produced the opposite. Fail-closed therefore never gets expressed as a row predicate here.
     - **CLS** (``constraints.columns[]``) → **not guessed** (which columns are sensitive is domain
       policy). The exact shape to add is documented in ``ACCESS_LAYER_DECISION.md``.
 
@@ -402,13 +501,17 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
             ],
         }
         constraints: dict = {}
-        # RLS on the domain's fact tables (naming-convention fact_* — the layer prefix the
-        # generator enforces). Fail-closed: 1=0 denies all rows until the workshop authors the
-        # predicate; an invalid/absent predicate is deny-all by OneLake anyway (safe default).
-        rows = [{"tablePath": f"/Tables/{t}", "value": f"select * from {t} where 1=0"}
-                for t in tables if t.startswith("fact_")]
-        if rows:
-            constraints["rows"] = rows
+        # KEIN Zeilenschnitt ohne erklaerten Zeilenschnitt (B12, gemessen 14.08.2026).
+        # Hier stand `where 1=0` als fail-closed-Geruest. Das Praedikat ist grammatikalisch
+        # ungueltig (OneLake verlangt {Spalte} {Operator} {Wert}), der `PUT` ersetzt die
+        # gesamte Rollenmenge des Items — ein ungueltiger Eintrag riss deshalb die Anlage
+        # ALLER Rollen mit, und die Vorgabe `DefaultReader`/`ReadAll` blieb stehen. Aus
+        # "niemand sieht etwas" wurde "jeder sieht alles".
+        # Entschieden 14.08.2026 (Flo): ohne erklaerten Schnitt entsteht keine Zeilenbedingung,
+        # die Tabellen bleiben lesbar. Traegt, solange die Rolle keine Mitglieder hat und die
+        # Domaene keine Daten — beim Emittieren ist beides der Fall (`<VERIFY: …>`-Platzhalter).
+        # Der gefaehrliche Zustand ist der Uebergang, und den faengt die Leitplanken-Pruefung
+        # (`check_onelake_role_guardrails` in diesem Modul), nicht die Vorgabe.
         # CLS: OneLake CLS *permits visible* columns (unlisted → null), so to HIDE the sensitive
         # ones we Permit the complement. This needs the full column list (governed catalog); without
         # it we can't compute the complement → record a TODO rather than guess.
@@ -443,8 +546,8 @@ def _row_security_doc(bp: dict) -> list[str]:
         return []
     lines = [
         "## Zeilenschnitt: eine Rolle je Wert", "",
-        "Fuer diese Domaenen ist der Schnitt erklaert, deshalb steht im Rumpf **kein** `1=0`,",
-        "sondern je Wert eine eigene Rolle mit fertigem Praedikat. Das ist keine Stilfrage: das",
+        "Fuer diese Domaenen ist der Schnitt erklaert, deshalb steht im Rumpf je Wert eine",
+        "eigene Rolle mit fertigem Praedikat. Das ist keine Stilfrage: das",
         "Praedikat einer OneLake-Rolle ist statisches T-SQL ohne Zugriff auf den Aufrufer — es gibt",
         "kein Gegenstueck zu `USERPRINCIPALNAME()`. Ein Ausdruck kann den Schnitt also nicht",
         "abbilden; er muss materialisiert werden.", "",
@@ -485,10 +588,17 @@ def _onelake_roles_doc(cls_todo: list[str], catalog: dict | None, bp: dict | Non
         "",
         "## Was im Rumpf steht und was du ändern musst",
         "",
-        "- **RLS** — `constraints.rows[].value` ist **fail-closed** (`1=0`, verweigert alles).",
-        "  Ersetze es durch das Zeilenprädikat der Domäne (T-SQL), z. B.",
-        "  `select * from fact where [division] = USER_NAME()`. Ein Platzhalter, der alles",
-        "  durchlässt, wäre von funktionierender Sicherheit nicht zu unterscheiden.",
+        "- **RLS** — `constraints.rows[]` steht **nur dort, wo der Bauplan einen Schnitt",
+        "  erklärt** (`row_security`). Wo er keinen erklärt, steht **keine Zeilenbedingung**:",
+        "  die Tabellen der Domäne sind für die Rolle vollständig lesbar. Das ist eine",
+        "  getroffene Entscheidung und kein Versehen — sie trägt, solange die Rolle keine",
+        "  Mitglieder hat und die Domäne keine Daten. **Vor dem ersten echten Nutzer muss der",
+        "  Schnitt geschrieben sein**, sonst sieht jedes Mitglied dieser Gruppe alle Zeilen.",
+        "  Bis 14.08.2026 stand hier ersatzweise `where 1=0`. Das Prädikat erfüllt die",
+        "  OneLake-Grammatik nicht (`{Spalte} {Operator} {Wert}`) und wurde mit",
+        "  `InvalidRLSPredicate` abgelehnt — und weil der `PUT` die gesamte Rollenmenge",
+        "  ersetzt, riss dieser eine Eintrag die Anlage **aller** Rollen mit. Zurück blieb der",
+        "  `DefaultReader` mit `ReadAll`.",
         "- **CLS** — `constraints.columns` erlaubt die **sichtbaren** Spalten (nicht gelistete",
         "  sind null). Deklarierte sensible Spalten (`--sensitivity`) werden versteckt, indem das",
         "  Komplement erlaubt wird — berechnet aus der vollen Spaltenliste des governten Katalogs.",
