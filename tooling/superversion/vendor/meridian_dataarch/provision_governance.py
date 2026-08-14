@@ -54,6 +54,15 @@ def _rls_tmdl(domain: str, gold_products: list[str], audience: str, sensitivity:
     DAX row filter is domain policy (not in the IR) → TODO(contract). Column-level (OLS) hiding is
     concrete when a ``sensitivity`` map (table → [sensitive columns]) is supplied — each sensitive
     column is named in a ``metadataPermission: none`` directive to hide it from this role.
+
+    **Der Platzhalter ist ``FALSE()``, nicht ``true`` — geaendert 14.08.2026 (A.9).** Bis dahin
+    stand hier ``true``, ausdruecklich als bewusste Abweichung von ``model_roles`` begruendet: das
+    Geruest werde von Hand deployt, von jemandem, der das ``TODO(contract)`` daneben liest. Diese
+    Annahme traegt nicht. Gemessen im E2E-Lauf: ``governance/roles/vertrieb.tmdl`` gab **allen
+    sieben** Tabellen ``true``, dieselbe Form im HOCHTIEF-Lauf 1. ``true`` zeigt alle Zeilen, und
+    das ist die Richtung, die niemandem auffaellt — ein zu enger Filter faellt auf, weil sich
+    jemand beschwert, ein zu weiter nicht. Damit geben jetzt beide Emitter dieses Moduls dieselbe
+    Antwort auf dieselbe Frage; zwei gegenlaeufige Vorgaben in einer Datei sind ein Drift-Erzeuger.
     """
     sensitivity = sensitivity or {}
     dident = _ident(domain)
@@ -70,7 +79,7 @@ def _rls_tmdl(domain: str, gold_products: list[str], audience: str, sensitivity:
         lines += [
             f"\t\ttablePermission {gp} =",
             f"\t\t\t/// TODO(contract): DAX row filter for '{domain}' — e.g. [Region] = USERPRINCIPALNAME()",
-            f"\t\t\ttrue",
+            f"\t\t\tFALSE() /* bis der Filter geschrieben ist bewusst restriktiv — siehe TODO oben */",
         ]
         scols = sorted(sensitivity.get(gp, []) or [])
         if scols:
@@ -98,8 +107,11 @@ def model_roles(bp: dict, sensitivity: dict | None = None) -> list:
     ohne die Policy zu füllen, sieht nichts und merkt es sofort. Solange niemand Mitglied ist,
     ändert die Rolle ohnehin nichts — sie kostet also nichts und schließt die Lücke.
 
-    Das separat emittierte Gerüst (``_rls_tmdl``) behält bewusst ``true``: es wird von Hand
-    deployt, von jemandem, der das ``TODO(contract)`` daneben liest.
+    Das separat emittierte Gerüst (``_rls_tmdl``) trägt seit 14.08.2026 denselben ``FALSE()``.
+    Vorher stand dort ``true``, begründet damit, dass es von Hand deployt werde — von jemandem,
+    der das ``TODO(contract)`` daneben liest. Befund A.9 hat die Annahme widerlegt (alle sieben
+    Tabellen im E2E-Lauf, dieselbe Form im HOCHTIEF-Lauf 1), und zwei gegenläufige Vorgaben in
+    einer Datei sind ein Drift-Erzeuger.
     """
     from core.pbi_engine.parsers.tmdl_parser import Role, RoleColumnPermission, RoleTablePermission
 
