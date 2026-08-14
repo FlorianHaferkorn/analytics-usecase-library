@@ -337,6 +337,20 @@ def check_onelake_role_guardrails(payload: dict | str) -> dict:
                         "issue": f"Praedikat laenger als {ONELAKE_MAX_PREDICATE_CHARS} Zeichen",
                         "why": "die Dienstgrenze; darueber wird die Regel abgelehnt"})
 
+            # B6 (gemessen 14.08.2026, §3b): gibt die Rolle NUR das frei, was sie schneidet, dann
+            # ist jede Dimension fuer ihre Mitglieder unlesbar — nicht „ungeschuetzt sichtbar",
+            # sondern weg. Der Bericht ist dann leer, und das sieht nach einem Berichtsfehler aus,
+            # nicht nach einer Berechtigungsentscheidung. Deshalb hier und nicht im Auge des Lesers.
+            if zeilen and pfade and set(pfade) <= geschnitten:
+                findings.append({
+                    "object": name, "kind": "role",
+                    "issue": "gibt ausschliesslich die geschnittenen Tabellen frei: "
+                             + ", ".join(sorted(pfade)),
+                    "why": "in OneLake-Sicherheit ist eine Tabelle, die keine Rolle freigibt, "
+                           "unlesbar. Ohne ausdrueckliche Leseerlaubnis fuer die Dimensionen, die "
+                           "die Berichte anfassen, sieht ein Mitglied gefilterte Faktenzeilen und "
+                           "sonst nichts — der Bericht bleibt leer"})
+
             offen = sorted(p for p in pfade if p not in geschnitten and "/fact_" in p.lower())
             if offen and not zeilen:
                 ohne_schnitt += 1
@@ -422,9 +436,22 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
                     f"{ONELAKE_MAX_ROLES_PER_ITEM} je Item. Der Schnitt muss vergroebert werden "
                     f"(Gruppierung der Werte) oder auf mehrere Items verteilt.")
     if ungeschuetzt:
-        todo.append(f"{domain.get('name')}: nicht vom Schnitt erfasst und damit fuer jede Rolle "
-                    f"unsichtbar: {', '.join(ungeschuetzt)}. Wer sie sehen soll, braucht eine "
-                    f"zweite Rolle ohne Zeilenbedingung — oder sie gehoeren in protected_products.")
+        todo.append(f"{domain.get('name')}: lesbar, aber NICHT vom Schnitt erfasst: "
+                    f"{', '.join(ungeschuetzt)}. Jede Rolle sieht diese Tabellen vollstaendig. "
+                    f"Die Pruefrage ist nicht „ist die Liste richtig“, sondern „welche Fakten "
+                    f"stehen NICHT darauf, und ist das gewollt“ — gehoeren sie in "
+                    f"protected_products, oder sind sie bewusst ungeschnitten?")
+    # Was die Rolle LESEN koennen muss — nicht nur, was sie schneidet. Bis 14.08.2026 waren beide
+    # Mengen dieselbe: die Rolle gab genau die geschuetzten Fakten frei. Gemessen im Mandanten
+    # (B6, §3b): `readvertriebeurope` trug `Path=/Tables/vertrieb/fact_umsatz | Action=Read` und
+    # sonst nichts — kein `dim_territorium`, kein `dim_datum`. Ein Mitglied der Gruppe saehe
+    # gefilterte Faktenzeilen und keine einzige Dimension, beide Berichte waeren leer.
+    #
+    # In OneLake-Sicherheit ist eine Tabelle, die keine Rolle freigibt, nicht „ungeschuetzt
+    # sichtbar", sondern **unlesbar**. Der Emitter kannte dafuer keinen Begriff: er leitete die
+    # Freigaben aus `protected_products` ab, und „zum Lesen noetig, aber nicht zu schneiden" kam
+    # darin nicht vor. Genau diese zweite Menge steht jetzt hier.
+    lesbar = sorted(set(tabellen) | set(domain.get("data_products") or []) | set(cols_by_table))
 
     rollen = []
     for wert in werte:
@@ -443,8 +470,11 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
         gruppe = (muster or "").replace("{value}", str(wert)) if muster else ""
         rule = {
             "effect": "Permit",
+            # GENAU ZWEI `permission`-Elemente, und mehrere Tabellen gehoeren in EIN
+            # `attributeValueIncludedIn`-Array. Gemessen 14.08.2026 an der API: ein Paar je
+            # Tabelle wird mit `PolicyValidationError` abgewiesen.
             "permission": [
-                {"attributeName": "Path", "attributeValueIncludedIn": [f"/Tables/{t}" for t in tabellen]},
+                {"attributeName": "Path", "attributeValueIncludedIn": [f"/Tables/{t}" for t in lesbar]},
                 {"attributeName": "Action", "attributeValueIncludedIn": ["Read"]},
             ],
         }
