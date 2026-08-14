@@ -15,7 +15,9 @@ workflows can attach an accessible name to every generated visual.
 
 For the Deneb / web track, `vegalite_description()` returns the string to drop into a Vega-Lite spec's
 top-level `description` (which Vega-Lite renders as the SVG aria-label) at GENERATION time — the frozen
-goldens are left untouched. The deeper keyboard-navigable tree (olli) is a documented follow-up.
+goldens are left untouched. `structured_tree()` adds the deeper, keyboard-navigable accessible tree in
+the olli model (mitvis/olli) — deterministic and zero-dep; the olli npm library renders the interactive
+version from the same Deneb spec at runtime.
 
 CLI:
   a11y.py alt <idiom> [--profile p]     # the composed alt-text / aria description
@@ -119,6 +121,36 @@ def data_table(headers: "list[str]", rows: "list[list]", caption: str = "") -> d
     md_rows = ["| " + " | ".join(str(c) for c in row) + " |" for row in rows]
     md = "\n".join(([f"**{caption}**", ""] if caption else []) + [md_head, md_sep, *md_rows])
     return {"html": html_out, "markdown": md}
+
+
+def structured_tree(idiom: str, headers: "list[str]", rows: "list[list]",
+                    summary: "dict | None" = None) -> dict:
+    """A keyboard-navigable, hierarchical accessible structure — the olli MODEL (mitvis/olli): a
+    root describing the chart, then one navigable node per data point. Deterministic and zero-dep,
+    so it embeds anywhere. (The olli npm library renders the interactive, arrow-key-navigable version
+    from the SAME Deneb/Vega-Lite spec at runtime; this is the static structural equivalent for a
+    document/report — always paired with the data_table fallback.)
+
+    Returns accessible HTML (`role=tree` / `role=treeitem`) + a plain-text outline."""
+    root = alt_text(idiom, summary)
+    key = str(headers[0]) if headers else "item"
+    fields = [str(h) for h in headers[1:]]
+
+    def _row_label(row) -> str:
+        head = str(row[0]) if row else ""
+        rest = "; ".join(f"{f} {row[i + 1]}" for i, f in enumerate(fields) if i + 1 < len(row))
+        return f"{key} {head}" + (f" — {rest}" if rest else "")
+
+    items = "".join(
+        f'<li role="treeitem" aria-label="{html.escape(_row_label(r))}">{html.escape(_row_label(r))}</li>'
+        for r in rows
+    )
+    tree_html = (f'<ul role="tree" aria-label="{html.escape(root)}">'
+                 f'<li role="treeitem" aria-expanded="true">{html.escape(root)}'
+                 f'<ul role="group">{items}</ul></li></ul>')
+
+    lines = [root] + [f"  - {_row_label(r)}" for r in rows]
+    return {"html": tree_html, "text": "\n".join(lines), "root": root, "nodes": len(rows)}
 
 
 # --------------------------------------------------------------------------- #
