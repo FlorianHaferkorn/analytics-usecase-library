@@ -22,6 +22,9 @@ params:
   series:   {role: facet, type: category, required: true}
   entity:   {role: table, default: _Measures}
 
+data_fit:
+  series: {type: category, max: 12, on_violation: too_many_panels}
+
 tokens:
   col_line: ink                     # #0F2430
 

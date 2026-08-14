@@ -20,6 +20,9 @@ params:
   nodes: {role: stages, required: true}
   links: {role: flow, required: true, note: "source, target, value"}
 
+data_fit:
+  nodes: {max: 12, on_violation: spaghetti_too_many_crossings}
+
 tokens:
   col_node: color_semantics.neutral # #586472
   col_link: brand.primary           # #0078D4

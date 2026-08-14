@@ -23,6 +23,9 @@ params:
   series:   {role: series, type: category, required: true}
   entity:   {role: table, default: _Measures}
 
+data_fit:
+  series: {type: category, max: 5, on_violation: too_many_series}
+
 tokens:
   col_1: brand.primary              # #0078D4
   col_2: brand.teal                 # #008575

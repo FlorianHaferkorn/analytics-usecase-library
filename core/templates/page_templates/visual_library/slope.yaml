@@ -23,6 +23,9 @@ params:
   series:   {role: series, type: category, required: true}
   entity:   {role: table, default: _Measures}
 
+data_fit:
+  series: {type: category, max: 6, on_violation: crossing_spaghetti_too_many_series}
+
 tokens:
   col_line: color_semantics.neutral # #94A0AC (per-series recolour at gen time)
 

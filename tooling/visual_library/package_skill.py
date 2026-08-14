@@ -74,14 +74,22 @@ def build(out_dir: Path) -> dict:
 
 
 def smoke(out_dir: Path) -> str:
-    """Prove the bundle works standalone: run its own resolve.py for one purpose."""
-    r = subprocess.run(
-        [sys.executable, str(out_dir / "tooling" / "visual_library" / "resolve.py"),
-         "purpose", "compare_categories"],
-        capture_output=True, text=True, timeout=60,
-    )
+    """Prove the bundle works standalone: resolve a purpose AND run a data-fit check (which
+    also proves the anti-pattern catalog + data_fit contracts travelled with the bundle)."""
+    resolver = str(out_dir / "tooling" / "visual_library" / "resolve.py")
+
+    def _run(args):
+        return subprocess.run([sys.executable, resolver, *args],
+                              capture_output=True, text=True, timeout=60)
+
+    r = _run(["purpose", "compare_categories"])
     if r.returncode != 0 or "bar_ranking" not in r.stdout:
-        raise RuntimeError(f"bundle smoke failed (rc={r.returncode}): {r.stderr[:300] or r.stdout[:300]}")
+        raise RuntimeError(f"bundle smoke (purpose) failed (rc={r.returncode}): {r.stderr[:300] or r.stdout[:300]}")
+
+    f = _run(["fit", "donut", "category=7"])
+    if f.returncode != 1 or "pie_or_donut_gt_4" not in f.stdout:
+        raise RuntimeError(f"bundle smoke (fit) failed (rc={f.returncode}): {f.stderr[:300] or f.stdout[:300]}")
+
     return r.stdout.strip().splitlines()[0]
 
 
@@ -98,6 +106,12 @@ python tooling/visual_library/resolve.py purpose <purpose_id> [--profile ibcs|pr
 
 # is an existing visual governed / denied? what should replace it?
 python tooling/visual_library/resolve.py audit path/to/visual.json
+
+# does the bound data fit the idiom? (cardinality/type vs the data_fit contract)
+python tooling/visual_library/resolve.py fit donut category=7   # -> UNFIT: pie_or_donut_gt_4
+
+# why can this idiom be the wrong choice? (governed anti-patterns + fixes)
+python tooling/visual_library/resolve.py why-not <idiom_id>
 
 # render the runnable code for an idiom x tool (reads <idiom>.yaml)
 python tooling/visual_library/render.py <idiom> <tool>

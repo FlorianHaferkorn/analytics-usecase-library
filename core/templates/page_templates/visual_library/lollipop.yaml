@@ -21,6 +21,9 @@ params:
   measure:  {role: value, required: true}
   entity:   {role: table, default: _Measures}
 
+data_fit:
+  category: {type: category, max: 20, on_violation: lollipop_for_many_dense_categories}
+
 tokens:
   col_dot:   ink                     # #0F2430
   col_below: color_semantics.negative# #A4262C
