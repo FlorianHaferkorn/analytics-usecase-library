@@ -12,6 +12,8 @@ CLI:
   resolve.py audit <visual.json> [--json]     # governed / denied / ungoverned + sanctioned replacement
   resolve.py idiom <idiom_id> [--json]
   resolve.py list [--json]                     # every analytical purpose → best idiom
+  resolve.py fit <idiom_id> <param>=<n>[:type] ...   # check a data shape vs the idiom's data_fit contract
+  resolve.py why-not <idiom_id> [--json]       # the governed anti-patterns (why this idiom can be wrong)
 """
 from __future__ import annotations
 
@@ -79,6 +81,70 @@ def _min_size(entry: dict) -> dict:
             "px_design_base": [bw, bh], "px_production": [pw, ph]}
 
 
+def load_anti_patterns() -> dict:
+    """The anti-pattern catalog: id -> {message, fix, source, fit}."""
+    return yaml.safe_load((LIB / "_anti_patterns.yaml").read_text(encoding="utf-8")).get("patterns", {})
+
+
+def _resolve_anti_patterns(ids: "list[str]", cat: "dict | None" = None) -> "list[dict]":
+    cat = cat if cat is not None else load_anti_patterns()
+    return [{"id": ap, "message": cat.get(ap, {}).get("message"),
+             "fix": cat.get(ap, {}).get("fix"), "source": cat.get(ap, {}).get("source")}
+            for ap in (ids or [])]
+
+
+def anti_patterns(iid: str) -> "list[dict]":
+    """An idiom's anti_pattern tags resolved to the governed {id, message, fix, source} —
+    the agent-legible 'why NOT this idiom'."""
+    return _resolve_anti_patterns(render.load_entry(iid).get("anti_patterns"))
+
+
+def data_fit(iid: str) -> dict:
+    """The idiom's data_fit contract (per-param {type, min, max, on_violation}), or {}."""
+    return render.load_entry(iid).get("data_fit") or {}
+
+
+_TYPE_ALIASES = {"date": "temporal"}  # date and temporal are interchangeable for a fit check
+
+
+def _norm_type(t: "str | None") -> "str | None":
+    return _TYPE_ALIASES.get(t, t)
+
+
+def check_fit(iid: str, shape: dict) -> dict:
+    """Check a bound-data SHAPE against an idiom's data_fit contract. `shape` maps a param to
+    either an int cardinality (distinct categories / series count / measure count) or a
+    {"n": int, "type": str}. Each violation carries the governed anti_pattern that explains it."""
+    df = data_fit(iid)
+    cat = load_anti_patterns()
+    violations, checked, unchecked = [], [], []
+
+    def _viol(ap_id, check, bound, actual, param):
+        d = cat.get(ap_id, {}) if ap_id else {}
+        return {"param": param, "check": check, "bound": bound, "actual": actual,
+                "rule": ap_id, "message": d.get("message"), "fix": d.get("fix")}
+
+    for param, spec in df.items():
+        if param not in shape:
+            unchecked.append(param)
+            continue
+        val = shape[param]
+        n = val.get("n") if isinstance(val, dict) else val
+        typ = _norm_type(val.get("type")) if isinstance(val, dict) else None
+        checked.append(param)
+        if isinstance(n, int):
+            if "max" in spec and n > spec["max"]:
+                violations.append(_viol(spec.get("on_violation"), "max", spec["max"], n, param))
+            if "min" in spec and n < spec["min"]:
+                violations.append(_viol(spec.get("on_violation"), "min", spec["min"], n, param))
+        if spec.get("type") and typ and typ != _norm_type(spec["type"]):
+            violations.append({"param": param, "check": "type", "bound": spec["type"],
+                               "actual": typ, "rule": None,
+                               "message": f"{param} needs a {spec['type']} field", "fix": None})
+    return {"idiom": iid, "fit": not violations, "violations": violations,
+            "checked": checked, "unchecked": unchecked, "contract": df}
+
+
 def _idiom_card(iid: str, profile: "str | None" = None) -> dict:
     e = render.load_entry(iid)
     return {
@@ -90,6 +156,8 @@ def _idiom_card(iid: str, profile: "str | None" = None) -> dict:
         "tools": render.tools(iid, profile),
         "profiles": render.profiles(iid),
         "min_size": _min_size(e),
+        "data_fit": e.get("data_fit") or {},
+        "anti_patterns": _resolve_anti_patterns(e.get("anti_patterns")),
     }
 
 
@@ -156,6 +224,38 @@ def _print_purpose(r: dict) -> None:
     print(f"  deny (never emit): {', '.join(r['deny'])}")
 
 
+def _print_fit(r: dict) -> None:
+    tag = "FIT ✓" if r["fit"] else "UNFIT ✗"
+    line = f"{tag}  {r['idiom']}   checked={','.join(r['checked']) or '-'}"
+    if r["unchecked"]:
+        line += f"   unchecked={','.join(r['unchecked'])}"
+    print(line)
+    for v in r["violations"]:
+        head = f"  ✗ {v['param']} {v['check']} {v['bound']} (got {v['actual']})"
+        print(head + (f"  — {v['rule']}" if v["rule"] else ""))
+        if v.get("message"):
+            print(f"      {v['message']}")
+        if v.get("fix"):
+            print(f"      → {v['fix']}")
+    if not r["contract"]:
+        print("  (no data_fit contract for this idiom)")
+
+
+def _parse_shape(tokens: "list[str]") -> dict:
+    """param=7  or  param=7:quantitative  ->  {'param': 7} / {'param': {'n':7,'type':...}}"""
+    shape: dict = {}
+    for tok in tokens:
+        if "=" not in tok:
+            continue
+        k, v = tok.split("=", 1)
+        if ":" in v:
+            num, t = v.split(":", 1)
+            shape[k] = {"n": int(num), "type": t}
+        else:
+            shape[k] = int(v)
+    return shape
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         print(__doc__)
@@ -182,6 +282,24 @@ def main(argv: list[str]) -> int:
         return 0 if r["verdict"] in ("governed",) else 1
     if cmd == "idiom" and len(rest) >= 2:
         print(json.dumps(_idiom_card(rest[1], prof), indent=2, ensure_ascii=False))
+        return 0
+    if cmd == "fit" and len(rest) >= 2:
+        r = check_fit(rest[1], _parse_shape(rest[2:]))
+        if as_json:
+            print(json.dumps(r, indent=2, ensure_ascii=False))
+        else:
+            _print_fit(r)
+        return 0 if r["fit"] else 1
+    if cmd == "why-not" and len(rest) >= 2:
+        aps = anti_patterns(rest[1])
+        if as_json:
+            print(json.dumps(aps, indent=2, ensure_ascii=False))
+        else:
+            print(f"{rest[1]} — anti-patterns (why NOT this idiom):")
+            for a in aps:
+                print(f"  ✗ {a['id']}: {a['message']}")
+                if a.get("fix"):
+                    print(f"      → {a['fix']}" + (f"   [{a['source']}]" if a.get("source") else ""))
         return 0
     if cmd == "list":
         idx = _index()

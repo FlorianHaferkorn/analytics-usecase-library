@@ -24,6 +24,9 @@ params:
   entity:      {role: table, default: _Measures}
   top_n:       {role: limit, default: 20}
 
+data_fit:
+  value: {max: 6, on_violation: too_many_columns}
+
 tokens:
   col_above: ink                     # #0F2430
   col_below: color_semantics.negative# #A4262C

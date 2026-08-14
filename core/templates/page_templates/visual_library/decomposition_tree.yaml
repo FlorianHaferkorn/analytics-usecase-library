@@ -21,6 +21,9 @@ params:
   explain_by: {role: dimensions, required: true, note: "one or more dims to drill by"}
   entity:     {role: table, default: _Measures}
 
+data_fit:
+  explain_by: {max: 6, on_violation: too_many_explain_by_dims}
+
 tokens:
   col_bar: brand.primary            # #0078D4
 

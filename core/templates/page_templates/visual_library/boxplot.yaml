@@ -22,6 +22,10 @@ params:
   category: {role: group, type: category, required: true}
   entity:   {role: table, default: _Measures}
 
+data_fit:
+  category: {type: category, max: 12, on_violation: too_many_groups}
+  measure: {type: quantitative}
+
 tokens:
   col_box: brand.primary            # #0078D4
   col_med: ink                      # #0F2430

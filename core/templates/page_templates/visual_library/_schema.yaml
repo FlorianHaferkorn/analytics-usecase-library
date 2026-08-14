@@ -64,6 +64,30 @@ tools:
 # templates — determinism requires pure substitution. Colours are hex from the
 # governed tokens; never invented.
 #
+# --- data_fit (OPTIONAL per idiom) — the machine-checkable data contract ---
+# `anti_patterns` names WHY an idiom can be wrong; `data_fit` says WHEN, against the
+# actually-bound data. It is a per-param map of hard bounds the resolver checks at
+# generation/audit time (resolve.py fit <idiom> <param>=<n>[:type] ...):
+#
+#   data_fit:
+#     category: {type: category, min: 2, max: 4, on_violation: pie_or_donut_gt_4}
+#     value:    {min: 1, max: 1}
+#
+# Keys are param NAMES (must exist in `params`). Sub-keys are all optional:
+#   type          required data type (category|quantitative|temporal|date)
+#   min / max     cardinality bounds — distinct-value count for a dimension/series,
+#                 or measure count for a value role
+#   on_violation  the anti_pattern id (defined in _anti_patterns.yaml) that EXPLAINS a
+#                 min/max breach — this is the agent-legible "why not this idiom"
+# `data_fit` is NOT a required key; an idiom whose correctness does not depend on input
+# cardinality/type (e.g. a single-value KPI card) may omit it.
+#
+# --- _anti_patterns.yaml — the anti-pattern catalog (governance) ---
+# Every id used in ANY idiom's `anti_patterns:` list MUST be defined once in
+# _anti_patterns.yaml with a `message` + `fix` (+ optional `source`, `fit`). This turns
+# free-text tags into governed rejection reasons the resolver can return verbatim.
+# Enforced by tooling/visual_library/tests/test_data_fit.py.
+#
 # --- applicability ---
 # Every idiom must ADDRESS all four tools, but not every idiom EXISTS in every tool
 # (SVG-DAX is for cell micro-charts, not full waterfalls/scatter; Vega-Lite/Recharts

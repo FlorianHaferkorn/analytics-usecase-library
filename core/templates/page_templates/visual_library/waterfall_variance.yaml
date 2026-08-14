@@ -25,6 +25,9 @@ params:
   measure:  {role: value, required: true}
   entity:   {role: table, default: _Measures}
 
+data_fit:
+  category: {type: category, max: 12, on_violation: too_many_steps}
+
 tokens:
   col_inc:   color_semantics.positive   # #107C10 favourable variance
   col_dec:   color_semantics.negative   # #A4262C unfavourable variance

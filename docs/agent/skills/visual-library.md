@@ -18,7 +18,9 @@ resolver — it never restates the catalog.
 
 - `core/templates/page_templates/visual_library/index.yaml` — purpose→idiom chooser, `deny` list,
   notation profiles, `implemented` (30 idioms).
-- `<idiom>.yaml` — encoding rationale, `realizations` per tool, `min_size` (grid units), preview.
+- `<idiom>.yaml` — encoding rationale, `realizations` per tool, `min_size` (grid units), `data_fit`
+  (per-param cardinality/type contract), preview.
+- `_anti_patterns.yaml` — the catalog defining every `anti_patterns` id (message + fix + source).
 - `tooling/visual_library/render.py` — pure `{{param}}` renderer + grid math; `resolve.py` — the
   resolver used below.
 
@@ -27,8 +29,10 @@ resolver — it never restates the catalog.
 1. Name the analytical question → its `purpose` id (`resolve.py list`).
 2. `py -3 tooling/visual_library/resolve.py purpose <purpose_id> [--profile ibcs|print_safe]`
    → best idiom + candidates, each with native visualType, `min_size` (grid + px @1280/@1920), tools.
-3. Read the chosen `<idiom>.yaml` for the runnable template of your tool; render with `render.py`.
-4. Size the page slot **≥ the idiom's `min_size`** (grid units) on `tokens/layout_grid.yaml`.
+3. Validate the bound data fits: `py -3 tooling/visual_library/resolve.py fit <idiom> <param>=<n>[:type]`
+   → UNFIT names the governing anti-pattern + fix; `resolve.py why-not <idiom>` lists the governed anti-patterns.
+4. Read the chosen `<idiom>.yaml` for the runnable template of your tool; render with `render.py`.
+5. Size the page slot **≥ the idiom's `min_size`** (grid units) on `tokens/layout_grid.yaml`.
 
 ## Workflow B — auditing / upgrading an existing report (no ALUCA core)
 
@@ -36,6 +40,7 @@ resolver — it never restates the catalog.
    **GOVERNED** (which idiom), **DENIED** (deny rule + replacement), or **UNGOVERNED** (resolve by purpose).
 2. Replace denied visuals with the sanctioned idiom; inject SVG-DAX / AlucaViz micro-charts where a
    cell/card form fits; apply a notation profile (`ibcs` / `print_safe`) via the param overlay.
+   Before emitting, `resolve.py fit <idiom> <param>=<n>` confirms the target's data (cardinality/type) suits it.
 3. This path depends ONLY on `render.py` + `resolve.py` + the YAML — no semantic model, no bracket.
    For a drop-in bundle into a customer repo, generate it (do not hand-copy).
 

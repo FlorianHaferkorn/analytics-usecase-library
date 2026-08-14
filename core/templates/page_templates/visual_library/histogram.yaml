@@ -20,6 +20,9 @@ params:
   measure: {role: value, type: quantitative, required: true, note: "the raw values to bin"}
   entity:  {role: table, default: _Measures}
 
+data_fit:
+  measure: {type: quantitative}
+
 tokens:
   col_bar: brand.primary            # #0078D4
 
