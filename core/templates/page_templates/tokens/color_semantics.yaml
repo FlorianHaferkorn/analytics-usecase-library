@@ -67,6 +67,29 @@ colorblind_safe:
   positive: "#0078D4"   # brand.primary (blue)
   negative: "#F7630C"   # brand.data_colors[3] (orange)
 
+# Colour-vision-deficiency-safe CATEGORICAL palette (Okabe & Ito 2008, "Color Universal Design").
+# The governed N-series palette: neighbouring hues stay distinguishable under deuteranopia /
+# protanopia / tritanopia — worst-case CIEDE2000 min ΔE ≈ 11 (vs ≈ 3 for brand.data_colors, which
+# is NOT CVD-safe). Measured, not asserted: tooling/visual_library/contrast.py computes every value
+# below and test_contrast.py fails if this block drifts from it.
+# Ordered so the five ≥3:1-on-white hues (WCAG SC 1.4.11, safe as a solid fill) come first; the
+# three `solid_safe_on_white:false` hues stay CVD-distinguishable but need an outline/stroke on white
+# or a darker ground. Beyond `series_cap` series, colour ALONE is insufficient — add a pattern / dash
+# / shape channel (never rely on colour only). Prefer this over brand.data_colors when >2 categorical
+# series must be told apart, and always for the print_safe / CVAA notation profile.
+categorical_cvd_safe:
+  source: "Okabe & Ito 2008 (CUD); Machado 2009 CVD sim; CIEDE2000 — validated by contrast.py"
+  series_cap: 8            # colour-only ceiling; beyond this a pattern/shape channel is mandatory
+  colors:
+    - {hex: "#0072B2", name: blue,           contrast_on_white: 5.19, solid_safe_on_white: true}
+    - {hex: "#D55E00", name: vermillion,     contrast_on_white: 3.87, solid_safe_on_white: true}
+    - {hex: "#009E73", name: bluish_green,   contrast_on_white: 3.42, solid_safe_on_white: true}
+    - {hex: "#CC79A7", name: reddish_purple, contrast_on_white: 3.06, solid_safe_on_white: true}
+    - {hex: "#000000", name: black,          contrast_on_white: 21.0, solid_safe_on_white: true}
+    - {hex: "#E69F00", name: orange,         contrast_on_white: 2.25, solid_safe_on_white: false}
+    - {hex: "#56B4E9", name: sky_blue,       contrast_on_white: 2.31, solid_safe_on_white: false}
+    - {hex: "#F0E442", name: yellow,         contrast_on_white: 1.32, solid_safe_on_white: false}
+
 # IBCS Scenario Encoding — fill/shape rules for AC/PL/FC/PY on the same visual.
 # Authority: HICHERT, Rolf; FAISST, Jürgen — Solid, Outlined, Hatched (IBCS Institute, 2020)
 # Color is shared; fill pattern distinguishes scenarios — never use a second color for scenarios.
