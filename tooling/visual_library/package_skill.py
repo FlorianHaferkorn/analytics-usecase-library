@@ -41,16 +41,22 @@ def build(out_dir: Path) -> dict:
     tool_src = Path(__file__).resolve().parent  # tooling/visual_library/ (where render.py/resolve.py live)
     tool_dst = out_dir / "tooling" / "visual_library"
     tool_dst.mkdir(parents=True)
-    for name in ("render.py", "resolve.py"):
+    # render.py + resolve.py (chooser / audit / fit / why-not) + contrast.py (CVD-safe palette +
+    # WCAG/CIEDE2000 checks) + a11y.py (alt-text / data-table). visreg.py is intentionally NOT
+    # shipped — it is a CI regression tool needing Pillow/numpy, not a zero-dependency generation
+    # feature.
+    for name in ("render.py", "resolve.py", "contrast.py", "a11y.py"):
         shutil.copy2(tool_src / name, tool_dst / name)
 
-    # 2) the governed SoT (idioms + goldens + schema + index + profiles)
+    # 2) the governed SoT (idioms + goldens + schema + index + profiles + anti-pattern catalog)
     shutil.copytree(LIB, out_dir / _REL_LIB)
 
-    # 3) the layout grid the size math reads (render.grid_px / min_grid_*)
+    # 3) the token files the tooling reads: the layout grid (render.grid_px) and the colour
+    #    semantics (contrast.py's governed CVD-safe categorical palette lives here as SoT)
     tok_dst = out_dir / _REL_TOKENS
     tok_dst.mkdir(parents=True)
     shutil.copy2(LIB.parent / "tokens" / "layout_grid.yaml", tok_dst / "layout_grid.yaml")
+    shutil.copy2(LIB.parent / "tokens" / "color_semantics.yaml", tok_dst / "color_semantics.yaml")
 
     # 4) the skill entry + a usage README
     skill_src = REPO_ROOT / "skills" / "visual-library" / "SKILL.md"
@@ -74,21 +80,29 @@ def build(out_dir: Path) -> dict:
 
 
 def smoke(out_dir: Path) -> str:
-    """Prove the bundle works standalone: resolve a purpose AND run a data-fit check (which
-    also proves the anti-pattern catalog + data_fit contracts travelled with the bundle)."""
-    resolver = str(out_dir / "tooling" / "visual_library" / "resolve.py")
+    """Prove the bundle works standalone: run resolve (purpose + data-fit), contrast (CVD palette)
+    and a11y (alt-text) from inside the bundle — so a broken export of ANY shipped tool fails loudly."""
+    tools = out_dir / "tooling" / "visual_library"
 
-    def _run(args):
-        return subprocess.run([sys.executable, resolver, *args],
+    def _run(script, *args):
+        return subprocess.run([sys.executable, str(tools / script), *args],
                               capture_output=True, text=True, timeout=60)
 
-    r = _run(["purpose", "compare_categories"])
+    r = _run("resolve.py", "purpose", "compare_categories")
     if r.returncode != 0 or "bar_ranking" not in r.stdout:
         raise RuntimeError(f"bundle smoke (purpose) failed (rc={r.returncode}): {r.stderr[:300] or r.stdout[:300]}")
 
-    f = _run(["fit", "donut", "category=7"])
+    f = _run("resolve.py", "fit", "donut", "category=7")
     if f.returncode != 1 or "pie_or_donut_gt_4" not in f.stdout:
         raise RuntimeError(f"bundle smoke (fit) failed (rc={f.returncode}): {f.stderr[:300] or f.stdout[:300]}")
+
+    c = _run("contrast.py", "palette", "6")
+    if c.returncode != 0 or "okabe_ito" not in c.stdout:
+        raise RuntimeError(f"bundle smoke (contrast) failed (rc={c.returncode}): {c.stderr[:300] or c.stdout[:300]}")
+
+    a = _run("a11y.py", "alt", "donut")
+    if a.returncode != 0 or "Donut" not in a.stdout:
+        raise RuntimeError(f"bundle smoke (a11y) failed (rc={a.returncode}): {a.stderr[:300] or a.stdout[:300]}")
 
     return r.stdout.strip().splitlines()[0]
 
@@ -115,7 +129,18 @@ python tooling/visual_library/resolve.py why-not <idiom_id>
 
 # render the runnable code for an idiom x tool (reads <idiom>.yaml)
 python tooling/visual_library/render.py <idiom> <tool>
+
+# a colour-vision-deficiency-safe series palette (+ which colours need an outline on white)
+python tooling/visual_library/contrast.py palette 6
+python tooling/visual_library/contrast.py check "#0072B2" "#D55E00" "#009E73"   # min ΔE under CVD
+
+# an accessible alt-text / aria description for an idiom (data-driven when a summary is supplied)
+python tooling/visual_library/a11y.py alt <idiom_id>
 ```
+
+Ships render.py + resolve.py + contrast.py + a11y.py (all zero-dependency, Python + PyYAML only).
+The perceptual visual-regression tool (visreg.py) is NOT included — it is a CI gate needing
+Pillow/numpy, not a generation feature.
 
 Requires only Python + PyYAML. No semantic model, no bracket, no generator.
 The source of truth is `core/templates/page_templates/visual_library/`.

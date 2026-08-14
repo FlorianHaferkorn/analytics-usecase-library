@@ -156,6 +156,9 @@ def _idiom_card(iid: str, profile: "str | None" = None) -> dict:
         "tools": render.tools(iid, profile),
         "profiles": render.profiles(iid),
         "min_size": _min_size(e),
+        "version": e.get("version"),
+        "status": e.get("status", "active"),
+        "superseded_by": e.get("superseded_by"),
         "data_fit": e.get("data_fit") or {},
         "anti_patterns": _resolve_anti_patterns(e.get("anti_patterns")),
     }
@@ -221,6 +224,10 @@ def _print_purpose(r: dict) -> None:
     for card in r["candidates"]:
         if card["id"] != r["best"]["id"]:
             print(line("       ", card))
+    for card in [r["best"], *r["candidates"]]:
+        if card.get("status") and card["status"] != "active":
+            note = f" — superseded by {card['superseded_by']}" if card.get("superseded_by") else ""
+            print(f"  ⚠ {card['id']} is {card['status']} (v{card.get('version')}){note}")
     print(f"  deny (never emit): {', '.join(r['deny'])}")
 
 
