@@ -69,3 +69,12 @@ def test_native_type_index_maps_types_to_idioms():
     idx = resolve.native_type_index()
     assert "clusteredBarChart" in idx and "bar_ranking" in idx["clusteredBarChart"]
     assert "waterfallChart" in idx and "lineChart" in idx
+
+
+def test_idiom_card_surfaces_version_and_status():
+    card = resolve._idiom_card("donut")
+    assert card["version"] and card["status"] == "active"
+    # a purpose resolution carries lifecycle on best + candidates
+    r = resolve.resolve_purpose("part_to_whole")
+    assert r["best"]["status"] in {"active", "experimental", "deprecated"}
+    assert r["best"]["version"]

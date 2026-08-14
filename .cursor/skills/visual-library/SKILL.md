@@ -27,10 +27,12 @@ resolver — it never restates the catalog.
 - `core/templates/page_templates/visual_library/index.yaml` — purpose→idiom chooser, `deny` list,
   notation profiles, `implemented` (30 idioms).
 - `<idiom>.yaml` — encoding rationale, `realizations` per tool, `min_size` (grid units), `data_fit`
-  (per-param cardinality/type contract), preview.
+  (per-param cardinality/type contract), `version` + `status` (lifecycle), preview.
 - `_anti_patterns.yaml` — the catalog defining every `anti_patterns` id (message + fix + source).
+- `tokens/color_semantics.yaml` — `categorical_cvd_safe` (the governed colour-blind-safe series palette).
 - `tooling/visual_library/render.py` — pure `{{param}}` renderer + grid math; `resolve.py` — the
-  resolver used below.
+  resolver used below; `contrast.py` — CVD-safe palette + WCAG/CIEDE2000 checks; `a11y.py` —
+  alt-text + screen-reader data-table. (`visreg.py` is a CI-only perceptual-regression gate.)
 
 ## Workflow A — choosing a visual (authoring / bracket / plan)
 
@@ -41,6 +43,9 @@ resolver — it never restates the catalog.
    → UNFIT names the governing anti-pattern + fix; `resolve.py why-not <idiom>` lists the governed anti-patterns.
 4. Read the chosen `<idiom>.yaml` for the runnable template of your tool; render with `render.py`.
 5. Size the page slot **≥ the idiom's `min_size`** (grid units) on `tokens/layout_grid.yaml`.
+6. For a multi-series chart, take colours from `contrast.py palette <n>` (colour-blind-safe; past its
+   `series_cap` a pattern/shape channel is mandatory). Attach an accessible name with
+   `a11y.py alt <idiom>` (the Deneb track sets it as the spec's `description`).
 
 ## Workflow B — auditing / upgrading an existing report (no ALUCA core)
 
