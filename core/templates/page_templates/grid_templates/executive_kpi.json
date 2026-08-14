@@ -57,5 +57,11 @@
       },
       "visual_type_hint": "clusteredBarChart"
     }
-  ]
+  ],
+  "annotation": {
+    "role": "commentary",
+    "placement": "footer",
+    "content_hint": "IBCS management commentary: the executive so-what (headline driver vs plan + the decision)",
+    "max_chars": 280
+  }
 }

@@ -1,0 +1,204 @@
+{
+  "$description": "ALUCA governed design tokens (DTCG export; generated from color_semantics.yaml + layout_grid.yaml — the YAML remains the source of truth).",
+  "color": {
+    "$type": "color",
+    "semantic": {
+      "positive": {
+        "$value": "#107C10"
+      },
+      "negative": {
+        "$value": "#A4262C"
+      },
+      "warning": {
+        "$value": "#C08000"
+      },
+      "neutral": {
+        "$value": "#605E5C"
+      }
+    },
+    "severity_tint": {
+      "critical": {
+        "$value": "#FFE6E6"
+      },
+      "warning": {
+        "$value": "#FFF8E1"
+      },
+      "good": {
+        "$value": "#E6F5E6"
+      }
+    },
+    "brand": {
+      "primary": {
+        "$value": "#0078D4"
+      },
+      "secondary": {
+        "$value": "#50E6FF"
+      },
+      "data": {
+        "slot_0": {
+          "$value": "#0078D4"
+        },
+        "slot_1": {
+          "$value": "#50E6FF"
+        },
+        "slot_2": {
+          "$value": "#8661C5"
+        },
+        "slot_3": {
+          "$value": "#F7630C"
+        },
+        "slot_4": {
+          "$value": "#008575"
+        },
+        "slot_5": {
+          "$value": "#E3008C"
+        },
+        "slot_6": {
+          "$value": "#EF6950"
+        },
+        "slot_7": {
+          "$value": "#FFB900"
+        }
+      }
+    },
+    "surface": {
+      "page": {
+        "$value": "#F5F5F5"
+      },
+      "card": {
+        "$value": "#FFFFFF"
+      },
+      "row_alt": {
+        "$value": "#F9F9F9"
+      }
+    },
+    "text": {
+      "primary": {
+        "$value": "#201F1E"
+      },
+      "secondary": {
+        "$value": "#605E5C"
+      }
+    },
+    "border": {
+      "default": {
+        "$value": "#E1DFDD"
+      }
+    },
+    "colorblind_safe": {
+      "positive": {
+        "$value": "#0078D4"
+      },
+      "negative": {
+        "$value": "#F7630C"
+      }
+    },
+    "categorical_cvd_safe": {
+      "blue": {
+        "$value": "#0072B2",
+        "$description": "contrast_on_white 5.19:1; solid_safe_on_white True"
+      },
+      "vermillion": {
+        "$value": "#D55E00",
+        "$description": "contrast_on_white 3.87:1; solid_safe_on_white True"
+      },
+      "bluish_green": {
+        "$value": "#009E73",
+        "$description": "contrast_on_white 3.42:1; solid_safe_on_white True"
+      },
+      "reddish_purple": {
+        "$value": "#CC79A7",
+        "$description": "contrast_on_white 3.06:1; solid_safe_on_white True"
+      },
+      "black": {
+        "$value": "#000000",
+        "$description": "contrast_on_white 21.0:1; solid_safe_on_white True"
+      },
+      "orange": {
+        "$value": "#E69F00",
+        "$description": "contrast_on_white 2.25:1; solid_safe_on_white False"
+      },
+      "sky_blue": {
+        "$value": "#56B4E9",
+        "$description": "contrast_on_white 2.31:1; solid_safe_on_white False"
+      },
+      "yellow": {
+        "$value": "#F0E442",
+        "$description": "contrast_on_white 1.32:1; solid_safe_on_white False"
+      }
+    }
+  },
+  "dimension": {
+    "$type": "dimension",
+    "spacing": {
+      "outer_margin": {
+        "$value": {
+          "value": 32,
+          "unit": "px"
+        }
+      },
+      "gutter": {
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        }
+      },
+      "internal_padding": {
+        "$value": {
+          "value": 8,
+          "unit": "px"
+        }
+      },
+      "zone_gap": {
+        "$value": {
+          "value": 40,
+          "unit": "px"
+        }
+      }
+    },
+    "logical_unit": {
+      "width": {
+        "$value": {
+          "value": 86.67,
+          "unit": "px"
+        }
+      },
+      "height": {
+        "$value": {
+          "value": 40.0,
+          "unit": "px"
+        }
+      }
+    },
+    "canvas": {
+      "design_base": {
+        "width": {
+          "$value": {
+            "value": 1280,
+            "unit": "px"
+          }
+        },
+        "height": {
+          "$value": {
+            "value": 720,
+            "unit": "px"
+          }
+        }
+      },
+      "production": {
+        "width": {
+          "$value": {
+            "value": 1920,
+            "unit": "px"
+          }
+        },
+        "height": {
+          "$value": {
+            "value": 1080,
+            "unit": "px"
+          }
+        }
+      }
+    }
+  }
+}

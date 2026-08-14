@@ -77,3 +77,13 @@ def test_data_table_is_wellformed_and_escapes():
 def test_data_table_without_caption_omits_caption():
     t = a11y.data_table(["A"], [["1"]])
     assert "<caption>" not in t["html"]
+
+
+def test_structured_tree_is_navigable_and_escapes():
+    t = a11y.structured_tree("bar_ranking", ["Category", "Sales"],
+                             [["Fashion", "12.4M"], ["<b>x</b>", "1"]])
+    assert t["nodes"] == 2
+    assert 'role="tree"' in t["html"] and t["html"].count('role="treeitem"') == 3  # root + 2 rows
+    assert "&lt;b&gt;x&lt;/b&gt;" in t["html"] and "<b>x</b>" not in t["html"]
+    assert t["text"].startswith(a11y.alt_text("bar_ranking"))
+    assert t["text"].count("\n  - ") == 2
