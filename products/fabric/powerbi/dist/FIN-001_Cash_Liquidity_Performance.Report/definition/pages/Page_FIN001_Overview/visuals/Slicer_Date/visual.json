@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "Slicer_Date",
   "position": {
-    "x": 32,
-    "y": 204,
+    "x": 1436,
+    "y": 32,
     "z": 5000,
     "height": 80,
-    "width": 1856,
+    "width": 452,
     "tabOrder": 3001
   },
   "visual": {

@@ -22,25 +22,38 @@ business:
   purpose: Measures days inventory outstanding.
   definition: Inventory / (COGS / 365).
   grain_scope: Company/segment; monthly close.
-  unit_format: days
+  unit_format: days_0
   interpretation: Lower is better; high DIO increases cash tied up in stock.
 technical:
   measure_name: DIO Days
   description: Measures days inventory outstanding.
   depends_on_measures: []
   lineage:
-  - fact_inventory.Inventory Amount
-  - fact_inventory.COGS Amount
+  - dim_date.CalendarYearMonth
+  - fact_inventory.Average Inventory Amount
+  - fact_accounts_payable.COGS Amount
   calculation:
     op: ratio
     numerator:
       calc:
         op: mul
         terms:
-        - column: Inventory Amount
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: Average Inventory Amount
         - literal: 365
     denominator:
-      column: COGS Amount
+      calc:
+        op: mul
+        terms:
+        - calc:
+            op: avgx_over_key
+            key_column: CalendarYearMonth
+            value:
+              column: COGS Amount
+        - literal: 12
 governance:
   business_owner: Head of Treasury / Supply Chain Finance
   data_owner: Finance BI
@@ -59,5 +72,5 @@ standard_ref:
   name: Cash-to-Cash Cycle Time — inventory-days component
   url: https://scor.ascm.org/performance/asset-management
   alignment: partial
-  note: Duplicate of inv.dio.days; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family.
-    Consolidate to one DIO.
+  note: Duplicate of inv.dio.days; both map to the SCOR inventory-days / Cash-to-Cash (AM.1.1) family. Consolidate
+    to one DIO.

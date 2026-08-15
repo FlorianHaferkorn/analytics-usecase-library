@@ -1,0 +1,209 @@
+{
+  "$description": "ALUCA Design-Tokens im DTCG-Format (W3C Design Tokens Community Group, Format Module 2025.10). ERZEUGT aus core/templates/page_templates/tokens/*.yaml — nicht von Hand bearbeiten. Die semantische Begruendung (ISO 3864-1, IEC 60073, WCAG-Nachweise) steht in den YAML-Quellen und der Prosa-Governance.",
+  "semantic": {
+    "$type": "color",
+    "$description": "Statusfarben nach ISO 3864-1 / IEC 60073 — nie fuer Aesthetik invertieren.",
+    "negative": {
+      "$value": "#A4262C"
+    },
+    "neutral": {
+      "$value": "#605E5C"
+    },
+    "positive": {
+      "$value": "#107C10"
+    },
+    "warning": {
+      "$value": "#C08000"
+    }
+  },
+  "severity": {
+    "$type": "color",
+    "$description": "Zeilen-/Hintergrund-Tints fuer Ausnahmelisten.",
+    "critical": {
+      "$value": "#FFE6E6"
+    },
+    "good": {
+      "$value": "#E6F5E6"
+    },
+    "warning": {
+      "$value": "#FFF8E1"
+    }
+  },
+  "surface": {
+    "$type": "color",
+    "$description": "Farbgruppe 'surface' aus color_semantics.yaml.",
+    "card": {
+      "$value": "#FFFFFF"
+    },
+    "page": {
+      "$value": "#F5F5F5"
+    },
+    "row_alt": {
+      "$value": "#F9F9F9"
+    }
+  },
+  "text": {
+    "$type": "color",
+    "$description": "Farbgruppe 'text' aus color_semantics.yaml.",
+    "primary": {
+      "$value": "#201F1E"
+    },
+    "secondary": {
+      "$value": "#605E5C"
+    }
+  },
+  "border": {
+    "$type": "color",
+    "$description": "Farbgruppe 'border' aus color_semantics.yaml.",
+    "default": {
+      "$value": "#E1DFDD"
+    }
+  },
+  "brand": {
+    "$type": "color",
+    "$description": "Farbgruppe 'brand' aus color_semantics.yaml.",
+    "primary": {
+      "$value": "#0078D4"
+    },
+    "secondary": {
+      "$value": "#50E6FF"
+    }
+  },
+  "fontFamily": {
+    "$type": "fontFamily",
+    "$description": "Zwei-Schnitt-System: primaer fuer Text, display fuer Highlight-Werte.",
+    "preferred": {
+      "$value": "Segoe UI"
+    },
+    "display": {
+      "$value": "DIN"
+    }
+  },
+  "fontSize": {
+    "$type": "dimension",
+    "$description": "Schriftgrade in pt auf der 1280x720-Basisleinwand. Wert = size_min_pt (garantierte Untergrenze); size_max_pt und weight/color_token stehen in typography.yaml.",
+    "axis_label": {
+      "$value": {
+        "value": 9.0,
+        "unit": "pt"
+      }
+    },
+    "data_label": {
+      "$value": {
+        "value": 10.0,
+        "unit": "pt"
+      }
+    },
+    "footnote": {
+      "$value": {
+        "value": 8.0,
+        "unit": "pt"
+      }
+    },
+    "kpi_delta": {
+      "$value": {
+        "value": 13.0,
+        "unit": "pt"
+      }
+    },
+    "kpi_label": {
+      "$value": {
+        "value": 10.0,
+        "unit": "pt"
+      }
+    },
+    "kpi_value": {
+      "$value": {
+        "value": 28.0,
+        "unit": "pt"
+      }
+    },
+    "page_title": {
+      "$value": {
+        "value": 16.0,
+        "unit": "pt"
+      }
+    },
+    "section_header": {
+      "$value": {
+        "value": 13.0,
+        "unit": "pt"
+      }
+    },
+    "table_header": {
+      "$value": {
+        "value": 11.0,
+        "unit": "pt"
+      }
+    },
+    "table_value": {
+      "$value": {
+        "value": 10.0,
+        "unit": "pt"
+      }
+    }
+  },
+  "grid": {
+    "$type": "dimension",
+    "$description": "Raster und Abstaende der Basisleinwand (px).",
+    "gutter": {
+      "$value": {
+        "value": 16.0,
+        "unit": "px"
+      }
+    },
+    "internal_padding": {
+      "$value": {
+        "value": 8.0,
+        "unit": "px"
+      }
+    },
+    "outer_margin": {
+      "$value": {
+        "value": 32.0,
+        "unit": "px"
+      }
+    },
+    "zone_gap": {
+      "$value": {
+        "value": 40.0,
+        "unit": "px"
+      }
+    },
+    "canvas_width": {
+      "$value": {
+        "value": 1280.0,
+        "unit": "px"
+      }
+    },
+    "canvas_height": {
+      "$value": {
+        "value": 720.0,
+        "unit": "px"
+      }
+    }
+  },
+  "ibcsScenario": {
+    "$description": "IBCS-Szenario-Notation (Fuellart/Deckkraft je AC/PL/FC/PY). Bewusst OHNE $type — DTCG kennt keinen Typ fuer Fuellmuster; einen zu erfinden waere geraten.",
+    "ac": {
+      "fill": "solid",
+      "opacity": 1.0,
+      "abbreviation": "AC"
+    },
+    "fc": {
+      "fill": "hatched",
+      "opacity": 1.0,
+      "abbreviation": "FC"
+    },
+    "pl": {
+      "fill": "outlined",
+      "opacity": 1.0,
+      "abbreviation": "PL"
+    },
+    "py": {
+      "fill": "solid",
+      "opacity": 0.5,
+      "abbreviation": "PY"
+    }
+  }
+}

@@ -73,13 +73,13 @@ ux_layout_rules:
     big_idea: "Gross Margin is under pressure — price concessions and adverse mix in key SKUs are compressing contribution; guardrails and mix optimization are the priority levers."
     component_3s:
       kpi_id: margin.gm.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: margin.gm.amount
-      visual_type: trend_line
+      visual_type: line_chart
       # R2.3-Fund follow-up: generator's trend_line default is CalendarYearMonth
       # (matches COM-001's own dist/); COM-002's real dist/ uses daily Date
       # grain for this specific trend -- explicit override, not a global default
@@ -108,7 +108,7 @@ ux_layout_rules:
       # DAX runtime not verified against a live Power BI engine (none
       # available in the authoring sandbox) -- structurally valid TMDL,
       # reuses three already-verified measures; pending Desktop confirmation.
-      visual_type: waterfall
+      visual_type: waterfall_chart
       comparison: vs_plan
       category_field: dim_pvm_driver.Driver
       kpi_id: PVM Bridge Value
@@ -126,7 +126,7 @@ ux_layout_rules:
       # Main_2's PVM bridge (Price/Volume/Mix, all €) and Detail_Matrix's curated
       # evidence columns (R1.3). PBIR: Main_3/visual.json (Golden Thread — must not drift).
       kpi_id: margin.gm.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: "Is the margin shortfall portfolio-wide or concentrated in a few units?"
       message: Gross margin sits below target in a few business units that drag the portfolio
       so_what: "Focused intervention in those units beats a broad, thinly-spread program."

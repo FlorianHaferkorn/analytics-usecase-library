@@ -15,7 +15,7 @@ business:
   purpose: Quantifies the pure price impact in the PVM bridge.
   definition: (Actual Price - Plan Price) x Actual Quantity.
   grain_scope: Aggregated to reporting period / segment.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Positive values indicate price gains; negative values represent price pressure.
 technical:
   measure_name: Price Effect Amount
@@ -49,7 +49,6 @@ standard_ref:
 - standard: Management accounting (CIMA/IMA)
   name: Sales price variance
   alignment: partial
-  note: Price effect follows the managerial-accounting sales-price-variance convention (CIMA Official
-    Terminology; IMA Statements on Management Accounting) — not a governed ISO/IFRS standard. Our formula
-    (Δprice × actual quantity) is the standard convention; label it management-accounting variance analysis,
-    not a financial-reporting standard.
+  note: Price effect follows the managerial-accounting sales-price-variance convention (CIMA Official Terminology;
+    IMA Statements on Management Accounting) — not a governed ISO/IFRS standard. Our formula (Δprice × actual quantity)
+    is the standard convention; label it management-accounting variance analysis, not a financial-reporting standard.

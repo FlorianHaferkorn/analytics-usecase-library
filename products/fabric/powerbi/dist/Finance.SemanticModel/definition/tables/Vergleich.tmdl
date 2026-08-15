@@ -1,0 +1,31 @@
+/// Vergleichs-Selektor für den KPI-Vergleichsmodus (vs Plan / vs Vorperiode / vs Ziel).
+/// Als Slicer nutzen; dynamische Δ-Measures lesen SELECTEDVALUE(Vergleich[Sort]).
+/// Geerdet an FIN-001-Szenarien: vs Plan (Budget), vs Vorperiode (Trajektorie), vs Ziel (Toleranz).
+table Vergleich
+
+	column Vergleich
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Vergleich
+		sortByColumn: Sort
+
+	column Sort
+		dataType: int64
+		isHidden
+		summarizeBy: none
+		sourceColumn: Sort
+
+	partition Vergleich = m
+		mode: import
+		source =
+			let
+				Source = #table(
+				type table [Vergleich = Text.Type, Sort = Int64.Type],
+				{
+				{"vs Plan", 0},
+				{"vs Vorperiode", 1},
+				{"vs Ziel", 2}
+				}
+				)
+			in
+				Source

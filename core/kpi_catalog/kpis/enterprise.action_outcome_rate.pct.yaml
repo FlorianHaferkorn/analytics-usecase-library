@@ -12,10 +12,9 @@ action_code_ref: []
 calc_type: rate
 business:
   purpose: Measures share of actions that achieved the intended outcome.
-  definition: Rows in fact_action_outcome with outcome_status = "achieved" divided
-    by all rows in fact_action_outcome.
+  definition: Rows in fact_action_outcome with outcome_status = "achieved" divided by all rows in fact_action_outcome.
   grain_scope: Action instance; aggregated by period and domain.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher values indicate better execution effectiveness.
 technical:
   measure_name: Action Outcome Rate %
@@ -43,12 +42,10 @@ governance:
   review_cycle: monthly
   validation_process: manual review
   qa_rules:
-  - 'Legacy carries two candidate formulas for this KPI id in Experience.SemanticModel:
-    the canonical one used here (fact_action_outcome, lowercase "achieved", part
-    of the actively-maintained Actions Executed/Avg Time-to-Outcome/Action ROI %
-    sibling group) and an older ''Action Outcome Rate % (XD Log)'' variant (fact_action_log,
-    "Achieved" capitalized) that has no surviving sibling measures — treated as
-    a superseded duplicate, not the source of truth.'
+  - 'Legacy carries two candidate formulas for this KPI id in Experience.SemanticModel: the canonical one used here
+    (fact_action_outcome, lowercase "achieved", part of the actively-maintained Actions Executed/Avg Time-to-Outcome/Action
+    ROI % sibling group) and an older ''Action Outcome Rate % (XD Log)'' variant (fact_action_log, "Achieved" capitalized)
+    that has no surviving sibling measures — treated as a superseded duplicate, not the source of truth.'
   version: v0.1
 metadata_quality:
   completeness_score: 1.0

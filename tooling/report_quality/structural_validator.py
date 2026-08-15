@@ -9,8 +9,37 @@ from typing import Protocol, runtime_checkable
 from .models import Severity, Violation
 from .pbir import ParsedPage, ParsedReport, page_pointer, parse_report, visual_pointer, write_json
 
-DEFAULT_PAGE_WIDTH = 1920
-DEFAULT_PAGE_HEIGHT = 1080
+# Leinwand aus dem EINEN governten Raster (Konsolidierung 02.08.2026). Vorher standen
+# hier eigene Literale — eine von 38 Stellen im Repo mit eigener Meinung, und zwei davon
+# widersprachen sich (1280 vs 1920). Genau daraus kamen die Fehler in L13 und L8.
+#
+# Gelesen wird die YAML DIREKT, nicht ueber `tooling.superversion.layer_tools`. Der erste
+# Versuch tat genau das — und brach `report_quality` fuer jeden Aufrufer, der mit
+# `tooling/` im Pfad importiert (die CLI, und damit die Health-Scorecard). H7 fiel auf
+# 0.0 %, weil ihr Import-Guard „validator unavailable" meldet statt zu crashen. Der Guard
+# hat sauber funktioniert; mein Import war der Fehler.
+#
+# Das ist KEINE zweite Meinung: der Pfad zeigt auf dieselbe Datei, und
+# `test_konsolidierung.py` haelt fest, dass es hier keine Zahlen-Literale gibt. Ein
+# Paket, das standalone importierbar sein muss, darf nicht ueber Paketgrenzen greifen —
+# diese Eigenschaft war vorher da und wird nicht fuer Eleganz aufgegeben.
+def _canvas() -> tuple[int, int]:
+    import yaml
+
+    yml = (Path(__file__).resolve().parents[2]
+           / "core/templates/page_templates/tokens/layout_grid.yaml")
+    prod = ((yaml.safe_load(yml.read_text(encoding="utf-8")) or {})
+            .get("canvas", {}).get("production", {}))
+    if not prod.get("width") or not prod.get("height"):
+        raise ValueError(
+            f"{yml} fuehrt kein vollstaendiges Canvas-Profil 'production'. "
+            "Eine geratene Leinwand erzeugt Positionen, die plausibel aussehen "
+            "und falsch sind."
+        )
+    return int(prod["width"]), int(prod["height"])
+
+
+DEFAULT_PAGE_WIDTH, DEFAULT_PAGE_HEIGHT = _canvas()
 
 
 @runtime_checkable
@@ -83,24 +112,63 @@ class PageSize:
 
 @dataclass
 class RequiredSlots:
-    overview_slots: set[str] = field(default_factory=lambda: {"KPI_Cards", "Main_1", "Main_2", "Slicer_Date"})
-    detail_slots: set[str] = field(default_factory=lambda: {"Detail_Matrix", "Smart_Narrative", "ActionPanel"})
+    """Pflicht-Slots einer Seite — aus `template_manifest.yaml`, nicht von hier.
+
+    Zwei Aenderungen am 02.08.2026, beide gegen eine gemessene Blindheit:
+
+    1. **Keine eigenen Mengen mehr.** Vorher standen hier zwei hartkodierte Listen,
+       und sie widersprachen der Autoritaet: das Manifest fuehrt `KPI_Cards` fuer T3
+       und T4 auf `mandatory: false`, dieser Wachhund verlangte es unbedingt. Das war
+       die fuenfte Stelle mit einer eigenen Meinung ueber governtes Wissen.
+    2. **Kein Namens-Schnueffeln mehr.** Vorher entschied `"overview" in label`,
+       welche Menge gilt. Die Seiten der kanonischen Kette heissen `page_1_summary`
+       und `page_2_execution` — keins von beiden matchte, der Wachhund gab still `[]`
+       zurueck. Variante und Ebene werden jetzt **uebergeben**; wer sie nicht kennt,
+       bekommt einen Fehler statt eines stillen Bestehens.
+
+    Fuer die kanonische Kette prueft `from_aluca.slot_luecken()` dasselbe eine Schicht
+    frueher, wo Variante und Modell ohnehin vorliegen — und deckt damit jeden Emitter
+    ab, nicht nur PBIR.
+    """
+
+    variant: str = ""
+    ebene: str = "overview_slots"
     severity: Severity = "critical"
     name: str = "page:required-slots"
 
     def check(self, report: ParsedReport, page: ParsedPage) -> list[Violation]:
-        expected: set[str] = set()
-        label = f"{page.name} {page.display_name}".lower()
-        if "overview" in label:
-            expected = self.overview_slots
-        elif "detail" in label:
-            expected = self.detail_slots
-        if not expected:
+        from tooling.superversion.layer_tools.page_templates import fehlende_pflichtslots
+
+        if not self.variant:
+            raise ValueError(
+                "RequiredSlots braucht eine `variant` aus template_manifest.yaml. "
+                "Ohne sie gibt es keine Pflichtliste — und eine leere Pflichtliste "
+                "sieht aus wie 'alles erfuellt'."
+            )
+        # Die Haerte steht im Manifest, nicht hier: `severity: warning` auf einem Slot
+        # senkt den Befund auf `warning`, statt ihn wegzulassen. Ein Slot, den niemand
+        # meldet, ist die stille Variante — genau der Fehler, gegen den dieser Wachhund
+        # am 02.08. umgebaut wurde.
+        missing = fehlende_pflichtslots(self.variant, set(page.visuals), ebene=self.ebene,
+                                        severity="error")
+        weich = fehlende_pflichtslots(self.variant, set(page.visuals), ebene=self.ebene,
+                                      severity="warning")
+        if not missing and not weich:
             return []
-        missing = sorted(expected - set(page.visuals))
+        expected = sorted(set(page.visuals) | set(missing) | set(weich))
+        out = [
+            Violation(
+                self.name,
+                "warning",
+                page_pointer(report.report_dir, page),
+                f"Missing required visual slots (severity: warning): {weich}",
+                expected=sorted(expected),
+                actual=sorted(page.visuals),
+            )
+        ] if weich else []
         if not missing:
-            return []
-        return [
+            return out
+        return out + [
             Violation(
                 self.name,
                 self.severity,
@@ -177,7 +245,14 @@ class VisualWithinPage:
 
 
 def default_spec() -> ReportSpec:
-    return ReportSpec(invariants=[PageSize(), RequiredSlots(), ForbiddenVisualTypes(), VisualWithinPage()])
+    """Die Invarianten, die **ohne Zusatzwissen** entscheidbar sind.
+
+    `RequiredSlots` steht bewusst NICHT hier: es braucht die Seitenvariante, und die
+    kennt eine Default-Spec nicht. Frueher stand es drin — mit zwei geratenen Mengen,
+    die dem Manifest widersprachen. Ein Wachhund, den man ohne sein Wissen bauen kann,
+    prueft nicht die Sache, sondern die Vermutung.
+    """
+    return ReportSpec(invariants=[PageSize(), ForbiddenVisualTypes(), VisualWithinPage()])
 
 
 def check_report(report_dir: Path, spec: ReportSpec | None = None) -> list[Violation]:

@@ -13,7 +13,7 @@ business:
   purpose: Measures employee engagement / eNPS from periodic surveys.
   definition: Mean engagement score (or eNPS) for the population in the period.
   grain_scope: Org/segment; quarterly survey.
-  unit_format: '''index (0 decimal)'''
+  unit_format: index_0
   interpretation: Higher is better; the leading driver of attrition and productivity.
 technical:
   measure_name: Engagement Index

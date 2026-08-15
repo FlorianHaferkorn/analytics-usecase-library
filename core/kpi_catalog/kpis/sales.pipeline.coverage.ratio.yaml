@@ -15,7 +15,7 @@ business:
   purpose: Measures open qualified pipeline against the remaining sales target.
   definition: Open Qualified Pipeline Value / Remaining Period Target.
   grain_scope: Rep/region/segment; weekly snapshot.
-  unit_format: '''0.0x'''
+  unit_format: ratio_1
   interpretation: Higher is better; a healthy funnel typically carries ≥3x coverage of the remaining gap.
 technical:
   measure_name: Pipeline Coverage
@@ -46,5 +46,5 @@ standard_ref:
 - standard: Sales pipeline management (convention)
   name: Pipeline coverage ratio (3x rule)
   alignment: none
-  note: No ISO/IFRS standard governs pipeline coverage; this is an established commercial-steering convention
-    (typical ≥3x rule), not an external standard.
+  note: No ISO/IFRS standard governs pipeline coverage; this is an established commercial-steering convention (typical
+    ≥3x rule), not an external standard.

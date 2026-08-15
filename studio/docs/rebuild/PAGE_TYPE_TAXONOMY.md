@@ -14,7 +14,15 @@ After critical review, **T1–T4 remain the correct top-level page type taxonomy
 Rationale:
 - The four types map directly to the four decision question classes in management reporting (orientation → explanation → control → decision)
 - They align with Munzner's nested model domain task layer (S3) — changing them would break the academic grounding
-- Empirically: no established BI reporting framework uses more than 4–5 top-level archetypes (IBCS uses 4: M–Message, A–Analysis, K–KPI, T–Table; Few (2004) uses 3: status, trending, detail)
+- Empirically: no established BI reporting framework uses more than 4–5 top-level archetypes.
+  **Beleglage korrigiert 02.08.2026** (Recherche mit Widerlegungsauftrag): die zuvor hier
+  stehende Zuschreibung „IBCS uses 4: M–Message, A–Analysis, K–KPI, T–Table" war weder auf
+  ibcs.com noch in Sekundärquellen auffindbar und ist entfernt; ebenso die Jahreszahl bei Few
+  (das Buch ist **2006**, 2004 war „Dashboard Confusion"). Die Aussage selbst hält — jetzt
+  gestützt auf drei prüfbare Quellen statt auf eine unauffindbare:
+  Few (2006) 3 Typen · Eckerson (2010) 3 Top-Level-Typen · Microsofts `powerbi-report-design`-
+  Skill (2026) **5** Archetypen (Executive Summary · Operational Monitor · Analytical Canvas ·
+  Narrative Story · Comparative Benchmark).
 
 **The real gap is not the page types — it is the absence of documented *variants* beneath them.** T1–T4 felt similar because the variant layer was missing, not because the types are wrong.
 

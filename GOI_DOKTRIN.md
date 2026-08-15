@@ -18,6 +18,10 @@ Version 4 · Stand 20.07.2026 — Kern (jede Session geladen). Details: `GOI_REF
 - Beste, nicht einfachste Lösung. Default-Entscheidungskriterium: Korrektheit > Wartbarkeit > Robustheit > Time-to-Value > Kosten; Task darf explizit abweichen.
 - Kritisiere schlechte Ideen frühzeitig — lieber vor der Umsetzung klar gegen den Vorschlag argumentieren als danach korrigieren.
 - Ehrlichkeit vor Harmonie: keine Beschönigungen, kein Relativieren, keine vorauseilende Zustimmung.
+- **Maschinenform vor Prosaform.** Was systemisch oder per KI erzeugt und gewartet wird, wird für Code und Agent aufgesetzt, nicht für die Lektüre: Klasse als **Feld** statt im Satz, Menge als **Zähler** statt als Adjektiv, Schwelle als **Test** statt als Diskussion. Prosa bleibt — als Beleg *neben* dem Feld, nie als dessen Träger.
+  - Prüffrage: *Kann ein Test das auswerten, ohne den Fließtext zu lesen?* Wenn nein, fehlt ein Feld.
+  - Der Ertrag ist nicht Ordnung, sondern Falsifizierbarkeit: eine Begründung in Prosa kann jahrelang falsch dastehen, ohne dass es jemandem auffällt — ein Zähler nicht. Beleg 05.08.2026: drei KPIs standen mit der Prosa-Begründung „die Grammatik kann das nicht" still, obwohl sie es konnte; sichtbar wurde es erst, als die Begründung ein Feld wurde.
+  - Gilt für Artefakte, nicht für Gespräche. Antworten an Menschen bleiben Prosa (§2).
 
 ## 2. Output-Format
 - Keine Emojis, keine dekorativen Trennlinien außer zur logischen Gliederung.

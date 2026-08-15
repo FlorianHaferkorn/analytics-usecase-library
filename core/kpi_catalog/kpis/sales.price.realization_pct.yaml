@@ -16,7 +16,7 @@ business:
   purpose: Shows how much of list price is realized after discounts.
   definition: Net Price Amount / List Price Amount.
   grain_scope: Invoice line aggregated to reporting period.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Values below 100% indicate discounting; values above 100% indicate uplift vs list price.
 technical:
   measure_name: Price Realization %
@@ -51,5 +51,5 @@ standard_ref:
   name: Price realization (net/list)
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: none
-  note: Price realization (net/list) is a management pricing metric, not IFRS-defined. The discount it
-    captures is IFRS 15 variable consideration, but the ratio itself is a commercial-analytics convention.
+  note: Price realization (net/list) is a management pricing metric, not IFRS-defined. The discount it captures
+    is IFRS 15 variable consideration, but the ratio itself is a commercial-analytics convention.

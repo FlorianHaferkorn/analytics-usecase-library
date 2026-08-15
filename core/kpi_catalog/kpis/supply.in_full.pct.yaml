@@ -22,7 +22,7 @@ business:
   purpose: Measures share of deliveries with complete quantities.
   definition: In-Full Deliveries / Total Deliveries.
   grain_scope: Delivery/day; aggregated weekly or monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; low values indicate allocation or stock issues.
 technical:
   measure_name: In-Full %
@@ -52,5 +52,5 @@ standard_ref:
   name: Percentage of Orders Delivered In Full
   url: https://scor.ascm.org/performance/reliability/RL.1.1
   alignment: partial
-  note: 'Grain differs: ours is delivery-level (in-full deliveries / total deliveries); SCOR RL.2.1 is
-    order-level (% of orders delivered in full). Move to order grain to align.'
+  note: 'Grain differs: ours is delivery-level (in-full deliveries / total deliveries); SCOR RL.2.1 is order-level
+    (% of orders delivered in full). Move to order grain to align.'

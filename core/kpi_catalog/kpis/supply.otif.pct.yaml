@@ -32,7 +32,7 @@ business:
   purpose: Measures share of orders delivered on time and in full.
   definition: OTIF Orders / Total Orders.
   grain_scope: Order/day; aggregated weekly or monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; key service level indicator.
 technical:
   measure_name: OTIF %
@@ -65,7 +65,6 @@ standard_ref:
   name: Perfect Order Fulfillment
   url: https://scor.ascm.org/performance/reliability/RL.1.1
   alignment: partial
-  note: OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation
-    Accuracy (RL.2.3) and Perfect Condition (RL.2.4). SCOR RL.1.1 is order-level and requires all four
-    to pass. To claim SCOR Perfect Order, add the two missing components; otherwise label it OTIF, not
-    Perfect Order.
+  note: OTIF here = on-time AND in-full — 2 of SCOR Perfect Order's 4 components; omits Documentation Accuracy (RL.2.3)
+    and Perfect Condition (RL.2.4). SCOR RL.1.1 is order-level and requires all four to pass. To claim SCOR Perfect
+    Order, add the two missing components; otherwise label it OTIF, not Perfect Order.

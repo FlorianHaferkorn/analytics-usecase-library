@@ -20,6 +20,16 @@ version: 1
 
 rules:
   - id: ONE_MESSAGE_PER_CHART
+    implements: BC-CHART-01
+    # Dublette aufgeloest 03.08.2026: inhaltlich IDENTISCH mit BC-CHART-01 der
+    # Craft-Rubrik ('one unit / one measure family per axis'), dort knock_out, hier
+    # critical — und von ZWEI unabhaengigen Checkern durchgesetzt
+    # (tooling/validation/check_mixed_scale.py und check_single_unit_family_per_component
+    # hier). Die Rubrik ist SoT fuer Aussage und Severity; dieser Eintrag bleibt als
+    # generator-seitige Durchsetzung bestehen und wiederholt die Zusage nicht mehr.
+    # Der ID-Name fuehrt zusaetzlich in die Irre: 'eine Botschaft pro Exhibit' ist
+    # BC-NARR-02, eine andere Regel. Umbenennen waere ein Bruch fuer die Aufrufer und
+    # steht als eigener Punkt aus.
     severity: critical
     check: single_unit_family_per_component
     description: >
@@ -41,6 +51,11 @@ rules:
       field: unit
 
   - id: MAX_SEMANTIC_COLORS_PER_PAGE
+    implements: BC-COLOR-04
+    # Dublette aufgeloest 03.08.2026: wortgleich mit BC-COLOR-04 der Craft-Rubrik, aus
+    # derselben Quelle (Storytelling_Principles §9 'Color Count Limit') — dort minor,
+    # hier warning. Die Rubrik ist SoT fuer Aussage und Severity; die Durchsetzung
+    # bleibt hier (design_rules_enforcer, gated auf intent_rules_version == 2).
     severity: warning
     check: max_count
     description: >

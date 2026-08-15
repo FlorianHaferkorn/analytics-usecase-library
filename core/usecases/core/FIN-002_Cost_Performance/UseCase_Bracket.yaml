@@ -53,13 +53,13 @@ ux_layout_rules:
     big_idea: "Input cost inflation is outpacing pricing recovery — COGS % is expanding and will erode operating margin within two quarters if not addressed."
     component_3s:
       kpi_id: cost.unit.amount
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: margin.cogs.pct
-      visual_type: trend_line
+      visual_type: line_chart
       question: "Is input cost being recovered, or is it eroding margin?"
       message: COGS is rising as a share of sales, eroding margin quarter over quarter
       so_what: "At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response."
@@ -69,7 +69,7 @@ ux_layout_rules:
       - cost.opex.vs_plan.pct
       - cost.material.pct
       - ops.labor.productivity.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: "Which levers drive unit cost — opex, material, or productivity?"
       message: Opex variance, material cost, and labor productivity — the three levers behind unit cost.
       so_what: "Productivity gains aren't offsetting material inflation, so cost pressure keeps building on the P&L."

@@ -21,7 +21,7 @@ business:
   purpose: Measures share of inventory considered obsolete.
   definition: Obsolete Inventory Value / Total Inventory Value.
   grain_scope: SKU/location; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; high obsolescence indicates slow movement or aging.
 technical:
   measure_name: Obsolete Inventory %
@@ -54,6 +54,5 @@ standard_ref:
   name: Asset Management — obsolete-inventory health
   url: https://scor.ascm.org/performance/asset-management
   alignment: none
-  note: Obsolete-inventory share is an inventory-health practice concern under SCOR Asset Management,
-    not a named SCOR performance metric and not ISO 22400-2. Mirrors inv.excess_inventory.amount from
-    the SCM run.
+  note: Obsolete-inventory share is an inventory-health practice concern under SCOR Asset Management, not a named
+    SCOR performance metric and not ISO 22400-2. Mirrors inv.excess_inventory.amount from the SCM run.

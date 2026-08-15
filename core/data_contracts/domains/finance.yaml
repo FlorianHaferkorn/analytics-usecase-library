@@ -197,6 +197,8 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: Output Units, type: decimal, agg: sum}
+      - {name: Good Units, type: decimal, agg: sum}
+      - {name: Defect Count, type: decimal, agg: sum}
 
   - name: fact_labor
     description: "Labor hours and cost per plant-line-month."
@@ -224,9 +226,12 @@ quality_rules:
     - "fact_finance.Net Sales Amount, COGS Amount, EBITDA Amount: never null"
     - "fact_cost.Actual Cost Amount: never null"
     - "fact_output.Output Units: never null; must be >= 0"
+    - "fact_output.Good Units, Defect Count: never null; must be >= 0"
   value_ranges:
     - "fact_cash_position.Cash Balance Amount: may be negative (overdraft); no range constraint"
     - "fact_output.Output Units: >= 0"
+    - "fact_output.Good Units: >= 0 and <= Output Units"
+    - "fact_output.Defect Count: >= 0"
     - "fact_labor.Labor Hours: >= 0"
     - "fact_cost.COGS Amount: >= 0"
     - "fact_cost.Actual Cost Amount: >= 0"

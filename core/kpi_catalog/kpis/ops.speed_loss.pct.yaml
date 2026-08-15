@@ -13,10 +13,12 @@ action_code_ref:
 calc_type: rate
 business:
   purpose: Isolates chronic speed reduction from intermittent minor stops.
-  definition: Speed Loss = (1 - Performance Rate) adjusted to exclude minor stop events. Corresponds to Six Big Losses Category 4 (Reduced Speed).
+  definition: Speed Loss = (1 - Performance Rate) adjusted to exclude minor stop events. Corresponds to Six Big
+    Losses Category 4 (Reduced Speed).
   grain_scope: Line/shift aggregated to plant and period.
-  unit_format: '''% (1 decimal)'''
-  interpretation: Lower is better; speed losses are often misclassified as acceptable safety margin versus ISO ideal cycle time.
+  unit_format: percent_1
+  interpretation: Lower is better; speed losses are often misclassified as acceptable safety margin versus ISO ideal
+    cycle time.
 technical:
   measure_name: Speed Loss Rate %
   description: Chronic speed reduction component of performance loss.
@@ -28,11 +30,11 @@ technical:
   - fact_ops.Minor Stop Count
   calculation:
     op: hitl
-    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in
-      products/fabric/powerbi/dist/Operations.SemanticModel). "(1 - Performance Rate)
-      adjusted to exclude minor stop events" is a residual/decomposition formula whose
-      exact minor-stop adjustment isn't specified precisely enough to derive without
-      guessing, and is beyond the current grammar regardless.
+    blocked_by: authoring
+    reason: New-territory KPI — no legacy DAX counterpart to verify against (not in products/fabric/powerbi/dist/Operations.SemanticModel).
+      "(1 - Performance Rate) adjusted to exclude minor stop events" is a residual/decomposition formula whose exact
+      minor-stop adjustment isn't specified precisely enough to derive without guessing, and is beyond the current
+      grammar regardless.
 governance:
   business_owner: Head of Operations
   data_owner: Operations BI
@@ -51,5 +53,5 @@ standard_ref:
   name: Effectiveness (speed) loss
   url: https://www.iso.org/standard/54497.html
   alignment: partial
-  note: Speed loss = 1 − performance rate is the ISO 22400-2 Effectiveness (E) loss / reduced-speed category
-    of the Six Big Losses; report against E to align.
+  note: Speed loss = 1 − performance rate is the ISO 22400-2 Effectiveness (E) loss / reduced-speed category of
+    the Six Big Losses; report against E to align.

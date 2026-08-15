@@ -42,7 +42,23 @@ _KPI_DIR = REPO / "core/kpi_catalog/kpis"
 
 # Chart exhibits share one value axis; cards show a single value, tables allow mixed
 # columns by design — neither can "mix scale on an axis".
-_CARD_TYPES = {"kpi_card", "kpi_card_hero", "kpi_card_compact", "status_tile"}
+# Schreibweisen-Robustheit (ADR-0018 / Task L2): Brackets tragen teils Alt-Token
+# (`waterfall`), teils Registry-Namen (`waterfall_chart`). Ein Literalvergleich
+# gegen nur eine Schreibweise hoert beim Umbenennen STILL auf zu greifen — die
+# Pruefung meldet dann nichts mehr und sieht dabei aus wie eine bestandene.
+# Deshalb wird der eingehende Wert zuerst kanonisiert.
+try:
+    from tooling.superversion.layer_tools.visual_library import canonical_visual_id as _kanon
+except Exception:  # pragma: no cover - Standalone-Lauf ohne Repo-Root im Pfad
+    def _kanon(t):  # type: ignore[misc]
+        return t
+
+
+def _vt(token):
+    """Bracket-Token -> kanonische Registry-ID (oder unveraendert, wenn unbekannt)."""
+    return _kanon(token) or token
+
+_CARD_TYPES = {"kpi_card_with_delta", "bullet_graph"}
 _TABLE_TYPES = {"recommendation_table", "table_with_databars"}
 
 
@@ -97,7 +113,7 @@ def _measures(exhibit: dict[str, Any]) -> list[str]:
 def classify_exhibit(exhibit: dict[str, Any]) -> tuple[bool, str]:
     """Return (is_mixed, reason). is_mixed True → BC-CHART-01 violation."""
     vt = exhibit.get("visual_type") or ""
-    if vt in _CARD_TYPES or vt in _TABLE_TYPES:
+    if _vt(vt) in _CARD_TYPES or _vt(vt) in _TABLE_TYPES:
         return False, "card/table — not a shared axis"
     measures = _measures(exhibit)
     if len(measures) < 2:

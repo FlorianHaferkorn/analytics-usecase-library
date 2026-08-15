@@ -15,7 +15,7 @@ business:
   purpose: Measures defect count per 1,000 units produced.
   definition: (Defect Count / Total Units) * 1,000.
   grain_scope: Line/day; aggregated monthly.
-  unit_format: defects per 1k units
+  unit_format: defects_per_1k_0
   interpretation: Lower is better; indicates process stability.
 technical:
   measure_name: Defect Density
@@ -49,5 +49,5 @@ standard_ref:
   name: (defects per 1,000 units)
   url: https://www.iso.org/standard/54497.html
   alignment: none
-  note: Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric.
-    ISO 22400-2 captures the same quality loss via scrap ratio (SR) / rework ratio (RR).
+  note: Defects-per-thousand is not an ISO 22400-2 KPI; it is a Six Sigma defect-rate (DPMO-family) metric. ISO
+    22400-2 captures the same quality loss via scrap ratio (SR) / rework ratio (RR).

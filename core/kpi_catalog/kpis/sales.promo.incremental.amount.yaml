@@ -16,7 +16,7 @@ business:
   purpose: Additional sales due to promotion.
   definition: Promo Sales Amount - Baseline Sales Amount
   grain_scope: Promo period/product
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Input to promo ROI.
 technical:
   measure_name: Incremental Sales Amount

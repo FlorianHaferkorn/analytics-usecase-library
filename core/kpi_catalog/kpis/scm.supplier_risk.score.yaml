@@ -19,19 +19,17 @@ business:
   purpose: Rates suppliers based on risk indicators.
   definition: Composite risk score derived from supplier risk factors.
   grain_scope: Supplier; aggregated by period.
-  unit_format: score
+  unit_format: score_1
   interpretation: Higher scores indicate higher supplier risk.
 technical:
   measure_name: Supplier Risk Score
   description: Rates suppliers based on risk indicators.
   depends_on_measures: []
-  lineage: []
+  lineage:
+  - fact_supplier_risk.Risk Score
   calculation:
-    op: hitl
-    reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Finance.SemanticModel''s
-      own DAX is a documented placeholder (VAR _pending = "Requires fact_supplier_risk
-      table (not yet in data contract)" RETURN BLANK()) — the source table does not
-      exist yet in the data contract, upstream of any DSL grammar question.'
+    op: avg
+    column: Risk Score
 governance:
   business_owner: Head of Procurement
   data_owner: Supply Chain BI

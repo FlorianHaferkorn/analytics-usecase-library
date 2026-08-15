@@ -22,7 +22,7 @@ business:
   purpose: Measures customer advocacy and likelihood to recommend.
   definition: (%Promoters - %Detractors) from survey responses in the period.
   grain_scope: Survey response aggregated by period, segment, or region.
-  unit_format: Index (-100 to 100)
+  unit_format: index_signed_0
   interpretation: '''>0 is positive, >50 strong advocacy; track trend and segment gaps.'''
 technical:
   measure_name: NPS Index
@@ -50,7 +50,7 @@ technical:
               calc:
                 op: count_threshold
                 column: NPS Score
-                comparator: '<='
+                comparator: <=
                 value: 6
         denominator:
           calc:
@@ -72,6 +72,5 @@ standard_ref:
 - standard: Bain NPS (proprietary)
   name: Net Promoter Score
   alignment: none
-  note: NPS is a proprietary Bain & Company methodology, not an open standard. Duplicate of svc.nps.index
-    — consolidate to one governed NPS. ISO 10002 / general customer-satisfaction monitoring is the standards-based
-    alternative.
+  note: NPS is a proprietary Bain & Company methodology, not an open standard. Duplicate of svc.nps.index — consolidate
+    to one governed NPS. ISO 10002 / general customer-satisfaction monitoring is the standards-based alternative.

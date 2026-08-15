@@ -17,7 +17,7 @@ business:
   purpose: Baseline cost volume used for variance analysis.
   definition: Baseline amount of cost volume for the selected period.
   grain_scope: Cost center or product; aggregated by period.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_2
   interpretation: Provides a stable base for cost variance comparisons.
 technical:
   measure_name: Cost Base Volume Amount
@@ -45,5 +45,4 @@ standard_ref:
   name: Cost-base baseline (variance analysis)
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
   alignment: none
-  note: Internal variance-analysis baseline; no external standard. Underlying cost is IAS 2 inventory
-    cost.
+  note: Internal variance-analysis baseline; no external standard. Underlying cost is IAS 2 inventory cost.

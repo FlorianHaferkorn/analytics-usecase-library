@@ -15,7 +15,7 @@ business:
   purpose: Measures inbound supplier on-time delivery (goods received on/before promise).
   definition: On-Time Inbound Receipts / Total Inbound Receipts.
   grain_scope: Supplier/category; monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; inbound reliability that feeds downstream OTIF.
 technical:
   measure_name: Supplier On-Time Delivery %
@@ -42,6 +42,6 @@ standard_ref:
 - standard: SCOR-DS
   name: Source — supplier on-time delivery
   alignment: partial
-  note: SCOR governs supplier delivery reliability under Source (sS); grain here is receipt-level inbound
-    OTD, a partial mapping to SCOR's supplier reliability metrics.
+  note: SCOR governs supplier delivery reliability under Source (sS); grain here is receipt-level inbound OTD, a
+    partial mapping to SCOR's supplier reliability metrics.
   id: RS.3.x

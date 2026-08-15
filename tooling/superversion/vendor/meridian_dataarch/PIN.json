@@ -5,7 +5,7 @@
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "a12444917529fe58e621ffb3a5529510f5fcafa0fd7ddb8d0fd810b321e9509f"
+      "sha256": "76be50f8f469425d793ecde9a81543fab95f1dbf9083d2c9500540f3228fc249"
     },
     {
       "path": "capacity_recommend.py",
@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "9c54ac269d110cd480ee1bae7e96a312885be5f5761fd32b3e33ec03f2bde969"
+      "sha256": "9e5b5da9ea90216c1741659c106871c312041deefb7be9a78d332cee0fc24fcc"
     },
     {
       "path": "naming.py",
@@ -25,7 +25,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "8aeaed3db15ef8f797a9b8a5dc276ae1122b902fcc9c200d0fb50344a43e2f3b"
+      "sha256": "979ee66f6054a64472fa98d3013a5a7fb1586b33e6719fe44ce499437f229b96"
     },
     {
       "path": "provision_lifecycle.py",
@@ -33,7 +33,7 @@
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "a5cd87b3814dff8faf26da229b23453377d28e9af17ffca7ea0baa94e70c85cb"
+      "sha256": "a232d98fe2c12f4e69efee24ac53e149a899be883bc3a0d38b73680ef9d47c32"
     },
     {
       "path": "provision_operability.py",

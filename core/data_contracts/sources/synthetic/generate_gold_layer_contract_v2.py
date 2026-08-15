@@ -32,7 +32,10 @@ import sys
 
 # Import shared utilities (adjust path if needed)
 # Assuming script runs from repo root or core/data_contracts/sources/synthetic/
-_gold_path = Path(__file__).parent.parent.parent.parent / "showcases" / "aurora_group" / "data" / "gold"
+# Die Datei liegt in core/data_contracts/sources/synthetic/ — vier .parent landen auf
+# core/, nicht auf der Repo-Wurzel. Der Import brach damit ausnahmslos ab; gemessen
+# 11.08.2026: "Could not find gold utilities at <repo>/core/showcases/aurora_group/…".
+_gold_path = Path(__file__).resolve().parents[4] / "showcases" / "aurora_group" / "data" / "gold"
 if _gold_path.exists():
     sys.path.insert(0, str(_gold_path))
     from _company_profile import get_company_profile
@@ -336,8 +339,17 @@ class GoldLayerGenerator:
             else:
                 subcategories = [f'{category} Basic', f'{category} Premium']
             
-            for subcategory in subcategories:
-                for prod_idx in range(product_count // len(subcategories)):
+            # `product_count // len(subcategories)` verliert den Rest. Solange das Profil
+            # nur "Basic"/"Premium" kannte, ging die Division auf; mit echten Subkategorien
+            # ergaben 1000 Consumer-Electronics-Produkte auf 6 Subkategorien nur 996. Die
+            # vier fehlenden Zeilen 4997-5000 machten ProductKey 4999 in fact_plan_sales
+            # zur Waise (ORPHAN-FK). Der Rest geht an die letzte Subkategorie: so wachsen
+            # die Schluessel hinten an und jede bestehende Zeile behaelt ihre Zufallszahlen.
+            je_subcategory, rest = divmod(product_count, len(subcategories))
+
+            for sub_idx, subcategory in enumerate(subcategories):
+                anzahl = je_subcategory + (rest if sub_idx == len(subcategories) - 1 else 0)
+                for prod_idx in range(anzahl):
                     if category == 'Consumer Electronics':
                         list_price = random.uniform(max_price * 0.3, max_price)
                     elif category == 'Home & Living':

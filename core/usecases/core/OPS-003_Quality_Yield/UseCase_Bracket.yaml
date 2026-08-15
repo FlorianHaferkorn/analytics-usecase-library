@@ -46,14 +46,14 @@ ux_layout_rules:
     big_idea: "Scrap rate is trending above target — yield losses are concentrated in two production lines and require root-cause containment before end of quarter."
     component_3s:
       kpi_id: quality.fpy.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
       benchmark: true
     component_30s:
     - slot_id: Main_1
       kpi_id: quality.scrap.pct
-      visual_type: trend_line
+      visual_type: line_chart
       question: "Is quality loss plant-wide or concentrated on a few lines?"
       message: Rising scrap is concentrated on a couple of lines, not plant-wide
       so_what: "Containing the two lines driving the trend is faster than a plant-wide quality program."
@@ -65,7 +65,7 @@ ux_layout_rules:
       kpi_ids:
       - quality.rework.pct
       - quality.complaint.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: "What are the downstream quality-cost signals?"
       message: Rework and complaint rates — the two downstream quality-cost signals.
       so_what: "Ranking COPQ by line prioritises containment where the financial impact is largest."

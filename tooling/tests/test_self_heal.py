@@ -154,8 +154,11 @@ def test_stalled_when_no_fixable_violations(tmp_path: Path) -> None:
     from tooling.report_quality.structural_validator import ReportSpec, RequiredSlots
 
     report_dir = _make_report_dir(tmp_path)
-    # Use a spec with only RequiredSlots (no fix_fn) to force a stall
-    spec = ReportSpec(invariants=[RequiredSlots()])
+    # Use a spec with only RequiredSlots (no fix_fn) to force a stall.
+    # RequiredSlots now takes its mandatory slots from template_manifest.yaml and
+    # needs the page variant explicitly — T1_Portfolio makes KPI_Cards/Slicer_Date
+    # mandatory, and the fixture report has neither.
+    spec = ReportSpec(invariants=[RequiredSlots(variant="T1_Portfolio")])
     result = self_heal(report_dir, spec=spec)
     # RequiredSlots fires (Overview page has no KPI_Cards etc.) but has no fix
     if result.initial_violations > 0:
@@ -197,10 +200,22 @@ def test_invalid_report_dir_raises(tmp_path: Path) -> None:
 def test_cli_dry_run_self_heal_exit_when_criticals_would_remain(tmp_path: Path) -> None:
     """--self-heal --dry-run must not return 0 when critical violations would persist."""
     from tooling.report_quality.cli import main as cli_main
-    from tooling.report_quality.structural_validator import ReportSpec, RequiredSlots
 
     report_dir = _make_report_dir(tmp_path)
-    # RequiredSlots violations have no fix_fn -> dry-run cannot clear them
+    # An out-of-bounds visual: `VisualWithinPage` is critical and has no fix_fn, so a
+    # dry-run cannot clear it.
+    #
+    # This used to rely on `RequiredSlots` being part of `default_spec()`. It no longer
+    # is — that invariant now needs the page variant from template_manifest.yaml, which
+    # a default spec cannot know. The assertion here is about the CLI's exit code for
+    # unfixable criticals, so it needs *an* unfixable critical, not that specific one.
+    oob = report_dir / "definition" / "pages" / "Page_Overview" / "visuals" / "out_of_bounds"
+    oob.mkdir(parents=True)
+    (oob / "visual.json").write_text(
+        json.dumps({"position": {"x": 1900, "y": 1000, "width": 500, "height": 400},
+                    "visual": {"visualType": "card"}}),
+        encoding="utf-8",
+    )
     exit_code = cli_main(
         [
             "--dist-root",

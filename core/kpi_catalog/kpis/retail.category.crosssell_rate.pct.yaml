@@ -15,8 +15,9 @@ business:
   purpose: Share of transactions that contain items from two or more distinct product categories.
   definition: Transactions with >=2 distinct categories divided by total transactions in scope.
   grain_scope: Transaction aggregated by Month, Store, Channel, Category pair.
-  unit_format: "% (1 decimal)"
-  interpretation: Higher values indicate stronger basket breadth and cross-sell capture; declining values signal weakening category affinity activation.
+  unit_format: percent_1
+  interpretation: Higher values indicate stronger basket breadth and cross-sell capture; declining values signal
+    weakening category affinity activation.
 technical:
   measure_name: Category Cross-Sell Rate %
   description: Share of transactions spanning two or more product categories.
@@ -24,6 +25,11 @@ technical:
   lineage:
   - fact_sales.Transaction Key
   - fact_sales.Category Key
+  calculation:
+    op: hitl
+    blocked_by: authoring
+    reason: Anteil Transaktionen mit mehr als einer Kategorie. Kein Legacy-Vorbild im dist — die Zielformel (Zaehlbasis,
+      Grain, Behandlung von Einzelposten) ist fachlich nicht festgelegt.
 governance:
   business_owner: Head of Category Management
   data_owner: Commercial BI Engineering
@@ -41,5 +47,4 @@ standard_ref:
 - standard: Retail analytics (convention)
   name: Cross-sell rate
   alignment: none
-  note: Cross-sell rate (multi-category transactions / total) is a retail/CRM analytics convention, not
-    standard-defined.
+  note: Cross-sell rate (multi-category transactions / total) is a retail/CRM analytics convention, not standard-defined.

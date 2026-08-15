@@ -13,7 +13,7 @@ business:
   purpose: Measures the variance caused purely by quantity changes at plan price.
   definition: (Actual Quantity - Plan Quantity) x Plan Price.
   grain_scope: Aggregated to reporting period / segment.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Positive values indicate higher volume than plan; negative values indicate volume shortfalls.
 technical:
   measure_name: Volume Effect Amount
@@ -45,6 +45,6 @@ standard_ref:
 - standard: Management accounting (CIMA/IMA)
   name: Sales volume variance
   alignment: partial
-  note: 'Volume effect follows the sales-volume-variance convention. NOTE a real definitional variant:
-    per-row (Δqty × plan unit price) collapses mix to zero, whereas the blended-plan-price basis makes
-    mix material — pin which convention is used so price+volume+mix reconcile to total variance.'
+  note: 'Volume effect follows the sales-volume-variance convention. NOTE a real definitional variant: per-row (Δqty
+    × plan unit price) collapses mix to zero, whereas the blended-plan-price basis makes mix material — pin which
+    convention is used so price+volume+mix reconcile to total variance.'

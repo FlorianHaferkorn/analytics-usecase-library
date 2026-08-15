@@ -24,7 +24,7 @@ business:
   purpose: Measures share of units scrapped in production.
   definition: Scrap Units / Total Units.
   grain_scope: Line/day; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; rising scrap increases cost and reduces yield.
 technical:
   measure_name: Scrap Rate %

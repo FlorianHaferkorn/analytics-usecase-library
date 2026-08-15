@@ -14,7 +14,7 @@ business:
   purpose: Measures earnings before interest, tax, depreciation and amortisation.
   definition: Revenue - COGS - Operating Expenses (excl. D&A).
   grain_scope: Entity/BU; monthly.
-  unit_format: '''EUR (0 decimal)'''
+  unit_format: eur_0
   interpretation: Absolute earnings base for the EBITDA-margin and vs-plan bridge.
 technical:
   measure_name: EBITDA
@@ -41,5 +41,5 @@ standard_ref:
 - standard: ESMA-APM
   name: EBITDA (Alternative Performance Measure)
   alignment: partial
-  note: EBITDA is not defined by IFRS; ESMA APM Guidelines govern its disclosure. Reconcile to the nearest
-    IFRS line (operating profit) per ESMA.
+  note: EBITDA is not defined by IFRS; ESMA APM Guidelines govern its disclosure. Reconcile to the nearest IFRS
+    line (operating profit) per ESMA.

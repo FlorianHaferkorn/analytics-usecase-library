@@ -17,7 +17,7 @@ business:
   purpose: Counts shipments executed in the period.
   definition: Count of shipment records.
   grain_scope: Shipment; aggregated by period and carrier.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate higher fulfillment activity.
 technical:
   measure_name: Shipments Count
@@ -43,5 +43,5 @@ standard_ref:
   name: Shipment volume (element)
   url: https://scor.ascm.org/performance/reliability/RL.1.1
   alignment: none
-  note: Shipment count is a logistics volume element feeding delivery-reliability metrics (SCOR RL), not
-    a standalone SCOR KPI.
+  note: Shipment count is a logistics volume element feeding delivery-reliability metrics (SCOR RL), not a standalone
+    SCOR KPI.

@@ -63,7 +63,28 @@ $pythonChecks = @(
   @{ Script = "tooling/validation/check_catalog_tmdl_drift.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/validation/check_docs_links.py"; Args = @("--repo-root", $rootPath) },
   @{ Script = "tooling/generator/validation/check_action_outcome_reconciliation.py"; Args = @("--strict") },
-  @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) }
+  @{ Script = "tooling/generator/validation/check_business_cases.py"; Args = @("--strict", "--repo-root", $rootPath) },
+  # Layout-System-Boden (L4): jede analytische Absicht muss im Pflichtziel Power BI
+  # eine Darstellung haben; Zweit-Konnektoren werden berichtet, blocken aber nicht,
+  # solange sie im Aufbau sind. Kein eigener Checker — die Visual-Library hat eine
+  # CLI, und die wird erweitert statt dupliziert.
+  @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("check-floor") },
+  # Autoren-Schemas (Konsolidierung 02.08.2026): sie werden aus der Registry ERZEUGT.
+  # Ohne diesen Drift-Check waeren sie still veraltet — und ein veraltetes Autoren-Schema
+  # erlaubt, was die Governance untersagt (genau so kam `stacked_bar` hinein).
+  @{ Script = "tooling/superversion/layer_tools/visual_library.py"; Args = @("sync-schemas") },
+  # Design-Tokens (L5): die DTCG-Fassung ist ERZEUGT — dieser Check faellt, sobald sie
+  # von den YAML-Quellen abweicht. Ohne ihn waere das Interchange-Format still veraltet.
+  @{ Script = "tooling/superversion/layer_tools/design_tokens.py"; Args = @() },
+  # Herkunftssicht (L6): welche Regeln sind IBCS-abgeleitet, welche Hausregel, und
+  # welche SUCCESS-Gruppen sind unbelegt. Advisory — die Luecken sind bekannt und
+  # sollen sichtbar sein, ohne den Lauf zu blocken (--strict macht sie hart).
+  @{ Script = "tooling/superversion/layer_tools/layout_systems.py"; Args = @() },
+  # Dasselbe fuer das EIGENE System (L12 Ph. 1, 03.08.2026). Ohne diese Zeile endet die
+  # Paritaet am Bericht: das Gate haette weiter nur IBCS geprueft, waehrend das System
+  # mit 33 der 72 Regeln ungeprueft bliebe. Beide Systeme, derselbe Check, dieselbe
+  # Haerte.
+  @{ Script = "tooling/superversion/layer_tools/layout_systems.py"; Args = @("--system", "haus") }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"

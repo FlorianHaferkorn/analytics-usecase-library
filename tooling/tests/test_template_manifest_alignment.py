@@ -8,6 +8,7 @@ The field is optional (non-breaking) — brackets without template_variant are s
 """
 from __future__ import annotations
 
+import pytest
 import yaml
 from pathlib import Path
 
@@ -179,7 +180,7 @@ class TestBracketVariantAlignment:
 class TestBracketSlotManifestAlignment:
     """When template_variant is set, Main_2 visual_type must match manifest information_block."""
 
-    _VARIANCE_VISUAL_TYPES = {"waterfall"}
+    _VARIANCE_VISUAL_TYPES = {"waterfall", "waterfall_chart", "variance_bar"}
     _RANKING_VISUAL_TYPES = {"bar_chart", "bar_chart_horizontal", "bar_chart_column", "bar_chart_vertical"}
     _TREND_VISUAL_TYPES = {"line_chart", "trend_line", "area_chart"}
 
@@ -298,3 +299,184 @@ class TestManifestInternalConsistency:
                         f"grid_template_slots.{template_id}"
                     )
         assert not errors, "\n".join(f"  - {e}" for e in errors)
+
+
+class TestManifestGridIsNotASecondOpinion:
+    """Das Manifest fuehrt die Rasterwerte ein ZWEITES Mal — das muss erzwungen sein.
+
+    Gemessen am 02.08.2026: `template_manifest.yaml` traegt `design_canvas`,
+    `production_canvas` und `grid` (columns/rows/outer_margin_px/gutter_px/
+    internal_padding_px/zone_gap_px) — dieselben Zahlen, die `tokens/layout_grid.yaml`
+    governt. Sie stimmen ueberein; das war bis hierher Glueck, nicht Zwang.
+
+    Das ist dieselbe Klasse wie die 38 Leinwand-Literale aus KONZEPT §11, nur eine
+    Ebene hoeher: die dortige Raeumung und ihr Waechter (`test_konsolidierung.py`)
+    zielen auf Zahlen-Literale in **Code**. Eine zweite governte YAML faellt nicht
+    darunter — die Zahl „0 Leinwand-Meinungen" galt fuer Code, nicht fuer YAML.
+    Dieser Test schliesst die Luecke, statt die Dublette aufzuloesen: das Manifest ist
+    ein Autorendokument, sein Rasterblock dort dokumentarisch nuetzlich.
+    """
+
+    def test_manifest_grid_matches_layout_grid_yaml(self):
+        from tooling.superversion.layer_tools.layout_grid import load
+        from tooling.superversion.layer_tools.page_templates import manifest_grid
+
+        m = manifest_grid()
+        prod = load("production")
+        design = load("design_base")
+
+        erwartet = {
+            "design_width": design.width, "design_height": design.height,
+            "production_width": prod.width, "production_height": prod.height,
+            "cols": prod.cols, "rows": prod.rows,
+            "outer_margin": prod.outer, "gutter": prod.gutter,
+        }
+        abweichung = {k: (m.get(k), v) for k, v in erwartet.items() if m.get(k) != v}
+        assert not abweichung, (
+            "template_manifest.yaml widerspricht tokens/layout_grid.yaml "
+            f"(Manifest, layout_grid): {abweichung}"
+        )
+
+
+class TestPageTemplateReader:
+    """Der Leser aus `layer_tools/page_templates.py` — die einzige Slot-Autoritaet."""
+
+    def test_every_declared_variant_loads(self):
+        from tooling.superversion.layer_tools.page_templates import alle_varianten, load
+
+        for vid in sorted(alle_varianten()):
+            spec = load(vid)
+            assert spec.variant_id == vid
+            assert spec.family_id, f"{vid} ohne family_id"
+            assert spec.grid_template, f"{vid} ohne grid_template"
+
+    def test_unknown_variant_raises_instead_of_returning_empty(self):
+        """Eine leere Pflichtliste sieht aus wie 'alles erfuellt' — deshalb: Abbruch."""
+        from tooling.superversion.layer_tools.page_templates import (
+            PageTemplateError, load,
+        )
+
+        with pytest.raises(PageTemplateError):
+            load("T9_GibtEsNicht")
+
+    def test_variant_slot_ids_all_resolve_to_grid_template_slots(self):
+        """Die Variantenebene fuehrt echte Slot-IDs — keine Slot-Arten."""
+        from tooling.superversion.layer_tools.page_templates import alle_varianten, load
+
+        manifest = _load_manifest()
+        bekannt = {s for v in (manifest.get("grid_template_slots") or {}).values() for s in v}
+        offen = {sid for vid in alle_varianten() for sid in load(vid).erlaubt()} - bekannt
+        assert not offen, f"Slot-IDs ohne grid_template_slot: {sorted(offen)}"
+
+    def test_family_level_vocabulary_is_kept_separate(self):
+        """`family.mandatory_slots` ist eine ANDERE Achse und darf nicht einfliessen.
+
+        Von den 7 Woertern dort sind 5 keine Slot-IDs, sondern Slot-Arten
+        (`Exceptions`, `Funnel`, `Prescriptive`, `Root_Cause`, `Variance`). Sie in die
+        Pflichtliste zu mischen hiesse Schreibweisen vergleichen statt Dinge — genau
+        der Fehlalarm aus L2, als `waterfall` als global verboten galt, obwohl es der
+        Default eines Blocks war.
+        """
+        from tooling.superversion.layer_tools.page_templates import (
+            alle_varianten, family_slot_kinds, load,
+        )
+
+        echte_slot_ids = {sid for vid in alle_varianten() for sid in load(vid).erlaubt()}
+        arten = set()
+        for fid in ("T1", "T2", "T3", "T4"):
+            k = family_slot_kinds(fid)
+            arten |= set(k["mandatory"]) | set(k["disallowed"])
+        assert arten - echte_slot_ids, (
+            "Das Familien-Vokabular enthaelt nur Slot-IDs — dann waere die Trennung "
+            "in diesem Modul unnoetig und der Kommentar dort falsch."
+        )
+        # Und: keine Pflichtliste einer Variante enthaelt je eine dieser Arten.
+        for vid in alle_varianten():
+            eingemischt = set(load(vid).pflicht()) & (arten - echte_slot_ids)
+            assert not eingemischt, f"{vid} mischt Slot-Arten in die Pflichtliste: {eingemischt}"
+
+
+class TestVariantsEarnTheirName:
+    """Eine Variante muss sich von jeder anderen unterscheiden — sonst ist sie keine.
+
+    Geprueft wird die **Struktur** — welcher Slot traegt welchen Informationsblock —,
+    nicht die Pflicht-Flags. Genau daran haengt der Befund: `T4_OptionComparison` und
+    `T4_Sensitivity` sind strukturell identisch und unterscheiden sich in **genau einem
+    Boolean** (`Support_1.mandatory`, false vs true). Zwei Namen, die eine Unterscheidung
+    versprechen, die praktisch keine ist.
+
+    (Erste Fassung dieses Tests nahm die Flags mit in die Signatur und fand deshalb
+    **keine** Dublette — womit er die Behauptung, die ihn ausgeloest hat, still
+    entkraeftet haette. Ein Waechter, der die falsche Groesse misst, bestaetigt.)
+    """
+
+    def _signatur(self, v):
+        from tooling.superversion.layer_tools.page_templates import load
+        s = load(v)
+        return tuple((eb, tuple((x.slot_id, x.information_block)
+                                for x in s.slots if x.ebene == eb))
+                     for eb in ("overview_slots", "detail_slots"))
+
+    def test_no_two_variants_share_a_signature(self):
+        from tooling.superversion.layer_tools.page_templates import alle_varianten
+
+        gruppen = {}
+        for v in sorted(alle_varianten()):
+            gruppen.setdefault(self._signatur(v), []).append(v)
+        doppelt = {tuple(vs) for vs in gruppen.values() if len(vs) > 1}
+        # Bekannte, im Manifest als `status: unused` benannte Dublette. Sie steht hier
+        # als EXPLIZITE Ausnahme, damit eine NEUE Dublette auffaellt statt in ihr
+        # unterzugehen — und damit das Aufloesen sichtbar wird: verschwindet sie,
+        # wird dieser Test rot und die Ausnahme gehoert entfernt.
+        bekannt = {("T4_OptionComparison", "T4_Sensitivity")}
+        assert doppelt == bekannt, (
+            f"Signatur-Dubletten veraendert: {sorted(doppelt)} (erwartet {sorted(bekannt)})")
+
+    def test_unused_variants_are_declared_as_such(self):
+        """Unbenutzte Varianten tragen `status: unused` mit Begruendung.
+
+        Nicht geloescht — das Manifest ist governt und eine Variante kann Roadmap sein.
+        Aber eine Variante ohne Nutzung und ohne Vermerk ist eine Behauptung.
+        """
+        manifest = _load_manifest()
+        variants = {v["variant_id"]: v for f in manifest["page_families"]
+                    for v in f.get("variants") or []}
+        for vid in ("T2_Funnel", "T3_IncidentMonitor",
+                    "T4_OptionComparison", "T4_Sensitivity"):
+            v = variants[vid]
+            assert v.get("status") == "unused", f"{vid}: kein status-Vermerk"
+            assert v.get("status_note"), f"{vid}: Vermerk ohne Begruendung"
+
+    def test_hard_gate_only_where_data_backs_it(self):
+        """Ein Pflicht-Slot steht nur auf `severity: error`, wenn die Variante benutzt wird.
+
+        Die Achse der Haerte ist die Datenlage der Regel, nicht die Art des Slots —
+        Kubernetes PSS (enforce/audit/warn), Sentinel (advisory/soft-/hard-mandatory),
+        ESLint (off/warn/error) halten es alle so. Eine Variante mit `status: unused`
+        hat null Emissionen und damit null Verletzungsdaten; sie auf hart zu stellen
+        hiesse, ein Gate ohne Befund zu schaerfen.
+
+        Der Test ist beidseitig: er faellt auch, wenn eine BENUTZTE Variante ihre
+        Pflicht-Slots auf `warning` senkt. Sonst waere die Regel eine Einbahnstrasse,
+        die nur das Verschaerfen bremst und das stille Aufweichen durchlaesst — genau
+        die Richtung, in der ein Gate unbemerkt aufhoert zu pruefen.
+        """
+        from tooling.superversion.layer_tools.page_templates import (
+            alle_varianten, load)
+
+        falsch_hart, falsch_weich = [], []
+        for vid in sorted(alle_varianten()):
+            spec = load(vid)
+            unbenutzt = spec.status == "unused"
+            for s in spec.slots:
+                if not s.mandatory:
+                    continue
+                if unbenutzt and s.severity == "error":
+                    falsch_hart.append(f"{vid}/{s.slot_id}")
+                if not unbenutzt and s.severity != "error":
+                    falsch_weich.append(f"{vid}/{s.slot_id} ({s.severity})")
+        assert not falsch_hart, (
+            "hartes Gate ohne Datenlage (Variante ist `status: unused`): "
+            + ", ".join(falsch_hart))
+        assert not falsch_weich, (
+            "benutzte Variante weicht ihre Pflicht-Slots auf: " + ", ".join(falsch_weich))

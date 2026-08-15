@@ -22,7 +22,7 @@ business:
   purpose: Measures average operating time between failures.
   definition: Operating Time Hours / Number of Failures.
   grain_scope: Asset/line; aggregated monthly.
-  unit_format: hours
+  unit_format: hours_0
   interpretation: Higher is better; declining MTBF indicates reliability issues.
 technical:
   measure_name: MTBF (hours)

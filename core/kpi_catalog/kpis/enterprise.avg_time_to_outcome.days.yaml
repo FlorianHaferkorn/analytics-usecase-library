@@ -13,7 +13,7 @@ business:
   purpose: Measures how quickly ActionReady recommendations convert to confirmed outcomes.
   definition: Average of days_to_outcome across all executed action rows.
   grain_scope: Action execution; aggregated monthly by domain.
-  unit_format: days (1 decimal)
+  unit_format: days_1
   interpretation: Lower values indicate faster action-to-outcome cycles.
 technical:
   measure_name: Avg Time-to-Outcome Days
@@ -40,5 +40,5 @@ standard_ref:
   name: Average time to outcome
   url: https://www.iso.org/standard/62085.html
   alignment: none
-  note: Average days-to-outcome is the framework's own action-cycle-time metric; no external standard
-    (PDCA cycle-time is the conceptual backdrop).
+  note: Average days-to-outcome is the framework's own action-cycle-time metric; no external standard (PDCA cycle-time
+    is the conceptual backdrop).

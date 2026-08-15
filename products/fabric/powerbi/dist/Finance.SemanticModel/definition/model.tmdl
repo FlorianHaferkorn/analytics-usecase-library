@@ -5,6 +5,8 @@ annotation PBI_ProTooling = ["TMDL-Extension"]
 
 ref table _ActionReady_Logic
 ref table _Measures
+ref table _CCC_Bridge
+ref table Vergleich
 ref table dim_date
 ref table dim_org
 ref table dim_customer
@@ -19,5 +21,7 @@ ref table fact_inventory
 ref table fact_cost
 ref table fact_output
 ref table fact_labor
+ref table fact_fulfillment
+ref table fact_supplier_risk
 ref table security_user_org
 ref culture en-US

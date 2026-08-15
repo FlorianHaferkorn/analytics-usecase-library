@@ -22,8 +22,9 @@ business:
   purpose: Throughput speed versus theoretical maximum.
   definition: Actual output / Theoretical maximum output
   grain_scope: Machine/line level; per shift or day, aggregated monthly.
-  unit_format: '''% (1 decimal)'''
-  interpretation: Higher performance indicates faster throughput; values above 100 % require validation of standard rates.
+  unit_format: percent_1
+  interpretation: Higher performance indicates faster throughput; values above 100 % require validation of standard
+    rates.
 technical:
   measure_name: Performance %
   description: Throughput speed versus theoretical maximum.
@@ -62,6 +63,5 @@ standard_ref:
   name: Effectiveness
   url: https://www.iso.org/standard/54497.html
   alignment: partial
-  note: ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time.
-    Ours ('actual output / theoretical max output') is the same concept; align to the ISO ideal-cycle-time
-    basis.
+  note: ISO 22400-2 Effectiveness E = (produced quantity x ideal cycle time) / actual production time. Ours ('actual
+    output / theoretical max output') is the same concept; align to the ISO ideal-cycle-time basis.

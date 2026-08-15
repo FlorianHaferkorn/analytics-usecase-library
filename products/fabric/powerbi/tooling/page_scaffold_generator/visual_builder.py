@@ -4,11 +4,17 @@ Visual Builder
 Builds Power BI visual placeholder structures.
 """
 
+import logging
 import re
 import uuid
 from typing import Dict, Any, Optional, List
 from .layout_calculator import Position
 from products.fabric.powerbi.tooling.schema_registry import VISUAL_SCHEMA as _VISUAL_SCHEMA
+
+
+#: Obergrenze der Rolle Y bei `waterfallChart` — offizieller Katalog (Pin 0.1.1).
+#: Als Konstante, damit sie neben dem Wert in targets/pbir.py auffindbar ist.
+_WATERFALL_Y_MAX = 1
 
 
 class VisualBuilder:
@@ -309,7 +315,37 @@ class VisualBuilder:
         """
         visual = self._build_base_visual("waterfallChart", position, name=name)
         cat_proj = [self._column_projection(category_entity, category_property)] if (category_entity and category_property) else []
-        y_proj = [self._measure_projection(m) for m in measures] if measures else []
+        # Rolle Y nimmt bei `waterfallChart` GENAU EIN Measure — Obergrenze aus dem
+        # offiziellen Katalog (`powerbi-report-author catalog describe waterfallChart`,
+        # Pin 0.1.1), derselbe Wert, den der Superversion-Emitter seit jeher fuehrt
+        # (`targets/pbir.py::_PLANS["waterfall"].primary_max == 1`).
+        #
+        # Gemessen am 03.08.2026: **11 der 17 dist-Reports** banden 2–5 Measures an Y
+        # und meldeten deshalb `PBIR_ROLE_MAX_EXCEEDED` beim offiziellen Validator. Zwei
+        # Emitter, einer mit Kappung, einer ohne — und ausgeliefert wurde der ohne.
+        # Kein Pruefer sah das, weil `validate_bindings.py` die Bindung PRUEFT, nicht
+        # ihre Kardinalitaet.
+        # ABER: Kappen allein waere ein stiller Bedeutungsverlust, und das ist gemessen,
+        # nicht befuerchtet. In OPS-001 stehen `OEE %`, `Availability %`, `Performance %`,
+        # `Quality %` an Y — OEE IST das Produkt der drei; in COM-001LY steht die Bruecke
+        # `Plan → Preis → Menge → Mix → Ist`. Wer auf die erste Measure kappt, bekommt
+        # eine gueltige Datei, die die Zerlegung nicht mehr zeigt.
+        #
+        # Der Formfehler liegt eine Ebene hoeher: eine Varianzbruecke gehoert bei
+        # `waterfallChart` NICHT als N Measures an Y, sondern als EINE Measure plus eine
+        # **Category**, die die Schritte aufzaehlt. Das umzustellen ist eine
+        # Modellierungsentscheidung am Bracket, keine des Emitters — deshalb wird hier
+        # gekappt UND laut gemeldet, und die ausgelieferten Artefakte bleiben unangetastet,
+        # bis die Entscheidung getroffen ist.
+        y_alle = [self._measure_projection(m) for m in measures] if measures else []
+        y_proj = y_alle[:_WATERFALL_Y_MAX]
+        if len(y_alle) > _WATERFALL_Y_MAX:
+            logging.getLogger(__name__).warning(
+                "waterfallChart '%s': %d Measures an Rolle Y, erlaubt ist %d — %s wird "
+                "emittiert, %s faellt weg. Das ist vermutlich eine Bruecke und gehoert "
+                "als EINE Measure + Category-Schritte modelliert; Bracket-Slot pruefen.",
+                name or "?", len(y_alle), _WATERFALL_Y_MAX,
+                (measures or ["?"])[0], ", ".join(map(str, (measures or [])[1:])))
         visual["visual"]["query"] = {
             "queryState": {
                 "Category": {"projections": cat_proj},
@@ -1080,6 +1116,15 @@ class VisualBuilder:
             "clustered_column": "clustered_column",
             "pvm_column": "clustered_column",
             "pvm": "clustered_column",
+            # Registry-Vokabular (ADR-0018). Ohne diese Zeilen fiel jede umbenannte
+            # Deklaration durch alle Zweige in den `logger.warning`-Default und wurde
+            # zur Trendlinie — dritter Fund derselben Fehlerklasse an diesem Tag, und
+            # der einzige, den ein Test gefangen hat statt eines Menschen.
+            "kpi_card_with_delta": "kpi_card",
+            "horizontal_bar_chart": "bar_chart_horizontal",
+            "column_chart": "bar_chart_column",
+            "waterfall_chart": "waterfall",
+            "scatter_plot": "scatter",
         }
         normalized_type = alias_map.get(normalized_type, normalized_type)
         measures = measures or []

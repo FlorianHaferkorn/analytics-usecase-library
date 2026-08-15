@@ -15,7 +15,7 @@ business:
   purpose: Shows output efficiency relative to labor input.
   definition: Output Units or Net Sales divided by Labor Hours (normalized to % baseline).
   grain_scope: Line/site; reported weekly or monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher values indicate better labor efficiency; validate against mix effects.
 technical:
   measure_name: Labor Productivity %
@@ -49,6 +49,6 @@ standard_ref:
   name: Worker efficiency
   url: https://www.iso.org/standard/54497.html
   alignment: partial
-  note: ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time.
-    Ours (output or net sales / labour hours) is an output-based productivity ratio — same intent, different
-    basis. Align the numerator/denominator to WE to claim the standard.
+  note: ISO 22400-2 Worker efficiency WE = actual personnel work time / actual personnel attendance time. Ours (output
+    or net sales / labour hours) is an output-based productivity ratio — same intent, different basis. Align the
+    numerator/denominator to WE to claim the standard.

@@ -17,7 +17,7 @@ business:
   purpose: Counts equipment or process failures in the period.
   definition: Count of recorded failure events.
   grain_scope: Asset or line; aggregated by period.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate lower reliability.
 technical:
   measure_name: Failure Count

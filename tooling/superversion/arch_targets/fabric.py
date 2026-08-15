@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 
 from tooling.superversion.arch_targets.base import ArchAdapter, register
+from tooling.superversion.capacity import recommend as _capacity_recommend
 
 _ACCESS_ACTION = {
     "shortcut": "OneLake shortcut (zero-copy, virtualize in place)",
@@ -173,6 +174,60 @@ def emit(blueprint: dict,
         lines.append("Re-mirror with `python scripts/check_dataarch_mirror.py --write`. "
                      "Half-correct governance artifacts are worse than none, so nothing is "
                      "substituted here.")
+    # --- capacity: floor + procurement ------------------------------------------
+    # The schema has always said an absent capacity_sku means consumers must state a
+    # recommended FLOOR instead of assuming one. Nobody computed it, so it was either
+    # guessed or omitted. Sizing and procurement are reported separately because they
+    # have different owners: the architect sizes, the customer buys.
+    cap = _capacity_recommend(blueprint)
+    lines.append("")
+    lines.append("## 6. Capacity (sizing floor + procurement)")
+    if cap.get("assigned_sku"):
+        lines.append(f"- Assigned: **{cap['assigned_sku']}**")
+    else:
+        lines.append("- Assigned: **none** — the floor below is a recommendation, not an "
+                     "assignment.")
+    if cap.get("recommended_floor"):
+        lines.append(f"- Recommended floor: **{cap['recommended_floor']}**")
+        for reason in cap["floor_reasons"]:
+            lines.append(f"  - {reason}")
+        hr = cap.get("headroom_at_floor", {})
+        lines.append(f"  - Headroom at floor: {hr.get('spark_vcores_baseline')} Spark vCores "
+                     f"({hr.get('spark_vcores_burst')} with burst), "
+                     f"{hr.get('parallel_model_refreshes')} parallel model refreshes")
+        lb = cap.get("licence_breakeven", {})
+        if lb.get("applicable") and lb.get("viewers"):
+            lines.append(f"  - F64 becomes cheaper than the floor plus Pro licences above "
+                         f"~{lb['viewers']} viewers ({lb.get('basis', '')})")
+        elif lb.get("applicable"):
+            lines.append("  - F64 licence break-even not computed: prices are inputs and were "
+                         f"not supplied ({', '.join(lb.get('missing', []))})")
+    else:
+        lines.append("- Recommended floor: **not derivable** from the declared sizing inputs.")
+    if cap.get("conflict"):
+        lines.append(f"- **Conflict:** {cap['conflict']}")
+    proc = cap.get("procurement", {})
+    if proc.get("model"):
+        lines.append(f"- Procurement: **{proc['model']}** — {proc.get('reason', '')}")
+        for key in ("term", "requires", "caveat"):
+            if proc.get(key):
+                lines.append(f"  - {proc[key]}")
+    spl = cap.get("split", {})
+    if spl.get("capacities"):
+        n = spl["capacities"]
+        lines.append(f"- Split: **{n} {'capacity' if n == 1 else 'capacities'}** — "
+                     f"{spl.get('reason', '')}")
+        if spl.get("cost"):
+            lines.append(f"  - Trade-off: {spl['cost']}")
+    if cap.get("unknowns"):
+        lines.append("- **Missing inputs** (declare them under `platform.sizing`; they are "
+                     "reported rather than defaulted):")
+        for u in cap["unknowns"]:
+            lines.append(f"  - {u}")
+    lines.append("- Storage is billed per GB, is not covered by a reservation and keeps "
+                 "running while the capacity is paused. It is added on top of every "
+                 "scenario and never changes the reserved-vs-pay-as-you-go decision.")
+
     runbook = "\n".join(lines) + "\n"
 
     out = {
@@ -181,6 +236,7 @@ def emit(blueprint: dict,
         "fabric/ingestion_plan.json": _json(ingestion_plan),
         "fabric/medallion.json": _json(medallion),
         "fabric/semantic_binding.json": _json(semantic_binding),
+        "fabric/capacity_plan.json": _json(cap),
     }
     out.update(mirrored)
     return out

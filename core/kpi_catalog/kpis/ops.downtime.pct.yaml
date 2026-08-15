@@ -14,7 +14,7 @@ business:
   purpose: Measures share of planned production time lost to downtime.
   definition: Downtime Minutes / Planned Time Minutes.
   grain_scope: Line/day aggregated to plant and period.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; analyze downtime drivers and loss categories.
 technical:
   measure_name: Downtime %
@@ -47,5 +47,5 @@ standard_ref:
   name: Down time element (Availability loss)
   url: https://www.iso.org/standard/54497.html
   alignment: partial
-  note: Downtime ratio is an availability-loss element in the ISO 22400-2 time model (down time within
-    Planned Busy Time), not a standalone named KPI; it feeds Availability (A).
+  note: Downtime ratio is an availability-loss element in the ISO 22400-2 time model (down time within Planned Busy
+    Time), not a standalone named KPI; it feeds Availability (A).
