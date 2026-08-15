@@ -71,6 +71,10 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
       "type": "string",
       "const": "0.1.0"
     },
+    "shared_workspace": {
+      "type": "string",
+      "description": "Name des geteilten Plattform-Workspace, sofern der Zuschnitt ihn wirklich erzeugt (Strategie 'single' oder 'central_prep_domain_consumption'). Wird er nicht materialisiert, fehlt das Feld — ein Name im IR, den es im Mandanten nicht gibt, waere schlimmer als keiner. Verbraucher: die Chargeback-Zuordnung, die wissen muss, welcher Workspace der geteilte ist, statt ihn zu erraten."
+    },
     "platform": {
       "type": "object",
       "description": "P4 Platform Simplification — one platform owns each workload class.",
