@@ -430,11 +430,45 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
     ungeschuetzt = sorted(set(domain.get("data_products") or []) - set(tabellen))
 
     todo: list[str] = []
-    if len(werte) > ONELAKE_MAX_ROLES_PER_ITEM:
-        todo.append(f"{domain.get('name')}: {len(werte)} Werte im Schnitt `{spalte}` ergeben "
-                    f"{len(werte)} Rollen — ueber der dokumentierten Grenze von "
+    # Beide Eingabeformen laufen auf dasselbe Tripel hinaus: Spalte, Wert, Bezeichner. Die Wertform
+    # nennt eine Spalte und zaehlt ihre Werte auf, die Stufenform nennt je Berechtigung eine Stufe
+    # und traegt die Spalte an der Stufe.
+    #
+    # Festlegung Flo, 15.08.2026: die geschuetzte Faktentabelle traegt **eine Spalte je Stufe**, nicht
+    # nur die feinste. Das ist der Grund, warum hier nichts aufgeloest wird. Traegt der Fakt nur die
+    # feinste Stufe, muesste eine Berechtigung auf eine groebere Stufe den Teilbaum zu einer
+    # `IN`-Liste ausrechnen, und die 1000-Zeichen-Grenze je Regel begrenzte den Teilbaum auf rund 134
+    # vierstellige Codes. Mit einer Spalte je Stufe ist jede Berechtigung ein einzelner Wert, und die
+    # Grenze wird nie zum Thema.
+    schnitte: list[tuple[str, str, str]] = []
+    if rs.get("levels"):
+        spalte_je_stufe = {e.get("name"): e.get("column") for e in rs["levels"]}
+        for g in rs.get("grants") or []:
+            sp = spalte_je_stufe.get(g.get("level"))
+            if not sp:                       # in `derive_blueprint` bereits als HITL gemeldet
+                continue
+            knoten = str(g.get("node"))
+            schnitte.append((sp, knoten, str(g.get("label") or f"{g.get('level')}_{knoten}")))
+    else:
+        schnitte = [(spalte, str(w), str(w)) for w in werte] if spalte else []
+
+    # Eine Regel, die eine Spalte nennt, die es in der Tabelle nicht gibt, ist nicht folgenlos:
+    # *„If a CLS or RLS rule has a mismatch with the table it's defined on, the query fails and
+    # returns no data"* (MS Learn, *Table, column, and row-level security in OneLake*, gelesen
+    # 15.08.2026). Wo die Spaltenliste der Tabelle bekannt ist, faellt das hier auf statt beim PUT.
+    for sp in sorted({s for s, _, _ in schnitte}):
+        fehlt = sorted(t for t in tabellen if cols_by_table.get(t) and sp not in cols_by_table[t])
+        if fehlt:
+            todo.append(f"{domain.get('name')}: Schnittspalte `{sp}` fehlt in {', '.join(fehlt)}. "
+                        f"Eine RLS-Regel auf einer Spalte, die die Tabelle nicht traegt, laesst die "
+                        f"Abfrage fehlschlagen und liefert KEINE Zeilen — die Tabelle ist damit "
+                        f"faktisch tot, nicht nur ungeschnitten.")
+
+    if len(schnitte) > ONELAKE_MAX_ROLES_PER_ITEM:
+        todo.append(f"{domain.get('name')}: {len(schnitte)} Berechtigungen ergeben "
+                    f"{len(schnitte)} Rollen — ueber der dokumentierten Grenze von "
                     f"{ONELAKE_MAX_ROLES_PER_ITEM} je Item. Der Schnitt muss vergroebert werden "
-                    f"(Gruppierung der Werte) oder auf mehrere Items verteilt.")
+                    f"(gruebere Stufe oder Gruppierung der Werte) oder auf mehrere Items verteilt.")
     if ungeschuetzt:
         todo.append(f"{domain.get('name')}: lesbar, aber NICHT vom Schnitt erfasst: "
                     f"{', '.join(ungeschuetzt)}. Jede Rolle sieht diese Tabellen vollstaendig. "
@@ -454,9 +488,9 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
     lesbar = sorted(set(tabellen) | set(domain.get("data_products") or []) | set(cols_by_table))
 
     rollen = []
-    for wert in werte:
+    for sp, wert, bez in schnitte:
         rows = [{"tablePath": f"/Tables/{t}",
-                 "value": f"select * from {t} where [{spalte}] = {_sql_literal(wert)}"}
+                 "value": f"select * from {t} where [{sp}] = {_sql_literal(wert)}"}
                 for t in tabellen]
         zu_lang = [r["tablePath"] for r in rows if len(r["value"]) > ONELAKE_MAX_PREDICATE_CHARS]
         if zu_lang:
@@ -467,7 +501,7 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
         todo += cls_todo
         if cols:
             constraints["columns"] = cols
-        gruppe = (muster or "").replace("{value}", str(wert)) if muster else ""
+        gruppe = (muster or "").replace("{value}", wert).replace("{label}", bez) if muster else ""
         rule = {
             "effect": "Permit",
             # GENAU ZWEI `permission`-Elemente, und mehrere Tabellen gehoeren in EIN
@@ -481,7 +515,7 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
         if constraints:
             rule["constraints"] = constraints
         rollen.append({
-            "name": f"read_{dident}_{_ident(str(wert))}",
+            "name": f"read_{dident}_{_ident(bez)}",
             "kind": "Policy",
             "decisionRules": [rule],
             "members": {"microsoftEntraMembers": [{
@@ -587,17 +621,40 @@ def _row_security_doc(bp: dict) -> list[str]:
     if not schnitte:
         return []
     lines = [
-        "## Zeilenschnitt: eine Rolle je Wert", "",
-        "Fuer diese Domaenen ist der Schnitt erklaert, deshalb steht im Rumpf je Wert eine",
+        "## Zeilenschnitt: eine Rolle je Berechtigung", "",
+        "Fuer diese Domaenen ist der Schnitt erklaert, deshalb steht im Rumpf je Berechtigung eine",
         "eigene Rolle mit fertigem Praedikat. Das ist keine Stilfrage: das",
         "Praedikat einer OneLake-Rolle ist statisches T-SQL ohne Zugriff auf den Aufrufer — es gibt",
         "kein Gegenstueck zu `USERPRINCIPALNAME()`. Ein Ausdruck kann den Schnitt also nicht",
         "abbilden; er muss materialisiert werden.", "",
-        "| Domaene | Spalte | Rollen | Geschuetzte Tabellen | Entra-Gruppe je Wert |",
-        "|---|---|---|---|---|",
+        "Mehrere Rollen sind dabei kein Notbehelf, sondern das dokumentierte Modell: *„RLS is",
+        "combined across predicates using an OR operator\"* (MS Learn, *OneLake security access",
+        "control model*). Wer mehrere Knoten sehen soll, kommt in mehrere Gruppen, und die",
+        "Praedikate verodern sich. Zwei Grenzen dazu: eine RLS-Rolle und eine CLS-Rolle fuer",
+        "denselben Nutzer sind **nicht** kombinierbar (Abfragefehler), und viele sich vereinigende",
+        "RLS-Rollen koennen den Sicherheits-Sync scheitern lassen — ein gescheiterter Sync wendet",
+        "die Richtlinie gar nicht an.", "",
+        "**Bei der Stufenform traegt der Fakt eine Spalte je Stufe**, nicht nur die feinste. Damit",
+        "ist jede Berechtigung ein einzelner Wert auf der Spalte ihrer Stufe. Traegt der Fakt nur",
+        "die feinste Stufe, muss der Teilbaum zu einer `IN`-Liste ausgerechnet werden, und die",
+        f"{ONELAKE_MAX_PREDICATE_CHARS}-Zeichen-Grenze je Regel begrenzt ihn auf rund 134",
+        "vierstellige Codes.", "",
+        "| Domaene | Form | Spalte(n) | Rollen | Geschuetzte Tabellen | Entra-Gruppe je Rolle |",
+        "|---|---|---|---|---|---|",
     ]
     for name, rs in schnitte:
-        lines.append(f"| {name} | `{rs.get('column')}` | {len(rs.get('values') or [])} | "
+        if rs.get("levels"):
+            # Eine Spalte je Stufe, eine Rolle je Berechtigung. Nur die Stufen zeigen, auf die
+            # tatsaechlich berechtigt wird — eine Stufe ohne Berechtigung kostet keine Rolle.
+            spalte_je_stufe = {e.get("name"): e.get("column") for e in rs["levels"]}
+            benutzt = [g.get("level") for g in (rs.get("grants") or [])]
+            spalten = ", ".join(f"`{spalte_je_stufe[s]}`" for s in dict.fromkeys(benutzt)
+                                if spalte_je_stufe.get(s))
+            form, anzahl = "Stufen", len([g for g in (rs.get("grants") or [])
+                                          if spalte_je_stufe.get(g.get("level"))])
+        else:
+            spalten, form, anzahl = f"`{rs.get('column')}`", "Werte", len(rs.get("values") or [])
+        lines.append(f"| {name} | {form} | {spalten} | {anzahl} | "
                      f"{len(rs.get('protected_products') or [])} | "
                      f"`{rs.get('group_pattern') or '— (Muster nicht gesetzt)'}` |")
     lines += [
