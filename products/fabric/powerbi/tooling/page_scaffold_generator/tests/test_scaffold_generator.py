@@ -482,5 +482,20 @@ class TestConfigLoaderKpiMap:
         assert isinstance(result, dict)
 
 
+def test_denylisted_ux_visual_warns_in_the_air_gapped_path(caplog):
+    """The ungoverned fallback path (_dispatch_ux_visual) must at least SURFACE a governance
+    warning when a deny-listed visual (e.g. funnel) is requested — it does not silently pass."""
+    import logging
+    from page_scaffold_generator.visual_builder import VisualBuilder
+    from page_scaffold_generator.layout_calculator import Position
+
+    builder = VisualBuilder()
+    pos = Position(x=20, y=20, width=280, height=140)
+    with caplog.at_level(logging.WARNING):
+        builder._dispatch_ux_visual("funnel", pos, name="v", measures=["m"])
+    assert any("deny-listed" in r.message and "color_as_decoration" in r.message
+               for r in caplog.records), "no governance warning surfaced for a deny-listed visual"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -1,0 +1,108 @@
+# Visual Library entry — column_time  (schema: _schema.yaml)
+id: column_time
+name: Column chart over time
+version: "1.0.0"
+status: active        # active | deprecated | experimental
+purpose: [time_comparison]
+zone: [analysis]
+min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor; px derived from layout_grid.yaml
+best_form_for: null
+alternatives: [line, indexed_line, kpi_card_sparkbar]
+
+encoding:
+  x: temporal_discrete              # discrete periods (months) -> columns, not a line
+  magnitude: length                 # column height = the value (rank 1)
+  endpoint: emphasized              # latest period emphasised
+
+anti_patterns:
+  - line_for_few_discrete_periods   # a handful of discrete periods reads better as columns
+  - column_for_many_continuous_points  # 30+ points -> a line, not columns
+
+params:
+  measure: {role: value, required: true}
+  date:    {role: axis, type: temporal, required: true}
+  entity:  {role: table, default: _Measures}
+
+tokens:
+  col_bar: brand.primary            # #0078D4 columns
+
+canonical_params:
+  entity: "_Measures"
+  measure: "Orders Count"
+  category_entity: "dim_date"
+  category_prop: "Month"
+  field: "count"
+  field_date: "month"
+  col_bar: "#0078D4"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Column chart over time">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">ORDERS BY MONTH</text>
+    <g fill="#0078D4">
+      <rect x="34"  y="96"  width="26" height="34"/><rect x="70"  y="84" width="26" height="46"/><rect x="106" y="90" width="26" height="40"/>
+      <rect x="142" y="72"  width="26" height="58"/><rect x="178" y="80" width="26" height="50"/><rect x="214" y="64" width="26" height="66"/>
+      <rect x="250" y="70"  width="26" height="60"/><rect x="286" y="52" width="26" height="78"/>
+    </g>
+    <line x1="28" y1="130" x2="320" y2="130" stroke="#E1E7EE"/>
+  </svg>
+
+realizations:
+  powerbi_native:
+    ext: json
+    template: |
+      {
+        "visualType": "clusteredColumnChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        } }
+      }
+
+  powerbi_svg_dax:
+    applicable: false
+    reason: "a full column-over-time chart is not a single-cell micro-chart"
+    use: "kpi_card_sparkbar for the in-card column trend; powerbi_native / Deneb for the full chart"
+
+  deneb_vegalite:
+    ext: json
+    template: |
+      {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "data": { "name": "dataset" },
+        "mark": { "type": "bar", "color": "{{col_bar}}" },
+        "encoding": {
+          "x": { "field": "{{field_date}}", "type": "ordinal", "axis": { "title": null, "labelAngle": 0 } },
+          "y": { "field": "{{field}}", "type": "quantitative", "axis": { "title": null } }
+        }
+      }
+
+  web_recharts:
+    ext: jsx
+    template: |
+      <BarChart data={data} width={480} height={280}>
+        <XAxis dataKey="{{field_date}}" />
+        <YAxis />
+        <Bar dataKey="{{field}}" fill="{{col_bar}}" />
+      </BarChart>
+
+determinism:
+  golden_dir: golden
+  notes: "Discrete periods over time as columns (the 'bar for time series' case) — distinct from `line` (continuous trend) and `bar_ranking` (compare categories)."
+
+profiles:
+  ibcs:
+    note: 'IBCS columns: single dark AC scenario fill (not a brand hue) with every column labelled; PY/PL would overlay as outlined/tinted where present.'
+    param_overrides:
+      col_bar: '#0F2430'
+      col_label: '#201F1E'
+    realizations:
+      powerbi_native:
+        ext: json
+        template: "{\n  \"visualType\": \"clusteredColumnChart\",\n  \"query\": { \"queryState\": {\n    \"Category\": { \"projections\": [ { \"field\": { \"Column\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{category_entity}}\" } }, \"Property\": \"{{category_prop}}\" } }, \"queryRef\": \"{{category_entity}}.{{category_prop}}\" } ] },\n    \"Y\": { \"projections\": [ { \"field\": { \"Measure\": { \"Expression\": { \"SourceRef\": { \"Entity\": \"{{entity}}\" } }, \"Property\": \"{{measure}}\" } }, \"queryRef\": \"{{entity}}.{{measure}}\" } ] }\n  } },\n  \"objects\": { \"labels\": [ { \"properties\": { \"show\": { \"expr\": { \"Literal\": { \"Value\": \"true\" } } } } } ] }\n}\n"
+      deneb_vegalite:
+        ext: json
+        template: "{\n  \"$schema\": \"https://vega.github.io/schema/vega-lite/v5.json\",\n  \"data\": { \"name\": \"dataset\" },\n  \"encoding\": { \"x\": { \"field\": \"{{field_date}}\", \"type\": \"ordinal\", \"axis\": { \"title\": null, \"labelAngle\": 0 } } },\n  \"layer\": [\n    { \"mark\": { \"type\": \"bar\", \"color\": \"{{col_bar}}\" }, \"encoding\": { \"y\": { \"field\": \"{{field}}\", \"type\": \"quantitative\", \"axis\": { \"title\": null } } } },\n    { \"mark\": { \"type\": \"text\", \"dy\": -6, \"fontWeight\": \"bold\", \"color\": \"{{col_label}}\" }, \"encoding\": { \"y\": { \"field\": \"{{field}}\", \"type\": \"quantitative\" }, \"text\": { \"field\": \"{{field}}\", \"type\": \"quantitative\", \"format\": \".0f\" } } }\n  ]\n}\n"
+      web_recharts:
+        ext: jsx
+        template: "<BarChart data={data} width={480} height={280}>\n  <XAxis dataKey=\"{{field_date}}\" />\n  <YAxis />\n  <Bar dataKey=\"{{field}}\" fill=\"{{col_bar}}\">\n    <LabelList dataKey=\"{{field}}\" position=\"top\" />\n  </Bar>\n</BarChart>\n"

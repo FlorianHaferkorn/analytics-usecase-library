@@ -1,6 +1,8 @@
 # Visual Library entry — matrix_evidence  (schema: _schema.yaml)
 id: matrix_evidence
 name: Evidence matrix
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [evidence_detail]
 zone: [detail]
 min_size: {cols: 5, rows: 6}   # grid units — canvas-relative legibility floor (≈497×320px @1280, 746×480px @1920; px derived from layout_grid.yaml)
@@ -23,6 +25,9 @@ params:
   deviation:   {role: value, required: true, note: "the vs-plan measure, sorted + data-barred"}
   entity:      {role: table, default: _Measures}
   top_n:       {role: limit, default: 20}
+
+data_fit:
+  value: {max: 6, on_violation: too_many_columns}
 
 tokens:
   col_above: ink                     # #0F2430

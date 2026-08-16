@@ -1,6 +1,8 @@
 # Visual Library entry — sankey  (schema: _schema.yaml)
 id: sankey
 name: Sankey
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [flow_between_stages]
 zone: [detail]
 min_size: {cols: 5, rows: 6}   # grid units — canvas-relative legibility floor (≈497×320px @1280, 746×480px @1920; px derived from layout_grid.yaml)
@@ -19,6 +21,9 @@ anti_patterns:
 params:
   nodes: {role: stages, required: true}
   links: {role: flow, required: true, note: "source, target, value"}
+
+data_fit:
+  nodes: {max: 12, on_violation: spaghetti_too_many_crossings}
 
 tokens:
   col_node: color_semantics.neutral # #586472

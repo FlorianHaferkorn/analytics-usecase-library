@@ -1,6 +1,8 @@
 # Visual Library entry — donut  (schema: _schema.yaml)
 id: donut
 name: Donut
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [part_to_whole]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
@@ -21,6 +23,10 @@ params:
   category: {role: category, type: category, required: true, max: 4}
   value:    {role: value, required: true}
   entity:   {role: table, default: _Measures}
+
+data_fit:
+  category: {type: category, min: 2, max: 4, on_violation: pie_or_donut_gt_4}
+  value: {min: 1, max: 1}
 
 tokens:
   col_1: brand.primary              # #0078D4

@@ -1,6 +1,8 @@
 # Visual Library entry — kpi_card_bullet  (schema: _schema.yaml)
 id: kpi_card_bullet
 name: KPI card · value + bullet
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [value_verdict]
 zone: [pulse]
 min_size: {cols: 3, rows: 3}   # grid units — canvas-relative legibility floor (≈292×152px @1280, 438×228px @1920; px derived from layout_grid.yaml)

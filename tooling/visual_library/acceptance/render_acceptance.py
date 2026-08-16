@@ -61,9 +61,15 @@ def _deneb_field_names() -> list[str]:
     return sorted(fields)
 
 
+# A "baseline" numeric field (prior / plan / start / previous) must NOT coincide with its current
+# counterpart, or two-point idioms (dumbbell start↔end) collapse to a single point in the render.
+_BASELINE_HINT = ("_py", "_prev", "prior", "plan", "start", "base", "target")
+
+
 def _rows(n: int, nums: list[float]) -> list[dict]:
     """n rows carrying every Deneb field; categorical/date fields get distinct labels, numeric
-    fields cycle through ``nums`` — enough to draw, not to be meaningful."""
+    fields cycle through ``nums`` — enough to draw, not to be meaningful. Baseline fields
+    (_py/_plan/start/…) are scaled to ~0.78× so start≠end for two-point idioms (dumbbell)."""
     labels = "ABCDEFGH"
     fields = _deneb_field_names()
     out = []
@@ -76,7 +82,8 @@ def _rows(n: int, nums: list[float]) -> list[dict]:
             elif any(h in fl for h in _CAT_HINT):
                 row[fn] = labels[i % len(labels)]
             else:
-                row[fn] = nums[i % len(nums)]
+                v = nums[i % len(nums)]
+                row[fn] = round(v * 0.78, 2) if any(h in fl for h in _BASELINE_HINT) else v
         out.append(row)
     return out
 
@@ -159,8 +166,8 @@ MATRIX_PATH = Path(__file__).resolve().parent / "validation_matrix.json"
 _SVG_DAX_VALS = {
     "_w": "62", "_col": "#0F2430", "_x": "60", "_a": "88", "_t": "95", "_len": "80",
     "_pts": "0,20 25,10 50,15 75,5 100,8", "_y1": "20", "_y2": "8",
-    # composite KPI cards
-    "_val": "12.4M", "_dtxt": "▲ +3.2%",
+    # composite KPI cards + matrix cells
+    "_val": "12.4M", "_dtxt": "▲ +3.2%", "_tint": "#E6F5E6",
     "_bars": ("<rect x='12' y='60' width='14' height='20' fill='#C8CED5'/>"
               "<rect x='30' y='66' width='14' height='14' fill='#C8CED5'/>"
               "<rect x='48' y='56' width='14' height='24' fill='#C8CED5'/>"
@@ -169,7 +176,7 @@ _SVG_DAX_VALS = {
 # Recharts renders in a React runtime (not Python). Its proof is the committed Node harness
 # acceptance/render_recharts.mjs — a real React + Recharts headless render of every golden
 # (27/27 produce a populated <svg>). Recorded here as verified out-of-pytest.
-_RECHARTS_METHOD = "react-harness (acceptance/render_recharts.mjs) — 27/27 goldens render a populated <svg>"
+_RECHARTS_METHOD = "react-harness (acceptance/render_recharts.mjs) — 29/29 goldens render a populated <svg>"
 # PBIR is a Power BI visual CONFIG, not a rendering format: there is no headless renderer for it.
 # Its live proof is a Power BI Desktop load (acceptance/CHECKLIST.md).
 _NATIVE_GATE = "Power BI Desktop — PBIR is a visual config, no headless renderer exists"

@@ -70,6 +70,11 @@ class _TypePlan:
     primary_kind: str  # "Measure" | "Column"
     primary_max: int | None
     dim_roles: tuple[str, ...]
+    # Optional SECOND measure role for visuals that need two distinct measure axes
+    # (e.g. scatterChart X + Y). None for every single-measure plan — then emit() takes the
+    # unchanged single-primary path, so existing output stays byte-identical.
+    secondary_role: str | None = None
+    secondary_max: int = 1
 
 
 # ALUCA visual_type → official PBIR plan. Roles/kinds/maxima taken verbatim from
@@ -93,7 +98,22 @@ _PLANS: dict[str, _TypePlan] = {
     # registry rather than emit clusteredColumnChart (which it never sanctions).
     "bar_chart": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
     "bar_chart_horizontal": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
+    # clusteredColumnChart shares clusteredBarChart's role schema exactly (Y/Measure + Category —
+    # orientation only), so column_time (columns over time) is safe to wire.
+    "column_chart": _TypePlan("clusteredColumnChart", "Y", "Measure", None, ("Category",)),
+    "column_time": _TypePlan("clusteredColumnChart", "Y", "Measure", None, ("Category",)),
     "waterfall": _TypePlan("waterfallChart", "Y", "Measure", 1, ("Category",)),
+    # Roles below are DERIVED FROM THE GOVERNED native goldens (core/…/visual_library/golden/
+    # <idiom>.powerbi_native.json) — not guessed — and bound to them by
+    # test_visual_library.test_pbir_plans_emit_the_governed_golden_roles, so the generator and the
+    # library can never drift. (native output stays Desktop-gated for the whole track, as always.)
+    "donut": _TypePlan("donutChart", "Y", "Measure", None, ("Category",)),
+    "bar_stacked": _TypePlan("stackedColumnChart", "Y", "Measure", None, ("Category", "Series")),
+    "area_stacked": _TypePlan("stackedAreaChart", "Y", "Measure", None, ("Category", "Series")),
+    "stacked_100": _TypePlan("hundredPercentStackedColumnChart", "Y", "Measure", None, ("Category", "Series")),
+    "decomposition_tree": _TypePlan("decompositionTreeVisual", "Analysis", "Measure", None, ("Explain By",)),
+    # scatter needs TWO measure axes → primary X + secondary Y, with Details as the column role.
+    "scatter": _TypePlan("scatterChart", "X", "Measure", 1, ("Details",), secondary_role="Y", secondary_max=1),
     "slicer": _TypePlan("slicer", "Values", "Column", 1, ()),
     "table": _TypePlan("tableEx", "Values", "Measure", None, ()),
     "matrix": _TypePlan("tableEx", "Values", "Measure", None, ()),
@@ -150,15 +170,22 @@ def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> di
     # capped at the official maxPerRole; placeholder kind matches the role kind.
     measure_primary = plan.primary_kind == "Measure"
     items = list(visual.bound_measures) if measure_primary else list(available_dims)
-    if plan.primary_max is not None and len(items) > plan.primary_max:
-        dropped = items[plan.primary_max:]
-        items = items[: plan.primary_max]
+    # Measures reserved for the measure role(s): primary, plus a secondary axis when the plan
+    # declares one (scatter X+Y). For single-role plans this equals primary_max, so both the
+    # truncation and the emitted output stay byte-identical to before.
+    reserved = plan.primary_max
+    if plan.secondary_role and plan.primary_max is not None:
+        reserved += plan.secondary_max
+    if reserved is not None and len(items) > reserved:
+        dropped = items[reserved:]
+        items = items[:reserved]
         gaps.append(f"visual '{visual.visual_id}': {plan.visual_type}.{plan.primary_role} "
                     f"max {plan.primary_max} exceeded — dropped {dropped}")
+    p_items = items[: plan.primary_max] if plan.primary_max is not None else items
     if measure_primary:
-        primary_projs = [_measure_field(owner.get(m, "_Measures"), m) for m in items]
+        primary_projs = [_measure_field(owner.get(m, "_Measures"), m) for m in p_items]
     else:
-        primary_projs = [_column_field(_HITL_ENTITY, f) for f in items]
+        primary_projs = [_column_field(_HITL_ENTITY, f) for f in p_items]
 
     if not primary_projs:
         # The required primary role still needs a projection to validate; use the
@@ -168,6 +195,18 @@ def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> di
         gaps.append(f"visual '{visual.visual_id}': no source field — "
                     f"HITL placeholder in {plan.visual_type}.{plan.primary_role}")
     query_state[plan.primary_role] = {"projections": primary_projs}
+
+    # Optional second measure axis (e.g. scatter Y) ← the next measure after the primary,
+    # HITL when the canonical carries only one measure. Skipped entirely for single-role plans.
+    if plan.secondary_role:
+        s_items = items[plan.primary_max:(plan.primary_max or 0) + plan.secondary_max]
+        if s_items:
+            sec_projs = [_measure_field(owner.get(m, "_Measures"), m) for m in s_items]
+        else:
+            sec_projs = [_measure_field(_HITL_ENTITY, f"[HITL] assign {plan.secondary_role}")]
+            gaps.append(f"visual '{visual.visual_id}': {plan.visual_type} requires "
+                        f"'{plan.secondary_role}' — HITL placeholder (canonical has one measure)")
+        query_state[plan.secondary_role] = {"projections": sec_projs}
 
     # Required grouping roles ← canonical dim fields, else a HITL placeholder.
     for i, role in enumerate(plan.dim_roles):

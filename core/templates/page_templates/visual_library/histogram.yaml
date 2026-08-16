@@ -1,6 +1,8 @@
 # Visual Library entry — histogram  (schema: _schema.yaml)
 id: histogram
 name: Histogram
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [distribution]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
@@ -19,6 +21,9 @@ anti_patterns:
 params:
   measure: {role: value, type: quantitative, required: true, note: "the raw values to bin"}
   entity:  {role: table, default: _Measures}
+
+data_fit:
+  measure: {type: quantitative}
 
 tokens:
   col_bar: brand.primary            # #0078D4

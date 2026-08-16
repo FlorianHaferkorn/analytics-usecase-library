@@ -1,6 +1,8 @@
 # Visual Library entry — area_stacked  (schema: _schema.yaml)
 id: area_stacked
 name: Stacked area
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
@@ -22,6 +24,9 @@ params:
   measure:  {role: value, required: true}
   series:   {role: series, type: category, required: true}
   entity:   {role: table, default: _Measures}
+
+data_fit:
+  series: {type: category, max: 5, on_violation: too_many_series}
 
 tokens:
   col_1: brand.primary              # #0078D4

@@ -1,6 +1,8 @@
 # Visual Library entry — slope  (schema: _schema.yaml)
 id: slope
 name: Slope chart
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [time_comparison]
 zone: [analysis]
 min_size: {cols: 3, rows: 5}   # grid units — canvas-relative legibility floor (≈292×264px @1280, 438×396px @1920; px derived from layout_grid.yaml)
@@ -22,6 +24,9 @@ params:
   measure:  {role: value, required: true}
   series:   {role: series, type: category, required: true}
   entity:   {role: table, default: _Measures}
+
+data_fit:
+  series: {type: category, max: 6, on_violation: crossing_spaghetti_too_many_series}
 
 tokens:
   col_line: color_semantics.neutral # #94A0AC (per-series recolour at gen time)

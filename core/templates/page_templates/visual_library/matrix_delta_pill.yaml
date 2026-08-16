@@ -1,0 +1,87 @@
+# Visual Library entry — matrix_delta_pill  (schema: _schema.yaml)
+id: matrix_delta_pill
+name: Matrix column · delta pill
+version: "1.0.0"
+status: active        # active | deprecated | experimental
+purpose: [evidence_detail]
+zone: [detail]
+min_size: {cols: 5, rows: 4}   # grid units — the HOST tableEx/matrix floor (the cell chart is per-row); px derived from layout_grid.yaml
+best_form_for: null
+alternatives: [deviation_bar, matrix_evidence]
+
+encoding:
+  value: delta_number               # the variance number IS shown (never a bare colour)
+  direction: [arrow, color]         # up/down arrow + semantic text colour
+  severity: governed_tint           # background = color_semantics.severity_tints (exception tables)
+
+anti_patterns:
+  - pill_without_the_number         # a bare coloured pill is decoration, not evidence
+  - tint_not_from_severity_tints    # only the governed exception-table tints
+  - color_as_decoration
+
+params:
+  delta:    {role: variance, required: true}
+  category: {role: row, type: category, required: true}
+  entity:   {role: table, default: _Measures}
+
+tokens:
+  col_pos:  color_semantics.positive # #107C10 text
+  col_neg:  color_semantics.negative # #A4262C text
+  tint_pos: color_semantics.severity_tints.good     # #E6F5E6
+  tint_neg: color_semantics.severity_tints.critical # #FFE6E6
+
+canonical_params:
+  entity: "_Measures"
+  dev_measure: "Gross Margin % vs Plan"
+  category_entity: "dim_product"
+  category_prop: "Category"
+  field_dev: "gm_vs_plan"
+  delta_format: "+0.0%;-0.0%"
+  col_pos: "#107C10"
+  col_neg: "#A4262C"
+  tint_pos: "#E6F5E6"
+  tint_neg: "#FFE6E6"
+
+preview_svg: |
+  <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matrix delta pill column">
+    <rect width="340" height="150" rx="12" fill="#FFFFFF"/>
+    <text x="20" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">CATEGORY</text><text x="230" y="24" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#586472">Δ vs PLAN</text>
+    <line x1="16" y1="32" x2="324" y2="32" stroke="#E1E7EE"/>
+    <text x="20" y="54" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Fashion</text><rect x="230" y="42" width="86" height="18" rx="9" fill="#FFE6E6"/><text x="273" y="55" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#A4262C">▼ -3.2%</text>
+    <text x="20" y="86" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Home</text><rect x="230" y="74" width="86" height="18" rx="9" fill="#E6F5E6"/><text x="273" y="87" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#107C10">▲ +1.8%</text>
+    <text x="20" y="118" font-family="Segoe UI,sans-serif" font-size="11" fill="#18202A">Electro</text><rect x="230" y="106" width="86" height="18" rx="9" fill="#FFE6E6"/><text x="273" y="119" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="11" font-weight="600" fill="#A4262C">▼ -0.9%</text>
+  </svg>
+
+realizations:
+  powerbi_native:
+    applicable: false
+    reason: "an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx). Native conditional 'icon + font colour' is a partial form"
+    use: "matrix_evidence (tableEx) + this SVG-DAX column; or native conditional font colour + KPI icon"
+
+  powerbi_svg_dax:
+    ext: dax
+    template: |
+      VAR _dlt = [{{dev_measure}}]
+      VAR _col = IF ( _dlt < 0, "{{col_neg}}", "{{col_pos}}" )
+      VAR _tint = IF ( _dlt < 0, "{{tint_neg}}", "{{tint_pos}}" )
+      VAR _dtxt = IF ( _dlt < 0, "▼ ", "▲ " ) & FORMAT ( _dlt, "{{delta_format}}" )
+      RETURN
+          IF ( HASONEVALUE ( '{{category_entity}}'[{{category_prop}}] ),
+              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'>"
+                & "<rect x='2' y='2' width='96' height='16' rx='8' fill='" & _tint & "'/>"
+                & "<text x='50' y='14' text-anchor='middle' font-family='Segoe UI,sans-serif' font-size='11' font-weight='600' fill='" & _col & "'>" & _dtxt & "</text>"
+                & "</svg>" )
+
+  deneb_vegalite:
+    applicable: false
+    reason: "a per-row cell pill inside a table is not a Vega-Lite view"
+    use: "SVG-DAX column; or a Deneb text mark with a conditional fill for a standalone board"
+
+  web_recharts:
+    applicable: false
+    reason: "Recharts is a charting library, not for text/pill table cells"
+    use: "an HTML <table> cell: a span with severity-tint background + the signed value"
+
+determinism:
+  golden_dir: golden
+  notes: "Per-row variance pill: the number IS shown, arrow + semantic colour for direction, governed severity tint for the background. A pill without its number is decoration (denied)."

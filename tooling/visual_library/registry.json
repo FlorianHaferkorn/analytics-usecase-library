@@ -1,0 +1,817 @@
+{
+  "registry": "aluca-visual-library",
+  "schema_version": 1,
+  "generated_by": "tooling/visual_library/registry.py",
+  "count": 30,
+  "idioms": [
+    {
+      "id": "area_stacked",
+      "name": "Stacked area",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "time_comparison"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "stackedAreaChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:99a6883305ab36694647cf82a4391984b4dac7433747bfebed6857da786fc08a"
+    },
+    {
+      "id": "bar_absolute",
+      "name": "Bar (absolute magnitude)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "compare_categories"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "clusteredBarChart",
+      "tools": [
+        "powerbi_native",
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:ac79c4519bb8c0a8ae10fa50e040fc1433d7379edd9eb6b0cdc26a80d762e2e7"
+    },
+    {
+      "id": "bar_ranking",
+      "name": "Bar ranking",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "compare_categories"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "clusteredBarChart",
+      "tools": [
+        "powerbi_native",
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs",
+        "print_safe"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:b088b11197ae32b7a7bd24b64e7156ca65f0a1e1a19bbebf577082c9ea4c7b20"
+    },
+    {
+      "id": "bar_stacked",
+      "name": "Stacked bar (absolute)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "part_to_whole"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "stackedColumnChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:5598295918327eecccd0e878180b763c87146b6cb051576c15f88e1cf9d4c69e"
+    },
+    {
+      "id": "boxplot",
+      "name": "Box plot",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "distribution"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "deneb_vegalite"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 4
+      },
+      "checksum": "sha256:150e78d8ecb49852be467542516e37f1998541b8e1551b5ba2fac28ad436f2e5"
+    },
+    {
+      "id": "bullet",
+      "name": "Bullet graph",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "deviation_from_target"
+      ],
+      "zone": [
+        "pulse",
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs",
+        "print_safe"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 2
+      },
+      "checksum": "sha256:323ac1b914f5aeb8b5960b2ac20b6fbc9ddd6c713e7fb76c637c094df89ff2ca"
+    },
+    {
+      "id": "column_time",
+      "name": "Column chart over time",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "time_comparison"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "clusteredColumnChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:4942fdc25360a1ee7b1d927678dfe850fed739934057f389a89d0b2d32cb9e38"
+    },
+    {
+      "id": "decomposition_tree",
+      "name": "Decomposition tree",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "driver_breakdown"
+      ],
+      "zone": [
+        "detail"
+      ],
+      "native_visual_type": "decompositionTreeVisual",
+      "tools": [
+        "powerbi_native"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 6,
+        "rows": 7
+      },
+      "checksum": "sha256:c381a1a12f33516730dbdb1a143af5994455af97ba033ff389cc09c3efd43a02"
+    },
+    {
+      "id": "deviation_bar",
+      "name": "Deviation bar",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "deviation_from_target",
+        "compare_categories"
+      ],
+      "zone": [
+        "pulse",
+        "analysis"
+      ],
+      "native_visual_type": "clusteredBarChart",
+      "tools": [
+        "powerbi_native",
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs",
+        "print_safe"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 2
+      },
+      "checksum": "sha256:36bf5879fdcebdb3cb39f6b878c844093286fc57c231a4c7854767ffc696df57"
+    },
+    {
+      "id": "donut",
+      "name": "Donut",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "part_to_whole"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "donutChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:e6051ce6c083d7b8cb41d19e4b087b7674e313e9bc1631b05d9e820b67ce90c0"
+    },
+    {
+      "id": "dumbbell",
+      "name": "Dumbbell (before / after)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "compare_categories"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax",
+        "deneb_vegalite"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:3c1ef3c092a3df64f03ad0040e8faa0564fe9225b34916c0cbfd9a414dfc3e0f"
+    },
+    {
+      "id": "histogram",
+      "name": "Histogram",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "distribution"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:943173d768453d0e8338c308aed9ce6e909c22394d78f953612cc7b6f95f191b"
+    },
+    {
+      "id": "indexed_line",
+      "name": "Indexed line",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "time_comparison"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "lineChart",
+      "tools": [
+        "powerbi_native",
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:44350479f442be24435a94b7a96f07ae6e63a4d79cee34a68c91e430febea12f"
+    },
+    {
+      "id": "kpi_card_bullet",
+      "name": "KPI card · value + bullet",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "value_verdict"
+      ],
+      "zone": [
+        "pulse"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 3
+      },
+      "checksum": "sha256:0f95dcbd1c8b629932d7c9a978c88306b172533c8238d092502f538ebd94017a"
+    },
+    {
+      "id": "kpi_card_spark",
+      "name": "KPI card · value + spark + delta",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "value_verdict"
+      ],
+      "zone": [
+        "pulse"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 3
+      },
+      "checksum": "sha256:ad0187cab2d49336eef45fb5488b410cd28342de1102d6b13fdebd8260c9e3e0"
+    },
+    {
+      "id": "kpi_card_sparkbar",
+      "name": "KPI card · value + column trend",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "value_verdict"
+      ],
+      "zone": [
+        "pulse"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 3
+      },
+      "checksum": "sha256:62bc1ac6ad0e6aee984a1396f88c8676c8a27e0f47229d9aaf20468a181cc649"
+    },
+    {
+      "id": "line",
+      "name": "Trend line",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "time_comparison"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "lineChart",
+      "tools": [
+        "powerbi_native",
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs",
+        "print_safe"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:93777fe5dd73b6416428b0cccf1001f589dc55537221faa30aef801a6df0bfe3"
+    },
+    {
+      "id": "lollipop",
+      "name": "Lollipop",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "compare_categories"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:8a76c1089c2f740ed24f581bb69290e35252838909f089ea0222a2b907d7c3cc"
+    },
+    {
+      "id": "matrix_bullet",
+      "name": "Matrix column · bullet",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "evidence_detail"
+      ],
+      "zone": [
+        "detail"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 5,
+        "rows": 4
+      },
+      "checksum": "sha256:ebfbc0663dfafb2da86ae2d5c48ccbaf6dc28d386421c2175291e5373cefafeb"
+    },
+    {
+      "id": "matrix_delta_pill",
+      "name": "Matrix column · delta pill",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "evidence_detail"
+      ],
+      "zone": [
+        "detail"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 5,
+        "rows": 4
+      },
+      "checksum": "sha256:0aa7f4700a7cfb3143805d3732bd18490c14f43eaf514f1058d7068377d995df"
+    },
+    {
+      "id": "matrix_evidence",
+      "name": "Evidence matrix",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "evidence_detail"
+      ],
+      "zone": [
+        "detail"
+      ],
+      "native_visual_type": "tableEx",
+      "tools": [
+        "powerbi_native",
+        "powerbi_svg_dax"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 5,
+        "rows": 6
+      },
+      "checksum": "sha256:2f424f95147db41a249f777b65c5ac4d32d804dfe729b3cc75296825f9863305"
+    },
+    {
+      "id": "matrix_sparkline",
+      "name": "Matrix column · sparkline",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "evidence_detail"
+      ],
+      "zone": [
+        "detail"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "powerbi_svg_dax"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 5,
+        "rows": 4
+      },
+      "checksum": "sha256:215f4c2d5126dc59957f5a89ac54adb1cf2dcbb43a09fa876109fd62fd5a25d3"
+    },
+    {
+      "id": "sankey",
+      "name": "Sankey",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "flow_between_stages"
+      ],
+      "zone": [
+        "detail"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 5,
+        "rows": 6
+      },
+      "checksum": "sha256:397d9c7db020c683e039b796b25fdc8678b06b7aa477253e502c955b744b1e43"
+    },
+    {
+      "id": "scatter",
+      "name": "Scatter plot",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "correlation"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "scatterChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 5
+      },
+      "checksum": "sha256:d24999676dec98ec6261654ad33f2e1127660d9313d7c7babae7021b07e2bf6c"
+    },
+    {
+      "id": "slope",
+      "name": "Slope chart",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "time_comparison"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "lineChart",
+      "tools": [
+        "powerbi_native",
+        "powerbi_svg_dax",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 3,
+        "rows": 5
+      },
+      "checksum": "sha256:2fa373a6b0dabf47784f89cfe4967c47c56476853e2e5315eb646c24d9806d5e"
+    },
+    {
+      "id": "small_multiples",
+      "name": "Small multiples",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "time_comparison"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": null,
+      "tools": [
+        "deneb_vegalite"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 5,
+        "rows": 6
+      },
+      "checksum": "sha256:b4f9e7c37214ec25d47b548910cc717add0c9590e79a9a6d5bb1f9b0c245711a"
+    },
+    {
+      "id": "stacked_100",
+      "name": "100% stacked bar",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "part_to_whole"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "hundredPercentStackedColumnChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 4
+      },
+      "checksum": "sha256:381c94e490b569c17ced43329c4884c565f9b805fb71965dd141012e8970a2d1"
+    },
+    {
+      "id": "waterfall_buildup",
+      "name": "Waterfall (buildup to total)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "contribution_to_change"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "waterfallChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 5
+      },
+      "checksum": "sha256:1e1ba9a7ba67397676254bacd03b5d7b1ded5014194b57c49a3c45f0f69b9593"
+    },
+    {
+      "id": "waterfall_pvm",
+      "name": "Waterfall bridge (PVM)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "contribution_to_change"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "waterfallChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs",
+        "print_safe"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 5
+      },
+      "checksum": "sha256:a73c27ded3e85d91181d5af8455916ee3ebb3b5a9562a542324a3d05ee619a74"
+    },
+    {
+      "id": "waterfall_variance",
+      "name": "Waterfall (variance bridge)",
+      "version": "1.0.0",
+      "status": "active",
+      "superseded_by": null,
+      "purpose": [
+        "contribution_to_change"
+      ],
+      "zone": [
+        "analysis"
+      ],
+      "native_visual_type": "waterfallChart",
+      "tools": [
+        "powerbi_native",
+        "deneb_vegalite",
+        "web_recharts"
+      ],
+      "profiles": [
+        "house_default",
+        "ibcs"
+      ],
+      "min_size": {
+        "cols": 4,
+        "rows": 5
+      },
+      "checksum": "sha256:c7a6a8f3ee94f22e4bd80e94ab5129d8645916d00c1e8d3296f910d2c406594a"
+    }
+  ]
+}

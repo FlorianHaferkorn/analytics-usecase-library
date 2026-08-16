@@ -7,5 +7,11 @@
     { "slot_id": "Focus_Area", "grid": [2, 0, 10, 8], "visual_type_hint": null },
     { "slot_id": "Support_1", "grid": [2, 8, 5, 4], "visual_type_hint": null },
     { "slot_id": "Support_2", "grid": [7, 8, 5, 4], "visual_type_hint": null }
-  ]
+  ],
+  "annotation": {
+    "role": "commentary",
+    "placement": "footer",
+    "content_hint": "IBCS management commentary: the page's so-what message (AC vs PL/PY drivers + the action)",
+    "max_chars": 280
+  }
 }

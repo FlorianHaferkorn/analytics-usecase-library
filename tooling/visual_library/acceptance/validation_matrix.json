@@ -35,7 +35,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "line": {
@@ -61,7 +61,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "bar_ranking": {
@@ -87,7 +87,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "waterfall_pvm": {
@@ -113,7 +113,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "area_stacked": {
@@ -139,7 +139,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "indexed_line": {
@@ -165,7 +165,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "matrix_evidence": {
@@ -209,7 +209,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "donut": {
@@ -235,7 +235,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "bullet": {
@@ -261,7 +261,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "slope": {
@@ -287,7 +287,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "stacked_100": {
@@ -313,7 +313,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "lollipop": {
@@ -339,7 +339,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "histogram": {
@@ -365,7 +365,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "boxplot": {
@@ -435,7 +435,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "decomposition_tree": {
@@ -479,7 +479,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "waterfall_buildup": {
@@ -505,7 +505,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "waterfall_variance": {
@@ -531,7 +531,7 @@
       },
       "web_recharts": {
         "status": "rendered",
-        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 27/27 goldens render a populated <svg>"
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     },
     "kpi_card_spark": {
@@ -586,6 +586,138 @@
       "web_recharts": {
         "status": "n/a",
         "reason": "a KPI card is HTML (value + delta) with a chart inside \u2014 a React component, not a single Recharts chart"
+      }
+    },
+    "matrix_sparkline": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "this is an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the table that hosts it is matrix_evidence (tableEx)"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a per-row cell chart inside a table is not a Vega-Lite view"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no table cell primitive"
+      }
+    },
+    "matrix_bullet": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the host table is matrix_evidence (tableEx)"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a per-row cell chart inside a table is not a Vega-Lite view"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts has no table cell primitive"
+      }
+    },
+    "matrix_delta_pill": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the host table is matrix_evidence (tableEx). Native conditional 'icon + font colour' is a partial form"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "n/a",
+        "reason": "a per-row cell pill inside a table is not a Vega-Lite view"
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "Recharts is a charting library, not for text/pill table cells"
+      }
+    },
+    "column_time": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "a full column-over-time chart is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
+      }
+    },
+    "dumbbell": {
+      "powerbi_native": {
+        "status": "n/a",
+        "reason": "Power BI has no native dumbbell base visual"
+      },
+      "powerbi_svg_dax": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert svg_to_png of the emitted SVG)"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "n/a",
+        "reason": "a dumbbell needs a custom connector shape between two series \u2014 not a stock Recharts primitive"
+      }
+    },
+    "bar_stacked": {
+      "powerbi_native": {
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
+      },
+      "powerbi_svg_dax": {
+        "status": "n/a",
+        "reason": "multi-series absolute stacking is not a single-cell micro-chart"
+      },
+      "deneb_vegalite": {
+        "status": "rendered",
+        "method": "svg-raster (vl-convert vegalite_to_png)",
+        "scenarios_ok": [
+          "extremes",
+          "many_categories",
+          "negatives",
+          "single_category",
+          "typical"
+        ],
+        "scenarios_total": 5
+      },
+      "web_recharts": {
+        "status": "rendered",
+        "method": "react-harness (acceptance/render_recharts.mjs) \u2014 29/29 goldens render a populated <svg>"
       }
     }
   }

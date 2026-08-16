@@ -1,0 +1,9 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "name": "dataset" },
+  "encoding": { "x": { "field": "month", "type": "ordinal", "axis": { "title": null, "labelAngle": 0 } } },
+  "layer": [
+    { "mark": { "type": "bar", "color": "#0F2430" }, "encoding": { "y": { "field": "count", "type": "quantitative", "axis": { "title": null } } } },
+    { "mark": { "type": "text", "dy": -6, "fontWeight": "bold", "color": "#201F1E" }, "encoding": { "y": { "field": "count", "type": "quantitative" }, "text": { "field": "count", "type": "quantitative", "format": ".0f" } } }
+  ]
+}

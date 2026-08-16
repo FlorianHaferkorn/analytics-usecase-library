@@ -1,6 +1,8 @@
 # Visual Library entry — lollipop  (schema: _schema.yaml)
 id: lollipop
 name: Lollipop
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [compare_categories]
 zone: [analysis]
 min_size: {cols: 4, rows: 4}   # grid units — canvas-relative legibility floor (≈395×208px @1280, 592×312px @1920; px derived from layout_grid.yaml)
@@ -20,6 +22,9 @@ params:
   category: {role: axis, type: category, required: true}
   measure:  {role: value, required: true}
   entity:   {role: table, default: _Measures}
+
+data_fit:
+  category: {type: category, max: 20, on_violation: lollipop_for_many_dense_categories}
 
 tokens:
   col_dot:   ink                     # #0F2430

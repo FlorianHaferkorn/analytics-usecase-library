@@ -1076,10 +1076,34 @@ class VisualBuilder:
         Build visual from ux_layout_rules visual_type (round-trip from layout editor).
         Maps bracket/editor semantic types to Power BI visualType via existing build_* methods.
         Passes measures and title for data binding and header.
+
+        GOVERNANCE NOTE (air-gapped fallback path): this mapping is INDEPENDENT of the idiom
+        library — it is NOT routed through ``tooling/superversion/layer_tools/visual_idioms.py``,
+        so the point-authority (governed native visualType), notation profiles and min_size do NOT
+        apply here. The governed path is the superversion PBIR emitter; for governed chart choice
+        use ``tooling/visual_library/resolve.py``. As a minimum floor this method warns when a
+        deny-listed visual is requested (authority: ``visual_library/index.yaml: deny``).
         """
         import logging
         logger = logging.getLogger(__name__)
         normalized_type = (ux_visual_type or "").strip().lower()
+        # Deny-list floor (soft): warn + name the sanctioned replacement, never silently pass a
+        # governed-forbidden visual. A warning (not a hard error) so it cannot break an existing
+        # bracket; the governed generator is where the deny-list is hard-enforced.
+        _deny_ux = {
+            "gauge": ("gauge", "bullet"), "gauge_chart": ("gauge", "bullet"),
+            "pie": ("pie_gt_4", "donut (<=4 parts) or bar_chart"),
+            "pie_chart": ("pie_gt_4", "donut (<=4 parts) or bar_chart"),
+            "radar": ("radar", "bar_chart or line"), "spider": ("radar", "bar_chart or line"),
+            "3d": ("three_d", "a 2D chart"), "three_d": ("three_d", "a 2D chart"),
+            "funnel": ("color_as_decoration", "bar_chart (worst-first), or sankey for a true flow"),
+        }
+        _hit = _deny_ux.get(normalized_type)
+        if _hit:
+            logger.warning(
+                "governance: ux_visual_type %r is deny-listed (%s); prefer %s. This air-gapped "
+                "fallback does not enforce the idiom library — use the governed generator / "
+                "resolve.py for point-authority chart choice.", ux_visual_type, _hit[0], _hit[1])
         alias_map = {
             "line_chart": "trend_line",
             "trend": "trend_line",

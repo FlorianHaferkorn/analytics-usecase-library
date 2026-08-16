@@ -1,0 +1,275 @@
+# Visual Library — anti-pattern catalog (the machine-readable "why NOT")
+# ---------------------------------------------------------------------------
+# Every id referenced by any idiom's `anti_patterns:` list MUST be defined here
+# exactly once (enforced by test_data_fit.test_every_anti_pattern_is_catalogued).
+# This turns free-text tags into governed, agent-legible rejection reasons: the
+# resolver returns {message, fix, source} instead of an opaque slug, and a
+# `data_fit` bound can name one of these ids as its `on_violation` explanation.
+#
+# Entry keys:
+#   message   (required)  one-line statement of what is wrong and why it misreads
+#   fix       (required)  the sanctioned thing to do instead
+#   source    (optional)  attribution for the rule (research / practitioner canon)
+#   fit       (optional)  {role, rel} — marks this as a DATA-FIT rule; the numeric
+#                         threshold lives per-idiom in <idiom>.yaml data_fit
+#                         (rel: max|min|type|discrete|continuous), this is the hint.
+#
+# Sources are cited by short name; the roadmap artifact carries the full canon.
+
+schema_version: 1
+
+patterns:
+
+  # --- part-to-whole & pie/donut geometry ---------------------------------
+  pie_or_donut_gt_4:
+    message: "Pie/donut with more than ~4 slices — angle and area are the least accurate encodings, so small differences become unreadable."
+    fix: "Use a sorted bar (bar_ranking) or a 100% stacked bar (stacked_100)."
+    source: "Cleveland & McGill 1984; data-to-viz caveats"
+    fit: {role: category, rel: max}
+  many_thin_slivers:
+    message: "Many thin slivers cannot be labelled or compared; the long tail becomes noise."
+    fix: "Group the tail into an 'Other' bucket, or switch to a sorted bar."
+    source: "data-to-viz caveats"
+  3d_or_exploded:
+    message: "3-D or exploded pies distort area and occlude segments — pure decoration that lies."
+    fix: "Flat 2-D geometry only; prefer a bar for exact comparison."
+    source: "Tufte (chartjunk); FriendsDontLetFriends"
+  pie_for_comparison:
+    message: "A pie answers 'share of whole', not 'which is bigger' — comparison across slices is imprecise."
+    fix: "Use a sorted bar (bar_ranking) when the question is ranking/comparison."
+    source: "Munzner (why before how)"
+  stack_when_comparing_parts:
+    message: "Stacked segments past the first share no common baseline, so inner parts cannot be compared."
+    fix: "Use grouped bars, or small_multiples per part."
+    source: "data-to-viz; Few"
+  stacked_absolute_when_share_is_the_point:
+    message: "Absolute stacks hide the proportion when the reader actually wants the share."
+    fix: "Use stacked_100 (normalized) instead of bar_stacked."
+  normalize_when_totals_matter:
+    message: "100% stacking erases the absolute total — misleading when the magnitude is the message."
+    fix: "Use absolute bar_stacked (or show the total explicitly) when totals matter."
+
+  # --- ordering -----------------------------------------------------------
+  unsorted_bars:
+    message: "Unsorted bars force the reader to hunt for the largest/smallest — the ranking is the job."
+    fix: "Sort descending by value (or by the metric that carries the message)."
+    source: "Few; data-to-viz"
+  unsorted_rows:
+    message: "An unsorted detail table buries the rows that need action."
+    fix: "Sort worst-first by the action metric."
+  long_bar_list_instead_of_table:
+    message: "A very long bar list is slower to scan than a sorted table with in-cell micro-charts."
+    fix: "Switch to matrix_evidence / matrix_sparkline past ~15–20 rows."
+
+  # --- baselines, axes, scale honesty -------------------------------------
+  broken_baseline_on_absolute_bar:
+    message: "A bar encodes magnitude by length; a non-zero baseline exaggerates differences and lies."
+    fix: "Start bar axes at zero; use a line/dot plot if a zoomed range is genuinely needed."
+    source: "Tufte (lie factor); FriendsDontLetFriends"
+  autoscale_without_base_line:
+    message: "Auto-scaled bars without a zero baseline misrepresent relative size."
+    fix: "Anchor the axis at zero, or annotate the truncation explicitly."
+    source: "Tufte (lie factor)"
+  autoscale_without_reference:
+    message: "A sparkline/mini-chart auto-scaled with no reference line has no interpretable magnitude."
+    fix: "Add a reference (target/prior) or a fixed band so the shape means something."
+  hidden_zoomed_axis:
+    message: "A zoomed axis with no visible range silently overstates volatility."
+    fix: "Label the axis range, or zero-anchor it."
+    source: "Tufte (lie factor)"
+  unlabelled_zoomed_axis:
+    message: "A zoomed value axis without labels cannot be read for magnitude."
+    fix: "Label the min/max, or start at zero."
+  hidden_base_period:
+    message: "Indexed lines with an unmarked base period hide where '100' comes from."
+    fix: "Mark and label the base period (=100)."
+  mixing_indexed_and_absolute_axes:
+    message: "Mixing indexed and absolute series on one axis makes both unreadable."
+    fix: "Keep indexed series on their own indexed_line; absolutes on a separate chart."
+  independent_y_scales_per_panel:
+    message: "Small-multiple panels with independent y-scales cannot be compared across panels."
+    fix: "Share one y-scale across all panels."
+    source: "Cleveland; Tufte (small multiples)"
+  dual_axis_no_reason:
+    message: "A second y-axis lets any two series be made to 'correlate' — a classic spurious reading."
+    fix: "Use two aligned panels, or index both to a common base; only dual-axis with a stated reason."
+    source: "FriendsDontLetFriends; pbi-design deny"
+
+  # --- line vs column vs time ---------------------------------------------
+  line_when_periods_are_discrete:
+    message: "A connecting line implies continuity between periods that are actually discrete categories."
+    fix: "Use columns (column_time) for a few discrete periods."
+    source: "data-to-viz; Few"
+  line_for_few_discrete_periods:
+    message: "Few discrete periods read better as columns than as a sparse line."
+    fix: "Use column_time for ≲8 discrete periods."
+  bars_for_time:
+    message: "Bars over a long continuous time axis create a dense picket fence that hides the trend."
+    fix: "Use a line for many continuous time points."
+    source: "data-to-viz"
+  column_for_many_continuous_points:
+    message: "Many columns over a continuous axis obscure the shape of the series."
+    fix: "Use a line (or area) for dense continuous series."
+  bars_with_gaps_imply_categories:
+    message: "Gapped bars read as unrelated categories, breaking the sense of a continuous timeline."
+    fix: "Use a continuous line/area for time, or close the gaps."
+  many_periods_use_line:
+    message: "Over many periods a categorical form (bars/dumbbell) becomes unreadable."
+    fix: "Use a line once periods are numerous."
+
+  # --- too-many-things (density ceilings) ---------------------------------
+  too_many_series:
+    message: "Too many overlaid series become spaghetti — no single line can be followed."
+    fix: "Emphasize one series and grey the rest, use small_multiples, or filter."
+    source: "data-to-viz (line caveats)"
+    fit: {role: series, rel: max}
+  crossing_spaghetti_too_many_series:
+    message: "Many crossing series obscure every individual trajectory."
+    fix: "Small_multiples, or highlight-one-grey-rest."
+    source: "data-to-viz"
+    fit: {role: series, rel: max}
+  spaghetti_too_many_crossings:
+    message: "A slope graph with many crossing lines is unreadable."
+    fix: "Limit to the few series that carry the message; facet the rest."
+    fit: {role: series, rel: max}
+  too_many_categories:
+    message: "Too many categories overflow the legible height/width and shrink marks below readability."
+    fix: "Show top-N and bucket the rest, or move to a scrollable table."
+    fit: {role: category, rel: max}
+  too_many_groups:
+    message: "Too many groups make grouped bars unreadably thin."
+    fix: "Reduce groups, facet, or switch to a table."
+    fit: {role: group, rel: max}
+  too_many_columns:
+    message: "A matrix with too many value columns forces horizontal scrolling and loses the overview."
+    fix: "Keep the governed few columns; move detail to drillthrough."
+    fit: {role: value, rel: max}
+  too_many_steps:
+    message: "A waterfall with too many steps becomes a wall of thin bars with no readable bridge."
+    fix: "Aggregate minor steps into 'Other', keep the material drivers."
+    fit: {role: step, rel: max}
+  too_many_panels:
+    message: "Too many small-multiple panels shrink each below legibility."
+    fix: "Facet on a lower-cardinality dimension, or paginate."
+    fit: {role: facet, rel: max}
+  too_many_explain_by_dims:
+    message: "A decomposition tree with too many explain-by levels becomes an unnavigable sprawl."
+    fix: "Curate the explain-by dimensions to the meaningful few."
+    fit: {role: dimensions, rel: max}
+  lollipop_for_many_dense_categories:
+    message: "Lollipops need whitespace; with many dense categories the stems collide."
+    fix: "Use a plain sorted bar when categories are dense."
+    fit: {role: category, rel: max}
+  too_few_or_too_many_bins:
+    message: "Too few bins hide the shape; too many bins turn a histogram into noise."
+    fix: "Choose a bin count that reveals the distribution (Freedman–Diaconis is a good default)."
+    source: "FriendsDontLetFriends (histogram)"
+    fit: {role: value, rel: continuous}
+
+  # --- single-value / degenerate inputs -----------------------------------
+  dumbbell_for_one_value:
+    message: "A dumbbell needs two endpoints per row; with one value there is nothing to span."
+    fix: "Use a bar/lollipop for a single value per row."
+    fit: {role: value, rel: min}
+  hiding_the_two_anchor_totals:
+    message: "A PVM/variance bridge is meaningless without its start and end anchor totals."
+    fix: "Always show the opening and closing total bars."
+
+  # --- colour discipline --------------------------------------------------
+  color_as_decoration:
+    message: "Colour used for decoration (not a semantic or content reference) adds noise and false signal."
+    fix: "Reserve colour for meaning; use greys for context."
+    source: "pbi-design color rule; Few"
+  decorative_tint:
+    message: "A decorative fill tint with no data meaning is chartjunk."
+    fix: "Drop it, or bind the tint to a real value/severity."
+    source: "Tufte (chartjunk)"
+  color_of_number_for_magnitude:
+    message: "Encoding a KPI's magnitude in the colour of the number makes it unreadable and redundant."
+    fix: "Show the value as text; reserve colour for the verdict (good/warn/bad)."
+    source: "pbi-design color rule"
+  color_to_separate_equal_categories:
+    message: "Different hues for equal-rank categories imply a distinction that isn't in the data."
+    fix: "Use one colour (or greys); colour only to mark the highlighted category."
+    source: "pbi-design color rule"
+  color_beyond_semantic:
+    message: "Colour beyond the governed semantic slots dilutes the good/warn/bad signal."
+    fix: "Stay within the semantic palette; greys for everything neutral."
+    source: "pbi-design color rule"
+  color_beyond_single_series:
+    message: "Multi-colouring a single-series chart adds meaningless variation."
+    fix: "One colour for one series; highlight with emphasis, not hue."
+  inconsistent_series_colours:
+    message: "A series that changes colour between charts breaks the reader's colour-to-meaning mapping."
+    fix: "Bind each series to a stable colour across the whole report."
+    source: "IBCS (notation consistency)"
+  colour_bands_instead_of_greys:
+    message: "Coloured zone bands compete with the data for attention."
+    fix: "Use light greys for reference bands; colour only the data."
+    source: "Few (bullet graph)"
+  colour_bands_in_a_cell:
+    message: "Coloured qualitative bands inside a table cell add noise at cell scale."
+    fix: "Use grey bands; reserve colour for the marker/value."
+  tint_not_from_severity_tints:
+    message: "A pill tint not drawn from the governed severity tints breaks the status mapping."
+    fix: "Use the color_semantics severity tints only."
+    source: "color_semantics.yaml"
+
+  # --- context, labelling, self-sufficiency -------------------------------
+  number_without_context:
+    message: "A bare KPI number gives no verdict — no target, trend, or prior to judge it against."
+    fix: "Add a comparison (Δ vs target/prior) and a micro-trend."
+    source: "Few (signal); Knaflic"
+  legend_when_direct_label_works:
+    message: "A legend forces a back-and-forth lookup that a direct label removes."
+    fix: "Label series/points directly at their end."
+    source: "Few; Knaflic"
+  axis_labels_in_a_sparkline:
+    message: "Axis labels in a sparkline defeat its purpose — a sparkline is a word-scale trend, not a chart."
+    fix: "Drop axes; show only first/last/extreme values if any."
+    source: "Tufte (sparklines)"
+  decorative_sparkline_no_axis_meaning:
+    message: "A sparkline with no reference or endpoint values is decorative, not informative."
+    fix: "Anchor it to a reference and mark the endpoint."
+  pill_without_the_number:
+    message: "A status pill with no number tells you the verdict but not the magnitude."
+    fix: "Put the value inside/next to the pill."
+  boxplot_without_labelled_quartiles_in_a_brief:
+    message: "In a business brief an unlabelled boxplot's quartiles are not self-explanatory."
+    fix: "Label median/quartiles, or use a simpler summary for non-analyst audiences."
+  used_as_a_static_exhibit:
+    message: "A decomposition tree is an interactive drill tool; frozen as a static image it loses its point."
+    fix: "Keep it interactive (detail zone), or use a waterfall/bar for a static exhibit."
+  bridge_without_connectors:
+    message: "A waterfall without connector lines breaks the visual chain between steps."
+    fix: "Draw the connector lines between each step's end and the next start."
+    source: "IBCS"
+  mixing_increase_and_decrease:
+    message: "Not distinguishing increases from decreases removes the whole point of a variance bridge."
+    fix: "Colour/position increases and decreases distinctly (governed semantic pair)."
+    source: "IBCS"
+
+  # --- wrong-idiom-for-question -------------------------------------------
+  gauge:
+    message: "A gauge/tacho spends huge area on one number and reads imprecisely."
+    fix: "Use a bullet graph (Few's governed replacement) or a KPI card with a delta."
+    source: "Few (bullet graph); pbi-design deny"
+  gauge_instead:
+    message: "Reaching for a gauge instead of a compact value+reference form wastes space and precision."
+    fix: "Use bullet or kpi_card_bullet."
+    source: "Few (bullet graph)"
+  stacked_bars_for_composition_over_time:
+    message: "Stacked bars over time make inner-band trends impossible to follow."
+    fix: "Use small_multiples or a line per component; stacked_100 only if share-over-time is the point."
+    source: "data-to-viz"
+  sankey_for_precise_comparison:
+    message: "Sankey ribbons show flow, not precise magnitude — widths are hard to compare exactly."
+    fix: "Use a bar for precise comparison; keep Sankey for the flow story."
+  line_for_correlation:
+    message: "Connecting scatter points with a line implies a sequence that correlation data doesn't have."
+    fix: "Use unconnected points (scatter); add a fitted trend line if needed."
+    source: "FriendsDontLetFriends"
+  overplotting_without_opacity:
+    message: "Dense scatter points drawn opaque hide the mass of the distribution."
+    fix: "Add opacity/alpha, or bin (2-D histogram / hexbin)."
+    source: "data-to-viz (scatter caveats)"

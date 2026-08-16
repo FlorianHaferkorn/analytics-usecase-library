@@ -44,6 +44,7 @@ from tooling.superversion.canonical_contract import (
     Table,
     Visual,
 )
+from tooling.superversion.layer_tools import visual_idioms as _vi
 
 
 class AlucaSourceError(ValueError):
@@ -590,6 +591,12 @@ def _visual_fuer_slot(component: dict, slot_name: str, variant: str,
     )
 
     deklariert = component.get("visual_type") or ""
+    # Governed seam: a component may declare an `analytical_purpose` instead of a chart. Resolve it
+    # to the purpose's best emittable visual_type, then let the same block-governance below vet it.
+    if not deklariert:
+        _ap = component.get("analytical_purpose")
+        if _ap:
+            deklariert = _vi.visual_type_for_purpose(_ap) or ""
     block = None
     if variant and ebene and slot_name:
         try:

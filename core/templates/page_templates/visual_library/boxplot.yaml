@@ -1,6 +1,8 @@
 # Visual Library entry — boxplot  (schema: _schema.yaml)
 id: boxplot
 name: Box plot
+version: "1.0.0"
+status: active        # active | deprecated | experimental
 purpose: [distribution]
 zone: [analysis]
 min_size: {cols: 3, rows: 4}   # grid units — canvas-relative legibility floor (≈292×208px @1280, 438×312px @1920; px derived from layout_grid.yaml)
@@ -21,6 +23,10 @@ params:
   measure:  {role: value, type: quantitative, required: true}
   category: {role: group, type: category, required: true}
   entity:   {role: table, default: _Measures}
+
+data_fit:
+  category: {type: category, max: 12, on_violation: too_many_groups}
+  measure: {type: quantitative}
 
 tokens:
   col_box: brand.primary            # #0078D4
