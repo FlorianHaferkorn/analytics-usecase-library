@@ -212,7 +212,140 @@ def _bcdr_runbook(bp: dict, capacity: str) -> str:
         "— bounded below by async replication lag.",
         "- **RTO** (max acceptable downtime): `<VERIFY: RTO, maximal hinnehmbare Ausfallzeit>` "
         "— Fabric failover typically < 1 h + your app steps.",
+        "",
+        "Both numbers are estimates until the drill in `RECOVERY_DRILL.md` has run once. An RTO "
+        "that was never measured still gets read as a commitment, which is the expensive part.",
+        *_git_blind_spots_lines(),
     ])
+
+
+#: Die Uebung, die aus einer geschaetzten RTO eine gemessene macht. Eigene Datei und nicht ein
+#: Abschnitt im Runbook: ein Protokoll wird ausgefuellt und abgelegt, ein Runbook wird gelesen.
+RECOVERY_DRILL_PATH = "lifecycle/RECOVERY_DRILL.md"
+
+#: Was nach einem Regionalausfall zurueckkommt und was nicht — je Elementart, wie MS es gliedert.
+#: (Elementart, kommt zurueck?, was der Wiederanlauf wirklich verlangt)
+#: Geprueft 16.08.2026 gegen `fabric/security/experience-specific-guidance`.
+WIEDERANLAUF = (
+    ("Lakehouse (OneLake-Daten)", "ja, ueber Geo-Replikation",
+     "Daten aus der Sicherung in das neue Lakehouse kopieren; Verknuepfungen neu setzen"),
+    ("Notebook", "**nein** — der Code wird nicht repliziert",
+     "aus Git in den neuen Workspace holen, danach das Default-Lakehouse von Hand neu verbinden"),
+    ("Data Pipeline", "**nein** — Konfigurationen werden nicht repliziert",
+     "aus Git wiederherstellen; MS empfiehlt fuer kritische Strecken einen Zwilling in einer "
+     "zweiten Region"),
+    ("Warehouse", "**nein**",
+     "Zwischen-Lakehouse anlegen, Delta-Tabellen ueber T-SQL fuellen; Schema, Sichten und "
+     "Prozeduren kommen aus Git"),
+    ("Semantisches Modell / Bericht", "aus Git",
+     "nach dem Sync die Verbindung auf das wiederhergestellte Lakehouse zeigen lassen"),
+    ("Variable Library", "aus Git",
+     "nach dem Sync das **aktive Wertesatz** von Hand waehlen — dieser Schritt wird vergessen, und "
+     "die Bibliothek sieht danach vollstaendig aus"),
+    ("Workspace-Monitoring", "**nein** — die Daten bleiben beim alten Workspace",
+     "auf dem neuen Workspace neu einschalten; die alte Telemetrie ist nicht zu retten und muss es "
+     "auch nicht sein"),
+    ("OneLake-Lifecycle-Policy", "ja, lesbar und aenderbar auch waehrend des Failovers",
+     "`Export Policy` auf dem alten, `Import Policy` auf dem neuen Workspace"),
+    ("Resource Instance Rules", "Leseregeln greifen weiter",
+     "anlegen, aendern und loeschen geht erst wieder, wenn der Workspace schreibbar ist"),
+)
+
+
+def _recovery_drill_md(bp: dict, capacity: str) -> str:
+    """Das Uebungsprotokoll — eine Stichprobe, keine Vollprobe.
+
+    Der Kanon fuehrte BK-R02 als „beschrieben, nie geuebt". Ein Runbook, das nie gelaufen ist, ist
+    eine Vermutung mit Ueberschriften; die RTO darin ist geschaetzt und wird trotzdem wie eine Zusage
+    gelesen. Die Uebung macht daraus eine Zahl.
+
+    Bewusst **ein Element je Elementart** statt der ganzen Plattform: eine Vollprobe ist teuer und
+    zeigt nichts, was die Stichprobe nicht auch zeigt — der Wiederanlauf unterscheidet sich nach
+    Elementart, nicht nach Stueckzahl. Das Ergebnis ist eine gemessene Dauer, kein Haken.
+    """
+    domains = _domains(bp)
+    ziel = f"{_ident(domains[0].get('name', 'domain'))}-dr-drill" if domains else "dr-drill"
+    zeilen = [
+        "# Wiederanlauf-Uebung — Protokoll", "",
+        # Formularfeld, kein Platzhalter: `<VERIFY: …>` haette hier eine Fragebogen-Karte
+        # erzeugt und dem Kunden ein Datum abverlangt, das erst beim Lauf entsteht. Die
+        # Uebung ist unser Lieferschritt; dass sie aussteht, sagt das BCDR-Runbook.
+        f"Kapazitaet: **{capacity}**  ·  Uebungs-Workspace: **{ziel}**  ·  "
+        "Datum der Uebung: `____-__-__`", "",
+        "Einmal vor der Uebergabe. Danach ist die RTO im BCDR-Runbook eine **gemessene** Zahl und "
+        "keine geschaetzte — das ist der ganze Zweck.", "",
+        "## Was geuebt wird", "",
+        "Ein Element je Elementart in einem **leeren** Workspace, nicht die ganze Plattform. Der "
+        "Wiederanlauf unterscheidet sich nach Elementart; die Stueckzahl aendert die Schritte nicht, "
+        "nur ihre Dauer.", "",
+        "| Elementart | Kommt es zurueck? | Was der Wiederanlauf verlangt | Gemessen |",
+        "|---|---|---|---|",
+    ]
+    zeilen += [f"| {art} | {zurueck} | {schritt} | `___ min` |" for art, zurueck, schritt in WIEDERANLAUF]
+    zeilen += [
+        "",
+        "## Ablauf", "",
+        "1. Leeren Workspace anlegen (Namen der Elemente wie im Original — die Wiederherstellung aus "
+        "Git legt sie unter ihren Namen an, und abweichende Namen kosten den Abgleich hinterher).",
+        "2. Workspace mit dem Git-Repository verbinden, Branch waehlen, **Update all**.",
+        "3. Je Zeile oben den Schritt ausfuehren und die Dauer eintragen. Die Uhr laeuft ab dem "
+        "Anlegen des Workspaces, nicht ab dem ersten geglueckten Schritt.",
+        "4. Summe als **Ist-RTO** in `BCDR_RUNBOOK.md` eintragen, an die Stelle des Platzhalters.",
+        "5. Uebungs-Workspace loeschen. Was er an OneLake-Daten hielt, faellt unter Soft-Delete — "
+        "sieben Tage, dann ist es fort.",
+        "",
+        "## Was die Uebung NICHT beweist", "",
+        "Sie laeuft in derselben Region. Ein echter Regionalausfall bringt zwei Dinge dazu, die sich "
+        "hier nicht nachstellen lassen: die neue Kapazitaet in der Zielregion muss erst existieren, "
+        "und der Wiederanlaufplan setzt voraus, dass die **Heimatregion des Tenants** noch laeuft. "
+        "Faellt die aus, haengen alle Schritte daran, dass Microsoft sie zuerst wiederherstellt — "
+        "darauf hat niemand hier Einfluss, und es gehoert als solches ins Risikoregister.", "",
+        "Sie misst auch keine Datenmenge. Die Kopierzeit der Lakehouse-Daten waechst mit dem Bestand; "
+        "was hier gemessen wird, sind die **Handgriffe**. Wer die Datenmenge braucht, misst sie "
+        "getrennt an der groessten Tabelle und rechnet hoch.", "",
+    ]
+    return "\n".join(zeilen) + "\n"
+
+
+def _git_blind_spots_lines() -> list[str]:
+    """BK-R03: was Git traegt, was es nicht traegt, und warum Soft-Delete keine Sicherung ist.
+
+    Die Vorgabe im Betriebskanon sagte „KQL-Datenbanken (eigener Export)". **Abweichung, benannt
+    statt geglaettet (Belegpflicht Regel 5):** einen Export-/Restore-Weg fuer KQL-Datenbanken nennt
+    MS nicht. Die dokumentierte Antwort ist ein *Zwilling* — zwei unabhaengige KQL-Datenbanken in
+    zwei Regionen, gespiegelte Verwaltungsschritte, paralleles Laden. Das ist ein anderer Aufwand
+    und eine andere Entscheidung, und sie als „Export" zu fuehren haette sie kleingeredet.
+
+    Jede Tabellenzeile ist **ein** Listenelement. Der Runbook-Renderer haengt an jedes Element ein
+    Zeilenende; eine ueber zwei Elemente verteilte Zeile zerfaellt damit in zwei Textzeilen, und die
+    Tabelle bricht ab der Stelle. Gemessen 16.08.2026 am ersten Wurf.
+    """
+    return [
+        "",
+        "## What Git carries, and the three things it does not",
+        "",
+        "Everything with an item definition lives in Git — notebooks, pipelines, semantic models,",
+        "reports, variable libraries. That is what makes the recovery above a sync rather than a",
+        "rebuild, and it is why Git integration is not optional in this delivery.",
+        "",
+        "| Not covered by Git | Why | What covers it instead |",
+        "|---|---|---|",
+        ("| **Lakehouse data** | data is not a definition | OneLake geo-replication (the DR capacity "
+         "setting). Soft delete is **not** a backup — see below |"),
+        ("| **KQL databases** | no export or restore path exists | MS documents a *twin*: two "
+         "independent KQL databases on capacities in two regions, every management action (tables, "
+         "mappings, policies, permissions) mirrored, and the same data ingested into both. In this "
+         "delivery the only KQL store is the workspace-monitoring eventhouse — telemetry, re-enabled "
+         "on the new workspace, so no twin is needed. A KQL database holding business data would "
+         "change that |"),
+        ("| **Files in the notebook resource explorer** | Git integration does not sync files, "
+         "folders or notebook snapshots | copy them somewhere that is backed up. This one is quiet: "
+         "the notebook itself comes back and looks complete |"),
+        "",
+        "**Soft delete is a net against a slip, not a backup.** A deleted OneLake file is recoverable",
+        "for seven days. On day eight it is gone, and nobody is asked.",
+        "",
+    ]
 
 
 def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_NAME>",
@@ -266,6 +399,9 @@ def emit_lifecycle(bp: dict, stack: str = "fabric", capacity: str = "<CAPACITY_N
         **({"lifecycle/onelake_lifecycle_policy.json":
             _lifecycle_tiering(bp, lakehouse, schemas)} if stack == "fabric" else {}),
         "lifecycle/BCDR_RUNBOOK.md": _bcdr_runbook(bp, capacity),
+        # Eigene Datei: ein Protokoll wird ausgefuellt und abgelegt, ein Runbook wird gelesen.
+        # Nur auf Fabric — die Elementarten-Tabelle ist Fabrics, nicht die eines fremden Stacks.
+        **({RECOVERY_DRILL_PATH: _recovery_drill_md(bp, capacity)} if stack == "fabric" else {}),
     }
     # Auf fremden Stacks ist der Fabric-Text nicht bloß unpassend, sondern falsch: Snowflake kennt
     # Table Maintenance nicht als Kundenaufgabe, und auf Databricks erledigt Predictive Optimization

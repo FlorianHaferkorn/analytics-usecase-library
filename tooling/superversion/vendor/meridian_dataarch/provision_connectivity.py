@@ -147,6 +147,8 @@ def _plan(bp: dict, specs: list[dict]) -> str:
         "- Open only the source port to the Fabric subnet (1433 SQL, 1521 Oracle, …); monitor **Fabric audit logs**",
         "  for endpoint create/approve/delete; rotate credentials + review approvals periodically.",
         "",
+        *_network_stance_section(bp),
+        *_gateway_section(bp),
         *_oap_section(bp),
     ]
     return "\n".join(lines) + "\n"
@@ -267,6 +269,246 @@ def _oap_section(bp: dict) -> list[str]:
     ]
 
 
+GATEWAY_OPS_PATH = "connectivity/gateway_cluster_ops.ps1"
+
+
+def _network_stance_section(bp: dict) -> list[str]:
+    """Which network stance this delivery assumes, and what the other one would cost.
+
+    Bis 16.08.2026 beschrieb dieses Dokument vier Wege nebeneinander und waehlte keinen. Eine
+    Optionenliste ist keine Entscheidung, und diese hier ist die am schwersten zu drehende: Private
+    Link schaltet einzelne Fabric-Faehigkeiten ab, und rueckwaerts heisst „die Anbindung aller
+    Quellen neu bauen". Die Entscheidung selbst steht jetzt als `PLAT-NET` in der
+    Entscheidungsvorlage — hier steht, was sie kostet.
+
+    Die Tabelle nennt bewusst nur Kollisionen mit dem, was **diese** Lieferung emittiert. Die
+    vollstaendige Grenzenliste steht bei MS; eine Abschrift davon waere eine zweite Heimat, die als
+    naechstes veraltet.
+
+    Geprueft 16.08.2026: `fabric/security/security-private-links-overview`,
+    `security-trusted-workspace-access`, `security-workspace-level-firewall-overview`.
+    """
+    lokal = _private_sources(bp)
+    return [
+        "## The network stance this delivery assumes", "",
+        "**Public endpoints plus Trusted Workspace Access.** Private Link is not built pre-emptively. "
+        "That is a decision, not an omission — it is recorded as `PLAT-NET` in the decision template, "
+        "and the customer overrides it there. Overriding is the normal case here, not the exception: "
+        "a data-protection or group-IT rule decides this, we do not.", "",
+        "Trusted Workspace Access lets a storage account keep its firewall closed and still be read "
+        "from named workspaces, over the Microsoft backbone. Two conditions that are easy to miss:",
+        "- It needs a **purchased F SKU**. **Trial capacities are not supported** — and a workspace "
+        "moved to a trial or non-F capacity stops working **after about an hour**, which reads like an "
+        "outage rather than a licensing effect.",
+        "- It covers OneLake shortcuts, pipelines, semantic models, the T-SQL `COPY` statement and "
+        "AzCopy. **It does not cover Spark.** Notebooks reaching a firewalled storage account need a "
+        "managed private endpoint — which is why this delivery emits both mechanisms and not one.",
+        "",
+        "> Connections to firewall-enabled storage accounts show up as **Offline** in *Manage "
+        "connections and gateways*. That is documented behaviour, not a fault; do not go looking for "
+        "the fault.", "",
+        "### What Private Link would cost this delivery", "",
+        "Not the general limitation list — only the things this delivery actually emits or assumes.", "",
+        "| What we deliver | Under tenant-level Private Link |", "|---|---|",
+        ("| On-premises data gateway (this delivery has "
+         f"**{len(lokal)} source(s)** behind a firewall) | **Fails to register.** The gateway is not "
+         "supported with Private Link enabled; the VNet data gateway is the replacement, and that is a "
+         "different procurement |") if lokal else
+        ("| On-premises data gateway (none in this delivery today) | would fail to register — the "
+         "gateway is not supported with Private Link enabled. The VNet data gateway is the "
+         "replacement |"),
+        "| Capacity Metrics app (`BK-B02`) | not supported — the app we point the capacity admin at "
+        "stops being an option |",
+        "| Copilot / Data Agent items | Copilot is not supported; Data Agents lose Kusto, semantic "
+        "models and mirrored sources as data sources |",
+        "| Report delivery (subscriptions, PDF/PowerPoint export, Publish to Web) | all three "
+        "unsupported |",
+        "| Usage metrics | partial data only — Report Open events, no page views. With **Block Public "
+        "Internet Access** on, the refresh fails outright |",
+        "| Cross-tenant shortcuts and OneLake data sharing | not supported over Private Link — the "
+        "same collision Outbound Access Protection has |",
+        "| Spark starter pools | disabled once a managed VNet exists; jobs run on custom pools created "
+        "at submission time, so first-job latency rises |",
+        "| Warehouse copy in pipelines | copying data from or into a warehouse is not possible |",
+        "",
+        "Two limits that decide the *timing* rather than the design: a newly created capacity does not "
+        "support Private Link until its endpoint reaches the private DNS zone, which can take up to "
+        "**24 hours**; and **trial capacity does not work over Private Link at all**. A proof of "
+        "concept on a trial cannot demonstrate this stance.", "",
+        "If the requirement is real but narrower than the whole tenant, the two smaller instruments "
+        "are **workspace-level private links** (only the workspaces that need it) and **IP firewall "
+        "rules** (up to 256 per workspace, and these do run on trial capacity).", "",
+    ]
+
+
+def _gateway_section(bp: dict) -> list[str]:
+    """Das On-premises-Data-Gateway als Betriebsgegenstand, nicht als Installationshinweis.
+
+    Der Punkt ist nicht „ein Gateway installieren", sondern dass ein einzelner Knoten ein
+    Einzelausfallpunkt fuer jede lokale Quelle ist — und zwar einer, der beim naechsten
+    Windows-Neustart zuschlaegt. Cluster, Version und Wiederherstellungsschluessel sind die drei
+    Dinge, die daran haengen, und keines davon merkt man rechtzeitig.
+
+    Geprueft 16.08.2026: `data-integration/gateway/service-gateway-high-availability-clusters`,
+    `service-gateway-update`, `service-gateway-monthly-updates`, `service-gateway-migrate`,
+    `service-gateway-onprem-faq`, `powershell/module/datagateway`.
+    """
+    if not _private_sources(bp):
+        return []
+    return [
+        "## The gateway is a cluster, or it is a single point of failure", "",
+        "One gateway node is a single point of failure for every on-premises source in this delivery. "
+        "It is also the kind that arrives on a Tuesday, when the host reboots for patches.", "",
+        "**Two nodes minimum, on separate hosts.** A cluster takes up to 10 members. The cloud service "
+        "always uses the primary and falls back to the next available member.", "",
+        "| Setting | Value | Why this one |", "|---|---|---|",
+        "| Members | at least 2, separate hosts | one node reboots and every on-prem source is dark |",
+        "| Version | identical across all members | mixed versions cause failures that depend on which "
+        "member took the query — the hardest kind to reproduce |",
+        "| Update cadence | monthly, rolling | Microsoft supports the **last six releases**, so six "
+        "months is the whole runway |",
+        "| Load balancing | `-LoadBalancingSelectorType Failover` | see the naming trap below |",
+        "| Recovery key | in the customer's vault, not ours | Microsoft has no copy and cannot "
+        "retrieve it |",
+        "",
+        "### The naming trap in load balancing", "",
+        "`Failover` does **not** mean \"use the secondary only when the primary is down\". Microsoft's "
+        "own parameter documentation reads `failover = roundrobin`. Distribution across members is what "
+        "you get; the value that looks like distribution (`Random`) is the random pick. Read the "
+        "parameter as a label, not as a description.", "",
+        "> Disable or remove an offline member. Leaving it in the cluster means queries are tried on it "
+        "first and fail over afterwards, so the cluster gets slower than a single node would be.", "",
+        "### Updating without an outage", "",
+        "The order matters, and `gateway_cluster_ops.ps1` follows it: disable one member, wait for its "
+        "work to drain (**30 minutes** covers most workloads, longer where long-running jobs are "
+        "normal), update it, enable it, then the next one. Updating both at once is how a cluster "
+        "becomes a single node for the duration.", "",
+        "Three preconditions that stop the script rather than the plan:",
+        "- Programmatic updates need the **November 2025 baseline (3000.294.7)** or later already "
+        "installed. Below that, the first update is manual.",
+        "- **10 GB** free disk on the host, or the update fails partway.",
+        "- Fabric pipelines need **3000.214.2** or later at all.",
+        "",
+        "**Dated, and close:** builds released before May 2026 lose interactive sign-in as Microsoft's "
+        "identity-platform change rolls out, with enforcement completing across all tenants by "
+        "**31 August 2026**. A gateway on an older build stops being manageable, not just outdated.", "",
+        "### The recovery key, and the one case it does not save", "",
+        "The recovery key is set by the admin at install time. Microsoft has no access to it and "
+        "cannot retrieve it. It is required to migrate the gateway to another machine, to restore it, "
+        "to take it over, to add a member to the cluster and to change the service account. Without "
+        "it, a gateway is not recoverable after host loss — it is rebuildable, which is a different "
+        "amount of work and a different amount of downtime.", "",
+        "The exception is worth knowing before someone tidies up: **a gateway cluster deleted in the "
+        "cloud service cannot be restored at all.** The recovery key does not help there.", "",
+        "> A planned migration takes 10–15 minutes and belongs in a maintenance window. Refreshes that "
+        "start during it are likely to fail.", "",
+        "> Dataflow Gen2 keeps one dependency on the primary member: creating or editing connections "
+        "needs it up. The cluster removes the single point of failure for queries, not for that.", "",
+    ]
+
+
+def _gateway_ops_ps1() -> str:
+    """Der rollende Cluster-Update-Lauf als Skript.
+
+    Warum ueberhaupt ein Skript: MS beschreibt die Reihenfolge (deaktivieren, leerlaufen lassen,
+    aktualisieren, aktivieren) als Fliesstext, und genau diese Reihenfolge ist das, was in der Hektik
+    abgekuerzt wird. Ein Lauf, der die Wartezeit selbst einhaelt, ist schwerer abzukuerzen als ein
+    Absatz.
+
+    Und die Grenze gleich mit: das `DataGateway`-Modul hat **kein** Cmdlet zum Deaktivieren eines
+    Mitglieds (Stand 16.08.2026 — der Modulindex fuehrt Add/Get/Remove/Restore/Set/Update, kein
+    Disable). Das Deaktivieren bleibt Handarbeit im Portal. Das Skript sagt das an der Stelle, an der
+    es haelt, statt so zu tun, als sei der Lauf vollstaendig automatisch.
+    """
+    return """<#
+    gateway_cluster_ops.ps1 — das On-premises-Data-Gateway-Cluster in der dokumentierten Reihenfolge
+    aktualisieren, und den Lastverteilungs-Modus setzen.
+
+    Voraussetzungen (alle 16.08.2026 gegen learn.microsoft.com geprueft):
+      * PowerShell 7 oder hoeher, Modul `DataGateway` (`Install-Module -Name DataGateway`).
+      * Gateway-Admin-Rechte. Ohne sie schlaegt der Update-Aufruf fehl, nicht die Anmeldung.
+      * Jedes Mitglied bereits auf **3000.294.7** (Nov 2025) oder hoeher — darunter gibt es
+        `Update-DataGatewayClusterMember` nicht, und das erste Update ist Handarbeit.
+      * 10 GB freier Plattenplatz je Wirt.
+
+    Was das Skript NICHT kann: ein Mitglied deaktivieren. Das `DataGateway`-Modul hat dafuer kein
+    Cmdlet. Der Lauf haelt an der Stelle an und sagt, was im Portal zu tun ist — das ist ehrlicher
+    als ein Lauf, der die Wartezeit ueberspringt, weil er sie nicht erzwingen kann.
+#>
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true)][guid] $GatewayClusterId,
+    # 30 Minuten deckt laut MS die meisten Lasten ab. Wo lange Jobs normal sind, hochsetzen —
+    # die Zahl ist eine Aussage ueber IHRE Jobs, nicht ueber das Gateway.
+    [int] $DrainMinutes = 30,
+    # `Failover` heisst laut MS-Parameterdoku round-robin. Nicht der Name ist gemeint, sondern die
+    # Verteilung ueber alle aktiven Mitglieder.
+    [ValidateSet('Failover', 'Random')][string] $LoadBalancing = 'Failover',
+    [switch] $WhatIfOnly
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+Import-Module DataGateway
+Connect-DataGatewayServiceAccount | Out-Null
+
+$cluster = Get-DataGatewayCluster -GatewayClusterId $GatewayClusterId
+if (-not $cluster) { throw "Cluster $GatewayClusterId nicht gefunden oder keine Admin-Rechte darauf." }
+
+$members = @($cluster.MemberGateways)
+Write-Host ("Cluster '{0}': {1} Mitglied(er)." -f $cluster.Name, $members.Count)
+if ($members.Count -lt 2) {
+    # Kein Abbruch: ein Einzelknoten ist ein hingenommenes Risiko, keine Fehlbedienung. Aber er
+    # gehoert benannt, sonst steht er nie im Risikoregister.
+    Write-Warning ("Einzelknoten. Jede lokale Quelle haengt an diesem einen Wirt — und ein Update " +
+                   "ist eine Ausfallzeit, kein rollender Lauf.")
+}
+
+$versionen = $members | Select-Object -ExpandProperty Version -Unique
+if ($versionen.Count -gt 1) {
+    Write-Warning ("Mitglieder laufen auf verschiedenen Versionen ({0}). Ein Fehler haengt dann " +
+                   "davon ab, welches Mitglied die Abfrage bekam — die schwerste Sorte." -f
+                   ($versionen -join ', '))
+}
+
+Write-Host ("Lastverteilung -> {0} (laut MS-Doku: failover = roundrobin)." -f $LoadBalancing)
+if (-not $WhatIfOnly) {
+    Set-DataGatewayCluster -GatewayClusterId $GatewayClusterId -LoadBalancingSelectorType $LoadBalancing
+}
+
+$verfuegbar = Get-DataGatewayAvailableUpdates -GatewayClusterId $GatewayClusterId
+if (-not $verfuegbar) {
+    Write-Host "Keine Aktualisierung verfuegbar. Ende."
+    return
+}
+
+foreach ($m in $members) {
+    Write-Host ("--- Mitglied {0} ({1}) ---" -f $m.Name, $m.Version)
+    Write-Host ("1. Im Portal deaktivieren: Manage connections and gateways -> On-premises data " +
+                "gateways -> {0} -> Disable." -f $m.Name)
+    Write-Host ("   Dafuer gibt es kein Cmdlet. Ohne diesen Schritt schickt der Lastverteiler " +
+                "waehrend des Updates weiter Abfragen auf dieses Mitglied.")
+    if ($WhatIfOnly) { continue }
+    Read-Host  "   Wenn deaktiviert: Eingabetaste"
+    Write-Host ("2. {0} Minuten leerlaufen lassen." -f $DrainMinutes)
+    Start-Sleep -Seconds ($DrainMinutes * 60)
+    Write-Host "3. Aktualisieren."
+    Update-DataGatewayClusterMember -GatewayClusterId $GatewayClusterId -MemberGatewayId $m.Id
+    do {
+        Start-Sleep -Seconds 30
+        $stand = Update-DataGatewayClusterMember -GatewayClusterId $GatewayClusterId `
+                                                 -MemberGatewayId $m.Id -CheckStatus
+        Write-Host ("   Stand: {0}" -f $stand)
+    } while ("$stand" -match 'InProgress|Running')
+    Write-Host "4. Im Portal wieder aktivieren, dann Eingabetaste fuer das naechste Mitglied."
+    Read-Host  "   Eingabetaste"
+}
+
+Write-Host "Fertig. Gegenprobe: Get-DataGatewayClusterStatus -GatewayClusterId $GatewayClusterId"
+"""
+
+
 def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<workspace>",
                       lakehouse: str = "analytics_gold") -> dict[str, str]:
     """Return the secure-connectivity artifact set (path → content). The plan is always emitted; the MPE
@@ -280,6 +522,11 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
         # Unabhaengig von privaten Quellen: OAP schuetzt den Workspace, nicht die Quelle. Eine
         # Lieferung ganz ohne private Quelle braucht ihn genauso — sie hat nur keine MPEs.
         out[OAP_POLICY_PATH] = _oap_policy_json()
+        # Anders als OAP haengt das Gateway an einer Bedingung der Lieferung: ohne Quelle
+        # hinter der Firewall gibt es kein Gateway zu betreiben. Ein Betriebsskript fuer ein
+        # Geraet, das niemand hat, ist eine Anweisung ins Leere.
+        if _private_sources(bp):
+            out[GATEWAY_OPS_PATH] = _gateway_ops_ps1()
     if stack == "fabric" and specs:
         # `_note` statt eines `//`-Kopfes: mit dem Kopf war diese Datei kein JSON, und weil sie nur
         # bei privaten Quellen entsteht, hat der Waechter sie nie zu Gesicht bekommen (gefunden

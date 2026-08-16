@@ -838,6 +838,51 @@ def propose_tenant_settings(bp: dict) -> dict:
         status="vorbelegt")
 
 
+def propose_network_stance(bp: dict) -> dict:
+    """Die Netzanbindung — als Entscheidung, nicht als Optionenliste.
+
+    Bis 16.08.2026 stand die Netzanbindung nur als Beschreibung in `connectivity/_CONNECTIVITY.md`:
+    vier Wege nebeneinander, keiner davon gewaehlt. Damit war sie die einzige Plattform-Entscheidung
+    ohne Vorlage — und sie ist die am schwersten zu drehende: Private Link schaltet einzelne
+    Fabric-Faehigkeiten ab, und rueckwaerts heisst „die Anbindung aller Quellen neu bauen".
+
+    `status="vorbelegt"` mit voller Absicht, aber mit einer Besonderheit im `decider`: hier ist die
+    Uebersteuerung der Normalfall. Datenschutz- oder Konzernvorgaben entscheiden das, nicht wir; die
+    Vorlage sagt nur, was gilt, wenn niemand etwas verlangt.
+    """
+    lokal = [e for e in bp.get("ingestion", []) or []
+             if (e.get("access_mode") == "mirror" or e.get("private") is True
+                 or any(h in (e.get("source_system") or "").lower()
+                        for h in ("on-prem", "on prem", "onprem", "gateway")))]
+    gateway_satz = (
+        f" Diese Lieferung hat **{len(lokal)} Quelle(n) hinter der Firewall** — und genau da wird die "
+        "Frage scharf: **das On-premises-Data-Gateway laesst sich mit aktiviertem Private Link nicht "
+        "einmal registrieren.** Wer beides will, braucht das VNet-Data-Gateway; das ist eine andere "
+        "Beschaffung, kein Schalter." if lokal else
+        " Diese Lieferung hat keine Quelle hinter der Firewall, die Gateway-Frage stellt sich also "
+        "heute nicht. Sie stellt sich beim ersten lokalen Quellsystem.")
+    return _rec(
+        "PLAT-NET", "Netzanbindung (oeffentlich / Private Link)",
+        "Wie erreichen Nutzer und Dienste die Plattform, und wie erreicht die Plattform die Quellen?",
+        ("Vorschlag: **oeffentliche Endpunkte plus Trusted Workspace Access** fuer Azure-Quellen. "
+         "Trusted Workspace Access laesst einen Speicher hinter geschlossener Firewall trotzdem aus "
+         "genannten Workspaces lesen, ueber das Microsoft-Backbone — der Sicherheitsgewinn ohne den "
+         "Preis von Private Link. **Private Link wird nicht vorsorglich gebaut**, sondern nur auf "
+         "belegte Anforderung: er kostet unter anderem Publish-to-Web, PDF-/PowerPoint-Export, "
+         "E-Mail-Abonnements, Copilot, die Capacity-Metrics-App und tenantuebergreifende Verknuepfungen "
+         "— und er ist nachtraeglich nur mit Neuaufbau der Quellanbindung zu drehen." + gateway_satz),
+        "MS Learn: security-private-links-overview (Grenzen je Erlebnis) + security-trusted-workspace-"
+        "access (F-SKU-Pflicht, kein Trial), beide geprueft 16.08.2026",
+        "hoch",
+        ["Private Link auf Tenant-Ebene (maximale Abschottung, hoechster Funktionsverlust)",
+         "Private Link nur auf Workspace-Ebene (feiner, nur die Workspaces mit echter Anforderung)",
+         "IP-Firewall-Regeln je Workspace (bis 256 Regeln, laeuft auch auf Trial)"],
+        "Informationssicherheit / Konzern-IT — hier entscheidet die Vorgabe des Kunden, nicht wir",
+        ("Die Anbindung wird zweimal gebaut: einmal oeffentlich, und nach der ersten Pruefung durch "
+         "die Sicherheit noch einmal privat."),
+        status="vorbelegt")
+
+
 def propose_ground_truth(gc: dict) -> dict:
     """Evaluation ground truth for the Data Agent — derivable as question skeletons."""
     ms = [m["measure_name"] for m in gc.get("measures", []) if m.get("measure_name")][:4]
@@ -980,6 +1025,7 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
     out.extend([propose_workspace_roles(bp), propose_retention(bp, gc, source_schema),
                 propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
+                propose_network_stance(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
                 propose_transform_engine(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen

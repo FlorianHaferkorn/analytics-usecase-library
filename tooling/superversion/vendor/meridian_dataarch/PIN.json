@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "2b232bcbda314cf50feae1d16bf4e26ef0015bdf0e34732b945e8c49ad81a5a7"
+      "sha256": "c9836301f9642cd2a1d320747c48585f3057b7e1d8a424c9a5e4da4c7bb14138"
     },
     {
       "path": "naming.py",
@@ -21,7 +21,7 @@
     },
     {
       "path": "provision_connectivity.py",
-      "sha256": "35c0c78aad5a0d660297f39dd79adb96a8005ed7e2a9ccc4d9178ed7dadafda1"
+      "sha256": "0a5661dc0cbed7819407ec6d99359aa963938155d646abcf09c9ec693d42219e"
     },
     {
       "path": "provision_governance.py",
@@ -29,7 +29,7 @@
     },
     {
       "path": "provision_lifecycle.py",
-      "sha256": "3798dfa48378dcf40a35eb7d81e9780bc8b02cabe3727ea9d2f6ff309e08c854"
+      "sha256": "e940ca8bde03df5eeacdc57600c290768bcae2340918ece7eb281997a65c7652"
     },
     {
       "path": "provision_monitoring.py",
