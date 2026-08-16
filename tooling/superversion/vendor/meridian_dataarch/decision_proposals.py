@@ -109,9 +109,45 @@ _PLACEMENT_WEIGHT = {"fact": 1.0, "org_dim": 1.0, "other_dim": 0.7, "entity_dim"
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
 
-def _cols(gc: dict) -> list[tuple[str, str]]:
-    """All ``(table, column)`` pairs in the governed catalog."""
-    return [(t["name"], c) for t in gc.get("tables", []) for c in (t.get("columns") or [])]
+def _cols(gc: dict, source_schema: dict | None = None) -> list[tuple[str, str]]:
+    """All ``(table, column)`` pairs in the governed catalog **and** in the introspected source.
+
+    Warum die zweite Quelle (gemessener Anlass 16.08.2026): ``--source-schema-results`` traegt
+    das, was der Kunde uns auf unsere eigene Bitte hin zurueckgeschickt hat — die echten
+    Spalten seiner Quellsysteme. ``watermark_candidates``/``key_candidates`` lesen sie seit
+    jeher, aber sie endeten in ``provision_dq`` und ``provision_source_schema``. Die
+    Entscheidungsvorlage kannte nur den governten Katalog und schrieb deshalb „kein
+    Vorschlag", obwohl die Aenderungsspalte in der Antwort des Kunden stand.
+
+    Die Herkunft bleibt am Namen ablesbar (``<quelle>.<tabelle>``), damit im Beleg steht, ob
+    ein Kandidat aus dem Modell kommt oder aus der Quelle. Ein Kandidat aus der Quelle ist
+    schwaecher: er sagt, was **da** ist, nicht was fachlich gilt.
+    """
+    aus_katalog = [(t["name"], c) for t in gc.get("tables", []) for c in (t.get("columns") or [])]
+    return aus_katalog + _quell_cols(source_schema)
+
+
+def _quell_cols(source_schema: dict | None) -> list[tuple[str, str]]:
+    """``{quelle: [ODCS-Objekt]}`` → ``[(``<quelle>.<tabelle>``, Spalte)]``, deterministisch."""
+    out: list[tuple[str, str]] = []
+    for quelle, objs in sorted((source_schema or {}).items()):
+        for obj in objs or []:
+            tabelle = str(obj.get("name") or "")
+            for prop in obj.get("properties") or []:
+                name = str(prop.get("name") or "")
+                if tabelle and name:
+                    out.append((f"{quelle}.{tabelle}", name))
+    return out
+
+
+def _quell_schnitt(bp: dict, source_schema: dict | None, domain: dict) -> dict:
+    """Die Quellen, die in diese Domaene laden. ``bp["ingestion"]`` fuehrt die Zuordnung."""
+    if not source_schema:
+        return {}
+    name = domain.get("name")
+    quellen = {str(e.get("source") or "") for e in bp.get("ingestion", []) or []
+               if e.get("domain") == name}
+    return {q: t for q, t in source_schema.items() if q in quellen}
 
 
 def _placement(gc: dict, table: str) -> str:
@@ -352,10 +388,10 @@ def propose_workspace_roles(bp: dict) -> dict:
 
 # --- individual proposals ---------------------------------------------------------------------------
 
-def propose_rls(gc: dict) -> dict:
+def propose_rls(gc: dict, source_schema: dict | None = None) -> dict:
     """The row-filter predicate. Derived from the best org-scoping column in the model."""
     scored = []
-    for t, c in _cols(gc):
+    for t, c in _cols(gc, source_schema):
         w = _rank(c, _SCOPE_HINTS)
         if w:
             place = _placement(gc, t)
@@ -402,10 +438,10 @@ def propose_rls(gc: dict) -> dict:
         "der freigegebenen Tabellen. Das trägt nur, solange die Entra-Gruppe leer ist")
 
 
-def propose_cls(gc: dict) -> dict:
+def propose_cls(gc: dict, source_schema: dict | None = None) -> dict:
     """Sensitive columns to hide. Derived from column-name patterns (personal / commercial)."""
     hits: dict[str, list[str]] = {}
-    for t, c in _cols(gc):
+    for t, c in _cols(gc, source_schema):
         for h, why in _SENSITIVE_HINTS.items():
             if h in c.lower():
                 hits.setdefault(why, []).append(f"{t}.{c}")
@@ -433,13 +469,58 @@ def propose_cls(gc: dict) -> dict:
         "Auch sensible Spalten bleiben für jede berechtigte Rolle sichtbar")
 
 
-def propose_incremental(gc: dict) -> dict:
+def _aus_quelle(source_schema: dict | None) -> dict | None:
+    """Der Vorschlag fuer DATA-INC aus der **Introspektion**, wenn der Katalog schweigt.
+
+    Ehrlich schwaecher als der Katalog-Weg und deshalb getrennt: die Quelle sagt, welche
+    Spalten es gibt, nicht welche Tabelle fachlich die Fakten traegt. Deshalb wird hier
+    nichts zur Fakten-Tabelle erklaert — es werden die Kandidaten je Tabelle genannt, und die
+    Bestaetigung des Grains bleibt offen. Konfidenz „mittel", nie „hoch".
+    """
+    from core.dataarch_engine.blueprint.source_schema import key_candidates, watermark_candidates
+
+    zeilen = []
+    for quelle, objs in sorted((source_schema or {}).items()):
+        for obj in sorted(objs or [], key=lambda o: str(o.get("name") or "")):
+            wm = watermark_candidates(obj)
+            keys = key_candidates(obj)
+            if not wm and not keys:
+                continue
+            zeilen.append((f"{quelle}.{obj.get('name')}", keys[:2], wm[:2]))
+    if not zeilen:
+        return None
+    text = "; ".join(
+        f"`{t}` — Schlüssel {', '.join(f'`{k}`' for k in ks) or '—'}, "
+        f"Änderungsspalte {', '.join(f'`{w}`' for w in ws) or '—'}"
+        for t, ks, ws in zeilen)
+    mit_wm = sum(1 for _t, _k, ws in zeilen if ws)
+    return {"text": text, "tabellen": len(zeilen), "mit_wm": mit_wm}
+
+
+def propose_incremental(gc: dict, source_schema: dict | None = None) -> dict:
     """Match key + watermark for the MERGE upsert."""
     facts = _facts(gc)
     if not facts:
+        aus_quelle = _aus_quelle(source_schema)
+        if aus_quelle:
+            return _rec(
+                "DATA-INC", "Inkrementelles Laden (Match-Key + Watermark)",
+                "Woran erkennt der MERGE geänderte Zeilen?",
+                ("Aus der Introspektion Ihrer Quellsysteme, nicht aus einem Modell: "
+                 + aus_quelle["text"] + ". Zu bestätigen bleibt das **Grain** — welche "
+                 "Spaltenkombination eine Zeile fachlich eindeutig macht. Die Änderungsspalte "
+                 "ist damit belegt, der Match-Key ein Vorschlag."),
+                f"Introspektion von {aus_quelle['tabellen']} Tabelle(n), "
+                f"{aus_quelle['mit_wm']} davon mit Änderungsspalte",
+                "mittel",
+                ["Vollast beibehalten, solange die Datenmenge klein ist",
+                 "CDC/Mirroring an der Quelle statt Watermark im Transform"],
+                "Data Engineering + Quellsystem-Owner",
+                "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast",
+                markers=("contract",))
         return _rec("DATA-INC", "Inkrementelles Laden (Match-Key + Watermark)",
                     "Woran erkennt der MERGE geänderte Zeilen?", None,
-                    "keine Fakten-Tabelle im Katalog", "keine",
+                    "keine Fakten-Tabelle im Katalog, keine Introspektion der Quelle", "keine",
                     ["Vollast beibehalten, solange die Datenmenge klein ist"],
                     "Data Engineering + Quellsystem-Owner",
                     "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast",
@@ -503,9 +584,9 @@ def propose_silver_contract(gc: dict) -> dict:
         status="vorbelegt", markers=("contract:",))
 
 
-def propose_retention(bp: dict, gc: dict) -> dict:
+def propose_retention(bp: dict, gc: dict, source_schema: dict | None = None) -> dict:
     """Retention periods — a legally-framed default proposal, explicitly to be confirmed."""
-    personal = sorted({f"{t}.{c}" for t, c in _cols(gc)
+    personal = sorted({f"{t}.{c}" for t, c in _cols(gc, source_schema)
                        for h, why in _SENSITIVE_HINTS.items()
                        if h in c.lower() and why == "personenbezogen"})
     return _rec(
@@ -855,7 +936,8 @@ def propose_platform_tier(bp: dict) -> dict | None:
                       "Netzpfad und Wartungsmodell sind dann nicht zusagbar."),
     )
 
-def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
+def propose_all(bp: dict, governed_catalog: dict | None = None,
+                source_schema: dict | None = None) -> list[dict]:
     """Every open decision with its pre-thought proposal, deterministic order.
 
     A customer has many use cases, and the model-driven decisions (RLS axis, sensitive columns,
@@ -863,9 +945,19 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
     Sales may scope by region while Finance scopes by company code. So with more than one domain those
     fan out to one record per domain (``SEC-RLS·<domain>``), each derived from that domain's slice of
     the catalog. The platform decisions (capacity, tenant settings, alerts, endorsement, retention)
-    stay tenant-wide, because that is what they actually are."""
+    stay tenant-wide, because that is what they actually are.
+
+    ``source_schema`` ist die zweite Tatsachenquelle: die Introspektionsergebnisse, um die wir
+    den Kunden per ``--source-schema-results`` bitten. Drei der modellgetriebenen Vorlagen
+    lesen sie mit (RLS, CLS, inkrementelles Laden); je Domaene bekommt jede nur die Quellen,
+    die in diese Domaene laden. Ohne die Zuleitung stand in der Vorlage „kein Vorschlag",
+    waehrend die Antwort des Kunden im selben Lauf auf der Platte lag."""
     gc = governed_catalog or {}
     domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
+    #: Vorlagen, die neben dem Katalog auch die Quell-Introspektion lesen. Die uebrigen
+    #: (Silber-Vertrag, Agent-Pruefgrundlage) haengen an Beziehungen und Kennzahlen — die
+    #: gibt INFORMATION_SCHEMA nicht her, und sie zu behaupten waere geraten.
+    mit_quelle = (propose_rls, propose_cls, propose_incremental)
     per_domain = [propose_rls, propose_cls, propose_incremental, propose_silver_contract,
                   propose_ground_truth]
     out: list[dict] = []
@@ -875,16 +967,18 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
             if not dgc.get("tables"):
                 continue
             slug = _NONWORD_RE.sub("-", (d.get("name") or "").lower()).strip("-")
+            dq = _quell_schnitt(bp, source_schema, d)
             for fn in per_domain:
-                r = fn(dgc)
+                r = fn(dgc, dq) if fn in mit_quelle else fn(dgc)
                 r["id"] = f"{r['id']}·{slug}"
                 r["topic"] = f"{r['topic']} — {d.get('name')}"
                 out.append(r)
     else:
-        out.extend(fn(gc) for fn in per_domain)
+        out.extend(fn(gc, source_schema) if fn in mit_quelle else fn(gc) for fn in per_domain)
     if len(domains) > 1 and gc.get("tables"):
         out.extend(propose_cross_domain(bp, gc))   # domains are not islands
-    out.extend([propose_workspace_roles(bp), propose_retention(bp, gc), propose_alerts(bp),
+    out.extend([propose_workspace_roles(bp), propose_retention(bp, gc, source_schema),
+                propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
                 propose_transform_engine(bp)])
@@ -941,9 +1035,10 @@ def decisions_markdown(proposals: list[dict]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def emit_decisions(bp: dict, governed_catalog: dict | None = None) -> dict[str, str]:
+def emit_decisions(bp: dict, governed_catalog: dict | None = None,
+                   source_schema: dict | None = None) -> dict[str, str]:
     """Return the decision-template artifact set (path → content)."""
-    proposals = propose_all(bp, governed_catalog)
+    proposals = propose_all(bp, governed_catalog, source_schema)
     return {
         "decisions/ENTSCHEIDUNGSVORLAGE.md": decisions_markdown(proposals),
         "decisions/proposals.json": json.dumps(
