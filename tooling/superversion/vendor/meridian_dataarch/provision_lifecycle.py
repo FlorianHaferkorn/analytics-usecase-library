@@ -208,8 +208,10 @@ def _bcdr_runbook(bp: dict, capacity: str) -> str:
         "  - After failover the new primary is **local-redundant only** until the primary region returns.",
         "",
         "## Recovery objectives (fill per SLA)",
-        "- **RPO** (max acceptable data loss): `<VERIFY per SLA>` — bounded below by async replication lag.",
-        "- **RTO** (max acceptable downtime): `<VERIFY per SLA>` — Fabric failover typically < 1 h + your app steps.",
+        "- **RPO** (max acceptable data loss): `<VERIFY: RPO, maximal hinnehmbarer Datenverlust>` "
+        "— bounded below by async replication lag.",
+        "- **RTO** (max acceptable downtime): `<VERIFY: RTO, maximal hinnehmbare Ausfallzeit>` "
+        "— Fabric failover typically < 1 h + your app steps.",
     ])
 
 

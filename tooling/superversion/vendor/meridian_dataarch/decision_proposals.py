@@ -369,8 +369,8 @@ def propose_rls(gc: dict) -> dict:
                     "keine", ["Sichtbarkeit über Workspace-Trennung statt RLS",
                               "eine Scoping-Spalte im Gold-Modell ergänzen"],
                     "Data Owner + Security",
-                    "Ohne erklaerten Schnitt entsteht KEINE Zeilenbedingung — die Rolle sieht ALLE Zeilen "
-        "der freigegebenen Tabellen. Das traegt nur, solange die Entra-Gruppe leer ist")
+                    "Ohne einen erklärten Schnitt entsteht keine Zeilenbedingung, und die Rolle sieht alle Zeilen "
+        "der freigegebenen Tabellen. Das trägt nur, solange die Entra-Gruppe leer ist")
     tbl, col = best
     score, raw, place = cands[0][0], cands[0][1], cands[0][2]
     others = sorted({c for _s, _w, _p, _t, c in cands if c != col})[:3]
@@ -398,8 +398,8 @@ def propose_rls(gc: dict) -> dict:
          "kein RLS — Trennung rein über getrennte Workspaces/Modelle"] +
         ([f"Scoping über `{o}` statt `{col}`" for o in others[:1]] if others else []),
         "Data Owner der Domäne (fachlich) + Security (technisch)",
-        "Ohne erklaerten Schnitt entsteht KEINE Zeilenbedingung — die Rolle sieht ALLE Zeilen "
-        "der freigegebenen Tabellen. Das traegt nur, solange die Entra-Gruppe leer ist")
+        "Ohne einen erklärten Schnitt entsteht keine Zeilenbedingung, und die Rolle sieht alle Zeilen "
+        "der freigegebenen Tabellen. Das trägt nur, solange die Entra-Gruppe leer ist")
 
 
 def propose_cls(gc: dict) -> dict:
@@ -416,7 +416,7 @@ def propose_cls(gc: dict) -> dict:
                     "keine Spaltennamen mit typischen Sensibilitäts-Mustern gefunden",
                     "keine", ["Klassifikation im Fachbereich erheben (Spalten-Review)"],
                     "Data Owner + Datenschutzbeauftragte:r",
-                    "kein CLS — alle Spalten sind für jede berechtigte Rolle sichtbar")
+                    "Alle Spalten bleiben für jede berechtigte Rolle sichtbar")
     flat = sorted({c for v in hits.values() for c in v})
     detail = "; ".join(f"**{why}**: {', '.join(sorted(set(cols)))}" for why, cols in sorted(hits.items()))
     return _rec(
@@ -430,7 +430,7 @@ def propose_cls(gc: dict) -> dict:
         ["Spalten im Gold-Modell gar nicht materialisieren (stärkster Schutz)",
          "Sichtbar lassen und nur über Sensitivity-Label kennzeichnen (schwächster Schutz)"],
         "Datenschutzbeauftragte:r (personenbezogen) + Data Owner (wirtschaftlich)",
-        "kein CLS — auch sensible Spalten sind für jede berechtigte Rolle sichtbar")
+        "Auch sensible Spalten bleiben für jede berechtigte Rolle sichtbar")
 
 
 def propose_incremental(gc: dict) -> dict:
@@ -442,7 +442,7 @@ def propose_incremental(gc: dict) -> dict:
                     "keine Fakten-Tabelle im Katalog", "keine",
                     ["Vollast beibehalten, solange die Datenmenge klein ist"],
                     "Data Engineering + Quellsystem-Owner",
-                    "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast",
+                    "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast",
                     markers=("contract",))
     f = sorted(facts, key=lambda t: t["name"])[0]
     cols = f.get("columns") or []
@@ -468,7 +468,7 @@ def propose_incremental(gc: dict) -> dict:
          "CDC/Mirroring an der Quelle statt Watermark im Transform",
          "Partition-Overwrite je Periode statt zeilenweisem MERGE"],
         "Data Engineering + Quellsystem-Owner",
-        "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast (CU-Kosten + Laufzeit)",
+        "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast (CU-Kosten und Laufzeit)",
         # Schlüssel UND Änderungsspalte im Modell → die Strategie steht, nur bestätigen.
         # Fehlt eine von beiden, ist es eine echte Frage an das Quellsystem.
         status="vorbelegt" if (keys and have_wm) else "offen",
@@ -511,22 +511,23 @@ def propose_retention(bp: dict, gc: dict) -> dict:
     return _rec(
         "GOV-RET", "Aufbewahrungsfristen + Personenbezug",
         "Wie lange bleiben die Daten liegen, und was ist personenbezogen?",
-        ("**Zweigeteilter Vorschlag** (rechtlich zu bestätigen, kein Rechtsrat): "
-         "(a) *Nicht personenbezogene* Auswertungsdaten mit Beleg-/Handelsbezug — Aufbewahrung an den "
-         "handels-/steuerrechtlichen Fristen des Kunden ausrichten (in DE typisch 10 Jahre) und danach "
-         "per `DELETE` + `VACUUM` physisch entfernen. "
-         "(b) *Personenbezogene* Spalten — **zweckgebunden** und deutlich kürzer, plus Löschkonzept. "
+        ("Zwei Fristen statt einer. Rechtlich zu bestätigen, und es ist kein Rechtsrat. "
+         "Nicht personenbezogene Auswertungsdaten mit Beleg- oder Handelsbezug richten wir an "
+         "Ihren handels- und steuerrechtlichen Fristen aus, in Deutschland typisch zehn Jahre, "
+         "und entfernen sie danach per `DELETE` und `VACUUM` physisch. Personenbezogene "
+         "Spalten bekommen eine zweckgebundene, kürzere Frist und ein Löschkonzept. "
          + (f"Kandidaten aus dem Modell: {', '.join(personal)}. "
             if personal else "Im Modell wurden keine offensichtlich personenbezogenen Spalten erkannt. ")
-         + "Praktikabelster Weg: personenbezogene Spalten gar nicht erst ins Gold materialisieren oder "
-           "pseudonymisieren — dann entfällt die kurze Frist für das Auswertungsmodell."),
+         + "Am einfachsten bleibt, personenbezogene Spalten gar nicht erst ins Gold zu "
+           "materialisieren oder sie zu pseudonymisieren. Dann entfällt die kurze Frist für "
+           "das Auswertungsmodell."),
         "Spaltennamen-Muster + die Struktur des Aufbewahrungs-Configs",
         "mittel",
         ["Einheitliche Frist für alles (einfach, aber datenschutzrechtlich schwach)",
          "Pseudonymisierung im Silver statt kurzer Frist im Gold",
          "Fristen aus dem bestehenden Löschkonzept des Kunden übernehmen"],
         "Datenschutzbeauftragte:r + Legal (verbindlich), Data Owner (fachlich)",
-        "`retention_policy.json` bleibt mit `<VERIFY>` stehen — es wird nichts gelöscht")
+        "`retention_policy.json` bleibt mit `<VERIFY>` stehen, und es wird nichts gelöscht")
 
 
 def propose_lakehouse_topology(bp: dict) -> dict:
