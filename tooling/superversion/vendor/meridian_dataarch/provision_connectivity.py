@@ -317,8 +317,15 @@ def _network_stance_section(bp: dict) -> list[str]:
         ("| On-premises data gateway (none in this delivery today) | would fail to register — the "
          "gateway is not supported with Private Link enabled. The VNet data gateway is the "
          "replacement |"),
-        "| Capacity Metrics app (`BK-B02`) | not supported — the app we point the capacity admin at "
-        "stops being an option |",
+        "| Capacity Metrics app (`BK-B02`) | **the two MS pages disagree.** The private-links "
+        "overview says flatly „doesn't support Private Link\"; the app's own page says it *does* "
+        "support tenant-level private links and only rules out a **workspace-level** private link "
+        "on the workspace it is installed in (both read 2026-08-16). Planned here against the "
+        "narrower statement: assume the app is lost, and confirm against your tenant before "
+        "relying on it |",
+        "| Workspace monitoring (`BK-B01`, the job-failure alert rests on it) | not supported at "
+        "all. Stated twice: in the monitoring limitations, and again for API for GraphQL, whose "
+        "logging „based on Workspace Monitoring is not supported\" |",
         "| Copilot / Data Agent items | Copilot is not supported; Data Agents lose Kusto, semantic "
         "models and mirrored sources as data sources |",
         "| Report delivery (subscriptions, PDF/PowerPoint export, Publish to Web) | all three "
@@ -338,6 +345,14 @@ def _network_stance_section(bp: dict) -> list[str]:
         "If the requirement is real but narrower than the whole tenant, the two smaller instruments "
         "are **workspace-level private links** (only the workspaces that need it) and **IP firewall "
         "rules** (up to 256 per workspace, and these do run on trial capacity).", "",
+        "The smaller instrument is not automatically the cheaper one here, and the reason is "
+        "specific to what this delivery builds. A workspace-level private link is exactly what the "
+        "Capacity Metrics app's own workspace may not have, and it also cuts the alerting: with "
+        "public access blocked on a **source** workspace, consumers elsewhere — Activator rules, "
+        "eventstreams in other workspaces — stop receiving that workspace's events unless a "
+        "private link is established from the consumer's side as well. The monitoring workspace is "
+        "a consumer of every other workspace's events, so protecting one workspace this way is a "
+        "decision about the alerting of all of them.", "",
     ]
 
 

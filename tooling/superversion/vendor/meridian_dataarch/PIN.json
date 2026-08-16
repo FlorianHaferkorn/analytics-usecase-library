@@ -21,7 +21,7 @@
     },
     {
       "path": "provision_connectivity.py",
-      "sha256": "0a5661dc0cbed7819407ec6d99359aa963938155d646abcf09c9ec693d42219e"
+      "sha256": "640842e102860b32526f9e0a4acac79a5c77f1e7451188dfba90fad65f60b2f4"
     },
     {
       "path": "provision_governance.py",
@@ -33,7 +33,7 @@
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "f224772c438086cc23f7393d1ff579e70360104515f298cfd4e5376fd7ac9c61"
+      "sha256": "839ac5c211bc13cc7128cbbf5eac25d7d4e2a5a82f0033a9ca3ae7ca791e7c74"
     },
     {
       "path": "provision_operability.py",

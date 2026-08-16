@@ -168,6 +168,26 @@ ACTIVITY_EXPORT_RETENTION_MONTHS = 13
 
 ACTIVITY_EXPORT_PATH = "monitoring/activity_log_export.py"
 
+#: Das Beobachtungsfenster der Capacity Metrics App auf der **Compute**-Seite. Nicht
+#: konfigurierbar und nicht rueckwirkend zu fuellen — der Grund, warum die App zum Tag 0
+#: gehoert und nicht zur Uebergabe (BK-B02).
+METRICS_APP_COMPUTE_DAYS = 14
+
+#: Die **Storage**-Seite derselben App reicht weiter. Zwei verschiedene Fenster in einer App
+#: sind eine haeufige Fehlerquelle beim Planen: „14 Tage" stimmt fuer Rechenlast, nicht fuer
+#: Speicherwachstum.
+METRICS_APP_STORAGE_DAYS = 30
+
+#: Aufbewahrung der Workspace-Monitoring-Daten. Fest, nicht einstellbar (BK-B01).
+WORKSPACE_MONITORING_RETENTION_DAYS = 30
+
+#: Ruhezeit nach einer Kapazitaets-Benachrichtigung aus dem Admin-Portal. Danach schweigt sie,
+#: auch wenn die Schwelle erneut gerissen wird — der Grund, warum sie die Activator-Regel
+#: ergaenzt und nicht ersetzt.
+CAPACITY_NOTIFICATION_MUTE_HOURS = 3
+
+METRICS_APP_SETUP_PATH = "monitoring/capacity_metrics_app_setup.md"
+
 
 def _activity_log_export_py() -> str:
     """Der taegliche D-1-Export des Aktivitaetsprotokolls nach Bronze — als lauffaehiges Skript.
@@ -303,6 +323,96 @@ if __name__ == "__main__":
 '''
 
 
+def _metrics_app_setup_md(capacity: str, alerts: dict) -> str:
+    """``monitoring/capacity_metrics_app_setup.md`` — die Installation der Capacity Metrics App
+    als Ablaufschritt statt als Zeile in einer Tabelle (BK-B02).
+
+    Der Kanon belegte BK-B02 bis 16.08.2026 mit ``capacity_throttling_alert.json``. Das ist eine
+    **Warnregel**, keine Installation — und die beiden haengen nicht einmal zusammen: die App
+    kann laut MS gar keine Alarme („The Microsoft Fabric Capacity Metrics app doesn't support
+    alerts or notifications"), weshalb die Regel ueber Real-Time-Hub-Ereignisse laeuft und nicht
+    ueber die App. Ein Beleg, der auf das falsche Artefakt zeigt, ist die leiseste Art, eine
+    Luecke zu verstecken.
+
+    Alles hier am 16.08.2026 gegen learn.microsoft.com geprueft (``fabric/enterprise/metrics-app``,
+    ``fabric/enterprise/metrics-app-install``, ``fabric/admin/service-admin-premium-capacity-
+    notifications``).
+    """
+    return "\n".join([
+        f"# Capacity Metrics App — install on day 0 (generated, `{capacity}`)", "",
+        f"Not because it shows anything on day 0. Because its compute window is "
+        f"**{METRICS_APP_COMPUTE_DAYS} days** wide and cannot be filled backwards. Installed at "
+        "handover, it has nothing to say about the build phase — and the surge-protection "
+        "thresholds (`BK-F06`) then get guessed instead of read.", "",
+        "| Property | Value |", "|---|---|",
+        f"| Compute page window | {METRICS_APP_COMPUTE_DAYS} days |",
+        f"| Storage page window | {METRICS_APP_STORAGE_DAYS} days |",
+        "| Who may install | a **capacity admin** — nobody else can |",
+        "| Licence to use it | Power BI Pro, PPU, or an individual trial |",
+        "| Refresh | automatic at midnight; a new capacity is invisible until the next one |",
+        "| Alerting | **none** — the app has no alerts or notifications |", "",
+
+        "## Install", "",
+        "1. AppSource → *Microsoft Fabric Capacity Metrics* → **Get it now** → **Install**.",
+        "2. **Install it into a workspace on a Pro licence, not onto the capacity it watches.** MS "
+        "says this to avoid throttling from capacity overutilization, and the consequence is the "
+        "point: a monitoring app that lives on the capacity it monitors goes dark exactly when the "
+        "capacity is in trouble.",
+        "3. First run → **Connect** → fill three parameters and nothing else:",
+        "   - `UTC_offset` — your organisation's standard time as a number (`1` for CET, `5.5` for "
+        "IST). Everything the app shows is stamped with this.",
+        "   - `RegionName` — `Default` for a capacity admin. A tenant admin without an admin "
+        "capacity in the home region enters that region's name instead.",
+        "   - `DefaultCapacityID` — the GUID from the capacity's admin-portal URL, after "
+        "`/capacities/`.",
+        "   The app carries further parameters. They are not user-configurable, and changing them "
+        "can break the semantic model or the report.",
+        "4. Authentication **OAuth2** (the only supported method), privacy level **Organizational**.",
+        "5. Assign the **capacity admins** now, at install time. Everyone else gets access by "
+        "sharing the report afterwards — installing is not a shared act, viewing is.", "",
+        "If the app shows no data after installing, the documented fix is blunt: delete it, "
+        "reinstall the current version, update the semantic model credentials. Do not go looking "
+        "for a setting.", "",
+
+        "## The alert the app cannot give you", "",
+        "The app has no alerting. Two things fill that gap, and they are not alternatives:", "",
+        f"- **Capacity notifications** (Admin portal → Capacity settings → *{capacity}* → "
+        "Notifications). Five clicks, no infrastructure, e-mail on a percentage threshold and on "
+        "*capacity exceeded*. Recipients: "
+        f"{', '.join('`' + r + '`' for r in _recipients(alerts, 'capacity'))}.",
+        "- **The Activator rule** in `capacity_throttling_alert.json`, over Capacity Overview "
+        "Events. Slower to set up, and it distinguishes background rejection from interactive "
+        "delay — which is the difference between *a pipeline is failing* and *reports are slow*.", "",
+        "Four properties of the built-in notification that decide whether you believe it:", "",
+        "| Property | Consequence |", "|---|---|",
+        "| Capacity is checked every 15 min, over the last 15–30 min of activity | a short spike "
+        "can pass unseen |",
+        f"| After one mail, **{CAPACITY_NOTIFICATION_MUTE_HOURS} hours** of silence, even if the "
+        "threshold is crossed again | the second, worse breach of an evening never arrives |",
+        "| No timestamp in the mail, and no statement of by how much | the mail says *that*, never "
+        "*when* or *how bad* |",
+        "| Usage is computed over a 30-second window | the triggering event may not be findable in "
+        "the app at all |", "",
+        "> Pausing a capacity can set this off falsely: the accumulated smoothing is billed at "
+        "pause time and can cross the threshold. A nightly pause plan (`platform/"
+        "capacity_schedule.md`) therefore produces the same false mail every evening unless the "
+        "threshold accounts for it.", "",
+
+        "## Two limits worth knowing before someone else finds them", "",
+        "- **Private links and this app: the two MS pages disagree.** The app's own page says it "
+        "supports *tenant-level* private links and rules out only a **workspace-level** private "
+        "link on the workspace it is installed in. The private-links overview says flatly that "
+        "the app „doesn't support Private Link\" (both read 2026-08-16). Planned against the "
+        "narrower reading in `connectivity/_CONNECTIVITY.md`; either way the workspace this app "
+        "lives in is the wrong place for a workspace-level private link.",
+        "- **User names are visible by default.** The tenant setting *Show user data in the "
+        "Microsoft Fabric Capacity Metrics app and reports* controls whether operations are shown "
+        "with the user who ran them. Left on, the app reports per-person compute usage — in "
+        "Germany that is a works-council question, and it is better asked before installation "
+        "than after.", "",
+    ]) + "\n"
+
+
 def _activity_log_lines() -> list[str]:
     """Der Abschnitt zum Protokoll-Export in `_MONITORING.md`. Englisch wie der Rest der Datei."""
     return [
@@ -348,7 +458,8 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "Workspace monitoring → ItemJobEventLogs KQL → Activator rule | deployable KQL + portal rule |",
         "| Scheduled pipeline failure | `pipeline_failure_notifications.md` | built-in Failure notifications | GA, per-item |",
         "| Capacity throttling | `capacity_throttling_alert.json` | Capacity Overview Events → Activator | portal rule spec |",
-        "| Compute/storage dashboards | Fabric **Capacity Metrics App** (install) | built-in | GA |",
+        "| Compute/storage dashboards | `capacity_metrics_app_setup.md` → Fabric **Capacity Metrics "
+        "App** | built-in, portal install | GA |",
         "| Audit history beyond the retention window | `activity_log_export.py` | Get Activity Events "
         "(admin REST) → Bronze, daily D-1 | runnable script |", "",
         "## Setup order", "",
@@ -360,7 +471,19 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         f"That is **{len(_domains(bp))} portal step(s)** for this blueprint, one per workspace that "
         "carries scheduled load, and each one is a manual step: Workspace settings → Monitoring → "
         "+Eventhouse. No REST path for it is documented (checked 2026-08-16), so this cannot be "
-        "scripted with the rest of the provisioning.",
+        "scripted with the rest of the provisioning. Two conditions decide whether the step is "
+        "even offered: the workspace must already sit on a capacity, and you must hold the "
+        "workspace **admin** role — contributor is not enough.",
+        "1a. **Where Power BI Log Analytics is already configured, this step fails — and the fix "
+        "costs hours, not minutes.** A workspace can carry workspace monitoring or Log Analytics, "
+        "never both. Delete the Log Analytics configuration, then wait *a few hours* before "
+        "enabling monitoring. On a brownfield tenant this is the one item in the whole setup order "
+        "that cannot be done on the day it is discovered, so check it before the day is planned.",
+        "1b. **Capacity notifications** (Admin portal → Capacity settings → Notifications): a "
+        "percentage threshold and *capacity exceeded*, to the capacity admins. Five clicks, no "
+        "infrastructure, and independent of everything below — it is the only signal in this list "
+        "that survives a workspace being misconfigured. Its blind spots are in "
+        "`capacity_metrics_app_setup.md`.",
         "2. Create a **KQL Queryset** from `workspace_job_failures.kql`.",
         "3. Create an **Activator** rule on that queryset → email/Teams to the on-call recipients.",
         "4. Create the **capacity** Activator rule from `capacity_throttling_alert.json`.",
@@ -369,7 +492,10 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "6. Evidence the step in **Monitoring hub → Schedule failures** (preview): it lists every item "
         "with notifications and its recipients. There is no API field for it — the v1 `ItemSchedule` "
         "schema carries none (fetched 2026-08-14).",
-        "7. Install the **Capacity Metrics App** for CU/storage dashboards.",
+        "7. Install the **Capacity Metrics App** — `capacity_metrics_app_setup.md`. It belongs "
+        f"here on day 0 rather than at handover because its compute window is "
+        f"**{METRICS_APP_COMPUTE_DAYS} days** and cannot be filled backwards, for the same reason "
+        "steps 0 and 1 do. Only a capacity admin can install it.",
         "8. Schedule `activity_log_export.py` daily (see below). It belongs to day 0 for the same "
         "reason as steps 0 and 1: it is not retroactive beyond its window, and the window is "
         f"{ACTIVITY_LOG_DAYS} days wide.", "",
@@ -380,7 +506,30 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "Three properties worth planning around (MS Learn, *Workspace monitoring overview* → "
         "Considerations and limitations, read 2026-08-16): the monitoring items are billed against "
         "the capacity they consume; ingestion cannot be filtered by log type, so a workspace is "
-        "either fully monitored or not at all; retention is fixed at 30 days.", "",
+        f"either fully monitored or not at all; retention is fixed at "
+        f"{WORKSPACE_MONITORING_RETENTION_DAYS} days.", "",
+        "### What survives a bad day, and what doesn't", "",
+        "The layer above is not one thing under pressure, and the split is documented rather than "
+        "guessed (same source):", "",
+        "| Under a throttled capacity | Behaviour |", "|---|---|",
+        "| Queries against the monitoring Eventhouse, and its ingestion | keep working — the "
+        "capacity state does not reach them |",
+        "| Power BI reports and **Activator alerts** built on the monitoring database | throttled "
+        "like everything else |", "",
+        "Read the second row twice. The job-failure alert from step 3 sits on the monitoring "
+        "database, so a throttled capacity silences the alert at the moment it has the most to "
+        "report. The capacity-side signals — the built-in notification from step 1b and the "
+        "Capacity Overview Events rule from step 4 — do not come from that database, which is why "
+        "this delivery emits both layers instead of the cheaper one.", "",
+        "Two repair moves that are not obvious from the UI. A table missing from the monitoring "
+        "Eventhouse usually means the Eventhouse predates that table: turn **Log workspace "
+        "activity** off in the workspace settings and on again, and it is recreated. And the "
+        "monitoring Eventhouse is **read-only** — deleting it goes through the workspace settings, "
+        "and recreating it needs about 15 minutes of patience, not a second attempt.", "",
+        "> **Private links and workspace monitoring do not mix at all** (documented, not a "
+        "configuration problem). Where the network stance in `connectivity/_CONNECTIVITY.md` ends "
+        "up on private links, this monitoring layer is not available, and the decision has to be "
+        "taken with that on the table rather than after.", "",
         "> Activator must poll more frequently than the KQL time window, else failures are missed. Use",
         "> stateful operators + preview-before-activate to avoid alert spam (grounded).",
         *_activity_log_lines(),
@@ -394,6 +543,7 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
     if stack == "fabric":
         out["monitoring/workspace_job_failures.kql"] = _workspace_failures_kql()
         out["monitoring/capacity_throttling_alert.json"] = _capacity_throttling_rule(capacity, alerts)
+        out[METRICS_APP_SETUP_PATH] = _metrics_app_setup_md(capacity, alerts)
         # Der Export haengt am Power-BI-/Fabric-Aktivitaetsprotokoll. Auf einem fremden Stack gibt
         # es dieses Protokoll nicht — ein Skript dafuer waere dort eine Anweisung ins Leere.
         out[ACTIVITY_EXPORT_PATH] = _activity_log_export_py()
