@@ -174,7 +174,15 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "| Capacity throttling | `capacity_throttling_alert.json` | Capacity Overview Events → Activator | portal rule spec |",
         "| Compute/storage dashboards | Fabric **Capacity Metrics App** (install) | built-in | GA |", "",
         "## Setup order", "",
-        "1. Enable **Workspace monitoring** on each workspace (job logs → monitoring Eventhouse).",
+        "0. **Tenant setting first, and only a Fabric administrator can set it.** Admin portal → "
+        "Tenant settings → *Workspace admins can turn on monitoring for their workspaces*. Until "
+        "that switch is on, step 1 is not offered in any workspace, and a workspace admin cannot "
+        "turn it on for themselves. One switch for the whole tenant, once.",
+        "1. Enable **Workspace monitoring** on each workspace (job logs → monitoring Eventhouse). "
+        f"That is **{len(_domains(bp))} portal step(s)** for this blueprint, one per workspace that "
+        "carries scheduled load, and each one is a manual step: Workspace settings → Monitoring → "
+        "+Eventhouse. No REST path for it is documented (checked 2026-08-16), so this cannot be "
+        "scripted with the rest of the provisioning.",
         "2. Create a **KQL Queryset** from `workspace_job_failures.kql`.",
         "3. Create an **Activator** rule on that queryset → email/Teams to the on-call recipients.",
         "4. Create the **capacity** Activator rule from `capacity_throttling_alert.json`.",
@@ -184,6 +192,14 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "with notifications and its recipients. There is no API field for it — the v1 `ItemSchedule` "
         "schema carries none (fetched 2026-08-14).",
         "7. Install the **Capacity Metrics App** for CU/storage dashboards.", "",
+        "Steps 0 and 1 belong **before the first scheduled run**. Monitoring is not retroactive: the "
+        "history starts when the switch is flipped, and runs that happened earlier leave no trace in "
+        "the Eventhouse. A platform that gets monitoring on handover day has no run history for its "
+        "whole build phase.", "",
+        "Three properties worth planning around (MS Learn, *Workspace monitoring overview* → "
+        "Considerations and limitations, read 2026-08-16): the monitoring items are billed against "
+        "the capacity they consume; ingestion cannot be filtered by log type, so a workspace is "
+        "either fully monitored or not at all; retention is fixed at 30 days.", "",
         "> Activator must poll more frequently than the KQL time window, else failures are missed. Use",
         "> stateful operators + preview-before-activate to avoid alert spam (grounded).",
     ]

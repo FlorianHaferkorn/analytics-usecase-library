@@ -409,6 +409,35 @@ def _sql_literal(value: str) -> str:
     return "'" + str(value).replace("'", "''") + "'"
 
 
+#: Der ausdrueckliche Sammelposten fuer Zeilen, die keiner Stufe zugeordnet werden konnten.
+#: **Nie NULL.** Gemessener Anlass 14.08.2026 (HOCHTIEF, erster DQ-Lauf): 562 Faktenzeilen
+#: fanden kein Projekt, also blieben ihre Vorfahrenspalten leer. Ein Praedikat der Form
+#: ``[org_niederlassung] = 'Muenchen'`` trifft NULL nicht — die Zeilen waren fuer **jede**
+#: Rolle unsichtbar, und fehlende Zeilen sehen aus wie eine fehlende Berechtigung. Der
+#: Sammelposten macht daraus einen Wert, den eine Rolle sehen kann.
+UNBEKANNTES_MITGLIED = "Nicht zugeordnet"
+
+
+def schnittspalten(domain: dict) -> tuple[str, ...]:
+    """Die Spalten, an denen dieser Domaenen-Schnitt haengt — beide Eingabeformen, eine Antwort.
+
+    Die Wertform nennt **eine** Spalte und zaehlt ihre Werte auf; die Stufenform traegt die
+    Spalte an der Stufe und liefert damit eine Spalte je Stufe. Beide muenden hier in dieselbe
+    Liste, damit niemand sie ein viertes Mal ableitet: bis 16.08.2026 stand
+    ``{e["name"]: e["column"] for e in rs["levels"]}`` an drei Stellen dieser Datei, und der
+    DQ-Emitter kannte sie gar nicht.
+
+    Nur Stufen, auf die tatsaechlich berechtigt wird. Eine deklarierte Stufe ohne Berechtigung
+    schneidet nichts und braucht deshalb auch kein Tor.
+    """
+    rs = domain.get("row_security") or {}
+    if rs.get("levels"):
+        je_stufe = {e.get("name"): e.get("column") for e in rs["levels"]}
+        benutzt = [g.get("level") for g in (rs.get("grants") or [])]
+        return tuple(je_stufe[s] for s in dict.fromkeys(benutzt) if je_stufe.get(s))
+    return (rs.get("column"),) if rs.get("column") else ()
+
+
 def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) -> tuple[list, list]:
     """Je Wert des Schnitts **eine** OneLake-Rolle — die einzige Bauform, die OneLake hergibt.
 
@@ -647,9 +676,7 @@ def _row_security_doc(bp: dict) -> list[str]:
             # Eine Spalte je Stufe, eine Rolle je Berechtigung. Nur die Stufen zeigen, auf die
             # tatsaechlich berechtigt wird — eine Stufe ohne Berechtigung kostet keine Rolle.
             spalte_je_stufe = {e.get("name"): e.get("column") for e in rs["levels"]}
-            benutzt = [g.get("level") for g in (rs.get("grants") or [])]
-            spalten = ", ".join(f"`{spalte_je_stufe[s]}`" for s in dict.fromkeys(benutzt)
-                                if spalte_je_stufe.get(s))
+            spalten = ", ".join(f"`{s}`" for s in schnittspalten({"row_security": rs}))
             form, anzahl = "Stufen", len([g for g in (rs.get("grants") or [])
                                           if spalte_je_stufe.get(g.get("level"))])
         else:
@@ -668,6 +695,19 @@ def _row_security_doc(bp: dict) -> list[str]:
         f"Grenzen, gegen die dieser Rumpf geprueft ist: {ONELAKE_MAX_ROLES_PER_ITEM} Rollen je Item, "
         f"{ONELAKE_MAX_MEMBERS_PER_ROLE} Mitglieder je Rolle, {ONELAKE_MAX_PREDICATE_CHARS} Zeichen "
         "je Praedikat.", "",
+        "## Die Teile summieren sich nicht zum Ganzen", "",
+        f"Zeilen ohne zuordenbare Stufe tragen den Sammelposten `{UNBEKANNTES_MITGLIED}` (nie NULL,",
+        "Begruendung im DQ-Tor). Er ist auf der obersten Stufe sichtbar und auf den feineren nicht.",
+        "Daraus folgt eine Eigenschaft, die jeder Leser eines Berichts frueher oder spaeter bemerkt:",
+        "**die Summe der Zweige ist kleiner als die Gesamtsumme.** Wer eine oberste Stufe sieht,",
+        "bekommt den Sammelposten mit; wer einen Zweig sieht, nicht.", "",
+        "Das ist gewollt und muss trotzdem im Bericht stehen, sonst liest es sich als Zahlenfehler.",
+        "Zwei belastbare Wege: den Sammelposten als eigene Zeile ausweisen, oder die Zahl der",
+        "nicht zugeordneten Zeilen neben der Gesamtsumme nennen. Die dritte Variante — den",
+        "Sammelposten auf allen Stufen sichtbar machen — hebt den Schnitt fuer diese Zeilen auf und",
+        "kommt nur infrage, wenn sie unkritisch sind.", "",
+        "Die Alternative waere, unzugeordnete Zeilen zu verwerfen. Dann stimmen zwar alle Summen",
+        "untereinander, aber keine mit der Quelle, und der Fehler faellt niemandem mehr auf.", "",
     ]
     return lines
 
