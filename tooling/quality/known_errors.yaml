@@ -284,3 +284,78 @@ errors:
     manual_fix: "Replace hard tab characters with spaces in the markdown file."
     regression_test: null
     docs: "KNOWN_ERRORS_AND_FIXES.md#markdownlint-md010"
+
+  # ── PBIR-Theme gegen den offiziellen Validator (03.08.2026) ────────────────
+  # Die dist-Reports melden je 25 Errors des offiziellen `powerbi-report-author
+  # validate` (Repo-Pin 0.1.1) — repo-weit identisch, alle im mitgelieferten Theme.
+  # Frisch emittierte Reports sind sauber; der Unterschied ist das Theme, nicht der
+  # Emitter.
+  #
+  # WICHTIG, gemessen statt vermutet: das ist KEINE reine Defektliste. Die CLI ist
+  # Public Preview, und ihr Katalog hat Luecken — `padding.left` wird fuer
+  # `advancedSlicerVisual` als unbekannt gemeldet, obwohl derselbe Katalog `padding`
+  # mit genau diesen vier Eigenschaften fuehrt. Pauschales Loeschen haette gueltige
+  # Formatierung entfernt.
+  #
+  # Die Trennung braucht Power BI Desktop (L10). Bis dahin sind beide Klassen hier
+  # benannt, damit der Desktop-Termin billig ist statt eine Neuerhebung.
+
+  - id: pbir_theme_prop_unknown_catalog_gap
+    signature: "PBIR_THEME_VISUAL_PROP_UNKNOWN.*(padding\\.(top|bottom|left|right)|markers\\.marker(Shape|Size)|lineStyles\\.(strokeLineCap|areaTransparency)|(column|row)Headers\\.backColor)"
+    check: report.pbir_official
+    scope: report
+    severity: info
+    category: schema
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: >-
+      VERMUTLICH Katalog-Luecke der Preview-CLI 0.1.1, kein Theme-Defekt: es sind
+      etablierte Power-BI-Eigenschaften, und `padding.left` steht im selben Katalog
+      als shared VCO. In Desktop pruefen, ob die Formatierung greift; greift sie,
+      Eintrag behalten und den CLI-Pin beim naechsten Bump neu bewerten.
+    regression_test: null
+    docs: "KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"
+
+  - id: pbir_theme_prop_likely_defect
+    signature: "PBIR_(THEME_VISUAL_PROP|FORMATTING_OBJECT|FORMATTING_PROP)_UNKNOWN.*(padding\\.show|outspace\"|\\.header|calloutValue|text\\.text|smallMultiplesLayout|legend\\.alignment)"
+    check: report.pbir_official
+    scope: report
+    severity: warning
+    category: schema
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: >-
+      VERMUTLICH echter Theme-Defekt. Belege je Fall - `padding.show`. der Katalog
+      fuehrt fuer `padding` auf `*` genau vier Eigenschaften (top/bottom/left/right)
+      und beanstandet dort NUR `show`; `outspace`. heisst im Theme-Format
+      `outspacePane`; `header` auf shape/actionButton/pageNavigator/bookmarkNavigator.
+      Buttons und Formen haben keine Kopfzeile; `calloutValue`. gehoert zum
+      klassischen `card`, nicht zum neuen `cardVisual`. In Desktop bestaetigen, dann
+      entfernen bzw. umbenennen - die Doku sagt ausdruecklich, dass nicht gesetzte
+      Elemente auf die Standardwerte zurueckfallen, ein Entfernen ist also
+      rueckwirkungsfrei, sobald der Befund bestaetigt ist.
+    regression_test: "tooling/tests/test_dist_validator_ratchet.py"
+    docs: "KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"
+
+  - id: pbir_waterfall_role_max_exceeded
+    signature: "PBIR_ROLE_MAX_EXCEEDED.*waterfallChart"
+    check: report.pbir_official
+    scope: report
+    severity: critical
+    category: structural
+    deterministic_fix: false
+    fix_id: null
+    manual_fix: >-
+      11 der 17 dist-Reports binden 2-5 Measures an Rolle Y eines waterfallChart;
+      der offizielle Katalog erlaubt genau 1. ACHTUNG - die naheliegende Kappung auf
+      die erste Measure ist FALSCH. Gemessen - OPS-001 fuehrt dort OEE %,
+      Availability %, Performance %, Quality % (OEE IST das Produkt der drei),
+      COM-001LY die Bruecke Plan/Preis/Menge/Mix/Ist. Kappen ergaebe eine gueltige
+      Datei ohne die Zerlegung. Der Formfehler liegt hoeher - eine Varianzbruecke
+      gehoert als EINE Measure plus eine Category, die die Schritte aufzaehlt.
+      Umstellung ist eine Modellierungsentscheidung am Bracket. Der Emitter
+      (visual_builder.build_waterfall) kappt seit 03.08.2026 und meldet es laut,
+      damit kuenftige Laeufe gueltig sind; die ausgelieferten Artefakte bleiben bis
+      zur Entscheidung unangetastet.
+    regression_test: "tooling/tests/test_dist_validator_ratchet.py"
+    docs: "KONZEPT_LAYOUT_SYSTEM.md#21-die-25-validator-fehler-sind-zwei-klassen"

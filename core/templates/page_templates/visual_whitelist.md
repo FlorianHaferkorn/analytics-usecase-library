@@ -1,4 +1,28 @@
-# Visual Whitelist (Abstract Layer)
+# Visual Whitelist (Abstract Layer) — **abgelöst (02.08.2026)**
+
+> **Diese Datei ist NICHT mehr normativ.**
+> Autorität für das Visualtyp-Vokabular ist
+> [`visual_registry.yaml`](visual_registry.yaml).
+> Entscheidung und Begründung: [ADR-0018](../../../docs/architecture/adr/0018-visual-vocabulary-single-authority.md).
+>
+> **Warum:** die Datei nannte sich „verbindlich für alle Templates und Übersetzer",
+> wurde aber von keinem Checker gelesen. Eine Zusicherung, die nichts prüft, hält nicht.
+>
+> **Wozu sie bleibt:** die `Mapping Evidence`-Spalte unten ist die **Herkunft** der
+> `evidence:*`-Einträge, die heute als `targets.evidence` in der Registry stehen. Wer
+> eine solche Zuordnung belegen muss, findet hier ihren Ursprung — und in
+> `translator_evidence.md` ihren gepflegten Stand.
+>
+> **Achtung, offene Folgearbeit:** die 20 Brackets deklarieren bis heute Typen aus der
+> Liste unten (`kpi_card`, `trend_line`, `bar_chart`, `waterfall`, `line_chart`,
+> `bar_chart_horizontal`). Sie sind damit **nicht falsch**, sondern folgen der
+> abgelösten Autorität. Die Normalisierung auf die Registry ist Task **L2** in
+> `KONZEPT_LAYOUT_SYSTEM.md`.
+
+---
+
+<details>
+<summary>Historischer Stand (nicht mehr gültig)</summary>
 
 Nur folgende Visualtypen sind in tool-agnostischen Page Templates erlaubt. Diese Liste wird zentral gepflegt und ist verbindlich für alle Templates und Übersetzer.
 
@@ -18,3 +42,5 @@ Nur folgende Visualtypen sind in tool-agnostischen Page Templates erlaubt. Diese
 - Visuals außerhalb dieser Liste sind in Templates und Übersetzern nicht zulässig.
 - Die Mappings werden in den Übersetzer-Dateien gepflegt.
 - Erweiterungen der Whitelist nur mit fachlicher Begründung und Review.
+
+</details>

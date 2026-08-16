@@ -11,15 +11,14 @@ action_code_ref: []
 calc_type: count
 business:
   purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
-  definition: Distinct customers with no qualifying transactions in the current period but active in the
-    look-back window.
+  definition: Distinct customers with no qualifying transactions in the current period but active in the look-back
+    window.
   grain_scope: Customer/segment; monthly or quarterly.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate deteriorating retention; validate against cohort definitions.
 technical:
   measure_name: Churned Customers
-  description: Count customers that have stopped purchasing in the observation window as basis for churn
-    calculations.
+  description: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
   depends_on_measures: []
   lineage:
   - fact_customer_events.CustomerKey
@@ -46,5 +45,5 @@ standard_ref:
 - standard: Marketing analytics — CRM (convention)
   name: Churned customer count
   alignment: none
-  note: Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition
-    must be pinned. No governing standard.
+  note: Churn count (active in look-back, inactive now) is a CRM-analytics convention; churn-window definition must
+    be pinned. No governing standard.

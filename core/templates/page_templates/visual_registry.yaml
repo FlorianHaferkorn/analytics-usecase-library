@@ -53,15 +53,22 @@ information_blocks:
     allowed_visuals:
       - visual_id: kpi_card_with_delta
         pbip_type: cardVisual
+        targets: {powerbi: cardVisual, evidence: "evidence:stat"}
         is_default: true
         condition: null
         source: "S7 — Few (2004): KPI card maximizes data-ink for status display"
       - visual_id: bullet_graph
-        pbip_type: custom
-        custom_visual_name: "Enlighten Bullet Chart"
+        pbip_type: tableEx
+        render_mode: svg_measure
         is_default: false
         condition: "space_constrained = true AND kpi_count >= 4"
         source: "S8 — Few (2005): bullet graph specification; space-efficient alternative to gauge"
+        # Kein Fremd-Visual (Doktrin): der Bullet Graph entsteht als DAX-erzeugtes
+        # SVG in einer tableEx-Zelle (Spalte als Image URL kategorisiert), nicht
+        # ueber "Enlighten Bullet Chart". Der SVG-Weg selbst ist NOCH NICHT im
+        # Service/Desktop gemessen -> Task L10 (Interaktivitaet, Export,
+        # Barrierefreiheit, Performance).
+        verify: "L10 — SVG-Measure-Weg in Desktop + Service pruefen"
 
     forbidden_visuals:
       - visual_id: gauge
@@ -85,7 +92,7 @@ information_blocks:
         severity: error
       - rule_id: favorable_positive_convention
         description: "Favorable delta = positive convention (value exceeds reference); never reversed"
-        source: "S9 — IBCS scenario notation"
+        source: "S9 — IBCS UNIFY (semantische Notation: Szenario-Konvention)"
         severity: error
       - rule_id: min_font_size
         description: "Value field minimum 16pt at 1280x720, 24pt at 1920x1080"
@@ -126,11 +133,13 @@ information_blocks:
     allowed_visuals:
       - visual_id: line_chart
         pbip_type: lineChart
+        targets: {powerbi: lineChart, evidence: "evidence:line"}
         is_default: true
         condition: null
         source: "S2 — Cleveland & McGill: position on common scale is highest accuracy encoding"
       - visual_id: column_chart
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:column"}
         is_default: false
         condition: "periodicity_emphasis = true"
         source: "S2 — length encoding; acceptable when comparing discrete periods"
@@ -160,7 +169,7 @@ information_blocks:
     quality_rules:
       - rule_id: time_axis_labeled
         description: "Time axis must show explicit period markers (year, quarter, or month labels)"
-        source: "S9 — IBCS; S11 — Tufte"
+        source: "S9 — IBCS UNIFY (einheitliche Achsen-Notation); S11 — Tufte"
         severity: error
       - rule_id: reference_line_labeled
         description: "If reference line is shown, it must be labeled with scenario abbreviation (PL, PY, FC)"
@@ -216,16 +225,19 @@ information_blocks:
     allowed_visuals:
       - visual_id: waterfall_chart
         pbip_type: waterfallChart
+        targets: {powerbi: waterfallChart, evidence: "evidence:waterfall"}
         is_default: true
         condition: null
         source: "S9 — IBCS: waterfall is canonical variance bridge; S2 — length encoding"
       - visual_id: variance_bar
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         is_default: false
         condition: "waterfall_not_feasible = true"
         source: "S2 — length encoding; acceptable deviation chart with baseline"
       - visual_id: contribution_table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: false
         condition: "layer = 300s"
         source: "Detail layer only; provides driver list with absolute and relative contribution"
@@ -239,6 +251,7 @@ information_blocks:
         reason: "Cannot reconcile start/end values as categorical driver bridge"
       - visual_id: line_chart
         pbip_type: lineChart
+        targets: {powerbi: lineChart, evidence: "evidence:line"}
         reason: "Temporal encoding; does not represent categorical driver contributions"
 
     quality_rules:
@@ -249,12 +262,12 @@ information_blocks:
         applies_when: "visual = waterfall_chart"
       - rule_id: waterfall_end_labeled
         description: "End bar must show actual value and be labeled"
-        source: "S9 — IBCS"
+        source: "S9 — IBCS UNIFY (Beschriftung wie waterfall_start_labeled, U4)"
         severity: error
         applies_when: "visual = waterfall_chart"
       - rule_id: waterfall_reconciliation
         description: "Sum of driver bars must equal actual - reference; generator must validate"
-        source: "S9 — IBCS; logical consistency"
+        source: "S9 — IBCS CHECK (visuelle Integritaet: Start + Deltas = Ende); logical consistency"
         severity: error
         applies_when: "visual = waterfall_chart"
       - rule_id: waterfall_max_bars
@@ -269,7 +282,7 @@ information_blocks:
         applies_when: "visual = waterfall_chart"
       - rule_id: favorable_unfavorable_colors
         description: "Favorable contributions use accent color; unfavorable use warning color — not raw red/green"
-        source: "S14 — WCAG colorblind safety; S9 — IBCS"
+        source: "S14 — WCAG colorblind safety; S9 — IBCS UNIFY (semantische Farbnotation)"
         severity: error
 
   # ─────────────────────────────────────────────────────────────────────────
@@ -300,6 +313,7 @@ information_blocks:
     allowed_visuals:
       - visual_id: horizontal_bar_chart
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         orientation: horizontal
         is_default: true
         condition: null
@@ -311,6 +325,7 @@ information_blocks:
         source: "S2 — position encoding; shows positive/negative deviation from baseline"
       - visual_id: column_chart
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:column"}
         orientation: vertical
         is_default: false
         condition: "page_type = T3 AND entity_count <= 8"
@@ -380,14 +395,19 @@ information_blocks:
     allowed_visuals:
       - visual_id: exception_table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: true
         condition: null
         source: "S1 — Shneiderman: filter tier; entity-level resolution required; S7 — Few: F-pattern anchored by entity column"
       - visual_id: alert_list_card
-        pbip_type: custom
+        pbip_type: tableEx
+        render_mode: svg_measure
         is_default: false
         condition: "severity_grouping_primary = true"
         source: "Acceptable when severity grouping is the primary structural need"
+        # Kein Fremd-Visual (Doktrin): Severity-Gruppierung wird ueber ein
+        # SVG-Measure je Zeile ausgedrueckt, nicht ueber ein Marketplace-Visual.
+        verify: "L10 — SVG-Measure-Weg in Desktop + Service pruefen"
 
     forbidden_visuals:
       - visual_id: waterfall
@@ -473,6 +493,93 @@ information_blocks:
         severity: warning
 
   # ─────────────────────────────────────────────────────────────────────────
+  # Block 6b: distribution_spread
+  # Purpose: Show how values are SPREAD across a population — not the average,
+  #          and not the share of a whole.
+  #
+  # Warum dieser Block existiert (gemessen 02.08.2026, nicht angenommen):
+  # Der externe Abgleich gegen das FT Visual Vocabulary zeigte "Distribution" als
+  # eigene Absicht, die uns fehlte. Der Nachweis im EIGENEN Korpus (20 Brackets) ist
+  # unabhaengig davon dreifach:
+  #   * FIN-001  — "Overdue AR aging buckets (0-30d, 31-60d, 61-90d, >90d) required
+  #                 for DSO diagnostic depth"
+  #   * XD-001   — "Distribution of open-case age (share of cases open > SLA target,
+  #                 > 2x target)"
+  #   * SCM-003  — "Averaging MAPE across SKUs hides bias and small-denominator
+  #                 distortion" — genau das Argument fuer Streuung statt Mittelwert
+  #
+  # Abgrenzung, weil die Nachbarbloecke nahe liegen:
+  #   * structural_mix  fragt "woraus besteht das Ganze" (Anteil, Summe = 100%)
+  #   * entity_ranking  fragt "welche Einheit ist die schlechteste" (Rang)
+  #   * distribution_spread fragt "wie breit streut es, und gibt es einen Schwanz"
+  # Die Darstellung kann in allen drei Faellen ein Balken sein — die ABSICHT ist es
+  # nicht, und nur die Absicht steuert, ob jemand den Schwanz ueberhaupt zeigt.
+  # ─────────────────────────────────────────────────────────────────────────
+  - block_id: distribution_spread
+    purpose: "Show how values are spread across a population — reveal the tail, not the average"
+    primary_layer: "30s"
+    slot_compatibility: ["Main_2", "Main_3", "Mix"]
+    page_types: ["T2", "T3"]
+
+    required_inputs:
+      - field: bucket_dimension
+        type: categorical_ordered
+        mandatory: true
+        description: "Geordnete Baender (Alter, Betrag, Dauer). Reihenfolge ist Bedeutung, nicht Sortierung."
+      - field: count_or_value_per_bucket
+        type: numeric_series
+        mandatory: true
+      - field: threshold_marker
+        type: numeric
+        mandatory: false
+        description: "Grenze, ab der ein Bucket als Ausnahme gilt (z. B. SLA-Ziel, >90d)"
+
+    allowed_visuals:
+      - visual_id: banded_column_chart
+        pbip_type: columnChart
+        is_default: true
+        condition: null
+        targets:
+          powerbi: columnChart
+          vegalite: bar
+          evidence: "evidence:column"
+        source: "S2 — Laengenkodierung auf gemeinsamer Skala; Baender behalten ihre Ordnung auf der x-Achse"
+      - visual_id: banded_bar_chart
+        pbip_type: barChart
+        is_default: false
+        condition: "bucket_labels_are_long = true"
+        targets:
+          powerbi: barChart
+          vegalite: bar
+          evidence: "evidence:bar"
+        source: "S2 — gleiche Kodierung, horizontale Achse nur wegen Beschriftungslaenge"
+
+    forbidden_visuals:
+      - visual_id: pie
+        pbip_type: pieChart
+        reason: "Winkelkodierung Rang 5 (S2 — Cleveland & McGill); zerstoert ausserdem die Ordnung der Baender"
+      - visual_id: sorted_by_value
+        pbip_type: columnChart
+        reason: "Nach Wert sortierte Baender sind keine Verteilung mehr — die Ordnung der Baender IST die Aussage"
+      - visual_id: single_average_card
+        pbip_type: cardVisual
+        reason: "Ein Mittelwert ist die Antwort, die dieser Block gerade vermeiden soll (Beleg: SCM-003, averaging hides bias)"
+
+    quality_rules:
+      - rule_id: bucket_order_preserved
+        description: "Baender erscheinen in ihrer fachlichen Reihenfolge, nie nach Wert sortiert"
+        source: "S11 — Tufte: die Ordnung der Achse traegt Bedeutung und darf nicht umsortiert werden"
+        severity: error
+      - rule_id: threshold_visible
+        description: "Ist ein threshold_marker definiert, muss er als Referenzlinie oder Farbwechsel sichtbar sein"
+        source: "S9 — IBCS EXPRESS: Vergleichsgroessen gehoeren in dieselbe Darstellung wie der Wert"
+        severity: warning
+      - rule_id: max_buckets
+        description: "Maximal 7 Baender, danach zusammenfassen"
+        source: "S5 — Miller: 7±2 Arbeitsgedaechtnis"
+        severity: warning
+
+  # ─────────────────────────────────────────────────────────────────────────
   # Block 7: prescriptive_action
   # Purpose: Present a concrete recommended action with owner, trigger, steps, impact
   # ─────────────────────────────────────────────────────────────────────────
@@ -514,11 +621,13 @@ information_blocks:
     allowed_visuals:
       - visual_id: action_panel_card
         pbip_type: textbox
+        targets: {powerbi: textbox, evidence: "evidence:text"}
         is_default: true
         condition: null
         source: "S3 — Munzner: domain task is decide-and-act; text structure serves decision, not exploration"
       - visual_id: recommendation_table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: false
         condition: "variant = T4_OptionComparison"
         source: "S2 — position encoding; table allows structured comparison of multiple options"
@@ -588,11 +697,13 @@ information_blocks:
     allowed_visuals:
       - visual_id: table
         pbip_type: tableEx
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: true
         condition: null
         source: "S1 — Shneiderman: details-on-demand tier; table maximizes information density per pixel"
       - visual_id: matrix
         pbip_type: pivotTable
+        targets: {powerbi: pivotTable, evidence: "evidence:table"}
         is_default: false
         condition: "cross_tab_adds_decision_value = true"
         source: "S1 — cross-tab structure serves drill-down; acceptable when dimensions require cross-reference"
@@ -648,6 +759,7 @@ information_blocks:
         source: "S1 — zoom tier; acceptable when causal hierarchy is explicit"
       - visual_id: horizontal_bar_categorical
         pbip_type: clusteredBarChart
+        targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         orientation: horizontal
         is_default: false
         condition: "root_cause_is_categorical = true"

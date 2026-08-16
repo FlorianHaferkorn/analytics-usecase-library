@@ -30,12 +30,24 @@ class GridCalculator:
 
     def __init__(
         self,
-        canvas_width: int = 1920,
-        canvas_height: int = 1080,
-        outer_margin: int = 32,
-        gutter: int = 16,
+        canvas_width: int | None = None,
+        canvas_height: int | None = None,
+        outer_margin: int | None = None,
+        gutter: int | None = None,
         internal_padding: int = 8,
     ):
+        # Defaults aus dem governten Raster statt als Literale (Konsolidierung
+        # 02.08.2026). Diese Klasse fuehrte vorher eine VOLLSTAENDIGE zweite Kopie von
+        # layout_grid.yaml — Spalten, Zeilen, Raender, Gutter, Leinwand. Zwei Kopien
+        # derselben Zahlen driften nicht vielleicht, sondern sicher; die Frage ist nur,
+        # wann es jemand merkt.
+        from tooling.superversion.layer_tools.layout_grid import load
+
+        _g = load("production")
+        canvas_width = _g.width if canvas_width is None else canvas_width
+        canvas_height = _g.height if canvas_height is None else canvas_height
+        outer_margin = int(_g.outer) if outer_margin is None else outer_margin
+        gutter = int(_g.gutter) if gutter is None else gutter
         """
         Args:
             canvas_width: Page width in pixels.
@@ -117,8 +129,8 @@ def calculate_visual_rect(
     row_start: int,
     col_span: int,
     row_span: int,
-    canvas_width: int = 1920,
-    canvas_height: int = 1080,
+    canvas_width: int | None = None,
+    canvas_height: int | None = None,
     outer_margin: int = 32,
     gutter: int = 16,
 ) -> Tuple[float, float, float, float]:

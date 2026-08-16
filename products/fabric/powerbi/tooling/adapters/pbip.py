@@ -6,7 +6,7 @@ knowledge (PBIP schema URLs, visualType strings, canvas dimensions, TMDL
 format). The generator_core framework only knows the abstract GeneratorAdapter
 interface — this is the concrete PBI implementation.
 
-Canvas size: 1920 × 1080 (standard HD widescreen, matches all bracket definitions)
+Canvas size: aus dem governten Raster (layout_grid.yaml, Profil `production`)
 """
 
 from __future__ import annotations
@@ -42,9 +42,35 @@ from products.fabric.powerbi.tooling.schema_registry import (
     DEFINITION_PBIR_VERSION as _DEFINITION_PBIR_VERSION,
 )
 
-# Power BI canvas dimensions in pixels — must match bracket report_canvas (1920 × 1080)
-_CANVAS_W = 1920
-_CANVAS_H = 1080
+# Power BI canvas dimensions — gelesen aus dem governten Raster, nicht hartkodiert.
+# Der frueher hier stehende Kommentar „must match bracket report_canvas" war eine
+# Bitte an den Leser; jetzt ist es eine Ableitung (Konsolidierung 02.08.2026).
+def _canvas() -> tuple[int, int]:
+    """Leinwand aus dem governten Raster — per PFAD, nicht per Paket-Import.
+
+    Ein Import ueber Paketgrenzen (`tooling.superversion...`) hat am 02.08.2026
+    `report_quality` fuer jeden Aufrufer gebrochen, der mit `tooling/` im Pfad
+    importiert; H7 fiel dadurch auf 0.0 %. `products/` hat dieselbe Eigenschaft und
+    soll sie behalten.
+
+    Das ist KEINE zweite Meinung: es ist dieselbe Datei. Es gibt eine Quelle und zwei
+    Zugriffswege, weil ein Paket standalone importierbar bleiben muss —
+    `test_konsolidierung.py` haelt fest, dass hier keine Zahlen-Literale stehen.
+    """
+    from pathlib import Path as _P
+
+    import yaml
+
+    yml = (_P(__file__).resolve().parents[5]
+           / "core/templates/page_templates/tokens/layout_grid.yaml")
+    prod = ((yaml.safe_load(yml.read_text(encoding="utf-8")) or {})
+            .get("canvas", {}).get("production", {}))
+    if not prod.get("width") or not prod.get("height"):
+        raise ValueError(f"{yml}: Canvas-Profil 'production' unvollstaendig")
+    return int(prod["width"]), int(prod["height"])
+
+
+_CANVAS_W, _CANVAS_H = _canvas()
 
 # IR VisualType → Power BI PBIP visualType strings
 _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {

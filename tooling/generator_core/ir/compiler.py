@@ -14,8 +14,12 @@ Usage
 Design notes
 ------------
 * The compiler is read-only — it never writes files.
-* All IR position values are in canvas-fraction units (0.0–1.0).
-  The PBIP adapter scales them to the 1280×720 Power BI canvas.
+* Geometrie wird in **Logical Units** verfasst (`_OVERVIEW_LU` / `_DETAIL_LU`) und
+  ausschliesslich in `lu_to_pixels()` aufgeloest — Gutter und Aussenrand inbegriffen.
+  Das IR fuehrt weiterhin Leinwandbrueche, aber ABGELEITET statt handgeschrieben.
+  Zielleinwand ist `canvas.production` aus `layout_grid.yaml` (1920x1080) — dieselbe,
+  die `products/fabric/powerbi/tooling/adapters/pbip.py` verwendet. Der frueher hier
+  behauptete Wert 1280x720 war der Widerspruch, den Task L13 aufgeloest hat.
 * measure_spec entries come from the KPI catalog dax_expression field.
   If a KPI is not in the catalog the compiler records a warning and skips it.
 * Action panel text is rendered here so downstream adapters get a ready-to-use
@@ -47,36 +51,68 @@ from .specs import (
 
 
 # ---------------------------------------------------------------------------
-# Canvas layout constants (fraction-based grid)
+# Ein Koordinatensystem: Logical Units, aufgeloest erst im Konnektor (Task L13)
 # ---------------------------------------------------------------------------
+#
+# Vorher standen hier Brueche der Leinwand. Das war auf zwei Arten kaputt, beides
+# am 02.08.2026 gemessen statt vermutet:
+#
+#  1. Die Brueche waren gegen **1920x1080** geschrieben (0.0167 * 1920 = 32.1 px =
+#     `outer_margin`), waehrend `layout_grid.yaml` seine Logical Units gegen
+#     **1280x720** rechnet. Auf der design_base lag der erste Slot bei Spalte -0.10,
+#     also ausserhalb des Rasters. Der Docstring dieser Datei behauptete 1280x720,
+#     `products/.../adapters/pbip.py` sagte 1920x1080 — beide Seiten hatten recht
+#     ueber sich und unrecht ueber die andere.
+#  2. Selbst auf 1920 ging es nicht auf: `Main_1` ergab **3.93** statt 4 Spalten.
+#     Ursache war kein Rundungsfehler, sondern eine Inkonsistenz im Modell — die
+#     Brueche skalieren mit der Leinwand, `gutter` und `outer_margin` sind absolute
+#     Pixel und skalieren nicht mit. Eine Groesse, die zur Haelfte mitskaliert, ist
+#     ausserhalb ihrer Autorenleinwand auf keiner Leinwand korrekt.
+#
+# Jetzt: Position UND Spanne in Logical Units, Gutter und Aussenrand inbegriffen.
+# Pixel entstehen ausschliesslich in `_lu_position()` aus der Leinwand des Profils.
+# Die Formel spiegelt `core/templates/page_templates/preview/src/grid/slot-pos.ts`
+# — dort loest CSS `calc()` denselben Vertrag bereits korrekt auf; ein Test haelt
+# beide Seiten deckungsgleich, statt sich auf Nachlesen zu verlassen.
+#
+# HORIZONTAL ganzzahlig, VERTIKAL bewusst fraktional — und das ist kein Kompromiss
+# aus Bequemlichkeit:
+#   * Waagerecht ist das Raster echt. Overview = drei Spalten zu 4 LU (0/4/8),
+#     Detail = 2 + 8 + 2 = 12. Genau hier sass der 3.93-Fehler; hier wird gerundet.
+#   * Senkrecht ist es das nicht. Ein Zwang auf 12 Zeilen liesse `Benchmark_Caption`
+#     und `Slicer_Date` auf dieselbe Zeile 2 fallen (Kollision) und verschoebe Slots
+#     um bis zu 40 px. Vor allem aber hat der Datums-Slicer eine **dokumentierte
+#     Mindesthoehe** von 76 px (Header 28 + Selektor 32 + Padding); darunter meldet
+#     die offizielle CLI `PBIR_SLICER_HEIGHT_BELOW_FLOOR` und das Control schneidet
+#     im Service ab. Ein Raster, das eine Plattform-Zusicherung bricht, gewinnt nicht.
+#     `slot-pos.ts` erlaubt fraktionale Zeilen ausdruecklich ("may be fractional").
+#
+# Format je Slot: (col, row, colSpan, rowSpan) in Logical Units.
+#
+# GELESEN, nicht hartkodiert (02.08.2026). Bis dahin standen diese Zahlen hier als
+# Python-Tabelle — die dritte von drei Geometrie-Quellen und die einzige, die der
+# lebende Pfad benutzte (§13).
+#
+# Aufgeloest wurde die Dublette durch **Promotion**, nicht durch Gleichsetzung: das
+# Layout hier ist NICHT `pulse`/`action_matrix`. Gemessen unterscheidet es sich in drei
+# Punkten, und keiner davon ist eine Rundung — ein breiter Datums-Slicer (12 LU) statt
+# dreier schmaler (4+4+4 mit Region/Product), volle Seitenschienen (12 LU) statt
+# geteilter (6+6 mit Slicer_Entity), und ein `ActionPanel` ueber die ganze Hoehe statt
+# buendig zur Matrix. Dazu `Benchmark_Caption`, das in keinem anderen Raster vorkommt.
+#
+# Es einfach auf `pulse` zu ziehen haette den Datums-Slicer auf ein Drittel geschrumpft
+# und zwei Drittel der Zeile leer gelassen — eine Regression, die wie Konsolidierung
+# aussieht. Stattdessen sind die beiden Layouts jetzt governte Raster-Templates
+# (`pulse_wide`, `action_rail`) und werden von dort gelesen. Gleiche Zahlen, eine
+# Autoritaet; ein Test haelt die Positionen byte-identisch fest.
+def _lu_aus_template(template_id: str) -> Dict[str, Tuple[float, float, float, float]]:
+    from tooling.superversion.layer_tools.page_templates import grid_template
 
-# Overview page layout (fraction of 1280×720 canvas)
-# Layout uses fractional coordinates (0–1) relative to a 1920 × 1080 canvas.
-# 32px margin = 32/1920 ≈ 0.0167 horizontal, 32/1080 ≈ 0.0296 vertical.
-# KPI band: y=0.0296–0.174 (≈156 px tall), Main row: y=0.218 onward.
-_OVERVIEW_LAYOUT: Dict[str, Dict[str, float]] = {
-    # KPI card band: full width minus 32 px margins each side; height ≈130 px
-    "KPI_Cards":   {"x": 0.0167, "y": 0.0296, "w": 0.9666, "h": 0.120},
-    # Benchmark reference caption: thin strip under the KPI band, right-aligned
-    # (only emitted when a hero card opts into the benchmark axis). Height ≈32 px.
-    "Benchmark_Caption": {"x": 0.0167, "y": 0.152, "w": 0.9666, "h": 0.030},
-    # Date slicer below KPI band; same horizontal span. Height ≈80 px — a dropdown
-    # slicer needs ≥76 px (header 28 + selector 32 + padding), else the official CLI
-    # flags PBIR_SLICER_HEIGHT_BELOW_FLOOR and the control clips on the service.
-    "Slicer_Date": {"x": 0.0167, "y": 0.189,  "w": 0.9666, "h": 0.074},
-    # Three equal-width main chart columns, below slicer; height ≈750 px
-    "Main_1":      {"x": 0.0167, "y": 0.268,  "w": 0.3111, "h": 0.694},
-    "Main_2":      {"x": 0.3444, "y": 0.268,  "w": 0.3111, "h": 0.694},
-    "Main_3":      {"x": 0.6722, "y": 0.268,  "w": 0.3111, "h": 0.694},
-}
+    return {slot: tuple(lu) for slot, lu in grid_template(template_id).slots.items()}
 
-# Detail page layout: slicer pane (left), narrative + matrix (centre), action panel (right)
-_DETAIL_LAYOUT: Dict[str, Dict[str, float]] = {
-    "Slicer_Pane":     {"x": 0.0167, "y": 0.0296, "w": 0.1333, "h": 0.9407},
-    "Smart_Narrative": {"x": 0.1667, "y": 0.0296, "w": 0.6389, "h": 0.0926},
-    "Detail_Matrix":   {"x": 0.1667, "y": 0.137,  "w": 0.6389, "h": 0.833},
-    "ActionPanel":     {"x": 0.8222, "y": 0.0296, "w": 0.1611, "h": 0.9407},
-}
+
+_OVERVIEW_LU: Dict[str, Tuple[float, float, float, float]] = _lu_aus_template("pulse_wide")
+_DETAIL_LU: Dict[str, Tuple[float, float, float, float]] = _lu_aus_template("action_rail")
 
 # Map bracket visual_type → VisualType enum
 _VISUAL_TYPE_MAP: Dict[str, VisualType] = {
@@ -90,7 +126,49 @@ _VISUAL_TYPE_MAP: Dict[str, VisualType] = {
     "slicer":         VisualType.SLICER,
     "smart_narrative": VisualType.SMART_NARRATIVE,
     "action_panel":   VisualType.ACTION_PANEL,
+    # Alt-Token, die hier FEHLTEN und deshalb bis zum 02.08.2026 still auf den
+    # TREND_LINE-Fallback liefen. `bar_chart_horizontal` ist der teure Fall: vier
+    # Bracket-Deklarationen (OPS/SCM/COM, Main_2 + Main_3) sagen „horizontaler Balken"
+    # und wurden als Trendlinie kompiliert. `line_chart` traf es ebenso, blieb aber
+    # folgenlos, weil das Ziel zufaellig dasselbe Visual ist. Genau diese Asymmetrie
+    # ist der Grund, warum ein stiller Default schlimmer ist als ein Abbruch: er ist
+    # manchmal harmlos, und deshalb faellt er nie auf.
+    "bar_chart_horizontal": VisualType.HORIZONTAL_BAR,
+    "bar_chart_column":     VisualType.COLUMN_CHART,
+    "line_chart":     VisualType.LINE_CHART,
+    # Registry-Vokabular (ADR-0018) — dieselben Visuals unter ihrem SoT-Namen. Bis die
+    # Brackets normalisiert sind (L2-Rest), muessen BEIDE Schreibweisen ankommen.
+    "kpi_card_with_delta":  VisualType.KPI_CARD,
+    "horizontal_bar_chart": VisualType.HORIZONTAL_BAR,
+    "column_chart":         VisualType.COLUMN_CHART,
+    "waterfall_chart":      VisualType.WATERFALL,
+    "scatter_plot":         VisualType.SCATTER,
 }
+
+
+class UnknownVisualTypeError(ValueError):
+    """Ein `visual_type`, den weder Bracket- noch Registry-Vokabular kennt."""
+
+
+def _resolve_visual_type(vt_str: str, slot_id: str) -> VisualType:
+    """Bracket-Token → `VisualType`. Unbekanntes bricht ab, statt still zu raten.
+
+    Vorher stand hier `_VISUAL_TYPE_MAP.get(vt_str, VisualType.TREND_LINE)`. Der
+    Default war kein Sicherheitsnetz, sondern ein Verdeckungsmechanismus: ein Tippfehler
+    oder ein per Schema erlaubter, aber ungemappter Typ (`funnel_chart`, `status_tile`)
+    wurde klammheimlich zur Trendlinie. Der Generator lief durch, der Report war falsch,
+    und nichts wurde rot — die Fehlerklasse, die dieses Repo wiederholt getroffen hat.
+
+    Ein unbekannter Typ ist ein Autorenfehler und gehoert laut gemeldet.
+    """
+    if vt_str in _VISUAL_TYPE_MAP:
+        return _VISUAL_TYPE_MAP[vt_str]
+    raise UnknownVisualTypeError(
+        f"unbekannter visual_type '{vt_str}' in Slot {slot_id}. "
+        f"Autoritaet ist core/templates/page_templates/visual_registry.yaml (ADR-0018); "
+        f"Alt-Token werden in tooling/superversion/layer_tools/visual_library.py "
+        f"(LEGACY_TO_REGISTRY) uebersetzt. Bekannt: {sorted(_VISUAL_TYPE_MAP)}"
+    )
 
 # Map bracket page_type / template_variant → PageType enum.
 # Both short forms ("T2") and full forms ("T2_Tactical_Variance", "T2_DriverBridge") are
@@ -238,9 +316,32 @@ def _resolve_evidence_columns(
     return dim_cols, measures
 
 
-def _position(layout: Dict[str, Dict[str, float]], slot: str) -> Position:
-    g = layout.get(slot, {"x": 0.0, "y": 0.0, "w": 0.1, "h": 0.1})
-    return Position(x=g["x"], y=g["y"], width=g["w"], height=g["h"])
+# Raster und Aufloesung leben ausschliesslich in `layer_tools/layout_grid.py`.
+# Hier standen kurzzeitig zwei Weiterleitungen (`_grid_params`, `lu_to_pixels`) — bequem
+# fuer die Umstellung, aber genau das, was konsolidiert werden sollte: zwei Namen fuer
+# eine Sache. Sie sind entfernt; Aufrufer importieren den Leser direkt.
+
+
+def _position(layout: Dict[str, Tuple[float, float, float, float]], slot: str) -> Position:
+    """LU-Slot → `Position` des IR.
+
+    Das IR fuehrt weiterhin Leinwandbrueche — daran haengen Adapter, die hier nicht
+    umgebaut werden. Der Unterschied zu vorher ist aber grundlegend: die Brueche
+    werden jetzt AUS den Logical Units gegen die Produktionsleinwand **abgeleitet**
+    statt von Hand geschrieben. Damit gibt es nur noch eine Autorenquelle, und die
+    Gutter gehen in die Rechnung ein.
+    """
+    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
+
+    lu = layout.get(slot, (0.0, 0.0, 1.0, 1.0))
+    g = load("production")
+    px = to_pixels(*lu, params=g)
+    return Position(
+        x=px["x"] / g.width,
+        y=px["y"] / g.height,
+        width=px["width"] / g.width,
+        height=px["height"] / g.height,
+    )
 
 
 def _card_kpi_ids(bracket: Dict[str, Any]) -> List[str]:
@@ -617,7 +718,7 @@ class BracketCompiler:
             id="KPI_Cards",
             visual_type=VisualType.KPI_CARD,
             page_role=PageRole.OVERVIEW,
-            position=_position(_OVERVIEW_LAYOUT, "KPI_Cards"),
+            position=_position(_OVERVIEW_LU, "KPI_Cards"),
             binding=Binding(measures=kpi_measures),
             title=None,
             config=card_config,
@@ -630,7 +731,7 @@ class BracketCompiler:
                 id="Benchmark_Caption",
                 visual_type=VisualType.TEXT_BOX,
                 page_role=PageRole.OVERVIEW,
-                position=_position(_OVERVIEW_LAYOUT, "Benchmark_Caption"),
+                position=_position(_OVERVIEW_LU, "Benchmark_Caption"),
                 binding=Binding(),
                 config={"text": bench_ref["label"], "align": "right"},
                 kpi_id=bench_ref["kpi_id"],
@@ -641,7 +742,7 @@ class BracketCompiler:
             id="Slicer_Date",
             visual_type=VisualType.SLICER,
             page_role=PageRole.OVERVIEW,
-            position=_position(_OVERVIEW_LAYOUT, "Slicer_Date"),
+            position=_position(_OVERVIEW_LU, "Slicer_Date"),
             binding=Binding(filter_table="dim_date", filter_column="Date"),
         ))
 
@@ -651,7 +752,7 @@ class BracketCompiler:
             for i, comp in enumerate(comp_30s[:3], 1):
                 slot_id = f"Main_{i}"
                 vt_str = comp.get("visual_type", "trend_line") if isinstance(comp, dict) else "trend_line"
-                vt = _VISUAL_TYPE_MAP.get(vt_str, VisualType.TREND_LINE)
+                vt = _resolve_visual_type(vt_str, slot_id)
                 measure_refs = [
                     _resolve_measure_ref(k, kpi_map) for k in _component_measure_refs(comp)
                 ]
@@ -669,7 +770,7 @@ class BracketCompiler:
                     id=slot_id,
                     visual_type=vt,
                     page_role=PageRole.OVERVIEW,
-                    position=_position(_OVERVIEW_LAYOUT, slot_id),
+                    position=_position(_OVERVIEW_LU, slot_id),
                     binding=binding,
                 ))
         elif isinstance(comp_30s, dict):
@@ -680,7 +781,7 @@ class BracketCompiler:
                 id="Main_1",
                 visual_type=vt,
                 page_role=PageRole.OVERVIEW,
-                position=_position(_OVERVIEW_LAYOUT, "Main_1"),
+                position=_position(_OVERVIEW_LU, "Main_1"),
                 binding=Binding(category="dim_date.Date"),
             ))
 
@@ -711,7 +812,7 @@ class BracketCompiler:
             id="Slicer_Pane",
             visual_type=VisualType.SLICER,
             page_role=PageRole.DETAIL,
-            position=_position(_DETAIL_LAYOUT, "Slicer_Pane"),
+            position=_position(_DETAIL_LU, "Slicer_Pane"),
             binding=Binding(filter_table="dim_org", filter_column="OrgName"),
         ))
 
@@ -720,7 +821,7 @@ class BracketCompiler:
             id="Smart_Narrative",
             visual_type=VisualType.SMART_NARRATIVE,
             page_role=PageRole.DETAIL,
-            position=_position(_DETAIL_LAYOUT, "Smart_Narrative"),
+            position=_position(_DETAIL_LU, "Smart_Narrative"),
             binding=Binding(),
         ))
 
@@ -770,7 +871,7 @@ class BracketCompiler:
                 id="Detail_Matrix",
                 visual_type=VisualType.MATRIX,
                 page_role=PageRole.DETAIL,
-                position=_position(_DETAIL_LAYOUT, "Detail_Matrix"),
+                position=_position(_DETAIL_LU, "Detail_Matrix"),
                 binding=Binding(
                     columns=cols,
                     measures=_detail_measures,
@@ -817,7 +918,7 @@ class BracketCompiler:
                 id="ActionPanel",
                 visual_type=VisualType.ACTION_PANEL,
                 page_role=PageRole.DETAIL,
-                position=_position(_DETAIL_LAYOUT, "ActionPanel"),
+                position=_position(_DETAIL_LU, "ActionPanel"),
                 binding=Binding(),
                 config={"text": rendered},
                 action_code_id=ac_ids[0] if ac_ids else None,

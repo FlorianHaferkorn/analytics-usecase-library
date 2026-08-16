@@ -20,6 +20,14 @@ table fact_output
 		dataType: Decimal
 		sourceColumn: Output Units
 		summarizeBy: none
+	column 'Good Units'
+		dataType: Decimal
+		sourceColumn: Good Units
+		summarizeBy: none
+	column 'Defect Count'
+		dataType: Decimal
+		sourceColumn: Defect Count
+		summarizeBy: none
 	partition fact_output = m
 		mode: import
 		source =

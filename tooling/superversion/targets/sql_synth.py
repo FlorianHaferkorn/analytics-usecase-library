@@ -31,8 +31,11 @@ SQL expression over the view's single `source` table, no subquery):
     count_filtered   -- COUNT ( CASE WHEN <filters> THEN 1 END )   (filters: bool/string equality, or IS NOT NULL)
     avg_filtered     -- AVG ( CASE WHEN <filters> THEN column END )   (same filter shapes as count_filtered)
 
-Five ops are explicit `SynthesisError` (HITL) here, never guessed: DAX's
+Six ops are explicit `SynthesisError` (HITL) here, never guessed: DAX's
 SUMX/AVERAGEX-over-VALUES(key) pattern (`sumx_over_key`, `avgx_over_key`), the
+semi-additive last-nonblank reducer (`last_nonblank_over_key` — needs a
+per-key ORDER BY plus a last-value window, then a further reducer over the
+remaining grain; the same composition problem as the iterators below), the
 fixed-shape PVM row-context iterators (`pvm_volume_effect`, `pvm_price_effect`),
 and the generic row-context product-then-sum iterator (`sumx_product`) all
 require a per-key/per-row GROUP BY subquery (or a windowed aggregate whose
@@ -70,7 +73,8 @@ import re
 _SIMPLE_IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 # Ops dax_synth covers but sql_synth deliberately cannot (see module docstring).
-_NO_FLAT_SQL_SHAPE = {"sumx_over_key", "avgx_over_key", "pvm_volume_effect", "pvm_price_effect", "sumx_product"}
+_NO_FLAT_SQL_SHAPE = {"sumx_over_key", "avgx_over_key", "last_nonblank_over_key",
+                      "pvm_volume_effect", "pvm_price_effect", "sumx_product"}
 
 
 class SynthesisError(ValueError):

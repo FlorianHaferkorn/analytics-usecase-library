@@ -15,7 +15,7 @@ business:
   purpose: Gross margin rate during promo periods.
   definition: Incremental Gross Margin Amount / Incremental Sales Amount
   grain_scope: Promo period/product
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Profitability of promotions.
 technical:
   measure_name: GM % During Promo
@@ -50,5 +50,5 @@ standard_ref:
   name: Promo gross-margin ratio
   url: https://www.esma.europa.eu/document/esma-guidelines-alternative-performance-measures-apms
   alignment: none
-  note: Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named
-    measure. Treated as an internal analytic ratio.
+  note: Internal commercial / trade-promotion metric (incremental GM during promo); not an IFRS or ESMA-named measure.
+    Treated as an internal analytic ratio.

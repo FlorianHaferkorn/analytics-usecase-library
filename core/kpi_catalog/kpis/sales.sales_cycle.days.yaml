@@ -14,7 +14,7 @@ business:
   purpose: Measures average calendar days from opportunity creation to close.
   definition: Mean(Close Date - Create Date) over opportunities closed in the period.
   grain_scope: Rep/segment; monthly.
-  unit_format: '''days (0 decimal)'''
+  unit_format: days_0
   interpretation: Lower is better; a lengthening cycle slows cash conversion and coverage.
 technical:
   measure_name: Sales Cycle Length

@@ -13,7 +13,7 @@ business:
   purpose: Measures unplanned absence as a share of scheduled working time.
   definition: Absence Days / Scheduled Working Days.
   grain_scope: Org/segment; monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; rising absence is an early strain and engagement signal.
 technical:
   measure_name: Absence Rate %

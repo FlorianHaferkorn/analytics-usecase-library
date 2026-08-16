@@ -22,7 +22,7 @@ business:
   purpose: Measures sold units volume in the period.
   definition: Sum of sold units across transactions.
   grain_scope: Transaction line; aggregated by period and segment.
-  unit_format: units
+  unit_format: units_0
   interpretation: Higher values indicate higher volume sold.
 technical:
   measure_name: Sales Units
@@ -49,5 +49,5 @@ standard_ref:
   name: Sales volume (units)
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: none
-  note: Sold units is a volume element underlying revenue; not an IFRS 15 figure itself (IFRS 15 measures
-    the consideration, not the count).
+  note: Sold units is a volume element underlying revenue; not an IFRS 15 figure itself (IFRS 15 measures the consideration,
+    not the count).

@@ -5,7 +5,10 @@
   "description": "Formal, machine-checkable constraint file implementing Storytelling_Principles.md as enforceable rules. See core/templates/page_templates/design_rules.yaml.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "rules"],
+  "required": [
+    "version",
+    "rules"
+  ],
   "properties": {
     "version": {
       "type": "integer",
@@ -14,14 +17,23 @@
     "rules": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/rule" }
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
     }
   },
   "$defs": {
     "rule": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "severity", "check", "description", "source", "parameters"],
+      "required": [
+        "id",
+        "severity",
+        "check",
+        "description",
+        "source",
+        "parameters"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -30,7 +42,11 @@
         },
         "severity": {
           "type": "string",
-          "enum": ["critical", "warning", "info"]
+          "enum": [
+            "critical",
+            "warning",
+            "info"
+          ]
         },
         "check": {
           "type": "string",
@@ -42,77 +58,159 @@
           ],
           "description": "One of a small, closed set of check types the R2.3 generator dispatches on -- deliberately not a generic expression language."
         },
-        "description": { "type": "string", "minLength": 1 },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
         "source": {
           "type": "string",
           "minLength": 1,
           "description": "Which governed doc or verified finding this rule implements. Every rule must cite one -- no invented thresholds."
         },
-        "parameters": { "type": "object" }
+        "parameters": {
+          "type": "object"
+        },
+        "implements": {
+          "type": "string",
+          "pattern": "^BC-[A-Z]+-[0-9]+$",
+          "description": "Verweis auf die Craft-Rubrik-Regel, deren Durchsetzung dieser Eintrag ist. Gesetzt, wo beide Speicher dieselbe Zusage fuehrten (gemessen 03.08.2026: ONE_MESSAGE_PER_CHART = BC-CHART-01, MAX_SEMANTIC_COLORS_PER_PAGE = BC-COLOR-04 — jeweils mit widersprechender Severity). Die Rubrik ist SoT fuer Aussage und Severity; dieser Eintrag traegt nur die Durchsetzung und wiederholt die Zusage nicht. Erzwungen von tooling/tests/test_rubric_integrity.py."
+        }
       },
       "allOf": [
         {
-          "if": { "properties": { "check": { "const": "single_unit_family_per_component" } }, "required": ["check"] },
+          "if": {
+            "properties": {
+              "check": {
+                "const": "single_unit_family_per_component"
+              }
+            },
+            "required": [
+              "check"
+            ]
+          },
           "then": {
             "properties": {
               "parameters": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["scope", "field"],
+                "required": [
+                  "scope",
+                  "field"
+                ],
                 "properties": {
-                  "scope": { "type": "string" },
-                  "field": { "type": "string" }
+                  "scope": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string"
+                  }
                 }
               }
             }
           }
         },
         {
-          "if": { "properties": { "check": { "const": "max_count" } }, "required": ["check"] },
+          "if": {
+            "properties": {
+              "check": {
+                "const": "max_count"
+              }
+            },
+            "required": [
+              "check"
+            ]
+          },
           "then": {
             "properties": {
               "parameters": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["scope", "max"],
+                "required": [
+                  "scope",
+                  "max"
+                ],
                 "properties": {
-                  "scope": { "type": "string" },
-                  "field": { "type": "string" },
-                  "target": { "type": "string" },
-                  "max": { "type": "integer", "minimum": 1 }
+                  "scope": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string"
+                  },
+                  "target": {
+                    "type": "string"
+                  },
+                  "max": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
                 }
               }
             }
           }
         },
         {
-          "if": { "properties": { "check": { "const": "output_matches_declared_sort" } }, "required": ["check"] },
+          "if": {
+            "properties": {
+              "check": {
+                "const": "output_matches_declared_sort"
+              }
+            },
+            "required": [
+              "check"
+            ]
+          },
           "then": {
             "properties": {
               "parameters": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["scope", "generated_path"],
+                "required": [
+                  "scope",
+                  "generated_path"
+                ],
                 "properties": {
-                  "scope": { "type": "string" },
-                  "generated_path": { "type": "string" }
+                  "scope": {
+                    "type": "string"
+                  },
+                  "generated_path": {
+                    "type": "string"
+                  }
                 }
               }
             }
           }
         },
         {
-          "if": { "properties": { "check": { "const": "header_text_equals_big_idea" } }, "required": ["check"] },
+          "if": {
+            "properties": {
+              "check": {
+                "const": "header_text_equals_big_idea"
+              }
+            },
+            "required": [
+              "check"
+            ]
+          },
           "then": {
             "properties": {
               "parameters": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["scope", "field", "generated_path"],
+                "required": [
+                  "scope",
+                  "field",
+                  "generated_path"
+                ],
                 "properties": {
-                  "scope": { "type": "string" },
-                  "field": { "type": "string" },
-                  "generated_path": { "type": "string" }
+                  "scope": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "type": "string"
+                  },
+                  "generated_path": {
+                    "type": "string"
+                  }
                 }
               }
             }

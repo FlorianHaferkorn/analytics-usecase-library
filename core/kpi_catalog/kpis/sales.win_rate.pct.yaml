@@ -14,7 +14,7 @@ business:
   purpose: Measures share of decided opportunities won.
   definition: Opportunities Won / (Opportunities Won + Opportunities Lost).
   grain_scope: Rep/segment/stage; monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; the primary conversion lever behind coverage and attainment.
 technical:
   measure_name: Win Rate %

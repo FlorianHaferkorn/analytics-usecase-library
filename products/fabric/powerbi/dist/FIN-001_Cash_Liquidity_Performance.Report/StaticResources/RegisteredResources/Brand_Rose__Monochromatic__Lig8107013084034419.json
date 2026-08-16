@@ -567,24 +567,26 @@
           {
             "customizeSpacing": true,
             "spaceBelowTitle": 8,
-            "spaceBelowSubTitle": 10
+            "spaceBelowSubtitle": 10
           }
         ],
         "dropShadow": [
           {
             "show": true,
+            "Options": "Custom",
             "preset": "Custom",
-            "position": "Outer",
+            "position": "Custom",
             "shadowSpread": 0.1,
-            "shadowDistance": 1,
+            "shadowDistance": 0.1,
             "transparency": 90,
             "color": {
               "solid": {
                 "color": "#000000"
               }
             },
+            "blur": 8,
             "angle": 60,
-            "shadowBlur": 8
+            "distance": 1
           }
         ],
         "fill": [
@@ -601,15 +603,17 @@
           {
             "show": true,
             "fontSize": 16,
-            "fontFamily": "Segoe UI"
+            "fontFace": "Segoe UI",
+            "backgroundShow": false
           }
         ],
         "subTitle": [
           {
             "show": true,
             "fontSize": 14,
+            "fontFace": "Segoe UI Light",
             "italic": true,
-            "fontFamily": "Segoe UI Light"
+            "backgroundShow": false
           }
         ],
         "legend": [
@@ -619,7 +623,7 @@
             "position": "Top",
             "alignment": "Left",
             "fontSize": 12,
-            "fontFamily": "Segoe UI Light"
+            "fontFace": "Segoe UI Light"
           }
         ],
         "labels": [
@@ -640,7 +644,7 @@
             "start": 0,
             "gridlineShow": false,
             "fontSize": 12,
-            "fontFamily": "Segoe UI"
+            "fontFace": "Segoe UI"
           }
         ],
         "categoryAxis": [
@@ -650,7 +654,7 @@
             "maxMarginFactor": 25,
             "preferredCategoryWidth": 25,
             "fontSize": 12,
-            "fontFamily": "Segoe UI"
+            "fontFace": "Segoe UI"
           }
         ],
         "visualTooltip": [
@@ -682,7 +686,7 @@
             "strokeLineJoin": "round",
             "lineChartType": "smooth",
             "showMarker": true,
-            "markerShape": "circle",
+            "markerShape": "Circle",
             "markerSize": 6,
             "areaShow": false,
             "areaTransparency": 90
@@ -1422,8 +1426,8 @@
                 "color": "#F6F6F6"
               }
             },
-            "radius": 30,
-            "width": 0.5
+            "weight": 0.5,
+            "radius": 30
           }
         ],
         "padding": [
@@ -1585,8 +1589,8 @@
                 "color": "#F6F6F6"
               }
             },
-            "radius": 30,
-            "width": 0.5
+            "weight": 0.5,
+            "radius": 30
           }
         ],
         "dropShadow": [

@@ -16,7 +16,7 @@ business:
   purpose: Captures financial impact of scrap, rework, and warranty/complaints.
   definition: Sum of cost impacts for quality failures in period.
   grain_scope: Site/month; aggregated to business unit.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_2
   interpretation: Lower is better; high COPQ indicates process and supplier issues.
 technical:
   measure_name: Cost of Poor Quality

@@ -20,7 +20,7 @@ business:
   purpose: Counts customer service tickets created in the period.
   definition: Count of newly created service tickets.
   grain_scope: Ticket; aggregated by period and channel.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate higher inbound demand.
 technical:
   measure_name: Tickets Created Count
@@ -47,5 +47,5 @@ standard_ref:
   name: Incident/request volume (element)
   url: https://www.iso.org/standard/70636.html
   alignment: none
-  note: Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2),
-    not a named ISO KPI — it is an input to arrival-rate/backlog measures.
+  note: Raw created-ticket count is an incident/service-request volume element (ISO/IEC 20000-1 8.6.1/8.6.2), not
+    a named ISO KPI — it is an input to arrival-rate/backlog measures.

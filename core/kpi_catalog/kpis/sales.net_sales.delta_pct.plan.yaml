@@ -17,7 +17,7 @@ business:
   purpose: Relative variance of Net Sales vs Plan.
   definition: (Net Sales Amount - Plan Sales Amount) / Plan Sales Amount
   grain_scope: Aggregated to reporting period.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Positive values indicate outperformance vs plan; negative values indicate shortfall.
 technical:
   measure_name: Net Sales % vs Plan
@@ -49,5 +49,5 @@ standard_ref:
   name: Net sales vs plan variance
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: none
-  note: Net-sales-vs-plan is an internal budget-variance metric; the actual base is IFRS 15 revenue, the
-    variance is convention.
+  note: Net-sales-vs-plan is an internal budget-variance metric; the actual base is IFRS 15 revenue, the variance
+    is convention.

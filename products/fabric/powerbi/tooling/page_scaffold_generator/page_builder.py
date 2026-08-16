@@ -67,7 +67,10 @@ class PageBuilder:
         canvas = grid_blueprint.get("canvas") or {}
         w = canvas.get("width") or canvas_width
         h = canvas.get("height") or canvas_height
-        calc = GridCalculator(canvas_width=w, canvas_height=h, outer_margin=32, gutter=16)
+        # outer_margin/gutter NICHT mehr durchreichen: der GridCalculator holt sie aus
+        # dem governten Raster. Sie hier erneut anzugeben haette die Konsolidierung
+        # ausgehebelt — der haeufigste Weg, auf dem eine Dublette zurueckkommt.
+        calc = GridCalculator(canvas_width=w, canvas_height=h)
         slots_list = grid_blueprint.get("slots") or []
         visuals: List[Dict[str, Any]] = []
         slicers: List[Dict[str, Any]] = []

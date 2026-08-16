@@ -14,7 +14,7 @@ business:
   purpose: Measures share of defective units in production.
   definition: Defective Units / Total Produced Units.
   grain_scope: Line/shift; aggregated by period.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower values indicate better quality.
 technical:
   measure_name: Quality Defect Rate %
@@ -46,5 +46,5 @@ standard_ref:
   name: Quality ratio (complement)
   url: https://www.iso.org/standard/54497.html
   alignment: partial
-  note: Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed
-    by the standard into scrap ratio (SR) and rework ratio (RR). Report against QR to align.
+  note: Defect rate = 1 − Quality ratio; it is the quality-loss complement of ISO 22400-2 QR, decomposed by the
+    standard into scrap ratio (SR) and rework ratio (RR). Report against QR to align.

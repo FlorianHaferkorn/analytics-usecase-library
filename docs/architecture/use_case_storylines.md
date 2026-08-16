@@ -14,11 +14,11 @@
     - answer: Net Sales is running ahead of Plan and prior year, but the lead has narrowed in recent months
     - so what → A narrowing lead means the on-track story could flip without a rebound in the latest months.
 - **[30s Q2]** What's driving the gap between Plan and Actual — price, volume, or mix?
-    - visual: `waterfall` · `None`
+    - visual: `waterfall_chart` · `None`
     - answer: Price and mix effects, not volume, explain the swing between Plan and Actual Net Sales
     - so what → The gap is a commercial mix problem, not a demand shortfall — fix pricing and channel mix, not volume push.
 - **[30s Q3]** Is the Plan gap broad-based or concentrated in a few regions?
-    - visual: `bar_chart_horizontal` · `sales.net_sales.delta_pct.plan`
+    - visual: `horizontal_bar_chart` · `sales.net_sales.delta_pct.plan`
     - answer: Net Sales gaps versus Plan are concentrated in a handful of regions, not spread evenly
     - so what → Targeted regional action closes more of the gap than a blanket sales push.
 
@@ -38,15 +38,15 @@
 **Spine question:** Is our gross margin holding against price and mix pressure?
 - **[3s verdict]** `margin.gm.pct` vs_plan (higher_is_better)
 - **[30s Q1]** Is gross margin holding against plan?
-    - visual: `trend_line` · `margin.gm.amount`
+    - visual: `line_chart` · `margin.gm.amount`
     - answer: Gross margin has been sliding below plan through the period
     - so what → The erosion compounds month over month — a trend, not a one-off dip.
 - **[30s Q2]** What's pulling gross margin below plan — price, mix, or volume?
-    - visual: `waterfall` · `PVM Bridge Value`
+    - visual: `waterfall_chart` · `PVM Bridge Value`
     - answer: Price concessions and adverse mix drive gross margin below plan, not volume
     - so what → The levers are commercial — price discipline and mix — not demand generation.
 - **[30s Q3]** Is the margin shortfall portfolio-wide or concentrated in a few units?
-    - visual: `bar_chart` · `margin.gm.pct`
+    - visual: `horizontal_bar_chart` · `margin.gm.pct`
     - answer: Gross margin sits below target in a few business units that drag the portfolio
     - so what → Focused intervention in those units beats a broad, thinly-spread program.
 
@@ -66,15 +66,15 @@
 **Spine question:** Are we growing and protecting Customer Lifetime Value?
 - **[3s verdict]** `crm.clv.amount` vs_py (higher_is_better)
 - **[30s Q1]** Is customer lifetime value growing or eroding, and where?
-    - visual: `trend_line` · `crm.lifetime_revenue.amount`
+    - visual: `line_chart` · `crm.lifetime_revenue.amount`
     - answer: Customer lifetime revenue is eroding, with the mid-tier segment driving the decline
     - so what → Retention investment in the mid-tier segment is what stops the erosion before it compounds into lost revenue.
 - **[30s Q2]** Is retention holding evenly across segments?
-    - visual: `bar_chart` · `crm.retention.pct`
+    - visual: `horizontal_bar_chart` · `crm.retention.pct`
     - answer: Retention is slipping unevenly across segments, concentrating the CLV risk
     - so what → Ranking retention by segment pinpoints where to spend before churn compounds into lost CLV.
 - **[30s Q3]** Where is revenue-at-risk concentrated?
-    - visual: `bar_chart_horizontal` · `crm.revenue_at_risk.amount`
+    - visual: `horizontal_bar_chart` · `crm.revenue_at_risk.amount`
     - answer: Revenue at risk is concentrated in a few customer segments
     - so what → Focusing retention budget on the highest-risk segments protects more CLV per dollar spent.
 
@@ -94,11 +94,11 @@
 **Spine question:** Are our promotions generating profitable incremental volume?
 - **[3s verdict]** `sales.promo.roi.pct` vs_plan (higher_is_better)
 - **[30s Q1]** Are promotions generating enough incremental lift to justify the spend?
-    - visual: `trend_line` · `sales.promo.incremental.amount`
+    - visual: `line_chart` · `sales.promo.incremental.amount`
     - answer: Incremental promo lift is running too low to justify the spend behind it
     - so what → If incremental lift stays this low, promo spend is subsidising sales that would have happened anyway.
 - **[30s Q2]** Why is promo ROI missing target?
-    - visual: `bar_chart` · `margin.promo.gm.pct`
+    - visual: `horizontal_bar_chart` · `margin.promo.gm.pct`
     - answer: Thin promo margins are being eroded by cannibalization, pulling ROI below target
     - so what → High cannibalization eating into thin promo margin is why ROI is missing target — mechanics need redesign, not more spend.
 
@@ -118,11 +118,11 @@
 **Spine question:** Is there enough qualified pipeline converting to hit the target?
 - **[3s verdict]** `sales.pipeline.coverage.ratio` vs_target (higher_is_better)
 - **[30s Q1]** Is the coverage gap a volume problem or a conversion problem?
-    - visual: `trend_line` · `sales.win_rate.pct`
+    - visual: `line_chart` · `sales.win_rate.pct`
     - answer: Win rate is dragging coverage below plan, not a shortage of open opportunities
     - so what → Because conversion is the lever, deal-qualification and win-rate coaching beat pure lead-volume pushes.
 - **[30s Q2]** Where in the funnel does conversion leak?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: The funnel leaks at the mid-stage — deals stall in qualification rather than failing late
     - so what → Targeting the stalling mid-stage gate lifts conversion faster than widening the top of funnel.
 
@@ -141,15 +141,15 @@
 **Spine question:** Is cash conversion and liquidity on a safe trajectory?
 - **[3s verdict]** `wc.ccc.days` vs_target (lower_is_better)
 - **[30s Q1]** Is the cash balance on a safe trajectory?
-    - visual: `trend_line` · `fin.cash.balance`
+    - visual: `line_chart` · `fin.cash.balance`
     - answer: Cash balance is drifting down toward its safety-margin threshold
     - so what → Without working-capital intervention, this trend erodes the safety margin before quarter-end.
 - **[30s Q2]** Is operating cash flow meeting plan, and what's driving the gap?
-    - visual: `waterfall` · `fin.cash.ocf`
+    - visual: `waterfall_chart` · `fin.cash.ocf`
     - answer: Operating cash flow is trailing plan, driven by collections rather than cost
     - so what → An OCF-versus-Plan gap points at collections and cash conversion, not cost control, as the fix.
 - **[30s Q3]** Which part of the cash conversion cycle is the lever — receivables, inventory, or payables?
-    - visual: `waterfall` · `None`
+    - visual: `waterfall_chart` · `None`
     - answer: Cash conversion cycle bridges DSO, DIO, and DPO into total days.
     - so what → The lever is receivables and inventory days, not delaying payables further — that protects supplier relationships.
 
@@ -170,11 +170,11 @@
 **Spine question:** Is input cost inflation being recovered in pricing and margin?
 - **[3s verdict]** `cost.unit.amount` vs_plan (lower_is_better)
 - **[30s Q1]** Is input cost being recovered, or is it eroding margin?
-    - visual: `trend_line` · `margin.cogs.pct`
+    - visual: `line_chart` · `margin.cogs.pct`
     - answer: COGS is rising as a share of sales, eroding margin quarter over quarter
     - so what → At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response.
 - **[30s Q2]** Which levers drive unit cost — opex, material, or productivity?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Opex variance, material cost, and labor productivity — the three levers behind unit cost.
     - so what → Productivity gains aren't offsetting material inflation, so cost pressure keeps building on the P&L.
 
@@ -195,11 +195,11 @@
 **Spine question:** Is EBITDA tracking plan, and if not, which lever is the cause?
 - **[3s verdict]** `margin.ebitda.pct` vs_plan (higher_is_better)
 - **[30s Q1]** Is the earnings gap a revenue, gross-margin or opex problem?
-    - visual: `trend_line` · `margin.ebitda.delta_pct.plan`
+    - visual: `line_chart` · `margin.ebitda.delta_pct.plan`
     - answer: The EBITDA-margin gap versus plan is opex-led, while revenue and gross margin hold
     - so what → Because opex is the driver, cost-base actions recover more earnings than chasing incremental revenue.
 - **[30s Q2]** Is the pressure structural in gross margin or in operating expense?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Gross margin holds on plan; operating expense above plan is where the earnings leak concentrates
     - so what → Ranking opex overruns by cost centre focuses the recovery where the money actually leaks.
 
@@ -219,11 +219,11 @@
 **Spine question:** Is the workforce stable enough to deliver, or is attrition building where it hurts?
 - **[3s verdict]** `people.attrition.pct` vs_target (lower_is_better)
 - **[30s Q1]** Is falling engagement the driver behind rising attrition?
-    - visual: `trend_line` · `people.engagement.index`
+    - visual: `line_chart` · `people.engagement.index`
     - answer: Attrition is concentrated in the lowest-engagement segments, not spread evenly across the workforce
     - so what → Because engagement is the lever, targeted engagement action in a few teams beats a company-wide retention program.
 - **[30s Q2]** Where is workforce strain compounding beyond exits?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Absence is climbing in the same teams losing people, compounding the strain where engagement is weakest
     - so what → Absence intervention in the hotspot teams relieves the load driving further exits.
 
@@ -250,7 +250,7 @@
     - answer: Availability is the component pulling OEE below target, not performance or quality
     - so what → Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks.
 - **[30s Q3]** How does the OEE gap break down across its three components?
-    - visual: `bar_chart_horizontal` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Availability, performance, and quality — the three OEE components.
     - so what → Prioritising availability fixes addresses the largest single component of the OEE shortfall.
 
@@ -271,11 +271,11 @@
 **Spine question:** Is asset availability sufficient to meet the production plan?
 - **[3s verdict]** `ops.mtbf.hours` vs_plan (higher_is_better)
 - **[30s Q1]** Is asset availability sufficient to hold the production plan?
-    - visual: `trend_line` · `ops.availability.pct`
+    - visual: `line_chart` · `ops.availability.pct`
     - answer: Asset availability is trending toward the threshold needed to hold the production plan
     - so what → At this trajectory, availability drops below the threshold needed to hold the production plan.
 - **[30s Q2]** What are the leading failure-risk signals?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Unplanned downtime and spare-parts stockout — the two leading failure-risk signals.
     - so what → Ranking downtime by asset targets maintenance effort where it protects the production plan most.
 
@@ -296,11 +296,11 @@
 **Spine question:** Is product quality yield within acceptable thresholds?
 - **[3s verdict]** `quality.fpy.pct` vs_target (higher_is_better)
 - **[30s Q1]** Is quality loss plant-wide or concentrated on a few lines?
-    - visual: `trend_line` · `quality.scrap.pct`
+    - visual: `line_chart` · `quality.scrap.pct`
     - answer: Rising scrap is concentrated on a couple of lines, not plant-wide
     - so what → Containing the two lines driving the trend is faster than a plant-wide quality program.
 - **[30s Q2]** What are the downstream quality-cost signals?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Rework and complaint rates — the two downstream quality-cost signals.
     - so what → Ranking COPQ by line prioritises containment where the financial impact is largest.
 
@@ -321,15 +321,15 @@
 **Spine question:** Is inventory turning efficiently without stockout or obsolescence risk?
 - **[3s verdict]** `inv.dio.days` vs_target (lower_is_better)
 - **[30s Q1]** Is inventory turning efficiently, or tying up working capital?
-    - visual: `trend_line` · `inv.turnover`
+    - visual: `line_chart` · `inv.turnover`
     - answer: Inventory turnover is falling, tying up working capital in slow-moving stock
     - so what → Falling turnover ties up working capital that could fund faster-moving SKUs.
 - **[30s Q2]** What are the inventory-health signals telling us?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Stockout, OTIF, and obsolescence risk — the three inventory health signals.
     - so what → Stockouts and obsolescence rising together point to a demand-signal problem, not a capacity one.
 - **[30s Q3]** Is poor forecasting the root cause behind the inventory swings?
-    - visual: `trend_line` · `plan.forecast.accuracy.pct`
+    - visual: `line_chart` · `plan.forecast.accuracy.pct`
     - answer: Forecast accuracy below target is the root cause behind the stockout-and-obsolescence swing
     - so what → Fixing forecast accuracy addresses the root cause instead of firefighting stockouts and dead stock separately.
 
@@ -350,11 +350,11 @@
 **Spine question:** Are suppliers delivering reliably enough to meet customer commitments?
 - **[3s verdict]** `supply.otif.pct` vs_target (higher_is_better)
 - **[30s Q1]** Which OTIF component is dragging reliability — on-time or in-full?
-    - visual: `trend_line` · `supply.on_time.pct`
+    - visual: `line_chart` · `supply.on_time.pct`
     - answer: On-time delivery is the component dragging OTIF below target, not in-full
     - so what → Because on-time performance is dragging OTIF down, carrier and lane-level fixes matter more than in-full stock buffers.
 - **[30s Q2]** What's behind the OTIF shortfall beyond timeliness?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: In-full rate and stockout impact — the two OTIF components beyond timeliness.
     - so what → Ranking penalty cost by supplier focuses the reliability push where the money actually leaks.
 
@@ -374,11 +374,11 @@
 **Spine question:** Is forecast accuracy sufficient to support production and inventory planning?
 - **[3s verdict]** `plan.forecast.accuracy.pct` vs_target (higher_is_better)
 - **[30s Q1]** Is forecast error random noise or a systematic bias?
-    - visual: `trend_line` · `plan.forecast.mape.pct`
+    - visual: `line_chart` · `plan.forecast.mape.pct`
     - answer: Forecast error is a systematic bias, not random noise
     - so what → A systematic bias, not random noise, means model recalibration fixes more of the gap than manual overrides.
 - **[30s Q2]** What are the forecast-quality signals, and where do they hurt service?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Forecast bias and downstream service impact — the two forecast-quality signals.
     - so what → Ranking bias by SKU cluster isolates where a model recalibration removes most of the replanning load.
 
@@ -399,11 +399,11 @@
 **Spine question:** Are procurement savings being realised, or is value leaking through off-contract buying?
 - **[3s verdict]** `procurement.savings.realized.pct` vs_target (higher_is_better)
 - **[30s Q1]** Is the savings shortfall a target problem or a compliance problem?
-    - visual: `trend_line` · `procurement.oncontract.pct`
+    - visual: `line_chart` · `procurement.oncontract.pct`
     - answer: Off-contract buying in a few categories is where realised savings leak, not weak targets
     - so what → Because on-contract share is the lever, tightening compliance in those categories recovers savings fastest.
 - **[30s Q2]** Is price variance or supplier reliability eroding value beyond compliance?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Purchase-price variance is climbing in the same categories, compounding the off-contract leak
     - so what → Renegotiating the high-PPV categories first attacks both price and compliance in one move.
 
@@ -422,11 +422,11 @@
 **Spine question:** Is the service organization resolving cases fast enough to prevent backlog growth?
 - **[3s verdict]** `svc.sla.attainment.pct` vs_target (higher_is_better)
 - **[30s Q1]** Is the service org keeping pace, or is backlog building toward SLA breaches?
-    - visual: `trend_line` · `svc.backlog.count`
+    - visual: `line_chart` · `svc.backlog.count`
     - answer: Case backlog is building unchecked toward SLA breaches next cycle
     - so what → An unchecked backlog trend converts into missed SLAs within the next reporting cycle.
 - **[30s Q2]** Which service-quality signals explain the backlog?
-    - visual: `bar_chart` · `svc.fcr.pct`
+    - visual: `horizontal_bar_chart` · `svc.fcr.pct`
     - answer: First-contact resolution, handle time, and escalation — the three service-quality signals.
     - so what → Ranking FCR by case type shows where a capability fix cuts escalations and backlog at once.
 
@@ -447,11 +447,11 @@
 **Spine question:** Is resource utilization sustainable without degrading service quality?
 - **[3s verdict]** `res.utilization.pct` vs_plan (higher_is_better)
 - **[30s Q1]** Is resource utilization sustainable, or are teams overloaded?
-    - visual: `trend_line` · `res.occupancy.pct`
+    - visual: `line_chart` · `res.occupancy.pct`
     - answer: Resource occupancy is running at sustained overload in a few teams
     - so what → Sustained overload in those teams threatens the service-quality consistency the SLA depends on.
 - **[30s Q2]** What are utilization's quality trade-offs?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: SLA attainment, overtime, and shrinkage — utilization's three quality trade-offs.
     - so what → Overtime absorbing the gap today is not sustainable — it is the early signal of the capacity shortfall to come.
 
@@ -476,7 +476,7 @@
     - answer: Net sales growth versus last year is softening quarter to quarter
     - so what → A softening growth rate is the first sign the on-track story could reverse next quarter.
 - **[30s Q2]** Where does enterprise delivery risk concentrate across the portfolio?
-    - visual: `bar_chart_horizontal` · `supply.otif.pct`
+    - visual: `horizontal_bar_chart` · `supply.otif.pct`
     - answer: OTIF is uneven across the portfolio, flagging where delivery risk concentrates
     - so what → A normalized index makes the strategic KPIs comparable, so attention goes to the biggest exposure.
 
@@ -497,11 +497,11 @@
 **Spine question:** Is the action governance cycle delivering verified business impact?
 - **[3s verdict]** `enterprise.action_outcome_rate.pct` vs_target (higher_is_better)
 - **[30s Q1]** Is the action-governance cycle delivering verified business impact?
-    - visual: `trend_line` · `enterprise.action_outcome_rate.pct`
+    - visual: `line_chart` · `enterprise.action_outcome_rate.pct`
     - answer: Action outcome rate is the KPI that verifies whether the governance cycle is closing on real business impact
     - so what → Tracking verified outcomes, not just actions closed, keeps the governance cycle honest about impact delivered.
 - **[30s Q2]** Where is value-at-risk concentrated across domains?
-    - visual: `bar_chart` · `enterprise.value_at_risk.index`
+    - visual: `horizontal_bar_chart` · `enterprise.value_at_risk.index`
     - answer: Value at risk is concentrated where action follow-through is weakest across domains
     - so what → Prioritising domains with the highest value at risk directs governance attention to where it matters most.
 
@@ -522,15 +522,15 @@
 **Spine question:** Are we growing basket breadth and category cross-sell?
 - **[3s verdict]** `retail.category.crosssell_rate.pct` vs_plan (higher_is_better)
 - **[30s Q1]** Is average basket value growing, or has the cross-sell stall reached revenue?
-    - visual: `trend_line` · `retail.basket.value.average`
+    - visual: `line_chart` · `retail.basket.value.average`
     - answer: Average basket value is flat, confirming the cross-sell stall is reaching revenue per visit
     - so what → A flat basket value confirms the cross-sell stall is already showing up in revenue per visit.
 - **[30s Q2]** Are cross-sell and promotion-attachment moving together, and what's the fix?
-    - visual: `bar_chart` · `None`
+    - visual: `horizontal_bar_chart` · `None`
     - answer: Cross-sell and promotion attachment are falling short together, pointing at activation not assortment
     - so what → Two related levers falling short together means the fix is activation, not assortment.
 - **[30s Q3]** Which categories carry the basket-size upside?
-    - visual: `bar_chart_horizontal` · `retail.basket.items_per_transaction`
+    - visual: `horizontal_bar_chart` · `retail.basket.items_per_transaction`
     - answer: A few product categories carry most of the basket-size upside
     - so what → Activating these pairs first captures basket breadth without waiting on a full assortment redesign.
 

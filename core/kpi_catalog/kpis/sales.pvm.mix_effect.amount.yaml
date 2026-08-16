@@ -17,7 +17,7 @@ business:
   purpose: Captures the residual effect from changes in product, channel, or region mix.
   definition: Total variance - Price Effect - Volume Effect.
   grain_scope: Aggregated to reporting period / segment.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Explains whether composition shifts drive positive or negative outcomes.
 technical:
   measure_name: Mix Effect Amount
@@ -53,6 +53,6 @@ standard_ref:
 - standard: Management accounting (CIMA/IMA)
   name: Sales mix variance (residual)
   alignment: partial
-  note: Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition.
-    Its magnitude depends on the volume-effect basis (see sales.pvm.volume_effect) — a convention choice,
-    not a governed standard.
+  note: Mix effect is the residual (total − price − volume) in the standard three-way variance decomposition. Its
+    magnitude depends on the volume-effect basis (see sales.pvm.volume_effect) — a convention choice, not a governed
+    standard.

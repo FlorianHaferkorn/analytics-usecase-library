@@ -15,7 +15,7 @@ business:
   purpose: Total net price (after discounts) for price realization and discount analysis.
   definition: Sum of net price amount at invoice line grain.
   grain_scope: Invoice line aggregated to reporting period.
-  unit_format: currency
+  unit_format: eur_0
   interpretation: Numerator for Price Realization %; required input for sales.price.realization_pct.
 technical:
   measure_name: Net Price Amount
@@ -42,6 +42,5 @@ standard_ref:
   name: Transaction price (net of discounts)
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: partial
-  note: Net price is the IFRS 15 transaction price after trade discounts and variable consideration. Aligns
-    conceptually; ensure discounts/rebates follow IFRS 15 variable-consideration measurement rather than
-    ad-hoc netting.
+  note: Net price is the IFRS 15 transaction price after trade discounts and variable consideration. Aligns conceptually;
+    ensure discounts/rebates follow IFRS 15 variable-consideration measurement rather than ad-hoc netting.

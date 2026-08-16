@@ -14,7 +14,7 @@ business:
   purpose: Relative variance of Net Sales vs Last Year.
   definition: (Net Sales - LY) / LY
   grain_scope: Aggregated to reporting period.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Shows growth rate vs prior year.
 technical:
   measure_name: Delta% Net Sales
@@ -49,5 +49,5 @@ standard_ref:
   name: Net sales YoY growth
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: none
-  note: Year-over-year growth is a management trend metric; the underlying net-sales base is IFRS 15 revenue
-    but the growth ratio is not standard-defined.
+  note: Year-over-year growth is a management trend metric; the underlying net-sales base is IFRS 15 revenue but
+    the growth ratio is not standard-defined.

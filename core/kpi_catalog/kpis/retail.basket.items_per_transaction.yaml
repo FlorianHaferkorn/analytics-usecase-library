@@ -14,8 +14,9 @@ business:
   purpose: Average number of distinct line items per completed transaction.
   definition: Total line items divided by total transactions in scope.
   grain_scope: Transaction aggregated by Month, Store, Channel.
-  unit_format: "items (1 decimal)"
-  interpretation: A core basket-size driver; rising values indicate broader baskets and successful attachment, falling values indicate basket erosion.
+  unit_format: ratio_1
+  interpretation: A core basket-size driver; rising values indicate broader baskets and successful attachment, falling
+    values indicate basket erosion.
 technical:
   measure_name: Items per Transaction
   description: Average distinct line items per completed transaction.
@@ -23,6 +24,16 @@ technical:
   lineage:
   - fact_sales.Line Item Key
   - fact_sales.Transaction Key
+  calculation:
+    op: ratio
+    numerator:
+      calc:
+        op: distinctcount
+        column: Line Item Key
+    denominator:
+      calc:
+        op: distinctcount
+        column: Transaction Key
 governance:
   business_owner: Head of Category Management
   data_owner: Commercial BI Engineering

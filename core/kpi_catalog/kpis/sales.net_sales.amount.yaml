@@ -18,7 +18,7 @@ business:
   purpose: Total invoiced revenue net of discounts and returns.
   definition: Sum of all invoice line amounts net of VAT and returns.
   grain_scope: Invoice line.
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Represents total top-line sales.
 technical:
   measure_name: Net Sales Amount
@@ -45,6 +45,6 @@ standard_ref:
   name: Revenue from contracts with customers
   url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
   alignment: partial
-  note: 'Net sales is a presentation of IFRS 15 revenue: net of VAT (correctly excluded — amounts collected
-    on behalf of third parties are not revenue) and net of returns (IFRS 15 variable consideration — recognise
-    a refund liability, not revenue). Aligns when returns/rebates are treated as IFRS 15 variable consideration.'
+  note: 'Net sales is a presentation of IFRS 15 revenue: net of VAT (correctly excluded — amounts collected on behalf
+    of third parties are not revenue) and net of returns (IFRS 15 variable consideration — recognise a refund liability,
+    not revenue). Aligns when returns/rebates are treated as IFRS 15 variable consideration.'

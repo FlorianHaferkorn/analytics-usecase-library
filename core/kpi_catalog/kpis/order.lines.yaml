@@ -17,7 +17,7 @@ business:
   purpose: Counts order lines processed in the period.
   definition: Count of order line items.
   grain_scope: Order line; aggregated by period and channel.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate higher order volume.
 technical:
   measure_name: Order Lines Count

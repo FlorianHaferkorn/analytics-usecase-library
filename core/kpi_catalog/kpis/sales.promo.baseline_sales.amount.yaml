@@ -16,7 +16,7 @@ business:
   purpose: Baseline sales for incremental calculation.
   definition: Sum of baseline sales from promo system.
   grain_scope: Promo period/product
-  unit_format: EUR (2 decimals)
+  unit_format: eur_0
   interpretation: Reference level for incremental lift.
 technical:
   measure_name: Baseline Sales Amount
@@ -42,5 +42,5 @@ standard_ref:
 - standard: Trade Promotion Management (convention)
   name: Promo baseline sales
   alignment: none
-  note: Baseline (non-promoted) sales is a trade-promotion-management analytics concept (uplift modelling),
-    not defined by any external standard.
+  note: Baseline (non-promoted) sales is a trade-promotion-management analytics concept (uplift modelling), not
+    defined by any external standard.

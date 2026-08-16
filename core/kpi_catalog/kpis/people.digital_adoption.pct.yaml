@@ -11,23 +11,26 @@ use_case_ref:
 action_code_ref: []
 calc_type: ratio
 business:
-  purpose: Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
+  purpose: Measure how much of all eligible process transactions are executed via digital tools instead of manual
+    channels.
   definition: Digital Transactions Count / Total Transactions Count for eligible processes.
   grain_scope: Process area / org; aggregated monthly or quarterly.
-  unit_format: '''% (1 decimal)'''
-  interpretation: Higher values indicate greater adoption of digital processes; low values show manual work and automation potential.
+  unit_format: percent_1
+  interpretation: Higher values indicate greater adoption of digital processes; low values show manual work and
+    automation potential.
 technical:
   measure_name: Digital Adoption Rate %
-  description: Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
+  description: Measure how much of all eligible process transactions are executed via digital tools instead of manual
+    channels.
   depends_on_measures: []
   lineage: []
   calculation:
     op: hitl
+    blocked_by: data_contract
     reason: 'Legacy system itself has no real formula here: products/fabric/powerbi/dist/Experience.SemanticModel''s
-      own DAX is a documented placeholder (VAR _pending = "Requires fact_it Digital
-      Users and fact_hr Total Headcount (not yet in data contracts)" RETURN BLANK())
-      — the source tables/columns do not exist yet in the data contract, upstream
-      of any DSL grammar question.'
+      own DAX is a documented placeholder (VAR _pending = "Requires fact_it Digital Users and fact_hr Total Headcount
+      (not yet in data contracts)" RETURN BLANK()) — the source tables/columns do not exist yet in the data contract,
+      upstream of any DSL grammar question.'
 governance:
   business_owner: Head of Digital Transformation
   data_owner: Corporate BI
@@ -45,6 +48,6 @@ standard_ref:
   name: (digital adoption — change management)
   url: https://www.iso.org/standard/69338.html
   alignment: none
-  note: Digital adoption (digital / total transactions for eligible processes) is a digital-transformation
-    / change-management metric, not part of ISO 30414's human-capital areas. No governing HR standard;
-    loosely relates to ISO 30414 workforce skills & capabilities.
+  note: Digital adoption (digital / total transactions for eligible processes) is a digital-transformation / change-management
+    metric, not part of ISO 30414's human-capital areas. No governing HR standard; loosely relates to ISO 30414
+    workforce skills & capabilities.

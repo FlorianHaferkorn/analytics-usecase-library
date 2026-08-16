@@ -44,7 +44,7 @@ and Stage-1/Fabric checks enforce a closed chain. For each new diagnostic KPI or
 | 2 | **Synthetic data contract** | `core/data_contracts/sources/synthetic/synthetic_data_contract.yaml` | generator + FK integrity |
 | 3 | **KPI catalog** | `core/kpi_catalog/KPI_Catalog.md` / `extended_playbook.md` (`technical.lineage` → step 1 columns; `depends_on_measures`) | `registry_builder.py` (`ref_integrity.missing_kpi`, closure), `check_factsheet_vs_kpi.ps1` |
 | 4 | **Measure dictionary** | `core/semantic_models/domains/<Domain>/Measure_Dictionary_<Domain>.md` (`kpi_id_ref`, logical DAX, `dependencies.columns`) | `check_kpi_vs_measure_dictionary.ps1` |
-| 5 | **Fabric overlay** | `products/fabric/powerbi/specs/fabric_measure_overlay.yaml` (DAX/format) | `build_ir.py`, `check_dax_vs_measure_dictionary.ps1` |
+| 5 | ~~**Fabric overlay**~~ | **entfallen 05.08.2026** — DAX aus `technical.calculation`, Format aus `business.unit_format`, Name aus `technical.measure_name`, Ordner aus `use_case_ref` | `build_ir.py` |
 | 6 | **Bracket wiring** | `core/usecases/core/<UC>/UseCase_Bracket.yaml` (`supporting_kpi_ids`, `evidence_columns`, `evidence_grain`) | `registry_builder.py` (closure, `evidence_grain.governance_gap`) |
 | 7 | **Synthetic generator logic** | `core/data_contracts/sources/synthetic/generate_gold_layer_contract_v2.py` (populate column with realistic, internally-consistent values) | row-level QA / driver-consistency |
 | 8 | **Semantic model (generated)** | `products/fabric/powerbi/dist/<Domain>.SemanticModel/**` via orchestrator | `check_catalog_tmdl_drift.py`, `check_measures_vs_kpi.ps1`, TMDL hooks |

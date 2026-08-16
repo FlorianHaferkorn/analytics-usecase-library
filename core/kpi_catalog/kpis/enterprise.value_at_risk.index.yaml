@@ -13,11 +13,11 @@ action_code_ref:
 calc_type: ratio
 business:
   purpose: Aggregates downside risk across domains into a single index.
-  definition: 'Average of three risk shares, scaled to 0-100: (1) Revenue-at-Risk
-    Share = (Net Sales * average(1-OTIF failure, 1-First-Pass-Yield failure)) /
-    Net Sales, (2) Delivery Risk = 1 - OTIF %, (3) Quality Risk = 1 - In-Full %.'
+  definition: 'Average of three risk shares, scaled to 0-100: (1) Revenue-at-Risk Share = (Net Sales * average(1-OTIF
+    failure, 1-First-Pass-Yield failure)) / Net Sales, (2) Delivery Risk = 1 - OTIF %, (3) Quality Risk = 1 - In-Full
+    %.'
   grain_scope: Entity or business unit; aggregated by period.
-  unit_format: index
+  unit_format: index_0
   interpretation: Higher index indicates higher enterprise risk exposure.
 technical:
   measure_name: Enterprise Value-at-Risk Index
@@ -88,11 +88,10 @@ governance:
   review_cycle: monthly
   validation_process: manual review
   qa_rules:
-  - 'Faithfully reproduces legacy''s redundant round-trip (Revenue-at-Risk Share
-    is algebraically ~ average(DeliveryRisk, QualityRisk) already, since it divides
-    Net Sales * that same average back by Net Sales) rather than simplifying it
-    away — the round-trip changes zero-Net-Sales-denominator BLANK() behavior, so
-    collapsing it would be a silent value-level divergence, not a pure simplification.'
+  - Faithfully reproduces legacy's redundant round-trip (Revenue-at-Risk Share is algebraically ~ average(DeliveryRisk,
+    QualityRisk) already, since it divides Net Sales * that same average back by Net Sales) rather than simplifying
+    it away — the round-trip changes zero-Net-Sales-denominator BLANK() behavior, so collapsing it would be a silent
+    value-level divergence, not a pure simplification.
   version: v0.1
 metadata_quality:
   completeness_score: 1.0
@@ -102,7 +101,6 @@ standard_ref:
   name: Enterprise value-at-risk (composite)
   url: https://www.iso.org/standard/62085.html
   alignment: none
-  note: A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and
-    ISO 22400 quality (first-pass yield → QR) weighted into a 0-100 risk score. No external standard defines
-    the composite; its inputs are governed by the SCM and Operations runs. Document the weighting so the
-    index is reproducible.
+  note: A composite index built from already-governed KPIs — SCOR reliability (OTIF, in-full → RL) and ISO 22400
+    quality (first-pass yield → QR) weighted into a 0-100 risk score. No external standard defines the composite;
+    its inputs are governed by the SCM and Operations runs. Document the weighting so the index is reproducible.

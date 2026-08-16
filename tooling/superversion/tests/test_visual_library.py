@@ -7,6 +7,9 @@ surfaces as a CatalogGap / non-zero resolve.
 """
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
+
 import pytest
 
 from tooling.superversion.layer_tools import visual_idioms as vi
@@ -83,6 +86,141 @@ def test_sanctions_helper():
     assert not lib.sanctions("card", "pieChart")
     assert lib.sanctions("slicer", "anything")  # no block → exempt
 
+
+def test_third_party_visual_is_rejected_at_load():
+    """Doktrin: keine Fremd-Visuals. Erzwungen beim LADEN, nicht nur im Review.
+
+    Bis 01.08.2026 fuehrte `visual_registry.yaml` zwei Eintraege mit
+    `pbip_type: custom` — einer davon namentlich `"Enlighten Bullet Chart"`. Das
+    Dataclass hatte dafuer ein reguläres Feld `custom_visual_name`, also war der
+    Verstoss nicht nur moeglich, sondern vorgesehen.
+
+    Fremd-Visuals kosten Lizenz, brauchen eine Org-Freigabe im Tenant, machen das
+    Deliverable tool-abhaengig (Scope-Grenze: der Kunde installiert nichts) und
+    aendern Export-/Print-/Mobile-Verhalten. Die Eskalation ist stattdessen
+    `render_mode: svg_measure`, danach ein anderes Ziel-Tool.
+
+    Dieser Test prueft den Waechter, nicht die Registry — eine gruene Registry
+    beweist nicht, dass der Waechter feuert.
+    """
+    import textwrap
+
+    import pytest
+
+    from tooling.superversion.layer_tools.visual_library import (
+        ThirdPartyVisualError, VisualLibrary)
+
+    for verstoss in ('        custom_visual_name: "Some Marketplace Visual"\n', ""):
+        yaml_text = textwrap.dedent("""\
+            registry_version: "1.0.0"
+            information_blocks:
+              - block_id: probe
+                purpose: "p"
+                primary_layer: "3s"
+                slot_compatibility: ["KPI_Cards"]
+                page_types: ["T1"]
+                allowed_visuals:
+                  - visual_id: something
+                    pbip_type: custom
+            """) + verstoss
+        path = Path(tempfile.mkdtemp()) / "visual_registry.yaml"
+        path.write_text(yaml_text, encoding="utf-8")
+        with pytest.raises(ThirdPartyVisualError) as exc:
+            VisualLibrary.load(path)
+        assert "probe" in str(exc.value) and "something" in str(exc.value)
+
+
+def test_committed_registry_declares_no_third_party_visual():
+    """Die eingecheckte Registry selbst ist frei von Fremd-Visuals."""
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    lib = VisualLibrary.load()
+    for block in lib.blocks.values():
+        for v in block.allowed_visuals:
+            assert v.pbip_type != "custom", f"{block.block_id}/{v.visual_id}"
+            assert v.render_mode in ("native", "svg_measure"), \
+                f"{block.block_id}/{v.visual_id}: unbekannter render_mode '{v.render_mode}'"
+
+
+def test_primary_connector_floor_is_complete():
+    """Power BI ist Pflichtziel — jede analytische Absicht muss dort darstellbar sein.
+
+    Das ist der Boden des Zielbilds fuer den Konnektor, der beim Kunden laeuft. Faellt
+    hier ein Block heraus, kann eine Storyline im Hauptwerkzeug nicht ohne Verlust
+    dargestellt werden — und zwar still, solange es niemand prueft.
+    """
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    gaps = VisualLibrary.load().floor_gaps("powerbi")
+    assert gaps == [], f"Bloecke ohne Power-BI-Darstellung: {gaps}"
+
+
+def test_known_second_connector_gap_is_exactly_recorded():
+    """Der Zweit-Konnektor hat GENAU eine bekannte Luecke — sie ist benannt, nicht geraten.
+
+    `structural_mix` (100%-gestapelte Balken) hat in `translator_evidence.md` keine
+    dokumentierte Entsprechung. Sie zu erfinden waere schlimmer als sie zu zeigen:
+    eine geratene Zuordnung faellt erst beim Kunden auf.
+
+    Wird die Luecke geschlossen, wird dieser Test rot — das ist Absicht. Dann gehoert
+    die Erwartung angepasst und der Fortschritt ist sichtbar, statt in einer
+    weichen Zusicherung zu verschwinden.
+    """
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    assert VisualLibrary.load().floor_gaps("evidence") == ["structural_mix"]
+
+
+def test_extensions_declare_their_fallback():
+    """Die Decke ist frei — aber eine Extension muss ihren Boden nennen."""
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    offen = VisualLibrary.load().extensions_without_fallback()
+    assert offen == [], f"Extension ohne aufloesbares `replaces`: {offen}"
+
+
+def test_pbip_type_alias_stays_backward_compatible():
+    """`allowed_pbip_types()` muss identisch zu `allowed_types('powerbi')` bleiben.
+
+    Drei Konsumenten haengen daran (visual_library-CLI, generator_core/ir/specs.py,
+    test_template_manifest_alignment). Der Umbau auf `targets` darf sie nicht
+    beruehren.
+    """
+    from tooling.superversion.layer_tools.visual_library import VisualLibrary
+
+    for block in VisualLibrary.load().blocks.values():
+        assert block.allowed_pbip_types() == block.allowed_types("powerbi")
+        assert block.allowed_pbip_types()
+
+
+def test_check_floor_cli_fails_on_a_required_connector_gap(capsys):
+    """Das Gate muss rot werden koennen — sonst ist sein Gruen wertlos.
+
+    Stage 1 faehrt `visual_library.py check-floor`. Ein Gate, das nie faellt, ist
+    von einem fehlenden Gate nicht zu unterscheiden; genau deshalb pruefen die
+    folgenden drei Faelle den ROT-Pfad und nicht nur den Gruen-Pfad.
+    """
+    from tooling.superversion.layer_tools import visual_library as vlib
+
+    # 1) `evidence` als Pflichtziel verlangt -> die bekannte structural_mix-Luecke blockt
+    assert vlib.main(["check-floor", "--required", "evidence"]) == 1
+    assert "structural_mix" in capsys.readouterr().out
+
+    # 2) --strict macht JEDE Luecke hart, auch ohne --required
+    assert vlib.main(["check-floor", "--strict"]) == 1
+
+    # 3) Ein Pflichtziel, das nirgends deklariert ist, ist ein Konfigurationsfehler —
+    #    kein "0 Luecken, alles gut". Sonst meldete das Gate Erfolg fuer ein Tool,
+    #    ueber das es nichts weiss.
+    assert vlib.main(["check-floor", "--required", "gibtesnicht"]) == 1
+    assert "gibtesnicht" in capsys.readouterr().out
+
+
+def test_check_floor_cli_is_green_for_the_mandatory_target():
+    """Power BI ist Pflichtziel und vollstaendig — der Standardaufruf ist gruen."""
+    from tooling.superversion.layer_tools import visual_library as vlib
+
+    assert vlib.main(["check-floor"]) == 0
 
 # --- Integrated with the idiom library (the tighter, point-wise authority) --- #
 

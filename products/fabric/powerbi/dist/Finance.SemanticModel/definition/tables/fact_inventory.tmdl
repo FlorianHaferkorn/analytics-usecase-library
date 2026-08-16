@@ -16,9 +16,9 @@ table fact_inventory
 		isHidden
 		sourceColumn: ProductKey
 		summarizeBy: none
-	column 'Inventory Amount'
+	column 'Average Inventory Amount'
 		dataType: Decimal
-		sourceColumn: Inventory Amount
+		sourceColumn: Average Inventory Amount
 		summarizeBy: none
 	column 'COGS Amount'
 		dataType: Decimal

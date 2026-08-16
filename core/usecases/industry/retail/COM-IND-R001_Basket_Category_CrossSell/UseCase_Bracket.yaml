@@ -38,13 +38,13 @@ ux_layout_rules:
     big_idea: "Category cross-sell has stalled — high-affinity pairs are underactivated in core stores, leaving basket breadth and revenue per visit on the table."
     component_3s:
       kpi_id: retail.category.crosssell_rate.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: retail.basket.value.average
-      visual_type: trend_line
+      visual_type: line_chart
       question: "Is average basket value growing, or has the cross-sell stall reached revenue?"
       message: Average basket value is flat, confirming the cross-sell stall is reaching revenue per visit
       so_what: "A flat basket value confirms the cross-sell stall is already showing up in revenue per visit."
@@ -53,14 +53,14 @@ ux_layout_rules:
       kpi_ids:
       - retail.category.crosssell_rate.pct
       - retail.promotion.attachment_rate.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: "Are cross-sell and promotion-attachment moving together, and what's the fix?"
       message: Cross-sell and promotion attachment are falling short together, pointing at activation not assortment
       so_what: "Two related levers falling short together means the fix is activation, not assortment."
       unit: rate
     - slot_id: Main_3
       kpi_id: retail.basket.items_per_transaction
-      visual_type: bar_chart_horizontal
+      visual_type: horizontal_bar_chart
       category_field: dim_product.Category
       question: "Which categories carry the basket-size upside?"
       message: A few product categories carry most of the basket-size upside

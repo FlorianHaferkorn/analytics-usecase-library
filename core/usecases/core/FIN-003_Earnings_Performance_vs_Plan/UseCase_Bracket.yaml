@@ -44,13 +44,13 @@ ux_layout_rules:
     big_idea: EBITDA margin is trailing plan and the gap is opex-led, while revenue and gross margin hold.
     component_3s:
       kpi_id: margin.ebitda.pct
-      visual_type: kpi_card
+      visual_type: kpi_card_with_delta
       comparison: vs_plan
       status_logic: higher_is_better
     component_30s:
     - slot_id: Main_1
       kpi_id: margin.ebitda.delta_pct.plan
-      visual_type: trend_line
+      visual_type: line_chart
       question: Is the earnings gap a revenue, gross-margin or opex problem?
       message: The EBITDA-margin gap versus plan is opex-led, while revenue and gross margin hold
       so_what: Because opex is the driver, cost-base actions recover more earnings than chasing incremental
@@ -60,7 +60,7 @@ ux_layout_rules:
       kpi_ids:
       - margin.gm.pct
       - cost.opex.vs_plan.pct
-      visual_type: bar_chart
+      visual_type: horizontal_bar_chart
       question: Is the pressure structural in gross margin or in operating expense?
       message: Gross margin holds on plan; operating expense above plan is where the earnings leak concentrates
       so_what: Ranking opex overruns by cost centre focuses the recovery where the money actually leaks.

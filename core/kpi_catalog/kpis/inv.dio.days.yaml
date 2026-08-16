@@ -24,7 +24,7 @@ business:
   purpose: Measures inventory holding period in days.
   definition: Average Inventory / (COGS / 365).
   grain_scope: SKU/location; aggregated monthly.
-  unit_format: days
+  unit_format: days_0
   interpretation: Higher values indicate slower movement and more cash tied up.
 technical:
   measure_name: Days in Inventory
@@ -61,5 +61,5 @@ standard_ref:
   name: Cash-to-Cash Cycle Time — inventory-days component
   url: https://scor.ascm.org/performance/asset-management
   alignment: partial
-  note: Maps to the inventory-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days
-    of Supply − DPO). Ours is COGS-based DIO. Duplicate of wc.dio.days — consolidate.
+  note: Maps to the inventory-days input of SCOR Cash-to-Cash Cycle Time (AM.1.1 = DSO + Inventory Days of Supply
+    − DPO). Ours is COGS-based DIO. Duplicate of wc.dio.days — consolidate.

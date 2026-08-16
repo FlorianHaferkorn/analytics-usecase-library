@@ -91,7 +91,12 @@ CATALOG: list[dict[str, Any]] = [
         "default": "unverified (likely off)", "target": "on if admin/metadata APIs are used",
         "who": "Fabric tenant admin", "automatable": "unverified",
         "how": "Update Tenant Setting REST (preview) / sempy — or portal",
-        "why": "admin ops (domains, scanner, restore) via the SPN", "required": "if admin APIs used",
+        # Bis 07.08.2026 stand hier zusaetzlich „scanner". Das war falsch und teuer: der
+        # Metadaten-Scanner (`scan_workspaces`) ist eine READ-ONLY-Admin-API und haengt an
+        # einem ANDEREN Schalter (#20). Wer nur diesen hier setzt, bekommt beim Scan
+        # weiterhin `403 InsufficientScopes` — genau der Befund vom 16.07.2026, der damals
+        # faelschlich der Trial-Lizenz angelastet wurde (ADR-0050:21).
+        "why": "admin write ops (domains, restore) via the SPN", "required": "if admin APIs used",
         "source": _L + "fabric/admin/enable-service-principal-admin-apis",
     },
     {
@@ -267,6 +272,40 @@ CATALOG: list[dict[str, Any]] = [
         "why": "the Ontology item we emit cannot be created at all without it",
         "required": "if ontology",
         "source": _L + "fabric/iq/ontology/overview-tenant-settings",
+    },
+    # --- 07.08.2026: die beiden Schalter, an denen der Readiness-Collector wirklich haengt ---
+    #
+    # Befund beim Zusammenstellen der E2E-Voraussetzungen: der Katalog kannte nur #3 („admin APIs
+    # used for UPDATES") und schrieb sich den Scanner selbst zu. Der Scanner ist aber READ-ONLY und
+    # haengt an einem eigenen Schalter plus Sicherheitsgruppen-Mitgliedschaft. Die Folge war nicht
+    # theoretisch: unsere eigene Vorbedingungs-Liste haette einen Kunden mit gesetztem #3 in denselben
+    # `403 InsufficientScopes` laufen lassen wie uns am 16.07.2026 — und wieder haette die Lizenz
+    # ausgesehen wie die Ursache.
+    {
+        "id": 20, "name": "Service principals can access read-only admin APIs",
+        "section": "Admin API settings", "scope": "tenant", "capabilities": ["admin_apis"],
+        "default": "off", "target": "on, scoped to the automation security group",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("der Readiness-Collector fährt `sempy_labs.admin.scan_workspaces`, also eine "
+                "READ-ONLY-Admin-API. MS: der SPN muss zusätzlich Mitglied der erlaubten "
+                "Sicherheitsgruppe sein — die Gruppenmitgliedschaft ist der zweite, gern übersehene "
+                "Teil. Ohne beides: `403 InsufficientScopes`, unabhängig von SKU und Lizenz."),
+        "required": "if admin APIs used",
+        "source": _L + "fabric/admin/enable-service-principal-admin-apis",
+    },
+    {
+        "id": 21, "name": "Enhance admin APIs responses with detailed metadata",
+        "section": "Admin API settings", "scope": "tenant", "capabilities": ["admin_apis"],
+        "default": "off", "target": "on",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("der Collector ruft `scan_workspaces(lineage=True, data_source_details=True)`. Ohne "
+                "diesen Schalter antwortet die API, aber ohne Tabellen-/Spalten-Metadaten — der Scan "
+                "wirkt erfolgreich und liefert eine leere Beobachtung. MS koppelt ihn ausdrücklich an "
+                "#20: für Service Principals greift er nur, wenn #20 an ist."),
+        "required": "if admin APIs used",
+        "source": _L + "fabric/admin/metadata-scanning-setup",
     },
 ]
 

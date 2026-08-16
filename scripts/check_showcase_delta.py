@@ -17,6 +17,31 @@ computes the active file set from the log and asserts every active path exists
 on disk. Orphan parquet files (present but not referenced) are reported as
 advisory only — extra files do not break the load, missing active ones do.
 
+**Was dieses Gate NICHT prüft, und warum das einmal teuer war (06.08.2026).**
+Es prüft die Integrität des *Logs* gegen die *Dateien* — nicht die Integrität der
+*Daten*. ``dim_product`` endete bei ``ProductKey`` 4996, während Faktentabellen
+4997–4999 referenzierten. Dieses Gate meldete „OK — 46 tables consistent", und genau
+so wurde es gelesen: als Entwarnung. Es war eine richtige Messung auf die falsche Frage.
+
+Zur Chronologie, weil hier zuerst der Falsche beschuldigt wurde (nachgemessen am
+11.08.2026 an den Zeitstempeln des Logs): geschrumpft ist die Dimension am
+**05.02.2026** — ein ``WRITE``-Commit ersetzte die 5000-Zeilen-Datei durch eine mit
+4996 (``num_added_rows: 4996``). Der Vacuum-Lauf (#424) am **06.08.2026** entfernte
+nur physisch, was der Log ein halbes Jahr zuvor per ``remove`` verabschiedet hatte. Er
+hat also keine Zeile gelöscht, sondern die *Maske* weggenommen: wer den Log replayte
+(``fn_DeltaCurrentFiles``, Power BI), sah die Lücke seit Februar; wer per ``rglob``
+las, sah bis August die Leiche mit 5000 Zeilen und meldete grün. Ursache der Lücke war
+weder Vacuum noch Log, sondern ``product_count // len(subcategories)`` im Generator:
+1000 Consumer-Electronics-Produkte auf 6 Subkategorien ergaben 996. Behoben in
+``core/data_contracts/sources/synthetic/generate_gold_layer_contract_v2.py``, die
+Dimension trägt wieder alle 5000 Schlüssel.
+
+Die fachliche Deckung (Fakt-FK → Dimension-PK) prüft ``tooling/validation/
+check_data_model.py`` mit dem Befund ``ORPHAN-FK``; sie hat den Defekt auch gefunden.
+Hier wird deshalb **keine zweite FK-Prüfung gebaut** (Tool-Reuse) — stattdessen sagt
+die Erfolgsmeldung, was sie deckt und was nicht, damit sie nicht wieder als
+Gesamt-Entwarnung gelesen wird.
+
 Exit code 1 on any active-but-missing file. Run from the repo root.
 """
 
@@ -92,7 +117,13 @@ def check(root: str = ".") -> int:
             file=sys.stderr,
         )
         return 1
+    # Die Grenze gehoert in die Erfolgsmeldung, nicht nur in den Docstring: gelesen wird
+    # die Zeile, nicht das Modul. Ohne den zweiten Satz liest sich „OK" als Entwarnung
+    # fuer die Daten — genau die Verwechslung, die den ORPHAN-FK aus #424 durchliess.
     print(f"OK — {tables} showcase Delta table(s) consistent (active files all present).")
+    print("     Geprueft: Log gegen Dateien. NICHT geprueft: ob die Daten fachlich decken "
+          "(Fakt-FK → Dimension-PK) — das macht tooling/validation/check_data_model.py. "
+          "Nach einem Vacuum-/Dedup-Lauf beide fahren.")
     return 0
 
 

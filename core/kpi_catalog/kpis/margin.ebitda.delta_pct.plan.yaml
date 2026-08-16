@@ -13,9 +13,8 @@ business:
   purpose: Measures the EBITDA-margin gap versus plan.
   definition: EBITDA Margin % (Actual) - EBITDA Margin % (Plan), in percentage points.
   grain_scope: Entity/BU; monthly.
-  unit_format: '''% (1 decimal)'''
-  interpretation: 'The steering signal: is earnings tracking plan, and driven by revenue, gross margin
-    or opex?'
+  unit_format: percent_1
+  interpretation: 'The steering signal: is earnings tracking plan, and driven by revenue, gross margin or opex?'
 technical:
   measure_name: EBITDA Margin vs Plan
   description: Measures the EBITDA-margin gap versus plan.
@@ -57,5 +56,5 @@ standard_ref:
 - standard: ESMA-APM
   name: EBITDA vs plan (APM variance)
   alignment: partial
-  note: EBITDA-vs-plan variance is an APM comparison; ESMA APM Guidelines require consistent, reconciled
-    definition period-over-period.
+  note: EBITDA-vs-plan variance is an APM comparison; ESMA APM Guidelines require consistent, reconciled definition
+    period-over-period.

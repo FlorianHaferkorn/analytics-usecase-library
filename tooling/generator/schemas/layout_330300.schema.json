@@ -3,23 +3,47 @@
   "title": "3-30-300 Layout",
   "description": "Layout configuration for the three attention-time layers: 3-second KPI cards, 30-second driver visuals, 300-second diagnostics with evidence table and action panel.",
   "type": "object",
-  "required": ["kpi_cards", "visuals_30s", "diagnostics_300s", "slicers", "tooltips"],
+  "required": [
+    "kpi_cards",
+    "visuals_30s",
+    "diagnostics_300s",
+    "slicers",
+    "tooltips"
+  ],
   "properties": {
     "kpi_cards": {
       "type": "array",
       "description": "3-second layer: headline KPI cards shown at top of overview page.",
       "items": {
         "type": "object",
-        "required": ["kpi_id", "visual_type"],
+        "required": [
+          "kpi_id",
+          "visual_type"
+        ],
         "properties": {
-          "kpi_id": {"type": "string", "description": "KPI catalog ID (must exist in core/kpi_catalog/)."},
-          "visual_type": {"type": "string", "description": "Bracket visual type: 'kpi_card'."},
-          "sparkline_field": {"type": "string"},
-          "comparison": {"type": "string", "description": "e.g. 'plan', 'ly'"},
-          "status_logic": {"type": "string"},
+          "kpi_id": {
+            "type": "string",
+            "description": "KPI catalog ID (must exist in core/kpi_catalog/)."
+          },
+          "visual_type": {
+            "type": "string",
+            "description": "Bracket visual type: 'kpi_card'."
+          },
+          "sparkline_field": {
+            "type": "string"
+          },
+          "comparison": {
+            "type": "string",
+            "description": "e.g. 'plan', 'ly'"
+          },
+          "status_logic": {
+            "type": "string"
+          },
           "information_block": {
             "type": "string",
-            "enum": ["status_signal"],
+            "enum": [
+              "status_signal"
+            ],
             "description": "Visual Registry information block ID. KPI card slots always bind to status_signal. See core/templates/page_templates/visual_registry.yaml."
           }
         },
@@ -31,19 +55,67 @@
       "description": "30-second layer: driver visuals (trend, variance, ranking, mix).",
       "items": {
         "type": "object",
-        "required": ["name", "visual_type", "x_axis", "y_axis"],
+        "required": [
+          "name",
+          "visual_type",
+          "x_axis",
+          "y_axis"
+        ],
         "properties": {
-          "name": {"type": "string"},
-          "visual_type": {"type": "string", "enum": ["trend_line", "bar_chart", "waterfall", "stacked_bar", "scatter", "funnel"]},
-          "x_axis": {"type": "string"},
-          "y_axis": {"type": "string"},
-          "segment": {"type": "string"},
-          "default_filters": {"type": "string"},
+          "name": {
+            "type": "string"
+          },
+          "visual_type": {
+            "type": "string",
+            "enum": [
+              "action_panel_card",
+              "alert_list_card",
+              "area_chart",
+              "banded_bar_chart",
+              "banded_column_chart",
+              "bullet_graph",
+              "column_chart",
+              "contribution_table",
+              "decomposition_tree",
+              "dot_plot",
+              "exception_table",
+              "horizontal_bar_categorical",
+              "horizontal_bar_chart",
+              "impact_effort_scatter",
+              "kpi_card_with_delta",
+              "line_chart",
+              "matrix",
+              "recommendation_table",
+              "scatter_plot",
+              "small_multiples",
+              "stacked_bar_100",
+              "stacked_column_100",
+              "table",
+              "variance_bar",
+              "waterfall_chart"
+            ]
+          },
+          "x_axis": {
+            "type": "string"
+          },
+          "y_axis": {
+            "type": "string"
+          },
+          "segment": {
+            "type": "string"
+          },
+          "default_filters": {
+            "type": "string"
+          },
           "information_block": {
             "type": "string",
             "enum": [
-              "time_trend", "variance_explanation", "entity_ranking",
-              "exception_list", "structural_mix", "root_cause_context"
+              "time_trend",
+              "variance_explanation",
+              "entity_ranking",
+              "exception_list",
+              "structural_mix",
+              "root_cause_context"
             ],
             "description": "Visual Registry information block ID governing visual substitution rules for this slot. See core/templates/page_templates/visual_registry.yaml."
           }
@@ -56,16 +128,43 @@
       "description": "300-second layer: detail tables and matrices for drill-down diagnostics.",
       "items": {
         "type": "object",
-        "required": ["name", "visual_type"],
+        "required": [
+          "name",
+          "visual_type"
+        ],
         "properties": {
-          "name": {"type": "string"},
-          "visual_type": {"type": "string", "enum": ["table", "matrix", "detail_table"]},
-          "columns": {"type": "array", "items": {"type": "string"}, "description": "Column references (entity keys or KPI IDs)."},
-          "sort_by": {"type": "string"},
-          "limit": {"type": "integer", "minimum": 1, "maximum": 10000},
+          "name": {
+            "type": "string"
+          },
+          "visual_type": {
+            "type": "string",
+            "enum": [
+              "matrix",
+              "table"
+            ]
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Column references (entity keys or KPI IDs)."
+          },
+          "sort_by": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
           "information_block": {
             "type": "string",
-            "enum": ["detail_matrix", "prescriptive_action", "root_cause_context"],
+            "enum": [
+              "detail_matrix",
+              "prescriptive_action",
+              "root_cause_context"
+            ],
             "description": "Visual Registry information block ID for this 300s slot. See core/templates/page_templates/visual_registry.yaml."
           }
         },
@@ -82,12 +181,16 @@
         },
         "columns": {
           "type": "array",
-          "items": {"type": "string"},
+          "items": {
+            "type": "string"
+          },
           "description": "Column IDs: entity keys first, then KPI IDs in order of priority."
         },
         "measures": {
           "type": "array",
-          "items": {"type": "string"},
+          "items": {
+            "type": "string"
+          },
           "description": "Measure names from the semantic model to bind to measure columns."
         },
         "sort_by": {
@@ -118,12 +221,18 @@
         },
         "action_code_ids": {
           "type": "array",
-          "items": {"type": "string"},
+          "items": {
+            "type": "string"
+          },
           "description": "Action code IDs to include (must exist in core/action_codes/). Taken from orchestration.action_code_ids in UseCase_Bracket."
         },
         "payload_mode": {
           "type": "string",
-          "enum": ["full", "summary", "minimal"],
+          "enum": [
+            "full",
+            "summary",
+            "minimal"
+          ],
           "description": "Content depth: 'full' includes steps; 'summary' shows name/owner/trigger/impact; 'minimal' shows name/owner only.",
           "default": "full"
         },
@@ -142,11 +251,26 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["field", "type"],
+        "required": [
+          "field",
+          "type"
+        ],
         "properties": {
-          "field": {"type": "string"},
-          "type": {"type": "string", "enum": ["date_range", "dropdown", "tile", "between"]},
-          "default": {"type": "string"}
+          "field": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "date_range",
+              "dropdown",
+              "tile",
+              "between"
+            ]
+          },
+          "default": {
+            "type": "string"
+          }
         },
         "additionalProperties": false
       }
@@ -154,8 +278,15 @@
     "tooltips": {
       "type": "object",
       "properties": {
-        "fields": {"type": "array", "items": {"type": "string"}},
-        "notes": {"type": "string"}
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
       },
       "additionalProperties": false
     }

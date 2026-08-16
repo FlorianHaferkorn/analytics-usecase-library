@@ -11,10 +11,13 @@ action_code_ref:
 - S-F3.3
 calc_type: rate
 business:
-  purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).
-  definition: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
+  purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage
+    (units-based demand forecast).
+  definition: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast
+    is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not
+    revenue.
   grain_scope: Calculated at location_sku_day or sku_week; reported at sku_month aggregated by Date, Org, Product.
-  unit_format: '%'
+  unit_format: percent_1
   interpretation: Lower values are better; high impact indicates forecast under-coverage driving service loss.
 technical:
   measure_name: Service Impact %
@@ -26,12 +29,13 @@ technical:
   - fact_stockout.Lost Demand Units
   calculation:
     op: hitl
-    reason: 'Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is
-      [Stockout Impact %] * DIVIDE ( SUMX ( fact_stockout, IF ( context-filtered
-      Forecast Units < row-level Demand Units, row-level Lost Demand Units, 0 ) ),
-      SUM ( Lost Demand Units ) ) — a per-row conditional SUMX comparing a row-level
-      column to a context-filtered aggregate (CALCULATE(SUM(...)) evaluated per row),
-      beyond the current sum/ratio/mul/sumx_product-shaped grammar.'
+    blocked_by: grammar
+    reason: Legacy DAX (products/fabric/powerbi/dist/SupplyChain.SemanticModel) is [Stockout Impact %] * DIVIDE
+      ( SUMX ( fact_stockout, IF ( context-filtered Forecast Units < row-level Demand Units, row-level Lost Demand
+      Units, 0 ) ), SUM ( Lost Demand Units ) ) — a per-row conditional SUMX comparing a row-level column to a context-filtered
+      aggregate (CALCULATE(SUM(...)) evaluated per row), beyond the current sum/ratio/mul/sumx_product-shaped grammar.
+    pattern: sumx_row_vs_context_aggregate
+    occurrences_in_corpus: 1
 governance:
   business_owner: Head of Supply Chain Planning
   data_owner: Supply Chain BI
@@ -51,6 +55,5 @@ standard_ref:
   name: Plan service-loss diagnostic
   url: https://scor.ascm.org/performance/reliability/RL.1.1
   alignment: none
-  note: Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance
-    metric. Forecast-error references are the IBF/APICS forecasting standards; the service-loss link is
-    SCOR Reliability.
+  note: Forecast service impact is a Plan-process service-loss diagnostic, not a named SCOR performance metric.
+    Forecast-error references are the IBF/APICS forecasting standards; the service-loss link is SCOR Reliability.

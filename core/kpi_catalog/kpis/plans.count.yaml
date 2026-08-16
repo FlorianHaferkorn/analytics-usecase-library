@@ -19,7 +19,7 @@ business:
   purpose: Counts planning cycles or plan versions in the period.
   definition: Count of plan records or plan versions.
   grain_scope: Plan; aggregated by period.
-  unit_format: count
+  unit_format: count_0
   interpretation: Higher counts indicate more planning activity.
 technical:
   measure_name: Plans Count

@@ -39,6 +39,39 @@ except ImportError:
 
 # ── Visual type mapping (bracket → PBIP visualType) ──────────────────────────
 
+def _aus_registry() -> Dict[str, List[str]]:
+    """Registry-ID → erlaubte PBIP-Typen, ABGELEITET statt gepflegt.
+
+    Die Registry fuehrt je Visual bereits `targets.powerbi` bzw. `pbip_type`. Diese
+    Tabelle hier wiederholte das — und wer einen neuen Typ aufnahm, musste daran
+    denken. Genau diese Sorte Kopie hat am 02.08.2026 dazu gefuehrt, dass die Schemas
+    acht Typen erlaubten, die die Registry nicht kennt.
+
+    Gelesen per PFAD, nicht per Paket-Import: `products/` muss standalone importierbar
+    bleiben (derselbe Grund wie in `adapters/pbip.py`; ein Paket-Import hat hier schon
+    einmal H7 auf 0 % fallen lassen). Die Alt-Namen unten bleiben ergaenzend stehen,
+    solange Brackets beide Schreibweisen tragen koennen.
+    """
+    import yaml
+
+    reg = (Path(__file__).resolve().parents[5]
+           / "core/templates/page_templates/visual_registry.yaml")
+    doc = yaml.safe_load(reg.read_text(encoding="utf-8")) or {}
+    out: Dict[str, List[str]] = {}
+    for block in doc.get("information_blocks") or []:
+        for v in block.get("allowed_visuals") or []:
+            pbip = (v.get("targets") or {}).get("powerbi") or v.get("pbip_type")
+            if v.get("visual_id") and pbip:
+                out.setdefault(v["visual_id"], [])
+                if pbip not in out[v["visual_id"]]:
+                    out[v["visual_id"]].append(pbip)
+    if not out:
+        raise ValueError(f"{reg} lieferte keine Visuals — Compliance-Pruefung waere blind")
+    return out
+
+
+# Alt-Schreibweisen (Bracket-Vokabular vor ADR-0018). Sie ergaenzen die abgeleitete
+# Tabelle; fuer einen NEUEN Typ ist hier nichts einzutragen.
 VISUAL_TYPE_MAP: Dict[str, List[str]] = {
     "kpi_card":              ["cardVisual", "kpiVisual", "card"],
     "trend_line":            ["lineChart", "lineClusteredColumnComboChart", "lineStackedColumnComboChart"],
@@ -49,7 +82,27 @@ VISUAL_TYPE_MAP: Dict[str, List[str]] = {
     "scatter":               ["scatterChart"],
     "matrix":                ["pivotTable"],
     "table":                 ["tableEx"],
+    # Registry-Schreibweisen (ADR-0018). Ergaenzt statt ersetzt, weil die Brackets
+    # beide Formen tragen koennen, solange L2 nicht abgeschlossen ist. Ein Mapping,
+    # das nur eine Schreibweise kennt, faellt beim Umbenennen still auf "kein
+    # Treffer" zurueck — und eine Compliance-Pruefung ohne Treffer sieht aus wie
+    # eine bestandene.
+    "kpi_card_with_delta":   ["cardVisual", "kpiVisual", "card"],
+    "horizontal_bar_chart":  ["barChart", "clusteredBarChart"],
+    "column_chart":          ["clusteredColumnChart", "columnChart"],
+    "waterfall_chart":       ["waterfallChart"],
+    "scatter_plot":          ["scatterChart"],
 }
+
+# VEREINIGEN, nicht ueberschreiben. Die Registry sagt, was sanktioniert ist; die Liste
+# oben traegt zusaetzlich akzeptierte PBIR-Aliase desselben Visuals (`kpiVisual`/`card`
+# sind dieselbe Karte). Ein `update()` haette `kpi_card_with_delta` von drei akzeptierten
+# Namen auf einen verengt und dadurch Falschwarnungen auf bestehenden dist-Reports
+# erzeugt — eine Pruefung, die neu meckert, ohne dass sich etwas verschlechtert hat,
+# wird abgeschaltet statt gelesen.
+for _vid, _typen in _aus_registry().items():
+    VISUAL_TYPE_MAP[_vid] = sorted(set(VISUAL_TYPE_MAP.get(_vid, [])) | set(_typen))
+
 
 PAGE_TYPE_LABELS: Dict[str, str] = {
     "T1_Strategic_Overview":       "T1",

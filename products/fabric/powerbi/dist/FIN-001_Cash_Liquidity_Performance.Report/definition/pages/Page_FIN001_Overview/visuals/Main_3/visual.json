@@ -3,14 +3,14 @@
   "name": "Main_3",
   "position": {
     "x": 1280,
-    "y": 290,
+    "y": 272,
     "z": 10000,
-    "height": 758,
+    "height": 776,
     "width": 608,
     "tabOrder": 3004
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "waterfallChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "_CCC_Bridge"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "Step"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "_CCC_Bridge.Step",
+              "nativeQueryRef": "Step"
             }
           ]
         },
@@ -42,53 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "CCC Days"
+                  "Property": "CCC Bridge Value (Now)"
                 }
               },
-              "queryRef": "_Measures.CCC Days",
-              "nativeQueryRef": "CCC Days"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Cash Balance"
-                }
-              },
-              "queryRef": "_Measures.Cash Balance",
-              "nativeQueryRef": "Cash Balance"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Operating Cash Flow"
-                }
-              },
-              "queryRef": "_Measures.Operating Cash Flow",
-              "nativeQueryRef": "Operating Cash Flow"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Cash vs Plan %"
-                }
-              },
-              "queryRef": "_Measures.Cash vs Plan %",
-              "nativeQueryRef": "Cash vs Plan %"
+              "queryRef": "_Measures.CCC Bridge Value (Now)",
+              "nativeQueryRef": "CCC Bridge Value"
             }
           ]
         }
@@ -108,27 +66,22 @@
           }
         }
       ],
-      "layout": [
+      "labels": [
         {
           "properties": {
-            "clusteredGapSize": {
+            "show": {
               "expr": {
                 "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
+                  "Value": "true"
                 }
               }
             }
           }
         }
-      ],
-      "dataLabels": [
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
         {
           "properties": {
             "show": {
@@ -138,10 +91,17 @@
                 }
               }
             },
-            "labelPosition": {
+            "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'OutsideEnd'"
+                  "Value": "'Cash Conversion Cycle — aktueller Monat'"
+                }
+              }
+            },
+            "titleWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

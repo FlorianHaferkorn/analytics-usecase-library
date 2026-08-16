@@ -14,7 +14,7 @@ business:
   purpose: Measures realised voluntary employee turnover in the period.
   definition: Voluntary Leavers / Average Headcount (annualised).
   grain_scope: Org/segment; monthly, annualised.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; sustained rises signal retention and engagement problems.
 technical:
   measure_name: Attrition %

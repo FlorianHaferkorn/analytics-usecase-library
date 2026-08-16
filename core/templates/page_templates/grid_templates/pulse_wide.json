@@ -1,0 +1,71 @@
+{
+  "template_id": "pulse_wide",
+  "description": "Uebersicht (3s/30s) mit BREITEM Datums-Slicer und Benchmark-Streifen. IR-Compiler-Pfad.",
+  "_provenance": "Aus tooling/generator_core/ir/compiler.py promoviert (02.08.2026). Das Layout ist NICHT pulse/action_matrix: ein breiter Datums-Slicer statt drei schmaler, volle Seitenschienen statt geteilter, plus Benchmark_Caption. Es war eine hartkodierte Python-Tabelle — jetzt governt wie jedes andere Raster. Zeilenspannen sind bewusst fraktional: ein Zwang auf ganze Zeilen liesse Benchmark_Caption und Slicer_Date kollidieren und braeche die dokumentierte 76-px-Mindesthoehe des Dropdown-Slicers.",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "slots": [
+    {
+      "slot_id": "KPI_Cards",
+      "grid": [
+        0,
+        0.0,
+        12,
+        1.69
+      ],
+      "visual_type_hint": "cardVisual"
+    },
+    {
+      "slot_id": "Benchmark_Caption",
+      "grid": [
+        0,
+        1.54,
+        12,
+        0.56
+      ],
+      "visual_type_hint": "textbox"
+    },
+    {
+      "slot_id": "Slicer_Date",
+      "grid": [
+        0,
+        2.0,
+        12,
+        1.12
+      ],
+      "visual_type_hint": "slicer"
+    },
+    {
+      "slot_id": "Main_1",
+      "grid": [
+        0,
+        2.99,
+        4,
+        8.9
+      ],
+      "visual_type_hint": "lineChart"
+    },
+    {
+      "slot_id": "Main_2",
+      "grid": [
+        4,
+        2.99,
+        4,
+        8.9
+      ],
+      "visual_type_hint": "clusteredBarChart"
+    },
+    {
+      "slot_id": "Main_3",
+      "grid": [
+        8,
+        2.99,
+        4,
+        8.9
+      ],
+      "visual_type_hint": "clusteredColumnChart"
+    }
+  ]
+}

@@ -79,12 +79,20 @@ class JudgeContext:
         return out
 
 
+#: Regelarten, die ein Judge-Urteil brauchen. `both` heisst: ein Validator entscheidet
+#: die strukturelle Haelfte, ein Judge die semantische — beide zaehlen. Ohne `both` in
+#: dieser Menge waeren die zwei betroffenen Regeln (BC-NARR-01, BC-BRAND-02) still aus
+#: der Judge-Menge gefallen; die Aufwertung von `judge` auf `both` haette dann GENAU
+#: das bewirkt, was sie beheben soll — ein Urteil, das niemand einholt.
+JUDGE_KINDS = ("judge", "both")
+
+
 def judge_rules(rubric: dict[str, Any]) -> list[dict[str, Any]]:
-    """All `check: judge` rules from the rubric, flattened with their dimension."""
+    """Alle Regeln, die ein Judge-Urteil brauchen (`check: judge` oder `both`)."""
     out = []
     for dim in rubric["dimensions"]:
         for r in dim["rules"]:
-            if r.get("check") == "judge":
+            if r.get("check") in JUDGE_KINDS:
                 out.append({**r, "dimension": dim["id"]})
     return out
 

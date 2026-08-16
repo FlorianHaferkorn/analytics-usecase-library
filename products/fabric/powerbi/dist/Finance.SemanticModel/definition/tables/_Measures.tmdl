@@ -69,6 +69,146 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
+	/// Signed CCC bridge step value: DSO (+), DIO (+), DPO (−); falls back to total CCC Days when no step is in context.
+	/// Drives the Main_3 CCC decomposition waterfall over the disconnected _CCC_Bridge[Step] dimension.
+	/// Grain: bridge_step · Unit: days · Owner: Finance Analytics · Status: active
+	measure 'CCC Bridge Value' =
+			SWITCH (
+				SELECTEDVALUE ( _CCC_Bridge[Step] ),
+				"DSO", [DSO Days],
+				"DIO", [DIO Days],
+				"DPO", -[DPO Days],
+				[CCC Days]
+			)
+		formatString: "0"
+		displayFolder: "FIN-001"
+
+	/// Letzter Datenmonat als Monatsindex (Jahr*12+Monat) mit Cash-Daten — Anker aller (Now)-Measures.
+	/// Macht die Headline-KPIs slicer-unabhaengig: Cards zeigen immer den aktuellen Stand.
+	measure '_NowIdx' =
+			CALCULATE (
+				MAXX (
+					FILTER ( ALL ( dim_date ), NOT ISBLANK ( CALCULATE ( SUM ( fact_cash_position[Cash Balance Amount] ) ) ) ),
+					dim_date[Year] * 12 + dim_date[MonthNumber]
+				),
+				REMOVEFILTERS ( dim_date )
+			)
+		formatString: "0"
+		displayFolder: "FIN-001 (Now)"
+		isHidden
+
+	/// DSO im letzten Datenmonat (slicer-unabhaengig).
+	measure 'DSO Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [DSO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// DIO im letzten Datenmonat (slicer-unabhaengig).
+	measure 'DIO Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [DIO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// DPO im letzten Datenmonat (slicer-unabhaengig).
+	measure 'DPO Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [DPO Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC im letzten Datenmonat (slicer-unabhaengig). Headline-KPI der Overview-Cards.
+	measure 'CCC Days (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash Balance im letzten Datenmonat (bereits semi-additiv; hier explizit gepinnt).
+	measure 'Cash Balance (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Operating Cash Flow im letzten Datenmonat (Monatswert statt Lifetime-Summe).
+	measure 'Operating Cash Flow (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash vs Plan % im letzten Datenmonat (slicer-unabhaengig).
+	measure 'Cash vs Plan % (Now)' =
+			VAR _n = [_NowIdx]
+			RETURN CALCULATE ( [Cash vs Plan %], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+		formatString: "0.0%"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC-Bridge-Wert im letzten Datenmonat (Bridge-Total = Headline-CCC, konsistent).
+	measure 'CCC Bridge Value (Now)' =
+			SWITCH (
+				SELECTEDVALUE ( _CCC_Bridge[Step] ),
+				"DSO", [DSO Days (Now)],
+				"DIO", [DIO Days (Now)],
+				"DPO", -[DPO Days (Now)],
+				[CCC Days (Now)]
+			)
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC-Gesundheit (numerisch fuer Karten-Ampel): 45 - CCC(Now). >0 = unter Ziel = gut.
+	measure 'CCC Health' = 45 - [CCC Days (Now)]
+		formatString: "0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash-Gesundheit (numerisch): Cash vs Plan % im letzten Datenmonat. >0 = ueber Plan = gut.
+	measure 'Cash Health' = [Cash vs Plan % (Now)]
+		formatString: "0.0%"
+		displayFolder: "FIN-001 (Now)"
+
+	/// OCF-Gesundheit (numerisch): OCF(Now) - OCF-Plan(Now). >0 = ueber Plan = gut.
+	measure 'OCF Health' =
+			VAR _n = [_NowIdx]
+			VAR _ocf = [Operating Cash Flow (Now)]
+			VAR _plan = CALCULATE ( [OCF Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+			RETURN _ocf - _plan
+		formatString: "#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// CCC Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt. Niedriger = besser.
+	measure 'CCC Delta (Now)' =
+			VAR _n = [_NowIdx]
+			VAR _now = [CCC Days (Now)]
+			VAR _pm = CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) )
+			RETURN
+				SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 0, BLANK ( ), 2, _now - 45, _now - _pm )
+		formatString: "+0.0;-0.0;0.0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Cash Balance Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt. Hoeher = besser.
+	measure 'Cash Balance Delta (Now)' =
+			VAR _n = [_NowIdx]
+			VAR _now = [Cash Balance (Now)]
+			VAR _pm = CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) )
+			VAR _plan = CALCULATE ( [Cash Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+			RETURN
+				SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, _now - _pm, _now - _plan )
+		formatString: "+#,0;-#,0"
+		displayFolder: "FIN-001 (Now)"
+
+	/// Operating Cash Flow Delta je Vergleichsmodus, auf letzten Datenmonat gepinnt.
+	measure 'Operating Cash Flow Delta (Now)' =
+			VAR _n = [_NowIdx]
+			VAR _now = [Operating Cash Flow (Now)]
+			VAR _pm = CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n - 1 ) )
+			VAR _plan = CALCULATE ( [OCF Plan], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _n ) )
+			RETURN
+				SWITCH ( SELECTEDVALUE ( Vergleich[Sort] ), 1, _now - _pm, _now - _plan )
+		formatString: "+#,0;-#,0"
+		displayFolder: "FIN-001 (Now)"
+
 	/// Working capital cycle time.
 	/// Formula: [DSO Days] + [DIO Days] - [DPO Days]
 	/// Grain: month · Unit: days
@@ -87,14 +227,89 @@ table _Measures
 		formatString: "0"
 		displayFolder: "FIN-001"
 
+	/// Cash-Plan-Referenz (letzter Datenmonat) — Basis für 'vs Plan'.
+	measure 'Cash Plan' = LASTNONBLANKVALUE ( dim_date[Date], SUM ( fact_cash_position[Plan Cash Amount] ) )
+		formatString: "#,0"
+		displayFolder: "0_Vergleich"
+
+	/// OCF-Plan-Referenz.
+	measure 'OCF Plan' = SUM ( fact_cash_flow[Plan OCF Amount] )
+		formatString: "#,0"
+		displayFolder: "0_Vergleich"
+
+	/// CCC im Vormonat (rastersicherer Monatsindex-Shift statt DATEADD).
+	measure 'CCC Days PM' =
+			VAR _idx = MAX ( dim_date[Year] ) * 12 + MAX ( dim_date[MonthNumber] )
+			RETURN
+				CALCULATE ( [CCC Days], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _idx - 1 ) )
+		formatString: "0.0"
+		displayFolder: "0_Vergleich"
+
+	/// Cash Balance im Vormonat.
+	measure 'Cash Balance PM' =
+			VAR _idx = MAX ( dim_date[Year] ) * 12 + MAX ( dim_date[MonthNumber] )
+			RETURN
+				CALCULATE ( [Cash Balance], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _idx - 1 ) )
+		formatString: "#,0"
+		displayFolder: "0_Vergleich"
+
+	/// Operating Cash Flow im Vormonat.
+	measure 'Operating Cash Flow PM' =
+			VAR _idx = MAX ( dim_date[Year] ) * 12 + MAX ( dim_date[MonthNumber] )
+			RETURN
+				CALCULATE ( [Operating Cash Flow], REMOVEFILTERS ( dim_date ), FILTER ( ALL ( dim_date ), dim_date[Year] * 12 + dim_date[MonthNumber] = _idx - 1 ) )
+		formatString: "#,0"
+		displayFolder: "0_Vergleich"
+
+	/// CCC Δ je Vergleichsmodus (Feldparameter 'Vergleich'). Niedriger = besser.
+	measure 'CCC Delta' =
+			SWITCH (
+				SELECTEDVALUE ( Vergleich[Sort] ),
+				0, BLANK ( ),
+				2, [CCC Days] - 45,
+				[CCC Days] - [CCC Days PM]
+			)
+		formatString: "+0.0;-0.0;0.0"
+		displayFolder: "0_Vergleich"
+
+	/// Cash Balance Δ je Vergleichsmodus. Höher = besser.
+	measure 'Cash Balance Delta' =
+			SWITCH (
+				SELECTEDVALUE ( Vergleich[Sort] ),
+				1, [Cash Balance] - [Cash Balance PM],
+				[Cash Balance] - [Cash Plan]
+			)
+		formatString: "#,0"
+		displayFolder: "0_Vergleich"
+
+	/// Operating Cash Flow Δ je Vergleichsmodus.
+	measure 'Operating Cash Flow Delta' =
+			SWITCH (
+				SELECTEDVALUE ( Vergleich[Sort] ),
+				1, [Operating Cash Flow] - [Operating Cash Flow PM],
+				[Operating Cash Flow] - [OCF Plan]
+			)
+		formatString: "#,0"
+		displayFolder: "0_Vergleich"
+
+	/// CCC Ampel (Hex): <45 grün · 45–60 amber · >60 rot.
+	measure 'CCC Ampel' = SWITCH ( TRUE ( ), ISBLANK ( [CCC Days] ), "#98A2B3", [CCC Days] > 60, "#EF4444", [CCC Days] > 45, "#F59E0B", "#16A34A" )
+		formatString: @
+		displayFolder: "0_Vergleich"
+
+	/// Cash-vs-Plan Ampel (Hex): ≥−5% grün · −5..−10% amber · <−10% rot.
+	measure 'Cash vs Plan Ampel' = SWITCH ( TRUE ( ), ISBLANK ( [Cash vs Plan %] ), "#98A2B3", [Cash vs Plan %] < -0.10, "#EF4444", [Cash vs Plan %] < -0.05, "#F59E0B", "#16A34A" )
+		formatString: @
+		displayFolder: "0_Vergleich"
+
 	/// Cash and cash equivalents.
 	/// Formula: SUM(fact_cash_position[Cash Balance Amount]) at MAX(DateKey) in filter context
 	/// Grain: day · Unit: EUR
 	/// Owner: Finance Analytics · Status: active · Actions: F-C1.1, F-C1.2
 	/// Synonyms: Cash and Cash Equivalents, Cash Position, Liquide Mittel, Kassenbestand
 	/// Example question: How has our cash balance tracked versus plan this year?
-	measure 'Cash Balance' = SUM ( fact_cash_position[Cash Balance Amount] )
-		formatString: "#,0.00"
+	measure 'Cash Balance' = LASTNONBLANKVALUE ( dim_date[Date], SUM ( fact_cash_position[Cash Balance Amount] ) )
+		formatString: "#,0"
 		displayFolder: "FIN-001"
 
 	/// Cash generated from operating activities.
@@ -132,14 +347,12 @@ table _Measures
 	/// Synonyms: Days Sales Outstanding, Receivables Days, Average Collection Period, Debitorenlaufzeit, Forderungslaufzeit
 	/// Example question: Why did DSO increase in the Nordics region last quarter?
 	measure 'DSO Days' =
-			VAR AccountsReceivableAmount =
-				SUM ( fact_accounts_receivable[AR Amount] )
-			VAR RevenueAmount =
-				SUM ( fact_accounts_receivable[Revenue Amount] )
-			VAR AnnualizedReceivables =
-				AccountsReceivableAmount * 365
+			VAR AvgReceivablesBalance =
+				AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_receivable[AR Amount] ) ) )
+			VAR AnnualRevenue =
+				AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_receivable[Revenue Amount] ) ) ) * 12
 			RETURN
-				DIVIDE ( AnnualizedReceivables, RevenueAmount )
+				DIVIDE ( AvgReceivablesBalance * 365, AnnualRevenue )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
@@ -150,14 +363,12 @@ table _Measures
 	/// Synonyms: Days Inventory Outstanding, Days Sales of Inventory, Inventory Days, Lagerreichweite, Bestandsreichweite
 	/// Example question: Which product categories are driving up DIO this quarter?
 	measure 'DIO Days' =
-			VAR InventoryAmount =
-				SUM ( fact_inventory[Inventory Amount] )
-			VAR CostOfGoodsSoldAmount =
-				SUM ( fact_inventory[COGS Amount] )
-			VAR AnnualizedInventory =
-				InventoryAmount * 365
+			VAR AvgInventoryBalance =
+				AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_inventory[Average Inventory Amount] ) ) )
+			VAR AnnualCOGS =
+				AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[COGS Amount] ) ) ) * 12
 			RETURN
-				DIVIDE ( AnnualizedInventory, CostOfGoodsSoldAmount )
+				DIVIDE ( AvgInventoryBalance * 365, AnnualCOGS )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
@@ -168,14 +379,12 @@ table _Measures
 	/// Synonyms: Days Payable Outstanding, Payables Days, Creditor Days, Kreditorenlaufzeit
 	/// Example question: Are we extending DPO with our largest suppliers this year?
 	measure 'DPO Days' =
-			VAR AccountsPayableAmount =
-				SUM ( fact_accounts_payable[AP Amount] )
-			VAR CostOfGoodsSoldAmount =
-				SUM ( fact_accounts_payable[COGS Amount] )
-			VAR AnnualizedPayables =
-				AccountsPayableAmount * 365
+			VAR AvgPayablesBalance =
+				AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[AP Amount] ) ) )
+			VAR AnnualCOGS =
+				AVERAGEX ( VALUES ( dim_date[CalendarYearMonth] ), CALCULATE ( SUM ( fact_accounts_payable[COGS Amount] ) ) ) * 12
 			RETURN
-				DIVIDE ( AnnualizedPayables, CostOfGoodsSoldAmount )
+				DIVIDE ( AvgPayablesBalance * 365, AnnualCOGS )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
@@ -200,8 +409,29 @@ table _Measures
 	/// Owner: Risk Analytics · Status: active
 	/// Synonyms: Supplier Risk Rating, Vendor Risk Index, Lieferantenrisiko-Score, Lieferantenrisikobewertung
 	/// Example question: Which suppliers carry the highest risk score?
-	measure 'Supplier Risk Score' = VAR _pending = "Requires fact_supplier_risk table (not yet in data contract)" RETURN BLANK()
-		formatString: "0"
+	measure 'Supplier Risk Score' = AVERAGE ( fact_supplier_risk[Risk Score] )
+		formatString: "0.0"
+		displayFolder: "FIN-001"
+
+	/// AP-exposure-weighted supplier risk for the entity in filter context.
+	/// Formula: SUMX over suppliers of (entity AP exposure × supplier Risk Score) / total entity AP exposure, over risk-scored suppliers only.
+	/// Grain: entity_month · Unit: score (payables-weighted) · Owner: Risk Analytics · Status: active · Actions: F-C1.4
+	/// Rationale: risk-weighted payables exposure surfaces the liquidity risk a risky supplier base carries into the cash conversion cycle — makes supplier risk a legitimate entity-level column on the cash matrix rather than a global constant.
+	measure 'Supplier Risk Score (Entity)' =
+			VAR _Suppliers =
+				ADDCOLUMNS (
+					VALUES ( dim_supplier[SupplierKey] ),
+					"@AP", CALCULATE ( SUM ( fact_accounts_payable[AP Amount] ) ),
+					"@Risk", CALCULATE ( AVERAGE ( fact_supplier_risk[Risk Score] ) )
+				)
+			VAR _Scored =
+				FILTER ( _Suppliers, NOT ISBLANK ( [@Risk] ) )
+			RETURN
+				DIVIDE (
+					SUMX ( _Scored, [@AP] * [@Risk] ),
+					SUMX ( _Scored, [@AP] )
+				)
+		formatString: "0.0"
 		displayFolder: "FIN-001"
 
 	/// Inventory balance used in DIO calculations.
@@ -305,7 +535,7 @@ table _Measures
 	/// Formula: Defective Units / Total Produced Units.
 	/// Grain: line_day · Unit: %
 	/// Owner: Operations Analytics · Status: active
-	measure 'Quality Defect Rate %' = VAR Defects = SUM ( fact_quality[Defect Count] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( Defects, TotalUnits )
+	measure 'Quality Defect Rate %' = VAR Defects = SUM ( fact_output[Defect Count] ) VAR TotalUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( Defects, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -319,7 +549,7 @@ table _Measures
 	/// NOTE: fact_ops (Good Units) is an Operations-model table; the Finance model
 	/// carries only fact_output[Output Units], so this proxy cannot be evaluated in
 	/// the Finance model until a Good-Units source is added — pre-existing data gap.
-	measure 'Quality % (FIN)' = VAR GoodUnits = SUM ( fact_ops[Good Units] ) VAR TotalUnits = SUM ( fact_ops[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
+	measure 'Quality % (FIN)' = VAR GoodUnits = SUM ( fact_output[Good Units] ) VAR TotalUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -332,7 +562,7 @@ table _Measures
 	/// Accounts payable balance at period end
 	/// Formula: SUM(fact_ap[AP Amount]) at latest DateKey in filter context
 	/// Owner: Finance BI · Status: active
-	measure 'Payables Amount' = SUM ( fact_accounts_payable[Payables Amount] )
+	measure 'Payables Amount' = SUM ( fact_accounts_payable[AP Amount] )
 		formatString: #,0.00
 		displayFolder: FIN-001
 		lineageTag: 58cf11a3-6134-4d19-91ec-5e86f803a386

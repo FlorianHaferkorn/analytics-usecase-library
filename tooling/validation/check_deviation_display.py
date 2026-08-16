@@ -37,7 +37,23 @@ _USECASES = REPO / "core/usecases"
 # Comparisons whose meaning IS a delta between two totals — best shown as the delta.
 _VARIANCE_COMPARISONS = {"vs_plan", "vs_py"}
 # Absolute-bar visual types: length encodes each total → the reader subtracts by eye.
-_ABSOLUTE_BARS = {"bar_chart", "column_chart", "clustered_bar", "stacked_bar"}
+# Schreibweisen-Robustheit (ADR-0018 / Task L2): Brackets tragen teils Alt-Token
+# (`waterfall`), teils Registry-Namen (`waterfall_chart`). Ein Literalvergleich
+# gegen nur eine Schreibweise hoert beim Umbenennen STILL auf zu greifen — die
+# Pruefung meldet dann nichts mehr und sieht dabei aus wie eine bestandene.
+# Deshalb wird der eingehende Wert zuerst kanonisiert.
+try:
+    from tooling.superversion.layer_tools.visual_library import canonical_visual_id as _kanon
+except Exception:  # pragma: no cover - Standalone-Lauf ohne Repo-Root im Pfad
+    def _kanon(t):  # type: ignore[misc]
+        return t
+
+
+def _vt(token):
+    """Bracket-Token -> kanonische Registry-ID (oder unveraendert, wenn unbekannt)."""
+    return _kanon(token) or token
+
+_ABSOLUTE_BARS = {"horizontal_bar_chart", "column_chart", "clustered_bar", "stacked_bar"}
 
 
 def exhibit_violations(bracket: dict) -> list[tuple[str, str, str]]:
@@ -50,7 +66,7 @@ def exhibit_violations(bracket: dict) -> list[tuple[str, str, str]]:
             continue
         comp = ex.get("comparison")
         vt = ex.get("visual_type")
-        if comp in _VARIANCE_COMPARISONS and vt in _ABSOLUTE_BARS:
+        if comp in _VARIANCE_COMPARISONS and _vt(vt) in _ABSOLUTE_BARS:
             out.append((ex.get("slot_id", "?"), comp, vt))
     return out
 

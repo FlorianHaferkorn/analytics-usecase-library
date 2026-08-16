@@ -14,7 +14,7 @@ business:
   purpose: Measures total addressable spend under procurement management.
   definition: Sum of addressable spend across categories in the period.
   grain_scope: Category/supplier; monthly.
-  unit_format: '''EUR (0 decimal)'''
+  unit_format: eur_0
   interpretation: Denominator base for on-contract %, PPV and savings; watch coverage of tail spend.
 technical:
   measure_name: Managed Spend

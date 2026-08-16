@@ -30,6 +30,7 @@ resolved upstream in `from_aluca`, never reaches this module):
     abs              -- ABS ( value )
     sumx_over_key    -- SUMX ( VALUES ( t[key] ), CALCULATE ( value ) )
     avgx_over_key    -- AVERAGEX ( VALUES ( t[key] ), CALCULATE ( value ) )
+    last_nonblank_over_key -- LASTNONBLANKVALUE ( t[key], value )        (semi-additiv)
     pvm_volume_effect -- ( SUM ( t[qty] ) - SUM ( t[plan_qty] ) ) * DIVIDE ( SUM ( t[plan_sales] ), SUM ( t[plan_qty] ) )
     pvm_price_effect  -- SUMX ( t, ( DIVIDE ( t[net_price], t[qty] ) - DIVIDE ( t[plan_sales], t[plan_qty] ) ) * t[qty] )
     avg               -- AVERAGE ( t[col] )
@@ -208,6 +209,17 @@ def synthesize_dax(resolved: dict) -> str:
         if not table or not key_column:
             raise SynthesisError(f"avgx_over_key missing table/key_column: {resolved!r}")
         return f"AVERAGEX ( VALUES ( {table}[{key_column}] ), CALCULATE ( {_term(value)} ) )"
+
+    if op == "last_nonblank_over_key":
+        table, key_column, value = resolved.get("table"), resolved.get("key_column"), resolved.get("value")
+        if not table or not key_column:
+            raise SynthesisError(f"last_nonblank_over_key missing table/key_column: {resolved!r}")
+        # Semi-additiv: ueber die Zeit der LETZTE nicht-leere Wert, ueber jede andere
+        # Dimension normal additiv. Ein Saldo (Kasse, Bestand, Kopfzahl) ueber Monate
+        # zu SUMmieren ist keine Ungenauigkeit, sondern eine falsche Zahl.
+        # Ohne CALCULATE-Huelle -- LASTNONBLANKVALUE setzt den Zeilenkontext des
+        # Schluessels bereits selbst in Filterkontext um (anders als VALUES-Iteratoren).
+        return f"LASTNONBLANKVALUE ( {table}[{key_column}], {_term(value)} )"
 
     if op == "pvm_volume_effect":
         table = resolved.get("table")

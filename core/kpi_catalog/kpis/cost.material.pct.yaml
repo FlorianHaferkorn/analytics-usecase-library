@@ -21,7 +21,7 @@ business:
   purpose: Shows material cost share of net sales.
   definition: Material Cost Amount / Net Sales Amount.
   grain_scope: Company/segment; monthly close.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; increases indicate supplier or price pressure.
 technical:
   measure_name: Material Cost %
@@ -55,5 +55,5 @@ standard_ref:
   name: Material-cost ratio
   url: https://www.ifrs.org/issued-standards/list-of-standards/ias-2-inventories/
   alignment: none
-  note: Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure. Material
-    cost is an IAS 2 inventory cost input.
+  note: Management cost-structure ratio (material cost share of sales); not an IFRS-defined figure. Material cost
+    is an IAS 2 inventory cost input.

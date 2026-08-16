@@ -320,7 +320,7 @@ def _resolve_calc_node(
                 raise KeyError("value")
             return {"op": "abs", "value": value}, None
 
-        if op in ("sumx_over_key", "avgx_over_key"):
+        if op in ("sumx_over_key", "avgx_over_key", "last_nonblank_over_key"):
             key_column = calc["key_column"]
             table = own_cols.get(key_column)
             value = ref("value")
@@ -414,6 +414,18 @@ def _resolve_calculation(kpi: dict, catalog: "KpiCatalog") -> tuple[Optional[dic
 
 
 def _fmt_from_unit(unit: str) -> str:
+    """Einheit -> Superversion-Formatstring.
+
+    Kanonische Tokens (`business.unit_format` seit 04.08.2026) kommen aus der einen
+    Tabelle in `tooling/reporting/format_policy`. Der Substring-Zweig darunter bleibt
+    als Ruecklauf fuer Altbestand und Fremdkataloge -- er raet, deshalb hat er den
+    zweiten Platz, nicht den ersten.
+    """
+    from tooling.reporting.format_policy import unit_format_string
+
+    canonical = unit_format_string(unit, "sv")
+    if canonical is not None:
+        return canonical
     u = (unit or "").lower()
     if "eur" in u or "€" in u:
         return r"\€#,0.00;-\€#,0.00"
@@ -472,27 +484,195 @@ def _collect_visual_kpi_ids(component: dict, catalog: KpiCatalog) -> list[str]:
     return deduped
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Layout-Bindung (Task L8)
+#
+# Bis zum 02.08.2026 erzeugte dieser Adapter Visuals OHNE Geometrie — jedes `Visual`
+# ging mit x=y=width=height=0 heraus. Sichtbar war das in den eingecheckten Golden
+# Snapshots (`"width": 0`), aber es fiel nicht auf, weil kein Test danach fragte.
+# Der Vertrag (`_canonical_mirror.Visual`) fuehrt die vier Felder seit jeher.
+#
+# Gebunden wird als **Leser** des governten Systems, nicht als kopierte Tabelle:
+# die Slot-Definitionen leben in Logical Units in `generator_core/ir/compiler.py`
+# (Task L13), die Rasterparameter in `core/templates/page_templates/tokens/layout_grid.yaml`.
+# Eine Aenderung dort wirkt hier ohne Codeaenderung — das ist die eigentliche
+# Zusicherung von L8, nicht die Zahlen selbst.
+#
+# Warum PIXEL und nicht Brueche: PBIR positioniert in Pixeln. Die Aufloesung passiert
+# genau einmal, in `layout_grid.to_pixels()`, gegen die Produktionsleinwand.
+_SLOT_FUER_KOMPONENTE = {
+    "3s": "KPI_Cards",
+    "300s": "Detail_Matrix",
+}
+# Die 30s-Komponenten fuellen der Reihe nach die drei Hauptspalten — dieselbe
+# Zuordnung, die der IR-Compiler vornimmt (`Main_{i}`), damit beide Pfade dieselbe
+# Seite beschreiben und nicht zwei Wahrheiten ueber dasselbe Layout entstehen.
+_MAIN_SLOTS = ("Main_1", "Main_2", "Main_3")
+
+#: Welches Visual ein Pflicht-Moebel ist. Die Werte sind `CHROME_TOKENS` aus der
+#: Visual-Library — Seitenmoebel, ausdruecklich KEINE Registry-Visuals: die Registry
+#: beschreibt Absichten, und ein Slicer beantwortet keine Frage. Das `visual_type_hint`
+#: der Raster-Templates ist bewusst NICHT die Quelle: es fuehrt PBIR-Typnamen
+#: (`tableEx`, `cardVisual`) und wuerde die Vokabular-Autoritaet aus ADR-0018 umgehen.
+_MOEBEL_VISUAL = {
+    "Slicer_Date": "slicer",
+    "Slicer_Pane": "slicer",
+    "Slicer_Entity": "slicer",
+    "Slicer_Region": "slicer",
+    "Slicer_Product": "slicer",
+    "Smart_Narrative": "smart_narrative",
+    "ActionPanel": "action_panel",
+}
+
+#: Das Feld, auf das ein Slicer filtert. Leer heisst „vom Modell zu binden" — der
+#: Bracket kennt hier keine Spalte, und eine erfundene waere ein dangling reference.
+_SLICER_FELD = {"Slicer_Date": "Date[Date]"}
+
+
+def _slot_geometrie(slot_name: str, variant: str = "", ebene: str = "") -> dict[str, float]:
+    """Slot-Name → Pixel-Rechteck aus dem Raster-Template **dieser Variante**.
+
+    Leer, wenn der Slot dort nicht deklariert ist — geraten wird nichts.
+
+    Bis 02.08.2026 las diese Funktion `_OVERVIEW_LU`/`_DETAIL_LU` aus dem IR-Compiler.
+    Gemessen war das faktisch `pulse` fuer **alle** Varianten: `executive_kpi` gibt
+    `Main_2` 328 px Hoehe, die Tabelle 749 px (Δ 421). `template_variant` wurde also
+    deklariert, gegen das Manifest validiert — und von der Geometrie ignoriert.
+    Autoritaet sind jetzt die `grid_templates/*.json` (Entscheidung Flo, 02.08.2026).
+
+    Ohne Variante bleibt das benannte Default-Raster — dieselbe Annahme wie vorher,
+    aber sichtbar statt in einer Tabelle versteckt.
+    """
+    from tooling.superversion.layer_tools.layout_grid import load, to_pixels
+    from tooling.superversion.layer_tools.page_templates import default_raster, slot_lu
+
+    lu = None
+    if variant and ebene:
+        lu = slot_lu(variant, ebene, slot_name)
+    if lu is None and ebene:
+        lu = default_raster(ebene).slots.get(slot_name)
+    if lu is None:
+        return {}
+    return to_pixels(*lu, params=load("production"))
+
+
+def _visual_fuer_slot(component: dict, slot_name: str, variant: str,
+                      ebene: str) -> tuple[str, Optional[dict]]:
+    """Welches Visual gehoert in diesen Slot — und widerspricht das Bracket der Variante?
+
+    Das ist die Naht, die bis 02.08.2026 fehlte. `template_manifest.yaml` weist jedem
+    Slot einer Variante einen `information_block` zu — `Main_2` ist bei
+    T2_DriverBridge `variance_explanation`, bei T3_ProcessControl `exception_list`.
+    Das ist die **einzige** Achse, auf der sich die 11 Varianten wirklich unterscheiden
+    (6 bzw. 7 distinkte Signaturen bei 2x2 Rastern). Gemessen wurde sie von **niemandem**
+    gelesen: 0 Treffer in diesem Modul und im IR-Compiler.
+
+    Genau das hat `PAGE_TYPE_TAXONOMY.md` schon benannt — „the renderer was not
+    distinguishing them… an engine gap, not a taxonomy gap". Behoben wurde es nie.
+
+    Drei Faelle, und keiner ueberstimmt still:
+
+    * **Bracket schweigt** → `default_visual` des Blocks. Vorher stand hier ein
+      hartes `"card"`, unabhaengig vom Slot — 20 der 66 Deklarationen liefen darauf.
+      Eine KPI-Karte an der Stelle einer Ausnahmeliste ist kein Default, sondern ein
+      stiller Fallback.
+    * **Bracket waehlt aus der erlaubten Menge** → die Wahl gilt. Governance grenzt
+      ein, sie entmuendigt nicht.
+    * **Bracket waehlt ausserhalb** → die Wahl gilt **trotzdem**, aber der Konflikt
+      wird gemeldet. 12 der 66 Deklarationen sind das heute, 7 davon derselbe Fall
+      (`exception_list` vs. Balkendiagramm). Bei sieben gleichlautenden Widerspruechen
+      ist keineswegs ausgemacht, dass die Brackets falsch liegen — es kann die
+      Slot-Zuweisung der Variante sein. Das automatisch zu ueberschreiben hiesse, eine
+      offene Frage per Codezeile zu entscheiden.
+    """
+    from tooling.superversion.layer_tools.page_templates import load as _variante
+    from tooling.superversion.layer_tools.visual_library import (
+        VisualLibrary, canonical_visual_id,
+    )
+
+    deklariert = component.get("visual_type") or ""
+    # Governed seam: a component may declare an `analytical_purpose` instead of a chart. Resolve it
+    # to the purpose's best emittable visual_type, then let the same block-governance below vet it.
+    if not deklariert:
+        _ap = component.get("analytical_purpose")
+        if _ap:
+            deklariert = _vi.visual_type_for_purpose(_ap) or ""
+    block = None
+    if variant and ebene and slot_name:
+        try:
+            block = next((s.information_block for s in _variante(variant).slots
+                          if s.slot_id == slot_name and s.ebene == ebene), None)
+        except Exception:      # unbekannte Variante meldet `slot_luecken`, nicht hier
+            block = None
+    if not block:
+        return (deklariert or "card"), None
+
+    lib = VisualLibrary.load()
+    spec = lib.block(block)
+    erlaubt = {v.visual_id for v in spec.allowed_visuals}
+    # `default_visual()` ist eine METHODE, kein Attribut — ein `getattr` darauf liefert
+    # das gebundene Objekt und ist wahrheitswertig. Genau daran ist der erste Lauf
+    # gescheitert: der Visualtyp war ein `<bound method …>`.
+    dv = spec.default_visual()
+    default = dv.visual_id if dv else ""
+
+    if not deklariert:
+        return (default or "card"), None
+    kanon = canonical_visual_id(deklariert) or deklariert
+    if kanon in erlaubt:
+        return deklariert, None
+    return deklariert, {"slot": slot_name, "block": block, "declared": kanon,
+                        "allowed": sorted(erlaubt)}
+
+
 def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportPage:
     visuals: list[Visual] = []
     idx = 0
+    vergeben: set[str] = set()
+    block_konflikte: list[dict] = []
+    variant = page.get("template_variant") or ""
+    ebene = _EBENE_JE_SEITE.get(page_key, "")
 
-    def add(component: dict, slot: str):
+    def add(component: dict, slot: str, slot_name: str = ""):
         nonlocal idx
         idx += 1
+        # Der Bracket darf seinen Slot selbst benennen (`slot_id`); sonst entscheidet
+        # die Komponentenart. Geraten wird nichts: ein unbekannter Slot bekommt keine
+        # Geometrie statt einer plausiblen — eine erfundene Position sieht richtig aus
+        # und ist es nicht.
+        name = slot_name or component.get("slot_id") or _SLOT_FUER_KOMPONENTE.get(slot, "")
+        geo = _slot_geometrie(name, variant, ebene) if name else {}
+        vtyp, konflikt = _visual_fuer_slot(component, name, variant, ebene)
+        if konflikt:
+            block_konflikte.append(konflikt)
         kpi_ids = _collect_visual_kpi_ids(component, catalog)
         # bound_measures: aufgelöste measure_names (Katalog) bzw. direkter Name
         bound = []
         for kid in kpi_ids:
             kpi = catalog.get(kid)
             bound.append((kpi.get("technical", {}).get("measure_name") if kpi else None) or kid)
-        # A component may name its `visual_type` directly, or declare an `analytical_purpose`
-        # (the governed seam) that resolves to the purpose's best emittable idiom; else a card.
-        _ap = component.get("analytical_purpose")
-        _vt = component.get("visual_type") or (_vi.visual_type_for_purpose(_ap) if _ap else None) or "card"
+        # Die `visual_id` IST der Slot-Name, wo einer bekannt ist.
+        #
+        # Vorher: `page_1_summary_3s_1`. Der Slot-Name wurde oben berechnet, fuer die
+        # Geometrie benutzt und dann weggeworfen — womit nachgelagert niemand mehr
+        # pruefen konnte, ob eine Seite ihre Pflicht-Slots hat. `RequiredSlots`
+        # vergleicht Slot-Namen; gegen `page_1_summary_3s_1` konnte die Menge sich nie
+        # schneiden, der Wachhund lief also leer (einer von drei Gruenden, gemessen
+        # 02.08.2026).
+        #
+        # Kollisionen sind hier KEIN Schoenheitsfehler: die `visual_id` wird in
+        # `pbir.py` zum Verzeichnisnamen (`.../visuals/<visual_id>/visual.json`).
+        # Zwei gleiche Namen = ein Visual ueberschreibt das andere, still. Deshalb
+        # faellt ein bereits vergebener Name auf das indizierte Schema zurueck,
+        # statt zu ueberschreiben.
+        vid = name if name and name not in vergeben else f"{page_key}_{slot}_{idx}"
+        vergeben.add(vid)
         visuals.append(
             Visual(
-                visual_id=f"{page_key}_{slot}_{idx}",
-                visual_type=_vt,
+                visual_id=vid,
+                x=geo.get("x", 0), y=geo.get("y", 0),
+                width=geo.get("width", 0), height=geo.get("height", 0),
+                visual_type=vtyp,
                 # BC-NARR-01 (K2/K3): the governed exhibit statement wins the title when
                 # present; else fall back to the slot label / decision question.
                 title=component.get("message") or component.get("slot_id", "") or component.get("decision_question", ""),
@@ -505,21 +685,82 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
     c3 = page.get("component_3s")
     if isinstance(c3, dict):
         add(c3, "3s")
-    # component_30s — list of slots
-    for slot in page.get("component_30s", []) or []:
+    # component_30s — die drei Hauptspalten, in Reihenfolge. Ueberzaehlige
+    # Komponenten bekommen KEINE Geometrie (statt einer vierten Spalte, die es im
+    # Raster nicht gibt) — sichtbar leer ist besser als still danebengesetzt.
+    for i, slot in enumerate(page.get("component_30s", []) or []):
         if isinstance(slot, dict):
-            add(slot, "30s")
+            add(slot, "30s", _MAIN_SLOTS[i] if i < len(_MAIN_SLOTS) else "")
     # component_300s — detail (may carry visuals or evidence grid)
     c300 = page.get("component_300s")
     if isinstance(c300, dict):
         add(c300, "300s")
 
-    return ReportPage(
+    # --- Pflicht-Moebel des Manifests (Schritt 2, 02.08.2026) ------------------
+    #
+    # Der Bracket deklariert nur drei Informationsbloecke (3s/30s/300s). Slicer,
+    # Aktionspanel und Detail-Filterleiste sind **Template**-Sache, kein Autoreninhalt —
+    # der Autor kann sie gar nicht deklarieren. Genau deshalb fehlten sie: gemessen am
+    # 02.08.2026 wiesen 39 von 40 Seiten mindestens einen Pflicht-Slot nicht aus.
+    #
+    # Sie werden aus dem Manifest ergaenzt, nicht erfunden: Pflicht laut Variante UND
+    # Geometrie im gebundenen Raster-Template. Fehlt die Geometrie (fuer fuenf Varianten
+    # deklariert das Manifest kein Detail-Raster), wird **nichts** gesetzt — ein Visual
+    # ohne Position waere schlimmer als sein Fehlen, weil `page_slots` es als erledigt
+    # zaehlte und der Report es bei (0,0) stapelte.
+    #
+    # Sie binden keine Measures: ein Slicer beantwortet keine Frage (dieselbe Trennung
+    # wie `CHROME_TOKENS` in der Visual-Library). Der Golden-Thread-Gate prueft
+    # Measure-Anker und bleibt davon unberuehrt.
+    if variant and ebene:
+        from tooling.superversion.layer_tools.page_templates import load as _variante
+
+        try:
+            pflicht = _variante(variant).pflicht(ebene)
+        except Exception:      # unbekannte Variante: das meldet `slot_luecken`, nicht hier
+            pflicht = []
+        for slot_id in pflicht:
+            if slot_id in vergeben:
+                continue
+            geo = _slot_geometrie(slot_id, variant, ebene)
+            if not geo:
+                continue
+            vergeben.add(slot_id)
+            visuals.append(Visual(
+                visual_id=slot_id,
+                x=geo["x"], y=geo["y"], width=geo["width"], height=geo["height"],
+                visual_type=_MOEBEL_VISUAL.get(slot_id, "text_box"),
+                title="", has_title=False,
+                bound_measures=[], binds_measures=False,
+                slicer_field=_SLICER_FELD.get(slot_id, ""),
+            ))
+
+    # Die Seite deklariert DIESELBE Leinwand, gegen die ihre Visuals aufgeloest sind.
+    #
+    # Vorher nicht: `ReportPage` defaultet auf 1280x720 (design_base), die Geometrie
+    # loest gegen `canvas.production` (1920x1080) auf. Der offizielle Validator hat den
+    # Widerspruch am 02.08.2026 benannt — `PBIR_LAYOUT_OUT_OF_BOUNDS_WIDTH`:
+    # „x:32 + w:1856 = 1888 > 1280". Das ist derselbe Fehler, den L13 eine Schicht
+    # tiefer behoben hat: zwei Stellen behaupteten verschiedene Leinwaende, und beide
+    # hatten recht ueber sich.
+    #
+    # Gelesen statt hartkodiert — sonst waere es die dritte Stelle mit einer eigenen
+    # Meinung ueber die Leinwandgroesse.
+    from tooling.superversion.layer_tools.layout_grid import load
+
+    raster = load("production")
+    seite = ReportPage(
         name=page_key,
         display_name=page.get("title", page_key),
         page_type="Default",
         visuals=visuals,
+        width=raster.width,
+        height=raster.height,
     )
+    # Block-Konflikte reisen am Ergebnis mit, statt ueber eine zweite Berechnung —
+    # sonst waeren Emission und Meldung zwei Wahrheiten ueber denselben Lauf.
+    seite._block_konflikte = block_konflikte      # type: ignore[attr-defined]
+    return seite
 
 
 # --------------------------------------------------------------------------- #
@@ -570,6 +811,77 @@ def from_bracket(bracket: dict, catalog: KpiCatalog) -> CanonicalModel:
     report = ReportModel(name=semantic.name, pages=pages)
 
     return CanonicalModel(semantic=semantic, report=report)
+
+
+#: Welche Manifest-Ebene eine Bracket-Seite bedient. `from_aluca` kennt genau zwei
+#: Seiten; das Manifest fuehrt seine Slots getrennt nach `overview_slots` und
+#: `detail_slots`. Ohne diese Zuordnung pruefte man Detailmoebel gegen die
+#: Uebersichtsseite und bekaeme Fehlalarme statt Befunde.
+_EBENE_JE_SEITE = {
+    "page_1_summary": "overview_slots",
+    "page_2_execution": "detail_slots",
+}
+
+
+def slot_luecken(bracket_path: str | Path, kpis_dir: str | Path) -> list[dict]:
+    """Welche **Pflicht**-Slots des governten Manifests emittiert der Adapter nicht?
+
+    Gibt je Seite einen Eintrag zurueck (`use_case`, `page`, `variant`, `missing`,
+    `emitted`). Leere `missing`-Listen bleiben enthalten, damit ein Aufrufer
+    „geprueft und vollstaendig" von „gar nicht geprueft" unterscheiden kann — der
+    Unterschied, an dem `RequiredSlots` gescheitert ist.
+
+    Die Wahrheit ueber Pflicht-Slots steht **ausschliesslich** im Manifest
+    (`layer_tools/page_templates.py`); hier wird nichts nachdefiniert.
+    """
+    from tooling.superversion.layer_tools.page_templates import fehlende_pflichtslots
+
+    bracket = yaml.safe_load(Path(bracket_path).read_text(encoding="utf-8")) or {}
+    catalog = KpiCatalog(Path(kpis_dir))
+    layout = bracket.get("ux_layout_rules", {}) or {}
+    uc = bracket.get("use_case_id") or bracket.get("id") or Path(bracket_path).parent.name
+
+    out: list[dict] = []
+    for pk, ebene in _EBENE_JE_SEITE.items():
+        seite = layout.get(pk)
+        if not isinstance(seite, dict):
+            continue
+        variant = seite.get("template_variant")
+        if not variant:
+            # Kein Raten: ohne deklarierte Variante gibt es keine Pflichtliste. Das
+            # als „nichts fehlt" zu melden waere die Luege, gegen die dieses Modul
+            # gebaut ist.
+            out.append({"use_case": uc, "page": pk, "variant": None,
+                        "missing": None, "missing_advisory": None, "emitted": []})
+            continue
+        gebaut = _page_from_layout(pk, seite, catalog)
+        emittiert = [v.visual_id for v in gebaut.visuals]
+        # Woher kam die Geometrie? Das Manifest deklariert fuer fuenf Varianten **kein**
+        # Detail-Raster; dort greift das benannte Default-Raster. Ohne diese Angabe
+        # laese sich eine vollstaendige Seite nicht von einer unterscheiden, die nur
+        # durch einen Rueckfall vollstaendig aussieht — dieselbe Verwechslung wie
+        # „nicht geprueft" gegen „nichts gefunden".
+        from tooling.superversion.layer_tools.page_templates import raster_fuer
+        eigenes = raster_fuer(variant, ebene)
+        out.append({
+            "use_case": uc, "page": pk, "variant": variant,
+            # Zwei Listen statt einer: `missing` fuehrt nur die Slots, deren Manifest
+            # sie auf `severity: error` stellt — dort ist das Gate hart. `warning`
+            # laeuft daneben und blockt nicht. Die Trennung steht im Manifest, nicht
+            # hier; dieser Adapter entscheidet keine Haerte.
+            "missing": fehlende_pflichtslots(variant, emittiert, ebene=ebene,
+                                             severity="error"),
+            "missing_advisory": fehlende_pflichtslots(variant, emittiert, ebene=ebene,
+                                                      severity="warning"),
+            "emitted": emittiert,
+            "raster": eigenes.template_id if eigenes else None,
+            "raster_default": eigenes is None,
+            # Bracket-Visual widerspricht dem `information_block` des Slots. Gemeldet,
+            # nicht ueberschrieben: bei sieben gleichlautenden Widerspruechen ist offen,
+            # ob das Bracket oder die Slot-Zuweisung der Variante irrt.
+            "block_conflicts": getattr(gebaut, "_block_konflikte", []),
+        })
+    return out
 
 
 def _roles_from_governance(gov: dict) -> list[Role]:

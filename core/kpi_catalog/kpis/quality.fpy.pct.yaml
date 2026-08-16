@@ -22,7 +22,7 @@ business:
   purpose: Measures share of units produced without rework or scrap.
   definition: Good Units / Total Units.
   grain_scope: Line/day; aggregated monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Higher is better; low FPY indicates process instability.
 technical:
   measure_name: First Pass Yield %
@@ -61,6 +61,6 @@ standard_ref:
   name: First pass yield
   url: https://www.iso.org/standard/54497.html
   alignment: exact
-  note: ISO 22400-2 First Pass Yield = units passing first time without rework or scrap / total units.
-    Matches ours. Note it duplicates ops.quality.pct / ops.yield.pct when computed at a single stage —
-    FPY is properly the product of stage yields.
+  note: ISO 22400-2 First Pass Yield = units passing first time without rework or scrap / total units. Matches ours.
+    Note it duplicates ops.quality.pct / ops.yield.pct when computed at a single stage — FPY is properly the product
+    of stage yields.

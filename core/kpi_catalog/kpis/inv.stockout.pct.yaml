@@ -23,7 +23,7 @@ business:
   purpose: Measures how often inventory is unavailable when demanded.
   definition: Stockout Events / Total Demand Events.
   grain_scope: SKU/location; aggregated weekly or monthly.
-  unit_format: '''% (1 decimal)'''
+  unit_format: percent_1
   interpretation: Lower is better; high stockout rate impacts service and revenue.
 technical:
   measure_name: Stockout Rate %
@@ -53,5 +53,5 @@ standard_ref:
   name: Perfect Order Fulfillment (availability)
   url: https://scor.ascm.org/performance/reliability/RL.1.1
   alignment: none
-  note: No direct SCOR L1–L3 metric. Stockout rate is the inverse of item availability/fill, which SCOR
-    captures inside Perfect Order (RL) rather than as a standalone metric.
+  note: No direct SCOR L1–L3 metric. Stockout rate is the inverse of item availability/fill, which SCOR captures
+    inside Perfect Order (RL) rather than as a standalone metric.
