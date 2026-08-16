@@ -44,6 +44,7 @@ from tooling.superversion.canonical_contract import (
     Table,
     Visual,
 )
+from tooling.superversion.layer_tools import visual_idioms as _vi
 
 
 class AlucaSourceError(ValueError):
@@ -484,10 +485,14 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
         for kid in kpi_ids:
             kpi = catalog.get(kid)
             bound.append((kpi.get("technical", {}).get("measure_name") if kpi else None) or kid)
+        # A component may name its `visual_type` directly, or declare an `analytical_purpose`
+        # (the governed seam) that resolves to the purpose's best emittable idiom; else a card.
+        _ap = component.get("analytical_purpose")
+        _vt = component.get("visual_type") or (_vi.visual_type_for_purpose(_ap) if _ap else None) or "card"
         visuals.append(
             Visual(
                 visual_id=f"{page_key}_{slot}_{idx}",
-                visual_type=component.get("visual_type", "card"),
+                visual_type=_vt,
                 # BC-NARR-01 (K2/K3): the governed exhibit statement wins the title when
                 # present; else fall back to the slot label / decision question.
                 title=component.get("message") or component.get("slot_id", "") or component.get("decision_question", ""),
