@@ -142,11 +142,129 @@ def _plan(bp: dict, specs: list[dict]) -> str:
         "",
         "## Hardening rails (grounded)",
         "- Store credentials in **Azure Key Vault**, never hardcoded.",
-        "- Enable **Outbound Access Protection (OAP)** so workloads reach only approved private endpoints.",
+        "- Enable **Outbound Access Protection (OAP)** so workloads reach only approved destinations —",
+        "  the procedure, its three prerequisites and what it collides with are the section below.",
         "- Open only the source port to the Fabric subnet (1433 SQL, 1521 Oracle, …); monitor **Fabric audit logs**",
         "  for endpoint create/approve/delete; rotate credentials + review approvals periodically.",
+        "",
+        *_oap_section(bp),
     ]
     return "\n".join(lines) + "\n"
+
+
+#: Der Politik-Rumpf, den `PUT /v1/workspaces/{id}/networking/communicationPolicy` erwartet.
+#: `inbound` steht ausdruecklich mit drin, obwohl nur `outbound` geaendert werden soll: MS sagt
+#: dazu „Also specify the inbound value if needed so it isn't overwritten by the default value
+#: (Allow)". Ein PUT, der `inbound` weglaesst, setzt es also still zurueck — die Sorte Fehler, die
+#: erst auffaellt, wenn jemand den eingehenden Schutz sucht und ihn nicht mehr findet.
+OAP_POLICY_PATH = "connectivity/outbound_access_protection.json"
+
+
+def _oap_policy_json() -> str:
+    """Der Politik-Rumpf als **gueltiges JSON** — Kommentar in `_note`, nicht in `//`-Zeilen.
+
+    Warum das hier ausdruecklich steht: die Nachbardatei `managed_private_endpoints.json` trug
+    ihren Hinweis bis 16.08.2026 als `//`-Kopf und war damit kein JSON. Aufgefallen ist es nie,
+    weil sie nur bei privaten Quellen emittiert wird und die Testvorlage keine hat — der Waechter
+    `test_every_emitted_json_is_parseable_json` lief also an ihr vorbei. Ein Rumpf, den jemand in
+    ein `PUT` kippt, muss parsen; `_note` ist der Weg, den `capacity_throttling_alert.json` in
+    dieser Lieferung schon geht.
+    """
+    politik = {
+        "_note": (
+            "PUT /v1/workspaces/{workspaceId}/networking/communicationPolicy (Workspaces - Set "
+            "Network Communication Policy, checked 2026-08-16). Remove this _note before sending. "
+            "`inbound` is in the body on purpose even though only `outbound` is meant: MS states "
+            "that an inbound value you don't send is overwritten with the default (Allow), so "
+            "shortening this body silently switches inbound protection off. Set "
+            "`inbound.publicAccessRules.defaultAction` to Deny where the workspace should also be "
+            "protected inbound — that is its own decision, not a side effect of this file."),
+        "inbound": {"publicAccessRules": {"defaultAction": "Allow"}},
+        "outbound": {"publicAccessRules": {"defaultAction": "Deny"}},
+    }
+    return json.dumps(politik, indent=2, ensure_ascii=False) + "\n"
+
+
+def _oap_section(bp: dict) -> list[str]:
+    """Outbound Access Protection: Verfahren, Vorbedingungen und die Kollisionen mit DIESER Lieferung.
+
+    Englisch, weil `_CONNECTIVITY.md` englisch ist. Zwei Sprachen in einem Dokument, das ein Kunde
+    am Stueck liest, sind schlimmer als jede der beiden.
+
+    Bis 16.08.2026 war OAP in diesem Dokument eine Zeile („enable OAP") — eine Empfehlung ohne
+    Vorbedingungen, ohne Freigabeweg und ohne die Stellen, an denen sie mit dem kollidiert, was
+    dieselbe Lieferung emittiert. Genau daran ist sie teuer: OAP laesst sich auf einem Workspace
+    mit nicht unterstuetzten Artefakten **gar nicht** einschalten, und Power-BI-Berichte gehoeren
+    zu den nicht unterstuetzten. Ein Kunde, der der alten Zeile folgt, findet das an dem Tag
+    heraus, an dem der Schalter nicht umgeht.
+
+    Alle Angaben gegen learn.microsoft.com geprueft am 16.08.2026: `security/workspace-outbound-
+    access-protection-overview` (Freigabewege je Workload, Grenzen), `-set-up` (Vorbedingungen,
+    REST-Weg, Git-Schalter) und `onelake/onelake-manage-outbound-access` (die Kopier-Grenze).
+    """
+    shares = bool(bp.get("sharing"))
+    return [
+        "## Outbound Access Protection (OAP) — per workspace, with three prerequisites", "",
+        "OAP blocks **every** outbound connection from the workspace, and you open it again "
+        "selectively afterwards. That order is the feature, not a recommendation: there is no mode "
+        "in which you allow first and block later.", "",
+        "**Before flipping it — three things that otherwise surface at the switch:**",
+        "1. The tenant setting **Configure workspace-level outbound network rules** is off out of the "
+        "box and is set by a **Fabric tenant admin**. A workspace admin cannot set it.",
+        "2. The workspace sits on an **F SKU**. No other capacity type is supported — **and F SKU "
+        "trials explicitly are not either.** On a trial, OAP cannot be demonstrated at all.",
+        "3. The **`Microsoft.Network`** resource provider is **re-registered** on the subscription "
+        "(Azure portal → Subscriptions → Settings → Resource providers → Microsoft.Network → Re-register).",
+        "",
+        "The switch itself is a **workspace admin** action (Workspace settings → Network Security → "
+        "*Block outbound public access*), or it is driven — the request body is in "
+        f"`{OAP_POLICY_PATH.split('/')[-1]}`, sent as `PUT /v1/workspaces/{{id}}/networking/"
+        "communicationPolicy`. Allow up to **15 minutes** for it to take effect.", "",
+        "### Opening it again — two mechanisms, not interchangeable", "",
+        "| Workload | Mechanism | Items |", "|---|---|---|",
+        "| Data Engineering | managed private endpoints | Lakehouses, Notebooks, Spark Job "
+        "Definitions, Environments |",
+        "| OneLake | managed private endpoints | OneLake shortcuts |",
+        "| Data Factory | data connection rules | Dataflows Gen2 (with CI/CD), Pipelines, Copy Jobs |",
+        "| Mirrored databases · Real-Time Intelligence · Fabric IQ · Power BI | data connection "
+        "rules | Eventstream, Eventhouse, Activator, semantic models, … |",
+        "| Data Science · Data Warehouse | **none** | no allow-list mechanism exists for these |",
+        "",
+        "The last row is not a gap in the table. MS gives the mechanism for Data Science and Data "
+        "Warehouse as *not applicable* — looking for an exception there means looking for something "
+        "that does not exist.", "",
+        "### What this collides with in this delivery", "",
+        "| Collision | In the way? | Way around it |", "|---|---|---|",
+        "| **Power BI reports in the workspace** | Yes, and hard: apart from semantic models no Power "
+        "BI item supports OAP. A workspace holding one cannot be protected, and while OAP is on none "
+        "can be created | put reports in their own unprotected workspace — the cut in "
+        "`workspaces.json` decides this, not the switch |",
+        "| **Git integration (`cicd/`)** | Yes: with OAP on, Git is blocked by default | turn on "
+        "*Allow Git integration* in the same panel. Without that one step the delivery chain breaks "
+        "and the error points at Git instead of at OAP |",
+        ("| **External data sharing** | Yes — this delivery declares shares, and OAP is not compatible "
+         "with Fabric external data sharing | one of the two decisions has to give; cross-tenant "
+         "allow lists do not exist |") if shares else
+        ("| **External data sharing** | No — this delivery declares none | it stays that way only "
+         "while none is added: OAP and Fabric external data sharing are mutually exclusive |"),
+        "| **OneLake Diagnostics** | Partly | only with a lakehouse in the **same** workspace |",
+        "| **Warehouse paths from notebooks** | Yes, for `dbo` file paths | query it over T-SQL "
+        "instead of over the path |",
+        "",
+        "### The limit most easily mistaken for protection", "",
+        "OAP restricts **outbound calls**. Where the workspace is the **source** of a copy to the "
+        "outside, no outbound call is made and OAP does not apply (MS Learn, *Copying data between "
+        "Azure Storage and OneLake*: \"outbound access protection does not restrict your workspace "
+        "from being the source of a copy operation\"). Only inbound protection covers that, and "
+        "inbound is a separate decision.", "",
+        "### Evidence", "",
+        "`Workspaces - List Networking Communication Policies` (admin API) returns the inbound and "
+        "outbound rules per workspace. That turns \"is OAP on everywhere it should be?\" into a query "
+        "rather than a click-through. Caller: Fabric admin or service principal, permission "
+        "`Tenant.Read.All`.", "",
+        "> With private links enabled at workspace or tenant level, the portal cannot configure data "
+        "connection rules at all — the *Outbound Gateway Rules* REST API is the only way in.",
+    ]
 
 
 def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<workspace>",
@@ -158,12 +276,21 @@ def emit_connectivity(bp: dict, stack: str = "fabric", workspace: str = "<worksp
     _note = gap_doc_for(bp, "connectivity", "Sichere Konnektivität")
     if _note:                       # fremder Stack: PrivateLink/NCC statt Managed Private Endpoint
         out["connectivity/_CONNECTIVITY.md"] = _note
+    if stack == "fabric" and not _note:
+        # Unabhaengig von privaten Quellen: OAP schuetzt den Workspace, nicht die Quelle. Eine
+        # Lieferung ganz ohne private Quelle braucht ihn genauso — sie hat nur keine MPEs.
+        out[OAP_POLICY_PATH] = _oap_policy_json()
     if stack == "fabric" and specs:
-        payload = {"value": [{k: v for k, v in s.items() if not k.startswith("_")} for s in specs]}
+        # `_note` statt eines `//`-Kopfes: mit dem Kopf war diese Datei kein JSON, und weil sie nur
+        # bei privaten Quellen entsteht, hat der Waechter sie nie zu Gesicht bekommen (gefunden
+        # 16.08.2026 an der Schwesterdatei, die immer entsteht). Der Schluessel faellt beim Senden
+        # weg — dieselbe Form wie in `capacity_throttling_alert.json`.
+        payload = {"_note": ("Managed Private Endpoints — POST /v1/workspaces/{ws}/"
+                             "managedPrivateEndpoints (grounded). Resource ids + FQDNs are "
+                             "tenant-specific VERIFY placeholders; approve in Azure after create."),
+                   "value": [{k: v for k, v in s.items() if not k.startswith("_")} for s in specs]}
         out["connectivity/managed_private_endpoints.json"] = (
-            "// Managed Private Endpoints — POST /v1/workspaces/{ws}/managedPrivateEndpoints (grounded).\n"
-            "// Resource ids + FQDNs are tenant-specific VERIFY placeholders; approve in Azure after create.\n"
-            + json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n")
         out["connectivity/create_mpe.sh"] = _create_script(specs, workspace)
     # Die Snowflake-Bruecke erscheint, wenn die Lieferung Snowflake als Quelle ODER als Ziel kennt.
     # Sie gehoert in die Konnektivitaet und nicht in einen eigenen Emitter, weil ihre harten

@@ -4,8 +4,9 @@ cited catalog + a capability-keyed planner. Readiness-Gate (sibling of ``capacit
 The directive: *define the admin settings so one can, within a day, set what one needs how.* This module
 is the machine-readable **definition**. Given the set of **capabilities** a delivery actually uses
 (agnostic, feature-keyed — not source- or pattern-specific), ``required_settings`` returns exactly the
-settings that gate it, each carrying: the exact portal name + section, its **scope** (tenant / capacity /
-workspace), **default**, **who** can set it, the **target** value for the delivery, and — the crux of
+settings that gate it, each carrying: the exact portal name + section, its **scope** (``SCOPES`` —
+tenant / capacity / workspace / entra), **default**, **who** can set it, the **target** value for the
+delivery, and — the crux of
 "within a day" — whether it is **automatable** via the Fabric *Update Tenant Setting* Admin REST API
 (preview) / ``sempy`` or needs a **human** admin (capacity-admin portal action, or an RBAC grant a
 privileged human must perform). ``settability_summary`` splits the plan into "scriptable" vs "needs a
@@ -35,6 +36,13 @@ from __future__ import annotations
 from typing import Any, Iterable
 
 GROUNDING_DATE = "2026-07-24"
+
+#: The scopes a catalog entry can sit in. ``entra`` joined the set on 2026-08-16 with #23 and it is a
+#: widening, not a typo: an admin role hardened through PIM is not a Fabric setting at all — no tenant,
+#: capacity or workspace surface carries it. Filing it under ``tenant`` would have been the convenient
+#: lie, and it would have sent an admin to the Fabric admin portal to look for something that lives in
+#: Entra. The set is a constant so the catalog and its test read the same list.
+SCOPES = ("tenant", "capacity", "workspace", "entra")
 
 # The generic Admin REST API that makes tenant settings scriptable — but MS-flagged preview.
 API_PREVIEW_CAVEAT = (
@@ -307,6 +315,99 @@ CATALOG: list[dict[str, Any]] = [
         "required": "if admin APIs used",
         "source": _L + "fabric/admin/metadata-scanning-setup",
     },
+    # --- 16.08.2026: die zwei Punkte, bei denen der Schalter nicht die Antwort ist -------
+    #
+    # Beide standen im Betriebskanon (BK-F06, BK-Z05) mit begruendeter Vorgabe und **ohne einen
+    # einzigen Beleg** — entschieden, nirgends geliefert. Beide gehoeren hierher und nicht in ein
+    # neues Modul: es ist dieselbe Frage („welche Einstellung braucht die Lieferung, wer setzt
+    # sie, und laesst sie sich skripten"), und ein zweiter Katalog waere ein zweites Silo.
+    #
+    # Sie bringen aber etwas mit, das die bisherigen 21 Eintraege nicht brauchten: bei ihnen ist
+    # „an" nur der Anfang. Surge Protection ohne Schwellen ist wirkungslos, und Microsoft nennt
+    # bewusst keinen Startwert. Deshalb die zwei optionalen Felder `verfahren` (was nach dem
+    # Umlegen zu tun ist) und `grenzen` (was die Einstellung ausdruecklich NICHT abdeckt). Eine
+    # Tabellenzeile kann das nicht tragen; sie zu quetschen hiess, die Grenzen wegzulassen, und
+    # eine Haertung, deren Grenzen niemand kennt, wird fuer mehr gehalten, als sie ist.
+    {
+        "id": 22, "name": "Surge protection",
+        # Kein `<capacity>` im Text: spitze Klammern sind in dieser Lieferung ein Platzhalter-
+        # Zeichen, und der Binding-Scanner haette diesen hier als unerklaerten Platzhalter im
+        # Kundenbogen gefuehrt (gemessen 16.08.2026). Ein Abschnittsname ist kein Wert.
+        "section": "Capacity settings → the delivery capacity → Surge protection (NOT a tenant setting)",
+        "scope": "capacity", "capabilities": ["base"],
+        "default": "off — the documented enable steps switch Background Operations to On",
+        "target": "on; thresholds derived from the first full measurement window, never set up front",
+        "who": "Capacity admin", "automatable": False,
+        "how": ("capacity-admin portal action: Admin Portal → Capacity settings → select the capacity "
+                "→ Surge protection → Background Operations On → rejection + recovery threshold → Apply"),
+        "why": ("without it the capacity's 24-hour background percentage may reach 100% before background "
+                "operations are rejected, and the deep throttling that follows recovers slowly"),
+        "required": "yes",
+        "source": _L + "fabric/enterprise/surge-protection",
+        "verfahren": (
+            "Switch it on at handover and leave both thresholds unset until the capacity has run one "
+            "full measurement window. MS publishes no starting value: all three worked examples read "
+            "the Capacity Metrics app **Compute** page — the *Background rejection*, *Interactive "
+            "rejection* and *Utilization* charts — and place the rejection threshold between the "
+            "average and the peak, the recovery threshold around the typical background level. The "
+            "third example ends in *don't bother*: where 80–90% of usage is background, capacity-level "
+            "limits don't help. So this setting has two prerequisites of its own, and neither is a "
+            "switch — the Capacity Metrics app installed (`monitoring/`) and a representative load "
+            "having run. Before both, any number entered here is a guess wearing a threshold's "
+            "clothes.\n\n"
+            "Workspace-level surge protection is the second half and a separate decision: a per-"
+            "workspace CU cap over a rolling 24-hour window, plus the states *Available* / *Mission "
+            "critical* / *Blocked*. Two properties decide whether it fits — the check runs every five "
+            "minutes, so the cap is soft; and raising the limit does **not** release a workspace that "
+            "is already blocked, a capacity admin sets it back to *Available* by hand."),
+        "grenzen": (
+            "Fabric SKUs only — no other SKU type is supported.",
+            "In-progress jobs are not stopped, so the rejection threshold is not an upper bound on the "
+            "24-hour background percentage: running jobs keep reporting usage past it.",
+            "Operations billed with Autoscale are not blocked.",
+            "OneLake activities are unaffected.",
+            "It does not guarantee interactive requests escape delay or rejection — at the capacity's "
+            "maximum compute limit they are delayed or rejected regardless.",
+            "Workspace level: Dataflows Gen1, paginated reports, scorecards, graph models, Activator "
+            "and Dataflow Gen2 editing are outside its reach; Autoscale compute is excluded from the "
+            "per-workspace calculation.",
+        ),
+    },
+    {
+        "id": 23, "name": "Fabric Administrator assigned Eligible via PIM (+ Conditional Access)",
+        "section": "Entra ID Governance → Privileged Identity Management → Microsoft Entra roles",
+        "scope": "entra", "capabilities": ["base"],
+        "default": "n/a — a standing assignment is what you get if nobody decides otherwise",
+        "target": "Fabric Administrator Eligible-only, activation through PIM with MFA + justification",
+        "who": "Entra Privileged Role Administrator (not the Fabric admin)", "automatable": False,
+        "how": ("PIM assignment in Entra ID Governance — no Fabric tenant-setting API reaches this, and "
+                "no Fabric admin can grant it to themselves"),
+        "why": ("Fabric Administrator is an Entra built-in role carrying "
+                "`microsoft.powerApps.powerBI/allEntities/allTasks` — the widest permission in the "
+                "platform. Held permanently it is the largest standing attack surface the delivery has"),
+        "required": "yes",
+        "source": (_L + "entra/id-governance/privileged-identity-management/pim-how-to-add-role-to-user"),
+        "verfahren": (
+            "Assign **Fabric Administrator** as `Eligible`, never `Active` or `Permanent`; activation "
+            "runs through PIM with an MFA check and a written justification. Two cloud-only break-glass "
+            "accounts stay permanently assigned, deliberately outside this rule — an outage of the "
+            "activation path must not lock the tenant out of its own platform.\n\n"
+            "The capacity admin needs a different answer, and this is the part that gets missed: it is "
+            "**not** an Entra role but a setting on the Fabric capacity, so PIM does not reach it. "
+            "Assign it to a PIM-enabled security group instead and activate the group membership "
+            "just in time.\n\n"
+            "Entra ID P2 or ID Governance is a licence prerequisite, not a configuration step. Without "
+            "it the whole procedure is unavailable and the fallback is a standing assignment to as few "
+            "named people as possible, plus a Conditional Access policy enforcing MFA on them."),
+        "grenzen": (
+            "PIM covers Entra roles. The Fabric capacity admin is a capacity setting and is reachable "
+            "only indirectly, through a PIM-enabled security group.",
+            "Entra ID P2 / ID Governance is a licence, not a toggle — check it before promising the "
+            "procedure.",
+            "The break-glass accounts are exempt on purpose; they are the reason the rule can be "
+            "strict everywhere else.",
+        ),
+    },
 ]
 
 _BY_ID = {s["id"]: s for s in CATALOG}
@@ -317,6 +418,16 @@ def required_settings(capabilities: Iterable[str]) -> list[dict[str, Any]]:
     ``base`` is always included. Unknown keys are ignored. Sorted by catalog id. Pure/deterministic."""
     wanted = set(capabilities) | {"base"}
     return [s for s in CATALOG if set(s["capabilities"]) & wanted]
+
+
+def procedural_settings(capabilities: Iterable[str]) -> list[dict[str, Any]]:
+    """Die geforderten Settings, bei denen der Schalter allein nicht die Antwort ist.
+
+    Also die mit ``verfahren`` (was nach dem Umlegen zu tun ist) und/oder ``grenzen`` (was die
+    Einstellung ausdruecklich nicht abdeckt). Eigene Funktion statt eines ``s.get("verfahren")``
+    im Renderer: sonst entscheidet der Renderer, was als Haertung gilt, und der naechste Renderer
+    entscheidet es anders. Sortiert nach Katalog-Id; rein."""
+    return [s for s in required_settings(capabilities) if s.get("verfahren") or s.get("grenzen")]
 
 
 def settability_summary(capabilities: Iterable[str]) -> dict[str, Any]:
