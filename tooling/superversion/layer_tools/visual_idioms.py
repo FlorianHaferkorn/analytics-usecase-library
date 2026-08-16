@@ -47,23 +47,24 @@ ALUCA_VISUAL_IDIOM: dict[str, str] = {
     "column_chart": "column_time",
     "column_time": "column_time",
     "waterfall": "waterfall_pvm",
+    # roles now wired in pbir._PLANS (derived from each idiom's governed native golden)
+    "donut": "donut",
+    "bar_stacked": "bar_stacked",
+    "area_stacked": "area_stacked",
+    "stacked_100": "stacked_100",
+    "decomposition_tree": "decomposition_tree",
+    "scatter": "scatter",
 }
 
 # visual_types the emitter handles that are structural/chrome, not a charted idiom.
 EXEMPT: frozenset[str] = frozenset({"card", "kpi_card", "slicer", "table", "matrix"})
 
-# Native-capable idioms whose visualType is NOT yet in pbir._PLANS. Reachable from a bracket only
-# once their PBIR roles are taken from `powerbi-report-author catalog describe <visualType>` and
-# added to _PLANS — deliberately not guessed (a wrong role passes the golden but fails Desktop).
-# The reachability test asserts this stays the exact tracked set.
-PLANS_UNREACHABLE: frozenset[str] = frozenset({
-    "donut",             # donutChart — Legend/Values roles
-    "scatter",           # scatterChart — X/Y (+Details/Size)
-    "stacked_100",       # hundredPercentStackedColumnChart — Category/Series/Y
-    "area_stacked",      # stackedAreaChart — Category/Series/Y
-    "bar_stacked",       # stackedColumnChart — Category/Series/Y
-    "decomposition_tree",  # decompositionTreeVisual — Analyze/Explain-By
-})
+# Native-capable idioms whose visualType is NOT yet in pbir._PLANS. Now empty: every native idiom's
+# PBIR roles have been wired into _PLANS, DERIVED FROM its governed native golden (not guessed) and
+# bound to it by test_visual_library.test_pbir_plans_emit_the_governed_golden_roles. Native output
+# remains Desktop-gated for the whole track (no headless PBIR renderer) — that is inherent, not a gap.
+# The reachability test asserts this stays the exact (now empty) tracked set.
+PLANS_UNREACHABLE: frozenset[str] = frozenset()
 
 
 class IdiomBridgeError(ValueError):
@@ -108,6 +109,24 @@ def best_idiom_for_purpose(purpose: str) -> str:
     if purpose not in purposes:
         raise KeyError(f"unknown purpose '{purpose}'. Known: {sorted(purposes)}")
     return purposes[purpose]["best"].split("@", 1)[0]
+
+
+def visual_type_for_purpose(purpose: str) -> "str | None":
+    """The ALUCA visual_type a bracket's ``analytical_purpose`` resolves to: the purpose's governed
+    best idiom mapped back to an EMITTABLE visual_type (present in pbir._PLANS via ALUCA_VISUAL_IDIOM),
+    or None when the best idiom is not a native chart (svg-dax/table/card idioms) — then the caller
+    falls back to a card. This is the reverse of ALUCA_VISUAL_IDIOM: the seam that lets a bracket ask
+    for a PURPOSE instead of hand-picking a PBIR-shaped visual_type. Best-only (no candidate
+    substitution) so the resolution is predictable and governance stays legible."""
+    purposes = _index().get("purposes", {})
+    p = purposes.get(purpose)
+    if not p:
+        return None
+    idiom = p.get("best", "").split("@", 1)[0]
+    rev: dict[str, str] = {}
+    for vt, idi in ALUCA_VISUAL_IDIOM.items():
+        rev.setdefault(idi, vt)  # first (canonical) visual_type key wins
+    return rev.get(idiom)
 
 
 def min_slot(idiom: str) -> "tuple[int, int]":
