@@ -9,8 +9,15 @@ Usage:
       --inputs inputs.json --dest out/ --stack fabric
 
 `--inputs` is a JSON file matching the `derive_blueprint` inputs shape. Output under
-`--dest`: blueprint.json, hitl.json, CONFORMANCE.md, mcp_grounding.json,
-retrieval_decisions.md, and render/<stack>/… . Non-zero exit if conformance is red.
+`--dest`: blueprint.json, hitl.json, OPEN_QUESTIONS.md, open_questions.json,
+CONFORMANCE.md, mcp_grounding.json, retrieval_decisions.md, and render/<stack>/… .
+Non-zero exit if conformance is red.
+
+`hitl.json` and `OPEN_QUESTIONS.md` are not the same list and neither replaces the other.
+`hitl.json` stays what it always was — the deriver's own flat gap list, read by other
+code. `OPEN_QUESTIONS.md` is the sheet a customer reads: it carries those gaps *and* the
+defaults we applied without asking *and* the mirrored decisions, each with a way to the
+answer (`open_questions`, SHARED_SUBSTANCE class C).
 """
 from __future__ import annotations
 
@@ -26,6 +33,11 @@ from tooling.superversion.architecture_blueprint import (
     validate_blueprint,
 )
 from tooling.superversion.eval.blueprint_conformance import conformance
+from tooling.superversion.open_questions import (
+    collect_open_questions,
+    open_questions_markdown,
+    questions_without_a_way,
+)
 from tooling.superversion import arch_targets
 
 
@@ -73,10 +85,17 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
     for rel, content in grounding.items():
         (dest / rel).write_text(content, encoding="utf-8")
 
+    questions = collect_open_questions(inputs, derived)
+    (dest / "open_questions.json").write_text(
+        json.dumps(questions, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (dest / "OPEN_QUESTIONS.md").write_text(open_questions_markdown(questions), encoding="utf-8")
+
     return {
         "stack": stack,
         "source_schemas_answered": sorted(results),
         "hitl": derived["hitl"],
+        "questions": questions["summary"],
+        "questions_without_a_way": questions_without_a_way(questions),
         "conformance": score.scorecard,
         "conformance_ok": score.ok,
         "grounding_files": sorted(grounding),
@@ -108,6 +127,15 @@ def main(argv: list[str] | None = None) -> int:
         print("HITL gaps:")
         for g in summary["hitl"]:
             print(f"  - {g}")
+    q = summary["questions"]
+    print(f"open questions: {q['total']} ({q['open']} for the customer, "
+          f"{q['preset']} decided by us, {q['proposed']} proposed)")
+    # A question with no way to answer it is a blank text box. Printed, never silent —
+    # the point of the sheet is that it comes back filled in.
+    if summary["questions_without_a_way"]:
+        print(f"  without a way to the answer: {', '.join(summary['questions_without_a_way'])}")
+    if q["unreported_gaps"]:
+        print(f"  gaps with no question attached: {', '.join(q['unreported_gaps'])}")
     print(f"artifacts written under: {args.dest}")
     # red conformance → non-zero exit (a gate the caller can wire into CI)
     return 0 if summary["conformance_ok"] else 2
