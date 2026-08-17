@@ -838,6 +838,65 @@ def propose_tenant_settings(bp: dict) -> dict:
         status="vorbelegt")
 
 
+def propose_user_data_visibility(bp: dict) -> dict:
+    """Der Tenant-Schalter „Show user data in Capacity Metrics\", als Entscheidung statt als Fussnote.
+
+    Er haengt an `BK-B02` und ist der einzige Punkt der Ueberwachung, an dem nicht die Technik
+    entscheidet. Die App zeigt mit ihm, **welche Person** welchen Bericht wie teuer ausgefuehrt hat;
+    im deutschen Markt ist das eine Mitbestimmungsfrage und keine Einstellung.
+
+    `status="offen"` mit Absicht: eine Vorbelegung waere hier eine Aussage ueber das
+    Mitbestimmungsrecht des Kunden, und die steht uns nicht zu.
+    """
+    return _rec(
+        "OPS-USERDATA", "Personenbezug in der Capacity Metrics App",
+        "Darf die Kapazitätsauswertung zeigen, welche Person eine Abfrage ausgelöst hat?",
+        None,
+        "BK-B02 (Capacity Metrics App) — der Tenant-Schalter „Show user data in Capacity Metrics\"",
+        "hoch",
+        ["An lassen — die Auswertung nennt Personen; Verursacher teurer Abfragen sind sofort "
+         "sichtbar, die Auswertung ist damit mitbestimmungspflichtig",
+         "Aus schalten — die Auswertung nennt nur Elemente und Kapazitäten; teure Abfragen "
+         "bleiben sichtbar, ihr Urheber nicht",
+         "An lassen und den Zugang zur App auf einen benannten Kreis begrenzen"],
+        "Datenschutz und Betriebsrat des Kunden, nicht die Plattformrolle",
+        ("Der Schalter steht auf dem Auslieferungswert, und niemand hat ihn geprüft. Fällt es "
+         "später auf, ist die Auswertung schon gelaufen."),
+        status="offen")
+
+
+def propose_outbound_exceptions(bp: dict) -> dict:
+    """Die Ausnahmeliste der ausgehenden Sperre — die eine Haelfte von `BK-N03`, die uns nicht gehoert.
+
+    Die Sperre selbst liefern wir (Politik-Rumpf, Vorbedingungen, Freigabewege je Workload). Welche
+    Ziele danach wieder freigegeben werden, haengt an den Systemen des Kunden und wird nicht
+    erfunden — bis 17.08.2026 stand das nur als Satz in der Luecke und wurde nirgends gefragt.
+    """
+    ziele = sorted({(e.get("source_system") or "").strip()
+                    for e in bp.get("ingestion", []) or []} - {""})
+    beispiel = (f" Aus dieser Lieferung sind mindestens die Quellen {', '.join(ziele)} betroffen — "
+                "sie werden nach dem Blocken nicht mehr erreicht, solange sie nicht auf der Liste "
+                "stehen." if ziele else
+                " Diese Lieferung hat keine erklärte Quelle; die Liste beginnt leer und wächst mit "
+                "dem ersten Quellsystem.")
+    return _rec(
+        "NET-OUTBOUND", "Ausnahmen der ausgehenden Sperre",
+        "Welche Ziele darf die Plattform nach dem Blocken des ausgehenden Verkehrs noch erreichen?",
+        None,
+        "BK-N03 (Outbound Access Protection) — `connectivity/outbound_access_protection.json`",
+        "hoch",
+        ["Nur die erklärten Quellsysteme freigeben (engste Liste, jede neue Quelle braucht einen "
+         "Antrag)",
+         "Zusätzlich die Paketquellen der Entwicklung freigeben (PyPI, Maven, npm) — sonst "
+         "scheitern Spark-Umgebungen mit eigenen Bibliotheken",
+         "Sperre vorerst nur im Berichtsmodus fahren und die Liste aus dem gemessenen Verkehr "
+         "bilden"],
+        "Informationssicherheit des Kunden, gemeinsam mit den Eignern der Quellsysteme",
+        ("Die Sperre wird scharf geschaltet und die erste Beladung schlägt fehl, ohne dass der "
+         "Fehler nach einem Netzproblem aussieht." + beispiel),
+        status="offen")
+
+
 def propose_network_stance(bp: dict) -> dict:
     """Die Netzanbindung — als Entscheidung, nicht als Optionenliste.
 
@@ -1025,7 +1084,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
     out.extend([propose_workspace_roles(bp), propose_retention(bp, gc, source_schema),
                 propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
-                propose_network_stance(bp),
+                propose_network_stance(bp), propose_outbound_exceptions(bp),
+                propose_user_data_visibility(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
                 propose_transform_engine(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
