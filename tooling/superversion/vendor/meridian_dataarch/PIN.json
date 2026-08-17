@@ -25,7 +25,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "969a7ce3fa71cac85d4e490036d635ef3b36e5bea0e26304b23fae18d77423fb"
+      "sha256": "c53621d020454163ee074d529688e0dca3ff4a2eb1ce588908ab8e43627a638b"
     },
     {
       "path": "provision_lifecycle.py",

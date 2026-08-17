@@ -43,6 +43,40 @@ def _ident(name: str) -> str:
     return _NONWORD_RE.sub("_", (name or "").lower()).strip("_")
 
 
+#: Das Namensschema der Entra-Gruppen, als Muster an **einer** Stelle. Es ist die Vorgabe aus
+#: `betriebskanon.BK-W04` (`fab-<domaene>-<umgebung>-<rolle>`, Quelle WAF-Security + Fabric
+#: Domains-Best-Practices, geprueft 16.08.2026), und es steht hier, weil zwei Emitter es
+#: brauchen: der Zeilenschnitt (eine Gruppe je Wert) und die Domaenen-Leserolle.
+#:
+#: **Abweichung von der Vorgabe, benannt statt geglaettet:** der `<umgebung>`-Teil fehlt.
+#: `governance/onelake_data_access_roles.json` wird einmal je Lakehouse emittiert, nicht je
+#: Stage, und sein Anwendungsschritt traegt keine (gemessen 17.08.2026: beide
+#: `assign_roles`-Schritte in `apply/APPLY_PLAN.json` haben `stage: null`, Ziel
+#: `ws-<domaene>-gold.Workspace`). Ein Stage-Teil im Namen waere an dieser Stelle geraten.
+#: Wer eine stage-bezogene Konvention hat, uebersteuert sie ueber `row_security.group_pattern`.
+ENTRA_GRUPPENSCHEMA = "fab-{domaene}-{rolle}"
+
+
+def entra_gruppenname(domain_name: str, rolle: str, muster: str = "",
+                      wert: str = "", bezeichner: str = "") -> str:
+    """Der Anzeigename der Entra-Gruppe hinter einer Rolle — abgeleitet, nicht erfragt.
+
+    Bis 17.08.2026 gab es das nur im Zeilenschnitt. Die Domaenen-Leserollen trugen den nackten
+    Platzhalter ``<VERIFY: Entra group objectId>``, und zwar **denselben fuer jede Domaene**:
+    gemessen an der Commercial-Fixture bekamen ``read_commercial`` und ``read_finance`` ein
+    identisches Token. Der Kunde beantwortet es einmal, dieselbe GUID landet in beiden Rollen,
+    und Finance-Leser sehen Commercial-Tabellen. Ein Platzhalter, der zweimal fuer zwei
+    verschiedene Dinge steht, ist keine offene Frage — er ist eine falsche Antwort mit Ansage.
+
+    ``muster`` ist die Konvention des Kunden (``row_security.group_pattern``) und gewinnt, wenn
+    sie gesetzt ist; das ist das Uebersteuerungsrecht aus der Vorgabe.
+    """
+    if muster:
+        return muster.replace("{value}", wert).replace("{label}", bezeichner)
+    return ENTRA_GRUPPENSCHEMA.format(domaene=_ident(domain_name).replace("_", "-"),
+                                      rolle=rolle)
+
+
 def _domains(bp: dict) -> list[dict]:
     return sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
 
@@ -530,7 +564,8 @@ def _row_security_roles(domain: dict, sensitivity: dict, cols_by_table: dict) ->
         todo += cls_todo
         if cols:
             constraints["columns"] = cols
-        gruppe = (muster or "").replace("{value}", wert).replace("{label}", bez) if muster else ""
+        gruppe = entra_gruppenname(domain.get("name", ""), f"reader-{_ident(bez)}",
+                                   muster=muster or "", wert=wert, bezeichner=bez)
         rule = {
             "effect": "Permit",
             # GENAU ZWEI `permission`-Elemente, und mehrere Tabellen gehoeren in EIN
@@ -630,8 +665,13 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
             "name": f"read_{dident}",
             "kind": "Policy",
             "decisionRules": [rule],
+            # Der Name der Gruppe ist ableitbar (Domaene + Rolle, Schema aus BK-W04), die GUID
+            # nicht. Bis 17.08.2026 stand hier der nackte Platzhalter — fuer jede Domaene
+            # derselbe. Siehe `entra_gruppenname`.
             "members": {"microsoftEntraMembers": [
-                {"objectId": "<VERIFY: Entra group objectId>", "objectType": "Group",
+                {"objectId": "<VERIFY: Entra group objectId of "
+                             f"{entra_gruppenname(d.get('name', ''), 'reader')}>",
+                 "objectType": "Group",
                  "tenantId": "<TENANT_GUID>"}]},
         })
     payload = {"value": sorted(roles, key=lambda r: r["name"])}
