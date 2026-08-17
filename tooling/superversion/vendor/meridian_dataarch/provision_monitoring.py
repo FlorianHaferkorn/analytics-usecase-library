@@ -91,7 +91,7 @@ def _pipeline_failure_runbook(bp: dict, alerts: dict,
                               stages: tuple[str, ...] = ("dev", "test", "prod")) -> str:
     """Runbook fuer die Fehlerbenachrichtigung — inklusive der Frage, wie man sie nachweist (Z11).
 
-    Der HOCHTIEF-Lauf 2 hat den Schritt als einen von drei Menschenschritten je Auslieferung
+    Der Kundenmandant-Lauf 2 hat den Schritt als einen von drei Menschenschritten je Auslieferung
     gezaehlt und ihn dabei „ohne jede Nachweismoeglichkeit" genannt: die Adresse tauchte weder am
     Zeitplanobjekt noch am Item auf. Die Haelfte davon ist belegt, die andere Haelfte zu scharf,
     und beides gehoert in die Lieferung statt in eine Analyse-Datei:
