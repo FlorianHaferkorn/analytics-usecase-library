@@ -327,9 +327,96 @@ def _domain_names(bp: dict) -> list[str]:
     return sorted(d.get("name", "") for d in bp.get("mesh", {}).get("domains", []))
 
 
+#: Ermittlungswege je Entscheidung — nach ID, nicht am Aufrufort.
+#:
+#: Grund fuer die Tabelle statt eines Arguments an jeder Stelle: die fuenf modellgetriebenen
+#: Entscheidungen haben **zwei** `_rec`-Aufrufe (mit governtem Katalog und ohne). Der Weg zur
+#: Antwort ist in beiden Faellen derselbe; ihn zweimal zu tippen heisst, ihn beim naechsten Mal
+#: an einer Stelle zu aendern. Genau die Sorte Drift, die dieses Repo an anderer Stelle schon
+#: gekostet hat.
+_ERMITTLUNGSWEGE: dict[str, dict[str, str]] = {
+    "SEC-RLS": {
+        "wo": "Die heutige Berichtslandschaft: gibt es bereits getrennte Berichte je Region, "
+              "Gesellschaft oder Bereich, oder eine Zeilensicherheit im bestehenden Modell? "
+              "Was heute getrennt ausgeliefert wird, IST der Schnitt — er steht nur nirgends "
+              "geschrieben.",
+        "wen": "Data Owner der Domaene gemeinsam mit der Person, die die Berichte heute "
+               "verteilt. Die Verteilliste ist oft praeziser als jedes Konzept.",
+        "wenn_unklar": "Wir schlagen den Schnitt selbst vor, sobald das Gold-Modell steht — die "
+                       "Organisationsachse kommt aus dem Modell (`--governed-catalog`). Bis "
+                       "dahin gehoert die Frage nicht auf den Kundenbogen, weil wir sie gerade "
+                       "selbst beantworten.",
+    },
+    "SEC-CLS": {
+        "wo": "Das Verzeichnis der Verarbeitungstaetigkeiten nach Art. 30 DSGVO und ein "
+              "bestehendes Berechtigungskonzept. Beide benennen personenbezogene Felder "
+              "bereits, meist vollstaendiger als eine Frage im Termin.",
+        "wen": "Datenschutzbeauftragte oder Datenschutzbeauftragter gemeinsam mit dem Data "
+               "Owner. Ohne den Datenschutz ist die Antwort eine Meinung.",
+        "wenn_unklar": "Wir schlagen die Kandidaten aus dem Gold-Modell vor (Namen, Adressen, "
+                       "Personalnummern, Gehalt) und lassen bestaetigen. Ein Vorschlag, dem "
+                       "widersprochen wird, klaert die Frage schneller als eine offene Frage.",
+    },
+    "DATA-INC": {
+        "wo": "Die Tabellenstruktur im Quellsystem, nicht das Gespraech: gibt es eine "
+              "Aenderungsspalte (`LAST_UPDATE`, in SAP `AEDAT`/`AEZEIT`) oder ein Change-Log? "
+              "Ein Blick ins Datenmodell beantwortet die Frage in Minuten.",
+        "wen": "Die Administration des Quellsystems oder dessen Hersteller — nicht der "
+               "Fachbereich, der die Spalte nie gesehen hat.",
+        "wenn_unklar": "Voll laden und die Aenderungserkennung nachruesten, sobald die Spalte "
+                       "benannt ist. Folge: laengere Ladezeiten und hoeherer Verbrauch, aber "
+                       "kein falscher Datenstand. Der umgekehrte Fehler ist teurer.",
+    },
+    "DATA-CONTRACT": {
+        "wo": "Bestehende Schnittstellenbeschreibungen und Uebergabevereinbarungen zwischen "
+              "IT und Fachbereich. Wo es keine gibt, sagt das Fehlen selbst etwas ueber den "
+              "Reifegrad und gehoert ins Assessment.",
+        "wen": "Data Owner und Data Engineering gemeinsam; einer allein beschreibt entweder "
+               "die Bedeutung oder die Technik, nie beides.",
+        "wenn_unklar": "Wir leiten den Vertrag aus dem Gold-Modell ab und legen ihn zur "
+                       "Freigabe vor. Die Freigabe ist die Entscheidung, der Entwurf ist "
+                       "unsere Arbeit.",
+    },
+    "AI-EVAL": {
+        "wo": "Fragen, die der Fachbereich heute per Mail an die BI stellt. Zwanzig davon mit "
+              "ihrer damaligen Antwort sind ein Pruefsatz — und zwar ein echter, weil ihn "
+              "niemand fuer den Test erfunden hat.",
+        "wen": "Der Fachbereich, der den Agenten spaeter nutzt. Ein Pruefsatz aus der IT misst "
+               "die IT.",
+        "wenn_unklar": "Wir bilden den Pruefsatz aus dem Gold-Modell (je Kennzahl eine Frage) "
+                       "und lassen die erwarteten Antworten bestaetigen. Ohne jeden Pruefsatz "
+                       "geht der Agent ohne Qualitaetsnachweis produktiv — das ist kein "
+                       "Rueckfall, sondern ein Befund, und er steht so im Ledger.",
+    },
+    "NET-OUTBOUND": {
+        "wo": "Die Liste der Quellsysteme mit ihren Endpunkten steht bereits im Blueprint. "
+              "Dagegen die bestehenden Firewall-Freigaben des heutigen BI-Systems halten — "
+              "was heute erreichbar ist, ist der belastbarste Ausgangspunkt.",
+        "wen": "Informationssicherheit gemeinsam mit den Eignern der Quellsysteme. Die "
+               "Plattformrolle kann die Freigabe weder erteilen noch verantworten.",
+        "wenn_unklar": "Die Sperre erst **nach** der ersten erfolgreichen Beladung scharf "
+                       "schalten und die dabei beobachteten Ziele als Ausnahmeliste "
+                       "vorschlagen. Folge: ein zusaetzlicher Schritt am Aufbautag statt einer "
+                       "fehlgeschlagenen Beladung ohne Netzprotokoll.",
+    },
+    "OPS-USERDATA": {
+        "wo": "Eine bestehende Betriebsvereinbarung zur Leistungs- und Verhaltenskontrolle. "
+              "Wo Personalvertretung existiert, gibt es sie fast immer — und sie beantwortet "
+              "die Frage haerter, als der Betrieb es koennte.",
+        "wen": "Datenschutz und Betriebsrat, nicht die Plattformrolle. Wer den Schalter "
+               "bedient, entscheidet ihn nicht.",
+        "wenn_unklar": "Den Personenbezug ausgeschaltet lassen und die Auswertung auf "
+                       "Kapazitaet und Artefakt beschraenken. Folge: Lastspitzen bleiben "
+                       "sichtbar, ihre Verursacher nicht. Einschalten geht spaeter, "
+                       "rueckwirkend loeschen nicht.",
+    },
+}
+
+
 def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str,
          confidence: str, alternatives: list[str], decider: str, if_undecided: str,
-         status: str = "offen", markers: tuple[str, ...] = ()) -> dict:
+         status: str = "offen", markers: tuple[str, ...] = (),
+         ermittlung: dict[str, str] | None = None) -> dict:
     """``status`` is the lever that shrinks the workshop:
 
     * ``vorbelegt`` — a defensible house default is **already applied**; the customer only has to
@@ -337,10 +424,23 @@ def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str
       platform dictates the answer anyway (tenant settings, capacity ladder).
     * ``offen`` — genuinely needs a customer answer: their policy, their legal position, their
       identifiers. No default can stand in for it without inventing facts.
+
+    ``ermittlung`` (17.08.2026, Flo: „Nicht jede Frage kann er ohne weiteres beantworten") —
+    der Weg zur Antwort, in denselben drei Feldern wie bei den Intake-Fragen
+    (``named_profiles.ERMITTLUNG_FELDER``): ``wo`` · ``wen`` · ``wenn_unklar``. Kein zweites
+    Vokabular, weil beide im selben Ledger landen und derselbe Mensch sie liest.
+
+    Wer ihn **nicht** braucht: eine ``vorbelegt``e Entscheidung. Dort ist der Vorschlag selbst
+    der Weg — der Kunde bestaetigt oder widerspricht, und ``if_undecided`` sagt, was gilt, wenn
+    er nichts tut. Gemessen 17.08.2026 blieben damit genau **sieben** Entscheidungen ohne jede
+    Methode uebrig; es sind dieselben sieben, die Flo am Arbeitsblatt als unverstaendlich
+    markiert hatte (Karten 22–28). Das ist kein Zufall: eine Frage ohne Vorschlag und ohne Weg
+    ist ein leeres Textfeld mit einer Ueberschrift.
     """
     return {"id": id_, "topic": topic, "gap": gap, "proposal": proposal,
             "derived_from": derived_from, "confidence": confidence, "status": status,
             "alternatives": alternatives, "decider": decider, "if_undecided": if_undecided,
+            "ermittlung": dict(ermittlung or _ERMITTLUNGSWEGE.get(id_, {})),
             # `markers`: die `TODO(...)`-Marken im Lieferumfang, die GENAU diese Entscheidung
             # auflöst. Damit wird aus einer thematischen Zuordnung eine prüfbare — DoD-Kriterium
             # PE-05 kann so mechanisch statt per Urteil prüfen, dass kein Platzhalter stumm ist.
