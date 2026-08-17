@@ -775,7 +775,7 @@ def propose_endorsement(bp: dict, gc: dict) -> dict:
         "GOV-END", "Endorsement (Promoted / Certified)",
         "Welches Modell ist die verbindliche Quelle?",
         (f"**Certified** nur für das Modell, das wirklich die verbindliche Quelle ist — Vorschlag: "
-         f"„{lead}" + ("“" if doms else "") + "“, weil es die governten Kennzahlen trägt. "
+         f"„{lead}“, weil es die governten Kennzahlen trägt. "
          "Alle übrigen Domänen starten als **Promoted**. Certified erst *nach* dem ersten sauberen "
          "Betriebszyklus setzen (Qualitätsgates grün, Owner benannt), sonst zertifiziert man einen "
          "ungetesteten Stand. Voraussetzung: eine admin-autorisierte Sicherheitsgruppe im Tenant-Setting."),
