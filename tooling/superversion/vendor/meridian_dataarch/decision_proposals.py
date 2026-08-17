@@ -109,9 +109,45 @@ _PLACEMENT_WEIGHT = {"fact": 1.0, "org_dim": 1.0, "other_dim": 0.7, "entity_dim"
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
 
-def _cols(gc: dict) -> list[tuple[str, str]]:
-    """All ``(table, column)`` pairs in the governed catalog."""
-    return [(t["name"], c) for t in gc.get("tables", []) for c in (t.get("columns") or [])]
+def _cols(gc: dict, source_schema: dict | None = None) -> list[tuple[str, str]]:
+    """All ``(table, column)`` pairs in the governed catalog **and** in the introspected source.
+
+    Warum die zweite Quelle (gemessener Anlass 16.08.2026): ``--source-schema-results`` traegt
+    das, was der Kunde uns auf unsere eigene Bitte hin zurueckgeschickt hat — die echten
+    Spalten seiner Quellsysteme. ``watermark_candidates``/``key_candidates`` lesen sie seit
+    jeher, aber sie endeten in ``provision_dq`` und ``provision_source_schema``. Die
+    Entscheidungsvorlage kannte nur den governten Katalog und schrieb deshalb „kein
+    Vorschlag", obwohl die Aenderungsspalte in der Antwort des Kunden stand.
+
+    Die Herkunft bleibt am Namen ablesbar (``<quelle>.<tabelle>``), damit im Beleg steht, ob
+    ein Kandidat aus dem Modell kommt oder aus der Quelle. Ein Kandidat aus der Quelle ist
+    schwaecher: er sagt, was **da** ist, nicht was fachlich gilt.
+    """
+    aus_katalog = [(t["name"], c) for t in gc.get("tables", []) for c in (t.get("columns") or [])]
+    return aus_katalog + _quell_cols(source_schema)
+
+
+def _quell_cols(source_schema: dict | None) -> list[tuple[str, str]]:
+    """``{quelle: [ODCS-Objekt]}`` → ``[(``<quelle>.<tabelle>``, Spalte)]``, deterministisch."""
+    out: list[tuple[str, str]] = []
+    for quelle, objs in sorted((source_schema or {}).items()):
+        for obj in objs or []:
+            tabelle = str(obj.get("name") or "")
+            for prop in obj.get("properties") or []:
+                name = str(prop.get("name") or "")
+                if tabelle and name:
+                    out.append((f"{quelle}.{tabelle}", name))
+    return out
+
+
+def _quell_schnitt(bp: dict, source_schema: dict | None, domain: dict) -> dict:
+    """Die Quellen, die in diese Domaene laden. ``bp["ingestion"]`` fuehrt die Zuordnung."""
+    if not source_schema:
+        return {}
+    name = domain.get("name")
+    quellen = {str(e.get("source") or "") for e in bp.get("ingestion", []) or []
+               if e.get("domain") == name}
+    return {q: t for q, t in source_schema.items() if q in quellen}
 
 
 def _placement(gc: dict, table: str) -> str:
@@ -352,10 +388,10 @@ def propose_workspace_roles(bp: dict) -> dict:
 
 # --- individual proposals ---------------------------------------------------------------------------
 
-def propose_rls(gc: dict) -> dict:
+def propose_rls(gc: dict, source_schema: dict | None = None) -> dict:
     """The row-filter predicate. Derived from the best org-scoping column in the model."""
     scored = []
-    for t, c in _cols(gc):
+    for t, c in _cols(gc, source_schema):
         w = _rank(c, _SCOPE_HINTS)
         if w:
             place = _placement(gc, t)
@@ -369,8 +405,8 @@ def propose_rls(gc: dict) -> dict:
                     "keine", ["Sichtbarkeit über Workspace-Trennung statt RLS",
                               "eine Scoping-Spalte im Gold-Modell ergänzen"],
                     "Data Owner + Security",
-                    "Ohne erklaerten Schnitt entsteht KEINE Zeilenbedingung — die Rolle sieht ALLE Zeilen "
-        "der freigegebenen Tabellen. Das traegt nur, solange die Entra-Gruppe leer ist")
+                    "Ohne einen erklärten Schnitt entsteht keine Zeilenbedingung, und die Rolle sieht alle Zeilen "
+        "der freigegebenen Tabellen. Das trägt nur, solange die Entra-Gruppe leer ist")
     tbl, col = best
     score, raw, place = cands[0][0], cands[0][1], cands[0][2]
     others = sorted({c for _s, _w, _p, _t, c in cands if c != col})[:3]
@@ -398,14 +434,14 @@ def propose_rls(gc: dict) -> dict:
          "kein RLS — Trennung rein über getrennte Workspaces/Modelle"] +
         ([f"Scoping über `{o}` statt `{col}`" for o in others[:1]] if others else []),
         "Data Owner der Domäne (fachlich) + Security (technisch)",
-        "Ohne erklaerten Schnitt entsteht KEINE Zeilenbedingung — die Rolle sieht ALLE Zeilen "
-        "der freigegebenen Tabellen. Das traegt nur, solange die Entra-Gruppe leer ist")
+        "Ohne einen erklärten Schnitt entsteht keine Zeilenbedingung, und die Rolle sieht alle Zeilen "
+        "der freigegebenen Tabellen. Das trägt nur, solange die Entra-Gruppe leer ist")
 
 
-def propose_cls(gc: dict) -> dict:
+def propose_cls(gc: dict, source_schema: dict | None = None) -> dict:
     """Sensitive columns to hide. Derived from column-name patterns (personal / commercial)."""
     hits: dict[str, list[str]] = {}
-    for t, c in _cols(gc):
+    for t, c in _cols(gc, source_schema):
         for h, why in _SENSITIVE_HINTS.items():
             if h in c.lower():
                 hits.setdefault(why, []).append(f"{t}.{c}")
@@ -416,7 +452,7 @@ def propose_cls(gc: dict) -> dict:
                     "keine Spaltennamen mit typischen Sensibilitäts-Mustern gefunden",
                     "keine", ["Klassifikation im Fachbereich erheben (Spalten-Review)"],
                     "Data Owner + Datenschutzbeauftragte:r",
-                    "kein CLS — alle Spalten sind für jede berechtigte Rolle sichtbar")
+                    "Alle Spalten bleiben für jede berechtigte Rolle sichtbar")
     flat = sorted({c for v in hits.values() for c in v})
     detail = "; ".join(f"**{why}**: {', '.join(sorted(set(cols)))}" for why, cols in sorted(hits.items()))
     return _rec(
@@ -430,19 +466,64 @@ def propose_cls(gc: dict) -> dict:
         ["Spalten im Gold-Modell gar nicht materialisieren (stärkster Schutz)",
          "Sichtbar lassen und nur über Sensitivity-Label kennzeichnen (schwächster Schutz)"],
         "Datenschutzbeauftragte:r (personenbezogen) + Data Owner (wirtschaftlich)",
-        "kein CLS — auch sensible Spalten sind für jede berechtigte Rolle sichtbar")
+        "Auch sensible Spalten bleiben für jede berechtigte Rolle sichtbar")
 
 
-def propose_incremental(gc: dict) -> dict:
+def _aus_quelle(source_schema: dict | None) -> dict | None:
+    """Der Vorschlag fuer DATA-INC aus der **Introspektion**, wenn der Katalog schweigt.
+
+    Ehrlich schwaecher als der Katalog-Weg und deshalb getrennt: die Quelle sagt, welche
+    Spalten es gibt, nicht welche Tabelle fachlich die Fakten traegt. Deshalb wird hier
+    nichts zur Fakten-Tabelle erklaert — es werden die Kandidaten je Tabelle genannt, und die
+    Bestaetigung des Grains bleibt offen. Konfidenz „mittel", nie „hoch".
+    """
+    from core.dataarch_engine.blueprint.source_schema import key_candidates, watermark_candidates
+
+    zeilen = []
+    for quelle, objs in sorted((source_schema or {}).items()):
+        for obj in sorted(objs or [], key=lambda o: str(o.get("name") or "")):
+            wm = watermark_candidates(obj)
+            keys = key_candidates(obj)
+            if not wm and not keys:
+                continue
+            zeilen.append((f"{quelle}.{obj.get('name')}", keys[:2], wm[:2]))
+    if not zeilen:
+        return None
+    text = "; ".join(
+        f"`{t}` — Schlüssel {', '.join(f'`{k}`' for k in ks) or '—'}, "
+        f"Änderungsspalte {', '.join(f'`{w}`' for w in ws) or '—'}"
+        for t, ks, ws in zeilen)
+    mit_wm = sum(1 for _t, _k, ws in zeilen if ws)
+    return {"text": text, "tabellen": len(zeilen), "mit_wm": mit_wm}
+
+
+def propose_incremental(gc: dict, source_schema: dict | None = None) -> dict:
     """Match key + watermark for the MERGE upsert."""
     facts = _facts(gc)
     if not facts:
+        aus_quelle = _aus_quelle(source_schema)
+        if aus_quelle:
+            return _rec(
+                "DATA-INC", "Inkrementelles Laden (Match-Key + Watermark)",
+                "Woran erkennt der MERGE geänderte Zeilen?",
+                ("Aus der Introspektion Ihrer Quellsysteme, nicht aus einem Modell: "
+                 + aus_quelle["text"] + ". Zu bestätigen bleibt das **Grain** — welche "
+                 "Spaltenkombination eine Zeile fachlich eindeutig macht. Die Änderungsspalte "
+                 "ist damit belegt, der Match-Key ein Vorschlag."),
+                f"Introspektion von {aus_quelle['tabellen']} Tabelle(n), "
+                f"{aus_quelle['mit_wm']} davon mit Änderungsspalte",
+                "mittel",
+                ["Vollast beibehalten, solange die Datenmenge klein ist",
+                 "CDC/Mirroring an der Quelle statt Watermark im Transform"],
+                "Data Engineering + Quellsystem-Owner",
+                "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast",
+                markers=("contract",))
         return _rec("DATA-INC", "Inkrementelles Laden (Match-Key + Watermark)",
                     "Woran erkennt der MERGE geänderte Zeilen?", None,
-                    "keine Fakten-Tabelle im Katalog", "keine",
+                    "keine Fakten-Tabelle im Katalog, keine Introspektion der Quelle", "keine",
                     ["Vollast beibehalten, solange die Datenmenge klein ist"],
                     "Data Engineering + Quellsystem-Owner",
-                    "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast",
+                    "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast",
                     markers=("contract",))
     f = sorted(facts, key=lambda t: t["name"])[0]
     cols = f.get("columns") or []
@@ -468,7 +549,7 @@ def propose_incremental(gc: dict) -> dict:
          "CDC/Mirroring an der Quelle statt Watermark im Transform",
          "Partition-Overwrite je Periode statt zeilenweisem MERGE"],
         "Data Engineering + Quellsystem-Owner",
-        "Der MERGE-Platzhalter bleibt unausgefüllt — es läuft weiter Vollast (CU-Kosten + Laufzeit)",
+        "Der MERGE-Platzhalter bleibt unausgefüllt, es läuft weiter Vollast (CU-Kosten und Laufzeit)",
         # Schlüssel UND Änderungsspalte im Modell → die Strategie steht, nur bestätigen.
         # Fehlt eine von beiden, ist es eine echte Frage an das Quellsystem.
         status="vorbelegt" if (keys and have_wm) else "offen",
@@ -503,30 +584,31 @@ def propose_silver_contract(gc: dict) -> dict:
         status="vorbelegt", markers=("contract:",))
 
 
-def propose_retention(bp: dict, gc: dict) -> dict:
+def propose_retention(bp: dict, gc: dict, source_schema: dict | None = None) -> dict:
     """Retention periods — a legally-framed default proposal, explicitly to be confirmed."""
-    personal = sorted({f"{t}.{c}" for t, c in _cols(gc)
+    personal = sorted({f"{t}.{c}" for t, c in _cols(gc, source_schema)
                        for h, why in _SENSITIVE_HINTS.items()
                        if h in c.lower() and why == "personenbezogen"})
     return _rec(
         "GOV-RET", "Aufbewahrungsfristen + Personenbezug",
         "Wie lange bleiben die Daten liegen, und was ist personenbezogen?",
-        ("**Zweigeteilter Vorschlag** (rechtlich zu bestätigen, kein Rechtsrat): "
-         "(a) *Nicht personenbezogene* Auswertungsdaten mit Beleg-/Handelsbezug — Aufbewahrung an den "
-         "handels-/steuerrechtlichen Fristen des Kunden ausrichten (in DE typisch 10 Jahre) und danach "
-         "per `DELETE` + `VACUUM` physisch entfernen. "
-         "(b) *Personenbezogene* Spalten — **zweckgebunden** und deutlich kürzer, plus Löschkonzept. "
+        ("Zwei Fristen statt einer. Rechtlich zu bestätigen, und es ist kein Rechtsrat. "
+         "Nicht personenbezogene Auswertungsdaten mit Beleg- oder Handelsbezug richten wir an "
+         "Ihren handels- und steuerrechtlichen Fristen aus, in Deutschland typisch zehn Jahre, "
+         "und entfernen sie danach per `DELETE` und `VACUUM` physisch. Personenbezogene "
+         "Spalten bekommen eine zweckgebundene, kürzere Frist und ein Löschkonzept. "
          + (f"Kandidaten aus dem Modell: {', '.join(personal)}. "
             if personal else "Im Modell wurden keine offensichtlich personenbezogenen Spalten erkannt. ")
-         + "Praktikabelster Weg: personenbezogene Spalten gar nicht erst ins Gold materialisieren oder "
-           "pseudonymisieren — dann entfällt die kurze Frist für das Auswertungsmodell."),
+         + "Am einfachsten bleibt, personenbezogene Spalten gar nicht erst ins Gold zu "
+           "materialisieren oder sie zu pseudonymisieren. Dann entfällt die kurze Frist für "
+           "das Auswertungsmodell."),
         "Spaltennamen-Muster + die Struktur des Aufbewahrungs-Configs",
         "mittel",
         ["Einheitliche Frist für alles (einfach, aber datenschutzrechtlich schwach)",
          "Pseudonymisierung im Silver statt kurzer Frist im Gold",
          "Fristen aus dem bestehenden Löschkonzept des Kunden übernehmen"],
         "Datenschutzbeauftragte:r + Legal (verbindlich), Data Owner (fachlich)",
-        "`retention_policy.json` bleibt mit `<VERIFY>` stehen — es wird nichts gelöscht")
+        "`retention_policy.json` bleibt mit `<VERIFY>` stehen, und es wird nichts gelöscht")
 
 
 def propose_lakehouse_topology(bp: dict) -> dict:
@@ -756,6 +838,110 @@ def propose_tenant_settings(bp: dict) -> dict:
         status="vorbelegt")
 
 
+def propose_user_data_visibility(bp: dict) -> dict:
+    """Der Tenant-Schalter „Show user data in Capacity Metrics\", als Entscheidung statt als Fussnote.
+
+    Er haengt an `BK-B02` und ist der einzige Punkt der Ueberwachung, an dem nicht die Technik
+    entscheidet. Die App zeigt mit ihm, **welche Person** welchen Bericht wie teuer ausgefuehrt hat;
+    im deutschen Markt ist das eine Mitbestimmungsfrage und keine Einstellung.
+
+    `status="offen"` mit Absicht: eine Vorbelegung waere hier eine Aussage ueber das
+    Mitbestimmungsrecht des Kunden, und die steht uns nicht zu.
+    """
+    return _rec(
+        "OPS-USERDATA", "Personenbezug in der Capacity Metrics App",
+        "Darf die Kapazitätsauswertung zeigen, welche Person eine Abfrage ausgelöst hat?",
+        None,
+        "BK-B02 (Capacity Metrics App) — der Tenant-Schalter „Show user data in Capacity Metrics\"",
+        "hoch",
+        ["An lassen — die Auswertung nennt Personen; Verursacher teurer Abfragen sind sofort "
+         "sichtbar, die Auswertung ist damit mitbestimmungspflichtig",
+         "Aus schalten — die Auswertung nennt nur Elemente und Kapazitäten; teure Abfragen "
+         "bleiben sichtbar, ihr Urheber nicht",
+         "An lassen und den Zugang zur App auf einen benannten Kreis begrenzen"],
+        "Datenschutz und Betriebsrat des Kunden, nicht die Plattformrolle",
+        ("Der Schalter steht auf dem Auslieferungswert, und niemand hat ihn geprüft. Fällt es "
+         "später auf, ist die Auswertung schon gelaufen."),
+        status="offen")
+
+
+def propose_outbound_exceptions(bp: dict) -> dict:
+    """Die Ausnahmeliste der ausgehenden Sperre — die eine Haelfte von `BK-N03`, die uns nicht gehoert.
+
+    Die Sperre selbst liefern wir (Politik-Rumpf, Vorbedingungen, Freigabewege je Workload). Welche
+    Ziele danach wieder freigegeben werden, haengt an den Systemen des Kunden und wird nicht
+    erfunden — bis 17.08.2026 stand das nur als Satz in der Luecke und wurde nirgends gefragt.
+    """
+    ziele = sorted({(e.get("source_system") or "").strip()
+                    for e in bp.get("ingestion", []) or []} - {""})
+    beispiel = (f" Aus dieser Lieferung sind mindestens die Quellen {', '.join(ziele)} betroffen — "
+                "sie werden nach dem Blocken nicht mehr erreicht, solange sie nicht auf der Liste "
+                "stehen." if ziele else
+                " Diese Lieferung hat keine erklärte Quelle; die Liste beginnt leer und wächst mit "
+                "dem ersten Quellsystem.")
+    return _rec(
+        "NET-OUTBOUND", "Ausnahmen der ausgehenden Sperre",
+        "Welche Ziele darf die Plattform nach dem Blocken des ausgehenden Verkehrs noch erreichen?",
+        None,
+        "BK-N03 (Outbound Access Protection) — `connectivity/outbound_access_protection.json`",
+        "hoch",
+        ["Nur die erklärten Quellsysteme freigeben (engste Liste, jede neue Quelle braucht einen "
+         "Antrag)",
+         "Zusätzlich die Paketquellen der Entwicklung freigeben (PyPI, Maven, npm) — sonst "
+         "scheitern Spark-Umgebungen mit eigenen Bibliotheken",
+         "Sperre vorerst nur im Berichtsmodus fahren und die Liste aus dem gemessenen Verkehr "
+         "bilden"],
+        "Informationssicherheit des Kunden, gemeinsam mit den Eignern der Quellsysteme",
+        ("Die Sperre wird scharf geschaltet und die erste Beladung schlägt fehl, ohne dass der "
+         "Fehler nach einem Netzproblem aussieht." + beispiel),
+        status="offen")
+
+
+def propose_network_stance(bp: dict) -> dict:
+    """Die Netzanbindung — als Entscheidung, nicht als Optionenliste.
+
+    Bis 16.08.2026 stand die Netzanbindung nur als Beschreibung in `connectivity/_CONNECTIVITY.md`:
+    vier Wege nebeneinander, keiner davon gewaehlt. Damit war sie die einzige Plattform-Entscheidung
+    ohne Vorlage — und sie ist die am schwersten zu drehende: Private Link schaltet einzelne
+    Fabric-Faehigkeiten ab, und rueckwaerts heisst „die Anbindung aller Quellen neu bauen".
+
+    `status="vorbelegt"` mit voller Absicht, aber mit einer Besonderheit im `decider`: hier ist die
+    Uebersteuerung der Normalfall. Datenschutz- oder Konzernvorgaben entscheiden das, nicht wir; die
+    Vorlage sagt nur, was gilt, wenn niemand etwas verlangt.
+    """
+    lokal = [e for e in bp.get("ingestion", []) or []
+             if (e.get("access_mode") == "mirror" or e.get("private") is True
+                 or any(h in (e.get("source_system") or "").lower()
+                        for h in ("on-prem", "on prem", "onprem", "gateway")))]
+    gateway_satz = (
+        f" Diese Lieferung hat **{len(lokal)} Quelle(n) hinter der Firewall** — und genau da wird die "
+        "Frage scharf: **das On-premises-Data-Gateway laesst sich mit aktiviertem Private Link nicht "
+        "einmal registrieren.** Wer beides will, braucht das VNet-Data-Gateway; das ist eine andere "
+        "Beschaffung, kein Schalter." if lokal else
+        " Diese Lieferung hat keine Quelle hinter der Firewall, die Gateway-Frage stellt sich also "
+        "heute nicht. Sie stellt sich beim ersten lokalen Quellsystem.")
+    return _rec(
+        "PLAT-NET", "Netzanbindung (oeffentlich / Private Link)",
+        "Wie erreichen Nutzer und Dienste die Plattform, und wie erreicht die Plattform die Quellen?",
+        ("Vorschlag: **oeffentliche Endpunkte plus Trusted Workspace Access** fuer Azure-Quellen. "
+         "Trusted Workspace Access laesst einen Speicher hinter geschlossener Firewall trotzdem aus "
+         "genannten Workspaces lesen, ueber das Microsoft-Backbone — der Sicherheitsgewinn ohne den "
+         "Preis von Private Link. **Private Link wird nicht vorsorglich gebaut**, sondern nur auf "
+         "belegte Anforderung: er kostet unter anderem Publish-to-Web, PDF-/PowerPoint-Export, "
+         "E-Mail-Abonnements, Copilot, die Capacity-Metrics-App und tenantuebergreifende Verknuepfungen "
+         "— und er ist nachtraeglich nur mit Neuaufbau der Quellanbindung zu drehen." + gateway_satz),
+        "MS Learn: security-private-links-overview (Grenzen je Erlebnis) + security-trusted-workspace-"
+        "access (F-SKU-Pflicht, kein Trial), beide geprueft 16.08.2026",
+        "hoch",
+        ["Private Link auf Tenant-Ebene (maximale Abschottung, hoechster Funktionsverlust)",
+         "Private Link nur auf Workspace-Ebene (feiner, nur die Workspaces mit echter Anforderung)",
+         "IP-Firewall-Regeln je Workspace (bis 256 Regeln, laeuft auch auf Trial)"],
+        "Informationssicherheit / Konzern-IT — hier entscheidet die Vorgabe des Kunden, nicht wir",
+        ("Die Anbindung wird zweimal gebaut: einmal oeffentlich, und nach der ersten Pruefung durch "
+         "die Sicherheit noch einmal privat."),
+        status="vorbelegt")
+
+
 def propose_ground_truth(gc: dict) -> dict:
     """Evaluation ground truth for the Data Agent — derivable as question skeletons."""
     ms = [m["measure_name"] for m in gc.get("measures", []) if m.get("measure_name")][:4]
@@ -854,7 +1040,8 @@ def propose_platform_tier(bp: dict) -> dict | None:
                       "Netzpfad und Wartungsmodell sind dann nicht zusagbar."),
     )
 
-def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
+def propose_all(bp: dict, governed_catalog: dict | None = None,
+                source_schema: dict | None = None) -> list[dict]:
     """Every open decision with its pre-thought proposal, deterministic order.
 
     A customer has many use cases, and the model-driven decisions (RLS axis, sensitive columns,
@@ -862,9 +1049,19 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
     Sales may scope by region while Finance scopes by company code. So with more than one domain those
     fan out to one record per domain (``SEC-RLS·<domain>``), each derived from that domain's slice of
     the catalog. The platform decisions (capacity, tenant settings, alerts, endorsement, retention)
-    stay tenant-wide, because that is what they actually are."""
+    stay tenant-wide, because that is what they actually are.
+
+    ``source_schema`` ist die zweite Tatsachenquelle: die Introspektionsergebnisse, um die wir
+    den Kunden per ``--source-schema-results`` bitten. Drei der modellgetriebenen Vorlagen
+    lesen sie mit (RLS, CLS, inkrementelles Laden); je Domaene bekommt jede nur die Quellen,
+    die in diese Domaene laden. Ohne die Zuleitung stand in der Vorlage „kein Vorschlag",
+    waehrend die Antwort des Kunden im selben Lauf auf der Platte lag."""
     gc = governed_catalog or {}
     domains = sorted(bp.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
+    #: Vorlagen, die neben dem Katalog auch die Quell-Introspektion lesen. Die uebrigen
+    #: (Silber-Vertrag, Agent-Pruefgrundlage) haengen an Beziehungen und Kennzahlen — die
+    #: gibt INFORMATION_SCHEMA nicht her, und sie zu behaupten waere geraten.
+    mit_quelle = (propose_rls, propose_cls, propose_incremental)
     per_domain = [propose_rls, propose_cls, propose_incremental, propose_silver_contract,
                   propose_ground_truth]
     out: list[dict] = []
@@ -874,17 +1071,21 @@ def propose_all(bp: dict, governed_catalog: dict | None = None) -> list[dict]:
             if not dgc.get("tables"):
                 continue
             slug = _NONWORD_RE.sub("-", (d.get("name") or "").lower()).strip("-")
+            dq = _quell_schnitt(bp, source_schema, d)
             for fn in per_domain:
-                r = fn(dgc)
+                r = fn(dgc, dq) if fn in mit_quelle else fn(dgc)
                 r["id"] = f"{r['id']}·{slug}"
                 r["topic"] = f"{r['topic']} — {d.get('name')}"
                 out.append(r)
     else:
-        out.extend(fn(gc) for fn in per_domain)
+        out.extend(fn(gc, source_schema) if fn in mit_quelle else fn(gc) for fn in per_domain)
     if len(domains) > 1 and gc.get("tables"):
         out.extend(propose_cross_domain(bp, gc))   # domains are not islands
-    out.extend([propose_workspace_roles(bp), propose_retention(bp, gc), propose_alerts(bp),
+    out.extend([propose_workspace_roles(bp), propose_retention(bp, gc, source_schema),
+                propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
+                propose_network_stance(bp), propose_outbound_exceptions(bp),
+                propose_user_data_visibility(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
                 propose_transform_engine(bp)])
     _tier = propose_platform_tier(bp)      # nur auf Stacks mit Stufen-Achse und nur solange offen
@@ -940,9 +1141,10 @@ def decisions_markdown(proposals: list[dict]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def emit_decisions(bp: dict, governed_catalog: dict | None = None) -> dict[str, str]:
+def emit_decisions(bp: dict, governed_catalog: dict | None = None,
+                   source_schema: dict | None = None) -> dict[str, str]:
     """Return the decision-template artifact set (path → content)."""
-    proposals = propose_all(bp, governed_catalog)
+    proposals = propose_all(bp, governed_catalog, source_schema)
     return {
         "decisions/ENTSCHEIDUNGSVORLAGE.md": decisions_markdown(proposals),
         "decisions/proposals.json": json.dumps(
