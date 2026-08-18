@@ -1083,7 +1083,11 @@ def propose_tenant_settings(bp: dict) -> dict:
         (f"Die benötigten Schalter stehen bereits fest{f' ({n} Stück)' if n else ''} und sind in "
          "`readiness/` als Prüfliste emittiert — u. a. XMLA-Read/Write, Git-Integration und die "
          "Service-Principal-Freigabe für die Admin-APIs. Vorschlag: **vor** dem Kickoff durch den "
-         "Fabric-Admin setzen lassen (Aufwand ~0,5 PT) und mit dem Readiness-Check verifizieren — "
+         # Keine Aufwandsangabe. Bis 18.08.2026 stand hier „Aufwand ~0,5 PT" — eine
+         # Schaetzung in kundenseitigem Text, und damit genau das, was ADR-0019 §2.4
+         # ausschliesst. Gefunden hat es der Cockpit-Test `test_das_cockpit_nennt_keine_dauern`,
+         # nicht ein Lesen: der Satz stand seit Monaten im Fragebogen.
+         "Fabric-Admin setzen lassen und mit dem Readiness-Check verifizieren — "
          "dann blockiert am Umsetzungstag kein Schalter."),
         "admin_settings.required_settings über die genutzten Capabilities",
         "hoch",
