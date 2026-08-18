@@ -1296,6 +1296,66 @@ def propose_platform_tier(bp: dict) -> dict | None:
                       "Netzpfad und Wartungsmodell sind dann nicht zusagbar."),
     )
 
+#: Der Trenner, mit dem `propose_all` eine Entscheidung je Domaene aufspannt.
+FANOUT_TRENNER = "\u00b7"
+
+#: Die fuenf Vorlagen, die das Gold-Modell lesen — als Liste, nicht als Merksatz.
+#:
+#: Bis 18.08.2026 stand diese Menge an drei Stellen: im Fliesstext des Modul-Docstrings oben,
+#: als lokale Variable `per_domain` in `propose_all` und als handgetippte Konstante
+#: `_MODELLGETRIEBEN` im Test. Drei Kopien einer Menge, die waechst, sobald jemand eine sechste
+#: modellgetriebene Vorlage schreibt — und zwei davon haetten es nicht gemerkt.
+#:
+#: `propose_all` liest jetzt diese Liste, `modellgetriebene_ids()` leitet die IDs daraus ab,
+#: und der Ledger fragt beide, statt eine vierte Kopie anzulegen.
+MODELLGETRIEBENE_VORLAGEN = (propose_rls, propose_cls, propose_incremental,
+                             propose_silver_contract, propose_ground_truth)
+
+#: Von diesen liest ein Teil zusaetzlich die Quell-Introspektion und nimmt deshalb zwei
+#: Argumente. Die Unterscheidung gehoert neben die Liste, sonst ruft der naechste Aufrufer
+#: falsch auf.
+_MIT_QUELLE = (propose_rls, propose_cls, propose_incremental)
+
+
+def modellgetriebene_ids() -> frozenset[str]:
+    """Die Basis-IDs der modellgetriebenen Vorlagen — gefragt statt getippt.
+
+    Die ID steht im `_rec`-Aufruf jeder Vorlage; sie hier noch einmal aufzuschreiben hiesse,
+    eine Umbenennung an zwei Stellen nachziehen zu muessen. Stattdessen wird jede Vorlage
+    einmal mit leerem Katalog aufgerufen — deterministisch, ohne Seiteneffekt, und genau der
+    Lauf, den `propose_all` ohnehin macht.
+
+    „Basis"-ID, weil `propose_all` bei mehreren Domaenen auf `SEC-RLS·sales` faechert. Wer die
+    Zugehoerigkeit pruefen will, schneidet am Trenner ab — siehe `wartet_auf_modell`.
+    """
+    return frozenset(
+        (fn({}, None) if fn in _MIT_QUELLE else fn({}))["id"]
+        for fn in MODELLGETRIEBENE_VORLAGEN
+    )
+
+
+def basis_id(decision_id: str) -> str:
+    """`SEC-RLS·sales` → `SEC-RLS`. Eine Stelle, weil der Trenner sonst mitwandert."""
+    return str(decision_id).split(FANOUT_TRENNER, 1)[0]
+
+
+def wartet_auf_modell(p: dict) -> bool:
+    """Diese Entscheidung schweigt, weil das Gold-Modell fehlt — nicht, weil es nichts zu sagen gibt.
+
+    Der Unterschied ist der ganze Zweck der Funktion. `NET-OUTBOUND` und `OPS-USERDATA` tragen
+    ebenfalls keinen Vorschlag, und zwar dauerhaft: ihr Inhalt steckt in den Alternativen, kein
+    Modell der Welt aendert daran etwas. `PLAT-TIER` traegt sogar `confidence: "keine"` und ist
+    trotzdem eine Kundentatsache (ein Vertragsgegenstand) — der Hausstandard-Trick waere dort
+    eine Behauptung.
+
+    Gemessen 18.08.2026, deshalb steht hier die Zugehoerigkeit und nicht `confidence == "keine"`:
+    auf Fabric waehlt die Konfidenz zufaellig genau die fuenf richtigen, auf Snowflake und
+    Databricks nimmt sie `PLAT-TIER` mit, und `DATA-CONTRACT` behaelt sie dort **auch mit**
+    Katalog. Ein Praedikat, das auf einem Stack stimmt und auf zweien nicht, ist keins.
+    """
+    return basis_id(p.get("id", "")) in modellgetriebene_ids() and not p.get("proposal")
+
+
 def propose_all(bp: dict, governed_catalog: dict | None = None,
                 source_schema: dict | None = None) -> list[dict]:
     """Every open decision with its pre-thought proposal, deterministic order.
@@ -1317,9 +1377,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
     #: Vorlagen, die neben dem Katalog auch die Quell-Introspektion lesen. Die uebrigen
     #: (Silber-Vertrag, Agent-Pruefgrundlage) haengen an Beziehungen und Kennzahlen — die
     #: gibt INFORMATION_SCHEMA nicht her, und sie zu behaupten waere geraten.
-    mit_quelle = (propose_rls, propose_cls, propose_incremental)
-    per_domain = [propose_rls, propose_cls, propose_incremental, propose_silver_contract,
-                  propose_ground_truth]
+    mit_quelle = _MIT_QUELLE
+    per_domain = list(MODELLGETRIEBENE_VORLAGEN)
     out: list[dict] = []
     if len(domains) > 1 and gc.get("tables"):
         for d in domains:
@@ -1330,7 +1389,7 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
             dq = _quell_schnitt(bp, source_schema, d)
             for fn in per_domain:
                 r = fn(dgc, dq) if fn in mit_quelle else fn(dgc)
-                r["id"] = f"{r['id']}·{slug}"
+                r["id"] = f"{r['id']}{FANOUT_TRENNER}{slug}"
                 r["topic"] = f"{r['topic']} — {d.get('name')}"
                 out.append(r)
     else:
