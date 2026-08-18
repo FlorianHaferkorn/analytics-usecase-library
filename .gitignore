@@ -138,3 +138,10 @@ drift_report.json
 # END Ruler Generated Files
 
 KPI_Framework_Discovery_*.xlsx
+
+# Real, customer-specific showcases stay LOCAL — per showcases/README.md §Scope
+# ("Customer-specific implementations … kept in separate project repositories").
+# Only the synthetic demo (aurora_group) + the archived structural sample are tracked.
+/showcases/*/
+!/showcases/aurora_group/
+!/showcases/sample_pbip_report/

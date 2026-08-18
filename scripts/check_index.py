@@ -48,6 +48,29 @@ PATH_RE = re.compile(r"`([^`]+)`")
 FRONT_RE = re.compile(r"^---\n(.*?)\n---", re.DOTALL)
 PLACEHOLDER_RE = re.compile(r"\{\{[^}]+\}\}")
 
+# The index checker validates the TRACKED repo. Content git ignores — e.g. real customer showcases
+# kept local per showcases/README.md ("Customer-specific implementations … kept in separate project
+# repositories") — is NOT part of it and must not be scanned. Populated in main().
+_IGNORED: "set[Path]" = set()
+
+
+def _git_ignored_prefixes(root: Path) -> "set[Path]":
+    """Absolute paths git ignores (directories collapsed to one entry via ``--directory``)."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--others", "--ignored",
+             "--exclude-standard", "--directory", "-z"],
+            capture_output=True, text=True, timeout=30, check=True,
+        ).stdout
+    except Exception:
+        return set()
+    return {(root / p).resolve() for p in out.split("\0") if p}
+
+
+def _under_ignored(p: Path) -> bool:
+    rp = p.resolve()
+    return any(rp == ig or ig in rp.parents for ig in _IGNORED)
+
 
 def slugify(h: str) -> str:
     s = re.sub(r"[^\w\s-]", "", h.strip().lower(), flags=re.UNICODE)
@@ -62,12 +85,14 @@ def headings_of(md: Path) -> set[str]:
 
 def find_indexes(root: Path) -> list[Path]:
     return sorted(p for p in root.rglob("_INDEX.md")
-                  if not any(part in IGNORE_DIRS for part in p.parts))
+                  if not any(part in IGNORE_DIRS for part in p.parts)
+                  and not _under_ignored(p))
 
 
 def ignored(md: Path) -> bool:
     return (any(p in IGNORE_DIRS for p in md.parts) or md.name in EXEMPT_FILES
-            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem))
+            or DUPE_RE.search(md.name) or DUPE_RE.search(md.stem)
+            or _under_ignored(md))
 
 
 LIESWENN_HEADER_RE = re.compile(r"nicht\s*n(ö|oe)tig", re.IGNORECASE)
@@ -374,7 +399,8 @@ def check_unindexed_areas(root: Path, indexes: list[Path], warnings: list[str]) 
     Vollständigkeits-Lücke (z. B. scripts/ mit 26 .py). Kein harter Fehler."""
     index_dirs = {idx.parent.resolve() for idx in indexes}
     for child in sorted(p for p in root.iterdir() if p.is_dir()):
-        if child.name in IGNORE_DIRS or child.name.startswith(".") or _non_navigated(child):
+        if (child.name in IGNORE_DIRS or child.name.startswith(".")
+                or _non_navigated(child) or _under_ignored(child)):
             continue
         cr = child.resolve()
         if any(d == cr or cr in d.parents for d in index_dirs):
@@ -390,6 +416,8 @@ def main(argv: list[str]) -> int:
     strict = "--strict" in argv
     pos = [a for a in argv[1:] if not a.startswith("--")]
     root = (REPO_ROOT / pos[0]) if pos else REPO_ROOT
+    global _IGNORED
+    _IGNORED = _git_ignored_prefixes(REPO_ROOT)
     indexes = find_indexes(root)
     errors: list[str] = []
     warnings: list[str] = []
