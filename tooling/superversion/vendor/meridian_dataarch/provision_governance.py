@@ -93,7 +93,7 @@ def _rls_tmdl(domain: str, gold_products: list[str], audience: str, sensitivity:
     stand hier ``true``, ausdruecklich als bewusste Abweichung von ``model_roles`` begruendet: das
     Geruest werde von Hand deployt, von jemandem, der das ``TODO(contract)`` daneben liest. Diese
     Annahme traegt nicht. Gemessen im E2E-Lauf: ``governance/roles/vertrieb.tmdl`` gab **allen
-    sieben** Tabellen ``true``, dieselbe Form im HOCHTIEF-Lauf 1. ``true`` zeigt alle Zeilen, und
+    sieben** Tabellen ``true``, dieselbe Form im Kundenmandant-Lauf 1. ``true`` zeigt alle Zeilen, und
     das ist die Richtung, die niemandem auffaellt — ein zu enger Filter faellt auf, weil sich
     jemand beschwert, ein zu weiter nicht. Damit geben jetzt beide Emitter dieses Moduls dieselbe
     Antwort auf dieselbe Frage; zwei gegenlaeufige Vorgaben in einer Datei sind ein Drift-Erzeuger.
@@ -144,7 +144,7 @@ def model_roles(bp: dict, sensitivity: dict | None = None) -> list:
     Das separat emittierte Gerüst (``_rls_tmdl``) trägt seit 14.08.2026 denselben ``FALSE()``.
     Vorher stand dort ``true``, begründet damit, dass es von Hand deployt werde — von jemandem,
     der das ``TODO(contract)`` daneben liest. Befund A.9 hat die Annahme widerlegt (alle sieben
-    Tabellen im E2E-Lauf, dieselbe Form im HOCHTIEF-Lauf 1), und zwei gegenläufige Vorgaben in
+    Tabellen im E2E-Lauf, dieselbe Form im Kundenmandant-Lauf 1), und zwei gegenläufige Vorgaben in
     einer Datei sind ein Drift-Erzeuger.
     """
     from core.pbi_engine.parsers.tmdl_parser import Role, RoleColumnPermission, RoleTablePermission
@@ -328,7 +328,7 @@ def check_onelake_role_guardrails(payload: dict | str) -> dict:
     Zusaetzlich geprueft, weil B12 daran haengt: kein Praedikat darf gegen die OneLake-Grammatik
     verstossen (``{Spalte} {Operator} {Wert}``, MS Learn *Row-level security syntax reference*).
     Ein einziger ungueltiger Eintrag laesst den ``PUT`` scheitern und reisst die Anlage **aller**
-    Rollen des Items mit — gemessen 14.08.2026, HOCHTIEF Lauf 2.
+    Rollen des Items mit — gemessen 14.08.2026, Kundenmandant Lauf 2.
 
     Gibt ``{findings: [...], counts: {...}}`` zurueck — dieselbe Form wie
     ``check_metadata_completeness``, damit die Leitplanken-Pruefung sie ohne Sonderfall einsammelt.
@@ -444,7 +444,7 @@ def _sql_literal(value: str) -> str:
 
 
 #: Der ausdrueckliche Sammelposten fuer Zeilen, die keiner Stufe zugeordnet werden konnten.
-#: **Nie NULL.** Gemessener Anlass 14.08.2026 (HOCHTIEF, erster DQ-Lauf): 562 Faktenzeilen
+#: **Nie NULL.** Gemessener Anlass 14.08.2026 (Kundenmandant, erster DQ-Lauf): 562 Faktenzeilen
 #: fanden kein Projekt, also blieben ihre Vorfahrenspalten leer. Ein Praedikat der Form
 #: ``[org_niederlassung] = 'Muenchen'`` trifft NULL nicht — die Zeilen waren fuer **jede**
 #: Rolle unsichtbar, und fehlende Zeilen sehen aus wie eine fehlende Berechtigung. Der
@@ -607,7 +607,7 @@ def _onelake_security_roles(bp: dict, lakehouse: str, sensitivity: dict | None =
     - **RLS** (``constraints.rows[].value``, a T-SQL predicate) → only where the blueprint
       *declares* a cut (``row_security``). Where it does not, **no row condition is emitted**
       and the gap is carried into ``_ONELAKE_SECURITY.md`` instead of into the payload.
-      Measured 14.08.2026, HOCHTIEF run 2 (B12): the former ``where 1=0`` scaffold violates the
+      Measured 14.08.2026, customer tenant run 2 (B12): the former ``where 1=0`` scaffold violates the
       OneLake RLS grammar (``{column} {operator} {static value}``, MS Learn *Row-level security
       syntax reference*) → ``BadRequest: InvalidRLSPredicate``. Because the ``PUT`` replaces the
       **entire** role set, that single invalid predicate aborted the creation of *all* roles on

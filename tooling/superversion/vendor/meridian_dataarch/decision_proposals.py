@@ -327,9 +327,247 @@ def _domain_names(bp: dict) -> list[str]:
     return sorted(d.get("name", "") for d in bp.get("mesh", {}).get("domains", []))
 
 
+#: Ermittlungswege je Entscheidung — nach ID, nicht am Aufrufort.
+#:
+#: Grund fuer die Tabelle statt eines Arguments an jeder Stelle: die fuenf modellgetriebenen
+#: Entscheidungen haben **zwei** `_rec`-Aufrufe (mit governtem Katalog und ohne). Der Weg zur
+#: Antwort ist in beiden Faellen derselbe; ihn zweimal zu tippen heisst, ihn beim naechsten Mal
+#: an einer Stelle zu aendern. Genau die Sorte Drift, die dieses Repo an anderer Stelle schon
+#: gekostet hat.
+_ERMITTLUNGSWEGE: dict[str, dict[str, str]] = {
+    "SEC-RLS": {
+        "wo": "Die heutige Berichtslandschaft: gibt es bereits getrennte Berichte je Region, "
+              "Gesellschaft oder Bereich, oder eine Zeilensicherheit im bestehenden Modell? "
+              "Was heute getrennt ausgeliefert wird, IST der Schnitt — er steht nur nirgends "
+              "geschrieben.",
+        "wen": "Data Owner der Domäne gemeinsam mit der Person, die die Berichte heute "
+               "verteilt. Die Verteilliste ist oft präziser als jedes Konzept.",
+        "wenn_unklar": "Wir schlagen den Schnitt selbst vor, sobald das Gold-Modell steht — die "
+                       "Organisationsachse kommt aus dem Modell (`--governed-catalog`). Bis "
+                       "dahin gehört die Frage nicht auf den Kundenbogen, weil wir sie gerade "
+                       "selbst beantworten.",
+    },
+    "SEC-CLS": {
+        "wo": "Das Verzeichnis der Verarbeitungstätigkeiten nach Art. 30 DSGVO und ein "
+              "bestehendes Berechtigungskonzept. Beide benennen personenbezogene Felder "
+              "bereits, meist vollständiger als eine Frage im Termin.",
+        "wen": "Datenschutzbeauftragte oder Datenschutzbeauftragter gemeinsam mit dem Data "
+               "Owner. Ohne den Datenschutz ist die Antwort eine Meinung.",
+        "wenn_unklar": "Wir schlagen die Kandidaten aus dem Gold-Modell vor (Namen, Adressen, "
+                       "Personalnummern, Gehalt) und lassen bestätigen. Ein Vorschlag, dem "
+                       "widersprochen wird, klärt die Frage schneller als eine offene Frage.",
+    },
+    "DATA-INC": {
+        "wo": "Die Tabellenstruktur im Quellsystem, nicht das Gespräch: gibt es eine "
+              "Aenderungsspalte (`LAST_UPDATE`, in SAP `AEDAT`/`AEZEIT`) oder ein Change-Log? "
+              "Ein Blick ins Datenmodell beantwortet die Frage in Minuten.",
+        "wen": "Die Administration des Quellsystems oder dessen Hersteller — nicht der "
+               "Fachbereich, der die Spalte nie gesehen hat.",
+        "wenn_unklar": "Voll laden und die Aenderungserkennung nachrüsten, sobald die Spalte "
+                       "benannt ist. Folge: längere Ladezeiten und höherer Verbrauch, aber "
+                       "kein falscher Datenstand. Der umgekehrte Fehler ist teurer.",
+    },
+    "DATA-CONTRACT": {
+        "wo": "Bestehende Schnittstellenbeschreibungen und Uebergabevereinbarungen zwischen "
+              "IT und Fachbereich. Wo es keine gibt, sagt das Fehlen selbst etwas über den "
+              "Reifegrad und gehört ins Assessment.",
+        "wen": "Data Owner und Data Engineering gemeinsam; einer allein beschreibt entweder "
+               "die Bedeutung oder die Technik, nie beides.",
+        "wenn_unklar": "Wir leiten den Vertrag aus dem Gold-Modell ab und legen ihn zur "
+                       "Freigabe vor. Die Freigabe ist die Entscheidung, der Entwurf ist "
+                       "unsere Arbeit.",
+    },
+    "AI-EVAL": {
+        "wo": "Fragen, die der Fachbereich heute per Mail an die BI stellt. Zwanzig davon mit "
+              "ihrer damaligen Antwort sind ein Prüfsatz — und zwar ein echter, weil ihn "
+              "niemand für den Test erfunden hat.",
+        "wen": "Der Fachbereich, der den Agenten später nutzt. Ein Prüfsatz aus der IT misst "
+               "die IT.",
+        "wenn_unklar": "Wir bilden den Prüfsatz aus dem Gold-Modell (je Kennzahl eine Frage) "
+                       "und lassen die erwarteten Antworten bestätigen. Ohne jeden Prüfsatz "
+                       "geht der Agent ohne Qualitätsnachweis produktiv — das ist kein "
+                       "Rückfall, sondern ein Befund, und er steht so im Ledger.",
+    },
+    "NET-OUTBOUND": {
+        "wo": "Die Liste der Quellsysteme mit ihren Endpunkten steht bereits im Blueprint. "
+              "Dagegen die bestehenden Firewall-Freigaben des heutigen BI-Systems halten — "
+              "was heute erreichbar ist, ist der belastbarste Ausgangspunkt.",
+        "wen": "Informationssicherheit gemeinsam mit den Eignern der Quellsysteme. Die "
+               "Plattformrolle kann die Freigabe weder erteilen noch verantworten.",
+        "wenn_unklar": "Die Sperre erst **nach** der ersten erfolgreichen Beladung scharf "
+                       "schalten und die dabei beobachteten Ziele als Ausnahmeliste "
+                       "vorschlagen. Folge: ein zusätzlicher Schritt am Aufbautag statt einer "
+                       "fehlgeschlagenen Beladung ohne Netzprotokoll.",
+    },
+    "OPS-USERDATA": {
+        "wo": "Eine bestehende Betriebsvereinbarung zur Leistungs- und Verhaltenskontrolle. "
+              "Wo Personalvertretung existiert, gibt es sie fast immer — und sie beantwortet "
+              "die Frage härter, als der Betrieb es könnte.",
+        "wen": "Datenschutz und Betriebsrat, nicht die Plattformrolle. Wer den Schalter "
+               "bedient, entscheidet ihn nicht.",
+        "wenn_unklar": "Den Personenbezug ausgeschaltet lassen und die Auswertung auf "
+                       "Kapazität und Artefakt beschränken. Folge: Lastspitzen bleiben "
+                       "sichtbar, ihre Verursacher nicht. Einschalten geht später, "
+                       "rückwirkend löschen nicht.",
+    },
+}
+
+
+#: Die Kundenfassung einer Entscheidung. ``warum`` steht bei **allen** siebzehn, und das ist
+#: der Punkt: bis heute fuellte der Ledger ``hinweis`` und ``folge`` beide aus ``if_undecided``,
+#: und der Renderer unterdrueckt ``hinweis`` bei Gleichheit. „Warum wir fragen" war damit fuer
+#: Entscheidungen strukturell unmoeglich — der Deckel fiel auf „Wer entscheidet" zurueck.
+#:
+#: ``frage`` und ``folge`` stehen nur dort, wo der Fachsatz einen Kunden nicht erreicht. Sechs
+#: von siebzehn: „Woran erkennt der MERGE geaenderte Zeilen?" ist eine Frage an einen
+#: Dateningenieur, nicht an den Fachbereich, der die Antwort besitzt. Die uebrigen elf sind
+#: schon in ihrer Fachfassung beantwortbar und bekommen keine zweite — zwei Wortlaute derselben
+#: Frage laufen auseinander, sobald einer von beiden gepflegt wird.
+#:
+#: Wie ``_ERMITTLUNGSWEGE`` nach ``id`` geschluesselt, aus demselben Grund: die fuenf
+#: modellgetriebenen Entscheidungen haben **zwei** ``_rec``-Aufrufstellen, je nachdem ob ein
+#: governter Katalog vorlag. Am Aufrufort gepflegt waere die Haelfte davon still leer.
+_KUNDENFASSUNG: dict[str, dict[str, str]] = {
+    "SEC-RLS": {
+        "warum": "Ohne einen erklärten Schnitt sieht jede Rolle alle Zeilen der freigegebenen "
+                 "Tabellen. Das fällt erst auf, wenn die erste Entra-Gruppe gefüllt wird, und "
+                 "dann sieht jemand Zahlen, die ihn nichts angehen.",
+    },
+    "SEC-CLS": {
+        "warum": "Gehalt, Bankverbindung und Geburtsdatum liegen im Modell genauso da wie die "
+                 "Umsatzspalte. Wer sie nicht benennt, gibt sie mit frei.",
+    },
+    "DATA-INC": {
+        "frage": "Woran erkennen wir in Ihren Quelldaten, dass ein Datensatz sich geändert hat?",
+        "folge": "Wir laden die Tabelle bei jedem Lauf komplett neu. Das ist korrekt und wird "
+                 "mit wachsender Datenmenge langsam und teuer.",
+        "warum": "Ein inkrementeller Lauf braucht ein Feld, an dem er Änderungen erkennt: ein "
+                 "Änderungsdatum, eine Versionsnummer, ein Löschkennzeichen. Fehlt es, bleibt "
+                 "nur der Komplettabzug.",
+    },
+    "DATA-CONTRACT": {
+        "frage": "Nach welchen Schlüsseln lassen sich Ihre Quellsysteme zusammenführen?",
+        "folge": "Jede Quelle bleibt für sich stehen. Auswertungen über Systemgrenzen hinweg "
+                 "sind dann nicht möglich.",
+        "warum": "Zwei Systeme führen denselben Kunden unter zwei Nummern. Welche davon gilt, "
+                 "und woran die beiden Sätze als derselbe Kunde erkennbar sind, weiss nur "
+                 "jemand aus dem Fachbereich.",
+    },
+    "AI-EVAL": {
+        "warum": "Ein Assistent, dessen Antworten niemand gegen eine bekannte Wahrheit prüft, "
+                 "wird trotzdem benutzt. Die falsche Antwort fällt dann im Termin auf, nicht "
+                 "im Test.",
+    },
+    "SEC-ROLES": {
+        "folge": "Wir binden die Rollen nach dem Vorschlag: Konsumenten lesend, Bearbeitende "
+                 "mit Schreibrecht. Welche Gruppe dahintersteht, bleibt offen, bis Sie sie "
+                 "nennen.",
+        "warum": "Zeilensicherheit greift nur in der Viewer-Rolle. Wer einen Berichtsempfänger "
+                 "als Member einträgt, damit er alles sieht, hat genau das erreicht: er sieht "
+                 "alles, auch was gefiltert werden sollte.",
+    },
+    "GOV-RET": {
+        "warum": "Aufbewahrungsfristen und Personenbezug entscheiden, was gelöscht werden muss "
+                 "und was gelöscht werden darf. Beides ist eine Rechtsfrage, keine technische.",
+    },
+    "OPS-ALERT": {
+        "folge": "Wir richten die Alarme auf Rollen-Postfächer ein. Welche Adressen dahinter "
+                 "liegen, bleibt offen; bis dahin läuft die Meldung ins Leere.",
+        "warum": "Eine Meldung ohne Empfänger ist eine Meldung, die niemand liest. Der "
+                 "Ausfall fällt dann auf, wenn ein Bericht leer bleibt.",
+    },
+    "GOV-END": {
+        "folge": "Wir zeichnen das Modell aus, das die governten Kennzahlen trägt. Alle "
+                 "übrigen bleiben ohne Auszeichnung.",
+        "warum": "Wenn zwei Modelle dieselbe Kennzahl tragen, entscheidet die Auszeichnung, "
+                 "welche Zahl im Zweifel gilt. Ohne sie entscheidet der Zufall, welchen Bericht "
+                 "jemand zuerst geöffnet hat.",
+    },
+    "PLAT-CAP": {
+        "folge": "Wir planen mit der kleinsten Kapazität und messen im Betrieb nach. "
+                 "Beschaffen müssen Sie sie selbst; ohne sie beginnt kein Aufbau.",
+        "warum": "Die Kapazität setzt die Obergrenze für Datenmenge und gleichzeitige Nutzung. "
+                 "Sie lässt sich später ändern, aber jeder Wechsel geht über die "
+                 "Beschaffung.",
+    },
+    "PLAT-TENANT": {
+        "folge": "Wir liefern die Prüfliste der nötigen Schalter mit. Setzen kann sie nur Ihre "
+                 "Fabric-Administration.",
+        "warum": "Mehrere dieser Schalter stehen mandantenweit und nicht im Projekt. Steht einer "
+                 "falsch, scheitert der Aufbau an einer Stelle, die wie ein Fehler in unserer "
+                 "Lieferung aussieht.",
+    },
+    "PLAT-NET": {
+        "warum": "Die Netzanbindung ist die am schwersten zu drehende Festlegung der ganzen "
+                 "Plattform. Sie wird früh getroffen und spät bemerkt.",
+    },
+    "NET-OUTBOUND": {
+        "warum": "Wird der ausgehende Verkehr geblockt, ohne dass die nötigen Ziele benannt "
+                 "sind, brechen Dienste ab, die vorher liefen. Die Freigabeliste ist billiger "
+                 "vor dem Blocken als danach.",
+    },
+    "OPS-USERDATA": {
+        "warum": "Die Auswertung kann zeigen, wer eine teure Abfrage ausgelöst hat. Ob sie das "
+                 "darf, ist eine Frage an Ihre Mitbestimmung und Ihren Datenschutz.",
+    },
+    "PLAT-LHSCHEMA": {
+        "frage": "Sollen die Tabellen in getrennten Bereichen je Verarbeitungsstufe liegen?",
+        "folge": "Wir legen sie in getrennten Bereichen an. Das ist der ausdrückliche "
+                 "Standardweg der Plattform.",
+        "warum": "Getrennte Bereiche machen Rechte je Stufe vergebbar. Flach abgelegt tragen "
+                 "die Tabellen ihre Stufe nur noch im Namen, und Rechte gelten dann für alle "
+                 "zusammen.",
+    },
+    "PLAT-LHTOPO": {
+        "frage": "Soll jede Verarbeitungsstufe ihren eigenen Speicherbereich bekommen, oder "
+                 "tragen alle Stufen einer Fachdomäne einen gemeinsamen?",
+        "folge": "Eine Domäne bekommt einen Speicherbereich, der alle Stufen als getrennte "
+                 "Bereiche trägt.",
+        "warum": "Der Schnitt entscheidet, wie fein sich Rechte und Betriebsaufgaben verteilen "
+                 "lassen. Er lässt sich später ändern, aber jeder Umzug zieht Berichte und "
+                 "Verbindungen mit.",
+    },
+    "PLAT-TRANSFORM": {
+        "frage": "Sollen die Übergänge zwischen den Stufen automatisch nachgeführt werden, "
+                 "oder als eigene Abläufe gesteuert?",
+        "folge": "Wir deklarieren die Übergänge, die Plattform führt sie selbst nach.",
+        "warum": "Deklarierte Übergänge sind weniger zu betreiben. Eigene Abläufe geben mehr "
+                 "Kontrolle über Reihenfolge und Zeitpunkt, und sie brauchen jemanden, der sie "
+                 "betreibt.",
+    },
+}
+
+
+#: Wann die Entscheidung weh tut. Ein **menschliches Urteil**, deshalb hier eingetragen und
+#: nicht abgeleitet: `erscheint_in` bleibt bei Entscheidungen leer, weil der Artefaktbezug dort
+#: nicht entsteht, und ohne ihn faellt der Ledger auf „nicht ableitbar" zurueck. Fuer „Welche
+#: Spalten duerfen nicht alle sehen?" ist das nachweislich falsch — die Antwort muss vor dem
+#: Produktivstart stehen, nicht irgendwann.
+#:
+#: Nur die acht ``offen``en stehen hier. Eine ``vorbelegt``e Entscheidung blockiert nichts: sie
+#: ist bereits angewandt, der Kunde kann widersprechen, und tut er es nicht, gilt der Vorschlag.
+#: Der Ledger vergibt ihr darum ohnehin keine Stufe.
+#:
+#: Die Werte stehen als Literale und nicht als Import aus ``open_points``: dieses Modul wird
+#: byte-identisch nach ALUCA gespiegelt (SHARED_SUBSTANCE Klasse A), ``open_points`` nicht. Ein
+#: Import waere dort ein Ladefehler. Gegen die Drift, die Literale sonst erzeugen, steht ein
+#: Test — `test_die_faelligkeitsstufen_sind_die_des_ledgers`.
+_FAELLIGKEIT: dict[str, str] = {
+    "DATA-INC": "blockiert den Aufbau",
+    "DATA-CONTRACT": "blockiert den Aufbau",
+    "NET-OUTBOUND": "blockiert den Aufbau",
+    "SEC-RLS": "vor Produktivsetzung",
+    "SEC-CLS": "vor Produktivsetzung",
+    "GOV-RET": "vor Produktivsetzung",
+    "AI-EVAL": "vor Produktivsetzung",
+    "OPS-USERDATA": "vor Produktivsetzung",
+}
+
+
 def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str,
          confidence: str, alternatives: list[str], decider: str, if_undecided: str,
-         status: str = "offen", markers: tuple[str, ...] = ()) -> dict:
+         status: str = "offen", markers: tuple[str, ...] = (),
+         ermittlung: dict[str, str] | None = None) -> dict:
     """``status`` is the lever that shrinks the workshop:
 
     * ``vorbelegt`` — a defensible house default is **already applied**; the customer only has to
@@ -337,10 +575,28 @@ def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str
       platform dictates the answer anyway (tenant settings, capacity ladder).
     * ``offen`` — genuinely needs a customer answer: their policy, their legal position, their
       identifiers. No default can stand in for it without inventing facts.
+
+    ``ermittlung`` (17.08.2026, Flo: „Nicht jede Frage kann er ohne weiteres beantworten") —
+    der Weg zur Antwort, in denselben drei Feldern wie bei den Intake-Fragen
+    (``named_profiles.ERMITTLUNG_FELDER``): ``wo`` · ``wen`` · ``wenn_unklar``. Kein zweites
+    Vokabular, weil beide im selben Ledger landen und derselbe Mensch sie liest.
+
+    Wer ihn **nicht** braucht: eine ``vorbelegt``e Entscheidung. Dort ist der Vorschlag selbst
+    der Weg — der Kunde bestaetigt oder widerspricht, und ``if_undecided`` sagt, was gilt, wenn
+    er nichts tut. Gemessen 17.08.2026 blieben damit genau **sieben** Entscheidungen ohne jede
+    Methode uebrig; es sind dieselben sieben, die Flo am Arbeitsblatt als unverstaendlich
+    markiert hatte (Karten 22–28). Das ist kein Zufall: eine Frage ohne Vorschlag und ohne Weg
+    ist ein leeres Textfeld mit einer Ueberschrift.
     """
     return {"id": id_, "topic": topic, "gap": gap, "proposal": proposal,
             "derived_from": derived_from, "confidence": confidence, "status": status,
             "alternatives": alternatives, "decider": decider, "if_undecided": if_undecided,
+            "ermittlung": dict(ermittlung or _ERMITTLUNGSWEGE.get(id_, {})),
+            # Die Kundenfassung und die Faelligkeit. Beide nach `id` nachgeschlagen statt am
+            # Aufrufort gesetzt — siehe die Notiz an `_KUNDENFASSUNG` zu den doppelten
+            # Aufrufstellen der modellgetriebenen Entscheidungen.
+            "kunde": dict(_KUNDENFASSUNG.get(id_, {})),
+            "faelligkeit": _FAELLIGKEIT.get(id_, ""),
             # `markers`: die `TODO(...)`-Marken im Lieferumfang, die GENAU diese Entscheidung
             # auflöst. Damit wird aus einer thematischen Zuordnung eine prüfbare — DoD-Kriterium
             # PE-05 kann so mechanisch statt per Urteil prüfen, dass kein Platzhalter stumm ist.
@@ -775,7 +1031,7 @@ def propose_endorsement(bp: dict, gc: dict) -> dict:
         "GOV-END", "Endorsement (Promoted / Certified)",
         "Welches Modell ist die verbindliche Quelle?",
         (f"**Certified** nur für das Modell, das wirklich die verbindliche Quelle ist — Vorschlag: "
-         f"„{lead}" + ("“" if doms else "") + "“, weil es die governten Kennzahlen trägt. "
+         f"„{lead}“, weil es die governten Kennzahlen trägt. "
          "Alle übrigen Domänen starten als **Promoted**. Certified erst *nach* dem ersten sauberen "
          "Betriebszyklus setzen (Qualitätsgates grün, Owner benannt), sonst zertifiziert man einen "
          "ungetesteten Stand. Voraussetzung: eine admin-autorisierte Sicherheitsgruppe im Tenant-Setting."),
@@ -827,7 +1083,11 @@ def propose_tenant_settings(bp: dict) -> dict:
         (f"Die benötigten Schalter stehen bereits fest{f' ({n} Stück)' if n else ''} und sind in "
          "`readiness/` als Prüfliste emittiert — u. a. XMLA-Read/Write, Git-Integration und die "
          "Service-Principal-Freigabe für die Admin-APIs. Vorschlag: **vor** dem Kickoff durch den "
-         "Fabric-Admin setzen lassen (Aufwand ~0,5 PT) und mit dem Readiness-Check verifizieren — "
+         # Keine Aufwandsangabe. Bis 18.08.2026 stand hier „Aufwand ~0,5 PT" — eine
+         # Schaetzung in kundenseitigem Text, und damit genau das, was ADR-0019 §2.4
+         # ausschliesst. Gefunden hat es der Cockpit-Test `test_das_cockpit_nennt_keine_dauern`,
+         # nicht ein Lesen: der Satz stand seit Monaten im Fragebogen.
+         "Fabric-Admin setzen lassen und mit dem Readiness-Check verifizieren — "
          "dann blockiert am Umsetzungstag kein Schalter."),
         "admin_settings.required_settings über die genutzten Capabilities",
         "hoch",
@@ -921,23 +1181,23 @@ def propose_network_stance(bp: dict) -> dict:
         " Diese Lieferung hat keine Quelle hinter der Firewall, die Gateway-Frage stellt sich also "
         "heute nicht. Sie stellt sich beim ersten lokalen Quellsystem.")
     return _rec(
-        "PLAT-NET", "Netzanbindung (oeffentlich / Private Link)",
+        "PLAT-NET", "Netzanbindung (öffentlich / Private Link)",
         "Wie erreichen Nutzer und Dienste die Plattform, und wie erreicht die Plattform die Quellen?",
-        ("Vorschlag: **oeffentliche Endpunkte plus Trusted Workspace Access** fuer Azure-Quellen. "
-         "Trusted Workspace Access laesst einen Speicher hinter geschlossener Firewall trotzdem aus "
-         "genannten Workspaces lesen, ueber das Microsoft-Backbone — der Sicherheitsgewinn ohne den "
+        ("Vorschlag: **öffentliche Endpunkte plus Trusted Workspace Access** für Azure-Quellen. "
+         "Trusted Workspace Access lässt einen Speicher hinter geschlossener Firewall trotzdem aus "
+         "genannten Workspaces lesen, über das Microsoft-Backbone — der Sicherheitsgewinn ohne den "
          "Preis von Private Link. **Private Link wird nicht vorsorglich gebaut**, sondern nur auf "
          "belegte Anforderung: er kostet unter anderem Publish-to-Web, PDF-/PowerPoint-Export, "
-         "E-Mail-Abonnements, Copilot, die Capacity-Metrics-App und tenantuebergreifende Verknuepfungen "
-         "— und er ist nachtraeglich nur mit Neuaufbau der Quellanbindung zu drehen." + gateway_satz),
+         "E-Mail-Abonnements, Copilot, die Capacity-Metrics-App und tenantübergreifende Verknüpfungen "
+         "— und er ist nachträglich nur mit Neuaufbau der Quellanbindung zu drehen." + gateway_satz),
         "MS Learn: security-private-links-overview (Grenzen je Erlebnis) + security-trusted-workspace-"
         "access (F-SKU-Pflicht, kein Trial), beide geprueft 16.08.2026",
         "hoch",
-        ["Private Link auf Tenant-Ebene (maximale Abschottung, hoechster Funktionsverlust)",
+        ["Private Link auf Tenant-Ebene (maximale Abschottung, höchster Funktionsverlust)",
          "Private Link nur auf Workspace-Ebene (feiner, nur die Workspaces mit echter Anforderung)",
-         "IP-Firewall-Regeln je Workspace (bis 256 Regeln, laeuft auch auf Trial)"],
+         "IP-Firewall-Regeln je Workspace (bis 256 Regeln, läuft auch auf Trial)"],
         "Informationssicherheit / Konzern-IT — hier entscheidet die Vorgabe des Kunden, nicht wir",
-        ("Die Anbindung wird zweimal gebaut: einmal oeffentlich, und nach der ersten Pruefung durch "
+        ("Die Anbindung wird zweimal gebaut: einmal öffentlich, und nach der ersten Prüfung durch "
          "die Sicherheit noch einmal privat."),
         status="vorbelegt")
 
@@ -1040,6 +1300,66 @@ def propose_platform_tier(bp: dict) -> dict | None:
                       "Netzpfad und Wartungsmodell sind dann nicht zusagbar."),
     )
 
+#: Der Trenner, mit dem `propose_all` eine Entscheidung je Domaene aufspannt.
+FANOUT_TRENNER = "\u00b7"
+
+#: Die fuenf Vorlagen, die das Gold-Modell lesen — als Liste, nicht als Merksatz.
+#:
+#: Bis 18.08.2026 stand diese Menge an drei Stellen: im Fliesstext des Modul-Docstrings oben,
+#: als lokale Variable `per_domain` in `propose_all` und als handgetippte Konstante
+#: `_MODELLGETRIEBEN` im Test. Drei Kopien einer Menge, die waechst, sobald jemand eine sechste
+#: modellgetriebene Vorlage schreibt — und zwei davon haetten es nicht gemerkt.
+#:
+#: `propose_all` liest jetzt diese Liste, `modellgetriebene_ids()` leitet die IDs daraus ab,
+#: und der Ledger fragt beide, statt eine vierte Kopie anzulegen.
+MODELLGETRIEBENE_VORLAGEN = (propose_rls, propose_cls, propose_incremental,
+                             propose_silver_contract, propose_ground_truth)
+
+#: Von diesen liest ein Teil zusaetzlich die Quell-Introspektion und nimmt deshalb zwei
+#: Argumente. Die Unterscheidung gehoert neben die Liste, sonst ruft der naechste Aufrufer
+#: falsch auf.
+_MIT_QUELLE = (propose_rls, propose_cls, propose_incremental)
+
+
+def modellgetriebene_ids() -> frozenset[str]:
+    """Die Basis-IDs der modellgetriebenen Vorlagen — gefragt statt getippt.
+
+    Die ID steht im `_rec`-Aufruf jeder Vorlage; sie hier noch einmal aufzuschreiben hiesse,
+    eine Umbenennung an zwei Stellen nachziehen zu muessen. Stattdessen wird jede Vorlage
+    einmal mit leerem Katalog aufgerufen — deterministisch, ohne Seiteneffekt, und genau der
+    Lauf, den `propose_all` ohnehin macht.
+
+    „Basis"-ID, weil `propose_all` bei mehreren Domaenen auf `SEC-RLS·sales` faechert. Wer die
+    Zugehoerigkeit pruefen will, schneidet am Trenner ab — siehe `wartet_auf_modell`.
+    """
+    return frozenset(
+        (fn({}, None) if fn in _MIT_QUELLE else fn({}))["id"]
+        for fn in MODELLGETRIEBENE_VORLAGEN
+    )
+
+
+def basis_id(decision_id: str) -> str:
+    """`SEC-RLS·sales` → `SEC-RLS`. Eine Stelle, weil der Trenner sonst mitwandert."""
+    return str(decision_id).split(FANOUT_TRENNER, 1)[0]
+
+
+def wartet_auf_modell(p: dict) -> bool:
+    """Diese Entscheidung schweigt, weil das Gold-Modell fehlt — nicht, weil es nichts zu sagen gibt.
+
+    Der Unterschied ist der ganze Zweck der Funktion. `NET-OUTBOUND` und `OPS-USERDATA` tragen
+    ebenfalls keinen Vorschlag, und zwar dauerhaft: ihr Inhalt steckt in den Alternativen, kein
+    Modell der Welt aendert daran etwas. `PLAT-TIER` traegt sogar `confidence: "keine"` und ist
+    trotzdem eine Kundentatsache (ein Vertragsgegenstand) — der Hausstandard-Trick waere dort
+    eine Behauptung.
+
+    Gemessen 18.08.2026, deshalb steht hier die Zugehoerigkeit und nicht `confidence == "keine"`:
+    auf Fabric waehlt die Konfidenz zufaellig genau die fuenf richtigen, auf Snowflake und
+    Databricks nimmt sie `PLAT-TIER` mit, und `DATA-CONTRACT` behaelt sie dort **auch mit**
+    Katalog. Ein Praedikat, das auf einem Stack stimmt und auf zweien nicht, ist keins.
+    """
+    return basis_id(p.get("id", "")) in modellgetriebene_ids() and not p.get("proposal")
+
+
 def propose_all(bp: dict, governed_catalog: dict | None = None,
                 source_schema: dict | None = None) -> list[dict]:
     """Every open decision with its pre-thought proposal, deterministic order.
@@ -1061,9 +1381,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
     #: Vorlagen, die neben dem Katalog auch die Quell-Introspektion lesen. Die uebrigen
     #: (Silber-Vertrag, Agent-Pruefgrundlage) haengen an Beziehungen und Kennzahlen — die
     #: gibt INFORMATION_SCHEMA nicht her, und sie zu behaupten waere geraten.
-    mit_quelle = (propose_rls, propose_cls, propose_incremental)
-    per_domain = [propose_rls, propose_cls, propose_incremental, propose_silver_contract,
-                  propose_ground_truth]
+    mit_quelle = _MIT_QUELLE
+    per_domain = list(MODELLGETRIEBENE_VORLAGEN)
     out: list[dict] = []
     if len(domains) > 1 and gc.get("tables"):
         for d in domains:
@@ -1074,7 +1393,7 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
             dq = _quell_schnitt(bp, source_schema, d)
             for fn in per_domain:
                 r = fn(dgc, dq) if fn in mit_quelle else fn(dgc)
-                r["id"] = f"{r['id']}·{slug}"
+                r["id"] = f"{r['id']}{FANOUT_TRENNER}{slug}"
                 r["topic"] = f"{r['topic']} — {d.get('name')}"
                 out.append(r)
     else:
