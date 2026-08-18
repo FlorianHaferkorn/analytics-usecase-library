@@ -37,6 +37,13 @@ _HINTS = [
     (("blob", "adls", "storage", "lake"), ("blob", 443)),
 ]
 
+#: Die Diensttypen, die diese Tabelle kennt — in der Reihenfolge, in der sie oben stehen.
+#: Der Fragebogen zeigt sie als Auswahlliste, statt `<VERIFY: subresource type>` als
+#: Freitextfeld zu stellen: die Antwort ist geschlossen, und wer sie tippt, tippt sie
+#: falsch (`sqlserver` statt `sql`). Eine Liste, zwei Leser — hier wird abgeleitet,
+#: nicht zweitgetippt.
+SUBRESOURCE_TYPEN: tuple[str, ...] = tuple(dict.fromkeys(res for _, (res, _p) in _HINTS))
+
 
 def _ident(name: str) -> str:
     return _NONWORD_RE.sub("_", (name or "").lower()).strip("_")
