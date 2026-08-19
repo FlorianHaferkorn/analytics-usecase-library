@@ -20,3 +20,18 @@ export const VALID_TRANSITIONS: Record<LayerStatus, LayerAction[]> = {
 export function allowedActions(status: LayerStatus): LayerAction[] {
   return VALID_TRANSITIONS[status] ?? [];
 }
+
+/**
+ * The lifecycle actions that dispose of governance state. Each one needs admin.
+ *
+ * `submit` is deliberately absent: proposing a change for review is not a decision,
+ * and requiring admin for it would leave nobody to propose. `reopen` IS a decision —
+ * it takes an approved layer back to `draft`, and `getApprovedLayers()` stops serving
+ * it the moment that happens.
+ */
+export const ADMIN_ACTIONS: readonly LayerAction[] = ['approve', 'reject', 'reopen'];
+
+/** Does this action need the admin role? Accepts unvalidated input from the wire. */
+export function requiresAdmin(action: string): boolean {
+  return (ADMIN_ACTIONS as readonly string[]).includes(action);
+}
