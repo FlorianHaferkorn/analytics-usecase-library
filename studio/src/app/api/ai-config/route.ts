@@ -4,8 +4,9 @@
  *   POST { op, layer, domainId, config?, justification? }
  *        op = save | submit | approve | reject | reopen
  *
- * Auth required; actor = user.email. Approve requires admin (two-person rule is also
- * enforced in the repo). Only approved layers ever reach the resolver.
+ * Auth required; actor = user.email. The governance decisions — approve, reject and
+ * reopen — require admin (ADMIN_ACTIONS); the two-person rule on approve is also
+ * enforced in the repo. Only approved layers ever reach the resolver.
  */
 
 import { requireAuth } from '@/lib/auth/session';
@@ -17,6 +18,7 @@ import {
   transitionConfigLayer,
   AiConfigGovernanceError,
 } from '@/lib/db/ai-config-repo';
+import { requiresAdmin } from '@/lib/ai/config/governance-types';
 import type { AiConfigLayer } from '@/lib/ai/config/resolve';
 import { apiSuccess, apiError, apiValidationError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
@@ -45,10 +47,10 @@ export async function POST(request: Request) {
     return apiValidationError(['op and layer (L1|L2) required']);
   }
 
-  if (op === 'approve') {
+  if (requiresAdmin(op)) {
     const dbUser = findOrCreateUser(user.email, user.name);
     if (!checkAccess(PROJECT, dbUser.id, 'admin')) {
-      return apiError(ErrorCode.FORBIDDEN, 'Admin role required to approve config', 403);
+      return apiError(ErrorCode.FORBIDDEN, `Admin role required to ${op} config`, 403);
     }
   }
 

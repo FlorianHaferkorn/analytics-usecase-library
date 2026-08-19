@@ -3,7 +3,7 @@
  *
  * GET  — list persisted refinement proposals (history + pending).
  * POST { proposalKey, action: 'approve'|'reject', justification } — decide a
- * pending proposal. Approve requires admin (same rule as bracket approval).
+ * pending proposal. Both decisions require admin (same rule as bracket approval).
  */
 
 import { requireAuth } from '@/lib/auth/session';
@@ -36,11 +36,11 @@ export async function POST(request: Request) {
     return apiValidationError(['proposalKey and action required']);
   }
 
-  if (body.action === 'approve') {
-    const dbUser = findOrCreateUser(user.email, user.name);
-    if (!checkAccess('default', dbUser.id, 'admin')) {
-      return apiError(ErrorCode.FORBIDDEN, 'Admin role required for approval', 403);
-    }
+  // Both decisions dispose of a pending proposal — rejecting one is as final as
+  // approving it, so both sit behind the same admin gate.
+  const dbUser = findOrCreateUser(user.email, user.name);
+  if (!checkAccess('default', dbUser.id, 'admin')) {
+    return apiError(ErrorCode.FORBIDDEN, `Admin role required to ${body.action} a proposal`, 403);
   }
 
   try {
