@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "cc63f886debce18ffffe3903baca49f76a9955143293ed9426b94bb369dd79f6"
+      "sha256": "459eac6585af89fc452315e477e76c14efe5f8b7a79d1c6ac0a0e7e747bff484"
     },
     {
       "path": "fabric_schedule.py",
@@ -29,7 +29,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "9aed0d640d57f1dbaf49bbd0097aef57fb801b8866cd39166137b0f3e6070737"
+      "sha256": "7b298821bc8f76fe336cbf285a9548229c9c6239942544a5cc58d52f5f63982c"
     },
     {
       "path": "provision_lifecycle.py",

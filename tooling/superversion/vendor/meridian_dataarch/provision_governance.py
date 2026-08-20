@@ -176,6 +176,105 @@ def model_roles(bp: dict, sensitivity: dict | None = None) -> list:
     return roles
 
 
+#: Die zwei Domaenen-Rollen, in der Reihenfolge, in der sie gesetzt werden muessen. Die
+#: Reihenfolge ist keine Kosmetik: Contributors darf ein Domain-Admin vergeben, Admins nur
+#: ein Fabric-Administrator. Wer unten anfaengt, braucht fuer den zweiten Schritt eine
+#: Identitaet, die er sich gerade selbst haette geben koennen.
+#:
+#: **ANNAHME, ungeprueft — die Schreibweise des Feldes `type`.** Beide MS-Learn-Seiten zu
+#: `bulkAssign`/`bulkUnassign` (geprueft 20.08.2026) widersprechen sich in sich selbst: ihre
+#: `DomainRole`-Aufzaehlung nennt `Admin` und `Contributor` im Singular, **alle vier**
+#: Beispielaufrufe auf denselben Seiten senden `Admins` und `Contributors` im Plural. Wir
+#: senden den Plural, weil ein ausgefuehrtes Beispiel schwerer wiegt als eine Tabellenzeile,
+#: und schreiben die Gegenprobe daneben statt den Widerspruch zu glaetten. Gemessen ist er,
+#: aufgeloest nicht — das geht nur an einem echten Mandanten.
+DOMAENEN_ROLLEN = (
+    ("contributor", "Contributors", "wer Workspaces in diese Domaene haengen darf"),
+    ("admin", "Admins", "der fachliche Dateneigentuemer der Domaene, nicht die IT"),
+)
+
+
+def domaenen_gruppen(bp: dict, governance: dict | None = None) -> list[dict]:
+    """Je Domaene die zwei Entra-Gruppen hinter Domain-Admin und Domain-Contributor.
+
+    Rein und deterministisch, damit drei Stellen dieselbe Antwort bekommen: das
+    Governance-Skript (setzt die Rolle), der Nachschlage-Sammler (beschafft die objectId) und
+    der Test. Der Anzeigename wird ueber ``entra_gruppenname`` abgeleitet — dieselbe Quelle
+    wie beim Zeilenschnitt und bei der Domaenen-Leserolle, kein zweites Namensschema.
+
+    Uebersteuerbar ueber die lokale Governance-Karte
+    (``domain_roles.<domaene>.{admin,contributor}``), weil die Vorgabe zu BK-W02 dem Kunden
+    genau dieses Recht gibt: in kleinen Organisationen ist es dieselbe Gruppe fuer beides,
+    aber weiterhin eine Gruppe.
+    """
+    eigene = ((governance or {}).get("domain_roles") or {})
+    aus: list[dict] = []
+    for d in _domains(bp):
+        dn = d.get("name", "")
+        gesetzt = eigene.get(dn.strip().lower()) or eigene.get(dn) or {}
+        for rolle, feldwert, zweck in DOMAENEN_ROLLEN:
+            name = gesetzt.get(rolle) or entra_gruppenname(dn, f"domain-{rolle}")
+            aus.append({"domaene": dn, "rolle": rolle, "typ": feldwert, "gruppe": name,
+                        "zweck": zweck,
+                        "token": f"<VERIFY: Entra group objectId of {name}>"})
+    return aus
+
+
+def _domaenen_rollen_zeilen(bp: dict, governance: dict, dom_owner: dict) -> list[str]:
+    """Abschnitt 1c des Governance-Skripts: die Domaenen-Rollen setzen (BK-W02).
+
+    Bis 20.08.2026 legte die Lieferung Domaenen an und haengte Workspaces hinein, aber
+    niemand wurde ihr Admin. Eine Domaene ohne Admin ist die Delegation, die gebaut und nicht
+    genutzt wurde: Tenant-Einstellungen bleiben zentral, und der Fachbereich merkt es erst,
+    wenn er etwas uebersteuern will.
+    """
+    gruppen = domaenen_gruppen(bp, governance)
+    if not gruppen:
+        return []
+    zeilen = [
+        "# 1c. Domaenen-Rollen (BK-W02) — Domain-Admins und Domain-Contributors je Domaene.",
+        "#   POST /v1/admin/domains/{domainId}/roleAssignments/bulkAssign?preview=false",
+        "#   POST /v1/admin/domains/{domainId}/roleAssignments/bulkUnassign?preview=false",
+        "#   Beleg: learn.microsoft.com/rest/api/fabric/admin/domains/role-assignments-bulk-assign",
+        "#   (und .../role-assignments-bulk-unassign), beide geprueft 20.08.2026. Delegierter",
+        "#   Scope Tenant.ReadWrite.All, hoechstens 25 Anfragen je Minute.",
+        "#",
+        "#   ANNAHME, ungeprueft: der Wert von \"type\". Die DomainRole-Tabelle beider Seiten sagt",
+        "#   \"Admin\"/\"Contributor\" (Singular), alle vier Beispiele derselben Seiten senden",
+        "#   \"Admins\"/\"Contributors\" (Plural). Wir senden den Plural. Antwortet der Dienst mit",
+        "#   einem Fehler zum Feld type, ist der Singular die Gegenprobe — ein Zeichen, kein Umbau.",
+        "#",
+        "#   Zwei Fallen, die von aussen wie Erfolg aussehen:",
+        "#   - Domain-ADMINS kann nur ein Fabric-Administrator setzen. Ein Domain-Admin darf",
+        "#     danach Contributors vergeben, aber keine weiteren Admins.",
+        "#   - Ein Domain-Contributor kann einen Workspace nur dann in die Domaene haengen, wenn",
+        "#     er in DIESEM Workspace zugleich Admin ist. Die Rollenzuweisung allein bewirkt",
+        "#     nichts; ohne die Workspace-Rolle aus Abschnitt 2 laeuft der POST durch und der",
+        "#     Fachbereich kann trotzdem nichts zuordnen.",
+        "#   Bekannte Fehlercodes: PrincipalWithDomainRoleAssignmentAlreadyExists (bereits",
+        "#   zugewiesen, idempotent ignorierbar), UnsupportedPrincipalTypeForDomainAdminAssignment.",
+    ]
+    for eintrag in gruppen:
+        dn = eintrag["domaene"]
+        besitzer = dom_owner.get(dn.strip().lower())
+        zeilen.append(f'#   {dn} — {eintrag["typ"]}: {eintrag["zweck"]}')
+        if eintrag["rolle"] == "admin" and besitzer:
+            # Der Name ist eine Konvention, die Besetzung eine Festlegung des Data-Gov-Stroms.
+            # Beides zusammenzufuehren ist der ganze Zweck: sonst traegt die Gruppe den
+            # richtigen Namen und die falschen Leute.
+            zeilen.append(f'#     Hinter der Gruppe gehoert die Rolle "{besitzer}" '
+                          "(governance.json data_owners).")
+        zeilen.append(f'#   fab api "admin/domains/<{_dirslug(dn)}-id>/roleAssignments/bulkAssign'
+                      '?preview=false" -X POST -i - <<JSON')
+        rumpf = json.dumps({"type": eintrag["typ"],
+                            "principals": [{"id": eintrag["token"], "type": "Group"}]},
+                           ensure_ascii=False)
+        zeilen.append(f"#   {rumpf}")
+        zeilen.append("#   JSON")
+    zeilen.append("")
+    return zeilen
+
+
 def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: dict | None = None) -> str:
     """Idempotent REST/`fab api` templates for workspace roles + domains (GA).
 
@@ -191,6 +290,7 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
         "# Grounded in the GA governance REST surface (research 2026-07-15 §3):",
         "#   POST /v1/workspaces/{id}/roleAssignments        — workspace RBAC (GET→diff→POST/DELETE)",
         "#   POST /v1/admin/domains?preview=false  + .../assignWorkspacesByIds  — data-mesh domains",
+        "#   POST /v1/admin/domains/{id}/roleAssignments/bulkAssign  — Domain-Admin/-Contributor",
         "# Reached via `fab api <endpoint> -X POST -i <body.json>` (confirm flags: fab api -h).",
         "# Auth: a service principal works for BOTH roleAssignments and domains. Verified against",
         "#   learn.microsoft.com/rest/api/fabric/admin/domains/create-domain on 2026-07-31: the",
@@ -229,6 +329,7 @@ def _governance_script(bp: dict, workspace: str, governance: dict, dom_owner: di
                     lines.append(f'#   {{"principal":{{"id":"<{_dirslug(owner)}-principal-id>","type":"Group"}},"role":"Admin"}}')
                     lines.append("#   JSON")
         lines.append("")
+    lines += _domaenen_rollen_zeilen(bp, governance or {}, dom_owner)
     lines.append("# 2. Workspace roles (RBAC) — reconcile each workspace to the desired principals.")
     lines.append("#    audience → principals come from your local --governance map (secrets stay local).")
     roles_map = (governance or {}).get("roles", {})
@@ -935,6 +1036,7 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
            "| Access-layer decision | `ACCESS_LAYER_DECISION.md` (where to enforce + why) | doc |",
            "| RLS/OLS — model-only alternative | `roles/<domain>.tmdl` (TMDL role blocks; fixed-identity case) | GA |",
            "| Workspace roles + Domains | `governance.sh` (REST/fab api) | GA |",
+           "| Domain-Admins + Domain-Contributors | `governance.sh` Abschnitt 1c | GA |",
            "| Sensitivity labels | `sensitivity_labels.sh` (bulk admin API) | GA |",
            "| Endorsement | `ENDORSEMENT_RUNBOOK.md` (manual — no write API) | manual |"]
     doc += ["",

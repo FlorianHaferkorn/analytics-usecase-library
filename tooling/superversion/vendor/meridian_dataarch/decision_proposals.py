@@ -458,6 +458,16 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
                  "wird trotzdem benutzt. Die falsche Antwort fällt dann im Termin auf, nicht "
                  "im Test.",
     },
+    "GOV-DOMAIN": {
+        "frage": "Welche Gruppe besitzt fachlich welche Domäne, und wer darf Arbeitsbereiche "
+                 "darin anlegen?",
+        "folge": "Wir legen die Domänen an und tragen die Rollen nach dem Namensschema ein. "
+                 "Solange keine Gruppe benannt ist, hat die Domäne keinen Eigentümer und "
+                 "Tenant-Einstellungen bleiben zentral.",
+        "warum": "Die Domäne ist die einzige Stelle, an der eine Einstellung für einen "
+                 "Fachbereich anders gelten kann als für den Rest des Hauses. Wer sie der IT "
+                 "gibt, hat die Delegation gebaut und nicht genutzt.",
+    },
     "SEC-ROLES": {
         "folge": "Wir binden die Rollen nach dem Vorschlag: Konsumenten lesend, Bearbeitende "
                  "mit Schreibrecht. Welche Gruppe dahintersteht, bleibt offen, bis Sie sie "
@@ -601,6 +611,52 @@ def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str
             # auflöst. Damit wird aus einer thematischen Zuordnung eine prüfbare — DoD-Kriterium
             # PE-05 kann so mechanisch statt per Urteil prüfen, dass kein Platzhalter stumm ist.
             "markers": list(markers)}
+
+
+def propose_domain_roles(bp: dict) -> dict:
+    """Wer die Domaene besitzt — BK-W02, und die einzige Frage, die das Skript nicht loesen kann.
+
+    Der **Name** beider Gruppen ist abgeleitet (``provision_governance.entra_gruppenname``, Schema
+    aus BK-W04), die **objectId** holt der Nachschlage-Sammler. Was keine Maschine hergibt, ist die
+    Besetzung: welche Gruppe der fachliche Eigentuemer ist. Deshalb ``vorbelegt`` und nicht
+    ``offen`` — die Struktur steht, der Kunde nennt nur, wer dahintersteht oder widerspricht dem
+    Zuschnitt.
+
+    Zwei Punkte, die MS Learn ausdruecklich sagt und die von aussen wie Erfolg aussehen, wenn man
+    sie uebergeht (learn.microsoft.com/fabric/governance/domains, geprueft 20.08.2026): Domain-
+    Admins kann **nur ein Fabric-Administrator** setzen, und ein Domain-Contributor kann einen
+    Workspace nur dann zuordnen, wenn er in **diesem Workspace zugleich Admin** ist.
+    """
+    doms = _domain_names(bp)
+    beispiel = _NONWORD_RE.sub("-", (doms[0].lower() if doms else "domaene")).strip("-")
+    return _rec(
+        "GOV-DOMAIN", "Domänen-Eigentümer und Domänen-Mitwirkende",
+        "Wer ist Domain-Admin und wer Domain-Contributor je Fabric-Domäne?",
+        ("**Vorbelegt nach dem Namensschema** — bitte nur widersprechen, wenn der Zuschnitt "
+         "fachlich nicht passt:\n"
+         f"- **Domain-Admin → `fab-{beispiel}-domain-admin`**, besetzt mit dem fachlichen "
+         "Dateneigentümer der Domäne, nicht mit der IT. Er überschreibt Tenant-Einstellungen "
+         "für seinen Bereich und verantwortet die Auffindbarkeit im OneLake-Katalog.\n"
+         f"- **Domain-Contributor → `fab-{beispiel}-domain-contributor`**, besetzt mit denen, die "
+         "Arbeitsbereiche in die Domäne hängen dürfen.\n"
+         "- **Beides Entra-Gruppen, nie Personen** (wie bei den Workspace-Rollen). In einer "
+         "kleinen Organisation darf es dieselbe Gruppe für beide Rollen sein — dann bleibt es "
+         "trotzdem eine Gruppe.\n"
+         "- **Domain-Admins setzt nur ein Fabric-Administrator.** Ein Domain-Admin darf danach "
+         "Contributors vergeben, aber keine weiteren Admins.\n"
+         "- **Der Contributor braucht die Workspace-Admin-Rolle dazu**, sonst läuft die "
+         "Zuordnung ins Leere, ohne einen Fehler zu melden.\n"
+         "**Offen bleibt nur:** welche Gruppe das je Domäne ist. Die objectId holt "
+         "`lookup/nachschlagen.sh`, sobald die Gruppe existiert."),
+        "Namensschema aus BK-W04 + learn.microsoft.com/fabric/governance/domains-best-practices",
+        "hoch",
+        ["Domain-Admin an die IT geben (schnell, macht die Delegation wirkungslos)",
+         "Keine Domain-Rollen setzen (Domäne bleibt eine Sortierhilfe ohne Wirkung)",
+         "Eine Gruppe für beide Rollen (in kleinen Organisationen vertretbar)"],
+        "Fachbereichsleitung je Domäne (Besetzung) — der Zuschnitt ist vorbelegt",
+        "Ohne Domain-Admin bleiben Tenant-Einstellungen zentral, und niemand verantwortet die "
+        "Auffindbarkeit der Domäne im Katalog",
+        status="vorbelegt")
 
 
 def propose_workspace_roles(bp: dict) -> dict:
@@ -1400,7 +1456,8 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
         out.extend(fn(gc, source_schema) if fn in mit_quelle else fn(gc) for fn in per_domain)
     if len(domains) > 1 and gc.get("tables"):
         out.extend(propose_cross_domain(bp, gc))   # domains are not islands
-    out.extend([propose_workspace_roles(bp), propose_retention(bp, gc, source_schema),
+    out.extend([propose_workspace_roles(bp), propose_domain_roles(bp),
+                propose_retention(bp, gc, source_schema),
                 propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
                 propose_network_stance(bp), propose_outbound_exceptions(bp),
