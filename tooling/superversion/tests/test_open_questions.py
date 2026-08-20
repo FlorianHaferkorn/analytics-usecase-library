@@ -122,17 +122,19 @@ def test_a_supplied_input_does_not_become_a_question(ledger):
 def test_the_mirrored_decisions_arrive_with_their_ways(ledger):
     """The class-A half reaches ALUCA's sheet — including what Meridian added on its side.
 
-    Measured 20.08.2026: 18 mirrored decisions, 7 of them carrying a complete way. Those
+    Measured 20.08.2026: 19 mirrored decisions, 7 of them carrying a complete way. Those
     seven are exactly the ones Meridian gained an `ermittlung` block for on 17.08.2026;
     they arrived here through `--write` on the mirror sensor, not by being typed again.
     German field names are translated at this boundary — the vendored file itself is never
     edited, because a local edit breaks the integrity pin by design.
 
     17 → 18: `GOV-DOMAIN` (who owns a Fabric domain) arrived with Meridian's BK-W02 work.
-    It is pre-filled, so it needs no `ermittlung` block and the second count stays at 7.
+    18 → 19: `SEC-SHARE` (which ways out of the platform stay open) with BK-Z06, on the same
+    day. Both are pre-filled, so neither needs an `ermittlung` block and the second count
+    stays at 7.
     """
     mirrored = [q for q in ledger["questions"] if q["origin"] == ORIGIN_MIRROR]
-    assert len(mirrored) == 18
+    assert len(mirrored) == 19
     mit_weg = [q for q in mirrored
                if all(str(q["way"].get(f, "")).strip() for f in WAY_FIELDS)]
     assert len(mit_weg) == 7

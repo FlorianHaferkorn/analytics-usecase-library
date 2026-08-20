@@ -468,6 +468,16 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
                  "Fachbereich anders gelten kann als für den Rest des Hauses. Wer sie der IT "
                  "gibt, hat die Delegation gebaut und nicht genutzt.",
     },
+    "SEC-SHARE": {
+        "frage": "Wer darf Inhalte aus der Plattform nach außen geben — an Gäste, an Microsoft "
+                 "365, über einen Link für alle, ins offene Netz?",
+        "folge": "Wir schalten alle sechs Wege ab und öffnen einzeln, was Sie benennen. Ohne "
+                 "Ihre Antwort bleibt es geschlossen — bis auf den einen, der ab Werk an ist "
+                 "und den wir deshalb ausdrücklich ausschalten.",
+        "warum": "Die Voreinstellungen von Fabric bevorzugen Bedienbarkeit vor Strenge. Der "
+                 "Schalter für Microsoft 365 ist ab Werk an und schickt Berichts-, Seiten- und "
+                 "Spaltennamen aus dem Haus, ohne dass jemand etwas tut.",
+    },
     "SEC-ROLES": {
         "folge": "Wir binden die Rollen nach dem Vorschlag: Konsumenten lesend, Bearbeitende "
                  "mit Schreibrecht. Welche Gruppe dahintersteht, bleibt offen, bis Sie sie "
@@ -571,6 +581,11 @@ _FAELLIGKEIT: dict[str, str] = {
     "GOV-RET": "vor Produktivsetzung",
     "AI-EVAL": "vor Produktivsetzung",
     "OPS-USERDATA": "vor Produktivsetzung",
+    # 20.08.2026, BK-Z06: die Freigabe-Politik ist keine Aufbau-Frage — die Plattform laeuft mit
+    # jedem dieser Schalter. Sie ist eine Produktivsetzungs-Frage, und zwar mit Vorlauf: MS nennt
+    # fuer #24 bis zu 24 Stunden bis zur Wirkung. Wer sie am Umsetzungstag umlegt, hat sie nicht
+    # rechtzeitig umgelegt.
+    "SEC-SHARE": "vor Produktivsetzung",
 }
 
 
@@ -1181,6 +1196,58 @@ def propose_user_data_visibility(bp: dict) -> dict:
         status="offen")
 
 
+def propose_sharing_policy(bp: dict) -> dict:
+    """Wie weit die Plattform nach aussen offen ist — BK-Z06, und der einzige Fall im Katalog,
+    in dem der Auslieferungswert **an** ist.
+
+    Bis 20.08.2026 nannte `apply/TENANT_SETUP.md` die beiden Schalter fuer External Data Sharing
+    (#11/#19) und sonst nichts; die uebrigen vier standen im Betriebskanon als Vorgabe und in
+    keiner Lieferung. Der Katalog fuehrt sie jetzt (#24–#29), und diese Entscheidung erhebt die
+    Politik dazu — der Kanon-Punkt verlangt genau das: *„je Schalter einzeln und mit Vermerk im
+    Ledger"*.
+
+    `vorbelegt` statt `offen`, weil der geschlossene Zustand als Haltung vertretbar ist und der
+    offene nicht: wer nichts entscheidet, hat die Voreinstellung uebernommen, und die ist bei #24
+    ab Werk **an** (learn.microsoft.com/fabric/admin/admin-share-power-bi-metadata-microsoft-365-
+    services, geprueft 20.08.2026: „The … tenant setting is on by default").
+    """
+    return _rec(
+        "SEC-SHARE", "Freigabe nach außen",
+        "Welche Wege aus der Plattform heraus bleiben offen — Gastzugriff, Links für alle, "
+        "Freigabe an Microsoft 365, öffentliche Veröffentlichung?",
+        ("**Vorbelegt: geschlossen.** Wir schalten die sechs Wege nach außen ab und öffnen "
+         "einzeln, was Sie brauchen:\n"
+         "- **Freigabe an Microsoft 365 — der wichtigste, weil er ab Werk an ist.** Fabric "
+         "meldet von sich aus Berichtsnamen, Seitennamen, Spalten- und Measure-Namen sowie "
+         "Zugriffslisten an Microsoft 365, ohne dass jemand etwas tut. Der Unter-Schalter für "
+         "regionsübergreifende Freigabe lässt diese Angaben zusätzlich die Region verlassen; er "
+         "bleibt in jedem Fall aus.\n"
+         "- **Gastzugriff** (drei Schalter: Zugang, Einladung über Freigabe-Dialoge, "
+         "Weiterverwendung von Modellen im fremden Tenant) — aus, bis Sie einen Fall dafür "
+         "nennen. Ist er nötig, dann über eine benannte Sicherheitsgruppe und eine geplante "
+         "Einladung.\n"
+         "- **„Jeder in der Organisation mit dem Link\"** — aus. Geteilt wird danach an "
+         "bestimmte Personen oder an die, die ohnehin Zugriff haben.\n"
+         "- **Veröffentlichung im Web** — aus. Das ist die einzige Freigabe, die ohne Anmeldung "
+         "gelesen wird.\n"
+         "**Offen bleibt nur:** welchen dieser Wege Sie brauchen und für wen. Ein Wechsel wirkt "
+         "erst nach bis zu 24 Stunden, ist also kein Handgriff für den Umsetzungstag."),
+        "BK-Z06 + admin_settings #24–#29 (learn.microsoft.com/fabric/admin/"
+        "service-admin-portal-export-sharing)",
+        "hoch",
+        ["Alles geschlossen (Vorschlag) — Freigabe nach außen läuft über benannte Ausnahmen",
+         "Gastzugriff öffnen, Rest geschlossen — üblich bei gemeinsamen Projekten mit "
+         "Dienstleistern",
+         "Freigabe an Microsoft 365 anlassen — Berichte werden über die Microsoft-365-Suche "
+         "gefunden; die Metadaten liegen dann dort",
+         "Alles auf Auslieferungswert lassen — dann ist die Freigabe an Microsoft 365 an, ohne "
+         "dass jemand sie gewählt hat"],
+        "Informationssicherheit und Datenschutz des Kunden, nicht die Plattformrolle",
+        "Die Schalter stehen auf dem Auslieferungswert. Der Weg nach Microsoft 365 ist damit "
+        "offen, und niemand hat ihn gewählt",
+        status="vorbelegt")
+
+
 def propose_outbound_exceptions(bp: dict) -> dict:
     """Die Ausnahmeliste der ausgehenden Sperre — die eine Haelfte von `BK-N03`, die uns nicht gehoert.
 
@@ -1461,6 +1528,7 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
                 propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
                 propose_network_stance(bp), propose_outbound_exceptions(bp),
+                propose_sharing_policy(bp),
                 propose_user_data_visibility(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
                 propose_transform_engine(bp)])

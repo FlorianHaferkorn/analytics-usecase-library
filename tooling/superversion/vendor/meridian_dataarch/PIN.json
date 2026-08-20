@@ -5,7 +5,7 @@
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "69573cde9e3205540dc5e5f9bfbabbc71cf3717753e18cfbb6cd22ae2ba579e0"
+      "sha256": "c7dac6792921f8cbf86280c398ddac9dbbdeea8e521ec82d850de2481ef2c0ec"
     },
     {
       "path": "capacity_recommend.py",
@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "459eac6585af89fc452315e477e76c14efe5f8b7a79d1c6ac0a0e7e747bff484"
+      "sha256": "86ad8446a1b11e4b146bca9bbcca3fb43727e606385067cac7ce50708a9e1435"
     },
     {
       "path": "fabric_schedule.py",
