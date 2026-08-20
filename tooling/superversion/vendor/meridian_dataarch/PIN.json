@@ -16,6 +16,10 @@
       "sha256": "cc63f886debce18ffffe3903baca49f76a9955143293ed9426b94bb369dd79f6"
     },
     {
+      "path": "fabric_schedule.py",
+      "sha256": "96ad3049b4d1fd70eb5c130534ea47b71a047c6fef3eec016427f5a770d9da74"
+    },
+    {
       "path": "naming.py",
       "sha256": "2be4df29b97b90e2078261f4789d6520f32f8a31e77f6fd8380d66800dd90773"
     },
@@ -33,7 +37,7 @@
     },
     {
       "path": "provision_monitoring.py",
-      "sha256": "0c17fd1f29ecae04078925a2d2e9e773977d3757d52f8211350e858d334c4e3e"
+      "sha256": "5740c104ca60952c1c3d7151a5b1dd5fb07fec3d56c35d2d41b3fe2c14df5cf3"
     },
     {
       "path": "provision_operability.py",
