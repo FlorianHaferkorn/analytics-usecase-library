@@ -359,7 +359,15 @@ CATALOG: list[dict[str, Any]] = [
             "workspace CU cap over a rolling 24-hour window, plus the states *Available* / *Mission "
             "critical* / *Blocked*. Two properties decide whether it fits — the check runs every five "
             "minutes, so the cap is soft; and raising the limit does **not** release a workspace that "
-            "is already blocked, a capacity admin sets it back to *Available* by hand."),
+            "is already blocked, a capacity admin sets it back to *Available* by hand.\n\n"
+            "Two things to settle before switching the workspace cap on. *Blocked* is a harder stop "
+            "than the capacity-level one: capacity level rejects background operations, a blocked "
+            "workspace rejects **all** operations, interactive included — to its users that looks "
+            "like an outage. Turn the banner on in the same visit (Admin Portal → Capacity settings "
+            "→ Notification → *Display a banner to all users of the workspace*) so they read a "
+            "limit instead of guessing at a fault. And the rolling 24-hour window does not reset "
+            "when a block expires: a workspace whose usage still sits above the cap is blocked "
+            "again straight away."),
         "grenzen": (
             "Fabric SKUs only — no other SKU type is supported.",
             "In-progress jobs are not stopped, so the rejection threshold is not an upper bound on the "
@@ -371,6 +379,21 @@ CATALOG: list[dict[str, Any]] = [
             "Workspace level: Dataflows Gen1, paginated reports, scorecards, graph models, Activator "
             "and Dataflow Gen2 editing are outside its reach; Autoscale compute is excluded from the "
             "per-workspace calculation.",
+            "*Mission critical* is worth less than it reads, and MS's own page says both things. Its "
+            "capability list calls the state \"immune from blocking\" and the state table answers "
+            "\"subject to capacity-level surge protection? No\"; the same page's limitations say "
+            "\"Mission-critical status does not override capacity-level surge protection\" and the "
+            "control description narrows it to \"exempt from workspace consumption limits\" (page read "
+            "20.08.2026). We deliver the conservative reading: it lifts the per-workspace cap and "
+            "nothing else. Do not plan a critical workload around surviving capacity-level throttling "
+            "on this flag — isolate it in its own capacity, which is what MS recommends anyway.",
+            "There is no API. Every documented path for this setting is a portal step, on the surge-"
+            "protection page and on `fabric/admin/capacity-settings` alike (both read 20.08.2026). The "
+            "capacity REST surfaces that do exist reach other things: Azure `Microsoft.Fabric/"
+            "capacities` creates, pauses, resumes and resizes; the Power BI `Capacities` APIs "
+            "configure Premium workloads; `sempy.fabric.admin` reads the capacity state. None of them "
+            "carries surge protection, so it can neither be set nor read back by script — the "
+            "readiness snapshot leaves it UNKNOWN rather than claiming a state it never saw.",
         ),
     },
     {
@@ -398,7 +421,15 @@ CATALOG: list[dict[str, Any]] = [
             "just in time.\n\n"
             "Entra ID P2 or ID Governance is a licence prerequisite, not a configuration step. Without "
             "it the whole procedure is unavailable and the fallback is a standing assignment to as few "
-            "named people as possible, plus a Conditional Access policy enforcing MFA on them."),
+            "named people as possible, plus a Conditional Access policy enforcing MFA on them.\n\n"
+            "Whether the rule actually holds is readable, and Microsoft Graph v1.0 answers it in three "
+            "calls: resolve the role by display name through `roleManagement/directory/roleDefinitions`, "
+            "then read `roleEligibilitySchedules` and `roleAssignmentSchedules` for that role id. "
+            "Eligible-only means the first list is non-empty while the second carries no entry with "
+            "`assignmentType: Assigned` outside the break-glass accounts. `Activated` is a PIM "
+            "activation in flight, so it counts as the procedure working and not as a finding — adding "
+            "the two together turns a healthy PIM into a false positive. Least-privileged read: "
+            "`RoleEligibilitySchedule.Read.Directory`."),
         "grenzen": (
             "PIM covers Entra roles. The Fabric capacity admin is a capacity setting and is reachable "
             "only indirectly, through a PIM-enabled security group.",
@@ -406,6 +437,9 @@ CATALOG: list[dict[str, Any]] = [
             "procedure.",
             "The break-glass accounts are exempt on purpose; they are the reason the rule can be "
             "strict everywhere else.",
+            "The proof is a Graph read and not a Fabric one. It needs a directory read right the "
+            "Fabric admin does not carry, so a collector running under that identity alone leaves "
+            "this entry UNKNOWN — which is the honest answer, not a pass.",
         ),
     },
     # --- 20.08.2026: die sechs Schalter, die nach aussen fuehren (BK-Z06) --------------------

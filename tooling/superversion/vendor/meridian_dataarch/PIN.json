@@ -5,7 +5,7 @@
   "files": [
     {
       "path": "admin_settings.py",
-      "sha256": "c7dac6792921f8cbf86280c398ddac9dbbdeea8e521ec82d850de2481ef2c0ec"
+      "sha256": "a41f6eef7de5fbee640f04b6daef7a1144cd46c7611542c3555831c588c2e24d"
     },
     {
       "path": "capacity_recommend.py",
