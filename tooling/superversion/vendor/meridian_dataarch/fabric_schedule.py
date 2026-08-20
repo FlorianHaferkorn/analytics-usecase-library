@@ -17,6 +17,9 @@ Gemessen 20.08.2026 gegen MS Learn:
   ist Pflicht-URI-Parameter. `CronScheduleConfig` traegt `interval` (Minuten, 1…5270400) und
   **kein** `times`; `DailyScheduleConfig` und `WeeklyScheduleConfig` tragen `times` und
   **kein** `interval`. Beide Beispiele derselben Seite bestaetigen die Trennung.
+  `WeeklyScheduleConfig` verlangt zusaetzlich `weekdays` (hoechstens sieben Eintraege),
+  `MonthlyScheduleConfig` `occurrence` und `recurrence` — Letzteres ist hier nicht gebaut,
+  weil es kein Aufrufer braucht; ein ungenutzter Zweig waere ungeprueft.
   Maximal 20 Zeitplaene je Item, `localTimeZoneId` ist eine Windows-Zeitzonen-Kennung.
 - `data-factory/apache-airflow-jobs-run-fabric-item-job` — die Job-Typen woertlich:
   *„for notebook use \"RunNotebook\", for Spark Job Definitions use \"sparkjob\" and for
@@ -44,7 +47,8 @@ def schedule_endpoint(job_type: str) -> str:
 
 
 def emit_schedule(frequency: str = "Daily", interval: int = 1,
-                  time: str = "02:00", timezone: str = "UTC") -> str:
+                  time: str = "02:00", timezone: str = "UTC",
+                  weekdays: tuple[str, ...] = ("Monday",)) -> str:
     """Return ``schedule.json`` — ein Fabric-Item-Zeitplan (Vorgabe: taeglich 02:00 UTC).
 
     **Korrigierter Defekt, benannt statt still geaendert (Belegpflicht Regel 5):** bis zum
@@ -58,5 +62,9 @@ def emit_schedule(frequency: str = "Daily", interval: int = 1,
         cfg["times"] = [time]
     else:
         cfg["interval"] = interval
+    if frequency == "Weekly":
+        # `weekdays` ist bei WeeklyScheduleConfig kein Zusatz, sondern der Teil, der die Woche
+        # ueberhaupt bestimmt. Ohne ihn steht ein Zeitplan da, der nie sagt, wann er laeuft.
+        cfg["weekdays"] = list(weekdays)
     return json.dumps({"enabled": True, "configuration": cfg},
                       indent=2, sort_keys=True, ensure_ascii=False) + "\n"
