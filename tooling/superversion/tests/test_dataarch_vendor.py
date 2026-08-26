@@ -365,6 +365,12 @@ def test_the_bridge_does_not_create_a_core_pbi_engine_package():
     assert "core.pbi_engine.parsers.tmdl_parser" in sys.modules
     assert "core.pbi_engine" not in sys.modules
     assert "core.pbi_engine.parsers" not in sys.modules
-    # ALUCAs eigener Namespace laedt weiter aus dem Repo, nicht aus einem Spiegel.
-    import core.brand  # noqa: F401
-    assert "analytics-usecase-library" in str(sys.modules["core"].__path__[0])
+    # ALUCAs `core` ist weiterhin das echte Namespace-Paket und kein Synthetik-Modul.
+    # **Nicht** gegen den Repo-Pfad geprueft: den hat der erste Entwurf dieses Tests
+    # behauptet, und er faellt, sobald ein anderer Test vorher ins tmp-Verzeichnis
+    # wechselt — ein Namespace-Paket loest seinen Pfad beim Import auf. Gemessen im
+    # Vollauf am 26.08.2026, isoliert gruen. Der Pfad ist hier auch nicht die Zusage;
+    # die Zusage ist, dass die Bruecke ihn nicht ersetzt.
+    kern = sys.modules["core"]
+    assert getattr(kern, "__file__", None) is None
+    assert hasattr(kern, "__path__")

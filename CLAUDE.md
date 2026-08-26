@@ -181,6 +181,14 @@ python3 -m venv /tmp/civenv
 /tmp/civenv/bin/python -m pytest --tb=short -q      # exakt der CI-Aufruf
 ```
 
+**Und der venv-Name gehört zum Repo, nicht zur Sitzung.** Gemessen 26.08.2026: ein
+`/tmp/civenv`, das im selben Arbeitstag aus Meridians `requirements.txt` gebaut worden war,
+lieferte hier `ModuleNotFoundError: pyarrow` in `test_shipped_model_has_no_hard_findings` —
+ein Rot, das ausschließlich die Nachstellung erzeugt hat, und zwar genau die Fehlerklasse,
+gegen die sie gebaut ist. Beide Repos verlangen einen frischen venv, aber **verschiedene**
+Listen (dort `requirements.txt`, hier die Liste oben). Deshalb einen eigenen Pfad wählen,
+etwa `/tmp/aluca_venv`, statt einen gemeinsamen Namen zweimal zu belegen.
+
 Daher — für die Dauer jedes solchen Fensters: diese roten CI-Läufe **nicht
 untersuchen und nicht re-triggern**; stattdessen **lokal** validieren. Für die
 konsolidierte lokale Prüfung: `bash tooling/run_local_ci_check.sh` (führt
