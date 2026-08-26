@@ -27,6 +27,11 @@ from __future__ import annotations
 
 import json
 import re
+from core.dataarch_engine.blueprint.fabric_schedule import (
+    JOB_TYPE_NOTEBOOK,
+    emit_schedule,
+    schedule_endpoint,
+)
 from core.dataarch_engine.blueprint.stack_capabilities import gap_doc_for
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
@@ -188,6 +193,20 @@ CAPACITY_NOTIFICATION_MUTE_HOURS = 3
 
 METRICS_APP_SETUP_PATH = "monitoring/capacity_metrics_app_setup.md"
 
+#: Die Bronze-Tabelle, in der die exportierten Rohdateien abfragbar werden. Der Export allein
+#: sammelt nur Dateien; wer sammelt und nicht laedt, hat die Daten und kann sie nicht befragen
+#: (BK-B04).
+ACTIVITY_BRONZE_TABLE = "bronze_activity_log"
+
+ACTIVITY_BRONZE_LOAD_PATH = "monitoring/activity_log_bronze_load.py"
+
+ACTIVITY_SCHEDULE_PATH = "monitoring/activity_log_export_schedule.json"
+
+#: Startzeit des taeglichen Laufs, UTC. Nach Mitternacht, damit der Vortag vollstaendig ist, und
+#: eine Stunde nach dem Vorgabewert der Orchestrierung (02:00 UTC, `provision_orchestration`),
+#: damit die beiden geplanten Laeufe nicht gleichzeitig auf dieselbe Kapazitaet gehen.
+ACTIVITY_SCHEDULE_TIME_UTC = "03:00"
+
 
 def _activity_log_export_py() -> str:
     """Der taegliche D-1-Export des Aktivitaetsprotokolls nach Bronze — als lauffaehiges Skript.
@@ -315,6 +334,155 @@ def main(argv: list[str]) -> int:
     # Der Zeitstempel im Namen ist der SCHREIB-Zeitpunkt, nicht der Datentag. Wird ein Tag
     # zweimal geholt, stehen beide Dateien nebeneinander und die neuere ist erkennbar.
     print(f"{{len(ereignisse)}} Ereignis(se) fuer {{tag}} -> {{datei}}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))
+'''
+
+
+def _activity_log_schedule_json() -> str:
+    """Der taegliche Zeitplan des Export-Notebooks — als Datei, nicht als Satz im Runbook.
+
+    Bis 20.08.2026 stand hier ein Handgriff: „Schritt 8: `activity_log_export.py` taeglich
+    einplanen." Ein Handgriff, den niemand ausfuehrt, sieht in der Lieferung genauso aus wie
+    einer, den jemand ausgefuehrt hat — und der Export ist der eine Teil der Ueberwachung, der
+    sich nicht nachholen laesst: was in seinem Fenster nicht geholt wurde, ist fort.
+
+    Die Form kommt aus `fabric_schedule` und wird hier **nicht** ein zweites Mal gebaut. Es
+    gibt einen Fabric-Zeitplan, also gibt es eine Stelle, die weiss, wie er aussieht; zwei
+    Stellen driften.
+    """
+    return emit_schedule(frequency="Daily", time=ACTIVITY_SCHEDULE_TIME_UTC, timezone="UTC")
+
+
+def _activity_log_bronze_load_py() -> str:
+    """Die exportierten Rohdateien als Bronze-Tabelle — der zweite fehlende Teil von BK-B04.
+
+    Der Export legt JSON-Dateien in OneLake. Das ist Sammeln, nicht Verfuegbarmachen: eine Frage
+    nach dem Vorjahr braucht eine Tabelle, keine 400 Dateien. Vier Entscheidungen, jede mit
+    ihrem Grund:
+
+    * **Ein Schreibvorgang je Datentag, ersetzend** (``replaceWhere``). Ein zweiter Lauf fuer
+      denselben Tag ersetzt ihn, statt ihn zu verdoppeln. Ohne das waere ein Nachlauf nach einer
+      Stoerung gefaehrlicher als die Stoerung.
+    * **Neuester Schreibstempel je Datentag gewinnt.** Der Export schreibt den Zeitpunkt des
+      Schreibens in den Dateinamen, nicht den Datentag allein — genau damit ein zweimal geholter
+      Tag zwei Dateien hat und die neuere erkennbar ist. Diese Regel liest das hier aus.
+    * **Schema waechst mit** (``mergeSchema``). Die Felder unterscheiden sich je Ereignisart und
+      aendern sich mit dem Dienst. Ohne mitwachsendes Schema faellt ein neu auftauchendes Feld
+      beim Schreiben durch — dieselbe Klasse Verlust, gegen die der ELT-Grundsatz des Exports
+      sich richtet, nur eine Schicht spaeter.
+    * **Kein Filter, keine Umformung.** Es kommen genau drei Spalten dazu, alle drei aus dem
+      Dateinamen und keine aus dem Inhalt.
+    """
+    return rf'''"""activity_log_bronze_load.py — die exportierten Rohdateien abfragbar machen.
+
+Laeuft direkt nach `activity_log_export.py`, im selben geplanten Notebook. Der Export sammelt,
+dieses Skript laedt: ohne den zweiten Schritt liegen die Daten da und sind nicht zu befragen.
+
+Was dazukommt, sind drei Spalten, und alle drei stehen im Dateinamen:
+  * ``_datentag``      — der Tag, den die Datei beschreibt
+  * ``_geschrieben_utc`` — wann der Export sie geschrieben hat
+  * ``_quelldatei``    — welche Datei die Zeile getragen hat
+
+Was **nicht** passiert: filtern, umbenennen, Typen festklopfen. Die Felder des
+Aktivitaetsprotokolls unterscheiden sich je Ereignisart und aendern sich mit dem Dienst; das
+Schema der Tabelle waechst deshalb mit (``mergeSchema``), statt neue Felder abzuweisen.
+
+Wiederholbar: je Datentag wird ersetzt, nicht angehaengt. Ein Nachlauf nach einer Stoerung ist
+damit ungefaehrlich, und ein zweimal geholter Tag verdoppelt sich nicht — es gewinnt die Datei
+mit dem juengsten Schreibstempel.
+"""
+import datetime as _dt
+import re
+import sys
+
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+
+TABELLE = "{ACTIVITY_BRONZE_TABLE}"
+
+#: Derselbe Ort wie der Standardpfad des Exports, nur ueber den anderen Zugang. Der Export
+#: schreibt mit gewoehnlichem Datei-Zugriff nach `/lakehouse/default/Files/bronze/activity_log`,
+#: Spark liest denselben Ordner als `Files/bronze/activity_log` relativ zum Standard-Lakehouse.
+#: Wer die beiden Zeilen nebeneinander sieht und einen Fehler vermutet, sieht zwei Zugaenge.
+QUELLE = "Files/bronze/activity_log"
+
+#: Der Dateiname aus `activity_log_export.py`: das Praefix `activity-`, dann der Datentag als
+#: acht Ziffern, dann der Schreibstempel als zwoelf. Gruppe 1 ist der Tag, Gruppe 2 der Stempel.
+#: Benannte Gruppen stuenden hier naeher, tragen aber spitze Klammern — und die liest der
+#: Platzhalter-Pruefer der Lieferung als unausgefuelltes Feld.
+NAME = re.compile(r"^activity-(\d{{8}})-(\d{{12}})\.json$")
+
+
+def _dateien(spark: SparkSession, quelle: str) -> dict:
+    """Je Datentag die Datei mit dem juengsten Schreibstempel."""
+    jvm = spark._jvm
+    pfad = jvm.org.apache.hadoop.fs.Path(quelle)
+    fs = pfad.getFileSystem(spark._jsc.hadoopConfiguration())
+    if not fs.exists(pfad):
+        return {{}}
+    neueste = {{}}
+    for status in fs.listStatus(pfad):
+        name = status.getPath().getName()
+        treffer = NAME.match(name)
+        if not treffer:
+            continue                      # fremde Datei im Ordner: nicht raten, nicht laden
+        tag, stempel = treffer.group(1), treffer.group(2)
+        if tag not in neueste or stempel > neueste[tag][0]:
+            neueste[tag] = (stempel, str(status.getPath()))
+    return neueste
+
+
+def lade_tag(spark: SparkSession, tag: str, stempel: str, pfad: str) -> int:
+    """Einen Datentag laden und dabei ersetzen, was fuer diesen Tag schon dasteht."""
+    roh = spark.read.option("multiLine", True).json(pfad)
+    if not roh.columns:
+        print(f"{{tag}}: leere Datei, nichts zu laden")
+        return 0
+    datum = _dt.datetime.strptime(tag, "%Y%m%d").date()
+    geschrieben = _dt.datetime.strptime(stempel, "%Y%m%d%H%M")
+    angereichert = (roh
+                    .withColumn("_datentag", F.lit(datum.isoformat()).cast("date"))
+                    .withColumn("_geschrieben_utc", F.lit(geschrieben.isoformat()).cast("timestamp"))
+                    .withColumn("_quelldatei", F.lit(pfad.rsplit("/", 1)[-1])))
+    zeilen = angereichert.count()
+    schreiber = (angereichert.write.format("delta")
+                 .option("mergeSchema", "true")
+                 .partitionBy("_datentag"))
+    if spark.catalog.tableExists(TABELLE):
+        # Ersetzen statt anhaengen: derselbe Tag zweimal geladen ergibt denselben Stand.
+        (schreiber.mode("overwrite")
+         .option("replaceWhere", f"_datentag = '{{datum.isoformat()}}'")
+         .saveAsTable(TABELLE))
+    else:
+        schreiber.mode("overwrite").saveAsTable(TABELLE)
+    print(f"{{tag}}: {{zeilen}} Zeile(n) aus {{pfad.rsplit('/', 1)[-1]}}")
+    return zeilen
+
+
+def main(argv: list) -> int:
+    spark = SparkSession.builder.getOrCreate()
+    quelle = argv[1] if len(argv) > 1 else QUELLE
+    nur = argv[2] if len(argv) > 2 else None      # ein Datentag als YYYYMMDD, sonst alle offenen
+
+    dateien = _dateien(spark, quelle)
+    if not dateien:
+        print(f"Keine Exportdateien unter {{quelle}} — laeuft der Export?", file=sys.stderr)
+        return 1
+    if nur:
+        if nur not in dateien:
+            print(f"Kein Export fuer {{nur}} vorhanden.", file=sys.stderr)
+            return 2
+        dateien = {{nur: dateien[nur]}}
+
+    gesamt = 0
+    for tag in sorted(dateien):
+        stempel, pfad = dateien[tag]
+        gesamt += lade_tag(spark, tag, stempel, pfad)
+    print(f"{{len(dateien)}} Tag(e), {{gesamt}} Zeile(n) in {{TABELLE}}")
     return 0
 
 
@@ -461,7 +629,11 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         "| Compute/storage dashboards | `capacity_metrics_app_setup.md` → Fabric **Capacity Metrics "
         "App** | built-in, portal install | GA |",
         "| Audit history beyond the retention window | `activity_log_export.py` | Get Activity Events "
-        "(admin REST) → Bronze, daily D-1 | runnable script |", "",
+        "(admin REST) → Bronze, daily D-1 | runnable script |",
+        f"| …made queryable | `{ACTIVITY_BRONZE_LOAD_PATH.split('/')[-1]}` | raw files → Delta table "
+        f"`{ACTIVITY_BRONZE_TABLE}`, replace-per-day | runnable script |",
+        f"| …run every day | `{ACTIVITY_SCHEDULE_PATH.split('/')[-1]}` | item schedule, "
+        f"{ACTIVITY_SCHEDULE_TIME_UTC} UTC daily | deployable JSON |", "",
         "## Setup order", "",
         "0. **Tenant setting first, and only a Fabric administrator can set it.** Admin portal → "
         "Tenant settings → *Workspace admins can turn on monitoring for their workspaces*. Until "
@@ -496,9 +668,15 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         f"here on day 0 rather than at handover because its compute window is "
         f"**{METRICS_APP_COMPUTE_DAYS} days** and cannot be filled backwards, for the same reason "
         "steps 0 and 1 do. Only a capacity admin can install it.",
-        "8. Schedule `activity_log_export.py` daily (see below). It belongs to day 0 for the same "
-        "reason as steps 0 and 1: it is not retroactive beyond its window, and the window is "
-        f"{ACTIVITY_LOG_DAYS} days wide.", "",
+        f"8. Import `activity_log_export.py` and `{ACTIVITY_BRONZE_LOAD_PATH.split('/')[-1]}` as **one** "
+        "notebook, export first and load second, then register the daily schedule from "
+        f"`{ACTIVITY_SCHEDULE_PATH.split('/')[-1]}` on it: "
+        f"`POST {schedule_endpoint(JOB_TYPE_NOTEBOOK)}`. `jobType` is a "
+        "required path segment and it is case sensitive; for a notebook it is `RunNotebook` "
+        "(MS Learn, *Create Item Schedule* + *Run a Fabric item using Apache Airflow DAGs*, read "
+        "2026-08-20). It belongs to "
+        "day 0 for the same reason as steps 0 and 1: it is not retroactive beyond its window, and "
+        f"the window is {ACTIVITY_LOG_DAYS} days wide.", "",
         "Steps 0 and 1 belong **before the first scheduled run**. Monitoring is not retroactive: the "
         "history starts when the switch is flipped, and runs that happened earlier leave no trace in "
         "the Eventhouse. A platform that gets monitoring on handover day has no run history for its "
@@ -547,5 +725,9 @@ def emit_monitoring(bp: dict, stack: str = "fabric", workspace: str = "<workspac
         # Der Export haengt am Power-BI-/Fabric-Aktivitaetsprotokoll. Auf einem fremden Stack gibt
         # es dieses Protokoll nicht — ein Skript dafuer waere dort eine Anweisung ins Leere.
         out[ACTIVITY_EXPORT_PATH] = _activity_log_export_py()
+        # Sammeln ist nicht dasselbe wie verfuegbar machen: ohne den Lader liegen die Dateien da
+        # und sind nicht zu befragen, ohne den Zeitplan sammelt niemand (BK-B04).
+        out[ACTIVITY_BRONZE_LOAD_PATH] = _activity_log_bronze_load_py()
+        out[ACTIVITY_SCHEDULE_PATH] = _activity_log_schedule_json()
     globals().setdefault("_x", 0)
     return out

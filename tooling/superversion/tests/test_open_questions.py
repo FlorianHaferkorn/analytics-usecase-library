@@ -122,14 +122,19 @@ def test_a_supplied_input_does_not_become_a_question(ledger):
 def test_the_mirrored_decisions_arrive_with_their_ways(ledger):
     """The class-A half reaches ALUCA's sheet — including what Meridian added on its side.
 
-    Measured 17.08.2026: 17 mirrored decisions, 7 of them carrying a complete way. Those
-    seven are exactly the ones Meridian gained an `ermittlung` block for on the same day;
+    Measured 20.08.2026: 19 mirrored decisions, 7 of them carrying a complete way. Those
+    seven are exactly the ones Meridian gained an `ermittlung` block for on 17.08.2026;
     they arrived here through `--write` on the mirror sensor, not by being typed again.
     German field names are translated at this boundary — the vendored file itself is never
     edited, because a local edit breaks the integrity pin by design.
+
+    17 → 18: `GOV-DOMAIN` (who owns a Fabric domain) arrived with Meridian's BK-W02 work.
+    18 → 19: `SEC-SHARE` (which ways out of the platform stay open) with BK-Z06, on the same
+    day. Both are pre-filled, so neither needs an `ermittlung` block and the second count
+    stays at 7.
     """
     mirrored = [q for q in ledger["questions"] if q["origin"] == ORIGIN_MIRROR]
-    assert len(mirrored) == 17
+    assert len(mirrored) == 19
     mit_weg = [q for q in mirrored
                if all(str(q["way"].get(f, "")).strip() for f in WAY_FIELDS)]
     assert len(mit_weg) == 7
@@ -139,7 +144,7 @@ def test_the_mirrored_decisions_arrive_with_their_ways(ledger):
 def test_a_missing_mirror_is_reported_and_does_not_break_the_run(monkeypatch):
     """ALUCA delivers without the mirror. The mirror is a second half, not a dependency.
 
-    What must not happen is that the seventeen decisions are quietly absent — an incomplete
+    What must not happen is that the eighteen decisions are quietly absent — an incomplete
     sheet that looks complete is worse than one that says what is missing.
     """
     import tooling.superversion.open_questions as oq

@@ -458,6 +458,26 @@ _KUNDENFASSUNG: dict[str, dict[str, str]] = {
                  "wird trotzdem benutzt. Die falsche Antwort fällt dann im Termin auf, nicht "
                  "im Test.",
     },
+    "GOV-DOMAIN": {
+        "frage": "Welche Gruppe besitzt fachlich welche Domäne, und wer darf Arbeitsbereiche "
+                 "darin anlegen?",
+        "folge": "Wir legen die Domänen an und tragen die Rollen nach dem Namensschema ein. "
+                 "Solange keine Gruppe benannt ist, hat die Domäne keinen Eigentümer und "
+                 "Tenant-Einstellungen bleiben zentral.",
+        "warum": "Die Domäne ist die einzige Stelle, an der eine Einstellung für einen "
+                 "Fachbereich anders gelten kann als für den Rest des Hauses. Wer sie der IT "
+                 "gibt, hat die Delegation gebaut und nicht genutzt.",
+    },
+    "SEC-SHARE": {
+        "frage": "Wer darf Inhalte aus der Plattform nach außen geben — an Gäste, an Microsoft "
+                 "365, über einen Link für alle, ins offene Netz?",
+        "folge": "Wir schalten alle sechs Wege ab und öffnen einzeln, was Sie benennen. Ohne "
+                 "Ihre Antwort bleibt es geschlossen — bis auf den einen, der ab Werk an ist "
+                 "und den wir deshalb ausdrücklich ausschalten.",
+        "warum": "Die Voreinstellungen von Fabric bevorzugen Bedienbarkeit vor Strenge. Der "
+                 "Schalter für Microsoft 365 ist ab Werk an und schickt Berichts-, Seiten- und "
+                 "Spaltennamen aus dem Haus, ohne dass jemand etwas tut.",
+    },
     "SEC-ROLES": {
         "folge": "Wir binden die Rollen nach dem Vorschlag: Konsumenten lesend, Bearbeitende "
                  "mit Schreibrecht. Welche Gruppe dahintersteht, bleibt offen, bis Sie sie "
@@ -561,6 +581,11 @@ _FAELLIGKEIT: dict[str, str] = {
     "GOV-RET": "vor Produktivsetzung",
     "AI-EVAL": "vor Produktivsetzung",
     "OPS-USERDATA": "vor Produktivsetzung",
+    # 20.08.2026, BK-Z06: die Freigabe-Politik ist keine Aufbau-Frage — die Plattform laeuft mit
+    # jedem dieser Schalter. Sie ist eine Produktivsetzungs-Frage, und zwar mit Vorlauf: MS nennt
+    # fuer #24 bis zu 24 Stunden bis zur Wirkung. Wer sie am Umsetzungstag umlegt, hat sie nicht
+    # rechtzeitig umgelegt.
+    "SEC-SHARE": "vor Produktivsetzung",
 }
 
 
@@ -601,6 +626,52 @@ def _rec(id_: str, topic: str, gap: str, proposal: str | None, derived_from: str
             # auflöst. Damit wird aus einer thematischen Zuordnung eine prüfbare — DoD-Kriterium
             # PE-05 kann so mechanisch statt per Urteil prüfen, dass kein Platzhalter stumm ist.
             "markers": list(markers)}
+
+
+def propose_domain_roles(bp: dict) -> dict:
+    """Wer die Domaene besitzt — BK-W02, und die einzige Frage, die das Skript nicht loesen kann.
+
+    Der **Name** beider Gruppen ist abgeleitet (``provision_governance.entra_gruppenname``, Schema
+    aus BK-W04), die **objectId** holt der Nachschlage-Sammler. Was keine Maschine hergibt, ist die
+    Besetzung: welche Gruppe der fachliche Eigentuemer ist. Deshalb ``vorbelegt`` und nicht
+    ``offen`` — die Struktur steht, der Kunde nennt nur, wer dahintersteht oder widerspricht dem
+    Zuschnitt.
+
+    Zwei Punkte, die MS Learn ausdruecklich sagt und die von aussen wie Erfolg aussehen, wenn man
+    sie uebergeht (learn.microsoft.com/fabric/governance/domains, geprueft 20.08.2026): Domain-
+    Admins kann **nur ein Fabric-Administrator** setzen, und ein Domain-Contributor kann einen
+    Workspace nur dann zuordnen, wenn er in **diesem Workspace zugleich Admin** ist.
+    """
+    doms = _domain_names(bp)
+    beispiel = _NONWORD_RE.sub("-", (doms[0].lower() if doms else "domaene")).strip("-")
+    return _rec(
+        "GOV-DOMAIN", "Domänen-Eigentümer und Domänen-Mitwirkende",
+        "Wer ist Domain-Admin und wer Domain-Contributor je Fabric-Domäne?",
+        ("**Vorbelegt nach dem Namensschema** — bitte nur widersprechen, wenn der Zuschnitt "
+         "fachlich nicht passt:\n"
+         f"- **Domain-Admin → `fab-{beispiel}-domain-admin`**, besetzt mit dem fachlichen "
+         "Dateneigentümer der Domäne, nicht mit der IT. Er überschreibt Tenant-Einstellungen "
+         "für seinen Bereich und verantwortet die Auffindbarkeit im OneLake-Katalog.\n"
+         f"- **Domain-Contributor → `fab-{beispiel}-domain-contributor`**, besetzt mit denen, die "
+         "Arbeitsbereiche in die Domäne hängen dürfen.\n"
+         "- **Beides Entra-Gruppen, nie Personen** (wie bei den Workspace-Rollen). In einer "
+         "kleinen Organisation darf es dieselbe Gruppe für beide Rollen sein — dann bleibt es "
+         "trotzdem eine Gruppe.\n"
+         "- **Domain-Admins setzt nur ein Fabric-Administrator.** Ein Domain-Admin darf danach "
+         "Contributors vergeben, aber keine weiteren Admins.\n"
+         "- **Der Contributor braucht die Workspace-Admin-Rolle dazu**, sonst läuft die "
+         "Zuordnung ins Leere, ohne einen Fehler zu melden.\n"
+         "**Offen bleibt nur:** welche Gruppe das je Domäne ist. Die objectId holt "
+         "`lookup/nachschlagen.sh`, sobald die Gruppe existiert."),
+        "Namensschema aus BK-W04 + learn.microsoft.com/fabric/governance/domains-best-practices",
+        "hoch",
+        ["Domain-Admin an die IT geben (schnell, macht die Delegation wirkungslos)",
+         "Keine Domain-Rollen setzen (Domäne bleibt eine Sortierhilfe ohne Wirkung)",
+         "Eine Gruppe für beide Rollen (in kleinen Organisationen vertretbar)"],
+        "Fachbereichsleitung je Domäne (Besetzung) — der Zuschnitt ist vorbelegt",
+        "Ohne Domain-Admin bleiben Tenant-Einstellungen zentral, und niemand verantwortet die "
+        "Auffindbarkeit der Domäne im Katalog",
+        status="vorbelegt")
 
 
 def propose_workspace_roles(bp: dict) -> dict:
@@ -1125,6 +1196,58 @@ def propose_user_data_visibility(bp: dict) -> dict:
         status="offen")
 
 
+def propose_sharing_policy(bp: dict) -> dict:
+    """Wie weit die Plattform nach aussen offen ist — BK-Z06, und der einzige Fall im Katalog,
+    in dem der Auslieferungswert **an** ist.
+
+    Bis 20.08.2026 nannte `apply/TENANT_SETUP.md` die beiden Schalter fuer External Data Sharing
+    (#11/#19) und sonst nichts; die uebrigen vier standen im Betriebskanon als Vorgabe und in
+    keiner Lieferung. Der Katalog fuehrt sie jetzt (#24–#29), und diese Entscheidung erhebt die
+    Politik dazu — der Kanon-Punkt verlangt genau das: *„je Schalter einzeln und mit Vermerk im
+    Ledger"*.
+
+    `vorbelegt` statt `offen`, weil der geschlossene Zustand als Haltung vertretbar ist und der
+    offene nicht: wer nichts entscheidet, hat die Voreinstellung uebernommen, und die ist bei #24
+    ab Werk **an** (learn.microsoft.com/fabric/admin/admin-share-power-bi-metadata-microsoft-365-
+    services, geprueft 20.08.2026: „The … tenant setting is on by default").
+    """
+    return _rec(
+        "SEC-SHARE", "Freigabe nach außen",
+        "Welche Wege aus der Plattform heraus bleiben offen — Gastzugriff, Links für alle, "
+        "Freigabe an Microsoft 365, öffentliche Veröffentlichung?",
+        ("**Vorbelegt: geschlossen.** Wir schalten die sechs Wege nach außen ab und öffnen "
+         "einzeln, was Sie brauchen:\n"
+         "- **Freigabe an Microsoft 365 — der wichtigste, weil er ab Werk an ist.** Fabric "
+         "meldet von sich aus Berichtsnamen, Seitennamen, Spalten- und Measure-Namen sowie "
+         "Zugriffslisten an Microsoft 365, ohne dass jemand etwas tut. Der Unter-Schalter für "
+         "regionsübergreifende Freigabe lässt diese Angaben zusätzlich die Region verlassen; er "
+         "bleibt in jedem Fall aus.\n"
+         "- **Gastzugriff** (drei Schalter: Zugang, Einladung über Freigabe-Dialoge, "
+         "Weiterverwendung von Modellen im fremden Tenant) — aus, bis Sie einen Fall dafür "
+         "nennen. Ist er nötig, dann über eine benannte Sicherheitsgruppe und eine geplante "
+         "Einladung.\n"
+         "- **„Jeder in der Organisation mit dem Link\"** — aus. Geteilt wird danach an "
+         "bestimmte Personen oder an die, die ohnehin Zugriff haben.\n"
+         "- **Veröffentlichung im Web** — aus. Das ist die einzige Freigabe, die ohne Anmeldung "
+         "gelesen wird.\n"
+         "**Offen bleibt nur:** welchen dieser Wege Sie brauchen und für wen. Ein Wechsel wirkt "
+         "erst nach bis zu 24 Stunden, ist also kein Handgriff für den Umsetzungstag."),
+        "BK-Z06 + admin_settings #24–#29 (learn.microsoft.com/fabric/admin/"
+        "service-admin-portal-export-sharing)",
+        "hoch",
+        ["Alles geschlossen (Vorschlag) — Freigabe nach außen läuft über benannte Ausnahmen",
+         "Gastzugriff öffnen, Rest geschlossen — üblich bei gemeinsamen Projekten mit "
+         "Dienstleistern",
+         "Freigabe an Microsoft 365 anlassen — Berichte werden über die Microsoft-365-Suche "
+         "gefunden; die Metadaten liegen dann dort",
+         "Alles auf Auslieferungswert lassen — dann ist die Freigabe an Microsoft 365 an, ohne "
+         "dass jemand sie gewählt hat"],
+        "Informationssicherheit und Datenschutz des Kunden, nicht die Plattformrolle",
+        "Die Schalter stehen auf dem Auslieferungswert. Der Weg nach Microsoft 365 ist damit "
+        "offen, und niemand hat ihn gewählt",
+        status="vorbelegt")
+
+
 def propose_outbound_exceptions(bp: dict) -> dict:
     """Die Ausnahmeliste der ausgehenden Sperre — die eine Haelfte von `BK-N03`, die uns nicht gehoert.
 
@@ -1400,10 +1523,12 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
         out.extend(fn(gc, source_schema) if fn in mit_quelle else fn(gc) for fn in per_domain)
     if len(domains) > 1 and gc.get("tables"):
         out.extend(propose_cross_domain(bp, gc))   # domains are not islands
-    out.extend([propose_workspace_roles(bp), propose_retention(bp, gc, source_schema),
+    out.extend([propose_workspace_roles(bp), propose_domain_roles(bp),
+                propose_retention(bp, gc, source_schema),
                 propose_alerts(bp),
                 propose_endorsement(bp, gc), propose_capacity(bp), propose_tenant_settings(bp),
                 propose_network_stance(bp), propose_outbound_exceptions(bp),
+                propose_sharing_policy(bp),
                 propose_user_data_visibility(bp),
                 propose_lakehouse_schemas(bp), propose_lakehouse_topology(bp),
                 propose_transform_engine(bp)])

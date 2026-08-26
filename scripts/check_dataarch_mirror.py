@@ -55,6 +55,10 @@ MIRRORED_FILES = (
     "admin_settings.py",
     "capacity_recommend.py",
     "decision_proposals.py",
+    # Form eines Fabric-Item-Zeitplans + die Job-Typen als Pfadsegment (20.08.2026). Aufgenommen,
+    # weil `provision_monitoring` den Zeitplan des Aktivitaetsprotokoll-Exports daraus baut: ein
+    # gespiegeltes Modul, das ein nicht gespiegeltes importiert, bricht hier beim ersten Aufruf.
+    "fabric_schedule.py",
     "naming.py",
     "provision_connectivity.py",
     "provision_governance.py",

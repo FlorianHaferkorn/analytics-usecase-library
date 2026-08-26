@@ -359,7 +359,15 @@ CATALOG: list[dict[str, Any]] = [
             "workspace CU cap over a rolling 24-hour window, plus the states *Available* / *Mission "
             "critical* / *Blocked*. Two properties decide whether it fits — the check runs every five "
             "minutes, so the cap is soft; and raising the limit does **not** release a workspace that "
-            "is already blocked, a capacity admin sets it back to *Available* by hand."),
+            "is already blocked, a capacity admin sets it back to *Available* by hand.\n\n"
+            "Two things to settle before switching the workspace cap on. *Blocked* is a harder stop "
+            "than the capacity-level one: capacity level rejects background operations, a blocked "
+            "workspace rejects **all** operations, interactive included — to its users that looks "
+            "like an outage. Turn the banner on in the same visit (Admin Portal → Capacity settings "
+            "→ Notification → *Display a banner to all users of the workspace*) so they read a "
+            "limit instead of guessing at a fault. And the rolling 24-hour window does not reset "
+            "when a block expires: a workspace whose usage still sits above the cap is blocked "
+            "again straight away."),
         "grenzen": (
             "Fabric SKUs only — no other SKU type is supported.",
             "In-progress jobs are not stopped, so the rejection threshold is not an upper bound on the "
@@ -371,6 +379,21 @@ CATALOG: list[dict[str, Any]] = [
             "Workspace level: Dataflows Gen1, paginated reports, scorecards, graph models, Activator "
             "and Dataflow Gen2 editing are outside its reach; Autoscale compute is excluded from the "
             "per-workspace calculation.",
+            "*Mission critical* is worth less than it reads, and MS's own page says both things. Its "
+            "capability list calls the state \"immune from blocking\" and the state table answers "
+            "\"subject to capacity-level surge protection? No\"; the same page's limitations say "
+            "\"Mission-critical status does not override capacity-level surge protection\" and the "
+            "control description narrows it to \"exempt from workspace consumption limits\" (page read "
+            "20.08.2026). We deliver the conservative reading: it lifts the per-workspace cap and "
+            "nothing else. Do not plan a critical workload around surviving capacity-level throttling "
+            "on this flag — isolate it in its own capacity, which is what MS recommends anyway.",
+            "There is no API. Every documented path for this setting is a portal step, on the surge-"
+            "protection page and on `fabric/admin/capacity-settings` alike (both read 20.08.2026). The "
+            "capacity REST surfaces that do exist reach other things: Azure `Microsoft.Fabric/"
+            "capacities` creates, pauses, resumes and resizes; the Power BI `Capacities` APIs "
+            "configure Premium workloads; `sempy.fabric.admin` reads the capacity state. None of them "
+            "carries surge protection, so it can neither be set nor read back by script — the "
+            "readiness snapshot leaves it UNKNOWN rather than claiming a state it never saw.",
         ),
     },
     {
@@ -398,7 +421,15 @@ CATALOG: list[dict[str, Any]] = [
             "just in time.\n\n"
             "Entra ID P2 or ID Governance is a licence prerequisite, not a configuration step. Without "
             "it the whole procedure is unavailable and the fallback is a standing assignment to as few "
-            "named people as possible, plus a Conditional Access policy enforcing MFA on them."),
+            "named people as possible, plus a Conditional Access policy enforcing MFA on them.\n\n"
+            "Whether the rule actually holds is readable, and Microsoft Graph v1.0 answers it in three "
+            "calls: resolve the role by display name through `roleManagement/directory/roleDefinitions`, "
+            "then read `roleEligibilitySchedules` and `roleAssignmentSchedules` for that role id. "
+            "Eligible-only means the first list is non-empty while the second carries no entry with "
+            "`assignmentType: Assigned` outside the break-glass accounts. `Activated` is a PIM "
+            "activation in flight, so it counts as the procedure working and not as a finding — adding "
+            "the two together turns a healthy PIM into a false positive. Least-privileged read: "
+            "`RoleEligibilitySchedule.Read.Directory`."),
         "grenzen": (
             "PIM covers Entra roles. The Fabric capacity admin is a capacity setting and is reachable "
             "only indirectly, through a PIM-enabled security group.",
@@ -406,7 +437,133 @@ CATALOG: list[dict[str, Any]] = [
             "procedure.",
             "The break-glass accounts are exempt on purpose; they are the reason the rule can be "
             "strict everywhere else.",
+            "The proof is a Graph read and not a Fabric one. It needs a directory read right the "
+            "Fabric admin does not carry, so a collector running under that identity alone leaves "
+            "this entry UNKNOWN — which is the honest answer, not a pass.",
         ),
+    },
+    # --- 20.08.2026: die sechs Schalter, die nach aussen fuehren (BK-Z06) --------------------
+    #
+    # Alle bisherigen Eintraege beantworten dieselbe Frage: *was muss an sein, damit die Lieferung
+    # laeuft*. Diese sechs beantworten die Gegenfrage — *was muss aus sein, damit sie nicht mehr
+    # kann, als sie soll*. Sie stehen deshalb auf ``base`` und ``required: yes``: eine Lieferung,
+    # die sie nicht anfasst, hat sie nicht offen gelassen, weil jemand das wollte, sondern weil
+    # niemand hingesehen hat.
+    #
+    # #24 ist der einzige Eintrag des Katalogs, der **ab Werk an** ist und trotzdem **aus** gehoert
+    # (#1, #8 und #10 sind ebenfalls ab Werk an — dort ist das erwuenscht). Genau deshalb faellt er
+    # durch jede Pruefliste, die nur fragt „ist alles Noetige eingeschaltet".
+    #
+    # Die Politik dahinter ist eine Kundenentscheidung und keine Katalogzeile — sie wird ueber
+    # ``decision_proposals.propose_sharing_policy`` (SEC-SHARE) erhoben. Hier steht nur, welcher
+    # Schalter wie heisst, wo er sitzt und was er ausdruecklich nicht abdeckt.
+    {
+        "id": 24, "name": "Share Fabric data with your Microsoft 365 services",
+        "section": "Tenant settings → Share Fabric data with your Microsoft 365 services",
+        "scope": "tenant", "capabilities": ["base"],
+        "default": 'on — MS: "The … tenant setting is on by default" (same-geo tenants)',
+        "target": "off; the cross-geography sub-toggle off in every case",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal; changes take up to 24 hours",
+        "why": ("mit diesem Schalter sendet Fabric von sich aus Metadaten an Microsoft 365 — "
+                "Berichtsname, Beschreibung, Adresse, ACL, Arbeitsbereich, Ersteller, Seitennamen, "
+                "Diagrammtitel sowie Spalten- und Measure-Namen, dazu wer welchen Bericht "
+                "angesehen hat. Kein Nutzer muss dafuer etwas tun, und der Unter-Schalter fuer "
+                "geografieuebergreifende Freigabe laesst diese Daten die Region verlassen"),
+        "required": "yes",
+        "source": _L + "fabric/admin/admin-share-power-bi-metadata-microsoft-365-services",
+        "verfahren": (
+            "Turn the main toggle **off** and re-check it after 24 hours — MS states changes take up to "
+            "that long to take effect. The cross-geography toggle is only **visible while the main "
+            "toggle is on**, so 'I don't see it' is not evidence that it is off: to read its state you "
+            "have to switch the main one on first. Where the main toggle is deliberately left on, the "
+            "sub-toggle is the DSGVO-relevant one and stays off."),
+        "grenzen": (
+            "Turning it off does not keep Fabric content out of Microsoft 365. Everything a user does "
+            "deliberately keeps working: Excel PivotTables on semantic models, link previews in Teams "
+            "and Outlook, and Fabric data agents in the M365 Agent Store. The setting governs only the "
+            "background flow.",
+            "The default is stated for tenants whose Fabric and M365 home regions match; for a split-geo "
+            "tenant MS documents only the second toggle, not a different default.",
+        ),
+    },
+    {
+        "id": 25, "name": "Guest users can access Microsoft Fabric",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "off unless guest access was decided (SEC-SHARE); if decided, scoped to a named "
+                  "security group, never the whole organisation",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("der Hauptschalter fuer Entra-B2B-Gaeste. Aus heisst: ein Gast bekommt einen Fehler, "
+                "auch auf Elemente, fuer die er Berechtigungen hat — und niemand kann ueber "
+                "Freigabe-Dialoge neue Gaeste einladen"),
+        "required": "yes",
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+    },
+    {
+        "id": 26, "name": "Users can invite guest users to collaborate through item sharing and permissions",
+        "alias": "Share content with external users",     # MS: "This setting was previously called …"
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "off — an invitation is a planned act, not a side effect of a share dialog",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("mit ihm entstehen neue Gastkonten **durch Teilen**: wer einen Bericht teilt, laedt "
+                "die fremde Adresse zugleich in die Organisation ein"),
+        "required": "yes",
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+        "grenzen": (
+            "It only governs invitations made through Fabric. The inviting user additionally needs the "
+            "Entra *Guest Inviter* role, and guests invited elsewhere in the tenant are unaffected.",
+        ),
+    },
+    {
+        "id": 27, "name": "Allow shareable links to grant access to everyone in your organization",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "off — sharing then falls back to 'Specific people' / 'People with existing access'",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("der „Jeder mit dem Link\"-Fall: ein einziger Klick macht einen Bericht fuer die "
+                "ganze Organisation lesbar, an jeder Rollen- und Domaenenlogik vorbei"),
+        "required": "yes",
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+    },
+    {
+        "id": 28, "name": "Guest users can work with shared semantic models in their own tenants",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": 'off — MS: "This setting is off by default for customers"',
+        "target": "stays off",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("aus heisst nicht, dass der Gast das Modell nicht sieht — er sieht es weiterhin im "
+                "liefernden Tenant. An heisst, er darf es im **eigenen** Tenant weiterverwenden und "
+                "darauf aufbauen"),
+        "required": "yes",
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+        "grenzen": (
+            "Not the same switch as *External data sharing* (#11/#19): this one rides on Entra B2B and "
+            "semantic models, the other on OneLake shares. MS says so explicitly, and the two are "
+            "regularly confused because both read as 'external sharing'.",
+        ),
+    },
+    {
+        "id": 29, "name": "Publish to web",
+        "section": "Export and sharing settings", "scope": "tenant", "capabilities": ["base"],
+        "default": "unverified — the settings page does not pin it",
+        "target": "disabled for the whole organisation; where a business case exists, 'Allow only "
+                  "existing embed codes' instead of a free hand",
+        "who": "Fabric tenant admin", "automatable": "unverified",
+        "how": "Update Tenant Setting REST (preview) / sempy — or portal",
+        "why": ("die einzige Freigabe der Plattform, die **ohne Anmeldung** liest: ein "
+                "veroeffentlichter Bericht ist oeffentlich im Netz"),
+        "required": "yes",
+        "source": _L + "fabric/admin/service-admin-portal-export-sharing",
+        "verfahren": (
+            "Disabling for the whole organisation also stops existing published reports from rendering. "
+            "Review the existing embed codes first — Admin portal → Embed codes lists them — because "
+            "that list, not the toggle, tells you what is live on the web right now."),
     },
 ]
 
