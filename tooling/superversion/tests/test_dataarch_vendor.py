@@ -256,3 +256,115 @@ def test_key_and_watermark_stay_candidates(api):
     orders = proposals["sources"]["erp_orders"]["Orders"]
     assert orders["key_candidates"] == ["OrderId"]
     assert orders["watermark_candidates"] == ["ChangedOn"]
+
+
+# -- Die Vollzugshälfte (26.08.2026) ---------------------------------------------------
+#
+# Bis hierhin spiegelte ALUCA fünf Betriebs-Belange und emittierte sonst nur die Topologie:
+# gemessen 39 Artefakte gegen dieselbe Fixture. Der Rest der offiziell belegten Formen —
+# `fab`-Aufrufe, fabric-cicd, Terraform, Variable Library, Copy jobs, Notebooks, Pipelines —
+# lag allein in Meridian. Diese Tests halten die erweiterte Fläche fest, und vor allem die
+# Zusage, die dabei am leichtesten still bricht: dass ein Emitter ohne Eingabe *gemeldet*
+# wird und nicht einfach nichts schreibt.
+
+_VOLLZUG = ("emit_apply", "emit_cicd", "emit_fabric_cicd", "emit_terraform",
+            "emit_variable_library", "emit_transforms", "emit_notebooks",
+            "emit_orchestration", "emit_ingestion", "emit_lineage", "emit_chargeback",
+            "emit_direct_lake_guardrails", "emit_metricflow", "emit_translations",
+            "emit_governance_strategy", "emit_prereq", "emit_gates", "emit_fab_commands",
+            "emit_ingress_dq", "tables_by_source")
+
+
+def test_the_execution_half_is_part_of_the_promised_surface(api):
+    fehlt = [name for name in _VOLLZUG if name not in api]
+    assert fehlt == [], f"zugesagt, aber nicht geladen: {fehlt}"
+
+
+def test_the_mirror_closes_without_reaching_outside_its_package():
+    """Die Hülle wurde gemessen, nicht gegriffen — hier bleibt sie messbar.
+
+    Ein gespiegeltes Modul, das ein nicht gespiegeltes importiert, bricht erst beim ersten
+    Aufruf und dann an einer Stelle, die nichts mit dem Spiegel zu tun zu haben scheint.
+    """
+    import ast
+
+    from tooling.superversion._dataarch_vendor import (
+        _ALIASED_CONTRACT_MODULES, _ALIASED_MODULES, VENDOR_DIR)
+
+    pkg = "core.dataarch_engine.blueprint"
+    vorhanden = {p.stem for p in VENDOR_DIR.glob("*.py")}
+    # Die erlaubten Ausnahmen werden aus dem Loader gelesen, nicht hier nachgetippt: was
+    # der Loader nicht unterschiebt, darf der Spiegel nicht importieren. Eine Hand-Liste
+    # hier waere in dem Moment falsch, in dem jemand einen Alias entfernt.
+    vorhanden |= {a.rsplit(".", 1)[-1] for a in _ALIASED_MODULES}
+    erlaubt_absolut = set(_ALIASED_CONTRACT_MODULES)
+    fehlend: list[str] = []
+    for datei in sorted(VENDOR_DIR.glob("*.py")):
+        for knoten in ast.walk(ast.parse(datei.read_text(encoding="utf-8"))):
+            if not isinstance(knoten, ast.ImportFrom) or not knoten.module:
+                continue
+            if knoten.module == pkg:
+                ziele = {a.name for a in knoten.names}
+            elif knoten.module.startswith(pkg + "."):
+                ziele = {knoten.module[len(pkg) + 1:].split(".")[0]}
+            elif knoten.module in erlaubt_absolut:
+                continue
+            elif knoten.module.startswith("core."):
+                fehlend.append(f"{datei.name} -> {knoten.module} (ausserhalb des Pakets)")
+                continue
+            else:
+                continue
+            fehlend += [f"{datei.name} -> {z}" for z in sorted(ziele - vorhanden)]
+    assert fehlend == [], f"Spiegel unvollstaendig: {fehlend}"
+
+
+def test_the_deriver_itself_is_not_mirrored():
+    """ALUCA hat einen eigenen Deriver. Meridians danebenzulegen waere das Doppel-Silo."""
+    from tooling.superversion._dataarch_vendor import VENDOR_DIR
+
+    assert not (VENDOR_DIR / "blueprint.py").is_file()
+    assert not (VENDOR_DIR / "named_profiles.py").is_file()
+
+
+def test_the_lazily_imported_contract_classes_actually_resolve():
+    """Ein Alias, der nur in einer Tabelle steht, ist eine Behauptung.
+
+    ``provision_governance.model_roles()`` importiert ``core.pbi_engine.parsers.tmdl_parser``
+    erst im Funktionsrumpf. Vor dem 26.08.2026 war das in ALUCA ein
+    ``ModuleNotFoundError`` — sichtbar erst beim Aufruf, waehrend ``emit_governance`` und
+    jeder Modulimport gruen blieben. Der Test ruft die Funktion deshalb wirklich auf,
+    statt den Import zu pruefen.
+    """
+    from tooling.superversion._dataarch_vendor import load_module
+
+    modul = load_module("provision_governance")
+    bp = {"mesh": {"domains": [{"name": "Commercial", "data_products": ["fact_sales"]}]}}
+    rollen = modul.model_roles(bp, {"fact_sales": ["revenue"]})
+
+    assert [r.name for r in rollen] == ["rls_commercial"]
+    rolle = rollen[0]
+    assert [t.table for t in rolle.table_permissions] == ["fact_sales"]
+    # Der restriktive Platzhalter ist der Kern der Regel: `true` waere von funktionierender
+    # Sicherheit nicht zu unterscheiden.
+    assert rolle.table_permissions[0].filter_expression.startswith("FALSE()")
+    assert [(c.table, c.column, c.metadata_permission) for c in rolle.column_permissions] == [
+        ("fact_sales", "revenue", "none")]
+
+
+def test_the_bridge_does_not_create_a_core_pbi_engine_package():
+    """Nur der Blattname wird registriert — ALUCAs ``core`` bleibt unberuehrt.
+
+    Ein synthetisches ``core.pbi_engine`` waere derselbe Fehler, den der Finder oben
+    ausdruecklich vermeidet: es verschattet einen Namespace, den ALUCA selbst fuehrt.
+    """
+    import sys
+
+    from tooling.superversion._dataarch_vendor import load_module
+
+    load_module("provision_governance")
+    assert "core.pbi_engine.parsers.tmdl_parser" in sys.modules
+    assert "core.pbi_engine" not in sys.modules
+    assert "core.pbi_engine.parsers" not in sys.modules
+    # ALUCAs eigener Namespace laedt weiter aus dem Repo, nicht aus einem Spiegel.
+    import core.brand  # noqa: F401
+    assert "analytics-usecase-library" in str(sys.modules["core"].__path__[0])

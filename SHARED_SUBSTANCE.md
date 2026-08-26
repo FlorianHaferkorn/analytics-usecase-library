@@ -121,26 +121,52 @@ tool-freie Dateien (JSON/TMDL/PBIR/DOCX).
 
 ---
 
-## 4. Was diese Doktrin sofort auslöst
+## 4. Was diese Doktrin sofort ausgelöst hat
 
-Aus der Klassifikation folgen konkrete, belegte Arbeitspakete:
+Die drei Arbeitspakete, die hier ursprünglich (28.07.2026) als offen standen, sind
+erledigt. Nachgemessen am 26.08.2026, jedes einzeln:
 
-1. **ALUCA-Vollzug hat zwei harte Defekte** (beide Klasse A, beide von der
-   offiziellen Quelle widerlegt — Details und Fixes in den jeweiligen Modulen):
-   - `POST workspaces/{ws}/governanceLabels` existiert nicht. Sensitivity Labels
-     laufen über die Power-BI-**Admin**-API `informationprotection/setLabels`,
-     artefakt- statt workspace-bezogen, `Tenant.ReadWrite.All`, 25 Requests/Stunde,
-     2000 Artefakte pro Request. Für **Endorsement** gibt es *keine* dokumentierte
-     Write-API — der ehrliche Weg ist ein ausgewiesener manueller Schritt, kein
-     erfundener Endpunkt.
-   - `deploy.ps1` ruft `fabric_release.py` mit `--workspace_id`, `--domain_filter`
-     und `--dry_run` auf; keines davon kennt dessen `argparse` → Exit 2. Zusätzlich
-     setzt `deploy.ps1` `AZURE_*`-Credentials, während `fabric_release.py`
-     `TENANT_ID`/`CLIENT_ID`/`CLIENT_SECRET` liest.
-2. **Meridian fehlt die Vollzugshälfte** — der Orchestrator ist Klasse A und gehört
-   auch nach Meridian.
-3. **ALUCA fehlt die Kompilierhälfte** — die offiziell belegten Emitter aus §2.1
-   gehören auch nach ALUCA.
+1. **ALUCA-Vollzug, zwei harte Defekte — behoben.**
+   - `POST workspaces/{ws}/governanceLabels` ist ersetzt durch die Power-BI-**Admin**-API
+     `admin/informationprotection/setLabels` (artefakt- statt workspace-bezogen,
+     `Tenant.ReadWrite.All`, 25 Requests/Stunde, 2000 Artefakte pro Request); Tests prüfen
+     den Aufrufpfad. Für **Endorsement** gibt es weiterhin *keine* dokumentierte Write-API
+     — das bleibt ein ausgewiesener manueller Schritt und kein erfundener Endpunkt.
+   - `fabric_release.py` nimmt `--workspace_id`, `--domain_filter` und `--dry_run` an und
+     liest sowohl `AZURE_*` als auch die blanken `TENANT_ID`/`CLIENT_ID`/`CLIENT_SECRET`.
+2. **Meridians Vollzugshälfte — vorhanden** als `vendor/aluca/orchestrator.py`.
+3. **ALUCAs Kompilierhälfte — geschlossen.** Der Spiegel führt 34 Dateien statt 13. Die
+   Menge ist die transitive Hülle über die Importe der Kandidaten, nicht eine Auswahl nach
+   Gefühl; sie schließt ohne Import außerhalb des Pakets und **ohne** Meridians eigenen
+   Deriver (`blueprint.py`) — den zu spiegeln hieße, ALUCA einen zweiten Deriver zu geben.
+
+   Gemessen gegen dieselbe Fixture (ein Domain, ein Gold-Produkt, zwei Quellen):
+
+   | Stack | vorher | nachher |
+   |---|---|---|
+   | fabric | 39 | 99 (104 mit beantworteter Quell-Introspektion) |
+   | databricks | konnte nicht laufen | 16 |
+   | snowflake | konnte nicht laufen | 4 |
+
+   „Konnte nicht laufen" ist wörtlich: der CLI-Aufrufer reichte `source_schema_results`
+   bedingungslos durch, und beide Ziele nehmen die Option nicht an — jeder Lauf endete mit
+   `does not accept: source_schema_results`, obwohl beide als Auswahl angeboten waren.
+
+**Was der Vollzug über die Doktrin selbst gelehrt hat.** Zwei Befunde, die keiner
+Aufgabenliste entstammen, sondern der Messung:
+
+- **Ein lazy Import ist beim Spiegeln unsichtbar.** `provision_governance.model_roles()`
+  importiert erst im Funktionsrumpf `core.pbi_engine.parsers.tmdl_parser`; in ALUCA war das
+  ein `ModuleNotFoundError`, während jeder Modulimport und `emit_governance` grün blieben.
+  Der Fund kam aus dem **Bestand**, nicht aus dem Neuzugang — die erste Hüllen-Messung
+  tastete nur die Kandidaten ab. Es ist die zweite Ausprägung derselben Klasse nach `odcs`.
+  Beide sind heute vom selben Test abgedeckt, und die erlaubten Ausnahmen liest der Test aus
+  dem Loader, statt sie nachzutippen.
+- **Ein Emitter ohne Eingabe ist kein Fehler, aber er darf nicht wie Erfolg aussehen.** Vier
+  der gespiegelten Emitter liefern gegen diese Fixture null Dateien (keine Copy-Quelle,
+  keine Kulturliste, kein `governance`-Abschnitt, keine beantwortete Introspektion). Der
+  Lauf nennt sie namentlich samt fehlender Eingabe, im Runbook der Lieferung. Ein Tor, das
+  „nichts gefunden" nicht von „nicht gelaufen" unterscheiden kann, misst beides als Erfolg.
 
 ---
 

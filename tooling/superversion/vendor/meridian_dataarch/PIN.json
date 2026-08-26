@@ -54,6 +54,90 @@
     {
       "path": "stack_capabilities.py",
       "sha256": "ee13f91549c8ef1932e0b0d4a4f4d5574eb47579dcd21f3d784fd3a2ea14a796"
+    },
+    {
+      "path": "direct_lake_guardrails.py",
+      "sha256": "34e786c1f75c477680ae2d8d033f380b815fe106bba0d686e9a838918d2d23d8"
+    },
+    {
+      "path": "governance_strategy.py",
+      "sha256": "a98169863c32a188af3b228560b46fb86c092041c3f50a3c87f3ab3fdcb19bc7"
+    },
+    {
+      "path": "provision_apply.py",
+      "sha256": "de1e1ab2e053999b10c132673ffd32ea901db2f95e76bd931608082fc2323a43"
+    },
+    {
+      "path": "provision_chargeback.py",
+      "sha256": "e99c87e3f7345cf39743a0b6e39ead5d1d47680e1174d30f53156d812beee05c"
+    },
+    {
+      "path": "provision_cicd.py",
+      "sha256": "8806251cede5c818a0cdaf94e607858f18c941947322af7e7a2c3911fb7b2c18"
+    },
+    {
+      "path": "provision_databricks_cicd.py",
+      "sha256": "d864882c68bbecb628a7eb8d50a333bb682850874ce5ee0d2067c91219443a21"
+    },
+    {
+      "path": "provision_dq.py",
+      "sha256": "ec67f40597eac18cd0bdc0fde4cb0fa1e49020c6ed08445fa5a09703892b8d89"
+    },
+    {
+      "path": "provision_fabric.py",
+      "sha256": "f482e1a878dd837c8f6be8636479fedb2fc627ed5d40f0e8dd22c03bcd002f92"
+    },
+    {
+      "path": "provision_fabric_cicd.py",
+      "sha256": "e33d96b30ead5fa09829f25e4f64f1fe72d540bae577de9121b535d615827cd0"
+    },
+    {
+      "path": "provision_gates.py",
+      "sha256": "8283fce87122225d4264b2b505ae7d78f792d4bc2521e36b3843895eb96caec2"
+    },
+    {
+      "path": "provision_ingestion.py",
+      "sha256": "d588487dd48076b0a678b43392d7a339e7baacce878167976f9c85b1b16619b5"
+    },
+    {
+      "path": "provision_lineage.py",
+      "sha256": "c298d29e10b324ad9e650e6331707d1ff547d4cbc950e30cc9dd765a89ce7f5a"
+    },
+    {
+      "path": "provision_metricflow.py",
+      "sha256": "f1feed8578e6562696b92d725f62325164181120bebf332775d7871ce1079168"
+    },
+    {
+      "path": "provision_notebooks.py",
+      "sha256": "e9395cbd833735f97cef1ac100bae702b8876f9a1ca10a325a74d275ee523a4a"
+    },
+    {
+      "path": "provision_orchestration.py",
+      "sha256": "f31243c5045daae290f88ce5cc549187e6308d5eb9a8c84e60cd34884e95497a"
+    },
+    {
+      "path": "provision_prereq.py",
+      "sha256": "a7ce9e8fc65668377699414b07274c79b8daf2db93cd88c793ba7c11ae5baa8b"
+    },
+    {
+      "path": "provision_terraform.py",
+      "sha256": "7ad69a7b30b1eb97081e6ac5ab3d58c38b20efeb9dc4ec82a11d19145e274a33"
+    },
+    {
+      "path": "provision_transforms.py",
+      "sha256": "8b9166a571b8d37254990e354e8fe4817a1117e34149fabdc8a052db1cab2b4e"
+    },
+    {
+      "path": "provision_translations.py",
+      "sha256": "63ef4a01cb17ee34eb15ee7b591e72002caf91b4b6c4decc9250ebb3c093b53e"
+    },
+    {
+      "path": "provision_varlib.py",
+      "sha256": "fecdfca24d87c7bafee761c71b1fefca3fdde175bddb6fbb5c940e0140058e62"
+    },
+    {
+      "path": "sql_validate.py",
+      "sha256": "2d39dba0b0ca2b5113f67854cfe94dd2d4dec93dce64f7c19dacbcdf29282557"
     }
   ]
 }

@@ -86,8 +86,15 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
     score = conformance(bp)
     grounding = emit_grounding(bp)
     results = read_source_schema_results(source_schema_results)
-    rendered = arch_targets.render(stack, bp, dest=dest / "render",
-                                   source_schema_results=results)
+    # Only hand over what we actually have. `render` refuses an option a target cannot
+    # accept — deliberately, because silently dropping it would look like it had been
+    # honoured — and this caller passed the empty default unconditionally. Measured
+    # 26.08.2026: `--stack databricks` and `--stack snowflake` therefore failed with
+    # `does not accept: source_schema_results` for every run, although both are offered
+    # as choices. With real results the refusal stands, and that is the correct outcome:
+    # a stack that cannot ground contracts must not pretend it did.
+    render_kwargs = {"source_schema_results": results} if results else {}
+    rendered = arch_targets.render(stack, bp, dest=dest / "render", **render_kwargs)
 
     (dest / "blueprint.json").write_text(
         json.dumps(bp, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")

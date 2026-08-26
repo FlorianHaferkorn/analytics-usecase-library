@@ -72,6 +72,52 @@ MIRRORED_FILES = (
     # Herstellerdokumentation, also geteilt statt zweimal gepflegt. Bewusst abhängigkeitsarm
     # gehalten (nur typing), damit das Spiegeln nichts mitschleppt.
     "stack_capabilities.py",
+
+    # -- Die Vollzugshälfte (26.08.2026) ------------------------------------------------
+    #
+    # Bis hierhin spiegelte ALUCA fünf Betriebs-Belange und emittierte im Übrigen nur die
+    # Topologie. Gemessen an derselben Fixture: 39 Artefakte hier gegen die vollständige
+    # Kette drüben. Der Unterschied ist nicht Geschmack, sondern genau die Substanz, die
+    # SHARED_SUBSTANCE.md Klasse A nennt — `fab`-Skripte, fabric-cicd-Konfigurationen,
+    # Terraform gegen den microsoft/fabric-Provider, Variable Libraries, Copy-Jobs,
+    # Notebooks, Pipelines, TMDL-Kulturdateien, DAB-Bundles, MetricFlow. Jede dieser
+    # Formen ist von einem Hersteller festgelegt; eine zweite Fassung davon wäre in
+    # beiden Repos gleich falsch.
+    #
+    # Die Menge ist **gemessen, nicht gegriffen**: transitive Hülle über die Importe der
+    # Kandidaten, aufgelöst gegen `core.dataarch_engine.blueprint`. Sie schließt ohne
+    # einen einzigen Import außerhalb des Pakets und ohne Meridians eigenen Deriver
+    # (`blueprint.py`) — den zu spiegeln hieße, ALUCA einen zweiten Deriver neben
+    # `architecture_blueprint.py` zu geben, also genau das Doppel-Silo, gegen das die
+    # Doktrin geschrieben ist.
+    "direct_lake_guardrails.py",
+    # Gezogen von `provision_apply` wegen `LIFECYCLE_STAGES`. Byte-identisch gespiegelt
+    # statt die drei Stufen hier nachzutippen: eine Kopie, die „nur eine Konstante" teilt,
+    # driftet als nächstes im Inhalt.
+    "governance_strategy.py",
+    "provision_apply.py",
+    "provision_chargeback.py",
+    "provision_cicd.py",
+    "provision_databricks_cicd.py",
+    "provision_dq.py",
+    "provision_fabric.py",
+    "provision_fabric_cicd.py",
+    "provision_gates.py",
+    "provision_ingestion.py",
+    "provision_lineage.py",
+    "provision_metricflow.py",
+    "provision_notebooks.py",
+    "provision_orchestration.py",
+    "provision_prereq.py",
+    "provision_terraform.py",
+    "provision_transforms.py",
+    "provision_translations.py",
+    "provision_varlib.py",
+    # Prüft die emittierte DDL im Zieldialekt. `sqlglot` ist hier **nicht** installiert;
+    # das Modul macht ohne die Abhängigkeit einen ausgewiesenen Soft-Skip, prüft dann also
+    # nur die eigenen Regeln. Mitgespiegelt, damit die Zusage identisch ist, sobald die
+    # Abhängigkeit da ist — nicht, damit sie hier heute etwas beweist.
+    "sql_validate.py",
 )
 
 
