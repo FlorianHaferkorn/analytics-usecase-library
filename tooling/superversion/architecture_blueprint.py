@@ -63,7 +63,18 @@ def derive_blueprint(inputs: dict[str, Any]) -> dict[str, Any]:
           "endorsement": "none|promoted|certified"?,   # optional, default promoted
           "intended_audience": "internal|partner|public"?,  # optional, default internal
       } ],
+      "grounding_surface": ["gold","silver"]?,   # optional, default ["gold","silver"]
+      "retrieval_strategy": "builtin|mcp|both"?, # optional, default "builtin"
+      "ownership_overrides": {"ingestion": "informatica"}?,  # optional, default {}
     }
+
+    The last three exist because `open_questions` puts them in front of the customer as
+    "contradict any that do not fit". Measured 26.08.2026 against the version before this
+    change: four attempts to steer grounding surface, retrieval strategy and ownership
+    (`ai_grounding`, `grounding_surface`, `retrieval_strategy`, `ownership_boundaries` in
+    the inputs) left the derived blueprint **byte-identical** — the sheet invited a
+    contradiction that had nowhere to land. Unset, they still reproduce the previous
+    output exactly.
     """
     hitl: list[str] = []
     stack = inputs.get("stack", "fabric")
@@ -121,10 +132,17 @@ def derive_blueprint(inputs: dict[str, Any]) -> dict[str, Any]:
         )
 
     # --- AI-era grounding (constant surface; retrieval builtin-first) --------------
+    # Bronze is never groundable (ai_readiness §3.6), so an answer that asks for it is
+    # dropped rather than honoured — the enum in the schema says the same thing, and a
+    # silently widened surface is the one mistake nobody notices until an assistant quotes
+    # uncleaned data back at a customer.
+    surface = [s for s in (inputs.get("grounding_surface") or ["gold", "silver"])
+               if s in ("gold", "silver")] or ["gold", "silver"]
+    strategy = inputs.get("retrieval_strategy") or "builtin"
     ai_grounding: dict[str, Any] = {
-        "grounding_surface": ["gold", "silver"],  # never bronze (ai_readiness §3.6)
+        "grounding_surface": surface,
         "retrieval": [
-            {"domain": dom["name"], "strategy": "builtin", "auth_required": True}
+            {"domain": dom["name"], "strategy": strategy, "auth_required": True}
             for dom in sorted(domains_in, key=lambda d: d.get("name", ""))
         ],
         "emits": ["mcp_grounding.json"],
@@ -135,7 +153,8 @@ def derive_blueprint(inputs: dict[str, Any]) -> dict[str, Any]:
         "platform": {
             "stack": stack,
             "ownership_boundaries": [
-                {"workload_class": wc, "owner_platform": stack}
+                {"workload_class": wc,
+                 "owner_platform": (inputs.get("ownership_overrides") or {}).get(wc, stack)}
                 for wc in ("ingestion", "transformation", "serving")
             ],
         },

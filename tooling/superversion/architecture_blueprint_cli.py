@@ -10,8 +10,15 @@ Usage:
 
 `--inputs` is a JSON file matching the `derive_blueprint` inputs shape. Output under
 `--dest`: blueprint.json, hitl.json, OPEN_QUESTIONS.md, open_questions.json,
-CONFORMANCE.md, mcp_grounding.json, retrieval_decisions.md, and render/<stack>/… .
-Non-zero exit if conformance is red.
+ENGAGEMENT_GUIDE.md, engagement_guide.json, answers_template.json, CONFORMANCE.md,
+mcp_grounding.json, retrieval_decisions.md, and render/<stack>/… . Non-zero exit if
+conformance is red.
+
+The three question artifacts are one chain and not three views of the same thing.
+`OPEN_QUESTIONS.md` is what the customer reads. `ENGAGEMENT_GUIDE.md` is what the
+consultant works down — same questions, cut into sessions, each row carrying where the
+question came from and where its answer lands. `answers_template.json` is the file that
+comes back, and `answers_cli` applies it to the inputs with a diff and a release.
 
 `hitl.json` and `OPEN_QUESTIONS.md` are not the same list and neither replaces the other.
 `hitl.json` stays what it always was — the deriver's own flat gap list, read by other
@@ -23,7 +30,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +39,12 @@ from tooling.superversion.architecture_blueprint import (
     validate_blueprint,
 )
 from tooling.superversion.eval.blueprint_conformance import conformance
+from tooling.superversion.answers import answers_template, questions_without_a_target
+from tooling.superversion.engagement_guide import (
+    build_guide,
+    guide_markdown,
+    rows_without_provenance,
+)
 from tooling.superversion.open_questions import (
     collect_open_questions,
     open_questions_markdown,
@@ -62,7 +74,7 @@ def read_source_schema_results(directory: Path | None) -> dict[str, str]:
 
 
 def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
-        source_schema_results: Path | None = None) -> dict[str, Any]:
+        source_schema_results: Path | None = None, customer: str = "") -> dict[str, Any]:
     """Run the full workflow and write artifacts under ``dest``. Returns a summary."""
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
@@ -74,8 +86,15 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
     score = conformance(bp)
     grounding = emit_grounding(bp)
     results = read_source_schema_results(source_schema_results)
-    rendered = arch_targets.render(stack, bp, dest=dest / "render",
-                                   source_schema_results=results)
+    # Only hand over what we actually have. `render` refuses an option a target cannot
+    # accept — deliberately, because silently dropping it would look like it had been
+    # honoured — and this caller passed the empty default unconditionally. Measured
+    # 26.08.2026: `--stack databricks` and `--stack snowflake` therefore failed with
+    # `does not accept: source_schema_results` for every run, although both are offered
+    # as choices. With real results the refusal stands, and that is the correct outcome:
+    # a stack that cannot ground contracts must not pretend it did.
+    render_kwargs = {"source_schema_results": results} if results else {}
+    rendered = arch_targets.render(stack, bp, dest=dest / "render", **render_kwargs)
 
     (dest / "blueprint.json").write_text(
         json.dumps(bp, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -90,12 +109,23 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
         json.dumps(questions, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     (dest / "OPEN_QUESTIONS.md").write_text(open_questions_markdown(questions), encoding="utf-8")
 
+    guide = build_guide(questions, customer=customer)
+    (dest / "engagement_guide.json").write_text(
+        json.dumps(guide, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (dest / "ENGAGEMENT_GUIDE.md").write_text(guide_markdown(guide), encoding="utf-8")
+    (dest / "answers_template.json").write_text(
+        json.dumps(answers_template(questions), indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8")
+
     return {
         "stack": stack,
         "source_schemas_answered": sorted(results),
         "hitl": derived["hitl"],
         "questions": questions["summary"],
         "questions_without_a_way": questions_without_a_way(questions),
+        "questions_without_a_target": questions_without_a_target(questions),
+        "guide": guide["summary"],
+        "rows_without_provenance": rows_without_provenance(guide),
         "conformance": score.scorecard,
         "conformance_ok": score.ok,
         "grounding_files": sorted(grounding),
@@ -109,13 +139,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--dest", type=Path, required=True, help="output directory")
     parser.add_argument("--stack", default="fabric", choices=sorted(arch_targets.available()),
                         help="render target stack")
+    parser.add_argument("--customer", default="", help="name on the engagement guide")
     parser.add_argument("--source-schema-results", type=Path, default=None,
                         help="directory of answered source introspections "
                              "(<source>.csv/.json), as produced by render/fabric/source_schema/")
     args = parser.parse_args(argv)
 
     inputs = json.loads(Path(args.inputs).read_text(encoding="utf-8"))
-    summary = run(inputs, args.dest, args.stack, args.source_schema_results)
+    summary = run(inputs, args.dest, args.stack, args.source_schema_results, args.customer)
 
     print(f"stack: {summary['stack']}")
     answered = summary["source_schemas_answered"]
@@ -134,6 +165,15 @@ def main(argv: list[str] | None = None) -> int:
     # the point of the sheet is that it comes back filled in.
     if summary["questions_without_a_way"]:
         print(f"  without a way to the answer: {', '.join(summary['questions_without_a_way'])}")
+    # A question we ask of our own accord and cannot take an answer for is the same defect
+    # one step later: the sheet invites a contradiction that has nowhere to land.
+    if summary["questions_without_a_target"]:
+        print(f"  without a target field: {', '.join(summary['questions_without_a_target'])}")
+    g = summary["guide"]
+    print(f"engagement guide: {g['rows']} rows over 3 sessions, {g['minutes']} minutes")
+    if summary["rows_without_provenance"]:
+        print(f"  rows without source or target: "
+              f"{', '.join(summary['rows_without_provenance'])}")
     if q["unreported_gaps"]:
         print(f"  gaps with no question attached: {', '.join(q['unreported_gaps'])}")
     print(f"artifacts written under: {args.dest}")

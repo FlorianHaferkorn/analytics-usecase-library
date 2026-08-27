@@ -53,18 +53,80 @@ _PKG = "core.dataarch_engine.blueprint"
 # von der dieser Alias abhängt.
 _ALIASED_MODULES = {f"{_PKG}.odcs": "tooling.superversion.odcs"}
 
+# **Dieselbe Klasse, zweite Ausprägung — und sie stand hier schon beschrieben.** Der Satz
+# über ``odcs`` sagt, dass ein lazy Import im Funktionsrumpf beim Spiegeln unsichtbar ist.
+# Gemessen 26.08.2026 gilt das ein zweites Mal: ``provision_governance.model_roles()``
+# importiert erst im Aufruf ``core.pbi_engine.parsers.tmdl_parser`` (Role,
+# RoleTablePermission, RoleColumnPermission), und in ALUCA endet das in
+# ``ModuleNotFoundError: No module named 'core.pbi_engine'``. Der Modulkopf ist sauber,
+# ``emit_governance`` läuft, und trotzdem war eine zugesagte Funktion nicht aufrufbar. Der
+# Befund ist älter als die Vollzugshälfte — ``provision_governance`` wurde lange davor
+# gespiegelt; die erste Messung hat ihn übersehen, weil sie nur die neuen Kandidaten
+# abtastete und nicht den Bestand.
+#
+# Kein zweiter Vendor: die Datei liegt bereits unter ``vendor/meridian`` und wird von
+# ``_meridian_vendor.load_contract()`` gegen dessen eigenes PIN geprüft geladen. Die Brücke
+# reicht genau die drei Namen unter Meridians Modulnamen durch. Ein Name, den Meridian
+# später zusätzlich importiert, fällt hier als ``ImportError`` auf — laut, nicht still.
+_ALIASED_CONTRACT_MODULES: dict[str, tuple[str, ...]] = {
+    "core.pbi_engine.parsers.tmdl_parser": (
+        "Role", "RoleTablePermission", "RoleColumnPermission"),
+}
+
 # Die öffentliche Fläche, die ALUCA aus dem Spiegel nutzt: Modul → Funktionen.
 PUBLIC_API: dict[str, tuple[str, ...]] = {
+    # Nur ``emit_governance``. ``model_roles`` ist seit 26.08.2026 aufrufbar (siehe
+    # ``_ALIASED_CONTRACT_MODULES``), steht hier aber bewusst nicht: es liefert
+    # ``Role``-Objekte für Meridians TMDL-Serializer, und ALUCA schreibt sein
+    # Semantikmodell mit dem eigenen Generator. Eine zugesagte Funktion, die niemand
+    # ruft, ist ein Versprechen ohne Halter — sie kommt dazu, wenn ALUCAs Generator
+    # Rollen aufnimmt, und nicht vorher.
     "provision_governance": ("emit_governance",),
     "provision_monitoring": ("emit_monitoring",),
     "provision_lifecycle": ("emit_lifecycle",),
     "provision_connectivity": ("emit_connectivity",),
     "provision_operability": ("emit_operability", "check_metadata_completeness"),
-    "provision_source_schema": ("emit_source_schema",),
     "capacity_recommend": ("recommend_capacity",),
     "admin_settings": ("required_settings",),
     "decision_proposals": ("propose_all", "emit_decisions", "decisions_markdown"),
     "naming": ("NamingConvention",),
+
+    # -- Die Vollzugshälfte (26.08.2026) ------------------------------------------------
+    #
+    # Bis hierhin endete der Spiegel bei den Betriebs-Belangen, und ALUCA emittierte im
+    # Übrigen nur die Topologie: 39 Artefakte gegen dieselbe Fixture. Alles darunter ist
+    # von einem Hersteller festgelegte Form — `fab`-Aufrufe, fabric-cicd, der
+    # microsoft/fabric-Terraform-Provider, Variable Libraries, Copy jobs, Notebooks,
+    # Pipelines, TMDL-Kulturdateien, MetricFlow. Eine zweite Fassung davon wäre in beiden
+    # Repos gleich falsch, also wird sie geteilt statt nachgebaut.
+    "provision_apply": ("emit_apply", "build_apply_plan"),
+    "provision_chargeback": ("emit_chargeback",),
+    "provision_cicd": ("emit_cicd",),
+    "provision_databricks_cicd": ("emit_databricks_cicd",),
+    "provision_dq": ("emit_ingress_dq",),
+    "provision_fabric": ("emit_fab_commands",),
+    "provision_fabric_cicd": ("emit_fabric_cicd",),
+    "provision_gates": ("emit_gates",),
+    "provision_ingestion": ("emit_ingestion",),
+    "provision_lineage": ("emit_lineage",),
+    "provision_metricflow": ("emit_metricflow",),
+    "provision_notebooks": ("emit_notebooks",),
+    "provision_orchestration": ("emit_orchestration",),
+    "provision_prereq": ("emit_prereq",),
+    "provision_terraform": ("emit_terraform",),
+    "provision_transforms": ("emit_transforms",),
+    "provision_translations": ("emit_translations",),
+    "provision_varlib": ("emit_variable_library",),
+    "direct_lake_guardrails": ("emit_direct_lake_guardrails",),
+    # Kein Emitter, sondern die Umwandlung Introspektions-Rohpayload → Tabellenobjekte.
+    # Ohne sie hätte der Ingress-DQ-Emitter hier keine Eingabe, und ALUCA würde die
+    # zweite Phase der Quell-Introspektion zwar erheben und dann liegen lassen.
+    "provision_source_schema": ("emit_source_schema", "tables_by_source"),
+    # Gezogen, weil `provision_apply` `LIFECYCLE_STAGES` daraus liest. Der Emitter kommt
+    # mit, obwohl ALUCAs IR heute keinen `governance`-Abschnitt trägt und er deshalb
+    # **gemessen 26.08.2026 null Dateien liefert** — das ist keine stille Null, sondern
+    # steht so im Laufstatus. Er feuert in dem Moment, in dem der Abschnitt entsteht.
+    "governance_strategy": ("emit_governance_strategy",),
 }
 
 
@@ -155,6 +217,61 @@ def _install_aliases() -> None:
             raise VendorUnavailable(
                 f"Spiegel braucht {alias} → {target}, das nicht importierbar ist: {exc}"
             ) from exc
+
+    for alias, names in _ALIASED_CONTRACT_MODULES.items():
+        if alias in sys.modules:
+            continue
+        sys.modules[alias] = _contract_facade(alias, names)
+
+
+def _contract_facade(alias: str, names: tuple[str, ...]) -> ModuleType:
+    """Ein Modul unter Meridians Namen, das die echten Vertragsklassen trägt.
+
+    Nur der Blattname wird registriert. ``core.pbi_engine`` und ``…​.parsers`` entstehen
+    dabei **nicht** — die Importmaschinerie liefert einen Namen, der bereits in
+    ``sys.modules`` steht, ohne seine Elternpakete zu suchen. ALUCAs ``core``-Namespace
+    bleibt damit unangetastet, genau wie beim Finder oben.
+
+    **Faul, und zwar aus einem gemessenen Grund.** Die Klassen kommen aus dem *anderen*
+    Vendor (``_meridian_vendor``) mit eigenem PIN. Würden sie hier sofort geladen, hinge
+    die gesamte Brücke an dessen Verfügbarkeit — auch ``emit_governance``, das sie nie
+    anfasst. Der Fehler gehört an die Aufrufstelle, die sie wirklich braucht.
+
+    Nebenbefund, gemessen 26.08.2026: ``load_contract()`` führt die Vendor-Datei bei jedem
+    Aufruf neu aus und liefert deshalb **jedes Mal neue Klassenobjekte** — schon vor dieser
+    Brücke (``load_contract()["Role"] is load_contract()["Role"]`` → False). Hier wird
+    einmal aufgelöst und gemerkt, damit wenigstens innerhalb der Brücke eine Identität
+    gilt. Auf Klassenidentität über die Vendor-Grenze hinweg darf sich nichts verlassen;
+    im Repo tut das auch nichts (kein ``isinstance``-Treffer auf diese Klassen).
+    """
+    module = ModuleType(alias)
+    module.__doc__ = (
+        f"Brücke: {alias} aus dem Canonical-Core-Vendor (tooling/superversion/vendor/"
+        "meridian). Trägt genau die Namen, die der Spiegel importiert."
+    )
+    aufgeloest: dict[str, object] = {}
+
+    def __getattr__(name: str):  # PEP 562 — greift auch für ``from … import Name``
+        if name in aufgeloest:
+            return aufgeloest[name]
+        if name not in names:
+            raise AttributeError(
+                f"{alias} führt hier nur {', '.join(names)}; {name!r} müsste erst in "
+                "_ALIASED_CONTRACT_MODULES aufgenommen werden"
+            )
+        from tooling.superversion._meridian_vendor import (
+            VendorUnavailable as _CanonUnavailable, load_contract)
+        try:
+            aufgeloest.update({n: load_contract()[n] for n in names})
+        except _CanonUnavailable as exc:
+            raise VendorUnavailable(
+                f"Spiegel braucht {alias}; der Canonical-Core-Vendor liefert ihn nicht: "
+                f"{exc}"
+            ) from exc
+        return aufgeloest[name]
+
+    module.__getattr__ = __getattr__
+    return module
 
 
 def load_module(name: str) -> ModuleType:

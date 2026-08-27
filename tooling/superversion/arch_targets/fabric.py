@@ -38,10 +38,55 @@ def _json(obj) -> str:
     return json.dumps(obj, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 
-# Mirrored emitter → the prefix its artifacts land under. Order is fixed so the emitted
-# set is deterministic.
-_MIRRORED = ("emit_governance", "emit_monitoring", "emit_lifecycle",
-             "emit_connectivity", "emit_operability")
+# Mirrored emitter → the keyword arguments ALUCA supplies. Order is fixed so the emitted
+# set is deterministic. Anything not listed keeps Meridian's own default: this table
+# decides what ALUCA *knows*, never what the emitter *is* — the emitter is the mirror's,
+# and editing it here would break the byte-identity the whole mechanism rests on.
+#
+# The first five are the operational concerns this module has always mirrored. The rest
+# is the execution half, mirrored 26.08.2026: without it ALUCA emitted a topology and a
+# runbook, and every officially-shaped artifact a platform actually needs — `fab` calls,
+# fabric-cicd, Terraform, Variable Library, Copy jobs, notebooks, pipelines — existed
+# only in Meridian.
+_MIRRORED: tuple[tuple[str, dict], ...] = (
+    ("emit_governance", {}),
+    ("emit_monitoring", {}),
+    ("emit_lifecycle", {}),
+    ("emit_connectivity", {}),
+    ("emit_operability", {}),
+    ("emit_apply", {"stack": "fabric"}),
+    ("emit_cicd", {"stack": "fabric"}),
+    ("emit_fabric_cicd", {"stack": "fabric"}),
+    ("emit_terraform", {}),
+    ("emit_variable_library", {"stack": "fabric"}),
+    ("emit_transforms", {"stack": "fabric"}),
+    ("emit_notebooks", {"stack": "fabric"}),
+    ("emit_orchestration", {"stack": "fabric"}),
+    ("emit_ingestion", {"stack": "fabric"}),
+    ("emit_lineage", {"stack": "fabric"}),
+    ("emit_chargeback", {}),
+    ("emit_direct_lake_guardrails", {}),
+    ("emit_metricflow", {}),
+    ("emit_translations", {}),
+    ("emit_governance_strategy", {}),
+)
+
+# Emitters whose signature is not ``(blueprint, **kw)``. Kept as an explicit list rather
+# than smoothed into the table above — a wrapper that hides the difference is the place
+# where a changed upstream signature stops being noticed.
+_SPECIAL = ("emit_prereq", "emit_gates", "emit_fab_commands", "emit_source_schema",
+            "emit_ingress_dq")
+
+# Emitters that legitimately return nothing when their input is absent, plus the input
+# they wait for. A mirrored emitter that produces no file is reported, never silent:
+# "found nothing" and "never ran" look identical from the outside, and that is exactly
+# how a broken mirror would hide.
+_NEEDS_INPUT = {
+    "emit_ingestion": "a source with access_mode 'copy' (shortcut/mirror need no Copy job)",
+    "emit_translations": "a culture list — the IR carries no multilingual requirement yet",
+    "emit_governance_strategy": "blueprint['governance'] — ALUCA's deriver emits no such section",
+    "emit_ingress_dq": "answered source introspections (--source-schema-results)",
+}
 
 
 def _mirrored_artifacts(blueprint: dict,
@@ -63,16 +108,43 @@ def _mirrored_artifacts(blueprint: dict,
         return {}, str(exc)
 
     out: dict[str, str] = {}
-    for name in _MIRRORED:
-        for path, content in api[name](blueprint).items():
+    empty: list[str] = []
+
+    def _take(name: str, artifacts: dict[str, str]) -> None:
+        if not artifacts:
+            empty.append(name)
+        for path, content in artifacts.items():
             out[f"fabric/{path}"] = content
+
+    for name, kwargs in _MIRRORED:
+        _take(name, api[name](blueprint, **kwargs))
+
+    # Tag-0 identity and secrets: the only emitter that does not read the blueprint at
+    # all, because nothing about it depends on the architecture.
+    _take("emit_prereq", api["emit_prereq"](stack="fabric"))
+    _take("emit_gates", api["emit_gates"](stack="fabric", blueprint=blueprint))
+
+    # A single script, not a set — it keeps the name Meridian gives it so a customer who
+    # has seen one delivery recognises the other.
+    out["fabric/provision.sh"] = api["emit_fab_commands"](blueprint)
 
     # Source introspection is two-phase: the question always, the answer only once the
     # customer has run it. Phase 1 costs nothing and is the thing that gets forgotten, so
     # it is emitted unconditionally; `source_schema_results` upgrades the same call to
     # phase 2 without a second code path.
-    for path, content in api["emit_source_schema"](blueprint, source_schema_results).items():
-        out[f"fabric/{path}"] = content
+    _take("emit_source_schema",
+          api["emit_source_schema"](blueprint, source_schema_results))
+
+    # Phase 2 pays off here: the answered introspection becomes ingress DQ gates. Parsed
+    # through the mirror's own converter, so ALUCA never decides for itself what counts
+    # as a REST source.
+    by_source = api["tables_by_source"](blueprint, source_schema_results)
+    _take("emit_ingress_dq",
+          api["emit_ingress_dq"](blueprint, by_source) if by_source else {})
+
+    if empty:
+        note = "; ".join(f"{n} — {_NEEDS_INPUT.get(n, 'no input')}" for n in sorted(empty))
+        return out, f"mirrored emitters with nothing to emit: {note}"
     return out, ""
 
 
@@ -153,19 +225,26 @@ def emit(blueprint: dict,
 
     mirrored, skip_reason = _mirrored_artifacts(blueprint, source_schema_results)
 
-    lines.append("## 5. Governance, monitoring, lifecycle, connectivity, operability, "
-                 "source introspection")
+    lines.append("## 5. Provisioning, CI/CD, governance, operations")
     if mirrored:
         lines.append(f"Emitted by the mirrored Meridian emitters ({len(mirrored)} artifact(s)) — "
-                     "OneLake Security roles, failure/throttling alerts, Delta maintenance + "
-                     "BCDR, Managed Private Endpoints, operational readiness, and the source "
-                     "introspection statements. See `SHARED_SUBSTANCE.md` for why these are "
-                     "not reimplemented here.")
+                     "the Tag-0 identity bootstrap, the `fab` provisioning script, Copy jobs, "
+                     "transforms, notebooks and the orchestrating pipeline, the Variable "
+                     "Library, Terraform, fabric-cicd and the stage gates, OneLake Security "
+                     "roles, failure/throttling alerts, Delta maintenance + BCDR, Managed "
+                     "Private Endpoints, lineage, chargeback, Direct-Lake guardrails, "
+                     "operational readiness, and the source introspection statements. See "
+                     "`SHARED_SUBSTANCE.md` for why these are not reimplemented here.")
         if not source_schema_results:
             lines.append("Source schemas are **not answered yet**: `fabric/source_schema/queries/` "
                          "holds the statements to run against each source; feed the results back "
                          "with `--source-schema-results` to ground the contracts. Until then the "
                          "sources stay visibly unknown rather than getting a plausible default.")
+        if skip_reason:
+            # Named, not swallowed. An emitter that writes nothing because it has no input
+            # reads exactly like an emitter that never ran, and the difference is the whole
+            # point of pinning the mirror in the first place.
+            lines.append(f"Nothing to emit for some of them — {skip_reason}.")
         for path in sorted(mirrored):
             lines.append(f"- `{path}`")
     else:
