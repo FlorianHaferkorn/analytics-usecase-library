@@ -24,9 +24,21 @@ _PREREQS = [
     {"kind": "cmd", "name": "az", "why": "Azure CLI — SPN + Key-Vault bootstrap", "required": True},
     {"kind": "cmd", "name": "fab", "why": "Fabric CLI — item/workspace ops", "required": True},
     {"kind": "cmd", "name": "terraform", "why": "Landing-Zone (nur bei --emit-terraform)", "required": False},
-    {"kind": "env", "name": "AZURE_TENANT_ID", "why": "Entra Tenant für SPN-Auth", "required": True},
-    {"kind": "env", "name": "AZURE_CLIENT_ID", "why": "SPN App-Id (nach bootstrap_spn.sh)", "required": True},
-    {"kind": "env", "name": "FABRIC_CAPACITY", "why": "zugewiesene Kapazität (oder Trial)", "required": True},
+    # 27.08.2026: von Pflicht auf advisory. Die beiden Variablen gehören dem SPN-Pfad, und der
+    # ist einer von zwei dokumentierten Wegen — `provision_fabric` nennt `fab auth login`
+    # (Browser) ausdrücklich als den einfachsten für einen Trial. Als Pflichtfeld hätte dieses
+    # Gate jeden Trial-Erstlauf gestoppt, bei dem es noch gar keinen SPN gibt. Das ist eine
+    # **Abweichung** von der Tag-0-Annahme des Moduldocstrings („SPN + consent"), absichtlich
+    # und benannt: die Annahme gilt für die Lieferung im Kundenbetrieb, nicht für den ersten Lauf.
+    {"kind": "env", "name": "AZURE_TENANT_ID",
+     "why": "Entra Tenant für SPN-Auth — leer heißt: interaktive Anmeldung (fab auth login)", "required": False},
+    {"kind": "env", "name": "AZURE_CLIENT_ID",
+     "why": "SPN App-Id (nach bootstrap_spn.sh) — leer heißt: interaktive Anmeldung", "required": False},
+    # `CAP` zählt genauso: die emittierten Skripte lesen `CAP` (provision_fabric, provision_cicd),
+    # `platform.env.example` nennt `CAP`, und `FABRIC_CAPACITY` setzte ausserhalb der eigenen
+    # Tests nichts. Gemessen 27.08.2026 — wer die dokumentierte Variable füllte, fiel hier durch.
+    {"kind": "env", "name": "FABRIC_CAPACITY", "auch": ("CAP",),
+     "why": "zugewiesene Kapazität (oder Trial); CAP zählt genauso", "required": True},
     {"kind": "env", "name": "GIT_REMOTE", "why": "Git-Repo (GitHub/ADO) für das Deployment-Modell", "required": True},
     {"kind": "env", "name": "KEY_VAULT_NAME", "why": "Key Vault für Secrets", "required": False},
 ]
@@ -278,9 +290,10 @@ def emit_prereq_check_sh() -> str:
         '  command -v "$1" >/dev/null 2>&1 && return 0',
         '  if [ "$3" = "1" ]; then missing+=("cmd:$1 — $2"); else advis+=("cmd:$1 — $2"); fi',
         "}",
-        "need_env() {  # need_env <VAR> <why> <required>",
-        '  [ -n "${!1:-}" ] && return 0',
-        '  if [ "$3" = "1" ]; then missing+=("env:$1 — $2"); else advis+=("env:$1 — $2"); fi',
+        "need_env() {  # need_env <VAR [VAR2 …]> <why> <required> — erfuellt, wenn EINE gesetzt ist",
+        '  local v label="${1// /|}"',
+        '  for v in $1; do [ -n "${!v:-}" ] && return 0; done',
+        '  if [ "$3" = "1" ]; then missing+=("env:$label — $2"); else advis+=("env:$label — $2"); fi',
         "}",
         "",
         'echo "=== Tag-0 prereq check ==="',
@@ -288,7 +301,8 @@ def emit_prereq_check_sh() -> str:
     for p in _PREREQS:
         fn = "need_cmd" if p["kind"] == "cmd" else "need_env"
         req = "1" if p["required"] else "0"
-        lines.append(f'{fn} "{p["name"]}" "{p["why"]}" "{req}"')
+        namen = " ".join((p["name"], *p.get("auch", ())))
+        lines.append(f'{fn} "{namen}" "{p["why"]}" "{req}"')
     lines += [
         "",
         # BK-F04: ohne registrierten Resource Provider steht das Fabric-Kontingent auf 0 und
