@@ -16,6 +16,22 @@ Compared contract (the mirror's guarantees):
   * governance: DEFAULT_GOVERNANCE_CONCEPT + concept ids + each id's contract_standard;
   * ODCS: ODCS_API_VERSION + the public API function names.
 
+**Freshness of the counterpart checkout (D-341, 2026-08-27).** Two defects made this sensor
+blind to the very window it guards. Measured on 2026-08-27:
+
+* ``MERIDIAN_ROOT=/nonexistent … --strict`` exited **0** — the release gate passed although the
+  cross-repo comparison never ran. Same class as ``tabular-bpa.yml`` (CLAUDE.md, 18.08.): a gate
+  that cannot tell "found nothing" from "did not run" scores both as success. An unreachable
+  checkout is therefore a **hard failure** under ``--strict``; without it, it stays a named skip.
+* A sensor compares against a working tree, not against ``origin``. If that tree is stale, both
+  sides look in sync because both are old — the ``platform.sizing`` incident (07./08.08.2026)
+  happened inside that window. ``checkout_freshness()`` measures HEAD, distance behind the
+  upstream ref, a dirty tree and the age of ``.git/FETCH_HEAD``; the success line now carries
+  that provenance instead of claiming parity unqualified.
+
+**The sensor never fetches on its own** — no network in ``make check``, same doctrine as "reports
+drift, never bumps". ``--fetch`` makes fetching an explicit act, just as ``--write`` does mirroring.
+
 Meridian root resolution: ``$MERIDIAN_ROOT`` env, else the sibling ``../Freelancing`` of this repo.
 Modules are loaded **by path** (concepts/governance are self-contained) or **read as source** (odcs
 imports a sibling), never via ``import core`` — ALUCA owns its own ``core`` package.
@@ -28,7 +44,9 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -258,10 +276,116 @@ def write_vendor(meridian_blueprint: Path, pin: dict | None = None) -> dict:
     return fresh
 
 
+# ------------------------------------------------------ counterpart freshness (D-341)
+# This sensor diffs against a WORKING TREE, not against `origin`. A stale tree makes both
+# sides look identical — because both are old. Measured instead of trusted; the German
+# counterpart `scripts/check_aluca_mirror.py` carries the same behaviour in its own wording
+# (SHARED_SUBSTANCE.md class C: same capability, deliberately different expression).
+# Exit codes are part of this sensor's contract, because a caller must be able to tell the
+# two red states apart. Meridian's `check_aluca_mirror.py` delegates to this script and read
+# every non-zero as DRIFT — so an unverifiable run was reported as "GEGENRICHTUNG gedriftet"
+# while this script's own line said "in sync". One number for two conditions cannot be read.
+EXIT_OK = 0
+EXIT_DRIFT = 1
+EXIT_UNVERIFIABLE = 2      # could not compare: no counterpart checkout, or uncertain freshness
+
+FETCH_MAX_AGE_S = 3600
+"""When a fetch counts as stale. A convention, not a measurement — what it costs when set too
+generously is the window described above. Override with ``--max-fetch-age``."""
+
+
+def _git(root: Path, *args: str) -> str | None:
+    """``git`` inside the counterpart checkout. None on any failure — the sensor must never be
+    the reason a gate goes red."""
+    try:
+        proc = subprocess.run(("git", *args), cwd=str(root), capture_output=True,
+                              text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return proc.stdout.strip() if proc.returncode == 0 else None
+
+
+def checkout_freshness(root: Path) -> dict:
+    """Provenance of the counterpart checkout. **No network** — reads only what is already local."""
+    behind = _git(root, "rev-list", "--count", "HEAD..@{upstream}")
+    dirty = _git(root, "status", "--porcelain")
+    git_dir = _git(root, "rev-parse", "--absolute-git-dir")
+    fetch_age: int | None = None
+    if git_dir:
+        fetch_head = Path(git_dir) / "FETCH_HEAD"
+        if fetch_head.is_file():
+            fetch_age = int(time.time() - fetch_head.stat().st_mtime)
+    return {
+        "head": _git(root, "rev-parse", "--short", "HEAD"),
+        "branch": _git(root, "rev-parse", "--abbrev-ref", "HEAD"),
+        "behind": int(behind) if behind and behind.isdigit() else None,
+        "dirty": len([ln for ln in dirty.splitlines() if ln.strip()]) if dirty is not None else None,
+        "fetch_age_s": fetch_age,
+    }
+
+
+def _duration(seconds: int) -> str:
+    h, rest = divmod(seconds, 3600)
+    return f"{h}h {rest // 60}m" if h else f"{rest // 60}m"
+
+
+def freshness_findings(freshness: dict, max_age: int = FETCH_MAX_AGE_S) -> list[str]:
+    """What about the counterpart checkout makes the comparison uncertain. Pure."""
+    out: list[str] = []
+    behind = freshness.get("behind")
+    if behind:
+        out.append(f"  checkout is {behind} commit(s) behind its upstream — the diff below "
+                   f"measures that older state, not origin")
+    dirty = freshness.get("dirty")
+    if dirty:
+        out.append(f"  working tree has {dirty} modified file(s) — the diff measures the working "
+                   f"state, not the committed one")
+    age = freshness.get("fetch_age_s")
+    if age is None:
+        out.append("  never fetched — a gap against origin would not be visible here (`--fetch`)")
+    elif age > max_age:
+        out.append(f"  last fetch {_duration(age)} ago — whatever was pushed to Meridian since is "
+                   f"unknown to this diff (`--fetch`)")
+    return out
+
+
+def freshness_line(freshness: dict) -> str:
+    """The provenance in one line, so an OK says what it rests on. Pure."""
+    parts = [f"HEAD {freshness.get('head') or '?'}"]
+    if freshness.get("branch"):
+        parts.append(f"on {freshness['branch']}")
+    behind = freshness.get("behind")
+    parts.append("no upstream ref" if behind is None else f"{behind} behind upstream")
+    dirty = freshness.get("dirty")
+    parts.append("clean" if dirty == 0 else f"{dirty} modified file(s)")
+    age = freshness.get("fetch_age_s")
+    parts.append("never fetched" if age is None else f"fetched {_duration(age)} ago")
+    return ", ".join(parts)
+
+
+def fetch_checkout(root: Path) -> str:
+    """Explicit ``git fetch`` in the counterpart checkout (only via ``--fetch``)."""
+    return ("fetched origin" if _git(root, "fetch", "origin") is not None
+            else "git fetch failed — the diff runs against the old ref state")
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     strict = "--strict" in argv
     write = "--write" in argv
+    fetch = "--fetch" in argv
+    # `--skip-freshness` exists for exactly one caller: Meridian's `check_aluca_mirror.py`
+    # delegates the reverse direction to this script. In that call the "counterpart" is
+    # Meridian itself — the repo being edited. Its uncommitted working state is the SUBJECT
+    # of the diff (that is the whole point of firing on the home side), not a reason to
+    # doubt it. Without this, every run with uncommitted work would report the home repo as
+    # of uncertain freshness. Not for human use.
+    skip_freshness = "--skip-freshness" in argv
+    max_age = FETCH_MAX_AGE_S
+    if "--max-fetch-age" in argv:
+        i = argv.index("--max-fetch-age") + 1
+        if i < len(argv) and argv[i].isdigit():
+            max_age = int(argv[i])
 
     pin = vendor_pin()
     mer = _meridian_root()
@@ -291,12 +415,31 @@ def main(argv: list[str] | None = None) -> int:
             return 1
 
     if mer is None:
+        # D-341: DID NOT RUN is not a passed comparison. Without --strict this stays a named
+        # skip (the sibling checkout is a dev convenience); in the release gate it is a
+        # failure, otherwise the gate passes precisely when it checked nothing.
         if pin is not None:
             print(f"[check-dataarch-mirror] vendored emitters OK ({len(pin['files'])} file(s), "
                   f"local integrity)")
         print("[check-dataarch-mirror] Meridian checkout not reachable "
-              "($MERIDIAN_ROOT or ../Freelancing) — SKIP (dev-only cross-repo diff)")
-        return 0
+              "($MERIDIAN_ROOT or ../Freelancing) — the cross-repo diff DID NOT RUN")
+        if strict:
+            print("[check-dataarch-mirror] --strict: a comparison that did not run is not a "
+                  "passed comparison")
+            return EXIT_UNVERIFIABLE
+        return EXIT_OK
+
+    if fetch:
+        print(f"[check-dataarch-mirror] {fetch_checkout(mer)}")
+
+    # What everything below rests on — measured, not assumed.
+    freshness = checkout_freshness(mer)
+    uncertain = [] if skip_freshness else freshness_findings(freshness, max_age)
+    if uncertain:
+        print("[check-dataarch-mirror] counterpart checkout is of uncertain freshness; the diff "
+              "below measures exactly that state:")
+        for line in uncertain:
+            print(line)
 
     meridian = _extract(mer / _MER_REL / "concepts.py",
                         mer / _MER_REL / "governance_concepts.py",
@@ -313,14 +456,19 @@ def main(argv: list[str] | None = None) -> int:
         vendored = len(pin["files"]) if pin else 0
         print(f"[check-dataarch-mirror] OK — mirror in sync with Meridian ({mer}); "
               f"contract surface + {vendored} vendored file(s)")
-        return 0
+        print(f"[check-dataarch-mirror] diffed against: {freshness_line(freshness)}")
+        if uncertain and strict:
+            print("[check-dataarch-mirror] --strict: in sync with a state of uncertain freshness "
+                  "is not in sync")
+            return EXIT_UNVERIFIABLE
+        return EXIT_OK
 
     print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — re-mirror:")
     for line in drift:
         print(line)
     if strict:
         print("[check-dataarch-mirror] --strict: drift is a hard failure")
-        return 1
+        return EXIT_DRIFT
     print("[check-dataarch-mirror] advisory (reports drift, never bumps) — Exit 0")
     return 0
 

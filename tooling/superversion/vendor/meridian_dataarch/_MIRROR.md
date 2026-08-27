@@ -139,11 +139,30 @@ Immer **zuerst in Meridian**, dann spiegeln:
 # 1. in Meridian ändern + dort testen
 # 2. in ALUCA neu spiegeln (bewusst manuell)
 MERIDIAN_ROOT=../Freelancing python scripts/check_dataarch_mirror.py --write
-# 3. prüfen
-python scripts/check_dataarch_mirror.py --strict
+# 3. prüfen — --fetch holt vorher origin im Meridian-Checkout
+python scripts/check_dataarch_mirror.py --fetch --strict
 ```
 
 `scripts/check_dataarch_mirror.py` prüft beides: die Vertragsfläche der handgespiegelten
 Registries (Konzepte/Governance/ODCS) **und** die Datei-Hashes dieses Teilbaums. Lokale
 Integrität läuft immer, auch ohne Meridian-Checkout; der Upstream-Diff ist advisory,
 `--strict` fürs Release-Gate. Gegenstück in Meridian: `scripts/check_aluca_mirror.py`.
+
+**Seit D-341 (27.08.2026) sagt der Sensor auch, worauf er sich stützt.** Er vergleicht gegen
+einen Arbeitsbaum, nicht gegen `origin`; steht der still, sehen beide Seiten deckungsgleich
+aus, weil beide alt sind. Die Erfolgszeile trägt deshalb HEAD, Rückstand gegen den
+Upstream-Ref, unsaubere Arbeitskopie und das Alter von `.git/FETCH_HEAD` mit. Geholt wird nie
+von selbst — `--fetch` ist die ausdrückliche Handlung, wie `--write` beim Spiegeln.
+
+Drei Ausgänge statt zwei, weil ein Aufrufer die zwei roten Zustände unterscheiden können muss:
+
+| Exit | Bedeutung |
+|---|---|
+| 0 | verglichen, deckungsgleich |
+| 1 | Drift (oder lokal editierter Vendor-Baum) |
+| 2 | **konnte nicht vergleichen** — kein Meridian-Checkout, oder unsichere Frische unter `--strict` |
+
+`--skip-freshness` bewertet die Frische nicht. Es gehört zu genau einem Aufrufer: Meridians
+Sensor delegiert die Gegenrichtung hierher, und dort *ist* das Gegenüber Meridian selbst — sein
+unversionierter Arbeitsstand ist der Gegenstand des Vergleichs und kein Grund, an ihm zu
+zweifeln.

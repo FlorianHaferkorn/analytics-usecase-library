@@ -6,6 +6,7 @@ Meridian is unreachable and (when the sibling checkout is present) reports the m
 """
 from __future__ import annotations
 
+import pytest
 from pathlib import Path
 
 import scripts.check_dataarch_mirror as sensor
@@ -103,14 +104,113 @@ def test_undeclared_but_mirrored_file_is_reported(tmp_path: Path, monkeypatch):
 
 
 def test_soft_skip_when_meridian_absent(monkeypatch):
+    """Without --strict the missing sibling stays a dev-only skip — but a named one."""
     monkeypatch.setattr(sensor, "_meridian_root", lambda: None)
-    assert sensor.main([]) == 0
-    assert sensor.main(["--strict"]) == 0        # soft-skip even under --strict (dev-only diff)
+    assert sensor.main([]) == sensor.EXIT_OK
+
+
+def test_absent_meridian_is_hard_under_strict(monkeypatch, capsys):
+    """D-341, the counter-check. Until 2026-08-27 this very call returned **0**: the release
+    gate passed although the cross-repo diff had never run — the same class as
+    `tabular-bpa.yml` (CLAUDE.md, 18.08.). The line that used to stand here said so out loud:
+    "soft-skip even under --strict (dev-only diff)". The objection behind it (no sibling
+    checkout in CI) was measured and does not hold: --strict appears only in the manual
+    Makefile target, in no workflow. This test fails the moment somebody makes the gate
+    green again.
+    """
+    monkeypatch.setattr(sensor, "_meridian_root", lambda: None)
+    assert sensor.main(["--strict"]) == sensor.EXIT_UNVERIFIABLE
+    assert "DID NOT RUN" in capsys.readouterr().out
 
 
 def test_in_sync_when_sibling_present():
-    # in this workspace both repos are checked out side by side; the mirror should be in sync.
+    """In this workspace both repos sit side by side; the mirror should be in sync.
+
+    `--skip-freshness` is deliberate: what is asserted is parity, not how long ago somebody
+    fetched or whether the sibling carries uncommitted work. Freshness has its own tests.
+    """
     if sensor._meridian_root() is None:
         return                                    # sibling not present in this env — nothing to assert
-    assert sensor.main([]) == 0
-    assert sensor.main(["--strict"]) == 0
+    assert sensor.main([]) == sensor.EXIT_OK
+    assert sensor.main(["--strict", "--skip-freshness"]) == sensor.EXIT_OK
+
+
+# -- counterpart freshness (D-341) -------------------------------------------------
+#
+# A sensor diffs against a WORKING TREE, not against `origin`. A stale tree makes both sides
+# look identical — because both are old. That is the window the `platform.sizing` incident
+# (07./08.08.2026) went through while this sensor reported green. Measured on 2026-08-27
+# before the rework: the sibling's `.git/FETCH_HEAD` was 32253 s old and the success line
+# still claimed parity unqualified.
+
+
+def test_a_fresh_checkout_produces_no_findings():
+    assert sensor.freshness_findings(
+        {"head": "abc1234", "branch": "main", "behind": 0, "dirty": 0, "fetch_age_s": 30}) == []
+
+
+@pytest.mark.parametrize("freshness, expected", [
+    ({"behind": 3, "dirty": 0, "fetch_age_s": 10}, "behind its upstream"),
+    ({"behind": 0, "dirty": 2, "fetch_age_s": 10}, "measures the working state"),
+    ({"behind": 0, "dirty": 0, "fetch_age_s": None}, "never fetched"),
+    ({"behind": 0, "dirty": 0, "fetch_age_s": 32253}, "last fetch 8h"),
+])
+def test_each_kind_of_staleness_is_named(freshness, expected):
+    found = sensor.freshness_findings(freshness)
+    assert len(found) == 1 and expected in found[0]
+
+
+def test_the_success_line_carries_its_provenance():
+    """An OK has to say what it rests on, otherwise it is a claim."""
+    line = sensor.freshness_line(
+        {"head": "13592c4e", "branch": "main", "behind": 0, "dirty": 0, "fetch_age_s": 32253})
+    for part in ("13592c4e", "main", "0 behind upstream", "clean", "fetched 8h"):
+        assert part in line
+
+
+def test_checkout_freshness_reads_a_real_repo(tmp_path: Path):
+    """Against a real git repo rather than a mock — otherwise the test only checks itself."""
+    import subprocess
+
+    for cmd in (("init", "-q", "-b", "main"), ("config", "user.email", "t@t"),
+                ("config", "user.name", "t"), ("commit", "-q", "--allow-empty", "-m", "first")):
+        subprocess.run(("git", *cmd), cwd=tmp_path, check=True, capture_output=True)
+    f = sensor.checkout_freshness(tmp_path)
+    assert f["head"] and f["branch"] == "main"
+    assert f["dirty"] == 0
+    assert f["behind"] is None              # no upstream — honestly reported as unknown
+    assert f["fetch_age_s"] is None         # never fetched
+    assert "never fetched" in " ".join(sensor.freshness_findings(f))
+
+    (tmp_path / "new.txt").write_text("x", encoding="utf-8")
+    assert sensor.checkout_freshness(tmp_path)["dirty"] == 1
+
+
+def test_a_broken_checkout_never_makes_the_sensor_the_reason():
+    """The sensor must never itself be the red gate — no git, no exception."""
+    f = sensor.checkout_freshness(Path("/nonexistent-checkout"))
+    assert f["head"] is None and f["behind"] is None
+
+
+def test_the_sensor_never_fetches_on_its_own(monkeypatch):
+    """No network in `make check` — same doctrine as "reports drift, never bumps"."""
+    calls: list = []
+    monkeypatch.setattr(sensor, "fetch_checkout", lambda root: calls.append(root) or "")
+    sensor.main([])
+    assert calls == [], "a sensor that fetches by itself makes `make check` network-bound"
+
+
+def test_the_two_red_states_have_distinct_exit_codes():
+    """The core of D-341 as vocabulary: a caller must tell "drifted" from "could not compare"
+    without parsing output. Meridian's `check_aluca_mirror.py` read every non-zero as drift
+    and reported "GEGENRICHTUNG gedriftet" while this script's own line said "in sync"."""
+    assert (sensor.EXIT_OK, sensor.EXIT_DRIFT, sensor.EXIT_UNVERIFIABLE) == (0, 1, 2)
+
+
+def test_skip_freshness_suppresses_only_freshness(monkeypatch):
+    """The flag exists for the delegated call from Meridian, where the counterpart IS the repo
+    under edit. It must not suppress drift as well."""
+    if sensor._meridian_root() is None:
+        return
+    monkeypatch.setattr(sensor, "_diff", lambda a, b: ["  invented drift"])
+    assert sensor.main(["--strict", "--skip-freshness"]) == sensor.EXIT_DRIFT

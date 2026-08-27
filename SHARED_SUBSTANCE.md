@@ -109,6 +109,30 @@ nutzt genau die (Tool-Reuse-Pflicht):
    unverändert: **meldet Drift, bumpt nie.** Advisory (Exit 0), `--strict` im
    Release-Gate.
 
+**Was ein Sensor über sich selbst sagen muss (D-341, 27.08.2026).** Ein Spiegel-Sensor
+vergleicht gegen einen *Arbeitsbaum*, nicht gegen `origin`. Steht der still, sehen beide
+Seiten deckungsgleich aus — weil beide alt sind. Genau in diesem Fenster lag der
+`platform.sizing`-Vorfall. Beide Sensoren messen deshalb die Herkunft ihres Gegenübers
+(HEAD, Rückstand gegen den Upstream-Ref, unsaubere Arbeitskopie, Alter von
+`.git/FETCH_HEAD`) und tragen sie in der Erfolgszeile mit, statt Deckungsgleichheit
+unqualifiziert zu behaupten. Geholt wird nie von selbst — `--fetch` macht das Holen zur
+ausdrücklichen Handlung, wie `--write` das Spiegeln.
+
+Und beide unterscheiden **drei** Ausgänge statt zwei. Gemessen 27.08.2026: ohne
+Gegen-Checkout endeten beide unter `--strict` mit **rc=0**, das Release-Gate bestand also
+genau dann, wenn nichts geprüft worden war — dieselbe Klasse wie ein Tor, das „nichts
+gefunden" nicht von „nicht gelaufen" unterscheidet.
+
+| Exit | Bedeutung |
+|---|---|
+| 0 | verglichen, deckungsgleich |
+| 1 | Drift (oder lokal editierter Vendor-Baum) |
+| 2 | **konnte nicht vergleichen** — kein Gegen-Checkout, oder unsichere Frische unter `--strict` |
+
+Ein Aufrufer, der beide roten Zustände in eine Zahl faltet, kann sie nicht lesen: der
+delegierte Rückwärts-Aufruf meldete „GEGENRICHTUNG gedriftet", während die zitierte Ausgabe
+darunter wörtlich „in sync" sagte.
+
 **Richtung:** Klasse A hat pro Asset genau **eine Quelle der Wahrheit** — das Repo,
 in dem es entstanden ist (Spalte „Heimat heute"). Das andere Repo spiegelt.
 Änderungen gehen immer zuerst in die Heimat, dann in den Spiegel. Zwei
