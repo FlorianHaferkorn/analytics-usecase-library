@@ -20,6 +20,18 @@ import yaml
 from core.dataarch_engine.blueprint.provision_transforms import _dirslug, _gold_kinds, _ident
 
 
+def _fuer_produkt(nach_tabelle: dict, product: str):
+    """Den Katalogeintrag zu einem IR-Datenprodukt holen — unter BEIDEN gebraeuchlichen Namen.
+
+    Ein SAP-Reverse-Katalog nennt die Tabelle `fact_malfunction`, ein generischer governter Katalog
+    nennt sie `gold_fact_sales`. Die Spaltenaufloesung unten kannte beide Formen von Anfang an, die
+    Mass-Aufloesung nur eine — gemessen 27.08.2026: bei praefigiertem Namen landete `amount` als
+    DIMENSION und das echte Mass wurde durch ein TODO-Geruest ersetzt. Die Datei sah dabei
+    vollstaendig aus. Eine Aufloesung, zwei Aufrufer, kein zweiter Weg mehr.
+    """
+    return nach_tabelle.get(_ident(f"gold_{_ident(product)}")) or nach_tabelle.get(_ident(product))
+
+
 def _catalog_columns_by_table(gc: dict | None) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for t in (gc or {}).get("tables", []) or []:
@@ -58,9 +70,49 @@ def _measure_entry(col: str, contract_ref: str, is_balance: bool) -> dict[str, A
             "meta": {"additivity": "balance" if is_balance else "flow"}}
 
 
+def _count_measures_by_fact(gc: dict | None) -> dict[str, list[dict]]:
+    """gold fact → its **row-count** measures (D-344).
+
+    Sie kommen nicht ueber `measure_columns` und auch nicht ueber die Lineage: eine Zaehlung hat
+    keine Gold-Spalte, ihr Lineage-Verweis traegt deshalb keinen Punkt und wird von der
+    Spalten-Schleife oben absichtlich uebersprungen. Der Katalog fuehrt sie an der Tabelle.
+    """
+    return {_ident(t.get("name", "")): list(t.get("count_measures") or [])
+            for t in (gc or {}).get("tables", []) or []
+            if t.get("count_measures")}
+
+
+def _count_expr(f: dict | None) -> str:
+    """Der SQL-Ausdruck, ueber den MetricFlow die Zeilen summiert.
+
+    **ANNAHME, ungeprueft (D-344):** `docs.getdbt.com` ist aus dieser Umgebung nicht erreichbar
+    (EGRESS_BLOCKED), die genaue Form von `agg: count` konnte deshalb nicht am Hersteller belegt
+    werden. Gewaehlt ist die Form, deren Semantik feststeht: `agg: sum` ueber einen Ausdruck, der je
+    Zeile 1 oder 0 liefert. Summe von Einsen ist eine Zeilenzahl — das gilt unabhaengig davon, was
+    MetricFlow von `count` verlangt. Wird die Quelle erreichbar, ist dies die Stelle zum Nachziehen.
+    """
+    if not f:
+        return "1"
+    sp = f["sap_field"]
+    wert = f.get("value")
+    pred = {"not_empty": f"{sp} <> ''", "empty": f"{sp} = ''",
+            "equals": f"{sp} = '{wert}'", "not_equals": f"{sp} <> '{wert}'"}.get(f.get("op", ""), "")
+    return f"CASE WHEN {pred} THEN 1 ELSE 0 END" if pred else "1"
+
+
+def _count_entry(cm: dict, contract_ref: str) -> dict[str, Any]:
+    f = cm.get("filter")
+    desc = f"governed row count (Contract: {contract_ref})"
+    if f and f.get("why"):
+        desc += f" — {f['why']}"
+    return {"name": cm["name"], "agg": "sum", "expr": _count_expr(f), "description": desc,
+            "meta": {"additivity": "flow", "grain": "row count"}}
+
+
 def _semantic_model(name: str, kind: str, contract_ref: str, columns: list[str],
                     measure_cols: set[str] | None = None,
-                    balance_cols: set[str] | None = None) -> dict[str, Any]:
+                    balance_cols: set[str] | None = None,
+                    count_measures: list[dict] | None = None) -> dict[str, Any]:
     model = f"gold_{_ident(name)}"
     entities = [{"name": f"{_ident(name)}_key", "type": "primary"}]
     mcols = set(measure_cols or ())
@@ -78,8 +130,10 @@ def _semantic_model(name: str, kind: str, contract_ref: str, columns: list[str],
         "entities": entities,
         "dimensions": dimensions,
     }
-    if mcols:                                               # real governed measures (agg default sum)
-        sm["measures"] = [_measure_entry(c, contract_ref, c in bcols) for c in sorted(mcols)]
+    zaehl = sorted(count_measures or [], key=lambda c: c.get("name", ""))
+    if mcols or zaehl:                                      # real governed measures (agg default sum)
+        sm["measures"] = ([_measure_entry(c, contract_ref, c in bcols) for c in sorted(mcols)]
+                          + [_count_entry(c, contract_ref) for c in zaehl if c.get("name")])
     elif kind in ("fact", "aggregate"):                    # IR-only skeleton (no catalog)
         sm["measures"] = [{"name": f"{_ident(name)}_amount", "agg": "sum",
                            "description": f"TODO(contract:{contract_ref}): additive measures"}]
@@ -135,15 +189,18 @@ def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> di
     measure_cols_by_fact = _measure_columns_by_fact(governed_catalog)
     balance_by_fact = {_ident(t.get("name", "")): set(t.get("balance_measures") or [])
                        for t in (governed_catalog or {}).get("tables", []) or []}
+    counts_by_fact = _count_measures_by_fact(governed_catalog)
 
     semantic_models: list[dict[str, Any]] = []
     for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
         for product in sorted(d.get("data_products", [])):
             kind = kinds.get(product, "fact")
-            columns = cols_by_table.get(_ident(f"gold_{_ident(product)}")) or cols_by_table.get(_ident(product)) or []
-            measure_cols = measure_cols_by_fact.get(_ident(product), set())
-            balance_cols = balance_by_fact.get(_ident(product), set())
-            semantic_models.append(_semantic_model(product, kind, contract_ref, columns, measure_cols, balance_cols))
+            columns = _fuer_produkt(cols_by_table, product) or []
+            measure_cols = _fuer_produkt(measure_cols_by_fact, product) or set()
+            balance_cols = _fuer_produkt(balance_by_fact, product) or set()
+            zaehl = _fuer_produkt(counts_by_fact, product) or []
+            semantic_models.append(_semantic_model(product, kind, contract_ref, columns,
+                                                   measure_cols, balance_cols, zaehl))
 
     # metrics: real ones from the governed catalog; else one skeleton per fact (Golden-Thread honest).
     metrics = _metrics_from_catalog(governed_catalog)
