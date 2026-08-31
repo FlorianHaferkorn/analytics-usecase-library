@@ -57,17 +57,42 @@ def _measure_columns_by_fact(gc: dict | None) -> dict[str, set[str]]:
     return out
 
 
-def _measure_entry(col: str, contract_ref: str, is_balance: bool) -> dict[str, Any]:
+def _measure_entry(col: str, contract_ref: str, is_balance: bool,
+                   filt: dict | None = None) -> dict[str, Any] | None:
     """A semantic-model measure. Balances carry ``meta.additivity: balance`` + a semi-additive note —
     honest signalling: a balance is additive across non-time dimensions but NOT over time. A proper
     ``non_additive_dimension`` needs the as-of/posting date column, which is a per-system modelling
-    choice (facts here often don't project one), so it is flagged rather than guessed."""
+    choice (facts here often don't project one), so it is flagged rather than guessed.
+
+    Traegt das Mass einen Filter (D-345), summiert es nur die Zeilen, die ihn erfuellen — dieselbe
+    `CASE WHEN`-Form wie die Zaehlung, nur ueber der Spalte statt ueber 1. Ist der Filter zeilenweise
+    **nicht** ausdrueckbar, gibt die Funktion `None` zurueck: die volle Summe unter dem Namen der
+    eingeschraenkten waere in jeder Anzeige richtig und in jeder Zahl falsch.
+    """
+    if filt and not _sql_pred(filt):
+        return None
     desc = f"governed measure (Contract: {contract_ref})"
     if is_balance:
         desc += (" — BALANCE / semi-additive: additive across non-time dimensions, NOT over time; "
                  "set a non_additive_dimension on the as-of/posting date per system.")
-    return {"name": col, "agg": "sum", "description": desc,
-            "meta": {"additivity": "balance" if is_balance else "flow"}}
+    if filt:
+        desc += f" — nur Zeilen mit {_sql_pred(filt)}: {filt.get('why') or 'gefiltert'}"
+    eintrag: dict[str, Any] = {"name": col, "agg": "sum", "description": desc,
+                               "meta": {"additivity": "balance" if is_balance else "flow"}}
+    if filt:
+        eintrag["expr"] = f"CASE WHEN {_sql_pred(filt)} THEN {col} ELSE 0 END"
+        eintrag["meta"]["filter"] = _sql_pred(filt)
+    return eintrag
+
+
+def _nicht_ausdrueckbar(measure_filters: dict | None) -> set[str]:
+    """Die Masse einer Tabelle, deren Filter zeilenweise nicht darstellbar ist (D-345).
+
+    Ein Stichtagsfilter braucht den Filterkontext und eine zweite Tabelle; ein Mass-`expr` in
+    MetricFlow hat beides nicht. Solche Masse fallen hier heraus — samt der Metrik, die sie
+    referenziert, sonst zeigt die Metrik auf ein Mass, das es in der Datei nicht gibt.
+    """
+    return {c for c, f in (measure_filters or {}).items() if f and not _sql_pred(f)}
 
 
 def _count_measures_by_fact(gc: dict | None) -> dict[str, list[dict]]:
@@ -91,13 +116,23 @@ def _count_expr(f: dict | None) -> str:
     Zeile 1 oder 0 liefert. Summe von Einsen ist eine Zeilenzahl — das gilt unabhaengig davon, was
     MetricFlow von `count` verlangt. Wird die Quelle erreichbar, ist dies die Stelle zum Nachziehen.
     """
+    pred = _sql_pred(f)
+    return f"CASE WHEN {pred} THEN 1 ELSE 0 END" if pred else "1"
+
+
+def _sql_pred(f: dict | None) -> str:
+    """Der Filter eines Masses als zeilenweises SQL-Praedikat. Leer, wenn keiner oder unbekannt.
+
+    Ein Mass-`expr` in MetricFlow ist zeilenweises SQL gegen das eigene Modell. Alles, was den
+    Filterkontext oder eine zweite Tabelle braucht, ist hier deshalb **nicht** ausdrueckbar und darf
+    auch nicht genaehert werden (D-345).
+    """
     if not f:
-        return "1"
+        return ""
     sp = f["sap_field"]
     wert = f.get("value")
-    pred = {"not_empty": f"{sp} <> ''", "empty": f"{sp} = ''",
+    return {"not_empty": f"{sp} <> ''", "empty": f"{sp} = ''",
             "equals": f"{sp} = '{wert}'", "not_equals": f"{sp} <> '{wert}'"}.get(f.get("op", ""), "")
-    return f"CASE WHEN {pred} THEN 1 ELSE 0 END" if pred else "1"
 
 
 def _count_entry(cm: dict, contract_ref: str) -> dict[str, Any]:
@@ -112,7 +147,8 @@ def _count_entry(cm: dict, contract_ref: str) -> dict[str, Any]:
 def _semantic_model(name: str, kind: str, contract_ref: str, columns: list[str],
                     measure_cols: set[str] | None = None,
                     balance_cols: set[str] | None = None,
-                    count_measures: list[dict] | None = None) -> dict[str, Any]:
+                    count_measures: list[dict] | None = None,
+                    measure_filters: dict | None = None) -> dict[str, Any]:
     model = f"gold_{_ident(name)}"
     entities = [{"name": f"{_ident(name)}_key", "type": "primary"}]
     mcols = set(measure_cols or ())
@@ -131,16 +167,32 @@ def _semantic_model(name: str, kind: str, contract_ref: str, columns: list[str],
         "dimensions": dimensions,
     }
     zaehl = sorted(count_measures or [], key=lambda c: c.get("name", ""))
-    if mcols or zaehl:                                      # real governed measures (agg default sum)
-        sm["measures"] = ([_measure_entry(c, contract_ref, c in bcols) for c in sorted(mcols)]
-                          + [_count_entry(c, contract_ref) for c in zaehl if c.get("name")])
-    elif kind in ("fact", "aggregate"):                    # IR-only skeleton (no catalog)
+    mf = measure_filters or {}
+    gefiltert = [e for e in (_measure_entry(c, contract_ref, c in bcols, mf.get(c))
+                             for c in sorted(mcols)) if e is not None]
+    if gefiltert or zaehl:                                  # real governed measures (agg default sum)
+        sm["measures"] = gefiltert + [_count_entry(c, contract_ref) for c in zaehl if c.get("name")]
+    elif not mcols and kind in ("fact", "aggregate"):      # IR-only skeleton (no catalog)
         sm["measures"] = [{"name": f"{_ident(name)}_amount", "agg": "sum",
                            "description": f"TODO(contract:{contract_ref}): additive measures"}]
+    # Kein Geruest, wenn der Katalog Masse kannte und alle an einem nicht ausdrueckbaren Filter
+    # ausgefallen sind (D-345): ein TODO-Mass behauptete dort einen fehlenden Katalog, und der Grund
+    # waere genau der Filter, den wir bewusst nicht naehern.
     return sm
 
 
-def _metrics_from_catalog(gc: dict | None) -> list[dict[str, Any]]:
+def _liest_ausgelassene_spalte(m: dict, fehlt: set[str]) -> bool:
+    """Ob eine Metrik auf eine ausgelassene Gold-Spalte zeigt.
+
+    Der Name des Semantikmodell-Masses ist die **Spalte**, der Name der Metrik ist das bereinigte
+    `measure_name`. Im Regelfall sind beide gleich (`_gold_measure_column` bildet die Spalte aus dem
+    Massnamen), aber verlassen darf man sich darauf nicht: faellt die Spalte weg und die Metrik nicht,
+    zeigt ein `type: simple` auf ein Mass, das die Datei nicht enthaelt. Die Lineage sagt es genau.
+    """
+    return any(ref.split(".", 1)[1] in fehlt for ref in (m.get("lineage") or []) if "." in ref)
+
+
+def _metrics_from_catalog(gc: dict | None, ohne: set[str] | None = None) -> list[dict[str, Any]]:
     """Governed measures → dbt metrics (Golden-Thread: reference the KPI, carry its id in ``meta``).
 
     A plain governed measure → a ``simple`` metric. A **composite** measure (one carrying
@@ -148,7 +200,12 @@ def _metrics_from_catalog(gc: dict | None) -> list[dict[str, Any]]:
     cogs, or DSO = receivables / (net_sales / 365)) → a real MetricFlow ``derived`` metric with an
     ``expr`` over its base metrics. Base metrics that have no governed KPI of their own (e.g. an
     intermediate like ``receivables``) are emitted as auxiliary ``simple`` metrics so the derived
-    metric's references resolve."""
+    metric's references resolve.
+
+    ``ohne`` nennt die Masse, die die Semantikmodelle nicht emittiert haben (D-345, zeilenweise nicht
+    ausdrueckbarer Filter). Deren Metriken fallen mit — eine Metrik auf ein Mass, das die Datei nicht
+    enthaelt, ist kein Hinweis auf die Luecke, sondern ein Ladefehler."""
+    fehlt = set(ohne or ())
     measures = sorted((gc or {}).get("measures", []) or [], key=lambda x: x.get("measure_name", ""))
     simple: dict[str, dict[str, Any]] = {}
     derived: list[tuple[dict, str]] = []
@@ -159,12 +216,16 @@ def _metrics_from_catalog(gc: dict | None) -> list[dict[str, Any]]:
         if m.get("derived_from"):
             derived.append((m, mname))
             continue
+        if mname in fehlt or _liest_ausgelassene_spalte(m, fehlt):
+            continue
         simple[mname] = {"name": mname, "label": m.get("measure_name", ""), "type": "simple",
                          "type_params": {"measure": mname}, "meta": {"kpi_id": m.get("kpi_id", "")}}
 
     metrics: list[dict[str, Any]] = list(simple.values())
     for m, mname in derived:
         df = m["derived_from"]
+        if fehlt.intersection(df.get("measures", [])):
+            continue                                # eine Komponente fehlt, das Verhaeltnis auch
         for base in df.get("measures", []):        # auxiliary simple metric per ungoverned operand
             if base not in simple:
                 aux = {"name": base, "label": base, "type": "simple", "type_params": {"measure": base},
@@ -190,8 +251,11 @@ def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> di
     balance_by_fact = {_ident(t.get("name", "")): set(t.get("balance_measures") or [])
                        for t in (governed_catalog or {}).get("tables", []) or []}
     counts_by_fact = _count_measures_by_fact(governed_catalog)
+    filters_by_fact = {_ident(t.get("name", "")): dict(t.get("measure_filters") or {})
+                       for t in (governed_catalog or {}).get("tables", []) or []}
 
     semantic_models: list[dict[str, Any]] = []
+    ausgelassen: set[str] = set()                   # Masse mit nicht ausdrueckbarem Filter (D-345)
     for d in sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", "")):
         for product in sorted(d.get("data_products", [])):
             kind = kinds.get(product, "fact")
@@ -199,11 +263,13 @@ def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> di
             measure_cols = _fuer_produkt(measure_cols_by_fact, product) or set()
             balance_cols = _fuer_produkt(balance_by_fact, product) or set()
             zaehl = _fuer_produkt(counts_by_fact, product) or []
+            m_filter = _fuer_produkt(filters_by_fact, product) or {}
+            ausgelassen |= _nicht_ausdrueckbar(m_filter)
             semantic_models.append(_semantic_model(product, kind, contract_ref, columns,
-                                                   measure_cols, balance_cols, zaehl))
+                                                   measure_cols, balance_cols, zaehl, m_filter))
 
     # metrics: real ones from the governed catalog; else one skeleton per fact (Golden-Thread honest).
-    metrics = _metrics_from_catalog(governed_catalog)
+    metrics = _metrics_from_catalog(governed_catalog, ausgelassen)
     if not metrics:
         for sm in semantic_models:
             if "measures" in sm:
@@ -217,6 +283,11 @@ def emit_metricflow(blueprint: dict, governed_catalog: dict | None = None) -> di
            "", "**Golden-Thread**: metrics *reference* the governed KPI definitions (their `kpi_id` in "
            "`meta`), never re-define meaning. Bridges ODCS ↔ MetricFlow ↔ Direct-Lake over the neutral IR.",
            "", f"Semantic models: **{len(semantic_models)}**  ·  Metrics: **{len(metrics)}**", ""]
+    if ausgelassen:
+        doc += ["**Nicht emittiert** (D-345): " + ", ".join(f"`{m}`" for m in sorted(ausgelassen))
+                + ". Ihr Filter braucht den Filterkontext oder eine zweite Tabelle; ein Mass-`expr` "
+                  "hat beides nicht. Diese Kennzahlen stehen im semantischen Modell von Power BI und "
+                  "hier bewusst nirgends — eine Naeherung saehe in jeder Anzeige richtig aus.", ""]
     return {
         "metricflow/semantic_models.yml": yaml.safe_dump(
             {"semantic_models": semantic_models}, sort_keys=False, allow_unicode=True),

@@ -338,6 +338,20 @@ def _ohne_quelle(name: str, kind: str, gold_tbl: str, dl: dict) -> str:
     )
 
 
+def _projektion(spalte: str, table: dict | None, stack: str) -> str:
+    """Eine Spalte der Gold-Projektion — mit Alias, wenn sie in Silber anders heisst.
+
+    Massspalten tragen den **Mass**-Namen (`receivables`), Silber traegt das **SAP**-Feld (`DMBTR`);
+    der Katalog fuehrt die Zuordnung als `measure_sources`. Ohne den Alias stand hier
+    `SELECT receivables FROM silver_fin`, und die Anweisung lief in keinem Ziel — gemessen
+    31.08.2026 gegen `pack_to_odcs_silver`, der `receivables` null mal nennt. Sichtbar wurde es
+    erst, als zwei Masse dasselbe Quellfeld lasen; die Luecke war vorher schon in jeder Projektion.
+    """
+    quelle = ((table or {}).get("measure_sources") or {}).get(spalte)
+    zitiert = zitiere(spalte, stack)
+    return f"{zitiere(quelle, stack)} AS {zitiert}" if quelle and quelle != spalte else zitiert
+
+
 def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_ref: str,
                     dl: dict, gold_tbl: str = "", table: dict | None = None) -> str:
     c = dl["comment"]
@@ -373,7 +387,7 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
             kopf.append(f"{c} TODO(contract:{contract_ref}): Ersatzschluessel und SCD-Behandlung "
                         f"ergaenzen, z. B. row_number() OVER (ORDER BY "
                         f"{', '.join(schluessel) or '<business_key>'}) AS {name}_sk.")
-        auswahl = ",\n".join(f"    {zitiere(s, dl['stack'])}" for s in spalten)
+        auswahl = ",\n".join(f"    {_projektion(s, table, dl['stack'])}" for s in spalten)
         return head + "\n".join(kopf) + "\nSELECT\n" + auswahl + f"\nFROM {silver_tbl}\n;\n"
 
     # honest, runnable-shaped skeleton: the modeled projection lives in a TODO *comment* (with a concrete
@@ -440,7 +454,7 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str
                     f"ergaenzen, z. B. row_number() OVER (ORDER BY {', '.join(schluessel)}) "
                     f"AS {_ident(name)}_sk.")
 
-    proj = ",\n    ".join(spalten) if spalten else "*"
+    proj = (",\n    ".join(_projektion(s, table, dl["stack"]) for s in spalten)) if spalten else "*"
     if not spalten:
         kopf.append(f"{c} TODO(contract:{contract_ref}): kein Katalogeintrag — Projektion ergaenzen.")
     blocks = [f"SELECT\n    {proj}\nFROM {tbl}" for _, tbl in sources]
