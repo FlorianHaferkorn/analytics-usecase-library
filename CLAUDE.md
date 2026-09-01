@@ -97,6 +97,12 @@ Mindestens Stage 1 (`.\tooling\run_stage1_checks.ps1`) vor jedem Commit; Python-
 ausführen. Eine Aufgabe gilt nie als fertig, solange Validierung Fehler zeigt.
 
 ### GitHub-Actions-CI — bekannte Usage-Limit-Bedingung (wiederkehrend)
+
+> **Stand 01.09.2026: das Fenster ist zu, die CI läuft wieder echt.** Alles unter dieser
+> Überschrift beschreibt eine Bedingung, die gerade **nicht** herrscht. Die Anweisung weiter
+> unten, rote Läufe nicht zu untersuchen, gilt ausschließlich während eines gemessenen
+> Limit-Fensters. Gemessen wird sie an `runner_id`, nie am Datum dieser Zeile. Was der Stand
+> heute gekostet hat, steht im Nachtrag am Ende des Abschnitts.
 Das Actions-Usage-Limit ist wiederholt erschöpft — repo-weit, **auf `main` und
 allen Branches gleichermaßen**. Symptom: Jobs enden nach ~2 s mit
 `conclusion=failure`, **ohne Runner** (`runner_id: 0`, leerer `runner_name`),
@@ -225,3 +231,20 @@ Konflikt ist an der Wurzel gelöst — `MD010: { "ignore_code_languages": ["tmdl
 markdownlint-Konfigurationen, MD010 bleibt also für Fließtext scharf — und die Tabs sind in
 allen drei Dokumenten wiederhergestellt. Lehre für neue Auto-Fixer: ein Formatierer, der
 schreiben darf, muss die Hardrules kennen, sonst gewinnt der Formatierer.
+
+**Nachtrag 01.09.2026 — das Fenster ist zu, und es hat drei Wochen lang einen echten Defekt
+gedeckt.** Das Kontingent kam zum Monatswechsel zurück. Hier lief `Stage 1` danach in **5:41**
+mit echtem Runner (`runner_id 1000017482`) grün durch — derselbe Commit `8f5955af`, der am
+31.08. nach zwei Sekunden ohne Runner rot war. Der ALUCA-Diff war nie die Ursache.
+
+Der Ertrag steckt im Nachbar-Repo. Dort war der erste echte Lauf **zu Recht** rot: vier Tests
+in `core/dataarch_engine/tests/test_provision_gates.py` fuhren `subprocess.run` mit einem
+absoluten Pfad aus der Sitzung, in der die Datei am 09.08.2026 entstand. Lokal existiert der
+Pfad, auf einem Runner nicht. Drei Wochen lang war der Job `unit` deshalb rot, und im
+Limit-Fenster sah dieses Rot aus wie jedes andere.
+
+Das verschärft die hier stehende Regel, statt sie zu widerrufen. Während eines Fensters bleibt
+lokal validieren der einzige Weg — aber ein **grüner lokaler Lauf ist währenddessen kein
+Nachweis**. Er setzt die Gleichheit beider Umgebungen voraus, statt sie zu messen; genau diese
+Voraussetzung war hier falsch. Was in einem Fenster grün war, wird beim ersten echten Runner
+erneut gemessen und nicht als erledigt geführt.
