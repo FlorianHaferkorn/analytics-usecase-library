@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "86ad8446a1b11e4b146bca9bbcca3fb43727e606385067cac7ce50708a9e1435"
+      "sha256": "dc5e92926d6d54530bc7aa6729d6bb15c3f2adaab946c9a7d83cafa2e87e8ad3"
     },
     {
       "path": "fabric_schedule.py",
