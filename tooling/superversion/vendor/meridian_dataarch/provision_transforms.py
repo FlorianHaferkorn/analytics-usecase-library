@@ -159,6 +159,28 @@ def _silber_herkunft(governed_catalog: dict | None, d: dict) -> dict[str, list[s
     return raus
 
 
+def _herkunft_je_domaene(blueprint: dict, governed_catalog: dict | None, d: dict,
+                         domains: list[dict]) -> dict[str, list[str]]:
+    """`_silber_herkunft` dieser Domaene, ohne Quellen, die laut IR einer ANDEREN gehoeren.
+
+    Gemessen 02.09.2026 (Plan 0008, B-4): `dim_material` ist konform (Order-to-Cash und
+    Inventory), und der Katalog nennt drei Herkuenfte -- `order_to_cash_mara`,
+    `order_to_cash_makt`, `inventory_mm_mara`. Jede der beiden Domaenen emittierte alle drei:
+    sechs `bronze_to_silver__*` fuer drei Ziele, je zwei Dateien mit demselben
+    `CREATE OR REPLACE`. Die Domaene materialisiert nur, was ihr gehoert; eine Quelle ohne
+    erklaerten Eigentuemer (Kataloge ohne IR-Bezug) bleibt, wo der Katalog sie nennt.
+    """
+    herkunft = _silber_herkunft(governed_catalog, d)
+    if not herkunft:
+        return herkunft
+    dident = _ident(d.get("name", ""))
+    eigene = set(_sources_for_domain(blueprint, dident))
+    fremd = {s for od in domains if _ident(od.get("name", "")) != dident
+             for s in _sources_for_domain(blueprint, _ident(od.get("name", "")))} - eigene
+    raus = {p: [q for q in qs if q not in fremd] for p, qs in herkunft.items()}
+    return {p: qs for p, qs in raus.items() if qs}
+
+
 def _formgleich(spalten_je_quelle: dict[str, list[str]] | None) -> bool:
     """Haben alle Herkuenfte DIESELBE Spaltenmenge?
 
@@ -519,7 +541,7 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         #
         # Ohne Katalog bleibt es beim alten Zuschnitt: dann WEISS niemand, welche Quelle zu
         # welchem Produkt gehoert, und ein geratener Zuschnitt waere schlimmer als ein grober.
-        herkunft = _silber_herkunft(governed_catalog, d)
+        herkunft = _herkunft_je_domaene(blueprint, governed_catalog, d, domains)
         if bronze_enabled:
             if herkunft:
                 for quelle in sorted({q for qs in herkunft.values() for q in qs}):
@@ -597,7 +619,17 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         kind = kinds.get(product, "dimension")
         gold_tbl = layer_ref("gold", _ident(product), schemas)
         rel = f"transforms/_conformed/silver_to_gold__{_ident(product)}.sql"
-        sources = [(dom, layer_ref("silver", _ident(dom), schemas)) for dom in contributing]
+        # Bei aufgeschluesseltem Silber liest die konforme Dimension aus der Herkunftstabelle
+        # der jeweiligen Domaene, nicht aus `silver.<domaene>` -- die gibt es dann nicht.
+        # Mehrere Herkuenfte je Domaene bleiben beim Domaenenverweis: ob vereinigt oder
+        # verbunden gehoert, ist dieselbe offene Fachfrage wie oben.
+        sources = []
+        for dom in contributing:
+            d_dom = next((x for x in domains if x.get("name") == dom), {})
+            eigene = _herkunft_je_domaene(blueprint, governed_catalog, d_dom, domains).get(_ident(product), [])
+            tbl = layer_ref("silver", _ident(eigene[0]), schemas) if len(eigene) == 1 \
+                else layer_ref("silver", _ident(dom), schemas)
+            sources.append((dom, tbl))
         out[rel] = _silver_to_gold_conformed(
             product, kind, sources, contract_ref, dl, gold_tbl=gold_tbl,
             table=_catalog_table(governed_catalog, _ident(product)))
