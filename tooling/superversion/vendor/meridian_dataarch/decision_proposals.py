@@ -323,6 +323,25 @@ def _facts(gc: dict) -> list[dict]:
     return [t for t in gc.get("tables", []) if t.get("kind") == "fact" or t.get("measure_columns")]
 
 
+def match_keys(table: dict) -> list[str]:
+    """Der Match-Key eines MERGE: der **deklarierte** Schluessel des Katalogs, sonst die
+    `_key`-Namensregel.
+
+    Gemessen 02.09.2026 am Szenario `sap_mittelstand`: alle 22 Tabellen des SAP-Katalogs
+    tragen `key` (BUKRS+BELNR+GJAHR, VBELN+POSNR, …), keine einzige Spalte endet auf `_key` —
+    die Namensregel allein liess 17 MERGEs mit `<business_key>` stehen, obwohl die Antwort
+    `watermark` im Profil lag und der Schluessel im Katalog. Der MLV-Emitter liest `key`
+    bereits (`schluessel = table.get("key")`); dieselbe Quelle gehoert auch hierher (Tool-Reuse).
+    """
+    key = table.get("key") or []
+    if isinstance(key, str):
+        key = [key]
+    keys = [str(k) for k in key]
+    if keys:
+        return keys
+    return [c for c in (table.get("columns") or []) if str(c).lower().endswith("_key")]
+
+
 def _domain_names(bp: dict) -> list[str]:
     return sorted(d.get("name", "") for d in bp.get("mesh", {}).get("domains", []))
 
@@ -1496,7 +1515,7 @@ def propose_incremental(gc: dict, source_schema: dict | None = None) -> dict:
                     markers=("contract",))
     f = sorted(facts, key=lambda t: t["name"])[0]
     cols = f.get("columns") or []
-    keys = [c for c in cols if c.lower().endswith("_key")]
+    keys = match_keys(f)
     wm = sorted(((_rank(c, _WATERMARK_HINTS), c) for c in cols), key=lambda x: (-x[0], x[1]))
     wm_col = next((c for w, c in wm if w > 0), None)
     have_wm = wm_col is not None
@@ -2108,6 +2127,32 @@ def basis_id(decision_id: str) -> str:
     return str(decision_id).split(FANOUT_TRENNER, 1)[0]
 
 
+def domain_slug(name: str) -> str:
+    """`Order to Cash` → `order-to-cash`: das Domaenenstueck der aufgefaecherten ID.
+
+    Oeffentlich seit C-3 (02.09.2026), weil die Emission dieselbe ID bilden muss wie
+    `propose_all`, um eine Entscheidungsantwort (`DATA-INC·order-to-cash`) ihrer Domaene
+    zuzuordnen. Zwei Slug-Regeln an zwei Stellen waeren die naechste stille Abweichung.
+    """
+    return _NONWORD_RE.sub("-", (name or "").lower()).strip("-")
+
+
+def entscheidung_fuer(entscheidungen: dict | None, basis: str, domain_name: str) -> str | None:
+    """Der gewaehlte Wert einer Entscheidung fuer diese Domaene — oder ``None``.
+
+    Liest zuerst die aufgefaecherte ID (`<basis>·<slug>`), dann die Basis-ID (ein Lauf mit
+    einer Domaene faechert nicht). Die Ledger-ID ist der Vertrag; wer hier einen dritten
+    Schluessel einfuehrt, bricht den Rueckweg aus der Antwortdatei.
+    """
+    if not entscheidungen:
+        return None
+    for key in (f"{basis}{FANOUT_TRENNER}{domain_slug(domain_name)}", basis):
+        wert = entscheidungen.get(key)
+        if wert not in (None, ""):
+            return str(wert)
+    return None
+
+
 def wartet_auf_modell(p: dict) -> bool:
     """Diese Entscheidung schweigt, weil das Gold-Modell fehlt — nicht, weil es nichts zu sagen gibt.
 
@@ -2154,7 +2199,7 @@ def propose_all(bp: dict, governed_catalog: dict | None = None,
             dgc = _domain_catalog(gc, d)
             if not dgc.get("tables"):
                 continue
-            slug = _NONWORD_RE.sub("-", (d.get("name") or "").lower()).strip("-")
+            slug = domain_slug(d.get("name") or "")
             dq = _quell_schnitt(bp, source_schema, d)
             for fn in per_domain:
                 r = fn(dgc, dq) if fn in mit_quelle else fn(dgc)
