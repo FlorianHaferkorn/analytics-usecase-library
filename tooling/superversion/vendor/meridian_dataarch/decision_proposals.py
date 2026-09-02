@@ -693,7 +693,7 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
                             "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/overview"}],
          "implikation": "Die Änderungsspalte wird Teil des Datenvertrags; ihre Verlässlichkeit ist eine Zusage der Quelle."},
         {"wert": "vollast",
-         "text": "Vollast beibehalten: bei jedem Lauf alles neu laden",
+         "text": "Vollast beibehalten: bei jedem Lauf den ganzen Bestand laden",
          "vorteile": ["Einfachste Variante, keine Schlüssel- oder Watermark-Frage", "Löschungen kommen automatisch an"],
          "nachteile": ["Kosten und Laufzeit wachsen mit dem Bestand", "Das Ladefenster wird irgendwann zu klein"],
          "limitierungen": [{"text": "Bei Direct Lake löst jedes Neuschreiben ein Neuladen des Modells aus (Framing)",
@@ -1160,7 +1160,7 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
     "PLAT-LHTOPO": [
         {"wert": "je_domaene", "empfohlen": True,
          "text": "Ein Lakehouse je Domäne, Schichten als Schemas",
-         "vorteile": ["Eigentum, Endorsement und Berechtigung hängen an der Domäne", "MLV-Tutorial von Microsoft fährt genau diese Form"],
+         "vorteile": ["Eigentum, Endorsement und Berechtigung hängen an der Domäne", "Das MLV-Tutorial von Microsoft zeigt diese Form"],
          "nachteile": ["Weicht von der MS-Empfehlung zur Schichttrennung ab"],
          "limitierungen": [{"text": "MS Learn empfiehlt eine Schicht je Lakehouse und je Workspace",
                             "quelle": "MS Learn: fabric/onelake/onelake-medallion-lakehouse-architecture"}],
@@ -1560,7 +1560,7 @@ def propose_silver_contract(gc: dict) -> dict:
         "DATA-CONTRACT", "Silver-Datenvertrag", "Wie wird konformiert und verknüpft?",
         f"Die **Join-Schlüssel stehen bereits fest** — aus den deklarierten Beziehungen: {joins}{more}. "
         f"Offen bleiben nur: Typisierung, Dedup-Regel je Geschäftsschlüssel, Null-/Qualitätsregeln und "
-        f"Umgang mit spät eintreffenden Zeilen. Vorschlag: den Vertrag als ODCS-Datei aus genau diesen "
+        f"Umgang mit spät eintreffenden Zeilen. Vorschlag: den Vertrag als ODCS-Datei aus diesen "
         f"Beziehungen vorbefüllen (`--emit-odcs`) und im Workshop nur die vier offenen Punkte klären.",
         f"{len(rels)} deklarierte Beziehung(en) im governten Katalog",
         "hoch",
@@ -1623,7 +1623,7 @@ def propose_lakehouse_topology(bp: dict) -> dict:
          "Schicht. Eigentum, Endorsement und Berechtigung hängen an der Domäne; ein zusätzlicher "
          "Schicht-Schnitt auf Workspace-Ebene würde jede Domäne über drei Workspaces verteilen und "
          "das Eigentum zersplittern. Dazu kommt die harte Kopplung: **Materialized Lake Views setzen "
-         "ein schema-aktiviertes Lakehouse voraus**, und MS' eigenes MLV-Tutorial fährt genau diese "
+         "ein schema-aktiviertes Lakehouse voraus**, und MS' eigenes MLV-Tutorial fährt diese "
          "Form — ein `SalesLakehouse` mit bronze/silver/gold als Schemas.\n\n"
          "**Wann die andere Variante gewinnt** (dann umstellen, und zwar *vor* der Anlage):\n"
          "- die Schicht ist der Governance-Schnitt — Rohdaten-Zugriff soll organisatorisch anders "
@@ -1958,9 +1958,9 @@ def propose_network_stance(bp: dict) -> dict:
                  or any(h in (e.get("source_system") or "").lower()
                         for h in ("on-prem", "on prem", "onprem", "gateway")))]
     gateway_satz = (
-        f" Diese Lieferung hat **{len(lokal)} Quelle(n) hinter der Firewall** — und genau da wird die "
+        f" Diese Lieferung hat **{len(lokal)} Quelle(n) hinter der Firewall**. Genau da wird die "
         "Frage scharf: **das On-premises-Data-Gateway laesst sich mit aktiviertem Private Link nicht "
-        "einmal registrieren.** Wer beides will, braucht das VNet-Data-Gateway; das ist eine andere "
+        "einmal registrieren.** Wer beides will, braucht das VNet-Data-Gateway. Das ist eine andere "
         "Beschaffung, kein Schalter." if lokal else
         " Diese Lieferung hat keine Quelle hinter der Firewall, die Gateway-Frage stellt sich also "
         "heute nicht. Sie stellt sich beim ersten lokalen Quellsystem.")
@@ -1969,11 +1969,11 @@ def propose_network_stance(bp: dict) -> dict:
         "Wie erreichen Nutzer und Dienste die Plattform, und wie erreicht die Plattform die Quellen?",
         ("Vorschlag: **öffentliche Endpunkte plus Trusted Workspace Access** für Azure-Quellen. "
          "Trusted Workspace Access lässt einen Speicher hinter geschlossener Firewall trotzdem aus "
-         "genannten Workspaces lesen, über das Microsoft-Backbone — der Sicherheitsgewinn ohne den "
-         "Preis von Private Link. **Private Link wird nicht vorsorglich gebaut**, sondern nur auf "
-         "belegte Anforderung: er kostet unter anderem Publish-to-Web, PDF-/PowerPoint-Export, "
-         "E-Mail-Abonnements, Copilot, die Capacity-Metrics-App und tenantübergreifende Verknüpfungen "
-         "— und er ist nachträglich nur mit Neuaufbau der Quellanbindung zu drehen." + gateway_satz),
+         "genannten Workspaces lesen, über das Microsoft-Backbone. Das ist der Sicherheitsgewinn ohne "
+         "den Preis von Private Link. **Private Link wird nur auf belegte Anforderung gebaut.** Er "
+         "kostet unter anderem Publish-to-Web, PDF- und PowerPoint-Export, E-Mail-Abonnements, Copilot, "
+         "die Capacity-Metrics-App und tenantübergreifende Verknüpfungen. Nachträglich lässt er sich "
+         "nur mit Neuaufbau der Quellanbindung drehen." + gateway_satz),
         "MS Learn: security-private-links-overview (Grenzen je Erlebnis) + security-trusted-workspace-"
         "access (F-SKU-Pflicht, kein Trial), beide geprueft 16.08.2026",
         "hoch",
