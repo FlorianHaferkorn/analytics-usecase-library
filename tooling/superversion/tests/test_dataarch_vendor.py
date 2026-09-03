@@ -374,3 +374,38 @@ def test_the_bridge_does_not_create_a_core_pbi_engine_package():
     kern = sys.modules["core"]
     assert getattr(kern, "__file__", None) is None
     assert hasattr(kern, "__path__")
+
+
+# -- Der Preis-Rechenkern (03.09.2026, ADR-0019 N-3) --------------------------------
+
+
+def test_public_api_declares_no_duplicate_function_name():
+    """``load_emitters()`` flacht auf Funktionsnamen ab — zwei gleiche Namen wären ein
+    stiller Gewinner. Bis zum 03.09.2026 war die Fläche ausschließlich ``emit_*``; mit dem
+    Preis-Kern kommen generische Namen wie ``paket`` und ``stunden`` dazu, und ab da ist die
+    Eindeutigkeit eine Zusage statt eines Zufalls."""
+    import collections
+    alle = [fn for fns in vendor.PUBLIC_API.values() for fn in fns]
+    doppelt = [n for n, c in collections.Counter(alle).items() if c > 1]
+    assert doppelt == [], f"zwei Module versprechen denselben Namen: {doppelt}"
+
+
+def test_the_price_kernel_is_mirrored_and_computes():
+    """Ein Rechenkern, nicht zwei (ADR-0019 §2.4). Gemessen an einem Mandanten in
+    Nagarro-Form (Rolle × Standort), nicht an Meridians Ein-Personen-Belegung."""
+    pk = vendor.load_module("preis_kanon")
+    m = {"marge_m": {"wert": 0.25}, "risikozuschlag_r": {"festpreis": 0.1, "tm": 0},
+         "rundung_eur": 50,
+         "satzklassen": {"architekt_onshore": {"kostensatz_eur_h": 100}}}
+    p = {"kalkulation": {"mengentreiber": {},
+                         "aufgaben": [{"klasse": "architekt_onshore", "stunden": 10}]}}
+    assert pk.selbstkosten(m, p) == 1000.0
+    assert pk.preis_kalkuliert(m, p) == 1000.0 * 1.1 * 1.25
+
+
+def test_the_freelancing_only_check_is_not_promised():
+    """``pruefe_kanon`` erzwingt den Mandanten ``freelancing`` (dortiges D-357) und steht
+    deshalb nicht in ``PUBLIC_API`` — sie wäre hier per Konstruktion rot. Der Test hält die
+    Begründung fest, damit sie später nicht als Vergessen gelesen wird."""
+    assert "pruefe_kanon" not in vendor.PUBLIC_API["preis_kanon"]
+    assert vendor.load_module("preis_kanon").MANDANT_ERWARTET == "freelancing"

@@ -81,7 +81,29 @@ def test_sql_type_map_survives_a_table_without_entries():
 def test_mirrored_files_matches_the_pin():
     pin = sensor.vendor_pin()
     assert pin is not None
-    assert [e["path"] for e in pin["files"]] == list(sensor.MIRRORED_FILES)
+    assert [e["path"] for e in pin["files"]] == [z for _, z in sensor.mirror_quellen()]
+
+
+def test_a_file_outside_the_blueprint_dir_names_its_source(tmp_path: Path):
+    """Seit 03.09.2026 liest der Spiegel aus zwei Meridian-Verzeichnissen (ADR-0019 N-3).
+
+    Der Vorgabepfad ``source_path`` bleibt eine echte Aussage: wer davon abweicht, traegt
+    sein ``source`` selbst. Ein PIN, in dem beides fehlt, koennte nicht sagen, woher eine
+    Datei kam — und genau das war der Grund, die Liste ueberhaupt anzufassen.
+    """
+    pin = sensor.vendor_pin()
+    nach_pfad = {e["path"]: e for e in pin["files"]}
+    assert nach_pfad["preis_kanon.py"]["source"] == "core/preis_kanon.py"
+    ohne_source = [e for e in pin["files"] if "source" not in e]
+    assert ohne_source, "der Vorgabepfad traegt weiterhin die Mehrheit"
+    for e in ohne_source:
+        assert (sensor.REPO_ROOT / sensor._VENDOR_REL / e["path"]).is_file()
+
+
+def test_the_price_kernel_is_declared_with_its_path():
+    quellen = dict((z, q) for q, z in sensor.mirror_quellen())
+    assert quellen["preis_kanon.py"] == "core/preis_kanon.py"
+    assert quellen["naming.py"] == f"{sensor._MER_REL}/naming.py"
 
 
 def test_declared_but_unmirrored_file_is_reported(tmp_path: Path, monkeypatch):
@@ -89,7 +111,11 @@ def test_declared_but_unmirrored_file_is_reported(tmp_path: Path, monkeypatch):
     otherwise the declaration would be decorative."""
     monkeypatch.setattr(sensor, "MIRRORED_FILES",
                         sensor.MIRRORED_FILES + ("brand_new_module.py",))
-    (tmp_path / "brand_new_module.py").write_text("x = 1\n", encoding="utf-8")
+    # `tmp_path` ist jetzt die Meridian-**Wurzel**, nicht mehr der Blueprint-Ordner: der
+    # Spiegel liest aus zwei Verzeichnissen, ein fester Quellordner reicht nicht mehr.
+    quelle = tmp_path / sensor._MER_REL
+    quelle.mkdir(parents=True, exist_ok=True)
+    (quelle / "brand_new_module.py").write_text("x = 1\n", encoding="utf-8")
     pin = sensor.vendor_pin()
     findings = sensor.vendor_upstream_drift(pin, tmp_path)
     assert any("brand_new_module.py" in f and "not mirrored yet" in f for f in findings)
