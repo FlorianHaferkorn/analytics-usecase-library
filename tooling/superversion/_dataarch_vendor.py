@@ -127,6 +127,31 @@ PUBLIC_API: dict[str, tuple[str, ...]] = {
     # **gemessen 26.08.2026 null Dateien liefert** — das ist keine stille Null, sondern
     # steht so im Laufstatus. Er feuert in dem Moment, in dem der Abschnitt entsteht.
     "governance_strategy": ("emit_governance_strategy",),
+
+    # -- Der Preis-Rechenkern (03.09.2026, ADR-0019 N-3) ---------------------------------
+    #
+    # Meridians `core/preis_kanon.py` (Formel D-356). Gespiegelt statt nachgebaut, weil zwei
+    # Rechenkerne driften — ADR-0019 §2.4, Tool-Reuse-Pflicht. Welche Datei der Kern ist,
+    # steht als gemessene Abweichung zum ADR in `scripts/check_dataarch_mirror.py`.
+    #
+    # Die Fläche ist der **mandantenunabhängige** Teil: jede dieser Funktionen nimmt den
+    # Mandanten `m` als Parameter, `satzklassen` trägt hier Rolle × Standort (§2.2) statt
+    # einer Person. Drei Gruppen stehen bewusst nicht drin:
+    #
+    # * `pruefe_kanon` — erzwingt `MANDANT_ERWARTET = "freelancing"` (Freelancing D-357) und
+    #   würde `nagarro` per Konstruktion zurückweisen. ALUCAs Regeln stehen in seinem
+    #   eigenen Loader, nicht in einer Kopie dieser Funktion.
+    # * `lade_kanon` und die MD-Renderer (`render_kalkulationsblatt`, `write_md`, `check_md`,
+    #   `check`) — sie hängen an `REPO = Path(__file__).parents[1]`, und das zeigt im Spiegel
+    #   auf `tooling/superversion/vendor`. ALUCA lädt aus `PREIS_KANON_MANDANTEN_DIR`.
+    # * `main` — CLI des Quell-Repos.
+    "preis_kanon": (
+        "mandant", "paket", "marge", "risiko", "kostensatz", "verkaufssatz",
+        "mengen_default", "ist_tm", "stunden", "grundaufwand", "aufwand_je_einheit",
+        "selbstkosten", "preis_kalkuliert", "runden", "festpreis",
+        "lieferzeit_band", "lieferzeit_status", "kalkulation",
+        "stunden_je_kalender_at", "fakturierbare_stunden_je_jahr",
+    ),
 }
 
 
