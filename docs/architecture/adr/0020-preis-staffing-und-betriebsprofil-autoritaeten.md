@@ -4,9 +4,13 @@
 |---|---|
 | Status | **Proposed** (03.09.2026) |
 | Entscheider | Florian Haferkorn |
-| Kontext | Zwei am selben Tag entstandene Heimaten für Nagarro-Rollen, -Sätze und -Kapazität: ADR-0019 (Accepted, hängt in PR #467) und der WB-002-Austauschvertrag `consulting-operating-profile/1.0.0` |
+| Kontext | Zwei am selben Tag entstandene Heimaten für Nagarro-Rollen, -Sätze und -Kapazität: ADR-0019 (Accepted, gemergt am 03.09.2026 mit PR #467) und der WB-002-Austauschvertrag `consulting-operating-profile/1.0.0` |
 | Betrifft | `tooling/generator/schemas/consulting_operating_profile.schema.json` · `core/engagement_profiles/nagarro_consulting.yaml` · künftig `tooling/superversion/preis_kanon_schema.yaml` und der gespiegelte `staffing.py` |
-| Bezug | ADR-0019 (Preis- und Staffing-Modell) · ADR-0005 (Meridian-Vendoring, Contract-Mirror) · Workbench-Backlog WB-002/WB-009 |
+| Bezug | ADR-0019 **dieses Repos** (Preis- und Staffing-Modell) · ADR-0005 (Meridian-Vendoring, Contract-Mirror) · Workbench-Backlog WB-002/WB-009 |
+
+> **Namenshinweis:** Es gibt zwei ADR-0019. Dieses Dokument meint durchgehend das ADR-0019
+> dieses Repos. Meridians gleichnummeriertes ADR-0019 („kein Schätzmodul", §2.4 dort) ist ein
+> anderes Dokument; ADR-0019 hier verweist in §4 ausdrücklich darauf.
 
 ## 1. Kontext
 
@@ -63,7 +67,14 @@ aus der einen Quelle rechnet, während die andere etwas anderes behauptet.
 4. **Kein zweiter Kalkulator, auch nicht über das Profil.** WB-009 baut keinen Nagarro-Rechner.
    Es baut einen Adapter, der `staffing.py` aufruft und dessen Ergebnis an Angebot, Arbeitspakete
    und Rollenbedarf reicht. ADR-0019 §2.4 bleibt unangetastet.
-5. **Vorrang bei Widerspruch: ADR-0019 vor Manifest.** `repository-bootstrap.manifest.json` führt
+5. **Der Arbeitstag gehört dem Kanon, nicht dem Profil.** ADR-0019 §7 führt „Stunden im Kern,
+   8 h je Tag als Kanon-Größe" ausdrücklich als `ANNAHME, ungeprueft`. `nagarro_consulting.yaml`
+   setzt dieselbe Größe heute als `delivery.workday_hours: 8` — ohne diese Kennzeichnung. Das ist
+   dieselbe Zahl an zwei Orten, davon einer als offen markiert. Sie gehört in die Mandantendatei.
+   Bis der Kanon steht, bleibt der Wert im Profil stehen und trägt einen Kommentar, der ihn als
+   den offenen Punkt aus ADR-0019 §7 ausweist; mit dem Kanon wird er auf `null` gesetzt wie
+   `weekly_capacity_hours` und `planning_utilization_pct`.
+6. **Vorrang bei Widerspruch: ADR-0019 vor Manifest.** `repository-bootstrap.manifest.json` führt
    `authoritative: false` und ist ein Ausführungs-Handoff, keine Entscheidungsquelle. Wo das
    Manifest etwas anderes nahelegt, wird das Manifest nachgezogen, nicht das ADR.
 
@@ -97,15 +108,19 @@ aus der einen Quelle rechnet, während die andere etwas anderes behauptet.
 | `Test-OperatingProfileContractParity.ps1` (HTF-Workbench) | `Status: PARITY`, Schema unverändert |
 | `python -m pytest tooling/tests/test_consulting_operating_profile.py -q` | grün, `hourly_rates` leer, `customer_price_values_in_profile: false` |
 | `grep -nE "[0-9]+(\.[0-9]+)? ?EUR" core/engagement_profiles/*.yaml` | keine Zeile |
+| `workday_hours` im Profil | trägt bis zum Kanon einen Verweis auf ADR-0019 §7, danach `null` |
 | ADR-0019 N-4 nach Umsetzung dort | kein numerischer Satz im Kanon-Schema |
 | `python scripts/check_index.py --strict` | 0 harte Befunde |
 
 ## 6. Offene Punkte
 
 - **Formale Annahme durch Flo.** Bis dahin ist dieses ADR `Proposed` und keine Entscheidung.
-- **Reihenfolge:** ADR-0019 liegt in PR #467 und ist auf `main` unsichtbar. Solange der PR offen
-  ist, verweist dieses ADR auf ein Dokument, das nur auf dem Branch existiert. Vorschlag: #467
-  zuerst mergen, dann dieses ADR annehmen.
+- **Reihenfolge: erledigt.** PR #467 ist am 03.09.2026 gemergt; ADR-0019 liegt auf `main` und
+  dieses ADR wurde gegen den gemergten Text gegengelesen, nicht gegen eine Branch-Kopie.
+- **Doppelte Ledger-ID A-14** in `../_INDEX.md` §3: die Workbench-Zeile (01.09.2026) und die
+  ADR-0019-Zeile (03.09.2026) tragen beide `A-14`. Ein Punkt, den zwei Zeilen adressieren, ist
+  über seine ID nicht auffindbar. Dieses ADR läuft deshalb unter `A-15`. Die Doublette selbst
+  ist nicht Gegenstand dieses ADR und wird separat bereinigt.
 - **`authority_path` als Freitext oder Enum.** Vorschlag: Freitext belassen. Ein Enum wäre eine
   Schema-Änderung und damit ein Spiegel-Bump auf 1.1.0 für einen Gewinn, der heute nicht
   gemessen ist. `ANNAHME, ungeprueft`.
