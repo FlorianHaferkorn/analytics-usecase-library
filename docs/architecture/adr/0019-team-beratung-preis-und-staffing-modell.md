@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Status | **Proposed** (03.09.2026) |
+| Status | **Accepted** (03.09.2026, Flo: „ja ich nehme ADR-0053 und ADR-0019 an"; Meridian D-358; Proposed am selben Tag) |
 | Entscheider | Florian Haferkorn |
 | Kontext | Flos Vorgabe vom 03.09.2026: „Freelancing sollte auf ein 1 Personen Consulting ausgelegt sein, preislich usw. analytics-usecase-library als Nagarro Consulting." · Freelancing/Meridian D-352, D-355, D-356, **D-357** · Plan 0008 (dort) Stufe D |
 | Betrifft | `tooling/superversion/` (Engagement-Achse: `engagement_guide.py`, `answers.py`, `open_questions.py`, `capacity.py`) · künftig `tooling/superversion/preis_kanon_schema.yaml` und der gespiegelte Rechenkern `staffing.py` |
@@ -109,7 +109,7 @@ der Kapazitätslogik: eine Person liefert Pakete nacheinander, ein Team liefert 
 
 ## 7. Offen (Ledger in `../_INDEX.md` §3, Punkt A-14)
 
-- Formale Annahme dieses ADR durch Flo.
+- Formale Annahme dieses ADR durch Flo: **erledigt 03.09.2026** (Accepted, Meridian D-358).
 - Tages- oder Stundensatz in der Mandantendatei: Nagarro rechnet Tage, D-356 rechnet Stunden.
   Vorschlag: Stunden im Kern, 8 h je Tag als Kanon-Größe (`ANNAHME, ungeprueft`).
 - Ob der Verzeichnisname `PREIS_KANON_MANDANTEN_DIR` in beiden Repos gleich heißt oder ALUCA
