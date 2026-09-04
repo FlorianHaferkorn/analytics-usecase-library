@@ -1,0 +1,29 @@
+# Schema-valid but rejected by the neutrality scan: a reusable pack must not
+# carry tenant identifiers or personal addresses. Those belong to a project
+# package or a customer repository.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  applicability: []
+  methodology: []
+  questions: []
+  evidence_requirements:
+    - id: e_domain_owner_register
+      claim: Every top-level domain has a named accountable owner.
+      scope: Tenant 3f2a91c4-77bd-4e51-9a0e-1c8d6b5f2e77, confirmed by data.owner@example.invalid
+      environment: none
+      acceptable_sources:
+        - Written confirmation by the customer governance lead
+      state: registered
+      expiry_policy: review_on_scope_change
+  decisions: []
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages: []
+  skill_requirements: []
+  estimation_rules: []
+  tool_dependencies: []
+  outputs: []
+  readiness_gates: []
+  acceptance_tests: []

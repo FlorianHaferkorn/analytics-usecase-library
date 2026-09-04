@@ -1,0 +1,56 @@
+schema_version: 1.0.0
+source_ref: fixture://project-package/v1/package.yaml
+package_id: package_demo
+project_ref: project_demo
+revision: 1
+state: working
+parent_revision_hash: null
+operating_profile_lock:
+  id: aluca_nagarro_consulting
+  version: 1.0.0
+  sha256: '1111111111111111111111111111111111111111111111111111111111111111'
+capability_locks:
+  - id: fabric_platform_foundation
+    version: 1.0.0
+    sha256: '2222222222222222222222222222222222222222222222222222222222222222'
+external_refs:
+  - ledger://decision/E-1
+  - contract://data-product/gold
+opportunity:
+  schema_version: 1.0.0
+  opportunity_id: opp_demo
+  customer_ref: customer_demo
+  objectives:
+    - Prove a governed delivery path
+  scope_status: qualified
+  constraints: []
+  source_refs:
+    - brief://opportunity/demo
+commercial:
+  schema_version: 1.0.0
+  status: assumption
+  authority_ref: env:PREIS_KANON_MANDANTEN_DIR/preis_kanon.yaml
+  currency: EUR
+  estimate:
+    value: null
+    basis_refs: []
+  price_values_embedded: false
+plan:
+  schema_version: 1.0.0
+  work_packages: []
+  dependencies: []
+observed_states:
+  - schema_version: 1.0.0
+    environment: dev
+    collection_state: collected
+    captured_at: '2026-09-04T09:00:00Z'
+    collector: fixture
+    resources:
+      - logical_id: workspace_dev
+        resource_type: workspace
+        physical_id: fixture-workspace
+        state_hash: '0000000000000000000000000000000000000000000000000000000000000000'
+decision_set:
+  schema_version: 1.0.0
+  definitions: []
+  instances: []

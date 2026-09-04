@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/compiler-input/1.0.0",
+  "title": "Neutral Project Package compiler input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "package", "modules", "readiness", "provenance"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "package_id", "project_ref", "revision", "state",
+        "operating_profile_lock", "capability_locks", "manifest_sha256"
+      ],
+      "properties": {
+        "schema_version": {"const": "2.0.0"},
+        "package_id": {"type": "string"},
+        "project_ref": {"type": "string"},
+        "revision": {"type": "integer", "minimum": 1},
+        "state": {"enum": ["working", "in_review", "approved", "superseded"]},
+        "operating_profile_lock": {"type": "object"},
+        "capability_locks": {"type": "array", "items": {"type": "object"}},
+        "manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "modules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["opportunity", "commercial", "plan", "decision_set", "observed_states"],
+      "properties": {
+        "opportunity": {"type": "object"},
+        "commercial": {"type": "object"},
+        "plan": {"type": "object"},
+        "decision_set": {"type": "object"},
+        "observed_states": {
+          "type": "object",
+          "additionalProperties": {"type": "object"}
+        },
+        "architecture_input": {"type": "object"}
+      }
+    },
+    "readiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision_ready", "build_ready", "unapproved_decision_refs", "blockers"],
+      "properties": {
+        "decision_ready": {"type": "boolean"},
+        "build_ready": {"type": "boolean"},
+        "unapproved_decision_refs": {"type": "array", "items": {"type": "string"}},
+        "blockers": {
+          "type": "array",
+          "items": {"enum": ["package_not_approved", "decisions_not_approved"]},
+          "uniqueItems": true
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module_locks", "migration"],
+      "properties": {
+        "module_locks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["module_type", "environment", "path", "sha256"],
+            "properties": {
+              "module_type": {"type": "string"},
+              "environment": {"type": ["string", "null"]},
+              "path": {"type": "string"},
+              "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+            }
+          }
+        },
+        "migration": {"type": ["object", "null"]}
+      }
+    }
+  }
+}

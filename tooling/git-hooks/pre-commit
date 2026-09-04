@@ -1,28 +1,16 @@
 #!/bin/sh
-# Pre-commit hook: run ontology registry builder in strict mode.
-# Scope: only runs if staged diff includes paths under core/.
-# Studio-only (or tooling-only, docs-only) commits bypass this check —
-# the ontology registry is only affected by changes under core/.
-# Install via: .\tooling\git-hooks\install_precommit.ps1
-
+# Pre-commit hook (drei Gates):
+#   1.   claude-repo-kit strict drift/quality gate — laeuft bei JEDEM Commit (guenstig;
+#        prueft nur _INDEX.md-Bereiche + CLAUDE.md/GOI_DOKTRIN.md-Platzhalter).
+#   1.5  Kundenkennungen — laeuft bei JEDEM Commit, nur auf gestagten Dateien.
+#   2.   ontology registry builder (strict) — nur wenn core/-Pfade gestagt sind.
+# Install/refresh via: .\tooling\git-hooks\install_precommit.ps1
 set -e
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
+export PYTHONUTF8=1  # avoid cp1252 UnicodeEncodeError on Windows when findings contain ä/ü/ß
 
-# Fast path: if no core/ paths are staged, skip the registry builder.
-# --cached        = staged files only
-# --name-only     = paths only, no diff body
-# --diff-filter   = Added/Copied/Modified/Renamed (excludes Deleted, which doesn't affect registry)
-CORE_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^core/' || true)
-
-if [ -z "$CORE_STAGED" ]; then
-  echo "pre-commit: no core/ changes staged — skipping ontology registry build."
-  exit 0
-fi
-
-echo "pre-commit: core/ changes detected — running ontology registry build (strict)..."
-
-# Prefer py -3 (Windows launcher), fallback to python
+# Prefer py -3 (Windows launcher), fallback to python3/python
 if command -v py >/dev/null 2>&1; then
   PY="py -3"
 elif command -v python3 >/dev/null 2>&1; then
@@ -34,4 +22,30 @@ else
   exit 1
 fi
 
+# Gate 1: claude-repo-kit strict drift/quality gate (blocks unfilled {{…}}, dead paths, index drift)
+$PY scripts/check_index.py --strict || exit 1
+
+# Gate 1.5: Kundenkennungen (04.09.2026). Steht vor dem core/-Fastpath, damit auch ein
+# reiner Docs- oder Studio-Commit geprueft wird — genau dort kommen solche Kennungen
+# ueblicherweise herein.
+#
+# Nur gestagte Dateien, dieselbe Doktrin wie die Nachbar-Gates: ein Hook, der den ganzen
+# Baum scannte, blockierte jeden Commit bis der Rueckstand weg ist — und waere ab dem
+# zweiten Mal umgangen. Der vollstaendige Durchlauf ist ein eigener, bewusster Aufruf
+# (`python tooling/validation/check_kundendaten.py`).
+#
+# Dieses Repository bekommt weitere Leser, deshalb gehoert das Gate, das das Solo-Produkt
+# seit Monaten hat, auch hierher. Ohne seine Sperrliste bricht der Pruefer ab, statt Erfolg
+# zu melden — ein Pruefer, der ohne seine Regeln gruen meldet, ist schlimmer als keiner.
+$PY tooling/validation/check_kundendaten.py --staged --leise || exit 1
+
+# Gate 2: ontology registry — fast path: skip if no core/ paths staged.
+# --cached = staged only · --name-only = paths only · --diff-filter=ACMR excludes Deleted
+CORE_STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^core/' || true)
+if [ -z "$CORE_STAGED" ]; then
+  echo "pre-commit: no core/ changes staged — skipping ontology registry build."
+  exit 0
+fi
+
+echo "pre-commit: core/ changes detected — running ontology registry build (strict)..."
 exec $PY tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict

@@ -1,0 +1,20 @@
+# Smallest pack the contract accepts: every section is mandatory, every section
+# may be empty. Proves that the closed contract demands keys, not content.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  applicability: []
+  methodology: []
+  questions: []
+  evidence_requirements: []
+  decisions: []
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages: []
+  skill_requirements: []
+  estimation_rules: []
+  tool_dependencies: []
+  outputs: []
+  readiness_gates: []
+  acceptance_tests: []

@@ -1,0 +1,24 @@
+# Rejected: "visual_ready" is not one of the six derived readiness gates.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  applicability: []
+  methodology: []
+  questions: []
+  evidence_requirements: []
+  decisions: []
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages: []
+  skill_requirements: []
+  estimation_rules: []
+  tool_dependencies: []
+  outputs: []
+  readiness_gates:
+    - id: g_visual_ready
+      gate: visual_ready
+      minimum_evidence_refs: []
+      decision_refs: []
+      blocking: true
+  acceptance_tests: []

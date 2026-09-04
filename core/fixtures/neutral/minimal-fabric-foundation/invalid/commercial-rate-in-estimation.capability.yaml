@@ -1,0 +1,34 @@
+# Rejected: a pack carries effort, never a rate. Pricing lives in the operating
+# profile of the respective product, not in a reusable capability.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  applicability: []
+  methodology: []
+  questions: []
+  evidence_requirements: []
+  decisions: []
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages:
+    - id: wp_environment_setup
+      name: Environment setup
+      description: Create the selected environments.
+      decision_refs: []
+      output_refs: []
+      depends_on: []
+  skill_requirements: []
+  estimation_rules:
+    - id: est_environment_setup
+      work_package_ref: wp_environment_setup
+      driver: Number of environments
+      unit: days
+      low: 2
+      high: 5
+      status: proposed
+      rate: 150
+  tool_dependencies: []
+  outputs: []
+  readiness_gates: []
+  acceptance_tests: []

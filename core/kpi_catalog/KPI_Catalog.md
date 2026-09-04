@@ -3355,6 +3355,97 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     alignment: partial
     note: 'Net sales is a presentation of IFRS 15 revenue: net of VAT (correctly excluded — amounts collected on behalf of third parties are not revenue) and net of returns (IFRS 15 variable consideration — recognise a refund liability, not revenue). Aligns when returns/rebates are treated as IFRS 15 variable consideration.'
 
+- kpi_id: sales.net_sales.plan.amount
+  kpi_key: Plan Net Sales Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-001
+  action_code_ref: []
+  calc_type: amount
+  business:
+    purpose: Governed plan baseline for comparing actual Net Sales performance.
+    definition: Sum of approved Plan Sales Amount at invoice-line planning grain.
+    grain_scope: Invoice line and reporting period.
+    unit_format: eur_0
+    interpretation: Represents the approved Net Sales baseline; actual values above Plan are favorable, subject to margin guardrails.
+  technical:
+    measure_name: Plan Sales Amount
+    description: Approved Net Sales plan baseline for commercial variance analysis.
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Plan Sales Amount
+    calculation:
+      op: sum
+      column: Plan Sales Amount
+  governance:
+    business_owner: Head of Sales Controlling
+    data_owner: Commercial BI
+    steward: Sales Analyst
+    review_cycle: annual
+    validation_process: dual control
+    qa_rules:
+    - Reconciles to the approved commercial plan within +/- 0.1%.
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 27.08.2026
+  standard_ref:
+  - standard: Internal — ActionReady governance
+    name: Approved Net Sales plan baseline
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: none
+    note: The plan baseline is an internal management measure; IFRS 15 governs the comparable actual revenue, not the plan.
+
+- kpi_id: sales.net_sales.ly.amount
+  kpi_key: Prior-Year Net Sales Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-001
+  action_code_ref: []
+  calc_type: amount
+  business:
+    purpose: Governed prior-year baseline for comparable Net Sales trend analysis.
+    definition: Sum of Net Sales Amount for the corresponding prior-year reporting period.
+    grain_scope: Invoice line and comparable reporting period.
+    unit_format: eur_0
+    interpretation: Provides the like-for-like prior-year revenue baseline; comparability adjustments must follow the reporting calendar.
+  technical:
+    measure_name: Last Year Net Sales Amount
+    description: Comparable prior-year Net Sales baseline for commercial trend analysis.
+    depends_on_measures:
+    - sales.net_sales.amount
+    lineage:
+    - fact_sales.Last Year Sales Amount
+    calculation:
+      op: sum
+      column: Last Year Sales Amount
+  governance:
+    business_owner: Head of Sales Controlling
+    data_owner: Commercial BI
+    steward: Sales Analyst
+    review_cycle: quarterly
+    validation_process: dual control
+    qa_rules:
+    - Reconciles to the corresponding prior-year Net Sales period within +/- 0.1%.
+    version: v1.0
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 27.08.2026
+  standard_ref:
+  - standard: IFRS 15
+    name: Prior-year revenue comparison baseline
+    url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+    alignment: partial
+    note: The underlying Net Sales amount follows the governed IFRS 15-aligned revenue definition; the prior-year comparison itself is a management view.
+
 - kpi_id: sales.net_sales.delta_pct.ly
   kpi_key: Delta% Net Sales
   kpi_type: diagnostic
@@ -5684,6 +5775,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - Corporate & Strategy
   use_case_ref:
   - XD-003
+  - XD-004
   action_code_ref:
   - X-E3.2
   calc_type: ratio

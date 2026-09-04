@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/commercial/2.0.0",
+  "title": "Project commercial module",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "authority_ref", "currency", "estimate"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "status": {"enum": ["not_started", "assumption", "calculated", "approved"]},
+    "authority_ref": {"type": "string", "minLength": 1},
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "estimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "basis_refs"],
+      "properties": {
+        "value": {"type": ["number", "null"], "minimum": 0},
+        "basis_refs": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "price_values_embedded": {"const": false}
+  }
+}

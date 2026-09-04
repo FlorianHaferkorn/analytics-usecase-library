@@ -47,7 +47,7 @@ der Kapazitätslogik: eine Person liefert Pakete nacheinander, ein Team liefert 
    die daraus entstehen, sind Kanon-Tage mit Herkunft (Paket, Rolle, Beteiligung) und dürfen im
    Angebot stehen. Zielmarge m und Risikozuschlag r stehen in der Mandantendatei.
 3. **Werte nie im Repo.** Nagarro-Ratecards und Kostenbänder sind Nagarro-Daten und folgen
-   derselben Regel wie Kundenmaterial (HOCHTIEF): sie liegen an der Nagarro-Ablage. Das Repo trägt
+   derselben Regel wie Kundenmaterial: es liegt an der Nagarro-Ablage. Das Repo trägt
    das Schema mit `<satz>`-Platzhaltern und lädt Werte aus `PREIS_KANON_MANDANTEN_DIR`. Ein Test
    scheitert, sobald das Repo-Schema einen numerischen Satz trägt.
 4. **Der Rechenkern wird einmal gebaut, nicht zweimal.** Er entsteht in Meridian
@@ -139,7 +139,7 @@ Zwei Folgen, beide umgesetzt:
 | Bereichsindex | `python scripts/check_index.py --strict` | 0 harte Befunde |
 | Testfläche | `tooling/superversion/tests/test_preis_kanon_mandant.py` · `test_dataarch_vendor.py` · `tooling/tests/test_dataarch_mirror_sensor.py` | 21 · 28 · 25 Tests grün |
 
-## 7. Offen (Ledger in `../_INDEX.md` §3, Punkt A-14)
+## 7. Offen (Ledger in `../_INDEX.md` §3, Punkt A-16)
 
 - Formale Annahme dieses ADR durch Flo: **erledigt 03.09.2026** (Accepted, Meridian D-358).
 - Tages- oder Stundensatz in der Mandantendatei: **entschieden durch die Umsetzung, anders als

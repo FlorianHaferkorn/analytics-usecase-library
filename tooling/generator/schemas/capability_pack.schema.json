@@ -1,0 +1,365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.analytics-consulting.local/capability-pack/1.0.0/schema.json",
+  "title": "Capability Pack",
+  "description": "Customer-neutral closed contract for a reusable discovery-to-deployment capability pack. A pack contributes questions, evidence requirements, decisions, rules, work packages, outputs, readiness gates and acceptance tests. It extends the core; it must not introduce a second state model, embed customer facts or carry commercial rates.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "capability"],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0",
+      "description": "Version of this contract, not of the pack. The pack carries its own semantic version."
+    },
+    "capability": {"$ref": "#/$defs/capability"}
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "maxLength": 64
+    },
+    "text": {"type": "string", "minLength": 1},
+    "id_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "text_list": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/text"}
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fact", "operator", "value"],
+      "properties": {
+        "fact": {"$ref": "#/$defs/identifier"},
+        "operator": {
+          "type": "string",
+          "enum": ["equals", "not_equals", "in", "not_in", "exists", "not_exists"]
+        },
+        "value": {}
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "applicability",
+        "methodology",
+        "questions",
+        "evidence_requirements",
+        "decisions",
+        "recommendation_rules",
+        "architecture_rules",
+        "work_packages",
+        "skill_requirements",
+        "estimation_rules",
+        "tool_dependencies",
+        "outputs",
+        "readiness_gates",
+        "acceptance_tests"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+        "applicability": {"type": "array", "items": {"$ref": "#/$defs/applicability_rule"}},
+        "methodology": {"type": "array", "items": {"$ref": "#/$defs/methodology_step"}},
+        "questions": {"type": "array", "items": {"$ref": "#/$defs/question"}},
+        "evidence_requirements": {"type": "array", "items": {"$ref": "#/$defs/evidence_requirement"}},
+        "decisions": {"type": "array", "items": {"$ref": "#/$defs/decision"}},
+        "recommendation_rules": {"type": "array", "items": {"$ref": "#/$defs/recommendation_rule"}},
+        "architecture_rules": {"type": "array", "items": {"$ref": "#/$defs/architecture_rule"}},
+        "work_packages": {"type": "array", "items": {"$ref": "#/$defs/work_package"}},
+        "skill_requirements": {"type": "array", "items": {"$ref": "#/$defs/skill_requirement"}},
+        "estimation_rules": {"type": "array", "items": {"$ref": "#/$defs/estimation_rule"}},
+        "tool_dependencies": {"type": "array", "items": {"$ref": "#/$defs/tool_dependency"}},
+        "outputs": {"type": "array", "items": {"$ref": "#/$defs/output"}},
+        "readiness_gates": {"type": "array", "items": {"$ref": "#/$defs/readiness_gate"}},
+        "acceptance_tests": {"type": "array", "items": {"$ref": "#/$defs/acceptance_test"}}
+      }
+    },
+    "applicability_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "condition"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "description": {"$ref": "#/$defs/text"},
+        "condition": {"$ref": "#/$defs/condition"}
+      }
+    },
+    "methodology_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "step", "description", "produces"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "step": {"type": "integer", "minimum": 1},
+        "description": {"$ref": "#/$defs/text"},
+        "produces": {"$ref": "#/$defs/id_list"}
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text", "state", "blocking", "applicability_refs", "evidence_requirement_refs", "decision_ref"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "text": {"$ref": "#/$defs/text"},
+        "state": {
+          "type": "string",
+          "enum": ["draft", "open", "answered", "decision_required", "closed", "deferred"]
+        },
+        "blocking": {"type": "boolean"},
+        "applicability_refs": {"$ref": "#/$defs/id_list"},
+        "evidence_requirement_refs": {"$ref": "#/$defs/id_list"},
+        "decision_ref": {
+          "anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        }
+      }
+    },
+    "evidence_requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "claim", "scope", "environment", "acceptable_sources", "state", "expiry_policy"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "claim": {"$ref": "#/$defs/text"},
+        "scope": {"$ref": "#/$defs/text"},
+        "environment": {
+          "type": "string",
+          "enum": ["none", "dev", "test", "prod", "any_non_production", "all_environments"]
+        },
+        "acceptable_sources": {"$ref": "#/$defs/text_list"},
+        "state": {
+          "type": "string",
+          "enum": ["registered", "verified", "accepted_for_scope", "rejected", "expired", "superseded"]
+        },
+        "expiry_policy": {
+          "type": "string",
+          "enum": ["none", "review_on_tool_change", "review_on_scope_change", "fixed_review_interval"]
+        }
+      }
+    },
+    "decision_option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "summary",
+        "applicability",
+        "recommendation_logic",
+        "benefits",
+        "limitations",
+        "delivery_impact",
+        "operational_impact",
+        "cost_drivers",
+        "scalability_implications",
+        "later_change_cost",
+        "evidence_requirement_refs",
+        "authoritative_source"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "summary": {"$ref": "#/$defs/text"},
+        "applicability": {"type": "array", "items": {"$ref": "#/$defs/condition"}},
+        "recommendation_logic": {"$ref": "#/$defs/text"},
+        "benefits": {"$ref": "#/$defs/text_list"},
+        "limitations": {"$ref": "#/$defs/text_list"},
+        "delivery_impact": {"$ref": "#/$defs/text"},
+        "operational_impact": {"$ref": "#/$defs/text"},
+        "cost_drivers": {"$ref": "#/$defs/text_list"},
+        "scalability_implications": {"$ref": "#/$defs/text"},
+        "later_change_cost": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "structural"]
+        },
+        "evidence_requirement_refs": {"$ref": "#/$defs/id_list"},
+        "authoritative_source": {"$ref": "#/$defs/text"}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question_refs", "state", "decider_role", "impact_dimensions", "options", "recommendation_option_ref"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "question_refs": {"$ref": "#/$defs/id_list"},
+        "state": {
+          "type": "string",
+          "enum": ["draft", "proposed", "ready_for_decision", "accepted", "rejected", "deferred", "superseded"]
+        },
+        "decider_role": {"$ref": "#/$defs/identifier"},
+        "impact_dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["cost", "delivery", "operations", "architecture", "security", "compliance"]
+          }
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"$ref": "#/$defs/decision_option"}
+        },
+        "recommendation_option_ref": {
+          "anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        }
+      }
+    },
+    "recommendation_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "decision_ref", "when", "recommend_option_ref", "rationale"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "decision_ref": {"$ref": "#/$defs/identifier"},
+        "when": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/condition"}},
+        "recommend_option_ref": {"$ref": "#/$defs/identifier"},
+        "rationale": {"$ref": "#/$defs/text"}
+      }
+    },
+    "architecture_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "applies_to", "rule", "decision_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "applies_to": {
+          "type": "string",
+          "enum": ["domain", "workspace", "capacity", "item", "identity", "naming", "environment", "connection"]
+        },
+        "rule": {"$ref": "#/$defs/text"},
+        "decision_refs": {"$ref": "#/$defs/id_list"}
+      }
+    },
+    "work_package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "description", "decision_refs", "output_refs", "depends_on"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "name": {"$ref": "#/$defs/text"},
+        "description": {"$ref": "#/$defs/text"},
+        "decision_refs": {"$ref": "#/$defs/id_list"},
+        "output_refs": {"$ref": "#/$defs/id_list"},
+        "depends_on": {"$ref": "#/$defs/id_list"}
+      }
+    },
+    "skill_requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "proficiency", "work_package_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "role": {"$ref": "#/$defs/identifier"},
+        "proficiency": {
+          "type": "string",
+          "enum": ["foundation", "advanced", "expert"]
+        },
+        "work_package_refs": {"$ref": "#/$defs/id_list"}
+      }
+    },
+    "estimation_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "work_package_ref", "driver", "unit", "low", "high", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "work_package_ref": {"$ref": "#/$defs/identifier"},
+        "driver": {"$ref": "#/$defs/text"},
+        "unit": {"type": "string", "enum": ["hours", "days"]},
+        "low": {"type": "number", "exclusiveMinimum": 0},
+        "high": {"type": "number", "exclusiveMinimum": 0},
+        "status": {
+          "type": "string",
+          "enum": ["proposed", "internally_validated", "project_approved"]
+        }
+      }
+    },
+    "tool_dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "tool", "capability_used", "versions", "evidence_requirement_ref", "review_due"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "tool": {"$ref": "#/$defs/text"},
+        "capability_used": {"$ref": "#/$defs/text"},
+        "versions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["latest_available", "internally_validated", "project_approved"],
+          "properties": {
+            "latest_available": {"anyOf": [{"$ref": "#/$defs/text"}, {"type": "null"}]},
+            "internally_validated": {"anyOf": [{"$ref": "#/$defs/text"}, {"type": "null"}]},
+            "project_approved": {"anyOf": [{"$ref": "#/$defs/text"}, {"type": "null"}]}
+          }
+        },
+        "evidence_requirement_ref": {
+          "anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        },
+        "review_due": {
+          "type": "string",
+          "enum": ["on_vendor_release", "on_scope_change", "fixed_review_interval", "none"]
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "produced_by_work_package_refs", "readiness_gate_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "name": {"$ref": "#/$defs/text"},
+        "kind": {
+          "type": "string",
+          "enum": ["document", "manifest", "workbook", "diagram", "contract", "test_plan", "evidence_bundle"]
+        },
+        "produced_by_work_package_refs": {"$ref": "#/$defs/id_list"},
+        "readiness_gate_refs": {"$ref": "#/$defs/id_list"}
+      }
+    },
+    "readiness_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "gate", "minimum_evidence_refs", "decision_refs", "blocking"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "gate": {
+          "type": "string",
+          "enum": [
+            "discovery_ready",
+            "decision_ready",
+            "architecture_ready",
+            "build_ready",
+            "apply_ready",
+            "acceptance_ready"
+          ]
+        },
+        "minimum_evidence_refs": {"$ref": "#/$defs/id_list"},
+        "decision_refs": {"$ref": "#/$defs/id_list"},
+        "blocking": {"const": true}
+      }
+    },
+    "acceptance_test": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "readiness_gate_ref", "statement", "expected_result", "evidence_requirement_refs"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "readiness_gate_ref": {"$ref": "#/$defs/identifier"},
+        "statement": {"$ref": "#/$defs/text"},
+        "expected_result": {"$ref": "#/$defs/text"},
+        "evidence_requirement_refs": {"$ref": "#/$defs/id_list"}
+      }
+    }
+  }
+}

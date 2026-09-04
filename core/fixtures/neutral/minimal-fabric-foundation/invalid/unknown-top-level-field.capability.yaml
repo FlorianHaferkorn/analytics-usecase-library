@@ -1,0 +1,20 @@
+# Rejected: a pack may not carry fields the contract does not define.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  owner: platform_team
+  applicability: []
+  methodology: []
+  questions: []
+  evidence_requirements: []
+  decisions: []
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages: []
+  skill_requirements: []
+  estimation_rules: []
+  tool_dependencies: []
+  outputs: []
+  readiness_gates: []
+  acceptance_tests: []

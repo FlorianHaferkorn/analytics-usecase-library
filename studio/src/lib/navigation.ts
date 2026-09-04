@@ -54,6 +54,14 @@ export const FORGE_NAV: readonly NavItem[] = [
     color: 'var(--gold)',
   },
   {
+    href: '/package',
+    label: 'Project Package',
+    description: 'Edit, version, compare, export, and restore the governed project authority',
+    icon: 'P',
+    sidebarIcon: 'clipboard-text',
+    color: 'var(--info)',
+  },
+  {
     href: '/templates',
     label: 'Brand & Templates',
     description: 'Themes, T1–T4 page layouts, and export previews',

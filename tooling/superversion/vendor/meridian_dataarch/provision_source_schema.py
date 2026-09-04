@@ -154,7 +154,10 @@ def emit_source_schema(bp: dict[str, Any],
 
         if kind == "sql":
             dialect = dialect_for(entry)
-            out[f"source_schema/queries/{slug}.sql"] = introspection_sql(dialect)
+            schemas = entry.get("schemas") if isinstance(entry.get("schemas"), list) else None
+            tables = entry.get("tables") if isinstance(entry.get("tables"), list) else None
+            out[f"source_schema/queries/{slug}.sql"] = introspection_sql(
+                dialect, schemas=schemas, tables=tables)
             how = f"`queries/{slug}.sql` ({dialect})"
         elif kind == "rest":
             out[f"source_schema/queries/{slug}.md"] = (

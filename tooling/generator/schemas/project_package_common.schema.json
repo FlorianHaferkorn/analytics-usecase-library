@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/common/2.0.0",
+  "title": "ALUCA Project Package common types",
+  "type": "object",
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "typed_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": {"type": "string", "minLength": 1},
+        "id": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "source_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_ref", "source_hash"],
+      "properties": {
+        "source_ref": {"type": "string", "minLength": 1},
+        "source_version": {"type": ["string", "null"]},
+        "source_hash": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

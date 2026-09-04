@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/manifest/2.0.0",
+  "title": "ALUCA Project Package 2.0 manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "package_id", "project_ref", "revision", "state",
+    "parent_revision_hash", "operating_profile_lock", "capability_locks", "modules"
+  ],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "package_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "project_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "revision": {"type": "integer", "minimum": 1},
+    "state": {"enum": ["working", "in_review", "approved", "superseded"]},
+    "parent_revision_hash": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      ]
+    },
+    "operating_profile_lock": {"$ref": "#/$defs/lock"},
+    "capability_locks": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/lock"},
+      "uniqueItems": true
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 5,
+      "items": {"$ref": "#/$defs/module"}
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter", "source_version", "source_ref", "source_hash"],
+      "properties": {
+        "adapter": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "source_version": {"type": "string", "minLength": 1},
+        "source_revision": {"type": "integer", "minimum": 1},
+        "source_ref": {"type": "string", "minLength": 1},
+        "source_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    }
+  },
+  "$defs": {
+    "lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "sha256"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "version": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module_type", "path", "schema_id", "sha256"],
+      "properties": {
+        "module_type": {
+          "enum": [
+            "opportunity", "commercial", "plan", "observed_state", "decision_set",
+            "architecture_input", "artifact_registry"
+          ]
+        },
+        "environment": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z][a-z0-9_]{0,31}$"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+\\.(?:yaml|yml|json)$"
+        },
+        "schema_id": {"type": "string", "format": "uri"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    }
+  }
+}

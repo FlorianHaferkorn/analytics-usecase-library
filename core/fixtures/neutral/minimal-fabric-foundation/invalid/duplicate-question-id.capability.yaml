@@ -1,0 +1,34 @@
+# Schema-valid but rejected by reference integrity: two questions share one id,
+# so a reference to that id has no single target.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  applicability: []
+  methodology: []
+  questions:
+    - id: q_environment_topology
+      text: Which lifecycle environments must the delivery support before production?
+      state: open
+      blocking: true
+      applicability_refs: []
+      evidence_requirement_refs: []
+      decision_ref: null
+    - id: q_environment_topology
+      text: Which environments are in scope for the first release?
+      state: open
+      blocking: false
+      applicability_refs: []
+      evidence_requirement_refs: []
+      decision_ref: null
+  evidence_requirements: []
+  decisions: []
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages: []
+  skill_requirements: []
+  estimation_rules: []
+  tool_dependencies: []
+  outputs: []
+  readiness_gates: []
+  acceptance_tests: []

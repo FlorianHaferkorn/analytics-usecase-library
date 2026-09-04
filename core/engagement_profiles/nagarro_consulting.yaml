@@ -1,0 +1,50 @@
+schema_version: 1.0.0
+profile_id: aluca_nagarro_consulting
+status: proposed
+provider:
+  name: Nagarro
+  operating_model: consulting_organization
+  brand_profile: nagarro_design_system
+staffing:
+  execution_model: resource_plan
+  consultant_count:
+    minimum: 1
+    maximum: null
+  role_assignment: named_team_roles
+  max_parallel_delivery_streams: null
+  required_roles:
+    - engagement_lead
+    - solution_architect
+    - data_engineer
+    - analytics_engineer
+    - quality_reviewer
+commercial:
+  pricing_model: organization_project_commercials
+  currency: EUR
+  authority_path: env:PREIS_KANON_MANDANTEN_DIR/preis_kanon.yaml
+  customer_price_values_in_profile: false
+  hourly_rates: []
+  retainers: []
+delivery:
+  operator_interface: aluca_studio
+  parallelization_policy: resource_plan
+  # ADR-0019 §7 fuehrt "8 h je Tag als Kanon-Groesse" als ANNAHME, ungeprueft.
+  # Bis der Preis-Kanon steht, bleibt der Wert hier; danach gehoert er in die
+  # Mandantendatei und wird null wie die beiden Felder darunter (ADR-0020 §2.5).
+  workday_hours: 8
+  weekly_capacity_hours: null
+  planning_utilization_pct: null
+  planning_defaults_status: project_specific
+  supported_capabilities:
+    - opportunity_and_offer
+    - staffing_and_costing
+    - scope_and_discovery
+    - evidence_and_decisions
+    - architecture_and_governance
+    - delivery_and_cicd
+    - acceptance_and_operations
+data_boundaries:
+  customer_data_allowed_in_product_core: false
+  customer_fixture_location: showcases/<customer>/ or the governed customer repository
+  shared_executable_runtime: false
+  exchange_contract: consulting-operating-profile/1.0.0

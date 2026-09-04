@@ -1,0 +1,27 @@
+# Rejected: "agreed" is not part of the question state model. A pack may extend
+# the core, it may not introduce a second state model.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  applicability: []
+  methodology: []
+  questions:
+    - id: q_environment_topology
+      text: Which lifecycle environments must the delivery support before production?
+      state: agreed
+      blocking: true
+      applicability_refs: []
+      evidence_requirement_refs: []
+      decision_ref: null
+  evidence_requirements: []
+  decisions: []
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages: []
+  skill_requirements: []
+  estimation_rules: []
+  tool_dependencies: []
+  outputs: []
+  readiness_gates: []
+  acceptance_tests: []

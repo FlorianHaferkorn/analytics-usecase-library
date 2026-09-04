@@ -1,0 +1,17 @@
+# Machine-readable expectation per fixture. The test suite reads this file, so a
+# new fixture without an expectation fails instead of being silently skipped.
+schema_version: 1.0.0
+valid:
+  - empty-sections.capability.yaml
+  - one-decision.capability.yaml
+invalid:
+  unknown-top-level-field.capability.yaml: schema
+  missing-required-section.capability.yaml: schema
+  foreign-question-state.capability.yaml: schema
+  foreign-readiness-gate.capability.yaml: schema
+  option-missing-limitations.capability.yaml: schema
+  single-option-decision.capability.yaml: schema
+  commercial-rate-in-estimation.capability.yaml: schema
+  dangling-recommendation-ref.capability.yaml: reference
+  duplicate-question-id.capability.yaml: reference
+  customer-identifier-leak.capability.yaml: neutrality
