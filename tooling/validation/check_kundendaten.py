@@ -79,10 +79,22 @@ def regeln_bauen(daten: dict) -> list[tuple[str, re.Pattern]]:
         teile = [re.escape(b) for b in begriffe if b]
         if not teile:
             continue
-        # Wortgrenzen, damit ein kurzer Name nicht mitten in einem Wort trifft
+        # Wortgrenze aus Buchstaben und Ziffern - bewusst OHNE `_` und `-`.
+        #
+        # Die erste Fassung nahm `(?<![\w-])...(?![\w-])`. Die Absicht war richtig
+        # (ein kurzer Name soll nicht mitten in einem Wort treffen: `HTI` in
+        # "richtig"), die Umsetzung liess aber genau die haeufigste Schreibweise
+        # durch, in der Kundenkennungen tatsaechlich auftauchen - als Namensteil
+        # zwischen Trennern: `HTF-Import`, `htf_ledger_package_1_0`,
+        # `NicLen_Auftragseingaenge`, `check_contoso.py`.
+        #
+        # Gemessen am 04.09.2026 in diesem Repo: die enge Fassung meldete 0 Treffer,
+        # die hier verwendete 3 - alle drei echt, kein Fehlalarm. `HTI` in "richtig"
+        # bleibt blockiert, weil davor ein Buchstabe steht.
         teile.sort(key=len, reverse=True)
         regeln.append(
-            (kategorie, re.compile(rf"(?<![\w-])(?:{'|'.join(teile)})(?![\w-])", re.I))
+            (kategorie,
+             re.compile(rf"(?<![A-Za-z0-9])(?:{'|'.join(teile)})(?![A-Za-z0-9])", re.I))
         )
 
     for kategorie, muster in (daten.get("muster") or {}).items():

@@ -107,7 +107,7 @@ aus der einen Quelle rechnet, während die andere etwas anderes behauptet.
 
 | Prüfung | Erwartung |
 |---|---|
-| `Test-OperatingProfileContractParity.ps1` (HTF-Workbench) | `Status: PARITY`, Schema unverändert |
+| `Test-OperatingProfileContractParity.ps1` (Kunden-Workbench) | `Status: PARITY`, Schema unverändert |
 | `python -m pytest tooling/tests/test_consulting_operating_profile.py -q` | grün, `hourly_rates` leer, `customer_price_values_in_profile: false` |
 | `grep -nE "[0-9]+(\.[0-9]+)? ?EUR" core/engagement_profiles/*.yaml` | keine Zeile |
 | `workday_hours` im Profil | trägt bis zum Kanon einen Verweis auf ADR-0019 §7, danach `null` |
