@@ -111,9 +111,12 @@ MIRRORED_FILES = (
     # `architecture_blueprint.py` zu geben, also genau das Doppel-Silo, gegen das die
     # Doktrin geschrieben ist.
     "direct_lake_guardrails.py",
-    # Transitive dependency of provision_governance. Keep it in the governed
-    # Class-A mirror so the copied emitter remains import-complete in ALUCA.
-    "provision_external_sharing.py",
+    # 04.09.2026 wieder entfernt. Der Eintrag kam am selben Tag mit `22b6fd7d` und begruendete
+    # sich als „transitive dependency of provision_governance" — das galt aber nur fuer die
+    # **hier** editierte Fassung von `provision_governance.py`. Gemessen: Meridian hat kein
+    # `provision_external_sharing.py`, in keinem Zweig und in keiner Revision. Eine Klasse-A-
+    # Datei ohne Heimat ist keine Spiegelung, sondern eine Erfindung im Spiegel. Inhalt bleibt
+    # in der Historie (`git show 22b6fd7d`), falls der Weg in Meridian gebaut werden soll.
     # Gezogen von `provision_apply` wegen `LIFECYCLE_STAGES`. Byte-identisch gespiegelt
     # statt die drei Stufen hier nachzutippen: eine Kopie, die „nur eine Konstante" teilt,
     # driftet als nächstes im Inhalt.

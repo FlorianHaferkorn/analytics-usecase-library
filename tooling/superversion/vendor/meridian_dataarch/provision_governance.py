@@ -1088,15 +1088,18 @@ def emit_governance(bp: dict, stack: str = "fabric", workspace: str = "<workspac
     return out
 
 # --------------------------------------------------------------------------- P5 external sharing
-_SHARE_GROUNDED = "2026-08-26"   # MS Learn: Fabric Core/Admin External Data Share REST v1
+_SHARE_GROUNDED = "2026-07-30"   # MS Learn: fabric/governance/external-data-sharing-{overview,enable,create}
 
 
 def _share_inventory_py() -> str:
-    """Read-only audit view over the documented Fabric Admin list API via semantic-link."""
+    """Das Anlegen eines Shares ist **portal-only** (kein Create-REST-API dokumentiert) — also emittiert
+    dieser Baukasten kein Anlege-Skript, sondern das, was es offiziell gibt: die **Admin-API zum
+    Auflisten**. Nach der Portal-Aktion belegt sie, WAS existiert, an WEN, mit welchem Status und welcher
+    Ablauffrist. Genau das braucht ein Audit, und genau das kann man nicht am Portal behaupten."""
     return (
         '"""inventory_shares.py — belegt die tatsaechlich existierenden External Data Shares (generiert).\n\n'
-        "Dieses Skript ist die unabhaengige Gegenprobe nach REST- oder Portal-Anlage: Admin-API\n"
-        "`List External Data Shares` ueber sempy. Laeuft unter einer\n"
+        "Das Anlegen laeuft im Portal (kein Create-API dokumentiert). Dieses Skript ist die\n"
+        "Gegenprobe danach: Admin-API `List External Data Shares` ueber sempy. Laeuft unter einer\n"
         "Fabric-Admin-Identitaet; liest nur.\n\n"
         "Spalten laut Doku: External Data Share Id, Paths, Creator*, Recipient UPN,\n"
         'Recipient Tenant Id, Status, Expiration Time UTC, Workspace Id, Item Id, Invitation URL."""\n'
@@ -1202,16 +1205,14 @@ def _sharing_md(bp: dict) -> str:
         "| unser Fabric-Admin |",
         "| Tenant-Einstellung *Users can accept external data shares* einschalten | **Partner-Tenant** "
         "| Admin des Partners — **wir haben dort keinen Zugriff** |",
-        "| Share anlegen (`POST .../externalDataShares`) | unser Tenant | Nutzer/SP/MI mit Read + "
-        "Reshare und `Item.ExternalDataShare.All` |",
-        "| Einladung pruefen und annehmen (`GET invitation`, `POST .../accept`) | Partner-Tenant | "
-        "Partneridentitaet mit Schreibrecht am Ziel-Item |", "",
-        "Microsoft dokumentiert inzwischen Create-, Invitation-Details-, Accept-, List- und "
-        "Revoke-Endpunkte. Der Baukasten emittiert deshalb `apply_external_share.py` sowie je "
-        "Provider-Workspace einen **gesperrten** Vertrag. Eine Mutation laeuft erst mit "
-        "`status=approved` und `apply_authorized=true`; Tokens bleiben in "
-        "`FABRIC_PROVIDER_TOKEN` bzw. `FABRIC_CONSUMER_TOKEN`. `inventory_shares.py` bleibt als "
-        "zweite, read-only Admin-Gegenprobe erhalten.", "",
+        "| Share anlegen (Item-Kontextmenue → *External data share*) | unser Tenant | Nutzer mit Read + "
+        "Reshare |",
+        "| Einladung annehmen (nur in ein **Lakehouse**) | Partner-Tenant | Partner |", "",
+        "Das Anlegen ist **portal-only** — es gibt kein dokumentiertes Create-REST-API. Deshalb "
+        "emittiert dieser Baukasten hier kein Anlege-Skript (das waere erfunden), sondern "
+        "`inventory_shares.py`: die dokumentierte **Admin-API zum Auflisten** als Gegenprobe danach. "
+        "Sie belegt Empfaenger, Status und Ablauffrist — Dinge, die man am Portal behaupten, aber nicht "
+        "beweisen kann.", "",
         "Zwei Fristen: die Einladung verfaellt nach **90 Tagen**; ein Widerruf ist jederzeit moeglich, "
         "hat aber laut MS *serious implications* fuer den Verbraucher — er verliert live Daten, auf "
         "denen dort womoeglich Berichte stehen. Widerruf ist eine Absprache, kein Klick.", "",
@@ -1230,9 +1231,5 @@ def emit_sharing(bp: dict, stack: str = "fabric") -> dict[str, str]:
     nicht anwendbar und ein Dokument darueber waere Rauschen."""
     if stack != "fabric" or not (bp.get("sharing") or []):
         return {}
-    from core.dataarch_engine.blueprint.provision_external_sharing import emit_external_share_runtime
-
-    out = {"sharing/_SHARING.md": _sharing_md(bp),
-           "sharing/inventory_shares.py": _share_inventory_py()}
-    out.update(emit_external_share_runtime(bp))
-    return out
+    return {"sharing/_SHARING.md": _sharing_md(bp),
+            "sharing/inventory_shares.py": _share_inventory_py()}
