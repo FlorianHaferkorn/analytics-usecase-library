@@ -9,10 +9,18 @@ from .artifact_lifecycle import (
 from .compiler_input import CompilerInputError, build_compiler_input
 from .hashes import canonical_sha256
 from .migrations import ProjectPackageMigrationError, migrate_project_package
+from .repository import (
+    ProjectPackageRepositoryError,
+    ProjectPackageRevisionRepository,
+    RevisionRecord,
+)
 from .validator import validate_project_package
 
 __all__ = [
     "ProjectPackageMigrationError",
+    "ProjectPackageRepositoryError",
+    "ProjectPackageRevisionRepository",
+    "RevisionRecord",
     "ArtifactLifecycleError",
     "CompilerInputError",
     "build_publication_manifest",
