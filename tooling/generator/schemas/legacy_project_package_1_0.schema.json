@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/legacy/1.0.0",
+  "title": "Legacy ALUCA Project Package 1.0 migration input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "source_ref", "package_id", "project_ref", "revision", "state",
+    "parent_revision_hash", "operating_profile_lock", "capability_locks", "external_refs",
+    "opportunity", "commercial", "plan", "observed_states", "decision_set"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "source_ref": {"type": "string", "minLength": 1},
+    "package_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "project_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "revision": {"type": "integer", "minimum": 1},
+    "state": {"enum": ["working", "in_review", "approved", "superseded"]},
+    "parent_revision_hash": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      ]
+    },
+    "operating_profile_lock": {"$ref": "#/$defs/lock"},
+    "capability_locks": {"type": "array", "items": {"$ref": "#/$defs/lock"}},
+    "external_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "opportunity": {"$ref": "#/$defs/module"},
+    "commercial": {"$ref": "#/$defs/module"},
+    "plan": {"$ref": "#/$defs/module"},
+    "observed_states": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/module"},
+      "minItems": 1
+    },
+    "decision_set": {"$ref": "#/$defs/module"}
+  },
+  "$defs": {
+    "lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "sha256"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "version": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "module": {
+      "type": "object",
+      "required": ["schema_version"],
+      "properties": {"schema_version": {"const": "1.0.0"}}
+    }
+  }
+}

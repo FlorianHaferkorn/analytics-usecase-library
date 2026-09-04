@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -14,12 +15,17 @@ from tooling.superversion.project_package.adapters.decision_proposals import (
     adapt_decision_proposals,
 )
 from tooling.superversion.project_package.hashes import canonical_sha256
+from tooling.superversion.project_package.migrations import (
+    ProjectPackageMigrationError,
+    migrate_project_package,
+)
 from tooling.superversion.project_package.validator import validate_project_package
 
 
 REPO = Path(__file__).resolve().parents[2]
 SCHEMAS = REPO / "tooling" / "generator" / "schemas"
 PROJECT_SCHEMAS = sorted(SCHEMAS.glob("project_*.schema.json"))
+LEGACY_FIXTURE = REPO / "tooling" / "tests" / "fixtures" / "project_package" / "v1"
 
 
 def _load_schema(name: str) -> dict:
@@ -238,3 +244,53 @@ def test_project_package_rejects_unresolved_decision_references(tmp_path: Path) 
 
 def test_canonical_hash_ignores_mapping_order() -> None:
     assert canonical_sha256({"a": 1, "b": 2}) == canonical_sha256({"b": 2, "a": 1})
+
+
+def _tree_bytes(root: Path) -> dict[str, bytes]:
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+def test_v1_migration_is_deterministic_and_retains_external_refs(tmp_path: Path) -> None:
+    source_before = _tree_bytes(LEGACY_FIXTURE)
+    first = migrate_project_package(LEGACY_FIXTURE, tmp_path / "first", SCHEMAS)
+    second = migrate_project_package(LEGACY_FIXTURE, tmp_path / "second", SCHEMAS)
+
+    assert _tree_bytes(first) == _tree_bytes(second)
+    assert _tree_bytes(LEGACY_FIXTURE) == source_before
+    assert validate_project_package(first, SCHEMAS) == []
+
+    opportunity = yaml.safe_load((first / "opportunity" / "opportunity.yaml").read_text(encoding="utf-8"))
+    assert opportunity["source_refs"] == [
+        "brief://opportunity/demo",
+        "ledger://decision/E-1",
+        "contract://data-product/gold",
+    ]
+    manifest = yaml.safe_load((first / "package.yaml").read_text(encoding="utf-8"))
+    legacy = yaml.safe_load((LEGACY_FIXTURE / "package.yaml").read_text(encoding="utf-8"))
+    assert manifest["migration"] == {
+        "adapter": "project_package_1_0_0",
+        "source_version": "1.0.0",
+        "source_ref": "fixture://project-package/v1/package.yaml",
+        "source_hash": canonical_sha256(legacy),
+    }
+
+
+def test_migration_rejects_unknown_version_and_nonempty_target(tmp_path: Path) -> None:
+    unsupported = tmp_path / "unsupported"
+    shutil.copytree(LEGACY_FIXTURE, unsupported)
+    source = yaml.safe_load((unsupported / "package.yaml").read_text(encoding="utf-8"))
+    source["schema_version"] = "0.9.0"
+    _write_yaml(unsupported / "package.yaml", source)
+    with pytest.raises(ProjectPackageMigrationError, match="unsupported migration path"):
+        migrate_project_package(unsupported, tmp_path / "unknown-target", SCHEMAS)
+
+    occupied = tmp_path / "occupied"
+    occupied.mkdir()
+    (occupied / "keep.txt").write_text("keep", encoding="utf-8")
+    with pytest.raises(ProjectPackageMigrationError, match="must be empty"):
+        migrate_project_package(LEGACY_FIXTURE, occupied, SCHEMAS)
+    assert (occupied / "keep.txt").read_text(encoding="utf-8") == "keep"
