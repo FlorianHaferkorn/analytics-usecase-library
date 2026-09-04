@@ -109,6 +109,9 @@ MIRRORED_FILES = (
     # `architecture_blueprint.py` zu geben, also genau das Doppel-Silo, gegen das die
     # Doktrin geschrieben ist.
     "direct_lake_guardrails.py",
+    # Transitive dependency of provision_governance. Keep it in the governed
+    # Class-A mirror so the copied emitter remains import-complete in ALUCA.
+    "provision_external_sharing.py",
     # Gezogen von `provision_apply` wegen `LIFECYCLE_STAGES`. Byte-identisch gespiegelt
     # statt die drei Stufen hier nachzutippen: eine Kopie, die „nur eine Konstante" teilt,
     # driftet als nächstes im Inhalt.

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/publication-manifest/1.0.0",
+  "title": "Frozen project publication manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event", "artifact"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "event_type", "occurred_at", "actor_ref", "channel",
+        "destination_ref", "file_ref", "file_sha256", "evidence_refs"
+      ],
+      "properties": {
+        "id": {"type": "string"},
+        "event_type": {"enum": ["shared_for_review", "sent_frozen"]},
+        "occurred_at": {"type": "string", "format": "date-time"},
+        "actor_ref": {"type": "string"},
+        "channel": {"type": "string"},
+        "destination_ref": {"type": "string"},
+        "file_ref": {"type": "string"},
+        "file_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "title", "revision", "audience", "authority", "source_ref",
+        "source_sha256", "content_state", "publication_state", "customer_decision_state",
+        "decision_refs", "evidence_refs"
+      ],
+      "properties": {
+        "id": {"type": "string"},
+        "title": {"type": "string"},
+        "revision": {"type": "integer", "minimum": 1},
+        "audience": {"enum": ["internal", "customer"]},
+        "authority": {"enum": ["authored_source", "generated_projection", "evidence"]},
+        "source_ref": {"type": "string"},
+        "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "content_state": {"enum": ["draft", "review_ready", "approved", "superseded"]},
+        "publication_state": {"enum": ["never_shared", "shared_for_review", "sent_frozen"]},
+        "customer_decision_state": {"enum": ["not_requested", "pending", "accepted", "rejected"]},
+        "decision_refs": {"type": "array", "items": {"type": "string"}},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

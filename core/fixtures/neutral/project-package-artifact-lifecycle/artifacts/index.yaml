@@ -1,0 +1,68 @@
+schema_version: 2.0.0
+artifacts:
+  - id: architecture_decision_record
+    title: Architecture decision record
+    revision: 2
+    audience: customer
+    authority: authored_source
+    source_ref: deliverables/architecture-decision-record.md
+    source_sha256: '3333333333333333333333333333333333333333333333333333333333333333'
+    content_state: approved
+    share_approval:
+      state: approved
+      decided_by_ref: role:delivery_lead
+      evidence_refs:
+        - evidence://review/42
+    publication_state: sent_frozen
+    customer_decision:
+      state: pending
+      decided_by_ref: null
+      evidence_refs: []
+    decision_refs:
+      - di_meridian_sec_rls
+    evidence_refs:
+      - evidence://source/architecture
+    generated_from_refs: []
+    generated_outputs:
+      - id: architecture_decision_record_docx
+        output_ref: generated/architecture-decision-record.docx
+        media_type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+        sha256: '4444444444444444444444444444444444444444444444444444444444444444'
+        generated_at: '2026-09-04T10:00:00Z'
+        generator_ref: aluca-docx/1.0.0
+    superseded_by_ref: null
+  - id: internal_delivery_notes
+    title: Internal delivery notes
+    revision: 1
+    audience: internal
+    authority: authored_source
+    source_ref: internal/delivery-notes.md
+    source_sha256: '5555555555555555555555555555555555555555555555555555555555555555'
+    content_state: draft
+    share_approval:
+      state: not_requested
+      decided_by_ref: null
+      evidence_refs: []
+    publication_state: never_shared
+    customer_decision:
+      state: not_requested
+      decided_by_ref: null
+      evidence_refs: []
+    decision_refs: []
+    evidence_refs: []
+    generated_from_refs: []
+    generated_outputs: []
+    superseded_by_ref: null
+publication_events:
+  - id: send_architecture_decision_record_r2
+    artifact_ref: architecture_decision_record
+    artifact_revision: 2
+    event_type: sent_frozen
+    occurred_at: '2026-09-04T11:00:00Z'
+    actor_ref: person:delivery_lead
+    channel: customer-share
+    destination_ref: customer://project-team
+    file_ref: generated/architecture-decision-record.docx
+    file_sha256: '4444444444444444444444444444444444444444444444444444444444444444'
+    evidence_refs:
+      - evidence://distribution/42

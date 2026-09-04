@@ -13,7 +13,7 @@
     },
     {
       "path": "decision_proposals.py",
-      "sha256": "b1be299e60a20832a67cff034eb18528309431233243a68ae13938288099f1ac"
+      "sha256": "4aab44afb77c8c46f8eea5fbe7736bce60e52586a34d251dcd27b6c49b40a711"
     },
     {
       "path": "fabric_schedule.py",
@@ -29,7 +29,7 @@
     },
     {
       "path": "provision_governance.py",
-      "sha256": "0fed824cdc509433c5f28b43b5a490a9730a70349b403cc383d41732e40fc784"
+      "sha256": "42e17cb73acb42013f85742730b06ba5536e2eaecd24402d0d9cf3673d56a21f"
     },
     {
       "path": "provision_lifecycle.py",
@@ -45,11 +45,11 @@
     },
     {
       "path": "provision_source_schema.py",
-      "sha256": "2f702972037ace2eac099046e0a4bd05270530c6912e96762af732df304fbedb"
+      "sha256": "1284d56343b55a612d9fcad230e62bec8e25feca174f9d8d1ab5f54c25f99461"
     },
     {
       "path": "source_schema.py",
-      "sha256": "ed5955baad301eee345464b5a17e22c58c83ab2c58c8b5301192aca3f8ecb89c"
+      "sha256": "67a4af2177891dc305f9558db3a5b54da5a01338b340c86388277583edea523e"
     },
     {
       "path": "stack_capabilities.py",
@@ -60,12 +60,16 @@
       "sha256": "1fdcbe252aee2a5296cf36fa46c4b44bf050bf1e9fe5a0da9b707ef8832bfcd7"
     },
     {
+      "path": "provision_external_sharing.py",
+      "sha256": "8a644574b2a63a98f314f1b3258aa144de608ac6d4a2e1e09852b1826e9b787a"
+    },
+    {
       "path": "governance_strategy.py",
       "sha256": "476adb7e5f1a6c9b521022ba43d46ef45f0871e66b25a7d208fa8ff336f6af86"
     },
     {
       "path": "provision_apply.py",
-      "sha256": "786b65c712e023f74543f78838e0eec9c25e24f977a7e8e58726943fd18bdf6f"
+      "sha256": "cc393878ecce45f6920cdcc843148e9719afc65fc7376b4a9dcedf367d932a00"
     },
     {
       "path": "provision_chargeback.py",
@@ -125,7 +129,7 @@
     },
     {
       "path": "provision_transforms.py",
-      "sha256": "ac833d144a96f586b619611835a9438907b5ec933ffd5b8bf3e23cd7c31e123c"
+      "sha256": "f55894a92d7818fc6c2b6a89524b7988f1c37757499f4ffe427cba07719c9d54"
     },
     {
       "path": "provision_translations.py",

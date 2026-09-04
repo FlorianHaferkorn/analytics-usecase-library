@@ -78,7 +78,8 @@ def _quote_list(values: tuple[str, ...] | list[str]) -> str:
     return ", ".join("'" + str(v).replace("'", "''") + "'" for v in values)
 
 
-def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None) -> str:
+def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None,
+                      tables: list[str] | None = None) -> str:
     """The statement to run against the source; its result set is what `from_information_schema` eats.
 
     Deliberately one plain SELECT with no temp tables or procedures — it has to be
@@ -94,6 +95,7 @@ def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None) -
     if dialect == "oracle":
         # Oracle has no INFORMATION_SCHEMA; ALL_TAB_COLUMNS is the equivalent catalogue.
         owner_filter = (f"\n  AND OWNER IN ({_quote_list(schemas)})" if schemas else "")
+        table_filter = (f"\n  AND TABLE_NAME IN ({_quote_list(tables)})" if tables else "")
         return (
             "-- Source introspection (Oracle). Reads catalogue metadata only, no table data.\n"
             "SELECT OWNER            AS TABLE_SCHEMA,\n"
@@ -107,7 +109,7 @@ def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None) -
             "       DATA_SCALE       AS NUMERIC_SCALE\n"
             "FROM ALL_TAB_COLUMNS\n"
             "WHERE OWNER NOT IN ('SYS', 'SYSTEM')"
-            f"{owner_filter}\n"
+            f"{owner_filter}{table_filter}\n"
             "ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION;\n"
         )
 
@@ -118,6 +120,7 @@ def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None) -
         # SAP's system schemas are excluded: they are the database's own metadata, never
         # customer data, and they would swamp the result set.
         schema_filter = (f"\n  AND SCHEMA_NAME IN ({_quote_list(schemas)})" if schemas else "")
+        table_filter = (f"\n  AND TABLE_NAME IN ({_quote_list(tables)})" if tables else "")
         return (
             "-- Source introspection (SAP HANA / S/4HANA / Datasphere).\n"
             "-- HANA has no INFORMATION_SCHEMA — SYS.TABLE_COLUMNS is the catalogue.\n"
@@ -140,11 +143,12 @@ def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None) -
             "FROM SYS.TABLE_COLUMNS\n"
             "WHERE SCHEMA_NAME NOT LIKE '\\_SYS%' ESCAPE '\\'\n"
             "  AND SCHEMA_NAME NOT IN ('SYS', 'SYSTEM')"
-            f"{schema_filter}\n"
+            f"{schema_filter}{table_filter}\n"
             "ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION;\n"
         )
 
     schema_filter = (f"\n  AND TABLE_SCHEMA IN ({_quote_list(schemas)})" if schemas else "")
+    table_filter = (f"\n  AND TABLE_NAME IN ({_quote_list(tables)})" if tables else "")
     note = SUPPORTED_DIALECTS[dialect]
     return (
         f"-- Source introspection ({dialect}). {note}\n"
@@ -160,7 +164,7 @@ def introspection_sql(dialect: str = "ansi", schemas: list[str] | None = None) -
         "       NUMERIC_SCALE\n"
         "FROM INFORMATION_SCHEMA.COLUMNS\n"
         f"WHERE TABLE_SCHEMA NOT IN ({_quote_list(_SYSTEM_SCHEMAS)})"
-        f"{schema_filter}\n"
+        f"{schema_filter}{table_filter}\n"
         "ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION;\n"
     )
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import shutil
 from pathlib import Path
 
@@ -14,7 +15,13 @@ from tooling.superversion.project_package.adapters.decision_proposals import (
     SOURCE_FIELDS,
     adapt_decision_proposals,
 )
+from tooling.superversion.project_package.artifact_lifecycle import (
+    ArtifactLifecycleError,
+    build_publication_manifest,
+    render_artifact_index,
+)
 from tooling.superversion.project_package.compiler_input import build_compiler_input
+from tooling.superversion.project_package.cli import main as project_package_cli
 from tooling.superversion.project_package.hashes import canonical_sha256
 from tooling.superversion.project_package.migrations import (
     ProjectPackageMigrationError,
@@ -27,6 +34,7 @@ REPO = Path(__file__).resolve().parents[2]
 SCHEMAS = REPO / "tooling" / "generator" / "schemas"
 PROJECT_SCHEMAS = sorted(SCHEMAS.glob("project_*.schema.json"))
 LEGACY_FIXTURE = REPO / "tooling" / "tests" / "fixtures" / "project_package" / "v1"
+ARTIFACT_FIXTURE = REPO / "core" / "fixtures" / "neutral" / "project-package-artifact-lifecycle"
 
 
 def _load_schema(name: str) -> dict:
@@ -43,6 +51,7 @@ def _proposal(**overrides: object) -> dict:
         "confidence": "hoch",
         "status": "vorbelegt",
         "alternatives": ["Use a project scope"],
+        "optionen": [],
         "decider": "Data Owner",
         "if_undecided": "Build remains blocked.",
         "ermittlung": {"wo": "Policy", "wen": "Data Owner", "wenn_unklar": "Escalate"},
@@ -136,8 +145,27 @@ def _minimal_modules(root: Path) -> list[dict]:
     return modules
 
 
+def _artifact_registry() -> dict:
+    return yaml.safe_load(
+        (ARTIFACT_FIXTURE / "artifacts" / "index.yaml").read_text(encoding="utf-8")
+    )
+
+
+def _add_artifact_registry(root: Path, modules: list[dict], registry: dict) -> None:
+    relative = "artifacts/index.yaml"
+    _write_yaml(root / relative, registry)
+    modules.append(
+        {
+            "module_type": "artifact_registry",
+            "path": relative,
+            "schema_id": _load_schema("project_artifact_registry.schema.json")["$id"],
+            "sha256": canonical_sha256(registry),
+        }
+    )
+
+
 def test_all_project_package_schemas_are_closed_draft_2020_12() -> None:
-    assert len(PROJECT_SCHEMAS) == 8
+    assert len(PROJECT_SCHEMAS) == 11
     for path in PROJECT_SCHEMAS:
         schema = json.loads(path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
@@ -179,11 +207,11 @@ def test_open_without_proposal_stays_draft() -> None:
 
 
 def test_domain_fanout_requires_explicit_scope_mapping() -> None:
-    proposal = _proposal(id="SEC-RLS·hti")
+    proposal = _proposal(id="SEC-RLS·retail")
     with pytest.raises(ValueError, match="unresolved domain scope"):
         adapt_decision_proposals([proposal])
-    mapped = adapt_decision_proposals([proposal], {"hti": "domain_hti"})
-    assert mapped["instances"][0]["scope_refs"] == ["domain_hti"]
+    mapped = adapt_decision_proposals([proposal], {"retail": "domain_retail"})
+    assert mapped["instances"][0]["scope_refs"] == ["domain_retail"]
 
 
 def test_all_current_meridian_proposals_map_and_validate() -> None:
@@ -242,6 +270,207 @@ def test_project_package_rejects_unresolved_decision_references(tmp_path: Path) 
     }
     _write_yaml(tmp_path / "package.yaml", manifest)
     assert any("unresolved definition_ref" in error for error in validate_project_package(tmp_path, SCHEMAS))
+
+
+def test_artifact_registry_validates_and_compiles_as_optional_module(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    registry = _artifact_registry()
+    _add_artifact_registry(tmp_path, modules, registry)
+    manifest = {
+        "schema_version": "2.0.0",
+        "package_id": "package_demo",
+        "project_ref": "project_demo",
+        "revision": 1,
+        "state": "working",
+        "parent_revision_hash": None,
+        "operating_profile_lock": {
+            "id": "aluca_nagarro_consulting",
+            "version": "1.0.0",
+            "sha256": "1" * 64,
+        },
+        "capability_locks": [],
+        "modules": modules,
+    }
+    _write_yaml(tmp_path / "package.yaml", manifest)
+
+    assert validate_project_package(tmp_path, SCHEMAS) == []
+    assert build_compiler_input(tmp_path, SCHEMAS)["modules"]["artifact_registry"] == registry
+
+
+def test_artifact_lifecycle_rejects_unsupported_status_claims(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    registry = _artifact_registry()
+    artifact = registry["artifacts"][0]
+    artifact["share_approval"] = {
+        "state": "pending",
+        "decided_by_ref": None,
+        "evidence_refs": [],
+    }
+    artifact["customer_decision"] = {
+        "state": "accepted",
+        "decided_by_ref": None,
+        "evidence_refs": [],
+    }
+    registry["publication_events"][0]["file_sha256"] = "9" * 64
+    artifact["decision_refs"] = ["missing_decision"]
+    _add_artifact_registry(tmp_path, modules, registry)
+    manifest = {
+        "schema_version": "2.0.0",
+        "package_id": "package_demo",
+        "project_ref": "project_demo",
+        "revision": 1,
+        "state": "working",
+        "parent_revision_hash": None,
+        "operating_profile_lock": {
+            "id": "aluca_nagarro_consulting",
+            "version": "1.0.0",
+            "sha256": "1" * 64,
+        },
+        "capability_locks": [],
+        "modules": modules,
+    }
+    _write_yaml(tmp_path / "package.yaml", manifest)
+
+    errors = validate_project_package(tmp_path, SCHEMAS)
+    assert any("file and hash do not match" in error for error in errors)
+    assert any("lacks approved share gate" in error for error in errors)
+    assert any("customer decision lacks decider or evidence" in error for error in errors)
+    assert any("unresolved decision_ref 'missing_decision'" in error for error in errors)
+
+
+def test_artifact_projections_are_deterministic_and_frozen() -> None:
+    registry = _artifact_registry()
+    first_index = render_artifact_index(registry)
+    assert first_index == render_artifact_index(registry)
+    assert first_index.index("Architecture decision record") < first_index.index("Internal delivery notes")
+
+    manifest = build_publication_manifest(registry, "send_architecture_decision_record_r2")
+    Draft202012Validator(
+        _load_schema("project_publication_manifest.schema.json"),
+        format_checker=FormatChecker(),
+    ).validate(manifest)
+    assert manifest["event"]["file_sha256"] == "4" * 64
+    assert manifest["artifact"]["customer_decision_state"] == "pending"
+
+    with pytest.raises(ArtifactLifecycleError, match="does not describe the current"):
+        registry["publication_events"][0]["artifact_revision"] = 1
+        build_publication_manifest(registry, "send_architecture_decision_record_r2")
+
+
+def test_neutral_artifact_fixture_is_schema_valid_and_uses_demo_identity() -> None:
+    fixture = yaml.safe_load(
+        (ARTIFACT_FIXTURE / "artifacts" / "index.yaml").read_text(encoding="utf-8")
+    )
+    Draft202012Validator(
+        _load_schema("project_artifact_registry.schema.json"),
+        format_checker=FormatChecker(),
+    ).validate(fixture)
+    assert {artifact["id"] for artifact in fixture["artifacts"]} == {
+        "architecture_decision_record",
+        "internal_delivery_notes",
+    }
+
+
+def test_legacy_shared_observation_does_not_invent_a_frozen_send() -> None:
+    registry = _artifact_registry()
+    artifact = registry["artifacts"][0]
+    artifact["publication_state"] = "shared_unverified"
+    artifact["share_approval"] = {
+        "state": "pending",
+        "decided_by_ref": None,
+        "evidence_refs": ["evidence://historical-share-observation"],
+    }
+    artifact["customer_decision"] = {
+        "state": "accepted",
+        "decided_by_ref": "role:customer_decider",
+        "evidence_refs": ["evidence://meeting/acceptance"],
+    }
+    registry["publication_events"] = []
+    schema = _load_schema("project_artifact_registry.schema.json")
+    Draft202012Validator(schema, format_checker=FormatChecker()).validate(registry)
+    with pytest.raises(ArtifactLifecycleError, match="exactly one publication event"):
+        build_publication_manifest(registry, "missing_frozen_event")
+
+
+def test_artifact_cli_renders_index_and_publication_manifest(tmp_path: Path) -> None:
+    package_root = tmp_path / "package"
+    package_root.mkdir()
+    modules = _minimal_modules(package_root)
+    registry = _artifact_registry()
+    local_files = {
+        "deliverables/architecture-decision-record.md": b"# Architecture decision\n",
+        "generated/architecture-decision-record.docx": b"synthetic-docx-fixture",
+        "internal/delivery-notes.md": b"# Internal notes\n",
+    }
+    for relative, content in local_files.items():
+        path = package_root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+    artifact_by_id = {item["id"]: item for item in registry["artifacts"]}
+    architecture = artifact_by_id["architecture_decision_record"]
+    architecture["source_sha256"] = hashlib.sha256(
+        local_files["deliverables/architecture-decision-record.md"]
+    ).hexdigest()
+    architecture["generated_outputs"][0]["sha256"] = hashlib.sha256(
+        local_files["generated/architecture-decision-record.docx"]
+    ).hexdigest()
+    artifact_by_id["internal_delivery_notes"]["source_sha256"] = hashlib.sha256(
+        local_files["internal/delivery-notes.md"]
+    ).hexdigest()
+    registry["publication_events"][0]["file_sha256"] = architecture["generated_outputs"][0]["sha256"]
+    _add_artifact_registry(package_root, modules, registry)
+    manifest = {
+        "schema_version": "2.0.0",
+        "package_id": "package_demo",
+        "project_ref": "project_demo",
+        "revision": 1,
+        "state": "working",
+        "parent_revision_hash": None,
+        "operating_profile_lock": {
+            "id": "aluca_nagarro_consulting",
+            "version": "1.0.0",
+            "sha256": "1" * 64,
+        },
+        "capability_locks": [],
+        "modules": modules,
+    }
+    _write_yaml(package_root / "package.yaml", manifest)
+    index_path = tmp_path / "generated" / "ARTIFACT_INDEX.md"
+    release_path = tmp_path / "releases" / "send.json"
+
+    common = ["--package", str(package_root), "--schemas", str(SCHEMAS)]
+    assert project_package_cli([*common, "validate"]) == 0
+    assert project_package_cli([*common, "reconcile-files"]) == 0
+    assert project_package_cli([*common, "render-index", "--output", str(index_path)]) == 0
+    assert project_package_cli(
+        [
+            *common,
+            "publication-manifest",
+            "--event-id",
+            "send_architecture_decision_record_r2",
+            "--output",
+            str(release_path),
+        ]
+    ) == 0
+    assert index_path.read_text(encoding="utf-8") == render_artifact_index(registry)
+    assert json.loads(release_path.read_text(encoding="utf-8")) == build_publication_manifest(
+        registry,
+        "send_architecture_decision_record_r2",
+    )
+
+    (package_root / "generated" / "architecture-decision-record.docx").write_bytes(b"drift")
+    with pytest.raises(ValueError, match="file hash drift"):
+        project_package_cli([*common, "reconcile-files"])
+
+
+def test_artifact_cli_validate_accepts_package_without_optional_registry(tmp_path: Path) -> None:
+    package_root = migrate_project_package(LEGACY_FIXTURE, tmp_path / "migrated", SCHEMAS)
+    common = ["--package", str(package_root), "--schemas", str(SCHEMAS)]
+
+    assert validate_project_package(package_root, SCHEMAS) == []
+    assert project_package_cli([*common, "validate"]) == 0
+    with pytest.raises(ValueError, match="exactly one artifact_registry module"):
+        project_package_cli([*common, "render-index", "--output", str(tmp_path / "index.md")])
 
 
 def test_canonical_hash_ignores_mapping_order() -> None:

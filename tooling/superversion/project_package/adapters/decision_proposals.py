@@ -19,6 +19,7 @@ SOURCE_FIELDS = frozenset(
         "confidence",
         "status",
         "alternatives",
+        "optionen",
         "decider",
         "if_undecided",
         "ermittlung",
@@ -37,6 +38,7 @@ FIELD_MAPPING = {
     "confidence": ("recommendation.confidence_raw", "recommendation.confidence"),
     "status": ("initialization", "selection.state", "approval.state"),
     "alternatives": ("options[kind=alternative]",),
+    "optionen": ("option_details",),
     "decider": ("decider.text",),
     "if_undecided": ("consequence_if_unresolved",),
     "ermittlung": ("resolution_method",),
@@ -109,6 +111,25 @@ def _adapt_one(
     if not options:
         options.append({"id": "custom_input", "label": "Customer-specific answer", "kind": "alternative"})
 
+    option_details = [
+        {
+            "source_value": str(option.get("wert", "")),
+            "text": str(option.get("text", "")),
+            "recommended": bool(option.get("empfohlen", False)),
+            "advantages": [str(value) for value in option.get("vorteile", [])],
+            "disadvantages": [str(value) for value in option.get("nachteile", [])],
+            "limitations": [
+                {
+                    "text": str(limitation.get("text", "")),
+                    "source": str(limitation.get("quelle", "")),
+                }
+                for limitation in option.get("limitierungen", [])
+            ],
+            "implication": str(option.get("implikation", "")),
+        }
+        for option in proposal["optionen"]
+    ]
+
     confidence_raw = str(proposal["confidence"])
     ermittlung = proposal["ermittlung"] or {}
     kunde = proposal["kunde"] or {}
@@ -129,6 +150,7 @@ def _adapt_one(
             "confidence": _CONFIDENCE.get(confidence_raw.casefold(), "none"),
         },
         "options": options,
+        "option_details": option_details,
         "decider": {"text": str(proposal["decider"]), "role_ref": None},
         "consequence_if_unresolved": str(proposal["if_undecided"]),
         "resolution_method": {

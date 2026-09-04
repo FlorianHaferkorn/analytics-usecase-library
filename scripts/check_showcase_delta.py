@@ -122,7 +122,7 @@ def check(root: str = ".") -> int:
     # fuer die Daten — genau die Verwechslung, die den ORPHAN-FK aus #424 durchliess.
     print(f"OK — {tables} showcase Delta table(s) consistent (active files all present).")
     print("     Geprueft: Log gegen Dateien. NICHT geprueft: ob die Daten fachlich decken "
-          "(Fakt-FK → Dimension-PK) — das macht tooling/validation/check_data_model.py. "
+          "(Fakt-FK -> Dimension-PK) - das macht tooling/validation/check_data_model.py. "
           "Nach einem Vacuum-/Dedup-Lauf beide fahren.")
     return 0
 

@@ -34,11 +34,39 @@
         "kind": {"enum": ["proposal", "alternative"]}
       }
     },
+    "option_detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_value", "text", "recommended", "advantages", "disadvantages",
+        "limitations", "implication"
+      ],
+      "properties": {
+        "source_value": {"type": "string"},
+        "text": {"type": "string"},
+        "recommended": {"type": "boolean"},
+        "advantages": {"type": "array", "items": {"type": "string"}},
+        "disadvantages": {"type": "array", "items": {"type": "string"}},
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["text", "source"],
+            "properties": {
+              "text": {"type": "string"},
+              "source": {"type": "string"}
+            }
+          }
+        },
+        "implication": {"type": "string"}
+      }
+    },
     "definition": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id", "source", "title", "question", "recommendation", "options", "decider",
+        "id", "source", "title", "question", "recommendation", "options", "option_details", "decider",
         "consequence_if_unresolved", "resolution_method", "customer_copy", "due",
         "placeholder_refs"
       ],
@@ -61,6 +89,7 @@
           }
         },
         "options": {"type": "array", "items": {"$ref": "#/$defs/option"}, "minItems": 1},
+        "option_details": {"type": "array", "items": {"$ref": "#/$defs/option_detail"}},
         "decider": {
           "type": "object", "additionalProperties": false, "required": ["text", "role_ref"],
           "properties": {"text": {"type": "string"}, "role_ref": {"type": ["string", "null"]}}

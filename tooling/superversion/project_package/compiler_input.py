@@ -85,6 +85,11 @@ def build_compiler_input(package_root: Path, schema_root: Path) -> dict[str, Any
                 if "architecture_input" in singleton_modules
                 else {}
             ),
+            **(
+                {"artifact_registry": singleton_modules["artifact_registry"]}
+                if "artifact_registry" in singleton_modules
+                else {}
+            ),
         },
         "readiness": {
             "decision_ready": decision_ready,
