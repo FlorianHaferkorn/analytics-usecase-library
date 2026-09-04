@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/decision-set/2.0.0",
+  "title": "Project decision set module",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "definitions", "instances"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "definitions": {"type": "array", "items": {"$ref": "#/$defs/definition"}},
+    "instances": {"type": "array", "items": {"$ref": "#/$defs/instance"}}
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter", "raw_id", "source_ref", "source_hash"],
+      "properties": {
+        "adapter": {"const": "meridian_decision_proposals"},
+        "raw_id": {"type": "string", "minLength": 1},
+        "source_ref": {"type": "string", "minLength": 1},
+        "source_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "kind"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "label": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["proposal", "alternative"]}
+      }
+    },
+    "definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "source", "title", "question", "recommendation", "options", "decider",
+        "consequence_if_unresolved", "resolution_method", "customer_copy", "due",
+        "placeholder_refs"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "source": {"$ref": "#/$defs/source"},
+        "title": {"type": "string"},
+        "question": {
+          "type": "object", "additionalProperties": false, "required": ["technical_text"],
+          "properties": {"technical_text": {"type": "string"}}
+        },
+        "recommendation": {
+          "type": "object", "additionalProperties": false,
+          "required": ["text", "basis", "confidence_raw", "confidence"],
+          "properties": {
+            "text": {"type": ["string", "null"]},
+            "basis": {"type": "string"},
+            "confidence_raw": {"type": "string"},
+            "confidence": {"enum": ["high", "medium", "low", "none"]}
+          }
+        },
+        "options": {"type": "array", "items": {"$ref": "#/$defs/option"}, "minItems": 1},
+        "decider": {
+          "type": "object", "additionalProperties": false, "required": ["text", "role_ref"],
+          "properties": {"text": {"type": "string"}, "role_ref": {"type": ["string", "null"]}}
+        },
+        "consequence_if_unresolved": {"type": "string"},
+        "resolution_method": {
+          "type": "object", "additionalProperties": false,
+          "required": ["where_to_look", "who_knows", "if_unclear"],
+          "properties": {
+            "where_to_look": {"type": "string"},
+            "who_knows": {"type": "string"},
+            "if_unclear": {"type": "string"}
+          }
+        },
+        "customer_copy": {
+          "type": "object", "additionalProperties": false,
+          "required": ["question", "consequence", "why"],
+          "properties": {
+            "question": {"type": "string"},
+            "consequence": {"type": "string"},
+            "why": {"type": "string"}
+          }
+        },
+        "due": {
+          "type": "object", "additionalProperties": false, "required": ["raw", "gate"],
+          "properties": {
+            "raw": {"type": "string"},
+            "gate": {"enum": ["before_build", "before_production", "unscheduled"]}
+          }
+        },
+        "placeholder_refs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "instance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "definition_ref", "scope_refs", "revision", "initialization",
+        "selection", "approval", "readiness", "delivery"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "definition_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+        "scope_refs": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"}},
+        "revision": {"type": "integer", "minimum": 1},
+        "initialization": {"enum": ["preselected", "open"]},
+        "selection": {
+          "type": "object", "additionalProperties": false, "required": ["state", "option_ref", "custom_value"],
+          "properties": {
+            "state": {"enum": ["unselected", "preselected", "selected", "confirmed", "adjusted"]},
+            "option_ref": {"type": ["string", "null"]},
+            "custom_value": {"type": ["string", "null"]}
+          }
+        },
+        "approval": {
+          "type": "object", "additionalProperties": false,
+          "required": ["state", "proposed_by", "decided_by", "rationale"],
+          "properties": {
+            "state": {"enum": ["draft", "proposed", "approved", "rejected", "deferred", "superseded"]},
+            "proposed_by": {"type": ["string", "null"]},
+            "decided_by": {"type": ["string", "null"]},
+            "rationale": {"type": ["string", "null"]}
+          }
+        },
+        "readiness": {
+          "type": "object", "additionalProperties": false, "required": ["state"],
+          "properties": {"state": {"enum": ["incomplete", "evidence_complete", "ready_for_decision"]}}
+        },
+        "delivery": {
+          "type": "object", "additionalProperties": false, "required": ["state"],
+          "properties": {"state": {"enum": ["not_compiled", "compiled", "applied", "verified", "drifted"]}}
+        }
+      }
+    }
+  }
+}

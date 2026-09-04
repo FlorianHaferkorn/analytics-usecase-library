@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/observed-state/2.0.0",
+  "title": "Observed target state module",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "environment", "captured_at", "collector", "resources"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "environment": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$"},
+    "captured_at": {"type": "string", "format": "date-time"},
+    "collector": {"type": "string", "minLength": 1},
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["logical_id", "resource_type", "physical_id", "state_hash"],
+        "properties": {
+          "logical_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "resource_type": {"type": "string", "minLength": 1},
+          "physical_id": {"type": "string", "minLength": 1},
+          "state_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    }
+  }
+}

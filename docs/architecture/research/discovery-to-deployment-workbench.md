@@ -10,6 +10,13 @@
 > It does not create a second compiler, question ledger, approval workflow or source of
 > truth.
 
+**Implementation status 04.09.2026:** WB-002 and WB-003 are implemented. Project Package
+2.0 now has closed schemas for its manifest, opportunity, commercial, plan,
+observed-state and decision-set modules; deterministic hashing and package validation;
+and a lossless adapter for all 14 fields of the mirrored Meridian decision proposals.
+The adapter keeps preselection separate from approval. Migrations, HTF import, Studio
+persistence and architecture compilation remain the next increments.
+
 ## 1. Outcome
 
 Build one reusable workbench that turns customer input into a verified delivery chain:
@@ -376,6 +383,10 @@ for two materially different scope profiles.
 
 **Done when:** identical approved input produces byte-stable normalized output and one
 decision change affects only traced projections.
+
+The WB-003 contract portion of this increment is complete. Projection compilation and
+output manifests remain part of the later compiler integration; the schema contract does
+not claim that they already exist.
 
 ### Increment 3: provider adapters and verified delivery
 

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/opportunity/2.0.0",
+  "title": "Project opportunity module",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "opportunity_id", "customer_ref", "objectives", "scope_status"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "opportunity_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "customer_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "objectives": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "scope_status": {"enum": ["draft", "qualified", "proposed", "contracted", "closed"]},
+    "constraints": {"type": "array", "items": {"type": "string", "minLength": 1}, "default": []},
+    "source_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "default": []}
+  }
+}

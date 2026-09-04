@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/plan/2.0.0",
+  "title": "Project delivery plan module",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "work_packages", "dependencies"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "work_packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "status", "decision_refs", "role_refs", "effort"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "title": {"type": "string", "minLength": 1},
+          "status": {"enum": ["planned", "ready", "active", "blocked", "complete"]},
+          "decision_refs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "role_refs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "effort": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "unit", "provenance"],
+            "properties": {
+              "value": {"type": ["number", "null"], "minimum": 0},
+              "unit": {"enum": ["hours", "person_days"]},
+              "provenance": {"enum": ["measured", "calculated", "assumption", "unknown"]}
+            }
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["predecessor_ref", "successor_ref"],
+        "properties": {
+          "predecessor_ref": {"type": "string", "minLength": 1},
+          "successor_ref": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}
