@@ -80,6 +80,11 @@ def build_compiler_input(package_root: Path, schema_root: Path) -> dict[str, Any
             "observed_states": {
                 key: observed_states[key] for key in sorted(observed_states)
             },
+            **(
+                {"architecture_input": singleton_modules["architecture_input"]}
+                if "architecture_input" in singleton_modules
+                else {}
+            ),
         },
         "readiness": {
             "decision_ready": decision_ready,

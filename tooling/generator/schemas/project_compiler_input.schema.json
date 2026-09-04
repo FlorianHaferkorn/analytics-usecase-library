@@ -37,7 +37,8 @@
         "observed_states": {
           "type": "object",
           "additionalProperties": {"type": "object"}
-        }
+        },
+        "architecture_input": {"type": "object"}
       }
     },
     "readiness": {

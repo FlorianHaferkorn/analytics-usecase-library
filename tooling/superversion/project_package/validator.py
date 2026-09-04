@@ -18,6 +18,7 @@ SCHEMA_BY_MODULE = {
     "plan": "project_plan.schema.json",
     "observed_state": "project_observed_state.schema.json",
     "decision_set": "project_decision_set.schema.json",
+    "architecture_input": "project_architecture_input.schema.json",
 }
 
 

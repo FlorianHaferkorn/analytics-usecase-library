@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/architecture-input/2.0.0",
+  "title": "Project architecture compiler input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "stack", "reference_date", "tenant", "region", "ledger_ref", "model_ref", "blueprint_ref",
+    "mapping_ref", "domains", "use_cases", "environments", "contracts", "compiler_policy"
+  ],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "stack": {"type": "string", "minLength": 1},
+    "reference_date": {"type": "string", "format": "date"},
+    "tenant": {"type": "string", "minLength": 1},
+    "region": {"type": "string", "minLength": 1},
+    "ledger_ref": {"type": "string", "minLength": 1},
+    "model_ref": {"type": "string", "minLength": 1},
+    "blueprint_ref": {"type": "string", "minLength": 1},
+    "mapping_ref": {"type": "string", "minLength": 1},
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "key", "delivery_scope", "capacity", "use_case_refs"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "delivery_scope": {"enum": ["detailed", "independent_blueprint_consumer", "out_of_scope"]},
+          "capacity": {"type": "string", "minLength": 1},
+          "use_case_refs": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "use_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "domain_ref", "architecture_detail"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "name": {"type": "string", "minLength": 1},
+          "domain_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "architecture_detail": {"enum": ["full", "contract_pending", "blueprint_only"]}
+        }
+      }
+    },
+    "environments": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recommended", "decision_ref", "accepted"],
+      "properties": {
+        "recommended": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$"},
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "decision_ref": {"type": "string", "minLength": 1},
+        "accepted": {"type": "boolean"}
+      }
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "source_ref", "required_for"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "kind": {"type": "string", "minLength": 1},
+          "source_ref": {"type": "string", "minLength": 1},
+          "required_for": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "compiler_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "generated_ref", "fail_closed_for_apply", "allow_review_with_blockers"],
+      "properties": {
+        "version": {"type": "string", "minLength": 1},
+        "generated_ref": {"type": "string", "minLength": 1},
+        "fail_closed_for_apply": {"type": "boolean"},
+        "allow_review_with_blockers": {"type": "boolean"}
+      }
+    }
+  }
+}

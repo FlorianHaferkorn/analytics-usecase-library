@@ -61,7 +61,10 @@
       "required": ["module_type", "path", "schema_id", "sha256"],
       "properties": {
         "module_type": {
-          "enum": ["opportunity", "commercial", "plan", "observed_state", "decision_set"]
+          "enum": [
+            "opportunity", "commercial", "plan", "observed_state", "decision_set",
+            "architecture_input"
+          ]
         },
         "environment": {
           "type": ["string", "null"],
