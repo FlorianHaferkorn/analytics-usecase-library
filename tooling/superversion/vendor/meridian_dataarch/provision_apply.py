@@ -158,8 +158,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                      lakehouse: str = "analytics_gold",
                      stack: str = "fabric", sql_ddl_layers: tuple[str, ...] = (),
                      emitted: set[str] | None = None,
-                     semantic_model: bool = False,
-                     entscheidungen: dict | None = None) -> list[dict]:
+                     semantic_model: bool = False) -> list[dict]:
     """Return the ordered, gated apply plan (list of operation dicts).
 
     Each op: {seq, action, target, tool, gate, rationale, artifact}. ``tool`` names the preferred
@@ -178,16 +177,7 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
     for each such layer a ``run_sql_ddl`` step is added per gold product (closing the emit→apply gap the
     generic ``import_item`` step left open). MLV runs once (refresh is automatic thereafter); warehouse DDL
     is re-runnable (``CREATE OR ALTER``-shaped).
-
-    ``entscheidungen`` ist das Profilfeld aus dem Rueckweg der Antwortdatei (C-3,
-    ``entscheidungen.<ID>``). Zwei Entscheidungen erreichen den Plan (C-4): ``PLAT-NET``
-    (Netzanbindung) als Schritt je Workspace oder je Mandant, und ``PLAT-LHTOPO =
-    gold_warehouse`` als zusaetzliches Warehouse im Gold-Workspace. Ohne getroffene
-    Entscheidung entsteht **kein** Schritt — die Vorbelegung (oeffentliche Endpunkte, ein
-    Lakehouse je Domaene) ist der Plan, wie er ohnehin steht.
     """
-    from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
-
     workspaces = _unique_workspaces(bp)
     gold_ws = [n for n, r in workspaces if r in ("gold", "mixed")]
     target_ws = gold_ws[0] if gold_ws else (workspaces[0][0] if workspaces else workspace)
@@ -226,60 +216,11 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         add("create_workspace", f"{name}.Workspace", "core-mcp:create-workspace | fab mkdir", "human",
             f"{role} workspace (idempotent: skip if exists)",
             present("terraform/main.tf") or present("provision.sh"))
-    # C-4: die Netzanbindung (PLAT-NET) ist eine Entscheidung und kein Schalter. Bis 02.09.2026
-    # stand sie nur im Ledger; der Plan kannte keinen Schritt dafuer, also blieb sie beim Aufbau
-    # Handarbeit. Jede Option nennt ihre Wirkung im Optionen-Katalog (`decision_proposals`),
-    # hier steht der Schritt, den sie im Mandanten kostet. Die Werkzeugspalte nennt die Stelle
-    # im Portal; einen REST-Pfad, den kein Lauf gemessen hat, behauptet der Plan nicht.
-    # Die Vorbelegung `oeffentlich_twa` erzeugt keinen Schritt: sie ist der Plan, wie er steht.
-    netz = entscheidung_fuer(entscheidungen, "PLAT-NET", "")
-    if netz == "ip_firewall":
-        for name, _role in workspaces:
-            add("set_workspace_ip_rules", f"{name}.Workspace — IP-Firewall-Regeln",
-                "portal: Workspace-Einstellungen → Netzwerksicherheit → eingehende Regeln",
-                "human-approved",
-                "Entschieden: PLAT-NET = ip_firewall. Nur die Regelliste kommt hinein, bis 256 "
-                "Regeln je Workspace (MS Learn: fabric/security/workspace-ip-firewall); die Liste "
-                "ist Teil des Apply-Plans und aendert die Erreichbarkeit — Freigabe noetig.")
-    elif netz == "private_link_workspace":
-        for name, _role in workspaces:
-            add("enable_workspace_private_link", f"{name}.Workspace — Private Link",
-                "portal: Workspace-Einstellungen → Netzwerksicherheit → Private Link | Azure: "
-                "Private Endpoint",
-                "human-approved",
-                "Entschieden: PLAT-NET = private_link_workspace. Der private Netzpfad gilt nur "
-                "fuer die dokumentierten Item-Typen (MS Learn: fabric/security/security-workspace-"
-                "level-private-links-overview); je Workspace wird der Pfad im Plan gefuehrt, weil "
-                "zwei Netzpfade nebeneinander betrieben werden.")
-    elif netz == "private_link_tenant":
-        add("enable_tenant_private_link", "Mandant — Private Link (Tenant-Ebene)",
-            "Azure: Private Link Service fuer Fabric + Tenant-Einstellung 'Azure Private Link' | "
-            "portal: Admin-Portal",
-            "human-approved",
-            "Entschieden: PLAT-NET = private_link_tenant. Kostet u. a. Publish-to-Web, Export, "
-            "E-Mail-Abonnements, Copilot, Capacity-Metrics-App und tenantuebergreifende Shortcuts "
-            "(MS Learn: fabric/security/security-private-links-overview); nachtraeglich nur mit "
-            "Neuaufbau der Quellanbindung zu drehen — deshalb vor dem ersten Lakehouse.")
     for name, role in workspaces:
         if role in ("gold", "mixed"):
             add("create_lakehouse", f"{name}.Workspace/{lakehouse}.Lakehouse", "core-mcp:create-item | fab mkdir",
                 "human", "gold lakehouse",
                 present("terraform/main.tf") or present("provision.sh"))
-    # C-4: PLAT-LHTOPO = gold_warehouse (MS-Muster 2) heisst Bronze und Silber als Lakehouse,
-    # Gold als Warehouse — zwei Item-Typen, zwei Werkzeugketten. Das Lakehouse bleibt (die
-    # unteren Schichten brauchen es), das Warehouse kommt dazu. Die Gold-DDL laeuft dann als
-    # Warehouse-Schicht (`sql_ddl_layers`), das entscheidet der Aufrufer, nicht dieser Schritt.
-    if entscheidung_fuer(entscheidungen, "PLAT-LHTOPO", "") == "gold_warehouse":
-        for name, role in workspaces:
-            if role in ("gold", "mixed"):
-                add("create_warehouse", f"{name}.Workspace/{lakehouse}.Warehouse",
-                    "core-mcp:create-item | fab mkdir", "human",
-                    "Entschieden: PLAT-LHTOPO = gold_warehouse. Gold als Warehouse fuer "
-                    "T-SQL-Serving mit vollem DML; kennt keine Materialized Lake Views, Direct "
-                    "Lake auf Warehouse hat eigene Grenzen (MS Learn: fabric/data-warehouse/"
-                    "data-warehousing). Nebenwirkung: Schreiben ueber T-SQL erzwingt den "
-                    "delegierten Modus, die OneLake-Rollen werden wirkungslos.",
-                    present("terraform/main.tf") or present("provision.sh"))
     for d in domains:
         # `preview=false` ist Pflichtparameter (Release-Version); Aufrufer muss Fabric-Administrator
         # sein — Dienstprinzipal wird unterstützt. Geprüft 31.07.2026 gegen

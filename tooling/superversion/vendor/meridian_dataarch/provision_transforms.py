@@ -159,28 +159,6 @@ def _silber_herkunft(governed_catalog: dict | None, d: dict) -> dict[str, list[s
     return raus
 
 
-def _herkunft_je_domaene(blueprint: dict, governed_catalog: dict | None, d: dict,
-                         domains: list[dict]) -> dict[str, list[str]]:
-    """`_silber_herkunft` dieser Domaene, ohne Quellen, die laut IR einer ANDEREN gehoeren.
-
-    Gemessen 02.09.2026 (Plan 0008, B-4): `dim_material` ist konform (Order-to-Cash und
-    Inventory), und der Katalog nennt drei Herkuenfte -- `order_to_cash_mara`,
-    `order_to_cash_makt`, `inventory_mm_mara`. Jede der beiden Domaenen emittierte alle drei:
-    sechs `bronze_to_silver__*` fuer drei Ziele, je zwei Dateien mit demselben
-    `CREATE OR REPLACE`. Die Domaene materialisiert nur, was ihr gehoert; eine Quelle ohne
-    erklaerten Eigentuemer (Kataloge ohne IR-Bezug) bleibt, wo der Katalog sie nennt.
-    """
-    herkunft = _silber_herkunft(governed_catalog, d)
-    if not herkunft:
-        return herkunft
-    dident = _ident(d.get("name", ""))
-    eigene = set(_sources_for_domain(blueprint, dident))
-    fremd = {s for od in domains if _ident(od.get("name", "")) != dident
-             for s in _sources_for_domain(blueprint, _ident(od.get("name", "")))} - eigene
-    raus = {p: [q for q in qs if q not in fremd] for p, qs in herkunft.items()}
-    return {p: qs for p, qs in raus.items() if qs}
-
-
 def _formgleich(spalten_je_quelle: dict[str, list[str]] | None) -> bool:
     """Haben alle Herkuenfte DIESELBE Spaltenmenge?
 
@@ -541,7 +519,7 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         #
         # Ohne Katalog bleibt es beim alten Zuschnitt: dann WEISS niemand, welche Quelle zu
         # welchem Produkt gehoert, und ein geratener Zuschnitt waere schlimmer als ein grober.
-        herkunft = _herkunft_je_domaene(blueprint, governed_catalog, d, domains)
+        herkunft = _silber_herkunft(governed_catalog, d)
         if bronze_enabled:
             if herkunft:
                 for quelle in sorted({q for qs in herkunft.values() for q in qs}):
@@ -619,17 +597,7 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         kind = kinds.get(product, "dimension")
         gold_tbl = layer_ref("gold", _ident(product), schemas)
         rel = f"transforms/_conformed/silver_to_gold__{_ident(product)}.sql"
-        # Bei aufgeschluesseltem Silber liest die konforme Dimension aus der Herkunftstabelle
-        # der jeweiligen Domaene, nicht aus `silver.<domaene>` -- die gibt es dann nicht.
-        # Mehrere Herkuenfte je Domaene bleiben beim Domaenenverweis: ob vereinigt oder
-        # verbunden gehoert, ist dieselbe offene Fachfrage wie oben.
-        sources = []
-        for dom in contributing:
-            d_dom = next((x for x in domains if x.get("name") == dom), {})
-            eigene = _herkunft_je_domaene(blueprint, governed_catalog, d_dom, domains).get(_ident(product), [])
-            tbl = layer_ref("silver", _ident(eigene[0]), schemas) if len(eigene) == 1 \
-                else layer_ref("silver", _ident(dom), schemas)
-            sources.append((dom, tbl))
+        sources = [(dom, layer_ref("silver", _ident(dom), schemas)) for dom in contributing]
         out[rel] = _silver_to_gold_conformed(
             product, kind, sources, contract_ref, dl, gold_tbl=gold_tbl,
             table=_catalog_table(governed_catalog, _ident(product)))
@@ -641,16 +609,9 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
     return out
 
 
-#: Die Werte, die eine `DATA-INC`-Antwort tragen kann (Optionen-Katalog in
-#: `decision_proposals._OPTIONEN["DATA-INC"]`). Hier genannt, damit ein unbekannter Wert
-#: als Befund im Kopf steht und nicht still wie „nicht entschieden" behandelt wird.
-_DATA_INC_WERTE = ("watermark", "vollast", "cdc", "partition")
-
-
 def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str, contract_ref: str, dl: dict,
                                 gold_tbl: str = "", star: bool = True,
-                                proposal: dict | None = None,
-                                wahl: str | None = None) -> str:
+                                proposal: dict | None = None) -> str:
     """Incremental (upsert) silver→gold as a MERGE scaffold — the delta-load counterpart of the
     full-rebuild ``_silver_to_gold``. Honest by construction: the merge *shape* comes from the IR
     (target gold table, kind), the match key + watermark predicate are domain policy → TODO(contract).
@@ -675,57 +636,11 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str, contract_
         + serving
         + scd
     )
-    keys, wm = (proposal or {}).get("keys") or [], (proposal or {}).get("watermark")
-    # Die Bestaetigung, auf die der Kommentar unten wartet (C-3, 02.09.2026): traegt das Profil
-    # `entscheidungen.DATA-INC[·<domaene>] = watermark` und nennt der Katalog Schluessel und
-    # Aenderungsspalte, wird der Vorschlag zur ausfuehrbaren Anweisung. Genau das ist der
-    # Unterschied zwischen „vorgedacht" und „gebaut": vorher blieben 22 `<business_key>`-
-    # Platzhalter stehen, obwohl die Antwort in der Datei lag (Szenario `sap_mittelstand`).
-    if wahl == "watermark" and keys and wm:
-        on = " AND ".join(f"t.{k} = s.{k}" for k in keys)
-        head += (
-            f"{c}\n"
-            f"{c} ENTSCHIEDEN: DATA-INC = watermark (Antwortdatei → Profil `entscheidungen`).\n"
-            f"{c}   Match-Key : {' + '.join(keys)}\n"
-            f"{c}   Watermark : {wm} > (SELECT MAX({wm}) FROM {gold_tbl}); leeres Gold laedt alles.\n"
-            f"{c}   Loeschungen in der Quelle kommen ohne Loeschkennzeichen nicht an (Katalog-Option).\n"
-        )
-        body = (
-            f"MERGE INTO {gold_tbl} AS t\n"
-            f"USING (\n"
-            f"    SELECT *\n"
-            f"    FROM {silver_tbl}\n"
-            f"    WHERE (SELECT COUNT(*) FROM {gold_tbl}) = 0\n"
-            f"       OR {wm} > (SELECT MAX({wm}) FROM {gold_tbl})\n"
-            f") AS s\n"
-            f"ON {on}\n"
-            f"WHEN MATCHED THEN {set_clause}\n"
-            f"WHEN NOT MATCHED THEN {ins_clause}\n"
-            f";\n"
-        )
-        return head + body
-    if wahl:
-        if wahl == "watermark":
-            fehlt = " und ".join(x for x, ok in (("Match-Key", bool(keys)),
-                                                 ("Aenderungsspalte", bool(wm))) if not ok)
-            head += (f"{c}\n{c} ENTSCHIEDEN: DATA-INC = watermark — aber der Katalog nennt "
-                     f"{fehlt or 'nichts Fehlendes'} nicht; die Platzhalter unten bleiben, bis der "
-                     f"Datenvertrag sie traegt.\n")
-        elif wahl == "cdc":
-            head += (f"{c}\n{c} ENTSCHIEDEN: DATA-INC = cdc. Der MERGE liest den CDC-Feed bzw. die "
-                     f"gespiegelte Tabelle statt einer Watermark; Feed-Spalten und Loeschkennzeichen "
-                     f"sind Quellwissen — die Platzhalter unten bleiben, bis der Konnektor sie nennt.\n")
-        elif wahl == "partition":
-            head += (f"{c}\n{c} ENTSCHIEDEN: DATA-INC = partition. Statt MERGE ein INSERT OVERWRITE je "
-                     f"Periode; die Partitionsspalte ist Vertragswissen (TODO(contract:{contract_ref})) — "
-                     f"die Platzhalter unten bleiben, bis sie im Datenvertrag steht.\n")
-        else:
-            head += (f"{c}\n{c} BEFUND: DATA-INC = {wahl!r} ist kein bekannter Wert "
-                     f"({', '.join(_DATA_INC_WERTE)}); behandelt wie nicht entschieden.\n")
     # A pre-thought proposal for the two open decisions (match key + watermark), derived from the
     # governed catalog. Deliberately a COMMENT: the executable statement stays fail-safe with
     # un-parseable placeholders, so a proposal can never silently go live unconfirmed.
     if proposal:
+        keys, wm = proposal.get("keys") or [], proposal.get("watermark")
         head += (
             f"{c}\n"
             f"{c} VORSCHLAG (zu bestätigen, ersetzt die Platzhalter unten — nichts läuft ungeprüft):\n"
@@ -758,15 +673,15 @@ def _incremental_proposal(gc: dict | None, product: str) -> dict | None:
     tbl = next((t for t in gc.get("tables", []) if t.get("name") == product), None)
     if not tbl:
         return None
-    from core.dataarch_engine.blueprint.decision_proposals import _WATERMARK_HINTS, _rank, match_keys
+    from core.dataarch_engine.blueprint.decision_proposals import _WATERMARK_HINTS, _rank
     cols = tbl.get("columns") or []
+    keys = [c for c in cols if c.lower().endswith("_key")]
     wm = sorted(((_rank(c, _WATERMARK_HINTS), c) for c in cols), key=lambda x: (-x[0], x[1]))
-    return {"keys": match_keys(tbl), "watermark": next((c for w, c in wm if w > 0), None)}
+    return {"keys": keys, "watermark": next((c for w, c in wm if w > 0), None)}
 
 
 def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool = False,
-                          governed_catalog: dict | None = None,
-                          entscheidungen: dict | None = None) -> dict[str, str]:
+                          governed_catalog: dict | None = None) -> dict[str, str]:
     """Return the incremental (delta-load) transform set: one MERGE/upsert ``silver_to_gold`` per gold
     product under ``transforms/incremental/`` + ``transforms/INCREMENTAL_REFRESH.md`` — the layer
     decision for *where* incremental lives. Grounded in MS Learn (2026-07): Dataflow Gen2 incremental
@@ -779,31 +694,17 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
     contract_ref = med.get("silver", {}).get("data_contract_ref", "<silver-contract>")
     domains = sorted(blueprint.get("mesh", {}).get("domains", []), key=lambda d: d.get("name", ""))
 
-    from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
-
     out: dict[str, str] = {}
-    entschieden: list[tuple[str, str]] = []
     for d in domains:
         ddir = _dirslug(d["name"])
         silver_tbl = layer_ref("silver", _ident(d["name"]), schemas)
-        # `entscheidungen` ist das Profilfeld aus dem Rueckweg (C-3): `DATA-INC·<domaene>` bei
-        # mehreren Domaenen, `DATA-INC` bei einer — dieselbe ID, die der Ledger vergibt.
-        wahl = entscheidung_fuer(entscheidungen, "DATA-INC", d["name"])
-        if wahl:
-            entschieden.append((d["name"], wahl))
         for product in sorted(d.get("data_products", [])):
             kind = kinds.get(product, "fact")
             gold_tbl = layer_ref("gold", _ident(product), schemas)
             rel = f"transforms/incremental/{ddir}/silver_to_gold__{_ident(product)}.sql"
-            if wahl == "vollast":
-                # Kein MERGE-Artefakt: bei Vollast ist der Vollaufbau `transforms/<domaene>/`
-                # die einzige Ladeform. Gemessen 02.09.2026: eine Verweisdatei aus Kommentaren
-                # meldete der Dialekt-Validator als „no executable SQL" — ein Befund ohne
-                # Fehler. Warum die Datei fehlt, sagt die Tabelle in INCREMENTAL_REFRESH.md.
-                continue
             out[rel] = _silver_to_gold_incremental(
                 product, kind, silver_tbl, contract_ref, dl, gold_tbl, star,
-                proposal=_incremental_proposal(governed_catalog, product), wahl=wahl)
+                proposal=_incremental_proposal(governed_catalog, product))
 
     doc = [
         "# Incremental / delta-load — where it lives (generated, grounded MS Learn 2026-07)",
@@ -843,24 +744,6 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
     # Auf fremden Stacks ist die Fabric-Antwort ("Direct Lake braucht keine Refresh-Policy") ohne
     # Gegenstand; Snowflake stellt sogar eine echte Entwurfsentscheidung an den Anfang
     # (Dynamic Tables vs. Streams+Tasks — MERGE/SCD-2 nur mit letzterem).
-    if entschieden:
-        doc += [
-            "",
-            "## Entschieden (Antwortdatei → Profil `entscheidungen`)",
-            "",
-            "| Domäne | DATA-INC | Wirkung in diesem Ordner |",
-            "|---|---|---|",
-        ]
-        wirkung = {
-            "watermark": "MERGE mit Match-Key und Watermark aus dem Katalog — ausführbar, sobald "
-                         "der Katalog beide nennt; sonst bleiben die Platzhalter mit Befund",
-            "vollast": "kein MERGE-Artefakt in diesem Ordner; der Vollaufbau unter "
-                       "`transforms/<domäne>/` ist die Ladeform, jeder Lauf schreibt Gold neu",
-            "cdc": "Platzhalter bleiben; der Feed ist Quellwissen",
-            "partition": "Platzhalter bleiben; die Partitionsspalte ist Vertragswissen",
-        }
-        doc += [f"| {name} | `{wahl}` | {wirkung.get(wahl, 'unbekannter Wert, wie nicht entschieden')} |"
-                for name, wahl in entschieden]
     _note = gap_doc_for(blueprint, "incremental", "Inkrementelles Laden")
     out["transforms/INCREMENTAL_REFRESH.md"] = _note or ("\n".join(doc) + "\n")
     return out
