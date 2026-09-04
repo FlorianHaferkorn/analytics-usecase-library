@@ -14,6 +14,7 @@ from tooling.superversion.project_package.adapters.decision_proposals import (
     SOURCE_FIELDS,
     adapt_decision_proposals,
 )
+from tooling.superversion.project_package.compiler_input import build_compiler_input
 from tooling.superversion.project_package.hashes import canonical_sha256
 from tooling.superversion.project_package.migrations import (
     ProjectPackageMigrationError,
@@ -135,7 +136,7 @@ def _minimal_modules(root: Path) -> list[dict]:
 
 
 def test_all_project_package_schemas_are_closed_draft_2020_12() -> None:
-    assert len(PROJECT_SCHEMAS) == 7
+    assert len(PROJECT_SCHEMAS) == 8
     for path in PROJECT_SCHEMAS:
         schema = json.loads(path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
@@ -294,3 +295,23 @@ def test_migration_rejects_unknown_version_and_nonempty_target(tmp_path: Path) -
     with pytest.raises(ProjectPackageMigrationError, match="must be empty"):
         migrate_project_package(LEGACY_FIXTURE, occupied, SCHEMAS)
     assert (occupied / "keep.txt").read_text(encoding="utf-8") == "keep"
+
+
+def test_compiler_input_is_deterministic_and_fail_closed(tmp_path: Path) -> None:
+    migrated = migrate_project_package(LEGACY_FIXTURE, tmp_path / "migrated", SCHEMAS)
+    first = build_compiler_input(migrated, SCHEMAS)
+    second = build_compiler_input(migrated, SCHEMAS)
+    Draft202012Validator(
+        _load_schema("project_compiler_input.schema.json"),
+        format_checker=FormatChecker(),
+    ).validate(first)
+    assert first == second
+    assert first["readiness"] == {
+        "decision_ready": True,
+        "build_ready": False,
+        "unapproved_decision_refs": [],
+        "blockers": ["package_not_approved"],
+    }
+    assert first["provenance"]["migration"]["source_ref"] == (
+        "fixture://project-package/v1/package.yaml"
+    )
