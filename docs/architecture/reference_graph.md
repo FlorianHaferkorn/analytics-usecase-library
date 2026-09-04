@@ -6,7 +6,7 @@
 ## Coverage
 
 - Use cases: **20**  (evidence packs: 16/20, factsheets: 20/20)
-- KPIs in catalog: **138**  — reachable: **137**, roadmap (planned.yaml): 30, orphan: **0**
+- KPIs in catalog: **140**  — reachable: **137**, roadmap (planned.yaml): 30, orphan: **2**
 - Action codes: **57**  — reachable: **57**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
 - Semantic measures: **251**  — backing a catalog KPI: **110** (registry/drift gated by `test_measure_dictionary_files`)
@@ -46,7 +46,8 @@
 
 **KPIs** (excludes planned.yaml roadmap):
 
-_none_
+- `sales.net_sales.ly.amount`
+- `sales.net_sales.plan.amount`
 
 **Action codes:**
 

@@ -8,6 +8,7 @@ domain_tag:
 - Corporate & Strategy
 use_case_ref:
 - XD-003
+- XD-004
 action_code_ref:
 - X-E3.2
 calc_type: ratio

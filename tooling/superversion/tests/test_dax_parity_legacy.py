@@ -35,6 +35,13 @@ DIST = REPO / "products/fabric/powerbi/dist"
 # kpi_id -> (legacy dist file, legacy measure name)
 KPI_TO_LEGACY = {
     "sales.net_sales.amount": ("Commercial.SemanticModel", "Net Sales Amount"),
+    # 04.09.2026: die zwei Vergleichsbasen von COM-001 standen seit `22b6fd7d` nur in
+    # KPI_Catalog.md und hatten keine Datei je Entitaet. Beide Messgroessen liegen im
+    # ausgelieferten Modell (Commercial `_Measures.tmdl:54/61`, displayFolder COM-001),
+    # der Katalog rechnet sie identisch: SUM(fact_sales[Plan Sales Amount]) bzw.
+    # SUM(fact_sales[Last Year Sales Amount]).
+    "sales.net_sales.plan.amount": ("Commercial.SemanticModel", "Plan Sales Amount"),
+    "sales.net_sales.ly.amount": ("Commercial.SemanticModel", "Last Year Net Sales Amount"),
     # Am 05.08.2026 aus `op: hitl` geloest: der Katalog behauptete, die Quelltabelle
     # fehle im Data Contract — das handgebaute Modell liest sie aber. Die Grammatik
     # konnte beide Faelle laengst (count / avg / sum), es fehlte nur die Berechnung.

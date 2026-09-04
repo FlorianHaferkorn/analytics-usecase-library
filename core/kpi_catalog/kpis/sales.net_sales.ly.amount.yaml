@@ -1,0 +1,45 @@
+kpi_id: sales.net_sales.ly.amount
+kpi_key: Prior-Year Net Sales Amount
+kpi_type: diagnostic
+kpi_role: supporting
+impact_dimension: Growth
+domain_tag:
+- Commercial
+use_case_ref:
+- COM-001
+action_code_ref: []
+calc_type: amount
+business:
+  purpose: Governed prior-year baseline for comparable Net Sales trend analysis.
+  definition: Sum of Net Sales Amount for the corresponding prior-year reporting period.
+  grain_scope: Invoice line and comparable reporting period.
+  unit_format: eur_0
+  interpretation: Provides the like-for-like prior-year revenue baseline; comparability adjustments must follow the reporting calendar.
+technical:
+  measure_name: Last Year Net Sales Amount
+  description: Comparable prior-year Net Sales baseline for commercial trend analysis.
+  depends_on_measures:
+  - sales.net_sales.amount
+  lineage:
+  - fact_sales.Last Year Sales Amount
+  calculation:
+    op: sum
+    column: Last Year Sales Amount
+governance:
+  business_owner: Head of Sales Controlling
+  data_owner: Commercial BI
+  steward: Sales Analyst
+  review_cycle: quarterly
+  validation_process: dual control
+  qa_rules:
+  - Reconciles to the corresponding prior-year Net Sales period within +/- 0.1%.
+  version: v1.0
+metadata_quality:
+  completeness_score: 1.0
+  last_review: 27.08.2026
+standard_ref:
+- standard: IFRS 15
+  name: Prior-year revenue comparison baseline
+  url: https://www.ifrs.org/issued-standards/list-of-standards/ifrs-15-revenue-from-contracts-with-customers/
+  alignment: partial
+  note: The underlying Net Sales amount follows the governed IFRS 15-aligned revenue definition; the prior-year comparison itself is a management view.

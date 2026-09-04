@@ -59,6 +59,8 @@ order:
 - sales.price.realization_pct
 - sales.pvm.mix_effect.amount
 - sales.net_sales.amount
+- sales.net_sales.plan.amount
+- sales.net_sales.ly.amount
 - sales.net_sales.delta_pct.ly
 - sales.net_sales.delta_pct.plan
 - sales.pvm.price_effect.amount
