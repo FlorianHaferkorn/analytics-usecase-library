@@ -1,0 +1,431 @@
+# Minimal Fabric platform foundation capability pack.
+# Customer-neutral by contract: no customer names, no organization rates and no
+# pre-selected option. The pack states the choices and their consequences; the
+# selection belongs to a project package, not to this file.
+schema_version: 1.0.0
+capability:
+  id: fabric_platform_foundation
+  version: 1.0.0
+
+  applicability:
+    - id: app_target_is_fabric
+      description: Activate the pack when the engagement builds on Microsoft Fabric.
+      condition:
+        fact: target_platform
+        operator: equals
+        value: microsoft_fabric
+    - id: app_shared_capacity_boundary
+      description: Activate the capacity questions when two or more domains may share one capacity.
+      condition:
+        fact: capacity_shared_between_domains
+        operator: exists
+        value: true
+
+  methodology:
+    - id: m_scope_domains
+      step: 1
+      description: Establish the domain and sub-domain boundary and its accountable ownership.
+      produces:
+        - o_domain_topology_record
+    - id: m_scope_environments
+      step: 2
+      description: Establish the lifecycle environments and the promotion mechanism between them.
+      produces:
+        - o_environment_manifest
+    - id: m_scope_names_and_identities
+      step: 3
+      description: Derive workspace, capacity, group and identity names from the approved naming policy.
+      produces:
+        - o_naming_workbook
+
+  questions:
+    - id: q_domain_ownership
+      text: Which organizational units become top-level domains, and who is accountable for each?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_domain_owner_register
+      decision_ref: null
+    - id: q_environment_topology
+      text: Which lifecycle environments must the delivery support before production?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs: []
+      decision_ref: d_environment_topology
+    - id: q_item_promotion
+      text: How do item definitions move from development into the following environments?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs:
+        - e_promotion_capability_test
+      decision_ref: d_item_promotion_mechanism
+    - id: q_capacity_assignment
+      text: Which capacity carries each workspace, and is any capacity shared across domains?
+      state: open
+      blocking: false
+      applicability_refs:
+        - app_shared_capacity_boundary
+      evidence_requirement_refs:
+        - e_capacity_assignment
+      decision_ref: null
+
+  evidence_requirements:
+    - id: e_domain_owner_register
+      claim: Every top-level domain has a named accountable owner and a named deputy.
+      scope: All domains in the agreed delivery scope.
+      environment: none
+      acceptable_sources:
+        - Written confirmation by the customer governance lead
+        - Directory export showing the owner assignment
+      state: registered
+      expiry_policy: review_on_scope_change
+    - id: e_promotion_capability_test
+      claim: The selected promotion mechanism moved a representative item from development into the next environment in the target tenant.
+      scope: One representative item of each item type in scope.
+      environment: any_non_production
+      acceptable_sources:
+        - Recorded promotion run with source and target object identifiers
+        - Platform activity log entry for the promotion
+      state: registered
+      expiry_policy: review_on_tool_change
+    - id: e_capacity_assignment
+      claim: Every workspace in scope is assigned to an approved capacity.
+      scope: All workspaces created by this pack.
+      environment: all_environments
+      acceptable_sources:
+        - Tenant readback listing workspace and capacity identifiers
+      state: registered
+      expiry_policy: review_on_scope_change
+
+  decisions:
+    - id: d_environment_topology
+      question_refs:
+        - q_environment_topology
+      state: proposed
+      decider_role: platform_owner
+      impact_dimensions:
+        - delivery
+        - operations
+        - cost
+      recommendation_option_ref: null
+      options:
+        - id: development_and_production
+          summary: Two environments; changes move from development straight into production.
+          applicability:
+            - fact: separate_acceptance_environment_required
+              operator: equals
+              value: false
+          recommendation_logic: Prefer when no party outside the delivery team has to accept a release before it reaches production.
+          benefits:
+            - Fewest workspaces, bindings and connections to operate
+            - Shortest path from change to production
+          limitations:
+            - No environment in which acceptance can run against production-like data
+            - A defect found late is found in production
+          delivery_impact: One promotion step to build, test and document.
+          operational_impact: One production runbook; no acceptance schedule to operate.
+          cost_drivers:
+            - Number of workspaces
+            - Number of environment-specific connections
+          scalability_implications: Adding an acceptance environment later requires new bindings and a repeated release proof.
+          later_change_cost: medium
+          evidence_requirement_refs:
+            - e_promotion_capability_test
+          authoritative_source: Vendor documentation for the selected promotion mechanism
+        - id: development_test_and_production
+          summary: Three environments; a dedicated environment carries acceptance before production.
+          applicability:
+            - fact: separate_acceptance_environment_required
+              operator: equals
+              value: true
+          recommendation_logic: Prefer when a named party outside the delivery team must accept a release, or when regression has to run against production-like data.
+          benefits:
+            - Acceptance runs on an environment that mirrors production
+            - Release approval has an auditable boundary of its own
+          limitations:
+            - Third set of workspaces, connections, identities and schedules to operate
+            - Test data has to be provisioned and kept representative
+          delivery_impact: Two promotion steps and one acceptance gate to build and document.
+          operational_impact: Additional environment to monitor, refresh and recertify.
+          cost_drivers:
+            - Number of workspaces
+            - Capacity consumed by the additional environment
+            - Effort to maintain representative test data
+          scalability_implications: Scales to several domains without changing the release path; a domain may drop the acceptance stage under its own responsibility.
+          later_change_cost: low
+          evidence_requirement_refs:
+            - e_promotion_capability_test
+          authoritative_source: Vendor documentation for the selected promotion mechanism
+    - id: d_item_promotion_mechanism
+      question_refs:
+        - q_item_promotion
+      state: proposed
+      decider_role: platform_owner
+      impact_dimensions:
+        - delivery
+        - architecture
+        - security
+      recommendation_option_ref: null
+      options:
+        - id: git_development_plus_deployment_pipelines
+          summary: Source control is bound to the development environment; the vendor promotion mechanism carries changes onward.
+          applicability:
+            - fact: vendor_promotion_mechanism_supported
+              operator: equals
+              value: true
+          recommendation_logic: Prefer when the vendor promotion mechanism supports every item type in scope and the source of truth must stay a protected repository.
+          benefits:
+            - One reviewed repository as the source of truth
+            - Promotion uses a supported vendor path instead of custom code
+          limitations:
+            - Environment-specific connections, roles and schedules are not carried by the promotion
+            - Item types outside vendor support need a documented exception
+          delivery_impact: Branch policies and one promotion configuration to build.
+          operational_impact: Promotion runs are logged centrally; bindings stay an environment-specific task.
+          cost_drivers:
+            - Number of item types in scope
+            - Number of environment-specific bindings
+          scalability_implications: Adding a domain repeats a known configuration rather than new automation.
+          later_change_cost: low
+          evidence_requirement_refs:
+            - e_promotion_capability_test
+          authoritative_source: Vendor documentation for source control integration and deployment pipelines
+        - id: source_control_bound_per_environment
+          summary: Every environment is bound to its own branch in source control; promotion is a merge.
+          applicability:
+            - fact: vendor_promotion_mechanism_supported
+              operator: equals
+              value: false
+          recommendation_logic: Prefer when the vendor promotion mechanism does not cover the item types in scope, so the repository has to carry every environment.
+          benefits:
+            - One mechanism for all item types, including those the promotion mechanism does not support
+            - Environment content is diffable in the repository
+          limitations:
+            - Environment-specific values must be parameterized or they travel with the merge
+            - Merge conflicts become release incidents
+          delivery_impact: Branch strategy, parameter handling and conflict rules to build and document.
+          operational_impact: Release troubleshooting moves into the repository rather than the platform log.
+          cost_drivers:
+            - Number of environments
+            - Effort to parameterize environment-specific values
+          scalability_implications: Each additional environment adds a branch and a parameter set to maintain.
+          later_change_cost: high
+          evidence_requirement_refs:
+            - e_promotion_capability_test
+          authoritative_source: Vendor documentation for source control integration
+
+  recommendation_rules:
+    - id: r_environment_topology_with_acceptance
+      decision_ref: d_environment_topology
+      when:
+        - fact: separate_acceptance_environment_required
+          operator: equals
+          value: true
+      recommend_option_ref: development_test_and_production
+      rationale: An acceptance party outside the delivery team needs an environment it can test on before production.
+    - id: r_environment_topology_without_acceptance
+      decision_ref: d_environment_topology
+      when:
+        - fact: separate_acceptance_environment_required
+          operator: equals
+          value: false
+      recommend_option_ref: development_and_production
+      rationale: Without an external acceptance party the third environment adds operating cost without adding a control.
+    - id: r_promotion_uses_supported_path
+      decision_ref: d_item_promotion_mechanism
+      when:
+        - fact: vendor_promotion_mechanism_supported
+          operator: equals
+          value: true
+      recommend_option_ref: git_development_plus_deployment_pipelines
+      rationale: A supported vendor path is preferred over custom promotion code whenever it covers the item types in scope.
+
+  architecture_rules:
+    - id: ar_environment_boundary
+      applies_to: environment
+      rule: Each lifecycle environment owns its own workspaces; no workspace serves two environments.
+      decision_refs:
+        - d_environment_topology
+    - id: ar_layer_boundary
+      applies_to: workspace
+      rule: Layer boundaries are drawn as separate workspaces so that release and access scopes stay separable.
+      decision_refs: []
+    - id: ar_capacity_assignment
+      applies_to: capacity
+      rule: Every workspace is assigned to exactly one approved capacity, and a shared capacity is recorded as a deliberate decision.
+      decision_refs: []
+    - id: ar_naming_policy
+      applies_to: naming
+      rule: Physical names are compiled from the approved naming policy and an environment input; a name is never an identifier.
+      decision_refs: []
+    - id: ar_delivery_and_runtime_identity
+      applies_to: identity
+      rule: The identity that promotes content and the identity that runs scheduled work are declared separately, even when one principal fulfils both.
+      decision_refs:
+        - d_item_promotion_mechanism
+
+  work_packages:
+    - id: wp_domain_and_capacity_setup
+      name: Domain and capacity setup
+      description: Create the domain and sub-domain structure, assign owners and bind workspaces to their capacity.
+      decision_refs: []
+      output_refs:
+        - o_domain_topology_record
+      depends_on: []
+    - id: wp_environment_and_promotion_setup
+      name: Environment and promotion setup
+      description: Create the selected environments, bind source control and configure the selected promotion mechanism.
+      decision_refs:
+        - d_environment_topology
+        - d_item_promotion_mechanism
+      output_refs:
+        - o_environment_manifest
+      depends_on:
+        - wp_domain_and_capacity_setup
+    - id: wp_naming_and_identity_setup
+      name: Naming and identity setup
+      description: Apply the naming policy and create the delivery and runtime identities with their access assignments.
+      decision_refs:
+        - d_item_promotion_mechanism
+      output_refs:
+        - o_naming_workbook
+      depends_on:
+        - wp_domain_and_capacity_setup
+
+  skill_requirements:
+    - id: sk_platform_architect
+      role: platform_architect
+      proficiency: expert
+      work_package_refs:
+        - wp_domain_and_capacity_setup
+        - wp_environment_and_promotion_setup
+    - id: sk_delivery_engineer
+      role: delivery_engineer
+      proficiency: advanced
+      work_package_refs:
+        - wp_environment_and_promotion_setup
+        - wp_naming_and_identity_setup
+
+  estimation_rules:
+    - id: est_domain_and_capacity_setup
+      work_package_ref: wp_domain_and_capacity_setup
+      driver: Number of top-level domains and capacities in scope
+      unit: days
+      low: 1
+      high: 3
+      status: proposed
+    - id: est_environment_and_promotion_setup
+      work_package_ref: wp_environment_and_promotion_setup
+      driver: Number of environments multiplied by the number of item types in scope
+      unit: days
+      low: 2
+      high: 5
+      status: proposed
+    - id: est_naming_and_identity_setup
+      work_package_ref: wp_naming_and_identity_setup
+      driver: Number of workspaces, groups and service identities to create
+      unit: days
+      low: 1
+      high: 4
+      status: proposed
+
+  tool_dependencies:
+    - id: td_platform_cli
+      tool: Vendor platform command line interface
+      capability_used: Read and compare workspaces, items and capacity bindings before and after an apply.
+      versions:
+        latest_available: null
+        internally_validated: null
+        project_approved: null
+      evidence_requirement_ref: e_capacity_assignment
+      review_due: on_vendor_release
+    - id: td_promotion_mechanism
+      tool: Vendor promotion mechanism for item definitions
+      capability_used: Move item definitions from development into the following environments.
+      versions:
+        latest_available: null
+        internally_validated: null
+        project_approved: null
+      evidence_requirement_ref: e_promotion_capability_test
+      review_due: on_vendor_release
+
+  outputs:
+    - id: o_domain_topology_record
+      name: Domain topology and ownership record
+      kind: document
+      produced_by_work_package_refs:
+        - wp_domain_and_capacity_setup
+      readiness_gate_refs:
+        - g_architecture_ready
+    - id: o_environment_manifest
+      name: Environment deployment manifest
+      kind: manifest
+      produced_by_work_package_refs:
+        - wp_environment_and_promotion_setup
+      readiness_gate_refs:
+        - g_apply_ready
+    - id: o_naming_workbook
+      name: Naming and identity workbook
+      kind: workbook
+      produced_by_work_package_refs:
+        - wp_naming_and_identity_setup
+      readiness_gate_refs:
+        - g_architecture_ready
+
+  readiness_gates:
+    - id: g_discovery_ready
+      gate: discovery_ready
+      minimum_evidence_refs:
+        - e_domain_owner_register
+      decision_refs: []
+      blocking: true
+    - id: g_decision_ready
+      gate: decision_ready
+      minimum_evidence_refs: []
+      decision_refs:
+        - d_environment_topology
+        - d_item_promotion_mechanism
+      blocking: true
+    - id: g_architecture_ready
+      gate: architecture_ready
+      minimum_evidence_refs:
+        - e_domain_owner_register
+        - e_capacity_assignment
+      decision_refs:
+        - d_environment_topology
+      blocking: true
+    - id: g_apply_ready
+      gate: apply_ready
+      minimum_evidence_refs:
+        - e_promotion_capability_test
+        - e_capacity_assignment
+      decision_refs:
+        - d_environment_topology
+        - d_item_promotion_mechanism
+      blocking: true
+
+  acceptance_tests:
+    - id: at_promotion_round_trip
+      readiness_gate_ref: g_apply_ready
+      statement: A representative item of each item type in scope is promoted from development into the next environment.
+      expected_result: The item exists in the target environment with the expected definition, and the run is recorded with source and target identifiers.
+      evidence_requirement_refs:
+        - e_promotion_capability_test
+    - id: at_second_apply_is_noop
+      readiness_gate_ref: g_apply_ready
+      statement: The approved manifest is applied a second time without an intervening change.
+      expected_result: The second apply reports no mutation.
+      evidence_requirement_refs:
+        - e_capacity_assignment
+    - id: at_capacity_binding_readback
+      readiness_gate_ref: g_architecture_ready
+      statement: Every workspace created by this pack is read back from the tenant with its capacity binding.
+      expected_result: Each workspace reports exactly one approved capacity, and no workspace is unassigned.
+      evidence_requirement_refs:
+        - e_capacity_assignment

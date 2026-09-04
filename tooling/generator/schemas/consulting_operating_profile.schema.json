@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.analytics-consulting.local/consulting-operating-profile/1.0.0/schema.json",
+  "title": "Consulting Operating Profile",
+  "description": "Organization-neutral contract for configuring the discovery-to-delivery workflow without sharing customer data or executable product code.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile_id",
+    "provider",
+    "staffing",
+    "commercial",
+    "delivery",
+    "data_boundaries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["proposed", "accepted", "superseded"]
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "operating_model", "brand_profile"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "operating_model": {
+          "type": "string",
+          "enum": ["consulting_organization", "solo_consulting"]
+        },
+        "brand_profile": {"type": "string", "minLength": 1}
+      }
+    },
+    "staffing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "execution_model",
+        "consultant_count",
+        "role_assignment",
+        "max_parallel_delivery_streams"
+      ],
+      "properties": {
+        "execution_model": {
+          "type": "string",
+          "enum": ["single_consultant", "resource_plan"]
+        },
+        "consultant_count": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minimum", "maximum"],
+          "properties": {
+            "minimum": {"type": "integer", "minimum": 1},
+            "maximum": {
+              "anyOf": [
+                {"type": "integer", "minimum": 1},
+                {"type": "null"}
+              ]
+            }
+          }
+        },
+        "role_assignment": {
+          "type": "string",
+          "enum": ["one_person_multiple_roles", "named_team_roles"]
+        },
+        "max_parallel_delivery_streams": {
+          "anyOf": [
+            {"type": "integer", "minimum": 1},
+            {"type": "null"}
+          ]
+        },
+        "required_roles": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "commercial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pricing_model", "currency", "authority_path", "hourly_rates"],
+      "properties": {
+        "pricing_model": {
+          "type": "string",
+          "enum": ["solo_pricebook", "organization_project_commercials"]
+        },
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "authority_path": {"type": "string", "minLength": 1},
+        "customer_price_values_in_profile": {"type": "boolean"},
+        "hourly_rates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["service_class", "rate", "status", "source_ref"],
+            "properties": {
+              "service_class": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+              "rate": {"type": "number", "minimum": 0},
+              "status": {"type": "string", "enum": ["canonical", "project_specific", "proposed"]},
+              "source_ref": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "retainers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "hours", "net_amount", "source_ref"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "hours": {"type": "number", "exclusiveMinimum": 0},
+              "net_amount": {"type": "number", "minimum": 0},
+              "source_ref": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operator_interface",
+        "parallelization_policy",
+        "workday_hours",
+        "weekly_capacity_hours",
+        "planning_utilization_pct",
+        "planning_defaults_status"
+      ],
+      "properties": {
+        "operator_interface": {"type": "string", "minLength": 1},
+        "parallelization_policy": {
+          "type": "string",
+          "enum": ["serial_single_consultant", "resource_plan"]
+        },
+        "workday_hours": {"type": "number", "exclusiveMinimum": 0},
+        "weekly_capacity_hours": {
+          "anyOf": [
+            {"type": "number", "exclusiveMinimum": 0},
+            {"type": "null"}
+          ]
+        },
+        "planning_utilization_pct": {
+          "anyOf": [
+            {"type": "number", "exclusiveMinimum": 0, "maximum": 100},
+            {"type": "null"}
+          ]
+        },
+        "planning_defaults_status": {
+          "type": "string",
+          "enum": ["canonical", "project_specific", "proposed"]
+        },
+        "supported_capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "data_boundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "customer_data_allowed_in_product_core",
+        "customer_fixture_location",
+        "shared_executable_runtime"
+      ],
+      "properties": {
+        "customer_data_allowed_in_product_core": {"const": false},
+        "customer_fixture_location": {"type": "string", "minLength": 1},
+        "shared_executable_runtime": {"const": false},
+        "exchange_contract": {"const": "consulting-operating-profile/1.0.0"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "provider": {
+            "properties": {"operating_model": {"const": "solo_consulting"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "staffing": {
+            "properties": {
+              "execution_model": {"const": "single_consultant"},
+              "consultant_count": {
+                "properties": {
+                  "minimum": {"const": 1},
+                  "maximum": {"const": 1}
+                }
+              },
+              "role_assignment": {"const": "one_person_multiple_roles"},
+              "max_parallel_delivery_streams": {"const": 1}
+            }
+          },
+          "commercial": {
+            "properties": {"pricing_model": {"const": "solo_pricebook"}}
+          },
+          "delivery": {
+            "properties": {"parallelization_policy": {"const": "serial_single_consultant"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "provider": {
+            "properties": {"operating_model": {"const": "consulting_organization"}}
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "commercial": {
+            "properties": {"pricing_model": {"const": "organization_project_commercials"}}
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+# One complete question-to-gate slice. Proves that a populated pack passes the
+# same closed contract, with no pre-selected option and no customer fact.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation_slice
+  version: 1.0.0
+  applicability:
+    - id: app_target_is_fabric
+      description: Activate when the engagement builds on Microsoft Fabric.
+      condition:
+        fact: target_platform
+        operator: equals
+        value: microsoft_fabric
+  methodology: []
+  questions:
+    - id: q_environment_topology
+      text: Which lifecycle environments must the delivery support before production?
+      state: open
+      blocking: true
+      applicability_refs:
+        - app_target_is_fabric
+      evidence_requirement_refs: []
+      decision_ref: d_environment_topology
+  evidence_requirements:
+    - id: e_promotion_capability_test
+      claim: A representative item moved from development into the next environment in the target tenant.
+      scope: One representative item per item type in scope.
+      environment: any_non_production
+      acceptable_sources:
+        - Recorded promotion run with source and target object identifiers
+      state: registered
+      expiry_policy: review_on_tool_change
+  decisions:
+    - id: d_environment_topology
+      question_refs:
+        - q_environment_topology
+      state: proposed
+      decider_role: platform_owner
+      impact_dimensions:
+        - delivery
+        - operations
+      recommendation_option_ref: null
+      options:
+        - id: development_and_production
+          summary: Two environments; changes move from development straight into production.
+          applicability: []
+          recommendation_logic: Prefer when no party outside the delivery team accepts a release.
+          benefits:
+            - Fewest workspaces and bindings to operate
+          limitations:
+            - No environment for acceptance against production-like data
+          delivery_impact: One promotion step to build and document.
+          operational_impact: One production runbook.
+          cost_drivers:
+            - Number of workspaces
+          scalability_implications: Adding acceptance later requires new bindings and a repeated release proof.
+          later_change_cost: medium
+          evidence_requirement_refs:
+            - e_promotion_capability_test
+          authoritative_source: Vendor documentation for the selected promotion mechanism
+        - id: development_test_and_production
+          summary: Three environments; a dedicated environment carries acceptance.
+          applicability: []
+          recommendation_logic: Prefer when a named party outside the delivery team must accept a release.
+          benefits:
+            - Acceptance runs on an environment that mirrors production
+          limitations:
+            - Third set of workspaces, identities and schedules to operate
+          delivery_impact: Two promotion steps and one acceptance gate.
+          operational_impact: Additional environment to monitor and recertify.
+          cost_drivers:
+            - Capacity consumed by the additional environment
+          scalability_implications: Scales across domains without changing the release path.
+          later_change_cost: low
+          evidence_requirement_refs:
+            - e_promotion_capability_test
+          authoritative_source: Vendor documentation for the selected promotion mechanism
+  recommendation_rules:
+    - id: r_environment_topology_with_acceptance
+      decision_ref: d_environment_topology
+      when:
+        - fact: separate_acceptance_environment_required
+          operator: equals
+          value: true
+      recommend_option_ref: development_test_and_production
+      rationale: An external acceptance party needs an environment it can test on before production.
+  architecture_rules:
+    - id: ar_environment_boundary
+      applies_to: environment
+      rule: Each lifecycle environment owns its own workspaces.
+      decision_refs:
+        - d_environment_topology
+  work_packages:
+    - id: wp_environment_setup
+      name: Environment setup
+      description: Create the selected environments and configure the promotion path.
+      decision_refs:
+        - d_environment_topology
+      output_refs:
+        - o_environment_manifest
+      depends_on: []
+  skill_requirements:
+    - id: sk_platform_architect
+      role: platform_architect
+      proficiency: expert
+      work_package_refs:
+        - wp_environment_setup
+  estimation_rules:
+    - id: est_environment_setup
+      work_package_ref: wp_environment_setup
+      driver: Number of environments multiplied by the number of item types in scope
+      unit: days
+      low: 2
+      high: 5
+      status: proposed
+  tool_dependencies: []
+  outputs:
+    - id: o_environment_manifest
+      name: Environment deployment manifest
+      kind: manifest
+      produced_by_work_package_refs:
+        - wp_environment_setup
+      readiness_gate_refs:
+        - g_apply_ready
+  readiness_gates:
+    - id: g_apply_ready
+      gate: apply_ready
+      minimum_evidence_refs:
+        - e_promotion_capability_test
+      decision_refs:
+        - d_environment_topology
+      blocking: true
+  acceptance_tests:
+    - id: at_promotion_round_trip
+      readiness_gate_ref: g_apply_ready
+      statement: A representative item is promoted from development into the next environment.
+      expected_result: The item exists in the target environment with the expected definition.
+      evidence_requirement_refs:
+        - e_promotion_capability_test

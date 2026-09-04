@@ -107,7 +107,7 @@ der Kapazitätslogik: eine Person liefert Pakete nacheinander, ein Team liefert 
 - `python3 scripts/check_dataarch_mirror.py` grün, nachdem `staffing.py` gespiegelt ist.
 - `python scripts/check_index.py --strict` grün (dieses ADR ist im Bereichsindex gelistet).
 
-## 7. Offen (Ledger in `../_INDEX.md` §3, Punkt A-14)
+## 7. Offen (Ledger in `../_INDEX.md` §3, Punkt A-16)
 
 - Formale Annahme dieses ADR durch Flo: **erledigt 03.09.2026** (Accepted, Meridian D-358).
 - Tages- oder Stundensatz in der Mandantendatei: Nagarro rechnet Tage, D-356 rechnet Stunden.

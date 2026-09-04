@@ -1,0 +1,43 @@
+# Rejected: a decision with one option is a statement, not a choice.
+schema_version: 1.0.0
+capability:
+  id: minimal_fabric_foundation
+  version: 1.0.0
+  applicability: []
+  methodology: []
+  questions: []
+  evidence_requirements: []
+  decisions:
+    - id: d_environment_topology
+      question_refs: []
+      state: proposed
+      decider_role: platform_owner
+      impact_dimensions:
+        - delivery
+      recommendation_option_ref: null
+      options:
+        - id: development_test_and_production
+          summary: Three environments.
+          applicability: []
+          recommendation_logic: Always.
+          benefits:
+            - Acceptance runs on a production-like environment
+          limitations:
+            - Additional environment to operate
+          delivery_impact: Two promotion steps.
+          operational_impact: Additional environment to monitor.
+          cost_drivers:
+            - Capacity consumed by the additional environment
+          scalability_implications: Scales across domains.
+          later_change_cost: low
+          evidence_requirement_refs: []
+          authoritative_source: Vendor documentation
+  recommendation_rules: []
+  architecture_rules: []
+  work_packages: []
+  skill_requirements: []
+  estimation_rules: []
+  tool_dependencies: []
+  outputs: []
+  readiness_gates: []
+  acceptance_tests: []

@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |---|---|
-| Status | **Proposed** (03.09.2026) |
+| Status | **Accepted** (04.09.2026) |
 | Entscheider | Florian Haferkorn |
 | Kontext | Zwei am selben Tag entstandene Heimaten für Nagarro-Rollen, -Sätze und -Kapazität: ADR-0019 (Accepted, gemergt am 03.09.2026 mit PR #467) und der WB-002-Austauschvertrag `consulting-operating-profile/1.0.0` |
 | Betrifft | `tooling/generator/schemas/consulting_operating_profile.schema.json` · `core/engagement_profiles/nagarro_consulting.yaml` · künftig `tooling/superversion/preis_kanon_schema.yaml` und der gespiegelte `staffing.py` |
@@ -57,7 +57,9 @@ aus der einen Quelle rechnet, während die andere etwas anderes behauptet.
      nicht gespiegelt, ist nicht neutral, und seine Werte liegen außerhalb jedes Repos.
 2. **Das Profil trägt keine Zahl, sondern einen Zeiger.** `commercial.hourly_rates` bleibt in
    `nagarro_consulting.yaml` leer, `customer_price_values_in_profile` bleibt `false`, und
-   `commercial.authority_path` benennt ab jetzt den Preis-Kanon statt einer Prosa-Umschreibung.
+   `commercial.authority_path` benennt mit
+   `env:PREIS_KANON_MANDANTEN_DIR/preis_kanon.yaml` ab jetzt den Preis-Kanon statt einer
+   Prosa-Umschreibung.
    Damit ist das leere Feld kein Loch, sondern eine Zuständigkeitsaussage.
 3. **Kapazität: Politik im Profil, Zahlen im Kanon.** `parallelization_policy` gehört ins Profil,
    weil sie das Betriebsmodell beschreibt und der Spiegel sie braucht. `weekly_capacity_hours`
@@ -114,13 +116,12 @@ aus der einen Quelle rechnet, während die andere etwas anderes behauptet.
 
 ## 6. Offene Punkte
 
-- **Formale Annahme durch Flo.** Bis dahin ist dieses ADR `Proposed` und keine Entscheidung.
+- **Formale Annahme durch Flo: erledigt.** Am 04.09.2026 mit der Freigabe der
+  Umsetzungsschritte 1–4 angenommen.
 - **Reihenfolge: erledigt.** PR #467 ist am 03.09.2026 gemergt; ADR-0019 liegt auf `main` und
   dieses ADR wurde gegen den gemergten Text gegengelesen, nicht gegen eine Branch-Kopie.
-- **Doppelte Ledger-ID A-14** in `../_INDEX.md` §3: die Workbench-Zeile (01.09.2026) und die
-  ADR-0019-Zeile (03.09.2026) tragen beide `A-14`. Ein Punkt, den zwei Zeilen adressieren, ist
-  über seine ID nicht auffindbar. Dieses ADR läuft deshalb unter `A-15`. Die Doublette selbst
-  ist nicht Gegenstand dieses ADR und wird separat bereinigt.
+- **Doppelte Ledger-ID A-14: erledigt.** Die Workbench-Zeile behält `A-14`; ADR-0019 wird
+  unter `A-16` geführt. Dieses ADR bleibt `A-15`.
 - **`authority_path` als Freitext oder Enum.** Vorschlag: Freitext belassen. Ein Enum wäre eine
   Schema-Änderung und damit ein Spiegel-Bump auf 1.1.0 für einen Gewinn, der heute nicht
   gemessen ist. `ANNAHME, ungeprueft`.
