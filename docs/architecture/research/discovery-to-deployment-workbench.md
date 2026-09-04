@@ -10,12 +10,15 @@
 > It does not create a second compiler, question ledger, approval workflow or source of
 > truth.
 
-**Implementation status 04.09.2026:** WB-002 and WB-003 are implemented. Project Package
+**Implementation status 04.09.2026:** WB-002 through WB-004 and the artifact/publication
+lifecycle contract are implemented. Project Package
 2.0 now has closed schemas for its manifest, opportunity, commercial, plan,
 observed-state and decision-set modules; deterministic hashing and package validation;
 and a lossless adapter for all 14 fields of the mirrored Meridian decision proposals.
-The adapter keeps preselection separate from approval. Migrations, HTF import, Studio
-persistence and architecture compilation remain the next increments.
+The adapter keeps preselection separate from approval. The explicit 1.0.0 to 2.0.0
+migration is deterministic, preserves external references and source provenance, refuses
+unknown version paths and never writes into a non-empty target. Customer-case import,
+Studio persistence and architecture compilation remain separate increments.
 
 ## 1. Outcome
 
@@ -82,9 +85,10 @@ versioned `consulting-operating-profile/1.0.0` exchange semantics, but it does n
 this runtime, brand, price book or customer fixtures. This avoids both hidden product
 coupling and leakage of Nagarro customer context.
 
-HTF is the first governed Nagarro customer case. Its Ledger remains authoritative for
-customer decisions, and HTF-specific facts stay in the customer repository or a
-reviewed sanitized showcase fixture. They never become generic ALUCA defaults.
+The first governed Nagarro customer case sets the pattern. Its Ledger remains
+authoritative for that case's decisions, and case-specific facts stay in the customer
+repository or a reviewed sanitized showcase fixture. They never become generic ALUCA
+defaults — and the case is named in the customer repository, not here.
 
 ## 3. Scope profile: select only what the engagement needs
 
@@ -228,6 +232,8 @@ project/
   discovery/decisions.yaml
   discovery/requirements.yaml
   evidence/index.yaml
+  artifacts/index.yaml
+  artifacts/releases/
   architecture/model.yaml
   architecture/policies.yaml
   architecture/contracts/
@@ -247,6 +253,43 @@ breaking relationships or decision references.
 
 Secrets never enter the package or customer-side HTML. Store references to an approved
 secret provider and bind the secret only in the target environment.
+
+### Artifact and publication lifecycle
+
+Folder placement is a projection, not status. The machine-readable artifact registry
+tracks five independent dimensions so that generated files, internal working material,
+customer deliverables and customer decisions cannot be conflated:
+
+| Dimension | States |
+|---|---|
+| Audience | `internal`, `customer` |
+| Authority | `authored_source`, `generated_projection`, `evidence` |
+| Content | `draft`, `review_ready`, `approved`, `superseded` |
+| Publication | `never_shared`, `shared_unverified`, `shared_for_review`, `sent_frozen` |
+| Customer decision | `not_requested`, `pending`, `accepted`, `rejected` |
+
+Every share event records the exact artifact revision, file hash, actor, channel,
+destination and evidence. Approval to share is separate from customer acceptance.
+`shared_unverified` is a migration-only observation for a known historical share whose
+exact file hash or approval evidence is unavailable; it cannot produce a frozen
+publication manifest and must not be treated as a compliant future release.
+Customer acceptance or rejection requires named decision evidence; it cannot be inferred
+from a file existing in a customer folder. Generated projections declare their source
+artifact references and never become authorities.
+
+The reusable CLI validates the package and can deterministically render the human index
+or freeze a recorded distribution event:
+
+```powershell
+python -m tooling.superversion.project_package.cli --package <project> --schemas tooling/generator/schemas validate
+python -m tooling.superversion.project_package.cli --package <project> --schemas tooling/generator/schemas reconcile-files
+python -m tooling.superversion.project_package.cli --package <project> --schemas tooling/generator/schemas render-index --output <project>/generated/ARTIFACT_INDEX.md
+python -m tooling.superversion.project_package.cli --package <project> --schemas tooling/generator/schemas publication-manifest --event-id <event> --output <project>/artifacts/releases/<event>.json
+```
+
+Customer-specific folder names, branding, language, publication channels and role
+assignments belong in the customer adapter or operating profile. They are not framework
+defaults.
 
 ## 8. Deterministic compiler and projections
 
@@ -384,9 +427,9 @@ for two materially different scope profiles.
 **Done when:** identical approved input produces byte-stable normalized output and one
 decision change affects only traced projections.
 
-The WB-003 contract portion of this increment is complete. Projection compilation and
-output manifests remain part of the later compiler integration; the schema contract does
-not claim that they already exist.
+The WB-003 contract and WB-004 migration portions of this increment are complete.
+Projection compilation and output manifests remain part of the later compiler integration;
+the schema and migration contracts do not claim that they already exist.
 
 ### Increment 3: provider adapters and verified delivery
 

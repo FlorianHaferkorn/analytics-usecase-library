@@ -1,0 +1,24 @@
+{
+  "_hinweis": "Vorlage. Die echte Liste heisst .kundendaten-sperrliste.json, liegt im Repowurzelverzeichnis und ist gitignoriert. Diese Datei zeigt nur die Form.",
+  "_stand": "2026-09-04",
+  "begriffe": {
+    "kunde": [
+      "Beispielkunde AG",
+      "BSPK"
+    ],
+    "person": [],
+    "host": [
+      "SRV-BSP01"
+    ]
+  },
+  "muster": {
+    "mail_kunde": [
+      "[\\w.+-]+@beispielkunde\\.de"
+    ]
+  },
+  "ausnahmen_pfade": [
+    "^scripts/kundendaten-sperrliste\\.beispiel\\.json$",
+    "^tooling/validation/check_kundendaten\\.py$"
+  ],
+  "erlaubte_treffer": []
+}

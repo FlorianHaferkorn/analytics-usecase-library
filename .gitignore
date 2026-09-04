@@ -145,3 +145,7 @@ KPI_Framework_Discovery_*.xlsx
 /showcases/*/
 !/showcases/aurora_group/
 !/showcases/sample_pbip_report/
+
+# Kundenkennungen, niemals versionieren (04.09.2026). Die Liste ist die einzige
+# Stelle, an der echte Namen stehen duerfen; Vorlage unter scripts/.
+.kundendaten-sperrliste.json

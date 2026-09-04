@@ -381,6 +381,6 @@ danach unverändert: I-10.5 · dann I-9 (LATER)
 | U1 | Deckt `generate_tmdl_measures.ps1` alle 16 UCs mit echtem DAX? (nur COM-001/Commercial geprüft) | ja für die dist-Domänen | S-1-Paritätstest |
 | U2 | Sandbox-Fabric-Tenant/Capacity für S-4 verfügbar (Kosten/Zugang)? | Trial/PPU reicht | Owner-Entscheid vor S-4 |
 | U3 | Deckt das IP-/Lizenz-Term-Sheet kundenseitiges Deployment des vendored Meridian-Codes? | ungeprüft | S-5 (c) |
-| U4 | Existiert ein Pilot-Kandidat (NicLen?) für M1/M2? | offen | Owner |
+| U4 | Existiert ein Pilot-Kandidat für M1/M2? | offen | Owner |
 | U5 | Zielwert M2 (≤5 Tage Time-to-certified-report) realistisch? | Platzhalter | Kalibrierung am Pilot |
 | U6 | `refcalc`-DSL ausdrucksstark genug für die 20 Golden-KPIs (PVM-Effekte, RFM-Scores)? | für sum/ratio/delta ja; Rest HITL | S-1-ADR |

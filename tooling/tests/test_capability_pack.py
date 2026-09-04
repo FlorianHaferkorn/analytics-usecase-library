@@ -6,6 +6,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+import json
+
 import pytest
 import yaml
 
@@ -35,8 +37,24 @@ def _schema():
     return validator.load_schema(REPO)
 
 
+def _forbidden():
+    """Customer identifiers from the blocklist — the same source the validator reads.
+
+    Not copied into this file: a test that spells out a customer name puts the very
+    identifier into the repository that the check exists to keep out, and it ages
+    silently when an engagement is renamed.
+    """
+    p = REPO / ".kundendaten-sperrliste.json"
+    if not p.exists():
+        pytest.skip("blocklist missing — neutrality was NOT measured")
+    names = (json.loads(p.read_text(encoding="utf-8")).get("begriffe") or {}).get("kunde") or []
+    assert names, "blocklist carries no customer names"
+    return tuple(sorted({n.lower() for n in names}, key=len, reverse=True))
+
+
 def _validate(path: Path):
-    return validator.validate_capability_pack(validator.load_document(path), _schema())
+    return validator.validate_capability_pack(
+        validator.load_document(path), _schema(), _forbidden())
 
 
 def test_the_contract_is_a_valid_json_schema():
@@ -77,13 +95,42 @@ def test_every_fixture_carries_an_expectation():
     assert on_disk == expected, "a fixture without an expectation would be silently skipped"
 
 
-def test_the_neutrality_scan_catches_a_customer_token():
+@pytest.mark.parametrize("i", range(4))
+def test_the_neutrality_scan_catches_every_customer_token(i):
+    """Every name in the blocklist must trip the scan — not just the first.
+
+    Parametrized over the four longest entries: a scan where only one alternative bites
+    is half a check and would not show up otherwise.
+    """
+    tokens = _forbidden()
+    if i >= len(tokens):
+        pytest.skip(f"blocklist has only {len(tokens)} customer identifier(s)")
     document = {
         "schema_version": "1.0.0",
-        "capability": {"id": "x", "version": "1.0.0", "note": "derived from the HTF engagement"},
+        "capability": {"id": "x", "version": "1.0.0",
+                       "note": f"derived from the {tokens[i]} engagement"},
     }
-    findings = validator.check_neutrality(document)
+    findings = validator.check_neutrality(document, tokens)
+    assert any(f.category == validator.CATEGORY_NEUTRALITY for f in findings), tokens[i]
+
+
+def test_the_neutrality_scan_still_catches_the_delivering_organization():
+    """The delivery org stays hardcoded in the validator — it is not customer data."""
+    document = {
+        "schema_version": "1.0.0",
+        "capability": {"id": "x", "version": "1.0.0", "note": "a Nagarro delivery standard"},
+    }
+    findings = validator.check_neutrality(document, _forbidden())
     assert any(f.category == validator.CATEGORY_NEUTRALITY for f in findings)
+
+
+def test_a_neutral_pack_note_stays_clean():
+    """The counter-check. Without it a scan that always fires would pass."""
+    document = {
+        "schema_version": "1.0.0",
+        "capability": {"id": "x", "version": "1.0.0", "note": "derived from a Fabric engagement"},
+    }
+    assert validator.check_neutrality(document, _forbidden()) == []
 
 
 def test_the_cli_reports_the_core_packs_as_green():

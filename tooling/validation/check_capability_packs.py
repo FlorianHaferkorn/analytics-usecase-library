@@ -32,15 +32,38 @@ CATEGORY_REFERENCE = "reference"
 CATEGORY_NEUTRALITY = "neutrality"
 
 # Tokens that identify a customer or a delivering organization. A reusable pack
-# carries neither. Extend the list when a new engagement starts, never remove.
-FORBIDDEN_TOKENS = (
-    "hochtief",
-    "htf",
-    "hti",
-    "ppps",
-    "ladepartner",
-    "nagarro",
-)
+# carries neither.
+#
+# Until 2026-09-04 the customer names sat here in clear text. Two defects in one, the
+# same pair found that day in the solo product's `gate_projektplan.py`: the list ages
+# silently (nobody edits a validator when an engagement starts), and it puts the very
+# identifiers into the repository that it exists to keep out — this file was three of
+# the eleven hits its sibling checker reported.
+#
+# Customer names now come from `.kundendaten-sperrliste.json`, the one place they may
+# live (gitignored, see `tooling/validation/check_kundendaten.py`). Whoever onboards an
+# engagement maintains it anyway, so this validator follows along by itself. The
+# delivering organization stays here: it is not customer data and does not change.
+_DELIVERY_ORG_TOKENS = ("nagarro",)
+
+
+def _blocklist_tokens(repo_root: Path) -> tuple[str, ...]:
+    """Customer identifiers from the blocklist, lowercased.
+
+    A missing blocklist is not silently tolerated — a validator that reports success
+    without its rules is worse than none (same doctrine as `check_kundendaten.py`).
+    """
+    p = repo_root / ".kundendaten-sperrliste.json"
+    if not p.exists():
+        raise SystemExit(
+            f"blocklist missing ({p}). The neutrality check cannot verify anything "
+            "without it and therefore reports no success."
+        )
+    data = json.loads(p.read_text(encoding="utf-8"))
+    names = [n for n in ((data.get("begriffe") or {}).get("kunde") or []) if n]
+    if not names:
+        raise SystemExit("blocklist carries no customer names — nothing to check against.")
+    return tuple(sorted({n.lower() for n in names}, key=len, reverse=True))
 
 LEAK_PATTERNS = (
     ("tenant or object identifier", re.compile(r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b", re.I)),
@@ -234,11 +257,15 @@ def _walk_strings(node: Any, path: str = "") -> Iterable[tuple[str, str]]:
         yield path or "<root>", node
 
 
-def check_neutrality(document: Any) -> list[Finding]:
+def check_neutrality(document: Any, forbidden: tuple[str, ...] = ()) -> list[Finding]:
+    """`forbidden` carries the customer identifiers; the caller reads them from the
+    blocklist. Empty means the delivery-organization tokens are checked and customer
+    names are not — that is a caller error, so `main` never passes an empty tuple."""
     findings: list[Finding] = []
+    tokens = tuple(forbidden) + _DELIVERY_ORG_TOKENS
     for path, value in _walk_strings(document):
         lowered = value.lower()
-        for token in FORBIDDEN_TOKENS:
+        for token in tokens:
             if re.search(rf"\b{re.escape(token)}\b", lowered):
                 findings.append(
                     Finding(CATEGORY_NEUTRALITY, path, f"organization or customer token '{token}'")
@@ -249,11 +276,12 @@ def check_neutrality(document: Any) -> list[Finding]:
     return findings
 
 
-def validate_capability_pack(document: Any, schema: dict[str, Any]) -> list[Finding]:
+def validate_capability_pack(document: Any, schema: dict[str, Any],
+                             forbidden: tuple[str, ...] = ()) -> list[Finding]:
     """Return every finding. Schema failures do not hide reference or neutrality ones."""
     findings = check_schema(document, schema)
     findings.extend(check_references(document))
-    findings.extend(check_neutrality(document))
+    findings.extend(check_neutrality(document, forbidden))
     return findings
 
 
@@ -269,6 +297,7 @@ def main(argv: list[str] | None = None) -> int:
 
     repo_root = Path(args.root).resolve()
     schema = load_schema(repo_root)
+    forbidden = _blocklist_tokens(repo_root)
     targets = [Path(p) for p in args.paths] or sorted(repo_root.glob(PACK_GLOB))
 
     if not targets:
@@ -277,7 +306,7 @@ def main(argv: list[str] | None = None) -> int:
 
     failed = False
     for target in targets:
-        findings = validate_capability_pack(load_document(target), schema)
+        findings = validate_capability_pack(load_document(target), schema, forbidden)
         relative = target.relative_to(repo_root) if target.is_absolute() else target
         if findings:
             failed = True

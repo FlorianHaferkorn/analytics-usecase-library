@@ -47,7 +47,7 @@ der Kapazitätslogik: eine Person liefert Pakete nacheinander, ein Team liefert 
    die daraus entstehen, sind Kanon-Tage mit Herkunft (Paket, Rolle, Beteiligung) und dürfen im
    Angebot stehen. Zielmarge m und Risikozuschlag r stehen in der Mandantendatei.
 3. **Werte nie im Repo.** Nagarro-Ratecards und Kostenbänder sind Nagarro-Daten und folgen
-   derselben Regel wie Kundenmaterial (HOCHTIEF): sie liegen an der Nagarro-Ablage. Das Repo trägt
+   derselben Regel wie Kundenmaterial: es liegt an der Nagarro-Ablage. Das Repo trägt
    das Schema mit `<satz>`-Platzhaltern und lädt Werte aus `PREIS_KANON_MANDANTEN_DIR`. Ein Test
    scheitert, sobald das Repo-Schema einen numerischen Satz trägt.
 4. **Der Rechenkern wird einmal gebaut, nicht zweimal.** `staffing.py` entsteht in Meridian

@@ -10,6 +10,21 @@ import yaml
 REPO = Path(__file__).resolve().parents[2]
 SCHEMA = REPO / "tooling/generator/schemas/consulting_operating_profile.schema.json"
 PROFILE = REPO / "core/engagement_profiles/nagarro_consulting.yaml"
+BLOCKLIST = REPO / ".kundendaten-sperrliste.json"
+
+
+def _gesperrte_kunden() -> list[str]:
+    """Kundenkennungen aus der Sperrliste, kleingeschrieben.
+
+    Die eine Stelle, an der echte Namen stehen duerfen (gitignoriert, siehe
+    `tooling/validation/check_kundendaten.py`). Wer ein Mandat anlegt, pflegt sie
+    ohnehin — dieser Test zieht damit von selbst mit.
+    """
+    if not BLOCKLIST.exists():
+        pytest.skip("Sperrliste fehlt — die Kundenfreiheit wurde NICHT gemessen")
+    namen = (json.loads(BLOCKLIST.read_text(encoding="utf-8")).get("begriffe") or {}).get("kunde") or []
+    assert namen, "Sperrliste fuehrt keine Kundennamen"
+    return [n.lower() for n in namen]
 
 
 def test_nagarro_profile_conforms_to_the_operating_contract():
@@ -29,4 +44,7 @@ def test_nagarro_profile_is_team_based_and_contains_no_customer_default():
     assert profile["staffing"]["execution_model"] == "resource_plan"
     assert profile["commercial"]["pricing_model"] == "organization_project_commercials"
     assert profile["commercial"]["customer_price_values_in_profile"] is False
-    assert "hochtief" not in raw and "htf" not in raw
+    # Die Kennungen kommen aus der Sperrliste, nicht aus dieser Zeile: ein Test, der
+    # den Namen abschreibt, traegt ihn ins Repo und veraltet still (04.09.2026).
+    for token in _gesperrte_kunden():
+        assert token not in raw.lower(), token
