@@ -106,7 +106,7 @@
         "definition_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
         "scope_refs": {"type": "array", "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"}},
         "revision": {"type": "integer", "minimum": 1},
-        "initialization": {"enum": ["preselected", "open"]},
+        "initialization": {"enum": ["preselected", "open", "imported"]},
         "selection": {
           "type": "object", "additionalProperties": false, "required": ["state", "option_ref", "custom_value"],
           "properties": {

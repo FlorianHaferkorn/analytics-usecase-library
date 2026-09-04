@@ -51,10 +51,11 @@ def build_compiler_input(package_root: Path, schema_root: Path) -> dict[str, Any
         )
 
     decision_set = singleton_modules["decision_set"]
+    unresolved_states = {"draft", "proposed", "rejected", "deferred"}
     unresolved = sorted(
         instance["id"]
         for instance in decision_set["instances"]
-        if instance["approval"]["state"] != "approved"
+        if instance["approval"]["state"] in unresolved_states
     )
     package_approved = manifest["state"] == "approved"
     decision_ready = not unresolved

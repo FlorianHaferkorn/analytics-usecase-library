@@ -276,6 +276,7 @@ def test_v1_migration_is_deterministic_and_retains_external_refs(tmp_path: Path)
     assert manifest["migration"] == {
         "adapter": "project_package_1_0_0",
         "source_version": "1.0.0",
+        "source_revision": 1,
         "source_ref": "fixture://project-package/v1/package.yaml",
         "source_hash": canonical_sha256(legacy),
     }
@@ -316,3 +317,40 @@ def test_compiler_input_is_deterministic_and_fail_closed(tmp_path: Path) -> None
     assert first["provenance"]["migration"]["source_ref"] == (
         "fixture://project-package/v1/package.yaml"
     )
+
+
+def test_superseded_decision_does_not_block_compiler_readiness(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    decision_path = tmp_path / "discovery" / "decision_set.yaml"
+    decisions = yaml.safe_load(decision_path.read_text(encoding="utf-8"))
+    instance = decisions["instances"][0]
+    instance["selection"] = {"state": "unselected", "option_ref": None, "custom_value": None}
+    instance["approval"] = {
+        "state": "superseded",
+        "proposed_by": None,
+        "decided_by": None,
+        "rationale": None,
+    }
+    _write_yaml(decision_path, decisions)
+    for module in modules:
+        if module["module_type"] == "decision_set":
+            module["sha256"] = canonical_sha256(decisions)
+    manifest = {
+        "schema_version": "2.0.0",
+        "package_id": "package_demo",
+        "project_ref": "project_demo",
+        "revision": 1,
+        "state": "approved",
+        "parent_revision_hash": None,
+        "operating_profile_lock": {
+            "id": "aluca_nagarro_consulting",
+            "version": "1.0.0",
+            "sha256": "1" * 64,
+        },
+        "capability_locks": [],
+        "modules": modules,
+    }
+    _write_yaml(tmp_path / "package.yaml", manifest)
+    compiler_input = build_compiler_input(tmp_path, SCHEMAS)
+    assert compiler_input["readiness"]["decision_ready"] is True
+    assert compiler_input["readiness"]["build_ready"] is True

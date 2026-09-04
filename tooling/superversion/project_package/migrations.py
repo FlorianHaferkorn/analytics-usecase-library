@@ -145,6 +145,7 @@ def _migrate_1_0_0_to_2_0_0(
         "migration": {
             "adapter": "project_package_1_0_0",
             "source_version": "1.0.0",
+            "source_revision": source["revision"],
             "source_ref": source["source_ref"],
             "source_hash": canonical_sha256(source),
         },
