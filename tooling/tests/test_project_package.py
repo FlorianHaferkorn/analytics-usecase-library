@@ -95,6 +95,7 @@ def _minimal_modules(root: Path) -> list[dict]:
             {
                 "schema_version": "2.0.0",
                 "environment": "dev",
+                "collection_state": "collected",
                 "captured_at": "2026-09-04T09:00:00Z",
                 "collector": "fixture",
                 "resources": [

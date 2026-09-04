@@ -42,6 +42,7 @@ plan:
 observed_states:
   - schema_version: 1.0.0
     environment: dev
+    collection_state: collected
     captured_at: '2026-09-04T09:00:00Z'
     collector: fixture
     resources:

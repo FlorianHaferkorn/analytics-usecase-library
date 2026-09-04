@@ -16,7 +16,9 @@
       "additionalProperties": false,
       "required": ["adapter", "raw_id", "source_ref", "source_hash"],
       "properties": {
-        "adapter": {"const": "meridian_decision_proposals"},
+        "adapter": {
+          "enum": ["meridian_decision_proposals", "htf_ledger_package_1_0"]
+        },
         "raw_id": {"type": "string", "minLength": 1},
         "source_ref": {"type": "string", "minLength": 1},
         "source_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
