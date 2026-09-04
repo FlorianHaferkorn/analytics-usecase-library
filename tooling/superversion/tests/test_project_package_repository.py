@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import multiprocessing
 import shutil
 import zipfile
 from pathlib import Path
@@ -13,6 +14,7 @@ from tooling.superversion.project_package.migrations import migrate_project_pack
 from tooling.superversion.project_package.repository import (
     ProjectPackageRepositoryError,
     ProjectPackageRevisionRepository,
+    StaleProjectPackageDraftError,
 )
 
 
@@ -66,6 +68,26 @@ def _file_bytes(root: Path) -> dict[str, bytes]:
         for path in sorted(root.rglob("*"))
         if path.is_file()
     }
+
+
+def _commit_draft_worker(
+    repository_root: str,
+    schema_root: str,
+    package_root: str,
+    expected_head_hash: str,
+    start_event,
+    result_queue,
+) -> None:
+    start_event.wait()
+    repository = ProjectPackageRevisionRepository(Path(repository_root), Path(schema_root))
+    try:
+        revision = repository.commit_draft(
+            Path(package_root),
+            expected_head_hash=expected_head_hash,
+        )
+        result_queue.put(("committed", revision.revision_hash))
+    except StaleProjectPackageDraftError as exc:
+        result_queue.put(("stale", str(exc)))
 
 
 def test_repository_stores_complete_immutable_revisions_and_head_chain(tmp_path: Path) -> None:
@@ -236,3 +258,227 @@ def test_repository_detects_tampering_before_reload_or_export(tmp_path: Path) ->
     with pytest.raises(ProjectPackageRepositoryError, match="hash"):
         repository.export_zip(tmp_path / "must-not-export.zip")
     assert not (tmp_path / "must-not-export.zip").exists()
+
+
+def test_commit_draft_derives_v1_v2_metadata_without_mutating_input(tmp_path: Path) -> None:
+    repository = ProjectPackageRevisionRepository(tmp_path / "repository", SCHEMAS)
+    draft_v1 = _make_package(tmp_path / "draft-v1")
+    opportunity_path = draft_v1 / "opportunity" / "opportunity.yaml"
+    opportunity = yaml.safe_load(opportunity_path.read_text(encoding="utf-8"))
+    opportunity["objectives"].append("Save without manual module hash maintenance")
+    _write_yaml(opportunity_path, opportunity)
+    input_v1 = _file_bytes(draft_v1)
+
+    first = repository.commit_draft(draft_v1, expected_head_hash=None)
+
+    assert _file_bytes(draft_v1) == input_v1
+    stored_v1_manifest = yaml.safe_load(
+        (first.package_root / "package.yaml").read_text(encoding="utf-8")
+    )
+    assert stored_v1_manifest["revision"] == 1
+    assert stored_v1_manifest["parent_revision_hash"] is None
+    stored_v1_opportunity = yaml.safe_load(
+        (first.package_root / "opportunity" / "opportunity.yaml").read_text(encoding="utf-8")
+    )
+    opportunity_module = next(
+        module
+        for module in stored_v1_manifest["modules"]
+        if module["module_type"] == "opportunity"
+    )
+    assert opportunity_module["sha256"] == canonical_sha256(stored_v1_opportunity)
+
+    draft_v2 = tmp_path / "draft-v2"
+    shutil.copytree(draft_v1, draft_v2)
+    opportunity_path = draft_v2 / "opportunity" / "opportunity.yaml"
+    opportunity = yaml.safe_load(opportunity_path.read_text(encoding="utf-8"))
+    opportunity["objectives"].append("Append a second immutable revision")
+    _write_yaml(opportunity_path, opportunity)
+    input_v2 = _file_bytes(draft_v2)
+
+    second = repository.commit_draft(draft_v2, expected_head_hash=first.revision_hash)
+
+    assert _file_bytes(draft_v2) == input_v2
+    assert second.revision == 2
+    assert second.parent_revision_hash == first.revision_hash
+    assert repository.head() == second
+
+
+def test_commit_draft_remains_fail_closed_for_schema_and_reference_errors(
+    tmp_path: Path,
+) -> None:
+    repository = ProjectPackageRevisionRepository(tmp_path / "repository", SCHEMAS)
+    invalid_schema = _make_package(tmp_path / "invalid-schema")
+    opportunity_path = invalid_schema / "opportunity" / "opportunity.yaml"
+    opportunity = yaml.safe_load(opportunity_path.read_text(encoding="utf-8"))
+    opportunity["objectives"] = []
+    _write_yaml(opportunity_path, opportunity)
+    schema_input = _file_bytes(invalid_schema)
+
+    with pytest.raises(ProjectPackageRepositoryError, match="opportunity.yaml"):
+        repository.commit_draft(invalid_schema, expected_head_hash=None)
+    assert _file_bytes(invalid_schema) == schema_input
+    assert repository.head() is None
+
+    invalid_reference = _make_package(tmp_path / "invalid-reference")
+    registry = yaml.safe_load(
+        (ARTIFACT_FIXTURE / "artifacts" / "index.yaml").read_text(encoding="utf-8")
+    )
+    _write_yaml(invalid_reference / "artifacts" / "index.yaml", registry)
+    manifest_path = invalid_reference / "package.yaml"
+    manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    registry_schema = json.loads(
+        (SCHEMAS / "project_artifact_registry.schema.json").read_text(encoding="utf-8")
+    )
+    manifest["modules"].append(
+        {
+            "module_type": "artifact_registry",
+            "path": "artifacts/index.yaml",
+            "schema_id": registry_schema["$id"],
+            "sha256": "0" * 64,
+        }
+    )
+    _write_yaml(manifest_path, manifest)
+    reference_input = _file_bytes(invalid_reference)
+
+    with pytest.raises(ProjectPackageRepositoryError, match="unresolved decision_ref"):
+        repository.commit_draft(invalid_reference, expected_head_hash=None)
+    assert _file_bytes(invalid_reference) == reference_input
+    assert repository.head() is None
+
+
+def test_commit_draft_rejects_stale_expected_head_without_orphan_revision(
+    tmp_path: Path,
+) -> None:
+    repository = ProjectPackageRevisionRepository(tmp_path / "repository", SCHEMAS)
+    first = repository.commit_draft(
+        _make_package(tmp_path / "draft-v1"),
+        expected_head_hash=None,
+    )
+    draft_v2 = repository.checkout(tmp_path / "draft-v2", first.revision_hash)
+
+    with pytest.raises(StaleProjectPackageDraftError, match="stale draft"):
+        repository.commit_draft(draft_v2, expected_head_hash=None)
+
+    assert repository.head() == first
+    assert [path.name for path in repository.revisions_root.iterdir()] == [
+        first.revision_hash
+    ]
+
+
+def test_cross_process_writers_produce_one_revision_and_one_stale_result(
+    tmp_path: Path,
+) -> None:
+    repository = ProjectPackageRevisionRepository(tmp_path / "repository", SCHEMAS)
+    first = repository.commit_draft(
+        _make_package(tmp_path / "draft-v1"),
+        expected_head_hash=None,
+    )
+    drafts = []
+    for index in (1, 2):
+        draft = repository.checkout(tmp_path / f"draft-v2-{index}", first.revision_hash)
+        opportunity_path = draft / "opportunity" / "opportunity.yaml"
+        opportunity = yaml.safe_load(opportunity_path.read_text(encoding="utf-8"))
+        opportunity["objectives"].append(f"Concurrent candidate {index}")
+        _write_yaml(opportunity_path, opportunity)
+        drafts.append(draft)
+
+    context = multiprocessing.get_context("spawn")
+    start_event = context.Event()
+    result_queue = context.Queue()
+    processes = [
+        context.Process(
+            target=_commit_draft_worker,
+            args=(
+                str(repository.root),
+                str(SCHEMAS),
+                str(draft),
+                first.revision_hash,
+                start_event,
+                result_queue,
+            ),
+        )
+        for draft in drafts
+    ]
+    for process in processes:
+        process.start()
+    start_event.set()
+    results = [result_queue.get(timeout=60) for _ in processes]
+    for process in processes:
+        process.join(timeout=60)
+        assert process.exitcode == 0
+
+    assert sorted(result[0] for result in results) == ["committed", "stale"]
+    repository.verify()
+    assert repository.head().revision == 2
+    assert len(list(repository.revisions_root.iterdir())) == 2
+    assert not list(repository.revisions_root.glob(".revision-*"))
+
+
+def test_zip_import_enforces_pre_extraction_limits(tmp_path: Path) -> None:
+    member_limited = tmp_path / "member-limited.zip"
+    with zipfile.ZipFile(member_limited, "w") as archive:
+        archive.writestr("one", "1")
+        archive.writestr("two", "2")
+    with pytest.raises(ProjectPackageRepositoryError, match="member limit"):
+        ProjectPackageRevisionRepository.import_zip(
+            member_limited,
+            tmp_path / "member-target",
+            SCHEMAS,
+            max_members=1,
+        )
+
+    file_limited = tmp_path / "file-limited.zip"
+    with zipfile.ZipFile(file_limited, "w") as archive:
+        archive.writestr("large", "12345")
+    with pytest.raises(ProjectPackageRepositoryError, match="uncompressed size limit"):
+        ProjectPackageRevisionRepository.import_zip(
+            file_limited,
+            tmp_path / "file-target",
+            SCHEMAS,
+            max_member_bytes=4,
+        )
+
+    total_limited = tmp_path / "total-limited.zip"
+    with zipfile.ZipFile(total_limited, "w") as archive:
+        archive.writestr("one", "123")
+        archive.writestr("two", "456")
+    with pytest.raises(ProjectPackageRepositoryError, match="total uncompressed"):
+        ProjectPackageRevisionRepository.import_zip(
+            total_limited,
+            tmp_path / "total-target",
+            SCHEMAS,
+            max_total_bytes=5,
+        )
+
+    assert not (tmp_path / "member-target").exists()
+    assert not (tmp_path / "file-target").exists()
+    assert not (tmp_path / "total-target").exists()
+
+
+def test_zip_import_rejects_case_collisions_and_excessive_compression_ratio(
+    tmp_path: Path,
+) -> None:
+    colliding = tmp_path / "case-collision.zip"
+    with zipfile.ZipFile(colliding, "w") as archive:
+        archive.writestr("HEAD", "one")
+        archive.writestr("head", "two")
+    with pytest.raises(ProjectPackageRepositoryError, match="case-colliding"):
+        ProjectPackageRevisionRepository.import_zip(
+            colliding,
+            tmp_path / "collision-target",
+            SCHEMAS,
+        )
+
+    compressed = tmp_path / "compression-ratio.zip"
+    with zipfile.ZipFile(compressed, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("repetitive", "0" * 10_000)
+    with pytest.raises(ProjectPackageRepositoryError, match="compression ratio"):
+        ProjectPackageRevisionRepository.import_zip(
+            compressed,
+            tmp_path / "compression-target",
+            SCHEMAS,
+            max_compression_ratio=2,
+        )
+
+    assert not (tmp_path / "collision-target").exists()
+    assert not (tmp_path / "compression-target").exists()

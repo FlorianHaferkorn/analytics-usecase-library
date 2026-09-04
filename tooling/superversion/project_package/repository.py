@@ -17,9 +17,10 @@ import stat
 import tempfile
 import time
 import zipfile
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, Iterator
 
 import yaml
 
@@ -28,6 +29,11 @@ from .validator import validate_project_package
 
 
 _HASH_PATTERN = re.compile(r"^[a-f0-9]{64}$")
+DEFAULT_MAX_ZIP_MEMBERS = 10_000
+DEFAULT_MAX_ZIP_MEMBER_BYTES = 256 * 1024 * 1024
+DEFAULT_MAX_ZIP_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
+DEFAULT_MAX_ZIP_COMPRESSION_RATIO = 200.0
+_LOCK_TIMEOUT_SECONDS = 10.0
 _METADATA_KEYS = {
     "format_version",
     "package_id",
@@ -41,6 +47,61 @@ _METADATA_KEYS = {
 
 class ProjectPackageRepositoryError(ValueError):
     """Raised when a package revision cannot be stored or proven safely."""
+
+
+class StaleProjectPackageDraftError(ProjectPackageRepositoryError):
+    """Raised when optimistic concurrency detects a stale draft HEAD."""
+
+
+class ProjectPackageRepositoryBusyError(ProjectPackageRepositoryError):
+    """Raised when another process holds the repository lock too long."""
+
+
+@contextmanager
+def _repository_lock(repository_root: Path) -> Iterator[None]:
+    """Hold a cross-process exclusive lock for one repository root."""
+    lock_path = repository_root.parent / f".{repository_root.name}.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    if lock_path.is_symlink():
+        raise ProjectPackageRepositoryError(f"repository lock path is a symbolic link: {lock_path}")
+    descriptor = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+    handle = os.fdopen(descriptor, "r+b", buffering=0)
+    acquired = False
+    try:
+        if lock_path.stat().st_size == 0:
+            handle.write(b"\0")
+        deadline = time.monotonic() + _LOCK_TIMEOUT_SECONDS
+        while not acquired:
+            try:
+                handle.seek(0)
+                if os.name == "nt":
+                    import msvcrt
+
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                acquired = True
+            except OSError as exc:
+                if time.monotonic() >= deadline:
+                    raise ProjectPackageRepositoryBusyError(
+                        f"repository lock timeout: {repository_root}"
+                    ) from exc
+                time.sleep(0.05)
+        yield
+    finally:
+        if acquired:
+            handle.seek(0)
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        handle.close()
 
 
 @dataclass(frozen=True)
@@ -116,6 +177,38 @@ def _load_manifest(package_root: Path) -> dict[str, Any]:
     return manifest
 
 
+def _write_manifest(package_root: Path, manifest: dict[str, Any]) -> None:
+    (package_root / "package.yaml").write_text(
+        yaml.safe_dump(manifest, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
+def _load_module_document(package_root: Path, relative_value: Any) -> Any:
+    if not isinstance(relative_value, str) or not relative_value:
+        raise ProjectPackageRepositoryError("package module path must be a non-empty string")
+    relative = Path(relative_value)
+    if relative.is_absolute():
+        raise ProjectPackageRepositoryError(f"package module path must be relative: {relative_value!r}")
+    module_path = (package_root / relative).resolve()
+    try:
+        module_path.relative_to(package_root.resolve())
+    except ValueError as exc:
+        raise ProjectPackageRepositoryError(
+            f"package module path escapes package root: {relative_value!r}"
+        ) from exc
+    if not module_path.is_file() or module_path.is_symlink():
+        raise ProjectPackageRepositoryError(f"package module is not a regular file: {relative_value!r}")
+    try:
+        text = module_path.read_text(encoding="utf-8")
+        return json.loads(text) if module_path.suffix.lower() == ".json" else yaml.safe_load(text)
+    except (OSError, UnicodeError, json.JSONDecodeError, yaml.YAMLError) as exc:
+        raise ProjectPackageRepositoryError(
+            f"cannot parse package module {relative_value!r}: {exc}"
+        ) from exc
+
+
 def _validate_package(package_root: Path, schema_root: Path) -> dict[str, Any]:
     try:
         errors = validate_project_package(package_root, schema_root)
@@ -156,6 +249,17 @@ def _replace_directory(source: Path, target: Path) -> None:
             if attempt == 4:
                 raise
             time.sleep(0.02 * (attempt + 1))
+
+
+def _reject_overlapping_roots(package_root: Path, repository_root: Path) -> None:
+    package_resolved = package_root.resolve()
+    repository_resolved = repository_root.resolve()
+    if (
+        repository_resolved == package_resolved
+        or repository_resolved in package_resolved.parents
+        or package_resolved in repository_resolved.parents
+    ):
+        raise ProjectPackageRepositoryError("package root and repository must not overlap")
 
 
 def _json_pointer_segment(value: Any) -> str:
@@ -280,7 +384,7 @@ class ProjectPackageRevisionRepository:
             package_root=package_root,
         )
 
-    def verify(self) -> None:
+    def _verify_unlocked(self) -> None:
         """Verify every stored byte, package contract and HEAD-reachable parent link."""
         if not self.root.is_dir() or self.root.is_symlink():
             raise ProjectPackageRepositoryError(f"repository does not exist: {self.root}")
@@ -335,29 +439,41 @@ class ProjectPackageRevisionRepository:
         if seen != set(records):
             raise ProjectPackageRepositoryError("repository contains revisions not reachable from HEAD")
 
-    def head(self) -> RevisionRecord | None:
-        """Return the verified HEAD revision, or ``None`` for an uninitialised repository."""
+    def verify(self) -> None:
+        """Verify the complete repository under a cross-process lock."""
+        with _repository_lock(self.root):
+            self._verify_unlocked()
+
+    def _head_unlocked(self) -> RevisionRecord | None:
         head_hash = self._head_hash()
         if head_hash is None:
             return None
-        self.verify()
+        self._verify_unlocked()
         return self._read_record(head_hash)
 
-    def get(self, revision_hash: str | None = None) -> RevisionRecord:
-        """Return a verified revision, defaulting to HEAD."""
-        self.verify()
+    def head(self) -> RevisionRecord | None:
+        """Return the verified HEAD revision, or ``None`` for an uninitialised repository."""
+        with _repository_lock(self.root):
+            return self._head_unlocked()
+
+    def _get_unlocked(self, revision_hash: str | None = None) -> RevisionRecord:
+        self._verify_unlocked()
         selected = revision_hash or self._head_hash()
         assert selected is not None
         return self._read_record(selected)
 
-    def commit(self, package_root: Path) -> RevisionRecord:
-        """Append an exact valid package snapshot without altering package content."""
+    def get(self, revision_hash: str | None = None) -> RevisionRecord:
+        """Return a verified revision, defaulting to HEAD."""
+        with _repository_lock(self.root):
+            return self._get_unlocked(revision_hash)
+
+    def _commit_unlocked(self, package_root: Path) -> RevisionRecord:
         package_root = Path(package_root)
         manifest = _validate_package(package_root, self.schema_root)
         tree = _inventory(package_root)
         revision_hash = _tree_hash(tree)
 
-        current_head = self.head()
+        current_head = self._head_unlocked()
         if current_head is None:
             if manifest["revision"] != 1 or manifest["parent_revision_hash"] is not None:
                 raise ProjectPackageRepositoryError("first stored package must be revision 1 without a parent")
@@ -371,14 +487,7 @@ class ProjectPackageRevisionRepository:
             if manifest["parent_revision_hash"] != current_head.revision_hash:
                 raise ProjectPackageRepositoryError("new revision parent_revision_hash must reference HEAD")
 
-        repository_resolved = self.root.resolve()
-        package_resolved = package_root.resolve()
-        if (
-            repository_resolved == package_resolved
-            or repository_resolved in package_resolved.parents
-            or package_resolved in repository_resolved.parents
-        ):
-            raise ProjectPackageRepositoryError("package root and repository must not overlap")
+        _reject_overlapping_roots(package_root, self.root)
 
         self.revisions_root.mkdir(parents=True, exist_ok=True)
         destination = self.revisions_root / revision_hash
@@ -415,15 +524,81 @@ class ProjectPackageRevisionRepository:
             if staging.exists():
                 shutil.rmtree(staging)
 
-        self.verify()
+        self._verify_unlocked()
         return self._read_record(revision_hash)
 
-    def checkout(self, target_root: Path, revision_hash: str | None = None) -> Path:
-        """Restore one complete revision into a new directory."""
+    def commit(self, package_root: Path) -> RevisionRecord:
+        """Append an exact valid package snapshot without altering package content."""
+        with _repository_lock(self.root):
+            return self._commit_unlocked(package_root)
+
+    def _commit_draft_unlocked(
+        self,
+        package_root: Path,
+        expected_head_hash: str | None,
+    ) -> RevisionRecord:
+        """Commit a draft after deriving only its technical revision metadata.
+
+        The caller-owned directory is copied first. Only ``revision``,
+        ``parent_revision_hash`` and the hashes of already declared modules are
+        updated in that temporary copy. The normal package validator and immutable
+        commit path then remain the sole acceptance gates.
+        """
+        package_root = Path(package_root)
+        _reject_overlapping_roots(package_root, self.root)
+        source_tree = _inventory(package_root)
+        current_head = self._head_unlocked()
+        if expected_head_hash is not None and not _HASH_PATTERN.fullmatch(expected_head_hash):
+            raise ProjectPackageRepositoryError(
+                f"expected_head_hash is not a revision hash: {expected_head_hash!r}"
+            )
+        actual_head_hash = current_head.revision_hash if current_head else None
+        if expected_head_hash != actual_head_hash:
+            raise StaleProjectPackageDraftError(
+                "stale draft: expected repository HEAD "
+                f"{expected_head_hash!r}, actual HEAD is {actual_head_hash!r}"
+            )
+
+        with tempfile.TemporaryDirectory(prefix="project-package-draft-") as temporary:
+            staged_package = Path(temporary) / "package"
+            staged_package.mkdir()
+            _copy_inventory(package_root, staged_package, source_tree)
+
+            manifest = _load_manifest(staged_package)
+            modules = manifest.get("modules")
+            if not isinstance(modules, list):
+                raise ProjectPackageRepositoryError("package manifest modules must be an array")
+            manifest["revision"] = current_head.revision + 1 if current_head else 1
+            manifest["parent_revision_hash"] = (
+                current_head.revision_hash if current_head else None
+            )
+            for module in modules:
+                if not isinstance(module, dict):
+                    raise ProjectPackageRepositoryError("package manifest module must be an object")
+                document = _load_module_document(staged_package, module.get("path"))
+                module["sha256"] = canonical_sha256(document)
+            _write_manifest(staged_package, manifest)
+
+            # Validate the fully derived snapshot before the immutable commit. The
+            # commit repeats validation and proves that HEAD has not changed.
+            _validate_package(staged_package, self.schema_root)
+            return self._commit_unlocked(staged_package)
+
+    def commit_draft(
+        self,
+        package_root: Path,
+        *,
+        expected_head_hash: str | None,
+    ) -> RevisionRecord:
+        """Derive technical metadata and commit when the caller's HEAD is current."""
+        with _repository_lock(self.root):
+            return self._commit_draft_unlocked(package_root, expected_head_hash)
+
+    def _checkout_unlocked(self, target_root: Path, revision_hash: str | None = None) -> Path:
         target_root = Path(target_root)
         if target_root.exists():
             raise ProjectPackageRepositoryError(f"checkout target already exists: {target_root}")
-        record = self.get(revision_hash)
+        record = self._get_unlocked(revision_hash)
         target_root.parent.mkdir(parents=True, exist_ok=True)
         staging = Path(tempfile.mkdtemp(prefix=f".{target_root.name}-", dir=target_root.parent))
         try:
@@ -436,10 +611,14 @@ class ProjectPackageRevisionRepository:
                 shutil.rmtree(staging)
         return target_root
 
-    def diff(self, before_hash: str, after_hash: str) -> dict[str, Any]:
-        """Return a deterministic file and JSON/YAML structural diff."""
-        before = self.get(before_hash)
-        after = self.get(after_hash)
+    def checkout(self, target_root: Path, revision_hash: str | None = None) -> Path:
+        """Restore one complete revision into a new directory."""
+        with _repository_lock(self.root):
+            return self._checkout_unlocked(target_root, revision_hash)
+
+    def _diff_unlocked(self, before_hash: str, after_hash: str) -> dict[str, Any]:
+        before = self._get_unlocked(before_hash)
+        after = self._get_unlocked(after_hash)
         before_tree = {item["path"]: item for item in _inventory(before.package_root)}
         after_tree = {item["path"]: item for item in _inventory(after.package_root)}
         before_paths = set(before_tree)
@@ -477,9 +656,13 @@ class ProjectPackageRevisionRepository:
             "changed_files": changed_files,
         }
 
-    def export_zip(self, target_zip: Path) -> Path:
-        """Export the complete verified repository as a deterministic ZIP archive."""
-        self.verify()
+    def diff(self, before_hash: str, after_hash: str) -> dict[str, Any]:
+        """Return a deterministic file and JSON/YAML structural diff."""
+        with _repository_lock(self.root):
+            return self._diff_unlocked(before_hash, after_hash)
+
+    def _export_zip_unlocked(self, target_zip: Path) -> Path:
+        self._verify_unlocked()
         target_zip = Path(target_zip)
         if target_zip.exists():
             raise ProjectPackageRepositoryError(f"ZIP target already exists: {target_zip}")
@@ -514,14 +697,23 @@ class ProjectPackageRevisionRepository:
                 temporary_zip.unlink()
         return target_zip
 
+    def export_zip(self, target_zip: Path) -> Path:
+        """Export the complete verified repository as a deterministic ZIP archive."""
+        with _repository_lock(self.root):
+            return self._export_zip_unlocked(target_zip)
+
     @classmethod
-    def import_zip(
+    def _import_zip_unlocked(
         cls,
         source_zip: Path,
         target_root: Path,
         schema_root: Path,
+        *,
+        max_members: int,
+        max_member_bytes: int,
+        max_total_bytes: int,
+        max_compression_ratio: float,
     ) -> ProjectPackageRevisionRepository:
-        """Safely import and fully verify an exported repository archive."""
         source_zip = Path(source_zip)
         target_root = Path(target_root)
         if target_root.exists():
@@ -534,8 +726,39 @@ class ProjectPackageRevisionRepository:
             except (OSError, zipfile.BadZipFile) as exc:
                 raise ProjectPackageRepositoryError(f"cannot open repository ZIP: {exc}") from exc
             with archive:
-                seen: set[str] = set()
-                for member in archive.infolist():
+                members = archive.infolist()
+                if len(members) > max_members:
+                    raise ProjectPackageRepositoryError(
+                        f"repository ZIP exceeds member limit: {len(members)} > {max_members}"
+                    )
+                total_bytes = sum(member.file_size for member in members)
+                if total_bytes > max_total_bytes:
+                    raise ProjectPackageRepositoryError(
+                        "repository ZIP exceeds total uncompressed size limit: "
+                        f"{total_bytes} > {max_total_bytes}"
+                    )
+                seen: dict[str, str] = {}
+                for member in members:
+                    if member.file_size > max_member_bytes:
+                        raise ProjectPackageRepositoryError(
+                            "repository ZIP member exceeds uncompressed size limit: "
+                            f"{member.filename!r} has {member.file_size} bytes, limit is {max_member_bytes}"
+                        )
+                    if member.flag_bits & 0x1:
+                        raise ProjectPackageRepositoryError(
+                            f"encrypted ZIP member is not supported: {member.filename!r}"
+                        )
+                    compression_ratio = (
+                        member.file_size / member.compress_size
+                        if member.compress_size
+                        else (0.0 if member.file_size == 0 else float("inf"))
+                    )
+                    if compression_ratio > max_compression_ratio:
+                        raise ProjectPackageRepositoryError(
+                            "repository ZIP member exceeds compression ratio limit: "
+                            f"{member.filename!r} has {compression_ratio:.2f}, "
+                            f"limit is {max_compression_ratio:.2f}"
+                        )
                     normalized = member.filename.replace("\\", "/")
                     relative = PurePosixPath(normalized)
                     mode = (member.external_attr >> 16) & 0o170000
@@ -550,9 +773,12 @@ class ProjectPackageRevisionRepository:
                             f"unsafe ZIP member path or type: {member.filename!r}"
                         )
                     key = relative.as_posix()
-                    if key in seen:
-                        raise ProjectPackageRepositoryError(f"duplicate ZIP member: {key}")
-                    seen.add(key)
+                    collision_key = key.casefold()
+                    if collision_key in seen:
+                        raise ProjectPackageRepositoryError(
+                            f"duplicate or case-colliding ZIP member: {seen[collision_key]!r} and {key!r}"
+                        )
+                    seen[collision_key] = key
                     destination = staging.joinpath(*relative.parts)
                     try:
                         destination.resolve().relative_to(staging.resolve())
@@ -568,11 +794,50 @@ class ProjectPackageRevisionRepository:
                         shutil.copyfileobj(source, target)
 
             imported = cls(staging, schema_root)
-            imported.verify()
+            imported._verify_unlocked()
             _replace_directory(staging, target_root)
         finally:
             if staging.exists():
                 shutil.rmtree(staging)
         result = cls(target_root, schema_root)
-        result.verify()
+        result._verify_unlocked()
         return result
+
+    @classmethod
+    def import_zip(
+        cls,
+        source_zip: Path,
+        target_root: Path,
+        schema_root: Path,
+        *,
+        max_members: int = DEFAULT_MAX_ZIP_MEMBERS,
+        max_member_bytes: int = DEFAULT_MAX_ZIP_MEMBER_BYTES,
+        max_total_bytes: int = DEFAULT_MAX_ZIP_TOTAL_BYTES,
+        max_compression_ratio: float = DEFAULT_MAX_ZIP_COMPRESSION_RATIO,
+    ) -> ProjectPackageRevisionRepository:
+        """Safely import and fully verify an exported repository archive."""
+        limits = {
+            "max_members": max_members,
+            "max_member_bytes": max_member_bytes,
+            "max_total_bytes": max_total_bytes,
+        }
+        invalid = [name for name, value in limits.items() if not isinstance(value, int) or value < 1]
+        if invalid:
+            raise ProjectPackageRepositoryError(
+                "repository ZIP limits must be positive integers: " + ", ".join(invalid)
+            )
+        if not isinstance(max_compression_ratio, (int, float)) or max_compression_ratio <= 0:
+            raise ProjectPackageRepositoryError(
+                "repository ZIP max_compression_ratio must be a positive number"
+            )
+        target_root = Path(target_root)
+        with _repository_lock(target_root):
+            return cls._import_zip_unlocked(
+                source_zip,
+                target_root,
+                schema_root,
+                max_members=max_members,
+                max_member_bytes=max_member_bytes,
+                max_total_bytes=max_total_bytes,
+                max_compression_ratio=float(max_compression_ratio),
+            )

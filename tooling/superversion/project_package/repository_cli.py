@@ -12,7 +12,15 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .repository import ProjectPackageRevisionRepository, RevisionRecord
+from .repository import (
+    DEFAULT_MAX_ZIP_COMPRESSION_RATIO,
+    DEFAULT_MAX_ZIP_MEMBER_BYTES,
+    DEFAULT_MAX_ZIP_MEMBERS,
+    DEFAULT_MAX_ZIP_TOTAL_BYTES,
+    ProjectPackageRevisionRepository,
+    RevisionRecord,
+    StaleProjectPackageDraftError,
+)
 
 
 def _record(value: RevisionRecord | None) -> dict[str, Any] | None:
@@ -36,6 +44,17 @@ def _parser() -> argparse.ArgumentParser:
     commit = commands.add_parser("commit", help="Append one validated package revision")
     commit.add_argument("--package", type=Path, required=True)
 
+    commit_draft = commands.add_parser(
+        "commit-draft",
+        help="Derive technical manifest metadata and append a validated draft",
+    )
+    commit_draft.add_argument("--package", type=Path, required=True)
+    commit_draft.add_argument(
+        "--expected-head",
+        required=True,
+        help="Expected HEAD hash, or the explicit token 'none' for the first revision",
+    )
+
     commands.add_parser("head", help="Read and verify the current revision")
 
     checkout = commands.add_parser("checkout", help="Restore one complete package revision")
@@ -51,6 +70,14 @@ def _parser() -> argparse.ArgumentParser:
 
     import_command = commands.add_parser("import", help="Import and verify complete history")
     import_command.add_argument("--input", type=Path, required=True)
+    import_command.add_argument("--max-members", type=int, default=DEFAULT_MAX_ZIP_MEMBERS)
+    import_command.add_argument("--max-member-bytes", type=int, default=DEFAULT_MAX_ZIP_MEMBER_BYTES)
+    import_command.add_argument("--max-total-bytes", type=int, default=DEFAULT_MAX_ZIP_TOTAL_BYTES)
+    import_command.add_argument(
+        "--max-compression-ratio",
+        type=float,
+        default=DEFAULT_MAX_ZIP_COMPRESSION_RATIO,
+    )
     return parser
 
 
@@ -60,12 +87,27 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
             args.input,
             args.repository,
             args.schemas,
+            max_members=args.max_members,
+            max_member_bytes=args.max_member_bytes,
+            max_total_bytes=args.max_total_bytes,
+            max_compression_ratio=args.max_compression_ratio,
         )
         return {"ok": True, "head": _record(repository.head())}
 
     repository = ProjectPackageRevisionRepository(args.repository, args.schemas)
     if args.command == "commit":
         return {"ok": True, "revision": _record(repository.commit(args.package))}
+    if args.command == "commit-draft":
+        expected_head = None if args.expected_head.lower() == "none" else args.expected_head
+        return {
+            "ok": True,
+            "revision": _record(
+                repository.commit_draft(
+                    args.package,
+                    expected_head_hash=expected_head,
+                )
+            ),
+        }
     if args.command == "head":
         return {"ok": True, "head": _record(repository.head())}
     if args.command == "checkout":
@@ -86,6 +128,15 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         payload = run(args)
+    except StaleProjectPackageDraftError as exc:
+        print(
+            json.dumps(
+                {"ok": False, "status": 409, "code": "stale_head", "error": str(exc)},
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+        )
+        return 1
     except (OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False))
         return 1
