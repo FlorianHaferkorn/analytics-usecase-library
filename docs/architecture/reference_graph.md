@@ -6,10 +6,10 @@
 ## Coverage
 
 - Use cases: **20**  (evidence packs: 16/20, factsheets: 20/20)
-- KPIs in catalog: **140**  — reachable: **137**, roadmap (planned.yaml): 30, orphan: **2**
+- KPIs in catalog: **140**  — reachable: **139**, roadmap (planned.yaml): 30, orphan: **0**
 - Action codes: **57**  — reachable: **57**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
-- Semantic measures: **251**  — backing a catalog KPI: **110** (registry/drift gated by `test_measure_dictionary_files`)
+- Semantic measures: **251**  — backing a catalog KPI: **112** (registry/drift gated by `test_measure_dictionary_files`)
 
 ## Integrity (must be empty)
 
@@ -21,7 +21,7 @@
 
 | Use case | KPIs | Action codes | Evidence pack | Data contract |
 |----------|-----:|-------------:|:-------------:|---------------|
-| COM-001 | 10 | 3 | ✓ | commercial_sales.yaml |
+| COM-001 | 12 | 3 | ✓ | commercial_sales.yaml |
 | COM-002 | 15 | 3 | ✓ | commercial_sales.yaml |
 | COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
@@ -46,8 +46,7 @@
 
 **KPIs** (excludes planned.yaml roadmap):
 
-- `sales.net_sales.ly.amount`
-- `sales.net_sales.plan.amount`
+_none_
 
 **Action codes:**
 

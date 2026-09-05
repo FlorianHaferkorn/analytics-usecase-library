@@ -61,17 +61,30 @@ def test_real_ucs_pass_default_gate(uc):
 
 
 def test_known_dangling_binds_detected_and_strict_fails():
-    """The gate surfaces the real pre-existing drift in COM-001 (visuals binding
-    Plan/LY comparison measures the adapter does not materialize). Documented in
-    the ledger as a follow-up; here we assert the gate DETECTS it and --strict
-    escalates it to a failure."""
-    model = from_bracket_file(BRACKETS["COM-001"], KPIS)
+    """The gate surfaces the real drift in COM-002 and --strict escalates it.
+
+    Bis zum 05.09.2026 stand hier COM-001. Dessen drei Bindungen (Plan/LY) waren
+    behebbar und sind behoben: die zwei Vergleichsbasen tragen seit `22b6fd7d`
+    eigene Katalog-IDs, das Bracket referenziert sie, das Modell materialisiert
+    sie. COM-002 bleibt der Fall, an dem sich die Erkennung messen laesst — dort
+    ist `PVM Bridge Value` ein bewusster Darstellungs-Helfer ohne governte KPI
+    (so im Bracket begruendet), also kein Befund, den ein Diff schliesst.
+    """
+    model = from_bracket_file(BRACKETS["COM-002"], KPIS)
     dangling = [v for v in validate_golden_thread(model) if v.kind == KIND_DANGLING]
-    assert dangling, "expected COM-001 to exhibit dangling visual binds"
+    assert dangling, "expected COM-002 to exhibit dangling visual binds"
     # default mode tolerates it (warn); strict escalates to error
     assert_golden_thread(model)  # warn → no raise
     with pytest.raises(GoldenThreadError):
         assert_golden_thread(model, strict=True)
+
+
+def test_com001_binds_only_materialized_measures():
+    """Gegenprobe zum vorigen Test: die COM-001-Bindungen sind wirklich zu, nicht
+    nur unbeobachtet. Ohne diese Zeile wuerde ein Rueckfall (Bracket verliert die
+    zwei supporting-KPIs wieder) nur noch als Warnung durchlaufen."""
+    model = from_bracket_file(BRACKETS["COM-001"], KPIS)
+    assert [v for v in validate_golden_thread(model) if v.kind == KIND_DANGLING] == []
 
 
 # ---- synthetic: deliberately broken UC goes red ---------------------------
@@ -130,7 +143,7 @@ def test_cli_default_passes_real_ucs():
 
 
 def test_cli_strict_fails_on_dangling():
-    # strict escalates COM-001/COM-002 dangling binds → exit 1
+    # strict escalates COM-002's dangling bind (PVM Bridge Value) → exit 1
     assert main(["--strict"]) == 1
 
 

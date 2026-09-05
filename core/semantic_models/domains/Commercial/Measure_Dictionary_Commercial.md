@@ -585,8 +585,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Plan Sales Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.plan.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: Base
@@ -612,8 +612,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: 06.02.2026
 
 - measure_name: Last Year Net Sales Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.net_sales.ly.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 01_Revenue
   category: Base
