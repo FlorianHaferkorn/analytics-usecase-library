@@ -50,7 +50,7 @@ preview_svg: |
 realizations:
   powerbi_native:
     applicable: false
-    reason: "Power BI has no native Sankey base visual"
+    reason: "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). `funnel`, `treemap` und `ribbonChart` zeigen Anteile bzw. Rangwechsel, aber keine Fluesse zwischen benannten Knoten mit erhaltener Breite"
     use: "the Microsoft/PowerViz Sankey custom visual (AppSource)"
 
   powerbi_svg_dax:

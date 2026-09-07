@@ -139,7 +139,7 @@
         "cols": 3,
         "rows": 4
       },
-      "checksum": "sha256:150e78d8ecb49852be467542516e37f1998541b8e1551b5ba2fac28ad436f2e5"
+      "checksum": "sha256:faf55165f37beffe990287b900cb36fb94a9e1060db7934be5b7d15f106ff20f"
     },
     {
       "id": "bullet",
@@ -169,7 +169,7 @@
         "cols": 3,
         "rows": 2
       },
-      "checksum": "sha256:323ac1b914f5aeb8b5960b2ac20b6fbc9ddd6c713e7fb76c637c094df89ff2ca"
+      "checksum": "sha256:6140db072ff215c485c942cdee0be5ce61a18fdd185cc570602b12c8b9febd79"
     },
     {
       "id": "column_time",
@@ -307,7 +307,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:3c1ef3c092a3df64f03ad0040e8faa0564fe9225b34916c0cbfd9a414dfc3e0f"
+      "checksum": "sha256:3d9650708efb850ca2dcf61bbcaf64c83dd65e8e22bda1dfd7ce12f94fb87574"
     },
     {
       "id": "histogram",
@@ -333,7 +333,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:943173d768453d0e8338c308aed9ce6e909c22394d78f953612cc7b6f95f191b"
+      "checksum": "sha256:f704b69d381f5a09abf657cc606a7cc09ed4eedc0ef11143940f62d4f583d564"
     },
     {
       "id": "indexed_line",
@@ -493,7 +493,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:8a76c1089c2f740ed24f581bb69290e35252838909f089ea0222a2b907d7c3cc"
+      "checksum": "sha256:b566d4353e9d33af690244528d938a2e3c9a6a4ecb0261b2eb86651143a842b0"
     },
     {
       "id": "matrix_bullet",
@@ -518,7 +518,7 @@
         "cols": 5,
         "rows": 4
       },
-      "checksum": "sha256:ebfbc0663dfafb2da86ae2d5c48ccbaf6dc28d386421c2175291e5373cefafeb"
+      "checksum": "sha256:9464fa56aa2dc6836df426fe8ccbfb42b5456c237f89e0a04e9cd3162f3696f8"
     },
     {
       "id": "matrix_delta_pill",
@@ -543,7 +543,7 @@
         "cols": 5,
         "rows": 4
       },
-      "checksum": "sha256:0aa7f4700a7cfb3143805d3732bd18490c14f43eaf514f1058d7068377d995df"
+      "checksum": "sha256:e5d1cc93cb999b87ac3c8fcc474a4bc6d96fdfe1028fdf586bf4c0fde332c46c"
     },
     {
       "id": "matrix_evidence",
@@ -620,7 +620,7 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:397d9c7db020c683e039b796b25fdc8678b06b7aa477253e502c955b744b1e43"
+      "checksum": "sha256:946672b69d2426ce55a9871dd877b1f1644c316320ddccf8981e26f7e9ac4776"
     },
     {
       "id": "scatter",
