@@ -1,0 +1,27 @@
+{
+  "visualType": "lineChart",
+  "query": { "queryState": {
+    "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "Date" } }, "queryRef": "dim_date.Date" } ] },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" } ] },
+    "Rows": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_org" } }, "Property": "OrgName" } }, "queryRef": "dim_org.OrgName" } ] }
+  } },
+  "objects": {
+    "smallMultiplesLayout": [ { "properties": {
+      "layoutType": { "expr": { "Literal": { "Value": "'custom'" } } },
+      "columnCount": { "expr": { "Literal": { "Value": "3D" } } },
+      "rowCount": { "expr": { "Literal": { "Value": "3D" } } },
+      "gridLineShow": { "expr": { "Literal": { "Value": "false" } } }
+    } } ],
+    "lineStyles": [ { "properties": {
+      "showMarker": { "expr": { "Literal": { "Value": "true" } } },
+      "markerShape": { "expr": { "Literal": { "Value": "'circle'" } } },
+      "markerSize": { "expr": { "Literal": { "Value": "3D" } } },
+      "markerColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0F2430'" } } } } }
+    } } ],
+    "labels": [ { "properties": {
+      "show": { "expr": { "Literal": { "Value": "true" } } },
+      "labelPosition": { "expr": { "Literal": { "Value": "'OutsideEnd'" } } },
+      "labelDensity": { "expr": { "Literal": { "Value": "0D" } } }
+    } } ]
+  }
+}

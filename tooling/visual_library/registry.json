@@ -689,8 +689,9 @@
       "zone": [
         "analysis"
       ],
-      "native_visual_type": null,
+      "native_visual_type": "lineChart",
       "tools": [
+        "powerbi_native",
         "deneb_vegalite"
       ],
       "profiles": [
@@ -700,7 +701,7 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:b4f9e7c37214ec25d47b548910cc717add0c9590e79a9a6d5bb1f9b0c245711a"
+      "checksum": "sha256:ec77f46736f6e41a398296b2d1c8d60b7530c47c4fc4c0b5f103f8667cca4c8d"
     },
     {
       "id": "stacked_100",

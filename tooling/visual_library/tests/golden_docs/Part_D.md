@@ -165,7 +165,7 @@
 #### `small_multiples` — Small multiples
 - **Purpose:** time_comparison · **zone:** analysis · **min size:** 5×6 grid (497×320px @1280, 746×480px @1920)
 - **Avoid:** independent_y_scales_per_panel, too_many_panels
-- **Tools:** Power BI · native n/a (small multiples is a field-well option, not a distinct visual JSON idiom → a lineChart with the field placed in the Small multiples well (shared Y scale)) · Power BI · SVG-DAX n/a (a grid of panels is not a single-cell micro-chart → deneb_vegalite (facet) or the native Small multiples well) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (no single small-multiples component → map the series to a CSS grid of <LineChart> with a shared YAxis domain)
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX n/a (a grid of panels is not a single-cell micro-chart → deneb_vegalite (facet) or the native Small multiples well) · Deneb / Vega-Lite ✓ · Web · Recharts n/a (no single small-multiples component → map the series to a CSS grid of <LineChart> with a shared YAxis domain)
 - **Code:** `visual_library/small_multiples.yaml` (+ `golden/small_multiples.*`)
 
 #### `sankey` — Sankey

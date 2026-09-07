@@ -23,6 +23,9 @@ params:
   measure:  {role: value, required: true}
   series:   {role: facet, type: category, required: true}
   entity:   {role: table, default: _Measures}
+  # Rasterform ausdruecklich statt `auto`: sonst haengt das Ergebnis an der Platzierung.
+  panel_cols: {role: layout, type: integer, default: 3}
+  panel_rows: {role: layout, type: integer, default: 3}
 
 data_fit:
   series: {type: category, max: 12, on_violation: too_many_panels}
@@ -41,6 +44,8 @@ canonical_params:
   field_date: "month"
   field_series: "unit"
   col_line: "#0F2430"
+  panel_cols: 3
+  panel_rows: 3
 
 preview_svg: |
   <svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Small multiples">
@@ -54,10 +59,69 @@ preview_svg: |
   </svg>
 
 realizations:
+  # ADR-0021 (07.09.2026). Bis heute stand hier `applicable: false` mit dem Grund "small
+  # multiples is a field-well option, not a distinct visual JSON idiom" und dem `use`-Hinweis
+  # "a lineChart with the field placed in the Small multiples well". Der Hinweis war richtig,
+  # der Schluss daraus nicht: die nativen Vorlagen dieser Bibliothek SIND Visual-JSON mit
+  # Projektionen und Formatierungsobjekten, und genau dort laesst sich das Feldfach setzen.
+  # Ein `use`, das den richtigen Weg beschreibt und ihn nicht emittiert, ist die Luecke.
+  #
+  # Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1):
+  # `lineChart.dataRoles` fuehrt die Rolle `Rows` mit dem displayName "Small multiples";
+  # `lineChart.objects.smallMultiplesLayout` traegt layoutType (auto|custom), rowCount,
+  # columnCount, Gitterlinien und Abstaende. 14 Visualtypen tragen dasselbe Objekt.
   powerbi_native:
-    applicable: false
-    reason: "small multiples is a field-well option, not a distinct visual JSON idiom"
-    use: "a lineChart with the field placed in the Small multiples well (shared Y scale)"
+    ext: json
+    template: |
+      {
+        "visualType": "lineChart",
+        "query": { "queryState": {
+          "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
+          "Rows": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{series_entity}}" } }, "Property": "{{series_prop}}" } }, "queryRef": "{{series_entity}}.{{series_prop}}" } ] }
+        } },
+        "objects": {
+          "smallMultiplesLayout": [ { "properties": {
+            "layoutType": { "expr": { "Literal": { "Value": "'custom'" } } },
+            "columnCount": { "expr": { "Literal": { "Value": "{{panel_cols}}D" } } },
+            "rowCount": { "expr": { "Literal": { "Value": "{{panel_rows}}D" } } },
+            "gridLineShow": { "expr": { "Literal": { "Value": "false" } } }
+          } } ],
+          "lineStyles": [ { "properties": {
+            "showMarker": { "expr": { "Literal": { "Value": "true" } } },
+            "markerShape": { "expr": { "Literal": { "Value": "'circle'" } } },
+            "markerSize": { "expr": { "Literal": { "Value": "3D" } } },
+            "markerColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_line}}'" } } } } }
+          } } ],
+          "labels": [ { "properties": {
+            "show": { "expr": { "Literal": { "Value": "true" } } },
+            "labelPosition": { "expr": { "Literal": { "Value": "'OutsideEnd'" } } },
+            "labelDensity": { "expr": { "Literal": { "Value": "0D" } } }
+          } } ]
+        }
+      }
+    notes: |
+      Die geteilte Y-Skala kommt vom Visual selbst, sobald `Rows` besetzt ist — sie wird hier
+      nicht gesetzt und darf auch nicht je Panel geloest werden: `anti_patterns` fuehrt
+      `independent_y_scales_per_panel`, und genau das macht die Panels vergleichbar.
+
+      `labelDensity: 0` zeigt nur den letzten Wert je Panel statt jeden Punkt. Das ist die
+      Hervorhebung, die eine Kleinserie vertraegt; jeder beschriftete Punkt macht aus dem
+      Raster wieder das Spaghetti, das es vermeiden soll.
+
+      `layoutType: custom` mit ausdruecklicher Spalten- und Zeilenzahl statt `auto`: `auto`
+      rechnet aus der Flaeche, und dieselbe Vorlage saehe dann je Seitengroesse anders aus.
+      Eine Bibliothek, deren Ergebnis von der Platzierung abhaengt, ist keine.
+
+      Dieselbe Vorlage traegt 13 weitere Visualtypen: areaChart, barChart, cardVisual,
+      clusteredBarChart, clusteredColumnChart, columnChart, hundredPercentStackedAreaChart,
+      hundredPercentStackedBarChart, hundredPercentStackedColumnChart,
+      lineClusteredColumnComboChart, lineStackedColumnComboChart, ribbonChart,
+      stackedAreaChart (Katalog 0.1.1, gemessen 07.09.2026). Zum Wechseln genuegt der
+      `visualType`; Rolle und Layout-Objekt bleiben. `lineChart` ist die Erstwahl, weil
+      `encoding.x` dieses Idioms temporal ist. Dafuer gibt es bewusst KEINE eigene
+      Werkzeugspur — das Vokabular kennt vier, und eine fuenfte, die kein Renderer und kein
+      Test liest, waere ein zweites Silo.
 
   powerbi_svg_dax:
     applicable: false
