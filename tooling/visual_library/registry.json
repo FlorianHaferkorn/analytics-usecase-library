@@ -583,8 +583,9 @@
       "zone": [
         "detail"
       ],
-      "native_visual_type": null,
+      "native_visual_type": "tableEx",
       "tools": [
+        "powerbi_native",
         "powerbi_svg_dax"
       ],
       "profiles": [
@@ -594,7 +595,7 @@
         "cols": 5,
         "rows": 4
       },
-      "checksum": "sha256:215f4c2d5126dc59957f5a89ac54adb1cf2dcbb43a09fa876109fd62fd5a25d3"
+      "checksum": "sha256:649bb7ff2bbdd5a624e931811254aa34dda3aea03cf3747a2ccfd206103dafcc"
     },
     {
       "id": "sankey",

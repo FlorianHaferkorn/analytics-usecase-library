@@ -221,7 +221,7 @@
 #### `matrix_sparkline` — Matrix column · sparkline
 - **Purpose:** evidence_detail · **zone:** detail · **min size:** 5×4 grid (497×208px @1280, 746×312px @1920)
 - **Avoid:** axis_labels_in_a_sparkline, line_when_periods_are_discrete
-- **Tools:** Power BI · native n/a (this is an in-cell column MEASURE (ImageUrl), not a standalone visual — the table that hosts it is matrix_evidence (tableEx) → matrix_evidence (tableEx) + this SVG-DAX column, image height ~24px) · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the whole trend as a standalone chart is `line` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `line` per row)
+- **Tools:** Power BI · native ✓ · Power BI · SVG-DAX ✓ · Deneb / Vega-Lite n/a (a per-row cell chart inside a table is not a Vega-Lite view → the whole trend as a standalone chart is `line` in Deneb; the cell column is SVG-DAX) · Web · Recharts n/a (Recharts has no table cell primitive → an HTML <table> with a small Recharts `line` per row)
 - **Code:** `visual_library/matrix_sparkline.yaml` (+ `golden/matrix_sparkline.*`)
 
 #### `matrix_bullet` — Matrix column · bullet
