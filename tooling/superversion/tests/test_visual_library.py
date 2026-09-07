@@ -330,3 +330,44 @@ def test_visual_type_for_purpose_resolves_best_native_idiom():
         assert got in pbir._PLANS, f"{purpose} resolved to non-emittable {got}"
     assert vi.visual_type_for_purpose("value_verdict") is None   # best = kpi_card_spark (non-native)
     assert vi.visual_type_for_purpose("does_not_exist") is None
+
+
+def test_registry_und_idiom_bibliothek_widersprechen_sich_nicht_beim_nativen_typ():
+    """Die fehlende Kante zwischen den zwei Registern — gemessen, nicht vermutet.
+
+    Die Bruecke oben prueft: was der Generator emittiert, entspricht dem nativen Typ des
+    Idioms. Sie prueft NICHT die andere Richtung: ob dieser native Typ auch das ist, was
+    `visual_registry.yaml` fuer dieselbe `visual_id` sagt. Beide Register nennen dieselbe
+    Sache, keins las das andere.
+
+    Was das gekostet hat, gemessen 07.09.2026: die Registry fuehrt seit ADR-0018
+    (Accepted 02.08.2026) `small_multiples` mit `pbip_type: lineChart` und dem Zusatz
+    `small_multiples: true` — sie wusste also fuenf Wochen lang, dass es ein natives
+    lineChart mit Flag ist. Die Idiom-Bibliothek fuehrte dasselbe Idiom bis heute als
+    `deneb_vegalite`-only mit `powerbi_native: applicable: false`. Ein Register hatte
+    recht, das andere nicht, und nichts stellte sie gegeneinander.
+
+    Die Schnittmenge ist heute klein (2 von 25 bzw. 30), weil die beiden Register
+    verschiedene Dinge benennen: die Registry eine erlaubte MENGE je Informationsblock,
+    die Bibliothek einen erzeugten PUNKT je Idiom. Wo sich die Namen aber treffen, muessen
+    sie dasselbe sagen — und die Schnittmenge waechst, sobald IDs angeglichen werden.
+    """
+    import yaml
+    repo = Path(__file__).resolve().parents[3]
+    reg = yaml.safe_load(
+        (repo / "core/templates/page_templates/visual_registry.yaml").read_text(encoding="utf-8"))
+    erlaubt: dict[str, set] = {}
+    for block in reg["information_blocks"]:
+        for v in (block.get("allowed_visuals") or []):
+            if v.get("pbip_type"):
+                erlaubt.setdefault(v["visual_id"], set()).add(v["pbip_type"])
+
+    nativ = vi.idiom_native_types()
+    gemeinsam = sorted(set(erlaubt) & set(nativ))
+    assert gemeinsam, ("kein gemeinsamer Name mehr — dann prueft dieser Test nichts. "
+                       "Entweder wurde eine ID umbenannt oder ein Register geleert.")
+    widerspruch = {k: (sorted(erlaubt[k]), nativ[k]) for k in gemeinsam
+                   if nativ[k] not in erlaubt[k]}
+    assert not widerspruch, (
+        "Registry und Idiom-Bibliothek nennen fuer dieselbe visual_id verschiedene native "
+        f"Typen (registry, idiom): {widerspruch}")
