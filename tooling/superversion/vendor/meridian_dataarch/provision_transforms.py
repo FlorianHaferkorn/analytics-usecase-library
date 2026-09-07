@@ -438,7 +438,7 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
     return head + body
 
 
-def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str]],
+def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, list[str]]],
                               contract_ref: str, dl: dict, gold_tbl: str = "",
                               table: dict | None = None) -> str:
     """Ein Gold-Ziel, das mehrere Domaenen speisen — als EIN Transform.
@@ -448,6 +448,23 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str
     entscheiden, welche Seite recht hat, wenn dieselbe Schluesselzeile verschiedene
     Attribute traegt — das ist eine Vorrangfrage und steht als TODO drin, statt hier
     geraten zu werden.
+
+    ``sources`` traegt je Domaene **alle** Herkunftstabellen, nicht eine.
+
+    Gemessen 07.09.2026 am SAP-Szenario mit materialisierter Bronze: hat eine Domaene
+    mehrere Herkuenfte, setzte der Aufrufer frueher ersatzweise ``silver.<domaene>`` ein.
+    Diese Tabelle gibt es bei aufgeschluesseltem Silber nicht — der Lauf lieferte
+    ``TABLE_OR_VIEW_NOT_FOUND: silver.order_to_cash`` fuer ``dim_material``, weil Order To
+    Cash das Produkt aus **zwei** Tabellen speist (``order_to_cash_makt`` und
+    ``order_to_cash_mara``). Ein erfundener Name ist keine offengelassene Entscheidung,
+    sondern eine kaputte Referenz: der Ausfuehrer meldet ihn als ``kette`` (ein Loch in der
+    Lieferung) statt als ``platzhalter`` (eine offene Entscheidung), und damit verwischt
+    genau die Unterscheidung, auf der das Werkzeug steht.
+
+    Deshalb bekommt eine Domaene mit mehreren Herkuenften denselben ausdruecklichen
+    Platzhalter, den ``_silver_to_gold_ungeklaert`` schon fuer denselben Fall innerhalb
+    einer Domaene setzt. Die Kandidaten stehen im Kopf, damit die Entscheidung getroffen
+    werden kann, ohne den Blueprint zu lesen.
     """
     c = dl["comment"]
     gold_tbl = gold_tbl or f"gold_{_ident(name)}"
@@ -459,6 +476,8 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str
         f"{c} silver → gold — konforme {kind} '{name}'.",
         f"{c} Contract: {contract_ref}",
         f"{c} Gespeist von {len(sources)} Domaenen: {', '.join(d for d, _ in sources)}.",
+        *[f"{c}   {d}: {', '.join(t) if t else '(keine Herkunft im Katalog)'}"
+          for d, t in sources],
         f"{c} EIN Ziel, EIN Transform — je Domaene ein eigenes CREATE OR REPLACE haette",
         f"{c} dieselbe Tabelle ueberschrieben, ohne dass etwas rot wird.",
     ]
@@ -479,7 +498,33 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str
     proj = (",\n    ".join(_projektion(s, table, dl["stack"]) for s in spalten)) if spalten else "*"
     if not spalten:
         kopf.append(f"{c} TODO(contract:{contract_ref}): kein Katalogeintrag — Projektion ergaenzen.")
-    blocks = [f"SELECT\n    {proj}\nFROM {tbl}" for _, tbl in sources]
+
+    # Genau eine Herkunft je Domaene laesst sich schreiben. Mehrere sind eine Fachfrage
+    # (vereinigen oder verbinden), und die wird hier nicht geraten — siehe Docstring.
+    mehrdeutig = [d for d, t in sources if len(t) != 1]
+    if mehrdeutig:
+        kopf += [
+            f"{c}",
+            f"{c} Absichtlich nicht ausfuehrbar: {', '.join(mehrdeutig)} speist dieses Ziel aus",
+            f"{c} mehr als einer Tabelle. Ob die vereinigt oder verbunden gehoeren, haengt daran,",
+            f"{c} welche den Kopf traegt — das ist eine Fachfrage. Ein erfundener Tabellenname",
+            f"{c} waere hier die teuerste Antwort, weil er wie eine Lieferluecke aussieht.",
+            f"{c} TODO(contract:{contract_ref}): je genannter Domaene EINE Fassung einsetzen.",
+        ]
+    blocks = []
+    for dom, tbls in sources:
+        if len(tbls) == 1:
+            blocks.append(f"SELECT\n    {proj}\nFROM {tbls[0]}")
+        else:
+            # WOERTLICH derselbe Token wie in `_silver_to_gold_ungeklaert`, nicht eine zweite
+            # Fassung davon. Der Ausfuehrer erkennt Platzhalter ueber `<[A-Za-z_ :]+>`; ein
+            # Text mit Komma, Punkt oder Gedankenstrich faellt durch das Raster und wird als
+            # `dialekt` gezaehlt — gemessen 07.09.2026 am ersten Versuch, der die Kandidaten
+            # in die Klammer schrieb. Eine offene Entscheidung als Dialektgrenze zu zaehlen
+            # ist derselbe Fehler wie sie als Lieferluecke zu zaehlen, nur andersherum.
+            # Welche Domaene es betrifft und welche Tabellen in Frage kommen, steht im Kopf.
+            blocks.append(f"SELECT\n    {proj}\nFROM "
+                          f"<ZUSAMMENFUEHRUNG NICHT ENTSCHIEDEN: UNION ODER JOIN>")
     return (f"{chr(10).join(kopf)}\n{dl['ctas']} {gold_tbl}{dl['using']} AS\n"
             + "\nUNION\n".join(blocks) + "\n;\n")
 
@@ -621,19 +666,19 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         rel = f"transforms/_conformed/silver_to_gold__{_ident(product)}.sql"
         # Bei aufgeschluesseltem Silber liest die konforme Dimension aus der Herkunftstabelle
         # der jeweiligen Domaene, nicht aus `silver.<domaene>` -- die gibt es dann nicht.
-        # Mehrere Herkuenfte je Domaene bleiben beim Domaenenverweis: ob vereinigt oder
-        # verbunden gehoert, ist dieselbe offene Fachfrage wie oben.
+        # Mehrere Herkuenfte je Domaene sind eine offene Fachfrage und gehen als Liste
+        # weiter; der Emitter setzt dafuer einen Platzhalter statt eines erfundenen Namens
+        # (gemessen 07.09.2026: `silver.order_to_cash` existierte nie, siehe Docstring dort).
         sources = []
         for dom in contributing:
             d_dom = next((x for x in domains if x.get("name") == dom), {})
             eigene = _herkunft_je_domaene(blueprint, governed_catalog, d_dom, domains).get(_ident(product), [])
-            tbl = layer_ref("silver", _ident(eigene[0]), schemas) if len(eigene) == 1 \
-                else layer_ref("silver", _ident(dom), schemas)
-            sources.append((dom, tbl))
+            sources.append((dom, [layer_ref("silver", _ident(e), schemas) for e in eigene]))
         out[rel] = _silver_to_gold_conformed(
             product, kind, sources, contract_ref, dl, gold_tbl=gold_tbl,
             table=_catalog_table(governed_catalog, _ident(product)))
-        flow.append(f"- {' + '.join(t for _, t in sources)} → {gold_tbl} ({kind})  ·  `{rel}`")
+        flow.append(f"- {' + '.join(t[0] if len(t) == 1 else f'{d} (Zusammenfuehrung offen)' for d, t in sources)}"
+                    f" → {gold_tbl} ({kind})  ·  `{rel}`")
     if _conformed:
         flow.append("")
 
