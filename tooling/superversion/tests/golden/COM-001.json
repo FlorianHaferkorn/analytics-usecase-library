@@ -140,28 +140,6 @@
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Net Price Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
             }
-          },
-          {
-            "name": "Plan Sales Amount",
-            "expression": "",
-            "display_folder": "Commercial",
-            "description": "Sum of approved Plan Sales Amount at invoice-line planning grain.",
-            "format_string": "\\€#,0.00;-\\€#,0.00",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
-          },
-          {
-            "name": "Last Year Net Sales Amount",
-            "expression": "",
-            "display_folder": "Commercial",
-            "description": "Sum of Net Sales Amount for the corresponding prior-year reporting period.",
-            "format_string": "\\€#,0.00;-\\€#,0.00",
-            "is_hidden": false,
-            "expressions": {
-              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Last Year Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
-            }
           }
         ],
         "has_partition": false,

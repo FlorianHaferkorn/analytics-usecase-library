@@ -34,7 +34,11 @@ def test_block_describe_and_default():
     assert b.default_visual().pbip_type == "cardVisual"
     assert "cardVisual" in b.allowed_pbip_types()
     # status_signal forbids gauge/pie/radar (evidence-based)
-    assert {"gaugeVisual", "pieChart"} <= b.forbidden_pbip_types()
+    # `gauge`, nicht `gaugeVisual`: der offizielle Katalog fuehrt den Typ so
+    # (gemessen 08.09.2026 gegen @microsoft/powerbi-core-visual-schema 0.1.1).
+    # Ein Verbot auf einen Namen, den kein Visual traegt, greift nie — die
+    # Registry ist am 08.09. korrigiert worden, dieser Test zog nach.
+    assert {"gauge", "pieChart"} <= b.forbidden_pbip_types()
 
 
 def test_resolve_slot_to_block():

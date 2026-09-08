@@ -21,7 +21,7 @@
 
 | Use case | KPIs | Action codes | Evidence pack | Data contract |
 |----------|-----:|-------------:|:-------------:|---------------|
-| COM-001 | 12 | 3 | ✓ | commercial_sales.yaml |
+| COM-001 | 14 | 3 | ✓ | commercial_sales.yaml |
 | COM-002 | 15 | 3 | ✓ | commercial_sales.yaml |
 | COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
@@ -82,8 +82,6 @@ _none_
 - `retail.category.crosssell_rate.pct`
 - `retail.promotion.attachment_rate.pct`
 - `sales.conversion.pct`
-- `sales.net_sales.ly.amount`
-- `sales.net_sales.plan.amount`
 - `sales.pipeline.coverage.ratio`
 - `sales.pipeline.value.amount`
 - `sales.sales_cycle.days`
