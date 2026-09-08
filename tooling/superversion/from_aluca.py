@@ -484,6 +484,23 @@ def _collect_visual_kpi_ids(component: dict, catalog: KpiCatalog) -> list[str]:
     return deduped
 
 
+def _collect_visual_dimensions(component: dict, catalog: KpiCatalog) -> list[str]:
+    """Declared category/evidence fields carried into the canonical report seam.
+
+    KPI IDs in ``evidence_columns`` remain measures; every non-KPI entry is a
+    dimension.  Qualified ``table.column`` references are preserved verbatim so
+    target adapters can bind the intended entity instead of inventing one.
+    """
+    fields: list[str] = []
+    category = component.get("category_field")
+    if isinstance(category, str) and category:
+        fields.append(category)
+    for col in component.get("evidence_columns", []) or []:
+        if isinstance(col, str) and catalog.get(col) is None:
+            fields.append(col)
+    return list(dict.fromkeys(fields))
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Layout-Bindung (Task L8)
 #
@@ -526,7 +543,7 @@ _MOEBEL_VISUAL = {
 
 #: Das Feld, auf das ein Slicer filtert. Leer heisst „vom Modell zu binden" — der
 #: Bracket kennt hier keine Spalte, und eine erfundene waere ein dangling reference.
-_SLICER_FELD = {"Slicer_Date": "Date[Date]"}
+_SLICER_FELD = {"Slicer_Date": "dim_date.Date"}
 
 
 def _slot_geometrie(slot_name: str, variant: str = "", ebene: str = "") -> dict[str, float]:
@@ -625,7 +642,12 @@ def _visual_fuer_slot(component: dict, slot_name: str, variant: str,
                         "allowed": sorted(erlaubt)}
 
 
-def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportPage:
+def _page_from_layout(
+    page_key: str,
+    page: dict,
+    catalog: KpiCatalog,
+    action_panel_text: str = "",
+) -> ReportPage:
     visuals: list[Visual] = []
     idx = 0
     vergeben: set[str] = set()
@@ -646,11 +668,20 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
         if konflikt:
             block_konflikte.append(konflikt)
         kpi_ids = _collect_visual_kpi_ids(component, catalog)
+        dimensions = _collect_visual_dimensions(component, catalog)
         # bound_measures: aufgelöste measure_names (Katalog) bzw. direkter Name
         bound = []
         for kid in kpi_ids:
             kpi = catalog.get(kid)
             bound.append((kpi.get("technical", {}).get("measure_name") if kpi else None) or kid)
+        # Native waterfall connectors accept one Y measure.  The governed PVM
+        # idiom already names its cross-tool supporting measure; use that
+        # contract instead of dropping four KPI measures in the PBIR adapter.
+        idiom = _vi.ALUCA_VISUAL_IDIOM.get(vtyp)
+        if idiom == "waterfall_pvm":
+            supporting = _vi.canonical_params(idiom).get("measure")
+            if supporting:
+                bound = [supporting]
         # Die `visual_id` IST der Slot-Name, wo einer bekannt ist.
         #
         # Vorher: `page_1_summary_3s_1`. Der Slot-Name wurde oben berechnet, fuer die
@@ -678,6 +709,7 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
                 title=component.get("message") or component.get("slot_id", "") or component.get("decision_question", ""),
                 bound_measures=bound,
                 binds_measures=bool(bound),
+                rows=dimensions,
             )
         )
 
@@ -726,13 +758,22 @@ def _page_from_layout(page_key: str, page: dict, catalog: KpiCatalog) -> ReportP
             if not geo:
                 continue
             vergeben.add(slot_id)
+            slicer_field = _SLICER_FELD.get(slot_id, "")
+            if slot_id == "Slicer_Pane" and isinstance(c300, dict):
+                slicer_field = c300.get("slicer_field") or slicer_field
+            text_content = action_panel_text if slot_id == "ActionPanel" else ""
             visuals.append(Visual(
                 visual_id=slot_id,
                 x=geo["x"], y=geo["y"], width=geo["width"], height=geo["height"],
                 visual_type=_MOEBEL_VISUAL.get(slot_id, "text_box"),
-                title="", has_title=False,
+                # Textbox-like furniture uses the contract's generic ``title`` as
+                # visible text content.  The canonical contract has no parallel
+                # text payload field; keeping this in the existing field preserves
+                # Meridian parity and lets every connector render the same governed
+                # action-code payload without inventing a second report model.
+                title=text_content, has_title=False,
                 bound_measures=[], binds_measures=False,
-                slicer_field=_SLICER_FELD.get(slot_id, ""),
+                slicer_field=slicer_field,
             ))
 
     # Die Seite deklariert DIESELBE Leinwand, gegen die ihre Visuals aufgeloest sind.
@@ -804,10 +845,89 @@ def from_bracket(bracket: dict, catalog: KpiCatalog) -> CanonicalModel:
 
     # --- Report aus ux_layout_rules ---
     layout = bracket.get("ux_layout_rules", {}) or {}
+    action_panel_text = ""
+    action_ids = bracket.get("orchestration", {}).get("action_code_ids", []) or []
+    detail = layout.get("page_2_execution", {}) or {}
+    detail_300s = detail.get("component_300s", {}) if isinstance(detail, dict) else {}
+    if isinstance(detail_300s, dict) and detail_300s.get("action_panel") and action_ids:
+        # Reuse the governed renderer already used by the rich PBIP generator.  The
+        # action definitions remain the source of truth; this source adapter merely
+        # carries their display payload into the canonical report contract.
+        from tooling.generator_core.ir.compiler import render_action_text
+
+        action_root = catalog._dir.parent.parent / "action_codes"
+        action_panel_text = render_action_text(
+            list(action_ids),
+            action_root,
+            detail_300s.get("payload_mode", "full"),
+        )
     pages: list[ReportPage] = []
     for pk in ("page_1_summary", "page_2_execution"):
         if isinstance(layout.get(pk), dict):
-            pages.append(_page_from_layout(pk, layout[pk], catalog))
+            pages.append(_page_from_layout(pk, layout[pk], catalog, action_panel_text))
+
+    # Supporting semantic measures are definitions in core/semantic_models, not
+    # KPIs.  Pull in only those actually bound by a governed visual idiom.  This
+    # preserves the Golden Thread (KPI meaning remains in the KPI catalog) while
+    # making connector mechanics deployable instead of dangling.
+    known_measure_names = {
+        measure.name
+        for table in semantic.tables
+        for measure in table.measures
+    }
+    bound_names = {
+        name
+        for page in pages
+        for visual in page.visuals
+        for name in visual.bound_measures
+    }
+    supporting_names = sorted(bound_names - known_measure_names)
+    if supporting_names:
+        semantic_root = catalog._dir.parent.parent / "semantic_models"
+        measures_table = tables_by_name.get("_Measures")
+        if measures_table is None:
+            measures_table = Table(name="_Measures")
+            tables_by_name["_Measures"] = measures_table
+            semantic.tables.append(measures_table)
+        for supporting_name in supporting_names:
+            candidates = []
+            for path in sorted(semantic_root.rglob("*.yaml")):
+                payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+                if payload.get("measure_name") == supporting_name and not payload.get("is_kpi_measure", False):
+                    candidates.append((path, payload))
+            if not candidates:
+                raise AlucaSourceError(
+                    f"{uc_id}: governed supporting measure '{supporting_name}' not found under {semantic_root}"
+                )
+            if len(candidates) > 1:
+                paths = ", ".join(str(path) for path, _ in candidates)
+                raise AlucaSourceError(
+                    f"{uc_id}: supporting measure '{supporting_name}' is ambiguous: {paths}"
+                )
+            _, payload = candidates[0]
+            calculation = (payload.get("expression") or {}).get("calculation")
+            if not isinstance(calculation, dict):
+                raise AlucaSourceError(
+                    f"{uc_id}: supporting measure '{supporting_name}' has no governed neutral calculation"
+                )
+            dependencies = (payload.get("dependencies") or {}).get("measures", []) or []
+            dep_names = [str(dep).strip().strip("[]") for dep in dependencies]
+            format_string = next(
+                (
+                    measure.format_string
+                    for table in semantic.tables
+                    for measure in table.measures
+                    if measure.name in dep_names and measure.format_string
+                ),
+                "General",
+            )
+            measures_table.measures.append(Measure(
+                name=supporting_name,
+                display_folder=str(payload.get("display_folder") or "Supporting"),
+                description=str((payload.get("documentation") or {}).get("description") or ""),
+                format_string=format_string,
+                expressions={"dsl": json.dumps(calculation, sort_keys=True, ensure_ascii=False)},
+            ))
     report = ReportModel(name=semantic.name, pages=pages)
 
     return CanonicalModel(semantic=semantic, report=report)

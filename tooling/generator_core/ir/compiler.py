@@ -142,7 +142,9 @@ _VISUAL_TYPE_MAP: Dict[str, VisualType] = {
     "horizontal_bar_chart": VisualType.HORIZONTAL_BAR,
     "column_chart":         VisualType.COLUMN_CHART,
     "waterfall_chart":      VisualType.WATERFALL,
+    "variance_bar":         VisualType.VARIANCE_BAR,
     "scatter_plot":         VisualType.SCATTER,
+    "exception_table":      VisualType.EXCEPTION_TABLE,
 }
 
 
@@ -386,7 +388,7 @@ def _format_benchmark_label(entry: Dict[str, Any], value: Any, basis: str) -> st
     return f"vs. cross-industry {vs} (no sector match)"
 
 
-def _render_action_text(
+def render_action_text(
     action_code_ids: List[str],
     action_codes_root: Path,
     payload_mode: str = "full",
@@ -900,7 +902,7 @@ class BracketCompiler:
             rendered = ""
             if ac_ids:
                 try:
-                    rendered = _render_action_text(
+                    rendered = render_action_text(
                         ac_ids, self.action_codes_root, mode
                     )
                 except Exception as exc:

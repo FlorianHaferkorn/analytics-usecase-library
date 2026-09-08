@@ -20,7 +20,7 @@ export interface TriggerMap {
   scopes: {
     scope_id: string;
     description: string;
-    filters: {};
+    filters: Record<string, unknown>;
   }[];
   mappings: {
     mapping_id: string;

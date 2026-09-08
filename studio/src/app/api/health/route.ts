@@ -2,7 +2,7 @@
  * GET /api/health — runs tooling/health_scorecard.py --json and returns the result.
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { apiSuccess, apiError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
@@ -10,7 +10,14 @@ import { ErrorCode } from '@/lib/api/error-codes';
 export async function GET() {
   const repoRoot = join(process.cwd(), '..');
   try {
-    const output = execSync(`python3 tooling/health_scorecard.py --json`, {
+    const configuredPython = process.env.SUPERVERSION_PYTHON;
+    const pythonExecutable = configuredPython || (process.platform === 'win32' ? 'py' : 'python3');
+    const pythonArguments = [
+      ...(process.platform === 'win32' && !configuredPython ? ['-3'] : []),
+      'tooling/health_scorecard.py',
+      '--json',
+    ];
+    const output = execFileSync(pythonExecutable, pythonArguments, {
       cwd: repoRoot,
       timeout: 30_000,
       encoding: 'utf-8',

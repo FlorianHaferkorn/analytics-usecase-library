@@ -12,7 +12,7 @@ interface Props {
 }
 
 const sectionLabel: React.CSSProperties = {
-  fontSize: 11,
+  fontSize: 'var(--text-xs)',
   textTransform: 'uppercase',
   color: 'var(--ink-3)',
   letterSpacing: '0.06em',
@@ -34,7 +34,7 @@ const dataCell: React.CSSProperties = {
 };
 
 const dataCellLabel: React.CSSProperties = {
-  fontSize: 10.5,
+  fontSize: 'var(--text-xs)',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
   color: 'var(--ink-4)',
@@ -134,7 +134,7 @@ export function GovernanceTab({ bracket, factsheet }: Props) {
           <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)' }}>
             Data Requirements
           </span>
-          <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>from value driver model</span>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>from value driver model</span>
         </div>
         <div style={{ padding: 'var(--pad)' }}>
           <div style={sectionLabel}>Overview</div>
@@ -145,7 +145,7 @@ export function GovernanceTab({ bracket, factsheet }: Props) {
                 style={{
                   ...dataCellValue,
                   fontFamily: 'var(--font-mono)',
-                  fontSize: 11.5,
+                  fontSize: 'var(--text-xs)',
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                 }}
@@ -169,7 +169,7 @@ export function GovernanceTab({ bracket, factsheet }: Props) {
                   alignItems: 'center',
                   padding: '2px 8px',
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 'var(--text-xs)',
                   fontWeight: 500,
                   fontFamily: 'inherit',
                   background:

@@ -19,7 +19,7 @@ export function StrategyAnchorNode({ data }: NodeProps) {
         textAlign: 'center',
       }}
     >
-      <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>
+      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>
         Strategy Anchor
       </p>
       <p style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--ink)' }}>

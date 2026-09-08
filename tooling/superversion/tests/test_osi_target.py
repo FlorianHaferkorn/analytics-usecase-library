@@ -80,11 +80,13 @@ CORE_5_BRACKETS = {
 # that file's comment for the two gap reasons (no-flat-SQL-shape op, or a
 # sibling-measure reference to a KPI this bracket doesn't itself bind).
 NO_DATABRICKS_DIALECT_MEASURE_NAMES = {
-    "COM-001": {"Price Effect Amount", "Volume Effect Amount", "Gross Margin %"},
+    "COM-001": {
+        "Price Effect Amount", "Volume Effect Amount", "Gross Margin %", "PVM Bridge Value",
+    },
     "COM-002": {
         "Price Effect Amount", "Volume Effect Amount", "Mix Effect Amount",
         "Gross Margin Amount", "Gross Margin %", "Incremental Gross Margin Amount",
-        "Incremental Sales Amount",
+        "Incremental Sales Amount", "PVM Bridge Value",
     },
     "COM-003": {"CLV", "Customer Lifetime Revenue Amount"},
     "FIN-002": set(),

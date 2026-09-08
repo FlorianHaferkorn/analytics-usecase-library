@@ -98,6 +98,28 @@
             }
           },
           {
+            "name": "Plan Sales Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of approved Plan Sales Amount at invoice-line planning grain.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Plan Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
+          },
+          {
+            "name": "Last Year Net Sales Amount",
+            "expression": "",
+            "display_folder": "Commercial",
+            "description": "Sum of Net Sales Amount for the corresponding prior-year reporting period.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Last Year Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
+          },
+          {
             "name": "List Price Amount",
             "expression": "",
             "display_folder": "Commercial",
@@ -139,6 +161,30 @@
             "is_hidden": false,
             "expressions": {
               "dsl": "{\"op\": \"sum\", \"ref\": {\"column\": \"Last Year Sales Amount\", \"kind\": \"column\", \"table\": \"fact_sales\"}}"
+            }
+          }
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
+      },
+      {
+        "name": "_Measures",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "PVM Bridge Value",
+            "expression": "",
+            "display_folder": "COM-002",
+            "description": "Presentation-layer selector for the COM-002 Main_2 PVM bridge waterfall -- returns the active Driver category's effect measure so a single Y-role measure can serve a 3-bar breakdown chart.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"cases\": [{\"value\": {\"kind\": \"measure\", \"name\": \"Plan Sales Amount\"}, \"when\": \"Plan Sales\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Price Effect Amount\"}, \"when\": \"Price Effect\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Volume Effect Amount\"}, \"when\": \"Volume Effect\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Mix Effect Amount\"}, \"when\": \"Mix Effect\"}], \"op\": \"selector_switch\", \"selector\": {\"column\": \"Driver\", \"table\": \"dim_pvm_driver\"}}"
             }
           }
         ],
@@ -202,7 +248,7 @@
             "y": 376.0,
             "width": 1232.0,
             "height": 672.0,
-            "title": "Net Sales is running ahead of Plan and prior year, but the lead has narrowed in recent months",
+            "title": "Net Sales compared with Plan and prior year reveals whether commercial performance is sustained.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -213,7 +259,9 @@
               "Plan Sales Amount",
               "Last Year Net Sales Amount"
             ],
-            "rows": [],
+            "rows": [
+              "dim_date.CalendarYearMonth"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -224,20 +272,18 @@
             "y": 376.0,
             "width": 608.0,
             "height": 328.0,
-            "title": "Price and mix effects, not volume, explain the swing between Plan and Actual Net Sales",
+            "title": "Price, volume, and mix reconcile the movement from Plan to Actual Net Sales.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "Plan Sales Amount",
-              "Price Effect Amount",
-              "Volume Effect Amount",
-              "Mix Effect Amount",
-              "Net Sales Amount"
+              "PVM Bridge Value"
             ],
-            "rows": [],
+            "rows": [
+              "dim_pvm_driver.Driver"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -248,7 +294,7 @@
             "y": 720.0,
             "width": 608.0,
             "height": 328.0,
-            "title": "Net Sales gaps versus Plan are concentrated in a handful of regions, not spread evenly",
+            "title": "Regional variance ranks where the sales gap and recovery opportunity are concentrated.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
@@ -257,7 +303,9 @@
             "bound_measures": [
               "Net Sales % vs Plan"
             ],
-            "rows": [],
+            "rows": [
+              "dim_org.Region"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -277,7 +325,7 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "Date[Date]"
+            "slicer_field": "dim_date.Date"
           }
         ],
         "width": 1920,
@@ -311,7 +359,10 @@
               "Mix Effect Amount",
               "Gross Margin %"
             ],
-            "rows": [],
+            "rows": [
+              "dim_org.Region",
+              "dim_product.Category"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -322,7 +373,7 @@
             "y": 118.0,
             "width": 296.0,
             "height": 930.0,
-            "title": "",
+            "title": "Recommended actions (from action codes)\n\n• C-M2.1 — Price Realization Guardrails\n  Owner: pricing_lead\n  Trigger: sales.price.realization_pct < 0.92%\n  Impact: High, DirectMarginImprovement\n  Expected: 1.0–3.0 pp\n  Confidence: High\n\n• C-S1.1 — Price Discipline Enforcement\n  Owner: pricing_manager\n  Trigger: sales.pvm.price_effect.amount < 0\n  Impact: High, DirectMarginImprovement\n  Expected: 0.5–1.5 pp\n  Confidence: High\n\n• C-S1.2 — Sales Gap Recovery via Price & Pack Adjustment\n  Owner: sales_director\n  Trigger: sales.net_sales.delta_pct.plan < -0.05%\n  Impact: Medium, RevenueUplift\n  Expected: 1.0–3.0 %\n  Confidence: Medium",
             "has_title": false,
             "binds_measures": false,
             "has_tooltip_fields": false,

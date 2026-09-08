@@ -49,8 +49,12 @@ export default defineConfig({
   webServer: {
     command: 'node scripts/reset-studio-db.mjs && npm run dev',
     url: 'http://localhost:3000',
+    env: {
+      ...process.env,
+      STUDIO_DB_PATH: join(process.cwd(), '.e2e', 'studio.db'),
+    },
     // Keep tests deterministic: tenant isolation depends on a clean SQLite DB.
-    reuseExistingServer: false,
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === '1',
     // 30_000 war zu knapp: der Turbopack-Kaltstart braucht auf langsamem Dateisystem
     // laenger (das Remote-Image meldet es selbst: "Slow filesystem detected"). Der
     // Timeout lief ab, bevor der Server antwortete — jeder Lauf endete mit

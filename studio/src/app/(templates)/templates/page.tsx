@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { ReportTemplatesGallery } from '@/components/templates/report-templates-gallery';
+import { StudioPage, StudioPageHeader } from '@/components/ui/studio-page';
 
 export const metadata: Metadata = {
   title: 'Report Templates | Studio',
@@ -7,17 +8,15 @@ export const metadata: Metadata = {
 
 export default function TemplatesPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-[28px] font-medium tracking-[-0.02em] text-foreground mb-1">
-          Report Templates
-        </h1>
-        <p className="text-[13px] text-foreground-muted">
-          T1–T4 gallery with design base (1280×720) and production preview (1920×1080). Tune theme
-          in Tweaks and export Power BI / Evidence JSON.
-        </p>
-      </div>
+    <StudioPage width="wide">
+      <StudioPageHeader
+        eyebrow="Assets / Brand & Templates"
+        title="Report Templates"
+        description="Review T1–T4 decision layouts at their governed design and production sizes, then export the same theme contract to Power BI or Evidence."
+        badge="4 governed layouts"
+        tone="info"
+      />
       <ReportTemplatesGallery />
-    </div>
+    </StudioPage>
   );
 }

@@ -69,7 +69,7 @@ export function DashboardLayout({ layer, theme }: Props) {
 function SectionLabel({ children, color }: { children: React.ReactNode; color?: string }) {
   return (
     <p style={{
-      fontSize: '0.6875rem',
+      fontSize: 'var(--text-xs)',
       color: color ? `color-mix(in srgb, ${color} 50%, transparent)` : 'var(--ink-4)',
       textTransform: 'uppercase',
       letterSpacing: '0.1em',

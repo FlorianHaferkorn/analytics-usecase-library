@@ -91,11 +91,13 @@ CORE_5_BRACKETS = {
 #       measure that transitively depends on an (a)/(b) gap (e.g. Mix Effect
 #       Amount depends on the (a)-gapped Price/Volume Effect Amount).
 KNOWN_SQL_GAP_MEASURE_NAMES = {
-    "COM-001": {"Price Effect Amount", "Volume Effect Amount", "Gross Margin %"},
+    "COM-001": {
+        "Price Effect Amount", "Volume Effect Amount", "Gross Margin %", "PVM Bridge Value",
+    },
     "COM-002": {
         "Price Effect Amount", "Volume Effect Amount", "Mix Effect Amount",
         "Gross Margin Amount", "Gross Margin %", "Incremental Gross Margin Amount",
-        "Incremental Sales Amount",
+        "Incremental Sales Amount", "PVM Bridge Value",
     },
     "COM-003": {"CLV", "Customer Lifetime Revenue Amount"},
     "FIN-002": set(),

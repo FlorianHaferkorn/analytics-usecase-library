@@ -7,6 +7,12 @@ export type NodeKind =
   | 'driver'
   | 'action'
   | 'source'
+  | 'domain'
+  | 'workspace'
+  | 'data_product'
+  | 'transformation'
+  | 'reference_report'
+  | 'native_item'
   | 'metric'
   | 'derived';
 
@@ -18,6 +24,10 @@ export interface CanvasNode {
   sub?: string;
   x: number;
   y: number;
+  width?: number;
+  height?: number;
+  direction?: 'LR' | 'TB';
+  compact?: boolean;
   description?: string;
   owner?: string;
   domain?: string;

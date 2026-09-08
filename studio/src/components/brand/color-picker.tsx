@@ -1,6 +1,6 @@
 'use client';
 
-import { StudioInput } from '@/components/ui/studio-data';
+import styles from './color-picker.module.css';
 
 interface Props {
   label: string;
@@ -10,25 +10,17 @@ interface Props {
 
 export function ColorPicker({ label, value, onChange }: Props) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <StudioInput
+    <div className={styles.picker}>
+      <input
         type="color"
+        aria-label={`${label} color`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        style={{
-          width: '32px',
-          height: '32px',
-          border: '1px solid var(--line)',
-          borderRadius: 'var(--radius-sm)',
-          backgroundColor: 'transparent',
-          padding: 0,
-        }}
+        className={styles.swatch}
       />
-      <div>
-        <p style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>{label}</p>
-        <p style={{ fontSize: '0.6875rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>
-          {value}
-        </p>
+      <div className={styles.copy}>
+        <p className={styles.label}>{label}</p>
+        <p className={styles.value}>{value}</p>
       </div>
     </div>
   );

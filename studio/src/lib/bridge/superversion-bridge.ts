@@ -12,12 +12,24 @@
  */
 
 import { execFile } from 'node:child_process';
-import { join } from 'node:path';
-import { resolveBracketPath } from '@/lib/core/bracket-loader';
+import { delimiter as pathDelimiter } from 'node:path';
 
-/** Repo root, relative to the Studio cwd — where `python -m tooling.superversion...` resolves. */
-const REPO_ROOT = join(process.cwd(), '..');
-const PYTHON = process.env.SUPERVERSION_PYTHON || 'python3';
+/**
+ * Explicit repository mount for the Python execution layer.
+ * Production never traces or silently bundles the whole monorepo into Studio.
+ */
+// Resolve at runtime. A static env-property access lets Next's file tracer expand
+// the configured repository path during build and accidentally package the monorepo.
+const REPO_ROOT_ENV = ['ALUCA', 'REPO', 'ROOT'].join('_');
+const REPO_ROOT = process.env[REPO_ROOT_ENV]
+  || (process.env.NODE_ENV === 'test' ? '..' : undefined);
+const PYTHON = process.env.SUPERVERSION_PYTHON || (process.platform === 'win32' ? 'py' : 'python3');
+const PYTHON_ARGS = process.env.SUPERVERSION_PYTHON
+  ? []
+  : process.platform === 'win32'
+    ? ['-3']
+    : [];
+const BRACKET_ID_PATTERN = /^[A-Z]{2,12}-\d{3}$/;
 
 export interface PreCoreFinding {
   severity: 'info' | 'warn' | 'error';
@@ -66,6 +78,8 @@ export interface GateReport {
 export interface GenerateArtifact {
   path: string;
   bytes: number;
+  /** Present only on the explicit Studio download path. */
+  content?: string;
 }
 
 /** Result of the "Nach dem Core" generate step (I-6.3). */
@@ -98,11 +112,28 @@ type ExecError = Error & { code?: string | number; stdout?: string };
 
 /** Spawn the bridge and resolve its stdout; reject (with stdout attached) on non-zero exit. */
 function spawnBridge(args: string[]): Promise<string> {
+  if (!REPO_ROOT) {
+    return Promise.reject(Object.assign(
+      new Error('Python bridge unavailable (ALUCA_REPO_ROOT not configured)'),
+      { code: 'ECONFIG' },
+    ));
+  }
+  const inheritedPythonPath = process.env.PYTHONPATH;
+  const pythonPath = inheritedPythonPath
+    ? `${REPO_ROOT}${pathDelimiter}${inheritedPythonPath}`
+    : REPO_ROOT;
   return new Promise((resolve, reject) => {
     execFile(
       PYTHON,
-      args,
-      { cwd: REPO_ROOT, timeout: 30_000, maxBuffer: 8 * 1024 * 1024 },
+      [...PYTHON_ARGS, ...args],
+      {
+        // Keep the external repository out of Next.js output-file tracing.
+        // Python resolves its own repository from bridge.py; PYTHONPATH is only
+        // needed so `python -m tooling.superversion.bridge` can be imported.
+        env: { ...process.env, PYTHONPATH: pythonPath },
+        timeout: 30_000,
+        maxBuffer: 8 * 1024 * 1024,
+      },
       (err, stdout) => {
         if (err) {
           (err as ExecError).stdout = stdout;
@@ -113,6 +144,12 @@ function spawnBridge(args: string[]): Promise<string> {
       },
     );
   });
+}
+
+function invalidBracketId(bracketId: string): string | null {
+  return BRACKET_ID_PATTERN.test(bracketId)
+    ? null
+    : `Invalid bracket id: ${bracketId}`;
 }
 
 function toResult(payload: BridgePayload): PreCoreResult {
@@ -131,12 +168,10 @@ function toResult(payload: BridgePayload): PreCoreResult {
  * transport failure (`available: false`).
  */
 export async function runPreCore(bracketId: string): Promise<PreCoreResult> {
-  const bracketPath = await resolveBracketPath(bracketId);
-  if (!bracketPath) {
-    return { available: true, ok: false, engines: [], error: `Bracket not found: ${bracketId}` };
-  }
+  const validationError = invalidBracketId(bracketId);
+  if (validationError) return { available: true, ok: false, engines: [], error: validationError };
 
-  const args = ['-m', 'tooling.superversion.bridge', 'precore', bracketPath];
+  const args = ['-m', 'tooling.superversion.bridge', 'precore', bracketId];
   try {
     return toResult(JSON.parse(await spawnBridge(args)) as BridgePayload);
   } catch (err) {
@@ -157,6 +192,40 @@ export async function runPreCore(bracketId: string): Promise<PreCoreResult> {
         e.code === 'ENOENT'
           ? `Python bridge unavailable (${PYTHON} not found)`
           : e.message || 'bridge error',
+    };
+  }
+}
+
+export interface BracketResolution {
+  available: boolean;
+  exists: boolean;
+  bracket?: string;
+  error?: string;
+}
+
+/** Resolve a governed bracket ID without importing the repository filesystem into Next.js. */
+export async function resolveBridgeBracket(bracketId: string): Promise<BracketResolution> {
+  const validationError = invalidBracketId(bracketId);
+  if (validationError) return { available: true, exists: false, error: validationError };
+  try {
+    const payload = JSON.parse(
+      await spawnBridge(['-m', 'tooling.superversion.bridge', 'resolve', bracketId]),
+    ) as { ok: boolean; bracket?: string; error?: string };
+    return { available: true, exists: payload.ok, bracket: payload.bracket, error: payload.error };
+  } catch (err) {
+    const e = err as ExecError;
+    if (e.stdout) {
+      try {
+        const payload = JSON.parse(e.stdout) as { ok: boolean; bracket?: string; error?: string };
+        return { available: true, exists: false, bracket: payload.bracket, error: payload.error };
+      } catch {
+        /* not our JSON — fall through to transport-unavailable */
+      }
+    }
+    return {
+      available: false,
+      exists: false,
+      error: e.code === 'ENOENT' ? `Python bridge unavailable (${PYTHON} not found)` : e.message || 'bridge error',
     };
   }
 }
@@ -334,13 +403,18 @@ export async function runAttribute(
  * Emit a target + Gate-Report for a bracket via the Python bridge (I-6.3).
  * `available: false` is a transport failure; `ok` otherwise mirrors the gate.
  */
-export async function runGenerate(bracketId: string, target = 'tmdl'): Promise<GenerateResult> {
-  const bracketPath = await resolveBracketPath(bracketId);
-  if (!bracketPath) {
-    return { available: true, ok: false, targetsAvailable: [], artifacts: [], error: `Bracket not found: ${bracketId}` };
+export async function runGenerate(
+  bracketId: string,
+  target = 'tmdl',
+  includeContent = false,
+): Promise<GenerateResult> {
+  const validationError = invalidBracketId(bracketId);
+  if (validationError) {
+    return { available: true, ok: false, targetsAvailable: [], artifacts: [], error: validationError };
   }
 
-  const args = ['-m', 'tooling.superversion.bridge', 'generate', bracketPath, '--target', target];
+  const args = ['-m', 'tooling.superversion.bridge', 'generate', bracketId, '--target', target];
+  if (includeContent) args.push('--include-content');
   try {
     return toGenerateResult(JSON.parse(await spawnBridge(args)) as GeneratePayload);
   } catch (err) {

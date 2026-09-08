@@ -6,17 +6,20 @@
  */
 
 import Database from 'better-sqlite3';
-import { join } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 
-const DB_PATH = join(process.cwd(), 'data', 'studio.db');
+const configuredDbPath = process.env.STUDIO_DB_PATH;
+const DB_PATH = configuredDbPath
+  ? (isAbsolute(configuredDbPath) ? configuredDbPath : resolve(process.cwd(), configuredDbPath))
+  : join(process.cwd(), 'data', 'studio.db');
 
 let _db: Database.Database | null = null;
 
 /** Get or create the singleton database connection. */
 export function getDb(): Database.Database {
   if (!_db) {
-    const { mkdirSync } = require('node:fs');
-    mkdirSync(join(process.cwd(), 'data'), { recursive: true });
+    mkdirSync(dirname(DB_PATH), { recursive: true });
 
     _db = new Database(DB_PATH);
     _db.pragma('journal_mode = WAL');

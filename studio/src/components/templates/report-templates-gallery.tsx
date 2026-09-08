@@ -112,7 +112,7 @@ export function ReportTemplatesGallery() {
   const scaledH = canvas.h * fitScale;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 min-h-0">
+    <div className="flex flex-col 2xl:flex-row gap-6 min-h-0">
       <div className="flex-1 min-w-0 space-y-4">
         <p className="text-[12px] text-foreground-muted">
           Design base {DESIGN_CANVAS.w}×{DESIGN_CANVAS.h} · Production {PRODUCTION_CANVAS.w}×
@@ -181,7 +181,7 @@ export function ReportTemplatesGallery() {
                 {canvas.w}×{canvas.h}
               </span>
               {fitScale < 1 && (
-                <span className="text-[10px] text-foreground-subtle">
+                <span className="text-[11px] text-foreground-subtle">
                   fit {Math.round(fitScale * 100)}%
                 </span>
               )}
@@ -222,7 +222,7 @@ export function ReportTemplatesGallery() {
         </div>
       </div>
 
-      <aside className="w-full lg:w-[320px] shrink-0 space-y-4">
+      <aside className="w-full 2xl:w-[320px] shrink-0 space-y-4">
         <div className="rounded-lg border border-border bg-panel p-4">
           <h3 className="text-sm font-medium text-foreground mb-3">Tweaks</h3>
           <TweaksTab theme={theme} onUpdate={setTheme} onSave={handleSaveTheme} saving={saving} />
@@ -233,7 +233,7 @@ export function ReportTemplatesGallery() {
           onClick={() => setTheme(DEFAULT_THEME)}
           className="w-full text-[12px] text-foreground-muted hover:text-foreground py-2"
         >
-          Reset to Aurora default
+          Reset to governed default
         </button>
       </aside>
     </div>

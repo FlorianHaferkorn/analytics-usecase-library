@@ -68,7 +68,7 @@ export function ProjectSelector() {
       >
         <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--accent)' }} />
         {projectName}
-        <span style={{ color: 'var(--ink-4)', fontSize: '0.6875rem' }}>▾</span>
+        <span style={{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)' }}>▾</span>
       </StudioButton>
 
       {isOpen && (
@@ -95,7 +95,7 @@ export function ProjectSelector() {
                 }}
               >
                 <span style={{ fontWeight: p.id === projectId ? 600 : 400 }}>{p.name}</span>
-                {p.id === projectId && <span style={{ color: 'var(--accent)', marginLeft: '8px', fontSize: '0.6875rem' }}>active</span>}
+                {p.id === projectId && <span style={{ color: 'var(--accent)', marginLeft: '8px', fontSize: 'var(--text-xs)' }}>active</span>}
               </StudioButton>
             ))}
           </div>

@@ -41,7 +41,7 @@ export function EditableList({
     <div>
       <div
         style={{
-          fontSize: 11,
+          fontSize: 'var(--text-xs)',
           textTransform: 'uppercase',
           color: 'var(--ink-3)',
           letterSpacing: '0.06em',

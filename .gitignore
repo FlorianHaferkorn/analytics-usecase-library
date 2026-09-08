@@ -149,3 +149,11 @@ KPI_Framework_Discovery_*.xlsx
 # Kundenkennungen, niemals versionieren (04.09.2026). Die Liste ist die einzige
 # Stelle, an der echte Namen stehen duerfen; Vorlage unter scripts/.
 .kundendaten-sperrliste.json
+
+# Agenten-Ablagen und Testlaeufe (07.09.2026). Nichts davon ist Quelle: `.codex/` und
+# `Claude outputs/` sind Kratzflaechen laufender Agenten, `studio/.e2e/` ist der
+# Ausgabeordner von Playwright (7,4 MB Bilder je Lauf). Sie standen als untracked im
+# Status und waeren beim naechsten `git add -A` mitgekommen.
+.codex/
+Claude outputs/
+studio/.e2e/

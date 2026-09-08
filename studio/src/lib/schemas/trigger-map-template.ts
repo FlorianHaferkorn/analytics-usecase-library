@@ -20,7 +20,7 @@ export interface TriggerMapTemplate {
   scopes: {
     scope_id: string;
     description: string;
-    filters: {};
+    filters: Record<string, unknown>;
   }[];
   mappings: {
     mapping_id: string;
@@ -43,7 +43,7 @@ export interface TriggerMapTemplate {
         periods: number;
         period_grain: string;
       };
-      conditions: {}[];
+      conditions: Record<string, unknown>[];
       suppress_if: string[];
     };
     evaluation_tracking: {

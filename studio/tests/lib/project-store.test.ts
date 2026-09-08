@@ -40,7 +40,7 @@ describe('useProjectStore', () => {
     useProjectStore.getState().setTheme({ primary: '#FF0000' });
     const theme = useProjectStore.getState().theme;
     expect(theme.primary).toBe('#FF0000');
-    expect(theme.secondary).toBe('#FFB800'); // unchanged
+    expect(theme.secondary).toBe('#50E6FF'); // unchanged governed default
     expect(useProjectStore.getState().isDirty).toBe(true);
   });
 

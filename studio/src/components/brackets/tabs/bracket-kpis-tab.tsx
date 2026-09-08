@@ -37,7 +37,7 @@ function RolePill({ role }: { role: KpiRole }) {
         alignItems: 'center',
         padding: '2px 8px',
         borderRadius: 999,
-        fontSize: 10.5,
+        fontSize: 'var(--text-xs)',
         fontWeight: 500,
         background: s.bg,
         color: s.fg,
@@ -54,7 +54,7 @@ function RolePill({ role }: { role: KpiRole }) {
 const thStyle: React.CSSProperties = {
   textAlign: 'left',
   fontWeight: 500,
-  fontSize: '0.625rem',
+  fontSize: 'var(--text-xs)',
   color: 'var(--ink-4)',
   textTransform: 'uppercase',
   letterSpacing: '0.06em',
@@ -100,7 +100,7 @@ export function BracketKpisTab({ bracket, factsheet }: Props) {
         <span
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '0.625rem',
+            fontSize: 'var(--text-xs)',
             color: 'var(--ink-4)',
             background: 'var(--line-2)',
             padding: '1px 5px',

@@ -7,6 +7,7 @@ Next.js app that serves as the **Interaction Layer** for the Analytics Strategy-
 ```bash
 cd studio
 npm ci
+# .env.local: ALUCA_REPO_ROOT=/absolute/path/to/analytics-usecase-library
 npm run dev      # http://localhost:3000
 ```
 

@@ -6,7 +6,9 @@ mit **eigenem LLM-Key** (BYO-Key). Keine Cloud-Abhängigkeit nötig.
 ## Voraussetzungen
 - **Node.js** ≥ 20 (Next.js 16) + npm
 - **Python 3** auf dem PATH (oder via `SUPERVERSION_PYTHON` gesetzt) — für die governte
-  Generate/Gate-Bridge (ADR-0007). Aufruf aus dem **Repo-Wurzelverzeichnis**.
+  Generate/Gate-Bridge (ADR-0007).
+- `ALUCA_REPO_ROOT` als absoluter Pfad auf die Repository-Wurzel. Das Studio bündelt
+  den Python-/Core-Layer bewusst nicht in sein Standalone-Artefakt.
 - Ein LLM-Key eines unterstützten Providers (Priorität Google → Anthropic → OpenAI).
 
 ## Schritte
@@ -20,6 +22,7 @@ mit **eigenem LLM-Key** (BYO-Key). Keine Cloud-Abhängigkeit nötig.
    OPENAI_API_KEY=sk-…             # oder
    GOOGLE_API_KEY=…
    # optional: SECRETS_PROVIDER=env (Default) | azure | aws
+   ALUCA_REPO_ROOT=/absolute/path/to/analytics-usecase-library
    ```
    Keys werden nie direkt aus `process.env` gelesen, sondern über
    `getSecret()` (siehe `studio/CLAUDE.md` → Secrets); für `azure`/`aws` liegt der

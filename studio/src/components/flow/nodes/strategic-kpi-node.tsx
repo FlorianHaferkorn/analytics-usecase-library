@@ -27,16 +27,16 @@ export function StrategicKpiNode({ data, selected }: NodeProps) {
       }}
     >
       <Handle type="target" position={Position.Top} style={{ background: domainColor }} />
-      <p style={{ fontSize: '0.5625rem', color: domainColor, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>
+      <p style={{ fontSize: 'var(--text-2xs)', color: domainColor, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>
         Use Case · {useCaseId}
       </p>
       <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>
         {label}
       </p>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', marginTop: '3px' }}>
+      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-2)', marginTop: '3px' }}>
         {kpiName}
       </p>
-      <p style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', marginTop: '2px' }}>
+      <p style={{ fontSize: 'var(--text-2xs)', color: 'var(--ink-4)', marginTop: '2px' }}>
         {direction} impact
       </p>
       <Handle type="source" position={Position.Bottom} style={{ background: domainColor }} />

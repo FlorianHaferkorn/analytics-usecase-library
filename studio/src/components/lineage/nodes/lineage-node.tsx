@@ -37,19 +37,19 @@ export function LineageNodeComponent({ data }: Props) {
             borderRadius: '50%',
             backgroundColor: style.border,
             color: 'var(--ink)',
-            fontSize: '0.625rem',
+            fontSize: 'var(--text-2xs)',
             fontWeight: 700,
           }}
         >
           {style.icon}
         </span>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>{nodeType}</span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>{nodeType}</span>
       </div>
       <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink)', lineHeight: 1.3, wordBreak: 'break-word' }}>
         {String(data.label ?? '')}
       </p>
       {typeof data.domain === 'string' && (
-        <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginTop: '2px' }}>
+        <p style={{ fontSize: 'var(--text-2xs)', color: 'var(--ink-4)', marginTop: '2px' }}>
           {String(data.domain)}
         </p>
       )}

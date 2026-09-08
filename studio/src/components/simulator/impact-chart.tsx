@@ -1,13 +1,16 @@
 'use client';
 
 import type { DriverContribution } from '@/lib/simulation/scenario-engine';
+import { formatKpiValue } from '@/lib/format/kpi-value';
 
 interface Props {
   contributions: DriverContribution[];
   impactDirection: 'maximize' | 'minimize';
+  targetKpiId?: string;
+  targetUnit?: string;
 }
 
-export function ImpactChart({ contributions, impactDirection }: Props) {
+export function ImpactChart({ contributions, impactDirection, targetKpiId = '', targetUnit = '' }: Props) {
   const maxAbs = Math.max(...contributions.map((c) => Math.abs(c.contribution)), 0.01);
 
   return (
@@ -27,13 +30,13 @@ export function ImpactChart({ contributions, impactDirection }: Props) {
           const pct = (c.contribution / maxAbs) * 100;
           const isPositive = c.contribution >= 0;
           const isGood = impactDirection === 'maximize' ? isPositive : !isPositive;
-          const barColor = isGood ? 'var(--accent)' : 'var(--danger)';
+          const barColor = c.contribution === 0 ? 'var(--ink-3)' : isGood ? 'var(--accent)' : 'var(--danger)';
 
           return (
             <div key={c.kpiId} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
                 style={{
-                  fontSize: '0.6875rem',
+                  fontSize: 'var(--text-xs)',
                   color: 'var(--ink-2)',
                   minWidth: '140px',
                   textAlign: 'right',
@@ -72,8 +75,8 @@ export function ImpactChart({ contributions, impactDirection }: Props) {
                 {/* Center line */}
                 <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '1px', backgroundColor: 'var(--line)' }} />
               </div>
-              <span style={{ fontSize: '0.6875rem', color: barColor, fontWeight: 600, minWidth: '48px', textAlign: 'right' }}>
-                {c.contribution >= 0 ? '+' : ''}{c.contribution.toFixed(2)}
+              <span style={{ fontSize: 'var(--text-xs)', color: barColor, fontWeight: 600, minWidth: '48px', textAlign: 'right' }}>
+                {c.contribution === 0 ? 'No change' : `${c.contribution > 0 ? '+' : ''}${formatKpiValue(c.contribution, targetKpiId, targetUnit === '%' ? 'pp' : targetUnit)}`}
               </span>
             </div>
           );

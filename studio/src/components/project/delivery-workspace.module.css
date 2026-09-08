@@ -1,0 +1,21 @@
+.page { display: grid; gap: var(--space-3); min-width: 0; }
+.context, .meta { display: flex; flex-wrap: wrap; gap: var(--space-3); color: var(--ink-3); font-size: var(--text-sm); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: var(--space-4); }
+.note { color: var(--ink-3); margin: 0; font-size: var(--text-base); line-height: 1.5; }
+.journey { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%, 320px),1fr)); gap: var(--space-3); }
+.journey li { display: flex; gap: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--panel); padding: var(--space-4); }
+.journey h2 { font-size: var(--text-lg); margin: 0; }
+.journey p { font-size: var(--text-base); line-height: 1.5; margin-block: var(--space-2); }
+.journey a, .journey button { display: inline-flex; margin-top: var(--space-3); }
+.step { color: var(--info); font-size: var(--text-sm); font-weight: 600; }
+.meta code { font: inherit; overflow-wrap: anywhere; }
+.details { border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-3); }
+.details summary { cursor: pointer; font-weight: 600; }
+.details > div, .details > dl { margin-top: var(--space-3); }
+.facts { display: grid; gap: var(--space-2); }
+.facts dt { font-weight: 600; color: var(--ink-3); font-size: var(--text-sm); }
+.facts dd { margin: 0 0 var(--space-2); overflow-wrap: anywhere; }
+.tableWrap { overflow-x: auto; }
+.table { border-collapse: collapse; width: 100%; font-size: var(--text-base); }
+.table th, .table td { padding: var(--space-3); text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.table th { color: var(--ink-3); font-size: var(--text-sm); }

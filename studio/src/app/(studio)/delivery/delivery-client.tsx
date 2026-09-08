@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ExportResults, type ExportResultItem } from '@/components/delivery/export-results';
 import { GovernedPreviewSection } from '@/components/delivery/governed-preview';
 import { OperationalPlanPanel } from '@/components/delivery/operational-plan-panel';
@@ -8,6 +8,9 @@ import { StudioInlineStat, StudioSelectionItem, StudioSelectionList } from '@/co
 import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioWorkflowFooter } from '@/components/ui/studio-page';
 import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
 import { filterByDomain } from '@/lib/studio/domain-filter';
+import styles from './delivery-client.module.css';
+import { useProjectStore } from '@/lib/store/project-store';
+import { ProjectReleasePanel } from '@/components/delivery/project-release-panel';
 
 interface BracketSummary {
   id: string;
@@ -17,57 +20,55 @@ interface BracketSummary {
   actionCount: number;
 }
 
-interface Props {
-  brackets: BracketSummary[];
-}
+interface Props { brackets: BracketSummary[] }
 
 const ADAPTERS = [
   {
     id: 'fabric',
     name: 'Microsoft Fabric / Power BI',
-    description: 'Generate TMDL measures, semantic model, and .pbip report layouts',
-    outputs: ['TMDL measures', 'Semantic model (XMLA)', 'PBIP report layout', 'DAX queries'],
-    // I-10.3 (ADR-0007 rule 3): this export runs the TS shadow adapter, not the
-    // governed Python core — never labeled 'available'/authoritative. The
-    // Governed Preview below runs the real core for the same use case.
-    status: 'preview' as const,
+    description: 'Package governed TMDL and PBIR artifacts through the shared core and official PBIR validation gate.',
+    outputs: ['TMDL semantic model definitions', 'PBIR report definition', 'Gate-backed delivery manifest'],
+    status: 'governed' as const,
+    promotionNote: 'PBIR is live; TMDL remains package-only until its official vendor validation gate is live.',
     endpoint: '/api/export/fabric',
-    bridgeTarget: 'tmdl',
+    bridgeTarget: 'pbir',
   },
   {
-    id: 'opensource',
-    name: 'Open Source Stack',
-    description: 'Export as SQL transformations and Evidence.dev markdown reports',
-    outputs: ['SQL transformations', 'Evidence.dev pages', 'DuckDB queries', 'YAML config'],
-    status: 'preview' as const,
-    endpoint: '/api/export/opensource',
+    id: 'databricks',
+    name: 'Databricks Metric Views',
+    description: 'Package governed Metric View YAML from the same neutral measure definitions.',
+    outputs: ['Metric View YAML', 'Explicit HITL markers for unsupported shapes', 'Gate-backed delivery manifest'],
+    status: 'beta' as const,
+    promotionNote: 'Vendor-side Databricks workspace validation is required before promotion.',
+    endpoint: '/api/export/databricks',
     bridgeTarget: 'databricks',
   },
   {
-    id: 'cicd',
-    name: 'CI/CD Pipeline',
-    description: 'Deploy via GitHub Actions or Fabric REST API',
-    outputs: ['GitHub Actions workflow', 'Validation pipeline', 'Fabric deploy script'],
-    status: 'preview' as const,
-    endpoint: '/api/export/cicd',
-    bridgeTarget: null,
+    id: 'opensource',
+    name: 'Open Semantic Interchange',
+    description: 'Package a vendor-neutral OSI semantic model from the shared canonical contract.',
+    outputs: ['OSI semantic model JSON', 'Multi-dialect metric expressions', 'Gate-backed delivery manifest'],
+    status: 'governed' as const,
+    promotionNote: null,
+    endpoint: '/api/export/opensource',
+    bridgeTarget: 'osi',
   },
 ] as const;
 
 export function DeliveryClient({ brackets }: Props) {
+  const dataScope = useProjectStore((state) => state.dataScope);
+  const projectId = useProjectStore((state) => state.projectId);
+  const packageRevisionHash = useProjectStore((state) => state.packageRevisionHash);
   const { domainFilter } = useDomainFilter();
-  const visibleBrackets = useMemo(
-    () => filterByDomain(brackets, domainFilter, (b) => b.domain),
-    [brackets, domainFilter],
-  );
+  const visibleBrackets = useMemo(() => filterByDomain(brackets, domainFilter, (bracket) => bracket.domain), [brackets, domainFilter]);
   const [selectedAdapter, setSelectedAdapter] = useState<string>('fabric');
   const [selectedBrackets, setSelectedBrackets] = useState<Set<string>>(() => new Set());
   const [isExporting, setIsExporting] = useState(false);
   const [exportResults, setExportResults] = useState<ExportResultItem[] | null>(null);
 
   const toggleBracket = (id: string) => {
-    setSelectedBrackets((prev) => {
-      const next = new Set(prev);
+    setSelectedBrackets((previous) => {
+      const next = new Set(previous);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
@@ -75,51 +76,33 @@ export function DeliveryClient({ brackets }: Props) {
   };
 
   const toggleAllBrackets = useCallback(() => {
-    setSelectedBrackets((prev) => (prev.size === visibleBrackets.length ? new Set() : new Set(visibleBrackets.map((b) => b.id))));
+    setSelectedBrackets((previous) => (
+      previous.size === visibleBrackets.length ? new Set() : new Set(visibleBrackets.map((bracket) => bracket.id))
+    ));
   }, [visibleBrackets]);
 
-  const adapter = ADAPTERS.find((a) => a.id === selectedAdapter)!;
+  const adapter = ADAPTERS.find((candidate) => candidate.id === selectedAdapter)!;
   const selectedBracketItems = visibleBrackets.filter((bracket) => selectedBrackets.has(bracket.id));
-  let totalKpis = 0;
-  let totalActions = 0;
-  for (const b of visibleBrackets) {
-    if (selectedBrackets.has(b.id)) {
-      totalKpis += b.kpiCount;
-      totalActions += b.actionCount;
-    }
-  }
-
+  const totalKpis = selectedBracketItems.reduce((sum, bracket) => sum + bracket.kpiCount, 0);
+  const totalActions = selectedBracketItems.reduce((sum, bracket) => sum + bracket.actionCount, 0);
   const selectedDomains = [...new Set(selectedBracketItems.map((bracket) => bracket.domain))];
   const readinessWarnings = [
     ...(selectedBrackets.size === 0 ? ['No use cases selected for export.'] : []),
-    ...(adapter.status === 'preview' ? ['Selected adapter is preview; validate outputs before promotion.'] : []),
+    ...(adapter.promotionNote ? [adapter.promotionNote] : []),
     ...(selectedDomains.length > 1 ? ['Selection spans multiple domains; verify shared governance and evidence grain.'] : []),
     ...(totalActions > 20 ? ['High action-code volume; expect larger validation and review scope.'] : []),
   ];
 
   const runbookSteps = selectedAdapter === 'fabric'
-    ? [
-        '.\\tooling\\run_stage1_checks.ps1',
-        '.\\products\\fabric\\powerbi\\tooling\\run_fabric_checks.ps1',
-        '.\\tooling\\generation\\generate_all_measures.ps1',
-      ]
-    : selectedAdapter === 'opensource'
-      ? [
-          '.\\tooling\\run_stage1_checks.ps1',
-          'bash products/open_source_stack/tooling/run_oss_checks.sh',
-          'powershell -NoProfile -ExecutionPolicy Bypass -File .\\products\\open_source_stack\\tooling\\adapter_build.ps1 -UseCaseId <ID>',
-        ]
-      : [
-          '.\\tooling\\run_stage1_checks.ps1',
-          '.\\tooling\\run_all_checks.ps1',
-          'Review generated workflow and deployment secrets before enabling CI/CD.',
-        ];
+    ? ['.\\tooling\\quality\\run_quality_gate.ps1', 'python -m tooling.superversion.e2e_smoke --require-cli <UseCase_Bracket.yaml>', 'Use fab import only after every packaged target is classified live.']
+    : selectedAdapter === 'databricks'
+      ? ['.\\tooling\\run_stage1_checks.ps1', 'Validate generated Metric View YAML in the target Databricks workspace.', 'Promote only when every explicit HITL marker is resolved or accepted.']
+      : ['.\\tooling\\run_stage1_checks.ps1', 'Validate the OSI artifact against the upstream OSI schema.', 'Hand the vendor-neutral package to the selected consumption adapter.'];
 
   const handleExport = useCallback(async () => {
-    if (selectedBrackets.size === 0 || !adapter.endpoint) return;
+    if (selectedBrackets.size === 0) return;
     setIsExporting(true);
     setExportResults(null);
-
     try {
       const response = await fetch(adapter.endpoint, {
         method: 'POST',
@@ -127,172 +110,114 @@ export function DeliveryClient({ brackets }: Props) {
         body: JSON.stringify({ useCaseIds: [...selectedBrackets] }),
       });
       if (!response.ok) throw new Error('Export failed');
-      const data = await response.json();
+      const data = await response.json() as { results: ExportResultItem[] };
       setExportResults(data.results);
-    } catch (err) {
-      setExportResults([{ useCaseId: 'error', error: err instanceof Error ? err.message : 'Export failed' }]);
+    } catch (error) {
+      setExportResults([{ useCaseId: 'error', error: error instanceof Error ? error.message : 'Export failed' }]);
     } finally {
       setIsExporting(false);
     }
   }, [selectedBrackets, adapter.endpoint]);
 
+  if (dataScope === 'project') return <StudioPage>
+    <StudioPageHeader title="Project input release" description="Release only the pinned approved project input bundle. Platform-specific generation is not yet connected to this package compiler." compact />
+    {packageRevisionHash ? <ProjectReleasePanel key={`${projectId}:${packageRevisionHash}`} projectId={projectId} revisionHash={packageRevisionHash} dirty={false} /> : <StudioEmptyState title="Load a saved project version" description={<a href="/package">Open Project Package to review and pin a version before release.</a>} />}
+  </StudioPage>;
+
   return (
-    <StudioPage fill>
+    <StudioPage fill width="standard">
       <StudioPageHeader
-        eyebrow="Forge / Generate"
-        title="Generate"
-        description="Package approved use cases for target stacks, validate export readiness, and keep the operational runbook attached to every delivery move."
+        eyebrow="Deliver / Generate"
+        title="Generate library preview"
+        description="Explore target outputs from the shared library. These previews are not approved customer deliveries. Release pinned project inputs from Project Package."
         badge={adapter.name}
-        // I-10.3 (ADR-0007 rule 3): every export adapter here is a TS preview,
-        // never the authoritative/gate-validated result — always 'warning'.
-        // The Governed Preview panel below reports the real gate verdict.
-        tone="warning"
+        tone={adapter.status === 'beta' ? 'warning' : 'success'}
+        compact
       />
 
       <StudioMetricBar>
-        <StudioMetric label="Scope" value={selectedBrackets.size} meta="use cases selected" tone="info" />
-        <StudioMetric label="KPIs" value={totalKpis} meta="governed measures in export scope" />
-        <StudioMetric label="Actions" value={totalActions} meta="linked action codes" />
-        <StudioMetric label="Readiness" value={readinessWarnings.length === 0 ? 'ready' : `${readinessWarnings.length} checks`} meta={adapter.status === 'preview' ? 'preview adapter selected' : 'validation status'} tone={readinessWarnings.length === 0 ? 'success' : 'warning'} />
+        <StudioMetric label="Scope" value={selectedBrackets.size} meta="Use cases selected" tone="info" />
+        <StudioMetric label="KPIs" value={totalKpis} meta="Governed measures" />
+        <StudioMetric label="Actions" value={totalActions} meta="Linked action codes" />
+        <StudioMetric label="Readiness" value={readinessWarnings.length === 0 ? 'Ready' : `${readinessWarnings.length} checks`} meta={adapter.status === 'beta' ? 'Vendor gate pending' : 'Governed core selected'} tone={readinessWarnings.length === 0 ? 'success' : 'warning'} />
       </StudioMetricBar>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)', flex: 1, minHeight: 0 }}>
-      <div className="studio-generate-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
-        {/* Left: Adapter Selection */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
-          <StudioPanel title="Target Platform" description="Choose the export adapter that should receive the selected use cases.">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
-              {ADAPTERS.map((a) => {
-                const selected = selectedAdapter === a.id;
-                return (
-                  <button
-                    key={a.id}
-                    type="button"
-                    onClick={() => setSelectedAdapter(a.id)}
-                    style={{
-                      padding: '14px 16px',
-                      backgroundColor: selected ? 'var(--bg-2)' : 'var(--panel)',
-                      border: `1px solid ${selected ? 'var(--accent)' : 'var(--line)'}`,
-                      borderRadius: 'var(--radius-md)',
-                      textAlign: 'left',
-                      display: 'block',
-                      width: '100%',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: a.description ? 6 : 0 }}>
-                      <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)', lineHeight: 1.35 }}>{a.name}</span>
-                      <span style={{
-                        fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600, flexShrink: 0,
-                        backgroundColor: 'var(--warning)',
-                        color: 'var(--bg)',
-                      }}>
-                        {a.status}
-                      </span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-3)', lineHeight: 1.5 }}>{a.description}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </StudioPanel>
-
-          <StudioPanel title="Generated Outputs" description="Expected artifacts for the currently selected delivery target." tone="info">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {adapter.outputs.map((output) => (
-                <div key={output} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', color: 'var(--ink-2)' }}>
-                  <span style={{ color: 'var(--accent)' }}>+</span>
-                  {output}
-                </div>
-              ))}
-            </div>
-          </StudioPanel>
-        </div>
-
-        {/* Right: Export trigger (sticky at top) + Scope Selection */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
-          {/* T2.5: Export trigger moved above scope list so button is always visible */}
-          <StudioPanel
-            title="Export Trigger"
-            description={`${selectedBrackets.size} use cases · ${totalKpis} KPIs · ${totalActions} actions`}
-            action={
-              <StudioButton
-                onClick={handleExport}
-                disabled={selectedBrackets.size === 0 || isExporting}
-                tone="success"
-                variant="primary"
-                style={{ padding: '8px 32px', fontSize: '0.875rem' }}
+      <div className={styles.stageGrid}>
+        <StudioPanel title="1. Target platform" description="Select the output contract for this delivery." compactHeader>
+          <div className={styles.adapterList}>
+            {ADAPTERS.map((candidate) => (
+              <button
+                key={candidate.id}
+                type="button"
+                aria-pressed={selectedAdapter === candidate.id}
+                onClick={() => setSelectedAdapter(candidate.id)}
+                className={styles.adapterCard}
+                data-selected={selectedAdapter === candidate.id}
               >
-                {isExporting ? 'Exporting...' : `Export to ${adapter.name.split('/')[0].trim()}`}
-              </StudioButton>
-            }
-          >
-            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-3)' }}>
-              Select use cases below, then trigger the export when scope, governance and validation look correct.
-            </p>
-          </StudioPanel>
+                <span className={styles.adapterHeading}><strong>{candidate.name}</strong><span data-status={candidate.status}>{candidate.status}</span></span>
+                <span className={styles.adapterDescription}>{candidate.description}</span>
+              </button>
+            ))}
+          </div>
+        </StudioPanel>
 
-          <StudioPanel
-            title="Export Scope"
-            description="Curate the approved use cases that will flow into the selected target stack."
-            action={
-              <StudioButton
-                onClick={toggleAllBrackets}
-                variant="ghost"
-                tone="info"
-              >
-                {selectedBrackets.size === visibleBrackets.length ? 'Deselect all' : 'Select all'}
-              </StudioButton>
-            }
-          >
-            {visibleBrackets.length === 0 ? (
-              <StudioEmptyState title="No use cases available" description="Add or approve use cases before preparing a delivery export." />
-            ) : (
-              <>
-              <div style={{ maxHeight: '280px', overflowY: 'auto', overflowX: 'hidden' }}>
-                <StudioSelectionList>
-                  {visibleBrackets.map((bracket) => (
-                    <StudioSelectionItem
-                      key={bracket.id}
-                      selected={selectedBrackets.has(bracket.id)}
-                      onClick={() => toggleBracket(bracket.id)}
-                      leading={<span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--info)', minWidth: '60px', display: 'inline-block' }}>{bracket.id}</span>}
-                      primary={bracket.title}
-                      secondary={bracket.domain}
-                      meta={`${bracket.kpiCount} KPIs · ${bracket.actionCount} Actions`}
-                    />
-                  ))}
-                </StudioSelectionList>
-              </div>
-              <StudioInlineStat>
-                {selectedBrackets.size} of {visibleBrackets.length} use cases selected for export.
-              </StudioInlineStat>
-              </>
-            )}
-          </StudioPanel>
-
-          <OperationalPlanPanel
-            selectedCount={selectedBrackets.size}
-            selectedDomains={selectedDomains}
-            adapterStatus={adapter.status}
-            adapterName={adapter.name}
-            readinessWarnings={readinessWarnings}
-            runbookSteps={runbookSteps}
-          />
-        </div>
+        <StudioPanel
+          title="2. Export scope"
+          description="Select library use cases. Catalog inclusion is not project approval."
+          compactHeader
+          action={<StudioButton onClick={toggleAllBrackets} variant="ghost">{selectedBrackets.size === visibleBrackets.length && visibleBrackets.length > 0 ? 'Deselect all' : 'Select all'}</StudioButton>}
+        >
+          {visibleBrackets.length === 0 ? (
+            <StudioEmptyState title="No use cases available" description="Add or approve use cases before preparing a delivery export." />
+          ) : (
+            <>
+              <StudioSelectionList>
+                {visibleBrackets.map((bracket) => (
+                  <StudioSelectionItem
+                    key={bracket.id}
+                    selected={selectedBrackets.has(bracket.id)}
+                    onClick={() => toggleBracket(bracket.id)}
+                    leading={<span className={styles.bracketId}>{bracket.id}</span>}
+                    primary={bracket.title}
+                    secondary={bracket.domain}
+                    meta={`${bracket.kpiCount} KPIs · ${bracket.actionCount} actions`}
+                  />
+                ))}
+              </StudioSelectionList>
+              <StudioInlineStat>{selectedBrackets.size} of {visibleBrackets.length} use cases selected.</StudioInlineStat>
+            </>
+          )}
+        </StudioPanel>
       </div>
 
-      <GovernedPreviewSection
-        selectedBracketIds={selectedBracketItems.map((b) => b.id)}
-        bridgeTarget={adapter.bridgeTarget}
+      <div className={styles.reviewGrid}>
+        <StudioPanel title="3. Package contents" description="Artifacts created for the selected target." tone="info" compactHeader>
+          <ul className={styles.outputList}>{adapter.outputs.map((output) => <li key={output}><span aria-hidden="true">✓</span>{output}</li>)}</ul>
+        </StudioPanel>
+
+        <StudioPanel
+          title="4. Validate and package"
+          description={`${selectedBrackets.size} use cases · ${totalKpis} KPIs · ${totalActions} actions`}
+          tone={readinessWarnings.length === 0 ? 'success' : 'warning'}
+          compactHeader
+          action={<StudioButton onClick={handleExport} disabled={selectedBrackets.size === 0 || isExporting} variant="primary">{isExporting ? 'Packaging…' : 'Create package'}</StudioButton>}
+        >
+          <p className={styles.gateCopy}>The library quality gate validates generated content. It does not prove project approval, immutable project provenance or tenant readiness. <a href="/package">Open Project Package for a pinned input release.</a></p>
+        </StudioPanel>
+      </div>
+
+      <OperationalPlanPanel
+        selectedCount={selectedBrackets.size}
+        selectedDomains={selectedDomains}
+        adapterStatus={adapter.status}
         adapterName={adapter.name}
+        readinessWarnings={readinessWarnings}
+        runbookSteps={runbookSteps}
       />
 
-      {exportResults && (
-        <ExportResults results={exportResults} adapterName={selectedAdapter} />
-      )}
-      <StudioWorkflowFooter label="Continue to Brand & Templates" href="/templates" />
-      </div>
+      <GovernedPreviewSection selectedBracketIds={selectedBracketItems.map((bracket) => bracket.id)} bridgeTarget={adapter.bridgeTarget} adapterName={adapter.name} />
+      {exportResults && <ExportResults results={exportResults} adapterName={selectedAdapter} />}
+      <StudioWorkflowFooter label="Continue to Brand & Templates" href="/templates" description="Review visual delivery rules after the governed package is ready." />
     </StudioPage>
   );
 }

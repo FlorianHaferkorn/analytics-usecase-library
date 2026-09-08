@@ -76,6 +76,74 @@
         }
       }
     },
+    "physical_workspaces": {
+      "description": "Explicit authored Fabric workspace creation scope. No resource names or environments are inferred.",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "name", "domain_ref", "environment", "capacity_id", "domain_id", "decision_refs"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "name": {"type": "string", "minLength": 1, "maxLength": 256},
+          "domain_ref": {"type": "string", "minLength": 1},
+          "environment": {"type": "string", "minLength": 1},
+          "capacity_id": {"type": "string", "format": "uuid"},
+          "domain_id": {"type": "string", "format": "uuid"},
+          "description": {"type": "string", "maxLength": 4000},
+          "decision_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "physical_items": {
+      "description": "Explicit native item definitions. Transport validation and released inputs do not establish tenant acceptance.",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "name", "type", "workspace_ref", "environment", "decision_refs", "depends_on", "environment_bindings", "definition"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "name": {"type": "string", "minLength": 1},
+          "type": {"enum": ["Notebook", "DataPipeline", "SemanticModel", "Report"]},
+          "description": {"type": "string", "maxLength": 256},
+          "workspace_ref": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "environment": {"type": "string", "minLength": 1},
+          "decision_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "depends_on": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "environment_bindings": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["part_path", "json_pointer", "expected_value", "authority_ref"],
+              "properties": {
+                "part_path": {"type": "string", "minLength": 1},
+                "json_pointer": {"type": "string", "pattern": "^(/.*)?$"},
+                "expected_value": {"type": ["string", "number", "boolean", "null"]},
+                "authority_ref": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "definition": {
+            "type": "object", "additionalProperties": false,
+            "required": ["parts"],
+            "properties": {
+              "format": {"type": "string", "minLength": 1},
+              "parts": {
+                "type": "array", "minItems": 1,
+                "items": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["path", "payload", "payloadType"],
+                  "properties": {
+                    "path": {"type": "string", "minLength": 1},
+                    "payload": {"type": "string", "minLength": 1},
+                    "payloadType": {"const": "InlineBase64"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "compiler_policy": {
       "type": "object",
       "additionalProperties": false,

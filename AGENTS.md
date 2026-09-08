@@ -231,3 +231,5 @@ Never mark a task done until validation passes with no errors.
 | VS Code Copilot | `.github/copilot-instructions.md` |
 | Canonical rule source | `docs/agent/rules/` |
 | Canonical skill source | `docs/agent/skills/` |
+
+## Imported Claude Cowork project instructions

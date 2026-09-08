@@ -39,13 +39,13 @@ export function DriverKpiNode({ data, selected }: NodeProps) {
         }}
       >
         <Handle type="target" position={Position.Top} style={{ background: borderColor }} />
-        <p style={{ fontSize: '0.5625rem', color: hasAction ? 'var(--ink-4)' : 'var(--warning)', marginBottom: '3px' }}>
+        <p style={{ fontSize: 'var(--text-2xs)', color: hasAction ? 'var(--ink-4)' : 'var(--warning)', marginBottom: '3px' }}>
           Driver KPI {!hasAction && <><Warning size={10} style={{ verticalAlign: 'middle', marginLeft: '2px' }} />No Action</>}
         </p>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)' }}>
           {label}
         </p>
-        <p style={{ fontSize: '0.5625rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)', marginTop: '2px' }}>
+        <p style={{ fontSize: 'var(--text-2xs)', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)', marginTop: '2px' }}>
           {kpiId}
         </p>
         <Handle type="source" position={Position.Bottom} style={{ background: borderColor }} />

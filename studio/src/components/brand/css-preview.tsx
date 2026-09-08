@@ -38,11 +38,11 @@ export function CssPreview({ theme }: Props) {
       >
         <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: theme.primary }} />
         <span style={{ fontSize: '0.75rem', color: theme.text, fontWeight: 600 }}>Dashboard</span>
-        <span style={{ marginLeft: 'auto', fontSize: '0.625rem', color: theme.accent }}>v1.0</span>
+        <span style={{ marginLeft: 'auto', fontSize: 'var(--text-xs)', color: theme.accent }}>v1.0</span>
       </div>
 
       {/* Metric cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 120px), 1fr))', gap: 'var(--space-2)' }}>
         {[
           { label: 'Revenue', value: '$12.4M', color: theme.primary },
           { label: 'Margin', value: '34.2%', color: theme.secondary },
@@ -57,18 +57,18 @@ export function CssPreview({ theme }: Props) {
               borderLeft: `3px solid ${card.color}`,
             }}
           >
-            <p style={{ fontSize: '0.5625rem', color: theme.text, opacity: 0.6 }}>{card.label}</p>
+            <p style={{ fontSize: 'var(--text-xs)', color: theme.text, opacity: 0.6 }}>{card.label}</p>
             <p style={{ fontSize: '0.875rem', fontWeight: 700, color: card.color }}>{card.value}</p>
           </div>
         ))}
       </div>
 
       {/* RAG status row */}
-      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
         {[
-          { status: 'On Track', color: '#10B981' },
-          { status: 'At Risk', color: '#FFB800' },
-          { status: 'Critical', color: '#EF4444' },
+          { status: 'On Track', color: 'var(--success)' },
+          { status: 'At Risk', color: 'var(--warning)' },
+          { status: 'Critical', color: 'var(--danger)' },
         ].map((item) => (
           <div
             key={item.status}
@@ -83,7 +83,7 @@ export function CssPreview({ theme }: Props) {
             }}
           >
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: item.color }} />
-            <span style={{ fontSize: '0.5625rem', color: theme.text }}>{item.status}</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: theme.text }}>{item.status}</span>
           </div>
         ))}
       </div>

@@ -336,6 +336,11 @@ five patterns are stack-neutral; the per-stack **native-feature mapping** differ
                       "aggregate"
                     ]
                   },
+                  "domain": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Owning domain name, copied from the containing governed input domain during derivation. Optional for backwards compatibility with pre-existing hand-authored IR, but deterministic derivation always emits it; consumers must not infer ownership from product names."
+                  },
                   "grain": {
                     "type": "string"
                   },

@@ -1,12 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const h = vi.hoisted(() => ({ fetch: vi.fn() }));
+const h = vi.hoisted(() => ({ fetch: vi.fn(), pin: vi.fn() }));
 
 vi.mock('@/lib/store/project-store', () => ({
-  useProjectStore: (selector: (state: { projectId: string; projectName: string }) => unknown) => selector({
+  useProjectStore: (selector: (state: { projectId: string; projectName: string; packageRevisionHash: string | null; setPackageRevisionHash: typeof h.pin }) => unknown) => selector({
     projectId: 'default',
     projectName: 'Aurora Group',
+    packageRevisionHash: null,
+    setPackageRevisionHash: h.pin,
   }),
 }));
 
@@ -72,14 +74,38 @@ describe('Project Package client', () => {
     render(<ProjectPackageClient />);
     const editor = await screen.findByLabelText('Edit package.yaml');
     fireEvent.change(editor, { target: { value: `${text}state: working\n` } });
-    const save = await screen.findByRole('button', { name: 'Commit 1 change' });
+    const save = await screen.findByRole('button', { name: 'Save 1 change' });
     expect((save as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(save);
 
-    await waitFor(() => expect(screen.getByText('Committed revision 2.')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Saved revision 2.')).toBeTruthy());
     expect(screen.getByText('1 changed')).toBeTruthy();
     expect(h.fetch).toHaveBeenCalledTimes(3);
     const saveInit = h.fetch.mock.calls[1][1] as RequestInit;
     expect(JSON.parse(saveInit.body as string)).toMatchObject({ expectedHeadRevisionHash: HASH });
+  });
+
+  it.each([401, 403, 500])('does not claim empty or synchronized data after HTTP %i', async (status) => {
+    h.fetch.mockResolvedValue(new Response(JSON.stringify({ error: { message: 'Access denied' } }), { status }));
+    render(<ProjectPackageClient />);
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain(status === 401 ? 'Sign in required' : status === 403 ? 'Project access required' : 'Project Package unavailable');
+    expect(screen.queryByText('Matches saved version')).toBeNull();
+    expect(screen.queryByText('0.0 KiB total')).toBeNull();
+    expect(screen.getByText('Not checked')).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Export history' }) as HTMLButtonElement).disabled).toBe(true);
+    if (status === 401) expect(screen.getByRole('link', { name: 'Sign in' }).getAttribute('href')).toContain('/login');
+    else expect(screen.getByRole('button', { name: 'Try again' })).toBeTruthy();
+  });
+
+  it('recovers from a network load error without showing zero metrics', async () => {
+    h.fetch.mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(new Response(JSON.stringify(SNAPSHOT), { status: 200 }));
+    render(<ProjectPackageClient />);
+    expect((await screen.findByRole('alert')).textContent).toContain('Check your connection');
+    expect(screen.queryByText('Matches saved version')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByLabelText('Edit package.yaml')).toBeTruthy();
+    expect(screen.getByText('Matches saved version')).toBeTruthy();
   });
 });

@@ -69,7 +69,7 @@ export function ActionMatrix({ rows, theme }: Props) {
                   <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--warning)' }}>{row.actionCode}</StudioTableCell>
                   <StudioTableCell>
                     <span style={{
-                      padding: '2px 8px', borderRadius: '9999px', fontSize: '0.625rem', fontWeight: 700,
+                      padding: '2px 8px', borderRadius: '9999px', fontSize: 'var(--text-xs)', fontWeight: 700,
                       backgroundColor: pc.bg, color: pc.text,
                     }}>
                       {row.priority}

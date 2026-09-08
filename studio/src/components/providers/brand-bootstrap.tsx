@@ -11,11 +11,10 @@ import { useProjectStore, type ThemeConfig } from '@/lib/store/project-store';
  * not define keeps its default instead of being blanked.
  */
 export function BrandBootstrap({ theme }: { theme: Partial<ThemeConfig> }) {
-  const setTheme = useProjectStore((state) => state.setTheme);
-
   useEffect(() => {
-    setTheme(theme);
-  }, [theme, setTheme]);
+    // Loading governed defaults is not a user edit or an unsaved project draft.
+    useProjectStore.setState(state => ({ theme: { ...state.theme, ...theme } }));
+  }, [theme]);
 
   return null;
 }

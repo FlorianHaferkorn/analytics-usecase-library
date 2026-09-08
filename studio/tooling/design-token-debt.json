@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "description": "Existing design debt. Do not increase counts to make CI green; migrate to tokens. Reductions are allowed and should be recorded during review.",
+  "findings": []
+}

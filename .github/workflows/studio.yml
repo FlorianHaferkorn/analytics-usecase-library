@@ -48,6 +48,11 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit -p tsconfig.json
 
+      - name: Governed design-system rules
+        run: |
+          node --test tooling/check_tokens.test.mjs
+          npm run lint:tokens
+
       - name: Vitest
         run: npm test
 

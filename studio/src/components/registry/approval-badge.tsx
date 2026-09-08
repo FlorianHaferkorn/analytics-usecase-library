@@ -26,7 +26,7 @@ export function ApprovalBadge({ status }: Props) {
         borderRadius: 'var(--radius-sm)',
         backgroundColor: style.bg,
         color: style.color,
-        fontSize: '0.6875rem',
+        fontSize: 'var(--text-xs)',
         fontWeight: 600,
         textTransform: 'uppercase',
         letterSpacing: '0.03em',

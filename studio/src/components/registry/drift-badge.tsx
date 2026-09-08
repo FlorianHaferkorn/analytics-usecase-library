@@ -23,7 +23,7 @@ export function DriftBadge({ report, loading, onClick }: Props) {
           backgroundColor: 'var(--panel)',
           borderRadius: 'var(--radius-sm)',
           color: 'var(--ink-3)',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
         }}
       >
         <span style={{ animation: 'pulse 1.5s infinite' }}>Scanning...</span>
@@ -50,7 +50,7 @@ export function DriftBadge({ report, loading, onClick }: Props) {
           backgroundColor: 'var(--panel)',
           borderRadius: 'var(--radius-sm)',
           color: 'var(--accent)',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
         }}
       >
         Integrity OK
@@ -69,12 +69,12 @@ export function DriftBadge({ report, loading, onClick }: Props) {
         gap: '6px',
         padding: '4px 8px',
         backgroundColor: 'var(--panel)',
-        border: `1px solid ${error > 0 ? '#EF4444' : 'var(--warning)'}`,
+        border: `1px solid ${error > 0 ? 'var(--danger)' : 'var(--warning)'}`,
         borderRadius: 'var(--radius-sm)',
-        fontSize: '0.6875rem',
+        fontSize: 'var(--text-xs)',
       }}
     >
-      {error > 0 && <span style={{ color: '#EF4444', fontWeight: 600 }}>{error}E</span>}
+      {error > 0 && <span style={{ color: 'var(--danger)', fontWeight: 600 }}>{error}E</span>}
       {warning > 0 && <span style={{ color: 'var(--warning)', fontWeight: 600 }}>{warning}W</span>}
       {info > 0 && <span style={{ color: 'var(--info)', fontWeight: 600 }}>{info}I</span>}
     </StudioButton>

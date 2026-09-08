@@ -10,8 +10,7 @@
 
 import { computeDeliveryFlow } from '@/lib/studio/delivery-flow';
 import { getLifecycle } from '@/lib/governance/approval-workflow';
-import { resolveBracketPath } from '@/lib/core/bracket-loader';
-import { runGenerate } from '@/lib/bridge/superversion-bridge';
+import { resolveBridgeBracket, runGenerate } from '@/lib/bridge/superversion-bridge';
 import { apiSuccess, apiValidationError } from '@/lib/api/response';
 
 export async function GET(request: Request): Promise<Response> {
@@ -23,11 +22,15 @@ export async function GET(request: Request): Promise<Response> {
   const target = searchParams.get('target') || 'tmdl';
   const projectId = searchParams.get('projectId') ?? 'default';
 
-  const bracketExists = Boolean(await resolveBracketPath(bracketId));
+  const bracketResolution = await resolveBridgeBracket(bracketId);
+  const bracketExists = bracketResolution.available && bracketResolution.exists;
   const approval = bracketExists ? getLifecycle(bracketId, projectId).status : null;
   // Only run the (subprocess) gate once the bracket is approved — no point
   // generating a deliverable the Freigabe-Schleuse has not cleared.
   const generate = approval === 'approved' ? await runGenerate(bracketId, target) : null;
 
-  return apiSuccess(computeDeliveryFlow({ bracketId, bracketExists, approval, generate }));
+  return apiSuccess({
+    ...computeDeliveryFlow({ bracketId, bracketExists, approval, generate }),
+    bracketResolution,
+  });
 }

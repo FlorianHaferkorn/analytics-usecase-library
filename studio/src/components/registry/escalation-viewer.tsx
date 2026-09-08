@@ -10,7 +10,7 @@ interface Props {
 const LEVEL_CONFIG: Record<string, { color: string; label: string; shortLabel: string }> = {
   EarlyWarning: { color: 'var(--accent)', label: 'Early Warning', shortLabel: 'L1' },
   RequiredIntervention: { color: 'var(--warning)', label: 'Required Intervention', shortLabel: 'L2' },
-  PrescriptiveExecution: { color: '#EF4444', label: 'Prescriptive Execution', shortLabel: 'L3' },
+  PrescriptiveExecution: { color: 'var(--danger)', label: 'Prescriptive Execution', shortLabel: 'L3' },
 };
 
 export function EscalationViewer({ spine }: Props) {
@@ -20,7 +20,7 @@ export function EscalationViewer({ spine }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Escalation Path */}
       <div>
-        <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '8px' }}>
+        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginBottom: '8px' }}>
           {spine.escalation_logic.principle}
         </p>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
@@ -48,7 +48,7 @@ export function EscalationViewer({ spine }: Props) {
                         borderRadius: '50%',
                         backgroundColor: config.color,
                         color: 'var(--bg)',
-                        fontSize: '0.6875rem',
+                        fontSize: 'var(--text-xs)',
                         fontWeight: 700,
                       }}
                     >
@@ -58,7 +58,7 @@ export function EscalationViewer({ spine }: Props) {
                       {config.label}
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-2)', lineHeight: 1.5 }}>
                     {step.action}
                   </p>
                 </StudioPanel>
@@ -76,7 +76,7 @@ export function EscalationViewer({ spine }: Props) {
       {/* Decision Context */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <StudioPanel style={{ padding: '12px' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Primary Question
           </p>
           <p style={{ fontSize: '0.75rem', color: 'var(--ink-2)', lineHeight: 1.5 }}>
@@ -84,7 +84,7 @@ export function EscalationViewer({ spine }: Props) {
           </p>
         </StudioPanel>
         <StudioPanel style={{ padding: '12px' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginBottom: '4px', fontWeight: 600 }}>
             Decision Confidence
           </p>
           <span
@@ -92,10 +92,10 @@ export function EscalationViewer({ spine }: Props) {
               display: 'inline-block',
               padding: '2px 8px',
               borderRadius: 'var(--radius-sm)',
-              fontSize: '0.6875rem',
+              fontSize: 'var(--text-xs)',
               fontWeight: 600,
               backgroundColor: spine.decision_confidence.level === 'High' ? 'rgba(0,212,170,0.15)' : spine.decision_confidence.level === 'Medium' ? 'rgba(255,184,0,0.15)' : 'rgba(239,68,68,0.15)',
-              color: spine.decision_confidence.level === 'High' ? 'var(--accent)' : spine.decision_confidence.level === 'Medium' ? 'var(--warning)' : '#EF4444',
+              color: spine.decision_confidence.level === 'High' ? 'var(--accent)' : spine.decision_confidence.level === 'Medium' ? 'var(--warning)' : 'var(--danger)',
             }}
           >
             {spine.decision_confidence.level}
@@ -106,24 +106,24 @@ export function EscalationViewer({ spine }: Props) {
       {/* Tradeoffs */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
         <StudioPanel style={{ padding: '12px' }}>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--accent)', marginBottom: '4px', fontWeight: 600 }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', marginBottom: '4px', fontWeight: 600 }}>
             Improves
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
             {spine.decision_tradeoffs.improves.map((item) => (
-              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(0,212,170,0.1)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--accent)' }}>
+              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(0,212,170,0.1)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', color: 'var(--accent)' }}>
                 {item}
               </span>
             ))}
           </div>
         </StudioPanel>
         <StudioPanel style={{ padding: '12px' }}>
-          <p style={{ fontSize: '0.6875rem', color: '#EF4444', marginBottom: '4px', fontWeight: 600 }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--danger)', marginBottom: '4px', fontWeight: 600 }}>
             Risks
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
             {spine.decision_tradeoffs.risks.map((item) => (
-              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: '#EF4444' }}>
+              <span key={item} style={{ padding: '2px 8px', backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', color: 'var(--danger)' }}>
                 {item}
               </span>
             ))}

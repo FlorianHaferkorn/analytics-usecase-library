@@ -51,7 +51,7 @@ function StatusPill({ status }: { status: 'certified' | 'review' | 'draft' }) {
         alignItems: 'center',
         padding: '2px 8px',
         borderRadius: 999,
-        fontSize: 10.5,
+        fontSize: 'var(--text-xs)',
         fontWeight: 500,
         background: s.bg,
         color: s.fg,
@@ -70,7 +70,7 @@ function Pill({ children }: { children: React.ReactNode }) {
         alignItems: 'center',
         padding: '2px 8px',
         borderRadius: 999,
-        fontSize: 10.5,
+        fontSize: 'var(--text-xs)',
         fontWeight: 500,
         background: 'var(--hover)',
         color: 'var(--ink-3)',
@@ -96,11 +96,11 @@ function PropRow({ label, value }: { label: string; value: React.ReactNode }) {
       }}
     >
       <span
-        style={{ fontSize: 11.5, color: 'var(--ink-4)', lineHeight: 1.5, paddingTop: 1 }}
+        style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', lineHeight: 1.5, paddingTop: 1 }}
       >
         {label}
       </span>
-      <span style={{ fontSize: 11.5, color: 'var(--ink-2)', lineHeight: 1.5 }}>
+      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-2)', lineHeight: 1.5 }}>
         {value || '—'}
       </span>
     </div>
@@ -197,7 +197,7 @@ export function KpiDetail({ kpi, linkedBrackets, factsheet, factsheetRole }: Pro
             <span
               style={{
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.625rem',
+                fontSize: 'var(--text-xs)',
                 color: 'var(--ink-3)',
               }}
             >

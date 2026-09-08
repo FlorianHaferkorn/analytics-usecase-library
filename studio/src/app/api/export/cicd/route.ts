@@ -1,41 +1,10 @@
-import { loadBracket } from '@/lib/core/bracket-loader';
-import { loadKpiMap } from '@/lib/core/catalog-loader';
-import { buildIRPackage, type IRPackage } from '@/lib/delivery/ir-builder';
-import { generateGitHubWorkflow, generateValidationPipeline, generateDeployScript } from '@/lib/delivery/cicd-adapter';
-import { auditWithActor } from '@/lib/db/audit-helpers';
-import { apiSuccess, apiValidationError } from '@/lib/api/response';
+import { apiError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
-export async function POST(request: Request) {
-  const body = await request.json();
-  const { useCaseIds } = body as { useCaseIds: string[] };
-
-  if (!useCaseIds?.length) {
-    return apiValidationError(['No use case IDs provided']);
-  }
-
-  const kpiMap = await loadKpiMap();
-
-  const packages: IRPackage[] = [];
-  for (const id of useCaseIds) {
-    const bracket = await loadBracket(id);
-    if (bracket) {
-      packages.push(buildIRPackage(bracket, kpiMap));
-    }
-  }
-
-  const workflow = generateGitHubWorkflow(packages);
-  const validation = generateValidationPipeline(packages);
-  const deployScript = generateDeployScript(packages);
-
-  await auditWithActor('export', 'cicd', 'export', {
-    before: null,
-    after: { format: 'cicd', useCaseIds, packageCount: packages.length },
-  });
-
-  return apiSuccess({
-    results: [{
-      useCaseId: 'cicd-bundle',
-      outputs: { workflow, validation, deployScript },
-    }],
-  });
+export async function POST() {
+  return apiError(
+    ErrorCode.UNSUPPORTED,
+    'Generated CI/CD is not a governed delivery target. Package validated artifacts first, then use the customer-approved platform deployment pipeline and official vendor CLI.',
+    410,
+  );
 }

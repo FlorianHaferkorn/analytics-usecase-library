@@ -8,6 +8,7 @@
 
 /** Suffix → unit. Order matters only in that every key is checked as a substring. */
 const UNIT_BY_SUFFIX: ReadonlyArray<readonly [string, string]> = [
+  ['.delta_pct', '%'],
   ['.pct', '%'],
   ['.days', 'd'],
   ['.hours', 'h'],
@@ -36,10 +37,11 @@ function precisionFor(unit: string): number {
  * `%` binds directly to the number (`42.3%`); every other unit is separated by a
  * non-breaking space so it never wraps away from its value.
  */
-export function formatKpiValue(value: number, kpiId: string): string {
+export function formatKpiValue(value: number, kpiId: string, unitOverride?: string): string {
   if (!Number.isFinite(value)) return '—';
 
-  const unit = kpiUnit(kpiId);
+  const suppliedUnit = unitOverride ?? kpiUnit(kpiId);
+  const unit = suppliedUnit.toUpperCase() === 'EUR' ? '€' : suppliedUnit;
   const formatted = value.toLocaleString('de-DE', {
     minimumFractionDigits: precisionFor(unit),
     maximumFractionDigits: precisionFor(unit),

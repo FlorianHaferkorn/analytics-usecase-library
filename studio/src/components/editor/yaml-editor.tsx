@@ -80,7 +80,7 @@ export function YamlEditor({
           padding: '4px 8px',
           backgroundColor: 'var(--bg)',
           borderBottom: '1px solid var(--line)',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
         }}
       >
         <span style={{ color: 'var(--ink-4)' }}>YAML</span>

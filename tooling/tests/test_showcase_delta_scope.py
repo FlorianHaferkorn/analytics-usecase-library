@@ -17,6 +17,7 @@ Docstring; deshalb haelt dieser Test die Zeile fest.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -26,8 +27,26 @@ SCRIPT = REPO / "scripts" / "check_showcase_delta.py"
 
 
 def _run() -> subprocess.CompletedProcess:
-    return subprocess.run([sys.executable, str(SCRIPT)], cwd=REPO,
-                          capture_output=True, text=True)
+    """Die Ausgabe wird ausdruecklich als UTF-8 gelesen, nicht mit der Locale-Vorgabe.
+
+    Ohne `encoding` nimmt `text=True` die Locale des Elternprozesses -- auf einem
+    deutschen Windows cp1252. Das Kind schreibt aber UTF-8, sobald `PYTHONIOENCODING`
+    gesetzt ist (was in Agenten- und CI-Umgebungen ueblich ist). Aus dem Geviertstrich
+    der Erfolgsmeldung wurde dann `â€”`, und der Test fiel um -- an einer Stelle, die
+    mit seiner Aussage nichts zu tun hat. Gemessen am 06.09.2026: mit gesetzter
+    Variable rot, ohne sie gruen, bei unveraendertem Repository.
+
+    Nur beim Lesen UTF-8 zu erzwingen reicht nicht -- dann faellt der umgekehrte Fall
+    um (Kind schreibt cp1252, Eltern lesen UTF-8). Gemessen, nicht vermutet: erst
+    festgelegt, spaeter beides gruen. Deshalb werden BEIDE Seiten festgelegt, das Kind
+    ueber `PYTHONIOENCODING` in seiner Umgebung.
+
+    Ein Test, dessen Ergebnis von der Umgebungskodierung abhaengt, misst die Umgebung
+    und nicht die Zusage.
+    """
+    umgebung = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+    return subprocess.run([sys.executable, str(SCRIPT)], cwd=REPO, env=umgebung,
+                          capture_output=True, text=True, encoding="utf-8")
 
 
 def test_the_success_message_states_what_it_does_not_cover():

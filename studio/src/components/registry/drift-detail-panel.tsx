@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import type { DriftReport, DriftIssue, DriftSeverity } from '@/lib/validation/drift-scanner';
 import { StudioButton, StudioEmptyState, StudioPanel, StudioSegmentedControl } from '@/components/ui/studio-page';
 
@@ -43,7 +43,7 @@ function IssueRow({ issue }: { issue: DriftIssue }) {
         style={{
           color: 'var(--ink-2)',
           fontFamily: 'monospace',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -51,7 +51,7 @@ function IssueRow({ issue }: { issue: DriftIssue }) {
       >
         {issue.artifactId}
       </span>
-      <span style={{ color: 'var(--ink-3)', fontSize: '0.6875rem' }}>
+      <span style={{ color: 'var(--ink-3)', fontSize: 'var(--text-xs)' }}>
         {issue.artifact}
       </span>
       <span style={{ color: 'var(--ink-2)' }}>{issue.message}</span>
@@ -128,7 +128,7 @@ export function DriftDetailPanel({ report, loading, onScan }: Props) {
 function SummaryChip({ label, value }: { label: string; value: string | number }) {
   return (
     <div style={{ padding: '8px 10px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--bg)', border: '1px solid var(--line)' }}>
-      <p style={{ margin: 0, marginBottom: '2px', fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
+      <p style={{ margin: 0, marginBottom: '2px', fontSize: 'var(--text-2xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
       <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--ink-2)', fontWeight: 600 }}>{value}</p>
     </div>
   );

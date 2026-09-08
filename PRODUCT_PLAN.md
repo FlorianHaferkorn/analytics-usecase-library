@@ -7,8 +7,9 @@
 > `meridian-competitive-analysis` 19.06.). The local mount was on 17.06.; several
 > assumptions below are now outdated IN OUR FAVOUR. Reconciliation in §0 before reading
 > the rest — some phases shrink or are already partly done.**
-> **Decision inputs (from owner):** tool-agnostic from day one; customer-operable once
-> set up; flexible **compiler** over data-gov/eng/arch + semantic model + tool stack;
+> **Decision inputs (from owner):** tool-agnostic from day one; operable through one
+> interface by a Nagarro engagement team with customer participation; flexible
+> **compiler** over data-gov/eng/arch + semantic model + tool stack;
 > **Power BI/Fabric as first E2E sample stack**; first use cases = cross-industry, later
 > industry packs; every layer generator (report-gen, visual library, page templates,
 > documenter — incl. gov/eng/arch) **standalone AND integratable**; **Studio = the
@@ -58,7 +59,7 @@ this plan.** Honest deltas, code-verified against those refs:
    before starting Phase 0**, or risk duplicating work.
 4. **Still genuinely open (unchanged by the update):** the **report/dashboard delivery gap
    (Q15)** — Direct-Lake is data-layer, not PBIR report rendering; **value certification
-   against live data (Q29)**; **customer-operable Studio** (still cockpit, not self-serve);
+   against live data (Q29)**; **Nagarro engagement-operable Studio** (cockpit, not self-serve SaaS);
    **ALUCA→core docking** itself.
 
 **Net:** down-scope the plan — Phases 0/1 (core), 6 (agnostic), 7 (quality) are largely
@@ -74,7 +75,8 @@ A **tool-agnostic analytics compiler** that turns governed business meaning
 full data stack — **data governance, data engineering, data architecture, semantic
 model, and report/visual layers** — with **Power BI/Fabric as the first fully proven
 target**. Each layer ships as a **standalone generator/auditor/documenter** that also
-**plugs into the ALUCA core**. **Studio is the cockpit** the customer operates: it
+**plugs into the ALUCA core**. **Studio is the cockpit** the Nagarro engagement team uses
+with customer stakeholders: it
 maintains the core (the meaning) and connects everything *before* the core (sources,
 ingest, gov/eng/arch reality) and *after* the core (semantic models, reports, deploy).
 It is the **merged ALUCA + Meridian product**: ALUCA's meaning/visual layer + Meridian's
@@ -142,6 +144,17 @@ gov/eng/arch engines** — those come from Meridian (`gov_engine`, `dataarch_eng
 "Flexible compiler over the stack" = the customer picks data store × semantic layer ×
 viz tool independently, and the same core feeds all (synergy doc §7, three free axes).
 
+### Customer delivery loop: scope to verified tenant state
+
+The compiler and Studio must also cover the consulting path before and after artifact
+generation. The proposed
+[`Discovery-to-Deployment Workbench`](docs/architecture/research/discovery-to-deployment-workbench.md)
+defines that extension without creating a second core: a scope profile activates only
+the required discovery modules (including selectable Data Governance), approved
+decisions compile into architecture and deployment manifests, and target readback proves
+the result. The Studio is the guided editor and visualization; the governed Python core
+remains the generation authority.
+
 ---
 
 ## 4. Where ALUCA stands vs. this target (grounded) {#4-gap}
@@ -173,7 +186,7 @@ certification**, then **harden for customer operation**.
 ## 5. The shippable unit & first use cases {#5-shippable}
 
 **First shippable unit (MVP-premium):** *"Governed KPI framework → certified Power BI
-semantic model + report, customer-operable via Studio, for a small set of universal use
+semantic model + report, delivered through the Nagarro-operated Studio, for a small set of universal use
 cases — built tool-agnostic so the same core later emits other stacks."*
 
 **First use cases (cross-industry, relevant to nearly every company):** start with 3–5
@@ -254,13 +267,20 @@ Phase 2). Original spec below.
 - **Rollback:** ship the proven subset (PBI + semantic + report) first; gov/eng/arch as a
   later module if capacity-bound.
 
-### Phase 5 — Studio as customer cockpit (premium UX) → customer-operable
-- **Build:** elevate Studio from internal cockpit to customer-operable: before-core panels
-  (connect sources, gov/eng/arch reality), after-core panels (target selection, deploy
-  hand-off), authoring→approval→generate→validate→deliverable flow end-to-end; setup/onboarding.
-- **Done-when:** a customer completes the full flow for a universal use case without the
-  builder present; premium UX pass (no raw YAML editing required).
-- **Rollback:** service-assisted mode (you operate Studio for the client) as interim.
+### Phase 5 — Studio as Nagarro consulting cockpit (premium UX)
+- **Build:** elevate Studio from internal cockpit to the single Nagarro engagement interface: scope-profile
+  selection, adaptive discovery, evidence-backed decisions, live architecture impact,
+  before-core panels (sources and gov/eng/arch reality), after-core panels (target
+  selection, deploy hand-off), and the end-to-end
+  authoring→approval→generate→plan→apply→verify flow. Data Governance remains a selectable
+  capability with `assess`, `design`, `implement` and `operate` levels. Detailed target:
+  [`Discovery-to-Deployment Workbench`](docs/architecture/research/discovery-to-deployment-workbench.md).
+- **Done-when:** a Nagarro engagement team can guide customer stakeholders through the
+  governed decision and delivery flow for a universal use case; the selected scope
+  deterministically controls workshops, required evidence, outputs and gates; no raw YAML
+  editing is required; named team roles and project access are enforced.
+- **Rollback:** a single named Nagarro operator runs the same package-backed workflow while
+  team-role access remains disabled.
 
 ### Phase 6 — Tool-agnostic proof (second stack) + packaging → ship
 - **Build:** prove the neutral core with a **second semantic-layer target** (Cube or
@@ -268,7 +288,7 @@ Phase 2). Original spec below.
   architected; package install/license/docs; pricing/offer.
 - **Done-when:** the same approved core emits PBI **and** one other stack, both validating;
   a customer can install and run setup unaided.
-- **Defer to LATER:** industry packs, closed-loop/impact (G2), team/multi-tenant (G5).
+- **Defer to LATER:** industry packs, closed-loop/impact (G2), and cross-customer SaaS hosting.
 
 ---
 
@@ -299,21 +319,23 @@ Premium fails if quality is a phase instead of a constant. Mechanisms:
    Phase 0 spike measures it before committing Phase 1.
 2. **Gov/eng/arch depth is thin in Meridian too** (pbi_engine ~80% of mass). *Mitigation:*
    ship PBI + semantic + report premium-grade first; gov/eng/arch as Phase 4 module, not MVP blocker.
-3. **Premium bar vs. solo capacity** — six floors across many tools is large. *Mitigation:*
-   narrow the MVP to 3–5 universal use cases on PBI; breadth (stacks, industries) is post-ship.
+3. **Premium bar vs. delivery capacity** — six floors across many tools is large. *Mitigation:*
+   narrow the MVP to 3–5 universal use cases on PBI, assign named review owners and keep
+   breadth (stacks, industries) post-ship.
 4. **Studio scope creep** — "cockpit for everything" is unbounded. *Mitigation:* Phase 5
    scopes Studio to exactly the one E2E flow; everything else stays service-assisted first.
 
 **Sequencing logic:** de-risk the merge (P0) → make the core neutral + traceable (P1) →
 **make it actually deliver** (P2, closes the one hard gap) → **make it certifiable** (P3) →
-broaden tools incl. gov/eng/arch (P4) → make it customer-operable (P5) → prove agnostic +
-package (P6). Revenue-capable earliest at end of P2–P3 (service-assisted), fully
-customer-operable at P5–P6.
+broaden tools incl. gov/eng/arch (P4) → make it operable by a Nagarro engagement team (P5)
+→ prove agnostic + package (P6). Revenue-capable earliest at end of P2–P3
+(single-operator), team-operable at P5–P6.
 
 **Deliberately deferred (GOI §3 transparency):**
 - **Industry packs** — after the universal use-case set is premium.
 - **Closed-loop / impact analysis (G2)** — genuine new R&D; not in the ship path.
-- **Team/multi-tenant/RBAC (G5)** — the Nagarro-scale concern; customer-operable-solo first.
+- **Cross-customer SaaS tenancy** — separate hosting and compliance decision; project-level
+  Nagarro team roles and access remain in the Phase-5 baseline.
 - **Live deploy into tenant (G1)** — separate track, depends on tenant access; hand-off
   artifact ships first.
 - **3rd+ stacks beyond the agnostic proof** — adapter work, demand-driven.

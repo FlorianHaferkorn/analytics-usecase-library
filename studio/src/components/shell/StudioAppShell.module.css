@@ -1,0 +1,44 @@
+.shell {
+  --shell-header: var(--studio-header-height);
+  display: flex;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% -12%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 32%),
+    var(--bg);
+}
+
+.workspace {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.main {
+  min-width: 0;
+  flex: 1;
+  overflow: auto;
+  padding: var(--studio-page-gutter-y) var(--studio-page-gutter-x) var(--space-6);
+  background: transparent;
+  scrollbar-gutter: stable;
+}
+
+.sidebarFallback {
+  width: 232px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--line);
+  background: var(--bg);
+}
+
+@media (max-width: 960px) {
+  .sidebarFallback { width: 68px; }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    --studio-page-gutter-x: 14px;
+    --studio-page-gutter-y: 12px;
+  }
+}

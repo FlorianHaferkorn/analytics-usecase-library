@@ -38,7 +38,7 @@ const NAV_ACTIONS: PaletteItem[] = [
   { kind: 'page', id: 'canvas', label: 'Open Canvas', href: '/canvas' },
   { kind: 'page', id: 'library', label: 'Open Library', href: '/library' },
   { kind: 'page', id: 'delivery', label: 'Open Delivery', href: '/delivery' },
-  { kind: 'page', id: 'registry', label: 'Open Registry Health', href: '/registry/health' },
+  { kind: 'page', id: 'registry', label: 'Open Registry Health', href: '/health' },
   { kind: 'page', id: 'templates', label: 'Open Report Templates', href: '/templates' },
 ];
 
@@ -151,7 +151,7 @@ export function CommandPalette({ items = [], onNavigate }: Props) {
 
 function SectionHead({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ padding: '8px 10px 4px', fontSize: '0.5625rem', fontWeight: 500, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+    <div style={{ padding: '8px 10px 4px', fontSize: 'var(--text-xs)', fontWeight: 500, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
       {children}
     </div>
   );
@@ -175,13 +175,13 @@ function PaletteRow({ item, onSelect }: { item: PaletteItem; onSelect: () => voi
         width: 20, height: 20, borderRadius: 5, flexShrink: 0,
         background: 'var(--bg-2)', border: '1px solid var(--line)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '0.5625rem', fontWeight: 700, color: 'var(--ink-3)',
+        fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--ink-3)',
       }}>
         {KIND_ICON[item.kind] ?? '·'}
       </span>
       <span style={{ flex: 1 }}>{item.label}</span>
       {item.sub && (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem', color: 'var(--ink-4)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>
           {item.sub}
         </span>
       )}

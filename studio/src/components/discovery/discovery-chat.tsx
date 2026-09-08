@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { ToolResultCard } from './tool-result-card';
 import { StudioInput } from '@/components/ui/studio-data';
 import { StudioButton, StudioEmptyState } from '@/components/ui/studio-page';
+import type { DiscoveryMessage, DiscoverySource } from '@/lib/discovery/document';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -15,26 +16,21 @@ interface Props {
   context: string;
   onExtract: (content: string) => void;
   onToolResult?: (toolName: string, result: unknown) => void;
+  projectId?: string;
+  sources?: DiscoverySource[];
+  initialMessages?: DiscoveryMessage[];
+  onMessagesChange?: (messages: DiscoveryMessage[]) => void;
+  onBusyChange?: (busy: boolean) => void;
+  readOnly?: boolean;
 }
 
-/** Parse Vercel AI SDK data stream events. */
-function parseStreamEvent(line: string): { type: string; data: unknown } | null {
-  // Format: "type:json_data"
-  const colon = line.indexOf(':');
-  if (colon < 0) return null;
-  const type = line.slice(0, colon);
-  try {
-    return { type, data: JSON.parse(line.slice(colon + 1)) };
-  } catch {
-    return null;
-  }
-}
-
-export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+export function DiscoveryChat({ context, onExtract, projectId, sources = [], initialMessages = [], onMessagesChange, onBusyChange, readOnly = false }: Props) {
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const requestRef = useRef<AbortController | null>(null);
+  useEffect(() => () => requestRef.current?.abort(), []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
@@ -42,34 +38,38 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
 
   const sendMessage = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isLoading) return;
+    if (!trimmed || isLoading || readOnly) return;
 
     const userMessage: ChatMessage = { role: 'user', content: trimmed };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
+    onMessagesChange?.(updatedMessages);
     setInput('');
     setIsLoading(true);
+    onBusyChange?.(true);
+    const controller = new AbortController();
+    requestRef.current = controller;
 
     try {
-      const response = await fetch('/api/ai/chat', {
+      const response = await fetch(projectId ? `/api/projects/${encodeURIComponent(projectId)}/discovery/chat` : '/api/ai/chat', {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
-          context: context || undefined,
+          ...(projectId ? { sources } : { context: context || undefined }),
         }),
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'AI request failed');
+        const err = await response.json() as { error?: string | { message?: string } };
+        throw new Error(typeof err.error === 'string' ? err.error : err.error?.message || 'AI request failed. Try again.');
       }
 
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No stream reader');
 
       let assistantContent = '';
-      const toolResults: Array<{ toolName: string; result: unknown }> = [];
       const decoder = new TextDecoder();
 
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
@@ -78,56 +78,29 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (!line.trim()) continue;
-          const event = parseStreamEvent(line);
-          if (!event) continue;
-
-          // Type 0 = text delta
-          if (event.type === '0' && typeof event.data === 'string') {
-            assistantContent += event.data;
-            setMessages((prev) => {
-              const copy = [...prev];
-              copy[copy.length - 1] = { role: 'assistant', content: assistantContent, toolResults };
-              return copy;
-            });
-          }
-          // Type 9 = tool result (Vercel AI SDK data stream format)
-          if (event.type === '9' && typeof event.data === 'object' && event.data !== null) {
-            const d = event.data as Record<string, unknown>;
-            if (d.toolName && d.result !== undefined) {
-              toolResults.push({ toolName: String(d.toolName), result: d.result });
-              onToolResult?.(String(d.toolName), d.result);
-              setMessages((prev) => {
-                const copy = [...prev];
-                copy[copy.length - 1] = { role: 'assistant', content: assistantContent, toolResults: [...toolResults] };
-                return copy;
-              });
-            }
-          }
-          // Type a = tool call (tool invocation start)
-          if (event.type === 'a' && typeof event.data === 'object' && event.data !== null) {
-            const d = event.data as Record<string, unknown>;
-            if (d.result !== undefined && d.toolName) {
-              toolResults.push({ toolName: String(d.toolName), result: d.result });
-              onToolResult?.(String(d.toolName), d.result);
-            }
-          }
-        }
+        // /api/ai/chat uses toTextStreamResponse(): chunks are plain text,
+        // not the retired 0:/9: data protocol. Streaming decode preserves UTF-8
+        // characters even when their bytes arrive in different chunks.
+        assistantContent += decoder.decode(value, { stream: true });
+        const content = assistantContent;
+        setMessages((prev) => [...prev.slice(0, -1), { role: 'assistant', content }]);
       }
-
-      if (assistantContent) {
-        onExtract(assistantContent);
-      }
+      assistantContent += decoder.decode();
+      if (!assistantContent.trim()) throw new Error('No text response was returned. Try a more specific question.');
+      const content = assistantContent;
+      setMessages((prev) => [...prev.slice(0, -1), { role: 'assistant', content }]);
+      onExtract(content);
+      onMessagesChange?.([...updatedMessages, { role: 'assistant', content }]);
     } catch (err) {
+      if (controller.signal.aborted) return;
       const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      onMessagesChange?.([...updatedMessages, { role: 'assistant', content: `Error: ${errorMsg}` }]);
       setMessages((prev) => [
         ...prev.filter((m) => m.content !== ''),
         { role: 'assistant', content: `Error: ${errorMsg}` },
       ]);
     } finally {
-      setIsLoading(false);
+      if (!controller.signal.aborted) { setIsLoading(false); onBusyChange?.(false); }
     }
   };
 
@@ -140,8 +113,12 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
 
   return (
     <div
+      data-testid="discovery-chat"
       style={{
         flex: 1,
+        minHeight: 0,
+        minWidth: 0,
+        height: '100%',
         backgroundColor: 'var(--panel)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--line)',
@@ -150,17 +127,17 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
       }}
     >
       <div style={{ padding: '16px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink)' }}>
+        <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--ink)' }}>
           Discovery Chat
         </h3>
         {isLoading && (
-          <span style={{ fontSize: '0.6875rem', color: 'var(--accent)', animation: 'pulse 1.5s infinite' }}>
-            thinking...
+          <span role="status" style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)' }}>
+            Generating response…
           </span>
         )}
       </div>
 
-      <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div ref={scrollRef} role="log" aria-label="Discovery conversation" aria-relevant="additions" style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
         {messages.length === 0 ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ maxWidth: '400px', width: '100%' }}>
@@ -169,7 +146,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
                 description={
                   <>
                     <span>Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.</span>
-                    {context ? <span style={{ display: 'block', marginTop: '8px', color: 'var(--accent)' }}>{Math.round(context.length / 4)} tokens of context loaded</span> : null}
+                    {context ? <span style={{ display: 'block', marginTop: 'var(--space-2)', color: 'var(--accent)' }}>Source context is ready for your question.</span> : null}
                   </>
                 }
               />
@@ -188,10 +165,10 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
                   border: `1px solid var(--line)`,
                 }}
               >
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: '4px', fontWeight: 600 }}>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginBottom: '4px', fontWeight: 600 }}>
                   {msg.role === 'user' ? 'You' : 'AI'}
                 </p>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--ink)', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                   {msg.content}
                 </div>
               </div>
@@ -209,25 +186,27 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
         <div style={{ display: 'flex', gap: '8px' }}>
           <StudioInput
             type="text"
+            aria-label="Discovery question"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask about strategy, KPIs, or actions..."
-            disabled={isLoading}
+            disabled={isLoading || readOnly}
             style={{
               flex: 1,
+              minWidth: 0,
               padding: '8px var(--pad)',
-              fontSize: '0.875rem',
+              fontSize: 'var(--text-base)',
             }}
           />
           <StudioButton
             onClick={sendMessage}
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || readOnly || !input.trim()}
             tone="success"
             variant="primary"
             style={{
               padding: '8px 16px',
-              fontSize: '0.875rem',
+              fontSize: 'var(--text-base)',
             }}
           >
             Send

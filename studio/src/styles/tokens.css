@@ -25,19 +25,28 @@
   --shadow-lg: 0 24px 48px -16px oklch(0.094 0.003 280 / 0.18), 0 8px 16px oklch(0.094 0.003 280 / 0.06);
 
   /* ========== Semantic Colors (both themes) ========== */
-  --positive: oklch(0.60 0.15 150);
-  --positive-soft: oklch(0.92 0.06 150 / 0.5);
-  --negative: oklch(0.55 0.18 25);
-  --negative-soft: oklch(0.93 0.07 25 / 0.5);
-  --warn: oklch(0.70 0.15 75);
-  --warn-soft: oklch(0.94 0.06 75 / 0.6);
-  --neutral: oklch(0.62 0.02 260);
+  --positive: #107C10;
+  --positive-soft: color-mix(in srgb, var(--positive) 12%, transparent);
+  --negative: #D13438;
+  --negative-soft: color-mix(in srgb, var(--negative) 12%, transparent);
+  --warn: #B54708;
+  --warn-soft: color-mix(in srgb, var(--warn) 12%, transparent);
+  --neutral: #605E5C;
 
-  /* ========== Accent — Aurora Group brand primary #2ECDE7 (cyan) ==========
-     Sourced from showcases/aurora_group/brand/brand_spec.yaml. Quiet, brand-aligned. */
-  --accent:      oklch(0.78 0.10 215);   /* #2ECDE7 cyan */
-  --accent-soft: oklch(0.78 0.10 215 / 0.12);
-  --accent-ink:  oklch(0.18 0.04 215);   /* dark teal — readable on accent bg */
+  /* Backward-compatible semantic aliases. Status colors are never decorative. */
+  --success: var(--positive);
+  --danger: var(--negative);
+  --warning: var(--warn);
+  --info: #0078D4;
+  --positive-fg: var(--positive);
+  --positive-bg: var(--positive-soft);
+  --negative-fg: var(--negative);
+  --negative-bg: var(--negative-soft);
+
+  /* ========== Accent — governed, customer-agnostic framework primary ========== */
+  --accent:      #0078D4;
+  --accent-soft: color-mix(in srgb, #0078D4 12%, transparent);
+  --accent-ink:  #FFFFFF;
 
   /* ========== Data Series Palette — 8 colors for chart rendering ========== */
   /* OKLCH equivalents of Microsoft Fluent palette (studio/docs/rebuild/MOCKUP_REFERENCE/tokens.js) */
@@ -60,16 +69,48 @@
   --row-height-balanced: 40px;
   --row-height-dense: 36px;
 
-  /* Non-density defaults (used when no [data-density] attr is set) */
-  --pad: 24px;
-  --gap: 24px;
-  --h-row: 44px;
+  /* ========== Semantic spacing ========== */
+  /* 4px base grid. Components should consume these semantic tokens instead of
+     inventing local pixel values or reusing page padding inside controls. */
+  --space-half: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  --studio-header-height: 52px;
+  --studio-page-gutter-x: clamp(16px, 1.55vw, 24px);
+  --studio-page-gutter-y: clamp(12px, 1vw, 16px);
+  --studio-section-gap: clamp(10px, 0.9vw, 14px);
+  --studio-panel-pad-x: 18px;
+  --studio-panel-pad-y: 16px;
+  --studio-control-height: 34px;
+  --studio-content-standard: 1280px;
+  --studio-content-wide: 1600px;
+  --studio-title-size: clamp(1.4375rem, 1.7vw, 1.6875rem);
+  --studio-title-compact-size: 1.3125rem;
+  --studio-metric-size: clamp(1.5625rem, 2vw, 1.9375rem);
+  --studio-caption-size: 0.75rem;
+  --studio-body-size: 0.8125rem;
+  --studio-panel-title-size: 0.9375rem;
+
+  /* Balanced is the product default. Legacy components still read these
+     broad aliases until they are migrated to the semantic spacing API. */
+  --pad: 20px;
+  --gap: 18px;
+  --row: var(--row-height-balanced);
+  --h-row: var(--row-height-balanced);
 
   /* ========== Radius, Motion, Z-Index ========== */
   --radius-sm: 4px;
   --radius-md: 7px;
   --radius-card: 10px;
-  --radius-lg: 12px;
+  --studio-radius-large: 12px;
+  --radius-lg: var(--studio-radius-large);
   --radius-xl: 16px;
 
   --motion-fast: 120ms;
@@ -85,8 +126,10 @@
   --z-toast: 100;
 
   /* ========== Font Families ========== */
-  /* Default: Inter + JetBrains Mono (loaded via next/font in app/layout.tsx as
-     --font-inter / --font-jetbrains-mono). Overridable via [data-fonts] rules below. */
+  /* Offline-first font aliases. They intentionally use locally installed
+     system faces so production builds never depend on a font CDN. */
+  --font-inter: 'Segoe UI Variable', 'Segoe UI', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-jetbrains-mono: 'Cascadia Mono', 'SFMono-Regular', 'JetBrains Mono', ui-monospace, monospace;
   --font-display: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-body:    var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
@@ -98,8 +141,10 @@
 [data-density="airy"] {
   --row: var(--row-height-airy);
   --h-row: var(--row-height-airy);
-  --pad: 28px;
-  --gap: 28px;
+  --pad: 24px;
+  --gap: 22px;
+  --studio-panel-pad-x: 22px;
+  --studio-panel-pad-y: 20px;
 }
 
 [data-density="balanced"] {
@@ -107,6 +152,8 @@
   --h-row: var(--row-height-balanced);
   --pad: 20px;
   --gap: 18px;
+  --studio-panel-pad-x: 18px;
+  --studio-panel-pad-y: 16px;
 }
 
 [data-density="dense"] {
@@ -114,6 +161,8 @@
   --h-row: var(--row-height-dense);
   --pad: 16px;
   --gap: 14px;
+  --studio-panel-pad-x: 16px;
+  --studio-panel-pad-y: 14px;
 }
 
 /* ========== Font Pairings (data-fonts attribute) ========== */
@@ -178,18 +227,10 @@
   --default-font-family: var(--font-inter), 'Inter', ui-sans-serif, system-ui, sans-serif;
   --default-mono-font-family: var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace;
 
-  --radius: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-
-  --spacing-density-airy: var(--spacing-density-airy);
-  --spacing-density-balanced: var(--spacing-density-balanced);
-  --spacing-density-dense: var(--spacing-density-dense);
-
-  /* Avoid self-referential CSS variables in @theme mapping.
-     These values are the density row-height bases used by legacy `--h-row`. */
-  --row-height-airy: 48px;
-  --row-height-balanced: 40px;
-  --row-height-dense: 36px;
+  --radius: var(--radius-card);
+  /* Tailwind registers this utility; :root above remains the runtime authority.
+     A self-reference here would invalidate rounded-lg in the browser. */
+  --radius-lg: var(--studio-radius-large);
 }
 
 /* Dark theme (toggled via data-theme="dark") — design's TWEAKS default */
@@ -202,19 +243,24 @@
 
   --ink:     #f4f4f2;
   --ink-2:   #c9c9cd;
-  --ink-3:   #8a8a90;
-  --ink-4:   #5a5a60;
+  --ink-3:   #a4a4aa;
+  --ink-4:   #777780;
 
-  --line:    oklch(1 0 0 / 0.08);      /* rgba(255,255,255,0.08) */
-  --line-2:  oklch(1 0 0 / 0.04);
-  --hover:   oklch(1 0 0 / 0.04);
+  --line:    oklch(1 0 0 / 0.12);
+  --line-2:  oklch(1 0 0 / 0.07);
+  --hover:   oklch(1 0 0 / 0.06);
 
   --shadow-sm: 0 1px 0 oklch(0 0 0 / 0.4);
   --shadow-md: 0 4px 16px oklch(0 0 0 / 0.4);
   --shadow-lg: 0 24px 48px -16px oklch(0 0 0 / 0.6);
 
-  /* Accent (source: "Studio Design System.html") */
-  --accent:      oklch(0.72 0.13 250);
-  --accent-soft: oklch(0.72 0.13 250 / 0.16);
-  --accent-ink:  oklch(0.12 0.02 250);
+  /* Lighter shade of the governed primary for contrast on the workbench. */
+  --accent:      #6CB8FF;
+  --accent-soft: color-mix(in srgb, #6CB8FF 16%, transparent);
+  --accent-ink:  #0B1A33;
+
+  --positive: #6CCB7F;
+  --negative: #FF7B7F;
+  --warn: #FFB15C;
+  --info: #6CB8FF;
 }

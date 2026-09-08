@@ -1,25 +1,10 @@
 import type { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
-import { Inter, JetBrains_Mono } from 'next/font/google';
 import '@/styles/globals.css';
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['300', '400', '500', '600', '700'],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-jetbrains-mono',
-  weight: ['400', '500', '600'],
-});
-
 export const metadata: Metadata = {
-  title: 'ActionReady Studio',
-  description: 'NotebookLM for Business Steering — from Strategy to Action',
+  title: 'ALUCA Studio',
+  description: 'Governed analytics delivery — from strategy and KPI meaning to validated target artifacts.',
 };
 
 export default function RootLayout({
@@ -31,9 +16,8 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="dark"
-      data-density="airy"
+      data-density="balanced"
       data-fonts="inter"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body>
         <SessionProvider>{children}</SessionProvider>

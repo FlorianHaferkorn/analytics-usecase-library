@@ -162,6 +162,7 @@ export function BrandLabClient() {
                 <StudioButton
                   key={name}
                   onClick={() => updateTheme(preset)}
+                  aria-pressed={isActive}
                   variant="ghost"
                   style={{
                     padding: '8px',
@@ -173,19 +174,13 @@ export function BrandLabClient() {
                     position: 'relative',
                   }}
                 >
-                  {isActive && (
-                    <span style={{
-                      position: 'absolute', top: '6px', right: '6px',
-                      fontSize: '0.5rem', fontWeight: 700, color: preset.primary,
-                      textTransform: 'uppercase', letterSpacing: '0.06em',
-                    }}>Active</span>
-                  )}
-                  <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-1)', marginBottom: 'var(--space-1)' }}>
                     <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.primary }} />
                     <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.secondary }} />
                     <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.background }} />
+                    {isActive && <span style={{ marginLeft: 'auto', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--ink)' }}>Active</span>}
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.6875rem', color: isActive ? 'var(--ink)' : 'var(--ink-2)' }}>{name}</p>
+                  <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: isActive ? 'var(--ink)' : 'var(--ink-2)' }}>{name}</p>
                 </StudioButton>
               );
             })}
@@ -353,7 +348,7 @@ export function BrandLabClient() {
                   <LayoutPreview theme={theme} layer={layer} />
                   <div style={{ padding: '8px 12px', borderTop: '1px solid var(--line)', textAlign: 'left' }}>
                     <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink)' }}>{label}</p>
-                    <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '2px' }}>{desc}</p>
+                    <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginTop: '2px' }}>{desc}</p>
                   </div>
                 </button>
               ))}

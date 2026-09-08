@@ -44,13 +44,14 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
   intent_rules_version: 2
+  title_statements_verified: false
   page_1_summary:
     title: Finance / Operations Summary & Insights
-    page_type: T1_Strategic_Overview
-    template_variant: T1_Portfolio
+    page_type: T2_Tactical_Variance
+    template_variant: T2_DriverBridge
     template_id: pulse
-    decision_question: "Is input cost inflation being recovered in pricing and margin?"
-    big_idea: "Input cost inflation is outpacing pricing recovery — COGS % is expanding and will erode operating margin within two quarters if not addressed."
+    decision_question: "Is unit cost deteriorating, and which entities have the largest OpEx variance?"
+    big_idea: "Restore unit-cost performance by locating the worst entities before selecting the material, productivity, or OpEx lever."
     component_3s:
       kpi_id: cost.unit.amount
       visual_type: kpi_card_with_delta
@@ -58,37 +59,41 @@ ux_layout_rules:
       status_logic: lower_is_better
     component_30s:
     - slot_id: Main_1
-      kpi_id: margin.cogs.pct
+      kpi_id: cost.unit.amount
       visual_type: line_chart
-      question: "Is input cost being recovered, or is it eroding margin?"
-      message: COGS is rising as a share of sales, eroding margin quarter over quarter
-      so_what: "At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response."
-      unit: rate
+      comparison: vs_plan
+      question: "Is unit cost moving back toward Plan or deteriorating further?"
+      message: "Unit-cost trend against Plan shows whether cost recovery is taking hold."
+      so_what: "A persistent or widening gap requires entity-level diagnosis before a cost action is selected."
+      category_field: dim_date.CalendarYearMonth
+      action_code_id: F-K2.1
+      unit: amount
     - slot_id: Main_2
-      kpi_ids:
-      - cost.opex.vs_plan.pct
-      - cost.material.pct
-      - ops.labor.productivity.pct
-      visual_type: horizontal_bar_chart
-      question: "Which levers drive unit cost — opex, material, or productivity?"
-      message: Opex variance, material cost, and labor productivity — the three levers behind unit cost.
-      so_what: "Productivity gains aren't offsetting material inflation, so cost pressure keeps building on the P&L."
+      kpi_id: cost.opex.vs_plan.pct
+      visual_type: variance_bar
+      comparison: vs_plan
+      question: "Which entities have the largest unfavorable OpEx variance?"
+      message: "OpEx variance ranking isolates where controllable cost pressure is concentrated."
+      so_what: "Worst-first prioritisation limits deeper diagnosis to the entities with the largest controllable variance."
+      category_field: dim_org.Entity
+      action_code_id: F-K2.4
       unit: rate
   page_2_execution:
     title: Finance / Operations Execution
-    decision_question: "Which cost lever — pricing, material, or productivity — should we pull first?"
+    decision_question: "For the worst cost entities, is material, productivity, or OpEx the primary controllable driver?"
     page_type: T4_Prescriptive_Recommendation
     template_variant: T4_ActionDecision
     template_id: action_matrix
     component_300s:
       evidence_grain: plant_line_product_month
+      slicer_field: dim_org.Entity
       # R2.4: deduped repeated cost.unit.amount; dropped plant/line (no
       # backing dimension table in Finance.SemanticModel -- dim_asset is
       # Operations-only, not joined here); cut ops.throughput.units/
       # ops.quality.pct (less central to the cost-recovery decision_question).
       evidence_columns:
-      - entity
-      - product_category
+      - dim_org.Entity
+      - dim_product.Category
       - cost.unit.amount
       - margin.cogs.pct
       - cost.material.pct
@@ -96,7 +101,7 @@ ux_layout_rules:
       - ops.labor.productivity.pct
       - ops.quality.defect_rate.pct
       action_panel: true
-      payload_mode: full
+      payload_mode: summary
       sort_by:
         measure: cost.opex.vs_plan.pct
         direction: descending

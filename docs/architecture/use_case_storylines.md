@@ -11,16 +11,16 @@
 - **[3s verdict]** `sales.net_sales.amount` vs_plan (higher_is_better)
 - **[30s Q1]** Are we on track versus Plan and last year — and is the lead holding?
     - visual: `line_chart` · `None`
-    - answer: Net Sales is running ahead of Plan and prior year, but the lead has narrowed in recent months
-    - so what → A narrowing lead means the on-track story could flip without a rebound in the latest months.
+    - answer: Net Sales compared with Plan and prior year reveals whether commercial performance is sustained.
+    - so what → A deteriorating trajectory moves the decision from monitoring to targeted commercial recovery.
 - **[30s Q2]** What's driving the gap between Plan and Actual — price, volume, or mix?
     - visual: `waterfall_chart` · `None`
-    - answer: Price and mix effects, not volume, explain the swing between Plan and Actual Net Sales
-    - so what → The gap is a commercial mix problem, not a demand shortfall — fix pricing and channel mix, not volume push.
+    - answer: Price, volume, and mix reconcile the movement from Plan to Actual Net Sales.
+    - so what → The dominant bridge component determines whether pricing, demand, or portfolio mix needs intervention.
 - **[30s Q3]** Is the Plan gap broad-based or concentrated in a few regions?
     - visual: `horizontal_bar_chart` · `sales.net_sales.delta_pct.plan`
-    - answer: Net Sales gaps versus Plan are concentrated in a handful of regions, not spread evenly
-    - so what → Targeted regional action closes more of the gap than a blanket sales push.
+    - answer: Regional variance ranks where the sales gap and recovery opportunity are concentrated.
+    - so what → Worst-first prioritisation focuses commercial capacity where it can close the largest gap.
 
 ↓ handoff →
 
@@ -166,22 +166,22 @@
 
 **Causal thread:** `cost.material.pct` → `cost.unit.amount` (minimize). Improving cost.material.pct is the primary lever for minimizing cost.unit.amount because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
 
-### Page 1 Summary · T1_Strategic_Overview
-**Spine question:** Is input cost inflation being recovered in pricing and margin?
+### Page 1 Summary · T2_Tactical_Variance
+**Spine question:** Is unit cost deteriorating, and which entities have the largest OpEx variance?
 - **[3s verdict]** `cost.unit.amount` vs_plan (lower_is_better)
-- **[30s Q1]** Is input cost being recovered, or is it eroding margin?
-    - visual: `line_chart` · `margin.cogs.pct`
-    - answer: COGS is rising as a share of sales, eroding margin quarter over quarter
-    - so what → At the current pace, margin erosion continues for roughly two more quarters without a pricing or cost response.
-- **[30s Q2]** Which levers drive unit cost — opex, material, or productivity?
-    - visual: `horizontal_bar_chart` · `None`
-    - answer: Opex variance, material cost, and labor productivity — the three levers behind unit cost.
-    - so what → Productivity gains aren't offsetting material inflation, so cost pressure keeps building on the P&L.
+- **[30s Q1]** Is unit cost moving back toward Plan or deteriorating further?
+    - visual: `line_chart` · `cost.unit.amount`
+    - answer: Unit-cost trend against Plan shows whether cost recovery is taking hold.
+    - so what → A persistent or widening gap requires entity-level diagnosis before a cost action is selected.
+- **[30s Q2]** Which entities have the largest unfavorable OpEx variance?
+    - visual: `variance_bar` · `cost.opex.vs_plan.pct`
+    - answer: OpEx variance ranking isolates where controllable cost pressure is concentrated.
+    - so what → Worst-first prioritisation limits deeper diagnosis to the entities with the largest controllable variance.
 
 ↓ handoff →
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
-**Spine question:** Which cost lever — pricing, material, or productivity — should we pull first?
+**Spine question:** For the worst cost entities, is material, productivity, or OpEx the primary controllable driver?
 - **[300s evidence]** grain `plant_line_product_month`, worst-first by `cost.opex.vs_plan.pct` (descending), Top-20 · action panel
 **Decision payoff (actions):** F-K2.1, F-K2.2, F-K2.3, F-K2.4
 **Cross-domain pull:** Finance (7: `cost.unit.amount`, `margin.cogs.pct`, `cost.opex.vs_plan.pct` +4); Operations (4: `ops.labor.productivity.pct`, `ops.throughput.units`, `ops.quality.defect_rate.pct` +1); Supply Chain (4: `supply.otif.pct`, `supply.on_time.pct`, `supply.in_full.pct` +1); Commercial (1: `sales.net_sales.amount`)
@@ -243,20 +243,20 @@
 - **[3s verdict]** `ops.oee.pct` vs_target (higher_is_better)
 - **[30s Q1]** Is OEE on target, and is the gap closing or widening?
     - visual: `line_chart` · `ops.oee.pct`
-    - answer: OEE is running below target and the gap is widening week over week
-    - so what → A widening OEE gap this close to target compounds into missed output if maintenance action doesn't land now.
-- **[30s Q2]** Which OEE component is the biggest loss — availability, performance, or quality?
-    - visual: `line_chart` · `ops.availability.pct`
-    - answer: Availability is the component pulling OEE below target, not performance or quality
-    - so what → Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks.
-- **[30s Q3]** How does the OEE gap break down across its three components?
-    - visual: `horizontal_bar_chart` · `None`
-    - answer: Availability, performance, and quality — the three OEE components.
-    - so what → Prioritising availability fixes addresses the largest single component of the OEE shortfall.
+    - answer: OEE trend against target shows whether operational performance is stable, recovering, or deteriorating.
+    - so what → A persistent target gap triggers asset-level diagnosis before production output is put at risk.
+- **[30s Q2]** Which assets have the weakest availability?
+    - visual: `horizontal_bar_chart` · `ops.availability.pct`
+    - answer: Asset availability ranking concentrates attention on the lines with the greatest recoverable OEE loss.
+    - so what → The worst availability assets are the first candidates for maintenance and reliability action.
+- **[30s Q3]** Which assets require immediate intervention for unplanned downtime?
+    - visual: `exception_table` · `ops.downtime.unplanned.pct`
+    - answer: The exception queue ranks assets with the most critical unplanned-downtime exposure.
+    - so what → A worst-first queue converts the OEE signal into an owned maintenance workload.
 
 ↓ handoff →
 
-### Page 2 Execution · T3_Operational_Monitoring
+### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which assets and shifts explain the OEE gap this week?
 - **[300s evidence]** grain `line_day`, worst-first by `ops.downtime.unplanned.pct` (descending), Top-20 · action panel
 **Decision payoff (actions):** O-O1.1, O-O1.2, O-O1.3, O-O1.4
@@ -498,18 +498,18 @@
 - **[3s verdict]** `enterprise.action_outcome_rate.pct` vs_target (higher_is_better)
 - **[30s Q1]** Is the action-governance cycle delivering verified business impact?
     - visual: `line_chart` · `enterprise.action_outcome_rate.pct`
-    - answer: Action outcome rate is the KPI that verifies whether the governance cycle is closing on real business impact
-    - so what → Tracking verified outcomes, not just actions closed, keeps the governance cycle honest about impact delivered.
-- **[30s Q2]** Where is value-at-risk concentrated across domains?
-    - visual: `horizontal_bar_chart` · `enterprise.value_at_risk.index`
-    - answer: Value at risk is concentrated where action follow-through is weakest across domains
-    - so what → Prioritising domains with the highest value at risk directs governance attention to where it matters most.
+    - answer: Outcome-rate trend separates verified business impact from administrative action closure.
+    - so what → A weak or deteriorating outcome rate triggers governance intervention before more activity is mistaken for progress.
+- **[30s Q2]** Which domains convert actions into the strongest verified impact?
+    - visual: `horizontal_bar_chart` · `enterprise.action_effectiveness_delta.amount`
+    - answer: Domain-level effectiveness ranks where governed actions deliver or fail to deliver verified value.
+    - so what → Executive attention should first address domains combining weak outcomes with material impact exposure.
 
 ↓ handoff →
 
 ### Page 2 Execution · T4_Prescriptive_Recommendation
 **Spine question:** Which action domains need governance intervention to convert into verified outcomes?
-- **[300s evidence]** grain `action_outcome`, worst-first by `impact_value` (ascending), Top-20 · action panel
+- **[300s evidence]** grain `action_outcome`, worst-first by `days_to_outcome` (descending), Top-20 · action panel
 **Decision payoff (actions):** C-M2.1, C-M2.2, C-S1.1, C-S1.2, C-C3.1, F-C1.1, F-C1.2, F-K2.1, O-A2.1, O-O1.1, O-O1.2, O-O1.3, O-Q3.1, S-I1.1, S-R2.1, X-E3.3
 **Cross-domain pull:** Operations (15: `ops.downtime.unplanned.pct`, `ops.failure.count`, `ops.labor.productivity.pct` +12); Supply Chain (11: `inv.obsolete.pct`, `inv.stockout.pct`, `inv.turnover` +8); Commercial (11: `sales.net_sales.amount`, `sales.net_sales.delta_pct.ly`, `sales.price.list.amount` +8); Finance (8: `cost.material.pct`, `cost.opex.vs_plan.pct`, `fin.liquidity.inventory.amount` +5); Customer & Market (7: `crm.churned_customers.count`, `crm.lifetime_revenue.amount`, `crm.active_customers.count` +4); Service & Experience (7: `svc.aht.minutes`, `svc.backlog.count`, `svc.escalation.pct` +4); Enterprise & Governance (3: `enterprise.action_outcome_rate.pct`, `enterprise.action_effectiveness_delta.amount`, `enterprise.value_at_risk.index`); ActionReady (3: `enterprise.actions_executed.count`, `enterprise.avg_time_to_outcome.days`, `enterprise.action_roi.pct`); People & Culture (2: `people.attrition_risk.pct`, `people.digital_adoption.pct`)
 **Connects to use cases:** COM-001, COM-002, COM-003, COM-004, FIN-001, FIN-002, OPS-001, OPS-002, OPS-003, SCM-001, SCM-002, SCM-003, XD-001, XD-002, XD-003

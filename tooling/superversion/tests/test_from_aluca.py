@@ -423,6 +423,16 @@ def test_com001_evidence_grid_excludes_dimension_columns(model):
         assert dim not in grid.bound_measures, f"dimension {dim!r} leaked as a measure"
 
 
+def test_com001_declared_categories_and_evidence_dimensions_reach_canonical_visuals(model):
+    page1 = next(p for p in model.report.pages if p.name == "page_1_summary")
+    assert next(v for v in page1.visuals if v.visual_id == "Main_1").rows == [
+        "dim_date.CalendarYearMonth"
+    ]
+    page2 = next(p for p in model.report.pages if p.name == "page_2_execution")
+    grid = page2.visuals[0]
+    assert grid.rows[:2] == ["dim_org.Region", "dim_product.Category"]
+
+
 def test_evidence_grid_bound_measures_deduped(model):
     """bound_measures carries no duplicates (evidence_columns may repeat a KPI)."""
     page2 = next(p for p in model.report.pages if p.name == "page_2_execution")

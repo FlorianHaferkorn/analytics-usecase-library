@@ -84,7 +84,7 @@ function Pill({
         gap: 4,
         padding: '2px 7px',
         borderRadius: 999,
-        fontSize: 10.5,
+        fontSize: 'var(--text-2xs)',
         fontWeight: 500,
         background: s.bg,
         color: s.fg,
@@ -116,7 +116,7 @@ function CountBadge({ count }: { count: number }) {
     <span
       style={{
         fontFamily: 'var(--font-mono)',
-        fontSize: '0.625rem',
+        fontSize: 'var(--text-2xs)',
         color: 'var(--ink-4)',
         background: 'var(--line-2)',
         padding: '1px 5px',
@@ -140,7 +140,7 @@ const tableStyle: React.CSSProperties = {
 const thStyle: React.CSSProperties = {
   textAlign: 'left',
   fontWeight: 500,
-  fontSize: '0.625rem',
+  fontSize: 'var(--text-2xs)',
   color: 'var(--ink-4)',
   textTransform: 'uppercase',
   letterSpacing: '0.06em',
@@ -303,7 +303,7 @@ function KpiTable({
       <div
         style={{
           padding: '8px var(--pad)',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
           color: 'var(--ink-4)',
           borderTop: '1px solid var(--line-2)',
         }}
@@ -424,7 +424,7 @@ function BracketsTable({ brackets, filter }: { brackets: UseCaseBracketV20Lean[]
       <div
         style={{
           padding: '8px var(--pad)',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
           color: 'var(--ink-4)',
           borderTop: '1px solid var(--line-2)',
         }}
@@ -551,7 +551,7 @@ function ActionsTable({
       <div
         style={{
           padding: '8px var(--pad)',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
           color: 'var(--ink-4)',
           borderTop: '1px solid var(--line-2)',
         }}
@@ -663,7 +663,7 @@ export function CatalogLibrary({
             borderRadius: 'var(--radius)',
             border: 'none',
             background: 'var(--accent)',
-            color: '#fff',
+            color: 'var(--accent-ink)',
             fontSize: '0.8125rem',
             fontWeight: 500,
             cursor: 'pointer',
@@ -761,7 +761,7 @@ export function CatalogLibrary({
             style={{
               position: 'absolute',
               right: 10,
-              fontSize: '0.625rem',
+              fontSize: 'var(--text-2xs)',
               color: 'var(--ink-4)',
               background: 'var(--line-2)',
               border: '1px solid var(--line)',
@@ -778,6 +778,7 @@ export function CatalogLibrary({
         {activeTab === 'kpis' && (
           <select
             value={domainFilter}
+            aria-label="Definition domain"
             onChange={(e) => setDomainFilter(e.target.value)}
             style={{
               padding: '8px 12px',
@@ -787,7 +788,6 @@ export function CatalogLibrary({
               color: 'var(--ink)',
               fontSize: '0.8125rem',
               cursor: 'pointer',
-              outline: 'none',
             }}
           >
             <option value="all">All Domains</option>
@@ -800,6 +800,9 @@ export function CatalogLibrary({
         )}
 
         <button
+          type="button"
+          onClick={() => { setSearch(''); setDomainFilter('all'); }}
+          disabled={!search && domainFilter === 'all'}
           style={{
             padding: '8px 14px',
             border: '1px solid var(--line)',
@@ -811,7 +814,7 @@ export function CatalogLibrary({
             whiteSpace: 'nowrap',
           }}
         >
-          Filter
+          Clear filters
         </button>
       </div>
 

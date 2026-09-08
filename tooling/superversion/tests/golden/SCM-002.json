@@ -234,7 +234,7 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "Date[Date]"
+            "slicer_field": "dim_date.Date"
           }
         ],
         "width": 1920,
@@ -268,7 +268,10 @@
               "Penalty Amount",
               "Expedite Cost Amount"
             ],
-            "rows": [],
+            "rows": [
+              "customer",
+              "lane"
+            ],
             "columns": [],
             "slicer_field": ""
           },

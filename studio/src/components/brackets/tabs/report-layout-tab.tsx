@@ -41,7 +41,7 @@ const VISUAL_TYPE_OPTIONS: VisualType[] = [
 ];
 
 const sectionLabel: React.CSSProperties = {
-  fontSize: 11,
+  fontSize: 'var(--text-xs)',
   fontWeight: 600,
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
@@ -98,7 +98,7 @@ function SlotCard({ slot, onVisualTypeChange }: SlotCardProps) {
         <span
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: 10,
+            fontSize: 'var(--text-xs)',
             color: 'var(--ink-3)',
             letterSpacing: '0.04em',
           }}
@@ -113,7 +113,7 @@ function SlotCard({ slot, onVisualTypeChange }: SlotCardProps) {
             border: '1px solid var(--line)',
             borderRadius: 4,
             color: 'var(--ink-2)',
-            fontSize: 11,
+            fontSize: 'var(--text-xs)',
             padding: '2px 6px',
             cursor: 'pointer',
           }}
@@ -144,7 +144,7 @@ function SlotCard({ slot, onVisualTypeChange }: SlotCardProps) {
               key={id}
               style={{
                 fontFamily: 'var(--font-mono)',
-                fontSize: 10,
+                fontSize: 'var(--text-xs)',
                 color: 'var(--ink-3)',
                 background: 'var(--hover)',
                 borderRadius: 4,
@@ -156,7 +156,7 @@ function SlotCard({ slot, onVisualTypeChange }: SlotCardProps) {
             </span>
           ))
         ) : (
-          <span style={{ fontSize: 11, color: 'var(--ink-4)', fontStyle: 'italic' }}>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', fontStyle: 'italic' }}>
             No KPI assigned
           </span>
         )}
@@ -227,7 +227,7 @@ export function ReportLayoutTab({ bracket }: Props) {
         <div style={{ marginBottom: 14 }}>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 'var(--text-xs)',
               fontWeight: 600,
               color: 'var(--ink-3)',
               marginBottom: 6,
@@ -250,7 +250,7 @@ export function ReportLayoutTab({ bracket }: Props) {
         <div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 'var(--text-xs)',
               fontWeight: 600,
               color: 'var(--ink-3)',
               marginBottom: 6,
@@ -276,7 +276,7 @@ export function ReportLayoutTab({ bracket }: Props) {
       {/* Grid canvas — 30s slots */}
       <div
         style={{
-          fontSize: 11,
+          fontSize: 'var(--text-xs)',
           fontWeight: 600,
           color: 'var(--ink-3)',
           marginBottom: 8,
@@ -335,7 +335,7 @@ export function ReportLayoutTab({ bracket }: Props) {
         <div style={{ marginBottom: 14 }}>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 'var(--text-xs)',
               fontWeight: 600,
               color: 'var(--ink-3)',
               marginBottom: 6,
@@ -360,7 +360,7 @@ export function ReportLayoutTab({ bracket }: Props) {
         <div style={{ marginBottom: 14 }}>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 'var(--text-xs)',
               fontWeight: 600,
               color: 'var(--ink-3)',
               marginBottom: 6,
@@ -375,7 +375,7 @@ export function ReportLayoutTab({ bracket }: Props) {
                   key={col}
                   style={{
                     fontFamily: 'var(--font-mono)',
-                    fontSize: 11,
+                    fontSize: 'var(--text-xs)',
                     color: 'var(--ink-3)',
                     background: 'var(--hover)',
                     padding: '2px 7px',
@@ -396,7 +396,7 @@ export function ReportLayoutTab({ bracket }: Props) {
         <div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 'var(--text-xs)',
               fontWeight: 600,
               color: 'var(--ink-3)',
               marginBottom: 6,
@@ -410,7 +410,7 @@ export function ReportLayoutTab({ bracket }: Props) {
               alignItems: 'center',
               padding: '3px 10px',
               borderRadius: 999,
-              fontSize: 11,
+              fontSize: 'var(--text-xs)',
               fontWeight: 500,
               background: page2.component_300s.action_panel
                 ? 'var(--accent-soft)'

@@ -88,7 +88,7 @@ export function CanvasView({ lineage, goldenThread }: CanvasViewProps) {
   }, [searchParams]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] min-h-[480px] gap-4">
+    <div className="flex flex-col flex-1 min-h-0 gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex rounded-lg border border-border overflow-hidden">
           {(['lineage', 'golden-thread'] as const).map((m) => (
@@ -140,6 +140,7 @@ export function CanvasView({ lineage, goldenThread }: CanvasViewProps) {
             nodes={nodes}
             edges={edges}
             onNodeOpen={handleNodeOpen}
+            canOpenNode={id => !!detailHrefForCanvasNode(id)}
             initialSelectedId={focusNodeId}
             emptyMessage="No lineage nodes match the current filters."
           />

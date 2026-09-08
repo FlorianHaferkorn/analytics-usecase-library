@@ -96,7 +96,7 @@ export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
       <pre
         style={{
           fontFamily: 'var(--font-mono)',
-          fontSize: '0.6875rem',
+          fontSize: 'var(--text-xs)',
           color: 'var(--ink-2)',
           backgroundColor: 'var(--bg-2)',
           borderRadius: 'var(--radius-md)',

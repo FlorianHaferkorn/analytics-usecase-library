@@ -15,7 +15,7 @@ import {
   dimensionRows,
   filterLibraryRows,
   sourceRows,
-  useCaseRows,
+  useCaseRows as buildUseCaseRows,
 } from '@/lib/studio/library-rows';
 
 interface LibraryClientProps {
@@ -67,7 +67,7 @@ export function LibraryClient({
   const dimRowsBase = useMemo(() => dimensionRows(contracts), [contracts]);
   const srcRowsBase = useMemo(() => sourceRows(contracts), [contracts]);
   const actRowsBase = useMemo(() => actionRows(actions), [actions]);
-  const ucRowsBase = useMemo(() => useCaseRows(useCases), [useCases]);
+  const ucRowsBase = buildUseCaseRows(useCases);
 
   const dimRows = useMemo(
     () => filterLibraryRows(dimRowsBase, searchQuery, domainFilter),
@@ -120,7 +120,7 @@ export function LibraryClient({
             placeholder={`Search ${activeTab}…`}
             style={{ flex: 1, fontSize: 13 }}
           />
-          <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--ink-4)', opacity: 0.6 }}>/</span>
+          <span style={{ fontSize: 'var(--text-2xs)', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)', opacity: 0.75 }}>/</span>
         </div>
 
         {domainFilter && (

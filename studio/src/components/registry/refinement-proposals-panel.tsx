@@ -12,7 +12,7 @@
  * `pending_review` until a human decides.
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import { StudioFormField, StudioFormGrid, StudioInput, StudioInlineStat } from '@/components/ui/studio-data';
 
@@ -174,7 +174,7 @@ export function RefinementProposalsPanel() {
                   <div key={key} style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--panel)', border: '1px solid var(--line)', fontSize: '0.75rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <strong>{p.kpiId} — {p.trigger}</strong>
-                      <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', color: status === 'pending_review' ? 'var(--warning)' : status === 'approved' ? 'var(--accent)' : 'var(--danger)' }}>
+                      <span style={{ fontSize: 'var(--text-2xs)', textTransform: 'uppercase', color: status === 'pending_review' ? 'var(--warning)' : status === 'approved' ? 'var(--accent)' : 'var(--danger)' }}>
                         {status}
                       </span>
                     </div>

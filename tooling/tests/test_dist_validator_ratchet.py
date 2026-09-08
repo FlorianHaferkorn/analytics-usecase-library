@@ -21,6 +21,7 @@ da ist, ist kein Befund) und in diesem Repo etabliert.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -29,7 +30,17 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[2]
 _DIST = REPO / "products/fabric/powerbi/dist"
-_CLI = "powerbi-report-author"
+_CLI_NAME = "powerbi-report-author"
+_CLI = shutil.which(_CLI_NAME)
+
+
+def _cli_args(report: Path) -> list[str]:
+    args = ["validate", str(report), "--format", "json"]
+    if _CLI and Path(_CLI).suffix.lower() in {".cmd", ".bat"}:
+        # CreateProcess cannot execute cmd/bat shims directly. Keep shell=False
+        # and invoke the Windows command processor explicitly with fixed args.
+        return [os.environ.get("COMSPEC", "cmd.exe"), "/d", "/s", "/c", _CLI, *args]
+    return [_CLI or _CLI_NAME, *args]
 
 #: Gemessener Stand am 03.08.2026: 24–26 je Report (das Theme wird je nach
 #: vorhandenen Visualtypen unterschiedlich weit geprueft), plus in 11 von 17 ein
@@ -47,13 +58,13 @@ BASELINE_ERRORS = 25
 
 
 def _validate(report: Path) -> dict:
-    proc = subprocess.run([_CLI, "validate", str(report), "--format", "json"],
+    proc = subprocess.run(_cli_args(report),
                           capture_output=True, text=True, cwd=str(REPO))
     return (json.loads(proc.stdout) or {}).get("data", {})
 
 
-@pytest.mark.skipif(shutil.which(_CLI) is None,
-                    reason=f"{_CLI} nicht installiert — externes Werkzeug, kein Befund")
+@pytest.mark.skipif(_CLI is None,
+                    reason=f"{_CLI_NAME} nicht installiert — externes Werkzeug, kein Befund")
 def test_no_report_gets_worse_than_the_measured_baseline():
     reports = sorted(_DIST.glob("*.Report"))
     assert reports, "keine dist-Reports — Test hat seinen Gegenstand verloren"
@@ -69,7 +80,7 @@ def test_no_report_gets_worse_than_the_measured_baseline():
         + ". Die Ratsche laesst nur Verbesserung zu.")
 
 
-@pytest.mark.skipif(shutil.which(_CLI) is None, reason=f"{_CLI} nicht installiert")
+@pytest.mark.skipif(_CLI is None, reason=f"{_CLI_NAME} nicht installiert")
 def test_baseline_is_not_stale():
     """Faellt der Stand unter die Baseline, gehoert die Zahl gesenkt.
 

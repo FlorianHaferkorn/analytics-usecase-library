@@ -497,6 +497,10 @@
                   },
                   "description": "Grain of the evidence table — must match a governed fact-table grain from core/data_contracts/domains/*.yaml. Placeholder 'transaction_line' is forbidden; refer to internal/evidence_grain_audit_results.md for correct values."
                 },
+                "slicer_field": {
+                  "type": "string",
+                  "description": "Qualified table.column field for the primary detail-page context filter."
+                },
                 "evidence_columns": {
                   "type": "array",
                   "items": {

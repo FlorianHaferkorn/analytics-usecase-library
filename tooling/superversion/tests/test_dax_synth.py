@@ -85,6 +85,21 @@ def test_count_table():
     assert d.synthesize_dax(resolved) == "COUNTROWS ( fact_fulfillment )"
 
 
+def test_selector_switch_over_governed_driver_dimension():
+    resolved = {
+        "op": "selector_switch",
+        "selector": {"table": "dim_pvm_driver", "column": "Driver"},
+        "cases": [
+            {"when": "Plan Sales", "value": _measure("Plan Sales Amount")},
+            {"when": "Price Effect", "value": _measure("Price Effect Amount")},
+        ],
+    }
+    assert d.synthesize_dax(resolved) == (
+        'SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Plan Sales", '
+        '[Plan Sales Amount], "Price Effect", [Price Effect Amount], BLANK () )'
+    )
+
+
 @pytest.mark.parametrize(
     "resolved",
     [

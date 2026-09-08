@@ -111,6 +111,8 @@ value_driver_model:
 
 ux_layout_rules:
   report_structure: 2-Page-Lead
+  intent_rules_version: 2
+  title_statements_verified: false
   report_canvas:
     width: 1280
     height: 720
@@ -120,22 +122,31 @@ ux_layout_rules:
     template_variant: T1_Portfolio
     template_id: pulse
     decision_question: "Is the action governance cycle delivering verified business impact?"
+    big_idea: "Govern actions to verified outcomes by focusing executive attention where weak follow-through and material impact intersect."
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
       visual_type: kpi_card_with_delta
       comparison: vs_target
       status_logic: higher_is_better
     component_30s:
-      - kpi_id: enterprise.action_outcome_rate.pct
+      - slot_id: Main_1
+        kpi_id: enterprise.action_outcome_rate.pct
         visual_type: line_chart
         question: "Is the action-governance cycle delivering verified business impact?"
-        message: "Action outcome rate is the KPI that verifies whether the governance cycle is closing on real business impact"
-        so_what: "Tracking verified outcomes, not just actions closed, keeps the governance cycle honest about impact delivered."
-      - kpi_id: enterprise.value_at_risk.index
+        message: "Outcome-rate trend separates verified business impact from administrative action closure."
+        so_what: "A weak or deteriorating outcome rate triggers governance intervention before more activity is mistaken for progress."
+        category_field: dim_date.Year
+        action_code_id: X-E3.3
+        unit: rate
+      - slot_id: Main_2
+        kpi_id: enterprise.action_effectiveness_delta.amount
         visual_type: horizontal_bar_chart
-        question: "Where is value-at-risk concentrated across domains?"
-        message: "Value at risk is concentrated where action follow-through is weakest across domains"
-        so_what: "Prioritising domains with the highest value at risk directs governance attention to where it matters most."
+        question: "Which domains convert actions into the strongest verified impact?"
+        message: "Domain-level effectiveness ranks where governed actions deliver or fail to deliver verified value."
+        so_what: "Executive attention should first address domains combining weak outcomes with material impact exposure."
+        category_field: fact_action_outcome.domain
+        action_code_id: X-E3.3
+        unit: amount
   page_2_execution:
     title: Executive Action Governance — Outcome Detail
     decision_question: "Which action domains need governance intervention to convert into verified outcomes?"
@@ -144,21 +155,24 @@ ux_layout_rules:
     template_id: action_matrix
     component_300s:
       evidence_grain: action_outcome
+      slicer_field: fact_action_outcome.domain
       evidence_columns:
-        - action_code_id
-        - domain
-        - severity_level
-        - outcome_status
-        - days_to_outcome
-        - impact_value
-        - cost_to_execute
+        - fact_action_outcome.action_code_id
+        - fact_action_outcome.domain
+        - fact_action_outcome.outcome_status
+        - fact_action_outcome.days_to_outcome
+        - fact_action_outcome.impact_value
+        - fact_action_outcome.cost_to_execute
       # BC-CHART-10 (Craft-Core §5.4 / R1.3): governed worst-first sort + Top-N (R2.1 sort_by/top_n).
       sort_by:
-        measure: impact_value
-        direction: ascending
+        measure: days_to_outcome
+        direction: descending
       top_n: 20
+      highlight_rule:
+        column: days_to_outcome
+        type: data_bar
       action_panel: true
-      payload_mode: full
+      payload_mode: minimal
 
 prioritization:
   business_value: high

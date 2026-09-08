@@ -324,38 +324,40 @@
             "y": 376.0,
             "width": 1232.0,
             "height": 672.0,
-            "title": "COGS is rising as a share of sales, eroding margin quarter over quarter",
+            "title": "Unit-cost trend against Plan shows whether cost recovery is taking hold.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "COGS % of Sales"
+              "Unit Cost Amount"
             ],
-            "rows": [],
+            "rows": [
+              "dim_date.CalendarYearMonth"
+            ],
             "columns": [],
             "slicer_field": ""
           },
           {
             "visual_id": "Main_2",
-            "visual_type": "horizontal_bar_chart",
+            "visual_type": "variance_bar",
             "x": 1280.0,
             "y": 376.0,
             "width": 608.0,
             "height": 328.0,
-            "title": "Opex variance, material cost, and labor productivity — the three levers behind unit cost.",
+            "title": "OpEx variance ranking isolates where controllable cost pressure is concentrated.",
             "has_title": true,
             "binds_measures": true,
             "has_tooltip_fields": false,
             "has_tooltip_vco": false,
             "visual_calculations": [],
             "bound_measures": [
-              "OpEx vs Plan %",
-              "Material Cost %",
-              "Labor Productivity %"
+              "OpEx vs Plan %"
             ],
-            "rows": [],
+            "rows": [
+              "dim_org.Entity"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -375,7 +377,7 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "Date[Date]"
+            "slicer_field": "dim_date.Date"
           }
         ],
         "width": 1920,
@@ -409,7 +411,10 @@
               "Labor Productivity %",
               "Quality Defect Rate %"
             ],
-            "rows": [],
+            "rows": [
+              "dim_org.Entity",
+              "dim_product.Category"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -420,7 +425,7 @@
             "y": 118.0,
             "width": 296.0,
             "height": 930.0,
-            "title": "",
+            "title": "Recommended actions (from action codes)\n\n• F-K2.1 — Cost Take-Out Orchestration\n  Owner: finance_director\n  Trigger: cost.unit.amount > 0.05%\n  Impact: High, CostAvoidance\n  Expected: 2.0–6.0 %\n  Confidence: High\n\n• F-K2.2 — Material Cost Discipline\n  Owner: head_of_procurement\n  Trigger: cost.material.pct > 0.05%\n  Impact: Medium, CostAvoidance\n  Expected: 1.0–4.0 %\n  Confidence: Medium\n\n• F-K2.3 — Labor Productivity Recovery\n  Owner: plant_manager\n  Trigger: ops.labor.productivity.pct < -6.0pp\n  Impact: Medium, CostAvoidance\n  Expected: 3.0–8.0 pp\n  Confidence: Medium\n\n• F-K2.4 — OpEx Spend Control\n  Owner: head_of_controlling\n  Trigger: cost.opex.vs_plan.pct > 5.0pp\n  Impact: Medium, CostAvoidance\n  Expected: 2.0–6.0 pp\n  Confidence: High",
             "has_title": false,
             "binds_measures": false,
             "has_tooltip_fields": false,

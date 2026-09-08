@@ -29,7 +29,7 @@ export function LayoutPreview({ theme, layer }: Props) {
         borderRadius: `${theme.borderRadius}px`,
         border: '1px solid var(--line)',
         overflow: 'hidden',
-        aspectRatio: '16/9',
+        minHeight: 240,
         fontFamily: theme.fontFamily || 'inherit',
       }}
     >
@@ -48,7 +48,7 @@ export function LayoutPreview({ theme, layer }: Props) {
         </span>
         <span
           style={{
-            fontSize: '0.625rem',
+            fontSize: 'var(--text-xs)',
             padding: '2px 8px',
             borderRadius: '9999px',
             backgroundColor: theme.primary,
@@ -78,7 +78,7 @@ const LAYER_CONFIG = {
 
 function PulsePreview({ theme }: { theme: ThemeConfig }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: 'var(--space-2)' }}>
       {['Gross Margin', 'Net Sales', 'CCC Days', 'OEE %'].map((label, i) => (
         <div
           key={label}
@@ -89,13 +89,13 @@ function PulsePreview({ theme }: { theme: ThemeConfig }) {
             borderLeft: `3px solid ${i === 0 ? theme.primary : i === 2 ? theme.secondary : 'var(--ink-4)'}`,
           }}
         >
-          <p style={{ fontSize: '0.625rem', color: `${theme.text}88` }}>{label}</p>
+          <p style={{ fontSize: 'var(--text-xs)', color: `${theme.text}88` }}>{label}</p>
           <p style={{ fontSize: '1rem', fontWeight: 700, color: theme.text, marginTop: '4px' }}>
             {['42.3%', '€4.2B', '38d', '76%'][i]}
           </p>
           <p
             style={{
-              fontSize: '0.5625rem',
+              fontSize: 'var(--text-xs)',
               color: i < 2 ? theme.primary : theme.secondary,
               marginTop: '2px',
             }}
@@ -110,7 +110,7 @@ function PulsePreview({ theme }: { theme: ThemeConfig }) {
 
 function InvestigatorPreview({ theme }: { theme: ThemeConfig }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 'var(--space-2)' }}>
       {/* Trend chart placeholder */}
       <div
         style={{
@@ -122,7 +122,7 @@ function InvestigatorPreview({ theme }: { theme: ThemeConfig }) {
           flexDirection: 'column',
         }}
       >
-        <p style={{ fontSize: '0.625rem', color: `${theme.text}88`, marginBottom: '8px' }}>Trend: Net Sales</p>
+        <p style={{ fontSize: 'var(--text-xs)', color: `${theme.text}88`, marginBottom: '8px' }}>Trend: Net Sales</p>
         <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: '3px' }}>
           {[40, 55, 48, 62, 58, 72, 68, 80, 75, 85, 78, 90].map((h, i) => (
             <div
@@ -150,7 +150,7 @@ function InvestigatorPreview({ theme }: { theme: ThemeConfig }) {
           flexDirection: 'column',
         }}
       >
-        <p style={{ fontSize: '0.625rem', color: `${theme.text}88`, marginBottom: '8px' }}>PVM Waterfall</p>
+        <p style={{ fontSize: 'var(--text-xs)', color: `${theme.text}88`, marginBottom: '8px' }}>PVM Waterfall</p>
         <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: '4px', justifyContent: 'center' }}>
           {[
             { h: 70, c: theme.primary },
@@ -188,7 +188,7 @@ function ActionPreview({ theme }: { theme: ThemeConfig }) {
       >
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', padding: '6px 12px', borderBottom: `1px solid ${theme.background}` }}>
           {['Entity', 'Margin %', 'Delta', 'Action'].map((h) => (
-            <span key={h} style={{ fontSize: '0.5625rem', color: `${theme.text}66`, fontWeight: 500 }}>{h}</span>
+            <span key={h} style={{ fontSize: 'var(--text-xs)', color: `${theme.text}66`, fontWeight: 500 }}>{h}</span>
           ))}
         </div>
         {[
@@ -201,7 +201,7 @@ function ActionPreview({ theme }: { theme: ThemeConfig }) {
               <span
                 key={j}
                 style={{
-                  fontSize: '0.5625rem',
+                  fontSize: 'var(--text-xs)',
                   color: j === 3 ? theme.secondary : theme.text,
                   fontFamily: j > 0 ? 'var(--font-mono)' : undefined,
                 }}

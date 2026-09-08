@@ -14,6 +14,10 @@ import { SpineNodeCard } from '@/components/spine/spine-node-card';
 
 import { GoldenThreadTab } from '@/components/blueprint/golden-thread-tab';
 
+import { ExportReportButton } from '@/components/steering/export-report-button';
+
+import { ExportExcelButton } from '@/components/steering/export-excel-button';
+
 import { StudioPageHeader } from '@/components/ui/studio-page';
 
 import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
@@ -78,7 +82,7 @@ const TABS: { id: BlueprintTab; label: string; hint?: string }[] = [
 
   { id: 'steering', label: 'Steering', hint: 'Edit brackets & explore flow' },
 
-  { id: 'decision-spine', label: 'Decision Spine', hint: 'Prescriptive playbooks' },
+  { id: 'decision-spine', label: 'Decision guides', hint: 'Prescriptive playbooks' },
 
   { id: 'golden-thread', label: 'Golden Thread', hint: 'Portfolio map & coverage' },
 
@@ -130,7 +134,7 @@ function DecisionSpineTab({ spines }: { spines: DecisionSpine[] }) {
 
           {spines.length} spine{spines.length !== 1 ? 's' : ''} from{' '}
 
-          <code style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>core/action_codes/decision_spines/</code>
+          <code style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}>core/action_codes/decision_spines/</code>
 
         </p>
 
@@ -177,10 +181,13 @@ export function BlueprintClient({
   const [selectedKpiId, setSelectedKpiId] = useState<string | null>(golden20Ids[0] ?? null);
 
   const [activeTab, setActiveTab] = useState<BlueprintTab>('steering');
+  const [showAssumptions, setShowAssumptions] = useState(false);
+  const [focusedUseCase, setFocusedUseCase] = useState<string | null>(steeringProps.initialSelectedBracket ?? brackets[0]?.id ?? null);
 
 
 
   const handleSelectedBracketChange = useCallback((bracketId: string | null) => {
+    setFocusedUseCase(bracketId);
 
     if (!bracketId) return;
 
@@ -204,7 +211,7 @@ export function BlueprintClient({
   );
 
   const domains = Array.from(new Set(brackets.map((b) => b.domain))).sort();
-  const headerBadge = domainFilter
+  const headerBadge = activeTab === 'steering' && focusedUseCase ? focusedUseCase : domainFilter
     ? `${filteredBrackets.length} of ${brackets.length} · ${domainFilter}`
     : `All ${brackets.length}`;
 
@@ -212,17 +219,16 @@ export function BlueprintClient({
 
   return (
 
-    <div className="studio-blueprint-page" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - var(--shell-header) - var(--pad) * 2)', minHeight: 0, gap: 'var(--gap)' }}>
+    <div className="studio-blueprint-page" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - var(--shell-header) - (2 * var(--studio-page-gutter-y)))', minHeight: 0, gap: 'var(--space-2)' }}>
 
-      <div style={{ padding: '0 var(--pad)', flexShrink: 0 }}>
+      <div style={{ padding: 0, flexShrink: 0 }}>
 
         <StudioPageHeader
 
-          eyebrow="Forge / Blueprint"
 
           title="Blueprint"
 
-          description="Navigate the golden thread, refine bracket YAML, and turn draft scaffolds into governed use cases."
+          description="Explore strategy, KPIs and actions."
 
           badge={headerBadge}
 
@@ -246,11 +252,13 @@ export function BlueprintClient({
 
           borderBottom: '1px solid var(--line)',
 
-          padding: '0 var(--pad)',
+          padding: 0,
 
           flexShrink: 0,
 
           background: 'var(--bg)',
+          overflowX: 'auto',
+          overflowY: 'hidden',
 
         }}
 
@@ -273,8 +281,9 @@ export function BlueprintClient({
               title={tab.hint}
 
               style={{
+                flexShrink: 0,
 
-                padding: '10px 14px',
+                padding: '7px 12px',
 
                 border: 'none',
 
@@ -304,7 +313,7 @@ export function BlueprintClient({
 
               {tab.id === 'decision-spine' && spines.length > 0 && (
 
-                <span style={{ marginLeft: 6, fontSize: 10, color: 'var(--ink-4)', background: 'var(--bg-2)', padding: '1px 5px', borderRadius: 4, fontFamily: 'var(--font-mono)' }}>
+                <span style={{ marginLeft: 6, fontSize: 'var(--text-2xs)', color: 'var(--ink-4)', background: 'var(--bg-2)', padding: '1px 5px', borderRadius: 4, fontFamily: 'var(--font-mono)' }}>
 
                   {spines.length}
 
@@ -318,6 +327,19 @@ export function BlueprintClient({
 
         })}
 
+        {activeTab === 'steering' && (
+
+          <div style={{ marginLeft: 'auto', display: 'flex', flexShrink: 0, alignItems: 'center', gap: 6, paddingInline: 2 }}>
+            <button type="button" aria-pressed={showAssumptions} onClick={() => setShowAssumptions(value => !value)} style={{ fontSize: 'var(--text-xs)', padding: '6px 10px', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)', background: showAssumptions ? 'var(--accent-soft)' : 'var(--panel)', color: 'var(--ink)', cursor: 'pointer' }}>Value assumptions</button>
+
+            <ExportReportButton />
+
+            <ExportExcelButton />
+
+          </div>
+
+        )}
+
       </div>
 
 
@@ -326,7 +348,7 @@ export function BlueprintClient({
 
         {activeTab === 'steering' && (
 
-          <div className="studio-blueprint-steering" style={{ display: 'flex', gap: 'var(--gap)', flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', padding: '0 var(--pad) var(--pad)' }}>
+          <div className="studio-blueprint-steering" style={{ display: 'flex', gap: 'var(--space-3)', flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', padding: 0 }}>
 
             <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
 
@@ -352,11 +374,11 @@ export function BlueprintClient({
 
             </div>
 
-            <div className="studio-blueprint-roi" style={{ flexShrink: 0, width: 360, overflow: 'auto', alignSelf: 'flex-start', position: 'sticky', top: 0 }}>
+            {showAssumptions && <div className="studio-blueprint-roi" style={{ flexShrink: 0, width: 'clamp(300px, 22vw, 340px)', maxHeight: '100%', overflow: 'auto', alignSelf: 'stretch', position: 'sticky', top: 0 }}>
 
               <RoiPresetPanel kpiId={selectedKpiId} golden20Ids={golden20Ids} onKpiChange={setSelectedKpiId} />
 
-            </div>
+            </div>}
 
           </div>
 
@@ -409,4 +431,3 @@ export function BlueprintClient({
   );
 
 }
-

@@ -58,7 +58,7 @@ export function createMcpServer(): McpServer {
 
   server.tool(
     'export_fabric',
-    'Export a use case bracket to TMDL/Power BI format',
+    'Package a use case as governed TMDL and PBIR artifacts with the shared gate report',
     { useCaseId: z.string().describe('Use case ID to export') },
     async ({ useCaseId }) => {
       const result = await tools.exportFabric(useCaseId);
@@ -68,7 +68,7 @@ export function createMcpServer(): McpServer {
 
   server.tool(
     'export_oss',
-    'Export a use case bracket to SQL/Evidence.dev format',
+    'Package a use case as a governed Open Semantic Interchange artifact',
     { useCaseId: z.string().describe('Use case ID to export') },
     async ({ useCaseId }) => {
       const result = await tools.exportOss(useCaseId);
@@ -149,14 +149,14 @@ export function createMcpServer(): McpServer {
 
   server.tool(
     'deploy_pbip',
-    'Generate PBIP from IR and import to Fabric workspace via fab import',
+    'Generate a governed PBIP package and import it with fab only when all target gates are live',
     {
       useCaseId: z.string().describe('Use case ID to generate and deploy (e.g. COM-001)'),
       workspaceName: z.string().describe('Fabric workspace friendly name'),
       distPath: z.string().optional().describe('Override dist output path'),
     },
-    ({ useCaseId, workspaceName, distPath }) => {
-      const result = tools.deployPbip(useCaseId, workspaceName, distPath);
+    async ({ useCaseId, workspaceName, distPath }) => {
+      const result = await tools.deployPbip(useCaseId, workspaceName, distPath);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     }
   );
@@ -176,7 +176,7 @@ export function createMcpServer(): McpServer {
 
   server.tool(
     'autofix_bindings',
-    'Run validate_bindings.py and auto-patch broken visual.json measure references',
+    'Audit PBIR bindings without mutating generated files; defects must be fixed at their governed source',
     {
       distPath: z.string().optional().describe('Override path to PBIP dist folder'),
     },

@@ -3,10 +3,10 @@ import type { LineageGraph, LineageNode } from '@/lib/core/lineage-builder';
 import type { CanvasEdge, CanvasNode, NodeKind } from '@/components/canvas/canvas-types';
 
 const NODE_SIZES: Record<string, { w: number; h: number }> = {
-  dimension: { w: 200, h: 56 },
-  fact: { w: 200, h: 56 },
-  kpi: { w: 220, h: 56 },
-  bracket: { w: 220, h: 56 },
+  dimension: { w: 240, h: 108 },
+  fact: { w: 240, h: 108 },
+  kpi: { w: 240, h: 108 },
+  bracket: { w: 240, h: 108 },
 };
 
 function lineageKind(type: LineageNode['type']): NodeKind {
@@ -25,7 +25,7 @@ export function lineageGraphToCanvas(graph: LineageGraph): {
   const rawNodes: Array<CanvasNode & { _w: number; _h: number }> = [];
 
   for (const node of graph.nodes) {
-    const size = NODE_SIZES[node.type] ?? { w: 200, h: 56 };
+    const size = NODE_SIZES[node.type] ?? { w: 240, h: 108 };
     rawNodes.push({
       id: node.id,
       kind: lineageKind(node.type),
@@ -49,7 +49,7 @@ export function lineageGraphToCanvas(graph: LineageGraph): {
 
   const nodes = rawNodes.map(({ _w, _h, ...n }) => {
     const pos = g.node(n.id);
-    return { ...n, x: (pos?.x ?? 0) - _w / 2, y: (pos?.y ?? 0) - _h / 2 };
+    return { ...n, width: _w, height: _h, x: (pos?.x ?? 0) - _w / 2, y: (pos?.y ?? 0) - _h / 2 };
   });
 
   return { nodes, edges };

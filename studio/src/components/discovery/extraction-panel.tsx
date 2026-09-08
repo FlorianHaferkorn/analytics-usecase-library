@@ -61,7 +61,7 @@ interface ReviewSummary {
 }
 
 /** Parse AI response for structured elements with source traceability. */
-function parseElements(text: string, sourceNames: string[]): ExtractedElement[] {
+export function parseExtractedElements(text: string, sourceNames: string[]): ExtractedElement[] {
   const elements: ExtractedElement[] = [];
   if (!text) return elements;
 
@@ -185,7 +185,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
   const [reviewMap, setReviewMap] = useState<Record<string, ReviewItem>>({});
   const [reuseMap, setReuseMap] = useState<Record<string, string>>({});
   const [compareSelectionMap, setCompareSelectionMap] = useState<Record<string, string>>({});
-  const elements = useMemo(() => parseElements(lastResponse, sourceNames), [lastResponse, sourceNames]);
+  const elements = useMemo(() => parseExtractedElements(lastResponse, sourceNames), [lastResponse, sourceNames]);
 
   const filtered = filter === 'all' ? elements : elements.filter((e) => e.type === filter);
 
@@ -293,7 +293,8 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
     <StudioPanel
       title="Extracted Elements"
       description="Review discovered anchors, KPIs and action codes before drafting them into governed artifacts."
-      style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}
+      bare
+      style={{ width: '100%', height: '100%' }}
     >
       <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--line)' }}>
         {reviewSummary && (
@@ -305,7 +306,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
           </div>
         )}
         {reviewError && (
-          <div style={{ marginBottom: '8px', padding: '6px 8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'color-mix(in srgb, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: '0.6875rem' }}>
+          <div style={{ marginBottom: '8px', padding: '6px 8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'color-mix(in srgb, var(--danger) 12%, transparent)', color: 'var(--danger)', fontSize: 'var(--text-xs)' }}>
             {reviewError}
           </div>
         )}
@@ -355,33 +356,36 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                       borderLeftStyle: 'solid',
                       borderLeftColor: TYPE_COLORS[el.type],
                       display: 'block',
+                      whiteSpace: 'normal',
+                      height: 'auto',
+                      overflowWrap: 'anywhere',
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                      <span style={{ fontSize: '0.625rem', color: TYPE_COLORS[el.type], fontWeight: 600, textTransform: 'uppercase' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                      <span style={{ fontSize: 'var(--text-xs)', color: TYPE_COLORS[el.type], fontWeight: 600, textTransform: 'uppercase' }}>
                         {TYPE_LABELS[el.type]}
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {review && (
-                          <span style={{ fontSize: '0.5625rem', padding: '1px 6px', borderRadius: '9999px', backgroundColor: `color-mix(in srgb, ${REVIEW_COLORS[review.status]} 16%, transparent)`, color: REVIEW_COLORS[review.status], border: `1px solid color-mix(in srgb, ${REVIEW_COLORS[review.status]} 45%, transparent)` }}>
+                          <span style={{ fontSize: 'var(--text-xs)', padding: '1px 6px', borderRadius: '9999px', backgroundColor: `color-mix(in srgb, ${REVIEW_COLORS[review.status]} 16%, transparent)`, color: REVIEW_COLORS[review.status], border: `1px solid color-mix(in srgb, ${REVIEW_COLORS[review.status]} 45%, transparent)` }}>
                             {REVIEW_LABELS[review.status]}
                           </span>
                         )}
-                        <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
+                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
                           {el.id}
                         </span>
                       </div>
                     </div>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--ink)', fontWeight: 500 }}>
+                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--ink)', fontWeight: 500 }}>
                       {el.name}
                     </p>
-                    <p style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', marginTop: '2px' }}>
+                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginTop: '2px' }}>
                       {el.source}
                     </p>
                   </StudioButton>
 
                   {isExpanded && (
-                    <div style={{ marginTop: '4px', padding: '8px', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem' }}>
+                    <div style={{ marginTop: '4px', padding: '8px', backgroundColor: 'var(--bg)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)' }}>
                       {review && (
                         <div style={{ marginBottom: '8px', padding: '6px 8px', borderRadius: 'var(--radius-sm)', backgroundColor: `color-mix(in srgb, ${REVIEW_COLORS[review.status]} 8%, transparent)`, border: `1px solid color-mix(in srgb, ${REVIEW_COLORS[review.status]} 24%, transparent)` }}>
                           <p style={{ color: REVIEW_COLORS[review.status], fontWeight: 600, marginBottom: '2px' }}>
@@ -403,7 +407,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                                     variant={isActive ? 'secondary' : 'ghost'}
                                     style={{
                                       padding: '4px 8px',
-                                      fontSize: '0.625rem',
+                                      fontSize: 'var(--text-xs)',
                                     }}
                                   >
                                     Compare {match.id}
@@ -424,7 +428,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                                 variant={reusedId ? 'secondary' : 'ghost'}
                                 style={{
                                   padding: '4px 8px',
-                                  fontSize: '0.625rem',
+                                  fontSize: 'var(--text-xs)',
                                 }}
                               >
                                 {reusedId
@@ -444,7 +448,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                                   variant="ghost"
                                   style={{
                                     padding: '4px 8px',
-                                    fontSize: '0.625rem',
+                                    fontSize: 'var(--text-xs)',
                                   }}
                                 >
                                   Create new instead
@@ -453,22 +457,22 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                             </div>
                           )}
                           {selectedMatch && (
-                            <div style={{ marginTop: '8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <div style={{ marginTop: '8px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(12rem, 100%), 1fr))', gap: '8px', overflowWrap: 'anywhere' }}>
                               <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg)', border: '1px solid var(--line)' }}>
-                                <p style={{ color: 'var(--ink-4)', fontSize: '0.5625rem', marginBottom: '4px', textTransform: 'uppercase' }}>Discovery Draft</p>
-                                <p style={{ color: 'var(--ink-2)', fontSize: '0.625rem', fontFamily: 'var(--font-mono)' }}>{el.id}</p>
-                                <p style={{ color: 'var(--ink)', fontSize: '0.6875rem', fontWeight: 600, marginTop: '3px' }}>{el.name}</p>
-                                <p style={{ color: 'var(--ink-3)', fontSize: '0.625rem', marginTop: '6px', lineHeight: 1.4 }}>{el.details || 'No extra draft detail available.'}</p>
+                                <p style={{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)', marginBottom: '4px', textTransform: 'uppercase' }}>Discovery Draft</p>
+                                <p style={{ color: 'var(--ink-2)', fontSize: 'var(--text-xs)', fontFamily: 'var(--font-mono)' }}>{el.id}</p>
+                                <p style={{ color: 'var(--ink)', fontSize: 'var(--text-xs)', fontWeight: 600, marginTop: '3px' }}>{el.name}</p>
+                                <p style={{ color: 'var(--ink-3)', fontSize: 'var(--text-xs)', marginTop: '6px', lineHeight: 1.4 }}>{el.details || 'No extra draft detail available.'}</p>
                                 {el.sourceContext && (
-                                  <p style={{ color: 'var(--ink-4)', fontSize: '0.5625rem', marginTop: '6px', lineHeight: 1.4 }}>&ldquo;{el.sourceContext}&rdquo;</p>
+                                  <p style={{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)', marginTop: '6px', lineHeight: 1.4 }}>&ldquo;{el.sourceContext}&rdquo;</p>
                                 )}
                               </div>
                               <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg)', border: '1px solid var(--line)' }}>
-                                <p style={{ color: 'var(--ink-4)', fontSize: '0.5625rem', marginBottom: '4px', textTransform: 'uppercase' }}>Registry Candidate</p>
-                                <p style={{ color: 'var(--ink-2)', fontSize: '0.625rem', fontFamily: 'var(--font-mono)' }}>{selectedMatch.id}</p>
-                                <p style={{ color: 'var(--ink)', fontSize: '0.6875rem', fontWeight: 600, marginTop: '3px' }}>{selectedMatch.name}</p>
-                                <p style={{ color: 'var(--ink-3)', fontSize: '0.625rem', marginTop: '6px' }}>{MATCH_REASON_LABELS[selectedMatch.reason]}</p>
-                                <p style={{ color: 'var(--ink-4)', fontSize: '0.5625rem', marginTop: '6px', lineHeight: 1.4 }}>
+                                <p style={{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)', marginBottom: '4px', textTransform: 'uppercase' }}>Registry Candidate</p>
+                                <p style={{ color: 'var(--ink-2)', fontSize: 'var(--text-xs)', fontFamily: 'var(--font-mono)' }}>{selectedMatch.id}</p>
+                                <p style={{ color: 'var(--ink)', fontSize: 'var(--text-xs)', fontWeight: 600, marginTop: '3px' }}>{selectedMatch.name}</p>
+                                <p style={{ color: 'var(--ink-3)', fontSize: 'var(--text-xs)', marginTop: '6px' }}>{MATCH_REASON_LABELS[selectedMatch.reason]}</p>
+                                <p style={{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)', marginTop: '6px', lineHeight: 1.4 }}>
                                   Compare semantic overlap before promoting. Exact-ID conflicts should usually merge; name-only overlaps still need manual governance review.
                                 </p>
                               </div>
@@ -478,14 +482,14 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                       )}
                       {el.sourceContext && (
                         <div style={{ marginBottom: '8px' }}>
-                          <p style={{ color: 'var(--ink-4)', fontSize: '0.5625rem', marginBottom: '2px' }}>Source Quote:</p>
+                          <p style={{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)', marginBottom: '2px' }}>Source Quote:</p>
                           <p style={{ color: 'var(--ink-2)', fontStyle: 'italic', lineHeight: 1.4 }}>
                             &ldquo;{el.sourceContext}&rdquo;
                           </p>
                         </div>
                       )}
-                      <p style={{ color: 'var(--ink-4)', fontSize: '0.5625rem', marginBottom: '2px' }}>Traced to:</p>
-                      <p style={{ color: 'var(--info)', fontSize: '0.6875rem' }}>{el.source}</p>
+                      <p style={{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)', marginBottom: '2px' }}>Traced to:</p>
+                      <p style={{ color: 'var(--info)', fontSize: 'var(--text-xs)' }}>{el.source}</p>
                     </div>
                   )}
                 </div>
@@ -499,10 +503,10 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
         <div style={{ padding: '16px', borderTop: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
             <div>
-              <p style={{ fontSize: '0.6875rem', color: 'var(--ink-2)', fontWeight: 600 }}>
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-2)', fontWeight: 600 }}>
                 Review before drafting
               </p>
-              <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)' }}>
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>
                 {reviewLoading ? 'Checking registry matches...' : hasConflicts ? 'Resolve or merge exact-ID conflicts before drafting.' : 'Draft branch will include reviewed extracted items.'}
               </p>
             </div>
@@ -512,17 +516,17 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
               variant="ghost"
               style={{
                 padding: '6px 8px',
-                fontSize: '0.6875rem',
+                fontSize: 'var(--text-xs)',
               }}
             >
               {reviewLoading ? 'Review...' : 'Review refresh'}
             </StudioButton>
           </div>
           {draftResult && (
-            <div style={{ padding: '8px', backgroundColor: 'color-mix(in srgb, var(--accent) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--accent)' }}>
-              <p style={{ fontWeight: 600 }}>Branch erstellt ✓</p>
-              <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.5625rem', marginTop: '2px', wordBreak: 'break-all' }}>{draftResult.branch}</p>
-              <p style={{ color: 'var(--ink-3)', marginTop: '2px' }}>{draftResult.total} Elemente → {draftResult.file}</p>
+            <div style={{ padding: '8px', backgroundColor: 'color-mix(in srgb, var(--accent) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', color: 'var(--accent)' }}>
+              <p style={{ fontWeight: 600 }}>Draft branch created</p>
+              <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', marginTop: '2px', wordBreak: 'break-all' }}>{draftResult.branch}</p>
+              <p style={{ color: 'var(--ink-3)', marginTop: '2px' }}>{draftResult.total} elements → {draftResult.file}</p>
               {draftResult.scaffold && (
                 <>
                   <p style={{ color: 'var(--ink-3)', marginTop: '2px' }}>
@@ -538,7 +542,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                       style={{
                         marginTop: '8px',
                         padding: '5px 8px',
-                        fontSize: '0.6875rem',
+                        fontSize: 'var(--text-xs)',
                       }}
                     >
                       Open scaffold in Steering
@@ -549,7 +553,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
             </div>
           )}
           {draftError && (
-            <div style={{ padding: '8px', backgroundColor: 'color-mix(in srgb, var(--danger) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--danger)' }}>
+            <div style={{ padding: '8px', backgroundColor: 'color-mix(in srgb, var(--danger) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: 'var(--text-xs)', color: 'var(--danger)' }}>
               {draftError}
             </div>
           )}
@@ -561,7 +565,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
             style={{
               width: '100%',
               padding: '8px',
-              fontSize: '0.8125rem',
+              fontSize: 'var(--text-sm)',
             }}
           >
             {drafting ? 'Creating branch…' : hasConflicts ? 'Resolve conflicts first' : 'Create draft branch'}
@@ -575,8 +579,8 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
 function ReviewStat({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div style={{ padding: '6px 4px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg)', border: '1px solid var(--line)', textAlign: 'center' }}>
-      <p style={{ fontSize: '0.75rem', fontWeight: 700, color }}>{value}</p>
-      <p style={{ fontSize: '0.5rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</p>
+      <p style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color }}>{value}</p>
+      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</p>
     </div>
   );
 }

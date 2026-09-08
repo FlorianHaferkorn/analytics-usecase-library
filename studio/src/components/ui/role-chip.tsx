@@ -26,7 +26,7 @@ function rawInitials(id: string): string {
 
 export function RoleChip({ roleId, resolved, size = 'sm' }: Props) {
   const circleSize = size === 'sm' ? 24 : 28;
-  const fontSize = 10;
+  const fontSize = 'var(--text-xs)';
 
   if (resolved) {
     return (
@@ -46,8 +46,8 @@ export function RoleChip({ roleId, resolved, size = 'sm' }: Props) {
             height: circleSize,
             borderRadius: '50%',
             flexShrink: 0,
-            background: `oklch(0.55 0.12 ${resolved.hue})`,
-            color: '#0d0e10',
+            background: `color-mix(in oklch, oklch(0.55 0.12 ${resolved.hue}) 15%, var(--panel))`,
+            color: 'var(--ink)',
             fontSize,
             fontWeight: 600,
             lineHeight: 1,
@@ -58,7 +58,7 @@ export function RoleChip({ roleId, resolved, size = 'sm' }: Props) {
         </span>
         <span
           style={{
-            fontSize: 13,
+            fontSize: 'var(--text-sm)',
             color: 'var(--ink-2)',
             lineHeight: 1.3,
           }}
@@ -91,7 +91,7 @@ export function RoleChip({ roleId, resolved, size = 'sm' }: Props) {
           borderRadius: '50%',
           flexShrink: 0,
           background: 'var(--panel)',
-          color: 'var(--ink-4)',
+          color: 'var(--ink-3)',
           fontSize,
           fontWeight: 600,
           lineHeight: 1,
@@ -103,7 +103,7 @@ export function RoleChip({ roleId, resolved, size = 'sm' }: Props) {
       </span>
       <span
         style={{
-          fontSize: 13,
+          fontSize: 'var(--text-sm)',
           color: 'var(--ink-2)',
           lineHeight: 1.3,
         }}

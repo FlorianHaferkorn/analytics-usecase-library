@@ -5,6 +5,7 @@ Single entry for the **procedure** from strategy to first report. Data layers: w
 ## Tool-agnostic playbook
 
 - **From strategy to first report:** [playbook_strategy_to_first_report.md](playbook_strategy_to_first_report.md) — Step-by-step: choose strategy pattern, select use-case pack, align **Silver** data, build semantic model (from Silver), build first report, validate. Use this before or alongside platform-specific guides.
+- **Scope-to-verified-delivery product model:** [Discovery-to-Deployment Workbench](../../docs/architecture/research/discovery-to-deployment-workbench.md) — proposed reusable flow that derives discovery, Data Governance, architecture, delivery and evidence from a selected engagement scope. The first-report playbook is one profile within this broader model.
 
 ## Platform-specific guides
 

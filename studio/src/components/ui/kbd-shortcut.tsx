@@ -28,8 +28,8 @@ export function KbdShortcut({ k, meta = true, style, className }: KbdShortcutPro
 
   const baseStyle: React.CSSProperties = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    minWidth: 18, height: 18, padding: '0 5px',
-    fontFamily: 'var(--font-mono)', fontSize: 10.5, fontWeight: 500,
+    minWidth: 20, minHeight: 20, padding: '0 var(--space-1)',
+    fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', fontWeight: 500,
     color: 'var(--ink-3)', background: 'var(--bg-2)',
     border: '1px solid var(--line)', borderRadius: 5,
     fontStyle: 'normal',

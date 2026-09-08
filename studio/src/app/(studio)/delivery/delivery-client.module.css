@@ -1,0 +1,26 @@
+.stageGrid,
+.reviewGrid { display: grid; align-items: start; gap: var(--studio-section-gap); }
+.stageGrid { grid-template-columns: minmax(320px, .8fr) minmax(480px, 1.2fr); }
+.reviewGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.adapterList { display: flex; flex-direction: column; gap: var(--space-2); }
+.adapterCard { display: flex; width: 100%; min-height: 94px; flex-direction: column; gap: 7px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--ink); text-align: left; transition: border-color var(--motion-fast), background-color var(--motion-fast), box-shadow var(--motion-fast); }
+.adapterCard:hover { border-color: color-mix(in srgb, var(--accent) 30%, var(--line)); background: var(--hover); }
+.adapterCard[data-selected='true'] { border-color: color-mix(in srgb, var(--accent) 72%, var(--line)); background: color-mix(in srgb, var(--accent) 8%, transparent); box-shadow: inset 3px 0 0 var(--accent); }
+.adapterHeading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.adapterHeading strong { font-size: 13.5px; font-weight: 620; line-height: 1.4; }
+.adapterHeading span { padding: 2px 7px; border: 1px solid color-mix(in srgb, var(--positive) 28%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--positive) 8%, transparent); color: var(--positive); font-size: var(--text-sm); font-weight: 650; text-transform: capitalize; }
+.adapterHeading span[data-status='beta'] { border-color: color-mix(in srgb, var(--warning) 28%, transparent); background: color-mix(in srgb, var(--warning) 8%, transparent); color: var(--warning); }
+.adapterDescription { color: var(--ink-3); font-size: 12.5px; line-height: 1.5; }
+.bracketId { display: inline-block; min-width: 64px; color: var(--accent); font-family: var(--font-mono); font-size: 12px; }
+.outputList { display: flex; margin: 0; padding: 0; flex-direction: column; gap: var(--space-2); list-style: none; }
+.outputList li { display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: start; gap: var(--space-2); color: var(--ink-2); font-size: 13px; line-height: 1.5; }
+.outputList li span { display: grid; width: 20px; height: 20px; place-items: center; border-radius: 999px; background: color-mix(in srgb, var(--positive) 12%, transparent); color: var(--positive); font-size: var(--text-sm); }
+.gateCopy { max-width: 62ch; margin: 0; color: var(--ink-3); font-size: 13px; line-height: 1.55; }
+
+@media (max-width: 1040px) {
+  .stageGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .reviewGrid { grid-template-columns: 1fr; }
+}

@@ -12,7 +12,7 @@ interface Props {
 }
 
 const SECTION_LABEL: React.CSSProperties = {
-  fontSize: '11px',
+  fontSize: 'var(--text-xs)',
   fontWeight: 600,
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
@@ -118,7 +118,7 @@ export function TweaksTab({ theme, onUpdate, onSave, saving }: Props) {
                   </p>
                   <p style={{
                     margin: '4px 0 0',
-                    fontSize: '11px',
+                    fontSize: 'var(--text-xs)',
                     color: 'var(--ink-3)',
                     fontFamily: font.family,
                   }}>
@@ -148,7 +148,7 @@ export function TweaksTab({ theme, onUpdate, onSave, saving }: Props) {
             borderRadius: '6px',
             border: 'none',
             background: saving ? 'var(--ink-4)' : 'var(--accent)',
-            color: saving ? 'var(--ink-3)' : '#0d0e10',
+            color: saving ? 'var(--ink-3)' : 'var(--accent-ink)',
             fontSize: '13px',
             fontWeight: 600,
             cursor: saving ? 'not-allowed' : 'pointer',

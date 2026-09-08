@@ -24,7 +24,7 @@ function ConfidenceBadge({ level }: { level: string }) {
       style={{
         padding: '2px 8px',
         borderRadius: 'var(--radius-sm)',
-        fontSize: '0.6875rem',
+        fontSize: 'var(--text-xs)',
         fontWeight: 600,
         backgroundColor: bg,
         color,
@@ -77,7 +77,7 @@ export function SpineList({ spines }: Props) {
                 <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '2px' }}>
                   {spine.name}
                 </p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontFamily: 'monospace' }}>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', fontFamily: 'monospace' }}>
                   {spine.id}
                 </p>
               </div>
@@ -88,7 +88,7 @@ export function SpineList({ spines }: Props) {
                     style={{
                       padding: '2px 8px',
                       borderRadius: 'var(--radius-sm)',
-                      fontSize: '0.6875rem',
+                      fontSize: 'var(--text-xs)',
                       backgroundColor: 'var(--bg-2)',
                       color: 'var(--ink-2)',
                     }}

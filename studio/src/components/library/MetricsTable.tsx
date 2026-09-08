@@ -5,6 +5,7 @@ import type { CatalogKpi } from '@/lib/core/catalog-types';
 import { useMemo } from 'react';
 import { useDomainFilter } from '@/lib/hooks/use-domain-filter';
 import { matchesDomainTags } from '@/lib/studio/domain-filter';
+import { formatReviewDate } from '@/lib/format/review-date';
 
 interface MetricsTableProps {
   metrics: CatalogKpi[];
@@ -79,7 +80,7 @@ export function MetricsTable({ metrics, searchQuery }: MetricsTableProps) {
             <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
               Grain
             </th>
-            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em]">
+            <th className="px-6 py-3 text-left text-2xs font-medium text-foreground-muted uppercase tracking-[0.06em] whitespace-nowrap min-w-[110px]">
               Updated
             </th>
           </tr>
@@ -109,10 +110,8 @@ export function MetricsTable({ metrics, searchQuery }: MetricsTableProps) {
               <td className="px-6 py-3.5 text-foreground-muted">
                 {metric.business.grain_scope || '—'}
               </td>
-              <td className="px-6 py-3.5 text-foreground-muted">
-                {metric.metadata_quality?.last_review
-                  ? new Date(metric.metadata_quality.last_review).toLocaleDateString('en-CA')
-                  : '—'}
+              <td className="px-6 py-3.5 text-foreground-muted whitespace-nowrap">
+                {formatReviewDate(metric.metadata_quality?.last_review)}
               </td>
             </tr>
           ))}

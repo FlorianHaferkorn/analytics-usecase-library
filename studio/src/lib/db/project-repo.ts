@@ -3,6 +3,7 @@
  */
 
 import { getDb } from './sqlite';
+import { randomUUID } from 'node:crypto';
 
 export interface ProjectRow {
   id: string;
@@ -26,7 +27,7 @@ export function getProject(id = 'default'): ProjectRow | undefined {
 
 export function createProject(name: string, strategyAnchor: string): ProjectRow {
   const db = getDb();
-  const id = `proj-${Date.now().toString(36)}`;
+  const id = `proj_${randomUUID().replaceAll('-', '')}`;
   db.prepare(`
     INSERT INTO projects (id, name, strategy_anchor, theme_json)
     VALUES (?, ?, ?, '{}')

@@ -10,14 +10,15 @@ interface Props {
 export function NotificationBell({ count, onClick }: Props) {
   return (
     <StudioButton
+      aria-label={`Notifications${count > 0 ? `, ${count} unread` : ''}`}
       onClick={onClick}
       variant="ghost"
       style={{
         position: 'relative',
         padding: '0',
         color: count > 0 ? 'var(--ink)' : 'var(--ink-3)',
-        width: '30px',
-        height: '30px',
+        width: 'var(--studio-control-height)',
+        height: 'var(--studio-control-height)',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -36,11 +37,11 @@ export function NotificationBell({ count, onClick }: Props) {
             right: '2px',
             background: 'var(--accent)',
             color: 'var(--accent-ink)',
-            fontSize: '9px',
+            fontSize: 'var(--text-xs)',
             fontWeight: 700,
             borderRadius: '999px',
-            minWidth: '14px',
-            height: '14px',
+            minWidth: '20px',
+            height: '20px',
             padding: '0 3px',
             display: 'inline-flex',
             alignItems: 'center',

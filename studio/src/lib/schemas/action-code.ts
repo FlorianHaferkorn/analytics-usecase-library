@@ -105,24 +105,24 @@ export interface ActionCodeDefinitionV20AIMirror {
       notes?: string;
     };
   };
-  impact: {};
-  operational_execution: {};
-  data_requirements?: {};
-  automation?: {};
-  tracking?: {};
-  governance?: {};
+  impact: Record<string, unknown>;
+  operational_execution: Record<string, unknown>;
+  data_requirements?: Record<string, unknown>;
+  automation?: Record<string, unknown>;
+  tracking?: Record<string, unknown>;
+  governance?: Record<string, unknown>;
   execution_bridge?: {
     type: 'Webhook' | 'PowerAutomate' | 'API';
     mode: 'dry_run' | 'live';
     endpoint_template: string;
-    http?: {};
-    auth_reference?: {};
-    payload_definition: {};
-    audit: {};
+    http?: Record<string, unknown>;
+    auth_reference?: Record<string, unknown>;
+    payload_definition: Record<string, unknown>;
+    audit: Record<string, unknown>;
   };
   quality_rules: string[];
 }
 export interface Level {
   severity: string;
-  condition: {};
+  condition: Record<string, unknown>;
 }

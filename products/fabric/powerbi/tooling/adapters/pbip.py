@@ -81,6 +81,7 @@ _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {
     VisualType.SCATTER:         ["scatterChart"],
     VisualType.MATRIX:          ["pivotTable"],
     VisualType.TABLE:           ["tableEx"],
+    VisualType.EXCEPTION_TABLE: ["tableEx"],
     VisualType.SLICER:          ["slicer"],
     VisualType.SMART_NARRATIVE: ["smartNarrativeVisual"],
     VisualType.ACTION_PANEL:    ["textbox"],
@@ -95,6 +96,7 @@ _QUERY_ROLE_MAP: Dict[VisualType, Dict[str, str]] = {
     VisualType.SCATTER:     {"measure": "Y", "category": "X"},
     VisualType.MATRIX:      {"measure": "Values", "category": "Rows"},
     VisualType.TABLE:       {"measure": "Values", "category": "Values"},
+    VisualType.EXCEPTION_TABLE: {"measure": "Values", "category": "Values"},
     VisualType.KPI_CARD:    {"measure": "Data"},
     VisualType.SLICER:      {"category": "Field"},
 }
@@ -153,7 +155,11 @@ def _build_query_state(vspec: VisualSpec) -> Dict[str, Any]:
             ]
         }
 
-    if b.columns and vspec.visual_type in (VisualType.MATRIX, VisualType.TABLE):
+    if b.columns and vspec.visual_type in (
+        VisualType.MATRIX,
+        VisualType.TABLE,
+        VisualType.EXCEPTION_TABLE,
+    ):
         projections = []
         for col_ref in b.columns:
             parts = col_ref.split(".")

@@ -22,6 +22,16 @@ Studio persistence and architecture compilation remain separate increments.
 
 ## 1. Outcome
 
+**Studio integration update, 07.09.2026:** The Studio now exposes a Delivery workspace
+and a separate Architecture surface over pinned Project Package revisions. Reviewed
+Discovery anchors can enter draft opportunity objectives with versioned source evidence.
+Python compiles declared use-case contracts into architecture graphs and existing detailed
+specifications; explicitly released revisions can generate bounded native Fabric workspace
+request bodies. Full item/security/CI-CD adapters, tenant apply/readback and guided
+commercial/staffing authoring are not complete. This is incremental implementation of the
+single-interface target, not a change to a KPI-only product. Current detail:
+[`studio/docs/design/STUDIO_E2E_DELIVERY.md`](../../../studio/docs/design/STUDIO_E2E_DELIVERY.md).
+
 Build one reusable workbench that turns customer input into a verified delivery chain:
 
 ```text
@@ -231,6 +241,7 @@ project/
   discovery/questions.yaml
   discovery/decisions.yaml
   discovery/requirements.yaml
+  delivery/use_case_delivery.yaml
   evidence/index.yaml
   artifacts/index.yaml
   artifacts/releases/
@@ -307,6 +318,14 @@ One approved package revision compiles into:
 Every output records the package version, decision-set hash, compiler version and
 generation timestamp. Generated outputs are read-only projections and must never become
 decision authorities.
+
+Every use case that enters technical delivery is instantiated in the optional
+`use_case_delivery` Project Package module defined by
+`project_use_case_delivery.schema.json`. It records the complete source-to-report chain,
+including fallbacks and exclusions, products and grains, transformations, orchestration,
+controls, acceptance evidence and gates. The customer-facing use-case architecture
+document is rendered from this module; reusable Business Factsheets and UseCase Brackets
+remain customer-neutral Golden Thread inputs.
 
 LLMs may extract candidate facts, propose follow-up questions and explain trade-offs.
 They must not sit on the deterministic compile, approval, apply or verification path.

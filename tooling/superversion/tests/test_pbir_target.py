@@ -25,12 +25,19 @@ from tooling.superversion.canonical_contract import (
     Visual,
 )
 from tooling.superversion.from_aluca import from_bracket_file
+from tooling.superversion.e2e_smoke import _decode_process_output, _executable_command
 from tooling.superversion.targets import base
 from tooling.superversion.targets import pbir  # noqa: F401 — registers the "pbir" adapter
 
 REPO = Path(__file__).resolve().parents[3]
 KPIS = REPO / "core/kpi_catalog/kpis"
 COM001 = REPO / "core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml"
+CURATED_REPORTS = [
+    COM001,
+    REPO / "core/usecases/core/FIN-002_Cost_Performance/UseCase_Bracket.yaml",
+    REPO / "core/usecases/core/OPS-001_Operations_Performance/UseCase_Bracket.yaml",
+    REPO / "core/usecases/core/XD-004_Executive_Action_Governance/UseCase_Bracket.yaml",
+]
 CLI = "powerbi-report-author"
 
 
@@ -73,7 +80,38 @@ def test_format_version_constants(model):
     assert version["version"] == "2.0.0"
 
 
-def test_every_visual_has_querystate_with_projections(model):
+def test_report_uses_official_base_theme_and_interaction_defaults(model):
+    out = pbir.emit(model)
+    report = json.loads(out[f"{model.report.name}.Report/definition/report.json"])
+    assert report["themeCollection"]["baseTheme"]["name"] == "CY25SU10"
+    assert report["settings"]["useEnhancedTooltips"] is True
+    assert report["settings"]["defaultDrillFilterOtherVisuals"] is True
+
+
+def test_native_visual_formatting_carries_meaning_not_decoration(model):
+    out = pbir.emit(model)
+    visuals = {
+        json.loads(content)["name"]: json.loads(content)["visual"]
+        for path, content in out.items()
+        if path.endswith("/visual.json")
+    }
+
+    card = visuals["KPI_Cards"]
+    assert card["objects"]["layout"][0]["properties"]["columnCount"]["expr"]["Literal"]["Value"] == "1L"
+
+    chart = visuals["Main_1"]
+    assert chart["visualContainerObjects"]["title"][0]["properties"]["show"]["expr"]["Literal"]["Value"] == "true"
+
+    slicer = visuals["Slicer_Date"]
+    assert slicer["objects"]["data"][0]["properties"]["mode"]["expr"]["Literal"]["Value"] == "'Dropdown'"
+
+    table = visuals["Detail_Matrix"]
+    grid = table["objects"]["grid"][0]["properties"]
+    assert grid["gridVertical"]["expr"]["Literal"]["Value"] == "false"
+    assert grid["rowPadding"]["expr"]["Literal"]["Value"] == "8L"
+
+
+def test_every_data_visual_has_querystate_with_projections(model):
     """The validator errors on a visual without queryState (PBIR_QUERY_STATE_MISSING)
     or with an empty required role; assert the structure that prevents both."""
     out = pbir.emit(model)
@@ -81,6 +119,9 @@ def test_every_visual_has_querystate_with_projections(model):
     assert visual_files
     for content in visual_files:
         vj = json.loads(content)
+        if vj["visual"]["visualType"] == "textbox":
+            assert "query" not in vj["visual"]
+            continue
         query_state = vj["visual"]["query"]["queryState"]
         assert query_state, "queryState must be non-empty"
         for role, body in query_state.items():
@@ -92,11 +133,13 @@ def test_official_validator_zero_errors(model, tmp_path):
     """I-3.3 gate: the official MS validator reports 0 errors on the emitted report."""
     base.render("pbir", model, tmp_path)
     report_dir = tmp_path / f"{model.report.name}.Report"
+    cli_path = shutil.which(CLI)
+    assert cli_path is not None
     proc = subprocess.run(
-        [CLI, "validate", str(report_dir), "--no-schema", "--format", "json"],
-        capture_output=True, text=True, timeout=120,
+        _executable_command(cli_path, "validate", str(report_dir), "--no-schema", "--format", "json"),
+        capture_output=True, timeout=120,
     )
-    data = json.loads(proc.stdout)["data"]
+    data = json.loads(_decode_process_output(proc.stdout))["data"]
     assert data["errorCount"] == 0, json.dumps(data.get("diagnostics"), indent=2)
 
 
@@ -138,6 +181,86 @@ def test_hitl_placeholder_for_missing_dimension():
     assert any("Category" in g and "v_chart" in g for g in pbir.hitl_gaps(sm))
 
 
+def test_qualified_category_binds_declared_entity_and_property():
+    chart = Visual(visual_id="v_chart", visual_type="line_chart",
+                   bound_measures=["Revenue"], rows=["dim_date.CalendarYearMonth"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[chart])]),
+    )
+    out = pbir.emit(sm)
+    visual = json.loads(out["R.Report/definition/pages/P1/visuals/v_chart/visual.json"])
+    column = visual["visual"]["query"]["queryState"]["Category"]["projections"][0]["field"]["Column"]
+    assert column["Expression"]["SourceRef"]["Entity"] == "dim_date"
+    assert column["Property"] == "CalendarYearMonth"
+
+
+def test_qualified_slicer_binds_declared_entity_and_property():
+    slicer = Visual(visual_id="slicer", visual_type="slicer",
+                    slicer_field="dim_org.Region")
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[slicer])]),
+    )
+    visual = json.loads(
+        pbir.emit(sm)["R.Report/definition/pages/P1/visuals/slicer/visual.json"]
+    )
+    column = visual["visual"]["query"]["queryState"]["Values"]["projections"][0]["field"]["Column"]
+    assert column["Expression"]["SourceRef"]["Entity"] == "dim_org"
+    assert column["Property"] == "Region"
+    assert pbir.hitl_gaps(sm) == []
+
+
+def test_unqualified_dimension_is_never_a_silent_hitl_placeholder():
+    table = Visual(visual_id="detail", visual_type="table",
+                   rows=["region"], bound_measures=["Revenue"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[table])]),
+    )
+    assert any("unqualified field 'region'" in gap for gap in pbir.hitl_gaps(sm))
+
+
+@pytest.mark.parametrize("bracket", CURATED_REPORTS, ids=lambda path: path.parent.name)
+def test_curated_reports_have_no_connector_hitl_gaps(bracket):
+    curated = from_bracket_file(bracket, KPIS)
+    assert pbir.hitl_gaps(curated) == []
+
+
+def test_exception_table_combines_declared_dimension_and_measure():
+    queue = Visual(visual_id="exceptions", visual_type="exception_table",
+                   bound_measures=["Unplanned Downtime %"], rows=["dim_asset.AssetName"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[queue])]),
+    )
+    out = pbir.emit(sm)
+    visual = json.loads(out["R.Report/definition/pages/P1/visuals/exceptions/visual.json"])
+    assert visual["visual"]["visualType"] == "tableEx"
+    projections = visual["visual"]["query"]["queryState"]["Values"]["projections"]
+    assert "Column" in projections[0]["field"]
+    assert "Measure" in projections[1]["field"]
+
+
+def test_action_panel_is_native_textbox_with_governed_content():
+    panel = Visual(
+        visual_id="ActionPanel",
+        visual_type="action_panel",
+        title="C-M2.1 — Correct price leakage\nOwner: commercial lead",
+    )
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[panel])]),
+    )
+    out = pbir.emit(sm)
+    visual = json.loads(out["R.Report/definition/pages/P1/visuals/ActionPanel/visual.json"])
+    assert visual["visual"]["visualType"] == "textbox"
+    assert "query" not in visual["visual"]
+    runs = visual["visual"]["objects"]["general"][0]["properties"]["paragraphs"][0]["textRuns"]
+    assert "C-M2.1" in runs[0]["value"]
+    assert not pbir.hitl_gaps(sm)
+
+
 def test_measure_only_role_gets_measure_kind_placeholder():
     """An empty Measure-only role must get a Measure (not Column) placeholder, or
     the validator errors with PBIR_ROLE_KIND_MISMATCH."""
@@ -165,6 +288,28 @@ def test_maxperrole_overflow_is_dropped_and_recorded():
     vj = json.loads(out["R.Report/definition/pages/P1/visuals/v_wf/visual.json"])
     assert len(vj["visual"]["query"]["queryState"]["Y"]["projections"]) == 1
     assert any("max 1 exceeded" in g for g in pbir.hitl_gaps(sm))
+
+
+def test_governed_pvm_idiom_binds_single_supporting_measure(model):
+    bridge = next(
+        visual
+        for page in model.report.pages
+        for visual in page.visuals
+        if visual.visual_id == "Main_2"
+    )
+    assert bridge.visual_type == "waterfall_chart"
+    assert bridge.bound_measures == ["PVM Bridge Value"]
+    helper = [
+        measure
+        for table in model.semantic.tables
+        for measure in table.measures
+        if measure.name == "PVM Bridge Value"
+    ]
+    assert len(helper) == 1
+    helper_dsl = json.loads(helper[0].expressions["dsl"])
+    assert helper_dsl["op"] == "selector_switch"
+    assert any(case["value"]["name"] == "Plan Sales Amount" for case in helper_dsl["cases"])
+    assert not any("Main_2" in gap and "max 1 exceeded" in gap for gap in pbir.hitl_gaps(model))
 
 
 def test_unknown_visual_type_falls_back_and_is_recorded():

@@ -205,11 +205,11 @@ export function LineageClient({ graph, contracts, focusId }: Props) {
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                 {([
                   { color: 'var(--ink-4)', label: 'Dimension' },
-                  { color: '#3B82F6', label: 'Fact' },
+                  { color: 'var(--info)', label: 'Fact' },
                   { color: 'var(--accent)', label: 'KPI' },
                   { color: 'var(--warning)', label: 'Use Case' },
                 ] as const).map(({ color, label }) => (
-                  <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
+                  <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
                     <span style={{ width: 10, height: 10, borderRadius: '2px', backgroundColor: color, display: 'inline-block', flexShrink: 0 }} />
                     {label}
                   </span>

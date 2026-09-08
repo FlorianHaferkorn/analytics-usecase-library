@@ -49,13 +49,14 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
   intent_rules_version: 2
+  title_statements_verified: false
   page_1_summary:
     title: Operations Summary & Insights
     page_type: T3_Operational_Monitoring
-    template_variant: T3_ExceptionQueue
+    template_variant: T3_ProcessControl
     template_id: pulse
     decision_question: "Is OEE on target and which losses are biggest this week?"
-    big_idea: "OEE is below target — unplanned availability losses account for 70% of the gap and require immediate maintenance action."
+    big_idea: "Recover OEE by isolating asset-level availability losses and routing the right maintenance response."
     component_3s:
       kpi_id: ops.oee.pct
       visual_type: kpi_card_with_delta
@@ -70,38 +71,42 @@ ux_layout_rules:
       visual_type: line_chart
       comparison: vs_target
       question: "Is OEE on target, and is the gap closing or widening?"
-      message: OEE is running below target and the gap is widening week over week
-      so_what: "A widening OEE gap this close to target compounds into missed output if maintenance action doesn't land now."
+      message: "OEE trend against target shows whether operational performance is stable, recovering, or deteriorating."
+      so_what: "A persistent target gap triggers asset-level diagnosis before production output is put at risk."
+      category_field: dim_date.Date
+      action_code_id: O-O1.1
       unit: ratio
     - slot_id: Main_2
-      # Availability trend — dominant driver (Muchiri & Pintelon 2008 confirms primary driver)
+      # Availability ranking — the dominant OEE driver, compared at asset grain.
       kpi_id: ops.availability.pct
-      visual_type: line_chart
+      visual_type: horizontal_bar_chart
       comparison: vs_target
-      question: "Which OEE component is the biggest loss — availability, performance, or quality?"
-      message: Availability is the component pulling OEE below target, not performance or quality
-      so_what: "Because availability dominates the OEE gap, maintenance fixes move the needle faster than performance or quality tweaks."
+      question: "Which assets have the weakest availability?"
+      message: "Asset availability ranking concentrates attention on the lines with the greatest recoverable OEE loss."
+      so_what: "The worst availability assets are the first candidates for maintenance and reliability action."
+      category_field: dim_asset.AssetName
+      action_code_id: O-O1.1
       unit: rate
     - slot_id: Main_3
-      # OEE component comparison — all three drivers at same % unit (SQ-V02 fix: no unit mixing)
-      kpi_ids:
-      - ops.availability.pct
-      - ops.performance.pct
-      - ops.quality.pct
-      visual_type: horizontal_bar_chart
-      question: "How does the OEE gap break down across its three components?"
-      message: Availability, performance, and quality — the three OEE components.
-      so_what: "Prioritising availability fixes addresses the largest single component of the OEE shortfall."
+      # Operational exception queue — threshold breaches at asset grain.
+      kpi_id: ops.downtime.unplanned.pct
+      visual_type: exception_table
+      question: "Which assets require immediate intervention for unplanned downtime?"
+      message: "The exception queue ranks assets with the most critical unplanned-downtime exposure."
+      so_what: "A worst-first queue converts the OEE signal into an owned maintenance workload."
+      category_field: dim_asset.AssetName
+      action_code_id: O-O1.1
       unit: rate
   page_2_execution:
     title: Operations Execution
-    page_type: T3_Operational_Monitoring
-    template_variant: T3_ExceptionQueue
+    page_type: T4_Prescriptive_Recommendation
+    template_variant: T4_ActionDecision
     template_id: action_matrix
     decision_question: "Which assets and shifts explain the OEE gap this week?"
     big_idea: "Line 3 and Line 7 account for 65% of unplanned downtime — maintenance backlog on these assets is the root cause."
     component_300s:
       evidence_grain: line_day
+      slicer_field: dim_asset.AssetName
       # R2.4: curated 21→8. plant/line/shift/loss_type/cause_code/maintenance_type
       # have no backing dimension table in Operations.SemanticModel (only
       # dim_asset exists -- "Asset or production line dimension" per its own
@@ -110,8 +115,8 @@ ux_layout_rules:
       # downtime as the variance signal (matches decision_question verbatim),
       # the three OEE components (Main_3), and scrap as the quality-loss proxy.
       evidence_columns:
-      - asset
-      - product_category
+      - dim_asset.AssetName
+      - dim_product.Category
       - ops.oee.pct
       - ops.downtime.unplanned.pct
       - ops.availability.pct
@@ -119,7 +124,7 @@ ux_layout_rules:
       - ops.quality.pct
       - quality.scrap.pct
       action_panel: true
-      payload_mode: full
+      payload_mode: summary
       sort_by:
         measure: ops.downtime.unplanned.pct
         direction: descending

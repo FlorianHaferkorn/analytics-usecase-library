@@ -55,6 +55,17 @@ You build and own the data pipelines that feed Silver and Gold layers.
 | [`core/strategy_operating_model/operating_model/`](../core/strategy_operating_model/operating_model/) | Data layer standard (Silver-first model) |
 | [`core/implementation_guides/playbook_strategy_to_first_report.md`](../core/implementation_guides/playbook_strategy_to_first_report.md) | Step 3: Silver contracts and semantic requirements |
 
+### Consultant / Delivery Lead
+
+You scope and facilitate an engagement, convert decisions into architecture, and lead a
+verified implementation.
+
+| Start here | Purpose |
+|---|---|
+| [`docs/architecture/research/discovery-to-deployment-workbench.md`](architecture/research/discovery-to-deployment-workbench.md) | Proposed scope-driven operating model from customer discovery to verified tenant state, including selectable Data Governance |
+| [`core/implementation_guides/playbook_strategy_to_first_report.md`](../core/implementation_guides/playbook_strategy_to_first_report.md) | Concrete first-report delivery profile |
+| [`PRODUCT_PLAN.md`](../PRODUCT_PLAN.md) | Product target, quality floors and build phases |
+
 ### Maintainer / Platform Engineer
 
 You own CI, tooling, governance, and releases.

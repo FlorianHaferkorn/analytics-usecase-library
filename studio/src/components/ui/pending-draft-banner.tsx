@@ -28,7 +28,7 @@ export function PendingDraftBanner() {
       gap: 12,
     }}>
       <div>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--accent)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           Wizard draft ready
         </span>
         <p style={{ margin: '2px 0 0', fontSize: '0.875rem', color: 'var(--ink)', fontWeight: 500 }}>

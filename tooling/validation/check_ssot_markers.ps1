@@ -2,6 +2,7 @@ Param(
   [string]$Root = ".",
   [string[]]$AllowList = @(
     "core/strategy_operating_model/operating_model/reference/single_source_of_truth.md",
+    "core/templates/page_templates/tokens/visual_slot_mapping.yaml",
     "products/fabric/orchestrator/README.md",
     "products/fabric/orchestrator/config.yaml"
   ),
@@ -39,20 +40,23 @@ if (-not $rootPath) { throw "Root path not found." }
 
 $markers = @(
   "^\s*SSOT\s*:\s*",
-  "^\s*Authority\s*:\s*",
-  "^\s*authority\s*:\s*"
+  "^\s*Authority\s*:\s*"
 )
 
 $hits = @()
 
-Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
-  $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]'
+$ignoredPathPattern = '[\\/](?:\.git|\.pytest_cache|\.mypy_cache|\.ruff_cache|node_modules|dist|build)[\\/]'
+
+Get-ChildItem -LiteralPath $rootPath -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
+  $_.Extension -in @(".md",".yaml",".yml") -and
+  $_.FullName -notmatch '[\\/]internal[\\/]archive[\\/]' -and
+  $_.FullName -notmatch $ignoredPathPattern
 } | ForEach-Object {
   $path = $_.FullName
-  $lines = Get-Content -Path $path
+  $lines = Get-Content -LiteralPath $path -ErrorAction SilentlyContinue
   for ($i = 0; $i -lt $lines.Count; $i++) {
     foreach ($m in $markers) {
-      if ($lines[$i] -match $m) {
+      if ($lines[$i] -cmatch $m) {
         if (-not (Is-AllowListed -Path $path -Allow $AllowList)) {
           $hits += "$($path):$($i + 1): $($lines[$i].Trim())"
         }

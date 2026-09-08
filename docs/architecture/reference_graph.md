@@ -82,6 +82,8 @@ _none_
 - `retail.category.crosssell_rate.pct`
 - `retail.promotion.attachment_rate.pct`
 - `sales.conversion.pct`
+- `sales.net_sales.ly.amount`
+- `sales.net_sales.plan.amount`
 - `sales.pipeline.coverage.ratio`
 - `sales.pipeline.value.amount`
 - `sales.sales_cycle.days`

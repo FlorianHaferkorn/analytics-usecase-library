@@ -70,7 +70,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
   const storeAnchor = useProjectStore((s) => s.strategyAnchor);
   const strategyAnchor = storeAnchor || initialAnchor;
 
-  const [selectedBracket, setSelectedBracket] = useState<string | null>(initialSelectedBracket);
+  const [selectedBracket, setSelectedBracket] = useState<string | null>(initialSelectedBracket ?? initialBrackets[0]?.id ?? null);
   const [viewMode, setViewMode] = useState<ViewMode>('flow');
   const [brackets, setBrackets] = useState<BracketData[]>(initialBrackets);
   const [bracketYamls, setBracketYamls] = useState<Record<string, string>>(initialYamls);
@@ -82,23 +82,29 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
   const [createError, setCreateError] = useState<string | null>(null);
   const [creatingBracket, setCreatingBracket] = useState(false);
   const [yamlLoading, setYamlLoading] = useState(false);
+  const [yamlError, setYamlError] = useState<string | null>(null);
+  const [yamlRetry, setYamlRetry] = useState(0);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!selectedBracket || bracketYamls[selectedBracket]) return;
+    if (viewMode === 'flow' || !selectedBracket || bracketYamls[selectedBracket]) return;
 
     let cancelled = false;
     setYamlLoading(true);
+    setYamlError(null);
     void (async () => {
       try {
         const res = await fetch(`/api/core/brackets/${encodeURIComponent(selectedBracket)}`);
-        if (!res.ok || cancelled) return;
-        const json = (await res.json()) as { data?: { yaml?: string } };
-        const yaml = json.data?.yaml;
+        if (cancelled) return;
+        if (!res.ok) throw new Error(res.status === 401 ? 'Sign in to load this use-case definition.' : `The definition could not be loaded (HTTP ${res.status}).`);
+        const json = (await res.json()) as { yaml?: string };
+        const yaml = json.yaml;
+        if (!yaml) throw new Error('The response did not contain a use-case definition.');
         if (yaml && !cancelled) {
           setBracketYamls((prev) => ({ ...prev, [selectedBracket]: yaml }));
         }
-      } catch {
-        /* lazy load best-effort */
+      } catch (error) {
+        if (!cancelled) setYamlError(error instanceof Error ? error.message : 'The definition could not be loaded.');
       } finally {
         if (!cancelled) setYamlLoading(false);
       }
@@ -107,7 +113,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
     return () => {
       cancelled = true;
     };
-  }, [selectedBracket, bracketYamls]);
+  }, [selectedBracket, bracketYamls, viewMode, yamlRetry]);
 
   useEffect(() => {
     onSelectedBracketChange?.(selectedBracket);
@@ -130,6 +136,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
     const yaml = bracketYamls[selectedBracket];
     if (!yaml) return;
     setIsSaving(true);
+    setSaveError(null);
     try {
       const res = await fetch(`/api/core/brackets/${encodeURIComponent(selectedBracket)}`, {
         method: 'PUT',
@@ -139,10 +146,10 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
       if (res.ok) {
         setSyncStatus('synced');
       } else {
-        console.error('Save failed', await res.text());
+        setSaveError(`Changes were not saved (HTTP ${res.status}). Your edits are still available here.`);
       }
     } catch (err) {
-      console.error('Save error', err);
+      setSaveError(err instanceof Error ? `Changes were not saved: ${err.message}` : 'Changes were not saved. Please retry.');
     } finally {
       setIsSaving(false);
     }
@@ -209,16 +216,16 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
 
   const { totalDrivers, actionGapCount } = useMemo(() => {
     const aMap = new Map(actionDetails);
-    const total = brackets.reduce((sum, b) => sum + b.influencingKpiIds.length, 0);
+    const total = flowData.brackets.reduce((sum, b) => sum + b.influencingKpiIds.length, 0);
     let withAction = 0;
-    for (const b of brackets) {
+    for (const b of flowData.brackets) {
       for (const driverId of b.influencingKpiIds) {
         const hasAction = b.actionCodeIds.some((aid) => aMap.get(aid)?.triggerKpis.includes(driverId));
         if (hasAction) withAction++;
       }
     }
     return { totalDrivers: total, actionGapCount: total - withAction };
-  }, [brackets, actionDetails]);
+  }, [flowData.brackets, actionDetails]);
 
   const editorContent = useMemo(() => {
     if (selectedBracket && bracketYamls[selectedBracket]) {
@@ -259,18 +266,20 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
 
   const handleBracketSelectFromFlow = useCallback((useCaseId: string) => {
     setSelectedBracket(useCaseId);
-    setViewMode('split');
+    setViewMode('flow');
     setSyncStatus('synced');
   }, []);
 
-  const syncIndicator = syncStatus === 'synced'
-    ? { color: 'var(--accent)', label: 'Synced' }
+  const syncIndicator = selectedBracket && !bracketYamls[selectedBracket]
+    ? { color: 'var(--ink-3)', label: yamlLoading && viewMode !== 'flow' ? 'Loading definition…' : 'Graph view' }
+    : syncStatus === 'synced'
+    ? { color: 'var(--accent)', label: 'Saved definition' }
     : syncStatus === 'dirty'
       ? { color: 'var(--warning)', label: 'Modified' }
       : { color: 'var(--danger)', label: 'Parse Error' };
 
   return (
-    <StudioPage fill={!embedded} style={embedded ? { flex: 1, minHeight: 0, height: '100%', gap: 'var(--gap)' } : undefined}>
+    <StudioPage fill={!embedded} style={embedded ? { flex: 1, minHeight: 0, height: '100%', gap: 'var(--space-2)' } : undefined}>
       {!embedded && (
         <StudioPageHeader
           eyebrow={pageEyebrow}
@@ -282,33 +291,24 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
         />
       )}
 
-      {!embedded ? (
+      {!embedded && (
         <StudioMetricBar>
-          <StudioMetric label="Use Cases" value={brackets.length} meta="loaded into steering graph" tone="info" />
+          <StudioMetric label="Use Cases" value={flowData.brackets.length} meta="in the current graph" tone="info" />
           <StudioMetric label="Drivers" value={totalDrivers} meta="in linked brackets" />
           <StudioMetric label="Action gaps" value={actionGapCount} meta={actionGapCount > 0 ? 'resolve in Registry →' : 'all drivers covered'} tone={actionGapCount > 0 ? 'warning' : 'success'} />
           <StudioMetric label="Sync" value={selectedBracket ? syncIndicator.label : 'overview'} meta={selectedBracket ? 'current bracket state' : 'aggregate mode'} tone={syncStatus === 'error' ? 'warning' : syncStatus === 'dirty' ? 'warning' : 'success'} />
         </StudioMetricBar>
-      ) : (
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', fontSize: '0.6875rem', color: 'var(--ink-3)', flexShrink: 0 }}>
-          <span><strong style={{ color: 'var(--ink)' }}>{brackets.length}</strong> use cases</span>
-          <span><strong style={{ color: 'var(--ink)' }}>{totalDrivers}</strong> drivers</span>
-          <span><strong style={{ color: actionGapCount > 0 ? 'var(--warning)' : 'var(--accent)' }}>{actionGapCount}</strong> action gaps</span>
-          <span style={{ marginLeft: 'auto', display: 'inline-flex', gap: 8 }}>
-            <ExportReportButton />
-            <ExportExcelButton />
-          </span>
-        </div>
       )}
 
       <StudioToolbar>
-        <StudioField label="Bracket focus">
+        <StudioField label="Use case">
           <StudioSelect
             value={selectedBracket ?? ''}
             onChange={(e) => { setSelectedBracket(e.target.value || null); setSyncStatus('synced'); }}
             style={{
               fontSize: '0.875rem',
-              minWidth: '280px',
+              width: 'clamp(210px, 18vw, 260px)',
+              minWidth: '210px',
             }}
           >
             <option value="">All Use Cases ({brackets.length})</option>
@@ -341,13 +341,13 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
 
         <div style={{ flex: 1 }} />
 
-        {selectedBracket ? (
+        {selectedBracket && viewMode !== 'flow' ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {activeDraftBracketId === selectedBracket && (
-              <span style={{ fontSize: '0.6875rem', color: 'var(--info)' }}>Draft scaffold loaded</span>
+              <span style={{ fontSize: 'var(--text-xs)', color: 'var(--info)' }}>Draft scaffold loaded</span>
             )}
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: syncIndicator.color }} />
-            <span style={{ fontSize: '0.6875rem', color: syncIndicator.color }}>{syncIndicator.label}</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: syncIndicator.color }}>{syncIndicator.label}</span>
             {syncStatus === 'dirty' && activeDraftBracketId !== selectedBracket && (
               <StudioButton onClick={() => void handleSave()} tone="success" variant="secondary" disabled={isSaving} style={{ padding: '6px 10px' }}>
                 {isSaving ? 'Saving…' : 'Save to core/'}
@@ -355,6 +355,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
             )}
           </div>
         ) : null}
+
       </StudioToolbar>
 
       <div style={{ flex: 1, display: 'flex', gap: 'var(--gap)', minHeight: 0, overflow: 'hidden' }}>
@@ -362,6 +363,13 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
           <StudioPanel
             title="Golden Thread Flow"
             description={embedded ? undefined : 'Explore strategy anchors, drivers, and action-code coverage visually.'}
+            action={embedded ? (
+              <span style={{ display: 'inline-flex', gap: 12, alignItems: 'center', fontSize: 'var(--text-2xs)', color: 'var(--ink-3)' }}>
+                <span><strong style={{ color: 'var(--ink)' }}>{flowData.brackets.length}</strong> {flowData.brackets.length === 1 ? 'use case' : 'use cases'}</span>
+                <span><strong style={{ color: 'var(--ink)' }}>{totalDrivers}</strong> drivers</span>
+                <span><strong style={{ color: actionGapCount > 0 ? 'var(--warning)' : 'var(--accent)' }}>{actionGapCount}</strong> action gaps</span>
+              </span>
+            ) : undefined}
             tone="success"
             compactHeader
             bare
@@ -373,7 +381,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
           </StudioPanel>
         )}
         {showEditor && (
-          <StudioPanel title="Bracket YAML" description="Inspect and refine the machine-readable source of truth for the selected bracket." tone="info" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <StudioPanel title="Use-case definition" description="Inspect and edit the selected use case in YAML." tone="info" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {activeDraftBracketId === selectedBracket && (
               <div style={{ padding: '8px', borderBottom: '1px solid var(--line)', backgroundColor: 'var(--bg)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '8px', alignItems: 'end' }}>
@@ -401,15 +409,21 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
                     {creatingBracket ? 'Creating...' : 'Create in core/'}
                   </StudioButton>
                 </div>
-                {createError && <p style={{ fontSize: '0.6875rem', color: 'var(--danger)' }}>{createError}</p>}
+                {createError && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--danger)' }}>{createError}</p>}
               </div>
             )}
-            <YamlEditor
+            {saveError && <p role="alert" style={{ padding: 'var(--space-3)', color: 'var(--danger)' }}>{saveError}</p>}
+            {selectedBracket && !bracketYamls[selectedBracket] ? (
+              <div style={{ padding: 'var(--space-4)' }}>
+                <p role={yamlError ? 'alert' : 'status'}>{yamlError ?? 'Loading definition…'}</p>
+                {yamlError && <StudioButton onClick={() => setYamlRetry(value => value + 1)}>Retry loading</StudioButton>}
+              </div>
+            ) : <YamlEditor
               initialValue={editorContent}
               onChange={handleYamlChange}
               readOnly={!selectedBracket}
               height="100%"
-            />
+            />}
           </StudioPanel>
         )}
       </div>

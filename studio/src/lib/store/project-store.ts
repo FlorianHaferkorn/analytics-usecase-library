@@ -47,6 +47,8 @@ export interface ThemeConfig {
 export interface ProjectState {
   // Meta
   projectId: string;
+  dataScope: 'library' | 'project';
+  packageRevisionHash: string | null;
   projectName: string;
   strategyAnchor: string;
 
@@ -83,6 +85,8 @@ export interface ProjectState {
 
   // Actions
   setProjectId: (id: string) => void;
+  setDataScope: (scope: 'library' | 'project') => void;
+  setPackageRevisionHash: (hash: string | null) => void;
   setProjectName: (name: string) => void;
   setStrategyAnchor: (anchor: string) => void;
   setBrackets: (brackets: UseCaseBracketV20Lean[]) => void;
@@ -116,18 +120,20 @@ export interface WizardDraft {
 }
 
 export const DEFAULT_THEME: ThemeConfig = {
-  primary: '#00D4AA',
-  secondary: '#FFB800',
-  accent: '#3B82F6',
-  background: '#1E293B',
-  surface: '#0F172A',
-  text: '#F1F5F9',
-  fontFamily: 'Inter',
+  primary: '#0078D4',
+  secondary: '#50E6FF',
+  accent: '#0078D4',
+  background: '#F5F5F5',
+  surface: '#FFFFFF',
+  text: '#201F1E',
+  fontFamily: 'Segoe UI',
   borderRadius: 8,
 };
 
 export const useProjectStore = create<ProjectState>((set) => ({
   projectId: 'default',
+  dataScope: 'library',
+  packageRevisionHash: null,
   projectName: 'Aurora Group',
   strategyAnchor:
     'Profitable growth through margin quality, cash resilience & operational excellence',
@@ -154,7 +160,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   pendingWizardDraft: null,
 
-  setProjectId: (id) => set({ projectId: id, isDirty: false }),
+  setProjectId: (id) => set((state) => id === state.projectId ? {} : ({
+    projectId: id, dataScope: 'project', packageRevisionHash: null,
+    projectName: id, strategyAnchor: '', brackets: [], kpis: [], actions: [],
+    theme: DEFAULT_THEME, aurora: { kpis: {}, linked: false, generatedAt: null, source: null },
+    driftReport: null, driftLoading: false, notifications: [], domainFilter: null,
+    selectedBracketId: null, pendingWizardDraft: null, activePanel: 'flow', isDirty: false,
+  })),
+  setDataScope: (dataScope) => set({ dataScope }),
+  setPackageRevisionHash: (packageRevisionHash) => set({ packageRevisionHash }),
   setProjectName: (name) => set({ projectName: name, isDirty: true }),
   setStrategyAnchor: (anchor) => set({ strategyAnchor: anchor, isDirty: true }),
   setBrackets: (brackets) => set({ brackets }),

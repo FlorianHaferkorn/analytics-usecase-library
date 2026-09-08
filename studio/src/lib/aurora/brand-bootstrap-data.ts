@@ -14,10 +14,6 @@ import { join } from 'node:path';
 import { parseYaml } from '@/lib/core/yaml-loader';
 import type { ThemeConfig } from '@/lib/store/project-store';
 
-/** Override the brand in use without code changes (path relative to the repo root). */
-const BRAND_SPEC_PATH =
-  process.env.STUDIO_BRAND_SPEC ?? join('core', 'brand', 'samples', 'generic_brand.yaml');
-
 /** Only the BrandSpec fields the Studio theme projects — not the whole schema. */
 interface BrandSpec {
   color?: {
@@ -35,7 +31,11 @@ let cached: Partial<ThemeConfig> | null | undefined;
 
 function specPath(): string {
   // Studio runs with cwd=studio/; the brand lives one level up in the repo.
-  return join(process.cwd(), '..', BRAND_SPEC_PATH);
+  const configured = process.env.STUDIO_BRAND_SPEC;
+  if (configured) {
+    return join(/*turbopackIgnore: true*/ process.cwd(), '..', configured);
+  }
+  return join(process.cwd(), '..', 'core', 'brand', 'samples', 'generic_brand.yaml');
 }
 
 function project(spec: BrandSpec): Partial<ThemeConfig> {

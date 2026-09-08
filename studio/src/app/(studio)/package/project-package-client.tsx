@@ -18,6 +18,7 @@ import type {
 } from '@/lib/bridge/project-package-repository';
 import type { PackageFile } from '@/lib/project-package/package-files';
 import { useProjectStore } from '@/lib/store/project-store';
+import { ProjectReleasePanel } from '@/components/delivery/project-release-panel';
 
 type LoadState = 'loading' | 'ready' | 'missing' | 'error';
 
@@ -74,19 +75,31 @@ function shortHash(value: string | null | undefined): string {
 export function ProjectPackageClient() {
   const projectId = useProjectStore((state) => state.projectId);
   const projectName = useProjectStore((state) => state.projectName);
+  const packageRevisionHash = useProjectStore((state) => state.packageRevisionHash);
+  const setPackageRevisionHash = useProjectStore((state) => state.setPackageRevisionHash);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [snapshot, setSnapshot] = useState<PackageSnapshot | null>(null);
   const [draftTexts, setDraftTexts] = useState<Record<string, string>>({});
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [message, setMessage] = useState('Loading the current immutable revision…');
+  const [message, setMessage] = useState('Loading the saved project version…');
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [diff, setDiff] = useState<PackageStructuralDiff | null>(null);
   const importInput = useRef<HTMLInputElement>(null);
+  const loadRequest = useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (latest = false) => {
+    const request = ++loadRequest.current;
     setLoadState('loading');
-    setMessage('Loading the current immutable revision…');
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/package`, { cache: 'no-store' });
+    setErrorStatus(null);
+    setSnapshot(null);
+    setDraftTexts({});
+    setDiff(null);
+    setMessage('Loading the saved project version…');
+    try {
+    const revisionQuery = !latest && packageRevisionHash ? `?revision=${packageRevisionHash}` : '';
+    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/package${revisionQuery}`, { cache: 'no-store' });
+    if (request !== loadRequest.current) return;
     if (response.status === 404) {
       setSnapshot(null);
       setDraftTexts({});
@@ -96,11 +109,21 @@ export function ProjectPackageClient() {
       return;
     }
     if (!response.ok) {
+      const detail = await responseMessage(response);
+      if (request !== loadRequest.current) return;
       setLoadState('error');
-      setMessage(await responseMessage(response));
+      setErrorStatus(response.status);
+      setMessage(response.status === 401
+        ? 'Sign in to view the saved files and revision history for this project.'
+        : response.status === 403
+          ? 'Your account does not have access to this project package. Select a project you can access, or ask your project administrator for access.'
+          : `The package could not be loaded. ${detail}`);
       return;
     }
     const value = await response.json() as PackageSnapshot;
+    if (request !== loadRequest.current) return;
+    if (value.revision.project_ref !== projectId) throw new Error('Package project identity does not match this project');
+    setPackageRevisionHash(value.revision.revision_hash);
     const textFiles = Object.fromEntries(
       value.files.flatMap((file) => {
         const text = decodeText(file);
@@ -115,9 +138,14 @@ export function ProjectPackageClient() {
     setDiff(null);
     setLoadState('ready');
     setMessage(`Loaded revision ${value.revision.revision}.`);
-  }, [projectId]);
+    } catch {
+      if (request !== loadRequest.current) return;
+      setLoadState('error');
+      setMessage('The package could not be loaded. Check your connection and try again.');
+    }
+  }, [projectId, packageRevisionHash, setPackageRevisionHash]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void load(); return () => { loadRequest.current += 1; }; }, [load]);
 
   const dirtyPaths = useMemo(() => {
     if (!snapshot) return [];
@@ -130,8 +158,9 @@ export function ProjectPackageClient() {
 
   const save = useCallback(async () => {
     if (!snapshot || dirtyPaths.length === 0) return;
+    const requestedLoad = loadRequest.current;
     setSaving(true);
-    setMessage('Validating and committing the complete package…');
+    setMessage('Validating and saving the complete package…');
     try {
       const dirtySet = new Set(dirtyPaths);
       const files = await Promise.all(snapshot.files.map((file) => (
@@ -143,27 +172,38 @@ export function ProjectPackageClient() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ expectedHeadRevisionHash: previousHash, files }),
       });
+      if (requestedLoad !== loadRequest.current) return;
       if (!response.ok) {
         setMessage(response.status === 409
-          ? 'This draft is stale. Reload the current HEAD before applying your edits again.'
+          ? 'A newer version has been saved. Copy your unsaved edits before reloading the saved version, then apply them again.'
           : await responseMessage(response));
         return;
       }
       const body = await response.json() as { revision: PackageRevisionSummary };
+      if (requestedLoad !== loadRequest.current) return;
       setSnapshot({ revision: body.revision, files });
-      setMessage(`Committed revision ${body.revision.revision}.`);
-      const diffResponse = await fetch(
-        `/api/projects/${encodeURIComponent(projectId)}/package/diff?from=${previousHash}&to=${body.revision.revision_hash}`,
-      );
-      if (diffResponse.ok) setDiff(await diffResponse.json() as PackageStructuralDiff);
+      setPackageRevisionHash(body.revision.revision_hash);
+      setMessage(`Saved revision ${body.revision.revision}.`);
+      setDiff(null);
+      try {
+        const diffResponse = await fetch(
+          `/api/projects/${encodeURIComponent(projectId)}/package/diff?from=${previousHash}&to=${body.revision.revision_hash}`,
+        );
+        if (requestedLoad !== loadRequest.current) return;
+        if (diffResponse.ok) setDiff(await diffResponse.json() as PackageStructuralDiff);
+        else setMessage(`Saved revision ${body.revision.revision}. The change summary is currently unavailable.`);
+      } catch {
+        setMessage(`Saved revision ${body.revision.revision}. The change summary is currently unavailable.`);
+      }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Cannot commit the browser working copy.');
+      setMessage(error instanceof Error ? error.message : 'Your changes could not be saved. Your draft is still available here.');
     } finally {
       setSaving(false);
     }
-  }, [dirtyPaths, draftTexts, projectId, snapshot]);
+  }, [dirtyPaths, draftTexts, projectId, snapshot, setPackageRevisionHash]);
 
   const exportHistory = useCallback(async () => {
+    try {
     const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/package/export`);
     if (!response.ok) {
       setMessage(await responseMessage(response));
@@ -176,6 +216,9 @@ export function ProjectPackageClient() {
     anchor.click();
     URL.revokeObjectURL(url);
     setMessage('Exported the complete verified revision history.');
+    } catch {
+      setMessage('The history could not be exported. Check your connection and try again.');
+    }
   }, [projectId]);
 
   const importHistory = useCallback(async (file: File) => {
@@ -191,7 +234,9 @@ export function ProjectPackageClient() {
         setMessage(await responseMessage(response));
         return;
       }
-      await load();
+      await load(true);
+    } catch {
+      setMessage('The history could not be imported. Check your connection and try again.');
     } finally {
       setSaving(false);
       if (importInput.current) importInput.current.value = '';
@@ -200,22 +245,23 @@ export function ProjectPackageClient() {
 
   const selectedText = selectedPath ? draftTexts[selectedPath] : undefined;
   const totalBytes = snapshot?.files.reduce((sum, file) => sum + file.size, 0) ?? 0;
+  const ready = loadState === 'ready' && snapshot !== null;
 
   return (
     <StudioPage>
       <StudioPageHeader
         eyebrow="Authority / Project"
         title="Project Package"
-        description="Edit a browser working copy while Python remains the sole authority for validation, immutable revisions, history, and structural diffs."
-        badge={loadState === 'ready' ? `HEAD ${shortHash(snapshot?.revision.revision_hash)}` : loadState}
+        description="Review project files, edit a draft, and save a validated version with a traceable history."
+        badge={ready ? `Revision ${snapshot.revision.revision}` : loadState === 'error' ? 'Unavailable' : loadState}
         tone={loadState === 'ready' ? 'success' : loadState === 'error' ? 'warning' : 'info'}
         compact
         actions={(
           <>
-            <StudioButton onClick={() => void load()} disabled={saving}>Reload HEAD</StudioButton>
-            <StudioButton onClick={() => void exportHistory()} disabled={!snapshot || saving}>Export history</StudioButton>
-            <StudioButton variant="accent" onClick={() => void save()} disabled={!snapshot || dirtyPaths.length === 0 || saving}>
-              {saving ? 'Working…' : `Commit ${dirtyPaths.length || ''} change${dirtyPaths.length === 1 ? '' : 's'}`}
+            <StudioButton onClick={() => void load(true)} disabled={saving || loadState === 'loading'}>Load latest saved version</StudioButton>
+            <StudioButton onClick={() => void exportHistory()} disabled={!ready || saving}>Export history</StudioButton>
+            <StudioButton variant="accent" onClick={() => void save()} disabled={!ready || dirtyPaths.length === 0 || saving}>
+              {saving ? 'Working…' : `Save ${dirtyPaths.length || ''} change${dirtyPaths.length === 1 ? '' : 's'}`}
             </StudioButton>
           </>
         )}
@@ -223,9 +269,9 @@ export function ProjectPackageClient() {
 
       <StudioMetricBar>
         <StudioMetric label="Project" value={projectName} meta={projectId} />
-        <StudioMetric label="Revision" value={snapshot?.revision.revision ?? '—'} meta={`HEAD ${shortHash(snapshot?.revision.revision_hash)}`} />
-        <StudioMetric label="Package files" value={snapshot?.files.length ?? 0} meta={`${(totalBytes / 1024).toFixed(1)} KiB complete snapshot`} />
-        <StudioMetric label="Working copy" value={dirtyPaths.length} meta={dirtyPaths.length ? 'uncommitted text files' : 'matches immutable HEAD'} tone={dirtyPaths.length ? 'warning' : 'success'} />
+        <StudioMetric label="Revision" value={ready ? snapshot.revision.revision : '—'} meta={ready ? `Version ${shortHash(snapshot.revision.revision_hash)}` : 'Not loaded'} />
+        <StudioMetric label="Package files" value={ready ? snapshot.files.length : '—'} meta={ready ? `${(totalBytes / 1024).toFixed(1)} KiB total` : 'Not loaded'} />
+        <StudioMetric label="Unsaved changes" value={ready ? dirtyPaths.length : '—'} meta={ready ? dirtyPaths.length ? 'edited text files' : 'Matches saved version' : 'Not checked'} tone={ready ? dirtyPaths.length ? 'warning' : 'success' : 'default'} />
       </StudioMetricBar>
 
       {loadState === 'missing' ? (
@@ -276,7 +322,7 @@ export function ProjectPackageClient() {
                     <span style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 12, overflowWrap: 'anywhere' }}>
                       {changed ? '● ' : ''}{file.path}
                     </span>
-                    <span style={{ display: 'block', marginTop: 3, fontSize: 10.5, color: 'var(--ink-4)' }}>
+                    <span style={{ display: 'block', marginTop: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
                       {file.size.toLocaleString()} bytes · {shortHash(file.sha256)}
                     </span>
                   </button>
@@ -287,7 +333,7 @@ export function ProjectPackageClient() {
 
           <StudioPanel
             title={selectedPath || 'Package file'}
-            description={selectedPath ? 'Browser working copy. Commit validates the complete package and advances immutable HEAD.' : 'Select an editable UTF-8 file.'}
+            description={selectedPath ? 'Edit your draft below. Saving validates the complete package and creates a new version; previous versions are retained.' : 'Select an editable UTF-8 file.'}
             compactHeader
             style={{ minWidth: 0 }}
           >
@@ -304,7 +350,7 @@ export function ProjectPackageClient() {
             )}
             {diff && (
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', padding: '10px 12px', borderRadius: 'var(--radius)', background: 'var(--bg-2)', fontSize: 12, color: 'var(--ink-3)' }}>
-                <strong style={{ color: 'var(--ink)' }}>Last commit</strong>
+                <strong style={{ color: 'var(--ink)' }}>Last saved version</strong>
                 <span>{diff.added_files.length} added</span>
                 <span>{diff.removed_files.length} removed</span>
                 <span>{diff.changed_files.length} changed</span>
@@ -313,10 +359,22 @@ export function ProjectPackageClient() {
           </StudioPanel>
         </div>
       ) : (
-        <StudioEmptyState title={loadState === 'loading' ? 'Loading Project Package' : 'Project Package unavailable'} description={message} />
+        <div role={loadState === 'error' ? 'alert' : 'status'}>
+          <StudioEmptyState
+            title={loadState === 'loading' ? 'Loading Project Package' : errorStatus === 401 ? 'Sign in required' : errorStatus === 403 ? 'Project access required' : 'Project Package unavailable'}
+            description={(
+              <div style={{ display: 'grid', gap: 'var(--gap)' }}>
+                <span>{message}</span>
+                {errorStatus === 401 && <a href="/login?callbackUrl=%2Fpackage">Sign in</a>}
+                {loadState === 'error' && errorStatus !== 401 && <StudioButton onClick={() => void load()}>Try again</StudioButton>}
+              </div>
+            )}
+          />
+        </div>
       )}
 
-      <div role="status" aria-live="polite" style={{ fontSize: 12, color: 'var(--ink-3)' }}>{message}</div>
+      {ready && <ProjectReleasePanel key={`${projectId}:${snapshot.revision.revision_hash}`} projectId={projectId} revisionHash={snapshot.revision.revision_hash} dirty={dirtyPaths.length > 0} />}
+      {(loadState === 'ready' || loadState === 'missing') && <div role="status" aria-live="polite" style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>{message}</div>}
     </StudioPage>
   );
 }

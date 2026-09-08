@@ -4,7 +4,7 @@ async function loginDemo(page: import('@playwright/test').Page) {
   await page.goto('/login');
   await page.getByPlaceholder('demo@aurora-group.eu').fill('demo@aurora-group.eu');
   await page.getByText('Sign in with Demo').click();
-  await page.waitForURL(/\/(overview|login)/, { timeout: 15000 });
+  await page.waitForURL(/\/overview$/, { timeout: 15000 });
 }
 
 test.describe('Studio v3 shell', () => {
@@ -17,7 +17,7 @@ test.describe('Studio v3 shell', () => {
     await expect(sidebar.getByRole('link', { name: 'Discover' })).toBeVisible();
     await expect(sidebar.getByRole('link', { name: 'Blueprint' })).toBeVisible();
     await expect(sidebar.getByRole('link', { name: 'Library' })).toBeVisible();
-    await expect(sidebar.getByRole('link', { name: 'Canvas' })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: 'Data lineage' })).toBeVisible();
     await expect(sidebar.getByRole('link', { name: 'Brand & Templates' })).toBeVisible();
   });
 
@@ -31,7 +31,7 @@ test.describe('Studio v3 shell', () => {
   test('library redirects from legacy catalog', async ({ page }) => {
     await loginDemo(page);
     await page.goto('/catalog', { waitUntil: 'domcontentloaded' });
-    // Redirect compatibility was removed; `/catalog` is now the canonical route.
-    await expect(page).toHaveURL(/\/catalog/, { timeout: 15_000 });
+    // Legacy catalog remains the management lens of the unified Library.
+    await expect(page).toHaveURL(/\/library\?view=manage/, { timeout: 15_000 });
   });
 });

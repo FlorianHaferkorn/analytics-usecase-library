@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Control the bracket-path resolver and the spawned subprocess.
-vi.mock('@/lib/core/bracket-loader', () => ({
-  resolveBracketPath: vi.fn(),
-}));
-
 type ExecCb = (err: (Error & { code?: string | number; stdout?: string }) | null, stdout: string, stderr: string) => void;
 const { execFileMock } = vi.hoisted(() => ({ execFileMock: vi.fn() }));
 vi.mock('node:child_process', () => {
@@ -12,8 +7,7 @@ vi.mock('node:child_process', () => {
   return { default: { execFile: shim }, execFile: shim };
 });
 
-import { runPreCore } from '@/lib/bridge/superversion-bridge';
-import { resolveBracketPath } from '@/lib/core/bracket-loader';
+import { resolveBridgeBracket, runPreCore } from '@/lib/bridge/superversion-bridge';
 
 const PAYLOAD = {
   ok: true,
@@ -24,13 +18,11 @@ const PAYLOAD = {
 };
 
 beforeEach(() => {
-  vi.mocked(resolveBracketPath).mockReset();
   execFileMock.mockReset();
 });
 
 describe('runPreCore', () => {
   it('returns the core verdict on a successful bridge run', async () => {
-    vi.mocked(resolveBracketPath).mockResolvedValue('/repo/core/usecases/core/COM-001_X/UseCase_Bracket.yaml');
     execFileMock.mockImplementation((_args: string[], cb: ExecCb) => cb(null, JSON.stringify(PAYLOAD), ''));
 
     const result = await runPreCore('COM-001');
@@ -39,16 +31,18 @@ describe('runPreCore', () => {
   });
 
   it('flags bracket-not-found as a core verdict (still available)', async () => {
-    vi.mocked(resolveBracketPath).mockResolvedValue(null);
+    execFileMock.mockImplementation((_args: string[], cb: ExecCb) => {
+      const err = Object.assign(new Error('exit 1'), { code: 1, stdout: JSON.stringify({ ok: false, error: 'bracket not found: ZZZ-999' }) });
+      cb(err, err.stdout, '');
+    });
     const result = await runPreCore('ZZZ-999');
     expect(result.available).toBe(true);
     expect(result.ok).toBe(false);
     expect(result.error).toContain('ZZZ-999');
-    expect(execFileMock).not.toHaveBeenCalled();
+    expect(execFileMock).toHaveBeenCalledOnce();
   });
 
   it('surfaces a JSON error carried on stdout of a non-zero exit', async () => {
-    vi.mocked(resolveBracketPath).mockResolvedValue('/repo/.../UseCase_Bracket.yaml');
     execFileMock.mockImplementation((_args: string[], cb: ExecCb) => {
       const err = Object.assign(new Error('exit 1'), { code: 1, stdout: JSON.stringify({ ok: false, error: 'bracket not found: x' }) });
       cb(err, err.stdout, '');
@@ -58,7 +52,6 @@ describe('runPreCore', () => {
   });
 
   it('degrades honestly when the python interpreter is missing (ENOENT)', async () => {
-    vi.mocked(resolveBracketPath).mockResolvedValue('/repo/.../UseCase_Bracket.yaml');
     execFileMock.mockImplementation((_args: string[], cb: ExecCb) => {
       cb(Object.assign(new Error('spawn ENOENT'), { code: 'ENOENT' }), '', '');
     });
@@ -66,5 +59,27 @@ describe('runPreCore', () => {
     expect(result.available).toBe(false);
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/unavailable/);
+  });
+});
+
+describe('resolveBridgeBracket', () => {
+  it('resolves a governed use-case ID through the external bridge', async () => {
+    execFileMock.mockImplementation((args: string[], cb: ExecCb) => {
+      expect(args).toContain('resolve');
+      expect(args).toContain('COM-001');
+      cb(null, JSON.stringify({ ok: true, bracket: 'COM-001_Sales_Performance' }), '');
+    });
+
+    await expect(resolveBridgeBracket('COM-001')).resolves.toEqual({
+      available: true,
+      exists: true,
+      bracket: 'COM-001_Sales_Performance',
+    });
+  });
+
+  it('rejects path-shaped input before spawning Python', async () => {
+    const result = await resolveBridgeBracket('../../secret');
+    expect(result).toMatchObject({ available: true, exists: false });
+    expect(execFileMock).not.toHaveBeenCalled();
   });
 });
