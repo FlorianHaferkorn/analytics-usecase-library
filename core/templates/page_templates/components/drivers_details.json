@@ -1,10 +1,10 @@
 {
   "name": "drivers_details",
-  "version": 1,
+  "version": 2,
   "layout": {
     "sections": [
-      { "id": "drivers", "visuals": ["driver_cards","decomposition_or_bridge"] },
-      { "id": "details", "visuals": ["ranking_table","matrix_breakdown"] }
+      { "id": "drivers", "blocks": ["variance_explanation"] },
+      { "id": "details", "blocks": ["entity_ranking", "detail_matrix"] }
     ],
     "slicers_from_segments": true
   },
@@ -13,6 +13,5 @@
     "segments": "@segments",
     "filters": "@filters_default"
   },
-  "notes": "Use when emphasis is on drivers and detail tables; Agent assigns visuals to appropriate measures."
+  "notes": "Version 2 (08.09.2026): Abschnitte nennen Informationsbloecke aus visual_registry.yaml. Vorher standen im Abschnitt drivers zwei Eintraege — driver_cards und decomposition_or_bridge — fuer dieselbe Information in zwei Zeichenformen; als Block ist das einer (variance_explanation), und die Wahl zwischen Karten und Bruecke trifft allowed_visuals. matrix_breakdown ist detail_matrix, ranking_table ist entity_ranking. Einsatz, wenn der Schwerpunkt auf Treibern und Detailtabellen liegt."
 }
-

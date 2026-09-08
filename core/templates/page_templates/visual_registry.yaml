@@ -10,6 +10,22 @@
 #
 # Visual substitution is ONLY valid within the same information block.
 # See VISUAL_BAUKASTEN.md §3 for substitution rules.
+#
+# Feld `idiom` (optional, seit 08.09.2026)
+# ---------------------------------------
+# Bindeglied zur Visual Library: der Idiom-Bezeichner aus
+# `core/templates/page_templates/visual_library/<id>.yaml`, dessen Vorlagen dieses
+# Visual TATSAECHLICH erzeugen. Ohne dieses Feld nennt eine Seitenvariante ihren
+# Informationsblock, der Block seine erlaubten Visuals — und dann endet die Kette,
+# weil beide Register verschiedene Namen fuer dieselbe Sache fuehren: von 25
+# `visual_id`s und 30 Idiom-Bezeichnern waren am 08.09.2026 genau zwei gleich
+# (`decomposition_tree`, `small_multiples`).
+#
+# Gesetzt wird es nur dort, wo der `pbip_type` der Registry und der native
+# visualType des Idioms EXAKT uebereinstimmen; jede andere Zuordnung waere geraten.
+# Ein Eintrag ohne `idiom` ist deshalb kein Versehen, sondern die Aussage: die
+# Bibliothek hat dafuer heute keine Vorlage. Geprueft von
+# `tooling/tests/test_visual_registry_idiom_bridge.py`.
 
 registry_version: "1.0.0"
 
@@ -57,8 +73,22 @@ information_blocks:
         is_default: true
         condition: null
         source: "S7 — Few (2004): KPI card maximizes data-ink for status display"
+      - visual_id: kpi_card_native
+        pbip_type: kpi
+        idiom: kpi_card_spark
+        targets: {powerbi: kpi, evidence: "evidence:stat"}
+        is_default: false
+        condition: "target_measure_available = true"
+        source: "ADR-0021 (07.09.2026) — die Karten-Anatomie mit Wert, Trend, Ziel und Abstand"
+        # Eigener Eintrag statt einer zweiten Schreibweise von `kpi_card_with_delta`: das
+        # sind zwei verschiedene Visuals. `cardVisual` zeigt Wert und einen Referenzwert als
+        # Text; `kpi` traegt zusaetzlich die Trendlinie und rechnet den Abstand zum Ziel
+        # selbst (Rollen Indicator/TrendLine/Goal, gemessen 08.09.2026 gegen den Katalog
+        # 0.1.1). Deshalb die Bedingung: ohne Ziel-Measure faellt `kpi` auf eine Karte ohne
+        # Abstand zurueck, und dann ist `cardVisual` die ehrlichere Wahl.
       - visual_id: bullet_graph
         pbip_type: tableEx
+        idiom: matrix_bullet
         render_mode: svg_measure
         is_default: false
         condition: "space_constrained = true AND kpi_count >= 4"
@@ -72,13 +102,17 @@ information_blocks:
 
     forbidden_visuals:
       - visual_id: gauge
-        pbip_type: gaugeVisual
+        # Der Katalog fuehrt den Typ als `gauge`, nicht `gaugeVisual` (gemessen 08.09.2026).
+        pbip_type: gauge
         reason: "90% non-data ink (S7 — Few 2004); KPI card communicates status with higher accuracy"
       - visual_id: pie
         pbip_type: pieChart
         reason: "Angle encoding rank 5 in accuracy hierarchy (S2 — Cleveland & McGill 1984); no reference encoding"
       - visual_id: radar
-        pbip_type: radarChart
+        # Es gibt kein Kernvisual dafuer (gemessen 08.09.2026: `radarChart` steht nicht im
+        # Katalog). Das Verbot richtet sich gegen ein Fremd-Visual, deshalb null statt eines
+        # erfundenen Namens — wie bei `3d_line`.
+        pbip_type: null
         reason: "Angle encoding; cross-axis comparisons perceptually invalid (S2)"
 
     quality_rules:
@@ -133,6 +167,7 @@ information_blocks:
     allowed_visuals:
       - visual_id: line_chart
         pbip_type: lineChart
+        idiom: line
         targets: {powerbi: lineChart, evidence: "evidence:line"}
         is_default: true
         condition: null
@@ -150,6 +185,7 @@ information_blocks:
         source: "S2 — area encoding lower accuracy; use only when cumulative context adds value"
       - visual_id: small_multiples
         pbip_type: lineChart
+        idiom: small_multiples
         small_multiples: true
         is_default: false
         condition: "entity_count >= 3 AND entity_count <= 12"
@@ -157,7 +193,9 @@ information_blocks:
 
     forbidden_visuals:
       - visual_id: stacked_column_single_kpi
-        pbip_type: stackedBarChart
+        # gestapelte Saeule = `columnChart` (gemessen 08.09.2026); `stackedBarChart`
+        # steht nicht im Katalog.
+        pbip_type: columnChart
         reason: "Stacking hides the total when showing a single KPI trend"
       - visual_id: 3d_line
         pbip_type: null
@@ -225,18 +263,21 @@ information_blocks:
     allowed_visuals:
       - visual_id: waterfall_chart
         pbip_type: waterfallChart
+        idiom: waterfall_variance
         targets: {powerbi: waterfallChart, evidence: "evidence:waterfall"}
         is_default: true
         condition: null
         source: "S9 — IBCS: waterfall is canonical variance bridge; S2 — length encoding"
       - visual_id: variance_bar
         pbip_type: clusteredBarChart
+        idiom: deviation_bar
         targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         is_default: false
         condition: "waterfall_not_feasible = true"
         source: "S2 — length encoding; acceptable deviation chart with baseline"
       - visual_id: contribution_table
         pbip_type: tableEx
+        idiom: matrix_delta_pill
         targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: false
         condition: "layer = 300s"
@@ -313,6 +354,7 @@ information_blocks:
     allowed_visuals:
       - visual_id: horizontal_bar_chart
         pbip_type: clusteredBarChart
+        idiom: bar_ranking
         targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         orientation: horizontal
         is_default: true
@@ -461,12 +503,17 @@ information_blocks:
 
     allowed_visuals:
       - visual_id: stacked_bar_100
-        pbip_type: 100%StackedBarChart
+        # `100%StackedBarChart` gibt es im offiziellen Katalog nicht (gemessen 08.09.2026,
+        # @microsoft/powerbi-core-visual-schema 0.1.1). Der Typ heisst ausgeschrieben.
+        # check_page_template_compliance._aus_registry() liest genau dieses Feld — ein
+        # Name, den kein Visual traegt, macht die Pruefung fuer dieses Visual blind.
+        pbip_type: hundredPercentStackedBarChart
         is_default: true
         condition: null
         source: "S2 — length encoding on common scale; best for share comparison across scenarios"
       - visual_id: stacked_column_100
-        pbip_type: 100%StackedColumnChart
+        pbip_type: hundredPercentStackedColumnChart
+        idiom: stacked_100
         is_default: false
         condition: "time_on_x_axis = true"
         source: "S2 — length encoding; acceptable when time is the x-axis dimension"
@@ -476,7 +523,8 @@ information_blocks:
         pbip_type: pieChart
         reason: "Angle encoding rank 5 (S2 — Cleveland & McGill); no period-over-period comparison possible"
       - visual_id: regular_stacked
-        pbip_type: stackedBarChart
+        # gestapelter Balken = `barChart` (gemessen 08.09.2026).
+        pbip_type: barChart
         reason: "Shows totals, not shares; does not answer the composition question"
       - visual_id: treemap
         pbip_type: treemap
@@ -697,10 +745,21 @@ information_blocks:
     allowed_visuals:
       - visual_id: table
         pbip_type: tableEx
+        idiom: matrix_evidence
         targets: {powerbi: tableEx, evidence: "evidence:table"}
         is_default: true
         condition: null
         source: "S1 — Shneiderman: details-on-demand tier; table maximizes information density per pixel"
+      - visual_id: table_with_trend
+        pbip_type: tableEx
+        idiom: matrix_sparkline
+        targets: {powerbi: tableEx, evidence: "evidence:table"}
+        is_default: false
+        condition: "entity_history_available = true"
+        source: "ADR-0021 (07.09.2026) — `tableEx` traegt `sparklines` nativ (Katalog 0.1.1)"
+        # Die Trendspalte in der Zeile beantwortet 'wohin entwickelt sich diese Entitaet',
+        # ohne dass der Leser die Seite wechselt. Wirt ist dieselbe Tabelle wie bei
+        # `table`; der Unterschied ist die Spalte, nicht das Visual.
       - visual_id: matrix
         pbip_type: pivotTable
         targets: {powerbi: pivotTable, evidence: "evidence:table"}
@@ -749,16 +808,19 @@ information_blocks:
     allowed_visuals:
       - visual_id: scatter_plot
         pbip_type: scatterChart
+        idiom: scatter
         is_default: true
         condition: "needs_root_cause = true"
         source: "S2 — position on two scales; effective for factor correlation display"
       - visual_id: decomposition_tree
         pbip_type: decompositionTreeVisual
+        idiom: decomposition_tree
         is_default: false
         condition: "drill_path_defined = true"
         source: "S1 — zoom tier; acceptable when causal hierarchy is explicit"
       - visual_id: horizontal_bar_categorical
         pbip_type: clusteredBarChart
+        idiom: bar_absolute
         targets: {powerbi: clusteredBarChart, evidence: "evidence:bar"}
         orientation: horizontal
         is_default: false
