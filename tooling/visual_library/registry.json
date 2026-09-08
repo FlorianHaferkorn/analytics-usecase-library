@@ -57,7 +57,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:ac79c4519bb8c0a8ae10fa50e040fc1433d7379edd9eb6b0cdc26a80d762e2e7"
+      "checksum": "sha256:394c5ae910af9c68b4bb7bc2262dff8bacb4c9b2bdb314292a867233db77db15"
     },
     {
       "id": "bar_ranking",
@@ -87,7 +87,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:b088b11197ae32b7a7bd24b64e7156ca65f0a1e1a19bbebf577082c9ea4c7b20"
+      "checksum": "sha256:74c5ea8f60304beaf18eeeb4e725c6d2a715594fdfee4c832271ff15333d3cd5"
     },
     {
       "id": "bar_stacked",
@@ -101,7 +101,7 @@
       "zone": [
         "analysis"
       ],
-      "native_visual_type": "stackedColumnChart",
+      "native_visual_type": "columnChart",
       "tools": [
         "powerbi_native",
         "deneb_vegalite",
@@ -114,7 +114,7 @@
         "cols": 4,
         "rows": 4
       },
-      "checksum": "sha256:5598295918327eecccd0e878180b763c87146b6cb051576c15f88e1cf9d4c69e"
+      "checksum": "sha256:db90d5d5ffe6068478924525db7b3f40fdb1788ea03656cf0911ed83be4cf7c8"
     },
     {
       "id": "boxplot",
@@ -222,7 +222,7 @@
         "cols": 6,
         "rows": 7
       },
-      "checksum": "sha256:c381a1a12f33516730dbdb1a143af5994455af97ba033ff389cc09c3efd43a02"
+      "checksum": "sha256:b3554e307b8e6ba0bb7cdc57adef58212e9bfc8b8d8c14d9454c991729153c70"
     },
     {
       "id": "deviation_bar",
@@ -386,7 +386,7 @@
         "cols": 3,
         "rows": 3
       },
-      "checksum": "sha256:0f95dcbd1c8b629932d7c9a978c88306b172533c8238d092502f538ebd94017a"
+      "checksum": "sha256:35858f2ca99524f01bb4fa62bd1aec31b03822932e2d2fc69f2e4fbb9792f9d6"
     },
     {
       "id": "kpi_card_spark",
@@ -400,8 +400,9 @@
       "zone": [
         "pulse"
       ],
-      "native_visual_type": null,
+      "native_visual_type": "kpi",
       "tools": [
+        "powerbi_native",
         "powerbi_svg_dax"
       ],
       "profiles": [
@@ -411,7 +412,7 @@
         "cols": 3,
         "rows": 3
       },
-      "checksum": "sha256:ad0187cab2d49336eef45fb5488b410cd28342de1102d6b13fdebd8260c9e3e0"
+      "checksum": "sha256:8d797bf2e763ce29c1136e8ae5ed1d69543916ff5e7fa71bfd1bed37c56572b1"
     },
     {
       "id": "kpi_card_sparkbar",
@@ -436,7 +437,7 @@
         "cols": 3,
         "rows": 3
       },
-      "checksum": "sha256:62bc1ac6ad0e6aee984a1396f88c8676c8a27e0f47229d9aaf20468a181cc649"
+      "checksum": "sha256:a3decbe6ded146a31339d407a936cfe261d4d804c36656d4b0dec97d6728fdfe"
     },
     {
       "id": "line",
@@ -569,7 +570,7 @@
         "cols": 5,
         "rows": 6
       },
-      "checksum": "sha256:2f424f95147db41a249f777b65c5ac4d32d804dfe729b3cc75296825f9863305"
+      "checksum": "sha256:c61e1fe379cfe8ed8e9414fd8c3a9bfbbea0678db148d8db1b46a016f2dcc77c"
     },
     {
       "id": "matrix_sparkline",
@@ -647,7 +648,7 @@
         "cols": 3,
         "rows": 5
       },
-      "checksum": "sha256:d24999676dec98ec6261654ad33f2e1127660d9313d7c7babae7021b07e2bf6c"
+      "checksum": "sha256:7625720fd295e1d3773d2488eba26810739ae110b9a89ca08ad9401ab4eceba8"
     },
     {
       "id": "slope",

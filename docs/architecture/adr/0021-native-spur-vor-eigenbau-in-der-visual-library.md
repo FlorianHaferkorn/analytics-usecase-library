@@ -96,17 +96,56 @@ unverändert.
 |---|---|
 | `visual_catalog.visual_objects("tableEx")` enthält `sparklines` | ja (gemessen 07.09.2026, Pin 0.1.1) |
 | Typen mit `smallMultiplesLayout` | 14 (gemessen 07.09.2026, Pin 0.1.1) |
-| Idiome mit `powerbi_native` nach V-1/V-2 | 17 → 19 von 30 |
+| Idiome mit `powerbi_native` nach V-1/V-2/V-3 | 17 → **20** von 30 (gemessen 08.09.2026 an den YAMLs) |
+| Idiome ohne native Spur, deren Grund Datum **und** Methode nennt | 10 von 10 (Test `test_every_missing_native_track_carries_a_dated_measurement`) |
+| Native Goldens, deren Typ/Rollen/Objekte der Katalog kennt | 20 von 20 (Test `test_native_goldens_only_name_things_the_official_catalog_knows`; vor der Korrektur 16 von 20) |
 | Idiome ohne native Spur **und** ohne Grund | 0 |
 | `python scripts/check_index.py --strict` | 0 harte Befunde |
 | Golden je Spur je Idiom | vollständig; `validation_matrix.json` trägt den Stand |
 
-## 6. Offene Punkte
+## 6. Nachtrag 08.09.2026 — die Regel hat vier eigene Fehler gefunden
 
-- **Ob `cardVisual` mit `smallMultiplesLayout` für die KPI-Karten aus Bild 1 taugt.** Der
-  Katalog führt das Objekt, ob es die Anatomie trägt, ist nicht gemessen.
-  `ANNAHME, ungeprueft`.
-- **Die übrigen 11 Idiome** sind einzeln zu prüfen (V-4). Vorab-Vermutungen stehen hier
-  bewusst nicht; der Katalog entscheidet, nicht die Erwartung.
+Beim Prüfen der KPI-Karten gegen den Katalog fiel auf, dass **vier der zwanzig nativen
+Goldens Namen trugen, die es nicht gibt**: `stackedColumnChart` ist kein Visualtyp (das
+gestapelte Säulendiagramm heißt `columnChart`), `scatterChart` kennt keine Rolle `Details`
+(sondern `Category`), der Zerlegungsbaum heißt seine Rollen `Analyze`/`ExplainBy`, und
+`sortDefinition` stand in drei Idiomen **innerhalb** von `queryState`, wo es als fünfte
+Datenrolle liest — in PBIR ist es ein Geschwister davon unter `query`, so auch in jedem
+ausgelieferten Report des Repos.
+
+Alle vier sind behoben. Interessanter als die Fehler ist, warum sie so lange standen: der
+vorhandene Test `test_native_goldens_have_pbir_structure` zählt Projektionen und liest keine
+Namen — das falsch platzierte `sortDefinition` half ihm sogar durch, weil es ein Dict ohne
+`projections` ist. Und Power BI ignoriert Unbekanntes still, es gibt also keine Meldung, an
+der es auffiele. Ein Strukturtest, der Formen zählt statt Namen zu prüfen, misst die Syntax
+und nicht die Sprache.
+
+Der Regress-Schutz ist ein **eingefrorener Katalogauszug** statt eines Imports:
+`tooling/visual_library/catalog_facts.json` (12 Visualtypen, deren Rollen und die
+Eigenschaftsnamen der benutzten Formatierungsobjekte) plus `catalog_facts.py` mit
+`check`/`write` und dem Drei-Wege-Vokabular 0/1/2 (deckungsgleich / Drift / konnte nicht
+vergleichen). Grund für den Auszug: der Katalog liegt als npm-Paket in Meridian, ALUCAs CI
+hat ihn nicht — ein importierender Test wäre hier ein Dauer-Soft-Skip und könnte „nichts
+gefunden" nicht von „nicht gelaufen" unterscheiden.
+
+## 7. Offene Punkte
+
+- ~~**Ob `cardVisual` mit `smallMultiplesLayout` für die KPI-Karten aus Bild 1 taugt.**~~
+  **Beantwortet 08.09.2026, anders als vermutet.** Der Träger der Karten-Anatomie ist nicht
+  `cardVisual`, sondern das `kpi`-Visual: es führt die Rollen `Indicator`/`TrendLine`/`Goal`
+  und die Objekte `trendline`, `indicator`, `goals`, `status`, `lastDate`. `cardVisual` hat
+  33 Objekte und **kein** `sparklines` — der alte Grund war insoweit richtig und beantwortete
+  nur die falsche Frage. Neun der elf Slots aus Bild 1 sind damit belegt; die Abbildung steht
+  als Kopfkommentar in `kpi_card_spark.yaml`. Handlungsaufruf und Aktualisierungszeitpunkt
+  sind bewusst **keine** Kartenslots: das eine ist ein Navigations-Steuerelement, das andere
+  gilt dem Modell und stünde sonst sechsmal auf einer Seite.
+- ~~**Die übrigen 11 Idiome**~~ **erledigt (V-4).** Zehn Idiome bleiben ohne native Spur, jedes
+  mit Datum und Methode im Grund; ein Test hält das. Die beiden neu entschiedenen:
+  `kpi_card_bullet` fällt, weil kein Kartentyp die Erreichung als **Länge** zeichnet
+  (`goals` und `referenceLabel*` zeigen den Zielwert als Zahl) — eine native Spur hätte den
+  Rang-2-Kanal weggelassen. `kpi_card_sparkbar` fällt, weil `kpi.trendline` genau `show` und
+  `transparency` führt: die native Trendspur ist eine Linie und lässt sich nicht in Säulen
+  umschalten, und genau die Linie verbietet dieses Idiom unter
+  `line_when_periods_are_discrete`.
 - **Ob eine native Spur eine SVG-Spur je ablöst.** Heute nicht entschieden und heute auch
   nicht nötig: beide stehen nebeneinander, die Rangfolge genügt.

@@ -59,12 +59,20 @@ ALUCA_VISUAL_IDIOM: dict[str, str] = {
 # visual_types the emitter handles that are structural/chrome, not a charted idiom.
 EXEMPT: frozenset[str] = frozenset({"card", "kpi_card", "slicer", "table", "matrix"})
 
-# Native-capable idioms whose visualType is NOT yet in pbir._PLANS. Now empty: every native idiom's
-# PBIR roles have been wired into _PLANS, DERIVED FROM its governed native golden (not guessed) and
+# Native-capable idioms whose visualType is NOT yet in pbir._PLANS. Every other native idiom's
+# PBIR roles ARE wired into _PLANS, DERIVED FROM its governed native golden (not guessed) and
 # bound to it by test_visual_library.test_pbir_plans_emit_the_governed_golden_roles. Native output
 # remains Desktop-gated for the whole track (no headless PBIR renderer) — that is inherent, not a gap.
-# The reachability test asserts this stays the exact (now empty) tracked set.
-PLANS_UNREACHABLE: frozenset[str] = frozenset()
+# The reachability test asserts this stays the exact tracked set.
+#
+# `kpi_card_spark` steht hier seit 08.09.2026, und zwar als Entscheidung und nicht als Rest:
+# das Idiom emittiert seit ADR-0021 nativ ein `kpi`-Visual, aber der ALUCA-Typ `kpi_card` faehrt
+# in _PLANS heute ein `cardVisual` (Rolle Data). Ein Umhaengen waere kein Bibliotheks-Detail — es
+# aendert JEDE KPI-Karte in jedem erzeugten Report, und `kpi` verlangt zusaetzlich eine
+# Ziel-Measure auf der Rolle `Goal`, die ein Bracket heute nicht liefern muss. Beides gehoert
+# Flo und nicht einem Seiteneffekt. Bis dahin bleibt die native Spur in der Bibliothek
+# vorhanden und aus dem Generator unerreichbar — benannt statt still.
+PLANS_UNREACHABLE: frozenset[str] = frozenset({"kpi_card_spark"})
 
 
 class IdiomBridgeError(ValueError):

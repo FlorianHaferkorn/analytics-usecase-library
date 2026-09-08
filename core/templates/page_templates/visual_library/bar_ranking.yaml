@@ -65,9 +65,9 @@ realizations:
         "visualType": "clusteredBarChart",
         "query": { "queryState": {
           "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
-          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
-          "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true }
-        } },
+          "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] }
+        },
+        "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
         "objects": {
           "valueAxis": [ { "properties": { "start": { "expr": { "Literal": { "Value": "0D" } } } } } ],
           "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]

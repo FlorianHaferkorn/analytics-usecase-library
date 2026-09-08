@@ -108,12 +108,20 @@ _PLANS: dict[str, _TypePlan] = {
     # test_visual_library.test_pbir_plans_emit_the_governed_golden_roles, so the generator and the
     # library can never drift. (native output stays Desktop-gated for the whole track, as always.)
     "donut": _TypePlan("donutChart", "Y", "Measure", None, ("Category",)),
-    "bar_stacked": _TypePlan("stackedColumnChart", "Y", "Measure", None, ("Category", "Series")),
+    # `columnChart` IST das gestapelte Saeulendiagramm; `stackedColumnChart` gibt es im
+    # offiziellen Katalog nicht (gemessen 08.09.2026, Pin 0.1.1). Der alte Name stand hier
+    # und im Golden — die Ableitung „aus dem Golden statt geraten" traegt einen Fehler mit,
+    # solange das Golden selbst nie gegen den Katalog gemessen wurde. Genau das tut jetzt
+    # test_native_goldens_only_name_things_the_official_catalog_knows in ALUCAs Bibliothek.
+    "bar_stacked": _TypePlan("columnChart", "Y", "Measure", None, ("Category", "Series")),
     "area_stacked": _TypePlan("stackedAreaChart", "Y", "Measure", None, ("Category", "Series")),
     "stacked_100": _TypePlan("hundredPercentStackedColumnChart", "Y", "Measure", None, ("Category", "Series")),
-    "decomposition_tree": _TypePlan("decompositionTreeVisual", "Analysis", "Measure", None, ("Explain By",)),
-    # scatter needs TWO measure axes → primary X + secondary Y, with Details as the column role.
-    "scatter": _TypePlan("scatterChart", "X", "Measure", 1, ("Details",), secondary_role="Y", secondary_max=1),
+    # Rollen heissen `Analyze`/`ExplainBy` (ein Wort, ohne Leerzeichen) — gemessen 08.09.2026.
+    "decomposition_tree": _TypePlan("decompositionTreeVisual", "Analyze", "Measure", None, ("ExplainBy",)),
+    # scatter needs TWO measure axes → primary X + secondary Y, with the point identity on
+    # `Category`. `Details` ist keine Rolle von `scatterChart` (gemessen 08.09.2026): der
+    # Katalog fuehrt Category, Series, X, Y, Size, Play, Tooltips.
+    "scatter": _TypePlan("scatterChart", "X", "Measure", 1, ("Category",), secondary_role="Y", secondary_max=1),
     "slicer": _TypePlan("slicer", "Values", "Column", 1, ()),
     "table": _TypePlan("tableEx", "Values", "Measure", None, ()),
     "matrix": _TypePlan("tableEx", "Values", "Measure", None, ()),

@@ -1,8 +1,8 @@
 {
   "visualType": "decompositionTreeVisual",
   "query": { "queryState": {
-    "Analysis": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } }, "queryRef": "_Measures.Gross Margin % vs Plan" } ] },
-    "Explain By": { "projections": [
+    "Analyze": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin % vs Plan" } }, "queryRef": "_Measures.Gross Margin % vs Plan" } ] },
+    "ExplainBy": { "projections": [
       { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_org" } }, "Property": "OrgName" } }, "queryRef": "dim_org.OrgName" },
       { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_product" } }, "Property": "Category" } }, "queryRef": "dim_product.Category" }
     ] }

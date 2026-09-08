@@ -24,6 +24,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "tooling" / "visual_library"))
 import render  # noqa: E402
+import catalog_facts  # noqa: E402
 
 LIB = REPO_ROOT / "core" / "templates" / "page_templates" / "visual_library"
 
@@ -159,6 +160,73 @@ def test_native_goldens_have_pbir_structure():
         qs = d.get("query", {}).get("queryState", {})
         proj = sum(len(b.get("projections", [])) for b in qs.values() if isinstance(b, dict))
         assert proj >= 1, f"{gp.name}: query.queryState has no projections"
+
+
+def test_every_missing_native_track_carries_a_dated_measurement():
+    """ADR-0021: an idiom without a `powerbi_native` template must say WHEN and HOW it was
+    established that the platform cannot carry it — not just that it cannot.
+
+    The rule exists because the three reasons this library started with were all true
+    sentences about the wrong question: they named one visual type (`cardVisual`) and
+    concluded something about the platform. `matrix_sparkline` and `small_multiples` both
+    turned out to be native after all. A reason with a date and a named source can be
+    re-measured when the pin moves; a bare claim cannot."""
+    for f in sorted(LIB.glob("*.yaml")):
+        if f.name.startswith("_") or f.name == "index.yaml":
+            continue
+        d = yaml.safe_load(f.read_text(encoding="utf-8"))
+        r = (d.get("realizations") or {}).get("powerbi_native") or {}
+        if r.get("template"):
+            continue
+        grund = r.get("reason") or ""
+        assert re.search(r"\d{2}\.\d{2}\.\d{4}", grund), \
+            f"{d['id']}: powerbi_native reason carries no measurement date (ADR-0021)"
+        assert re.search(r"[Gg]emessen|[Gg]eprueft|[Gg]eprüft", grund), \
+            f"{d['id']}: powerbi_native reason does not say how it was established (ADR-0021)"
+
+
+def test_native_goldens_only_name_things_the_official_catalog_knows():
+    """Every visualType, data role, formatting object and property in a native golden
+    exists in the official Power BI visual catalog (frozen extract, pin 0.1.1 — see
+    tooling/visual_library/catalog_facts.py for why an extract and not an import).
+
+    The structural test above counts projections and is blind to names. Measured
+    08.09.2026, it passed on four fragments Power BI could not have drawn as written:
+    `stackedColumnChart` is not a visualType (the stacked column chart is
+    `columnChart`), scatter's point role is `Category` and not `Details`, the
+    decomposition tree's roles are `Analyze`/`ExplainBy` and not `Analysis`/`Explain
+    By`, and `sortDefinition` belongs under `query` — inside `queryState` it read as a
+    fifth data role. Power BI ignores what it does not know, silently; that is exactly
+    why this has to be a test and not a review."""
+    facts = catalog_facts.lade()["visuals"]
+    for gp in sorted((LIB / "golden").glob("*.powerbi_native*.json")):
+        d = json.loads(gp.read_text(encoding="utf-8"))
+        vt = d["visualType"]
+        assert vt in facts, f"{gp.name}: visualType '{vt}' not in the catalog extract"
+        assert not facts[vt].get("_fehlt_im_katalog"), \
+            f"{gp.name}: visualType '{vt}' is unknown to the official catalog"
+        for role in d.get("query", {}).get("queryState", {}):
+            assert role in facts[vt]["roles"], (
+                f"{gp.name}: '{role}' is not a data role of '{vt}' "
+                f"(known: {facts[vt]['roles']})")
+        for obj, insts in (d.get("objects") or {}).items():
+            known = facts[vt]["objects"].get(obj)
+            assert known is not None, \
+                f"{gp.name}: formatting object '{obj}' is unknown for '{vt}'"
+            for inst in insts:
+                for prop in inst.get("properties", {}):
+                    assert prop in known, \
+                        f"{gp.name}: '{obj}.{prop}' is unknown for '{vt}'"
+
+
+def test_the_catalog_extract_covers_every_visual_type_the_library_emits():
+    """The extract is only as good as its coverage: a new native track that names a
+    new visualType must extend it, or the test above would silently stop testing."""
+    facts = catalog_facts.lade()["visuals"]
+    fehlt = sorted(set(catalog_facts.benutzte_typen()) - set(facts))
+    assert not fehlt, (
+        f"catalog_facts.json does not cover {fehlt} — run "
+        f"`python3 tooling/visual_library/catalog_facts.py write --catalog <data-dir>`")
 
 
 def test_svg_dax_goldens_emit_wellformed_svg():

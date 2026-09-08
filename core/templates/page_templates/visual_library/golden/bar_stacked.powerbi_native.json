@@ -1,5 +1,5 @@
 {
-  "visualType": "stackedColumnChart",
+  "visualType": "columnChart",
   "query": { "queryState": {
     "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_region" } }, "Property": "Region" } }, "queryRef": "dim_region.Region" } ] },
     "Series": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_product" } }, "Property": "Category" } }, "queryRef": "dim_product.Category" } ] },

@@ -1,0 +1,26 @@
+{
+  "visualType": "kpi",
+  "query": { "queryState": {
+    "Indicator": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Net Sales Amount" } }, "queryRef": "_Measures.Net Sales Amount" } ] },
+    "TrendLine": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "Date" } }, "queryRef": "dim_date.Date" } ] },
+    "Goal": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Plan Sales Amount" } }, "queryRef": "_Measures.Plan Sales Amount" } ] }
+  } },
+  "objects": {
+    "trendline": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ],
+    "goals": [ { "properties": {
+      "showGoal": { "expr": { "Literal": { "Value": "true" } } },
+      "showDistance": { "expr": { "Literal": { "Value": "true" } } },
+      "distanceLabel": { "expr": { "Literal": { "Value": "'Percent'" } } },
+      "direction": { "expr": { "Literal": { "Value": "'High is good'" } } }
+    } } ],
+    "status": [ { "properties": {
+      "direction": { "expr": { "Literal": { "Value": "'Positive'" } } },
+      "goodColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#107C10'" } } } } },
+      "badColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#A4262C'" } } } } }
+    } } ],
+    "indicator": [ { "properties": {
+      "showIcon": { "expr": { "Literal": { "Value": "false" } } },
+      "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0F2430'" } } } } }
+    } } ]
+  }
+}
