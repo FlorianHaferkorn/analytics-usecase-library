@@ -85,7 +85,7 @@
     },
     {
       "path": "provision_fabric.py",
-      "sha256": "f482e1a878dd837c8f6be8636479fedb2fc627ed5d40f0e8dd22c03bcd002f92"
+      "sha256": "5da7bcc20ad816503322f3cc995f0e16d9071a0fe3b6761ebd06ea7334a358f5"
     },
     {
       "path": "provision_fabric_cicd.py",
