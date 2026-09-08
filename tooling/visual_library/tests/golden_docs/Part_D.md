@@ -47,16 +47,16 @@
 | `lollipop` | — | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
 | `histogram` | — | — | rendered ✓ 5/5 | rendered ✓ |
 | `boxplot` | — | — | rendered ✓ 5/5 | — |
-| `small_multiples` | — | — | rendered ✓ 5/5 | — |
+| `small_multiples` | structural · gated | — | rendered ✓ 5/5 | — |
 | `sankey` | — | — | — | rendered ✓ |
 | `decomposition_tree` | structural · gated | — | — | — |
 | `bar_absolute` | structural · gated | rendered ✓ | rendered ✓ 5/5 | rendered ✓ |
 | `waterfall_buildup` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
 | `waterfall_variance` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |
-| `kpi_card_spark` | — | rendered ✓ | — | — |
+| `kpi_card_spark` | structural · gated | rendered ✓ | — | — |
 | `kpi_card_bullet` | — | rendered ✓ | — | — |
 | `kpi_card_sparkbar` | — | rendered ✓ | — | — |
-| `matrix_sparkline` | — | rendered ✓ | — | — |
+| `matrix_sparkline` | structural · gated | rendered ✓ | — | — |
 | `matrix_bullet` | — | rendered ✓ | — | — |
 | `matrix_delta_pill` | — | rendered ✓ | — | — |
 | `column_time` | structural · gated | — | rendered ✓ 5/5 | rendered ✓ |

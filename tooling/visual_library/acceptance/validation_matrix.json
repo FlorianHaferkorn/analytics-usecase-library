@@ -241,7 +241,7 @@
     "bullet": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "Power BI has no native bullet base visual"
+        "reason": "kein Visualtyp traegt die lineare Form. Geprueft wurde ausdruecklich `gauge` (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): es fuehrt dieselben Datenrollen (Y, MinValue, MaxValue, TargetValue) und ein `target`-Objekt, zeichnet sie aber radial. Die lineare Spur mit qualitativen Baendern IST das Idiom; ein Halbkreis mit denselben Zahlen ist eine andere Aussage"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -319,7 +319,7 @@
     "lollipop": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "Power BI has no native lollipop base visual"
+        "reason": "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). Stiel plus Kopf ist Balken plus Punktmarke auf derselben Achse; kein Kernvisual kombiniert beides in einer Serie"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -345,7 +345,7 @@
     "histogram": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "Power BI has no auto-bin mark"
+        "reason": "kein Visualtyp traegt die Form, und keine Klassenbildung im Visual (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026: `columnChart` hat kein Objekt mit 'bin' im Namen). Klassen entstehen in Power BI modellseitig als Gruppierung, nicht als Visual-Eigenschaft \u2014 das Idiom beschreibt aber die Darstellung, nicht die Vorbereitung"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -371,7 +371,7 @@
     "boxplot": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "Power BI has no native box-plot base visual"
+        "reason": "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026: 59 Typen durchgesehen, keiner mit Box-Plot-Rollen oder -Objekt; `textbox` ist der einzige Namenstreffer auf 'box' und ein Textfeld). Median, Quartile und Whisker sind vier Marken auf einer Achse \u2014 das drueckt kein Kernvisual aus"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -396,8 +396,8 @@
     },
     "small_multiples": {
       "powerbi_native": {
-        "status": "n/a",
-        "reason": "small multiples is a field-well option, not a distinct visual JSON idiom"
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -423,7 +423,7 @@
     "sankey": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "Power BI has no native Sankey base visual"
+        "reason": "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). `funnel`, `treemap` und `ribbonChart` zeigen Anteile bzw. Rangwechsel, aber keine Fluesse zwischen benannten Knoten mit erhaltener Breite"
       },
       "powerbi_svg_dax": {
         "status": "n/a",
@@ -536,8 +536,8 @@
     },
     "kpi_card_spark": {
       "powerbi_native": {
-        "status": "n/a",
-        "reason": "the modern cardVisual shows a value + reference-label delta, but has no embedded sparkline \u2014 the value+spark+delta composite is a single SVG"
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -555,7 +555,7 @@
     "kpi_card_bullet": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "no native bullet, and the cardVisual has no embedded bullet track \u2014 the value+bullet+delta composite is a single SVG"
+        "reason": "kein Kartentyp traegt einen Balken mit Zielmarke. Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `cardVisual` fuehrt 33 Objekte, darunter `referenceLabel`/`referenceLabelValue`/`referenceLabelDetail` \u2014 der Zielwert erscheint dort als TEXT neben der Zahl. `kpi` fuehrt sechs Objekte (general, goals, indicator, lastDate, status, trendline); `goals` zeigt Ziel und Abstand ebenfalls als Zahl. Beide koennen den Zielwert, keiner die Erreichung als Laenge. Genau das ist aber `encoding.attainment: bullet_bar_vs_tick` und der einzige Unterschied dieser Karte zu kpi_card_spark \u2014 eine native Spur haette den Rang-2-Kanal weggelassen und waere die Schwesterkarte mit anderem Namen. Dasselbe Ergebnis wie beim Idiom `bullet` selbst, dort am `gauge` gemessen"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -573,7 +573,7 @@
     "kpi_card_sparkbar": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "the cardVisual has no embedded column-trend track \u2014 the value+trend+delta composite is a single SVG"
+        "reason": "die native Trendspur ist eine Linie und laesst sich nicht in Saeulen umschalten. Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `kpi.objects.trendline` fuehrt genau zwei Eigenschaften, `show` und `transparency` \u2014 keine Form, keine Marker, keine Wahl zwischen Linie und Saeule. `cardVisual` traegt ueberhaupt keine eingebettete Trendspur (33 Objekte, keines davon ein Diagramm). Eine native Spur zeichnete hier also die Linie, die `anti_patterns` dieses Idioms unter `line_when_periods_are_discrete` ausdruecklich verbietet: dann waere es kpi_card_spark. Die Saeulenform gibt es nativ nur als eigenstaendiges Visual \u2014 siehe Idiom `column_time`, dort `clusteredColumnChart` \u2014 nicht innerhalb einer Karte"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -590,8 +590,8 @@
     },
     "matrix_sparkline": {
       "powerbi_native": {
-        "status": "n/a",
-        "reason": "this is an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the table that hosts it is matrix_evidence (tableEx)"
+        "status": "structural",
+        "live_gate": "Power BI Desktop \u2014 PBIR is a visual config, no headless renderer exists"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -609,7 +609,7 @@
     "matrix_bullet": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the host table is matrix_evidence (tableEx)"
+        "reason": "eine Spalten-Measure in der Zelle (ImageUrl), kein eigenstaendiges Visual \u2014 die Wirtstabelle ist matrix_evidence (tableEx). Nativ geprueft (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): `tableEx.columnFormatting` fuehrt `dataBars`, genau die Eigenschaft, die matrix_evidence schon benutzt \u2014 aber als proportionalen Balken ohne Referenzmarke. Der Zielstrich ist das, was `encoding.attainment: bullet_bar_vs_tick` ausmacht"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -627,7 +627,7 @@
     "matrix_delta_pill": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "an in-cell column MEASURE (ImageUrl), not a standalone visual \u2014 the host table is matrix_evidence (tableEx). Native conditional 'icon + font colour' is a partial form"
+        "reason": "eine Spalten-Measure in der Zelle (ImageUrl), kein eigenstaendiges Visual \u2014 die Wirtstabelle ist matrix_evidence (tableEx). Nativ geprueft (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): `columnFormatting` fuehrt `fontColor` und `backColor`, also die Pillenfarbe, aber KEINE Icon-Eigenschaft \u2014 die neun Eigenschaften sind labelDisplayUnits, labelPrecision, fontColor, backColor, alignment, styleHeader, styleValues, styleTotal, dataBars. Der Richtungspfeil aus `encoding.direction` hat damit keinen nativen Traeger. KORREKTUR: die fruehere Begruendung nannte 'icon + font colour' als native Teilform; die Schriftfarbe stimmt, das Icon steht in diesem Katalogstand nicht"
       },
       "powerbi_svg_dax": {
         "status": "rendered",
@@ -671,7 +671,7 @@
     "dumbbell": {
       "powerbi_native": {
         "status": "n/a",
-        "reason": "Power BI has no native dumbbell base visual"
+        "reason": "kein Visualtyp traegt die Form (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026). Zwei Punkte auf einer Zeile mit verbundener Strecke ist keine Rolle, die ein Kernvisual kennt; `scatterChart` setzt Punkte, verbindet sie aber nicht paarweise"
       },
       "powerbi_svg_dax": {
         "status": "rendered",

@@ -102,6 +102,7 @@ unverändert.
 | Idiome ohne native Spur **und** ohne Grund | 0 |
 | `python scripts/check_index.py --strict` | 0 harte Befunde |
 | Golden je Spur je Idiom | vollständig; `validation_matrix.json` trägt den Stand |
+| `pytest tooling/visual_library/tests/` | 80 passed, **0 skipped** (08.09.2026; vorher 66 passed / 13 skipped, weil `vl-convert-python` und `altair` in keinem Workflow installiert waren) |
 
 ## 6. Nachtrag 08.09.2026 — die Regel hat vier eigene Fehler gefunden
 

@@ -62,7 +62,14 @@ jobs:
           # pyarrow in Lauf 30683999827, pandas im Folgelauf 30684535523 (01.08.2026). Die
           # zweite Luecke lag hinter der ersten: erst nachdem pyarrow da war, kam der Import
           # ueberhaupt bis zur naechsten Zeile.
-          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas
+          # vl-convert-python UND altair: die gesamte Rasterisierungs-Schicht der Visual
+          # Library haengt daran (`pytest.importorskip`). Ohne sie meldet die CI Erfolg und
+          # hat kein einziges Bild erzeugt — gemessen 08.09.2026: 13 uebersprungene Tests je
+          # Lauf, darunter `test_frozen_validation_matrix_is_current`, weshalb die
+          # eingefrorene Matrix seit dem 07.09. still veraltet war. Das ist dieselbe Klasse
+          # wie ein Tor, dessen Werkzeug nicht startet: `n/a` und `nicht gelaufen` sehen von
+          # aussen gleich aus. Mit beiden Paketen lokal gemessen: 78 passed, 1 skipped.
+          pip install pyyaml jsonschema pytest typer rich referencing python-docx pyarrow pandas vl-convert-python altair
 
       - name: Run tests
         run: python -m pytest --tb=short -q
