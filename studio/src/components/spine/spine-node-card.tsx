@@ -21,7 +21,7 @@ function ImpactPill({ dimension }: { dimension: string }) {
         display: 'inline-block',
         padding: '2px 8px',
         borderRadius: 999,
-        fontSize: 10.5,
+        fontSize: 'var(--text-xs)',
         fontWeight: 500,
         background: 'oklch(0.22 0.06 200 / 0.4)',
         color: 'oklch(0.7 0.15 200)',
@@ -37,7 +37,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        fontSize: 10.5,
+        fontSize: 'var(--text-xs)',
         fontWeight: 600,
         color: 'var(--ink-3)',
         textTransform: 'uppercase',
@@ -74,7 +74,7 @@ function ContextGrid({ spine }: { spine: DecisionSpine }) {
             gridColumn: item.label === 'Primary Question' ? 'span 2' : undefined,
           }}
         >
-          <div style={{ fontSize: 10, color: 'var(--ink-4)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             {item.label}
           </div>
           <div style={{ fontSize: 12, color: 'var(--ink-2)', lineHeight: 1.4 }}>
@@ -90,7 +90,7 @@ function TradeoffColumns({ spine }: { spine: DecisionSpine }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
       <div>
-        <div style={{ fontSize: 10.5, fontWeight: 600, color: 'oklch(0.6 0.15 150)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'oklch(0.6 0.15 150)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           Improves
         </div>
         <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
@@ -124,7 +124,7 @@ function TradeoffColumns({ spine }: { spine: DecisionSpine }) {
         </ul>
       </div>
       <div>
-        <div style={{ fontSize: 10.5, fontWeight: 600, color: 'oklch(0.75 0.15 75)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'oklch(0.75 0.15 75)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           Risks
         </div>
         <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
@@ -188,7 +188,7 @@ function EscalationPath({ spine }: { spine: DecisionSpine }) {
             <span
               style={{
                 flexShrink: 0,
-                fontSize: 9.5,
+                fontSize: 'var(--text-xs)',
                 fontWeight: 600,
                 color,
                 textTransform: 'uppercase',
@@ -224,7 +224,7 @@ function ConfidenceSection({ spine }: { spine: DecisionSpine }) {
           style={{
             padding: '2px 8px',
             borderRadius: 999,
-            fontSize: 11,
+            fontSize: 'var(--text-xs)',
             fontWeight: 600,
             background: `${color.replace('oklch', 'oklch').replace(')', ' / 0.15)')}`,
             color,
@@ -295,7 +295,7 @@ function CompactCard({ spine }: { spine: DecisionSpine }) {
       >
         {spine.purpose.intent}
       </p>
-      <span style={{ fontSize: 10.5, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
         {spine.decision_context.decision_type}
       </span>
     </div>
@@ -314,7 +314,7 @@ function FullCard({ spine }: { spine: DecisionSpine }) {
           <span
             style={{
               fontFamily: 'var(--font-mono)',
-              fontSize: 10,
+              fontSize: 'var(--text-xs)',
               color: 'var(--ink-4)',
               background: 'var(--bg-2)',
               padding: '1px 6px',

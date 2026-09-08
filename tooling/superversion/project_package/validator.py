@@ -10,6 +10,7 @@ import yaml
 from jsonschema import Draft202012Validator, FormatChecker
 
 from .hashes import canonical_sha256
+from .use_case_delivery import validate_delivery_document
 
 
 SCHEMA_BY_MODULE = {
@@ -20,6 +21,7 @@ SCHEMA_BY_MODULE = {
     "decision_set": "project_decision_set.schema.json",
     "architecture_input": "project_architecture_input.schema.json",
     "artifact_registry": "project_artifact_registry.schema.json",
+    "use_case_delivery": "project_use_case_delivery.schema.json",
 }
 
 
@@ -225,7 +227,13 @@ def validate_project_package(package_root: Path, schema_root: Path) -> list[str]
         schema_name = SCHEMA_BY_MODULE.get(module_type)
         if schema_name:
             schema = _load_document(schema_root / schema_name)
-            errors.extend(_validate(schema, document, relative.as_posix()))
+            module_schema_errors = _validate(schema, document, relative.as_posix())
+            errors.extend(module_schema_errors)
+            if module_type == "use_case_delivery" and isinstance(document, dict) and not module_schema_errors:
+                errors.extend(
+                    f"{relative.as_posix()}: {error}"
+                    for error in validate_delivery_document(document, schema)
+                )
         if module_type == "decision_set" and isinstance(document, dict):
             errors.extend(_validate_decision_references(document, relative.as_posix()))
             decision_ids = {item.get("id") for item in document.get("instances", [])}

@@ -1,0 +1,46 @@
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { KpiSlider } from '@/components/simulator/kpi-slider';
+import { driverSliderRange, normalizeSliderRange } from '@/lib/simulation/slider-range';
+import { formatKpiValue } from '@/lib/format/kpi-value';
+
+describe('Valid driver slider ranges', () => {
+  it.each([
+    [-4.7, '%', 'sales.net_sales.delta_pct.plan'],
+    [-400, 'EUR', 'cost.amount'],
+    [0, 'EUR', 'sales.amount'],
+    [0, '%', 'margin.pct'],
+    [0, 'd', 'cycle.days'],
+    [150, '%', 'growth.pct'],
+  ])('contains baseline %s with a positive usable span', (base, unit, id) => {
+    const { minRange, maxRange } = driverSliderRange(base as number, unit as string, id as string);
+    expect(minRange).toBeLessThan(maxRange);
+    expect(minRange).toBeLessThanOrEqual(base as number);
+    expect(maxRange).toBeGreaterThanOrEqual(base as number);
+    expect(maxRange - minRange).toBeGreaterThan(0);
+  });
+
+  it('normalizes reversed or equal legacy endpoints', () => {
+    expect(normalizeSliderRange(-4.7, 0, -6.1)).toEqual({ min: -6.1, max: 0 });
+    expect(normalizeSliderRange(0, 0, 0)).toEqual({ min: -1, max: 1 });
+  });
+
+  it('exposes an operable negative baseline and English accessible labels', () => {
+    const onChange = vi.fn();
+    render(<KpiSlider kpiId="sales.delta_pct.plan" label="Plan variance" baseValue={-4.7} value={-4.7} unit="%" {...driverSliderRange(-4.7, '%', 'sales.delta_pct.plan')} onChange={onChange} />);
+    const input = screen.getByRole('slider', { name: 'Plan variance' }) as HTMLInputElement;
+    expect(Number(input.min)).toBe(-19.7);
+    expect(Number(input.max)).toBe(10.3);
+    expect(Number(input.step)).toBeGreaterThan(0);
+    expect(input.getAttribute('aria-valuetext')).toBe('-4,7%; baseline -4,7%');
+    fireEvent.change(input, { target: { value: '-3.5' } });
+    expect(onChange).toHaveBeenCalledWith(-3.5);
+  });
+
+  it('groups large amounts and adds currency only when supplied', () => {
+    expect(formatKpiValue(901742929.3, 'sales.amount', 'EUR')).toBe('901.742.929 €');
+    expect(formatKpiValue(901742929.3, 'sales.amount', '')).toBe('901.742.929');
+    expect(formatKpiValue(-4.7, 'sales.delta_pct.plan')).toBe('-4,7%');
+    expect(formatKpiValue(1.2, 'sales.delta_pct.plan', 'pp')).toBe('1,2 pp');
+  });
+});

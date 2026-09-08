@@ -49,6 +49,16 @@ def test_cli_precore_default_bracket(capsys):
     assert json.loads(capsys.readouterr().out)["ok"] is True
 
 
+def test_resolve_bracket_by_governed_id():
+    assert bridge.resolve_bracket(Path("COM-001")) == COM001.resolve()
+
+
+def test_cli_resolve_emits_canonical_bracket(capsys):
+    assert bridge.main(["resolve", "COM-001"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload == {"ok": True, "bracket": "COM-001_Sales_Performance"}
+
+
 def test_cli_missing_bracket_is_json_error(capsys):
     code = bridge.main(["precore", str(REPO / "nope.yaml")])
     assert code == 1
@@ -96,6 +106,13 @@ def test_generate_shape():
     assert stage_names[:2] == ["source", "golden_thread"]  # gate is first-class
     # ok mirrors the gate (no FAILED stage)
     assert result["ok"] == result["gate"]["ok"]
+
+
+def test_generate_can_include_content_for_studio_download():
+    result = bridge.generate(COM001, KPIS, "pbir", include_content=True)
+    assert result["artifacts"]
+    assert all(set(a) == {"path", "bytes", "content"} for a in result["artifacts"])
+    assert all(a["bytes"] == len(a["content"].encode("utf-8")) for a in result["artifacts"])
 
 
 def test_generate_unknown_target_raises():

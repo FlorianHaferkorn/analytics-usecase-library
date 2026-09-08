@@ -43,7 +43,7 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
             </span>
             <span
               style={{
-                fontSize: '0.5625rem',
+                fontSize: 'var(--text-2xs)',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 color: typeColor,
@@ -57,7 +57,7 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
             </span>
             <span
               style={{
-                fontSize: '0.5625rem',
+                fontSize: 'var(--text-2xs)',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 color: enabled ? 'var(--accent)' : 'var(--warning)',
@@ -70,7 +70,7 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
               {enabled ? 'enabled' : 'disabled'}
             </span>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: '0.6875rem', color: 'var(--ink-4)' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>
             <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--info)' }}>{manifest.id}</span>
             <span>v{manifest.version}</span>
             <span>{manifest.author}</span>
@@ -100,16 +100,16 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginBottom: '8px' }}>
         <div style={{ padding: '8px 10px', backgroundColor: 'var(--bg-2)', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Entrypoint</p>
+          <p style={{ fontSize: 'var(--text-2xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Entrypoint</p>
           <p style={{ fontSize: '0.75rem', color: 'var(--ink-2)', fontFamily: 'var(--font-mono)' }}>{manifest.entrypoint}</p>
         </div>
         <div style={{ padding: '8px 10px', backgroundColor: 'var(--bg-2)', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)' }}>
-          <p style={{ fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Lifecycle</p>
+          <p style={{ fontSize: 'var(--text-2xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '3px' }}>Lifecycle</p>
           <p style={{ fontSize: '0.75rem', color: manifest.lifecycle ? 'var(--accent)' : 'var(--ink-3)' }}>{manifest.lifecycle ? 'registered' : 'not declared'}</p>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', fontSize: '0.6875rem', color: 'var(--ink-4)' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>
         <span style={{ color: 'var(--ink-3)' }}>Hooks</span>
         {manifest.hooks && manifest.hooks.length > 0 ? manifest.hooks.map((hook) => (
           <span

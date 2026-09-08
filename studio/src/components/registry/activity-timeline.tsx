@@ -81,7 +81,7 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
               {/* Action badge */}
               <span
                 style={{
-                  fontSize: '0.625rem',
+                  fontSize: 'var(--text-xs)',
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   color: ACTION_COLORS[evt.action] ?? 'var(--ink-3)',
@@ -99,12 +99,12 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
               </span>
               {/* Actor */}
               {evt.actor && evt.actor !== 'system' && (
-                <span style={{ fontSize: '0.625rem', color: 'var(--ink-3)' }}>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
                   by {evt.actor}
                 </span>
               )}
               {/* Timestamp */}
-              <span style={{ marginLeft: 'auto', fontSize: '0.625rem', color: 'var(--ink-4)' }}>
+              <span style={{ marginLeft: 'auto', fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>
                 {relativeTime(evt.created_at)}
               </span>
             </div>
@@ -117,7 +117,7 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
                   padding: '12px',
                   backgroundColor: 'var(--bg)',
                   borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.6875rem',
+                  fontSize: 'var(--text-xs)',
                   lineHeight: 1.55,
                   color: 'var(--ink-2)',
                   fontFamily: 'var(--font-mono)',

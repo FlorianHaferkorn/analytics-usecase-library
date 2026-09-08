@@ -1,26 +1,29 @@
 'use client';
 
-import type { CSSProperties, ReactNode } from 'react';
+import { cloneElement, isValidElement, useId, type ButtonHTMLAttributes, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import Link from 'next/link';
+import styles from './studio-page.module.css';
 
 type Tone = 'default' | 'info' | 'success' | 'warning';
 
-function toneColor(tone: Tone): string {
-  if (tone === 'info')    return 'var(--info)';
-  if (tone === 'success') return 'var(--accent)';
-  if (tone === 'warning') return 'var(--warning)';
-  return 'var(--ink-4)';
-}
-
 // ── Page shell ──────────────────────────────────────────────────────────────
 
-export function StudioPage({ children, fill = false, style }: { children: ReactNode; fill?: boolean; style?: CSSProperties }) {
+export function StudioPage({
+  children,
+  fill = false,
+  width = 'wide',
+  style,
+}: {
+  children: ReactNode;
+  fill?: boolean;
+  width?: 'standard' | 'wide' | 'canvas';
+  style?: CSSProperties;
+}) {
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', gap: 'var(--gap)',
-      height: fill ? 'calc(100vh - var(--h-row) - var(--pad) * 2)' : undefined,
-      ...style,
-    }}>
+    <div
+      className={`${styles.page} ${styles[`page${width.charAt(0).toUpperCase()}${width.slice(1)}`]}${fill ? ` ${styles.pageFill}` : ''}`}
+      style={style}
+    >
       {children}
     </div>
   );
@@ -37,37 +40,27 @@ export function StudioPageHeader({
   compact?: boolean;
 }) {
   return (
-    <div style={{
-      display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-      gap: '16px', flexWrap: 'wrap',
-      paddingBottom: compact ? 'calc(var(--gap) / 2)' : 'var(--gap)',
-      borderBottom: '1px solid var(--line)',
-    }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 800 }}>
+    <div className={`${styles.pageHeader}${compact ? ` ${styles.pageHeaderCompact}` : ''}`} data-tone={tone}>
+      <div className={styles.headerCopy}>
         {eyebrow && (
-          <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-3)', fontWeight: 600 }}>
+          <span className={styles.eyebrow}>
             {eyebrow}
           </span>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <h1 style={{ margin: 0, fontSize: compact ? 20 : 28, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
+        <div className={styles.titleRow}>
+          <h1 className={`${styles.title}${compact ? ` ${styles.titleCompact}` : ''}`}>
             {title}
           </h1>
           {badge && (
-            <span style={{
-              padding: '3px 10px', borderRadius: 999,
-              border: `1px solid color-mix(in srgb, ${toneColor(tone)} 30%, transparent)`,
-              backgroundColor: `color-mix(in srgb, ${toneColor(tone)} 10%, transparent)`,
-              color: toneColor(tone), fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.04em',
-            }}>
+            <span className={styles.badge}>
               {badge}
             </span>
           )}
         </div>
-        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: 'var(--ink-3)' }}>{description}</p>
+        <p className={styles.description}>{description}</p>
       </div>
       {actions && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>{actions}</div>
+        <div className={styles.headerActions}>{actions}</div>
       )}
     </div>
   );
@@ -77,7 +70,7 @@ export function StudioPageHeader({
 
 export function StudioMetricBar({ children }: { children: ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
+    <div className={styles.metricBar}>
       {children}
     </div>
   );
@@ -90,26 +83,20 @@ export function StudioMetric({
 }) {
   const positive = trend?.startsWith('+');
   const negative = trend?.startsWith('−') || trend?.startsWith('-');
-  void tone;
-
   return (
-    <div style={{
-      padding: 'var(--pad)', background: 'var(--panel)',
-      border: '1px solid var(--line)', borderRadius: 'var(--radius)',
-      display: 'flex', flexDirection: 'column', gap: 8,
-    }}>
-      <div style={{ fontSize: 12, color: 'var(--ink-3)', letterSpacing: '-0.005em' }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <span style={{ fontSize: 32, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)', fontFamily: 'var(--font-display)' }}>
+    <div className={styles.metric} data-tone={tone}>
+      <div className={styles.metricLabel}>{label}</div>
+      <div className={styles.metricValueRow}>
+        <span className={styles.metricValue}>
           {value}
         </span>
         {trend && (
-          <span style={{ fontSize: 11.5, color: positive ? 'var(--positive-fg)' : negative ? 'var(--negative-fg)' : 'var(--ink-4)' }}>
+          <span className={`${styles.metricTrend}${positive ? ` ${styles.metricTrendPositive}` : negative ? ` ${styles.metricTrendNegative}` : ''}`}>
             {trend}
           </span>
         )}
       </div>
-      {meta && <div style={{ fontSize: 11.5, color: 'var(--ink-4)', lineHeight: 1.5 }}>{meta}</div>}
+      {meta && <div className={styles.metricMeta}>{meta}</div>}
     </div>
   );
 }
@@ -118,7 +105,7 @@ export function StudioMetric({
 
 export function StudioPanel({
   title, description, action, children, tone = 'default', style,
-  compactHeader = false, bare = false,
+  compactHeader = false, bare = false, surface = 'outlined',
 }: {
   title?: string; description?: string; action?: ReactNode;
   children: ReactNode; tone?: Tone; style?: CSSProperties;
@@ -126,37 +113,23 @@ export function StudioPanel({
   compactHeader?: boolean;
   /** Drop the body padding so a full-bleed child (graph, table, editor) can fill it. */
   bare?: boolean;
+  /** Visual hierarchy without inventing per-page card treatments. */
+  surface?: 'plain' | 'outlined' | 'elevated';
 }) {
   const hasHeader = !!(title || description || action);
-  void tone;
 
   return (
-    <section style={{
-      background: 'var(--panel)', border: '1px solid var(--line)',
-      borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-sm)',
-      overflow: 'hidden', display: 'flex', flexDirection: 'column',
-      ...style,
-    }}>
+    <section className={`${styles.panel} ${styles[`panel${surface.charAt(0).toUpperCase()}${surface.slice(1)}`]}`} data-tone={tone} style={style}>
       {hasHeader && (
-        <div style={{
-          padding: compactHeader ? '10px var(--pad)' : '18px var(--pad)',
-          borderBottom: '1px solid var(--line-2)',
-          display: 'flex', alignItems: 'flex-start',
-          justifyContent: 'space-between', gap: '16px', flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxWidth: '72ch' }}>
-            {title && <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ink)' }}>{title}</h3>}
-            {description && <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--ink-3)', marginTop: 2 }}>{description}</p>}
+        <div className={`${styles.panelHeader}${compactHeader ? ` ${styles.panelHeaderCompact}` : ''}`}>
+          <div className={styles.panelCopy}>
+            {title && <h3 className={styles.panelTitle}>{title}</h3>}
+            {description && <p className={styles.panelDescription}>{description}</p>}
           </div>
-          {action && <div style={{ flexShrink: 0 }}>{action}</div>}
+          {action && <div className={styles.panelAction}>{action}</div>}
         </div>
       )}
-      <div style={{
-        padding: bare ? 0 : 'var(--pad)',
-        display: 'flex', flexDirection: 'column',
-        gap: bare ? 0 : 'var(--gap)',
-        flex: 1, minHeight: 0,
-      }}>
+      <div className={`${styles.panelBody}${bare ? ` ${styles.panelBodyBare}` : ''}`}>
         {children}
       </div>
     </section>
@@ -167,12 +140,9 @@ export function StudioPanel({
 
 export function StudioEmptyState({ title, description }: { title: string; description: ReactNode }) {
   return (
-    <div style={{
-      padding: '48px', background: 'var(--bg-2)',
-      border: '1px solid var(--line)', borderRadius: 'var(--radius)', textAlign: 'center',
-    }}>
-      <p style={{ margin: 0, marginBottom: 6, fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>{title}</p>
-      <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--ink-3)', maxWidth: '56ch', margin: '0 auto' }}>{description}</div>
+    <div className={styles.emptyState}>
+      <p className={styles.emptyTitle}>{title}</p>
+      <div className={styles.emptyDescription}>{description}</div>
     </div>
   );
 }
@@ -181,13 +151,7 @@ export function StudioEmptyState({ title, description }: { title: string; descri
 
 export function StudioToolbar({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
-      padding: '10px 16px', background: 'var(--panel)',
-      border: '1px solid var(--line)', borderRadius: 'var(--radius)',
-      boxShadow: 'var(--shadow-sm)',
-      ...style,
-    }}>
+    <div className={styles.toolbar} style={style}>
       {children}
     </div>
   );
@@ -208,24 +172,13 @@ export function StudioWorkflowFooter({
   label: string; href: string; description?: string;
 }) {
   return (
-    <div style={{
-      marginTop: 'var(--gap)', paddingTop: 'var(--gap)',
-      borderTop: '1px solid var(--line)',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      gap: '16px', flexWrap: 'wrap',
-    }}>
+    <div className={styles.workflowFooter}>
       {description
-        ? <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: 'var(--ink-3)', maxWidth: '64ch' }}>{description}</p>
+        ? <p className={styles.workflowDescription}>{description}</p>
         : <span />}
       <Link
         href={href}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: 8,
-          padding: '8px 16px', borderRadius: 'var(--radius)',
-          border: '1px solid var(--line)', background: 'var(--bg-2)',
-          color: 'var(--ink)', fontSize: 13, fontWeight: 500, textDecoration: 'none',
-          flexShrink: 0,
-        }}
+        className={styles.workflowLink}
       >
         {label}
         <span aria-hidden="true">→</span>
@@ -237,36 +190,24 @@ export function StudioWorkflowFooter({
 // ── Button ────────────────────────────────────────────────────────────────────
 
 export function StudioButton({
-  children, onClick, variant = 'secondary', disabled = false, style,
-}: {
-  children: ReactNode;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  children, variant = 'secondary', tone = 'default', type = 'button', className, ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
   tone?: Tone;
   variant?: 'primary' | 'secondary' | 'ghost' | 'accent';
-  disabled?: boolean;
-  style?: CSSProperties;
 }) {
-  const appearances: Record<string, CSSProperties> = {
-    primary:   { background: 'var(--ink)',    color: 'var(--bg)',         border: '1px solid var(--ink)',    fontWeight: 500 },
-    accent:    { background: 'var(--accent)', color: 'var(--accent-ink)', border: '1px solid var(--accent)', fontWeight: 500 },
-    secondary: { background: 'var(--panel)',  color: 'var(--ink-2)',      border: '1px solid var(--line)',   fontWeight: 500 },
-    ghost:     { background: 'transparent',   color: 'var(--ink-3)',      border: '1px solid transparent' },
-  };
+  const appearanceClass = {
+    primary: styles.buttonPrimary,
+    accent: styles.buttonAccent,
+    secondary: styles.buttonSecondary,
+    ghost: styles.buttonGhost,
+  }[variant];
 
   return (
     <button
-      className="studio-button"
-      onClick={onClick}
-      disabled={disabled}
-      style={{
-        height: 32, padding: '0 12px', borderRadius: 7,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1, fontSize: 12.5,
-        display: 'inline-flex', alignItems: 'center', gap: 6,
-        transition: 'opacity var(--duration-fast)',
-        ...appearances[variant],
-        ...style,
-      }}
+      {...props}
+      type={type}
+      data-tone={tone}
+      className={`studio-button ${styles.button} ${appearanceClass}${className ? ` ${className}` : ''}`}
     >
       {children}
     </button>
@@ -276,31 +217,47 @@ export function StudioButton({
 // ── Segmented control ─────────────────────────────────────────────────────────
 
 export function StudioSegmentedControl<T extends string>({
-  value, options, onChange,
+  value, options, onChange, tone = 'default', className, onKeyDown, ...props
 }: {
   value: T;
   options: Array<{ value: T; label: string }>;
   onChange: (value: T) => void;
   tone?: Tone;
-}) {
+} & Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>) {
+  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value));
   return (
-    <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--line)' }}>
-      {options.map((opt) => {
+    <div
+      {...props}
+      role="group"
+      aria-label={props['aria-labelledby'] ? undefined : (props['aria-label'] ?? 'View options')}
+      data-tone={tone}
+      className={`${styles.segmented}${className ? ` ${className}` : ''}`}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        if (event.defaultPrevented || !options.length) return;
+        const direction = event.currentTarget.ownerDocument.defaultView?.getComputedStyle(event.currentTarget).direction;
+        const step = direction === 'rtl' ? -1 : 1;
+        const target = event.key === 'ArrowRight' ? selectedIndex + step
+          : event.key === 'ArrowLeft' ? selectedIndex - step
+          : event.key === 'Home' ? 0
+          : event.key === 'End' ? options.length - 1 : null;
+        if (target === null) return;
+        event.preventDefault();
+        const index = (target + options.length) % options.length;
+        onChange(options[index].value);
+        event.currentTarget.querySelectorAll<HTMLButtonElement>('button')[index]?.focus();
+      }}
+    >
+      {options.map((opt, index) => {
         const active = opt.value === value;
         return (
           <button
             key={opt.value}
-            className="studio-button"
+            type="button"
+            aria-pressed={active}
+            tabIndex={index === selectedIndex ? 0 : -1}
+            className={`studio-button ${styles.segmentButton}${active ? ` ${styles.segmentButtonActive}` : ''}`}
             onClick={() => onChange(opt.value)}
-            style={{
-              padding: '10px 14px', background: 'transparent',
-              color: active ? 'var(--ink)' : 'var(--ink-3)',
-              fontSize: 13, fontWeight: active ? 500 : 400,
-              border: 'none',
-              borderBottom: `1.5px solid ${active ? 'var(--accent)' : 'transparent'}`,
-              cursor: 'pointer', marginBottom: -1,
-              transition: 'color var(--duration-fast), border-color var(--duration-fast)',
-            }}
           >
             {opt.label}
           </button>
@@ -313,12 +270,19 @@ export function StudioSegmentedControl<T extends string>({
 // ── Form field ────────────────────────────────────────────────────────────────
 
 export function StudioField({ label, children }: { label: string; children: ReactNode }) {
+  const generatedId = useId();
+  const control = isValidElement<{ id?: string; 'aria-labelledby'?: string }>(children) ? children : null;
+  const controlId = control?.props.id ?? generatedId;
+  const labelId = `${generatedId}-label`;
   return (
-    <div style={{ minWidth: 0 }}>
-      <label style={{ display: 'block', marginBottom: 5, fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-4)' }}>
+    <div className={styles.field}>
+      <label id={labelId} htmlFor={controlId} className={styles.fieldLabel}>
         {label}
       </label>
-      {children}
+      {control ? cloneElement(control, {
+        id: controlId,
+        'aria-labelledby': [labelId, control.props['aria-labelledby']].filter(Boolean).join(' '),
+      }) : children}
     </div>
   );
 }

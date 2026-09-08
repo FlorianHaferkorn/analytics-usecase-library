@@ -1,33 +1,20 @@
 'use client';
 
-/**
- * ProjectSwitcher — tenant project selection widget for the Studio header.
- *
- * Persists the active project in the cookie `studio.project` (30-day expiry)
- * so the selection survives page refreshes without a round-trip to the server.
- *
- * All tenant-scoped navigation links read the active projectId from the
- * Zustand store, which is hydrated from the cookie on mount.
- */
-
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProjectStore } from '@/lib/store/project-store';
-import { StudioButton, StudioPanel } from '@/components/ui/studio-page';
+import { StudioButton } from '@/components/ui/studio-page';
 import { StudioInput } from '@/components/ui/studio-data';
+import styles from './ProjectSwitcher.module.css';
 
 const COOKIE_NAME = 'studio.project';
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 function readProjectCookie(): string | null {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith(`${COOKIE_NAME}=`));
-  return match ? decodeURIComponent(match.split('=')[1]) : null;
+  const match = document.cookie.split('; ').find((row) => row.startsWith(`${COOKIE_NAME}=`));
+  try { return match ? decodeURIComponent(match.split('=')[1] ?? '') : null; } catch { return null; }
 }
 
 function writeProjectCookie(projectId: string) {
-  if (typeof document === 'undefined') return;
   document.cookie = `${COOKIE_NAME}=${encodeURIComponent(projectId)}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
 }
 
@@ -39,228 +26,164 @@ interface ProjectItem {
 }
 
 export function ProjectSwitcher() {
-  const projectId = useProjectStore((s) => s.projectId);
-  const projectName = useProjectStore((s) => s.projectName);
-  const setProjectId = useProjectStore((s) => s.setProjectId);
-  const setProjectName = useProjectStore((s) => s.setProjectName);
-  const setStrategyAnchor = useProjectStore((s) => s.setStrategyAnchor);
-
+  const projectId = useProjectStore((state) => state.projectId);
+  const projectName = useProjectStore((state) => state.projectName);
+  const setProjectId = useProjectStore((state) => state.setProjectId);
+  const setProjectName = useProjectStore((state) => state.setProjectName);
+  const setStrategyAnchor = useProjectStore((state) => state.setStrategyAnchor);
+  const setScope = useProjectStore(state => state.setDataScope);
+  const restored = useRef(false);
+  const dirtyDiscovery = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
-  // Hydrate from cookie on first mount (handles page refresh).
+  const applyProject = useCallback((project: ProjectItem) => {
+    if (project.id !== useProjectStore.getState().projectId && (dirtyDiscovery.current || useProjectStore.getState().isDirty)
+      && !window.confirm('There are unsaved changes. Save them before switching if you need to retain them. Switch project?')) return;
+    setProjectId(project.id);
+    setProjectName(project.name);
+    setStrategyAnchor(project.strategy_anchor);
+    setScope('project');
+    useProjectStore.getState().markClean();
+    writeProjectCookie(project.id);
+    setIsOpen(false);
+  }, [setProjectId, setProjectName, setStrategyAnchor, setScope]);
+
   useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
     const savedId = readProjectCookie();
-    if (savedId && savedId !== projectId) {
-      // Fetch the project details so the store name is correct.
-      fetch('/api/project/list')
-        .then((r) => (r.ok ? r.json() : null))
-        .then((data: { projects: ProjectItem[] } | null) => {
-          if (!data) return;
-          const saved = data.projects.find((p) => p.id === savedId);
-          if (saved) {
-            setProjectId(saved.id);
-            setProjectName(saved.name);
-            setStrategyAnchor(saved.strategy_anchor);
+    let selection: {projectId?: string; scope?: string; hash?: string} = {};
+    try { selection = JSON.parse(sessionStorage.getItem('studio.view.selection') ?? '{}'); } catch { /* invalid selection is not restored */ }
+    if (!savedId) return;
+    fetch('/api/project/list')
+      .then((response) => response.ok ? response.json() : null)
+      .then((data: { projects: ProjectItem[] } | null) => {
+        const saved = data?.projects.find((project) => project.id === savedId);
+        if (saved) {
+          applyProject(saved);
+          if (selection.projectId === saved.id) {
+            setScope(selection.scope === 'project' ? 'project' : 'library');
+            if (selection.hash && /^[a-f0-9]{64}$/.test(selection.hash)) useProjectStore.getState().setPackageRevisionHash(selection.hash);
           }
-        })
-        .catch(() => null);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount only.
+        }
+      })
+      .catch(() => null);
+  }, [applyProject, projectId, setScope]);
+
+  useEffect(() => {
+    const update = (event: Event) => {
+      const detail = (event as CustomEvent<{projectId: string; dirty: boolean}>).detail;
+      if (detail.projectId === useProjectStore.getState().projectId) dirtyDiscovery.current = detail.dirty;
+    };
+    window.addEventListener('studio:unsaved-discovery', update);
+    return () => window.removeEventListener('studio:unsaved-discovery', update);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const close = (event: MouseEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', escape);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('keydown', escape);
+    };
+  }, [isOpen]);
 
   const loadProjects = useCallback(async () => {
-    const res = await fetch('/api/project/list');
-    if (res.ok) {
-      const data = await res.json();
-      setProjects(data.projects);
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/project/list');
+      if (response.ok) {
+        const data = await response.json() as { projects: ProjectItem[] };
+        setProjects(data.projects);
+      } else throw new Error(`Project list unavailable (${response.status})`);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to load projects');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (isOpen) loadProjects();
+    if (isOpen) void loadProjects();
   }, [isOpen, loadProjects]);
 
-  const switchProject = (proj: ProjectItem) => {
-    setProjectId(proj.id);
-    setProjectName(proj.name);
-    setStrategyAnchor(proj.strategy_anchor);
-    writeProjectCookie(proj.id);
-    setIsOpen(false);
-  };
-
-  const handleCreate = async () => {
-    if (!newName.trim()) return;
-    const res = await fetch('/api/project', {
+  const createProject = async () => {
+    if (!newName.trim() || creating) return;
+    setCreating(true);
+    setError(null);
+    try {
+    const response = await fetch('/api/project', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newName.trim() }),
     });
-    if (res.ok) {
-      const { project } = await res.json();
-      switchProject(project);
-      setNewName('');
-      setShowCreate(false);
-    }
+    if (!response.ok) throw new Error(`Project could not be created (${response.status})`);
+    const { project } = await response.json() as { project: ProjectItem };
+    applyProject(project);
+    setNewName('');
+    setShowCreate(false);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to create project');
+    } finally { setCreating(false); }
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <StudioButton
-        onClick={() => setIsOpen(!isOpen)}
-        variant="secondary"
-        tone="info"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--sp-1)',
-          fontSize: '0.8125rem',
-          padding: '4px var(--sp-1-5)',
-        }}
+    <div ref={rootRef} className={styles.root}>
+      <button
+        type="button"
+        className={styles.trigger}
+        aria-haspopup="dialog"
+        aria-label={`Switch project. Current project: ${projectName}`}
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
       >
-        <span
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            backgroundColor: 'var(--mint)',
-            flexShrink: 0,
-          }}
-        />
-        <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {projectName}
-        </span>
-        <span style={{ color: 'var(--slate-500)', fontSize: '0.6875rem' }}>▾</span>
-      </StudioButton>
+        <span className={styles.projectDot} aria-hidden="true" />
+        <span className={styles.projectName}>{projectName}</span>
+        <span className={styles.chevron} aria-hidden="true">⌄</span>
+      </button>
 
       {isOpen && (
-        <StudioPanel
-          style={{
-            position: 'absolute',
-            top: '100%',
-            right: 0,
-            marginTop: 4,
-            width: 300,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-            zIndex: 50,
-            overflow: 'hidden',
-            padding: 0,
-          }}
-        >
-          <div
-            style={{
-              padding: 'var(--sp-1) var(--sp-2)',
-              borderBottom: '1px solid var(--slate-800)',
-            }}
-          >
-            <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', margin: 0 }}>
-              SWITCH PROJECT
-            </p>
-          </div>
-
-          <div style={{ maxHeight: 220, overflow: 'auto', padding: 'var(--sp-1)' }}>
-            {projects.length === 0 && (
-              <p
-                style={{
-                  fontSize: '0.75rem',
-                  color: 'var(--slate-500)',
-                  padding: 'var(--sp-1)',
-                  margin: 0,
-                }}
-              >
-                Loading…
-              </p>
-            )}
-            {projects.map((p) => (
-              <StudioButton
-                key={p.id}
-                onClick={() => switchProject(p)}
-                variant="ghost"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '100%',
-                  textAlign: 'left',
-                  padding: 'var(--sp-1)',
-                  gap: 'var(--sp-1)',
-                  backgroundColor: p.id === projectId ? 'var(--slate-700)' : 'transparent',
-                  color: 'var(--slate-100)',
-                  fontSize: '0.8125rem',
-                  justifyContent: 'flex-start',
-                }}
-              >
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    backgroundColor: p.id === projectId ? 'var(--mint)' : 'var(--slate-600)',
-                    flexShrink: 0,
-                  }}
-                />
-                <span style={{ fontWeight: p.id === projectId ? 600 : 400, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {p.name}
-                </span>
-                {p.id === projectId && (
-                  <span style={{ color: 'var(--mint)', fontSize: '0.6875rem', flexShrink: 0 }}>
-                    active
-                  </span>
-                )}
-              </StudioButton>
+        <section className={styles.popover} role="dialog" aria-label="Switch project">
+          <header><div><span>Project context</span><strong>Switch project</strong></div><button type="button" onClick={() => setIsOpen(false)} aria-label="Close project switcher">×</button></header>
+          <div className={styles.projectList}>
+            {error && <p role="alert">{error} <StudioButton onClick={() => void loadProjects()}>Retry list</StudioButton></p>}
+            {loading && projects.length === 0 && <p className={styles.loading}>Loading projects…</p>}
+            {!loading && projects.length === 0 && <p className={styles.loading}>No projects available.</p>}
+            {projects.map((project) => (
+              <button key={project.id} type="button" className={styles.projectOption} data-active={project.id === projectId} onClick={() => applyProject(project)}>
+                <span className={styles.optionDot} aria-hidden="true" />
+                <span><strong>{project.name}</strong><small>{project.id === projectId ? 'Current project' : 'Switch context'}</small></span>
+                {project.id === projectId && <span className={styles.activeMark} aria-hidden="true">✓</span>}
+              </button>
             ))}
           </div>
-
-          <div style={{ borderTop: '1px solid var(--slate-700)', padding: 'var(--sp-1)' }}>
+          <footer>
             {showCreate ? (
-              <div style={{ display: 'flex', gap: '4px' }}>
-                <StudioInput
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                  placeholder="Project name..."
-                  autoFocus
-                  style={{
-                    flex: 1,
-                    padding: '4px var(--sp-1)',
-                    fontSize: '0.75rem',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
-                />
-                <StudioButton
-                  onClick={handleCreate}
-                  tone="success"
-                  variant="primary"
-                  style={{ padding: '4px var(--sp-1)', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
-                >
-                  Add
-                </StudioButton>
-                <StudioButton
-                  onClick={() => { setShowCreate(false); setNewName(''); }}
-                  variant="ghost"
-                  style={{ padding: '4px', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
-                >
-                  ✕
-                </StudioButton>
+              <div className={styles.createRow}>
+                <StudioInput aria-label="Project name" value={newName} onChange={(event) => setNewName(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && void createProject()} placeholder="Project name" autoFocus />
+                <StudioButton onClick={() => void createProject()} disabled={!newName.trim() || creating} variant="primary">{creating ? 'Creating…' : 'Create'}</StudioButton>
+                <StudioButton onClick={() => { setShowCreate(false); setNewName(''); }} variant="ghost">Cancel</StudioButton>
               </div>
             ) : (
-              <StudioButton
-                onClick={() => setShowCreate(true)}
-                variant="ghost"
-                style={{
-                  width: '100%',
-                  padding: '4px',
-                  fontSize: '0.75rem',
-                  textAlign: 'left',
-                  justifyContent: 'flex-start',
-                }}
-              >
-                + New Project
-              </StudioButton>
+              <StudioButton onClick={() => setShowCreate(true)} variant="ghost">New project</StudioButton>
             )}
-          </div>
-        </StudioPanel>
+          </footer>
+        </section>
       )}
     </div>
   );

@@ -31,9 +31,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import locale
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Optional
@@ -63,12 +65,60 @@ _GIT_BASH_FALLBACK_PATHS = [
 ]
 
 
+def _decode_process_output(value: bytes | str | None) -> str:
+    """Decode subprocess output without assuming one Windows code page.
+
+    The official CLI writes UTF-8 JSON, while Git Bash hooks can inherit the
+    workstation's legacy code page (commonly CP1252 on German Windows).  Capture
+    bytes at the process boundary and prefer UTF-8, then the active locale and
+    CP1252; replacement is the honest last resort for diagnostics.
+    """
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    encodings = ("utf-8", locale.getpreferredencoding(False), "cp1252")
+    for encoding in dict.fromkeys(encodings):
+        try:
+            return value.decode(encoding)
+        except (LookupError, UnicodeDecodeError):
+            continue
+    return value.decode("utf-8", errors="replace")
+
+
+def _console_safe(value: object, encoding: str | None = None) -> str:
+    """Preserve representable text and replace only glyphs unsupported by stdout."""
+    output = str(value)
+    target = encoding or getattr(sys.stdout, "encoding", None) or "utf-8"
+    try:
+        return output.encode(target, errors="replace").decode(target)
+    except LookupError:
+        return output.encode("utf-8", errors="replace").decode("utf-8")
+
+
+def _executable_command(executable: str, *args: str) -> list[str]:
+    """Build a portable command for a resolved executable.
+
+    npm exposes CLIs through ``.cmd``/``.bat`` shims on Windows.  Those scripts
+    cannot be launched directly by ``CreateProcess``; use the platform command
+    processor explicitly while keeping POSIX executables direct.
+    """
+    if os.name == "nt" and Path(executable).suffix.lower() in {".cmd", ".bat"}:
+        return [os.environ.get("ComSpec", "cmd.exe"), "/d", "/s", "/c", executable, *args]
+    return [executable, *args]
+
+
 def resolve_bash() -> Optional[str]:
     """Find a usable `bash` — PATH first, then Git for Windows' default
     install location. Returns None (never raises) if neither exists, so
     callers can degrade honestly instead of crashing with WinError 2."""
     on_path = shutil.which("bash")
-    if on_path:
+    # Windows exposes System32\bash.exe as a WSL launcher even when no Linux
+    # distribution is installed.  It is not a usable shell in that state and
+    # emits UTF-16 diagnostics instead of running the hook.  Prefer Git Bash or
+    # the honest structural fallback for this specific launcher.
+    system32_bash = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "bash.exe"
+    if on_path and Path(on_path).resolve() != system32_bash.resolve():
         return on_path
     for candidate in _GIT_BASH_FALLBACK_PATHS:
         if candidate.exists():
@@ -92,7 +142,7 @@ class StageResult:
         return self.status == "FAIL"
 
     def __str__(self) -> str:
-        tail = f" — {self.detail}" if self.detail else ""
+        tail = f" - {self.detail}" if self.detail else ""
         return f"[e2e] {self.name}: {self.status}{tail}"
 
 
@@ -184,11 +234,12 @@ def _stage_tmdl(model: CanonicalModel, dest: Path) -> StageResult:
             if f.suffix != ".tmdl":
                 continue
             payload = json.dumps({"tool_name": "Write", "tool_input": {"file_path": str(f)}})
-            proc = subprocess.run([bash, str(_TMDL_HOOK)], input=payload,
-                                  capture_output=True, text=True)
+            proc = subprocess.run([bash, str(_TMDL_HOOK)], input=payload.encode("utf-8"),
+                                  capture_output=True)
             if proc.returncode != 0:
+                output = _decode_process_output(proc.stdout) + _decode_process_output(proc.stderr)
                 return StageResult("tmdl", "FAIL",
-                                   f"hook blocked {f.name}: {(proc.stdout + proc.stderr).strip()[:200]}")
+                                   f"hook blocked {f.name}: {output.strip()[:200]}")
         return StageResult("tmdl", "PASS", f"{len(files)} file(s), hard-rule hook green")
     # Fallback structural check when the hook script is absent, or there is no
     # `bash` on PATH to run it (e.g. plain Windows without WSL/Git Bash — I-10.1:
@@ -203,20 +254,31 @@ def _stage_tmdl(model: CanonicalModel, dest: Path) -> StageResult:
 def _stage_pbir(model: CanonicalModel, dest: Path, *, require_cli: bool) -> StageResult:
     base.render("pbir", model, dest)
     report_dir = dest / f"{model.report.name}.Report"
-    if shutil.which(_PBIR_CLI) is None:
+    cli_path = shutil.which(_PBIR_CLI)
+    if cli_path is None:
         if require_cli:
             return StageResult("pbir", "FAIL", f"required '{_PBIR_CLI}' CLI not on PATH")
         return StageResult("pbir", "SKIP", f"'{_PBIR_CLI}' CLI not installed (official gate not run)")
     proc = subprocess.run(
-        [_PBIR_CLI, "validate", str(report_dir), "--no-schema", "--format", "json"],
-        capture_output=True, text=True, timeout=120,
+        _executable_command(cli_path, "validate", str(report_dir), "--no-schema", "--format", "json"),
+        capture_output=True, timeout=120,
     )
+    stdout = _decode_process_output(proc.stdout)
     try:
-        data = json.loads(proc.stdout)["data"]
+        data = json.loads(stdout)["data"]
     except (json.JSONDecodeError, KeyError):
         return StageResult("pbir", "FAIL", f"validator output unparseable (rc={proc.returncode})")
     errors = data.get("errorCount", -1)
     if errors == 0:
+        gaps = pbir.hitl_gaps(model)
+        if gaps:
+            preview = "; ".join(gaps[:2])
+            suffix = f"; +{len(gaps) - 2} more" if len(gaps) > 2 else ""
+            return StageResult(
+                "pbir", "WARN",
+                f"check_pbir 0 errors ({data.get('warningCount', 0)} warn), "
+                f"but {len(gaps)} connector HITL gap(s): {preview}{suffix}",
+            )
         return StageResult("pbir", "PASS", f"check_pbir 0 errors ({data.get('warningCount', 0)} warn)")
     diags = ", ".join((data.get("diagnostics") or {}).keys())
     return StageResult("pbir", "FAIL", f"check_pbir {errors} error(s): {diags}")
@@ -231,7 +293,7 @@ def run(bracket: Path, *, kpis: Path = _KPIS, require_cli: bool = False,
     try:
         model = from_bracket_file(bracket, kpis)
         results.append(StageResult("source", "PASS",
-                                   f"{bracket.parent.name} → model "
+                                   f"{bracket.parent.name} -> model "
                                    f"({len(model.semantic.tables)} tables, {len(model.report.pages)} pages)"))
     except Exception as exc:  # noqa: BLE001 — surface any source failure as a red stage
         results.append(StageResult("source", "FAIL", f"{type(exc).__name__}: {exc}"))
@@ -262,7 +324,7 @@ def run(bracket: Path, *, kpis: Path = _KPIS, require_cli: bool = False,
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m tooling.superversion.e2e_smoke",
-        description="E2E smoke: Bracket → model → TMDL+PBIR → validate (one UC).",
+        description="E2E smoke: Bracket -> model -> TMDL+PBIR -> validate (one UC).",
     )
     parser.add_argument("bracket", nargs="?", type=Path, default=_DEFAULT_BRACKET,
                         help="UseCase_Bracket.yaml (default: COM-001)")
@@ -274,24 +336,24 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     if not args.bracket.exists():
-        print(f"[e2e] source: FAIL — bracket not found: {args.bracket}")
+        print(_console_safe(f"[e2e] source: FAIL - bracket not found: {args.bracket}"))
         return 1
 
     results = run(args.bracket, kpis=args.kpis, require_cli=args.require_cli, keep=args.keep)
     for r in results:
-        print(r)
+        print(_console_safe(r))
     if any(r.failed for r in results):
-        print("[e2e] FAILED — at least one stage is red.")
+        print(_console_safe("[e2e] FAILED - at least one stage is red."))
         return 1
     # „green" only when nothing is warning either. A summary that says green while a
     # stage says WARN teaches readers to skip the stage lines — which is how the slot
     # gap survived unseen in the first place.
     warns = [r for r in results if r.status == "WARN"]
     if warns:
-        print(f"[e2e] OK with {len(warns)} advisory warning(s) — "
-              f"{', '.join(r.name for r in warns)}. No stage is red.")
+        print(_console_safe(f"[e2e] OK with {len(warns)} advisory warning(s) - "
+                            f"{', '.join(r.name for r in warns)}. No stage is red."))
         return 0
-    print("[e2e] OK — full chain green.")
+    print(_console_safe("[e2e] OK - full chain green."))
     return 0
 
 

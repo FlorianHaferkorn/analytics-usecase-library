@@ -37,6 +37,7 @@ resolved upstream in `from_aluca`, never reaches this module):
     sumx_product      -- SUMX ( t, t[a] * t[b] )
     count_filtered    -- CALCULATE ( COUNTROWS ( t ), t[col1] = v1, t[col2] = v2, ... ) (v: TRUE()/FALSE()/quoted string, or NOT ISBLANK ( t[col] ))
     avg_filtered      -- CALCULATE ( AVERAGEX ( t, t[col] ), t[col1] = v1, ... ) (same filter shapes as count_filtered)
+    selector_switch   -- SWITCH ( SELECTEDVALUE ( t[col] ), case, measure, ..., BLANK () )
 
 A "ref" term is one of:
   {"kind": "column", "table": ..., "column": ...}  -- ``SUM ( table[column] )``
@@ -143,6 +144,22 @@ def synthesize_dax(resolved: dict) -> str:
         if not table:
             raise SynthesisError(f"count missing table: {resolved!r}")
         return f"COUNTROWS ( {table} )"
+
+    if op == "selector_switch":
+        selector = resolved.get("selector") or {}
+        table, column = selector.get("table"), selector.get("column")
+        cases = resolved.get("cases") or []
+        if not table or not column or not cases:
+            raise SynthesisError(f"selector_switch missing selector/cases: {resolved!r}")
+        rendered_cases: list[str] = []
+        for case in cases:
+            if not isinstance(case, dict) or "when" not in case or "value" not in case:
+                raise SynthesisError(f"selector_switch malformed case: {case!r}")
+            rendered_cases.extend([_dax_literal(case["when"]), _term(case["value"])])
+        return (
+            f"SWITCH ( SELECTEDVALUE ( {table}[{column}] ), "
+            f"{', '.join(rendered_cases)}, BLANK () )"
+        )
 
     if op == "mul":
         terms = resolved.get("terms") or []

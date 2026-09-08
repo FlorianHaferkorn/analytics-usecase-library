@@ -71,18 +71,11 @@ const TEMPLATE_META: Record<
 
 export function PageTemplatePreview({ templateId, theme }: Props) {
   const meta = TEMPLATE_META[templateId];
-  const themeProps = {
-    primary: theme.primary,
-    secondary: theme.secondary,
-    accent: theme.accent,
-    background: theme.background,
-    surface: theme.surface,
-    text: theme.text,
-    borderRadius: theme.borderRadius,
-  };
+  const themeProps = themeSlice(theme);
 
   return (
     <div
+      data-quality-preview="scaled-report-preview"
       className="flex flex-col h-full overflow-hidden"
       style={{
         backgroundColor: theme.background,
@@ -177,6 +170,9 @@ function themeSlice(theme: ThemeConfig) {
     text: theme.text,
     background: theme.background,
     borderRadius: theme.borderRadius,
+    positive: '#107C10',
+    negative: '#A4262C',
+    warning: '#9A6700',
   };
 }
 
@@ -282,14 +278,14 @@ function T3OverviewBody({ themeProps }: { themeProps: ReturnType<typeof themeSli
                   borderColor: `color-mix(in srgb, ${themeProps.text} 8%, transparent)`,
                   background:
                     row.severity === 'Critical'
-                      ? `color-mix(in srgb, ${themeProps.secondary} 12%, transparent)`
+                      ? `color-mix(in srgb, ${themeProps.negative} 12%, transparent)`
                       : undefined,
                 }}
               >
                 <span className="font-medium">{row.entity}</span>
                 <span>{row.metric}</span>
                 <span className="font-mono">{row.value}</span>
-                <span style={{ color: row.severity === 'Critical' ? themeProps.secondary : themeProps.primary }}>
+                <span style={{ color: row.severity === 'Critical' ? themeProps.negative : themeProps.warning }}>
                   {row.severity}
                 </span>
                 <span className="opacity-70">{row.owner}</span>

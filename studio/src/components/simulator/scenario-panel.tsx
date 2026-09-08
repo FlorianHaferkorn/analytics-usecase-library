@@ -23,16 +23,16 @@ export function ScenarioPanel({ drivers, overrides, onOverride, onReset }: Props
   const hasOverrides = overrides.size > 0;
 
   return (
-    <StudioPanel title="Driver Adjustments" description="Tune synthetic driver values to inspect sensitivity and scenario impact." style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <StudioPanel title="Driver Adjustments" description="Adjust illustrative values to inspect sensitivity. Slider ranges are exploration ranges, not approved business limits." style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>{drivers.length} drivers</span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>{drivers.length} drivers</span>
         {hasOverrides && (
           <StudioButton
             onClick={onReset}
             variant="ghost"
             style={{
               padding: '2px 8px',
-              fontSize: '0.6875rem',
+              fontSize: 'var(--text-xs)',
             }}
           >
             Reset All

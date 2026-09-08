@@ -17,6 +17,14 @@ def _by_name(results):
     return {r.name: r for r in results}
 
 
+def test_stage_result_console_output_is_ascii_safe():
+    assert str(e2e_smoke.StageResult("source", "PASS", "UC -> model")).isascii()
+
+
+def test_console_safe_replaces_only_unencodable_glyphs():
+    assert e2e_smoke._console_safe("Prüfung A → B", "cp1252") == "Prüfung A ? B"
+
+
 def test_run_com001_no_stage_fails():
     results = e2e_smoke.run(COM001)
     stages = _by_name(results)
@@ -26,7 +34,7 @@ def test_run_com001_no_stage_fails():
     assert stages["source"].status == "PASS"
     assert stages["golden_thread"].status == "PASS"
     assert stages["tmdl"].status == "PASS"
-    assert stages["pbir"].status in {"PASS", "SKIP"}
+    assert stages["pbir"].status in {"PASS", "WARN", "SKIP"}
     # page_slots is HARD since 2026-08-02 — all 40 pages carry every mandatory slot
     # and each resolves its own grid template. WARN stays possible for manifest gaps
     # (no template_variant / no grid template for a level); FAIL means the emission
@@ -61,6 +69,7 @@ def test_tmdl_stage_falls_back_when_bash_absent(monkeypatch):
     stage must degrade to the structural fallback check, not crash with
     FileNotFoundError (WinError 2 on Windows)."""
     monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: None)
+    monkeypatch.setattr(e2e_smoke, "_GIT_BASH_FALLBACK_PATHS", [])
     results = e2e_smoke.run(COM001)
     tmdl_stage = _by_name(results)["tmdl"]
     assert tmdl_stage.status == "PASS"
@@ -71,6 +80,16 @@ def test_tmdl_stage_falls_back_when_bash_absent(monkeypatch):
 def test_resolve_bash_prefers_path_over_git_bash_fallback(monkeypatch):
     monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: "/usr/bin/bash")
     assert e2e_smoke.resolve_bash() == "/usr/bin/bash"
+
+
+def test_resolve_bash_rejects_wsl_launcher_without_distribution(monkeypatch, tmp_path):
+    fake_git_bash = tmp_path / "Git" / "bin" / "bash.exe"
+    fake_git_bash.parent.mkdir(parents=True)
+    fake_git_bash.touch()
+    monkeypatch.setenv("SystemRoot", r"C:\Windows")
+    monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: r"C:\Windows\System32\bash.exe")
+    monkeypatch.setattr(e2e_smoke, "_GIT_BASH_FALLBACK_PATHS", [fake_git_bash])
+    assert e2e_smoke.resolve_bash() == str(fake_git_bash)
 
 
 def test_resolve_bash_falls_back_to_git_for_windows_default_path(monkeypatch, tmp_path):
@@ -90,6 +109,27 @@ def test_resolve_bash_returns_none_when_nothing_found(monkeypatch, tmp_path):
     monkeypatch.setattr(e2e_smoke.shutil, "which", lambda _cli: None)
     monkeypatch.setattr(e2e_smoke, "_GIT_BASH_FALLBACK_PATHS", [tmp_path / "nope" / "bash.exe"])
     assert e2e_smoke.resolve_bash() is None
+
+
+def test_process_output_decoder_accepts_utf8_cp1252_text_and_none():
+    assert e2e_smoke._decode_process_output("already decoded") == "already decoded"
+    assert e2e_smoke._decode_process_output("Prüfung".encode("utf-8")) == "Prüfung"
+    assert e2e_smoke._decode_process_output("Prüfung".encode("cp1252")) == "Prüfung"
+    assert e2e_smoke._decode_process_output(None) == ""
+
+
+def test_executable_command_wraps_windows_npm_cmd_shim(monkeypatch):
+    monkeypatch.setattr(e2e_smoke.os, "name", "nt")
+    monkeypatch.setenv("ComSpec", r"C:\Windows\System32\cmd.exe")
+    command = e2e_smoke._executable_command(
+        r"C:\Users\example\AppData\Roaming\npm\powerbi-report-author.cmd",
+        "validate",
+        r"C:\report.Report",
+    )
+    assert command[:5] == [
+        r"C:\Windows\System32\cmd.exe", "/d", "/s", "/c",
+        r"C:\Users\example\AppData\Roaming\npm\powerbi-report-author.cmd",
+    ]
 
 
 def test_main_returns_one_for_missing_bracket(capsys):

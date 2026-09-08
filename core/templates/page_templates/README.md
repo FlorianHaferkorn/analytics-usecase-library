@@ -34,6 +34,7 @@ Each use case is implemented as **exactly two pages**:
 | `Design_Spec_3_30_300.md` | **Authoritative** tool-agnostic layout spec (canvas, grid, zones, visual grammar, accessibility) |
 | `Storytelling_Principles.md` | Narrative and content quality principles — Big Idea, Narrative Arc, pre-attentive attributes, color, typography |
 | `Content_Quality_Guide.md` | Content standards — visual titles, KPI labels, Smart Narrative templates, Action Panel copy |
+| `Visual_Delivery_System.md` | Shared visual contract for the dark Studio workbench and light consumer reports |
 | `Connector_Spec.md` | Connector contract — what any tool connector must implement; compliance checklist |
 | `Abstract_Visual_Types.md` | Tool-agnostic visual type vocabulary with cross-tool mapping table |
 

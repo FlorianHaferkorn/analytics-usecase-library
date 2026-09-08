@@ -68,7 +68,7 @@ export async function GET(request: Request) {
   const fabricDatasetUrl = `${FABRIC_BASE_URL}${projectId}/datasets`;
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ActionReady Studio';
+  wb.creator = 'ALUCA Studio';
   wb.created = new Date();
   wb.properties.date1904 = false;
 
@@ -203,7 +203,7 @@ export async function GET(request: Request) {
   // Notes sheet
   // ─────────────────────────────────────────────────────────────
   const notesSheet = wb.addWorksheet('_Notes');
-  notesSheet.getCell('A1').value = 'ActionReady Studio — Steering Export';
+  notesSheet.getCell('A1').value = 'ALUCA Studio — Steering Export';
   notesSheet.getCell('A1').font = { bold: true, size: 14, color: { argb: DARK } };
   notesSheet.getCell('A2').value = `Generated: ${new Date().toISOString()}`;
   notesSheet.getCell('A3').value = `Project: ${projectId}`;

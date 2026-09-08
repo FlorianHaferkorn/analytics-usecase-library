@@ -44,9 +44,13 @@ ALUCA_VISUAL_IDIOM: dict[str, str] = {
     "trend_line": "line",
     "bar_chart": "bar_ranking",
     "bar_chart_horizontal": "bar_ranking",
+    "horizontal_bar_chart": "bar_ranking",
+    "horizontal_bar_categorical": "bar_ranking",
+    "variance_bar": "bar_ranking",
     "column_chart": "column_time",
     "column_time": "column_time",
     "waterfall": "waterfall_pvm",
+    "waterfall_chart": "waterfall_pvm",
     # roles now wired in pbir._PLANS (derived from each idiom's governed native golden)
     "donut": "donut",
     "bar_stacked": "bar_stacked",
@@ -57,7 +61,10 @@ ALUCA_VISUAL_IDIOM: dict[str, str] = {
 }
 
 # visual_types the emitter handles that are structural/chrome, not a charted idiom.
-EXEMPT: frozenset[str] = frozenset({"card", "kpi_card", "slicer", "table", "matrix"})
+EXEMPT: frozenset[str] = frozenset({
+    "card", "kpi_card", "kpi_card_with_delta", "slicer", "table", "matrix",
+    "exception_table",
+})
 
 # Native-capable idioms whose visualType is NOT yet in pbir._PLANS. Now empty: every native idiom's
 # PBIR roles have been wired into _PLANS, DERIVED FROM its governed native golden (not guessed) and
@@ -135,6 +142,17 @@ def min_slot(idiom: str) -> "tuple[int, int]":
     e = yaml.safe_load((_LIB / f"{idiom}.yaml").read_text(encoding="utf-8"))
     ms = e.get("min_size") or {}
     return int(ms.get("cols", 0)), int(ms.get("rows", 0))
+
+
+def canonical_params(idiom: str) -> dict:
+    """Frozen connector-neutral parameters of a governed visual idiom.
+
+    These parameters are the library's reusable binding contract (for example
+    the single supporting measure required by a native PVM waterfall), not
+    report-specific sample data.
+    """
+    entry = yaml.safe_load((_LIB / f"{idiom}.yaml").read_text(encoding="utf-8")) or {}
+    return dict(entry.get("canonical_params") or {})
 
 
 def sanctioned_visual_type(visual_type: str) -> "str | None":

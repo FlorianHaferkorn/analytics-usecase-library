@@ -1,98 +1,194 @@
 #!/usr/bin/env node
 /**
- * Token-compliance lint — checks for hardcoded hex colors in component files.
- * Run from the studio directory: node tooling/check_tokens.mjs
- *
- * Fails if new hardcoded hex values appear outside the allowlist.
- * The allowlist covers hex values that exist legitimately in non-component files
- * (token definitions, theme presets, etc.).
+ * Scoped design-system gate. Shared page primitives and the shell are enforced;
+ * older components use a checked-in non-regression baseline, NOT a compliance claim.
+ * Expand GOVERNED_FILES when a component has actually been migrated and tested.
  */
-
 import { readdir, readFile } from 'node:fs/promises';
-import { join, extname } from 'node:path';
+import { extname, join, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import postcss from 'postcss';
+import ts from 'typescript';
 
-// Hex values allowed everywhere (canonical design tokens defined in globals.css / tokens.ts)
-const ALLOWED_HEX = new Set([
-  '#0d0e10', '#131416', '#1a1b1f',   // bg / bg-2 / panel
-  '#eaebee', '#b0b0b8', '#6e6e78', '#42424c',  // ink scale
-  '#00D4AA', '#00d4aa',              // accent
-  '#FFB800', '#ffb800',              // gold
-  '#3B82F6',                         // fact node blue
-  '#60A5FA',                         // driver node blue
-  '#475569', '#334155', '#1E293B',   // legacy slate (canvas/lineage — being migrated)
-  '#020617', '#CBD5E1', '#64748B',   // canvas legend / inspector (legacy)
-  '#RRGGBB',                         // BrandSpec schema placeholder string
+export const GOVERNED_FILES = new Set([
+  'src/components/project/project-automation.tsx',
+  'src/components/project/project-deployment.tsx',
+  'src/components/project/project-automation.module.css',
+  'src/components/project/project-estimation.tsx',
+  'src/components/project/project-estimation.module.css',
+  'src/components/project/project-architecture.tsx',
+  'src/components/project/project-architecture.module.css',
+  'src/components/project/delivery-workspace.tsx',
+  'src/components/project/delivery-workspace.module.css',
+  'src/components/project/project-scope.module.css',
+  'src/components/project/project-revision-view.tsx',
+  'src/components/project/project-scope-boundary.tsx',
+  'src/components/ui/studio-page.tsx',
+  'src/components/ui/studio-page.module.css',
+  'src/components/shell/StudioAppShell.module.css',
+  'src/components/canvas/custom-canvas.tsx',
+  'src/components/canvas/custom-canvas.module.css',
+  'src/components/discovery/source-panel.tsx',
+  'src/components/discovery/extraction-panel.tsx',
+  'src/components/discovery/discovery-chat.tsx',
+  'src/components/discovery/tool-result-card.tsx',
+  'src/components/ui/studio-dialog.tsx',
+  'src/components/ui/studio-dialog.module.css',
+  'src/components/ui/studio-data.tsx',
+  'src/components/ui/badges.tsx',
+  'src/components/ui/role-chip.tsx',
+  'src/components/ui/collapsible-panel.tsx',
+  'src/components/ui/kbd-shortcut.tsx',
+  'src/components/notifications/notification-bell.tsx',
 ]);
+const HEX = /#[\da-f]{3,8}\b/i;
+const removeVariables = (value) => value.replace(/var\([^)]*\)/g, '');
+const rawDimension = /(?:^|\s)-?(?:\d*\.)?\d+(?:px|rem|em)\b/;
+const BASELINE_PATH = 'tooling/design-token-debt.json';
 
-// Directories to scan (relative to studio/)
-const SCAN_DIRS = ['src/components', 'src/app', 'src/hooks', 'src/lib/theme'];
-
-// Files to skip entirely (token definitions, data-viz palettes, export helpers)
-const SKIP_PATTERNS = [
-  /globals\.css$/,
-  /tokens\.ts$/,
-  /brand-spec/,
-  /color-picker/,
-  /contrast-checker/,
-  /export-css\.ts$/,
-  /export-json\.ts$/,
-  /export-tailwind\.ts$/,
-  /golden-thread-flow/,  // data-viz domain palette — semantic, not UI chrome
-  /node_modules/,
-  /\.next/,
+// Exact, bounded theme-data exceptions. These values describe the customer's
+// editable/exported theme, not Studio chrome. No directory-wide preview bypass.
+export const EXCEPTIONS = [
+  ...['#1A1A2E', '#1E293B', '#1A2332', '#292524'].map((color) => ({
+    file: 'src/app/(studio)/brand-lab/brand-lab-client.tsx', rule: 'literal-color',
+    value: `background: ${color}`, count: 1, reason: 'Editable customer-theme preset data',
+  })),
+  ...['#0d0e10', '#0e0f1a', '#13151f'].map((color) => ({
+    file: 'src/components/brand/tweaks-tab.tsx', rule: 'literal-color',
+    value: `background: ${color}`, count: 1, reason: 'Editable customer-theme preset data',
+  })),
+  { file: 'src/lib/store/project-store.ts', rule: 'literal-color', value: 'background: #F5F5F5', count: 1,
+    reason: 'Default exported customer-theme value, not a Studio surface' },
 ];
+const issueKey = (issue) => JSON.stringify([issue.file, issue.rule, issue.value.replace(/\s+/g, ' ').trim()]);
 
-const HEX_RE = /#([0-9a-fA-F]{3,8})\b/g;
-
-async function* walk(dir) {
-  let entries;
-  try { entries = await readdir(dir, { withFileTypes: true }); }
-  catch { return; }
-  for (const e of entries) {
-    const full = join(dir, e.name);
-    if (e.isDirectory()) yield* walk(full);
-    else if (e.isFile() && (extname(e.name) === '.ts' || extname(e.name) === '.tsx' || extname(e.name) === '.css')) {
-      yield full;
-    }
+export function applyExceptions(issues, exceptions = EXCEPTIONS) {
+  const remaining = new Map(exceptions.map((item) => [issueKey(item), item.count]));
+  const debt = [];
+  const excluded = [];
+  for (const issue of issues) {
+    const key = issueKey(issue);
+    if ((remaining.get(key) ?? 0) > 0) {
+      remaining.set(key, remaining.get(key) - 1);
+      excluded.push(issue);
+    } else debt.push(issue);
   }
+  return { debt, excluded };
 }
 
-let violations = 0;
-let filesScanned = 0;
+export function createBaseline(issues) {
+  const entries = new Map();
+  for (const issue of issues) {
+    const key = issueKey(issue);
+    const existing = entries.get(key);
+    if (existing) existing.count++;
+    else entries.set(key, { file: issue.file, rule: issue.rule, value: issue.value.replace(/\s+/g, ' ').trim(), count: 1 });
+  }
+  return { version: 1, description: 'Existing design debt. Do not increase counts to make CI green; migrate to tokens. Reductions are allowed and should be recorded during review.',
+    findings: [...entries.values()].sort((a, b) => issueKey(a).localeCompare(issueKey(b))) };
+}
 
-for (const scanDir of SCAN_DIRS) {
-  const base = join(process.cwd(), scanDir);
-  for await (const filePath of walk(base)) {
-    if (SKIP_PATTERNS.some(p => p.test(filePath))) continue;
-    filesScanned++;
-    const src = await readFile(filePath, 'utf-8');
-    const lines = src.split('\n');
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      // Skip comment lines and strings that look like schema/docs
-      if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*')) continue;
-      let m;
-      HEX_RE.lastIndex = 0;
-      while ((m = HEX_RE.exec(line)) !== null) {
-        const hex = m[0].toLowerCase().replace(/^#/, '');
-        const full = '#' + hex;
-        const fullUpper = m[0];
-        if (ALLOWED_HEX.has(full) || ALLOWED_HEX.has(fullUpper)) continue;
-        // Allow in strings that look like user-facing theme preset values
-        const context = line.slice(Math.max(0, m.index - 20), m.index + 20);
-        if (context.includes("'") && context.includes(': ')) continue; // YAML-style
-        console.log(`  ${filePath.replace(process.cwd() + '/', '')}:${i + 1}  →  ${fullUpper}`);
-        violations++;
+export function compareBaseline(issues, baseline) {
+  if (baseline.version !== 1 || !Array.isArray(baseline.findings)) throw new Error('Unsupported design debt baseline');
+  const remaining = new Map(baseline.findings.map((item) => [issueKey(item), item.count]));
+  const added = [];
+  for (const issue of issues) {
+    const key = issueKey(issue);
+    if ((remaining.get(key) ?? 0) > 0) remaining.set(key, remaining.get(key) - 1);
+    else added.push(issue);
+  }
+  return { added, removed: [...remaining.values()].reduce((total, count) => total + count, 0) };
+}
+
+export function auditCss(source, strict = false) {
+  const issues = [];
+  postcss.parse(source).walkDecls((decl) => {
+    const { prop, value } = decl;
+    const report = (rule) => issues.push({ line: decl.source.start.line, rule, value: `${prop}: ${value}` });
+    if (prop.startsWith('--')) {
+      if (new RegExp(`var\\(\\s*${prop}\\s*[,)]`).test(value)) report('circular-token');
+      return;
+    }
+    if (HEX.test(value)) report('literal-color');
+    if (strict && /^(font-size|border-radius|padding(?:-.+)?|margin(?:-.+)?|(?:column-|row-)?gap)$/.test(prop)
+      && rawDimension.test(removeVariables(value))) report('literal-design-value');
+    if (!strict && prop === 'font-size') {
+      const match = value.match(/^(\d*\.?\d+)(px|rem)$/);
+      if (match && Number(match[1]) * (match[2] === 'rem' ? 16 : 1) < 12) report('small-text');
+    }
+  });
+  return issues;
+}
+
+export function auditTsx(source, strict = false) {
+  const issues = [];
+  const file = ts.createSourceFile('component.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  function visit(node) {
+    if (ts.isPropertyAssignment(node)) {
+      const name = node.name.getText(file).replace(/['"]/g, '');
+      const value = ts.isStringLiteralLike(node.initializer) ? node.initializer.text : node.initializer.getText(file);
+      const report = (rule) => issues.push({ line: file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1, rule, value: `${name}: ${value}` });
+      if (/^(color|background|backgroundColor|borderColor|border|stroke|fill|boxShadow)$/.test(name) && HEX.test(value)) report('literal-color');
+      if (name === 'fontSize' && !value.includes('var(')) {
+        const size = value.match(/^(\d*\.?\d+)(px|rem)?$/);
+        if (strict) report('literal-design-value');
+        else if (size && Number(size[1]) * (size[2] === 'rem' ? 16 : 1) < 12) report('small-text');
       }
     }
+    ts.forEachChild(node, visit);
+  }
+  visit(file);
+  return issues;
+}
+
+async function* walk(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) yield* walk(path);
+    else if (['.ts', '.tsx', '.css'].includes(extname(path))) yield path;
   }
 }
 
-console.log(`\nScanned ${filesScanned} files.`);
-if (violations === 0) {
-  console.log('✓ No hardcoded hex violations found.');
-  process.exit(0);
-} else {
-  console.log(`✗ ${violations} hardcoded hex violation(s). Replace with CSS tokens (var(--accent), var(--ink-3), etc.)`);
-  process.exit(1);
+export async function collect(root = process.cwd()) {
+  const failures = [];
+  const legacy = [];
+  let scanned = 0;
+  for await (const path of walk(join(root, 'src'))) {
+    const file = relative(root, path).replaceAll('\\', '/');
+    const strict = GOVERNED_FILES.has(file);
+    const src = await readFile(path, 'utf8');
+    const issues = file.endsWith('.css') ? auditCss(src, strict) : auditTsx(src, strict);
+    scanned++;
+    for (const issue of issues) {
+      const item = { file, ...issue };
+      if (strict || issue.rule === 'circular-token') failures.push(item);
+      else legacy.push(item);
+    }
+  }
+  const shellFile = 'src/components/shell/StudioAppShell.module.css';
+  const shell = await readFile(join(root, shellFile), 'utf8');
+  postcss.parse(shell).walkDecls((decl) => {
+    if (/^--(?:pad|gap|row|h-row|studio-panel-pad-[xy]|studio-header-height|studio-section-gap)$/.test(decl.prop)) {
+      failures.push({ file: shellFile, line: decl.source.start.line, rule: 'shadowed-token-authority', value: decl.toString() });
+    }
+  });
+  return { failures, legacy, scanned };
 }
+
+export async function run(root = process.cwd()) {
+  const { failures, legacy, scanned } = await collect(root);
+  const { debt, excluded } = applyExceptions(legacy);
+  const baseline = JSON.parse(await readFile(join(root, BASELINE_PATH), 'utf8'));
+  const delta = compareBaseline(debt, baseline);
+  failures.push(...delta.added.map((issue) => ({ ...issue, rule: `new-legacy-${issue.rule}` })));
+  console.log(`Design-system gate: ${GOVERNED_FILES.size} governed files; ${scanned} source files inventoried.`);
+  for (const issue of failures) console.error(`${issue.file}:${issue.line} [${issue.rule}] ${issue.value}`);
+  const counts = debt.reduce((result, issue) => ({ ...result, [issue.rule]: (result[issue.rule] ?? 0) + 1 }), {});
+  console.log(`Existing debt: ${Object.entries(counts).map(([key, count]) => `${count} ${key}`).join(', ') || 'none'}.`);
+  console.log(`Legacy ratchet: ${delta.added.length} additions, ${delta.removed} reductions; ${excluded.length} exact theme-data exceptions.`);
+  if (process.argv.includes('--inventory')) for (const issue of debt) console.log(`${issue.file}:${issue.line} [${issue.rule}] ${issue.value}`);
+  console.log(failures.length ? `FAIL: ${failures.length} design-rule violations.` : 'PASS: governed rules and no new tracked legacy debt; not whole-product design or accessibility certification.');
+  return failures.length ? 1 : 0;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) process.exitCode = await run();

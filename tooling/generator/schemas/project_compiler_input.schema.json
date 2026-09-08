@@ -34,6 +34,8 @@
         "commercial": {"type": "object"},
         "plan": {"type": "object"},
         "decision_set": {"type": "object"},
+        "artifact_registry": {"type": "object"},
+        "use_case_delivery": {"type": "object"},
         "observed_states": {
           "type": "object",
           "additionalProperties": {"type": "object"}

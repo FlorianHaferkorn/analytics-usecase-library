@@ -28,7 +28,7 @@ export function ApprovalsClient({ brackets }: Props) {
         onChange={setTab}
         options={[
           { value: 'brackets', label: 'Bracket Lifecycle' },
-          { value: 'refinements', label: 'Wirkungs-Loop Refinements' },
+          { value: 'refinements', label: 'Improvement proposals' },
         ]}
       />
 
@@ -55,8 +55,8 @@ export function ApprovalsClient({ brackets }: Props) {
                 }}
               >
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ink)' }}>{b.id}</span>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>{b.title}</span>
-                <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase' }}>{b.domain}</span>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>{b.title}</span>
+                <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--ink-4)', textTransform: 'uppercase' }}>{b.domain}</span>
               </button>
             ))}
           </div>

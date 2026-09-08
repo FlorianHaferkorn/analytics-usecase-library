@@ -35,6 +35,8 @@ DIST = REPO / "products/fabric/powerbi/dist"
 # kpi_id -> (legacy dist file, legacy measure name)
 KPI_TO_LEGACY = {
     "sales.net_sales.amount": ("Commercial.SemanticModel", "Net Sales Amount"),
+    "sales.net_sales.plan.amount": ("Commercial.SemanticModel", "Plan Sales Amount"),
+    "sales.net_sales.ly.amount": ("Commercial.SemanticModel", "Last Year Net Sales Amount"),
     # Am 05.08.2026 aus `op: hitl` geloest: der Katalog behauptete, die Quelltabelle
     # fehle im Data Contract — das handgebaute Modell liest sie aber. Die Grammatik
     # konnte beide Faelle laengst (count / avg / sum), es fehlte nur die Berechnung.

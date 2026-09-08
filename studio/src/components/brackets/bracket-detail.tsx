@@ -50,10 +50,10 @@ function PropRow({ label, value }: { label: string; value: React.ReactNode }) {
         alignItems: 'start',
       }}
     >
-      <span style={{ fontSize: 11.5, color: 'var(--ink-4)', lineHeight: 1.5, paddingTop: 1 }}>
+      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', lineHeight: 1.5, paddingTop: 1 }}>
         {label}
       </span>
-      <span style={{ fontSize: 11.5, color: 'var(--ink-2)', lineHeight: 1.5 }}>
+      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-2)', lineHeight: 1.5 }}>
         {value || '—'}
       </span>
     </div>
@@ -80,7 +80,7 @@ function DomainPill({ domain }: { domain: string }) {
         gap: 5,
         padding: '2px 8px',
         borderRadius: 999,
-        fontSize: 10.5,
+        fontSize: 'var(--text-xs)',
         fontWeight: 500,
         background: `oklch(0.22 0.05 ${hue} / 0.4)`,
         color: `oklch(0.7 0.15 ${hue})`,
@@ -150,7 +150,7 @@ export function BracketDetail({ bracket, factsheet, ownerRole, stewardRole, spin
             <span
               style={{
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.625rem',
+                fontSize: 'var(--text-xs)',
                 color: 'var(--ink-3)',
               }}
             >
@@ -347,7 +347,7 @@ export function BracketDetail({ bracket, factsheet, ownerRole, stewardRole, spin
             <PropRow
               label="Strategic KPI"
               value={
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}>
                   {bracket.orchestration.strategic_kpi_id}
                 </span>
               }

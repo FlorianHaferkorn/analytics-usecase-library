@@ -59,7 +59,7 @@ function Badge({
         borderRadius: 999,
         background: bg,
         color,
-        fontSize: 10,
+        fontSize: 'var(--text-2xs)',
         fontWeight: 600,
       }}
     >
@@ -134,7 +134,7 @@ function BracketNode({
       >
         <span
           style={{
-            fontSize: 10,
+            fontSize: 'var(--text-2xs)',
             color: 'var(--ink-4)',
             display: 'inline-block',
             transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
@@ -157,7 +157,7 @@ function BracketNode({
         </span>
         <span
           style={{
-            fontSize: 11,
+            fontSize: 'var(--text-xs)',
             color: 'var(--ink-3)',
             padding: '1px 6px',
             borderRadius: 999,
@@ -186,8 +186,8 @@ function BracketNode({
           {bracket.actionCodeIds.map((aid) => (
             <div key={aid} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px 6px 56px' }}>
               <Badge label="A" bg="oklch(0.22 0.05 75 / 0.3)" color="oklch(0.75 0.15 75)" />
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-3)' }}>{aid}</span>
-              {actionNames[aid] && <span style={{ fontSize: 11, color: 'var(--ink-4)' }}>{actionNames[aid]}</span>}
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>{aid}</span>
+              {actionNames[aid] && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>{actionNames[aid]}</span>}
             </div>
           ))}
         </div>

@@ -192,6 +192,30 @@
         "partition_type": "",
         "m_expression": "",
         "hierarchy_columns": []
+      },
+      {
+        "name": "_Measures",
+        "description": "",
+        "is_hidden": false,
+        "is_date_table": false,
+        "columns": [],
+        "measures": [
+          {
+            "name": "PVM Bridge Value",
+            "expression": "",
+            "display_folder": "COM-002",
+            "description": "Presentation-layer selector for the COM-002 Main_2 PVM bridge waterfall -- returns the active Driver category's effect measure so a single Y-role measure can serve a 3-bar breakdown chart.",
+            "format_string": "\\€#,0.00;-\\€#,0.00",
+            "is_hidden": false,
+            "expressions": {
+              "dsl": "{\"cases\": [{\"value\": {\"kind\": \"measure\", \"name\": \"Plan Sales Amount\"}, \"when\": \"Plan Sales\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Price Effect Amount\"}, \"when\": \"Price Effect\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Volume Effect Amount\"}, \"when\": \"Volume Effect\"}, {\"value\": {\"kind\": \"measure\", \"name\": \"Mix Effect Amount\"}, \"when\": \"Mix Effect\"}], \"op\": \"selector_switch\", \"selector\": {\"column\": \"Driver\", \"table\": \"dim_pvm_driver\"}}"
+            }
+          }
+        ],
+        "has_partition": false,
+        "partition_type": "",
+        "m_expression": "",
+        "hierarchy_columns": []
       }
     ],
     "relationships": [],
@@ -257,7 +281,9 @@
             "bound_measures": [
               "Gross Margin Amount"
             ],
-            "rows": [],
+            "rows": [
+              "dim_date.Date"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -277,7 +303,9 @@
             "bound_measures": [
               "PVM Bridge Value"
             ],
-            "rows": [],
+            "rows": [
+              "dim_pvm_driver.Driver"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -317,7 +345,7 @@
             "bound_measures": [],
             "rows": [],
             "columns": [],
-            "slicer_field": "Date[Date]"
+            "slicer_field": "dim_date.Date"
           }
         ],
         "width": 1920,
@@ -350,7 +378,10 @@
               "Mix Effect Amount",
               "Gross Margin %"
             ],
-            "rows": [],
+            "rows": [
+              "product_category",
+              "sku"
+            ],
             "columns": [],
             "slicer_field": ""
           },
@@ -361,7 +392,7 @@
             "y": 118.0,
             "width": 296.0,
             "height": 930.0,
-            "title": "",
+            "title": "Recommended actions (from action codes)\n\n• C-M2.2 — Mix Optimization (Margin-Driven)\n  Owner: category_manager\n  Trigger: sales.pvm.mix_effect.amount < -75000\n  Impact: Medium, DirectMarginImprovement\n  Expected: 0.3–1.2 pp\n  Confidence: Medium\n  · IDENTIFY each {entity} with persistent negative mix effect\n  · RANK SKUs by margin contribution for this {entity}\n  · ADJUST sales targets and focus lists for this {entity}\n  ⚠ Trigger only if price realization is within guardrails\n  ⚠ Do not trigger if negative mix is driven by temporary availability constraints\n\n• C-P4.1 — Promo Calendar Discipline\n  Owner: trade_marketing_lead\n  Trigger: sales.promo.roi.pct < -5.0%\n  Impact: High, DirectMarginImprovement\n  Expected: 5.0–20.0 pp\n  Confidence: High\n  · IDENTIFY each {entity} with repeated negative ROI\n  · REVIEW mechanics and baseline assumptions for this {entity}\n  · STOP, REPLACE, or RESEQUENCE this {entity} based on ROI analysis\n  ⚠ Trigger only if baseline quality checks pass (baseline sales/qty present)\n  ⚠ Do not trigger if Promo Gross Margin % remains above target\n\n• C-S1.2 — Sales Gap Recovery via Price & Pack Adjustment\n  Owner: sales_director\n  Trigger: sales.net_sales.delta_pct.plan < -0.05%\n  Impact: Medium, RevenueUplift\n  Expected: 1.0–3.0 %\n  Confidence: Medium\n  · IDENTIFY each {entity} breaching plan thresholds\n  · SELECT eligible products for this {entity} within GM guardrails\n  · APPLY temporary price or pack adjustments to this {entity}\n  ⚠ Trigger only if Gross Margin % >= 25%\n  ⚠ Do not trigger if price effect is structurally negative for 3+ months (hand over to COM-002)",
             "has_title": false,
             "binds_measures": false,
             "has_tooltip_fields": false,

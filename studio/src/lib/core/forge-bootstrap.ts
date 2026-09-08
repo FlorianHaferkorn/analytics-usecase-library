@@ -4,7 +4,6 @@ import { loadAllBrackets } from '@/lib/core/bracket-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { GOLDEN_20_IDS } from '@/lib/core/golden20';
 import { loadAllSpines } from '@/lib/core/spine-loader';
-import { getProject } from '@/lib/db/project-repo';
 import { loadAuroraSnapshot } from '@/lib/aurora/kpi-snapshot';
 import type { AuroraKpiValue } from '@/lib/aurora/kpi-snapshot';
 import type { DecisionSpine } from '@/lib/schemas/decision-spine';
@@ -73,8 +72,8 @@ async function buildForgeBootstrapPayload(): Promise<ForgeBootstrapPayload> {
     };
   });
 
-  const defaultProject = getProject('default');
-  const strategyAnchor = defaultProject?.strategy_anchor || FALLBACK_ANCHOR;
+  // This is a reusable library example, not mutable customer project metadata.
+  const strategyAnchor = FALLBACK_ANCHOR;
 
   return {
     strategyAnchor,

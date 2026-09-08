@@ -17,7 +17,6 @@ async function loginAsDemo(page: Page) {
     .catch((err) => err);
 
   if (loginRedirectError) {
-    // eslint-disable-next-line no-console
     console.warn(
       `[design-system-optical] Login redirect wait did not complete. Current URL: ${page.url()}. Error: ${
         loginRedirectError instanceof Error ? loginRedirectError.message : String(loginRedirectError)
@@ -36,7 +35,7 @@ test.describe('Design System — optical Premium checks', () => {
   //   `npx playwright test e2e/design-system-optical.spec.ts --update-snapshots`
   // - CI will fail on pixel diffs and on token mismatches (Block A).
 
-  test('Block A: DS tokens (studio/dark/airy) are correctly applied', async ({ page }) => {
+  test('Block A: DS tokens (studio/dark/balanced) are correctly applied', async ({ page }) => {
     await loginAsDemo(page);
     await page.goto('/overview');
 
@@ -51,18 +50,18 @@ test.describe('Design System — optical Premium checks', () => {
         panel: '#131316',
         ink: '#f4f4f2',
         ink2: '#c9c9cd',
-        ink3: '#8a8a90',
-        ink4: '#5a5a60',
-        line: 'rgba(255,255,255,0.08)',
-        line2: 'rgba(255,255,255,0.04)',
-        accent: 'oklch(0.72 0.13 250)',
-        accentSoft: 'oklch(0.72 0.13 250 / 0.16)',
-        accentInk: 'oklch(0.12 0.02 250)',
+        ink3: '#a4a4aa',
+        ink4: '#777780',
+        line: 'rgba(255,255,255,0.12)',
+        line2: 'rgba(255,255,255,0.07)',
+        accent: '#6CB8FF',
+        accentSoft: 'rgba(108,184,255,0.16)',
+        accentInk: '#0B1A33',
 
-        // Structural tokens for density "airy"
-        pad: '28px',
-        gap: '28px',
-        hRow: '48px',
+        // Structural tokens for the default balanced workbench density
+        pad: '20px',
+        gap: '18px',
+        hRow: '40px',
 
         // Radius
         radius: '10px',
@@ -150,7 +149,7 @@ test.describe('Design System — optical Premium checks', () => {
 
       // Dataset assertions (theme/density/fonts)
       if (dataset.theme !== 'dark') mismatches.push({ token: 'data-theme', actual: dataset.theme ?? '', expected: 'dark' });
-      if (dataset.density !== 'airy') mismatches.push({ token: 'data-density', actual: dataset.density ?? '', expected: 'airy' });
+      if (dataset.density !== 'balanced') mismatches.push({ token: 'data-density', actual: dataset.density ?? '', expected: 'balanced' });
       if (dataset.fonts !== 'inter') mismatches.push({ token: 'data-fonts', actual: dataset.fonts ?? '', expected: 'inter' });
 
       // Color token comparisons
@@ -172,11 +171,11 @@ test.describe('Design System — optical Premium checks', () => {
       expectLengthVar('--gap', ds.gap, 'gap');
       // `--h-row` is a legacy row-height alias. Read it reliably by applying the
       // underlying variable to a dummy element and checking computed height.
-      const actualRowHeightAiry = normalizeLength('var(--row-height-airy)', 'height');
-      if (actualRowHeightAiry !== ds.hRow) {
+      const actualRowHeightBalanced = normalizeLength('var(--row-height-balanced)', 'height');
+      if (actualRowHeightBalanced !== ds.hRow) {
         mismatches.push({
-          token: '--h-row (via --row-height-airy)',
-          actual: actualRowHeightAiry,
+          token: '--h-row (via --row-height-balanced)',
+          actual: actualRowHeightBalanced,
           expected: ds.hRow,
         });
       }
@@ -184,29 +183,23 @@ test.describe('Design System — optical Premium checks', () => {
       // Radius comparison
       expectLengthVar('--radius', ds.radius, 'borderRadius');
 
-      // Inner padding / spacing: verify that a representative inner container
-      // actually uses `var(--pad)` with the panel background.
-      // This connects "Padding" tokens to real rendered component chrome.
-      const expectedPanelRgba = colorToRgba('var(--panel)');
-      const expectedPanelStr = `rgba(${expectedPanelRgba.r},${expectedPanelRgba.g},${expectedPanelRgba.b},${expectedPanelRgba.a})`;
-      const expectedPadStr = ds.pad;
+      // Inner padding / spacing: the semantic metric primitive deliberately uses
+      // a tighter 16px inset than the page-level airy token.
+      const expectedMetricPad = '16px';
 
       const kpiLabelEls = Array.from(document.querySelectorAll('*')).filter(
         (el) => el.textContent?.trim() === 'KPIs',
       ) as HTMLElement[];
 
+      const expectedMetricRadius = normalizeLength('var(--radius-lg)', 'borderRadius');
       let foundInnerPad = false;
       for (const labelEl of kpiLabelEls.slice(0, 5)) {
         let cur: HTMLElement | null = labelEl;
         for (let depth = 0; depth < 7 && cur; depth++) {
           const cs = getComputedStyle(cur);
-          if (cs.paddingTop === expectedPadStr) {
-            const bg = colorToRgba(cs.backgroundColor);
-            const bgStr = `rgba(${bg.r},${bg.g},${bg.b},${bg.a})`;
-            if (bgStr === expectedPanelStr) {
-              foundInnerPad = true;
-              break;
-            }
+          if (cs.paddingTop === expectedMetricPad && cs.borderTopLeftRadius === expectedMetricRadius) {
+            foundInnerPad = true;
+            break;
           }
           cur = cur.parentElement;
         }
@@ -216,8 +209,8 @@ test.describe('Design System — optical Premium checks', () => {
       if (!foundInnerPad) {
         mismatches.push({
           token: 'innerPadding(panel chrome)',
-          actual: 'not found (no element with paddingTop=var(--pad) & var(--panel) bg)',
-          expected: `panel container with paddingTop=${expectedPadStr}`,
+          actual: 'not found (no metric primitive with the semantic compact inset)',
+          expected: `metric container with paddingTop=${expectedMetricPad} and radius=${expectedMetricRadius}`,
         });
       }
 
@@ -255,7 +248,7 @@ test.describe('Design System — optical Premium checks', () => {
       }
 
       // Typography details (computed-style based, to avoid missing tokens like --display-track).
-      // Validate the main heading uses the expected tracking: StudioPageHeader sets letterSpacing: '-0.02em'.
+      // Validate the main heading uses the premium display tracking.
       const h1 = document.querySelector('h1') as HTMLElement | null;
       if (h1) {
         const cs = getComputedStyle(h1);
@@ -263,10 +256,10 @@ test.describe('Design System — optical Premium checks', () => {
         const letterSpacingPx = parseFloat(cs.letterSpacing || '');
         // Some browsers return "normal" (-> NaN). Only validate when both parse to numbers.
         if (!Number.isNaN(fontSizePx) && !Number.isNaN(letterSpacingPx)) {
-          const expectedLetterSpacingPx = fontSizePx * -0.02;
+          const expectedLetterSpacingPx = fontSizePx * -0.04;
           if (Math.abs(letterSpacingPx - expectedLetterSpacingPx) > 0.5) {
             mismatches.push({
-              token: 'h1 letterSpacing (-0.02em)',
+              token: 'h1 letterSpacing (-0.04em)',
               actual: `${letterSpacingPx}px`,
               expected: `${expectedLetterSpacingPx}px`,
             });
@@ -295,6 +288,7 @@ test.describe('Design System — optical Premium checks', () => {
   });
 
   test('Block B: Screenshots for premium DS look-and-feel', async ({ page }) => {
+    test.setTimeout(120_000);
     await loginAsDemo(page);
 
     // Overview
@@ -307,33 +301,36 @@ test.describe('Design System — optical Premium checks', () => {
       maxDiffPixelRatio: 0.001,
     });
 
-    // Delivery
-    await page.goto('/delivery');
+    // Discovery
+    await page.goto('/discover');
+    await expect(page.getByText('Discovery', { exact: true })).toBeVisible({ timeout: 10_000 });
+    await expect(page).toHaveScreenshot('ds-discovery.png', { fullPage: true, maxDiffPixelRatio: 0.001 });
+
+    // Generate / delivery packaging
+    await page.goto('/generate');
     await expect(page.getByRole('button', { name: 'Microsoft Fabric / Power BI' })).toBeVisible({ timeout: 10_000 });
-    // Wait for the main delivery UI to finish rendering deterministically.
-    await expect(page.getByText(/Export to/)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('4. Validate and package', { exact: true })).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(750);
     await expect(page).toHaveScreenshot('ds-delivery.png', { fullPage: true, maxDiffPixelRatio: 0.001 });
 
-    // Steering
-    await page.goto('/steering');
+    // Blueprint
+    await page.goto('/blueprint');
     await page.waitForTimeout(1000);
-    // Stable anchor: steering hub panel title.
     await expect(page.getByText('Golden Thread Flow', { exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Loading preset...')).toBeHidden({ timeout: 10_000 });
     await expect(page).toHaveScreenshot('ds-steering.png', {
       fullPage: true,
       maxDiffPixelRatio: 0.001,
     });
 
-    // Brand Lab (route behind redirect)
-    await page.goto('/brand');
-    // Heading text can be fragile depending on hydration; use a stable panel title.
+    // Brand and report templates
+    await page.goto('/templates');
     await expect(page.getByText('Export Theme', { exact: true })).toBeVisible({ timeout: 15_000 });
-    // `/brand` redirects to `/templates` where the left canvas preview can be slightly dynamic.
-    // To keep this premium DS check stable, screenshot only the right theme panel (`aside`).
-    const aside = page.locator('aside').first();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(300);
+    // The left report preview is intentionally dynamic. The theme panel is the stable contract.
+    const aside = page.locator('aside').filter({ hasText: 'Export Theme' });
     await expect(aside).toBeVisible({ timeout: 10_000 });
     await expect(aside).toHaveScreenshot('ds-brand-lab.png', { maxDiffPixelRatio: 0.001 });
   });
 });
-

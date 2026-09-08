@@ -39,9 +39,26 @@ from tooling.superversion.targets import databricks  # noqa: F401 — registers 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _KPIS = _REPO_ROOT / "core" / "kpi_catalog" / "kpis"
 _ACTION_CODES = _REPO_ROOT / "core" / "action_codes"
+_USE_CASES = _REPO_ROOT / "core" / "usecases" / "core"
 _DEFAULT_BRACKET = (
     _REPO_ROOT / "core" / "usecases" / "core" / "COM-001_Sales_Performance" / "UseCase_Bracket.yaml"
 )
+
+
+def resolve_bracket(reference: Path) -> Path:
+    """Resolve either an explicit bracket path or a governed use-case ID."""
+    if reference.is_absolute() or reference.suffix:
+        if reference.exists():
+            return reference.resolve()
+        raise FileNotFoundError(f"bracket not found: {reference}")
+
+    bracket_id = reference.name
+    matches = sorted(_USE_CASES.glob(f"{bracket_id}_*/UseCase_Bracket.yaml"))
+    if not matches:
+        raise FileNotFoundError(f"bracket not found: {bracket_id}")
+    if len(matches) > 1:
+        raise ValueError(f"ambiguous bracket id '{bracket_id}': {len(matches)} matches")
+    return matches[0].resolve()
 
 
 def precore(bracket_path: Path, kpis_dir: Path) -> dict:
@@ -64,7 +81,13 @@ def precore(bracket_path: Path, kpis_dir: Path) -> dict:
     return {"ok": True, "bracket": bracket_path.parent.name, "engines": engine_reports}
 
 
-def generate(bracket_path: Path, kpis_dir: Path, target: str) -> dict:
+def generate(
+    bracket_path: Path,
+    kpis_dir: Path,
+    target: str,
+    *,
+    include_content: bool = False,
+) -> dict:
     """Post-core: emit one target + the Gate-Report (Golden-Thread + E2E smoke).
 
     ``ok`` is true only when the chosen target emits AND no gate stage FAILED —
@@ -76,10 +99,12 @@ def generate(bracket_path: Path, kpis_dir: Path, target: str) -> dict:
     # Artifact manifest — emit the chosen target from the canonical model (no disk write).
     model = from_bracket_file(bracket_path, kpis_dir)
     emitted = targets.get(target).emit(model)
-    artifacts = [
-        {"path": path, "bytes": len(content.encode("utf-8"))}
-        for path, content in emitted.items()
-    ]
+    artifacts = []
+    for path, content in emitted.items():
+        artifact = {"path": path, "bytes": len(content.encode("utf-8"))}
+        if include_content:
+            artifact["content"] = content
+        artifacts.append(artifact)
 
     # Gate-Report — reuse the governed E2E chain (I-3.4 Golden-Thread + I-3.5 smoke).
     with tempfile.TemporaryDirectory(prefix="bridge_gen_") as tmp:
@@ -160,6 +185,8 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("ping", help="cheap readiness probe — JSON {ok,targets_available} (I-6.5)")
+    p_resolve = sub.add_parser("resolve", help="resolve a governed use-case id to its bracket")
+    p_resolve.add_argument("bracket", type=Path)
     p_pre = sub.add_parser("precore", help="run gov/eng/arch engines against a bracket (JSON out)")
     p_pre.add_argument("bracket", nargs="?", type=Path, default=_DEFAULT_BRACKET)
     p_pre.add_argument("--kpis", type=Path, default=_KPIS)
@@ -167,6 +194,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     p_gen.add_argument("bracket", nargs="?", type=Path, default=_DEFAULT_BRACKET)
     p_gen.add_argument("--kpis", type=Path, default=_KPIS)
     p_gen.add_argument("--target", default="tmdl", help="target stack id (default: tmdl)")
+    p_gen.add_argument(
+        "--include-content",
+        action="store_true",
+        help="include deterministic artifact text in the JSON response (Studio download path)",
+    )
     p_attr = sub.add_parser(
         "attribute",
         help="attribute an action's KPI effect: governed refcalc baseline + supplied "
@@ -185,6 +217,9 @@ def main(argv: Optional[list[str]] = None) -> int:
             # No model work — proves the Python seam + registry import (engines/targets) are live.
             result = {"ok": True, "engines_available": engines.available(),
                       "targets_available": targets.available()}
+        elif args.command == "resolve":
+            bracket = resolve_bracket(args.bracket)
+            result = {"ok": True, "bracket": bracket.parent.name}
         elif args.command == "attribute":
             result = attribute(
                 args.use_case, args.action_code_id, json.loads(args.t1),
@@ -192,12 +227,15 @@ def main(argv: Optional[list[str]] = None) -> int:
                 control_t0=json.loads(args.control_t0) if args.control_t0 else None,
                 control_t1=json.loads(args.control_t1) if args.control_t1 else None,
             )
-        elif not args.bracket.exists():
-            raise FileNotFoundError(f"bracket not found: {args.bracket}")
         elif args.command == "precore":
-            result = precore(args.bracket, args.kpis)
+            result = precore(resolve_bracket(args.bracket), args.kpis)
         elif args.command == "generate":
-            result = generate(args.bracket, args.kpis, args.target)
+            result = generate(
+                resolve_bracket(args.bracket),
+                args.kpis,
+                args.target,
+                include_content=args.include_content,
+            )
         else:  # pragma: no cover — argparse enforces a valid subcommand
             return 2
     except Exception as exc:  # noqa: BLE001 — bridge reports errors as JSON, never a stack trace

@@ -12,7 +12,7 @@ interface Props {
 }
 
 const sectionLabel: React.CSSProperties = {
-  fontSize: 11,
+  fontSize: 'var(--text-xs)',
   textTransform: 'uppercase',
   color: 'var(--ink-3)',
   letterSpacing: '0.06em',
@@ -72,7 +72,7 @@ export function ActionsTab({ bracket }: Props) {
                       alignItems: 'center',
                       padding: '3px 10px',
                       borderRadius: 999,
-                      fontSize: 11.5,
+                      fontSize: 'var(--text-xs)',
                       fontFamily: 'var(--font-mono)',
                       background: 'var(--bg-2)',
                       color: 'var(--accent)',
@@ -103,7 +103,7 @@ export function ActionsTab({ bracket }: Props) {
                 alignItems: 'center',
                 padding: '2px 8px',
                 borderRadius: 999,
-                fontSize: 11,
+                fontSize: 'var(--text-xs)',
                 fontWeight: 500,
                 background:
                   direction === 'maximize'
@@ -125,7 +125,7 @@ export function ActionsTab({ bracket }: Props) {
                   alignItems: 'center',
                   padding: '2px 8px',
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 'var(--text-xs)',
                   fontWeight: 500,
                   background: 'var(--bg-2)',
                   color: 'var(--ink-3)',

@@ -5,8 +5,11 @@ import { checkAccess, addProjectMember } from '@/lib/db/rbac-repo';
 import { findOrCreateUser } from '@/lib/db/user-repo';
 import { apiSuccess, apiCreated, apiError, apiValidationError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
+import { requireRole } from '@/lib/auth/require-role';
 
 export async function GET() {
+  const [, accessError] = await requireRole('viewer', 'default');
+  if (accessError) return accessError;
   const project = getProject();
   if (!project) {
     return apiError(ErrorCode.NOT_FOUND, 'Project not found', 404);

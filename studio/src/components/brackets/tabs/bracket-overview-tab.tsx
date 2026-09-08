@@ -29,7 +29,7 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
     >
       <span
         style={{
-          fontSize: 11.5,
+          fontSize: 'var(--text-xs)',
           fontWeight: 500,
           color: 'var(--ink-4)',
           lineHeight: 1.5,

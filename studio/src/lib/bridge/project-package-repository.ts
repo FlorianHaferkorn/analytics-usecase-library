@@ -80,6 +80,30 @@ interface CliPayload {
   revision?: PackageRevisionSummary;
   diff?: PackageStructuralDiff;
   output?: string;
+  release_bundle?: ProjectReleaseBundle;
+}
+
+export interface ProjectReleaseBundle {
+  output_type: 'approved_project_input_bundle';
+  release: { project_ref: string; revision_hash: string; compiler_input_sha256: string;
+    attested_by: string; attested_at: string; rationale: string; record_sha256: string };
+  compiler_input: Record<string, unknown>;
+  files: PackageFile[];
+  limitations: string[];
+}
+
+export async function exportApprovedProjectInput(projectId: string, revisionHash: string, attestation?: { actor: string; rationale: string }): Promise<PackageRepositoryResult<ProjectReleaseBundle>> {
+  return withTemporaryDirectory('aluca-package-release-', async (temporaryRoot) => {
+    const output = join(temporaryRoot, 'approved-input.json');
+    const command = ['release-input', '--project-ref', projectId, '--revision', revisionHash, '--output', output];
+    if (attestation) command.push('--actor', attestation.actor, '--rationale', attestation.rationale);
+    const result = await invoke(projectId, command, (payload) => {
+      if (payload.output !== output) throw new Error('Repository returned no approved input bundle');
+      return payload.output;
+    });
+    if (!result.ok) return { ...result, value: undefined };
+    return { available: true, ok: true, value: JSON.parse(await readFile(output, 'utf-8')) as ProjectReleaseBundle };
+  });
 }
 
 function repositoryRoot(projectId: string): string {
@@ -171,6 +195,17 @@ async function invoke<T>(
 
 export function getPackageHead(projectId: string) {
   return invoke(projectId, ['head'], (payload) => payload.head ?? null);
+}
+
+export async function transferDiscoveryToPackage(projectId: string, payload: Record<string, unknown>): Promise<PackageRepositoryResult<PackageRevisionSummary>> {
+  return withTemporaryDirectory('aluca-discovery-transfer-', async (temporaryRoot) => {
+    const input = join(temporaryRoot, 'review.json');
+    await writeFile(input, JSON.stringify({ ...payload, projectId }), 'utf-8');
+    return invoke(projectId, ['transfer-discovery', '--input', input], (response) => {
+      if (!response.revision || response.revision.project_ref !== projectId) throw new Error('Unexpected Discovery transfer revision');
+      return response.revision;
+    });
+  });
 }
 
 export async function loadProjectPackage(

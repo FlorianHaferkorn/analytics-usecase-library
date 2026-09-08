@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
+import { buildDeliveryZip } from '@/lib/delivery/export-bundle';
 
 export interface ExportFile {
   filename: string;
@@ -33,26 +34,24 @@ function collectFiles(results: ExportResultItem[]): ExportFile[] {
 
 export function ExportResults({ results, adapterName }: Props) {
   const [previewFile, setPreviewFile] = useState<ExportFile | null>(null);
+  const files = collectFiles(results);
 
   const handleDownloadAll = useCallback(() => {
-    const files = collectFiles(results);
-    const combined = files
-      .map((f) => `// === ${f.filename} ===\n${f.content}`)
-      .join('\n\n');
-    const blob = new Blob([combined], { type: 'text/plain' });
+    const archive = buildDeliveryZip(files);
+    const blob = new Blob([archive as BlobPart], { type: 'application/zip' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `actionready-export-${adapterName}-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = `aluca-delivery-${adapterName}-${new Date().toISOString().slice(0, 10)}.zip`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [results, adapterName]);
+  }, [files, adapterName]);
 
   return (
     <StudioPanel
       title="Export Results"
-      description="Inspect generated files, review errors and download the combined export bundle."
-      action={<StudioButton onClick={handleDownloadAll} tone="success" variant="primary">Download All</StudioButton>}
+      description="Inspect governed artifacts, review blocked items, and download the validated directory structure as a ZIP package."
+      action={<StudioButton onClick={handleDownloadAll} disabled={files.length === 0} tone="success" variant="primary">Download package</StudioButton>}
       style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
     >
 

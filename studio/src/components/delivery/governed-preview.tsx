@@ -25,6 +25,7 @@ interface Props {
 }
 
 interface State {
+  key: string;
   loading: boolean;
   precore: PreCoreResult | null;
   generate: GenerateResult | null;
@@ -37,22 +38,23 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export function GovernedPreview({ bracketId, target }: Props) {
-  const [state, setState] = useState<State>({ loading: true, precore: null, generate: null, flow: null });
+  const requestKey = `${bracketId}:${target}`;
+  const [state, setState] = useState<State>({ key: '', loading: true, precore: null, generate: null, flow: null });
 
   useEffect(() => {
     let cancelled = false;
-    setState({ loading: true, precore: null, generate: null, flow: null });
 
     Promise.all([
       fetchJson<PreCoreResult>(`/api/precore?bracketId=${encodeURIComponent(bracketId)}`),
       fetchJson<GenerateResult>(`/api/generate?bracketId=${encodeURIComponent(bracketId)}&target=${encodeURIComponent(target)}`),
       fetchJson<DeliveryFlowState>(`/api/delivery-flow?bracketId=${encodeURIComponent(bracketId)}&target=${encodeURIComponent(target)}`),
     ]).then(([precore, generate, flow]) => {
-      if (!cancelled) setState({ loading: false, precore, generate, flow });
+      if (!cancelled) setState({ key: requestKey, loading: false, precore, generate, flow });
     }).catch((err) => {
       if (cancelled) return;
       const error = err instanceof Error ? err.message : 'bridge request failed';
       setState({
+        key: requestKey,
         loading: false,
         precore: { available: false, ok: false, engines: [], error },
         generate: { available: false, ok: false, targetsAvailable: [], artifacts: [], error },
@@ -61,12 +63,12 @@ export function GovernedPreview({ bracketId, target }: Props) {
     });
 
     return () => { cancelled = true; };
-  }, [bracketId, target]);
+  }, [bracketId, requestKey, target]);
 
-  if (state.loading) {
+  if (state.loading || state.key !== requestKey) {
     return (
       <div data-testid="governed-preview-loading" style={{ fontSize: '0.75rem', color: 'var(--ink-3)' }}>
-        Governed preview läuft gegen den Python-Core…
+        Governed package detail is loading from the shared core…
       </div>
     );
   }
@@ -83,31 +85,30 @@ export function GovernedPreview({ bracketId, target }: Props) {
 interface SectionProps {
   /** IDs of the currently selected use cases — the bridge is single-bracket-scoped. */
   selectedBracketIds: string[];
-  /** The adapter's mapped bridge target, or null when it has none (e.g. CI/CD). */
+  /** The adapter's mapped bridge target, or null when it has no governed target. */
   bridgeTarget: string | null;
   adapterName: string;
 }
 
 /**
- * GovernedPreviewSection — the "Governed Preview (Python Core)" panel for the
+ * GovernedPreviewSection — the governed package-detail panel for the
  * Delivery page. Wraps GovernedPreview with the panel chrome and the
  * selection/target guards, so delivery-client.tsx only renders one component.
  */
 export function GovernedPreviewSection({ selectedBracketIds, bridgeTarget, adapterName }: SectionProps) {
   return (
     <StudioPanel
-      title="Governed Preview (Python Core)"
-      description="What the governed core (ADR-0007) actually says about this use case — pre-core reality check, target artifacts, and the Gate-Report. This is the authoritative validation; the export above is a preview, not a substitute for it."
+      title="Governance & Gate Detail"
+      description="Authoritative detail for the selected package: pre-core reality check, target artifacts, approval state, and the shared Gate-Report."
       tone="info"
     >
       {selectedBracketIds.length !== 1 ? (
         <StudioInlineStat>
-          Select exactly one use case above to run the governed preview against it.
+          Select exactly one use case above to inspect its authoritative gate and package detail.
         </StudioInlineStat>
       ) : bridgeTarget === null ? (
         <StudioInlineStat>
-          {adapterName} has no governed core target yet (deploy mechanism, not a data target) —
-          no governed preview to show for it.
+          {adapterName} has no governed core target yet, so no authoritative package detail is available.
         </StudioInlineStat>
       ) : (
         <GovernedPreview bracketId={selectedBracketIds[0]} target={bridgeTarget} />

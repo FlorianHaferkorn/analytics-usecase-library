@@ -1,9 +1,5 @@
-import { processExportRequest } from '@/lib/delivery/export-handler';
-import { generateTmdlMeasures, generatePbipLayout } from '@/lib/delivery/fabric-adapter';
+import { processGovernedExportRequest } from '@/lib/delivery/governed-export-handler';
 
 export async function POST(request: Request) {
-  return processExportRequest(request, (ir) => ({
-    tmdl: generateTmdlMeasures(ir),
-    pbip: generatePbipLayout(ir),
-  }), 'fabric');
+  return processGovernedExportRequest(request, ['tmdl', 'pbir'], 'fabric');
 }

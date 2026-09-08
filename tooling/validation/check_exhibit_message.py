@@ -118,7 +118,7 @@ def check_bracket(path: Path) -> tuple[int, int, int, list[str]]:
             lines.append(f"    ✗ {slot}: {reason}")
         else:
             warned += 1
-            lines.append(f"    ⚠ {slot}: {reason}")
+            lines.append(f"    WARN {slot}: {reason}")
     return passed, warned, failed, lines
 
 

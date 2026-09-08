@@ -57,9 +57,19 @@ def _parser() -> argparse.ArgumentParser:
 
     commands.add_parser("head", help="Read and verify the current revision")
 
+    transfer = commands.add_parser("transfer-discovery", help="Append reviewed, source-backed discovery proposals")
+    transfer.add_argument("--input", type=Path, required=True)
+
     checkout = commands.add_parser("checkout", help="Restore one complete package revision")
     checkout.add_argument("--output", type=Path, required=True)
     checkout.add_argument("--revision")
+
+    release = commands.add_parser("release-input", help="Export or explicitly attest approved pinned compiler inputs")
+    release.add_argument("--revision", required=True)
+    release.add_argument("--project-ref", required=True)
+    release.add_argument("--actor")
+    release.add_argument("--rationale")
+    release.add_argument("--output", type=Path)
 
     difference = commands.add_parser("diff", help="Compare two complete revisions")
     difference.add_argument("--from-revision", required=True)
@@ -95,6 +105,20 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         return {"ok": True, "head": _record(repository.head())}
 
     repository = ProjectPackageRevisionRepository(args.repository, args.schemas)
+    if args.command == "transfer-discovery":
+        from .discovery_transfer import transfer_discovery
+        return {"ok": True, "revision": _record(transfer_discovery(repository, json.loads(args.input.read_text(encoding="utf-8"))))}
+    if args.command == "release-input":
+        from .release import release_input
+        bundle = release_input(
+            repository, args.project_ref, args.revision,
+            actor=args.actor, rationale=args.rationale,
+        )
+        if args.output:
+            with args.output.open("x", encoding="utf-8") as handle:
+                json.dump(bundle, handle, ensure_ascii=False, sort_keys=True)
+            return {"ok": True, "output": str(args.output)}
+        return {"ok": True, "release_bundle": bundle}
     if args.command == "commit":
         return {"ok": True, "revision": _record(repository.commit(args.package))}
     if args.command == "commit-draft":

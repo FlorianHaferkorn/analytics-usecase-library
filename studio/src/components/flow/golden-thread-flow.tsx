@@ -37,10 +37,10 @@ export interface GoldenThreadData {
 }
 
 const NODE_SIZES = {
-  anchor:  { w: 240, h: 56 },
-  kpi:     { w: 220, h: 56 },
-  driver:  { w: 200, h: 56 },
-  action:  { w: 200, h: 56 },
+  anchor:  { w: 260, h: 108 },
+  kpi:     { w: 240, h: 108 },
+  driver:  { w: 240, h: 108 },
+  action:  { w: 240, h: 108 },
 };
 
 function buildGraph(data: GoldenThreadData): { nodes: CanvasNode[]; edges: CanvasEdge[] } {
@@ -107,10 +107,12 @@ function buildGraph(data: GoldenThreadData): { nodes: CanvasNode[]; edges: Canva
     }
   }
 
-  // Dagre layout
+  // Focused use cases use compact left-to-right cards; full metadata stays in List and the inspector.
+  const compact = data.brackets.length === 1;
+  if (compact) for (const node of rawNodes) { node._w = 224; node._h = 56; }
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: 'TB', ranksep: 80, nodesep: 40 });
+  g.setGraph({ rankdir: compact ? 'LR' : 'TB', ranksep: compact ? 64 : 80, nodesep: compact ? 12 : 40 });
 
   for (const n of rawNodes) g.setNode(n.id, { width: n._w, height: n._h });
   for (const e of edges) g.setEdge(e.source, e.target);
@@ -118,7 +120,7 @@ function buildGraph(data: GoldenThreadData): { nodes: CanvasNode[]; edges: Canva
 
   const nodes: CanvasNode[] = rawNodes.map(({ _w, _h, ...n }) => {
     const pos = g.node(n.id);
-    return { ...n, x: (pos?.x ?? 0) - _w / 2, y: (pos?.y ?? 0) - _h / 2 };
+    return { ...n, width: _w, height: _h, compact, direction: compact ? 'LR' : 'TB', x: (pos?.x ?? 0) - _w / 2, y: (pos?.y ?? 0) - _h / 2 };
   });
 
   return { nodes, edges };
@@ -145,7 +147,8 @@ export function GoldenThreadFlow({ data, onBracketSelect }: Props) {
       nodes={nodes}
       edges={edges}
       onNodeOpen={onBracketSelect ? handleOpen : undefined}
-      emptyMessage="Select a bracket from the dropdown above or run a Discovery session to generate one."
+      canOpenNode={id => id.startsWith('skpi-')}
+      emptyMessage="Select a use case above or start a Discovery session to create one."
     />
   );
 }

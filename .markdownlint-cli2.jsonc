@@ -16,6 +16,7 @@
     "!.cursor/**",
     "!.claude/**",
     "!studio/playwright-report/**",
-    "!studio/test-results/**"
+    "!studio/test-results/**",
+    "!tooling/visual_library/tests/golden_docs/Part_D.md"
   ]
 }

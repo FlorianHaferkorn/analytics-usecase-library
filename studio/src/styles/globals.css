@@ -10,15 +10,15 @@
   --font-sans:    var(--font-body);
 
   /* type scale used by inline styles */
-  --text-2xs:  0.5625rem;
-  --text-xs:   0.625rem;
-  --text-sm:   0.6875rem;
-  --text-base: 0.75rem;
-  --text-md:   0.8125rem;
-  --text-lg:   0.875rem;
-  --text-xl:   1.125rem;
-  --text-2xl:  1.375rem;
-  --text-3xl:  1.75rem;
+  --text-2xs:  var(--studio-caption-size);
+  --text-xs:   0.75rem;
+  --text-sm:   0.8125rem;
+  --text-base: 0.875rem;
+  --text-md:   0.9375rem;
+  --text-lg:   1rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  2rem;
 
   /* font weights */
   --weight-normal:   400;
@@ -27,7 +27,7 @@
   --weight-bold:     700;
 
   /* radius alias used by inline styles */
-  --radius:      10px;
+  --radius:      var(--radius-card);
   --radius-full: 9999px;
 
   /* shadow legacy aliases */
@@ -37,9 +37,9 @@
 
   /* transition tokens (referenced by inline styles in OLD components) */
   --ease-out:        cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast:   150ms;
-  --duration-normal: 250ms;
-  --duration-slow:   400ms;
+  --duration-fast:   var(--motion-fast);
+  --duration-normal: var(--motion-normal);
+  --duration-slow:   var(--motion-slow);
 }
 
 /* ── Base reset ── */
@@ -47,7 +47,7 @@
 
 html {
   height: 100%;
-  color-scheme: dark;
+  color-scheme: light;
   font-family: var(--font-body);
   font-feature-settings: "cv11","ss01","ss03";
   -webkit-font-smoothing: antialiased;
@@ -59,7 +59,21 @@ body {
   height: 100%;
   background-color: var(--bg);
   color: var(--ink);
+  font-size: var(--text-base);
+  line-height: 1.5;
 }
+
+a { color: inherit; }
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root[data-theme="dark"] { color-scheme: dark; }
 
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 input, textarea, select { font: inherit; color: inherit; }
@@ -80,10 +94,15 @@ input, textarea, select { font: inherit; color: inherit; }
 /* ── Mono utility ── */
 .mono {
   font-family: var(--font-mono);
-  font-size: 0.82em;
+  font-size: 0.9em;
   letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 .display { font-family: var(--font-display); }
+
+/* Numeric alignment is part of the shared BI/workbench visual grammar. */
+table,
+[data-numeric] { font-variant-numeric: tabular-nums; }
 
 /* ── Form controls ── */
 input[type="range"] {
@@ -141,7 +160,7 @@ input[type="checkbox"]:checked::after {
   position: absolute;
   left: 4px; top: 1px;
   width: 4px; height: 8px;
-  border: 2px solid #fff;
+  border: 2px solid var(--accent-ink);
   border-top: none; border-left: none;
   transform: rotate(45deg);
 }
@@ -150,13 +169,23 @@ input[type="checkbox"]:focus-visible {
   outline-offset: 2px;
 }
 
-select { color-scheme: dark; }
+select { color-scheme: inherit; }
 
 /* ── Focus rings ── */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible,
 .studio-button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Input states ── */
@@ -167,11 +196,12 @@ select { color-scheme: dark; }
   outline-offset: 0;
   border-color: var(--accent);
 }
-.studio-input::placeholder { color: var(--ink-4); opacity: 1; }
+.studio-input::placeholder { color: var(--ink-3); opacity: 1; }
 .studio-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── Selection items ── */
 .studio-selection-item:hover { background-color: var(--hover) !important; }
+.studio-selection-item input[type="checkbox"] { pointer-events: none; }
 .studio-selection-item:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
   outline-offset: -2px;

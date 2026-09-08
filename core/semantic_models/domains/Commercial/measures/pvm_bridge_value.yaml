@@ -5,7 +5,21 @@ semantic_model: Commercial_Sales_SemanticModel
 display_folder: COM-002
 category: Supporting
 expression:
-  logical: 'PVM Bridge Value = SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Price Effect", [Price Effect Amount], "Volume Effect", [Volume Effect Amount], "Mix Effect", [Mix Effect Amount] )'
+  logical: 'PVM Bridge Value = SWITCH ( SELECTEDVALUE ( dim_pvm_driver[Driver] ), "Plan Sales", [Plan Sales Amount], "Price Effect", [Price Effect Amount], "Volume Effect", [Volume Effect Amount], "Mix Effect", [Mix Effect Amount], BLANK () )'
+  calculation:
+    op: selector_switch
+    selector:
+      table: dim_pvm_driver
+      column: Driver
+    cases:
+    - when: Plan Sales
+      value: {kind: measure, name: Plan Sales Amount}
+    - when: Price Effect
+      value: {kind: measure, name: Price Effect Amount}
+    - when: Volume Effect
+      value: {kind: measure, name: Volume Effect Amount}
+    - when: Mix Effect
+      value: {kind: measure, name: Mix Effect Amount}
   aggregation_method: none
 documentation:
   description: Presentation-layer selector for the COM-002 Main_2 PVM bridge waterfall -- returns the active Driver category's effect measure so a single Y-role measure can serve a 3-bar breakdown chart.
@@ -18,6 +32,7 @@ documentation:
     '
 dependencies:
   measures:
+  - '[Plan Sales Amount]'
   - '[Price Effect Amount]'
   - '[Volume Effect Amount]'
   - '[Mix Effect Amount]'

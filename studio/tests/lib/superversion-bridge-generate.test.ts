@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('@/lib/core/bracket-loader', () => ({
-  resolveBracketPath: vi.fn(),
-}));
-
 type ExecCb = (err: (Error & { code?: string | number; stdout?: string }) | null, stdout: string, stderr: string) => void;
 const { execFileMock } = vi.hoisted(() => ({ execFileMock: vi.fn() }));
 vi.mock('node:child_process', () => {
@@ -12,7 +8,6 @@ vi.mock('node:child_process', () => {
 });
 
 import { runGenerate } from '@/lib/bridge/superversion-bridge';
-import { resolveBracketPath } from '@/lib/core/bracket-loader';
 
 const GREEN = {
   ok: true,
@@ -26,13 +21,11 @@ const GREEN = {
 };
 
 beforeEach(() => {
-  vi.mocked(resolveBracketPath).mockReset();
   execFileMock.mockReset();
 });
 
 describe('runGenerate', () => {
   it('maps the bridge payload (snake → camel) on a green gate', async () => {
-    vi.mocked(resolveBracketPath).mockResolvedValue('/repo/.../UseCase_Bracket.yaml');
     execFileMock.mockImplementation((_args: string[], cb: ExecCb) => cb(null, JSON.stringify(GREEN), ''));
 
     const result = await runGenerate('COM-001', 'tmdl');
@@ -42,9 +35,21 @@ describe('runGenerate', () => {
     expect(result.gate?.ok).toBe(true);
   });
 
+  it('requests artifact content only for the explicit download path', async () => {
+    execFileMock.mockImplementation((args: string[], cb: ExecCb) => {
+      expect(args).toContain('--include-content');
+      cb(null, JSON.stringify({
+        ...GREEN,
+        artifacts: [{ path: 'report.json', bytes: 3, content: '{}\n' }],
+      }), '');
+    });
+
+    const result = await runGenerate('COM-001', 'pbir', true);
+    expect(result.artifacts[0].content).toBe('{}\n');
+  });
+
   it('reports a red gate as available but not ok', async () => {
     const RED = { ...GREEN, ok: false, gate: { ok: false, stages: [{ name: 'pbir', status: 'FAIL', detail: '2 errors' }] } };
-    vi.mocked(resolveBracketPath).mockResolvedValue('/repo/.../UseCase_Bracket.yaml');
     execFileMock.mockImplementation((_args: string[], cb: ExecCb) => cb(null, JSON.stringify(RED), ''));
 
     const result = await runGenerate('COM-001');
@@ -54,7 +59,6 @@ describe('runGenerate', () => {
   });
 
   it('surfaces an unknown-target JSON error from a non-zero exit', async () => {
-    vi.mocked(resolveBracketPath).mockResolvedValue('/repo/.../UseCase_Bracket.yaml');
     execFileMock.mockImplementation((_args: string[], cb: ExecCb) => {
       const err = Object.assign(new Error('exit 1'), { code: 1, stdout: JSON.stringify({ ok: false, error: "unknown target 'nope'" }) });
       cb(err, err.stdout, '');
@@ -65,7 +69,6 @@ describe('runGenerate', () => {
   });
 
   it('degrades honestly when the bridge cannot run (ENOENT)', async () => {
-    vi.mocked(resolveBracketPath).mockResolvedValue('/repo/.../UseCase_Bracket.yaml');
     execFileMock.mockImplementation((_args: string[], cb: ExecCb) => cb(Object.assign(new Error('spawn ENOENT'), { code: 'ENOENT' }), '', ''));
     const result = await runGenerate('COM-001');
     expect(result.available).toBe(false);

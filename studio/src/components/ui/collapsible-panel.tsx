@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { StudioPanel } from './studio-page';
 import type { CSSProperties } from 'react';
 
@@ -17,16 +17,21 @@ interface Props {
 
 export function CollapsiblePanel({ title, description, tone, style, defaultOpen = true, children }: Props) {
   const [open, setOpen] = useState(defaultOpen);
+  const contentId = useId();
 
   const toggle = (
     <button
+      type="button"
+      aria-expanded={open}
+      aria-controls={contentId}
+      aria-label={`${open ? 'Collapse' : 'Expand'} ${title}`}
       onClick={() => setOpen((o) => !o)}
       style={{
         background: 'none',
         border: 'none',
         cursor: 'pointer',
         padding: '2px 8px',
-        fontSize: '0.6875rem',
+        fontSize: 'var(--text-xs)',
         color: 'var(--ink-3)',
         display: 'flex',
         alignItems: 'center',
@@ -37,7 +42,7 @@ export function CollapsiblePanel({ title, description, tone, style, defaultOpen 
       onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--ink-2)')}
       onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--ink-3)')}
     >
-      <span style={{ fontSize: '0.5rem', display: 'inline-block', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▲</span>
+      <span style={{ fontSize: 'var(--text-xs)', display: 'inline-block', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▲</span>
       {open ? 'Collapse' : 'Expand'}
     </button>
   );
@@ -50,7 +55,7 @@ export function CollapsiblePanel({ title, description, tone, style, defaultOpen 
       style={style}
       action={toggle}
     >
-      {open ? children : null}
+      <div id={contentId} hidden={!open}>{open ? children : null}</div>
     </StudioPanel>
   );
 }

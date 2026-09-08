@@ -6,7 +6,7 @@
 ## Coverage
 
 - Use cases: **20**  (evidence packs: 16/20, factsheets: 20/20)
-- KPIs in catalog: **138**  — reachable: **137**, roadmap (planned.yaml): 30, orphan: **0**
+- KPIs in catalog: **140**  — reachable: **139**, roadmap (planned.yaml): 30, orphan: **0**
 - Action codes: **57**  — reachable: **57**, orphan: **0**
 - Decision spines: **16**  — use-case-mapped: **13**, unmapped: **3**
 - Semantic measures: **251**  — backing a catalog KPI: **110** (registry/drift gated by `test_measure_dictionary_files`)
@@ -21,7 +21,7 @@
 
 | Use case | KPIs | Action codes | Evidence pack | Data contract |
 |----------|-----:|-------------:|:-------------:|---------------|
-| COM-001 | 10 | 3 | ✓ | commercial_sales.yaml |
+| COM-001 | 12 | 3 | ✓ | commercial_sales.yaml |
 | COM-002 | 15 | 3 | ✓ | commercial_sales.yaml |
 | COM-003 | 20 | 2 | ✓ | commercial_sales.yaml |
 | COM-004 | 15 | 3 | ✓ | commercial_sales.yaml |
@@ -82,6 +82,8 @@ _none_
 - `retail.category.crosssell_rate.pct`
 - `retail.promotion.attachment_rate.pct`
 - `sales.conversion.pct`
+- `sales.net_sales.ly.amount`
+- `sales.net_sales.plan.amount`
 - `sales.pipeline.coverage.ratio`
 - `sales.pipeline.value.amount`
 - `sales.sales_cycle.days`

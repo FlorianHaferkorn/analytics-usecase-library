@@ -35,6 +35,7 @@ SCHEMAS = REPO / "tooling" / "generator" / "schemas"
 PROJECT_SCHEMAS = sorted(SCHEMAS.glob("project_*.schema.json"))
 LEGACY_FIXTURE = REPO / "tooling" / "tests" / "fixtures" / "project_package" / "v1"
 ARTIFACT_FIXTURE = REPO / "core" / "fixtures" / "neutral" / "project-package-artifact-lifecycle"
+USE_CASE_DELIVERY_FIXTURE = REPO / "core" / "fixtures" / "neutral" / "use-case-delivery-spec" / "use_case_delivery.yaml"
 
 
 def _load_schema(name: str) -> dict:
@@ -164,8 +165,23 @@ def _add_artifact_registry(root: Path, modules: list[dict], registry: dict) -> N
     )
 
 
+def _add_use_case_delivery(root: Path, modules: list[dict]) -> dict:
+    document = yaml.safe_load(USE_CASE_DELIVERY_FIXTURE.read_text(encoding="utf-8"))
+    relative = "delivery/use_case_delivery.yaml"
+    _write_yaml(root / relative, document)
+    modules.append(
+        {
+            "module_type": "use_case_delivery",
+            "path": relative,
+            "schema_id": _load_schema("project_use_case_delivery.schema.json")["$id"],
+            "sha256": canonical_sha256(document),
+        }
+    )
+    return document
+
+
 def test_all_project_package_schemas_are_closed_draft_2020_12() -> None:
-    assert len(PROJECT_SCHEMAS) == 11
+    assert len(PROJECT_SCHEMAS) == 12
     for path in PROJECT_SCHEMAS:
         schema = json.loads(path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
@@ -295,6 +311,30 @@ def test_artifact_registry_validates_and_compiles_as_optional_module(tmp_path: P
 
     assert validate_project_package(tmp_path, SCHEMAS) == []
     assert build_compiler_input(tmp_path, SCHEMAS)["modules"]["artifact_registry"] == registry
+
+
+def test_use_case_delivery_validates_and_compiles_as_optional_module(tmp_path: Path) -> None:
+    modules = _minimal_modules(tmp_path)
+    delivery = _add_use_case_delivery(tmp_path, modules)
+    manifest = {
+        "schema_version": "2.0.0",
+        "package_id": "package_demo",
+        "project_ref": "project_demo",
+        "revision": 1,
+        "state": "working",
+        "parent_revision_hash": None,
+        "operating_profile_lock": {
+            "id": "aluca_nagarro_consulting",
+            "version": "1.0.0",
+            "sha256": "1" * 64,
+        },
+        "capability_locks": [],
+        "modules": modules,
+    }
+    _write_yaml(tmp_path / "package.yaml", manifest)
+
+    assert validate_project_package(tmp_path, SCHEMAS) == []
+    assert build_compiler_input(tmp_path, SCHEMAS)["modules"]["use_case_delivery"] == delivery
 
 
 def test_artifact_lifecycle_rejects_unsupported_status_claims(tmp_path: Path) -> None:

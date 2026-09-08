@@ -137,13 +137,13 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
       >
         {/* Stepper */}
         <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--line-2)', display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ fontSize: '0.625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>New element</span>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>New element</span>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
             {steps.map((s, i) => (
               <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', color: i === step ? 'var(--ink)' : 'var(--ink-4)', fontWeight: i === step ? 500 : 400 }}>
                 <span style={{
                   width: 18, height: 18, borderRadius: 99, display: 'grid', placeItems: 'center',
-                  fontSize: '0.5625rem', fontWeight: 600,
+                  fontSize: 'var(--text-xs)', fontWeight: 600,
                   background: i <= step ? 'var(--accent)' : 'var(--bg-2)',
                   color: i <= step ? 'var(--accent-ink)' : 'var(--ink-4)',
                 }}>
@@ -221,7 +221,7 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
               />
               {/* Suggestion chips */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Try:</span>
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>Try:</span>
                 {[
                   'Weekly activation rate by cohort',
                   'Net new revenue per sales rep',
@@ -231,7 +231,7 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
                     key={s}
                     onClick={() => setPrompt(s)}
                     style={{
-                      fontSize: '0.6875rem', padding: '3px 10px', borderRadius: 999,
+                      fontSize: 'var(--text-xs)', padding: '3px 10px', borderRadius: 999,
                       border: '1px solid var(--line)', color: 'var(--ink-3)',
                       background: 'transparent', cursor: 'pointer',
                     }}
@@ -266,9 +266,9 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
                 </svg>
                 Draft ready — review and edit before saving.
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.6875rem', color: 'var(--ink-4)', marginBottom: 4 }}>{draft.ref}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginBottom: 4 }}>{draft.ref}</div>
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Name</div>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Name</div>
                 <AiField
                   entityType="use_case"
                   entityId={slug(draftName) || 'new'}
@@ -281,7 +281,7 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
                 />
               </div>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Description</div>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Description</div>
                 <AiField
                   entityType="use_case"
                   entityId={slug(draftName) || 'new'}
@@ -304,7 +304,7 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
                     ['Unit', draft.unit ?? '—'],
                   ].map(([k, v]) => (
                     <div key={k} style={{ padding: 10, border: '1px solid var(--line)', borderRadius: 8, background: 'var(--bg-2)' }}>
-                      <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{k}</div>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{k}</div>
                       <div style={{ fontSize: '0.8125rem', fontWeight: 500, marginTop: 2 }}>{v}</div>
                     </div>
                   ))}
@@ -312,7 +312,7 @@ export function Wizard({ open, onClose, onSave, saving = false, saveError = null
               )}
               {draft.sql && (
                 <>
-                  <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>SQL</div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>SQL</div>
                   <pre style={{ margin: 0, padding: 14, borderRadius: 10, background: 'var(--bg-2)', border: '1px solid var(--line)', fontSize: '0.75rem', lineHeight: 1.7, color: 'var(--ink-2)', overflow: 'auto', fontFamily: 'var(--font-mono)' }}>
                     {draft.sql}
                   </pre>

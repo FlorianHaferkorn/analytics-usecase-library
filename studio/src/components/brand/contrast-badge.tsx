@@ -28,7 +28,7 @@ export function ContrastBadge({ fg, bg }: Props) {
         borderRadius: 'var(--radius-sm)',
         backgroundColor: style.bg,
         color: style.color,
-        fontSize: '0.625rem',
+        fontSize: 'var(--text-xs)',
         fontWeight: 600,
         letterSpacing: '0.03em',
       }}

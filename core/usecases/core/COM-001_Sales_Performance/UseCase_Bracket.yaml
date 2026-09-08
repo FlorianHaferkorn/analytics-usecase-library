@@ -19,6 +19,8 @@ orchestration:
   - sales.pvm.mix_effect.amount
   - cost.cogs.amount
   supporting_kpi_ids:
+  - sales.net_sales.plan.amount
+  - sales.net_sales.ly.amount
   - sales.price.list.amount
   - sales.price.net.amount
   action_code_ids:
@@ -40,13 +42,14 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   # R2.4 (Cut C2): migrated to the intent layer, COM-002 as reference pattern.
   intent_rules_version: 2
+  title_statements_verified: false
   page_1_summary:
     title: Commercial Summary & Insights
     page_type: T2_Tactical_Variance
     template_variant: T2_DriverBridge
     template_id: pulse
     decision_question: "Are we on track for our Commercial targets this month?"
-    big_idea: "Net Sales is above plan but GM% is below target — adverse mix in DACH is the primary driver and requires attention."
+    big_idea: "Protect margin by separating the sales gap into price, volume, and mix before choosing an intervention."
     component_3s:
       # Lead card: Net Sales Amount — primary metric of this use case (Q1/Q5)
       # Generator uses strategic + first 3 influencing for the 4-card band:
@@ -62,35 +65,40 @@ ux_layout_rules:
       # kpi_ids: catalog IDs resolve via config_loader; direct measure names fall back as-is
       visual_type: line_chart
       question: "Are we on track versus Plan and last year — and is the lead holding?"
-      message: "Net Sales is running ahead of Plan and prior year, but the lead has narrowed in recent months"
-      so_what: "A narrowing lead means the on-track story could flip without a rebound in the latest months."
+      message: "Net Sales compared with Plan and prior year reveals whether commercial performance is sustained."
+      so_what: "A deteriorating trajectory moves the decision from monitoring to targeted commercial recovery."
       kpi_ids:
         - sales.net_sales.amount        # → Net Sales Amount
-        - Plan Sales Amount             # direct measure name (no catalog ID exists yet)
-        - Last Year Net Sales Amount    # direct measure name (no catalog ID exists yet)
+        - sales.net_sales.plan.amount
+        - sales.net_sales.ly.amount
+      category_field: dim_date.CalendarYearMonth
+      action_code_id: C-S1.2
       unit: amount
     - slot_id: Main_2
       # T2_DriverBridge / variance_explanation: Plan → PVM drivers → Actual (IBCS bridge)
       visual_type: waterfall_chart
       question: "What's driving the gap between Plan and Actual — price, volume, or mix?"
-      message: "Price and mix effects, not volume, explain the swing between Plan and Actual Net Sales"
-      so_what: "The gap is a commercial mix problem, not a demand shortfall — fix pricing and channel mix, not volume push."
+      message: "Price, volume, and mix reconcile the movement from Plan to Actual Net Sales."
+      so_what: "The dominant bridge component determines whether pricing, demand, or portfolio mix needs intervention."
       comparison: vs_plan
       kpi_ids:
-        - Plan Sales Amount
+        - sales.net_sales.plan.amount
         - sales.pvm.price_effect.amount
         - sales.pvm.volume_effect.amount
         - sales.pvm.mix_effect.amount
         - sales.net_sales.amount
+      category_field: dim_pvm_driver.Driver
+      action_code_id: C-M2.1
       unit: amount
     - slot_id: Main_3
       # Q1: Where are deviations largest? — % vs Plan by Region (sorted ascending = worst first)
       visual_type: horizontal_bar_chart
       question: "Is the Plan gap broad-based or concentrated in a few regions?"
-      message: "Net Sales gaps versus Plan are concentrated in a handful of regions, not spread evenly"
-      so_what: "Targeted regional action closes more of the gap than a blanket sales push."
+      message: "Regional variance ranks where the sales gap and recovery opportunity are concentrated."
+      so_what: "Worst-first prioritisation focuses commercial capacity where it can close the largest gap."
       kpi_id: sales.net_sales.delta_pct.plan
       category_field: dim_org.Region
+      action_code_id: C-S1.2
       unit: rate
   page_2_execution:
     title: Commercial Execution
@@ -101,13 +109,14 @@ ux_layout_rules:
     big_idea: "DACH and CEE account for 80% of the Plan gap — mix degradation and price concessions are the root causes."
     component_300s:
       evidence_grain: invoice_line
+      slicer_field: dim_org.Region
       # R2.4: curated 11→8 (Muster: COM-002 R1.3). Cut channel/customer_segment
       # (region is the finer, decision-relevant cross-cut; both are covered by
       # non-evidence-table context already) and delta_pct.ly (redundant next to
       # delta_pct.plan, the decision_question's own "on track for targets" signal).
       evidence_columns:
-      - region
-      - product_category
+      - dim_org.Region
+      - dim_product.Category
       - sales.net_sales.amount
       - sales.net_sales.delta_pct.plan
       - sales.pvm.price_effect.amount
@@ -115,7 +124,7 @@ ux_layout_rules:
       - sales.pvm.mix_effect.amount
       - margin.gm.pct
       action_panel: true
-      payload_mode: full
+      payload_mode: summary
       sort_by:
         measure: sales.net_sales.delta_pct.plan
         direction: ascending

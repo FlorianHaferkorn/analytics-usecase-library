@@ -9,6 +9,12 @@ export interface NavItem {
   color: string;
 }
 
+export interface NavGroup {
+  label: string;
+  description: string;
+  items: readonly NavItem[];
+}
+
 export type NavMode = 'forge' | 'registry';
 
 /** Forge — create, compose, generate use cases and reports. */
@@ -16,7 +22,7 @@ export const FORGE_NAV: readonly NavItem[] = [
   {
     href: '/overview',
     label: 'Overview',
-    description: 'Framework overview — health, composition, and key metrics',
+    description: 'Library inventory, quality findings, and suggested next tasks',
     icon: 'O',
     sidebarIcon: 'squares-four',
     color: 'var(--accent)',
@@ -39,7 +45,7 @@ export const FORGE_NAV: readonly NavItem[] = [
   },
   {
     href: '/compose',
-    label: 'Compose',
+    label: 'Simulate',
     description: 'What-if scenario modeling with value driver formulas',
     icon: 'C',
     sidebarIcon: 'lightning',
@@ -91,8 +97,8 @@ export const FORGE_TOOLS_NAV: readonly NavItem[] = [
   },
   {
     href: '/canvas',
-    label: 'Canvas',
-    description: 'Lineage and Golden Thread exploration graph',
+    label: 'Data lineage',
+    description: 'Explore data and KPI dependencies',
     icon: 'C',
     sidebarIcon: 'tree-structure',
     color: 'var(--ink-3)',
@@ -110,8 +116,8 @@ export const REGISTRY_NAV: readonly NavItem[] = [
     color: 'var(--info)',
   },
   {
-    href: '/lineage',
-    label: 'Lineage',
+    href: '/canvas',
+    label: 'Data lineage',
     description: 'Explore data contracts and KPI lineage graphs',
     icon: 'L',
     sidebarIcon: 'link',
@@ -152,10 +158,64 @@ export const REGISTRY_NAV: readonly NavItem[] = [
 ] as const;
 
 /** Combined list used by legacy code — new code should prefer FORGE_NAV / REGISTRY_NAV. */
-export const NAV_ITEMS: readonly NavItem[] = [...FORGE_NAV, ...FORGE_TOOLS_NAV, ...REGISTRY_NAV] as const;
+export const DELIVERY_NAV: readonly NavItem[] = [
+  {href:'/engagement',label:'Delivery workspace',description:'Project scope, commercial basis, plan, roles and delivery stages',icon:'E',sidebarIcon:'clipboard-text',color:'var(--info)'},
+  {href:'/architecture',label:'Architecture',description:'Pinned project architecture, contracts, generation outputs and missing inputs',icon:'A',sidebarIcon:'tree-structure',color:'var(--info)'},
+  {href:'/automation',label:'Automation',description:'Project gates, cost and staffing preview, reproducible generation and run evidence',icon:'A',sidebarIcon:'rocket-launch',color:'var(--info)'},
+];
+export const NAV_ITEMS: readonly NavItem[] = [...FORGE_NAV, ...FORGE_TOOLS_NAV, ...REGISTRY_NAV, ...DELIVERY_NAV, { ...REGISTRY_NAV[1], href: '/lineage' }] as const;
+
+/**
+ * User-facing information architecture.
+ *
+ * Routes retain their existing technical ownership, while the Studio presents
+ * them in the order a consulting engagement is actually run. This keeps one
+ * interface and avoids asking users to understand the internal Forge/Registry
+ * split before they can complete their work.
+ */
+export const STUDIO_NAV_GROUPS: readonly NavGroup[] = [
+  {
+    label: 'Project',
+    description: 'Current engagement and next action',
+    items: [FORGE_NAV[0], DELIVERY_NAV[0]],
+  },
+  {
+    label: 'Shape',
+    description: 'Evidence, decisions, architecture, and value',
+    items: [FORGE_NAV[1], DELIVERY_NAV[1], FORGE_NAV[2], FORGE_NAV[3]],
+  },
+  {
+    label: 'Deliver',
+    description: 'Governed plan, build package, and release',
+    items: [FORGE_NAV[5], FORGE_NAV[4], DELIVERY_NAV[2]],
+  },
+  {
+    label: 'Assure',
+    description: 'Approval, lineage, drift, and health',
+    items: [REGISTRY_NAV[4], REGISTRY_NAV[1], REGISTRY_NAV[2], REGISTRY_NAV[3]],
+  },
+  {
+    label: 'Assets',
+    description: 'Reusable definitions, visuals, and templates',
+    items: [FORGE_TOOLS_NAV[0], FORGE_NAV[6]],
+  },
+  {
+    label: 'Administration',
+    description: 'Extensions and optional organization scope',
+    items: [FORGE_NAV[7], REGISTRY_NAV[5]],
+  },
+] as const;
+
+export function getNavGroup(pathname: string): NavGroup | undefined {
+  const canonicalPath = pathname.startsWith('/lineage') ? pathname.replace('/lineage', '/canvas') : pathname;
+  return STUDIO_NAV_GROUPS.find((group) =>
+    group.items.some((item) => canonicalPath.startsWith(item.href))
+  );
+}
 
 /** Detect navigation mode from current pathname. */
 export function getNavMode(pathname: string): NavMode {
+  if (pathname.startsWith('/lineage')) return 'registry';
   const registryPaths = REGISTRY_NAV.map((i) => i.href);
   return registryPaths.some((p) => pathname.startsWith(p)) ? 'registry' : 'forge';
 }

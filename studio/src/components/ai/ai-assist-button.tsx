@@ -28,7 +28,7 @@ export function AiAssistButton({ onClick, isActive = false }: Props) {
         background: 'transparent',
         color: 'var(--accent)',
         opacity: isActive || hovered ? 1 : 0.5,
-        fontSize: 11,
+        fontSize: 'var(--text-xs)',
         cursor: 'pointer',
         transition: 'opacity 120ms',
         display: 'flex',

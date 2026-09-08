@@ -10,7 +10,8 @@ import { loadBracket } from '@/lib/core/bracket-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { buildIRPackage, type IRPackage } from '@/lib/delivery/ir-builder';
 import { auditWithActor } from '@/lib/db/audit-helpers';
-import { apiSuccess, apiValidationError } from '@/lib/api/response';
+import { apiError, apiSuccess, apiValidationError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 export interface ExportResult {
   useCaseId: string;
@@ -27,6 +28,9 @@ export async function processExportRequest(
   adapter: AdapterFn,
   exportFormat = 'generic',
 ): Promise<NextResponse> {
+  if (new URL(request.url).pathname.startsWith('/api/projects/')) {
+    return apiError(ErrorCode.UNSUPPORTED, 'Project export is blocked because this generator reads the library catalog, not a pinned project revision.', 409);
+  }
   const body = await request.json();
   const { useCaseIds } = body as { useCaseIds: string[] };
 
@@ -60,5 +64,5 @@ export async function processExportRequest(
     // Audit failure must not block export delivery
   }
 
-  return apiSuccess({ results });
+  return apiSuccess({ results, outputType: 'library_preview', projectApproval: null });
 }

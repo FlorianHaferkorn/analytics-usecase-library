@@ -11,7 +11,7 @@ import { parseYaml } from './yaml-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
 const CORE_USECASES_DIR = join(
-  process.cwd(),
+  /*turbopackIgnore: true*/ process.cwd(),
   '..',
   'core',
   'usecases',

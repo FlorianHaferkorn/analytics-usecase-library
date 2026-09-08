@@ -3,9 +3,10 @@ import { Suspense } from 'react';
 import { buildLineageGraph } from '@/lib/core/lineage-builder';
 import { buildGoldenThreadData } from '@/lib/studio/build-golden-thread-data';
 import { CanvasView } from '@/components/canvas/canvas-view';
+import { StudioPageHeader } from '@/components/ui/studio-page';
 
 export const metadata: Metadata = {
-  title: 'Canvas | Studio',
+  title: 'Data lineage | ALUCA Studio',
 };
 
 export const dynamic = 'force-dynamic';
@@ -17,15 +18,8 @@ export default async function CanvasPage() {
   ]);
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-[28px] font-medium tracking-[-0.02em] text-foreground mb-1">
-          Canvas
-        </h1>
-        <p className="text-[13px] text-foreground-muted">
-          Data lineage and Golden Thread — pan, zoom, open entities in Detail.
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', minHeight: 0, height: 'calc(100dvh - var(--shell-header) - 2 * var(--studio-page-gutter-y))' }}>
+      <StudioPageHeader title="Data lineage" eyebrow="Assure" description="Trace source contracts through KPIs to use cases. Select an element to inspect its dependencies." compact />
 
       <Suspense
         fallback={

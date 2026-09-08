@@ -19,7 +19,8 @@ are recorded and surfaced via :func:`hitl_gaps` for the E2E run / ledger.
 PBIR contract constants (from the skill's ``references/authoring.md`` and the
 official catalog; verified against ``powerbi-report-author validate``):
   - ``definition.pbir`` → ``"version": "4.0"``; ``version.json`` → ``"2.0.0"``
-  - every visual MUST carry a ``query.queryState`` with ≥1 projection
+  - data-bound visuals carry ``query.queryState`` with ≥1 projection; native
+    textboxes have no data roles and therefore carry no query
   - every *required* role of a visual type MUST be populated (and ``maxPerRole``
     is enforced) — both are validation errors otherwise
 """
@@ -91,6 +92,7 @@ class _TypePlan:
 _PLANS: dict[str, _TypePlan] = {
     "card": _TypePlan("cardVisual", "Data", "Measure", None, ()),
     "kpi_card": _TypePlan("cardVisual", "Data", "Measure", None, ()),
+    "kpi_card_with_delta": _TypePlan("cardVisual", "Data", "Measure", None, ()),
     "line_chart": _TypePlan("lineChart", "Y", "Measure", None, ("Category",)),
     "trend_line": _TypePlan("lineChart", "Y", "Measure", None, ("Category",)),
     # Both bar variants → clusteredBarChart: the Visual-Library (I-5.1) standardises
@@ -98,11 +100,15 @@ _PLANS: dict[str, _TypePlan] = {
     # registry rather than emit clusteredColumnChart (which it never sanctions).
     "bar_chart": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
     "bar_chart_horizontal": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
+    "horizontal_bar_chart": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
+    "horizontal_bar_categorical": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
+    "variance_bar": _TypePlan("clusteredBarChart", "Y", "Measure", None, ("Category",)),
     # clusteredColumnChart shares clusteredBarChart's role schema exactly (Y/Measure + Category —
     # orientation only), so column_time (columns over time) is safe to wire.
     "column_chart": _TypePlan("clusteredColumnChart", "Y", "Measure", None, ("Category",)),
     "column_time": _TypePlan("clusteredColumnChart", "Y", "Measure", None, ("Category",)),
     "waterfall": _TypePlan("waterfallChart", "Y", "Measure", 1, ("Category",)),
+    "waterfall_chart": _TypePlan("waterfallChart", "Y", "Measure", 1, ("Category",)),
     # Roles below are DERIVED FROM THE GOVERNED native goldens (core/…/visual_library/golden/
     # <idiom>.powerbi_native.json) — not guessed — and bound to them by
     # test_visual_library.test_pbir_plans_emit_the_governed_golden_roles, so the generator and the
@@ -117,6 +123,7 @@ _PLANS: dict[str, _TypePlan] = {
     "slicer": _TypePlan("slicer", "Values", "Column", 1, ()),
     "table": _TypePlan("tableEx", "Values", "Measure", None, ()),
     "matrix": _TypePlan("tableEx", "Values", "Measure", None, ()),
+    "exception_table": _TypePlan("tableEx", "Values", "Measure", None, ()),
 }
 # Unknown ALUCA types fall back to a card (required role: Data only) so the
 # report still validates; the mapping is recorded as a gap.
@@ -156,7 +163,116 @@ def _dim_fields(visual) -> list[str]:
     return fields
 
 
+def _column_from_ref(field_ref: str, gaps: list[str] | None = None, context: str = "") -> dict:
+    """Create a column projection from an explicit ``table.column`` reference.
+
+    Unqualified evidence fields stay visibly unresolved under ``_HITL``; the
+    source adapter must never guess between same-named columns in multiple tables.
+    """
+    if "." in field_ref:
+        entity, prop = field_ref.rsplit(".", 1)
+        return _column_field(entity, prop)
+    if gaps is not None:
+        gaps.append(
+            f"{context or 'column'}: unqualified field '{field_ref}' — "
+            "HITL placeholder (declare table.column in the bracket)"
+        )
+    return _column_field(_HITL_ENTITY, field_ref)
+
+
+def _literal(value: str | int | bool) -> dict:
+    """Official PBIR literal expression, kept deterministic and type-correct."""
+    if isinstance(value, bool):
+        encoded = "true" if value else "false"
+    elif isinstance(value, int):
+        encoded = f"{value}L"
+    else:
+        encoded = f"'{value.replace(chr(39), chr(39) * 2)}'"
+    return {"expr": {"Literal": {"Value": encoded}}}
+
+
+def _native_objects(visual_type: str, projection_count: int) -> dict:
+    """Small native-formatting baseline shared by every generated report.
+
+    These are documented PBIR visual objects already used by the production
+    scaffold generator.  Themes still own typography and colour; the connector
+    owns only meaning-bearing layout and decluttering.
+    """
+    if visual_type == "cardVisual":
+        return {
+            "layout": [{"properties": {
+                "columnCount": _literal(min(max(projection_count, 1), 6)),
+            }}],
+        }
+    if visual_type == "tableEx":
+        return {
+            "grid": [{"properties": {
+                "gridVertical": _literal(False),
+                "gridHorizontal": _literal(True),
+                "gridHorizontalWeight": _literal(1),
+                "rowPadding": _literal(8),
+            }}],
+        }
+    if visual_type == "slicer":
+        return {
+            "data": [{"properties": {"mode": _literal("Dropdown")}}],
+            "general": [{"properties": {"orientation": {
+                "expr": {"Literal": {"Value": "1D"}},
+            }}}],
+        }
+    return {}
+
+
+def _container_title(title: str) -> dict:
+    title = title.strip()
+    if not title:
+        return {}
+    return {
+        "title": [{"properties": {
+            "text": _literal(title),
+            "show": _literal(True),
+        }}],
+    }
+
+
+def _textbox_visual_json(visual, idx: int, gaps: list[str]) -> dict:
+    """Emit the official no-data-role ``textbox`` shape.
+
+    The official catalog declares no roles for ``textbox``.  Accordingly this
+    visual intentionally has no ``query`` member; attaching the card fallback's
+    ``Data`` role would be structurally invalid even if a permissive validator
+    happened to accept an empty projection.
+    """
+    content = (visual.title or "").strip()
+    if not content:
+        gaps.append(f"visual '{visual.visual_id}': textbox has no governed content")
+    width = int(visual.width) or 400
+    height = int(visual.height) or 300
+    z = (idx + 1) * 1000
+    return {
+        "$schema": _SCHEMA["visual"],
+        "name": visual.visual_id,
+        "position": {
+            "x": int(visual.x), "y": int(visual.y), "z": z,
+            "height": height, "width": width, "tabOrder": z,
+        },
+        "visual": {
+            "visualType": "textbox",
+            "objects": {
+                "general": [{
+                    "properties": {
+                        "paragraphs": [{"textRuns": [{"value": content}]}],
+                    },
+                }],
+            },
+        },
+    }
+
+
 def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> dict:
+    if visual.visual_type in {"action_panel", "text_box"}:
+        return _textbox_visual_json(visual, idx, gaps)
+
     plan = _PLANS.get(visual.visual_type)
     if plan is None:
         plan = _FALLBACK
@@ -182,10 +298,19 @@ def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> di
         gaps.append(f"visual '{visual.visual_id}': {plan.visual_type}.{plan.primary_role} "
                     f"max {plan.primary_max} exceeded — dropped {dropped}")
     p_items = items[: plan.primary_max] if plan.primary_max is not None else items
-    if measure_primary:
+    if plan.visual_type == "tableEx":
+        primary_projs = [
+            _column_from_ref(field, gaps, f"visual '{visual.visual_id}'")
+            for field in available_dims
+        ]
+        primary_projs.extend(_measure_field(owner.get(m, "_Measures"), m) for m in p_items)
+    elif measure_primary:
         primary_projs = [_measure_field(owner.get(m, "_Measures"), m) for m in p_items]
     else:
-        primary_projs = [_column_field(_HITL_ENTITY, f) for f in p_items]
+        primary_projs = [
+            _column_from_ref(f, gaps, f"visual '{visual.visual_id}'")
+            for f in p_items
+        ]
 
     if not primary_projs:
         # The required primary role still needs a projection to validate; use the
@@ -211,15 +336,30 @@ def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> di
     # Required grouping roles ← canonical dim fields, else a HITL placeholder.
     for i, role in enumerate(plan.dim_roles):
         if i < len(available_dims):
-            projs = [_column_field(_HITL_ENTITY, available_dims[i])]
+            projs = [_column_from_ref(
+                available_dims[i], gaps, f"visual '{visual.visual_id}'",
+            )]
         else:
             projs = [_column_field(_HITL_ENTITY, f"[HITL] assign {role}")]
             gaps.append(f"visual '{visual.visual_id}': {plan.visual_type} requires "
                         f"'{role}' — HITL placeholder (canonical carries no dimension)")
         query_state[role] = {"projections": projs}
 
+    visual_def: dict = {
+        "visualType": plan.visual_type,
+        "drillFilterOtherVisuals": True,
+        "query": {"queryState": query_state},
+    }
+    if objects := _native_objects(plan.visual_type, len(primary_projs)):
+        visual_def["objects"] = objects
+    if container_title := _container_title(visual.title or ""):
+        visual_def["visualContainerObjects"] = container_title
+
     width = int(visual.width) or 400
     height = int(visual.height) or 300
+    if plan.visual_type == "slicer":
+        # Official CLI: dropdown slicers need 76px for header, selector, and padding.
+        height = max(height, 76)
     z = (idx + 1) * 1000
     return {
         "$schema": _SCHEMA["visual"],
@@ -228,7 +368,7 @@ def _visual_json(visual, idx: int, owner: dict[str, str], gaps: list[str]) -> di
             "x": int(visual.x), "y": int(visual.y), "z": z,
             "height": height, "width": width, "tabOrder": z,
         },
-        "visual": {"visualType": plan.visual_type, "query": {"queryState": query_state}},
+        "visual": visual_def,
     }
 
 
@@ -260,9 +400,29 @@ def _build(canonical: CanonicalModel) -> tuple[dict[str, str], list[str]]:
     out[f"{base}/definition/version.json"] = _dumps({
         "$schema": _SCHEMA["version"], "version": "2.0.0",
     })
-    # Minimal report.json — themes carry their own validation surface
-    # (PBIR_THEME_NAME_MISSING_JSON_EXT etc.); deferred as a gap when requested.
-    out[f"{base}/definition/report.json"] = _dumps({"$schema": _SCHEMA["report"]})
+    # The shared Microsoft base theme is the official, deterministic fallback.
+    # Customer themes remain optional packaging owned by the delivery connector.
+    out[f"{base}/definition/report.json"] = _dumps({
+        "$schema": _SCHEMA["report"],
+        "themeCollection": {
+            "baseTheme": {
+                "name": "CY25SU10",
+                "reportVersionAtImport": {
+                    "visual": "2.1.0", "report": "3.0.0", "page": "2.3.0",
+                },
+                "type": "SharedResources",
+            },
+        },
+        "settings": {
+            "useStylableVisualContainerHeader": True,
+            "exportDataMode": "AllowSummarized",
+            "defaultFilterActionIsDataFilter": True,
+            "defaultDrillFilterOtherVisuals": True,
+            "allowChangeFilterTypes": True,
+            "useEnhancedTooltips": True,
+            "useDefaultAggregateDisplayName": True,
+        },
+    })
     if report.theme:
         gaps.append(f"report theme '{report.theme}' not emitted (theme packaging deferred)")
 
@@ -314,5 +474,5 @@ register(TargetAdapter(
     emit=emit,
     data_platform="Fabric/Power BI",
     visualization="Power BI",
-    status="geplant",
+    status="live",
 ))

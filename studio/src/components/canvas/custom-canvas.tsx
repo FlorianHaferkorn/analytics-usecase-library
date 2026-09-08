@@ -1,379 +1,165 @@
 'use client';
 
-import { useState, useRef, useMemo, useCallback, useEffect, type MouseEvent, type CSSProperties } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import {
+  ReactFlow, ReactFlowProvider, Background, Handle, Position, MarkerType,
+  useReactFlow, useNodesInitialized, useViewport, type Node, type NodeProps, type Edge,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import type { CanvasNode, CanvasEdge } from './canvas-types';
+import styles from './custom-canvas.module.css';
 
-const NODE_W = 178;
-const NODE_H = 56;
-
-const KIND_META: Record<string, { accent: string; letter: string; label: string; goal?: true }> = {
-  dimension: { accent: 'oklch(0.65 0.12 310)', letter: 'D', label: 'Dimension' },
-  fact:      { accent: 'var(--info)',            letter: 'F', label: 'Fact' },
-  kpi:       { accent: 'var(--accent)',          letter: 'K', label: 'KPI' },
-  bracket:   { accent: 'var(--accent)',          letter: 'B', label: 'Use Case' },
-  anchor:    { accent: 'var(--accent)',          letter: '★', label: 'Strategy Anchor', goal: true },
-  driver:    { accent: 'var(--data-2)',          letter: 'D', label: 'Driver KPI' },
-  action:    { accent: 'var(--warning)',         letter: 'A', label: 'Action' },
-  source:    { accent: 'oklch(0.60 0.04 250)',   letter: 'S', label: 'Source' },
-  metric:    { accent: 'oklch(0.65 0.12 250)',   letter: 'M', label: 'Metric' },
-  derived:   { accent: 'var(--accent)',          letter: 'Δ', label: 'Derived' },
+const KINDS: Record<string, { label: string; accent: string }> = {
+  dimension: { label: 'Dimension', accent: 'var(--data-2)' },
+  fact: { label: 'Fact', accent: 'var(--info)' },
+  kpi: { label: 'KPI', accent: 'var(--accent)' },
+  bracket: { label: 'Use case', accent: 'var(--accent)' },
+  anchor: { label: 'Strategy anchor', accent: 'var(--accent)' },
+  driver: { label: 'Driver KPI', accent: 'var(--data-2)' },
+  action: { label: 'Action', accent: 'var(--warning)' },
+  source: { label: 'Source', accent: 'var(--ink-3)' },
+  domain: { label: 'Domain', accent: 'var(--info)' },
+  workspace: { label: 'Workspace', accent: 'var(--info)' },
+  data_product: { label: 'Data product', accent: 'var(--data-2)' },
+  transformation: { label: 'Transformation', accent: 'var(--warning)' },
+  reference_report: { label: 'Reference report', accent: 'var(--ink-3)' },
+  native_item: { label: 'Fabric item', accent: 'var(--info)' },
+  metric: { label: 'Metric', accent: 'var(--info)' },
+  derived: { label: 'Derived', accent: 'var(--accent)' },
 };
 
-const REL_COLORS: Record<string, string> = {
-  sources:  'var(--ink-4)',
-  computes: 'var(--accent)',
-  consumes: 'var(--warning)',
-};
+type FlowNode = Node<CanvasNode & { dimmed: boolean } & Record<string, unknown>, 'studio'>;
 
-function edgePath(from: CanvasNode, to: CanvasNode): string {
-  const x1 = from.x + NODE_W, y1 = from.y + NODE_H / 2;
-  const x2 = to.x,            y2 = to.y  + NODE_H / 2;
-  const mx = (x1 + x2) / 2;
-  return `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`;
-}
-
-function isConnected(edges: CanvasEdge[], nodeId: string, target: string): boolean {
-  if (nodeId === target) return true;
-  return edges.some(
-    e => (e.source === target && e.target === nodeId) || (e.source === nodeId && e.target === target),
-  );
-}
-
-const zoomBtnStyle: CSSProperties = {
-  padding: '5px 9px', color: 'var(--ink-3)',
-  background: 'transparent', border: 'none', cursor: 'pointer',
-  transition: 'background var(--duration-fast)',
-};
-
-const panelChrome: CSSProperties = {
-  background: 'var(--panel)',
-  border: '1px solid var(--line)',
-  boxShadow: 'var(--shadow-md)',
-};
-
-// ── Sub-components ───────────────────────────────────────────────────────────
-
-function LegendPanel({ nodes }: { nodes: CanvasNode[] }) {
-  const kinds = [...new Set(nodes.map(n => n.kind))];
+function StudioNode({ data, selected }: NodeProps<FlowNode>) {
+  const meta = KINDS[data.kind]!;
+  const vertical = data.direction === 'TB';
   return (
-    <div style={{
-      position: 'absolute', left: 16, bottom: 16,
-      ...panelChrome,
-      borderRadius: 'var(--radius-card)', padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 5,
-    }}>
-      <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Legend</div>
-      {kinds.map(k => {
-        const km = KIND_META[k] ?? KIND_META.dimension!;
-        return (
-          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '0.6875rem', color: 'var(--ink-2)' }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, background: km.accent, flexShrink: 0 }} />
-            {km.label}
-          </div>
-        );
-      })}
+    <div className={styles.node} data-compact={data.compact} data-selected={selected} data-dimmed={data.dimmed}
+      style={{ borderLeftColor: meta.accent }} title={[data.label, data.sub].filter(Boolean).join('\n')}>
+      <Handle type="target" position={vertical ? Position.Top : Position.Left} isConnectable={false} />
+      {!data.compact && <span className={styles.kind}>{meta.label}</span>}
+      <strong className={styles.label}>{data.label}</strong>
+      {data.sub && !data.compact && <span className={styles.subtitle}>{data.sub}</span>}
+      <Handle type="source" position={vertical ? Position.Bottom : Position.Right} isConnectable={false} />
     </div>
   );
 }
 
-interface InspectorProps {
-  node: CanvasNode;
-  inputCount: number;
-  outputCount: number;
-  onClose: () => void;
-  onOpen?: () => void;
-  onEdit?: () => void;
-}
-
-function InspectorPanel({ node, inputCount, outputCount, onClose, onOpen, onEdit }: InspectorProps) {
-  const km = KIND_META[node.kind] ?? KIND_META.dimension!;
-  return (
-    <div style={{
-      position: 'absolute', right: 16, top: 16, bottom: 16, width: 300,
-      ...panelChrome,
-      borderRadius: 'var(--radius-lg)',
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
-    }}>
-      <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{km.label}</div>
-          <div style={{ fontSize: '0.9375rem', fontWeight: 500, marginTop: 3, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{node.label}</div>
-          <div style={{ fontSize: '0.625rem', color: 'var(--ink-4)', marginTop: 3, fontFamily: 'var(--font-mono)' }}>{node.id}</div>
-        </div>
-        <button onClick={onClose} style={{ padding: '3px 5px', color: 'var(--ink-4)', background: 'transparent', border: 'none', cursor: 'pointer', borderRadius: 4, lineHeight: 1, fontSize: '0.75rem' }}>✕</button>
-      </div>
-
-      <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', flex: 1, fontSize: '0.8125rem' }}>
-        {node.domain && <InspRow label="Domain" value={node.domain} />}
-        {node.description && <InspRow label="Description" value={node.description} />}
-        {node.owner && <InspRow label="Owner" value={node.owner} />}
-        {node.status && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</div>
-            <div style={{ color: node.status === 'active' ? 'var(--accent)' : 'var(--warning)', lineHeight: 1.5 }}>{node.status}</div>
-          </div>
-        )}
-        <InspRow label="Dependencies" value={`${inputCount} input${inputCount !== 1 ? 's' : ''} · ${outputCount} output${outputCount !== 1 ? 's' : ''}`} />
-      </div>
-
-      {(onOpen || onEdit) && (
-        <div style={{ padding: '10px 14px', borderTop: '1px solid var(--line)', display: 'flex', gap: 6 }}>
-          {onOpen && (
-            <button onClick={onOpen} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: 'var(--ink-2)', background: 'transparent', border: '1px solid var(--line)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
-              Open
-            </button>
-          )}
-          {onEdit && (
-            <button onClick={onEdit} style={{ flex: 1, padding: '6px 10px', fontSize: '0.75rem', fontWeight: 500, color: 'var(--accent-ink)', background: 'var(--accent)', border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>
-              Edit
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function InspRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
-      <div style={{ color: 'var(--ink-2)', lineHeight: 1.5 }}>{value}</div>
-    </div>
-  );
-}
-
-function accentBadgeBackground(accent: string, isGoal: boolean): string {
-  if (isGoal) return 'color-mix(in srgb, var(--ink) 12%, transparent)';
-  if (accent.startsWith('var(')) return 'var(--accent-soft)';
-  return `color-mix(in srgb, ${accent} 13%, transparent)`;
-}
-
-// ── Main component ───────────────────────────────────────────────────────────
+const nodeTypes = { studio: StudioNode };
 
 interface Props {
   nodes: CanvasNode[];
   edges: CanvasEdge[];
   onNodeOpen?: (id: string, label: string) => void;
+  canOpenNode?: (id: string) => boolean;
   onNodeEdit?: (id: string) => void;
   emptyMessage?: string;
-  /** Pre-select a node (e.g. from `?focus=kpi:ID` on /canvas). */
   initialSelectedId?: string | null;
 }
 
-export function CustomCanvas({ nodes, edges, onNodeOpen, onNodeEdit, emptyMessage, initialSelectedId }: Props) {
-  const [zoom, setZoom] = useState(0.85);
-  const [pan, setPan] = useState({ x: 40, y: 40 });
-  const [sel, setSel] = useState<string | null>(initialSelectedId ?? null);
-  const [hover, setHover] = useState<string | null>(null);
-  const [dragging, setDragging] = useState(false);
-  const dragRef = useRef<{ x: number; y: number } | null>(null);
-  const viewportRef = useRef<HTMLDivElement>(null);
-
-  const nodeMap = useMemo(() => new Map(nodes.map(n => [n.id, n])), [nodes]);
-  const activeTarget = sel ?? hover;
-
+function ViewportTools({ layoutKey, focusId }: { layoutKey: string; focusId?: string | null }) {
+  const { fitView, zoomIn, zoomOut, zoomTo } = useReactFlow();
+  const ready = useNodesInitialized();
+  const { zoom } = useViewport();
   useEffect(() => {
-    if (!initialSelectedId || !nodeMap.has(initialSelectedId)) return;
-    setSel(initialSelectedId);
-    const node = nodeMap.get(initialSelectedId);
-    const el = viewportRef.current;
-    if (!node || !el) return;
-    const vp = el.getBoundingClientRect();
-    const z = 0.85;
-    setPan({
-      x: vp.width / 2 - (node.x + NODE_W / 2) * z,
-      y: vp.height / 2 - (node.y + NODE_H / 2) * z,
-    });
-  }, [initialSelectedId, nodeMap]);
+    if (!ready) return;
+    const frame = requestAnimationFrame(() => void fitView({
+      padding: 0.12, maxZoom: 1, minZoom: 0.001,
+      ...(focusId ? { nodes: [{ id: focusId }] } : {}),
+    }));
+    return () => cancelAnimationFrame(frame);
+  }, [ready, layoutKey, focusId, fitView]);
+  return (
+    <div className={styles.controls} aria-label="Graph viewport">
+      <span aria-live="polite">{Math.round(zoom * 100)}%</span>
+      <button type="button" aria-label="Zoom out" onClick={() => void zoomOut()}>−</button>
+      <button type="button" onClick={() => void fitView({ padding: 0.12, maxZoom: 1, minZoom: 0.001 })}>Fit</button>
+      <button type="button" onClick={() => void zoomTo(1)}>100%</button>
+      <button type="button" aria-label="Zoom in" onClick={() => void zoomIn()}>+</button>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    const el = viewportRef.current;
-    if (!el) return;
-    const handler = (e: WheelEvent) => {
-      e.preventDefault();
-      setZoom(z => Math.max(0.4, Math.min(1.6, z - e.deltaY * 0.001)));
-    };
-    el.addEventListener('wheel', handler, { passive: false });
-    return () => el.removeEventListener('wheel', handler);
-  }, []);
+function Canvas({ nodes, edges, onNodeOpen, canOpenNode, onNodeEdit, emptyMessage, initialSelectedId }: Props) {
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
+  const [mode, setMode] = useState<'graph' | 'list'>('graph');
+  const [query, setQuery] = useState('');
+  const selected = nodes.find(n => n.id === selectedId);
+  const activeId = nodes.some(node => node.id === selectedId) ? selectedId : null;
+  const connected = useMemo(() => new Set(edges.filter(e => e.source === activeId || e.target === activeId)
+    .flatMap(e => [e.source, e.target])), [edges, activeId]);
+  const flowNodes = useMemo<FlowNode[]>(() => nodes.map(n => ({
+    id: n.id, type: 'studio', position: { x: n.x, y: n.y },
+    data: { ...n, dimmed: !!activeId && n.id !== activeId && !connected.has(n.id) },
+    selected: n.id === activeId, width: n.width ?? 240, height: n.height ?? 108,
+    style: { width: n.width ?? 240, height: n.height ?? 108 },
+    ariaLabel: `${KINDS[n.kind]?.label}: ${n.label}${n.sub ? `. ${n.sub}` : ''}`,
+  })), [nodes, activeId, connected]);
+  const flowEdges = useMemo<Edge[]>(() => edges.map((e, index) => ({
+    id: `${e.source}-${e.target}-${index}`, source: e.source, target: e.target,
+    type: 'smoothstep', pathOptions: { borderRadius: 6 },
+    markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12, color: 'var(--ink-3)' },
+    style: { stroke: activeId && (e.source === activeId || e.target === activeId) ? 'var(--accent)' : 'var(--ink-3)',
+      strokeWidth: 1.4, opacity: activeId && e.source !== activeId && e.target !== activeId ? 0.18 : 0.8 },
+  })), [edges, activeId]);
+  const layoutKey = nodes.map(n => `${n.id}:${n.x}:${n.y}`).join('|');
+  const visibleRows = nodes.filter(n => `${n.label} ${n.sub ?? ''} ${n.kind}`.toLowerCase().includes(query.toLowerCase()));
 
-  const onMouseDown = useCallback((e: MouseEvent) => {
-    if ((e.target as HTMLElement).closest('[data-node]')) return;
-    dragRef.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
-    setDragging(true);
-  }, [pan]);
-
-  const onMouseMove = useCallback((e: MouseEvent) => {
-    if (dragging && dragRef.current) {
-      setPan({ x: e.clientX - dragRef.current.x, y: e.clientY - dragRef.current.y });
-    }
-  }, [dragging]);
-
-  const onMouseUp = useCallback(() => { setDragging(false); dragRef.current = null; }, []);
-
-  const svgW = nodes.length > 0 ? Math.max(...nodes.map(n => n.x + NODE_W)) + 120 : 1000;
-  const svgH = nodes.length > 0 ? Math.max(...nodes.map(n => n.y + NODE_H)) + 120 : 600;
-  const selNode = sel ? nodeMap.get(sel) : undefined;
-  const inputCount  = sel ? edges.filter(e => e.target === sel).length : 0;
-  const outputCount = sel ? edges.filter(e => e.source === sel).length : 0;
-
-  if (nodes.length === 0) {
-    return (
-      <div className="react-flow" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 480, background: 'var(--bg)' }}>
-        <div style={{ padding: '20px 28px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--line)', background: 'color-mix(in srgb, var(--bg) 92%, var(--accent) 8%)', textAlign: 'center', maxWidth: 360 }}>
-          <p style={{ margin: 0, marginBottom: 6, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ink)' }}>No data to display</p>
-          {emptyMessage && <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--ink-3)', lineHeight: 1.6 }}>{emptyMessage}</p>}
-        </div>
-      </div>
-    );
-  }
+  if (!nodes.length) return <div className={styles.empty}><strong>No data to display</strong><p>{emptyMessage}</p></div>;
 
   return (
-    <div className="react-flow" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <div style={{ height: 44, flexShrink: 0, padding: '0 12px', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--line)', background: 'var(--panel)' }}>
-        <div style={{ flex: 1 }} />
-        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontFamily: 'var(--font-mono)' }}>{Math.round(zoom * 100)}%</span>
-        <div style={{ display: 'flex', border: '1px solid var(--line)', borderRadius: 6, overflow: 'hidden' }}>
-          <button
-            onClick={() => setZoom(z => Math.max(0.4, z - 0.1))}
-            style={zoomBtnStyle}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
-          >−</button>
-          <div style={{ width: 1, background: 'var(--line)' }} />
-          <button
-            onClick={() => { setZoom(0.85); setPan({ x: 40, y: 40 }); }}
-            style={{ ...zoomBtnStyle, fontSize: '0.6875rem' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
-          >Fit</button>
-          <div style={{ width: 1, background: 'var(--line)' }} />
-          <button
-            onClick={() => setZoom(z => Math.min(1.6, z + 0.1))}
-            style={zoomBtnStyle}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--hover)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
-          >+</button>
+    <div className={styles.root}>
+      <div className={styles.toolbar}>
+        <div className={styles.modes} role="group" aria-label="Graph representation">
+          <button type="button" aria-pressed={mode === 'graph'} onClick={() => setMode('graph')}>Graph</button>
+          <button type="button" aria-pressed={mode === 'list'} onClick={() => setMode('list')}>List · {nodes.length}</button>
         </div>
+        {mode === 'graph' ? <ViewportTools layoutKey={layoutKey} focusId={initialSelectedId} /> :
+          <input aria-label="Find graph elements" placeholder="Find an element…" value={query} onChange={e => setQuery(e.target.value)} />}
       </div>
-
-      <div
-        ref={viewportRef}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-        style={{
-          flex: 1, position: 'relative', overflow: 'hidden',
-          cursor: dragging ? 'grabbing' : 'grab',
-          backgroundColor: 'var(--bg)',
-          backgroundImage: 'radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0)',
-          backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
-          backgroundPosition: `${pan.x}px ${pan.y}px`,
-        }}
-      >
-        <div style={{ position: 'absolute', top: 0, left: 0, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}>
-          <svg width={svgW} height={svgH} style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'visible' }}>
-            <defs>
-              <marker id="cc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-4)" />
-              </marker>
-              <marker id="cc-arrow-hl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)" />
-              </marker>
-            </defs>
-            {edges.map((e, i) => {
-              const from = nodeMap.get(e.source);
-              const to = nodeMap.get(e.target);
-              if (!from || !to) return null;
-              const hl = activeTarget !== null && (e.source === activeTarget || e.target === activeTarget);
-              return (
-                <path key={i} d={edgePath(from, to)} fill="none"
-                  stroke={hl ? 'var(--accent)' : (REL_COLORS[e.relationship ?? ''] ?? 'var(--ink-4)')}
-                  strokeWidth={hl ? 1.5 : 1}
-                  opacity={activeTarget !== null ? (hl ? 1 : 0.12) : 0.5}
-                  markerEnd={`url(#${hl ? 'cc-arrow-hl' : 'cc-arrow'})`}
-                  style={{ transition: 'opacity 160ms, stroke 160ms' }}
-                />
-              );
-            })}
-          </svg>
-
-          {nodes.map(n => {
-            const km = KIND_META[n.kind] ?? KIND_META.dimension!;
-            const isSel = sel === n.id;
-            const isDimmed = activeTarget !== null && !isConnected(edges, n.id, activeTarget);
-            const isGoal = km.goal === true;
-            const isAccentBordered = km.accent === 'var(--accent)';
-            const borderColor = isSel ? 'var(--accent)' : (isAccentBordered ? 'var(--accent)' : (n.domainColor ? `${n.domainColor}55` : 'var(--line)'));
-            return (
-              <div key={n.id} data-node=""
-                onMouseEnter={() => setHover(n.id)}
-                onMouseLeave={() => setHover(null)}
-                onClick={() => setSel(prev => prev === n.id ? null : n.id)}
-                style={{
-                  position: 'absolute', left: n.x, top: n.y,
-                  width: NODE_W, height: NODE_H,
-                  background: isGoal ? 'var(--ink)' : 'var(--panel)',
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: 'var(--radius-card)',
-                  boxShadow: isSel
-                    ? '0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent), var(--shadow-md)'
-                    : 'var(--shadow-sm)',
-                  padding: '10px 12px',
-                  display: 'flex', flexDirection: 'column', gap: 3,
-                  cursor: 'pointer',
-                  opacity: isDimmed ? 0.22 : 1,
-                  transition: 'opacity 160ms, box-shadow 160ms, border-color 160ms',
-                  userSelect: 'none', boxSizing: 'border-box',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{
-                    width: 18, height: 18, borderRadius: 4, flexShrink: 0,
-                    background: accentBadgeBackground(km.accent, isGoal),
-                    color: isGoal ? 'var(--bg)' : km.accent,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.5625rem', fontWeight: 700,
-                  }}>
-                    {km.letter}
-                  </span>
-                  <span style={{
-                    fontSize: '0.75rem', fontWeight: 500, letterSpacing: '-0.005em',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
-                    color: isGoal ? 'var(--bg)' : 'var(--ink)',
-                  }}>
-                    {n.label}
-                  </span>
-                </div>
-                {n.sub && (
-                  <span style={{
-                    fontSize: '0.625rem', marginLeft: 24,
-                    color: isGoal ? 'color-mix(in srgb, var(--bg) 50%, transparent)' : 'var(--ink-3)',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    fontFamily: 'var(--font-mono)',
-                  }}>
-                    {n.sub}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+      <div className={styles.workspace}>
+        <div className={styles.graph} hidden={mode !== 'graph'}>
+          <ReactFlow nodes={flowNodes} edges={flowEdges} nodeTypes={nodeTypes}
+            fitView fitViewOptions={{ padding: 0.12, maxZoom: 1, minZoom: 0.001 }}
+            minZoom={0.001} maxZoom={2} nodesDraggable={false} nodesConnectable={false}
+            zoomOnScroll={false} zoomOnPinch panOnScroll={false} preventScrolling={false}
+            onNodeClick={(_, node) => setSelectedId(node.id)}
+            onNodesChange={changes => {
+              const selection = changes.find(change => change.type === 'select' && change.selected);
+              if (selection?.type === 'select') setSelectedId(selection.id);
+            }}
+            onPaneClick={() => setSelectedId(null)}
+            onKeyDown={event => { if (event.key === 'Escape') setSelectedId(null); }}
+            deleteKeyCode={null} aria-label="Golden thread dependency graph">
+            <Background gap={24} color="var(--line)" />
+          </ReactFlow>
         </div>
-
-        <LegendPanel nodes={nodes} />
-
-        {selNode && (
-          <InspectorPanel
-            node={selNode}
-            inputCount={inputCount}
-            outputCount={outputCount}
-            onClose={() => setSel(null)}
-            onOpen={onNodeOpen ? () => onNodeOpen(selNode.id, selNode.label) : undefined}
-            onEdit={onNodeEdit ? () => onNodeEdit(selNode.id) : undefined}
-          />
-        )}
+        {mode === 'list' && <div className={styles.list} aria-label="Graph elements">
+          {visibleRows.map(n => <button type="button" key={n.id} aria-pressed={selectedId === n.id} onClick={() => setSelectedId(n.id)}>
+            <span className={styles.kind}>{KINDS[n.kind]?.label}</span><strong>{n.label}</strong><span>{n.sub}</span>
+          </button>)}
+          {!visibleRows.length && <p>No matching elements.</p>}
+        </div>}
+        {selected && <aside className={styles.inspector} aria-label="Selected element details">
+          <div className={styles.inspectorTitle}><span className={styles.kind}>{KINDS[selected.kind]?.label}</span>
+            <button type="button" aria-label="Close element details" onClick={() => setSelectedId(null)}>Close</button></div>
+          <h3>{selected.label}</h3>
+          {selected.sub && <p>{selected.sub}</p>}
+          <dl>{[['ID', selected.id], ['Domain', selected.domain], ['Description', selected.description], ['Owner', selected.owner], ['Status', selected.status]].map(([key, value]) => value && <div key={key}><dt>{key}</dt><dd>{value}</dd></div>)}
+            <div><dt>Dependencies</dt><dd>{edges.filter(e => e.target === selected.id).length} inputs · {edges.filter(e => e.source === selected.id).length} outputs</dd></div>
+          </dl>
+          {onNodeOpen && (!canOpenNode || canOpenNode(selected.id)) && <button type="button" onClick={() => onNodeOpen(selected.id, selected.label)}>Open details</button>}
+          {onNodeEdit && <button type="button" onClick={() => onNodeEdit(selected.id)}>Edit element</button>}
+        </aside>}
+      </div>
+      <div className={styles.footer}>
+        {[...new Set(nodes.map(n => n.kind))].map(kind => <span key={kind}><i style={{ background: KINDS[kind]?.accent }} />{KINDS[kind]?.label}</span>)}
+        <span className={styles.hint}>Select a use case to read its flow. Use List for full labels.</span>
       </div>
     </div>
   );
+}
+
+export function CustomCanvas(props: Props) {
+  return <ReactFlowProvider><Canvas {...props} /></ReactFlowProvider>;
 }

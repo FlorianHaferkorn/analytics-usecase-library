@@ -328,7 +328,7 @@ class TestCOM002GoldenR23Fields:
         (assert_statement_titles True) so the other reports are unaffected until R2.4 migrates them."""
         loader = ConfigLoader(REPO_ROOT)
         assert loader.get_page_config("COM-002", "overview")["assert_statement_titles"] is False
-        assert loader.get_page_config("COM-001", "overview")["assert_statement_titles"] is True
+        assert loader.get_page_config("COM-001", "overview")["assert_statement_titles"] is False
 
     def test_com002_kpi_band_splits_variance_into_coloured_delta_card(self):
         """Gap A: the vs-plan variance can't be per-metric coloured inside a multi-value card

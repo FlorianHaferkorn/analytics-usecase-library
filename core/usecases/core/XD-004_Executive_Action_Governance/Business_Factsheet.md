@@ -47,7 +47,8 @@ factsheet_type: business
 | KPI ID | Role |
 |--------|------|
 | enterprise.action_outcome_rate.pct | Strategic |
-| enterprise.action_routed.count | Influencing |
+| enterprise.action_effectiveness_delta.amount | Influencing |
+| enterprise.value_at_risk.index | Influencing |
 
 **Action Codes:** X-E3.3
 
@@ -78,15 +79,15 @@ This use case subscribes to a single executive governance action that escalates 
 ### 5.1 3-Second Layer (KPI Cards)
 
 - Action Outcome Rate %
-- Actions Routed Count
-- Overdue Executive Actions
+- Action Effectiveness Delta
+- Enterprise Value-at-Risk Index
 
 ### 5.2 30-Second Layer (Main Visuals)
 
 - **Action Governance Trend**
   - Visual Type: Line
   - X-Axis: Date[Month]
-  - Y-Axis: Action Outcome Rate %, Actions Routed Count
+  - Y-Axis: Action Outcome Rate %
   - Segment: Domain / Entity
   - Default Filter: Last 12 months
   - Notes: Shows whether governance quality improves while action volume changes.

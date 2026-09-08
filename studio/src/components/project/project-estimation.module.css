@@ -1,0 +1,20 @@
+.form, .results { display: grid; gap: var(--space-4); min-width: 0; }
+.results { margin-top: var(--space-5); }
+.note { color: var(--ink-3); font-size: var(--text-base); line-height: 1.5; margin: 0; }
+.fields, .metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,200px),1fr)); gap: var(--space-3); }
+.field { display: grid; gap: var(--space-2); font-size: var(--text-sm); font-weight: 500; min-width: 0; }
+.field input, .field select { width: 100%; min-width: 0; box-sizing: border-box; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); font: inherit; font-size: var(--text-base); }
+.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+.group { border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-4); min-width: 0; display: grid; gap: var(--space-3); }
+.group legend { font-size: var(--text-base); font-weight: 600; padding-inline: var(--space-2); }
+.row { display: grid; gap: var(--space-2); padding-bottom: var(--space-3); border-bottom: 1px solid var(--line); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.metrics { margin: 0; }
+.metrics > div { border: 1px solid var(--line); padding: var(--space-3); border-radius: var(--radius-md); }
+.metrics dt { color: var(--ink-3); font-size: var(--text-sm); }
+.metrics dd { margin: var(--space-2) 0 0; font-size: var(--text-lg); overflow-wrap: anywhere; }
+.tableWrap { overflow-x: auto; }
+.tableWrap table { width: 100%; border-collapse: collapse; font-size: var(--text-base); }
+.tableWrap caption { text-align: left; font-weight: 600; padding-bottom: var(--space-2); }
+.tableWrap th, .tableWrap td { text-align: left; padding: var(--space-3); border-bottom: 1px solid var(--line); }
+.tableWrap th { color: var(--ink-3); font-size: var(--text-sm); }

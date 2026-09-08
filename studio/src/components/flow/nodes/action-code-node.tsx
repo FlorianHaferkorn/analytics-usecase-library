@@ -29,13 +29,13 @@ export function ActionCodeNode({ data }: NodeProps) {
       }}
     >
       <Handle type="target" position={Position.Top} style={{ background: borderColor }} />
-      <p style={{ fontSize: '0.6875rem', color: headerColor, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>
+      <p style={{ fontSize: 'var(--text-xs)', color: headerColor, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>
         {isOrphan ? <><Warning size={10} style={{ verticalAlign: 'middle', marginRight: '2px' }} /> Orphan Action</> : 'Action Code'}
       </p>
       <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--ink)' }}>
         {label}
       </p>
-      <p style={{ fontSize: '0.625rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>
+      <p style={{ fontSize: 'var(--text-2xs)', fontFamily: 'var(--font-mono)', color: 'var(--ink-4)' }}>
         {actionId} · {domain}
       </p>
       <span

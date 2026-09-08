@@ -19,7 +19,7 @@ interface ScorecardData {
 function scoreColor(score: number): string {
   if (score >= 0.8) return 'var(--success)';
   if (score >= 0.5) return 'var(--warning)';
-  return 'var(--error)';
+  return 'var(--danger)';
 }
 
 function MetricCard({ m }: { m: MetricResult }) {
@@ -37,7 +37,7 @@ function MetricCard({ m }: { m: MetricResult }) {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', fontFamily: 'monospace' }}>{m.metric}</span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', fontFamily: 'monospace' }}>{m.metric}</span>
         <span style={{ fontSize: '1rem', fontWeight: 700, color: scoreColor(m.score) }}>{pct}%</span>
       </div>
       <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--ink-2)', fontWeight: 600 }}>{m.name}</p>
@@ -88,7 +88,7 @@ export function HealthPageClient() {
       }
     >
       {error && (
-        <div style={{ padding: '16px', backgroundColor: 'color-mix(in srgb, var(--error) 10%, transparent)', borderRadius: 'var(--radius-md)', color: 'var(--error)', fontSize: '0.875rem', marginBottom: '16px' }}>
+        <div style={{ padding: '16px', backgroundColor: 'color-mix(in srgb, var(--danger) 10%, transparent)', borderRadius: 'var(--radius-md)', color: 'var(--danger)', fontSize: '0.875rem', marginBottom: '16px' }}>
           {error}
         </div>
       )}

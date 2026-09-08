@@ -80,7 +80,7 @@ export function SpinePanel({ spines, isOpen, onClose, bracketId }: Props) {
               <span
                 style={{
                   marginLeft: 8,
-                  fontSize: 11,
+                  fontSize: 'var(--text-xs)',
                   color: 'var(--ink-4)',
                   background: 'var(--bg-2)',
                   padding: '1px 6px',

@@ -124,7 +124,7 @@ function KpiRow({ kpi, isExpanded, onToggle, flash, rowRef }: { kpi: CatalogKpi;
         <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.75rem' }}>{kpi.kpi_id}</StudioTableCell>
         <StudioTableCell style={{ color: 'var(--ink)' }}>{kpi.kpi_key}</StudioTableCell>
         <StudioTableCell>
-          <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, border: `1px solid ${kpi.kpi_role === 'strategic' ? 'var(--warning)' : 'var(--ink-3)'}`, color: kpi.kpi_role === 'strategic' ? 'var(--warning)' : 'var(--ink-3)' }}>
+          <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '9999px', fontSize: 'var(--text-xs)', fontWeight: 500, border: `1px solid ${kpi.kpi_role === 'strategic' ? 'var(--warning)' : 'var(--ink-3)'}`, color: kpi.kpi_role === 'strategic' ? 'var(--warning)' : 'var(--ink-3)' }}>
             {kpi.kpi_type}
           </span>
         </StudioTableCell>
@@ -159,7 +159,7 @@ function KpiRow({ kpi, isExpanded, onToggle, flash, rowRef }: { kpi: CatalogKpi;
 }
 
 function DetailLabel({ children }: { children: React.ReactNode }) {
-  return <p style={{ margin: '0 0 4px', fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>{children}</p>;
+  return <p style={{ margin: '0 0 4px', fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginTop: '8px' }}>{children}</p>;
 }
 
 function DetailText({ children, mono }: { children: React.ReactNode; mono?: boolean }) {

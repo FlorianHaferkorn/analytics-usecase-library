@@ -101,25 +101,25 @@ function ActionRow({ action, isExpanded, onToggle }: { action: ActionCodeDefinit
         <StudioExpandedRow colSpan={6}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', fontSize: '0.8125rem' }}>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Trigger KPIs</p>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>Trigger KPIs</p>
                 <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-2)' }}>{action.kpis.trigger_kpis.join(', ')}</p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Guardrail KPIs</p>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginTop: '8px' }}>Guardrail KPIs</p>
                 <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-2)' }}>{(action.kpis.guardrail_kpis ?? []).join(', ') || '—'}</p>
               </div>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Outcome KPIs</p>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>Outcome KPIs</p>
                 <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-2)' }}>{(action.kpis.outcome_kpis ?? []).join(', ') || '—'}</p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Grain</p>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginTop: '8px' }}>Grain</p>
                 <p style={{ color: 'var(--ink-2)' }}>{action.scope.default_grain}</p>
               </div>
               <div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>Owner Role</p>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>Owner Role</p>
                 <p style={{ color: 'var(--ink-2)' }}>{action.owner_role}</p>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Steward Role</p>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginTop: '8px' }}>Steward Role</p>
                 <p style={{ color: 'var(--ink-2)' }}>{action.steward_role}</p>
                 {action.inherits_decision_spine && (
                   <>
-                    <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: '8px' }}>Decision Spine</p>
+                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', marginTop: '8px' }}>Decision Spine</p>
                     <p style={{ color: 'var(--info)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>{action.inherits_decision_spine}</p>
                   </>
                 )}

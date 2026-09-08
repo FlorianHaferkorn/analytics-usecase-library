@@ -46,7 +46,15 @@ class MedallionConcept:
                 hitl.append(f"gold.data_products underspecified for domain '{dom.get('name')}'")
                 continue
             for p in prods:
-                gp: dict[str, Any] = {"name": p["name"], "kind": p["kind"]}
+                # Ownership is declared by the containing input domain. Keep it on the
+                # canonical Gold catalogue as well as in mesh.domains[].data_products;
+                # consumers such as domain-scoped semantic-model and Twin adapters must
+                # not have to reconstruct it from a name or a parallel collection.
+                gp: dict[str, Any] = {
+                    "name": p["name"],
+                    "kind": p["kind"],
+                    "domain": dom["name"],
+                }
                 if p.get("grain"):
                     gp["grain"] = p["grain"]
                 gold_products.append(gp)

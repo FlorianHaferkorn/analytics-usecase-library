@@ -181,7 +181,7 @@ export function ChatPanel({
             </div>
             <div
               style={{
-                fontSize: '0.6875rem',
+                fontSize: 'var(--text-xs)',
                 color: 'var(--ink-4)',
                 fontFamily: 'var(--font-mono)',
                 marginTop: 2,
@@ -246,7 +246,7 @@ export function ChatPanel({
                 padding: '10px 12px',
                 borderRadius: 10,
                 background: msg.role === 'user' ? 'var(--accent)' : 'var(--panel)',
-                color: msg.role === 'user' ? '#fff' : 'var(--ink)',
+                color: msg.role === 'user' ? 'var(--accent-ink)' : 'var(--ink)',
                 border: msg.role === 'user' ? 'none' : '1px solid var(--line)',
                 fontSize: '0.8125rem',
                 lineHeight: 1.6,
@@ -298,7 +298,7 @@ export function ChatPanel({
               borderRadius: 'var(--radius)',
               border: 'none',
               background: 'var(--accent)',
-              color: '#fff',
+              color: 'var(--accent-ink)',
               fontSize: '0.8125rem',
               fontWeight: 500,
               cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
@@ -329,10 +329,13 @@ export function GlobalOverlays({ paletteItems = [] }: GlobalOverlaysProps) {
   const setPendingWizardDraft = useProjectStore((s) => s.setPendingWizardDraft);
 
   useEffect(() => {
-    const handler = () => setWizardOpen(true);
+    const handler = () => {
+      if (useProjectStore.getState().dataScope === 'project') router.push('/discover');
+      else setWizardOpen(true);
+    };
     window.addEventListener('studio:open-wizard', handler);
     return () => window.removeEventListener('studio:open-wizard', handler);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     const handler = (e: Event) => {

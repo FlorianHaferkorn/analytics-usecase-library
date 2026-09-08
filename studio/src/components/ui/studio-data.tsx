@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
+import { StudioField } from './studio-page';
 
 export function StudioDataToolbar({ children }: { children: ReactNode }) {
   return (
@@ -11,9 +12,10 @@ export function StudioDataToolbar({ children }: { children: ReactNode }) {
 }
 
 const inputBase: CSSProperties = {
-  padding: '8px 12px', background: 'var(--panel)',
-  border: '1px solid var(--line)', borderRadius: 8,
-  color: 'var(--ink)', fontSize: '0.8125rem', lineHeight: 1.5, width: '100%', outline: 'none',
+  padding: 'var(--space-2) var(--space-3)', background: 'var(--panel)',
+  border: '1px solid var(--line)', borderRadius: 'var(--radius-md)',
+  color: 'var(--ink)', fontSize: 'var(--text-sm)', lineHeight: 1.5,
+  width: '100%', minHeight: 'var(--studio-control-height)',
 };
 
 export function StudioInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
@@ -37,34 +39,27 @@ export function StudioFormGrid({ children, columns = '1fr 1fr' }: { children: Re
 }
 
 export function StudioFormField({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div style={{ minWidth: 0 }}>
-      <label style={{ display: 'block', marginBottom: 6, fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ink-3)' }}>
-        {label}
-      </label>
-      {children}
-    </div>
-  );
+  return <StudioField label={label}>{children}</StudioField>;
 }
 
 export function StudioTableShell({ children }: { children: ReactNode }) {
   return (
-    <div style={{ overflow: 'hidden', borderRadius: 'var(--radius)', border: '1px solid var(--line)', background: 'var(--panel)', boxShadow: 'var(--shadow-sm)' }}>
+    <div style={{ overflowX: 'auto', borderRadius: 'var(--radius)', border: '1px solid var(--line)', background: 'var(--panel)', boxShadow: 'var(--shadow-sm)' }}>
       {children}
     </div>
   );
 }
 
 export function StudioTable({ children }: { children: ReactNode }) {
-  return <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>{children}</table>;
+  return <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' }}>{children}</table>;
 }
 
 export function StudioTableHeadCell({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <th style={{
-      padding: '11px 16px', textAlign: 'left',
-      color: 'var(--ink-4)', fontWeight: 500,
-      fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.06em',
+    <th scope="col" style={{
+      padding: 'var(--space-3) var(--space-4)', textAlign: 'left',
+      color: 'var(--ink-3)', fontWeight: 600,
+      fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '0.06em',
       borderBottom: '1px solid var(--line)', background: 'var(--bg-2)',
       ...style,
     }}>
@@ -90,7 +85,7 @@ export function StudioExpandedRow({ children, colSpan }: { children: ReactNode; 
 }
 
 export function StudioInlineStat({ children }: { children: ReactNode }) {
-  return <p style={{ marginTop: '12px', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--ink-4)' }}>{children}</p>;
+  return <p style={{ marginTop: '12px', fontSize: 'var(--text-xs)', lineHeight: 1.5, color: 'var(--ink-3)' }}>{children}</p>;
 }
 
 export function StudioSelectionList({ children, style }: { children: ReactNode; style?: CSSProperties }) {
@@ -110,6 +105,7 @@ export function StudioSelectionItem({
   return (
     <button
       type="button"
+      aria-pressed={selected}
       onClick={onClick}
       className="studio-selection-item"
       style={{
@@ -123,13 +119,13 @@ export function StudioSelectionItem({
         transition: 'background-color var(--duration-fast)',
       }}
     >
-      <input type="checkbox" checked={selected} readOnly style={{ pointerEvents: 'none' }} />
+      <span aria-hidden="true" style={{ width: 'var(--space-4)', color: selected ? 'var(--accent)' : 'var(--ink-3)' }}>{selected ? '✓' : '○'}</span>
       {leading ? <span style={{ minWidth: 0 }}>{leading}</span> : <span />}
       <span style={{ minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: '0.8125rem', color: 'var(--ink)' }}>{primary}</span>
-        {secondary && <span style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--ink-4)', marginTop: 3, lineHeight: 1.5 }}>{secondary}</span>}
+        <span style={{ display: 'block', fontSize: 'var(--text-sm)', color: 'var(--ink)' }}>{primary}</span>
+        {secondary && <span style={{ display: 'block', fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginTop: 3, lineHeight: 1.5 }}>{secondary}</span>}
       </span>
-      {meta && <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', textAlign: 'right' }}>{meta}</span>}
+      {meta && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', textAlign: 'right' }}>{meta}</span>}
     </button>
   );
 }
@@ -142,7 +138,7 @@ export function StudioCheckbox({
   return (
     <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
-      {label && <span style={{ fontSize: '0.8125rem', color: 'var(--ink-2)', lineHeight: 1.4 }}>{label}</span>}
+      {label && <span style={{ fontSize: 'var(--text-sm)', color: 'var(--ink-2)', lineHeight: 1.4 }}>{label}</span>}
     </label>
   );
 }

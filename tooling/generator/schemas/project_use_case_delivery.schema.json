@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.local/schemas/project-package/use-case-delivery/2.0.0",
+  "title": "Project use-case end-to-end delivery specifications",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_ref", "use_cases"],
+  "properties": {
+    "schema_version": {"const": "2.0.0"},
+    "project_ref": {"$ref": "#/$defs/id"},
+    "use_cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/use_case"}
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+    "ref": {"type": "string", "minLength": 1},
+    "evidence_state": {
+      "enum": ["confirmed", "measured", "derived", "proposed", "open", "not_applicable"]
+    },
+    "status_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "evidence_refs"],
+      "properties": {
+        "state": {"$ref": "#/$defs/evidence_state"},
+        "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}, "uniqueItems": true},
+        "note": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"enum": ["confirmed", "measured"]}}},
+          "then": {"properties": {"evidence_refs": {"minItems": 1}}}
+        }
+      ]
+    },
+    "source_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_system", "source_object", "purpose", "availability", "required_for", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "source_system": {"type": "string", "minLength": 1},
+        "source_object": {"type": "string", "minLength": 1},
+        "purpose": {"type": "string", "minLength": 1},
+        "availability": {"enum": ["live", "extract", "definition_only", "missing", "excluded"]},
+        "required_for": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "expected_grain": {"type": ["string", "null"]},
+        "key_fields": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "purpose", "modes", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "purpose": {"type": "string", "minLength": 1},
+        "modes": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "page_count": {"type": ["integer", "null"], "minimum": 0},
+        "binding_count": {"type": ["integer", "null"], "minimum": 0},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "data_product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "layer", "name", "grain", "business_keys", "source_refs", "history", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "layer": {"enum": ["bronze", "silver", "gold", "semantic", "report"]},
+        "name": {"type": "string", "minLength": 1},
+        "grain": {"type": ["string", "null"]},
+        "business_keys": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "source_refs": {"type": "array", "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "history": {"enum": ["none", "snapshot", "effective_dated", "event", "open"]},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "relationship_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "subject_refs", "business_cardinality", "time_behavior", "carries_weight",
+        "bridge_decision", "fact_filter_strategy", "double_counting_control", "status"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "subject_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/id"},
+          "uniqueItems": true
+        },
+        "business_cardinality": {"enum": ["one_to_one", "many_to_one", "one_to_many", "many_to_many", "open"]},
+        "time_behavior": {"enum": ["current", "effective_dated", "snapshot", "not_applicable", "open"]},
+        "carries_weight": {"type": "boolean"},
+        "bridge_decision": {
+          "enum": ["not_required", "required", "replace_with_fact_fk", "replace_with_allocation_fact", "open"]
+        },
+        "fact_filter_strategy": {
+          "enum": [
+            "direct_foreign_key", "materialized_scope_fact", "materialized_allocation_fact",
+            "bridge_only_navigation", "measure_logic", "not_applicable", "open"
+          ]
+        },
+        "double_counting_control": {"type": ["string", "null"]},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "analytical_design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reuse_scope", "key_contract", "relationship_assessments", "glossary", "status"],
+      "properties": {
+        "reuse_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["target", "rationale"],
+          "properties": {
+            "target": {"enum": ["report", "use_case", "subject_area", "domain", "enterprise"]},
+            "rationale": {"type": "string", "minLength": 1}
+          }
+        },
+        "key_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["contract_ref", "status"],
+          "properties": {
+            "contract_ref": {"$ref": "#/$defs/ref"},
+            "status": {"$ref": "#/$defs/status_evidence"}
+          }
+        },
+        "relationship_assessments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/relationship_assessment"}
+        },
+        "glossary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "business_metric_catalog_ref", "measure_dictionary_ref", "technical_data_dictionary_ref",
+            "definition_authority", "status"
+          ],
+          "properties": {
+            "business_metric_catalog_ref": {"$ref": "#/$defs/ref"},
+            "measure_dictionary_ref": {"$ref": "#/$defs/ref"},
+            "technical_data_dictionary_ref": {"$ref": "#/$defs/ref"},
+            "definition_authority": {"const": "business_metric_catalog"},
+            "status": {"$ref": "#/$defs/status_evidence"}
+          }
+        },
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from_layer", "to_layer", "input_refs", "output_refs", "logic", "implementation", "quality_rules", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "from_layer": {"enum": ["source", "bronze", "silver", "gold", "semantic"]},
+        "to_layer": {"enum": ["bronze", "silver", "gold", "semantic", "report"]},
+        "input_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "output_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "logic": {"type": "string", "minLength": 1},
+        "implementation": {"enum": ["copy", "sql", "materialized_lake_view", "notebook", "semantic_model", "report", "external"]},
+        "quality_rules": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "orchestration_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence", "id", "name", "implementation", "success_condition", "failure_action", "status"],
+      "properties": {
+        "sequence": {"type": "integer", "minimum": 1},
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "implementation": {"type": "string", "minLength": 1},
+        "success_condition": {"type": "string", "minLength": 1},
+        "failure_action": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "area", "requirement", "owner_ref", "blocking_for", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "area": {"enum": ["security", "privacy", "operations", "performance", "cost", "release", "acceptance", "data_quality"]},
+        "requirement": {"type": "string", "minLength": 1},
+        "owner_ref": {"type": ["string", "null"]},
+        "blocking_for": {"type": "array", "items": {"enum": ["design", "build", "apply", "production", "acceptance", "verified"]}, "uniqueItems": true},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question", "owner_ref", "required_by", "blocking_for", "status"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "question": {"type": "string", "minLength": 1},
+        "owner_ref": {"type": ["string", "null"]},
+        "required_by": {"type": ["string", "null"]},
+        "blocking_for": {"type": "array", "minItems": 1, "items": {"enum": ["design", "build", "apply", "production", "acceptance", "verified"]}, "uniqueItems": true},
+        "status": {"$ref": "#/$defs/status_evidence"}
+      }
+    },
+    "use_case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "title", "domain_ref", "delivery_state", "business_scope_ref", "decision_refs",
+        "reference_reports", "source_contract", "data_products", "analytical_design", "transformations", "orchestration",
+        "controls", "acceptance", "open_gates"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "title": {"type": "string", "minLength": 1},
+        "domain_ref": {"$ref": "#/$defs/id"},
+        "delivery_state": {"enum": ["discovery", "contract_pending", "design_ready", "build_ready", "apply_ready", "verified"]},
+        "business_scope_ref": {"$ref": "#/$defs/ref"},
+        "decision_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}, "uniqueItems": true},
+        "reference_reports": {"type": "array", "items": {"$ref": "#/$defs/report"}},
+        "source_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["canonical", "fallback", "excluded"],
+          "properties": {
+            "canonical": {"type": "array", "items": {"$ref": "#/$defs/source_object"}},
+            "fallback": {"type": "array", "items": {"$ref": "#/$defs/source_object"}},
+            "excluded": {"type": "array", "items": {"$ref": "#/$defs/source_object"}}
+          }
+        },
+        "data_products": {"type": "array", "items": {"$ref": "#/$defs/data_product"}},
+        "analytical_design": {"$ref": "#/$defs/analytical_design"},
+        "transformations": {"type": "array", "items": {"$ref": "#/$defs/transformation"}},
+        "orchestration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["trigger", "cadence", "incremental_strategy", "steps"],
+          "properties": {
+            "trigger": {"type": "string", "minLength": 1},
+            "cadence": {"type": "string", "minLength": 1},
+            "incremental_strategy": {"type": "string", "minLength": 1},
+            "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/orchestration_step"}}
+          }
+        },
+        "controls": {"type": "array", "items": {"$ref": "#/$defs/control"}},
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["snapshot_rule", "regression_scope", "evidence_required", "status"],
+          "properties": {
+            "snapshot_rule": {"type": "string", "minLength": 1},
+            "regression_scope": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+            "evidence_required": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+            "status": {"$ref": "#/$defs/status_evidence"}
+          }
+        },
+        "open_gates": {"type": "array", "items": {"$ref": "#/$defs/gate"}}
+      }
+    }
+  }
+}

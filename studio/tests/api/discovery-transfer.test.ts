@@ -1,0 +1,14 @@
+import { beforeEach, expect, it, vi } from 'vitest';
+const h = vi.hoisted(() => ({ role: vi.fn(), read: vi.fn(), load: vi.fn(), transfer: vi.fn() }));
+vi.mock('@/lib/auth/require-role', () => ({ requireRole: h.role }));
+vi.mock('@/lib/db/discovery-repo', () => ({ readDiscovery: h.read }));
+vi.mock('@/lib/bridge/project-package-repository', () => ({ loadProjectPackage: h.load, transferDiscoveryToPackage: h.transfer }));
+import { POST, GET } from '@/app/api/projects/[projectId]/discovery/transfer/route';
+const context = { params: Promise.resolve({ projectId: 'project_a' }) };
+const body = { discoveryRevision: 'a'.repeat(64), expectedHeadRevisionHash: 'b'.repeat(64), candidateKeys: ['anchor:one'], objectiveKeys: ['anchor:one'], rationale: 'Reviewed evidence and its proposed meaning.', confirmed: true };
+const request = (value: unknown = body) => new Request('http://test', { method: 'POST', body: JSON.stringify(value) });
+beforeEach(() => { vi.clearAllMocks(); h.role.mockResolvedValue([{ email: 'editor@example.test' }, null]); h.read.mockReturnValue({ revision: body.discoveryRevision, document: { trusted: true } }); h.transfer.mockResolvedValue({ ok: true, value: { project_ref: 'project_a' } }); });
+it.each([401,403])('denies %s before loading any evidence', async (status) => { h.role.mockResolvedValue([null,new Response('',{status})]); expect((await GET(request(),context)).status).toBe(status); expect((await POST(request(),context)).status).toBe(status); expect(h.read).not.toHaveBeenCalled(); expect(h.transfer).not.toHaveBeenCalled(); });
+it('uses server snapshot, actor and route project, not injected customer data', async () => { expect((await POST(request({...body,projectId:'other',actor:'admin',document:{forged:true}}),context)).status).toBe(200); expect(h.transfer).toHaveBeenCalledWith('project_a',expect.objectContaining({document:{trusted:true},actor:'editor@example.test'})); });
+it('rejects stale discovery before invoking package writer', async()=>{h.read.mockReturnValue({revision:'c'.repeat(64)});expect((await POST(request(),context)).status).toBe(409);expect(h.transfer).not.toHaveBeenCalled();});
+it('preserves package conflict and requires explicit confirmation',async()=>{expect((await POST(request({...body,confirmed:false}),context)).status).toBe(422);h.transfer.mockResolvedValue({ok:false,available:true,status:409,error:'Stale Package'});expect((await POST(request(),context)).status).toBe(409);});

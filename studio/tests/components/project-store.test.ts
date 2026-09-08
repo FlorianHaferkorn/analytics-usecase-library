@@ -26,7 +26,7 @@ describe('ProjectStore', () => {
     expect(state.projectName).toBe('Aurora Group');
     expect(state.isDirty).toBe(false);
     expect(state.activePanel).toBe('flow');
-    expect(state.theme.primary).toBe('#00D4AA');
+    expect(state.theme.primary).toBe('#0078D4');
   });
 
   it('setProjectName marks dirty', () => {

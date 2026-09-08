@@ -135,11 +135,14 @@ describe('schema ↔ MERGE_SPEC parity', () => {
     const schemaPath = join(process.cwd(), '..', 'tooling', 'generator', 'schemas', 'ai_config.schema.json');
     const schema = JSON.parse(readFileSync(schemaPath, 'utf-8'));
     const found: Record<string, string> = {};
-    const walk = (node: any, path: string) => {
+    const walk = (node: unknown, path: string) => {
       if (!node || typeof node !== 'object') return;
-      if (typeof node['x-merge'] === 'string') found[path] = node['x-merge'];
-      if (node.properties) for (const [k, child] of Object.entries(node.properties)) walk(child, path ? `${path}.${k}` : k);
-      if (node.type === 'array' && node.items) walk(node.items, `${path}[]`);
+      const record = node as Record<string, unknown>;
+      if (typeof record['x-merge'] === 'string') found[path] = record['x-merge'];
+      if (record.properties && typeof record.properties === 'object') {
+        for (const [k, child] of Object.entries(record.properties)) walk(child, path ? `${path}.${k}` : k);
+      }
+      if (record.type === 'array' && record.items) walk(record.items, `${path}[]`);
     };
     walk(schema, '');
     expect(found).toEqual(MERGE_SPEC);

@@ -22,10 +22,10 @@ export function VisualGallery({ theme }: Props) {
 
   return (
     <div style={{ ...cssVars } as React.CSSProperties}>
-      <p style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
+      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>
         Visual Gallery — {VISUALS.length} component types
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: 'var(--space-2)' }}>
         <GalleryCard label="KPI Card"><MiniKpiCard theme={theme} /></GalleryCard>
         <GalleryCard label="Bar Chart"><MiniBarChart /></GalleryCard>
         <GalleryCard label="Line Chart"><MiniLineChart /></GalleryCard>
@@ -54,7 +54,7 @@ function GalleryCard({ label, children }: { label: string; children: React.React
     >
       <span
         style={{
-          fontSize: '0.5rem',
+          fontSize: 'var(--text-xs)',
           color: `color-mix(in srgb, var(--vg-text) 50%, transparent)`,
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
@@ -74,8 +74,8 @@ function MiniKpiCard({ theme }: { theme: ThemeConfig }) {
       <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--vg-text)', lineHeight: 1.15, fontFamily: 'var(--vg-font)' }}>
         42.3%
       </p>
-      <p style={{ fontSize: '0.5625rem', color: 'var(--vg-primary)', marginTop: '2px' }}>+1.2pp vs LY</p>
-      <p style={{ fontSize: '0.5rem', color: `color-mix(in srgb, var(--vg-text) 50%, transparent)`, marginTop: '1px', fontFamily: 'var(--font-mono)' }}>
+      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--vg-primary)', marginTop: '2px' }}>+1.2pp vs LY</p>
+      <p style={{ fontSize: 'var(--text-xs)', color: `color-mix(in srgb, var(--vg-text) 50%, transparent)`, marginTop: '1px', fontFamily: 'var(--font-mono)' }}>
         Gross Margin
       </p>
     </div>
@@ -137,7 +137,7 @@ function MiniWaterfall() {
     { x: 3, y: 10, h: 34, fill: 'var(--vg-primary)' },
     { x: 19, y: 6, h: 14, fill: 'var(--vg-primary)' },
     { x: 35, y: 20, h: 10, fill: 'var(--vg-secondary)' },
-    { x: 51, y: 28, h: 8, fill: '#ef4444' },
+    { x: 51, y: 28, h: 8, fill: 'var(--danger)' },
     { x: 67, y: 8, h: 36, fill: 'var(--vg-primary)' },
   ];
   return (
@@ -156,7 +156,7 @@ function MiniMatrix({ theme }: { theme: ThemeConfig }) {
     { entity: 'Nordic', value: '43.5%', delta: '+1.5pp', positive: true },
   ];
   return (
-    <div style={{ fontSize: '0.4875rem', lineHeight: 1.5 }}>
+    <div style={{ fontSize: 'var(--text-xs)', lineHeight: 1.5 }}>
       {rows.map((row, i) => (
         <div
           key={i}
@@ -171,7 +171,7 @@ function MiniMatrix({ theme }: { theme: ThemeConfig }) {
         >
           <span>{row.entity}</span>
           <span style={{ fontFamily: 'var(--font-mono)' }}>{row.value}</span>
-          <span style={{ color: row.positive ? 'var(--vg-primary)' : '#ef4444', fontFamily: 'var(--font-mono)' }}>{row.delta}</span>
+          <span style={{ color: row.positive ? 'var(--vg-primary)' : 'var(--danger)', fontFamily: 'var(--font-mono)' }}>{row.delta}</span>
         </div>
       ))}
     </div>
@@ -202,7 +202,7 @@ function MiniSlicer({ theme }: { theme: ThemeConfig }) {
           style={{
             padding: '3px 7px',
             borderRadius: 'var(--vg-radius)',
-            fontSize: '0.5625rem',
+            fontSize: 'var(--text-xs)',
             backgroundColor: i === 0 ? 'var(--vg-primary)' : `color-mix(in srgb, var(--vg-text) 6%, transparent)`,
             color: i === 0 ? theme.surface : 'var(--vg-text)',
             border: `1px solid ${i === 0 ? 'transparent' : `color-mix(in srgb, var(--vg-text) 12%, transparent)`}`,

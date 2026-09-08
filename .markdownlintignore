@@ -2,6 +2,8 @@
 **/node_modules/**
 # Generated output
 products/fabric/powerbi/dist/**
+# Generated section fixture (starts at H2 because it is embedded as Part D)
+tooling/visual_library/tests/golden_docs/Part_D.md
 # Historical / archive
 internal/archive/**
 CHANGELOG.md

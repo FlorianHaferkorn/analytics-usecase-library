@@ -58,6 +58,25 @@ def test_derivation_is_deterministic():
     assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
 
+def test_gold_products_retain_their_declared_domain_owner():
+    result = derive_blueprint({
+        "stack": "fabric",
+        "silver_contract_ref": "domains/all.yaml",
+        "domains": [
+            {"name": "Platform", "gold_products": [
+                {"name": "dim_organisation", "kind": "dimension"}]},
+            {"name": "Infrastructure", "gold_products": [
+                {"name": "fact_projektmonat", "kind": "fact"}]},
+        ],
+    })
+    products = result["blueprint"]["medallion"]["gold"]["data_products"]
+    assert {p["name"]: p["domain"] for p in products} == {
+        "dim_organisation": "Platform",
+        "fact_projektmonat": "Infrastructure",
+    }
+    Draft202012Validator(_SCHEMA).validate(result["blueprint"])
+
+
 def test_missing_gold_products_becomes_hitl():
     inputs = {
         "stack": "fabric",

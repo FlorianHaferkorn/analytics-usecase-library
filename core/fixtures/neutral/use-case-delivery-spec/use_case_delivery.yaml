@@ -1,0 +1,259 @@
+schema_version: 2.0.0
+project_ref: project_demo
+use_cases:
+  - id: uc_revenue_demo
+    title: Revenue performance delivery
+    domain_ref: domain_commercial
+    delivery_state: contract_pending
+    business_scope_ref: core/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md
+    decision_refs:
+      - decision_source_boundary
+      - decision_environment_model
+    reference_reports:
+      - id: report_revenue_legacy
+        name: Legacy revenue report
+        purpose: Preserve the agreed revenue analysis and filter behaviour.
+        modes:
+          - reporting_currency
+          - local_currency
+        page_count: null
+        binding_count: null
+        status:
+          state: derived
+          evidence_refs:
+            - evidence/report-definition
+          note: Definition-level inventory only; runtime parity is not yet measured.
+    source_contract:
+      canonical:
+        - id: source_sales_month
+          source_system: enterprise_erp
+          source_object: published.sales_month
+          purpose: Monthly governed revenue and margin input.
+          availability: definition_only
+          required_for:
+            - gold_revenue_month
+          expected_grain: company x month x product
+          key_fields:
+            - company_id
+            - reporting_month
+            - product_id
+          status:
+            state: derived
+            evidence_refs:
+              - evidence/source-definition
+            note: Live source proof is pending.
+      fallback:
+        - id: source_sales_month_extract
+          source_system: controlled_file_drop
+          source_object: sales_month.xlsx
+          purpose: Temporary development profiling only.
+          availability: extract
+          required_for:
+            - dev_profile
+          expected_grain: company x month x product
+          key_fields:
+            - company_id
+            - reporting_month
+            - product_id
+          status:
+            state: measured
+            evidence_refs:
+              - evidence/extract-profile
+            note: Not a production source or acceptance snapshot.
+      excluded:
+        - id: source_erp_staging
+          source_system: enterprise_erp
+          source_object: staging.sales_transfer
+          purpose: Upstream transfer object outside the analytics delivery boundary.
+          availability: excluded
+          required_for:
+            - upstream_lineage_only
+          expected_grain: null
+          key_fields: []
+          status:
+            state: confirmed
+            evidence_refs:
+              - decision_source_boundary
+            note: Owned by the source-system team.
+    data_products:
+      - id: bronze_sales_month
+        layer: bronze
+        name: bronze_sales_month
+        grain: source aligned
+        business_keys:
+          - company_id
+          - reporting_month
+          - product_id
+        source_refs:
+          - source_sales_month
+        history: snapshot
+        status:
+          state: proposed
+          evidence_refs: []
+          note: Physical name and retention require approval.
+      - id: gold_revenue_month
+        layer: gold
+        name: fact_revenue_month
+        grain: company x month x product
+        business_keys:
+          - company_id
+          - reporting_month
+          - product_id
+        source_refs:
+          - bronze_sales_month
+        history: effective_dated
+        status:
+          state: proposed
+          evidence_refs:
+            - evidence/report-definition
+          note: Candidate grain derived from the report and source contract.
+    analytical_design:
+      reuse_scope:
+        target: subject_area
+        rationale: The governed revenue model must support more than the legacy report without pretending to be an enterprise-wide conformed model.
+      key_contract:
+        contract_ref: project/contracts/revenue_key_contract.yaml
+        status:
+          state: proposed
+          evidence_refs:
+            - evidence/report-definition
+          note: Dimension surrogate keys, fact grain keys and foreign keys require source profiling.
+      relationship_assessments:
+        - id: assess_revenue_dimensions
+          subject_refs:
+            - gold_revenue_month
+          business_cardinality: many_to_one
+          time_behavior: effective_dated
+          carries_weight: false
+          bridge_decision: replace_with_fact_fk
+          fact_filter_strategy: direct_foreign_key
+          double_counting_control: Every dimension key is single-valued at the fact grain and orphan checks run before publication.
+          status:
+            state: proposed
+            evidence_refs:
+              - evidence/report-definition
+            note: Confirm against representative source data before design approval.
+      glossary:
+        business_metric_catalog_ref: project/metrics/revenue_kpi_catalog.yaml
+        measure_dictionary_ref: project/semantic/revenue_measure_dictionary.yaml
+        technical_data_dictionary_ref: project/contracts/revenue_data_dictionary.yaml
+        definition_authority: business_metric_catalog
+        status:
+          state: proposed
+          evidence_refs:
+            - evidence/report-definition
+          note: Legacy formulas seed the draft but do not constitute business approval.
+      status:
+        state: proposed
+        evidence_refs:
+          - evidence/report-definition
+        note: The analytical design is explicit from discovery and remains gated until its evidence is approved.
+    transformations:
+      - id: transform_source_to_bronze
+        from_layer: source
+        to_layer: bronze
+        input_refs:
+          - source_sales_month
+        output_refs:
+          - bronze_sales_month
+        logic: Land the complete published object read-only and add run and extraction metadata.
+        implementation: copy
+        quality_rules:
+          - Reconcile source and target row counts.
+          - Quarantine schema drift.
+        status:
+          state: proposed
+          evidence_refs: []
+          note: Requires a live connection test.
+      - id: transform_bronze_to_gold
+        from_layer: bronze
+        to_layer: gold
+        input_refs:
+          - bronze_sales_month
+        output_refs:
+          - gold_revenue_month
+        logic: Type keys, conform reporting month and publish the approved business grain.
+        implementation: materialized_lake_view
+        quality_rules:
+          - Business key must be unique at the approved grain.
+          - Required dimension references must resolve.
+        status:
+          state: proposed
+          evidence_refs: []
+          note: Engine choice requires a representative proof.
+    orchestration:
+      trigger: Schedule plus controlled manual rerun.
+      cadence: Daily after the source publication window.
+      incremental_strategy: Reload the approved late-change window until source watermark and delete semantics are proven.
+      steps:
+        - sequence: 1
+          id: step_preflight
+          name: Preflight
+          implementation: Check connection, permissions and conflicting runs.
+          success_condition: Every prerequisite is available and the run lock is acquired.
+          failure_action: Stop without target writes and record evidence.
+          status:
+            state: proposed
+            evidence_refs: []
+            note: Tenant proof pending.
+        - sequence: 2
+          id: step_publish
+          name: Publish governed output
+          implementation: Run copy, transformations, quality gates and semantic refresh in dependency order.
+          success_condition: Reconciliation and quality checks pass before exposure.
+          failure_action: Retain the last approved output and notify the operations owner.
+          status:
+            state: proposed
+            evidence_refs: []
+            note: Runtime evidence pending.
+    controls:
+      - id: control_row_reconciliation
+        area: data_quality
+        requirement: Persist source count, target count and rejected-row count for every run.
+        owner_ref: role_data_engineer
+        blocking_for:
+          - production
+          - acceptance
+        status:
+          state: proposed
+          evidence_refs: []
+          note: Thresholds require owner approval.
+      - id: control_release
+        area: release
+        requirement: Promote definitions through the approved environments with separation of duties and rollback evidence.
+        owner_ref: role_release_manager
+        blocking_for:
+          - apply
+          - production
+        status:
+          state: proposed
+          evidence_refs: []
+          note: CI/CD decision pending.
+    acceptance:
+      snapshot_rule: Compare legacy and target results on one frozen, timestamp-consistent source snapshot.
+      regression_scope:
+        - reporting currency
+        - local currency
+        - saved filter states
+        - negative access persona
+      evidence_required:
+        - source and target row counts
+        - key and orphan results
+        - agreed measure values and tolerances
+        - report render and interaction evidence
+      status:
+        state: open
+        evidence_refs: []
+        note: Acceptance owner and tolerances are not yet approved.
+    open_gates:
+      - id: gate_live_source
+        question: Is the canonical source reachable through the approved identity and connection path?
+        owner_ref: role_source_owner
+        required_by: before production Bronze
+        blocking_for:
+          - production
+          - acceptance
+        status:
+          state: open
+          evidence_refs: []
+          note: Extract fallback does not close this gate.

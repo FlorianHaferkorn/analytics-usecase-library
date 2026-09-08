@@ -112,7 +112,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        fontSize: 11,
+        fontSize: 'var(--text-xs)',
         fontWeight: 600,
         letterSpacing: '0.08em',
         textTransform: 'uppercase' as const,
@@ -425,7 +425,7 @@ function LineageTab({ kpi, linkedBrackets }: { kpi: CatalogKpi; linkedBrackets: 
           <div style={{ marginBottom: 20 }}>
             <div
               style={{
-                fontSize: '0.6875rem',
+                fontSize: 'var(--text-xs)',
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
@@ -445,7 +445,7 @@ function LineageTab({ kpi, linkedBrackets }: { kpi: CatalogKpi; linkedBrackets: 
           <div style={{ marginBottom: 20 }}>
             <div
               style={{
-                fontSize: '0.6875rem',
+                fontSize: 'var(--text-xs)',
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
@@ -557,7 +557,7 @@ function CommentsTab() {
                   borderRadius: 999,
                   background: 'var(--accent-soft)',
                   color: 'var(--accent)',
-                  fontSize: '0.6875rem',
+                  fontSize: 'var(--text-xs)',
                   fontWeight: 600,
                   display: 'flex',
                   alignItems: 'center',

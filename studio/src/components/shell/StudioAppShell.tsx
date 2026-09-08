@@ -11,6 +11,9 @@ import { DomainFilterProvider } from '@/components/providers/domain-filter-provi
 import type { ShellPaletteItem } from '@/lib/studio/build-palette-items';
 import type { AuroraBootstrapData } from '@/lib/aurora/bootstrap-data';
 import type { ThemeConfig } from '@/lib/store/project-store';
+import styles from './StudioAppShell.module.css';
+import { ProjectScopeBoundary, ScopeIndicator } from '@/components/project/project-scope-boundary';
+import { useProjectStore } from '@/lib/store/project-store';
 
 export interface StudioAppShellProps {
   children: React.ReactNode;
@@ -28,6 +31,7 @@ export function StudioAppShell({
   brandBootstrap,
 }: StudioAppShellProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const scope = useProjectStore(s => s.dataScope);
 
   useEffect(() => {
     const onTweaks = () => setSettingsOpen(true);
@@ -45,48 +49,26 @@ export function StudioAppShell({
 
   return (
     <DomainFilterProvider>
-    <div
-      style={{
-        display: 'flex',
-        height: '100vh',
-        width: '100vw',
-        overflow: 'hidden',
-        background: 'var(--bg)',
-      }}
-    >
+    <div className={styles.shell}>
       <Suspense
         fallback={
-          <aside
-            style={{
-              width: 248,
-              flexShrink: 0,
-              borderRight: '1px solid var(--line)',
-              background: 'var(--bg)',
-            }}
-          />
+          <aside className={styles.sidebarFallback} />
         }
       >
-        <StudioSidebar domains={domains} />
+        <StudioSidebar domains={scope === 'library' ? domains : []} />
       </Suspense>
 
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+      <div className={styles.workspace}>
         <StudioHeader />
-        <main
-          className="studio-main"
-          style={{
-            flex: 1,
-            overflow: 'auto',
-            padding: 'var(--pad)',
-            background: 'var(--bg)',
-          }}
-        >
-          {children}
+        <ScopeIndicator />
+        <main className={`studio-main ${styles.main}`}>
+          <ProjectScopeBoundary>{children}</ProjectScopeBoundary>
         </main>
       </div>
 
-      <GlobalOverlays paletteItems={paletteItems} />
-      {auroraBootstrap && <AuroraBootstrap data={auroraBootstrap} />}
-      {brandBootstrap && <BrandBootstrap theme={brandBootstrap} />}
+      <GlobalOverlays key={scope} paletteItems={scope === 'library' ? paletteItems : []} />
+      {scope === 'library' && auroraBootstrap && <AuroraBootstrap data={auroraBootstrap} />}
+      {scope === 'library' && brandBootstrap && <BrandBootstrap theme={brandBootstrap} />}
       <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
     </DomainFilterProvider>

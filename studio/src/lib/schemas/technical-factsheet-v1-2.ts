@@ -27,9 +27,9 @@ export interface TechnicalFactsheetV12 {
     type: string;
   }[];
   data_contract_scope: {
-    facts?: {}[];
-    dimensions?: {}[];
-    security?: {}[];
+    facts?: Record<string, unknown>[];
+    dimensions?: Record<string, unknown>[];
+    security?: Record<string, unknown>[];
   };
   semantic_model: {
     tables?: string[];

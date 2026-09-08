@@ -60,18 +60,13 @@ def test_real_ucs_pass_default_gate(uc):
     assert_golden_thread(model)  # must not raise
 
 
-def test_known_dangling_binds_detected_and_strict_fails():
-    """The gate surfaces the real pre-existing drift in COM-001 (visuals binding
-    Plan/LY comparison measures the adapter does not materialize). Documented in
-    the ledger as a follow-up; here we assert the gate DETECTS it and --strict
-    escalates it to a failure."""
+def test_com001_has_no_dangling_binds_and_strict_passes():
+    """COM-001's Plan/LY measures are governed catalog entries and materialized,
+    so the former dangling-bind exception is closed and strict mode stays green."""
     model = from_bracket_file(BRACKETS["COM-001"], KPIS)
     dangling = [v for v in validate_golden_thread(model) if v.kind == KIND_DANGLING]
-    assert dangling, "expected COM-001 to exhibit dangling visual binds"
-    # default mode tolerates it (warn); strict escalates to error
-    assert_golden_thread(model)  # warn → no raise
-    with pytest.raises(GoldenThreadError):
-        assert_golden_thread(model, strict=True)
+    assert dangling == []
+    assert_golden_thread(model, strict=True)
 
 
 # ---- synthetic: deliberately broken UC goes red ---------------------------
@@ -129,9 +124,8 @@ def test_cli_default_passes_real_ucs():
     assert main([]) == 0
 
 
-def test_cli_strict_fails_on_dangling():
-    # strict escalates COM-001/COM-002 dangling binds → exit 1
-    assert main(["--strict"]) == 1
+def test_cli_strict_passes_clean_real_ucs():
+    assert main(["--strict"]) == 0
 
 
 def test_cli_warn_rolls_back_to_advisory():

@@ -1,0 +1,32 @@
+.root { position: relative; }
+.trigger { display: inline-flex; max-width: 190px; min-height: 34px; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink-2); font-size: 12.5px; }
+.trigger:hover { border-color: color-mix(in srgb, var(--ink-3) 26%, transparent); background: var(--hover); color: var(--ink); }
+.projectDot { width: 7px; height: 7px; flex-shrink: 0; border-radius: 999px; background: var(--positive); }
+.projectName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chevron { color: var(--ink-3); font-size: 13px; }
+.popover { position: absolute; z-index: var(--z-dropdown); top: calc(100% + 7px); right: 0; width: min(340px, calc(100vw - 28px)); overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: var(--shadow-lg); }
+.popover header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line-2); }
+.popover header > div { display: flex; flex-direction: column; gap: 2px; }
+.popover header span { color: var(--ink-3); font-size: var(--text-xs); font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.popover header strong { color: var(--ink); font-size: 14px; font-weight: 620; }
+.popover header button { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 7px; color: var(--ink-3); font-size: 19px; }
+.popover header button:hover { background: var(--hover); color: var(--ink); }
+.projectList { display: flex; max-height: 264px; padding: 7px; flex-direction: column; gap: 3px; overflow-y: auto; }
+.loading { margin: 0; padding: 14px 10px; color: var(--ink-3); font-size: 12.5px; }
+.projectOption { display: grid; width: 100%; min-height: 52px; grid-template-columns: 10px minmax(0, 1fr) 20px; align-items: center; gap: 10px; padding: 8px 9px; border-radius: 8px; color: var(--ink-2); text-align: left; }
+.projectOption:hover { background: var(--hover); color: var(--ink); }
+.projectOption[data-active='true'] { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.optionDot { width: 7px; height: 7px; border-radius: 999px; background: var(--line); }
+.projectOption[data-active='true'] .optionDot { background: var(--accent); }
+.projectOption > span:nth-child(2) { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+.projectOption strong { overflow: hidden; color: inherit; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.projectOption small { color: var(--ink-3); font-size: var(--text-xs); }
+.activeMark { color: var(--accent); font-size: 13px; }
+.popover footer { padding: 9px; border-top: 1px solid var(--line-2); }
+.createRow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px; }
+
+@media (max-width: 760px) {
+  .trigger { width: 34px; padding: 0; justify-content: center; }
+  .projectName, .chevron { display: none; }
+  .createRow { grid-template-columns: 1fr; }
+}

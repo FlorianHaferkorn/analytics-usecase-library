@@ -28,19 +28,19 @@ const DEFAULT_COMMANDS: CommandItem[] = [
     id: 'nav-overview',
     label: 'Go to Overview',
     category: 'Navigation',
-    action: () => (window.location.href = '/overview'),
+    action: () => window.location.assign('/overview'),
   },
   {
     id: 'nav-canvas',
     label: 'Go to Canvas',
     category: 'Navigation',
-    action: () => (window.location.href = '/canvas'),
+    action: () => window.location.assign('/canvas'),
   },
   {
     id: 'nav-library',
     label: 'Go to Library',
     category: 'Navigation',
-    action: () => (window.location.href = '/library'),
+    action: () => window.location.assign('/library'),
   },
   {
     id: 'action-new',
@@ -68,7 +68,7 @@ export function CommandPalette({ isOpen, onClose, onNew, extraCommands = [] }: C
       label: 'Go to Report Templates',
       category: 'Navigation',
       action: () => {
-        window.location.href = '/templates';
+        window.location.assign('/templates');
       },
     },
   ];

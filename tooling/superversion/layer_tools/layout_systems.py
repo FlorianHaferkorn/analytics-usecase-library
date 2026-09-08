@@ -503,7 +503,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     if eigene_vis:
         for v in eigene_vis[:6]:
             ziele = ", ".join(v.ziele) if v.ziele else "KEIN Ziel zugeordnet"
-            print(f"    {v.block_id:22} {v.visual_id:26} → {ziele}")
+            print(f"    {v.block_id:22} {v.visual_id:26} -> {ziele}")
         if len(eigene_vis) > 6:
             print(f"    … und {len(eigene_vis) - 6} weitere")
     # Ein Visual ohne Zielzuordnung ist der Katalog-Befund: die Registry sagt, es sei

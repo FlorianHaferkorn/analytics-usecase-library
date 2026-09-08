@@ -11,6 +11,28 @@ This playbook describes the **minimum steps** to go from strategic intent to a f
 
 This playbook focuses on the Greenfield path. Adaptation for "Existing BI migration" is noted where it differs.
 
+### Scope gate before Step 1
+
+This playbook is one delivery profile, not the mandatory scope for every engagement.
+Before applying it, select the required capability level for strategy/value, Data
+Governance, Data Architecture, Data Engineering, semantic/analytics, delivery and
+operations. Use `not_in_scope`, `assess`, `design`, `implement` or `operate`.
+
+The proposed
+[`Discovery-to-Deployment Workbench`](../../docs/architecture/research/discovery-to-deployment-workbench.md)
+defines how that scope selection derives the required inputs, workshops, decisions,
+deliverables, implementation tasks and evidence gates. For this first-report profile,
+the minimum is strategy/value + semantic/analytics at `implement`, with Data Engineering
+included at least through an approved Silver contract. Data Governance may be:
+
+- `assess`: identify ownership, glossary, contract, quality and access gaps;
+- `design`: additionally approve RACI, terms, contracts and policies;
+- `implement`: additionally deploy and verify the selected governance controls;
+- `operate`: additionally assign cadence, SLOs, monitoring and remediation ownership.
+
+Do not schedule all framework workshops by default. Generate only those needed to close
+the dependencies of the selected profile.
+
 ---
 
 ## 2. Prerequisites

@@ -1,0 +1,102 @@
+.header {
+  display: flex;
+  height: var(--studio-header-height, 52px);
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 0 18px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.breadcrumbs {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+}
+
+.crumb {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+.crumbText {
+  overflow: hidden;
+  color: var(--ink-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crumbCurrent { color: var(--ink); font-weight: 600; }
+.spacer { flex: 1; }
+
+.iconButton,
+.searchButton,
+.askButton {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast), box-shadow var(--motion-fast);
+}
+
+.searchButton {
+  min-width: 154px;
+  justify-content: flex-start;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink-3);
+}
+
+.searchButton span:nth-child(2) { flex: 1; text-align: left; }
+
+.iconButton {
+  width: 32px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-3);
+}
+
+.askButton {
+  padding: 0 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.searchButton:hover,
+.iconButton:hover { border-color: var(--line); background: var(--hover); color: var(--ink); }
+.askButton:hover { box-shadow: 0 5px 16px color-mix(in srgb, var(--accent) 22%, transparent); }
+
+.searchButton:focus-visible,
+.iconButton:focus-visible,
+.askButton:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
+  outline-offset: 2px;
+}
+
+.divider { width: 1px; height: 20px; flex-shrink: 0; background: var(--line); }
+
+@media (max-width: 1180px) {
+  .searchButton { min-width: 32px; width: 32px; padding: 0; }
+  .searchButton span { display: none; }
+}
+
+@media (max-width: 760px) {
+  .header { padding-inline: 12px; }
+  .breadcrumbs .crumb:first-child { display: none; }
+  .askButton span { display: none; }
+  .askButton { width: 32px; padding: 0; }
+  .divider { display: none; }
+}

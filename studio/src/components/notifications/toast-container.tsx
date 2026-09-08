@@ -55,7 +55,7 @@ export function ToastContainer({ notifications, onDismiss }: Props) {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color, textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color, textTransform: 'uppercase' }}>
                 {SEVERITY_LABELS[n.result.severity] ?? n.result.severity}
               </span>
               <StudioButton

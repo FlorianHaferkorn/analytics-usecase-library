@@ -63,7 +63,7 @@
         "module_type": {
           "enum": [
             "opportunity", "commercial", "plan", "observed_state", "decision_set",
-            "architecture_input", "artifact_registry"
+            "architecture_input", "artifact_registry", "use_case_delivery"
           ]
         },
         "environment": {

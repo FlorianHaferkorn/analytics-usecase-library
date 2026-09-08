@@ -1,0 +1,224 @@
+"""Revision-bound orchestration of supported generation; never tenant execution.
+
+Input approval, local artifact generation, tenant authorization and acceptance
+remain separate gates. Stored runs are hash-verified sidecars because immutable
+package repositories permit only HEAD and revisions in their own root.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from .architecture_compile import build_architecture_output, compile_architecture, read_architecture
+from .compiler_input import build_compiler_input
+from .hashes import canonical_sha256
+from .item_compile import TARGET as ITEM_TARGET, build_item_output, item_target
+from .release import release_input
+from .repository import ProjectPackageRevisionRepository, StaleProjectPackageDraftError, _repository_lock
+
+VERSION = "1.0.0"
+TARGETS = ("architecture_bundle", "fabric_workspace_requests", ITEM_TARGET)
+GAPS = [
+    "Item request generation requires supplied native definitions. Security assignments, runtime source bindings and CI/CD need supported execution and evidence gates.",
+    "Tenant apply, retry/recovery and live reconciliation are not implemented by this generation runner.",
+    "Commercial and staffing records do not establish customer approval or named-person availability.",
+    "Discovery proposals require human evidence review; governed KPI/action mappings cannot be inferred.",
+    "Acceptance requires measured runtime evidence tied to the released revision and target environment.",
+]
+
+
+def _json(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+
+
+def _identity(repository: ProjectPackageRevisionRepository, project_ref: str, revision: str):
+    if not re.fullmatch(r"[a-f0-9]{64}", revision or ""):
+        raise ValueError("An explicit pinned revision hash is required")
+    record = repository.get(revision)
+    if record.project_ref != project_ref:
+        raise ValueError("Package project_ref does not match selected project")
+    return record
+
+
+def _run_root(repository: ProjectPackageRevisionRepository, revision: str) -> Path:
+    base = repository.root.parent
+    relative = Path("automation-runs") / repository.root.name / revision
+    current = base
+    for segment in relative.parts:
+        current = current / segment
+        if current.is_symlink() or (current.exists() and not current.is_dir()):
+            raise ValueError("Automation record directory must be a real directory")
+    if not current.resolve().is_relative_to(base.resolve()):
+        raise ValueError("Automation record directory escapes repository storage")
+    return current
+
+
+def _read_run(path: Path, project_ref: str, revision: str) -> dict:
+    if path.is_symlink() or not path.is_file():
+        raise ValueError("Automation run must be a regular file")
+    value = json.loads(path.read_text(encoding="utf-8"))
+    report = value["report"]
+    content = {key: item for key, item in report.items() if key != "report_sha256"}
+    if canonical_sha256(content) != report.get("report_sha256"):
+        raise ValueError("Automation run report integrity mismatch")
+    if report["project_ref"] != project_ref or report["revision_hash"] != revision:
+        raise ValueError("Automation run project or revision mismatch")
+    identity = {key: report[key] for key in ("schema_version", "project_ref", "revision_hash", "compiler_input_sha256", "release_record_sha256", "targets", "actor", "files")}
+    if canonical_sha256(identity) != report["run_id"] or path.stem != report["run_id"]:
+        raise ValueError("Automation run identity mismatch")
+    actual = [{"path": item["path"], "sha256": hashlib.sha256(item["content"].encode("utf-8")).hexdigest()} for item in value["files"]]
+    if actual != report["files"] or len({item["path"] for item in actual}) != len(actual):
+        raise ValueError("Automation artifact integrity mismatch")
+    return value
+
+
+def read_automation(repository: ProjectPackageRevisionRepository, project_ref: str, revision: str) -> dict:
+    """Read the pinned package and provenance; present records are not approvals."""
+    record = _identity(repository, project_ref, revision)
+    compiler = build_compiler_input(record.package_root, repository.schema_root)
+    view = read_architecture(repository, project_ref, revision)
+    modules = compiler["modules"]
+    outputs = [*view["outputs"], item_target(compiler)]
+    commercial = modules["commercial"]
+    plan = modules["plan"]
+    reviews = list((record.package_root / "discovery" / "reviews").glob("*.json"))
+    source_refs = modules["opportunity"].get("source_refs", [])
+    decision_count = len(modules["decision_set"]["instances"])
+    accepted = compiler["readiness"]["decision_ready"] and decision_count > 0
+    decision_gaps = list(compiler["readiness"]["unapproved_decision_refs"])
+    if not decision_count:
+        decision_gaps.append("No scoped decision inventory is recorded")
+    architecture_blockers = [item for item in view["readiness"]["blockers"] if item != "tenant_apply_and_verification_not_implemented"]
+    stage = lambda id, label, status, summary, blockers=None: {"id": id, "label": label, "status": status, "summary": summary, "blockers": blockers or []}
+    plan_gaps = []
+    if not plan["work_packages"]:
+        plan_gaps.append("No delivery work packages")
+    if any(item["effort"]["value"] is None or item["effort"]["provenance"] in {"unknown", "assumption"} for item in plan["work_packages"]):
+        plan_gaps.append("Unproven or missing effort estimates")
+    if any(not item["role_refs"] for item in plan["work_packages"]):
+        plan_gaps.append("Work package role assignments are missing")
+    stages = [
+        stage("discovery", "Discovery evidence", "recorded" if reviews or source_refs else "blocked", f"{len(reviews)} reviewed transfers; {len(source_refs)} source references. Evidence records are not customer acceptance.", [] if reviews or source_refs else ["No reviewed transfer or source reference in this package"]),
+        stage("decisions", "Decisions", "ready" if accepted else "blocked", "Decision states are read from the pinned package; not inferred by the runner.", decision_gaps),
+        stage("commercial", "Commercial agreement", "recorded" if commercial["status"] == "approved" else "blocked", f"Recorded commercial status: {commercial['status']}. Authority: {commercial['authority_ref']}.", [] if commercial["status"] == "approved" else ["Commercial agreement is not recorded as approved"]),
+        stage("plan", "Delivery plan and roles", "recorded" if not plan_gaps else "blocked", f"{len(plan['work_packages'])} work packages. Role references do not prove named-person availability.", plan_gaps),
+        stage("architecture", "Architecture contracts", "recorded" if view["readiness"]["review_ready"] else "blocked", "Declared objects and relationships only; open contract gates remain visible.", architecture_blockers),
+        stage("release", "Input release", "ready" if view["readiness"]["release_ready"] else "blocked", "An existing explicit release attestation is required for generation.", [] if view["readiness"]["release_ready"] else architecture_blockers),
+        stage("build", "Generate selected artifacts", "ready" if view["readiness"]["release_ready"] and any(t["status"] == "ready" for t in outputs) else "blocked", "Architecture documents, workspace bodies and explicitly supplied native item requests. Select targets deliberately."),
+        stage("verification", "Tenant verification and acceptance", "unsupported", "No live tenant execution or acceptance is performed by this runner.", ["Tenant executor and revision-bound runtime evidence are required"]),
+    ]
+    with _repository_lock(repository.root):
+        head = repository._head_unlocked()
+        current = bool(head and head.revision_hash == revision)
+        root = _run_root(repository, revision)
+        runs = [_read_run(path, project_ref, revision)["report"] for path in root.glob("*.json")] if root.exists() else []
+    return {"schema_version": VERSION, "project_ref": project_ref, "revision_hash": revision,
+            "compiler_input_sha256": canonical_sha256(compiler), "is_current_revision": current,
+            "stages": stages, "targets": outputs,
+            "generation_allowed": current and view["readiness"]["release_ready"],
+            "can_generate": current and view["readiness"]["release_ready"] and any(t["status"] == "ready" for t in outputs),
+            "apply_ready": False, "delivery_complete": False, "automation_gaps": GAPS,
+            "latest_run": max(runs, key=lambda item: (item["created_at"], item["run_id"])) if runs else None}
+
+
+def read_automation_run(repository: ProjectPackageRevisionRepository, project_ref: str, revision: str, run_id: str) -> dict:
+    """Download a verified historical output; no new generation or approval."""
+    _identity(repository, project_ref, revision)
+    if not re.fullmatch(r"[a-f0-9]{64}", run_id or ""):
+        raise ValueError("A valid run fingerprint is required")
+    with _repository_lock(repository.root):
+        return _read_run(_run_root(repository, revision) / f"{run_id}.json", project_ref, revision)
+
+
+def run_automation(repository: ProjectPackageRevisionRepository, project_ref: str, revision: str,
+                   *, actor: str, confirm_generation: bool, targets: list[str] | None = None) -> dict:
+    """Generate exactly selected supported outputs, atomically recording the run.
+
+    All selected targets must be ready before any run record is persisted. No
+    release, project edits, commercial approvals or tenant actions are inferred.
+    """
+    _identity(repository, project_ref, revision)
+    if confirm_generation is not True or not isinstance(actor, str) or not 1 <= len(actor.strip()) <= 320:
+        raise ValueError("Named actor and explicit generation confirmation are required")
+    selected = list(TARGETS) if targets is None else targets
+    if not isinstance(selected, list) or not selected or any(item not in TARGETS for item in selected) or len(set(selected)) != len(selected):
+        raise ValueError("Select unique supported generation targets")
+    selected = sorted(selected)
+    released = release_input(repository, project_ref, revision)
+    available = {item["id"]: item for item in [*compile_architecture(released["compiler_input"], revision)["outputs"], item_target(released["compiler_input"])]}
+    for target in selected:
+        if available[target]["status"] != "ready":
+            raise ValueError("Target blocked: " + available[target]["reason"])
+    files = []
+    for target in selected:
+        output = build_item_output(repository, project_ref, revision) if target == ITEM_TARGET else build_architecture_output(repository, project_ref, revision, target)
+        files.extend({"path": target + "/" + item["path"], "content": item["content"]} for item in output["files"])
+    files.sort(key=lambda item: item["path"])
+    identity = {"schema_version": VERSION, "project_ref": project_ref, "revision_hash": revision,
+                "compiler_input_sha256": canonical_sha256(released["compiler_input"]),
+                "release_record_sha256": released["release"]["record_sha256"], "targets": selected,
+                "actor": actor.strip(), "files": [{"path": item["path"], "sha256": hashlib.sha256(item["content"].encode("utf-8")).hexdigest()} for item in files]}
+    run_id = canonical_sha256(identity)
+    report = {**identity, "run_id": run_id, "created_at": datetime.now(timezone.utc).isoformat(),
+              "status": "generated", "scope": "selected_generation_only",
+              "summary": f"Generated {len(files)} files for {len(selected)} explicitly selected targets. No tenant changes performed.",
+              "delivery_complete": False, "apply_ready": False, "tenant_actions_performed": False,
+              "limitations": GAPS}
+    report["report_sha256"] = canonical_sha256(report)
+    result = {"report": report, "files": files}
+    with _repository_lock(repository.root):
+        head = repository._head_unlocked()
+        if not head or head.revision_hash != revision:
+            raise StaleProjectPackageDraftError("HEAD changed during generation; review the latest revision before rerunning")
+        root = _run_root(repository, revision)
+        root.mkdir(parents=True, exist_ok=True)
+        destination = root / f"{run_id}.json"
+        if destination.exists() or destination.is_symlink():
+            return _read_run(destination, project_ref, revision)
+        descriptor, temporary_name = tempfile.mkstemp(prefix=".run-", suffix=".tmp", dir=root)
+        temporary = Path(temporary_name)
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                handle.write(_json(result))
+                handle.flush()
+                os.fsync(handle.fileno())
+            # Exclusive project lock protects the create-only destination.
+            temporary.rename(destination)
+        finally:
+            temporary.unlink(missing_ok=True)
+    return result
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repository", type=Path, required=True)
+    parser.add_argument("--schemas", type=Path, required=True)
+    parser.add_argument("--project-ref", required=True)
+    parser.add_argument("--revision", required=True)
+    parser.add_argument("--run", action="store_true")
+    parser.add_argument("--read-run")
+    parser.add_argument("--actor")
+    parser.add_argument("--confirm-generation", action="store_true")
+    parser.add_argument("--target", action="append", choices=TARGETS)
+    args = parser.parse_args()
+    try:
+        repository = ProjectPackageRevisionRepository(args.repository, args.schemas)
+        if args.read_run and args.run:
+            raise ValueError("Read and generate are separate operations")
+        result = read_automation_run(repository, args.project_ref, args.revision, args.read_run) if args.read_run else run_automation(repository, args.project_ref, args.revision, actor=args.actor, confirm_generation=args.confirm_generation, targets=args.target) if args.run else read_automation(repository, args.project_ref, args.revision)
+        print(_json({"ok": True, "value": result}))
+        return 0
+    except (ValueError, OSError, AssertionError, KeyError, TypeError) as error:
+        print(_json({"ok": False, "error": str(error) or "Automation input or record is invalid", "status": 409}))
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

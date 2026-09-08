@@ -31,12 +31,12 @@ function ContractCard({ contract }: { contract: DataContract }) {
           <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ink)' }}>
             {contract.domain}
           </p>
-          <p style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
             v{contract.version} &middot; {contract.owner}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }}>
             {contract.dimension?.length ?? 0} dims &middot; {contract.fact?.length ?? 0} facts
           </span>
           <span style={{ color: 'var(--ink-4)', transform: expanded ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform var(--duration-fast)' }}>
@@ -50,7 +50,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
           {/* Dimensions */}
           {(contract.dimension ?? []).map((dim) => (
             <div key={dim.name}>
-              <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ink-2)', marginBottom: '4px' }}>
+              <p style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--ink-2)', marginBottom: '4px' }}>
                 {dim.name} (dimension)
               </p>
               <StudioTableShell>
@@ -64,7 +64,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
                 <thead>
                   <tr>
                     {['Column', 'Type', 'Role', 'Ref'].map((h) => (
-                      <StudioTableHeadCell key={h} style={{ padding: '2px 8px', fontSize: '0.6875rem' }}>{h}</StudioTableHeadCell>
+                      <StudioTableHeadCell key={h} style={{ padding: '2px 8px', fontSize: 'var(--text-xs)' }}>{h}</StudioTableHeadCell>
                     ))}
                   </tr>
                 </thead>
@@ -86,7 +86,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
           {/* Facts */}
           {(contract.fact ?? []).map((fact) => (
             <div key={fact.name}>
-              <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--ink-2)', marginBottom: '4px' }}>
+              <p style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--ink-2)', marginBottom: '4px' }}>
                 {fact.name} (fact &middot; grain: {fact.grain})
               </p>
               <StudioTableShell>
@@ -100,7 +100,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
                 <thead>
                   <tr>
                     {['Column', 'Type', 'Agg', 'Ref'].map((h) => (
-                      <StudioTableHeadCell key={h} style={{ padding: '2px 8px', fontSize: '0.6875rem' }}>{h}</StudioTableHeadCell>
+                      <StudioTableHeadCell key={h} style={{ padding: '2px 8px', fontSize: 'var(--text-xs)' }}>{h}</StudioTableHeadCell>
                     ))}
                   </tr>
                 </thead>
@@ -121,7 +121,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
 
           {/* Settings */}
           {contract.settings && (
-            <div style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
               {contract.settings.currency && <span>Currency: {contract.settings.currency} &middot; </span>}
               {contract.settings.time_zone && <span>TZ: {contract.settings.time_zone} &middot; </span>}
               {contract.settings.naming && <span>Naming: {contract.settings.naming}</span>}

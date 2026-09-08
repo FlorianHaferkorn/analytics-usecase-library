@@ -44,7 +44,7 @@ export function RulesList({ rules, onToggle, onDelete }: Props) {
             <span style={{ fontSize: '0.75rem', color: 'var(--ink)', fontWeight: 600, flex: 1, minWidth: '180px' }}>
               {rule.name}
             </span>
-            <span style={{ fontSize: '0.6875rem', color: 'var(--ink-3)' }}>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
               {rule.kpiId} {rule.condition} {rule.threshold}
               {rule.condition === 'between' && rule.thresholdUpper !== undefined ? `–${rule.thresholdUpper}` : ''}
             </span>

@@ -268,7 +268,7 @@ export function DetailClient({ kpi, id }: DetailClientProps) {
                   <div className="flex items-center gap-2.5 mb-1.5">
                     <div
                       className="flex-shrink-0 grid place-items-center rounded-full text-white"
-                      style={{ width: 24, height: 24, fontSize: 10, fontWeight: 600, background: `oklch(0.65 0.12 ${(i * 80) % 360})` }}
+                      style={{ width: 24, height: 24, fontSize: 'var(--text-xs)', fontWeight: 600, background: `oklch(0.65 0.12 ${(i * 80) % 360})` }}
                     >
                       {c.who.split(/[.\s]/).map((s) => s[0]).join('')}
                     </div>

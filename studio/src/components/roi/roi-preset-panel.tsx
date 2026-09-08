@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { StudioPanel } from '@/components/ui/studio-page';
+import { useState, useEffect, useId } from 'react';
+import { StudioButton, StudioPanel } from '@/components/ui/studio-page';
+import { StudioSelect } from '@/components/ui/studio-data';
+import { useProjectStore } from '@/lib/store/project-store';
 
 interface RangeValue {
   min: number | string;
@@ -32,38 +34,47 @@ interface Props {
  * for a Golden-20 KPI preset. Fetches from /api/core/presets/[kpiId].
  */
 export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Props) {
+  const projectId = useProjectStore((state) => state.projectId);
+  const selectorId = useId();
   const [preset, setPreset] = useState<RoiPreset | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(Boolean(kpiId));
   const [error, setError] = useState<string | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const [retry, setRetry] = useState(0);
 
-  const fetchPreset = useCallback(async (id: string) => {
-    setLoading(true);
+  useEffect(() => {
+    const controller = new AbortController();
+    setPreset(null);
     setError(null);
+    setUnavailable(false);
+    setLoading(Boolean(kpiId));
+    if (!kpiId) return () => controller.abort();
+    async function fetchPreset() {
     try {
-      const res = await fetch(`/api/core/presets/${encodeURIComponent(id)}`);
+      const res = await fetch(`/api/core/presets/${encodeURIComponent(kpiId!)}`, { signal: controller.signal });
       if (!res.ok) {
-        setPreset(null);
-        setError(res.status === 404 ? 'No preset available for this KPI.' : 'Failed to load preset.');
+        if (controller.signal.aborted) return;
+        if (res.status === 404) setUnavailable(true);
+        else setError(res.status === 401 ? 'Sign in to load these assumptions.' : res.status === 403 ? 'Your account cannot access these assumptions for this project.' : 'The assumptions could not be loaded. Try again.');
         return;
       }
       const data = (await res.json()) as { preset: RoiPreset };
+      if (controller.signal.aborted) return;
+      if (!data.preset?.baseline_range || !data.preset?.target_range) throw new Error('Invalid preset response');
       setPreset(data.preset);
     } catch {
-      setError('Network error loading preset.');
-      setPreset(null);
+      if (!controller.signal.aborted) setError('The assumptions could not be loaded. Check your connection and try again.');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    if (kpiId) void fetchPreset(kpiId);
-    else setPreset(null);
-  }, [kpiId, fetchPreset]);
+    }
+    void fetchPreset();
+    return () => controller.abort();
+  }, [kpiId, projectId, retry]);
 
   function formatValue(val: number | string, unit?: string): string {
     if (typeof val === 'number') {
-      const isEur = unit?.toLowerCase().includes('eur') || (typeof val === 'number' && val > 1000);
+      const isEur = unit?.toLowerCase() === 'eur';
       if (isEur && val >= 1000000) return `€${(val / 1000000).toFixed(1)}M`;
       if (isEur && val >= 1000) return `€${(val / 1000).toFixed(0)}k`;
       if (unit === '%' || unit?.includes('%')) return `${val}%`;
@@ -75,21 +86,21 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
 
   return (
     <StudioPanel
-      title="ROI Preset"
-      description="Industry-benchmarked baseline and target ranges for the selected Golden-20 KPI."
+      title="Value assumptions"
+      description="Illustrative baseline and target ranges. Validate these assumptions with the customer before using them in a business case."
       tone="info"
-      style={{ minWidth: 300, maxWidth: 400 }}
+      style={{ minWidth: 0 }}
     >
       {/* KPI selector */}
       <div style={{ padding: 'var(--gap)', borderBottom: '1px solid var(--line)' }}>
         <label
-          htmlFor="roi-kpi-select"
-          style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--ink-3)', marginBottom: 6, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}
+          htmlFor={selectorId}
+          style={{ display: 'block', fontSize: 'var(--text-xs)', color: 'var(--ink-3)', marginBottom: 'var(--space-2)', fontWeight: 600 }}
         >
           Golden-20 KPI
         </label>
-        <select
-          id="roi-kpi-select"
+        <StudioSelect
+          id={selectorId}
           value={kpiId ?? ''}
           onChange={(e) => onKpiChange(e.target.value)}
           style={{
@@ -106,31 +117,34 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
           {golden20Ids.map((id) => (
             <option key={id} value={id}>{id}</option>
           ))}
-        </select>
+        </StudioSelect>
       </div>
 
       {/* Loading */}
       {loading && (
-        <div style={{ padding: 'var(--pad)', color: 'var(--ink-3)', fontSize: '0.8125rem', textAlign: 'center' }}>
-          Loading preset…
+        <div role="status" style={{ padding: 'var(--pad)', color: 'var(--ink-3)', fontSize: '0.8125rem', textAlign: 'center' }}>
+          Loading assumptions…
         </div>
       )}
 
       {/* Error */}
       {!loading && error && (
-        <div style={{ padding: 'var(--gap)', color: 'var(--warning)', fontSize: '0.8125rem' }}>
-          {error}
+        <div role="alert" style={{ padding: 'var(--gap)', color: 'var(--warning)', fontSize: '0.8125rem', display: 'grid', gap: 'var(--space-3)' }}>
+          <span>{error}</span>
+          <StudioButton onClick={() => setRetry((value) => value + 1)}>Try again</StudioButton>
         </div>
       )}
+      {!loading && unavailable && <p role="status" style={{ padding: 'var(--gap)', color: 'var(--ink-3)', fontSize: 'var(--text-sm)' }}>No illustrative ranges are available for this KPI. Use customer evidence to define the baseline and target; no values have been assumed.</p>}
+      {!kpiId && <p style={{ padding: 'var(--gap)', color: 'var(--ink-3)' }}>Select a KPI to review its available assumptions.</p>}
 
       {/* Preset content */}
       {!loading && preset && (
         <div style={{ padding: 'var(--gap)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
           <div>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--info)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--info)', fontWeight: 700, marginBottom: 'var(--space-1)' }}>
               {preset.label ?? kpiLabel ?? kpiId}
             </div>
-            <div style={{ fontSize: '0.6875rem', color: 'var(--ink-4)' }}>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
               {preset.time_horizon_months}-month horizon
             </div>
           </div>
@@ -151,16 +165,10 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
             color="var(--accent)"
           />
 
-          {/* Slider-style visual */}
-          <RangeSlider
-            baseline={preset.baseline_range}
-            target={preset.target_range}
-          />
-
           {/* Driver notes */}
           {preset.driver_notes && preset.driver_notes.length > 0 && (
             <div>
-              <div style={{ fontSize: '0.6875rem', color: 'var(--ink-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>
                 Key Drivers
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -175,7 +183,7 @@ export function RoiPresetPanel({ kpiId, kpiLabel, golden20Ids, onKpiChange }: Pr
 
           {/* Note */}
           {preset.baseline_range.note && (
-            <div style={{ fontSize: '0.6875rem', color: 'var(--ink-4)', fontStyle: 'italic' }}>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
               {preset.baseline_range.note}
             </div>
           )}
@@ -193,7 +201,7 @@ function RangeDisplay({ label, range, formatFn, color }: {
 }) {
   return (
     <div>
-      <div style={{ fontSize: '0.6875rem', color, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+      <div style={{ fontSize: 'var(--text-xs)', color, fontWeight: 600, marginBottom: 'var(--space-1)' }}>
         {label}
       </div>
       <div style={{ display: 'flex', gap: 8, fontSize: '0.8125rem' }}>
@@ -206,7 +214,7 @@ function RangeDisplay({ label, range, formatFn, color }: {
             border: `1px solid ${key === 'likely' ? color : 'var(--line)'}`,
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: '0.5625rem', color: 'var(--ink-4)', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
               {key}
             </div>
             <div style={{ color, fontWeight: key === 'likely' ? 700 : 400, fontSize: '0.875rem' }}>
@@ -214,50 +222,6 @@ function RangeDisplay({ label, range, formatFn, color }: {
             </div>
           </div>
         ))}
-      </div>
-    </div>
-  );
-}
-
-function RangeSlider({ baseline, target }: { baseline: RangeValue; target: RangeValue }) {
-  const bMin = Number(baseline.min);
-  const bMax = Number(baseline.max);
-  const tLikely = Number(target.likely);
-
-  if (isNaN(bMin) || isNaN(bMax) || bMin === bMax) return null;
-
-  const total = bMax - bMin;
-  const tPos = Math.min(100, Math.max(0, ((tLikely - bMin) / total) * 100));
-  const bLikelyPos = Math.min(100, Math.max(0, ((Number(baseline.likely) - bMin) / total) * 100));
-
-  return (
-    <div style={{ position: 'relative', height: 20, background: 'var(--panel)', borderRadius: 4, overflow: 'visible', marginTop: 4 }}>
-      {/* Baseline band */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        background: 'linear-gradient(90deg, var(--bg-2), var(--line))',
-        borderRadius: 4,
-      }} />
-      {/* Baseline likely marker */}
-      <div title={`Baseline likely: ${baseline.likely}`} style={{
-        position: 'absolute', top: -2, bottom: -2, left: `${bLikelyPos}%`,
-        width: 3, background: 'var(--ink-3)', borderRadius: 2,
-        transform: 'translateX(-50%)',
-      }} />
-      {/* Target likely marker */}
-      <div title={`Target: ${target.likely}`} style={{
-        position: 'absolute', top: -4, bottom: -4, left: `${tPos}%`,
-        width: 4, background: 'var(--accent)', borderRadius: 2,
-        transform: 'translateX(-50%)',
-        boxShadow: '0 0 6px var(--accent)',
-      }} />
-      {/* Labels */}
-      <div style={{
-        position: 'absolute', top: 24, left: 0, right: 0,
-        display: 'flex', justifyContent: 'space-between',
-        fontSize: '0.5625rem', color: 'var(--ink-4)',
-      }}>
-        <span>min</span><span>max</span>
       </div>
     </div>
   );
