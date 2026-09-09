@@ -22,6 +22,7 @@ SCHEMA_BY_MODULE = {
     "architecture_input": "project_architecture_input.schema.json",
     "artifact_registry": "project_artifact_registry.schema.json",
     "use_case_delivery": "project_use_case_delivery.schema.json",
+    "batch_ingestion": "project_batch_ingestion.schema.json",
 }
 
 
@@ -204,6 +205,8 @@ def validate_project_package(package_root: Path, schema_root: Path) -> list[str]
     for module in manifest.get("modules", []) if isinstance(manifest, dict) else []:
         module_type = module.get("module_type")
         environment = module.get("environment")
+        if module_type == "batch_ingestion" and environment is not None:
+            errors.append("package.yaml: batch_ingestion is a singleton and cannot have an environment key")
         key = (module_type, environment)
         if key in seen:
             errors.append(f"package.yaml: duplicate module key {key}")
@@ -242,6 +245,9 @@ def validate_project_package(package_root: Path, schema_root: Path) -> list[str]
             artifact_registry = document
         if module_type == "observed_state" and document.get("environment") != environment:
             errors.append(f"{relative.as_posix()}: environment does not match manifest")
+        if module_type == "batch_ingestion" and isinstance(document, dict) and not module_schema_errors:
+            from .batch_ingestion import validate_contract
+            errors.extend(f"{relative.as_posix()}: {error}" for error in validate_contract(document))
 
     missing = sorted(required - present)
     if missing:

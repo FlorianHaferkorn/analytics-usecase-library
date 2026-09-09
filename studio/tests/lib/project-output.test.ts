@@ -7,6 +7,11 @@ function fixture(paths=['fabric_item_requests/fabric/items/model.request.json'])
   return {report:{project_ref:'alpha',revision_hash:'a'.repeat(64),files:paths.map(path=>({path,sha256:'b'.repeat(64)}))} as AutomationOutput['report'],files:paths.map(path=>({path,content:'{"displayName":"model"}'}))};
 }
 describe('Generated project ZIP',()=>{
+  it('preserves the released local batch runtime folder',()=>{
+    const output=fixture(['batch_ingestion_bundle/runtime.py']);
+    const zip=unzipSync(projectOutputZip(output));
+    expect(strFromU8(zip[output.files[0].path])).toBe(output.files[0].content);
+  });
   it('preserves native request folders and includes the run report',()=>{
     const output=fixture();const zip=unzipSync(projectOutputZip(output));
     expect(strFromU8(zip[output.files[0].path])).toBe(output.files[0].content);

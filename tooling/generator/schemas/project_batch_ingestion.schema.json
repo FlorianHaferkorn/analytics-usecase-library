@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aluca.dev/schemas/project_batch_ingestion.schema.json",
+  "title": "Bounded batch ingestion contract",
+  "description": "Local executable contract. SQL Server can be recorded as a requested source but blocks generation until a connector contract is supported.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "domain", "source", "target", "environments", "columns", "keys", "load", "naming"],
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$", "maxLength": 48}
+  },
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "id": {"$ref": "#/$defs/identifier"},
+    "domain": {"$ref": "#/$defs/identifier"},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "object_name", "landing_path"],
+      "properties": {
+        "kind": {"enum": ["csv_landing", "sql_server"]},
+        "object_name": {"$ref": "#/$defs/identifier"},
+        "landing_path": {"type": "string", "minLength": 11, "maxLength": 240, "pattern": "^Files/(?:[a-z][a-z0-9_]*\/)*[a-z][a-z0-9_]*\\.csv$"}
+      }
+    },
+    "target": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "table"],
+      "properties": {"schema": {"$ref": "#/$defs/identifier"}, "table": {"$ref": "#/$defs/identifier"}}
+    },
+    "environments": {"enum": [["dev", "test", "prod"], ["dev", "prod"]]},
+    "columns": {
+      "type": "array", "minItems": 1, "maxItems": 100,
+      "items": {"type": "object", "additionalProperties": false, "required": ["name", "type", "nullable"],
+        "properties": {"name": {"$ref": "#/$defs/identifier"}, "type": {"enum": ["string", "integer", "decimal", "boolean", "date", "timestamp"]}, "nullable": {"type": "boolean"}}
+      }
+    },
+    "keys": {"type": "array", "maxItems": 10, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "load": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "watermark_column", "delete_behavior", "schema_drift", "bad_rows"],
+      "properties": {
+        "mode": {"enum": ["full", "incremental"]},
+        "watermark_column": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "delete_behavior": {"const": "retain"}, "schema_drift": {"const": "fail"}, "bad_rows": {"const": "fail_batch"}
+      }
+    },
+    "naming": {"type": "object", "additionalProperties": false, "required": ["namespace"], "properties": {"namespace": {"$ref": "#/$defs/identifier"}}}
+  }
+}

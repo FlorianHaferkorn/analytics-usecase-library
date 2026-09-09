@@ -24,6 +24,7 @@ export function ScopeIndicator() {
     // Only selection metadata, never customer content or authorization, is persisted.
     try { sessionStorage.setItem('studio.view.selection', JSON.stringify({ projectId: id, scope, hash })); } catch { /* Storage is optional; authorization is server-side. */ }
   }, [id, scope, hash]);
+  if (path === '/automation/reference') return <div className={styles.scope} aria-label="Data origin"><strong>Local reference lab · synthetic data only</strong><span>The selected customer project is not read or changed.</span></div>;
   return <div className={styles.scope} aria-label="Data origin">
     <label htmlFor="studio-data-scope">Working view </label>
     <select id="studio-data-scope" disabled={fixed} value={effective === 'project' ? 'project' : 'library'} onChange={e => setScope(e.target.value as 'library' | 'project')}><option value="library">Library examples</option><option value="project">Selected project</option></select>

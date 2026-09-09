@@ -144,6 +144,31 @@
         }
       }
     },
+    "decision_rules": {
+      "description": "Explicit reviewed mappings from an approved decision option to an existing architecture field. Rules never approve decisions or execute tenant changes.",
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "decision_ref", "decision_revision", "option_ref", "target", "expected_value", "value", "rationale"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "decision_ref": {"type": "string", "minLength": 1},
+          "decision_revision": {"type": "integer", "minimum": 1},
+          "option_ref": {"type": "string", "minLength": 1},
+          "target": {
+            "type": "object", "additionalProperties": false,
+            "required": ["collection", "entity_id", "field"],
+            "properties": {
+              "collection": {"enum": ["domains", "use_cases", "physical_workspaces", "physical_items", "environments"]},
+              "entity_id": {"type": ["string", "null"]},
+              "field": {"type": "string", "minLength": 1}
+            }
+          },
+          "expected_value": {}, "value": {},
+          "rationale": {"type": "string", "minLength": 20, "maxLength": 4000}
+        }
+      }
+    },
     "compiler_policy": {
       "type": "object",
       "additionalProperties": false,

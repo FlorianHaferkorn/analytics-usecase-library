@@ -1,0 +1,30 @@
+.page { display: grid; gap: var(--space-3); min-width: 0; }
+.note { margin: 0; color: var(--ink-3); font-size: var(--text-sm); line-height: 1.5; overflow-wrap: anywhere; }
+.alert { padding: var(--space-3); margin: 0; border: 1px solid var(--warning); border-radius: var(--radius-sm); font-size: var(--text-base); overflow-wrap: anywhere; }
+.form { padding: var(--space-3); margin: 0; border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-3); min-width: 0; }
+.form legend { font-size: var(--text-base); font-weight: 600; }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--space-3); }
+.fields label, .column > label:not(.confirm), .label { display: grid; gap: var(--space-1); font-size: var(--text-base); min-width: 0; }
+.page input:not([type=checkbox]), .page select, .page textarea { width: 100%; min-width: 0; max-width: 100%; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: var(--radius-sm); font: inherit; padding: var(--space-2); }
+.page textarea { min-height: 80px; resize: vertical; }
+.columnList { display: grid; gap: var(--space-2); }
+.column { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto auto; align-items: end; gap: var(--space-3); padding-top: var(--space-2); border-top: 1px solid var(--line); }
+.confirm { display: flex; align-items: start; gap: var(--space-2); font-size: var(--text-base); line-height: 1.5; margin: var(--space-3) 0; }
+.confirm input { flex-shrink: 0; margin-top: var(--space-1); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: var(--space-3); }
+.compare dl { margin: 0; display: grid; gap: var(--space-2); }
+.compare dt { font-weight: 600; font-size: var(--text-base); }
+.compare dd { margin: 0; }
+.compare code { overflow-wrap: anywhere; }
+.consequences { display: grid; gap: var(--space-3); }
+.consequences p { margin: var(--space-1) 0 0; }
+.page pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--text-sm); line-height: 1.5; margin: var(--space-2) 0; }
+.page ul, .page p { font-size: var(--text-base); line-height: 1.5; }
+.canvas { height: 440px; min-width: 0; }
+.details { border: 1px solid var(--line); border-radius: var(--radius-sm); padding: var(--space-3); }
+.details summary { cursor: pointer; font-size: var(--text-base); font-weight: 600; }
+.change { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr); gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--line); }
+.page textarea.sample { min-height: 260px; font-family: var(--font-mono); font-size: var(--text-sm); }
+.result { padding: var(--space-3); border-bottom: 1px solid var(--line); }
+@media (max-width: 700px) { .column { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .change { grid-template-columns: minmax(0, 1fr); } }

@@ -20,11 +20,12 @@ from .architecture_compile import build_architecture_output, compile_architectur
 from .compiler_input import build_compiler_input
 from .hashes import canonical_sha256
 from .item_compile import TARGET as ITEM_TARGET, build_item_output, item_target
+from .batch_workbench import TARGET as BATCH_TARGET, batch_target, build_batch_output
 from .release import release_input
 from .repository import ProjectPackageRevisionRepository, StaleProjectPackageDraftError, _repository_lock
 
 VERSION = "1.0.0"
-TARGETS = ("architecture_bundle", "fabric_workspace_requests", ITEM_TARGET)
+TARGETS = ("architecture_bundle", "fabric_workspace_requests", ITEM_TARGET, BATCH_TARGET)
 GAPS = [
     "Item request generation requires supplied native definitions. Security assignments, runtime source bindings and CI/CD need supported execution and evidence gates.",
     "Tenant apply, retry/recovery and live reconciliation are not implemented by this generation runner.",
@@ -85,7 +86,7 @@ def read_automation(repository: ProjectPackageRevisionRepository, project_ref: s
     compiler = build_compiler_input(record.package_root, repository.schema_root)
     view = read_architecture(repository, project_ref, revision)
     modules = compiler["modules"]
-    outputs = [*view["outputs"], item_target(compiler)]
+    outputs = [*view["outputs"], item_target(compiler), batch_target(compiler)]
     commercial = modules["commercial"]
     plan = modules["plan"]
     reviews = list((record.package_root / "discovery" / "reviews").glob("*.json"))
@@ -147,18 +148,23 @@ def run_automation(repository: ProjectPackageRevisionRepository, project_ref: st
     _identity(repository, project_ref, revision)
     if confirm_generation is not True or not isinstance(actor, str) or not 1 <= len(actor.strip()) <= 320:
         raise ValueError("Named actor and explicit generation confirmation are required")
-    selected = list(TARGETS) if targets is None else targets
+    selected = list(TARGETS[:-1]) if targets is None else targets
     if not isinstance(selected, list) or not selected or any(item not in TARGETS for item in selected) or len(set(selected)) != len(selected):
         raise ValueError("Select unique supported generation targets")
     selected = sorted(selected)
     released = release_input(repository, project_ref, revision)
-    available = {item["id"]: item for item in [*compile_architecture(released["compiler_input"], revision)["outputs"], item_target(released["compiler_input"])]}
+    available = {item["id"]: item for item in [*compile_architecture(released["compiler_input"], revision)["outputs"], item_target(released["compiler_input"]), batch_target(released["compiler_input"])]}
     for target in selected:
         if available[target]["status"] != "ready":
             raise ValueError("Target blocked: " + available[target]["reason"])
     files = []
     for target in selected:
-        output = build_item_output(repository, project_ref, revision) if target == ITEM_TARGET else build_architecture_output(repository, project_ref, revision, target)
+        if target == BATCH_TARGET:
+            output = build_batch_output(repository, project_ref, revision)
+        elif target == ITEM_TARGET:
+            output = build_item_output(repository, project_ref, revision)
+        else:
+            output = build_architecture_output(repository, project_ref, revision, target)
         files.extend({"path": target + "/" + item["path"], "content": item["content"]} for item in output["files"])
     files.sort(key=lambda item: item["path"])
     identity = {"schema_version": VERSION, "project_ref": project_ref, "revision_hash": revision,
