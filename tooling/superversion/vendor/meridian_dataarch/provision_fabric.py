@@ -39,8 +39,15 @@ def _sap_datasphere_quellen(ingestion: list[dict]) -> dict[str, list[dict]]:
     """SAP-Quellen, die ueber Datasphere gespiegelt werden — gruppiert nach Quellsystem.
 
     Der Unterscheider ist der `connector`, nicht der `access_mode`: `mirroring` UND
-    `sap-cdc` tragen beide `mirror`, aber nur `mirroring` bezeichnet den Weg ueber
-    Datasphere (`sap_handover_gate`, Fahrplan Kap. 2).
+    `open-mirroring` tragen beide `mirror`, aber nur `mirroring` bezeichnet den Weg ueber
+    Datasphere; `open-mirroring` heisst, dass ein zertifizierter Partner selbst in ein
+    Mirrored-Database-Item schreibt (`sap_handover_gate`, Fahrplan Kap. 2).
+
+    ABWEICHUNG 09.09.2026, benannt statt geglaettet (Belegpflicht R5): hier stand
+    `mirroring` UND `sap-cdc` als das Paar mit gleichem `access_mode`. Seit der
+    Korrektur von `_CONNECTOR_ACCESS` traegt `sap-cdc` `copy`, faellt also schon am
+    Zugriffsmodus aus dieser Gruppe. Das Beispiel wandert damit auf `open-mirroring`,
+    die Aussage bleibt: ein Test auf den Zugriffsmodus allein sieht den Unterschied nicht.
 
     Gruppiert wird nach System, weil ein Mirrored-SAP-Item **alles unter seinem
     Shortcut-Pfad** abdeckt (MS Learn, `fabric/mirroring/sap-limitations`, gemessen
