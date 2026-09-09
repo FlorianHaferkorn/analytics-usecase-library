@@ -108,17 +108,52 @@ def _executable_command(executable: str, *args: str) -> list[str]:
     return [executable, *args]
 
 
+#: The Windows system directory under any of its aliases.  ``Sysnative`` and
+#: ``SysWOW64`` reach the *same* ``bash.exe``; comparing against the literal
+#: ``System32`` path alone lets the WSL launcher back in through either alias.
+_WINDOWS_SYSTEM_DIRS = {"system32", "sysnative", "syswow64"}
+
+
+def _is_wsl_launcher(path: str) -> bool:
+    """True for ``<Windows>\System32\bash.exe`` and its directory aliases.
+
+    Identified by its directory, not its file name: the name is exactly the one
+    a real bash has, which is the whole problem.  ``windir`` is honoured as well
+    as ``SystemRoot`` — a hard-coded ``C:\Windows`` is wrong on a machine that
+    installed Windows elsewhere.
+    """
+    parent = Path(path).parent
+    if parent.name.lower() not in _WINDOWS_SYSTEM_DIRS:
+        return False
+    root = os.environ.get("SystemRoot") or os.environ.get("windir")
+    if not root:
+        return True
+    try:
+        return Path(root).resolve() in Path(path).resolve().parents
+    except OSError:                      # resolve() can raise on odd mounts
+        return True
+
+
 def resolve_bash() -> Optional[str]:
     """Find a usable `bash` — PATH first, then Git for Windows' default
     install location. Returns None (never raises) if neither exists, so
-    callers can degrade honestly instead of crashing with WinError 2."""
+    callers can degrade honestly instead of crashing with WinError 2.
+
+    Windows exposes ``System32\bash.exe`` as a WSL launcher even when no Linux
+    distribution is installed.  It is not a usable shell in that state and emits
+    UTF-16 diagnostics instead of running the hook.  Worse, ``CreateProcess``
+    searches System32 *before* PATH, so a caller that passes the bare name
+    ``bash`` gets the launcher no matter what ``shutil.which`` reported — guard
+    and run then check different programs.  Always pass the absolute path this
+    returns.
+
+    The same reasoning, plus the ``.cmd``-shim and child-encoding halves of it,
+    lives in the Freelancing repo as ``core/prozess.py``.  Two homes on purpose:
+    that one serves a test suite and its own scripts, this one the smoke runner.
+    Keep them in step when either learns something new.
+    """
     on_path = shutil.which("bash")
-    # Windows exposes System32\bash.exe as a WSL launcher even when no Linux
-    # distribution is installed.  It is not a usable shell in that state and
-    # emits UTF-16 diagnostics instead of running the hook.  Prefer Git Bash or
-    # the honest structural fallback for this specific launcher.
-    system32_bash = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "bash.exe"
-    if on_path and Path(on_path).resolve() != system32_bash.resolve():
+    if on_path and not _is_wsl_launcher(on_path):
         return on_path
     for candidate in _GIT_BASH_FALLBACK_PATHS:
         if candidate.exists():
