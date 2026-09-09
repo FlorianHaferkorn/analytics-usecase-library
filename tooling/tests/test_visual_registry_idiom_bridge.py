@@ -170,3 +170,101 @@ def test_jede_komponenten_vorlage_nennt_nur_governte_bloecke():
                 f"Informationsbloecke aus visual_registry.yaml")
             unbekannt = [b for b in s["blocks"] if b not in gueltig]
             assert not unbekannt, f"{f.name}/{s['id']}: keine Bloecke der Registry: {unbekannt}"
+
+
+# --------------------------------------------------------------------------- #
+# Steuerelemente (09.09.2026): der Vertrag wird geprueft, nicht nur geschrieben #
+# --------------------------------------------------------------------------- #
+# Ein Steuerelement zeigt nichts, es aendert was die anderen zeigen — deshalb steht es
+# nicht unter `information_blocks`. Diese Tests halten fest, dass der Abschnitt seine
+# eigenen Zusagen einhaelt und nicht zu einem Block zurueckdriftet.
+
+
+def _controls() -> list[dict]:
+    return yaml.safe_load(REGISTRY.read_text(encoding="utf-8")).get("controls", [])
+
+
+def test_the_registry_has_a_controls_section_and_it_is_not_a_block():
+    """Kein Steuerelement traegt Block-Felder — sonst waere die Trennung nur Kosmetik."""
+    controls = _controls()
+    assert controls, "kein Steuerelement deklariert"
+    block_felder = {"required_inputs", "allowed_visuals", "forbidden_visuals", "primary_layer"}
+    for c in controls:
+        assert not (set(c) & block_felder), (
+            f"{c['control_id']} traegt Block-Felder {sorted(set(c) & block_felder)} — "
+            f"dann gehoert es unter information_blocks oder die Felder weg")
+
+
+def test_every_control_names_a_slot_the_page_manifest_actually_has():
+    """Ein Steuerelement ohne Platz auf der Seite ist ein Eintrag ohne Aufrufer."""
+    manifest = yaml.safe_load(
+        (REPO_ROOT / "core/templates/page_templates/template_manifest.yaml").read_text(
+            encoding="utf-8"))
+    slots: set[str] = set()
+
+    def lauf(o):
+        nonlocal slots
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if k.endswith("_slots") and isinstance(v, list):
+                    slots |= {x if isinstance(x, str) else x.get("slot_id") for x in v}
+                lauf(v)
+        elif isinstance(o, list):
+            for v in o:
+                lauf(v)
+
+    lauf(manifest)
+    slots.discard(None)
+    for c in _controls():
+        for slot in c["slot_compatibility"]:
+            assert slot in slots, (
+                f"{c['control_id']} nennt Slot '{slot}', den keine Seitenvariante fuehrt; "
+                f"bekannt sind u. a. {sorted(s for s in slots if s)[:8]}")
+
+
+def test_a_control_realization_names_a_real_pbip_type_and_never_invents_one():
+    """Gemessen 09.09.2026: ein Feldparameter ist KEIN Visualtyp.
+
+    Er ist eine berechnete Tabelle im Modell, und Power BI erzeugt dazu einen gewoehnlichen
+    Slicer (MS Learn, power-bi-field-parameters). Der offizielle Katalogauszug fuehrt
+    entsprechend keinen Parameter-Typ. Wer hier `fieldParameter` schriebe, erfaende ihn.
+    """
+    bekannt = set(json.loads(FACTS.read_text(encoding="utf-8")).get("visuals", {}))
+    for c in _controls():
+        r = c["realization"]
+        typ = r["report"]["pbip_type"]
+        assert typ == "slicer" or typ in bekannt, f"{c['control_id']}: {typ} ist kein Kernvisual"
+        assert "fieldParameter" not in json.dumps(r), (
+            f"{c['control_id']} nennt einen Visualtyp `fieldParameter`, den es nicht gibt")
+        # Die Dreiteilung ist der Punkt: Modell, Bericht, Bindung. Faellt eine weg, dreht
+        # der Leser an einem Knopf ohne Wirkung.
+        assert set(r) == {"model", "report", "binding"}, (
+            f"{c['control_id']}: realization braucht model + report + binding, hat {sorted(r)}")
+
+
+def test_the_granularity_switch_keeps_the_distinction_that_makes_it_necessary():
+    """Slicer filtert Zeilen, Feldparameter tauscht das Feld — der Unterschied ist die Substanz."""
+    g = next(c for c in _controls() if c["control_id"] == "granularity_switch")
+    regeln = {r["rule_id"]: r for r in g["quality_rules"]}
+    assert "not_a_filter" in regeln and regeln["not_a_filter"]["severity"] == "error"
+    # Er ist ein Slicer und zaehlt deshalb gegen die Obergrenze der Seite.
+    assert regeln["counts_against_max_slicers"]["severity"] == "error"
+    assert "NAMEOF" in g["realization"]["model"]["dax_shape"]
+
+
+def test_a_contract_only_control_says_so_and_names_the_gap():
+    """Ein Vertrag ohne Emitter ist in Ordnung — ein Vertrag, der so tut als gaebe es einen, nicht.
+
+    Gemessen 09.09.2026: `tooling/superversion/targets/tmdl.py` fuehrt kein `calculated`,
+    kein `NAMEOF` und keine `calculationGroup`. Die Modell-Haelfte des Feldparameters
+    existiert also nicht, und genau das steht im Eintrag.
+    """
+    tmdl = (REPO_ROOT / "tooling/superversion/targets/tmdl.py").read_text(encoding="utf-8")
+    kann_berechnete_tabellen = any(t in tmdl for t in ("NAMEOF", "calculationGroup"))
+    for c in _controls():
+        if c.get("emission_status") != "contract_only":
+            continue
+        assert c.get("emission_gap"), f"{c['control_id']}: contract_only ohne benannte Luecke"
+        assert not kann_berechnete_tabellen, (
+            f"{c['control_id']} steht auf contract_only, aber der TMDL-Emitter kann inzwischen "
+            f"berechnete Tabellen — die Luecke ist zu, der Eintrag veraltet.")

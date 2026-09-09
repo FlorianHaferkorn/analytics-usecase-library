@@ -58,6 +58,9 @@ ALUCA_VISUAL_IDIOM: dict[str, str] = {
     "stacked_100": "stacked_100",
     "decomposition_tree": "decomposition_tree",
     "scatter": "scatter",
+    # 09.09.2026: die native KPI-Karte ist erreichbar, aber nur unter EIGENEM Typ. `kpi_card`
+    # bleibt `cardVisual` — Begruendung und Zahlen stehen bei `_PLANS` in targets/pbir.py.
+    "kpi_card_native": "kpi_card_spark",
 }
 
 # visual_types the emitter handles that are structural/chrome, not a charted idiom.
@@ -72,14 +75,40 @@ EXEMPT: frozenset[str] = frozenset({
 # remains Desktop-gated for the whole track (no headless PBIR renderer) — that is inherent, not a gap.
 # The reachability test asserts this stays the exact tracked set.
 #
-# `kpi_card_spark` steht hier seit 08.09.2026, und zwar als Entscheidung und nicht als Rest:
-# das Idiom emittiert seit ADR-0021 nativ ein `kpi`-Visual, aber der ALUCA-Typ `kpi_card` faehrt
-# in _PLANS heute ein `cardVisual` (Rolle Data). Ein Umhaengen waere kein Bibliotheks-Detail — es
-# aendert JEDE KPI-Karte in jedem erzeugten Report, und `kpi` verlangt zusaetzlich eine
-# Ziel-Measure auf der Rolle `Goal`, die ein Bracket heute nicht liefern muss. Beides gehoert
-# Flo und nicht einem Seiteneffekt. Bis dahin bleibt die native Spur in der Bibliothek
-# vorhanden und aus dem Generator unerreichbar — benannt statt still.
-PLANS_UNREACHABLE: frozenset[str] = frozenset({"kpi_card_spark"})
+# `kpi_card_spark` stand hier vom 08. bis zum 09.09.2026 und ist jetzt erreichbar — aber ueber
+# einen EIGENEN visual_type `kpi_card_native`, nicht durch Umhaengen von `kpi_card`.
+#
+# Der Unterschied ist gemessen und nicht vorsichtshalber gewaehlt. Das `kpi`-Visual zeichnet Ist
+# gegen Ziel; ohne Measure auf der Rolle `Goal` ist es die schlechtere Karte. Gezaehlt am
+# 09.09.2026 ueber alle Brackets: 21 KPI-Karten (12 `vs_target`, 8 `vs_plan`, 1 `vs_py`).
+# Gegengeprueft an allen 230 Measure-Namen aller TMDL-Modelle des Repos: fuer **0 von 21**
+# existiert eine Ziel-Measure. Es gibt genau eine Plan-Measure ueberhaupt (`Plan Sales Amount`),
+# und keine der 21 KPIs zeigt auf sie. Ein pauschaler Umzug haette 21 Karten mit leerer
+# Ziel-Rolle erzeugt.
+#
+# Deshalb: die Spur ist gebaut und erreichbar, das Umschalten ist eine Bracket-Entscheidung je
+# Karte, und sie setzt eine existierende Ziel-Measure voraus. Der Emitter prueft das und faellt
+# sonst mit vermerkter Luecke auf `cardVisual` zurueck (`_goal_gap` in targets/pbir.py).
+PLANS_UNREACHABLE: frozenset[str] = frozenset()
+
+# Emittierbar, aber nur auf ausdrueckliche Nennung — nicht ueber den Zweck-Resolver.
+#
+# `kpi_card_spark` steht hier, weil das `kpi`-Visual eine Ziel-Measure verlangt, die im
+# Bestand fuer keine der 21 KPI-Karten existiert (gezaehlt 09.09.2026, Begruendung bei
+# `_PLANS` in targets/pbir.py). Ein Bracket bekommt die native Karte, indem es
+# `visual_type: kpi_card_native` schreibt — und traegt damit die Verantwortung, eine
+# Ziel-Measure zu liefern.
+#
+# Der Grund, warum diese Liste ueberhaupt existiert, ist ein Befund und keine Vorsicht:
+# als das Idiom emittierbar wurde, aenderte `visual_type_for_purpose` ohne eigene
+# Aenderung sein Ergebnis — `value_verdict` loeste ploetzlich auf `kpi_card_native` auf,
+# und damit haette jedes Bracket, das einen ZWECK statt eines visual_type nennt, die
+# native Karte bekommen. Genau der pauschale Umzug, gegen den die Zahlen stehen.
+# Gefunden hat das nicht ein Gedanke, sondern ein bestehender Test.
+#
+# Die Lehre darueber hinaus: einen Typ erreichbar zu machen, macht ihn ueber JEDEN Umweg
+# erreichbar, der auf Erreichbarkeit prueft. Wer eine Spur oeffnet, zaehlt ihre Eingaenge.
+OPT_IN_ONLY: frozenset[str] = frozenset({"kpi_card_spark"})
 
 
 class IdiomBridgeError(ValueError):
@@ -138,6 +167,8 @@ def visual_type_for_purpose(purpose: str) -> "str | None":
     if not p:
         return None
     idiom = p.get("best", "").split("@", 1)[0]
+    if idiom in OPT_IN_ONLY:
+        return None                      # Zweck-Umweg liefert ihn nicht; der Fallback traegt
     rev: dict[str, str] = {}
     for vt, idi in ALUCA_VISUAL_IDIOM.items():
         rev.setdefault(idi, vt)  # first (canonical) visual_type key wins

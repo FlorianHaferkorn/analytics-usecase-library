@@ -844,3 +844,118 @@ information_blocks:
         description: "Root cause on T3 is contextual only — not a full statistical analysis"
         source: "T3_Operational_Monitoring.md"
         severity: warning
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Steuerelemente (controls) — 09.09.2026
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Warum ein eigener Abschnitt und kein elfter `information_block`: ein
+# Informationsblock ZEIGT etwas und beantwortet eine Frage. Ein Steuerelement
+# zeigt nichts — es aendert, was die anderen Visuals zeigen. Die Felder eines
+# Blocks (`required_inputs`, `allowed_visuals`, `quality_rules` ueber die
+# Aussage) gehen an einem Steuerelement vorbei, und ein Block, dessen Zweck
+# „ermoeglicht eine Auswahl" waere, haette keine Botschaft, die ein Test
+# pruefen koennte. Deshalb: dieselbe Datei, dieselbe Autoritaet, eigener
+# Abschnitt — kein zweites Silo neben der Registry.
+#
+# Der Platz auf der Seite existierte schon: `template_manifest.yaml` fuehrt den
+# Slot `Slicer_Pane` und die Obergrenze `max_slicers: 3`. Was fehlte, war der
+# Vertrag darueber, WAS ein Steuerelement tun darf.
+#
+# Der Unterschied, um den es hier geht (Bild 4): ein **Slicer** filtert ZEILEN,
+# ein **Feldparameter** tauscht das FELD. Beide erscheinen dem Leser als
+# dieselbe Liste zum Anklicken, und genau deshalb wird der Unterschied leicht
+# uebersehen — er steht nicht im Visual, sondern im Modell.
+
+controls:
+
+  - control_id: granularity_switch
+    name: "Granularitaets-Umschalter (Feldparameter)"
+    purpose: >-
+      Der Leser waehlt die Ebene, auf der dieselbe Frage beantwortet wird —
+      Region, Produkt, Kunde — ohne dass die Seite dupliziert wird.
+    slot_compatibility: ["Slicer_Pane"]
+    page_types: ["T2", "T3", "T4"]
+
+    # Gemessen 09.09.2026 gegen MS Learn (power-bi/create-reports/power-bi-field-parameters
+    # und power-bi/visuals/power-bi-visualization-slicers):
+    #
+    #   * Ein Feldparameter ist KEIN Visualtyp. Er ist eine berechnete Tabelle im
+    #     Modell (DAX mit `NAMEOF()`), und Power BI erzeugt dazu automatisch einen
+    #     gewoehnlichen Slicer — „When you create a field parameter, Power BI
+    #     automatically generates a slicer that controls the parameter."
+    #   * Gegenprobe am offiziellen Visual-Katalog (Pin 0.1.1, `catalog_facts.json`):
+    #     die zwoelf gefuehrten Visualtypen enthalten keinen Parameter-Typ. Wer hier
+    #     einen `pbip_type: fieldParameter` erfaende, erfaende ihn wirklich.
+    #   * Verwendet wird er in den Feldbrunnen der ANDEREN Visuals: spaltenbasiert
+    #     auf der Achse, measurebasiert bei den Werten.
+    #
+    # Daraus die Zweiteilung unten: das Steuerelement ist ein Slicer, seine Substanz
+    # liegt im Modell, und seine Wirkung entsteht erst durch die Bindung der anderen
+    # Visuals. Drei Orte, ein Steuerelement — deshalb hatte es keine Heimat.
+    realization:
+      model:
+        kind: calculated_table
+        dax_shape: "{ (\"<Anzeigename>\", NAMEOF('<Tabelle>'[<Spalte>]), <Reihenfolge>), ... }"
+        note: >-
+          Traegt die Auswahl. Ohne diese Tabelle gibt es kein Steuerelement —
+          der Slicer allein filtert nur.
+      report:
+        pbip_type: slicer
+        note: >-
+          Ein gewoehnlicher Slicer, gebunden an die Parameter-Tabelle. Genau
+          deshalb faellt er unter `max_slicers` des Seiten-Manifests.
+      binding:
+        note: >-
+          Die gesteuerten Visuals tragen die Parameter-Spalte in ihrer
+          Gruppierungs-Rolle (Category/Axis) statt einer festen Dimension.
+          Ohne diese Bindung dreht der Leser an einem Knopf ohne Wirkung.
+
+    quality_rules:
+      - rule_id: not_a_filter
+        description: >-
+          Ein Granularitaets-Umschalter ersetzt keinen Filter und umgekehrt. Wer
+          Zeilen einschraenken will, nimmt einen Slicer; wer die Ebene wechseln
+          will, einen Feldparameter. Beide zusammen auf demselben Feld ist ein
+          Widerspruch, den der Leser nicht aufloesen kann.
+        severity: error
+      - rule_id: counts_against_max_slicers
+        description: >-
+          Der erzeugte Slicer zaehlt gegen `max_slicers` der Seitenvariante — er
+          ist einer. Drei Umschalter neben drei Filtern sind sechs Slicer.
+        severity: error
+      - rule_id: levels_must_be_comparable
+        description: >-
+          Alle Stufen des Umschalters beantworten dieselbe Frage. Wer Region und
+          Kalenderwoche in denselben Parameter legt, wechselt nicht die
+          Granularitaet, sondern das Thema.
+        severity: warning
+      - rule_id: axis_label_follows_selection
+        description: >-
+          Die Achsenbeschriftung und der Visual-Titel nennen die GEWAEHLTE Ebene.
+          Ein fester Titel „nach Region" ueber einer Ansicht nach Produkt ist die
+          Sorte Fehler, die keine Fehlermeldung erzeugt.
+        severity: error
+
+    # Was heute NICHT emittiert wird, gemessen statt angenommen (09.09.2026):
+    # `tooling/superversion/targets/tmdl.py` kennt keine berechneten Tabellen — null
+    # Treffer fuer `calculated`, `NAMEOF` und `calculationGroup`. Die Modell-Haelfte
+    # dieses Steuerelements ist damit neue Maschinerie im Semantikmodell-Emitter und
+    # kein Nachziehen. Der Vertrag steht hier trotzdem, weil er die Entscheidung
+    # traegt: WAS gebaut wird, ist beschrieben und gegen MS Learn und den offiziellen
+    # Katalog gemessen; DASS es gebaut wird, ist ein eigener Schnitt.
+    emission_status: contract_only
+    emission_gap: >-
+      Modell-Haelfte fehlt: der TMDL-Emitter kann keine berechnete Tabelle erzeugen.
+      Bericht-Haelfte waere da (`slicer` steht in pbir._PLANS), die Bindung der
+      gesteuerten Visuals ebenfalls (Category-Rolle nimmt eine qualifizierte Spalte).
+
+    forbidden_alternatives:
+      - alternative: "eine Seite je Ebene"
+        reason: >-
+          Dupliziert Layout und Botschaft; jede Aenderung muss danach n-mal
+          nachgezogen werden, und die Fassungen driften.
+      - alternative: "Feldparameter fuer eine Entweder-oder-Auswahl mit zwei Optionen"
+        reason: >-
+          Zwei Ebenen rechtfertigen die Modell-Tabelle nicht — dafuer nebeneinander
+          zeigen, dann sieht der Leser beides ohne zu klicken.

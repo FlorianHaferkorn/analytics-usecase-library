@@ -289,6 +289,27 @@ def test_native_idioms_are_reachable_via_plans_or_explicitly_tracked():
     assert {"line", "bar_ranking", "column_time", "waterfall_pvm", "matrix_evidence"} <= reachable
 
 
+def test_opt_in_only_idioms_are_emittable_but_not_reachable_through_the_purpose_seam():
+    """Erreichbar zu machen heisst, ueber JEDEN Eingang erreichbar zu machen (09.09.2026).
+
+    Als `kpi_card_spark` in _PLANS wanderte, kippte `visual_type_for_purpose('value_verdict')`
+    ohne eigene Aenderung von None auf `kpi_card_native` — und haette damit jedem Bracket, das
+    einen Zweck statt eines visual_type nennt, die native KPI-Karte gegeben. Die Karte verlangt
+    eine Ziel-Measure, die im Bestand fuer 0 von 21 Karten existiert.
+    """
+    for idiom in vi.OPT_IN_ONLY:
+        assert idiom not in vi.PLANS_UNREACHABLE, (
+            f"{idiom} kann nicht gleichzeitig unerreichbar und opt-in-erreichbar sein")
+        aluca = [vt for vt, i in vi.ALUCA_VISUAL_IDIOM.items() if i == idiom]
+        assert aluca, f"{idiom} ist opt-in, hat aber keinen visual_type zum Nennen"
+        for vt in aluca:
+            assert vt in pbir._PLANS, f"{vt} ist opt-in, aber nicht emittierbar"
+
+    # und der Zweck-Umweg liefert ihn NICHT
+    assert vi.best_idiom_for_purpose("value_verdict") == "kpi_card_spark"   # Praemisse
+    assert vi.visual_type_for_purpose("value_verdict") is None              # Folge
+
+
 def test_min_slot_and_purpose_helpers():
     """The generator seam can consult the grid floor and resolve a purpose to its best idiom."""
     cols, rows = vi.min_slot("bar_ranking")

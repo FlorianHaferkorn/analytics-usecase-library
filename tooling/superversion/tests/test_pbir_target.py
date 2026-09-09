@@ -181,6 +181,101 @@ def test_hitl_placeholder_for_missing_dimension():
     assert any("Category" in g and "v_chart" in g for g in pbir.hitl_gaps(sm))
 
 
+# --------------------------------------------------------------------------- #
+# Native KPI-Karte (09.09.2026): erreichbar als eigener Typ, nicht als Umbau     #
+# --------------------------------------------------------------------------- #
+# Das `kpi`-Visual zeichnet Ist GEGEN ZIEL. Ohne Measure auf `Goal` ist es die schlechtere
+# Karte, nicht die bessere — deshalb bleibt `kpi_card` auf `cardVisual` und die native Spur
+# bekommt einen eigenen Typ. Die Zahl hinter dieser Entscheidung steht in
+# test_no_bracket_kpi_card_has_a_goal_measure_that_exists weiter unten und misst sich selbst.
+
+
+def test_the_established_kpi_cards_still_emit_cardvisual():
+    """Die Entscheidung, NICHT umzuziehen, wird geprueft und nicht nur kommentiert."""
+    for vt in ("card", "kpi_card", "kpi_card_with_delta"):
+        assert pbir._PLANS[vt].visual_type == "cardVisual", vt
+
+
+def test_the_native_kpi_card_emits_the_kpi_visual_with_indicator_trendline_and_goal():
+    karte = Visual(visual_id="v_kpi", visual_type="kpi_card_native",
+                   bound_measures=["Net Sales Amount", "Plan Sales Amount"],
+                   rows=["dim_date.Date"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[karte])]),
+    )
+    vj = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_kpi/visual.json"])
+    assert vj["visual"]["visualType"] == "kpi"
+    qs = vj["visual"]["query"]["queryState"]
+    assert set(qs) == {"Indicator", "TrendLine", "Goal"}
+    assert qs["Indicator"]["projections"][0]["field"]["Measure"]["Property"] == "Net Sales Amount"
+    assert qs["Goal"]["projections"][0]["field"]["Measure"]["Property"] == "Plan Sales Amount"
+    assert qs["TrendLine"]["projections"][0]["field"]["Column"]["Property"] == "Date"
+
+
+def test_a_native_kpi_card_without_a_target_is_loud_not_silently_empty():
+    """Eine leere Ziel-Rolle waere ein Bericht, der rendert und nicht stimmt."""
+    karte = Visual(visual_id="v_kpi", visual_type="kpi_card_native",
+                   bound_measures=["Net Sales Amount"], rows=["dim_date.Date"])
+    sm = CanonicalModel(
+        semantic=SemanticModel(name="S"),
+        report=ReportModel(name="R", pages=[ReportPage(name="P1", visuals=[karte])]),
+    )
+    vj = json.loads(pbir.emit(sm)["R.Report/definition/pages/P1/visuals/v_kpi/visual.json"])
+    ziel = vj["visual"]["query"]["queryState"]["Goal"]["projections"][0]["field"]["Measure"]
+    assert ziel["Expression"]["SourceRef"]["Entity"] == "_HITL"      # sichtbar falsch
+    assert any("Goal" in g and "v_kpi" in g for g in pbir.hitl_gaps(sm))
+
+
+def test_no_bracket_kpi_card_has_a_goal_measure_that_exists():
+    """Die Praemisse der Entscheidung, als Sensor statt als Kommentar.
+
+    Gemessen 09.09.2026: 21 KPI-Karten in den Brackets, und fuer KEINE existiert eine
+    Ziel-Measure in irgendeinem TMDL-Modell des Repos. Solange das so ist, waere ein
+    pauschaler Umzug auf `kpi` falsch. Aendert sich das — jemand modelliert Plan-Measures —,
+    wird dieser Test rot und sagt damit, dass die Entscheidung neu zu treffen ist. Genau
+    dafuer steht er hier: ein Grund, der sich nicht selbst nachmisst, veraltet unbemerkt.
+    """
+    import re
+
+    import yaml
+
+    namen: set[str] = set()
+    for t in REPO.rglob("*.tmdl"):
+        namen |= set(re.findall(r"^\s*measure\s+'([^']+)'", t.read_text(encoding="utf-8",
+                                                                        errors="ignore"), re.M))
+    katalog = {}
+    for f in KPIS.glob("*.yaml"):
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        if d.get("kpi_id"):
+            katalog[d["kpi_id"]] = (d.get("technical") or {}).get("measure_name")
+
+    karten: list[tuple[str, str]] = []
+
+    def lauf(o):
+        if isinstance(o, dict):
+            if str(o.get("visual_type", "")).startswith("kpi_card"):
+                karten.append((o.get("kpi_id"), o.get("comparison")))
+            for v in o.values():
+                lauf(v)
+        elif isinstance(o, list):
+            for v in o:
+                lauf(v)
+
+    for f in (REPO / "core/usecases").rglob("UseCase_Bracket.yaml"):
+        lauf(yaml.safe_load(f.read_text(encoding="utf-8")))
+
+    assert len(karten) >= 20, f"nur {len(karten)} KPI-Karten gefunden — Bestand geschrumpft?"
+    mit_ziel = [k for k, _ in karten
+                if katalog.get(k) and f"Plan {katalog[k]}" in namen]
+    assert not mit_ziel, (
+        f"{len(mit_ziel)} von {len(karten)} KPI-Karten haben jetzt eine Ziel-Measure im Modell "
+        f"({sorted(mit_ziel)}) — die Praemisse von W-2 gilt nicht mehr. Der Umzug von "
+        f"`kpi_card` auf das native `kpi`-Visual ist damit neu zu bewerten (visual_idioms."
+        f"PLANS_UNREACHABLE-Kommentar und _PLANS in targets/pbir.py tragen die alte Zahl)."
+    )
+
+
 def test_qualified_category_binds_declared_entity_and_property():
     chart = Visual(visual_id="v_chart", visual_type="line_chart",
                    bound_measures=["Revenue"], rows=["dim_date.CalendarYearMonth"])

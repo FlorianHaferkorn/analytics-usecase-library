@@ -91,8 +91,23 @@ class _TypePlan:
 # keep them from drifting.
 _PLANS: dict[str, _TypePlan] = {
     "card": _TypePlan("cardVisual", "Data", "Measure", None, ()),
+    # `kpi_card`/`kpi_card_with_delta` bleiben `cardVisual`, und das ist eine Messung, keine
+    # Traegheit (09.09.2026). Das native `kpi`-Visual zeichnet Ist GEGEN ZIEL — ohne Measure
+    # auf der Rolle `Goal` ist es die schlechtere Karte, nicht die bessere. Gezaehlt ueber alle
+    # Brackets: 21 Karten, davon 12 `vs_target`, 8 `vs_plan`, 1 `vs_py`. Und gemessen ueber alle
+    # 230 Measure-Namen in allen TMDL-Modellen des Repos: **0 von 21** haben eine Ziel-Measure,
+    # die dort existiert. Es gibt genau EINE Plan-Measure ueberhaupt (`Plan Sales Amount`), und
+    # keine der 21 KPIs zeigt auf sie. Ein pauschaler Umzug haette also 21 KPI-Visuals mit leerer
+    # Ziel-Rolle erzeugt — ein Bericht, der rendert und nicht stimmt.
     "kpi_card": _TypePlan("cardVisual", "Data", "Measure", None, ()),
     "kpi_card_with_delta": _TypePlan("cardVisual", "Data", "Measure", None, ()),
+    # Die native Spur ist damit nicht unerreichbar, sondern OPT-IN: ein Bracket, das
+    # `kpi_card_native` schreibt, bekommt das `kpi`-Visual — und muss dann eine Ziel-Measure
+    # liefern, sonst faellt der Emitter mit vermerkter Luecke auf `cardVisual` zurueck.
+    # Rollen aus dem governten Golden `kpi_card_spark.powerbi_native.json` abgelesen, nicht
+    # geraten: Indicator (Measure), TrendLine (Column), Goal (Measure).
+    "kpi_card_native": _TypePlan("kpi", "Indicator", "Measure", 1, ("TrendLine",),
+                                 secondary_role="Goal", secondary_max=1),
     "line_chart": _TypePlan("lineChart", "Y", "Measure", None, ("Category",)),
     "trend_line": _TypePlan("lineChart", "Y", "Measure", None, ("Category",)),
     # Both bar variants → clusteredBarChart: the Visual-Library (I-5.1) standardises
