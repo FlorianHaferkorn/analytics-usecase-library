@@ -147,7 +147,9 @@ def strategy_from_governance(profile: str | None, ist_state: str | None = None, 
                              workspace_prefix: str | None = None,
                              workspace_layers: list[str] | None = None,
                              stages: list[str] | None = None,
-                             workspace_layer_names: dict[str, str] | None = None) -> dict[str, Any]:
+                             workspace_layer_names: dict[str, str] | None = None,
+                             workspace_layer_labels: dict[str, str] | None = None,
+                             ) -> dict[str, Any]:
     """``{ownership_model, workspace_strategy, rationale, source, ...}`` — Vorschlag mit Herkunft.
 
     Ohne Profil wird nichts behauptet: der Zuschnitt bleibt der bisherige (`per_domain`) und ist
@@ -209,6 +211,13 @@ def strategy_from_governance(profile: str | None, ist_state: str | None = None, 
     if workspace_layer_names:
         out["workspace_layer_names"] = {k: v for k, v in sorted(workspace_layer_names.items())
                                         if k in DEFAULT_LAYERS}
+    # Das Wort, das die Unterlagen fuer eine Schicht benutzen — getrennt vom Namenssegment
+    # oben. Beides in einen Schluessel zu legen waere bequem und falsch: Kunde A schreibt
+    # `reporting` -> `report` in den Workspacenamen und nennt die Schicht im Handbuch
+    # `Consumption`. Ein Schluessel koennte nur eines von beiden.
+    if workspace_layer_labels:
+        out["workspace_layer_labels"] = {k: v for k, v in sorted(workspace_layer_labels.items())
+                                         if k in DEFAULT_LAYERS}
     if stages:
         out["stages"] = [s for s in LIFECYCLE_STAGES if s in set(stages)]
     if ist_hinweis:

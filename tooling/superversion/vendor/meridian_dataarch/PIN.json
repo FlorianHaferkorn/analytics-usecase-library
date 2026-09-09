@@ -65,7 +65,7 @@
     },
     {
       "path": "governance_strategy.py",
-      "sha256": "476adb7e5f1a6c9b521022ba43d46ef45f0871e66b25a7d208fa8ff336f6af86"
+      "sha256": "512510874f1e1f089e79530ee53adb3765e7caa3093122419a3e778c69723661"
     },
     {
       "path": "provision_apply.py",
