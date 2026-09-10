@@ -179,7 +179,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         args.json.write_text(json.dumps({
             "level": level, "integrity": integrity, "provenance": provenance,
             "parity_active": parity, "osi": osi,
-        }, indent=2) + "\n", encoding="utf-8")
+        }, indent=2) + "\n", encoding="utf-8", newline="\n")
 
     if args.strict and has_drift(integrity):
         print("[superversion-pins] STRICT: hard drift → exit 1")

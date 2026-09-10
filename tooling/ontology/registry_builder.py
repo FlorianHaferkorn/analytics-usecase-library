@@ -79,7 +79,7 @@ def _read_text(path: Path) -> str:
 
 
 def _write_json(path: Path, obj: Any) -> None:
-    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
 
 _FRONTMATTER_START = re.compile(r"^\s*---\s*$")
@@ -1312,7 +1312,7 @@ def _validate_org_roles(
     does not mutate any input.
     """
     issues: List[Issue] = []
-    org_roles_ref = str(org_roles_path.relative_to(repo_root)).replace("\\", "/")
+    org_roles_ref = org_roles_path.relative_to(repo_root).as_posix().replace("\\", "/")
     valid_role_ids: Set[str] = set()
     if org_roles_path.exists():
         try:
@@ -2234,7 +2234,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # Write UseCase_Inventory.md
     inventory_path = repo_root / "core" / "usecases" / "UseCase_Inventory.md"
-    inventory_path.write_text("\n".join(inventory_lines), encoding="utf-8")
+    inventory_path.write_text("\n".join(inventory_lines), encoding="utf-8", newline="\n")
 
     # Print actionable errors and warnings to stderr for CI visibility
     for iss in issues:

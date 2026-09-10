@@ -56,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args.dest.mkdir(parents=True, exist_ok=True)
     (args.dest / REPORT_PATH).write_text(
-        answers_markdown(plan, released=False), encoding="utf-8")
+        answers_markdown(plan, released=False), encoding="utf-8", newline="\n")
 
     s = plan["summary"]
     print(f"{s['answers']} answers: {s['applies']} change an input, {s['already']} already "
@@ -79,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {exc}")
         return 1
     (args.dest / REPORT_PATH).write_text(
-        answers_markdown(plan, released=True), encoding="utf-8")
+        answers_markdown(plan, released=True), encoding="utf-8", newline="\n")
     for line in written:
         print(f"  written: {line}")
     if recorded:

@@ -111,10 +111,10 @@ def _seed_report(root: Path) -> Path:
 
 def test_bulk_set_dry_run_does_not_write(tmp_path):
     rdir = _seed_report(tmp_path)
-    before = (rdir / "definition" / "pages" / "Page_X" / "visuals" / "V1" / "visual.json").read_text()
+    before = (rdir / "definition" / "pages" / "Page_X" / "visuals" / "V1" / "visual.json").read_text(encoding="utf-8")
     changed = bulk_set(tmp_path, "visual.objects.legend[0].properties.show", True, type_glob="lineChart")
     assert changed == ["COM-X.Report/Page_X/V1"]
-    after = (rdir / "definition" / "pages" / "Page_X" / "visuals" / "V1" / "visual.json").read_text()
+    after = (rdir / "definition" / "pages" / "Page_X" / "visuals" / "V1" / "visual.json").read_text(encoding="utf-8")
     assert before == after  # dry-run wrote nothing
 
 
@@ -123,12 +123,12 @@ def test_bulk_set_apply_writes_and_leaves_bindings_intact(tmp_path):
     queryState (bindings) is byte-for-byte unchanged."""
     rdir = _seed_report(tmp_path)
     vfile = rdir / "definition" / "pages" / "Page_X" / "visuals" / "V1" / "visual.json"
-    before_query = copy.deepcopy(json.loads(vfile.read_text())["visual"]["query"])
+    before_query = copy.deepcopy(json.loads(vfile.read_text(encoding="utf-8"))["visual"]["query"])
 
     changed = bulk_set(tmp_path, "visual.objects.legend[0].properties.show", True,
                        type_glob="lineChart", apply=True)
     assert changed == ["COM-X.Report/Page_X/V1"]
-    after = json.loads(vfile.read_text())
+    after = json.loads(vfile.read_text(encoding="utf-8"))
     assert after["visual"]["objects"]["legend"][0]["properties"]["show"] is True   # set
     assert after["visual"]["query"] == before_query                                # bindings untouched
 

@@ -89,14 +89,14 @@ def _module(package, manifest, kind, document):
         row = {"module_type": kind, "path": f"{kind}.yaml", "schema_id": f"https://aluca.local/schemas/project-package/{kind.replace('_', '-')}/2.0.0"}
         manifest["modules"].append(row)
     path = package / row["path"]
-    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8", newline="\n")
     row["sha256"] = canonical_sha256(document)
 
 
 def _build_repository(root, schemas, variant):
     source = root / "source"
     source.mkdir()
-    source.joinpath("package.yaml").write_text((FIXTURE / "package.json").read_text(encoding="utf-8"), encoding="utf-8")
+    source.joinpath("package.yaml").write_text((FIXTURE / "package.json").read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
     package = migrate_project_package(source, root / "package", schemas)
     manifest = yaml.safe_load((package / "package.yaml").read_text(encoding="utf-8"))
     decision = json.loads((FIXTURE / "decision_set.json").read_text(encoding="utf-8"))
@@ -106,10 +106,10 @@ def _build_repository(root, schemas, variant):
                            ("use_case_delivery", json.loads((FIXTURE / "use_case_delivery.json").read_text(encoding="utf-8")))):
         _module(package, manifest, kind, document)
         next(row for row in manifest["modules"] if row["module_type"] == kind)["schema_id"] = json.loads((schemas / f"project_{kind}.schema.json").read_text(encoding="utf-8"))["$id"]
-    (package / "SYNTHETIC_ONLY.json").write_text(_json(MARKER), encoding="utf-8")
+    (package / "SYNTHETIC_ONLY.json").write_text(_json(MARKER), encoding="utf-8", newline="\n")
     for name in ("brief.md", "sales.csv"):
         (package / name).write_bytes((FIXTURE / name).read_bytes())
-    (package / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    (package / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
     repo = ProjectPackageRevisionRepository(root / "repositories" / PROJECT, schemas)
     first = repo.commit(package)
     preview = preview_derivation(repo, PROJECT, first.revision_hash)
@@ -120,7 +120,7 @@ def _build_repository(root, schemas, variant):
     draft = repo.checkout(root / "fixture_approval", derived["revision_hash"])
     manifest = yaml.safe_load((draft / "package.yaml").read_text(encoding="utf-8"))
     manifest["state"] = "approved"
-    (draft / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    (draft / "package.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
     final = repo.commit_draft(draft, expected_head_hash=derived["revision_hash"])
     released = release_input(repo, PROJECT, final.revision_hash, actor=ACTOR, rationale="Synthetic local compiler release only; never customer or tenant approval.")
     return repo, final, released, {"before_revision_hash": first.revision_hash, "derived_revision_hash": derived["revision_hash"], "revision_hash": final.revision_hash, "preview": preview}
@@ -259,7 +259,7 @@ def run_reference(root: Path, schemas: Path, variant: str = "dev_test_prod") -> 
                   "Lakehouse storage, semantic model and report are logical specifications only; no Spark, DAX, Direct Lake, report rendering or refresh has run.",
                   "The three-row arithmetic check does not prove incremental loading, data volumes, security, promotion, cost, staffing or customer acceptance.",
                   "Real Fabric compatibility and all tenant evidence remain not run until a separately authorized nonproduction tenant is available."]}
-    (root / "report.json").write_text(_json(report), encoding="utf-8")
+    (root / "report.json").write_text(_json(report), encoding="utf-8", newline="\n")
     return report
 
 

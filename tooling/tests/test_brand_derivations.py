@@ -543,7 +543,7 @@ class TestDeriveFromSpec:
             out_dir_css=self._tmp / "css",
             verbose=False,
         )
-        data = json.loads(outputs["pbi_theme"].read_text())
+        data = json.loads(outputs["pbi_theme"].read_text(encoding="utf-8"))
         assert "dataColors" in data
         assert len(data["dataColors"]) == 8
 
@@ -554,7 +554,7 @@ class TestDeriveFromSpec:
             out_dir_css=self._tmp / "css",
             verbose=False,
         )
-        css = outputs["css_variables"].read_text()
+        css = outputs["css_variables"].read_text(encoding="utf-8")
         assert ":root {" in css
 
     def test_patches_tool_derivations(self):
@@ -565,7 +565,7 @@ class TestDeriveFromSpec:
             out_dir_css=self._tmp,
             verbose=False,
         )
-        patched = yaml.safe_load(self._spec.read_text())
+        patched = yaml.safe_load(self._spec.read_text(encoding="utf-8"))
         assert patched["tool_derivations"]["css_variables"] is not None
         assert patched["tool_derivations"]["powerbi_theme"] is not None
 

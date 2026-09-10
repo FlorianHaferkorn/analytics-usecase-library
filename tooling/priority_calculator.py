@@ -79,7 +79,7 @@ def scan_brackets(repo_root: Path) -> List[Dict[str, Any]]:
         result = {
             "id": uc_id,
             "title": title,
-            "path": str(bracket_path.relative_to(repo_root)),
+            "path": bracket_path.relative_to(repo_root).as_posix(),
             "has_prioritization": prio is not None,
             "has_readiness": readiness is not None,
         }

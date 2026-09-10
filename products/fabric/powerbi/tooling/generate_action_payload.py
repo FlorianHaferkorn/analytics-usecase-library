@@ -182,7 +182,7 @@ def write_action_panel_visual(report_dir: Path, text: str) -> Path:
     escaped = text.replace("'", "''")
     visual["visual"]["objects"]["text"][0]["properties"]["text"]["expr"]["Literal"]["Value"] = f"'{escaped}'"
 
-    out_path.write_text(json.dumps(visual, indent=2, ensure_ascii=False), encoding="utf-8")
+    out_path.write_text(json.dumps(visual, indent=2, ensure_ascii=False), encoding="utf-8", newline="\n")
     return out_path
 
 

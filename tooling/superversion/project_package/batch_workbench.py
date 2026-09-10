@@ -91,7 +91,7 @@ def save_batch(repository, payload):
         path = root / module["path"]
         path.parent.mkdir(parents=True, exist_ok=True)
         content = _json(payload["contract"]) if path.suffix.lower() == ".json" else yaml.safe_dump(payload["contract"], sort_keys=False, allow_unicode=True)
-        path.write_text(content, encoding="utf-8")
+        path.write_text(content, encoding="utf-8", newline="\n")
         module["sha256"] = canonical_sha256(payload["contract"])
         audit_ref = f"capabilities/batch-reviews/{preview['preview_hash']}.json"
         audit_path = root / audit_ref
@@ -102,7 +102,7 @@ def save_batch(repository, payload):
         with audit_path.open("x", encoding="utf-8") as handle:
             handle.write(_json(audit))
         manifest["state"] = "working"
-        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
         saved = repository.commit_draft(root, expected_head_hash=payload["revision_hash"])
     return {"project_ref": saved.project_ref, "revision_hash": saved.revision_hash,
             "parent_revision_hash": saved.parent_revision_hash, "audit_ref": audit_ref,

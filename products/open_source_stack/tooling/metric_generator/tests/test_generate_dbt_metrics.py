@@ -86,7 +86,7 @@ class TestGenerateMetricsYaml:
             "edges": [],
         }
         ir_path = tmp_path / "ir_v1.json"
-        ir_path.write_text(json.dumps(ir))
+        ir_path.write_text(json.dumps(ir), encoding="utf-8")
 
         result = generate_metrics_yaml(ir_path)
         assert result["version"] == 2
@@ -99,7 +99,7 @@ class TestGenerateMetricsYaml:
             "edges": [],
         }
         ir_path = tmp_path / "ir_v1.json"
-        ir_path.write_text(json.dumps(ir))
+        ir_path.write_text(json.dumps(ir), encoding="utf-8")
         result = generate_metrics_yaml(ir_path)
         assert result["metrics"] == []
 
@@ -131,7 +131,7 @@ class TestGenerateMetricsYaml:
             },
         }
         ir_path = tmp_path / "ir_v1.json"
-        ir_path.write_text(json.dumps(ir))
+        ir_path.write_text(json.dumps(ir), encoding="utf-8")
 
         result = generate_metrics_yaml(ir_path, mode="core", use_cases=["COM-001"])
         metric_names = [metric["name"] for metric in result["metrics"]]
@@ -168,7 +168,7 @@ class TestGenerateMetricsYaml:
             },
         }
         ir_path = tmp_path / "ir_v1.json"
-        ir_path.write_text(json.dumps(ir))
+        ir_path.write_text(json.dumps(ir), encoding="utf-8")
 
         result = generate_metrics_yaml(ir_path, mode="core", use_cases=["FIN-001"])
         metric_names = [metric["name"] for metric in result["metrics"]]

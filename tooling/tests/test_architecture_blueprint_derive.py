@@ -23,7 +23,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SCHEMA = json.loads(
-    (_REPO_ROOT / "tooling" / "generator" / "schemas" / "architecture_blueprint.schema.json").read_text()
+    (_REPO_ROOT / "tooling" / "generator" / "schemas" / "architecture_blueprint.schema.json").read_text(encoding="utf-8")
 )
 
 _FIXTURE = {

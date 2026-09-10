@@ -99,7 +99,7 @@ def test_real_tmdl_hook_passes_on_emitted_files(model, tmp_path):
         f.parent.mkdir(parents=True, exist_ok=True)
         f.write_text(content, encoding="utf-8")
         payload = json.dumps({"tool_name": "Write", "tool_input": {"file_path": str(f)}})
-        res = subprocess.run([bash, str(HOOK)], input=payload, capture_output=True, text=True)
+        res = subprocess.run([bash, str(HOOK)], input=payload, capture_output=True, text=True, encoding="utf-8", errors="replace")
         assert res.returncode == 0, f"hook blocked {rel}: {res.stdout}\n{res.stderr}"
 
 

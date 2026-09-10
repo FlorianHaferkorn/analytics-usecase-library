@@ -158,7 +158,7 @@ class TestSchemaManifest:
             capture_output=True,
             text=True,
             cwd=str(REPO_ROOT),
-        )
+            encoding="utf-8", errors="replace")
         assert result.returncode == 0, (
             f"schema_manifest.json is stale. Run update_schema_manifest.py to fix.\n"
             f"stdout: {result.stdout}\nstderr: {result.stderr}"

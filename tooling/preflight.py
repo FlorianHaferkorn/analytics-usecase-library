@@ -68,7 +68,7 @@ else {{ console.log(files.length + ' brackets valid'); }}
     result = subprocess.run(
         ["node", "-e", script],
         capture_output=True, text=True, cwd=REPO_ROOT,
-    )
+        encoding="utf-8", errors="replace")
     if result.returncode != 0:
         return "fail", result.stderr.strip() or result.stdout.strip()
     return "pass", result.stdout.strip()
@@ -79,7 +79,7 @@ def run_check(name, cmd):
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, cwd=REPO_ROOT, timeout=120,
-        )
+            encoding="utf-8", errors="replace")
     except FileNotFoundError:
         return "skip", f"command not found: {cmd[0]}"
     except subprocess.TimeoutExpired:

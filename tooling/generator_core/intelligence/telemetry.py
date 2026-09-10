@@ -239,7 +239,7 @@ class TelemetryCollector:
         path.write_text(
             json.dumps(run.to_dict(), indent=2, ensure_ascii=False),
             encoding="utf-8",
-        )
+            newline="\n")
         return path
 
     @staticmethod

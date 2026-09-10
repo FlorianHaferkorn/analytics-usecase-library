@@ -153,7 +153,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     out_path: Path = args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(tmdl_text, encoding="utf-8")
+    out_path.write_text(tmdl_text, encoding="utf-8", newline="\n")
 
     print(
         f"Generated {out_path} — {len(all_measures)} measure(s) "

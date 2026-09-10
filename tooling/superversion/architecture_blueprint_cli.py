@@ -97,25 +97,25 @@ def run(inputs: dict[str, Any], dest: Path, stack: str = "fabric",
     rendered = arch_targets.render(stack, bp, dest=dest / "render", **render_kwargs)
 
     (dest / "blueprint.json").write_text(
-        json.dumps(bp, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+        json.dumps(bp, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     (dest / "hitl.json").write_text(
-        json.dumps(derived["hitl"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (dest / "CONFORMANCE.md").write_text(score.to_markdown(), encoding="utf-8")
+        json.dumps(derived["hitl"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    (dest / "CONFORMANCE.md").write_text(score.to_markdown(), encoding="utf-8", newline="\n")
     for rel, content in grounding.items():
-        (dest / rel).write_text(content, encoding="utf-8")
+        (dest / rel).write_text(content, encoding="utf-8", newline="\n")
 
     questions = collect_open_questions(inputs, derived)
     (dest / "open_questions.json").write_text(
-        json.dumps(questions, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (dest / "OPEN_QUESTIONS.md").write_text(open_questions_markdown(questions), encoding="utf-8")
+        json.dumps(questions, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    (dest / "OPEN_QUESTIONS.md").write_text(open_questions_markdown(questions), encoding="utf-8", newline="\n")
 
     guide = build_guide(questions, customer=customer)
     (dest / "engagement_guide.json").write_text(
-        json.dumps(guide, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (dest / "ENGAGEMENT_GUIDE.md").write_text(guide_markdown(guide), encoding="utf-8")
+        json.dumps(guide, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    (dest / "ENGAGEMENT_GUIDE.md").write_text(guide_markdown(guide), encoding="utf-8", newline="\n")
     (dest / "answers_template.json").write_text(
         json.dumps(answers_template(questions), indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8")
+        encoding="utf-8", newline="\n")
 
     return {
         "stack": stack,

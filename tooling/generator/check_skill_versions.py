@@ -45,7 +45,7 @@ def git_last_modified(path: Path) -> Optional[str]:
         result = subprocess.run(
             ["git", "log", "-1", "--format=%ci", "--", str(path)],
             capture_output=True, text=True, check=True
-        )
+        , encoding="utf-8", errors="replace")
         return result.stdout.strip() or None
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None

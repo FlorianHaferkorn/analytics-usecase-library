@@ -148,7 +148,7 @@ def get_fabric_token() -> Optional[str]:
         result = subprocess.run(
             ["az", "account", "get-access-token", "--resource", "https://analysis.windows.net/powerbi/api"],
             capture_output=True, text=True, timeout=30
-        )
+        , encoding="utf-8", errors="replace")
         if result.returncode == 0:
             data = json.loads(result.stdout)
             return data.get("accessToken")

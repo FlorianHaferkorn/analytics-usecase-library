@@ -46,7 +46,7 @@ def tmp_repo(tmp_path):
     uc_dir.mkdir(parents=True)
 
     # VERSION
-    (tmp_path / "VERSION").write_text("0.0.1-test")
+    (tmp_path / "VERSION").write_text("0.0.1-test", encoding="utf-8")
 
     return tmp_path
 
@@ -102,7 +102,7 @@ class TestComputeH1:
               governance:
                 status: active
             ```
-        """))
+        """), encoding="utf-8")
 
         # Create action code referencing one KPI
         ac_file = tmp_repo / "core" / "action_codes" / "Commercial" / "C-M1.1.yaml"
@@ -114,7 +114,7 @@ class TestComputeH1:
             "operational_execution": {"steps": ["step1"]},
             "kpis": {"trigger_kpis": ["sales.net_sales.amount"], "guardrail_kpis": [], "outcome_kpis": []},
         }
-        ac_file.write_text(yaml.dump(ac_data))
+        ac_file.write_text(yaml.dump(ac_data), encoding="utf-8")
 
         result = compute_h1(sample_registry, tmp_repo)
         # sales.net_sales.amount: all 5 layers present (catalog, bracket, measure_dict, data_contract, action_code)
@@ -136,7 +136,7 @@ class TestComputeH1:
             - measure_name: Sales Growth
               kpi_id_ref: sales.growth.pct
             ```
-        """))
+        """), encoding="utf-8")
 
         # Action codes for both KPIs
         import yaml
@@ -148,7 +148,7 @@ class TestComputeH1:
                 "impact": {"category": "revenue"},
                 "operational_execution": {"steps": ["step1"]},
                 "kpis": {"trigger_kpis": [kpi]},
-            }))
+            }), encoding="utf-8")
 
         result = compute_h1(sample_registry, tmp_repo)
         assert result["details"]["covered"] == 2
@@ -173,7 +173,7 @@ class TestScanMeasureDictionaries:
             - measure_name: Growth Rate
               kpi_id_ref: sales.growth.pct
             ```
-        """))
+        """), encoding="utf-8")
         result = _scan_measure_dictionaries_for_kpis(tmp_repo)
         assert result == {"sales.net_sales.amount", "sales.growth.pct"}
 
@@ -201,14 +201,14 @@ class TestScanActionCodeKpiRefs:
                 "guardrail_kpis": ["sales.margin.pct"],
                 "outcome_kpis": ["sales.growth.pct"],
             },
-        }))
+        }), encoding="utf-8")
         result = _scan_action_code_kpi_refs(tmp_repo)
         assert result == {"sales.net_sales.amount", "sales.margin.pct", "sales.growth.pct"}
 
     def test_skips_decision_spines(self, tmp_repo):
         ds_dir = tmp_repo / "core" / "action_codes" / "Commercial" / "decision_spines"
         ds_dir.mkdir()
-        (ds_dir / "DecisionSpine_COM.yaml").write_text("id: DEC-SPINE-COM\nkpis:\n  trigger_kpis:\n    - should.not.appear")
+        (ds_dir / "DecisionSpine_COM.yaml").write_text("id: DEC-SPINE-COM\nkpis:\n  trigger_kpis:\n    - should.not.appear", encoding="utf-8")
         result = _scan_action_code_kpi_refs(tmp_repo)
         assert result == set()
 
@@ -218,7 +218,7 @@ class TestScanActionCodeKpiRefs:
         ac_file.write_text(yaml.dump({
             "id": "C-M1.1",
             "kpis": {"trigger_kpis": [], "guardrail_kpis": [], "outcome_kpis": []},
-        }))
+        }), encoding="utf-8")
         result = _scan_action_code_kpi_refs(tmp_repo)
         assert result == set()
 
@@ -239,7 +239,7 @@ class TestComputeH2:
               governance:
                 status: active
             ```
-        """))
+        """), encoding="utf-8")
         result = compute_h2(tmp_repo)
         assert result["score"] == 100.0
         assert result["details"]["active"] == 2
@@ -258,7 +258,7 @@ class TestComputeH2:
               governance:
                 status: active
             ```
-        """))
+        """), encoding="utf-8")
         result = compute_h2(tmp_repo)
         assert result["details"]["total_measures"] == 3
         assert result["details"]["active"] == 2
@@ -302,7 +302,7 @@ class TestComputeH4:
             "impact": {"category": "revenue", "expected_range": "1-5%"},
             "operational_execution": {"steps": ["Review pricing", "Adjust"]},
             "kpis": {"trigger_kpis": ["sales.net_sales.amount"]},
-        }))
+        }), encoding="utf-8")
         result = compute_h4(tmp_repo)
         assert result["score"] == 100.0
         assert result["details"]["complete"] == 1
@@ -316,7 +316,7 @@ class TestComputeH4:
             "impact": {"category": "revenue"},
             # Missing operational_execution and trigger_kpis
             "kpis": {"trigger_kpis": []},
-        }))
+        }), encoding="utf-8")
         result = compute_h4(tmp_repo)
         assert result["score"] == 0.0
         assert "operational_execution" in result["details"]["incomplete"]["C-M1.1"]
@@ -325,7 +325,7 @@ class TestComputeH4:
     def test_skips_decision_spines(self, tmp_repo):
         ds_dir = tmp_repo / "core" / "action_codes" / "Commercial" / "decision_spines"
         ds_dir.mkdir()
-        (ds_dir / "DecisionSpine_COM.yaml").write_text("id: DEC-SPINE-COM\n")
+        (ds_dir / "DecisionSpine_COM.yaml").write_text("id: DEC-SPINE-COM\n", encoding="utf-8")
         result = compute_h4(tmp_repo)
         assert result["details"]["total_action_codes"] == 0
 
@@ -374,7 +374,7 @@ class TestComputeH5:
 
             ### Scenario 2: Growth Opportunity
             Trigger: Market share increase > 2%
-        """))
+        """), encoding="utf-8")
         result = compute_h5(tmp_repo)
         assert result["score"] == 100.0
         assert result["details"]["per_factsheet"]["COM-001"] == 5
@@ -391,7 +391,7 @@ class TestComputeH5:
             ## 2. Core Business Questions
 
             - What?
-        """))
+        """), encoding="utf-8")
         result = compute_h5(tmp_repo)
         assert result["details"]["per_factsheet"]["COM-001"] == 0
 
@@ -526,7 +526,7 @@ class TestRunScorecard:
                 [sys.executable, str(repo_root / "tooling" / "ontology" / "registry_builder.py"),
                  "--repo-root", str(repo_root)],
                 capture_output=True, text=True, timeout=120,
-            )
+                encoding="utf-8", errors="replace")
             if result.returncode != 0 or not registry_path.exists():
                 pytest.skip(f"registry_builder.py failed: {result.stderr[:200]}")
 

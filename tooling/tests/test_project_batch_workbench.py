@@ -45,7 +45,7 @@ def saved(tmp_path):
 
 def approve(repo, record, tmp_path):
     root = repo.checkout(tmp_path / "approval", record.revision_hash)
-    manifest = yaml.safe_load((root / "package.yaml").read_text())
+    manifest = yaml.safe_load((root / "package.yaml").read_text(encoding="utf-8"))
     manifest["state"] = "approved"
     (root / "package.yaml").write_text(yaml.safe_dump(manifest), encoding="utf-8")
     new = repo.commit_draft(root, expected_head_hash=record.revision_hash)
@@ -166,6 +166,6 @@ def test_release_export_and_automation_same_revision_real_files(tmp_path):
 def test_cli_rejects_injected_fields_without_path_disclosure(tmp_path):
     repo, record = make_repository(tmp_path)
     result = subprocess.run([sys.executable, "-m", "tooling.superversion.project_package.batch_workbench", "--repository", str(repo.root), "--schemas", str(SCHEMAS), "--mode", "inspect"], cwd=ROOT,
-        input=json.dumps({"project_ref": "project_demo", "revision_hash": record.revision_hash, "path": "private"}), text=True, capture_output=True)
+        input=json.dumps({"project_ref": "project_demo", "revision_hash": record.revision_hash, "path": "private"}), text=True, capture_output=True, encoding="utf-8", errors="replace")
     value = json.loads(result.stdout)
     assert result.returncode == 1 and value["status"] == 422 and str(tmp_path) not in result.stdout

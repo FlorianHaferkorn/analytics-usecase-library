@@ -55,7 +55,7 @@ class TestWritePage:
     def test_write_creates_file(self, writer, tmp_path):
         path = writer.write_page("test.md", "# Hello")
         assert path.exists()
-        assert path.read_text() == "# Hello"
+        assert path.read_text(encoding="utf-8") == "# Hello"
         assert path.name == "test.md"
 
     def test_write_creates_subdirs(self, tmp_path):

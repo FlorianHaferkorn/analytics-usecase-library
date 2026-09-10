@@ -28,7 +28,7 @@ def write_failure(reason: str) -> None:
             f'_Discovery failed: {reason}_',
         ]) + '\n',
         encoding='utf-8',
-    )
+        newline="\n")
 
 if not report_json.exists() or report_json.stat().st_size == 0:
     write_failure('no JSON output file')
@@ -53,5 +53,5 @@ for item in data if isinstance(data, list) else []:
     lines.append(
         f"| {item.get('name', '?')} | {item.get('pinned', '?')} | {item.get('latest', '?')} | {status} |"
     )
-report_md.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+report_md.write_text('\n'.join(lines) + '\n', encoding='utf-8', newline="\n")
 print('Schema report written.')

@@ -386,7 +386,7 @@ def write_inputs(path: Path, plan: dict[str, Any], *, release: bool = False) -> 
         written.append(f"{a['address']} = {value}")
     Path(path).write_text(
         json.dumps(inputs, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-        encoding="utf-8")
+        encoding="utf-8", newline="\n")
     return written
 
 
@@ -403,7 +403,7 @@ def write_decisions(path: Path, plan: dict[str, Any], *, release: bool = False) 
     }
     Path(path).write_text(
         json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-        encoding="utf-8")
+        encoding="utf-8", newline="\n")
     return [r["id"] for r in plan["records"]]
 
 

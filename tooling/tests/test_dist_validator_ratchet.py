@@ -59,7 +59,7 @@ BASELINE_ERRORS = 25
 
 def _validate(report: Path) -> dict:
     proc = subprocess.run(_cli_args(report),
-                          capture_output=True, text=True, cwd=str(REPO))
+                          capture_output=True, text=True, cwd=str(REPO), encoding="utf-8", errors="replace")
     return (json.loads(proc.stdout) or {}).get("data", {})
 
 

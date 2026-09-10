@@ -271,7 +271,7 @@ def main() -> int:
         if args.json in ("-", ""):
             print(payload, end="")
         else:
-            Path(args.json).write_text(payload, encoding="utf-8")
+            Path(args.json).write_text(payload, encoding="utf-8", newline="\n")
             print(f"wrote {args.json} ({len(data)} storylines)")
         return 0
 
@@ -286,7 +286,7 @@ def main() -> int:
 
     out = "\n".join(parts)
     if args.render:
-        Path(args.render).write_text(out, encoding="utf-8")
+        Path(args.render).write_text(out, encoding="utf-8", newline="\n")
         print(f"wrote {args.render} ({len(brackets)} use cases)")
     else:
         print(out)

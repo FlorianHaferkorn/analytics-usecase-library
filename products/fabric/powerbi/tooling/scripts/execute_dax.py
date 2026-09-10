@@ -58,7 +58,7 @@ def get_token(resource: str = "https://analysis.windows.net/powerbi/api") -> Opt
         result = subprocess.run(
             ["az", "account", "get-access-token", "--resource", resource],
             capture_output=True, text=True, timeout=30
-        )
+        , encoding="utf-8", errors="replace")
         if result.returncode == 0:
             return json.loads(result.stdout).get("accessToken")
         print(f"Error: az CLI not authenticated. Run 'az login' first.\n{result.stderr}", file=sys.stderr)

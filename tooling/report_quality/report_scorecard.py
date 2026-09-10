@@ -390,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
             }
         results_path.write_text(
             json.dumps(nutzlast, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
+        , newline="\n")
 
     enforced_fail = False
     for result in results:

@@ -260,7 +260,7 @@ class TestQualityScorer:
         }
         bp = tmp_path / "COM-001_test" / "UseCase_Bracket.yaml"
         bp.parent.mkdir(parents=True)
-        bp.write_text(_yaml.dump(bracket))
+        bp.write_text(_yaml.dump(bracket), encoding="utf-8")
 
         scorer = QualityScorer()
         score = scorer.score(bracket_path=bp)
@@ -283,7 +283,7 @@ class TestQualityScorer:
             "ux_layout_rules": {},
         }
         bp = tmp_path / "bracket.yaml"
-        bp.write_text(_yaml.dump(bracket))
+        bp.write_text(_yaml.dump(bracket), encoding="utf-8")
         scorer = QualityScorer()
         score = scorer.score(bracket_path=bp)
         d = score.to_dict()

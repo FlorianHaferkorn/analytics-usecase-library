@@ -156,7 +156,7 @@ def main(argv: list[str] | None = None) -> int:
 
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(report, encoding="utf-8")
+    out.write_text(report, encoding="utf-8", newline="\n")
 
     if args.summary:
         updates = [r for r in results if r["status"] in ("update_available", "check_manually")]

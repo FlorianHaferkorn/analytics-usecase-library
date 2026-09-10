@@ -121,7 +121,7 @@ def hide_visible_keys(dist_root: Path = _DIST, domain: str = "Commercial") -> Li
             lines.insert(insert_at, "\t\tisHidden")
             fixed.append(loc)
         if edits:
-            f.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            f.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     return sorted(fixed)
 
 

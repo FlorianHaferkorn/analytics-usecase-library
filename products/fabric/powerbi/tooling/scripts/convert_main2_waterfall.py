@@ -160,7 +160,7 @@ def convert(report_stem: str, cfg: dict) -> bool:
         return False
 
     path = main2_dirs[0] / "visual.json"
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
 
     cat_entity, cat_prop = cfg["category"]
     cat_proj = _col_projection(cat_entity, cat_prop)
@@ -178,7 +178,7 @@ def convert(report_stem: str, cfg: dict) -> bool:
         waterfall_objects["categoryAxis"] = objects["categoryAxis"]
     data["visual"]["objects"] = waterfall_objects
 
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     measures_str = ", ".join(m for _, m in cfg["y_measures"])
     print(f"  OK  {report_stem}: {cat_entity}.{cat_prop} | {measures_str}")
     return True

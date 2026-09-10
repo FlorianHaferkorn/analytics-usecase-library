@@ -185,4 +185,4 @@ def write_fix_log(results: dict[str, SelfHealResult], output_path: Path) -> None
     """Serialize all SelfHealResults to a JSON fix-log file."""
     payload = {name: result.to_dict() for name, result in results.items()}
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8", newline="\n")

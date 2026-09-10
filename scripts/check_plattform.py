@@ -135,13 +135,33 @@ def _docstring_ids(baum) -> frozenset:
     return frozenset(ids)
 
 
+def submodule() -> tuple[str, ...]:
+    """Die Submodul-Pfade dieses Repos, aus `.gitmodules`.
+
+    Ein Submodul ist ein eigenes Repository -- sein Bestand gehoert nicht in
+    diese Bilanz, und ein Update dort duerfte den Waechter nicht ausloesen.
+    Aus der Datei gelesen und nicht als Liste gepflegt: eine Liste veraltet.
+    """
+    gm = REPO_ROOT / ".gitmodules"
+    if not gm.is_file():
+        return ()
+    return tuple(z.strip() for z in re.findall(
+        r"^\s*path\s*=\s*(.+)$", gm.read_text(encoding="utf-8"), re.M))
+
+
 def ist_test(pfad: pathlib.Path) -> bool:
     """Testcode schreibt in tmp_path; dort ist das Zeilenende folgenlos."""
     return (pfad.name.startswith("test_") or "tests" in pfad.parts
             or pfad.name == "conftest.py")
 
 
+#: Einmal gelesen, nicht je Datei.
+_SUBMODULE: tuple[str, ...] = ()
+
+
 def dateien():
+    global _SUBMODULE
+    _SUBMODULE = submodule()
     for bereich in BEREICHE:
         wurzel = REPO_ROOT / bereich
         if not wurzel.is_dir():
@@ -149,7 +169,10 @@ def dateien():
         for p in sorted(wurzel.rglob("*.py")):
             if AUSSCHLUSS & set(p.parts):
                 continue
-            if p.relative_to(REPO_ROOT).as_posix() in EIGENE_PROBEN:
+            rel = p.relative_to(REPO_ROOT).as_posix()
+            if rel in EIGENE_PROBEN:
+                continue
+            if any(rel.startswith(sub + "/") for sub in _SUBMODULE):
                 continue
             yield p
 
@@ -239,15 +262,22 @@ class Sammler(ast.NodeVisitor):
         denn der haelt den Zustand fest und wird spaeter abgefragt. Das ist der
         uebliche und ehrliche Umgang mit einer optionalen Abhaengigkeit.
 
-        Still ist nur der Koerper, der NICHTS tut: ausschliesslich `pass`,
-        `return` oder `return None`. Dann verschwindet der Pruefer spurlos, und
-        ob geprueft wird, haengt am `sys.path` des Aufrufers.
+        Still ist nur der Koerper, der NICHTS tut: ausschliesslich `pass` oder
+        ein nacktes `return`. Dann verschwindet der Pruefer spurlos, und ob
+        geprueft wird, haengt am `sys.path` des Aufrufers.
+
+        Ein ausgeschriebenes `return None` zaehlt dagegen als Ansage. Der
+        Unterschied ist nicht Kosmetik: `_try_import_daxparser()` gibt `None`
+        zurueck, und der Aufrufer fragt `if parser is None`. Der Ausfall wird
+        also gereicht. Bei `pbip_validator` stand ein nacktes `return` in einer
+        Funktion, die nichts zurueckgibt -- dort konnte ihn niemand bemerken.
+        Erste Regelfassung warf beides in einen Topf und meldete sechs
+        Fehlalarme.
         """
         for k in koerper:
             if isinstance(k, ast.Pass):
                 continue
-            if isinstance(k, ast.Return) and (k.value is None or (
-                    isinstance(k.value, ast.Constant) and k.value.value is None)):
+            if isinstance(k, ast.Return) and k.value is None:
                 continue
             return True          # irgendetwas anderes -- also nicht spurlos
         return False

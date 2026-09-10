@@ -165,7 +165,7 @@ def apply_derivation(repository: ProjectPackageRevisionRepository, payload: dict
         for change in preview["changes"]:
             target = change["target"]
             _target(architecture, target)[target["field"]] = copy.deepcopy(change["after"])
-        path.write_text(json.dumps(architecture, ensure_ascii=False, indent=2) if path.suffix.lower() == ".json" else yaml.safe_dump(architecture, sort_keys=False, allow_unicode=True), encoding="utf-8")
+        path.write_text(json.dumps(architecture, ensure_ascii=False, indent=2) if path.suffix.lower() == ".json" else yaml.safe_dump(architecture, sort_keys=False, allow_unicode=True), encoding="utf-8", newline="\n")
         audit_ref = f"architecture/derivations/{preview['preview_sha256']}.json"
         audit_path = root / audit_ref
         if audit_path.exists():
@@ -174,9 +174,9 @@ def apply_derivation(repository: ProjectPackageRevisionRepository, payload: dict
         audit = {**preview, "record_type": "reviewed_architecture_derivation", "reviewed_by": payload["actor"],
                  "reviewed_at": datetime.now(timezone.utc).isoformat(), "review_rationale": payload["rationale"].strip(),
                  "authority": "Applies explicit existing approved decisions to draft architecture only. Not package approval, release or tenant authorization."}
-        audit_path.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        audit_path.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
         manifest["state"] = "working"
-        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
         result = repository.commit_draft(root, expected_head_hash=payload["revision_hash"])
     return {"project_ref": result.project_ref, "revision_hash": result.revision_hash,
             "parent_revision_hash": result.parent_revision_hash, "audit_ref": audit_ref,

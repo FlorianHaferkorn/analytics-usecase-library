@@ -119,7 +119,7 @@ def test_readiness_check_contract_distinguishes_configuration_from_verification(
 
 def test_disabled_full_config_reports_references_without_authorizing_execution(setup):
     setup[2]["enabled"] = False
-    setup[3].write_text(json.dumps(setup[2]))
+    setup[3].write_text(json.dumps(setup[2]), encoding="utf-8")
     result = dispatch(setup, "status", request())
     checks = {row["id"]: row for row in result["checks"]}
     assert checks["host_policy"]["state"] == "missing"
@@ -182,13 +182,13 @@ def test_existing_state_path_is_not_claimed_writable_or_secure(setup):
 
 def test_existing_state_file_blocks_approval_without_overwriting(setup):
     path = Path(setup[2]["state_dir"])
-    path.write_text("preserve existing file")
+    path.write_text("preserve existing file", encoding="utf-8")
     result = dispatch(setup, "status", request())
     check = next(row for row in result["checks"] if row["id"] == "state_storage")
     assert check["state"] == "missing" and not result["can_approve"] and not result["can_execute"]
     with pytest.raises(ValueError, match="references"):
         approved(setup)
-    assert path.read_text() == "preserve existing file"
+    assert path.read_text(encoding="utf-8") == "preserve existing file"
 
 
 @pytest.mark.parametrize("field,value", [("token", "untrusted"), ("command", "fab"), ("state_dir", "C:/public"), ("signing_key", "attacker")])
@@ -222,7 +222,7 @@ def test_host_configuration_refuses_unsafe_or_ambiguous_values(setup, mutation):
 
 
 def test_minimal_disabled_config_never_reads_signing_key(setup):
-    setup[3].write_text(json.dumps({"schema_version": "1.0.0", "enabled": False}))
+    setup[3].write_text(json.dumps({"schema_version": "1.0.0", "enabled": False}), encoding="utf-8")
     assert not dispatch(setup, "status", request())["enabled"]
 
 
@@ -270,9 +270,9 @@ def test_foreign_evidence_request_rejected(setup, field, value):
 def test_tampered_evidence_is_not_displayed_as_trusted(setup):
     receipt = approved(setup)
     path = setup[3].parent / "private-runner" / "approvals" / (receipt["approval_id"] + ".json")
-    record = json.loads(path.read_text())
+    record = json.loads(path.read_text(encoding="utf-8"))
     record["payload"]["plan"]["environment"] = "prod"
-    path.write_text(json.dumps(record))
+    path.write_text(json.dumps(record), encoding="utf-8")
     with pytest.raises(ValueError, match="integrity"):
         dispatch(setup, "outcome", request(approval_id=receipt["approval_id"]))
 
@@ -328,9 +328,9 @@ def test_real_subprocess_disabled_status_and_injected_fields(tmp_path):
     env = {key: value for key, value in os.environ.items() if not key.startswith("STUDIO_RUNNER_")}
     args = [sys.executable, "-m", "tooling.superversion.project_package.runner_host", "--repository", str(tmp_path / "packages"),
         "--schemas", str(ROOT / "tooling/generator/schemas"), "--mode", "status"]
-    result = subprocess.run(args, input=json.dumps(request()), text=True, capture_output=True, cwd=ROOT, env=env, timeout=30)
+    result = subprocess.run(args, input=json.dumps(request()), text=True, capture_output=True, cwd=ROOT, env=env, timeout=30, encoding="utf-8", errors="replace")
     assert result.returncode == 0 and not json.loads(result.stdout)["value"]["enabled"]
-    result = subprocess.run(args, input=json.dumps(request(token="raw-secret-value")), text=True, capture_output=True, cwd=ROOT, env=env, timeout=30)
+    result = subprocess.run(args, input=json.dumps(request(token="raw-secret-value")), text=True, capture_output=True, cwd=ROOT, env=env, timeout=30, encoding="utf-8", errors="replace")
     assert result.returncode == 1 and not json.loads(result.stdout)["ok"]
     assert "raw-secret-value" not in result.stdout + result.stderr
 
@@ -340,7 +340,7 @@ def test_real_released_repository_host_approval_execute_readback(tmp_path, monke
     repository, revision = full_repository(tmp_path)
     document = config_document(tmp_path)
     path = tmp_path / "trusted-host.json"
-    path.write_text(json.dumps(document))
+    path.write_text(json.dumps(document), encoding="utf-8")
     environment = {"STUDIO_RUNNER_CONFIG": str(path), KEY_REF: KEY, SECRET_REF: "test-only"}
     monkeypatch.setattr(rh, "_sdk_available", lambda: True)
     dp.release_input(repository, "project_demo", revision.revision_hash, actor=ACTOR,
@@ -367,7 +367,7 @@ def test_swapped_signed_record_from_another_attempt_refused(setup, mutation):
     folder = "outcomes" if mutation == "outcome" else "consumed"
     original = state / folder / (first["approval_id"] + ".json")
     target = state / folder / (second["approval_id"] + ".json")
-    target.write_text(original.read_text())
+    target.write_text(original.read_text(encoding="utf-8"), encoding="utf-8")
     with pytest.raises(ValueError, match="identity mismatch"):
         dispatch(setup, "outcome", request(approval_id=second["approval_id"]))
 
@@ -376,7 +376,7 @@ def test_emergency_disable_preserves_readonly_signed_evidence_without_reenabling
     receipt = approved(setup)
     result = dispatch(setup, "execute", request(approval_id=receipt["approval_id"], confirm=True))
     setup[2]["enabled"] = False
-    setup[3].write_text(json.dumps(setup[2]))
+    setup[3].write_text(json.dumps(setup[2]), encoding="utf-8")
     status = dispatch(setup, "status", request())
     assert not status["enabled"] and not status["can_approve"] and not status["can_execute"]
     setup[1].pop(SECRET_REF)
@@ -402,6 +402,6 @@ def test_disabled_recovery_still_requires_scope_actor_key_and_exact_revision(set
     if mutation == "key": setup[1][KEY_REF] = base64.b64encode(b"different-synthetic-key-00000000000").decode()
     if mutation == "foreign-revision": payload["revision_hash"] = "f" * 64
     document = {"schema_version": "1.0.0", "enabled": False} if mutation == "minimal" else setup[2]
-    setup[3].write_text(json.dumps(document))
+    setup[3].write_text(json.dumps(document), encoding="utf-8")
     with pytest.raises(ValueError):
         dispatch(setup, "outcome", payload)

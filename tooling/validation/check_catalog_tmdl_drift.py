@@ -277,7 +277,7 @@ def main(argv=None) -> int:
         "errors": all_errors,
         "warnings": all_warnings,
     }
-    output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    output_path.write_text(json.dumps(report, indent=2), encoding="utf-8", newline="\n")
     print(f"Drift report written to {output_path}")
 
     if all_errors:

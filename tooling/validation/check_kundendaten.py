@@ -43,7 +43,7 @@ def repo_wurzel(start: Path) -> Path:
     r = subprocess.run(
         ["git", "-C", str(start), "rev-parse", "--show-toplevel"],
         capture_output=True, text=True,
-    )
+        encoding="utf-8", errors="replace")
     if r.returncode != 0:
         sys.exit(f"kein Git-Repository: {start}")
     return Path(r.stdout.strip())
@@ -114,7 +114,7 @@ def dateien(wurzel: Path, nur_staged: bool) -> list[str]:
         cmd = ["git", "-C", str(wurzel), "diff", "--cached", "--name-only", "--diff-filter=ACMR"]
     else:
         cmd = ["git", "-C", str(wurzel), "ls-files"]
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     return [z for z in r.stdout.splitlines() if z.strip()]
 
 
@@ -206,7 +206,7 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
 
 
 def _git_grep(cmd: list[str]) -> list[str]:
-    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace", encoding="utf-8")
     if r.returncode not in (0, 1):
         raise RuntimeError(f"git grep endete mit {r.returncode}: {r.stderr.strip()[:300]}")
     return r.stdout.splitlines()
@@ -240,7 +240,7 @@ def bericht_schreiben(pfad: Path, befunde: list[dict], wurzel: Path) -> None:
             zeilen.append(f"| `{e['datei']}` | {e['zeile']} | `{e['treffer']}` | {ktx} |")
         zeilen.append("")
 
-    pfad.write_text("\n".join(zeilen), encoding="utf-8")
+    pfad.write_text("\n".join(zeilen), encoding="utf-8", newline="\n")
 
 
 def main() -> int:

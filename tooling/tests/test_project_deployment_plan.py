@@ -285,7 +285,7 @@ def test_real_released_repository_plan_cli_and_executor(tmp_path):
     root = Path(__file__).resolve().parents[2]
     schemas = root / "tooling/generator/schemas"
     package = migrate_project_package(root / "tooling/tests/fixtures/project_package/v1", tmp_path / "package", schemas)
-    manifest = yaml.safe_load((package / "package.yaml").read_text())
+    manifest = yaml.safe_load((package / "package.yaml").read_text(encoding="utf-8"))
     definition = {"id": "definition_environment", "source": {"adapter": "engagement_ledger_package_1_0", "raw_id": "E-1", "source_ref": "fixture://decision", "source_hash": "c"*64},
         "title": "Environment", "question": {"technical_text": "Which environments?"},
         "recommendation": {"text": "Dev/test/prod", "basis": "Fixture", "confidence_raw": "high", "confidence": "high"},
@@ -304,7 +304,7 @@ def test_real_released_repository_plan_cli_and_executor(tmp_path):
     architecture = compiler()["modules"]["architecture_input"]
     (package / "architecture.yaml").write_text(yaml.safe_dump(architecture), encoding="utf8")
     manifest["modules"].append({"module_type": "architecture_input", "path": "architecture.yaml",
-        "schema_id": json.loads((schemas / "project_architecture_input.schema.json").read_text())["$id"], "sha256": dp.canonical_sha256(architecture)})
+        "schema_id": json.loads((schemas / "project_architecture_input.schema.json").read_text(encoding="utf-8"))["$id"], "sha256": dp.canonical_sha256(architecture)})
     manifest["state"] = "approved"
     (package / "package.yaml").write_text(yaml.safe_dump(manifest), encoding="utf8")
     repository = ProjectPackageRevisionRepository(tmp_path / "repositories/project_demo", schemas)
@@ -325,8 +325,8 @@ def test_real_released_repository_plan_cli_and_executor(tmp_path):
     fresh["observed_at"] = datetime.now(timezone.utc).isoformat()
     args = [sys.executable, "-m", "tooling.superversion.project_package.deployment_plan", "--repository", str(repository.root), "--schemas", str(schemas)]
     planned = subprocess.run([*args, "--mode", "plan"], input=json.dumps({"project_ref": "project_demo", "revision_hash": revision,
-        "tenant_id": TENANT, "environment": "dev", "observed_state": fresh}), text=True, capture_output=True, cwd=root, check=True)
+        "tenant_id": TENANT, "environment": "dev", "observed_state": fresh}), text=True, capture_output=True, cwd=root, check=True, encoding="utf-8", errors="replace")
     assert json.loads(planned.stdout)["value"]["plan_sha256"] == value["plan_sha256"]
-    rejected = subprocess.run([*args, "--mode", "reconcile"], input=json.dumps({"plan": wrong, "observed_state": fresh}), text=True, capture_output=True, cwd=root)
+    rejected = subprocess.run([*args, "--mode", "reconcile"], input=json.dumps({"plan": wrong, "observed_state": fresh}), text=True, capture_output=True, cwd=root, encoding="utf-8", errors="replace")
     assert rejected.returncode == 1
     assert "authoritative" in json.loads(rejected.stdout)["error"]

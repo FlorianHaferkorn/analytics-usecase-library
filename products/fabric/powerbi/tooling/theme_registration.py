@@ -66,5 +66,5 @@ def write_registered_theme(source_path: Path, dest_path: Path) -> Path:
     align_theme_name_to_registered_stem(payload, registered_stem)
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     output_path = dest_path.parent / registered_theme_filename(registered_stem)
-    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     return output_path

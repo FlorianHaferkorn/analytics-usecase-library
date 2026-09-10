@@ -110,7 +110,7 @@ class TestEvidencePageGenerator:
         generator.load()
         pages = generator.generate()
         overview = [p for p in pages if "overview" in p.name][0]
-        content = overview.read_text()
+        content = overview.read_text(encoding="utf-8")
         assert "# Sales Performance" in content
         assert "Net Sales" in content or "KPI-COM-001" in content
         assert "```sql" in content
@@ -120,14 +120,14 @@ class TestEvidencePageGenerator:
         generator.load()
         pages = generator.generate()
         detail = [p for p in pages if "detail" in p.name][0]
-        content = detail.read_text()
+        content = detail.read_text(encoding="utf-8")
         assert "300-Second Layer" in content
         assert "<DataTable" in content
 
     def test_page_has_frontmatter(self, generator):
         generator.load()
         pages = generator.generate()
-        content = pages[0].read_text()
+        content = pages[0].read_text(encoding="utf-8")
         assert "---" in content
         assert "use_case: COM-001" in content
         assert "generated: true" in content
@@ -136,7 +136,7 @@ class TestEvidencePageGenerator:
         generator.load()
         pages = generator.generate()
         overview = [p for p in pages if "overview" in p.name][0]
-        content = overview.read_text()
+        content = overview.read_text(encoding="utf-8")
         assert "30-Second Layer" in content
         assert "<LineChart" in content
 
@@ -176,7 +176,7 @@ ux_layout: {}
 """
         uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
         uc_dir.mkdir(parents=True)
-        (uc_dir / "UseCase_Bracket.yaml").write_text(bracket_content)
+        (uc_dir / "UseCase_Bracket.yaml").write_text(bracket_content, encoding="utf-8")
 
         gen = EvidencePageGenerator(
             use_case_id="COM-001",
@@ -206,7 +206,7 @@ ux_layout_rules:
 """
                 uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
                 uc_dir.mkdir(parents=True)
-                (uc_dir / "UseCase_Bracket.yaml").write_text(bracket_content)
+                (uc_dir / "UseCase_Bracket.yaml").write_text(bracket_content, encoding="utf-8")
 
                 gen = EvidencePageGenerator(
                         use_case_id="COM-001",

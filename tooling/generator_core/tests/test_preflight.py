@@ -31,11 +31,11 @@ def env(tmp_path: Path):
         "dax_expression": "SUM ( fact_sales[Net Sales Amount] )",
         "format_string": "#,0",
     }
-    (kpi_root / "com.sales.net_sales_amount.yaml").write_text(yaml.dump(kpi))
+    (kpi_root / "com.sales.net_sales_amount.yaml").write_text(yaml.dump(kpi), encoding="utf-8")
 
     # Action code
     ac = {"id": "C-S1.1", "name": "Test Action", "owner": "Sales VP"}
-    (ac_root / "C-S1.1.yaml").write_text(yaml.dump(ac))
+    (ac_root / "C-S1.1.yaml").write_text(yaml.dump(ac), encoding="utf-8")
 
     # Valid bracket
     bracket = {
@@ -59,7 +59,7 @@ def env(tmp_path: Path):
     bracket_dir = uc_root / "COM-001_Sales_Performance"
     bracket_dir.mkdir()
     bracket_path = bracket_dir / "UseCase_Bracket.yaml"
-    bracket_path.write_text(yaml.dump(bracket))
+    bracket_path.write_text(yaml.dump(bracket), encoding="utf-8")
 
     return {
         "tmp": tmp_path,
@@ -84,9 +84,9 @@ class TestPreflightValidator:
         assert report.passed, f"Expected pass, got errors: {report.errors}"
 
     def test_missing_kpi_fails(self, env):
-        bracket = yaml.safe_load(env["bracket"].read_text())
+        bracket = yaml.safe_load(env["bracket"].read_text(encoding="utf-8"))
         bracket["primary_kpi_ids"].append("nonexistent.kpi")
-        env["bracket"].write_text(yaml.dump(bracket))
+        env["bracket"].write_text(yaml.dump(bracket), encoding="utf-8")
 
         validator = PreflightValidator(
             kpi_catalog_root=env["kpi_root"],
@@ -97,9 +97,9 @@ class TestPreflightValidator:
         assert any("MISSING_KPI" in e for e in report.errors)
 
     def test_missing_action_code_fails(self, env):
-        bracket = yaml.safe_load(env["bracket"].read_text())
+        bracket = yaml.safe_load(env["bracket"].read_text(encoding="utf-8"))
         bracket["orchestration"]["action_code_ids"].append("C-NONEXISTENT.1")
-        env["bracket"].write_text(yaml.dump(bracket))
+        env["bracket"].write_text(yaml.dump(bracket), encoding="utf-8")
 
         validator = PreflightValidator(
             kpi_catalog_root=env["kpi_root"],
@@ -110,10 +110,10 @@ class TestPreflightValidator:
         assert any("MISSING_ACTION_CODE" in e for e in report.errors)
 
     def test_action_panel_without_codes_fails(self, env):
-        bracket = yaml.safe_load(env["bracket"].read_text())
+        bracket = yaml.safe_load(env["bracket"].read_text(encoding="utf-8"))
         bracket["orchestration"]["action_code_ids"] = []
         # action_panel still enabled
-        env["bracket"].write_text(yaml.dump(bracket))
+        env["bracket"].write_text(yaml.dump(bracket), encoding="utf-8")
 
         validator = PreflightValidator(
             kpi_catalog_root=env["kpi_root"],
@@ -124,9 +124,9 @@ class TestPreflightValidator:
         assert any("ACTION_PANEL_NO_CODES" in e for e in report.errors)
 
     def test_missing_primary_kpis_fails(self, env):
-        bracket = yaml.safe_load(env["bracket"].read_text())
+        bracket = yaml.safe_load(env["bracket"].read_text(encoding="utf-8"))
         bracket["primary_kpi_ids"] = []
-        env["bracket"].write_text(yaml.dump(bracket))
+        env["bracket"].write_text(yaml.dump(bracket), encoding="utf-8")
 
         validator = PreflightValidator(
             kpi_catalog_root=env["kpi_root"],
@@ -147,11 +147,11 @@ class TestPreflightValidator:
 
     def test_quick_mode_skips_action_code_check(self, env):
         # In quick mode, action code file existence is not checked
-        bracket = yaml.safe_load(env["bracket"].read_text())
+        bracket = yaml.safe_load(env["bracket"].read_text(encoding="utf-8"))
         bracket["orchestration"]["action_code_ids"] = ["C-GHOST.99"]
         # But at least one real KPI so action panel validation passes
         bracket["primary_kpi_ids"] = ["com.sales.net_sales_amount"]
-        env["bracket"].write_text(yaml.dump(bracket))
+        env["bracket"].write_text(yaml.dump(bracket), encoding="utf-8")
 
         validator = PreflightValidator(
             kpi_catalog_root=env["kpi_root"],
@@ -163,9 +163,9 @@ class TestPreflightValidator:
         assert not any("MISSING_ACTION_CODE" in e for e in report.errors)
 
     def test_report_has_suggestions(self, env):
-        bracket = yaml.safe_load(env["bracket"].read_text())
+        bracket = yaml.safe_load(env["bracket"].read_text(encoding="utf-8"))
         bracket["primary_kpi_ids"].append("missing.kpi.id")
-        env["bracket"].write_text(yaml.dump(bracket))
+        env["bracket"].write_text(yaml.dump(bracket), encoding="utf-8")
 
         validator = PreflightValidator(
             kpi_catalog_root=env["kpi_root"],

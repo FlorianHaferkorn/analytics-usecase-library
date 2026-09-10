@@ -62,9 +62,9 @@ def build(out_dir: Path) -> dict:
     skill_src = REPO_ROOT / "skills" / "visual-library" / "SKILL.md"
     if skill_src.exists():
         shutil.copy2(skill_src, out_dir / "SKILL.md")
-    (out_dir / "README.md").write_text(_README, encoding="utf-8")
+    (out_dir / "README.md").write_text(_README, encoding="utf-8", newline="\n")
 
-    files = sorted(str(p.relative_to(out_dir)).replace("\\", "/") for p in out_dir.rglob("*") if p.is_file())
+    files = sorted(p.relative_to(out_dir).as_posix().replace("\\", "/") for p in out_dir.rglob("*") if p.is_file())
     manifest = {
         "bundle": "visual-library",
         "generated_by": "tooling/visual_library/package_skill.py",
@@ -75,7 +75,7 @@ def build(out_dir: Path) -> dict:
         "file_count": len(files),
         "files": files,
     }
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
     return manifest
 
 
@@ -86,7 +86,7 @@ def smoke(out_dir: Path) -> str:
 
     def _run(script, *args):
         return subprocess.run([sys.executable, str(tools / script), *args],
-                              capture_output=True, text=True, timeout=60)
+                              capture_output=True, text=True, timeout=60, encoding="utf-8", errors="replace")
 
     r = _run("resolve.py", "purpose", "compare_categories")
     if r.returncode != 0 or "bar_ranking" not in r.stdout:

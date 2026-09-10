@@ -238,16 +238,16 @@ def test_exported_runtime_runs_independently_and_checks_manifest(tmp_path):
     for item in manifest["files"]:
         assert hashlib.sha256((tmp_path / item["path"]).read_bytes()).hexdigest() == item["sha256"]
     request = {"contract": config, "rows": [row(1), row(2)], "batch_id": "one"}
-    first = subprocess.run([sys.executable, str(tmp_path / "run_local_batch.py")], input=json.dumps(request), text=True, capture_output=True, cwd=tmp_path, timeout=15)
+    first = subprocess.run([sys.executable, str(tmp_path / "run_local_batch.py")], input=json.dumps(request), text=True, capture_output=True, cwd=tmp_path, timeout=15, encoding="utf-8", errors="replace")
     assert first.returncode == 0, first.stderr
     value = json.loads(first.stdout)["value"]
     assert value["counts"]["inserted"] == 2
     request["state"] = value["state"]
-    replay = subprocess.run([sys.executable, str(tmp_path / "run_local_batch.py")], input=json.dumps(request), text=True, capture_output=True, cwd=tmp_path, timeout=15)
+    replay = subprocess.run([sys.executable, str(tmp_path / "run_local_batch.py")], input=json.dumps(request), text=True, capture_output=True, cwd=tmp_path, timeout=15, encoding="utf-8", errors="replace")
     assert replay.returncode == 0
     assert json.loads(replay.stdout)["value"]["state"] == value["state"]
     request["rows"] = [row(amount="99")]
-    failure = subprocess.run([sys.executable, str(tmp_path / "run_local_batch.py")], input=json.dumps(request), text=True, capture_output=True, cwd=tmp_path, timeout=15)
+    failure = subprocess.run([sys.executable, str(tmp_path / "run_local_batch.py")], input=json.dumps(request), text=True, capture_output=True, cwd=tmp_path, timeout=15, encoding="utf-8", errors="replace")
     assert failure.returncode == 2
     assert json.loads(failure.stdout)["ok"] is False
     assert "Traceback" not in failure.stderr

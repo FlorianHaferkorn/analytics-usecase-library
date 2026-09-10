@@ -126,7 +126,7 @@ def main(argv: list[str] | None = None) -> int:
         results_path.write_text(
             json.dumps([v.__dict__ for v in violations], indent=2, ensure_ascii=False),
             encoding="utf-8",
-        )
+            newline="\n")
 
     if not any(v.severity == "critical" for v in violations):
         return 0

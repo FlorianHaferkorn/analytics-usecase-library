@@ -275,7 +275,7 @@ def write_vendor(meridian_blueprint: Path, pin: dict | None = None) -> dict:
         "files": [{"path": n, "sha256": _sha256(root / n)} for n in MIRRORED_FILES],
     }
     (root / "PIN.json").write_text(json.dumps(fresh, indent=2, ensure_ascii=False) + "\n",
-                                   encoding="utf-8")
+    encoding="utf-8", newline="\n")
     return fresh
 
 
@@ -302,7 +302,7 @@ def _git(root: Path, *args: str) -> str | None:
     the reason a gate goes red."""
     try:
         proc = subprocess.run(("git", *args), cwd=str(root), capture_output=True,
-                              text=True, timeout=30)
+                              text=True, timeout=30, encoding="utf-8", errors="replace")
     except (OSError, subprocess.SubprocessError):
         return None
     return proc.stdout.strip() if proc.returncode == 0 else None

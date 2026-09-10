@@ -35,7 +35,7 @@ def test_reference_uses_real_immutable_revision_and_synthetic_namespace(complete
     assert record.project_ref == "local_reference"
     assert report["source_kind"] == "synthetic"
     assert not report["live_apply_allowed"] and not report["tenant_actions_performed"]
-    assert json.loads((record.package_root / "SYNTHETIC_ONLY.json").read_text())["source_kind"] == "synthetic"
+    assert json.loads((record.package_root / "SYNTHETIC_ONLY.json").read_text(encoding="utf-8"))["source_kind"] == "synthetic"
     assert len(list((repo.root / "revisions").iterdir())) == 3
     assert len(report["run_id"]) == 64
 
@@ -107,10 +107,10 @@ def test_inputs_preserved_and_repeated_artifact_generation_proven(completed):
 
 def test_nonempty_root_is_never_overwritten(tmp_path):
     marker = tmp_path / "existing.txt"
-    marker.write_text("preserve me")
+    marker.write_text("preserve me", encoding="utf-8")
     with pytest.raises(ValueError, match="empty"):
         local.run_reference(tmp_path, SCHEMAS)
-    assert marker.read_text() == "preserve me"
+    assert marker.read_text(encoding="utf-8") == "preserve me"
 
 
 @pytest.mark.parametrize("variant", ["sandbox", "../dev", "DEV", "", None])
@@ -133,10 +133,10 @@ def test_invalid_source_fails_quality_or_regression_check(source):
 
 def test_cli_sanitizes_failures_and_does_not_overwrite(tmp_path):
     private = tmp_path / "private_name.txt"
-    private.write_text("sensitive fixture must remain")
-    result = subprocess.run([sys.executable, "-m", "tooling.superversion.project_package.local_reference", "--root", str(tmp_path), "--schemas", str(SCHEMAS)], capture_output=True, text=True, cwd=ROOT)
+    private.write_text("sensitive fixture must remain", encoding="utf-8")
+    result = subprocess.run([sys.executable, "-m", "tooling.superversion.project_package.local_reference", "--root", str(tmp_path), "--schemas", str(SCHEMAS)], capture_output=True, text=True, cwd=ROOT, encoding="utf-8", errors="replace")
     assert result.returncode == 1
     value = json.loads(result.stdout)
     assert not value["ok"] and "No tenant actions" in value["error"]
     assert "private_name" not in result.stdout and str(tmp_path) not in result.stdout
-    assert private.read_text() == "sensitive fixture must remain"
+    assert private.read_text(encoding="utf-8") == "sensitive fixture must remain"

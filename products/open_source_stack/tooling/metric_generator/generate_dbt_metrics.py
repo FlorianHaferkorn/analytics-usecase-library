@@ -203,7 +203,7 @@ def write_metrics_file(metrics_data: Dict[str, Any], output_path: Path) -> Path:
         raise ImportError("PyYAML is required: pip install pyyaml")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     content = yaml.dump(metrics_data, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    output_path.write_text(content, encoding="utf-8")
+    output_path.write_text(content, encoding="utf-8", newline="\n")
     return output_path
 
 

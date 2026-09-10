@@ -59,8 +59,8 @@ def test_release_record_is_immutable_and_tamper_detected(tmp_path):
                              actor='other@example.test', rationale='This cannot replace the initial attestation.')
     assert repeated['release'] == first['release']
     path = repository.root.parent / 'release-attestations' / repository.root.name / f'{record.revision_hash}.json'
-    value = json.loads(path.read_text())
+    value = json.loads(path.read_text(encoding="utf-8"))
     value['attested_by'] = 'tampered@example.test'
-    path.write_text(json.dumps(value))
+    path.write_text(json.dumps(value), encoding="utf-8")
     with pytest.raises(ValueError, match='integrity'):
         release_input(repository, record.project_ref, record.revision_hash)

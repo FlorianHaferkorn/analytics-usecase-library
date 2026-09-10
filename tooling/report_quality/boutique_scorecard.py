@@ -90,7 +90,7 @@ def _run_validator(script: str, args: list[str]) -> bool:
     proc = subprocess.run(
         [sys.executable, str(_VALID / script), *args],
         capture_output=True, text=True, cwd=str(REPO),
-    )
+        encoding="utf-8", errors="replace")
     return proc.returncode == 0
 
 
@@ -218,7 +218,7 @@ def main() -> int:
     card = score(judge=judge)
     _print(card)
     if args.json:
-        Path(args.json).write_text(json.dumps(card, indent=2), encoding="utf-8")
+        Path(args.json).write_text(json.dumps(card, indent=2), encoding="utf-8", newline="\n")
         print(f"  (written: {args.json})")
     if args.strict and card["knockouts_failed"]:
         return 1

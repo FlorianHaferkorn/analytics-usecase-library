@@ -119,7 +119,7 @@ def test_tampered_record_or_rehashed_json_has_no_authority(tmp_path, released, m
     host.client_factory = lambda scope: client
     receipt = approve(host)
     path = host.state_dir / "approvals" / (receipt["approval_id"] + ".json")
-    value = json.loads(path.read_text())
+    value = json.loads(path.read_text(encoding="utf-8"))
     if mutation == "plan": value["payload"]["plan"]["environment"] = "prod"
     if mutation == "approval": value["payload"]["approval"]["actor"] = "attacker"
     if mutation == "hash": value["mac"] = dp.canonical_sha256(value["payload"])
@@ -127,7 +127,7 @@ def test_tampered_record_or_rehashed_json_has_no_authority(tmp_path, released, m
     if mutation == "rename":
         receipt["approval_id"] = "f" * 64
         path = host.state_dir / "approvals" / (receipt["approval_id"] + ".json")
-    path.write_text(json.dumps(value))
+    path.write_text(json.dumps(value), encoding="utf-8")
     with pytest.raises(ValueError, match="integrity|identity"):
         execute(host, receipt)
     assert client.observations == 0 and not client.creates
@@ -268,7 +268,7 @@ def test_real_repository_release_signed_approval_executor_and_stale_head(tmp_pat
     next_plan = dp.build_deployment_plan(repository, "project_demo", revision.revision_hash, TENANT, "dev", client.observe(), now=NOW)
     pending = approve(host, next_plan)
     draft = repository.checkout(tmp_path / "new-draft", revision.revision_hash)
-    manifest = yaml.safe_load((draft / "package.yaml").read_text())
+    manifest = yaml.safe_load((draft / "package.yaml").read_text(encoding="utf-8"))
     manifest["state"] = "working"
     (draft / "package.yaml").write_text(yaml.safe_dump(manifest), encoding="utf-8")
     repository.commit_draft(draft, expected_head_hash=revision.revision_hash)

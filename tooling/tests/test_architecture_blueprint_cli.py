@@ -31,7 +31,7 @@ def test_run_writes_all_artifacts(tmp_path):
         assert (tmp_path / name).is_file()
     assert (tmp_path / "render" / "fabric" / "PROVISIONING_PLAN.md").is_file()
     assert summary["conformance_ok"] is True
-    bp = json.loads((tmp_path / "blueprint.json").read_text())
+    bp = json.loads((tmp_path / "blueprint.json").read_text(encoding="utf-8"))
     assert bp["schema_version"] == "0.1.0"
 
 
@@ -59,7 +59,7 @@ def test_run_is_deterministic(tmp_path):
     a = run(_INPUTS, tmp_path / "a", "fabric")
     b = run(_INPUTS, tmp_path / "b", "fabric")
     assert a["conformance"] == b["conformance"]
-    assert (tmp_path / "a" / "blueprint.json").read_text() == (tmp_path / "b" / "blueprint.json").read_text()
+    assert (tmp_path / "a" / "blueprint.json").read_text(encoding="utf-8") == (tmp_path / "b" / "blueprint.json").read_text(encoding="utf-8")
 
 
 # -- feeding answered source introspections back in ---------------------------------

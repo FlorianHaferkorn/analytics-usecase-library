@@ -118,7 +118,7 @@ def cache_schema(schema_dir: Path, schema_url: str, *, force: bool = False) -> P
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = fetch_schema_bytes(schema_url)
     data = json.loads(payload.decode("utf-8"))
-    target.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    target.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     return target
 
 

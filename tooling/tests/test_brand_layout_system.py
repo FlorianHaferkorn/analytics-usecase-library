@@ -45,7 +45,7 @@ def test_brand_layout_system():
         capture_output=True,
         text=True,
         timeout=120,
-    )
+        encoding="utf-8", errors="replace")
     assert result.returncode == 0, (
         f"Brand layout tests failed (exit code {result.returncode}):\n"
         f"{result.stdout}\n{result.stderr}"

@@ -241,7 +241,7 @@ def execute_workspace_plan(repository: ProjectPackageRevisionRepository, plan: d
         claim.mkdir()
     except FileExistsError as error:
         raise ValueError("Approval already consumed; inspect recorded outcome and re-plan") from error
-    (claim / "approval.json").write_text(json.dumps(approval, sort_keys=True), encoding="utf-8")
+    (claim / "approval.json").write_text(json.dumps(approval, sort_keys=True), encoding="utf-8", newline="\n")
     results, expected_inventory = [], validate_observed_state(observed, plan["tenant_id"], now=time)
     outcome = {"plan_sha256": plan["plan_sha256"], "approval_sha256": approval["approval_sha256"], "results": results,
                "status": "incomplete", "whole_project_verified": False}
@@ -269,7 +269,7 @@ def execute_workspace_plan(repository: ProjectPackageRevisionRepository, plan: d
                 created = client.create_workspace(body)
                 identity = _uuid(created.get("id"))
                 results.append({"id": operation["id"], "workspace_id": identity, "state": "created_unverified"})
-                (claim / (operation["id"] + ".created.json")).write_text(json.dumps(results[-1]), encoding="utf-8")
+                (claim / (operation["id"] + ".created.json")).write_text(json.dumps(results[-1]), encoding="utf-8", newline="\n")
             else:
                 raise ValueError("Blocked/conflicting operation cannot execute")
             readback = client.get_workspace(identity)
@@ -292,7 +292,7 @@ def execute_workspace_plan(repository: ProjectPackageRevisionRepository, plan: d
         # Do not echo subprocess output: it may contain credentials or tenant payloads.
         outcome.update({"status": "stopped_requires_reconciliation", "error_type": type(error).__name__,
                         "recovery": "Read back the tenant, preserve created resources, and approve a new plan; no automatic rollback or retry."})
-    (claim / "outcome.json").write_text(json.dumps(outcome, sort_keys=True), encoding="utf-8")
+    (claim / "outcome.json").write_text(json.dumps(outcome, sort_keys=True), encoding="utf-8", newline="\n")
     return outcome
 
 

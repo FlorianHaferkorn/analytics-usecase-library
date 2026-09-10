@@ -61,7 +61,7 @@ def _git_ignored_prefixes(root: Path) -> "set[Path]":
             ["git", "-C", str(root), "ls-files", "--others", "--ignored",
              "--exclude-standard", "--directory", "-z"],
             capture_output=True, text=True, timeout=30, check=True,
-        ).stdout
+            encoding="utf-8", errors="replace").stdout
     except Exception:
         return set()
     return {(root / p).resolve() for p in out.split("\0") if p}
@@ -362,7 +362,7 @@ def _git_last_commit_date(rel_dir: Path, exclude: str | None = None) -> _dt.date
     if exclude:
         args.append(f":(exclude){rel_dir}/{exclude}")
     try:
-        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5)
+        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5, encoding="utf-8", errors="replace")
         s = r.stdout.strip()
         return _dt.date.fromisoformat(s) if s else None
     except Exception:

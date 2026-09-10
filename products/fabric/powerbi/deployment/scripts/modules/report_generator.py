@@ -205,8 +205,8 @@ def write_report(
         duration_seconds=duration_seconds,
     )
     try:
-        html_path.write_text(html_content, encoding="utf-8")
-        json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        html_path.write_text(html_content, encoding="utf-8", newline="\n")
+        json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8", newline="\n")
         return (html_path, json_path)
     except Exception:
         return (None, None)

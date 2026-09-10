@@ -76,7 +76,7 @@ def validate_report(report_dir: Path, strict: bool = False) -> list[str]:
             if not vf.exists():
                 continue
             try:
-                visual = json.loads(vf.read_text())
+                visual = json.loads(vf.read_text(encoding="utf-8"))
             except json.JSONDecodeError as e:
                 errors.append(f"{report_name}/{page_id}/{vd.name}: Invalid JSON — {e}")
                 continue

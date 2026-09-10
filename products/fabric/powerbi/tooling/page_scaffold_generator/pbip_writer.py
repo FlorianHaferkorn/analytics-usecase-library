@@ -78,17 +78,17 @@ class PBIPWriter:
     def write_version_txt(self):
         """Write Version.txt for pbi-tools PbixProj compatibility."""
         version_file = self.report_path / "Version.txt"
-        version_file.write_text(self.PBIXPROJ_VERSION, encoding="utf-8")
+        version_file.write_text(self.PBIXPROJ_VERSION, encoding="utf-8", newline="\n")
 
     def write_report_metadata_json(self):
         """Write minimal ReportMetadata.json for pbi-tools PbixProj compatibility."""
         metadata_file = self.report_path / "ReportMetadata.json"
-        metadata_file.write_text("{}", encoding="utf-8")
+        metadata_file.write_text("{}", encoding="utf-8", newline="\n")
 
     def write_report_settings_json(self):
         """Write minimal ReportSettings.json for pbi-tools PbixProj compatibility."""
         settings_file = self.report_path / "ReportSettings.json"
-        settings_file.write_text("{}", encoding="utf-8")
+        settings_file.write_text("{}", encoding="utf-8", newline="\n")
 
     @staticmethod
     def _sanitize_path_segment(value: str) -> str:
@@ -104,7 +104,7 @@ class PBIPWriter:
         sections_root = report_root / "sections"
         sections_root.mkdir(parents=True, exist_ok=True)
 
-        (report_root / "report.json").write_text(definition_report.read_text(encoding="utf-8"), encoding="utf-8")
+        (report_root / "report.json").write_text(definition_report.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
 
         for existing in sections_root.iterdir():
             if existing.is_dir():
@@ -140,7 +140,7 @@ class PBIPWriter:
             visuals_dir = section_dir / "visualContainers"
             visuals_dir.mkdir(parents=True, exist_ok=True)
 
-            (section_dir / "section.json").write_text(page_json.read_text(encoding="utf-8"), encoding="utf-8")
+            (section_dir / "section.json").write_text(page_json.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
 
             src_visuals = page_dir / "visuals"
             if not src_visuals.exists():
@@ -155,7 +155,7 @@ class PBIPWriter:
                 (legacy_visual_dir / "visualContainer.json").write_text(
                     visual_json.read_text(encoding="utf-8"),
                     encoding="utf-8",
-                )
+                    newline="\n")
 
     def write_report_json(
         self,

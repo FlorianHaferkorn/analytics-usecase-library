@@ -48,13 +48,13 @@ def preview(value):
 
 def setup(tmp_path):
     package = migrate_project_package(ROOT / "tooling/tests/fixtures/project_package/v1", tmp_path / "package", SCHEMAS)
-    manifest = yaml.safe_load((package / "package.yaml").read_text())
+    manifest = yaml.safe_load((package / "package.yaml").read_text(encoding="utf-8"))
     modules = data()["modules"]
     for kind in ["decision_set", "architecture_input"]:
         document = modules[kind]
         row = next((item for item in manifest["modules"] if item["module_type"] == kind), None)
         if row is None:
-            row = {"module_type": kind, "path": "architecture.yaml", "schema_id": json.loads((SCHEMAS / f"project_{kind}.schema.json").read_text())["$id"]}
+            row = {"module_type": kind, "path": "architecture.yaml", "schema_id": json.loads((SCHEMAS / f"project_{kind}.schema.json").read_text(encoding="utf-8"))["$id"]}
             manifest["modules"].append(row)
         (package / row["path"]).write_text(yaml.safe_dump(document), encoding="utf8")
         row["sha256"] = canonical_sha256(document)
@@ -180,12 +180,12 @@ def test_apply_real_package_preserves_decisions_history_and_requires_new_release
     second = repo.head()
     assert second.parent_revision_hash == first.revision_hash
     assert result["state"] == "working" and result["release_required"]
-    manifest = yaml.safe_load((second.package_root / "package.yaml").read_text())
+    manifest = yaml.safe_load((second.package_root / "package.yaml").read_text(encoding="utf-8"))
     assert manifest["state"] == "working"
     for module in manifest["modules"]:
         if module["module_type"] != "architecture_input":
             assert (first.package_root / module["path"]).read_bytes() == (second.package_root / module["path"]).read_bytes()
-    audit = json.loads((second.package_root / result["audit_ref"]).read_text())
+    audit = json.loads((second.package_root / result["audit_ref"]).read_text(encoding="utf-8"))
     assert audit["reviewed_by"] == payload["actor"]
     assert audit["preview_sha256"] == payload["preview_sha256"]
     assert audit["changes"][0]["decision_sha256"] == canonical_sha256(data()["modules"]["decision_set"]["instances"][0])
@@ -203,11 +203,11 @@ def test_release_rejects_unapplied_conflicting_or_unconfirmed_rules_without_atte
         draft = repo.checkout(tmp_path / "modified", first.revision_hash)
         if status == "blocked":
             path = draft / "architecture.yaml"
-            document = yaml.safe_load(path.read_text())
+            document = yaml.safe_load(path.read_text(encoding="utf-8"))
             document["decision_rules"][0]["expected_value"] = ["sandbox"]
         else:
             path = draft / "discovery/decision_set.yaml"
-            document = yaml.safe_load(path.read_text())
+            document = yaml.safe_load(path.read_text(encoding="utf-8"))
             document["instances"][0]["selection"]["state"] = "selected"
         path.write_text(yaml.safe_dump(document), encoding="utf8")
         first = repo.commit_draft(draft, expected_head_hash=first.revision_hash)
@@ -223,7 +223,7 @@ def test_derived_architecture_releases_only_after_explicit_package_approval(tmp_
     with pytest.raises(ValueError, match="package_not_approved"):
         release_input(repo, "project_demo", result["revision_hash"], actor="owner", rationale="Working architecture is not approved for release.")
     draft = repo.checkout(tmp_path / "approval", result["revision_hash"])
-    manifest = yaml.safe_load((draft / "package.yaml").read_text())
+    manifest = yaml.safe_load((draft / "package.yaml").read_text(encoding="utf-8"))
     manifest["state"] = "approved"
     (draft / "package.yaml").write_text(yaml.safe_dump(manifest), encoding="utf8")
     approved = repo.commit_draft(draft, expected_head_hash=result["revision_hash"])
@@ -267,9 +267,9 @@ def test_bad_apply_request_never_changes_head(tmp_path, mutation):
 def test_cli_preview_and_apply_use_real_repository(tmp_path):
     repo, first = setup(tmp_path)
     command = [sys.executable, "-m", "tooling.superversion.project_package.decision_derivation", "--repository", str(repo.root), "--schemas", str(SCHEMAS)]
-    result = subprocess.run([*command, "--mode", "preview"], input=json.dumps({"project_ref": "project_demo", "revision_hash": first.revision_hash}), capture_output=True, text=True, cwd=ROOT, check=True)
+    result = subprocess.run([*command, "--mode", "preview"], input=json.dumps({"project_ref": "project_demo", "revision_hash": first.revision_hash}), capture_output=True, text=True, cwd=ROOT, check=True, encoding="utf-8", errors="replace")
     assert json.loads(result.stdout)["value"]["can_apply"]
-    result = subprocess.run([*command, "--mode", "apply"], input=json.dumps(request(repo, first)), capture_output=True, text=True, cwd=ROOT, check=True)
+    result = subprocess.run([*command, "--mode", "apply"], input=json.dumps(request(repo, first)), capture_output=True, text=True, cwd=ROOT, check=True, encoding="utf-8", errors="replace")
     assert json.loads(result.stdout)["value"]["state"] == "working"
 
 

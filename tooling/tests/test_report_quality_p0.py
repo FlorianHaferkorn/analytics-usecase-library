@@ -69,9 +69,9 @@ def test_structural_report_passes_minimal_report(tmp_path: Path):
 def test_structural_bounds_detects_out_of_bounds(tmp_path: Path):
     report = _minimal_report(tmp_path)
     visual = report / "definition/pages/Page_COM001_Overview/visuals/Main_1/visual.json"
-    data = json.loads(visual.read_text())
+    data = json.loads(visual.read_text(encoding="utf-8"))
     data["position"]["x"] = 2000
-    visual.write_text(json.dumps(data))
+    visual.write_text(json.dumps(data), encoding="utf-8")
     violations = check_report(report, ReportSpec([VisualWithinPage()]))
     assert len(violations) == 1
     assert violations[0].check == "visual:bounds"
@@ -80,14 +80,14 @@ def test_structural_bounds_detects_out_of_bounds(tmp_path: Path):
 def test_structural_bounds_uses_canonical_page_size_when_dimensions_missing(tmp_path: Path):
     report = _minimal_report(tmp_path)
     page = report / "definition/pages/Page_COM001_Overview/page.json"
-    data = json.loads(page.read_text())
+    data = json.loads(page.read_text(encoding="utf-8"))
     del data["width"]
     del data["height"]
-    page.write_text(json.dumps(data))
+    page.write_text(json.dumps(data), encoding="utf-8")
     visual = report / "definition/pages/Page_COM001_Overview/visuals/Main_1/visual.json"
-    vdata = json.loads(visual.read_text())
+    vdata = json.loads(visual.read_text(encoding="utf-8"))
     vdata["position"] = {"x": 1500, "y": 10, "width": 100, "height": 80}
-    visual.write_text(json.dumps(vdata))
+    visual.write_text(json.dumps(vdata), encoding="utf-8")
     violations = check_report(report, ReportSpec([VisualWithinPage()]))
     assert violations == []
 
@@ -95,12 +95,12 @@ def test_structural_bounds_uses_canonical_page_size_when_dimensions_missing(tmp_
 def test_self_heal_fixes_page_size(tmp_path: Path):
     report = _minimal_report(tmp_path)
     page = report / "definition/pages/Page_COM001_Overview/page.json"
-    data = json.loads(page.read_text())
+    data = json.loads(page.read_text(encoding="utf-8"))
     data["height"] = 999
-    page.write_text(json.dumps(data))
+    page.write_text(json.dumps(data), encoding="utf-8")
     result = self_heal(report, ReportSpec([PageSize(width=1920, height=1080)]))
     assert result.success
-    assert json.loads(page.read_text())["height"] == 1080
+    assert json.loads(page.read_text(encoding="utf-8"))["height"] == 1080
 
 
 def test_content_validator_detects_placeholder_and_mixed_language():
@@ -134,7 +134,7 @@ def test_dax_reference_flags_missing_visual_measure(tmp_path: Path):
     tmdl.parent.mkdir(parents=True)
     tmdl.write_text("table _Measures\n\tmeasure 'Net Sales' = 1\n", encoding="utf-8")
     visual = report / "definition/pages/Page_COM001_Overview/visuals/Main_1/visual.json"
-    data = json.loads(visual.read_text())
+    data = json.loads(visual.read_text(encoding="utf-8"))
     data["visual"]["query"] = {"queryState": {"Y": {"projections": [{"field": {"Measure": {"Property": "Missing"}}}]}}}
     visual.write_text(json.dumps(data), encoding="utf-8")
     violations = validate_report_measure_references(tmp_path)
@@ -149,7 +149,7 @@ def test_validate_single_report_includes_measure_reference_check(tmp_path: Path)
     tmdl.parent.mkdir(parents=True)
     tmdl.write_text("table _Measures\n\tmeasure 'Net Sales' = 1\n", encoding="utf-8")
     visual = report / "definition/pages/Page_COM001_Overview/visuals/Main_1/visual.json"
-    data = json.loads(visual.read_text())
+    data = json.loads(visual.read_text(encoding="utf-8"))
     data["visual"]["query"] = {"queryState": {"Y": {"projections": [{"field": {"Measure": {"Property": "Missing"}}}]}}}
     visual.write_text(json.dumps(data), encoding="utf-8")
     violations = validate(report)
