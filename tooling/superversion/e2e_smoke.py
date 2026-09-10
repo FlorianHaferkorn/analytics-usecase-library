@@ -153,8 +153,25 @@ def resolve_bash() -> Optional[str]:
     Keep them in step when either learns something new.
     """
     on_path = shutil.which("bash")
-    if on_path and not _is_wsl_launcher(on_path):
-        return on_path
+    if on_path:
+        # Absolut machen, BEVOR irgendetwas geprueft oder zurueckgegeben wird.
+        # `shutil.which` gibt relativ zurueck, wenn der Treffer im aktuellen
+        # Verzeichnis liegt -- aus `C:\\Windows\\System32` heraus etwa
+        # `.\\bash.EXE`. Dann sieht `_is_wsl_launcher` als Verzeichnisnamen nur
+        # `''` und laesst den Starter durch, und der Rueckgabewert umgeht die
+        # Suchreihenfolge nicht, um derentwillen diese Funktion existiert.
+        # Gemessen am 10.09.2026; dieselbe Luecke stand im Freelancing-Repo.
+        # Beide Konventionen: `os.path.isabs("/usr/bin/bash")` ist auf Windows
+        # False, weil der Laufwerksbuchstabe fehlt -- und `resolve()` machte
+        # daraus `C:\\usr\\bin\\bash`.
+        from pathlib import PurePosixPath as _PPP
+        if not (os.path.isabs(on_path) or _PPP(on_path).is_absolute()):
+            try:
+                on_path = str(Path(on_path).resolve())
+            except OSError:
+                pass
+        if not _is_wsl_launcher(on_path):
+            return on_path
     for candidate in _GIT_BASH_FALLBACK_PATHS:
         if candidate.exists():
             return str(candidate)

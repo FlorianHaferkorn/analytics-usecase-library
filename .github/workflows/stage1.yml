@@ -52,6 +52,13 @@ jobs:
       - name: Index drift-gate (_INDEX.md completeness)
         run: python3 scripts/check_index.py --strict
 
+      # Sieben Annahmen, die nur auf Linux stimmen. Diese CI FAEHRT auf Linux
+      # und kann sie deshalb nicht durch Laufen finden -- nur so. Zwei Klassen
+      # stehen auf Null und sind hart gesperrt, der Rest laeuft als Klinke
+      # (scripts/plattform_baseline.json): der Bestand darf sinken, nie steigen.
+      - name: Plattform-Sperrklinke (blockierend)
+        run: python3 scripts/check_plattform.py
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip

@@ -55,7 +55,10 @@ Stand 10.09.2026 in diesem Repo: die Suite ist auf Windows gruen (2899 passed,
 gemessen am 09.09.2026) -- die Funde unten sind also latent, nicht akut. Genau
 so sah das Freelancing-Repo aus, bevor dieselben Klassen dort 84 Tests kosteten.
 
-`pfad_trenner` und `pfad_als_esm_url` stehen auf Null und sind hart gesperrt.
+`pfad_trenner`, `pfad_als_esm_url` und `nackter_programmname` stehen auf Null
+und sind hart gesperrt -- die letzte davon seit dem 10.09.2026, als die drei
+nackten `fab`-Aufrufe auf `programm()` + `befehl()` umgestellt wurden. Das ist
+die Klasse, die im Freelancing-Repo 56 Tests gekostet hat.
 Der Rest laeuft als Sperrklinke: der Bestand darf sinken, nie steigen. Je Klasse
 und nicht als Summe -- 30 aufgeraeumte `read_text` duerfen kein neues
 `str(relative_to)` freikaufen.
@@ -103,15 +106,14 @@ EIGENE_PROBEN = ("tooling/tests/test_plattform_ratchet.py",)
 #: tun SOLL, weiss nur, wer ihren Zweck kennt. Bis dahin gilt die Klinke.
 #: (Im Freelancing-Repo sind sechs der sieben Klassen hart; der Unterschied ist
 #: der Stand der Aufraeumarbeit, nicht der Regeln.)
-HARTE_KLASSEN = ("pfad_trenner", "pfad_als_esm_url")
+HARTE_KLASSEN = ("pfad_trenner", "pfad_als_esm_url", "nackter_programmname")
 
 #: `stiller_rueckfall` kam mit 14 Stellen zur Welt. Jede davon ist eine eigene
 #: Entscheidung -- was der Rueckfall sagen SOLL, weiss nur, wer den Zweck der
 #: Stelle kennt. Sie pauschal umzuschreiben hiesse, 14 fremde Absichten zu
 #: raten. Also Klinke statt Sperre: der Bestand darf nicht wachsen.
-KLINKEN_KLASSEN: tuple[str, ...] = ("nackter_programmname", "kodierung_einseitig",
-                                    "trennzeichen_als_text", "zeilenende_offen",
-                                    "stiller_rueckfall")
+KLINKEN_KLASSEN: tuple[str, ...] = ("kodierung_einseitig", "trennzeichen_als_text",
+                                    "zeilenende_offen", "stiller_rueckfall")
 
 #: Programme, deren nackter Name auf Windows etwas anderes startet als gemeint.
 #: `git` steht nicht dabei: es hat keinen Schatten in System32 und keine

@@ -4,9 +4,16 @@ Provides high-level functions that abstract Fabric CLI commands.
 """
 import subprocess
 import json
+import sys
 import time
 import uuid
+from pathlib import Path
 from typing import Optional, Dict, Any, List
+
+# Die Repo-Wurzel auf den Suchpfad: dieses Modul haengt in einem Skriptbaum, der
+# von aussen aufgerufen wird und `tooling` sonst nicht findet.
+sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
+from tooling.prozess import befehl, kind_umgebung, programm  # noqa: E402
 
 from . import retry_logic
 
@@ -20,10 +27,20 @@ DEFAULT_RETRY_BACKOFF = 2.0
 
 def _run_command_impl(command: str) -> str:
     """Internal: run Fabric CLI command and return stdout. Raises CalledProcessError on failure."""
+    # Aufgeloester Pfad statt nacktem Namen -- siehe `tooling/prozess.py`:
+    # auf Windows ist `fab` je nach Installationsweg eine `.cmd`-Huelle, die
+    # `CreateProcess` nicht startet, obwohl `which` sie findet.
+    fab = programm("fab")
+    if fab is None:
+        raise FileNotFoundError(
+            "fab CLI nicht gefunden — https://aka.ms/fabriccli")
     result = subprocess.run(
-        ["fab", "-c", command],
+        befehl(fab, "-c", command),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
+        env=kind_umgebung(),
         check=True,
         timeout=120,
     )
