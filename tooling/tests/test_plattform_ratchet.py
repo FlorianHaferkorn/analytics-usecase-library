@@ -24,6 +24,7 @@ from __future__ import annotations
 import ast
 import collections
 import importlib.util
+import json
 import pathlib
 
 import pytest
@@ -263,3 +264,58 @@ def test_die_klinke_haelt_gegen_die_baseline():
 def test_jeder_gemessene_bereich_existiert(bereich):
     """Ein Waechter, der ein Verzeichnis nicht mehr findet, meldet still Null."""
     assert (mod.REPO_ROOT / bereich).is_dir()
+
+
+# ------------------------------------------------------------- Regelstand
+# Die Verdopplung ist bewusst, ihre Drift war es nicht: am 09.09.2026 landete
+# eine Verschaerfung nur in einer der beiden Fassungen und fiel erst einen Tag
+# spaeter auf. Kein Waechter kann das von sich aus sehen -- er kennt nur sein
+# eigenes Repository. Sichtbar wird es ueber einen Fingerabdruck des geteilten
+# Koerpers, der in beiden Baselines steht: zwei ungleiche Werte heissen, eine
+# Fassung ist nicht nachgezogen.
+
+def _kopie_mit(tmp_path, alt: str, neu: str):
+    """Den Waechter unter tmp_path nachbauen, eine Stelle veraendert."""
+    ziel = tmp_path / "scripts"
+    ziel.mkdir()
+    quelle = _PFAD.read_text(encoding="utf-8-sig")
+    assert quelle.count(alt) == 1, f"{alt!r} kommt {quelle.count(alt)}x vor"
+    (ziel / "check_plattform.py").write_text(
+        quelle.replace(alt, neu), encoding="utf-8", newline="\n")
+    spec = importlib.util.spec_from_file_location(
+        f"cp_{tmp_path.name}", ziel / "check_plattform.py")
+    kopie = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(kopie)
+    return kopie
+
+
+def test_der_regelstand_deckt_sich_mit_der_baseline():
+    """Sonst ist der Wert in der Baseline nur noch Dekoration."""
+    baseline = json.loads(mod.BASELINE.read_text(encoding="utf-8"))
+    assert baseline.get("_regelstand") == mod.regelstand(), (
+        "Regelkoerper und Baseline stehen auseinander - `--schreiben` nachziehen, "
+        "und die zweite Fassung im anderen Repository ebenso.")
+
+
+def test_der_regelstand_aendert_sich_mit_der_regel(tmp_path):
+    """Mutationsprobe: ein Fingerabdruck, der nichts merkt, ist keiner."""
+    kopie = _kopie_mit(tmp_path, '"npx"', '"npx_gibt_es_nicht"')
+    assert kopie.regelstand() != mod.regelstand()
+
+
+def test_der_regelstand_haengt_nicht_am_kommentar(tmp_path):
+    """Gegenprobe: er misst die Regel, nicht den Text.
+
+    Ueber den Syntaxbaum statt ueber die Datei -- sonst zwingt jede
+    Umformatierung beide Repositories zu einem Baseline-Lauf, und ein Wert, den
+    man staendig nachzieht, wird irgendwann ungelesen nachgezogen.
+    """
+    kopie = _kopie_mit(tmp_path, "#: Der Teil, den beide Fassungen wortgleich",
+                       "#: (umformuliert) Der Teil, den beide Fassungen wortgleich")
+    assert kopie.regelstand() == mod.regelstand()
+
+
+def test_die_vier_stellschrauben_stehen_nicht_im_geteilten_koerper():
+    """Was verschieden sein DARF, darf den Fingerabdruck nicht bewegen."""
+    for schraube in ("BEREICHE", "EIGENE_PROBEN", "HARTE_KLASSEN", "KLINKEN_KLASSEN"):
+        assert schraube not in mod.GETEILTER_KOERPER

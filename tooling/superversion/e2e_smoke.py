@@ -115,7 +115,7 @@ _WINDOWS_SYSTEM_DIRS = {"system32", "sysnative", "syswow64"}
 
 
 def _is_wsl_launcher(path: str) -> bool:
-    """True for ``<Windows>\System32\bash.exe`` and its directory aliases.
+    r"""True for ``<Windows>\System32\bash.exe`` and its directory aliases.
 
     Identified by its directory, not its file name: the name is exactly the one
     a real bash has, which is the whole problem.  ``windir`` is honoured as well
@@ -135,7 +135,7 @@ def _is_wsl_launcher(path: str) -> bool:
 
 
 def resolve_bash() -> Optional[str]:
-    """Find a usable `bash` — PATH first, then Git for Windows' default
+    r"""Find a usable `bash` — PATH first, then Git for Windows' default
     install location. Returns None (never raises) if neither exists, so
     callers can degrade honestly instead of crashing with WinError 2.
 

@@ -72,6 +72,7 @@ from __future__ import annotations
 import argparse
 import ast
 import collections
+import hashlib
 import json
 import pathlib
 import re
@@ -314,6 +315,41 @@ class Sammler(ast.NodeVisitor):
         self.generic_visit(knoten)
 
 
+#: Der Teil, den beide Fassungen wortgleich fuehren. Was hier NICHT steht, sind
+#: die vier Stellschrauben: BEREICHE, EIGENE_PROBEN, HARTE_KLASSEN,
+#: KLINKEN_KLASSEN. Die duerfen auseinanderlaufen, der Rest nicht.
+GETEILTER_KOERPER = ("HEIKLE_PROGRAMME", "_docstring_ids", "submodule", "ist_test",
+                     "dateien", "_erstes_wort", "Sammler")
+
+
+def regelstand() -> str:
+    """Fingerabdruck des geteilten Regelkoerpers.
+
+    Ueber den Syntaxbaum, nicht ueber den Text: Umformatieren, Kommentare und
+    verschobene Zeilen aendern ihn nicht, eine Regelaenderung schon.
+
+    Wozu: die Verdopplung ist bewusst -- zwei Produkte, zwei Laufzeiten -- aber
+    sie ist am 09.09.2026 nach einem Tag auseinandergelaufen, weil eine
+    Verschaerfung nur in einer Fassung landete. Ein Waechter kann das nicht von
+    sich aus merken, er sieht nur sein eigenes Repository. Sichtbar wird es
+    trotzdem: der Wert steht in beiden Baselines, und zwei ungleiche Werte
+    heissen, eine Fassung ist nicht nachgezogen. Ein Blick statt eines Tages.
+    """
+    baum = ast.parse(pathlib.Path(__file__).read_text(encoding="utf-8-sig"))
+    teile = {}
+    for knoten in baum.body:
+        name = getattr(knoten, "name", None)
+        if name is None and isinstance(knoten, ast.Assign):
+            name = getattr(knoten.targets[0], "id", None)
+        if name in GETEILTER_KOERPER:
+            teile[name] = ast.dump(knoten)
+    fehlend = sorted(set(GETEILTER_KOERPER) - set(teile))
+    if fehlend:
+        raise SystemExit(f"[check-plattform] Regelkoerper unvollstaendig: {fehlend}")
+    roh = "\n".join(f"{k}\n{teile[k]}" for k in sorted(teile))
+    return hashlib.sha256(roh.encode("utf-8")).hexdigest()[:12]
+
+
 def messen() -> tuple[collections.Counter, list[str]]:
     zaehler: collections.Counter = collections.Counter()
     zeilen: list[str] = []
@@ -334,6 +370,8 @@ def messen() -> tuple[collections.Counter, list[str]]:
 def vergleich(jetzt: collections.Counter, baseline: dict[str, int]):
     """Je Klasse, nie als Summe. Rein -- testbar ohne Dateisystem."""
     gestiegen, gesunken = [], []
+    # Schluessel mit Unterstrich sind Metadaten (Regelstand), keine Klassen.
+    baseline = {k: v for k, v in baseline.items() if not k.startswith("_")}
     for klasse in sorted(set(jetzt) | set(baseline)):
         ist, soll = jetzt.get(klasse, 0), baseline.get(klasse, 0)
         if ist > soll:
@@ -359,7 +397,9 @@ def main(argv=None) -> int:
         print("\n".join(zeilen))
 
     if args.schreiben:
-        BASELINE.write_text(json.dumps(dict(sorted(jetzt.items())), indent=2) + "\n",
+        inhalt = {"_regelstand": regelstand()}
+        inhalt.update(sorted(jetzt.items()))
+        BASELINE.write_text(json.dumps(inhalt, indent=2) + "\n",
                             encoding="utf-8", newline="\n")
         print(f"[check-plattform] Baseline geschrieben: {dict(sorted(jetzt.items()))}")
         return 0
@@ -370,6 +410,13 @@ def main(argv=None) -> int:
         return 1
 
     baseline = json.loads(BASELINE.read_text(encoding="utf-8"))
+
+    hinterlegt = baseline.get("_regelstand")
+    if hinterlegt is not None and hinterlegt != regelstand():
+        print(f"[check-plattform] Regelkoerper geaendert: {hinterlegt} -> "
+              f"{regelstand()}. Baseline nachziehen (--schreiben) -- und die "
+              f"zweite Fassung im anderen Repository ebenso.", file=sys.stderr)
+        return 1
 
     for klasse in HARTE_KLASSEN:
         if jetzt.get(klasse, 0) > 0:
@@ -394,7 +441,8 @@ def main(argv=None) -> int:
               "(--schreiben):")
         for g in gesunken:
             print("   ", g)
-    print(f"[OK] check-plattform: {dict(sorted(jetzt.items()))}")
+    print(f"[OK] check-plattform: {dict(sorted(jetzt.items()))} "
+          f"(Regelstand {regelstand()})")
     return 0
 
 
