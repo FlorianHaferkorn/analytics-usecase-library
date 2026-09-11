@@ -354,3 +354,45 @@ def test_die_vier_stellschrauben_stehen_nicht_im_geteilten_koerper():
     """Was verschieden sein DARF, darf den Fingerabdruck nicht bewegen."""
     for schraube in ("BEREICHE", "EIGENE_PROBEN", "HARTE_KLASSEN", "KLINKEN_KLASSEN"):
         assert schraube not in mod.GETEILTER_KOERPER
+
+
+# Der Fingerabdruck nuetzt nichts, wenn der Lauf ihn nicht durchsetzt. Die
+# Proben darueber zeigen, dass sich der Wert aendert -- ob der Waechter deshalb
+# auch ABBRICHT, stand bis zum 11.09.2026 nirgends. Genau das ist aber der Teil,
+# der in der CI zaehlt: dort laeuft `check_plattform.py`, nicht `regelstand()`.
+
+def _baseline_unter(tmp_path, monkeypatch, aenderung=None):
+    """Den Waechter gegen eine eigene Baseline fahren, ohne die echte anzufassen."""
+    inhalt = json.loads(mod.BASELINE.read_text(encoding="utf-8"))
+    if aenderung is not None:
+        aenderung(inhalt)
+    ziel = tmp_path / "plattform_baseline.json"
+    ziel.write_text(json.dumps(inhalt, indent=2) + "\n", encoding="utf-8",
+                    newline="\n")
+    monkeypatch.setattr(mod, "BASELINE", ziel)
+    return ziel
+
+
+def test_der_waechter_bricht_bei_falschem_regelstand_ab(tmp_path, monkeypatch):
+    """Die Sperre selbst, nicht nur der Wert, auf dem sie beruht."""
+    _baseline_unter(tmp_path, monkeypatch,
+                    lambda d: d.__setitem__("_regelstand", "000000000000"))
+    assert mod.main([]) == 1
+
+
+def test_und_laesst_durch_wenn_er_stimmt(tmp_path, monkeypatch):
+    """Gegenprobe: ein Waechter, der immer abbricht, sperrt nichts, er nervt nur."""
+    _baseline_unter(tmp_path, monkeypatch)
+    assert mod.main([]) == 0
+
+
+def test_eine_baseline_ohne_regelstand_blockiert_nicht(tmp_path, monkeypatch):
+    """Rueckwaertsvertraeglich, mit Absicht.
+
+    Eine Baseline von vor dem 10.09.2026 kennt den Schluessel nicht. Der
+    Waechter soll deshalb nicht scheitern -- er soll ueber den Regelstand nur
+    nichts behaupten koennen. Ein Gate, das beim Einfuehren erst einmal alle
+    aelteren Staende rot faerbt, wird abgeschaltet statt nachgezogen.
+    """
+    _baseline_unter(tmp_path, monkeypatch, lambda d: d.pop("_regelstand", None))
+    assert mod.main([]) == 0

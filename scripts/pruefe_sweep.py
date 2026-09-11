@@ -22,9 +22,15 @@ einmal je Sweep, vor dem Commit.
 
 VERWENDUNG
 ==========
-    python scripts/pruefe_sweep.py                 # Arbeitsbaum gegen HEAD
-    python scripts/pruefe_sweep.py --basis HEAD~1  # gegen einen anderen Stand
+    python scripts/pruefe_sweep.py                      # Arbeitsbaum gegen HEAD
+    python scripts/pruefe_sweep.py --basis HEAD~1       # gegen einen anderen Stand
+    python scripts/pruefe_sweep.py --basis A~1 --stand A # ein fertiger Commit
     python scripts/pruefe_sweep.py --ausnahme scripts/check_plattform.py
+
+Ohne `--stand` ist der gepruefte Stand der Arbeitsbaum -- der Normalfall, weil
+die Gegenprobe vor den Commit gehoert. MIT `--stand` laesst sich ein bereits
+committeter Sweep nachtraeglich pruefen; ohne diese Option waere ein Sweep
+genau ab dem Moment unpruefbar, in dem er interessant wird.
 
 Der Vergleich laeuft zweistufig: erst zeichenweise, dann ueber den Syntaxbaum.
 Die zweite Stufe faengt genau eine Sache ab -- nachtraegliches Ausrichten der
@@ -163,11 +169,14 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--basis", default="HEAD",
                     help="Stand, aus dem reproduziert wird (Vorgabe: HEAD)")
+    ap.add_argument("--stand", default=None,
+                    help="gepruefter Stand (Vorgabe: der Arbeitsbaum)")
     ap.add_argument("--ausnahme", action="append", default=[],
                     help="Datei, die bewusst Handarbeit ist (mehrfach erlaubt)")
     args = ap.parse_args(argv)
 
-    geaendert = subprocess.run(["git", "diff", "--name-only", args.basis],
+    spanne = [args.basis] + ([args.stand] if args.stand else [])
+    geaendert = subprocess.run(["git", "diff", "--name-only", *spanne],
                                cwd=REPO_ROOT, capture_output=True, text=True,
                                encoding="utf-8", errors="replace").stdout.split()
     ausnahmen = set(args.ausnahme)
@@ -181,11 +190,10 @@ def main(argv=None) -> int:
             continue
         head = subprocess.run(["git", "show", f"{args.basis}:{rel}"], cwd=REPO_ROOT,
                               capture_output=True).stdout.decode("utf-8-sig")
-        pfad = REPO_ROOT / rel
-        if not pfad.is_file():
+        jetzt = _fassung_von(rel, args.stand)
+        if jetzt is None:
             abweichend.append(f"{rel} (geloescht)")
             continue
-        jetzt = pfad.read_text(encoding="utf-8-sig")
         q = head
         try:
             for kand in (kand_encoding, kand_newline):
@@ -205,6 +213,18 @@ def main(argv=None) -> int:
     return _bericht(args, wortgleich, nur_form, abweichend, andere, ausnahmen)
 
 
+def _fassung_von(rel: str, stand: str | None) -> str | None:
+    """Den geprueften Inhalt lesen -- aus dem Arbeitsbaum oder aus einem Commit."""
+    if stand is None:
+        pfad = REPO_ROOT / rel
+        return pfad.read_text(encoding="utf-8-sig") if pfad.is_file() else None
+    roh = subprocess.run(["git", "show", f"{stand}:{rel}"], cwd=REPO_ROOT,
+                         capture_output=True)
+    if roh.returncode != 0:
+        return None
+    return roh.stdout.decode("utf-8-sig")
+
+
 def _baum_gleich(a: str, b: str) -> bool:
     try:
         return ast.dump(ast.parse(a)) == ast.dump(ast.parse(b))
@@ -215,8 +235,8 @@ def _baum_gleich(a: str, b: str) -> bool:
 def _bericht(args, wortgleich, nur_form, abweichend, andere, ausnahmen) -> int:
     gesamt = wortgleich + len(nur_form) + len(abweichend)
     # ASCII mit Absicht: dieser Bericht laeuft auch dort, wo stdout cp1252 ist.
-    print(f"[pruefe-sweep] Basis {args.basis}: {gesamt} Python-Dateien geprueft "
-          f"(Fassung {fassung()})")
+    print(f"[pruefe-sweep] {args.basis} -> {args.stand or 'Arbeitsbaum'}: "
+          f"{gesamt} Python-Dateien geprueft (Fassung {fassung()})")
     print(f"    wortgleich reproduziert: {wortgleich}")
     print(f"    nur Einrueckung:         {len(nur_form)}")
     print(f"    benannte Handarbeit:     {len(ausnahmen)}")
