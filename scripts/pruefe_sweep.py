@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import hashlib
 import pathlib
 import re
 import subprocess
@@ -41,6 +42,24 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 LAUF = {"run", "Popen", "call", "check_call", "check_output"}
+
+
+def fassung() -> str:
+    """sha256 dieser Datei, erste zwoelf Zeichen.
+
+    Das Werkzeug existiert zweimal, einmal je Repository -- es muss dort laufen,
+    wo gesweept wird, und ein Sweep beginnt mit einem `git diff` gegen den
+    eigenen Stand. Damit gilt dasselbe wie fuer den Waechter: zwei ungleiche
+    Werte heissen, eine Fassung ist nicht nachgezogen.
+
+    Ueber den Dateiinhalt, nicht ueber den Syntaxbaum -- anders als beim
+    Waechter. Dort sollen Kommentare den Wert NICHT bewegen, weil sonst jede
+    Umformulierung beide Baselines zu einem Lauf zwingt. Hier tragen die
+    Kommentare die Begruendungen, aus denen die Regeln ueberhaupt lesbar sind;
+    eine Fassung mit anderer Begruendung IST eine andere Fassung.
+    """
+    roh = pathlib.Path(__file__).read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(roh).hexdigest()[:12]
 
 
 def ist_test(rel: str) -> bool:
@@ -196,7 +215,8 @@ def _baum_gleich(a: str, b: str) -> bool:
 def _bericht(args, wortgleich, nur_form, abweichend, andere, ausnahmen) -> int:
     gesamt = wortgleich + len(nur_form) + len(abweichend)
     # ASCII mit Absicht: dieser Bericht laeuft auch dort, wo stdout cp1252 ist.
-    print(f"[pruefe-sweep] Basis {args.basis}: {gesamt} Python-Dateien geprueft")
+    print(f"[pruefe-sweep] Basis {args.basis}: {gesamt} Python-Dateien geprueft "
+          f"(Fassung {fassung()})")
     print(f"    wortgleich reproduziert: {wortgleich}")
     print(f"    nur Einrueckung:         {len(nur_form)}")
     print(f"    benannte Handarbeit:     {len(ausnahmen)}")

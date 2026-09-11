@@ -266,6 +266,41 @@ def test_jeder_gemessene_bereich_existiert(bereich):
     assert (mod.REPO_ROOT / bereich).is_dir()
 
 
+
+# ---------------------------------------------------------------- Klasse 8
+# Backslash, der still zum Steuerzeichen wurde. `"System32\bash.exe"` enthaelt
+# kein `\b`, sondern ein Backspace -- der Text lautet `System32<Backspace>ash.exe`.
+# Gefunden am 10.09.2026 in zwei Docstrings von `e2e_smoke.py`, im selben Zug,
+# in dem das CI-Gate `-W error::SyntaxWarning` entstand. Das Gate faengt genau
+# diesen Fall NICHT: `\b` ist gueltig, gewarnt wird nur bei `\S` und Verwandten.
+
+def test_ein_backslash_pfad_im_docstring_wird_gemeldet():
+    quelle = 'def f():\n    """Pfad: dir\\bash.exe."""\n'
+    assert _messen(quelle)["backslash_als_steuerzeichen"] == 1
+
+
+def test_derselbe_docstring_roh_wird_nicht_gemeldet():
+    """Der Unterschied, um den es geht -- ein `r` davor."""
+    quelle = 'def f():\n    r"""Pfad: dir\\bash.exe."""\n'
+    assert not _messen(quelle)["backslash_als_steuerzeichen"]
+
+
+def test_ein_einzelnes_steuerzeichen_ist_eine_probe_kein_fund():
+    """Die Schranke, ohne die die Klasse mit Fehlalarmen zur Welt gekommen waere.
+
+    `core/pbi_engine/tests/test_schema_validate_ctrlchars.py` prueft die
+    Behandlung von Steuerzeichen und fuehrt sie deshalb einzeln im Klartext.
+    Ein Literal, das NUR aus dem Steuerzeichen besteht, ist Absicht; eines, in
+    dem es zwischen Buchstaben steht, ist eine Panne.
+    """
+    assert not _messen('x = "\\a"')["backslash_als_steuerzeichen"]
+    assert _messen('x = "log\\a.txt"')["backslash_als_steuerzeichen"] == 1
+
+
+def test_auch_ausserhalb_von_docstrings():
+    """Die Klasse nimmt Docstrings NICHT aus -- dort lag ja der Fund."""
+    assert _messen('P = "C:\\vendor\\bin"')["backslash_als_steuerzeichen"] == 1
+
 # ------------------------------------------------------------- Regelstand
 # Die Verdopplung ist bewusst, ihre Drift war es nicht: am 09.09.2026 landete
 # eine Verschaerfung nur in einer der beiden Fassungen und fiel erst einen Tag

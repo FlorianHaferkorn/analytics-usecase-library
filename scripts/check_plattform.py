@@ -107,7 +107,8 @@ EIGENE_PROBEN = ("tooling/tests/test_plattform_ratchet.py",)
 #: tun SOLL, weiss nur, wer ihren Zweck kennt. Bis dahin gilt die Klinke.
 #: (Im Freelancing-Repo sind sechs der sieben Klassen hart; der Unterschied ist
 #: der Stand der Aufraeumarbeit, nicht der Regeln.)
-HARTE_KLASSEN = ("pfad_trenner", "pfad_als_esm_url", "nackter_programmname")
+HARTE_KLASSEN = ("pfad_trenner", "pfad_als_esm_url", "nackter_programmname",
+                 "backslash_als_steuerzeichen")
 
 #: `stiller_rueckfall` kam mit 14 Stellen zur Welt. Jede davon ist eine eigene
 #: Entscheidung -- was der Rueckfall sagen SOLL, weiss nur, wer den Zweck der
@@ -121,6 +122,10 @@ KLINKEN_KLASSEN: tuple[str, ...] = ("kodierung_einseitig", "trennzeichen_als_tex
 #: `.cmd`-Huelle. Ein Waechter, der alles verbietet, wird abgeschaltet.
 HEIKLE_PROGRAMME = {"bash", "sh", "npm", "npx", "make", "fab",
                     "powerbi-report-author", "pbi-tools"}
+
+#: Escape-Sequenzen, die einen Windows-Pfad still zerlegen. `\\b` ist gueltig --
+#: deshalb warnt Python nicht, und deshalb faellt es niemandem auf.
+STEUERZEICHEN = {"\a": r"\a", "\b": r"\b", "\f": r"\f", "\v": r"\v"}
 
 
 def _docstring_ids(baum) -> frozenset:
@@ -293,6 +298,27 @@ class Sammler(ast.NodeVisitor):
         if (isinstance(knoten.value, str) and id(knoten) not in self.docstrings
                 and re.search(r"from\s+['\"][%{]", knoten.value)):
             self.funde.append(("pfad_als_esm_url", knoten.lineno, "ESM-Import mit Platzhalter"))
+
+        # Zweite Klasse am selben Knoten: ein Backslash-Pfad in einem nicht-rohen
+        # String. `"System32\\bash.exe"` enthaelt kein `\\b`, sondern ein
+        # Steuerzeichen -- der Text sagt `System32<Backspace>ash.exe`. Gefunden
+        # am 10.09.2026 in zwei Docstrings von `e2e_smoke.py`.
+        #
+        # Warum das Gate `-W error::SyntaxWarning` es NICHT faengt: `\\b` ist eine
+        # gueltige Sequenz. Gewarnt wird nur bei ungueltigen wie `\\S`. Genau die
+        # Haelfte, die niemand sieht, braucht also den Waechter.
+        #
+        # Laenger als ein Zeichen mit Absicht: ein Literal, das NUR aus dem
+        # Steuerzeichen besteht, ist eine Probe und keine Panne. Gemessen ueber
+        # beide Repositories -- drei Treffer, davon zwei solche Proben in
+        # `test_schema_validate_ctrlchars`. Ohne diese Schranke waere die Klasse
+        # mit zwei von drei Fehlalarmen zur Welt gekommen.
+        if (isinstance(knoten.value, str) and len(knoten.value) > 1
+                and any(z in knoten.value for z in STEUERZEICHEN)):
+            welche = " ".join(sorted(t for z, t in STEUERZEICHEN.items()
+                                     if z in knoten.value))
+            self.funde.append(("backslash_als_steuerzeichen", knoten.lineno,
+                               f"{welche} als Steuerzeichen im Text"))
         self.generic_visit(knoten)
 
     def visit_JoinedStr(self, knoten):
@@ -318,7 +344,7 @@ class Sammler(ast.NodeVisitor):
 #: Der Teil, den beide Fassungen wortgleich fuehren. Was hier NICHT steht, sind
 #: die vier Stellschrauben: BEREICHE, EIGENE_PROBEN, HARTE_KLASSEN,
 #: KLINKEN_KLASSEN. Die duerfen auseinanderlaufen, der Rest nicht.
-GETEILTER_KOERPER = ("HEIKLE_PROGRAMME", "_docstring_ids", "submodule", "ist_test",
+GETEILTER_KOERPER = ("HEIKLE_PROGRAMME", "STEUERZEICHEN", "_docstring_ids", "submodule", "ist_test",
                      "dateien", "_erstes_wort", "Sammler")
 
 
