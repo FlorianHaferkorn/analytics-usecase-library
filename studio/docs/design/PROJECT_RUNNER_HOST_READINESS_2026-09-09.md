@@ -25,8 +25,8 @@ The two dependencies that usually cost the most time are already satisfied. Ever
 | Value | Measured | Source |
 |---|---|---|
 | Stable operator actor | `github:101591047` (`FlorianHaferkorn`) | `gh api user` on this host |
-| Tenant of the existing `_Test` workspace | `ad4cb6df-6b71-4c1d-b540-bd56be265142` | `tid` claim of the Fabric access token |
-| Identity home tenant | `a45fe71a-f480-4e42-ad5e-aff33165aa35` (Nagarro) | `idp` claim of the same token |
+| Tenant of the existing `_Test` workspace | `<customer-tenant-id>` | `tid` claim of the Fabric access token |
+| Identity home tenant | `<nagarro-tenant-id>` (Nagarro) | `idp` claim of the same token |
 
 The two tenant IDs differ, which confirms that the identity used for the UC1 runs is a **guest** in the workspace's tenant. The `_Test` workspace therefore sits in the customer tenant, not in a Nagarro tenant.
 
@@ -49,8 +49,8 @@ The real constraints are narrower and sharper:
 
 | Constraint | Source | Effect on Gate 1 |
 |---|---|---|
-| Both settings are scoped to exactly one group, `sg-fabric-sp-provisioning` (`708ecd32-d0b8-4684-8200-1be04a7fbadb`) | K-68 | Only a principal inside that group can create a workspace at all |
-| The only principal there is the central bootstrap application `svc-fabric-provisioning-<tenant>`, App ID `1cf45fd0-91c9-49c1-8f7f-17330d79b4a2` | K-114, ADR-0004 identity lanes | Its purpose is central platform bootstrap, recovery and governed Blueprint upgrades |
+| Both settings are scoped to exactly one group, `sg-fabric-sp-provisioning` (`<group-id>`) | K-68 | Only a principal inside that group can create a workspace at all |
+| The only principal there is the central bootstrap application `svc-fabric-provisioning-<tenant>`, App ID `<app-id>` | K-114, ADR-0004 identity lanes | Its purpose is central platform bootstrap, recovery and governed Blueprint upgrades |
 | That principal must not be shared across purposes | K-121 | Sharing it would share credentials, permissions, failure scope and audit attribution. A Studio product gate is none of its three permitted purposes |
 | The domain principals `svc_fabric_provisioning_<domain>` and `svc_fabric_cicd_{domain}` are prepared but created only after the final Blueprint approval | K-121, K-115, ADR-0004 | They do not exist yet and are gated behind O-73 |
 | Permanent automation uses customer-owned workload identity federation and **no client secret is distributed to Nagarro**; a guest cannot impersonate the application | K-118 action B02 | There is no secret to configure, by design |

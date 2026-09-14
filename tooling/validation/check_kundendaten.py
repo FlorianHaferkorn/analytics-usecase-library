@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -37,6 +38,63 @@ BINAER = {
 }
 
 MAX_BYTES = 2_000_000
+
+# Eingebaute Regel, unabhaengig von der Sperrliste -- und mit Absicht so.
+# Die Sperrliste ist gitignoriert; ein frischer Klon haette diese Regel sonst
+# nicht. Ein Kundenname ist ersetzbar, eine Tenant-GUID nicht: sie identifiziert
+# den Mandanten eindeutig und ueberdauert jede Umbenennung.
+#
+# Warum nicht einfach "jede GUID": gemessen am 14.09.2026 stehen 1844 bzw. 1758
+# GUID-Vorkommen in versionierten Textdateien beider Repositories, fast alle
+# `lineageTag` aus TMDL. Eine pauschale Regel waere zu 99 % Fehlalarm und nach
+# einer Woche abgeschaltet.
+#
+# Deshalb zwei Einschraenkungen, die zusammen trennscharf sind:
+#   1. nur Prosa (.md/.txt/.rst/.adoc) -- ein Lineage-Tag steht in .tmdl,
+#   2. nur wenn dieselbe Zeile die GUID als Kennung ausweist.
+# Gemessen ergab das 1 Fund hier und 7 drueben, davon 3 Platzhalter.
+GUID_DATEIEN = ("*.md", "*.txt", "*.rst", "*.adoc")
+GUID_ROH = (r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}"
+            r"-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+# Zwei Teile, weil ein Muster beides nicht kann. Der Lookahead
+# `(?=.*\btenant\b)` wird an der Fundstelle ausgewertet und schaut nach vorn --
+# das Schluesselwort steht aber meist davor ("| Tenant | <guid> |"). Ein Muster
+# ueber die ganze Zeile haette wiederum die Zeile als Treffer gemeldet statt der
+# GUID, womit Entdopplung und Ausnahmeliste unbrauchbar waeren.
+#
+# Also: die Regel findet die GUID, die Zeilenbedingung entscheidet, ob sie eine
+# Kennung ist. `(?!(?:([0-9a-fA-F])\1{7})-)` nimmt Vorlagen aus -- acht gleiche
+# Zeichen im ersten Block wie `11111111-...` kommen echt nicht vor.
+MANDANTENKENNUNG = re.compile(r"(?!(?:([0-9a-fA-F])\1{7})-)" + GUID_ROH)
+KENNUNG = re.compile(
+    r"\b(?:tenant|tenant[-_ ]?id|mandant|app[-_ ]?id|application[-_ ]?id|"
+    r"client[-_ ]?id|principal|service[-_ ]?principal|directory[-_ ]?id|"
+    r"object[-_ ]?id|subscription[-_ ]?id|group[-_ ]?id)\b|\bsg-", re.I)
+
+# Eingebaute Regel, unabhaengig von der Sperrliste -- und mit Absicht so.
+# Die Sperrliste ist gitignoriert; ein frischer Klon haette diese Regel sonst
+# nicht. Ein Kundenname ist ersetzbar, eine Tenant-GUID nicht: sie identifiziert
+# den Mandanten eindeutig und ueberdauert jede Umbenennung.
+#
+# Warum nicht einfach "jede GUID": gemessen am 14.09.2026 stehen 1844 bzw. 1758
+# GUID-Vorkommen in versionierten Textdateien beider Repositories, fast alle
+# `lineageTag` aus TMDL. Eine pauschale Regel waere zu 99 % Fehlalarm und nach
+# einer Woche abgeschaltet.
+#
+# Deshalb zwei Einschraenkungen, die zusammen trennscharf sind:
+#   1. nur Prosa (.md/.txt/.rst/.adoc) -- ein Lineage-Tag steht in .tmdl,
+#   2. nur wenn dieselbe Zeile die GUID als Kennung ausweist.
+# Gemessen ergab das 1 Fund hier und 7 drueben, davon 3 Platzhalter.
+GUID_DATEIEN = ("*.md", "*.txt", "*.rst", "*.adoc")
+GUID = re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}"
+                  r"-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b")
+KENNUNG = re.compile(
+    r"\b(tenant|tenant[-_ ]?id|mandant|app[-_ ]?id|application[-_ ]?id|"
+    r"client[-_ ]?id|principal|service[-_ ]?principal|directory[-_ ]?id|"
+    r"object[-_ ]?id|subscription[-_ ]?id|group[-_ ]?id|sg-)\b", re.I)
+# `11111111-1111-...` ist eine Vorlage, kein Mandant. Erkannt am ersten Block:
+# acht gleiche Zeichen kommen in einer echten GUID praktisch nicht vor.
+PLATZHALTER = re.compile(r"^([0-9a-fA-F])\1{7}-")
 
 
 def repo_wurzel(start: Path) -> Path:
@@ -106,6 +164,11 @@ def regeln_bauen(daten: dict) -> list[tuple[str, re.Pattern]]:
         except re.error as e:
             sys.exit(f"ungueltiges Muster in Sperrliste [{kategorie}]: {e}")
 
+    # Eingebaut, nicht aus der Sperrliste: die Liste ist gitignoriert, ein
+    # frischer Klon haette diese Regel sonst nicht. Ein Kundenname laesst sich
+    # ersetzen, eine Tenant-GUID nicht -- sie ueberdauert jede Umbenennung.
+    regeln.append(("mandantenkennung", MANDANTENKENNUNG))
+
     return regeln
 
 
@@ -167,6 +230,18 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             cmd += ["-e", "|".join(f"({m})" for m in muster)]
             rohzeilen += _git_grep(cmd + ausschluss)
 
+    if teil in ("alle", "kennungen"):
+        # Nur Kandidaten einsammeln. Ob eine GUID eine Mandantenkennung IST,
+        # entscheidet die Regel unten in Python -- `git grep -E` kennt POSIX-ERE
+        # und damit keine Lookaheads, und ein `-P` ist auf einer fremden
+        # Maschine nicht garantiert.
+        cmd = ["git", "-C", str(wurzel), "grep", "-nIiE", "--no-color"]
+        if nur_staged:
+            cmd.append("--cached")
+        cmd += ["-e", GUID_ROH]
+        rohzeilen += _git_grep(cmd + (ausschluss if nur_staged
+                                      else ["--", *GUID_DATEIEN]))
+
     befunde: list[dict] = []
     gesehen: set[tuple] = set()
 
@@ -185,6 +260,11 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
         for kategorie, muster in regeln:
             m = muster.search(inhalt)
             if not m:
+                continue
+            # Die GUID-Regel braucht zusaetzlich die Zeile als Kontext:
+            # eine GUID allein ist ein Objektbezeichner, erst das Wort daneben
+            # macht sie zur Mandantenkennung.
+            if kategorie == "mandantenkennung" and not KENNUNG.search(inhalt):
                 continue
             treffer = m.group(0)
             if treffer.lower() in erlaubt:
