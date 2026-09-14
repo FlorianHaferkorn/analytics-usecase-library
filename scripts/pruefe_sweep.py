@@ -27,6 +27,27 @@ VERWENDUNG
     python scripts/pruefe_sweep.py --basis A~1 --stand A # ein fertiger Commit
     python scripts/pruefe_sweep.py --ausnahme scripts/check_plattform.py
 
+NICHT IN DER CI -- und warum nicht
+==================================
+Zwei Gruende, der zweite ist der harte.
+
+Erstens laesst sich ein gewoehnlicher Commit aus drei mechanischen Regeln
+nicht reproduzieren; das ist kein Fehler, sondern der Normalfall. Als
+blockierender Schritt wuerde dieses Werkzeug jeden PR rot faerben. Das allein
+waere loesbar -- melden statt entscheiden (`--nur-bericht`).
+
+Zweitens, und das ist der Grund: **ein Sweep ist nicht automatisch erkennbar.**
+Die naheliegende Heuristik ist die Zahl der geaenderten Python-Dateien. Am
+14.09.2026 gemessen: der echte Sweep umfasste 130 Dateien, ein gewoehnlicher
+Arbeitsbranch gegen `origin/main` 402. Der Zaehler trennt also nicht, was
+getrennt werden muesste, und eine Schwelle daraus waere entweder blind oder
+staendig falsch. Wer einen Sweep faehrt, weiss es -- sonst niemand.
+
+Deshalb bleibt dies ein Werkzeug fuer den Menschen am Commit, ohne CI-Schritt
+und ohne Schwellenwert. `--nur-bericht` gibt es weiterhin, fuer den Blick auf
+einen fremden oder alten Stand, den man nicht bewerten, sondern nur ansehen
+will.
+
 Ohne `--stand` ist der gepruefte Stand der Arbeitsbaum -- der Normalfall, weil
 die Gegenprobe vor den Commit gehoert. MIT `--stand` laesst sich ein bereits
 committeter Sweep nachtraeglich pruefen; ohne diese Option waere ein Sweep
@@ -171,6 +192,8 @@ def main(argv=None) -> int:
                     help="Stand, aus dem reproduziert wird (Vorgabe: HEAD)")
     ap.add_argument("--stand", default=None,
                     help="gepruefter Stand (Vorgabe: der Arbeitsbaum)")
+    ap.add_argument("--nur-bericht", action="store_true",
+                    help="immer mit 0 enden; melden statt entscheiden")
     ap.add_argument("--ausnahme", action="append", default=[],
                     help="Datei, die bewusst Handarbeit ist (mehrfach erlaubt)")
     args = ap.parse_args(argv)
@@ -233,6 +256,7 @@ def _baum_gleich(a: str, b: str) -> bool:
 
 
 def _bericht(args, wortgleich, nur_form, abweichend, andere, ausnahmen) -> int:
+    """Die Zahlen ausgeben und den Ausgang bestimmen."""
     gesamt = wortgleich + len(nur_form) + len(abweichend)
     # ASCII mit Absicht: dieser Bericht laeuft auch dort, wo stdout cp1252 ist.
     print(f"[pruefe-sweep] {args.basis} -> {args.stand or 'Arbeitsbaum'}: "
@@ -253,7 +277,7 @@ def _bericht(args, wortgleich, nur_form, abweichend, andere, ausnahmen) -> int:
         print("   ", a, file=sys.stderr)
     print("    Entweder Handarbeit -- dann mit --ausnahme benennen -- oder ein "
           "Fehler des Werkzeugs.", file=sys.stderr)
-    return 1
+    return 0 if args.nur_bericht else 1
 
 
 if __name__ == "__main__":
