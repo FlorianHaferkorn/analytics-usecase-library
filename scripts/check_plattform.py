@@ -348,11 +348,41 @@ GETEILTER_KOERPER = ("HEIKLE_PROGRAMME", "STEUERZEICHEN", "_docstring_ids", "sub
                      "dateien", "_erstes_wort", "Sammler")
 
 
+def _stabiler_dump(knoten) -> str:
+    """`ast.dump` ohne die Felder, die je nach Python-Minor mitgeschrieben werden.
+
+    Der Unterschied zwischen den Minor-Versionen ist genau einer: ob ein Feld
+    mit Vorgabewert (leere Liste, None) in der Ausgabe steht. Hier steht es nie.
+    Neue Felder spaeterer Versionen (`type_params` ab 3.12) fallen damit von
+    selbst weg, solange sie leer sind; sind sie es nicht, tragen sie echte
+    Bedeutung und gehoeren in den Fingerabdruck.
+    """
+    if isinstance(knoten, ast.AST):
+        teile = []
+        for feld in knoten._fields:
+            wert = getattr(knoten, feld, None)
+            if wert is None or wert == [] or wert == ():
+                continue
+            teile.append(f"{feld}={_stabiler_dump(wert)}")
+        return f"{type(knoten).__name__}({', '.join(teile)})"
+    if isinstance(knoten, list):
+        return "[" + ", ".join(_stabiler_dump(x) for x in knoten) + "]"
+    return repr(knoten)
+
+
 def regelstand() -> str:
     """Fingerabdruck des geteilten Regelkoerpers.
 
     Ueber den Syntaxbaum, nicht ueber den Text: Umformatieren, Kommentare und
     verschobene Zeilen aendern ihn nicht, eine Regelaenderung schon.
+
+    Nicht ueber `ast.dump()`: dessen Ausgabe haengt an der Python-Minor. Neuere
+    Fassungen lassen Felder mit Vorgabewert weg (`keywords=[]`, `posonlyargs=[]`),
+    aeltere schreiben sie hin. Gemessen an derselben Datei am 14.09.2026:
+    3.10/3.11 -> a70e52a09d84, 3.12 -> e92bf616d5b7, 3.13 -> 5e717a1e405e. Damit
+    war der Wert als Vergleich zwischen zwei Repositories wertlos -- zwei
+    ungleiche Werte hiessen genauso gut zwei Interpreter. `_stabiler_dump` laesst
+    leere Felder IMMER weg und ist damit ueber 3.10 bis 3.13 derselbe Wert.
 
     Wozu: die Verdopplung ist bewusst -- zwei Produkte, zwei Laufzeiten -- aber
     sie ist am 09.09.2026 nach einem Tag auseinandergelaufen, weil eine
@@ -368,7 +398,7 @@ def regelstand() -> str:
         if name is None and isinstance(knoten, ast.Assign):
             name = getattr(knoten.targets[0], "id", None)
         if name in GETEILTER_KOERPER:
-            teile[name] = ast.dump(knoten)
+            teile[name] = _stabiler_dump(knoten)
     fehlend = sorted(set(GETEILTER_KOERPER) - set(teile))
     if fehlend:
         raise SystemExit(f"[check-plattform] Regelkoerper unvollstaendig: {fehlend}")
