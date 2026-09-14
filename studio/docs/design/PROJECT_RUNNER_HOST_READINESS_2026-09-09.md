@@ -2,28 +2,75 @@
 
 Status: host diagnostics only. No tenant API was called, no workspace was created and no credential was read or created. The runner remains disabled.
 
-## What was measured on this host
+## Measured, not asserted
 
-| Precondition | Measured state | Source |
+The diagnostic was executed rather than described. `runner_host.py --mode status` ran on this host against an empty repository with actor `github:101591047`; the full result is held outside this repository as `runner-host-status-2026-09-09.json`, SHA-256 `DB215570…`. It reports `enabled: false`, `can_approve: false`, `can_execute: false` and, across its twelve checks, **7 missing, 2 configured, 3 not verified**.
+
+| Check | State | Measured on this host |
 |---|---|---|
-| `fab` executable on PATH | present, version 1.6.1 at `C:\Users\florianhaferkorn\AppData\Local\Programs\Python\Python313\Scripts\fab.exe` | `fab --version`, `Get-Command fab` |
-| `azure-identity` in the runner Python runtime | present, 1.25.3 in Python 3.13 (also the default `python`) | `importlib.metadata.version` |
-| `STUDIO_RUNNER_CONFIG` | not set | process environment |
-| `ALUCA_REPO_ROOT` | not set | process environment |
-| Signing key environment reference | not configured (no host configuration exists) | derived from the two above |
-| Private state directory | not configured | derived |
-| Azure CLI session | signed in as `florian.haferkorn@nagarro.com` | `az account show` |
+| `identity_sdk` | configured | `azure-identity` 1.25.3 in Python 3.13, also the default `python` |
+| `fabric_cli` | configured | `fab` 1.6.1 at `…\Python313\Scripts\fab.exe` |
+| `host_policy` | missing | no host configuration exists; `STUDIO_RUNNER_CONFIG` is not set |
+| `project_scope` | missing | no allowed tenant/principal/project/environment scope |
+| `approver` / `executor` | missing | the actor is on no allowlist |
+| `signing_reference` | missing | no signing key reference |
+| `identity_reference` | missing | no client identity or managed identity |
+| `state_storage` | missing | no private state directory |
+| `identity_permissions`, `host_recovery`, `tenant_acceptance` | not verified | by design: configuration presence proves none of these |
 
-Consequence: `runner_host.status` would report `enabled: false`, `can_approve: false` and `can_execute: false`. The two dependencies that usually cost the most time — the Fabric CLI and the identity SDK — are already satisfied on this machine. Everything still missing is configuration and authorisation, not tooling.
+The two dependencies that usually cost the most time are already satisfied. Everything still missing is configuration and authorisation, not tooling.
 
-## What is still missing, in the order it has to be decided
+## Values that are now known
 
-1. **Target tenant and workspace decision.** The runner's only capability is `fabric_workspaces_create_only`: it creates a workspace and reads it back. It cannot operate inside an existing workspace. A Gate 1 proof therefore creates a *new* workspace; it cannot be run inside the customer `_Test` workspace that the UC1 vertical slice uses. Either a separate non-production tenant is provided, or creating one additional, clearly named and disposable workspace in the customer tenant is explicitly authorised. This decision is not made by this document.
-2. **Execution identity.** A dedicated client identity (`client_secret`) or an explicit user-assigned managed identity, with a canonical UUID client ID. The ambient `az login` session is deliberately not usable: `_credential` refuses `DefaultAzureCredential` and CLI fallbacks. Creating this identity and its secret is a customer or host administrator action.
-3. **Signing key.** A cryptographically generated key of at least 32 bytes, base64-encoded, exposed through its own environment reference. It must differ from the identity secret reference; the configuration loader rejects a shared reference.
-4. **Private state directory.** An absolute path outside the project package repository, with restricted host ACLs. The loader rejects a state path inside or containing the repository root.
-5. **Stable operator identity.** The `github:<provider-account-id>` actor for the approver and executor allowlists. An email address or local development session is refused.
-6. **Host configuration file.** The template in `PROJECT_RUNNER_HOST.md` filled with the values from 1 to 5, stored at a private absolute path and referenced by `STUDIO_RUNNER_CONFIG`. It carries the trusted permission evidence reference for `create_workspaces`.
+| Value | Measured | Source |
+|---|---|---|
+| Stable operator actor | `github:101591047` (`FlorianHaferkorn`) | `gh api user` on this host |
+| Tenant of the existing `_Test` workspace | `ad4cb6df-6b71-4c1d-b540-bd56be265142` | `tid` claim of the Fabric access token |
+| Identity home tenant | `a45fe71a-f480-4e42-ad5e-aff33165aa35` (Nagarro) | `idp` claim of the same token |
+
+The two tenant IDs differ, which confirms that the identity used for the UC1 runs is a **guest** in the workspace's tenant. The `_Test` workspace therefore sits in the customer tenant, not in a Nagarro tenant.
+
+## The decision that blocks Gate 1
+
+The runner's only capability is `fabric_workspaces_create_only`: it creates a workspace and reads it back. It cannot operate inside an existing workspace, so a Gate 1 proof cannot run inside `_Test`. Combined with the tenant measurement above, a Gate 1 proof as things stand would **create a new workspace in the customer tenant**. That is a wider authorisation than the one recorded for the UC1 runs, which covers a single existing disposable workspace with synthetic data.
+
+Two ways forward, both requiring a decision that this document does not make:
+
+1. Provide a separate non-production tenant. Clean boundary, no customer exposure, but it has to exist.
+2. Explicitly authorise exactly one additional, clearly named and disposable workspace in the customer tenant, and record who authorised it.
+
+## What a customer-tenant Gate 1 actually requires — corrected against the project ledger
+
+An earlier revision of this document assumed the customer tenant would first have to switch on two Fabric developer settings. **That assumption is wrong and is corrected here**, measured against the project ledger rather than against generic documentation.
+
+Ledger K-68 records a full export of all 170 tenant settings on 03.09.2026 (`tenant-settings-export-20260903.json`, SHA-256 `1AD8BA25…`). Both switches the runner needs are **already enabled**: `ServicePrincipalAccessGlobalAPIs`, which governs workspaces, connections and deployment pipelines, and `ServicePrincipalAccessPermissionAPIs` for the Fabric public APIs. Admin APIs are deliberately off for the principal.
+
+The real constraints are narrower and sharper:
+
+| Constraint | Source | Effect on Gate 1 |
+|---|---|---|
+| Both settings are scoped to exactly one group, `sg-fabric-sp-provisioning` (`708ecd32-d0b8-4684-8200-1be04a7fbadb`) | K-68 | Only a principal inside that group can create a workspace at all |
+| The only principal there is the central bootstrap application `svc-fabric-provisioning-<tenant>`, App ID `1cf45fd0-91c9-49c1-8f7f-17330d79b4a2` | K-114, ADR-0004 identity lanes | Its purpose is central platform bootstrap, recovery and governed Blueprint upgrades |
+| That principal must not be shared across purposes | K-121 | Sharing it would share credentials, permissions, failure scope and audit attribution. A Studio product gate is none of its three permitted purposes |
+| The domain principals `svc_fabric_provisioning_<domain>` and `svc_fabric_cicd_{domain}` are prepared but created only after the final Blueprint approval | K-121, K-115, ADR-0004 | They do not exist yet and are gated behind O-73 |
+| Permanent automation uses customer-owned workload identity federation and **no client secret is distributed to Nagarro**; a guest cannot impersonate the application | K-118 action B02 | There is no secret to configure, by design |
+
+The last row is the hard technical blocker, and it is a property of this runner, not of the customer. `_credential` in `runner_host.py` constructs exactly two credential types, `ClientSecretCredential` and `ManagedIdentityCredential`. **Workload identity federation is not implemented.** Even with every permission in place, the runner cannot authenticate the way this customer requires.
+
+Three ways forward, and only one of them is available today:
+
+1. **A separate non-production tenant.** The gate runs entirely inside our own boundary, where a client secret or a user-assigned managed identity is ours to create. No customer decision, no exception to K-121, no product change.
+2. **Add federated credentials to the runner.** The right answer for the target architecture, because the customer's stated model is federation. This is product development, not a Gate 1 run, and it needs its own decision.
+3. **Ask the customer for an exception.** Either a secret for the central principal, which contradicts K-118 directly, or early creation of `svc_fabric_provisioning_<domain>` ahead of O-73, which contradicts K-121. Both trade governance for a product gate.
+
+## Remaining steps once that decision exists
+
+1. **Execution identity.** A dedicated client identity (`client_secret`) or an explicit user-assigned managed identity, with a canonical UUID client ID. The ambient `az login` session is deliberately unusable: `_credential` refuses `DefaultAzureCredential` and CLI fallbacks. Creating this identity and its secret is a host or customer administrator action.
+2. **Signing key.** At least 32 bytes, cryptographically generated, base64-encoded, exposed through its own environment reference. It must differ from the identity secret reference; the loader rejects a shared reference.
+3. **Private state directory.** An absolute path outside the project package repository, with restricted host ACLs. The loader rejects a state path inside or containing the repository root.
+4. **Host configuration file.** The template in [`PROJECT_RUNNER_HOST.md`](PROJECT_RUNNER_HOST.md) filled with the values from 1 to 3 plus the actor and tenant above, stored at a private absolute path and referenced by `STUDIO_RUNNER_CONFIG`. It carries the trusted permission evidence reference for `create_workspaces`.
+
+Re-run the status command afterwards; every `missing` above must read `configured` before an approval is attempted.
 
 ## Boundaries
 
