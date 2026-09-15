@@ -20,12 +20,14 @@ seine Regeln gruen meldet, ist schlimmer als keiner.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 SPERRLISTE = ".kundendaten-sperrliste.json"
@@ -217,9 +219,8 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             cmd = ["git", "-C", str(wurzel), "grep", "-nIiF", "--no-color"]
             if nur_staged:
                 cmd.append("--cached")
-            for b in begriffe:
-                cmd += ["-e", b]
-            rohzeilen += _git_grep(cmd + ausschluss)
+            with musterdatei(begriffe) as datei:
+                rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
 
     if teil in ("alle", "muster"):
         muster = [m for gruppe in (daten.get("muster") or {}).values() for m in gruppe if m]
@@ -227,8 +228,11 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             cmd = ["git", "-C", str(wurzel), "grep", "-nIiE", "--no-color"]
             if nur_staged:
                 cmd.append("--cached")
-            cmd += ["-e", "|".join(f"({m})" for m in muster)]
-            rohzeilen += _git_grep(cmd + ausschluss)
+            # Eine Zeile je Muster statt einer grossen Alternation: dieselbe
+            # Bedeutung (git verodert sie), aber ohne die verschachtelten Gruppen
+            # -- und ohne die Muster in der Prozessliste.
+            with musterdatei(muster) as datei:
+                rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
 
     if teil in ("alle", "kennungen"):
         # Nur Kandidaten einsammeln. Ob eine GUID eine Mandantenkennung IST,
@@ -283,6 +287,52 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
 
     befunde.sort(key=lambda b: (b["datei"], b["zeile"], b["kategorie"]))
     return befunde
+
+
+@contextlib.contextmanager
+def musterdatei(muster: list[str]):
+    r"""Die Suchbegriffe in eine Datei schreiben statt in die Befehlszeile.
+
+    Warum: Argumente eines Prozesses sind auf einem Mehrbenutzersystem fuer jeden
+    lesbar, der `ps` aufrufen darf -- die Sperrliste selbst ist gitignoriert und
+    laegt damit offen, obwohl sie genau deshalb ausserhalb der Versionsverwaltung
+    liegt. Dazu kommt, dass jede Fehlermeldung ueber diesen Aufruf die Liste
+    mitdruckt: am 16.09.2026 hat ein `subprocess.TimeoutExpired` genau das getan
+    und alle 28 Begriffe in ein Protokoll geschrieben.
+
+    Die Datei liegt im Systemtemp, nicht im Repository, und wird danach entfernt.
+    `git grep -f` liest eine Zeile als ein Muster; mehrere Zeilen werden verodert
+    -- dieselbe Bedeutung wie mehrere `-e`, nur ohne Abdruck in der Prozessliste.
+
+    Was sie vor anderen Benutzern schuetzt, ist auf den beiden Systemen etwas
+    anderes, und die alte Fassung dieses Absatzes ("hat Rechte 600") galt nur fuer
+    eines davon. Auf POSIX sind es die Modus-Bits, die `os.chmod` unten setzt. Auf
+    Windows nicht: von den neun Bits kennt es genau das schreibgeschuetzte Flag,
+    `stat()` meldet nach demselben Aufruf weiter `0o666`. Dort traegt der ORT den
+    Schutz -- das Systemtemp liegt im Benutzerprofil und hat dessen ACL.
+
+    Der Aufruf bleibt trotzdem stehen: auf POSIX ist er die Zusicherung, auf
+    Windows folgenlos. Eine ACL zu setzen braeuchte pywin32 und damit eine
+    Abhaengigkeit fuer einen Fall, den der Ort schon abdeckt.
+    """
+    # Ein Zeilenumbruch im Begriff waere in der Datei zwei Muster -- lautlos, und
+    # mit einer Bedeutung, die niemand gemeint hat. Mit `-e` waere er ein Muster
+    # gewesen; die Umstellung darf diese Grenze nicht stillschweigend einziehen.
+    mit_umbruch = [x for x in muster if "\n" in x or "\r" in x]
+    if mit_umbruch:
+        raise RuntimeError(
+            "Muster mit Zeilenumbruch lassen sich nicht ueber eine Musterdatei "
+            f"suchen ({len(mit_umbruch)} Stueck). Sperrliste bereinigen.")
+    kelle = tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="\n",
+                                        suffix=".txt", delete=False)
+    try:
+        os.chmod(kelle.name, 0o600)
+        kelle.write("\n".join(muster) + "\n")
+        kelle.close()
+        yield kelle.name
+    finally:
+        with contextlib.suppress(OSError):
+            os.unlink(kelle.name)
 
 
 def _git_grep(cmd: list[str]) -> list[str]:
