@@ -466,10 +466,31 @@ def main(argv: list[str] | None = None) -> int:
             return EXIT_UNVERIFIABLE
         return EXIT_OK
 
-    print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — re-mirror:")
+    # D-442 (15.09.2026, measured in Meridian): a difference measured against a counterpart
+    # checkout of uncertain freshness is not a finding about the two repositories -- it may be a
+    # finding about that one checkout. On that day the sibling sensor reported "drifted" on a Mac
+    # whose counterpart carried 4859 modified files, and "in sync" on a Windows box where both
+    # repositories were current. Same code, same repositories, opposite verdict.
+    #
+    # Worse than the verdict was the advice: "re-mirror" would have copied the stale state over
+    # the current one -- the sensor would have produced the drift it reports. So the headline
+    # only says "re-mirror" when the comparison can carry it.
+    if uncertain:
+        print(f"[check-dataarch-mirror] DIFFERENCE vs Meridian ({mer}) — do NOT re-mirror yet, "
+              f"the counterpart checkout is of uncertain freshness (see above); refresh it and "
+              f"measure again:")
+    else:
+        print(f"[check-dataarch-mirror] DRIFT vs Meridian ({mer}) — re-mirror:")
     for line in drift:
         print(line)
     if strict:
+        # Mirror image of the line in the OK branch above (D-341): "in sync with a state of
+        # uncertain freshness is not in sync". Red stays red -- EXIT_UNVERIFIABLE is non-zero --
+        # only the reason becomes true, and with it what one does about it.
+        if uncertain:
+            print("[check-dataarch-mirror] --strict: a finding against a state of uncertain "
+                  "freshness is not a finding about the repositories (D-442) — UNVERIFIABLE")
+            return EXIT_UNVERIFIABLE
         print("[check-dataarch-mirror] --strict: drift is a hard failure")
         return EXIT_DRIFT
     print("[check-dataarch-mirror] advisory (reports drift, never bumps) — Exit 0")

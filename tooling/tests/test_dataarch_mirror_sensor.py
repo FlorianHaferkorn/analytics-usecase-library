@@ -214,3 +214,51 @@ def test_skip_freshness_suppresses_only_freshness(monkeypatch):
         return
     monkeypatch.setattr(sensor, "_diff", lambda a, b: ["  invented drift"])
     assert sensor.main(["--strict", "--skip-freshness"]) == sensor.EXIT_DRIFT
+
+
+# -- D-442: a finding is only as good as the checkout it was measured against ------------
+#
+# Measured in Meridian on 15.09.2026, same two repositories, same day, two machines: on the Mac
+# (counterpart checkout with 4859 modified files) the sibling sensor reported "drifted" plus two
+# broken peer pairs and advised `--write`; on the Windows box, where both repositories were
+# current, it reported "in sync". The difference was the checkout, nothing else.
+#
+# D-341 built the OK half of this in both repos: "in sync with a state of uncertain freshness is
+# not in sync". The other half was missing here too.
+
+
+def test_a_finding_against_an_uncertain_checkout_is_unverifiable(monkeypatch, capsys):
+    """Red stays red -- only the reason becomes true.
+
+    EXIT_UNVERIFIABLE is non-zero, so nothing that used to fail now passes. What changes is what
+    the number tells a caller to do: not re-mirror, but refresh the checkout first.
+    """
+    if sensor._meridian_root() is None:
+        pytest.skip("no Meridian checkout reachable")
+    monkeypatch.setattr(sensor, "_diff", lambda a, b: ["  concepts.py: test finding"])
+    monkeypatch.setattr(sensor, "freshness_findings", lambda f, m=None: ["  test freshness"])
+    assert sensor.main(["--strict"]) == sensor.EXIT_UNVERIFIABLE
+    out = capsys.readouterr().out
+    assert "do NOT re-mirror yet" in out, "the advice still points at --write"
+    assert "DRIFT vs Meridian" not in out
+
+
+def test_a_finding_against_a_measurable_checkout_stays_drift(monkeypatch, capsys):
+    """Counter-check: otherwise every finding turns into 'unverifiable' and the sensor says nothing."""
+    if sensor._meridian_root() is None:
+        pytest.skip("no Meridian checkout reachable")
+    monkeypatch.setattr(sensor, "_diff", lambda a, b: ["  concepts.py: test finding"])
+    monkeypatch.setattr(sensor, "freshness_findings", lambda f, m=None: [])
+    assert sensor.main(["--strict"]) == sensor.EXIT_DRIFT
+    out = capsys.readouterr().out
+    assert "DRIFT vs Meridian" in out and "re-mirror" in out
+    assert "do NOT re-mirror yet" not in out
+
+
+def test_an_uncertain_finding_stays_advisory_without_strict(monkeypatch, capsys):
+    """The doctrine is untouched: reporting drift never blocks outside the release gate."""
+    if sensor._meridian_root() is None:
+        pytest.skip("no Meridian checkout reachable")
+    monkeypatch.setattr(sensor, "_diff", lambda a, b: ["  concepts.py: test finding"])
+    monkeypatch.setattr(sensor, "freshness_findings", lambda f, m=None: ["  test freshness"])
+    assert sensor.main([]) == 0
