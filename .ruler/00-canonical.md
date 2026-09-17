@@ -5,5 +5,6 @@ Canonical rules live in the repo's hand-authored sources — read them, do not d
 - `CLAUDE.md` — navigation, doctrine, drift-gate, project rules.
 - `docs/agent/_INDEX.md` — agent rules + skills.
 
-Hard rules: TMDL has no tabs, no `:=`, no `description:`; reference governed KPIs
+Hard rules: TMDL indents with tabs (never spaces), no `:=`; `description:` is
+mandatory on tables, columns and measures (Copilot-readiness); reference governed KPIs
 (never redefine); Stage-1 and `python3 scripts/gadw_gate.py` must be green before commit.

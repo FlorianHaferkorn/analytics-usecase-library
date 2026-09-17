@@ -5,7 +5,7 @@
 # Enforces framework TMDL conventions:
 #   1. Indentation must use TABS only (spaces cause parser errors)
 #   2. No := operator (use = only)
-#   3. No `description:` property on measures (use /// comments instead)
+#   3. `description:` must be <= 200 chars (Copilot truncates beyond that)
 #
 # Exit codes:
 #   0 = pass or not applicable
@@ -68,13 +68,19 @@ if grep -n ":=" "$FILE_PATH" > /dev/null 2>&1; then
   ERRORS+=("TMDL DAX error: ':=' operator is forbidden in TMDL. Use '=' instead. Line: $FIRST_LINE")
 fi
 
-# --- Check 3: No 'description:' property on measures ---
-# Descriptions on measures are not allowed; use /// comment lines above the measure instead.
-if grep -n "^\s*description:" "$FILE_PATH" > /dev/null 2>&1; then
-  # Only flag if it appears to be inside a measure block (not a table description which IS allowed)
-  FIRST_LINE=$(grep -n "^\s*description:" "$FILE_PATH" | head -1)
-  ERRORS+=("TMDL convention error: 'description:' property found. Use '///' comment lines above the measure definition instead. Line: $FIRST_LINE")
-fi
+# --- Check 3: description length (Copilot truncates after 200 chars) ---
+# `description:` is MANDATORY per core/.../TMDL_Allowed_Subset.md (Copilot-readiness).
+# A /// comment is source documentation only and never reaches the model metadata.
+while IFS= read -r LINE; do
+  [ -z "$LINE" ] && continue
+  LINENO_D="${LINE%%:*}"
+  TEXT="${LINE#*:}"
+  TEXT="${TEXT#*description:}"
+  LEN=${#TEXT}
+  if [ "$LEN" -gt 200 ]; then
+    ERRORS+=("TMDL description too long ($LEN chars, max 200 - Copilot truncates). Line: $LINENO_D")
+  fi
+done < <(grep -n "^[[:space:]]*description:" "$FILE_PATH" 2>/dev/null)
 
 # --- Report results ---
 if [ ${#ERRORS[@]} -gt 0 ]; then
