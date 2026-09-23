@@ -181,6 +181,37 @@ def _herkunft_je_domaene(blueprint: dict, governed_catalog: dict | None, d: dict
     return {p: qs for p, qs in raus.items() if qs}
 
 
+def doppelt_geladene_quellen(blueprint: dict) -> list[dict]:
+    """Quelltabellen, die die Aufnahme unter mehreren Domaenen **zweimal** laedt (OQ-42, D-535).
+
+    Gemessen am SAP-Szenario (23.09.2026): das IR fuehrt `mara` zweimal —
+    `order_to_cash_mara` und `inventory_mm_mara`, zwei Kopier-Schritte aus demselben
+    Quellsystem auf dieselbe Tabelle. Die synthetische Quelle legt sie einmal an; daher die
+    Kettenbefunde, die OQ-42 der „Aufnahme, die nie laedt“ zuschrieb. Die Aufnahme laedt sie
+    — doppelt. Zwei Kopien derselben Tabelle, zu verschiedenen Zeiten geladen, laufen
+    auseinander, und das konforme Ziel darueber traegt dann zwei Fassungen desselben
+    Schluessels.
+
+    Erkannt wird die Namensform ``<domaene>_<tabelle>`` im selben ``source_system``: gleicher
+    Rest nach dem Domaenenpraefix, verschiedene Domaenen. Quellen ohne diese Form werden nicht
+    verglichen — lieber ein Befund zu wenig als einer, der auf einer Namensaehnlichkeit
+    beruht, die nichts bedeutet.
+    """
+    gruppen: dict[tuple[str, str], list[tuple[str, str]]] = {}
+    for e in blueprint.get("ingestion", []) or []:
+        quelle, dom = e.get("source") or "", e.get("domain") or ""
+        praefix = _ident(dom) + "_"
+        if not dom or not _ident(quelle).startswith(praefix):
+            continue
+        rest = _ident(quelle)[len(praefix):]
+        gruppen.setdefault((e.get("source_system") or "", rest), []).append((dom, quelle))
+    return [{"quellsystem": sys_, "tabelle": rest,
+             "quellen": sorted(q for _, q in eintraege),
+             "domaenen": sorted({d for d, _ in eintraege})}
+            for (sys_, rest), eintraege in sorted(gruppen.items())
+            if len({d for d, _ in eintraege}) > 1]
+
+
 def silber_tabellen(blueprint: dict, governed_catalog: dict | None = None,
                     schemas: bool = False) -> list[str]:
     """Die Silber-Tabellen, die die Emission **wirklich** anlegt — je Herkunftstabelle.
@@ -309,21 +340,246 @@ def _domain_contract(d: dict, fallback: str) -> str:
     return d.get("data_contract_ref") or fallback
 
 
+#: Die Werte, die eine `DATA-SILVER-LOAD`-Antwort tragen kann (Optionen-Katalog in
+#: `decision_proposals._OPTIONEN["DATA-SILVER-LOAD"]`). Hier genannt aus demselben Grund wie
+#: `_DATA_INC_WERTE`: ein unbekannter Wert steht als Befund im Kopf, nicht still als Vorgabe.
+_DATA_SILVER_LOAD_WERTE = ("vollaufbau", "append", "merge")
+
+
+def _mit_cdf(tblprops: str) -> str:
+    """Dieselben Tabelleneigenschaften plus Change Data Feed — auf Delta-Stacks.
+
+    Ohne CDF auf **allen** Quellen aktualisiert Fabric eine Materialized Lake View nie
+    inkrementell (MS Learn, *Optimal refresh*, abgerufen 23.09.2026). Snowflake kennt die
+    Eigenschaft nicht; dort bleibt es beim leeren Wert.
+    """
+    if not tblprops.rstrip().endswith(")"):
+        return tblprops
+    return tblprops.rstrip()[:-1] + ", 'delta.enableChangeDataFeed' = 'true')"
+
+
+def quellspalten(governed_catalog: dict | None, quelle: str) -> list[str]:
+    """Die Spalten einer Quelltabelle, soweit der governte Katalog sie nennt.
+
+    Der Katalog fuehrt sie bei mehreren Herkuenften je Quelle (`source_columns`); speist eine
+    Quelle ein Produkt allein, sind dessen `columns` ihre Spalten. Gelesen wird nur, was ein
+    Produkt liest — die Vereinigung ist deshalb eine **Untergrenze** der Tabelle, genug, um
+    eine Aenderungsspalte zu finden, nicht genug fuer eine Projektion.
+    """
+    raus: set[str] = set()
+    for t in (governed_catalog or {}).get("tables") or []:
+        raus |= set(((t.get("source_columns") or {}).get(quelle)) or [])
+        if list(t.get("sources") or []) == [quelle]:
+            raus |= set(t.get("columns") or [])
+    return sorted(raus)
+
+
+def _spaltentyp(governed_catalog: dict | None, spalte: str) -> str:
+    """Der logische Typ einer Spalte, sofern ein Gold-Produkt ihn fuehrt (`column_types`)."""
+    for t in (governed_catalog or {}).get("tables") or []:
+        typ = (t.get("column_types") or {}).get(spalte)
+        if typ:
+            return str(typ)
+    return ""
+
+
+#: Woher eine Angabe zur Quelltabelle stammt, in Worten fuer den Dateikopf (D-539).
+_HERKUNFT_WORT = {"paket": "deklariert im Standardpaket",
+                  "heuristik": "abgeleitet aus dem Spaltennamen — bestaetigen",
+                  "kuratiert": "kuratiert"}
+
+
+def _quelltabelle(governed_catalog: dict | None, quelle: str) -> dict:
+    """Der Eintrag `source_tables[quelle]` des Katalogs (D-539) — leer, wenn es keinen gibt."""
+    return ((governed_catalog or {}).get("source_tables") or {}).get(quelle) or {}
+
+
+def _silber_watermark(governed_catalog: dict | None, quelle: str) -> str | None:
+    """Die Aenderungs- oder Anlagespalte einer Quelle.
+
+    Zuerst aus `source_tables` (mit Herkunft, D-539), sonst dieselbe Heuristik wie DATA-INC
+    ueber die Spalten, die Gold-Produkte aus der Quelle lesen.
+    """
+    eintrag = _quelltabelle(governed_catalog, quelle)
+    if eintrag.get("watermark"):
+        return eintrag["watermark"]
+    from core.dataarch_engine.blueprint.decision_proposals import _WATERMARK_HINTS, _rank
+    wm = sorted(((_rank(c, _WATERMARK_HINTS), c) for c in quellspalten(governed_catalog, quelle)),
+                key=lambda x: (-x[0], x[1]))
+    return next((c for w, c in wm if w > 0), None)
+
+
+#: Namensteile eines **Anlage**datums. Fuer `append` taugt es als Watermark; fuer `merge` nicht:
+#: eine spaetere Aenderung an einer alten Zeile hat ein altes Anlagedatum und kommt nie an.
+_ANLAGE_HINWEISE = ("erdat", "ersda", "created", "erstellt", "anlage")
+
+QUELLMETADATEN_SCHEMA = "meridian/quellmetadaten/v1"
+
+
+def kuratiere_quelltabellen(governed_catalog: dict, kuratiert: dict) -> dict:
+    """Kuratierte Angaben zu Quelltabellen in den Katalog uebernehmen — geprueft beim Schreiben.
+
+    Die Lehre aus Analytixus (D-539): abgeleitete und bestaetigte Metadaten getrennt fuehren,
+    und die Engine prueft, was hineinkommt — auch wenn ein Mensch oder ein Modell es liefert.
+    Geprueft wird hier: das Schema, dass jede genannte Quelle im Katalog **existiert** (ein
+    Tippfehler waere sonst eine Angabe, die nie greift, und nichts wird rot), und dass `key`
+    eine Liste ist. Eine Spalte, die der Katalog nicht kennt, wird angenommen — Pakete fuehren
+    nur einen Teil der Felder (`LAEDA` fehlt in `MARA`) —, aber als solche vermerkt.
+
+    Form: ``{"schema": "meridian/quellmetadaten/v1", "quellen": {"<quelle>": {"key": [...],
+    "watermark": "...", "von": "...", "am": "JJJJ-MM-TT"}}}``. Rueckgabe: ein neuer Katalog.
+    """
+    if (kuratiert or {}).get("schema") != QUELLMETADATEN_SCHEMA:
+        raise ValueError(f"Quellmetadaten: schema muss {QUELLMETADATEN_SCHEMA!r} sein")
+    vorhanden = dict((governed_catalog or {}).get("source_tables") or {})
+    unbekannt = sorted(set(kuratiert.get("quellen") or {}) - set(vorhanden))
+    if unbekannt:
+        raise ValueError(f"Quellmetadaten nennen Quellen, die der Katalog nicht fuehrt: "
+                         f"{', '.join(unbekannt)} (bekannt: {', '.join(sorted(vorhanden)) or '—'})")
+    for quelle, angabe in sorted((kuratiert.get("quellen") or {}).items()):
+        e = {**vorhanden[quelle]}
+        wer = ", ".join(x for x in (angabe.get("von"), angabe.get("am")) if x)
+        if "key" in angabe:
+            if not isinstance(angabe["key"], list) or not all(isinstance(k, str) for k in angabe["key"]):
+                raise ValueError(f"Quellmetadaten {quelle}: key muss eine Liste von Spaltennamen sein")
+            e.update(key=list(angabe["key"]), key_herkunft="kuratiert", key_von=wer)
+        if angabe.get("watermark"):
+            e.update(watermark=str(angabe["watermark"]), watermark_herkunft="kuratiert",
+                     watermark_von=wer)
+        bekannt = set(e.get("columns") or [])
+        fremd = sorted({*(angabe.get("key") or []), *([angabe["watermark"]] if angabe.get("watermark")
+                                                        else [])} - bekannt)
+        if fremd:
+            e["nicht_im_katalog"] = fremd
+        vorhanden[quelle] = e
+    return {**governed_catalog, "source_tables": dict(sorted(vorhanden.items()))}
+
+
+def _herkunft_zeile(governed_catalog: dict | None, quelle: str, feld: str) -> str:
+    """„(deklariert im Standardpaket)“ o. ae. — oder leer, wenn der Katalog nichts sagt."""
+    h = _quelltabelle(governed_catalog, quelle).get(f"{feld}_herkunft")
+    if not h:
+        return " (abgeleitet aus dem Spaltennamen — bestaetigen)" if feld == "watermark" else ""
+    e = _quelltabelle(governed_catalog, quelle)
+    von = e.get(f"{feld}_von")
+    werte = e.get(feld) if isinstance(e.get(feld), list) else [e.get(feld)]
+    fremd = [w for w in werte if w in (e.get("nicht_im_katalog") or [])]
+    return (f" ({_HERKUNFT_WORT.get(h, h)}{', ' + von if von else ''}"
+            f"{'; nicht im Katalog: ' + ', '.join(fremd) if fremd else ''})")
+
+
 def _bronze_to_silver(d: dict, src: str, silver_tbl: str, contract_ref: str, dl: dict,
-                      bronze_tbl: str = "") -> str:
+                      bronze_tbl: str = "", wahl: str | None = None,
+                      governed_catalog: dict | None = None) -> str:
+    """bronze → silver in der Ladeform, die `DATA-SILVER-LOAD` festlegt (D-533, D-534).
+
+    **Vollaufbau** (Vorgabe): `CREATE OR REPLACE` — korrekt und idempotent, aber jeder Lauf
+    ist fuer die Plattform eine Aenderung an allem, und jede Materialized Lake View darueber
+    rechnet voll.
+
+    **append**: Silber wird einmal leer angelegt (mit Change Data Feed) und je Lauf nur um
+    neue Zeilen ergaenzt. Ausfuehrbar, sobald der Katalog eine Aenderungs- oder Anlagespalte
+    der Quelle nennt; sonst bleibt der Platzhalter — absichtlich nicht parsebar, damit kein
+    Vollabzug als „inkrementell“ ausgeliefert wird.
+
+    **merge**: dasselbe Anlegen, dann `MERGE`. Der Schluessel ist der der **Quelltabelle**
+    (`source_tables`, D-539: im Standardpaket deklariert oder kuratiert) — nie ein Gold-
+    Schluessel, denn bei `makt` (Material + Sprache) laege der sofort daneben. Fehlt er,
+    bleibt der Match-Key Platzhalter, bis der Datenvertrag ihn nennt.
+
+    Der Kopf nennt fuer Schluessel und Watermark, **woher** sie stammen.
+    """
+    c = dl["comment"]
     bronze_tbl = bronze_tbl or f"bronze_{_ident(src)}"
-    return (
-        f"{dl['comment']} bronze → silver — conform + cleanse '{src}' for domain '{d['name']}'.\n"
-        f"{dl['comment']} Contract: {contract_ref}\n"
-        f"{dl['ctas']} {silver_tbl}{dl['using']}{dl.get('tblprops', '')} AS\n"
-        f"SELECT\n"
-        f"    {dl['comment']} TODO(contract:{contract_ref}): map raw columns → conformed silver schema,\n"
-        f"    {dl['comment']} apply types, dedup, null/quality rules, business keys.\n"
-        f"    *\n"
-        f"FROM {bronze_tbl}\n"
-        f"{dl['comment']} WHERE <incremental / quality predicate>\n"
-        f";\n"
-    )
+    kopf = (f"{c} bronze → silver — conform + cleanse '{src}' for domain '{d['name']}'.\n"
+            f"{c} Contract: {contract_ref}\n")
+    mapping = (f"    {c} TODO(contract:{contract_ref}): map raw columns → conformed silver schema,\n"
+               f"    {c} apply types, dedup, null/quality rules, business keys.\n")
+    if wahl and wahl not in _DATA_SILVER_LOAD_WERTE:
+        kopf += (f"{c} BEFUND: DATA-SILVER-LOAD = {wahl!r} ist kein bekannter Wert "
+                 f"({', '.join(_DATA_SILVER_LOAD_WERTE)}); behandelt wie Vollaufbau.\n")
+    if wahl not in ("append", "merge"):
+        return (
+            kopf
+            + f"{dl['ctas']} {silver_tbl}{dl['using']}{dl.get('tblprops', '')} AS\n"
+            f"SELECT\n"
+            + mapping
+            + f"    *\n"
+            f"FROM {bronze_tbl}\n"
+            f"{c} WHERE <incremental / quality predicate>\n"
+            f";\n"
+        )
+
+    delta = dl.get("stack") != "snowflake"
+    wm = _silber_watermark(governed_catalog, src)
+    tagesgenau = _spaltentyp(governed_catalog, wm or "") == "date"
+    kopf += (f"{c}\n{c} ENTSCHIEDEN: DATA-SILVER-LOAD = {wahl} (Antwortdatei → Profil "
+             f"`entscheidungen`).\n"
+             f"{c}   Silber wird angelegt, falls es fehlt, und danach nicht mehr ersetzt.\n")
+    if delta:
+        kopf += (f"{c}   Change Data Feed ist an. Inkrementell aktualisiert Fabric eine Sicht "
+                 f"darueber nur,\n"
+                 f"{c}   wenn der Zyklus auf ALLEN ihren Quellen append-only war "
+                 f"(MS Learn, Optimal refresh).\n")
+    if wahl == "append":
+        kopf += f"{c}   Korrekturen und Loeschungen der Quelle kommen NICHT an.\n"
+    else:
+        kopf += (f"{c}   Ein Zyklus mit Aenderung laesst jede Sicht darueber voll rechnen. "
+                 f"Loeschungen kommen\n"
+                 f"{c}   nur mit Loeschkennzeichen der Quelle an — "
+                 f"TODO(contract:{contract_ref}).\n")
+    schluessel = [k for k in (_quelltabelle(governed_catalog, src).get("key") or []) if k]
+    if wahl == "merge" and schluessel:
+        kopf += (f"{c}   Match-Key : {' + '.join(schluessel)}"
+                 f"{_herkunft_zeile(governed_catalog, src, 'key')}\n")
+    if wm:
+        kopf += (f"{c}   Watermark : {wm} > (SELECT MAX({wm}) FROM {silver_tbl}); "
+                 f"leeres Silber laedt alles.\n"
+                 f"{c}   Herkunft der Watermark{_herkunft_zeile(governed_catalog, src, 'watermark')}\n")
+        if wahl == "merge" and any(h in wm.lower() for h in _ANLAGE_HINWEISE):
+            kopf += (f"{c}   BEFUND: {wm} ist ein Anlagedatum. Eine spaetere Aenderung an einer "
+                     f"alten Zeile traegt ein\n"
+                     f"{c}   altes Anlagedatum und kommt mit diesem MERGE nie an — fuer `merge` "
+                     f"eine Aenderungsspalte kuratieren.\n")
+        if tagesgenau:
+            kopf += (f"{c}   {wm} ist tagesgenau: eine Zeile mit dem Datum des bisherigen "
+                     f"Maximums, die erst nach\n"
+                     f"{c}   dem letzten Lauf entsteht, kommt nicht an. Genauer wird es nur "
+                     f"mit einem Zeitstempel.\n")
+        filter_ = (f"WHERE (SELECT COUNT(*) FROM {silver_tbl}) = 0\n"
+                   f"   OR {wm} > (SELECT MAX({wm}) FROM {silver_tbl})\n")
+    else:
+        kopf += (f"{c}   Der Katalog nennt fuer '{src}' keine Aenderungs- oder Anlagespalte; "
+                 f"der Platzhalter\n"
+                 f"{c}   unten bleibt, bis der Datenvertrag sie traegt.\n")
+        filter_ = f"WHERE <watermark_col> > (SELECT MAX(<watermark_col>) FROM {silver_tbl})\n"
+    anlegen = (f"CREATE TABLE IF NOT EXISTS {silver_tbl}{dl['using']}"
+               f"{_mit_cdf(dl.get('tblprops', '')) if delta else ''} AS\n"
+               f"SELECT * FROM {bronze_tbl} WHERE 1 = 0\n;\n")
+    if wahl == "append":
+        laden = (f"INSERT INTO {silver_tbl}\n"
+                 f"SELECT\n" + mapping + f"    *\n"
+                 f"FROM {bronze_tbl}\n" + filter_ + ";\n")
+    else:
+        if schluessel:
+            paare = [f"t.{zitiere(k, dl['stack'])} = s.{zitiere(k, dl['stack'])}" for k in schluessel]
+            on_klausel = "ON " + " AND ".join(paare) + "\n"
+        else:
+            on_klausel = (f"ON t.<business_key> = s.<business_key>   {c} "
+                          f"TODO(contract:{contract_ref}): Schluessel der Quelltabelle\n")
+        set_clause = "UPDATE SET *" if delta else f"UPDATE SET <cols>  {c} explicit column mapping"
+        ins_clause = "INSERT *" if delta else "INSERT (<cols>) VALUES (<cols>)"
+        laden = (f"MERGE INTO {silver_tbl} AS t\n"
+                 f"USING (\n"
+                 f"    SELECT *\n"
+                 f"    FROM {bronze_tbl}\n"
+                 + "".join(f"    {z}\n" for z in filter_.rstrip("\n").split("\n"))
+                 + f") AS s\n"
+                 + on_klausel
+                 + f"WHEN MATCHED THEN {set_clause}\n"
+                 f"WHEN NOT MATCHED THEN {ins_clause}\n"
+                 f";\n")
+    return kopf + anlegen + laden
 
 
 def _erzeugt(name: str, gold_tbl: str, dl: dict, gen: dict) -> str:
@@ -468,7 +724,71 @@ def _silver_to_gold(name: str, kind: str, silver_tbl: str | list[str], contract_
     return head + body
 
 
-def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str]],
+#: Der Platzhalter fuer eine offene n:1-Zusammenfuehrung — eine Stelle statt drei getippter.
+_ZUSAMMENFUEHRUNG_OFFEN = "<ZUSAMMENFUEHRUNG NICHT ENTSCHIEDEN: UNION ODER JOIN>"
+
+
+def _konforme_quellen(blueprint: dict, governed_catalog: dict | None, product: str,
+                      contributing: list[str], domains: list[dict],
+                      schemas: bool) -> list[tuple[str, str, list[str] | None]]:
+    """Je speisender Domaene: ``(domaene, FROM-Quelle, eigene Spalten oder None)``.
+
+    **Eine** Aufloesung fuer den Vollaufbau und den MERGE eines konformen Ziels (D-536) —
+    sonst lesen die beiden Ladeformen verschiedene Tabellen.
+
+    Korrigiert dabei einen verdeckten Fehler (D-536): hatte eine Domaene fuer das Produkt
+    **mehrere** Herkuenfte, las sie `silver.<domaene>` — eine Tabelle, die es seit dem
+    12.08.2026 nicht mehr gibt (Silber je Herkunftstabelle). Gemessen am SAP-Szenario:
+    `dim_material` las `silver.order_to_cash`; im Kettenlauf verdeckt, weil die Anweisung
+    schon an der ersten fehlenden Tabelle scheiterte. Jetzt gilt dieselbe Regel wie im
+    Einzelfall: formgleiche Herkuenfte werden vereinigt, formverschiedene bleiben die offene
+    Zusammenfuehrung — absichtlich nicht ausfuehrbar.
+
+    ``eigene Spalten`` stammen aus `source_columns`, wenn der Katalog sie fuer genau diese
+    eine Herkunft fuehrt; dann projiziert der Aufrufer fehlende Zielspalten als ``NULL``.
+    """
+    kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
+    je_quelle = kat_t.get("source_columns") or {}
+    raus: list[tuple[str, str, list[str] | None]] = []
+    for dom in contributing:
+        d_dom = next((x for x in domains if x.get("name") == dom), {})
+        eigene = _herkunft_je_domaene(blueprint, governed_catalog, d_dom, domains).get(
+            _ident(product), [])
+        if len(eigene) == 1:
+            raus.append((dom, layer_ref("silver", _ident(eigene[0]), schemas),
+                         je_quelle.get(eigene[0])))
+        elif eigene:
+            tabellen = [layer_ref("silver", _ident(q), schemas) for q in eigene]
+            formen = {q: je_quelle[q] for q in eigene if q in je_quelle}
+            von = _von_klausel(tabellen) if _formgleich(formen) else _ZUSAMMENFUEHRUNG_OFFEN
+            raus.append((dom, von, None))
+        elif _silber_herkunft(governed_catalog, d_dom).get(_ident(product)):
+            # Der Katalog nennt Herkuenfte, und alle gehoeren einer anderen Domaene (D-538:
+            # `MARA` nimmt Order-to-Cash auf, Inventory liest sie mit). Dann traegt diese
+            # Domaene keinen eigenen Block bei — ihre Zeilen stehen schon in dem der
+            # aufnehmenden. Ein Block auf `silver.<domaene>` laese eine Tabelle, die es nicht gibt.
+            raus.append((dom, None, None))
+        else:
+            raus.append((dom, layer_ref("silver", _ident(dom), schemas), None))
+    return raus
+
+
+def _konforme_projektion(spalten: list[str], eigene: list[str] | None, table: dict | None,
+                         stack: str) -> str:
+    """Die Projektion eines Blocks: fehlende Zielspalten einer Herkunft als ``NULL``.
+
+    Gemessen am SAP-Katalog: `inventory_mm_mara` traegt 3 der 6 Spalten von `dim_material`.
+    Ein Block, der die anderen drei trotzdem nennt, scheitert am Binder — erst, sobald die
+    Tabelle ueberhaupt da ist.
+    """
+    if not spalten:
+        return "*"
+    return ",\n    ".join(
+        _projektion(s, table, stack) if eigene is None or s in eigene
+        else f"NULL AS {zitiere(s, stack)}" for s in spalten)
+
+
+def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple],
                               contract_ref: str, dl: dict, gold_tbl: str = "",
                               table: dict | None = None) -> str:
     """Ein Gold-Ziel, das mehrere Domaenen speisen — als EIN Transform.
@@ -488,7 +808,7 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str
     kopf = [
         f"{c} silver → gold — konforme {kind} '{name}'.",
         f"{c} Contract: {contract_ref}",
-        f"{c} Gespeist von {len(sources)} Domaenen: {', '.join(d for d, _ in sources)}.",
+        f"{c} Gespeist von {len(sources)} Domaenen: {', '.join(q[0] for q in sources)}.",
         f"{c} EIN Ziel, EIN Transform — je Domaene ein eigenes CREATE OR REPLACE haette",
         f"{c} dieselbe Tabelle ueberschrieben, ohne dass etwas rot wird.",
     ]
@@ -506,16 +826,21 @@ def _silver_to_gold_conformed(name: str, kind: str, sources: list[tuple[str, str
                     f"ergaenzen, z. B. row_number() OVER (ORDER BY {', '.join(schluessel)}) "
                     f"AS {_ident(name)}_sk.")
 
-    proj = (",\n    ".join(_projektion(s, table, dl["stack"]) for s in spalten)) if spalten else "*"
     if not spalten:
         kopf.append(f"{c} TODO(contract:{contract_ref}): kein Katalogeintrag — Projektion ergaenzen.")
-    blocks = [f"SELECT\n    {proj}\nFROM {tbl}" for _, tbl in sources]
+    blocks = [f"SELECT\n    {_konforme_projektion(spalten, q[2] if len(q) > 2 else None, table, dl['stack'])}"
+              f"\nFROM {q[1]}" for q in sources if q[1]]
+    mitgelesen = [q[0] for q in sources if not q[1]]
+    if mitgelesen:
+        kopf.append(f"{c} Ohne eigenen Block: {', '.join(mitgelesen)} — liest die Aufnahme einer "
+                    f"anderen Domaene mit (eine Tabelle, eine Aufnahme).")
     return (f"{chr(10).join(kopf)}\n{dl['ctas']} {gold_tbl}{dl['using']} AS\n"
             + "\nUNION\n".join(blocks) + "\n;\n")
 
 
 def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = False,
-                    governed_catalog: dict | None = None) -> dict[str, str]:
+                    governed_catalog: dict | None = None,
+                    entscheidungen: dict | None = None) -> dict[str, str]:
     """Return the transform DAG as ``path → SQL`` (relative to a ``transforms/`` root).
 
     One ``silver_to_gold__<product>.sql`` per gold product; one
@@ -524,7 +849,13 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
 
     ``schemas`` targets a schema-enabled lakehouse: tables become ``gold.<name>`` / ``silver.<domain>``
     instead of ``gold_<name>`` / ``silver_<domain>`` in the default namespace.
+
+    ``entscheidungen`` ist das Profilfeld aus dem Rueckweg (C-3). Gelesen wird hier
+    `DATA-SILVER-LOAD` (D-534): es legt die Ladeform von Bronze → Silber fest. Ohne Antwort
+    bleibt es beim Vollaufbau — dem Wert, mit dem die Vorlage vorbelegt ist.
     """
+    from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
+
     dl = _dialect(stack)
     med = blueprint.get("medallion", {})
     bronze_enabled = bool(med.get("bronze", {}).get("enabled", False))
@@ -572,19 +903,26 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         # Ohne Katalog bleibt es beim alten Zuschnitt: dann WEISS niemand, welche Quelle zu
         # welchem Produkt gehoert, und ein geratener Zuschnitt waere schlimmer als ein grober.
         herkunft = _herkunft_je_domaene(blueprint, governed_catalog, d, domains)
+        silber_wahl = entscheidung_fuer(entscheidungen, "DATA-SILVER-LOAD", d["name"])
         if bronze_enabled:
+            flow.append(f"Ladeform Bronze → Silber: **{silber_wahl or 'vollaufbau'}** "
+                        f"(`DATA-SILVER-LOAD`{'' if silber_wahl else ', Vorbelegung'})")
             if herkunft:
                 for quelle in sorted({q for qs in herkunft.values() for q in qs}):
                     rel = f"transforms/{ddir}/bronze_to_silver__{_ident(quelle)}.sql"
                     bronze_tbl = layer_ref("bronze", _ident(quelle), schemas)
                     ziel = layer_ref("silver", _ident(quelle), schemas)
-                    out[rel] = _bronze_to_silver(d, quelle, ziel, c_ref, dl, bronze_tbl=bronze_tbl)
+                    out[rel] = _bronze_to_silver(d, quelle, ziel, c_ref, dl, bronze_tbl=bronze_tbl,
+                                                 wahl=silber_wahl,
+                                                 governed_catalog=governed_catalog)
                     flow.append(f"- {bronze_tbl} → `{ziel}`  ·  `{rel}`")
             else:
                 for src in _sources_for_domain(blueprint, dident):
                     rel = f"transforms/{ddir}/bronze_to_silver__{_ident(src)}.sql"
                     bronze_tbl = layer_ref("bronze", _ident(src), schemas)
-                    out[rel] = _bronze_to_silver(d, src, silver_tbl, c_ref, dl, bronze_tbl=bronze_tbl)
+                    out[rel] = _bronze_to_silver(d, src, silver_tbl, c_ref, dl, bronze_tbl=bronze_tbl,
+                                                 wahl=silber_wahl,
+                                                 governed_catalog=governed_catalog)
                     flow.append(f"- {bronze_tbl} → `{silver_tbl}`  ·  `{rel}`")
         for product in sorted(d.get("data_products", [])):
             if product in _conformed:
@@ -653,20 +991,27 @@ def emit_transforms(blueprint: dict, stack: str = "fabric", schemas: bool = Fals
         # der jeweiligen Domaene, nicht aus `silver.<domaene>` -- die gibt es dann nicht.
         # Mehrere Herkuenfte je Domaene bleiben beim Domaenenverweis: ob vereinigt oder
         # verbunden gehoert, ist dieselbe offene Fachfrage wie oben.
-        sources = []
-        for dom in contributing:
-            d_dom = next((x for x in domains if x.get("name") == dom), {})
-            eigene = _herkunft_je_domaene(blueprint, governed_catalog, d_dom, domains).get(_ident(product), [])
-            tbl = layer_ref("silver", _ident(eigene[0]), schemas) if len(eigene) == 1 \
-                else layer_ref("silver", _ident(dom), schemas)
-            sources.append((dom, tbl))
+        sources = _konforme_quellen(blueprint, governed_catalog, product, contributing,
+                                    domains, schemas)
         out[rel] = _silver_to_gold_conformed(
             product, kind, sources, contract_ref, dl, gold_tbl=gold_tbl,
             table=_catalog_table(governed_catalog, _ident(product)))
-        flow.append(f"- {' + '.join(t for _, t in sources)} → {gold_tbl} ({kind})  ·  `{rel}`")
+        flow.append(f"- {' + '.join(q[1] for q in sources if q[1])} → {gold_tbl} ({kind})  ·  `{rel}`")
     if _conformed:
         flow.append("")
 
+    doppelt = doppelt_geladene_quellen(blueprint)
+    if doppelt:
+        flow += ["## Befund: dieselbe Quelltabelle wird mehrfach geladen (OQ-42)", "",
+                 "Die Aufnahme lädt diese Tabellen je Domäne einmal — also mehrmals. Zwei Kopien, "
+                 "zu verschiedenen Zeiten geladen, laufen auseinander; ein konformes Ziel darüber "
+                 "trägt dann zwei Fassungen desselben Schlüssels. Richtig wäre **eine** Aufnahme "
+                 "in der besitzenden Domäne, die anderen lesen sie als fremde Quelle.", "",
+                 "| Quellsystem | Tabelle | Geladen als | Domänen |", "|---|---|---|---|"]
+        flow += [f"| {x['quellsystem'] or '—'} | `{x['tabelle']}` | "
+                 f"{', '.join(f'`{q}`' for q in x['quellen'])} | {', '.join(x['domaenen'])} |"
+                 for x in doppelt]
+        flow.append("")
     out["transforms/_MEDALLION_FLOW.md"] = "\n".join(flow) + "\n"
     return out
 
@@ -682,7 +1027,9 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
                                 proposal: dict | None = None,
                                 wahl: str | None = None,
                                 formgleich: bool = True,
-                                table: dict | None = None) -> str:
+                                table: dict | None = None,
+                                konform: list[tuple] | None = None,
+                                zusatz_kopf: str = "") -> str:
     """Incremental (upsert) silver→gold as a MERGE scaffold — the delta-load counterpart of the
     full-rebuild ``_silver_to_gold``. Honest by construction: the merge *shape* comes from the IR
     (target gold table, kind), the match key + watermark predicate are domain policy → TODO(contract).
@@ -699,8 +1046,8 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
     # Mehrere Herkuenfte mit verschiedener Form: dann ist offen, ob vereinigt oder verbunden
     # gehoert. Der Vollaufbau waehlt hier keine der beiden, sondern sagt es (`_ungeklaerte_-
     # zusammenfuehrung`) -- der MERGE tut dasselbe, statt sich eine Quelle auszusuchen.
-    unklar = len(quellen) > 1 and not formgleich
-    quelle = ("<ZUSAMMENFUEHRUNG NICHT ENTSCHIEDEN: UNION ODER JOIN>" if unklar
+    unklar = len(quellen) > 1 and not formgleich and not konform
+    quelle = (_ZUSAMMENFUEHRUNG_OFFEN if unklar
               else _von_klausel(quellen))
     # **Dieselbe Projektion wie der Vollaufbau.** `SELECT *` aus Silber liefert die Spalten der
     # Quelltabelle; Gold hat die des governten Katalogs. Gemessen am SAP-Szenario (18.09.2026,
@@ -712,6 +1059,19 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
                "    SELECT\n"
                + ",\n".join(f"        {_projektion(sp, table, dl['stack'])}" for sp in spalten)
                + "\n")
+    if konform:
+        # OQ-40 (b): ein konformes Ziel liest die Herkuenfte ALLER speisenden Domaenen, jede
+        # schon projiziert, vereinigt mit UNION — dieselbe Form wie der Vollaufbau unter
+        # `transforms/_conformed/`. Aussen stehen dann nur noch die Zielnamen.
+        quelle = ("(\n" + "\n        UNION\n".join(
+            "        SELECT\n        "
+            + _konforme_projektion(spalten, q[2] if len(q) > 2 else None, table,
+                                   dl["stack"]).replace("\n    ", "\n        ")
+            + f"\n        FROM {q[1]}" for q in konform if q[1])
+            + "\n    )")
+        auswahl = ("    SELECT *\n" if not spalten else
+                   "    SELECT\n"
+                   + ",\n".join(f"        {zitiere(sp, dl['stack'])}" for sp in spalten) + "\n")
     set_clause = "UPDATE SET *" if star else f"UPDATE SET <cols>  {c} explicit column mapping (non-Delta dialect)"
     ins_clause = "INSERT *" if star else "INSERT (<cols>) VALUES (<cols>)"
     scd = ""
@@ -726,7 +1086,9 @@ def _silver_to_gold_incremental(name: str, kind: str, silver_tbl: str | list[str
     head = (
         f"{c} silver → gold (INCREMENTAL upsert) — build {kind} '{name}'.\n"
         f"{c} Contract: {contract_ref}\n"
-        + (f"{c} Quelle: {', '.join(quellen)}.\n" if len(quellen) > 1 and not unklar else "")
+        + (f"{c} Quelle: {', '.join(quellen)}.\n" if len(quellen) > 1 and not unklar
+           and not konform else "")
+        + zusatz_kopf
         + (f"{c} OFFEN: '{name}' entsteht aus {len(quellen)} Herkuenften mit VERSCHIEDENER Form\n"
            f"{c}   ({', '.join(quellen)}). Ob vereinigt oder verbunden gehoert, entscheidet der\n"
            f"{c}   Fachbereich -- die Fassungen stehen im Vollaufbau unter `transforms/`.\n"
@@ -841,8 +1203,19 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
 
     from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
 
+    # Konforme Ziele (OQ-40, D-536): ein Gold-Produkt, das mehrere Domaenen speisen, bekommt
+    # EINEN MERGE unter `_conformed/` — dieselbe Regel wie der Vollaufbau. Vorher schrieb jede
+    # speisende Domaene ihren eigenen MERGE auf dasselbe Ziel, mit den Herkuenften nur ihrer
+    # Domaene: zwei Ladelogiken fuer eine Tabelle, und welche gewinnt, hing an der Reihenfolge.
+    _by_product: dict[str, list[str]] = {}
+    for _d in domains:
+        for _p in _d.get("data_products", []) or []:
+            _by_product.setdefault(_p, []).append(_d["name"])
+    _conformed = {p: sorted(doms) for p, doms in _by_product.items() if len(doms) > 1}
+
     out: dict[str, str] = {}
     entschieden: list[tuple[str, str]] = []
+    wahl_je_domaene: dict[str, str | None] = {}
     for d in domains:
         ddir = _dirslug(d["name"])
         silver_tbl = layer_ref("silver", _ident(d["name"]), schemas)
@@ -858,9 +1231,12 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
         # `entscheidungen` ist das Profilfeld aus dem Rueckweg (C-3): `DATA-INC·<domaene>` bei
         # mehreren Domaenen, `DATA-INC` bei einer — dieselbe ID, die der Ledger vergibt.
         wahl = entscheidung_fuer(entscheidungen, "DATA-INC", d["name"])
+        wahl_je_domaene[d["name"]] = wahl
         if wahl:
             entschieden.append((d["name"], wahl))
         for product in sorted(d.get("data_products", [])):
+            if product in _conformed:
+                continue                          # EIN MERGE unter `_conformed/`, siehe unten
             kind = kinds.get(product, "fact")
             gold_tbl = layer_ref("gold", _ident(product), schemas)
             rel = f"transforms/incremental/{ddir}/silver_to_gold__{_ident(product)}.sql"
@@ -881,6 +1257,54 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
                 proposal=_incremental_proposal(governed_catalog, product), wahl=wahl,
                 formgleich=_formgleich(kat_t.get("source_columns") or {}),
                 table=kat_t or None)
+
+    konforme_zeilen: list[str] = []
+    for product, contributing in sorted(_conformed.items()):
+        kind = kinds.get(product, "dimension")
+        gold_tbl = layer_ref("gold", _ident(product), schemas)
+        rel = f"transforms/incremental/_conformed/silver_to_gold__{_ident(product)}.sql"
+        wahlen = {dom: wahl_je_domaene.get(dom) for dom in contributing}
+        werte = set(wahlen.values())
+        if werte == {"vollast"}:
+            # Alle speisenden Domaenen laden voll: der konforme Vollaufbau ist die Ladeform.
+            konforme_zeilen.append(f"| `{product}` | {', '.join(contributing)} | `vollast` "
+                                   f"| kein MERGE — Vollaufbau unter `transforms/_conformed/` |")
+            continue
+        # Dieselbe Herkunftsaufloesung wie im Vollaufbau (`emit_transforms`), damit beide
+        # Ladeformen dieselben Tabellen lesen.
+        sources = _konforme_quellen(blueprint, governed_catalog, product, contributing,
+                                    domains, schemas)
+        c = dl["comment"]
+        zusatz = (f"{c} Konformes Ziel, gespeist von {len(contributing)} Domaenen: "
+                  f"{', '.join(contributing)}.\n"
+                  f"{c} EIN MERGE fuer EIN Ziel — je Domaene ein eigener haette dieselbe Tabelle "
+                  f"mit zwei Ladelogiken\n"
+                  f"{c} beschrieben, und welche gewinnt, haengt an der Reihenfolge (OQ-40).\n")
+        eindeutig = len(werte) == 1
+        if eindeutig:
+            wahl = next(iter(werte))
+        else:
+            wahl = None
+            je = ", ".join(f"{dom} = {w or 'offen'}" for dom, w in sorted(wahlen.items()))
+            zusatz += (f"{c} BEFUND: die speisenden Domaenen haben DATA-INC verschieden beantwortet "
+                       f"({je}).\n"
+                       f"{c}   Ein Ziel hat eine Ladelogik; bis sie fuer '{product}' feststeht, "
+                       f"bleiben die Platzhalter.\n")
+        kat_t = _catalog_table(governed_catalog, _ident(product)) or {}
+        if kat_t.get("key"):
+            zusatz += (f"{c} TODO(contract:{contract_ref}): Vorrang festlegen, falls dieselbe "
+                       f"Schluesselzeile je Domaene verschiedene\n"
+                       f"{c}   Attribute traegt — UNION entfernt nur EXAKTE Dubletten, und zwei "
+                       f"Quellzeilen je Schluessel\n"
+                       f"{c}   brechen den MERGE ab (mehrere Quellzeilen fuer eine Zielzeile).\n")
+        out[rel] = _silver_to_gold_incremental(
+            product, kind, [q[1] for q in sources if q[1]], contract_ref, dl, gold_tbl, star,
+            proposal=_incremental_proposal(governed_catalog, product), wahl=wahl,
+            table=kat_t or None, konform=sources, zusatz_kopf=zusatz)
+        wirkung = (f"ein MERGE, `{wahl}`" if eindeutig and wahl else
+                   "ein MERGE, Platzhalter" + ("" if eindeutig else " — Antworten widersprechen sich"))
+        je_dom = ", ".join(f"{dom}: `{w or 'offen'}`" for dom, w in sorted(wahlen.items()))
+        konforme_zeilen.append(f"| `{product}` | {', '.join(contributing)} | {je_dom} | {wirkung} |")
 
     doc = [
         "# Incremental / delta-load — where it lives (generated, grounded MS Learn 2026-07)",
@@ -938,6 +1362,19 @@ def emit_incremental_load(blueprint: dict, stack: str = "fabric", schemas: bool 
         }
         doc += [f"| {name} | `{wahl}` | {wirkung.get(wahl, 'unbekannter Wert, wie nicht entschieden')} |"
                 for name, wahl in entschieden]
+    if konforme_zeilen:
+        doc += [
+            "",
+            "## Konforme Ziele (`_conformed/`, OQ-40)",
+            "",
+            "Ein Gold-Produkt, das mehrere Domänen speisen, hat **einen** MERGE mit den "
+            "Herkünften aller Domänen — wie der Vollaufbau. Laden die Domänen verschieden, "
+            "bleibt der MERGE Platzhalter, bis für das Ziel eine Ladelogik feststeht.",
+            "",
+            "| Ziel | Domänen | DATA-INC | Wirkung |",
+            "|---|---|---|---|",
+            *konforme_zeilen,
+        ]
     _note = gap_doc_for(blueprint, "incremental", "Inkrementelles Laden")
     out["transforms/INCREMENTAL_REFRESH.md"] = _note or ("\n".join(doc) + "\n")
     return out
@@ -1376,7 +1813,8 @@ def _mlv_constraint(name: str, kind: str) -> tuple[str, str]:
 
 
 def emit_mlv(blueprint: dict, schemas: bool = True,
-             governed_catalog: dict | None = None) -> dict[str, str]:
+             governed_catalog: dict | None = None,
+             entscheidungen: dict | None = None) -> dict[str, str]:
     """Emit the medallion as **Materialized Lake Views** (declarative, SQL-only). Idea I-20.7.
 
     PREVIEW / SQL-only, honestly flagged. One ``CREATE OR REPLACE MATERIALIZED LAKE VIEW`` per gold
@@ -1533,7 +1971,14 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
             out[f"mlv/{ddir}/{pident}.mlv.sql"] = sql
             doc.append(f"| {d['name']} | `{mlv_name}` | {kind} | {len(columns) or '—'} | "
                        f"{constraint_cell} | {partition_cell} |")
-    doc += _mlv_refresh_doc()
+    # Ob eine Sicht je inkrementell laeuft, entscheidet das Schreibmuster ihrer Quelle — und
+    # das legt `DATA-SILVER-LOAD` fest (D-534). Das Dokument nennt, was gewaehlt ist, statt
+    # den Vollaufbau zu behaupten, den eine Antwort `append` laengst abgeloest hat.
+    from core.dataarch_engine.blueprint.decision_proposals import entscheidung_fuer
+    ladeformen = {d.get("name", ""): (entscheidung_fuer(entscheidungen, "DATA-SILVER-LOAD",
+                                                        d.get("name", "")) or "vollaufbau")
+                  for d in blueprint.get("mesh", {}).get("domains", []) or []}
+    doc += _mlv_refresh_doc(ladeformen)
     out["mlv/_MLV.md"] = "\n".join(doc) + "\n"
     # Der Ausloeser. Dieselbe Zeitplan-Gestalt wie `orchestration/schedule.json` (Werkzeug-
     # Wiederverwendung), eine Stunde nach dessen Vorgabe: die MLV liest Silber, und Silber
@@ -1547,7 +1992,29 @@ def emit_mlv(blueprint: dict, schemas: bool = True,
 MLV_REFRESH_UHRZEIT = "03:00"
 
 
-def _mlv_refresh_doc() -> list[str]:
+def _silber_ladeform_absatz(ladeformen: dict[str, str] | None) -> str:
+    """Der Absatz „inkrementell nur unter zwei Bedingungen“ — mit dem, was gewaehlt ist."""
+    bedingung = ("**Inkrementell nur unter zwei Bedingungen.** Change Data Feed auf **allen** "
+                 "Quellen (`delta.enableChangeDataFeed = true` — die MLV hier setzen es für "
+                 "nachgelagerte Sichten) **und** die Quellen sind im Zyklus append-only. ")
+    werte = sorted(set((ladeformen or {}).values())) or ["vollaufbau"]
+    if werte == ["vollaufbau"]:
+        return (bedingung + "Silber entsteht in dieser Lieferung per `CREATE OR REPLACE TABLE` "
+                "(Vollaufbau, `DATA-SILVER-LOAD`) — damit ist jeder Zyklus ein Ersetzen, und "
+                "Fabric wählt den **Vollaufbau**. Inkrementell wird es erst mit append-only "
+                "geladenem Silber; das ist eine Ladeentscheidung, keine Einstellung.")
+    if werte == ["append"]:
+        return (bedingung + "Silber wird in dieser Lieferung append-only geschrieben "
+                "(`DATA-SILVER-LOAD = append`), mit Change Data Feed ab der Anlage. Damit ist "
+                "Bedingung (2) je Zyklus erfüllt, solange niemand Silber von Hand ändert — "
+                "ein einziges `UPDATE` oder `DELETE` im Zyklus, und Fabric rechnet voll.")
+    je = ", ".join(f"{dom}: `{w}`" for dom, w in sorted((ladeformen or {}).items()))
+    return (bedingung + f"Silber wird je Domäne verschieden geschrieben ({je}). Eine Sicht "
+            "läuft nur dann inkrementell, wenn **jede** ihrer Quellen append-only geladen wird; "
+            "eine Quelle im Vollaufbau oder mit MERGE-Änderungen zieht sie in den Vollaufbau.")
+
+
+def _mlv_refresh_doc(ladeformen: dict[str, str] | None = None) -> list[str]:
     """Wer den MLV-Refresh ausloest — belegt, nicht angenommen (D-529).
 
     Grundlage: MS Learn, abgerufen 23.09.2026 (*Manage and refresh materialized lake views with
@@ -1584,12 +2051,7 @@ def _mlv_refresh_doc() -> list[str]:
         "02:00 UTC). Dauert die Pipeline länger, liest der Refresh den alten Stand. Die Kopplung "
         "über die Pipeline-Aktivität gäbe es, aber nur unter einer persönlichen Identität.",
         "",
-        "**Inkrementell nur unter zwei Bedingungen.** Change Data Feed auf **allen** Quellen "
-        "(`delta.enableChangeDataFeed = true` — die MLV hier setzen es für nachgelagerte Sichten) "
-        "**und** die Quellen sind im Zyklus append-only. Silber entsteht in dieser Lieferung "
-        "per `CREATE OR REPLACE TABLE` (Vollaufbau) — damit ist jeder Zyklus ein Ersetzen, und "
-        "Fabric wählt den **Vollaufbau**. Inkrementell wird es erst mit append-only geladenem "
-        "Silber; das ist eine Ladeentscheidung, keine Einstellung.",
+        _silber_ladeform_absatz(ladeformen),
         "",
         "**Aus einem Kundenprojekt, gemessen (15.–22.09.2026, D-530).** Der Refresh scheiterte "
         "zuerst mit `MLV_SCHEMA_NOT_FOUND` — *the default database is not defined* — über die "
@@ -1604,4 +2066,15 @@ def _mlv_refresh_doc() -> list[str]:
         "anlegen, das die Sichten trägt, einmal auslösen und den Job-Status lesen, nicht die "
         "Rückgabe `202`. Spaltennamen mit Leerzeichen brauchen eine Delta-taugliche Projektion "
         "(`columnMapping` + maskierte Namen — hier emittiert).",
+        "",
+        "**Wem der Zeitplan gehört (D-537).** Eigentümer eines Zeitplans ist, wer ihn angelegt "
+        "oder zuletzt geändert hat; ein Zeitplan eines Nutzers läuft ab, wenn dieser 90 Tage "
+        "nicht angemeldet war (MS Learn, *Job scheduler*, *Create Item Schedule*, abgerufen "
+        "23.09.2026). Die Job-Scheduler-API nimmt Dienstprinzipal und verwaltete Identität an. "
+        "Deshalb: unter der Betriebsidentität anlegen (`day2/`), den Eigentümer "
+        "zurücklesen (Apply-Schritt `verify_schedule_owner`) und nach jeder Änderung im Portal "
+        "erneut — wer dort speichert, wird Eigentümer. Eine Workspace-Identität ersetzt den "
+        "Eigentümer nicht. In einem Kundenprojekt gehörten nach der Inbetriebnahme alle "
+        "Zeitpläne (Laden und Sichten, drei Stufen) einer Person: technisch vollständig, im "
+        "Betrieb an einem Konto hängend.",
     ]

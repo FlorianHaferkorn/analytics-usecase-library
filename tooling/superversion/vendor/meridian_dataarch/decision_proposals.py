@@ -1226,7 +1226,7 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
                        "Braucht eine verlässliche Watermark je Quelle (DATA-INC)"],
          "limitierungen": [{"text": "Inkrementell nur, wenn CDF auf allen Quellen aktiv ist und der Zyklus append-only war",
                             "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/refresh-materialized-lake-view"}],
-         "implikation": "Die Emission muss Silber per INSERT statt CREATE OR REPLACE schreiben — das tut sie heute nicht."},
+         "implikation": "Die Emission legt Silber einmal leer mit CDF an und fügt je Lauf per INSERT nur neue Zeilen an; ausführbar, sobald der Katalog eine Änderungs- oder Anlagespalte der Quelle nennt."},
         {"wert": "merge",
          "text": "MERGE mit Change Data Feed: Änderungen und Löschungen einarbeiten",
          "vorteile": ["Korrekturen der Quelle kommen an",
@@ -1235,7 +1235,7 @@ _OPTIONEN: dict[str, list[dict[str, Any]]] = {
                        "Braucht Match-Key und Löschkennzeichen je Quelle"],
          "limitierungen": [{"text": "Updates oder Deletes im Zyklus erzwingen den Vollaufbau der MLV, auch mit CDF",
                             "quelle": "MS Learn: fabric/data-engineering/materialized-lake-views/refresh-materialized-lake-view"}],
-         "implikation": "Die Emission muss Silber per MERGE schreiben — das tut sie heute nicht."},
+         "implikation": "Die Emission legt Silber einmal leer mit CDF an und schreibt per MERGE; der Schlüssel der Quelltabelle bleibt Platzhalter, bis der Datenvertrag ihn nennt."},
     ],
     "PLAT-TRANSFORM": [
         {"wert": "mlv_standard", "empfohlen": True,
@@ -1773,9 +1773,10 @@ def propose_silver_load(bp: dict) -> dict:
          "**allen** Quellen aktiv ist **und** der Zyklus append-only war; ein Überschreiben ist "
          "eine Änderung an allem, ein MERGE mit Änderung oder Löschung ebenso.\n\n"
          "**Wann umstellen:** wenn die gemessene Laufzeit der vollen Aktualisierung das "
-         "Ladefenster sprengt — nicht vorher. `append` und `merge` verlangen, dass die Emission "
-         "Silber anders schreibt; das tut sie heute nicht, und eine Antwort `append` steht bis "
-         "dahin als Befund im Ledger, nicht als erledigt."),
+         "Ladefenster sprengt — nicht vorher. Eine Antwort `append` oder `merge` baut die "
+         "Emission: Silber wird einmal leer mit Change Data Feed angelegt und danach nur "
+         "ergänzt bzw. per MERGE nachgeführt; was der Katalog nicht nennt (Änderungsspalte, "
+         "Schlüssel der Quelltabelle), bleibt Platzhalter."),
         "MS Learn (*Optimal refresh for materialized lake views*, abgerufen 23.09.2026: CDF auf "
         "allen Quellen, append-only im Zyklus) + Schreibmuster des Transform-Emitters",
         "mittel",

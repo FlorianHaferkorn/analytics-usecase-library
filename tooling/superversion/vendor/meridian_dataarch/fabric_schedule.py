@@ -29,6 +29,13 @@ from __future__ import annotations
 
 import json
 
+#: Der Platzhalter fuer den Namen der Betriebsidentitaet, unter der Zeitplaene angelegt werden
+#: (D-537, D-541). Er steht hier und nicht in `provision_day2`, obwohl dort die Vorgabe
+#: begruendet ist: `provision_apply` braucht ihn, ist in ALUCA vendort, und `provision_day2`
+#: ist es nicht — genau der Bruch, vor dem der Kopf dieses Moduls warnt. `provision_day2`
+#: liest ihn von hier.
+BETRIEBSIDENTITAET_TOKEN = "<betriebs-spn-name>"
+
 #: Job-Typen als Pfadsegment. Gross-/Kleinschreibung ist bedeutsam — die Quelle sagt es selbst.
 JOB_TYPE_NOTEBOOK = "RunNotebook"
 JOB_TYPE_PIPELINE = "Pipeline"

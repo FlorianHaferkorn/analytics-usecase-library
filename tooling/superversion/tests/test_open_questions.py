@@ -132,12 +132,16 @@ def test_the_mirrored_decisions_arrive_with_their_ways(ledger):
     18 → 19: `SEC-SHARE` (which ways out of the platform stay open) with BK-Z06, on the same
     day. Both are pre-filled, so neither needs an `ermittlung` block and the second count
     stays at 7.
+
+    19 -> 20: `DATA-SILVER-LOAD` (Schreibmuster der Silber-Schicht) mit Meridian D-533.
+    Anders als die beiden davor traegt sie einen Ermittlungsweg (wo, wen, wenn unklar):
+    die zweite Zahl geht deshalb von 7 auf 8.
     """
     mirrored = [q for q in ledger["questions"] if q["origin"] == ORIGIN_MIRROR]
-    assert len(mirrored) == 19
+    assert len(mirrored) == 20
     mit_weg = [q for q in mirrored
                if all(str(q["way"].get(f, "")).strip() for f in WAY_FIELDS)]
-    assert len(mit_weg) == 7
+    assert len(mit_weg) == 8
     assert all(q["source"].startswith("vendor/meridian_dataarch/") for q in mirrored)
 
 

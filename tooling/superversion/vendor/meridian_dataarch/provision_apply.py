@@ -27,10 +27,26 @@ import re
 
 from core.dataarch_engine.blueprint import admin_settings as _admin
 from core.dataarch_engine.blueprint.fabric_schedule import (
+    BETRIEBSIDENTITAET_TOKEN as IDENTITAET_TOKEN,
+)
+from core.dataarch_engine.blueprint.fabric_schedule import (
     JOB_TYPE_NOTEBOOK,
     JOB_TYPE_PIPELINE,
 )
 from core.dataarch_engine.blueprint.governance_strategy import LIFECYCLE_STAGES
+
+#: Unter wem ein Zeitplan angelegt wird (D-537, O-72 eines Kundenprojekts). Der Satz steht an
+#: JEDEM Zeitplan-Schritt, weil jeder einzeln im Portal angelegt werden kann — und dort legt
+#: ihn an, wer gerade angemeldet ist.
+#:
+#: Belegt (MS Learn, abgerufen 23.09.2026): Eigentuemer (`owner`) eines Zeitplans ist *„the
+#: user identity that created this schedule or last modified it“* (Job Scheduler, Create Item
+#: Schedule); die API nimmt Dienstprinzipal und verwaltete Identitaet an. Und: *„Schedules
+#: become expired if a user doesn't log in to Fabric for 90 consecutive days“* (Job scheduler
+#: in Microsoft Fabric).
+ZEITPLAN_IDENTITAET = (f" Unter der Betriebsidentitaet `{IDENTITAET_TOKEN}` anlegen, nicht unter "
+                       "einem persoenlichen Konto: Eigentuemer ist, wer den Zeitplan anlegt "
+                       "oder zuletzt aendert.")
 
 _NONWORD_RE = re.compile(r"[^a-z0-9]+")
 
@@ -384,7 +400,8 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
                 "rest:/workspaces/{id}/lakehouses/{id}/jobs/refreshMaterializedLakeViews/schedules",
                 "human",
                 "register the MLV refresh schedule (preview API; one active schedule per lineage) "
-                "— then trigger once and read the job status, not the 202",
+                "— then trigger once and read the job status, not the 202."
+                + ZEITPLAN_IDENTITAET,
                 present("mlv/refresh_schedule.json") or "mlv/refresh_schedule.json")
     for d in domains:
         aud = d.get("publishing", {}).get("intended_audience", "internal")
@@ -425,7 +442,8 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             f"rest:/items/{{id}}/jobs/{JOB_TYPE_PIPELINE}/schedules", "human",
             "Zeitplan anlegen. Er steht in der Item-Definition und wird von Git getragen, aber "
             "nicht vom Import angewendet — ohne diesen Schritt laeuft die Kette nur von Hand. "
-            "`jobType` ist Pflichtsegment im Pfad, fuer eine DataPipeline lautet es `Pipeline`.",
+            "`jobType` ist Pflichtsegment im Pfad, fuer eine DataPipeline lautet es `Pipeline`."
+            + ZEITPLAN_IDENTITAET,
             zeitplan)
 
     # Der Aktivitaetsprotokoll-Export hat seinen eigenen Zeitplan und sein eigenes `jobType`: er
@@ -436,7 +454,8 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         add("create_schedule", f"{target_ws}.Workspace — Zeitplan des Aktivitaetsprotokoll-Exports",
             f"rest:/items/{{id}}/jobs/{JOB_TYPE_NOTEBOOK}/schedules", "human",
             "Taeglichen Lauf des Export-Notebooks anlegen. `jobType` ist Pflichtsegment und "
-            "unterscheidet Gross-/Kleinschreibung; fuer ein Notebook lautet es `RunNotebook`.",
+            "unterscheidet Gross-/Kleinschreibung; fuer ein Notebook lautet es `RunNotebook`."
+            + ZEITPLAN_IDENTITAET,
             aktivitaet)
 
     # Dieselbe Klasse, anderer Takt: die woechentliche Leistungsmessung (BK-L03). Sie ist
@@ -448,7 +467,8 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         add("create_schedule", f"{target_ws}.Workspace — Zeitplan der Leistungsmessung",
             f"rest:/items/{{id}}/jobs/{JOB_TYPE_NOTEBOOK}/schedules", "human",
             "Woechentlichen Lauf von `day2/leistungsmessung.py` anlegen. Auch hier ist `jobType` "
-            "Pflichtsegment und lautet fuer ein Notebook `RunNotebook`.",
+            "Pflichtsegment und lautet fuer ein Notebook `RunNotebook`."
+            + ZEITPLAN_IDENTITAET,
             leistung)
 
     # Und die Pruefung gegen die drei Betriebsziele (BK-B07). Eigener Zeitplan statt eines
@@ -459,8 +479,30 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
         add("create_schedule", f"{target_ws}.Workspace — Zeitplan der SLO-Pruefung",
             f"rest:/items/{{id}}/jobs/{JOB_TYPE_NOTEBOOK}/schedules", "human",
             "Woechentlichen Lauf von `day2/slo_pruefung.py` anlegen. Vorher `betriebsziele.json` "
-            "mit den Kundenzahlen fuellen — bis dahin urteilt die Pruefung `kein-ziel`.",
+            "mit den Kundenzahlen fuellen — bis dahin urteilt die Pruefung `kein-ziel`."
+            + ZEITPLAN_IDENTITAET,
             slo)
+
+    # D-537: die Vorgabe „Betriebsidentitaet ist ein Dienstprinzipal“ steht seit dem 16.08.2026
+    # in `provision_day2.VORGABEN` — und kein Schritt des Plans hat sie durchgesetzt. Gemessen
+    # in einem Kundenprojekt (23.09.2026, O-72): nach der Inbetriebnahme gehoerten ALLE sechs
+    # Zeitplaene (Laden und MLV, drei Stufen) demselben benannten Nutzer. Technisch lief alles;
+    # der unbeaufsichtigte Betrieb hing an einer Person. Der Pruefschritt liest den Eigentuemer
+    # zurueck, statt ihn aus dem Anlegen zu folgern — eine spaetere Aenderung im Portal macht
+    # den Aendernden zum Eigentuemer.
+    zeitplan_schritte = [op for op in plan
+                         if op["action"] in ("create_schedule", "schedule_mlv_refresh")]
+    if zeitplan_schritte:
+        add("verify_schedule_owner",
+            f"{target_ws}.Workspace — Eigentuemer aus {len(zeitplan_schritte)} Zeitplan-Schritt(en)",
+            "rest:GET /workspaces/{id}/items/{id}/jobs/{jobType}/schedules", "human",
+            f"Eigentuemer jedes Zeitplans zuruecklesen: `owner.type` = ServicePrincipal und "
+            f"`owner.id` = `{IDENTITAET_TOKEN}`. Ein Nutzer als Eigentuemer ist ein Befund, "
+            "kein Hinweis — der Zeitplan laeuft ab, wenn dieser Nutzer 90 Tage nicht "
+            "angemeldet war, und jede Aenderung im Portal macht den Aendernden zum "
+            "Eigentuemer. Eine Workspace-Identitaet ersetzt den Eigentuemer nicht. Nach jeder "
+            "Aenderung an einem Zeitplan erneut pruefen.",
+            zeitplan_schritte[0].get("artifact"))
 
     # Das Semantikmodell entsteht im CLI-Ablauf NACH diesem Plan, steht beim Scannen des Baums also
     # noch nicht da. Deshalb haengen die beiden Schritte an der Ansage des Aufrufers und tragen
@@ -472,6 +514,18 @@ def build_apply_plan(bp: dict, workspace: str = PLACEHOLDER_WORKSPACE,
             "core-mcp:create-item | fab import", "human",
             "Semantikmodell und Bericht einspielen. Der Plan zaehlte sie bisher nur in der "
             "Begruendung der Gold-Importe mit, ohne eigenen Schritt.", modell)
+        # D-540: dieselbe Frage wie beim Zeitplan (D-537), am Modell. Im Kundenprojekt (O-72)
+        # waren alle Semantikmodelle von derselben Person konfiguriert. `Default.TakeOver`
+        # uebertraegt das Modell *„to the current authorized user“* und ist laut MS Learn fuer
+        # Dienstprinzipal-Profile aufrufbar (Datasets - Take Over In Group, abgerufen
+        # 23.09.2026). Vor dem Framing, damit schon der erste Refresh unter ihr laeuft.
+        add("take_over_semantic_model", f"{target_ws}.Workspace/Semantikmodell — Eigentuemer",
+            "rest:POST /groups/{id}/datasets/{id}/Default.TakeOver", "human",
+            f"Modell unter der Betriebsidentitaet `{IDENTITAET_TOKEN}` uebernehmen — der Aufruf "
+            "uebertraegt es an den, der ihn stellt, also als diese Identitaet aufrufen. Danach "
+            "`configuredBy` zuruecklesen (`GET /groups/{id}/datasets/{id}`); eine Person dort ist "
+            "ein Befund. Nach jeder Neuveroeffentlichung aus Desktop erneut: wer veroeffentlicht, "
+            "wird Eigentuemer.", modell)
         add("frame_direct_lake", f"{target_ws}.Workspace/Semantikmodell — Framing",
             "rest:/datasets/{id}/refreshes | notebook sempy", "human",
             "Nach dem ersten Laden framen. Ein Direct-Lake-Modell liefert den zuletzt geframten "
