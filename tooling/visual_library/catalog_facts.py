@@ -98,7 +98,8 @@ def main(argv: list[str] | None = None) -> int:
     if a.modus == "write":
         neu["gemessen"] = _dt.date.today().isoformat()
         FACTS.write_text(json.dumps(neu, indent=2, ensure_ascii=False,
-                                    sort_keys=True) + "\n", encoding="utf-8")
+                                    sort_keys=True) + "\n", encoding="utf-8",
+                         newline="\n")
         print(f"[catalog-facts] geschrieben: {FACTS.relative_to(HIER.parent.parent)} "
               f"({len(neu['visuals'])} Visualtypen, Pin {PIN})")
         return 0
