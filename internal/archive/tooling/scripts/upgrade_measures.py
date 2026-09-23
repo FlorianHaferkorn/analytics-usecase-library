@@ -1,4 +1,11 @@
 """
+ARCHIVIERT 23.09.2026 -- nicht erneut ausfuehren.
+
+Einmaliger Patcher; ein zweiter Lauf haengt Narrative Text und Active Actions Text doppelt
+an. Seine Action-Schwellen waren Literale und widersprachen in 13 von 39 Faellen
+`core/action_codes/`. Die Trigger-DAX erzeugt jetzt `tooling/codegen/action_trigger_dax.py`
+aus dem YAML (R6.4).
+
 Upgrade all 5 SemanticModel _Measures.tmdl files:
   1. Replace static Action_X_Text DAX with conditional threshold-triggered IF logic
   2. Append Narrative Text measure (domain KPI summary string)

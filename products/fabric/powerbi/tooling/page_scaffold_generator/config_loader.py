@@ -163,8 +163,10 @@ class ConfigLoader:
         return d if domain and d.exists() else None
 
     def _model_symbols_for(self, bracket: Dict[str, Any]):
+        return self._model_symbols_for_dir(self._target_model_dir(bracket))
+
+    def _model_symbols_for_dir(self, d: Optional[Path]):
         from tooling.report_quality.dax_reference_validator import ModelSymbols, TableSymbols, parse_tmdl_table
-        d = self._target_model_dir(bracket)
         cache = self.__dict__.setdefault("_symbols_cache", {})
         if d in cache:
             return cache[d]
@@ -196,8 +198,16 @@ class ConfigLoader:
 
     def measure_map_for(self, bracket: Dict[str, Any]) -> Dict[str, str]:
         """KPI-ID -> Measure-Name, wie das Zielmodell dieses Brackets ihn fuehrt."""
+        return self.measure_map_for_model(self._target_model_dir(bracket))
+
+    def measure_map_for_model(self, model_dir: Optional[Path]) -> Dict[str, str]:
+        """KPI-ID -> Measure-Name, wie das Modell unter `model_dir` ihn fuehrt.
+
+        Dieselbe Aufloesung fuer Report-Visuals und fuer die Action-Trigger
+        (`tooling/codegen/action_trigger_dax.py`); zwei Aufloesungen waeren zwei Meinungen.
+        """
         result = dict(self.load_kpi_id_to_measure_name_map())
-        definiert = self._model_symbols_for(bracket).measure_names
+        definiert = self._model_symbols_for_dir(model_dir).measure_names
         if not definiert:
             return result                  # kein Modell zur Hand: nichts behaupten
         dictionary = self._dictionary_measure_names()
