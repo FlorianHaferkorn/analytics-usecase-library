@@ -171,7 +171,7 @@ def check_evidence_pages(root: Path, selected_use_cases: List[str] | None = None
 
     for md_file in sorted(scoped_files):
         content = md_file.read_text(encoding="utf-8")
-        page_result = validate_page(content, str(md_file.relative_to(root)))
+        page_result = validate_page(content, md_file.relative_to(root).as_posix())
         result.errors.extend(
             f"{md_file.name}: {e}" for e in page_result.errors
         )

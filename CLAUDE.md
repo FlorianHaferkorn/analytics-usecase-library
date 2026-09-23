@@ -11,7 +11,7 @@
 Global Operating Instructions (Stil, Workflow, Recherche, Sicherheit). Gilt
 projektübergreifend; bei Konflikt gewinnen die projektspezifischen Regeln hier.
 
-## Navigations-Prinzip (Token-Disziplin — KRITISCH)
+## Navigations-Prinzip (Token-Disziplin)
 
 Nicht ganze Ordnerbäume scannen — gezielt routen.
 

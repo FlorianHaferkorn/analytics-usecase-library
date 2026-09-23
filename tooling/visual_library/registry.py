@@ -99,7 +99,7 @@ def main(argv: "list[str]") -> int:
     if cmd == "build":
         out = Path(argv[argv.index("--out") + 1]) if "--out" in argv else REGISTRY
         reg = build_registry()
-        out.write_text(json.dumps(reg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        out.write_text(json.dumps(reg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
         print(f"wrote {reg['count']} idiom entries -> {out}")
         return 0
     if cmd == "check":

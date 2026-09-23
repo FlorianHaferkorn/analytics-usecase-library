@@ -54,7 +54,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: { strategy: 'jwt' },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, trigger }) {
+      // Only the provider's completed sign-in may establish provenance. Session
+      // update payloads and existing JWTs must never upgrade a demo/legacy login.
+      if (account && user && trigger !== 'update') {
+        token.authentication = {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          authenticatedAt: Date.now(),
+          method: account.type,
+        };
+      } else if (user && trigger !== 'update') {
+        delete token.authentication;
+      }
       if (user) {
         token.id = user.id;
         // Populate project_memberships at sign-in time.
@@ -96,6 +108,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.org_memberships) {
         (session as unknown as Record<string, unknown>).org_memberships =
           token.org_memberships;
+      }
+      if (token.authentication) {
+        (session as unknown as Record<string, unknown>).authentication = token.authentication;
+      } else {
+        delete (session as unknown as Record<string, unknown>).authentication;
       }
       return session;
     },

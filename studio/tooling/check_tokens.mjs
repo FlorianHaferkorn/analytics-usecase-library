@@ -11,6 +11,17 @@ import postcss from 'postcss';
 import ts from 'typescript';
 
 export const GOVERNED_FILES = new Set([
+  'src/components/project/batch-ingestion-workbench.tsx',
+  'src/components/project/batch-ingestion-workbench.module.css',
+  'src/components/project/local-reference-lab.tsx',
+  'src/components/project/local-reference-lab.module.css',
+  'src/components/project/evidence-label.tsx',
+  'src/components/project/project-runner.tsx',
+  'src/components/project/project-runner-readiness.tsx',
+  'src/components/project/project-runner-readiness.module.css',
+  'src/components/project/project-runner-acceptance.tsx',
+  'src/components/project/project-decision-review.tsx',
+  'src/components/project/project-decision-review.module.css',
   'src/components/project/project-automation.tsx',
   'src/components/project/project-deployment.tsx',
   'src/components/project/project-automation.module.css',

@@ -163,7 +163,7 @@ def main() -> int:
     _MANIFEST_PATH.write_text(
         json.dumps(new_manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
-    )
+        newline="\n")
     print(f"Updated {_MANIFEST_PATH.relative_to(_REPO_ROOT)}")
     return 0
 

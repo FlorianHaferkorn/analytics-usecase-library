@@ -51,7 +51,7 @@ def _actionlint(root: pathlib.Path) -> list[str] | None:
     if not exe:
         return None
     r = subprocess.run([exe, "-shellcheck=", "-pyflakes=", "-oneline"],
-                       cwd=root, capture_output=True, text=True)
+                       cwd=root, capture_output=True, text=True, encoding="utf-8", errors="replace")
     # rc 0 = sauber, rc 1 = Befunde. Alles andere heisst: das Werkzeug hat NICHT geprüft
     # (z. B. rc 3 „no project was found" ausserhalb eines Git-Repos). Dann ``None``
     # zurückgeben statt einer leeren Befundliste — sonst meldet der Aufrufer „[actionlint]"

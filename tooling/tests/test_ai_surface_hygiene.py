@@ -69,7 +69,7 @@ def test_hide_inserts_ishidden_after_datatype_and_is_idempotent(tmp_path):
 def test_non_key_columns_untouched(tmp_path):
     _seed_table(tmp_path, "Commercial", _FACT_WITH_VISIBLE_KEY)
     hide_visible_keys(tmp_path, "Commercial")
-    body = (tmp_path / "Commercial.SemanticModel" / "definition" / "tables" / "fact_x.tmdl").read_text()
+    body = (tmp_path / "Commercial.SemanticModel" / "definition" / "tables" / "fact_x.tmdl").read_text(encoding="utf-8")
     # the measure column 'Amount' must not have been hidden
     amount_block = body.split("column Amount", 1)[1]
     assert "isHidden" not in amount_block

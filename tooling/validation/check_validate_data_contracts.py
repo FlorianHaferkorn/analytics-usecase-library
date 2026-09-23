@@ -48,13 +48,13 @@ def main() -> int:
     if not contracts_dir.is_dir():
         results_dir.mkdir(parents=True, exist_ok=True)
         payload = {"failed_contracts": [], "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"}
-        out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8", newline="\n")
         print("check_validate_data_contracts: no core/data_contracts/domains, skipped.")
         return 0
 
     yaml_files = sorted(contracts_dir.glob("*.yaml"))
     for file_path in yaml_files:
-        rel_path = str(file_path.relative_to(root_path)).replace("\\", "/")
+        rel_path = file_path.relative_to(root_path).as_posix().replace("\\", "/")
         contract_path = f"core/data_contracts/domains/{file_path.name}"
         file_failed = False
         try:
@@ -100,7 +100,7 @@ def main() -> int:
         "failed_contracts": failed_contracts,
         "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z",
     }
-    out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8", newline="\n")
 
     if failed_contracts:
         print(f"check_validate_data_contracts: {len(failed_contracts)} failed contract(s). Results: {out_path}")

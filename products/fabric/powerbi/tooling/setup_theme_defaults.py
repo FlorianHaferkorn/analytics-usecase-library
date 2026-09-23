@@ -37,7 +37,7 @@ def set_showcase_default(showcase_name: str, theme_name: str) -> None:
     
     config_data["defaultThemeName"] = theme_name
     
-    config_file.write_text(json.dumps(config_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    config_file.write_text(json.dumps(config_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print(f"[OK] Showcase default theme set: {showcase_name} → {theme_name}")
     print(f"     Config file: {config_file}")
 
@@ -50,7 +50,7 @@ def set_framework_default(theme_name: str) -> None:
     config_data = json.loads(THEME_GENERATOR_CONFIG.read_text(encoding="utf-8"))
     config_data["defaultThemeName"] = theme_name
     
-    THEME_GENERATOR_CONFIG.write_text(json.dumps(config_data, indent=4, ensure_ascii=False) + "\n", encoding="utf-8")
+    THEME_GENERATOR_CONFIG.write_text(json.dumps(config_data, indent=4, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print(f"[OK] Framework default theme set: {theme_name}")
     print(f"     Config file: {THEME_GENERATOR_CONFIG}")
 

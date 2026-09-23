@@ -28,6 +28,7 @@ describe('Project authority and isolation', () => {
     expect(useProjectStore.getState().packageRevisionHash).toBe(hash);
   });
   it('declares library assets, project drafts and administration independently', () => {
+    expect(surfaceScope('/automation/reference', 'project')).toBe('library');
     expect(surfaceScope('/discover', 'library')).toBe('project');
     expect(surfaceScope('/architecture', 'library')).toBe('project');
     expect(surfaceScope('/engagement', 'library')).toBe('project');

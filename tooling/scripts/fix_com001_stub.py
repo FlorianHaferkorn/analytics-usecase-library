@@ -67,7 +67,7 @@ def fix_report_page_metadata(report_dir: Path) -> list[str]:
         if old_name != expected_name or old_display != expected_display:
             data["name"] = expected_name
             data["displayName"] = expected_display
-            page_json_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            page_json_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
             changes.append(
                 f"{page_dir.name}/page.json: name {old_name!r} -> {expected_name!r}, "
                 f"displayName {old_display!r} -> {expected_display!r}"
@@ -98,7 +98,7 @@ def fix_report_page_metadata(report_dir: Path) -> list[str]:
         if old_order != ordered or old_active != active:
             pages_meta["pageOrder"] = ordered
             pages_meta["activePageName"] = active
-            pages_json_path.write_text(json.dumps(pages_meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            pages_json_path.write_text(json.dumps(pages_meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
             changes.append(f"pages.json: pageOrder/activePageName synced ({active})")
         else:
             changes.append("OK pages.json already aligned")

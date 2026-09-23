@@ -154,7 +154,21 @@ def test_three_target_actual_repository_release_to_saved_artifacts(tmp_path):
         build_item_output(repository, "project_demo", record.revision_hash)
     release_input(repository, "project_demo", record.revision_hash, actor="fixture", rationale="Release exact neutral definitions for transport test.")
     status = read_automation(repository, "project_demo", record.revision_hash)
-    assert all(target["status"] == "ready" for target in status["targets"])
+    # Drei Ziele -- so heisst der Test, und so listet sie der Lauf unten auf. Seit
+    # `batch_ingestion` dazukam, gibt es ein viertes: es steht hier auf `blocked`,
+    # weil diese Fixture bewusst KEINEN Batch-Ingestion-Vertrag speichert. Das ist
+    # das richtige Verhalten, nicht der Fehlerfall.
+    #
+    # Vorher stand hier `all(... == "ready")` -- eine Zusage, die das Modul mit dem
+    # vierten Ziel nicht mehr halten konnte und auch nicht halten SOLL. Die Zeile
+    # prueft jetzt, was der Test behauptet: die drei genannten sind bereit, das
+    # vierte nennt seinen Grund. Damit faellt der Test wieder, wenn eines der drei
+    # kippt -- und meldet nicht mehr Alarm, wenn ein neues Ziel korrekt blockiert.
+    zustand = {t["id"]: t for t in status["targets"]}
+    for ziel in ("architecture_bundle", "fabric_workspace_requests", "fabric_item_requests"):
+        assert zustand[ziel]["status"] == "ready", zustand[ziel]
+    assert zustand["batch_ingestion_bundle"]["status"] == "blocked"
+    assert "batch_ingestion" in zustand["batch_ingestion_bundle"]["reason"]
     output = build_item_output(repository, "project_demo", record.revision_hash)
     body = json.loads(next(file["content"] for file in output["files"] if file["path"] == "fabric/items/notebook_prepare.request.json"))
     assert body["definition"] == native_item()["definition"]

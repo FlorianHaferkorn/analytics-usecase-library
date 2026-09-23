@@ -232,7 +232,7 @@ class TestBusinessCaseValidator:
             [sys.executable, str(VALIDATOR), "--strict"],
             capture_output=True,
             text=True,
-        )
+            encoding="utf-8", errors="replace")
         assert result.returncode == 0, (
             f"check_business_cases.py failed:\n{result.stdout}\n{result.stderr}"
         )

@@ -381,7 +381,7 @@ def write_file(path: Path, content: str, dry_run: bool):
     if path.name.startswith("_") and path.exists():
         return
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+    path.write_text(content, encoding="utf-8", newline="\n")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

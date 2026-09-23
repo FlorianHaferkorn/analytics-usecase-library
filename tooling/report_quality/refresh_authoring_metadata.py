@@ -29,13 +29,13 @@ DEFAULT_OUT = Path("tooling/schemas/pbir/authoring_metadata_snapshot.json")
 
 
 def _run_json(cli: str, args: list[str]) -> dict:
-    proc = subprocess.run([cli, *args], capture_output=True, text=True, check=True)
+    proc = subprocess.run([cli, *args], capture_output=True, text=True, check=True, encoding="utf-8", errors="replace")
     return json.loads(proc.stdout)["data"]
 
 
 def build_snapshot(cli: str = DEFAULT_CLI) -> dict:
     """Query the CLI for every visual type's role metadata and assemble a snapshot."""
-    version = subprocess.run([cli, "--version"], capture_output=True, text=True, check=True).stdout.strip()
+    version = subprocess.run([cli, "--version"], capture_output=True, text=True, check=True, encoding="utf-8", errors="replace").stdout.strip()
     catalog = _run_json(cli, ["catalog", "list"])
     type_ids = [t["visualType"] if isinstance(t, dict) else t for t in catalog.get("visualTypes", [])]
 
@@ -84,7 +84,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print(
         f"Wrote {args.out} "
         f"({snapshot['_meta']['visualTypeCount']} visual types, CLI {snapshot['_meta']['cliVersion']})"

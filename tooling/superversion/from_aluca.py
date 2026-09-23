@@ -1063,7 +1063,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(payload, encoding="utf-8")
+        args.out.write_text(payload, encoding="utf-8", newline="\n")
     else:
         sys.stdout.write(payload)
     return 0

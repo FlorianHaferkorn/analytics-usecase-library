@@ -374,13 +374,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         except DocxRenderError as exc:
             # DoD: a broken branding layout falls back to Markdown, never a crash.
             fallback = args.out.with_suffix(".md")
-            fallback.write_text(render_markdown(model), encoding="utf-8")
+            fallback.write_text(render_markdown(model), encoding="utf-8", newline="\n")
             print(f"[documenter] DOCX render failed ({exc}); wrote Markdown fallback to {fallback}")
         return 0
 
     md = render_markdown(model)
     if args.out:
-        args.out.write_text(md, encoding="utf-8")
+        args.out.write_text(md, encoding="utf-8", newline="\n")
         print(f"[documenter] wrote {args.out}")
     else:
         print(md, end="")

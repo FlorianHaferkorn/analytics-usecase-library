@@ -4,6 +4,7 @@ import {isAbsolute,join,resolve} from 'node:path';
 import type {PackageRepositoryResult} from './project-package-repository';
 
 export interface DeploymentPlan {
+  principal_id?: string;
   project_ref: string; revision_hash: string; tenant_id: string; environment: string; plan_sha256: string;
   workspace_apply_ready: boolean; whole_project_apply_ready: false;
   operations: Array<{id: string; action: 'create'|'noop'|'conflict'|'blocked';reason:string;desired:{name:string};existing_id:string|null}>;

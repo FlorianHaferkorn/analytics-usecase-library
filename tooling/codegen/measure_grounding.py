@@ -133,7 +133,7 @@ def main() -> int:
                      f"{agg} | {res} | {ref} | {purpose[:80]} |")
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text("\n".join(L) + "\n", encoding="utf-8")
+    OUT.write_text("\n".join(L) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {OUT}  (UNIFY={len(unify)} DISTINCT={len(distinct)})")
     return 0
 

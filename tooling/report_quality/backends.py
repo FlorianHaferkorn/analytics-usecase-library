@@ -154,7 +154,7 @@ class MicrosoftReportAuthorBackend(ExternalCliBackend):
                 text=True,
                 timeout=120,
                 check=False,
-            )
+                encoding="utf-8", errors="replace")
         except (OSError, subprocess.SubprocessError) as exc:
             return [
                 Violation(
@@ -196,7 +196,7 @@ class MicrosoftReportAuthorBackend(ExternalCliBackend):
     def _to_violation(code: str, severity: Severity, item: dict, report_dir: Path) -> Violation:
         file = item.get("file") or str(report_dir)
         try:
-            pointer = str(Path(file).resolve().relative_to(Path.cwd()))
+            pointer = Path(file).resolve().relative_to(Path.cwd()).as_posix()
         except ValueError:
             pointer = file
         json_path = item.get("path")

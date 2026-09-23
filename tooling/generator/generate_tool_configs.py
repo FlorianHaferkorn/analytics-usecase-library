@@ -64,7 +64,7 @@ def generate_cursor_rules(root: Path) -> int:
         fm_lines.append("---")
 
         content = AUTOGEN_HEADER + "\n".join(fm_lines) + "\n\n" + body
-        (out_dir / f"{name}.mdc").write_text(content, encoding="utf-8")
+        (out_dir / f"{name}.mdc").write_text(content, encoding="utf-8", newline="\n")
         count += 1
 
     return count
@@ -96,7 +96,7 @@ def generate_cursor_skills(root: Path) -> int:
         out_dir = out_base / name
         out_dir.mkdir(parents=True, exist_ok=True)
         content = AUTOGEN_HEADER + "\n".join(fm_lines) + "\n\n" + body
-        (out_dir / "SKILL.md").write_text(content, encoding="utf-8")
+        (out_dir / "SKILL.md").write_text(content, encoding="utf-8", newline="\n")
         count += 1
 
     return count
@@ -136,7 +136,7 @@ def generate_official_skills(root: Path) -> int:
         out_dir = out_base / name
         out_dir.mkdir(parents=True, exist_ok=True)
         content = "\n".join(fm_lines) + "\n\n" + note + body
-        (out_dir / "SKILL.md").write_text(content, encoding="utf-8")
+        (out_dir / "SKILL.md").write_text(content, encoding="utf-8", newline="\n")
         count += 1
 
     return count
@@ -162,7 +162,7 @@ def generate_copilot_instructions(root: Path) -> int:
         parts.append("\n---\n\n")
         count += 1
 
-    (out_dir / "copilot-instructions.md").write_text("".join(parts), encoding="utf-8")
+    (out_dir / "copilot-instructions.md").write_text("".join(parts), encoding="utf-8", newline="\n")
     return count
 
 

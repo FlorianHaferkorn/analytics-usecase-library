@@ -110,7 +110,7 @@ def main(argv: "list[str]") -> int:
     if cmd == "build":
         out = Path(argv[argv.index("--out") + 1]) if "--out" in argv else OUT
         tok = build_tokens()
-        out.write_text(json.dumps(tok, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        out.write_text(json.dumps(tok, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
         n = sum(1 for _ in iter_leaves(tok))
         print(f"wrote {n} DTCG tokens -> {out}")
         return 0

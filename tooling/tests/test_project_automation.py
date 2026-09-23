@@ -181,7 +181,7 @@ def test_explicit_authority_and_supported_target_required(tmp_path, actor, confi
 
 def test_cli_returns_structured_status(tmp_path):
     repository, record = make_repository(tmp_path)
-    result = subprocess.run([sys.executable, "-m", "tooling.superversion.project_package.automation", "--repository", str(repository.root), "--schemas", str(SCHEMAS), "--project-ref", "project_demo", "--revision", record.revision_hash], cwd=ROOT, capture_output=True, text=True, check=True)
+    result = subprocess.run([sys.executable, "-m", "tooling.superversion.project_package.automation", "--repository", str(repository.root), "--schemas", str(SCHEMAS), "--project-ref", "project_demo", "--revision", record.revision_hash], cwd=ROOT, capture_output=True, text=True, check=True, encoding="utf-8", errors="replace")
     response = json.loads(result.stdout)
     assert response["ok"] is True
     assert response["value"]["revision_hash"] == record.revision_hash

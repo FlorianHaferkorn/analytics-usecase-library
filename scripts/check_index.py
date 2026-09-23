@@ -61,7 +61,7 @@ def _git_ignored_prefixes(root: Path) -> "set[Path]":
             ["git", "-C", str(root), "ls-files", "--others", "--ignored",
              "--exclude-standard", "--directory", "-z"],
             capture_output=True, text=True, timeout=30, check=True,
-        ).stdout
+            encoding="utf-8", errors="replace").stdout
     except Exception:
         return set()
     return {(root / p).resolve() for p in out.split("\0") if p}
@@ -187,7 +187,36 @@ def _owned_code_files(d: Path, text: str, index_dirs: set[Path]) -> list[Path]:
     return out
 
 
-def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> None:
+ADVISORY_FILE = ".claude-completeness-advisory"
+ADVISORY_DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})\s*$")
+
+
+def advisory_state() -> tuple[str, str]:
+    """Ist die Vollständigkeitsprüfung befristet auf advisory gestellt? → (zustand, detail).
+
+    Der Zweck ist ein BEFRISTETES Experiment (docs/MEASUREMENT.md, „billigere Alternative"):
+    drei Monate beobachten, ob ohne Zwang etwas fehlt, statt 30–40 Messläufe zu bezahlen.
+    Deshalb trägt die Datei ein Ablaufdatum und läuft von selbst aus — eine Abschaltung ohne
+    Enddatum wäre keine Beobachtung, sondern eine stille Abschaffung.
+
+    Fail-closed: ein unlesbares Datum stuft NICHTS herab, sondern ist ein harter Befund. Ein
+    Tippfehler darf das Gate nicht versehentlich entschärfen."""
+    f = REPO_ROOT / ADVISORY_FILE
+    if not f.is_file():
+        return ("off", "")
+    for ln in f.read_text(encoding="utf-8", errors="replace").splitlines():
+        s = ln.strip()
+        if not s or s.startswith("#"):
+            continue
+        m = ADVISORY_DATE_RE.match(s)
+        if not m:
+            return ("invalid", s[:40])
+        return ("active" if m.group(1) >= _dt.date.today().isoformat() else "expired", m.group(1))
+    return ("invalid", "(leer)")
+
+
+def check_completeness(root: Path, indexes: list[Path], errors: list[str],
+                       warnings: list[str] | None = None, advisory_until: str = "") -> None:
     index_dirs = {idx.parent.resolve() for idx in indexes}
     cache = {idx.parent.resolve(): idx.read_text(encoding="utf-8", errors="replace") for idx in indexes}
     entries_cache = {d: _register_entries(t) for d, t in cache.items()}
@@ -205,6 +234,10 @@ def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> No
     for d, text in cache.items():
         governed[d].extend(_owned_code_files(d, text, index_dirs))
     basename_counts = {d: Counter(f.name for f in files) for d, files in governed.items()}
+    # Nur die VOLLSTÄNDIGKEIT wird herabgestuft — Pfade und Anker bleiben hart. Ein toter Link
+    # ist ein Defekt, kein Pflegerückstand; das Experiment fragt allein nach dem Pflege-Zwang.
+    sink = errors if not advisory_until else (warnings if warnings is not None else errors)
+    tail = f"  (advisory bis {advisory_until})" if advisory_until else ""
 
     for md in root.rglob("*.md"):
         if md.name == "_INDEX.md" or ignored(md) or _non_navigated(md):
@@ -216,7 +249,7 @@ def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> No
         unique = basename_counts[owner][md.name] == 1
         if not _registered(rel, entries_cache[owner], unique):
             idx_rel = (owner / "_INDEX.md").relative_to(REPO_ROOT)
-            errors.append(f"[Vollständigkeit] {md.relative_to(REPO_ROOT)} fehlt im {idx_rel}")
+            sink.append(f"[Vollständigkeit] {md.relative_to(REPO_ROOT)} fehlt im {idx_rel}{tail}")
     # owns: Code-/Glob-Completeness — HART, aber nur wo ein Index `owns:` deklariert (opt-in).
     for d, text in cache.items():
         for f in _owned_code_files(d, text, index_dirs):
@@ -224,12 +257,33 @@ def check_completeness(root: Path, indexes: list[Path], errors: list[str]) -> No
             unique = basename_counts[d][f.name] == 1
             if not _registered(rel, entries_cache[d], unique):
                 idx_rel = (d / "_INDEX.md").relative_to(REPO_ROOT)
-                errors.append(f"[Vollständigkeit/owns] {f.relative_to(REPO_ROOT)} "
-                              f"(owns: {', '.join(_owns_globs(text))}) fehlt im {idx_rel}")
+                sink.append(f"[Vollständigkeit/owns] {f.relative_to(REPO_ROOT)} "
+                            f"(owns: {', '.join(_owns_globs(text))}) fehlt im {idx_rel}{tail}")
+
+
+def _strip_fences(text: str) -> str:
+    """Fenced Code-Blöcke (``` / ~~~) entfernen, BEVOR Backtick-Tokens gelesen werden.
+
+    Ohne das zerstört ein einziger Fence die Backtick-PAARUNG für den gesamten Rest der
+    Datei: die dritte Backtick des öffnenden Fence paart mit der ersten des schließenden,
+    der halbe Block wird EIN Token, und jedes danach folgende `pfad.md` fällt in die Lücke
+    zwischen zwei Tokens — wird also nicht mehr geprüft. Ein kaputter Pfad hinter einem
+    Fence rutschte damit UNBEMERKT durch das harte Gate. Die Kit-eigene Vorlage
+    (templates/_INDEX.area.md, Abschnitt „Schichtenmodell") enthält genau so einen Fence,
+    d. h. der Fehler betraf jeden daraus erzeugten Index. Ein unterminierter Fence gilt
+    wie im Markdown-Renderer bis zum Dateiende als Code."""
+    out, in_fence = [], False
+    for ln in text.splitlines():
+        if re.match(r"^\s*(```|~~~)", ln):
+            in_fence = not in_fence
+            continue
+        if not in_fence:
+            out.append(ln)
+    return "\n".join(out)
 
 
 def check_paths(index: Path, errors: list[str]) -> None:
-    for raw in PATH_RE.findall(index.read_text(encoding="utf-8", errors="replace")):
+    for raw in PATH_RE.findall(_strip_fences(index.read_text(encoding="utf-8", errors="replace"))):
         ref = raw.strip()
         if not ref or "/" not in ref or "{{" in ref or "*" in ref or ref.startswith(("http://", "https://")):
             continue
@@ -268,7 +322,7 @@ def check_placeholders(path: Path, strict: bool, errors: list[str], warnings: li
 def check_routing_quality(index: Path, warnings: list[str]) -> None:
     """C/D: Routing-Qualität (advisory) — Lazy-Fill (identische lies-wenn-Zellen),
     Register-Docs ohne Task-Routing-Zeile, und zu große Flach-Register (>20)."""
-    text = index.read_text(encoding="utf-8", errors="replace")
+    text = _strip_fences(index.read_text(encoding="utf-8", errors="replace"))
     rel = index.relative_to(REPO_ROOT)
     pathcount = Counter(p.strip() for p in PATH_RE.findall(text))
     reg_paths, liesvals = [], []
@@ -336,6 +390,37 @@ def check_dupes(root: Path, warnings: list[str]) -> None:
                             f"aus dem Gate ausgenommen; prüfen/löschen")
 
 
+CONTEXT_LINE_BUDGET = 200   # Anthropic-Guidance für CLAUDE.md; hier auch auf die GOI angewandt
+COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def _loaded_lines(text: str) -> int:
+    """Zeilen, die tatsächlich in den Kontext gelangen — nicht die rohe Dateilänge.
+
+    Block-HTML-Kommentare werden von Claude Code VOR der Injektion entfernt (verifiziert,
+    docs/RESEARCH_2026-08.md F9), YAML-Frontmatter ebenso. Beides roh mitzuzählen würde
+    Pflegehinweise wie Kontext bepreisen und die Vorlagen des Kits (großer Kommentar-Header)
+    fälschlich als zu groß melden."""
+    text = FRONT_RE.sub("", text, count=1)
+    text = COMMENT_RE.sub("", text)
+    return sum(1 for ln in text.splitlines() if ln.strip())
+
+
+def check_context_size(path: Path, warnings: list[str]) -> None:
+    """D-8/GR4: Länge ist der einzige breit gestützte Negativhebel bei Kontextdateien
+    (docs/RESEARCH_2026-08-graphs.md G5.11). Bewusst ADVISORY, nie hart: die Evidenzlage
+    trägt eine Faustregel, keinen Blocker — und ein Zeilenlimit sagt nichts über Qualität.
+    Gilt für die ANWEISUNGS-Schicht (CLAUDE.md/GOI/Regeln), nicht für `_INDEX.md`: Indizes
+    wachsen mit dem Repo und werden nicht bei jedem Sessionstart komplett geladen."""
+    if not path.is_file():
+        return
+    n = _loaded_lines(path.read_text(encoding="utf-8", errors="replace"))
+    if n > CONTEXT_LINE_BUDGET:
+        warnings.append(f"[Größe] {path.relative_to(REPO_ROOT)}: ~{n} geladene Zeilen "
+                        f"(> {CONTEXT_LINE_BUDGET}) — lädt bei JEDEM Sessionstart. Kürzen oder "
+                        f"Situatives in eine Referenz-/Skill-Datei auslagern.")
+
+
 def check_staleness(index: Path, warnings: list[str]) -> None:
     rel = index.relative_to(REPO_ROOT)
     fm = _frontmatter(index.read_text(encoding="utf-8", errors="replace"))
@@ -362,7 +447,7 @@ def _git_last_commit_date(rel_dir: Path, exclude: str | None = None) -> _dt.date
     if exclude:
         args.append(f":(exclude){rel_dir}/{exclude}")
     try:
-        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5)
+        r = subprocess.run(args, cwd=REPO_ROOT, capture_output=True, text=True, timeout=5, encoding="utf-8", errors="replace")
         s = r.stdout.strip()
         return _dt.date.fromisoformat(s) if s else None
     except Exception:
@@ -421,8 +506,19 @@ def main(argv: list[str]) -> int:
     indexes = find_indexes(root)
     errors: list[str] = []
     warnings: list[str] = []
+    state, detail = advisory_state()
+    advisory_until = detail if state == "active" else ""
+    if state == "invalid":
+        errors.append(f"[Advisory] {ADVISORY_FILE}: erste inhaltliche Zeile muss ein Ablaufdatum "
+                      f"JJJJ-MM-TT sein (gefunden: {detail!r}). Ohne klares Ende wird nichts "
+                      f"herabgestuft — Datum korrigieren oder Datei löschen.")
+    elif state == "expired":
+        warnings.append(f"[Advisory] Die Advisory-Phase endete am {detail}; die "
+                        f"Vollständigkeitsprüfung ist wieder HART. Jetzt entscheiden und im "
+                        f"Ledger festhalten: behalten (Datei löschen) oder streichen — nicht "
+                        f"verlängern, sonst war es keine Beobachtung.")
     if indexes:
-        check_completeness(root, indexes, errors)
+        check_completeness(root, indexes, errors, warnings, advisory_until)
         check_unindexed_areas(root, indexes, warnings)
         check_dupes(root, warnings)
         for idx in indexes:
@@ -437,6 +533,16 @@ def main(argv: list[str]) -> int:
     # CLAUDE.md/GOI IMMER auf Platzhalter prüfen (auch ohne _INDEX — sonst keine Stub-Durchsetzung).
     for f in ("CLAUDE.md", "GOI_DOKTRIN.md"):
         check_placeholders(REPO_ROOT / f, strict, errors, warnings)
+    # Größen-Advisory auf der Anweisungs-Schicht (alles, was bei jedem Sessionstart lädt).
+    for f in ("CLAUDE.md", "GOI_DOKTRIN.md", ".claude/CLAUDE.md"):
+        check_context_size(REPO_ROOT / f, warnings)
+    for rule in sorted((REPO_ROOT / ".claude" / "rules").glob("*.md")):
+        check_context_size(rule, warnings)
+    if advisory_until:
+        n = sum(1 for w in warnings if w.startswith("[Vollständigkeit"))
+        warnings.append(f"[Advisory] Vollständigkeitsprüfung bis {advisory_until} advisory "
+                        f"({n} Befund(e) herabgestuft, sonst hart). Beobachten, ob dadurch "
+                        f"etwas fehlt — danach entscheiden, nicht verlängern.")
     for w in warnings:
         print("WARN  " + w)
     for e in errors:

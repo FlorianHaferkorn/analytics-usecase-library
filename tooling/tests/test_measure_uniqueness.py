@@ -51,7 +51,7 @@ kpi_ids:
 
 def write_catalog(tmp_path: Path) -> Path:
     p = tmp_path / "KPI_Catalog.md"
-    p.write_text(CATALOG_SAMPLE)
+    p.write_text(CATALOG_SAMPLE, encoding="utf-8")
     return p
 
 
@@ -59,7 +59,7 @@ def write_bracket(tmp_path: Path, uc_dir: str, content: str) -> Path:
     d = tmp_path / "usecases" / uc_dir
     d.mkdir(parents=True)
     p = d / "UseCase_Bracket.yaml"
-    p.write_text(content)
+    p.write_text(content, encoding="utf-8")
     return tmp_path / "usecases"
 
 

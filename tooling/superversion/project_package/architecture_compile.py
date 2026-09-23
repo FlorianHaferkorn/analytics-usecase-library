@@ -97,6 +97,19 @@ def compile_architecture(compiler_input: dict[str, Any], revision_hash: str) -> 
         for dependency in item["depends_on"]:
             edges.append({"id": "dependency:" + dependency + ":" + item["id"], "source": "item:" + dependency,
                           "target": "item:" + item["id"], "kind": "dependency", "label": "Required before"})
+    batch = modules.get("batch_ingestion")
+    if batch:
+        from .batch_ingestion import describe_contract
+        batch_view = describe_contract(batch)
+        blockers.extend("batch_ingestion:" + reason for reason in batch_view["blockers"])
+        prefix = "batch:" + batch["id"] + ":"
+        for node in batch_view["graph"]["nodes"]:
+            nodes.append({**node, "id": prefix + node["id"], "domain_ref": batch["domain"],
+                          "use_case_ref": "batch:" + batch["id"],
+                          "details": {"contract_ref": batch["id"], "scope": "local_batch_contract_not_deployed_fabric_item",
+                                      "description": node["details"]}})
+        for edge in batch_view["graph"]["edges"]:
+            edges.append({**edge, "id": prefix + edge["id"], "source": prefix + edge["source"], "target": prefix + edge["target"]})
     all_ids = [node["id"] for node in nodes]
     if len(all_ids) != len(set(all_ids)) or any(edge["source"] not in all_ids or edge["target"] not in all_ids for edge in edges):
         raise ValueError("Architecture has duplicate identifiers or unresolved physical references")

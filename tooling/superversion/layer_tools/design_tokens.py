@@ -201,7 +201,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     if args.write:
         _OUT.parent.mkdir(parents=True, exist_ok=True)
-        _OUT.write_text(neu, encoding="utf-8")
+        _OUT.write_text(neu, encoding="utf-8", newline="\n")
         print(f"[design-tokens] geschrieben: {_OUT.relative_to(_REPO_ROOT)}")
         return 0
 

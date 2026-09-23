@@ -28,7 +28,7 @@ def _set_schema(path: Path, schema: str, *, dry_run: bool) -> bool:
         return False
     if not dry_run:
         data["$schema"] = schema
-        path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     return True
 
 

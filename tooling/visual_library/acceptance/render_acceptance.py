@@ -273,7 +273,7 @@ def load_matrix() -> dict:
 
 def write_matrix() -> dict:
     m = compute_validation_matrix()
-    MATRIX_PATH.write_text(json.dumps(m, indent=2) + "\n", encoding="utf-8")
+    MATRIX_PATH.write_text(json.dumps(m, indent=2) + "\n", encoding="utf-8", newline="\n")
     return m
 
 
@@ -336,13 +336,13 @@ def materialize(out_dir: Path) -> dict:
     # powerbi_native — a visual.json fragment ready for a PBIR page
     nat = REPRESENTATIVE["powerbi_native"]
     nat_out, _ = render.render(nat, "powerbi_native")
-    (out_dir / f"{nat}.visual.json").write_text(nat_out, encoding="utf-8")
+    (out_dir / f"{nat}.visual.json").write_text(nat_out, encoding="utf-8", newline="\n")
     manifest["artifacts"]["powerbi_native"] = {"file": f"{nat}.visual.json", "gated": "Desktop load"}
 
     # powerbi_svg_dax — the DAX, and a pointer to the engine-validated UDF harness
     dax = REPRESENTATIVE["powerbi_svg_dax"]
     dax_out, _ = render.render(dax, "powerbi_svg_dax")
-    (out_dir / f"{dax}.dax").write_text(dax_out, encoding="utf-8")
+    (out_dir / f"{dax}.dax").write_text(dax_out, encoding="utf-8", newline="\n")
     manifest["artifacts"]["powerbi_svg_dax"] = {
         "file": f"{dax}.dax",
         "engine_validation": "products/fabric/powerbi/tooling/dax_udf/validate/acceptance.dax",
@@ -351,10 +351,10 @@ def materialize(out_dir: Path) -> dict:
 
     # web_recharts — a self-contained HTML harness (browser-gated)
     rc = REPRESENTATIVE["web_recharts"]
-    (out_dir / f"{rc}.recharts.html").write_text(_recharts_html(rc), encoding="utf-8")
+    (out_dir / f"{rc}.recharts.html").write_text(_recharts_html(rc), encoding="utf-8", newline="\n")
     manifest["artifacts"]["web_recharts"] = {"file": f"{rc}.recharts.html", "gated": "browser render"}
 
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8", newline="\n")
     return manifest
 
 

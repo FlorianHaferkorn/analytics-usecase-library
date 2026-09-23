@@ -37,7 +37,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from pathlib import Path, PurePath, PureWindowsPath
+from pathlib import Path, PurePath
 from typing import Optional
 
 from tooling.superversion.canonical_contract import CanonicalModel
@@ -118,40 +118,70 @@ def _executable_command(executable: str, *args: str) -> list[str]:
     return [executable, *args]
 
 
-def _ist_wsl_starter(pfad: str, system32_bash: PurePath) -> bool:
-    """Ist `pfad` der WSL-Starter `System32\\bash.exe`?
+#: The Windows system directory under any of its aliases.  ``Sysnative`` and
+#: ``SysWOW64`` reach the *same* ``bash.exe``; comparing against the literal
+#: ``System32`` path alone lets the WSL launcher back in through either alias.
+_WINDOWS_SYSTEM_DIRS = {"system32", "sysnative", "syswow64"}
 
-    Zwei Vergleiche, und der zweite ist der bisherige. Der ERSTE ist lexikalisch und
-    braucht kein Windows: `Path(...).resolve()` loest gegen das laufende Dateisystem
-    auf, und ein Windows-Pfad auf Linux wird dabei zu einem Namen mit Backslashes
-    relativ zum Arbeitsverzeichnis — zwei Schreibweisen desselben Pfades ergaben so
-    zwei verschiedene Ergebnisse, und die Pruefung sagte „kein WSL-Starter", obwohl es
-    genau einer war. Gemessen 08.09.2026: `test_resolve_bash_rejects_wsl_launcher_
-    without_distribution` konnte auf keinem Linux-Runner gruen werden.
 
-    Der ZWEITE Vergleich bleibt unangetastet, weil er etwas kann, was der erste nicht
-    kann: auf Windows folgt `resolve()` einer Verknuepfung. Ihn zu ersetzen statt zu
-    ergaenzen haette diese Faehigkeit still weggenommen.
+def _is_wsl_launcher(path: str) -> bool:
+    r"""True for ``<Windows>\System32\bash.exe`` and its directory aliases.
+
+    Identified by its directory, not its file name: the name is exactly the one
+    a real bash has, which is the whole problem.  ``windir`` is honoured as well
+    as ``SystemRoot`` — a hard-coded ``C:\Windows`` is wrong on a machine that
+    installed Windows elsewhere.
     """
-    if PureWindowsPath(pfad).as_posix().lower() == system32_bash.as_posix().lower():
+    parent = Path(path).parent
+    if parent.name.lower() not in _WINDOWS_SYSTEM_DIRS:
+        return False
+    root = os.environ.get("SystemRoot") or os.environ.get("windir")
+    if not root:
         return True
-    if os.name != "nt":
-        return False        # ausserhalb von Windows gibt es den Starter nicht
-    return Path(pfad).resolve() == Path(str(system32_bash)).resolve()
+    try:
+        return Path(root).resolve() in Path(path).resolve().parents
+    except OSError:                      # resolve() can raise on odd mounts
+        return True
 
 
 def resolve_bash() -> Optional[str]:
-    """Find a usable `bash` — PATH first, then Git for Windows' default
+    r"""Find a usable `bash` — PATH first, then Git for Windows' default
     install location. Returns None (never raises) if neither exists, so
-    callers can degrade honestly instead of crashing with WinError 2."""
+    callers can degrade honestly instead of crashing with WinError 2.
+
+    Windows exposes ``System32\bash.exe`` as a WSL launcher even when no Linux
+    distribution is installed.  It is not a usable shell in that state and emits
+    UTF-16 diagnostics instead of running the hook.  Worse, ``CreateProcess``
+    searches System32 *before* PATH, so a caller that passes the bare name
+    ``bash`` gets the launcher no matter what ``shutil.which`` reported — guard
+    and run then check different programs.  Always pass the absolute path this
+    returns.
+
+    The same reasoning, plus the ``.cmd``-shim and child-encoding halves of it,
+    lives in the Freelancing repo as ``core/prozess.py``.  Two homes on purpose:
+    that one serves a test suite and its own scripts, this one the smoke runner.
+    Keep them in step when either learns something new.
+    """
     on_path = shutil.which("bash")
-    # Windows exposes System32\bash.exe as a WSL launcher even when no Linux
-    # distribution is installed.  It is not a usable shell in that state and
-    # emits UTF-16 diagnostics instead of running the hook.  Prefer Git Bash or
-    # the honest structural fallback for this specific launcher.
-    system32_bash = PureWindowsPath(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "bash.exe"
-    if on_path and not _ist_wsl_starter(on_path, system32_bash):
-        return on_path
+    if on_path:
+        # Absolut machen, BEVOR irgendetwas geprueft oder zurueckgegeben wird.
+        # `shutil.which` gibt relativ zurueck, wenn der Treffer im aktuellen
+        # Verzeichnis liegt -- aus `C:\\Windows\\System32` heraus etwa
+        # `.\\bash.EXE`. Dann sieht `_is_wsl_launcher` als Verzeichnisnamen nur
+        # `''` und laesst den Starter durch, und der Rueckgabewert umgeht die
+        # Suchreihenfolge nicht, um derentwillen diese Funktion existiert.
+        # Gemessen am 10.09.2026; dieselbe Luecke stand im Freelancing-Repo.
+        # Beide Konventionen: `os.path.isabs("/usr/bin/bash")` ist auf Windows
+        # False, weil der Laufwerksbuchstabe fehlt -- und `resolve()` machte
+        # daraus `C:\\usr\\bin\\bash`.
+        from pathlib import PurePosixPath as _PPP
+        if not (os.path.isabs(on_path) or _PPP(on_path).is_absolute()):
+            try:
+                on_path = str(Path(on_path).resolve())
+            except OSError:
+                pass
+        if not _is_wsl_launcher(on_path):
+            return on_path
     for candidate in _GIT_BASH_FALLBACK_PATHS:
         if candidate.exists():
             return str(candidate)

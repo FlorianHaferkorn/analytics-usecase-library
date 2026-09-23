@@ -233,7 +233,7 @@ def audit_report(report_dir: Path) -> tuple[list[str], list[str]]:
         colors = collect_hex_colors(visual_json)
         if colors:
             hardcoded_color_hits.update(colors)
-            visuals_with_hardcoded_colors.append(str(visual_path.relative_to(report_dir)))
+            visuals_with_hardcoded_colors.append(visual_path.relative_to(report_dir).as_posix())
 
     if visuals_with_theme_objects > 0:
         warnings.append(

@@ -72,7 +72,7 @@ class TestLoadTaxonomy:
     def test_loads_from_file(self, tmp_path):
         tax_dir = tmp_path / "tooling" / "validation"
         tax_dir.mkdir(parents=True)
-        (tax_dir / "_index.yaml").write_text(yaml.dump(SAMPLE_TAXONOMY))
+        (tax_dir / "_index.yaml").write_text(yaml.dump(SAMPLE_TAXONOMY), encoding="utf-8")
         result = load_taxonomy(tmp_path)
         assert result["version"] == "1.0"
         assert "kpi" in result["id_patterns"]
@@ -84,7 +84,7 @@ class TestLoadTaxonomy:
     def test_returns_empty_on_invalid_yaml(self, tmp_path):
         tax_dir = tmp_path / "tooling" / "validation"
         tax_dir.mkdir(parents=True)
-        (tax_dir / "_index.yaml").write_text("{{invalid yaml: [")
+        (tax_dir / "_index.yaml").write_text("{{invalid yaml: [", encoding="utf-8")
         result = load_taxonomy(tmp_path)
         assert result == {}
 

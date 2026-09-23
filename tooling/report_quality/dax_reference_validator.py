@@ -112,7 +112,7 @@ def validate_report_measure_references(dist_root: Path) -> list[Violation]:
                     Violation(
                         "dax-reference:invalid-visual-json",
                         "critical",
-                        str(visual_file.relative_to(dist_root)),
+                        visual_file.relative_to(dist_root).as_posix(),
                         f"Cannot parse visual JSON: {exc}",
                     )
                 )
@@ -123,7 +123,7 @@ def validate_report_measure_references(dist_root: Path) -> list[Violation]:
                     Violation(
                         "dax-reference:missing-measure",
                         "critical",
-                        str(visual_file.relative_to(dist_root)),
+                        visual_file.relative_to(dist_root).as_posix(),
                         "Visual references a measure that is not defined in any TMDL _Measures table",
                         expected="defined TMDL measure",
                         actual=ref,

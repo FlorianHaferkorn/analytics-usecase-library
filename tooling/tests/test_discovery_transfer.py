@@ -23,12 +23,12 @@ def test_transfers_exact_sources_maps_objective_and_resets_working(tmp_path):
     second = transfer_discovery(repository, payload)
     assert second.parent_revision_hash == first.revision_hash
     root = repository.checkout(tmp_path / 'check', second.revision_hash)
-    manifest = yaml.safe_load((root/'package.yaml').read_text())
+    manifest = yaml.safe_load((root/'package.yaml').read_text(encoding="utf-8"))
     assert manifest['state'] == 'working'
-    opportunity = yaml.safe_load((root/next(item['path'] for item in manifest['modules'] if item['module_type']=='opportunity')).read_text())
+    opportunity = yaml.safe_load((root/next(item['path'] for item in manifest['modules'] if item['module_type']=='opportunity')).read_text(encoding="utf-8"))
     assert opportunity['objectives'][-1] == 'Reduce manual reconciliation'
     assert opportunity['scope_status'] == 'draft'
-    dossier = json.loads((root/opportunity['source_refs'][-1]).read_text())
+    dossier = json.loads((root/opportunity['source_refs'][-1]).read_text(encoding="utf-8"))
     assert dossier['status'] == 'proposed'
     assert dossier['sources'][0]['content'] == payload['document']['sources'][0]['content']
     assert dossier['draft_module_mappings'][0]['value'] == opportunity['objectives'][-1]
@@ -58,6 +58,6 @@ def test_dossier_only_does_not_create_objective_or_registry_definition(tmp_path)
     repository, first, payload=setup(tmp_path)
     payload['objectiveKeys']=[]
     second=transfer_discovery(repository,payload)
-    manifest=yaml.safe_load((second.package_root/'package.yaml').read_text())
+    manifest=yaml.safe_load((second.package_root/'package.yaml').read_text(encoding="utf-8"))
     for item in manifest['modules']:
         assert (second.package_root/item['path']).read_bytes()==(first.package_root/item['path']).read_bytes()

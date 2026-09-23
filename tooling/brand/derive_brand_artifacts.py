@@ -128,7 +128,7 @@ def derive_from_spec(
     # ── Step 3: derive CSS variables ────────────────────────
     _log("Deriving CSS custom properties...", verbose)
     try:
-        source_hint = str(spec_path.relative_to(_REPO_ROOT))
+        source_hint = spec_path.relative_to(_REPO_ROOT).as_posix()
     except ValueError:
         source_hint = str(spec_path)
     css_str = spec_to_css(spec, source_hint=source_hint)
@@ -169,7 +169,7 @@ def _write_pbi_theme(
     out_path.write_text(
         json.dumps(pbi_dict, indent=2, ensure_ascii=False),
         encoding="utf-8",
-    )
+        newline="\n")
     _log(f"  PBI theme → {out_path}", verbose)
     return out_path
 
@@ -178,7 +178,7 @@ def _write_css(css_str: str, brand_id: str, out_dir: Path, verbose: bool) -> Pat
     """Write CSS custom properties string to file. Returns the written path."""
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{brand_id}_variables.css"
-    out_path.write_text(css_str, encoding="utf-8")
+    out_path.write_text(css_str, encoding="utf-8", newline="\n")
     _log(f"  CSS vars  → {out_path}", verbose)
     return out_path
 
@@ -205,7 +205,7 @@ def _patch_tool_derivations(
         # Prefer repo-root-relative path (portable); fall back to absolute.
         for anchor in (_REPO_ROOT, spec_path.parent):
             try:
-                return str(p.relative_to(anchor))
+                return p.relative_to(anchor).as_posix()
             except ValueError:
                 continue
         return str(p)
@@ -217,7 +217,7 @@ def _patch_tool_derivations(
     spec_path.write_text(
         yaml.dump(spec, allow_unicode=True, default_flow_style=False, sort_keys=False),
         encoding="utf-8",
-    )
+        newline="\n")
     _log(f"  Patched tool_derivations in {spec_path.name}", verbose)
 
 
@@ -241,7 +241,7 @@ def _write_repo_config(showcase_name: str, verbose: bool) -> None:
     config_path.write_text(
         yaml.dump(config, allow_unicode=True, default_flow_style=False, sort_keys=False),
         encoding="utf-8",
-    )
+        newline="\n")
     _log(f"  repo_config.yaml → showcase_id: {showcase_name}", verbose)
 
 
@@ -254,7 +254,7 @@ def _write_oss_css(css_path: Path, verbose: bool) -> None:
     if not _OSS_THEMES_DIR.is_dir():
         return
     dest = _OSS_THEMES_DIR / "variables.css"
-    dest.write_text(css_path.read_text(encoding="utf-8"), encoding="utf-8")
+    dest.write_text(css_path.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
     _log(f"  OSS CSS   → {dest.relative_to(_REPO_ROOT)}", verbose)
 
 
@@ -282,7 +282,7 @@ def _register_showcase_default(
     config_file.write_text(
         json.dumps(config, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
-    )
+        newline="\n")
     _log(f"  Default theme registered in {config_file.relative_to(_REPO_ROOT)}", verbose)
 
 

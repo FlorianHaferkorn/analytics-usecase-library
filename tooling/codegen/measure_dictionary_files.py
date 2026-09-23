@@ -150,11 +150,11 @@ def cmd_extract(_args) -> int:
                 existing = yaml.safe_load(fp.read_text(encoding="utf-8"))
                 if isinstance(existing, dict) and "$ref" in existing:
                     continue  # preserve a shared-measure reference; do not re-materialise
-            fp.write_text(_dump(e), encoding="utf-8")
+            fp.write_text(_dump(e), encoding="utf-8", newline="\n")
         (mdir / "_index.yaml").write_text(
             yaml.safe_dump({"order": order}, sort_keys=False, allow_unicode=True),
             encoding="utf-8",
-        )
+            newline="\n")
         total += len(order)
         print(f"extract: {md.parent.name:16} {len(order):3} measures -> {mdir}")
     print(f"extract: {total} measures across {len(dict_paths())} dictionaries")
@@ -169,7 +169,7 @@ def cmd_render(_args) -> int:
             default_flow_style=False, width=4096,
         )
         body = re.sub(r"\n- ", "\n\n- ", dumped)
-        md.write_text(_ensure_note(pre) + body + post, encoding="utf-8")
+        md.write_text(_ensure_note(pre) + body + post, encoding="utf-8", newline="\n")
         print(f"render: {md}")
     return 0
 

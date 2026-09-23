@@ -293,9 +293,9 @@ class TestBracketCompiler:
     def test_missing_kpi_produces_warning(self, tmp_dirs, bracket_file):
         tmp_path, kpi_root, ac_root = tmp_dirs
         # Bracket references a KPI that doesn't exist
-        bracket = yaml.safe_load(bracket_file.read_text())
+        bracket = yaml.safe_load(bracket_file.read_text(encoding="utf-8"))
         bracket["primary_kpi_ids"].append("nonexistent.kpi")
-        bracket_file.write_text(yaml.dump(bracket))
+        bracket_file.write_text(yaml.dump(bracket), encoding="utf-8")
 
         compiler = BracketCompiler(kpi_root, ac_root)
         spec = compiler.compile(bracket_file)
@@ -308,11 +308,11 @@ class TestBracketCompiler:
         compiler = BracketCompiler(kpi_root, ac_root)
 
         # Test FIN prefix
-        bracket = yaml.safe_load(bracket_file.read_text())
+        bracket = yaml.safe_load(bracket_file.read_text(encoding="utf-8"))
         bracket["id"] = "FIN-001"
         fin_bracket = bracket_file.parent.parent / "FIN-001_test" / "UseCase_Bracket.yaml"
         fin_bracket.parent.mkdir(parents=True, exist_ok=True)
-        fin_bracket.write_text(yaml.dump(bracket))
+        fin_bracket.write_text(yaml.dump(bracket), encoding="utf-8")
         spec = compiler.compile(fin_bracket)
         assert spec.domain == "Finance"
 

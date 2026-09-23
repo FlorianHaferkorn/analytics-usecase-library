@@ -141,7 +141,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(content, encoding="utf-8")
+    OUTPUT.write_text(content, encoding="utf-8", newline="\n")
     print(f"Written: {OUTPUT}")
     return 0
 

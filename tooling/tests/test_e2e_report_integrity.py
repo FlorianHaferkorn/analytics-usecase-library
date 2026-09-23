@@ -317,7 +317,7 @@ class TestRequiredVisuals:
             except (json.JSONDecodeError, OSError):
                 continue                      # Struktur prüft ein anderer Test
             if (spec.get("visual") or {}).get("visualType") == "smartNarrativeVisual":
-                offenders.append(str(visual_file.relative_to(report_dir)))
+                offenders.append(visual_file.relative_to(report_dir).as_posix())
         assert not offenders, (
             f"{report_name}: deny-gelistetes smartNarrativeVisual in "
             + ", ".join(sorted(offenders))

@@ -100,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     catalog = build_governed_catalog(args.repo_root)
-    args.out.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print(f"governed catalog: {len(catalog['measures'])} measures, {len(catalog['tables'])} tables "
           f"→ {args.out}")
     return 0

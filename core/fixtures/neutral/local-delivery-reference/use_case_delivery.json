@@ -1,0 +1,242 @@
+{
+  "schema_version": "2.0.0",
+  "project_ref": "local_reference",
+  "use_cases": [
+    {
+      "id": "uc_local_sales",
+      "title": "Synthetic sales totals",
+      "domain_ref": "domain_local",
+      "delivery_state": "contract_pending",
+      "business_scope_ref": "synthetic://local_reference/brief.md",
+      "decision_refs": [
+        "decision_environment_model"
+      ],
+      "reference_reports": [],
+      "source_contract": {
+        "canonical": [
+          {
+            "id": "source_sales",
+            "source_system": "synthetic_csv",
+            "source_object": "sales.csv",
+            "purpose": "Fixed synthetic input for local arithmetic checks.",
+            "availability": "extract",
+            "required_for": [
+              "bronze_sales"
+            ],
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://local_reference/brief.md"
+              ],
+              "note": "Synthetic local reference only; not customer approval or tenant evidence."
+            }
+          }
+        ],
+        "fallback": [],
+        "excluded": []
+      },
+      "data_products": [
+        {
+          "id": "bronze_sales",
+          "layer": "bronze",
+          "name": "bronze_sales",
+          "grain": "one source row",
+          "business_keys": [
+            "sale_id"
+          ],
+          "source_refs": [
+            "source_sales"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://local_reference/brief.md"
+            ],
+            "note": "Synthetic local reference only; not customer approval or tenant evidence."
+          }
+        },
+        {
+          "id": "gold_sales",
+          "layer": "gold",
+          "name": "fact_sales_total",
+          "grain": "category",
+          "business_keys": [
+            "category"
+          ],
+          "source_refs": [],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://local_reference/brief.md"
+            ],
+            "note": "Synthetic local reference only; not customer approval or tenant evidence."
+          }
+        },
+        {
+          "id": "semantic_sales",
+          "layer": "semantic",
+          "name": "sm_local_sales",
+          "grain": "category",
+          "business_keys": [
+            "category"
+          ],
+          "source_refs": [
+            "gold_sales"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://local_reference/brief.md"
+            ],
+            "note": "Synthetic local reference only; not customer approval or tenant evidence."
+          }
+        },
+        {
+          "id": "report_sales",
+          "layer": "report",
+          "name": "rpt_local_sales",
+          "grain": "category",
+          "business_keys": [],
+          "source_refs": [
+            "semantic_sales"
+          ],
+          "history": "none",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://local_reference/brief.md"
+            ],
+            "note": "Synthetic local reference only; not customer approval or tenant evidence."
+          }
+        }
+      ],
+      "analytical_design": {
+        "reuse_scope": {"target": "use_case", "rationale": "One isolated synthetic reference."},
+        "key_contract": {
+          "contract_ref": "synthetic://local_reference/keys",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://local_reference/brief.md"
+            ],
+            "note": "Synthetic local reference only; not customer approval or tenant evidence."
+          }
+        },
+        "relationship_assessments": [
+          {
+            "id": "relationship_category",
+            "subject_refs": [
+              "gold_sales",
+              "semantic_sales"
+            ],
+            "business_cardinality": "one_to_one",
+            "time_behavior": "current",
+            "carries_weight": false,
+            "bridge_decision": "not_required",
+            "fact_filter_strategy": "direct_foreign_key",
+            "double_counting_control": "One row per category.",
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://local_reference/brief.md"
+              ],
+              "note": "Synthetic local reference only; not customer approval or tenant evidence."
+            }
+          }
+        ],
+        "glossary": {
+          "business_metric_catalog_ref": "synthetic://local_reference/brief.md",
+          "measure_dictionary_ref": "synthetic://local_reference/totals",
+          "technical_data_dictionary_ref": "synthetic://local_reference/sales.csv",
+          "definition_authority": "business_metric_catalog",
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://local_reference/brief.md"
+            ],
+            "note": "Synthetic local reference only; not customer approval or tenant evidence."
+          }
+        },
+        "status": {
+          "state": "proposed",
+          "evidence_refs": [
+            "synthetic://local_reference/brief.md"
+          ],
+          "note": "Synthetic local reference only; not customer approval or tenant evidence."
+        }
+      },
+      "transformations": [
+        {
+          "id": "transform_sales",
+          "from_layer": "bronze",
+          "to_layer": "gold",
+          "input_refs": [
+            "bronze_sales"
+          ],
+          "output_refs": [
+            "gold_sales"
+          ],
+          "logic": "Validate unique sale_id and non-negative decimal amount, then group by category.",
+          "implementation": "external",
+          "quality_rules": [
+            "unique sale_id",
+            "non-negative amount"
+          ],
+          "status": {
+            "state": "proposed",
+            "evidence_refs": [
+              "synthetic://local_reference/brief.md"
+            ],
+            "note": "Synthetic local reference only; not customer approval or tenant evidence."
+          }
+        }
+      ],
+      "orchestration": {
+        "trigger": "Explicit local reference run",
+        "cadence": "On demand",
+        "incremental_strategy": "Not simulated; full three-row fixture only.",
+        "steps": [
+          {
+            "sequence": 1,
+            "id": "prepare_sales",
+            "name": "Prepare synthetic totals",
+            "implementation": "Local deterministic helper",
+            "success_condition": "Expected category totals match",
+            "failure_action": "Fail the local run",
+            "status": {
+              "state": "proposed",
+              "evidence_refs": [
+                "synthetic://local_reference/brief.md"
+              ],
+              "note": "Synthetic local reference only; not customer approval or tenant evidence."
+            }
+          }
+        ]
+      },
+      "controls": [],
+      "acceptance": {
+        "snapshot_rule": "Fixed versioned sales.csv",
+        "regression_scope": [
+          "totals",
+          "repeat generation",
+          "bindings",
+          "interruptions"
+        ],
+        "evidence_required": [
+          "Local report with hashes"
+        ],
+        "status": {
+          "state": "proposed",
+          "evidence_refs": [
+            "synthetic://local_reference/brief.md"
+          ],
+          "note": "Synthetic local reference only; not customer approval or tenant evidence."
+        }
+      },
+      "open_gates": []
+    }
+  ]
+}

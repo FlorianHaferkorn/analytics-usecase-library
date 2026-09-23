@@ -20,7 +20,8 @@ export function usePinnedProject() {
         if (!response.ok) throw new Error(data.error?.message ?? `Project version unavailable (${response.status})`);
         const value = data as ProjectProjection;
         if (value.projectId !== projectId || (revision && value.revision.revision_hash !== revision)) throw new Error('Project version mismatch');
-        if (controller.signal.aborted || useProjectStore.getState().projectId !== projectId) return;
+        const selected = useProjectStore.getState();
+        if (controller.signal.aborted || selected.projectId !== projectId || selected.packageRevisionHash !== revision) return;
         setResult({key:`${projectId}:${value.revision.revision_hash}`,value});
         useProjectStore.getState().setPackageRevisionHash(value.revision.revision_hash);
       }).catch(error => { if (!controller.signal.aborted) setResult({key,error:error instanceof Error ? error.message : 'Unable to load project'}); });

@@ -181,7 +181,7 @@ def _add_use_case_delivery(root: Path, modules: list[dict]) -> dict:
 
 
 def test_all_project_package_schemas_are_closed_draft_2020_12() -> None:
-    assert len(PROJECT_SCHEMAS) == 12
+    assert len(PROJECT_SCHEMAS) == 13
     for path in PROJECT_SCHEMAS:
         schema = json.loads(path.read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)

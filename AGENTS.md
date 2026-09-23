@@ -75,7 +75,8 @@ Run all scripts from the **repository root**.
 |---|---|---|
 | Indentation | Tabs only | Spaces |
 | DAX assignment | `=` | `:=` |
-| Measure docs | `/// Purpose: ...` comment above | `description:` property |
+| Measure docs | `/// Purpose: ...` comment above **and** `description:` property | comment only (invisible to Copilot) |
+| Description length | <= 200 chars (Copilot truncates) | longer prose |
 | Numeric columns | Always include `summarizeBy: none` | Omit summarizeBy |
 | Measure formatting | Always include `formatString` | Omit formatString |
 

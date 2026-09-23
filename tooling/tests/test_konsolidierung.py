@@ -120,7 +120,7 @@ def test_one_resolver_for_lu_to_pixels():
     """
     formel = re.compile(r"outer.*\+.*col.*\*.*\(.*lu_w.*\+.*gutter", re.I)
     stellen = [
-        str(f.relative_to(_ROOT))
+        f.relative_to(_ROOT).as_posix()
         for f in _relevante_dateien()
         if formel.search(f.read_text(encoding="utf-8", errors="replace"))
     ]

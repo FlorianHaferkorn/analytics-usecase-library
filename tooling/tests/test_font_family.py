@@ -31,7 +31,7 @@ def test_theme_with_governed_faces_is_clean(tmp_path):
     t = tmp_path / "clean.json"
     t.write_text(json.dumps({"textClasses": {
         "title": {"fontFace": "Segoe UI"}, "callout": {"fontFace": "DIN"},
-        "label": {"fontFace": "Segoe UI Light"}}}))
+        "label": {"fontFace": "Segoe UI Light"}}}), encoding="utf-8")
     assert ungoverned_in_theme(t) == set()   # DIN + Segoe UI both governed
 
 
@@ -39,7 +39,7 @@ def test_ungoverned_family_is_flagged(tmp_path):
     import json
     t = tmp_path / "drift.json"
     t.write_text(json.dumps({"textClasses": {
-        "title": {"fontFace": "Segoe UI"}, "callout": {"fontFace": "Comic Sans MS"}}}))
+        "title": {"fontFace": "Segoe UI"}, "callout": {"fontFace": "Comic Sans MS"}}}), encoding="utf-8")
     assert ungoverned_in_theme(t) == {"Comic Sans MS"}
 
 

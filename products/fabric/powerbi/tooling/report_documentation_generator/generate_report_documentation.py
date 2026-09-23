@@ -403,7 +403,7 @@ def main() -> None:
             out = parent / f"Report_Documentation_{use_case_id}.md"
 
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(md, encoding="utf-8")
+    out.write_text(md, encoding="utf-8", newline="\n")
     print(f"Written: {out}")
 
 

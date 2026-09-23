@@ -90,7 +90,7 @@ def enrich_file(path: Path, repo_root: Path) -> bool:
     text = path.read_text(encoding="utf-8")
     new = enrich_text(text, repo_root)
     if new != text:
-        path.write_text(new, encoding="utf-8")
+        path.write_text(new, encoding="utf-8", newline="\n")
         return True
     return False
 

@@ -203,7 +203,7 @@ def test_loader_reads_custom_snapshot(tmp_path: Path) -> None:
                 },
             }
         )
-    )
+    , encoding="utf-8")
     assert am.is_available(path=snap) is True
     assert am.required_roles("lineChart", path=snap) == ["Category", "Y"]
     assert am.is_known_role("lineChart", "Y", path=snap) is True

@@ -38,5 +38,5 @@ def test_bundle_resolve_runs_standalone(tmp_path):
     r = subprocess.run(
         [sys.executable, str(b / "tooling" / "visual_library" / "resolve.py"), "audit", str(v)],
         capture_output=True, text=True, timeout=60,
-    )
+        encoding="utf-8", errors="replace")
     assert r.returncode == 1 and "DENIED" in r.stdout  # denied -> non-zero, useful in CI

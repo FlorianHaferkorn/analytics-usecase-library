@@ -95,6 +95,11 @@ def build_compiler_input(package_root: Path, schema_root: Path) -> dict[str, Any
                 if "use_case_delivery" in singleton_modules
                 else {}
             ),
+            **(
+                {"batch_ingestion": singleton_modules["batch_ingestion"]}
+                if "batch_ingestion" in singleton_modules
+                else {}
+            ),
         },
         "readiness": {
             "decision_ready": decision_ready,

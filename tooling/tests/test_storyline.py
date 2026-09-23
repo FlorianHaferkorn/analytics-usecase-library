@@ -42,10 +42,11 @@ def test_json_contract_validates_against_schema():
     """The structured storyline (--json) is the generator/LLM contract — it must validate."""
     import json
     import importlib.util
-    try:
-        import jsonschema
-    except ImportError:
-        return  # optional dep; schema still shipped
+    # Kein stiller `return`: der Test waere dann gruen, ohne etwas geprueft zu
+    # haben -- genau das Muster, das `test_generate_aurora_uc_fin_001` im
+    # Freelancing-Repo monatelang gruen hielt. `jsonschema` steht ohnehin in
+    # requirements.txt; faellt es aus, soll der Lauf es sagen.
+    import jsonschema  # noqa: F401
     spec = importlib.util.spec_from_file_location(
         "derive_storyline", REPO / "tooling/storyline/derive_storyline.py")
     mod = importlib.util.module_from_spec(spec)

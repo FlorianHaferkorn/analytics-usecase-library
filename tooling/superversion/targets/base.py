@@ -117,6 +117,6 @@ def render(stack_id: str, canonical: CanonicalModel, dest: Path) -> list[Path]:
                 f"adapter '{stack_id}'.emit() path '{rel}' escapes the destination"
             )
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(content, encoding="utf-8")
+        p.write_text(content, encoding="utf-8", newline="\n")
         written.append(p)
     return written

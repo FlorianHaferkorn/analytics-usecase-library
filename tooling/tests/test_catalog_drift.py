@@ -57,7 +57,7 @@ TMDL_ONLY_OTIF = (
 
 def write_catalog(tmp_path: Path, content: str) -> Path:
     p = tmp_path / "KPI_Catalog.md"
-    p.write_text(content)
+    p.write_text(content, encoding="utf-8")
     return p
 
 
@@ -65,7 +65,7 @@ def write_tmdl(tmp_path: Path, content: str) -> Path:
     model_dir = tmp_path / "Finance.SemanticModel" / "definition" / "tables"
     model_dir.mkdir(parents=True)
     p = model_dir / "_Measures.tmdl"
-    p.write_text(content)
+    p.write_text(content, encoding="utf-8")
     return p
 
 

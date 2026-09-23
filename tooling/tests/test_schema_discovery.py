@@ -94,7 +94,7 @@ class TestCache:
             cache_file,
         )
         _save_cache({"report": "3.0.0"})
-        payload = json.loads(cache_file.read_text())
+        payload = json.loads(cache_file.read_text(encoding="utf-8"))
         assert "fetched_at" in payload
         assert "_note" in payload
 
@@ -183,7 +183,7 @@ class TestUpdateRegistryComments:
         statuses = [SchemaStatus(name="page", pinned="2.0.0", latest="2.1.0", source="github", behind=True)]
         changed = _update_registry_comments(statuses)
         assert changed
-        updated = registry.read_text()
+        updated = registry.read_text(encoding="utf-8")
         assert "Latest known: 2.1.0" in updated
 
     def test_no_change_when_up_to_date(self, tmp_path, monkeypatch):

@@ -185,11 +185,11 @@ def assemble_inputs_from_repo(repo_root: Path | None = None) -> dict[str, Any]:
             domains.append(
                 {
                     "name": f.stem.replace("_", " ").title().replace(" ", ""),
-                    "data_contract_ref": str(f.relative_to(root)),
+                    "data_contract_ref": f.relative_to(root).as_posix(),
                 }
             )
     silver_ref = (
-        str((contracts_dir).relative_to(root)) if contracts_dir.is_dir() else None
+        (contracts_dir).relative_to(root).as_posix() if contracts_dir.is_dir() else None
     )
     return {"stack": "fabric", "silver_contract_ref": silver_ref, "domains": domains}
 

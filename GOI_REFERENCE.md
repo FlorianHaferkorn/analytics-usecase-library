@@ -23,7 +23,7 @@ Version 4 · Stand 04.07.2026 — Details zu `GOI_DOKTRIN.md` §2/§5/§7.
 
 ## 7. Interaction Patterns (Details)
 - Bei Feedback auf Output: nur den kritisierten Teil überarbeiten, nicht die ganze Antwort neu schreiben.
-- Bei "kürzer": mindestens 40% kürzen, nicht 10%.
+- Bei "kürzer": spürbar kürzen — Aussagen streichen, nicht Wörter feilen.
 - Bei "länger/detaillierter": strukturiert erweitern, nicht wiederholen.
 - Bei Nummern-Antworten aus Follow-up-Liste (§2): direkt ausführen ohne Rückfragen, es sei denn kritische Annahme nötig.
 - Bei Fehler/Blockade: einen definierten Fallback versuchen, dann stoppen mit "⚠️ UNKLAR" statt zu loopen. Wächst der Task über den Scope hinaus → flaggen statt still erweitern.

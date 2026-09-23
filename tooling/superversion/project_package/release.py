@@ -38,6 +38,17 @@ def release_input(repository: ProjectPackageRevisionRepository, project_ref: str
         compiler_input = build_compiler_input(record.package_root, repository.schema_root)
         if not compiler_input["readiness"]["build_ready"]:
             raise ValueError("Release blocked: " + ", ".join(compiler_input["readiness"]["blockers"]))
+        if compiler_input["modules"].get("architecture_input", {}).get("decision_rules"):
+            # Re-evaluate even when an attestation already exists: an earlier
+            # generator version must not bypass the current authority gate.
+            from .decision_derivation import compile_derivation
+
+            derivation = compile_derivation(compiler_input, revision_hash, repository.schema_root)
+            unresolved = [rule for rule in derivation["rules"] if rule["status"] not in {"unchanged", "not_selected"}]
+            if unresolved or derivation["blockers"]:
+                details = [f"{rule['id']}: {rule['status']}" for rule in unresolved]
+                details.extend(derivation["blockers"])
+                raise ValueError("Release blocked: architecture decision effects require review and application: " + "; ".join(details))
         input_hash = canonical_sha256(compiler_input)
         release_root = repository.root.parent / "release-attestations" / repository.root.name
         if release_root.is_symlink() or release_root.parent.is_symlink():

@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import {StudioButton,StudioPanel} from '@/components/ui/studio-page';
 import type {DeploymentPlan,DeploymentReadback} from '@/lib/bridge/project-deployment';
 import styles from './project-automation.module.css';
+import {ProjectRunner} from './project-runner';
 
 export function ProjectDeployment({projectId,revision}:{projectId:string;revision:string}) {
   const [tenant,setTenant]=useState('');const [environment,setEnvironment]=useState('');
@@ -40,9 +41,9 @@ export function ProjectDeployment({projectId,revision}:{projectId:string;revisio
     const url=URL.createObjectURL(new Blob([JSON.stringify({plan,readback},null,2)],{type:'application/json'}));
     const link=document.createElement('a');link.href=url;link.download=`${projectId}-workspace-plan-${plan.plan_sha256.slice(0,12)}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
-  return <>
-    <StudioPanel title="Workspace deployment preflight" description="Compare the released workspace contract with explicit target evidence. This view cannot create, update or delete tenant resources.">
-      <p className={styles.note}>Live execution still needs a trusted runner identity and an exact, separately approved plan. Uploaded evidence is checked for freshness and consistency; this is not an independent live tenant check.</p>
+  return <ProjectRunner key={`${projectId}:${revision}`} projectId={projectId} revision={revision} plan={plan}>
+    <StudioPanel title="Workspace deployment preflight" description="Compare the released workspace contract with explicit target evidence. Planning does not create, update or delete tenant resources.">
+      <p className={styles.note}>Execution requires the separately approved plan and protected host below. Uploaded evidence is checked for freshness and consistency; this is not an independent live tenant check.</p>
       <div className={styles.inputs}>
         <label>Target tenant ID<input value={tenant} onChange={e=>{invalidate();setTenant(e.target.value);}} placeholder="Tenant UUID" /></label>
         <label>Environment<input value={environment} onChange={e=>{invalidate();setEnvironment(e.target.value);}} placeholder="Exact environment from the Package" /></label>
@@ -59,5 +60,5 @@ export function ProjectDeployment({projectId,revision}:{projectId:string;revisio
       {readback&&<div role="status"><h3>{readback.workspace_match?'Workspace contracts match the supplied evidence':'Workspace differences found'}</h3><ul>{readback.results.map(result=><li key={result.id}>{result.id}: {result.state}</li>)}</ul><p>Item definitions, data quality, security and business acceptance are not verified by this comparison.</p></div>}
       <details className={styles.fileDetails}><summary>Adapter coverage and exclusions</summary><ul className={styles.gaps}>{plan.capabilities.map(capability=><li key={capability.family}><strong>{capability.family}: {capability.status}</strong> · {capability.reason}</li>)}</ul></details>
     </StudioPanel>}
-  </>;
+  </ProjectRunner>;
 }

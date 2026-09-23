@@ -91,11 +91,11 @@ def cmd_extract(_args) -> int:
             raise SystemExit(f"duplicate kpi_id in catalog: {kid}")
         seen.add(kid)
         order.append(kid)
-        (KPIS_DIR / f"{kid}.yaml").write_text(_dump(e), encoding="utf-8")
+        (KPIS_DIR / f"{kid}.yaml").write_text(_dump(e), encoding="utf-8", newline="\n")
     INDEX.write_text(
         yaml.safe_dump({"order": order}, sort_keys=False, allow_unicode=True),
         encoding="utf-8",
-    )
+        newline="\n")
     print(f"extract: wrote {len(order)} KPI files + _index.yaml to {KPIS_DIR}")
     return 0
 
@@ -117,7 +117,7 @@ def cmd_render(_args) -> int:
         default_flow_style=False, width=4096,
     )
     body = re.sub(r"\n- ", "\n\n- ", dumped)  # blank line between top-level entries
-    MD_PATH.write_text(_ensure_note(pre) + body + post, encoding="utf-8")
+    MD_PATH.write_text(_ensure_note(pre) + body + post, encoding="utf-8", newline="\n")
     print(f"render: regenerated {MD_PATH} from {KPIS_DIR}")
     return 0
 

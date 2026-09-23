@@ -14,6 +14,13 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
+  /** Server-signed sign-in provenance; absent on older sessions. */
+  authentication?: {
+    provider: string;
+    providerAccountId: string;
+    authenticatedAt: number;
+    method: string;
+  };
 }
 
 /**
@@ -24,10 +31,14 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const session = await auth();
   if (!session?.user?.email) return null;
 
+  const authentication = (session as unknown as Record<string, unknown>).authentication;
   return {
     id: (session.user as Record<string, unknown>).id as string ?? session.user.email,
     email: session.user.email,
     name: session.user.name ?? session.user.email.split('@')[0],
+    ...(authentication && typeof authentication === 'object'
+      ? { authentication: authentication as SessionUser['authentication'] }
+      : {}),
   };
 }
 

@@ -61,7 +61,7 @@ def fetch_schema(url: str, *, cache_dir: Path = DEFAULT_CACHE_DIR, force: bool =
         logger.warning("Could not fetch schema %s: %s", url, exc)
         return None
 
-    cached.write_text(json.dumps(schema, indent=2) + "\n", encoding="utf-8")
+    cached.write_text(json.dumps(schema, indent=2) + "\n", encoding="utf-8", newline="\n")
     return schema
 
 
@@ -118,7 +118,7 @@ def validate_json_file(
 ) -> list[Violation]:
     """Validate one JSON/PBIR file against its declared `$schema`."""
 
-    rel = str(path.relative_to(root)) if root else str(path)
+    rel = path.relative_to(root).as_posix() if root else str(path)
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:

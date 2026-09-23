@@ -20,11 +20,14 @@ seine Regeln gruen meldet, ist schlimmer als keiner.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 SPERRLISTE = ".kundendaten-sperrliste.json"
@@ -38,12 +41,69 @@ BINAER = {
 
 MAX_BYTES = 2_000_000
 
+# Eingebaute Regel, unabhaengig von der Sperrliste -- und mit Absicht so.
+# Die Sperrliste ist gitignoriert; ein frischer Klon haette diese Regel sonst
+# nicht. Ein Kundenname ist ersetzbar, eine Tenant-GUID nicht: sie identifiziert
+# den Mandanten eindeutig und ueberdauert jede Umbenennung.
+#
+# Warum nicht einfach "jede GUID": gemessen am 14.09.2026 stehen 1844 bzw. 1758
+# GUID-Vorkommen in versionierten Textdateien beider Repositories, fast alle
+# `lineageTag` aus TMDL. Eine pauschale Regel waere zu 99 % Fehlalarm und nach
+# einer Woche abgeschaltet.
+#
+# Deshalb zwei Einschraenkungen, die zusammen trennscharf sind:
+#   1. nur Prosa (.md/.txt/.rst/.adoc) -- ein Lineage-Tag steht in .tmdl,
+#   2. nur wenn dieselbe Zeile die GUID als Kennung ausweist.
+# Gemessen ergab das 1 Fund hier und 7 drueben, davon 3 Platzhalter.
+GUID_DATEIEN = ("*.md", "*.txt", "*.rst", "*.adoc")
+GUID_ROH = (r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}"
+            r"-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+# Zwei Teile, weil ein Muster beides nicht kann. Der Lookahead
+# `(?=.*\btenant\b)` wird an der Fundstelle ausgewertet und schaut nach vorn --
+# das Schluesselwort steht aber meist davor ("| Tenant | <guid> |"). Ein Muster
+# ueber die ganze Zeile haette wiederum die Zeile als Treffer gemeldet statt der
+# GUID, womit Entdopplung und Ausnahmeliste unbrauchbar waeren.
+#
+# Also: die Regel findet die GUID, die Zeilenbedingung entscheidet, ob sie eine
+# Kennung ist. `(?!(?:([0-9a-fA-F])\1{7})-)` nimmt Vorlagen aus -- acht gleiche
+# Zeichen im ersten Block wie `11111111-...` kommen echt nicht vor.
+MANDANTENKENNUNG = re.compile(r"(?!(?:([0-9a-fA-F])\1{7})-)" + GUID_ROH)
+KENNUNG = re.compile(
+    r"\b(?:tenant|tenant[-_ ]?id|mandant|app[-_ ]?id|application[-_ ]?id|"
+    r"client[-_ ]?id|principal|service[-_ ]?principal|directory[-_ ]?id|"
+    r"object[-_ ]?id|subscription[-_ ]?id|group[-_ ]?id)\b|\bsg-", re.I)
+
+# Eingebaute Regel, unabhaengig von der Sperrliste -- und mit Absicht so.
+# Die Sperrliste ist gitignoriert; ein frischer Klon haette diese Regel sonst
+# nicht. Ein Kundenname ist ersetzbar, eine Tenant-GUID nicht: sie identifiziert
+# den Mandanten eindeutig und ueberdauert jede Umbenennung.
+#
+# Warum nicht einfach "jede GUID": gemessen am 14.09.2026 stehen 1844 bzw. 1758
+# GUID-Vorkommen in versionierten Textdateien beider Repositories, fast alle
+# `lineageTag` aus TMDL. Eine pauschale Regel waere zu 99 % Fehlalarm und nach
+# einer Woche abgeschaltet.
+#
+# Deshalb zwei Einschraenkungen, die zusammen trennscharf sind:
+#   1. nur Prosa (.md/.txt/.rst/.adoc) -- ein Lineage-Tag steht in .tmdl,
+#   2. nur wenn dieselbe Zeile die GUID als Kennung ausweist.
+# Gemessen ergab das 1 Fund hier und 7 drueben, davon 3 Platzhalter.
+GUID_DATEIEN = ("*.md", "*.txt", "*.rst", "*.adoc")
+GUID = re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}"
+                  r"-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b")
+KENNUNG = re.compile(
+    r"\b(tenant|tenant[-_ ]?id|mandant|app[-_ ]?id|application[-_ ]?id|"
+    r"client[-_ ]?id|principal|service[-_ ]?principal|directory[-_ ]?id|"
+    r"object[-_ ]?id|subscription[-_ ]?id|group[-_ ]?id|sg-)\b", re.I)
+# `11111111-1111-...` ist eine Vorlage, kein Mandant. Erkannt am ersten Block:
+# acht gleiche Zeichen kommen in einer echten GUID praktisch nicht vor.
+PLATZHALTER = re.compile(r"^([0-9a-fA-F])\1{7}-")
+
 
 def repo_wurzel(start: Path) -> Path:
     r = subprocess.run(
         ["git", "-C", str(start), "rev-parse", "--show-toplevel"],
         capture_output=True, text=True,
-    )
+        encoding="utf-8", errors="replace")
     if r.returncode != 0:
         sys.exit(f"kein Git-Repository: {start}")
     return Path(r.stdout.strip())
@@ -106,6 +166,11 @@ def regeln_bauen(daten: dict) -> list[tuple[str, re.Pattern]]:
         except re.error as e:
             sys.exit(f"ungueltiges Muster in Sperrliste [{kategorie}]: {e}")
 
+    # Eingebaut, nicht aus der Sperrliste: die Liste ist gitignoriert, ein
+    # frischer Klon haette diese Regel sonst nicht. Ein Kundenname laesst sich
+    # ersetzen, eine Tenant-GUID nicht -- sie ueberdauert jede Umbenennung.
+    regeln.append(("mandantenkennung", MANDANTENKENNUNG))
+
     return regeln
 
 
@@ -114,7 +179,7 @@ def dateien(wurzel: Path, nur_staged: bool) -> list[str]:
         cmd = ["git", "-C", str(wurzel), "diff", "--cached", "--name-only", "--diff-filter=ACMR"]
     else:
         cmd = ["git", "-C", str(wurzel), "ls-files"]
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     return [z for z in r.stdout.splitlines() if z.strip()]
 
 
@@ -154,9 +219,8 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             cmd = ["git", "-C", str(wurzel), "grep", "-nIiF", "--no-color"]
             if nur_staged:
                 cmd.append("--cached")
-            for b in begriffe:
-                cmd += ["-e", b]
-            rohzeilen += _git_grep(cmd + ausschluss)
+            with musterdatei(begriffe) as datei:
+                rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
 
     if teil in ("alle", "muster"):
         muster = [m for gruppe in (daten.get("muster") or {}).values() for m in gruppe if m]
@@ -164,8 +228,23 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             cmd = ["git", "-C", str(wurzel), "grep", "-nIiE", "--no-color"]
             if nur_staged:
                 cmd.append("--cached")
-            cmd += ["-e", "|".join(f"({m})" for m in muster)]
-            rohzeilen += _git_grep(cmd + ausschluss)
+            # Eine Zeile je Muster statt einer grossen Alternation: dieselbe
+            # Bedeutung (git verodert sie), aber ohne die verschachtelten Gruppen
+            # -- und ohne die Muster in der Prozessliste.
+            with musterdatei(muster) as datei:
+                rohzeilen += _git_grep(cmd + ["-f", datei] + ausschluss)
+
+    if teil in ("alle", "kennungen"):
+        # Nur Kandidaten einsammeln. Ob eine GUID eine Mandantenkennung IST,
+        # entscheidet die Regel unten in Python -- `git grep -E` kennt POSIX-ERE
+        # und damit keine Lookaheads, und ein `-P` ist auf einer fremden
+        # Maschine nicht garantiert.
+        cmd = ["git", "-C", str(wurzel), "grep", "-nIiE", "--no-color"]
+        if nur_staged:
+            cmd.append("--cached")
+        cmd += ["-e", GUID_ROH]
+        rohzeilen += _git_grep(cmd + (ausschluss if nur_staged
+                                      else ["--", *GUID_DATEIEN]))
 
     befunde: list[dict] = []
     gesehen: set[tuple] = set()
@@ -186,6 +265,11 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
             m = muster.search(inhalt)
             if not m:
                 continue
+            # Die GUID-Regel braucht zusaetzlich die Zeile als Kontext:
+            # eine GUID allein ist ein Objektbezeichner, erst das Wort daneben
+            # macht sie zur Mandantenkennung.
+            if kategorie == "mandantenkennung" and not KENNUNG.search(inhalt):
+                continue
             treffer = m.group(0)
             if treffer.lower() in erlaubt:
                 continue
@@ -205,8 +289,54 @@ def pruefen(wurzel: Path, nur_staged: bool, daten: dict, teil: str = "alle") -> 
     return befunde
 
 
+@contextlib.contextmanager
+def musterdatei(muster: list[str]):
+    r"""Die Suchbegriffe in eine Datei schreiben statt in die Befehlszeile.
+
+    Warum: Argumente eines Prozesses sind auf einem Mehrbenutzersystem fuer jeden
+    lesbar, der `ps` aufrufen darf -- die Sperrliste selbst ist gitignoriert und
+    laegt damit offen, obwohl sie genau deshalb ausserhalb der Versionsverwaltung
+    liegt. Dazu kommt, dass jede Fehlermeldung ueber diesen Aufruf die Liste
+    mitdruckt: am 16.09.2026 hat ein `subprocess.TimeoutExpired` genau das getan
+    und alle 28 Begriffe in ein Protokoll geschrieben.
+
+    Die Datei liegt im Systemtemp, nicht im Repository, und wird danach entfernt.
+    `git grep -f` liest eine Zeile als ein Muster; mehrere Zeilen werden verodert
+    -- dieselbe Bedeutung wie mehrere `-e`, nur ohne Abdruck in der Prozessliste.
+
+    Was sie vor anderen Benutzern schuetzt, ist auf den beiden Systemen etwas
+    anderes, und die alte Fassung dieses Absatzes ("hat Rechte 600") galt nur fuer
+    eines davon. Auf POSIX sind es die Modus-Bits, die `os.chmod` unten setzt. Auf
+    Windows nicht: von den neun Bits kennt es genau das schreibgeschuetzte Flag,
+    `stat()` meldet nach demselben Aufruf weiter `0o666`. Dort traegt der ORT den
+    Schutz -- das Systemtemp liegt im Benutzerprofil und hat dessen ACL.
+
+    Der Aufruf bleibt trotzdem stehen: auf POSIX ist er die Zusicherung, auf
+    Windows folgenlos. Eine ACL zu setzen braeuchte pywin32 und damit eine
+    Abhaengigkeit fuer einen Fall, den der Ort schon abdeckt.
+    """
+    # Ein Zeilenumbruch im Begriff waere in der Datei zwei Muster -- lautlos, und
+    # mit einer Bedeutung, die niemand gemeint hat. Mit `-e` waere er ein Muster
+    # gewesen; die Umstellung darf diese Grenze nicht stillschweigend einziehen.
+    mit_umbruch = [x for x in muster if "\n" in x or "\r" in x]
+    if mit_umbruch:
+        raise RuntimeError(
+            "Muster mit Zeilenumbruch lassen sich nicht ueber eine Musterdatei "
+            f"suchen ({len(mit_umbruch)} Stueck). Sperrliste bereinigen.")
+    kelle = tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="\n",
+                                        suffix=".txt", delete=False)
+    try:
+        os.chmod(kelle.name, 0o600)
+        kelle.write("\n".join(muster) + "\n")
+        kelle.close()
+        yield kelle.name
+    finally:
+        with contextlib.suppress(OSError):
+            os.unlink(kelle.name)
+
+
 def _git_grep(cmd: list[str]) -> list[str]:
-    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace", encoding="utf-8")
     if r.returncode not in (0, 1):
         raise RuntimeError(f"git grep endete mit {r.returncode}: {r.stderr.strip()[:300]}")
     return r.stdout.splitlines()
@@ -240,7 +370,7 @@ def bericht_schreiben(pfad: Path, befunde: list[dict], wurzel: Path) -> None:
             zeilen.append(f"| `{e['datei']}` | {e['zeile']} | `{e['treffer']}` | {ktx} |")
         zeilen.append("")
 
-    pfad.write_text("\n".join(zeilen), encoding="utf-8")
+    pfad.write_text("\n".join(zeilen), encoding="utf-8", newline="\n")
 
 
 def main() -> int:

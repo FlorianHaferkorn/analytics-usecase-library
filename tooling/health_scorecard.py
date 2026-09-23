@@ -805,7 +805,7 @@ def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
         "meta": {
             "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
             "version": _read_version(repo_root),
-            "registry_source": str(registry_path.relative_to(repo_root)),
+            "registry_source": registry_path.relative_to(repo_root).as_posix(),
         },
         "overall_status": "pass" if all_pass else "below_target",
         "metrics": metrics,
@@ -901,7 +901,7 @@ def main() -> int:
         Path(args.out).write_text(
             json.dumps(results, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
-        )
+            newline="\n")
         print(f"Results written to {args.out}")
     else:
         print_console(results)

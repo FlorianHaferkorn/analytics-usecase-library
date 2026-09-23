@@ -75,7 +75,7 @@ def transfer_discovery(repository: ProjectPackageRevisionRepository, payload: di
                 mappings.append({"candidate_key": key, "module": opportunity_path.relative_to(root).as_posix(), "field": "objectives", "value": objective})
             opportunity["scope_status"] = "draft"
             opportunity.setdefault("source_refs", []).append(target.relative_to(root).as_posix())
-            opportunity_path.write_text(json.dumps(opportunity, ensure_ascii=False, indent=2) if opportunity_path.suffix == ".json" else yaml.safe_dump(opportunity, sort_keys=False, allow_unicode=True), encoding="utf-8")
+            opportunity_path.write_text(json.dumps(opportunity, ensure_ascii=False, indent=2) if opportunity_path.suffix == ".json" else yaml.safe_dump(opportunity, sort_keys=False, allow_unicode=True), encoding="utf-8", newline="\n")
         target.write_text(json.dumps({
             "schema_version": "1.0.0", "record_type": "reviewed_discovery_proposals", "status": "proposed",
             "project_ref": payload["projectId"], "discovery_revision": payload["discoveryRevision"],
@@ -84,7 +84,7 @@ def transfer_discovery(repository: ProjectPackageRevisionRepository, payload: di
             "review_rationale": payload["rationale"].strip(), "candidates": selected, "sources": evidence,
             "draft_module_mappings": mappings,
             "authority": "Evidence review only. Not customer approval, a governed registry mapping, an architecture decision or deployment authorization.",
-        }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
         manifest["state"] = "working"
-        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+        manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
         return repository.commit_draft(root, expected_head_hash=current.revision_hash)

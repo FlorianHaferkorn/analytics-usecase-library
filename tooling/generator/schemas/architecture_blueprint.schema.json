@@ -44,6 +44,10 @@
           "maximum": 4,
           "description": "Meridian reporting-platform-blueprint 1–4 (00_index.md); null for ALUCA."
         },
+        "capacity": {
+          "type": "string",
+          "description": "Name of the assigned Fabric capacity (CLI: --capacity). Absent = not named; consumers must not invent one. A capacity groups workspaces ACROSS domains and is the unit throttling and cost attach to, which is why it belongs in the blueprint and not only in the emitted scripts. The `<CAPACITY_NAME>` placeholder is deliberately not stored here: a blueprint field holding a placeholder looks like a statement and is none."
+        },
         "capacity_sku": {
           "type": "string",
           "description": "Assigned Fabric capacity SKU (e.g. F64). Absent = not assigned; consumers must then state a recommended FLOOR instead of assuming one (Direct-Lake guardrails). The floor is computed by tooling/superversion/capacity.py from platform.sizing."
@@ -114,6 +118,137 @@
               },
               "owner_platform": {
                 "type": "string"
+              }
+            }
+          }
+        },
+        "capacities": {
+          "type": "array",
+          "description": "Die Kapazitaeten dieser Lieferung. **Mehrzahl, weil eine Lieferung mehrere hat.** Bis zum 26.08.2026 fuehrte das Schema genau ein `platform.capacity` fuer alles; eine gemessene Kundenlieferung laeuft auf zweien (je eine Kapazitaet pro Domaene), und das war damit nicht ausdrueckbar. Das ist kein Darstellungsproblem: die Zuweisung eines Workspace zu seiner Kapazitaet ist ein Provisionierungsschritt. `platform.capacity` bleibt als Kurzform fuer den Einzelfall bestehen und wird beim Ableiten hierher normalisiert; Verbraucher lesen `capacities`.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "name"
+                ]
+              },
+              {
+                "required": [
+                  "zielbild",
+                  "entscheidung"
+                ]
+              }
+            ],
+            "description": "Eine Kapazitaet. Entweder benannt (`name`) oder als Zielbild markiert — ein Eintrag, der weder das eine noch das andere ist, waere eine Behauptung ohne Herkunft.",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Technischer Name der Kapazitaet, wie er im Fabric-Adminportal steht."
+              },
+              "sku": {
+                "type": "string",
+                "description": "Zugewiesene SKU, etwa `F64`."
+              },
+              "region": {
+                "type": "string",
+                "description": "Region der Kapazitaet. Sie entscheidet ueber Datenresidenz und ist deshalb eine Architekturaussage, keine Betriebsnotiz."
+              },
+              "domain": {
+                "type": "string",
+                "description": "Name der Domaene, die auf dieser Kapazitaet laeuft. Fehlt er, traegt die Kapazitaet alle Domaenen — der Einzelkapazitaetsfall."
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "zielbild": {
+                "type": "boolean",
+                "description": "Dieser Eintrag ist ein Zielbild, keine Festlegung: er entsteht aus einer Vorlage oder Konvention, nicht aus einer Aussage des Kunden. Verbraucher muessen ihn sichtbar als noch nicht entschieden kennzeichnen (D-340). Ein Zielbild ohne `entscheidung` ist Raten mit Schraffur und deshalb unzulaessig."
+              },
+              "entscheidung": {
+                "type": "string",
+                "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+              }
+            }
+          }
+        },
+        "tenant": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Der Mandant. Er ist die aeusserste Klammer und die Stelle, an der die zentrale Zustaendigkeit sitzt (Mandanteneinstellungen, Kapazitaetsverwaltung, Entra ID, Netz, Gateway). Ohne ihn beginnt das Bild bei der Domaene und laesst offen, wer die Leitplanken setzt.",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "central_responsibility": {
+              "type": "string",
+              "description": "Wer die Leitplanken haelt — als Satz, nicht als Personenname."
+            },
+            "zielbild": {
+              "type": "boolean",
+              "description": "Dieser Eintrag ist ein Zielbild, keine Festlegung: er entsteht aus einer Vorlage oder Konvention, nicht aus einer Aussage des Kunden. Verbraucher muessen ihn sichtbar als noch nicht entschieden kennzeichnen (D-340). Ein Zielbild ohne `entscheidung` ist Raten mit Schraffur und deshalb unzulaessig."
+            },
+            "entscheidung": {
+              "type": "string",
+              "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+            }
+          }
+        },
+        "gateways": {
+          "type": "array",
+          "description": "Datengateways. Ein Gateway steht **im Datenfluss** zwischen einer lokalen Quelle und Bronze und ist damit ein Baustein wie ein Lakehouse, kein Betriebsdetail: faellt es aus, steht die Anbindung. Es hat einen eigenen Betreiber, eigene Portanforderungen und eine eigene Dienstidentitaet.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "name"
+                ]
+              },
+              {
+                "required": [
+                  "zielbild",
+                  "entscheidung"
+                ]
+              }
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "on_premises",
+                  "vnet"
+                ],
+                "description": "On-premises-Datengateway oder VNet-Datengateway. Die beiden loesen verschiedene Probleme und haben verschiedene Betreiber."
+              },
+              "owner": {
+                "type": "string"
+              },
+              "service_identity": {
+                "type": "string"
+              },
+              "requirements": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Ports, Erreichbarkeit, Wartung."
+              },
+              "domain": {
+                "type": "string",
+                "description": "Domaene, deren Quellen ueber dieses Gateway laufen. Fehlt sie, gilt es fuer alle."
+              },
+              "zielbild": {
+                "type": "boolean",
+                "description": "Dieser Eintrag ist ein Zielbild, keine Festlegung: er entsteht aus einer Vorlage oder Konvention, nicht aus einer Aussage des Kunden. Verbraucher muessen ihn sichtbar als noch nicht entschieden kennzeichnen (D-340). Ein Zielbild ohne `entscheidung` ist Raten mit Schraffur und deshalb unzulaessig."
+              },
+              "entscheidung": {
+                "type": "string",
+                "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
               }
             }
           }
@@ -189,6 +324,24 @@
           "access_mode_assumed": {
             "type": "boolean",
             "description": "True when the access mode could NOT be derived from the source type and fell back to `copy` (a pipeline can read anything, so it is never impossible — but it is not always the cheapest choice). A declaration instead of a prose marker: the conformance gate used to detect the fallback by sniffing whether the rationale began with the word 'default', which broke the moment the rationale was reworded."
+          },
+          "schemas": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true,
+            "description": "Optional allowlist of physical source schemas for metadata introspection and ingestion planning."
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true,
+            "description": "Optional allowlist of unqualified physical source table names. When present, source introspection must not discover other tables."
           }
         }
       }
@@ -281,11 +434,6 @@
                       "aggregate"
                     ]
                   },
-                  "domain": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "Owning domain name, copied from the containing governed input domain during derivation. Optional for backwards compatibility with pre-existing hand-authored IR, but deterministic derivation always emits it; consumers must not infer ownership from product names."
-                  },
                   "grain": {
                     "type": "string"
                   },
@@ -334,6 +482,11 @@
                         "description": "ISO-Datum, letzter Tag (Vorgabe 2035-12-31)."
                       }
                     }
+                  },
+                  "domain": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Owning domain name, copied from the containing governed input domain during derivation. Optional for backwards compatibility with pre-existing hand-authored IR, but deterministic derivation always emits it; consumers must not infer ownership from product names."
                   }
                 }
               }
@@ -818,6 +971,13 @@
           },
           "description": "Overrides the name segment a layer contributes to its workspace name (e.g. reporting -> 'report'). The role stays canonical so every downstream emitter keeps working; only the name changes. Without this, reproducing a customer's existing convention meant renaming after generation — and a renamed workspace no longer matches the apply plan that was meant to create it."
         },
+        "workspace_layer_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Overrides the human-readable name of a layer in generated documentation (e.g. reporting -> 'Consumption'). Distinct from workspace_layer_names, which changes the name segment inside a workspace name; this changes only the word the handbook uses. Without it the label was derived as role.title(), which is a convention the blueprint does not actually hold: the customer's approved handbook says 'Consumption' throughout while the blueprint claimed 'Reporting', and the twin comparison reported a contradiction that no customer decision could resolve."
+        },
         "stages": {
           "type": "array",
           "items": {
@@ -858,6 +1018,295 @@
             "type": "string"
           },
           "description": "Build-seed concepts from governance_bridge (odcs-contract-first, …)."
+        },
+        "principals": {
+          "type": "array",
+          "description": "Die Gruppen, an denen Rechte haengen. **Gruppen, nicht Personen** — ein Bauplan, der Personennamen fuehrt, ist am Tag nach der ersten Versetzung falsch. Jeder Eintrag traegt neben Zweck und Eigentuemer auch `prohibited`: was diese Gruppe ausdruecklich *nicht* darf. Das Verbot ist die haerteste Aussage einer Rollendefinition und die einzige, die eine Fehlvergabe erkennbar macht.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "technical_name"
+                ]
+              },
+              {
+                "required": [
+                  "zielbild",
+                  "entscheidung"
+                ]
+              }
+            ],
+            "properties": {
+              "technical_name": {
+                "type": "string",
+                "description": "Der Name der Gruppe im Verzeichnis, etwa `sg-fabric-infra-contributor`."
+              },
+              "display_name": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "security_group",
+                  "consumer_group",
+                  "rls_group",
+                  "service_principal"
+                ]
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "prohibited": {
+                "type": "string",
+                "description": "Was diese Gruppe ausdruecklich nicht darf."
+              },
+              "domain": {
+                "type": "string"
+              },
+              "zielbild": {
+                "type": "boolean",
+                "description": "Dieser Eintrag ist ein Zielbild, keine Festlegung: er entsteht aus einer Vorlage oder Konvention, nicht aus einer Aussage des Kunden. Verbraucher muessen ihn sichtbar als noch nicht entschieden kennzeichnen (D-340). Ein Zielbild ohne `entscheidung` ist Raten mit Schraffur und deshalb unzulaessig."
+              },
+              "entscheidung": {
+                "type": "string",
+                "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+              }
+            }
+          }
+        },
+        "permission_templates": {
+          "type": "object",
+          "description": "Wer auf welchem Workspace welche Rolle bekommt — als Vorlage mit Platzhaltern (`{unit}`), nicht je Workspace ausgeschrieben. Eine ausgeschriebene Matrix ist nach dem naechsten Workspace falsch; eine Vorlage bleibt richtig.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "principal",
+                "role",
+                "targets"
+              ],
+              "properties": {
+                "principal": {
+                  "type": "string",
+                  "description": "Gruppenname oder Vorlage mit `{unit}`."
+                },
+                "role": {
+                  "type": "string",
+                  "description": "Workspace-Rolle (Admin, Member, Contributor, Viewer) oder eine feinere Zuweisung wie `Read + OneLake role`."
+                },
+                "targets": {
+                  "type": "string"
+                },
+                "purpose": {
+                  "type": "string"
+                },
+                "bypasses_rls": {
+                  "type": "boolean",
+                  "description": "Ob diese Zuweisung die Zeilensicherheit umgeht. Die wichtigste Einzelaussage der ganzen Matrix — wer sie umgeht, sieht alles."
+                }
+              }
+            }
+          }
+        },
+        "security": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Wie fein die Sicherheit schneidet. Bis zum 26.08.2026 gab es dafuer ein einziges Feld `sensitivity` an der Quelle — das beantwortet die Frage, wie schutzbeduerftig etwas ist, aber nicht, wie der Schutz greift.",
+          "properties": {
+            "ols": {
+              "type": "string",
+              "description": "Objektsicherheit: welche Objekte."
+            },
+            "cls": {
+              "type": "string",
+              "description": "Spaltensicherheit: welche Spalten."
+            },
+            "semantic_rls": {
+              "type": "string",
+              "description": "Zeilensicherheit im Semantikmodell."
+            },
+            "onelake_baseline": {
+              "type": "string",
+              "description": "Die Grundregel auf OneLake, gegen die jede Rolle gemessen wird."
+            },
+            "limitations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Was dieser Schnitt ausdruecklich nicht leistet. Eine Sicherheitsangabe ohne ihre Grenzen liest sich als Zusage."
+            },
+            "zielbild": {
+              "type": "boolean",
+              "description": "Dieser Eintrag ist ein Zielbild, keine Festlegung: er entsteht aus einer Vorlage oder Konvention, nicht aus einer Aussage des Kunden. Verbraucher muessen ihn sichtbar als noch nicht entschieden kennzeichnen (D-340). Ein Zielbild ohne `entscheidung` ist Raten mit Schraffur und deshalb unzulaessig."
+            },
+            "entscheidung": {
+              "type": "string",
+              "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+            }
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "description": "Architekturentscheidungen mit ihren Alternativen. **Die Alternative gehoert dazu**: eine Empfehlung ohne die verworfene Option ist im naechsten Gespraech nicht verteidigbar, und der Kunde kann nicht pruefen, ob seine Lage bedacht wurde.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "title",
+              "recommendation"
+            ],
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "recommendation": {
+                "type": "string"
+              },
+              "alternatives": {
+                "type": "string"
+              },
+              "topic": {
+                "type": "string",
+                "description": "Woran die Entscheidung haengt (etwa `ingestion`, `serving`, `cicd`) — damit sie am richtigen Baustein erscheinen kann."
+              },
+              "zielbild": {
+                "type": "boolean",
+                "description": "Dieser Eintrag ist ein Zielbild, keine Festlegung: er entsteht aus einer Vorlage oder Konvention, nicht aus einer Aussage des Kunden. Verbraucher muessen ihn sichtbar als noch nicht entschieden kennzeichnen (D-340). Ein Zielbild ohne `entscheidung` ist Raten mit Schraffur und deshalb unzulaessig."
+              },
+              "entscheidung": {
+                "type": "string",
+                "description": "Was zu entscheiden ist und woher die Antwort kommt. Pflicht, sobald `zielbild` gesetzt ist."
+              }
+            }
+          }
+        },
+        "artefact_templates": {
+          "type": "object",
+          "description": "Welche Artefakte je Schicht entstehen und **wer jedes besitzt, baut und betreibt**. Die drei Rollen stehen hier und nicht im Handbuch daneben, weil ein Artefakt ohne Zustaendigkeit im Bild ein Kaestchen ist: es sagt, dass etwas existiert, und nicht, wen man ruft, wenn es steht. `technical_name` traegt die Platzhalter (`{unit}`, `{env_suffix}`, `{source_1}`), die `domain_template_values` fuellt.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "type"
+                ]
+              },
+              {
+                "required": [
+                  "zielbild",
+                  "entscheidung"
+                ]
+              }
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Die Artefaktart, etwa `pipeline`, `lakehouse`, `notebook`, `semantic_model`, `report`, `variable_library`, `workspace_app`."
+              },
+              "layer": {
+                "type": "string",
+                "description": "Die Schicht, in der das Artefakt liegt (`bronze`, `silver`, `gold`, `reporting`)."
+              },
+              "technical_name": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string",
+                "description": "Wem es gehoert — die fachliche Rolle."
+              },
+              "builder": {
+                "type": "string",
+                "description": "Wer es baut und aendert — in der Regel eine Gruppe."
+              },
+              "runner": {
+                "type": "string",
+                "description": "Unter welcher Identitaet es laeuft — in der Regel ein Dienstkonto. Getrennt vom Erbauer, weil ein Lauf unter einem persoenlichen Konto beim naechsten Austritt stehen bleibt."
+              },
+              "details": {
+                "type": "string"
+              },
+              "activities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Die Schritte innerhalb des Artefakts, sofern es welche hat (Pipeline-Aktivitaeten)."
+              },
+              "zielbild": {
+                "type": "boolean",
+                "description": "Dieser Eintrag ist ein Zielbild, keine Festlegung: er entsteht aus einer Vorlage oder Konvention, nicht aus einer Aussage des Kunden. Verbraucher muessen ihn sichtbar als noch nicht entschieden kennzeichnen (D-340). Ein Zielbild ohne `entscheidung` ist Raten mit Schraffur und deshalb unzulaessig."
+              },
+              "entscheidung": {
+                "type": "string",
+                "description": "Was zu entscheiden ist und woran die Antwort abgelesen wird."
+              }
+            }
+          }
+        },
+        "domain_template_values": {
+          "type": "object",
+          "description": "Womit die Platzhalter der Artefaktnamen je Domaene gefuellt werden (`source_1`, `product_1`, `security_product`). Ausdruecklich **nicht** ableitbar: gemessen am Kundenmodell fuellt das Handbuch `product_1` mit dem Anwendungsfall und nicht mit dem alphabetisch ersten Gold-Produkt. Eine Sortierung, die sich als Aussage ausgibt, ist Raten.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "technical_columns": {
+          "type": "array",
+          "description": "Die Audit-Spalten, die **jede** Bronze-Tabelle traegt: Herkunftssystem, Herkunftstabelle, Quellsatz-ID, Quellaenderungszeit, Ladezeit, Lauf-ID. Sie sind Architektur und keine Konvention — ohne sie ist keine Abstammung nachweisbar und kein Wiederanlauf pruefbar.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "security_columns": {
+          "type": "array",
+          "description": "Die Organisationsspalten, die in **jeder** geschuetzten Gold-Tabelle physisch stehen muessen. Sie folgen normalerweise aus `mesh.domains[].row_security` und stehen nur dann hier, wenn der Schnitt sie nicht vollstaendig nennt. OneLake-RLS kennt nur einspaltige Praedikate (MS Learn, *Row-level security syntax reference*) — deshalb entscheidet diese Liste ueber die Tabellenform und nicht ueber eine Berechtigung.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "proposed_stages": {
+          "type": "array",
+          "description": "Strecken, die vorgeschlagen und noch nicht entschieden sind. Sie stehen **nicht** in `stages`, weil dort steht, was gebaut wird — eine vorgeschlagene Strecke wuerde dort Workspaces erzeugen, die niemand bestellt hat. Sie fehlen aber auch nicht: gemessen am Kundenmodell fuehrt das Handbuch TEST als „proposed DEV, TEST and PROD path (K-44 / O-57); customer decision pending\", und ohne diese Stelle meldete der Abgleich das als Drift statt als offene Entscheidung (D-341).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "zielbild",
+              "entscheidung"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Die Strecke, etwa `test`."
+              },
+              "zielbild": {
+                "type": "boolean",
+                "description": "Immer wahr: ein Eintrag hier ist per Bauart ein Zielbild (D-340)."
+              },
+              "entscheidung": {
+                "type": "string",
+                "description": "Was zu entscheiden ist und woran die Antwort abgelesen wird."
+              },
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }

@@ -9,6 +9,8 @@ import { StudioButton, StudioEmptyState, StudioPageHeader, StudioPanel, StudioSe
 import { usePinnedProject } from './use-pinned-project';
 import type { ProjectArchitecture as ArchitectureView } from '@/lib/bridge/project-architecture';
 import styles from './project-architecture.module.css';
+import { ProjectDecisionReview } from './project-decision-review';
+import { useProjectStore } from '@/lib/store/project-store';
 const title = (key:string) => key.replaceAll('_',' ').replace(/^./,s => s.toUpperCase());
 function ContractValue({value}:{value:unknown}) {
   if (value == null || value === '') return <span className={styles.note}>Not recorded</span>;
@@ -18,7 +20,7 @@ function ContractValue({value}:{value:unknown}) {
   return <span>{String(value)}</span>;
 }
 const kinds:Record<string,NodeKind> = {source:'source',data_product:'data_product',transformation:'transformation',reference_report:'reference_report',workspace:'workspace',domain:'domain',native_item:'native_item'};
-type Tab = 'graph'|'contracts'|'outputs';
+type Tab = 'graph'|'contracts'|'decisions'|'outputs';
 
 export function ProjectArchitecture() {
   const {projectId,projectName,revision,error:packageError,latest,retry} = usePinnedProject();
@@ -83,7 +85,15 @@ export function ProjectArchitecture() {
   return <div className={styles.page}>
     <StudioPageHeader compact title="Architecture" description={`${projectName} · generated from the selected Project Package, without inferred tool defaults.`} actions={<StudioButton onClick={latest}>Load latest version</StudioButton>} />
     {!view ? <><StudioEmptyState title={error ? 'Architecture unavailable' : 'Loading project architecture'} description={error ?? 'Reading and validating the pinned project contracts.'} />{error && <><StudioButton onClick={() => {retry();setAttempt(n => n + 1);}}>Try again</StudioButton><Link href="/package">Review or import the Project Package</Link></>}</> : <>
-      <div className={styles.toolbar}><StudioSegmentedControl aria-label="Architecture section" value={tab} onChange={setTab} options={[{value:'graph',label:'Architecture graph'},{value:'contracts',label:'Contracts & rationale'},{value:'outputs',label:'Build outputs'}]} /><span className={styles.note} title={revision ?? ''}>Version {revision?.slice(0,12)} · apply not enabled</span></div>
+      <div className={styles.toolbar}><StudioSegmentedControl aria-label="Architecture section" value={tab} onChange={setTab} options={[{value:'graph',label:'Architecture graph'},{value:'contracts',label:'Contracts & rationale'},{value:'decisions',label:'Decision effects'},{value:'outputs',label:'Build outputs'}]} /><span className={styles.note} title={revision ?? ''}>Version {revision?.slice(0,12)} · tenant apply not enabled</span></div>
+      {notice && tab !== 'outputs' && <p role="status" className={styles.note}>{notice}</p>}
+      {tab === 'decisions' && revision && <ProjectDecisionReview key={identity} projectId={projectId} revisionHash={revision} onApplied={result => {
+        const selected = useProjectStore.getState();
+        if (active.current !== identity || selected.projectId !== projectId || selected.packageRevisionHash !== revision) return;
+        setMessage({key:`${projectId}:${result.revision_hash}`,text:'Architecture updated in a new Working version. Review the updated graph and contracts, then approve and release the new input version. Nothing was deployed.'});
+        useProjectStore.getState().setPackageRevisionHash(result.revision_hash);
+        setConfirmedIdentity(null); setTab('graph');
+      }} />}
       {tab === 'graph' && <>
         <div className={styles.toolbar}><label>Use case <select aria-label="Architecture use case" value={currentUseCase} onChange={e => setUseCase(e.target.value)}><option value="">All recorded use cases</option>{view.use_cases.map(uc => <option key={String(uc.id)} value={String(uc.id)}>{String(uc.name ?? uc.id)}</option>)}</select></label><label><input type="checkbox" checked={references} onChange={e => setReferences(e.target.checked)} /> Reference reports and alternative/excluded sources</label><label><input type="checkbox" checked={lineage} onChange={e => setLineage(e.target.checked)} /> Additional lineage</label></div>
         <p className={styles.note}>Connectors distinguish declared data relationships, workspace ownership and build dependencies. Only explicit relationships are shown; reference reports remain separate from target reports.</p>

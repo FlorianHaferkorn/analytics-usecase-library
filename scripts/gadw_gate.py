@@ -65,7 +65,7 @@ def run_gate(gate: Gate, *, verbose: bool) -> bool:
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
-    )
+        encoding="utf-8", errors="replace")
     ok = proc.returncode == 0
     print(f"[{'PASS' if ok else 'FAIL'}] {gate.stage:<20} {gate.description}")
     if verbose or not ok:

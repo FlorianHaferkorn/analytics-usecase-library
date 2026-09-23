@@ -236,7 +236,7 @@ def main(argv):
             print("REFERENCE GRAPH FAIL:\n  " + "\n  ".join(problems)); return 1
         print("reference graph OK — no dangling references"); return 0
     REPORT.parent.mkdir(parents=True, exist_ok=True)
-    REPORT.write_text(render(g, a), encoding="utf-8")
+    REPORT.write_text(render(g, a), encoding="utf-8", newline="\n")
     print(f"wrote {REPORT.relative_to(REPO)}")
     print(f"  orphans: {len(a['orphan_kpi'])} KPI, {len(a['orphan_ac'])} action code, {len(a['orphan_spine'])} spine; "
           f"dangling: {len(a['dangling_kpi'])} KPI, {len(a['dangling_ac'])} AC, {len(a['dangling_measure_kpi'])} measure; "

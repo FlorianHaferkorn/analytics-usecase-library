@@ -416,7 +416,7 @@ def sync_schemas(schreiben: bool = False) -> tuple[int, list[str]]:
             geaendert += 1
             meldungen.append(f"{'geschrieben' if schreiben else 'VERALTET'}: {datei}")
             if schreiben:
-                pfad.write_text(neu_text, encoding="utf-8")
+                pfad.write_text(neu_text, encoding="utf-8", newline="\n")
     return geaendert, meldungen
 
 

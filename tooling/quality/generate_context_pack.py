@@ -194,7 +194,7 @@ def main(argv: list[str] | None = None) -> int:
 
     out = Path(args.output) if args.output else (run_dir / "context_pack.md")
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(pack, encoding="utf-8")
+    out.write_text(pack, encoding="utf-8", newline="\n")
     print(f"Context pack written: {out}")
     return 0
 

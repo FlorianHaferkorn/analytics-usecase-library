@@ -92,5 +92,5 @@ def render(stack_id: str, blueprint: dict, dest: Path | None = None,
         for rel, content in out.items():
             target = dest / rel
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(content, encoding="utf-8")
+            target.write_text(content, encoding="utf-8", newline="\n")
     return out

@@ -188,7 +188,7 @@ def _save_cache(latest_versions: dict[str, str]) -> None:
         "fetched_at": datetime.now(timezone.utc).isoformat(),
         "latest_versions": latest_versions,
     }
-    _CACHE_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    _CACHE_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 # ── Main discovery ─────────────────────────────────────────────────────────────
@@ -256,7 +256,7 @@ def _update_registry_comments(statuses: list[SchemaStatus]) -> bool:
         if old_comment in text and old_comment != new_comment:
             text = text.replace(old_comment, new_comment, 1)
     if text != original:
-        _REGISTRY_PATH.write_text(text, encoding="utf-8")
+        _REGISTRY_PATH.write_text(text, encoding="utf-8", newline="\n")
         return True
     return False
 
@@ -301,7 +301,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.update_manifest:
         manifest_script = Path(__file__).with_name("update_schema_manifest.py")
         import subprocess
-        result = subprocess.run([sys.executable, str(manifest_script)], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, str(manifest_script)], capture_output=True, text=True, encoding="utf-8", errors="replace")
         print(result.stdout.strip())
         if result.returncode != 0:
             print(result.stderr.strip(), file=sys.stderr)

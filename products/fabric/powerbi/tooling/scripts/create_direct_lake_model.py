@@ -128,7 +128,7 @@ def run_fab(args: List[str], timeout: int = 60) -> Tuple[bool, str]:
         result = subprocess.run(
             ["fab"] + args,
             capture_output=True, text=True, timeout=timeout
-        )
+        , encoding="utf-8", errors="replace")
         if result.returncode == 0:
             return True, result.stdout.strip()
         return False, result.stderr.strip() or result.stdout.strip()

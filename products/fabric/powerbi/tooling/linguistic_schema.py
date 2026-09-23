@@ -184,7 +184,7 @@ def ensure_model_ref(model_tmdl_path: Path, culture: str = DEFAULT_CULTURE) -> b
     new_text = "\n".join(lines)
     if text.endswith("\n"):
         new_text += "\n"
-    model_tmdl_path.write_text(new_text, encoding="utf-8")
+    model_tmdl_path.write_text(new_text, encoding="utf-8", newline="\n")
     return True
 
 
@@ -219,7 +219,7 @@ def emit_for_domain(
         return out, 0, False
 
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(render_culture_tmdl(schema, culture), encoding="utf-8")
+    out.write_text(render_culture_tmdl(schema, culture), encoding="utf-8", newline="\n")
 
     model_ref_added = False
     model_tmdl = def_dir / "model.tmdl"

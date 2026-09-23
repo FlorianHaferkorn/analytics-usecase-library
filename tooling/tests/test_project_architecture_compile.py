@@ -73,7 +73,7 @@ def test_workspace_target_fails_closed(mutation):
 
 def test_workspace_schema_rejects_guessed_ids():
     architecture=compiler()['modules']['architecture_input']
-    validator=Draft202012Validator(json.loads((SCHEMAS/'project_architecture_input.schema.json').read_text()),format_checker=FormatChecker())
+    validator=Draft202012Validator(json.loads((SCHEMAS/'project_architecture_input.schema.json').read_text(encoding="utf-8")),format_checker=FormatChecker())
     assert list(validator.iter_errors(architecture))==[]
     architecture['physical_workspaces'][0]['capacity_id']='<CAPACITY>'
     assert list(validator.iter_errors(architecture))
@@ -119,7 +119,7 @@ def test_real_revision_to_released_architecture_specification(tmp_path):
         document=data['modules'][kind]
         relative=kind+'.yaml'
         (package/relative).write_text(yaml.safe_dump(document,sort_keys=False),encoding='utf8')
-        schema=json.loads((SCHEMAS/f'project_{kind}.schema.json').read_text())
+        schema=json.loads((SCHEMAS/f'project_{kind}.schema.json').read_text(encoding="utf-8"))
         manifest['modules'].append({'module_type':kind,'path':relative,'schema_id':schema['$id'],'sha256':canonical_sha256(document)})
     manifest['state']='approved'
     (package/'package.yaml').write_text(yaml.safe_dump(manifest),encoding='utf8')

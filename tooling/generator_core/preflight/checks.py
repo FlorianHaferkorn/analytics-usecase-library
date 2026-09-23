@@ -243,11 +243,16 @@ def check_bracket_schema_compliance(ctx: PreflightContext) -> None:
         / "tooling" / "ai" / "schemas" / "usecase_bracket.schema.json"
     )
     if not schema_path.is_file():
-        return  # Schema not available — skip silently
-    try:
-        import jsonschema
-    except ImportError:
-        return  # jsonschema not installed — skip silently
+        # Nicht mehr lautlos: ein Pruefer, der ohne seine Regeln gruen meldet,
+        # ist schlimmer als keiner. Wer das Schema verschiebt, soll es merken.
+        import warnings
+        warnings.warn(f"Bracket-Schema fehlt ({schema_path}) — NICHT geprueft.",
+                      RuntimeWarning, stacklevel=2)
+        return
+    # `jsonschema` steht in requirements.txt und pyproject.toml. Der Rueckfall
+    # schuetzte vor nichts und schaltete nur die Pruefung ab, wenn jemand die
+    # Installation vermurkst hat.
+    import jsonschema
     try:
         with open(schema_path, encoding="utf-8") as fh:
             schema = json.load(fh)

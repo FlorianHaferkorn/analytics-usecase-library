@@ -455,7 +455,7 @@ def upgrade_model(model_name: str, cfg: dict) -> None:
     insert = narr_block + active_block
     text = text.replace("\tcolumn Column1\n", insert + "\tcolumn Column1\n", 1)
 
-    path.write_text(text, encoding="utf-8")
+    path.write_text(text, encoding="utf-8", newline="\n")
     print(f"  OK  {model_name}: {replaced} measures replaced, +Narrative Text, +Active Actions Text")
 
 
@@ -504,23 +504,23 @@ def upgrade_visuals() -> None:
         prefix = report.stem.split("-")[0].split("_")[0]
         # Smart_Narrative: textbox → smartNarrativeVisual
         for sn_path in report.rglob("Smart_Narrative/visual.json"):
-            data = json.loads(sn_path.read_text())
+            data = json.loads(sn_path.read_text(encoding="utf-8"))
             v = data["visual"]
             if v.get("visualType") == "textbox":
                 v["visualType"] = "smartNarrativeVisual"
                 v.pop("objects", None)
                 # smartNarrativeVisual auto-reads page data; no query needed
                 v.pop("query", None)
-                sn_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+                sn_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
                 sn_ok += 1
 
         # ActionPanel: textbox → cardVisual bound to Active Actions Text
         for ap_path in report.rglob("ActionPanel/visual.json"):
-            data = json.loads(ap_path.read_text())
+            data = json.loads(ap_path.read_text(encoding="utf-8"))
             v = data["visual"]
             if v.get("visualType") == "textbox":
                 data = _card_visual(data, "_Measures", "Active Actions Text")
-                ap_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+                ap_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
                 ap_ok += 1
 
     print(f"  Smart_Narrative upgraded: {sn_ok}")

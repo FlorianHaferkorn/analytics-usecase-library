@@ -55,7 +55,7 @@ def test_fin001_ocf_gap_is_a_waterfall():
     """FIN-001 Main_2's message is about the OCF-vs-Plan shortfall — it must render the
     gap as a waterfall, not absolute actual/plan bars."""
     fin = yaml.safe_load(
-        (REPO / "core/usecases/core/FIN-001_Cash_Liquidity_Performance/UseCase_Bracket.yaml").read_text())
+        (REPO / "core/usecases/core/FIN-001_Cash_Liquidity_Performance/UseCase_Bracket.yaml").read_text(encoding="utf-8"))
     main2 = next(e for e in fin["ux_layout_rules"]["page_1_summary"]["component_30s"]
                  if e["slot_id"] == "Main_2")
     assert main2["comparison"] == "vs_plan" and main2["visual_type"] == "waterfall_chart"

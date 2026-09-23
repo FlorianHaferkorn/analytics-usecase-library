@@ -186,7 +186,7 @@ def main(argv: "list[str]") -> int:
     if cmd == "baseline":
         out = Path(argv[argv.index("--out") + 1]) if "--out" in argv else BASELINE
         b = build_baseline()
-        out.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+        out.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8", newline="\n")
         print(f"wrote {b['count']} signatures -> {out}")
         return 0
     if cmd == "check":

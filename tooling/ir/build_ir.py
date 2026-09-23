@@ -41,7 +41,7 @@ def _read_json(path: Path) -> Dict[str, Any]:
 
 def _write_json(path: Path, obj: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
 
 def _extract_scalar(chunk: str, key: str) -> str | None:
@@ -379,7 +379,7 @@ def _write_fabric_overlay(measure_spec: Dict[str, Dict[str, Any]], path: Path) -
         }
         for kpi_id, spec in sorted(measure_spec.items())
     }
-    path.write_text(yaml.dump(overlay, default_flow_style=False, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    path.write_text(yaml.dump(overlay, default_flow_style=False, allow_unicode=True, sort_keys=False), encoding="utf-8", newline="\n")
 
 
 def build_ir(

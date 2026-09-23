@@ -43,7 +43,13 @@ import subprocess
 import sys
 import csv
 import io
+from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# Die Repo-Wurzel auf den Suchpfad: dieses Skript wird direkt aufgerufen, aus
+# einem beliebigen Arbeitsverzeichnis.
+sys.path.insert(0, str(Path(__file__).resolve().parents[5]))
+from tooling.prozess import befehl, kind_umgebung, programm  # noqa: E402
 
 
 def get_token(resource: str = "https://analysis.windows.net/powerbi/api") -> Optional[str]:
@@ -52,7 +58,7 @@ def get_token(resource: str = "https://analysis.windows.net/powerbi/api") -> Opt
         result = subprocess.run(
             ["az", "account", "get-access-token", "--resource", resource],
             capture_output=True, text=True, timeout=30
-        )
+        , encoding="utf-8", errors="replace")
         if result.returncode == 0:
             return json.loads(result.stdout).get("accessToken")
         print(f"Error: az CLI not authenticated. Run 'az login' first.\n{result.stderr}", file=sys.stderr)
@@ -70,11 +76,22 @@ def resolve_ids(workspace_name: str, dataset_name: str) -> tuple[Optional[str], 
     Resolve workspace and dataset names to GUIDs using the fab CLI.
     Returns (workspace_id, dataset_id) or (None, None) on failure.
     """
+    # Aufgeloester Pfad statt nacktem Namen: auf Windows liegt `fab` je nach
+    # Installationsweg als `fab.exe` oder als `fab.cmd` vor. `shutil.which`
+    # findet die Huelle ueber PATHEXT, `CreateProcess` haengt nur `.exe` an und
+    # meldet WinError 2 -- Waechter und Lauf pruefen sonst verschiedene
+    # Programme. `befehl()` startet eine Huelle ueber den Kommandoprozessor.
+    fab = programm("fab")
+    if fab is None:
+        print("Error: fab CLI not installed or not in PATH. "
+              "Install from https://aka.ms/fabriccli", file=sys.stderr)
+        return None, None
     try:
         # Get workspace ID
         ws_result = subprocess.run(
-            ["fab", "get", f"{workspace_name}.Workspace", "-q", "id"],
-            capture_output=True, text=True, timeout=30
+            befehl(fab, "get", f"{workspace_name}.Workspace", "-q", "id"),
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            env=kind_umgebung(), timeout=30
         )
         if ws_result.returncode != 0:
             print(f"Error: Could not find workspace '{workspace_name}'. Run 'fab ls' to list workspaces.", file=sys.stderr)
@@ -83,8 +100,10 @@ def resolve_ids(workspace_name: str, dataset_name: str) -> tuple[Optional[str], 
 
         # Get dataset ID
         ds_result = subprocess.run(
-            ["fab", "get", f"{workspace_name}.Workspace/{dataset_name}.SemanticModel", "-q", "id"],
-            capture_output=True, text=True, timeout=30
+            befehl(fab, "get", f"{workspace_name}.Workspace/{dataset_name}.SemanticModel",
+                   "-q", "id"),
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            env=kind_umgebung(), timeout=30
         )
         if ds_result.returncode != 0:
             print(f"Error: Could not find dataset '{dataset_name}' in workspace '{workspace_name}'.", file=sys.stderr)

@@ -62,7 +62,7 @@ def run_powershell_script(
             capture_output=True,
             text=True,
             timeout=timeout_seconds,
-        )
+            encoding="utf-8", errors="replace")
         combined = (result.stdout or "") + "\n" + (result.stderr or "")
         return (result.returncode == 0, combined.strip(), result.returncode)
     except subprocess.TimeoutExpired:

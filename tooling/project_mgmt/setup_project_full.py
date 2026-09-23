@@ -202,7 +202,7 @@ def main() -> None:
     if not token:
         try:
             import subprocess
-            token = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True, check=False).stdout.strip()
+            token = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True, check=False, encoding="utf-8", errors="replace").stdout.strip()
         except Exception:
             pass
     if not token:

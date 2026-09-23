@@ -230,7 +230,7 @@ class TestPbipFile:
         report_dir.mkdir(parents=True)
         # Simulate legacy file
         legacy = report_dir / "Report.pbip"
-        legacy.write_text("{}")
+        legacy.write_text("{}", encoding="utf-8")
         writer = PBIPWriter(report_dir)
         writer.create_pbip_structure()
         writer.write_pbip_file()
@@ -342,12 +342,12 @@ class TestGoldenCOM001:
                 rel = f.relative_to(self.DIST_REPORT)
                 parts = rel.parts
                 if "StaticResources" not in parts and ".pbi" not in parts:
-                    dist_files.add(str(rel))
+                    dist_files.add(rel.as_posix())
 
         fixture_files = set()
         for ext in ("*.json", "*.pbir", "*.pbip"):
             for f in FIXTURES.rglob(ext):
-                fixture_files.add(str(f.relative_to(FIXTURES)))
+                fixture_files.add(f.relative_to(FIXTURES).as_posix())
 
         extra = dist_files - fixture_files
         assert not extra, f"New files in dist not in golden fixture (add them): {extra}"

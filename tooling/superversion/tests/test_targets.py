@@ -138,6 +138,6 @@ def test_registry_starts_empty_at_import():
     )
     out = subprocess.run(
         [sys.executable, "-c", code], cwd=repo, capture_output=True, text=True,
-    )
+        encoding="utf-8", errors="replace")
     assert out.returncode == 0, out.stderr
     assert out.stdout.strip() == "0", f"base.py registered adapters at import: {out.stdout!r}"
