@@ -79,3 +79,63 @@ def test_target_values_are_empty_in_the_demo_on_purpose():
     files = list((REPO_ROOT / "showcases/aurora_group/data/gold/facts/fact_target").glob("*.parquet"))
     assert files and sum(pq.read_metadata(str(f)).num_rows for f in files) == 0
     assert pq.read_schema(str(files[0])).names == ["kpi_id", "scenario", "DateKey", "Target Value"]
+
+
+# --- Onboarding-Vorlage und Import (R6.1b, 23.09.2026) ---------------------------------
+
+import csv  # noqa: E402
+
+import pytest  # noqa: E402
+
+
+def _ausfuellen(pfad, werte):
+    zeilen = cm.vorlage_zeilen()
+    for z in zeilen:
+        z.update(werte.get((z["kpi_id"], z["scenario"]), {}))
+    with open(pfad, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cm.VORLAGE_SPALTEN, delimiter=";")
+        w.writeheader()
+        w.writerows(zeilen)
+
+
+def test_template_asks_only_for_what_a_report_compares():
+    zeilen = cm.vorlage_zeilen()
+    schluessel = {(z["kpi_id"], z["scenario"]) for z in zeilen}
+    assert ("ops.oee.pct", "target") in schluessel
+    assert not any(z["scenario"] == "py" for z in zeilen)          # PY rechnet sich selbst
+    assert all(z["wert"] == "" and z["angabe_als"] for z in zeilen)
+
+
+def test_a_filled_template_loads_one_value_per_month_end(tmp_path):
+    import pyarrow.parquet as pq
+    vorlage = tmp_path / "ziele.csv"
+    _ausfuellen(vorlage, {("ops.oee.pct", "target"): {"gilt_ab": "2025-11", "gilt_bis": "2026-02", "wert": "0,85"}})
+    assert cm.lade_vorlage(vorlage, tmp_path / "fact_target") == 4
+    t = pq.read_table(tmp_path / "fact_target" / "part-00000.parquet").to_pydict()
+    assert t["DateKey"] == [20251130, 20251231, 20260131, 20260228]
+    assert set(t["Target Value"]) == {0.85} and set(t["scenario"]) == {"target"}
+
+
+@pytest.mark.parametrize("werte, meldung", [
+    ({("ops.oee.pct", "target"): {"gilt_ab": "2026-01", "gilt_bis": "2026-01", "wert": "85"}}, "Prozentpunkten"),
+    ({("ops.oee.pct", "target"): {"gilt_ab": "2026-03", "gilt_bis": "2026-01", "wert": "0.8"}}, "leer oder ungueltig"),
+])
+def test_a_wrong_template_is_rejected_as_a_whole(tmp_path, werte, meldung):
+    vorlage = tmp_path / "ziele.csv"
+    _ausfuellen(vorlage, werte)
+    with pytest.raises(ValueError, match=meldung):
+        cm.lade_vorlage(vorlage, tmp_path / "fact_target")
+    assert not (tmp_path / "fact_target").exists()                 # nichts halb geladen
+
+
+def test_unknown_kpi_and_double_months_are_rejected(tmp_path):
+    vorlage = tmp_path / "ziele.csv"
+    _ausfuellen(vorlage, {})
+    with open(vorlage, "a", encoding="utf-8", newline="") as f:
+        f.write("sales.units;target;Sales Units;x;2026-01;2026-01;5\n")
+        f.write("ops.oee.pct;target;OEE;x;2026-01;2026-02;0.8\n")
+        f.write("ops.oee.pct;target;OEE;x;2026-02;2026-03;0.82\n")
+    with pytest.raises(ValueError) as exc:
+        cm.lade_vorlage(vorlage, tmp_path / "fact_target")
+    assert "wird von keinem Report verglichen" in str(exc.value)
+    assert "Monat 20260228 doppelt belegt" in str(exc.value)

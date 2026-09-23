@@ -21,6 +21,8 @@ ueber Monate: Summe fuer Betraege und Zaehler, sonst Durchschnitt (aus `calc_typ
 CLI:
     python -m tooling.codegen.comparison_measures            # Abweichungen melden (rc 1)
     python -m tooling.codegen.comparison_measures --write    # dist/ nachziehen
+    python -m tooling.codegen.comparison_measures --vorlage ziele.csv   # Onboarding-Vorlage
+    python -m tooling.codegen.comparison_measures --laden ziele.csv     # ausgefuellt laden
 """
 from __future__ import annotations
 
@@ -296,10 +298,135 @@ def pruefe(schreiben: bool = False) -> tuple[list[str], list[str]]:
     return drift, luecken
 
 
+# --- Onboarding: Vorlage fuer den Kunden und Import in fact_target (R6.1b) ---------------
+
+VORLAGE_SPALTEN = ["kpi_id", "scenario", "measure", "angabe_als", "gilt_ab", "gilt_bis", "wert"]
+GOLD_ZIEL = REPO / "showcases" / "aurora_group" / "data" / "gold" / "facts" / TABELLE
+
+
+def _angabe_als(kid: str, katalog: dict) -> str:
+    fmt = str((katalog[kid].get("business") or {}).get("unit_format") or "")
+    if fmt.startswith("percent"):
+        return "Anteil (0.85 = 85 %)"
+    if fmt.startswith("eur"):
+        return "Betrag in EUR je Monat" if katalog[kid].get("calc_type") in SUMME else "Betrag in EUR"
+    for praefix, text in (("days", "Tage"), ("hours", "Stunden"), ("index", "Indexwert"),
+                          ("ratio", "Verhaeltnis (3.0 = 3x)"), ("count", "Anzahl je Monat"),
+                          ("units", "Stueck je Monat")):
+        if fmt.startswith(praefix):
+            return text
+    return fmt or "Zahl"
+
+
+def vorlage_zeilen() -> list[dict]:
+    """Je Ziel-/Plan-Vergleich eine Zeile. Der Kunde traegt Zeitraum und Wert ein; bekannt
+    ist schon alles andere (Nicht schaetzen, wenn gefragt werden kann: vorbelegen, nur
+    abfragen, was fehlt). PY braucht keine Werte und fehlt deshalb."""
+    vs, _ = vergleiche()
+    katalog = _katalog()
+    zeilen, gesehen = [], set()
+    for v in vs:
+        if v.art == "vs_py" or (v.kpi_id, v.art) in gesehen:
+            continue
+        gesehen.add((v.kpi_id, v.art))
+        zeilen.append({"kpi_id": v.kpi_id, "scenario": "target" if v.art == "vs_target" else "plan",
+                       "measure": v.measure, "angabe_als": _angabe_als(v.kpi_id, katalog),
+                       "gilt_ab": "", "gilt_bis": "", "wert": ""})
+    return sorted(zeilen, key=lambda z: (z["kpi_id"], z["scenario"]))
+
+
+def schreibe_vorlage(pfad: Path) -> int:
+    import csv
+    zeilen = vorlage_zeilen()
+    with open(pfad, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=VORLAGE_SPALTEN, delimiter=";")
+        w.writeheader()
+        w.writerows(zeilen)
+    return len(zeilen)
+
+
+def _monatsenden(ab: str, bis: str) -> list[int]:
+    import calendar
+    m = re.fullmatch(r"(\d{4})-(\d{2})", ab or ""), re.fullmatch(r"(\d{4})-(\d{2})", bis or "")
+    if not all(m):
+        raise ValueError(f"gilt_ab/gilt_bis als JJJJ-MM erwartet, bekommen {ab!r}/{bis!r}")
+    j, mo = int(m[0].group(1)), int(m[0].group(2))
+    ende = (int(m[1].group(1)), int(m[1].group(2)))
+    if (j, mo) > ende or not 1 <= mo <= 12 or not 1 <= ende[1] <= 12:
+        raise ValueError(f"Zeitraum {ab}..{bis} ist leer oder ungueltig")
+    out = []
+    while (j, mo) <= ende:
+        out.append(j * 10000 + mo * 100 + calendar.monthrange(j, mo)[1])
+        j, mo = (j + 1, 1) if mo == 12 else (j, mo + 1)
+    return out
+
+
+def lies_vorlage(pfad: Path) -> list[tuple[str, str, int, float]]:
+    """Ausgefuellte Vorlage -> Zeilen fuer fact_target. Bricht bei jedem Fehler ab, statt
+    einen Teil zu laden: ein halb geladenes Ziel sieht im Report aus wie ein ganzes."""
+    import csv
+    katalog = _katalog()
+    erlaubt = {(z["kpi_id"], z["scenario"]) for z in vorlage_zeilen()}
+    fehler, out = [], []
+    with open(pfad, encoding="utf-8", newline="") as f:
+        for nr, z in enumerate(csv.DictReader(f, delimiter=";"), start=2):
+            if not (z.get("wert") or "").strip():
+                continue                                  # nicht ausgefuellt: kein Ziel, keine Linie
+            kid, sz = (z.get("kpi_id") or "").strip(), (z.get("scenario") or "").strip()
+            if (kid, sz) not in erlaubt:
+                fehler.append(f"Zeile {nr}: {kid}/{sz} wird von keinem Report verglichen")
+                continue
+            try:
+                wert = float(z["wert"].replace(",", "."))
+                keys = _monatsenden(z.get("gilt_ab", "").strip(), z.get("gilt_bis", "").strip())
+            except ValueError as exc:
+                fehler.append(f"Zeile {nr}: {exc}")
+                continue
+            fmt = str((katalog[kid].get("business") or {}).get("unit_format") or "")
+            if fmt.startswith("percent") and abs(wert) > 1.5:
+                fehler.append(f"Zeile {nr}: {kid} ist ein Anteil, {wert} sieht nach Prozentpunkten aus "
+                              f"(85 % als 0.85 angeben)")
+                continue
+            out += [(kid, sz, k, wert) for k in keys]
+    doppelt = {(k, s, d) for k, s, d, _ in out if sum(1 for x in out if x[:3] == (k, s, d)) > 1}
+    fehler += [f"{k}/{s}: Monat {d} doppelt belegt" for k, s, d in sorted(doppelt)]
+    if fehler:
+        raise ValueError("Vorlage nicht geladen:\n  " + "\n  ".join(fehler))
+    return out
+
+
+def lade_vorlage(pfad: Path, ziel: Path = GOLD_ZIEL) -> int:
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+    zeilen = lies_vorlage(pfad)
+    schema = pa.schema([("kpi_id", pa.string()), ("scenario", pa.string()),
+                        ("DateKey", pa.int64()), ("Target Value", pa.float64())])
+    spalten = list(zip(*zeilen)) if zeilen else [[], [], [], []]
+    tab = pa.table([pa.array(list(c), type=t.type) for c, t in zip(spalten, schema)], schema=schema)
+    ziel.mkdir(parents=True, exist_ok=True)
+    for alt in ziel.glob("*.parquet"):
+        alt.unlink()
+    pq.write_table(tab, ziel / "part-00000.parquet")
+    return len(zeilen)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--vorlage", type=Path, help="CSV-Vorlage fuer Ziel- und Planwerte schreiben")
+    ap.add_argument("--laden", type=Path, help="ausgefuellte Vorlage nach fact_target laden")
+    ap.add_argument("--ziel", type=Path, default=GOLD_ZIEL, help="Gold-Ordner von fact_target")
     args = ap.parse_args(argv)
+    if args.vorlage:
+        print(f"{schreibe_vorlage(args.vorlage)} Zeilen -> {args.vorlage}")
+        return 0
+    if args.laden:
+        try:
+            print(f"{lade_vorlage(args.laden, args.ziel)} Monatswerte -> {args.ziel}")
+        except ValueError as exc:
+            print(exc, file=sys.stderr)
+            return 1
+        return 0
     drift, luecken = pruefe(schreiben=args.write)
     for l in luecken:
         print(f"LUECKE  {l}")
