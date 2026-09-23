@@ -47,6 +47,20 @@
               },
               "queryRef": "_Measures.Unit Cost Amount",
               "nativeQueryRef": "Unit Cost Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Unit Cost Amount Plan (Target Table)"
+                }
+              },
+              "queryRef": "_Measures.Unit Cost Amount Plan (Target Table)",
+              "nativeQueryRef": "Unit Cost Amount Plan (Target Table)"
             }
           ]
         }

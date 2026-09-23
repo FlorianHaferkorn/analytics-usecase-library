@@ -471,6 +471,23 @@ def run_commercial_derived_facts():
             print(f"Written fact_customer_value ({len(agg):,} rows) from fact_sales")
 
 
+def run_targets():
+    """fact_target: Ziel- und Planwerte je KPI und Monat (R6.1, 23.09.2026).
+
+    Bewusst leer. Ziele liefert der Kunde beim Onboarding; ein erfundener Zielwert im Demo-
+    Datensatz waere eine Aussage ohne Beleg. Das Schema steht trotzdem, damit die Tabelle in
+    allen fuenf Modellen laedt (fn_DeltaCurrentFiles braucht einen Ordner mit Parquet).
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    schema = pa.schema([("kpi_id", pa.string()), ("scenario", pa.string()),
+                        ("DateKey", pa.int64()), ("Target Value", pa.float64())])
+    (facts / "fact_target").mkdir(parents=True, exist_ok=True)
+    pq.write_table(schema.empty_table(), facts / "fact_target" / "part-00000.parquet")
+    print("Written fact_target (0 rows, schema only)")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate Aurora gold data (all domains or selected).")
     parser.add_argument(
@@ -505,6 +522,8 @@ def main():
         run_finance(org_keys, date_keys, product_keys)
     if "commercial" in selected:
         run_commercial_derived_facts()
+    if selected == DOMAINS:
+        run_targets()
 
     print("Done.")
 

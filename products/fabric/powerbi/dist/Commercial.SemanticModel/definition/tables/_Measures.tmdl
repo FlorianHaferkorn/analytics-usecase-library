@@ -34,6 +34,55 @@ table _Measures
 		formatString: @
 		displayFolder: 0_Summary
 
+	/// Purpose: Vorjahreswert von CLV (Customer Lifetime Value) (comparison: vs_py), per Zeitintelligenz.
+	measure 'CLV (Customer Lifetime Value) PY' = CALCULATE ( [CLV (Customer Lifetime Value)], SAMEPERIODLASTYEAR ( 'dim_date'[Date] ) )
+		formatString: "#,0"
+		displayFolder: 8_Comparison
+		lineageTag: c9cbaa3f-8e54-560d-8d75-43624a3374a1
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung CLV (Customer Lifetime Value) gegen CLV (Customer Lifetime Value) PY; leer ohne Referenzwert.
+	measure 'CLV (Customer Lifetime Value) vs PY' = VAR _r = [CLV (Customer Lifetime Value) PY] RETURN IF ( ISBLANK ( _r ), BLANK (), [CLV (Customer Lifetime Value)] - _r )
+		formatString: "#,0"
+		displayFolder: 8_Comparison
+		lineageTag: d7ac9747-4dbf-5e47-a707-5da22050c0ca
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Planwert von Gross Margin % aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Gross Margin % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "margin.gm.pct", fact_target[scenario] = "plan" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: d98f73e8-cf85-5404-9fd9-7604516ccfb3
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Gross Margin % gegen Gross Margin % Plan (Target Table); leer ohne Referenzwert.
+	measure 'Gross Margin % vs Plan (Target Table)' = VAR _r = [Gross Margin % Plan (Target Table)] RETURN IF ( ISBLANK ( _r ), BLANK (), [Gross Margin %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: a59afabc-e07f-5a03-9e10-74fcb052ac21
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Planwert von Promo ROI % aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Promo ROI % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "sales.promo.roi.pct", fact_target[scenario] = "plan" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 9390ccd7-dd5d-533d-8d8f-f2898a2ff4e5
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Promo ROI % gegen Promo ROI % Plan (Target Table); leer ohne Referenzwert.
+	measure 'Promo ROI % vs Plan (Target Table)' = VAR _r = [Promo ROI % Plan (Target Table)] RETURN IF ( ISBLANK ( _r ), BLANK (), [Promo ROI %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 8cd7ac5f-ffc6-58e2-aa9c-c209b2dd932f
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+
 	column Column1
 		dataType: string
 		sourceColumn: Column1

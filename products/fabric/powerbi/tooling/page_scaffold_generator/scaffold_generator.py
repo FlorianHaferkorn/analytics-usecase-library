@@ -170,6 +170,7 @@ class PageScaffoldGenerator:
             semantic_delta_cards=semantic_delta_cards,
             model_columns=self.page_config.get("model_columns"),
             kpi_good_is=self.page_config.get("kpi_good_is") or {},
+            comparison_refs=self.page_config.get("comparison_refs") or {},
         )
 
         self._add_last_refresh(page_structure["visuals"])

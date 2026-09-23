@@ -63,6 +63,71 @@ table _Measures
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
+	/// Purpose: Zielwert von Availability % aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Availability % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "ops.availability.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 96449f23-f860-54f5-9ded-5682775b69b1
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Availability % gegen Availability % Target; leer ohne Referenzwert.
+	measure 'Availability % vs Target' = VAR _r = [Availability % Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Availability %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: ead9496d-2616-55c5-88de-0fb9c1510af1
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von First Pass Yield % aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'First Pass Yield % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "quality.fpy.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 2a1f3609-b65f-537c-b12e-ba1f2b09e0df
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung First Pass Yield % gegen First Pass Yield % Target; leer ohne Referenzwert.
+	measure 'First Pass Yield % vs Target' = VAR _r = [First Pass Yield % Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [First Pass Yield %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 8b4770fe-a6fd-54bf-9122-4c9d01c59d0b
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Planwert von MTBF (hours) aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'MTBF (hours) Plan (Target Table)' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "ops.mtbf.hours", fact_target[scenario] = "plan" )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 62af54ea-eb16-51dc-9d2a-f70a4ddb395c
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung MTBF (hours) gegen MTBF (hours) Plan (Target Table); leer ohne Referenzwert.
+	measure 'MTBF (hours) vs Plan (Target Table)' = VAR _r = [MTBF (hours) Plan (Target Table)] RETURN IF ( ISBLANK ( _r ), BLANK (), [MTBF (hours)] - _r )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 4ef83e79-9b2a-5e94-8c54-526451726ba2
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von Overall Equipment Effectiveness (OEE) % aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Overall Equipment Effectiveness (OEE) % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "ops.oee.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 4cf5e9da-06e8-50e0-9cd8-50f8e34cdaec
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Overall Equipment Effectiveness (OEE) % gegen Overall Equipment Effectiveness (OEE) % Target; leer ohne Referenzwert.
+	measure 'Overall Equipment Effectiveness (OEE) % vs Target' = VAR _r = [Overall Equipment Effectiveness (OEE) % Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Overall Equipment Effectiveness (OEE) %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: eb5f84f0-b93d-5cb8-885c-f3ff95453bac
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+
 	column Column1
 		dataType: string
 		sourceColumn: Column1

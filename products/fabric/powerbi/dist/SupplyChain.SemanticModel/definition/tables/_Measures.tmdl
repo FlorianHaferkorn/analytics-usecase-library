@@ -63,6 +63,55 @@ table _Measures
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
+	/// Purpose: Zielwert von Days in Inventory aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Days in Inventory Target' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "inv.dio.days", fact_target[scenario] = "target" )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 59e6eb5b-e257-585b-afb2-ffea0377292c
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Days in Inventory gegen Days in Inventory Target; leer ohne Referenzwert.
+	measure 'Days in Inventory vs Target' = VAR _r = [Days in Inventory Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Days in Inventory] - _r )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 8255ba4f-1a65-5c4b-aff8-048979ebc941
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von Forecast Accuracy % aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Forecast Accuracy % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "plan.forecast.accuracy.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 4e2ba645-3ab5-55cd-9087-1eae31a11c3a
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Forecast Accuracy % gegen Forecast Accuracy % Target; leer ohne Referenzwert.
+	measure 'Forecast Accuracy % vs Target' = VAR _r = [Forecast Accuracy % Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Forecast Accuracy %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 28e03618-ff10-5d96-ac39-ffb6c2cd9805
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von OTIF % aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'OTIF % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "supply.otif.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 1c9876ce-ec40-58c9-a12b-87811a2fd56a
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung OTIF % gegen OTIF % Target; leer ohne Referenzwert.
+	measure 'OTIF % vs Target' = VAR _r = [OTIF % Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [OTIF %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 73f038a3-1078-5e43-99e8-7fcac44fe818
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+
 	column Column1
 		dataType: string
 		sourceColumn: Column1

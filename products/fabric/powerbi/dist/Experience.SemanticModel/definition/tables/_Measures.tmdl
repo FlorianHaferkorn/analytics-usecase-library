@@ -81,6 +81,71 @@ table _Measures
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
+	/// Purpose: Zielwert von Action Outcome Rate % (XD Log) aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Action Outcome Rate % (XD Log) Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.action_outcome_rate.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 4dab9c41-1a23-5c7d-b1a7-2a47164b1864
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Action Outcome Rate % (XD Log) gegen Action Outcome Rate % (XD Log) Target; leer ohne Referenzwert.
+	measure 'Action Outcome Rate % (XD Log) vs Target' = VAR _r = [Action Outcome Rate % (XD Log) Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Action Outcome Rate % (XD Log)] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: e1e0bc8a-8f95-5d3c-9179-11d1ebb8dc40
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von Enterprise Value-at-Risk Index aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Enterprise Value-at-Risk Index Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.value_at_risk.index", fact_target[scenario] = "target" )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 650da056-a5a5-5c60-b8ad-73ccb6c79219
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Enterprise Value-at-Risk Index gegen Enterprise Value-at-Risk Index Target; leer ohne Referenzwert.
+	measure 'Enterprise Value-at-Risk Index vs Target' = VAR _r = [Enterprise Value-at-Risk Index Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [Enterprise Value-at-Risk Index] - _r )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: b283a9fa-d4f0-53a2-b66c-1cdf584c8b73
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Zielwert von SLA Attainment % aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'SLA Attainment % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "svc.sla.attainment.pct", fact_target[scenario] = "target" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 951b6dba-279f-5a42-a41c-ef112b772337
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung SLA Attainment % gegen SLA Attainment % Target; leer ohne Referenzwert.
+	measure 'SLA Attainment % vs Target' = VAR _r = [SLA Attainment % Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [SLA Attainment %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 76d2c389-79dc-550a-8b83-99d7da030a57
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Planwert von Utilization % aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Utilization % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "res.utilization.pct", fact_target[scenario] = "plan" )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: 7ba5ce95-54f7-5a00-9125-23a892b7fbd3
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Utilization % gegen Utilization % Plan (Target Table); leer ohne Referenzwert.
+	measure 'Utilization % vs Plan (Target Table)' = VAR _r = [Utilization % Plan (Target Table)] RETURN IF ( ISBLANK ( _r ), BLANK (), [Utilization %] - _r )
+		formatString: "0.0%"
+		displayFolder: 8_Comparison
+		lineageTag: ae9f26dc-0a28-5a2e-ada8-3fe7f6eb4229
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+
 	column Column1
 		dataType: string
 		sourceColumn: Column1

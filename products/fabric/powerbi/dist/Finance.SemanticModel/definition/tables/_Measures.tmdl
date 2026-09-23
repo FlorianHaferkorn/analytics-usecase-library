@@ -63,6 +63,39 @@ table _Measures
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
+	/// Purpose: Zielwert von CCC Days aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'CCC Days Target' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "wc.ccc.days", fact_target[scenario] = "target" )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 28768637-77d3-5f48-8fcd-15134bdd387d
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung CCC Days gegen CCC Days Target; leer ohne Referenzwert.
+	measure 'CCC Days vs Target' = VAR _r = [CCC Days Target] RETURN IF ( ISBLANK ( _r ), BLANK (), [CCC Days] - _r )
+		formatString: "0"
+		displayFolder: 8_Comparison
+		lineageTag: 214befd9-fb2e-51c1-ba6d-72e7712bab9a
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Planwert von Unit Cost Amount aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	measure 'Unit Cost Amount Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "cost.unit.amount", fact_target[scenario] = "plan" )
+		formatString: "#,0"
+		displayFolder: 8_Comparison
+		lineageTag: f33a32b4-acea-5406-9b30-7fb3fcb15de0
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+	/// Purpose: Abweichung Unit Cost Amount gegen Unit Cost Amount Plan (Target Table); leer ohne Referenzwert.
+	measure 'Unit Cost Amount vs Plan (Target Table)' = VAR _r = [Unit Cost Amount Plan (Target Table)] RETURN IF ( ISBLANK ( _r ), BLANK (), [Unit Cost Amount] - _r )
+		formatString: "#,0"
+		displayFolder: 8_Comparison
+		lineageTag: d6a604f4-7553-5900-a6a6-67c9d3cd24b5
+
+		annotation ALUCA_Generated = "comparison_measures"
+
+
 	column Column1
 		dataType: string
 		sourceColumn: Column1

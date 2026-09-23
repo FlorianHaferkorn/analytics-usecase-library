@@ -47,6 +47,20 @@
               },
               "queryRef": "_Measures.Overall Equipment Effectiveness (OEE) %",
               "nativeQueryRef": "Overall Equipment Effectiveness (OEE) %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Overall Equipment Effectiveness (OEE) % Target"
+                }
+              },
+              "queryRef": "_Measures.Overall Equipment Effectiveness (OEE) % Target",
+              "nativeQueryRef": "Overall Equipment Effectiveness (OEE) % Target"
             }
           ]
         }

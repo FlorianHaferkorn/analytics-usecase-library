@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 _RANG_TYPEN = {"clusteredBarChart", "clusteredColumnChart", "barChart", "columnChart"}
 _EVIDENZ_TYPEN = {"tableEx", "matrix", "pivotTable"}
+_LINIEN_TYPEN = {"trend_line", "line_chart", "line"}
 
 
 def _sort_rangfolge(vis: Dict[str, Any], measures: List[str], kpi_ids: List[str],
@@ -101,6 +102,7 @@ class PageBuilder:
         semantic_delta_cards: bool = False,
         model_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
+        comparison_refs: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -143,6 +145,13 @@ class PageBuilder:
             if not isinstance(_kids, list):
                 _kids = [_kids] if _kids else []
             _measures = [_kpi_to_measure.get(k, k) for k in _kids if isinstance(k, str) and k.strip()]
+            # R6.1: der deklarierte Vergleich wird als zweite Reihe gezeichnet -- nur auf
+            # Linien. Bei Balken waere die Referenz ein zweiter Balken je Kategorie, eine andere
+            # Darstellung, die hier nicht entschieden ist. Fehlt die Referenz im Modell, bleibt
+            # die Linie allein (comparison_measures meldet die Luecke).
+            _ref = (comparison_refs or {}).get(f"{_kids[0]}|{_c_item.get('comparison')}") if _kids else None
+            if _ref and _vt in _LINIEN_TYPEN and _ref not in _measures:
+                _measures.append(_ref)
             # category_field from bracket: "table.Column" → split into entity/property
             _cat_field = _c_item.get("category_field")
             _cat_entity, _cat_prop = None, None
@@ -519,6 +528,7 @@ class PageBuilder:
         semantic_delta_cards: bool = False,
         model_columns: Optional[set] = None,
         kpi_good_is: Optional[Dict[str, str]] = None,
+        comparison_refs: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -582,6 +592,7 @@ class PageBuilder:
                 semantic_delta_cards=semantic_delta_cards,
                 model_columns=model_columns,
                 kpi_good_is=kpi_good_is,
+                comparison_refs=comparison_refs,
             )
 
         # Determine slicer placement (default: top)

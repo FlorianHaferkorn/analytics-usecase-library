@@ -47,6 +47,20 @@
               },
               "queryRef": "_Measures.Forecast Accuracy %",
               "nativeQueryRef": "Forecast Accuracy %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Forecast Accuracy % Target"
+                }
+              },
+              "queryRef": "_Measures.Forecast Accuracy % Target",
+              "nativeQueryRef": "Forecast Accuracy % Target"
             }
           ]
         }

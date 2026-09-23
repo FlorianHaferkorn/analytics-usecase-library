@@ -78,6 +78,19 @@ class ConfigLoader:
         self._kpi_id_to_measure_name: Optional[Dict[str, str]] = None
         self._kpi_id_to_calc_type: Optional[Dict[str, str]] = None
 
+    def _comparison_refs(self, bracket: Dict[str, Any]) -> Dict[str, str]:
+        """`<kpi_id>|<art>` -> Referenz-Measure im gebundenen Modell (R6.1).
+
+        Namen und Existenzpruefung kommen aus tooling/codegen/comparison_measures.py, demselben
+        Modul, das die Measures erzeugt -- zwei Stellen, die Namen bilden, waeren zwei Meinungen.
+        """
+        from tooling.codegen.comparison_measures import referenzen_fuer_bracket
+        d = self._target_model_dir(bracket)
+        if d is None:
+            return {}
+        return referenzen_fuer_bracket(bracket, self.measure_map_for_model(d),
+                                       set(self._model_symbols_for_dir(d).measure_names))
+
     def load_kpi_good_is(self) -> Dict[str, str]:
         """KPI-ID -> `good_is` (higher/lower/band/zero) aus den Katalogdateien.
 
@@ -1044,6 +1057,7 @@ class ConfigLoader:
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "kpi_good_is": self.load_kpi_good_is(),
+                "comparison_refs": self._comparison_refs(bracket),
                 "intent_rules_version": intent_rules_version,
                 "big_idea_text": big_idea_text,
                 "assert_statement_titles": assert_statement_titles,
@@ -1228,6 +1242,7 @@ class ConfigLoader:
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "kpi_good_is": self.load_kpi_good_is(),
+                "comparison_refs": self._comparison_refs(bracket),
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
                 "smart_narrative_text": smart_narrative_text,

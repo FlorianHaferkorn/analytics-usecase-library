@@ -103,6 +103,14 @@ def _report_ids():
 
 # ── 1. Parquet fact coverage ──────────────────────────────────────────────────
 
+# Faktentabellen, die im Demo-Datensatz absichtlich leer sind. Grund ist Pflicht; eine
+# leere Tabelle ohne Eintrag hier bleibt ein Fehler.
+ABSICHTLICH_LEER = {
+    "fact_target": "Ziel- und Planwerte liefert der Kunde beim Onboarding (R6.1, 23.09.2026); "
+                   "ein erfundener Zielwert im Demo waere eine Aussage ohne Beleg.",
+}
+
+
 class TestParquetCoverage:
     """Every fact table referenced in TMDL must have non-empty Parquet data."""
 
@@ -126,7 +134,7 @@ class TestParquetCoverage:
                 missing.append(f"{fact_name}: no Parquet files")
             else:
                 rows = sum(pq.read_metadata(str(f)).num_rows for f in files)
-                if rows == 0:
+                if rows == 0 and fact_name not in ABSICHTLICH_LEER:
                     missing.append(f"{fact_name}: 0 rows")
 
         assert not missing, (
