@@ -3,11 +3,11 @@
   "name": "Main_1",
   "position": {
     "x": 32,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3002
+    "tabOrder": 3004
   },
   "visual": {
     "visualType": "lineChart",
@@ -24,11 +24,11 @@
                       "Entity": "dim_date"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "Year"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_date.Year",
+              "nativeQueryRef": "Year"
             }
           ]
         },
@@ -42,15 +42,57 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Delta% Net Sales (XD)"
+                  "Property": "Action Outcome Rate % (XD Log)"
                 }
               },
-              "queryRef": "_Measures.Delta% Net Sales (XD)",
-              "nativeQueryRef": "Delta% Net Sales (XD)"
+              "queryRef": "_Measures.Action Outcome Rate % (XD Log)",
+              "nativeQueryRef": "Action Outcome Rate % (XD Log)"
             }
           ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Is the action-governance cycle delivering verified business impact?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — Outcome-rate trend separates verified business impact from administrative action closure.'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

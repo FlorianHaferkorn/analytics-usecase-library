@@ -73,6 +73,7 @@ class PBIPWriter:
             legacy_pbip.unlink()
         with open(pbip_file, "w", encoding="utf-8") as f:
             json.dump(pbip_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
         return pbip_file
 
     def write_version_txt(self):
@@ -277,6 +278,7 @@ class PBIPWriter:
         report_file = self.definition_path / "report.json"
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
 
         # Power BI Desktop (Feb 2026+) requires definition.pbir at report root with definitionProperties schema (not report definition).
         self._write_definition_pbir(
@@ -323,6 +325,7 @@ class PBIPWriter:
         pbir_file = self.report_path / "definition.pbir"
         with open(pbir_file, 'w', encoding='utf-8') as f:
             json.dump(pbir_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
     
     def write_pages_json(self, page_ids: List[str], active_page: Optional[str] = None, append: bool = False):
         """
@@ -369,6 +372,7 @@ class PBIPWriter:
         
         with open(pages_file, 'w', encoding='utf-8') as f:
             json.dump(pages_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
     
     def write_page_json(self, page_id: str, page_data: Dict[str, Any]):
         """
@@ -384,6 +388,7 @@ class PBIPWriter:
         page_file = page_dir / "page.json"
         with open(page_file, 'w', encoding='utf-8') as f:
             json.dump(page_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
     
     def write_visual_json(self, page_id: str, visual_data: Dict[str, Any]):
         """
@@ -405,6 +410,7 @@ class PBIPWriter:
         visual_file.parent.mkdir(parents=True, exist_ok=True)
         with open(visual_file, 'w', encoding='utf-8') as f:
             json.dump(visual_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
     
     def write_page_structure(
         self,
@@ -443,3 +449,4 @@ class PBIPWriter:
         version_file = self.definition_path / "version.json"
         with open(version_file, "w", encoding="utf-8") as f:
             json.dump(version_data, f, indent=2, ensure_ascii=False)
+            f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch

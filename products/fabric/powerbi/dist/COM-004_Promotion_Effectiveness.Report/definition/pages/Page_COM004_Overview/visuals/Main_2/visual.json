@@ -3,11 +3,11 @@
   "name": "Main_2",
   "position": {
     "x": 656,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "OrgName"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
             }
           ]
         },
@@ -42,39 +42,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Incremental Gross Margin Amount"
+                  "Property": "GM % During Promo"
                 }
               },
-              "queryRef": "_Measures.Incremental Gross Margin Amount",
-              "nativeQueryRef": "Incremental Gross Margin Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Promo Cost"
-                }
-              },
-              "queryRef": "_Measures.Promo Cost",
-              "nativeQueryRef": "Promo Cost"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Cannibalized Sales Amount"
-                }
-              },
-              "queryRef": "_Measures.Cannibalized Sales Amount",
-              "nativeQueryRef": "Cannibalized Sales Amount"
+              "queryRef": "_Measures.GM % During Promo",
+              "nativeQueryRef": "GM % During Promo"
             }
           ]
         }
@@ -88,6 +60,48 @@
               "expr": {
                 "Literal": {
                   "Value": "30L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelPosition": {
+              "expr": {
+                "Literal": {
+                  "Value": "'OutsideEnd'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Thin promo margins are being eroded by cannibalization, pulling ROI below target'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

@@ -168,7 +168,10 @@ class PageScaffoldGenerator:
             narrative_measure_name=narrative_measure_name,
             active_actions_measure_name=active_actions_measure_name,
             semantic_delta_cards=semantic_delta_cards,
+            model_columns=self.page_config.get("model_columns"),
         )
+
+        self._add_last_refresh(page_structure["visuals"])
 
         self.page_structure = {
             "metadata": page_metadata,
@@ -177,6 +180,32 @@ class PageScaffoldGenerator:
             "page_type": template,
         }
     
+    def _add_last_refresh(self, visuals: List[Dict[str, Any]]) -> None:
+        """Datenstand oben rechts auf der Detailseite, gebunden an `Last Refresh (<SUFFIX>)`.
+
+        Seit #436 (10.08.2026) stand dieses Visual in allen 17 Reports -- von Hand in dist/,
+        nie im Generator. Beim ersten Rollout am 23.09.2026 waere es aus jedem Report
+        verschwunden, ohne dass ein Tor es gemerkt haette. Die Aktualitaet der Daten ist
+        Teil der Abnahme (ADR-0017 §Verification), also gehoert sie in den Generator.
+
+        Die Position kommt aus dem Raster, nicht aus einer Zahl: Spalte und Breite des
+        ActionPanel, Zeile und Hoehe des Smart_Narrative. Das ist die Zelle, die dist/ von
+        Hand besetzt hatte (x 1592, y 32, 296 x 70 auf dem Produktionsraster).
+        """
+        name = self.page_config.get("last_refresh_measure_name") if self.page_name == "detail" else None
+        if not name or any(v.get("name") == "Last_Refresh" for v in visuals):
+            return
+        pos = {v.get("name"): v.get("position") or {} for v in visuals}
+        panel, narrativ = pos.get("ActionPanel"), pos.get("Smart_Narrative")
+        if not panel or not narrativ:
+            return
+        from .layout_calculator import Position
+        vis = self.page_builder.visual_builder.build_narrative_card(
+            Position(x=panel["x"], y=narrativ["y"], width=panel["width"], height=narrativ["height"]),
+            measure_ref=name, name="Last_Refresh")
+        vis["position"]["tabOrder"] = max((p.get("tabOrder", 0) for p in pos.values()), default=0) + 1
+        visuals.append(vis)
+
     def validate(self) -> List[str]:
         """
         Validate scaffold against rules.

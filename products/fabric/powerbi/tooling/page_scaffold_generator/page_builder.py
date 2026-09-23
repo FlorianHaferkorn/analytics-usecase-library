@@ -8,7 +8,7 @@ import logging
 import uuid
 from typing import Dict, Any, List, Optional
 from .layout_calculator import LayoutCalculator, Position
-from .grid_calculator import GridCalculator, GridPosition
+from .grid_calculator import GridCalculator, GridPosition, ZONE0_HEADER_HEIGHT, zone0_offset, enforce_slicer_floor
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
 from .title_policy import resolve_header
@@ -62,6 +62,7 @@ class PageBuilder:
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
+        model_columns: Optional[set] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -70,7 +71,16 @@ class PageBuilder:
         # outer_margin/gutter NICHT mehr durchreichen: der GridCalculator holt sie aus
         # dem governten Raster. Sie hier erneut anzugeben haette die Konsolidierung
         # ausgehebelt — der haeufigste Weg, auf dem eine Dublette zurueckkommt.
-        calc = GridCalculator(canvas_width=w, canvas_height=h)
+        # Zone 0 (Big Idea) bekommt ihren eigenen Streifen. Layout_Grid_System.md legt den
+        # Header in Zeile 0 und das KPI-Band in die Zeilen 1-2; die Raster-Templates beginnen
+        # das KPI-Band aber in Zeile 0, und der Header wurde absolut darueber gelegt. Gemessen
+        # 23.09.2026: in allen 16 Reports mit Big Idea verdeckte der Header die oberen 56 px
+        # des KPI-Bandes, beide auf z 10000 -- auch im abgenommenen Referenzstand COM-002, weil
+        # die visuelle Abnahme (R1.6) nie stattfand. Das Raster rechnet deshalb mit der Flaeche
+        # unter Zone 0 und wird darunter verschoben.
+        _probe = GridCalculator(canvas_width=w, canvas_height=h)
+        zone0 = zone0_offset(bool(big_idea_text), _probe._gutter)
+        calc = GridCalculator(canvas_width=w, canvas_height=h - zone0) if zone0 else _probe
         slots_list = grid_blueprint.get("slots") or []
         visuals: List[Dict[str, Any]] = []
         slicers: List[Dict[str, Any]] = []
@@ -197,8 +207,14 @@ class PageBuilder:
                 slicers.append(sl)
                 continue
 
+            # Slicer nur auf Spalten, die das Zielmodell fuehrt. Gemessen 23.09.2026 beim
+            # Ausrollen: die Region- und Produkt-Slicer standen fest auf dim_org.Region und
+            # dim_product.Category, und das Experience-Modell hat kein dim_product -- vier
+            # XD-Reports haetten einen Slicer bekommen, der ins Leere filtert.
             if visual_type == "slicer_entity":
                 # Entity slicer (OrgName) for filtering Detail pages by business unit
+                if model_columns is not None and "dim_org.OrgName" not in model_columns:
+                    continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.OrgName", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
                 slicers.append(sl)
@@ -206,6 +222,8 @@ class PageBuilder:
 
             if visual_type == "slicer_region":
                 # Region slicer for Overview cross-filter (dim_org.Region)
+                if model_columns is not None and "dim_org.Region" not in model_columns:
+                    continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.Region", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
                 slicers.append(sl)
@@ -213,6 +231,8 @@ class PageBuilder:
 
             if visual_type == "slicer_product":
                 # Product Category slicer for Overview cross-filter (dim_product.Category)
+                if model_columns is not None and "dim_product.Category" not in model_columns:
+                    continue   # Zielmodell fuehrt die Spalte nicht: kein Slicer ins Leere
                 sl = self.slicer_builder.build_categorical_slicer(position, field="dim_product.Category", name=slot_id)
                 sl["position"]["tabOrder"] = tab + i
                 slicers.append(sl)
@@ -378,7 +398,7 @@ class PageBuilder:
                 {
                     "$schema": self.visual_builder.VISUAL_SCHEMA,
                     "name": "Header",
-                    "position": {"x": 32, "y": 32, "z": 10000, "height": 56, "width": 1856, "tabOrder": 2999},
+                    "position": {"x": 32, "y": 32, "z": 10000, "height": ZONE0_HEADER_HEIGHT, "width": 1856, "tabOrder": 2999},
                     "visual": {
                         "visualType": "textbox",
                         "objects": {
@@ -389,6 +409,12 @@ class PageBuilder:
                     },
                 }
             )
+
+        if zone0:
+            for _v in visuals + slicers:
+                if _v.get("name") != "Header":
+                    _v["position"]["y"] = _v["position"]["y"] + zone0
+        enforce_slicer_floor(visuals + slicers, h - _probe._outer_margin)
 
         return {"visuals": visuals, "slicers": slicers, "action_panel": None}
 
@@ -463,6 +489,7 @@ class PageBuilder:
         narrative_measure_name: Optional[str] = None,
         active_actions_measure_name: Optional[str] = None,
         semantic_delta_cards: bool = False,
+        model_columns: Optional[set] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -524,6 +551,7 @@ class PageBuilder:
                 narrative_measure_name=narrative_measure_name,
                 active_actions_measure_name=active_actions_measure_name,
                 semantic_delta_cards=semantic_delta_cards,
+                model_columns=model_columns,
             )
 
         # Determine slicer placement (default: top)

@@ -3,14 +3,14 @@
   "name": "Main_2",
   "position": {
     "x": 656,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3003
+    "tabOrder": 3005
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "lineChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -47,47 +47,46 @@
               },
               "queryRef": "_Measures.OpEx vs Plan %",
               "nativeQueryRef": "OpEx vs Plan %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Material Cost %"
-                }
-              },
-              "queryRef": "_Measures.Material Cost %",
-              "nativeQueryRef": "Material Cost %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Labor Productivity %"
-                }
-              },
-              "queryRef": "_Measures.Labor Productivity %",
-              "nativeQueryRef": "Labor Productivity %"
             }
           ]
         }
       }
     },
-    "objects": {
-      "categoryAxis": [
+    "visualContainerObjects": {
+      "title": [
         {
           "properties": {
-            "innerPadding": {
+            "text": {
               "expr": {
                 "Literal": {
-                  "Value": "30L"
+                  "Value": "'Which entities have the largest unfavorable OpEx variance?'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Expected finding — OpEx variance ranking isolates where controllable cost pressure is concentrated.'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

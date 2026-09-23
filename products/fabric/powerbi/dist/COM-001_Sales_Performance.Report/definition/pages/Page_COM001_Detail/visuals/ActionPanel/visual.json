@@ -23,11 +23,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Active Actions Text"
+                  "Property": "Active Actions Text (COM)"
                 }
               },
-              "queryRef": "_Measures.Active Actions Text",
-              "nativeQueryRef": "Active Actions Text"
+              "queryRef": "_Measures.Active Actions Text (COM)",
+              "nativeQueryRef": "Active Actions Text (COM)"
             }
           ]
         }

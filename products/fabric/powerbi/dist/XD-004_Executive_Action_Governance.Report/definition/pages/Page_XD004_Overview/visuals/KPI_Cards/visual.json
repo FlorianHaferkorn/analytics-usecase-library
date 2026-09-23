@@ -3,9 +3,9 @@
   "name": "KPI_Cards",
   "position": {
     "x": 32,
-    "y": 32,
+    "y": 104,
     "z": 10000,
-    "height": 156,
+    "height": 144,
     "width": 1856,
     "tabOrder": 3000
   },
@@ -19,7 +19,20 @@
             "columnCount": {
               "expr": {
                 "Literal": {
-                  "Value": "4L"
+                  "Value": "3L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "calloutValue": [
+        {
+          "properties": {
+            "displayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
                 }
               }
             }
@@ -39,53 +52,39 @@
                       "Entity": "_Measures"
                     }
                   },
+                  "Property": "Action Outcome Rate % (XD Log)"
+                }
+              },
+              "queryRef": "_Measures.Action Outcome Rate % (XD Log)",
+              "nativeQueryRef": "Action Outcome Rate % (XD Log)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Action Effectiveness Delta"
+                }
+              },
+              "queryRef": "_Measures.Action Effectiveness Delta",
+              "nativeQueryRef": "Action Effectiveness Delta"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
                   "Property": "Enterprise Value-at-Risk Index"
                 }
               },
               "queryRef": "_Measures.Enterprise Value-at-Risk Index",
               "nativeQueryRef": "Enterprise Value-at-Risk Index"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Gross Margin % (XD)"
-                }
-              },
-              "queryRef": "_Measures.Gross Margin % (XD)",
-              "nativeQueryRef": "Gross Margin % (XD)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Delta% Net Sales (XD)"
-                }
-              },
-              "queryRef": "_Measures.Delta% Net Sales (XD)",
-              "nativeQueryRef": "Delta% Net Sales (XD)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "CLV (Customer Lifetime Value)"
-                }
-              },
-              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
-              "nativeQueryRef": "CLV (Customer Lifetime Value)"
             }
           ]
         }

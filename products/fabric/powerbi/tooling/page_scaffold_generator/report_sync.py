@@ -227,6 +227,7 @@ def _ensure_drillthrough_metadata_on_detail_pages(
         try:
             with open(page_json_path, "w", encoding="utf-8") as f:
                 json.dump(page_data, f, indent=2, ensure_ascii=False)
+                f.write("\n")  # end-of-file-fixer (pre-commit) erwartet den Zeilenumbruch
         except Exception:
             pass
 

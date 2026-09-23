@@ -40,7 +40,10 @@ EVIDENCE_VISUAL_TYPES = {"tableEx", "matrix", "pivotTable"}
 # failing score/knock-out should actually fail CI. Everything else is scored
 # and printed for visibility (DoD: "Score je Report im CI-Log") but does not
 # gate the build yet -- 17/17 is R5.1's job (generator rollout), not R3.3's.
-DEFAULT_ENFORCED_REPORTS = ["COM-002"]
+# 23.09.2026 (R5.1): seit dem Rollout bestehen alle 17 Reports (vorher 7, 11 Knock-outs).
+# Ein Tor, das nur einen Report erzwingt, laesst die anderen 16 still zurueckfallen --
+# `.Report` trifft jeden Reportnamen.
+DEFAULT_ENFORCED_REPORTS = [".Report"]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Treue-Dimension je Ziel-Werkzeug (Task L11)

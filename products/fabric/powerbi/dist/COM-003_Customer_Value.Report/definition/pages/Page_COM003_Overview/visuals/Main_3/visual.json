@@ -3,11 +3,11 @@
   "name": "Main_3",
   "position": {
     "x": 1280,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3004
+    "tabOrder": 3006
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "dim_customer"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "Segment"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "dim_customer.Segment",
+              "nativeQueryRef": "Segment"
             }
           ]
         },
@@ -42,56 +42,32 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "CLV (Customer Lifetime Value)"
+                  "Property": "Revenue at Risk Amount"
                 }
               },
-              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
-              "nativeQueryRef": "CLV (Customer Lifetime Value)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Customer Lifetime Revenue Amount"
-                }
-              },
-              "queryRef": "_Measures.Customer Lifetime Revenue Amount",
-              "nativeQueryRef": "Customer Lifetime Revenue Amount"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Customer Retention %"
-                }
-              },
-              "queryRef": "_Measures.Customer Retention %",
-              "nativeQueryRef": "Customer Retention %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Churned Customers"
-                }
-              },
-              "queryRef": "_Measures.Churned Customers",
-              "nativeQueryRef": "Churned Customers"
+              "queryRef": "_Measures.Revenue at Risk Amount",
+              "nativeQueryRef": "Revenue at Risk Amount"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Revenue at Risk Amount"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
     "objects": {
@@ -108,27 +84,7 @@
           }
         }
       ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
-                }
-              }
-            },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
+      "labels": [
         {
           "properties": {
             "show": {
@@ -142,6 +98,28 @@
               "expr": {
                 "Literal": {
                   "Value": "'OutsideEnd'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Revenue at risk is concentrated in a few customer segments'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

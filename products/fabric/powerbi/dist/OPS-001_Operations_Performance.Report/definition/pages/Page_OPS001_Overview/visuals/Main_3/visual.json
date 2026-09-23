@@ -3,14 +3,14 @@
   "name": "Main_3",
   "position": {
     "x": 1280,
-    "y": 290,
+    "y": 356,
     "z": 10000,
-    "height": 758,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3004
+    "tabOrder": 3006
   },
   "visual": {
-    "visualType": "clusteredBarChart",
+    "visualType": "lineChart",
     "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
@@ -21,14 +21,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "dim_date"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "CalendarYearMonth"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "dim_date.CalendarYearMonth",
+              "nativeQueryRef": "CalendarYearMonth"
             }
           ]
         },
@@ -42,106 +42,69 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Overall Equipment Effectiveness (OEE) %"
+                  "Property": "Unplanned Downtime %"
                 }
               },
-              "queryRef": "_Measures.Overall Equipment Effectiveness (OEE) %",
-              "nativeQueryRef": "Overall Equipment Effectiveness (OEE) %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Availability %"
-                }
-              },
-              "queryRef": "_Measures.Availability %",
-              "nativeQueryRef": "Availability %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Performance %"
-                }
-              },
-              "queryRef": "_Measures.Performance %",
-              "nativeQueryRef": "Performance %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Quality %"
-                }
-              },
-              "queryRef": "_Measures.Quality %",
-              "nativeQueryRef": "Quality %"
+              "queryRef": "_Measures.Unplanned Downtime %",
+              "nativeQueryRef": "Unplanned Downtime %"
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Unplanned Downtime %"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
       }
     },
-    "objects": {
-      "categoryAxis": [
+    "visualContainerObjects": {
+      "title": [
         {
           "properties": {
-            "innerPadding": {
+            "text": {
               "expr": {
                 "Literal": {
-                  "Value": "30L"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "layout": [
-        {
-          "properties": {
-            "clusteredGapSize": {
-              "expr": {
-                "Literal": {
-                  "Value": "10L"
+                  "Value": "'Which assets require immediate intervention for unplanned downtime?'"
                 }
               }
             },
-            "clusteredGapOverlaps": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ],
-      "dataLabels": [
-        {
-          "properties": {
             "show": {
               "expr": {
                 "Literal": {
                   "Value": "true"
                 }
               }
-            },
-            "labelPosition": {
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'OutsideEnd'"
+                  "Value": "'Expected finding — The exception queue ranks assets with the most critical unplanned-downtime exposure.'"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }

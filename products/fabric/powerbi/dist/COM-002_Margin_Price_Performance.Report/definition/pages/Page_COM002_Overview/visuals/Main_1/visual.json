@@ -3,11 +3,11 @@
   "name": "Main_1",
   "position": {
     "x": 32,
-    "y": 362,
+    "y": 356,
     "z": 10000,
-    "height": 686,
+    "height": 692,
     "width": 608,
-    "tabOrder": 3002
+    "tabOrder": 3004
   },
   "visual": {
     "visualType": "lineChart",

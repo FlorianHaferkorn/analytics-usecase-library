@@ -3,10 +3,10 @@
   "name": "Slicer_Date",
   "position": {
     "x": 32,
-    "y": 276,
+    "y": 264,
     "z": 5000,
-    "height": 80,
-    "width": 1856,
+    "height": 76,
+    "width": 608,
     "tabOrder": 3001
   },
   "visual": {
