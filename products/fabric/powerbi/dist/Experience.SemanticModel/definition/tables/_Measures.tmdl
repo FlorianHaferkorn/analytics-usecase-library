@@ -81,7 +81,7 @@ table _Measures
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
-	/// Purpose: Zielwert von Action Outcome Rate % (XD Log) aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	/// Purpose: Zielwert von Action Outcome Rate % (XD Log) aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'Action Outcome Rate % (XD Log) Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.action_outcome_rate.pct", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
@@ -97,7 +97,7 @@ table _Measures
 
 		annotation ALUCA_Generated = "comparison_measures"
 
-	/// Purpose: Zielwert von Enterprise Value-at-Risk Index aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	/// Purpose: Zielwert von Enterprise Value-at-Risk Index aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'Enterprise Value-at-Risk Index Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "enterprise.value_at_risk.index", fact_target[scenario] = "target" )
 		formatString: "0"
 		displayFolder: 8_Comparison
@@ -113,7 +113,7 @@ table _Measures
 
 		annotation ALUCA_Generated = "comparison_measures"
 
-	/// Purpose: Zielwert von SLA Attainment % aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	/// Purpose: Zielwert von SLA Attainment % aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'SLA Attainment % Target' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "svc.sla.attainment.pct", fact_target[scenario] = "target" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison
@@ -129,7 +129,7 @@ table _Measures
 
 		annotation ALUCA_Generated = "comparison_measures"
 
-	/// Purpose: Planwert von Utilization % aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	/// Purpose: Planwert von Utilization % aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'Utilization % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "res.utilization.pct", fact_target[scenario] = "plan" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison

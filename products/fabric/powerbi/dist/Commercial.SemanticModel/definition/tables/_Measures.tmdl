@@ -50,23 +50,7 @@ table _Measures
 
 		annotation ALUCA_Generated = "comparison_measures"
 
-	/// Purpose: Planwert von Gross Margin % aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
-	measure 'Gross Margin % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "margin.gm.pct", fact_target[scenario] = "plan" )
-		formatString: "0.0%"
-		displayFolder: 8_Comparison
-		lineageTag: d98f73e8-cf85-5404-9fd9-7604516ccfb3
-
-		annotation ALUCA_Generated = "comparison_measures"
-
-	/// Purpose: Abweichung Gross Margin % gegen Gross Margin % Plan (Target Table); leer ohne Referenzwert.
-	measure 'Gross Margin % vs Plan (Target Table)' = VAR _r = [Gross Margin % Plan (Target Table)] RETURN IF ( ISBLANK ( _r ), BLANK (), [Gross Margin %] - _r )
-		formatString: "0.0%"
-		displayFolder: 8_Comparison
-		lineageTag: a59afabc-e07f-5a03-9e10-74fcb052ac21
-
-		annotation ALUCA_Generated = "comparison_measures"
-
-	/// Purpose: Planwert von Promo ROI % aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	/// Purpose: Planwert von Promo ROI % aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'Promo ROI % Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "sales.promo.roi.pct", fact_target[scenario] = "plan" )
 		formatString: "0.0%"
 		displayFolder: 8_Comparison

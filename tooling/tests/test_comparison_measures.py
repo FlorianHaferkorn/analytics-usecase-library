@@ -166,3 +166,18 @@ def test_a_py_delta_needs_no_customer_data(tmp_path):
                       "visuals/KPI_Delta/visual.json").read_text(encoding="utf-8"))
     ys = kpi["visual"]["query"]["queryState"]["Data"]["projections"]
     assert ys[0]["field"]["Measure"]["Property"] == "CLV (Customer Lifetime Value) vs PY"
+
+
+def test_a_governed_plan_deviation_also_counts_as_governed_plan():
+    """COM-002: margin.gm.vs_plan.pct (aus fact_plan_sales) belegt den Plan -- keine zweite
+    Planzeile in der Vorlage, keine erzeugte Measure, und die Abweichung wird nie als
+    Referenzreihe neben den Pegel gelegt (Entscheidung 23.09.2026)."""
+    assert not any(z["kpi_id"] == "margin.gm.pct" for z in cm.vorlage_zeilen())
+    com = (cm.DIST / "Commercial.SemanticModel/definition/tables/_Measures.tmdl").read_text(encoding="utf-8")
+    assert "Gross Margin % Plan (Target Table)" not in com
+    loader = cm._loader()
+    b = loader.load_use_case_bracket("COM-002")
+    d = loader._target_model_dir(b)
+    refs = cm.referenzen_fuer_bracket(b, loader.measure_map_for_model(d),
+                                      set(loader._model_symbols_for_dir(d).measure_names))
+    assert "margin.gm.pct|vs_plan" not in refs

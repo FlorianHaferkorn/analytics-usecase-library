@@ -138,7 +138,8 @@ ux_layout_rules:
       - slot_id: Main_2
         kpi_id: enterprise.action_effectiveness_delta.amount
         visual_type: horizontal_bar_chart
-        question: "Which domains convert actions into the strongest verified impact?"
+        # Wortlaut 23.09.2026 an so_what und Sortierung (schwaechste zuerst) angeglichen (Entscheidung Flo).
+        question: "Which domains fail to convert actions into verified impact?"
         message: "Domain-level effectiveness ranks where governed actions deliver or fail to deliver verified value."
         so_what: "Executive attention should first address domains combining weak outcomes with material impact exposure."
         category_field: fact_action_outcome.domain

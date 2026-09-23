@@ -63,7 +63,7 @@ table _Measures
 		formatString: #,0
 		displayFolder: "8_Action_Outcomes"
 
-	/// Purpose: Zielwert von CCC Days aus fact_target (comparison: vs_target); leer, solange der Kunde keinen Wert geliefert hat.
+	/// Purpose: Zielwert von CCC Days aus fact_target (comparison: vs_target); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'CCC Days Target' = CALCULATE ( SUM ( fact_target[Target Value] ), fact_target[kpi_id] = "wc.ccc.days", fact_target[scenario] = "target" )
 		formatString: "0"
 		displayFolder: 8_Comparison
@@ -79,7 +79,7 @@ table _Measures
 
 		annotation ALUCA_Generated = "comparison_measures"
 
-	/// Purpose: Planwert von Unit Cost Amount aus fact_target (comparison: vs_plan); leer, solange der Kunde keinen Wert geliefert hat.
+	/// Purpose: Planwert von Unit Cost Amount aus fact_target (comparison: vs_plan); konzernweit, auch beim Filtern auf eine Einheit; leer, solange der Kunde keinen Wert geliefert hat.
 	measure 'Unit Cost Amount Plan (Target Table)' = CALCULATE ( AVERAGE ( fact_target[Target Value] ), fact_target[kpi_id] = "cost.unit.amount", fact_target[scenario] = "plan" )
 		formatString: "#,0"
 		displayFolder: 8_Comparison

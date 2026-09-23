@@ -94,10 +94,26 @@ def _komponenten(bracket: dict):
 
 
 def plan_kpi(kpi_id: str, katalog: dict) -> str | None:
-    """Die governte Plan-KPI zu `kpi_id`, wenn der Katalog eine fuehrt (`<basis>.plan.<einheit>`)."""
+    """Die governte Plan-KPI zu `kpi_id`, wenn der Katalog eine fuehrt (`<basis>.plan.<einheit>`).
+    Sie ist ein Pegel und darf als Referenzreihe neben der Kennzahl stehen."""
     basis, _, einheit = kpi_id.rpartition(".")
     kandidat = f"{basis}.plan.{einheit}"
     return kandidat if kandidat in katalog else None
+
+
+def plan_abweichung_kpi(kpi_id: str, katalog: dict) -> str | None:
+    """Die governte Plan-Abweichung zu `kpi_id` (`<basis>.vs_plan.<einheit>`), etwa
+    margin.gm.vs_plan.pct aus fact_plan_sales. Sie belegt, dass ein Plan governt existiert
+    (Entscheidung Flo 23.09.2026: dann keinen zweiten Plan aus der Vorlage verlangen), ist aber
+    eine Abweichung und wird nie als Referenzreihe neben den Pegel gelegt."""
+    basis, _, einheit = kpi_id.rpartition(".")
+    kandidat = f"{basis}.vs_plan.{einheit}"
+    return kandidat if kandidat in katalog else None
+
+
+def _governter_plan(kid: str, katalog: dict, namen: dict[str, str], definiert: set[str]) -> bool:
+    return any(k and namen.get(k) in definiert
+               for k in (plan_kpi(kid, katalog), plan_abweichung_kpi(kid, katalog)))
 
 
 def vergleiche() -> tuple[list[Vergleich], list[str]]:
@@ -125,10 +141,8 @@ def vergleiche() -> tuple[list[Vergleich], list[str]]:
             if m not in definiert:
                 luecken.append(f"{b.get('id')}: {kid} hat im Modell {model_dir.name} kein Measure")
                 continue
-            if art == "vs_plan":
-                pk = plan_kpi(kid, katalog)
-                if pk and namen.get(pk) in definiert:
-                    continue             # governter Plan vorhanden, nichts zu erzeugen
+            if art == "vs_plan" and _governter_plan(kid, katalog, namen, definiert):
+                continue                 # governter Plan vorhanden, nichts zu erzeugen
             out.append(Vergleich(model_dir.name, kid, art, m))
     return sorted(set(out), key=lambda v: (v.model, v.measure, v.art)), luecken
 
@@ -174,7 +188,12 @@ def referenzen_fuer_bracket(bracket: dict, namen: dict[str, str], definiert: set
         if art not in ("vs_target", "vs_plan", "vs_py") or kid not in namen:
             continue
         pk = plan_kpi(kid, katalog) if art == "vs_plan" else None
-        ref = namen.get(pk) if pk and namen.get(pk) in definiert else referenz_name(namen[kid], art)
+        if pk and namen.get(pk) in definiert:
+            ref = namen[pk]                      # governter Plan-Pegel
+        elif art == "vs_plan" and _governter_plan(kid, katalog, namen, definiert):
+            continue                             # nur die Abweichung governt: keine Referenzreihe
+        else:
+            ref = referenz_name(namen[kid], art)
         if ref in definiert:
             out[f"{kid}|{art}"] = ref
     return out
@@ -207,7 +226,7 @@ def band_delta(bracket: dict, namen: dict[str, str], definiert: set[str],
     art, kid = c3.get("comparison"), c3.get("kpi_id")
     if art not in ("vs_target", "vs_plan", "vs_py") or kid not in namen:
         return None
-    if art == "vs_plan" and plan_kpi(kid, _katalog()) and namen.get(plan_kpi(kid, _katalog())) in definiert:
+    if art == "vs_plan" and _governter_plan(kid, _katalog(), namen, definiert):
         return None                              # governter Plan: seine Abweichung steht im Band
     d = abweichung_name(namen[kid], art)
     if d not in definiert:
@@ -237,7 +256,8 @@ def measures_fuer(v: Vergleich, calc_type: str, fmt: str | None) -> list[str]:
         ref_dax = (f"CALCULATE ( {agg} ( {TABELLE}[Target Value] ), "
                    f"{TABELLE}[kpi_id] = \"{v.kpi_id}\", {TABELLE}[scenario] = \"{szenario}\" )")
         zweck = (f"{'Ziel' if szenario == 'target' else 'Plan'}wert von {v.measure} aus {TABELLE} "
-                 f"(comparison: {v.art}); leer, solange der Kunde keinen Wert geliefert hat.")
+                 f"(comparison: {v.art}); konzernweit, auch beim Filtern auf eine Einheit; leer, "
+                 f"solange der Kunde keinen Wert geliefert hat.")
     abw_dax = f"VAR _r = [{ref}] RETURN IF ( ISBLANK ( _r ), BLANK (), {basis} - _r )"
     return [
         _measure_block(v.model, ref, ref_dax, fmt, zweck),

@@ -500,7 +500,7 @@
     - visual: `line_chart` · `enterprise.action_outcome_rate.pct`
     - answer: Outcome-rate trend separates verified business impact from administrative action closure.
     - so what → A weak or deteriorating outcome rate triggers governance intervention before more activity is mistaken for progress.
-- **[30s Q2]** Which domains convert actions into the strongest verified impact?
+- **[30s Q2]** Which domains fail to convert actions into verified impact?
     - visual: `horizontal_bar_chart` · `enterprise.action_effectiveness_delta.amount`
     - answer: Domain-level effectiveness ranks where governed actions deliver or fail to deliver verified value.
     - so what → Executive attention should first address domains combining weak outcomes with material impact exposure.

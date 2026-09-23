@@ -112,7 +112,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Which domains convert actions into the strongest verified impact?'"
+                  "Value": "'Which domains fail to convert actions into verified impact?'"
                 }
               }
             },
