@@ -69,13 +69,30 @@ def target_source(kpi_id: Optional[str], comparison: Optional[str]) -> dict:
 
     This stops the false-gap that treats "no industry benchmark" as a defect: most KPIs (EBITDA margin,
     savings realisation, an internal index) are legitimately steered vs plan, not vs an industry number.
+
+    **`measure` ist eine Konvention, keine Messung — gemessen 09.09.2026.** Der zurueckgegebene
+    Name `[<kpi_id> Plan]` folgt dem Muster „kpi_id + Plan" und existiert in KEINEM Modell des
+    Repos: gezaehlt ueber alle 230 Measure-Namen in allen TMDL-Dateien, null Treffer fuer dieses
+    Muster. Real heissen die Ziel-Measures nach ihrer Anzeige-Measure mit Praefix (`Plan Sales
+    Amount`), und es gibt genau diese eine. Heute faellt das niemandem auf, weil beide Aufrufer
+    nur `kind` lesen und `measure` nirgends konsumiert wird — der Name ist also schlafend, nicht
+    kaputt. Er bleibt hier als Absichtserklaerung stehen, aber:
+
+    **Diesen String NICHT an eine Visual-Rolle binden.** Wer die `Goal`-Rolle des `kpi`-Visuals
+    damit fuellt, erzeugt einen baumelnden Measure-Verweis — ein Bericht, der rendert und nicht
+    stimmt, genau die Klasse aus `.claude/rules/connect-pbid.md`. Eine echte Ziel-Bindung
+    verlangt eine Measure, deren Existenz im Modell geprueft ist.
     """
     b = benchmark_target(kpi_id) if kpi_id else None
     if b and b.get("value") is not None:
         return {"kind": "benchmark", "value": b.get("value"), "direction": b.get("direction")}
     c = (comparison or "").lower()
     if c in ("vs_plan", "vs_target", "vs_ly", "vs_prior"):
-        return {"kind": "plan", "measure": f"[{kpi_id} Plan]" if kpi_id else None}
+        return {"kind": "plan",
+                # `measure_is_verified: False` sagt das, was der Name allein verschweigt.
+                # Ein Aufrufer, der bindet statt nur anzuzeigen, muss hier abbiegen.
+                "measure": f"[{kpi_id} Plan]" if kpi_id else None,
+                "measure_is_verified": False}
     return {"kind": "none"}
 
 

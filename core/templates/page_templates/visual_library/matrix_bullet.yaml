@@ -50,7 +50,7 @@ preview_svg: |
 realizations:
   powerbi_native:
     applicable: false
-    reason: "an in-cell column MEASURE (ImageUrl), not a standalone visual — the host table is matrix_evidence (tableEx)"
+    reason: "eine Spalten-Measure in der Zelle (ImageUrl), kein eigenstaendiges Visual — die Wirtstabelle ist matrix_evidence (tableEx). Nativ geprueft (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): `tableEx.columnFormatting` fuehrt `dataBars`, genau die Eigenschaft, die matrix_evidence schon benutzt — aber als proportionalen Balken ohne Referenzmarke. Der Zielstrich ist das, was `encoding.attainment: bullet_bar_vs_tick` ausmacht"
     use: "matrix_evidence (tableEx) + this SVG-DAX column, image height ~20px"
 
   powerbi_svg_dax:

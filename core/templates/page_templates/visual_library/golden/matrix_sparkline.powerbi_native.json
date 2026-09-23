@@ -1,0 +1,18 @@
+{
+  "visualType": "tableEx",
+  "query": { "queryState": {
+    "Values": { "projections": [
+      { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_product" } }, "Property": "Category" } }, "queryRef": "dim_product.Category" },
+      { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" },
+      { "field": { "SparklineData": {
+          "Measure": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } },
+          "Groupings": [ { "Column": { "Expression": { "SourceRef": { "Entity": "dim_date" } }, "Property": "Date" } } ]
+        } }, "queryRef": "SparklineData(_Measures.Gross Margin %_[dim_date.Date])" }
+    ] }
+  } },
+  "objects": { "sparklines": [ { "properties": {
+    "chartType": { "expr": { "Literal": { "Value": "'line'" } } },
+    "dataColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'#0F2430'" } } } } },
+    "strokeWidth": { "expr": { "Literal": { "Value": "1.5D" } } }
+  }, "selector": { "metadata": "SparklineData(_Measures.Gross Margin %_[dim_date.Date])" } } ] }
+}

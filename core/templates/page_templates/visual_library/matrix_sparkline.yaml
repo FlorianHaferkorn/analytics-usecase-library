@@ -47,10 +47,51 @@ preview_svg: |
   </svg>
 
 realizations:
+  # ADR-0021 (07.09.2026): native track first where the official catalog carries the
+  # capability. Until then this block read `applicable: false, reason: "this is an in-cell
+  # column MEASURE (ImageUrl), not a standalone visual"`. That reason predates the feature.
+  # Measured 07.09.2026 against @microsoft/powerbi-core-visual-schema (pinned 0.1.1):
+  # `capabilities.tableEx.objects.sparklines` exists, and so does `pivotTable`'s. Its
+  # properties are chartType (line|column), dataColor, strokeWidth, markers (flags
+  # 1/2/4/8/16/32/128), markerColor, markerSize, markerShape (circle|square|diamond|
+  # triangle|x|shortDash|longDash|plus). We were re-drawing in SVG what the host does.
   powerbi_native:
-    applicable: false
-    reason: "this is an in-cell column MEASURE (ImageUrl), not a standalone visual — the table that hosts it is matrix_evidence (tableEx)"
-    use: "matrix_evidence (tableEx) + this SVG-DAX column, image height ~24px"
+    ext: json
+    template: |
+      {
+        "visualType": "tableEx",
+        "query": { "queryState": {
+          "Values": { "projections": [
+            { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" },
+            { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" },
+            { "field": { "SparklineData": {
+                "Measure": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } },
+                "Groupings": [ { "Column": { "Expression": { "SourceRef": { "Entity": "{{date_entity}}" } }, "Property": "{{date_prop}}" } } ]
+              } }, "queryRef": "SparklineData({{entity}}.{{measure}}_[{{date_entity}}.{{date_prop}}])" }
+          ] }
+        } },
+        "objects": { "sparklines": [ { "properties": {
+          "chartType": { "expr": { "Literal": { "Value": "'line'" } } },
+          "dataColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_line}}'" } } } } },
+          "strokeWidth": { "expr": { "Literal": { "Value": "1.5D" } } }
+        }, "selector": { "metadata": "SparklineData({{entity}}.{{measure}}_[{{date_entity}}.{{date_prop}}])" } } ] }
+      }
+    notes: |
+      Der Instanzselektor traegt denselben Ausdruck wie `queryRef`; beide muessen mitwandern,
+      wenn eine Tabelle umbenannt wird (products/fabric/powerbi/docs/references/
+      pbir-rename-cascade.md:281-306 beschreibt die Kaskade).
+
+      Marker sind bewusst NICHT gesetzt: `anti_patterns` fuehrt
+      `axis_labels_in_a_sparkline` — eine Zellen-Sparkline ist Kontext, kein beschriftetes
+      Diagramm. Wer Datenpunkte hervorheben will, tut das im Idiom `small_multiples`, wo die
+      Flaeche dafuer da ist. Die Faehigkeit steht im Katalog und bleibt hier ungenutzt; das
+      ist eine Entscheidung, keine Luecke.
+
+      `pivotTable` traegt dasselbe `sparklines`-Objekt (Katalog 0.1.1, gemessen 07.09.2026).
+      Der Unterschied zu `tableEx` ist die Zeilengruppierung, nicht die Sparkline: wo Zeilen
+      hierarchisch gruppiert sind, traegt `matrix_evidence` die Spalte unveraendert. Dafuer
+      gibt es hier bewusst KEINE eigene Werkzeugspur — das Vokabular kennt vier, und eine
+      fuenfte, die kein Renderer und kein Test liest, waere ein zweites Silo.
 
   powerbi_svg_dax:
     ext: dax

@@ -65,7 +65,7 @@ realizations:
     ext: json
     template: |
       {
-        "visualType": "stackedColumnChart",
+        "visualType": "columnChart",
         "query": { "queryState": {
           "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" } ] },
           "Series": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{series_entity}}" } }, "Property": "{{series_prop}}" } }, "queryRef": "{{series_entity}}.{{series_prop}}" } ] },

@@ -2,9 +2,9 @@
   "visualType": "clusteredBarChart",
   "query": { "queryState": {
     "Category": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "dim_org" } }, "Property": "OrgName" } }, "queryRef": "dim_org.OrgName" } ] },
-    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" } ] },
-    "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "direction": "Ascending" } ], "isDefaultSort": true }
-  } },
+    "Y": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "queryRef": "_Measures.Gross Margin %" } ] }
+  },
+  "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "_Measures" } }, "Property": "Gross Margin %" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
   "objects": {
     "valueAxis": [ { "properties": { "start": { "expr": { "Literal": { "Value": "0D" } } } } } ],
     "labels": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ]

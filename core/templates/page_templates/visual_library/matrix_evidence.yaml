@@ -67,9 +67,9 @@ realizations:
             { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{category_entity}}" } }, "Property": "{{category_prop}}" } }, "queryRef": "{{category_entity}}.{{category_prop}}" },
             { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{value_measure}}" } }, "queryRef": "{{entity}}.{{value_measure}}" },
             { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "queryRef": "{{entity}}.{{dev_measure}}" }
-          ] },
-          "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true }
-        } },
+          ] }
+        },
+        "sortDefinition": { "sort": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{dev_measure}}" } }, "direction": "Ascending" } ], "isDefaultSort": true } },
         "objects": { "columnFormatting": [ { "properties": { "dataBars": {
           "positiveColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_above}}'" } } } } },
           "negativeColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_below}}'" } } } } }

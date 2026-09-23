@@ -54,7 +54,7 @@ preview_svg: |
 realizations:
   powerbi_native:
     applicable: false
-    reason: "Power BI has no native bullet base visual"
+    reason: "kein Visualtyp traegt die lineare Form. Geprueft wurde ausdruecklich `gauge` (Katalog @microsoft/powerbi-core-visual-schema 0.1.1, gemessen 07.09.2026): es fuehrt dieselben Datenrollen (Y, MinValue, MaxValue, TargetValue) und ein `target`-Objekt, zeichnet sie aber radial. Die lineare Spur mit qualitativen Baendern IST das Idiom; ein Halbkreis mit denselben Zahlen ist eine andere Aussage"
     use: "deneb_vegalite, or the xViz/Inforiver IBCS bullet custom visual"
 
   powerbi_svg_dax:

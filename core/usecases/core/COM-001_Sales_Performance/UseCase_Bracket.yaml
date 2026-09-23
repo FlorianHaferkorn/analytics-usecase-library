@@ -23,6 +23,11 @@ orchestration:
   - sales.net_sales.ly.amount
   - sales.price.list.amount
   - sales.price.net.amount
+  # Vergleichsbasen von Main_1/Main_2. Sie stehen hier, weil das kanonische Modell
+  # seine Measures ausschliesslich aus diesen Listen baut (from_aluca._kpi_ids_from_bracket);
+  # ein Visual-`kpi_ids` allein materialisiert nichts und laesst die Bindung haengen.
+  - sales.net_sales.plan.amount
+  - sales.net_sales.ly.amount
   action_code_ids:
   - C-M2.1
   - C-S1.1
@@ -63,14 +68,15 @@ ux_layout_rules:
     - slot_id: Main_1
       # Q5: Trend over time — Actual vs Plan vs Last Year (monthly granularity)
       # kpi_ids: catalog IDs resolve via config_loader; direct measure names fall back as-is
+      # 05.09.2026: Plan/LY tragen seit `22b6fd7d` eigene Katalog-IDs, der Fallback entfaellt hier.
       visual_type: line_chart
       question: "Are we on track versus Plan and last year — and is the lead holding?"
       message: "Net Sales compared with Plan and prior year reveals whether commercial performance is sustained."
       so_what: "A deteriorating trajectory moves the decision from monitoring to targeted commercial recovery."
       kpi_ids:
         - sales.net_sales.amount        # → Net Sales Amount
-        - sales.net_sales.plan.amount
-        - sales.net_sales.ly.amount
+        - sales.net_sales.plan.amount   # → Plan Sales Amount
+        - sales.net_sales.ly.amount     # → Last Year Net Sales Amount
       category_field: dim_date.CalendarYearMonth
       action_code_id: C-S1.2
       unit: amount
@@ -82,7 +88,7 @@ ux_layout_rules:
       so_what: "The dominant bridge component determines whether pricing, demand, or portfolio mix needs intervention."
       comparison: vs_plan
       kpi_ids:
-        - sales.net_sales.plan.amount
+        - sales.net_sales.plan.amount   # → Plan Sales Amount
         - sales.pvm.price_effect.amount
         - sales.pvm.volume_effect.amount
         - sales.pvm.mix_effect.amount

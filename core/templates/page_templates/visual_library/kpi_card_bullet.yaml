@@ -60,9 +60,11 @@ preview_svg: |
   </svg>
 
 realizations:
+  # ADR-0021 (07.09.2026). Der alte Grund nannte `cardVisual` und war damit die Antwort auf
+  # eine Frage nach EINEM Kartentyp. Geprueft ist jetzt die Plattform.
   powerbi_native:
     applicable: false
-    reason: "no native bullet, and the cardVisual has no embedded bullet track — the value+bullet+delta composite is a single SVG"
+    reason: "kein Kartentyp traegt einen Balken mit Zielmarke. Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `cardVisual` fuehrt 33 Objekte, darunter `referenceLabel`/`referenceLabelValue`/`referenceLabelDetail` — der Zielwert erscheint dort als TEXT neben der Zahl. `kpi` fuehrt sechs Objekte (general, goals, indicator, lastDate, status, trendline); `goals` zeigt Ziel und Abstand ebenfalls als Zahl. Beide koennen den Zielwert, keiner die Erreichung als Laenge. Genau das ist aber `encoding.attainment: bullet_bar_vs_tick` und der einzige Unterschied dieser Karte zu kpi_card_spark — eine native Spur haette den Rang-2-Kanal weggelassen und waere die Schwesterkarte mit anderem Namen. Dasselbe Ergebnis wie beim Idiom `bullet` selbst, dort am `gauge` gemessen"
     use: "powerbi_svg_dax (cardVisual callout.imageFX)"
 
   powerbi_svg_dax:

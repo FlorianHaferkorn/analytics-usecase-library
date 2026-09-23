@@ -1,0 +1,120 @@
+# Preis-Kanon, Mandant `nagarro` — Schema, keine Werte (ADR-0019 §2.3, Aufgabe N-1).
+#
+# Diese Datei beschreibt die **Form** der Mandantendatei. Jeder Wert, der Nagarro gehoert
+# (Kostenbaender, Ratecards, Marge, Risikozuschlag, Beteiligung, Verfuegbarkeit), steht hier
+# als Platzhalter `<...>` und nirgends als Zahl. Die Zahlen liegen an der Nagarro-Ablage und
+# werden ueber `PREIS_KANON_MANDANTEN_DIR` geladen — dieselbe Regel wie fuer Kundenmaterial.
+# `preis_kanon_mandant.py` haelt beides auseinander und rechnet nicht mit Platzhaltern.
+#
+# Die Struktur ist die von Meridians `core/preis_kanon.yaml` (D-356), damit der gespiegelte
+# Rechenkern (`vendor/meridian_dataarch/preis_kanon.py`) sie ohne zweite Implementierung
+# liest. Was sich unterscheidet, ist die Belegung von `satzklassen`: dort eine Person mit
+# zwei Klassen, hier Rolle × Standort (ADR-0019 §2.2).
+#
+# Ein Blick auf die Formel, damit ablesbar ist, welcher Platzhalter wo landet:
+#
+#     Selbstkosten = Sigma_k (Grundaufwand_k + Sigma_t Aufwand_k,t x Menge_t) x Kostensatz_k
+#     Preis        = Selbstkosten x (1 + r) x (1 + m)          T&M: r = 0
+#
+# `k` ist eine Satzklasse, `t` ein Mengentreiber. Die Beteiligung je Rolle und Paket (D-355)
+# steht als Prozentwert am Paket und verteilt die Paketstunden auf die Satzklassen.
+
+_schema: preis_kanon/mandant/v1
+_werte: "keine — Platzhalter <...>; die Werte kommen aus $PREIS_KANON_MANDANTEN_DIR/nagarro.yaml"
+_gate: "tooling/superversion/tests/test_preis_kanon_mandant.py (N-4): kein Satz als Zahl in dieser Datei"
+
+mandanten:
+  nagarro:
+    name: <Anzeigename des Mandanten>
+    waehrung: <ISO-Waehrungscode>
+
+    # Rundungsschritt des Angebotspreises in der Waehrung oben.
+    rundung_eur: <rundungsschritt>
+
+    # Zielmarge m und Risikozuschlag r (ADR-0019 §2.2, beide in der Mandantendatei).
+    # `status`/`herkunft` sind Pflicht: eine Zahl ohne Methode ist `ANNAHME, ungeprueft`
+    # (Belegpflicht R1), und der Loader prueft das.
+    marge_m:
+      wert: <marge als Anteil, z. B. 0,xx>
+      status: <gemessen ... | ANNAHME, ungeprueft>
+      herkunft: <Quelle an der Nagarro-Ablage>
+    risikozuschlag_r:
+      festpreis: <r fuer Festpreis, als Anteil>
+      tm: <r fuer T&M, als Anteil>
+      status: <gemessen ... | ANNAHME, ungeprueft>
+      herkunft: <Quelle an der Nagarro-Ablage>
+
+    # Die Achsen, aus denen eine Satzklasse entsteht. Beide Listen sind Vokabular, keine
+    # Werte — der Schluessel einer Satzklasse ist `<rolle>_<standort>`.
+    rollen:
+      - <rollen-id>
+    standorte:
+      - "<standort-id, eines von onshore | nearshore | offshore>"
+
+    # Satzklasse k = Rolle x Standort. Der Kostensatz ist das Kostenband je Rolle und
+    # Standort; der Verkaufssatz entsteht daraus im Rechenkern als Kostensatz x (1 + m) und
+    # wird deshalb hier nicht gefuehrt.
+    satzklassen:
+      <rolle>_<standort>:
+        rolle: <rollen-id>
+        standort: <standort-id>
+        kostenband: <Bandbezeichnung an der Nagarro-Ablage>
+        kostensatz_eur_h: <satz>
+        status: <gemessen ... | ANNAHME, ungeprueft>
+        herkunft: <Quelle an der Nagarro-Ablage>
+
+    # Team-Kapazitaet statt Ein-Personen-Sequenz (ADR-0019 §2.5, Aufgabe N-5). Der Kalender
+    # liest die Verfuegbarkeit je Rolle; Pakete duerfen deshalb parallel laufen.
+    verfuegbarkeit:
+      <rollen-id>:
+        koepfe: <Anzahl besetzbarer Koepfe>
+        fakturierbare_stunden_je_tag: <stunden>
+        fakturierbare_tage_je_woche: <tage>
+        arbeitstage_je_woche: <tage>
+        arbeitswochen_je_jahr: <wochen>
+
+    # Pakete: dieselbe Form wie im Freelancing-Kanon, damit `paket()`, `stunden()`,
+    # `kalkulation()` und `lieferzeit_band()` aus dem Spiegel unveraendert greifen.
+    pakete:
+      <paket-id>:
+        name: <Paketname>
+        sales_code: <Sales-Code oder null>
+        dod_paket: <DoD-Paket-ID oder null>
+        tier: <0 | 1 | 2>
+        abrechnung: <festpreis | tm>
+
+        kalkulation:
+          status: <gemessen ... | ANNAHME, ungeprueft>
+          herkunft: <Quelle an der Nagarro-Ablage>
+          mengentreiber:
+            <treiber-id>:
+              menge_default: <menge>
+              einheit: <Einheit des Treibers>
+          # Beteiligung je Rolle als Prozentwert (D-355, ADR-0019 §2.2). Summe ueber alle
+          # Rollen eines Pakets: 100.
+          beteiligung:
+            <rollen-id>: <prozent>
+          # Aufgaben tragen die Stunden je Satzklasse: feste Stunden oder `stunden_je` x Menge
+          # eines Treibers. Genau die Form, die `stunden()` im Rechenkern liest.
+          aufgaben:
+            - name: <Aufgabe>
+              klasse: <rolle>_<standort>
+              stunden: <stunden>
+            - name: <mengenabhaengige Aufgabe>
+              klasse: <rolle>_<standort>
+              stunden_je: <stunden je Einheit>
+              treiber: <treiber-id>
+
+        # Festpreis nur bei `abrechnung: festpreis`; bei `tm` entfaellt der Block.
+        festpreis:
+          grund_eur: <grundbetrag>
+          je_einheit_eur:
+            <treiber-id>: <betrag je Einheit>
+
+        # Lieferzeit als Band in Arbeitstagen (D-355). Personentage im Angebot entstehen aus
+        # Band x Beteiligung und tragen diese Herkunft (ADR-0019 §4).
+        lieferzeit:
+          band_at: [<min>, <max>]
+          je_einheit_at:
+            <treiber-id>: <arbeitstage je Einheit>
+          status: <gemessen ... | ANNAHME, ungeprueft>

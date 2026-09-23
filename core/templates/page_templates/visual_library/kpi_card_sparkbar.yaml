@@ -60,10 +60,13 @@ preview_svg: |
   </svg>
 
 realizations:
+  # ADR-0021 (07.09.2026). Die Schwesterkarte kpi_card_spark hat seit heute eine native
+  # Spur ueber das `kpi`-Visual. Diese hier bekommt sie nicht, und der Grund ist messbar
+  # statt uebernommen.
   powerbi_native:
     applicable: false
-    reason: "the cardVisual has no embedded column-trend track — the value+trend+delta composite is a single SVG"
-    use: "powerbi_svg_dax (cardVisual callout.imageFX)"
+    reason: "die native Trendspur ist eine Linie und laesst sich nicht in Saeulen umschalten. Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1): `kpi.objects.trendline` fuehrt genau zwei Eigenschaften, `show` und `transparency` — keine Form, keine Marker, keine Wahl zwischen Linie und Saeule. `cardVisual` traegt ueberhaupt keine eingebettete Trendspur (33 Objekte, keines davon ein Diagramm). Eine native Spur zeichnete hier also die Linie, die `anti_patterns` dieses Idioms unter `line_when_periods_are_discrete` ausdruecklich verbietet: dann waere es kpi_card_spark. Die Saeulenform gibt es nativ nur als eigenstaendiges Visual — siehe Idiom `column_time`, dort `clusteredColumnChart` — nicht innerhalb einer Karte"
+    use: "powerbi_svg_dax (cardVisual callout.imageFX); die Saeulen allein nativ als `column_time`"
 
   powerbi_svg_dax:
     ext: dax

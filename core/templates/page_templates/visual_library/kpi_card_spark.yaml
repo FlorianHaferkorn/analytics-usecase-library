@@ -1,4 +1,30 @@
 # Visual Library entry — kpi_card_spark  (schema: _schema.yaml)
+#
+# Anatomie einer KPI-Karte — welcher Slot wo lebt (gilt fuer alle drei kpi_card_*).
+# Elf Slots stehen in der Vorlage, die diese Bibliothek nachbaut. Neun davon traegt ein
+# Werkzeug, zwei ausdruecklich nicht. Gemessen 07.09.2026 gegen
+# @microsoft/powerbi-core-visual-schema (Pin 0.1.1):
+#
+#   Slot            | traegt                        | wie
+#   ----------------|-------------------------------|--------------------------------------
+#   Title           | Visual-Rahmen (`visualContainer`) | Titel des Visuals, nicht der Karte
+#   Subtitle        | Visual-Rahmen                 | Untertitel des Visuals
+#   Label           | `cardVisual.label`            | `text`, `position`; im `kpi` kein Slot
+#   Period          | Seiten-Slicer                 | eine Pille fuer die ganze Seite
+#   Value           | `kpi.indicator` / `cardVisual.value` | Rang 1, groesstes Element
+#   Alert signal    | `kpi.status` (goodColor/badColor) | Farbe, NICHT zusaetzlich das Icon
+#   Comparison      | `kpi.goals.showDistance`      | Abstand zum Ziel, beschriftet
+#   Sparkline       | `kpi.TrendLine`               | Linie; Spalten kann `kpi` nicht
+#   Target          | `kpi.Goal` / `cardVisual.referenceLabel*` | Zahl, kein Bullet-Track
+#   Call to action  | KEIN Kartenslot               | eigenes Visual (Navigation)
+#   Refresh time    | KEIN Kartenslot               | Measure im Seitenrahmen
+#
+# Die beiden Ausschluesse sind Absicht und keine Luecke. Ein Handlungsaufruf ist ein
+# Navigations-Steuerelement; als Karteneigenschaft gebaut, waere er in jeder Karte einmal
+# vorhanden und in keiner klickbar an der richtigen Stelle. Und der Aktualisierungs-
+# zeitpunkt gilt fuer das Modell, nicht fuer die Kennzahl: sechs Karten auf einer Seite
+# wuerden sechsmal dieselbe Uhrzeit zeigen. `kpi.lastDate` kann ihn, wird hier aber nicht
+# gesetzt.
 id: kpi_card_spark
 name: KPI card · value + spark + delta
 version: "1.0.0"
@@ -24,6 +50,14 @@ params:
   delta_measure: {role: variance, required: true}
   date:          {role: axis, type: temporal, required: true}
   entity:        {role: table, default: _Measures}
+  # Nur die native Spur braucht ihn, und zwar zwingend: das `kpi`-Visual rechnet den
+  # Abstand SELBST aus `Goal`, statt eine fertige Abweichungs-Measure anzuzeigen. Damit
+  # ist `delta_measure` dort ueberfluessig und `target` unverzichtbar — dieselbe Karte,
+  # zwei Parametrierungen. Die SVG-Spur bleibt bei `delta_measure`.
+  # Der Platzhalter heisst `target_measure` wie bei kpi_card_bullet: `params` fuehrt die
+  # Rolle, `canonical_params` den Platzhalter, und zwei Schwesterkarten, die denselben
+  # Zielwert verschieden benennen, kosten beim naechsten Lesen mehr als sie sparen.
+  target:        {role: reference, required: false}
 
 tokens:
   col_ink:   text.primary            # #0F2430 value
@@ -35,6 +69,7 @@ canonical_params:
   entity: "_Measures"
   measure: "Net Sales Amount"
   delta_measure: "Net Sales % vs Plan"
+  target_measure: "Plan Sales Amount"
   date_entity: "dim_date"
   date_prop: "Date"
   field: "net_sales"
@@ -56,10 +91,63 @@ preview_svg: |
   </svg>
 
 realizations:
+  # ADR-0021 (07.09.2026). Bis heute stand hier `applicable: false` mit dem Grund, dem
+  # modernen `cardVisual` fehle die eingebettete Sparkline. Der Satz ist woertlich richtig
+  # und beantwortet die falsche Frage: geprueft wurde EIN Kartentyp, nicht die Plattform.
+  #
+  # Gemessen 07.09.2026 gegen @microsoft/powerbi-core-visual-schema (Pin 0.1.1):
+  #   cardVisual.objects  -> 33 Objekte, KEIN `sparklines`   (der alte Grund, bestaetigt)
+  #   kpi.dataRoles       -> Indicator (Wert), TrendLine ("Trend axis"), Goal (Ziel)
+  #   kpi.objects         -> trendline, indicator, goals, status, lastDate
+  # Das `kpi`-Visual traegt also Wert, Trend, Ziel, Abstand, Icon und Statusfarbe nativ.
   powerbi_native:
-    applicable: false
-    reason: "the modern cardVisual shows a value + reference-label delta, but has no embedded sparkline — the value+spark+delta composite is a single SVG"
-    use: "powerbi_svg_dax (cardVisual callout.imageFX); a native cardVisual can do value + delta reference label only"
+    ext: json
+    template: |
+      {
+        "visualType": "kpi",
+        "query": { "queryState": {
+          "Indicator": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{measure}}" } }, "queryRef": "{{entity}}.{{measure}}" } ] },
+          "TrendLine": { "projections": [ { "field": { "Column": { "Expression": { "SourceRef": { "Entity": "{{date_entity}}" } }, "Property": "{{date_prop}}" } }, "queryRef": "{{date_entity}}.{{date_prop}}" } ] },
+          "Goal": { "projections": [ { "field": { "Measure": { "Expression": { "SourceRef": { "Entity": "{{entity}}" } }, "Property": "{{target_measure}}" } }, "queryRef": "{{entity}}.{{target_measure}}" } ] }
+        } },
+        "objects": {
+          "trendline": [ { "properties": { "show": { "expr": { "Literal": { "Value": "true" } } } } } ],
+          "goals": [ { "properties": {
+            "showGoal": { "expr": { "Literal": { "Value": "true" } } },
+            "showDistance": { "expr": { "Literal": { "Value": "true" } } },
+            "distanceLabel": { "expr": { "Literal": { "Value": "'Percent'" } } },
+            "direction": { "expr": { "Literal": { "Value": "'High is good'" } } }
+          } } ],
+          "status": [ { "properties": {
+            "direction": { "expr": { "Literal": { "Value": "'Positive'" } } },
+            "goodColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_pos}}'" } } } } },
+            "badColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_neg}}'" } } } } }
+          } } ],
+          "indicator": [ { "properties": {
+            "showIcon": { "expr": { "Literal": { "Value": "false" } } },
+            "fontColor": { "solid": { "color": { "expr": { "Literal": { "Value": "'{{col_ink}}'" } } } } }
+          } } ]
+        }
+      }
+    notes: |
+      `Goal` statt `delta_measure`: das Visual rechnet den Abstand selbst und beschriftet ihn
+      ueber `goals.distanceLabel`. Eine fertige Abweichungs-Measure hineinzureichen hiesse,
+      dieselbe Zahl zweimal zu fuehren — und die zweite waere die, die niemand prueft.
+
+      `goals.direction: 'High is good'` und `status.direction: 'Positive'` sind fuer den
+      kanonischen Fall (Net Sales) richtig und muessen bei einer Kennzahl kippen, bei der
+      klein gut ist (DSO, Ausschuss). Beide Werte stehen im Katalog als Aufzaehlung, sind
+      also pruefbar falsch statt still falsch.
+
+      `indicator.showIcon: false` ist Absicht. Der Katalog traegt das Icon, und es waere das
+      Alarmzeichen aus der Anatomie — aber ein Icon neben der Zahl konkurriert mit der
+      Statusfarbe um dieselbe Aussage. Wer beides setzt, sagt zweimal dasselbe und einmal
+      davon falsch, sobald die Schwellen auseinanderlaufen.
+
+      Was `kpi` NICHT kann und was diese Karte deshalb nicht nativ ausdrueckt: Titel und
+      Untertitel als eigene Slots (`kpi.objects` fuehrt nur `general`), die Periodenpille und
+      den Handlungsaufruf. Titel traegt der Visual-Rahmen, die Periode ein Slicer, der
+      Handlungsaufruf ein eigenes Visual — siehe die Anatomie-Notiz unten.
 
   powerbi_svg_dax:
     ext: dax

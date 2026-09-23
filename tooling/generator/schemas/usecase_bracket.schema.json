@@ -264,6 +264,7 @@
                   "description": "Abstract visual type from Abstract_Visual_Types.md. Connectors translate to tool-native component.",
                   "enum": [
                     "bullet_graph",
+                    "kpi_card_native",
                     "kpi_card_with_delta"
                   ]
                 },
@@ -335,6 +336,7 @@
                       "horizontal_bar_categorical",
                       "horizontal_bar_chart",
                       "impact_effort_scatter",
+                      "kpi_card_native",
                       "kpi_card_with_delta",
                       "line_chart",
                       "matrix",
@@ -344,6 +346,7 @@
                       "stacked_bar_100",
                       "stacked_column_100",
                       "table",
+                      "table_with_trend",
                       "variance_bar",
                       "waterfall_chart"
                     ]
